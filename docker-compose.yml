@@ -1,0 +1,105 @@
+# NAS-OS Docker Compose
+# ⚠️ 注意：生产环境建议直接安装在宿主机（需要磁盘设备访问）
+# 此配置适用于开发测试或受限场景
+
+services:
+  nas-os:
+    image: nas-os:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nas-os
+    restart: unless-stopped
+    
+    # ⚠️ 特权模式（访问磁盘设备）
+    # 生产环境建议使用 --device 精确授权
+    privileged: true
+    
+    # 网络模式：host 以获得最佳性能
+    # 或使用 bridge + 端口映射
+    network_mode: host
+    
+    # 卷挂载
+    volumes:
+      # 配置文件
+      - ./configs:/etc/nas-os:ro
+      - nas-os-data:/var/lib/nas-os
+      
+      # 存储池（根据实际磁盘挂载点调整）
+      # - /mnt/disk1:/mnt/disk1
+      # - /mnt/disk2:/mnt/disk2
+      
+      # 日志
+      - ./logs:/var/log/nas-os
+    
+    # 环境变量
+    environment:
+      - NAS_OS_CONFIG=/etc/nas-os/config.yaml
+      - NAS_OS_DATA_ROOT=/var/lib/nas-os
+    
+    # 设备访问（非特权模式下使用）
+    # devices:
+    #   - /dev/sda:/dev/sda
+    #   - /dev/sdb:/dev/sdb
+    
+    # 资源限制（可选）
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '2.0'
+    #       memory: 2G
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 512M
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ========== 可选：配套服务 ==========
+  
+  # Watchtower 自动更新
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: watchtower
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command: --interval 86400 --cleanup nas-os
+  
+  # Prometheus 监控（可选）
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: nas-prometheus
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   ports:
+  #     - "9090:9090"
+  
+  # Grafana 可视化（可选）
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: nas-grafana
+  #   restart: unless-stopped
+  #   volumes:
+  #     - grafana-data:/var/lib/grafana
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin123
+
+volumes:
+  nas-os-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/nas-os
+  
+  # prometheus-data:
+  # grafana-data:
