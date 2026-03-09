@@ -1,0 +1,35 @@
+# NAS-OS 默认配置
+
+server:
+  port: 8080
+  host: 0.0.0.0
+
+storage:
+  mount_base: /mnt
+  default_profile: single
+  auto_scrub: true
+  scrub_schedule: "0 2 * * 0"  # 每周日凌晨 2 点
+
+smb:
+  enabled: true
+  workgroup: WORKGROUP
+  guest_access: false
+
+nfs:
+  enabled: true
+  allowed_networks:
+    - 192.168.1.0/24
+
+users:
+  admin:
+    password_hash: ""  # 首次启动时设置
+    role: admin
+
+monitor:
+  disk_check_interval: 60  # 秒
+  space_warning_threshold: 80  # %
+  space_critical_threshold: 95  # %
+
+docker:
+  enabled: false
+  data_root: /mnt/docker
