@@ -1,0 +1,64 @@
+# NAS-OS 告警规则
+
+groups:
+  - name: nas-os-alerts
+    rules:
+      # 磁盘空间警告
+      - alert: DiskSpaceWarning
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "磁盘空间不足 20%"
+          description: "{{ $labels.mountpoint }} 剩余空间低于 20%"
+      
+      # 磁盘空间严重
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "磁盘空间严重不足"
+          description: "{{ $labels.mountpoint }} 剩余空间低于 5%"
+      
+      # 服务宕机
+      - alert: NasOsDown
+        expr: up{job="nas-os"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "NAS-OS 服务宕机"
+          description: "NAS-OS 服务已停止响应超过 1 分钟"
+      
+      # CPU 过高
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU 使用率过高"
+          description: "CPU 使用率超过 80% 持续 10 分钟"
+      
+      # 内存过高
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "内存使用率过高"
+          description: "内存使用率超过 85%"
+      
+      # btrfs 设备错误
+      - alert: BtrfsDeviceErrors
+        expr: rate(node_btrfs_device_stats_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "btrfs 设备错误"
+          description: "检测到 btrfs 设备错误：{{ $labels.device }}"
