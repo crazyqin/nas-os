@@ -1,0 +1,33 @@
+# Prometheus 监控配置
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+scrape_configs:
+  # NAS-OS 指标
+  - job_name: 'nas-os'
+    static_configs:
+      - targets: ['localhost:8080']
+    metrics_path: /metrics
+    scrape_interval: 15s
+  
+  # 系统指标 (node_exporter)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+  
+  # Docker 指标 (可选)
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['localhost:9323']
+
+# 告警规则
+rule_files:
+  - 'alerts.yml'
+
+# 告警管理器
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093

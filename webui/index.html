@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAS-OS 管理界面</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #1a73e8; color: white; padding: 1rem 2rem; }
+        .header h1 { font-size: 1.5rem; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card h2 { margin-bottom: 1rem; color: #333; }
+        .btn { background: #1a73e8; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+        .btn:hover { background: #1557b0; }
+        .btn-danger { background: #dc3545; }
+        .btn-danger:hover { background: #c82333; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; }
+        .status { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; }
+        .status-ok { background: #d4edda; color: #155724; }
+        .status-warn { background: #fff3cd; color: #856404; }
+        .progress { background: #e9ecef; border-radius: 4px; height: 8px; overflow: hidden; }
+        .progress-bar { background: #1a73e8; height: 100%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🖥️ NAS-OS 管理界面</h1>
+    </div>
+    
+    <div class="container">
+        <!-- 系统概览 -->
+        <div class="card">
+            <h2>📊 系统概览</h2>
+            <div id="system-info">加载中...</div>
+        </div>
+
+        <!-- 存储卷管理 -->
+        <div class="card">
+            <h2>💾 存储卷管理</h2>
+            <button class="btn" onclick="showCreateVolume()">+ 创建卷</button>
+            <table style="margin-top: 1rem;">
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>设备</th>
+                        <th>配置</th>
+                        <th>使用率</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="volumes-list">
+                    <tr><td colspan="5">暂无卷</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 快捷操作 -->
+        <div class="card">
+            <h2>⚡ 快捷操作</h2>
+            <button class="btn" onclick="runScrub()">🔍 数据校验</button>
+            <button class="btn" onclick="runBalance()">⚖️ 平衡数据</button>
+            <button class="btn" onclick="createSnapshot()">📸 创建快照</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+
+        // 加载系统信息
+        async function loadSystemInfo() {
+            try {
+                const res = await fetch(`${API_BASE}/system/info`);
+                const data = await res.json();
+                document.getElementById('system-info').innerHTML = `
+                    <p>主机名：<strong>${data.data.hostname}</strong></p>
+                    <p>版本：<strong>${data.data.version}</strong></p>
+                    <p>状态：<span class="status status-ok">运行中</span></p>
+                `;
+            } catch (e) {
+                document.getElementById('system-info').innerHTML = '<p style="color:red">加载失败</p>';
+            }
+        }
+
+        // 加载卷列表
+        async function loadVolumes() {
+            try {
+                const res = await fetch(`${API_BASE}/volumes`);
+                const data = await res.json();
+                const tbody = document.getElementById('volumes-list');
+                
+                if (data.data && data.data.length > 0) {
+                    tbody.innerHTML = data.data.map(vol => `
+                        <tr>
+                            <td>${vol.Name}</td>
+                            <td>${vol.Device}</td>
+                            <td>${vol.Profile || 'single'}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: ${vol.Usage || 0}%"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn" onclick="viewVolume('${vol.Name}')">查看</button>
+                                <button class="btn btn-danger" onclick="deleteVolume('${vol.Name}')">删除</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5">暂无卷</td></tr>';
+                }
+            } catch (e) {
+                console.error('加载卷列表失败:', e);
+            }
+        }
+
+        function showCreateVolume() {
+            const name = prompt('卷名称:');
+            if (!name) return;
+            const devices = prompt('设备路径（逗号分隔，如：/dev/sda,/dev/sdb）:');
+            if (!devices) return;
+            const profile = prompt('RAID 配置（single/raid0/raid1/raid10，留空为 single）:') || 'single';
+            
+            fetch(`${API_BASE}/volumes`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, devices: devices.split(','), profile})
+            }).then(r => r.json()).then(data => {
+                alert(data.message);
+                loadVolumes();
+            });
+        }
+
+        function viewVolume(name) {
+            alert('查看卷详情功能开发中...');
+        }
+
+        function deleteVolume(name) {
+            if (confirm(`确定要删除卷 "${name}" 吗？此操作不可逆！`)) {
+                alert('删除功能开发中...');
+            }
+        }
+
+        function runScrub() {
+            const name = prompt('要校验的卷名称:');
+            if (!name) return;
+            fetch(`${API_BASE}/volumes/${name}/scrub`, {method: 'POST'})
+                .then(r => r.json())
+                .then(data => alert(data.message || data.error));
+        }
+
+        function runBalance() {
+            const name = prompt('要平衡的卷名称:');
+            if (!name) return;
+            fetch(`${API_BASE}/volumes/${name}/balance`, {method: 'POST'})
+                .then(r => r.json())
+                .then(data => alert(data.message || data.error));
+        }
+
+        function createSnapshot() {
+            const volName = prompt('卷名称:');
+            const subvolName = prompt('子卷名称:');
+            const snapName = prompt('快照名称:');
+            if (!volName || !subvolName || !snapName) return;
+            
+            fetch(`${API_BASE}/volumes/${volName}/snapshots`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({subvolume: subvolName, name: snapName, readonly: false})
+            }).then(r => r.json()).then(data => alert(data.message));
+        }
+
+        // 初始化
+        loadSystemInfo();
+        loadVolumes();
+        // 每 30 秒刷新
+        setInterval(loadVolumes, 30000);
+    </script>
+</body>
+</html>
