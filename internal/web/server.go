@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"nas-os/internal/nfs"
+	"nas-os/internal/shares"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/users"
@@ -103,16 +104,13 @@ func (s *Server) setupRoutes() {
 		api.POST("/volumes/:name/scrub", s.startScrub)
 		api.GET("/volumes/:name/scrub", s.getScrubStatus)
 
-		// 用户管理
+		// ========== 用户管理 ==========
 		users.NewHandlers(s.userMgr).RegisterRoutes(api)
 
-		// SMB 共享
-		smb.NewHandlers(s.smbMgr).RegisterRoutes(api)
+		// ========== 共享管理（SMB + NFS）==========
+		shares.NewHandlers(s.smbMgr, s.nfsMgr).RegisterRoutes(api)
 
-		// NFS 共享
-		nfs.NewHandlers(s.nfsMgr).RegisterRoutes(api)
-
-		// 系统信息
+		// ========== 系统信息 ==========
 		api.GET("/system/info", s.getSystemInfo)
 		api.GET("/system/health", s.getHealth)
 	}

@@ -1,12 +1,20 @@
 package nfs
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 )
+
+// persistentConfig 持久化配置结构
+type persistentConfig struct {
+	Config  *Config           `json:"config"`
+	Exports map[string]*Export `json:"exports"`
+}
 
 // Export NFS 导出配置
 type Export struct {
@@ -60,7 +68,81 @@ func NewManager(configPath string) (*Manager, error) {
 		config:     defaultConfig,
 		configPath: configPath,
 	}
+	
+	// 加载现有配置（如果有）
+	if err := m.loadConfig(); err != nil {
+		return nil, err
+	}
+	
 	return m, nil
+}
+
+// loadConfig 从文件加载配置
+func (m *Manager) loadConfig() error {
+	// 检查配置文件是否存在
+	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
+		// 配置文件不存在，使用默认配置
+		return nil
+	}
+
+	data, err := os.ReadFile(m.configPath)
+	if err != nil {
+		return fmt.Errorf("读取配置文件失败：%w", err)
+	}
+
+	var pc persistentConfig
+	if err := json.Unmarshal(data, &pc); err != nil {
+		return fmt.Errorf("解析配置文件失败：%w", err)
+	}
+
+	if pc.Config != nil {
+		m.config = pc.Config
+	}
+	if pc.Exports != nil {
+		m.exports = pc.Exports
+	}
+
+	return nil
+}
+
+// saveConfig 保存配置到文件（线程安全）
+func (m *Manager) saveConfig() error {
+	m.mu.RLock()
+	pc := persistentConfig{
+		Config:  m.config,
+		Exports: m.exports,
+	}
+	m.mu.RUnlock()
+
+	return writeConfigFile(m.configPath, pc)
+}
+
+// saveConfigLocked 保存配置（调用者已持有锁）
+func (m *Manager) saveConfigLocked() error {
+	pc := persistentConfig{
+		Config:  m.config,
+		Exports: m.exports,
+	}
+	return writeConfigFile(m.configPath, pc)
+}
+
+// writeConfigFile 写入配置文件
+func writeConfigFile(configPath string, pc persistentConfig) error {
+	data, err := json.MarshalIndent(pc, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化配置失败：%w", err)
+	}
+
+	// 确保目录存在
+	if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {
+		return fmt.Errorf("创建配置目录失败：%w", err)
+	}
+
+	if err := os.WriteFile(configPath, data, 0644); err != nil {
+		return fmt.Errorf("写入配置文件失败：%w", err)
+	}
+
+	return nil
 }
 
 // generateExports 生成 /etc/exports 内容
@@ -145,6 +227,13 @@ func (m *Manager) CreateExport(input ExportInput) (*Export, error) {
 	}
 
 	m.exports[input.Name] = exp
+	
+	// 保存配置
+	if err := m.saveConfigLocked(); err != nil {
+		delete(m.exports, input.Name)
+		return nil, fmt.Errorf("保存配置失败：%w", err)
+	}
+	
 	return exp, nil
 }
 
@@ -187,6 +276,11 @@ func (m *Manager) UpdateExport(name string, input ExportInput) (*Export, error) 
 	exp.AllowedNetworks = input.AllowedNetworks
 	exp.AllowedHosts = input.AllowedHosts
 
+	// 保存配置
+	if err := m.saveConfigLocked(); err != nil {
+		return nil, fmt.Errorf("保存配置失败：%w", err)
+	}
+
 	return exp, nil
 }
 
@@ -200,6 +294,12 @@ func (m *Manager) DeleteExport(name string) error {
 	}
 
 	delete(m.exports, name)
+	
+	// 保存配置
+	if err := m.saveConfigLocked(); err != nil {
+		return fmt.Errorf("保存配置失败：%w", err)
+	}
+	
 	return nil
 }
 
