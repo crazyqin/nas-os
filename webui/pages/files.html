@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件共享 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .files-container { max-width: 1400px; margin: 0 auto; }
+        .files-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 1.5rem;
+        }
+        .sidebar-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        .nav-tree {
+            list-style: none;
+        }
+        .nav-tree li {
+            margin-bottom: 0.25rem;
+        }
+        .nav-tree a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            color: #4B5563;
+            border-radius: 8px;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .nav-tree a:hover, .nav-tree a.active {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+        .nav-tree a svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 1.25rem;
+        }
+        .nav-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            padding-left: 0.75rem;
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 14px;
+        }
+        .breadcrumb a {
+            color: #2563EB;
+        }
+        .breadcrumb-separator {
+            color: #9CA3AF;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            background: white;
+            border-radius: 8px;
+        }
+        .toolbar-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+        .file-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .file-item:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .file-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F3F4F6;
+            border-radius: 12px;
+        }
+        .file-icon svg {
+            width: 36px;
+            height: 36px;
+        }
+        .file-icon.folder { background: #FEF3C7; }
+        .file-icon.folder svg { color: #F59E0B; }
+        .file-icon.image { background: #DBEAFE; }
+        .file-icon.image svg { color: #2563EB; }
+        .file-icon.document { background: #D1FAE5; }
+        .file-icon.document svg { color: #10B981; }
+        .file-icon.video { background: #FEE2E2; }
+        .file-icon.video svg { color: #EF4444; }
+        .file-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .file-meta {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+        .file-list-view {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .share-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .share-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .share-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .share-icon {
+            width: 40px;
+            height: 40px;
+            background: #DBEAFE;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .share-icon svg {
+            width: 22px;
+            height: 22px;
+            color: #2563EB;
+        }
+        .share-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1F2937;
+        }
+        .share-path {
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .share-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.75rem;
+        }
+        .share-stat {
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .share-stat strong {
+            color: #374151;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .files-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="#" class="active">文件共享</a>
+                <a href="users.html">用户管理</a>
+                <a href="monitor.html">系统监控</a>
+                <a href="settings.html">设置</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container files-container">
+            <div style="margin-bottom: 1.5rem;">
+                <h1>📁 文件共享</h1>
+                <p class="text-muted">管理 SMB/NFS 共享和文件浏览</p>
+            </div>
+
+            <div class="files-layout">
+                <!-- Sidebar -->
+                <aside class="sidebar-panel">
+                    <div class="nav-section">
+                        <div class="nav-section-title">快速访问</div>
+                        <ul class="nav-tree">
+                            <li><a class="active" onclick="navigateTo('/home')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 012 2v4a1 1 0 001 1m-6 0h6"/></svg> 主页</a></li>
+                            <li><a onclick="navigateTo('/documents')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg> 文档</a></li>
+                            <li><a onclick="navigateTo('/photos')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> 图片</a></li>
+                            <li><a onclick="navigateTo('/videos')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> 视频</a></li>
+                            <li><a onclick="navigateTo('/downloads')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg> 下载</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">共享文件夹</div>
+                        <ul class="nav-tree">
+                            <li><a onclick="navigateTo('/shares/public')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg> 公共</a></li>
+                            <li><a onclick="navigateTo('/shares/media')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M13 4v16M19 4v16M3 4h18M3 8h18M3 12h18M3 16h18"/></svg> 媒体库</a></li>
+                            <li><a onclick="navigateTo('/shares/backup')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg> 备份</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-title">存储</div>
+                        <ul class="nav-tree">
+                            <li><a onclick="navigateTo('/volumes/data')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg> data 卷</a></li>
+                            <li><a onclick="navigateTo('/volumes/backup')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg> backup 卷</a></li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <div class="files-main">
+                    <!-- Breadcrumb -->
+                    <div class="breadcrumb">
+                        <a href="#" onclick="navigateTo('/')">📁 根目录</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <a href="#" onclick="navigateTo('/home')">🏠 主页</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span>📄 文档</span>
+                    </div>
+
+                    <!-- Toolbar -->
+                    <div class="toolbar">
+                        <div class="toolbar-actions">
+                            <button class="btn btn-primary" onclick="showUploadModal()">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                上传
+                            </button>
+                            <button class="btn btn-secondary" onclick="showNewFolderModal()">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                新建文件夹
+                            </button>
+                            <button class="btn btn-secondary" onclick="toggleView()">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                                列表
+                            </button>
+                        </div>
+                        <div>
+                            <input type="text" class="form-input" placeholder="搜索文件..." style="width: 250px;" onkeyup="searchFiles(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Files Grid -->
+                    <div class="file-grid" id="files-container">
+                        <!-- Folder Items -->
+                        <div class="file-item" ondblclick="navigateTo('/home/documents')">
+                            <div class="file-icon folder">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                            </div>
+                            <div class="file-name">工作文档</div>
+                            <div class="file-meta">12 个项目</div>
+                        </div>
+
+                        <div class="file-item" ondblclick="navigateTo('/home/photos')">
+                            <div class="file-icon folder">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                            </div>
+                            <div class="file-name">照片</div>
+                            <div class="file-meta">256 张</div>
+                        </div>
+
+                        <div class="file-item" ondblclick="navigateTo('/home/videos')">
+                            <div class="file-icon folder">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                            </div>
+                            <div class="file-name">视频</div>
+                            <div class="file-meta">48 个</div>
+                        </div>
+
+                        <!-- File Items -->
+                        <div class="file-item">
+                            <div class="file-icon document">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <div class="file-name">项目计划.pdf</div>
+                            <div class="file-meta">2.4 MB</div>
+                        </div>
+
+                        <div class="file-item">
+                            <div class="file-icon document">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <div class="file-name">财务报表.xlsx</div>
+                            <div class="file-meta">1.8 MB</div>
+                        </div>
+
+                        <div class="file-item">
+                            <div class="file-icon image">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div class="file-name">封面图.png</div>
+                            <div class="file-meta">3.2 MB</div>
+                        </div>
+
+                        <div class="file-item">
+                            <div class="file-icon video">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div class="file-name">演示视频.mp4</div>
+                            <div class="file-meta">128 MB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shares Section -->
+            <div style="margin-top: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="font-size: 18px;">🔗 网络共享</h2>
+                    <button class="btn btn-primary" onclick="showAddShareModal()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        新建共享
+                    </button>
+                </div>
+                
+                <div class="share-card">
+                    <div class="share-header">
+                        <div class="share-info">
+                            <div class="share-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                            </div>
+                            <div>
+                                <div class="share-name">public</div>
+                                <div class="share-path">/volumes/data/public</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="badge badge-success">● 运行中</span>
+                        </div>
+                    </div>
+                    <div class="share-stats">
+                        <div class="share-stat">协议：<strong>SMB / NFS</strong></div>
+                        <div class="share-stat">访问：<strong>所有人 (只读)</strong></div>
+                        <div class="share-stat">大小：<strong>45.2 GB</strong></div>
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <button class="btn btn-sm btn-secondary" onclick="editShare('public')">✏️ 编辑</button>
+                        <button class="btn btn-sm btn-secondary" onclick="copyShareLink('public')">🔗 复制链接</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteShare('public')">🗑️ 删除</button>
+                    </div>
+                </div>
+
+                <div class="share-card">
+                    <div class="share-header">
+                        <div class="share-info">
+                            <div class="share-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                            </div>
+                            <div>
+                                <div class="share-name">media</div>
+                                <div class="share-path">/volumes/data/media</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="badge badge-success">● 运行中</span>
+                        </div>
+                    </div>
+                    <div class="share-stats">
+                        <div class="share-stat">协议：<strong>SMB / AFP</strong></div>
+                        <div class="share-stat">访问：<strong>认证用户</strong></div>
+                        <div class="share-stat">大小：<strong>312.8 GB</strong></div>
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                        <button class="btn btn-sm btn-secondary" onclick="editShare('media')">✏️ 编辑</button>
+                        <button class="btn btn-sm btn-secondary" onclick="copyShareLink('media')">🔗 复制链接</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteShare('media')">🗑️ 删除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Upload Modal -->
+    <div class="modal-overlay" id="upload-modal">
+        <div class="modal">
+            <h3 class="modal-title">📤 上传文件</h3>
+            <div class="form-group">
+                <label class="form-label">选择文件</label>
+                <input type="file" class="form-input" multiple>
+                <div class="form-hint">支持拖拽上传，最大单文件 10GB</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('upload-modal')">取消</button>
+                <button class="btn btn-primary" onclick="uploadFiles()">开始上传</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Folder Modal -->
+    <div class="modal-overlay" id="folder-modal">
+        <div class="modal">
+            <h3 class="modal-title">📁 新建文件夹</h3>
+            <div class="form-group">
+                <label class="form-label">文件夹名称</label>
+                <input type="text" class="form-input" id="folder-name" placeholder="输入文件夹名称">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('folder-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createFolder()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Share Modal -->
+    <div class="modal-overlay" id="add-share-modal">
+        <div class="modal" style="max-width: 600px;">
+            <h3 class="modal-title">🔗 新建网络共享</h3>
+            
+            <div class="form-group">
+                <label class="form-label">共享名称 *</label>
+                <input type="text" class="form-input" id="share-name" placeholder="例如：public, media, backup">
+                <div class="form-hint">仅支持字母、数字和下划线</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">路径 *</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" class="form-input" id="share-path" placeholder="/volumes/data/..." style="flex: 1;">
+                    <button class="btn btn-secondary" onclick="browsePath()">📁 浏览</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">描述</label>
+                <input type="text" class="form-input" id="share-description" placeholder="共享文件夹描述">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">共享协议</label>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="proto-smb" checked>
+                        <span>SMB/CIFS</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="proto-nfs" checked>
+                        <span>NFS</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="proto-afp">
+                        <span>AFP (Mac)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="proto-ftp">
+                        <span>FTP</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">访问权限</label>
+                <select class="form-select" id="share-access">
+                    <option value="public">所有人 (只读)</option>
+                    <option value="public-rw">所有人 (读写)</option>
+                    <option value="authenticated">认证用户</option>
+                    <option value="restricted">指定用户/组</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="share-users-group" style="display: none;">
+                <label class="form-label">允许访问的用户/组</label>
+                <div style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.75rem; max-height: 150px; overflow-y: auto;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                        <input type="checkbox" class="share-user-checkbox" value="admin"> 管理员 (admin)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                        <input type="checkbox" class="share-user-checkbox" value="zhangsan"> 张三
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                        <input type="checkbox" class="share-user-checkbox" value="lisi"> 李四
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                        <input type="checkbox" class="share-user-checkbox" value="administrators"> 📁 administrators 组
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                        <input type="checkbox" class="share-user-checkbox" value="users"> 📁 users 组
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">高级选项</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="opt-browseable" checked>
+                        <span>可浏览</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="opt-guest" checked>
+                        <span>允许访客</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="opt-recycle">
+                        <span>回收站</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="opt-audit">
+                        <span>审计日志</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">NFS 选项</label>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <input type="text" class="form-input" id="nfs-networks" placeholder="允许的网络，例如：192.168.1.0/24" style="flex: 1;">
+                    <select class="form-select" id="nfs-access">
+                        <option value="ro">只读 (ro)</option>
+                        <option value="rw" selected>读写 (rw)</option>
+                        <option value="ro-sync">只读 + 同步</option>
+                        <option value="rw-sync">读写 + 同步</option>
+                    </select>
+                </div>
+                <div class="form-hint">留空表示允许所有网络</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('add-share-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createShare()">创建共享</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Share Modal -->
+    <div class="modal-overlay" id="edit-share-modal">
+        <div class="modal" style="max-width: 600px;">
+            <h3 class="modal-title">✏️ 编辑共享配置</h3>
+            
+            <div class="form-group">
+                <label class="form-label">共享名称</label>
+                <input type="text" class="form-input" id="edit-share-name" disabled>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">路径</label>
+                <input type="text" class="form-input" id="edit-share-path" disabled>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">描述</label>
+                <input type="text" class="form-input" id="edit-share-description">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">共享协议</label>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="edit-proto-smb">
+                        <span>SMB/CIFS</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="edit-proto-nfs">
+                        <span>NFS</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="edit-proto-afp">
+                        <span>AFP (Mac)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="edit-proto-ftp">
+                        <span>FTP</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">访问权限</label>
+                <select class="form-select" id="edit-share-access">
+                    <option value="public">所有人 (只读)</option>
+                    <option value="public-rw">所有人 (读写)</option>
+                    <option value="authenticated">认证用户</option>
+                    <option value="restricted">指定用户/组</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">高级选项</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="edit-opt-browseable">
+                        <span>可浏览</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="edit-opt-guest">
+                        <span>允许访客</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="edit-opt-recycle">
+                        <span>回收站</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="edit-opt-audit">
+                        <span>审计日志</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('edit-share-modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveShare()">保存更改</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let currentPath = '/home';
+
+        function navigateTo(path) {
+            currentPath = path;
+            updateBreadcrumb();
+            loadFiles(path);
+        }
+
+        function updateBreadcrumb() {
+            // 更新面包屑导航
+            const parts = currentPath.split('/').filter(p => p);
+            let html = '<a href="#" onclick="navigateTo(\'/\')">📁 根目录</a>';
+            let path = '';
+            parts.forEach(part => {
+                path += '/' + part;
+                html += `<span class="breadcrumb-separator">/</span><a href="#" onclick="navigateTo('${path}')">${part}</a>`;
+            });
+            document.querySelector('.breadcrumb').innerHTML = html;
+        }
+
+        function loadFiles(path) {
+            console.log('加载路径:', path);
+            // 实际实现会调用 API 获取文件列表
+        }
+
+        function searchFiles(query) {
+            console.log('搜索:', query);
+        }
+
+        function toggleView() {
+            const container = document.getElementById('files-container');
+            // 切换网格/列表视图
+            alert('切换视图功能 - 演示模式');
+        }
+
+        function showUploadModal() {
+            document.getElementById('upload-modal').classList.add('active');
+        }
+
+        function showNewFolderModal() {
+            document.getElementById('folder-modal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function uploadFiles() {
+            alert('文件上传功能 - 演示模式');
+            closeModal('upload-modal');
+        }
+
+        function createFolder() {
+            const name = document.getElementById('folder-name').value;
+            if (!name) {
+                alert('请输入文件夹名称');
+                return;
+            }
+            alert(`创建文件夹：${name} - 演示模式`);
+            closeModal('folder-modal');
+        }
+
+        function editShare(name) {
+            alert(`编辑共享：${name} - 演示模式`);
+        }
+
+        function copyShareLink(name) {
+            const link = `smb://nas-server/${name}`;
+            navigator.clipboard?.writeText(link);
+            alert(`已复制：${link}`);
+        }
+
+        function deleteShare(name) {
+            if (confirm(`确定要删除共享 "${name}" 吗？`)) {
+                alert(`删除共享：${name} - 演示模式`);
+            }
+        }
+
+        function showAddShareModal() {
+            document.getElementById('add-share-modal').classList.add('active');
+            // 重置表单
+            document.getElementById('share-name').value = '';
+            document.getElementById('share-path').value = '';
+            document.getElementById('share-description').value = '';
+            document.getElementById('proto-smb').checked = true;
+            document.getElementById('proto-nfs').checked = true;
+            document.getElementById('proto-afp').checked = false;
+            document.getElementById('proto-ftp').checked = false;
+            document.getElementById('share-access').value = 'public';
+            document.getElementById('share-users-group').style.display = 'none';
+            document.getElementById('opt-browseable').checked = true;
+            document.getElementById('opt-guest').checked = true;
+            document.getElementById('opt-recycle').checked = false;
+            document.getElementById('opt-audit').checked = false;
+            document.getElementById('nfs-networks').value = '';
+            document.getElementById('nfs-access').value = 'rw';
+        }
+
+        function createShare() {
+            const name = document.getElementById('share-name').value;
+            const path = document.getElementById('share-path').value;
+            const description = document.getElementById('share-description').value;
+            const access = document.getElementById('share-access').value;
+
+            if (!name || !path) {
+                alert('请填写共享名称和路径');
+                return;
+            }
+
+            const protocols = [];
+            if (document.getElementById('proto-smb').checked) protocols.push('SMB');
+            if (document.getElementById('proto-nfs').checked) protocols.push('NFS');
+            if (document.getElementById('proto-afp').checked) protocols.push('AFP');
+            if (document.getElementById('proto-ftp').checked) protocols.push('FTP');
+
+            const options = {
+                browseable: document.getElementById('opt-browseable').checked,
+                guest: document.getElementById('opt-guest').checked,
+                recycle: document.getElementById('opt-recycle').checked,
+                audit: document.getElementById('opt-audit').checked
+            };
+
+            const nfsOptions = {
+                networks: document.getElementById('nfs-networks').value,
+                access: document.getElementById('nfs-access').value
+            };
+
+            console.log('创建共享:', { name, path, description, protocols, access, options, nfsOptions });
+            alert(`创建共享：${name}\n路径：${path}\n协议：${protocols.join(', ')}\n访问：${access}\n\n演示模式`);
+            closeModal('add-share-modal');
+        }
+
+        function editShare(name) {
+            // 填充编辑模态框
+            document.getElementById('edit-share-name').value = name;
+            document.getElementById('edit-share-path').value = `/volumes/data/${name}`;
+            document.getElementById('edit-share-description').value = '';
+            
+            // 默认勾选 SMB 和 NFS
+            document.getElementById('edit-proto-smb').checked = true;
+            document.getElementById('edit-proto-nfs').checked = true;
+            document.getElementById('edit-proto-afp').checked = false;
+            document.getElementById('edit-proto-ftp').checked = false;
+            
+            document.getElementById('edit-share-access').value = 'authenticated';
+            document.getElementById('edit-opt-browseable').checked = true;
+            document.getElementById('edit-opt-guest').checked = false;
+            document.getElementById('edit-opt-recycle').checked = false;
+            document.getElementById('edit-opt-audit').checked = false;
+            
+            document.getElementById('edit-share-modal').classList.add('active');
+        }
+
+        function saveShare() {
+            const name = document.getElementById('edit-share-name').value;
+            const description = document.getElementById('edit-share-description').value;
+            const access = document.getElementById('edit-share-access').value;
+
+            const protocols = [];
+            if (document.getElementById('edit-proto-smb').checked) protocols.push('SMB');
+            if (document.getElementById('edit-proto-nfs').checked) protocols.push('NFS');
+            if (document.getElementById('edit-proto-afp').checked) protocols.push('AFP');
+            if (document.getElementById('edit-proto-ftp').checked) protocols.push('FTP');
+
+            const options = {
+                browseable: document.getElementById('edit-opt-browseable').checked,
+                guest: document.getElementById('edit-opt-guest').checked,
+                recycle: document.getElementById('edit-opt-recycle').checked,
+                audit: document.getElementById('edit-opt-audit').checked
+            };
+
+            console.log('保存共享配置:', { name, description, protocols, access, options });
+            alert(`保存共享 "${name}" 的配置\n\n协议：${protocols.join(', ')}\n访问：${access}\n\n演示模式`);
+            closeModal('edit-share-modal');
+        }
+
+        function browsePath() {
+            alert('路径浏览器功能 - 演示模式\n\n实际实现将显示卷和文件夹树供选择');
+        }
+
+        // 访问权限变更时显示/隐藏用户选择
+        document.getElementById('share-access')?.addEventListener('change', function() {
+            const usersGroup = document.getElementById('share-users-group');
+            if (usersGroup) {
+                usersGroup.style.display = this.value === 'restricted' ? 'block' : 'none';
+            }
+        });
+
+        // 关闭模态框
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
