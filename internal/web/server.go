@@ -2,7 +2,6 @@ package web
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -31,6 +30,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	engine := gin.New()
 	engine.Use(gin.Recovery())
 	engine.Use(loggerMiddleware())
+	engine.Use(corsMiddleware())
 
 	s := &Server{
 		engine:     engine,
@@ -51,18 +51,57 @@ func loggerMiddleware() gin.HandlerFunc {
 	}
 }
 
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	}
+}
+
 func (s *Server) setupRoutes() {
 	// API 路由
 	api := s.engine.Group("/api/v1")
 	{
-		// 存储管理
+		// ========== 卷管理 ==========
 		api.GET("/volumes", s.listVolumes)
 		api.POST("/volumes", s.createVolume)
 		api.GET("/volumes/:name", s.getVolume)
+		api.DELETE("/volumes/:name", s.deleteVolume)
+		api.POST("/volumes/:name/mount", s.mountVolume)
+		api.POST("/volumes/:name/unmount", s.unmountVolume)
+		api.GET("/volumes/:name/usage", s.getVolumeUsage)
+		api.POST("/volumes/:name/devices", s.addDevice)
+		api.DELETE("/volumes/:name/devices/:device", s.removeDevice)
+		api.GET("/volumes/:name/devices", s.getDeviceStats)
+
+		// ========== 子卷管理 ==========
+		api.GET("/volumes/:name/subvolumes", s.listSubVolumes)
 		api.POST("/volumes/:name/subvolumes", s.createSubVolume)
+		api.GET("/volumes/:name/subvolumes/:subvol", s.getSubVolume)
+		api.DELETE("/volumes/:name/subvolumes/:subvol", s.deleteSubVolume)
+		api.PUT("/volumes/:name/subvolumes/:subvol/readonly", s.setSubVolumeReadOnly)
+
+		// ========== 快照管理 ==========
+		api.GET("/volumes/:name/snapshots", s.listSnapshots)
 		api.POST("/volumes/:name/snapshots", s.createSnapshot)
-		api.POST("/volumes/:name/balance", s.balanceVolume)
-		api.POST("/volumes/:name/scrub", s.scrubVolume)
+		api.DELETE("/volumes/:name/snapshots/:snapshot", s.deleteSnapshot)
+		api.POST("/volumes/:name/snapshots/:snapshot/restore", s.restoreSnapshot)
+
+		// ========== RAID 配置 ==========
+		api.GET("/raid-configs", s.getRAIDConfigs)
+		api.POST("/volumes/:name/convert", s.convertRAID)
+
+		// ========== 维护操作 ==========
+		api.POST("/volumes/:name/balance", s.startBalance)
+		api.GET("/volumes/:name/balance", s.getBalanceStatus)
+		api.POST("/volumes/:name/scrub", s.startScrub)
+		api.GET("/volumes/:name/scrub", s.getScrubStatus)
 
 		// 用户管理
 		users.NewHandlers(s.userMgr).RegisterRoutes(api)
@@ -98,10 +137,10 @@ func (s *Server) Stop() error {
 	return s.httpSrv.Shutdown(ctx)
 }
 
-// API Handlers
+// ========== 卷管理 API ==========
 
 func (s *Server) listVolumes(c *gin.Context) {
-	volumes := s.storageMgr.GetVolumes()
+	volumes := s.storageMgr.ListVolumes()
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -139,6 +178,121 @@ func (s *Server) getVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": vol})
 }
 
+func (s *Server) deleteVolume(c *gin.Context) {
+	name := c.Param("name")
+	force := c.Query("force") == "true"
+
+	if err := s.storageMgr.DeleteVolume(name, force); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "卷已删除"})
+}
+
+func (s *Server) mountVolume(c *gin.Context) {
+	name := c.Param("name")
+
+	if err := s.storageMgr.MountVolume(name); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "挂载成功"})
+}
+
+func (s *Server) unmountVolume(c *gin.Context) {
+	name := c.Param("name")
+
+	if err := s.storageMgr.UnmountVolume(name); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "卸载成功"})
+}
+
+func (s *Server) getVolumeUsage(c *gin.Context) {
+	name := c.Param("name")
+	total, used, free, err := s.storageMgr.GetUsage(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"total": total,
+			"used":  used,
+			"free":  free,
+		},
+	})
+}
+
+func (s *Server) addDevice(c *gin.Context) {
+	volumeName := c.Param("name")
+	var req struct {
+		Device string `json:"device" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		return
+	}
+
+	if err := s.storageMgr.AddDevice(volumeName, req.Device); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "设备已添加"})
+}
+
+func (s *Server) removeDevice(c *gin.Context) {
+	volumeName := c.Param("name")
+	device := c.Param("device")
+
+	if err := s.storageMgr.RemoveDevice(volumeName, device); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "设备已移除"})
+}
+
+func (s *Server) getDeviceStats(c *gin.Context) {
+	name := c.Param("name")
+	stats, err := s.storageMgr.GetDeviceStats(name)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    stats,
+	})
+}
+
+// ========== 子卷管理 API ==========
+
+func (s *Server) listSubVolumes(c *gin.Context) {
+	volumeName := c.Param("name")
+	subvols, err := s.storageMgr.ListSubVolumes(volumeName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    subvols,
+	})
+}
+
 func (s *Server) createSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
@@ -156,6 +310,68 @@ func (s *Server) createSubVolume(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": subvol})
+}
+
+func (s *Server) getSubVolume(c *gin.Context) {
+	volumeName := c.Param("name")
+	subvolName := c.Param("subvol")
+
+	subvol, err := s.storageMgr.GetSubVolume(volumeName, subvolName)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": subvol})
+}
+
+func (s *Server) deleteSubVolume(c *gin.Context) {
+	volumeName := c.Param("name")
+	subvolName := c.Param("subvol")
+
+	if err := s.storageMgr.DeleteSubVolume(volumeName, subvolName); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "子卷已删除"})
+}
+
+func (s *Server) setSubVolumeReadOnly(c *gin.Context) {
+	volumeName := c.Param("name")
+	subvolName := c.Param("subvol")
+
+	var req struct {
+		ReadOnly bool `json:"readOnly"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		return
+	}
+
+	if err := s.storageMgr.SetSubVolumeReadOnly(volumeName, subvolName, req.ReadOnly); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "属性已更新"})
+}
+
+// ========== 快照管理 API ==========
+
+func (s *Server) listSnapshots(c *gin.Context) {
+	volumeName := c.Param("name")
+	snapshots, err := s.storageMgr.ListSnapshots(volumeName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    snapshots,
+	})
 }
 
 func (s *Server) createSnapshot(c *gin.Context) {
@@ -179,7 +395,71 @@ func (s *Server) createSnapshot(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": snap})
 }
 
-func (s *Server) balanceVolume(c *gin.Context) {
+func (s *Server) deleteSnapshot(c *gin.Context) {
+	volumeName := c.Param("name")
+	snapshotName := c.Param("snapshot")
+
+	if err := s.storageMgr.DeleteSnapshot(volumeName, snapshotName); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "快照已删除"})
+}
+
+func (s *Server) restoreSnapshot(c *gin.Context) {
+	volumeName := c.Param("name")
+	snapshotName := c.Param("snapshot")
+
+	var req struct {
+		TargetName string `json:"target" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		return
+	}
+
+	if err := s.storageMgr.RestoreSnapshot(volumeName, snapshotName, req.TargetName); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "快照已恢复"})
+}
+
+// ========== RAID 配置 API ==========
+
+func (s *Server) getRAIDConfigs(c *gin.Context) {
+	configs := s.storageMgr.GetRAIDConfigs()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    configs,
+	})
+}
+
+func (s *Server) convertRAID(c *gin.Context) {
+	volumeName := c.Param("name")
+	var req struct {
+		DataProfile string `json:"dataProfile"`
+		MetaProfile string `json:"metaProfile"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		return
+	}
+
+	if err := s.storageMgr.ConvertRAID(volumeName, req.DataProfile, req.MetaProfile); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "RAID 配置转换已启动"})
+}
+
+// ========== 维护操作 API ==========
+
+func (s *Server) startBalance(c *gin.Context) {
 	volumeName := c.Param("name")
 	if err := s.storageMgr.Balance(volumeName); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
@@ -188,7 +468,21 @@ func (s *Server) balanceVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "平衡已启动"})
 }
 
-func (s *Server) scrubVolume(c *gin.Context) {
+func (s *Server) getBalanceStatus(c *gin.Context) {
+	volumeName := c.Param("name")
+	status, err := s.storageMgr.GetBalanceStatus(volumeName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    status,
+	})
+}
+
+func (s *Server) startScrub(c *gin.Context) {
 	volumeName := c.Param("name")
 	if err := s.storageMgr.Scrub(volumeName); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
@@ -197,8 +491,23 @@ func (s *Server) scrubVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "校验已启动"})
 }
 
+func (s *Server) getScrubStatus(c *gin.Context) {
+	volumeName := c.Param("name")
+	status, err := s.storageMgr.GetScrubStatus(volumeName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    status,
+	})
+}
+
+// ========== 系统信息 API ==========
+
 func (s *Server) getSystemInfo(c *gin.Context) {
-	// TODO: 获取系统信息
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
 		"data": gin.H{
@@ -214,20 +523,3 @@ func (s *Server) getHealth(c *gin.Context) {
 		"message": "healthy",
 	})
 }
-
-// 通用响应
-type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-func Success(data interface{}) Response {
-	return Response{Code: 0, Message: "success", Data: data}
-}
-
-func Error(code int, message string) Response {
-	return Response{Code: code, Message: message}
-}
-
-var _ = json.Marshal // 避免未使用导入
