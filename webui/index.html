@@ -4,68 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NAS-OS 管理界面</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="css/design-system.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
-        .header { background: #1a73e8; color: white; padding: 1rem 2rem; }
-        .header h1 { font-size: 1.5rem; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .card h2 { margin-bottom: 1rem; color: #333; }
-        .btn { background: #1a73e8; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
-        .btn:hover { background: #1557b0; }
-        .btn-danger { background: #dc3545; }
-        .btn-danger:hover { background: #c82333; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; font-weight: 600; }
-        .status { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem; }
-        .status-ok { background: #d4edda; color: #155724; }
-        .status-warn { background: #fff3cd; color: #856404; }
-        .progress { background: #e9ecef; border-radius: 4px; height: 8px; overflow: hidden; }
-        .progress-bar { background: #1a73e8; height: 100%; transition: width 0.3s; }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        .stat-card.green { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .stat-card.orange { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+        .stat-card.purple { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+        .stat-label { font-size: 14px; opacity: 0.9; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .quick-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 240px;
+            background: white;
+            border-right: 1px solid #E5E7EB;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #4B5563;
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+        .nav-item svg { width: 20px; height: 20px; }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🖥️ NAS-OS 管理界面</h1>
-    </div>
-    
-    <div class="container">
-        <!-- 系统概览 -->
-        <div class="card">
-            <h2>📊 系统概览</h2>
-            <div id="system-info">加载中...</div>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="header-brand" style="margin-bottom: 2rem;">
+            <img src="../brand/logo/logo-64.png" alt="NAS-OS Logo" width="40" height="40">
+            <h1 style="font-size: 20px;">NAS-OS</h1>
         </div>
+        
+        <div class="nav-item active">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            仪表盘
+        </div>
+        <div class="nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+            存储管理
+        </div>
+        <div class="nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+            文件共享
+        </div>
+        <div class="nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            用户管理
+        </div>
+        <div class="nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            系统监控
+        </div>
+        <div class="nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            设置
+        </div>
+    </nav>
 
-        <!-- 存储卷管理 -->
-        <div class="card">
-            <h2>💾 存储卷管理</h2>
-            <button class="btn" onclick="showCreateVolume()">+ 创建卷</button>
-            <table style="margin-top: 1rem;">
-                <thead>
-                    <tr>
-                        <th>名称</th>
-                        <th>设备</th>
-                        <th>配置</th>
-                        <th>使用率</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="volumes-list">
-                    <tr><td colspan="5">暂无卷</td></tr>
-                </tbody>
-            </table>
-        </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div style="margin-bottom: 2rem;">
+                <h1 style="margin-bottom: 0.5rem;">📊 系统概览</h1>
+                <p class="text-muted">欢迎使用 NAS-OS 管理系统</p>
+            </div>
 
-        <!-- 快捷操作 -->
-        <div class="card">
-            <h2>⚡ 快捷操作</h2>
-            <button class="btn" onclick="runScrub()">🔍 数据校验</button>
-            <button class="btn" onclick="runBalance()">⚖️ 平衡数据</button>
-            <button class="btn" onclick="createSnapshot()">📸 创建快照</button>
+            <!-- Stats Grid -->
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-label">系统状态</div>
+                    <div class="stat-value">🟢 运行中</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">存储卷</div>
+                    <div class="stat-value" id="stat-volumes">0</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">已用空间</div>
+                    <div class="stat-value" id="stat-usage">0 GB</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">运行时间</div>
+                    <div class="stat-value" id="stat-uptime">--</div>
+                </div>
+            </div>
+
+            <!-- Storage Volumes -->
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">💾 存储卷管理</h2>
+                    <button class="btn btn-primary" onclick="showCreateVolume()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        创建卷
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>设备</th>
+                                <th>配置</th>
+                                <th>使用率</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="volumes-list">
+                            <tr><td colspan="6" style="text-align: center; padding: 2rem;">暂无卷</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">⚡ 快捷操作</h2>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn btn-secondary" onclick="runScrub()">
+                        🔍 数据校验
+                    </button>
+                    <button class="btn btn-secondary" onclick="runBalance()">
+                        ⚖️ 平衡数据
+                    </button>
+                    <button class="btn btn-secondary" onclick="createSnapshot()">
+                        📸 创建快照
+                    </button>
+                    <button class="btn btn-secondary" onclick="showSettings()">
+                        ⚙️ 系统设置
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
+    </main>
 
     <script>
         const API_BASE = '/api/v1';
@@ -75,13 +185,9 @@
             try {
                 const res = await fetch(`${API_BASE}/system/info`);
                 const data = await res.json();
-                document.getElementById('system-info').innerHTML = `
-                    <p>主机名：<strong>${data.data.hostname}</strong></p>
-                    <p>版本：<strong>${data.data.version}</strong></p>
-                    <p>状态：<span class="status status-ok">运行中</span></p>
-                `;
+                document.getElementById('stat-uptime').textContent = formatUptime(data.data.uptime || 0);
             } catch (e) {
-                document.getElementById('system-info').innerHTML = '<p style="color:red">加载失败</p>';
+                console.error('加载系统信息失败:', e);
             }
         }
 
@@ -93,43 +199,64 @@
                 const tbody = document.getElementById('volumes-list');
                 
                 if (data.data && data.data.length > 0) {
-                    tbody.innerHTML = data.data.map(vol => `
-                        <tr>
-                            <td>${vol.Name}</td>
-                            <td>${vol.Device}</td>
-                            <td>${vol.Profile || 'single'}</td>
-                            <td>
-                                <div class="progress">
-                                    <div class="progress-bar" style="width: ${vol.Usage || 0}%"></div>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="btn" onclick="viewVolume('${vol.Name}')">查看</button>
-                                <button class="btn btn-danger" onclick="deleteVolume('${vol.Name}')">删除</button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    document.getElementById('stat-volumes').textContent = data.data.length;
+                    
+                    let totalUsage = 0;
+                    tbody.innerHTML = data.data.map(vol => {
+                        const usage = vol.Usage || 0;
+                        totalUsage += usage;
+                        const statusClass = usage > 90 ? 'error' : usage > 70 ? 'warning' : 'success';
+                        const statusText = usage > 90 ? '空间不足' : usage > 70 ? '注意' : '正常';
+                        
+                        return `
+                            <tr>
+                                <td><strong>${vol.Name}</strong></td>
+                                <td class="text-muted">${vol.Device}</td>
+                                <td><span class="badge badge-neutral">${vol.Profile || 'single'}</span></td>
+                                <td style="width: 200px;">
+                                    <div class="progress" style="margin-bottom: 0.25rem;">
+                                        <div class="progress-bar ${statusClass}" style="width: ${usage}%"></div>
+                                    </div>
+                                    <span class="text-sm text-muted">${usage}%</span>
+                                </td>
+                                <td><span class="badge badge-${statusClass}">${statusText}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewVolume('${vol.Name}')">查看</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteVolume('${vol.Name}')">删除</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                    
+                    document.getElementById('stat-usage').textContent = Math.round(totalUsage / data.data.length) + ' GB';
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5">暂无卷</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">暂无卷，点击上方按钮创建</td></tr>';
                 }
             } catch (e) {
                 console.error('加载卷列表失败:', e);
             }
         }
 
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            if (days > 0) return `${days}天${hours}小时`;
+            return `${hours}小时`;
+        }
+
         function showCreateVolume() {
             const name = prompt('卷名称:');
             if (!name) return;
-            const devices = prompt('设备路径（逗号分隔，如：/dev/sda,/dev/sdb）:');
+            const devices = prompt('设备路径 (逗号分隔，如：/dev/sda,/dev/sdb):');
             if (!devices) return;
-            const profile = prompt('RAID 配置（single/raid0/raid1/raid10，留空为 single）:') || 'single';
+            const profile = prompt('RAID 配置 (single/raid0/raid1/raid10，留空为 single):') || 'single';
             
             fetch(`${API_BASE}/volumes`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({name, devices: devices.split(','), profile})
             }).then(r => r.json()).then(data => {
-                alert(data.message);
+                alert(data.message || data.error);
                 loadVolumes();
             });
         }
@@ -173,10 +300,13 @@
             }).then(r => r.json()).then(data => alert(data.message));
         }
 
+        function showSettings() {
+            alert('系统设置页面开发中...');
+        }
+
         // 初始化
         loadSystemInfo();
         loadVolumes();
-        // 每 30 秒刷新
         setInterval(loadVolumes, 30000);
     </script>
 </body>
