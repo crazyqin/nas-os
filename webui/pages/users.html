@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .users-container { max-width: 1200px; margin: 0 auto; }
+        .users-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .user-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .user-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .user-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .user-avatar.admin {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        .user-info {
+            flex: 1;
+        }
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+        }
+        .user-email {
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .user-role {
+            font-size: 12px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            display: inline-block;
+        }
+        .user-role.admin {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .user-role.user {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+        .user-role.guest {
+            background: #F3F4F6;
+            color: #4B5563;
+        }
+        .user-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #E5E7EB;
+        }
+        .user-stat {
+            background: #F9FAFB;
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+        .user-stat-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 0.25rem;
+        }
+        .user-stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 13px;
+            margin-bottom: 1rem;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .status-dot.active { background: #10B981; }
+        .status-dot.inactive { background: #9CA3AF; }
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .group-card {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .group-card:hover {
+            background: #F3F4F6;
+            border-color: #2563EB;
+        }
+        .group-card.selected {
+            background: #DBEAFE;
+            border-color: #2563EB;
+        }
+        .group-name {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        .group-members {
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            border-bottom: 1px solid #E5E7EB;
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            padding: 0.75rem 1rem;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6B7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            color: #2563EB;
+        }
+        .tab.active {
+            color: #2563EB;
+            border-bottom-color: #2563EB;
+        }
+        .permission-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+        .permission-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .permission-label {
+            font-size: 14px;
+            color: #374151;
+        }
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #F3F4F6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .activity-icon svg {
+            width: 18px;
+            height: 18px;
+            color: #6B7280;
+        }
+        .activity-content {
+            flex: 1;
+        }
+        .activity-text {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        .activity-time {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="files.html">文件共享</a>
+                <a href="#" class="active">用户管理</a>
+                <a href="monitor.html">系统监控</a>
+                <a href="settings.html">设置</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container users-container">
+            <div class="users-header">
+                <div>
+                    <h1>👥 用户管理</h1>
+                    <p class="text-muted">管理用户账户、权限和访问控制</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="importUsers()">
+                        📥 导入
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportUsers()">
+                        📤 导出
+                    </button>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        添加用户
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('users')">用户列表</div>
+                <div class="tab" onclick="switchTab('groups')">用户组</div>
+                <div class="tab" onclick="switchTab('activity')">活动日志</div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-tab">
+                <!-- Bulk Actions Toolbar -->
+                <div class="toolbar" style="display: none; margin-bottom: 1rem;" id="bulk-actions-toolbar">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <input type="checkbox" id="select-all-users" onchange="toggleSelectAllUsers()">
+                        <span style="font-size: 14px; color: #6B7280;"><span id="selected-count">0</span> 个用户已选择</span>
+                        <div style="flex: 1;"></div>
+                        <button class="btn btn-sm btn-secondary" onclick="bulkEnable()">✅ 启用</button>
+                        <button class="btn btn-sm btn-secondary" onclick="bulkDisable()">⏸️ 禁用</button>
+                        <button class="btn btn-sm btn-secondary" onclick="bulkResetPassword()">🔑 重置密码</button>
+                        <button class="btn btn-sm btn-danger" onclick="bulkDelete()">🗑️ 删除</button>
+                    </div>
+                </div>
+
+                <div class="user-cards" id="user-cards">
+                    <!-- Admin User -->
+                    <div class="user-card" data-username="admin">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <input type="checkbox" class="user-select-checkbox" value="admin" onchange="updateSelectedCount()">
+                            <span style="font-size: 12px; color: #9CA3AF;">ID: admin</span>
+                        </div>
+                        <div class="user-header">
+                            <div class="user-avatar admin">A</div>
+                            <div class="user-info">
+                                <div class="user-name">Admin</div>
+                                <div class="user-email">admin@nas.local</div>
+                                <span class="user-role admin">管理员</span>
+                            </div>
+                        </div>
+                        <div class="user-status">
+                            <span class="status-dot active"></span>
+                            <span style="color: #10B981;">在线</span>
+                        </div>
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <div class="user-stat-label">存储空间</div>
+                                <div class="user-stat-value">45.2 GB</div>
+                            </div>
+                            <div class="user-stat">
+                                <div class="user-stat-label">文件数量</div>
+                                <div class="user-stat-value">1,234</div>
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editUser('admin')">✏️ 编辑</button>
+                            <button class="btn btn-sm btn-secondary" onclick="resetPassword('admin')">🔑 重置密码</button>
+                        </div>
+                    </div>
+
+                    <!-- Regular User 1 -->
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-avatar">张</div>
+                            <div class="user-info">
+                                <div class="user-name">张三</div>
+                                <div class="user-email">zhangsan@nas.local</div>
+                                <span class="user-role user">普通用户</span>
+                            </div>
+                        </div>
+                        <div class="user-status">
+                            <span class="status-dot active"></span>
+                            <span style="color: #10B981;">在线</span>
+                        </div>
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <div class="user-stat-label">存储空间</div>
+                                <div class="user-stat-value">12.8 GB</div>
+                            </div>
+                            <div class="user-stat">
+                                <div class="user-stat-label">文件数量</div>
+                                <div class="user-stat-value">456</div>
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editUser('zhangsan')">✏️ 编辑</button>
+                            <button class="btn btn-sm btn-secondary" onclick="resetPassword('zhangsan')">🔑 重置密码</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser('zhangsan')">🗑️ 删除</button>
+                        </div>
+                    </div>
+
+                    <!-- Regular User 2 -->
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-avatar">李</div>
+                            <div class="user-info">
+                                <div class="user-name">李四</div>
+                                <div class="user-email">lisi@nas.local</div>
+                                <span class="user-role user">普通用户</span>
+                            </div>
+                        </div>
+                        <div class="user-status">
+                            <span class="status-dot inactive"></span>
+                            <span style="color: #9CA3AF;">离线</span>
+                        </div>
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <div class="user-stat-label">存储空间</div>
+                                <div class="user-stat-value">8.5 GB</div>
+                            </div>
+                            <div class="user-stat">
+                                <div class="user-stat-label">文件数量</div>
+                                <div class="user-stat-value">289</div>
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editUser('lisi')">✏️ 编辑</button>
+                            <button class="btn btn-sm btn-secondary" onclick="resetPassword('lisi')">🔑 重置密码</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser('lisi')">🗑️ 删除</button>
+                        </div>
+                    </div>
+
+                    <!-- Guest User -->
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-avatar" style="background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);">G</div>
+                            <div class="user-info">
+                                <div class="user-name">Guest</div>
+                                <div class="user-email">guest@nas.local</div>
+                                <span class="user-role guest">访客</span>
+                            </div>
+                        </div>
+                        <div class="user-status">
+                            <span class="status-dot inactive"></span>
+                            <span style="color: #9CA3AF;">离线</span>
+                        </div>
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <div class="user-stat-label">存储空间</div>
+                                <div class="user-stat-value">0.5 GB</div>
+                            </div>
+                            <div class="user-stat">
+                                <div class="user-stat-label">文件数量</div>
+                                <div class="user-stat-value">12</div>
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editUser('guest')">✏️ 编辑</button>
+                            <button class="btn btn-sm btn-secondary" onclick="resetPassword('guest')">🔑 重置密码</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser('guest')">🗑️ 删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Groups Tab -->
+            <div id="groups-tab" style="display: none;">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <svg width="20" height="20" fill="none" stroke="#2563EB" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            用户组
+                        </h2>
+                        <button class="btn btn-primary" onclick="showAddGroupModal()">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            新建组
+                        </button>
+                    </div>
+                    <div class="groups-grid">
+                        <div class="group-card selected">
+                            <div class="group-name">🔧 administrators</div>
+                            <div class="group-members">2 名成员</div>
+                        </div>
+                        <div class="group-card">
+                            <div class="group-name">👥 users</div>
+                            <div class="group-members">15 名成员</div>
+                        </div>
+                        <div class="group-card">
+                            <div class="group-name">👤 guests</div>
+                            <div class="group-members">3 名成员</div>
+                        </div>
+                        <div class="group-card">
+                            <div class="group-name">📁 media-editors</div>
+                            <div class="group-members">5 名成员</div>
+                        </div>
+                        <div class="group-card">
+                            <div class="group-name">💼 developers</div>
+                            <div class="group-members">8 名成员</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Tab -->
+            <div id="activity-tab" style="display: none;">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <svg width="20" height="20" fill="none" stroke="#2563EB" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            最近活动
+                        </h2>
+                        <button class="btn btn-secondary" onclick="exportActivityLog()">
+                            📥 导出日志
+                        </button>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text"><strong>张三</strong> 登录了系统</div>
+                                <div class="activity-time">2 分钟前 · 192.168.1.105</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text"><strong>李四</strong> 上传了文件 <code>report.pdf</code> 到 <code>/documents</code></div>
+                                <div class="activity-time">15 分钟前 · 192.168.1.108</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text"><strong>Admin</strong> 修改了用户组 <code>media-editors</code> 的权限</div>
+                                <div class="activity-time">1 小时前 · 192.168.1.100</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text"><strong>系统</strong> 删除了过期快照 <code>backup-20260308</code></div>
+                                <div class="activity-time">3 小时前 · 系统自动</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text"><strong>张三</strong> 修改了共享文件夹 <code>public</code> 的权限</div>
+                                <div class="activity-time">昨天 14:32 · 192.168.1.105</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add User Modal -->
+    <div class="modal-overlay" id="add-user-modal">
+        <div class="modal">
+            <h3 class="modal-title">👤 添加用户</h3>
+            <div class="form-group">
+                <label class="form-label">用户名 *</label>
+                <input type="text" class="form-input" id="new-username" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label class="form-label">邮箱</label>
+                <input type="email" class="form-input" id="new-email" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label">密码 *</label>
+                <input type="password" class="form-input" id="new-password" placeholder="请输入密码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">确认密码 *</label>
+                <input type="password" class="form-input" id="new-password-confirm" placeholder="请再次输入密码">
+            </div>
+            <div class="form-group">
+                <label class="form-label">用户组</label>
+                <select class="form-select" id="new-group">
+                    <option value="users">普通用户 (users)</option>
+                    <option value="guests">访客 (guests)</option>
+                    <option value="administrators">管理员 (administrators)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">存储配额 (GB)</label>
+                <input type="number" class="form-input" id="new-quota" placeholder="留空表示无限制" value="100">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('add-user-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createUser()">创建用户</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Group Modal -->
+    <div class="modal-overlay" id="add-group-modal">
+        <div class="modal">
+            <h3 class="modal-title">📁 新建用户组</h3>
+            <div class="form-group">
+                <label class="form-label">组名称 *</label>
+                <input type="text" class="form-input" id="new-group-name" placeholder="例如：developers, editors">
+            </div>
+            <div class="form-group">
+                <label class="form-label">描述</label>
+                <input type="text" class="form-input" id="new-group-desc" placeholder="用户组描述">
+            </div>
+            <div class="form-group">
+                <label class="form-label">组成员</label>
+                <div style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.75rem; max-height: 200px; overflow-y: auto;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                        <input type="checkbox" class="group-member-checkbox" value="zhangsan"> 张三
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                        <input type="checkbox" class="group-member-checkbox" value="lisi"> 李四
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
+                        <input type="checkbox" class="group-member-checkbox" value="guest"> Guest
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">组权限</label>
+                <div class="permission-grid">
+                    <div class="permission-item">
+                        <input type="checkbox" id="group-perm-smb" checked>
+                        <label class="permission-label" for="group-perm-smb">SMB 访问</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="group-perm-nfs" checked>
+                        <label class="permission-label" for="group-perm-nfs">NFS 访问</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="group-perm-ftp">
+                        <label class="permission-label" for="group-perm-ftp">FTP 访问</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="group-perm-ssh">
+                        <label class="permission-label" for="group-perm-ssh">SSH 访问</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="group-perm-admin">
+                        <label class="permission-label" for="group-perm-admin">管理权限</label>
+                    </div>
+                    <div class="permission-item">
+                        <input type="checkbox" id="group-perm-upload">
+                        <label class="permission-label" for="group-perm-upload">上传权限</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('add-group-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createGroup()">创建用户组</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal-overlay" id="edit-user-modal">
+        <div class="modal">
+            <h3 class="modal-title">✏️ 编辑用户</h3>
+            <div class="form-group">
+                <label class="form-label">用户名</label>
+                <input type="text" class="form-input" id="edit-username" disabled>
+            </div>
+            <div class="form-group">
+                <label class="form-label">邮箱</label>
+                <input type="email" class="form-input" id="edit-email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">用户组</label>
+                <select class="form-select" id="edit-group">
+                    <option value="users">普通用户 (users)</option>
+                    <option value="guests">访客 (guests)</option>
+                    <option value="administrators">管理员 (administrators)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">存储配额 (GB)</label>
+                <input type="number" class="form-input" id="edit-quota">
+            </div>
+            <div class="permission-grid" style="margin-top: 1rem;">
+                <div class="permission-item">
+                    <input type="checkbox" id="perm-smb" checked>
+                    <label class="permission-label" for="perm-smb">SMB 访问</label>
+                </div>
+                <div class="permission-item">
+                    <input type="checkbox" id="perm-nfs" checked>
+                    <label class="permission-label" for="perm-nfs">NFS 访问</label>
+                </div>
+                <div class="permission-item">
+                    <input type="checkbox" id="perm-ftp">
+                    <label class="permission-label" for="perm-ftp">FTP 访问</label>
+                </div>
+                <div class="permission-item">
+                    <input type="checkbox" id="perm-ssh">
+                    <label class="permission-label" for="perm-ssh">SSH 访问</label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('edit-user-modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveUser()">保存更改</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('users-tab').style.display = tab === 'users' ? 'block' : 'none';
+            document.getElementById('groups-tab').style.display = tab === 'groups' ? 'block' : 'none';
+            document.getElementById('activity-tab').style.display = tab === 'activity' ? 'block' : 'none';
+        }
+
+        function showAddUserModal() {
+            document.getElementById('add-user-modal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function createUser() {
+            const username = document.getElementById('new-username').value;
+            const email = document.getElementById('new-email').value;
+            const password = document.getElementById('new-password').value;
+            const passwordConfirm = document.getElementById('new-password-confirm').value;
+            const group = document.getElementById('new-group').value;
+            const quota = document.getElementById('new-quota').value;
+
+            if (!username || !password) {
+                alert('请填写必填项');
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+
+            alert(`创建用户：${username} - 演示模式`);
+            closeModal('add-user-modal');
+        }
+
+        function editUser(username) {
+            document.getElementById('edit-username').value = username;
+            document.getElementById('edit-email').value = `${username}@nas.local`;
+            document.getElementById('edit-quota').value = '100';
+            document.getElementById('edit-user-modal').classList.add('active');
+        }
+
+        function saveUser() {
+            const username = document.getElementById('edit-username').value;
+            alert(`保存用户 ${username} 的更改 - 演示模式`);
+            closeModal('edit-user-modal');
+        }
+
+        function resetPassword(username) {
+            const newPassword = prompt(`为 ${username} 设置新密码:`);
+            if (newPassword) {
+                alert(`密码已重置 - 演示模式`);
+            }
+        }
+
+        function deleteUser(username) {
+            if (confirm(`确定要删除用户 "${username}" 吗？\n\n警告：此操作将删除该用户的所有文件和配置！`)) {
+                alert(`删除用户：${username} - 演示模式`);
+            }
+        }
+
+        function showAddGroupModal() {
+            const name = prompt('用户组名称:');
+            if (name) {
+                alert(`创建用户组：${name} - 演示模式`);
+            }
+        }
+
+        function exportActivityLog() {
+            alert('导出活动日志 - 演示模式');
+        }
+
+        function showAddGroupModal() {
+            document.getElementById('add-group-modal').classList.add('active');
+            document.getElementById('new-group-name').value = '';
+            document.getElementById('new-group-desc').value = '';
+            document.querySelectorAll('.group-member-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('group-perm-smb').checked = true;
+            document.getElementById('group-perm-nfs').checked = true;
+            document.getElementById('group-perm-ftp').checked = false;
+            document.getElementById('group-perm-ssh').checked = false;
+            document.getElementById('group-perm-admin').checked = false;
+            document.getElementById('group-perm-upload').checked = true;
+        }
+
+        function createGroup() {
+            const name = document.getElementById('new-group-name').value;
+            const desc = document.getElementById('new-group-desc').value;
+            
+            if (!name) {
+                alert('请填写组名称');
+                return;
+            }
+
+            const members = [];
+            document.querySelectorAll('.group-member-checkbox:checked').forEach(cb => {
+                members.push(cb.value);
+            });
+
+            const permissions = {
+                smb: document.getElementById('group-perm-smb').checked,
+                nfs: document.getElementById('group-perm-nfs').checked,
+                ftp: document.getElementById('group-perm-ftp').checked,
+                ssh: document.getElementById('group-perm-ssh').checked,
+                admin: document.getElementById('group-perm-admin').checked,
+                upload: document.getElementById('group-perm-upload').checked
+            };
+
+            console.log('创建用户组:', { name, desc, members, permissions });
+            alert(`创建用户组：${name}\n描述：${desc || '无'}\n成员：${members.length} 人\n\n演示模式`);
+            closeModal('add-group-modal');
+        }
+
+        function importUsers() {
+            alert('导入用户功能 - 演示模式\n\n支持 CSV/JSON 格式导入用户数据');
+        }
+
+        function exportUsers() {
+            alert('导出用户功能 - 演示模式\n\n将导出所有用户数据为 CSV 格式');
+        }
+
+        function toggleSelectAllUsers() {
+            const selectAll = document.getElementById('select-all-users');
+            const checkboxes = document.querySelectorAll('.user-select-checkbox');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checkboxes = document.querySelectorAll('.user-select-checkbox:checked');
+            const count = checkboxes.length;
+            document.getElementById('selected-count').textContent = count;
+            
+            const toolbar = document.getElementById('bulk-actions-toolbar');
+            if (toolbar) {
+                toolbar.style.display = count > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function bulkEnable() {
+            const selected = getSelectedUsers();
+            if (selected.length === 0) return;
+            alert(`启用 ${selected.length} 个用户：${selected.join(', ')}\n\n演示模式`);
+        }
+
+        function bulkDisable() {
+            const selected = getSelectedUsers();
+            if (selected.length === 0) return;
+            alert(`禁用 ${selected.length} 个用户：${selected.join(', ')}\n\n演示模式`);
+        }
+
+        function bulkResetPassword() {
+            const selected = getSelectedUsers();
+            if (selected.length === 0) return;
+            alert(`重置 ${selected.length} 个用户的密码\n\n演示模式`);
+        }
+
+        function bulkDelete() {
+            const selected = getSelectedUsers();
+            if (selected.length === 0) return;
+            if (confirm(`确定要删除 ${selected.length} 个用户吗？\n\n用户：${selected.join(', ')}\n\n警告：此操作不可逆！`)) {
+                alert(`删除 ${selected.length} 个用户 - 演示模式`);
+            }
+        }
+
+        function getSelectedUsers() {
+            const selected = [];
+            document.querySelectorAll('.user-select-checkbox:checked').forEach(cb => {
+                selected.push(cb.value);
+            });
+            return selected;
+        }
+
+        // 关闭模态框
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

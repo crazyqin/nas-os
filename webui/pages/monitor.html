@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统监控 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .monitor-container { max-width: 1400px; margin: 0 auto; }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-widget {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-widget-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        .stat-widget-title {
+            font-size: 13px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        .stat-widget-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stat-widget-icon.blue { background: #DBEAFE; color: #2563EB; }
+        .stat-widget-icon.green { background: #D1FAE5; color: #10B981; }
+        .stat-widget-icon.orange { background: #FEF3C7; color: #F59E0B; }
+        .stat-widget-icon.purple { background: #E9D5FF; color: #8B5CF6; }
+        .stat-widget-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+        }
+        .stat-widget-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .stat-widget-change.up { color: #EF4444; }
+        .stat-widget-change.down { color: #10B981; }
+        .monitor-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .chart-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .chart-btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 12px;
+            border-radius: 6px;
+            border: 1px solid #E5E7EB;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chart-btn:hover, .chart-btn.active {
+            background: #2563EB;
+            color: white;
+            border-color: #2563EB;
+        }
+        .chart-placeholder {
+            height: 280px;
+            background: linear-gradient(180deg, #F9FAFB 0%, #F3F4F6 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+        .chart-legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .info-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+        .process-table {
+            width: 100%;
+            font-size: 13px;
+        }
+        .process-table th {
+            text-align: left;
+            padding: 0.5rem;
+            font-weight: 600;
+            color: #6B7280;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .process-table td {
+            padding: 0.5rem;
+            color: #374151;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .process-name {
+            font-weight: 500;
+        }
+        .process-bar {
+            width: 100px;
+            height: 6px;
+            background: #E5E7EB;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .process-bar-fill {
+            height: 100%;
+            background: #2563EB;
+            border-radius: 3px;
+        }
+        .alerts-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: #FEF3C7;
+        }
+        .alert-item.error {
+            background: #FEE2E2;
+        }
+        .alert-item.success {
+            background: #D1FAE5;
+        }
+        .alert-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+        .alert-content {
+            flex: 1;
+        }
+        .alert-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        .alert-time {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .disk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .disk-item {
+            padding: 0.75rem;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+        .disk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .disk-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #374151;
+        }
+        .disk-temp {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .disk-bar {
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .disk-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .disk-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .network-interfaces {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .net-interface {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+        .net-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .net-icon {
+            width: 32px;
+            height: 32px;
+            background: #DBEAFE;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .net-icon svg {
+            width: 16px;
+            height: 16px;
+            color: #2563EB;
+        }
+        .net-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: #374151;
+        }
+        .net-status {
+            font-size: 12px;
+            color: #10B981;
+        }
+        .net-speed {
+            text-align: right;
+        }
+        .net-speed-up, .net-speed-down {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .net-speed-up { color: #10B981; margin-bottom: 0.25rem; }
+        .net-speed-down { color: #2563EB; }
+        @media (max-width: 1200px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .monitor-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 640px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="files.html">文件共享</a>
+                <a href="users.html">用户管理</a>
+                <a href="#" class="active">系统监控</a>
+                <a href="settings.html">设置</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container monitor-container">
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>📊 系统监控</h1>
+                    <p class="text-muted">实时监控系统资源、性能和健康状态</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="refreshData()">
+                        🔄 刷新
+                    </button>
+                    <button class="btn btn-primary" onclick="exportReport()">
+                        📥 导出报告
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="stat-widget">
+                    <div class="stat-widget-header">
+                        <span class="stat-widget-title">CPU 使用率</span>
+                        <div class="stat-widget-icon blue">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-widget-value">32%</div>
+                    <div class="stat-widget-change up">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        +5% 较昨日
+                    </div>
+                </div>
+
+                <div class="stat-widget">
+                    <div class="stat-widget-header">
+                        <span class="stat-widget-title">内存使用</span>
+                        <div class="stat-widget-icon green">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-widget-value">6.2 / 16 GB</div>
+                    <div class="stat-widget-change down">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+                        -2% 较昨日
+                    </div>
+                </div>
+
+                <div class="stat-widget">
+                    <div class="stat-widget-header">
+                        <span class="stat-widget-title">磁盘 I/O</span>
+                        <div class="stat-widget-icon orange">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-widget-value">125 MB/s</div>
+                    <div class="stat-widget-change up">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        +18% 较昨日
+                    </div>
+                </div>
+
+                <div class="stat-widget">
+                    <div class="stat-widget-header">
+                        <span class="stat-widget-title">网络吞吐</span>
+                        <div class="stat-widget-icon purple">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-widget-value">45 / 12 MB/s</div>
+                    <div class="stat-widget-change down">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+                        -8% 较昨日
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="monitor-grid">
+                <!-- Charts -->
+                <div>
+                    <div class="chart-card" style="margin-bottom: 1.5rem;">
+                        <div class="chart-header">
+                            <h3 class="chart-title">📈 CPU & 内存使用趋势</h3>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" onclick="setChartRange('1h')">1 小时</button>
+                                <button class="chart-btn" onclick="setChartRange('24h')">24 小时</button>
+                                <button class="chart-btn" onclick="setChartRange('7d')">7 天</button>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder">
+                            <div style="text-align: center;">
+                                <svg width="48" height="48" fill="none" stroke="#D1D5DB" viewBox="0 0 24 24" style="margin: 0 auto 0.5rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                                </svg>
+                                <div>图表区域 - 实时数据展示</div>
+                                <div style="font-size: 12px; margin-top: 0.25rem;">CPU 和内存使用率历史趋势</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #2563EB;"></span>
+                                CPU 使用率
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #10B981;"></span>
+                                内存使用率
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">💾 磁盘 I/O 速率</h3>
+                            <div class="chart-controls">
+                                <button class="chart-btn active" onclick="setChartRange('1h')">1 小时</button>
+                                <button class="chart-btn" onclick="setChartRange('24h')">24 小时</button>
+                            </div>
+                        </div>
+                        <div class="chart-placeholder">
+                            <div style="text-align: center;">
+                                <svg width="48" height="48" fill="none" stroke="#D1D5DB" viewBox="0 0 24 24" style="margin: 0 auto 0.5rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                                <div>图表区域 - 磁盘读写速率</div>
+                                <div style="font-size: 12px; margin-top: 0.25rem;">实时磁盘输入输出监控</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #F59E0B;"></span>
+                                读取
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot" style="background: #EF4444;"></span>
+                                写入
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Panel -->
+                <div class="side-panel">
+                    <!-- System Info -->
+                    <div class="info-card">
+                        <h3 class="info-card-title">
+                            <svg width="18" height="18" fill="none" stroke="#2563EB" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
+                            系统信息
+                        </h3>
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="info-label">主机名</span>
+                                <span class="info-value">nas-server</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">系统版本</span>
+                                <span class="info-value">NAS-OS 1.0.0</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">内核版本</span>
+                                <span class="info-value">6.1.99-rockchip</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">运行时间</span>
+                                <span class="info-value">15 天 8 小时</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">CPU 型号</span>
+                                <span class="info-value">RK3588 (8 核)</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">总内存</span>
+                                <span class="info-value">16 GB LPDDR4</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Processes -->
+                    <div class="info-card">
+                        <h3 class="info-card-title">
+                            <svg width="18" height="18" fill="none" stroke="#2563EB" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            资源占用 TOP5
+                        </h3>
+                        <table class="process-table">
+                            <thead>
+                                <tr>
+                                    <th>进程</th>
+                                    <th>CPU</th>
+                                    <th>内存</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="process-name">nasd</span></td>
+                                    <td>
+                                        <div class="process-bar"><div class="process-bar-fill" style="width: 45%;"></div></div>
+                                    </td>
+                                    <td>12.5%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="process-name">smbd</span></td>
+                                    <td>
+                                        <div class="process-bar"><div class="process-bar-fill" style="width: 25%;"></div></div>
+                                    </td>
+                                    <td>8.2%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="process-name">docker</span></td>
+                                    <td>
+                                        <div class="process-bar"><div class="process-bar-fill" style="width: 35%;"></div></div>
+                                    </td>
+                                    <td>6.8%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="process-name">transmission</span></td>
+                                    <td>
+                                        <div class="process-bar"><div class="process-bar-fill" style="width: 15%;"></div></div>
+                                    </td>
+                                    <td>4.1%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="process-name">plex</span></td>
+                                    <td>
+                                        <div class="process-bar"><div class="process-bar-fill" style="width: 20%;"></div></div>
+                                    </td>
+                                    <td>3.5%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="monitor-grid">
+                <!-- Disk Status -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">💽 磁盘状态</h3>
+                        <button class="btn btn-sm btn-secondary" onclick="checkSmart()">📊 SMART 检测</button>
+                    </div>
+                    <div class="disk-list">
+                        <div class="disk-item">
+                            <div class="disk-header">
+                                <span class="disk-name">/dev/sda (500 GB SSD)</span>
+                                <span class="disk-temp" style="color: #10B981;">🌡️ 35°C</span>
+                            </div>
+                            <div class="disk-bar">
+                                <div class="disk-bar-fill" style="width: 45%; background: #10B981;"></div>
+                            </div>
+                            <div class="disk-stats">
+                                <span>已用 225 GB</span>
+                                <span>健康 ✓</span>
+                            </div>
+                        </div>
+                        <div class="disk-item">
+                            <div class="disk-header">
+                                <span class="disk-name">/dev/sdb (1 TB HDD)</span>
+                                <span class="disk-temp" style="color: #10B981;">🌡️ 42°C</span>
+                            </div>
+                            <div class="disk-bar">
+                                <div class="disk-bar-fill" style="width: 62%; background: #10B981;"></div>
+                            </div>
+                            <div class="disk-stats">
+                                <span>已用 620 GB</span>
+                                <span>健康 ✓</span>
+                            </div>
+                        </div>
+                        <div class="disk-item">
+                            <div class="disk-header">
+                                <span class="disk-name">/dev/sdc (2 TB HDD)</span>
+                                <span class="disk-temp" style="color: #F59E0B;">🌡️ 48°C</span>
+                            </div>
+                            <div class="disk-bar">
+                                <div class="disk-bar-fill" style="width: 78%; background: #F59E0B;"></div>
+                            </div>
+                            <div class="disk-stats">
+                                <span>已用 1.56 TB</span>
+                                <span style="color: #F59E0B;">⚠️ 注意</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network & Alerts -->
+                <div class="side-panel">
+                    <!-- Network Interfaces -->
+                    <div class="info-card">
+                        <h3 class="info-card-title">
+                            <svg width="18" height="18" fill="none" stroke="#2563EB" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>
+                            网络接口
+                        </h3>
+                        <div class="network-interfaces">
+                            <div class="net-interface">
+                                <div class="net-info">
+                                    <div class="net-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="net-name">eth0</div>
+                                        <div class="net-status">● 已连接 2.5Gbps</div>
+                                    </div>
+                                </div>
+                                <div class="net-speed">
+                                    <div class="net-speed-up">↑ 12.5 MB/s</div>
+                                    <div class="net-speed-down">↓ 45.2 MB/s</div>
+                                </div>
+                            </div>
+                            <div class="net-interface">
+                                <div class="net-info">
+                                    <div class="net-icon" style="background: #F3F4F6;">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="net-name">wlan0</div>
+                                        <div class="net-status" style="color: #9CA3AF;">● 未连接</div>
+                                    </div>
+                                </div>
+                                <div class="net-speed">
+                                    <div class="net-speed-up" style="color: #9CA3AF;">↑ 0 MB/s</div>
+                                    <div class="net-speed-down" style="color: #9CA3AF;">↓ 0 MB/s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Alerts -->
+                    <div class="info-card">
+                        <h3 class="info-card-title">
+                            <svg width="18" height="18" fill="none" stroke="#2563EB" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                            系统告警
+                        </h3>
+                        <div class="alerts-list">
+                            <div class="alert-item error">
+                                <svg class="alert-icon" fill="none" stroke="#EF4444" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <div class="alert-content">
+                                    <div class="alert-title">磁盘 /dev/sdc 空间不足</div>
+                                    <div class="alert-time">10 分钟前 · 使用率 78%</div>
+                                </div>
+                            </div>
+                            <div class="alert-item">
+                                <svg class="alert-icon" fill="none" stroke="#F59E0B" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <div class="alert-content">
+                                    <div class="alert-title">/dev/sdc 温度偏高</div>
+                                    <div class="alert-time">1 小时前 · 48°C</div>
+                                </div>
+                            </div>
+                            <div class="alert-item success">
+                                <svg class="alert-icon" fill="none" stroke="#10B981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <div class="alert-content">
+                                    <div class="alert-title">系统备份完成</div>
+                                    <div class="alert-time">今天 03:00 · 耗时 45 分钟</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let refreshInterval;
+
+        function refreshData() {
+            // 刷新所有监控数据
+            loadSystemStats();
+            loadDiskStatus();
+            loadNetworkStats();
+            loadAlerts();
+            
+            // 按钮动画反馈
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ 已刷新';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 1500);
+        }
+
+        function setChartRange(range) {
+            document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            console.log('切换时间范围:', range);
+            // 实际实现会重新加载对应时间范围的数据
+        }
+
+        function loadSystemStats() {
+            // 加载系统统计数据
+            console.log('加载系统统计数据...');
+        }
+
+        function loadDiskStatus() {
+            // 加载磁盘状态
+            console.log('加载磁盘状态...');
+        }
+
+        function loadNetworkStats() {
+            // 加载网络统计
+            console.log('加载网络统计...');
+        }
+
+        function loadAlerts() {
+            // 加载告警列表
+            console.log('加载告警列表...');
+        }
+
+        function checkSmart() {
+            alert('启动 SMART 检测 - 演示模式');
+        }
+
+        function exportReport() {
+            alert('导出系统监控报告 - 演示模式');
+        }
+
+        // 自动刷新 (每 30 秒)
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                loadSystemStats();
+                loadDiskStatus();
+                loadNetworkStats();
+            }, 30000);
+        }
+
+        // 页面卸载时清除定时器
+        window.addEventListener('beforeunload', () => {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
+
+        // 初始化
+        startAutoRefresh();
+    </script>
+</body>
+</html>

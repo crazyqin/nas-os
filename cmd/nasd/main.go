@@ -24,7 +24,7 @@ func main() {
 	log.Println("✅ 用户管理模块就绪")
 
 	// 初始化存储管理
-	storMgr, err := storage.NewManager()
+	storMgr, err := storage.NewManager("/mnt")
 	if err != nil {
 		log.Fatalf("存储管理初始化失败：%v", err)
 	}
