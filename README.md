@@ -2,18 +2,64 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
+> **最新版本**: v0.2.0 Alpha (2026-03-10)
+
 ## 特性
 
 - 💾 **btrfs 存储管理** - 卷、子卷、快照、RAID
 - 🌐 **Web 管理界面** - 简洁易用的可视化操作
-- 📁 **文件共享** - SMB/CIFS、NFS
-- 👥 **用户权限** - 多用户、访问控制
-- 📊 **监控告警** - 磁盘健康、空间预警
+- 📁 **文件共享** - SMB/CIFS、NFS ✅ v0.2.0 新增
+- 👥 **用户权限** - 多用户、访问控制 (计划 v0.3.0)
+- 📊 **监控告警** - 磁盘健康、空间预警 (计划 v0.4.0)
 - 🐳 **Docker 集成** - 容器应用支持（开发中）
 
 ## 快速开始
 
-### 依赖
+### 方式一：下载二进制文件 (推荐)
+
+```bash
+# 下载 (根据你的架构选择)
+# AMD64 (x86_64)
+wget https://github.com/nas-os/nasd/releases/download/v0.2.0/nasd-linux-amd64
+chmod +x nasd-linux-amd64
+sudo mv nasd-linux-amd64 /usr/local/bin/nasd
+
+# ARM64 (Orange Pi 5, Raspberry Pi 4/5)
+wget https://github.com/nas-os/nasd/releases/download/v0.2.0/nasd-linux-arm64
+chmod +x nasd-linux-arm64
+sudo mv nasd-linux-arm64 /usr/local/bin/nasd
+
+# ARMv7 (Raspberry Pi 3, 旧款 ARM)
+wget https://github.com/nas-os/nasd/releases/download/v0.2.0/nasd-linux-armv7
+chmod +x nasd-linux-armv7
+sudo mv nasd-linux-armv7 /usr/local/bin/nasd
+
+# 验证安装
+nasd --version
+```
+
+### 方式二：Docker 部署
+
+```bash
+# 拉取镜像
+docker pull nas-os/nasd:v0.2.0
+
+# 运行容器
+docker run -d \
+  --name nasd \
+  --restart unless-stopped \
+  -p 8080:8080 \
+  -v /data:/data \
+  -v /etc/nas-os:/config \
+  nas-os/nasd:v0.2.0
+
+# 查看日志
+docker logs -f nasd
+```
+
+### 方式三：源码编译
+
+#### 依赖
 
 ```bash
 # 安装 Go 1.21+
@@ -27,7 +73,7 @@ sudo apt install samba
 sudo apt install nfs-kernel-server
 ```
 
-### 构建
+#### 构建
 
 ```bash
 cd nas-os
@@ -40,22 +86,48 @@ go build -o nasctl ./cmd/nasctl
 
 ```bash
 # 需要 root 权限（访问磁盘设备）
-sudo ./nasd
+sudo nasd
 ```
 
 访问 http://localhost:8080
 
+**默认登录凭据**：
+- 用户名：`admin`
+- 密码：`admin123`
+
+⚠️ **首次登录后请立即修改默认密码！**
+
 ## API 接口
 
+### 存储管理
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | /api/v1/volumes | 获取卷列表 |
 | POST | /api/v1/volumes | 创建卷 |
 | GET | /api/v1/volumes/:name | 获取卷详情 |
+| DELETE | /api/v1/volumes/:name | 删除卷 |
 | POST | /api/v1/volumes/:name/subvolumes | 创建子卷 |
 | POST | /api/v1/volumes/:name/snapshots | 创建快照 |
 | POST | /api/v1/volumes/:name/balance | 平衡数据 |
 | POST | /api/v1/volumes/:name/scrub | 数据校验 |
+
+### 共享管理 (v0.2.0 新增)
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/shares | 获取共享列表 |
+| POST | /api/v1/shares/smb | 创建 SMB 共享 |
+| POST | /api/v1/shares/nfs | 创建 NFS 共享 |
+| DELETE | /api/v1/shares/:id | 删除共享 |
+| PUT | /api/v1/shares/:id | 更新共享配置 |
+
+### 配置管理 (v0.2.0 新增)
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/config | 获取配置 |
+| PUT | /api/v1/config | 更新配置 |
+| POST | /api/v1/config/reload | 重载配置 |
+
+完整 API 文档请查看 [docs/API.md](docs/API.md)
 
 ## 项目结构
 
@@ -77,17 +149,28 @@ nas-os/
 
 详细里程碑请查看 [MILESTONES.md](MILESTONES.md)
 
-### 当前状态 (2026-03-10)
+### 当前状态 (2026-03-10) - v0.2.0 Alpha
 - [x] 项目骨架
 - [x] btrfs 基础管理框架
+- [x] btrfs 完整功能 (卷/子卷/快照/balance/scrub)
 - [x] Web 框架
 - [x] 项目文档体系
-- [ ] SMB/NFS 共享实现 (M3)
-- [ ] 用户/权限系统 (M4)
-- [ ] 磁盘监控告警 (M5)
-- [ ] Docker 集成 (M6)
-- [ ] 系统设置
-- [ ] 日志审计
+- [x] SMB/NFS 共享实现 ✅ v0.2.0 完成
+- [x] 配置持久化 ✅ v0.2.0 完成
+- [ ] 用户/权限系统 (计划 v0.3.0)
+- [ ] 磁盘监控告警 (计划 v0.4.0)
+- [ ] Docker 集成 (计划 v0.5.0)
+- [ ] 系统设置 (计划 v0.4.0)
+- [ ] 日志审计 (计划 v0.4.0)
+
+### 版本路线图
+| 版本 | 类型 | 目标日期 | 核心功能 |
+|------|------|----------|----------|
+| v0.1.0 | Alpha | 2026-03-10 | 项目骨架、btrfs 基础 |
+| v0.2.0 | Alpha | 2026-03-10 | 文件共享、配置持久化 ✅ |
+| v0.3.0 | Alpha | 2026-04-20 | 用户认证、Web UI 完善 |
+| v0.4.0 | Beta | 2026-05-10 | 监控告警、系统设置 |
+| v1.0.0 | Stable | 2026-06-30 | 生产就绪 |
 
 ## 部署
 
@@ -115,6 +198,80 @@ systemctl status nas-os
 systemctl restart nas-os
 journalctl -u nas-os -f
 ```
+
+## 配置示例
+
+创建配置文件 `/etc/nas-os/config.yaml`:
+
+```yaml
+version: "0.2.0"
+
+server:
+  port: 8080
+  host: 0.0.0.0
+  tls_enabled: false
+
+storage:
+  data_path: /data
+  auto_scrub: true
+  scrub_schedule: "0 3 * * 0"  # 每周日凌晨 3 点
+
+shares:
+  smb:
+    enabled: true
+    workgroup: WORKGROUP
+    shares:
+      - name: public
+        path: /data/public
+        guest_ok: true
+      - name: home
+        path: /data/home
+        guest_ok: false
+  
+  nfs:
+    enabled: true
+    allowed_networks:
+      - 192.168.1.0/24
+    exports:
+      - path: /data/nfs
+        clients: ["192.168.1.0/24"]
+        options: ["rw", "sync", "no_subtree_check"]
+
+logging:
+  level: info
+  format: json
+  file: /var/log/nas-os/nasd.log
+  max_size: 100
+  max_backups: 5
+```
+
+## 快速使用
+
+### 1. 创建存储卷
+```bash
+sudo nasctl volume create mydata --path /dev/sda1
+```
+
+### 2. 创建 SMB 共享
+```bash
+sudo nasctl share create smb public --path /data/public --guest
+```
+
+### 3. 创建 NFS 共享
+```bash
+sudo nasctl share create nfs backup --path /data/backup --network 192.168.1.0/24
+```
+
+### 4. 从客户端访问
+- **Windows**: `\\<服务器 IP>\public`
+- **macOS**: `smb://<服务器 IP>/public`
+- **Linux (NFS)**: `sudo mount <服务器 IP>:/backup /mnt/local_backup`
+
+## 获取帮助
+
+- 📖 **完整文档**: [docs/](docs/) 目录
+- 🐛 **报告问题**: [GitHub Issues](https://github.com/nas-os/nasd/issues)
+- 💬 **社区讨论**: [GitHub Discussions](https://github.com/nas-os/nasd/discussions)
 
 ## License
 
