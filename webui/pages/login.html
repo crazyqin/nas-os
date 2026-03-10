@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+        }
+        .login-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+        }
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 0.5rem;
+        }
+        .login-subtitle {
+            color: #6B7280;
+            font-size: 14px;
+        }
+        .login-form .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .login-form .form-label {
+            font-weight: 500;
+            color: #374151;
+        }
+        .login-form .form-input {
+            padding: 0.75rem 1rem;
+            font-size: 15px;
+        }
+        .login-submit {
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 16px;
+            margin-top: 0.5rem;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #E5E7EB;
+        }
+        .login-footer a {
+            color: #2563EB;
+            font-size: 14px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .remember-me label {
+            font-size: 14px;
+            color: #4B5563;
+            cursor: pointer;
+        }
+        .alert {
+            display: none;
+            margin-bottom: 1.25rem;
+        }
+        .alert.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="../brand/logo/logo-128.png" alt="NAS-OS Logo" class="login-logo">
+                <h1 class="login-title">NAS-OS</h1>
+                <p class="login-subtitle">登录到管理系统</p>
+            </div>
+
+            <div id="alert-box" class="alert alert-error">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span id="alert-message">用户名或密码错误</span>
+            </div>
+
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label" for="username">用户名</label>
+                    <input type="text" id="username" class="form-input" placeholder="请输入用户名" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">密码</label>
+                    <input type="password" id="password" class="form-input" placeholder="请输入密码" required>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">记住我</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary login-submit">
+                    登录
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <a href="#">忘记密码？</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const alertBox = document.getElementById('alert-box');
+            const alertMessage = document.getElementById('alert-message');
+            
+            // 演示：简单验证 (实际应该调用 API)
+            if (username === 'admin' && password === 'admin') {
+                // 登录成功，跳转到主页
+                window.location.href = 'index.html';
+            } else {
+                // 登录失败
+                alertMessage.textContent = '用户名或密码错误，请重试';
+                alertBox.classList.add('show');
+                
+                // 3 秒后隐藏错误
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // 检查是否已登录
+        if (localStorage.getItem('nasos_token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

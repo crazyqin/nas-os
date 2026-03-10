@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存储管理 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .storage-container { max-width: 1200px; margin: 0 auto; }
+        .disk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .disk-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #10B981;
+        }
+        .disk-card.warning { border-left-color: #F59E0B; }
+        .disk-card.error { border-left-color: #EF4444; }
+        .disk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .disk-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1F2937;
+        }
+        .disk-status {
+            font-size: 12px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+        }
+        .disk-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .disk-stat {
+            background: #F9FAFB;
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+        .disk-stat-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 0.25rem;
+        }
+        .disk-stat-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .volume-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="#" class="active">存储管理</a>
+                <a href="settings.html">设置</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container storage-container">
+            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>💾 存储管理</h1>
+                    <p class="text-muted">管理物理磁盘和存储卷</p>
+                </div>
+                <button class="btn btn-primary" onclick="showCreateVolume()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    创建卷
+                </button>
+            </div>
+
+            <!-- 物理磁盘 -->
+            <h2 style="margin-bottom: 1rem; font-size: 18px;">物理磁盘</h2>
+            <div class="disk-grid">
+                <div class="disk-card">
+                    <div class="disk-header">
+                        <span class="disk-name">/dev/sda</span>
+                        <span class="disk-status" style="background: #D1FAE5; color: #065F46;">健康</span>
+                    </div>
+                    <div class="disk-info">
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">容量</div>
+                            <div class="disk-stat-value">500 GB</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">类型</div>
+                            <div class="disk-stat-value">SSD</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">温度</div>
+                            <div class="disk-stat-value">35°C</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">SMART</div>
+                            <div class="disk-stat-value" style="color: #10B981;">正常</div>
+                        </div>
+                    </div>
+                    <div class="progress" style="margin-bottom: 0.5rem;">
+                        <div class="progress-bar success" style="width: 45%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                        <span class="text-muted">已用 225 GB</span>
+                        <span class="text-muted">45%</span>
+                    </div>
+                </div>
+
+                <div class="disk-card">
+                    <div class="disk-header">
+                        <span class="disk-name">/dev/sdb</span>
+                        <span class="disk-status" style="background: #D1FAE5; color: #065F46;">健康</span>
+                    </div>
+                    <div class="disk-info">
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">容量</div>
+                            <div class="disk-stat-value">1 TB</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">类型</div>
+                            <div class="disk-stat-value">HDD</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">温度</div>
+                            <div class="disk-stat-value">42°C</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">SMART</div>
+                            <div class="disk-stat-value" style="color: #10B981;">正常</div>
+                        </div>
+                    </div>
+                    <div class="progress" style="margin-bottom: 0.5rem;">
+                        <div class="progress-bar success" style="width: 62%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                        <span class="text-muted">已用 620 GB</span>
+                        <span class="text-muted">62%</span>
+                    </div>
+                </div>
+
+                <div class="disk-card warning">
+                    <div class="disk-header">
+                        <span class="disk-name">/dev/sdc</span>
+                        <span class="disk-status" style="background: #FEF3C7; color: #92400E;">注意</span>
+                    </div>
+                    <div class="disk-info">
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">容量</div>
+                            <div class="disk-stat-value">2 TB</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">类型</div>
+                            <div class="disk-stat-value">HDD</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">温度</div>
+                            <div class="disk-stat-value">48°C</div>
+                        </div>
+                        <div class="disk-stat">
+                            <div class="disk-stat-label">SMART</div>
+                            <div class="disk-stat-value" style="color: #F59E0B;">警告</div>
+                        </div>
+                    </div>
+                    <div class="progress" style="margin-bottom: 0.5rem;">
+                        <div class="progress-bar warning" style="width: 78%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                        <span class="text-muted">已用 1.56 TB</span>
+                        <span class="text-muted">78%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 存储卷 -->
+            <div class="volume-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="font-size: 18px;">存储卷</h2>
+                    <button class="btn btn-sm btn-secondary" onclick="loadVolumes()">🔄 刷新</button>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>卷名称</th>
+                                <th>配置</th>
+                                <th>设备</th>
+                                <th>容量</th>
+                                <th>使用率</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="volumes-list">
+                            <tr>
+                                <td><strong>data</strong></td>
+                                <td><span class="badge badge-info">raid1</span></td>
+                                <td class="text-muted">/dev/sda, /dev/sdb</td>
+                                <td>500 GB</td>
+                                <td>
+                                    <div class="progress" style="width: 150px; margin-bottom: 0.25rem;">
+                                        <div class="progress-bar success" style="width: 45%"></div>
+                                    </div>
+                                    <span class="text-sm">45%</span>
+                                </td>
+                                <td><span class="badge badge-success">正常</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">管理</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>backup</strong></td>
+                                <td><span class="badge badge-neutral">single</span></td>
+                                <td class="text-muted">/dev/sdc</td>
+                                <td>2 TB</td>
+                                <td>
+                                    <div class="progress" style="width: 150px; margin-bottom: 0.25rem;">
+                                        <div class="progress-bar warning" style="width: 78%"></div>
+                                    </div>
+                                    <span class="text-sm">78%</span>
+                                </td>
+                                <td><span class="badge badge-warning">注意</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">管理</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 快捷操作 -->
+            <div class="volume-section">
+                <h2 style="font-size: 18px; margin-bottom: 1rem;">快捷操作</h2>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="runScrub()">🔍 数据校验</button>
+                    <button class="btn btn-secondary" onclick="runBalance()">⚖️ 平衡数据</button>
+                    <button class="btn btn-secondary" onclick="createSnapshot()">📸 创建快照</button>
+                    <button class="btn btn-secondary" onclick="checkSmart()">📊 SMART 检测</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function showCreateVolume() {
+            const name = prompt('卷名称:');
+            if (!name) return;
+            const devices = prompt('设备路径 (逗号分隔):');
+            if (!devices) return;
+            const profile = prompt('RAID 配置 (single/raid0/raid1/raid10):') || 'single';
+            alert(`创建卷：${name} (${profile}) - 演示模式`);
+        }
+
+        function loadVolumes() {
+            alert('刷新卷列表 - 演示模式');
+        }
+
+        function runScrub() {
+            alert('数据校验已启动 - 演示模式');
+        }
+
+        function runBalance() {
+            alert('数据平衡已启动 - 演示模式');
+        }
+
+        function createSnapshot() {
+            alert('快照创建功能 - 演示模式');
+        }
+
+        function checkSmart() {
+            alert('SMART 检测功能 - 演示模式');
+        }
+    </script>
+</body>
+</html>
