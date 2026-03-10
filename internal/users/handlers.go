@@ -33,6 +33,7 @@ func NewHandlers(mgr *Manager) *Handlers {
 
 // RegisterRoutes 注册路由
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
+	// ========== 用户管理 ==========
 	users := api.Group("/users")
 	{
 		users.GET("", h.listUsers)
@@ -43,11 +44,27 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		users.POST("/:username/disable", h.disableUser)
 		users.POST("/:username/enable", h.enableUser)
 		users.POST("/:username/password", h.changePassword)
+		users.POST("/:username/reset-password", h.resetPassword)
+		users.PUT("/:username/role", h.setUserRole)
+		users.POST("/:username/groups/:group", h.addUserToGroup)
+		users.DELETE("/:username/groups/:group", h.removeUserFromGroup)
 	}
 
-	// 认证相关
+	// ========== 用户组管理 ==========
+	groups := api.Group("/groups")
+	{
+		groups.GET("", h.listGroups)
+		groups.POST("", h.createGroup)
+		groups.GET("/:name", h.getGroup)
+		groups.PUT("/:name", h.updateGroup)
+		groups.DELETE("/:name", h.deleteGroup)
+		groups.GET("/:name/users", h.getGroupUsers)
+	}
+
+	// ========== 认证相关 ==========
 	api.POST("/login", h.login)
 	api.POST("/logout", h.logout)
+	api.POST("/refresh", h.refreshToken)
 	api.GET("/me", h.getCurrentUser)
 }
 
@@ -59,8 +76,9 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token string `json:"token"`
-	User  *User  `json:"user"`
+	Token     string `json:"token"`
+	ExpiresAt string `json:"expires_at"`
+	User      *User  `json:"user"`
 }
 
 type ChangePasswordRequest struct {
@@ -68,9 +86,25 @@ type ChangePasswordRequest struct {
 	NewPassword string `json:"new_password" binding:"required,min=6"`
 }
 
-// 处理器实现
+type ResetPasswordRequest struct {
+	NewPassword string `json:"new_password" binding:"required,min=6"`
+}
+
+type SetRoleRequest struct {
+	Role Role `json:"role" binding:"required"`
+}
+
+// ========== 用户管理 API ==========
 
 func (h *Handlers) listUsers(c *gin.Context) {
+	// 支持按角色筛选
+	role := c.Query("role")
+	if role != "" {
+		users := h.manager.GetUsersByRole(Role(role))
+		c.JSON(http.StatusOK, Success(users))
+		return
+	}
+
 	users := h.manager.ListUsers()
 	c.JSON(http.StatusOK, Success(users))
 }
@@ -92,7 +126,7 @@ func (h *Handlers) createUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(user))
+	c.JSON(http.StatusCreated, Success(user))
 }
 
 func (h *Handlers) getUser(c *gin.Context) {
@@ -129,11 +163,12 @@ func (h *Handlers) updateUser(c *gin.Context) {
 func (h *Handlers) deleteUser(c *gin.Context) {
 	username := c.Param("username")
 	if err := h.manager.DeleteUser(username); err != nil {
-		if err == ErrUserNotFound {
+		switch err {
+		case ErrUserNotFound:
 			c.JSON(http.StatusNotFound, Error(404, err.Error()))
-		} else if err == ErrAdminCannotDelete {
+		case ErrAdminCannotDelete, ErrLastAdmin:
 			c.JSON(http.StatusForbidden, Error(403, err.Error()))
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		}
 		return
@@ -187,6 +222,169 @@ func (h *Handlers) changePassword(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
+func (h *Handlers) resetPassword(c *gin.Context) {
+	username := c.Param("username")
+	var req ResetPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	if err := h.manager.ResetPassword(username, req.NewPassword); err != nil {
+		if err == ErrUserNotFound {
+			c.JSON(http.StatusNotFound, Error(404, err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(nil))
+}
+
+func (h *Handlers) setUserRole(c *gin.Context) {
+	username := c.Param("username")
+	var req SetRoleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	if err := h.manager.SetUserRole(username, req.Role); err != nil {
+		if err == ErrUserNotFound {
+			c.JSON(http.StatusNotFound, Error(404, err.Error()))
+		} else if err == ErrLastAdmin {
+			c.JSON(http.StatusForbidden, Error(403, err.Error()))
+		} else {
+			c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(nil))
+}
+
+func (h *Handlers) addUserToGroup(c *gin.Context) {
+	username := c.Param("username")
+	groupName := c.Param("group")
+
+	if err := h.manager.AddUserToGroup(username, groupName); err != nil {
+		switch err {
+		case ErrUserNotFound:
+			c.JSON(http.StatusNotFound, Error(404, "用户不存在"))
+		case ErrGroupNotFound:
+			c.JSON(http.StatusNotFound, Error(404, "用户组不存在"))
+		default:
+			c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(nil))
+}
+
+func (h *Handlers) removeUserFromGroup(c *gin.Context) {
+	username := c.Param("username")
+	groupName := c.Param("group")
+
+	if err := h.manager.RemoveUserFromGroup(username, groupName); err != nil {
+		switch err {
+		case ErrUserNotFound:
+			c.JSON(http.StatusNotFound, Error(404, "用户不存在"))
+		case ErrGroupNotFound:
+			c.JSON(http.StatusNotFound, Error(404, "用户组不存在"))
+		default:
+			c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(nil))
+}
+
+// ========== 用户组管理 API ==========
+
+func (h *Handlers) listGroups(c *gin.Context) {
+	groups := h.manager.ListGroups()
+	c.JSON(http.StatusOK, Success(groups))
+}
+
+func (h *Handlers) createGroup(c *gin.Context) {
+	var req GroupInput
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	group, err := h.manager.CreateGroup(req)
+	if err != nil {
+		if err == ErrGroupExists {
+			c.JSON(http.StatusConflict, Error(409, err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusCreated, Success(group))
+}
+
+func (h *Handlers) getGroup(c *gin.Context) {
+	name := c.Param("name")
+	group, err := h.manager.GetGroup(name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, Error(404, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, Success(group))
+}
+
+func (h *Handlers) updateGroup(c *gin.Context) {
+	name := c.Param("name")
+	var req GroupInput
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	group, err := h.manager.UpdateGroup(name, req)
+	if err != nil {
+		if err == ErrGroupNotFound {
+			c.JSON(http.StatusNotFound, Error(404, err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(group))
+}
+
+func (h *Handlers) deleteGroup(c *gin.Context) {
+	name := c.Param("name")
+	if err := h.manager.DeleteGroup(name); err != nil {
+		if err == ErrGroupNotFound {
+			c.JSON(http.StatusNotFound, Error(404, err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, Success(nil))
+}
+
+func (h *Handlers) getGroupUsers(c *gin.Context) {
+	name := c.Param("name")
+	users, err := h.manager.GetUsersInGroup(name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, Error(404, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, Success(users))
+}
+
+// ========== 认证 API ==========
+
 func (h *Handlers) login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -206,8 +404,9 @@ func (h *Handlers) login(c *gin.Context) {
 
 	user, _ := h.manager.GetUser(req.Username)
 	c.JSON(http.StatusOK, Success(LoginResponse{
-		Token: token.Token,
-		User:  user,
+		Token:     token.Token,
+		ExpiresAt: token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
+		User:      user,
 	}))
 }
 
@@ -217,6 +416,25 @@ func (h *Handlers) logout(c *gin.Context) {
 		h.manager.Logout(tokenStr)
 	}
 	c.JSON(http.StatusOK, Success(nil))
+}
+
+func (h *Handlers) refreshToken(c *gin.Context) {
+	tokenStr := c.GetHeader("Authorization")
+	if tokenStr == "" {
+		c.JSON(http.StatusUnauthorized, Error(401, "需要认证"))
+		return
+	}
+
+	token, err := h.manager.RefreshToken(tokenStr)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, Error(401, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(gin.H{
+		"token":      token.Token,
+		"expires_at": token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
+	}))
 }
 
 func (h *Handlers) getCurrentUser(c *gin.Context) {
@@ -234,6 +452,8 @@ func (h *Handlers) getCurrentUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, Success(user))
 }
+
+// ========== 中间件 ==========
 
 // AuthMiddleware 认证中间件
 func AuthMiddleware(mgr *Manager) gin.HandlerFunc {
@@ -259,6 +479,7 @@ func AuthMiddleware(mgr *Manager) gin.HandlerFunc {
 
 		// 将用户信息存入上下文
 		c.Set("user", user)
+		c.Set("username", user.Username)
 		c.Next()
 	}
 }
@@ -289,5 +510,37 @@ func RequireRole(mgr *Manager, roles ...Role) gin.HandlerFunc {
 
 		c.JSON(http.StatusForbidden, Error(403, "权限不足"))
 		c.Abort()
+	}
+}
+
+// RequireAdmin 管理员中间件
+func RequireAdmin(mgr *Manager) gin.HandlerFunc {
+	return RequireRole(mgr, RoleAdmin)
+}
+
+// RequirePermission 权限检查中间件
+func RequirePermission(mgr *Manager, resource, action string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, exists := c.Get("user")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+			c.Abort()
+			return
+		}
+
+		u, ok := user.(*User)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, Error(500, "内部错误"))
+			c.Abort()
+			return
+		}
+
+		if !mgr.HasPermission(u, resource, action) {
+			c.JSON(http.StatusForbidden, Error(403, "权限不足"))
+			c.Abort()
+			return
+		}
+
+		c.Next()
 	}
 }
