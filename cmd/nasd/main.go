@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
@@ -44,8 +45,18 @@ func main() {
 	}
 	log.Println("✅ NFS 共享模块就绪")
 
+	// 初始化网络管理
+	netMgr := network.NewManager("/etc/nas-os/network.json")
+	if err := netMgr.Initialize(); err != nil {
+		log.Printf("⚠️ 网络管理初始化警告：%v", err)
+	}
+	log.Println("✅ 网络管理模块就绪")
+
+	// 启动 DDNS 后台任务
+	netMgr.StartDDNSWorker()
+
 	// 初始化 Web 服务
-	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr)
+	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr)
 
 	// 启动 Web 服务
 	go func() {
