@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络配置 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .network-container { max-width: 1200px; margin: 0 auto; }
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .settings-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+        .settings-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            padding-top: 0.5rem;
+        }
+        .settings-description {
+            font-size: 13px;
+            color: #6B7280;
+            margin-top: 0.25rem;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: #E5E7EB;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-switch.active {
+            background: #2563EB;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::after {
+            transform: translateX(22px);
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .interface-card {
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #F9FAFB;
+        }
+        .interface-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .interface-name {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .interface-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .interface-status.up {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        .interface-status.down {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        .interface-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            font-size: 13px;
+        }
+        .info-item {
+            color: #6B7280;
+        }
+        .info-item strong {
+            color: #374151;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .table th {
+            background: #F9FAFB;
+            font-weight: 600;
+            font-size: 13px;
+            color: #374151;
+        }
+        .table tr:hover {
+            background: #F9FAFB;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-success { background: #D1FAE5; color: #065F46; }
+        .badge-warning { background: #FEF3C7; color: #92400E; }
+        .badge-danger { background: #FEE2E2; color: #991B1B; }
+        .badge-neutral { background: #F3F4F6; color: #374151; }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6B7280;
+        }
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        @media (max-width: 640px) {
+            .settings-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="#" class="active">网络配置</a>
+                <a href="settings.html">设置</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container network-container">
+            <div style="margin-bottom: 2rem;">
+                <h1>🌐 网络配置</h1>
+                <p class="text-muted">管理网络接口、DDNS、端口转发和防火墙规则</p>
+            </div>
+
+            <!-- 网络接口 -->
+            <div class="settings-section">
+                <div class="settings-header">
+                    <div class="settings-title">
+                        <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/>
+                        </svg>
+                        网络接口
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="showAddInterface()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        添加接口
+                    </button>
+                </div>
+
+                <div id="interfaces-list">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+
+            <!-- DDNS 设置 -->
+            <div class="settings-section">
+                <div class="settings-header">
+                    <div class="settings-title">
+                        <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        DDNS 动态域名
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="showAddDDNS()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        添加 DDNS
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>服务商</th>
+                                <th>域名</th>
+                                <th>接口</th>
+                                <th>状态</th>
+                                <th>上次更新</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ddns-list">
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <p>暂无 DDNS 配置</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 端口转发 -->
+            <div class="settings-section">
+                <div class="settings-header">
+                    <div class="settings-title">
+                        <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                        </svg>
+                        端口转发
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="showAddPortForward()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        添加规则
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>外部端口</th>
+                                <th>内部 IP</th>
+                                <th>内部端口</th>
+                                <th>协议</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="port-forward-list">
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                        </svg>
+                                        <p>暂无端口转发规则</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 防火墙规则 -->
+            <div class="settings-section">
+                <div class="settings-header">
+                    <div class="settings-title">
+                        <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        防火墙规则
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="showAddFirewallRule()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        添加规则
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>规则名称</th>
+                                <th>动作</th>
+                                <th>源 IP</th>
+                                <th>目标端口</th>
+                                <th>协议</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="firewall-list">
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                        </svg>
+                                        <p>暂无防火墙规则</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 保存按钮 -->
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="saveAllSettings()">
+                    💾 保存所有设置
+                </button>
+                <button class="btn btn-secondary" onclick="loadAllSettings()">
+                    🔄 重新加载
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = '/api/v1';
+
+        // 加载网络接口
+        async function loadInterfaces() {
+            try {
+                const res = await fetch(`${API_BASE}/network/interfaces`);
+                const data = await res.json();
+                const container = document.getElementById('interfaces-list');
+                
+                if (data.data && data.data.length > 0) {
+                    container.innerHTML = data.data.map(iface => {
+                        const statusClass = iface.State === 'up' ? 'up' : 'down';
+                        const statusText = iface.State === 'up' ? '已连接' : '未连接';
+                        return `
+                            <div class="interface-card">
+                                <div class="interface-header">
+                                    <span class="interface-name">📡 ${iface.Name} (${iface.MAC || 'N/A'})</span>
+                                    <span class="interface-status ${statusClass}">${statusText}</span>
+                                </div>
+                                <div class="interface-info">
+                                    <div class="info-item"><strong>IP 地址:</strong> ${iface.IP || '未分配'}</div>
+                                    <div class="info-item"><strong>子网掩码:</strong> ${iface.Netmask || '-'}</div>
+                                    <div class="info-item"><strong>网关:</strong> ${iface.Gateway || '-'}</div>
+                                    <div class="info-item"><strong>DNS:</strong> ${iface.DNS || '-'}</div>
+                                    <div class="info-item"><strong>类型:</strong> <span class="badge badge-neutral">${iface.Type || 'ethernet'}</span></div>
+                                    <div class="info-item"><strong>速度:</strong> ${iface.Speed || '-'}</div>
+                                </div>
+                                <div class="btn-group" style="margin-top: 1rem;">
+                                    <button class="btn btn-sm btn-secondary" onclick="editInterface('${iface.Name}')">编辑</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="toggleInterface('${iface.Name}')">${iface.State === 'up' ? '禁用' : '启用'}</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    container.innerHTML = '<div class="empty-state"><p>暂无网络接口</p></div>';
+                }
+            } catch (e) {
+                console.error('加载网络接口失败:', e);
+                document.getElementById('interfaces-list').innerHTML = '<div class="empty-state"><p>加载失败</p></div>';
+            }
+        }
+
+        // 加载 DDNS 列表
+        async function loadDDNS() {
+            try {
+                const res = await fetch(`${API_BASE}/network/ddns`);
+                const data = await res.json();
+                const tbody = document.getElementById('ddns-list');
+                
+                if (data.data && data.data.length > 0) {
+                    tbody.innerHTML = data.data.map(ddns => `
+                        <tr>
+                            <td><strong>${ddns.Provider}</strong></td>
+                            <td>${ddns.Domain}</td>
+                            <td>${ddns.Interface}</td>
+                            <td><span class="badge badge-${ddns.Status === 'active' ? 'success' : 'warning'}">${ddns.Status === 'active' ? '活跃' : '等待'}</span></td>
+                            <td class="text-muted">${ddns.LastUpdate || '从未'}</td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="editDDNS('${ddns.Domain}')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteDDNS('${ddns.Domain}')">删除</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('加载 DDNS 失败:', e);
+            }
+        }
+
+        // 加载端口转发列表
+        async function loadPortForward() {
+            try {
+                const res = await fetch(`${API_BASE}/network/port-forward`);
+                const data = await res.json();
+                const tbody = document.getElementById('port-forward-list');
+                
+                if (data.data && data.data.length > 0) {
+                    tbody.innerHTML = data.data.map(rule => `
+                        <tr>
+                            <td><strong>${rule.Name}</strong></td>
+                            <td>${rule.ExternalPort}</td>
+                            <td>${rule.InternalIP}</td>
+                            <td>${rule.InternalPort}</td>
+                            <td><span class="badge badge-neutral">${rule.Protocol.toUpperCase()}</span></td>
+                            <td><span class="badge badge-${rule.Enabled ? 'success' : 'warning'}">${rule.Enabled ? '启用' : '禁用'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="editPortForward('${rule.Name}')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deletePortForward('${rule.Name}')">删除</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('加载端口转发失败:', e);
+            }
+        }
+
+        // 加载防火墙规则
+        async function loadFirewall() {
+            try {
+                const res = await fetch(`${API_BASE}/network/firewall`);
+                const data = await res.json();
+                const tbody = document.getElementById('firewall-list');
+                
+                if (data.data && data.data.length > 0) {
+                    tbody.innerHTML = data.data.map(rule => `
+                        <tr>
+                            <td><strong>${rule.Name}</strong></td>
+                            <td><span class="badge badge-${rule.Action === 'accept' ? 'success' : 'danger'}">${rule.Action === 'accept' ? '允许' : '拒绝'}</span></td>
+                            <td>${rule.SourceIP || '任意'}</td>
+                            <td>${rule.DestPort || '全部'}</td>
+                            <td><span class="badge badge-neutral">${rule.Protocol.toUpperCase()}</span></td>
+                            <td><span class="badge badge-${rule.Enabled ? 'success' : 'warning'}">${rule.Enabled ? '启用' : '禁用'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="editFirewallRule('${rule.Name}')">编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteFirewallRule('${rule.Name}')">删除</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('加载防火墙规则失败:', e);
+            }
+        }
+
+        // 添加接口
+        function showAddInterface() {
+            const name = prompt('接口名称 (如：eth0, eth1):');
+            if (!name) return;
+            
+            const config = prompt('配置 (JSON 格式，如：{"ip":"192.168.1.100","netmask":"255.255.255.0","gateway":"192.168.1.1","dns":"8.8.8.8"}):');
+            if (!config) return;
+            
+            fetch(`${API_BASE}/network/interfaces`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, config: JSON.parse(config)})
+            }).then(r => r.json()).then(data => {
+                alert(data.message || data.error);
+                loadInterfaces();
+            });
+        }
+
+        // 编辑接口
+        function editInterface(name) {
+            alert(`编辑接口 ${name} 功能开发中...`);
+        }
+
+        // 切换接口状态
+        function toggleInterface(name) {
+            if (confirm(`确定要${name}网络接口吗？`)) {
+                fetch(`${API_BASE}/network/interfaces/${name}/toggle`, {method: 'POST'})
+                    .then(r => r.json())
+                    .then(data => {
+                        alert(data.message || data.error);
+                        loadInterfaces();
+                    });
+            }
+        }
+
+        // 添加 DDNS
+        function showAddDDNS() {
+            const provider = prompt('DDNS 服务商 (如：alidns, cloudflare, duckdns):');
+            if (!provider) return;
+            
+            const domain = prompt('域名:');
+            if (!domain) return;
+            
+            const token = prompt('API Token/密钥:');
+            if (!token) return;
+            
+            const iface = prompt('使用的网络接口 (留空为自动):') || 'auto';
+            
+            fetch(`${API_BASE}/network/ddns`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({provider, domain, token, interface: iface})
+            }).then(r => r.json()).then(data => {
+                alert(data.message || data.error);
+                loadDDNS();
+            });
+        }
+
+        // 编辑 DDNS
+        function editDDNS(domain) {
+            alert(`编辑 DDNS ${domain} 功能开发中...`);
+        }
+
+        // 删除 DDNS
+        function deleteDDNS(domain) {
+            if (confirm(`确定要删除 DDNS 配置 "${domain}" 吗？`)) {
+                fetch(`${API_BASE}/network/ddns/${encodeURIComponent(domain)}`, {method: 'DELETE'})
+                    .then(r => r.json())
+                    .then(data => {
+                        alert(data.message || data.error);
+                        loadDDNS();
+                    });
+            }
+        }
+
+        // 添加端口转发
+        function showAddPortForward() {
+            const name = prompt('规则名称:');
+            if (!name) return;
+            
+            const externalPort = prompt('外部端口:');
+            if (!externalPort) return;
+            
+            const internalIP = prompt('内部 IP 地址:');
+            if (!internalIP) return;
+            
+            const internalPort = prompt('内部端口:');
+            if (!internalPort) return;
+            
+            const protocol = prompt('协议 (tcp/udp，留空为 tcp):') || 'tcp';
+            
+            fetch(`${API_BASE}/network/port-forward`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, externalPort: parseInt(externalPort), internalIP, internalPort: parseInt(internalPort), protocol})
+            }).then(r => r.json()).then(data => {
+                alert(data.message || data.error);
+                loadPortForward();
+            });
+        }
+
+        // 编辑端口转发
+        function editPortForward(name) {
+            alert(`编辑端口转发规则 "${name}" 功能开发中...`);
+        }
+
+        // 删除端口转发
+        function deletePortForward(name) {
+            if (confirm(`确定要删除端口转发规则 "${name}" 吗？`)) {
+                fetch(`${API_BASE}/network/port-forward/${encodeURIComponent(name)}`, {method: 'DELETE'})
+                    .then(r => r.json())
+                    .then(data => {
+                        alert(data.message || data.error);
+                        loadPortForward();
+                    });
+            }
+        }
+
+        // 添加防火墙规则
+        function showAddFirewallRule() {
+            const name = prompt('规则名称:');
+            if (!name) return;
+            
+            const action = prompt('动作 (accept/drop，accept=允许，drop=拒绝):') || 'accept';
+            
+            const sourceIP = prompt('源 IP (留空为任意):') || '';
+            
+            const destPort = prompt('目标端口 (留空为全部):') || '';
+            
+            const protocol = prompt('协议 (tcp/udp/icmp，留空为全部):') || 'all';
+            
+            fetch(`${API_BASE}/network/firewall`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name, action, sourceIP, destPort, protocol})
+            }).then(r => r.json()).then(data => {
+                alert(data.message || data.error);
+                loadFirewall();
+            });
+        }
+
+        // 编辑防火墙规则
+        function editFirewallRule(name) {
+            alert(`编辑防火墙规则 "${name}" 功能开发中...`);
+        }
+
+        // 删除防火墙规则
+        function deleteFirewallRule(name) {
+            if (confirm(`确定要删除防火墙规则 "${name}" 吗？`)) {
+                fetch(`${API_BASE}/network/firewall/${encodeURIComponent(name)}`, {method: 'DELETE'})
+                    .then(r => r.json())
+                    .then(data => {
+                        alert(data.message || data.error);
+                        loadFirewall();
+                    });
+            }
+        }
+
+        // 保存所有设置
+        function saveAllSettings() {
+            alert('所有网络设置已保存！(演示)');
+        }
+
+        // 重新加载
+        function loadAllSettings() {
+            loadInterfaces();
+            loadDDNS();
+            loadPortForward();
+            loadFirewall();
+            alert('设置已重新加载');
+        }
+
+        // 初始化
+        loadInterfaces();
+        loadDDNS();
+        loadPortForward();
+        loadFirewall();
+    </script>
+</body>
+</html>
