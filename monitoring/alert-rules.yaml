@@ -1,0 +1,155 @@
+# M5 监控告警规则配置
+# Phase 2: 磁盘、网络、系统健康告警
+
+rules:
+  # ==================== CPU 告警规则 ====================
+  - name: cpu_usage_critical
+    metric: cpu_usage_percent
+    condition: "> 95"
+    duration: 2
+    level: P0
+    message: "CPU 使用率超过 95%，系统可能过载"
+
+  - name: cpu_usage_warning
+    metric: cpu_usage_percent
+    condition: "> 85"
+    duration: 5
+    level: P1
+    message: "CPU 使用率超过 85%，请关注"
+
+  - name: cpu_load_critical
+    metric: cpu_load_1m
+    condition: "> 8"
+    duration: 3
+    level: P1
+    message: "CPU 1 分钟负载超过 8，系统过载"
+
+  # ==================== 内存告警规则 ====================
+  - name: mem_usage_critical
+    metric: mem_usage_percent
+    condition: "> 95"
+    duration: 1
+    level: P0
+    message: "内存使用率超过 95%，系统可能 OOM"
+
+  - name: mem_usage_warning
+    metric: mem_usage_percent
+    condition: "> 80"
+    duration: 5
+    level: P1
+    message: "内存使用率超过 80%"
+
+  - name: mem_available_critical
+    metric: mem_available_bytes
+    condition: "< 104857600"
+    duration: 1
+    level: P0
+    message: "可用内存不足 100MB"
+
+  - name: mem_swap_warning
+    metric: mem_swap_usage_percent
+    condition: "> 50"
+    duration: 5
+    level: P1
+    message: "Swap 使用率超过 50%"
+
+  # ==================== 磁盘告警规则 ====================
+  - name: disk_usage_critical
+    metric: disk_usage_percent
+    condition: "> 95"
+    duration: 1
+    level: P0
+    message: "磁盘使用率超过 95%，空间严重不足"
+
+  - name: disk_usage_warning
+    metric: disk_usage_percent
+    condition: "> 85"
+    duration: 5
+    level: P1
+    message: "磁盘使用率超过 85%，请清理空间"
+
+  - name: disk_available_critical
+    metric: disk_available_bytes
+    condition: "< 1073741824"
+    duration: 1
+    level: P0
+    message: "磁盘可用空间不足 1GB"
+
+  - name: disk_io_wait_warning
+    metric: disk_io_wait_percent
+    condition: "> 30"
+    duration: 3
+    level: P1
+    message: "磁盘 IO 等待超过 30%，IO 性能瓶颈"
+
+  - name: inode_usage_warning
+    metric: inode_usage_percent
+    condition: "> 85"
+    duration: 5
+    level: P1
+    message: "Inode 使用率超过 85%"
+
+  # ==================== 网络告警规则 ====================
+  - name: net_errors_warning
+    metric: net_errors_in
+    condition: "> 100"
+    duration: 5
+    level: P1
+    message: "网络接收错误数过高"
+
+  - name: net_dropped_warning
+    metric: net_dropped_in
+    condition: "> 1000"
+    duration: 5
+    level: P1
+    message: "网络接收丢弃数过高"
+
+  - name: net_connections_warning
+    metric: net_connections_active
+    condition: "> 1000"
+    duration: 3
+    level: P1
+    message: "活跃连接数超过 1000"
+
+  - name: net_time_wait_warning
+    metric: net_connections_time_wait
+    condition: "> 500"
+    duration: 5
+    level: P1
+    message: "TIME_WAIT 连接数超过 500"
+
+  # ==================== 系统健康告警规则 ====================
+  - name: zombie_process_warning
+    metric: zombie_process_count
+    condition: "> 5"
+    duration: 3
+    level: P1
+    message: "僵尸进程数超过 5 个"
+
+  - name: fd_usage_warning
+    metric: fd_usage_percent
+    condition: "> 80"
+    duration: 3
+    level: P1
+    message: "文件描述符使用率超过 80%"
+
+  - name: system_temperature_warning
+    metric: system_temperature
+    condition: "> 75"
+    duration: 2
+    level: P1
+    message: "系统温度超过 75°C"
+
+  - name: system_temperature_critical
+    metric: system_temperature
+    condition: "> 85"
+    duration: 1
+    level: P0
+    message: "系统温度超过 85°C，严重过热"
+
+  - name: process_count_warning
+    metric: process_count
+    condition: "> 500"
+    duration: 5
+    level: P1
+    message: "进程总数超过 500"
