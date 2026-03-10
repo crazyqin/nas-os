@@ -1,14 +1,22 @@
 package smb
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 
 	"nas-os/internal/users"
 )
+
+// persistentConfig 持久化配置结构
+type persistentConfig struct {
+	Config *Config         `json:"config"`
+	Shares map[string]*Share `json:"shares"`
+}
 
 // Share SMB 共享配置
 type Share struct {
@@ -82,14 +90,69 @@ func NewManager(userMgr *users.Manager, configPath string) (*Manager, error) {
 
 // loadConfig 从文件加载配置
 func (m *Manager) loadConfig() error {
-	// TODO: 从配置文件加载
-	// 目前使用默认配置
+	// 检查配置文件是否存在
+	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
+		// 配置文件不存在，使用默认配置
+		return nil
+	}
+
+	data, err := os.ReadFile(m.configPath)
+	if err != nil {
+		return fmt.Errorf("读取配置文件失败：%w", err)
+	}
+
+	var pc persistentConfig
+	if err := json.Unmarshal(data, &pc); err != nil {
+		return fmt.Errorf("解析配置文件失败：%w", err)
+	}
+
+	if pc.Config != nil {
+		m.config = pc.Config
+	}
+	if pc.Shares != nil {
+		m.shares = pc.Shares
+	}
+
 	return nil
 }
 
-// saveConfig 保存配置到文件
+// saveConfig 保存配置到文件（线程安全）
 func (m *Manager) saveConfig() error {
-	// TODO: 保存到配置文件
+	m.mu.RLock()
+	pc := persistentConfig{
+		Config: m.config,
+		Shares: m.shares,
+	}
+	m.mu.RUnlock()
+
+	return writeConfigFile(m.configPath, pc)
+}
+
+// saveConfigLocked 保存配置（调用者已持有锁）
+func (m *Manager) saveConfigLocked() error {
+	pc := persistentConfig{
+		Config: m.config,
+		Shares: m.shares,
+	}
+	return writeConfigFile(m.configPath, pc)
+}
+
+// writeConfigFile 写入配置文件
+func writeConfigFile(configPath string, pc persistentConfig) error {
+	data, err := json.MarshalIndent(pc, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化配置失败：%w", err)
+	}
+
+	// 确保目录存在
+	if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {
+		return fmt.Errorf("创建配置目录失败：%w", err)
+	}
+
+	if err := os.WriteFile(configPath, data, 0644); err != nil {
+		return fmt.Errorf("写入配置文件失败：%w", err)
+	}
+
 	return nil
 }
 
@@ -185,6 +248,13 @@ func (m *Manager) CreateShare(input ShareInput) (*Share, error) {
 	}
 
 	m.shares[input.Name] = share
+	
+	// 保存配置
+	if err := m.saveConfigLocked(); err != nil {
+		delete(m.shares, input.Name)
+		return nil, fmt.Errorf("保存配置失败：%w", err)
+	}
+	
 	return share, nil
 }
 
@@ -228,6 +298,11 @@ func (m *Manager) UpdateShare(name string, input ShareInput) (*Share, error) {
 	share.AllowedUsers = input.AllowedUsers
 	share.Browseable = input.Browseable
 
+	// 保存配置
+	if err := m.saveConfigLocked(); err != nil {
+		return nil, fmt.Errorf("保存配置失败：%w", err)
+	}
+
 	return share, nil
 }
 
@@ -241,6 +316,12 @@ func (m *Manager) DeleteShare(name string) error {
 	}
 
 	delete(m.shares, name)
+	
+	// 保存配置
+	if err := m.saveConfigLocked(); err != nil {
+		return fmt.Errorf("保存配置失败：%w", err)
+	}
+	
 	return nil
 }
 
