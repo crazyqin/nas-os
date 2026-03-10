@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .settings-container { max-width: 900px; margin: 0 auto; }
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .settings-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .settings-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+        .settings-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            padding-top: 0.5rem;
+        }
+        .settings-description {
+            font-size: 13px;
+            color: #6B7280;
+            margin-top: 0.25rem;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+            background: #E5E7EB;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-switch.active {
+            background: #2563EB;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::after {
+            transform: translateX(22px);
+        }
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        @media (max-width: 640px) {
+            .settings-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="#" class="active">设置</a>
+                <a href="#">退出</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container settings-container">
+            <div style="margin-bottom: 2rem;">
+                <h1>⚙️ 系统设置</h1>
+                <p class="text-muted">配置系统参数和偏好设置</p>
+            </div>
+
+            <!-- 基本设置 -->
+            <div class="settings-section">
+                <div class="settings-header">
+                    <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <h2 class="settings-title">基本设置</h2>
+                </div>
+
+                <div class="settings-grid">
+                    <div>
+                        <div class="settings-label">系统名称</div>
+                        <div class="settings-description">显示在页面标题和登录页</div>
+                    </div>
+                    <div>
+                        <input type="text" class="form-input" value="NAS-OS" style="max-width: 300px;">
+                    </div>
+                </div>
+
+                <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #E5E7EB;">
+
+                <div class="settings-grid">
+                    <div>
+                        <div class="settings-label">语言</div>
+                        <div class="settings-description">界面显示语言</div>
+                    </div>
+                    <div>
+                        <select class="form-select" style="max-width: 200px;">
+                            <option value="zh-CN">简体中文</option>
+                            <option value="en-US">English</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 网络设置 -->
+            <div class="settings-section">
+                <div class="settings-header">
+                    <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                    </svg>
+                    <h2 class="settings-title">网络设置</h2>
+                </div>
+
+                <div class="settings-grid">
+                    <div>
+                        <div class="settings-label">主机名</div>
+                        <div class="settings-description">网络中的设备名称</div>
+                    </div>
+                    <div>
+                        <input type="text" class="form-input" value="nas-server" style="max-width: 300px;">
+                    </div>
+                </div>
+
+                <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #E5E7EB;">
+
+                <div class="settings-grid">
+                    <div>
+                        <div class="settings-label">HTTP 端口</div>
+                        <div class="settings-description">Web 管理界面端口</div>
+                    </div>
+                    <div>
+                        <input type="number" class="form-input" value="8080" style="max-width: 150px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 存储设置 -->
+            <div class="settings-section">
+                <div class="settings-header">
+                    <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+                    </svg>
+                    <h2 class="settings-title">存储设置</h2>
+                </div>
+
+                <div class="settings-grid">
+                    <div>
+                        <div class="settings-label">自动平衡</div>
+                        <div class="settings-description">定期自动平衡数据分布</div>
+                    </div>
+                    <div>
+                        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                </div>
+
+                <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #E5E7EB;">
+
+                <div class="settings-grid">
+                    <div>
+                        <div class="settings-label">自动快照</div>
+                        <div class="settings-description">每日自动创建系统快照</div>
+                    </div>
+                    <div>
+                        <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通知设置 -->
+            <div class="settings-section">
+                <div class="settings-header">
+                    <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <h2 class="settings-title">通知设置</h2>
+                </div>
+
+                <div class="settings-grid">
+                    <div>
+                        <div class="settings-label">邮件通知</div>
+                        <div class="settings-description">发送系统告警到邮箱</div>
+                    </div>
+                    <div>
+                        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                    </div>
+                </div>
+
+                <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #E5E7EB;">
+
+                <div class="settings-grid">
+                    <div>
+                        <div class="settings-label">通知邮箱</div>
+                        <div class="settings-description">接收通知的邮箱地址</div>
+                    </div>
+                    <div>
+                        <input type="email" class="form-input" value="admin@example.com" style="max-width: 300px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 保存按钮 -->
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="saveSettings()">
+                    💾 保存设置
+                </button>
+                <button class="btn btn-secondary" onclick="resetSettings()">
+                    🔄 重置
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function saveSettings() {
+            alert('设置已保存！(演示)');
+        }
+
+        function resetSettings() {
+            if (confirm('确定要重置所有设置为默认值吗？')) {
+                alert('设置已重置！(演示)');
+            }
+        }
+    </script>
+</body>
+</html>
