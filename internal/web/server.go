@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/shares"
 	"nas-os/internal/smb"
@@ -23,10 +24,11 @@ type Server struct {
 	userMgr    *users.Manager
 	smbMgr     *smb.Manager
 	nfsMgr     *nfs.Manager
+	networkMgr *network.Manager
 }
 
 // NewServer 创建 Web 服务器
-func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager) *Server {
+func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager) *Server {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.Use(gin.Recovery())
@@ -39,6 +41,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		userMgr:    userMgr,
 		smbMgr:     smbMgr,
 		nfsMgr:     nfsMgr,
+		networkMgr: netMgr,
 	}
 	s.setupRoutes()
 	return s
@@ -109,6 +112,9 @@ func (s *Server) setupRoutes() {
 
 		// ========== 共享管理（SMB + NFS）==========
 		shares.NewHandlers(s.smbMgr, s.nfsMgr).RegisterRoutes(api)
+
+		// ========== 网络管理 ==========
+		network.NewHandlers(s.networkMgr).RegisterRoutes(api)
 
 		// ========== 系统信息 ==========
 		api.GET("/system/info", s.getSystemInfo)
