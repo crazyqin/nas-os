@@ -240,6 +240,107 @@
                 display: none;
             }
         }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 0.5rem 0;
+            min-width: 180px;
+            z-index: 3000;
+            display: none;
+        }
+        .context-menu.active { display: block; }
+        .context-menu-item {
+            padding: 0.625rem 1rem;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1F2937;
+            transition: background 0.2s;
+        }
+        .context-menu-item:hover { background: #F3F4F6; }
+        .context-menu-item.danger:hover { background: #FEE2E2; color: #DC2626; }
+        .context-menu-divider {
+            height: 1px;
+            background: #E5E7EB;
+            margin: 0.5rem 0;
+        }
+
+        /* Upload Progress */
+        .upload-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #F9FAFB;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        .upload-item-icon {
+            width: 32px; height: 32px;
+            background: #DBEAFE;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .upload-item-info { flex: 1; min-width: 0; }
+        .upload-item-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1F2937;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .upload-item-progress {
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 2px;
+            margin-top: 0.25rem;
+            overflow: hidden;
+        }
+        .upload-item-bar {
+            height: 100%;
+            background: #2563EB;
+            transition: width 0.3s;
+        }
+        .upload-item-status {
+            font-size: 12px;
+            color: #6B7280;
+            margin-left: 0.5rem;
+        }
+
+        /* Drag & Drop Zone */
+        .drop-zone {
+            border: 2px dashed #D1D5DB;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            background: #F9FAFB;
+        }
+        .drop-zone.dragover {
+            border-color: #2563EB;
+            background: #DBEAFE;
+        }
+        .drop-zone-icon {
+            width: 64px; height: 64px;
+            margin: 0 auto 1rem;
+            color: #9CA3AF;
+        }
+        .drop-zone-text {
+            font-size: 16px;
+            color: #6B7280;
+            margin-bottom: 0.5rem;
+        }
+        .drop-zone-hint {
+            font-size: 13px;
+            color: #9CA3AF;
+        }
     </style>
 </head>
 <body>
@@ -335,7 +436,7 @@
                     <!-- Files Grid -->
                     <div class="file-grid" id="files-container">
                         <!-- Folder Items -->
-                        <div class="file-item" ondblclick="navigateTo('/home/documents')">
+                        <div class="file-item" ondblclick="navigateTo('/home/documents')" oncontextmenu="showContextMenu(event, '工作文档', '/home/documents', true)">
                             <div class="file-icon folder">
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
                             </div>
@@ -462,18 +563,42 @@
         </div>
     </main>
 
+    <!-- Context Menu -->
+    <div class="context-menu" id="context-menu">
+        <div class="context-menu-item" onclick="contextAction('preview')">👁️ 预览</div>
+        <div class="context-menu-item" onclick="contextAction('download')">⬇️ 下载</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="contextAction('rename')">✏️ 重命名</div>
+        <div class="context-menu-item" onclick="contextAction('move')">📦 移动</div>
+        <div class="context-menu-item" onclick="contextAction('copy')">📋 复制</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="contextAction('compress')">🗜️ 压缩</div>
+        <div class="context-menu-item" onclick="contextAction('share')">🔗 分享</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item danger" onclick="contextAction('delete')">🗑️ 删除</div>
+    </div>
+
     <!-- Upload Modal -->
     <div class="modal-overlay" id="upload-modal">
         <div class="modal">
             <h3 class="modal-title">📤 上传文件</h3>
             <div class="form-group">
                 <label class="form-label">选择文件</label>
-                <input type="file" class="form-input" multiple>
+                <input type="file" class="form-input" multiple id="upload-input">
                 <div class="form-hint">支持拖拽上传，最大单文件 10GB</div>
+                <div id="upload-progress" style="margin-top: 1rem; display: none;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 13px;">
+                        <span id="upload-status">正在上传...</span>
+                        <span id="upload-percent">0%</span>
+                    </div>
+                    <div style="background: #E5E7EB; border-radius: 8px; height: 8px; overflow: hidden;">
+                        <div id="upload-bar" style="background: #2563EB; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
             </div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeModal('upload-modal')">取消</button>
-                <button class="btn btn-primary" onclick="uploadFiles()">开始上传</button>
+                <button class="btn btn-primary" onclick="startUpload()">开始上传</button>
             </div>
         </div>
     </div>
@@ -690,6 +815,132 @@
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeModal('edit-share-modal')">取消</button>
                 <button class="btn btn-primary" onclick="saveShare()">保存更改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compress Modal -->
+    <div class="modal-overlay" id="compress-modal">
+        <div class="modal">
+            <h3 class="modal-title">🗜️ 压缩文件</h3>
+            <div class="form-group">
+                <label class="form-label">压缩格式</label>
+                <select class="form-select" id="compress-format">
+                    <option value="zip">ZIP (通用格式)</option>
+                    <option value="tar.gz">TAR.GZ (Linux 常用)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">压缩文件名</label>
+                <input type="text" class="form-input" id="compress-name" placeholder="输入压缩包名称">
+            </div>
+            <div class="form-group">
+                <label class="form-label">压缩级别</label>
+                <select class="form-select" id="compress-level">
+                    <option value="1">快速压缩</option>
+                    <option value="6" selected>标准压缩</option>
+                    <option value="9">最大压缩</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('compress-modal')">取消</button>
+                <button class="btn btn-primary" onclick="doCompress()">开始压缩</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extract Modal -->
+    <div class="modal-overlay" id="extract-modal">
+        <div class="modal">
+            <h3 class="modal-title">📦 解压文件</h3>
+            <div class="form-group">
+                <label class="form-label">解压到</label>
+                <input type="text" class="form-input" id="extract-path" placeholder="输入解压路径">
+                <div class="form-hint">留空表示解压到当前目录</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">选项</label>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="extract-overwrite" checked>
+                        <span>覆盖已存在的文件</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="extract-keep-path">
+                        <span>保留目录结构</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('extract-modal')">取消</button>
+                <button class="btn btn-primary" onclick="doExtract()">开始解压</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Link Modal -->
+    <div class="modal-overlay" id="share-link-modal">
+        <div class="modal">
+            <h3 class="modal-title">🔗 生成分享链接</h3>
+            <div class="form-group">
+                <label class="form-label">分享文件</label>
+                <input type="text" class="form-input" id="share-file-name" disabled>
+            </div>
+            <div class="form-group">
+                <label class="form-label">链接有效期</label>
+                <select class="form-select" id="share-expiry">
+                    <option value="1">1 小时</option>
+                    <option value="24" selected>24 小时</option>
+                    <option value="72">3 天</option>
+                    <option value="168">7 天</option>
+                    <option value="720">30 天</option>
+                    <option value="0">永久有效</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">访问密码</label>
+                <input type="text" class="form-input" id="share-password" placeholder="留空表示无需密码">
+                <div class="form-hint">留空表示公开访问</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">允许下载</label>
+                <select class="form-select" id="share-allow-download">
+                    <option value="1" selected>允许</option>
+                    <option value="0">仅预览</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('share-link-modal')">取消</button>
+                <button class="btn btn-primary" onclick="generateShareLink()">生成链接</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Result Modal -->
+    <div class="modal-overlay" id="share-result-modal">
+        <div class="modal">
+            <h3 class="modal-title">✅ 分享链接已生成</h3>
+            <div class="form-group">
+                <label class="form-label">分享链接</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" class="form-input" id="share-link-url" readonly>
+                    <button class="btn btn-secondary" onclick="copyShareUrl()">📋 复制</button>
+                </div>
+            </div>
+            <div class="form-group" id="share-link-password-group" style="display: none;">
+                <label class="form-label">访问密码</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" class="form-input" id="share-link-password" readonly>
+                    <button class="btn btn-secondary" onclick="copySharePassword()">📋 复制</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">有效期至</label>
+                <div id="share-link-expiry" style="padding: 0.75rem; background: #F3F4F6; border-radius: 8px; font-size: 14px;"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('share-result-modal')">关闭</button>
+                <button class="btn btn-primary" onclick="sendShareLink()">📤 发送链接</button>
             </div>
         </div>
     </div>
@@ -1226,7 +1477,256 @@
     </style>
     
     <script>
-        // 文件预览功能
+        const API_BASE = '/api/v1';
+        
+        // ========== 文件操作功能 ==========
+        
+        // 上传文件
+        function showUploadModal() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.onchange = (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                    uploadFiles(files);
+                }
+            };
+            input.click();
+        }
+
+        async function uploadFiles(files) {
+            const currentPath = getCurrentPath();
+            
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('path', currentPath);
+
+                try {
+                    const res = await fetch(`${API_BASE}/files/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    
+                    if (data.code === 0) {
+                        showToast(`✓ ${file.name} 上传成功`);
+                    } else {
+                        showToast(`✗ ${file.name} 上传失败：${data.message}`);
+                    }
+                } catch (err) {
+                    showToast(`✗ ${file.name} 上传失败：${err.message}`);
+                }
+            }
+            
+            // 刷新文件列表
+            loadFiles(currentPath);
+        }
+
+        // 新建文件夹
+        function showNewFolderModal() {
+            const name = prompt('请输入文件夹名称:');
+            if (!name) return;
+
+            const currentPath = getCurrentPath();
+            
+            fetch(`${API_BASE}/files/mkdir`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    path: currentPath,
+                    name: name
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    showToast('✓ 文件夹创建成功');
+                    loadFiles(currentPath);
+                } else {
+                    showToast('✗ 创建失败：' + data.message);
+                }
+            })
+            .catch(err => {
+                showToast('✗ 创建失败：' + err.message);
+            });
+        }
+
+        // 重命名文件
+        function renameFile(filename) {
+            const newName = prompt('请输入新名称:', filename);
+            if (!newName || newName === filename) return;
+
+            const currentPath = getCurrentPath();
+            const oldPath = `${currentPath}/${filename}`;
+            const newPath = `${currentPath}/${newName}`;
+
+            fetch(`${API_BASE}/files/rename`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    oldPath: oldPath,
+                    newPath: newPath
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    showToast('✓ 重命名成功');
+                    loadFiles(currentPath);
+                } else {
+                    showToast('✗ 重命名失败：' + data.message);
+                }
+            })
+            .catch(err => {
+                showToast('✗ 重命名失败：' + err.message);
+            });
+        }
+
+        // 删除文件
+        function deleteFile(filename) {
+            if (!confirm(`确定要删除 "${filename}" 吗？此操作不可恢复。`)) return;
+
+            const currentPath = getCurrentPath();
+            const filePath = `${currentPath}/${filename}`;
+
+            fetch(`${API_BASE}/files/delete`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: filePath })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    showToast('✓ 删除成功');
+                    loadFiles(currentPath);
+                } else {
+                    showToast('✗ 删除失败：' + data.message);
+                }
+            })
+            .catch(err => {
+                showToast('✗ 删除失败：' + err.message);
+            });
+        }
+
+        // 下载文件
+        function downloadFile(filename) {
+            const currentPath = getCurrentPath();
+            window.location.href = `${API_BASE}/files/download?path=${encodeURIComponent(`${currentPath}/${filename}`)}`;
+        }
+
+        // 获取当前路径
+        function getCurrentPath() {
+            return '/home'; // TODO: 从面包屑导航获取实际路径
+        }
+
+        // 加载文件列表
+        async function loadFiles(path) {
+            try {
+                const res = await fetch(`${API_BASE}/files/browse?path=${encodeURIComponent(path)}`);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    renderFiles(data.data, path);
+                }
+            } catch (err) {
+                console.error('加载文件列表失败:', err);
+            }
+        }
+
+        // 渲染文件列表
+        function renderFiles(files, path) {
+            const container = document.getElementById('files-container');
+            if (!container) return;
+
+            if (!files || files.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#9CA3AF;padding:3rem;">此文件夹为空</div>';
+                return;
+            }
+
+            container.innerHTML = files.map(file => {
+                const isFolder = file.type === 'folder';
+                const icon = isFolder ? '📁' : getFileIcon(file.name);
+                const size = isFolder ? (file.count || '-') : formatSize(file.size);
+                
+                return `
+                    <div class="file-item" ondblclick="${isFolder ? `navigateTo('${file.path}')` : `openPreview(${JSON.stringify(file).replace(/"/g, '&quot;')}`)}">
+                        <div class="file-icon ${isFolder ? 'folder' : getFileTypeClass(file.name)}">
+                            <span style="font-size:24px;">${icon}</span>
+                        </div>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-meta">${size}</div>
+                        <div class="file-actions" style="display:none;position:absolute;top:8px;right:8px;gap:4px;">
+                            ${!isFolder ? `
+                                <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();downloadFile('${file.name}')" title="下载">⬇️</button>
+                                <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();renameFile('${file.name}')" title="重命名">✏️</button>
+                            ` : ''}
+                            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteFile('${file.name}')" title="删除">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 添加鼠标悬停显示操作按钮
+            container.querySelectorAll('.file-item').forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    item.querySelector('.file-actions').style.display = 'flex';
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.querySelector('.file-actions').style.display = 'none';
+                });
+            });
+        }
+
+        // 获取文件类型图标
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'bmp': '🖼️', 'svg': '🖼️',
+                'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mov': '🎬', 'wmv': '🎬',
+                'mp3': '🎵', 'wav': '🎵', 'flac': '🎵', 'aac': '🎵',
+                'pdf': '📄', 'doc': '📝', 'docx': '📝', 'xls': '📊', 'xlsx': '📊',
+                'txt': '📄', 'md': '📝', 'json': '📄', 'xml': '📄',
+                'zip': '📦', 'rar': '📦', 'tar': '📦', 'gz': '📦', '7z': '📦',
+                'js': '💻', 'ts': '💻', 'py': '💻', 'java': '💻', 'cpp': '💻', 'go': '💻', 'rs': '💻'
+            };
+            return icons[ext] || '📄';
+        }
+
+        // 获取文件类型 CSS 类
+        function getFileTypeClass(filename) {
+            if (/\.(jpg|jpeg|png|gif|bmp|svg)$/i.test(filename)) return 'image';
+            if (/\.(mp4|avi|mkv|mov|wmv)$/i.test(filename)) return 'video';
+            if (/\.(pdf|doc|docx|txt|md)$/i.test(filename)) return 'document';
+            return '';
+        }
+
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1F2937;color:white;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;box-shadow:0 4px 6px rgba(0,0,0,0.1);transition:opacity 0.3s;';
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+            
+            toast.textContent = message;
+        }
+
+        // 格式化文件大小
+        function formatSize(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // ========== 文件预览功能 ==========
+        
         let previewFile = null;
         let previewFileList = [];
         let previewIndex = -1;
@@ -1407,6 +1907,362 @@
             else if (e.key === 'ArrowLeft') prevFile();
             else if (e.key === 'ArrowRight') nextFile();
         });
+
+        // ========== 右键菜单功能 ==========
+        
+        let contextTarget = null;
+        
+        // 显示右键菜单
+        function showContextMenu(event, name, path, isDir) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            contextTarget = { name, path, isDir };
+            const menu = document.getElementById('context-menu');
+            
+            // 根据文件类型显示/隐藏菜单项
+            const fileType = contextTarget.isDir ? 'folder' : getFileTypeClass(contextTarget.name);
+            const isArchive = /\.(zip|rar|7z|tar|gz)$/i.test(contextTarget.name);
+            
+            menu.querySelectorAll('.context-menu-item').forEach(item => {
+                const action = item.getAttribute('onclick')?.match(/contextAction\('(\w+)'\)/)?.[1];
+                if (action === 'compress' && contextTarget.isDir) {
+                    item.style.display = 'block';
+                } else if (action === 'extract' && isArchive) {
+                    item.style.display = 'block';
+                } else if (action === 'preview' && !contextTarget.isDir) {
+                    item.style.display = 'block';
+                } else if (action && !['compress', 'extract', 'preview'].includes(action)) {
+                    item.style.display = 'block';
+                }
+            });
+            
+            // 定位菜单
+            menu.style.left = event.clientX + 'px';
+            menu.style.top = event.clientY + 'px';
+            menu.classList.add('active');
+        }
+        
+        // 右键菜单动作
+        function contextAction(action) {
+            hideContextMenu();
+            if (!contextTarget) return;
+            
+            switch (action) {
+                case 'preview':
+                    const file = currentFiles?.find(f => f.path === contextTarget.path);
+                    if (file) openPreview(file, currentFiles.filter(f => !f.isDir));
+                    break;
+                case 'download':
+                    downloadFile(contextTarget.name);
+                    break;
+                case 'rename':
+                    renameFile(contextTarget.name);
+                    break;
+                case 'delete':
+                    deleteFile(contextTarget.name);
+                    break;
+                case 'compress':
+                    showCompressModal();
+                    break;
+                case 'extract':
+                    showExtractModal();
+                    break;
+                case 'share':
+                    showShareModal();
+                    break;
+            }
+        }
+        
+        // 隐藏右键菜单
+        function hideContextMenu() {
+            document.getElementById('context-menu').classList.remove('active');
+        }
+        
+        // 点击其他地方关闭右键菜单
+        document.addEventListener('click', hideContextMenu);
+        document.addEventListener('contextmenu', hideContextMenu);
+
+        // ========== 压缩/解压功能 ==========
+        
+        function showCompressModal() {
+            document.getElementById('compress-name').value = contextTarget.name + '.zip';
+            document.getElementById('compress-modal').classList.add('active');
+        }
+        
+        async function doCompress() {
+            const format = document.getElementById('compress-format').value;
+            const name = document.getElementById('compress-name').value;
+            const level = document.getElementById('compress-level').value;
+            
+            if (!name) {
+                showToast('请输入压缩包名称');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/files/compress`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        path: contextTarget.path,
+                        name: name,
+                        format: format,
+                        level: parseInt(level)
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    showToast('✓ 压缩成功');
+                    closeModal('compress-modal');
+                    loadFiles(currentPath);
+                } else {
+                    showToast('✗ 压缩失败：' + data.message);
+                }
+            } catch (err) {
+                showToast('✗ 压缩失败：' + err.message);
+            }
+        }
+        
+        function showExtractModal() {
+            document.getElementById('extract-path').value = '';
+            document.getElementById('extract-modal').classList.add('active');
+        }
+        
+        async function doExtract() {
+            const extractPath = document.getElementById('extract-path').value;
+            const overwrite = document.getElementById('extract-overwrite').checked;
+            const keepPath = document.getElementById('extract-keep-path').checked;
+            
+            try {
+                const res = await fetch(`${API_BASE}/files/extract`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        path: contextTarget.path,
+                        extractPath: extractPath || currentPath,
+                        overwrite: overwrite,
+                        keepPath: keepPath
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    showToast('✓ 解压成功');
+                    closeModal('extract-modal');
+                    loadFiles(currentPath);
+                } else {
+                    showToast('✗ 解压失败：' + data.message);
+                }
+            } catch (err) {
+                showToast('✗ 解压失败：' + err.message);
+            }
+        }
+
+        // ========== 文件分享功能 ==========
+        
+        function showShareModal() {
+            document.getElementById('share-file-name').value = contextTarget.name;
+            document.getElementById('share-password').value = '';
+            document.getElementById('share-expiry').value = '24';
+            document.getElementById('share-allow-download').value = '1';
+            document.getElementById('share-link-modal').classList.add('active');
+        }
+        
+        async function generateShareLink() {
+            const expiry = parseInt(document.getElementById('share-expiry').value);
+            const password = document.getElementById('share-password').value;
+            const allowDownload = document.getElementById('share-allow-download').value === '1';
+            
+            try {
+                const res = await fetch(`${API_BASE}/shares/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        path: contextTarget.path,
+                        expiry: expiry,
+                        password: password || null,
+                        allowDownload: allowDownload
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    const shareUrl = window.location.origin + '/s/' + data.data.token;
+                    document.getElementById('share-link-url').value = shareUrl;
+                    document.getElementById('share-link-password').value = password || '无密码';
+                    document.getElementById('share-link-password-group').style.display = password ? 'block' : 'none';
+                    
+                    const expiryDate = expiry === 0 ? '永久有效' : new Date(Date.now() + expiry * 3600 * 1000).toLocaleString('zh-CN');
+                    document.getElementById('share-link-expiry').textContent = expiryDate;
+                    
+                    closeModal('share-link-modal');
+                    document.getElementById('share-result-modal').classList.add('active');
+                } else {
+                    showToast('✗ 生成失败：' + data.message);
+                }
+            } catch (err) {
+                showToast('✗ 生成失败：' + err.message);
+            }
+        }
+        
+        function copyShareUrl() {
+            const url = document.getElementById('share-link-url').value;
+            navigator.clipboard.writeText(url);
+            showToast('✓ 链接已复制');
+        }
+        
+        function copySharePassword() {
+            const pwd = document.getElementById('share-link-password').value;
+            navigator.clipboard.writeText(pwd);
+            showToast('✓ 密码已复制');
+        }
+        
+        function sendShareLink() {
+            const url = document.getElementById('share-link-url').value;
+            const text = `我分享了一个文件给你：${url}`;
+            
+            // 调用系统分享
+            if (navigator.share) {
+                navigator.share({
+                    title: '文件分享',
+                    text: text,
+                    url: url
+                });
+            } else {
+                // 回退到复制
+                navigator.clipboard.writeText(text);
+                showToast('✓ 已复制到剪贴板，可粘贴发送');
+            }
+            closeModal('share-result-modal');
+        }
+
+        // ========== 拖拽上传功能 ==========
+        
+        function initDragDrop() {
+            const dropZone = document.querySelector('.files-main');
+            if (!dropZone) return;
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            dropZone.addEventListener('dragenter', () => dropZone.classList.add('dragover'), false);
+            dropZone.addEventListener('dragleave', () => {
+                if (event.target === dropZone) dropZone.classList.remove('dragover');
+            }, false);
+            dropZone.addEventListener('drop', handleDrop, false);
+        }
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                uploadFiles(Array.from(files));
+            }
+        }
+        
+        // 初始化拖拽上传
+        initDragDrop();
+
+        // ========== 增强上传功能 ==========
+        
+        async function uploadFiles(files) {
+            const currentPath = getCurrentPath();
+            const modal = document.getElementById('upload-modal');
+            const progressDiv = document.getElementById('upload-progress');
+            const bar = document.getElementById('upload-bar');
+            const percentSpan = document.getElementById('upload-percent');
+            const statusSpan = document.getElementById('upload-status');
+            
+            modal.classList.add('active');
+            progressDiv.style.display = 'block';
+            
+            let uploaded = 0;
+            let failed = 0;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('path', currentPath);
+                
+                statusSpan.textContent = `正在上传 ${i + 1}/${files.length}: ${file.name}`;
+                
+                try {
+                    await new Promise((resolve, reject) => {
+                        const xhr = new XMLHttpRequest();
+                        
+                        xhr.upload.addEventListener('progress', (e) => {
+                            if (e.lengthComputable) {
+                                const percent = Math.round((uploaded + e.loaded / files.length) / (files.length * file.size) * 100);
+                                bar.style.width = percent + '%';
+                                percentSpan.textContent = percent + '%';
+                            }
+                        });
+                        
+                        xhr.addEventListener('load', () => {
+                            if (xhr.status === 200) {
+                                uploaded++;
+                                resolve();
+                            } else {
+                                failed++;
+                                reject(new Error(xhr.responseText));
+                            }
+                        });
+                        
+                        xhr.addEventListener('error', () => {
+                            failed++;
+                            reject(new Error('上传失败'));
+                        });
+                        
+                        xhr.open('POST', `${API_BASE}/files/upload?path=${encodeURIComponent(currentPath)}`);
+                        xhr.send(formData);
+                    });
+                } catch (err) {
+                    console.error('上传失败:', err);
+                }
+                
+                bar.style.width = Math.round((i + 1) / files.length * 100) + '%';
+                percentSpan.textContent = Math.round((i + 1) / files.length * 100) + '%';
+            }
+            
+            statusSpan.textContent = uploaded === files.length ? '✓ 全部上传成功' : `✓ 上传完成 (${uploaded} 成功，${failed} 失败)`;
+            
+            setTimeout(() => {
+                closeModal('upload-modal');
+                progressDiv.style.display = 'none';
+                bar.style.width = '0%';
+                loadFiles(currentPath);
+            }, 1500);
+        }
+        
+        function startUpload() {
+            const input = document.getElementById('upload-input');
+            if (input.files.length > 0) {
+                uploadFiles(Array.from(input.files));
+            } else {
+                showToast('请选择要上传的文件');
+            }
+        }
+
+        // 文件类型判断
+        function getFileTypeClass(filename) {
+            if (/\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i.test(filename)) return 'image';
+            if (/\.(mp4|avi|mkv|mov|wmv|webm)$/i.test(filename)) return 'video';
+            if (/\.(mp3|wav|flac|aac|ogg)$/i.test(filename)) return 'audio';
+            if (/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|md)$/i.test(filename)) return 'document';
+            if (/\.(zip|rar|7z|tar|gz)$/i.test(filename)) return 'archive';
+            return 'other';
+        }
     </script>
 </body>
 </html>

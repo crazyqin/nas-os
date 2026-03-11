@@ -77,6 +77,7 @@ import (
 	"syscall"
 
 	"nas-os/internal/cluster"
+	"nas-os/internal/downloader"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/smb"
@@ -144,8 +145,19 @@ func main() {
 		defer cluster.ShutdownCluster(clusterServices)
 	}
 
+	// 初始化下载管理器
+	downloadMgr, err := downloader.NewManager("/var/lib/nas-os/downloads")
+	if err != nil {
+		log.Printf("⚠️ 下载管理初始化警告：%v", err)
+	} else {
+		// 配置 Transmission/qBittorrent 地址（可选）
+		downloadMgr.SetTransmissionURL("http://localhost:9091")
+		log.Println("✅ 下载管理模块就绪")
+		defer downloadMgr.Close()
+	}
+
 	// 初始化 Web 服务
-	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr)
+	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr, downloadMgr)
 
 	// 启动 Web 服务
 	go func() {

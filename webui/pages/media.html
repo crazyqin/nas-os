@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>媒体中心 - NAS-OS</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .tab.active {
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .media-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .media-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+
+        .poster {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #2a2a3e 0%, #1a1a2e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-info {
+            padding: 16px;
+        }
+
+        .media-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .rating-star {
+            color: #ffd700;
+        }
+
+        .add-library-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,212,255,0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .add-library-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,212,255,0.6);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .close-btn:hover {
+            opacity: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state-hint {
+            font-size: 14px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 媒体中心</h1>
+            <div id="user-info"></div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-type="all">全部</button>
+            <button class="tab" data-type="movie">🎥 电影</button>
+            <button class="tab" data-type="tv">📺 电视剧</button>
+            <button class="tab" data-type="music">🎵 音乐</button>
+            <button class="tab" data-type="photo">📷 照片</button>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="搜索媒体..." id="search-input">
+            <button class="search-btn" onclick="searchMedia()">搜索</button>
+        </div>
+
+        <div id="media-content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 16px; color: rgba(255,255,255,0.6);">加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="add-library-btn" onclick="showAddLibraryModal()">+</button>
+
+    <!-- 添加媒体库模态框 -->
+    <div class="modal" id="add-library-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">添加媒体库</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="add-library-form" onsubmit="createLibrary(event)">
+                <div class="form-group">
+                    <label class="form-label">媒体库名称</label>
+                    <input type="text" class="form-input" name="name" required placeholder="例如：我的电影">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">媒体类型</label>
+                    <select class="form-select" name="type" required>
+                        <option value="movie">🎥 电影</option>
+                        <option value="tv">📺 电视剧</option>
+                        <option value="music">🎵 音乐</option>
+                        <option value="photo">📷 照片</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">媒体库路径</label>
+                    <input type="text" class="form-input" name="path" required placeholder="/data/media/movies">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">描述</label>
+                    <input type="text" class="form-input" name="description" placeholder="可选">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">元数据源</label>
+                    <select class="form-select" name="metadataSource">
+                        <option value="auto">自动</option>
+                        <option value="tmdb">TMDB</option>
+                        <option value="douban">豆瓣</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">TMDB API Key (可选)</label>
+                    <input type="text" class="form-input" name="tmdbApiKey" placeholder="用于获取元数据">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">豆瓣 API Key (可选)</label>
+                    <input type="text" class="form-input" name="doubanApiKey" placeholder="用于获取中文元数据">
+                </div>
+                <button type="submit" class="btn-primary">创建媒体库</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'all';
+        let mediaItems = [];
+        let libraries = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMediaWall();
+            loadLibraries();
+            setupTabs();
+        });
+
+        // 设置标签页
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentType = tab.dataset.type;
+                    loadMediaWall();
+                });
+            });
+        }
+
+        // 加载海报墙
+        async function loadMediaWall() {
+            const content = document.getElementById('media-content');
+            content.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top: 16px; color: rgba(255,255,255,0.6);">加载中...</p></div>';
+
+            try {
+                let url = '/api/v1/media/wall';
+                if (currentType !== 'all') {
+                    url = `/api/v1/media/wall/${currentType}`;
+                }
+
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    mediaItems = result.data || [];
+                    renderMediaWall(mediaItems);
+                } else {
+                    content.innerHTML = '<div class="empty-state"><p>加载失败</p></div>';
+                }
+            } catch (error) {
+                console.error('加载海报墙失败:', error);
+                content.innerHTML = '<div class="empty-state"><p>加载失败，请检查网络连接</p></div>';
+            }
+        }
+
+        // 渲染海报墙
+        function renderMediaWall(items) {
+            const content = document.getElementById('media-content');
+
+            if (!items || items.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎬</div>
+                        <p class="empty-state-text">暂无媒体</p>
+                        <p class="empty-state-hint">点击右下角 + 按钮添加媒体库</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'media-grid';
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'media-card';
+                card.onclick = () => viewMedia(item);
+
+                const posterUrl = item.posterPath || '';
+                const poster = posterUrl 
+                    ? `<img src="${posterUrl}" alt="${item.name}" onerror="this.parentElement.innerHTML='🎬'">`
+                    : '🎬';
+
+                const rating = item.rating ? `⭐ ${item.rating.toFixed(1)}` : '';
+                const year = item.metadata && item.metadata.releaseDate 
+                    ? item.metadata.releaseDate.split('-')[0]
+                    : (item.metadata && item.metadata.firstAirDate 
+                        ? item.metadata.firstAirDate.split('-')[0] 
+                        : '');
+
+                card.innerHTML = `
+                    <div class="poster">${poster}</div>
+                    <div class="media-info">
+                        <div class="media-title" title="${item.name}">${item.name}</div>
+                        <div class="media-meta">
+                            <span>${year || ''}</span>
+                            <span class="rating">${rating}</span>
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            content.innerHTML = '';
+            content.appendChild(grid);
+        }
+
+        // 加载媒体库
+        async function loadLibraries() {
+            try {
+                const response = await fetch('/api/v1/media/libraries');
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    libraries = result.data || [];
+                }
+            } catch (error) {
+                console.error('加载媒体库失败:', error);
+            }
+        }
+
+        // 显示添加媒体库模态框
+        function showAddLibraryModal() {
+            document.getElementById('add-library-modal').classList.add('active');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('add-library-modal').classList.remove('active');
+        }
+
+        // 创建媒体库
+        async function createLibrary(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const data = {
+                name: formData.get('name'),
+                type: formData.get('type'),
+                path: formData.get('path'),
+                description: formData.get('description') || '',
+                metadataSource: formData.get('metadataSource'),
+                tmdbApiKey: formData.get('tmdbApiKey') || '',
+                doubanApiKey: formData.get('doubanApiKey') || ''
+            };
+
+            try {
+                const response = await fetch('/api/v1/media/libraries', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    alert('媒体库创建成功！');
+                    closeModal();
+                    form.reset();
+                    loadMediaWall();
+                    loadLibraries();
+                } else {
+                    alert('创建失败：' + result.message);
+                }
+            } catch (error) {
+                console.error('创建媒体库失败:', error);
+                alert('创建失败，请重试');
+            }
+        }
+
+        // 搜索媒体
+        async function searchMedia() {
+            const query = document.getElementById('search-input').value.trim();
+            if (!query) {
+                loadMediaWall();
+                return;
+            }
+
+            try {
+                let url = `/api/v1/media/items?q=${encodeURIComponent(query)}`;
+                if (currentType !== 'all') {
+                    url += `&type=${currentType}`;
+                }
+
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.code === 0) {
+                    mediaItems = result.data || [];
+                    renderMediaWall(mediaItems);
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
+            }
+        }
+
+        // 查看媒体详情
+        function viewMedia(item) {
+            console.log('查看媒体:', item);
+            // TODO: 实现媒体详情页面或播放器
+            alert('媒体详情功能开发中...\n\n名称：' + item.name);
+        }
+
+        // 搜索框回车搜索
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchMedia();
+            }
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('add-library-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'add-library-modal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
