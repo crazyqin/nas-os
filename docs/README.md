@@ -12,7 +12,7 @@
 |------|------|------|
 | [README.md](../README.md) | 项目介绍与快速开始 | ✅ 完成 |
 | [MILESTONES.md](../MILESTONES.md) | 项目里程碑规划 | ✅ 完成 |
-| [TASKS.md](./TASKS.md) | 六部任务分配 | ✅ 完成 |
+| [TASKS.md](./TASKS.md) | 团队任务分配 | ✅ 完成 |
 | [CHANGELOG.md](./CHANGELOG.md) | 版本变更日志 | ⏳ 待创建 |
 
 ---
