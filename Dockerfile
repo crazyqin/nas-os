@@ -23,7 +23,8 @@ COPY docs/swagger ./docs/swagger
 # 编译（静态链接，无 CGO）
 ENV CGO_ENABLED=0
 RUN go build -ldflags="-w -s" -o nasd ./cmd/nasd
-RUN go build -ldflags="-w -s" -o nasctl ./cmd/nasctl
+# nasctl CLI 待创建
+# RUN go build -ldflags="-w -s" -o nasctl ./cmd/nasctl
 
 # ========== 运行阶段 ==========
 FROM alpine:3.21
@@ -44,7 +45,8 @@ RUN mkdir -p /mnt /etc/nas-os /var/log/nas-os
 
 # 复制编译产物
 COPY --from=builder /build/nasd /usr/local/bin/nasd
-COPY --from=builder /build/nasctl /usr/local/bin/nasctl
+# nasctl CLI 待创建
+# COPY --from=builder /build/nasctl /usr/local/bin/nasctl
 COPY configs/default.yaml /etc/nas-os/config.yaml
 
 # 暴露端口
