@@ -5,7 +5,7 @@
 ### 方式一：Docker 部署（推荐开发测试）
 ```bash
 # 1. 克隆项目
-git clone https://github.com/your-org/nas-os.git
+git clone https://github.com/crazyqin-org/nas-os.git
 cd nas-os
 
 # 2. 启动服务

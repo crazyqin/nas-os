@@ -79,7 +79,7 @@ nas-os/
 ### 克隆项目
 
 ```bash
-git clone https://github.com/your/nas-os.git
+git clone https://github.com/crazyqin/nas-os.git
 cd nas-os
 ```
 
