@@ -599,16 +599,51 @@ func generateID() string {
 }
 
 func copyDirectory(src, dst string) error {
-	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+	// 清理和验证源目录路径
+	cleanSrc := filepath.Clean(src)
+	cleanDst := filepath.Clean(dst)
+	
+	// 验证目标目录在预期路径内（防止路径遍历）
+	if !strings.HasPrefix(cleanDst, "/mnt") && !strings.HasPrefix(cleanDst, "/backup") {
+		return fmt.Errorf("invalid destination path: %s", dst)
+	}
+
+	return filepath.Walk(cleanSrc, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		relPath, err := filepath.Rel(src, path)
+		// 处理符号链接（TOCTOU 防护）
+		if info.Mode()&os.ModeSymlink != 0 {
+			// 跳过符号链接或解析后验证
+			realPath, err := filepath.EvalSymlinks(path)
+			if err != nil {
+				return fmt.Errorf("invalid symlink: %s", path)
+			}
+			// 验证符号链接目标在源目录内
+			if !strings.HasPrefix(realPath, cleanSrc) {
+				return fmt.Errorf("symlink escapes source directory: %s", path)
+			}
+			path = realPath
+			// 重新获取文件信息
+			info, err = os.Stat(realPath)
+			if err != nil {
+				return err
+			}
+		}
+
+		relPath, err := filepath.Rel(cleanSrc, path)
 		if err != nil {
 			return err
 		}
-		dstPath := filepath.Join(dst, relPath)
+		
+		// 清理目标路径
+		dstPath := filepath.Clean(filepath.Join(cleanDst, relPath))
+		
+		// 再次验证目标路径（双重检查）
+		if !strings.HasPrefix(dstPath, cleanDst) {
+			return fmt.Errorf("path traversal detected: %s", dstPath)
+		}
 
 		if info.IsDir() {
 			return os.MkdirAll(dstPath, info.Mode())
