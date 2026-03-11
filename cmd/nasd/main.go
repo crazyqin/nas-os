@@ -133,8 +133,7 @@ func main() {
 
 	// 初始化集群服务（可选）
 	hostname, _ := os.Hostname()
-	clusterServices, err := cluster.InitializeCluster(cluster.ClusterConfig{
-		Enabled: true,
+	clusterServices, err := cluster.InitializeCluster(cluster.ClusterRootConfig{
 		NodeID:  hostname,
 		DataDir: "/var/lib/nas-os",
 	}, logger)
@@ -147,11 +146,6 @@ func main() {
 
 	// 初始化 Web 服务
 	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr)
-
-	// 注册集群 API 路由
-	if clusterServices != nil {
-		webServer.RegisterClusterAPI(clusterServices.API)
-	}
 
 	// 启动 Web 服务
 	go func() {
