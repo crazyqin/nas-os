@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自动化工作流 - NAS OS</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #00d9ff;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #00d9ff;
+            color: #1a1a2e;
+        }
+
+        .btn-primary:hover {
+            background: #00b8d9;
+        }
+
+        .btn-secondary {
+            background: #333;
+            color: #eee;
+        }
+
+        .btn-secondary:hover {
+            background: #444;
+        }
+
+        .btn-success {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+
+        /* 工作流列表 */
+        .workflow-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .workflow-card {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #333;
+            transition: all 0.3s;
+        }
+
+        .workflow-card:hover {
+            border-color: #00d9ff;
+            transform: translateY(-2px);
+        }
+
+        .workflow-card h3 {
+            color: #00d9ff;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .workflow-card p {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .workflow-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .workflow-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-enabled {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .status-disabled {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        .workflow-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .workflow-actions .btn {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        /* 流程编辑器 */
+        .editor-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .editor-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .editor-content {
+            background: #16213e;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .editor-header h2 {
+            color: #00d9ff;
+            font-size: 22px;
+        }
+
+        .editor-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #1a1a2e;
+            border-right: 1px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            color: #00d9ff;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .draggable-item {
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: grab;
+            transition: all 0.3s;
+        }
+
+        .draggable-item:hover {
+            border-color: #00d9ff;
+        }
+
+        .draggable-item .icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .canvas-area {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .canvas {
+            min-height: 500px;
+            background: #0f0f23;
+            border-radius: 8px;
+            border: 2px dashed #333;
+            padding: 20px;
+        }
+
+        .canvas.drag-over {
+            border-color: #00d9ff;
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .flow-node {
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .flow-node .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .flow-node .node-title {
+            color: #00d9ff;
+            font-weight: bold;
+        }
+
+        .flow-node .node-delete {
+            color: #ff4757;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .flow-node .node-content {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            color: #00d9ff;
+            font-size: 20px;
+            margin: -5px 0;
+        }
+
+        .properties-panel {
+            width: 350px;
+            background: #1a1a2e;
+            border-left: 1px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: #16213e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #eee;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00d9ff;
+        }
+
+        /* 模板库 */
+        .templates-section {
+            margin-top: 40px;
+        }
+
+        .templates-section h2 {
+            color: #00d9ff;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .template-card {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-card:hover {
+            border-color: #00d9ff;
+            transform: translateY(-2px);
+        }
+
+        .template-card h4 {
+            color: #00d9ff;
+            margin-bottom: 8px;
+        }
+
+        .template-card p {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .template-category {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(0, 217, 255, 0.1);
+            color: #00d9ff;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* 统计信息 */
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1;
+            border: 1px solid #333;
+        }
+
+        .stat-card .stat-value {
+            font-size: 32px;
+            color: #00d9ff;
+            font-weight: bold;
+        }
+
+        .stat-card .stat-label {
+            color: #888;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 自动化工作流</h1>
+            <div>
+                <button class="btn btn-secondary" onclick="importWorkflow()">导入</button>
+                <button class="btn btn-primary" onclick="openEditor()">+ 新建工作流</button>
+            </div>
+        </header>
+
+        <!-- 统计栏 -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="total-workflows">0</div>
+                <div class="stat-label">总工作流</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="active-workflows">0</div>
+                <div class="stat-label">运行中</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-runs">0</div>
+                <div class="stat-label">今日执行</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="success-rate">0%</div>
+                <div class="stat-label">成功率</div>
+            </div>
+        </div>
+
+        <!-- 工作流列表 -->
+        <h2 style="color: #00d9ff; margin-bottom: 20px;">我的工作流</h2>
+        <div class="workflow-list" id="workflow-list">
+            <!-- 动态加载 -->
+        </div>
+
+        <!-- 模板库 -->
+        <div class="templates-section">
+            <h2>📦 预置模板</h2>
+            <div class="template-grid" id="template-grid">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑器模态框 -->
+    <div class="editor-modal" id="editor-modal">
+        <div class="editor-content">
+            <div class="editor-header">
+                <h2 id="editor-title">新建工作流</h2>
+                <div>
+                    <button class="btn btn-secondary" onclick="closeEditor()">取消</button>
+                    <button class="btn btn-success" onclick="saveWorkflow()">保存</button>
+                </div>
+            </div>
+            <div class="editor-body">
+                <div class="sidebar">
+                    <h3>⚡ 触发器</h3>
+                    <div class="draggable-item" draggable="true" data-type="trigger" data-trigger="file">
+                        <span class="icon">📁</span> 文件变化
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="trigger" data-trigger="time">
+                        <span class="icon">⏰</span> 定时任务
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="trigger" data-trigger="event">
+                        <span class="icon">🔔</span> 系统事件
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="trigger" data-trigger="webhook">
+                        <span class="icon">🌐</span> Webhook
+                    </div>
+
+                    <h3 style="margin-top: 30px;">🎬 动作</h3>
+                    <div class="draggable-item" draggable="true" data-type="action" data-action="move">
+                        <span class="icon">📦</span> 移动文件
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="action" data-action="copy">
+                        <span class="icon">📋</span> 复制文件
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="action" data-action="delete">
+                        <span class="icon">🗑️</span> 删除文件
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="action" data-action="convert">
+                        <span class="icon">🔄</span> 格式转换
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="action" data-action="notify">
+                        <span class="icon">📢</span> 发送通知
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="action" data-action="command">
+                        <span class="icon">💻</span> 执行命令
+                    </div>
+                </div>
+
+                <div class="canvas-area">
+                    <div class="canvas" id="canvas">
+                        <p style="color: #666; text-align: center; padding: 50px;">
+                            拖拽触发器和动作到此处构建工作流
+                        </p>
+                    </div>
+                </div>
+
+                <div class="properties-panel" id="properties-panel">
+                    <h3>属性</h3>
+                    <p style="color: #666; font-size: 14px;">选择一个节点编辑属性</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 工作流数据
+        let workflows = [];
+        let currentEditingId = null;
+        let flowNodes = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWorkflows();
+            loadTemplates();
+            updateStats();
+        });
+
+        // 加载工作流
+        async function loadWorkflows() {
+            try {
+                const response = await fetch('/api/automation/workflows');
+                workflows = await response.json();
+                renderWorkflows();
+            } catch (error) {
+                console.error('加载工作流失败:', error);
+            }
+        }
+
+        // 渲染工作流列表
+        function renderWorkflows() {
+            const container = document.getElementById('workflow-list');
+            container.innerHTML = '';
+
+            workflows.forEach(wf => {
+                const card = document.createElement('div');
+                card.className = 'workflow-card';
+                card.innerHTML = `
+                    <h3>${wf.name}</h3>
+                    <p>${wf.description || '暂无描述'}</p>
+                    <div class="workflow-meta">
+                        <span>创建：${new Date(wf.created_at).toLocaleDateString()}</span>
+                        <span class="workflow-status ${wf.enabled ? 'status-enabled' : 'status-disabled'}">
+                            ${wf.enabled ? '✓ 启用' : '✗ 禁用'}
+                        </span>
+                    </div>
+                    <div class="workflow-actions">
+                        <button class="btn btn-secondary" onclick="editWorkflow('${wf.id}')">编辑</button>
+                        <button class="btn ${wf.enabled ? 'btn-danger' : 'btn-success'}" onclick="toggleWorkflow('${wf.id}')">
+                            ${wf.enabled ? '禁用' : '启用'}
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteWorkflow('${wf.id}')">删除</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 加载模板
+        async function loadTemplates() {
+            try {
+                const response = await fetch('/api/automation/templates');
+                const templates = await response.json();
+                renderTemplates(templates);
+            } catch (error) {
+                console.error('加载模板失败:', error);
+            }
+        }
+
+        // 渲染模板
+        function renderTemplates(templates) {
+            const container = document.getElementById('template-grid');
+            container.innerHTML = '';
+
+            templates.forEach(tpl => {
+                const card = document.createElement('div');
+                card.className = 'template-card';
+                card.onclick = () => useTemplate(tpl.id);
+                card.innerHTML = `
+                    <h4>${tpl.name}</h4>
+                    <p>${tpl.description}</p>
+                    <span class="template-category">${tpl.category}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('total-workflows').textContent = workflows.length;
+            document.getElementById('active-workflows').textContent = workflows.filter(w => w.enabled).length;
+        }
+
+        // 打开编辑器
+        function openEditor() {
+            currentEditingId = null;
+            flowNodes = [];
+            document.getElementById('editor-title').textContent = '新建工作流';
+            document.getElementById('canvas').innerHTML = '<p style="color: #666; text-align: center; padding: 50px;">拖拽触发器和动作到此处构建工作流</p>';
+            document.getElementById('editor-modal').classList.add('active');
+            initDragDrop();
+        }
+
+        // 关闭编辑器
+        function closeEditor() {
+            document.getElementById('editor-modal').classList.remove('active');
+        }
+
+        // 编辑工作流
+        function editWorkflow(id) {
+            currentEditingId = id;
+            const wf = workflows.find(w => w.id === id);
+            if (wf) {
+                document.getElementById('editor-title').textContent = '编辑工作流';
+                document.getElementById('editor-modal').classList.add('active');
+                // TODO: 加载现有工作流节点
+            }
+        }
+
+        // 保存工作流
+        async function saveWorkflow() {
+            const workflow = {
+                id: currentEditingId,
+                name: document.getElementById('workflow-name')?.value || '未命名工作流',
+                description: document.getElementById('workflow-desc')?.value || '',
+                enabled: true,
+                trigger: flowNodes.find(n => n.type === 'trigger'),
+                actions: flowNodes.filter(n => n.type === 'action')
+            };
+
+            try {
+                const url = currentEditingId ? `/api/automation/workflows/${currentEditingId}` : '/api/automation/workflows';
+                const method = currentEditingId ? 'PUT' : 'POST';
+                
+                await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(workflow)
+                });
+
+                closeEditor();
+                loadWorkflows();
+            } catch (error) {
+                console.error('保存工作流失败:', error);
+                alert('保存失败');
+            }
+        }
+
+        // 使用模板
+        async function useTemplate(templateId) {
+            if (!confirm('确定要使用此模板创建工作流吗？')) return;
+
+            try {
+                await fetch(`/api/automation/templates/${templateId}/use`, {
+                    method: 'POST'
+                });
+                loadWorkflows();
+                alert('模板已应用！');
+            } catch (error) {
+                console.error('应用模板失败:', error);
+                alert('应用模板失败');
+            }
+        }
+
+        // 切换工作流状态
+        async function toggleWorkflow(id) {
+            const wf = workflows.find(w => w.id === id);
+            try {
+                await fetch(`/api/automation/workflows/${id}/toggle`, {
+                    method: 'POST'
+                });
+                loadWorkflows();
+            } catch (error) {
+                console.error('切换状态失败:', error);
+            }
+        }
+
+        // 删除工作流
+        async function deleteWorkflow(id) {
+            if (!confirm('确定要删除此工作流吗？')) return;
+            
+            try {
+                await fetch(`/api/automation/workflows/${id}`, {
+                    method: 'DELETE'
+                });
+                loadWorkflows();
+            } catch (error) {
+                console.error('删除失败:', error);
+            }
+        }
+
+        // 导入工作流
+        async function importWorkflow() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const workflow = JSON.parse(event.target.result);
+                        await fetch('/api/automation/workflows/import', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(workflow)
+                        });
+                        loadWorkflows();
+                        alert('导入成功！');
+                    } catch (error) {
+                        console.error('导入失败:', error);
+                        alert('导入失败：文件格式错误');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // 初始化拖拽
+        function initDragDrop() {
+            const draggables = document.querySelectorAll('.draggable-item');
+            const canvas = document.getElementById('canvas');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('type', draggable.dataset.type);
+                    e.dataTransfer.setData('trigger', draggable.dataset.trigger || '');
+                    e.dataTransfer.setData('action', draggable.dataset.action || '');
+                });
+            });
+
+            canvas.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                canvas.classList.add('drag-over');
+            });
+
+            canvas.addEventListener('dragleave', () => {
+                canvas.classList.remove('drag-over');
+            });
+
+            canvas.addEventListener('drop', (e) => {
+                e.preventDefault();
+                canvas.classList.remove('drag-over');
+                
+                const type = e.dataTransfer.getData('type');
+                const triggerType = e.dataTransfer.getData('trigger');
+                const actionType = e.dataTransfer.getData('action');
+
+                if (type === 'trigger' && triggerType) {
+                    addFlowNode('trigger', triggerType);
+                } else if (type === 'action' && actionType) {
+                    addFlowNode('action', actionType);
+                }
+            });
+        }
+
+        // 添加流程节点
+        function addFlowNode(nodeType, nodeSubtype) {
+            flowNodes.push({
+                type: nodeType,
+                subtype: nodeSubtype,
+                id: 'node_' + Date.now(),
+                config: {}
+            });
+
+            renderFlowNodes();
+        }
+
+        // 渲染流程节点
+        function renderFlowNodes() {
+            const canvas = document.getElementById('canvas');
+            canvas.innerHTML = '';
+
+            flowNodes.forEach((node, index) => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'flow-node';
+                nodeEl.innerHTML = `
+                    <div class="node-header">
+                        <span class="node-title">${getNodeIcon(node.subtype)} ${getNodeName(node.subtype)}</span>
+                        <span class="node-delete" onclick="removeNode(${index})">×</span>
+                    </div>
+                    <div class="node-content">${getNodeDescription(node.subtype)}</div>
+                `;
+                canvas.appendChild(nodeEl);
+
+                if (index < flowNodes.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'flow-arrow';
+                    arrow.textContent = '↓';
+                    canvas.appendChild(arrow);
+                }
+            });
+        }
+
+        function getNodeIcon(subtype) {
+            const icons = {
+                file: '📁', time: '⏰', event: '🔔', webhook: '🌐',
+                move: '📦', copy: '📋', delete: '🗑️', convert: '🔄',
+                notify: '📢', command: '💻'
+            };
+            return icons[subtype] || '📌';
+        }
+
+        function getNodeName(subtype) {
+            const names = {
+                file: '文件变化', time: '定时任务', event: '系统事件', webhook: 'Webhook',
+                move: '移动文件', copy: '复制文件', delete: '删除文件', convert: '格式转换',
+                notify: '发送通知', command: '执行命令'
+            };
+            return names[subtype] || '未知节点';
+        }
+
+        function getNodeDescription(subtype) {
+            return '点击配置此节点的详细参数';
+        }
+
+        function removeNode(index) {
+            flowNodes.splice(index, 1);
+            renderFlowNodes();
+        }
+    </script>
+</body>
+</html>

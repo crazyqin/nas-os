@@ -10,54 +10,80 @@
   "scope": "/",
   "lang": "zh-CN",
   "categories": ["utilities", "productivity"],
+  "id": "nas-os-webui",
+  "prefer_related_applications": false,
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "icons": [
     {
       "src": "../brand/logo/logo-72.png",
       "sizes": "72x72",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "../brand/logo/logo-96.png",
       "sizes": "96x96",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "../brand/logo/logo-128.png",
       "sizes": "128x128",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "../brand/logo/logo-144.png",
       "sizes": "144x144",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "../brand/logo/logo-152.png",
       "sizes": "152x152",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "../brand/logo/logo-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "../brand/logo/logo-384.png",
       "sizes": "384x384",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "../brand/logo/logo-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "../brand/logo/logo-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../brand/logo/logo-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -66,21 +92,28 @@
       "short_name": "存储",
       "description": "管理存储卷和快照",
       "url": "/?page=storage",
-      "icons": [{ "src": "../brand/icons/storage-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "../brand/icons/storage-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "文件共享",
       "short_name": "共享",
       "description": "管理 SMB/NFS 共享",
       "url": "/?page=shares",
-      "icons": [{ "src": "../brand/icons/share-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "../brand/icons/share-96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
       "name": "系统监控",
       "short_name": "监控",
       "description": "查看系统状态",
       "url": "/?page=monitor",
-      "icons": [{ "src": "../brand/icons/monitor-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "../brand/icons/monitor-96.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "应用商店",
+      "short_name": "应用",
+      "description": "安装和管理应用",
+      "url": "/pages/apps.html",
+      "icons": [{ "src": "../brand/icons/apps-96.png", "sizes": "96x96", "type": "image/png" }]
     }
   ],
   "screenshots": [
@@ -88,15 +121,82 @@
       "src": "../brand/screenshots/dashboard.png",
       "sizes": "1280x720",
       "type": "image/png",
-      "label": "仪表盘"
+      "label": "仪表盘",
+      "form_factor": "wide"
     },
     {
       "src": "../brand/screenshots/storage.png",
       "sizes": "1280x720",
       "type": "image/png",
-      "label": "存储管理"
+      "label": "存储管理",
+      "form_factor": "wide"
+    },
+    {
+      "src": "../brand/screenshots/mobile-dashboard.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "label": "移动端仪表盘",
+      "form_factor": "narrow"
     }
   ],
+  "categories": ["utilities", "productivity"],
+  "iarc_rating_id": "",
   "related_applications": [],
-  "prefer_related_applications": false
+  "protocol_handlers": [
+    {
+      "protocol": "web+nasos",
+      "url": "/?action=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/api/v1/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "name",
+      "text": "description",
+      "url": "link",
+      "files": [
+        {
+          "name": "file",
+          "accept": ["image/*", "video/*", "audio/*", "application/*"]
+        }
+      ]
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/?action=open",
+      "accept": {
+        "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
+        "video/*": [".mp4", ".webm", ".mkv"],
+        "audio/*": [".mp3", ".wav", ".flac"],
+        "application/pdf": [".pdf"],
+        "text/*": [".txt", ".md", ".json"]
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "name": "系统状态",
+      "description": "显示 NAS-OS 系统状态",
+      "tag": "nas-os-status-widget",
+      "template": "nas-os-status",
+      "data": {
+        "type": "object",
+        "properties": {
+          "cpu": { "type": "string" },
+          "memory": { "type": "string" },
+          "storage": { "type": "string" }
+        }
+      },
+      "icons": [
+        {
+          "src": "../brand/logo/widget-icon.png",
+          "sizes": "128x128",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
 }
