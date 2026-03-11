@@ -32,7 +32,7 @@
 
 #### 吏部 - 项目管理
 - ✅ 创建项目里程碑文档 (MILESTONES.md)
-- ✅ 创建六部任务分配文档 (docs/TASKS.md)
+- ✅ 创建团队任务分配文档 (docs/TASKS.md)
 - ✅ 创建文档索引 (docs/README.md)
 - ✅ 创建进度跟踪文档 (docs/PROGRESS.md)
 
