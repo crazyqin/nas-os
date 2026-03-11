@@ -39,6 +39,10 @@ test:
 	@echo "🧪 运行测试..."
 	$(GO) test -v ./...
 
+test-integration:
+	@echo "🔗 运行集成测试..."
+	$(GO) test -v ./tests/integration/...
+
 test-coverage:
 	@echo "📊 生成覆盖率报告..."
 	$(GO) test -v -coverprofile=coverage.out ./...
@@ -48,6 +52,9 @@ test-coverage:
 test-race:
 	@echo "🏃 竞态检测..."
 	$(GO) test -race ./...
+
+test-all: test test-integration
+	@echo "✅ 所有测试完成"
 
 # ========== 代码质量 ==========
 lint:
@@ -117,6 +124,24 @@ uninstall:
 	sudo rm -f /etc/systemd/system/nas-os.service
 	@echo "✅ 卸载完成 (保留配置和数据)"
 
+# ========== 插件 ==========
+plugin-build:
+	@echo "🔧 构建示例插件..."
+	@echo "提示：插件需要在独立的 go module 中构建"
+	@echo ""
+	@echo "示例："
+	@echo "  cd plugins/filemanager-enhance"
+	@echo "  go mod init filemanager-enhance"
+	@echo "  go build -buildmode=plugin -o filemanager-enhance.so"
+
+plugin-install:
+	@echo "📦 安装插件目录..."
+	sudo mkdir -p /opt/nas/plugins
+	sudo mkdir -p /etc/nas-os/plugins
+	sudo mkdir -p /var/lib/nas-os/plugins
+	sudo cp -r plugins/* /opt/nas/plugins/
+	@echo "✅ 插件目录已创建"
+
 # ========== 帮助 ==========
 help:
 	@echo "NAS-OS Makefile 命令:"
@@ -136,6 +161,11 @@ help:
 	@echo "    make fmt            - 格式化代码"
 	@echo "    make tidy           - 整理依赖"
 	@echo ""
+	@echo "  文档:"
+	@echo "    make swagger        - 生成 Swagger/OpenAPI 文档"
+	@echo "    make swagger-html   - 生成静态 HTML 文档"
+	@echo "    make docs-export    - 导出文档 (HTML/PDF/Markdown)"
+	@echo ""
 	@echo "  运行:"
 	@echo "    make run            - 启动服务"
 	@echo "    make run-dev        - 开发模式"
@@ -150,6 +180,69 @@ help:
 	@echo "    make install        - 安装到系统"
 	@echo "    make uninstall      - 卸载"
 	@echo ""
+	@echo "  插件:"
+	@echo "    make plugin-build   - 构建示例插件（提示）"
+	@echo "    make plugin-install - 安装插件目录"
+	@echo ""
 	@echo "  其他:"
 	@echo "    make clean          - 清理构建产物"
 	@echo "    make help           - 显示帮助"
+
+# ========== API 文档 ==========
+
+# 生成 Swagger/OpenAPI 文档
+swagger:
+	@echo "📚 生成 Swagger/OpenAPI 文档..."
+	@which swag > /dev/null || go install github.com/swaggo/swag/cmd/swag@latest
+	swag init -g cmd/nasd/main.go -o docs/swagger --parseDependency --parseInternal
+	@echo "✅ 文档生成完成："
+	@echo "   - docs/swagger/swagger.json"
+	@echo "   - docs/swagger/swagger.yaml"
+	@echo "   - docs/swagger/docs.go"
+	@echo ""
+	@echo "📖 访问 Swagger UI: http://localhost:8080/swagger/index.html"
+
+# 生成静态 HTML 文档 (使用 redoc)
+swagger-html:
+	@echo "📄 生成静态 HTML 文档..."
+	@which npx > /dev/null || (echo "❌ 需要安装 Node.js/npm" && exit 1)
+	@if [ ! -f docs/swagger/swagger.json ]; then $(MAKE) swagger; fi
+	@mkdir -p docs/html
+	npx redoc-cli bundle docs/swagger/swagger.json -o docs/html/api-docs.html --title "NAS-OS API 文档"
+	@echo "✅ 静态文档生成完成：docs/html/api-docs.html"
+
+# 导出多种格式文档
+docs-export: swagger
+	@echo "📦 导出多种格式文档..."
+	@mkdir -p docs/export
+	
+	# JSON 格式
+	@cp docs/swagger/swagger.json docs/export/openapi.json
+	@echo "✅ JSON: docs/export/openapi.json"
+	
+	# YAML 格式
+	@cp docs/swagger/swagger.yaml docs/export/openapi.yaml
+	@echo "✅ YAML: docs/export/openapi.yaml"
+	
+	# Markdown 格式
+	@echo "📝 生成 Markdown 文档..."
+	@which npx > /dev/null || (echo "⚠️ 跳过 Markdown (需要 Node.js)" && exit 0)
+	npx widdershins docs/swagger/swagger.json -o docs/export/API.md --summary || true
+	@echo "✅ Markdown: docs/export/API.md"
+	
+	# HTML 格式
+	@$(MAKE) swagger-html
+	@cp docs/html/api-docs.html docs/export/api-docs.html 2>/dev/null || true
+	@echo "✅ HTML: docs/export/api-docs.html"
+	
+	@echo ""
+	@echo "📋 文档导出完成："
+	@ls -la docs/export/
+
+# 启动文档服务器
+docs-serve: swagger
+	@echo "🌐 启动文档服务器..."
+	@echo "📖 Swagger UI: http://localhost:8081/swagger/"
+	@echo "📖 ReDoc: http://localhost:8081/docs/"
+	@echo "按 Ctrl+C 停止"
+	@cd docs/swagger && python3 -m http.server 8081 || python -m SimpleHTTPServer 8081

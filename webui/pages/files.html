@@ -892,6 +892,521 @@
                 }
             });
         });
+        
+        // 文件列表数据
+        let currentFiles = [];
+        
+        // 加载文件列表
+        async function loadFiles(path) {
+            try {
+                const res = await fetch(`${API_BASE}/files/list?path=${encodeURIComponent(path)}&thumbnail=true`);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    currentFiles = data.data.files || [];
+                    renderFiles(currentFiles);
+                } else {
+                    console.error('加载文件失败:', data.message);
+                }
+            } catch (e) {
+                console.error('加载文件失败:', e);
+            }
+        }
+        
+        // 渲染文件列表
+        function renderFiles(files) {
+            const container = document.getElementById('files-container');
+            container.innerHTML = files.map(file => renderFileItem(file)).join('');
+        }
+        
+        // 渲染单个文件项
+        function renderFileItem(file) {
+            const iconHtml = file.thumbnail 
+                ? `<img src="${file.thumbnail}" alt="${file.name}" style="width: 64px; height: 64px; object-fit: cover; border-radius: 8px;">`
+                : getFileIcon(file.type, file.isDir);
+            
+            const meta = file.isDir 
+                ? `${file.itemCount || 0} 个项目`
+                : formatSize(file.size);
+            
+            return `
+                <div class="file-item" onclick="handleFileClick('${file.path}', ${file.isDir})" ondblclick="handleFileDblClick('${file.path}', ${file.isDir})" 
+                     data-path="${file.path}" data-type="${file.type}">
+                    <div class="file-icon ${file.type}">${iconHtml}</div>
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-meta">${meta}</div>
+                </div>
+            `;
+        }
+        
+        // 获取文件图标
+        function getFileIcon(type, isDir) {
+            if (isDir) {
+                return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>`;
+            }
+            
+            const icons = {
+                image: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`,
+                video: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>`,
+                audio: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>`,
+                pdf: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>`,
+                document: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
+                code: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>`,
+                archive: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>`,
+                other: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>`
+            };
+            
+            return icons[type] || icons.other;
+        }
+        
+        // 格式化文件大小
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 单击文件
+        function handleFileClick(path, isDir) {
+            // 选中文件，不做其他操作
+            document.querySelectorAll('.file-item').forEach(el => el.classList.remove('selected'));
+            document.querySelector(`[data-path="${path}"]`)?.classList.add('selected');
+        }
+        
+        // 双击文件
+        function handleFileDblClick(path, isDir) {
+            if (isDir) {
+                navigateTo(path);
+            } else {
+                // 打开预览
+                const file = currentFiles.find(f => f.path === path);
+                if (file) {
+                    openPreview(file, currentFiles.filter(f => !f.isDir));
+                }
+            }
+        }
+        
+        // 初始加载
+        loadFiles(currentPath);
+    </script>
+    
+    <!-- 文件预览模态框 -->
+    <div id="preview-modal" class="preview-modal">
+        <div class="preview-overlay" onclick="closePreview()"></div>
+        <div class="preview-container">
+            <div class="preview-header">
+                <div class="preview-title">
+                    <span id="preview-icon"></span>
+                    <span id="preview-filename"></span>
+                </div>
+                <div class="preview-actions">
+                    <button class="preview-btn" onclick="downloadPreviewFile()" title="下载">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                    </button>
+                    <button class="preview-btn" onclick="togglePreviewFullscreen()" title="全屏">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                        </svg>
+                    </button>
+                    <button class="preview-btn" onclick="closePreview()" title="关闭">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="preview-content" id="preview-content"></div>
+            <div class="preview-nav" id="preview-nav" style="display: none;">
+                <button class="preview-nav-btn" onclick="prevFile()" id="prev-btn">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <span id="preview-counter"></span>
+                <button class="preview-nav-btn" onclick="nextFile()" id="next-btn">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="preview-info" id="preview-info"></div>
+        </div>
+    </div>
+    
+    <style>
+        /* 预览模态框样式 */
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-modal.active { display: flex; }
+        .preview-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+        }
+        .preview-container {
+            position: relative;
+            background: #1a1a1a;
+            border-radius: 12px;
+            max-width: 95vw;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: #252525;
+            border-bottom: 1px solid #333;
+        }
+        .preview-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .preview-actions { display: flex; gap: 0.5rem; }
+        .preview-btn {
+            width: 36px; height: 36px;
+            border: none;
+            background: #333;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .preview-btn:hover { background: #444; }
+        .preview-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            padding: 1rem;
+            min-height: 400px;
+        }
+        .preview-content img {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .preview-content video {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 8px;
+            background: #000;
+        }
+        .preview-content audio { width: 100%; max-width: 500px; }
+        .preview-content iframe {
+            width: 100%;
+            height: 70vh;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+        }
+        .preview-content .code-viewer {
+            width: 100%;
+            max-width: 900px;
+            max-height: 70vh;
+            background: #1e1e1e;
+            border-radius: 8px;
+            overflow: auto;
+        }
+        .preview-content .code-viewer pre {
+            margin: 0;
+            padding: 1rem;
+            color: #d4d4d4;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .preview-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: #252525;
+            border-top: 1px solid #333;
+        }
+        .preview-nav-btn {
+            width: 40px; height: 40px;
+            border: none;
+            background: #333;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .preview-nav-btn:hover { background: #444; }
+        .preview-nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #preview-counter { color: #888; font-size: 14px; }
+        .preview-info {
+            padding: 0.75rem 1.5rem;
+            background: #252525;
+            border-top: 1px solid #333;
+            color: #888;
+            font-size: 13px;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .preview-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .preview-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+        .preview-loading .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid #333;
+            border-top-color: #2563EB;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .audio-player-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 12px;
+            text-align: center;
+        }
+        .audio-cover {
+            width: 200px; height: 200px;
+            margin: 0 auto 1.5rem;
+            background: #333;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .audio-cover svg { width: 80px; height: 80px; color: #666; }
+        .audio-info { color: #fff; margin-bottom: 1rem; }
+        .audio-info h3 { margin: 0 0 0.25rem 0; font-size: 18px; }
+        .audio-info p { margin: 0; color: #888; font-size: 14px; }
+        .file-item.selected {
+            outline: 2px solid #2563EB;
+            outline-offset: 2px;
+        }
+    </style>
+    
+    <script>
+        // 文件预览功能
+        let previewFile = null;
+        let previewFileList = [];
+        let previewIndex = -1;
+        
+        function openPreview(file, fileList) {
+            previewFile = file;
+            previewFileList = fileList.length > 0 ? fileList : [file];
+            previewIndex = previewFileList.findIndex(f => f.path === file.path);
+            renderPreview();
+            document.getElementById('preview-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            updatePreviewNav();
+        }
+        
+        function closePreview() {
+            document.getElementById('preview-modal').classList.remove('active');
+            document.body.style.overflow = '';
+            const content = document.getElementById('preview-content');
+            content.querySelectorAll('video, audio').forEach(m => m.pause());
+        }
+        
+        function renderPreview() {
+            const file = previewFile;
+            document.getElementById('preview-filename').textContent = file.name;
+            document.getElementById('preview-icon').textContent = getTypeIcon(file.type);
+            document.getElementById('preview-content').innerHTML = '<div class="preview-loading"><div class="spinner"></div><p>加载中...</p></div>';
+            
+            switch (file.type) {
+                case 'image': renderImagePreview(file); break;
+                case 'video': renderVideoPreview(file); break;
+                case 'audio': renderAudioPreview(file); break;
+                case 'pdf': renderPDFPreview(file); break;
+                case 'document': renderDocumentPreview(file); break;
+                case 'code': renderCodePreview(file); break;
+                default: renderUnsupportedPreview(file);
+            }
+            updatePreviewInfo(file);
+        }
+        
+        function renderImagePreview(file) {
+            const img = new Image();
+            img.src = `${API_BASE}/files/preview?path=${encodeURIComponent(file.path)}`;
+            img.alt = file.name;
+            img.onload = () => {
+                document.getElementById('preview-content').innerHTML = '';
+                img.style.cssText = 'max-width:100%;max-height:70vh;border-radius:8px;object-fit:contain;';
+                document.getElementById('preview-content').appendChild(img);
+            };
+            img.onerror = () => renderPreviewError('图片加载失败');
+        }
+        
+        function renderVideoPreview(file) {
+            const video = document.createElement('video');
+            video.src = `${API_BASE}/files/preview?path=${encodeURIComponent(file.path)}`;
+            video.controls = true;
+            video.preload = 'metadata';
+            video.style.cssText = 'max-width:100%;max-height:70vh;border-radius:8px;background:#000;';
+            if (file.thumbnail) video.poster = file.thumbnail;
+            document.getElementById('preview-content').innerHTML = '';
+            document.getElementById('preview-content').appendChild(video);
+        }
+        
+        function renderAudioPreview(file) {
+            const html = `
+                <div class="audio-player-container">
+                    <div class="audio-cover"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg></div>
+                    <div class="audio-info"><h3>${file.name}</h3><p>${formatSize(file.size)}</p></div>
+                </div>
+            `;
+            document.getElementById('preview-content').innerHTML = html;
+            const audio = document.createElement('audio');
+            audio.src = `${API_BASE}/files/preview?path=${encodeURIComponent(file.path)}`;
+            audio.controls = true;
+            audio.style.width = '100%';
+            document.getElementById('preview-content').appendChild(audio);
+        }
+        
+        function renderPDFPreview(file) {
+            const iframe = document.createElement('iframe');
+            iframe.src = `${API_BASE}/files/preview?path=${encodeURIComponent(file.path)}`;
+            document.getElementById('preview-content').innerHTML = '';
+            document.getElementById('preview-content').appendChild(iframe);
+        }
+        
+        async function renderDocumentPreview(file) {
+            try {
+                const res = await fetch(`${API_BASE}/files/preview?path=${encodeURIComponent(file.path)}`);
+                const data = await res.json();
+                if (data.code === 0 && data.data && data.data.content) {
+                    const div = document.createElement('div');
+                    div.className = 'code-viewer';
+                    const pre = document.createElement('pre');
+                    pre.textContent = data.data.content;
+                    div.appendChild(pre);
+                    document.getElementById('preview-content').innerHTML = '';
+                    document.getElementById('preview-content').appendChild(div);
+                } else {
+                    renderPreviewError('文档加载失败');
+                }
+            } catch (e) {
+                renderPreviewError('文档加载失败');
+            }
+        }
+        
+        async function renderCodePreview(file) {
+            await renderDocumentPreview(file);
+        }
+        
+        function renderUnsupportedPreview(file) {
+            document.getElementById('preview-content').innerHTML = `
+                <div style="text-align:center;color:#888;padding:3rem;">
+                    <svg width="80" height="80" fill="none" stroke="#555" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <h3 style="color:#fff;margin:1rem 0 0.5rem;">不支持预览此文件类型</h3>
+                    <p style="margin-bottom:1.5rem;">您可以下载文件后查看</p>
+                    <button class="btn btn-primary" onclick="downloadPreviewFile()">下载文件</button>
+                </div>
+            `;
+        }
+        
+        function renderPreviewError(msg) {
+            document.getElementById('preview-content').innerHTML = `<div style="text-align:center;color:#888;padding:3rem;"><h3 style="color:#fff;">${msg}</h3></div>`;
+        }
+        
+        function updatePreviewNav() {
+            const nav = document.getElementById('preview-nav');
+            if (previewFileList.length > 1) {
+                nav.style.display = 'flex';
+                document.getElementById('preview-counter').textContent = `${previewIndex + 1} / ${previewFileList.length}`;
+                document.getElementById('prev-btn').disabled = previewIndex <= 0;
+                document.getElementById('next-btn').disabled = previewIndex >= previewFileList.length - 1;
+            } else {
+                nav.style.display = 'none';
+            }
+        }
+        
+        function prevFile() {
+            if (previewIndex > 0) {
+                previewIndex--;
+                previewFile = previewFileList[previewIndex];
+                renderPreview();
+                updatePreviewNav();
+            }
+        }
+        
+        function nextFile() {
+            if (previewIndex < previewFileList.length - 1) {
+                previewIndex++;
+                previewFile = previewFileList[previewIndex];
+                renderPreview();
+                updatePreviewNav();
+            }
+        }
+        
+        function updatePreviewInfo(file) {
+            let html = `<div class="preview-info-item"><span>📁</span><span>${file.path}</span></div><div class="preview-info-item"><span>📦</span><span>${formatSize(file.size)}</span></div><div class="preview-info-item"><span>📅</span><span>${file.modTime || ''}</span></div>`;
+            if (file.width && file.height) html += `<div class="preview-info-item"><span>📐</span><span>${file.width} × ${file.height}</span></div>`;
+            document.getElementById('preview-info').innerHTML = html;
+        }
+        
+        function getTypeIcon(type) {
+            return {image:'🖼️',video:'🎬',audio:'🎵',pdf:'📄',document:'📝',code:'💻',archive:'📦'}[type] || '📄';
+        }
+        
+        function togglePreviewFullscreen() {
+            document.querySelector('.preview-container').classList.toggle('fullscreen');
+        }
+        
+        function downloadPreviewFile() {
+            if (previewFile) {
+                window.location.href = `${API_BASE}/files/download?path=${encodeURIComponent(previewFile.path)}`;
+            }
+        }
+        
+        // 键盘导航
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('preview-modal').classList.contains('active')) return;
+            if (e.key === 'Escape') closePreview();
+            else if (e.key === 'ArrowLeft') prevFile();
+            else if (e.key === 'ArrowRight') nextFile();
+        });
     </script>
 </body>
 </html>

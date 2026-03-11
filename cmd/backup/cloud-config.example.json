@@ -1,0 +1,11 @@
+{
+  "provider": "s3",
+  "bucket": "my-nas-backups",
+  "region": "cn-north-1",
+  "endpoint": "https://oss-cn-beijing.aliyuncs.com",
+  "accessKey": "YOUR_ACCESS_KEY",
+  "secretKey": "YOUR_SECRET_KEY",
+  "prefix": "backups/",
+  "encryption": true,
+  "insecure": false
+}

@@ -131,7 +131,7 @@
 - `webui/pages/apps.html` - 应用管理界面 ✅
 - `docs/app-store.md` - 应用商店文档 ✅
 
-#### 预置应用 (12款)
+#### 预置应用 (12 款)
 - Nextcloud (私有云存储)
 - Jellyfin (媒体服务器)
 - Home Assistant (智能家居)
@@ -146,6 +146,40 @@
 
 ---
 
+### 🎯 里程碑 7: 集群支持 (M7) ✅
+**时间**: 2026-03-11 ~ 2026-03-11  
+**负责人**: 工部 (DevOps)
+**状态**: 已完成
+
+#### 任务清单
+- [x] 多节点发现和管理 (mDNS)
+- [x] 节点心跳和状态监控
+- [x] 分布式存储同步
+- [x] 负载均衡配置
+- [x] 高可用故障转移 (Raft)
+- [x] 集群管理 API
+- [x] 单元测试
+
+#### 交付物
+- `internal/cluster/manager.go` - 集群管理器 ✅
+- `internal/cluster/sync.go` - 存储同步 ✅
+- `internal/cluster/loadbalancer.go` - 负载均衡 ✅
+- `internal/cluster/ha.go` - 高可用管理 ✅
+- `internal/cluster/handlers.go` - API 处理器 ✅
+- `internal/cluster/init.go` - 初始化 ✅
+- `internal/cluster/manager_test.go` - 单元测试 ✅
+- `docs/CLUSTER-DESIGN.md` - 设计文档 ✅
+- `docs/CLUSTER-SETUP.md` - 设置指南 ✅
+- `docs/CLUSTER-IMPLEMENTATION-SUMMARY.md` - 实现总结 ✅
+
+#### 核心功能
+- **节点发现**: mDNS/Bonjour 自动发现，支持动态加入/离开
+- **存储同步**: 支持 async/sync/realtime 模式，Cron 调度
+- **负载均衡**: round-robin/least-conn/weighted/ip-hash 算法
+- **高可用**: Raft 共识，自动故障转移，<5 秒恢复
+
+---
+
 ## 团队任务分配
 
 | 部门 | 职责 | 主要负责人 |
@@ -153,7 +187,7 @@
 | **兵部** | 核心功能开发 (存储/共享/权限) | 软件工程团队 |
 | **户部** | 项目预算、资源采购 | 财务团队 |
 | **礼部** | UI/UX 设计、文档撰写 | 内容创作团队 |
-| **工部** | DevOps、部署、监控、Docker | 运维团队 |
+| **工部** | DevOps、部署、监控、Docker、集群 | 运维团队 |
 | **吏部** | 项目管理、进度跟踪 | 本项目团队 |
 | **刑部** | 安全审计、合规检查 | 法务团队 |
 
@@ -181,8 +215,13 @@
   - 镜像管理 (列表/拉取/删除)
   - 应用商店 API (列出/安装/卸载/启动/停止/重启/更新)
   - Docker Compose 模板管理
-  - 12款预置应用模板
+  - 12 款预置应用模板
   - 应用商店 UI 界面
+- ✅ **M7 集群支持 (完整实现)**
+  - 多节点发现和管理 (mDNS)
+  - 分布式存储同步
+  - 负载均衡配置
+  - 高可用故障转移 (Raft)
 
 ### 进行中
 - 🔄 M2 Web 管理界面 (部分完成)
@@ -202,6 +241,7 @@
 | SMB 性能瓶颈 | 中 | 使用成熟库 (smb2) |
 | 权限模型复杂 | 中 | 参考成熟方案 (Linux ACL) |
 | 前端开发人力 | 低 | 使用现成 UI 框架 |
+| 集群网络要求 | 中 | 同一局域网，mDNS 支持 |
 
 ---
 
@@ -214,4 +254,4 @@
 
 ---
 
-*最后更新: 2026-03-10*
+*最后更新：2026-03-11*
