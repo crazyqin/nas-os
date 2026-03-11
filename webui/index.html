@@ -13,6 +13,7 @@
     <link rel="apple-touch-icon" href="../brand/logo/logo-192.png">
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/mobile.css">
     <style>
         .stat-grid {
             display: grid;
@@ -39,31 +40,55 @@
             top: 0;
             bottom: 0;
             width: 240px;
-            background: white;
-            border-right: 1px solid #E5E7EB;
+            background: var(--surface-color);
+            border-right: 1px solid var(--surface-border);
             padding: 1.5rem;
             overflow-y: auto;
+            transition: background-color var(--transition-base), border-color var(--transition-base);
         }
         .main-content {
             margin-left: 240px;
             padding: 2rem;
+            transition: margin-left var(--transition-base);
         }
         .nav-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             padding: 0.75rem 1rem;
-            color: #4B5563;
+            color: var(--text-secondary);
             border-radius: 8px;
             margin-bottom: 0.25rem;
             transition: all 0.2s;
             cursor: pointer;
         }
         .nav-item:hover, .nav-item.active {
-            background: #DBEAFE;
-            color: #2563EB;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
         }
         .nav-item svg { width: 20px; height: 20px; }
+        
+        /* Header Actions */
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .header-brand h1 {
+            font-size: 20px;
+            color: var(--text-primary);
+        }
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
         @media (max-width: 768px) {
             .sidebar { display: none; }
             .main-content { margin-left: 0; }
@@ -73,9 +98,29 @@
 <body>
     <!-- Sidebar -->
     <nav class="sidebar">
-        <div class="header-brand" style="margin-bottom: 2rem;">
-            <img src="../brand/logo/logo-64.png" alt="NAS-OS Logo" width="40" height="40">
-            <h1 style="font-size: 20px;">NAS-OS</h1>
+        <div class="sidebar-header">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="NAS-OS Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-toggle" title="切换主题">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </button>
+                <div class="notification-bell" onclick="toggleNotificationPanel()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span id="notification-badge" class="notification-badge">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- WebSocket Status -->
+        <div class="ws-status" id="ws-status" style="margin-bottom: 1rem; padding: 0.5rem 1rem; background: var(--bg-tertiary); border-radius: 8px;">
+            <span class="ws-disconnected" id="ws-indicator">实时连接</span>
         </div>
         
         <div class="nav-item active">
@@ -106,7 +151,63 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>
             网络配置
         </div>
+        <div class="nav-item" onclick="window.location.href='pages/plugins.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
+            插件市场
+        </div>
         <div class="nav-item" onclick="window.location.href='pages/settings.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            设置
+        </div>
+    </nav>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="mobile-header-brand">
+            <img src="../brand/logo/logo-64.png" alt="NAS-OS Logo">
+            <h1>NAS-OS</h1>
+        </div>
+        <div class="header-actions">
+            <button id="theme-toggle-mobile" class="theme-toggle" title="切换主题">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                </svg>
+            </button>
+            <button id="mobile-menu-btn" class="mobile-menu-btn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay" class="mobile-menu-overlay"></div>
+    <nav id="mobile-menu" class="mobile-menu">
+        <div class="mobile-menu-header">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="NAS-OS Logo" width="32" height="32">
+                <h1 style="font-size: 18px;">NAS-OS</h1>
+            </div>
+            <button id="mobile-menu-close" class="mobile-menu-close">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="mobile-nav-item active">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            仪表盘
+        </div>
+        <div class="mobile-nav-item">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+            存储管理
+        </div>
+        <div class="mobile-nav-item" onclick="window.location.href='pages/files.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            文件管理
+        </div>
+        <div class="mobile-nav-item" onclick="window.location.href='pages/apps.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            应用商店
+        </div>
+        <div class="mobile-nav-item" onclick="window.location.href='pages/settings.html'">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             设置
         </div>
@@ -138,6 +239,34 @@
                 <div class="stat-card purple">
                     <div class="stat-label">运行时间</div>
                     <div class="stat-value" id="stat-uptime">--</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <span>📈</span> CPU 使用率
+                    </div>
+                    <div id="cpu-chart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <span>💾</span> 内存使用
+                    </div>
+                    <div id="memory-chart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <span>💿</span> 磁盘使用率
+                    </div>
+                    <div id="disk-chart" class="chart"></div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <span>🌐</span> 网络流量
+                    </div>
+                    <div id="network-chart" class="chart"></div>
                 </div>
             </div>
 
@@ -192,6 +321,48 @@
         </div>
     </main>
 
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-bottom-nav-items">
+            <a href="/" class="mobile-bottom-nav-item active">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>首页</span>
+            </a>
+            <a href="pages/files.html" class="mobile-bottom-nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+                <span>文件</span>
+            </a>
+            <a href="pages/apps.html" class="mobile-bottom-nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                <span>应用</span>
+            </a>
+            <a href="pages/settings.html" class="mobile-bottom-nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span>设置</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- PWA Install Banner -->
+    <div id="install-banner" style="display: none;">
+        <div class="install-banner-content">
+            <img src="../brand/logo/logo-64.png" alt="NAS-OS" class="install-banner-icon">
+            <div class="install-banner-text">
+                <h4>安装 NAS-OS</h4>
+                <p>添加到主屏幕，获得更好的体验</p>
+            </div>
+        </div>
+        <div class="install-banner-actions">
+            <button class="btn btn-secondary" onclick="PWAManager.hideInstallBanner()">稍后</button>
+            <button class="btn btn-primary" onclick="PWAManager.promptInstall()">安装</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Main Application Script -->
+    <script src="js/app.js"></script>
     <script>
         const API_BASE = '/api/v1';
 
@@ -316,16 +487,12 @@
         }
 
         function showSettings() {
-            alert('系统设置页面开发中...');
+            window.location.href = 'pages/settings.html';
         }
 
-        // 注册 Service Worker (PWA)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered:', reg.scope))
-                    .catch(err => console.log('SW registration failed:', err));
-            });
+        function toggleNotificationPanel() {
+            NotificationManager.markAllRead();
+            alert('通知中心功能开发中...');
         }
 
         // 初始化

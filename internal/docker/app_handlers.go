@@ -3,6 +3,7 @@ package docker
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -649,8 +650,8 @@ func (h *AppHandlers) getCustomTemplate(c *gin.Context) {
 		return
 	}
 
-	template := h.customTemplateMgr.GetTemplate(id)
-	if template == nil {
+	template, err := h.customTemplateMgr.GetTemplate(id)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": "模板不存在",
@@ -775,7 +776,17 @@ func (h *AppHandlers) createCustomFromGitHub(c *gin.Context) {
 		return
 	}
 
-	template, err := h.customTemplateMgr.ImportFromGitHub(req.GitHubURL, req.Name, req.DisplayName, req.Description, req.Category)
+	// 解析 GitHub URL: owner/repo/path@ref
+	var owner, repo, path, ref string
+	parts := strings.Split(req.GitHubURL, "/")
+	if len(parts) >= 2 {
+		owner = parts[0]
+		repo = parts[1]
+	}
+	ref = "main"
+	path = "docker-compose.yml"
+	
+	template, err := h.customTemplateMgr.ImportFromGitHub(owner, repo, path, ref, req.Name, req.DisplayName, req.Description)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
@@ -866,8 +877,8 @@ func (h *AppHandlers) installCustomTemplate(c *gin.Context) {
 		return
 	}
 
-	template := h.customTemplateMgr.GetTemplate(id)
-	if template == nil {
+	template, err := h.customTemplateMgr.GetTemplate(id)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": "模板不存在",
@@ -884,9 +895,6 @@ func (h *AppHandlers) installCustomTemplate(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		// 允许空请求
 	}
-
-	// 转换为应用模板并安装
-	appTemplate := h.customTemplateMgr.ConvertToAppTemplate(template)
 
 	config := make(map[string]interface{})
 	for k, v := range req.Ports {
