@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 

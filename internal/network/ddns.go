@@ -194,44 +194,10 @@ func (m *Manager) getPublicIP(iface string) (string, error) {
 
 // getDDNSProvider 获取 DDNS 服务商实现
 func (m *Manager) getDDNSProvider(provider, token, secret string) (DDNSProvider, error) {
-	switch provider {
-	case "alidns":
-		return &AliDNSProvider{Token: token, Secret: secret}, nil
-	case "cloudflare":
-		return &CloudflareProvider{Token: token}, nil
-	case "duckdns":
-		return &DuckDNSProvider{Token: token}, nil
-	case "noip":
-		return &NoIPProvider{Token: token, Secret: secret}, nil
-	default:
-		return nil, fmt.Errorf("不支持的 DDNS 服务商: %s", provider)
-	}
+	return m.getDDNSProviderEx(provider, token, secret, "")
 }
 
-// ========== DDNS 服务商实现 ==========
-
-// AliDNSProvider 阿里云 DNS
-type AliDNSProvider struct {
-	Token  string
-	Secret string
-}
-
-func (p *AliDNSProvider) Update(domain, ip string) error {
-	// TODO: 实现阿里云 DNS API
-	// 需要使用 AccessKey 和 SecretKey 调用阿里云 API
-	return fmt.Errorf("阿里云 DDNS 功能开发中")
-}
-
-// CloudflareProvider Cloudflare DNS
-type CloudflareProvider struct {
-	Token string
-}
-
-func (p *CloudflareProvider) Update(domain, ip string) error {
-	// TODO: 实现 Cloudflare API
-	// 需要 API Token 和 Zone ID
-	return fmt.Errorf("Cloudflare DDNS 功能开发中")
-}
+// ========== DuckDNS 实现 ==========
 
 // DuckDNSProvider DuckDNS
 type DuckDNSProvider struct {
@@ -260,6 +226,8 @@ func (p *DuckDNSProvider) Update(domain, ip string) error {
 
 	return nil
 }
+
+// ========== No-IP 实现 ==========
 
 // NoIPProvider No-IP
 type NoIPProvider struct {
