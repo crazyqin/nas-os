@@ -47,6 +47,3 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
-
-# Config (use mounted configs instead)
-configs/
