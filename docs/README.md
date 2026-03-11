@@ -14,6 +14,7 @@
 | [ADMIN_GUIDE_v1.0.md](ADMIN_GUIDE_v1.0.md) | 🔧 管理员指南，高级配置、安全、性能优化 | 系统管理员 | ✅ 完成 |
 | [API_REFERENCE_v1.0.md](API_REFERENCE_v1.0.md) | 📡 API 参考文档，完整 REST API 接口说明 | 开发者 | ✅ 完成 |
 | [DEPLOYMENT_GUIDE_v1.0.md](DEPLOYMENT_GUIDE_v1.0.md) | 🚀 部署指南，生产环境部署、高可用配置 | DevOps 工程师 | ✅ 完成 |
+| [NASCTL-CLI.md](NASCTL-CLI.md) | 💻 CLI 命令行工具使用指南 | 所有用户 | ✅ 完成 |
 
 ---
 
