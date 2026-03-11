@@ -2,10 +2,10 @@ package web
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"time"
 
+	"nas-os/internal/docker"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/shares"
@@ -25,6 +25,8 @@ type Server struct {
 	smbMgr     *smb.Manager
 	nfsMgr     *nfs.Manager
 	networkMgr *network.Manager
+	dockerMgr  *docker.Manager
+	appStore   *docker.AppStore
 }
 
 // NewServer 创建 Web 服务器
@@ -32,8 +34,34 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.Use(gin.Recovery())
-	engine.Use(loggerMiddleware())
-	engine.Use(corsMiddleware())
+
+	// 使用加固的安全配置
+	securityConfig := DefaultSecurityConfig()
+
+	// 中间件链 (顺序重要)
+	engine.Use(inputValidationMiddleware())     // 1. 输入验证
+	engine.Use(loggerMiddleware())              // 2. 结构化日志
+	engine.Use(securityHeadersMiddleware())     // 3. 安全头
+	engine.Use(corsMiddleware(securityConfig))  // 4. CORS (加固版)
+	engine.Use(rateLimitMiddleware(securityConfig)) // 5. 速率限制
+	engine.Use(csrfMiddleware(securityConfig))  // 6. CSRF 保护
+	engine.Use(auditLogMiddleware())            // 7. 审计日志
+
+	// 初始化 Docker 管理器
+	dockerMgr, err := docker.NewManager()
+	if err != nil {
+		// Docker 不可用时继续运行
+		dockerMgr = nil
+	}
+
+	// 初始化应用商店
+	var appStore *docker.AppStore
+	if dockerMgr != nil {
+		appStore, err = docker.NewAppStore(dockerMgr, "/opt/nas")
+		if err != nil {
+			appStore = nil
+		}
+	}
 
 	s := &Server{
 		engine:     engine,
@@ -42,31 +70,14 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		smbMgr:     smbMgr,
 		nfsMgr:     nfsMgr,
 		networkMgr: netMgr,
+		dockerMgr:  dockerMgr,
+		appStore:   appStore,
 	}
 	s.setupRoutes()
 	return s
 }
 
-func loggerMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		start := time.Now()
-		c.Next()
-		log.Printf("[%d] %s %s (%v)", c.Writer.Status(), c.Request.Method, c.Request.URL.Path, time.Since(start))
-	}
-}
 
-func corsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-		c.Next()
-	}
-}
 
 func (s *Server) setupRoutes() {
 	// API 路由
@@ -115,6 +126,16 @@ func (s *Server) setupRoutes() {
 
 		// ========== 网络管理 ==========
 		network.NewHandlers(s.networkMgr).RegisterRoutes(api)
+
+		// ========== Docker 管理 ==========
+		if s.dockerMgr != nil {
+			docker.NewHandlers(s.dockerMgr).RegisterRoutes(api)
+		}
+
+		// ========== 应用商店 ==========
+		if s.appStore != nil {
+			docker.NewAppHandlers(s.appStore).RegisterRoutes(api)
+		}
 
 		// ========== 系统信息 ==========
 		api.GET("/system/info", s.getSystemInfo)
