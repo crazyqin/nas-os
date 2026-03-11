@@ -98,7 +98,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == '' && 'linux/amd64,linux/arm64,linux/arm/v7' || format('linux/{0}', github.event.inputs.platform) }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
