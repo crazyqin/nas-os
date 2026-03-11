@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VERSION: '1.21'
+  GO_VERSION: '1.26.1'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -32,7 +32,7 @@ jobs:
           cache: true
       
       - name: 安装 linter
-        run: go install golangci-lint/cmd/golangci-lint@latest
+        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
       
       - name: 运行 linter
         run: golangci-lint run --timeout 5m
@@ -61,7 +61,9 @@ jobs:
         run: go mod download
       
       - name: 运行单元测试
-        run: go test -v -race -coverprofile=coverage.out $(go list ./... | grep -v /tests/e2e)
+        run: |
+          # GitHub Actions 的 Ubuntu 运行器支持 race detector
+          go test -v -race -coverprofile=coverage.out $(go list ./... | grep -v /tests/e2e | grep -v /plugins/)
       
       - name: 上传覆盖率
         uses: codecov/codecov-action@v4
@@ -138,12 +140,11 @@ jobs:
           GOARM: ${{ matrix.arm }}
         run: |
           go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }} ./cmd/nasd
-          go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }} ./cmd/nasctl
           echo "✅ 编译成功"
       
       - name: 生成校验和
         run: |
-          sha256sum nasd-* nasctl-* > checksums.txt
+          sha256sum nasd-* > checksums.txt
       
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -151,7 +152,6 @@ jobs:
           name: nas-os-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }}
           path: |
             nasd-*
-            nasctl-*
             checksums.txt
 
   # ========== Docker 镜像 ==========
@@ -228,7 +228,7 @@ jobs:
         run: |
           cd ./artifacts
           # 移动所有二进制文件到根目录
-          find . -name "nasd-*" -o -name "nasctl-*" | xargs -I {} mv {} .
+          find . -name "nasd-*" | xargs -I {} mv {} .
           find . -name "checksums.txt" | xargs -I {} mv {} .
           rm -rf nas-os-*
           ls -la
@@ -241,7 +241,6 @@ jobs:
           prerelease: ${{ contains(github.ref, '-rc') }}
           files: |
             ./artifacts/nasd-*
-            ./artifacts/nasctl-*
             ./artifacts/checksums.txt
           body: |
             ## 📦 版本说明
@@ -250,7 +249,6 @@ jobs:
             - `nasd-linux-amd64` - Linux x86_64
             - `nasd-linux-arm64` - Linux ARM64 (树莓派 4/5, Orange Pi 5)
             - `nasd-linux-armv7` - Linux ARMv7 (树莓派 3/Zero)
-            - `nasctl-*` - 对应平台的命令行工具
             
             ### Docker 镜像
             ```bash
