@@ -1,9 +1,12 @@
 package files
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
+	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"image"
 	"image/gif"
@@ -60,6 +63,25 @@ type PreviewConfig struct {
 	CacheExpiry      time.Duration `json:"cacheExpiry"`      // 缓存过期时间
 	EnableVideoThumb bool          `json:"enableVideoThumb"` // 启用视频缩略图
 	EnableDocPreview bool          `json:"enableDocPreview"` // 启用文档预览
+}
+
+// ShareInfo 分享信息
+type ShareInfo struct {
+	Token       string    `json:"token"`
+	Path        string    `json:"path"`
+	Password    string    `json:"password,omitempty"`
+	Expiry      time.Time `json:"expiry"`
+	AllowDownload bool    `json:"allowDownload"`
+	CreatedAt   time.Time `json:"createdAt"`
+	Downloads   int       `json:"downloads"`
+}
+
+// shareStore 分享存储（内存 + 可持久化）
+var shareStore = struct {
+	sync.RWMutex
+	shares map[string]*ShareInfo
+}{
+	shares: make(map[string]*ShareInfo),
 }
 
 // Manager 文件管理器
@@ -432,6 +454,17 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		files.POST("/mkdir", h.createDir)
 		files.DELETE("/delete", h.deleteFile)
 		files.GET("/info", h.getFileInfo)
+		files.PUT("/rename", h.renameFile)
+		files.POST("/compress", h.compressFile)
+		files.POST("/extract", h.extractFile)
+	}
+	
+	// 分享链接路由
+	shares := r.Group("/shares")
+	{
+		shares.POST("/create", h.createShare)
+		shares.GET("/get/:token", h.getShare)
+		shares.DELETE("/revoke/:token", h.revokeShare)
 	}
 }
 
@@ -691,4 +724,393 @@ func (h *Handlers) getFileInfo(c *gin.Context) {
 		"message": "success",
 		"data":    file,
 	})
+}
+
+// renameFile 重命名文件
+func (h *Handlers) renameFile(c *gin.Context) {
+	var req struct {
+		OldPath string `json:"oldPath" binding:"required"`
+		NewPath string `json:"newPath" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		return
+	}
+
+	// 安全检查
+	if strings.Contains(req.OldPath, "..") || strings.Contains(req.NewPath, "..") {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+		return
+	}
+
+	if err := os.Rename(req.OldPath, req.NewPath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "重命名成功",
+	})
+}
+
+// compressFile 压缩文件/文件夹
+func (h *Handlers) compressFile(c *gin.Context) {
+	var req struct {
+		Path   string `json:"path" binding:"required"`
+		Name   string `json:"name" binding:"required"`
+		Format string `json:"format"`
+		Level  int    `json:"level"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		return
+	}
+
+	// 安全检查
+	if strings.Contains(req.Path, "..") {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+		return
+	}
+
+	if req.Format == "" {
+		req.Format = "zip"
+	}
+	if req.Level < 1 || req.Level > 9 {
+		req.Level = 6
+	}
+
+	// 生成压缩包路径
+	archivePath := filepath.Join(filepath.Dir(req.Path), req.Name)
+	if req.Format == "tar.gz" {
+		archivePath = strings.TrimSuffix(archivePath, ".zip") + ".tar.gz"
+	}
+
+	// 检查源路径是否存在
+	if _, err := os.Stat(req.Path); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "文件/文件夹不存在"})
+		return
+	}
+
+	// 执行压缩
+	var compressErr error
+	if req.Format == "zip" {
+		compressErr = h.compressZip(req.Path, archivePath, req.Level)
+	} else {
+		compressErr = h.compressTarGz(req.Path, archivePath, req.Level)
+	}
+
+	if compressErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": compressErr.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "压缩成功",
+		"data": gin.H{
+			"path": archivePath,
+		},
+	})
+}
+
+// compressZip 压缩为 ZIP 格式
+func (h *Handlers) compressZip(srcPath, dstPath string, level int) error {
+	// 检查是否使用系统 zip 命令
+	cmd := exec.Command("zip", "-r", "-"+fmt.Sprintf("%d", level), dstPath, filepath.Base(srcPath))
+	cmd.Dir = filepath.Dir(srcPath)
+	
+	if err := cmd.Run(); err == nil {
+		return nil
+	}
+
+	// 回退到 Go 实现
+	return h.compressZipGo(srcPath, dstPath, level)
+}
+
+// compressZipGo Go 实现 ZIP 压缩
+func (h *Handlers) compressZipGo(srcPath, dstPath string, level int) error {
+	archive, err := os.Create(dstPath)
+	if err != nil {
+		return err
+	}
+	defer archive.Close()
+
+	zipWriter := zip.NewWriter(archive)
+	defer zipWriter.Close()
+
+	return filepath.Walk(srcPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// 创建相对路径
+		relPath, err := filepath.Rel(filepath.Dir(srcPath), path)
+		if err != nil {
+			return err
+		}
+
+		// 跳过目录本身
+		if path == srcPath {
+			return nil
+		}
+
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		header.Name = filepath.ToSlash(relPath)
+		header.Method = zip.Deflate
+		header.SetMode(info.Mode())
+
+		if info.IsDir() {
+			header.Name += "/"
+		}
+
+		writer, err := zipWriter.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		_, err = io.Copy(writer, file)
+		return err
+	})
+}
+
+// compressTarGz 压缩为 TAR.GZ 格式
+func (h *Handlers) compressTarGz(srcPath, dstPath string, level int) error {
+	cmd := exec.Command("tar", "-czf", dstPath, "-C", filepath.Dir(srcPath), filepath.Base(srcPath))
+	return cmd.Run()
+}
+
+// extractFile 解压文件
+func (h *Handlers) extractFile(c *gin.Context) {
+	var req struct {
+		Path       string `json:"path" binding:"required"`
+		ExtractPath string `json:"extractPath" binding:"required"`
+		Overwrite  bool   `json:"overwrite"`
+		KeepPath   bool   `json:"keepPath"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		return
+	}
+
+	// 安全检查
+	if strings.Contains(req.Path, "..") || strings.Contains(req.ExtractPath, "..") {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(req.Path))
+	var err error
+
+	if ext == ".zip" {
+		err = h.extractZip(req.Path, req.ExtractPath, req.Overwrite)
+	} else if ext == ".gz" || strings.HasSuffix(req.Path, ".tar.gz") {
+		err = h.extractTarGz(req.Path, req.ExtractPath, req.Overwrite)
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "不支持的压缩格式"})
+		return
+	}
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "解压成功",
+	})
+}
+
+// extractZip 解压 ZIP 文件
+func (h *Handlers) extractZip(archivePath, destPath string, overwrite bool) error {
+	// 优先使用系统 unzip 命令
+	cmd := exec.Command("unzip", "-o", archivePath, "-d", destPath)
+	if !overwrite {
+		cmd = exec.Command("unzip", "-n", archivePath, "-d", destPath)
+	}
+	
+	if err := cmd.Run(); err == nil {
+		return nil
+	}
+
+	// 回退到 Go 实现
+	return h.extractZipGo(archivePath, destPath, overwrite)
+}
+
+// extractZipGo Go 实现 ZIP 解压
+func (h *Handlers) extractZipGo(archivePath, destPath string, overwrite bool) error {
+	r, err := zip.OpenReader(archivePath)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+
+	for _, f := range r.File {
+		path := filepath.Join(destPath, f.Name)
+
+		// 跳过已存在的文件（如果不覆盖）
+		if !overwrite {
+			if _, err := os.Stat(path); err == nil {
+				continue
+			}
+		}
+
+		if f.FileInfo().IsDir() {
+			os.MkdirAll(path, f.Mode())
+			continue
+		}
+
+		os.MkdirAll(filepath.Dir(path), 0755)
+
+		srcFile, err := f.Open()
+		if err != nil {
+			return err
+		}
+		defer srcFile.Close()
+
+		dstFile, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+		defer dstFile.Close()
+
+		_, err = io.Copy(dstFile, srcFile)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// extractTarGz 解压 TAR.GZ 文件
+func (h *Handlers) extractTarGz(archivePath, destPath string, overwrite bool) error {
+	cmd := exec.Command("tar", "-xf", archivePath, "-C", destPath)
+	return cmd.Run()
+}
+
+// createShare 创建分享链接
+func (h *Handlers) createShare(c *gin.Context) {
+	var req struct {
+		Path        string `json:"path" binding:"required"`
+		Expiry      int    `json:"expiry"` // 小时数，0 表示永久
+		Password    string `json:"password"`
+		AllowDownload bool `json:"allowDownload"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		return
+	}
+
+	// 安全检查
+	if strings.Contains(req.Path, "..") {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+		return
+	}
+
+	// 生成随机 token
+	token := generateRandomToken(16)
+
+	// 设置过期时间
+	var expiry time.Time
+	if req.Expiry > 0 {
+		expiry = time.Now().Add(time.Duration(req.Expiry) * time.Hour)
+	} else {
+		expiry = time.Date(2099, 12, 31, 23, 59, 59, 0, time.UTC)
+	}
+
+	share := &ShareInfo{
+		Token:       token,
+		Path:        req.Path,
+		Password:    req.Password,
+		Expiry:      expiry,
+		AllowDownload: req.AllowDownload,
+		CreatedAt:   time.Now(),
+		Downloads:   0,
+	}
+
+	shareStore.Lock()
+	shareStore.shares[token] = share
+	shareStore.Unlock()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "分享链接创建成功",
+		"data": gin.H{
+			"token": token,
+			"expiry": expiry.Format("2006-01-02 15:04:05"),
+		},
+	})
+}
+
+// getShare 获取分享信息
+func (h *Handlers) getShare(c *gin.Context) {
+	token := c.Param("token")
+
+	shareStore.RLock()
+	share, exists := shareStore.shares[token]
+	shareStore.RUnlock()
+
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "分享链接不存在"})
+		return
+	}
+
+	if time.Now().After(share.Expiry) {
+		c.JSON(http.StatusGone, gin.H{"code": 410, "message": "分享链接已过期"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"path": share.Path,
+			"requirePassword": share.Password != "",
+			"allowDownload": share.AllowDownload,
+			"expiry": share.Expiry.Format("2006-01-02 15:04:05"),
+		},
+	})
+}
+
+// revokeShare 撤销分享链接
+func (h *Handlers) revokeShare(c *gin.Context) {
+	token := c.Param("token")
+
+	shareStore.Lock()
+	delete(shareStore.shares, token)
+	shareStore.Unlock()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "分享链接已撤销",
+	})
+}
+
+// generateRandomToken 生成随机 token
+func generateRandomToken(length int) string {
+	bytes := make([]byte, length)
+	if _, err := rand.Read(bytes); err != nil {
+		return fmt.Sprintf("%d", time.Now().UnixNano())
+	}
+	return hex.EncodeToString(bytes)
 }
