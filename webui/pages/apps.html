@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563EB">
+    <title>应用商店 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 240px;
+            background: white;
+            border-right: 1px solid var(--color-gray-200);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--color-gray-600);
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        .nav-item svg { width: 20px; height: 20px; }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .app-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .app-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-primary-light);
+        }
+        .app-card.installed {
+            border-color: var(--color-success);
+        }
+        .app-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .app-icon {
+            font-size: 48px;
+            line-height: 1;
+        }
+        .app-info h3 {
+            margin-bottom: 0.25rem;
+        }
+        .app-category {
+            font-size: 12px;
+            color: var(--color-gray-500);
+            background: var(--color-gray-100);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .app-desc {
+            color: var(--color-gray-600);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .app-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .app-tag {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--color-gray-100);
+            color: var(--color-gray-600);
+        }
+        .app-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .category-filter {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .category-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--color-gray-300);
+            background: white;
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .installed-section {
+            margin-bottom: 2rem;
+        }
+        .installed-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .installed-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+        .installed-item .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .status-running { background: var(--color-success); }
+        .status-stopped { background: var(--color-gray-400); }
+        .status-error { background: var(--color-error); }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .port-config, .volume-config {
+            background: var(--color-gray-50);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="header-brand" style="margin-bottom: 2rem;">
+            <img src="../brand/logo/logo-64.png" alt="NAS-OS Logo" width="40" height="40">
+            <h1 style="font-size: 20px;">NAS-OS</h1>
+        </div>
+        
+        <div class="nav-item" onclick="window.location.href='../index.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            仪表盘
+        </div>
+        <div class="nav-item" onclick="window.location.href='storage.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+            存储管理
+        </div>
+        <div class="nav-item" onclick="window.location.href='files.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+            文件管理
+        </div>
+        <div class="nav-item active">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            应用商店
+        </div>
+        <div class="nav-item" onclick="window.location.href='monitor.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            系统监控
+        </div>
+        <div class="nav-item" onclick="window.location.href='network.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>
+            网络配置
+        </div>
+        <div class="nav-item" onclick="window.location.href='settings.html'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            设置
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div style="margin-bottom: 2rem;">
+                <h1 style="margin-bottom: 0.5rem;">📦 应用商店</h1>
+                <p class="text-muted">发现和安装常用应用</p>
+            </div>
+
+            <!-- 已安装应用 -->
+            <div class="installed-section card" id="installed-section" style="display: none;">
+                <div class="card-header">
+                    <h2 class="card-title">✅ 已安装应用</h2>
+                </div>
+                <div class="installed-list" id="installed-list"></div>
+            </div>
+
+            <!-- 分类筛选 -->
+            <div class="category-filter" id="category-filter">
+                <button class="category-btn active" data-category="">全部</button>
+            </div>
+
+            <!-- 应用目录 -->
+            <div class="app-grid" id="app-grid">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 安装配置 Modal -->
+    <div class="modal-overlay" id="install-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">安装应用</h3>
+                <button class="btn btn-secondary btn-sm" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- 动态内容 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" id="install-btn" onclick="confirmInstall()">安装</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 应用详情 Modal -->
+    <div class="modal-overlay" id="detail-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="detail-title">应用详情</h3>
+                <button class="btn btn-secondary btn-sm" onclick="closeDetailModal()">✕</button>
+            </div>
+            <div class="modal-body" id="detail-body">
+                <!-- 动态内容 -->
+            </div>
+            <div class="modal-footer" id="detail-footer">
+                <!-- 动态按钮 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let templates = [];
+        let installedApps = [];
+        let currentTemplate = null;
+        let currentInstalled = null;
+
+        // 加载应用目录
+        async function loadCatalog() {
+            try {
+                const res = await fetch(`${API_BASE}/apps/catalog`);
+                const data = await res.json();
+                if (data.code === 0) {
+                    templates = data.data.templates || [];
+                    
+                    // 渲染分类按钮
+                    const categories = Object.keys(data.data.categories || {});
+                    renderCategoryFilter(categories);
+                    
+                    // 渲染应用
+                    renderApps();
+                }
+            } catch (e) {
+                console.error('加载应用目录失败:', e);
+            }
+        }
+
+        // 加载已安装应用
+        async function loadInstalled() {
+            try {
+                const res = await fetch(`${API_BASE}/apps/installed`);
+                const data = await res.json();
+                if (data.code === 0) {
+                    installedApps = data.data || [];
+                    renderInstalled();
+                }
+            } catch (e) {
+                console.error('加载已安装应用失败:', e);
+            }
+        }
+
+        // 渲染分类筛选
+        function renderCategoryFilter(categories) {
+            const container = document.getElementById('category-filter');
+            container.innerHTML = '<button class="category-btn active" data-category="">全部</button>';
+            
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn';
+                btn.dataset.category = cat;
+                btn.textContent = getCategoryName(cat);
+                btn.onclick = () => filterByCategory(cat);
+                container.appendChild(btn);
+            });
+        }
+
+        // 获取分类中文名
+        function getCategoryName(cat) {
+            const names = {
+                'Productivity': '生产力',
+                'Media': '媒体',
+                'Smart Home': '智能家居',
+                'Network': '网络',
+                'Download': '下载',
+                'Development': '开发',
+                'Security': '安全'
+            };
+            return names[cat] || cat;
+        }
+
+        // 按分类筛选
+        function filterByCategory(category) {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === category);
+            });
+            renderApps(category);
+        }
+
+        // 渲染已安装应用
+        function renderInstalled() {
+            const section = document.getElementById('installed-section');
+            const container = document.getElementById('installed-list');
+            
+            if (installedApps.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            container.innerHTML = installedApps.map(app => `
+                <div class="installed-item" onclick="showInstalledDetail('${app.id}')">
+                    <div class="status-dot status-${app.status === 'running' ? 'running' : 'stopped'}"></div>
+                    <div style="flex: 1;">
+                        <div class="font-medium">${app.displayName}</div>
+                        <div class="text-sm text-muted">${app.status === 'running' ? '运行中' : '已停止'}</div>
+                    </div>
+                    <div class="app-actions">
+                        ${app.status === 'running' ? 
+                            `<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); stopApp('${app.id}')">停止</button>` :
+                            `<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); startApp('${app.id}')">启动</button>`
+                        }
+                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); uninstallApp('${app.id}')">卸载</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染应用列表
+        function renderApps(category = '') {
+            const container = document.getElementById('app-grid');
+            let filtered = templates;
+            
+            if (category) {
+                filtered = templates.filter(t => t.category === category);
+            }
+            
+            container.innerHTML = filtered.map(template => {
+                const installed = installedApps.find(a => a.templateId === template.id);
+                return `
+                    <div class="app-card ${installed ? 'installed' : ''}">
+                        <div class="app-header">
+                            <div class="app-icon">${template.icon}</div>
+                            <div class="app-info">
+                                <h3>${template.displayName}</h3>
+                                <span class="app-category">${getCategoryName(template.category)}</span>
+                            </div>
+                        </div>
+                        <p class="app-desc">${template.description}</p>
+                        <div class="app-meta">
+                            ${template.ports ? template.ports.map(p => `<span class="app-tag">端口: ${p.default}</span>`).join('') : ''}
+                        </div>
+                        <div class="app-actions">
+                            ${installed ? 
+                                `<button class="btn btn-secondary" style="flex:1;" onclick="showInstalledDetail('${installed.id}')">管理</button>` :
+                                `<button class="btn btn-primary" style="flex:1;" onclick="showInstallModal('${template.id}')">安装</button>`
+                            }
+                            <button class="btn btn-secondary" onclick="showTemplateDetail('${template.id}')">详情</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 显示安装配置弹窗
+        function showInstallModal(templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (!template) return;
+            
+            currentTemplate = template;
+            document.getElementById('modal-title').textContent = `安装 ${template.displayName}`;
+            
+            let bodyHtml = `<p class="text-muted mb-4">${template.description}</p>`;
+            
+            // 端口配置
+            if (template.ports && template.ports.length > 0) {
+                bodyHtml += '<h4 style="margin-bottom: 0.75rem;">端口配置</h4>';
+                template.ports.forEach(port => {
+                    bodyHtml += `
+                        <div class="port-config">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium">${port.description}</div>
+                                    <div class="text-sm text-muted">容器端口: ${port.port}/${port.protocol}</div>
+                                </div>
+                                <input type="number" class="form-input" style="width: 100px;" 
+                                       id="port_${port.port}" value="${port.default}" min="1" max="65535">
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            // 存储卷配置
+            if (template.volumes && template.volumes.length > 0) {
+                bodyHtml += '<h4 style="margin: 1.5rem 0 0.75rem;">存储配置</h4>';
+                template.volumes.forEach(vol => {
+                    bodyHtml += `
+                        <div class="volume-config">
+                            <div class="font-medium mb-1">${vol.description}</div>
+                            <div class="text-sm text-muted mb-2">容器路径: ${vol.containerPath}</div>
+                            <input type="text" class="form-input" 
+                                   id="vol_${vol.containerPath.replace(/\//g, '_')}" 
+                                   value="${vol.default}" placeholder="主机路径">
+                        </div>
+                    `;
+                });
+            }
+            
+            // 环境变量
+            if (template.environment && Object.keys(template.environment).length > 0) {
+                bodyHtml += '<h4 style="margin: 1.5rem 0 0.75rem;">环境变量</h4>';
+                Object.entries(template.environment).forEach(([key, value]) => {
+                    bodyHtml += `
+                        <div class="form-group">
+                            <label class="form-label">${key}</label>
+                            <input type="text" class="form-input" id="env_${key}" value="${value}">
+                        </div>
+                    `;
+                });
+            }
+            
+            // 注意事项
+            if (template.notes) {
+                bodyHtml += `
+                    <div class="alert alert-info mt-4">
+                        <strong>注意:</strong> ${template.notes}
+                    </div>
+                `;
+            }
+            
+            document.getElementById('modal-body').innerHTML = bodyHtml;
+            document.getElementById('install-modal').classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('install-modal').classList.remove('active');
+            currentTemplate = null;
+        }
+
+        // 确认安装
+        async function confirmInstall() {
+            if (!currentTemplate) return;
+            
+            const btn = document.getElementById('install-btn');
+            btn.disabled = true;
+            btn.textContent = '安装中...';
+            
+            // 收集配置
+            const config = { ports: {}, volumes: {}, environment: {} };
+            
+            currentTemplate.ports?.forEach(port => {
+                const input = document.getElementById(`port_${port.port}`);
+                if (input) config.ports[`port_${port.port}`] = parseInt(input.value);
+            });
+            
+            currentTemplate.volumes?.forEach(vol => {
+                const input = document.getElementById(`vol_${vol.containerPath.replace(/\//g, '_')}`);
+                if (input) config.volumes[`vol_${vol.containerPath.replace(/\//g, '_')}`] = input.value;
+            });
+            
+            Object.keys(currentTemplate.environment || {}).forEach(key => {
+                const input = document.getElementById(`env_${key}`);
+                if (input) config.environment[key] = input.value;
+            });
+            
+            try {
+                const res = await fetch(`${API_BASE}/apps/install/${currentTemplate.id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    closeModal();
+                    loadInstalled();
+                    renderApps();
+                    alert('应用安装成功！');
+                } else {
+                    alert('安装失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('安装失败: ' + e.message);
+            }
+            
+            btn.disabled = false;
+            btn.textContent = '安装';
+        }
+
+        // 显示模板详情
+        function showTemplateDetail(templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (!template) return;
+            
+            document.getElementById('detail-title').textContent = template.displayName;
+            
+            const body = `
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="font-size: 64px;">${template.icon}</div>
+                </div>
+                <p style="margin-bottom: 1rem;">${template.description}</p>
+                <div class="mb-4">
+                    <strong>分类:</strong> ${getCategoryName(template.category)}<br>
+                    <strong>版本:</strong> ${template.version}<br>
+                    <strong>镜像:</strong> <code>${template.image}</code>
+                </div>
+                ${template.notes ? `<div class="alert alert-info">${template.notes}</div>` : ''}
+                ${template.website ? `<a href="${template.website}" target="_blank" class="btn btn-secondary">访问官网</a>` : ''}
+            `;
+            
+            document.getElementById('detail-body').innerHTML = body;
+            document.getElementById('detail-footer').innerHTML = `
+                <button class="btn btn-secondary" onclick="closeDetailModal()">关闭</button>
+                <button class="btn btn-primary" onclick="closeDetailModal(); showInstallModal('${template.id}')">安装</button>
+            `;
+            
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        // 关闭详情弹窗
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+
+        // 显示已安装应用详情
+        function showInstalledDetail(appId) {
+            const app = installedApps.find(a => a.id === appId);
+            if (!app) return;
+            
+            currentInstalled = app;
+            
+            document.getElementById('detail-title').textContent = app.displayName;
+            
+            let portsHtml = '';
+            if (app.ports) {
+                Object.entries(app.ports).forEach(([container, host]) => {
+                    portsHtml += `<span class="app-tag">${host}:${container}</span> `;
+                });
+            }
+            
+            const body = `
+                <div style="margin-bottom: 1.5rem;">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="status-dot status-${app.status === 'running' ? 'running' : 'stopped'}"></div>
+                        <span class="font-medium">${app.status === 'running' ? '运行中' : '已停止'}</span>
+                    </div>
+                    <div class="text-sm text-muted">安装时间: ${new Date(app.installTime).toLocaleString()}</div>
+                </div>
+                
+                <h4 style="margin-bottom: 0.5rem;">端口映射</h4>
+                <div class="mb-4">${portsHtml || '无'}</div>
+                
+                <h4 style="margin-bottom: 0.5rem;">存储卷</h4>
+                <div class="mb-4">
+                    ${Object.entries(app.volumes || {}).map(([container, host]) => 
+                        `<div class="text-sm mb-1"><code>${host}</code> → <code>${container}</code></div>`
+                    ).join('') || '无'}
+                </div>
+                
+                ${app.status === 'running' ? `
+                    <h4 style="margin-bottom: 0.5rem;">访问地址</h4>
+                    ${Object.entries(app.ports || {}).map(([container, host]) => 
+                        `<a href="http://${window.location.hostname}:${host}" target="_blank" class="btn btn-secondary btn-sm">打开 :${host}</a>`
+                    ).join(' ')}
+                ` : ''}
+            `;
+            
+            document.getElementById('detail-body').innerHTML = body;
+            document.getElementById('detail-footer').innerHTML = `
+                <button class="btn btn-danger" onclick="uninstallApp('${app.id}')">卸载</button>
+                ${app.status === 'running' ? 
+                    `<button class="btn btn-secondary" onclick="stopApp('${app.id}')">停止</button>` :
+                    `<button class="btn btn-success" onclick="startApp('${app.id}')">启动</button>`
+                }
+                <button class="btn btn-secondary" onclick="restartApp('${app.id}')">重启</button>
+                <button class="btn btn-primary" onclick="updateApp('${app.id}')">更新</button>
+            `;
+            
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        // 启动应用
+        async function startApp(id) {
+            try {
+                const res = await fetch(`${API_BASE}/apps/installed/${id}/start`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    loadInstalled();
+                    renderApps();
+                    closeDetailModal();
+                } else {
+                    alert('启动失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('启动失败: ' + e.message);
+            }
+        }
+
+        // 停止应用
+        async function stopApp(id) {
+            try {
+                const res = await fetch(`${API_BASE}/apps/installed/${id}/stop`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    loadInstalled();
+                    renderApps();
+                    closeDetailModal();
+                } else {
+                    alert('停止失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('停止失败: ' + e.message);
+            }
+        }
+
+        // 重启应用
+        async function restartApp(id) {
+            try {
+                const res = await fetch(`${API_BASE}/apps/installed/${id}/restart`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    loadInstalled();
+                    alert('应用已重启');
+                } else {
+                    alert('重启失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('重启失败: ' + e.message);
+            }
+        }
+
+        // 更新应用
+        async function updateApp(id) {
+            if (!confirm('确定要更新此应用吗？')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/apps/installed/${id}/update`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('应用已更新');
+                } else {
+                    alert('更新失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('更新失败: ' + e.message);
+            }
+        }
+
+        // 卸载应用
+        async function uninstallApp(id) {
+            const removeData = confirm('是否同时删除应用数据？\n\n确定 = 删除数据\n取消 = 保留数据');
+            
+            try {
+                const res = await fetch(`${API_BASE}/apps/installed/${id}?removeData=${removeData}`, { 
+                    method: 'DELETE' 
+                });
+                const data = await res.json();
+                if (data.code === 0) {
+                    loadInstalled();
+                    loadCatalog();
+                    closeDetailModal();
+                } else {
+                    alert('卸载失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('卸载失败: ' + e.message);
+            }
+        }
+
+        // 初始化
+        loadInstalled();
+        loadCatalog();
+        
+        // 定时刷新
+        setInterval(loadInstalled, 30000);
+    </script>
+</body>
+</html>

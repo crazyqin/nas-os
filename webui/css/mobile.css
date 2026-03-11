@@ -1,0 +1,560 @@
+/* NAS-OS Mobile & PWA Styles */
+/* Version: 1.0 | 2026-03-10 */
+
+/* ========================================
+   Mobile Navigation
+   ======================================== */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: white;
+  border-bottom: 1px solid var(--color-gray-200);
+  padding: 0 var(--space-4);
+  z-index: 100;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mobile-header-brand img {
+  width: 32px;
+  height: 32px;
+}
+
+.mobile-header-brand h1 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  padding: var(--space-2);
+  cursor: pointer;
+  color: var(--color-gray-600);
+}
+
+.mobile-menu-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.mobile-menu-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.mobile-menu {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 280px;
+  background: white;
+  z-index: 201;
+  transform: translateX(-100%);
+  transition: transform var(--transition-slow);
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.mobile-menu.active {
+  transform: translateX(0);
+}
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.mobile-menu-close {
+  background: none;
+  border: none;
+  padding: var(--space-2);
+  cursor: pointer;
+  color: var(--color-gray-500);
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-gray-600);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-1);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.mobile-nav-item:hover,
+.mobile-nav-item.active {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.mobile-nav-item svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ========================================
+   Mobile Cards & Tables
+   ======================================== */
+.mobile-card-list {
+  display: none;
+}
+
+.mobile-card-item {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+
+.mobile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.mobile-card-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.mobile-card-body {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.mobile-card-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.mobile-card-label {
+  color: var(--color-gray-500);
+}
+
+.mobile-card-value {
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.mobile-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-gray-100);
+}
+
+/* ========================================
+   Mobile Form Adjustments
+   ======================================== */
+.mobile-form-stack .form-group {
+  margin-bottom: var(--space-4);
+}
+
+.mobile-form-stack .form-label {
+  font-size: 13px;
+  margin-bottom: var(--space-1);
+}
+
+.mobile-form-stack .form-input,
+.mobile-form-stack .form-select {
+  font-size: 16px; /* 防止 iOS 缩放 */
+}
+
+/* ========================================
+   Mobile Bottom Navigation
+   ======================================== */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--color-gray-200);
+  padding: var(--space-2) 0;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mobile-bottom-nav-items {
+  display: flex;
+  justify-content: space-around;
+}
+
+.mobile-bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-gray-500);
+  text-decoration: none;
+  font-size: 11px;
+  transition: color var(--transition-fast);
+}
+
+.mobile-bottom-nav-item.active {
+  color: var(--color-primary);
+}
+
+.mobile-bottom-nav-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ========================================
+   Responsive Breakpoints
+   ======================================== */
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding-top: 72px;
+    padding-bottom: 80px;
+  }
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .mobile-bottom-nav {
+    display: block;
+  }
+
+  /* 转换表格为卡片列表 */
+  .table-container {
+    display: none;
+  }
+
+  .mobile-card-list {
+    display: block;
+  }
+
+  /* 调整网格布局 */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .stat-card {
+    padding: var(--space-3);
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+  }
+
+  /* 卡片调整 */
+  .card {
+    padding: var(--space-4);
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .quick-actions {
+    flex-direction: column;
+  }
+
+  .quick-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-content {
+    padding: var(--space-3);
+    padding-top: 68px;
+    padding-bottom: 72px;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+
+  .stat-card {
+    padding: var(--space-2);
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .container {
+    padding: 0;
+  }
+
+  /* 模态框调整 */
+  .modal-content {
+    width: 95%;
+    margin: var(--space-2);
+    max-height: 90vh;
+  }
+
+  /* 按钮调整 */
+  .btn-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   Touch Optimizations
+   ======================================== */
+@media (hover: none) and (pointer: coarse) {
+  /* 增大点击区域 */
+  .btn {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .btn-sm {
+    min-height: 36px;
+  }
+
+  .nav-item,
+  .mobile-nav-item {
+    min-height: 44px;
+  }
+
+  .table tr {
+    min-height: 48px;
+  }
+
+  /* 移除 hover 效果 */
+  .btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .card:hover {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* ========================================
+   Dark Mode Support
+   ======================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-gray-50: #18181b;
+    --color-gray-100: #27272a;
+    --color-gray-200: #3f3f46;
+    --color-gray-300: #52525b;
+    --color-gray-400: #71717a;
+    --color-gray-500: #a1a1aa;
+    --color-gray-600: #d4d4d8;
+    --color-gray-700: #e4e4e7;
+    --color-gray-800: #f4f4f5;
+    --color-gray-900: #fafafa;
+  }
+
+  body {
+    background: #0a0a0a;
+    color: #e4e4e7;
+  }
+
+  .sidebar,
+  .mobile-menu,
+  .mobile-header,
+  .mobile-bottom-nav {
+    background: #18181b;
+    border-color: #27272a;
+  }
+
+  .card,
+  .mobile-card-item {
+    background: #18181b;
+    border-color: #27272a;
+  }
+
+  .table th {
+    background: #27272a;
+  }
+
+  .table tr:hover {
+    background: #27272a;
+  }
+
+  .btn-secondary {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #e4e4e7;
+  }
+}
+
+/* ========================================
+   PWA Splash Screen
+   ======================================== */
+.pwa-splash {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeOut 0.5s ease forwards;
+  animation-delay: 1s;
+}
+
+.pwa-splash-logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: var(--space-6);
+  animation: pulse 1s ease infinite;
+}
+
+.pwa-splash-title {
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+
+.pwa-splash-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* ========================================
+   Pull to Refresh
+   ======================================== */
+.pull-to-refresh {
+  position: relative;
+  overflow-y: auto;
+}
+
+.ptr-indicator {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+
+.ptr-indicator.active {
+  top: 10px;
+}
+
+.ptr-indicator svg {
+  width: 24px;
+  height: 24px;
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   Safe Area Support (iOS)
+   ======================================== */
+@supports (padding: env(safe-area-inset-top)) {
+  .mobile-header {
+    padding-top: env(safe-area-inset-top);
+    height: calc(56px + env(safe-area-inset-top));
+  }
+
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .main-content {
+    padding-top: calc(72px + env(safe-area-inset-top));
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}
