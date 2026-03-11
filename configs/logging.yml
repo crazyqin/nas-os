@@ -1,0 +1,65 @@
+# NAS-OS 日志系统配置
+
+# 日志级别：debug, info, warn, error, fatal
+level: info
+
+# 日志格式：json, text
+format: json
+
+# 输出配置
+outputs:
+  # 控制台输出
+  - type: stdout
+    level: info
+    
+  # 文件输出
+  - type: file
+    path: /var/log/nas-os/nas-os.log
+    level: info
+    max_size: 100MB        # 单个文件最大大小
+    max_backups: 5         # 保留的旧文件数量
+    max_age: 30            # 文件保留天数
+    compress: true         # 是否压缩旧日志
+    
+  # 审计日志 (单独文件)
+  - type: file
+    path: /var/log/nas-os/audit.log
+    level: audit
+    max_size: 100MB
+    max_backups: 10
+    max_age: 90
+    compress: true
+
+# 请求日志配置
+request_logging:
+  enabled: true
+  include_headers: false       # 是否记录请求头
+  include_body: false          # 是否记录请求体
+  slow_threshold: 1000ms       # 慢请求阈值
+  
+# 审计日志配置
+audit_logging:
+  enabled: true
+  sensitive_paths:
+    - /api/v1/volumes
+    - /api/v1/users
+    - /api/v1/shares
+    - /api/v1/raid
+    - /api/v1/snapshots
+  sensitive_methods:
+    - POST
+    - PUT
+    - DELETE
+    
+# 性能指标
+metrics:
+  enabled: true
+  path: /metrics
+  port: 9090
+  
+# 分布式追踪 (可选)
+tracing:
+  enabled: false
+  provider: jaeger  # jaeger, zipkin, otel
+  endpoint: http://localhost:14268/api/traces
+  sample_rate: 0.1  # 采样率 10%
