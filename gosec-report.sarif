@@ -1,0 +1,4963 @@
+{
+	"runs": [
+		{
+			"results": [
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 22,
+									"endLine": 648,
+									"snippet": {
+										"text": "return os.WriteFile(dstPath, data, info.Mode())"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 22,
+									"startLine": 648
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Path traversal via taint analysis"
+					},
+					"ruleId": "G703"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 27,
+									"endLine": 644,
+									"snippet": {
+										"text": "data, err := os.ReadFile(path)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 27,
+									"startLine": 644
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal"
+					},
+					"ruleId": "G122"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns_providers.go"
+								},
+								"region": {
+									"endColumn": 7,
+									"endLine": 559,
+									"snippet": {
+										"text": "h := sha1.New()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 7,
+									"startLine": 559
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Use of weak cryptographic primitive"
+					},
+					"ruleId": "G401",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 471,
+									"snippet": {
+										"text": "cmd = exec.Command(\"mount\", args...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 471
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 451,
+									"snippet": {
+										"text": "cmd = exec.Command(\"mount\", args...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 451
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 299,
+									"snippet": {
+										"text": "cmd = exec.Command(\"umount\", mountPoint)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 299
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 297,
+									"snippet": {
+										"text": "cmd = exec.Command(\"sudo\", \"umount\", mountPoint)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 297
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 282,
+									"snippet": {
+										"text": "cmd = exec.Command(\"mount\", args...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 282
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 260,
+									"snippet": {
+										"text": "cmd = exec.Command(\"wipefs\", \"-a\", device)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 260
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 258,
+									"snippet": {
+										"text": "cmd = exec.Command(\"sudo\", \"wipefs\", \"-a\", device)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 258
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 242,
+									"snippet": {
+										"text": "cmd = exec.Command(\"mkfs.btrfs\", args...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 242
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 105,
+									"snippet": {
+										"text": "cmd = exec.Command(\"btrfs\", args...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 105
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 103,
+									"snippet": {
+										"text": "cmd = exec.Command(\"sudo\", allArgs...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 103
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 93,
+									"snippet": {
+										"text": "cmd = exec.Command(\"btrfs\", args...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 93
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 91,
+									"snippet": {
+										"text": "cmd = exec.Command(\"sudo\", allArgs...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 91
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 325,
+									"snippet": {
+										"text": "cmd = exec.Command(\"ip\", \"link\", \"set\", name, \"down\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 325
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 323,
+									"snippet": {
+										"text": "cmd = exec.Command(\"ip\", \"link\", \"set\", name, \"up\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 323
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 271,
+									"snippet": {
+										"text": "exec.Command(\"ip\", \"route\", \"del\", \"default\", \"dev\", name).Run()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 271
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 262,
+									"snippet": {
+										"text": "cmd = exec.Command(\"ip\", \"addr\", \"add\", addr, \"dev\", name)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 262
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 259,
+									"snippet": {
+										"text": "cmd := exec.Command(\"ip\", \"addr\", \"flush\", \"dev\", name)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 259
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 247,
+									"snippet": {
+										"text": "cmd := exec.Command(\"dhclient\", name)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 247
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 142,
+									"snippet": {
+										"text": "cmd := exec.Command(\"ip\", \"route\", \"show\", \"dev\", iface)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 142
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 415,
+									"snippet": {
+										"text": "cmd := exec.Command(\"iptables-restore\", \"\u003c\", path)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 415
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 385,
+									"snippet": {
+										"text": "cmd := exec.Command(\"iptables\", \"-F\", chain)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 385
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 11,
+									"endLine": 379,
+									"snippet": {
+										"text": "cmd := exec.Command(\"iptables\", \"-F\", c)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 11,
+									"startLine": 379
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 361,
+									"snippet": {
+										"text": "cmd := exec.Command(\"iptables\", \"-P\", chain, policy)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 361
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 323,
+									"snippet": {
+										"text": "cmd := exec.Command(\"iptables\", \"-L\", chain, \"-n\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 323
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 275,
+									"snippet": {
+										"text": "cmd := exec.Command(\"iptables\", \"-L\", chain, \"-n\", \"--line-numbers\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 275
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 266,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", args...).Run()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 266
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 217,
+									"snippet": {
+										"text": "cmd := exec.Command(\"iptables\", args...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 217
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/monitor/manager.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 254,
+									"snippet": {
+										"text": "cmd := exec.Command(\"smartctl\", \"-A\", \"-i\", \"-H\", device)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 254
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/manager.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 447,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker\", \"pull\", image)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 447
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/manager.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 363,
+									"snippet": {
+										"text": "cmd := exec.CommandContext(ctx, \"docker\", \"stats\", \"--no-stream\", \"--format\", \"{{json .}}\", id)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 363
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/manager.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 302,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker\", \"start\", id)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 302
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/manager.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 291,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker\", args...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 291
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/manager.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 170,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker\", \"inspect\", \"--format\", \"{{json .}}\", id)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 170
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 684,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker-compose\", \"-f\", composePath, \"up\", \"-d\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 684
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 497,
+									"snippet": {
+										"text": "cmd := exec.Command(\"tar\", \"xzf\", backupPath, \"-C\", options.TargetPath)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 497
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 8,
+									"endLine": 372,
+									"snippet": {
+										"text": "cmd = exec.Command(\"scp\", scpArgs...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 8,
+									"startLine": 372
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 361,
+									"snippet": {
+										"text": "cmd := exec.Command(\"tar\", \"czf\", localTemp, \"-C\", cfg.Source, \".\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 361
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 321,
+									"snippet": {
+										"text": "cmd := exec.Command(\"tar\", \"czf\", backupPath, \"-C\", cfg.Source, \".\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 321
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with variable"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 469,
+									"snippet": {
+										"text": "cmd = exec.Command(\"sudo\", append([]string{\"mount\"}, args...)...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 469
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 449,
+									"snippet": {
+										"text": "cmd = exec.Command(\"sudo\", append([]string{\"mount\"}, args...)...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 449
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 280,
+									"snippet": {
+										"text": "cmd = exec.Command(\"sudo\", append([]string{\"mount\"}, args...)...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 280
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "pkg/btrfs/btrfs.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 240,
+									"snippet": {
+										"text": "cmd = exec.Command(\"sudo\", append([]string{\"mkfs.btrfs\"}, args...)...)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 240
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 275,
+									"snippet": {
+										"text": "cmd := exec.Command(\"iptables\", \"-t\", \"nat\", \"-C\", \"PREROUTING\",\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.ExternalPort),\n\"-j\", \"DNAT\",\n\"--to-destination\", fmt.Sprintf(\"%s:%d\", rule.InternalIP, rule.InternalPort))\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 271
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 236,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", \"-D\", \"FORWARD\",\n\"-p\", rule.Protocol,\n\"-d\", rule.InternalIP,\n\"--dport\", fmt.Sprintf(\"%d\", rule.InternalPort),\n\"-j\", \"ACCEPT\").Run()\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 232
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 229,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", \"-t\", \"nat\", \"-D\", \"POSTROUTING\",\n\"-d\", rule.InternalIP,\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.InternalPort),\n\"-j\", \"MASQUERADE\").Run()\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 225
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 222,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", \"-t\", \"nat\", \"-D\", \"PREROUTING\",\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.ExternalPort),\n\"-j\", \"DNAT\",\n\"--to-destination\", fmt.Sprintf(\"%s:%d\", rule.InternalIP, rule.InternalPort)).Run()\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 218
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 16,
+									"endLine": 201,
+									"snippet": {
+										"text": "forwardCmd := exec.Command(\"iptables\", \"-A\", \"FORWARD\",\n\"-p\", rule.Protocol,\n\"-d\", rule.InternalIP,\n\"--dport\", fmt.Sprintf(\"%d\", rule.InternalPort),\n\"-j\", \"ACCEPT\")\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 16,
+									"startLine": 197
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 191,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", \"-t\", \"nat\", \"-D\", \"PREROUTING\",\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.ExternalPort),\n\"-j\", \"DNAT\",\n\"--to-destination\", fmt.Sprintf(\"%s:%d\", rule.InternalIP, rule.InternalPort)).Run()\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 187
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 13,
+									"endLine": 183,
+									"snippet": {
+										"text": "snatCmd := exec.Command(\"iptables\", \"-t\", \"nat\", \"-A\", \"POSTROUTING\",\n\"-d\", rule.InternalIP,\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.InternalPort),\n\"-j\", \"MASQUERADE\")\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 13,
+									"startLine": 179
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 13,
+									"endLine": 171,
+									"snippet": {
+										"text": "dnatCmd := exec.Command(\"iptables\", \"-t\", \"nat\", \"-A\", \"PREROUTING\",\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.ExternalPort),\n\"-j\", \"DNAT\",\n\"--to-destination\", fmt.Sprintf(\"%s:%d\", rule.InternalIP, rule.InternalPort))\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 13,
+									"startLine": 167
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 273,
+									"snippet": {
+										"text": "cmd := exec.Command(\"ip\", \"route\", \"add\", \"default\", \"via\", config.Gateway, \"dev\", name)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 273
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 406,
+									"snippet": {
+										"text": "return exec.Command(\"sh\", \"-c\", fmt.Sprintf(\"echo '%s' \u003e %s\", string(output), path)).Run()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 406
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 918,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker-compose\", \"-f\", app.ComposePath, \"up\", \"-d\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 918
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 887,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker-compose\", \"-f\", app.ComposePath, \"restart\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 887
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 865,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker-compose\", \"-f\", app.ComposePath, \"stop\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 865
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 843,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker-compose\", \"-f\", app.ComposePath, \"start\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 843
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 10,
+									"endLine": 814,
+									"snippet": {
+										"text": "cmd := exec.Command(\"docker-compose\", \"-f\", app.ComposePath, \"down\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 10,
+									"startLine": 814
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Subprocess launched with a potential tainted input or cmd arguments"
+					},
+					"ruleId": "G204",
+					"ruleIndex": 1
+				},
+				{
+					"fixes": [
+						{
+							"artifactChanges": [
+								{
+									"artifactLocation": {
+										"description": {
+											"text": "File requiring changes"
+										}
+									},
+									"replacements": [
+										{
+											"deletedRegion": {
+												"endColumn": 1,
+												"endLine": 1,
+												"startColumn": 1,
+												"startLine": 1
+											}
+										}
+									]
+								}
+							],
+							"description": {
+								"markdown": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal.",
+								"text": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+							}
+						}
+					],
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 16,
+									"endLine": 644,
+									"snippet": {
+										"text": "data, err := os.ReadFile(path)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 16,
+									"startLine": 644
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Potential file inclusion via variable"
+					},
+					"ruleId": "G304",
+					"ruleIndex": 2
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/web/server.go"
+								},
+								"region": {
+									"endColumn": 15,
+									"endLine": 154,
+									"snippet": {
+										"text": "s.httpSrv = \u0026http.Server{\nAddr:    addr,\nHandler: s.engine,\n}\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 15,
+									"startLine": 151
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server"
+					},
+					"ruleId": "G112"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns_providers.go"
+								},
+								"region": {
+									"endColumn": 15,
+									"endLine": 149,
+									"snippet": {
+										"text": "resp, err := http.Get(requestURL)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 15,
+									"startLine": 149
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Potential HTTP request made with variable url"
+					},
+					"ruleId": "G107"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns.go"
+								},
+								"region": {
+									"endColumn": 15,
+									"endLine": 212,
+									"snippet": {
+										"text": "resp, err := http.Get(url)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 15,
+									"startLine": 212
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Potential HTTP request made with variable url"
+					},
+					"ruleId": "G107"
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/web/middleware.go"
+								},
+								"region": {
+									"endColumn": 13,
+									"endLine": 272,
+									"snippet": {
+										"text": "f, err := os.OpenFile(\"/var/log/nas-os/audit.log\", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 13,
+									"startLine": 272
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect file permissions to be 0600 or less"
+					},
+					"ruleId": "G302",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 211,
+									"snippet": {
+										"text": "if err := os.MkdirAll(filepath.Dir(m.configPath), 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 211
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 773,
+									"snippet": {
+										"text": "if err := os.MkdirAll(snapDirPath, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 773
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 652,
+									"snippet": {
+										"text": "if err := os.MkdirAll(mountPath, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 652
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 624,
+									"snippet": {
+										"text": "if err := os.MkdirAll(mountPath, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 624
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 375,
+									"snippet": {
+										"text": "if err := os.MkdirAll(vol.MountPoint, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 375
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 292,
+									"snippet": {
+										"text": "if err := os.MkdirAll(mountPoint, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 292
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 160,
+									"snippet": {
+										"text": "if err := os.MkdirAll(mountBase, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 160
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/smb/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 235,
+									"snippet": {
+										"text": "if err := os.MkdirAll(input.Path, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 235
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/smb/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 148,
+									"snippet": {
+										"text": "if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 148
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nfs/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 214,
+									"snippet": {
+										"text": "if err := os.MkdirAll(input.Path, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 214
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nfs/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 137,
+									"snippet": {
+										"text": "if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 137
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 633,
+									"snippet": {
+										"text": "if err := os.MkdirAll(appDir, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 633
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 92,
+									"snippet": {
+										"text": "if err := os.MkdirAll(installDir, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 92
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 89,
+									"snippet": {
+										"text": "if err := os.MkdirAll(templateDir, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 89
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 489,
+									"snippet": {
+										"text": "if err := os.MkdirAll(options.TargetPath, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 489
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 308,
+									"snippet": {
+										"text": "if err := os.MkdirAll(destDir, 0755); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 308
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect directory permissions to be 0750 or less"
+					},
+					"ruleId": "G301",
+					"ruleIndex": 4
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/smb/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 208,
+									"snippet": {
+										"text": "if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 208
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/smb/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 152,
+									"snippet": {
+										"text": "if err := os.WriteFile(configPath, data, 0644); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 152
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nfs/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 191,
+									"snippet": {
+										"text": "if err := os.WriteFile(\"/etc/exports\", []byte(exportsContent), 0644); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 191
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/nfs/manager.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 141,
+									"snippet": {
+										"text": "if err := os.WriteFile(configPath, data, 0644); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 141
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 313,
+									"snippet": {
+										"text": "return os.WriteFile(\"/etc/resolv.conf\", []byte(content), 0644)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 313
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 299,
+									"snippet": {
+										"text": "return os.WriteFile(configPath, []byte(config), 0644)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 299
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 12,
+									"endLine": 679,
+									"snippet": {
+										"text": "if err := os.WriteFile(composePath, []byte(composeContent), 0644); err != nil {"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 12,
+									"startLine": 679
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 575,
+									"snippet": {
+										"text": "return os.WriteFile(s.dataFile, data, 0644)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 575
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 9,
+									"endLine": 621,
+									"snippet": {
+										"text": "return os.WriteFile(m.configPath, data, 0644)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 9,
+									"startLine": 621
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Expect WriteFile permissions to be 0600 or less"
+					},
+					"ruleId": "G306",
+					"ruleIndex": 7
+				},
+				{
+					"level": "error",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns_providers.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 5,
+									"snippet": {
+										"text": "\"crypto/sha1\""
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 5
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Blocklisted import crypto/sha1: weak cryptographic primitive"
+					},
+					"ruleId": "G505",
+					"ruleIndex": 9
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/web/middleware.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 281,
+									"snippet": {
+										"text": "f.WriteString(\"\\n\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 281
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/web/middleware.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 280,
+									"snippet": {
+										"text": "f.Write(auditJSON)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 280
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/web/middleware.go"
+								},
+								"region": {
+									"endColumn": 4,
+									"endLine": 82,
+									"snippet": {
+										"text": "os.Stderr.WriteString(\"\\n\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 4,
+									"startLine": 82
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/web/middleware.go"
+								},
+								"region": {
+									"endColumn": 4,
+									"endLine": 81,
+									"snippet": {
+										"text": "os.Stderr.Write(logJSON)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 4,
+									"startLine": 81
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/web/middleware.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 75,
+									"snippet": {
+										"text": "os.Stdout.WriteString(\"\\n\")"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 75
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/web/middleware.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 74,
+									"snippet": {
+										"text": "os.Stdout.Write(logJSON)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 74
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 849,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 849
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 753,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 753
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 733,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 733
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 707,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 707
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 676,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 676
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 661,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 661
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 625,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 625
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 578,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 578
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 556,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 556
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 527,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 527
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 505,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 505
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 434,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 434
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 402,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 402
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 363,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 363
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/users/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 277,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 277
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 1102,
+									"snippet": {
+										"text": "m.client.DeleteSubVolume(tempPath)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 1102
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 1042,
+									"snippet": {
+										"text": "m.scanSubvolumes(vol)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 1042
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 675,
+									"snippet": {
+										"text": "os.Remove(mountPath)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 675
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 658,
+									"snippet": {
+										"text": "os.Remove(mountPath)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 658
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 630,
+									"snippet": {
+										"text": "os.Remove(mountPath)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 630
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 454,
+									"snippet": {
+										"text": "m.scanSubvolumes(vol)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 454
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 393,
+									"snippet": {
+										"text": "m.scanSubvolumes(vol)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 393
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 353,
+									"snippet": {
+										"text": "os.RemoveAll(vol.MountPoint)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 353
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/storage/manager.go"
+								},
+								"region": {
+									"endColumn": 4,
+									"endLine": 207,
+									"snippet": {
+										"text": "m.scanSubvolumes(volume)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 4,
+									"startLine": 207
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 236,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", \"-D\", \"FORWARD\",\n\"-p\", rule.Protocol,\n\"-d\", rule.InternalIP,\n\"--dport\", fmt.Sprintf(\"%d\", rule.InternalPort),\n\"-j\", \"ACCEPT\").Run()\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 232
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 229,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", \"-t\", \"nat\", \"-D\", \"POSTROUTING\",\n\"-d\", rule.InternalIP,\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.InternalPort),\n\"-j\", \"MASQUERADE\").Run()\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 225
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 222,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", \"-t\", \"nat\", \"-D\", \"PREROUTING\",\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.ExternalPort),\n\"-j\", \"DNAT\",\n\"--to-destination\", fmt.Sprintf(\"%s:%d\", rule.InternalIP, rule.InternalPort)).Run()\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 218
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 210,
+									"snippet": {
+										"text": "exec.Command(\"sysctl\", \"-w\", \"net.ipv4.ip_forward=1\").Run()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 210
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 191,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", \"-t\", \"nat\", \"-D\", \"PREROUTING\",\n\"-p\", rule.Protocol,\n\"--dport\", fmt.Sprintf(\"%d\", rule.ExternalPort),\n\"-j\", \"DNAT\",\n\"--to-destination\", fmt.Sprintf(\"%s:%d\", rule.InternalIP, rule.InternalPort)).Run()\n"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 187
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 158,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 158
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 130,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 130
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 109,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 109
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/portforward.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 76,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 76
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 271,
+									"snippet": {
+										"text": "exec.Command(\"ip\", \"route\", \"del\", \"default\", \"dev\", name).Run()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 271
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 260,
+									"snippet": {
+										"text": "cmd.Run()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 260
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 194,
+									"snippet": {
+										"text": "fmt.Sscanf(strings.TrimSpace(string(txData)), \"%d\", \u0026txBytes)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 194
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 191,
+									"snippet": {
+										"text": "fmt.Sscanf(strings.TrimSpace(string(rxData)), \"%d\", \u0026rxBytes)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 191
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/interfaces.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 72,
+									"snippet": {
+										"text": "fmt.Sscanf(strings.TrimSpace(string(mtu)), \"%d\", \u0026iface.Mtu)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 72
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/handlers.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 535,
+									"snippet": {
+										"text": "c.ShouldBindJSON(\u0026req)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 535
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/handlers.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 521,
+									"snippet": {
+										"text": "c.ShouldBindJSON(\u0026req)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 521
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 266,
+									"snippet": {
+										"text": "exec.Command(\"iptables\", args...).Run()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 266
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 164,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 164
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 136,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 136
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 115,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 115
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/firewall.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 82,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 82
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns_providers.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 433,
+									"snippet": {
+										"text": "json.NewDecoder(resp.Body).Decode(\u0026result)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 433
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns_providers.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 390,
+									"snippet": {
+										"text": "json.NewDecoder(resp.Body).Decode(\u0026result)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 390
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns.go"
+								},
+								"region": {
+									"endColumn": 5,
+									"endLine": 293,
+									"snippet": {
+										"text": "m.RefreshDDNS(cfg.Domain)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 5,
+									"startLine": 293
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 158,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 158
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 115,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 115
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 99,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 99
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 84,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 84
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/network/ddns.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 64,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 64
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 615,
+									"snippet": {
+										"text": "fmt.Sscanf(s, \"%d%s\", \u0026size, \u0026unit)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 615
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 384,
+									"snippet": {
+										"text": "fmt.Sscanf(cpuStr, \"%f\", \u0026stats.CPUUsage)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 384
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 875,
+									"snippet": {
+										"text": "s.saveInstalled()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 875
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 853,
+									"snippet": {
+										"text": "s.saveInstalled()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 853
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 823,
+									"snippet": {
+										"text": "os.RemoveAll(appDir)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 823
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 817,
+									"snippet": {
+										"text": "s.manager.RemoveContainer(app.ContainerID, true)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 817
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/docker/appstore.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 815,
+									"snippet": {
+										"text": "cmd.Run()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 815
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 444,
+									"snippet": {
+										"text": "os.Remove(fileInfos[i].path)"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 444
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 3,
+									"endLine": 273,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 3,
+									"startLine": 273
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 235,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 235
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 219,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 219
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 204,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 204
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "internal/backup/manager.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 188,
+									"snippet": {
+										"text": "m.saveConfig()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 188
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				},
+				{
+					"level": "warning",
+					"locations": [
+						{
+							"physicalLocation": {
+								"artifactLocation": {
+									"uri": "cmd/nasd/main.go"
+								},
+								"region": {
+									"endColumn": 2,
+									"endLine": 76,
+									"snippet": {
+										"text": "webServer.Stop()"
+									},
+									"sourceLanguage": "go",
+									"startColumn": 2,
+									"startLine": 76
+								}
+							}
+						}
+					],
+					"message": {
+						"text": "Errors unhandled"
+					},
+					"ruleId": "G104"
+				}
+			],
+			"taxonomies": [
+				{
+					"downloadUri": "https://cwe.mitre.org/data/xml/cwec_v4.4.xml.zip",
+					"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+					"informationUri": "https://cwe.mitre.org/data/published/cwe_v4.4.pdf/",
+					"isComprehensive": true,
+					"language": "en",
+					"minimumRequiredLocalizedDataSemanticVersion": "4.4",
+					"name": "CWE",
+					"organization": "MITRE",
+					"releaseDateUtc": "2021-03-15",
+					"shortDescription": {
+						"text": "The MITRE Common Weakness Enumeration"
+					},
+					"taxa": [
+						{
+							"fullDescription": {
+								"text": "The software uses external input to construct a pathname that is intended to identify a file or directory that is located underneath a restricted parent directory, but the software does not properly neutralize special elements within the pathname that can cause the pathname to resolve to a location that is outside of the restricted directory."
+							},
+							"guid": "3e718404-88bc-3f17-883e-e85e74078a76",
+							"helpUri": "https://cwe.mitre.org/data/definitions/22.html",
+							"id": "22",
+							"shortDescription": {
+								"text": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "During installation, installed file permissions are set to allow anyone to modify those files."
+							},
+							"guid": "fca8970d-b44c-3162-a385-cc09266d12a4",
+							"helpUri": "https://cwe.mitre.org/data/definitions/276.html",
+							"id": "276",
+							"shortDescription": {
+								"text": "Incorrect Default Permissions"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "The use of a broken or risky cryptographic algorithm is an unnecessary risk that may result in the exposure of sensitive information."
+							},
+							"guid": "3d8ac75a-952a-30cd-ab4f-911c879d8d2b",
+							"helpUri": "https://cwe.mitre.org/data/definitions/327.html",
+							"id": "327",
+							"shortDescription": {
+								"text": "Use of a Broken or Risky Cryptographic Algorithm"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "The product uses an algorithm that produces a digest (output value) that does not meet security expectations for a hash function that allows an adversary to reasonably determine the original input (preimage attack), find another input that can produce the same hash (2nd preimage attack), or find multiple inputs that evaluate to the same hash (birthday attack). "
+							},
+							"guid": "64699e70-4780-3e51-84b7-ef8e2ef34533",
+							"helpUri": "https://cwe.mitre.org/data/definitions/328.html",
+							"id": "328",
+							"shortDescription": {
+								"text": "Use of Weak Hash"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "The software checks the state of a resource before using that resource, but the resource's state can change between the check and the use in a way that invalidates the results of the check."
+							},
+							"guid": "2cfefdd6-0467-39aa-9989-3c59fde595cd",
+							"helpUri": "https://cwe.mitre.org/data/definitions/367.html",
+							"id": "367",
+							"shortDescription": {
+								"text": "Time-of-check Time-of-use (TOCTOU) Race Condition"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "The software does not properly control the allocation and maintenance of a limited resource, thereby enabling an actor to influence the amount of resources consumed, eventually leading to the exhaustion of available resources."
+							},
+							"guid": "5d980950-93cd-3caf-9057-858ec3c28877",
+							"helpUri": "https://cwe.mitre.org/data/definitions/400.html",
+							"id": "400",
+							"shortDescription": {
+								"text": "Uncontrolled Resource Consumption"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "The software does not properly anticipate or handle exceptional conditions that rarely occur during normal operation of the software."
+							},
+							"guid": "7df38d1d-038e-3ced-8601-8d9265b90a25",
+							"helpUri": "https://cwe.mitre.org/data/definitions/703.html",
+							"id": "703",
+							"shortDescription": {
+								"text": "Improper Check or Handling of Exceptional Conditions"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "The software constructs all or part of an OS command using externally-influenced input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could modify the intended OS command when it is sent to a downstream component."
+							},
+							"guid": "1a37bf66-7c5a-3aa0-94bb-ffae58a9e01c",
+							"helpUri": "https://cwe.mitre.org/data/definitions/78.html",
+							"id": "78",
+							"shortDescription": {
+								"text": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+							}
+						},
+						{
+							"fullDescription": {
+								"text": "The software constructs a string for a command to executed by a separate component\nin another control sphere, but it does not properly delimit the\nintended arguments, options, or switches within that command string."
+							},
+							"guid": "d684c7e2-3856-3079-900b-f59c57ace34b",
+							"helpUri": "https://cwe.mitre.org/data/definitions/88.html",
+							"id": "88",
+							"shortDescription": {
+								"text": "Improper Neutralization of Argument Delimiters in a Command ('Argument Injection')"
+							}
+						}
+					],
+					"version": "4.4"
+				}
+			],
+			"tool": {
+				"driver": {
+					"guid": "8b518d5f-906d-39f9-894b-d327b1a421c5",
+					"informationUri": "https://github.com/securego/gosec/",
+					"name": "gosec",
+					"rules": [
+						{
+							"defaultConfiguration": {
+								"level": "warning"
+							},
+							"fullDescription": {
+								"text": "Errors unhandled"
+							},
+							"help": {
+								"text": "Errors unhandled\nSeverity: LOW\nConfidence: HIGH\n"
+							},
+							"id": "G104",
+							"name": "Improper Check or Handling of Exceptional Conditions",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"LOW"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "7df38d1d-038e-3ced-8601-8d9265b90a25",
+										"id": "703",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Errors unhandled"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Potential HTTP request made with variable url"
+							},
+							"help": {
+								"text": "Potential HTTP request made with variable url\nSeverity: MEDIUM\nConfidence: MEDIUM\n"
+							},
+							"id": "G107",
+							"name": "Improper Neutralization of Argument Delimiters in a Command ('Argument Injection')",
+							"properties": {
+								"precision": "medium",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "d684c7e2-3856-3079-900b-f59c57ace34b",
+										"id": "88",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Potential HTTP request made with variable url"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server"
+							},
+							"help": {
+								"text": "Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server\nSeverity: MEDIUM\nConfidence: LOW\n"
+							},
+							"id": "G112",
+							"name": "Uncontrolled Resource Consumption",
+							"properties": {
+								"precision": "low",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "5d980950-93cd-3caf-9057-858ec3c28877",
+										"id": "400",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal"
+							},
+							"help": {
+								"text": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal\nSeverity: HIGH\nConfidence: MEDIUM\n"
+							},
+							"id": "G122",
+							"name": "Time-of-check Time-of-use (TOCTOU) Race Condition",
+							"properties": {
+								"precision": "medium",
+								"tags": [
+									"security",
+									"HIGH"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "2cfefdd6-0467-39aa-9989-3c59fde595cd",
+										"id": "367",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Subprocess launched with variable"
+							},
+							"help": {
+								"text": "Subprocess launched with variable\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G204",
+							"name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "1a37bf66-7c5a-3aa0-94bb-ffae58a9e01c",
+										"id": "78",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Subprocess launched with variable"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Expect directory permissions to be 0750 or less"
+							},
+							"help": {
+								"text": "Expect directory permissions to be 0750 or less\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G301",
+							"name": "Incorrect Default Permissions",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "fca8970d-b44c-3162-a385-cc09266d12a4",
+										"id": "276",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Expect directory permissions to be 0750 or less"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Expect file permissions to be 0600 or less"
+							},
+							"help": {
+								"text": "Expect file permissions to be 0600 or less\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G302",
+							"name": "Incorrect Default Permissions",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "fca8970d-b44c-3162-a385-cc09266d12a4",
+										"id": "276",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Expect file permissions to be 0600 or less"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Potential file inclusion via variable"
+							},
+							"help": {
+								"text": "Potential file inclusion via variable\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G304",
+							"name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "3e718404-88bc-3f17-883e-e85e74078a76",
+										"id": "22",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Potential file inclusion via variable"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Expect WriteFile permissions to be 0600 or less"
+							},
+							"help": {
+								"text": "Expect WriteFile permissions to be 0600 or less\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G306",
+							"name": "Incorrect Default Permissions",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "fca8970d-b44c-3162-a385-cc09266d12a4",
+										"id": "276",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Expect WriteFile permissions to be 0600 or less"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Use of weak cryptographic primitive"
+							},
+							"help": {
+								"text": "Use of weak cryptographic primitive\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G401",
+							"name": "Use of Weak Hash",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "64699e70-4780-3e51-84b7-ef8e2ef34533",
+										"id": "328",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Use of weak cryptographic primitive"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Blocklisted import crypto/sha1: weak cryptographic primitive"
+							},
+							"help": {
+								"text": "Blocklisted import crypto/sha1: weak cryptographic primitive\nSeverity: MEDIUM\nConfidence: HIGH\n"
+							},
+							"id": "G505",
+							"name": "Use of a Broken or Risky Cryptographic Algorithm",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"MEDIUM"
+								]
+							},
+							"relationships": [
+								{
+									"kinds": [
+										"superset"
+									],
+									"target": {
+										"guid": "3d8ac75a-952a-30cd-ab4f-911c879d8d2b",
+										"id": "327",
+										"toolComponent": {
+											"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+											"name": "CWE"
+										}
+									}
+								}
+							],
+							"shortDescription": {
+								"text": "Blocklisted import crypto/sha1: weak cryptographic primitive"
+							}
+						},
+						{
+							"defaultConfiguration": {
+								"level": "error"
+							},
+							"fullDescription": {
+								"text": "Path traversal via taint analysis"
+							},
+							"help": {
+								"text": "Path traversal via taint analysis\nSeverity: HIGH\nConfidence: HIGH\n"
+							},
+							"id": "G703",
+							"name": "G703",
+							"properties": {
+								"precision": "high",
+								"tags": [
+									"security",
+									"HIGH"
+								]
+							},
+							"shortDescription": {
+								"text": "Path traversal via taint analysis"
+							}
+						}
+					],
+					"semanticVersion": "dev",
+					"supportedTaxonomies": [
+						{
+							"guid": "f2856fc0-85b7-373f-83e7-6f8582243547",
+							"name": "CWE"
+						}
+					],
+					"version": "dev"
+				}
+			}
+		}
+	],
+	"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json",
+	"version": "2.1.0"
+}
