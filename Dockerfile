@@ -47,11 +47,10 @@ COPY --from=builder /build/nasctl /usr/local/bin/nasctl
 COPY configs/default.yaml /etc/nas-os/config.yaml
 
 # 暴露端口
-EXPOSE 8080/tcp   # Web UI
-EXPOSE 445/tcp    # SMB
-EXPOSE 2049/tcp   # NFS
-EXPOSE 111/tcp    # RPC (NFS)
-EXPOSE 2049/udp   # NFS
+EXPOSE 8080
+EXPOSE 445
+EXPOSE 2049
+EXPOSE 111
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
