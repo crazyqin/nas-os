@@ -5,22 +5,26 @@ import (
 	"sync"
 	"time"
 
+	"nas-os/internal/notify"
+
 	"github.com/gin-gonic/gin"
 )
 
 // Handlers 监控处理器
 type Handlers struct {
-	manager    *Manager
-	alerts     []*Alert
-	alertRules []*AlertRule
-	mu         sync.RWMutex
+	manager     *Manager
+	alerts      []*Alert
+	alertRules  []*AlertRule
+	notifyMgr   *notify.Manager
+	mu          sync.RWMutex
 }
 
 // NewHandlers 创建监控处理器
-func NewHandlers(mgr *Manager) *Handlers {
+func NewHandlers(mgr *Manager, notifyMgr *notify.Manager) *Handlers {
 	h := &Handlers{
-		manager: mgr,
-		alerts:  make([]*Alert, 0),
+		manager:   mgr,
+		alerts:    make([]*Alert, 0),
+		notifyMgr: notifyMgr,
 		alertRules: []*AlertRule{
 			{Name: "cpu-warning", Type: "cpu", Threshold: 80, Level: "warning", Enabled: true},
 			{Name: "cpu-critical", Type: "cpu", Threshold: 95, Level: "critical", Enabled: true},
@@ -353,6 +357,34 @@ func (h *Handlers) addAlert(alert *Alert) {
 	if len(h.alerts) > 100 {
 		h.alerts = h.alerts[len(h.alerts)-100:]
 	}
+
+	// 发送通知
+	if h.notifyMgr != nil {
+		level := notify.LevelInfo
+		if alert.Level == "warning" {
+			level = notify.LevelWarning
+		} else if alert.Level == "critical" {
+			level = notify.LevelCritical
+		}
+
+		notif := &notify.Notification{
+			Title:   alert.Message,
+			Message: h.getAlertDescription(alert),
+			Level:   level,
+			Source:  "NAS-OS 监控",
+		}
+		h.notifyMgr.Send(notif)
+	}
+}
+
+// getAlertDescription 获取告警详细描述
+func (h *Handlers) getAlertDescription(alert *Alert) string {
+	desc := alert.Message
+	if alert.Source != "" {
+		desc += " - 来源：" + alert.Source
+	}
+	desc += "\n级别：" + alert.Level
+	return desc
 }
 
 // generateAlertID 生成告警 ID
