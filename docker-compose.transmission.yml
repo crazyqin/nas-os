@@ -1,0 +1,44 @@
+# Transmission Docker 配置
+# 用于 BT/磁力链接下载支持
+
+version: '3.8'
+
+services:
+  transmission:
+    image: linuxserver/transmission:latest
+    container_name: nas-transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai
+      - USER=admin
+      - PASS=admin123
+      - WHITELIST=127.0.0.1,192.168.*.*
+    ports:
+      - "9091:9091"   # Web UI
+      - "51413:51413" # BT 端口
+      - "51413:51413/udp"
+    volumes:
+      - /opt/nas/downloads/config:/config
+      - /opt/nas/downloads:/downloads
+      - /opt/nas/downloads/watch:/watch
+    restart: unless-stopped
+    network_mode: host
+
+# qBittorrent 备选配置（注释掉，按需启用）
+# qbittorrent:
+#   image: linuxserver/qbittorrent:latest
+#   container_name: nas-qbittorrent
+#   environment:
+#     - PUID=1000
+#     - PGID=1000
+#     - TZ=Asia/Shanghai
+#     - WEBUI_PORT=8081
+#   ports:
+#     - "8081:8081"
+#     - "6881:6881"
+#     - "6881:6881/udp"
+#   volumes:
+#     - /opt/nas/downloads/qbittorrent:/config
+#     - /opt/nas/downloads:/downloads
+#   restart: unless-stopped

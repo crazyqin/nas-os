@@ -7,9 +7,12 @@ import (
 
 	"nas-os/internal/auth"
 	"nas-os/internal/docker"
+	"nas-os/internal/downloader"
 	"nas-os/internal/files"
+	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
+	"nas-os/internal/notify"
 	"nas-os/internal/perf"
 	"nas-os/internal/plugin"
 	"nas-os/internal/quota"
@@ -42,10 +45,13 @@ type Server struct {
 	pluginMarket *plugin.Market
 	quotaMgr     *quota.Manager
 	filesMgr     *files.Manager
+	notifyMgr    *notify.Manager
+	downloadMgr  *downloader.Manager
+	// mediaMgr     *media.LibraryManager
 }
 
 // NewServer 创建 Web 服务器
-func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager) *Server {
+func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager) *Server {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.Use(gin.Recovery())
@@ -121,6 +127,10 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		EnableDocPreview: true,
 	})
 
+	// 初始化通知管理器
+	notifyMgr := notify.NewManager()
+	notify.NewHandlers(notifyMgr, "/etc/nas-os/notify-config.json")
+
 	// 初始化 MFA 管理器
 	mfaMgr, err := auth.NewMFAManager(
 		"/etc/nas-os/mfa-config.json",
@@ -131,6 +141,12 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		// MFA 不可用时继续运行（记录日志）
 		mfaMgr = nil
 	}
+
+	// 初始化媒体库管理器
+	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
+	// 添加元数据提供商（如果配置了 API 密钥）
+	// mediaMgr.AddMetadataProvider(media.NewTMDBProvider("", "zh-CN"))
+	// mediaMgr.AddMetadataProvider(media.NewDoubanProvider(""))
 
 	s := &Server{
 		engine:       engine,
@@ -147,6 +163,9 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		pluginMarket: pluginMarket,
 		quotaMgr:     quotaMgr,
 		filesMgr:     filesMgr,
+		notifyMgr:    notifyMgr,
+		downloadMgr:  downloadMgr,
+		// mediaMgr:     mediaMgr,
 	}
 
 	// 添加性能监控中间件 (在日志中间件之后)
@@ -232,6 +251,9 @@ func (s *Server) setupRoutes() {
 			perf.NewHandlers(s.perfMgr).RegisterRoutes(api)
 		}
 
+		// ========== 系统监控 ==========
+		monitor.NewHandlers(nil, s.notifyMgr).RegisterRoutes(api)
+
 		// ========== 插件系统 ==========
 		if s.pluginMgr != nil {
 			plugin.NewHandlers(s.pluginMgr, s.pluginMarket).RegisterRoutes(api)
@@ -246,6 +268,19 @@ func (s *Server) setupRoutes() {
 		if s.filesMgr != nil {
 			files.NewHandlers(s.filesMgr).RegisterRoutes(api)
 		}
+
+		// ========== 通知管理 ==========
+		notify.NewHandlers(s.notifyMgr, "/etc/nas-os/notify-config.json").RegisterRoutes(api)
+
+		// ========== 下载中心 ==========
+		if s.downloadMgr != nil {
+			downloader.NewHandler(s.downloadMgr).RegisterRoutes(api)
+		}
+
+		// ========== 媒体中心 ==========
+		// if s.mediaMgr != nil {
+		// 	media.NewHandlers(s.mediaMgr).RegisterRoutes(api)
+		// }
 	}
 
 	// Swagger API 文档
@@ -267,6 +302,10 @@ func (s *Server) setupRoutes() {
 
 	// 静态文件（前端）
 	s.engine.Static("/", "./webui/dist")
+	
+	// 下载中心页面
+	s.engine.StaticFile("/downloader", "./webui/pages/downloader/index.html")
+	s.engine.StaticFile("/downloader/", "./webui/pages/downloader/index.html")
 }
 
 // Start 启动服务器

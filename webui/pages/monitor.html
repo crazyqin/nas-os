@@ -724,6 +724,66 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 通知配置 -->
+            <div class="monitor-grid" style="margin-top: 1.5rem;">
+                <div class="chart-card" style="grid-column: 1 / -1;">
+                    <div class="chart-header">
+                        <h3 class="chart-title">📬 告警通知配置</h3>
+                        <button class="btn btn-sm btn-primary" onclick="saveNotifyConfig()">💾 保存配置</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <!-- 邮件通知 -->
+                        <div>
+                            <h4 style="margin-bottom: 1rem; font-size: 15px; color: #374151;">📧 邮件通知</h4>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                <input type="checkbox" id="emailEnabled" style="width: 18px; height: 18px;">
+                                <label for="emailEnabled" style="font-size: 14px; font-weight: 500;">启用邮件通知</label>
+                            </div>
+                            <div id="emailConfig" style="display: none; flex-direction: column; gap: 0.75rem;">
+                                <input type="text" id="smtpServer" placeholder="SMTP 服务器 (如：smtp.gmail.com)" 
+                                    style="padding: 0.625rem; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 14px;">
+                                <input type="number" id="smtpPort" placeholder="端口 (如：587)" 
+                                    style="padding: 0.625rem; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 14px;">
+                                <input type="email" id="smtpUsername" placeholder="用户名/邮箱" 
+                                    style="padding: 0.625rem; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 14px;">
+                                <input type="password" id="smtpPassword" placeholder="密码/应用专用密码" 
+                                    style="padding: 0.625rem; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 14px;">
+                                <input type="email" id="smtpFrom" placeholder="发件人邮箱" 
+                                    style="padding: 0.625rem; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 14px;">
+                                <input type="text" id="smtpTo" placeholder="收件人邮箱 (多个用逗号分隔)" 
+                                    style="padding: 0.625rem; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 14px;">
+                            </div>
+                        </div>
+
+                        <!-- 微信通知 -->
+                        <div>
+                            <h4 style="margin-bottom: 1rem; font-size: 15px; color: #374151;">💬 企业微信通知</h4>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                <input type="checkbox" id="wechatEnabled" style="width: 18px; height: 18px;">
+                                <label for="wechatEnabled" style="font-size: 14px; font-weight: 500;">启用企业微信通知</label>
+                            </div>
+                            <div id="wechatConfig" style="display: none; flex-direction: column; gap: 0.75rem;">
+                                <input type="url" id="wechatWebhook" placeholder="企业微信 Webhook URL" 
+                                    style="padding: 0.625rem; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 14px;">
+                                <p style="font-size: 12px; color: #6B7280; margin-top: 0.5rem;">
+                                    💡 在企业微信机器人设置中获取 Webhook 地址
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 测试通知 -->
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #E5E7EB;">
+                        <h4 style="margin-bottom: 1rem; font-size: 15px; color: #374151;">🧪 测试通知</h4>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <button class="btn btn-secondary" onclick="testNotification('email')">📧 测试邮件</button>
+                            <button class="btn btn-secondary" onclick="testNotification('wechat')">💬 测试微信</button>
+                            <button class="btn btn-secondary" onclick="testNotification('all')">📢 测试全部</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -780,6 +840,102 @@
 
         function exportReport() {
             alert('导出系统监控报告 - 演示模式');
+        }
+
+        // ========== 通知配置 ==========
+
+        // 页面加载时获取配置
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadNotifyConfig();
+            
+            // 监听复选框变化
+            document.getElementById('emailEnabled').addEventListener('change', (e) => {
+                document.getElementById('emailConfig').style.display = e.target.checked ? 'flex' : 'none';
+            });
+            document.getElementById('wechatEnabled').addEventListener('change', (e) => {
+                document.getElementById('wechatConfig').style.display = e.target.checked ? 'flex' : 'none';
+            });
+        });
+
+        async function loadNotifyConfig() {
+            try {
+                const res = await fetch(`${API_BASE}/notify/config`);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    const config = data.data;
+                    
+                    // 邮件配置
+                    document.getElementById('emailEnabled').checked = config.email?.enabled || false;
+                    document.getElementById('smtpServer').value = config.email?.smtp_server || '';
+                    document.getElementById('smtpPort').value = config.email?.port || 587;
+                    document.getElementById('smtpUsername').value = config.email?.username || '';
+                    document.getElementById('smtpFrom').value = config.email?.from || '';
+                    document.getElementById('smtpTo').value = config.email?.to?.join(', ') || '';
+                    document.getElementById('emailConfig').style.display = config.email?.enabled ? 'flex' : 'none';
+                    
+                    // 微信配置
+                    document.getElementById('wechatEnabled').checked = config.wechat?.enabled || false;
+                    document.getElementById('wechatWebhook').value = config.wechat?.webhook_url || '';
+                    document.getElementById('wechatConfig').style.display = config.wechat?.enabled ? 'flex' : 'none';
+                }
+            } catch (err) {
+                console.error('加载通知配置失败:', err);
+            }
+        }
+
+        function saveNotifyConfig() {
+            const config = {
+                email: {
+                    enabled: document.getElementById('emailEnabled').checked,
+                    smtp_server: document.getElementById('smtpServer').value,
+                    port: parseInt(document.getElementById('smtpPort').value) || 587,
+                    username: document.getElementById('smtpUsername').value,
+                    password: document.getElementById('smtpPassword').value,
+                    from: document.getElementById('smtpFrom').value,
+                    to: document.getElementById('smtpTo').value.split(',').map(s => s.trim()).filter(s => s)
+                },
+                wechat: {
+                    enabled: document.getElementById('wechatEnabled').checked,
+                    webhook_url: document.getElementById('wechatWebhook').value
+                }
+            };
+
+            fetch(`${API_BASE}/notify/config`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    alert('✓ 通知配置已保存');
+                } else {
+                    alert('✗ 保存失败：' + data.message);
+                }
+            })
+            .catch(err => {
+                alert('✗ 保存失败：' + err.message);
+            });
+        }
+
+        function testNotification(channel) {
+            fetch(`${API_BASE}/notify/test`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ channel: channel })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    alert('✓ 测试通知已发送，请检查您的设备');
+                } else {
+                    alert('✗ 发送失败：' + data.message);
+                }
+            })
+            .catch(err => {
+                alert('✗ 发送失败：' + err.message);
+            });
         }
 
         // 自动刷新 (每 30 秒)
