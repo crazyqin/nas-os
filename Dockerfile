@@ -2,16 +2,16 @@
 # 多阶段构建，生产镜像约 30MB
 
 # ========== 构建阶段 ==========
-FROM golang:1.26-alpine AS builder
+FROM golang:1.26.1-alpine AS builder
 
 WORKDIR /build
 
 # 安装构建依赖
-RUN apk add --no-cache git
+RUN apk add --no-cache git ca-certificates
 
 # 复制 go mod 文件（利用 Docker 缓存）
 COPY go.mod go.sum ./
-RUN go mod download
+RUN go mod download -x
 
 # 复制源码
 COPY cmd/ ./cmd/
