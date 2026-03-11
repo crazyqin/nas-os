@@ -18,6 +18,7 @@ COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 COPY pkg/ ./pkg/
 COPY webui/ ./webui/
+COPY docs/swagger ./docs/swagger
 
 # 编译（静态链接，无 CGO）
 ENV CGO_ENABLED=0
