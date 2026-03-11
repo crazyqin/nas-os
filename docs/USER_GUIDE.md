@@ -18,7 +18,7 @@
 
 ```bash
 # 1. 下载并解压
-wget https://github.com/your/nas-os/releases/latest/download/nas-os-linux-amd64.tar.gz
+wget https://github.com/crazyqin/nas-os/releases/latest/download/nas-os-linux-amd64.tar.gz
 tar -xzf nas-os-linux-amd64.tar.gz
 cd nas-os
 
@@ -71,7 +71,7 @@ sudo dnf install btrfs-progs samba nfs-utils
 
 ```bash
 # 下载最新版本
-wget https://github.com/your/nas-os/releases/latest/download/nas-os-linux-amd64.tar.gz
+wget https://github.com/crazyqin/nas-os/releases/latest/download/nas-os-linux-amd64.tar.gz
 
 # 解压
 tar -xzf nas-os-linux-amd64.tar.gz -C /opt/nas-os
@@ -88,7 +88,7 @@ nasd --version
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your/nas-os.git
+git clone https://github.com/crazyqin/nas-os.git
 cd nas-os
 
 # 安装 Go 1.21+
@@ -357,8 +357,8 @@ sudo nasctl config import nas-config-backup.yaml
 ## 📞 获取帮助
 
 - **文档**: https://nas-os.dev/docs
-- **Issues**: https://github.com/your/nas-os/issues
-- **讨论区**: https://github.com/your/nas-os/discussions
+- **Issues**: https://github.com/crazyqin/nas-os/issues
+- **讨论区**: https://github.com/crazyqin/nas-os/discussions
 - **邮件**: support@nas-os.dev
 
 ---

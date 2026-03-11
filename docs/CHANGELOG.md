@@ -63,7 +63,7 @@
   - `configs/` - 配置文件
 - README.md 项目说明
 - MILESTONES.md 项目里程碑
-- docs/TASKS.md 六部任务分配
+- docs/TASKS.md 团队任务分配
 - docs/README.md 文档索引
 - docs/PROGRESS.md 进度跟踪
 
