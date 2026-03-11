@@ -110,21 +110,39 @@
 
 ---
 
-### 🎯 里程碑 6: Docker 集成 (M6)
-**时间**: 2026-06-01 ~ 2026-06-30  
+### 🎯 里程碑 6: Docker 集成 (M6) ✅
+**时间**: 2026-03-11 ~ 2026-03-11  
 **负责人**: 工部 (DevOps)
+**状态**: 已完成
 
 #### 任务清单
-- [ ] Docker 守护进程集成
-- [ ] 容器管理界面
-- [ ] 应用商店 (常用 NAS 应用)
-- [ ] 容器网络配置
-- [ ] 持久化存储映射
+- [x] Docker 守护进程集成
+- [x] 容器管理界面
+- [x] 应用商店 (常用 NAS 应用)
+- [x] 容器网络配置
+- [x] 持久化存储映射
+- [x] Docker Compose 模板管理
 
 #### 交付物
-- `internal/docker/manager.go` - Docker 管理
-- `internal/apps/catalog.go` - 应用目录
-- `webui/apps/` - 应用管理界面
+- `internal/docker/manager.go` - Docker 管理器 ✅
+- `internal/docker/handlers.go` - 容器 API ✅
+- `internal/docker/appstore.go` - 应用商店核心 ✅
+- `internal/docker/app_handlers.go` - 应用 API ✅
+- `webui/pages/apps.html` - 应用管理界面 ✅
+- `docs/app-store.md` - 应用商店文档 ✅
+
+#### 预置应用 (12款)
+- Nextcloud (私有云存储)
+- Jellyfin (媒体服务器)
+- Home Assistant (智能家居)
+- Pi-hole (广告拦截)
+- Transmission (BT 下载)
+- Syncthing (文件同步)
+- Gitea (Git 仓库)
+- Vaultwarden (密码管理)
+- Immich (照片备份)
+- Nginx Proxy Manager (反向代理)
+- Portainer (Docker 管理)
 
 ---
 
@@ -141,7 +159,7 @@
 
 ---
 
-## 当前状态 (2026-03-10)
+## 当前状态 (2026-03-11)
 
 ### 已完成
 - ✅ 项目初始化
@@ -158,14 +176,21 @@
   - 设备管理 (添加/移除/统计)
   - 维护操作 (balance/scrub)
   - 完整测试用例 (60+ 测试)
+- ✅ **M6 Docker 集成 (应用商店)**
+  - Docker 容器管理 (创建/启动/停止/删除/重启)
+  - 镜像管理 (列表/拉取/删除)
+  - 应用商店 API (列出/安装/卸载/启动/停止/重启/更新)
+  - Docker Compose 模板管理
+  - 12款预置应用模板
+  - 应用商店 UI 界面
 
 ### 进行中
-- 🔄 M2 文件服务 (SMB/NFS 共享配置后端)
+- 🔄 M2 Web 管理界面 (部分完成)
+- 🔄 M3 文件服务 (SMB/NFS 共享配置后端)
 
 ### 待开始
 - ⏳ 用户权限系统
 - ⏳ 监控告警
-- ⏳ Docker 集成
 
 ---
 
