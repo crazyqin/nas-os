@@ -43,6 +43,24 @@ test-integration:
 	@echo "🔗 运行集成测试..."
 	$(GO) test -v ./tests/integration/...
 
+test-e2e:
+	@echo "🚀 运行 E2E 测试..."
+	NAS_OS_E2E=1 $(GO) test -v ./tests/e2e/...
+
+test-benchmark:
+	@echo "⚡ 运行性能基准测试..."
+	$(GO) test -bench=. -benchmem -run=^$ ./tests/benchmark/...
+
+test-report:
+	@echo "📋 生成测试报告..."
+	@mkdir -p tests/reports/output
+	$(GO) test -v -json ./... > tests/reports/output/test_results.json 2>&1 || true
+	@echo "✅ 测试报告已生成：tests/reports/output/"
+
+test-suite:
+	@echo "🎯 运行完整测试套件..."
+	@./scripts/test.sh all -v -r -c
+
 test-coverage:
 	@echo "📊 生成覆盖率报告..."
 	$(GO) test -v -coverprofile=coverage.out ./...
@@ -152,7 +170,12 @@ help:
 	@echo "    make build-debug    - 调试版本"
 	@echo ""
 	@echo "  测试:"
-	@echo "    make test           - 运行测试"
+	@echo "    make test           - 运行单元测试"
+	@echo "    make test-integration - 运行集成测试"
+	@echo "    make test-e2e       - 运行 E2E 测试"
+	@echo "    make test-benchmark - 运行性能基准测试"
+	@echo "    make test-report    - 生成测试报告"
+	@echo "    make test-suite     - 运行完整测试套件"
 	@echo "    make test-coverage  - 生成覆盖率报告"
 	@echo "    make test-race      - 竞态检测"
 	@echo ""
