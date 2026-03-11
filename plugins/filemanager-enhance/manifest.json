@@ -1,0 +1,70 @@
+{
+  "id": "com.nas-os.filemanager-enhance",
+  "name": "文件管理器增强",
+  "version": "1.0.0",
+  "author": "NAS-OS Team",
+  "description": "增强文件管理器功能，支持批量操作、快捷键、文件预览等",
+  "category": "file-manager",
+  "tags": ["文件管理", "批量操作", "预览", "快捷键"],
+  "entrypoint": "New",
+  "mainFile": "filemanager-enhance.so",
+  "dependencies": [
+    {
+      "id": "nas-os.core",
+      "version": ">=0.2.0"
+    }
+  ],
+  "permissions": [
+    {
+      "name": "file.read",
+      "description": "读取文件"
+    },
+    {
+      "name": "file.write",
+      "description": "写入文件"
+    },
+    {
+      "name": "file.delete",
+      "description": "删除文件"
+    }
+  ],
+  "extensionPoints": [
+    "filemanager.toolbar",
+    "filemanager.contextMenu",
+    "filemanager.preview"
+  ],
+  "configSchema": {
+    "properties": {
+      "enableBatch": {
+        "type": "boolean",
+        "title": "启用批量操作",
+        "description": "允许批量选择和操作文件",
+        "default": true
+      },
+      "enablePreview": {
+        "type": "boolean",
+        "title": "启用文件预览",
+        "description": "在侧边栏预览文件内容",
+        "default": true
+      },
+      "previewSize": {
+        "type": "number",
+        "title": "预览窗口大小",
+        "description": "预览窗口的宽度（像素）",
+        "default": 300,
+        "minimum": 100,
+        "maximum": 600
+      }
+    }
+  },
+  "icon": "folder-open",
+  "screenshots": [
+    "/plugins/filemanager-enhance/screenshots/batch-operation.png",
+    "/plugins/filemanager-enhance/screenshots/preview.png"
+  ],
+  "homepage": "https://nas-os.com/plugins/filemanager-enhance",
+  "repository": "https://github.com/nas-os/plugins/filemanager-enhance",
+  "license": "MIT",
+  "price": "free",
+  "nasVersion": ">=0.2.0"
+}
