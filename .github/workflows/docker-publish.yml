@@ -1,0 +1,177 @@
+# Docker 镜像构建与推送
+# 支持多架构（amd64, arm64, arm/v7）
+
+name: Docker Publish
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: '目标平台'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - amd64
+          - arm64
+          - arm/v7
+
+env:
+  GO_VERSION: '1.25'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ========== Docker 镜像构建 ==========
+  docker-build:
+    name: 构建 Docker 镜像
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置 QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+      
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: 登录 GitHub Container Registry
+        uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 登录 Docker Hub (可选)
+        uses: docker/login-action@v3
+        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != ''
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: 提取元数据
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ secrets.DOCKERHUB_USERNAME && format('{0}/nas-os', secrets.DOCKERHUB_USERNAME) || '' }}
+          tags: |
+            # 分支
+            type=ref,event=branch,suffix=-{{ sha }}
+            type=ref,event=branch,enable=${{ github.ref == 'refs/heads/main' }},suffix=
+            
+            # PR
+            type=ref,event=pr
+            
+            # 语义化版本
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            
+            # latest (仅 main 分支)
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            
+            # 手动触发
+            type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
+          
+          labels: |
+            org.opencontainers.image.title=NAS-OS
+            org.opencontainers.image.description=Home NAS Management System
+            org.opencontainers.image.vendor=NAS-OS Team
+      
+      - name: 构建并推送
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == '' && 'linux/amd64,linux/arm64,linux/arm/v7' || format('linux/{0}', github.event.inputs.platform) }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VERSION=${{ github.ref_name }}
+            REVISION=${{ github.sha }}
+      
+      - name: 生成镜像信息
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "## 🐳 Docker 镜像已发布" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**镜像地址:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**支持平台:** \`amd64\`, \`arm64\`, \`arm/v7\`" >> $GITHUB_STEP_SUMMARY
+
+  # ========== 镜像扫描 ==========
+  docker-scan:
+    name: 镜像安全扫描
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 运行 Trivy 扫描
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+      
+      - name: 上传扫描结果到 GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: 生成扫描报告
+        run: |
+          echo "## 🔒 安全扫描完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "扫描结果已上传到 [Security](../../security/advisories) 页面" >> $GITHUB_STEP_SUMMARY
+
+  # ========== Docker Compose 测试 ==========
+  docker-compose-test:
+    name: Docker Compose 测试
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 构建并启动
+        run: |
+          docker-compose build
+          docker-compose up -d
+      
+      - name: 等待服务启动
+        run: sleep 10
+      
+      - name: 健康检查
+        run: |
+          docker-compose ps
+          docker-compose logs
+      
+      - name: 停止服务
+        if: always()
+        run: docker-compose down -v

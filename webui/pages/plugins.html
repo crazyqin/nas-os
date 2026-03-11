@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>插件市场 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .plugin-container { max-width: 1200px; margin: 0 auto; }
+
+        /* 搜索栏 */
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+        .search-input {
+            flex: 1;
+            max-width: 400px;
+        }
+        .search-input input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .search-input input:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .category-tab {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #6B7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .category-tab:hover {
+            background: #F3F4F6;
+        }
+        .category-tab.active {
+            background: #2563EB;
+            border-color: #2563EB;
+            color: white;
+        }
+
+        /* 插件网格 */
+        .plugin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* 插件卡片 */
+        .plugin-card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .plugin-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .plugin-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .plugin-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .plugin-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .plugin-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+        }
+        .plugin-author {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .plugin-description {
+            font-size: 13px;
+            color: #6B7280;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .plugin-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .plugin-tag {
+            padding: 0.25rem 0.5rem;
+            background: #F3F4F6;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #6B7280;
+        }
+        .plugin-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid #E5E7EB;
+        }
+        .plugin-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .plugin-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .plugin-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: #10B981;
+        }
+        .plugin-price.paid {
+            color: #F59E0B;
+        }
+
+        /* 已安装标记 */
+        .installed-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            background: #DEF7EC;
+            color: #047857;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #9CA3AF;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        .close-btn:hover {
+            color: #374151;
+        }
+
+        /* 评分 */
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .rating-stars {
+            color: #FCD34D;
+            font-size: 14px;
+        }
+        .rating-count {
+            font-size: 12px;
+            color: #6B7280;
+        }
+
+        /* 按钮 */
+        .btn-install {
+            padding: 0.5rem 1rem;
+            background: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-install:hover {
+            background: #1D4ED8;
+        }
+        .btn-install.installed {
+            background: #10B981;
+        }
+        .btn-install.updating {
+            background: #F59E0B;
+        }
+
+        /* 截图 */
+        .screenshots {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .screenshot {
+            width: 200px;
+            height: 120px;
+            background: #F3F4F6;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        /* 标签页 */
+        .detail-tabs {
+            display: flex;
+            border-bottom: 1px solid #E5E7EB;
+            margin-bottom: 1rem;
+        }
+        .detail-tab {
+            padding: 0.75rem 1rem;
+            font-size: 14px;
+            color: #6B7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .detail-tab:hover {
+            color: #374151;
+        }
+        .detail-tab.active {
+            color: #2563EB;
+            border-bottom-color: #2563EB;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 评论 */
+        .review-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .review-avatar {
+            width: 32px;
+            height: 32px;
+            background: #E5E7EB;
+            border-radius: 50%;
+        }
+        .review-author {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .review-date {
+            font-size: 12px;
+            color: #9CA3AF;
+        }
+        .review-text {
+            font-size: 13px;
+            color: #4B5563;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="#" class="active">插件</a>
+                <a href="#">退出</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        <div class="container plugin-container">
+            <div style="margin-bottom: 1.5rem;">
+                <h1>🔌 插件市场</h1>
+                <p class="text-muted">发现和安装扩展功能</p>
+            </div>
+
+            <!-- 切换标签 -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <button class="btn btn-primary" onclick="showTab('market')">商店</button>
+                <button class="btn btn-secondary" onclick="showTab('installed')">已安装</button>
+            </div>
+
+            <!-- 搜索栏 -->
+            <div class="search-bar">
+                <div class="search-input">
+                    <input type="text" id="searchInput" placeholder="搜索插件..." onkeyup="searchPlugins()">
+                </div>
+                <select class="form-select" style="width: auto;" onchange="sortPlugins(this.value)">
+                    <option value="popular">最受欢迎</option>
+                    <option value="newest">最新发布</option>
+                    <option value="rating">评分最高</option>
+                    <option value="downloads">下载最多</option>
+                </select>
+            </div>
+
+            <!-- 分类标签 -->
+            <div class="category-tabs" id="categoryTabs">
+                <div class="category-tab active" onclick="filterCategory('')">全部</div>
+                <div class="category-tab" onclick="filterCategory('file-manager')">📁 文件管理</div>
+                <div class="category-tab" onclick="filterCategory('theme')">🎨 主题</div>
+                <div class="category-tab" onclick="filterCategory('backup')">💾 备份同步</div>
+                <div class="category-tab" onclick="filterCategory('media')">🎬 多媒体</div>
+                <div class="category-tab" onclick="filterCategory('network')">🌐 网络</div>
+                <div class="category-tab" onclick="filterCategory('security')">🔒 安全</div>
+                <div class="category-tab" onclick="filterCategory('developer')">👨‍💻 开发</div>
+            </div>
+
+            <!-- 插件网格 -->
+            <div class="plugin-grid" id="pluginGrid">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 插件详情模态框 -->
+    <div class="modal-overlay" id="pluginModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="plugin-icon" id="modalIcon">📁</div>
+                <div>
+                    <h2 id="modalName">插件名称</h2>
+                    <p class="plugin-author" id="modalAuthor">作者</p>
+                </div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="rating" style="margin-bottom: 1rem;">
+                    <span class="rating-stars" id="modalRating">★★★★★</span>
+                    <span class="rating-count" id="modalRatingCount">(0 评分)</span>
+                </div>
+
+                <!-- 标签页 -->
+                <div class="detail-tabs">
+                    <div class="detail-tab active" onclick="showDetailTab('overview')">概览</div>
+                    <div class="detail-tab" onclick="showDetailTab('reviews')">评论</div>
+                    <div class="detail-tab" onclick="showDetailTab('changelog')">更新日志</div>
+                </div>
+
+                <!-- 概览 -->
+                <div id="tab-overview" class="tab-content active">
+                    <p id="modalDescription">描述</p>
+
+                    <div class="screenshots">
+                        <div class="screenshot"></div>
+                        <div class="screenshot"></div>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem;">详细信息</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 13px;">
+                            <div><span style="color: #6B7280;">版本：</span><span id="modalVersion">1.0.0</span></div>
+                            <div><span style="color: #6B7280;">大小：</span><span id="modalSize">2.1 MB</span></div>
+                            <div><span style="color: #6B7280;">下载：</span><span id="modalDownloads">0</span></div>
+                            <div><span style="color: #6B7280;">许可：</span><span id="modalLicense">MIT</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 评论 -->
+                <div id="tab-reviews" class="tab-content">
+                    <div id="reviewsList">
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="review-avatar"></div>
+                                <div>
+                                    <div class="review-author">用户名</div>
+                                    <div class="review-date">2024-01-15</div>
+                                </div>
+                            </div>
+                            <p class="review-text">很好用的插件，推荐！</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 更新日志 -->
+                <div id="tab-changelog" class="tab-content">
+                    <div id="changelogContent">
+                        <p style="font-size: 13px; color: #6B7280;">暂无更新日志</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" id="installBtn" onclick="installPlugin()">安装</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟插件数据
+        const plugins = [
+            {
+                id: 'com.nas-os.filemanager-enhance',
+                name: '文件管理器增强',
+                author: 'NAS-OS Team',
+                description: '增强文件管理器功能，支持批量操作、快捷键、文件预览等',
+                category: 'file-manager',
+                tags: ['文件管理', '批量操作', '预览'],
+                icon: '📁',
+                version: '1.0.0',
+                downloads: 1523,
+                rating: 4.8,
+                ratingCount: 45,
+                price: 'free',
+                license: 'MIT',
+                size: '2.1 MB',
+                installed: false
+            },
+            {
+                id: 'com.nas-os.dark-theme',
+                name: '暗黑主题',
+                author: 'NAS-OS Team',
+                description: '暗黑主题皮肤，保护眼睛，适合夜间使用',
+                category: 'theme',
+                tags: ['主题', '暗黑', '护眼'],
+                icon: '🌙',
+                version: '1.2.0',
+                downloads: 3421,
+                rating: 4.9,
+                ratingCount: 128,
+                price: 'free',
+                license: 'MIT',
+                size: '156 KB',
+                installed: true
+            },
+            {
+                id: 'com.nas-os.photo-organizer',
+                name: '照片整理器',
+                author: 'Community',
+                description: '自动整理照片，按日期/地点分类，支持 AI 识别',
+                category: 'media',
+                tags: ['照片', 'AI', '整理'],
+                icon: '📷',
+                version: '0.9.0',
+                downloads: 892,
+                rating: 4.5,
+                ratingCount: 23,
+                price: 'free',
+                license: 'Apache-2.0',
+                size: '5.2 MB',
+                installed: false
+            },
+            {
+                id: 'com.nas-os.cloud-sync',
+                name: '云同步助手',
+                author: 'NAS-OS Team',
+                description: '支持 Dropbox、Google Drive、OneDrive 等云盘同步',
+                category: 'backup',
+                tags: ['云同步', '备份', 'Dropbox'],
+                icon: '☁️',
+                version: '2.1.0',
+                downloads: 2156,
+                rating: 4.7,
+                ratingCount: 67,
+                price: 'free',
+                license: 'MIT',
+                size: '3.4 MB',
+                installed: false
+            },
+            {
+                id: 'com.nas-os.network-monitor',
+                name: '网络监控',
+                author: 'Community',
+                description: '实时监控网络流量、带宽使用、连接状态',
+                category: 'network',
+                tags: ['网络', '监控', '流量'],
+                icon: '📊',
+                version: '1.0.0',
+                downloads: 654,
+                rating: 4.3,
+                ratingCount: 18,
+                price: 'free',
+                license: 'GPL-3.0',
+                size: '1.8 MB',
+                installed: false
+            },
+            {
+                id: 'com.nas-os.security-scanner',
+                name: '安全扫描器',
+                author: 'Security Team',
+                description: '定期扫描系统漏洞，检测可疑文件',
+                category: 'security',
+                tags: ['安全', '扫描', '漏洞'],
+                icon: '🛡️',
+                version: '1.0.0',
+                downloads: 423,
+                rating: 4.6,
+                ratingCount: 12,
+                price: 'free',
+                license: 'MIT',
+                size: '2.9 MB',
+                installed: false
+            },
+            {
+                id: 'com.nas-os.vscode-server',
+                name: 'VS Code Server',
+                author: 'Microsoft',
+                description: '在浏览器中使用 VS Code 编辑器',
+                category: 'developer',
+                tags: ['开发', '编辑器', 'VS Code'],
+                icon: '💻',
+                version: '1.85.0',
+                downloads: 1876,
+                rating: 4.9,
+                ratingCount: 89,
+                price: 'free',
+                license: 'MIT',
+                size: '45 MB',
+                installed: false
+            },
+            {
+                id: 'com.nas-os.transmission',
+                name: 'Transmission',
+                author: 'Community',
+                description: 'BitTorrent 下载客户端',
+                category: 'media',
+                tags: ['下载', 'BT', 'Transmission'],
+                icon: '⬇️',
+                version: '4.0.0',
+                downloads: 2341,
+                rating: 4.7,
+                ratingCount: 156,
+                price: 'free',
+                license: 'GPL-3.0',
+                size: '1.2 MB',
+                installed: false
+            }
+        ];
+
+        let currentTab = 'market';
+        let currentCategory = '';
+        let currentPlugin = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPlugins();
+        });
+
+        // 渲染插件列表
+        function renderPlugins() {
+            const grid = document.getElementById('pluginGrid');
+            let filtered = plugins;
+
+            // 根据标签过滤
+            if (currentTab === 'installed') {
+                filtered = filtered.filter(p => p.installed);
+            }
+
+            // 根据分类过滤
+            if (currentCategory) {
+                filtered = filtered.filter(p => p.category === currentCategory);
+            }
+
+            // 搜索过滤
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (query) {
+                filtered = filtered.filter(p =>
+                    p.name.toLowerCase().includes(query) ||
+                    p.description.toLowerCase().includes(query) ||
+                    p.tags.some(t => t.toLowerCase().includes(query))
+                );
+            }
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="plugin-card" onclick="showPluginDetail('${p.id}')">
+                    <div class="plugin-header">
+                        <div class="plugin-icon">${p.icon}</div>
+                        <div class="plugin-info">
+                            <div class="plugin-name">${p.name}</div>
+                            <div class="plugin-author">${p.author}</div>
+                        </div>
+                        ${p.installed ? '<span class="installed-badge">✓ 已安装</span>' : ''}
+                    </div>
+                    <p class="plugin-description">${p.description}</p>
+                    <div class="plugin-tags">
+                        ${p.tags.map(t => `<span class="plugin-tag">${t}</span>`).join('')}
+                    </div>
+                    <div class="plugin-footer">
+                        <div class="plugin-stats">
+                            <div class="plugin-stat">
+                                <span>⬇️</span>
+                                <span>${formatNumber(p.downloads)}</span>
+                            </div>
+                            <div class="plugin-stat">
+                                <span>⭐</span>
+                                <span>${p.rating}</span>
+                            </div>
+                        </div>
+                        <div class="plugin-price ${p.price !== 'free' ? 'paid' : ''}">${p.price === 'free' ? '免费' : p.price}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 切换标签
+        function showTab(tab) {
+            currentTab = tab;
+            renderPlugins();
+        }
+
+        // 过滤分类
+        function filterCategory(category) {
+            currentCategory = category;
+
+            // 更新标签样式
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderPlugins();
+        }
+
+        // 搜索插件
+        function searchPlugins() {
+            renderPlugins();
+        }
+
+        // 排序插件
+        function sortPlugins(sortBy) {
+            // 简单实现，实际应该从服务器排序
+            const sorted = [...plugins];
+            switch(sortBy) {
+                case 'downloads':
+                    sorted.sort((a, b) => b.downloads - a.downloads);
+                    break;
+                case 'rating':
+                    sorted.sort((a, b) => b.rating - a.rating);
+                    break;
+                case 'newest':
+                    // 模拟按版本排序
+                    sorted.sort((a, b) => b.version.localeCompare(a.version));
+                    break;
+                default:
+                    // popular - 默认
+                    sorted.sort((a, b) => (b.rating * b.ratingCount) - (a.rating * a.ratingCount));
+            }
+            plugins.length = 0;
+            plugins.push(...sorted);
+            renderPlugins();
+        }
+
+        // 显示插件详情
+        function showPluginDetail(id) {
+            const plugin = plugins.find(p => p.id === id);
+            if (!plugin) return;
+
+            currentPlugin = plugin;
+
+            document.getElementById('modalIcon').textContent = plugin.icon;
+            document.getElementById('modalName').textContent = plugin.name;
+            document.getElementById('modalAuthor').textContent = plugin.author;
+            document.getElementById('modalDescription').textContent = plugin.description;
+            document.getElementById('modalVersion').textContent = plugin.version;
+            document.getElementById('modalSize').textContent = plugin.size;
+            document.getElementById('modalDownloads').textContent = formatNumber(plugin.downloads);
+            document.getElementById('modalLicense').textContent = plugin.license;
+            document.getElementById('modalRating').textContent = '★'.repeat(Math.round(plugin.rating)) + '☆'.repeat(5 - Math.round(plugin.rating));
+            document.getElementById('modalRatingCount').textContent = `(${plugin.ratingCount} 评分)`;
+
+            const installBtn = document.getElementById('installBtn');
+            if (plugin.installed) {
+                installBtn.textContent = '已安装';
+                installBtn.classList.add('installed');
+            } else {
+                installBtn.textContent = '安装';
+                installBtn.classList.remove('installed');
+            }
+
+            document.getElementById('pluginModal').classList.add('show');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('pluginModal').classList.remove('show');
+            currentPlugin = null;
+        }
+
+        // 安装插件
+        function installPlugin() {
+            if (!currentPlugin) return;
+
+            if (currentPlugin.installed) {
+                alert('插件已安装！');
+                return;
+            }
+
+            // 模拟安装
+            const btn = document.getElementById('installBtn');
+            btn.textContent = '安装中...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                currentPlugin.installed = true;
+                btn.textContent = '已安装';
+                btn.classList.add('installed');
+                btn.disabled = false;
+                renderPlugins();
+                alert('安装成功！');
+            }, 1500);
+        }
+
+        // 切换详情标签
+        function showDetailTab(tab) {
+            document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        // 格式化数字
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('pluginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

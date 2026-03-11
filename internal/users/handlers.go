@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/auth"
 )
 
 // Response 通用响应
@@ -23,12 +24,16 @@ func Error(code int, message string) Response {
 
 // Handlers 用户管理 HTTP 处理器
 type Handlers struct {
-	manager *Manager
+	manager   *Manager
+	mfaManager *auth.MFAManager
 }
 
 // NewHandlers 创建处理器
-func NewHandlers(mgr *Manager) *Handlers {
-	return &Handlers{manager: mgr}
+func NewHandlers(mgr *Manager, mfaMgr *auth.MFAManager) *Handlers {
+	return &Handlers{
+		manager:    mgr,
+		mfaManager: mfaMgr,
+	}
 }
 
 // RegisterRoutes 注册路由
@@ -73,12 +78,17 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+	MFACode  string `json:"mfa_code,omitempty"`  // TOTP 或短信验证码
+	BackupCode string `json:"backup_code,omitempty"` // 备份码
 }
 
 type LoginResponse struct {
-	Token     string `json:"token"`
-	ExpiresAt string `json:"expires_at"`
-	User      *User  `json:"user"`
+	Token       string `json:"token,omitempty"`
+	ExpiresAt   string `json:"expires_at,omitempty"`
+	MFARequired bool   `json:"mfa_required"`
+	MFAType     string `json:"mfa_type,omitempty"` // totp, sms, webauthn
+	SessionID   string `json:"session_id,omitempty"` // 临时会话 ID
+	User        *User  `json:"user,omitempty"`
 }
 
 type ChangePasswordRequest struct {
@@ -392,6 +402,7 @@ func (h *Handlers) login(c *gin.Context) {
 		return
 	}
 
+	// 首先验证用户名和密码
 	token, err := h.manager.Authenticate(req.Username, req.Password)
 	if err != nil {
 		if err == ErrUserNotFound || err == ErrInvalidPassword {
@@ -403,10 +414,49 @@ func (h *Handlers) login(c *gin.Context) {
 	}
 
 	user, _ := h.manager.GetUser(req.Username)
+
+	// 检查是否需要 MFA
+	if h.mfaManager != nil && h.mfaManager.RequireMFA(user.ID) {
+		// 需要 MFA 验证
+		mfaType := h.mfaManager.GetMFAType(user.ID)
+
+		// 如果提供了 MFA 验证码，尝试验证
+		if req.MFACode != "" || req.BackupCode != "" {
+			verifyCode := req.MFACode
+			if req.BackupCode != "" {
+				verifyCode = req.BackupCode
+			}
+
+			if err := h.mfaManager.VerifyMFA(user.ID, mfaType, verifyCode, nil); err != nil {
+				c.JSON(http.StatusUnauthorized, Error(401, "MFA 验证码无效"))
+				return
+			}
+
+			// MFA 验证成功，返回令牌
+			c.JSON(http.StatusOK, Success(LoginResponse{
+				Token:       token.Token,
+				ExpiresAt:   token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
+				MFARequired: false,
+				User:        user,
+			}))
+			return
+		}
+
+		// 需要 MFA，但用户还未提供验证码
+		c.JSON(http.StatusOK, Success(LoginResponse{
+			MFARequired: true,
+			MFAType:     mfaType,
+			User:        &User{ID: user.ID, Username: user.Username, Email: user.Email, Role: user.Role},
+		}))
+		return
+	}
+
+	// 不需要 MFA，直接返回令牌
 	c.JSON(http.StatusOK, Success(LoginResponse{
-		Token:     token.Token,
-		ExpiresAt: token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
-		User:      user,
+		Token:       token.Token,
+		ExpiresAt:   token.ExpiresAt.Format("2006-01-02T15:04:05Z07:00"),
+		MFARequired: false,
+		User:        user,
 	}))
 }
 

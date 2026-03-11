@@ -1,0 +1,487 @@
+basePath: /api/v1
+definitions:
+  web.DeviceAddRequest:
+    properties:
+      device:
+        example: /dev/sdc
+        type: string
+    required:
+    - device
+    type: object
+  web.GenericResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data: {}
+      message:
+        example: success
+        type: string
+    type: object
+  web.HealthResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      message:
+        example: healthy
+        type: string
+    type: object
+  web.SubVolumeCreateRequest:
+    properties:
+      name:
+        example: documents
+        type: string
+    required:
+    - name
+    type: object
+  web.VolumeCreateRequest:
+    properties:
+      devices:
+        example:
+        - /dev/sda
+        - /dev/sdb
+        items:
+          type: string
+        type: array
+      name:
+        example: data-vol
+        type: string
+      profile:
+        description: single, raid0, raid1, raid10, raid5, raid6
+        example: raid1
+        type: string
+    required:
+    - devices
+    - name
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@nas-os.io
+    name: NAS-OS 团队
+    url: https://github.com/nas-os/nas-os
+  description: |-
+    NAS-OS 是一个现代化的网络存储操作系统，提供卷管理、用户管理、共享管理、网络配置等功能。
+
+    ## 功能模块
+    - **卷管理**: Btrfs 卷创建、快照、RAID 配置
+    - **用户管理**: 用户/组管理、认证授权
+    - **共享管理**: SMB/NFS 共享配置
+    - **网络管理**: 网络接口、DDNS、防火墙、端口转发
+    - **Docker 管理**: 容器、镜像、应用商店
+    - **插件系统**: 可扩展的插件架构
+    - **配额管理**: 存储配额控制
+    - **性能监控**: 系统性能监控与报告
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: NAS-OS API
+  version: "1.0"
+paths:
+  /system/health:
+    get:
+      consumes:
+      - application/json
+      description: 检查系统是否正常运行
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 系统健康
+          schema:
+            $ref: '#/definitions/web.HealthResponse'
+      summary: 健康检查
+      tags:
+      - system
+  /system/info:
+    get:
+      consumes:
+      - application/json
+      description: 获取 NAS-OS 系统的基本信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 获取系统信息
+      tags:
+      - system
+  /volumes:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统中所有 Btrfs 卷的列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 列出所有卷
+      tags:
+      - volumes
+    post:
+      consumes:
+      - application/json
+      description: 使用指定设备和配置创建新的 Btrfs 卷
+      parameters:
+      - description: 卷创建参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.VolumeCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 创建新卷
+      tags:
+      - volumes
+  /volumes/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定的 Btrfs 卷
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 强制删除
+        in: query
+        name: force
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 删除卷
+      tags:
+      - volumes
+    get:
+      consumes:
+      - application/json
+      description: 根据卷名称获取卷的详细信息
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "404":
+          description: 卷不存在
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 获取卷详情
+      tags:
+      - volumes
+  /volumes/{name}/devices:
+    post:
+      consumes:
+      - application/json
+      - application/json
+      description: |-
+        向指定卷添加存储设备
+        向指定卷添加存储设备
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 设备参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.DeviceAddRequest'
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 设备参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.DeviceAddRequest'
+      produces:
+      - application/json
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 添加设备到卷
+      tags:
+      - volumes
+      - volumes
+  /volumes/{name}/devices/{device}:
+    delete:
+      consumes:
+      - application/json
+      description: 从指定卷移除存储设备
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 设备路径
+        in: path
+        name: device
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 移除成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 从卷移除设备
+      tags:
+      - volumes
+  /volumes/{name}/mount:
+    post:
+      consumes:
+      - application/json
+      description: 挂载指定的 Btrfs 卷
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 挂载成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 挂载卷
+      tags:
+      - volumes
+  /volumes/{name}/snapshots:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定卷的所有快照列表
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 列出快照
+      tags:
+      - snapshots
+  /volumes/{name}/subvolumes:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定卷的所有子卷列表
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 列出子卷
+      tags:
+      - volumes
+    post:
+      consumes:
+      - application/json
+      description: 在指定卷中创建新的子卷
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 子卷参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/web.SubVolumeCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 创建子卷
+      tags:
+      - volumes
+  /volumes/{name}/unmount:
+    post:
+      consumes:
+      - application/json
+      description: 卸载指定的 Btrfs 卷
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 卸载成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 卸载卷
+      tags:
+      - volumes
+  /volumes/{name}/usage:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定卷的存储使用情况
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/web.GenericResponse'
+      summary: 获取卷使用量
+      tags:
+      - volumes
+schemes:
+- http
+- https
+securityDefinitions:
+  ApiKeyAuth:
+    description: API 密钥认证
+    in: query
+    name: token
+    type: apiKey
+  BearerAuth:
+    description: JWT 认证令牌，格式：Bearer {token}
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
+tags:
+- description: 卷管理 API - 创建、管理 Btrfs 存储卷
+  name: volumes
+- description: 快照管理 API - 创建、恢复、删除快照
+  name: snapshots
+- description: 用户管理 API - 用户和用户组的 CRUD 操作
+  name: users
+- description: 认证 API - 登录、登出、令牌刷新
+  name: auth
+- description: 共享管理 API - SMB 和 NFS 共享配置
+  name: shares
+- description: 网络管理 API - 网络接口、DDNS、防火墙配置
+  name: network
+- description: Docker 管理 API - 容器、镜像、应用管理
+  name: docker
+- description: 插件系统 API - 插件安装、配置、管理
+  name: plugins
+- description: 配额管理 API - 存储配额设置与查询
+  name: quota
+- description: 性能监控 API - 系统性能指标查询
+  name: perf
+- description: 系统信息 API - 系统状态、健康检查
+  name: system

@@ -1,0 +1,54 @@
+{
+  "id": "com.nas-os.dark-theme",
+  "name": "暗黑主题",
+  "version": "1.2.0",
+  "author": "NAS-OS Team",
+  "description": "暗黑主题皮肤，保护眼睛，适合夜间使用",
+  "category": "theme",
+  "tags": ["主题", "暗黑", "护眼", "夜间"],
+  "entrypoint": "New",
+  "mainFile": "dark-theme.so",
+  "extensionPoints": [
+    "theme.style",
+    "theme.colors"
+  ],
+  "configSchema": {
+    "properties": {
+      "autoSwitch": {
+        "type": "boolean",
+        "title": "自动切换",
+        "description": "根据时间自动切换明暗主题",
+        "default": false
+      },
+      "darkStartTime": {
+        "type": "string",
+        "title": "暗黑模式开始时间",
+        "description": "自动切换到暗黑模式的时间（HH:MM）",
+        "default": "20:00"
+      },
+      "darkEndTime": {
+        "type": "string",
+        "title": "暗黑模式结束时间",
+        "description": "自动切换到明亮模式的时间（HH:MM）",
+        "default": "07:00"
+      },
+      "accentColor": {
+        "type": "string",
+        "title": "强调色",
+        "description": "主题强调色",
+        "default": "#3b82f6",
+        "enum": ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
+      }
+    }
+  },
+  "icon": "moon",
+  "screenshots": [
+    "/plugins/dark-theme/screenshots/dashboard.png",
+    "/plugins/dark-theme/screenshots/settings.png"
+  ],
+  "homepage": "https://nas-os.com/plugins/dark-theme",
+  "repository": "https://github.com/nas-os/plugins/dark-theme",
+  "license": "MIT",
+  "price": "free",
+  "nasVersion": ">=0.2.0"
+}

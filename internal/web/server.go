@@ -5,28 +5,43 @@ import (
 	"net/http"
 	"time"
 
+	"nas-os/internal/auth"
 	"nas-os/internal/docker"
+	"nas-os/internal/files"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
+	"nas-os/internal/perf"
+	"nas-os/internal/plugin"
+	"nas-os/internal/quota"
 	"nas-os/internal/shares"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/users"
 
+	_ "nas-os/docs/swagger" // Swagger 文档
+
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // Server Web 服务器
 type Server struct {
-	engine     *gin.Engine
-	httpSrv    *http.Server
-	storageMgr *storage.Manager
-	userMgr    *users.Manager
-	smbMgr     *smb.Manager
-	nfsMgr     *nfs.Manager
-	networkMgr *network.Manager
-	dockerMgr  *docker.Manager
-	appStore   *docker.AppStore
+	engine       *gin.Engine
+	httpSrv      *http.Server
+	storageMgr   *storage.Manager
+	userMgr      *users.Manager
+	mfaMgr       *auth.MFAManager
+	smbMgr       *smb.Manager
+	nfsMgr       *nfs.Manager
+	networkMgr   *network.Manager
+	dockerMgr    *docker.Manager
+	appStore     *docker.AppStore
+	perfMgr      *perf.Manager
+	pluginMgr    *plugin.Manager
+	pluginMarket *plugin.Market
+	quotaMgr     *quota.Manager
+	filesMgr     *files.Manager
 }
 
 // NewServer 创建 Web 服务器
@@ -63,16 +78,82 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		}
 	}
 
-	s := &Server{
-		engine:     engine,
-		storageMgr: storMgr,
-		userMgr:    userMgr,
-		smbMgr:     smbMgr,
-		nfsMgr:     nfsMgr,
-		networkMgr: netMgr,
-		dockerMgr:  dockerMgr,
-		appStore:   appStore,
+	// 初始化性能监控
+	perfMgr, err := perf.NewManager(nil)
+	if err != nil {
+		// 性能监控不可用时继续运行
+		perfMgr = nil
 	}
+
+	// 初始化插件管理器
+	pluginMgr, err := plugin.NewManager(plugin.ManagerConfig{
+		PluginDir: "/opt/nas/plugins",
+		ConfigDir: "/etc/nas-os/plugins",
+		DataDir:   "/var/lib/nas-os/plugins",
+	})
+	if err != nil {
+		// 插件系统不可用时继续运行
+		pluginMgr = nil
+	}
+
+	// 初始化插件市场
+	pluginMarket := plugin.NewMarket(plugin.MarketConfig{
+		BaseURL: "", // 使用内置模拟数据，可配置为实际市场地址
+	})
+
+	// 初始化配额管理器
+	var quotaMgr *quota.Manager
+	quotaMgr, err = quota.NewManager("/etc/nas-os/quota.json", 
+		quota.NewStorageAdapter(storMgr), 
+		quota.NewUserAdapter(userMgr))
+	if err != nil {
+		// 配额管理不可用时继续运行
+		quotaMgr = nil
+	}
+
+	// 初始化文件预览管理器
+	filesMgr := files.NewManager(files.PreviewConfig{
+		ThumbnailSize:    256,
+		MaxPreviewSize:   50 * 1024 * 1024, // 50MB
+		CacheDir:         "/var/cache/nas-os/thumbnails",
+		CacheExpiry:      24 * time.Hour,
+		EnableVideoThumb: true,
+		EnableDocPreview: true,
+	})
+
+	// 初始化 MFA 管理器
+	mfaMgr, err := auth.NewMFAManager(
+		"/etc/nas-os/mfa-config.json",
+		"NAS-OS",
+		nil, // 短信提供商，生产环境配置为 AliyunSMSProvider 或 TencentSMSProvider
+	)
+	if err != nil {
+		// MFA 不可用时继续运行（记录日志）
+		mfaMgr = nil
+	}
+
+	s := &Server{
+		engine:       engine,
+		storageMgr:   storMgr,
+		userMgr:      userMgr,
+		mfaMgr:       mfaMgr,
+		smbMgr:       smbMgr,
+		nfsMgr:       nfsMgr,
+		networkMgr:   netMgr,
+		dockerMgr:    dockerMgr,
+		appStore:     appStore,
+		perfMgr:      perfMgr,
+		pluginMgr:    pluginMgr,
+		pluginMarket: pluginMarket,
+		quotaMgr:     quotaMgr,
+		filesMgr:     filesMgr,
+	}
+
+	// 添加性能监控中间件 (在日志中间件之后)
+	if perfMgr != nil {
+		engine.Use(perfMgr.Middleware())
+	}
+
 	s.setupRoutes()
 	return s
 }
@@ -119,7 +200,12 @@ func (s *Server) setupRoutes() {
 		api.GET("/volumes/:name/scrub", s.getScrubStatus)
 
 		// ========== 用户管理 ==========
-		users.NewHandlers(s.userMgr).RegisterRoutes(api)
+		users.NewHandlers(s.userMgr, s.mfaMgr).RegisterRoutes(api)
+
+		// ========== MFA 管理 ==========
+		if s.mfaMgr != nil {
+			auth.NewHandlers(s.mfaMgr).RegisterRoutes(api)
+		}
 
 		// ========== 共享管理（SMB + NFS）==========
 		shares.NewHandlers(s.smbMgr, s.nfsMgr).RegisterRoutes(api)
@@ -140,7 +226,44 @@ func (s *Server) setupRoutes() {
 		// ========== 系统信息 ==========
 		api.GET("/system/info", s.getSystemInfo)
 		api.GET("/system/health", s.getHealth)
+
+		// ========== 性能监控 ==========
+		if s.perfMgr != nil {
+			perf.NewHandlers(s.perfMgr).RegisterRoutes(api)
+		}
+
+		// ========== 插件系统 ==========
+		if s.pluginMgr != nil {
+			plugin.NewHandlers(s.pluginMgr, s.pluginMarket).RegisterRoutes(api)
+		}
+
+		// ========== 配额管理 ==========
+		if s.quotaMgr != nil {
+			quota.NewHandlers(s.quotaMgr).RegisterRoutes(api)
+		}
+
+		// ========== 文件预览 ==========
+		if s.filesMgr != nil {
+			files.NewHandlers(s.filesMgr).RegisterRoutes(api)
+		}
 	}
+
+	// Swagger API 文档
+	// 访问地址: http://localhost:8080/swagger/index.html
+	s.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
+		ginSwagger.URL("/swagger/doc.json"),
+		ginSwagger.DefaultModelsExpandDepth(-1),
+	))
+
+	// OpenAPI JSON 规范
+	s.engine.GET("/openapi.json", func(c *gin.Context) {
+		c.File("./docs/swagger/swagger.json")
+	})
+
+	// OpenAPI YAML 规范
+	s.engine.GET("/openapi.yaml", func(c *gin.Context) {
+		c.File("./docs/swagger/swagger.yaml")
+	})
 
 	// 静态文件（前端）
 	s.engine.Static("/", "./webui/dist")
@@ -157,6 +280,16 @@ func (s *Server) Start(addr string) error {
 
 // Stop 停止服务器
 func (s *Server) Stop() error {
+	// 停止性能监控
+	if s.perfMgr != nil {
+		s.perfMgr.Stop()
+	}
+	
+	// 停止配额管理
+	if s.quotaMgr != nil {
+		s.quotaMgr.Stop()
+	}
+	
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	return s.httpSrv.Shutdown(ctx)
@@ -164,6 +297,21 @@ func (s *Server) Stop() error {
 
 // ========== 卷管理 API ==========
 
+// GenericResponse 通用 API 响应
+type GenericResponse struct {
+	Code    int         `json:"code" example:"0"`
+	Message string      `json:"message" example:"success"`
+	Data    interface{} `json:"data,omitempty"`
+}
+
+// listVolumes 列出所有卷
+// @Summary 列出所有卷
+// @Description 获取系统中所有 Btrfs 卷的列表
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Success 200 {object} GenericResponse "成功"
+// @Router /volumes [get]
 func (s *Server) listVolumes(c *gin.Context) {
 	volumes := s.storageMgr.ListVolumes()
 	c.JSON(http.StatusOK, gin.H{
@@ -173,6 +321,17 @@ func (s *Server) listVolumes(c *gin.Context) {
 	})
 }
 
+// createVolume 创建卷
+// @Summary 创建新卷
+// @Description 使用指定设备和配置创建新的 Btrfs 卷
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param request body VolumeCreateRequest true "卷创建参数"
+// @Success 200 {object} GenericResponse "创建成功"
+// @Failure 400 {object} GenericResponse "请求参数错误"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes [post]
 func (s *Server) createVolume(c *gin.Context) {
 	var req struct {
 		Name    string   `json:"name" binding:"required"`
@@ -193,6 +352,16 @@ func (s *Server) createVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": vol})
 }
 
+// getVolume 获取卷详情
+// @Summary 获取卷详情
+// @Description 根据卷名称获取卷的详细信息
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Success 200 {object} GenericResponse "成功"
+// @Failure 404 {object} GenericResponse "卷不存在"
+// @Router /volumes/{name} [get]
 func (s *Server) getVolume(c *gin.Context) {
 	name := c.Param("name")
 	vol := s.storageMgr.GetVolume(name)
@@ -203,6 +372,17 @@ func (s *Server) getVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": vol})
 }
 
+// deleteVolume 删除卷
+// @Summary 删除卷
+// @Description 删除指定的 Btrfs 卷
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Param force query bool false "强制删除"
+// @Success 200 {object} GenericResponse "删除成功"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name} [delete]
 func (s *Server) deleteVolume(c *gin.Context) {
 	name := c.Param("name")
 	force := c.Query("force") == "true"
@@ -215,6 +395,16 @@ func (s *Server) deleteVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "卷已删除"})
 }
 
+// mountVolume 挂载卷
+// @Summary 挂载卷
+// @Description 挂载指定的 Btrfs 卷
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Success 200 {object} GenericResponse "挂载成功"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name}/mount [post]
 func (s *Server) mountVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -226,6 +416,16 @@ func (s *Server) mountVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "挂载成功"})
 }
 
+// unmountVolume 卸载卷
+// @Summary 卸载卷
+// @Description 卸载指定的 Btrfs 卷
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Success 200 {object} GenericResponse "卸载成功"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name}/unmount [post]
 func (s *Server) unmountVolume(c *gin.Context) {
 	name := c.Param("name")
 
@@ -237,6 +437,16 @@ func (s *Server) unmountVolume(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "卸载成功"})
 }
 
+// getVolumeUsage 获取卷使用量
+// @Summary 获取卷使用量
+// @Description 获取指定卷的存储使用情况
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Success 200 {object} GenericResponse "成功"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name}/usage [get]
 func (s *Server) getVolumeUsage(c *gin.Context) {
 	name := c.Param("name")
 	total, used, free, err := s.storageMgr.GetUsage(name)
@@ -256,6 +466,29 @@ func (s *Server) getVolumeUsage(c *gin.Context) {
 	})
 }
 
+// addDevice 添加设备到卷
+// @Summary 添加设备到卷
+// @Description 向指定卷添加存储设备
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Param request body DeviceAddRequest true "设备参数"
+// @Success 200 {object} GenericResponse "添加成功"
+// @Failure 400 {object} GenericResponse "请求参数错误"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// addDevice 添加设备到卷
+// @Summary 添加设备到卷
+// @Description 向指定卷添加存储设备
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Param request body DeviceAddRequest true "设备参数"
+// @Success 200 {object} GenericResponse "添加成功"
+// @Failure 400 {object} GenericResponse "请求参数错误"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name}/devices [post]
 func (s *Server) addDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
@@ -274,6 +507,17 @@ func (s *Server) addDevice(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "设备已添加"})
 }
 
+// removeDevice 从卷移除设备
+// @Summary 从卷移除设备
+// @Description 从指定卷移除存储设备
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Param device path string true "设备路径"
+// @Success 200 {object} GenericResponse "移除成功"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name}/devices/{device} [delete]
 func (s *Server) removeDevice(c *gin.Context) {
 	volumeName := c.Param("name")
 	device := c.Param("device")
@@ -303,6 +547,16 @@ func (s *Server) getDeviceStats(c *gin.Context) {
 
 // ========== 子卷管理 API ==========
 
+// listSubVolumes 列出子卷
+// @Summary 列出子卷
+// @Description 获取指定卷的所有子卷列表
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Success 200 {object} GenericResponse "成功"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name}/subvolumes [get]
 func (s *Server) listSubVolumes(c *gin.Context) {
 	volumeName := c.Param("name")
 	subvols, err := s.storageMgr.ListSubVolumes(volumeName)
@@ -318,6 +572,18 @@ func (s *Server) listSubVolumes(c *gin.Context) {
 	})
 }
 
+// createSubVolume 创建子卷
+// @Summary 创建子卷
+// @Description 在指定卷中创建新的子卷
+// @Tags volumes
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Param request body SubVolumeCreateRequest true "子卷参数"
+// @Success 200 {object} GenericResponse "创建成功"
+// @Failure 400 {object} GenericResponse "请求参数错误"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name}/subvolumes [post]
 func (s *Server) createSubVolume(c *gin.Context) {
 	volumeName := c.Param("name")
 	var req struct {
@@ -384,6 +650,16 @@ func (s *Server) setSubVolumeReadOnly(c *gin.Context) {
 
 // ========== 快照管理 API ==========
 
+// listSnapshots 列出快照
+// @Summary 列出快照
+// @Description 获取指定卷的所有快照列表
+// @Tags snapshots
+// @Accept json
+// @Produce json
+// @Param name path string true "卷名称"
+// @Success 200 {object} GenericResponse "成功"
+// @Failure 500 {object} GenericResponse "服务器内部错误"
+// @Router /volumes/{name}/snapshots [get]
 func (s *Server) listSnapshots(c *gin.Context) {
 	volumeName := c.Param("name")
 	snapshots, err := s.storageMgr.ListSnapshots(volumeName)
@@ -532,6 +808,14 @@ func (s *Server) getScrubStatus(c *gin.Context) {
 
 // ========== 系统信息 API ==========
 
+// getSystemInfo 获取系统信息
+// @Summary 获取系统信息
+// @Description 获取 NAS-OS 系统的基本信息
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} GenericResponse "成功"
+// @Router /system/info [get]
 func (s *Server) getSystemInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 0,
@@ -542,6 +826,14 @@ func (s *Server) getSystemInfo(c *gin.Context) {
 	})
 }
 
+// getHealth 健康检查
+// @Summary 健康检查
+// @Description 检查系统是否正常运行
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} HealthResponse "系统健康"
+// @Router /system/health [get]
 func (s *Server) getHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
