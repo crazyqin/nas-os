@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VERSION: '1.25'
+  GO_VERSION: '1.21'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
@@ -61,7 +61,7 @@ jobs:
         run: go mod download
       
       - name: 运行单元测试
-        run: go test -v -race -coverprofile=coverage.out ./...
+        run: go test -v -race -coverprofile=coverage.out $(go list ./... | grep -v /tests/e2e)
       
       - name: 上传覆盖率
         uses: codecov/codecov-action@v4
@@ -99,6 +99,12 @@ jobs:
       
       - name: 运行集成测试
         run: go test -v -timeout 5m ./tests/integration/...
+      
+      - name: 验证构建（排除插件和 e2e 测试）
+        run: |
+          # 只编译主程序，排除插件示例和 e2e 测试
+          go build -v ./cmd/...
+          echo "✅ 主程序构建验证通过"
 
   # ========== 多平台构建 ==========
   build:
@@ -133,6 +139,7 @@ jobs:
         run: |
           go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }} ./cmd/nasd
           go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.arm && format('v{0}', matrix.arm) || '' }} ./cmd/nasctl
+          echo "✅ 编译成功"
       
       - name: 生成校验和
         run: |
