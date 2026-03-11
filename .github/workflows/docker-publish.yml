@@ -55,20 +55,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
       
-      - name: 登录 Docker Hub (可选)
-        uses: docker/login-action@v3
-        if: github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != ''
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
       - name: 提取元数据
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            ${{ secrets.DOCKERHUB_USERNAME && format('{0}/nas-os', secrets.DOCKERHUB_USERNAME) || '' }}
           tags: |
             # 分支
             type=ref,event=branch,suffix=-{{ sha }}
