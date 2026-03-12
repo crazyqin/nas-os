@@ -452,11 +452,11 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 	
 	// 发送通知
 	if len(schedule.NotifyEmail) > 0 && sm.notifyEmail != nil {
-		sm.notifyEmail(schedule.ID, schedule.NotifyEmail, report, exportResult.Path)
+		sm.notifyEmail(schedule.ID, schedule.NotifyEmail, report, exportResult.Path) //nolint:errcheck
 	}
 	
 	if len(schedule.NotifyWebhook) > 0 && sm.notifyWebhook != nil {
-		sm.notifyWebhook(schedule.ID, schedule.NotifyWebhook, report, exportResult.Path)
+		sm.notifyWebhook(schedule.ID, schedule.NotifyWebhook, report, exportResult.Path) //nolint:errcheck
 	}
 	
 	// 清理旧文件
