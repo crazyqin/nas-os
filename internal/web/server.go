@@ -23,12 +23,14 @@ import (
 	"nas-os/internal/storage"
 	"nas-os/internal/system"
 	"nas-os/internal/users"
+	"nas-os/internal/vm"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 )
 
 // Server Web 服务器
@@ -55,6 +57,9 @@ type Server struct {
 	backupMgr     *backup.Manager
 	syncMgr       *backup.SyncManager
 	systemMonitor *system.Monitor
+	vmMgr         *vm.Manager
+	isoMgr        *vm.ISOManager
+	snapshotMgr   *vm.SnapshotManager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -189,6 +194,38 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ 系统监控模块就绪")
 	}
 
+	// 初始化虚拟机管理器
+	vmStoragePath := "/mnt/vms"
+	vmLogger := zap.NewNop()
+	vmMgr, err := vm.NewManager(vmStoragePath, vmLogger)
+	if err != nil {
+		log.Printf("⚠️ 虚拟机管理初始化警告：%v", err)
+		vmMgr = nil
+	} else {
+		log.Println("✅ 虚拟机管理模块就绪")
+	}
+
+	// 初始化 ISO 管理器
+	isoMgr, err := vm.NewISOManager("/mnt/isos", vmLogger)
+	if err != nil {
+		log.Printf("⚠️ ISO 管理初始化警告：%v", err)
+		isoMgr = nil
+	} else {
+		log.Println("✅ ISO 管理模块就绪")
+	}
+
+	// 初始化快照管理器
+	var snapshotMgr *vm.SnapshotManager
+	if vmMgr != nil {
+		snapshotMgr, err = vm.NewSnapshotManager(vmStoragePath, vmMgr, vmLogger)
+		if err != nil {
+			log.Printf("⚠️ 快照管理初始化警告：%v", err)
+			snapshotMgr = nil
+		} else {
+			log.Println("✅ 快照管理模块就绪")
+		}
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -217,6 +254,9 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		backupMgr:     backupMgr,
 		syncMgr:       syncMgr,
 		systemMonitor: systemMonitor,
+		vmMgr:         vmMgr,
+		isoMgr:        isoMgr,
+		snapshotMgr:   snapshotMgr,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -337,6 +377,63 @@ func (s *Server) setupRoutes() {
 		// ========== 备份与同步 ==========
 		backupHandlers := backup.NewHandlers(s.backupMgr, s.syncMgr)
 		backupHandlers.RegisterRoutes(api)
+
+		// ========== 虚拟机管理 ==========
+		if s.vmMgr != nil && s.isoMgr != nil {
+			vmHandler := vm.NewHandler(s.vmMgr, s.isoMgr, s.snapshotMgr, zap.NewNop())
+			// 注册 HTTP ServeMux 风格的路由到 Gin
+			api.GET("/vms", func(c *gin.Context) {
+				vmHandler.HandleListVMs(c.Writer, c.Request)
+			})
+			api.POST("/vms", func(c *gin.Context) {
+				vmHandler.HandleCreateVM(c.Writer, c.Request)
+			})
+			api.GET("/vms/:id", func(c *gin.Context) {
+				vmHandler.HandleVM(c.Writer, c.Request)
+			})
+			api.POST("/vms/:id", func(c *gin.Context) {
+				vmHandler.HandleVM(c.Writer, c.Request)
+			})
+			api.DELETE("/vms/:id", func(c *gin.Context) {
+				vmHandler.HandleVM(c.Writer, c.Request)
+			})
+			api.PUT("/vms/:id", func(c *gin.Context) {
+				vmHandler.HandleVM(c.Writer, c.Request)
+			})
+			api.GET("/vm-isos", func(c *gin.Context) {
+				vmHandler.HandleListISOs(c.Writer, c.Request)
+			})
+			api.GET("/vm-isos/:id", func(c *gin.Context) {
+				vmHandler.HandleISO(c.Writer, c.Request)
+			})
+			api.POST("/vm-isos/:id", func(c *gin.Context) {
+				vmHandler.HandleISO(c.Writer, c.Request)
+			})
+			api.DELETE("/vm-isos/:id", func(c *gin.Context) {
+				vmHandler.HandleISO(c.Writer, c.Request)
+			})
+			api.GET("/vm-snapshots", func(c *gin.Context) {
+				vmHandler.HandleListSnapshots(c.Writer, c.Request)
+			})
+			api.GET("/vm-snapshots/:id", func(c *gin.Context) {
+				vmHandler.HandleSnapshot(c.Writer, c.Request)
+			})
+			api.POST("/vm-snapshots/:id", func(c *gin.Context) {
+				vmHandler.HandleSnapshot(c.Writer, c.Request)
+			})
+			api.DELETE("/vm-snapshots/:id", func(c *gin.Context) {
+				vmHandler.HandleSnapshot(c.Writer, c.Request)
+			})
+			api.GET("/vm-templates", func(c *gin.Context) {
+				vmHandler.HandleListTemplates(c.Writer, c.Request)
+			})
+			api.GET("/vm-usb-devices", func(c *gin.Context) {
+				vmHandler.HandleUSBDevices(c.Writer, c.Request)
+			})
+			api.GET("/vm-pci-devices", func(c *gin.Context) {
+				vmHandler.HandlePCIDevices(c.Writer, c.Request)
+			})
+		}
 
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
