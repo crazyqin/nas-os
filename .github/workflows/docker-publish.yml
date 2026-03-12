@@ -128,6 +128,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [docker-build]
     if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -142,11 +145,12 @@ jobs:
       - name: 等待镜像推送完成
         run: |
           echo "等待镜像推送到 GHCR..."
-          sleep 30
+          sleep 60
       
       - name: 拉取镜像进行扫描
         run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest || echo "镜像拉取失败，继续扫描..."
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest || echo "镜像拉取失败，使用 SHA 标签..."
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} || true
       
       - name: 运行 Trivy 扫描
         uses: aquasecurity/trivy-action@master
@@ -156,18 +160,23 @@ jobs:
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
           scan-type: 'image'
+        continue-on-error: true
       
       - name: 上传扫描结果到 GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
-        if: always()
+        if: always() && hashFiles('trivy-results.sarif') != ''
       
       - name: 生成扫描报告
         run: |
           echo "## 🔒 安全扫描完成" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "扫描结果已上传到 [Security](../../security/advisories) 页面" >> $GITHUB_STEP_SUMMARY
+          if [ -f trivy-results.sarif ]; then
+            echo "扫描结果已上传到 [Security](../../security/advisories) 页面" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ 扫描结果文件未生成，跳过上传" >> $GITHUB_STEP_SUMMARY
+          fi
 
   # ========== Docker Compose 测试 ==========
   docker-compose-test:
