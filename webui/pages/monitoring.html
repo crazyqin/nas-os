@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统监控 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .monitor-container { max-width: 1600px; margin: 0 auto; padding: 2rem; }
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--surface-border);
+        }
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .stat-card-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .stat-card-icon.cpu { background: #DBEAFE; color: #2563EB; }
+        .stat-card-icon.memory { background: #D1FAE5; color: #059669; }
+        .stat-card-icon.disk { background: #FEF3C7; color: #D97706; }
+        .stat-card-icon.network { background: #E0E7FF; color: #4F46E5; }
+        .stat-card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .stat-card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563EB, #3B82F6);
+            transition: width 0.3s;
+        }
+        .progress-fill.warning { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+        .progress-fill.critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .chart-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+        }
+        
+        .alerts-section {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+        }
+        .alert-item:hover { background: var(--hover-color); }
+        .alert-severity {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            margin-top: 0.25rem;
+            flex-shrink: 0;
+        }
+        .alert-severity.critical { background: #DC2626; box-shadow: 0 0 8px #DC2626; }
+        .alert-severity.warning { background: #F59E0B; }
+        .alert-severity.info { background: #3B82F6; }
+        .alert-content { flex: 1; }
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .alert-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .alert-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-secondary { background: var(--surface-color); border: 1px solid var(--border-color); }
+        .btn-danger { background: #DC2626; color: white; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 13px; }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-warning { background: #FEF3C7; color: #92400E; }
+        .badge-critical { background: #FEE2E2; color: #991B1B; }
+        .badge-success { background: #D1FAE5; color: #065F46; }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="monitor-container">
+        <!-- 头部 -->
+        <div class="monitor-header">
+            <div>
+                <h1 style="margin: 0 0 0.5rem 0;">📊 系统监控</h1>
+                <p style="margin: 0; color: var(--text-muted);">实时监控系统资源、性能和告警</p>
+            </div>
+            <button class="btn btn-primary" onclick="refreshAll()">🔄 刷新</button>
+        </div>
+
+        <!-- 核心指标 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">CPU 使用率</span>
+                    <div class="stat-card-icon cpu">💻</div>
+                </div>
+                <div class="stat-card-value" id="cpuUsage">--%</div>
+                <div class="stat-card-subtitle" id="cpuCores">-- 核心</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="cpuProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">内存使用率</span>
+                    <div class="stat-card-icon memory">🧠</div>
+                </div>
+                <div class="stat-card-value" id="memoryUsage">--%</div>
+                <div class="stat-card-subtitle" id="memoryDetail">-- / --</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="memoryProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">磁盘使用率</span>
+                    <div class="stat-card-icon disk">💾</div>
+                </div>
+                <div class="stat-card-value" id="diskUsage">--%</div>
+                <div class="stat-card-subtitle" id="diskDetail">-- / --</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="diskProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">网络吞吐</span>
+                    <div class="stat-card-icon network">🌐</div>
+                </div>
+                <div class="stat-card-value" id="networkSpeed">-- KB/s</div>
+                <div class="stat-card-subtitle" id="networkTotal">↑ -- ↓ --</div>
+            </div>
+        </div>
+
+        <!-- 图表 -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">📈 CPU & 内存趋势</h3>
+                    <select class="btn btn-secondary btn-sm" id="timeRange" onchange="updateCharts()">
+                        <option value="1h">1 小时</option>
+                        <option value="6h">6 小时</option>
+                        <option value="24h" selected>24 小时</option>
+                    </select>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="resourceChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">🌐 网络流量</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="networkChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 告警 -->
+        <div class="alerts-section">
+            <div class="alerts-header">
+                <h3 style="margin: 0;">🚨 活动告警</h3>
+                <div>
+                    <button class="btn btn-secondary btn-sm" onclick="showAlertSettings()">⚙️ 设置</button>
+                    <button class="btn btn-secondary btn-sm" onclick="clearAllAlerts()">🗑️ 清除全部</button>
+                </div>
+            </div>
+            
+            <div id="alertsList">
+                <p style="color: var(--text-muted); text-align: center; padding: 2rem;">加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/monitor';
+        let resourceChart, networkChart;
+        let autoRefresh = true;
+        let refreshInterval;
+
+        // 初始化图表
+        function initCharts() {
+            const resourceCtx = document.getElementById('resourceChart').getContext('2d');
+            resourceChart = new Chart(resourceCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'CPU %',
+                        data: [],
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '内存 %',
+                        data: [],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    }
+                }
+            });
+
+            const networkCtx = document.getElementById('networkChart').getContext('2d');
+            networkChart = new Chart(networkCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '下载 KB/s',
+                        data: [],
+                        borderColor: '#4F46E5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: '上传 KB/s',
+                        data: [],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // 刷新数据
+        async function refreshAll() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    updateStats(data.data);
+                    updateCharts(data.data);
+                }
+                
+                // 加载告警
+                loadAlerts();
+            } catch (error) {
+                console.error('刷新失败:', error);
+            }
+        }
+
+        // 更新统计
+        function updateStats(stats) {
+            // CPU
+            if (stats.cpuUsage !== undefined) {
+                document.getElementById('cpuUsage').textContent = stats.cpuUsage.toFixed(1) + '%';
+                document.getElementById('cpuCores').textContent = (stats.cpuCores || 4) + ' 核心';
+                const cpuProgress = document.getElementById('cpuProgress');
+                cpuProgress.style.width = stats.cpuUsage + '%';
+                cpuProgress.className = 'progress-fill' + (stats.cpuUsage > 90 ? ' critical' : stats.cpuUsage > 75 ? ' warning' : '');
+            }
+            
+            // 内存
+            if (stats.memoryUsage !== undefined) {
+                document.getElementById('memoryUsage').textContent = stats.memoryUsage.toFixed(1) + '%';
+                const used = (stats.memoryUsed / 1024 / 1024 / 1024).toFixed(1);
+                const total = (stats.memoryTotal / 1024 / 1024 / 1024).toFixed(1);
+                document.getElementById('memoryDetail').textContent = `${used}GB / ${total}GB`;
+                const memProgress = document.getElementById('memoryProgress');
+                memProgress.style.width = stats.memoryUsage + '%';
+                memProgress.className = 'progress-fill' + (stats.memoryUsage > 90 ? ' critical' : stats.memoryUsage > 80 ? ' warning' : '');
+            }
+            
+            // 磁盘
+            if (stats.diskUsage !== undefined) {
+                document.getElementById('diskUsage').textContent = stats.diskUsage.toFixed(1) + '%';
+                const used = (stats.diskUsed / 1024 / 1024 / 1024).toFixed(1);
+                const total = (stats.diskTotal / 1024 / 1024 / 1024).toFixed(1);
+                document.getElementById('diskDetail').textContent = `${used}GB / ${total}GB`;
+                const diskProgress = document.getElementById('diskProgress');
+                diskProgress.style.width = stats.diskUsage + '%';
+                diskProgress.className = 'progress-fill' + (stats.diskUsage > 90 ? ' critical' : stats.diskUsage > 80 ? ' warning' : '');
+            }
+            
+            // 网络
+            if (stats.networkSpeed !== undefined) {
+                document.getElementById('networkSpeed').textContent = formatSize(stats.networkSpeed) + '/s';
+                document.getElementById('networkTotal').textContent = `↑ ${formatSize(stats.txSpeed || 0)}/s ↓ ${formatSize(stats.rxSpeed || 0)}/s`;
+            }
+        }
+
+        // 更新图表
+        function updateCharts(stats) {
+            // 简化实现：实际应该从 API 获取历史数据
+            const now = new Date().toLocaleTimeString();
+            
+            if (resourceChart.data.labels.length > 20) {
+                resourceChart.data.labels.shift();
+                resourceChart.data.datasets[0].data.shift();
+                resourceChart.data.datasets[1].data.shift();
+            }
+            resourceChart.data.labels.push(now);
+            resourceChart.data.datasets[0].data.push(stats?.cpuUsage || 0);
+            resourceChart.data.datasets[1].data.push(stats?.memoryUsage || 0);
+            resourceChart.update('none');
+        }
+
+        // 加载告警
+        async function loadAlerts() {
+            try {
+                const res = await fetch(`${API_BASE}/alerts?limit=10`);
+                const data = await res.json();
+                
+                const list = document.getElementById('alertsList');
+                if (data.code === 0 && data.data.length > 0) {
+                    list.innerHTML = data.data.map(alert => `
+                        <div class="alert-item">
+                            <div class="alert-severity ${alert.level}"></div>
+                            <div class="alert-content">
+                                <div class="alert-title">
+                                    <span class="badge badge-${alert.level}">${alert.level.toUpperCase()}</span>
+                                    ${alert.message}
+                                </div>
+                                <div class="alert-meta">
+                                    ${alert.type} • ${alert.source} • ${new Date(alert.timestamp).toLocaleString()}
+                                    ${alert.acknowledged ? ' • 已确认' : ''}
+                                </div>
+                            </div>
+                            <div class="alert-actions">
+                                ${!alert.acknowledged ? `<button class="btn btn-secondary btn-sm" onclick="acknowledgeAlert('${alert.id}')">确认</button>` : ''}
+                                <button class="btn btn-danger btn-sm" onclick="resolveAlert('${alert.id}')">解决</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">暂无活动告警 ✅</p>';
+                }
+            } catch (error) {
+                console.error('加载告警失败:', error);
+            }
+        }
+
+        // 确认告警
+        async function acknowledgeAlert(alertId) {
+            await fetch(`${API_BASE}/alerts/${alertId}/acknowledge`, { method: 'POST' });
+            loadAlerts();
+        }
+
+        // 解决告警
+        async function resolveAlert(alertId) {
+            await fetch(`${API_BASE}/alerts/${alertId}/resolve`, { method: 'POST' });
+            loadAlerts();
+        }
+
+        // 清除全部告警
+        async function clearAllAlerts() {
+            if (confirm('确定清除所有告警？')) {
+                await fetch(`${API_BASE}/alerts/clear`, { method: 'POST' });
+                loadAlerts();
+            }
+        }
+
+        // 告警设置
+        function showAlertSettings() {
+            alert('告警设置功能待实现');
+        }
+
+        // 格式化大小
+        function formatSize(bytes) {
+            if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
+            if (bytes >= 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return bytes + ' B';
+        }
+
+        // 自动刷新
+        function startAutoRefresh() {
+            refreshInterval = setInterval(refreshAll, 5000);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            refreshAll();
+            startAutoRefresh();
+        });
+    </script>
+</body>
+</html>
