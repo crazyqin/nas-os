@@ -10,7 +10,6 @@ import (
 // Handlers 媒体处理器
 type Handlers struct {
 	libraryMgr *LibraryManager
-	mu         sync.RWMutex
 }
 
 // NewHandlers 创建媒体处理器
