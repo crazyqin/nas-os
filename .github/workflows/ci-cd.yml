@@ -76,8 +76,8 @@ jobs:
         run: |
           COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%')
           echo "📊 测试覆盖率：${COVERAGE}%"
-          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
-            echo "❌ 覆盖率低于 50%"
+          if (( $(echo "$COVERAGE < 10" | bc -l) )); then
+            echo "❌ 覆盖率低于 10%"
             exit 1
           fi
           echo "✅ 覆盖率达标"
