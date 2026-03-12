@@ -403,7 +403,10 @@ func (h *Handler) handlePCIDevices(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) jsonResponse(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		http.Error(w, "encode error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // CreateVMRequest 创建 VM 请求

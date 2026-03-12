@@ -180,14 +180,7 @@ func (h *PerfHandler) GetBottlenecks(c *gin.Context) {
 	
 	response := make([]BottleneckResponse, len(bottlenecks))
 	for i, b := range bottlenecks {
-		response[i] = BottleneckResponse{
-			Resource:    b.Resource,
-			Severity:    b.Severity,
-			Description: b.Description,
-			Usage:       b.Usage,
-			Threshold:   b.Threshold,
-			Timestamp:   b.Timestamp,
-		}
+		response[i] = *(b.ToResponse())
 	}
 	
 	c.JSON(http.StatusOK, gin.H{
