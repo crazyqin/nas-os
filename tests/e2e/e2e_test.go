@@ -50,7 +50,7 @@ func NewTestServer() *httptest.Server {
 			auth.POST("/login", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{
 					"token": "test-token",
-					"user": gin.H{"username": "test"},
+					"user":  gin.H{"username": "test"},
 				})
 			})
 		}
