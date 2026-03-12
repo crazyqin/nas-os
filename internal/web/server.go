@@ -14,6 +14,7 @@ import (
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/notify"
+	"nas-os/internal/monitor"
 	"nas-os/internal/perf"
 	"nas-os/internal/photos"
 	"nas-os/internal/plugin"
@@ -60,6 +61,8 @@ type Server struct {
 	vmMgr         *vm.Manager
 	isoMgr        *vm.ISOManager
 	snapshotMgr   *vm.SnapshotManager
+	rbacMgr       *auth.RBACManager
+	monitorMgr    *monitor.Manager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -316,6 +319,11 @@ func (s *Server) setupRoutes() {
 			auth.NewHandlers(s.mfaMgr).RegisterRoutes(api)
 		}
 
+		// ========== RBAC 权限管理 ==========
+		if s.rbacMgr != nil {
+			auth.NewRBACHandlers(s.rbacMgr).RegisterRoutes(api)
+		}
+
 		// ========== 共享管理（SMB + NFS）==========
 		shares.NewHandlers(s.smbMgr, s.nfsMgr).RegisterRoutes(api)
 
@@ -344,6 +352,11 @@ func (s *Server) setupRoutes() {
 		// ========== 系统监控仪表盘 ==========
 		if s.systemMonitor != nil {
 			system.NewHandlers(s.systemMonitor).RegisterRoutes(api)
+		}
+
+		// ========== 监控告警 ==========
+		if s.monitorMgr != nil {
+			monitor.NewHandlers(s.monitorMgr, s.notifyMgr).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
@@ -464,6 +477,12 @@ func (s *Server) setupRoutes() {
 	// 下载中心页面
 	s.engine.StaticFile("/downloader", "./webui/pages/downloader/index.html")
 	s.engine.StaticFile("/downloader/", "./webui/pages/downloader/index.html")
+
+	// 新增页面路由
+	s.engine.StaticFile("/rbac", "./webui/pages/rbac.html")
+	s.engine.StaticFile("/monitoring", "./webui/pages/monitoring.html")
+	s.engine.StaticFile("/containers", "./webui/pages/containers.html")
+	s.engine.StaticFile("/vms", "./webui/pages/vms.html")
 }
 
 // Start 启动服务器
