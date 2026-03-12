@@ -772,19 +772,6 @@ func (ts *TaskScheduler) saveSchedules() error {
 	return os.WriteFile(schedulesFile, data, 0644)
 }
 
-func (ts *TaskScheduler) loadSchedules() error {
-	schedulesFile := filepath.Join(ts.config.DataDir, "schedules.json")
-
-	data, err := os.ReadFile(schedulesFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-
-	return json.Unmarshal(data, &ts.schedules)
-}
 
 // 辅助函数
 
