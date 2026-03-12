@@ -126,7 +126,7 @@ jobs:
   docker-scan:
     name: 镜像安全扫描
     runs-on: ubuntu-latest
-    needs: [docker-build]
+    needs: [docker]
     if: github.event_name != 'pull_request'
     steps:
       - name: 检出代码
@@ -138,6 +138,10 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
+      
+      - name: 拉取镜像进行扫描
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
       
       - name: 运行 Trivy 扫描
         uses: aquasecurity/trivy-action@master
