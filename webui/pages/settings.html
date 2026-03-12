@@ -7,56 +7,191 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="stylesheet" href="../css/design-system.css">
     <style>
-        .settings-container { max-width: 900px; margin: 0 auto; }
-        .settings-section {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        :root {
+            --sidebar-width: 240px;
         }
-        .settings-header {
+        
+        .settings-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .settings-sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface-color);
+            border-right: 1px solid var(--surface-border);
+            padding: 1.5rem;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+        }
+        
+        .settings-main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 2rem;
+            background: var(--bg-secondary);
+        }
+        
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            padding-left: 0.75rem;
+        }
+        
+        .nav-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        
+        .nav-item.active {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .settings-content {
+            max-width: 1000px;
+        }
+        
+        .settings-header {
+            margin-bottom: 2rem;
+        }
+        
+        .settings-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .settings-subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 1.25rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #E5E7EB;
+            border-bottom: 1px solid var(--surface-border);
         }
-        .settings-title {
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             font-size: 18px;
             font-weight: 600;
-            color: #1F2937;
+            color: var(--text-primary);
         }
-        .settings-grid {
+        
+        .card-title svg {
+            width: 24px;
+            height: 24px;
+            color: var(--color-primary);
+        }
+        
+        .form-grid {
             display: grid;
             grid-template-columns: 200px 1fr;
             gap: 1.25rem;
             align-items: start;
         }
-        .settings-label {
+        
+        .form-label {
             font-size: 14px;
             font-weight: 500;
-            color: #374151;
+            color: var(--text-primary);
             padding-top: 0.5rem;
         }
-        .settings-description {
+        
+        .form-description {
             font-size: 13px;
-            color: #6B7280;
+            color: var(--text-muted);
             margin-top: 0.25rem;
         }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: var(--surface-color);
+            color: var(--text-primary);
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+        
+        .form-input[readonly] {
+            background: var(--bg-tertiary);
+            cursor: not-allowed;
+        }
+        
         .toggle-switch {
             position: relative;
             width: 48px;
             height: 26px;
-            background: #E5E7EB;
+            background: var(--surface-border);
             border-radius: 999px;
             cursor: pointer;
             transition: background 0.2s;
         }
+        
         .toggle-switch.active {
-            background: #2563EB;
+            background: var(--color-primary);
         }
+        
         .toggle-switch::after {
             content: '';
             position: absolute;
@@ -69,197 +204,1237 @@
             transition: transform 0.2s;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
+        
         .toggle-switch.active::after {
             transform: translateX(22px);
         }
+        
         .btn-group {
             display: flex;
             gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--surface-border);
+        }
+        
+        .btn-danger {
+            background: var(--color-error);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .info-item {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .divider {
+            margin: 1.25rem 0;
+            border: none;
+            border-top: 1px solid var(--surface-border);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.success {
+            background: var(--color-success-bg);
+            color: #065F46;
+        }
+        
+        .status-badge.warning {
+            background: var(--color-warning-bg);
+            color: #92400E;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        
+        .webhook-list {
             margin-top: 1rem;
         }
-        @media (max-width: 640px) {
-            .settings-grid { grid-template-columns: 1fr; }
+        
+        .webhook-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .webhook-info {
+            flex: 1;
+        }
+        
+        .webhook-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .webhook-url {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 0.125rem;
+        }
+        
+        .webhook-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            padding: 0.375rem;
+            border-radius: 6px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background: var(--surface-border);
+            color: var(--text-primary);
+        }
+        
+        .btn-icon.delete:hover {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+        
+        .alert-info {
+            background: var(--color-info-bg);
+            color: #1E40AF;
+        }
+        
+        .alert-success {
+            background: var(--color-success-bg);
+            color: #065F46;
+        }
+        
+        .alert-error {
+            background: var(--color-error-bg);
+            color: #991B1B;
+        }
+        
+        @media (max-width: 768px) {
+            .settings-sidebar {
+                display: none;
+            }
+            
+            .settings-main {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <div class="header-brand">
-                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
-                <h1>NAS-OS</h1>
-            </div>
-            <nav class="header-nav">
-                <a href="../index.html">仪表盘</a>
-                <a href="#" class="active">设置</a>
-                <a href="#">退出</a>
-            </nav>
-        </div>
-    </header>
-
-    <!-- Main -->
-    <main class="main">
-        <div class="container settings-container">
-            <div style="margin-bottom: 2rem;">
-                <h1>⚙️ 系统设置</h1>
-                <p class="text-muted">配置系统参数和偏好设置</p>
-            </div>
-
-            <!-- 基本设置 -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+    <div class="settings-layout">
+        <!-- Sidebar -->
+        <nav class="settings-sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <div class="nav-item active" onclick="switchTab('system')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
                     </svg>
-                    <h2 class="settings-title">基本设置</h2>
+                    系统信息
                 </div>
-
-                <div class="settings-grid">
-                    <div>
-                        <div class="settings-label">系统名称</div>
-                        <div class="settings-description">显示在页面标题和登录页</div>
-                    </div>
-                    <div>
-                        <input type="text" class="form-input" value="NAS-OS" style="max-width: 300px;">
-                    </div>
-                </div>
-
-                <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #E5E7EB;">
-
-                <div class="settings-grid">
-                    <div>
-                        <div class="settings-label">语言</div>
-                        <div class="settings-description">界面显示语言</div>
-                    </div>
-                    <div>
-                        <select class="form-select" style="max-width: 200px;">
-                            <option value="zh-CN">简体中文</option>
-                            <option value="en-US">English</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 网络设置 -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                <div class="nav-item" onclick="switchTab('network')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
                     </svg>
-                    <h2 class="settings-title">网络设置</h2>
+                    网络设置
                 </div>
-
-                <div class="settings-grid">
-                    <div>
-                        <div class="settings-label">主机名</div>
-                        <div class="settings-description">网络中的设备名称</div>
-                    </div>
-                    <div>
-                        <input type="text" class="form-input" value="nas-server" style="max-width: 300px;">
-                    </div>
-                </div>
-
-                <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #E5E7EB;">
-
-                <div class="settings-grid">
-                    <div>
-                        <div class="settings-label">HTTP 端口</div>
-                        <div class="settings-description">Web 管理界面端口</div>
-                    </div>
-                    <div>
-                        <input type="number" class="form-input" value="8080" style="max-width: 150px;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- 存储设置 -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+                <div class="nav-item" onclick="switchTab('storage')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
                     </svg>
-                    <h2 class="settings-title">存储设置</h2>
-                </div>
-
-                <div class="settings-grid">
-                    <div>
-                        <div class="settings-label">自动平衡</div>
-                        <div class="settings-description">定期自动平衡数据分布</div>
-                    </div>
-                    <div>
-                        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
-                    </div>
-                </div>
-
-                <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #E5E7EB;">
-
-                <div class="settings-grid">
-                    <div>
-                        <div class="settings-label">自动快照</div>
-                        <div class="settings-description">每日自动创建系统快照</div>
-                    </div>
-                    <div>
-                        <div class="toggle-switch" onclick="this.classList.toggle('active')"></div>
-                    </div>
+                    存储设置
                 </div>
             </div>
-
-            <!-- 通知设置 -->
-            <div class="settings-section">
-                <div class="settings-header">
-                    <svg width="24" height="24" fill="none" stroke="#2563EB" viewBox="0 0 24 24">
+            
+            <div class="nav-section">
+                <div class="nav-section-title">安全</div>
+                <div class="nav-item" onclick="switchTab('security')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    安全设置
+                </div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">通知</div>
+                <div class="nav-item" onclick="switchTab('notification')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                     </svg>
-                    <h2 class="settings-title">通知设置</h2>
+                    通知配置
                 </div>
-
-                <div class="settings-grid">
-                    <div>
-                        <div class="settings-label">邮件通知</div>
-                        <div class="settings-description">发送系统告警到邮箱</div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">其他</div>
+                <div class="nav-item" onclick="switchTab('update')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    系统更新
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="settings-main">
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h1 class="settings-title">⚙️ 系统设置</h1>
+                    <p class="settings-subtitle">配置系统参数、网络、存储和安全选项</p>
+                </div>
+                
+                <!-- 系统信息 -->
+                <div id="tab-system" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                                </svg>
+                                系统信息
+                            </h2>
+                            <button class="btn btn-secondary" onclick="refreshSystemInfo()">
+                                🔄 刷新
+                            </button>
+                        </div>
+                        
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">主机名</div>
+                                <div class="info-value" id="sys-hostname">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">设备型号</div>
+                                <div class="info-value" id="sys-model">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">序列号</div>
+                                <div class="info-value" id="sys-serial">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">系统版本</div>
+                                <div class="info-value" id="sys-version">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">运行时间</div>
+                                <div class="info-value" id="sys-uptime">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">状态</div>
+                                <div class="info-value">
+                                    <span class="status-badge success">
+                                        <span class="status-dot"></span>
+                                        正常运行
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="toggle-switch active" onclick="this.classList.toggle('active')"></div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                基本设置
+                            </h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">系统名称</div>
+                                <div class="form-description">显示在页面标题和登录页</div>
+                            </div>
+                            <div>
+                                <input type="text" class="form-input" id="sys-name" value="NAS-OS">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">语言</div>
+                                <div class="form-description">界面显示语言</div>
+                            </div>
+                            <div>
+                                <select class="form-select" id="sys-language">
+                                    <option value="zh-CN">简体中文</option>
+                                    <option value="zh-TW">繁體中文</option>
+                                    <option value="en-US">English</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">时区</div>
+                                <div class="form-description">系统时区设置</div>
+                            </div>
+                            <div>
+                                <select class="form-select" id="sys-timezone">
+                                    <option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option>
+                                    <option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</option>
+                                    <option value="UTC">UTC</option>
+                                    <option value="America/New_York">America/New_York (UTC-5)</option>
+                                    <option value="Europe/London">Europe/London (UTC+0)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveSystemSettings()">
+                            💾 保存设置
+                        </button>
                     </div>
                 </div>
-
-                <hr style="margin: 1.25rem 0; border: none; border-top: 1px solid #E5E7EB;">
-
-                <div class="settings-grid">
-                    <div>
-                        <div class="settings-label">通知邮箱</div>
-                        <div class="settings-description">接收通知的邮箱地址</div>
+                
+                <!-- 网络设置 -->
+                <div id="tab-network" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                                网络接口
+                            </h2>
+                        </div>
+                        
+                        <div id="network-interfaces">
+                            <!-- 动态加载网络接口 -->
+                        </div>
                     </div>
-                    <div>
-                        <input type="email" class="form-input" value="admin@example.com" style="max-width: 300px;">
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                IP 配置
+                            </h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">IP 获取方式</div>
+                                <div class="form-description">选择静态 IP 或 DHCP</div>
+                            </div>
+                            <div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <input type="radio" name="ip-mode" value="dhcp" checked onchange="toggleIPMode('dhcp')">
+                                        DHCP 自动获取
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <input type="radio" name="ip-mode" value="static" onchange="toggleIPMode('static')">
+                                        静态 IP
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div id="static-ip-fields" style="display: none;">
+                            <div class="form-grid">
+                                <div>
+                                    <div class="form-label">IP 地址</div>
+                                    <div class="form-description">例如：192.168.1.100</div>
+                                </div>
+                                <div>
+                                    <input type="text" class="form-input" id="static-ip" placeholder="192.168.1.100">
+                                </div>
+                            </div>
+                            
+                            <hr class="divider">
+                            
+                            <div class="form-grid">
+                                <div>
+                                    <div class="form-label">子网掩码</div>
+                                    <div class="form-description">例如：255.255.255.0</div>
+                                </div>
+                                <div>
+                                    <input type="text" class="form-input" id="static-netmask" placeholder="255.255.255.0" value="255.255.255.0">
+                                </div>
+                            </div>
+                            
+                            <hr class="divider">
+                            
+                            <div class="form-grid">
+                                <div>
+                                    <div class="form-label">默认网关</div>
+                                    <div class="form-description">例如：192.168.1.1</div>
+                                </div>
+                                <div>
+                                    <input type="text" class="form-input" id="static-gateway" placeholder="192.168.1.1">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">DNS 服务器</div>
+                                <div class="form-description">多个 DNS 用逗号分隔</div>
+                            </div>
+                            <div>
+                                <input type="text" class="form-input" id="dns-servers" placeholder="8.8.8.8, 8.8.4.4" value="8.8.8.8, 1.1.1.1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveNetworkSettings()">
+                            💾 保存网络设置
+                        </button>
+                        <button class="btn btn-secondary" onclick="testNetwork()">
+                            🌐 测试连接
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 存储设置 -->
+                <div id="tab-storage" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                                </svg>
+                                存储路径
+                            </h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">默认存储路径</div>
+                                <div class="form-description">文件和数据的默认存储位置</div>
+                            </div>
+                            <div>
+                                <input type="text" class="form-input" id="storage-path" value="/data">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">回收站</div>
+                                <div class="form-description">启用后删除的文件会移动到回收站</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch active" id="recycle-bin-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">回收站保留天数</div>
+                                <div class="form-description">超过此天数的文件将自动删除</div>
+                            </div>
+                            <div>
+                                <input type="number" class="form-input" id="recycle-days" value="30" min="1" max="365" style="max-width: 150px;">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">自动平衡</div>
+                                <div class="form-description">定期自动平衡数据分布</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch" id="auto-balance-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveStorageSettings()">
+                            💾 保存存储设置
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 安全设置 -->
+                <div id="tab-security" class="tab-content">
+                    <div class="alert alert-info">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink: 0;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>修改安全设置前请确保您了解其影响，错误的配置可能导致无法访问系统。</div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                SSH 配置
+                            </h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">SSH 服务</div>
+                                <div class="form-description">启用或禁用 SSH 远程访问</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch" id="ssh-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">SSH 端口</div>
+                                <div class="form-description">SSH 服务监听端口</div>
+                            </div>
+                            <div>
+                                <input type="number" class="form-input" id="ssh-port" value="22" min="1" max="65535" style="max-width: 150px;">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">允许密码登录</div>
+                                <div class="form-description">允许使用密码进行 SSH 认证</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch active" id="ssh-password-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">允许密钥登录</div>
+                                <div class="form-description">允许使用 SSH 密钥进行认证</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch active" id="ssh-key-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                                防火墙
+                            </h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">防火墙</div>
+                                <div class="form-description">启用系统防火墙</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch" id="firewall-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">默认策略</div>
+                                <div class="form-description">未匹配规则时的处理方式</div>
+                            </div>
+                            <div>
+                                <select class="form-select" id="firewall-policy" style="max-width: 200px;">
+                                    <option value="accept">允许</option>
+                                    <option value="drop">拒绝</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div style="margin-top: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                <h3 style="font-size: 14px; font-weight: 600;">防火墙规则</h3>
+                                <button class="btn btn-secondary" onclick="addFirewallRule()" style="font-size: 13px; padding: 0.375rem 0.75rem;">
+                                    ➕ 添加规则
+                                </button>
+                            </div>
+                            <div id="firewall-rules">
+                                <!-- 动态添加防火墙规则 -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveSecuritySettings()">
+                            💾 保存安全设置
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 通知设置 -->
+                <div id="tab-notification" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                邮件通知
+                            </h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">启用邮件通知</div>
+                                <div class="form-description">发送系统告警到邮箱</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch" id="email-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">SMTP 服务器</div>
+                                <div class="form-description">例如：smtp.gmail.com</div>
+                            </div>
+                            <div>
+                                <input type="text" class="form-input" id="email-smtp" placeholder="smtp.example.com">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">SMTP 端口</div>
+                                <div class="form-description">通常为 587 或 465</div>
+                            </div>
+                            <div>
+                                <input type="number" class="form-input" id="email-port" value="587" style="max-width: 150px;">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">用户名</div>
+                                <div class="form-description">SMTP 认证用户名</div>
+                            </div>
+                            <div>
+                                <input type="text" class="form-input" id="email-username" placeholder="your@email.com">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">密码</div>
+                                <div class="form-description">SMTP 认证密码或应用专用密码</div>
+                            </div>
+                            <div>
+                                <input type="password" class="form-input" id="email-password" placeholder="••••••••">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">发件人邮箱</div>
+                                <div class="form-description">显示在邮件中的发件人</div>
+                            </div>
+                            <div>
+                                <input type="email" class="form-input" id="email-from" placeholder="nas@example.com">
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">收件人邮箱</div>
+                                <div class="form-description">多个邮箱用逗号分隔</div>
+                            </div>
+                            <div>
+                                <input type="text" class="form-input" id="email-to" placeholder="admin@example.com">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                企业微信
+                            </h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">启用企业微信</div>
+                                <div class="form-description">发送通知到企业微信群</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch" id="wechat-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">Webhook URL</div>
+                                <div class="form-description">企业微信机器人 Webhook 地址</div>
+                            </div>
+                            <div>
+                                <input type="text" class="form-input" id="wechat-webhook" placeholder="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                                Webhook
+                            </h2>
+                        </div>
+                        
+                        <div class="webhook-list" id="webhook-list">
+                            <!-- 动态添加 Webhook -->
+                        </div>
+                        
+                        <button class="btn btn-secondary" onclick="addWebhook()" style="margin-top: 1rem;">
+                            ➕ 添加 Webhook
+                        </button>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveNotificationSettings()">
+                            💾 保存通知设置
+                        </button>
+                        <button class="btn btn-secondary" onclick="testNotification('email')">
+                            📧 测试邮件
+                        </button>
+                        <button class="btn btn-secondary" onclick="testNotification('wechat')">
+                            💬 测试微信
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 系统更新 -->
+                <div id="tab-update" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                系统更新
+                            </h2>
+                            <button class="btn btn-primary" onclick="checkForUpdates()">
+                                🔍 检查更新
+                            </button>
+                        </div>
+                        
+                        <div id="update-status">
+                            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin: 0 auto 1rem;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                <p>点击"检查更新"查看是否有新版本</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                自动更新设置
+                            </h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">自动检查更新</div>
+                                <div class="form-description">每天自动检查新版本</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch active" id="auto-check-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">自动下载更新</div>
+                                <div class="form-description">发现新版本自动下载</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch" id="auto-download-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                        
+                        <hr class="divider">
+                        
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-label">自动安装更新</div>
+                                <div class="form-description">下载后自动安装（需要重启）</div>
+                            </div>
+                            <div>
+                                <div class="toggle-switch" id="auto-install-toggle" onclick="this.classList.toggle('active')"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveUpdateSettings()">
+                            💾 保存更新设置
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <!-- 保存按钮 -->
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="saveSettings()">
-                    💾 保存设置
-                </button>
-                <button class="btn btn-secondary" onclick="resetSettings()">
-                    🔄 重置
-                </button>
-            </div>
-        </div>
-    </main>
-
+        </main>
+    </div>
+    
     <script>
-        function saveSettings() {
-            alert('设置已保存！(演示)');
+        // 切换标签页
+        function switchTab(tabId) {
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 取消所有导航项激活状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 激活选中的内容
+            document.getElementById('tab-' + tabId).classList.add('active');
+            
+            // 激活选中的导航项
+            event.currentTarget.classList.add('active');
         }
-
-        function resetSettings() {
-            if (confirm('确定要重置所有设置为默认值吗？')) {
-                alert('设置已重置！(演示)');
+        
+        // 切换 IP 模式
+        function toggleIPMode(mode) {
+            const staticFields = document.getElementById('static-ip-fields');
+            if (mode === 'static') {
+                staticFields.style.display = 'block';
+            } else {
+                staticFields.style.display = 'none';
             }
         }
+        
+        // 加载系统信息
+        async function loadSystemInfo() {
+            try {
+                const response = await fetch('/api/system/info');
+                const data = await response.json();
+                if (data.code === 0) {
+                    document.getElementById('sys-hostname').textContent = data.data.hostname || '-';
+                    document.getElementById('sys-model').textContent = data.data.model || '-';
+                    document.getElementById('sys-serial').textContent = data.data.serial || '-';
+                    document.getElementById('sys-version').textContent = data.data.version || '-';
+                    document.getElementById('sys-uptime').textContent = formatUptime(data.data.uptime) || '-';
+                }
+            } catch (error) {
+                console.error('加载系统信息失败:', error);
+            }
+        }
+        
+        // 格式化运行时间
+        function formatUptime(seconds) {
+            if (!seconds) return '-';
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${days}天 ${hours}小时 ${minutes}分钟`;
+        }
+        
+        // 刷新系统信息
+        function refreshSystemInfo() {
+            loadSystemInfo();
+            showToast('系统信息已刷新', 'success');
+        }
+        
+        // 保存系统设置
+        function saveSystemSettings() {
+            const settings = {
+                name: document.getElementById('sys-name').value,
+                language: document.getElementById('sys-language').value,
+                timezone: document.getElementById('sys-timezone').value
+            };
+            console.log('保存系统设置:', settings);
+            showToast('系统设置已保存', 'success');
+        }
+        
+        // 保存网络设置
+        function saveNetworkSettings() {
+            const isStatic = document.querySelector('input[name="ip-mode"]:checked').value === 'static';
+            const settings = {
+                mode: isStatic ? 'static' : 'dhcp',
+                ip: document.getElementById('static-ip').value,
+                netmask: document.getElementById('static-netmask').value,
+                gateway: document.getElementById('static-gateway').value,
+                dns: document.getElementById('dns-servers').value
+            };
+            console.log('保存网络设置:', settings);
+            showToast('网络设置已保存', 'success');
+        }
+        
+        // 测试网络连接
+        function testNetwork() {
+            showToast('正在测试网络连接...', 'info');
+            setTimeout(() => {
+                showToast('网络连接正常', 'success');
+            }, 1500);
+        }
+        
+        // 保存存储设置
+        function saveStorageSettings() {
+            const settings = {
+                path: document.getElementById('storage-path').value,
+                recycleBin: document.getElementById('recycle-bin-toggle').classList.contains('active'),
+                recycleDays: parseInt(document.getElementById('recycle-days').value),
+                autoBalance: document.getElementById('auto-balance-toggle').classList.contains('active')
+            };
+            console.log('保存存储设置:', settings);
+            showToast('存储设置已保存', 'success');
+        }
+        
+        // 保存安全设置
+        function saveSecuritySettings() {
+            const settings = {
+                ssh: {
+                    enabled: document.getElementById('ssh-toggle').classList.contains('active'),
+                    port: parseInt(document.getElementById('ssh-port').value),
+                    passwordAuth: document.getElementById('ssh-password-toggle').classList.contains('active'),
+                    keyAuth: document.getElementById('ssh-key-toggle').classList.contains('active')
+                },
+                firewall: {
+                    enabled: document.getElementById('firewall-toggle').classList.contains('active'),
+                    policy: document.getElementById('firewall-policy').value
+                }
+            };
+            console.log('保存安全设置:', settings);
+            showToast('安全设置已保存', 'success');
+        }
+        
+        // 保存通知设置
+        function saveNotificationSettings() {
+            const settings = {
+                email: {
+                    enabled: document.getElementById('email-toggle').classList.contains('active'),
+                    smtp: document.getElementById('email-smtp').value,
+                    port: parseInt(document.getElementById('email-port').value),
+                    username: document.getElementById('email-username').value,
+                    password: document.getElementById('email-password').value,
+                    from: document.getElementById('email-from').value,
+                    to: document.getElementById('email-to').value
+                },
+                wechat: {
+                    enabled: document.getElementById('wechat-toggle').classList.contains('active'),
+                    webhook: document.getElementById('wechat-webhook').value
+                }
+            };
+            console.log('保存通知设置:', settings);
+            showToast('通知设置已保存', 'success');
+        }
+        
+        // 测试通知
+        function testNotification(channel) {
+            showToast(`正在发送${channel === 'email' ? '邮件' : '微信'}测试通知...`, 'info');
+            setTimeout(() => {
+                showToast('测试通知已发送', 'success');
+            }, 1500);
+        }
+        
+        // 保存更新设置
+        function saveUpdateSettings() {
+            const settings = {
+                autoCheck: document.getElementById('auto-check-toggle').classList.contains('active'),
+                autoDownload: document.getElementById('auto-download-toggle').classList.contains('active'),
+                autoInstall: document.getElementById('auto-install-toggle').classList.contains('active')
+            };
+            console.log('保存更新设置:', settings);
+            showToast('更新设置已保存', 'success');
+        }
+        
+        // 检查更新
+        async function checkForUpdates() {
+            const statusDiv = document.getElementById('update-status');
+            statusDiv.innerHTML = `
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="spinner" style="width: 40px; height: 40px; border: 3px solid var(--color-primary-light); border-top-color: var(--color-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+                    <p>正在检查更新...</p>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                statusDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <strong>已是最新版本</strong><br>
+                            当前版本：v1.0.0 | 最后检查：${new Date().toLocaleString('zh-CN')}
+                        </div>
+                    </div>
+                `;
+            }, 2000);
+        }
+        
+        // 添加防火墙规则
+        function addFirewallRule() {
+            const rulesDiv = document.getElementById('firewall-rules');
+            const ruleId = 'rule-' + Date.now();
+            const ruleHtml = `
+                <div class="webhook-item" id="${ruleId}">
+                    <div class="webhook-info">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.5rem; align-items: center;">
+                            <input type="text" class="form-input" placeholder="端口" style="max-width: 100px;">
+                            <select class="form-select" style="max-width: 100px;">
+                                <option value="tcp">TCP</option>
+                                <option value="udp">UDP</option>
+                            </select>
+                            <select class="form-select" style="max-width: 100px;">
+                                <option value="allow">允许</option>
+                                <option value="deny">拒绝</option>
+                            </select>
+                            <button class="btn-icon delete" onclick="removeFirewallRule('${ruleId}')">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            rulesDiv.insertAdjacentHTML('beforeend', ruleHtml);
+        }
+        
+        // 删除防火墙规则
+        function removeFirewallRule(ruleId) {
+            document.getElementById(ruleId).remove();
+        }
+        
+        // 添加 Webhook
+        function addWebhook() {
+            const listDiv = document.getElementById('webhook-list');
+            const webhookId = 'webhook-' + Date.now();
+            const webhookHtml = `
+                <div class="webhook-item" id="${webhookId}">
+                    <div class="webhook-info">
+                        <div class="webhook-name">
+                            <input type="text" class="form-input" placeholder="Webhook 名称" style="display: inline-block; max-width: 200px;">
+                        </div>
+                        <div class="webhook-url">
+                            <input type="text" class="form-input" placeholder="Webhook URL" style="width: 100%; margin-top: 0.5rem;">
+                        </div>
+                    </div>
+                    <div class="webhook-actions">
+                        <button class="btn-icon" onclick="toggleWebhook('${webhookId}')">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon delete" onclick="removeWebhook('${webhookId}')">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            listDiv.insertAdjacentHTML('beforeend', webhookHtml);
+        }
+        
+        // 切换 Webhook 状态
+        function toggleWebhook(webhookId) {
+            // 实现切换逻辑
+        }
+        
+        // 删除 Webhook
+        function removeWebhook(webhookId) {
+            document.getElementById(webhookId).remove();
+        }
+        
+        // 显示提示消息
+        function showToast(message, type = 'info') {
+            const colors = {
+                info: '#3B82F6',
+                success: '#10B981',
+                error: '#EF4444'
+            };
+            
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                background: ${colors[type]};
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin { to { transform: rotate(360deg); } }
+            @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+            @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        `;
+        document.head.appendChild(style);
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSystemInfo();
+        });
     </script>
 </body>
 </html>
