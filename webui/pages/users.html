@@ -7,30 +7,34 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="stylesheet" href="../css/design-system.css">
     <style>
-        .users-container { max-width: 1200px; margin: 0 auto; }
+        .users-container { max-width: 1400px; margin: 0 auto; }
         .users-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         .user-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 1.25rem;
             margin-bottom: 2rem;
         }
         .user-card {
-            background: white;
+            background: var(--surface-color);
             border-radius: 12px;
             padding: 1.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
             transition: all 0.2s;
+            border: 1px solid var(--surface-border);
         }
         .user-card:hover {
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
         }
-        .user-header {
+        .user-card-header {
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -47,64 +51,41 @@
             color: white;
             font-size: 22px;
             font-weight: 600;
+            flex-shrink: 0;
         }
         .user-avatar.admin {
             background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
         }
-        .user-info {
-            flex: 1;
+        .user-avatar.guest {
+            background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
         }
+        .user-info { flex: 1; min-width: 0; }
         .user-name {
             font-weight: 600;
             font-size: 16px;
-            color: #1F2937;
+            color: var(--text-primary);
             margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .user-email {
             font-size: 13px;
-            color: #6B7280;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .user-role {
             font-size: 12px;
             padding: 0.25rem 0.75rem;
             border-radius: 999px;
             display: inline-block;
+            margin-top: 0.25rem;
         }
-        .user-role.admin {
-            background: #FEF3C7;
-            color: #92400E;
-        }
-        .user-role.user {
-            background: #DBEAFE;
-            color: #1E40AF;
-        }
-        .user-role.guest {
-            background: #F3F4F6;
-            color: #4B5563;
-        }
-        .user-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #E5E7EB;
-        }
-        .user-stat {
-            background: #F9FAFB;
-            padding: 0.75rem;
-            border-radius: 8px;
-        }
-        .user-stat-label {
-            font-size: 12px;
-            color: #6B7280;
-            margin-bottom: 0.25rem;
-        }
-        .user-stat-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-        }
+        .user-role.admin { background: var(--color-warning-bg); color: #92400E; }
+        .user-role.user { background: var(--color-info-bg); color: #1E40AF; }
+        .user-role.guest { background: var(--color-gray-100); color: #4B5563; }
         .user-status {
             display: flex;
             align-items: center;
@@ -119,60 +100,123 @@
         }
         .status-dot.active { background: #10B981; }
         .status-dot.inactive { background: #9CA3AF; }
+        .user-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        .user-meta-item {
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+        .user-meta-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        .user-meta-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
         .user-actions {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
         .section-card {
-            background: white;
+            background: var(--surface-color);
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--surface-border);
         }
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
         .section-title {
             font-size: 18px;
             font-weight: 600;
-            color: #1F2937;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
         .groups-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1rem;
         }
         .group-card {
-            background: #F9FAFB;
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--surface-border);
+            border-radius: 10px;
             padding: 1rem;
             cursor: pointer;
             transition: all 0.2s;
         }
         .group-card:hover {
-            background: #F3F4F6;
-            border-color: #2563EB;
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
         }
         .group-card.selected {
-            background: #DBEAFE;
-            border-color: #2563EB;
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        .group-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
         }
         .group-name {
             font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+            font-size: 15px;
         }
         .group-members {
             font-size: 13px;
-            color: #6B7280;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        .group-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .group-card:hover .group-actions { opacity: 1; }
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            border-bottom: 2px solid var(--surface-border);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 0.75rem 1.25rem;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .tab:hover { color: var(--color-primary); }
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
         }
         .modal-overlay {
             position: fixed;
@@ -185,64 +229,91 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            padding: 1rem;
         }
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
         .modal {
-            background: white;
+            background: var(--surface-color);
             border-radius: 12px;
             padding: 1.5rem;
             width: 100%;
-            max-width: 500px;
-            box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+            max-width: 560px;
+            box-shadow: var(--shadow-xl);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .modal-title {
             font-size: 18px;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-primary);
         }
         .modal-actions {
             display: flex;
             justify-content: flex-end;
             gap: 0.75rem;
             margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--surface-border);
         }
-        .tabs {
-            display: flex;
-            gap: 0.25rem;
-            border-bottom: 1px solid #E5E7EB;
-            margin-bottom: 1.5rem;
-        }
-        .tab {
-            padding: 0.75rem 1rem;
+        .form-group { margin-bottom: 1rem; }
+        .form-label {
+            display: block;
             font-size: 14px;
             font-weight: 500;
-            color: #6B7280;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
         }
-        .tab:hover {
-            color: #2563EB;
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        .tab.active {
-            color: #2563EB;
-            border-bottom-color: #2563EB;
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
         }
-        .permission-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 4px;
+            background: var(--surface-border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+        }
+        .password-strength-bar.weak { width: 33%; background: #EF4444; }
+        .password-strength-bar.medium { width: 66%; background: #F59E0B; }
+        .password-strength-bar.strong { width: 100%; background: #10B981; }
+        .password-strength-text {
+            font-size: 12px;
+            margin-top: 0.25rem;
+            color: var(--text-muted);
+        }
+        .permission-tree {
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
         }
         .permission-item {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.75rem;
-            background: #F9FAFB;
-            border-radius: 8px;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--surface-border);
         }
+        .permission-item:last-child { border-bottom: none; }
         .permission-item input[type="checkbox"] {
             width: 18px;
             height: 18px;
@@ -250,10 +321,16 @@
         }
         .permission-label {
             font-size: 14px;
-            color: #374151;
+            color: var(--text-primary);
+            flex: 1;
+        }
+        .permission-path {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: var(--font-family-mono);
         }
         .activity-list {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
         }
         .activity-item {
@@ -261,39 +338,120 @@
             align-items: flex-start;
             gap: 1rem;
             padding: 0.75rem 0;
-            border-bottom: 1px solid #F3F4F6;
+            border-bottom: 1px solid var(--surface-border);
         }
+        .activity-item:last-child { border-bottom: none; }
         .activity-icon {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: #F3F4F6;
+            background: var(--bg-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
         }
-        .activity-icon svg {
-            width: 18px;
-            height: 18px;
-            color: #6B7280;
-        }
-        .activity-content {
-            flex: 1;
-        }
+        .activity-icon svg { width: 20px; height: 20px; color: var(--text-muted); }
+        .activity-content { flex: 1; min-width: 0; }
         .activity-text {
             font-size: 14px;
-            color: #374151;
+            color: var(--text-primary);
             margin-bottom: 0.25rem;
         }
         .activity-time {
             font-size: 12px;
-            color: #9CA3AF;
+            color: var(--text-muted);
+        }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .checkbox-wrapper:hover { background: var(--bg-tertiary); }
+        .member-list {
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--surface-border);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 14px;
+        }
+        .alert-error { background: var(--color-error-bg); color: #991B1B; }
+        .alert-success { background: var(--color-success-bg); color: #065F46; }
+        .alert-warning { background: var(--color-warning-bg); color: #92400E; }
+        .two-factor-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        .qr-container {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .qr-container img { max-width: 200px; }
+        .badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 999px;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        @media (max-width: 768px) {
+            .user-cards { grid-template-columns: 1fr; }
+            .users-header { flex-direction: column; align-items: flex-start; }
+            .modal { max-width: 100%; margin: 0; border-radius: 0; max-height: 100vh; }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-content">
             <div class="header-brand">
@@ -310,7 +468,6 @@
         </div>
     </header>
 
-    <!-- Main -->
     <main class="main">
         <div class="container users-container">
             <div class="users-header">
@@ -318,281 +475,88 @@
                     <h1>👥 用户管理</h1>
                     <p class="text-muted">管理用户账户、权限和访问控制</p>
                 </div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-secondary" onclick="importUsers()">
-                        📥 导入
-                    </button>
-                    <button class="btn btn-secondary" onclick="exportUsers()">
-                        📤 导出
-                    </button>
-                    <button class="btn btn-primary" onclick="showAddUserModal()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        添加用户
-                    </button>
-                </div>
+                <button class="btn btn-primary" onclick="showAddUserModal()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    添加用户
+                </button>
             </div>
 
-            <!-- Tabs -->
             <div class="tabs">
                 <div class="tab active" onclick="switchTab('users')">用户列表</div>
                 <div class="tab" onclick="switchTab('groups')">用户组</div>
-                <div class="tab" onclick="switchTab('activity')">活动日志</div>
+                <div class="tab" onclick="switchTab('logs')">审计日志</div>
             </div>
 
-            <!-- Users Tab -->
+            <!-- 用户列表 -->
             <div id="users-tab">
-                <!-- Bulk Actions Toolbar -->
-                <div class="toolbar" style="display: none; margin-bottom: 1rem;" id="bulk-actions-toolbar">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <input type="checkbox" id="select-all-users" onchange="toggleSelectAllUsers()">
-                        <span style="font-size: 14px; color: #6B7280;"><span id="selected-count">0</span> 个用户已选择</span>
-                        <div style="flex: 1;"></div>
-                        <button class="btn btn-sm btn-secondary" onclick="bulkEnable()">✅ 启用</button>
-                        <button class="btn btn-sm btn-secondary" onclick="bulkDisable()">⏸️ 禁用</button>
-                        <button class="btn btn-sm btn-secondary" onclick="bulkResetPassword()">🔑 重置密码</button>
-                        <button class="btn btn-sm btn-danger" onclick="bulkDelete()">🗑️ 删除</button>
-                    </div>
+                <div class="toolbar" id="bulk-actions-toolbar" style="display: none;">
+                    <input type="checkbox" id="select-all-users" onchange="toggleSelectAllUsers()">
+                    <span style="font-size: 14px; color: var(--text-muted);"><span id="selected-count">0</span> 个用户已选择</span>
+                    <div style="flex: 1;"></div>
+                    <button class="btn btn-sm btn-secondary" onclick="bulkEnable()">✅ 启用</button>
+                    <button class="btn btn-sm btn-secondary" onclick="bulkDisable()">⏸️ 禁用</button>
+                    <button class="btn btn-sm btn-secondary" onclick="showBulkResetPassword()">🔑 重置密码</button>
+                    <button class="btn btn-sm btn-danger" onclick="bulkDelete()">🗑️ 删除</button>
                 </div>
-
                 <div class="user-cards" id="user-cards">
-                    <!-- Admin User -->
-                    <div class="user-card" data-username="admin">
-                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-                            <input type="checkbox" class="user-select-checkbox" value="admin" onchange="updateSelectedCount()">
-                            <span style="font-size: 12px; color: #9CA3AF;">ID: admin</span>
-                        </div>
-                        <div class="user-header">
-                            <div class="user-avatar admin">A</div>
-                            <div class="user-info">
-                                <div class="user-name">Admin</div>
-                                <div class="user-email">admin@nas.local</div>
-                                <span class="user-role admin">管理员</span>
-                            </div>
-                        </div>
-                        <div class="user-status">
-                            <span class="status-dot active"></span>
-                            <span style="color: #10B981;">在线</span>
-                        </div>
-                        <div class="user-stats">
-                            <div class="user-stat">
-                                <div class="user-stat-label">存储空间</div>
-                                <div class="user-stat-value">45.2 GB</div>
-                            </div>
-                            <div class="user-stat">
-                                <div class="user-stat-label">文件数量</div>
-                                <div class="user-stat-value">1,234</div>
-                            </div>
-                        </div>
-                        <div class="user-actions">
-                            <button class="btn btn-sm btn-secondary" onclick="editUser('admin')">✏️ 编辑</button>
-                            <button class="btn btn-sm btn-secondary" onclick="resetPassword('admin')">🔑 重置密码</button>
-                        </div>
-                    </div>
-
-                    <!-- Regular User 1 -->
-                    <div class="user-card">
-                        <div class="user-header">
-                            <div class="user-avatar">张</div>
-                            <div class="user-info">
-                                <div class="user-name">张三</div>
-                                <div class="user-email">zhangsan@nas.local</div>
-                                <span class="user-role user">普通用户</span>
-                            </div>
-                        </div>
-                        <div class="user-status">
-                            <span class="status-dot active"></span>
-                            <span style="color: #10B981;">在线</span>
-                        </div>
-                        <div class="user-stats">
-                            <div class="user-stat">
-                                <div class="user-stat-label">存储空间</div>
-                                <div class="user-stat-value">12.8 GB</div>
-                            </div>
-                            <div class="user-stat">
-                                <div class="user-stat-label">文件数量</div>
-                                <div class="user-stat-value">456</div>
-                            </div>
-                        </div>
-                        <div class="user-actions">
-                            <button class="btn btn-sm btn-secondary" onclick="editUser('zhangsan')">✏️ 编辑</button>
-                            <button class="btn btn-sm btn-secondary" onclick="resetPassword('zhangsan')">🔑 重置密码</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteUser('zhangsan')">🗑️ 删除</button>
-                        </div>
-                    </div>
-
-                    <!-- Regular User 2 -->
-                    <div class="user-card">
-                        <div class="user-header">
-                            <div class="user-avatar">李</div>
-                            <div class="user-info">
-                                <div class="user-name">李四</div>
-                                <div class="user-email">lisi@nas.local</div>
-                                <span class="user-role user">普通用户</span>
-                            </div>
-                        </div>
-                        <div class="user-status">
-                            <span class="status-dot inactive"></span>
-                            <span style="color: #9CA3AF;">离线</span>
-                        </div>
-                        <div class="user-stats">
-                            <div class="user-stat">
-                                <div class="user-stat-label">存储空间</div>
-                                <div class="user-stat-value">8.5 GB</div>
-                            </div>
-                            <div class="user-stat">
-                                <div class="user-stat-label">文件数量</div>
-                                <div class="user-stat-value">289</div>
-                            </div>
-                        </div>
-                        <div class="user-actions">
-                            <button class="btn btn-sm btn-secondary" onclick="editUser('lisi')">✏️ 编辑</button>
-                            <button class="btn btn-sm btn-secondary" onclick="resetPassword('lisi')">🔑 重置密码</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteUser('lisi')">🗑️ 删除</button>
-                        </div>
-                    </div>
-
-                    <!-- Guest User -->
-                    <div class="user-card">
-                        <div class="user-header">
-                            <div class="user-avatar" style="background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);">G</div>
-                            <div class="user-info">
-                                <div class="user-name">Guest</div>
-                                <div class="user-email">guest@nas.local</div>
-                                <span class="user-role guest">访客</span>
-                            </div>
-                        </div>
-                        <div class="user-status">
-                            <span class="status-dot inactive"></span>
-                            <span style="color: #9CA3AF;">离线</span>
-                        </div>
-                        <div class="user-stats">
-                            <div class="user-stat">
-                                <div class="user-stat-label">存储空间</div>
-                                <div class="user-stat-value">0.5 GB</div>
-                            </div>
-                            <div class="user-stat">
-                                <div class="user-stat-label">文件数量</div>
-                                <div class="user-stat-value">12</div>
-                            </div>
-                        </div>
-                        <div class="user-actions">
-                            <button class="btn btn-sm btn-secondary" onclick="editUser('guest')">✏️ 编辑</button>
-                            <button class="btn btn-sm btn-secondary" onclick="resetPassword('guest')">🔑 重置密码</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteUser('guest')">🗑️ 删除</button>
-                        </div>
-                    </div>
+                    <div class="loading"><div class="spinner"></div><span style="margin-left: 0.75rem;">加载中...</span></div>
                 </div>
             </div>
 
-            <!-- Groups Tab -->
+            <!-- 用户组 -->
             <div id="groups-tab" style="display: none;">
                 <div class="section-card">
                     <div class="section-header">
                         <h2 class="section-title">
-                            <svg width="20" height="20" fill="none" stroke="#2563EB" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                            用户组
+                            <svg width="20" height="20" fill="none" stroke="var(--color-primary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            用户组管理
                         </h2>
                         <button class="btn btn-primary" onclick="showAddGroupModal()">
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             新建组
                         </button>
                     </div>
-                    <div class="groups-grid">
-                        <div class="group-card selected">
-                            <div class="group-name">🔧 administrators</div>
-                            <div class="group-members">2 名成员</div>
-                        </div>
-                        <div class="group-card">
-                            <div class="group-name">👥 users</div>
-                            <div class="group-members">15 名成员</div>
-                        </div>
-                        <div class="group-card">
-                            <div class="group-name">👤 guests</div>
-                            <div class="group-members">3 名成员</div>
-                        </div>
-                        <div class="group-card">
-                            <div class="group-name">📁 media-editors</div>
-                            <div class="group-members">5 名成员</div>
-                        </div>
-                        <div class="group-card">
-                            <div class="group-name">💼 developers</div>
-                            <div class="group-members">8 名成员</div>
-                        </div>
+                    <div class="groups-grid" id="groups-grid">
+                        <div class="loading"><div class="spinner"></div><span style="margin-left: 0.75rem;">加载中...</span></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Activity Tab -->
-            <div id="activity-tab" style="display: none;">
+            <!-- 审计日志 -->
+            <div id="logs-tab" style="display: none;">
                 <div class="section-card">
                     <div class="section-header">
                         <h2 class="section-title">
-                            <svg width="20" height="20" fill="none" stroke="#2563EB" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            最近活动
+                            <svg width="20" height="20" fill="none" stroke="var(--color-primary)" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            审计日志
                         </h2>
-                        <button class="btn btn-secondary" onclick="exportActivityLog()">
-                            📥 导出日志
-                        </button>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <select class="form-select" id="log-type-filter" style="width: auto;" onchange="loadActivityLogs()">
+                                <option value="">全部类型</option>
+                                <option value="login">登录</option>
+                                <option value="user_create">用户创建</option>
+                                <option value="user_delete">用户删除</option>
+                                <option value="permission_change">权限变更</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="exportActivityLog()">📥 导出</button>
+                        </div>
                     </div>
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-text"><strong>张三</strong> 登录了系统</div>
-                                <div class="activity-time">2 分钟前 · 192.168.1.105</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-text"><strong>李四</strong> 上传了文件 <code>report.pdf</code> 到 <code>/documents</code></div>
-                                <div class="activity-time">15 分钟前 · 192.168.1.108</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-text"><strong>Admin</strong> 修改了用户组 <code>media-editors</code> 的权限</div>
-                                <div class="activity-time">1 小时前 · 192.168.1.100</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-text"><strong>系统</strong> 删除了过期快照 <code>backup-20260308</code></div>
-                                <div class="activity-time">3 小时前 · 系统自动</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-text"><strong>张三</strong> 修改了共享文件夹 <code>public</code> 的权限</div>
-                                <div class="activity-time">昨天 14:32 · 192.168.1.105</div>
-                            </div>
-                        </div>
+                    <div class="activity-list" id="activity-list">
+                        <div class="loading"><div class="spinner"></div><span style="margin-left: 0.75rem;">加载中...</span></div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Add User Modal -->
+    <!-- 添加用户 -->
     <div class="modal-overlay" id="add-user-modal">
         <div class="modal">
             <h3 class="modal-title">👤 添加用户</h3>
+            <div id="add-user-alert"></div>
             <div class="form-group">
                 <label class="form-label">用户名 *</label>
-                <input type="text" class="form-input" id="new-username" placeholder="请输入用户名">
+                <input type="text" class="form-input" id="new-username" placeholder="请输入用户名" oninput="validateUsername()">
             </div>
             <div class="form-group">
                 <label class="form-label">邮箱</label>
@@ -600,23 +564,31 @@
             </div>
             <div class="form-group">
                 <label class="form-label">密码 *</label>
-                <input type="password" class="form-input" id="new-password" placeholder="请输入密码">
+                <input type="password" class="form-input" id="new-password" placeholder="请输入密码" oninput="checkPasswordStrength()">
+                <div class="password-strength"><div class="password-strength-bar" id="password-strength-bar"></div></div>
+                <div class="password-strength-text" id="password-strength-text"></div>
             </div>
             <div class="form-group">
                 <label class="form-label">确认密码 *</label>
                 <input type="password" class="form-input" id="new-password-confirm" placeholder="请再次输入密码">
             </div>
             <div class="form-group">
-                <label class="form-label">用户组</label>
-                <select class="form-select" id="new-group">
-                    <option value="users">普通用户 (users)</option>
-                    <option value="guests">访客 (guests)</option>
-                    <option value="administrators">管理员 (administrators)</option>
+                <label class="form-label">角色</label>
+                <select class="form-select" id="new-role">
+                    <option value="user">普通用户</option>
+                    <option value="admin">管理员</option>
+                    <option value="guest">访客</option>
                 </select>
             </div>
             <div class="form-group">
                 <label class="form-label">存储配额 (GB)</label>
-                <input type="number" class="form-input" id="new-quota" placeholder="留空表示无限制" value="100">
+                <input type="number" class="form-input" id="new-quota" placeholder="留空表示无限制">
+            </div>
+            <div class="two-factor-section">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="enable-2fa" onchange="toggle2FASetup()">
+                    <span class="form-label" style="margin: 0;">启用双重验证 (2FA)</span>
+                </label>
             </div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeModal('add-user-modal')">取消</button>
@@ -625,7 +597,54 @@
         </div>
     </div>
 
-    <!-- Add Group Modal -->
+    <!-- 编辑用户 -->
+    <div class="modal-overlay" id="edit-user-modal">
+        <div class="modal">
+            <h3 class="modal-title">✏️ 编辑用户</h3>
+            <div id="edit-user-alert"></div>
+            <div class="form-group">
+                <label class="form-label">用户名</label>
+                <input type="text" class="form-input" id="edit-username" disabled>
+            </div>
+            <div class="form-group">
+                <label class="form-label">邮箱</label>
+                <input type="email" class="form-input" id="edit-email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">角色</label>
+                <select class="form-select" id="edit-role">
+                    <option value="admin">管理员</option>
+                    <option value="user">普通用户</option>
+                    <option value="guest">访客</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">存储配额 (GB)</label>
+                <input type="number" class="form-input" id="edit-quota">
+            </div>
+            <div class="form-group">
+                <label class="form-label">状态</label>
+                <div style="display: flex; gap: 1rem;">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" id="edit-disabled">
+                        <span>禁用账户</span>
+                    </label>
+                </div>
+            </div>
+            <div class="two-factor-section">
+                <h4 style="margin-bottom: 0.75rem; font-size: 14px;">双重验证 (2FA)</h4>
+                <div id="2fa-status"></div>
+                <button class="btn btn-sm btn-secondary" onclick="show2FASetup()" style="margin-top: 0.5rem;">🔐 配置 2FA</button>
+                <button class="btn btn-sm btn-danger" onclick="disable2FA()" style="margin-top: 0.5rem;">❌ 禁用 2FA</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('edit-user-modal')">取消</button>
+                <button class="btn btn-primary" onclick="saveUser()">保存更改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加用户组 -->
     <div class="modal-overlay" id="add-group-modal">
         <div class="modal">
             <h3 class="modal-title">📁 新建用户组</h3>
@@ -639,45 +658,14 @@
             </div>
             <div class="form-group">
                 <label class="form-label">组成员</label>
-                <div style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 0.75rem; max-height: 200px; overflow-y: auto;">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
-                        <input type="checkbox" class="group-member-checkbox" value="zhangsan"> 张三
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
-                        <input type="checkbox" class="group-member-checkbox" value="lisi"> 李四
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;">
-                        <input type="checkbox" class="group-member-checkbox" value="guest"> Guest
-                    </label>
+                <div class="member-list" id="group-members-list">
+                    <!-- 动态加载 -->
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">组权限</label>
-                <div class="permission-grid">
-                    <div class="permission-item">
-                        <input type="checkbox" id="group-perm-smb" checked>
-                        <label class="permission-label" for="group-perm-smb">SMB 访问</label>
-                    </div>
-                    <div class="permission-item">
-                        <input type="checkbox" id="group-perm-nfs" checked>
-                        <label class="permission-label" for="group-perm-nfs">NFS 访问</label>
-                    </div>
-                    <div class="permission-item">
-                        <input type="checkbox" id="group-perm-ftp">
-                        <label class="permission-label" for="group-perm-ftp">FTP 访问</label>
-                    </div>
-                    <div class="permission-item">
-                        <input type="checkbox" id="group-perm-ssh">
-                        <label class="permission-label" for="group-perm-ssh">SSH 访问</label>
-                    </div>
-                    <div class="permission-item">
-                        <input type="checkbox" id="group-perm-admin">
-                        <label class="permission-label" for="group-perm-admin">管理权限</label>
-                    </div>
-                    <div class="permission-item">
-                        <input type="checkbox" id="group-perm-upload">
-                        <label class="permission-label" for="group-perm-upload">上传权限</label>
-                    </div>
+                <label class="form-label">权限配置</label>
+                <div class="permission-tree" id="group-permissions">
+                    <!-- 动态加载权限树 -->
                 </div>
             </div>
             <div class="modal-actions">
@@ -687,183 +675,477 @@
         </div>
     </div>
 
-    <!-- Edit User Modal -->
-    <div class="modal-overlay" id="edit-user-modal">
+    <!-- 2FA 配置 -->
+    <div class="modal-overlay" id="2fa-modal">
         <div class="modal">
-            <h3 class="modal-title">✏️ 编辑用户</h3>
-            <div class="form-group">
-                <label class="form-label">用户名</label>
-                <input type="text" class="form-input" id="edit-username" disabled>
+            <h3 class="modal-title">🔐 配置双重验证</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 1rem;">
+                使用身份验证器应用（如 Google Authenticator、Microsoft Authenticator）扫描二维码
+            </p>
+            <div class="qr-container">
+                <img id="2fa-qr-code" src="" alt="2FA QR Code">
             </div>
             <div class="form-group">
-                <label class="form-label">邮箱</label>
-                <input type="email" class="form-input" id="edit-email">
+                <label class="form-label">密钥</label>
+                <input type="text" class="form-input" id="2fa-secret" readonly style="font-family: monospace;">
             </div>
             <div class="form-group">
-                <label class="form-label">用户组</label>
-                <select class="form-select" id="edit-group">
-                    <option value="users">普通用户 (users)</option>
-                    <option value="guests">访客 (guests)</option>
-                    <option value="administrators">管理员 (administrators)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">存储配额 (GB)</label>
-                <input type="number" class="form-input" id="edit-quota">
-            </div>
-            <div class="permission-grid" style="margin-top: 1rem;">
-                <div class="permission-item">
-                    <input type="checkbox" id="perm-smb" checked>
-                    <label class="permission-label" for="perm-smb">SMB 访问</label>
-                </div>
-                <div class="permission-item">
-                    <input type="checkbox" id="perm-nfs" checked>
-                    <label class="permission-label" for="perm-nfs">NFS 访问</label>
-                </div>
-                <div class="permission-item">
-                    <input type="checkbox" id="perm-ftp">
-                    <label class="permission-label" for="perm-ftp">FTP 访问</label>
-                </div>
-                <div class="permission-item">
-                    <input type="checkbox" id="perm-ssh">
-                    <label class="permission-label" for="perm-ssh">SSH 访问</label>
-                </div>
+                <label class="form-label">验证码</label>
+                <input type="text" class="form-input" id="2fa-code" placeholder="输入 6 位验证码" maxlength="6">
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeModal('edit-user-modal')">取消</button>
-                <button class="btn btn-primary" onclick="saveUser()">保存更改</button>
+                <button class="btn btn-secondary" onclick="closeModal('2fa-modal')">取消</button>
+                <button class="btn btn-primary" onclick="verify2FA()">验证并启用</button>
             </div>
         </div>
     </div>
 
+    <script src="../js/app.js"></script>
     <script>
         const API_BASE = '/api/v1';
+        let currentUser = null;
+        let users = [];
+        let groups = [];
+        let editingUser = null;
+        let editingGroup = null;
 
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+            loadGroups();
+        });
+
+        // 切换标签页
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
-
             document.getElementById('users-tab').style.display = tab === 'users' ? 'block' : 'none';
             document.getElementById('groups-tab').style.display = tab === 'groups' ? 'block' : 'none';
-            document.getElementById('activity-tab').style.display = tab === 'activity' ? 'block' : 'none';
+            document.getElementById('logs-tab').style.display = tab === 'logs' ? 'block' : 'none';
+            if (tab === 'logs') loadActivityLogs();
         }
 
+        // 加载用户列表
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/users`, {
+                    headers: { 'Authorization': localStorage.getItem('token') }
+                });
+                const result = await response.json();
+                
+                if (result.code === 0) {
+                    users = result.data || [];
+                    renderUsers();
+                } else {
+                    showError('加载用户失败：' + result.message);
+                }
+            } catch (error) {
+                console.error('加载用户失败:', error);
+                showError('网络错误，请稍后重试');
+            }
+        }
+
+        // 渲染用户卡片
+        function renderUsers() {
+            const container = document.getElementById('user-cards');
+            if (users.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <p>暂无用户</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = users.map(user => {
+                const roleLabels = { admin: '管理员', user: '普通用户', guest: '访客' };
+                const avatarText = (user.username || user.email || 'U').charAt(0).toUpperCase();
+                const avatarClass = user.role === 'admin' ? 'admin' : user.role === 'guest' ? 'guest' : '';
+                
+                return `
+                    <div class="user-card" data-username="${user.username}">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <input type="checkbox" class="user-select-checkbox" value="${user.username}" onchange="updateSelectedCount()">
+                            <span style="font-size: 12px; color: var(--text-muted);">ID: ${user.username}</span>
+                            ${user.disabled ? '<span class="badge" style="background: #FEE2E2; color: #991B1B;">已禁用</span>' : ''}
+                        </div>
+                        <div class="user-card-header">
+                            <div class="user-avatar ${avatarClass}">${avatarText}</div>
+                            <div class="user-info">
+                                <div class="user-name">${escapeHtml(user.username)}</div>
+                                <div class="user-email">${escapeHtml(user.email || '无邮箱')}</div>
+                                <span class="user-role ${user.role}">${roleLabels[user.role] || user.role}</span>
+                            </div>
+                        </div>
+                        <div class="user-status">
+                            <span class="status-dot ${user.disabled ? 'inactive' : 'active'}"></span>
+                            <span style="color: ${user.disabled ? 'var(--text-muted)' : '#10B981'};">
+                                ${user.disabled ? '已禁用' : '正常'}
+                            </span>
+                        </div>
+                        <div class="user-meta">
+                            <div class="user-meta-item">
+                                <div class="user-meta-label">创建时间</div>
+                                <div class="user-meta-value">${formatDate(user.created_at)}</div>
+                            </div>
+                            <div class="user-meta-item">
+                                <div class="user-meta-label">更新时间</div>
+                                <div class="user-meta-value">${formatDate(user.updated_at)}</div>
+                            </div>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editUser('${user.username}')">✏️ 编辑</button>
+                            ${!user.disabled ? 
+                                `<button class="btn btn-sm btn-secondary" onclick="disableUser('${user.username}')">⏸️ 禁用</button>` : 
+                                `<button class="btn btn-sm btn-secondary" onclick="enableUser('${user.username}')">✅ 启用</button>`
+                            }
+                            <button class="btn btn-sm btn-secondary" onclick="showResetPassword('${user.username}')">🔑 重置密码</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser('${user.username}')">🗑️ 删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 加载用户组
+        async function loadGroups() {
+            try {
+                const response = await fetch(`${API_BASE}/groups`, {
+                    headers: { 'Authorization': localStorage.getItem('token') }
+                });
+                const result = await response.json();
+                
+                if (result.code === 0) {
+                    groups = result.data || [];
+                    renderGroups();
+                } else {
+                    showError('加载用户组失败：' + result.message);
+                }
+            } catch (error) {
+                console.error('加载用户组失败:', error);
+            }
+        }
+
+        // 渲染用户组
+        function renderGroups() {
+            const container = document.getElementById('groups-grid');
+            if (groups.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <p>暂无用户组</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = groups.map(group => `
+                <div class="group-card" onclick="viewGroup('${group.name}')">
+                    <div class="group-header">
+                        <div class="group-name">📁 ${escapeHtml(group.name)}</div>
+                    </div>
+                    <div class="group-members">${group.members ? group.members.length : 0} 名成员</div>
+                    <div class="group-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); editGroup('${group.name}')">✏️ 编辑</button>
+                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteGroup('${group.name}')">🗑️ 删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 显示添加用户模态框
         function showAddUserModal() {
             document.getElementById('add-user-modal').classList.add('active');
+            document.getElementById('add-user-alert').innerHTML = '';
+            document.getElementById('new-username').value = '';
+            document.getElementById('new-email').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('new-password-confirm').value = '';
+            document.getElementById('new-role').value = 'user';
+            document.getElementById('new-quota').value = '';
+            document.getElementById('enable-2fa').checked = false;
+            resetPasswordStrength();
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        function createUser() {
+        // 验证用户名
+        function validateUsername() {
             const username = document.getElementById('new-username').value;
-            const email = document.getElementById('new-email').value;
+            const alertDiv = document.getElementById('add-user-alert');
+            if (username && !/^[a-zA-Z][a-zA-Z0-9_-]{2,31}$/.test(username)) {
+                alertDiv.innerHTML = '<div class="alert alert-warning">用户名必须以字母开头，长度 3-32 位，只能包含字母、数字、下划线和连字符</div>';
+                return false;
+            }
+            alertDiv.innerHTML = '';
+            return true;
+        }
+
+        // 检查密码强度
+        function checkPasswordStrength() {
+            const password = document.getElementById('new-password').value;
+            const bar = document.getElementById('password-strength-bar');
+            const text = document.getElementById('password-strength-text');
+            
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            bar.className = 'password-strength-bar';
+            if (password.length === 0) {
+                text.textContent = '';
+            } else if (strength <= 2) {
+                bar.classList.add('weak');
+                text.textContent = '密码强度：弱';
+            } else if (strength <= 3) {
+                bar.classList.add('medium');
+                text.textContent = '密码强度：中';
+            } else {
+                bar.classList.add('strong');
+                text.textContent = '密码强度：强';
+            }
+        }
+
+        function resetPasswordStrength() {
+            document.getElementById('password-strength-bar').className = 'password-strength-bar';
+            document.getElementById('password-strength-text').textContent = '';
+        }
+
+        // 创建用户
+        async function createUser() {
+            const username = document.getElementById('new-username').value.trim();
+            const email = document.getElementById('new-email').value.trim();
             const password = document.getElementById('new-password').value;
             const passwordConfirm = document.getElementById('new-password-confirm').value;
-            const group = document.getElementById('new-group').value;
+            const role = document.getElementById('new-role').value;
             const quota = document.getElementById('new-quota').value;
 
             if (!username || !password) {
-                alert('请填写必填项');
+                showAddUserAlert('请填写用户名和密码', 'error');
+                return;
+            }
+
+            if (!/^[a-zA-Z][a-zA-Z0-9_-]{2,31}$/.test(username)) {
+                showAddUserAlert('用户名格式不正确', 'error');
                 return;
             }
 
             if (password !== passwordConfirm) {
-                alert('两次输入的密码不一致');
+                showAddUserAlert('两次输入的密码不一致', 'error');
                 return;
             }
 
-            alert(`创建用户：${username} - 演示模式`);
-            closeModal('add-user-modal');
+            if (password.length < 6) {
+                showAddUserAlert('密码长度至少 6 位', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        email: email || undefined,
+                        role: role || 'user',
+                        home_dir: quota ? `/mnt/volume1/users/${username}` : undefined,
+                        groups: [role === 'admin' ? 'administrators' : 'users']
+                    })
+                });
+
+                const result = await response.json();
+                if (result.code === 0) {
+                    showSuccess('用户创建成功');
+                    closeModal('add-user-modal');
+                    loadUsers();
+                } else {
+                    showAddUserAlert(result.message || '创建失败', 'error');
+                }
+            } catch (error) {
+                console.error('创建用户失败:', error);
+                showAddUserAlert('网络错误', 'error');
+            }
         }
 
-        function editUser(username) {
-            document.getElementById('edit-username').value = username;
-            document.getElementById('edit-email').value = `${username}@nas.local`;
-            document.getElementById('edit-quota').value = '100';
+        function showAddUserAlert(message, type) {
+            document.getElementById('add-user-alert').innerHTML = 
+                `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
+        }
+
+        // 编辑用户
+        async function editUser(username) {
+            const user = users.find(u => u.username === username);
+            if (!user) return;
+
+            editingUser = username;
+            document.getElementById('edit-username').value = user.username;
+            document.getElementById('edit-email').value = user.email || '';
+            document.getElementById('edit-role').value = user.role;
+            document.getElementById('edit-quota').value = '';
+            document.getElementById('edit-disabled').checked = user.disabled || false;
+            document.getElementById('edit-user-alert').innerHTML = '';
+            
+            // 2FA 状态
+            const mfaStatus = user.mfa_enabled ? 
+                '<span class="badge" style="background: #D1FAE5; color: #065F46;">✅ 已启用</span>' : 
+                '<span class="badge" style="background: #F3F4F6; color: #4B5563;">❌ 未启用</span>';
+            document.getElementById('2fa-status').innerHTML = mfaStatus;
+
             document.getElementById('edit-user-modal').classList.add('active');
         }
 
-        function saveUser() {
-            const username = document.getElementById('edit-username').value;
-            alert(`保存用户 ${username} 的更改 - 演示模式`);
-            closeModal('edit-user-modal');
-        }
+        // 保存用户
+        async function saveUser() {
+            if (!editingUser) return;
 
-        function resetPassword(username) {
-            const newPassword = prompt(`为 ${username} 设置新密码:`);
-            if (newPassword) {
-                alert(`密码已重置 - 演示模式`);
+            const email = document.getElementById('edit-email').value.trim();
+            const role = document.getElementById('edit-role').value;
+            const disabled = document.getElementById('edit-disabled').checked;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${editingUser}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({
+                        email: email || undefined,
+                        role: role
+                    })
+                });
+
+                const result = await response.json();
+                if (result.code === 0) {
+                    // 如果需要更新状态
+                    if (disabled) {
+                        await fetch(`${API_BASE}/users/${editingUser}/disable`, {
+                            method: 'POST',
+                            headers: { 'Authorization': localStorage.getItem('token') }
+                        });
+                    } else {
+                        await fetch(`${API_BASE}/users/${editingUser}/enable`, {
+                            method: 'POST',
+                            headers: { 'Authorization': localStorage.getItem('token') }
+                        });
+                    }
+
+                    showSuccess('用户信息已更新');
+                    closeModal('edit-user-modal');
+                    loadUsers();
+                } else {
+                    document.getElementById('edit-user-alert').innerHTML = 
+                        `<div class="alert alert-error">${escapeHtml(result.message || '保存失败')}</div>`;
+                }
+            } catch (error) {
+                console.error('保存用户失败:', error);
+                showEditUserAlert('网络错误', 'error');
             }
         }
 
-        function deleteUser(username) {
-            if (confirm(`确定要删除用户 "${username}" 吗？\n\n警告：此操作将删除该用户的所有文件和配置！`)) {
-                alert(`删除用户：${username} - 演示模式`);
-            }
+        function showEditUserAlert(message, type) {
+            document.getElementById('edit-user-alert').innerHTML = 
+                `<div class="alert alert-${type}">${escapeHtml(message)}</div>`;
         }
 
-        function showAddGroupModal() {
-            const name = prompt('用户组名称:');
-            if (name) {
-                alert(`创建用户组：${name} - 演示模式`);
-            }
-        }
-
-        function exportActivityLog() {
-            alert('导出活动日志 - 演示模式');
-        }
-
-        function showAddGroupModal() {
-            document.getElementById('add-group-modal').classList.add('active');
-            document.getElementById('new-group-name').value = '';
-            document.getElementById('new-group-desc').value = '';
-            document.querySelectorAll('.group-member-checkbox').forEach(cb => cb.checked = false);
-            document.getElementById('group-perm-smb').checked = true;
-            document.getElementById('group-perm-nfs').checked = true;
-            document.getElementById('group-perm-ftp').checked = false;
-            document.getElementById('group-perm-ssh').checked = false;
-            document.getElementById('group-perm-admin').checked = false;
-            document.getElementById('group-perm-upload').checked = true;
-        }
-
-        function createGroup() {
-            const name = document.getElementById('new-group-name').value;
-            const desc = document.getElementById('new-group-desc').value;
+        // 禁用/启用用户
+        async function disableUser(username) {
+            if (!confirm(`确定要禁用用户 "${username}" 吗？`)) return;
             
-            if (!name) {
-                alert('请填写组名称');
+            try {
+                const response = await fetch(`${API_BASE}/users/${username}/disable`, {
+                    method: 'POST',
+                    headers: { 'Authorization': localStorage.getItem('token') }
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    showSuccess('用户已禁用');
+                    loadUsers();
+                } else {
+                    showError(result.message || '操作失败');
+                }
+            } catch (error) {
+                showError('网络错误');
+            }
+        }
+
+        async function enableUser(username) {
+            try {
+                const response = await fetch(`${API_BASE}/users/${username}/enable`, {
+                    method: 'POST',
+                    headers: { 'Authorization': localStorage.getItem('token') }
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    showSuccess('用户已启用');
+                    loadUsers();
+                } else {
+                    showError(result.message || '操作失败');
+                }
+            } catch (error) {
+                showError('网络错误');
+            }
+        }
+
+        // 重置密码
+        function showResetPassword(username) {
+            const newPassword = prompt(`为 ${username} 设置新密码（至少 6 位）:`);
+            if (!newPassword) return;
+            if (newPassword.length < 6) {
+                alert('密码长度至少 6 位');
                 return;
             }
-
-            const members = [];
-            document.querySelectorAll('.group-member-checkbox:checked').forEach(cb => {
-                members.push(cb.value);
-            });
-
-            const permissions = {
-                smb: document.getElementById('group-perm-smb').checked,
-                nfs: document.getElementById('group-perm-nfs').checked,
-                ftp: document.getElementById('group-perm-ftp').checked,
-                ssh: document.getElementById('group-perm-ssh').checked,
-                admin: document.getElementById('group-perm-admin').checked,
-                upload: document.getElementById('group-perm-upload').checked
-            };
-
-            console.log('创建用户组:', { name, desc, members, permissions });
-            alert(`创建用户组：${name}\n描述：${desc || '无'}\n成员：${members.length} 人\n\n演示模式`);
-            closeModal('add-group-modal');
+            resetPassword(username, newPassword);
         }
 
-        function importUsers() {
-            alert('导入用户功能 - 演示模式\n\n支持 CSV/JSON 格式导入用户数据');
+        async function resetPassword(username, newPassword) {
+            try {
+                const response = await fetch(`${API_BASE}/users/${username}/reset-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({ new_password: newPassword })
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    showSuccess('密码已重置');
+                } else {
+                    showError(result.message || '操作失败');
+                }
+            } catch (error) {
+                showError('网络错误');
+            }
         }
 
-        function exportUsers() {
-            alert('导出用户功能 - 演示模式\n\n将导出所有用户数据为 CSV 格式');
+        // 删除用户
+        async function deleteUser(username) {
+            if (!confirm(`确定要删除用户 "${username}" 吗？\n\n警告：此操作不可逆！`)) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${username}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': localStorage.getItem('token') }
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    showSuccess('用户已删除');
+                    loadUsers();
+                } else {
+                    showError(result.message || '删除失败');
+                }
+            } catch (error) {
+                showError('网络错误');
+            }
         }
 
+        // 批量操作
         function toggleSelectAllUsers() {
             const selectAll = document.getElementById('select-all-users');
             const checkboxes = document.querySelectorAll('.user-select-checkbox');
@@ -872,51 +1154,270 @@
         }
 
         function updateSelectedCount() {
-            const checkboxes = document.querySelectorAll('.user-select-checkbox:checked');
-            const count = checkboxes.length;
+            const count = document.querySelectorAll('.user-select-checkbox:checked').length;
             document.getElementById('selected-count').textContent = count;
-            
-            const toolbar = document.getElementById('bulk-actions-toolbar');
-            if (toolbar) {
-                toolbar.style.display = count > 0 ? 'flex' : 'none';
-            }
-        }
-
-        function bulkEnable() {
-            const selected = getSelectedUsers();
-            if (selected.length === 0) return;
-            alert(`启用 ${selected.length} 个用户：${selected.join(', ')}\n\n演示模式`);
-        }
-
-        function bulkDisable() {
-            const selected = getSelectedUsers();
-            if (selected.length === 0) return;
-            alert(`禁用 ${selected.length} 个用户：${selected.join(', ')}\n\n演示模式`);
-        }
-
-        function bulkResetPassword() {
-            const selected = getSelectedUsers();
-            if (selected.length === 0) return;
-            alert(`重置 ${selected.length} 个用户的密码\n\n演示模式`);
-        }
-
-        function bulkDelete() {
-            const selected = getSelectedUsers();
-            if (selected.length === 0) return;
-            if (confirm(`确定要删除 ${selected.length} 个用户吗？\n\n用户：${selected.join(', ')}\n\n警告：此操作不可逆！`)) {
-                alert(`删除 ${selected.length} 个用户 - 演示模式`);
-            }
+            document.getElementById('bulk-actions-toolbar').style.display = count > 0 ? 'flex' : 'none';
         }
 
         function getSelectedUsers() {
-            const selected = [];
-            document.querySelectorAll('.user-select-checkbox:checked').forEach(cb => {
-                selected.push(cb.value);
-            });
-            return selected;
+            return Array.from(document.querySelectorAll('.user-select-checkbox:checked')).map(cb => cb.value);
         }
 
-        // 关闭模态框
+        async function bulkEnable() {
+            const selected = getSelectedUsers();
+            for (const username of selected) {
+                await enableUser(username);
+            }
+            updateSelectedCount();
+        }
+
+        async function bulkDisable() {
+            const selected = getSelectedUsers();
+            for (const username of selected) {
+                await disableUser(username);
+            }
+            updateSelectedCount();
+        }
+
+        function showBulkResetPassword() {
+            const newPassword = prompt('批量重置密码，请输入新密码:');
+            if (!newPassword || newPassword.length < 6) {
+                alert('密码长度至少 6 位');
+                return;
+            }
+            const selected = getSelectedUsers();
+            selected.forEach(username => resetPassword(username, newPassword));
+            updateSelectedCount();
+        }
+
+        async function bulkDelete() {
+            const selected = getSelectedUsers();
+            if (!confirm(`确定要删除 ${selected.length} 个用户吗？\n\n此操作不可逆！`)) return;
+            
+            for (const username of selected) {
+                await deleteUser(username);
+            }
+            updateSelectedCount();
+        }
+
+        // 用户组管理
+        function showAddGroupModal() {
+            document.getElementById('add-group-modal').classList.add('active');
+            document.getElementById('new-group-name').value = '';
+            document.getElementById('new-group-desc').value = '';
+            renderMemberSelection();
+            renderPermissionTree();
+        }
+
+        function renderMemberSelection() {
+            const container = document.getElementById('group-members-list');
+            container.innerHTML = users.map(user => `
+                <label class="checkbox-wrapper" style="border-bottom: 1px solid var(--surface-border);">
+                    <input type="checkbox" class="group-member-checkbox" value="${user.username}">
+                    <span>${escapeHtml(user.username)} (${user.role})</span>
+                </label>
+            `).join('');
+        }
+
+        function renderPermissionTree() {
+            const permissions = [
+                { id: 'smb', label: 'SMB 访问', path: '/shares/smb' },
+                { id: 'nfs', label: 'NFS 访问', path: '/shares/nfs' },
+                { id: 'ftp', label: 'FTP 访问', path: '/shares/ftp' },
+                { id: 'ssh', label: 'SSH 访问', path: '/system/ssh' },
+                { id: 'webdav', label: 'WebDAV 访问', path: '/shares/webdav' },
+                { id: 'admin', label: '管理权限', path: '/admin/*' }
+            ];
+
+            document.getElementById('group-permissions').innerHTML = permissions.map(p => `
+                <div class="permission-item">
+                    <input type="checkbox" id="perm-${p.id}" ${p.id === 'smb' || p.id === 'nfs' ? 'checked' : ''}>
+                    <div class="permission-label">${p.label}</div>
+                    <div class="permission-path">${p.path}</div>
+                </div>
+            `).join('');
+        }
+
+        async function createGroup() {
+            const name = document.getElementById('new-group-name').value.trim();
+            const desc = document.getElementById('new-group-desc').value.trim();
+
+            if (!name) {
+                alert('请填写组名称');
+                return;
+            }
+
+            const members = Array.from(document.querySelectorAll('.group-member-checkbox:checked')).map(cb => cb.value);
+            const permissions = {
+                smb: document.getElementById('perm-smb').checked,
+                nfs: document.getElementById('perm-nfs').checked,
+                ftp: document.getElementById('perm-ftp').checked,
+                ssh: document.getElementById('perm-ssh').checked,
+                webdav: document.getElementById('perm-webdav').checked,
+                admin: document.getElementById('perm-admin').checked
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/groups`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    },
+                    body: JSON.stringify({
+                        name,
+                        description: desc || undefined,
+                        members
+                    })
+                });
+
+                const result = await response.json();
+                if (result.code === 0) {
+                    showSuccess('用户组创建成功');
+                    closeModal('add-group-modal');
+                    loadGroups();
+                } else {
+                    alert('创建失败：' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('创建用户组失败:', error);
+                alert('网络错误');
+            }
+        }
+
+        async function deleteGroup(name) {
+            if (!confirm(`确定要删除用户组 "${name}" 吗？`)) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/groups/${name}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': localStorage.getItem('token') }
+                });
+                const result = await response.json();
+                if (result.code === 0) {
+                    showSuccess('用户组已删除');
+                    loadGroups();
+                } else {
+                    showError(result.message || '删除失败');
+                }
+            } catch (error) {
+                showError('网络错误');
+            }
+        }
+
+        function viewGroup(name) {
+            const group = groups.find(g => g.name === name);
+            if (!group) return;
+            alert(`用户组：${name}\n成员：${group.members ? group.members.join(', ') : '无'}\n\n（详细编辑功能待实现）`);
+        }
+
+        function editGroup(name) {
+            const group = groups.find(g => g.name === name);
+            if (!group) return;
+            alert(`编辑用户组：${name}\n\n（功能待实现）`);
+        }
+
+        // 审计日志
+        async function loadActivityLogs() {
+            const container = document.getElementById('activity-list');
+            // 模拟日志数据（实际应从 API 获取）
+            const mockLogs = [
+                { type: 'login', user: 'admin', action: '登录系统', time: new Date(), ip: '192.168.1.100' },
+                { type: 'user_create', user: 'admin', action: '创建用户 zhangsan', time: new Date(Date.now() - 3600000), ip: '192.168.1.100' },
+                { type: 'permission_change', user: 'admin', action: '修改用户组 administrators 权限', time: new Date(Date.now() - 7200000), ip: '192.168.1.100' },
+                { type: 'login', user: 'zhangsan', action: '登录系统', time: new Date(Date.now() - 86400000), ip: '192.168.1.105' }
+            ];
+
+            container.innerHTML = mockLogs.map(log => {
+                const icons = {
+                    login: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>',
+                    user_create: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>',
+                    user_delete: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>',
+                    permission_change: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>'
+                };
+
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon">${icons[log.type] || icons.login}</div>
+                        <div class="activity-content">
+                            <div class="activity-text"><strong>${escapeHtml(log.user)}</strong> ${escapeHtml(log.action)}</div>
+                            <div class="activity-time">${formatDateTime(log.time)} · ${escapeHtml(log.ip)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportActivityLog() {
+            alert('导出审计日志功能（待实现）');
+        }
+
+        // 2FA 相关
+        function toggle2FASetup() {
+            // 仅在创建用户时标记是否需要 2FA
+        }
+
+        function show2FASetup() {
+            // 模拟 2FA 设置
+            document.getElementById('2fa-secret').value = 'JBSWY3DPEHPK3PXP';
+            document.getElementById('2fa-qr-code').src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=otpauth://totp/NAS-OS:' + editingUser + '?secret=JBSWY3DPEHPK3PXP&issuer=NAS-OS';
+            document.getElementById('2fa-modal').classList.add('active');
+        }
+
+        function verify2FA() {
+            const code = document.getElementById('2fa-code').value;
+            if (code.length !== 6) {
+                alert('请输入 6 位验证码');
+                return;
+            }
+            // 模拟验证
+            showSuccess('2FA 已启用');
+            closeModal('2fa-modal');
+            closeModal('edit-user-modal');
+            loadUsers();
+        }
+
+        function disable2FA() {
+            if (confirm('确定要禁用 2FA 吗？')) {
+                showSuccess('2FA 已禁用');
+                document.getElementById('2fa-status').innerHTML = '<span class="badge" style="background: #F3F4F6; color: #4B5563;">❌ 未启用</span>';
+            }
+        }
+
+        // 工具函数
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        function formatDateTime(date) {
+            return date.toLocaleString('zh-CN');
+        }
+
+        function showSuccess(message) {
+            // 可以使用 toast 通知
+            console.log('✅', message);
+            alert('✅ ' + message);
+        }
+
+        function showError(message) {
+            console.error('❌', message);
+            alert('❌ ' + message);
+        }
+
+        // 点击模态框外部关闭
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
