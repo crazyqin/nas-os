@@ -290,7 +290,7 @@ func (m *Manager) StartDDNSWorker() {
 					continue
 				}
 
-				m.RefreshDDNS(cfg.Domain)
+				_ = m.RefreshDDNS(cfg.Domain)
 			}
 		}
 	}()

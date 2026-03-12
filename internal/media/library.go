@@ -73,7 +73,7 @@ func NewLibraryManager(configPath string) *LibraryManager {
 	}
 
 	// 加载配置
-	lm.loadConfig()
+	_ = lm.loadConfig()
 
 	return lm
 }
@@ -112,7 +112,7 @@ func (lm *LibraryManager) CreateLibrary(name, path string, mediaType MediaType) 
 	}
 
 	// 自动扫描
-	go lm.ScanLibrary(id)
+	go func() { _ = lm.ScanLibrary(id) }()
 
 	return library, nil
 }

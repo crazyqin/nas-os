@@ -518,7 +518,7 @@ func (h *Handlers) saveFirewallRules(c *gin.Context) {
 	var req struct {
 		Path string `json:"path"`
 	}
-	c.ShouldBindJSON(&req)
+	_ = c.ShouldBindJSON(&req)
 
 	if err := h.manager.SaveFirewallRules(req.Path); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
@@ -532,7 +532,7 @@ func (h *Handlers) restoreFirewallRules(c *gin.Context) {
 	var req struct {
 		Path string `json:"path"`
 	}
-	c.ShouldBindJSON(&req)
+	_ = c.ShouldBindJSON(&req)
 
 	if err := h.manager.RestoreFirewallRules(req.Path); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})

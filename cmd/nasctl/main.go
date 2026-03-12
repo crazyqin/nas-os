@@ -156,7 +156,7 @@ func runVolumeDelete(cmd *cobra.Command, args []string) {
 		fmt.Printf("⚠️  警告：删除卷 %s 将导致数据丢失！\n", name)
 		fmt.Print("确认删除？(y/N): ")
 		var confirm string
-		fmt.Scanln(&confirm)
+		_, _ = fmt.Scanln(&confirm)
 		if confirm != "y" && confirm != "Y" {
 			fmt.Println("已取消")
 			return
@@ -695,12 +695,12 @@ func formatSize(bytes uint64) string {
 func printJSON(v interface{}) {
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
-	encoder.Encode(v)
+	_ = encoder.Encode(v)
 }
 
 func printYAML(v interface{}) {
 	encoder := yaml.NewEncoder(os.Stdout)
-	encoder.Encode(v)
+	_ = encoder.Encode(v)
 }
 
 // ========== 数据结构 ==========

@@ -353,7 +353,7 @@ func (m *Manager) updateTasks() {
 	}
 	
 	// 定期保存
-	m.saveTasks()
+	_ = m.saveTasks()
 }
 
 // loadTasks 加载任务
@@ -396,5 +396,5 @@ func (m *Manager) saveTasks() error {
 // Close 关闭管理器
 func (m *Manager) Close() {
 	m.cancel()
-	m.saveTasks()
+	_ = m.saveTasks()
 }

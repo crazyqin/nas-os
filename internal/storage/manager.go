@@ -204,7 +204,7 @@ func (m *Manager) scanVolumes() error {
 			}
 			
 			// 获取子卷列表
-			m.scanSubvolumes(volume)
+			_ = m.scanSubvolumes(volume)
 		}
 		
 		m.volumes[v.Name] = volume
@@ -390,7 +390,7 @@ func (m *Manager) MountVolume(name string) error {
 	}
 	
 	// 刷新子卷列表
-	m.scanSubvolumes(vol)
+	_ = m.scanSubvolumes(vol)
 	
 	return nil
 }
@@ -451,7 +451,7 @@ func (m *Manager) ListSubVolumes(volumeName string) ([]*SubVolume, error) {
 	
 	// 刷新子卷列表
 	m.mu.Lock()
-	m.scanSubvolumes(vol)
+	_ = m.scanSubvolumes(vol)
 	m.mu.Unlock()
 	
 	return vol.Subvolumes, nil
@@ -1099,7 +1099,7 @@ func (m *Manager) RollbackSnapshotInDir(volumeName, subvolName, snapshotName, sn
 	// 删除原始子卷
 	if err := m.client.DeleteSubVolume(subvol.Path); err != nil {
 		// 回滚失败，删除临时快照
-		m.client.DeleteSubVolume(tempPath)
+		_ = m.client.DeleteSubVolume(tempPath)
 		return fmt.Errorf("删除原始子卷失败: %w", err)
 	}
 	
