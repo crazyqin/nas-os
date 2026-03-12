@@ -74,17 +74,17 @@ type DarkTheme struct {
 
 // ThemeStyles 主题样式
 type ThemeStyles struct {
-	Name      string            `json:"name"`
-	Colors    ColorScheme       `json:"colors"`
+	Name       string           `json:"name"`
+	Colors     ColorScheme      `json:"colors"`
 	Typography TypographyConfig `json:"typography"`
-	Spacing   SpacingConfig     `json:"spacing"`
-	Shadows   ShadowConfig      `json:"shadows"`
+	Spacing    SpacingConfig    `json:"spacing"`
+	Shadows    ShadowConfig     `json:"shadows"`
 }
 
 // ColorScheme 颜色方案
 type ColorScheme struct {
 	// 背景色
-	Background         string `json:"background"`
+	Background          string `json:"background"`
 	BackgroundSecondary string `json:"backgroundSecondary"`
 	BackgroundTertiary  string `json:"backgroundTertiary"`
 
@@ -94,10 +94,10 @@ type ColorScheme struct {
 	TextMuted     string `json:"textMuted"`
 
 	// 强调色
-	Primary   string `json:"primary"`
+	Primary      string `json:"primary"`
 	PrimaryHover string `json:"primaryHover"`
-	Secondary string `json:"secondary"`
-	Accent    string `json:"accent"`
+	Secondary    string `json:"secondary"`
+	Accent       string `json:"accent"`
 
 	// 状态色
 	Success string `json:"success"`
@@ -106,8 +106,8 @@ type ColorScheme struct {
 	Info    string `json:"info"`
 
 	// 边框
-	Border       string `json:"border"`
-	BorderLight  string `json:"borderLight"`
+	Border      string `json:"border"`
+	BorderLight string `json:"borderLight"`
 
 	// 其他
 	Overlay   string `json:"overlay"`
@@ -116,9 +116,9 @@ type ColorScheme struct {
 
 // TypographyConfig 字体配置
 type TypographyConfig struct {
-	FontFamily string `json:"fontFamily"`
+	FontFamily string    `json:"fontFamily"`
 	FontSize   FontSizes `json:"fontSize"`
-	LineHeight string `json:"lineHeight"`
+	LineHeight string    `json:"lineHeight"`
 }
 
 // FontSizes 字体大小
@@ -133,19 +133,19 @@ type FontSizes struct {
 
 // SpacingConfig 间距配置
 type SpacingConfig struct {
-	XS   string `json:"xs"`
-	SM   string `json:"sm"`
-	MD   string `json:"md"`
-	LG   string `json:"lg"`
-	XL   string `json:"xl"`
+	XS string `json:"xs"`
+	SM string `json:"sm"`
+	MD string `json:"md"`
+	LG string `json:"lg"`
+	XL string `json:"xl"`
 }
 
 // ShadowConfig 阴影配置
 type ShadowConfig struct {
-	SM   string `json:"sm"`
-	MD   string `json:"md"`
-	LG   string `json:"lg"`
-	XL   string `json:"xl"`
+	SM string `json:"sm"`
+	MD string `json:"md"`
+	LG string `json:"lg"`
+	XL string `json:"xl"`
 }
 
 // New 创建插件实例
@@ -271,17 +271,17 @@ func (t *DarkTheme) createDarkTheme() *ThemeStyles {
 			LineHeight: "1.5",
 		},
 		Spacing: SpacingConfig{
-			XS:  "0.25rem",
-			SM:  "0.5rem",
-			MD:  "1rem",
-			LG:  "1.5rem",
-			XL:  "2rem",
+			XS: "0.25rem",
+			SM: "0.5rem",
+			MD: "1rem",
+			LG: "1.5rem",
+			XL: "2rem",
 		},
 		Shadows: ShadowConfig{
-			SM:  "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-			MD:  "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-			LG:  "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-			XL:  "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+			SM: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+			MD: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+			LG: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+			XL: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
 		},
 	}
 }
