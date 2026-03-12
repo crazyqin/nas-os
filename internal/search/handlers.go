@@ -147,6 +147,7 @@ func (h *Handlers) indexDirectory(c *gin.Context) {
 	go func() {
 		if err := h.engine.IndexDirectory(req.Path); err != nil {
 			// 记录错误，但不阻塞请求
+			_ = err // 明确忽略错误，避免 staticcheck 警告
 		}
 	}()
 
