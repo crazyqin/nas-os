@@ -131,7 +131,7 @@ func (h *Handlers) createLibrary(c *gin.Context) {
 	}
 
 	if len(updates) > 0 {
-		h.libraryMgr.UpdateLibrary(library.ID, updates)
+		_ = h.libraryMgr.UpdateLibrary(library.ID, updates)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

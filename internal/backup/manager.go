@@ -181,7 +181,7 @@ func (m *Manager) CreateConfig(config BackupConfig) error {
 	}
 
 	m.configs[config.ID] = &config
-	m.saveConfig()
+	_ = m.saveConfig()
 
 	return nil
 }
@@ -196,7 +196,7 @@ func (m *Manager) UpdateConfig(id string, config BackupConfig) error {
 
 	config.ID = id
 	m.configs[id] = &config
-	m.saveConfig()
+	_ = m.saveConfig()
 
 	return nil
 }
@@ -210,7 +210,7 @@ func (m *Manager) DeleteConfig(id string) error {
 	}
 
 	delete(m.configs, id)
-	m.saveConfig()
+	_ = m.saveConfig()
 
 	return nil
 }

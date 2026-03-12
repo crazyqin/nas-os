@@ -110,7 +110,7 @@ func (w *Watcher) addWatch(path string) error {
 				if strings.HasPrefix(entry.Name(), ".") || w.engine.excludeDirs[entry.Name()] {
 					continue
 				}
-				w.addWatch(subPath)
+				_ = w.addWatch(subPath)
 			}
 		}
 	}
@@ -180,7 +180,7 @@ func (w *Watcher) processBatch() {
 		info, err := os.Stat(path)
 		if err != nil {
 			// 文件已删除，从索引中移除
-			w.engine.Delete(path)
+			_ = w.engine.Delete(path)
 			continue
 		}
 

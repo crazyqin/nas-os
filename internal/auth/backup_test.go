@@ -72,7 +72,7 @@ func TestGetUnusedCount(t *testing.T) {
 
 	// 使用 3 个
 	for i := 0; i < 3; i++ {
-		mgr.VerifyBackupCode("user123", codes[i])
+		_ = mgr.VerifyBackupCode("user123", codes[i])
 	}
 
 	if count := mgr.GetUnusedCount("user123"); count != 7 {

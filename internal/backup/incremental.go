@@ -337,7 +337,7 @@ func (ib *IncrementalBackup) extractJSONInt(json, key string) int64 {
 	}
 
 	var val int64
-	fmt.Sscanf(json[start:end], "%d", &val)
+	_, _ = fmt.Sscanf(json[start:end], "%d", &val)
 	return val
 }
 
@@ -368,6 +368,6 @@ func (ib *IncrementalBackup) GetSpaceUsage(backupName string) (int64, error) {
 	}
 
 	var size int64
-	fmt.Sscanf(parts[0], "%d", &size)
+	_, _ = fmt.Sscanf(parts[0], "%d", &size)
 	return size, nil
 }
