@@ -208,7 +208,7 @@ func (cm *ClusterManager) startMDNSDiscovery() error {
 
 // handleDiscoveredNode 处理发现的节点
 func (cm *ClusterManager) handleDiscoveredNode(entry *zeroconf.ServiceEntry) {
-	if entry.AddrIPv4 == nil || len(entry.AddrIPv4) == 0 {
+	if len(entry.AddrIPv4) == 0 {
 		return
 	}
 
