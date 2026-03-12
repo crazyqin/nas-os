@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563EB">
+    <title>虚拟机管理 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 240px;
+            background: white;
+            border-right: 1px solid var(--color-gray-200);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--color-gray-600);
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        .nav-item svg { width: 20px; height: 20px; }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+        }
+        .btn-secondary {
+            background: var(--color-gray-200);
+            color: var(--color-gray-700);
+        }
+        .btn-danger {
+            background: var(--color-danger);
+            color: white;
+        }
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+        
+        .vm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .vm-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .vm-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-primary-light);
+        }
+        .vm-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .vm-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .vm-icon.linux {
+            background: #FFE4E6;
+            color: #DC2626;
+        }
+        .vm-icon.windows {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+        .vm-icon.other {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+        .vm-info h3 {
+            margin-bottom: 0.25rem;
+            font-size: 16px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.running {
+            background: #D1FAE5;
+            color: #059669;
+        }
+        .status-badge.stopped {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+        .status-badge.paused {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        .vm-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .vm-meta-item {
+            font-size: 13px;
+            color: var(--color-gray-600);
+        }
+        .vm-meta-label {
+            font-size: 11px;
+            color: var(--color-gray-500);
+            margin-bottom: 2px;
+        }
+        .vm-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .vm-actions .btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 0.5rem;
+            font-size: 13px;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-gray-500);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .form-help {
+            font-size: 12px;
+            color: var(--color-gray-500);
+            margin-top: 0.25rem;
+        }
+        
+        /* VNC Console Modal */
+        .vnc-modal {
+            max-width: 1200px;
+        }
+        .vnc-container {
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+        .vnc-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--color-gray-500);
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            padding-bottom: 0.5rem;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            background: var(--color-gray-100);
+        }
+        .tab.active {
+            background: var(--color-primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;">
+            <img src="../brand/logo/logo-32.png" alt="NAS-OS" style="width: 32px; height: 32px;">
+            <span style="font-weight: 600; font-size: 18px;">NAS-OS</span>
+        </div>
+        <nav>
+            <a href="/dashboard.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                仪表盘
+            </a>
+            <a href="/files.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                文件管理
+            </a>
+            <a href="/apps.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                应用商店
+            </a>
+            <a href="/vms.html" class="nav-item active">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                虚拟机
+            </a>
+            <a href="/storage.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                存储
+            </a>
+            <a href="/network.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                网络
+            </a>
+            <a href="/settings.html" class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                设置
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">虚拟机管理</h1>
+            <button class="btn btn-primary" onclick="showCreateModal()">
+                <svg style="width: 16px; height: 16px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                创建虚拟机
+            </button>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('vms')">所有虚拟机</div>
+            <div class="tab" onclick="switchTab('isos')">ISO 镜像</div>
+            <div class="tab" onclick="switchTab('templates')">模板</div>
+        </div>
+
+        <div id="vms-content">
+            <div id="vm-grid" class="vm-grid">
+                <!-- VM cards will be loaded here -->
+            </div>
+            <div id="vm-empty" class="empty-state" style="display: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                <p>暂无虚拟机</p>
+                <p style="font-size: 14px; margin-top: 0.5rem;">点击"创建虚拟机"开始使用</p>
+            </div>
+        </div>
+
+        <div id="isos-content" style="display: none;">
+            <div class="page-header">
+                <h2 class="page-title">ISO 镜像管理</h2>
+                <button class="btn btn-primary" onclick="uploadISO()">上传 ISO</button>
+            </div>
+            <div id="iso-list" class="vm-grid">
+                <!-- ISO list will be loaded here -->
+            </div>
+        </div>
+
+        <div id="templates-content" style="display: none;">
+            <div class="page-header">
+                <h2 class="page-title">虚拟机模板</h2>
+            </div>
+            <div id="template-list" class="vm-grid">
+                <!-- Template list will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Create VM Modal -->
+    <div id="create-vm-modal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">创建虚拟机</h2>
+                <button class="modal-close" onclick="closeCreateModal()">&times;</button>
+            </div>
+            <form id="create-vm-form" onsubmit="createVM(event)">
+                <div class="form-group">
+                    <label class="form-label">虚拟机名称 *</label>
+                    <input type="text" class="form-input" name="name" required placeholder="例如：my-vm">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">描述</label>
+                    <input type="text" class="form-input" name="description" placeholder="虚拟机描述">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">操作系统类型 *</label>
+                    <select class="form-select" name="type" required>
+                        <option value="linux">Linux</option>
+                        <option value="windows">Windows</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">CPU 核心数 *</label>
+                        <input type="number" class="form-input" name="cpu" required min="1" max="64" value="2">
+                        <div class="form-help">1-64 核心</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">内存 (MB) *</label>
+                        <input type="number" class="form-input" name="memory" required min="256" max="65536" value="2048">
+                        <div class="form-help">最小 256MB</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">磁盘大小 (GB) *</label>
+                    <input type="number" class="form-input" name="diskSize" required min="1" max="1024" value="20">
+                    <div class="form-help">最小 1GB</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ISO 镜像</label>
+                    <select class="form-select" name="isoPath" id="iso-select">
+                        <option value="">不挂载 ISO</option>
+                    </select>
+                    <div class="form-help">选择要挂载的安装镜像</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">网络模式</label>
+                    <select class="form-select" name="network">
+                        <option value="bridge">桥接模式</option>
+                        <option value="nat">NAT 模式</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" name="vncEnabled" checked> 启用 VNC 远程控制
+                    </label>
+                </div>
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">创建</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- VNC Console Modal -->
+    <div id="vnc-modal" class="modal-overlay" style="display: none;">
+        <div class="modal vnc-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">VNC 控制台</h2>
+                <button class="modal-close" onclick="closeVNCModal()">&times;</button>
+            </div>
+            <div class="vnc-container">
+                <iframe id="vnc-frame" src=""></iframe>
+            </div>
+            <div style="margin-top: 1rem; text-align: right;">
+                <button class="btn btn-secondary" onclick="closeVNCModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let vms = [];
+        let isos = [];
+
+        // Load VMs
+        async function loadVMs() {
+            try {
+                const response = await fetch(`${API_BASE}/vms`);
+                vms = await response.json();
+                renderVMs();
+            } catch (error) {
+                console.error('加载虚拟机失败:', error);
+            }
+        }
+
+        // Render VMs
+        function renderVMs() {
+            const grid = document.getElementById('vm-grid');
+            const empty = document.getElementById('vm-empty');
+
+            if (vms.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+
+            grid.innerHTML = vms.map(vm => `
+                <div class="vm-card">
+                    <div class="vm-header">
+                        <div class="vm-icon ${vm.type}">
+                            ${vm.type === 'linux' ? '🐧' : vm.type === 'windows' ? '🪟' : '💻'}
+                        </div>
+                        <div class="vm-info">
+                            <h3>${escapeHtml(vm.name)}</h3>
+                            <span class="status-badge ${vm.status}">
+                                <span class="status-dot"></span>
+                                ${vm.status === 'running' ? '运行中' : vm.status === 'stopped' ? '已停止' : vm.status}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="vm-meta">
+                        <div class="vm-meta-item">
+                            <div class="vm-meta-label">CPU</div>
+                            <div>${vm.cpu} 核心</div>
+                        </div>
+                        <div class="vm-meta-item">
+                            <div class="vm-meta-label">内存</div>
+                            <div>${vm.memory} MB</div>
+                        </div>
+                        <div class="vm-meta-item">
+                            <div class="vm-meta-label">磁盘</div>
+                            <div>${vm.diskSize} GB</div>
+                        </div>
+                        <div class="vm-meta-item">
+                            <div class="vm-meta-label">网络</div>
+                            <div>${vm.network}</div>
+                        </div>
+                    </div>
+                    <div class="vm-actions">
+                        ${vm.status === 'running' ? `
+                            <button class="btn btn-secondary" onclick="vmAction('${vm.id}', 'stop')">停止</button>
+                            <button class="btn btn-secondary" onclick="vmAction('${vm.id}', 'restart')">重启</button>
+                        ` : `
+                            <button class="btn btn-success" onclick="vmAction('${vm.id}', 'start')">启动</button>
+                        `}
+                        ${vm.vncEnabled && vm.status === 'running' ? `
+                            <button class="btn btn-primary" onclick="openVNC('${vm.id}')">控制台</button>
+                        ` : ''}
+                        <button class="btn btn-danger" onclick="vmAction('${vm.id}', 'delete')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // VM Action
+        async function vmAction(vmId, action) {
+            if (action === 'delete' && !confirm('确定要删除此虚拟机吗？此操作不可恢复。')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/vms/${vmId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, force: true })
+                });
+
+                if (response.ok) {
+                    await loadVMs();
+                } else {
+                    const error = await response.text();
+                    alert('操作失败：' + error);
+                }
+            } catch (error) {
+                console.error('VM 操作失败:', error);
+                alert('操作失败：' + error.message);
+            }
+        }
+
+        // Show Create Modal
+        async function showCreateModal() {
+            document.getElementById('create-vm-modal').style.display = 'flex';
+            await loadISOs();
+        }
+
+        // Close Create Modal
+        function closeCreateModal() {
+            document.getElementById('create-vm-modal').style.display = 'none';
+            document.getElementById('create-vm-form').reset();
+        }
+
+        // Load ISOs
+        async function loadISOs() {
+            try {
+                const response = await fetch(`${API_BASE}/vm-isos`);
+                isos = await response.json();
+                const select = document.getElementById('iso-select');
+                select.innerHTML = '<option value="">不挂载 ISO</option>' +
+                    isos.map(iso => `<option value="${iso.path}">${escapeHtml(iso.name)}</option>`).join('');
+            } catch (error) {
+                console.error('加载 ISO 失败:', error);
+            }
+        }
+
+        // Create VM
+        async function createVM(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            const data = {
+                name: formData.get('name'),
+                description: formData.get('description') || '',
+                type: formData.get('type'),
+                cpu: parseInt(formData.get('cpu')),
+                memory: parseInt(formData.get('memory')),
+                diskSize: parseInt(formData.get('diskSize')),
+                network: formData.get('network'),
+                isoPath: formData.get('isoPath') || '',
+                vncEnabled: formData.get('vncEnabled') === 'on'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/vms`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    closeCreateModal();
+                    await loadVMs();
+                } else {
+                    const error = await response.text();
+                    alert('创建失败：' + error);
+                }
+            } catch (error) {
+                console.error('创建 VM 失败:', error);
+                alert('创建失败：' + error.message);
+            }
+        }
+
+        // Open VNC
+        function openVNC(vmId) {
+            const vm = vms.find(v => v.id === vmId);
+            if (!vm) return;
+
+            // 使用 noVNC 或简单的 VNC web 客户端
+            const vncUrl = `http://${window.location.hostname}:${vm.vncPort}`;
+            document.getElementById('vnc-frame').src = vncUrl;
+            document.getElementById('vnc-modal').style.display = 'flex';
+        }
+
+        // Close VNC Modal
+        function closeVNCModal() {
+            document.getElementById('vnc-modal').style.display = 'none';
+            document.getElementById('vnc-frame').src = '';
+        }
+
+        // Switch Tab
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('vms-content').style.display = tab === 'vms' ? 'block' : 'none';
+            document.getElementById('isos-content').style.display = tab === 'isos' ? 'block' : 'none';
+            document.getElementById('templates-content').style.display = tab === 'templates' ? 'block' : 'none';
+
+            if (tab === 'isos') loadISOsList();
+            if (tab === 'templates') loadTemplates();
+        }
+
+        // Load ISOs List
+        async function loadISOsList() {
+            try {
+                const response = await fetch(`${API_BASE}/vm-isos`);
+                const isos = await response.json();
+                const list = document.getElementById('iso-list');
+                list.innerHTML = isos.map(iso => `
+                    <div class="vm-card">
+                        <div class="vm-header">
+                            <div class="vm-icon other">💿</div>
+                            <div class="vm-info">
+                                <h3>${escapeHtml(iso.name)}</h3>
+                                <span class="status-badge ${iso.isUploaded ? 'running' : 'stopped'}">
+                                    ${iso.isUploaded ? '已下载' : '可下载'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="vm-meta">
+                            <div class="vm-meta-item">
+                                <div class="vm-meta-label">大小</div>
+                                <div>${formatSize(iso.size)}</div>
+                            </div>
+                            <div class="vm-meta-item">
+                                <div class="vm-meta-label">类型</div>
+                                <div>${iso.os || 'ISO'}</div>
+                            </div>
+                        </div>
+                        <div class="vm-actions">
+                            ${!iso.isUploaded ? `
+                                <button class="btn btn-primary" onclick="downloadISO('${iso.id}')">下载</button>
+                            ` : `
+                                <button class="btn btn-danger" onclick="deleteISO('${iso.id}')">删除</button>
+                            `}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载 ISO 列表失败:', error);
+            }
+        }
+
+        // Download ISO
+        async function downloadISO(isoId) {
+            try {
+                const response = await fetch(`${API_BASE}/vm-isos/${isoId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'download' })
+                });
+
+                if (response.ok) {
+                    alert('开始下载，请稍候...');
+                    setTimeout(loadISOsList, 5000);
+                } else {
+                    const error = await response.text();
+                    alert('下载失败：' + error);
+                }
+            } catch (error) {
+                console.error('下载 ISO 失败:', error);
+                alert('下载失败：' + error.message);
+            }
+        }
+
+        // Delete ISO
+        async function deleteISO(isoId) {
+            if (!confirm('确定要删除此 ISO 吗？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/vm-isos/${isoId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    await loadISOsList();
+                } else {
+                    const error = await response.text();
+                    alert('删除失败：' + error);
+                }
+            } catch (error) {
+                console.error('删除 ISO 失败:', error);
+                alert('删除失败：' + error.message);
+            }
+        }
+
+        // Upload ISO
+        function uploadISO() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.iso';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch(`${API_BASE}/vm-isos`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        alert('上传成功');
+                        await loadISOsList();
+                    } else {
+                        const error = await response.text();
+                        alert('上传失败：' + error);
+                    }
+                } catch (error) {
+                    console.error('上传 ISO 失败:', error);
+                    alert('上传失败：' + error.message);
+                }
+            };
+            input.click();
+        }
+
+        // Load Templates
+        async function loadTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/vm-templates`);
+                const templates = await response.json();
+                const list = document.getElementById('template-list');
+                list.innerHTML = templates.map(tpl => `
+                    <div class="vm-card">
+                        <div class="vm-header">
+                            <div class="vm-icon ${tpl.type}">
+                                ${tpl.type === 'linux' ? '🐧' : tpl.type === 'windows' ? '🪟' : '💻'}
+                            </div>
+                            <div class="vm-info">
+                                <h3>${escapeHtml(tpl.name)}</h3>
+                            </div>
+                        </div>
+                        <div class="vm-meta">
+                            <div class="vm-meta-item">
+                                <div class="vm-meta-label">CPU</div>
+                                <div>${tpl.cpu} 核心</div>
+                            </div>
+                            <div class="vm-meta-item">
+                                <div class="vm-meta-label">内存</div>
+                                <div>${tpl.memory} MB</div>
+                            </div>
+                            <div class="vm-meta-item">
+                                <div class="vm-meta-label">磁盘</div>
+                                <div>${tpl.diskSize} GB</div>
+                            </div>
+                        </div>
+                        <div class="vm-actions">
+                            <button class="btn btn-primary" onclick="createFromTemplate('${tpl.id}')">使用此模板</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载模板失败:', error);
+            }
+        }
+
+        // Create From Template
+        function createFromTemplate(templateId) {
+            // TODO: 实现从模板创建
+            alert('模板创建功能开发中...');
+        }
+
+        // Utility Functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatSize(bytes) {
+            if (!bytes) return '未知';
+            const gb = bytes / (1024 * 1024 * 1024);
+            if (gb >= 1) return gb.toFixed(2) + ' GB';
+            const mb = bytes / (1024 * 1024);
+            return mb.toFixed(2) + ' MB';
+        }
+
+        // Initialize
+        loadVMs();
+    </script>
+</body>
+</html>
