@@ -23,7 +23,6 @@ type FirewallManager struct {
 
 // GeoIPDB 地理位置数据库（简化版）
 type GeoIPDB struct {
-	loaded bool
 	// 实际实现会使用 MaxMind GeoIP2 数据库
 }
 
