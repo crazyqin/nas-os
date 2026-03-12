@@ -37,6 +37,7 @@ type EdgeLBConfig struct {
 // EdgeLoadBalancer 边缘负载均衡器
 type EdgeLoadBalancer struct {
 	config       EdgeLBConfig
+	configMutex  sync.RWMutex
 	edgeManager  *EdgeNodeManager
 	sessions     map[string]string // session -> nodeID
 	sessionMutex sync.RWMutex
