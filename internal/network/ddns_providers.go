@@ -556,10 +556,10 @@ func (m *Manager) getDDNSProviderEx(provider, token, secret, extra string) (DDNS
 
 // ========== 辅助函数 ==========
 
-// sha256Hex 计算字符串的 SHA256 哈希值（用于需要 SHA256 的场景）
+// sha256Hex 计算字符串的 SHA256 哈希值 - 保留用于未来需要 SHA256 的场景
 // 注意：阿里云 DNS API 要求使用 HMAC-SHA1，这是 API 规范，不是安全漏洞
-func sha256Hex(s string) string {
-	h := sha256.New()
-	h.Write([]byte(s))
-	return hex.EncodeToString(h.Sum(nil))
-}
+// func sha256Hex(s string) string {
+// 	h := sha256.New()
+// 	h.Write([]byte(s))
+// 	return hex.EncodeToString(h.Sum(nil))
+// }

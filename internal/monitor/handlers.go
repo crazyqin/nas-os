@@ -373,7 +373,7 @@ func (h *Handlers) addAlert(alert *Alert) {
 			Level:   level,
 			Source:  "NAS-OS 监控",
 		}
-		h.notifyMgr.Send(notif)
+		_ = h.notifyMgr.Send(notif)
 	}
 }
 

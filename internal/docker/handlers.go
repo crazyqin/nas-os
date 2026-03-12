@@ -11,7 +11,7 @@ import (
 // Handlers Docker 处理器
 type Handlers struct {
 	manager *Manager
-	mu      sync.RWMutex
+	// mu      sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 
 // NewHandlers 创建 Docker 处理器

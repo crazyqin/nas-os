@@ -86,12 +86,12 @@ func (ctm *CustomTemplateManager) ImportFromURL(url, name, displayName, descript
 	return template, nil
 }
 
-// getHTTPClient 获取 HTTP 客户端
-func getHTTPClient() *http.Client {
-	return &http.Client{
-		Timeout: 30 * time.Second,
-	}
-}
+// getHTTPClient 获取 HTTP 客户端 - 保留用于未来需要 HTTP 请求的场景
+// func getHTTPClient() *http.Client {
+// 	return &http.Client{
+// 		Timeout: 30 * time.Second,
+// 	}
+// }
 
 // ImportFromGitHub 从 GitHub 导入
 func (ctm *CustomTemplateManager) ImportFromGitHub(owner, repo, path, ref, name, displayName, description string) (*CustomTemplate, error) {

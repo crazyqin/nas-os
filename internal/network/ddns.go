@@ -305,13 +305,13 @@ func (m *Manager) parseTime(timeStr string) time.Time {
 	return t
 }
 
-// URL encode helper
-func urlEncode(s string) string {
-	return url.QueryEscape(s)
-}
+// URL encode helper - 保留用于未来需要 URL 编码的场景
+// func urlEncode(s string) string {
+// 	return url.QueryEscape(s)
+// }
 
-// JSON helper
-func toJSON(v interface{}) string {
-	data, _ := json.Marshal(v)
-	return string(data)
-}
+// JSON helper - 保留用于未来需要 JSON 序列化的场景
+// func toJSON(v interface{}) string {
+// 	data, _ := json.Marshal(v)
+// 	return string(data)
+// }
