@@ -15,6 +15,7 @@ import (
 	"nas-os/internal/nfs"
 	"nas-os/internal/notify"
 	"nas-os/internal/monitor"
+	"nas-os/internal/optimizer"
 	"nas-os/internal/perf"
 	"nas-os/internal/photos"
 	"nas-os/internal/plugin"
@@ -63,6 +64,7 @@ type Server struct {
 	snapshotMgr   *vm.SnapshotManager
 	rbacMgr       *auth.RBACManager
 	monitorMgr    *monitor.Manager
+	optimizer     *optimizer.PerformanceOptimizer
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -260,6 +262,12 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		vmMgr:         vmMgr,
 		isoMgr:        isoMgr,
 		snapshotMgr:   snapshotMgr,
+		rbacMgr:       auth.NewRBACManager(),
+		monitorMgr:    func() *monitor.Manager {
+			mgr, _ := monitor.NewManager()
+			return mgr
+		}(),
+		optimizer:     optimizer.NewOptimizer(nil, nil),
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -357,6 +365,11 @@ func (s *Server) setupRoutes() {
 		// ========== 监控告警 ==========
 		if s.monitorMgr != nil {
 			monitor.NewHandlers(s.monitorMgr, s.notifyMgr).RegisterRoutes(api)
+		}
+
+		// ========== 性能优化 ==========
+		if s.optimizer != nil {
+			optimizer.NewHandlers(s.optimizer).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
