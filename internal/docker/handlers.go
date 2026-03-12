@@ -11,6 +11,7 @@ import (
 // Handlers Docker 处理器
 type Handlers struct {
 	manager *Manager
+	//nolint:unused
 	mu      sync.RWMutex
 }
 

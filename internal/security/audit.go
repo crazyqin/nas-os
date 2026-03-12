@@ -19,7 +19,9 @@ type AuditManager struct {
 	loginLogs   []*LoginLogEntry
 	alerts      []*SecurityAlert
 	mu          sync.RWMutex
+	//nolint:unused
 	logPath     string
+	//nolint:unused
 	maxLogs     int // 最大保留日志数
 }
 

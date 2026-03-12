@@ -16,6 +16,7 @@ type AppHandlers struct {
 	discovery          *AppDiscovery
 	customTemplateMgr  *CustomTemplateManager
 	versionManager     *VersionManager
+	//nolint:unused
 	mu                 sync.RWMutex
 }
 

@@ -66,6 +66,7 @@ type LoadBalancer struct {
 	config      LBConfig
 	backends    map[string]*Backend
 	backendsMutex sync.RWMutex
+	//nolint:unused
 	proxy       *httputil.ReverseProxy
 	currentIndex int
 	sessionMap  map[string]string // session -> backend

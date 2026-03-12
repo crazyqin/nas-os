@@ -679,7 +679,8 @@ func (e *Engine) Close() error {
 	return e.index.Close()
 }
 
-// parseNumeric 解析数值
+// parseNumeric 解析数值 - 保留用于未来需要解析数值索引的场景
+//nolint:unused
 func parseNumeric(data []byte) (int64, error) {
 	var val int64
 	_, err := fmt.Sscanf(string(data), "%d", &val)

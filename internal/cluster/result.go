@@ -525,6 +525,8 @@ func (ra *ResultAggregator) saveRules() error {
 	return os.WriteFile(rulesFile, data, 0644)
 }
 
+// loadRules 加载聚合规则 - 保留用于未来从文件加载规则的场景
+//nolint:unused
 func (ra *ResultAggregator) loadRules() error {
 	rulesFile := filepath.Join(ra.config.DataDir, "aggregation_rules.json")
 

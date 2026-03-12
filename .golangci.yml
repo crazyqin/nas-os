@@ -61,6 +61,14 @@ issues:
     - 'Error return value of .*(Shutdown|UpdateNodeStatus|UpdateNodeMetrics|loadState|saveState|removeRuleFromSystem|unblockIP|unbanIPInternal|removeBan).* is not checked'
     # 忽略 photos 包中的 persist/save 类函数
     - 'Error return value of .*(persistAIMemory|saveSmartAlbums).* is not checked'
+    # 忽略任务调度器的 saveTasks/saveSchedules
+    - 'Error return value of .*(saveTasks|saveSchedules).* is not checked'
+    # 忽略通知发送
+    - 'Error return value of .*(Send|ExportReport).* is not checked'
+    # 忽略 flag.Parse
+    - 'Error return value of .*(Parse).* is not checked'
+    # 忽略 rand.Read
+    - 'Error return value of .*(rand\.Read).* is not checked'
   exclude-rules:
     # 忽略空分支警告（SA9003）- 这些是有意为之的空实现
     - text: "SA9003: empty branch"

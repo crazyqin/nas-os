@@ -605,7 +605,8 @@ func (h *Handlers) optimizeRules(c *gin.Context) {
 	})
 }
 
-// parseIntParam 解析整数参数
+// parseIntParam 解析整数参数 - 保留用于未来需要解析 URL 参数的场景
+//nolint:unused
 func parseIntParam(c *gin.Context, name string, defaultVal int) int {
 	val := c.Query(name)
 	if val == "" {
@@ -618,7 +619,8 @@ func parseIntParam(c *gin.Context, name string, defaultVal int) int {
 	return i
 }
 
-// parseFloatParam 解析浮点参数
+// parseFloatParam 解析浮点参数 - 保留用于未来需要解析 URL 参数的场景
+//nolint:unused
 func parseFloatParam(c *gin.Context, name string, defaultVal float64) float64 {
 	val := c.Query(name)
 	if val == "" {

@@ -683,7 +683,8 @@ func copyDir(src, dst string) error {
 	return nil
 }
 
-// hashFile 计算文件哈希
+// hashFile 计算文件哈希 - 保留用于未来需要校验插件完整性的场景
+//nolint:unused
 func hashFile(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
