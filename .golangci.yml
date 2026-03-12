@@ -43,19 +43,16 @@ linters-settings:
     check-type-assertions: false
     check-blank: false
     # 忽略常见安全的错误（这些错误通常不需要处理）
-    ignore: |
+    exclude-functions: |
       fmt:.*
       io:Close
       net/http:Write
       net/http:Flush
       bytes:Write
       strings:Write
-      gin:Stop
-      os:Stderr
-      os:Stdout
-      bytes:Write
-      strings:Write
       github.com/gin-gonic/gin:Stop
+      (*os.File).Write
+      (*os.File).WriteString
   gosimple:
     disable:
       - S1039  # unnecessary use of fmt.Sprintf
@@ -89,6 +86,8 @@ issues:
     - 'Error return value of .*\(\*os/exec\.Cmd\)\.Run.* is not checked'
     # 忽略 notifyEmail/notifyWebhook
     - 'Error return value of .*(notifyEmail|notifyWebhook).* is not checked'
+    # 忽略 os.Stdout/os.Stderr 的 Write 调用
+    - 'Error return value of .*(os\.Stdout\.Write|os\.Stdout\.WriteString|os\.Stderr\.Write|os\.Stderr\.WriteString).* is not checked'
   exclude-rules:
     # 忽略空分支警告（SA9003）- 这些是有意为之的空实现
     - text: "SA9003: empty branch"
