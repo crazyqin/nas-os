@@ -286,7 +286,6 @@ func (lm *LibraryManager) scanFileSystem(rootPath string, mediaType MediaType) (
 			return err
 		}
 
-		relPath, _ := filepath.Rel(rootPath, path)
 		name := strings.TrimSuffix(filepath.Base(path), ext)
 
 		item := &MediaItem{
