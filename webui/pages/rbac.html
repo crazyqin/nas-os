@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>权限管理 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .rbac-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .rbac-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .rbac-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text-primary); background: var(--hover-color); }
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* 角色卡片 */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .role-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--surface-border);
+            box-shadow: var(--shadow-md);
+        }
+        .role-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .role-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .role-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .role-badge.builtin { background: var(--color-info-bg); color: #1E40AF; }
+        .role-badge.custom { background: var(--color-success-bg); color: #065F46; }
+        .role-description {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 1rem;
+        }
+        .role-permissions {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .permission-tag {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 6px;
+            font-size: 12px;
+            margin: 0.25rem;
+            background: white;
+            border: 1px solid var(--border-color);
+        }
+        .permission-tag.read { border-color: #3B82F6; color: #1E40AF; }
+        .permission-tag.write { border-color: #10B981; color: #065F46; }
+        .permission-tag.delete { border-color: #EF4444; color: #991B1B; }
+        .permission-tag.admin { border-color: #F59E0B; color: #92400E; }
+        
+        /* 用户角色分配 */
+        .assignment-table {
+            width: 100%;
+            background: var(--surface-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .assignment-table th, .assignment-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .assignment-table th {
+            background: var(--bg-color);
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .assignment-table tr:hover { background: var(--hover-color); }
+        
+        /* 权限检查器 */
+        .permission-checker {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .checker-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .result-box {
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .result-box.allowed { background: #D1FAE5; color: #065F46; }
+        .result-box.denied { background: #FEE2E2; color: #991B1B; }
+        
+        /* ACL 管理 */
+        .acl-editor {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        .acl-rule {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .acl-subject {
+            font-weight: 600;
+            min-width: 150px;
+        }
+        .acl-permissions {
+            flex: 1;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .acl-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* 按钮 */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover { background: var(--hover-color); }
+        .btn-danger {
+            background: #DC2626;
+            color: white;
+        }
+        .btn-danger:hover { background: #B91C1C; }
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 13px;
+        }
+        
+        /* 表单 */
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        select.form-control { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="rbac-container">
+        <!-- 头部 -->
+        <div class="rbac-header">
+            <div>
+                <h1 style="margin: 0 0 0.5rem 0;">🔐 权限管理</h1>
+                <p style="margin: 0; color: var(--text-muted);">管理角色、权限分配和资源访问控制</p>
+            </div>
+            <button class="btn btn-primary" onclick="refreshData()">🔄 刷新</button>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="rbac-tabs">
+            <button class="tab-btn active" onclick="switchTab('roles')">📋 角色管理</button>
+            <button class="tab-btn" onclick="switchTab('users')">👥 用户权限</button>
+            <button class="tab-btn" onclick="switchTab('groups')">👨‍👩‍👧‍👦 组权限</button>
+            <button class="tab-btn" onclick="switchTab('checker')">✅ 权限检查</button>
+            <button class="tab-btn" onclick="switchTab('acl')">🔒 资源 ACL</button>
+        </div>
+
+        <!-- 角色管理 -->
+        <div id="roles" class="tab-content active">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;">内置角色</h2>
+                <button class="btn btn-primary" onclick="showCreateRoleModal()">+ 创建自定义角色</button>
+            </div>
+            <div class="roles-grid" id="rolesGrid">
+                <p style="color: var(--text-muted);">加载中...</p>
+            </div>
+        </div>
+
+        <!-- 用户权限 -->
+        <div id="users" class="tab-content">
+            <div class="assignment-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>当前角色</th>
+                            <th>权限数量</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userRolesTable">
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 组权限 -->
+        <div id="groups" class="tab-content">
+            <div class="assignment-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>用户组</th>
+                            <th>成员数</th>
+                            <th>分配角色</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="groupRolesTable">
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 权限检查器 -->
+        <div id="checker" class="tab-content">
+            <div class="permission-checker">
+                <h3 style="margin: 0 0 1rem 0;">🔍 权限检查工具</h3>
+                <div class="checker-grid">
+                    <div class="form-group">
+                        <label>用户 ID</label>
+                        <input type="text" class="form-control" id="check-user-id" placeholder="user123">
+                    </div>
+                    <div class="form-group">
+                        <label>用户组（逗号分隔）</label>
+                        <input type="text" class="form-control" id="check-groups" placeholder="group1,group2">
+                    </div>
+                    <div class="form-group">
+                        <label>资源类型</label>
+                        <select class="form-control" id="check-resource">
+                            <option value="volume">存储卷</option>
+                            <option value="share">共享目录</option>
+                            <option value="user">用户管理</option>
+                            <option value="container">容器</option>
+                            <option value="vm">虚拟机</option>
+                            <option value="file">文件</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>操作</label>
+                        <select class="form-control" id="check-action">
+                            <option value="read">读取</option>
+                            <option value="write">写入</option>
+                            <option value="delete">删除</option>
+                            <option value="admin">管理</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="checkPermission()">检查权限</button>
+                
+                <div id="checkResult" style="margin-top: 1.5rem; display: none;">
+                    <div class="result-box" id="checkResultBox"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 资源 ACL -->
+        <div id="acl" class="tab-content">
+            <div class="acl-editor">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0;">资源访问控制列表</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showAddACLModal()">+ 添加 ACL</button>
+                </div>
+                <div id="aclList">
+                    <p style="color: var(--text-muted); text-align: center; padding: 2rem;">加载中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/rbac';
+
+        // 切换标签页
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabId === 'roles') loadRoles();
+            if (tabId === 'users') loadUserRoles();
+            if (tabId === 'groups') loadGroupRoles();
+            if (tabId === 'acl') loadACLs();
+        }
+
+        // 加载角色列表
+        async function loadRoles() {
+            try {
+                const res = await fetch(`${API_BASE}/roles`);
+                const data = await res.json();
+                
+                const grid = document.getElementById('rolesGrid');
+                if (data.code === 0) {
+                    grid.innerHTML = data.data.map(role => `
+                        <div class="role-card">
+                            <div class="role-card-header">
+                                <span class="role-name">${role.name}</span>
+                                <span class="role-badge ${role.inherits?.length ? 'custom' : 'builtin'}">
+                                    ${role.inherits?.length ? '自定义' : '内置'}
+                                </span>
+                            </div>
+                            <div class="role-description">${role.description || '无描述'}</div>
+                            <div class="role-permissions">
+                                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">权限 (${role.permissions?.length || 0})</div>
+                                ${(role.permissions || []).slice(0, 8).map(p => `
+                                    <span class="permission-tag ${p.action}">${p.action}:${p.resource}</span>
+                                `).join('')}
+                                ${(role.permissions || []).length > 8 ? '<span style="font-size: 12px; color: var(--text-muted);">+ 更多...</span>' : ''}
+                            </div>
+                            ${role.inherits?.length ? `<div style="font-size: 12px; color: var(--text-muted);">继承：${role.inherits.join(', ')}</div>` : ''}
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载角色失败:', error);
+            }
+        }
+
+        // 加载用户角色
+        async function loadUserRoles() {
+            // 简化实现：实际应该从用户列表获取
+            const tbody = document.getElementById('userRolesTable');
+            tbody.innerHTML = `
+                <tr>
+                    <td>admin</td>
+                    <td><span class="role-badge builtin">admin</span></td>
+                    <td>30</td>
+                    <td><button class="btn btn-secondary btn-sm" onclick="editUserRoles('admin')">管理</button></td>
+                </tr>
+                <tr>
+                    <td>user1</td>
+                    <td><span class="role-badge builtin">user</span></td>
+                    <td>10</td>
+                    <td><button class="btn btn-secondary btn-sm" onclick="editUserRoles('user1')">管理</button></td>
+                </tr>
+            `;
+        }
+
+        // 加载组角色
+        async function loadGroupRoles() {
+            const tbody = document.getElementById('groupRolesTable');
+            tbody.innerHTML = `
+                <tr>
+                    <td>administrators</td>
+                    <td>3</td>
+                    <td><span class="role-badge builtin">admin</span></td>
+                    <td><button class="btn btn-secondary btn-sm" onclick="editGroupRoles('administrators')">管理</button></td>
+                </tr>
+                <tr>
+                    <td>users</td>
+                    <td>15</td>
+                    <td><span class="role-badge builtin">user</span></td>
+                    <td><button class="btn btn-secondary btn-sm" onclick="editGroupRoles('users')">管理</button></td>
+                </tr>
+            `;
+        }
+
+        // 权限检查
+        async function checkPermission() {
+            const userId = document.getElementById('check-user-id').value;
+            const groups = document.getElementById('check-groups').value.split(',').map(s => s.trim()).filter(s => s);
+            const resource = document.getElementById('check-resource').value;
+            const action = document.getElementById('check-action').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        groups: groups,
+                        resource: resource,
+                        action: action
+                    })
+                });
+
+                const data = await res.json();
+                const resultBox = document.getElementById('checkResultBox');
+                const resultDiv = document.getElementById('checkResult');
+                
+                resultDiv.style.display = 'block';
+                if (data.code === 0 && data.data.allowed) {
+                    resultBox.className = 'result-box allowed';
+                    resultBox.textContent = '✅ 允许';
+                } else {
+                    resultBox.className = 'result-box denied';
+                    resultBox.textContent = '❌ 拒绝';
+                }
+            } catch (error) {
+                console.error('权限检查失败:', error);
+            }
+        }
+
+        // 加载 ACL
+        async function loadACLs() {
+            const list = document.getElementById('aclList');
+            list.innerHTML = `
+                <div class="acl-rule">
+                    <div class="acl-subject">volume:data</div>
+                    <div class="acl-permissions">
+                        <span class="permission-tag admin">admin:administrators</span>
+                        <span class="permission-tag read">read:users</span>
+                    </div>
+                    <div class="acl-actions">
+                        <button class="btn btn-secondary btn-sm">编辑</button>
+                        <button class="btn btn-danger btn-sm">删除</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 刷新数据
+        function refreshData() {
+            loadRoles();
+            loadUserRoles();
+            loadGroupRoles();
+            alert('数据已刷新');
+        }
+
+        // 占位函数
+        function showCreateRoleModal() { alert('创建角色功能待实现'); }
+        function editUserRoles(userId) { alert(`编辑用户 ${userId} 的角色`); }
+        function editGroupRoles(groupId) { alert(`编辑组 ${groupId} 的角色`); }
+        function showAddACLModal() { alert('添加 ACL 功能待实现'); }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRoles();
+        });
+    </script>
+</body>
+</html>
