@@ -490,8 +490,8 @@ func (ra *ResultAggregator) Shutdown() error {
 // 持久化
 
 func (ra *ResultAggregator) saveAggregations() error {
-	ra.aggregationsMutex.RLock()
-	defer ra.aggregationsMutex.RUnlock()
+	ra.aggMutex.RLock()
+	defer ra.aggMutex.RUnlock()
 
 	aggsFile := filepath.Join(ra.config.DataDir, "aggregations.json")
 
