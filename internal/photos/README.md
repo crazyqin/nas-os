@@ -1,254 +1,218 @@
-# 相册模块 (Photos)
+# AI 相册功能文档
 
-NAS-OS 相册功能模块，提供照片备份、管理、浏览和分享功能。
+## 概述
 
-## 功能特性
+AI 相册模块为 NAS-OS 提供智能照片管理功能，包括人脸识别、场景分类、物体检测、智能相册自动生成等。
 
-### 核心功能
-- ✅ **照片上传**: 支持单张/批量上传，断点续传
-- ✅ **相册管理**: 创建、编辑、删除、共享相册
-- ✅ **EXIF 元数据**: 自动提取相机信息、拍摄时间、GPS 位置
-- ✅ **缩略图生成**: 多尺寸缩略图（128/512/1024）
-- ✅ **时间线浏览**: 按年/月/日分组查看照片
-- ✅ **人物管理**: 人脸识别和管理（待实现 AI）
-- ✅ **收藏功能**: 标记喜欢的照片
-- ✅ **格式支持**: JPG/PNG/HEIC/RAW/视频
+## 核心功能
 
-### 待实现功能
-- 🔄 **AI 分类**: 场景识别、物体识别
-- 🔄 **人脸识别**: 自动聚合同一人物
-- 🔄 **照片编辑**: 裁剪、旋转、滤镜
-- 🔄 **分享链接**: 生成带密码的分享链接
-- 🔄 **手机备份**: iOS/Android/鸿蒙自动备份
+### 1. 人脸识别
+- 自动检测照片中的人脸
+- 人物聚类（相同人脸归为同一人）
+- 支持人物命名和管理
+- 按人物筛选照片
+
+### 2. 场景识别
+- 自动识别照片场景类型
+- 支持的场景：风景、人像、食物、宠物、文档、室内、室外、夜景、日落、海滩、山脉、城市等
+- 按场景分类浏览
+
+### 3. 物体识别
+- 检测照片中的物体
+- 支持的物体：车辆、建筑、植物、动物等
+- 按物体搜索照片
+
+### 4. 智能分类
+- 自动按人物分组
+- 按场景分组
+- 按地点分组（基于 GPS）
+- 按时间分组
+
+### 5. 相似照片检测
+- 基于场景、物体、颜色、时间计算相似度
+- 查找相似照片
+- 检测重复照片
+
+### 6. 记忆回顾
+- 历史上的今天
+- 年度回忆
+- 自动生成回忆相册
+
+## 技术架构
+
+### 本地 AI 引擎
+- 优先使用本地模型（离线可用）
+- 支持 CPU 推理（兼容 ARM 设备）
+- 颜色提取（内置实现）
+
+### 云端 AI 引擎（可选）
+- 支持接入云端 API（更高精度）
+- 可配置 API 密钥
+- 支持 Azure Face API、AWS Rekognition 等
+
+### 异步处理
+- 后台任务队列
+- 不阻塞照片上传
+- 进度显示和任务管理
 
 ## API 接口
 
-### 照片管理
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | /api/v1/photos/upload | 上传单张照片 |
-| POST | /api/v1/photos/upload/batch | 批量上传照片 |
-| GET | /api/v1/photos | 列出照片 |
-| GET | /api/v1/photos/:id | 获取照片详情 |
-| DELETE | /api/v1/photos/:id | 删除照片 |
-| POST | /api/v1/photos/:id/favorite | 切换收藏 |
-| PUT | /api/v1/photos/:id | 更新照片信息 |
-| GET | /api/v1/photos/:id/download | 下载照片 |
-| GET | /api/v1/photos/:id/thumbnail/:size | 获取缩略图 |
-
-### 相册管理
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/photos/albums | 列出相册 |
-| POST | /api/v1/photos/albums | 创建相册 |
-| GET | /api/v1/photos/albums/:id | 获取相册详情 |
-| PUT | /api/v1/photos/albums/:id | 更新相册 |
-| DELETE | /api/v1/photos/albums/:id | 删除相册 |
-| POST | /api/v1/photos/albums/:id/photos | 添加照片到相册 |
-| DELETE | /api/v1/photos/albums/:id/photos/:photoId | 从相册移除照片 |
-
-### 时间线
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/photos/timeline | 获取时间线 |
-
-### 人物管理
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/photos/persons | 列出人物 |
-| POST | /api/v1/photos/persons | 创建人物 |
-| PUT | /api/v1/photos/persons/:id | 更新人物 |
-| DELETE | /api/v1/photos/persons/:id | 删除人物 |
-
-### 其他
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/v1/photos/search | 搜索照片 |
-| GET | /api/v1/photos/stats | 获取统计信息 |
-
-## 使用示例
-
-### 上传照片
-
-```bash
-# 单张上传
-curl -X POST http://localhost:8080/api/v1/photos/upload \
-  -F "file=@photo.jpg"
-
-# 批量上传
-curl -X POST http://localhost:8080/api/v1/photos/upload/batch \
-  -F "files=@photo1.jpg" \
-  -F "files=@photo2.jpg" \
-  -F "files=@photo3.jpg"
+### AI 分析
+```
+POST /api/v1/photos/ai/analyze/:photoId    # 分析单张照片
+POST /api/v1/photos/ai/analyze/batch       # 批量分析照片
+GET  /api/v1/photos/ai/stats               # 获取 AI 统计
+GET  /api/v1/photos/ai/tasks               # 列出 AI 任务
 ```
 
-### 列出照片
-
-```bash
-# 获取全部照片
-curl http://localhost:8080/api/v1/photos
-
-# 获取相册中的照片
-curl http://localhost:8080/api/v1/photos?albumId=xxx
-
-# 获取收藏的照片
-curl http://localhost:8080/api/v1/photos?favorite=true
-
-# 分页获取
-curl http://localhost:8080/api/v1/photos?limit=50&offset=0
+### 智能相册
+```
+GET  /api/v1/photos/ai/smart-albums        # 列出智能相册
+POST /api/v1/photos/ai/smart-albums        # 创建智能相册
+DELETE /api/v1/photos/ai/smart-albums/:id  # 删除智能相册
 ```
 
-### 创建相册
-
-```bash
-curl -X POST http://localhost:8080/api/v1/photos/albums \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "旅行照片",
-    "description": "2026 年旅行照片"
-  }'
+### 回忆
+```
+GET /api/v1/photos/ai/memories             # 获取回忆列表
 ```
 
-### 获取时间线
-
-```bash
-# 按月分组
-curl http://localhost:8080/api/v1/photos/timeline?groupBy=month
-
-# 按年分组
-curl http://localhost:8080/api/v1/photos/timeline?groupBy=year
-
-# 按日分组
-curl http://localhost:8080/api/v1/photos/timeline?groupBy=day
+### 数据管理
 ```
-
-## 数据存储
-
-### 目录结构
-
-```
-/var/lib/nas-os/photos/
-├── photos/              # 原始照片
-│   ├── abc123.jpg
-│   ├── def456.png
-│   └── ...
-├── thumbnails/          # 缩略图
-│   ├── abc123_128.jpg
-│   ├── abc123_512.jpg
-│   ├── abc123_1024.jpg
-│   └── ...
-├── cache/              # 缓存文件
-│   └── uploads/        # 上传临时文件
-├── albums.json         # 相册数据
-├── persons.json        # 人物数据
-└── photos-config.json  # 配置文件
-```
-
-### 配置文件
-
-```json
-{
-  "enableAI": true,
-  "enableFaceRec": true,
-  "enableObjectRec": true,
-  "autoBackup": false,
-  "backupPaths": [],
-  "thumbnailConfig": {
-    "smallSize": 128,
-    "mediumSize": 512,
-    "largeSize": 1024,
-    "originalMax": 2048,
-    "quality": 85
-  },
-  "supportedFormats": [
-    ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp",
-    ".heic", ".heif", ".raw", ".dng", ".cr2", ".nef", ".arw",
-    ".mp4", ".mov", ".avi", ".mkv", ".webm"
-  ],
-  "maxUploadSize": 524288000
-}
+POST /api/v1/photos/ai/reanalyze           # 重新分析所有照片
+POST /api/v1/photos/ai/clear               # 清除 AI 数据
 ```
 
 ## Web UI
 
-访问 `http://localhost:8080/photos/` 使用相册 Web 界面。
+访问 `/pages/ai-photos.html` 使用 AI 相册功能。
 
-### 功能
-- 📷 照片网格浏览
-- 📁 相册管理
-- ❤️ 收藏管理
-- ⬆️ 拖拽上传
-- 📱 响应式设计（支持移动端）
-- 🖼️ 照片查看器
+### 功能标签页
+- **概览**: 显示统计信息和快速操作
+- **人物**: 浏览识别的人物
+- **场景**: 按场景分类查看照片
+- **智能相册**: 管理自动生成的相册
+- **回忆**: 查看历史上的今天
+- **任务**: 监控 AI 处理任务进度
+- **设置**: 配置 AI 功能开关
 
-## 依赖
+## 配置
 
-- Go 1.26+
-- github.com/google/uuid
-- github.com/rwcarlsen/goexif/exif
-- golang.org/x/image/draw
-- ffmpeg（可选，用于 HEIC/RAW/视频缩略图）
+### 启用/禁用 AI 功能
+在相册设置中可以开关以下功能：
+- 人脸识别
+- 场景分类
+- 物体检测
+
+### 云端 AI 配置
+如需更高精度，可在设置中配置云端 AI：
+1. 启用"使用云端 AI 引擎"
+2. 输入 API Key
+3. 配置 API Endpoint
 
 ## 性能优化
 
-### 缩略图缓存
-- 生成后缓存到磁盘
-- 支持多尺寸（128/512/1024）
-- 懒加载优化
+### CPU 优化
+- 使用轻量级模型
+- 支持 ARM NEON 指令集
+- 批量处理优化
 
-### 批量操作
-- 支持批量上传
-- 后台索引照片
-- 异步 EXIF 提取
+### 内存优化
+- 流式处理大图片
+- 智能缓存机制
+- 定期清理内存
 
-### 内存管理
-- 流式上传处理
-- 大文件分块处理
-- 自动垃圾回收
+### 存储优化
+- AI 数据增量保存
+- 压缩存储格式
+- 按需加载
 
-## TODO
+## 数据结构
 
-### 短期
-- [ ] 完善错误处理
-- [ ] 添加单元测试
-- [ ] 实现搜索功能
-- [ ] 添加照片编辑功能
+### AIClassification
+```go
+type AIClassification struct {
+    PhotoID    string
+    Faces      []FaceInfo
+    Objects    []string
+    Scene      string
+    Colors     []string
+    IsNSFW     bool
+    Confidence float32
+    Metadata   map[string]interface{}
+}
+```
 
-### 中期
-- [ ] 集成 AI 分类（场景/物体）
-- [ ] 人脸识别和聚类
-- [ ] 分享链接功能
-- [ ] 手机自动备份
+### SmartAlbum
+```go
+type SmartAlbum struct {
+    ID         string
+    Name       string
+    Type       string  // person, scene, object, location, time
+    Criteria   map[string]interface{}
+    PhotoIDs   []string
+    AutoUpdate bool
+}
+```
 
-### 长期
-- [ ] 智能相册（自动创建）
-- [ ] 照片故事（自动生成）
-- [ ] 协作相册
-- [ ] 第三方集成（Google Photos 导入等）
+## 使用示例
+
+### 批量分析照片
+```bash
+curl -X POST http://localhost:8080/api/v1/photos/ai/analyze/batch
+```
+
+### 创建智能相册
+```bash
+curl -X POST http://localhost:8080/api/v1/photos/ai/smart-albums \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "家人照片",
+    "type": "person",
+    "criteria": {"person": "张三"}
+  }'
+```
+
+### 获取 AI 统计
+```bash
+curl http://localhost:8080/api/v1/photos/ai/stats
+```
+
+## 注意事项
+
+1. **首次分析**: 大量照片首次分析需要较长时间，建议在空闲时进行
+2. **存储空间**: AI 数据会占用额外存储空间（约照片总数的 5-10%）
+3. **隐私保护**: 人脸数据本地存储，不会上传到云端（除非启用云端 AI）
+4. **ARM 设备**: 在 ARM 设备上建议使用本地轻量模型
+
+## 未来计划
+
+- [ ] 集成 go-face 实现本地人脸识别
+- [ ] 集成 MobileNet 实现场景分类
+- [ ] 集成 YOLO 实现物体检测
+- [ ] 支持更多云端 AI 提供商
+- [ ] 照片质量评分
+- [ ] 自动标签生成
+- [ ] 照片故事自动生成
 
 ## 故障排除
 
-### 缩略图生成失败
-确保安装了 `ffmpeg` 用于处理 HEIC/RAW 格式：
+### AI 分析任务卡住
+检查任务队列，重启 AI Manager：
 ```bash
-sudo apt install ffmpeg
+# 查看任务状态
+curl http://localhost:8080/api/v1/photos/ai/tasks
+
+# 清除卡住的任务
+curl -X POST http://localhost:8080/api/v1/photos/ai/clear
 ```
 
-### EXIF 提取失败
-某些照片可能没有 EXIF 信息，这是正常的。
+### 人脸识别不准确
+- 确保照片质量良好
+- 尝试启用云端 AI（更高精度）
+- 手动校正人物名称
 
-### 上传失败
-检查文件大小是否超过限制（默认 500MB）。
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## License
-
-MIT
+### 性能问题
+- 减少并发任务数
+- 在设置中降低分析频率
+- 使用云端 AI 分担本地压力

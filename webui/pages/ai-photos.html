@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 相册 - NAS-OS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            background: #fff;
+            padding: 16px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: #007aff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8ed;
+        }
+
+        .btn-success {
+            background: #34c759;
+            color: #fff;
+        }
+
+        .btn-warning {
+            background: #ff9500;
+            color: #fff;
+        }
+
+        /* 标签页导航 */
+        .tabs {
+            background: #fff;
+            border-bottom: 1px solid #e5e5ea;
+            padding: 0 24px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: #86868b;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #1d1d1f;
+        }
+
+        .tab.active {
+            color: #007aff;
+            border-bottom-color: #007aff;
+        }
+
+        /* 主体内容 */
+        .main {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #007aff;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        /* 内容区域 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 人物网格 */
+        .people-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .person-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .person-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .person-cover {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #fff;
+        }
+
+        .person-info {
+            padding: 12px;
+        }
+
+        .person-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .person-count {
+            font-size: 13px;
+            color: #86868b;
+        }
+
+        /* 场景分类 */
+        .scenes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .scene-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .scene-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .scene-header {
+            padding: 16px;
+            border-bottom: 1px solid #e5e5ea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scene-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scene-icon {
+            font-size: 20px;
+        }
+
+        .scene-count {
+            background: #f5f5f7;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #86868b;
+        }
+
+        .scene-photos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            padding: 2px;
+        }
+
+        .scene-photo {
+            aspect-ratio: 1;
+            background: #e5e5ea;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .scene-photo:hover {
+            opacity: 0.8;
+        }
+
+        /* 智能相册 */
+        .smart-albums-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .smart-album-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .smart-album-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .smart-album-cover {
+            height: 180px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            color: #fff;
+        }
+
+        .smart-album-info {
+            padding: 16px;
+        }
+
+        .smart-album-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .smart-album-desc {
+            font-size: 13px;
+            color: #86868b;
+            margin-bottom: 12px;
+        }
+
+        .smart-album-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .smart-album-count {
+            font-size: 13px;
+            color: #86868b;
+        }
+
+        .smart-album-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #f5f5f7;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            background: #e8e8ed;
+        }
+
+        /* 任务队列 */
+        .task-list {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .task-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e5ea;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-icon {
+            font-size: 24px;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .task-meta {
+            font-size: 12px;
+            color: #86868b;
+        }
+
+        .task-progress {
+            width: 200px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e5e5ea;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #007aff;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            color: #86868b;
+            text-align: right;
+        }
+
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #f5f5f7;
+            color: #86868b;
+        }
+
+        .status-running {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-completed {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-failed {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* 回忆卡片 */
+        .memories-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .memories-timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e5ea;
+        }
+
+        .memory-item {
+            position: relative;
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .memory-item::before {
+            content: '';
+            position: absolute;
+            left: -34px;
+            top: 30px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #007aff;
+            border: 3px solid #fff;
+        }
+
+        .memory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .memory-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .memory-date {
+            font-size: 14px;
+            color: #86868b;
+        }
+
+        .memory-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+        }
+
+        .memory-photo {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            background: #e5e5ea;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .memory-photo:hover {
+            transform: scale(1.05);
+        }
+
+        /* 设置面板 */
+        .settings-panel {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .settings-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e5ea;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .setting-desc {
+            font-size: 13px;
+            color: #86868b;
+            margin-top: 4px;
+        }
+
+        /* 开关 */
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: #e5e5ea;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle.active {
+            background: #34c759;
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .toggle.active .toggle-knob {
+            transform: translateX(22px);
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e5ea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #f5f5f7;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e5ea;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e5ea;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e5ea;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #86868b;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1d1d1f;
+        }
+
+        .empty-desc {
+            font-size: 14px;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e5ea;
+            border-top-color: #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+            }
+
+            .main {
+                padding: 16px;
+            }
+
+            .tabs {
+                padding: 0 16px;
+                overflow-x: auto;
+            }
+
+            .tab {
+                padding: 12px 16px;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <h1>
+            <span>🤖</span>
+            AI 相册
+        </h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="refreshStats()">
+                <span>🔄</span>
+                刷新
+            </button>
+            <button class="btn btn-primary" onclick="showCreateAlbumModal()">
+                <span>➕</span>
+                创建智能相册
+            </button>
+        </div>
+    </header>
+
+    <!-- 标签页导航 -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('overview')">📊 概览</button>
+        <button class="tab" onclick="switchTab('people')">👥 人物</button>
+        <button class="tab" onclick="switchTab('scenes')">🏞️ 场景</button>
+        <button class="tab" onclick="switchTab('smart-albums')">📁 智能相册</button>
+        <button class="tab" onclick="switchTab('memories')">💭 回忆</button>
+        <button class="tab" onclick="switchTab('tasks')">⚙️ 任务</button>
+        <button class="tab" onclick="switchTab('settings')">⚙️ 设置</button>
+    </div>
+
+    <!-- 主体内容 -->
+    <main class="main">
+        <!-- 概览 -->
+        <div id="overview" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">已分析照片</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-faces">0</div>
+                    <div class="stat-label">识别人脸</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-scenes">0</div>
+                    <div class="stat-label">场景分类</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-objects">0</div>
+                    <div class="stat-label">检测物体</div>
+                </div>
+            </div>
+
+            <div class="settings-panel">
+                <h3 class="settings-title">🚀 快速开始</h3>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">批量分析所有照片</div>
+                        <div class="setting-desc">对照片库中的所有照片进行 AI 分析</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="batchAnalyzeAll()">
+                        <span>▶️</span>
+                        开始分析
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人物 -->
+        <div id="people" class="tab-content">
+            <div class="people-grid" id="people-grid">
+                <!-- 动态加载 -->
+            </div>
+            <div class="empty-state" id="people-empty" style="display: none;">
+                <div class="empty-icon">👤</div>
+                <div class="empty-title">还没有识别人物</div>
+                <div class="empty-desc">开始分析照片后，人物会自动出现在这里</div>
+            </div>
+        </div>
+
+        <!-- 场景 -->
+        <div id="scenes" class="tab-content">
+            <div class="scenes-grid" id="scenes-grid">
+                <!-- 动态加载 -->
+            </div>
+            <div class="empty-state" id="scenes-empty" style="display: none;">
+                <div class="empty-icon">🏞️</div>
+                <div class="empty-title">还没有场景分类</div>
+                <div class="empty-desc">分析照片后，场景会自动分类</div>
+            </div>
+        </div>
+
+        <!-- 智能相册 -->
+        <div id="smart-albums" class="tab-content">
+            <div class="smart-albums-grid" id="smart-albums-grid">
+                <!-- 动态加载 -->
+            </div>
+            <div class="empty-state" id="smart-albums-empty" style="display: none;">
+                <div class="empty-icon">📁</div>
+                <div class="empty-title">还没有智能相册</div>
+                <div class="empty-desc">点击"创建智能相册"开始</div>
+            </div>
+        </div>
+
+        <!-- 回忆 -->
+        <div id="memories" class="tab-content">
+            <div class="memories-timeline" id="memories-timeline">
+                <!-- 动态加载 -->
+            </div>
+            <div class="empty-state" id="memories-empty" style="display: none;">
+                <div class="empty-icon">💭</div>
+                <div class="empty-title">还没有回忆</div>
+                <div class="empty-desc">历史上的今天会自动出现在这里</div>
+            </div>
+        </div>
+
+        <!-- 任务 -->
+        <div id="tasks" class="tab-content">
+            <div class="task-list" id="task-list">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+
+        <!-- 设置 -->
+        <div id="settings" class="tab-content">
+            <div class="settings-panel">
+                <h3 class="settings-title">🤖 AI 引擎</h3>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">启用人脸识别</div>
+                        <div class="setting-desc">自动检测和识别人脸</div>
+                    </div>
+                    <div class="toggle active" onclick="toggleSetting(this, 'enableFaceRec')">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">启用场景分类</div>
+                        <div class="setting-desc">自动识别照片场景类型</div>
+                    </div>
+                    <div class="toggle active" onclick="toggleSetting(this, 'enableSceneRec')">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">启用物体检测</div>
+                        <div class="setting-desc">识别照片中的物体</div>
+                    </div>
+                    <div class="toggle active" onclick="toggleSetting(this, 'enableObjectRec')">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-panel">
+                <h3 class="settings-title">☁️ 云端 AI（可选）</h3>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">使用云端 AI 引擎</div>
+                        <div class="setting-desc">更高精度，需要网络连接</div>
+                    </div>
+                    <div class="toggle" onclick="toggleCloudAI(this)">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                <div class="form-group" id="cloud-api-config" style="display: none; margin-top: 16px;">
+                    <label class="form-label">API Key</label>
+                    <input type="text" class="form-input" placeholder="输入云端 API 密钥">
+                </div>
+            </div>
+
+            <div class="settings-panel">
+                <h3 class="settings-title">💾 数据管理</h3>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">重新分析所有照片</div>
+                        <div class="setting-desc">清除现有 AI 数据并重新分析</div>
+                    </div>
+                    <button class="btn btn-warning" onclick="reanalyzeAll()">
+                        <span>⚠️</span>
+                        重新分析
+                    </button>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <div class="setting-label">清除 AI 数据</div>
+                        <div class="setting-desc">删除所有 AI 分析结果</div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="clearAIData()" style="color: #d32f2f;">
+                        <span>🗑️</span>
+                        清除数据
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 创建智能相册模态框 -->
+    <div class="modal" id="create-album-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">创建智能相册</h3>
+                <button class="modal-close" onclick="closeModal('create-album-modal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">相册名称</label>
+                    <input type="text" class="form-input" id="album-name" placeholder="输入相册名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">相册类型</label>
+                    <select class="form-select" id="album-type" onchange="updateAlbumCriteria()">
+                        <option value="person">人物</option>
+                        <option value="scene">场景</option>
+                        <option value="object">物体</option>
+                        <option value="location">地点</option>
+                        <option value="time">时间</option>
+                    </select>
+                </div>
+                <div class="form-group" id="album-criteria">
+                    <label class="form-label">筛选条件</label>
+                    <input type="text" class="form-input" id="criteria-value" placeholder="输入条件值">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('create-album-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createSmartAlbum()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API 基础路径
+        const API_BASE = '/api/photos';
+
+        // 切换标签页
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            // 加载对应内容
+            loadTabContent(tabId);
+        }
+
+        // 加载标签页内容
+        function loadTabContent(tabId) {
+            switch(tabId) {
+                case 'overview':
+                    loadStats();
+                    break;
+                case 'people':
+                    loadPeople();
+                    break;
+                case 'scenes':
+                    loadScenes();
+                    break;
+                case 'smart-albums':
+                    loadSmartAlbums();
+                    break;
+                case 'memories':
+                    loadMemories();
+                    break;
+                case 'tasks':
+                    loadTasks();
+                    break;
+            }
+        }
+
+        // 加载统计信息
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/ai/stats`);
+                const data = await response.json();
+                
+                if (data.code === 0) {
+                    document.getElementById('stat-total').textContent = data.data.totalAnalyzed || 0;
+                    document.getElementById('stat-faces').textContent = data.data.totalFaces || 0;
+                    document.getElementById('stat-scenes').textContent = Object.keys(data.data.sceneDistribution || {}).length;
+                    document.getElementById('stat-objects').textContent = Object.keys(data.data.objectDistribution || {}).length;
+                }
+            } catch (error) {
+                console.error('加载统计失败:', error);
+            }
+        }
+
+        // 刷新统计
+        function refreshStats() {
+            loadStats();
+            loadTabContent(document.querySelector('.tab.active').textContent.trim().split(' ')[1]);
+        }
+
+        // 加载人物
+        async function loadPeople() {
+            try {
+                const response = await fetch(`${API_BASE}/persons`);
+                const data = await response.json();
+                
+                const grid = document.getElementById('people-grid');
+                const empty = document.getElementById('people-empty');
+                
+                if (data.data && data.data.length > 0) {
+                    grid.innerHTML = data.data.map(person => `
+                        <div class="person-card" onclick="viewPerson('${person.id}')">
+                            <div class="person-cover">👤</div>
+                            <div class="person-info">
+                                <div class="person-name">${person.name || '未命名'}</div>
+                                <div class="person-count">${person.photoCount || 0} 张照片</div>
+                            </div>
+                        </div>
+                    `).join('');
+                    empty.style.display = 'none';
+                    grid.style.display = 'grid';
+                } else {
+                    grid.style.display = 'none';
+                    empty.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('加载人物失败:', error);
+            }
+        }
+
+        // 加载场景
+        async function loadScenes() {
+            try {
+                const response = await fetch(`${API_BASE}/ai/stats`);
+                const data = await response.json();
+                
+                const grid = document.getElementById('scenes-grid');
+                const empty = document.getElementById('scenes-empty');
+                
+                if (data.data && data.data.sceneDistribution) {
+                    const scenes = Object.entries(data.data.sceneDistribution);
+                    if (scenes.length > 0) {
+                        grid.innerHTML = scenes.map(([scene, count]) => `
+                            <div class="scene-card">
+                                <div class="scene-header">
+                                    <div class="scene-title">
+                                        <span class="scene-icon">${getSceneIcon(scene)}</span>
+                                        ${scene}
+                                    </div>
+                                    <div class="scene-count">${count} 张</div>
+                                </div>
+                                <div class="scene-photos">
+                                    ${Array(9).fill('<div class="scene-photo"></div>').join('')}
+                                </div>
+                            </div>
+                        `).join('');
+                        empty.style.display = 'none';
+                        grid.style.display = 'grid';
+                        return;
+                    }
+                }
+                
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+            } catch (error) {
+                console.error('加载场景失败:', error);
+                document.getElementById('scenes-empty').style.display = 'block';
+            }
+        }
+
+        // 获取场景图标
+        function getSceneIcon(scene) {
+            const icons = {
+                'landscape': '🏞️',
+                'portrait': '👤',
+                'food': '🍔',
+                'pet': '🐱',
+                'document': '📄',
+                'indoor': '🏠',
+                'outdoor': '🌳',
+                'night': '🌙',
+                'sunset': '🌅',
+                'beach': '🏖️',
+                'mountain': '⛰️',
+                'city': '🏙️'
+            };
+            return icons[scene.toLowerCase()] || '📷';
+        }
+
+        // 加载智能相册
+        async function loadSmartAlbums() {
+            try {
+                const response = await fetch(`${API_BASE}/ai/smart-albums`);
+                const data = await response.json();
+                
+                const grid = document.getElementById('smart-albums-grid');
+                const empty = document.getElementById('smart-albums-empty');
+                
+                if (data.data && data.data.length > 0) {
+                    grid.innerHTML = data.data.map(album => `
+                        <div class="smart-album-card">
+                            <div class="smart-album-cover">${getAlbumIcon(album.type)}</div>
+                            <div class="smart-album-info">
+                                <div class="smart-album-name">${album.name}</div>
+                                <div class="smart-album-desc">${album.description}</div>
+                                <div class="smart-album-meta">
+                                    <div class="smart-album-count">${album.photoIds?.length || 0} 张照片</div>
+                                    <div class="smart-album-actions">
+                                        <button class="btn-icon" onclick="viewSmartAlbum('${album.id}')">👁️</button>
+                                        <button class="btn-icon" onclick="deleteSmartAlbum('${album.id}')" style="color: #d32f2f;">🗑️</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                    empty.style.display = 'none';
+                    grid.style.display = 'grid';
+                } else {
+                    grid.style.display = 'none';
+                    empty.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('加载智能相册失败:', error);
+            }
+        }
+
+        // 获取相册图标
+        function getAlbumIcon(type) {
+            const icons = {
+                'person': '👥',
+                'scene': '🏞️',
+                'object': '🚗',
+                'location': '📍',
+                'time': '📅'
+            };
+            return icons[type] || '📁';
+        }
+
+        // 加载回忆
+        async function loadMemories() {
+            try {
+                const response = await fetch(`${API_BASE}/ai/memories`);
+                const data = await response.json();
+                
+                const timeline = document.getElementById('memories-timeline');
+                const empty = document.getElementById('memories-empty');
+                
+                if (data.data && data.data.length > 0) {
+                    timeline.innerHTML = data.data.map(memory => `
+                        <div class="memory-item">
+                            <div class="memory-header">
+                                <div class="memory-title">${memory.title}</div>
+                                <div class="memory-date">${memory.date} · ${memory.year}年前</div>
+                            </div>
+                            <div class="memory-photos">
+                                ${memory.photoIds?.slice(0, 8).map(id => `<div class="memory-photo" onclick="viewPhoto('${id}')"></div>`).join('') || ''}
+                            </div>
+                        </div>
+                    `).join('');
+                    empty.style.display = 'none';
+                    timeline.style.display = 'block';
+                } else {
+                    timeline.style.display = 'none';
+                    empty.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('加载回忆失败:', error);
+            }
+        }
+
+        // 加载任务
+        async function loadTasks() {
+            try {
+                const response = await fetch(`${API_BASE}/ai/tasks`);
+                const data = await response.json();
+                
+                const list = document.getElementById('task-list');
+                
+                if (data.data && data.data.length > 0) {
+                    list.innerHTML = data.data.map(task => `
+                        <div class="task-item">
+                            <div class="task-icon">${getTaskIcon(task.type)}</div>
+                            <div class="task-info">
+                                <div class="task-title">${getTaskTitle(task.type)} - ${task.photoId?.substring(0, 8)}...</div>
+                                <div class="task-meta">${new Date(task.createdAt).toLocaleString()}</div>
+                            </div>
+                            <div class="task-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${task.progress}%"></div>
+                                </div>
+                                <div class="progress-text">${task.progress}%</div>
+                            </div>
+                            <div class="task-status status-${task.status}">${getTaskStatusText(task.status)}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">✅</div>
+                            <div class="empty-title">没有任务</div>
+                            <div class="empty-desc">所有分析任务已完成</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载任务失败:', error);
+            }
+        }
+
+        // 获取任务图标
+        function getTaskIcon(type) {
+            const icons = {
+                'face_detect': '👤',
+                'scene_classify': '🏞️',
+                'object_detect': '🚗',
+                'analyze_all': '🔍'
+            };
+            return icons[type] || '⚙️';
+        }
+
+        // 获取任务标题
+        function getTaskTitle(type) {
+            const titles = {
+                'face_detect': '人脸检测',
+                'scene_classify': '场景分类',
+                'object_detect': '物体检测',
+                'analyze_all': '完整分析'
+            };
+            return titles[type] || 'AI 任务';
+        }
+
+        // 获取任务状态文本
+        function getTaskStatusText(status) {
+            const texts = {
+                'pending': '等待中',
+                'running': '进行中',
+                'completed': '已完成',
+                'failed': '失败'
+            };
+            return texts[status] || status;
+        }
+
+        // 批量分析所有照片
+        async function batchAnalyzeAll() {
+            if (!confirm('确定要分析所有照片吗？这可能需要较长时间。')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/ai/analyze/batch`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.code === 0) {
+                    alert(`已添加 ${data.data.taskCount} 个分析任务`);
+                    switchTab('tasks');
+                } else {
+                    alert('操作失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('批量分析失败:', error);
+                alert('操作失败：' + error.message);
+            }
+        }
+
+        // 显示创建相册模态框
+        function showCreateAlbumModal() {
+            document.getElementById('create-album-modal').classList.add('active');
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // 更新相册条件输入框
+        function updateAlbumCriteria() {
+            const type = document.getElementById('album-type').value;
+            const criteriaInput = document.getElementById('criteria-value');
+            
+            const placeholders = {
+                'person': '输入人物名称',
+                'scene': '输入场景类型（如 landscape, portrait）',
+                'object': '输入物体名称（如 car, dog）',
+                'location': '输入地点名称',
+                'time': '输入日期范围（如 2024-01-01 to 2024-12-31）'
+            };
+            
+            criteriaInput.placeholder = placeholders[type] || '输入条件';
+        }
+
+        // 创建智能相册
+        async function createSmartAlbum() {
+            const name = document.getElementById('album-name').value;
+            const type = document.getElementById('album-type').value;
+            const criteriaValue = document.getElementById('criteria-value').value;
+
+            if (!name) {
+                alert('请输入相册名称');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/ai/smart-albums`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        type,
+                        criteria: { [type]: criteriaValue }
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.code === 0) {
+                    alert('智能相册创建成功');
+                    closeModal('create-album-modal');
+                    loadSmartAlbums();
+                } else {
+                    alert('创建失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('创建智能相册失败:', error);
+                alert('操作失败：' + error.message);
+            }
+        }
+
+        // 查看智能相册
+        function viewSmartAlbum(albumId) {
+            alert('查看智能相册：' + albumId);
+            // TODO: 实现相册查看
+        }
+
+        // 删除智能相册
+        async function deleteSmartAlbum(albumId) {
+            if (!confirm('确定要删除这个智能相册吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/ai/smart-albums/${albumId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (data.code === 0) {
+                    alert('删除成功');
+                    loadSmartAlbums();
+                } else {
+                    alert('删除失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('删除智能相册失败:', error);
+                alert('操作失败：' + error.message);
+            }
+        }
+
+        // 切换设置
+        function toggleSetting(element, setting) {
+            element.classList.toggle('active');
+            // TODO: 保存设置到后端
+        }
+
+        // 切换云端 AI
+        function toggleCloudAI(element) {
+            element.classList.toggle('active');
+            const configDiv = document.getElementById('cloud-api-config');
+            configDiv.style.display = element.classList.contains('active') ? 'block' : 'none';
+        }
+
+        // 重新分析所有照片
+        async function reanalyzeAll() {
+            if (!confirm('确定要重新分析所有照片吗？这将清除现有 AI 数据。')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/ai/reanalyze`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.code === 0) {
+                    alert('已重新开始分析所有照片');
+                    switchTab('tasks');
+                } else {
+                    alert('操作失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('重新分析失败:', error);
+                alert('操作失败：' + error.message);
+            }
+        }
+
+        // 清除 AI 数据
+        async function clearAIData() {
+            if (!confirm('确定要清除所有 AI 数据吗？此操作不可恢复。')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/ai/clear`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.code === 0) {
+                    alert('AI 数据已清除');
+                    loadStats();
+                } else {
+                    alert('操作失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('清除数据失败:', error);
+                alert('操作失败：' + error.message);
+            }
+        }
+
+        // 查看人物
+        function viewPerson(personId) {
+            alert('查看人物：' + personId);
+            // TODO: 实现人物查看
+        }
+
+        // 查看照片
+        function viewPhoto(photoId) {
+            alert('查看照片：' + photoId);
+            // TODO: 实现照片查看
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            
+            // 定期刷新任务状态
+            setInterval(() => {
+                if (document.getElementById('tasks').classList.contains('active')) {
+                    loadTasks();
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

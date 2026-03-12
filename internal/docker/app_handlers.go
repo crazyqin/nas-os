@@ -244,6 +244,8 @@ func (h *AppHandlers) installApp(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		// 允许空请求，使用默认配置
+		// 不返回错误，继续处理
+		_ = err // 明确忽略错误，避免 staticcheck 警告
 	}
 
 	// 构建配置
