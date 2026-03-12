@@ -78,7 +78,7 @@ func handleIncremental(args []string) {
 	backupName := fs.String("name", "", "备份名称")
 	baseDir := fs.String("dest", "/srv/backups", "备份根目录")
 
-	fs.Parse(args[1:])
+	_ = fs.Parse(args[1:])
 
 	ib := backup.NewIncrementalBackup(*baseDir)
 
@@ -140,7 +140,7 @@ func handleIncremental(args []string) {
 
 	case "delete":
 		timestamp := fs.String("timestamp", "", "备份时间戳")
-		fs.Parse(args[1:])
+		_ = fs.Parse(args[1:])
 
 		if *backupName == "" || *timestamp == "" {
 			fmt.Println("错误：--name 和 --timestamp 是必需的")
@@ -174,7 +174,7 @@ func handleCloud(args []string) {
 	localFile := fs.String("file", "", "本地文件路径")
 	remotePath := fs.String("remote", "", "云端路径")
 
-	fs.Parse(args[1:])
+	_ = fs.Parse(args[1:])
 
 	if *configFile == "" {
 		fmt.Println("错误：--config 是必需的")

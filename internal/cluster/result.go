@@ -525,19 +525,20 @@ func (ra *ResultAggregator) saveRules() error {
 	return os.WriteFile(rulesFile, data, 0644)
 }
 
-func (ra *ResultAggregator) loadRules() error {
-	rulesFile := filepath.Join(ra.config.DataDir, "aggregation_rules.json")
-
-	data, err := os.ReadFile(rulesFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-
-	return json.Unmarshal(data, &ra.rules)
-}
+// loadRules 加载聚合规则 - 保留用于未来从文件加载规则的场景
+// func (ra *ResultAggregator) loadRules() error {
+// 	rulesFile := filepath.Join(ra.config.DataDir, "aggregation_rules.json")
+//
+// 	data, err := os.ReadFile(rulesFile)
+// 	if err != nil {
+// 		if os.IsNotExist(err) {
+// 			return nil
+// 		}
+// 		return err
+// 	}
+//
+// 	return json.Unmarshal(data, &ra.rules)
+// }
 
 // 辅助函数
 
