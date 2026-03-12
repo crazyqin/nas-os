@@ -14,6 +14,7 @@ import (
 	"nas-os/internal/nfs"
 	"nas-os/internal/notify"
 	"nas-os/internal/perf"
+	"nas-os/internal/photos"
 	"nas-os/internal/plugin"
 	"nas-os/internal/quota"
 	"nas-os/internal/shares"
@@ -47,6 +48,7 @@ type Server struct {
 	filesMgr     *files.Manager
 	notifyMgr    *notify.Manager
 	downloadMgr  *downloader.Manager
+	photosMgr    *photos.Manager
 	// mediaMgr     *media.LibraryManager
 }
 
@@ -142,6 +144,13 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		mfaMgr = nil
 	}
 
+	// 初始化相册管理器
+	photosMgr, err := photos.NewManager("/var/lib/nas-os/photos")
+	if err != nil {
+		// 相册管理不可用时继续运行（记录日志）
+		photosMgr = nil
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -165,6 +174,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		filesMgr:     filesMgr,
 		notifyMgr:    notifyMgr,
 		downloadMgr:  downloadMgr,
+		photosMgr:    photosMgr,
 		// mediaMgr:     mediaMgr,
 	}
 
@@ -275,6 +285,11 @@ func (s *Server) setupRoutes() {
 		// ========== 下载中心 ==========
 		if s.downloadMgr != nil {
 			downloader.NewHandler(s.downloadMgr).RegisterRoutes(api)
+		}
+
+		// ========== 相册中心 ==========
+		if s.photosMgr != nil {
+			photos.NewHandlers(s.photosMgr).RegisterRoutes(api)
 		}
 
 		// ========== 媒体中心 ==========
