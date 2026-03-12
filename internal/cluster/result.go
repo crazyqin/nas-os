@@ -490,6 +490,9 @@ func (ra *ResultAggregator) Shutdown() error {
 // 持久化
 
 func (ra *ResultAggregator) saveAggregations() error {
+	ra.aggregationsMutex.RLock()
+	defer ra.aggregationsMutex.RUnlock()
+
 	aggsFile := filepath.Join(ra.config.DataDir, "aggregations.json")
 
 	data, err := json.MarshalIndent(ra.aggregations, "", "  ")
@@ -515,6 +518,9 @@ func (ra *ResultAggregator) loadAggregations() error {
 }
 
 func (ra *ResultAggregator) saveRules() error {
+	ra.rulesMutex.RLock()
+	defer ra.rulesMutex.RUnlock()
+
 	rulesFile := filepath.Join(ra.config.DataDir, "aggregation_rules.json")
 
 	data, err := json.MarshalIndent(ra.rules, "", "  ")
