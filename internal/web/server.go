@@ -2,10 +2,12 @@ package web
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
 	"nas-os/internal/auth"
+	"nas-os/internal/backup"
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
 	"nas-os/internal/files"
@@ -49,6 +51,8 @@ type Server struct {
 	notifyMgr    *notify.Manager
 	downloadMgr  *downloader.Manager
 	photosMgr    *photos.Manager
+	backupMgr    *backup.Manager
+	syncMgr      *backup.SyncManager
 	// mediaMgr     *media.LibraryManager
 }
 
@@ -151,6 +155,18 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		photosMgr = nil
 	}
 
+	// 初始化备份管理器
+	backupMgr := backup.NewManager("/etc/nas-os/backup-config.json", "/mnt/backups")
+	if err := backupMgr.Initialize(); err != nil {
+		log.Printf("⚠️ 备份管理初始化警告：%v", err)
+	} else {
+		log.Println("✅ 备份管理模块就绪")
+	}
+
+	// 初始化同步管理器
+	syncMgr := backup.NewSyncManager("/mnt/backups")
+	log.Println("✅ 同步管理模块就绪")
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -175,6 +191,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		notifyMgr:    notifyMgr,
 		downloadMgr:  downloadMgr,
 		photosMgr:    photosMgr,
+		backupMgr:    backupMgr,
+		syncMgr:      syncMgr,
 		// mediaMgr:     mediaMgr,
 	}
 
@@ -291,6 +309,10 @@ func (s *Server) setupRoutes() {
 		if s.photosMgr != nil {
 			photos.NewHandlers(s.photosMgr).RegisterRoutes(api)
 		}
+
+		// ========== 备份与同步 ==========
+		backupHandlers := backup.NewHandlers(s.backupMgr, s.syncMgr)
+		backupHandlers.RegisterRoutes(api)
 
 		// ========== 媒体中心 ==========
 		// if s.mediaMgr != nil {
