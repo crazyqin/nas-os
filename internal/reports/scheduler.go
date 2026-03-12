@@ -18,16 +18,16 @@ import (
 
 // ScheduleManager 定时任务管理器
 type ScheduleManager struct {
-	mu              sync.RWMutex
-	schedules       map[string]*ScheduledReport
-	executions      map[string][]*ScheduledReportExecution
-	cron            *cron.Cron
-	entryMap        map[string]cron.EntryID
-	generator       *ReportGenerator
-	exporter        *Exporter
-	dataDir         string
-	notifyEmail     func(scheduleID string, emails []string, report *GeneratedReport, path string) error
-	notifyWebhook   func(scheduleID string, webhooks []string, report *GeneratedReport, path string) error
+	mu            sync.RWMutex
+	schedules     map[string]*ScheduledReport
+	executions    map[string][]*ScheduledReportExecution
+	cron          *cron.Cron
+	entryMap      map[string]cron.EntryID
+	generator     *ReportGenerator
+	exporter      *Exporter
+	dataDir       string
+	notifyEmail   func(scheduleID string, emails []string, report *GeneratedReport, path string) error
+	notifyWebhook func(scheduleID string, webhooks []string, report *GeneratedReport, path string) error
 }
 
 // NewScheduleManager 创建定时任务管理器
@@ -40,13 +40,13 @@ func NewScheduleManager(generator *ReportGenerator, exporter *Exporter, dataDir 
 		exporter:   exporter,
 		dataDir:    dataDir,
 	}
-	
+
 	// 创建 cron 调度器，支持秒级
 	sm.cron = cron.New(cron.WithSeconds(), cron.WithLocation(time.Local))
-	
+
 	os.MkdirAll(dataDir, 0755)
 	sm.loadSchedules()
-	
+
 	return sm
 }
 
@@ -66,20 +66,20 @@ func (sm *ScheduleManager) loadSchedules() {
 	if err != nil {
 		return
 	}
-	
+
 	for _, file := range files {
 		data, err := os.ReadFile(file)
 		if err != nil {
 			continue
 		}
-		
+
 		var schedule ScheduledReport
 		if err := json.Unmarshal(data, &schedule); err != nil {
 			continue
 		}
-		
+
 		sm.schedules[schedule.ID] = &schedule
-		
+
 		// 如果任务启用，重新调度
 		if schedule.Enabled {
 			sm.scheduleTask(&schedule)
@@ -93,7 +93,7 @@ func (sm *ScheduleManager) saveSchedule(schedule *ScheduledReport) error {
 	if err != nil {
 		return err
 	}
-	
+
 	path := filepath.Join(sm.dataDir, "schedule_"+schedule.ID+".json")
 	return os.WriteFile(path, data, 0644)
 }
@@ -118,7 +118,7 @@ func (sm *ScheduleManager) Stop() {
 func (sm *ScheduleManager) CreateSchedule(input ScheduledReportInput, createdBy string) (*ScheduledReport, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	// 验证报表或模板存在
 	if input.ReportID != "" {
 		if _, err := sm.generator.GetCustomReport(input.ReportID); err != nil {
@@ -129,29 +129,29 @@ func (sm *ScheduleManager) CreateSchedule(input ScheduledReportInput, createdBy 
 	} else {
 		return nil, errors.New("必须指定报表或模板")
 	}
-	
+
 	// 生成 cron 表达式
 	cronExpr := input.CronExpr
 	if cronExpr == "" {
 		cronExpr = sm.frequencyToCron(input.Frequency)
 	}
-	
+
 	// 验证 cron 表达式
 	parser := cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 	schedule, err := parser.Parse(cronExpr)
 	if err != nil {
 		return nil, ErrInvalidCronExpr
 	}
-	
+
 	// 设置时区
 	timezone := input.Timezone
 	if timezone == "" {
 		timezone = "Local"
 	}
-	
+
 	now := time.Now()
 	nextRun := schedule.Next(now)
-	
+
 	report := &ScheduledReport{
 		ID:            uuid.New().String(),
 		Name:          input.Name,
@@ -172,19 +172,19 @@ func (sm *ScheduleManager) CreateSchedule(input ScheduledReportInput, createdBy 
 		UpdatedAt:     now,
 		CreatedBy:     createdBy,
 	}
-	
+
 	sm.schedules[report.ID] = report
-	
+
 	if err := sm.saveSchedule(report); err != nil {
 		delete(sm.schedules, report.ID)
 		return nil, err
 	}
-	
+
 	// 如果启用，添加到调度器
 	if report.Enabled {
 		sm.scheduleTask(report)
 	}
-	
+
 	return report, nil
 }
 
@@ -192,12 +192,12 @@ func (sm *ScheduleManager) CreateSchedule(input ScheduledReportInput, createdBy 
 func (sm *ScheduleManager) GetSchedule(id string) (*ScheduledReport, error) {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	schedule, exists := sm.schedules[id]
 	if !exists {
 		return nil, ErrScheduleNotFound
 	}
-	
+
 	return schedule, nil
 }
 
@@ -205,7 +205,7 @@ func (sm *ScheduleManager) GetSchedule(id string) (*ScheduledReport, error) {
 func (sm *ScheduleManager) ListSchedules(enabled *bool) []*ScheduledReport {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	result := make([]*ScheduledReport, 0)
 	for _, s := range sm.schedules {
 		if enabled != nil && s.Enabled != *enabled {
@@ -213,7 +213,7 @@ func (sm *ScheduleManager) ListSchedules(enabled *bool) []*ScheduledReport {
 		}
 		result = append(result, s)
 	}
-	
+
 	return result
 }
 
@@ -221,27 +221,27 @@ func (sm *ScheduleManager) ListSchedules(enabled *bool) []*ScheduledReport {
 func (sm *ScheduleManager) UpdateSchedule(id string, input ScheduledReportInput) (*ScheduledReport, error) {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	schedule, exists := sm.schedules[id]
 	if !exists {
 		return nil, ErrScheduleNotFound
 	}
-	
+
 	// 如果修改了频率或 cron 表达式，需要重新验证
 	cronExpr := input.CronExpr
 	if cronExpr == "" {
 		cronExpr = sm.frequencyToCron(input.Frequency)
 	}
-	
+
 	parser := cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 	cronSchedule, err := parser.Parse(cronExpr)
 	if err != nil {
 		return nil, ErrInvalidCronExpr
 	}
-	
+
 	// 停止旧任务
 	sm.unscheduleTask(id)
-	
+
 	// 更新字段
 	schedule.Name = input.Name
 	schedule.Description = input.Description
@@ -257,20 +257,20 @@ func (sm *ScheduleManager) UpdateSchedule(id string, input ScheduledReportInput)
 	schedule.Retention = input.Retention
 	schedule.Enabled = input.Enabled
 	schedule.UpdatedAt = time.Now()
-	
+
 	// 计算下次运行时间
 	nextRun := cronSchedule.Next(time.Now())
 	schedule.NextRun = &nextRun
-	
+
 	if err := sm.saveSchedule(schedule); err != nil {
 		return nil, err
 	}
-	
+
 	// 如果启用，重新调度
 	if schedule.Enabled {
 		sm.scheduleTask(schedule)
 	}
-	
+
 	return schedule, nil
 }
 
@@ -278,17 +278,17 @@ func (sm *ScheduleManager) UpdateSchedule(id string, input ScheduledReportInput)
 func (sm *ScheduleManager) DeleteSchedule(id string) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	if _, exists := sm.schedules[id]; !exists {
 		return ErrScheduleNotFound
 	}
-	
+
 	// 停止任务
 	sm.unscheduleTask(id)
-	
+
 	delete(sm.schedules, id)
 	delete(sm.executions, id)
-	
+
 	return sm.deleteScheduleFile(id)
 }
 
@@ -306,12 +306,12 @@ func (sm *ScheduleManager) DisableSchedule(id string) error {
 func (sm *ScheduleManager) setScheduleEnabled(id string, enabled bool) error {
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
-	
+
 	schedule, exists := sm.schedules[id]
 	if !exists {
 		return ErrScheduleNotFound
 	}
-	
+
 	if enabled && !schedule.Enabled {
 		// 启用
 		schedule.Enabled = true
@@ -321,7 +321,7 @@ func (sm *ScheduleManager) setScheduleEnabled(id string, enabled bool) error {
 		schedule.Enabled = false
 		sm.unscheduleTask(id)
 	}
-	
+
 	schedule.UpdatedAt = time.Now()
 	return sm.saveSchedule(schedule)
 }
@@ -335,7 +335,7 @@ func (sm *ScheduleManager) RunNow(id string) (*ScheduledReportExecution, error) 
 		return nil, ErrScheduleNotFound
 	}
 	sm.mu.RUnlock()
-	
+
 	return sm.executeReport(schedule)
 }
 
@@ -345,18 +345,18 @@ func (sm *ScheduleManager) scheduleTask(schedule *ScheduledReport) {
 	if entryID, exists := sm.entryMap[schedule.ID]; exists {
 		sm.cron.Remove(entryID)
 	}
-	
+
 	// 添加新任务
 	entryID, err := sm.cron.AddFunc(schedule.CronExpr, func() {
 		sm.executeReport(schedule)
 	})
-	
+
 	if err != nil {
 		return
 	}
-	
+
 	sm.entryMap[schedule.ID] = entryID
-	
+
 	// 更新下次运行时间
 	entry := sm.cron.Entry(entryID)
 	if entry.ID != 0 {
@@ -382,12 +382,12 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 		StartedAt:  now,
 		Status:     "running",
 	}
-	
+
 	sm.mu.Lock()
 	sm.executions[schedule.ID] = append(sm.executions[schedule.ID], execution)
 	schedule.LastRun = &now
 	sm.mu.Unlock()
-	
+
 	defer func() {
 		sm.mu.Lock()
 		schedule.LastStatus = execution.Status
@@ -397,11 +397,11 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 		sm.saveSchedule(schedule)
 		sm.mu.Unlock()
 	}()
-	
+
 	// 生成报表
 	var report *GeneratedReport
 	var err error
-	
+
 	if schedule.ReportID != "" {
 		report, err = sm.generator.GenerateFromCustomReport(schedule.ReportID, nil, nil)
 	} else if schedule.TemplateID != "" {
@@ -409,7 +409,7 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 	} else {
 		err = errors.New("未指定报表或模板")
 	}
-	
+
 	if err != nil {
 		execution.Status = "failed"
 		execution.Error = err.Error()
@@ -417,27 +417,27 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 		execution.CompletedAt = &completedAt
 		return execution, err
 	}
-	
+
 	// 设置报表名称
 	report.Name = schedule.Name
-	
+
 	// 确定输出格式
 	format := schedule.ExportFormat
 	if format == "" {
 		format = ExportJSON
 	}
-	
+
 	// 确定输出路径
 	outputPath := schedule.OutputPath
 	if outputPath == "" {
 		outputPath = sm.getDefaultOutputPath(schedule.ID, format)
 	}
-	
+
 	// 导出报表
 	exportResult, err := sm.exporter.Export(report, format, outputPath, ExportOptions{
 		Title: schedule.Name,
 	})
-	
+
 	if err != nil {
 		execution.Status = "failed"
 		execution.Error = fmt.Sprintf("导出失败: %v", err)
@@ -445,29 +445,29 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 		execution.CompletedAt = &completedAt
 		return execution, err
 	}
-	
+
 	execution.OutputPath = exportResult.Path
 	execution.OutputSize = exportResult.Size
 	execution.RecordsCount = report.TotalRecords
-	
+
 	// 发送通知
 	if len(schedule.NotifyEmail) > 0 && sm.notifyEmail != nil {
 		sm.notifyEmail(schedule.ID, schedule.NotifyEmail, report, exportResult.Path) //nolint:errcheck
 	}
-	
+
 	if len(schedule.NotifyWebhook) > 0 && sm.notifyWebhook != nil {
 		sm.notifyWebhook(schedule.ID, schedule.NotifyWebhook, report, exportResult.Path) //nolint:errcheck
 	}
-	
+
 	// 清理旧文件
 	if schedule.Retention > 0 {
 		sm.cleanupOldFiles(schedule.ID, schedule.Retention)
 	}
-	
+
 	completedAt := time.Now()
 	execution.Status = "success"
 	execution.CompletedAt = &completedAt
-	
+
 	return execution, nil
 }
 
@@ -475,16 +475,16 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 func (sm *ScheduleManager) GetExecutions(scheduleID string, limit int) []*ScheduledReportExecution {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
-	
+
 	executions, exists := sm.executions[scheduleID]
 	if !exists {
 		return []*ScheduledReportExecution{}
 	}
-	
+
 	if limit > 0 && len(executions) > limit {
 		return executions[len(executions)-limit:]
 	}
-	
+
 	return executions
 }
 
@@ -514,20 +514,20 @@ func (sm *ScheduleManager) getDefaultOutputPath(scheduleID string, format Export
 // cleanupOldFiles 清理旧文件
 func (sm *ScheduleManager) cleanupOldFiles(scheduleID string, retentionDays int) {
 	outputDir := filepath.Join(sm.dataDir, "outputs", scheduleID)
-	
+
 	files, err := filepath.Glob(filepath.Join(outputDir, "*"))
 	if err != nil {
 		return
 	}
-	
+
 	cutoff := time.Now().AddDate(0, 0, -retentionDays)
-	
+
 	for _, file := range files {
 		info, err := os.Stat(file)
 		if err != nil {
 			continue
 		}
-		
+
 		if info.ModTime().Before(cutoff) {
 			os.Remove(file)
 		}
