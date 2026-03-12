@@ -51,6 +51,7 @@ type Server struct {
 	notifyMgr    *notify.Manager
 	downloadMgr  *downloader.Manager
 	photosMgr    *photos.Manager
+	photosAIMgr  *photos.AIManager
 	backupMgr    *backup.Manager
 	syncMgr      *backup.SyncManager
 	// mediaMgr     *media.LibraryManager
@@ -155,6 +156,17 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		photosMgr = nil
 	}
 
+	// 初始化 AI 相册管理器
+	var photosAIMgr *photos.AIManager
+	if photosMgr != nil {
+		photosAIMgr, err = photos.NewAIManager(photosMgr, "/var/lib/nas-os/photos/models")
+		if err != nil {
+			log.Printf("⚠️ AI 相册管理初始化警告：%v", err)
+		} else {
+			log.Println("✅ AI 相册管理模块就绪")
+		}
+	}
+
 	// 初始化备份管理器
 	backupMgr := backup.NewManager("/etc/nas-os/backup-config.json", "/mnt/backups")
 	if err := backupMgr.Initialize(); err != nil {
@@ -191,6 +203,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		notifyMgr:    notifyMgr,
 		downloadMgr:  downloadMgr,
 		photosMgr:    photosMgr,
+		photosAIMgr:  photosAIMgr,
 		backupMgr:    backupMgr,
 		syncMgr:      syncMgr,
 		// mediaMgr:     mediaMgr,
@@ -307,7 +320,7 @@ func (s *Server) setupRoutes() {
 
 		// ========== 相册中心 ==========
 		if s.photosMgr != nil {
-			photos.NewHandlers(s.photosMgr).RegisterRoutes(api)
+			photos.NewHandlers(s.photosMgr, s.photosAIMgr).RegisterRoutes(api)
 		}
 
 		// ========== 备份与同步 ==========
@@ -364,6 +377,11 @@ func (s *Server) Stop() error {
 	// 停止配额管理
 	if s.quotaMgr != nil {
 		s.quotaMgr.Stop()
+	}
+	
+	// 停止 AI 相册管理
+	if s.photosAIMgr != nil {
+		s.photosAIMgr.Close()
 	}
 	
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

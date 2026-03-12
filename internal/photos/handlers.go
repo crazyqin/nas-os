@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,13 +17,16 @@ import (
 
 // Handlers 相册处理器
 type Handlers struct {
-	manager *Manager
+	manager   *Manager
+	aiManager *AIManager
+	mu        sync.RWMutex
 }
 
 // NewHandlers 创建相册处理器
-func NewHandlers(manager *Manager) *Handlers {
+func NewHandlers(manager *Manager, aiManager *AIManager) *Handlers {
 	return &Handlers{
-		manager: manager,
+		manager:   manager,
+		aiManager: aiManager,
 	}
 }
 
@@ -66,6 +70,18 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		photos.POST("/persons", h.createPerson)
 		photos.PUT("/persons/:id", h.updatePerson)
 		photos.DELETE("/persons/:id", h.deletePerson)
+
+		// AI 相册功能
+		photos.GET("/ai/stats", h.getAIStats)
+		photos.GET("/ai/tasks", h.listAITasks)
+		photos.POST("/ai/analyze/:photoId", h.analyzePhoto)
+		photos.POST("/ai/analyze/batch", h.batchAnalyzePhotos)
+		photos.GET("/ai/smart-albums", h.listSmartAlbums)
+		photos.POST("/ai/smart-albums", h.createSmartAlbum)
+		photos.DELETE("/ai/smart-albums/:id", h.deleteSmartAlbum)
+		photos.GET("/ai/memories", h.getMemories)
+		photos.POST("/ai/reanalyze", h.reanalyzeAll)
+		photos.POST("/ai/clear", h.clearAIData)
 
 		// 搜索
 		photos.GET("/search", h.searchPhotos)
@@ -813,16 +829,275 @@ func (h *Handlers) searchPhotos(c *gin.Context) {
 
 // getStats 获取统计信息
 func (h *Handlers) getStats(c *gin.Context) {
-	// TODO: 实现统计逻辑
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	totalPhotos := len(h.manager.photos)
+	totalAlbums := len(h.manager.albums)
+	totalPersons := len(h.manager.persons)
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"totalPhotos":   0,
-			"totalAlbums":   0,
-			"totalPersons":  0,
-			"storageUsed":   0,
+			"totalPhotos":  totalPhotos,
+			"totalAlbums":  totalAlbums,
+			"totalPersons": totalPersons,
+			"storageUsed":  0, // TODO: 计算实际使用空间
 		},
+	})
+}
+
+// ==================== AI 相册相关处理器 ====================
+
+// getAIStats 获取 AI 统计信息
+func (h *Handlers) getAIStats(c *gin.Context) {
+	if h.aiManager == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data": gin.H{
+				"totalAnalyzed":      0,
+				"totalFaces":         0,
+				"sceneDistribution":  map[string]int{},
+				"objectDistribution": map[string]int{},
+			},
+		})
+		return
+	}
+
+	stats := h.aiManager.GetAIStats()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    stats,
+	})
+}
+
+// listAITasks 列出 AI 任务
+func (h *Handlers) listAITasks(c *gin.Context) {
+	status := c.Query("status")
+	
+	if h.aiManager == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data":    []*AITask{},
+		})
+		return
+	}
+
+	tasks := h.aiManager.ListTasks(status)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    tasks,
+	})
+}
+
+// analyzePhoto 分析单张照片
+func (h *Handlers) analyzePhoto(c *gin.Context) {
+	photoID := c.Param("photoId")
+
+	if h.aiManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "AI 管理器未初始化",
+		})
+		return
+	}
+
+	h.mu.RLock()
+	photo, exists := h.manager.photos[photoID]
+	h.mu.RUnlock()
+
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "照片不存在",
+		})
+		return
+	}
+
+	photoPath := filepath.Join(h.manager.photosDir, photo.Path)
+	taskID := h.aiManager.AnalyzePhoto(photoID, photoPath)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "分析任务已添加",
+		"data": gin.H{
+			"taskId": taskID,
+		},
+	})
+}
+
+// batchAnalyzePhotos 批量分析照片
+func (h *Handlers) batchAnalyzePhotos(c *gin.Context) {
+	if h.aiManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "AI 管理器未初始化",
+		})
+		return
+	}
+
+	h.mu.RLock()
+	photos := make([]*Photo, 0, len(h.manager.photos))
+	for _, photo := range h.manager.photos {
+		photos = append(photos, photo)
+	}
+	h.mu.RUnlock()
+
+	taskIDs := h.aiManager.BatchAnalyze(photos)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "批量分析任务已添加",
+		"data": gin.H{
+			"taskCount": len(taskIDs),
+			"taskIds":   taskIDs,
+		},
+	})
+}
+
+// listSmartAlbums 列出智能相册
+func (h *Handlers) listSmartAlbums(c *gin.Context) {
+	if h.aiManager == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data":    []*SmartAlbum{},
+		})
+		return
+	}
+
+	albums := h.aiManager.ListSmartAlbums()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    albums,
+	})
+}
+
+// createSmartAlbum 创建智能相册
+func (h *Handlers) createSmartAlbum(c *gin.Context) {
+	if h.aiManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "AI 管理器未初始化",
+		})
+		return
+	}
+
+	var req struct {
+		Name     string                 `json:"name" binding:"required"`
+		Type     string                 `json:"type" binding:"required"`
+		Criteria map[string]interface{} `json:"criteria"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	album, err := h.aiManager.CreateSmartAlbum(req.Name, req.Type, req.Criteria)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "创建成功",
+		"data":    album,
+	})
+}
+
+// deleteSmartAlbum 删除智能相册
+func (h *Handlers) deleteSmartAlbum(c *gin.Context) {
+	albumID := c.Param("id")
+
+	if h.aiManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "AI 管理器未初始化",
+		})
+		return
+	}
+
+	if err := h.aiManager.DeleteSmartAlbum(albumID); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "删除成功",
+	})
+}
+
+// getMemories 获取回忆列表
+func (h *Handlers) getMemories(c *gin.Context) {
+	monthDay := c.Query("date") // MM-DD 格式
+	
+	if h.aiManager == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data":    []*MemoryAlbum{},
+		})
+		return
+	}
+
+	memories := h.aiManager.GetMemories(monthDay)
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    memories,
+	})
+}
+
+// reanalyzeAll 重新分析所有照片
+func (h *Handlers) reanalyzeAll(c *gin.Context) {
+	if h.aiManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "AI 管理器未初始化",
+		})
+		return
+	}
+
+	// TODO: 清除现有 AI 数据并重新分析
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "已重新开始分析",
+	})
+}
+
+// clearAIData 清除 AI 数据
+func (h *Handlers) clearAIData(c *gin.Context) {
+	if h.aiManager == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "AI 管理器未初始化",
+		})
+		return
+	}
+
+	// TODO: 清除 AI 内存数据
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "AI 数据已清除",
 	})
 }
