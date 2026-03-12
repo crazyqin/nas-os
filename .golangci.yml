@@ -46,11 +46,6 @@ linters-settings:
     disable:
       - S1039  # unnecessary use of fmt.Sprintf
 
-linters-settings:
-  errcheck:
-    check-type-assertions: false
-    check-blank: false
-
 issues:
   exclude-use-default: false
   exclude:
