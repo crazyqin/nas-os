@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>性能监控 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #F3F4F6;
+            color: #1F2937;
+            padding: 20px;
+        }
+        .perf-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .perf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .perf-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .perf-controls {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: #2563EB; color: white; border-color: #2563EB; }
+        .btn-primary { background: #2563EB; color: white; border-color: #2563EB; }
+        .btn-danger { background: #DC2626; color: white; border-color: #DC2626; }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .metric-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6B7280;
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .metric-unit {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin-left: 4px;
+        }
+        .metric-trend {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .trend-up { color: #DC2626; }
+        .trend-down { color: #10B981; }
+        
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .stats-table th, .stats-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .stats-table th {
+            font-weight: 600;
+            color: #6B7280;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .stats-table tr:hover { background: #F9FAFB; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-good { background: #D1FAE5; color: #065F46; }
+        .status-warning { background: #FEF3C7; color: #92400E; }
+        .status-critical { background: #FEE2E2; color: #991B1B; }
+        
+        .cache-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .cache-stat {
+            text-align: center;
+            padding: 16px;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+        .cache-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2563EB;
+        }
+        .cache-stat-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563EB, #3B82F6);
+            transition: width 0.3s;
+        }
+        .progress-fill.warning { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+        .progress-fill.critical { background: linear-gradient(90deg, #DC2626, #EF4444); }
+        
+        .alert-box {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .alert-warning {
+            background: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+        }
+        .alert-critical {
+            background: #FEE2E2;
+            border-left: 4px solid #DC2626;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .cache-stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="perf-container">
+        <div class="perf-header">
+            <h1 class="perf-title">⚡ 性能监控</h1>
+            <div class="perf-controls">
+                <button class="btn" onclick="refreshData()">🔄 刷新</button>
+                <button class="btn" onclick="exportReport()">📊 导出报告</button>
+                <button class="btn btn-primary" onclick="toggleAutoRefresh()">⏱️ 自动刷新：<span id="autoRefreshStatus">开</span></button>
+            </div>
+        </div>
+        
+        <!-- 核心指标 -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-name">API 响应时间 (P95)</span>
+                    <span class="status-badge status-good" id="apiStatus">良好</span>
+                </div>
+                <div class="metric-value" id="apiResponseTime">45<span class="metric-unit">ms</span></div>
+                <div class="metric-trend trend-down" id="apiTrend">↓ 12% 较昨日</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="apiProgress" style="width: 45%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-name">缓存命中率</span>
+                    <span class="status-badge status-good" id="cacheStatus">优秀</span>
+                </div>
+                <div class="metric-value" id="cacheHitRate">87.3<span class="metric-unit">%</span></div>
+                <div class="metric-trend trend-up" id="cacheTrend">↑ 5.2% 较昨日</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="cacheProgress" style="width: 87.3%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-name">并发连接数</span>
+                    <span class="status-badge status-good" id="connStatus">正常</span>
+                </div>
+                <div class="metric-value" id="concurrentConn">342</div>
+                <div class="metric-trend" id="connTrend">峰值：1,247</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="connProgress" style="width: 34.2%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-name">系统健康度</span>
+                    <span class="status-badge status-good" id="healthStatus">95 分</span>
+                </div>
+                <div class="metric-value" id="healthScore">95</div>
+                <div class="metric-trend trend-down" id="healthTrend">↓ 2 分</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="healthProgress" style="width: 95%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 缓存统计 -->
+        <div class="section">
+            <h2 class="section-title">📦 缓存统计</h2>
+            <div class="cache-stats">
+                <div class="cache-stat">
+                    <div class="cache-stat-value" id="cacheHits">1,234,567</div>
+                    <div class="cache-stat-label">命中次数</div>
+                </div>
+                <div class="cache-stat">
+                    <div class="cache-stat-value" id="cacheMisses">189,432</div>
+                    <div class="cache-stat-label">未命中次数</div>
+                </div>
+                <div class="cache-stat">
+                    <div class="cache-stat-value" id="cacheSize">2.4 GB</div>
+                    <div class="cache-stat-label">缓存大小</div>
+                </div>
+            </div>
+            <div class="cache-stats" style="margin-top: 16px;">
+                <div class="cache-stat">
+                    <div class="cache-stat-value" id="cacheSets">567,890</div>
+                    <div class="cache-stat-label">写入次数</div>
+                </div>
+                <div class="cache-stat">
+                    <div class="cache-stat-value" id="cacheEvictions">12,345</div>
+                    <div class="cache-stat-label">淘汰次数</div>
+                </div>
+                <div class="cache-stat">
+                    <div class="cache-stat-value" id="cacheExpires">8,901</div>
+                    <div class="cache-stat-label">过期次数</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 性能图表 -->
+        <div class="grid-2">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">📈 API 响应时间趋势</h3>
+                    <select class="btn" id="responseTimeRange" onchange="updateResponseTimeChart()">
+                        <option value="1h">1 小时</option>
+                        <option value="6h">6 小时</option>
+                        <option value="24h" selected>24 小时</option>
+                        <option value="7d">7 天</option>
+                    </select>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="responseTimeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">📊 缓存命中率趋势</h3>
+                    <select class="btn" id="cacheRateRange" onchange="updateCacheRateChart()">
+                        <option value="1h">1 小时</option>
+                        <option value="6h">6 小时</option>
+                        <option value="24h" selected>24 小时</option>
+                        <option value="7d">7 天</option>
+                    </select>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="cacheRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid-2" style="margin-top: 20px;">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">🔥 并发连接数</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="connectionsChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">💾 资源使用率</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="resourcesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 慢查询日志 -->
+        <div class="section">
+            <h2 class="section-title">🐌 慢查询日志 (Top 10)</h2>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>查询</th>
+                        <th>耗时</th>
+                        <th>时间</th>
+                        <th>来源</th>
+                    </tr>
+                </thead>
+                <tbody id="slowQueryTable">
+                    <tr>
+                        <td><code>SELECT * FROM files WHERE path LIKE '%photo%' ORDER BY created_at</code></td>
+                        <td>2.3s</td>
+                        <td>2026-03-12 20:45:32</td>
+                        <td>files.ListFiles</td>
+                    </tr>
+                    <tr>
+                        <td><code>SELECT COUNT(*) FROM media WHERE type = 'video' GROUP BY category</code></td>
+                        <td>1.8s</td>
+                        <td>2026-03-12 20:43:15</td>
+                        <td>media.GetStats</td>
+                    </tr>
+                    <tr>
+                        <td><code>SELECT * FROM users JOIN quotas ON users.id = quotas.user_id</code></td>
+                        <td>1.5s</td>
+                        <td>2026-03-12 20:41:08</td>
+                        <td>users.GetAll</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 性能热点 -->
+        <div class="section">
+            <h2 class="section-title">🔥 性能热点分析</h2>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>类型</th>
+                        <th>平均耗时</th>
+                        <th>调用次数</th>
+                        <th>总耗时</th>
+                        <th>占比</th>
+                    </tr>
+                </thead>
+                <tbody id="hotspotsTable">
+                    <tr>
+                        <td><code>files.ListFiles</code></td>
+                        <td>function</td>
+                        <td>245ms</td>
+                        <td>12,345</td>
+                        <td>50.2min</td>
+                        <td>35.2%</td>
+                    </tr>
+                    <tr>
+                        <td><code>GET /api/files</code></td>
+                        <td>endpoint</td>
+                        <td>189ms</td>
+                        <td>8,901</td>
+                        <td>28.1min</td>
+                        <td>19.6%</td>
+                    </tr>
+                    <tr>
+                        <td><code>media.GetThumbnails</code></td>
+                        <td>function</td>
+                        <td>567ms</td>
+                        <td>2,345</td>
+                        <td>22.3min</td>
+                        <td>15.6%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 系统瓶颈 -->
+        <div class="section">
+            <h2 class="section-title">⚠️ 系统瓶颈检测</h2>
+            <div id="bottlenecksList">
+                <div class="alert-box alert-warning">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>内存使用率偏高</strong>
+                        <div style="font-size: 12px; color: #6B7280; margin-top: 4px;">当前使用率：82%，建议阈值：80%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Chart.js 配置
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto';
+        Chart.defaults.color = '#6B7280';
+        
+        let autoRefresh = true;
+        let refreshInterval;
+        
+        // 初始化图表
+        const responseTimeCtx = document.getElementById('responseTimeChart').getContext('2d');
+        const responseTimeChart = new Chart(responseTimeCtx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+                datasets: [{
+                    label: 'P50',
+                    data: [32, 28, 25, 30, 45, 52, 48, 55, 62, 58, 45],
+                    borderColor: '#2563EB',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'P95',
+                    data: [58, 52, 48, 55, 78, 92, 85, 98, 105, 95, 78],
+                    borderColor: '#DC2626',
+                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: '毫秒 (ms)' }
+                    }
+                }
+            }
+        });
+        
+        const cacheRateCtx = document.getElementById('cacheRateChart').getContext('2d');
+        const cacheRateChart = new Chart(cacheRateCtx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+                datasets: [{
+                    label: '缓存命中率 (%)',
+                    data: [85.2, 86.1, 84.8, 87.3, 88.5, 89.2, 87.8, 86.5, 85.9, 87.1, 87.3],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 70,
+                        max: 100,
+                        title: { display: true, text: '百分比 (%)' }
+                    }
+                }
+            }
+        });
+        
+        const connectionsCtx = document.getElementById('connectionsChart').getContext('2d');
+        const connectionsChart = new Chart(connectionsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+                datasets: [{
+                    label: '并发连接数',
+                    data: [120, 95, 80, 150, 380, 520, 480, 610, 720, 650, 342],
+                    backgroundColor: '#3B82F6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: '连接数' }
+                    }
+                }
+            }
+        });
+        
+        const resourcesCtx = document.getElementById('resourcesChart').getContext('2d');
+        const resourcesChart = new Chart(resourcesCtx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+                datasets: [{
+                    label: 'CPU 使用率',
+                    data: [15, 12, 10, 18, 45, 62, 58, 65, 72, 68, 45],
+                    borderColor: '#8B5CF6',
+                    tension: 0.4
+                }, {
+                    label: '内存使用率',
+                    data: [65, 64, 63, 66, 75, 82, 80, 85, 88, 84, 82],
+                    borderColor: '#F59E0B',
+                    tension: 0.4
+                }, {
+                    label: '磁盘 IO',
+                    data: [20, 15, 12, 25, 55, 68, 62, 70, 75, 72, 55],
+                    borderColor: '#06B6D4',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: { display: true, text: '使用率 (%)' }
+                    }
+                }
+            }
+        });
+        
+        // 自动刷新
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            document.getElementById('autoRefreshStatus').textContent = autoRefresh ? '开' : '关';
+            
+            if (autoRefresh) {
+                startAutoRefresh();
+            } else {
+                stopAutoRefresh();
+            }
+        }
+        
+        function startAutoRefresh() {
+            refreshInterval = setInterval(refreshData, 5000); // 5 秒刷新一次
+        }
+        
+        function stopAutoRefresh() {
+            clearInterval(refreshInterval);
+        }
+        
+        // 刷新数据
+        function refreshData() {
+            fetch('/api/performance/stats')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新指标
+                    document.getElementById('apiResponseTime').innerHTML = data.api_response_time_p95 + '<span class="metric-unit">ms</span>';
+                    document.getElementById('cacheHitRate').innerHTML = data.cache_hit_rate.toFixed(1) + '<span class="metric-unit">%</span>';
+                    document.getElementById('concurrentConn').textContent = data.concurrent_connections;
+                    document.getElementById('healthScore').textContent = data.health_score;
+                    
+                    // 更新缓存统计
+                    document.getElementById('cacheHits').textContent = formatNumber(data.cache_hits);
+                    document.getElementById('cacheMisses').textContent = formatNumber(data.cache_misses);
+                    document.getElementById('cacheSize').textContent = formatSize(data.cache_size);
+                    document.getElementById('cacheSets').textContent = formatNumber(data.cache_sets);
+                    document.getElementById('cacheEvictions').textContent = formatNumber(data.cache_evictions);
+                    document.getElementById('cacheExpires').textContent = formatNumber(data.cache_expires);
+                    
+                    // 更新进度条
+                    updateProgress('apiProgress', data.api_response_time_p95, 100);
+                    updateProgress('cacheProgress', data.cache_hit_rate, 100);
+                    updateProgress('connProgress', data.concurrent_connections / data.max_connections * 100, 100);
+                    updateProgress('healthProgress', data.health_score, 100);
+                    
+                    // 更新状态
+                    updateStatus('apiStatus', data.api_response_time_p95, 100);
+                    updateStatus('cacheStatus', data.cache_hit_rate, 80, true);
+                    updateStatus('connStatus', data.concurrent_connections / data.max_connections * 100, 80);
+                    
+                    // 更新图表
+                    updateCharts(data);
+                })
+                .catch(err => console.error('Failed to fetch performance data:', err));
+        }
+        
+        function updateProgress(id, value, max) {
+            const el = document.getElementById(id);
+            const percentage = Math.min((value / max) * 100, 100);
+            el.style.width = percentage + '%';
+            
+            if (percentage > 90) {
+                el.className = 'progress-fill critical';
+            } else if (percentage > 75) {
+                el.className = 'progress-fill warning';
+            } else {
+                el.className = 'progress-fill';
+            }
+        }
+        
+        function updateStatus(id, value, threshold, higherIsBetter = false) {
+            const el = document.getElementById(id);
+            let status, className;
+            
+            if (higherIsBetter) {
+                if (value >= 90) {
+                    status = '优秀';
+                    className = 'status-good';
+                } else if (value >= 75) {
+                    status = '良好';
+                    className = 'status-good';
+                } else if (value >= 60) {
+                    status = '警告';
+                    className = 'status-warning';
+                } else {
+                    status = '严重';
+                    className = 'status-critical';
+                }
+            } else {
+                if (value <= threshold * 0.5) {
+                    status = '良好';
+                    className = 'status-good';
+                } else if (value <= threshold) {
+                    status = '正常';
+                    className = 'status-good';
+                } else if (value <= threshold * 1.2) {
+                    status = '警告';
+                    className = 'status-warning';
+                } else {
+                    status = '严重';
+                    className = 'status-critical';
+                }
+            }
+            
+            el.textContent = status;
+            el.className = 'status-badge ' + className;
+        }
+        
+        function updateCharts(data) {
+            // 更新图表数据
+            responseTimeChart.data.datasets[0].data = data.response_time_p50_history;
+            responseTimeChart.data.datasets[1].data = data.response_time_p95_history;
+            responseTimeChart.update();
+            
+            cacheRateChart.data.datasets[0].data = data.cache_hit_rate_history;
+            cacheRateChart.update();
+            
+            connectionsChart.data.datasets[0].data = data.connections_history;
+            connectionsChart.update();
+            
+            resourcesChart.data.datasets[0].data = data.cpu_history;
+            resourcesChart.data.datasets[1].data = data.memory_history;
+            resourcesChart.data.datasets[2].data = data.disk_io_history;
+            resourcesChart.update();
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+        
+        function formatSize(bytes) {
+            if (bytes >= 1073741824) {
+                return (bytes / 1073741824).toFixed(1) + ' GB';
+            } else if (bytes >= 1048576) {
+                return (bytes / 1048576).toFixed(1) + ' MB';
+            } else if (bytes >= 1024) {
+                return (bytes / 1024).toFixed(1) + ' KB';
+            }
+            return bytes + ' B';
+        }
+        
+        function exportReport() {
+            window.open('/api/performance/report', '_blank');
+        }
+        
+        // 启动自动刷新
+        startAutoRefresh();
+        
+        // 初始加载
+        refreshData();
+    </script>
+</body>
+</html>
