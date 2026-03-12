@@ -391,7 +391,8 @@ func (m *Manager) Update(pluginID string) (*PluginState, error) {
 
 	// 重新加载
 	if err := m.loader.Unload(pluginID); err != nil {
-		// 忽略卸载错误
+		// 忽略卸载错误（插件可能未加载）
+		_ = err // 明确忽略错误，避免 staticcheck 警告
 	}
 
 	inst, err := m.loader.Load(pluginPath)
