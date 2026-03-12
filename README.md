@@ -2,7 +2,7 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v1.0.0 GA (2026-03-11)
+> **最新版本**: v1.1.0 Stable (2026-03-12)
 
 ## 特性
 
@@ -21,17 +21,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.0.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v1.1.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.0.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v1.1.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.0.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v1.1.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -43,7 +43,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v1.0.0
+docker pull ghcr.io/crazyqin/nas-os:v1.1.0
 
 # 运行容器
 docker run -d \
@@ -52,7 +52,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v1.0.0
+  ghcr.io/crazyqin/nas-os:v1.1.0
 
 # 查看日志
 docker logs -f nasd
@@ -150,7 +150,7 @@ nas-os/
 
 详细里程碑请查看 [MILESTONES.md](MILESTONES.md)
 
-### 当前状态 (2026-03-11) - v1.0.0 GA ✅
+### 当前状态 (2026-03-12) - v1.1.0 Stable ✅
 - [x] 项目骨架
 - [x] btrfs 完整功能 (卷/子卷/快照/balance/scrub)
 - [x] Web 框架 + Web UI
@@ -162,14 +162,25 @@ nas-os/
 - [x] Docker 多架构镜像
 - [x] 完整文档体系 (146KB)
 - [x] CI/CD 自动化
+- [x] **nasctl CLI 工具** (v1.1.0 新增)
+- [x] **文件浏览器增强** (v1.1.0 新增)
+- [x] **媒体服务器** (v1.1.0 新增)
+- [x] **下载中心** (v1.1.0 新增)
+- [x] **通知模块** (v1.1.0 新增)
+- [x] **相册功能** (v1.1.0 新增)
+- [x] **共享管理** (v1.1.0 新增)
+- [x] **备份同步** (v1.1.0 新增)
+- [x] **用户管理** (v1.1.0 新增)
+- [x] **系统设置** (v1.1.0 新增)
 
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
 |------|------|----------|----------|------|
 | v0.1.0 | Alpha | 2026-03-10 | 项目骨架、btrfs 基础 | ✅ 发布 |
 | v0.2.0 | Alpha | 2026-03-10 | 文件共享、配置持久化 | ✅ 发布 |
-| v1.0.0 | **Stable** | **2026-03-11** | **生产就绪版本** | ✅ **已发布** |
-| v1.1.0 | Stable | 2026-04-xx | 安全加固、性能优化 | 🚀 开发中 |
+| v1.0.0 | Stable | 2026-03-11 | 生产就绪版本 | ✅ 已发布 |
+| **v1.1.0** | **Stable** | **2026-03-12** | **功能大更新 (10 个新模块)** | ✅ **已发布** |
+| v1.2.0 | Stable | 2026-04-xx | 安全加固、性能优化 | 🚀 规划中 |
 
 ## 部署
 
