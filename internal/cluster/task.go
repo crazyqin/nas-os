@@ -737,6 +737,9 @@ func (ts *TaskScheduler) Shutdown() error {
 // 持久化
 
 func (ts *TaskScheduler) saveTasks() error {
+	ts.tasksMutex.RLock()
+	defer ts.tasksMutex.RUnlock()
+
 	tasksFile := filepath.Join(ts.config.DataDir, "tasks.json")
 
 	data, err := json.MarshalIndent(ts.tasks, "", "  ")
@@ -762,6 +765,9 @@ func (ts *TaskScheduler) loadTasks() error {
 }
 
 func (ts *TaskScheduler) saveSchedules() error {
+	ts.schedulesMutex.RLock()
+	defer ts.schedulesMutex.RUnlock()
+
 	schedulesFile := filepath.Join(ts.config.DataDir, "schedules.json")
 
 	data, err := json.MarshalIndent(ts.schedules, "", "  ")

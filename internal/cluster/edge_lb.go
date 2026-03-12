@@ -534,7 +534,9 @@ func (elb *EdgeLoadBalancer) ClearAllSessions() {
 
 // healthCheckWorker 健康检查工作线程
 func (elb *EdgeLoadBalancer) healthCheckWorker() {
+	elb.configMutex.RLock()
 	interval := elb.config.HealthCheckInt
+	elb.configMutex.RUnlock()
 	if interval <= 0 {
 		interval = 10 * time.Second
 	}
@@ -590,12 +592,16 @@ func (elb *EdgeLoadBalancer) statsWorker() {
 
 // UpdateConfig 更新配置
 func (elb *EdgeLoadBalancer) UpdateConfig(config EdgeLBConfig) {
+	elb.configMutex.Lock()
 	elb.config = config
+	elb.configMutex.Unlock()
 	elb.logger.Info("边缘负载均衡配置已更新", zap.String("strategy", config.Strategy))
 }
 
 // GetConfig 获取配置
 func (elb *EdgeLoadBalancer) GetConfig() EdgeLBConfig {
+	elb.configMutex.RLock()
+	defer elb.configMutex.RUnlock()
 	return elb.config
 }
 
