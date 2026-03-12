@@ -162,16 +162,16 @@ func (p *FileManagerEnhance) registerExtensions() {
 
 // BatchOperationRequest 批量操作请求
 type BatchOperationRequest struct {
-	Files    []string `json:"files"`
-	Target   string   `json:"target,omitempty"`
-	Pattern  string   `json:"pattern,omitempty"`  // 重命名模式
-	DryRun   bool     `json:"dryRun,omitempty"`   // 仅预览
+	Files   []string `json:"files"`
+	Target  string   `json:"target,omitempty"`
+	Pattern string   `json:"pattern,omitempty"` // 重命名模式
+	DryRun  bool     `json:"dryRun,omitempty"`  // 仅预览
 }
 
 // BatchOperationResult 批量操作结果
 type BatchOperationResult struct {
-	Success []string      `json:"success"`
-	Failed  []FileError   `json:"failed"`
+	Success []string         `json:"success"`
+	Failed  []FileError      `json:"failed"`
 	Summary OperationSummary `json:"summary"`
 }
 
