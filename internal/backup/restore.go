@@ -13,14 +13,14 @@ import (
 
 // RestoreOptionsExtended 扩展恢复选项（restore 包内部使用）
 type RestoreOptionsExtended struct {
-	BackupID     string
-	TargetPath   string
-	Overwrite    bool
-	Decrypt      bool
-	Password     string
-	Files        []string
-	DryRun       bool
-	VerifyAfter  bool
+	BackupID    string
+	TargetPath  string
+	Overwrite   bool
+	Decrypt     bool
+	Password    string
+	Files       []string
+	DryRun      bool
+	VerifyAfter bool
 }
 
 // RestoreManager 恢复管理器
@@ -37,19 +37,17 @@ func NewRestoreManager(backupDir, storageDir string) *RestoreManager {
 	}
 }
 
-
-
 // RestoreResult 恢复结果
 type RestoreResult struct {
-	Success      bool          `json:"success"`
-	BackupInfo   *BackupInfo   `json:"backupInfo"`
-	TargetPath   string        `json:"targetPath"`
-	TotalFiles   int           `json:"totalFiles"`
-	RestoredFiles int          `json:"restoredFiles"`
-	TotalSize    int64         `json:"totalSize"`
-	Duration     time.Duration `json:"duration"`
-	Errors       []string      `json:"errors,omitempty"`
-	Warnings     []string      `json:"warnings,omitempty"`
+	Success       bool          `json:"success"`
+	BackupInfo    *BackupInfo   `json:"backupInfo"`
+	TargetPath    string        `json:"targetPath"`
+	TotalFiles    int           `json:"totalFiles"`
+	RestoredFiles int           `json:"restoredFiles"`
+	TotalSize     int64         `json:"totalSize"`
+	Duration      time.Duration `json:"duration"`
+	Errors        []string      `json:"errors,omitempty"`
+	Warnings      []string      `json:"warnings,omitempty"`
 }
 
 // Restore 一键恢复
@@ -74,7 +72,7 @@ func (rm *RestoreManager) Restore(opts RestoreOptionsExtended) (*RestoreResult, 
 
 	// 3. 准备恢复
 	backupPath := backupInfo.Path
-	
+
 	// 如果需要解密
 	if opts.Decrypt {
 		decryptedPath, err := rm.decryptBackup(backupPath, opts.Password)
@@ -92,7 +90,7 @@ func (rm *RestoreManager) Restore(opts RestoreOptionsExtended) (*RestoreResult, 
 		if err != nil {
 			return nil, err
 		}
-		result.Warnings = append(result.Warnings, fmt.Sprintf("预览模式：将恢复 %d 个文件，总大小 %s", 
+		result.Warnings = append(result.Warnings, fmt.Sprintf("预览模式：将恢复 %d 个文件，总大小 %s",
 			preview.fileCount, formatSize(preview.totalSize)))
 		result.Success = true
 		return result, nil
@@ -333,7 +331,7 @@ func (rm *RestoreManager) findBackup(backupID string) (*BackupInfo, error) {
 		backupName := parts[0]
 		timestamp := parts[1]
 		backupPath := filepath.Join(rm.backupDir, backupName, timestamp)
-		
+
 		if _, err := os.Stat(backupPath); err == nil {
 			return rm.loadBackupInfo(backupPath)
 		}
@@ -357,7 +355,7 @@ func (rm *RestoreManager) findBackup(backupID string) (*BackupInfo, error) {
 // loadBackupInfo 加载备份信息
 func (rm *RestoreManager) loadBackupInfo(backupPath string) (*BackupInfo, error) {
 	metaPath := filepath.Join(backupPath, ".backup-meta.json")
-	
+
 	info := &BackupInfo{
 		Path: backupPath,
 		Name: filepath.Base(backupPath),

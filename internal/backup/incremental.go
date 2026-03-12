@@ -24,13 +24,13 @@ func NewIncrementalBackup(baseDir string) *IncrementalBackup {
 
 // BackupResult 备份结果
 type BackupResult struct {
-	BackupPath   string
+	BackupPath    string
 	IsIncremental bool
-	TotalFiles   int64
-	ChangedFiles int64
-	Size         int64
-	Duration     time.Duration
-	PreviousLink string // 指向的上一个备份
+	TotalFiles    int64
+	ChangedFiles  int64
+	Size          int64
+	Duration      time.Duration
+	PreviousLink  string // 指向的上一个备份
 }
 
 // CreateBackup 创建增量备份
@@ -82,8 +82,8 @@ func (ib *IncrementalBackup) CreateBackup(sourceDir, backupName string) (*Backup
 
 	// 创建备份元数据
 	if err := ib.writeBackupMetadata(currentBackup, &BackupMetadata{
-		Timestamp:    timestamp,
-		SourceDir:    sourceDir,
+		Timestamp:     timestamp,
+		SourceDir:     sourceDir,
 		IsIncremental: previousBackup != "",
 		PreviousLink:  previousBackup,
 		TotalFiles:    stats.totalFiles,
@@ -115,19 +115,19 @@ func (ib *IncrementalBackup) CreateBackup(sourceDir, backupName string) (*Backup
 
 // BackupMetadata 备份元数据
 type BackupMetadata struct {
-	Timestamp    string `json:"timestamp"`
-	SourceDir    string `json:"sourceDir"`
+	Timestamp     string `json:"timestamp"`
+	SourceDir     string `json:"sourceDir"`
 	IsIncremental bool   `json:"isIncremental"`
-	PreviousLink string `json:"previousLink,omitempty"`
-	TotalFiles   int64  `json:"totalFiles"`
-	ChangedFiles int64  `json:"changedFiles"`
-	Size         int64  `json:"size"`
+	PreviousLink  string `json:"previousLink,omitempty"`
+	TotalFiles    int64  `json:"totalFiles"`
+	ChangedFiles  int64  `json:"changedFiles"`
+	Size          int64  `json:"size"`
 }
 
 // writeBackupMetadata 写入备份元数据
 func (ib *IncrementalBackup) writeBackupMetadata(backupPath string, meta *BackupMetadata) error {
 	metaPath := filepath.Join(backupPath, ".backup-meta.json")
-	
+
 	// 简单的 JSON 手动序列化（避免导入 encoding/json）
 	content := fmt.Sprintf(`{
   "timestamp": "%s",
@@ -188,7 +188,7 @@ func (ib *IncrementalBackup) parseRsyncStats(output string) rsyncStats {
 // parseSize 解析带单位的大小字符串 (如 "1.23G", "456.78M")
 func (ib *IncrementalBackup) parseSize(sizeStr string) (int64, error) {
 	sizeStr = strings.ToUpper(strings.TrimSpace(sizeStr))
-	
+
 	var multiplier int64 = 1
 	if strings.HasSuffix(sizeStr, "G") {
 		multiplier = 1024 * 1024 * 1024
@@ -214,7 +214,7 @@ func (ib *IncrementalBackup) parseSize(sizeStr string) (int64, error) {
 func (ib *IncrementalBackup) findPreviousBackup(backupRoot string) (string, error) {
 	// 读取 latest 符号链接
 	latestLink := filepath.Join(backupRoot, "latest")
-	
+
 	prevPath, err := os.Readlink(latestLink)
 	if err != nil {
 		return "", err // 没有上一个备份
@@ -231,7 +231,7 @@ func (ib *IncrementalBackup) findPreviousBackup(backupRoot string) (string, erro
 // ListBackups 列出所有备份
 func (ib *IncrementalBackup) ListBackups(backupName string) ([]BackupInfo, error) {
 	backupRoot := filepath.Join(ib.baseDir, backupName)
-	
+
 	entries, err := os.ReadDir(backupRoot)
 	if err != nil {
 		return nil, err
@@ -269,7 +269,7 @@ type BackupInfo struct {
 // readMetadata 读取备份元数据
 func (ib *IncrementalBackup) readMetadata(backupPath string) (*BackupMetadata, error) {
 	metaPath := filepath.Join(backupPath, ".backup-meta.json")
-	
+
 	data, err := os.ReadFile(metaPath)
 	if err != nil {
 		return nil, err
@@ -278,7 +278,7 @@ func (ib *IncrementalBackup) readMetadata(backupPath string) (*BackupMetadata, e
 	// 简单的 JSON 手动解析
 	meta := &BackupMetadata{}
 	content := string(data)
-	
+
 	// 提取字段（简化解析）
 	meta.Timestamp = ib.extractJSONString(content, "timestamp")
 	meta.SourceDir = ib.extractJSONString(content, "sourceDir")
@@ -344,17 +344,17 @@ func (ib *IncrementalBackup) extractJSONInt(json, key string) int64 {
 // DeleteBackup 删除备份
 func (ib *IncrementalBackup) DeleteBackup(backupName, timestamp string) error {
 	backupPath := filepath.Join(ib.baseDir, backupName, timestamp)
-	
+
 	// 检查是否有后续备份引用此备份的硬链接
 	// 如果有，需要先复制实际文件
-	
+
 	return os.RemoveAll(backupPath)
 }
 
 // GetSpaceUsage 获取备份空间使用情况
 func (ib *IncrementalBackup) GetSpaceUsage(backupName string) (int64, error) {
 	backupRoot := filepath.Join(ib.baseDir, backupName)
-	
+
 	// 使用 du 命令获取目录大小
 	cmd := exec.Command("du", "-sb", backupRoot)
 	output, err := cmd.Output()

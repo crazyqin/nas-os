@@ -49,16 +49,16 @@ type AggregatedResult struct {
 
 // AggregationRule 聚合规则
 type AggregationRule struct {
-	ID              string        `json:"id"`
-	Name            string        `json:"name"`
-	TaskPattern     string        `json:"task_pattern"`     // 任务 ID 模式
-	Strategy        string        `json:"strategy"`         // 聚合策略
-	MinResults      int           `json:"min_results"`      // 最小结果数
-	MaxResults      int           `json:"max_results"`      // 最大结果数
-	Timeout         time.Duration `json:"timeout"`          // 超时时间
-	ProcessFunc     string        `json:"process_func"`     // 处理函数名
-	Enabled         bool          `json:"enabled"`
-	CreatedAt       time.Time     `json:"created_at"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	TaskPattern string        `json:"task_pattern"` // 任务 ID 模式
+	Strategy    string        `json:"strategy"`     // 聚合策略
+	MinResults  int           `json:"min_results"`  // 最小结果数
+	MaxResults  int           `json:"max_results"`  // 最大结果数
+	Timeout     time.Duration `json:"timeout"`      // 超时时间
+	ProcessFunc string        `json:"process_func"` // 处理函数名
+	Enabled     bool          `json:"enabled"`
+	CreatedAt   time.Time     `json:"created_at"`
 }
 
 // ResultAggregatorConfig 结果聚合器配置
@@ -85,9 +85,9 @@ type ResultAggregator struct {
 
 // ResultCallbacks 结果回调
 type ResultCallbacks struct {
-	OnResultReceived func(result *TaskResult)
+	OnResultReceived      func(result *TaskResult)
 	OnAggregationComplete func(agg *AggregatedResult)
-	OnAggregationFailed func(agg *AggregatedResult, err error)
+	OnAggregationFailed   func(agg *AggregatedResult, err error)
 }
 
 // NewResultAggregator 创建结果聚合器
@@ -443,8 +443,8 @@ func (ra *ResultAggregator) GetStats() map[string]interface{} {
 
 	stats := map[string]interface{}{
 		"total_aggregations": len(ra.aggregations),
-		"by_status":         make(map[string]int),
-		"total_results":     0,
+		"by_status":          make(map[string]int),
+		"total_results":      0,
 	}
 
 	byStatus := stats["by_status"].(map[string]int)

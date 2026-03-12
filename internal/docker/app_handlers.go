@@ -10,11 +10,11 @@ import (
 
 // AppHandlers 应用商店处理器
 type AppHandlers struct {
-	store              *AppStore
-	ratingManager      *RatingManager
-	discovery          *AppDiscovery
-	customTemplateMgr  *CustomTemplateManager
-	versionManager     *VersionManager
+	store             *AppStore
+	ratingManager     *RatingManager
+	discovery         *AppDiscovery
+	customTemplateMgr *CustomTemplateManager
+	versionManager    *VersionManager
 	// mu                 sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 
@@ -786,7 +786,7 @@ func (h *AppHandlers) createCustomFromGitHub(c *gin.Context) {
 	}
 	ref = "main"
 	path = "docker-compose.yml"
-	
+
 	template, err := h.customTemplateMgr.ImportFromGitHub(owner, repo, path, ref, req.Name, req.DisplayName, req.Description)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

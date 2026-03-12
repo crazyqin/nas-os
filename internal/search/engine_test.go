@@ -18,9 +18,9 @@ func TestEngine_BasicSearch(t *testing.T) {
 
 	// 创建测试文件
 	testFiles := map[string]string{
-		"test1.txt": "Hello World, this is a test file for search engine.",
-		"test2.txt": "Go programming language is awesome for building search.",
-		"test3.md":  "# Markdown File\n\nThis is a markdown file with search content.",
+		"test1.txt":         "Hello World, this is a test file for search engine.",
+		"test2.txt":         "Go programming language is awesome for building search.",
+		"test3.md":          "# Markdown File\n\nThis is a markdown file with search content.",
 		"subdir/nested.txt": "Nested file with search keyword.",
 	}
 
@@ -109,8 +109,8 @@ func TestEngine_FileTypeFilter(t *testing.T) {
 
 	// 创建不同类型的文件
 	testFiles := map[string]string{
-		"doc.txt":    "Text file with search keyword",
-		"code.go":    "package main\n\n// search function",
+		"doc.txt":     "Text file with search keyword",
+		"code.go":     "package main\n\n// search function",
 		"config.json": `{"key": "search", "value": 123}`,
 	}
 

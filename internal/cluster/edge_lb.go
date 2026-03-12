@@ -12,60 +12,60 @@ import (
 
 // 边缘负载均衡算法
 const (
-	EdgeLBStrategyRoundRobin   = "round-robin"
-	EdgeLBStrategyLeastLoad    = "least-load"
-	EdgeLBStrategyResource     = "resource"
-	EdgeLBStrategyLatency      = "latency"
-	EdgeLBStrategyWeighted     = "weighted"
-	EdgeLBStrategyGeoLocation  = "geo-location"
-	EdgeLBStrategyCapability   = "capability"
+	EdgeLBStrategyRoundRobin  = "round-robin"
+	EdgeLBStrategyLeastLoad   = "least-load"
+	EdgeLBStrategyResource    = "resource"
+	EdgeLBStrategyLatency     = "latency"
+	EdgeLBStrategyWeighted    = "weighted"
+	EdgeLBStrategyGeoLocation = "geo-location"
+	EdgeLBStrategyCapability  = "capability"
 )
 
 // EdgeLBConfig 边缘负载均衡配置
 type EdgeLBConfig struct {
-	Strategy          string        `json:"strategy"`
+	Strategy         string        `json:"strategy"`
 	HealthCheckInt   time.Duration `json:"health_check_interval"`
 	HealthTimeout    time.Duration `json:"health_timeout"`
 	MaxRetry         int           `json:"max_retry"`
 	StickySession    bool          `json:"sticky_session"`
 	LocationWeight   float64       `json:"location_weight"`   // 位置权重
 	ResourceWeight   float64       `json:"resource_weight"`   // 资源权重
-	LatencyWeight    float64       `json:"latency_weight"`   // 延迟权重
+	LatencyWeight    float64       `json:"latency_weight"`    // 延迟权重
 	CapabilityWeight float64       `json:"capability_weight"` // 能力权重
 }
 
 // EdgeLoadBalancer 边缘负载均衡器
 type EdgeLoadBalancer struct {
-	config      EdgeLBConfig
-	edgeManager *EdgeNodeManager
-	sessions    map[string]string // session -> nodeID
+	config       EdgeLBConfig
+	edgeManager  *EdgeNodeManager
+	sessions     map[string]string // session -> nodeID
 	sessionMutex sync.RWMutex
-	stats       EdgeLBStats
-	statsMutex  sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
-	logger      *zap.Logger
+	stats        EdgeLBStats
+	statsMutex   sync.RWMutex
+	ctx          context.Context
+	cancel       context.CancelFunc
+	logger       *zap.Logger
 }
 
 // EdgeLBStats 边缘负载均衡统计
 type EdgeLBStats struct {
-	TotalRequests    int64         `json:"total_requests"`
-	SuccessRequests  int64         `json:"success_requests"`
-	FailedRequests   int64         `json:"failed_requests"`
-	AvgLatency       time.Duration `json:"avg_latency"`
-	RequestsPerSec   float64       `json:"requests_per_sec"`
-	NodeStats        map[string]*EdgeNodeLBStats `json:"node_stats"`
+	TotalRequests   int64                       `json:"total_requests"`
+	SuccessRequests int64                       `json:"success_requests"`
+	FailedRequests  int64                       `json:"failed_requests"`
+	AvgLatency      time.Duration               `json:"avg_latency"`
+	RequestsPerSec  float64                     `json:"requests_per_sec"`
+	NodeStats       map[string]*EdgeNodeLBStats `json:"node_stats"`
 }
 
 // EdgeNodeLBStats 边缘节点负载均衡统计
 type EdgeNodeLBStats struct {
-	NodeID       string        `json:"node_id"`
-	Requests     int64         `json:"requests"`
-	Successes    int64         `json:"successes"`
-	Failures     int64         `json:"failures"`
-	AvgLatency   time.Duration `json:"avg_latency"`
-	LastRequest  time.Time     `json:"last_request"`
-	LastError    string        `json:"last_error"`
+	NodeID      string        `json:"node_id"`
+	Requests    int64         `json:"requests"`
+	Successes   int64         `json:"successes"`
+	Failures    int64         `json:"failures"`
+	AvgLatency  time.Duration `json:"avg_latency"`
+	LastRequest time.Time     `json:"last_request"`
+	LastError   string        `json:"last_error"`
 }
 
 // NewEdgeLoadBalancer 创建边缘负载均衡器
@@ -184,12 +184,12 @@ func (elb *EdgeLoadBalancer) SelectNode(req SelectNodeRequest) (*EdgeNode, error
 
 // SelectNodeRequest 选择节点请求
 type SelectNodeRequest struct {
-	SessionID     string            `json:"session_id"`
-	ClientIP      string            `json:"client_ip"`
-	ClientLat     float64           `json:"client_lat"`
-	ClientLng     float64           `json:"client_lng"`
-	Requirements  TaskRequirements  `json:"requirements"`
-	Preferences   map[string]interface{} `json:"preferences"`
+	SessionID    string                 `json:"session_id"`
+	ClientIP     string                 `json:"client_ip"`
+	ClientLat    float64                `json:"client_lat"`
+	ClientLng    float64                `json:"client_lng"`
+	Requirements TaskRequirements       `json:"requirements"`
+	Preferences  map[string]interface{} `json:"preferences"`
 }
 
 // isNodeAvailable 检查节点是否可用

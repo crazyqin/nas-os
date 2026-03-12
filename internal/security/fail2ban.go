@@ -12,12 +12,12 @@ import (
 
 // Fail2BanManager 失败登录保护管理器
 type Fail2BanManager struct {
-	config        Fail2BanConfig
-	failedAttempts map[string][]FailedLoginAttempt // IP -> 失败尝试列表
-	bannedIPs     map[string]*BannedIP
+	config          Fail2BanConfig
+	failedAttempts  map[string][]FailedLoginAttempt // IP -> 失败尝试列表
+	bannedIPs       map[string]*BannedIP
 	accountLockouts map[string]*AccountLockout // Username -> 锁定状态
-	mu            sync.RWMutex
-	notifyFunc    func(alert SecurityAlert) // 通知回调
+	mu              sync.RWMutex
+	notifyFunc      func(alert SecurityAlert) // 通知回调
 }
 
 // NewFail2BanManager 创建失败登录保护管理器
@@ -166,7 +166,7 @@ func (f2m *Fail2BanManager) banIPLocked(ip, username string, attempts int) error
 			SourceIP:    ip,
 			Username:    username,
 			Details: map[string]interface{}{
-				"attempts": attempts,
+				"attempts":             attempts,
 				"ban_duration_minutes": f2m.config.BanDurationMinutes,
 			},
 		}
@@ -400,14 +400,14 @@ func (f2m *Fail2BanManager) GetStatus() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"enabled":           f2m.config.Enabled,
-		"max_attempts":      f2m.config.MaxAttempts,
-		"window_minutes":    f2m.config.WindowMinutes,
+		"enabled":              f2m.config.Enabled,
+		"max_attempts":         f2m.config.MaxAttempts,
+		"window_minutes":       f2m.config.WindowMinutes,
 		"ban_duration_minutes": f2m.config.BanDurationMinutes,
-		"active_bans":       activeBans,
-		"total_bans":        len(f2m.bannedIPs),
-		"active_lockouts":   activeLockouts,
-		"tracked_ips":       len(f2m.failedAttempts),
+		"active_bans":          activeBans,
+		"total_bans":           len(f2m.bannedIPs),
+		"active_lockouts":      activeLockouts,
+		"tracked_ips":          len(f2m.failedAttempts),
 	}
 }
 

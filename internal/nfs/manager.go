@@ -12,38 +12,38 @@ import (
 
 // persistentConfig 持久化配置结构
 type persistentConfig struct {
-	Config  *Config           `json:"config"`
+	Config  *Config            `json:"config"`
 	Exports map[string]*Export `json:"exports"`
 }
 
 // Export NFS 导出配置
 type Export struct {
-	Name        string   `json:"name"`
-	Path        string   `json:"path"`
-	Comment     string   `json:"comment"`
-	ReadOnly    bool     `json:"read_only"`
-	NoSubtreeCheck bool  `json:"no_subtree_check"`
-	Sync        bool     `json:"sync"`
+	Name            string   `json:"name"`
+	Path            string   `json:"path"`
+	Comment         string   `json:"comment"`
+	ReadOnly        bool     `json:"read_only"`
+	NoSubtreeCheck  bool     `json:"no_subtree_check"`
+	Sync            bool     `json:"sync"`
 	AllowedNetworks []string `json:"allowed_networks"` // CIDR 格式
-	AllowedHosts []string    `json:"allowed_hosts"`    // 单个 IP
+	AllowedHosts    []string `json:"allowed_hosts"`    // 单个 IP
 }
 
 // ExportInput 创建/更新导出输入
 type ExportInput struct {
-	Name        string   `json:"name" binding:"required"`
-	Path        string   `json:"path" binding:"required"`
-	Comment     string   `json:"comment"`
-	ReadOnly    bool     `json:"read_only"`
+	Name            string   `json:"name" binding:"required"`
+	Path            string   `json:"path" binding:"required"`
+	Comment         string   `json:"comment"`
+	ReadOnly        bool     `json:"read_only"`
 	AllowedNetworks []string `json:"allowed_networks"`
-	AllowedHosts []string    `json:"allowed_hosts"`
+	AllowedHosts    []string `json:"allowed_hosts"`
 }
 
 // Config NFS 配置
 type Config struct {
-	Enabled       bool     `json:"enabled"`
-	Threads       int      `json:"threads"`
-	GracePeriod   int      `json:"grace_period"` // 秒
-	LeaseTime     int      `json:"lease_time"`   // 秒
+	Enabled     bool `json:"enabled"`
+	Threads     int  `json:"threads"`
+	GracePeriod int  `json:"grace_period"` // 秒
+	LeaseTime   int  `json:"lease_time"`   // 秒
 }
 
 // Manager NFS 管理器
@@ -68,12 +68,12 @@ func NewManager(configPath string) (*Manager, error) {
 		config:     defaultConfig,
 		configPath: configPath,
 	}
-	
+
 	// 加载现有配置（如果有）
 	if err := m.loadConfig(); err != nil {
 		return nil, err
 	}
-	
+
 	return m, nil
 }
 
@@ -216,24 +216,24 @@ func (m *Manager) CreateExport(input ExportInput) (*Export, error) {
 	}
 
 	exp := &Export{
-		Name:        input.Name,
-		Path:        input.Path,
-		Comment:     input.Comment,
-		ReadOnly:    input.ReadOnly,
-		NoSubtreeCheck: true,
-		Sync:        false,
+		Name:            input.Name,
+		Path:            input.Path,
+		Comment:         input.Comment,
+		ReadOnly:        input.ReadOnly,
+		NoSubtreeCheck:  true,
+		Sync:            false,
 		AllowedNetworks: input.AllowedNetworks,
-		AllowedHosts: input.AllowedHosts,
+		AllowedHosts:    input.AllowedHosts,
 	}
 
 	m.exports[input.Name] = exp
-	
+
 	// 保存配置
 	if err := m.saveConfigLocked(); err != nil {
 		delete(m.exports, input.Name)
 		return nil, fmt.Errorf("保存配置失败：%w", err)
 	}
-	
+
 	return exp, nil
 }
 
@@ -294,12 +294,12 @@ func (m *Manager) DeleteExport(name string) error {
 	}
 
 	delete(m.exports, name)
-	
+
 	// 保存配置
 	if err := m.saveConfigLocked(); err != nil {
 		return fmt.Errorf("保存配置失败：%w", err)
 	}
-	
+
 	return nil
 }
 

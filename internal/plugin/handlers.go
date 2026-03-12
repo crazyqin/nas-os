@@ -9,8 +9,8 @@ import (
 
 // Handlers 插件 API 处理器
 type Handlers struct {
-	manager  *Manager
-	market   *Market
+	manager *Manager
+	market  *Market
 }
 
 // NewHandlers 创建处理器
@@ -426,9 +426,9 @@ func (h *Handlers) marketRate(c *gin.Context) {
 	pluginID := c.Param("id")
 
 	var req struct {
-		Rating  int    `json:"rating" binding:"required,min=1,max=5"`
-		Review  string `json:"review"`
-		UserID  string `json:"userId"`
+		Rating int    `json:"rating" binding:"required,min=1,max=5"`
+		Review string `json:"review"`
+		UserID string `json:"userId"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

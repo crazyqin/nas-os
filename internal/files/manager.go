@@ -67,13 +67,13 @@ type PreviewConfig struct {
 
 // ShareInfo 分享信息
 type ShareInfo struct {
-	Token       string    `json:"token"`
-	Path        string    `json:"path"`
-	Password    string    `json:"password,omitempty"`
-	Expiry      time.Time `json:"expiry"`
-	AllowDownload bool    `json:"allowDownload"`
-	CreatedAt   time.Time `json:"createdAt"`
-	Downloads   int       `json:"downloads"`
+	Token         string    `json:"token"`
+	Path          string    `json:"path"`
+	Password      string    `json:"password,omitempty"`
+	Expiry        time.Time `json:"expiry"`
+	AllowDownload bool      `json:"allowDownload"`
+	CreatedAt     time.Time `json:"createdAt"`
+	Downloads     int       `json:"downloads"`
 }
 
 // shareStore 分享存储（内存 + 可持久化）
@@ -149,7 +149,7 @@ func NewManager(config PreviewConfig) *Manager {
 // GetFileType 获取文件类型
 func (m *Manager) GetFileType(path string) FileType {
 	ext := strings.ToLower(filepath.Ext(path))
-	
+
 	if m.imageTypes[ext] {
 		return FileTypeImage
 	}
@@ -239,13 +239,13 @@ func (m *Manager) ListFiles(dirPath string, generateThumbnails bool) ([]FileInfo
 		fileType := m.GetFileType(filePath)
 
 		file := FileInfo{
-			Name:    entry.Name(),
-			Path:    filePath,
-			Size:    info.Size(),
-			Mode:    info.Mode().String(),
-			ModTime: info.ModTime().Format(time.RFC3339),
-			IsDir:   entry.IsDir(),
-			Type:    fileType,
+			Name:     entry.Name(),
+			Path:     filePath,
+			Size:     info.Size(),
+			Mode:     info.Mode().String(),
+			ModTime:  info.ModTime().Format(time.RFC3339),
+			IsDir:    entry.IsDir(),
+			Type:     fileType,
 			MimeType: m.GetMimeType(filePath),
 		}
 
@@ -273,7 +273,10 @@ func (m *Manager) GenerateImageThumbnail(path string) (string, int, int) {
 	// 检查缓存
 	cacheKey := fmt.Sprintf("%s:%d:%d", path, m.config.ThumbnailSize, m.config.ThumbnailSize)
 	if cached, ok := m.thumbCache.Load(cacheKey); ok {
-		if data, ok := cached.(struct{ thumb string; w, h int }); ok {
+		if data, ok := cached.(struct {
+			thumb string
+			w, h  int
+		}); ok {
 			return data.thumb, data.w, data.h
 		}
 	}
@@ -319,7 +322,10 @@ func (m *Manager) GenerateImageThumbnail(path string) (string, int, int) {
 	thumbBase64 := "data:image/jpeg;base64," + base64.StdEncoding.EncodeToString(buf.Bytes())
 
 	// 缓存
-	m.thumbCache.Store(cacheKey, struct{ thumb string; w, h int }{thumbBase64, origW, origH})
+	m.thumbCache.Store(cacheKey, struct {
+		thumb string
+		w, h  int
+	}{thumbBase64, origW, origH})
 
 	return thumbBase64, origW, origH
 }
@@ -458,7 +464,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		files.POST("/compress", h.compressFile)
 		files.POST("/extract", h.extractFile)
 	}
-	
+
 	// 分享链接路由
 	shares := r.Group("/shares")
 	{
@@ -821,7 +827,7 @@ func (h *Handlers) compressZip(srcPath, dstPath string, level int) error {
 	// 检查是否使用系统 zip 命令
 	cmd := exec.Command("zip", "-r", "-"+fmt.Sprintf("%d", level), dstPath, filepath.Base(srcPath))
 	cmd.Dir = filepath.Dir(srcPath)
-	
+
 	if err := cmd.Run(); err == nil {
 		return nil
 	}
@@ -899,10 +905,10 @@ func (h *Handlers) compressTarGz(srcPath, dstPath string, level int) error {
 // extractFile 解压文件
 func (h *Handlers) extractFile(c *gin.Context) {
 	var req struct {
-		Path       string `json:"path" binding:"required"`
+		Path        string `json:"path" binding:"required"`
 		ExtractPath string `json:"extractPath" binding:"required"`
-		Overwrite  bool   `json:"overwrite"`
-		KeepPath   bool   `json:"keepPath"`
+		Overwrite   bool   `json:"overwrite"`
+		KeepPath    bool   `json:"keepPath"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -946,7 +952,7 @@ func (h *Handlers) extractZip(archivePath, destPath string, overwrite bool) erro
 	if !overwrite {
 		cmd = exec.Command("unzip", "-n", archivePath, "-d", destPath)
 	}
-	
+
 	if err := cmd.Run(); err == nil {
 		return nil
 	}
@@ -1010,10 +1016,10 @@ func (h *Handlers) extractTarGz(archivePath, destPath string, overwrite bool) er
 // createShare 创建分享链接
 func (h *Handlers) createShare(c *gin.Context) {
 	var req struct {
-		Path        string `json:"path" binding:"required"`
-		Expiry      int    `json:"expiry"` // 小时数，0 表示永久
-		Password    string `json:"password"`
-		AllowDownload bool `json:"allowDownload"`
+		Path          string `json:"path" binding:"required"`
+		Expiry        int    `json:"expiry"` // 小时数，0 表示永久
+		Password      string `json:"password"`
+		AllowDownload bool   `json:"allowDownload"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -1039,13 +1045,13 @@ func (h *Handlers) createShare(c *gin.Context) {
 	}
 
 	share := &ShareInfo{
-		Token:       token,
-		Path:        req.Path,
-		Password:    req.Password,
-		Expiry:      expiry,
+		Token:         token,
+		Path:          req.Path,
+		Password:      req.Password,
+		Expiry:        expiry,
 		AllowDownload: req.AllowDownload,
-		CreatedAt:   time.Now(),
-		Downloads:   0,
+		CreatedAt:     time.Now(),
+		Downloads:     0,
 	}
 
 	shareStore.Lock()
@@ -1056,7 +1062,7 @@ func (h *Handlers) createShare(c *gin.Context) {
 		"code":    0,
 		"message": "分享链接创建成功",
 		"data": gin.H{
-			"token": token,
+			"token":  token,
 			"expiry": expiry.Format("2006-01-02 15:04:05"),
 		},
 	})
@@ -1084,10 +1090,10 @@ func (h *Handlers) getShare(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"path": share.Path,
+			"path":            share.Path,
 			"requirePassword": share.Password != "",
-			"allowDownload": share.AllowDownload,
-			"expiry": share.Expiry.Format("2006-01-02 15:04:05"),
+			"allowDownload":   share.AllowDownload,
+			"expiry":          share.Expiry.Format("2006-01-02 15:04:05"),
 		},
 	})
 }

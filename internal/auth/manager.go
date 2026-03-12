@@ -24,27 +24,27 @@ type MFAManager struct {
 
 // MFAStatus MFA 状态
 type MFAStatus struct {
-	Enabled         bool     `json:"enabled"`
-	TOTPEnabled     bool     `json:"totp_enabled"`
-	SMSEnabled      bool     `json:"sms_enabled"`
-	WebAuthnEnabled bool     `json:"webauthn_enabled"`
-	BackupCodesCount int     `json:"backup_codes_count"`
-	Phone           string   `json:"phone,omitempty"`
+	Enabled          bool   `json:"enabled"`
+	TOTPEnabled      bool   `json:"totp_enabled"`
+	SMSEnabled       bool   `json:"sms_enabled"`
+	WebAuthnEnabled  bool   `json:"webauthn_enabled"`
+	BackupCodesCount int    `json:"backup_codes_count"`
+	Phone            string `json:"phone,omitempty"`
 }
 
 // MFASession MFA 临时会话（用于登录流程）
 type MFASession struct {
-	UserID       string    `json:"user_id"`
-	Username     string    `json:"username"`
-	Token        string    `json:"token"` // 临时令牌
-	ExpiresAt    time.Time `json:"expires_at"`
-	MFARequired  bool      `json:"mfa_required"`
-	MFAType      string    `json:"mfa_type"` // totp, sms, webauthn
-	Verified     bool      `json:"verified"`
+	UserID      string    `json:"user_id"`
+	Username    string    `json:"username"`
+	Token       string    `json:"token"` // 临时令牌
+	ExpiresAt   time.Time `json:"expires_at"`
+	MFARequired bool      `json:"mfa_required"`
+	MFAType     string    `json:"mfa_type"` // totp, sms, webauthn
+	Verified    bool      `json:"verified"`
 }
 
 var (
-	ErrMFANotConfigured = errors.New("双因素认证未配置")
+	ErrMFANotConfigured  = errors.New("双因素认证未配置")
 	ErrMFASessionExpired = errors.New("MFA 会话已过期")
 	ErrMFAAlreadyEnabled = errors.New("双因素认证已启用")
 )
@@ -140,21 +140,21 @@ func (m *MFAManager) GetStatus(userID string) *MFAStatus {
 	cfg := m.configs[userID]
 	if cfg == nil {
 		return &MFAStatus{
-			Enabled:         false,
-			TOTPEnabled:     false,
-			SMSEnabled:      false,
-			WebAuthnEnabled: false,
+			Enabled:          false,
+			TOTPEnabled:      false,
+			SMSEnabled:       false,
+			WebAuthnEnabled:  false,
 			BackupCodesCount: 0,
 		}
 	}
 
 	return &MFAStatus{
-		Enabled:         cfg.Enabled,
-		TOTPEnabled:     cfg.TOTPEnabled,
-		SMSEnabled:      cfg.SMSEnabled,
-		WebAuthnEnabled: cfg.WebAuthnEnabled,
+		Enabled:          cfg.Enabled,
+		TOTPEnabled:      cfg.TOTPEnabled,
+		SMSEnabled:       cfg.SMSEnabled,
+		WebAuthnEnabled:  cfg.WebAuthnEnabled,
 		BackupCodesCount: m.backupManager.GetUnusedCount(userID),
-		Phone:           cfg.Phone,
+		Phone:            cfg.Phone,
 	}
 }
 
@@ -586,7 +586,7 @@ func (m *MFAManager) GetMFAType(userID string) string {
 
 // helper function to extract userID from session
 func userIDFromSession(sessionID string) string {
-	// This is a placeholder - in real implementation, 
+	// This is a placeholder - in real implementation,
 	// you would store and retrieve userID from session
 	return sessionID
 }

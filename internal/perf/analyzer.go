@@ -19,14 +19,14 @@ func NewAnalyzer(m *Manager) *Analyzer {
 
 // AnalysisReport 性能分析报告
 type AnalysisReport struct {
-	Timestamp       time.Time         `json:"timestamp"`
-	Summary         *SummaryStats     `json:"summary"`
-	TopSlowEndpoints []*EndpointInfo  `json:"topSlowEndpoints"`
-	TopBusyEndpoints []*EndpointInfo  `json:"topBusyEndpoints"`
-	TopErrorEndpoints []*EndpointInfo `json:"topErrorEndpoints"`
-	SlowQueries     []*SlowLogEntry   `json:"slowQueries"`
-	Anomalies       []*Anomaly        `json:"anomalies"`
-	Recommendations []*Recommendation `json:"recommendations"`
+	Timestamp         time.Time         `json:"timestamp"`
+	Summary           *SummaryStats     `json:"summary"`
+	TopSlowEndpoints  []*EndpointInfo   `json:"topSlowEndpoints"`
+	TopBusyEndpoints  []*EndpointInfo   `json:"topBusyEndpoints"`
+	TopErrorEndpoints []*EndpointInfo   `json:"topErrorEndpoints"`
+	SlowQueries       []*SlowLogEntry   `json:"slowQueries"`
+	Anomalies         []*Anomaly        `json:"anomalies"`
+	Recommendations   []*Recommendation `json:"recommendations"`
 }
 
 // SummaryStats 汇总统计
@@ -45,24 +45,24 @@ type SummaryStats struct {
 
 // EndpointInfo 端点信息
 type EndpointInfo struct {
-	Path        string        `json:"path"`
-	Method      string        `json:"method"`
-	RequestCount uint64       `json:"requestCount"`
-	ErrorRate   float64       `json:"errorRate"`
-	AvgLatency  time.Duration `json:"avgLatency"`
-	P95Latency  time.Duration `json:"p95Latency"`
-	Impact      float64       `json:"impact"` // 影响分数 (0-100)
+	Path         string        `json:"path"`
+	Method       string        `json:"method"`
+	RequestCount uint64        `json:"requestCount"`
+	ErrorRate    float64       `json:"errorRate"`
+	AvgLatency   time.Duration `json:"avgLatency"`
+	P95Latency   time.Duration `json:"p95Latency"`
+	Impact       float64       `json:"impact"` // 影响分数 (0-100)
 }
 
 // Anomaly 异常检测
 type Anomaly struct {
-	Type        string    `json:"type"` // latency, error_rate, throughput
-	Severity    string    `json:"severity"` // warning, critical
-	Endpoint    string    `json:"endpoint"`
-	Value       float64   `json:"value"`
-	Threshold   float64   `json:"threshold"`
-	Message     string    `json:"message"`
-	Timestamp   time.Time `json:"timestamp"`
+	Type      string    `json:"type"`     // latency, error_rate, throughput
+	Severity  string    `json:"severity"` // warning, critical
+	Endpoint  string    `json:"endpoint"`
+	Value     float64   `json:"value"`
+	Threshold float64   `json:"threshold"`
+	Message   string    `json:"message"`
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // Recommendation 优化建议
@@ -79,13 +79,13 @@ type Recommendation struct {
 // Analyze 执行性能分析
 func (a *Analyzer) Analyze() *AnalysisReport {
 	report := &AnalysisReport{
-		Timestamp:        time.Now(),
-		TopSlowEndpoints: make([]*EndpointInfo, 0),
-		TopBusyEndpoints: make([]*EndpointInfo, 0),
+		Timestamp:         time.Now(),
+		TopSlowEndpoints:  make([]*EndpointInfo, 0),
+		TopBusyEndpoints:  make([]*EndpointInfo, 0),
 		TopErrorEndpoints: make([]*EndpointInfo, 0),
-		SlowQueries:      make([]*SlowLogEntry, 0),
-		Anomalies:        make([]*Anomaly, 0),
-		Recommendations:  make([]*Recommendation, 0),
+		SlowQueries:       make([]*SlowLogEntry, 0),
+		Anomalies:         make([]*Anomaly, 0),
+		Recommendations:   make([]*Recommendation, 0),
 	}
 
 	// 收集汇总统计
@@ -143,11 +143,11 @@ func (a *Analyzer) findSlowEndpoints(limit int) []*EndpointInfo {
 			continue
 		}
 		info := &EndpointInfo{
-			Path:        em.Path,
-			Method:      em.Method,
+			Path:         em.Path,
+			Method:       em.Method,
 			RequestCount: em.RequestCount,
-			AvgLatency:  em.AvgDuration,
-			P95Latency:  em.P95Duration,
+			AvgLatency:   em.AvgDuration,
+			P95Latency:   em.P95Duration,
 		}
 		if em.RequestCount > 0 {
 			info.ErrorRate = float64(em.ErrorCount) / float64(em.RequestCount) * 100
@@ -179,11 +179,11 @@ func (a *Analyzer) findBusyEndpoints(limit int) []*EndpointInfo {
 			continue
 		}
 		info := &EndpointInfo{
-			Path:        em.Path,
-			Method:      em.Method,
+			Path:         em.Path,
+			Method:       em.Method,
 			RequestCount: em.RequestCount,
-			AvgLatency:  em.AvgDuration,
-			P95Latency:  em.P95Duration,
+			AvgLatency:   em.AvgDuration,
+			P95Latency:   em.P95Duration,
 		}
 		if em.RequestCount > 0 {
 			info.ErrorRate = float64(em.ErrorCount) / float64(em.RequestCount) * 100
@@ -213,10 +213,10 @@ func (a *Analyzer) findErrorEndpoints(limit int) []*EndpointInfo {
 			continue
 		}
 		info := &EndpointInfo{
-			Path:        em.Path,
-			Method:      em.Method,
+			Path:         em.Path,
+			Method:       em.Method,
 			RequestCount: em.RequestCount,
-			AvgLatency:  em.AvgDuration,
+			AvgLatency:   em.AvgDuration,
 		}
 		info.ErrorRate = float64(em.ErrorCount) / float64(em.RequestCount) * 100
 		// 计算影响分数 (错误率 * 请求数)

@@ -43,7 +43,7 @@ type VersionManager struct {
 	dataDir       string
 	versionsFile  string
 	notifyFile    string
-	versions      map[string][]*AppVersion    // templateID -> versions
+	versions      map[string][]*AppVersion       // templateID -> versions
 	notifications map[string]*UpdateNotification // notificationID -> notification
 	httpClient    *http.Client
 	mu            sync.RWMutex
@@ -53,7 +53,7 @@ type VersionManager struct {
 func NewVersionManager(store *AppStore, dataDir string) (*VersionManager, error) {
 	versionsFile := filepath.Join(dataDir, "app-versions.json")
 	notifyFile := filepath.Join(dataDir, "update-notifications.json")
-	
+
 	vm := &VersionManager{
 		store:         store,
 		dataDir:       dataDir,
@@ -65,7 +65,7 @@ func NewVersionManager(store *AppStore, dataDir string) (*VersionManager, error)
 			Timeout: 30 * time.Second,
 		},
 	}
-	
+
 	// 加载数据
 	if err := vm.loadVersions(); err != nil {
 		fmt.Printf("加载版本数据失败: %v\n", err)
@@ -73,7 +73,7 @@ func NewVersionManager(store *AppStore, dataDir string) (*VersionManager, error)
 	if err := vm.loadNotifications(); err != nil {
 		fmt.Printf("加载通知数据失败: %v\n", err)
 	}
-	
+
 	return vm, nil
 }
 
@@ -83,7 +83,7 @@ func (vm *VersionManager) loadVersions() error {
 	if err != nil {
 		return err
 	}
-	
+
 	return json.Unmarshal(data, &vm.versions)
 }
 
@@ -102,12 +102,12 @@ func (vm *VersionManager) loadNotifications() error {
 	if err != nil {
 		return err
 	}
-	
+
 	var notifications []*UpdateNotification
 	if err := json.Unmarshal(data, &notifications); err != nil {
 		return err
 	}
-	
+
 	for _, n := range notifications {
 		vm.notifications[n.ID] = n
 	}
@@ -120,7 +120,7 @@ func (vm *VersionManager) saveNotifications() error {
 	for _, n := range vm.notifications {
 		notifications = append(notifications, n)
 	}
-	
+
 	data, err := json.MarshalIndent(notifications, "", "  ")
 	if err != nil {
 		return err
@@ -132,29 +132,29 @@ func (vm *VersionManager) saveNotifications() error {
 func (vm *VersionManager) CheckForUpdates() ([]*UpdateNotification, error) {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
-	
+
 	var updates []*UpdateNotification
 	installed := vm.store.ListInstalled()
-	
+
 	for _, app := range installed {
 		// 获取模板
 		template := vm.store.GetTemplate(app.TemplateID)
 		if template == nil {
 			continue
 		}
-		
+
 		// 检查 Docker Hub 是否有新版本
 		latestTag, err := vm.getLatestTag(template.Image)
 		if err != nil {
 			fmt.Printf("检查 %s 更新失败: %v\n", app.Name, err)
 			continue
 		}
-		
+
 		currentTag := app.Version
 		if currentTag == "" || currentTag == "latest" {
 			currentTag = "latest"
 		}
-		
+
 		// 如果有新版本
 		if latestTag != "" && latestTag != currentTag && currentTag != "latest" {
 			// 检查是否已通知过
@@ -162,7 +162,7 @@ func (vm *VersionManager) CheckForUpdates() ([]*UpdateNotification, error) {
 			if _, exists := vm.notifications[notifyID]; exists {
 				continue
 			}
-			
+
 			notification := &UpdateNotification{
 				ID:         notifyID,
 				AppID:      app.ID,
@@ -172,16 +172,16 @@ func (vm *VersionManager) CheckForUpdates() ([]*UpdateNotification, error) {
 				CreatedAt:  time.Now(),
 				Read:       false,
 			}
-			
+
 			vm.notifications[notifyID] = notification
 			updates = append(updates, notification)
 		}
 	}
-	
+
 	if len(updates) > 0 {
 		vm.saveNotifications()
 	}
-	
+
 	return updates, nil
 }
 
@@ -190,7 +190,7 @@ func (vm *VersionManager) getLatestTag(image string) (string, error) {
 	// 解析镜像名称
 	parts := strings.Split(image, ":")
 	imageName := parts[0]
-	
+
 	// 处理官方镜像和用户镜像
 	var namespace, name string
 	if strings.Contains(imageName, "/") {
@@ -201,49 +201,49 @@ func (vm *VersionManager) getLatestTag(image string) (string, error) {
 		namespace = "library"
 		name = imageName
 	}
-	
+
 	// 查询 Docker Hub API
 	url := fmt.Sprintf("https://hub.docker.com/v2/repositories/%s/%s/tags/?page_size=10", namespace, name)
-	
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", err
 	}
-	
+
 	resp, err := vm.httpClient.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return "", fmt.Errorf("Docker Hub API 返回 %d", resp.StatusCode)
 	}
-	
+
 	var result struct {
 		Results []struct {
 			Name string `json:"name"`
 		} `json:"results"`
 	}
-	
+
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return "", err
 	}
-	
+
 	// 返回最新的稳定版本标签（跳过 latest）
 	for _, tag := range result.Results {
 		if tag.Name != "latest" && !strings.Contains(tag.Name, "-") {
 			return tag.Name, nil
 		}
 	}
-	
+
 	// 如果没有稳定版本，返回第一个非 latest 标签
 	for _, tag := range result.Results {
 		if tag.Name != "latest" {
 			return tag.Name, nil
 		}
 	}
-	
+
 	return "latest", nil
 }
 
@@ -251,7 +251,7 @@ func (vm *VersionManager) getLatestTag(image string) (string, error) {
 func (vm *VersionManager) GetAvailableVersions(templateID string) ([]*AppVersion, error) {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
-	
+
 	// 检查缓存
 	if versions, ok := vm.versions[templateID]; ok {
 		// 检查缓存是否过期（1小时）
@@ -259,21 +259,21 @@ func (vm *VersionManager) GetAvailableVersions(templateID string) ([]*AppVersion
 			return versions, nil
 		}
 	}
-	
+
 	// 从 Docker Hub 获取
 	template := vm.store.GetTemplate(templateID)
 	if template == nil {
 		return nil, fmt.Errorf("模板不存在: %s", templateID)
 	}
-	
+
 	versions, err := vm.fetchVersionsFromDockerHub(template.Image)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	vm.versions[templateID] = versions
 	vm.saveVersions()
-	
+
 	return versions, nil
 }
 
@@ -281,7 +281,7 @@ func (vm *VersionManager) GetAvailableVersions(templateID string) ([]*AppVersion
 func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersion, error) {
 	parts := strings.Split(image, ":")
 	imageName := parts[0]
-	
+
 	var namespace, name string
 	if strings.Contains(imageName, "/") {
 		nsParts := strings.SplitN(imageName, "/", 2)
@@ -291,19 +291,19 @@ func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersio
 		namespace = "library"
 		name = imageName
 	}
-	
+
 	url := fmt.Sprintf("https://hub.docker.com/v2/repositories/%s/%s/tags/?page_size=50", namespace, name)
-	
+
 	resp, err := vm.httpClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("Docker Hub API 返回 %d", resp.StatusCode)
 	}
-	
+
 	var result struct {
 		Results []struct {
 			Name        string `json:"name"`
@@ -314,20 +314,20 @@ func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersio
 			} `json:"images"`
 		} `json:"results"`
 	}
-	
+
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-	
+
 	var versions []*AppVersion
 	for i, tag := range result.Results {
 		var digest string
 		if len(tag.Images) > 0 {
 			digest = tag.Images[0].Digest
 		}
-		
+
 		publishedAt, _ := time.Parse(time.RFC3339, tag.LastUpdated)
-		
+
 		versions = append(versions, &AppVersion{
 			ID:          fmt.Sprintf("%s-%s", imageName, tag.Name),
 			TemplateID:  imageName,
@@ -339,7 +339,7 @@ func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersio
 			IsLatest:    i == 0 || tag.Name == "latest",
 		})
 	}
-	
+
 	return versions, nil
 }
 
@@ -347,7 +347,7 @@ func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersio
 func (vm *VersionManager) GetNotifications(unreadOnly bool) []*UpdateNotification {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
-	
+
 	var result []*UpdateNotification
 	for _, n := range vm.notifications {
 		if !n.Dismissed {
@@ -356,7 +356,7 @@ func (vm *VersionManager) GetNotifications(unreadOnly bool) []*UpdateNotificatio
 			}
 		}
 	}
-	
+
 	// 按时间排序（最新的在前）
 	for i := 0; i < len(result); i++ {
 		for j := i + 1; j < len(result); j++ {
@@ -365,7 +365,7 @@ func (vm *VersionManager) GetNotifications(unreadOnly bool) []*UpdateNotificatio
 			}
 		}
 	}
-	
+
 	return result
 }
 
@@ -373,12 +373,12 @@ func (vm *VersionManager) GetNotifications(unreadOnly bool) []*UpdateNotificatio
 func (vm *VersionManager) MarkNotificationRead(id string) error {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
-	
+
 	n, ok := vm.notifications[id]
 	if !ok {
 		return fmt.Errorf("通知不存在: %s", id)
 	}
-	
+
 	n.Read = true
 	return vm.saveNotifications()
 }
@@ -387,12 +387,12 @@ func (vm *VersionManager) MarkNotificationRead(id string) error {
 func (vm *VersionManager) DismissNotification(id string) error {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
-	
+
 	n, ok := vm.notifications[id]
 	if !ok {
 		return fmt.Errorf("通知不存在: %s", id)
 	}
-	
+
 	n.Dismissed = true
 	return vm.saveNotifications()
 }
@@ -401,7 +401,7 @@ func (vm *VersionManager) DismissNotification(id string) error {
 func (vm *VersionManager) MarkAllNotificationsRead() error {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
-	
+
 	for _, n := range vm.notifications {
 		n.Read = true
 	}
@@ -412,7 +412,7 @@ func (vm *VersionManager) MarkAllNotificationsRead() error {
 func (vm *VersionManager) ClearNotifications() error {
 	vm.mu.Lock()
 	defer vm.mu.Unlock()
-	
+
 	vm.notifications = make(map[string]*UpdateNotification)
 	return vm.saveNotifications()
 }
@@ -421,7 +421,7 @@ func (vm *VersionManager) ClearNotifications() error {
 func (vm *VersionManager) GetUnreadCount() int {
 	vm.mu.RLock()
 	defer vm.mu.RUnlock()
-	
+
 	count := 0
 	for _, n := range vm.notifications {
 		if !n.Read && !n.Dismissed {
@@ -437,12 +437,12 @@ func (vm *VersionManager) UpdateAppVersion(appID, newVersion string) error {
 	if app == nil {
 		return fmt.Errorf("应用未安装: %s", appID)
 	}
-	
+
 	template := vm.store.GetTemplate(app.TemplateID)
 	if template == nil {
 		return fmt.Errorf("模板不存在: %s", app.TemplateID)
 	}
-	
+
 	// 构建新镜像名
 	image := template.Image
 	if strings.Contains(image, ":") {
@@ -451,15 +451,15 @@ func (vm *VersionManager) UpdateAppVersion(appID, newVersion string) error {
 	} else {
 		image = image + ":" + newVersion
 	}
-	
+
 	// 拉取新镜像
 	if err := vm.store.manager.PullImage(image); err != nil {
 		return fmt.Errorf("拉取镜像失败: %w", err)
 	}
-	
+
 	// 更新版本
 	app.Version = newVersion
-	
+
 	// 重新创建容器
 	if app.ComposePath != "" {
 		// 更新 compose 文件中的镜像版本
@@ -467,21 +467,21 @@ func (vm *VersionManager) UpdateAppVersion(appID, newVersion string) error {
 		if err != nil {
 			return err
 		}
-		
+
 		composeStr := string(composeData)
 		// 简单替换镜像版本
 		if strings.Contains(composeStr, template.Image) {
 			composeStr = strings.ReplaceAll(composeStr, template.Image, image)
 		}
-		
+
 		if err := os.WriteFile(app.ComposePath, []byte(composeStr), 0644); err != nil {
 			return err
 		}
-		
+
 		// 重启容器
 		return vm.store.RestartApp(appID)
 	}
-	
+
 	return nil
 }
 
@@ -490,7 +490,7 @@ func (vm *VersionManager) StartUpdateChecker(interval time.Duration) {
 	go func() {
 		ticker := time.NewTicker(interval)
 		defer ticker.Stop()
-		
+
 		for range ticker.C {
 			updates, err := vm.CheckForUpdates()
 			if err != nil {

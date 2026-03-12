@@ -28,13 +28,13 @@ const (
 
 // NodeMetrics 节点性能指标
 type NodeMetrics struct {
-	CPUUsage       float64   `json:"cpu_usage"`
-	MemoryUsage    float64   `json:"memory_usage"`
-	DiskUsage      float64   `json:"disk_usage"`
-	NetworkIn      int64     `json:"network_in"`
-	NetworkOut     int64     `json:"network_out"`
-	ActiveConns    int       `json:"active_connections"`
-	LastUpdate     time.Time `json:"last_update"`
+	CPUUsage    float64   `json:"cpu_usage"`
+	MemoryUsage float64   `json:"memory_usage"`
+	DiskUsage   float64   `json:"disk_usage"`
+	NetworkIn   int64     `json:"network_in"`
+	NetworkOut  int64     `json:"network_out"`
+	ActiveConns int       `json:"active_connections"`
+	LastUpdate  time.Time `json:"last_update"`
 }
 
 // ClusterNode 集群节点信息
@@ -76,8 +76,8 @@ type ClusterManager struct {
 
 // ClusterCallbacks 集群事件回调
 type ClusterCallbacks struct {
-	OnNodeJoin   func(node *ClusterNode)
-	OnNodeLeave  func(node *ClusterNode)
+	OnNodeJoin     func(node *ClusterNode)
+	OnNodeLeave    func(node *ClusterNode)
 	OnMasterChange func(oldMaster, newMaster string)
 }
 

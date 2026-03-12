@@ -416,9 +416,9 @@ func (h *Handlers) removeWebAuthnCredential(c *gin.Context) {
 // ========== MFA 验证 ==========
 
 type VerifyMFARequest struct {
-	MFAType        string      `json:"mfa_type" binding:"required"` // totp, sms, webauthn
-	Code           string      `json:"code"`                        // TOTP 或短信验证码
-	ResponseData   interface{} `json:"response_data"`               // WebAuthn 响应数据
+	MFAType      string      `json:"mfa_type" binding:"required"` // totp, sms, webauthn
+	Code         string      `json:"code"`                        // TOTP 或短信验证码
+	ResponseData interface{} `json:"response_data"`               // WebAuthn 响应数据
 }
 
 func (h *Handlers) verifyMFA(c *gin.Context) {

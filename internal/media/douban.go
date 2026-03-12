@@ -19,32 +19,32 @@ type DoubanProvider struct {
 
 // DoubanMovie 豆瓣电影响应
 type DoubanMovie struct {
-	ID         string   `json:"id"`
-	Title      string   `json:"title"`
-	OrigTitle  string   `json:"orig_title"`
-	Summary    string   `json:"summary"`
-	Year       string   `json:"year"`
-	Rating     struct {
-		Average float64 `json:"average"`
-		NumRaters int   `json:"numRaters"`
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	OrigTitle string `json:"orig_title"`
+	Summary   string `json:"summary"`
+	Year      string `json:"year"`
+	Rating    struct {
+		Average   float64 `json:"average"`
+		NumRaters int     `json:"numRaters"`
 	} `json:"rating"`
-	Genres   []string `json:"genres"`
+	Genres    []string `json:"genres"`
 	Directors []struct {
 		Name string `json:"name"`
 	} `json:"directors"`
-	Cast     []struct {
+	Cast []struct {
 		Name string `json:"name"`
 	} `json:"casts"`
-	Images   struct {
+	Images struct {
 		Large  string `json:"large"`
 		Medium string `json:"medium"`
 		Small  string `json:"small"`
 	} `json:"images"`
-	Alt      string `json:"alt"`
-	MobileURL string `json:"mobile_url"`
-	Doi      []string `json:"doi"`
-	Seasons  int      `json:"seasons_count"`
-	Episodes int      `json:"episodes_count"`
+	Alt       string   `json:"alt"`
+	MobileURL string   `json:"mobile_url"`
+	Doi       []string `json:"doi"`
+	Seasons   int      `json:"seasons_count"`
+	Episodes  int      `json:"episodes_count"`
 }
 
 // NewDoubanProvider 创建豆瓣提供商
@@ -81,9 +81,9 @@ func (p *DoubanProvider) SearchMovie(query string) ([]*MovieInfo, error) {
 	}
 
 	var result struct {
-		Count  int          `json:"count"`
-		Start  int          `json:"start"`
-		Total  int          `json:"total"`
+		Count    int           `json:"count"`
+		Start    int           `json:"start"`
+		Total    int           `json:"total"`
 		Subjects []DoubanMovie `json:"subjects"`
 	}
 
@@ -201,9 +201,9 @@ func (p *DoubanProvider) SearchTV(query string) ([]*TVShowInfo, error) {
 	}
 
 	var result struct {
-		Count  int          `json:"count"`
-		Start  int          `json:"start"`
-		Total  int          `json:"total"`
+		Count    int           `json:"count"`
+		Start    int           `json:"start"`
+		Total    int           `json:"total"`
 		Subjects []DoubanMovie `json:"subjects"`
 	}
 

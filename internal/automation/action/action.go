@@ -12,15 +12,15 @@ import (
 type ActionType string
 
 const (
-	ActionTypeMove      ActionType = "move"
-	ActionTypeCopy      ActionType = "copy"
-	ActionTypeDelete    ActionType = "delete"
-	ActionTypeRename    ActionType = "rename"
-	ActionTypeConvert   ActionType = "convert"
-	ActionTypeNotify    ActionType = "notify"
-	ActionTypeCommand   ActionType = "command"
-	ActionTypeWebhook   ActionType = "webhook"
-	ActionTypeEmail     ActionType = "email"
+	ActionTypeMove    ActionType = "move"
+	ActionTypeCopy    ActionType = "copy"
+	ActionTypeDelete  ActionType = "delete"
+	ActionTypeRename  ActionType = "rename"
+	ActionTypeConvert ActionType = "convert"
+	ActionTypeNotify  ActionType = "notify"
+	ActionTypeCommand ActionType = "command"
+	ActionTypeWebhook ActionType = "webhook"
+	ActionTypeEmail   ActionType = "email"
 )
 
 // Action 动作接口
@@ -103,9 +103,9 @@ func (a *DeleteAction) Execute(ctx context.Context, contextData map[string]inter
 
 // RenameAction 重命名文件/文件夹
 type RenameAction struct {
-	Type      ActionType `json:"type"`
-	Path      string     `json:"path"`
-	NewName   string     `json:"new_name"`
+	Type    ActionType `json:"type"`
+	Path    string     `json:"path"`
+	NewName string     `json:"new_name"`
 }
 
 func (a *RenameAction) GetType() ActionType {
@@ -128,10 +128,10 @@ func (a *RenameAction) Execute(ctx context.Context, contextData map[string]inter
 
 // ConvertAction 转换文件格式
 type ConvertAction struct {
-	Type        ActionType `json:"type"`
-	Source      string     `json:"source"`
-	Destination string     `json:"destination"`
-	Format      string     `json:"format"` // e.g., "jpg", "png", "pdf", "mp4"
+	Type        ActionType             `json:"type"`
+	Source      string                 `json:"source"`
+	Destination string                 `json:"destination"`
+	Format      string                 `json:"format"` // e.g., "jpg", "png", "pdf", "mp4"
 	Options     map[string]interface{} `json:"options,omitempty"`
 }
 
@@ -201,11 +201,11 @@ func (a *CommandAction) GetType() ActionType {
 
 func (a *CommandAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	cmd := exec.CommandContext(ctx, a.Command, a.Args...)
-	
+
 	if a.WorkDir != "" {
 		cmd.Dir = replaceVariables(a.WorkDir, contextData)
 	}
-	
+
 	if len(a.Env) > 0 {
 		cmd.Env = append(os.Environ(), a.Env...)
 	}
@@ -220,11 +220,11 @@ func (a *CommandAction) Execute(ctx context.Context, contextData map[string]inte
 
 // WebhookAction 发送 Webhook 请求
 type WebhookAction struct {
-	Type    ActionType `json:"type"`
-	URL     string     `json:"url"`
-	Method  string     `json:"method,omitempty"`
+	Type    ActionType        `json:"type"`
+	URL     string            `json:"url"`
+	Method  string            `json:"method,omitempty"`
 	Headers map[string]string `json:"headers,omitempty"`
-	Body    string     `json:"body,omitempty"`
+	Body    string            `json:"body,omitempty"`
 }
 
 func (a *WebhookAction) GetType() ActionType {
@@ -239,12 +239,12 @@ func (a *WebhookAction) Execute(ctx context.Context, contextData map[string]inte
 
 // EmailAction 发送邮件
 type EmailAction struct {
-	Type      ActionType `json:"type"`
-	To        string     `json:"to"`
-	Subject   string     `json:"subject"`
-	Body      string     `json:"body"`
-	HTML      bool       `json:"html,omitempty"`
-	Attachments []string `json:"attachments,omitempty"`
+	Type        ActionType `json:"type"`
+	To          string     `json:"to"`
+	Subject     string     `json:"subject"`
+	Body        string     `json:"body"`
+	HTML        bool       `json:"html,omitempty"`
+	Attachments []string   `json:"attachments,omitempty"`
 }
 
 func (a *EmailAction) GetType() ActionType {
@@ -260,43 +260,43 @@ func (a *EmailAction) Execute(ctx context.Context, contextData map[string]interf
 // ActionConfig 动作配置（用于 JSON 序列化）
 type ActionConfig struct {
 	Type ActionType `json:"type"`
-	
+
 	// Common fields
-	Source      string     `json:"source,omitempty"`
-	Destination string     `json:"destination,omitempty"`
-	Path        string     `json:"path,omitempty"`
-	Overwrite   bool       `json:"overwrite,omitempty"`
-	Recursive   bool       `json:"recursive,omitempty"`
-	
+	Source      string `json:"source,omitempty"`
+	Destination string `json:"destination,omitempty"`
+	Path        string `json:"path,omitempty"`
+	Overwrite   bool   `json:"overwrite,omitempty"`
+	Recursive   bool   `json:"recursive,omitempty"`
+
 	// Rename fields
-	NewName   string     `json:"new_name,omitempty"`
-	
+	NewName string `json:"new_name,omitempty"`
+
 	// Convert fields
-	Format    string     `json:"format,omitempty"`
-	Options   map[string]interface{} `json:"options,omitempty"`
-	
+	Format  string                 `json:"format,omitempty"`
+	Options map[string]interface{} `json:"options,omitempty"`
+
 	// Notify fields
-	Channel   string     `json:"channel,omitempty"`
-	Message   string     `json:"message,omitempty"`
-	Title     string     `json:"title,omitempty"`
-	To        string     `json:"to,omitempty"`
-	
+	Channel string `json:"channel,omitempty"`
+	Message string `json:"message,omitempty"`
+	Title   string `json:"title,omitempty"`
+	To      string `json:"to,omitempty"`
+
 	// Command fields
-	Command   string     `json:"command,omitempty"`
-	Args      []string   `json:"args,omitempty"`
-	WorkDir   string     `json:"work_dir,omitempty"`
-	Env       []string   `json:"env,omitempty"`
-	
+	Command string   `json:"command,omitempty"`
+	Args    []string `json:"args,omitempty"`
+	WorkDir string   `json:"work_dir,omitempty"`
+	Env     []string `json:"env,omitempty"`
+
 	// Webhook fields
-	URL       string     `json:"url,omitempty"`
-	Method    string     `json:"method,omitempty"`
-	Headers   map[string]string `json:"headers,omitempty"`
-	Body      string     `json:"body,omitempty"`
-	
+	URL     string            `json:"url,omitempty"`
+	Method  string            `json:"method,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
+	Body    string            `json:"body,omitempty"`
+
 	// Email fields
-	Subject   string     `json:"subject,omitempty"`
-	EmailBody string     `json:"email_body,omitempty"`
-	HTML      bool       `json:"html,omitempty"`
+	Subject     string   `json:"subject,omitempty"`
+	EmailBody   string   `json:"email_body,omitempty"`
+	HTML        bool     `json:"html,omitempty"`
 	Attachments []string `json:"attachments,omitempty"`
 }
 

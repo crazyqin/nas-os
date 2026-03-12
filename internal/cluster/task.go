@@ -15,14 +15,14 @@ import (
 
 // 任务状态
 const (
-	TaskStatusPending    = "pending"
-	TaskStatusScheduled  = "scheduled"
-	TaskStatusRunning    = "running"
-	TaskStatusCompleted  = "completed"
-	TaskStatusFailed     = "failed"
-	TaskStatusCancelled  = "cancelled"
-	TaskStatusTimeout    = "timeout"
-	TaskStatusRetrying   = "retrying"
+	TaskStatusPending   = "pending"
+	TaskStatusScheduled = "scheduled"
+	TaskStatusRunning   = "running"
+	TaskStatusCompleted = "completed"
+	TaskStatusFailed    = "failed"
+	TaskStatusCancelled = "cancelled"
+	TaskStatusTimeout   = "timeout"
+	TaskStatusRetrying  = "retrying"
 )
 
 // 任务优先级
@@ -35,82 +35,82 @@ const (
 
 // 任务类型
 const (
-	TaskTypeCompute  = "compute"
+	TaskTypeCompute   = "compute"
 	TaskTypeInference = "inference"
-	TaskTypeData     = "data"
-	TaskTypeSync     = "sync"
-	TaskTypeBatch    = "batch"
-	TaskTypeStream   = "stream"
+	TaskTypeData      = "data"
+	TaskTypeSync      = "sync"
+	TaskTypeBatch     = "batch"
+	TaskTypeStream    = "stream"
 )
 
 // TaskRequirements 任务需求
 type TaskRequirements struct {
-	CPU         int     `json:"cpu"`          // 最小 CPU 核心数
-	Memory      int64   `json:"memory"`       // 最小内存 (MB)
-	Storage     int64   `json:"storage"`      // 最小存储 (GB)
-	GPU         bool    `json:"gpu"`          // 是否需要 GPU
-	Capabilities uint32 `json:"capabilities"` // 需要的能力位图
-	Region      string  `json:"region"`       // 区域限制
-	Zone        string  `json:"zone"`         // 可用区限制
-	NodeType    string  `json:"node_type"`    // 节点类型限制
-	Labels      map[string]string `json:"labels"` // 标签选择器
+	CPU          int               `json:"cpu"`          // 最小 CPU 核心数
+	Memory       int64             `json:"memory"`       // 最小内存 (MB)
+	Storage      int64             `json:"storage"`      // 最小存储 (GB)
+	GPU          bool              `json:"gpu"`          // 是否需要 GPU
+	Capabilities uint32            `json:"capabilities"` // 需要的能力位图
+	Region       string            `json:"region"`       // 区域限制
+	Zone         string            `json:"zone"`         // 可用区限制
+	NodeType     string            `json:"node_type"`    // 节点类型限制
+	Labels       map[string]string `json:"labels"`       // 标签选择器
 }
 
 // TaskConfig 任务配置
 type TaskConfig struct {
-	Timeout     int      `json:"timeout"`      // 超时时间（秒）
-	MaxRetries  int      `json:"max_retries"`  // 最大重试次数
-	RetryDelay  int      `json:"retry_delay"`  // 重试延迟（秒）
-	Parallelism int      `json:"parallelism"`  // 并行度
-	Priority    int      `json:"priority"`     // 优先级
-	Tags        []string `json:"tags"`         // 标签
+	Timeout     int      `json:"timeout"`     // 超时时间（秒）
+	MaxRetries  int      `json:"max_retries"` // 最大重试次数
+	RetryDelay  int      `json:"retry_delay"` // 重试延迟（秒）
+	Parallelism int      `json:"parallelism"` // 并行度
+	Priority    int      `json:"priority"`    // 优先级
+	Tags        []string `json:"tags"`        // 标签
 }
 
 // Task 任务定义
 type Task struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Type         string            `json:"type"`
-	Payload      json.RawMessage   `json:"payload"`      // 任务数据
-	Requirements TaskRequirements  `json:"requirements"` // 资源需求
-	Config       TaskConfig        `json:"config"`       // 任务配置
-	Status       string            `json:"status"`
-	Priority     int               `json:"priority"`
-	NodeID       string            `json:"node_id"`      // 分配的节点
-	Result       *TaskResult       `json:"result,omitempty"`
-	CreatedAt    time.Time         `json:"created_at"`
-	ScheduledAt  time.Time         `json:"scheduled_at"`
-	StartedAt    time.Time         `json:"started_at"`
-	CompletedAt  time.Time         `json:"completed_at"`
-	Attempts     int               `json:"attempts"`
-	LastError    string            `json:"last_error"`
-	ParentTaskID string            `json:"parent_task_id,omitempty"`
-	ChildTaskIDs []string          `json:"child_task_ids,omitempty"`
-	CallbackURL  string            `json:"callback_url,omitempty"`
+	ID           string                 `json:"id"`
+	Name         string                 `json:"name"`
+	Type         string                 `json:"type"`
+	Payload      json.RawMessage        `json:"payload"`      // 任务数据
+	Requirements TaskRequirements       `json:"requirements"` // 资源需求
+	Config       TaskConfig             `json:"config"`       // 任务配置
+	Status       string                 `json:"status"`
+	Priority     int                    `json:"priority"`
+	NodeID       string                 `json:"node_id"` // 分配的节点
+	Result       *TaskResult            `json:"result,omitempty"`
+	CreatedAt    time.Time              `json:"created_at"`
+	ScheduledAt  time.Time              `json:"scheduled_at"`
+	StartedAt    time.Time              `json:"started_at"`
+	CompletedAt  time.Time              `json:"completed_at"`
+	Attempts     int                    `json:"attempts"`
+	LastError    string                 `json:"last_error"`
+	ParentTaskID string                 `json:"parent_task_id,omitempty"`
+	ChildTaskIDs []string               `json:"child_task_ids,omitempty"`
+	CallbackURL  string                 `json:"callback_url,omitempty"`
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // TaskResult 任务结果
 type TaskResult struct {
-	TaskID     string                 `json:"task_id"`
-	NodeID     string                 `json:"node_id"`
-	Success    bool                   `json:"success"`
-	Data       json.RawMessage        `json:"data"`
-	Error      string                 `json:"error,omitempty"`
-	StartTime  time.Time              `json:"start_time"`
-	EndTime    time.Time              `json:"end_time"`
-	Duration   time.Duration          `json:"duration"`
-	Metrics    map[string]interface{} `json:"metrics,omitempty"`
+	TaskID    string                 `json:"task_id"`
+	NodeID    string                 `json:"node_id"`
+	Success   bool                   `json:"success"`
+	Data      json.RawMessage        `json:"data"`
+	Error     string                 `json:"error,omitempty"`
+	StartTime time.Time              `json:"start_time"`
+	EndTime   time.Time              `json:"end_time"`
+	Duration  time.Duration          `json:"duration"`
+	Metrics   map[string]interface{} `json:"metrics,omitempty"`
 }
 
 // TaskSchedule 任务调度配置
 type TaskSchedule struct {
-	TaskID    string `json:"task_id"`
-	Schedule  string `json:"schedule"`  // cron 表达式
-	Enabled   bool   `json:"enabled"`
-	LastRun   time.Time `json:"last_run"`
-	NextRun   time.Time `json:"next_run"`
-	RunCount  int    `json:"run_count"`
+	TaskID   string    `json:"task_id"`
+	Schedule string    `json:"schedule"` // cron 表达式
+	Enabled  bool      `json:"enabled"`
+	LastRun  time.Time `json:"last_run"`
+	NextRun  time.Time `json:"next_run"`
+	RunCount int       `json:"run_count"`
 }
 
 // TaskSchedulerConfig 调度器配置
@@ -124,15 +124,15 @@ type TaskSchedulerConfig struct {
 
 // TaskScheduler 任务调度器
 type TaskScheduler struct {
-	config      TaskSchedulerConfig
-	tasks       map[string]*Task
-	tasksMutex  sync.RWMutex
-	schedules   map[string]*TaskSchedule
+	config         TaskSchedulerConfig
+	tasks          map[string]*Task
+	tasksMutex     sync.RWMutex
+	schedules      map[string]*TaskSchedule
 	schedulesMutex sync.RWMutex
-	pending     chan *Task
-	running     map[string]*Task
-	runningMutex sync.RWMutex
-	completed   []*TaskResult
+	pending        chan *Task
+	running        map[string]*Task
+	runningMutex   sync.RWMutex
+	completed      []*TaskResult
 	// completedMutex sync.RWMutex - 保留用于未来需要并发控制 completed 的场景
 	cron        *cron.Cron
 	ctx         context.Context
@@ -771,7 +771,6 @@ func (ts *TaskScheduler) saveSchedules() error {
 
 	return os.WriteFile(schedulesFile, data, 0644)
 }
-
 
 // 辅助函数
 

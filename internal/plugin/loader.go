@@ -139,9 +139,9 @@ func (l *Loader) Load(pluginPath string) (*PluginInstance, error) {
 		Enabled: false,
 		Running: false,
 		State: PluginState{
-			ID:        info.ID,
-			Version:   info.Version,
-			Installed: true,
+			ID:          info.ID,
+			Version:     info.Version,
+			Installed:   true,
 			InstalledAt: timeNow(),
 		},
 	}
@@ -243,9 +243,9 @@ func (l *Loader) loadSOInfo(soPath string) (PluginInfo, error) {
 	id = strings.ReplaceAll(id, "_", "-")
 
 	return PluginInfo{
-		ID:   "plugin." + id,
-		Name: id,
-		Version: "1.0.0",
+		ID:       "plugin." + id,
+		Name:     id,
+		Version:  "1.0.0",
 		MainFile: soPath,
 	}, nil
 }

@@ -68,13 +68,13 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	securityConfig := DefaultSecurityConfig()
 
 	// 中间件链 (顺序重要)
-	engine.Use(inputValidationMiddleware())     // 1. 输入验证
-	engine.Use(loggerMiddleware())              // 2. 结构化日志
-	engine.Use(securityHeadersMiddleware())     // 3. 安全头
-	engine.Use(corsMiddleware(securityConfig))  // 4. CORS (加固版)
+	engine.Use(inputValidationMiddleware())         // 1. 输入验证
+	engine.Use(loggerMiddleware())                  // 2. 结构化日志
+	engine.Use(securityHeadersMiddleware())         // 3. 安全头
+	engine.Use(corsMiddleware(securityConfig))      // 4. CORS (加固版)
 	engine.Use(rateLimitMiddleware(securityConfig)) // 5. 速率限制
-	engine.Use(csrfMiddleware(securityConfig))  // 6. CSRF 保护
-	engine.Use(auditLogMiddleware())            // 7. 审计日志
+	engine.Use(csrfMiddleware(securityConfig))      // 6. CSRF 保护
+	engine.Use(auditLogMiddleware())                // 7. 审计日志
 
 	// 初始化 Docker 管理器
 	dockerMgr, err := docker.NewManager()
@@ -117,8 +117,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// 初始化配额管理器
 	var quotaMgr *quota.Manager
-	quotaMgr, err = quota.NewManager("/etc/nas-os/quota.json", 
-		quota.NewStorageAdapter(storMgr), 
+	quotaMgr, err = quota.NewManager("/etc/nas-os/quota.json",
+		quota.NewStorageAdapter(storMgr),
 		quota.NewUserAdapter(userMgr))
 	if err != nil {
 		// 配额管理不可用时继续运行
@@ -228,8 +228,6 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	s.setupRoutes()
 	return s
 }
-
-
 
 func (s *Server) setupRoutes() {
 	// API 路由
@@ -365,7 +363,7 @@ func (s *Server) setupRoutes() {
 
 	// 静态文件（前端）
 	s.engine.Static("/", "./webui/dist")
-	
+
 	// 下载中心页面
 	s.engine.StaticFile("/downloader", "./webui/pages/downloader/index.html")
 	s.engine.StaticFile("/downloader/", "./webui/pages/downloader/index.html")
@@ -386,17 +384,17 @@ func (s *Server) Stop() error {
 	if s.perfMgr != nil {
 		s.perfMgr.Stop()
 	}
-	
+
 	// 停止配额管理
 	if s.quotaMgr != nil {
 		s.quotaMgr.Stop()
 	}
-	
+
 	// 停止 AI 相册管理
 	if s.photosAIMgr != nil {
 		s.photosAIMgr.Close()
 	}
-	
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	return s.httpSrv.Shutdown(ctx)

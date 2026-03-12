@@ -53,7 +53,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 			sync.PUT("/tasks/:id", h.updateSyncTask)
 			sync.DELETE("/tasks/:id", h.deleteSyncTask)
 			sync.POST("/run/:id", h.runSyncTask)
-			
+
 			// 版本管理
 			sync.GET("/versions", h.listVersions)
 			sync.POST("/versions/restore", h.restoreVersion)

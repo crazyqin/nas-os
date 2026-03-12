@@ -125,8 +125,8 @@ func (h *Handlers) deleteShare(c *gin.Context) {
 func (h *Handlers) setPermission(c *gin.Context) {
 	name := c.Param("name")
 	var req struct {
-		Username   string `json:"username" binding:"required"`
-		ReadWrite  bool   `json:"read_write"`
+		Username  string `json:"username" binding:"required"`
+		ReadWrite bool   `json:"read_write"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))

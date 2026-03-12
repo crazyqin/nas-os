@@ -20,11 +20,11 @@ type WebAuthnManager struct {
 
 // WebAuthnSession WebAuthn 会话
 type WebAuthnSession struct {
-	UserID      string
-	Username    string
-	Challenge   string
-	ExpiresAt   time.Time
-	IsRegister  bool
+	UserID     string
+	Username   string
+	Challenge  string
+	ExpiresAt  time.Time
+	IsRegister bool
 }
 
 // WebAuthnConfig WebAuthn 配置
@@ -99,10 +99,10 @@ func (m *WebAuthnManager) BeginRegistration(userID, username, displayName string
 			"displayName": displayName,
 		},
 		"pubKeyCredParams": []map[string]interface{}{
-			{"type": "public-key", "alg": -7},  // ES256
+			{"type": "public-key", "alg": -7},   // ES256
 			{"type": "public-key", "alg": -257}, // RS256
 		},
-		"timeout": 60000,
+		"timeout":     60000,
 		"attestation": "none",
 	}
 
@@ -195,9 +195,9 @@ func (m *WebAuthnManager) BeginAuthentication(userID string) (string, interface{
 	}
 
 	options := map[string]interface{}{
-		"challenge": challenge,
-		"timeout":   60000,
-		"rpId":      m.rpID,
+		"challenge":        challenge,
+		"timeout":          60000,
+		"rpId":             m.rpID,
 		"allowCredentials": allowCredentials,
 	}
 

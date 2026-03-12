@@ -13,21 +13,21 @@ import (
 
 // Watcher 文件监控器
 type Watcher struct {
-	engine    *Engine
-	watcher   *fsnotify.Watcher
-	paths     []string
-	logger    *zap.Logger
-	mu        sync.RWMutex
-	running   bool
-	stopChan  chan struct{}
-	debounce  time.Duration
-	pending   map[string]time.Time
+	engine   *Engine
+	watcher  *fsnotify.Watcher
+	paths    []string
+	logger   *zap.Logger
+	mu       sync.RWMutex
+	running  bool
+	stopChan chan struct{}
+	debounce time.Duration
+	pending  map[string]time.Time
 }
 
 // WatcherConfig 监控器配置
 type WatcherConfig struct {
-	Paths     []string      // 监控路径
-	Debounce  time.Duration // 防抖时间
+	Paths    []string      // 监控路径
+	Debounce time.Duration // 防抖时间
 }
 
 // NewWatcher 创建文件监控器
@@ -67,7 +67,7 @@ func (w *Watcher) Start() error {
 	// 添加监控路径
 	for _, path := range w.paths {
 		if err := w.addWatch(path); err != nil {
-			w.logger.Warn("添加监控路径失败", 
+			w.logger.Warn("添加监控路径失败",
 				zap.String("path", path),
 				zap.Error(err))
 		}
@@ -78,7 +78,7 @@ func (w *Watcher) Start() error {
 	// 启动防抖处理
 	go w.processPending()
 
-	w.logger.Info("文件监控器启动", 
+	w.logger.Info("文件监控器启动",
 		zap.Strings("paths", w.paths))
 
 	return nil

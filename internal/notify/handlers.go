@@ -11,8 +11,8 @@ import (
 
 // Config 通知配置
 type Config struct {
-	Email    EmailConfig    `json:"email,omitempty"`
-	WeChat   WeChatConfig   `json:"wechat,omitempty"`
+	Email    EmailConfig     `json:"email,omitempty"`
+	WeChat   WeChatConfig    `json:"wechat,omitempty"`
 	Webhooks []WebhookConfig `json:"webhooks,omitempty"`
 }
 
@@ -42,10 +42,10 @@ type WebhookConfig struct {
 
 // Handlers 通知处理器
 type Handlers struct {
-	manager *Manager
-	config  *Config
+	manager    *Manager
+	config     *Config
 	configPath string
-	mu      sync.RWMutex
+	mu         sync.RWMutex
 }
 
 // NewHandlers 创建通知处理器

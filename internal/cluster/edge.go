@@ -14,95 +14,95 @@ import (
 
 // 边缘节点类型
 const (
-	EdgeNodeTypeGateway   = "gateway"   // 网关节点
-	EdgeNodeTypeCompute   = "compute"   // 计算节点
-	EdgeNodeTypeStorage   = "storage"   // 存储节点
-	EdgeNodeTypeSensor    = "sensor"    // 传感器节点
-	EdgeNodeTypeActuator  = "actuator"  // 执行器节点
+	EdgeNodeTypeGateway  = "gateway"  // 网关节点
+	EdgeNodeTypeCompute  = "compute"  // 计算节点
+	EdgeNodeTypeStorage  = "storage"  // 存储节点
+	EdgeNodeTypeSensor   = "sensor"   // 传感器节点
+	EdgeNodeTypeActuator = "actuator" // 执行器节点
 )
 
 // 边缘节点状态
 const (
-	EdgeNodeStatusOnline    = "online"
-	EdgeNodeStatusOffline   = "offline"
-	EdgeNodeStatusBusy      = "busy"
-	EdgeNodeStatusIdle      = "idle"
-	EdgeNodeStatusMaintain  = "maintain"
+	EdgeNodeStatusOnline   = "online"
+	EdgeNodeStatusOffline  = "offline"
+	EdgeNodeStatusBusy     = "busy"
+	EdgeNodeStatusIdle     = "idle"
+	EdgeNodeStatusMaintain = "maintain"
 )
 
 // 边缘节点能力标志
 const (
-	EdgeCapCompute   = 1 << iota // 计算能力
-	EdgeCapStorage               // 存储能力
-	EdgeCapNetwork               // 网络能力
-	EdgeCapSensor                // 传感器能力
-	EdgeCapActuator              // 执行器能力
-	EdgeCapAI                    // AI 推理能力
-	EdgeCapGPU                   // GPU 加速能力
+	EdgeCapCompute  = 1 << iota // 计算能力
+	EdgeCapStorage              // 存储能力
+	EdgeCapNetwork              // 网络能力
+	EdgeCapSensor               // 传感器能力
+	EdgeCapActuator             // 执行器能力
+	EdgeCapAI                   // AI 推理能力
+	EdgeCapGPU                  // GPU 加速能力
 )
 
 // EdgeNodeCapabilities 边缘节点能力
 type EdgeNodeCapabilities struct {
-	CPU     int     `json:"cpu"`      // CPU 核心数
-	Memory  int64   `json:"memory"`   // 内存大小 (MB)
-	Storage int64   `json:"storage"`  // 存储大小 (GB)
-	GPU     bool    `json:"gpu"`      // 是否有 GPU
-	AI      bool    `json:"ai"`       // 是否支持 AI 推理
-	Caps    uint32  `json:"caps"`     // 能力位图
-	Tags    []string `json:"tags"`   // 标签
+	CPU     int      `json:"cpu"`     // CPU 核心数
+	Memory  int64    `json:"memory"`  // 内存大小 (MB)
+	Storage int64    `json:"storage"` // 存储大小 (GB)
+	GPU     bool     `json:"gpu"`     // 是否有 GPU
+	AI      bool     `json:"ai"`      // 是否支持 AI 推理
+	Caps    uint32   `json:"caps"`    // 能力位图
+	Tags    []string `json:"tags"`    // 标签
 }
 
 // EdgeNodeResource 边缘节点资源使用情况
 type EdgeNodeResource struct {
-	CPUUsed      float64 `json:"cpu_used"`      // CPU 使用率
-	MemoryUsed   float64 `json:"memory_used"`   // 内存使用率
-	StorageUsed  float64 `json:"storage_used"`  // 存储使用率
-	NetworkRx    int64   `json:"network_rx"`    // 网络接收 (bytes/sec)
-	NetworkTx    int64   `json:"network_tx"`    // 网络发送 (bytes/sec)
-	GPUUsed      float64 `json:"gpu_used"`      // GPU 使用率
-	Temperature  float64 `json:"temperature"`   // 温度
-	PowerUsage   float64 `json:"power_usage"`   // 功耗
+	CPUUsed     float64 `json:"cpu_used"`     // CPU 使用率
+	MemoryUsed  float64 `json:"memory_used"`  // 内存使用率
+	StorageUsed float64 `json:"storage_used"` // 存储使用率
+	NetworkRx   int64   `json:"network_rx"`   // 网络接收 (bytes/sec)
+	NetworkTx   int64   `json:"network_tx"`   // 网络发送 (bytes/sec)
+	GPUUsed     float64 `json:"gpu_used"`     // GPU 使用率
+	Temperature float64 `json:"temperature"`  // 温度
+	PowerUsage  float64 `json:"power_usage"`  // 功耗
 }
 
 // EdgeNode 边缘节点
 type EdgeNode struct {
-	ID           string              `json:"id"`
-	Name         string              `json:"name"`
-	Type         string              `json:"type"`
-	IPAddress    string              `json:"ip_address"`
-	Port         int                 `json:"port"`
-	Status       string              `json:"status"`
+	ID           string               `json:"id"`
+	Name         string               `json:"name"`
+	Type         string               `json:"type"`
+	IPAddress    string               `json:"ip_address"`
+	Port         int                  `json:"port"`
+	Status       string               `json:"status"`
 	Capabilities EdgeNodeCapabilities `json:"capabilities"`
-	Resources    EdgeNodeResource    `json:"resources"`
-	Location     EdgeLocation        `json:"location"`
-	Priority     int                 `json:"priority"`     // 优先级 (越高越优先)
-	Weight       int                 `json:"weight"`       // 权重 (负载均衡用)
-	LastSeen     time.Time           `json:"last_seen"`
-	JoinTime     time.Time           `json:"join_time"`
-	TasksRunning int                 `json:"tasks_running"`
-	TasksQueued  int                 `json:"tasks_queued"`
-	Labels       map[string]string   `json:"labels"`
-	Annotations  map[string]string   `json:"annotations"`
+	Resources    EdgeNodeResource     `json:"resources"`
+	Location     EdgeLocation         `json:"location"`
+	Priority     int                  `json:"priority"` // 优先级 (越高越优先)
+	Weight       int                  `json:"weight"`   // 权重 (负载均衡用)
+	LastSeen     time.Time            `json:"last_seen"`
+	JoinTime     time.Time            `json:"join_time"`
+	TasksRunning int                  `json:"tasks_running"`
+	TasksQueued  int                  `json:"tasks_queued"`
+	Labels       map[string]string    `json:"labels"`
+	Annotations  map[string]string    `json:"annotations"`
 }
 
 // EdgeLocation 边缘节点位置信息
 type EdgeLocation struct {
-	Region    string  `json:"region"`     // 区域
-	Zone      string  `json:"zone"`       // 可用区
-	Datacenter string `json:"datacenter"` // 数据中心
-	Rack      string  `json:"rack"`       // 机架
-	Latitude  float64 `json:"latitude"`   // 纬度
-	Longitude float64 `json:"longitude"`  // 经度
+	Region     string  `json:"region"`     // 区域
+	Zone       string  `json:"zone"`       // 可用区
+	Datacenter string  `json:"datacenter"` // 数据中心
+	Rack       string  `json:"rack"`       // 机架
+	Latitude   float64 `json:"latitude"`   // 纬度
+	Longitude  float64 `json:"longitude"`  // 经度
 }
 
 // EdgeNodeConfig 边缘节点配置
 type EdgeNodeConfig struct {
-	NodeID           string        `json:"node_id"`
-	DataDir          string        `json:"data_dir"`
+	NodeID            string        `json:"node_id"`
+	DataDir           string        `json:"data_dir"`
 	HeartbeatInterval time.Duration `json:"heartbeat_interval"`
 	HeartbeatTimeout  time.Duration `json:"heartbeat_timeout"`
-	MaxNodes         int           `json:"max_nodes"`
-	AutoRegister     bool          `json:"auto_register"`
+	MaxNodes          int           `json:"max_nodes"`
+	AutoRegister      bool          `json:"auto_register"`
 }
 
 // EdgeNodeManager 边缘节点管理器
@@ -120,10 +120,10 @@ type EdgeNodeManager struct {
 
 // EdgeNodeCallbacks 边缘节点事件回调
 type EdgeNodeCallbacks struct {
-	OnNodeJoin    func(node *EdgeNode)
-	OnNodeLeave   func(node *EdgeNode)
-	OnNodeStatus  func(node *EdgeNode, oldStatus string)
-	OnNodeUpdate  func(node *EdgeNode)
+	OnNodeJoin   func(node *EdgeNode)
+	OnNodeLeave  func(node *EdgeNode)
+	OnNodeStatus func(node *EdgeNode, oldStatus string)
+	OnNodeUpdate func(node *EdgeNode)
 }
 
 // NewEdgeNodeManager 创建边缘节点管理器
