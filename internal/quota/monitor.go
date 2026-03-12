@@ -8,13 +8,13 @@ import (
 
 // Monitor 配额监控器
 type Monitor struct {
-	manager     *Manager
-	config      AlertConfig
-	stopChan    chan struct{}
-	running     bool
-	mu          sync.Mutex
-	trendData   map[string][]TrendDataPoint // quotaID -> 历史数据点
-	trendMu     sync.RWMutex
+	manager   *Manager
+	config    AlertConfig
+	stopChan  chan struct{}
+	running   bool
+	mu        sync.Mutex
+	trendData map[string][]TrendDataPoint // quotaID -> 历史数据点
+	trendMu   sync.RWMutex
 }
 
 // NewMonitor 创建监控器
@@ -134,9 +134,9 @@ func (m *Monitor) triggerAlert(usage *QuotaUsage, alertType AlertType) {
 
 	// 检查是否已有相同类型的活跃告警
 	for _, existingAlert := range m.manager.alerts {
-		if existingAlert.QuotaID == usage.QuotaID && 
-		   existingAlert.Type == alertType &&
-		   existingAlert.Status == AlertStatusActive {
+		if existingAlert.QuotaID == usage.QuotaID &&
+			existingAlert.Type == alertType &&
+			existingAlert.Status == AlertStatusActive {
 			// 更新现有告警
 			existingAlert.UsedBytes = usage.UsedBytes
 			existingAlert.UsagePercent = usage.UsagePercent

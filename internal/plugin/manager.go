@@ -14,15 +14,15 @@ import (
 
 // Manager 插件管理器
 type Manager struct {
-	loader       *Loader
-	pluginDir    string
-	configDir    string
-	dataDir      string
-	states       map[string]*PluginState
-	hooks        map[HookType][]Hook
-	extensions   map[string]*ExtensionPoint
-	mu           sync.RWMutex
-	stateFile    string
+	loader     *Loader
+	pluginDir  string
+	configDir  string
+	dataDir    string
+	states     map[string]*PluginState
+	hooks      map[HookType][]Hook
+	extensions map[string]*ExtensionPoint
+	mu         sync.RWMutex
+	stateFile  string
 }
 
 // ManagerConfig 管理器配置
@@ -473,8 +473,8 @@ func (m *Manager) RegisterExtension(ext *Extension) error {
 	point, exists := m.extensions[ext.PointID]
 	if !exists {
 		point = &ExtensionPoint{
-			ID:   ext.PointID,
-			Name: ext.PointID,
+			ID:         ext.PointID,
+			Name:       ext.PointID,
 			Extensions: []*Extension{},
 		}
 		m.extensions[ext.PointID] = point

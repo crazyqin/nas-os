@@ -12,11 +12,11 @@ func TestEdgeNodeManager(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
 	config := EdgeNodeConfig{
-		NodeID:           "test-edge-node",
-		DataDir:          t.TempDir(),
+		NodeID:            "test-edge-node",
+		DataDir:           t.TempDir(),
 		HeartbeatInterval: 10 * time.Second,
 		HeartbeatTimeout:  30 * time.Second,
-		MaxNodes:         100,
+		MaxNodes:          100,
 	}
 
 	manager, err := NewEdgeNodeManager(config, logger, nil)
@@ -38,11 +38,11 @@ func TestEdgeNodeManager(t *testing.T) {
 		Port:      8080,
 		Status:    EdgeNodeStatusOnline,
 		Capabilities: EdgeNodeCapabilities{
-			CPU:    4,
-			Memory: 8192,
+			CPU:     4,
+			Memory:  8192,
 			Storage: 100,
-			GPU:    false,
-			AI:     true,
+			GPU:     false,
+			AI:      true,
 		},
 	}
 
@@ -197,9 +197,9 @@ func TestResultAggregator(t *testing.T) {
 
 	// 测试提交结果
 	result := &TaskResult{
-		TaskID:   "task-001",
-		NodeID:   "edge-001",
-		Success:  true,
+		TaskID:    "task-001",
+		NodeID:    "edge-001",
+		Success:   true,
 		StartTime: time.Now(),
 		EndTime:   time.Now(),
 		Duration:  time.Second,
@@ -228,8 +228,8 @@ func TestEdgeLoadBalancer(t *testing.T) {
 
 	// 创建边缘节点管理器
 	nodeConfig := EdgeNodeConfig{
-		NodeID:           "test-lb-node",
-		DataDir:          t.TempDir(),
+		NodeID:            "test-lb-node",
+		DataDir:           t.TempDir(),
 		HeartbeatInterval: 10 * time.Second,
 		HeartbeatTimeout:  30 * time.Second,
 	}
@@ -253,9 +253,9 @@ func TestEdgeLoadBalancer(t *testing.T) {
 			Priority:  10,
 			Weight:    100,
 			Capabilities: EdgeNodeCapabilities{
-				CPU: 4,
+				CPU:    4,
 				Memory: 8192,
-				Caps: EdgeCapCompute | EdgeCapAI,
+				Caps:   EdgeCapCompute | EdgeCapAI,
 			},
 			Resources: EdgeNodeResource{
 				CPUUsed:    10,
@@ -272,9 +272,9 @@ func TestEdgeLoadBalancer(t *testing.T) {
 			Priority:  5,
 			Weight:    50,
 			Capabilities: EdgeNodeCapabilities{
-				CPU: 2,
+				CPU:    2,
 				Memory: 4096,
-				Caps: EdgeCapCompute,
+				Caps:   EdgeCapCompute,
 			},
 			Resources: EdgeNodeResource{
 				CPUUsed:    30,
@@ -289,10 +289,10 @@ func TestEdgeLoadBalancer(t *testing.T) {
 
 	// 创建负载均衡器
 	lbConfig := EdgeLBConfig{
-		Strategy:        EdgeLBStrategyLeastLoad,
-		ResourceWeight:  0.4,
-		LocationWeight:  0.3,
-		LatencyWeight:   0.2,
+		Strategy:         EdgeLBStrategyLeastLoad,
+		ResourceWeight:   0.4,
+		LocationWeight:   0.3,
+		LatencyWeight:    0.2,
 		CapabilityWeight: 0.1,
 	}
 
@@ -357,8 +357,8 @@ func TestEdgeNodeSelection(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
 	nodeConfig := EdgeNodeConfig{
-		NodeID:           "test-select-node",
-		DataDir:          t.TempDir(),
+		NodeID:            "test-select-node",
+		DataDir:           t.TempDir(),
 		HeartbeatInterval: 10 * time.Second,
 		HeartbeatTimeout:  30 * time.Second,
 	}
@@ -374,11 +374,11 @@ func TestEdgeNodeSelection(t *testing.T) {
 			Type:   EdgeNodeTypeCompute,
 			Status: EdgeNodeStatusIdle,
 			Capabilities: EdgeNodeCapabilities{
-				CPU: 8,
+				CPU:    8,
 				Memory: 16384,
-				GPU: true,
-				AI: true,
-				Caps: EdgeCapCompute | EdgeCapAI | EdgeCapGPU,
+				GPU:    true,
+				AI:     true,
+				Caps:   EdgeCapCompute | EdgeCapAI | EdgeCapGPU,
 			},
 			Resources: EdgeNodeResource{CPUUsed: 5, MemoryUsed: 10},
 		},
@@ -387,11 +387,11 @@ func TestEdgeNodeSelection(t *testing.T) {
 			Type:   EdgeNodeTypeCompute,
 			Status: EdgeNodeStatusIdle,
 			Capabilities: EdgeNodeCapabilities{
-				CPU: 16,
+				CPU:    16,
 				Memory: 32768,
-				GPU: false,
-				AI: false,
-				Caps: EdgeCapCompute,
+				GPU:    false,
+				AI:     false,
+				Caps:   EdgeCapCompute,
 			},
 			Resources: EdgeNodeResource{CPUUsed: 50, MemoryUsed: 60},
 		},
@@ -400,10 +400,10 @@ func TestEdgeNodeSelection(t *testing.T) {
 			Type:   EdgeNodeTypeStorage,
 			Status: EdgeNodeStatusIdle,
 			Capabilities: EdgeNodeCapabilities{
-				CPU: 2,
-				Memory: 4096,
+				CPU:     2,
+				Memory:  4096,
 				Storage: 1000,
-				Caps: EdgeCapStorage,
+				Caps:    EdgeCapStorage,
 			},
 			Resources: EdgeNodeResource{CPUUsed: 10, MemoryUsed: 20},
 		},

@@ -22,30 +22,30 @@ const (
 type FieldType string
 
 const (
-	FieldTypeString    FieldType = "string"
-	FieldTypeNumber    FieldType = "number"
-	FieldTypePercent   FieldType = "percent"
-	FieldTypeBytes     FieldType = "bytes"
-	FieldTypeDate      FieldType = "date"
-	FieldTypeDateTime  FieldType = "datetime"
-	FieldTypeDuration  FieldType = "duration"
-	FieldTypeBoolean   FieldType = "boolean"
-	FieldTypeList      FieldType = "list"
+	FieldTypeString   FieldType = "string"
+	FieldTypeNumber   FieldType = "number"
+	FieldTypePercent  FieldType = "percent"
+	FieldTypeBytes    FieldType = "bytes"
+	FieldTypeDate     FieldType = "date"
+	FieldTypeDateTime FieldType = "datetime"
+	FieldTypeDuration FieldType = "duration"
+	FieldTypeBoolean  FieldType = "boolean"
+	FieldTypeList     FieldType = "list"
 )
 
 // TemplateField 模板字段
 type TemplateField struct {
-	Name        string     `json:"name"`         // 字段名（英文标识）
-	Label       string     `json:"label"`        // 显示标签
-	Type        FieldType  `json:"type"`         // 字段类型
-	Source      string     `json:"source"`      // 数据源路径（如 "quota.used_bytes"）
-	Format      string     `json:"format"`      // 格式化模板（如日期格式）
-	Default     string     `json:"default"`     // 默认值
-	Required    bool       `json:"required"`    // 是否必需
-	Sortable    bool       `json:"sortable"`    // 是否可排序
-	Filterable  bool       `json:"filterable"`  // 是否可过滤
+	Name         string    `json:"name"`         // 字段名（英文标识）
+	Label        string    `json:"label"`        // 显示标签
+	Type         FieldType `json:"type"`         // 字段类型
+	Source       string    `json:"source"`       // 数据源路径（如 "quota.used_bytes"）
+	Format       string    `json:"format"`       // 格式化模板（如日期格式）
+	Default      string    `json:"default"`      // 默认值
+	Required     bool      `json:"required"`     // 是否必需
+	Sortable     bool      `json:"sortable"`     // 是否可排序
+	Filterable   bool      `json:"filterable"`   // 是否可过滤
 	Aggregatable bool      `json:"aggregatable"` // 是否可聚合
-	Description string     `json:"description"` // 字段说明
+	Description  string    `json:"description"`  // 字段说明
 }
 
 // TemplateFilter 模板过滤器
@@ -70,22 +70,22 @@ type TemplateAggregation struct {
 
 // ReportTemplate 报表模板
 type ReportTemplate struct {
-	ID          string                `json:"id"`
-	Name        string               `json:"name"`
-	Type        TemplateType         `json:"type"`
-	Description string               `json:"description"`
-	Fields      []TemplateField      `json:"fields"`
-	Filters     []TemplateFilter     `json:"filters,omitempty"`
-	Sorts       []TemplateSort       `json:"sorts,omitempty"`
+	ID           string                `json:"id"`
+	Name         string                `json:"name"`
+	Type         TemplateType          `json:"type"`
+	Description  string                `json:"description"`
+	Fields       []TemplateField       `json:"fields"`
+	Filters      []TemplateFilter      `json:"filters,omitempty"`
+	Sorts        []TemplateSort        `json:"sorts,omitempty"`
 	Aggregations []TemplateAggregation `json:"aggregations,omitempty"`
-	GroupBy     []string             `json:"group_by,omitempty"`
-	Limit       int                  `json:"limit,omitempty"`
-	Offset      int                  `json:"offset,omitempty"`
-	CreatedAt   time.Time            `json:"created_at"`
-	UpdatedAt   time.Time            `json:"updated_at"`
-	CreatedBy   string               `json:"created_by,omitempty"`
-	IsDefault   bool                 `json:"is_default"`
-	IsPublic    bool                 `json:"is_public"` // 是否公开给所有用户
+	GroupBy      []string              `json:"group_by,omitempty"`
+	Limit        int                   `json:"limit,omitempty"`
+	Offset       int                   `json:"offset,omitempty"`
+	CreatedAt    time.Time             `json:"created_at"`
+	UpdatedAt    time.Time             `json:"updated_at"`
+	CreatedBy    string                `json:"created_by,omitempty"`
+	IsDefault    bool                  `json:"is_default"`
+	IsPublic     bool                  `json:"is_public"` // 是否公开给所有用户
 }
 
 // TemplateInput 创建/更新模板输入
@@ -110,9 +110,9 @@ type CustomReport struct {
 	ID           string                 `json:"id"`
 	Name         string                 `json:"name"`
 	Description  string                 `json:"description"`
-	TemplateID   string                 `json:"template_id,omitempty"`  // 基于的模板
-	DataSource   string                 `json:"data_source"`            // 数据源类型
-	Query        map[string]interface{} `json:"query"`                  // 查询参数
+	TemplateID   string                 `json:"template_id,omitempty"` // 基于的模板
+	DataSource   string                 `json:"data_source"`           // 数据源类型
+	Query        map[string]interface{} `json:"query"`                 // 查询参数
 	Fields       []TemplateField        `json:"fields"`                // 输出字段
 	Filters      []TemplateFilter       `json:"filters,omitempty"`
 	Sorts        []TemplateSort         `json:"sorts,omitempty"`
@@ -158,26 +158,26 @@ const (
 
 // ScheduledReport 定时报表
 type ScheduledReport struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Description  string            `json:"description"`
-	ReportID     string            `json:"report_id"`           // 关联的自定义报表
-	TemplateID   string            `json:"template_id,omitempty"` // 或关联的模板
-	Frequency    ScheduleFrequency `json:"frequency"`
-	CronExpr     string            `json:"cron_expr,omitempty"` // 自定义 cron 表达式
-	Timezone     string            `json:"timezone"`           // 时区
-	NextRun      *time.Time        `json:"next_run,omitempty"`
-	LastRun      *time.Time        `json:"last_run,omitempty"`
-	LastStatus   string            `json:"last_status,omitempty"`
-	Enabled      bool              `json:"enabled"`
-	ExportFormat ExportFormat      `json:"export_format"`
-	OutputPath   string            `json:"output_path,omitempty"`
-	NotifyEmail  []string          `json:"notify_email,omitempty"`
-	NotifyWebhook []string         `json:"notify_webhook,omitempty"`
-	Retention    int               `json:"retention"` // 保留天数
-	CreatedAt    time.Time         `json:"created_at"`
-	UpdatedAt    time.Time         `json:"updated_at"`
-	CreatedBy    string            `json:"created_by,omitempty"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Description   string            `json:"description"`
+	ReportID      string            `json:"report_id"`             // 关联的自定义报表
+	TemplateID    string            `json:"template_id,omitempty"` // 或关联的模板
+	Frequency     ScheduleFrequency `json:"frequency"`
+	CronExpr      string            `json:"cron_expr,omitempty"` // 自定义 cron 表达式
+	Timezone      string            `json:"timezone"`            // 时区
+	NextRun       *time.Time        `json:"next_run,omitempty"`
+	LastRun       *time.Time        `json:"last_run,omitempty"`
+	LastStatus    string            `json:"last_status,omitempty"`
+	Enabled       bool              `json:"enabled"`
+	ExportFormat  ExportFormat      `json:"export_format"`
+	OutputPath    string            `json:"output_path,omitempty"`
+	NotifyEmail   []string          `json:"notify_email,omitempty"`
+	NotifyWebhook []string          `json:"notify_webhook,omitempty"`
+	Retention     int               `json:"retention"` // 保留天数
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+	CreatedBy     string            `json:"created_by,omitempty"`
 }
 
 // ScheduledReportInput 定时报表输入
@@ -217,10 +217,10 @@ type ScheduledReportExecution struct {
 type ExportFormat string
 
 const (
-	ExportJSON ExportFormat = "json"
-	ExportCSV  ExportFormat = "csv"
-	ExportHTML ExportFormat = "html"
-	ExportPDF  ExportFormat = "pdf"
+	ExportJSON  ExportFormat = "json"
+	ExportCSV   ExportFormat = "csv"
+	ExportHTML  ExportFormat = "html"
+	ExportPDF   ExportFormat = "pdf"
 	ExportExcel ExportFormat = "xlsx"
 )
 
@@ -255,18 +255,18 @@ type ExportResult struct {
 
 // GeneratedReport 生成的报表
 type GeneratedReport struct {
-	ID           string                 `json:"id"`
-	Name         string                 `json:"name"`
-	TemplateID   string                 `json:"template_id,omitempty"`
-	CustomReportID string               `json:"custom_report_id,omitempty"`
-	GeneratedAt  time.Time              `json:"generated_at"`
-	Period       ReportPeriod           `json:"period"`
-	Parameters   map[string]interface{} `json:"parameters,omitempty"`
-	Summary      map[string]interface{} `json:"summary,omitempty"`
-	Data         []map[string]interface{} `json:"data"`
-	TotalRecords int                    `json:"total_records"`
-	ExportFormat ExportFormat           `json:"export_format"`
-	ExportPath   string                 `json:"export_path,omitempty"`
+	ID             string                   `json:"id"`
+	Name           string                   `json:"name"`
+	TemplateID     string                   `json:"template_id,omitempty"`
+	CustomReportID string                   `json:"custom_report_id,omitempty"`
+	GeneratedAt    time.Time                `json:"generated_at"`
+	Period         ReportPeriod             `json:"period"`
+	Parameters     map[string]interface{}   `json:"parameters,omitempty"`
+	Summary        map[string]interface{}   `json:"summary,omitempty"`
+	Data           []map[string]interface{} `json:"data"`
+	TotalRecords   int                      `json:"total_records"`
+	ExportFormat   ExportFormat             `json:"export_format"`
+	ExportPath     string                   `json:"export_path,omitempty"`
 }
 
 // ReportPeriod 报告时间范围
@@ -281,16 +281,16 @@ type ReportPeriod struct {
 type DataSource interface {
 	// Name 数据源名称
 	Name() string
-	
+
 	// Query 查询数据
-	Query(query map[string]interface{}, fields []TemplateField, 
+	Query(query map[string]interface{}, fields []TemplateField,
 		filters []TemplateFilter, sorts []TemplateSort,
 		aggregations []TemplateAggregation, groupBy []string,
 		limit, offset int) ([]map[string]interface{}, error)
-	
+
 	// GetSummary 获取摘要
 	GetSummary(query map[string]interface{}) (map[string]interface{}, error)
-	
+
 	// GetAvailableFields 获取可用字段
 	GetAvailableFields() []TemplateField
 }

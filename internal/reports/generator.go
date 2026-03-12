@@ -34,10 +34,10 @@ func NewReportGenerator(templateManager *TemplateManager, dataDir string) *Repor
 		customReports:   make(map[string]*CustomReport),
 		dataDir:         dataDir,
 	}
-	
+
 	os.MkdirAll(dataDir, 0755)
 	rg.loadCustomReports()
-	
+
 	return rg
 }
 
@@ -52,18 +52,18 @@ func (rg *ReportGenerator) loadCustomReports() {
 	if err != nil {
 		return
 	}
-	
+
 	for _, file := range files {
 		data, err := os.ReadFile(file)
 		if err != nil {
 			continue
 		}
-		
+
 		var report CustomReport
 		if err := json.Unmarshal(data, &report); err != nil {
 			continue
 		}
-		
+
 		rg.customReports[report.ID] = &report
 	}
 }
@@ -74,7 +74,7 @@ func (rg *ReportGenerator) saveCustomReport(report *CustomReport) error {
 	if err != nil {
 		return err
 	}
-	
+
 	path := filepath.Join(rg.dataDir, "custom_"+report.ID+".json")
 	return os.WriteFile(path, data, 0644)
 }
@@ -83,19 +83,19 @@ func (rg *ReportGenerator) saveCustomReport(report *CustomReport) error {
 func (rg *ReportGenerator) CreateCustomReport(input CustomReportInput, createdBy string) (*CustomReport, error) {
 	rg.mu.Lock()
 	defer rg.mu.Unlock()
-	
+
 	// 验证数据源
 	if _, exists := rg.dataSources[input.DataSource]; !exists {
 		return nil, ErrDataSourceNotFound
 	}
-	
+
 	// 如果基于模板，验证模板存在
 	if input.TemplateID != "" {
 		if _, err := rg.templateManager.GetTemplate(input.TemplateID); err != nil {
 			return nil, err
 		}
 	}
-	
+
 	now := time.Now()
 	report := &CustomReport{
 		ID:           uuid.New().String(),
@@ -116,14 +116,14 @@ func (rg *ReportGenerator) CreateCustomReport(input CustomReportInput, createdBy
 		UpdatedAt:    now,
 		CreatedBy:    createdBy,
 	}
-	
+
 	rg.customReports[report.ID] = report
-	
+
 	if err := rg.saveCustomReport(report); err != nil {
 		delete(rg.customReports, report.ID)
 		return nil, err
 	}
-	
+
 	return report, nil
 }
 
@@ -131,12 +131,12 @@ func (rg *ReportGenerator) CreateCustomReport(input CustomReportInput, createdBy
 func (rg *ReportGenerator) GetCustomReport(id string) (*CustomReport, error) {
 	rg.mu.RLock()
 	defer rg.mu.RUnlock()
-	
+
 	report, exists := rg.customReports[id]
 	if !exists {
 		return nil, ErrReportNotFound
 	}
-	
+
 	return report, nil
 }
 
@@ -144,7 +144,7 @@ func (rg *ReportGenerator) GetCustomReport(id string) (*CustomReport, error) {
 func (rg *ReportGenerator) ListCustomReports(dataSource string) []*CustomReport {
 	rg.mu.RLock()
 	defer rg.mu.RUnlock()
-	
+
 	result := make([]*CustomReport, 0)
 	for _, r := range rg.customReports {
 		if dataSource != "" && r.DataSource != dataSource {
@@ -152,7 +152,7 @@ func (rg *ReportGenerator) ListCustomReports(dataSource string) []*CustomReport 
 		}
 		result = append(result, r)
 	}
-	
+
 	return result
 }
 
@@ -160,17 +160,17 @@ func (rg *ReportGenerator) ListCustomReports(dataSource string) []*CustomReport 
 func (rg *ReportGenerator) UpdateCustomReport(id string, input CustomReportInput) (*CustomReport, error) {
 	rg.mu.Lock()
 	defer rg.mu.Unlock()
-	
+
 	report, exists := rg.customReports[id]
 	if !exists {
 		return nil, ErrReportNotFound
 	}
-	
+
 	// 验证数据源
 	if _, exists := rg.dataSources[input.DataSource]; !exists {
 		return nil, ErrDataSourceNotFound
 	}
-	
+
 	report.Name = input.Name
 	report.Description = input.Description
 	report.TemplateID = input.TemplateID
@@ -185,11 +185,11 @@ func (rg *ReportGenerator) UpdateCustomReport(id string, input CustomReportInput
 	report.Limit = input.Limit
 	report.Offset = input.Offset
 	report.UpdatedAt = time.Now()
-	
+
 	if err := rg.saveCustomReport(report); err != nil {
 		return nil, err
 	}
-	
+
 	return report, nil
 }
 
@@ -197,13 +197,13 @@ func (rg *ReportGenerator) UpdateCustomReport(id string, input CustomReportInput
 func (rg *ReportGenerator) DeleteCustomReport(id string) error {
 	rg.mu.Lock()
 	defer rg.mu.Unlock()
-	
+
 	if _, exists := rg.customReports[id]; !exists {
 		return ErrReportNotFound
 	}
-	
+
 	delete(rg.customReports, id)
-	
+
 	path := filepath.Join(rg.dataDir, "custom_"+id+".json")
 	return os.Remove(path)
 }
@@ -214,8 +214,8 @@ func (rg *ReportGenerator) GenerateFromTemplate(templateID string, parameters ma
 	if err != nil {
 		return nil, err
 	}
-	
-	return rg.generateReport(template.Fields, template.Filters, template.Sorts, 
+
+	return rg.generateReport(template.Fields, template.Filters, template.Sorts,
 		template.Aggregations, template.GroupBy, template.Limit, template.Offset,
 		parameters, period, template.Name)
 }
@@ -226,7 +226,7 @@ func (rg *ReportGenerator) GenerateFromCustomReport(reportID string, parameters 
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 合并参数
 	mergedParams := make(map[string]interface{})
 	for k, v := range report.Parameters {
@@ -235,7 +235,7 @@ func (rg *ReportGenerator) GenerateFromCustomReport(reportID string, parameters 
 	for k, v := range parameters {
 		mergedParams[k] = v
 	}
-	
+
 	return rg.generateReport(report.Fields, report.Filters, report.Sorts,
 		report.Aggregations, report.GroupBy, report.Limit, report.Offset,
 		mergedParams, period, report.Name)
@@ -253,7 +253,7 @@ func (rg *ReportGenerator) generateReport(
 	period *ReportPeriod,
 	name string,
 ) (*GeneratedReport, error) {
-	
+
 	// 确定数据源
 	dataSourceName := ""
 	if ds, ok := parameters["data_source"].(string); ok {
@@ -265,15 +265,15 @@ func (rg *ReportGenerator) generateReport(
 			break
 		}
 	}
-	
+
 	dataSource, exists := rg.dataSources[dataSourceName]
 	if !exists {
 		return nil, ErrDataSourceNotFound
 	}
-	
+
 	// 应用参数到过滤器
 	appliedFilters := rg.applyParametersToFilters(filters, parameters)
-	
+
 	// 添加时间范围过滤器
 	if period != nil {
 		appliedFilters = append(appliedFilters, TemplateFilter{
@@ -286,28 +286,28 @@ func (rg *ReportGenerator) generateReport(
 			Value:    period.EndTime,
 		})
 	}
-	
+
 	// 查询数据
 	query := make(map[string]interface{})
 	if q, ok := parameters["query"].(map[string]interface{}); ok {
 		query = q
 	}
-	
+
 	data, err := dataSource.Query(query, fields, appliedFilters, sorts, aggregations, groupBy, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("查询数据失败: %w", err)
 	}
-	
+
 	// 应用聚合
 	if len(aggregations) > 0 {
 		data = rg.applyAggregations(data, aggregations)
 	}
-	
+
 	// 应用排序
 	if len(sorts) > 0 {
 		data = rg.applySorts(data, sorts)
 	}
-	
+
 	// 应用分页
 	if limit > 0 {
 		start := offset
@@ -321,13 +321,13 @@ func (rg *ReportGenerator) generateReport(
 			data = data[start:end]
 		}
 	}
-	
+
 	// 格式化字段
 	data = rg.formatFields(data, fields)
-	
+
 	// 获取摘要
 	summary, _ := dataSource.GetSummary(query)
-	
+
 	now := time.Now()
 	report := &GeneratedReport{
 		ID:           uuid.New().String(),
@@ -338,11 +338,11 @@ func (rg *ReportGenerator) generateReport(
 		Data:         data,
 		TotalRecords: len(data),
 	}
-	
+
 	if period != nil {
 		report.Period = *period
 	}
-	
+
 	return report, nil
 }
 
@@ -350,14 +350,14 @@ func (rg *ReportGenerator) generateReport(
 func (rg *ReportGenerator) applyParametersToFilters(filters []TemplateFilter, parameters map[string]interface{}) []TemplateFilter {
 	result := make([]TemplateFilter, len(filters))
 	copy(result, filters)
-	
+
 	for i, f := range result {
 		// 检查参数中是否有对应的值
 		if paramValue, exists := parameters[f.Field]; exists {
 			result[i].Value = paramValue
 		}
 	}
-	
+
 	return result
 }
 
@@ -366,16 +366,16 @@ func (rg *ReportGenerator) applyAggregations(data []map[string]interface{}, aggr
 	if len(aggregations) == 0 {
 		return data
 	}
-	
+
 	result := make([]map[string]interface{}, 0)
-	
+
 	for _, agg := range aggregations {
 		aggResult := make(map[string]interface{})
 		alias := agg.Alias
 		if alias == "" {
 			alias = agg.Function + "_" + agg.Field
 		}
-		
+
 		values := make([]float64, 0)
 		for _, row := range data {
 			if val, ok := row[agg.Field]; ok {
@@ -391,11 +391,11 @@ func (rg *ReportGenerator) applyAggregations(data []map[string]interface{}, aggr
 				}
 			}
 		}
-		
+
 		if len(values) == 0 {
 			continue
 		}
-		
+
 		switch agg.Function {
 		case "sum":
 			var sum float64
@@ -428,10 +428,10 @@ func (rg *ReportGenerator) applyAggregations(data []map[string]interface{}, aggr
 			}
 			aggResult[alias] = max
 		}
-		
+
 		result = append(result, aggResult)
 	}
-	
+
 	return result
 }
 
@@ -440,17 +440,17 @@ func (rg *ReportGenerator) applySorts(data []map[string]interface{}, sorts []Tem
 	if len(sorts) == 0 {
 		return data
 	}
-	
+
 	result := make([]map[string]interface{}, len(data))
 	copy(result, data)
-	
+
 	// 多字段排序（从后往前）
 	for i := len(sorts) - 1; i >= 0; i-- {
 		s := sorts[i]
 		sort.Slice(result, func(a, b int) bool {
 			valA := result[a][s.Field]
 			valB := result[b][s.Field]
-			
+
 			cmp := compareValues(valA, valB)
 			if s.Order == "desc" {
 				return cmp > 0
@@ -458,7 +458,7 @@ func (rg *ReportGenerator) applySorts(data []map[string]interface{}, sorts []Tem
 			return cmp < 0
 		})
 	}
-	
+
 	return result
 }
 
@@ -473,7 +473,7 @@ func compareValues(a, b interface{}) int {
 	if b == nil {
 		return 1
 	}
-	
+
 	// 尝试数值比较
 	aFloat, aOk := toFloat64(a)
 	bFloat, bOk := toFloat64(b)
@@ -485,7 +485,7 @@ func compareValues(a, b interface{}) int {
 		}
 		return 0
 	}
-	
+
 	// 字符串比较
 	aStr := fmt.Sprintf("%v", a)
 	bStr := fmt.Sprintf("%v", b)
@@ -587,7 +587,7 @@ func formatDuration(d time.Duration) string {
 	days := int(d.Hours()) / 24
 	hours := int(d.Hours()) % 24
 	minutes := int(d.Minutes()) % 60
-	
+
 	if days > 0 {
 		return fmt.Sprintf("%d天 %d小时 %d分钟", days, hours, minutes)
 	}
@@ -609,7 +609,7 @@ func (rg *ReportGenerator) GenerateQuickReport(
 	parameters := map[string]interface{}{
 		"data_source": dataSource,
 	}
-	
+
 	return rg.generateReport(fields, filters, sorts, nil, nil, limit, 0, parameters, period, "快速报表")
 }
 
@@ -625,7 +625,7 @@ func (rg *ReportGenerator) GetAvailableFields(dataSource string) ([]TemplateFiel
 	if !exists {
 		return nil, ErrDataSourceNotFound
 	}
-	
+
 	return ds.GetAvailableFields(), nil
 }
 

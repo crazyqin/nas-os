@@ -48,7 +48,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		photos.POST("/:id/favorite", h.toggleFavorite)
 		photos.PUT("/:id", h.updatePhoto)
 		photos.GET("/:id/download", h.downloadPhoto)
-		
+
 		// 缩略图
 		photos.GET("/:id/thumbnail", h.getThumbnail)
 		photos.GET("/:id/thumbnail/:size", h.getThumbnail)
@@ -248,7 +248,7 @@ func (h *Handlers) uploadPhotoBatch(c *gin.Context) {
 		written, err := io.Copy(dst, file)
 		file.Close()
 		dst.Close()
-		
+
 		if err != nil {
 			failed = append(failed, fileHeader.Filename+" (写入失败)")
 			continue
@@ -510,7 +510,7 @@ func (h *Handlers) downloadPhoto(c *gin.Context) {
 func (h *Handlers) getThumbnail(c *gin.Context) {
 	photoID := c.Param("id")
 	size := c.Param("size")
-	
+
 	if size == "" {
 		size = "512"
 	}
@@ -817,7 +817,7 @@ func (h *Handlers) deletePerson(c *gin.Context) {
 // searchPhotos 搜索照片
 func (h *Handlers) searchPhotos(c *gin.Context) {
 	_ = c.Query("q")
-	
+
 	// TODO: 实现搜索逻辑
 
 	c.JSON(http.StatusOK, gin.H{
@@ -877,7 +877,7 @@ func (h *Handlers) getAIStats(c *gin.Context) {
 // listAITasks 列出 AI 任务
 func (h *Handlers) listAITasks(c *gin.Context) {
 	status := c.Query("status")
-	
+
 	if h.aiManager == nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    0,
@@ -1048,7 +1048,7 @@ func (h *Handlers) deleteSmartAlbum(c *gin.Context) {
 // getMemories 获取回忆列表
 func (h *Handlers) getMemories(c *gin.Context) {
 	monthDay := c.Query("date") // MM-DD 格式
-	
+
 	if h.aiManager == nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    0,

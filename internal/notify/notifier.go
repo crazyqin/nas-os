@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/smtp"
 	"net/http"
+	"net/smtp"
 	"time"
 )
 
@@ -13,9 +13,9 @@ import (
 type AlertLevel string
 
 const (
-	LevelInfo      AlertLevel = "info"
-	LevelWarning   AlertLevel = "warning"
-	LevelCritical  AlertLevel = "critical"
+	LevelInfo     AlertLevel = "info"
+	LevelWarning  AlertLevel = "warning"
+	LevelCritical AlertLevel = "critical"
 )
 
 // Notification 通知消息
@@ -53,7 +53,7 @@ func (m *Manager) AddNotifier(n Notifier) {
 // Send 发送通知到所有渠道
 func (m *Manager) Send(notif *Notification) error {
 	notif.Timestamp = time.Now()
-	
+
 	for _, n := range m.notifiers {
 		if err := n.Send(notif); err != nil {
 			// 记录错误但继续发送其他渠道
@@ -95,7 +95,7 @@ func (e *EmailNotifier) Name() string {
 // Send 发送邮件通知
 func (e *EmailNotifier) Send(notif *Notification) error {
 	subject := fmt.Sprintf("[%s] NAS-OS 告警：%s", e.getLevelLabel(notif.Level), notif.Title)
-	
+
 	body := fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
@@ -134,7 +134,7 @@ func (e *EmailNotifier) Send(notif *Notification) error {
     </div>
 </body>
 </html>
-`, 
+`,
 		string(notif.Level),
 		notif.Title,
 		e.getLevelLabel(notif.Level),

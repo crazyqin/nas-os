@@ -967,16 +967,16 @@ func (c *Classifier) generateTags(path string, features Features, category Categ
 	// 基于路径添加标签
 	pathLower := strings.ToLower(path)
 	pathKeywords := map[string]string{
-		"work":  "工作",
-		"工作":   "工作",
+		"work":     "工作",
+		"工作":       "工作",
 		"personal": "个人",
-		"个人":   "个人",
+		"个人":       "个人",
 		"download": "下载",
-		"下载":   "下载",
-		"backup": "备份",
-		"备份":   "备份",
-		"project": "项目",
-		"项目":   "项目",
+		"下载":       "下载",
+		"backup":   "备份",
+		"备份":       "备份",
+		"project":  "项目",
+		"项目":       "项目",
 	}
 
 	for keyword, tagName := range pathKeywords {

@@ -43,11 +43,11 @@ func TestDDNSConfig(t *testing.T) {
 
 	// 测试添加 DDNS 配置
 	config := DDNSConfig{
-		Provider:  "duckdns",
-		Domain:    "test.duckdns.org",
-		Token:     "test-token",
-		Enabled:   true,
-		Interval:  300,
+		Provider: "duckdns",
+		Domain:   "test.duckdns.org",
+		Token:    "test-token",
+		Enabled:  true,
+		Interval: 300,
 	}
 
 	err := mgr.AddDDNS(config)
@@ -73,11 +73,11 @@ func TestDDNSConfig(t *testing.T) {
 
 	// 测试更新 DDNS 配置
 	updatedConfig := DDNSConfig{
-		Provider:  "duckdns",
-		Domain:    "test.duckdns.org",
-		Token:     "updated-token",
-		Enabled:   true,
-		Interval:  600,
+		Provider: "duckdns",
+		Domain:   "test.duckdns.org",
+		Token:    "updated-token",
+		Enabled:  true,
+		Interval: 600,
 	}
 
 	err = mgr.UpdateDDNS("test.duckdns.org", updatedConfig)

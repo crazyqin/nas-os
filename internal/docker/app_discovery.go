@@ -69,7 +69,7 @@ type AppDiscovery struct {
 // NewAppDiscovery 创建应用发现器
 func NewAppDiscovery(store *AppStore, dataDir string) (*AppDiscovery, error) {
 	cacheFile := filepath.Join(dataDir, "discovered-apps.json")
-	
+
 	ad := &AppDiscovery{
 		store:       store,
 		cacheFile:   cacheFile,
@@ -79,12 +79,12 @@ func NewAppDiscovery(store *AppStore, dataDir string) (*AppDiscovery, error) {
 			Timeout: 30 * time.Second,
 		},
 	}
-	
+
 	// 加载缓存
 	if err := ad.loadCache(); err != nil {
 		fmt.Printf("加载发现应用缓存失败: %v\n", err)
 	}
-	
+
 	return ad, nil
 }
 
@@ -94,16 +94,16 @@ func (ad *AppDiscovery) loadCache() error {
 	if err != nil {
 		return err
 	}
-	
+
 	var cache struct {
-		LastUpdate time.Time                `json:"lastUpdate"`
+		LastUpdate time.Time                 `json:"lastUpdate"`
 		Apps       map[string]*DiscoveredApp `json:"apps"`
 	}
-	
+
 	if err := json.Unmarshal(data, &cache); err != nil {
 		return err
 	}
-	
+
 	ad.lastUpdate = cache.LastUpdate
 	ad.discovered = cache.Apps
 	return nil
@@ -118,12 +118,12 @@ func (ad *AppDiscovery) saveCache() error {
 		LastUpdate: ad.lastUpdate,
 		Apps:       ad.discovered,
 	}
-	
+
 	data, err := json.MarshalIndent(cache, "", "  ")
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(ad.cacheFile, data, 0644)
 }
 
@@ -131,9 +131,9 @@ func (ad *AppDiscovery) saveCache() error {
 func (ad *AppDiscovery) DiscoverFromGitHub() ([]*DiscoveredApp, error) {
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
-	
+
 	var allApps []*DiscoveredApp
-	
+
 	// 搜索热门 Docker 相关仓库
 	queries := []string{
 		"docker-compose in:readme,filename stars:>1000",
@@ -141,14 +141,14 @@ func (ad *AppDiscovery) DiscoverFromGitHub() ([]*DiscoveredApp, error) {
 		"awesome-docker in:name,description stars:>500",
 		"self-hosted docker-compose in:readme stars:>200",
 	}
-	
+
 	for _, query := range queries {
 		repos, err := ad.searchGitHub(query)
 		if err != nil {
 			fmt.Printf("GitHub 搜索失败 (%s): %v\n", query, err)
 			continue
 		}
-		
+
 		for _, repo := range repos {
 			app := ad.parseGitHubRepo(repo)
 			if app != nil {
@@ -157,47 +157,47 @@ func (ad *AppDiscovery) DiscoverFromGitHub() ([]*DiscoveredApp, error) {
 			}
 		}
 	}
-	
+
 	ad.lastUpdate = time.Now()
 	ad.saveCache()
-	
+
 	return allApps, nil
 }
 
 // searchGitHub 搜索 GitHub
 func (ad *AppDiscovery) searchGitHub(query string) ([]*GitHubRepo, error) {
 	url := fmt.Sprintf("https://api.github.com/search/repositories?q=%s&sort=stars&order=desc&per_page=30", query)
-	
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 添加 GitHub Token 如果有
 	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", token))
 	}
-	
+
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
-	
+
 	resp, err := ad.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("GitHub API 返回 %d", resp.StatusCode)
 	}
-	
+
 	var result struct {
 		Items []*GitHubRepo `json:"items"`
 	}
-	
+
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-	
+
 	return result.Items, nil
 }
 
@@ -206,16 +206,16 @@ func (ad *AppDiscovery) parseGitHubRepo(repo *GitHubRepo) *DiscoveredApp {
 	if repo == nil {
 		return nil
 	}
-	
+
 	// 生成唯一 ID
 	id := fmt.Sprintf("gh-%d", repo.ID)
-	
+
 	// 推断分类
 	category := ad.inferCategory(repo.Topics, repo.Description, repo.Name)
-	
+
 	// 检查是否有 docker-compose
 	hasCompose := ad.checkDockerCompose(repo.FullName)
-	
+
 	return &DiscoveredApp{
 		ID:          id,
 		Name:        repo.Name,
@@ -234,16 +234,16 @@ func (ad *AppDiscovery) parseGitHubRepo(repo *GitHubRepo) *DiscoveredApp {
 func (ad *AppDiscovery) inferCategory(topics []string, description, name string) string {
 	// 关键词映射
 	categoryKeywords := map[string][]string{
-		"Media":      {"media", "video", "music", "photo", "streaming", "plex", "jellyfin", "emby"},
+		"Media":        {"media", "video", "music", "photo", "streaming", "plex", "jellyfin", "emby"},
 		"Productivity": {"cloud", "storage", "sync", "file", "nextcloud", "owncloud"},
-		"Smart Home": {"home", "automation", "iot", "smart", "homeassistant", "home-assistant"},
-		"Network":    {"network", "proxy", "dns", "vpn", "firewall", "nginx", "traefik"},
-		"Download":   {"download", "torrent", "bt", "transmission", "qbittorrent"},
-		"Development": {"git", "code", "dev", "ci", "cd", "gitea", "gogs"},
-		"Security":   {"security", "password", "auth", "vault", "bitwarden"},
-		"Database":   {"database", "db", "mysql", "postgres", "mongo", "redis"},
+		"Smart Home":   {"home", "automation", "iot", "smart", "homeassistant", "home-assistant"},
+		"Network":      {"network", "proxy", "dns", "vpn", "firewall", "nginx", "traefik"},
+		"Download":     {"download", "torrent", "bt", "transmission", "qbittorrent"},
+		"Development":  {"git", "code", "dev", "ci", "cd", "gitea", "gogs"},
+		"Security":     {"security", "password", "auth", "vault", "bitwarden"},
+		"Database":     {"database", "db", "mysql", "postgres", "mongo", "redis"},
 	}
-	
+
 	// 检查 topics
 	for _, topic := range topics {
 		topicLower := strings.ToLower(topic)
@@ -255,7 +255,7 @@ func (ad *AppDiscovery) inferCategory(topics []string, description, name string)
 			}
 		}
 	}
-	
+
 	// 检查描述和名称
 	combined := strings.ToLower(description + " " + name)
 	for cat, keywords := range categoryKeywords {
@@ -265,7 +265,7 @@ func (ad *AppDiscovery) inferCategory(topics []string, description, name string)
 			}
 		}
 	}
-	
+
 	return "Other"
 }
 
@@ -273,36 +273,36 @@ func (ad *AppDiscovery) inferCategory(topics []string, description, name string)
 func (ad *AppDiscovery) checkDockerCompose(fullName string) bool {
 	// 检查仓库内容 API
 	url := fmt.Sprintf("https://api.github.com/repos/%s/contents", fullName)
-	
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return false
 	}
-	
+
 	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", token))
 	}
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
-	
+
 	resp, err := ad.httpClient.Do(req)
 	if err != nil {
 		return false
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return false
 	}
-	
+
 	var contents []struct {
 		Name string `json:"name"`
 		Type string `json:"type"`
 	}
-	
+
 	if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
 		return false
 	}
-	
+
 	// 查找 docker-compose 文件
 	for _, c := range contents {
 		lowerName := strings.ToLower(c.Name)
@@ -310,7 +310,7 @@ func (ad *AppDiscovery) checkDockerCompose(fullName string) bool {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -318,24 +318,24 @@ func (ad *AppDiscovery) checkDockerCompose(fullName string) bool {
 func (ad *AppDiscovery) DiscoverFromDockerHub() ([]*DiscoveredApp, error) {
 	ad.mu.Lock()
 	defer ad.mu.Unlock()
-	
+
 	var allApps []*DiscoveredApp
-	
+
 	// 搜索热门官方镜像
 	url := "https://hub.docker.com/api/content/v1/products/search/?page_size=50&type=image"
-	
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Search-Version", "v3")
-	
+
 	resp, err := ad.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
+
 	var result struct {
 		Summaries []struct {
 			Name string `json:"name"`
@@ -345,11 +345,11 @@ func (ad *AppDiscovery) DiscoverFromDockerHub() ([]*DiscoveredApp, error) {
 			Score int `json:"score"`
 		} `json:"summaries"`
 	}
-	
+
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
-	
+
 	for _, summary := range result.Summaries {
 		id := fmt.Sprintf("dh-%s", summary.Name)
 		app := &DiscoveredApp{
@@ -367,10 +367,10 @@ func (ad *AppDiscovery) DiscoverFromDockerHub() ([]*DiscoveredApp, error) {
 		ad.discovered[id] = app
 		allApps = append(allApps, app)
 	}
-	
+
 	ad.lastUpdate = time.Now()
 	ad.saveCache()
-	
+
 	return allApps, nil
 }
 
@@ -378,9 +378,9 @@ func (ad *AppDiscovery) DiscoverFromDockerHub() ([]*DiscoveredApp, error) {
 func (ad *AppDiscovery) GetDiscoveredApps(source string, category string, limit int) []*DiscoveredApp {
 	ad.mu.RLock()
 	defer ad.mu.RUnlock()
-	
+
 	var result []*DiscoveredApp
-	
+
 	for _, app := range ad.discovered {
 		if source != "" && app.Source != source {
 			continue
@@ -390,14 +390,14 @@ func (ad *AppDiscovery) GetDiscoveredApps(source string, category string, limit 
 		}
 		result = append(result, app)
 	}
-	
+
 	// 按星数排序
 	sortDiscoveredByStars(result)
-	
+
 	if limit > 0 && len(result) > limit {
 		result = result[:limit]
 	}
-	
+
 	return result
 }
 
@@ -416,11 +416,11 @@ func sortDiscoveredByStars(apps []*DiscoveredApp) {
 func (ad *AppDiscovery) RefreshDiscovery() error {
 	_, err1 := ad.DiscoverFromGitHub()
 	_, err2 := ad.DiscoverFromDockerHub()
-	
+
 	if err1 != nil && err2 != nil {
 		return fmt.Errorf("GitHub: %v, DockerHub: %v", err1, err2)
 	}
-	
+
 	return nil
 }
 
@@ -440,28 +440,28 @@ func (ad *AppDiscovery) GetLastUpdateTime() time.Time {
 func (ad *AppDiscovery) FetchComposeFile(repoFullName string) (string, error) {
 	// 尝试获取 docker-compose.yml 或 compose.yml
 	filenames := []string{"docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"}
-	
+
 	for _, filename := range filenames {
 		url := fmt.Sprintf("https://raw.githubusercontent.com/%s/main/%s", repoFullName, filename)
-		
+
 		resp, err := ad.httpClient.Get(url)
 		if err != nil {
 			continue
 		}
 		defer resp.Body.Close()
-		
+
 		if resp.StatusCode != 200 {
 			continue
 		}
-		
+
 		var content []byte
 		_, err = resp.Body.Read(content)
 		if err != nil {
 			continue
 		}
-		
+
 		return string(content), nil
 	}
-	
+
 	return "", fmt.Errorf("未找到 docker-compose 文件")
 }

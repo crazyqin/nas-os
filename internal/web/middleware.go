@@ -14,10 +14,10 @@ import (
 
 // SecurityConfig 安全配置
 type SecurityConfig struct {
-	AllowedOrigins []string
-	CSRFKey        []byte
+	AllowedOrigins  []string
+	CSRFKey         []byte
 	EnableRateLimit bool
-	RateLimitRPS   int // 每秒请求数
+	RateLimitRPS    int // 每秒请求数
 }
 
 // DefaultSecurityConfig 默认安全配置
@@ -27,9 +27,9 @@ func DefaultSecurityConfig() *SecurityConfig {
 			"http://localhost:8080",
 			"http://127.0.0.1:8080",
 		},
-		CSRFKey:        []byte("change-this-to-a-32-byte-secret-key-now!"), // TODO: 从环境变量读取
+		CSRFKey:         []byte("change-this-to-a-32-byte-secret-key-now!"), // TODO: 从环境变量读取
 		EnableRateLimit: true,
-		RateLimitRPS:   100,
+		RateLimitRPS:    100,
 	}
 }
 

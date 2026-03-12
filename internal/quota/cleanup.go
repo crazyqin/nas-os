@@ -46,24 +46,24 @@ func (m *CleanupManager) CreatePolicy(input CleanupPolicyInput) (*CleanupPolicy,
 	}
 
 	policy := &CleanupPolicy{
-		ID:           generateID(),
-		Name:         input.Name,
-		VolumeName:   input.VolumeName,
-		Path:         input.Path,
-		Type:         input.Type,
-		Action:       input.Action,
-		Enabled:      input.Enabled,
-		MaxAge:       input.MaxAge,
-		MinSize:      input.MinSize,
-		Patterns:     input.Patterns,
-		QuotaPercent: input.QuotaPercent,
-		MaxAccessAge: input.MaxAccessAge,
-		ArchivePath:  input.ArchivePath,
-		MovePath:     input.MovePath,
-		Schedule:     input.Schedule,
+		ID:            generateID(),
+		Name:          input.Name,
+		VolumeName:    input.VolumeName,
+		Path:          input.Path,
+		Type:          input.Type,
+		Action:        input.Action,
+		Enabled:       input.Enabled,
+		MaxAge:        input.MaxAge,
+		MinSize:       input.MinSize,
+		Patterns:      input.Patterns,
+		QuotaPercent:  input.QuotaPercent,
+		MaxAccessAge:  input.MaxAccessAge,
+		ArchivePath:   input.ArchivePath,
+		MovePath:      input.MovePath,
+		Schedule:      input.Schedule,
 		RetentionDays: input.RetentionDays,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 
 	m.quotaMgr.policies[policy.ID] = policy
@@ -215,14 +215,14 @@ func (m *CleanupManager) RunPolicy(policyID string) (*CleanupTask, error) {
 func (m *CleanupManager) executePolicy(policy *CleanupPolicy) (*CleanupTask, error) {
 	// 创建任务记录
 	task := &CleanupTask{
-		ID:        generateID(),
-		PolicyID:  policy.ID,
+		ID:         generateID(),
+		PolicyID:   policy.ID,
 		PolicyName: policy.Name,
 		VolumeName: policy.VolumeName,
-		Path:      policy.Path,
-		Status:    CleanupTaskRunning,
-		StartedAt: time.Now(),
-		Errors:    make([]string, 0),
+		Path:       policy.Path,
+		Status:     CleanupTaskRunning,
+		StartedAt:  time.Now(),
+		Errors:     make([]string, 0),
 	}
 
 	m.tasks[task.ID] = task
@@ -399,8 +399,8 @@ func (m *CleanupManager) RunAutoCleanup() ([]*CleanupTask, error) {
 		m.quotaMgr.mu.RLock()
 		var relatedPolicies []*CleanupPolicy
 		for _, p := range m.quotaMgr.policies {
-			if p.Enabled && p.Type == CleanupPolicyQuota && 
-			   p.VolumeName == usage.VolumeName {
+			if p.Enabled && p.Type == CleanupPolicyQuota &&
+				p.VolumeName == usage.VolumeName {
 				relatedPolicies = append(relatedPolicies, p)
 			}
 		}
@@ -484,9 +484,9 @@ func (m *CleanupManager) GetCleanupStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_policies":   policyCount,
-		"enabled_policies": enabledCount,
-		"total_tasks":      len(m.tasks),
+		"total_policies":      policyCount,
+		"enabled_policies":    enabledCount,
+		"total_tasks":         len(m.tasks),
 		"total_files_cleaned": totalFiles,
 		"total_bytes_freed":   totalBytes,
 	}

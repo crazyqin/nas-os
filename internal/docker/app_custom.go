@@ -39,7 +39,7 @@ func NewCustomTemplateManager(templatesDir string) (*CustomTemplateManager, erro
 		templates:    make(map[string]*CustomTemplate),
 		templatesDir: templatesDir,
 	}
-	
+
 	if templatesDir != "" {
 		if err := os.MkdirAll(templatesDir, 0755); err != nil {
 			return nil, err
@@ -48,7 +48,7 @@ func NewCustomTemplateManager(templatesDir string) (*CustomTemplateManager, erro
 			return nil, err
 		}
 	}
-	
+
 	return ctm, nil
 }
 
@@ -60,29 +60,29 @@ func (ctm *CustomTemplateManager) ImportFromURL(url, name, displayName, descript
 		return nil, fmt.Errorf("下载失败：%w", err)
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("URL 返回状态码：%d", resp.StatusCode)
 	}
-	
+
 	buf := new(strings.Builder)
 	_, err = io.Copy(buf, resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("读取响应失败：%w", err)
 	}
 	composeContent := buf.String()
-	
+
 	template, err := ctm.CreateFromCompose(name, displayName, description, category, composeContent)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	template.Source = "url"
 	template.SourceURL = url
-	
+
 	ctm.templates[template.ID] = template
 	ctm.saveTemplate(template)
-	
+
 	return template, nil
 }
 
@@ -104,7 +104,7 @@ func (ctm *CustomTemplateManager) CreateFromCompose(name, displayName, descripti
 	if name == "" {
 		return nil, fmt.Errorf("名称不能为空")
 	}
-	
+
 	template := &CustomTemplate{
 		ID:          generateTemplateID(name),
 		Name:        name,
@@ -116,7 +116,7 @@ func (ctm *CustomTemplateManager) CreateFromCompose(name, displayName, descripti
 		UpdatedAt:   time.Now(),
 		Source:      "compose",
 	}
-	
+
 	return template, nil
 }
 
@@ -130,14 +130,14 @@ func (ctm *CustomTemplateManager) saveTemplate(template *CustomTemplate) error {
 	if ctm.templatesDir == "" {
 		return nil
 	}
-	
+
 	filePath := filepath.Join(ctm.templatesDir, template.ID+".json")
-	
+
 	data, err := json.MarshalIndent(template, "", "  ")
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(filePath, data, 0644)
 }
 
@@ -146,7 +146,7 @@ func (ctm *CustomTemplateManager) loadTemplates() error {
 	if ctm.templatesDir == "" {
 		return nil
 	}
-	
+
 	files, err := os.ReadDir(ctm.templatesDir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -154,26 +154,26 @@ func (ctm *CustomTemplateManager) loadTemplates() error {
 		}
 		return err
 	}
-	
+
 	for _, file := range files {
 		if !strings.HasSuffix(file.Name(), ".json") {
 			continue
 		}
-		
+
 		filePath := filepath.Join(ctm.templatesDir, file.Name())
 		data, err := os.ReadFile(filePath)
 		if err != nil {
 			continue
 		}
-		
+
 		var template CustomTemplate
 		if err := json.Unmarshal(data, &template); err != nil {
 			continue
 		}
-		
+
 		ctm.templates[template.ID] = &template
 	}
-	
+
 	return nil
 }
 
@@ -181,7 +181,7 @@ func (ctm *CustomTemplateManager) loadTemplates() error {
 func (ctm *CustomTemplateManager) ListTemplates() []*CustomTemplate {
 	ctm.mu.RLock()
 	defer ctm.mu.RUnlock()
-	
+
 	result := make([]*CustomTemplate, 0, len(ctm.templates))
 	for _, t := range ctm.templates {
 		result = append(result, t)
@@ -193,7 +193,7 @@ func (ctm *CustomTemplateManager) ListTemplates() []*CustomTemplate {
 func (ctm *CustomTemplateManager) GetTemplate(id string) (*CustomTemplate, error) {
 	ctm.mu.RLock()
 	defer ctm.mu.RUnlock()
-	
+
 	t, ok := ctm.templates[id]
 	if !ok {
 		return nil, fmt.Errorf("模板不存在：%s", id)
@@ -210,12 +210,12 @@ func (ctm *CustomTemplateManager) CreateFromURL(url, name, displayName, descript
 func (ctm *CustomTemplateManager) UpdateTemplate(id string, updates map[string]interface{}) (*CustomTemplate, error) {
 	ctm.mu.Lock()
 	defer ctm.mu.Unlock()
-	
+
 	t, ok := ctm.templates[id]
 	if !ok {
 		return nil, fmt.Errorf("模板不存在：%s", id)
 	}
-	
+
 	for k, v := range updates {
 		switch k {
 		case "name":
@@ -230,7 +230,7 @@ func (ctm *CustomTemplateManager) UpdateTemplate(id string, updates map[string]i
 			t.Compose = v.(string)
 		}
 	}
-	
+
 	t.UpdatedAt = time.Now()
 	ctm.saveTemplate(t)
 	return t, nil
@@ -240,18 +240,18 @@ func (ctm *CustomTemplateManager) UpdateTemplate(id string, updates map[string]i
 func (ctm *CustomTemplateManager) DeleteTemplate(id string) error {
 	ctm.mu.Lock()
 	defer ctm.mu.Unlock()
-	
+
 	if _, ok := ctm.templates[id]; !ok {
 		return fmt.Errorf("模板不存在：%s", id)
 	}
-	
+
 	delete(ctm.templates, id)
-	
+
 	if ctm.templatesDir != "" {
 		filePath := filepath.Join(ctm.templatesDir, id+".json")
 		os.Remove(filePath)
 	}
-	
+
 	return nil
 }
 

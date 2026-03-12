@@ -28,9 +28,9 @@ type CloudBackup struct {
 type CloudProvider string
 
 const (
-	CloudProviderS3      CloudProvider = "s3"
-	CloudProviderWebDAV  CloudProvider = "webdav"
-	CloudProviderAliyun  CloudProvider = "aliyun" // 阿里云 OSS（S3 兼容）
+	CloudProviderS3     CloudProvider = "s3"
+	CloudProviderWebDAV CloudProvider = "webdav"
+	CloudProviderAliyun CloudProvider = "aliyun" // 阿里云 OSS（S3 兼容）
 )
 
 // CloudConfig 云端配置

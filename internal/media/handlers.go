@@ -72,13 +72,13 @@ func (h *Handlers) listLibraries(c *gin.Context) {
 // createLibrary 创建媒体库
 func (h *Handlers) createLibrary(c *gin.Context) {
 	var req struct {
-		Name         string `json:"name" binding:"required"`
-		Path         string `json:"path" binding:"required"`
-		Type         string `json:"type" binding:"required"`
-		Description  string `json:"description"`
+		Name           string `json:"name" binding:"required"`
+		Path           string `json:"path" binding:"required"`
+		Type           string `json:"type" binding:"required"`
+		Description    string `json:"description"`
 		MetadataSource string `json:"metadataSource"`
-		TMDBApiKey   string `json:"tmdbApiKey"`
-		DoubanApiKey string `json:"doubanApiKey"`
+		TMDBApiKey     string `json:"tmdbApiKey"`
+		DoubanApiKey   string `json:"doubanApiKey"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -164,15 +164,15 @@ func (h *Handlers) updateLibrary(c *gin.Context) {
 	id := c.Param("id")
 
 	var req struct {
-		Name           string  `json:"name"`
-		Description    string  `json:"description"`
-		Path           string  `json:"path"`
-		Enabled        *bool   `json:"enabled"`
-		AutoScan       *bool   `json:"autoScan"`
-		ScanInterval   *int    `json:"scanInterval"`
-		MetadataSource string  `json:"metadataSource"`
-		TMDBApiKey     string  `json:"tmdbApiKey"`
-		DoubanApiKey   string  `json:"doubanApiKey"`
+		Name           string `json:"name"`
+		Description    string `json:"description"`
+		Path           string `json:"path"`
+		Enabled        *bool  `json:"enabled"`
+		AutoScan       *bool  `json:"autoScan"`
+		ScanInterval   *int   `json:"scanInterval"`
+		MetadataSource string `json:"metadataSource"`
+		TMDBApiKey     string `json:"tmdbApiKey"`
+		DoubanApiKey   string `json:"doubanApiKey"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -475,7 +475,7 @@ func (h *Handlers) getMovieMetadata(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data": gin.H{"id": id},
+		"data":    gin.H{"id": id},
 	})
 }
 
@@ -487,7 +487,7 @@ func (h *Handlers) getTVMetadata(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data": gin.H{"id": id},
+		"data":    gin.H{"id": id},
 	})
 }
 
@@ -504,10 +504,10 @@ func (h *Handlers) getPlayHistory(c *gin.Context) {
 // addPlayHistory 添加播放历史
 func (h *Handlers) addPlayHistory(c *gin.Context) {
 	var req struct {
-		MediaID    string  `json:"mediaId" binding:"required"`
-		Position   int     `json:"position"`
-		Duration   int     `json:"duration"`
-		Completed  bool    `json:"completed"`
+		MediaID   string `json:"mediaId" binding:"required"`
+		Position  int    `json:"position"`
+		Duration  int    `json:"duration"`
+		Completed bool   `json:"completed"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

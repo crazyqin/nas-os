@@ -16,18 +16,18 @@ import (
 
 // Manager 配额管理器
 type Manager struct {
-	mu            sync.RWMutex
-	quotas        map[string]*Quota         // quotaID -> Quota
-	groupQuotas   map[string]*Quota         // groupID -> Quota (用户组配额)
-	userQuotas    map[string]map[string]*Quota // username -> volumeName -> Quota
-	policies      map[string]*CleanupPolicy // policyID -> CleanupPolicy
-	alerts        map[string]*Alert         // alertID -> Alert
-	alertHistory  []*Alert                  // 历史告警
-	configPath    string
-	storageMgr    StorageProvider
-	userProvider  UserProvider
-	alertConfig   AlertConfig
-	monitor       *Monitor
+	mu           sync.RWMutex
+	quotas       map[string]*Quota            // quotaID -> Quota
+	groupQuotas  map[string]*Quota            // groupID -> Quota (用户组配额)
+	userQuotas   map[string]map[string]*Quota // username -> volumeName -> Quota
+	policies     map[string]*CleanupPolicy    // policyID -> CleanupPolicy
+	alerts       map[string]*Alert            // alertID -> Alert
+	alertHistory []*Alert                     // 历史告警
+	configPath   string
+	storageMgr   StorageProvider
+	userProvider UserProvider
+	alertConfig  AlertConfig
+	monitor      *Monitor
 }
 
 // StorageProvider 存储接口（用于获取卷使用情况）
@@ -128,8 +128,8 @@ func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 
 	// 检查是否已存在
 	for _, q := range m.quotas {
-		if q.Type == input.Type && q.TargetID == input.TargetID && 
-		   q.VolumeName == input.VolumeName && q.Path == input.Path {
+		if q.Type == input.Type && q.TargetID == input.TargetID &&
+			q.VolumeName == input.VolumeName && q.Path == input.Path {
 			return nil, ErrQuotaExists
 		}
 	}
@@ -488,10 +488,10 @@ func (m *Manager) createAlert(quota *Quota, usage *QuotaUsage, alertType AlertTy
 
 	switch alertType {
 	case AlertTypeSoftLimit:
-		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，超过软限制", 
+		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，超过软限制",
 			quota.TargetName, usage.UsagePercent)
 	case AlertTypeHardLimit:
-		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，超过硬限制，写入可能被拒绝", 
+		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，超过硬限制，写入可能被拒绝",
 			quota.TargetName, usage.UsagePercent)
 	}
 

@@ -53,8 +53,8 @@ type InstalledApp struct {
 	Version     string            `json:"version"`
 	Status      string            `json:"status"`
 	InstallTime time.Time         `json:"installTime"`
-	Ports       map[int]int       `json:"ports"`      // 容器端口 -> 主机端口
-	Volumes     map[string]string `json:"volumes"`    // 容器路径 -> 主机路径
+	Ports       map[int]int       `json:"ports"`   // 容器端口 -> 主机端口
+	Volumes     map[string]string `json:"volumes"` // 容器路径 -> 主机路径
 	Environment map[string]string `json:"environment"`
 	ContainerID string            `json:"containerId"`
 	ComposePath string            `json:"composePath"`
@@ -274,9 +274,9 @@ services:
 				{ContainerPath: "/downloads", Description: "下载目录", Default: "/opt/nas/downloads"},
 			},
 			Environment: map[string]string{
-				"PUID":  "1000",
-				"PGID":  "1000",
-				"TZ":    "Asia/Shanghai",
+				"PUID": "1000",
+				"PGID": "1000",
+				"TZ":   "Asia/Shanghai",
 			},
 			Compose: `version: '3'
 services:

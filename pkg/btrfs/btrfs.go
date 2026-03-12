@@ -55,25 +55,25 @@ func validateSubVolumePath(path string) error {
 
 // VolumeInfo 表示一个 btrfs 卷的信息
 type VolumeInfo struct {
-	Name      string   // 卷标签
-	UUID      string   // 卷 UUID
-	Devices   []string // 设备列表
-	Size      uint64   // 总大小（字节）
-	Used      uint64   // 已使用（字节）
-	Profile   string   // 数据配置（single, raid0, raid1, raid10, raid5, raid6）
-	Metadata  string   // 元数据配置
+	Name     string   // 卷标签
+	UUID     string   // 卷 UUID
+	Devices  []string // 设备列表
+	Size     uint64   // 总大小（字节）
+	Used     uint64   // 已使用（字节）
+	Profile  string   // 数据配置（single, raid0, raid1, raid10, raid5, raid6）
+	Metadata string   // 元数据配置
 }
 
 // SubVolumeInfo 表示子卷信息
 type SubVolumeInfo struct {
-	ID        uint64   // 子卷 ID
-	Name      string   // 子卷名称
-	Path      string   // 子卷路径
-	ParentID  uint64   // 父卷 ID
-	ReadOnly  bool     // 是否只读
-	UUID      string   // 子卷 UUID
+	ID        uint64    // 子卷 ID
+	Name      string    // 子卷名称
+	Path      string    // 子卷路径
+	ParentID  uint64    // 父卷 ID
+	ReadOnly  bool      // 是否只读
+	UUID      string    // 子卷 UUID
 	CreatedAt time.Time // 创建时间
-	Size      uint64   // 大小（估算）
+	Size      uint64    // 大小（估算）
 }
 
 // SnapshotInfo 表示快照信息
@@ -87,23 +87,23 @@ type SnapshotInfo struct {
 
 // DeviceStats 设备统计
 type DeviceStats struct {
-	Device    string // 设备路径
-	Size      uint64 // 设备大小
-	Used      uint64 // 已使用
-	Profile   string // 配置类型
+	Device  string // 设备路径
+	Size    uint64 // 设备大小
+	Used    uint64 // 已使用
+	Profile string // 配置类型
 }
 
 // BalanceStatus 平衡状态
 type BalanceStatus struct {
-	Running    bool    // 是否正在运行
-	Progress   float64 // 进度百分比
-	StartTime  time.Time // 开始时间
+	Running   bool      // 是否正在运行
+	Progress  float64   // 进度百分比
+	StartTime time.Time // 开始时间
 }
 
 // ScrubStatus 校验状态
 type ScrubStatus struct {
 	Running      bool      // 是否正在运行
-	Progress     float64    // 进度百分比
+	Progress     float64   // 进度百分比
 	DataScrubbed uint64    // 已校验数据量
 	Errors       uint64    // 发现的错误数
 	StartTime    time.Time // 开始时间
@@ -198,7 +198,7 @@ func parseVolumeList(output []byte) ([]VolumeInfo, error) {
 				volumes = append(volumes, *current)
 			}
 			current = &VolumeInfo{}
-			
+
 			// 提取 Label
 			if idx := strings.Index(trimmed, "'"); idx >= 0 {
 				end := strings.Index(trimmed[idx+1:], "'")
@@ -206,7 +206,7 @@ func parseVolumeList(output []byte) ([]VolumeInfo, error) {
 					current.Name = trimmed[idx+1 : idx+1+end]
 				}
 			}
-			
+
 			// 提取 UUID
 			if idx := strings.Index(trimmed, "uuid:"); idx >= 0 {
 				current.UUID = strings.TrimSpace(trimmed[idx+5:])
@@ -221,11 +221,11 @@ func parseVolumeList(output []byte) ([]VolumeInfo, error) {
 			}
 		}
 	}
-	
+
 	if current != nil {
 		volumes = append(volumes, *current)
 	}
-	
+
 	return volumes, nil
 }
 
@@ -244,7 +244,7 @@ func parseUsage(output []byte) (total, used, free uint64, err error) {
 	scanner := bufio.NewScanner(bytes.NewReader(output))
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		
+
 		// Device size: 1000000000000
 		if strings.HasPrefix(line, "Device size:") {
 			sizeStr := strings.TrimSpace(strings.TrimPrefix(line, "Device size:"))
@@ -259,10 +259,10 @@ func parseUsage(output []byte) (total, used, free uint64, err error) {
 		if strings.HasPrefix(line, "Free (estimated):") {
 			freeStr := strings.TrimSpace(strings.TrimPrefix(line, "Free (estimated):"))
 			free, _ = strconv.ParseUint(freeStr, 10, 64)
-		_ = free // 使用 free 变量，避免 SA4006 警告
+			_ = free // 使用 free 变量，避免 SA4006 警告
 		}
 	}
-	
+
 	free = total - used
 	return
 }
@@ -284,12 +284,12 @@ func (c *Client) CreateVolume(label string, devices []string, dataProfile, metad
 	} else {
 		cmd = exec.Command("mkfs.btrfs", args...)
 	}
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("创建卷失败: %w, output: %s", err, string(output))
 	}
-	
+
 	return nil
 }
 
@@ -302,12 +302,12 @@ func (c *Client) DeleteVolume(device string) error {
 	} else {
 		cmd = exec.Command("wipefs", "-a", device)
 	}
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除卷失败: %w, output: %s", err, string(output))
 	}
-	
+
 	return nil
 }
 
@@ -317,19 +317,19 @@ func (c *Client) Mount(device, mountPoint string, options []string) error {
 	if len(options) > 0 {
 		args = append([]string{"-o", strings.Join(options, ",")}, args...)
 	}
-	
+
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
 	} else {
 		cmd = exec.Command("mount", args...)
 	}
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("挂载失败: %w, output: %s", err, string(output))
 	}
-	
+
 	return nil
 }
 
@@ -341,12 +341,12 @@ func (c *Client) Unmount(mountPoint string) error {
 	} else {
 		cmd = exec.Command("umount", mountPoint)
 	}
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("卸载失败: %w, output: %s", err, string(output))
 	}
-	
+
 	return nil
 }
 
@@ -375,7 +375,7 @@ func parseSubVolumeList(output []byte, mountPoint string) ([]SubVolumeInfo, erro
 
 		// 格式: ID 256 gen 10 parent 5 top level 5 uuid xxx parent_uuid xxx path subdir
 		subvol := SubVolumeInfo{}
-		
+
 		fields := strings.Fields(line)
 		for i := 0; i < len(fields); i++ {
 			switch fields[i] {
@@ -398,7 +398,7 @@ func parseSubVolumeList(output []byte, mountPoint string) ([]SubVolumeInfo, erro
 				}
 			}
 		}
-		
+
 		if subvol.Name != "" {
 			subvols = append(subvols, subvol)
 		}
@@ -438,11 +438,11 @@ func (c *Client) GetSubVolumeInfo(path string) (*SubVolumeInfo, error) {
 // parseSubVolumeShow 解析 btrfs subvolume show 输出
 func parseSubVolumeShow(output []byte, path string) (*SubVolumeInfo, error) {
 	info := &SubVolumeInfo{Path: path}
-	
+
 	scanner := bufio.NewScanner(bytes.NewReader(output))
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		
+
 		if strings.HasPrefix(line, "Name:") {
 			info.Name = strings.TrimSpace(strings.TrimPrefix(line, "Name:"))
 		} else if strings.HasPrefix(line, "UUID:") {
@@ -457,7 +457,7 @@ func parseSubVolumeShow(output []byte, path string) (*SubVolumeInfo, error) {
 			info.ReadOnly = strings.Contains(flags, "readonly")
 		}
 	}
-	
+
 	return info, nil
 }
 
@@ -469,7 +469,7 @@ func (c *Client) SetSubVolumeReadOnly(path string, readOnly bool) error {
 	} else {
 		args = []string{"property", "set", path, "ro", "false"}
 	}
-	
+
 	output, err := c.exec.Execute(args...)
 	if err != nil {
 		return fmt.Errorf("设置子卷只读属性失败: %w, output: %s", err, string(output))
@@ -484,16 +484,16 @@ func (c *Client) SetSubVolumeReadOnly(path string, readOnly bool) error {
 func (c *Client) MountSubVolume(device, subvolPath, mountPoint string) error {
 	// 使用 subvol= 挂载选项
 	options := fmt.Sprintf("subvol=%s", subvolPath)
-	
+
 	args := []string{"-o", options, device, mountPoint}
-	
+
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
 	} else {
 		cmd = exec.Command("mount", args...)
 	}
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("挂载子卷失败: %w, output: %s", err, string(output))
@@ -504,16 +504,16 @@ func (c *Client) MountSubVolume(device, subvolPath, mountPoint string) error {
 // MountSubVolumeByID 通过子卷 ID 挂载子卷
 func (c *Client) MountSubVolumeByID(device string, subvolID uint64, mountPoint string) error {
 	options := fmt.Sprintf("subvolid=%d", subvolID)
-	
+
 	args := []string{"-o", options, device, mountPoint}
-	
+
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
 	} else {
 		cmd = exec.Command("mount", args...)
 	}
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("挂载子卷失败: %w, output: %s", err, string(output))
@@ -561,7 +561,7 @@ func (c *Client) CreateSnapshot(source, dest string, readOnly bool) error {
 		args = append(args, "-r")
 	}
 	args = append(args, source, dest)
-	
+
 	output, err := c.exec.Execute(args...)
 	if err != nil {
 		return fmt.Errorf("创建快照失败: %w, output: %s", err, string(output))
@@ -593,7 +593,7 @@ func (c *Client) ListSnapshots(mountPoint string) ([]SnapshotInfo, error) {
 		if err != nil {
 			continue
 		}
-		
+
 		// 检查是否为快照（通常快照名称包含特定前缀或在特定目录）
 		// 这里简单判断只读子卷为快照
 		if info.ReadOnly || strings.Contains(sv.Name, "snap") || strings.Contains(sv.Name, "snapshot") {
@@ -671,7 +671,7 @@ func parseDeviceUsage(output []byte) ([]DeviceStats, error) {
 // parseSizeStr 解析大小字符串
 func parseSizeStr(s string) uint64 {
 	s = strings.TrimSpace(s)
-	
+
 	var multiplier uint64 = 1
 	if strings.HasSuffix(s, "KiB") {
 		multiplier = 1024
@@ -689,7 +689,7 @@ func parseSizeStr(s string) uint64 {
 		multiplier = 1024
 		s = strings.TrimSuffix(s, "KiB")
 	}
-	
+
 	val, _ := strconv.ParseFloat(strings.TrimSpace(s), 64)
 	return uint64(val * float64(multiplier))
 }
@@ -722,7 +722,7 @@ func (c *Client) ConvertProfile(mountPoint, dataProfile, metadataProfile string)
 		args = append(args, "-m", metadataProfile)
 	}
 	args = append(args, mountPoint)
-	
+
 	output, err := c.exec.Execute(append([]string{"balance", "start"}, args...)...)
 	if err != nil {
 		return fmt.Errorf("转换配置失败: %w, output: %s", err, string(output))
@@ -814,16 +814,16 @@ func (c *Client) GetScrubStatus(mountPoint string) (*ScrubStatus, error) {
 func parseScrubStatus(output []byte) (*ScrubStatus, error) {
 	status := &ScrubStatus{}
 	text := string(output)
-	
+
 	if strings.Contains(text, "running") || strings.Contains(text, "in progress") || strings.Contains(text, "started") {
 		status.Running = true
 	}
-	
+
 	// 解析进度
 	lines := strings.Split(text, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		
+
 		if strings.HasPrefix(line, "Progress:") || strings.Contains(line, "%") {
 			// 提取百分比
 			if idx := strings.Index(line, "%"); idx > 0 {
@@ -840,7 +840,7 @@ func parseScrubStatus(output []byte) (*ScrubStatus, error) {
 				}
 			}
 		}
-		
+
 		if strings.Contains(line, "Error summary:") || strings.Contains(line, "errors") {
 			// 提取错误数
 			fields := strings.Fields(line)
@@ -851,7 +851,7 @@ func parseScrubStatus(output []byte) (*ScrubStatus, error) {
 			}
 		}
 	}
-	
+
 	return status, nil
 }
 

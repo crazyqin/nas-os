@@ -11,31 +11,31 @@ import (
 
 // Tagger 标签生成器
 type Tagger struct {
-	config        Config
-	tagRules     []TagRule
-	customTags   map[string]Tag
-	mu           sync.RWMutex
+	config     Config
+	tagRules   []TagRule
+	customTags map[string]Tag
+	mu         sync.RWMutex
 }
 
 // TagRule 标签规则
 type TagRule struct {
-	ID          string      `json:"id"`
-	Name        string      `json:"name"`
-	TagName     string      `json:"tagName"`
-	Conditions  []Condition `json:"conditions"`
-	Priority    int         `json:"priority"`
-	Enabled     bool        `json:"enabled"`
-	HitCount    int         `json:"hitCount"`
-	LastHit     time.Time   `json:"lastHit"`
-	CreatedAt   time.Time   `json:"createdAt"`
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
+	TagName    string      `json:"tagName"`
+	Conditions []Condition `json:"conditions"`
+	Priority   int         `json:"priority"`
+	Enabled    bool        `json:"enabled"`
+	HitCount   int         `json:"hitCount"`
+	LastHit    time.Time   `json:"lastHit"`
+	CreatedAt  time.Time   `json:"createdAt"`
 }
 
 // NewTagger 创建标签生成器
 func NewTagger(config Config) *Tagger {
 	t := &Tagger{
-		config:      config,
-		tagRules:    make([]TagRule, 0),
-		customTags:  make(map[string]Tag),
+		config:     config,
+		tagRules:   make([]TagRule, 0),
+		customTags: make(map[string]Tag),
 	}
 
 	t.initDefaultRules()
@@ -360,22 +360,22 @@ func (t *Tagger) addPathTags(path string, tags map[string]Tag) {
 
 	// 路径关键词标签
 	pathKeywords := map[string]string{
-		"work":   "工作",
-		"工作":    "工作",
-		"personal": "个人",
-		"个人":    "个人",
-		"download": "下载",
-		"下载":    "下载",
-		"desktop": "桌面",
-		"桌面":    "桌面",
+		"work":      "工作",
+		"工作":        "工作",
+		"personal":  "个人",
+		"个人":        "个人",
+		"download":  "下载",
+		"下载":        "下载",
+		"desktop":   "桌面",
+		"桌面":        "桌面",
 		"documents": "文档",
-		"文档":    "文档",
-		"photos":  "照片",
-		"照片":    "照片",
-		"backup":  "备份",
-		"备份":    "备份",
-		"project": "项目",
-		"项目":    "项目",
+		"文档":        "文档",
+		"photos":    "照片",
+		"照片":        "照片",
+		"backup":    "备份",
+		"备份":        "备份",
+		"project":   "项目",
+		"项目":        "项目",
 	}
 
 	for keyword, tagName := range pathKeywords {

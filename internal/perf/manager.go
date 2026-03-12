@@ -19,13 +19,13 @@ type Manager struct {
 	metrics *MetricsStore
 
 	// 慢请求日志
-	slowLogs     []*SlowLogEntry
-	slowLogMax   int
-	slowLogPath  string
+	slowLogs      []*SlowLogEntry
+	slowLogMax    int
+	slowLogPath   string
 	slowThreshold time.Duration
 
 	// 吞吐量统计
-	throughput   *ThroughputTracker
+	throughput *ThroughputTracker
 
 	// 停止信号
 	stopChan chan struct{}
@@ -67,7 +67,7 @@ type EndpointMetrics struct {
 	LastAccessTime time.Time     `json:"lastAccessTime"`
 
 	// 响应时间历史 (用于计算百分位)
-	durations []time.Duration
+	durations  []time.Duration
 	maxHistory int
 }
 
@@ -115,21 +115,21 @@ type ThroughputTracker struct {
 
 // MinuteStat 分钟统计
 type MinuteStat struct {
-	Timestamp     int64   `json:"timestamp"`
-	RequestCount  uint64  `json:"requestCount"`
-	ErrorCount    uint64  `json:"errorCount"`
-	TotalBytes    uint64  `json:"totalBytes"`
-	AvgLatencyMs  float64 `json:"avgLatencyMs"`
-	PeakRPS       float64 `json:"peakRPS"`
+	Timestamp    int64   `json:"timestamp"`
+	RequestCount uint64  `json:"requestCount"`
+	ErrorCount   uint64  `json:"errorCount"`
+	TotalBytes   uint64  `json:"totalBytes"`
+	AvgLatencyMs float64 `json:"avgLatencyMs"`
+	PeakRPS      float64 `json:"peakRPS"`
 }
 
 // HourlyStat 小时统计
 type HourlyStat struct {
-	Timestamp     int64   `json:"timestamp"`
-	RequestCount  uint64  `json:"requestCount"`
-	ErrorCount    uint64  `json:"errorCount"`
-	AvgLatencyMs  float64 `json:"avgLatencyMs"`
-	PeakRPS       float64 `json:"peakRPS"`
+	Timestamp    int64   `json:"timestamp"`
+	RequestCount uint64  `json:"requestCount"`
+	ErrorCount   uint64  `json:"errorCount"`
+	AvgLatencyMs float64 `json:"avgLatencyMs"`
+	PeakRPS      float64 `json:"peakRPS"`
 }
 
 // DailyStat 日统计
@@ -151,7 +151,7 @@ type PerformanceBaseline struct {
 	P99ResponseTime float64 `json:"p99ResponseTime"`
 
 	// 吞吐量基线
-	AvgRPS float64 `json:"avgRPS"`
+	AvgRPS  float64 `json:"avgRPS"`
 	PeakRPS float64 `json:"peakRPS"`
 
 	// 错误率基线
@@ -195,7 +195,7 @@ func NewManager(cfg *Config) (*Manager, error) {
 
 	m := &Manager{
 		metrics: &MetricsStore{
-			Endpoints:    make(map[string]*EndpointMetrics),
+			Endpoints: make(map[string]*EndpointMetrics),
 			MinuteWindow: &TimeWindow{
 				RequestsPerSecond: make(map[int64]uint64),
 				ErrorsPerSecond:   make(map[int64]uint64),
@@ -203,10 +203,10 @@ func NewManager(cfg *Config) (*Manager, error) {
 			},
 			Baseline: &PerformanceBaseline{},
 		},
-		slowLogs:       make([]*SlowLogEntry, 0),
-		slowLogMax:     cfg.SlowLogMax,
-		slowLogPath:    cfg.SlowLogPath,
-		slowThreshold:  cfg.SlowThreshold,
+		slowLogs:      make([]*SlowLogEntry, 0),
+		slowLogMax:    cfg.SlowLogMax,
+		slowLogPath:   cfg.SlowLogPath,
+		slowThreshold: cfg.SlowThreshold,
 		throughput: &ThroughputTracker{
 			MinuteStats: make(map[int64]*MinuteStat),
 			HourlyStats: make(map[int64]*HourlyStat),
@@ -278,8 +278,8 @@ func (m *Manager) recordMetrics(path, method string, duration time.Duration, sta
 	em, exists := m.metrics.Endpoints[key]
 	if !exists {
 		em = &EndpointMetrics{
-			Path:       path,
-			Method:     method,
+			Path:        path,
+			Method:      method,
 			MinDuration: duration,
 			maxHistory:  1000,
 			durations:   make([]time.Duration, 0, 1000),

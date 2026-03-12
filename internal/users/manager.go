@@ -18,9 +18,9 @@ import (
 type Role string
 
 const (
-	RoleAdmin  Role = "admin"  // 管理员：全部权限
-	RoleUser   Role = "user"   // 普通用户：受限访问
-	RoleGuest  Role = "guest"  // 访客：只读访问
+	RoleAdmin Role = "admin" // 管理员：全部权限
+	RoleUser  Role = "user"  // 普通用户：受限访问
+	RoleGuest Role = "guest" // 访客：只读访问
 )
 
 // User 用户信息
@@ -49,10 +49,10 @@ type UserInput struct {
 
 // Group 用户组
 type Group struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Members     []string `json:"members"` // 用户名列表
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Members     []string  `json:"members"` // 用户名列表
 	CreatedAt   time.Time `json:"created_at"`
 }
 
@@ -86,11 +86,11 @@ type persistentConfig struct {
 
 // Manager 用户管理器
 type Manager struct {
-	mu        sync.RWMutex
-	users     map[string]*User   // username -> User
-	groups    map[string]*Group  // group name -> Group
-	tokens    map[string]*Token  // token -> Token
-	mountBase string
+	mu         sync.RWMutex
+	users      map[string]*User  // username -> User
+	groups     map[string]*Group // group name -> Group
+	tokens     map[string]*Token // token -> Token
+	mountBase  string
 	configPath string
 }
 
@@ -113,10 +113,10 @@ func NewManager(mountBase string) (*Manager, error) {
 // NewManagerWithConfig 创建用户管理器（带配置文件路径）
 func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 	m := &Manager{
-		users:     make(map[string]*User),
-		groups:    make(map[string]*Group),
-		tokens:    make(map[string]*Token),
-		mountBase: mountBase,
+		users:      make(map[string]*User),
+		groups:     make(map[string]*Group),
+		tokens:     make(map[string]*Token),
+		mountBase:  mountBase,
 		configPath: configPath,
 	}
 
@@ -272,10 +272,10 @@ func (m *Manager) CreateUser(input UserInput) (*User, error) {
 	}
 
 	m.users[input.Username] = user
-	
+
 	// 保存配置
 	m.saveConfig()
-	
+
 	return user, nil
 }
 

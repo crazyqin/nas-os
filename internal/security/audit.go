@@ -14,11 +14,11 @@ import (
 
 // AuditManager 审计日志管理器
 type AuditManager struct {
-	config      AuditConfig
-	logs        []*AuditLogEntry
-	loginLogs   []*LoginLogEntry
-	alerts      []*SecurityAlert
-	mu          sync.RWMutex
+	config    AuditConfig
+	logs      []*AuditLogEntry
+	loginLogs []*LoginLogEntry
+	alerts    []*SecurityAlert
+	mu        sync.RWMutex
 	// logPath     string - 保留用于未来自定义日志路径
 	// maxLogs     int // 最大保留日志数 - 保留用于未来配置化
 }
@@ -27,9 +27,9 @@ type AuditManager struct {
 type AuditConfig struct {
 	Enabled        bool          `json:"enabled"`
 	LogPath        string        `json:"log_path"`
-	MaxLogs        int           `json:"max_logs"` // 最大保留日志数
-	MaxAgeDays     int           `json:"max_age_days"` // 最大保留天数
-	AutoSave       bool          `json:"auto_save"` // 自动保存到文件
+	MaxLogs        int           `json:"max_logs"`      // 最大保留日志数
+	MaxAgeDays     int           `json:"max_age_days"`  // 最大保留天数
+	AutoSave       bool          `json:"auto_save"`     // 自动保存到文件
 	SaveInterval   time.Duration `json:"save_interval"` // 保存间隔
 	AlertEnabled   bool          `json:"alert_enabled"`
 	AlertThreshold int           `json:"alert_threshold"` // 告警阈值
@@ -39,13 +39,13 @@ type AuditConfig struct {
 func NewAuditManager() *AuditManager {
 	return &AuditManager{
 		config: AuditConfig{
-			Enabled:      true,
-			LogPath:      "/var/log/nas-os/audit",
-			MaxLogs:      10000,
-			MaxAgeDays:   90,
-			AutoSave:     true,
-			SaveInterval: time.Minute * 5,
-			AlertEnabled: true,
+			Enabled:        true,
+			LogPath:        "/var/log/nas-os/audit",
+			MaxLogs:        10000,
+			MaxAgeDays:     90,
+			AutoSave:       true,
+			SaveInterval:   time.Minute * 5,
+			AlertEnabled:   true,
 			AlertThreshold: 10,
 		},
 		logs:      make([]*AuditLogEntry, 0),
@@ -215,16 +215,16 @@ func (am *AuditManager) LogAction(userID, username, ip, resource, action string,
 	}
 
 	entry := AuditLogEntry{
-		Level:     level,
-		Category:  "action",
-		Event:     action,
-		UserID:    userID,
-		Username:  username,
-		IP:        ip,
-		Resource:  resource,
-		Action:    action,
-		Details:   details,
-		Status:    status,
+		Level:    level,
+		Category: "action",
+		Event:    action,
+		UserID:   userID,
+		Username: username,
+		IP:       ip,
+		Resource: resource,
+		Action:   action,
+		Details:  details,
+		Status:   status,
 	}
 
 	am.Log(entry)
@@ -422,10 +422,10 @@ func (am *AuditManager) GetAlertStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total":         total,
-		"acknowledged":  acknowledged,
+		"total":          total,
+		"acknowledged":   acknowledged,
 		"unacknowledged": unacknowledged,
-		"by_severity":   bySeverity,
+		"by_severity":    bySeverity,
 	}
 }
 
