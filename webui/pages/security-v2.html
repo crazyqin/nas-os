@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全中心 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .security-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .security-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .security-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text-primary); background: var(--hover-color); }
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* 仪表板卡片 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--surface-border);
+        }
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .stat-card-title {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .stat-card-icon.mfa { background: #DBEAFE; color: #2563EB; }
+        .stat-card-icon.alert { background: #FEE2E2; color: #DC2626; }
+        .stat-card-icon.encrypt { background: #D1FAE5; color: #059669; }
+        .stat-card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .stat-card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* 开关控件 */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: var(--border-color);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-switch.active { background: var(--color-primary); }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+        .toggle-switch.active::after { transform: translateX(24px); }
+
+        /* 设置项 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-info h4 {
+            margin: 0 0 0.25rem 0;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+        .setting-info p {
+            margin: 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* 表单 */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* 告警列表 */
+        .alert-list {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+            overflow: hidden;
+        }
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        .alert-item:last-child { border-bottom: none; }
+        .alert-item:hover { background: var(--hover-color); }
+        .alert-severity {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            margin-top: 0.25rem;
+            flex-shrink: 0;
+        }
+        .alert-severity.critical { background: #DC2626; }
+        .alert-severity.high { background: #EA580C; }
+        .alert-severity.medium { background: #CA8A04; }
+        .alert-severity.low { background: #22C55E; }
+        .alert-content { flex: 1; min-width: 0; }
+        .alert-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .alert-description {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        .alert-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .alert-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* MFA QR 码 */
+        .mfa-setup {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .qr-code-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow-md);
+        }
+        .recovery-codes {
+            background: #FEF3C7;
+            border: 1px solid #FCD34D;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        .recovery-codes h4 {
+            margin: 0 0 0.75rem 0;
+            color: #92400E;
+            font-size: 14px;
+        }
+        .recovery-codes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            font-family: monospace;
+            font-size: 14px;
+            color: #78350F;
+        }
+
+        /* 按钮 */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-secondary {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover { background: var(--hover-color); }
+        .btn-danger {
+            background: #DC2626;
+            color: white;
+        }
+        .btn-danger:hover { background: #B91C1C; }
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 13px;
+        }
+
+        /* 徽章 */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-success { background: #D1FAE5; color: #065F46; }
+        .badge-warning { background: #FEF3C7; color: #92400E; }
+        .badge-danger { background: #FEE2E2; color: #991B1B; }
+        .badge-info { background: #DBEAFE; color: #1E40AF; }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <!-- 头部 -->
+        <div class="security-header">
+            <div>
+                <h1 style="margin: 0 0 0.5rem 0;">🔒 安全中心</h1>
+                <p style="margin: 0; color: var(--text-muted);">管理您的 NAS 安全设置，保护数据安全</p>
+            </div>
+            <button class="btn btn-primary" onclick="refreshDashboard()">🔄 刷新</button>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="security-tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 仪表板</button>
+            <button class="tab-btn" onclick="switchTab('mfa')">🔐 双因素认证</button>
+            <button class="tab-btn" onclick="switchTab('firewall')">🛡️ 防火墙</button>
+            <button class="tab-btn" onclick="switchTab('encryption')">🔑 文件加密</button>
+            <button class="tab-btn" onclick="switchTab('alerting')">🚨 告警通知</button>
+            <button class="tab-btn" onclick="switchTab('audit')">📋 审计日志</button>
+        </div>
+
+        <!-- 仪表板 -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">MFA 启用率</span>
+                        <div class="stat-card-icon mfa">🔐</div>
+                    </div>
+                    <div class="stat-card-value" id="mfa-coverage">0%</div>
+                    <div class="stat-card-subtitle">已启用用户 / 总用户</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">未处理告警</span>
+                        <div class="stat-card-icon alert">🚨</div>
+                    </div>
+                    <div class="stat-card-value" id="unack-alerts">0</div>
+                    <div class="stat-card-subtitle">需要关注的告警</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">加密目录</span>
+                        <div class="stat-card-icon encrypt">🔒</div>
+                    </div>
+                    <div class="stat-card-value" id="encrypted-dirs">0</div>
+                    <div class="stat-card-subtitle">受保护的目录</div>
+                </div>
+            </div>
+
+            <!-- 最近告警 -->
+            <div class="stat-card">
+                <h3 style="margin: 0 0 1rem 0;">最近告警</h3>
+                <div class="alert-list" id="recent-alerts">
+                    <div class="alert-item">
+                        <div class="alert-severity medium"></div>
+                        <div class="alert-content">
+                            <div class="alert-title">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MFA -->
+        <div id="mfa" class="tab-content">
+            <div class="stat-card">
+                <h3 style="margin: 0 0 1rem 0;">双因素认证设置</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>启用 MFA</h4>
+                        <p>为您的账户增加一层安全保障</p>
+                    </div>
+                    <div class="toggle-switch" id="mfa-toggle" onclick="toggleMFA()"></div>
+                </div>
+
+                <div id="mfa-setup-section" style="display: none; margin-top: 2rem;">
+                    <div class="mfa-setup">
+                        <h4>配置双因素认证</h4>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                            使用身份验证器应用（如 Google Authenticator、Authy）扫描二维码
+                        </p>
+                        
+                        <div class="qr-code-container">
+                            <img id="mfa-qr-code" src="" alt="MFA QR Code" style="width: 200px; height: 200px;">
+                        </div>
+
+                        <div class="form-group">
+                            <label>验证码</label>
+                            <input type="text" class="form-control" id="mfa-code" placeholder="输入 6 位验证码" maxlength="6">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="verifyAndEnableMFA()">验证并启用</button>
+
+                        <div class="recovery-codes" id="recovery-codes" style="display: none;">
+                            <h4>⚠️ 恢复码（请安全保存）</h4>
+                            <p style="font-size: 12px; margin-bottom: 0.75rem;">这些代码只能在紧急情况下使用一次。请将它们保存在安全的地方。</p>
+                            <div class="recovery-codes-grid" id="recovery-codes-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 防火墙 -->
+        <div id="firewall" class="tab-content">
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0;">防火墙规则</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showAddRuleModal()">+ 添加规则</button>
+                </div>
+                <div id="firewall-rules">
+                    <p style="color: var(--text-muted); text-align: center; padding: 2rem;">加载中...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 文件加密 -->
+        <div id="encryption" class="tab-content">
+            <div class="stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0;">加密目录</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateEncryptedDirModal()">+ 创建加密目录</button>
+                </div>
+                <div id="encrypted-directories">
+                    <p style="color: var(--text-muted); text-align: center; padding: 2rem;">加载中...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 告警通知 -->
+        <div id="alerting" class="tab-content">
+            <div class="stat-card">
+                <h3 style="margin: 0 0 1.5rem 0;">通知渠道</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>📧 邮件通知</h4>
+                        <p>通过邮件接收安全告警</p>
+                    </div>
+                    <div class="toggle-switch" id="email-toggle" onclick="toggleEmailAlerts()"></div>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>💬 企业微信</h4>
+                        <p>通过企业微信机器人接收告警</p>
+                    </div>
+                    <div class="toggle-switch" id="wecom-toggle" onclick="toggleWeComAlerts()"></div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label>邮件接收地址（多个地址用逗号分隔）</label>
+                    <input type="text" class="form-control" id="email-recipients" placeholder="admin@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label>企业微信 Webhook URL</label>
+                    <input type="text" class="form-control" id="wecom-webhook" placeholder="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxx">
+                </div>
+
+                <button class="btn btn-primary" onclick="saveAlertingConfig()">保存配置</button>
+                <button class="btn btn-secondary" onclick="testNotification('email')">测试邮件</button>
+                <button class="btn btn-secondary" onclick="testNotification('wecom')">测试企业微信</button>
+            </div>
+
+            <div class="stat-card" style="margin-top: 2rem;">
+                <h3 style="margin: 0 0 1rem 0;">告警统计</h3>
+                <div id="alert-stats">
+                    <p style="color: var(--text-muted);">加载中...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 审计日志 -->
+        <div id="audit" class="tab-content">
+            <div class="stat-card">
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <select class="form-control" style="width: auto;" id="audit-category">
+                        <option value="">所有类别</option>
+                        <option value="auth">认证</option>
+                        <option value="firewall">防火墙</option>
+                        <option value="system">系统</option>
+                        <option value="file">文件</option>
+                    </select>
+                    <select class="form-control" style="width: auto;" id="audit-level">
+                        <option value="">所有级别</option>
+                        <option value="info">信息</option>
+                        <option value="warning">警告</option>
+                        <option value="error">错误</option>
+                        <option value="critical">严重</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="loadAuditLogs()">查询</button>
+                    <button class="btn btn-secondary" onclick="exportAuditLogs()">📥 导出</button>
+                </div>
+                <div id="audit-logs">
+                    <p style="color: var(--text-muted); text-align: center; padding: 2rem;">加载中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API 基础路径
+        const API_BASE = '/api/security';
+        const API_V2_BASE = '/api/security/v2';
+
+        // 切换标签页
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            
+            // 加载对应数据
+            if (tabId === 'dashboard') loadDashboard();
+            if (tabId === 'firewall') loadFirewallRules();
+            if (tabId === 'encryption') loadEncryptedDirectories();
+            if (tabId === 'alerting') loadAlertingConfig();
+            if (tabId === 'audit') loadAuditLogs();
+        }
+
+        // 加载仪表板
+        async function loadDashboard() {
+            try {
+                const [mfaRes, alertRes] = await Promise.all([
+                    fetch(`${API_V2_BASE}/dashboard`),
+                    fetch(`${API_BASE}/audit/alerts?limit=5&acknowledged=false`)
+                ]);
+                
+                const mfaData = await mfaRes.json();
+                const alertData = await alertRes.json();
+
+                if (mfaData.code === 0) {
+                    document.getElementById('mfa-coverage').textContent = 
+                        (mfaData.data.mfa.coverage_rate || 0).toFixed(1) + '%';
+                    document.getElementById('encrypted-dirs').textContent = 
+                        mfaData.data.encryption.encrypted_dirs || 0;
+                }
+
+                if (alertData.code === 0) {
+                    document.getElementById('unack-alerts').textContent = alertData.data.length;
+                    renderRecentAlerts(alertData.data);
+                }
+            } catch (error) {
+                console.error('加载仪表板失败:', error);
+            }
+        }
+
+        // 渲染最近告警
+        function renderRecentAlerts(alerts) {
+            const container = document.getElementById('recent-alerts');
+            if (!alerts || alerts.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">暂无告警</p>';
+                return;
+            }
+
+            container.innerHTML = alerts.map(alert => `
+                <div class="alert-item">
+                    <div class="alert-severity ${alert.severity}"></div>
+                    <div class="alert-content">
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-description">${alert.description}</div>
+                        <div class="alert-meta">
+                            <span>${new Date(alert.timestamp).toLocaleString()}</span>
+                            ${alert.source_ip ? `<span>IP: ${alert.source_ip}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="acknowledgeAlert('${alert.id}')">确认</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 切换 MFA
+        function toggleMFA() {
+            const toggle = document.getElementById('mfa-toggle');
+            toggle.classList.toggle('active');
+            
+            if (toggle.classList.contains('active')) {
+                setupMFA();
+            }
+        }
+
+        // 设置 MFA
+        async function setupMFA() {
+            try {
+                const res = await fetch(`${API_V2_BASE}/mfa/setup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                const data = await res.json();
+                if (data.code === 0) {
+                    document.getElementById('mfa-setup-section').style.display = 'block';
+                    document.getElementById('mfa-qr-code').src = 
+                        `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.data.totp_uri)}`;
+                }
+            } catch (error) {
+                console.error('设置 MFA 失败:', error);
+            }
+        }
+
+        // 验证并启用 MFA
+        async function verifyAndEnableMFA() {
+            const code = document.getElementById('mfa-code').value;
+            
+            try {
+                const res = await fetch(`${API_V2_BASE}/mfa/enable`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, method: 'totp' })
+                });
+                
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('MFA 已启用！');
+                    document.getElementById('recovery-codes').style.display = 'block';
+                    // 显示恢复码（实际应该从响应中获取）
+                } else {
+                    alert('验证失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('验证 MFA 失败:', error);
+            }
+        }
+
+        // 加载防火墙规则
+        async function loadFirewallRules() {
+            try {
+                const res = await fetch(`${API_BASE}/firewall/rules`);
+                const data = await res.json();
+                
+                const container = document.getElementById('firewall-rules');
+                if (data.code === 0 && data.data.length > 0) {
+                    container.innerHTML = data.data.map(rule => `
+                        <div class="alert-item">
+                            <div class="alert-severity ${rule.action === 'allow' ? 'success' : 'danger'}"></div>
+                            <div class="alert-content">
+                                <div class="alert-title">${rule.name || rule.action.toUpperCase()}</div>
+                                <div class="alert-description">
+                                    ${rule.protocol.toUpperCase()} ${rule.source_ip || '任意'} → ${rule.dest_ip || '任意'}:${rule.dest_port || '任意'}
+                                </div>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="editRule('${rule.id}')">编辑</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteRule('${rule.id}')">删除</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">暂无防火墙规则</p>';
+                }
+            } catch (error) {
+                console.error('加载防火墙规则失败:', error);
+            }
+        }
+
+        // 加载加密目录
+        async function loadEncryptedDirectories() {
+            try {
+                const res = await fetch(`${API_V2_BASE}/encryption/directories`);
+                const data = await res.json();
+                
+                const container = document.getElementById('encrypted-directories');
+                if (data.code === 0 && data.data.length > 0) {
+                    container.innerHTML = data.data.map(dir => `
+                        <div class="alert-item">
+                            <div class="alert-severity ${dir.status === 'unlocked' ? 'success' : 'low'}"></div>
+                            <div class="alert-content">
+                                <div class="alert-title">${dir.name}</div>
+                                <div class="alert-description">${dir.path} - ${dir.description || '无描述'}</div>
+                                <div class="alert-meta">
+                                    <span class="badge ${dir.status === 'unlocked' ? 'badge-success' : 'badge-warning'}">
+                                        ${dir.status === 'unlocked' ? '已解锁' : '已锁定'}
+                                    </span>
+                                    <span>创建于：${new Date(dir.created_at).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="toggleDirectory('${dir.path}', '${dir.status}')">
+                                    ${dir.status === 'locked' ? '解锁' : '锁定'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">暂无加密目录</p>';
+                }
+            } catch (error) {
+                console.error('加载加密目录失败:', error);
+            }
+        }
+
+        // 加载告警配置
+        async function loadAlertingConfig() {
+            try {
+                const res = await fetch(`${API_V2_BASE}/alerting/config`);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    const config = data.data;
+                    document.getElementById('email-toggle').classList.toggle('active', config.email_enabled);
+                    document.getElementById('wecom-toggle').classList.toggle('active', config.wecom_enabled);
+                    document.getElementById('email-recipients').value = config.email_recipients?.join(', ') || '';
+                    document.getElementById('wecom-webhook').value = config.wecom_webhook || '';
+                }
+
+                // 加载统计
+                const statsRes = await fetch(`${API_V2_BASE}/alerting/stats`);
+                const statsData = await statsRes.json();
+                if (statsData.code === 0) {
+                    const stats = statsData.data;
+                    document.getElementById('alert-stats').innerHTML = `
+                        <div class="dashboard-grid" style="margin-top: 1rem;">
+                            <div class="stat-card">
+                                <div class="stat-card-value">${stats.total || 0}</div>
+                                <div class="stat-card-subtitle">总告警数</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-value">${stats.unacknowledged || 0}</div>
+                                <div class="stat-card-subtitle">未确认</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-value">${stats.notified || 0}</div>
+                                <div class="stat-card-subtitle">已通知</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载告警配置失败:', error);
+            }
+        }
+
+        // 切换邮件告警
+        function toggleEmailAlerts() {
+            document.getElementById('email-toggle').classList.toggle('active');
+        }
+
+        // 切换企业微信告警
+        function toggleWeComAlerts() {
+            document.getElementById('wecom-toggle').classList.toggle('active');
+        }
+
+        // 保存告警配置
+        async function saveAlertingConfig() {
+            const config = {
+                enabled: true,
+                email_enabled: document.getElementById('email-toggle').classList.contains('active'),
+                wecom_enabled: document.getElementById('wecom-toggle').classList.contains('active'),
+                email_recipients: document.getElementById('email-recipients').value.split(',').map(s => s.trim()).filter(s => s),
+                wecom_webhook: document.getElementById('wecom-webhook').value.trim(),
+                min_severity: 'medium',
+                rate_limit: 10
+            };
+
+            try {
+                const res = await fetch(`${API_V2_BASE}/alerting/config`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('配置已保存');
+                } else {
+                    alert('保存失败：' + data.message);
+                }
+            } catch (error) {
+                console.error('保存配置失败:', error);
+            }
+        }
+
+        // 测试通知
+        async function testNotification(channel) {
+            try {
+                const res = await fetch(`${API_V2_BASE}/alerting/test/${channel}`, {
+                    method: 'POST'
+                });
+                
+                const data = await res.json();
+                alert(data.code === 0 ? '测试通知已发送' : '发送失败：' + data.message);
+            } catch (error) {
+                console.error('测试通知失败:', error);
+            }
+        }
+
+        // 加载审计日志
+        async function loadAuditLogs() {
+            const category = document.getElementById('audit-category').value;
+            const level = document.getElementById('audit-level').value;
+            
+            let url = `${API_BASE}/audit/logs?limit=50`;
+            if (category) url += `&category=${category}`;
+            if (level) url += `&level=${level}`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                const container = document.getElementById('audit-logs');
+                if (data.code === 0 && data.data.length > 0) {
+                    container.innerHTML = data.data.map(log => `
+                        <div class="alert-item">
+                            <div class="alert-severity ${log.level === 'error' || log.level === 'critical' ? 'high' : log.level === 'warning' ? 'medium' : 'low'}"></div>
+                            <div class="alert-content">
+                                <div class="alert-title">[${log.category}] ${log.event}</div>
+                                <div class="alert-description">
+                                    ${log.message || log.action} ${log.username ? 'by ' + log.username : ''}
+                                </div>
+                                <div class="alert-meta">
+                                    <span>${new Date(log.timestamp).toLocaleString()}</span>
+                                    ${log.ip ? `<span>IP: ${log.ip}</span>` : ''}
+                                    <span class="badge ${log.status === 'success' ? 'badge-success' : 'badge-danger'}">${log.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 2rem;">暂无审计日志</p>';
+                }
+            } catch (error) {
+                console.error('加载审计日志失败:', error);
+            }
+        }
+
+        // 导出审计日志
+        async function exportAuditLogs() {
+            window.location.href = `${API_BASE}/audit/export?format=csv`;
+        }
+
+        // 确认告警
+        async function acknowledgeAlert(alertId) {
+            try {
+                const res = await fetch(`${API_BASE}/audit/alerts/${alertId}/acknowledge`, {
+                    method: 'POST'
+                });
+                
+                const data = await res.json();
+                if (data.code === 0) {
+                    loadDashboard();
+                }
+            } catch (error) {
+                console.error('确认告警失败:', error);
+            }
+        }
+
+        // 刷新仪表板
+        function refreshDashboard() {
+            loadDashboard();
+            alert('数据已刷新');
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+        });
+
+        // 占位函数（需要完整实现）
+        function showAddRuleModal() { alert('添加防火墙规则功能待实现'); }
+        function showCreateEncryptedDirModal() { alert('创建加密目录功能待实现'); }
+        function editRule(id) { alert('编辑规则：' + id); }
+        function deleteRule(id) { if(confirm('确定删除此规则？')) { /* 实现删除 */ } }
+        function toggleDirectory(path, status) { 
+            const action = status === 'locked' ? 'unlock' : 'lock';
+            fetch(`${API_V2_BASE}/encryption/directories/${encodeURIComponent(path)}/${action}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.code === 0) {
+                        loadEncryptedDirectories();
+                    } else {
+                        alert('操作失败：' + data.message);
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
