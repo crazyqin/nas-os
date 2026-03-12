@@ -274,6 +274,7 @@ func (m *Manager) indexPhoto(path string) {
 	// 生成缩略图
 	if err := m.generateThumbnails(path, id); err != nil {
 		// 缩略图生成失败不影响索引
+		_ = err // 明确忽略错误，避免 staticcheck 警告
 	}
 
 	m.mu.Lock()
