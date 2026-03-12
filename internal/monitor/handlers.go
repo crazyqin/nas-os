@@ -301,7 +301,7 @@ func (h *Handlers) checkAlerts() {
 		for _, rule := range h.alertRules {
 			if rule.Type == "cpu" && rule.Enabled && stats.CPUUsage >= rule.Threshold {
 				h.addAlert(&Alert{
-					ID:        generateAlertID("cpu", rule.Level),
+					ID:        generateAlertID(),
 					Type:      "cpu",
 					Level:     rule.Level,
 					Message:   "CPU 使用率过高",
@@ -312,7 +312,7 @@ func (h *Handlers) checkAlerts() {
 
 			if rule.Type == "memory" && rule.Enabled && stats.MemoryUsage >= rule.Threshold {
 				h.addAlert(&Alert{
-					ID:        generateAlertID("memory", rule.Level),
+					ID:        generateAlertID(),
 					Type:      "memory",
 					Level:     rule.Level,
 					Message:   "内存使用率过高",
@@ -329,7 +329,7 @@ func (h *Handlers) checkAlerts() {
 			for _, rule := range h.alertRules {
 				if rule.Type == "disk" && rule.Enabled && disk.UsagePercent >= rule.Threshold {
 					h.addAlert(&Alert{
-						ID:        generateAlertID("disk", disk.Device),
+						ID:        generateAlertID(),
 						Type:      "disk",
 						Level:     rule.Level,
 						Message:   "磁盘空间不足",
@@ -385,9 +385,4 @@ func (h *Handlers) getAlertDescription(alert *Alert) string {
 	}
 	desc += "\n级别：" + alert.Level
 	return desc
-}
-
-// generateAlertID 生成告警 ID
-func generateAlertID(alertType, source string) string {
-	return alertType + "-" + source + "-" + time.Now().Format("20060102")
 }
