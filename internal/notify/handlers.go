@@ -77,7 +77,7 @@ func (h *Handlers) loadConfig() {
 		// 配置文件不存在，使用默认配置
 		return
 	}
-	json.Unmarshal(data, h.config)
+	_ = json.Unmarshal(data, h.config)
 	h.applyConfig()
 }
 
@@ -245,7 +245,7 @@ func (h *Handlers) testNotification(c *gin.Context) {
 
 	default:
 		// 发送到所有渠道
-		h.manager.Send(notif)
+		_ = h.manager.Send(notif)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

@@ -27,9 +27,9 @@ func TestClassifier_Classify(t *testing.T) {
 	for name, content := range testFiles {
 		path := filepath.Join(tmpDir, name)
 		if content != "" {
-			os.WriteFile(path, []byte(content), 0644)
+			_ = os.WriteFile(path, []byte(content), 0644)
 		} else {
-			os.WriteFile(path, []byte{0, 0, 0}, 0644)
+			_ = os.WriteFile(path, []byte{0, 0, 0}, 0644)
 		}
 	}
 
@@ -84,10 +84,10 @@ func TestSimilarityDetector(t *testing.T) {
 	path3 := filepath.Join(tmpDir, "project_report_v1.txt")
 	path4 := filepath.Join(tmpDir, "project_report_v2.txt")
 
-	os.WriteFile(path1, content, 0644)
-	os.WriteFile(path2, content, 0644) // 相同内容
-	os.WriteFile(path3, []byte("different content"), 0644)
-	os.WriteFile(path4, []byte("different content"), 0644)
+	_ = os.WriteFile(path1, content, 0644)
+	_ = os.WriteFile(path2, content, 0644) // 相同内容
+	_ = os.WriteFile(path3, []byte("different content"), 0644)
+	_ = os.WriteFile(path4, []byte("different content"), 0644)
 
 	// 创建检测器
 	config := DefaultConfig()
@@ -96,9 +96,9 @@ func TestSimilarityDetector(t *testing.T) {
 	detector := NewSimilarityDetector(config)
 
 	// 索引文件
-	detector.IndexFile(path1)
-	detector.IndexFile(path2)
-	detector.IndexFile(path3)
+	_ = detector.IndexFile(path1)
+	_ = detector.IndexFile(path2)
+	_ = detector.IndexFile(path3)
 	detector.IndexFile(path4)
 
 	// 检测相似文件

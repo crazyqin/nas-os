@@ -388,7 +388,7 @@ func (p *CloudflareProvider) createDNSRecord(name, ip string) error {
 		} `json:"errors"`
 	}
 
-	json.NewDecoder(resp.Body).Decode(&result)
+	_ = json.NewDecoder(resp.Body).Decode(&result)
 	if !result.Success {
 		if len(result.Errors) > 0 {
 			return fmt.Errorf("创建记录失败: %s", result.Errors[0].Message)
@@ -431,7 +431,7 @@ func (p *CloudflareProvider) updateDNSRecord(recordID, name, ip string) error {
 		Success bool `json:"success"`
 	}
 
-	json.NewDecoder(resp.Body).Decode(&result)
+	_ = json.NewDecoder(resp.Body).Decode(&result)
 	if !result.Success {
 		return fmt.Errorf("更新记录失败")
 	}

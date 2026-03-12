@@ -189,7 +189,7 @@ func (m *MFAManager) SetupTOTP(userID, username string) (*TOTPSetup, error) {
 	m.configs[userID].UpdatedAt = time.Now()
 
 	// 不保存 URI 和 QR 码，只返回给客户端
-	m.saveConfig()
+	_ = m.saveConfig()
 
 	return setup, nil
 }
@@ -217,7 +217,7 @@ func (m *MFAManager) EnableTOTP(userID, code string) error {
 	cfg.Enabled = true
 	cfg.UpdatedAt = time.Now()
 
-	m.saveConfig()
+	_ = m.saveConfig()
 	return nil
 }
 
@@ -249,7 +249,7 @@ func (m *MFAManager) DisableTOTP(userID, verifyCode string) error {
 		cfg.Enabled = false
 	}
 
-	m.saveConfig()
+	_ = m.saveConfig()
 	return nil
 }
 

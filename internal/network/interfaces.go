@@ -69,7 +69,7 @@ func (m *Manager) getInterfaceInfo(name string) (*Interface, error) {
 
 	// 读取 MTU
 	if mtu, err := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/mtu", name)); err == nil {
-		fmt.Sscanf(strings.TrimSpace(string(mtu)), "%d", &iface.Mtu)
+		_, _ = fmt.Sscanf(strings.TrimSpace(string(mtu)), "%d", &iface.Mtu)
 	}
 
 	// 读取速度（仅对物理接口有效）
@@ -188,10 +188,10 @@ func (m *Manager) getInterfaceStats(name string) (rxBytes, txBytes int64) {
 	txData, err2 := os.ReadFile(fmt.Sprintf("/sys/class/net/%s/statistics/tx_bytes", name))
 
 	if err1 == nil {
-		fmt.Sscanf(strings.TrimSpace(string(rxData)), "%d", &rxBytes)
+		_, _ = fmt.Sscanf(strings.TrimSpace(string(rxData)), "%d", &rxBytes)
 	}
 	if err2 == nil {
-		fmt.Sscanf(strings.TrimSpace(string(txData)), "%d", &txBytes)
+		_, _ = fmt.Sscanf(strings.TrimSpace(string(txData)), "%d", &txBytes)
 	}
 
 	return
@@ -257,7 +257,7 @@ func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error 
 	if config.IP != "" && config.Netmask != "" {
 		addr := fmt.Sprintf("%s/%s", config.IP, config.Netmask)
 		cmd := exec.Command("ip", "addr", "flush", "dev", name)
-		cmd.Run()
+		_ = cmd.Run()
 
 		cmd = exec.Command("ip", "addr", "add", addr, "dev", name)
 		if err := cmd.Run(); err != nil {
@@ -268,7 +268,7 @@ func (m *Manager) ConfigureInterface(name string, config InterfaceConfig) error 
 	// 设置网关
 	if config.Gateway != "" {
 		// 先删除旧的默认路由
-		exec.Command("ip", "route", "del", "default", "dev", name).Run()
+		_ = exec.Command("ip", "route", "del", "default", "dev", name).Run()
 
 		cmd := exec.Command("ip", "route", "add", "default", "via", config.Gateway, "dev", name)
 		if err := cmd.Run(); err != nil {

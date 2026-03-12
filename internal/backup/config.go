@@ -246,7 +246,7 @@ func (m *Manager) checkDiskSpace() (float64, error) {
 	}
 
 	var usage float64
-	fmt.Sscanf(string(output), "%f", &usage)
+	_, _ = fmt.Sscanf(string(output), "%f", &usage)
 	return 100 - usage, nil
 }
 

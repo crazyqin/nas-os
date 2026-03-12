@@ -171,7 +171,7 @@ func (a *AutomationAPI) ExecuteWorkflow(w http.ResponseWriter, r *http.Request) 
 	id := vars["id"]
 	
 	var eventData map[string]interface{}
-	json.NewDecoder(r.Body).Decode(&eventData)
+	_ = json.NewDecoder(r.Body).Decode(&eventData)
 	
 	if err := a.engine.ExecuteWorkflow(id, eventData); err != nil {
 		a.writeError(w, http.StatusInternalServerError, err.Error())
@@ -194,7 +194,7 @@ func (a *AutomationAPI) ExportWorkflow(w http.ResponseWriter, r *http.Request) {
 	
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Content-Disposition", "attachment; filename=workflow_"+id+".json")
-	w.Write(data)
+	_, _ = w.Write(data)
 }
 
 // ImportWorkflow 导入工作流
@@ -294,7 +294,7 @@ func (a *AutomationAPI) GetStats(w http.ResponseWriter, r *http.Request) {
 func (a *AutomationAPI) writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(data)
 }
 
 func (a *AutomationAPI) writeError(w http.ResponseWriter, status int, message string) {
