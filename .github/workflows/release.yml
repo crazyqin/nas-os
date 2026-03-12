@@ -8,6 +8,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  GO_VERSION: '1.26.1'
+
 permissions:
   contents: write
   packages: write
@@ -22,17 +25,23 @@ jobs:
         include:
           - os: linux
             arch: amd64
+            ext: ""
           - os: linux
             arch: arm64
+            ext: ""
           - os: linux
             arch: arm
-              arm: 7
+            arm: "7"
+            ext: ""
           - os: darwin
             arch: amd64
+            ext: ""
           - os: darwin
             arch: arm64
+            ext: ""
           - os: windows
             arch: amd64
+            ext: ".exe"
     
     steps:
       - name: 检出代码
@@ -45,19 +54,11 @@ jobs:
       
       - name: 构建 nasd
         run: |
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}.exe ./cmd/nasd
-          else
-            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }} ./cmd/nasd
-          fi
+          CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }}${{ matrix.arm && format('GOARM={0} ', matrix.arm) || '' }}go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasd
       
       - name: 构建 nasctl
         run: |
-          if [ "${{ matrix.os }}" = "windows" ]; then
-            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}.exe ./cmd/nasctl
-          else
-            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }} ./cmd/nasctl
-          fi
+          CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }}${{ matrix.arm && format('GOARM={0} ', matrix.arm) || '' }}go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasctl
       
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
