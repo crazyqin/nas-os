@@ -44,24 +44,24 @@ func (ds *QuotaDataSource) Query(
 	groupBy []string,
 	limit, offset int,
 ) ([]map[string]interface{}, error) {
-	
+
 	// 获取配额使用数据
 	usages, err := ds.quotaManager.GetAllUsage()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	result := make([]map[string]interface{}, 0, len(usages))
-	
+
 	for _, usage := range usages {
 		// 转换为 map
 		row := ds.convertToMap(usage)
-		
+
 		// 应用过滤器
 		if !ds.matchFilters(row, filters) {
 			continue
 		}
-		
+
 		// 提取指定字段
 		extractedRow := make(map[string]interface{})
 		for _, field := range fields {
@@ -69,15 +69,15 @@ func (ds *QuotaDataSource) Query(
 				extractedRow[field.Name] = val
 			}
 		}
-		
+
 		result = append(result, extractedRow)
 	}
-	
+
 	// 应用排序
 	if len(sorts) > 0 {
 		result = ds.applySorts(result, sorts)
 	}
-	
+
 	// 应用分页
 	if limit > 0 || offset > 0 {
 		start := offset
@@ -90,7 +90,7 @@ func (ds *QuotaDataSource) Query(
 		}
 		result = result[start:end]
 	}
-	
+
 	return result, nil
 }
 
@@ -100,18 +100,18 @@ func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]
 	if err != nil {
 		return nil, err
 	}
-	
+
 	summary := map[string]interface{}{
-		"total_quotas":     len(usages),
-		"total_limit":      0,
-		"total_used":       0,
-		"over_soft_limit":  0,
-		"over_hard_limit":  0,
+		"total_quotas":    len(usages),
+		"total_limit":     0,
+		"total_used":      0,
+		"over_soft_limit": 0,
+		"over_hard_limit": 0,
 	}
-	
+
 	for _, usage := range usages {
 		row := ds.convertToMap(usage)
-		
+
 		if limit, ok := row["hard_limit"].(uint64); ok {
 			summary["total_limit"] = summary["total_limit"].(int) + int(limit)
 		}
@@ -125,7 +125,7 @@ func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]
 			summary["over_hard_limit"] = summary["over_hard_limit"].(int) + 1
 		}
 	}
-	
+
 	return summary, nil
 }
 
@@ -178,20 +178,20 @@ func (ds *QuotaDataSource) convertToMap(usage interface{}) map[string]interface{
 func (ds *QuotaDataSource) getNestedValue(data map[string]interface{}, path string) (interface{}, bool) {
 	keys := splitPath(path)
 	current := data
-	
+
 	for i, key := range keys {
 		if i == len(keys)-1 {
 			val, ok := current[key]
 			return val, ok
 		}
-		
+
 		next, ok := current[key].(map[string]interface{})
 		if !ok {
 			return nil, false
 		}
 		current = next
 	}
-	
+
 	return nil, false
 }
 
@@ -202,7 +202,7 @@ func (ds *QuotaDataSource) matchFilters(row map[string]interface{}, filters []Te
 		if !ok {
 			return false
 		}
-		
+
 		if !ds.matchFilter(val, filter.Operator, filter.Value) {
 			return false
 		}
@@ -233,10 +233,10 @@ func (ds *QuotaDataSource) applySorts(data []map[string]interface{}, sorts []Tem
 	if len(sorts) == 0 {
 		return data
 	}
-	
+
 	result := make([]map[string]interface{}, len(data))
 	copy(result, data)
-	
+
 	sort.Slice(result, func(i, j int) bool {
 		for _, s := range sorts {
 			cmp := compareValues(result[i][s.Field], result[j][s.Field])
@@ -249,7 +249,7 @@ func (ds *QuotaDataSource) applySorts(data []map[string]interface{}, sorts []Tem
 		}
 		return false
 	})
-	
+
 	return result
 }
 
@@ -288,18 +288,18 @@ func (ds *StorageDataSource) Query(
 	groupBy []string,
 	limit, offset int,
 ) ([]map[string]interface{}, error) {
-	
+
 	volumes := ds.storageManager.ListVolumes()
 	result := make([]map[string]interface{}, 0, len(volumes))
-	
+
 	for _, vol := range volumes {
 		row := ds.convertVolumeToMap(vol)
-		
+
 		// 应用过滤器
 		if !ds.matchFilters(row, filters) {
 			continue
 		}
-		
+
 		// 提取字段
 		extractedRow := make(map[string]interface{})
 		for _, field := range fields {
@@ -307,24 +307,24 @@ func (ds *StorageDataSource) Query(
 				extractedRow[field.Name] = val
 			}
 		}
-		
+
 		result = append(result, extractedRow)
 	}
-	
+
 	return result, nil
 }
 
 // GetSummary 获取摘要
 func (ds *StorageDataSource) GetSummary(query map[string]interface{}) (map[string]interface{}, error) {
 	volumes := ds.storageManager.ListVolumes()
-	
+
 	summary := map[string]interface{}{
 		"total_volumes": len(volumes),
 		"total_size":    0,
 		"total_used":    0,
 		"total_free":    0,
 	}
-	
+
 	for _, vol := range volumes {
 		row := ds.convertVolumeToMap(vol)
 		if size, ok := row["total_size"].(uint64); ok {
@@ -337,7 +337,7 @@ func (ds *StorageDataSource) GetSummary(query map[string]interface{}) (map[strin
 			summary["total_free"] = summary["total_free"].(int) + int(free)
 		}
 	}
-	
+
 	return summary, nil
 }
 
@@ -378,7 +378,7 @@ func (ds *StorageDataSource) matchFilters(row map[string]interface{}, filters []
 		if !ok {
 			return false
 		}
-		
+
 		if fmt.Sprintf("%v", val) != fmt.Sprintf("%v", filter.Value) {
 			return false
 		}
@@ -390,20 +390,20 @@ func (ds *StorageDataSource) matchFilters(row map[string]interface{}, filters []
 func (ds *StorageDataSource) getNestedValue(data map[string]interface{}, path string) (interface{}, bool) {
 	keys := splitPath(path)
 	current := data
-	
+
 	for i, key := range keys {
 		if i == len(keys)-1 {
 			val, ok := current[key]
 			return val, ok
 		}
-		
+
 		next, ok := current[key].(map[string]interface{})
 		if !ok {
 			return nil, false
 		}
 		current = next
 	}
-	
+
 	return nil, false
 }
 
@@ -435,11 +435,11 @@ func splitString(s, sep string) []string {
 func compareNumeric(a, b interface{}, op string) bool {
 	aFloat, aOk := toFloat64(a)
 	bFloat, bOk := toFloat64(b)
-	
+
 	if !aOk || !bOk {
 		return false
 	}
-	
+
 	switch op {
 	case "gt":
 		return aFloat > bFloat

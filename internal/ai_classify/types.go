@@ -6,15 +6,15 @@ import (
 
 // Category 文件分类
 type Category struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Keywords    []string `json:"keywords"`
-	Extensions  []string `json:"extensions"`
-	Patterns    []string `json:"patterns"` // 正则模式
-	Color       string   `json:"color"`    // UI 显示颜色
-	Icon        string   `json:"icon"`     // 图标
-	ParentID    string   `json:"parentId,omitempty"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Keywords    []string  `json:"keywords"`
+	Extensions  []string  `json:"extensions"`
+	Patterns    []string  `json:"patterns"` // 正则模式
+	Color       string    `json:"color"`    // UI 显示颜色
+	Icon        string    `json:"icon"`     // 图标
+	ParentID    string    `json:"parentId,omitempty"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
@@ -31,58 +31,58 @@ type Tag struct {
 
 // FileClassification 文件分类结果
 type FileClassification struct {
-	Path       string    `json:"path"`
-	FileName   string    `json:"fileName"`
-	Extension  string    `json:"extension"`
-	Category   Category  `json:"category"`
-	Tags       []Tag     `json:"tags"`
-	Confidence float64   `json:"confidence"` // 分类置信度 (0-1)
-	Size       int64     `json:"size"`
-	ModTime    time.Time `json:"modTime"`
-	ContentHash string   `json:"contentHash,omitempty"` // 内容哈希
-	Features   Features  `json:"features,omitempty"`
-	CreatedAt  time.Time `json:"createdAt"`
+	Path        string    `json:"path"`
+	FileName    string    `json:"fileName"`
+	Extension   string    `json:"extension"`
+	Category    Category  `json:"category"`
+	Tags        []Tag     `json:"tags"`
+	Confidence  float64   `json:"confidence"` // 分类置信度 (0-1)
+	Size        int64     `json:"size"`
+	ModTime     time.Time `json:"modTime"`
+	ContentHash string    `json:"contentHash,omitempty"` // 内容哈希
+	Features    Features  `json:"features,omitempty"`
+	CreatedAt   time.Time `json:"createdAt"`
 }
 
 // Features 文件特征
 type Features struct {
 	// 文本特征
-	WordCount     int      `json:"wordCount,omitempty"`
-	Language      string   `json:"language,omitempty"`
-	Keywords      []string `json:"keywords,omitempty"`
-	Entities      []string `json:"entities,omitempty"` // 命名实体
+	WordCount int      `json:"wordCount,omitempty"`
+	Language  string   `json:"language,omitempty"`
+	Keywords  []string `json:"keywords,omitempty"`
+	Entities  []string `json:"entities,omitempty"` // 命名实体
 
 	// 图像特征
-	Width       int      `json:"width,omitempty"`
-	Height      int      `json:"height,omitempty"`
-	ColorDepth  int      `json:"colorDepth,omitempty"`
+	Width          int      `json:"width,omitempty"`
+	Height         int      `json:"height,omitempty"`
+	ColorDepth     int      `json:"colorDepth,omitempty"`
 	DominantColors []string `json:"dominantColors,omitempty"`
 
 	// 视频/音频特征
-	Duration    int      `json:"duration,omitempty"` // 秒
-	BitRate     int      `json:"bitRate,omitempty"`
-	FrameRate   float64  `json:"frameRate,omitempty"`
-	AudioChannels int    `json:"audioChannels,omitempty"`
+	Duration      int     `json:"duration,omitempty"` // 秒
+	BitRate       int     `json:"bitRate,omitempty"`
+	FrameRate     float64 `json:"frameRate,omitempty"`
+	AudioChannels int     `json:"audioChannels,omitempty"`
 
 	// 代码特征
-	LineCount     int      `json:"lineCount,omitempty"`
-	FunctionCount int      `json:"functionCount,omitempty"`
-	ImportCount   int      `json:"importCount,omitempty"`
-	LanguageVer   string   `json:"languageVer,omitempty"`
+	LineCount     int    `json:"lineCount,omitempty"`
+	FunctionCount int    `json:"functionCount,omitempty"`
+	ImportCount   int    `json:"importCount,omitempty"`
+	LanguageVer   string `json:"languageVer,omitempty"`
 
 	// 文档特征
-	PageCount    int      `json:"pageCount,omitempty"`
-	Title        string   `json:"title,omitempty"`
-	Author       string   `json:"author,omitempty"`
+	PageCount int    `json:"pageCount,omitempty"`
+	Title     string `json:"title,omitempty"`
+	Author    string `json:"author,omitempty"`
 }
 
 // Similarity 相似度结果
 type Similarity struct {
 	FileA      string    `json:"fileA"`
 	FileB      string    `json:"fileB"`
-	Score      float64   `json:"score"`      // 相似度分数 (0-1)
-	SimType    SimType   `json:"simType"`    // 相似类型
-	Reason     string    `json:"reason"`     // 相似原因
+	Score      float64   `json:"score"`   // 相似度分数 (0-1)
+	SimType    SimType   `json:"simType"` // 相似类型
+	Reason     string    `json:"reason"`  // 相似原因
 	DetectedAt time.Time `json:"detectedAt"`
 }
 
@@ -90,10 +90,10 @@ type Similarity struct {
 type SimType string
 
 const (
-	SimTypeContent  SimType = "content"   // 内容相似
-	SimTypeName     SimType = "name"      // 文件名相似
+	SimTypeContent  SimType = "content"  // 内容相似
+	SimTypeName     SimType = "name"     // 文件名相似
 	SimTypeMetadata SimType = "metadata" // 元数据相似
-	SimTypeHash     SimType = "hash"      // 哈希相同（完全相同）
+	SimTypeHash     SimType = "hash"     // 哈希相同（完全相同）
 	SimTypeSemantic SimType = "semantic" // 语义相似
 )
 
@@ -102,11 +102,11 @@ type ClassificationRule struct {
 	ID          string      `json:"id"`
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
-	Priority    int         `json:"priority"`    // 规则优先级
+	Priority    int         `json:"priority"` // 规则优先级
 	Enabled     bool        `json:"enabled"`
 	Conditions  []Condition `json:"conditions"`
 	Actions     []Action    `json:"actions"`
-	HitCount    int         `json:"hitCount"`    // 命中次数
+	HitCount    int         `json:"hitCount"` // 命中次数
 	LastHit     time.Time   `json:"lastHit"`
 	CreatedAt   time.Time   `json:"createdAt"`
 	UpdatedAt   time.Time   `json:"updatedAt"`
@@ -115,9 +115,9 @@ type ClassificationRule struct {
 // Condition 条件
 type Condition struct {
 	Type     ConditionType `json:"type"`
-	Field    string         `json:"field"`
-	Operator string         `json:"operator"` // eq, ne, contains, matches, gt, lt, in
-	Value    interface{}    `json:"value"`
+	Field    string        `json:"field"`
+	Operator string        `json:"operator"` // eq, ne, contains, matches, gt, lt, in
+	Value    interface{}   `json:"value"`
 }
 
 // ConditionType 条件类型
@@ -184,11 +184,11 @@ type Config struct {
 	MaxSimilarFiles     int     `json:"maxSimilarFiles"`     // 最大相似文件数
 
 	// 特征提取配置
-	MaxContentSize   int64 `json:"maxContentSize"`   // 最大内容读取大小
-	EnableHashCache  bool  `json:"enableHashCache"`  // 启用哈希缓存
-	EnableImageFeat  bool  `json:"enableImageFeat"`  // 提取图像特征
-	EnableTextFeat   bool  `json:"enableTextFeat"`   // 提取文本特征
-	EnableVideoFeat  bool  `json:"enableVideoFeat"`  // 提取视频特征
+	MaxContentSize  int64 `json:"maxContentSize"`  // 最大内容读取大小
+	EnableHashCache bool  `json:"enableHashCache"` // 启用哈希缓存
+	EnableImageFeat bool  `json:"enableImageFeat"` // 提取图像特征
+	EnableTextFeat  bool  `json:"enableTextFeat"`  // 提取文本特征
+	EnableVideoFeat bool  `json:"enableVideoFeat"` // 提取视频特征
 }
 
 // DefaultConfig 默认配置

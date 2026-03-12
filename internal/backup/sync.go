@@ -33,28 +33,28 @@ type SyncManager struct {
 
 // SyncTask 同步任务
 type SyncTask struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Source      string       `json:"source"`
-	Destination string       `json:"destination"`
-	Mode        SyncMode     `json:"mode"` // bidirectional, master-slave, one-way
-	Status      TaskStatus   `json:"status"`
-	LastSync    time.Time    `json:"lastSync"`
-	NextSync    time.Time    `json:"nextSync"`
-	Enabled     bool         `json:"enabled"`
-	Schedule    string       `json:"schedule"` // cron 表达式
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Source      string             `json:"source"`
+	Destination string             `json:"destination"`
+	Mode        SyncMode           `json:"mode"` // bidirectional, master-slave, one-way
+	Status      TaskStatus         `json:"status"`
+	LastSync    time.Time          `json:"lastSync"`
+	NextSync    time.Time          `json:"nextSync"`
+	Enabled     bool               `json:"enabled"`
+	Schedule    string             `json:"schedule"` // cron 表达式
 	Conflict    ConflictResolution `json:"conflict"` // 冲突解决策略
 
 	// 远程目标配置
-	RemoteType   RemoteType `json:"remoteType"` // local, s3, webdav
+	RemoteType   RemoteType    `json:"remoteType"` // local, s3, webdav
 	RemoteConfig *RemoteConfig `json:"remoteConfig,omitempty"`
 
 	// 统计
-	TotalFiles   int64 `json:"totalFiles"`
-	SyncedFiles  int64 `json:"syncedFiles"`
-	FailedFiles  int64 `json:"failedFiles"`
-	TotalBytes   int64 `json:"totalBytes"`
-	SyncedBytes  int64 `json:"syncedBytes"`
+	TotalFiles  int64 `json:"totalFiles"`
+	SyncedFiles int64 `json:"syncedFiles"`
+	FailedFiles int64 `json:"failedFiles"`
+	TotalBytes  int64 `json:"totalBytes"`
+	SyncedBytes int64 `json:"syncedBytes"`
 }
 
 // SyncMode 同步模式
@@ -70,19 +70,19 @@ const (
 type ConflictResolution string
 
 const (
-	ConflictLatest     ConflictResolution = "latest"      // 最新者胜
-	ConflictSource     ConflictResolution = "source"      // 源优先
-	ConflictDest       ConflictResolution = "dest"        // 目标优先
-	ConflictKeepBoth   ConflictResolution = "keep-both"   // 保留两者
-	ConflictManual     ConflictResolution = "manual"      // 手动解决
+	ConflictLatest   ConflictResolution = "latest"    // 最新者胜
+	ConflictSource   ConflictResolution = "source"    // 源优先
+	ConflictDest     ConflictResolution = "dest"      // 目标优先
+	ConflictKeepBoth ConflictResolution = "keep-both" // 保留两者
+	ConflictManual   ConflictResolution = "manual"    // 手动解决
 )
 
 // RemoteType 远程类型
 type RemoteType string
 
 const (
-	RemoteTypeLocal RemoteType = "local"
-	RemoteTypeS3    RemoteType = "s3"
+	RemoteTypeLocal  RemoteType = "local"
+	RemoteTypeS3     RemoteType = "s3"
 	RemoteTypeWebDAV RemoteType = "webdav"
 )
 
@@ -101,8 +101,8 @@ type RemoteConfig struct {
 	Password string `json:"password,omitempty"`
 
 	// 通用
-	Insecure bool `json:"insecure,omitempty"` // 跳过 TLS 验证
-	Prefix   string `json:"prefix,omitempty"` // 路径前缀
+	Insecure bool   `json:"insecure,omitempty"` // 跳过 TLS 验证
+	Prefix   string `json:"prefix,omitempty"`   // 路径前缀
 }
 
 // VersionManager 版本管理器
@@ -349,9 +349,9 @@ func (sm *SyncManager) syncBidirectional(task *SyncTask) error {
 
 // FileEntry 文件条目
 type FileEntry struct {
-	Path    string
-	Size    int64
-	ModTime time.Time
+	Path     string
+	Size     int64
+	ModTime  time.Time
 	Checksum string
 }
 
@@ -410,12 +410,12 @@ func (sm *SyncManager) calculateFileChecksum(path string) (string, error) {
 
 // FileChange 文件变更
 type FileChange struct {
-	Path      string
-	Type      string // new, modified, deleted, conflict
-	Size      int64
-	Source    FileEntry
-	Dest      FileEntry
-	Action    string // copy-src-to-dest, copy-dest-to-src, keep-both, skip
+	Path   string
+	Type   string // new, modified, deleted, conflict
+	Size   int64
+	Source FileEntry
+	Dest   FileEntry
+	Action string // copy-src-to-dest, copy-dest-to-src, keep-both, skip
 }
 
 // compareFiles 比较文件差异

@@ -283,11 +283,11 @@ func (h *Handlers) getHealthScore(c *gin.Context) {
 			"score":  score,
 			"status": status,
 			"summary": gin.H{
-				"avgLatency":    report.Summary.AvgLatencyMs,
-				"errorRate":     report.Summary.ErrorRate,
-				"currentRPS":    report.Summary.CurrentRPS,
-				"slowRequests":  report.Summary.SlowRequestCount,
-				"anomalyCount":  len(report.Anomalies),
+				"avgLatency":   report.Summary.AvgLatencyMs,
+				"errorRate":    report.Summary.ErrorRate,
+				"currentRPS":   report.Summary.CurrentRPS,
+				"slowRequests": report.Summary.SlowRequestCount,
+				"anomalyCount": len(report.Anomalies),
 			},
 		},
 	})
@@ -361,9 +361,9 @@ func (h *Handlers) compareWithBaseline(c *gin.Context) {
 
 	// 判断趋势
 	trends := gin.H{
-		"latency":  "stable",
+		"latency":   "stable",
 		"errorRate": "stable",
-		"rps":      "stable",
+		"rps":       "stable",
 	}
 
 	if latencyDeviation > 20 {

@@ -24,12 +24,12 @@ type Learner struct {
 
 // RuleStats 规则统计
 type RuleStats struct {
-	RuleID       string    `json:"ruleId"`
-	TotalHits    int       `json:"totalHits"`
-	CorrectHits  int       `json:"correctHits"`
-	WrongHits    int       `json:"wrongHits"`
-	Accuracy     float64   `json:"accuracy"`
-	LastUpdated  time.Time `json:"lastUpdated"`
+	RuleID      string    `json:"ruleId"`
+	TotalHits   int       `json:"totalHits"`
+	CorrectHits int       `json:"correctHits"`
+	WrongHits   int       `json:"wrongHits"`
+	Accuracy    float64   `json:"accuracy"`
+	LastUpdated time.Time `json:"lastUpdated"`
 }
 
 // NewLearner 创建学习器
@@ -54,14 +54,14 @@ func (l *Learner) LearnFromFeedback(ctx context.Context, feedback UserFeedback) 
 
 	// 记录学习数据
 	data := LearningData{
-		ID:          generateID("learn"),
-		FilePath:    feedback.FilePath,
-		CategoryID:  feedback.CorrectCategoryID,
-		TagIDs:      feedback.CorrectTagIDs,
-		UserAction:  feedback.Action,
-		Corrected:   feedback.OriginalCategoryID != feedback.CorrectCategoryID,
-		Feedback:    feedback.Comment,
-		CreatedAt:   time.Now(),
+		ID:         generateID("learn"),
+		FilePath:   feedback.FilePath,
+		CategoryID: feedback.CorrectCategoryID,
+		TagIDs:     feedback.CorrectTagIDs,
+		UserAction: feedback.Action,
+		Corrected:  feedback.OriginalCategoryID != feedback.CorrectCategoryID,
+		Feedback:   feedback.Comment,
+		CreatedAt:  time.Now(),
 	}
 	l.learningData = append(l.learningData, data)
 
@@ -78,13 +78,13 @@ func (l *Learner) LearnFromFeedback(ctx context.Context, feedback UserFeedback) 
 
 // UserFeedback 用户反馈
 type UserFeedback struct {
-	FilePath            string   `json:"filePath"`
-	OriginalCategoryID  string   `json:"originalCategoryId"`
-	CorrectCategoryID   string   `json:"correctCategoryId"`
-	OriginalTagIDs      []string `json:"originalTagIds"`
-	CorrectTagIDs       []string `json:"correctTagIds"`
-	Action              string   `json:"action"` // correct, confirm, ignore
-	Comment             string   `json:"comment,omitempty"`
+	FilePath           string   `json:"filePath"`
+	OriginalCategoryID string   `json:"originalCategoryId"`
+	CorrectCategoryID  string   `json:"correctCategoryId"`
+	OriginalTagIDs     []string `json:"originalTagIds"`
+	CorrectTagIDs      []string `json:"correctTagIds"`
+	Action             string   `json:"action"` // correct, confirm, ignore
+	Comment            string   `json:"comment,omitempty"`
 }
 
 // learnFromCorrection 从修正中学习
@@ -457,11 +457,11 @@ func (l *Learner) SuggestRules(ctx context.Context) ([]ClassificationRuleSuggest
 		}
 
 		suggestions = append(suggestions, ClassificationRuleSuggestion{
-			CategoryID:   categoryID,
-			Patterns:     patterns,
-			SampleCount:  len(dataList),
-			Confidence:   float64(len(dataList)) / float64(len(l.learningData)),
-			Description:  fmt.Sprintf("基于 %d 次修正的建议", len(dataList)),
+			CategoryID:  categoryID,
+			Patterns:    patterns,
+			SampleCount: len(dataList),
+			Confidence:  float64(len(dataList)) / float64(len(l.learningData)),
+			Description: fmt.Sprintf("基于 %d 次修正的建议", len(dataList)),
 		})
 	}
 

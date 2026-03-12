@@ -12,11 +12,11 @@ import (
 
 // Handlers 监控处理器
 type Handlers struct {
-	manager     *Manager
-	alerts      []*Alert
-	alertRules  []*AlertRule
-	notifyMgr   *notify.Manager
-	mu          sync.RWMutex
+	manager    *Manager
+	alerts     []*Alert
+	alertRules []*AlertRule
+	notifyMgr  *notify.Manager
+	mu         sync.RWMutex
 }
 
 // NewHandlers 创建监控处理器

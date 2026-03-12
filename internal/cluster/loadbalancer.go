@@ -15,10 +15,10 @@ import (
 
 // 负载均衡算法
 const (
-	LBAlgorithmRoundRobin  = "round-robin"
-	LBAlgorithmLeastConn   = "least-conn"
-	LBAlgorithmWeighted    = "weighted"
-	LBAlgorithmIPHash      = "ip-hash"
+	LBAlgorithmRoundRobin = "round-robin"
+	LBAlgorithmLeastConn  = "least-conn"
+	LBAlgorithmWeighted   = "weighted"
+	LBAlgorithmIPHash     = "ip-hash"
 )
 
 // Backend 后端节点
@@ -45,37 +45,37 @@ type LBConfig struct {
 
 // LBStats 负载均衡统计
 type LBStats struct {
-	TotalRequests   int64         `json:"total_requests"`
-	ActiveRequests  int64         `json:"active_requests"`
-	FailedRequests  int64         `json:"failed_requests"`
-	AvgResponseTime time.Duration `json:"avg_response_time"`
-	RequestsPerSec  float64       `json:"requests_per_sec"`
+	TotalRequests   int64                    `json:"total_requests"`
+	ActiveRequests  int64                    `json:"active_requests"`
+	FailedRequests  int64                    `json:"failed_requests"`
+	AvgResponseTime time.Duration            `json:"avg_response_time"`
+	RequestsPerSec  float64                  `json:"requests_per_sec"`
 	BackendStats    map[string]*BackendStats `json:"backend_stats"`
 }
 
 // BackendStats 后端节点统计
 type BackendStats struct {
-	Requests      int64         `json:"requests"`
-	Failed        int64         `json:"failed"`
-	AvgLatency    time.Duration `json:"avg_latency"`
-	LastRequest   time.Time     `json:"last_request"`
+	Requests    int64         `json:"requests"`
+	Failed      int64         `json:"failed"`
+	AvgLatency  time.Duration `json:"avg_latency"`
+	LastRequest time.Time     `json:"last_request"`
 }
 
 // LoadBalancer 负载均衡器
 type LoadBalancer struct {
-	config      LBConfig
-	backends    map[string]*Backend
+	config        LBConfig
+	backends      map[string]*Backend
 	backendsMutex sync.RWMutex
 	// proxy       *httputil.ReverseProxy - 保留用于未来反向代理功能
 	currentIndex int
-	sessionMap  map[string]string // session -> backend
+	sessionMap   map[string]string // session -> backend
 	sessionMutex sync.RWMutex
-	stats       LBStats
-	statsMutex  sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
-	logger      *zap.Logger
-	cluster     *ClusterManager
+	stats        LBStats
+	statsMutex   sync.RWMutex
+	ctx          context.Context
+	cancel       context.CancelFunc
+	logger       *zap.Logger
+	cluster      *ClusterManager
 }
 
 // NewLoadBalancer 创建负载均衡器
@@ -139,18 +139,18 @@ func (lb *LoadBalancer) syncBackendsFromCluster() error {
 
 	for _, node := range nodes {
 		address := fmt.Sprintf("http://%s:%d", node.IP, node.Port)
-		
+
 		if _, exists := lb.backends[node.ID]; !exists {
 			lb.backends[node.ID] = &Backend{
-				NodeID:   node.ID,
-				Address:  address,
-				Weight:   1,
-				Active:   true,
-				Healthy:  true,
+				NodeID:    node.ID,
+				Address:   address,
+				Weight:    1,
+				Active:    true,
+				Healthy:   true,
 				LastCheck: time.Now(),
 			}
 			lb.stats.BackendStats[node.ID] = &BackendStats{}
-			
+
 			lb.logger.Info("添加后端节点", zap.String("node_id", node.ID), zap.String("address", address))
 		}
 	}
@@ -164,11 +164,11 @@ func (lb *LoadBalancer) AddBackend(nodeID, address string, weight int) error {
 	defer lb.backendsMutex.Unlock()
 
 	lb.backends[nodeID] = &Backend{
-		NodeID:   nodeID,
-		Address:  address,
-		Weight:   weight,
-		Active:   true,
-		Healthy:  true,
+		NodeID:    nodeID,
+		Address:   address,
+		Weight:    weight,
+		Active:    true,
+		Healthy:   true,
 		LastCheck: time.Now(),
 	}
 

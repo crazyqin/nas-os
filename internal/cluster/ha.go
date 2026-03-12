@@ -21,10 +21,10 @@ const (
 
 // 故障转移事件类型
 const (
-	FailoverEventDetection   = "detection"
-	FailoverEventElection    = "election"
-	FailoverEventTransfer    = "transfer"
-	FailoverEventRecovery    = "recovery"
+	FailoverEventDetection = "detection"
+	FailoverEventElection  = "election"
+	FailoverEventTransfer  = "transfer"
+	FailoverEventRecovery  = "recovery"
 )
 
 // FailoverEvent 故障转移事件
@@ -112,13 +112,13 @@ func NewHighAvailability(config HAConfig, logger *zap.Logger) (*HighAvailability
 	ctx, cancel := context.WithCancel(context.Background())
 
 	ha := &HighAvailability{
-		config:    config,
-		state:     HAStateFollower,
-		peers:     make(map[string]*PeerInfo),
-		ctx:       ctx,
-		cancel:    cancel,
-		logger:    logger,
-		events:    make([]FailoverEvent, 0),
+		config:      config,
+		state:       HAStateFollower,
+		peers:       make(map[string]*PeerInfo),
+		ctx:         ctx,
+		cancel:      cancel,
+		logger:      logger,
+		events:      make([]FailoverEvent, 0),
 		lastContact: time.Now(),
 	}
 
@@ -241,7 +241,7 @@ func (ha *HighAvailability) heartbeatWorker() {
 func (ha *HighAvailability) broadcastHeartbeat() {
 	// 简化实现：只更新本地状态
 	ha.lastContact = time.Now()
-	
+
 	// 实际应该发送心跳到所有 follower
 	ha.peersMutex.RLock()
 	for _, peer := range ha.peers {

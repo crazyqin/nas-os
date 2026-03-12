@@ -13,99 +13,99 @@ type ExtendedBackupConfig struct {
 	BackupConfig
 
 	// 增量备份配置
-	Incremental      bool   `json:"incremental"`          // 启用增量备份
-	IncrementalBase  string `json:"incrementalBase"`      // 增量基准目录
+	Incremental     bool   `json:"incremental"`     // 启用增量备份
+	IncrementalBase string `json:"incrementalBase"` // 增量基准目录
 
 	// 云端备份配置
-	CloudBackup      bool            `json:"cloudBackup"` // 启用云端备份
-	CloudConfig      *CloudConfig    `json:"cloudConfig,omitempty"`
+	CloudBackup bool         `json:"cloudBackup"` // 启用云端备份
+	CloudConfig *CloudConfig `json:"cloudConfig,omitempty"`
 
 	// 加密配置
-	Encryption       bool            `json:"encryption"`  // 启用加密
-	EncryptionType   string          `json:"encryptionType"` // openssl, gpg, aes-gcm
-	EncryptionKey    string          `json:"encryptionKey,omitempty"` // 密钥或密码
-	EncryptionKeyFile string         `json:"encryptionKeyFile,omitempty"` // 密钥文件路径
+	Encryption        bool   `json:"encryption"`                  // 启用加密
+	EncryptionType    string `json:"encryptionType"`              // openssl, gpg, aes-gcm
+	EncryptionKey     string `json:"encryptionKey,omitempty"`     // 密钥或密码
+	EncryptionKeyFile string `json:"encryptionKeyFile,omitempty"` // 密钥文件路径
 
 	// 恢复配置
-	AutoVerify       bool            `json:"autoVerify"`  // 自动验证备份
-	RetentionCount   int             `json:"retentionCount"` // 保留备份数量
-	RetentionDays    int             `json:"retentionDays"`  // 保留天数
+	AutoVerify     bool `json:"autoVerify"`     // 自动验证备份
+	RetentionCount int  `json:"retentionCount"` // 保留备份数量
+	RetentionDays  int  `json:"retentionDays"`  // 保留天数
 
 	// 通知配置
-	NotifyOnSuccess  bool            `json:"notifyOnSuccess"`
-	NotifyOnFailure  bool            `json:"notifyOnFailure"`
-	NotifyWebhook    string          `json:"notifyWebhook,omitempty"`
+	NotifyOnSuccess bool   `json:"notifyOnSuccess"`
+	NotifyOnFailure bool   `json:"notifyOnFailure"`
+	NotifyWebhook   string `json:"notifyWebhook,omitempty"`
 
 	// 高级选项
-	ExcludePatterns  []string        `json:"excludePatterns"` // 排除模式
-	IncludePatterns  []string        `json:"includePatterns"` // 包含模式
-	MaxBandwidth     int64           `json:"maxBandwidth"`    // 带宽限制 (bytes/s)
-	CompressionLevel int             `json:"compressionLevel"` // 压缩级别 1-9
+	ExcludePatterns  []string `json:"excludePatterns"`  // 排除模式
+	IncludePatterns  []string `json:"includePatterns"`  // 包含模式
+	MaxBandwidth     int64    `json:"maxBandwidth"`     // 带宽限制 (bytes/s)
+	CompressionLevel int      `json:"compressionLevel"` // 压缩级别 1-9
 }
 
 // BackupStrategy 备份策略
 type BackupStrategy struct {
-	Name           string            `json:"name"`
-	Type           BackupType        `json:"type"`
-	Schedule       string            `json:"schedule"`       // cron 表达式
-	Incremental    bool              `json:"incremental"`    // 是否增量
-	CloudSync      bool              `json:"cloudSync"`      // 同步到云端
-	Encryption     bool              `json:"encryption"`     // 是否加密
-	Retention      RetentionPolicy   `json:"retention"`      // 保留策略
+	Name        string          `json:"name"`
+	Type        BackupType      `json:"type"`
+	Schedule    string          `json:"schedule"`    // cron 表达式
+	Incremental bool            `json:"incremental"` // 是否增量
+	CloudSync   bool            `json:"cloudSync"`   // 同步到云端
+	Encryption  bool            `json:"encryption"`  // 是否加密
+	Retention   RetentionPolicy `json:"retention"`   // 保留策略
 }
 
 // RetentionPolicy 保留策略
 type RetentionPolicy struct {
-	KeepLast      int `json:"keepLast"`      // 保留最近 N 个
-	KeepDaily     int `json:"keepDaily"`     // 保留最近 N 天的每日备份
-	KeepWeekly    int `json:"keepWeekly"`    // 保留最近 N 周的每周备份
-	KeepMonthly   int `json:"keepMonthly"`   // 保留最近 N 月的每月备份
-	KeepYearly    int `json:"keepYearly"`    // 保留最近 N 年的每年备份
+	KeepLast    int `json:"keepLast"`    // 保留最近 N 个
+	KeepDaily   int `json:"keepDaily"`   // 保留最近 N 天的每日备份
+	KeepWeekly  int `json:"keepWeekly"`  // 保留最近 N 周的每周备份
+	KeepMonthly int `json:"keepMonthly"` // 保留最近 N 月的每月备份
+	KeepYearly  int `json:"keepYearly"`  // 保留最近 N 年的每年备份
 }
 
 // DefaultRetentionPolicy 默认保留策略
 func DefaultRetentionPolicy() RetentionPolicy {
 	return RetentionPolicy{
-		KeepLast:    7,    // 保留最近 7 个
-		KeepDaily:   7,    // 保留最近 7 天
-		KeepWeekly:  4,    // 保留最近 4 周
-		KeepMonthly: 12,   // 保留最近 12 个月
-		KeepYearly:  0,    // 不保留年度备份
+		KeepLast:    7,  // 保留最近 7 个
+		KeepDaily:   7,  // 保留最近 7 天
+		KeepWeekly:  4,  // 保留最近 4 周
+		KeepMonthly: 12, // 保留最近 12 个月
+		KeepYearly:  0,  // 不保留年度备份
 	}
 }
 
 // CloudSyncConfig 云端同步配置
 type CloudSyncConfig struct {
-	Enabled        bool          `json:"enabled"`
-	Provider       CloudProvider `json:"provider"`
-	Bucket         string        `json:"bucket"`
-	Region         string        `json:"region"`
-	Endpoint       string        `json:"endpoint"`
-	AccessKey      string        `json:"accessKey"`
-	SecretKey      string        `json:"secretKey"`
-	Prefix         string        `json:"prefix"`
-	EncryptBefore  bool          `json:"encryptBefore"`
-	VerifyAfter    bool          `json:"verifyAfter"`
-	DeleteRemote   bool          `json:"deleteRemote"` // 本地删除时同步删除云端
+	Enabled       bool          `json:"enabled"`
+	Provider      CloudProvider `json:"provider"`
+	Bucket        string        `json:"bucket"`
+	Region        string        `json:"region"`
+	Endpoint      string        `json:"endpoint"`
+	AccessKey     string        `json:"accessKey"`
+	SecretKey     string        `json:"secretKey"`
+	Prefix        string        `json:"prefix"`
+	EncryptBefore bool          `json:"encryptBefore"`
+	VerifyAfter   bool          `json:"verifyAfter"`
+	DeleteRemote  bool          `json:"deleteRemote"` // 本地删除时同步删除云端
 }
 
 // EncryptionConfig 加密配置
 type EncryptionConfig struct {
-	Enabled     bool   `json:"enabled"`
-	Method      string `json:"method"` // openssl-aes-256-cbc, gpg, aes-gcm
-	Key         string `json:"key"`
-	KeyFile     string `json:"keyFile"`
-	Salt        bool   `json:"salt"`        // 使用盐值
-	Iterations  int    `json:"iterations"`  // KDF 迭代次数
+	Enabled    bool   `json:"enabled"`
+	Method     string `json:"method"` // openssl-aes-256-cbc, gpg, aes-gcm
+	Key        string `json:"key"`
+	KeyFile    string `json:"keyFile"`
+	Salt       bool   `json:"salt"`       // 使用盐值
+	Iterations int    `json:"iterations"` // KDF 迭代次数
 }
 
 // RestorePreset 恢复预设
 type RestorePreset struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	TargetPath  string `json:"targetPath"`
-	Overwrite   bool   `json:"overwrite"`
-	Verify      bool   `json:"verify"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	TargetPath  string   `json:"targetPath"`
+	Overwrite   bool     `json:"overwrite"`
+	Verify      bool     `json:"verify"`
 	Files       []string `json:"files,omitempty"` // 空表示全部
 }
 
@@ -144,14 +144,14 @@ type BackupStats struct {
 	LastBackupTime   string  `json:"lastBackupTime"`
 	NextBackupTime   string  `json:"nextBackupTime"`
 	AverageDuration  string  `json:"averageDuration"`
-	SuccessRate      float64 `json:"successRate"` // 成功率 0-100
+	SuccessRate      float64 `json:"successRate"`      // 成功率 0-100
 	IncrementalRatio float64 `json:"incrementalRatio"` // 增量备份节省空间比例
 }
 
 // HealthCheckResult 健康检查结果
 type HealthCheckResult struct {
-	Status      string   `json:"status"` // healthy, warning, critical
-	Checks      []Check  `json:"checks"`
+	Status          string   `json:"status"` // healthy, warning, critical
+	Checks          []Check  `json:"checks"`
 	Recommendations []string `json:"recommendations"`
 }
 

@@ -345,7 +345,7 @@ func WriteChecksum(filePath string) error {
 // VerifyChecksum 验证校验和
 func VerifyChecksum(filePath string) (bool, error) {
 	checksumPath := filePath + ".sha256"
-	
+
 	expectedData, err := os.ReadFile(checksumPath)
 	if err != nil {
 		return false, err

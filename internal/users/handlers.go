@@ -24,7 +24,7 @@ func Error(code int, message string) Response {
 
 // Handlers 用户管理 HTTP 处理器
 type Handlers struct {
-	manager   *Manager
+	manager    *Manager
 	mfaManager *auth.MFAManager
 }
 
@@ -76,9 +76,9 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // API 请求/响应结构
 
 type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	MFACode  string `json:"mfa_code,omitempty"`  // TOTP 或短信验证码
+	Username   string `json:"username" binding:"required"`
+	Password   string `json:"password" binding:"required"`
+	MFACode    string `json:"mfa_code,omitempty"`    // TOTP 或短信验证码
 	BackupCode string `json:"backup_code,omitempty"` // 备份码
 }
 
@@ -86,7 +86,7 @@ type LoginResponse struct {
 	Token       string `json:"token,omitempty"`
 	ExpiresAt   string `json:"expires_at,omitempty"`
 	MFARequired bool   `json:"mfa_required"`
-	MFAType     string `json:"mfa_type,omitempty"` // totp, sms, webauthn
+	MFAType     string `json:"mfa_type,omitempty"`   // totp, sms, webauthn
 	SessionID   string `json:"session_id,omitempty"` // 临时会话 ID
 	User        *User  `json:"user,omitempty"`
 }

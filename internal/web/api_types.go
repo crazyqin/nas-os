@@ -27,16 +27,16 @@ type VolumeCreateRequest struct {
 
 // Volume 卷信息
 type Volume struct {
-	Name        string   `json:"name"`
-	UUID        string   `json:"uuid"`
-	Mounted     bool     `json:"mounted"`
-	MountPoint  string   `json:"mountPoint"`
-	TotalSize   uint64   `json:"totalSize"`
-	UsedSize    uint64   `json:"usedSize"`
-	FreeSize    uint64   `json:"freeSize"`
-	Profile     string   `json:"profile"`
-	Devices     []string `json:"devices"`
-	SubVolumes  []string `json:"subvolumes,omitempty"`
+	Name       string   `json:"name"`
+	UUID       string   `json:"uuid"`
+	Mounted    bool     `json:"mounted"`
+	MountPoint string   `json:"mountPoint"`
+	TotalSize  uint64   `json:"totalSize"`
+	UsedSize   uint64   `json:"usedSize"`
+	FreeSize   uint64   `json:"freeSize"`
+	Profile    string   `json:"profile"`
+	Devices    []string `json:"devices"`
+	SubVolumes []string `json:"subvolumes,omitempty"`
 }
 
 // VolumeUsage 卷使用量
@@ -155,13 +155,13 @@ type ShareOverview struct {
 
 // SMBShareInput SMB 共享输入
 type SMBShareInput struct {
-	Name        string            `json:"name" binding:"required" example:"documents"`
-	Path        string            `json:"path" binding:"required" example:"/mnt/data/documents"`
-	Comment     string            `json:"comment" example:"文档共享"`
-	Browseable  bool              `json:"browseable" example:"true"`
-	ReadOnly    bool              `json:"readOnly" example:"false"`
-	GuestOK     bool              `json:"guestOk" example:"false"`
-	Permissions map[string]bool   `json:"permissions"` // username -> readWrite
+	Name        string          `json:"name" binding:"required" example:"documents"`
+	Path        string          `json:"path" binding:"required" example:"/mnt/data/documents"`
+	Comment     string          `json:"comment" example:"文档共享"`
+	Browseable  bool            `json:"browseable" example:"true"`
+	ReadOnly    bool            `json:"readOnly" example:"false"`
+	GuestOK     bool            `json:"guestOk" example:"false"`
+	Permissions map[string]bool `json:"permissions"` // username -> readWrite
 }
 
 // SMBPermissionRequest SMB 权限设置请求
@@ -172,10 +172,10 @@ type SMBPermissionRequest struct {
 
 // NFSExportInput NFS 导出输入
 type NFSExportInput struct {
-	Name      string              `json:"name" binding:"required" example:"media"`
-	Path      string              `json:"path" binding:"required" example:"/mnt/data/media"`
-	Clients   []string            `json:"clients" example:"192.168.1.0/24,10.0.0.1"`
-	Options   []string            `json:"options" example:"rw,sync,no_subtree_check"`
+	Name    string   `json:"name" binding:"required" example:"media"`
+	Path    string   `json:"path" binding:"required" example:"/mnt/data/media"`
+	Clients []string `json:"clients" example:"192.168.1.0/24,10.0.0.1"`
+	Options []string `json:"options" example:"rw,sync,no_subtree_check"`
 }
 
 // ========== 网络管理 API 模型 ==========
@@ -196,23 +196,23 @@ type ToggleInterfaceRequest struct {
 
 // DDNSConfig DDNS 配置
 type DDNSConfig struct {
-	Domain    string `json:"domain" binding:"required" example:"mynas.example.com"`
-	Provider  string `json:"provider" binding:"required" example:"cloudflare"` // cloudflare, noip, duckdns
-	Username  string `json:"username" example:"user@example.com"`
-	Password  string `json:"password" example:"api_token"`
-	Interval  int    `json:"interval" example:"300"` // 秒
-	Enabled   bool   `json:"enabled" example:"true"`
+	Domain   string `json:"domain" binding:"required" example:"mynas.example.com"`
+	Provider string `json:"provider" binding:"required" example:"cloudflare"` // cloudflare, noip, duckdns
+	Username string `json:"username" example:"user@example.com"`
+	Password string `json:"password" example:"api_token"`
+	Interval int    `json:"interval" example:"300"` // 秒
+	Enabled  bool   `json:"enabled" example:"true"`
 }
 
 // PortForward 端口转发规则
 type PortForward struct {
-	Name        string `json:"name" binding:"required" example:"web-server"`
-	Protocol    string `json:"protocol" binding:"required" example:"tcp"` // tcp, udp
-	ExternalIP  string `json:"externalIp" example:"0.0.0.0"`
-	ExternalPort int   `json:"externalPort" binding:"required" example:"8080"`
-	InternalIP  string `json:"internalIp" binding:"required" example:"192.168.1.100"`
-	InternalPort int   `json:"internalPort" binding:"required" example:"80"`
-	Enabled     bool   `json:"enabled" example:"true"`
+	Name         string `json:"name" binding:"required" example:"web-server"`
+	Protocol     string `json:"protocol" binding:"required" example:"tcp"` // tcp, udp
+	ExternalIP   string `json:"externalIp" example:"0.0.0.0"`
+	ExternalPort int    `json:"externalPort" binding:"required" example:"8080"`
+	InternalIP   string `json:"internalIp" binding:"required" example:"192.168.1.100"`
+	InternalPort int    `json:"internalPort" binding:"required" example:"80"`
+	Enabled      bool   `json:"enabled" example:"true"`
 }
 
 // FirewallRule 防火墙规则

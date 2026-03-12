@@ -20,28 +20,28 @@ import (
 
 // Manager 相册管理器
 type Manager struct {
-	dataDir      string
-	photosDir    string
-	thumbsDir    string
-	cacheDir     string
-	configPath   string
-	photos       map[string]*Photo
-	albums       map[string]*Album
-	persons      map[string]*Person
-	mu           sync.RWMutex
-	config       *Config
+	dataDir    string
+	photosDir  string
+	thumbsDir  string
+	cacheDir   string
+	configPath string
+	photos     map[string]*Photo
+	albums     map[string]*Album
+	persons    map[string]*Person
+	mu         sync.RWMutex
+	config     *Config
 }
 
 // Config 相册配置
 type Config struct {
-	EnableAI        bool              `json:"enableAI"`
-	EnableFaceRec   bool              `json:"enableFaceRec"`
-	EnableObjectRec bool              `json:"enableObjectRec"`
-	AutoBackup      bool              `json:"autoBackup"`
-	BackupPaths     []string          `json:"backupPaths"`
-	ThumbnailConfig ThumbnailConfig   `json:"thumbnailConfig"`
-	SupportedFormats []string         `json:"supportedFormats"`
-	MaxUploadSize   int64             `json:"maxUploadSize"` // 最大上传大小（字节）
+	EnableAI         bool            `json:"enableAI"`
+	EnableFaceRec    bool            `json:"enableFaceRec"`
+	EnableObjectRec  bool            `json:"enableObjectRec"`
+	AutoBackup       bool            `json:"autoBackup"`
+	BackupPaths      []string        `json:"backupPaths"`
+	ThumbnailConfig  ThumbnailConfig `json:"thumbnailConfig"`
+	SupportedFormats []string        `json:"supportedFormats"`
+	MaxUploadSize    int64           `json:"maxUploadSize"` // 最大上传大小（字节）
 }
 
 // DefaultConfig 默认配置
@@ -65,15 +65,15 @@ func DefaultConfig() *Config {
 // NewManager 创建相册管理器
 func NewManager(dataDir string) (*Manager, error) {
 	m := &Manager{
-		dataDir:   dataDir,
-		photosDir: filepath.Join(dataDir, "photos"),
-		thumbsDir: filepath.Join(dataDir, "thumbnails"),
-		cacheDir:  filepath.Join(dataDir, "cache"),
+		dataDir:    dataDir,
+		photosDir:  filepath.Join(dataDir, "photos"),
+		thumbsDir:  filepath.Join(dataDir, "thumbnails"),
+		cacheDir:   filepath.Join(dataDir, "cache"),
 		configPath: filepath.Join(dataDir, "photos-config.json"),
-		photos:    make(map[string]*Photo),
-		albums:    make(map[string]*Album),
-		persons:   make(map[string]*Person),
-		config:    DefaultConfig(),
+		photos:     make(map[string]*Photo),
+		albums:     make(map[string]*Album),
+		persons:    make(map[string]*Person),
+		config:     DefaultConfig(),
 	}
 
 	// 创建目录
@@ -233,10 +233,10 @@ func (m *Manager) scanPhotos() {
 // indexPhoto 索引照片
 func (m *Manager) indexPhoto(path string) {
 	relPath, _ := filepath.Rel(m.photosDir, path)
-	
+
 	// 生成照片 ID
 	id := uuid.New().String()
-	
+
 	photo := &Photo{
 		ID:         id,
 		Filename:   filepath.Base(path),
@@ -260,7 +260,7 @@ func (m *Manager) indexPhoto(path string) {
 				photo.TakenAt = t
 			}
 		}
-		
+
 		// 提取 GPS 信息
 		if exifData.GPSLatitude != 0 || exifData.GPSLongitude != 0 {
 			photo.Location = &LocationInfo{
@@ -382,7 +382,7 @@ func (m *Manager) generateThumbnails(srcPath string, photoID string) error {
 
 		// 创建新图像
 		dstImg := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
-		
+
 		// 缩放图像
 		draw.BiLinear.Scale(dstImg, dstImg.Bounds(), srcImg, srcImg.Bounds(), draw.Over, nil)
 
@@ -413,14 +413,14 @@ func (m *Manager) generateThumbnailsFFmpeg(srcPath string, photoID string) error
 
 	for _, size := range sizes {
 		thumbPath := filepath.Join(m.thumbsDir, fmt.Sprintf("%s_%d.jpg", photoID, size))
-		
+
 		// ffmpeg 命令
-		cmd := exec.Command("ffmpeg", "-i", srcPath, 
+		cmd := exec.Command("ffmpeg", "-i", srcPath,
 			"-vf", fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", size, size),
 			"-vframes", "1",
 			"-q:v", "2",
 			thumbPath)
-		
+
 		cmd.Run()
 	}
 
@@ -466,7 +466,7 @@ func (m *Manager) CreateAlbum(name, description, userID string) (*Album, error) 
 	}
 
 	m.albums[album.ID] = album
-	
+
 	if err := m.saveAlbums(); err != nil {
 		return nil, err
 	}
@@ -493,7 +493,7 @@ func (m *Manager) UpdateAlbum(albumID, name, description string) (*Album, error)
 	album.UpdatedAt = time.Now()
 
 	m.albums[albumID] = album
-	
+
 	if err := m.saveAlbums(); err != nil {
 		return nil, err
 	}
@@ -511,7 +511,7 @@ func (m *Manager) DeleteAlbum(albumID string) error {
 	}
 
 	delete(m.albums, albumID)
-	
+
 	if err := m.saveAlbums(); err != nil {
 		return err
 	}
@@ -568,7 +568,7 @@ func (m *Manager) AddPhotoToAlbum(photoID, albumID string) error {
 
 	photo.AlbumID = albumID
 	album.PhotoCount++
-	
+
 	if album.CoverPhotoID == "" {
 		album.CoverPhotoID = photoID
 	}
@@ -599,7 +599,7 @@ func (m *Manager) RemovePhotoFromAlbum(photoID, albumID string) error {
 	if photo.AlbumID == albumID {
 		photo.AlbumID = ""
 		album.PhotoCount--
-		
+
 		if album.CoverPhotoID == photoID {
 			album.CoverPhotoID = ""
 			// 重新设置封面
@@ -626,7 +626,7 @@ func (m *Manager) QueryPhotos(query *PhotoQuery) ([]*Photo, int, error) {
 	defer m.mu.RUnlock()
 
 	result := make([]*Photo, 0)
-	
+
 	for _, photo := range m.photos {
 		// 应用过滤条件
 		if query.AlbumID != "" && photo.AlbumID != query.AlbumID {
@@ -743,7 +743,7 @@ func (m *Manager) CreatePerson(name string) (*Person, error) {
 	}
 
 	m.persons[person.ID] = person
-	
+
 	if err := m.savePersons(); err != nil {
 		return nil, err
 	}
@@ -794,7 +794,7 @@ func (m *Manager) DeletePerson(personID string) error {
 	}
 
 	delete(m.persons, personID)
-	
+
 	if err := m.savePersons(); err != nil {
 		return err
 	}

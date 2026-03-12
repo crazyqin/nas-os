@@ -15,14 +15,14 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrTemplateNotFound     = errors.New("模板不存在")
-	ErrTemplateExists       = errors.New("模板已存在")
-	ErrReportNotFound       = errors.New("报表不存在")
-	ErrScheduleNotFound     = errors.New("定时任务不存在")
-	ErrDataSourceNotFound   = errors.New("数据源不存在")
-	ErrInvalidQuery         = errors.New("无效的查询参数")
-	ErrExportFailed         = errors.New("导出失败")
-	ErrInvalidCronExpr      = errors.New("无效的 cron 表达式")
+	ErrTemplateNotFound   = errors.New("模板不存在")
+	ErrTemplateExists     = errors.New("模板已存在")
+	ErrReportNotFound     = errors.New("报表不存在")
+	ErrScheduleNotFound   = errors.New("定时任务不存在")
+	ErrDataSourceNotFound = errors.New("数据源不存在")
+	ErrInvalidQuery       = errors.New("无效的查询参数")
+	ErrExportFailed       = errors.New("导出失败")
+	ErrInvalidCronExpr    = errors.New("无效的 cron 表达式")
 )
 
 // ========== 模板管理器 ==========
@@ -40,20 +40,20 @@ func NewTemplateManager(dataDir string) (*TemplateManager, error) {
 		templates: make(map[string]*ReportTemplate),
 		dataDir:   dataDir,
 	}
-	
+
 	// 确保目录存在
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, err
 	}
-	
+
 	// 加载已有模板
 	if err := tm.loadTemplates(); err != nil {
 		return nil, err
 	}
-	
+
 	// 初始化默认模板
 	tm.initDefaultTemplates()
-	
+
 	return tm, nil
 }
 
@@ -63,21 +63,21 @@ func (tm *TemplateManager) loadTemplates() error {
 	if err != nil {
 		return err
 	}
-	
+
 	for _, file := range files {
 		data, err := os.ReadFile(file)
 		if err != nil {
 			continue
 		}
-		
+
 		var template ReportTemplate
 		if err := json.Unmarshal(data, &template); err != nil {
 			continue
 		}
-		
+
 		tm.templates[template.ID] = &template
 	}
-	
+
 	return nil
 }
 
@@ -87,7 +87,7 @@ func (tm *TemplateManager) saveTemplate(template *ReportTemplate) error {
 	if err != nil {
 		return err
 	}
-	
+
 	path := filepath.Join(tm.dataDir, template.ID+".json")
 	return os.WriteFile(path, data, 0644)
 }
@@ -102,14 +102,14 @@ func (tm *TemplateManager) deleteTemplateFile(id string) error {
 func (tm *TemplateManager) CreateTemplate(input TemplateInput, createdBy string) (*ReportTemplate, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
-	
+
 	// 检查名称是否重复
 	for _, t := range tm.templates {
 		if t.Name == input.Name {
 			return nil, ErrTemplateExists
 		}
 	}
-	
+
 	now := time.Now()
 	template := &ReportTemplate{
 		ID:           uuid.New().String(),
@@ -125,18 +125,18 @@ func (tm *TemplateManager) CreateTemplate(input TemplateInput, createdBy string)
 		Offset:       input.Offset,
 		CreatedAt:    now,
 		UpdatedAt:    now,
-		CreatedBy:   createdBy,
-		IsDefault:   false,
-		IsPublic:    input.IsPublic,
+		CreatedBy:    createdBy,
+		IsDefault:    false,
+		IsPublic:     input.IsPublic,
 	}
-	
+
 	tm.templates[template.ID] = template
-	
+
 	if err := tm.saveTemplate(template); err != nil {
 		delete(tm.templates, template.ID)
 		return nil, err
 	}
-	
+
 	return template, nil
 }
 
@@ -144,12 +144,12 @@ func (tm *TemplateManager) CreateTemplate(input TemplateInput, createdBy string)
 func (tm *TemplateManager) GetTemplate(id string) (*ReportTemplate, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
-	
+
 	template, exists := tm.templates[id]
 	if !exists {
 		return nil, ErrTemplateNotFound
 	}
-	
+
 	return template, nil
 }
 
@@ -157,7 +157,7 @@ func (tm *TemplateManager) GetTemplate(id string) (*ReportTemplate, error) {
 func (tm *TemplateManager) ListTemplates(templateType TemplateType, publicOnly bool) []*ReportTemplate {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
-	
+
 	result := make([]*ReportTemplate, 0)
 	for _, t := range tm.templates {
 		// 过滤类型
@@ -170,7 +170,7 @@ func (tm *TemplateManager) ListTemplates(templateType TemplateType, publicOnly b
 		}
 		result = append(result, t)
 	}
-	
+
 	return result
 }
 
@@ -178,19 +178,19 @@ func (tm *TemplateManager) ListTemplates(templateType TemplateType, publicOnly b
 func (tm *TemplateManager) UpdateTemplate(id string, input TemplateInput) (*ReportTemplate, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
-	
+
 	template, exists := tm.templates[id]
 	if !exists {
 		return nil, ErrTemplateNotFound
 	}
-	
+
 	// 检查名称是否重复（排除自身）
 	for _, t := range tm.templates {
 		if t.ID != id && t.Name == input.Name {
 			return nil, ErrTemplateExists
 		}
 	}
-	
+
 	template.Name = input.Name
 	template.Type = input.Type
 	template.Description = input.Description
@@ -203,11 +203,11 @@ func (tm *TemplateManager) UpdateTemplate(id string, input TemplateInput) (*Repo
 	template.Offset = input.Offset
 	template.IsPublic = input.IsPublic
 	template.UpdatedAt = time.Now()
-	
+
 	if err := tm.saveTemplate(template); err != nil {
 		return nil, err
 	}
-	
+
 	return template, nil
 }
 
@@ -215,17 +215,17 @@ func (tm *TemplateManager) UpdateTemplate(id string, input TemplateInput) (*Repo
 func (tm *TemplateManager) DeleteTemplate(id string) error {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
-	
+
 	_, exists := tm.templates[id]
 	if !exists {
 		return ErrTemplateNotFound
 	}
-	
+
 	// 不允许删除默认模板
 	if tm.templates[id].IsDefault {
 		return errors.New("不能删除默认模板")
 	}
-	
+
 	delete(tm.templates, id)
 	return tm.deleteTemplateFile(id)
 }
@@ -234,13 +234,13 @@ func (tm *TemplateManager) DeleteTemplate(id string) error {
 func (tm *TemplateManager) GetDefaultTemplate(templateType TemplateType) *ReportTemplate {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
-	
+
 	for _, t := range tm.templates {
 		if t.Type == templateType && t.IsDefault {
 			return t
 		}
 	}
-	
+
 	return nil
 }
 
@@ -250,7 +250,7 @@ func (tm *TemplateManager) initDefaultTemplates() {
 	if len(tm.templates) > 0 {
 		return
 	}
-	
+
 	// 配额报表默认模板
 	quotaTemplate := &ReportTemplate{
 		ID:          uuid.New().String(),
@@ -273,12 +273,12 @@ func (tm *TemplateManager) initDefaultTemplates() {
 		Sorts: []TemplateSort{
 			{Field: "usage_percent", Order: "desc"},
 		},
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		IsDefault:  true,
-		IsPublic:   true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		IsDefault: true,
+		IsPublic:  true,
 	}
-	
+
 	// 存储报表默认模板
 	storageTemplate := &ReportTemplate{
 		ID:          uuid.New().String(),
@@ -297,12 +297,12 @@ func (tm *TemplateManager) initDefaultTemplates() {
 		Sorts: []TemplateSort{
 			{Field: "usage_percent", Order: "desc"},
 		},
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		IsDefault:  true,
-		IsPublic:   true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		IsDefault: true,
+		IsPublic:  true,
 	}
-	
+
 	// 用户报表默认模板
 	userTemplate := &ReportTemplate{
 		ID:          uuid.New().String(),
@@ -320,12 +320,12 @@ func (tm *TemplateManager) initDefaultTemplates() {
 		Sorts: []TemplateSort{
 			{Field: "storage_used", Order: "desc"},
 		},
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		IsDefault:  true,
-		IsPublic:   true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		IsDefault: true,
+		IsPublic:  true,
 	}
-	
+
 	// 系统报表默认模板
 	systemTemplate := &ReportTemplate{
 		ID:          uuid.New().String(),
@@ -345,12 +345,12 @@ func (tm *TemplateManager) initDefaultTemplates() {
 		Sorts: []TemplateSort{
 			{Field: "timestamp", Order: "desc"},
 		},
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		IsDefault:  true,
-		IsPublic:   true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		IsDefault: true,
+		IsPublic:  true,
 	}
-	
+
 	// 保存默认模板
 	for _, template := range []*ReportTemplate{quotaTemplate, storageTemplate, userTemplate, systemTemplate} {
 		tm.templates[template.ID] = template

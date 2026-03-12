@@ -84,7 +84,7 @@ func TestNewManager(t *testing.T) {
 func TestCreateQuota(t *testing.T) {
 	storage := NewMockStorageProvider()
 	storage.volumes["data"] = &VolumeInfo{Name: "data", MountPoint: "/mnt/data", Size: 1 << 40}
-	
+
 	user := NewMockUserProvider()
 	user.AddUser("testuser", "/home/testuser")
 
@@ -288,7 +288,7 @@ func TestAlertConfig(t *testing.T) {
 func TestCleanupPolicy(t *testing.T) {
 	storage := NewMockStorageProvider()
 	storage.volumes["data"] = &VolumeInfo{Name: "data", MountPoint: "/mnt/data"}
-	
+
 	user := NewMockUserProvider()
 
 	mgr, err := NewManager("", storage, user)

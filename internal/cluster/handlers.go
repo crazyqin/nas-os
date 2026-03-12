@@ -11,11 +11,11 @@ import (
 
 // ClusterAPI 集群 API 处理器
 type ClusterAPI struct {
-	manager   *ClusterManager
-	sync      *StorageSync
-	lb        *LoadBalancer
-	ha        *HighAvailability
-	logger    *zap.Logger
+	manager *ClusterManager
+	sync    *StorageSync
+	lb      *LoadBalancer
+	ha      *HighAvailability
+	logger  *zap.Logger
 }
 
 // NewClusterAPI 创建集群 API 处理器

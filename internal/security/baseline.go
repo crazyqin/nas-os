@@ -491,15 +491,15 @@ func (bm *BaselineManager) checkOpenPorts() BaselineCheckResult {
 
 	// 高风险端口列表
 	highRiskPorts := map[int]string{
-		21:   "FTP",
-		23:   "Telnet",
-		25:   "SMTP",
-		110:  "POP3",
-		143:  "IMAP",
-		445:  "SMB",
-		3306: "MySQL",
-		5432: "PostgreSQL",
-		6379: "Redis",
+		21:    "FTP",
+		23:    "Telnet",
+		25:    "SMTP",
+		110:   "POP3",
+		143:   "IMAP",
+		445:   "SMB",
+		3306:  "MySQL",
+		5432:  "PostgreSQL",
+		6379:  "Redis",
 		27017: "MongoDB",
 	}
 
@@ -682,10 +682,10 @@ func (bm *BaselineManager) checkFilePermissions() BaselineCheckResult {
 
 	// 检查关键文件
 	criticalFiles := map[string]int{
-		"/etc/passwd":   0644,
-		"/etc/shadow":   0640,
-		"/etc/group":    0644,
-		"/etc/gshadow":  0640,
+		"/etc/passwd":          0644,
+		"/etc/shadow":          0640,
+		"/etc/group":           0644,
+		"/etc/gshadow":         0640,
 		"/etc/ssh/sshd_config": 0600,
 	}
 

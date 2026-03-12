@@ -19,67 +19,67 @@ import (
 
 // FileInfo 文件信息
 type FileInfo struct {
-	Path      string    `json:"path"`
-	Name      string    `json:"name"`
-	Ext       string    `json:"ext"`
-	Size      int64     `json:"size"`
-	ModTime   time.Time `json:"modTime"`
-	IsDir     bool      `json:"isDir"`
-	Content   string    `json:"content,omitempty"`
-	MimeType  string    `json:"mimeType"`
+	Path     string    `json:"path"`
+	Name     string    `json:"name"`
+	Ext      string    `json:"ext"`
+	Size     int64     `json:"size"`
+	ModTime  time.Time `json:"modTime"`
+	IsDir    bool      `json:"isDir"`
+	Content  string    `json:"content,omitempty"`
+	MimeType string    `json:"mimeType"`
 }
 
 // SearchResult 搜索结果
 type SearchResult struct {
-	Path      string        `json:"path"`
-	Name      string        `json:"name"`
-	Ext       string        `json:"ext"`
-	Size      int64         `json:"size"`
-	ModTime   time.Time     `json:"modTime"`
-	IsDir     bool          `json:"isDir"`
-	Score     float64       `json:"score"`
-	Highlights []Highlight  `json:"highlights,omitempty"`
+	Path       string      `json:"path"`
+	Name       string      `json:"name"`
+	Ext        string      `json:"ext"`
+	Size       int64       `json:"size"`
+	ModTime    time.Time   `json:"modTime"`
+	IsDir      bool        `json:"isDir"`
+	Score      float64     `json:"score"`
+	Highlights []Highlight `json:"highlights,omitempty"`
 }
 
 // Highlight 高亮信息
 type Highlight struct {
-	Field string   `json:"field"`
+	Field     string   `json:"field"`
 	Fragments []string `json:"fragments"`
 }
 
 // SearchRequest 搜索请求
 type SearchRequest struct {
-	Query     string   `json:"query"`
-	Paths     []string `json:"paths,omitempty"`     // 搜索路径限制
-	Types     []string `json:"types,omitempty"`     // 文件类型过滤
-	MinSize   int64    `json:"minSize,omitempty"`   // 最小文件大小
-	MaxSize   int64    `json:"maxSize,omitempty"`   // 最大文件大小
-	FromDate  *time.Time `json:"fromDate,omitempty"` // 修改时间起始
-	ToDate    *time.Time `json:"toDate,omitempty"`   // 修改时间结束
-	Limit     int      `json:"limit,omitempty"`     // 结果数量限制
-	Offset    int      `json:"offset,omitempty"`    // 偏移量
-	SortBy    string   `json:"sortBy,omitempty"`    // 排序字段: score, name, size, modTime
-	SortDesc  bool     `json:"sortDesc,omitempty"`  // 是否降序
+	Query    string     `json:"query"`
+	Paths    []string   `json:"paths,omitempty"`    // 搜索路径限制
+	Types    []string   `json:"types,omitempty"`    // 文件类型过滤
+	MinSize  int64      `json:"minSize,omitempty"`  // 最小文件大小
+	MaxSize  int64      `json:"maxSize,omitempty"`  // 最大文件大小
+	FromDate *time.Time `json:"fromDate,omitempty"` // 修改时间起始
+	ToDate   *time.Time `json:"toDate,omitempty"`   // 修改时间结束
+	Limit    int        `json:"limit,omitempty"`    // 结果数量限制
+	Offset   int        `json:"offset,omitempty"`   // 偏移量
+	SortBy   string     `json:"sortBy,omitempty"`   // 排序字段: score, name, size, modTime
+	SortDesc bool       `json:"sortDesc,omitempty"` // 是否降序
 }
 
 // IndexConfig 索引配置
 type IndexConfig struct {
-	IndexPath     string        `json:"indexPath"`     // 索引存储路径
-	MaxFileSize   int64         `json:"maxFileSize"`  // 最大索引文件大小
-	Workers       int           `json:"workers"`      // 索引工作线程数
-	IndexContent  bool          `json:"indexContent"` // 是否索引文件内容
-	BatchSize     int           `json:"batchSize"`    // 批量索引大小
-	TextExts      []string      `json:"textExts"`     // 需要索引内容的扩展名
-	ExcludeDirs   []string      `json:"excludeDirs"` // 排除的目录
-	ExcludeFiles  []string      `json:"excludeFiles"`// 排除的文件模式
+	IndexPath    string   `json:"indexPath"`    // 索引存储路径
+	MaxFileSize  int64    `json:"maxFileSize"`  // 最大索引文件大小
+	Workers      int      `json:"workers"`      // 索引工作线程数
+	IndexContent bool     `json:"indexContent"` // 是否索引文件内容
+	BatchSize    int      `json:"batchSize"`    // 批量索引大小
+	TextExts     []string `json:"textExts"`     // 需要索引内容的扩展名
+	ExcludeDirs  []string `json:"excludeDirs"`  // 排除的目录
+	ExcludeFiles []string `json:"excludeFiles"` // 排除的文件模式
 }
 
 // IndexStats 索引统计
 type IndexStats struct {
-	TotalFiles    int64     `json:"totalFiles"`
-	IndexedFiles  int64     `json:"indexedFiles"`
-	IndexSize     int64     `json:"indexSize"`
-	LastIndexed   time.Time `json:"lastIndexed"`
+	TotalFiles    int64         `json:"totalFiles"`
+	IndexedFiles  int64         `json:"indexedFiles"`
+	IndexSize     int64         `json:"indexSize"`
+	LastIndexed   time.Time     `json:"lastIndexed"`
 	IndexDuration time.Duration `json:"indexDuration"`
 }
 
@@ -123,7 +123,7 @@ func NewEngine(config IndexConfig, logger *zap.Logger) (*Engine, error) {
 	if config.IndexPath == "" {
 		config = DefaultIndexConfig()
 	}
-	
+
 	// 确保索引目录存在
 	indexDir := filepath.Dir(config.IndexPath)
 	if err := os.MkdirAll(indexDir, 0755); err != nil {
@@ -171,7 +171,7 @@ func (e *Engine) openOrCreateIndex() (bleve.Index, error) {
 
 	// 创建新索引
 	e.logger.Info("创建新的搜索索引", zap.String("path", e.config.IndexPath))
-	
+
 	mapping := e.createIndexMapping()
 	index, err = bleve.New(e.config.IndexPath, mapping)
 	if err != nil {
@@ -336,7 +336,7 @@ func (e *Engine) readFileContent(path string, maxSize int64) (string, error) {
 	if maxSize <= 0 {
 		maxSize = e.config.MaxFileSize
 	}
-	
+
 	buf := make([]byte, maxSize)
 	n, err := file.Read(buf)
 	if err != nil && err != io.EOF {
@@ -448,7 +448,7 @@ func (e *Engine) IndexDirectory(root string) error {
 
 		// 添加到批次
 		if err := batch.Index(path, file); err != nil {
-			e.logger.Warn("添加到索引批次失败", 
+			e.logger.Warn("添加到索引批次失败",
 				zap.String("path", path),
 				zap.Error(err))
 		}
@@ -513,7 +513,7 @@ func (e *Engine) Search(req SearchRequest) (*SearchResponse, error) {
 
 	// 构建搜索请求
 	searchReq := bleve.NewSearchRequestOptions(searchQuery, req.Limit, req.Offset, false)
-	
+
 	// 设置高亮
 	searchReq.Highlight = bleve.NewHighlightWithStyle("html")
 	searchReq.Highlight.Fields = []string{"name", "content"}
@@ -535,16 +535,16 @@ func (e *Engine) Search(req SearchRequest) (*SearchResponse, error) {
 
 	// 处理结果
 	response := &SearchResponse{
-		Total:     int(result.Total),
-		Took:      result.Took,
-		MaxScore:  result.MaxScore,
-		Results:   make([]SearchResult, 0, len(result.Hits)),
+		Total:    int(result.Total),
+		Took:     result.Took,
+		MaxScore: result.MaxScore,
+		Results:  make([]SearchResult, 0, len(result.Hits)),
 	}
 
 	for _, hit := range result.Hits {
 		searchResult := SearchResult{
-			Path:    hit.ID,
-			Score:   hit.Score,
+			Path:  hit.ID,
+			Score: hit.Score,
 		}
 
 		// 从存储字段获取信息
@@ -685,4 +685,3 @@ func (e *Engine) Close() error {
 // 	_, err := fmt.Sscanf(string(data), "%d", &val)
 // 	return val, err
 // }
-

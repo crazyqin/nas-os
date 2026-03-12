@@ -9,7 +9,7 @@ import (
 
 func TestNewManager(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	
+
 	config := ClusterConfig{
 		Name:              "test-cluster",
 		NodeID:            "test-node-1",
@@ -36,7 +36,7 @@ func TestNewManager(t *testing.T) {
 
 func TestGetNodes(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	
+
 	config := ClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
@@ -80,7 +80,7 @@ func TestGetNodes(t *testing.T) {
 
 func TestGetOnlineNodes(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	
+
 	config := ClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
@@ -121,7 +121,7 @@ func TestGetOnlineNodes(t *testing.T) {
 
 func TestRemoveNode(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	
+
 	config := ClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
@@ -161,7 +161,7 @@ func TestRemoveNode(t *testing.T) {
 
 func TestUpdateNodeMetrics(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	
+
 	config := ClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
@@ -205,7 +205,7 @@ func TestUpdateNodeMetrics(t *testing.T) {
 
 func TestIsMaster(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	
+
 	config := ClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
@@ -226,7 +226,7 @@ func TestIsMaster(t *testing.T) {
 
 func TestClusterCallbacks(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	
+
 	config := ClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",

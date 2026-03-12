@@ -71,88 +71,88 @@ func (h *Handler) CreateTask(c *gin.Context) {
 		writeError(c, http.StatusBadRequest, "无效的请求体")
 		return
 	}
-	
+
 	if req.URL == "" {
 		writeError(c, http.StatusBadRequest, "URL 不能为空")
 		return
 	}
-	
+
 	task, err := h.manager.CreateTask(req)
 	if err != nil {
 		writeError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	writeSuccess(c, task)
 }
 
 // GetTask 获取任务
 func (h *Handler) GetTask(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	task, exists := h.manager.GetTask(id)
 	if !exists {
 		writeError(c, http.StatusNotFound, "任务不存在")
 		return
 	}
-	
+
 	writeSuccess(c, task)
 }
 
 // UpdateTask 更新任务
 func (h *Handler) UpdateTask(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	var req UpdateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		writeError(c, http.StatusBadRequest, "无效的请求体")
 		return
 	}
-	
+
 	task, err := h.manager.UpdateTask(id, req)
 	if err != nil {
 		writeError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	writeSuccess(c, task)
 }
 
 // DeleteTask 删除任务
 func (h *Handler) DeleteTask(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	deleteFiles := strings.ToLower(c.Query("delete_files")) == "true"
-	
+
 	if err := h.manager.DeleteTask(id, deleteFiles); err != nil {
 		writeError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	writeSuccess(c, nil)
 }
 
 // PauseTask 暂停任务
 func (h *Handler) PauseTask(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	if err := h.manager.PauseTask(id); err != nil {
 		writeError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	writeSuccess(c, nil)
 }
 
 // ResumeTask 恢复任务
 func (h *Handler) ResumeTask(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	if err := h.manager.ResumeTask(id); err != nil {
 		writeError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	writeSuccess(c, nil)
 }
 

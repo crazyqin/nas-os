@@ -61,10 +61,10 @@ type PluginMarketInfo struct {
 	Reviews     int     `json:"reviews"`
 
 	// 市场信息
-	Price       string `json:"price"`       // "free" 或价格
-	Homepage    string `json:"homepage"`
-	Repository  string `json:"repository"`
-	License     string `json:"license"`
+	Price      string `json:"price"` // "free" 或价格
+	Homepage   string `json:"homepage"`
+	Repository string `json:"repository"`
+	License    string `json:"license"`
 
 	// UI
 	Icon        string   `json:"icon"`
@@ -81,14 +81,14 @@ type PluginMarketInfo struct {
 	Size        int64  `json:"size"`
 
 	// 兼容性
-	NASVersion string `json:"nasVersion"`
-	GoVersion  string `json:"goVersion"`
+	NASVersion string   `json:"nasVersion"`
+	GoVersion  string   `json:"goVersion"`
 	Arch       []string `json:"arch"` // 支持的架构
 
 	// 是否已安装（客户端填充）
-	Installed   bool   `json:"installed"`
+	Installed        bool   `json:"installed"`
 	InstalledVersion string `json:"installedVersion"`
-	UpdateAvailable bool  `json:"updateAvailable"`
+	UpdateAvailable  bool   `json:"updateAvailable"`
 }
 
 // Review 插件评论
@@ -185,9 +185,9 @@ func (m *Market) GetDetail(pluginID string) (*PluginMarketInfo, error) {
 	}
 
 	var resp struct {
-		Code    int               `json:"code"`
-		Data    PluginMarketInfo  `json:"data"`
-		Message string            `json:"message"`
+		Code    int              `json:"code"`
+		Data    PluginMarketInfo `json:"data"`
+		Message string           `json:"message"`
 	}
 
 	if err := m.request("GET", m.baseURL+"/plugins/"+pluginID, nil, &resp); err != nil {

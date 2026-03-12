@@ -65,16 +65,16 @@ type DiskStats struct {
 
 // NetworkStats 网络统计信息
 type NetworkStats struct {
-	Interface   string `json:"interface"`
-	RXBytes     uint64 `json:"rxBytes"`
-	TXBytes     uint64 `json:"txBytes"`
-	RXPackets   uint64 `json:"rxPackets"`
-	TXPackets   uint64 `json:"txPackets"`
-	RXErrors    uint64 `json:"rxErrors"`
-	TXErrors    uint64 `json:"txErrors"`
-	RXSpeed     uint64 `json:"rxSpeed"` // 实时速度 (bytes/s)
-	TXSpeed     uint64 `json:"txSpeed"`
-	LastUpdate  time.Time `json:"lastUpdate"`
+	Interface  string    `json:"interface"`
+	RXBytes    uint64    `json:"rxBytes"`
+	TXBytes    uint64    `json:"txBytes"`
+	RXPackets  uint64    `json:"rxPackets"`
+	TXPackets  uint64    `json:"txPackets"`
+	RXErrors   uint64    `json:"rxErrors"`
+	TXErrors   uint64    `json:"txErrors"`
+	RXSpeed    uint64    `json:"rxSpeed"` // 实时速度 (bytes/s)
+	TXSpeed    uint64    `json:"txSpeed"`
+	LastUpdate time.Time `json:"lastUpdate"`
 }
 
 // NetworkSpeed 网络速度快照
@@ -100,14 +100,14 @@ type SMARTInfo struct {
 
 // ProcessInfo 进程信息
 type ProcessInfo struct {
-	PID       int     `json:"pid"`
-	Name      string  `json:"name"`
-	CPU       float64 `json:"cpu"`
-	Memory    float64 `json:"memory"`
-	MemoryMB  float64 `json:"memoryMB"`
-	User      string  `json:"user"`
-	Status    string  `json:"status"`
-	CPUTime   string  `json:"cpuTime"`
+	PID      int     `json:"pid"`
+	Name     string  `json:"name"`
+	CPU      float64 `json:"cpu"`
+	Memory   float64 `json:"memory"`
+	MemoryMB float64 `json:"memoryMB"`
+	User     string  `json:"user"`
+	Status   string  `json:"status"`
+	CPUTime  string  `json:"cpuTime"`
 }
 
 // HistoryData 历史数据点
@@ -133,12 +133,12 @@ type Alert struct {
 
 // RealTimeData 实时数据（WebSocket 推送）
 type RealTimeData struct {
-	Type      string       `json:"type"`
-	System    *SystemStats `json:"system,omitempty"`
-	Disks     []*DiskStats `json:"disks,omitempty"`
+	Type      string          `json:"type"`
+	System    *SystemStats    `json:"system,omitempty"`
+	Disks     []*DiskStats    `json:"disks,omitempty"`
 	Network   []*NetworkStats `json:"network,omitempty"`
-	Alerts    []*Alert     `json:"alerts,omitempty"`
-	Timestamp time.Time    `json:"timestamp"`
+	Alerts    []*Alert        `json:"alerts,omitempty"`
+	Timestamp time.Time       `json:"timestamp"`
 }
 
 // NewMonitor 创建监控器
@@ -265,10 +265,10 @@ func (m *Monitor) startDataCollection() {
 			systemStats, _ := m.GetSystemStats()
 			diskStats, _ := m.GetDiskStats()
 			networkStats, _ := m.GetNetworkStats(prevNetStats)
-			
+
 			// 计算磁盘 IO 速度
 			m.calculateDiskIO(diskStats, prevDiskStats)
-			
+
 			// 保存历史数据
 			if m.historyEnabled {
 				m.saveHistoryData(systemStats, networkStats)
@@ -308,7 +308,7 @@ func (m *Monitor) calculateDiskIO(disks []*DiskStats, prev map[string]struct {
 	Time       time.Time
 }) {
 	now := time.Now()
-	
+
 	for _, disk := range disks {
 		key := disk.Device
 		if prevData, ok := prev[key]; ok {
@@ -322,7 +322,7 @@ func (m *Monitor) calculateDiskIO(disks []*DiskStats, prev map[string]struct {
 				disk.WriteOps = 0
 			}
 		}
-		
+
 		// 更新前一次数据
 		prev[key] = struct {
 			ReadBytes  uint64
@@ -631,10 +631,10 @@ func (m *Monitor) GetTopProcesses(limit int) ([]*ProcessInfo, error) {
 
 	var processes []*ProcessInfo
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))
-	
+
 	// 跳过标题行
 	scanner.Scan()
-	
+
 	count := 0
 	for scanner.Scan() && count < limit {
 		line := scanner.Text()
@@ -647,7 +647,7 @@ func (m *Monitor) GetTopProcesses(limit int) ([]*ProcessInfo, error) {
 		cpu, _ := strconv.ParseFloat(fields[2], 64)
 		mem, _ := strconv.ParseFloat(fields[3], 64)
 		memKB, _ := strconv.ParseFloat(fields[4], 64)
-		
+
 		processes = append(processes, &ProcessInfo{
 			PID:      pid,
 			Name:     fields[10],
@@ -710,7 +710,7 @@ func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryDa
 // GetAlerts 获取告警列表
 func (m *Monitor) GetAlerts() ([]*Alert, error) {
 	query := `SELECT id, type, level, message, source, timestamp, acknowledged, resolved FROM alerts ORDER BY timestamp DESC`
-	
+
 	rows, err := m.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -737,8 +737,8 @@ func (m *Monitor) GetAlerts() ([]*Alert, error) {
 func (m *Monitor) AddAlert(alert *Alert) error {
 	query := `INSERT OR REPLACE INTO alerts (id, type, level, message, source, timestamp, acknowledged, resolved) 
 			  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	
-	_, err := m.db.Exec(query, alert.ID, alert.Type, alert.Level, alert.Message, alert.Source, 
+
+	_, err := m.db.Exec(query, alert.ID, alert.Type, alert.Level, alert.Message, alert.Source,
 		alert.Timestamp, boolToInt(alert.Acknowledged), boolToInt(alert.Resolved))
 	return err
 }
@@ -764,10 +764,10 @@ func (m *Monitor) saveHistoryData(system *SystemStats, network []*NetworkStats) 
 	query := `INSERT INTO system_history (timestamp, cpu_usage, memory_usage, memory_total, memory_used, 
 			  net_rx_bytes, net_tx_bytes, net_rx_speed, net_tx_speed) 
 			  VALUES (?, ?, ?, ?, ?, 0, 0, ?, ?)`
-	
+
 	_, err := m.db.Exec(query, system.Timestamp, system.CPUUsage, system.MemoryUsage,
 		system.MemoryTotal, system.MemoryUsed, netRX, netTX)
-	
+
 	if err != nil {
 		// 记录错误但不中断
 		return

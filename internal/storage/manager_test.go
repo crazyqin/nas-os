@@ -238,9 +238,9 @@ func TestManagerGetRAIDConfig(t *testing.T) {
 
 func TestVolumeStatus(t *testing.T) {
 	status := VolumeStatus{
-		BalanceRunning:  false,
-		ScrubRunning:    false,
-		Healthy:         true,
+		BalanceRunning: false,
+		ScrubRunning:   false,
+		Healthy:        true,
 	}
 
 	if !status.Healthy {
@@ -275,9 +275,9 @@ func TestSubVolume(t *testing.T) {
 
 func TestSubVolumeWithSnapshots(t *testing.T) {
 	subvol := &SubVolume{
-		ID:       256,
-		Name:     "documents",
-		Path:     "/mnt/data/documents",
+		ID:   256,
+		Name: "documents",
+		Path: "/mnt/data/documents",
 		Snapshots: []*Snapshot{
 			{Name: "snap1", ReadOnly: true},
 			{Name: "snap2", ReadOnly: true},

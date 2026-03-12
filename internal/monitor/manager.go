@@ -18,30 +18,30 @@ type Manager struct {
 
 // SystemStats 系统统计信息
 type SystemStats struct {
-	CPUUsage     float64   `json:"cpuUsage"`
-	MemoryUsage  float64   `json:"memoryUsage"`
-	MemoryTotal  uint64    `json:"memoryTotal"`
-	MemoryUsed   uint64    `json:"memoryUsed"`
-	MemoryFree   uint64    `json:"memoryFree"`
-	SwapUsage    float64   `json:"swapUsage"`
-	SwapTotal    uint64    `json:"swapTotal"`
-	SwapUsed     uint64    `json:"swapUsed"`
-	Uptime       string    `json:"uptime"`
-	UptimeSeconds uint64   `json:"uptimeSeconds"`
-	LoadAvg      []float64 `json:"loadAvg"`
-	Processes    int       `json:"processes"`
-	Timestamp    time.Time `json:"timestamp"`
+	CPUUsage      float64   `json:"cpuUsage"`
+	MemoryUsage   float64   `json:"memoryUsage"`
+	MemoryTotal   uint64    `json:"memoryTotal"`
+	MemoryUsed    uint64    `json:"memoryUsed"`
+	MemoryFree    uint64    `json:"memoryFree"`
+	SwapUsage     float64   `json:"swapUsage"`
+	SwapTotal     uint64    `json:"swapTotal"`
+	SwapUsed      uint64    `json:"swapUsed"`
+	Uptime        string    `json:"uptime"`
+	UptimeSeconds uint64    `json:"uptimeSeconds"`
+	LoadAvg       []float64 `json:"loadAvg"`
+	Processes     int       `json:"processes"`
+	Timestamp     time.Time `json:"timestamp"`
 }
 
 // DiskStats 磁盘统计信息
 type DiskStats struct {
-	Device      string  `json:"device"`
-	MountPoint  string  `json:"mountPoint"`
-	Total       uint64  `json:"total"`
-	Used        uint64  `json:"used"`
-	Free        uint64  `json:"free"`
+	Device       string  `json:"device"`
+	MountPoint   string  `json:"mountPoint"`
+	Total        uint64  `json:"total"`
+	Used         uint64  `json:"used"`
+	Free         uint64  `json:"free"`
 	UsagePercent float64 `json:"usagePercent"`
-	FSType      string  `json:"fsType"`
+	FSType       string  `json:"fsType"`
 }
 
 // NetworkStats 网络统计信息
@@ -57,25 +57,25 @@ type NetworkStats struct {
 
 // SMARTInfo SMART 信息
 type SMARTInfo struct {
-	Device     string `json:"device"`
-	Model      string `json:"model"`
-	Serial     string `json:"serial"`
-	Temperature int   `json:"temperature"`
-	Health     string `json:"health"`
+	Device       string `json:"device"`
+	Model        string `json:"model"`
+	Serial       string `json:"serial"`
+	Temperature  int    `json:"temperature"`
+	Health       string `json:"health"`
 	PowerOnHours uint64 `json:"powerOnHours"`
-	ReadErrors  uint64 `json:"readErrors"`
-	WriteErrors uint64 `json:"writeErrors"`
+	ReadErrors   uint64 `json:"readErrors"`
+	WriteErrors  uint64 `json:"writeErrors"`
 }
 
 // Alert 告警信息
 type Alert struct {
-	ID        string    `json:"id"`
-	Type      string    `json:"type"` // cpu, memory, disk, smart
-	Level     string    `json:"level"` // warning, critical
-	Message   string    `json:"message"`
-	Source    string    `json:"source"`
-	Timestamp time.Time `json:"timestamp"`
-	Acknowledged bool   `json:"acknowledged"`
+	ID           string    `json:"id"`
+	Type         string    `json:"type"`  // cpu, memory, disk, smart
+	Level        string    `json:"level"` // warning, critical
+	Message      string    `json:"message"`
+	Source       string    `json:"source"`
+	Timestamp    time.Time `json:"timestamp"`
+	Acknowledged bool      `json:"acknowledged"`
 }
 
 // AlertRule 告警规则
