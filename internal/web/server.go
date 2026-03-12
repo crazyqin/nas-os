@@ -11,7 +11,6 @@ import (
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
 	"nas-os/internal/files"
-	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/notify"
@@ -22,6 +21,7 @@ import (
 	"nas-os/internal/shares"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
+	"nas-os/internal/system"
 	"nas-os/internal/users"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
@@ -33,28 +33,29 @@ import (
 
 // Server Web 服务器
 type Server struct {
-	engine       *gin.Engine
-	httpSrv      *http.Server
-	storageMgr   *storage.Manager
-	userMgr      *users.Manager
-	mfaMgr       *auth.MFAManager
-	smbMgr       *smb.Manager
-	nfsMgr       *nfs.Manager
-	networkMgr   *network.Manager
-	dockerMgr    *docker.Manager
-	appStore     *docker.AppStore
-	perfMgr      *perf.Manager
-	pluginMgr    *plugin.Manager
-	pluginMarket *plugin.Market
-	quotaMgr     *quota.Manager
-	filesMgr     *files.Manager
-	notifyMgr    *notify.Manager
-	downloadMgr  *downloader.Manager
-	photosMgr    *photos.Manager
-	photosAIMgr  *photos.AIManager
-	backupMgr    *backup.Manager
-	syncMgr      *backup.SyncManager
-	// mediaMgr     *media.LibraryManager
+	engine        *gin.Engine
+	httpSrv       *http.Server
+	storageMgr    *storage.Manager
+	userMgr       *users.Manager
+	mfaMgr        *auth.MFAManager
+	smbMgr        *smb.Manager
+	nfsMgr        *nfs.Manager
+	networkMgr    *network.Manager
+	dockerMgr     *docker.Manager
+	appStore      *docker.AppStore
+	perfMgr       *perf.Manager
+	pluginMgr     *plugin.Manager
+	pluginMarket  *plugin.Market
+	quotaMgr      *quota.Manager
+	filesMgr      *files.Manager
+	notifyMgr     *notify.Manager
+	downloadMgr   *downloader.Manager
+	photosMgr     *photos.Manager
+	photosAIMgr   *photos.AIManager
+	backupMgr     *backup.Manager
+	syncMgr       *backup.SyncManager
+	systemMonitor *system.Monitor
+	// mediaMgr      *media.LibraryManager
 }
 
 // NewServer 创建 Web 服务器
@@ -179,6 +180,15 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	syncMgr := backup.NewSyncManager("/mnt/backups")
 	log.Println("✅ 同步管理模块就绪")
 
+	// 初始化系统监控器
+	systemMonitor, err := system.NewMonitor("/var/lib/nas-os/system_monitor.db")
+	if err != nil {
+		log.Printf("⚠️ 系统监控初始化警告：%v", err)
+		systemMonitor = nil
+	} else {
+		log.Println("✅ 系统监控模块就绪")
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -186,27 +196,28 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	// mediaMgr.AddMetadataProvider(media.NewDoubanProvider(""))
 
 	s := &Server{
-		engine:       engine,
-		storageMgr:   storMgr,
-		userMgr:      userMgr,
-		mfaMgr:       mfaMgr,
-		smbMgr:       smbMgr,
-		nfsMgr:       nfsMgr,
-		networkMgr:   netMgr,
-		dockerMgr:    dockerMgr,
-		appStore:     appStore,
-		perfMgr:      perfMgr,
-		pluginMgr:    pluginMgr,
-		pluginMarket: pluginMarket,
-		quotaMgr:     quotaMgr,
-		filesMgr:     filesMgr,
-		notifyMgr:    notifyMgr,
-		downloadMgr:  downloadMgr,
-		photosMgr:    photosMgr,
-		photosAIMgr:  photosAIMgr,
-		backupMgr:    backupMgr,
-		syncMgr:      syncMgr,
-		// mediaMgr:     mediaMgr,
+		engine:        engine,
+		storageMgr:    storMgr,
+		userMgr:       userMgr,
+		mfaMgr:        mfaMgr,
+		smbMgr:        smbMgr,
+		nfsMgr:        nfsMgr,
+		networkMgr:    netMgr,
+		dockerMgr:     dockerMgr,
+		appStore:      appStore,
+		perfMgr:       perfMgr,
+		pluginMgr:     pluginMgr,
+		pluginMarket:  pluginMarket,
+		quotaMgr:      quotaMgr,
+		filesMgr:      filesMgr,
+		notifyMgr:     notifyMgr,
+		downloadMgr:   downloadMgr,
+		photosMgr:     photosMgr,
+		photosAIMgr:   photosAIMgr,
+		backupMgr:     backupMgr,
+		syncMgr:       syncMgr,
+		systemMonitor: systemMonitor,
+		// mediaMgr:      mediaMgr,
 	}
 
 	// 添加性能监控中间件 (在日志中间件之后)
@@ -292,8 +303,10 @@ func (s *Server) setupRoutes() {
 			perf.NewHandlers(s.perfMgr).RegisterRoutes(api)
 		}
 
-		// ========== 系统监控 ==========
-		monitor.NewHandlers(nil, s.notifyMgr).RegisterRoutes(api)
+		// ========== 系统监控仪表盘 ==========
+		if s.systemMonitor != nil {
+			system.NewHandlers(s.systemMonitor).RegisterRoutes(api)
+		}
 
 		// ========== 插件系统 ==========
 		if s.pluginMgr != nil {
