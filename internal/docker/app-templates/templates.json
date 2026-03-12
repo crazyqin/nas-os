@@ -1,0 +1,493 @@
+{
+  "templates": [
+    {
+      "id": "nextcloud",
+      "name": "Nextcloud",
+      "displayName": "Nextcloud",
+      "description": "私有云存储和协作平台，支持文件同步、日历、联系人等",
+      "category": "Productivity",
+      "icon": "📁",
+      "version": "latest",
+      "image": "nextcloud:latest",
+      "ports": [{"port": 80, "protocol": "tcp", "description": "Web 界面", "default": 8080}],
+      "volumes": [
+        {"containerPath": "/var/www/html", "description": "应用数据", "default": "/opt/nas/apps/nextcloud/html"},
+        {"containerPath": "/var/www/html/custom_apps", "description": "自定义应用", "default": "/opt/nas/apps/nextcloud/apps"},
+        {"containerPath": "/var/www/html/config", "description": "配置文件", "default": "/opt/nas/apps/nextcloud/config"},
+        {"containerPath": "/var/www/html/data", "description": "用户数据", "default": "/opt/nas/apps/nextcloud/data"}
+      ],
+      "environment": {"NEXTCLOUD_ADMIN_USER": "admin", "NEXTCLOUD_ADMIN_PASSWORD": "admin123"},
+      "notes": "首次访问需要设置管理员账户",
+      "website": "https://nextcloud.com"
+    },
+    {
+      "id": "homeassistant",
+      "name": "Home Assistant",
+      "displayName": "Home Assistant",
+      "description": "开源智能家居自动化平台",
+      "category": "Home Automation",
+      "icon": "🏠",
+      "version": "stable",
+      "image": "homeassistant/home-assistant:stable",
+      "ports": [{"port": 8123, "protocol": "tcp", "description": "Web 界面", "default": 8123}],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/homeassistant/config"}
+      ],
+      "environment": {"TZ": "Asia/Shanghai"},
+      "notes": "支持数千种智能设备集成",
+      "website": "https://www.home-assistant.io"
+    },
+    {
+      "id": "plex",
+      "name": "Plex",
+      "displayName": "Plex Media Server",
+      "description": "强大的媒体服务器，支持视频、音乐、照片管理",
+      "category": "Media",
+      "icon": "🎬",
+      "version": "latest",
+      "image": "plexinc/pms-docker:latest",
+      "ports": [
+        {"port": 32400, "protocol": "tcp", "description": "Web 界面", "default": 32400},
+        {"port": 3005, "protocol": "tcp", "description": "GDM", "default": 3005},
+        {"port": 8324, "protocol": "tcp", "description": "Plex DLNA", "default": 8324},
+        {"port": 32469, "protocol": "tcp", "description": "Plex DLNA", "default": 32469}
+      ],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/plex/config"},
+        {"containerPath": "/media", "description": "媒体库", "default": "/opt/nas/media"},
+        {"containerPath": "/transcode", "description": "转码临时目录", "default": "/opt/nas/apps/plex/transcode"}
+      ],
+      "environment": {"PLEX_CLAIM": "claim-xxx", "TZ": "Asia/Shanghai", "LANG": "zh_CN.UTF-8"},
+      "notes": "需要 Plex Claim Token 进行首次配置",
+      "website": "https://www.plex.tv"
+    },
+    {
+      "id": "jellyfin",
+      "name": "Jellyfin",
+      "displayName": "Jellyfin",
+      "description": "开源免费的媒体服务器，无许可证限制",
+      "category": "Media",
+      "icon": "📺",
+      "version": "latest",
+      "image": "jellyfin/jellyfin:latest",
+      "ports": [{"port": 8096, "protocol": "tcp", "description": "Web 界面", "default": 8096}],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/jellyfin/config"},
+        {"containerPath": "/media", "description": "媒体库", "default": "/opt/nas/media"}
+      ],
+      "environment": {"TZ": "Asia/Shanghai"},
+      "notes": "完全免费开源，支持硬件转码",
+      "website": "https://jellyfin.org"
+    },
+    {
+      "id": "pihole",
+      "name": "Pi-hole",
+      "displayName": "Pi-hole",
+      "description": "网络级广告拦截和 DNS 服务器",
+      "category": "Network",
+      "icon": "🛡️",
+      "version": "latest",
+      "image": "pihole/pihole:latest",
+      "ports": [
+        {"port": 53, "protocol": "udp", "description": "DNS", "default": 53},
+        {"port": 80, "protocol": "tcp", "description": "管理界面", "default": 8080},
+        {"port": 443, "protocol": "tcp", "description": "HTTPS", "default": 8443}
+      ],
+      "volumes": [
+        {"containerPath": "/etc/pihole", "description": "配置文件", "default": "/opt/nas/apps/pihole/pihole"},
+        {"containerPath": "/etc/dnsmasq.d", "description": "DNSMasq 配置", "default": "/opt/nas/apps/pihole/dnsmasq.d"}
+      ],
+      "environment": {"TZ": "Asia/Shanghai", "WEBPASSWORD": "admin"},
+      "notes": "需要将路由器 DNS 指向此服务器",
+      "website": "https://pi-hole.net"
+    },
+    {
+      "id": "transmission",
+      "name": "Transmission",
+      "displayName": "Transmission",
+      "description": "轻量级 BitTorrent 客户端",
+      "category": "Download",
+      "icon": "📥",
+      "version": "latest",
+      "image": "linuxserver/transmission:latest",
+      "ports": [
+        {"port": 9091, "protocol": "tcp", "description": "Web 界面", "default": 9091},
+        {"port": 51413, "protocol": "tcp", "description": "BT 端口", "default": 51413},
+        {"port": 51413, "protocol": "udp", "description": "BT 端口", "default": 51413}
+      ],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/transmission/config"},
+        {"containerPath": "/downloads", "description": "下载目录", "default": "/opt/nas/downloads"}
+      ],
+      "environment": {"PUID": "1000", "PGID": "1000", "TZ": "Asia/Shanghai", "USER": "admin", "PASS": "admin123"},
+      "notes": "支持磁力链接和种子文件",
+      "website": "https://transmissionbt.com"
+    },
+    {
+      "id": "qbittorrent",
+      "name": "qBittorrent",
+      "displayName": "qBittorrent",
+      "description": "功能丰富的 BitTorrent 客户端",
+      "category": "Download",
+      "icon": "🧲",
+      "version": "latest",
+      "image": "linuxserver/qbittorrent:latest",
+      "ports": [{"port": 8080, "protocol": "tcp", "description": "Web 界面", "default": 8080}],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/qbittorrent/config"},
+        {"containerPath": "/downloads", "description": "下载目录", "default": "/opt/nas/downloads"}
+      ],
+      "environment": {"PUID": "1000", "PGID": "1000", "TZ": "Asia/Shanghai", "WEBUI_PORT": "8080"},
+      "notes": "支持 RSS、搜索插件等高级功能",
+      "website": "https://www.qbittorrent.org"
+    },
+    {
+      "id": "sonarr",
+      "name": "Sonarr",
+      "displayName": "Sonarr",
+      "description": "电视节目自动下载和管理工具",
+      "category": "Media",
+      "icon": "📺",
+      "version": "latest",
+      "image": "linuxserver/sonarr:latest",
+      "ports": [{"port": 8989, "protocol": "tcp", "description": "Web 界面", "default": 8989}],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/sonarr/config"},
+        {"containerPath": "/tv", "description": "电视节目目录", "default": "/opt/nas/media/tv"},
+        {"containerPath": "/downloads", "description": "下载目录", "default": "/opt/nas/downloads"}
+      ],
+      "environment": {"PUID": "1000", "PGID": "1000", "TZ": "Asia/Shanghai"},
+      "notes": "配合 Transmission/qBittorrent 使用",
+      "website": "https://sonarr.tv"
+    },
+    {
+      "id": "radarr",
+      "name": "Radarr",
+      "displayName": "Radarr",
+      "description": "电影自动下载和管理工具",
+      "category": "Media",
+      "icon": "🎥",
+      "version": "latest",
+      "image": "linuxserver/radarr:latest",
+      "ports": [{"port": 7878, "protocol": "tcp", "description": "Web 界面", "default": 7878}],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/radarr/config"},
+        {"containerPath": "/movies", "description": "电影目录", "default": "/opt/nas/media/movies"},
+        {"containerPath": "/downloads", "description": "下载目录", "default": "/opt/nas/downloads"}
+      ],
+      "environment": {"PUID": "1000", "PGID": "1000", "TZ": "Asia/Shanghai"},
+      "notes": "配合 Transmission/qBittorrent 使用",
+      "website": "https://radarr.video"
+    },
+    {
+      "id": "emby",
+      "name": "Emby",
+      "displayName": "Emby Server",
+      "description": "媒体服务器，支持视频、音乐、照片",
+      "category": "Media",
+      "icon": "🎭",
+      "version": "latest",
+      "image": "linuxserver/emby:latest",
+      "ports": [{"port": 8096, "protocol": "tcp", "description": "Web 界面", "default": 8096}],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/emby/config"},
+        {"containerPath": "/media", "description": "媒体库", "default": "/opt/nas/media"}
+      ],
+      "environment": {"PUID": "1000", "PGID": "1000", "TZ": "Asia/Shanghai"},
+      "notes": "部分高级功能需要订阅",
+      "website": "https://emby.media"
+    },
+    {
+      "id": "navidrome",
+      "name": "Navidrome",
+      "displayName": "Navidrome",
+      "description": "轻量级音乐服务器，支持 Subsonic API",
+      "category": "Media",
+      "icon": "🎵",
+      "version": "latest",
+      "image": "deluan/navidrome:latest",
+      "ports": [{"port": 4533, "protocol": "tcp", "description": "Web 界面", "default": 4533}],
+      "volumes": [
+        {"containerPath": "/data", "description": "配置和数据库", "default": "/opt/nas/apps/navidrome/data"},
+        {"containerPath": "/music", "description": "音乐库", "default": "/opt/nas/media/music"}
+      ],
+      "environment": {"ND_SCANSCHEDULE": "1h", "ND_LOGLEVEL": "info", "ND_SESSIONTIMEOUT": "24h"},
+      "notes": "支持多种客户端应用",
+      "website": "https://www.navidrome.org"
+    },
+    {
+      "id": "immich",
+      "name": "Immich",
+      "displayName": "Immich",
+      "description": "自托管照片和视频备份解决方案",
+      "category": "Media",
+      "icon": "📸",
+      "version": "latest",
+      "image": "ghcr.io/immich-app/immich-server:latest",
+      "ports": [{"port": 2283, "protocol": "tcp", "description": "Web 界面", "default": 2283}],
+      "volumes": [
+        {"containerPath": "/upload", "description": "上传目录", "default": "/opt/nas/apps/immich/upload"},
+        {"containerPath": "/library", "description": "媒体库", "default": "/opt/nas/apps/immich/library"}
+      ],
+      "environment": {"DB_HOSTNAME": "immich-postgres", "DB_DATABASE_NAME": "immich", "DB_USERNAME": "postgres", "DB_PASSWORD": "immich"},
+      "notes": "需要配合 PostgreSQL 和 Redis 使用",
+      "website": "https://immich.app"
+    },
+    {
+      "id": "photoprism",
+      "name": "PhotoPrism",
+      "displayName": "PhotoPrism",
+      "description": "AI 驱动的照片管理应用",
+      "category": "Media",
+      "icon": "🖼️",
+      "version": "latest",
+      "image": "photoprism/photoprism:latest",
+      "ports": [{"port": 2342, "protocol": "tcp", "description": "Web 界面", "default": 2342}],
+      "volumes": [
+        {"containerPath": "/photoprism/storage", "description": "存储目录", "default": "/opt/nas/apps/photoprism/storage"},
+        {"containerPath": "/photoprism/originals", "description": "原始照片", "default": "/opt/nas/apps/photoprism/originals"}
+      ],
+      "environment": {"PHOTOPRISM_ADMIN_PASSWORD": "admin", "PHOTOPRISM_SITE_URL": "http://localhost:2342", "TZ": "Asia/Shanghai"},
+      "notes": "支持 AI 自动分类和标签",
+      "website": "https://photoprism.app"
+    },
+    {
+      "id": "grafana",
+      "name": "Grafana",
+      "displayName": "Grafana",
+      "description": "数据可视化和监控仪表板",
+      "category": "Monitoring",
+      "icon": "📊",
+      "version": "latest",
+      "image": "grafana/grafana:latest",
+      "ports": [{"port": 3000, "protocol": "tcp", "description": "Web 界面", "default": 3000}],
+      "volumes": [
+        {"containerPath": "/var/lib/grafana", "description": "数据目录", "default": "/opt/nas/apps/grafana/data"}
+      ],
+      "environment": {"GF_SECURITY_ADMIN_USER": "admin", "GF_SECURITY_ADMIN_PASSWORD": "admin123", "TZ": "Asia/Shanghai"},
+      "notes": "支持多种数据源",
+      "website": "https://grafana.com"
+    },
+    {
+      "id": "prometheus",
+      "name": "Prometheus",
+      "displayName": "Prometheus",
+      "description": "监控和时间序列数据库",
+      "category": "Monitoring",
+      "icon": "📈",
+      "version": "latest",
+      "image": "prom/prometheus:latest",
+      "ports": [{"port": 9090, "protocol": "tcp", "description": "Web 界面", "default": 9090}],
+      "volumes": [
+        {"containerPath": "/etc/prometheus", "description": "配置文件", "default": "/opt/nas/apps/prometheus/config"},
+        {"containerPath": "/prometheus", "description": "数据目录", "default": "/opt/nas/apps/prometheus/data"}
+      ],
+      "environment": {},
+      "notes": "通常与 Grafana 配合使用",
+      "website": "https://prometheus.io"
+    },
+    {
+      "id": "nginx",
+      "name": "Nginx",
+      "displayName": "Nginx Proxy Manager",
+      "description": "反向代理和 SSL 证书管理",
+      "category": "Network",
+      "icon": "🌐",
+      "version": "latest",
+      "image": "jc21/nginx-proxy-manager:latest",
+      "ports": [
+        {"port": 81, "protocol": "tcp", "description": "管理界面", "default": 81},
+        {"port": 80, "protocol": "tcp", "description": "HTTP", "default": 80},
+        {"port": 443, "protocol": "tcp", "description": "HTTPS", "default": 443}
+      ],
+      "volumes": [
+        {"containerPath": "/data", "description": "数据目录", "default": "/opt/nas/apps/nginx/data"},
+        {"containerPath": "/etc/letsencrypt", "description": "SSL 证书", "default": "/opt/nas/apps/nginx/letsencrypt"}
+      ],
+      "environment": {},
+      "notes": "支持 Let's Encrypt 自动证书",
+      "website": "https://nginxproxymanager.com"
+    },
+    {
+      "id": "portainer",
+      "name": "Portainer",
+      "displayName": "Portainer",
+      "description": "Docker 可视化管理界面",
+      "category": "Management",
+      "icon": "🐳",
+      "version": "latest",
+      "image": "portainer/portainer-ce:latest",
+      "ports": [{"port": 9000, "protocol": "tcp", "description": "Web 界面", "default": 9000}],
+      "volumes": [
+        {"containerPath": "/data", "description": "数据目录", "default": "/opt/nas/apps/portainer/data"},
+        {"containerPath": "/var/run/docker.sock", "description": "Docker Socket", "default": "/var/run/docker.sock"}
+      ],
+      "environment": {},
+      "notes": "提供友好的 Docker 管理界面",
+      "website": "https://www.portainer.io"
+    },
+    {
+      "id": "redis",
+      "name": "Redis",
+      "displayName": "Redis",
+      "description": "高性能键值存储数据库",
+      "category": "Database",
+      "icon": "🔴",
+      "version": "latest",
+      "image": "redis:latest",
+      "ports": [{"port": 6379, "protocol": "tcp", "description": "Redis 端口", "default": 6379}],
+      "volumes": [
+        {"containerPath": "/data", "description": "数据目录", "default": "/opt/nas/apps/redis/data"}
+      ],
+      "environment": {},
+      "notes": "支持持久化和主从复制",
+      "website": "https://redis.io"
+    },
+    {
+      "id": "postgres",
+      "name": "PostgreSQL",
+      "displayName": "PostgreSQL",
+      "description": "强大的开源关系型数据库",
+      "category": "Database",
+      "icon": "🐘",
+      "version": "15",
+      "image": "postgres:15",
+      "ports": [{"port": 5432, "protocol": "tcp", "description": "PostgreSQL 端口", "default": 5432}],
+      "volumes": [
+        {"containerPath": "/var/lib/postgresql/data", "description": "数据目录", "default": "/opt/nas/apps/postgres/data"}
+      ],
+      "environment": {"POSTGRES_USER": "postgres", "POSTGRES_PASSWORD": "postgres123", "POSTGRES_DB": "postgres"},
+      "notes": "支持高级 SQL 特性",
+      "website": "https://www.postgresql.org"
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "displayName": "MySQL",
+      "description": "流行的关系型数据库",
+      "category": "Database",
+      "icon": "🐬",
+      "version": "8",
+      "image": "mysql:8",
+      "ports": [{"port": 3306, "protocol": "tcp", "description": "MySQL 端口", "default": 3306}],
+      "volumes": [
+        {"containerPath": "/var/lib/mysql", "description": "数据目录", "default": "/opt/nas/apps/mysql/data"}
+      ],
+      "environment": {"MYSQL_ROOT_PASSWORD": "root123", "MYSQL_DATABASE": "mysql", "MYSQL_USER": "mysql", "MYSQL_PASSWORD": "mysql123"},
+      "notes": "广泛使用的数据库系统",
+      "website": "https://www.mysql.com"
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "displayName": "MongoDB",
+      "description": "NoSQL 文档数据库",
+      "category": "Database",
+      "icon": "🍃",
+      "version": "latest",
+      "image": "mongo:latest",
+      "ports": [{"port": 27017, "protocol": "tcp", "description": "MongoDB 端口", "default": 27017}],
+      "volumes": [
+        {"containerPath": "/data/db", "description": "数据目录", "default": "/opt/nas/apps/mongodb/data"}
+      ],
+      "environment": {"MONGO_INITDB_ROOT_USERNAME": "root", "MONGO_INITDB_ROOT_PASSWORD": "root123"},
+      "notes": "适合存储 JSON 文档",
+      "website": "https://www.mongodb.com"
+    },
+    {
+      "id": "gitlab",
+      "name": "GitLab",
+      "displayName": "GitLab",
+      "description": "完整的 DevOps 平台",
+      "category": "Development",
+      "icon": "🦊",
+      "version": "latest",
+      "image": "gitlab/gitlab-ce:latest",
+      "ports": [
+        {"port": 80, "protocol": "tcp", "description": "HTTP", "default": 8080},
+        {"port": 443, "protocol": "tcp", "description": "HTTPS", "default": 8443},
+        {"port": 22, "protocol": "tcp", "description": "SSH", "default": 2222}
+      ],
+      "volumes": [
+        {"containerPath": "/var/opt/gitlab", "description": "数据目录", "default": "/opt/nas/apps/gitlab/data"},
+        {"containerPath": "/var/log/gitlab", "description": "日志目录", "default": "/opt/nas/apps/gitlab/logs"},
+        {"containerPath": "/etc/gitlab", "description": "配置目录", "default": "/opt/nas/apps/gitlab/config"}
+      ],
+      "environment": {"GITLAB_OMNIBUS_CONFIG": "external_url 'http://localhost:8080'"},
+      "notes": "需要至少 4GB 内存",
+      "website": "https://about.gitlab.com"
+    },
+    {
+      "id": "gitea",
+      "name": "Gitea",
+      "displayName": "Gitea",
+      "description": "轻量级 Git 服务",
+      "category": "Development",
+      "icon": "🍵",
+      "version": "latest",
+      "image": "gitea/gitea:latest",
+      "ports": [
+        {"port": 3000, "protocol": "tcp", "description": "Web 界面", "default": 3000},
+        {"port": 22, "protocol": "tcp", "description": "SSH", "default": 2222}
+      ],
+      "volumes": [
+        {"containerPath": "/data", "description": "数据目录", "default": "/opt/nas/apps/gitea/data"}
+      ],
+      "environment": {"USER_UID": "1000", "USER_GID": "1000"},
+      "notes": "轻量级，适合小型团队",
+      "website": "https://gitea.io"
+    },
+    {
+      "id": "vaultwarden",
+      "name": "Vaultwarden",
+      "displayName": "Vaultwarden",
+      "description": "Bitwarden 密码管理器兼容服务器",
+      "category": "Security",
+      "icon": "🔐",
+      "version": "latest",
+      "image": "dani-garcia/vaultwarden:latest",
+      "ports": [{"port": 80, "protocol": "tcp", "description": "Web 界面", "default": 8080}],
+      "volumes": [
+        {"containerPath": "/data", "description": "数据目录", "default": "/opt/nas/apps/vaultwarden/data"}
+      ],
+      "environment": {"ADMIN_TOKEN": "admin-token-change-me", "SIGNUPS_ALLOWED": "false"},
+      "notes": "Bitwarden 客户端兼容",
+      "website": "https://github.com/dani-garcia/vaultwarden"
+    },
+    {
+      "id": "uptime-kuma",
+      "name": "Uptime Kuma",
+      "displayName": "Uptime Kuma",
+      "description": "自托管监控工具",
+      "category": "Monitoring",
+      "icon": "⏱️",
+      "version": "latest",
+      "image": "louislam/uptime-kuma:latest",
+      "ports": [{"port": 3001, "protocol": "tcp", "description": "Web 界面", "default": 3001}],
+      "volumes": [
+        {"containerPath": "/app/data", "description": "数据目录", "default": "/opt/nas/apps/uptime-kuma/data"}
+      ],
+      "environment": {},
+      "notes": "支持多种通知方式",
+      "website": "https://uptime.kuma.pet"
+    },
+    {
+      "id": "calibre-web",
+      "name": "Calibre-Web",
+      "displayName": "Calibre-Web",
+      "description": "电子书管理和阅读服务器",
+      "category": "Media",
+      "icon": "📚",
+      "version": "latest",
+      "image": "linuxserver/calibre-web:latest",
+      "ports": [{"port": 8083, "protocol": "tcp", "description": "Web 界面", "default": 8083}],
+      "volumes": [
+        {"containerPath": "/config", "description": "配置文件", "default": "/opt/nas/apps/calibre-web/config"},
+        {"containerPath": "/books", "description": "电子书库", "default": "/opt/nas/media/books"}
+      ],
+      "environment": {"PUID": "1000", "PGID": "1000", "TZ": "Asia/Shanghai", "DOCKER_MODS": "linuxserver/mods:universal-calibre"},
+      "notes": "需要 Calibre 数据库",
+      "website": "https://github.com/janeczku/calibre-web"
+    }
+  ]
+}
