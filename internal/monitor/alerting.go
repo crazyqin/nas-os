@@ -144,17 +144,17 @@ func (am *AlertingManager) sendNotifications(alert *Alert, details map[string]in
 			if am.sendEmailFunc != nil {
 				subject := fmt.Sprintf("【NAS-OS 告警】%s - %s", alert.Level, alert.Message)
 				body := am.formatEmailBody(alert, details)
-				am.sendEmailFunc(sub.Target, subject, body)
+				_ = am.sendEmailFunc(sub.Target, subject, body)
 			}
 		case "webhook":
 			if am.sendWebhookFunc != nil {
 				payload := am.formatWebhookPayload(alert, details)
-				am.sendWebhookFunc(sub.Target, payload)
+				_ = am.sendWebhookFunc(sub.Target, payload)
 			}
 		case "wecom":
 			if am.sendWebhookFunc != nil {
 				payload := am.formatWeComPayload(alert)
-				am.sendWebhookFunc(sub.Target, payload)
+				_ = am.sendWebhookFunc(sub.Target, payload)
 			}
 		}
 	}

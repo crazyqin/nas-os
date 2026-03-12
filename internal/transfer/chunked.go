@@ -43,7 +43,6 @@ type UploadProgress struct {
 type ChunkedUploader struct {
 	chunkSize int64
 	maxRetries int
-	mu        sync.Mutex
 }
 
 // NewChunkedUploader creates a new chunked uploader
@@ -262,7 +261,6 @@ type ResumableUpload struct {
 	fileSize     int64
 	chunkSize    int64
 	uploadedSize int64
-	mu           sync.Mutex
 }
 
 // NewResumableUpload creates a new resumable upload session
@@ -404,7 +402,6 @@ type ChunkedWriter struct {
 	chunkSize int
 	buf       []byte
 	offset    int64
-	mu        sync.Mutex
 }
 
 // NewChunkedWriter creates a new chunked writer

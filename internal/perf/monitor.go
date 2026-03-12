@@ -31,7 +31,6 @@ type ResourceMonitor struct {
 	// Callbacks
 	onHighCPU    func(usage float64)
 	onHighMemory func(usage float64)
-	onHighDiskIO func(read, write uint64)
 	
 	logger *zap.Logger
 }

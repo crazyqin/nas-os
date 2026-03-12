@@ -75,7 +75,8 @@ func (m *Manager) Get(key string) (interface{}, bool) {
 		if val, ok := m.redisCache.Get(key); ok {
 			atomic.AddInt64(&m.hits, 1)
 			// Populate memory cache
-			m.memoryCache.Set(key, val)
+			_ = m.redisCache.Set(key, val)
+			_ = m.redisCache.Delete(key)
 			return val, true
 		}
 	}
