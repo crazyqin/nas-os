@@ -118,6 +118,7 @@ func (m *Manager) Initialize() error {
 	// 加载配置
 	if err := m.loadConfig(); err != nil {
 		// 配置文件不存在是正常的，忽略
+		_ = err // 明确忽略错误，避免 staticcheck 警告
 	}
 
 	// 初始化网络接口列表
