@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统监控仪表盘 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #F3F4F6;
+            color: #1F2937;
+            padding: 20px;
+        }
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .dashboard-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .dashboard-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .control-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .control-btn:hover, .control-btn.active {
+            background: #2563EB;
+            color: white;
+            border-color: #2563EB;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .stat-card-title {
+            font-size: 14px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .stat-card-icon.cpu { background: #DBEAFE; color: #2563EB; }
+        .stat-card-icon.memory { background: #D1FAE5; color: #10B981; }
+        .stat-card-icon.disk { background: #FEF3C7; color: #F59E0B; }
+        .stat-card-icon.network { background: #E9D5FF; color: #8B5CF6; }
+        .stat-card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 4px;
+        }
+        .stat-card-detail {
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .info-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 16px;
+        }
+        .info-list {
+            list-style: none;
+        }
+        .info-list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .info-list-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #6B7280;
+            font-size: 14px;
+        }
+        .info-value {
+            color: #1F2937;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .disk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .disk-item {
+            padding: 12px;
+            background: #F9FAFB;
+            border-radius: 8px;
+        }
+        .disk-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .disk-name {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .disk-temp {
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .disk-bar {
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .disk-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10B981, #F59E0B, #EF4444);
+            transition: width 0.3s;
+        }
+        .disk-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .process-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .process-table th,
+        .process-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .process-table th {
+            font-size: 13px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        .process-table td {
+            font-size: 14px;
+        }
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .alert-item {
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .alert-item.critical {
+            background: #FEF2F2;
+            border-color: #EF4444;
+        }
+        .alert-item.warning {
+            background: #FFFBEB;
+            border-color: #F59E0B;
+        }
+        .alert-item.info {
+            background: #EFF6FF;
+            border-color: #2563EB;
+        }
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .alert-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .alert-time {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .alert-message {
+            font-size: 13px;
+            color: #4B5563;
+        }
+        .network-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .network-stat {
+            padding: 12px;
+            background: #F9FAFB;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .network-stat-label {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 4px;
+        }
+        .network-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+        .network-stat-unit {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .main-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .dashboard-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">📊 系统监控仪表盘</h1>
+            <div class="dashboard-controls">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span id="connectionStatus">实时连接中</span>
+                </div>
+                <button class="control-btn" onclick="refreshData()">🔄 刷新</button>
+            </div>
+        </div>
+
+        <!-- 核心统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">CPU 使用率</span>
+                    <div class="stat-card-icon cpu">⚡</div>
+                </div>
+                <div class="stat-card-value" id="cpuValue">0%</div>
+                <div class="stat-card-detail">
+                    <span id="cpuCores">0</span> 核心 | 
+                    温度：<span id="cpuTemp">--</span>°C
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">内存使用</span>
+                    <div class="stat-card-icon memory">💾</div>
+                </div>
+                <div class="stat-card-value" id="memoryValue">0%</div>
+                <div class="stat-card-detail">
+                    <span id="memoryUsed">0</span> / <span id="memoryTotal">0</span> GB
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">磁盘使用</span>
+                    <div class="stat-card-icon disk">💿</div>
+                </div>
+                <div class="stat-card-value" id="diskValue">--</div>
+                <div class="stat-card-detail">
+                    <span id="diskCount">0</span> 个磁盘
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-title">网络流量</span>
+                    <div class="stat-card-icon network">🌐</div>
+                </div>
+                <div class="stat-card-value" id="networkValue">--</div>
+                <div class="stat-card-detail">
+                    ↓ <span id="netRX">0</span> ↑ <span id="netTX">0</span> KB/s
+                </div>
+            </div>
+        </div>
+
+        <!-- 主图表区域 -->
+        <div class="main-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">资源使用趋势</h3>
+                    <div>
+                        <button class="control-btn active" onclick="setChartRange('24h')">24 小时</button>
+                        <button class="control-btn" onclick="setChartRange('7d')">7 天</button>
+                        <button class="control-btn" onclick="setChartRange('30d')">30 天</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="resourceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <!-- 系统信息 -->
+                <div class="info-card">
+                    <h3 class="info-card-title">系统信息</h3>
+                    <ul class="info-list">
+                        <li class="info-list-item">
+                            <span class="info-label">主机名</span>
+                            <span class="info-value" id="hostname">--</span>
+                        </li>
+                        <li class="info-list-item">
+                            <span class="info-label">运行时间</span>
+                            <span class="info-value" id="uptime">--</span>
+                        </li>
+                        <li class="info-list-item">
+                            <span class="info-label">系统负载</span>
+                            <span class="info-value" id="loadAvg">--</span>
+                        </li>
+                        <li class="info-list-item">
+                            <span class="info-label">进程数</span>
+                            <span class="info-value" id="processCount">--</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 网络速度 -->
+                <div class="info-card">
+                    <h3 class="info-card-title">实时网络</h3>
+                    <div class="network-stats">
+                        <div class="network-stat">
+                            <div class="network-stat-label">下载速度</div>
+                            <div class="network-stat-value" id="rxSpeed">0</div>
+                            <div class="network-stat-unit">KB/s</div>
+                        </div>
+                        <div class="network-stat">
+                            <div class="network-stat-label">上传速度</div>
+                            <div class="network-stat-value" id="txSpeed">0</div>
+                            <div class="network-stat-unit">KB/s</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 磁盘和进程 -->
+        <div class="main-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">进程监控 (Top 10)</h3>
+                </div>
+                <table class="process-table">
+                    <thead>
+                        <tr>
+                            <th>PID</th>
+                            <th>进程名</th>
+                            <th>CPU%</th>
+                            <th>内存%</th>
+                            <th>内存 (MB)</th>
+                            <th>用户</th>
+                        </tr>
+                    </thead>
+                    <tbody id="processTableBody">
+                        <tr><td colspan="6" style="text-align:center;color:#6B7280;">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">磁盘健康</h3>
+                </div>
+                <div class="disk-list" id="diskList">
+                    <div style="text-align:center;color:#6B7280;padding:20px;">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 告警中心 -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title">🔔 告警中心</h3>
+                <button class="control-btn" onclick="loadAlerts()">刷新告警</button>
+            </div>
+            <div class="alert-list" id="alertList">
+                <div style="text-align:center;color:#6B7280;padding:20px;">暂无告警</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WebSocket 连接
+        let ws = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+
+        // 图表实例
+        let resourceChart = null;
+        let chartRange = '24h';
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initChart();
+            connectWebSocket();
+            loadInitialData();
+        });
+
+        // 初始化图表
+        function initChart() {
+            const ctx = document.getElementById('resourceChart').getContext('2d');
+            resourceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'CPU %',
+                            data: [],
+                            borderColor: '#2563EB',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: '内存 %',
+                            data: [],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 0 },
+                    plugins: {
+                        legend: { display: true }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 连接 WebSocket
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/api/system/ws`);
+
+            ws.onopen = function() {
+                console.log('WebSocket 连接成功');
+                document.getElementById('connectionStatus').textContent = '实时连接中';
+                document.querySelector('.status-dot').style.background = '#10B981';
+                reconnectAttempts = 0;
+            };
+
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleRealTimeData(data);
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket 连接关闭');
+                document.getElementById('connectionStatus').textContent = '连接断开';
+                document.querySelector('.status-dot').style.background = '#EF4444';
+                
+                // 尝试重连
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    setTimeout(connectWebSocket, 3000);
+                }
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket 错误:', error);
+            };
+        }
+
+        // 处理实时数据
+        function handleRealTimeData(data) {
+            if (data.system) {
+                updateSystemStats(data.system);
+            }
+            if (data.network && data.network.length > 0) {
+                updateNetworkStats(data.network);
+            }
+            if (data.disks) {
+                updateDiskList(data.disks);
+            }
+        }
+
+        // 更新系统统计
+        function updateSystemStats(stats) {
+            document.getElementById('cpuValue').textContent = stats.cpuUsage.toFixed(1) + '%';
+            document.getElementById('cpuCores').textContent = stats.cpuCores;
+            document.getElementById('cpuTemp').textContent = stats.cpuTemp || '--';
+            
+            document.getElementById('memoryValue').textContent = stats.memoryUsage.toFixed(1) + '%';
+            document.getElementById('memoryUsed').textContent = (stats.memoryUsed / 1024 / 1024 / 1024).toFixed(1);
+            document.getElementById('memoryTotal').textContent = (stats.memoryTotal / 1024 / 1024 / 1024).toFixed(1);
+            
+            document.getElementById('uptime').textContent = stats.uptime;
+            document.getElementById('loadAvg').textContent = stats.loadAvg.map(l => l.toFixed(2)).join(' / ');
+            document.getElementById('processCount').textContent = stats.processes;
+
+            // 更新图表
+            updateChart(stats.cpuUsage, stats.memoryUsage);
+        }
+
+        // 更新网络统计
+        function updateNetworkStats(network) {
+            let totalRX = 0, totalTX = 0;
+            network.forEach(n => {
+                totalRX += n.rxSpeed || 0;
+                totalTX += n.txSpeed || 0;
+            });
+            
+            document.getElementById('netRX').textContent = (totalRX / 1024).toFixed(1);
+            document.getElementById('netTX').textContent = (totalTX / 1024).toFixed(1);
+            document.getElementById('rxSpeed').textContent = (totalRX / 1024).toFixed(1);
+            document.getElementById('txSpeed').textContent = (totalTX / 1024).toFixed(1);
+            
+            const totalSpeed = (totalRX + totalTX) / 1024;
+            if (totalSpeed > 1024) {
+                document.getElementById('networkValue').textContent = (totalSpeed / 1024).toFixed(1) + ' MB/s';
+            } else {
+                document.getElementById('networkValue').textContent = totalSpeed.toFixed(1) + ' KB/s';
+            }
+        }
+
+        // 更新磁盘列表
+        function updateDiskList(disks) {
+            const container = document.getElementById('diskList');
+            if (disks.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#6B7280;padding:20px;">未检测到磁盘</div>';
+                return;
+            }
+
+            document.getElementById('diskCount').textContent = disks.length;
+            
+            let totalUsage = 0;
+            let html = '';
+            
+            disks.forEach(disk => {
+                totalUsage += disk.usagePercent;
+                const usedGB = (disk.used / 1024 / 1024 / 1024).toFixed(1);
+                const totalGB = (disk.total / 1024 / 1024 / 1024).toFixed(1);
+                
+                html += `
+                    <div class="disk-item">
+                        <div class="disk-item-header">
+                            <span class="disk-name">${disk.device}</span>
+                            <span class="disk-temp">${disk.mountPoint}</span>
+                        </div>
+                        <div class="disk-bar">
+                            <div class="disk-bar-fill" style="width: ${disk.usagePercent}%"></div>
+                        </div>
+                        <div class="disk-info">
+                            <span>${usedGB} GB / ${totalGB} GB</span>
+                            <span>${disk.usagePercent.toFixed(1)}%</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            document.getElementById('diskValue').textContent = (totalUsage / disks.length).toFixed(1) + '%';
+        }
+
+        // 更新图表
+        function updateChart(cpu, memory) {
+            const now = new Date().toLocaleTimeString();
+            
+            if (resourceChart.data.labels.length > 60) {
+                resourceChart.data.labels.shift();
+                resourceChart.data.datasets[0].data.shift();
+                resourceChart.data.datasets[1].data.shift();
+            }
+            
+            resourceChart.data.labels.push(now);
+            resourceChart.data.datasets[0].data.push(cpu);
+            resourceChart.data.datasets[1].data.push(memory);
+            resourceChart.update();
+        }
+
+        // 加载初始数据
+        async function loadInitialData() {
+            await loadProcesses();
+            await loadDisks();
+            await loadAlerts();
+        }
+
+        // 加载进程列表
+        async function loadProcesses() {
+            try {
+                const response = await fetch('/api/system/processes?limit=10');
+                const result = await response.json();
+                
+                if (result.code === 0 && result.data) {
+                    const tbody = document.getElementById('processTableBody');
+                    tbody.innerHTML = result.data.map(p => `
+                        <tr>
+                            <td>${p.pid}</td>
+                            <td>${p.name}</td>
+                            <td>${p.cpu.toFixed(1)}%</td>
+                            <td>${p.memory.toFixed(1)}%</td>
+                            <td>${p.memoryMB.toFixed(1)}</td>
+                            <td>${p.user}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载进程失败:', error);
+            }
+        }
+
+        // 加载磁盘信息
+        async function loadDisks() {
+            try {
+                const response = await fetch('/api/system/disks');
+                const result = await response.json();
+                
+                if (result.code === 0 && result.data) {
+                    updateDiskList(result.data);
+                }
+            } catch (error) {
+                console.error('加载磁盘失败:', error);
+            }
+        }
+
+        // 加载告警
+        async function loadAlerts() {
+            try {
+                const response = await fetch('/api/system/alerts');
+                const result = await response.json();
+                
+                const container = document.getElementById('alertList');
+                
+                if (result.code === 0 && result.data && result.data.length > 0) {
+                    container.innerHTML = result.data.map(alert => `
+                        <div class="alert-item ${alert.level}">
+                            <div class="alert-header">
+                                <span class="alert-title">${alert.type.toUpperCase()}</span>
+                                <span class="alert-time">${new Date(alert.timestamp).toLocaleString()}</span>
+                            </div>
+                            <div class="alert-message">${alert.message} - ${alert.source}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align:center;color:#6B7280;padding:20px;">暂无告警</div>';
+                }
+            } catch (error) {
+                console.error('加载告警失败:', error);
+            }
+        }
+
+        // 设置图表范围
+        function setChartRange(range) {
+            chartRange = range;
+            document.querySelectorAll('.chart-card .control-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            // TODO: 加载历史数据
+        }
+
+        // 刷新数据
+        function refreshData() {
+            loadInitialData();
+        }
+    </script>
+</body>
+</html>
