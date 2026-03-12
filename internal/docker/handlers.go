@@ -3,7 +3,6 @@ package docker
 import (
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 )
