@@ -686,7 +686,3 @@ func parseNumeric(data []byte) (int64, error) {
 	return val, err
 }
 
-// parseDateTime 解析日期时间
-func parseDateTime(data []byte) (time.Time, error) {
-	return time.Parse(time.RFC3339, string(data))
-}
