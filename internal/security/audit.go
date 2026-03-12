@@ -21,7 +21,6 @@ type AuditManager struct {
 	mu          sync.RWMutex
 	logPath     string
 	maxLogs     int // 最大保留日志数
-	autoSave    bool
 }
 
 // AuditConfig 审计配置
