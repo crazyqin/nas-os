@@ -743,7 +743,7 @@ func (s *AppStore) renderCompose(template *AppTemplate, config map[string]interf
 		if val, ok := config[key].(float64); ok {
 			hostPort = int(val)
 		}
-		compose = strings.ReplaceAll(compose, fmt.Sprintf("{{.WebPort}}"), fmt.Sprintf("%d", hostPort))
+		compose = strings.ReplaceAll(compose, "{{.WebPort}}", fmt.Sprintf("%d", hostPort))
 	}
 
 	// 替换路径
