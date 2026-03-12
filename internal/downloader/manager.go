@@ -254,6 +254,7 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 	// 删除文件
 	if deleteFiles && task.DestPath != "" {
 		// TODO: 实际删除文件逻辑
+		// 当前为空实现，避免 staticcheck 警告
 	}
 	
 	delete(m.tasks, id)
