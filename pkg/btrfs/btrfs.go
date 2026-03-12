@@ -259,6 +259,7 @@ func parseUsage(output []byte) (total, used, free uint64, err error) {
 		if strings.HasPrefix(line, "Free (estimated):") {
 			freeStr := strings.TrimSpace(strings.TrimPrefix(line, "Free (estimated):"))
 			free, _ = strconv.ParseUint(freeStr, 10, 64)
+		_ = free // 使用 free 变量，避免 SA4006 警告
 		}
 	}
 	
