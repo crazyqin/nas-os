@@ -50,8 +50,7 @@ linters-settings:
       net/http:Flush
       bytes:Write
       strings:Write
-      gin:Stop
-      (*github.com/gin-gonic/gin.Engine).Stop
+      github.com/gin-gonic/gin:Stop
   gosimple:
     disable:
       - S1039  # unnecessary use of fmt.Sprintf
