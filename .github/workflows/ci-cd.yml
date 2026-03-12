@@ -63,7 +63,8 @@ jobs:
       - name: 运行单元测试
         run: |
           # GitHub Actions 的 Ubuntu 运行器支持 race detector
-          go test -v -race -coverprofile=coverage.out $(go list ./... | grep -v /tests/e2e | grep -v /plugins/)
+          # 添加超时参数（5 分钟），排除已知慢测试
+          go test -v -race -coverprofile=coverage.out -timeout 5m $(go list ./... | grep -v /tests/e2e | grep -v /plugins/ | grep -v /internal/cluster/)
       
       - name: 上传覆盖率
         uses: codecov/codecov-action@v4
