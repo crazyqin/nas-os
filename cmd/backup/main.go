@@ -42,7 +42,7 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println(`备份增强工具
+	fmt.Print(`备份增强工具
 
 用法：backup <command> [options]
 
