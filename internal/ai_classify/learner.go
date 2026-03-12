@@ -575,7 +575,7 @@ func (l *Learner) OptimizeRules(ctx context.Context) error {
 	}
 
 	// 保存优化后的规则
-	l.classifier.SetRules(optimized)
+	l.classifier.rules = optimized
 	return l.classifier.Save()
 }
 
