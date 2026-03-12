@@ -48,6 +48,11 @@ linters-settings:
 
 issues:
   exclude-use-default: false
+  exclude-rules:
+    # 忽略空分支警告（SA9003）- 这些是有意为之的空实现
+    - text: "SA9003: empty branch"
+      linters:
+        - staticcheck
   exclude:
     # 忽略测试文件中的 errcheck（测试代码可以简化错误处理）
     - 'Error return value of .*(os\.Remove|os\.WriteFile|os\.MkdirAll).* is not checked'
