@@ -50,6 +50,11 @@ linters-settings:
       net/http:Flush
       bytes:Write
       strings:Write
+      gin:Stop
+      os:Stderr
+      os:Stdout
+      bytes:Write
+      strings:Write
       github.com/gin-gonic/gin:Stop
   gosimple:
     disable:
