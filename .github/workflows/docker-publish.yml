@@ -168,6 +168,11 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
       
+      - name: 创建必要目录
+        run: |
+          sudo mkdir -p /var/lib/nas-os
+          sudo chmod 777 /var/lib/nas-os
+      
       - name: 构建并启动
         run: |
           docker compose build
