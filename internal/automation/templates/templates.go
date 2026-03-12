@@ -1,17 +1,17 @@
 package templates
 
 import (
+	"nas-os/internal/automation/action"
 	"nas-os/internal/automation/engine"
 	"nas-os/internal/automation/trigger"
-	"nas-os/internal/automation/action"
 )
 
 // Template 工作流模板
 type Template struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Category    string `json:"category"`
+	ID          string          `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Category    string          `json:"category"`
 	Workflow    engine.Workflow `json:"workflow"`
 }
 
@@ -326,7 +326,7 @@ func GetCategories() []string {
 	for _, t := range GetTemplates() {
 		categories[t.Category] = true
 	}
-	
+
 	result := []string{}
 	for cat := range categories {
 		result = append(result, cat)

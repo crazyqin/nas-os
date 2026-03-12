@@ -12,18 +12,18 @@ import (
 
 // AppRating 应用评分
 type AppRating struct {
-	ID          string    `json:"id"`
-	TemplateID  string    `json:"templateId"`
-	UserID      string    `json:"userId"`
-	UserName    string    `json:"userName"`
-	Rating      int       `json:"rating"` // 1-5 星
-	Title       string    `json:"title"`
-	Content     string    `json:"content"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	Helpful     int       `json:"helpful"`     // 有用数
-	HelpfulBy   []string  `json:"helpfulBy"`   // 点赞用户
-	Verified    bool      `json:"verified"`    // 已验证购买
+	ID         string    `json:"id"`
+	TemplateID string    `json:"templateId"`
+	UserID     string    `json:"userId"`
+	UserName   string    `json:"userName"`
+	Rating     int       `json:"rating"` // 1-5 星
+	Title      string    `json:"title"`
+	Content    string    `json:"content"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+	Helpful    int       `json:"helpful"`   // 有用数
+	HelpfulBy  []string  `json:"helpfulBy"` // 点赞用户
+	Verified   bool      `json:"verified"`  // 已验证购买
 }
 
 // RatingStats 评分统计
@@ -42,35 +42,35 @@ type RatingStats struct {
 
 // RatingManager 评分管理器
 type RatingManager struct {
-	dataDir   string
-	dataFile  string
-	ratings   map[string][]*AppRating // templateID -> ratings
-	stats     map[string]*RatingStats  // templateID -> stats
-	mu        sync.RWMutex
+	dataDir  string
+	dataFile string
+	ratings  map[string][]*AppRating // templateID -> ratings
+	stats    map[string]*RatingStats // templateID -> stats
+	mu       sync.RWMutex
 }
 
 // NewRatingManager 创建评分管理器
 func NewRatingManager(dataDir string) (*RatingManager, error) {
 	dataFile := filepath.Join(dataDir, "app-ratings.json")
-	
+
 	rm := &RatingManager{
 		dataDir:  dataDir,
 		dataFile: dataFile,
 		ratings:  make(map[string][]*AppRating),
 		stats:    make(map[string]*RatingStats),
 	}
-	
+
 	// 创建目录
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, err
 	}
-	
+
 	// 加载数据
 	if err := rm.load(); err != nil {
 		// 文件不存在不影响启动
 		fmt.Printf("加载评分数据失败: %v\n", err)
 	}
-	
+
 	return rm, nil
 }
 
@@ -80,22 +80,22 @@ func (rm *RatingManager) load() error {
 	if err != nil {
 		return err
 	}
-	
+
 	var allRatings []*AppRating
 	if err := json.Unmarshal(data, &allRatings); err != nil {
 		return err
 	}
-	
+
 	// 按 templateID 分组
 	for _, r := range allRatings {
 		rm.ratings[r.TemplateID] = append(rm.ratings[r.TemplateID], r)
 	}
-	
+
 	// 计算统计
 	for templateID := range rm.ratings {
 		rm.calculateStats(templateID)
 	}
-	
+
 	return nil
 }
 
@@ -103,17 +103,17 @@ func (rm *RatingManager) load() error {
 func (rm *RatingManager) save() error {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
-	
+
 	var allRatings []*AppRating
 	for _, ratings := range rm.ratings {
 		allRatings = append(allRatings, ratings...)
 	}
-	
+
 	data, err := json.MarshalIndent(allRatings, "", "  ")
 	if err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(rm.dataFile, data, 0644)
 }
 
@@ -123,12 +123,12 @@ func (rm *RatingManager) calculateStats(templateID string) {
 	if !ok {
 		return
 	}
-	
+
 	stats := &RatingStats{
 		TemplateID:   templateID,
 		TotalReviews: len(ratings),
 	}
-	
+
 	var total float64
 	for _, r := range ratings {
 		total += float64(r.Rating)
@@ -145,11 +145,11 @@ func (rm *RatingManager) calculateStats(templateID string) {
 			stats.Distribution.One++
 		}
 	}
-	
+
 	if len(ratings) > 0 {
 		stats.AverageScore = total / float64(len(ratings))
 	}
-	
+
 	rm.stats[templateID] = stats
 }
 
@@ -157,12 +157,12 @@ func (rm *RatingManager) calculateStats(templateID string) {
 func (rm *RatingManager) AddRating(templateID, userID, userName string, rating int, title, content string) (*AppRating, error) {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
-	
+
 	// 验证评分
 	if rating < 1 || rating > 5 {
 		return nil, fmt.Errorf("评分必须在 1-5 之间")
 	}
-	
+
 	// 检查是否已评分
 	for _, r := range rm.ratings[templateID] {
 		if r.UserID == userID {
@@ -176,7 +176,7 @@ func (rm *RatingManager) AddRating(templateID, userID, userName string, rating i
 			return r, nil
 		}
 	}
-	
+
 	// 创建新评分
 	r := &AppRating{
 		ID:         fmt.Sprintf("rating-%d", time.Now().UnixNano()),
@@ -189,11 +189,11 @@ func (rm *RatingManager) AddRating(templateID, userID, userName string, rating i
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
-	
+
 	rm.ratings[templateID] = append(rm.ratings[templateID], r)
 	rm.calculateStats(templateID)
 	rm.save()
-	
+
 	return r, nil
 }
 
@@ -201,16 +201,16 @@ func (rm *RatingManager) AddRating(templateID, userID, userName string, rating i
 func (rm *RatingManager) GetRatings(templateID string, sortby string, limit, offset int) []*AppRating {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
-	
+
 	ratings, ok := rm.ratings[templateID]
 	if !ok {
 		return []*AppRating{}
 	}
-	
+
 	// 复制以避免修改原数据
 	result := make([]*AppRating, len(ratings))
 	copy(result, ratings)
-	
+
 	// 排序
 	switch sortby {
 	case "helpful":
@@ -235,17 +235,17 @@ func (rm *RatingManager) GetRatings(templateID string, sortby string, limit, off
 			return result[i].CreatedAt.After(result[j].CreatedAt)
 		})
 	}
-	
+
 	// 分页
 	if offset >= len(result) {
 		return []*AppRating{}
 	}
-	
+
 	end := offset + limit
 	if end > len(result) {
 		end = len(result)
 	}
-	
+
 	return result[offset:end]
 }
 
@@ -253,7 +253,7 @@ func (rm *RatingManager) GetRatings(templateID string, sortby string, limit, off
 func (rm *RatingManager) GetStats(templateID string) *RatingStats {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
-	
+
 	stats, ok := rm.stats[templateID]
 	if !ok {
 		return &RatingStats{TemplateID: templateID}
@@ -265,12 +265,12 @@ func (rm *RatingManager) GetStats(templateID string) *RatingStats {
 func (rm *RatingManager) DeleteRating(templateID, ratingID, userID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
-	
+
 	ratings, ok := rm.ratings[templateID]
 	if !ok {
 		return fmt.Errorf("评分不存在")
 	}
-	
+
 	for i, r := range ratings {
 		if r.ID == ratingID {
 			if r.UserID != userID {
@@ -282,7 +282,7 @@ func (rm *RatingManager) DeleteRating(templateID, ratingID, userID string) error
 			return nil
 		}
 	}
-	
+
 	return fmt.Errorf("评分不存在")
 }
 
@@ -290,12 +290,12 @@ func (rm *RatingManager) DeleteRating(templateID, ratingID, userID string) error
 func (rm *RatingManager) MarkHelpful(templateID, ratingID, userID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
-	
+
 	ratings, ok := rm.ratings[templateID]
 	if !ok {
 		return fmt.Errorf("评分不存在")
 	}
-	
+
 	for _, r := range ratings {
 		if r.ID == ratingID {
 			// 检查是否已标记
@@ -310,7 +310,7 @@ func (rm *RatingManager) MarkHelpful(templateID, ratingID, userID string) error 
 			return nil
 		}
 	}
-	
+
 	return fmt.Errorf("评分不存在")
 }
 
@@ -318,12 +318,12 @@ func (rm *RatingManager) MarkHelpful(templateID, ratingID, userID string) error 
 func (rm *RatingManager) VerifyPurchase(templateID, userID string) error {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
-	
+
 	ratings, ok := rm.ratings[templateID]
 	if !ok {
 		return nil
 	}
-	
+
 	for _, r := range ratings {
 		if r.UserID == userID {
 			r.Verified = true
@@ -331,7 +331,7 @@ func (rm *RatingManager) VerifyPurchase(templateID, userID string) error {
 			return nil
 		}
 	}
-	
+
 	return nil
 }
 
@@ -339,17 +339,17 @@ func (rm *RatingManager) VerifyPurchase(templateID, userID string) error {
 func (rm *RatingManager) GetUserRating(templateID, userID string) *AppRating {
 	rm.mu.RLock()
 	defer rm.mu.RUnlock()
-	
+
 	ratings, ok := rm.ratings[templateID]
 	if !ok {
 		return nil
 	}
-	
+
 	for _, r := range ratings {
 		if r.UserID == userID {
 			return r
 		}
 	}
-	
+
 	return nil
 }

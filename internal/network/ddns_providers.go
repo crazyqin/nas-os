@@ -78,15 +78,15 @@ func (p *AliDNSProvider) Update(domain, ip string) error {
 // describeDomainRecords 查询域名解析记录
 func (p *AliDNSProvider) describeDomainRecords(domain, rr string) ([]AliDNSRecord, error) {
 	params := map[string]string{
-		"Action":     "DescribeDomainRecords",
-		"DomainName": domain,
-		"RRKeyWord":  rr,
+		"Action":      "DescribeDomainRecords",
+		"DomainName":  domain,
+		"RRKeyWord":   rr,
 		"TypeKeyWord": "A",
 	}
 
 	var result struct {
-		TotalCount int             `json:"TotalCount"`
-		Records    []AliDNSRecord  `json:"DomainRecords"`
+		TotalCount int            `json:"TotalCount"`
+		Records    []AliDNSRecord `json:"DomainRecords"`
 	}
 
 	if err := p.request(params, &result); err != nil {
@@ -337,8 +337,8 @@ func (p *CloudflareProvider) listDNSRecords(name string) ([]CloudflareRecord, er
 	defer resp.Body.Close()
 
 	var result struct {
-		Success bool                `json:"success"`
-		Result  []CloudflareRecord  `json:"result"`
+		Success bool               `json:"success"`
+		Result  []CloudflareRecord `json:"result"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
@@ -451,7 +451,7 @@ func (p *CloudflareProvider) setAuthHeader(req *http.Request) {
 
 // TailscaleProvider Tailscale DDNS
 type TailscaleProvider struct {
-	APIKey string
+	APIKey  string
 	Tailnet string // Tailscale 网络名称
 }
 
@@ -510,7 +510,7 @@ func (p *TailscaleProvider) GetDeviceIP(deviceName string) (string, error) {
 
 	var result struct {
 		Devices []struct {
-			Name     string   `json:"name"`
+			Name      string   `json:"name"`
 			Addresses []string `json:"addresses"`
 		} `json:"devices"`
 	}

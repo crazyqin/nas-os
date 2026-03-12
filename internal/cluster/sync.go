@@ -16,8 +16,8 @@ import (
 
 // 同步模式
 const (
-	SyncModeAsync   = "async"   // 异步同步
-	SyncModeSync    = "sync"    // 同步同步
+	SyncModeAsync    = "async"    // 异步同步
+	SyncModeSync     = "sync"     // 同步同步
 	SyncModeRealtime = "realtime" // 实时同步
 )
 
@@ -31,58 +31,58 @@ const (
 
 // SyncRule 同步规则
 type SyncRule struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	SourceNode  string   `json:"source_node"`
-	TargetNodes []string `json:"target_nodes"`
-	SourcePath  string   `json:"source_path"`
-	TargetPath  string   `json:"target_path"`
-	SyncMode    string   `json:"sync_mode"`
-	Schedule    string   `json:"schedule"` // cron 表达式
-	Enabled     bool     `json:"enabled"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	SourceNode  string    `json:"source_node"`
+	TargetNodes []string  `json:"target_nodes"`
+	SourcePath  string    `json:"source_path"`
+	TargetPath  string    `json:"target_path"`
+	SyncMode    string    `json:"sync_mode"`
+	Schedule    string    `json:"schedule"` // cron 表达式
+	Enabled     bool      `json:"enabled"`
 	LastSync    time.Time `json:"last_sync"`
 	NextSync    time.Time `json:"next_sync"`
-	Status      string   `json:"status"`
-	LastError   string   `json:"last_error"`
+	Status      string    `json:"status"`
+	LastError   string    `json:"last_error"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
 // SyncJob 同步任务
 type SyncJob struct {
-	RuleID    string
-	Source    string
-	Target    string
-	TargetNode string
-	StartTime time.Time
-	EndTime   time.Time
-	Status    string
-	Error     string
+	RuleID      string
+	Source      string
+	Target      string
+	TargetNode  string
+	StartTime   time.Time
+	EndTime     time.Time
+	Status      string
+	Error       string
 	FilesSynced int64
 	BytesSynced int64
 }
 
 // SyncStatus 同步状态
 type SyncStatus struct {
-	TotalRules   int `json:"total_rules"`
-	ActiveRules  int `json:"active_rules"`
-	RunningJobs  int `json:"running_jobs"`
-	TotalJobs    int `json:"total_jobs"`
-	FailedJobs   int `json:"failed_jobs"`
+	TotalRules   int       `json:"total_rules"`
+	ActiveRules  int       `json:"active_rules"`
+	RunningJobs  int       `json:"running_jobs"`
+	TotalJobs    int       `json:"total_jobs"`
+	FailedJobs   int       `json:"failed_jobs"`
 	LastSyncTime time.Time `json:"last_sync_time"`
 }
 
 // StorageSync 存储同步管理器
 type StorageSync struct {
-	rules     map[string]*SyncRule
+	rules      map[string]*SyncRule
 	rulesMutex sync.RWMutex
-	jobs      []*SyncJob
+	jobs       []*SyncJob
 	jobsMutex  sync.RWMutex
-	cron      *cron.Cron
-	config    SyncConfig
-	ctx       context.Context
-	cancel    context.CancelFunc
-	logger    *zap.Logger
-	cluster   *ClusterManager
+	cron       *cron.Cron
+	config     SyncConfig
+	ctx        context.Context
+	cancel     context.CancelFunc
+	logger     *zap.Logger
+	cluster    *ClusterManager
 }
 
 // SyncConfig 同步配置

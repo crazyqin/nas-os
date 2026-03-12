@@ -30,24 +30,24 @@ type Manager struct {
 
 // BackupConfig 备份配置
 type BackupConfig struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Source      string        `json:"source"`
-	Destination string        `json:"destination"`
-	Type        BackupType    `json:"type"`
-	Schedule    string        `json:"schedule"`
-	Retention   int           `json:"retention"`
-	Compression bool          `json:"compression"`
-	Encrypt     bool          `json:"encrypt"`
-	Enabled     bool          `json:"enabled"`
-	LastRun     string        `json:"lastRun"`
-	NextRun     string        `json:"nextRun"`
+	ID          string     `json:"id"`
+	Name        string     `json:"name"`
+	Source      string     `json:"source"`
+	Destination string     `json:"destination"`
+	Type        BackupType `json:"type"`
+	Schedule    string     `json:"schedule"`
+	Retention   int        `json:"retention"`
+	Compression bool       `json:"compression"`
+	Encrypt     bool       `json:"encrypt"`
+	Enabled     bool       `json:"enabled"`
+	LastRun     string     `json:"lastRun"`
+	NextRun     string     `json:"nextRun"`
 
 	// 远程配置
-	RemoteHost     string   `json:"remoteHost,omitempty"`
-	RemoteUser     string   `json:"remoteUser,omitempty"`
-	RemotePort     int      `json:"remotePort,omitempty"`
-	RemotePassword string   `json:"remotePassword,omitempty"`
+	RemoteHost     string `json:"remoteHost,omitempty"`
+	RemoteUser     string `json:"remoteUser,omitempty"`
+	RemotePort     int    `json:"remotePort,omitempty"`
+	RemotePassword string `json:"remotePassword,omitempty"`
 
 	// rsync 特定配置
 	RsyncOptions []string `json:"rsyncOptions,omitempty"`
@@ -602,7 +602,7 @@ func copyDirectory(src, dst string) error {
 	// 清理和验证源目录路径
 	cleanSrc := filepath.Clean(src)
 	cleanDst := filepath.Clean(dst)
-	
+
 	// 验证目标目录在预期路径内（防止路径遍历）
 	if !strings.HasPrefix(cleanDst, "/mnt") && !strings.HasPrefix(cleanDst, "/backup") {
 		return fmt.Errorf("invalid destination path: %s", dst)
@@ -636,10 +636,10 @@ func copyDirectory(src, dst string) error {
 		if err != nil {
 			return err
 		}
-		
+
 		// 清理目标路径
 		dstPath := filepath.Clean(filepath.Join(cleanDst, relPath))
-		
+
 		// 再次验证目标路径（双重检查）
 		if !strings.HasPrefix(dstPath, cleanDst) {
 			return fmt.Errorf("path traversal detected: %s", dstPath)

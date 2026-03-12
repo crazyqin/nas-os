@@ -35,13 +35,13 @@ func (e *Exporter) Export(report *GeneratedReport, format ExportFormat, outputPa
 	if outputPath == "" {
 		outputPath = e.generateOutputPath(format)
 	}
-	
+
 	// 确保目录存在
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return nil, err
 	}
-	
+
 	var err error
 	switch format {
 	case ExportJSON:
@@ -57,17 +57,17 @@ func (e *Exporter) Export(report *GeneratedReport, format ExportFormat, outputPa
 	default:
 		err = errors.New("不支持的导出格式")
 	}
-	
+
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 获取文件信息
 	info, err := os.Stat(outputPath)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &ExportResult{
 		Format:    format,
 		Filename:  filepath.Base(outputPath),
@@ -81,7 +81,7 @@ func (e *Exporter) Export(report *GeneratedReport, format ExportFormat, outputPa
 // ExportToFile 导出到文件（自动检测格式）
 func (e *Exporter) ExportToFile(report *GeneratedReport, filePath string, options ExportOptions) (*ExportResult, error) {
 	ext := strings.ToLower(filepath.Ext(filePath))
-	
+
 	var format ExportFormat
 	switch ext {
 	case ".json":
@@ -97,7 +97,7 @@ func (e *Exporter) ExportToFile(report *GeneratedReport, filePath string, option
 	default:
 		format = ExportJSON
 	}
-	
+
 	return e.Export(report, format, filePath, options)
 }
 
@@ -133,19 +133,19 @@ func (e *Exporter) exportJSONBytes(report *GeneratedReport, options ExportOption
 		"total_records": report.TotalRecords,
 		"data":          report.Data,
 	}
-	
+
 	if options.Summary && report.Summary != nil {
 		output["summary"] = report.Summary
 	}
-	
+
 	if options.DateRange && !report.Period.StartTime.IsZero() {
 		output["period"] = report.Period
 	}
-	
+
 	if options.Title != "" {
 		output["title"] = options.Title
 	}
-	
+
 	return json.MarshalIndent(output, "", "  ")
 }
 
@@ -163,15 +163,15 @@ func (e *Exporter) exportCSVBytes(report *GeneratedReport, options ExportOptions
 	if len(report.Data) == 0 {
 		return []byte{}, nil
 	}
-	
+
 	var buf bytes.Buffer
 	writer := csv.NewWriter(&buf)
-	
+
 	// 写入标题（可选）
 	if options.Title != "" {
 		writer.Write([]string{options.Title})
 	}
-	
+
 	// 写入表头
 	if options.IncludeHeader {
 		headers := make([]string, 0, len(report.Data[0]))
@@ -180,7 +180,7 @@ func (e *Exporter) exportCSVBytes(report *GeneratedReport, options ExportOptions
 		}
 		writer.Write(headers)
 	}
-	
+
 	// 写入数据
 	for _, row := range report.Data {
 		values := make([]string, 0, len(row))
@@ -190,7 +190,7 @@ func (e *Exporter) exportCSVBytes(report *GeneratedReport, options ExportOptions
 		}
 		writer.Write(values)
 	}
-	
+
 	writer.Flush()
 	return buf.Bytes(), writer.Error()
 }
@@ -280,23 +280,23 @@ func (e *Exporter) exportHTMLBytes(report *GeneratedReport, options ExportOption
     </div>
 </body>
 </html>`
-	
+
 	t, err := template.New("report").Parse(tmpl)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 准备数据
 	title := options.Title
 	if title == "" {
 		title = report.Name
 	}
-	
+
 	company := options.Company
 	if company == "" {
 		company = "NAS-OS"
 	}
-	
+
 	// 提取表头
 	headers := make([]string, 0)
 	if len(report.Data) > 0 {
@@ -304,7 +304,7 @@ func (e *Exporter) exportHTMLBytes(report *GeneratedReport, options ExportOption
 			headers = append(headers, key)
 		}
 	}
-	
+
 	// 提取行数据
 	rows := make([][]string, 0, len(report.Data))
 	for _, row := range report.Data {
@@ -314,23 +314,23 @@ func (e *Exporter) exportHTMLBytes(report *GeneratedReport, options ExportOption
 		}
 		rows = append(rows, rowData)
 	}
-	
+
 	data := map[string]interface{}{
-		"Title":       title,
-		"Subtitle":    options.Subtitle,
-		"Company":     company,
-		"GeneratedAt": report.GeneratedAt.Format("2006-01-02 15:04:05"),
+		"Title":        title,
+		"Subtitle":     options.Subtitle,
+		"Company":      company,
+		"GeneratedAt":  report.GeneratedAt.Format("2006-01-02 15:04:05"),
 		"TotalRecords": report.TotalRecords,
-		"Summary":     report.Summary,
-		"Headers":     headers,
-		"Rows":        rows,
+		"Summary":      report.Summary,
+		"Headers":      headers,
+		"Rows":         rows,
 	}
-	
+
 	var buf bytes.Buffer
 	if err := t.Execute(&buf, data); err != nil {
 		return nil, err
 	}
-	
+
 	return buf.Bytes(), nil
 }
 
@@ -342,18 +342,18 @@ func (e *Exporter) exportPDF(report *GeneratedReport, path string, options Expor
 	if err != nil {
 		return err
 	}
-	
+
 	// 保存临时 HTML 文件
 	tmpHTML := path + ".html"
 	if err := os.WriteFile(tmpHTML, htmlData, 0644); err != nil {
 		return err
 	}
 	defer os.Remove(tmpHTML)
-	
+
 	// 使用 wkhtmltopdf 或类似工具转换
 	// 这里简化处理：如果没有安装转换工具，就保存 HTML
 	pdfPath := path
-	
+
 	// 检查是否有转换工具
 	if e.hasPDFConverter() {
 		// 使用转换工具
@@ -367,7 +367,7 @@ func (e *Exporter) exportPDF(report *GeneratedReport, path string, options Expor
 		htmlPath := strings.TrimSuffix(path, ".pdf") + ".html"
 		return os.WriteFile(htmlPath, htmlData, 0644)
 	}
-	
+
 	return nil
 }
 
@@ -389,12 +389,12 @@ func (e *Exporter) runCommand(cmd string) error {
 func (e *Exporter) exportExcel(report *GeneratedReport, path string, options ExportOptions) error {
 	// Excel 导出需要额外的库支持
 	// 这里简化处理：生成 CSV 格式并保存为 .xlsx（实际应使用 excelize 库）
-	
+
 	// 检查是否有 excelize 库
 	if e.hasExcelize() {
 		return e.exportExcelNative(report, path, options)
 	}
-	
+
 	// 没有 excelize，回退到 CSV
 	return e.exportCSV(report, strings.TrimSuffix(path, ".xlsx")+".csv", options)
 }
@@ -456,7 +456,7 @@ func (e *Exporter) formatValue(val interface{}) string {
 	if val == nil {
 		return ""
 	}
-	
+
 	switch v := val.(type) {
 	case string:
 		return v
@@ -481,23 +481,23 @@ func (e *Exporter) formatValue(val interface{}) string {
 // ExportMultiple 批量导出多种格式
 func (e *Exporter) ExportMultiple(report *GeneratedReport, formats []ExportFormat, baseDir string, options ExportOptions) ([]*ExportResult, error) {
 	results := make([]*ExportResult, 0, len(formats))
-	
+
 	for _, format := range formats {
 		filename := fmt.Sprintf("%s_%s.%s", report.Name, time.Now().Format("20060102"), format)
 		path := filepath.Join(baseDir, filename)
-		
+
 		result, err := e.Export(report, format, path, options)
 		if err != nil {
 			continue
 		}
-		
+
 		results = append(results, result)
 	}
-	
+
 	if len(results) == 0 {
 		return nil, errors.New("所有格式导出失败")
 	}
-	
+
 	return results, nil
 }
 
@@ -521,10 +521,10 @@ func (e *Exporter) GetFormatInfo(format ExportFormat) map[string]string {
 		string(ExportPDF):   "PDF - 便携文档格式，适合归档和分享",
 		string(ExportExcel): "Excel - 电子表格格式，适合数据分析和编辑",
 	}
-	
+
 	return map[string]string{
-		"format":  string(format),
-		"mime":    e.getMimeType(format),
-		"desc":    info[string(format)],
+		"format": string(format),
+		"mime":   e.getMimeType(format),
+		"desc":   info[string(format)],
 	}
 }

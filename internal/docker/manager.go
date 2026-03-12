@@ -18,19 +18,19 @@ type Manager struct {
 
 // Container 容器信息
 type Container struct {
-	ID        string            `json:"id"`
-	Name      string            `json:"name"`
-	Image     string            `json:"image"`
-	Status    string            `json:"status"`
-	State     string            `json:"state"`
-	Created   time.Time         `json:"created"`
-	Ports     []PortMapping     `json:"ports"`
-	Labels    map[string]string `json:"labels"`
-	CPUUsage  float64           `json:"cpuUsage"`
-	MemUsage  uint64            `json:"memUsage"`
-	MemLimit  uint64            `json:"memLimit"`
-	Networks  []string          `json:"networks"`
-	Volumes   []VolumeMount     `json:"volumes"`
+	ID       string            `json:"id"`
+	Name     string            `json:"name"`
+	Image    string            `json:"image"`
+	Status   string            `json:"status"`
+	State    string            `json:"state"`
+	Created  time.Time         `json:"created"`
+	Ports    []PortMapping     `json:"ports"`
+	Labels   map[string]string `json:"labels"`
+	CPUUsage float64           `json:"cpuUsage"`
+	MemUsage uint64            `json:"memUsage"`
+	MemLimit uint64            `json:"memLimit"`
+	Networks []string          `json:"networks"`
+	Volumes  []VolumeMount     `json:"volumes"`
 }
 
 // PortMapping 端口映射
@@ -43,60 +43,60 @@ type PortMapping struct {
 
 // VolumeMount 卷挂载
 type VolumeMount struct {
-	Source   string `json:"source"`
+	Source      string `json:"source"`
 	Destination string `json:"destination"`
-	Mode     string `json:"mode"`
-	RW       bool   `json:"rw"`
+	Mode        string `json:"mode"`
+	RW          bool   `json:"rw"`
 }
 
 // Image 镜像信息
 type Image struct {
-	ID         string   `json:"id"`
-	Repository string   `json:"repository"`
-	Tag        string   `json:"tag"`
-	Size       uint64   `json:"size"`
+	ID         string    `json:"id"`
+	Repository string    `json:"repository"`
+	Tag        string    `json:"tag"`
+	Size       uint64    `json:"size"`
 	Created    time.Time `json:"created"`
 }
 
 // Network 网络信息
 type Network struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	Driver    string   `json:"driver"`
-	Scope     string   `json:"scope"`
-	Subnet    string   `json:"subnet"`
-	Gateway   string   `json:"gateway"`
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	Driver     string   `json:"driver"`
+	Scope      string   `json:"scope"`
+	Subnet     string   `json:"subnet"`
+	Gateway    string   `json:"gateway"`
 	Containers []string `json:"containers"`
 }
 
 // Volume 卷信息
 type Volume struct {
-	Name      string    `json:"name"`
-	Driver    string    `json:"driver"`
-	MountPoint string   `json:"mountPoint"`
-	Size      uint64    `json:"size"`
-	Created   time.Time `json:"created"`
+	Name       string    `json:"name"`
+	Driver     string    `json:"driver"`
+	MountPoint string    `json:"mountPoint"`
+	Size       uint64    `json:"size"`
+	Created    time.Time `json:"created"`
 }
 
 // ContainerStats 容器统计信息
 type ContainerStats struct {
-	CPUUsage float64 `json:"cpuUsage"`
-	MemUsage uint64  `json:"memUsage"`
-	MemLimit uint64  `json:"memLimit"`
-	NetRX    uint64  `json:"netRx"`
-	NetTX    uint64  `json:"netTx"`
-	BlockRead  uint64 `json:"blockRead"`
-	BlockWrite uint64 `json:"blockWrite"`
+	CPUUsage   float64 `json:"cpuUsage"`
+	MemUsage   uint64  `json:"memUsage"`
+	MemLimit   uint64  `json:"memLimit"`
+	NetRX      uint64  `json:"netRx"`
+	NetTX      uint64  `json:"netTx"`
+	BlockRead  uint64  `json:"blockRead"`
+	BlockWrite uint64  `json:"blockWrite"`
 }
 
 // AppCatalog 应用目录
 type AppCatalog struct {
-	Name        string   `json:"name"`
-	Image       string   `json:"image"`
-	Description string   `json:"description"`
-	Category    string   `json:"category"`
-	Ports       []int    `json:"ports"`
-	Volumes     []string `json:"volumes"`
+	Name        string            `json:"name"`
+	Image       string            `json:"image"`
+	Description string            `json:"description"`
+	Category    string            `json:"category"`
+	Ports       []int             `json:"ports"`
+	Volumes     []string          `json:"volumes"`
 	Environment map[string]string `json:"environment"`
 }
 
@@ -137,12 +137,12 @@ func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		var raw struct {
-			ID      string `json:"ID"`
-			Names   string `json:"Names"`
-			Image   string `json:"Image"`
-			Status  string `json:"Status"`
-			State   string `json:"State"`
-			Ports   string `json:"Ports"`
+			ID     string `json:"ID"`
+			Names  string `json:"Names"`
+			Image  string `json:"Image"`
+			Status string `json:"Status"`
+			State  string `json:"State"`
+			Ports  string `json:"Ports"`
 		}
 
 		if err := json.Unmarshal([]byte(line), &raw); err != nil {
@@ -150,13 +150,13 @@ func (m *Manager) ListContainers(all bool) ([]*Container, error) {
 		}
 
 		container := &Container{
-			ID:      raw.ID[:12],
-			Name:    strings.TrimPrefix(raw.Names, "/"),
-			Image:   raw.Image,
-			Status:  raw.Status,
-			State:   raw.State,
-			Ports:   m.parsePorts(raw.Ports),
-			Labels:  make(map[string]string),
+			ID:     raw.ID[:12],
+			Name:   strings.TrimPrefix(raw.Names, "/"),
+			Image:  raw.Image,
+			Status: raw.Status,
+			State:  raw.State,
+			Ports:  m.parsePorts(raw.Ports),
+			Labels: make(map[string]string),
 		}
 
 		containers = append(containers, container)
@@ -174,10 +174,10 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 	}
 
 	var raw []struct {
-		ID      string `json:"Id"`
-		Name    string `json:"Name"`
-		Image   string `json:"Image"`
-		State   struct {
+		ID    string `json:"Id"`
+		Name  string `json:"Name"`
+		Image string `json:"Image"`
+		State struct {
 			Status  string    `json:"Status"`
 			Created time.Time `json:"StartedAt"`
 		} `json:"State"`
@@ -367,10 +367,10 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 	}
 
 	var raw struct {
-		CPUPerc string `json:"CPUPerc"`
+		CPUPerc  string `json:"CPUPerc"`
 		MemUsage string `json:"MemUsage"`
-		NetIO   string `json:"NetIO"`
-		BlockIO string `json:"BlockIO"`
+		NetIO    string `json:"NetIO"`
+		BlockIO  string `json:"BlockIO"`
 	}
 
 	if err := json.Unmarshal(output, &raw); err != nil {

@@ -15,13 +15,13 @@ type EdgeServices struct {
 
 // EdgeRootConfig 边缘计算总配置
 type EdgeRootConfig struct {
-	Enabled       bool                `json:"enabled"`
-	NodeID        string              `json:"node_id"`
-	DataDir       string              `json:"data_dir"`
-	NodeManager   EdgeNodeConfig      `json:"node_manager"`
-	TaskScheduler TaskSchedulerConfig `json:"task_scheduler"`
+	Enabled       bool                   `json:"enabled"`
+	NodeID        string                 `json:"node_id"`
+	DataDir       string                 `json:"data_dir"`
+	NodeManager   EdgeNodeConfig         `json:"node_manager"`
+	TaskScheduler TaskSchedulerConfig    `json:"task_scheduler"`
 	ResultAgg     ResultAggregatorConfig `json:"result_aggregator"`
-	LoadBalancer  EdgeLBConfig        `json:"load_balancer"`
+	LoadBalancer  EdgeLBConfig           `json:"load_balancer"`
 }
 
 // InitializeEdgeComputing 初始化边缘计算服务
@@ -158,8 +158,8 @@ func DefaultEdgeConfig() EdgeRootConfig {
 		NodeManager: EdgeNodeConfig{
 			HeartbeatInterval: 10e9, // 10秒
 			HeartbeatTimeout:  30e9, // 30秒
-			MaxNodes:         100,
-			AutoRegister:     true,
+			MaxNodes:          100,
+			AutoRegister:      true,
 		},
 		TaskScheduler: TaskSchedulerConfig{
 			MaxConcurrent:    100,
@@ -173,7 +173,7 @@ func DefaultEdgeConfig() EdgeRootConfig {
 			ProcessWorkers: 4,
 		},
 		LoadBalancer: EdgeLBConfig{
-			Strategy:          EdgeLBStrategyLeastLoad,
+			Strategy:         EdgeLBStrategyLeastLoad,
 			HealthCheckInt:   10e9, // 10秒
 			HealthTimeout:    5e9,  // 5秒
 			MaxRetry:         3,

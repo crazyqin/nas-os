@@ -116,7 +116,7 @@ func (h *Handlers) classifyFile(c *gin.Context) {
 // classifyBatch 批量分类
 func (h *Handlers) classifyBatch(c *gin.Context) {
 	var req struct {
-		Paths      []string `json:"paths" binding:"required"`
+		Paths       []string `json:"paths" binding:"required"`
 		Concurrency int      `json:"concurrency"`
 	}
 
@@ -313,8 +313,8 @@ func (h *Handlers) deleteTag(c *gin.Context) {
 // generateTags 生成标签
 func (h *Handlers) generateTags(c *gin.Context) {
 	var req struct {
-		Path     string `json:"path" binding:"required"`
-		Content  string `json:"content"`
+		Path    string `json:"path" binding:"required"`
+		Content string `json:"content"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -388,9 +388,9 @@ func (h *Handlers) deleteRule(c *gin.Context) {
 // detectSimilarity 检测相似度
 func (h *Handlers) detectSimilarity(c *gin.Context) {
 	var req struct {
-		Path string `json:"path" binding:"required"`
-		MinScore float64 `json:"minScore"`
-		MaxResults int `json:"maxResults"`
+		Path       string  `json:"path" binding:"required"`
+		MinScore   float64 `json:"minScore"`
+		MaxResults int     `json:"maxResults"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -450,9 +450,9 @@ func (h *Handlers) indexFile(c *gin.Context) {
 // indexDirectory 索引目录
 func (h *Handlers) indexDirectory(c *gin.Context) {
 	var req struct {
-		Path       string `json:"path" binding:"required"`
-		Recursive  bool   `json:"recursive"`
-		Concurrency int   `json:"concurrency"`
+		Path        string `json:"path" binding:"required"`
+		Recursive   bool   `json:"recursive"`
+		Concurrency int    `json:"concurrency"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

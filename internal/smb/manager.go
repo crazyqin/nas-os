@@ -14,41 +14,41 @@ import (
 
 // persistentConfig 持久化配置结构
 type persistentConfig struct {
-	Config *Config         `json:"config"`
+	Config *Config           `json:"config"`
 	Shares map[string]*Share `json:"shares"`
 }
 
 // Share SMB 共享配置
 type Share struct {
-	Name        string            `json:"name"`
-	Path        string            `json:"path"`
-	Comment     string            `json:"comment"`
-	ReadOnly    bool              `json:"read_only"`
-	GuestAccess bool              `json:"guest_access"`
-	AllowedUsers []string         `json:"allowed_users"`
-	Browseable  bool              `json:"browseable"`
-	VetoFiles   []string          `json:"veto_files"` // 隐藏的文件类型
+	Name         string   `json:"name"`
+	Path         string   `json:"path"`
+	Comment      string   `json:"comment"`
+	ReadOnly     bool     `json:"read_only"`
+	GuestAccess  bool     `json:"guest_access"`
+	AllowedUsers []string `json:"allowed_users"`
+	Browseable   bool     `json:"browseable"`
+	VetoFiles    []string `json:"veto_files"` // 隐藏的文件类型
 }
 
 // ShareInput 创建/更新共享输入
 type ShareInput struct {
-	Name        string   `json:"name" binding:"required"`
-	Path        string   `json:"path" binding:"required"`
-	Comment     string   `json:"comment"`
-	ReadOnly    bool     `json:"read_only"`
-	GuestAccess bool     `json:"guest_access"`
+	Name         string   `json:"name" binding:"required"`
+	Path         string   `json:"path" binding:"required"`
+	Comment      string   `json:"comment"`
+	ReadOnly     bool     `json:"read_only"`
+	GuestAccess  bool     `json:"guest_access"`
 	AllowedUsers []string `json:"allowed_users"`
-	Browseable  bool     `json:"browseable"`
+	Browseable   bool     `json:"browseable"`
 }
 
 // Config SMB 配置
 type Config struct {
-	Enabled      bool     `json:"enabled"`
-	Workgroup    string   `json:"workgroup"`
-	ServerString string   `json:"server_string"`
-	GuestAccess  bool     `json:"guest_access"`
-	MinProtocol  string   `json:"min_protocol"` // SMB2 或 SMB3
-	MaxProtocol  string   `json:"max_protocol"`
+	Enabled      bool   `json:"enabled"`
+	Workgroup    string `json:"workgroup"`
+	ServerString string `json:"server_string"`
+	GuestAccess  bool   `json:"guest_access"`
+	MinProtocol  string `json:"min_protocol"` // SMB2 或 SMB3
+	MaxProtocol  string `json:"max_protocol"`
 }
 
 // Manager SMB 管理器
@@ -237,24 +237,24 @@ func (m *Manager) CreateShare(input ShareInput) (*Share, error) {
 	}
 
 	share := &Share{
-		Name:        input.Name,
-		Path:        input.Path,
-		Comment:     input.Comment,
-		ReadOnly:    input.ReadOnly,
-		GuestAccess: input.GuestAccess,
+		Name:         input.Name,
+		Path:         input.Path,
+		Comment:      input.Comment,
+		ReadOnly:     input.ReadOnly,
+		GuestAccess:  input.GuestAccess,
 		AllowedUsers: input.AllowedUsers,
-		Browseable:  input.Browseable,
-		VetoFiles:   []string{".DS_Store", "Thumbs.db"}, // 默认隐藏系统文件
+		Browseable:   input.Browseable,
+		VetoFiles:    []string{".DS_Store", "Thumbs.db"}, // 默认隐藏系统文件
 	}
 
 	m.shares[input.Name] = share
-	
+
 	// 保存配置
 	if err := m.saveConfigLocked(); err != nil {
 		delete(m.shares, input.Name)
 		return nil, fmt.Errorf("保存配置失败：%w", err)
 	}
-	
+
 	return share, nil
 }
 
@@ -316,12 +316,12 @@ func (m *Manager) DeleteShare(name string) error {
 	}
 
 	delete(m.shares, name)
-	
+
 	// 保存配置
 	if err := m.saveConfigLocked(); err != nil {
 		return fmt.Errorf("保存配置失败：%w", err)
 	}
-	
+
 	return nil
 }
 

@@ -34,41 +34,41 @@ type MovieInfo struct {
 
 // TVShowInfo 电视剧信息
 type TVShowInfo struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	OriginalName  string    `json:"originalName"`
-	Overview      string    `json:"overview"`
-	FirstAirDate  string    `json:"firstAirDate"`
-	LastAirDate   string    `json:"lastAirDate"`
-	Status        string    `json:"status"`
-	Seasons       int       `json:"seasons"`
-	Episodes      int       `json:"episodes"`
-	Rating        float64   `json:"rating"`
-	VoteCount     int       `json:"voteCount"`
-	Genres        []string  `json:"genres"`
-	Creators      []string  `json:"creators"`
-	Cast          []string  `json:"cast"`
-	PosterPath    string    `json:"posterPath"`
-	BackdropPath  string    `json:"backdropPath"`
-	Networks      []string  `json:"networks"`
-	Language      string    `json:"language"`
-	Country       string    `json:"country"`
-	Source        string    `json:"source"`
-	LastUpdated   time.Time `json:"lastUpdated"`
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	OriginalName string    `json:"originalName"`
+	Overview     string    `json:"overview"`
+	FirstAirDate string    `json:"firstAirDate"`
+	LastAirDate  string    `json:"lastAirDate"`
+	Status       string    `json:"status"`
+	Seasons      int       `json:"seasons"`
+	Episodes     int       `json:"episodes"`
+	Rating       float64   `json:"rating"`
+	VoteCount    int       `json:"voteCount"`
+	Genres       []string  `json:"genres"`
+	Creators     []string  `json:"creators"`
+	Cast         []string  `json:"cast"`
+	PosterPath   string    `json:"posterPath"`
+	BackdropPath string    `json:"backdropPath"`
+	Networks     []string  `json:"networks"`
+	Language     string    `json:"language"`
+	Country      string    `json:"country"`
+	Source       string    `json:"source"`
+	LastUpdated  time.Time `json:"lastUpdated"`
 }
 
 // MusicAlbumInfo 音乐专辑信息
 type MusicAlbumInfo struct {
-	ID           string    `json:"id"`
-	Title        string    `json:"title"`
-	Artist       string    `json:"artist"`
-	ReleaseDate  string    `json:"releaseDate"`
-	Genres       []string  `json:"genres"`
-	Label        string    `json:"label"`
-	TotalTracks  int       `json:"totalTracks"`
-	CoverArt     string    `json:"coverArt"`
-	Source       string    `json:"source"`
-	LastUpdated  time.Time `json:"lastUpdated"`
+	ID          string    `json:"id"`
+	Title       string    `json:"title"`
+	Artist      string    `json:"artist"`
+	ReleaseDate string    `json:"releaseDate"`
+	Genres      []string  `json:"genres"`
+	Label       string    `json:"label"`
+	TotalTracks int       `json:"totalTracks"`
+	CoverArt    string    `json:"coverArt"`
+	Source      string    `json:"source"`
+	LastUpdated time.Time `json:"lastUpdated"`
 }
 
 // MetadataProvider 元数据提供商接口
@@ -128,17 +128,17 @@ func (p *TMDBProvider) SearchMovie(query string) ([]*MovieInfo, error) {
 
 	var result struct {
 		Results []struct {
-			ID            int      `json:"id"`
-			Title         string   `json:"title"`
-			OriginalTitle string   `json:"original_title"`
-			Overview      string   `json:"overview"`
-			ReleaseDate   string   `json:"release_date"`
-			Popularity    float64  `json:"popularity"`
-			VoteAverage   float64  `json:"vote_average"`
-			VoteCount     int      `json:"vote_count"`
-			GenreIDs      []int    `json:"genre_ids"`
-			PosterPath    string   `json:"poster_path"`
-			BackdropPath  string   `json:"backdrop_path"`
+			ID            int     `json:"id"`
+			Title         string  `json:"title"`
+			OriginalTitle string  `json:"original_title"`
+			Overview      string  `json:"overview"`
+			ReleaseDate   string  `json:"release_date"`
+			Popularity    float64 `json:"popularity"`
+			VoteAverage   float64 `json:"vote_average"`
+			VoteCount     int     `json:"vote_count"`
+			GenreIDs      []int   `json:"genre_ids"`
+			PosterPath    string  `json:"poster_path"`
+			BackdropPath  string  `json:"backdrop_path"`
 		} `json:"results"`
 	}
 
@@ -189,21 +189,21 @@ func (p *TMDBProvider) GetMovie(id string) (*MovieInfo, error) {
 	}
 
 	var result struct {
-		ID            int      `json:"id"`
-		Title         string   `json:"title"`
-		OriginalTitle string   `json:"original_title"`
-		Overview      string   `json:"overview"`
-		Runtime       int      `json:"runtime"`
-		ReleaseDate   string   `json:"release_date"`
-		VoteAverage   float64  `json:"vote_average"`
-		VoteCount     int      `json:"vote_count"`
+		ID            int     `json:"id"`
+		Title         string  `json:"title"`
+		OriginalTitle string  `json:"original_title"`
+		Overview      string  `json:"overview"`
+		Runtime       int     `json:"runtime"`
+		ReleaseDate   string  `json:"release_date"`
+		VoteAverage   float64 `json:"vote_average"`
+		VoteCount     int     `json:"vote_count"`
 		Genres        []struct {
 			ID   int    `json:"id"`
 			Name string `json:"name"`
 		} `json:"genres"`
-		PosterPath   string `json:"poster_path"`
-		BackdropPath string `json:"backdrop_path"`
-		Tagline      string `json:"tagline"`
+		PosterPath      string `json:"poster_path"`
+		BackdropPath    string `json:"backdrop_path"`
+		Tagline         string `json:"tagline"`
 		SpokenLanguages []struct {
 			Iso639_1 string `json:"iso_639_1"`
 			Name     string `json:"name"`
@@ -299,17 +299,17 @@ func (p *TMDBProvider) SearchTV(query string) ([]*TVShowInfo, error) {
 
 	var result struct {
 		Results []struct {
-			ID           int      `json:"id"`
-			Name         string   `json:"name"`
-			OriginalName string   `json:"original_name"`
-			Overview     string   `json:"overview"`
-			FirstAirDate string   `json:"first_air_date"`
-			Popularity   float64  `json:"popularity"`
-			VoteAverage  float64  `json:"vote_average"`
-			VoteCount    int      `json:"vote_count"`
-			GenreIDs     []int    `json:"genre_ids"`
-			PosterPath   string   `json:"poster_path"`
-			BackdropPath string   `json:"backdrop_path"`
+			ID           int     `json:"id"`
+			Name         string  `json:"name"`
+			OriginalName string  `json:"original_name"`
+			Overview     string  `json:"overview"`
+			FirstAirDate string  `json:"first_air_date"`
+			Popularity   float64 `json:"popularity"`
+			VoteAverage  float64 `json:"vote_average"`
+			VoteCount    int     `json:"vote_count"`
+			GenreIDs     []int   `json:"genre_ids"`
+			PosterPath   string  `json:"poster_path"`
+			BackdropPath string  `json:"backdrop_path"`
 		} `json:"results"`
 	}
 
@@ -359,13 +359,13 @@ func (p *TMDBProvider) GetTV(id string) (*TVShowInfo, error) {
 	}
 
 	var result struct {
-		ID           int      `json:"id"`
-		Name         string   `json:"name"`
-		OriginalName string   `json:"original_name"`
-		Overview     string   `json:"overview"`
-		FirstAirDate string   `json:"first_air_date"`
-		LastAirDate  string   `json:"last_air_date"`
-		Status       string   `json:"status"`
+		ID           int    `json:"id"`
+		Name         string `json:"name"`
+		OriginalName string `json:"original_name"`
+		Overview     string `json:"overview"`
+		FirstAirDate string `json:"first_air_date"`
+		LastAirDate  string `json:"last_air_date"`
+		Status       string `json:"status"`
 		Seasons      []struct {
 			SeasonNumber int `json:"season_number"`
 			EpisodeCount int `json:"episode_count"`
@@ -389,7 +389,7 @@ func (p *TMDBProvider) GetTV(id string) (*TVShowInfo, error) {
 				Name string `json:"name"`
 			} `json:"cast"`
 		} `json:"credits"`
-		SpokenLanguages   []struct {
+		SpokenLanguages []struct {
 			Name string `json:"name"`
 		} `json:"spoken_languages"`
 		OriginCountry []string `json:"origin_country"`

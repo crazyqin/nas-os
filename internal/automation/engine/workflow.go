@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"nas-os/internal/automation/trigger"
 	"nas-os/internal/automation/action"
+	"nas-os/internal/automation/trigger"
 )
 
 // Workflow 定义一个自动化工作流
@@ -166,8 +166,8 @@ func (e *WorkflowEngine) ExecuteWorkflow(id string, eventData map[string]interfa
 	// 执行动作
 	ctx := context.Background()
 	contextData := map[string]interface{}{
-		"event": eventData,
-		"timestamp": now,
+		"event":       eventData,
+		"timestamp":   now,
 		"workflow_id": id,
 	}
 

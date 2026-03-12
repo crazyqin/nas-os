@@ -26,18 +26,18 @@ type Manager struct {
 
 // Interface 网络接口
 type Interface struct {
-	Name     string `json:"name"`
-	MAC      string `json:"mac,omitempty"`
-	IP       string `json:"ip,omitempty"`
-	Netmask  string `json:"netmask,omitempty"`
-	Gateway  string `json:"gateway,omitempty"`
-	DNS      string `json:"dns,omitempty"`
-	State    string `json:"state"` // up, down
-	Type     string `json:"type"`  // ethernet, wifi, bridge
-	Speed    string `json:"speed,omitempty"`
-	RxBytes  int64  `json:"rxBytes"`
-	TxBytes  int64  `json:"txBytes"`
-	Mtu      int    `json:"mtu"`
+	Name    string `json:"name"`
+	MAC     string `json:"mac,omitempty"`
+	IP      string `json:"ip,omitempty"`
+	Netmask string `json:"netmask,omitempty"`
+	Gateway string `json:"gateway,omitempty"`
+	DNS     string `json:"dns,omitempty"`
+	State   string `json:"state"` // up, down
+	Type    string `json:"type"`  // ethernet, wifi, bridge
+	Speed   string `json:"speed,omitempty"`
+	RxBytes int64  `json:"rxBytes"`
+	TxBytes int64  `json:"txBytes"`
+	Mtu     int    `json:"mtu"`
 }
 
 // InterfaceConfig 接口配置
@@ -51,11 +51,11 @@ type InterfaceConfig struct {
 
 // DDNSConfig DDNS 配置
 type DDNSConfig struct {
-	Provider   string `json:"provider"`   // alidns, cloudflare, duckdns, noip
+	Provider   string `json:"provider"` // alidns, cloudflare, duckdns, noip
 	Domain     string `json:"domain"`
-	Token      string `json:"token"`      // API Token
-	Secret     string `json:"secret"`     // API Secret (某些服务商需要)
-	Interface  string `json:"interface"`  // 使用的网络接口，auto 为自动
+	Token      string `json:"token"`     // API Token
+	Secret     string `json:"secret"`    // API Secret (某些服务商需要)
+	Interface  string `json:"interface"` // 使用的网络接口，auto 为自动
 	Enabled    bool   `json:"enabled"`
 	Status     string `json:"status"`     // active, error, pending
 	LastIP     string `json:"lastIp"`     // 上次更新的 IP
@@ -79,7 +79,7 @@ type FirewallRule struct {
 	Name      string `json:"name"`
 	Action    string `json:"action"`    // accept, drop, reject
 	Direction string `json:"direction"` // in, out, forward
-	Protocol  string `json:"protocol"` // tcp, udp, icmp, all
+	Protocol  string `json:"protocol"`  // tcp, udp, icmp, all
 	SourceIP  string `json:"sourceIp"`  // 源 IP，空为任意
 	DestIP    string `json:"destIp"`    // 目标 IP，空为任意
 	DestPort  string `json:"destPort"`  // 目标端口，空为任意
@@ -96,11 +96,11 @@ type NetworkStats struct {
 
 // InterfaceStats 接口统计
 type InterfaceStats struct {
-	Name     string `json:"name"`
-	RxBytes  int64  `json:"rxBytes"`
-	TxBytes  int64  `json:"txBytes"`
-	RxPackets int64 `json:"rxPackets"`
-	TxPackets int64 `json:"txPackets"`
+	Name      string `json:"name"`
+	RxBytes   int64  `json:"rxBytes"`
+	TxBytes   int64  `json:"txBytes"`
+	RxPackets int64  `json:"rxPackets"`
+	TxPackets int64  `json:"txPackets"`
 }
 
 // NewManager 创建网络管理器

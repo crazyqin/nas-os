@@ -39,49 +39,49 @@ type CloudAIEngine struct {
 
 // AITask AI 处理任务
 type AITask struct {
-	ID         string    `json:"id"`
-	Type       string    `json:"type"` // face_detect, scene_classify, object_detect, analyze_all
-	PhotoID    string    `json:"photoId"`
-	PhotoPath  string    `json:"photoPath"`
-	Status     string    `json:"status"` // pending, running, completed, failed
-	Progress   int       `json:"progress"`
-	Result     *AIClassification `json:"result,omitempty"`
-	Error      string    `json:"error,omitempty"`
-	CreatedAt  time.Time `json:"createdAt"`
-	StartedAt  time.Time `json:"startedAt,omitempty"`
-	CompletedAt time.Time `json:"completedAt,omitempty"`
+	ID          string            `json:"id"`
+	Type        string            `json:"type"` // face_detect, scene_classify, object_detect, analyze_all
+	PhotoID     string            `json:"photoId"`
+	PhotoPath   string            `json:"photoPath"`
+	Status      string            `json:"status"` // pending, running, completed, failed
+	Progress    int               `json:"progress"`
+	Result      *AIClassification `json:"result,omitempty"`
+	Error       string            `json:"error,omitempty"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	StartedAt   time.Time         `json:"startedAt,omitempty"`
+	CompletedAt time.Time         `json:"completedAt,omitempty"`
 }
 
 // AIMemory AI 处理记录（用于持久化）
 type AIMemory struct {
-	PhotoID       string    `json:"photoId"`
+	PhotoID        string            `json:"photoId"`
 	Classification *AIClassification `json:"classification"`
-	ProcessedAt   time.Time `json:"processedAt"`
-	ModelVersion  string    `json:"modelVersion"`
+	ProcessedAt    time.Time         `json:"processedAt"`
+	ModelVersion   string            `json:"modelVersion"`
 }
 
 // SmartAlbum 智能相册（自动生成）
 type SmartAlbum struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Type        string    `json:"type"` // person, scene, object, location, time
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Type        string                 `json:"type"`     // person, scene, object, location, time
 	Criteria    map[string]interface{} `json:"criteria"` // 生成条件
-	PhotoIDs    []string  `json:"photoIds"`
-	AutoUpdate  bool      `json:"autoUpdate"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	PhotoIDs    []string               `json:"photoIds"`
+	AutoUpdate  bool                   `json:"autoUpdate"`
+	CreatedAt   time.Time              `json:"createdAt"`
+	UpdatedAt   time.Time              `json:"updatedAt"`
 }
 
 // MemoryAlbum 回忆相册（历史上的今天）
 type MemoryAlbum struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	Date        string    `json:"date"` // MM-DD
-	Year        int       `json:"year"`
-	PhotoIDs    []string  `json:"photoIds"`
-	CoverPhotoID string `json:"coverPhotoId"`
-	CreatedAt   time.Time `json:"createdAt"`
+	ID           string    `json:"id"`
+	Title        string    `json:"title"`
+	Date         string    `json:"date"` // MM-DD
+	Year         int       `json:"year"`
+	PhotoIDs     []string  `json:"photoIds"`
+	CoverPhotoID string    `json:"coverPhotoId"`
+	CreatedAt    time.Time `json:"createdAt"`
 }
 
 // AIManager AI 相册管理器
@@ -573,14 +573,14 @@ func (aim *AIManager) saveSmartAlbums() error {
 // CreateSmartAlbum 创建智能相册
 func (aim *AIManager) CreateSmartAlbum(name, albumType string, criteria map[string]interface{}) (*SmartAlbum, error) {
 	album := &SmartAlbum{
-		ID:          uuid.New().String(),
-		Name:        name,
-		Type:        albumType,
-		Criteria:    criteria,
-		PhotoIDs:    make([]string, 0),
-		AutoUpdate:  true,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		ID:         uuid.New().String(),
+		Name:       name,
+		Type:       albumType,
+		Criteria:   criteria,
+		PhotoIDs:   make([]string, 0),
+		AutoUpdate: true,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	switch albumType {

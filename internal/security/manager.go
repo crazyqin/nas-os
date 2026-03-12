@@ -7,13 +7,13 @@ import (
 
 // SecurityManager 安全管理器（统一入口）
 type SecurityManager struct {
-	firewall    *FirewallManager
-	fail2ban    *Fail2BanManager
-	audit       *AuditManager
-	baseline    *BaselineManager
-	config      SecurityConfig
-	notifyFunc  func(alert SecurityAlert)
-	mu          sync.RWMutex
+	firewall   *FirewallManager
+	fail2ban   *Fail2BanManager
+	audit      *AuditManager
+	baseline   *BaselineManager
+	config     SecurityConfig
+	notifyFunc func(alert SecurityAlert)
+	mu         sync.RWMutex
 }
 
 // NewSecurityManager 创建安全管理器
@@ -234,11 +234,11 @@ func (sm *SecurityManager) GetDashboard() map[string]interface{} {
 	baselineReport := sm.baseline.RunAllChecks()
 
 	return map[string]interface{}{
-		"timestamp":           now,
-		"security_status":     sm.GetSecurityStatus(),
-		"login_stats_24h":     loginStats,
-		"baseline_score":      baselineReport.OverallScore,
-		"baseline_failed":     baselineReport.Failed,
+		"timestamp":             now,
+		"security_status":       sm.GetSecurityStatus(),
+		"login_stats_24h":       loginStats,
+		"baseline_score":        baselineReport.OverallScore,
+		"baseline_failed":       baselineReport.Failed,
 		"unacknowledged_alerts": sm.getUnacknowledgedAlertsCount(),
 	}
 }

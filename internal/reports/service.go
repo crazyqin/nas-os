@@ -15,7 +15,7 @@ type Service struct {
 	ScheduleManager *ScheduleManager
 	Exporter        *Exporter
 	Handlers        *Handlers
-	
+
 	dataDir string
 	mu      sync.RWMutex
 }
@@ -31,12 +31,12 @@ func NewService(config Config) (*Service, error) {
 	if dataDir == "" {
 		dataDir = "/var/lib/nas-os/reports"
 	}
-	
+
 	// 确保目录存在
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, fmt.Errorf("创建数据目录失败: %w", err)
 	}
-	
+
 	// 创建子目录
 	subDirs := []string{"templates", "custom", "schedules", "outputs"}
 	for _, subDir := range subDirs {
@@ -44,25 +44,25 @@ func NewService(config Config) (*Service, error) {
 			return nil, fmt.Errorf("创建子目录 %s 失败: %w", subDir, err)
 		}
 	}
-	
+
 	// 创建模板管理器
 	templateManager, err := NewTemplateManager(filepath.Join(dataDir, "templates"))
 	if err != nil {
 		return nil, fmt.Errorf("创建模板管理器失败: %w", err)
 	}
-	
+
 	// 创建导出器
 	exporter := NewExporter(filepath.Join(dataDir, "outputs"))
-	
+
 	// 创建报表生成器
 	generator := NewReportGenerator(templateManager, filepath.Join(dataDir, "custom"))
-	
+
 	// 创建定时任务管理器
 	scheduleManager := NewScheduleManager(generator, exporter, filepath.Join(dataDir, "schedules"))
-	
+
 	// 创建处理器
 	handlers := NewHandlers(templateManager, generator, scheduleManager, exporter)
-	
+
 	service := &Service{
 		TemplateManager: templateManager,
 		Generator:       generator,
@@ -71,7 +71,7 @@ func NewService(config Config) (*Service, error) {
 		Handlers:        handlers,
 		dataDir:         dataDir,
 	}
-	
+
 	return service, nil
 }
 
@@ -107,15 +107,15 @@ func (s *Service) SetNotifyWebhook(fn func(scheduleID string, webhooks []string,
 func (s *Service) GetStats() map[string]interface{} {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	
+
 	stats := map[string]interface{}{
-		"data_dir":     s.dataDir,
-		"templates":    len(s.TemplateManager.ListTemplates("", false)),
+		"data_dir":       s.dataDir,
+		"templates":      len(s.TemplateManager.ListTemplates("", false)),
 		"custom_reports": len(s.Generator.ListCustomReports("")),
-		"schedules":    len(s.ScheduleManager.ListSchedules(nil)),
-		"data_sources": len(s.Generator.ListDataSources()),
+		"schedules":      len(s.ScheduleManager.ListSchedules(nil)),
+		"data_sources":   len(s.Generator.ListDataSources()),
 	}
-	
+
 	return stats
 }
 
@@ -150,7 +150,7 @@ func (s *Service) ScheduleReport(name string, templateID string, frequency Sched
 		NotifyEmail:  emails,
 		Enabled:      true,
 	}
-	
+
 	return s.ScheduleManager.CreateSchedule(input, "system")
 }
 
@@ -158,7 +158,7 @@ func (s *Service) ScheduleReport(name string, templateID string, frequency Sched
 
 var (
 	globalService *Service
-	once         sync.Once
+	once          sync.Once
 )
 
 // Init 初始化全局服务

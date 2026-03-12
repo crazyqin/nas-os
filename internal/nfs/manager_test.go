@@ -128,8 +128,8 @@ func TestCreateExport(t *testing.T) {
 		{
 			name: "重复创建",
 			input: ExportInput{
-				Name:    "export1",
-				Path:    filepath.Join(tmpDir, "export1"),
+				Name: "export1",
+				Path: filepath.Join(tmpDir, "export1"),
 			},
 			wantErr: true,
 		},

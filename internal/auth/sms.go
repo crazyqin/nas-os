@@ -15,11 +15,11 @@ type SMSProvider interface {
 
 // SMSManager 短信验证码管理器
 type SMSManager struct {
-	mu       sync.RWMutex
-	codes    map[string]*SMSCode // phone -> SMSCode
-	provider SMSProvider
-	codeLen  int
-	validity time.Duration
+	mu          sync.RWMutex
+	codes       map[string]*SMSCode // phone -> SMSCode
+	provider    SMSProvider
+	codeLen     int
+	validity    time.Duration
 	maxAttempts int
 }
 
@@ -171,11 +171,11 @@ func (p *AliyunSMSProvider) Send(phone, code string) error {
 
 // TencentSMSProvider 腾讯云短信提供商
 type TencentSMSProvider struct {
-	SecretID     string
-	SecretKey    string
-	AppID        string
-	SignName     string
-	TemplateID   string
+	SecretID   string
+	SecretKey  string
+	AppID      string
+	SignName   string
+	TemplateID string
 }
 
 func (p *TencentSMSProvider) Send(phone, code string) error {

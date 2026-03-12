@@ -16,60 +16,60 @@ import (
 type MediaType string
 
 const (
-	MediaTypeMovie  MediaType = "movie"
-	MediaTypeTV     MediaType = "tv"
-	MediaTypeMusic  MediaType = "music"
-	MediaTypePhoto  MediaType = "photo"
+	MediaTypeMovie MediaType = "movie"
+	MediaTypeTV    MediaType = "tv"
+	MediaTypeMusic MediaType = "music"
+	MediaTypePhoto MediaType = "photo"
 )
 
 // MediaItem 媒体项
 type MediaItem struct {
-	ID           string            `json:"id"`
-	Path         string            `json:"path"`
-	Name         string            `json:"name"`
-	Type         MediaType         `json:"type"`
-	Size         int64             `json:"size"`
-	ModifiedTime time.Time         `json:"modifiedTime"`
-	Metadata     interface{}       `json:"metadata,omitempty"`
-	PosterPath   string            `json:"posterPath,omitempty"`
-	IsFavorite   bool              `json:"isFavorite"`
-	Tags         []string          `json:"tags"`
-	Rating       float64           `json:"rating"`
-	PlayCount    int               `json:"playCount"`
-	LastPlayed   *time.Time        `json:"lastPlayed,omitempty"`
+	ID           string      `json:"id"`
+	Path         string      `json:"path"`
+	Name         string      `json:"name"`
+	Type         MediaType   `json:"type"`
+	Size         int64       `json:"size"`
+	ModifiedTime time.Time   `json:"modifiedTime"`
+	Metadata     interface{} `json:"metadata,omitempty"`
+	PosterPath   string      `json:"posterPath,omitempty"`
+	IsFavorite   bool        `json:"isFavorite"`
+	Tags         []string    `json:"tags"`
+	Rating       float64     `json:"rating"`
+	PlayCount    int         `json:"playCount"`
+	LastPlayed   *time.Time  `json:"lastPlayed,omitempty"`
 }
 
 // MediaLibrary 媒体库
 type MediaLibrary struct {
-	ID              string                 `json:"id"`
-	Name            string                 `json:"name"`
-	Description     string                 `json:"description"`
-	Path            string                 `json:"path"`
-	Type            MediaType              `json:"type"`
-	Enabled         bool                   `json:"enabled"`
-	AutoScan        bool                   `json:"autoScan"`
-	ScanInterval    int                    `json:"scanInterval"` // 分钟
-	Items           []*MediaItem           `json:"items,omitempty"`
-	LastScanTime    *time.Time             `json:"lastScanTime,omitempty"`
-	MetadataSource  string                 `json:"metadataSource"` // tmdb/douban/auto
-	TMDBApiKey      string                 `json:"tmdbApiKey,omitempty"`
-	DoubanApiKey    string                 `json:"doubanApiKey,omitempty"`
+	ID             string       `json:"id"`
+	Name           string       `json:"name"`
+	Description    string       `json:"description"`
+	Path           string       `json:"path"`
+	Type           MediaType    `json:"type"`
+	Enabled        bool         `json:"enabled"`
+	AutoScan       bool         `json:"autoScan"`
+	ScanInterval   int          `json:"scanInterval"` // 分钟
+	Items          []*MediaItem `json:"items,omitempty"`
+	LastScanTime   *time.Time   `json:"lastScanTime,omitempty"`
+	MetadataSource string       `json:"metadataSource"` // tmdb/douban/auto
+	TMDBApiKey     string       `json:"tmdbApiKey,omitempty"`
+	DoubanApiKey   string       `json:"doubanApiKey,omitempty"`
 }
 
 // LibraryManager 媒体库管理器
 type LibraryManager struct {
-	libraries      map[string]*MediaLibrary
+	libraries         map[string]*MediaLibrary
 	metadataProviders []MetadataProvider
-	configPath     string
-	mu             sync.RWMutex
+	configPath        string
+	mu                sync.RWMutex
 }
 
 // NewLibraryManager 创建媒体库管理器
 func NewLibraryManager(configPath string) *LibraryManager {
 	lm := &LibraryManager{
-		libraries:       make(map[string]*MediaLibrary),
+		libraries:         make(map[string]*MediaLibrary),
 		metadataProviders: make([]MetadataProvider, 0),
-		configPath:      configPath,
+		configPath:        configPath,
 	}
 
 	// 加载配置
@@ -95,14 +95,14 @@ func (lm *LibraryManager) CreateLibrary(name, path string, mediaType MediaType) 
 
 	id := fmt.Sprintf("lib_%d", time.Now().UnixNano())
 	library := &MediaLibrary{
-		ID:           id,
-		Name:         name,
-		Path:         path,
-		Type:         mediaType,
-		Enabled:      true,
-		AutoScan:     true,
-		ScanInterval: 60, // 默认 60 分钟
-		Items:        make([]*MediaItem, 0),
+		ID:             id,
+		Name:           name,
+		Path:           path,
+		Type:           mediaType,
+		Enabled:        true,
+		AutoScan:       true,
+		ScanInterval:   60, // 默认 60 分钟
+		Items:          make([]*MediaItem, 0),
 		MetadataSource: "auto",
 	}
 

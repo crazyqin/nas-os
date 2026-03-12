@@ -459,11 +459,11 @@ func (d *SimilarityDetector) GetStatistics() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"totalFilesIndexed":  len(d.featureIndex),
-		"uniqueHashes":       len(d.hashIndex),
-		"uniqueNames":        len(d.nameIndex),
-		"duplicateGroups":    duplicateGroups,
-		"duplicateFiles":     duplicateFiles,
+		"totalFilesIndexed":   len(d.featureIndex),
+		"uniqueHashes":        len(d.hashIndex),
+		"uniqueNames":         len(d.nameIndex),
+		"duplicateGroups":     duplicateGroups,
+		"duplicateFiles":      duplicateFiles,
 		"potentialDuplicates": duplicateFiles - duplicateGroups,
 	}
 }

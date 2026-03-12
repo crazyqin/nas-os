@@ -13,12 +13,12 @@ import (
 
 // JellyfinConfig Jellyfin 配置
 type JellyfinConfig struct {
-	ServerURL      string `json:"serverUrl"`
-	APIKey         string `json:"apiKey"`
-	ConfigPath     string `json:"configPath"`
-	EnableChinese  bool   `json:"enableChinese"`
-	DoubanEnabled  bool   `json:"doubanEnabled"`
-	TMDBEnabled    bool   `json:"tmdbEnabled"`
+	ServerURL       string `json:"serverUrl"`
+	APIKey          string `json:"apiKey"`
+	ConfigPath      string `json:"configPath"`
+	EnableChinese   bool   `json:"enableChinese"`
+	DoubanEnabled   bool   `json:"doubanEnabled"`
+	TMDBEnabled     bool   `json:"tmdbEnabled"`
 	ChinesePriority int    `json:"chinesePriority"` // 中文元数据优先级 1-5
 }
 
@@ -88,7 +88,7 @@ func (jm *JellyfinManager) SetAPIKey(apiKey string) error {
 // GetSystemInfo 获取系统信息
 func (jm *JellyfinManager) GetSystemInfo() (map[string]interface{}, error) {
 	url := fmt.Sprintf("%s/System/Info/Public", jm.config.ServerURL)
-	
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -116,12 +116,12 @@ func (jm *JellyfinManager) GetSystemInfo() (map[string]interface{}, error) {
 // GetLibraries 获取媒体库列表
 func (jm *JellyfinManager) GetLibraries() ([]map[string]interface{}, error) {
 	url := fmt.Sprintf("%s/Library/VirtualFolders", jm.config.ServerURL)
-	
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if jm.config.APIKey != "" {
 		req.Header.Set("X-Emby-Authorization", fmt.Sprintf(`MediaBrowser Client="NAS-OS", Device="NAS", DeviceId="NAS-OS", Version="1.0", Token="%s"`, jm.config.APIKey))
 	}
@@ -148,13 +148,13 @@ func (jm *JellyfinManager) GetLibraries() ([]map[string]interface{}, error) {
 // CreateLibrary 创建媒体库
 func (jm *JellyfinManager) CreateLibrary(name, libraryType string, paths []string) error {
 	url := fmt.Sprintf("%s/Library/VirtualFolders", jm.config.ServerURL)
-	
+
 	// 构建请求体
 	payload := map[string]interface{}{
-		"Name":             name,
-		"CollectionType":   libraryType, // movies, tvshows, music, photos
-		"Paths":            paths,
-		"RefreshInterval":  0,
+		"Name":            name,
+		"CollectionType":  libraryType, // movies, tvshows, music, photos
+		"Paths":           paths,
+		"RefreshInterval": 0,
 	}
 
 	jsonData, err := json.Marshal(payload)
@@ -166,7 +166,7 @@ func (jm *JellyfinManager) CreateLibrary(name, libraryType string, paths []strin
 	if err != nil {
 		return err
 	}
-	
+
 	req.Header.Set("Content-Type", "application/json")
 	if jm.config.APIKey != "" {
 		req.Header.Set("X-Emby-Authorization", fmt.Sprintf(`MediaBrowser Client="NAS-OS", Device="NAS", DeviceId="NAS-OS", Version="1.0", Token="%s"`, jm.config.APIKey))
@@ -190,13 +190,13 @@ func (jm *JellyfinManager) CreateLibrary(name, libraryType string, paths []strin
 func (jm *JellyfinManager) ConfigureMetadata(libraryID string, enableChinese bool) error {
 	// Jellyfin 原生支持 TMDB，中文元数据通过插件实现
 	// 这里提供配置接口，实际配置需要通过 Jellyfin Web UI 完成
-	
+
 	if enableChinese {
 		// 启用中文元数据
 		// 1. 安装中文元数据插件（需要用户手动在 Jellyfin 中安装）
 		// 2. 配置 TMDB 使用中文
 		// 3. 可选：配置豆瓣插件（如果可用）
-		
+
 		fmt.Println("中文元数据配置指南:")
 		fmt.Println("1. 在 Jellyfin 控制台 -> 插件 -> 目录中安装 'TheMovieDb' 插件")
 		fmt.Println("2. 在 Jellyfin 控制台 -> 插件 -> 目录中安装 'Douban' 插件（如有）")
@@ -210,11 +210,11 @@ func (jm *JellyfinManager) ConfigureMetadata(libraryID string, enableChinese boo
 // ScanLibrary 扫描媒体库
 func (jm *JellyfinManager) ScanLibrary(libraryID string) error {
 	url := fmt.Sprintf("%s/Library/Media/Updated", jm.config.ServerURL)
-	
+
 	payload := map[string]interface{}{
 		"Updates": []map[string]interface{}{
 			{
-				"ItemId": libraryID,
+				"ItemId":     libraryID,
 				"UpdateType": "Created",
 			},
 		},
@@ -229,7 +229,7 @@ func (jm *JellyfinManager) ScanLibrary(libraryID string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	req.Header.Set("Content-Type", "application/json")
 	if jm.config.APIKey != "" {
 		req.Header.Set("X-Emby-Authorization", fmt.Sprintf(`MediaBrowser Client="NAS-OS", Device="NAS", DeviceId="NAS-OS", Version="1.0", Token="%s"`, jm.config.APIKey))
@@ -247,26 +247,26 @@ func (jm *JellyfinManager) ScanLibrary(libraryID string) error {
 // GetRecommendedConfig 获取推荐配置
 func (jm *JellyfinManager) GetRecommendedConfig() map[string]interface{} {
 	return map[string]interface{}{
-		"enableChinese": true,
-		"tmdbEnabled":   true,
-		"doubanEnabled": false, // 豆瓣插件需要手动安装
-		"chinesePriority": 3,
+		"enableChinese":     true,
+		"tmdbEnabled":       true,
+		"doubanEnabled":     false, // 豆瓣插件需要手动安装
+		"chinesePriority":   3,
 		"metadataLanguages": []string{"zh-CN", "zh-Hans", "en-US"},
 		"recommendedPlugins": []map[string]interface{}{
 			{
-				"name": "TheMovieDb",
+				"name":        "TheMovieDb",
 				"description": "TMDB 元数据提供商，支持中文",
-				"required": true,
+				"required":    true,
 			},
 			{
-				"name": "TheOpenMovieDatabase",
+				"name":        "TheOpenMovieDatabase",
 				"description": "OMDb 元数据提供商",
-				"required": false,
+				"required":    false,
 			},
 			{
-				"name": "Douban",
+				"name":        "Douban",
 				"description": "豆瓣元数据插件（需要手动安装）",
-				"required": false,
+				"required":    false,
 			},
 		},
 		"setupSteps": []string{
@@ -296,7 +296,7 @@ func (jm *JellyfinManager) GetConfig() *JellyfinConfig {
 // TestConnection 测试连接
 func (jm *JellyfinManager) TestConnection() error {
 	url := fmt.Sprintf("%s/System/Info/Public", jm.config.ServerURL)
-	
+
 	resp, err := jm.httpClient.Get(url)
 	if err != nil {
 		return fmt.Errorf("连接失败：%v", err)

@@ -6,22 +6,22 @@ import (
 
 // ClusterServices 集群服务集合
 type ClusterServices struct {
-	Manager   *ClusterManager
-	Sync      *StorageSync
-	LB        *LoadBalancer
-	HA        *HighAvailability
-	API       *ClusterAPI
+	Manager *ClusterManager
+	Sync    *StorageSync
+	LB      *LoadBalancer
+	HA      *HighAvailability
+	API     *ClusterAPI
 }
 
 // ClusterRootConfig 集群总配置
 type ClusterRootConfig struct {
-	Enabled      bool         `json:"enabled"`
-	NodeID       string       `json:"node_id"`
-	DataDir      string       `json:"data_dir"`
+	Enabled      bool          `json:"enabled"`
+	NodeID       string        `json:"node_id"`
+	DataDir      string        `json:"data_dir"`
 	Cluster      ClusterConfig `json:"cluster"`
-	Sync         SyncConfig   `json:"sync"`
-	LoadBalancer LBConfig     `json:"load_balancer"`
-	HA           HAConfig     `json:"ha"`
+	Sync         SyncConfig    `json:"sync"`
+	LoadBalancer LBConfig      `json:"load_balancer"`
+	HA           HAConfig      `json:"ha"`
 }
 
 // InitializeCluster 初始化集群服务

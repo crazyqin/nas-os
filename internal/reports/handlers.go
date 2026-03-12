@@ -110,7 +110,7 @@ func Error(code int, message string) Response {
 func (h *Handlers) listTemplates(c *gin.Context) {
 	templateType := TemplateType(c.Query("type"))
 	publicOnly := c.Query("public") == "true"
-	
+
 	templates := h.templateManager.ListTemplates(templateType, publicOnly)
 	c.JSON(http.StatusOK, Success(templates))
 }
@@ -121,7 +121,7 @@ func (h *Handlers) createTemplate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	createdBy := c.GetString("username")
 	template, err := h.templateManager.CreateTemplate(input, createdBy)
 	if err != nil {
@@ -132,7 +132,7 @@ func (h *Handlers) createTemplate(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, Success(template))
 }
 
@@ -153,7 +153,7 @@ func (h *Handlers) updateTemplate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	template, err := h.templateManager.UpdateTemplate(id, input)
 	if err != nil {
 		if err == ErrTemplateNotFound {
@@ -167,7 +167,7 @@ func (h *Handlers) updateTemplate(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(template))
 }
 
@@ -196,18 +196,18 @@ func (h *Handlers) getTemplateFields(c *gin.Context) {
 
 func (h *Handlers) generateFromTemplate(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	var req struct {
 		Parameters map[string]interface{} `json:"parameters"`
 		StartTime  *time.Time             `json:"start_time"`
 		EndTime    *time.Time             `json:"end_time"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		// 允许空 body
 		req.Parameters = make(map[string]interface{})
 	}
-	
+
 	var period *ReportPeriod
 	if req.StartTime != nil && req.EndTime != nil {
 		period = &ReportPeriod{
@@ -215,7 +215,7 @@ func (h *Handlers) generateFromTemplate(c *gin.Context) {
 			EndTime:   *req.EndTime,
 		}
 	}
-	
+
 	report, err := h.generator.GenerateFromTemplate(id, req.Parameters, period)
 	if err != nil {
 		if err == ErrTemplateNotFound {
@@ -225,7 +225,7 @@ func (h *Handlers) generateFromTemplate(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(report))
 }
 
@@ -243,7 +243,7 @@ func (h *Handlers) createCustomReport(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	createdBy := c.GetString("username")
 	report, err := h.generator.CreateCustomReport(input, createdBy)
 	if err != nil {
@@ -254,7 +254,7 @@ func (h *Handlers) createCustomReport(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, Success(report))
 }
 
@@ -275,7 +275,7 @@ func (h *Handlers) updateCustomReport(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	report, err := h.generator.UpdateCustomReport(id, input)
 	if err != nil {
 		if err == ErrReportNotFound {
@@ -285,7 +285,7 @@ func (h *Handlers) updateCustomReport(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(report))
 }
 
@@ -300,17 +300,17 @@ func (h *Handlers) deleteCustomReport(c *gin.Context) {
 
 func (h *Handlers) generateFromCustomReport(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	var req struct {
 		Parameters map[string]interface{} `json:"parameters"`
 		StartTime  *time.Time             `json:"start_time"`
 		EndTime    *time.Time             `json:"end_time"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		req.Parameters = make(map[string]interface{})
 	}
-	
+
 	var period *ReportPeriod
 	if req.StartTime != nil && req.EndTime != nil {
 		period = &ReportPeriod{
@@ -318,7 +318,7 @@ func (h *Handlers) generateFromCustomReport(c *gin.Context) {
 			EndTime:   *req.EndTime,
 		}
 	}
-	
+
 	report, err := h.generator.GenerateFromCustomReport(id, req.Parameters, period)
 	if err != nil {
 		if err == ErrReportNotFound {
@@ -328,19 +328,19 @@ func (h *Handlers) generateFromCustomReport(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(report))
 }
 
 func (h *Handlers) previewCustomReport(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	report, err := h.generator.PreviewReport(id, nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(report))
 }
 
@@ -352,7 +352,7 @@ func (h *Handlers) listSchedules(c *gin.Context) {
 		val := e == "true"
 		enabled = &val
 	}
-	
+
 	schedules := h.scheduleManager.ListSchedules(enabled)
 	c.JSON(http.StatusOK, Success(schedules))
 }
@@ -363,7 +363,7 @@ func (h *Handlers) createSchedule(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	createdBy := c.GetString("username")
 	schedule, err := h.scheduleManager.CreateSchedule(input, createdBy)
 	if err != nil {
@@ -374,7 +374,7 @@ func (h *Handlers) createSchedule(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, Success(schedule))
 }
 
@@ -395,7 +395,7 @@ func (h *Handlers) updateSchedule(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	schedule, err := h.scheduleManager.UpdateSchedule(id, input)
 	if err != nil {
 		if err == ErrScheduleNotFound {
@@ -409,7 +409,7 @@ func (h *Handlers) updateSchedule(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(schedule))
 }
 
@@ -456,7 +456,7 @@ func (h *Handlers) getScheduleExecutions(c *gin.Context) {
 	if l := c.Query("limit"); l != "" {
 		fmt.Sscanf(l, "%d", &limit)
 	}
-	
+
 	executions := h.scheduleManager.GetExecutions(id, limit)
 	c.JSON(http.StatusOK, Success(executions))
 }
@@ -474,16 +474,16 @@ func (h *Handlers) exportReport(c *gin.Context) {
 		StartTime  *time.Time             `json:"start_time"`
 		EndTime    *time.Time             `json:"end_time"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	// 生成报表
 	var report *GeneratedReport
 	var err error
-	
+
 	if req.ReportID != "" {
 		var period *ReportPeriod
 		if req.StartTime != nil && req.EndTime != nil {
@@ -500,40 +500,40 @@ func (h *Handlers) exportReport(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, Error(400, "必须指定 report_id 或 template_id"))
 		return
 	}
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	// 导出
 	result, err := h.exporter.Export(report, req.Format, req.OutputPath, req.Options)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(result))
 }
 
 func (h *Handlers) exportBatch(c *gin.Context) {
 	var req struct {
-		ReportID   string        `json:"report_id"`
-		TemplateID string        `json:"template_id"`
+		ReportID   string         `json:"report_id"`
+		TemplateID string         `json:"template_id"`
 		Formats    []ExportFormat `json:"formats" binding:"required"`
-		OutputDir  string        `json:"output_dir"`
-		Options    ExportOptions `json:"options"`
+		OutputDir  string         `json:"output_dir"`
+		Options    ExportOptions  `json:"options"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	// 生成报表
 	var report *GeneratedReport
 	var err error
-	
+
 	if req.ReportID != "" {
 		report, err = h.generator.GenerateFromCustomReport(req.ReportID, nil, nil)
 	} else if req.TemplateID != "" {
@@ -542,30 +542,30 @@ func (h *Handlers) exportBatch(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, Error(400, "必须指定 report_id 或 template_id"))
 		return
 	}
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	// 批量导出
 	results, err := h.exporter.ExportMultiple(report, req.Formats, req.OutputDir, req.Options)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(results))
 }
 
 func (h *Handlers) getSupportedFormats(c *gin.Context) {
 	formats := h.exporter.GetSupportedFormats()
-	
+
 	info := make([]map[string]string, 0, len(formats))
 	for _, f := range formats {
 		info = append(info, h.exporter.GetFormatInfo(f))
 	}
-	
+
 	c.JSON(http.StatusOK, Success(info))
 }
 
@@ -590,20 +590,20 @@ func (h *Handlers) getDataSourceFields(c *gin.Context) {
 
 func (h *Handlers) generateQuickReport(c *gin.Context) {
 	var req struct {
-		DataSource string                 `json:"data_source" binding:"required"`
-		Fields     []TemplateField        `json:"fields" binding:"required"`
-		Filters    []TemplateFilter       `json:"filters"`
-		Sorts      []TemplateSort         `json:"sorts"`
-		Limit      int                    `json:"limit"`
-		StartTime  *time.Time             `json:"start_time"`
-		EndTime    *time.Time             `json:"end_time"`
+		DataSource string           `json:"data_source" binding:"required"`
+		Fields     []TemplateField  `json:"fields" binding:"required"`
+		Filters    []TemplateFilter `json:"filters"`
+		Sorts      []TemplateSort   `json:"sorts"`
+		Limit      int              `json:"limit"`
+		StartTime  *time.Time       `json:"start_time"`
+		EndTime    *time.Time       `json:"end_time"`
 	}
-	
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
-	
+
 	var period *ReportPeriod
 	if req.StartTime != nil && req.EndTime != nil {
 		period = &ReportPeriod{
@@ -611,7 +611,7 @@ func (h *Handlers) generateQuickReport(c *gin.Context) {
 			EndTime:   *req.EndTime,
 		}
 	}
-	
+
 	report, err := h.generator.GenerateQuickReport(
 		req.DataSource,
 		req.Fields,
@@ -620,11 +620,11 @@ func (h *Handlers) generateQuickReport(c *gin.Context) {
 		req.Limit,
 		period,
 	)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, Success(report))
 }

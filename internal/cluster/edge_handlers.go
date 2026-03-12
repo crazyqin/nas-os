@@ -11,11 +11,11 @@ import (
 
 // EdgeAPI 边缘计算 API 处理器
 type EdgeAPI struct {
-	edgeManager  *EdgeNodeManager
+	edgeManager   *EdgeNodeManager
 	taskScheduler *TaskScheduler
-	resultAgg    *ResultAggregator
-	edgeLB       *EdgeLoadBalancer
-	logger       *zap.Logger
+	resultAgg     *ResultAggregator
+	edgeLB        *EdgeLoadBalancer
+	logger        *zap.Logger
 }
 
 // NewEdgeAPI 创建边缘计算 API 处理器
@@ -544,9 +544,9 @@ func (api *EdgeAPI) GetAggregations(c *gin.Context) {
 // CreateAggregation 创建聚合
 func (api *EdgeAPI) CreateAggregation(c *gin.Context) {
 	var req struct {
-		TaskID       string `json:"task_id"`
-		Strategy     string `json:"strategy"`
-		ExpectedCount int   `json:"expected_count"`
+		TaskID        string `json:"task_id"`
+		Strategy      string `json:"strategy"`
+		ExpectedCount int    `json:"expected_count"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -717,10 +717,10 @@ func (api *EdgeAPI) GetEdgeStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"nodes":    nodeStats,
-			"tasks":    taskStats,
-			"results":  resultStats,
-			"lb":       lbStats,
+			"nodes":     nodeStats,
+			"tasks":     taskStats,
+			"results":   resultStats,
+			"lb":        lbStats,
 			"timestamp": time.Now(),
 		},
 	})
