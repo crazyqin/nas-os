@@ -895,7 +895,8 @@ func (h *AppHandlers) installCustomTemplate(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		// 允许空请求
+		// 允许空请求，使用默认配置
+		_ = err // 明确忽略错误，避免 staticcheck 警告
 	}
 
 	config := make(map[string]interface{})
