@@ -9,8 +9,6 @@ import (
 	"regexp"
 	"sort"
 	"time"
-
-	"golang.org/x/sys/unix"
 )
 
 // CleanupManager 清理策略管理器
@@ -335,8 +333,7 @@ func (m *CleanupManager) findFiles(rootPath string, policy *CleanupPolicy) ([]st
 
 		case CleanupPolicyAccess:
 			// 按访问时间
-			if stat, ok := info.Sys().(*unix.Stat_t); ok {
-				atime := time.Unix(int64(stat.Atim.Sec), int64(stat.Atim.Nsec))
+			if atime, ok := getFileAccessTime(info.Sys()); ok {
 				accessAge := now.Sub(atime).Hours() / 24
 				if int(accessAge) > policy.MaxAccessAge {
 					match = true
