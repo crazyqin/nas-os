@@ -133,7 +133,7 @@ type TaskScheduler struct {
 	running     map[string]*Task
 	runningMutex sync.RWMutex
 	completed   []*TaskResult
-	completedMutex sync.RWMutex
+	// completedMutex sync.RWMutex - 保留用于未来需要并发控制 completed 的场景
 	cron        *cron.Cron
 	ctx         context.Context
 	cancel      context.CancelFunc
@@ -596,7 +596,7 @@ func (ts *TaskScheduler) markTaskCompleted(task *Task, result *TaskResult) {
 		}
 	}
 
-	ts.saveTasks()
+	_ = ts.saveTasks()
 }
 
 // handleTaskFailure 处理任务失败
@@ -640,7 +640,7 @@ func (ts *TaskScheduler) handleTaskFailure(task *Task, result *TaskResult) {
 		go ts.callbacks.OnTaskFailed(task, fmt.Errorf("%s", result.Error))
 	}
 
-	ts.saveTasks()
+	_ = ts.saveTasks()
 }
 
 // markTaskFailed 标记任务失败
@@ -728,8 +728,8 @@ func (ts *TaskScheduler) GetStats() map[string]interface{} {
 func (ts *TaskScheduler) Shutdown() error {
 	ts.cancel()
 	ts.cron.Stop()
-	ts.saveTasks()
-	ts.saveSchedules()
+	_ = ts.saveTasks()
+	_ = ts.saveSchedules()
 	ts.logger.Info("任务调度器已关闭")
 	return nil
 }

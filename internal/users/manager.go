@@ -222,14 +222,14 @@ func (m *Manager) saveConfig() error {
 // generateID 生成用户 ID
 func generateID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return hex.EncodeToString(b)
 }
 
 // generateToken 生成会话令牌
 func generateToken() string {
 	b := make([]byte, 32)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	return hex.EncodeToString(b)
 }
 

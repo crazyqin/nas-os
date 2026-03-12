@@ -19,8 +19,8 @@ type AuditManager struct {
 	loginLogs   []*LoginLogEntry
 	alerts      []*SecurityAlert
 	mu          sync.RWMutex
-	logPath     string
-	maxLogs     int // 最大保留日志数
+	// logPath     string - 保留用于未来自定义日志路径
+	// maxLogs     int // 最大保留日志数 - 保留用于未来配置化
 }
 
 // AuditConfig 审计配置

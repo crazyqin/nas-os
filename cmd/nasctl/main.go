@@ -698,10 +698,11 @@ func printJSON(v interface{}) {
 	_ = encoder.Encode(v)
 }
 
-func printYAML(v interface{}) {
-	encoder := yaml.NewEncoder(os.Stdout)
-	_ = encoder.Encode(v)
-}
+// printYAML 保留用于未来需要 YAML 输出的场景
+// func printYAML(v interface{}) {
+// 	encoder := yaml.NewEncoder(os.Stdout)
+// 	_ = encoder.Encode(v)
+// }
 
 // ========== 数据结构 ==========
 

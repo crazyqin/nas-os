@@ -605,28 +605,28 @@ func (h *Handlers) optimizeRules(c *gin.Context) {
 	})
 }
 
-// parseIntParam 解析整数参数
-func parseIntParam(c *gin.Context, name string, defaultVal int) int {
-	val := c.Query(name)
-	if val == "" {
-		return defaultVal
-	}
-	i, err := strconv.Atoi(val)
-	if err != nil {
-		return defaultVal
-	}
-	return i
-}
+// parseIntParam 解析整数参数 - 保留用于未来需要解析 URL 参数的场景
+// func parseIntParam(c *gin.Context, name string, defaultVal int) int {
+// 	val := c.Query(name)
+// 	if val == "" {
+// 		return defaultVal
+// 	}
+// 	i, err := strconv.Atoi(val)
+// 	if err != nil {
+// 		return defaultVal
+// 	}
+// 	return i
+// }
 
-// parseFloatParam 解析浮点参数
-func parseFloatParam(c *gin.Context, name string, defaultVal float64) float64 {
-	val := c.Query(name)
-	if val == "" {
-		return defaultVal
-	}
-	f, err := strconv.ParseFloat(val, 64)
-	if err != nil {
-		return defaultVal
-	}
-	return f
-}
+// parseFloatParam 解析浮点参数 - 保留用于未来需要解析 URL 参数的场景
+// func parseFloatParam(c *gin.Context, name string, defaultVal float64) float64 {
+// 	val := c.Query(name)
+// 	if val == "" {
+// 		return defaultVal
+// 	}
+// 	f, err := strconv.ParseFloat(val, 64)
+// 	if err != nil {
+// 		return defaultVal
+// 	}
+// 	return f
+// }

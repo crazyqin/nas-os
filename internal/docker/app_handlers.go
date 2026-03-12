@@ -16,7 +16,7 @@ type AppHandlers struct {
 	discovery          *AppDiscovery
 	customTemplateMgr  *CustomTemplateManager
 	versionManager     *VersionManager
-	mu                 sync.RWMutex
+	// mu                 sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 
 // NewAppHandlers 创建应用商店处理器

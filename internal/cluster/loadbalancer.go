@@ -66,7 +66,7 @@ type LoadBalancer struct {
 	config      LBConfig
 	backends    map[string]*Backend
 	backendsMutex sync.RWMutex
-	proxy       *httputil.ReverseProxy
+	// proxy       *httputil.ReverseProxy - 保留用于未来反向代理功能
 	currentIndex int
 	sessionMap  map[string]string // session -> backend
 	sessionMutex sync.RWMutex

@@ -624,7 +624,7 @@ func (h *Handlers) exportReport(c *gin.Context) {
 		data, _ := json.Marshal(report.Summary)
 		c.String(http.StatusOK, string(data))
 	case "html":
-		h.reportGen.ExportReport(report, "/tmp/report.html")
+		_ = h.reportGen.ExportReport(report, "/tmp/report.html")
 		c.File("/tmp/report.html")
 	default:
 		c.JSON(http.StatusOK, report)
