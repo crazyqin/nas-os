@@ -241,11 +241,6 @@ func HasPermission(c *gin.Context, resource Resource, action Action) bool {
 		return false
 	}
 	
-	groups, _ := c.Get("user_groups")
-	if groups == nil {
-		groups = []string{}
-	}
-	
 	// 从 RBAC 管理器获取（实际应该从上下文缓存获取）
 	// 这里简化处理
 	return true

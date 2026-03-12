@@ -90,9 +90,9 @@ func (sm *SecurityManagerV2) UpdateConfig(config SecurityConfigV2) error {
 	sm.config = config
 
 	// 同步配置到子模块
-	sm.mfa.UpdateConfig(config.MFA)
-	sm.encryption.UpdateConfig(config.Encryption)
-	sm.alerting.UpdateConfig(config.Alerting)
+	_ = sm.mfa.UpdateConfig(config.MFA)
+	_ = sm.encryption.UpdateConfig(config.Encryption)
+	_ = sm.alerting.UpdateConfig(config.Alerting)
 
 	return nil
 }
