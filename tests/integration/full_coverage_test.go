@@ -84,11 +84,11 @@ func (m *MockStorageManager) DeleteVolume(name string) error {
 // TestFull_Storage_RAIDConfigurations 全功能测试：所有 RAID 配置
 func TestFull_Storage_RAIDConfigurations(t *testing.T) {
 	tests := []struct {
-		name          string
-		profile       string
-		minDevices    int
+		name           string
+		profile        string
+		minDevices     int
 		faultTolerance int
-		expectError   bool
+		expectError    bool
 	}{
 		{"Single", "single", 1, 0, false},
 		{"RAID0", "raid0", 2, 0, false},
@@ -337,11 +337,11 @@ func TestFull_Context_Cancellation(t *testing.T) {
 // TestFull_DataConsistency_VolumeState 全功能测试：卷状态一致性
 func TestFull_DataConsistency_VolumeState(t *testing.T) {
 	vol := &storage.Volume{
-		Name:        "consistency-test",
-		Size:        1000000000000,
-		Used:        300000000000,
-		Free:        700000000000,
-		Status:      storage.VolumeStatus{Healthy: true},
+		Name:   "consistency-test",
+		Size:   1000000000000,
+		Used:   300000000000,
+		Free:   700000000000,
+		Status: storage.VolumeStatus{Healthy: true},
 	}
 
 	// 验证大小一致性
