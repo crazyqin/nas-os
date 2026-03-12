@@ -15,13 +15,13 @@ import (
 func TestMain(m *testing.M) {
 	// 设置测试环境
 	setup()
-	
+
 	// 运行测试
 	code := m.Run()
-	
+
 	// 清理测试环境
 	teardown()
-	
+
 	os.Exit(code)
 }
 
@@ -40,7 +40,7 @@ func teardown() {
 // TestRAIDConfigurations 测试 RAID 配置
 func TestRAIDConfigurations(t *testing.T) {
 	configs := storage.RAIDConfigs
-	
+
 	tests := []struct {
 		profile        string
 		minDevices     int
@@ -53,18 +53,18 @@ func TestRAIDConfigurations(t *testing.T) {
 		{"raid5", 3, 1},
 		{"raid6", 4, 2},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.profile, func(t *testing.T) {
 			config, ok := configs[tt.profile]
 			if !ok {
 				t.Fatalf("RAID config %s not found", tt.profile)
 			}
-			
+
 			if config.MinDevices != tt.minDevices {
 				t.Errorf("Expected MinDevices=%d, got %d", tt.minDevices, config.MinDevices)
 			}
-			
+
 			if config.FaultTolerance != tt.faultTolerance {
 				t.Errorf("Expected FaultTolerance=%d, got %d", tt.faultTolerance, config.FaultTolerance)
 			}
@@ -75,11 +75,11 @@ func TestRAIDConfigurations(t *testing.T) {
 // TestSnapshotConfig 测试快照配置
 func TestSnapshotConfig(t *testing.T) {
 	config := storage.DefaultSnapshotConfig
-	
+
 	if config.ReadOnly != true {
 		t.Error("Expected DefaultSnapshotConfig.ReadOnly=true")
 	}
-	
+
 	if config.TimeFormat != "20060102-150405" {
 		t.Errorf("Expected TimeFormat='20060102-150405', got '%s'", config.TimeFormat)
 	}
@@ -103,15 +103,15 @@ func TestVolumeStruct(t *testing.T) {
 			Healthy: true,
 		},
 	}
-	
+
 	if vol.Name != "data" {
 		t.Errorf("Expected Name='data', got '%s'", vol.Name)
 	}
-	
+
 	if len(vol.Devices) != 2 {
 		t.Errorf("Expected 2 devices, got %d", len(vol.Devices))
 	}
-	
+
 	if !vol.Status.Healthy {
 		t.Error("Expected Healthy=true")
 	}
@@ -127,11 +127,11 @@ func TestSubVolumeStruct(t *testing.T) {
 		ReadOnly: false,
 		UUID:     "test-uuid",
 	}
-	
+
 	if subvol.Name != "documents" {
 		t.Errorf("Expected Name='documents', got '%s'", subvol.Name)
 	}
-	
+
 	if subvol.ReadOnly {
 		t.Error("Expected ReadOnly=false")
 	}
@@ -147,15 +147,15 @@ func TestSnapshotStruct(t *testing.T) {
 		ReadOnly:  true,
 		CreatedAt: now,
 	}
-	
+
 	if !snap.ReadOnly {
 		t.Error("Expected ReadOnly=true for snapshot")
 	}
-	
+
 	if snap.Source != "documents" {
 		t.Errorf("Expected Source='documents', got '%s'", snap.Source)
 	}
-	
+
 	if !snap.CreatedAt.Equal(now) {
 		t.Error("Expected CreatedAt to match")
 	}
@@ -164,15 +164,15 @@ func TestSnapshotStruct(t *testing.T) {
 // TestVolumeStatus 测试 VolumeStatus
 func TestVolumeStatus(t *testing.T) {
 	status := storage.VolumeStatus{
-		BalanceRunning:  false,
-		ScrubRunning:    false,
-		Healthy:         true,
+		BalanceRunning: false,
+		ScrubRunning:   false,
+		Healthy:        true,
 	}
-	
+
 	if !status.Healthy {
 		t.Error("Expected Healthy=true")
 	}
-	
+
 	if status.BalanceRunning {
 		t.Error("Expected BalanceRunning=false")
 	}
@@ -183,7 +183,7 @@ func TestVolumeStatus(t *testing.T) {
 // TestConcurrentRAIDConfigAccess 测试并发访问 RAID 配置
 func TestConcurrentRAIDConfigAccess(t *testing.T) {
 	done := make(chan bool, 10)
-	
+
 	for i := 0; i < 10; i++ {
 		go func() {
 			configs := storage.RAIDConfigs
@@ -191,7 +191,7 @@ func TestConcurrentRAIDConfigAccess(t *testing.T) {
 			done <- true
 		}()
 	}
-	
+
 	for i := 0; i < 10; i++ {
 		<-done
 	}

@@ -159,9 +159,9 @@ func BenchmarkVolume_Creation(b *testing.B) {
 			MetaProfile: "raid1",
 			MountPoint:  "/mnt/data",
 			Status: storage.VolumeStatus{
-				Healthy:       true,
+				Healthy:        true,
 				BalanceRunning: false,
-				ScrubRunning:  false,
+				ScrubRunning:   false,
 			},
 		}
 	}

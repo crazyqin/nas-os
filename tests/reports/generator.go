@@ -13,22 +13,22 @@ import (
 
 // TestReport 测试报告
 type TestReport struct {
-	Name        string        `json:"name"`
-	Version     string        `json:"version"`
-	GeneratedAt time.Time     `json:"generated_at"`
-	Duration    time.Duration `json:"duration"`
-	Summary     TestSummary   `json:"summary"`
+	Name        string         `json:"name"`
+	Version     string         `json:"version"`
+	GeneratedAt time.Time      `json:"generated_at"`
+	Duration    time.Duration  `json:"duration"`
+	Summary     TestSummary    `json:"summary"`
 	Modules     []ModuleReport `json:"modules"`
-	Environment Environment   `json:"environment"`
+	Environment Environment    `json:"environment"`
 }
 
 // TestSummary 测试摘要
 type TestSummary struct {
-	Total      int `json:"total"`
-	Passed     int `json:"passed"`
-	Failed     int `json:"failed"`
-	Skipped    int `json:"skipped"`
-	Coverage   float64 `json:"coverage"`
+	Total    int     `json:"total"`
+	Passed   int     `json:"passed"`
+	Failed   int     `json:"failed"`
+	Skipped  int     `json:"skipped"`
+	Coverage float64 `json:"coverage"`
 }
 
 // ModuleReport 模块报告
@@ -44,19 +44,19 @@ type ModuleReport struct {
 
 // TestResult 测试结果
 type TestResult struct {
-	Name      string        `json:"name"`
-	Status    string        `json:"status"` // passed, failed, skipped
-	Duration  time.Duration `json:"duration"`
-	Message   string        `json:"message,omitempty"`
-	Error     string        `json:"error,omitempty"`
+	Name     string        `json:"name"`
+	Status   string        `json:"status"` // passed, failed, skipped
+	Duration time.Duration `json:"duration"`
+	Message  string        `json:"message,omitempty"`
+	Error    string        `json:"error,omitempty"`
 }
 
 // Environment 环境信息
 type Environment struct {
-	OS       string `json:"os"`
-	Arch     string `json:"arch"`
+	OS        string `json:"os"`
+	Arch      string `json:"arch"`
 	GoVersion string `json:"go_version"`
-	Hostname string `json:"hostname"`
+	Hostname  string `json:"hostname"`
 }
 
 // ReportGenerator 报告生成器
@@ -302,10 +302,10 @@ func CreateSampleReport() *TestReport {
 		GeneratedAt: time.Now(),
 		Duration:    5 * time.Second,
 		Summary: TestSummary{
-			Total:   100,
-			Passed:  95,
-			Failed:  3,
-			Skipped: 2,
+			Total:    100,
+			Passed:   95,
+			Failed:   3,
+			Skipped:  2,
 			Coverage: 85.5,
 		},
 		Modules: []ModuleReport{
@@ -317,9 +317,9 @@ func CreateSampleReport() *TestReport {
 					{Name: "TestListVolumes", Status: "passed", Duration: 5 * time.Millisecond},
 					{Name: "TestDeleteVolume", Status: "passed", Duration: 8 * time.Millisecond},
 				},
-				Passed: 25,
-				Failed: 0,
-				Skipped: 0,
+				Passed:   25,
+				Failed:   0,
+				Skipped:  0,
 				Duration: 500 * time.Millisecond,
 			},
 			{
@@ -330,9 +330,9 @@ func CreateSampleReport() *TestReport {
 					{Name: "TestLogout", Status: "passed", Duration: 5 * time.Millisecond},
 					{Name: "TestInvalidCredentials", Status: "failed", Duration: 3 * time.Millisecond, Error: "unexpected status code"},
 				},
-				Passed: 20,
-				Failed: 2,
-				Skipped: 1,
+				Passed:   20,
+				Failed:   2,
+				Skipped:  1,
 				Duration: 300 * time.Millisecond,
 			},
 		},

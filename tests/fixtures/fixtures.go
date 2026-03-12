@@ -31,9 +31,9 @@ var VolumeFixtures = struct {
 			MetaProfile: "raid1",
 			MountPoint:  "/mnt/data",
 			Status: storage.VolumeStatus{
-				Healthy:       true,
+				Healthy:        true,
 				BalanceRunning: false,
-				ScrubRunning:  false,
+				ScrubRunning:   false,
 			},
 		},
 		{
@@ -47,9 +47,9 @@ var VolumeFixtures = struct {
 			MetaProfile: "single",
 			MountPoint:  "/mnt/backup",
 			Status: storage.VolumeStatus{
-				Healthy:       true,
+				Healthy:        true,
 				BalanceRunning: false,
-				ScrubRunning:  false,
+				ScrubRunning:   false,
 			},
 		},
 		{
@@ -63,9 +63,9 @@ var VolumeFixtures = struct {
 			MetaProfile: "raid1",
 			MountPoint:  "/mnt/media",
 			Status: storage.VolumeStatus{
-				Healthy:       true,
+				Healthy:        true,
 				BalanceRunning: false,
-				ScrubRunning:  false,
+				ScrubRunning:   false,
 			},
 		},
 	},
@@ -153,17 +153,17 @@ var SnapshotFixtures = struct {
 // RAIDConfigFixtures RAID 配置测试固件
 var RAIDConfigFixtures = struct {
 	ValidConfigs []struct {
-		Profile       string
-		MinDevices    int
+		Profile        string
+		MinDevices     int
 		FaultTolerance int
-		Description   string
+		Description    string
 	}
 }{
 	ValidConfigs: []struct {
-		Profile       string
-		MinDevices    int
+		Profile        string
+		MinDevices     int
 		FaultTolerance int
-		Description   string
+		Description    string
 	}{
 		{"single", 1, 0, "单盘模式，无冗余"},
 		{"raid0", 2, 0, "条带模式，性能优先，无冗余"},
