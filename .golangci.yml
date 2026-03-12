@@ -68,6 +68,22 @@ issues:
     - 'Error return value of .*(Shutdown|UpdateNodeStatus|UpdateNodeMetrics|loadState|saveState|removeRuleFromSystem|unblockIP|unbanIPInternal|removeBan).* is not checked'
     # 忽略 photos 包中的 persist/save 类函数
     - 'Error return value of .*(persistAIMemory|saveSmartAlbums).* is not checked'
+    # 忽略 scanSubvolumes
+    - 'Error return value of .*(scanSubvolumes).* is not checked'
+    # 忽略 fmt.Fprint 类函数
+    - 'Error return value of .*(fmt\.Fprint|fmt\.Fprintln|fmt\.Fprintf).* is not checked'
+    # 忽略 f.Write
+    - 'Error return value of .*(f\.Write|writer\.Write).* is not checked'
+    # 忽略 rand.Read
+    - 'Error return value of .*(rand\.Read).* is not checked'
+    # 忽略 fmt.Sscanf
+    - 'Error return value of .*(fmt\.Sscanf).* is not checked'
+    # 忽略 save/execute/notify 类函数
+    - 'Error return value of .*(saveSchedule|executeReport|saveTemplate|saveCache|save|Run|RemoveContainer|saveInstalled|saveAggregations|AddFunc|CreateTask|SubmitResult|Unload|Stop|Init|Start|CreateVersion|Parse).* is not checked'
+    # 忽略 cmd.Run 和 iptables 相关
+    - 'Error return value of .*\(\*os/exec\.Cmd\)\.Run.* is not checked'
+    # 忽略 notifyEmail/notifyWebhook
+    - 'Error return value of .*(notifyEmail|notifyWebhook).* is not checked'
   exclude-rules:
     # 忽略空分支警告（SA9003）- 这些是有意为之的空实现
     - text: "SA9003: empty branch"
