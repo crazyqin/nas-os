@@ -2,7 +2,6 @@ package media
 
 import (
 	"net/http"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 )
