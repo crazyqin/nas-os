@@ -50,15 +50,23 @@ jobs:
       - name: 设置 Go 环境
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version: '1.26.1'
       
       - name: 构建 nasd
         run: |
-          CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }}${{ matrix.arm && format('GOARM={0} ', matrix.arm) || '' }}go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasd
+          if [ "${{ matrix.arm }}" != "" ]; then
+            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} GOARM=${{ matrix.arm }} go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasd
+          else
+            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasd
+          fi
       
       - name: 构建 nasctl
         run: |
-          CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }}${{ matrix.arm && format('GOARM={0} ', matrix.arm) || '' }}go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasctl
+          if [ "${{ matrix.arm }}" != "" ]; then
+            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} GOARM=${{ matrix.arm }} go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasctl
+          else
+            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasctl
+          fi
       
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
