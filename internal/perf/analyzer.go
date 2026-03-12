@@ -50,6 +50,18 @@ type Bottleneck struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
+// ToResponse converts Bottleneck to BottleneckResponse
+func (b *Bottleneck) ToResponse() *BottleneckResponse {
+	return &BottleneckResponse{
+		Resource:    b.Resource,
+		Severity:    b.Severity,
+		Description: b.Description,
+		Usage:       b.Usage,
+		Threshold:   b.Threshold,
+		Timestamp:   b.Timestamp,
+	}
+}
+
 // EndpointStats holds endpoint performance stats
 type EndpointStats struct {
 	Path        string        `json:"path"`
