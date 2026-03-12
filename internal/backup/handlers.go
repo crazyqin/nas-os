@@ -8,12 +8,16 @@ import (
 
 // Handlers 备份 API 处理器
 type Handlers struct {
-	manager *Manager
+	manager     *Manager
+	syncManager *SyncManager
 }
 
 // NewHandlers 创建处理器
-func NewHandlers(manager *Manager) *Handlers {
-	return &Handlers{manager: manager}
+func NewHandlers(manager *Manager, syncManager *SyncManager) *Handlers {
+	return &Handlers{
+		manager:     manager,
+		syncManager: syncManager,
+	}
 }
 
 // RegisterRoutes 注册路由
@@ -39,6 +43,21 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 		// 历史记录
 		backup.GET("/history/:configId", h.getHistory)
+
+		// 同步任务
+		sync := backup.Group("/sync")
+		{
+			sync.GET("/tasks", h.listSyncTasks)
+			sync.POST("/tasks", h.createSyncTask)
+			sync.GET("/tasks/:id", h.getSyncTask)
+			sync.PUT("/tasks/:id", h.updateSyncTask)
+			sync.DELETE("/tasks/:id", h.deleteSyncTask)
+			sync.POST("/run/:id", h.runSyncTask)
+			
+			// 版本管理
+			sync.GET("/versions", h.listVersions)
+			sync.POST("/versions/restore", h.restoreVersion)
+		}
 	}
 }
 
@@ -279,5 +298,190 @@ func (h *Handlers) getHistory(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data":    history,
+	})
+}
+
+// ========== 同步任务管理 ==========
+
+func (h *Handlers) listSyncTasks(c *gin.Context) {
+	tasks := h.syncManager.ListSyncTasks()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    tasks,
+	})
+}
+
+func (h *Handlers) getSyncTask(c *gin.Context) {
+	id := c.Param("id")
+
+	task, err := h.syncManager.GetSyncTask(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    task,
+	})
+}
+
+func (h *Handlers) createSyncTask(c *gin.Context) {
+	var task SyncTask
+	if err := c.ShouldBindJSON(&task); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := h.syncManager.CreateSyncTask(task); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "同步任务创建成功",
+		"data":    task,
+	})
+}
+
+func (h *Handlers) updateSyncTask(c *gin.Context) {
+	id := c.Param("id")
+
+	var task SyncTask
+	if err := c.ShouldBindJSON(&task); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 先获取现有任务，保留 ID
+	existingTask, err := h.syncManager.GetSyncTask(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	task.ID = id
+	task.Status = existingTask.Status
+	task.LastSync = existingTask.LastSync
+
+	if err := h.syncManager.CreateSyncTask(task); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "同步任务更新成功",
+	})
+}
+
+func (h *Handlers) deleteSyncTask(c *gin.Context) {
+	id := c.Param("id")
+
+	if err := h.syncManager.DeleteSyncTask(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "同步任务已删除",
+	})
+}
+
+func (h *Handlers) runSyncTask(c *gin.Context) {
+	id := c.Param("id")
+
+	if err := h.syncManager.RunSync(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "同步任务已启动",
+	})
+}
+
+// ========== 版本管理 ==========
+
+func (h *Handlers) listVersions(c *gin.Context) {
+	filePath := c.Query("path")
+	if filePath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "文件路径不能为空",
+		})
+		return
+	}
+
+	versions, err := h.syncManager.versionManager.ListVersions(filePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    versions,
+	})
+}
+
+func (h *Handlers) restoreVersion(c *gin.Context) {
+	var req struct {
+		VersionID  string `json:"versionId"`
+		TargetPath string `json:"targetPath"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := h.syncManager.versionManager.RestoreVersion(req.VersionID, req.TargetPath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "版本恢复成功",
 	})
 }
