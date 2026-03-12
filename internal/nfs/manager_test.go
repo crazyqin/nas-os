@@ -166,7 +166,7 @@ func TestGetExport(t *testing.T) {
 	mgr, tmpDir := setupTestManager(t)
 
 	// 创建测试导出
-	mgr.CreateExport(ExportInput{
+	_, _ = mgr.CreateExport(ExportInput{
 		Name: "existing",
 		Path: filepath.Join(tmpDir, "existing"),
 	})
@@ -199,7 +199,7 @@ func TestListExports(t *testing.T) {
 
 	// 创建多个导出
 	for i := 1; i <= 3; i++ {
-		mgr.CreateExport(ExportInput{
+		_, _ = mgr.CreateExport(ExportInput{
 			Name: "export" + string(rune('0'+i)),
 			Path: filepath.Join(tmpDir, "export"+string(rune('0'+i))),
 		})
@@ -215,7 +215,7 @@ func TestUpdateExport(t *testing.T) {
 	mgr, tmpDir := setupTestManager(t)
 
 	// 创建导出
-	mgr.CreateExport(ExportInput{
+	_, _ = mgr.CreateExport(ExportInput{
 		Name:    "update-test",
 		Path:    filepath.Join(tmpDir, "update-test"),
 		Comment: "Original",

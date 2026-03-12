@@ -379,7 +379,7 @@ func (aim *AIManager) updatePhotoWithAIResult(photoID string, result *AIClassifi
 		}
 	}
 
-	aim.photosManager.savePersons()
+	_ = aim.photosManager.savePersons()
 }
 
 // QueueTask 添加任务到队列
@@ -489,7 +489,7 @@ func (aim *AIManager) saveAIMemory(memory *AIMemory) {
 	// 定期持久化到磁盘
 	go func() {
 		time.Sleep(5 * time.Second)
-		aim.persistAIMemory()
+		_ = aim.persistAIMemory()
 	}()
 }
 
@@ -731,7 +731,7 @@ func (aim *AIManager) updateSmartAlbums() {
 			for _, album := range albums {
 				aim.populateSmartAlbum(album)
 			}
-			aim.saveSmartAlbums()
+			_ = aim.saveSmartAlbums()
 
 		case <-aim.stopChan:
 			return

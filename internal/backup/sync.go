@@ -950,6 +950,6 @@ func extractJSONInt(json, key string) int64 {
 	}
 
 	var val int64
-	fmt.Sscanf(json[start:end], "%d", &val)
+	_, _ = fmt.Sscanf(json[start:end], "%d", &val)
 	return val
 }

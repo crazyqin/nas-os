@@ -184,7 +184,7 @@ func (m *Manager) applyPortForwardRule(rule *PortForward) error {
 
 	if err := snatCmd.Run(); err != nil {
 		// 如果 SNAT 失败，回滚 DNAT
-		exec.Command("iptables", "-t", "nat", "-D", "PREROUTING",
+		_ = exec.Command("iptables", "-t", "nat", "-D", "PREROUTING",
 			"-p", rule.Protocol,
 			"--dport", fmt.Sprintf("%d", rule.ExternalPort),
 			"-j", "DNAT",
@@ -207,7 +207,7 @@ func (m *Manager) applyPortForwardRule(rule *PortForward) error {
 	}
 
 	// 确保 IP 转发已启用
-	exec.Command("sysctl", "-w", "net.ipv4.ip_forward=1").Run()
+	_ = exec.Command("sysctl", "-w", "net.ipv4.ip_forward=1").Run()
 
 	return nil
 }

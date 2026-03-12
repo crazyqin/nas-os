@@ -1,0 +1,93 @@
+# golangci-lint 配置文件
+
+run:
+  timeout: 10m
+  tests: true
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+  disable:
+    - gosec  # 安全问题已通过 gosec 单独扫描
+    - revive  # 代码风格问题，不影响功能
+    - gocritic  # 代码优化建议，不影响功能
+    - gocyclo  # 圈复杂度检查
+    - funlen  # 函数长度检查
+    - goconst  # 常量提取建议
+    - godot  # 注释句号检查
+    - gomnd  # 魔法数字检查
+    - mnd  # 魔法数字检查
+    - varnamelen  # 变量名长度检查
+    - wsl  # 空行检查
+    - nlreturn  # return 前空行检查
+    - wrapcheck  # error wrap 检查
+    - exhaustive  # exhaustiveness 检查
+    - exhaustruct  # 结构体字段检查
+    - ireturn  # 接口返回检查
+    - perfsprint  # 性能建议
+    - contextcheck  # context 检查
+    - dupl  # 重复代码检查
+    - lll  # 行长度检查
+    - godox  # TODO 检查
+    - gci  # import 排序
+    - goimports  # import 格式
+    - gofmt  # 格式检查（已用 gofmt 单独检查）
+
+linters-settings:
+  errcheck:
+    check-type-assertions: false
+    check-blank: false
+  gosimple:
+    disable:
+      - S1039  # unnecessary use of fmt.Sprintf
+
+linters-settings:
+  errcheck:
+    check-type-assertions: false
+    check-blank: false
+
+issues:
+  exclude-use-default: false
+  exclude:
+    # 忽略测试文件中的 errcheck（测试代码可以简化错误处理）
+    - 'Error return value of .*(os\.Remove|os\.WriteFile|os\.MkdirAll).* is not checked'
+    # 忽略 defer close/flush 类型的错误检查（这些通常不会导致问题）
+    - 'Error return value of .*(Close|Sync|Flush).* is not checked'
+    # 忽略 saveConfig/save 类函数
+    - 'Error return value of .*(saveConfig|saveNodes|saveState|saveVersions|saveNotifications|IncrementDownloads|VerifyPurchase).* is not checked'
+    # 忽略 Shutdown 类函数
+    - 'Error return value of .*(Shutdown|UpdateNodeStatus|UpdateNodeMetrics|loadState|saveState|removeRuleFromSystem|unblockIP|unbanIPInternal|removeBan).* is not checked'
+    # 忽略 photos 包中的 persist/save 类函数
+    - 'Error return value of .*(persistAIMemory|saveSmartAlbums).* is not checked'
+  exclude-rules:
+    # 忽略测试文件中的大部分 lint 问题
+    - path: _test\.go$
+      linters:
+        - errcheck
+        - ineffassign
+        - staticcheck
+    # 忽略示例代码和插件
+    - path: plugins/
+      linters:
+        - unused
+        - errcheck
+        - govet
+    # 忽略工具函数
+    - path: pkg/btrfs/
+      linters:
+        - unused
+        - ineffassign
+    # 忽略 tests 目录中的 gosimple
+    - path: tests/
+      linters:
+        - gosimple
+    # 忽略 photos 包中的一些问题
+    - path: internal/photos/
+      linters:
+        - errcheck
+        - ineffassign

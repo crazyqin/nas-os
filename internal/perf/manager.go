@@ -462,8 +462,8 @@ func (m *Manager) writeSlowLogToFile(entry *SlowLogEntry) {
 		return
 	}
 
-	f.Write(data)
-	f.WriteString("\n")
+	_, _ = f.Write(data)
+	_, _ = f.WriteString("\n")
 }
 
 // cleanupLoop 清理过期数据

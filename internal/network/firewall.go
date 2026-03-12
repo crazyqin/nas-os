@@ -263,7 +263,7 @@ func (m *Manager) removeFirewallRule(rule *FirewallRule) {
 	}
 	args = append(args, "-j", action)
 
-	exec.Command("iptables", args...).Run()
+	_ = exec.Command("iptables", args...).Run()
 }
 
 // ListActiveFirewallRules 列出系统中活跃的防火墙规则

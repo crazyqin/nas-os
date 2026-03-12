@@ -30,7 +30,7 @@ func TestSMSManager_VerifyCode(t *testing.T) {
 	phone := "+8613800138000"
 
 	// 发送验证码
-	mgr.SendCode(phone)
+	_ = mgr.SendCode(phone)
 	code := provider.Codes[phone]
 
 	// 验证正确验证码
@@ -39,7 +39,7 @@ func TestSMSManager_VerifyCode(t *testing.T) {
 	}
 
 	// 再次发送验证码
-	mgr.SendCode(phone)
+	_ = mgr.SendCode(phone)
 	newCode := provider.Codes[phone]
 
 	// 验证错误验证码
@@ -59,7 +59,7 @@ func TestSMSManager_MaxAttempts(t *testing.T) {
 	mgr.maxAttempts = 3
 
 	phone := "+8613800138000"
-	mgr.SendCode(phone)
+	_ = mgr.SendCode(phone)
 
 	// 尝试 3 次错误验证码
 	for i := 0; i < 3; i++ {

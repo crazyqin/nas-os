@@ -258,14 +258,14 @@ func (rm *RestoreManager) verifyRestore(backupPath, targetPath string) error {
 	// 简单验证：检查文件数量是否一致
 	var backupFiles, targetFiles int
 
-	filepath.Walk(backupPath, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(backupPath, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() {
 			backupFiles++
 		}
 		return nil
 	})
 
-	filepath.Walk(targetPath, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(targetPath, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() {
 			targetFiles++
 		}
@@ -364,7 +364,7 @@ func (rm *RestoreManager) loadBackupInfo(backupPath string) (*BackupInfo, error)
 	}
 
 	if data, err := os.ReadFile(metaPath); err == nil {
-		json.Unmarshal(data, &info.Metadata)
+		_ = json.Unmarshal(data, &info.Metadata)
 	} else {
 		// 从文件系统获取基本信息
 		if stat, err := os.Stat(backupPath); err == nil {
