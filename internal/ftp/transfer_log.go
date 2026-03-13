@@ -42,9 +42,9 @@ type TransferLogger struct {
 // TransferLoggerConfig 日志配置
 type TransferLoggerConfig struct {
 	LogPath   string        `json:"log_path"`
-	MaxLogs   int           `json:"max_logs"`    // 0 = 无限制
-	MaxSize   int64         `json:"max_size"`    // 日志文件最大大小 (字节), 0 = 无限制
-	Retention time.Duration `json:"retention"`   // 日志保留时间, 0 = 永久保留
+	MaxLogs   int           `json:"max_logs"`  // 0 = 无限制
+	MaxSize   int64         `json:"max_size"`  // 日志文件最大大小 (字节), 0 = 无限制
+	Retention time.Duration `json:"retention"` // 日志保留时间, 0 = 永久保留
 	Enabled   bool          `json:"enabled"`
 }
 
@@ -53,7 +53,7 @@ func DefaultTransferLoggerConfig() TransferLoggerConfig {
 	return TransferLoggerConfig{
 		LogPath:   "/var/log/nas-os/ftp-transfers.jsonl",
 		MaxLogs:   10000,
-		MaxSize:   100 * 1024 * 1024, // 100MB
+		MaxSize:   100 * 1024 * 1024,   // 100MB
 		Retention: 30 * 24 * time.Hour, // 30 天
 		Enabled:   true,
 	}
@@ -123,8 +123,12 @@ func (l *TransferLogger) Log(log *TransferLog) {
 	if l.logFile != nil {
 		data, err := json.Marshal(log)
 		if err == nil {
-			l.logFile.Write(data)
-			l.logFile.Write([]byte("\n"))
+			if _, writeErr := l.logFile.Write(data); writeErr != nil {
+				// 写入失败，忽略
+			}
+			if _, writeErr := l.logFile.Write([]byte("\n")); writeErr != nil {
+				// 写入失败，忽略
+			}
 		}
 
 		// 检查文件大小并轮转
@@ -373,16 +377,16 @@ func (f *TransferLogFilter) Match(log *TransferLog) bool {
 
 // TransferStats 传输统计
 type TransferStats struct {
-	StartTime         time.Time `json:"start_time"`
-	TotalTransfers    int       `json:"total_transfers"`
-	Uploads           int       `json:"uploads"`
-	Downloads         int       `json:"downloads"`
-	SuccessfulTransfers int     `json:"successful_transfers"`
-	FailedTransfers   int       `json:"failed_transfers"`
-	AbortedTransfers  int       `json:"aborted_transfers"`
-	TotalUploadBytes  int64     `json:"total_upload_bytes"`
-	TotalDownloadBytes int64    `json:"total_download_bytes"`
-	AvgBandwidth      int64     `json:"avg_bandwidth_bps"`
+	StartTime           time.Time `json:"start_time"`
+	TotalTransfers      int       `json:"total_transfers"`
+	Uploads             int       `json:"uploads"`
+	Downloads           int       `json:"downloads"`
+	SuccessfulTransfers int       `json:"successful_transfers"`
+	FailedTransfers     int       `json:"failed_transfers"`
+	AbortedTransfers    int       `json:"aborted_transfers"`
+	TotalUploadBytes    int64     `json:"total_upload_bytes"`
+	TotalDownloadBytes  int64     `json:"total_download_bytes"`
+	AvgBandwidth        int64     `json:"avg_bandwidth_bps"`
 }
 
 // generateTransferID 生成传输 ID
