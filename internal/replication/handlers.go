@@ -33,7 +33,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		repl.POST("/:id/pause", h.pause)
 		repl.POST("/:id/resume", h.resume)
 		repl.GET("/:id/conflicts", h.listTaskConflicts)
-		
+
 		// 冲突解决
 		repl.POST("/conflicts/:conflictId/resolve", h.resolveConflict)
 	}

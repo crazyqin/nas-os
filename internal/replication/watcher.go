@@ -27,11 +27,11 @@ type Watcher struct {
 
 // FileEvent 文件事件
 type FileEvent struct {
-	TaskID     string    `json:"task_id"`
-	Path       string    `json:"path"`
-	Operation  string    `json:"operation"` // create, write, remove, rename, chmod
-	Timestamp  time.Time `json:"timestamp"`
-	IsDir      bool      `json:"is_dir"`
+	TaskID    string    `json:"task_id"`
+	Path      string    `json:"path"`
+	Operation string    `json:"operation"` // create, write, remove, rename, chmod
+	Timestamp time.Time `json:"timestamp"`
+	IsDir     bool      `json:"is_dir"`
 }
 
 // NewWatcher 创建文件监控器
@@ -268,13 +268,13 @@ func (w *Watcher) GetStats() WatcherStats {
 
 // BidirectionalSyncManager 双向同步管理器
 type BidirectionalSyncManager struct {
-	mu           sync.RWMutex
-	tasks        map[string]*ReplicationTask
-	watcher      *Watcher
-	conflictDet  *ConflictDetector
-	syncChan     chan string // 任务ID 通道
-	stopChan     chan struct{}
-	wg           sync.WaitGroup
+	mu          sync.RWMutex
+	tasks       map[string]*ReplicationTask
+	watcher     *Watcher
+	conflictDet *ConflictDetector
+	syncChan    chan string // 任务ID 通道
+	stopChan    chan struct{}
+	wg          sync.WaitGroup
 }
 
 // NewBidirectionalSyncManager 创建双向同步管理器

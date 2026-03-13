@@ -118,14 +118,14 @@ func TestConflictDetector_ResolveConflict_SourceWins(t *testing.T) {
 	require.NoError(t, os.WriteFile(targetFile, []byte("target content"), 0644))
 
 	conflict := &ConflictInfo{
-		ID:            "conflict-1",
-		TaskID:        "test-task",
-		RelativePath:  "test.txt",
-		SourcePath:    sourceFile,
-		TargetPath:    targetFile,
-		SourceSize:    14,
-		TargetSize:    14,
-		Strategy:      ConflictSourceWins,
+		ID:           "conflict-1",
+		TaskID:       "test-task",
+		RelativePath: "test.txt",
+		SourcePath:   sourceFile,
+		TargetPath:   targetFile,
+		SourceSize:   14,
+		TargetSize:   14,
+		Strategy:     ConflictSourceWins,
 	}
 
 	err = detector.ResolveConflict(conflict)
@@ -156,14 +156,14 @@ func TestConflictDetector_ResolveConflict_TargetWins(t *testing.T) {
 	require.NoError(t, os.WriteFile(targetFile, []byte("target content"), 0644))
 
 	conflict := &ConflictInfo{
-		ID:            "conflict-1",
-		TaskID:        "test-task",
-		RelativePath:  "test.txt",
-		SourcePath:    sourceFile,
-		TargetPath:    targetFile,
-		SourceSize:    14,
-		TargetSize:    14,
-		Strategy:      ConflictTargetWins,
+		ID:           "conflict-1",
+		TaskID:       "test-task",
+		RelativePath: "test.txt",
+		SourcePath:   sourceFile,
+		TargetPath:   targetFile,
+		SourceSize:   14,
+		TargetSize:   14,
+		Strategy:     ConflictTargetWins,
 	}
 
 	err = detector.ResolveConflict(conflict)
@@ -241,12 +241,12 @@ func TestConflictDetector_ResolveConflict_Rename(t *testing.T) {
 	require.NoError(t, os.WriteFile(targetFile, []byte("target content"), 0644))
 
 	conflict := &ConflictInfo{
-		ID:            "conflict-1",
-		TaskID:        "test-task",
-		RelativePath:  "test.txt",
-		SourcePath:    sourceFile,
-		TargetPath:    targetFile,
-		Strategy:      ConflictRename,
+		ID:           "conflict-1",
+		TaskID:       "test-task",
+		RelativePath: "test.txt",
+		SourcePath:   sourceFile,
+		TargetPath:   targetFile,
+		Strategy:     ConflictRename,
 	}
 
 	err = detector.ResolveConflict(conflict)
