@@ -173,7 +173,7 @@ func TestTaskScheduler(t *testing.T) {
 	if retrieved.Status != TaskStatusFailed {
 		t.Logf("任务状态: %s (预期: failed)", retrieved.Status)
 	}
-	
+
 	// 尝试取消失败的任务应该返回错误
 	err = scheduler.CancelTask(task.ID)
 	if err == nil {
@@ -181,7 +181,7 @@ func TestTaskScheduler(t *testing.T) {
 	} else {
 		t.Logf("取消失败任务返回错误: %v", err)
 	}
-	
+
 	t.Log("Test completed")
 }
 

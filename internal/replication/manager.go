@@ -75,15 +75,15 @@ func DefaultConfig() *Config {
 
 // Manager 复制管理器
 type Manager struct {
-	mu            sync.RWMutex
-	config        *Config
-	tasks         map[string]*ReplicationTask
-	configPath    string
-	stopChan      chan struct{}
-	wg            sync.WaitGroup
-	watcher       *Watcher                 // 实时监控器
-	bidiSync      *BidirectionalSyncManager // 双向同步管理器
-	conflictDet   *ConflictDetector        // 冲突检测器
+	mu          sync.RWMutex
+	config      *Config
+	tasks       map[string]*ReplicationTask
+	configPath  string
+	stopChan    chan struct{}
+	wg          sync.WaitGroup
+	watcher     *Watcher                  // 实时监控器
+	bidiSync    *BidirectionalSyncManager // 双向同步管理器
+	conflictDet *ConflictDetector         // 冲突检测器
 }
 
 // NewManager 创建复制管理器
@@ -455,7 +455,7 @@ func (m *Manager) saveConfig() error {
 func (m *Manager) Stop() {
 	close(m.stopChan)
 	m.wg.Wait()
-	
+
 	// 停止实时监控
 	if m.watcher != nil {
 		m.watcher.Stop()
@@ -520,7 +520,7 @@ func (m *Manager) ResolveConflict(conflictID string, strategy ConflictStrategy) 
 	if m.conflictDet == nil {
 		return fmt.Errorf("冲突检测器未初始化")
 	}
-	
+
 	m.mu.RLock()
 	conflicts := m.conflictDet.GetConflicts("")
 	var conflict *ConflictInfo
@@ -531,11 +531,11 @@ func (m *Manager) ResolveConflict(conflictID string, strategy ConflictStrategy) 
 		}
 	}
 	m.mu.RUnlock()
-	
+
 	if conflict == nil {
 		return fmt.Errorf("冲突不存在：%s", conflictID)
 	}
-	
+
 	conflict.Strategy = strategy
 	return m.conflictDet.ResolveConflict(conflict)
 }

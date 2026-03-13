@@ -15,13 +15,13 @@ import (
 type ConflictStrategy string
 
 const (
-	ConflictSourceWins  ConflictStrategy = "source_wins"  // 源端优先
-	ConflictTargetWins  ConflictStrategy = "target_wins"  // 目标端优先
-	ConflictNewerWins   ConflictStrategy = "newer_wins"   // 较新优先
-	ConflictLargerWins  ConflictStrategy = "larger_wins"  // 较大优先
-	ConflictRename      ConflictStrategy = "rename"       // 重命名保留
-	ConflictSkip        ConflictStrategy = "skip"         // 跳过冲突文件
-	ConflictManual      ConflictStrategy = "manual"       // 手动解决
+	ConflictSourceWins ConflictStrategy = "source_wins" // 源端优先
+	ConflictTargetWins ConflictStrategy = "target_wins" // 目标端优先
+	ConflictNewerWins  ConflictStrategy = "newer_wins"  // 较新优先
+	ConflictLargerWins ConflictStrategy = "larger_wins" // 较大优先
+	ConflictRename     ConflictStrategy = "rename"      // 重命名保留
+	ConflictSkip       ConflictStrategy = "skip"        // 跳过冲突文件
+	ConflictManual     ConflictStrategy = "manual"      // 手动解决
 )
 
 // ConflictInfo 冲突信息
