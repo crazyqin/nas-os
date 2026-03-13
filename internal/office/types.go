@@ -451,14 +451,14 @@ type UpdateConfigRequest struct {
 
 // CollaborationSession 协作编辑会话
 type CollaborationSession struct {
-	DocID       string            `json:"doc_id"`       // 文档 ID
-	SessionID   string            `json:"session_id"`   // 协作会话 ID
-	Users       []Collaborator    `json:"users"`        // 在线用户
-	StartedAt   time.Time         `json:"started_at"`   // 开始时间
-	LastActive  time.Time         `json:"last_active"`  // 最后活动时间
-	Status      string            `json:"status"`       // 状态: active, paused, closed
-	Cursors     map[string]Cursor `json:"cursors"`      // 用户光标位置
-	Locks       []DocumentLock    `json:"locks"`        // 文档锁
+	DocID      string            `json:"doc_id"`      // 文档 ID
+	SessionID  string            `json:"session_id"`  // 协作会话 ID
+	Users      []Collaborator    `json:"users"`       // 在线用户
+	StartedAt  time.Time         `json:"started_at"`  // 开始时间
+	LastActive time.Time         `json:"last_active"` // 最后活动时间
+	Status     string            `json:"status"`      // 状态: active, paused, closed
+	Cursors    map[string]Cursor `json:"cursors"`     // 用户光标位置
+	Locks      []DocumentLock    `json:"locks"`       // 文档锁
 }
 
 // Collaborator 协作者
@@ -466,7 +466,7 @@ type Collaborator struct {
 	UserID    string    `json:"user_id"`
 	UserName  string    `json:"user_name"`
 	JoinedAt  time.Time `json:"joined_at"`
-	Color     string    `json:"color"`     // 用户标识颜色
+	Color     string    `json:"color"` // 用户标识颜色
 	IsEditing bool      `json:"is_editing"`
 }
 
@@ -479,10 +479,10 @@ type Cursor struct {
 
 // DocumentLock 文档锁（用于防止编辑冲突）
 type DocumentLock struct {
-	LockID    string    `json:"lock_id"`
-	UserID    string    `json:"user_id"`
-	Region    LockRegion `json:"region"`
-	LockedAt  time.Time `json:"locked_at"`
+	LockID   string     `json:"lock_id"`
+	UserID   string     `json:"user_id"`
+	Region   LockRegion `json:"region"`
+	LockedAt time.Time  `json:"locked_at"`
 }
 
 // LockRegion 锁定区域
@@ -497,47 +497,47 @@ type LockRegion struct {
 
 // DocumentVersion 文档版本
 type DocumentVersion struct {
-	VersionID   string       `json:"version_id"`   // 版本 ID
-	DocID       string       `json:"doc_id"`       // 文档 ID
-	VersionNum  int          `json:"version_num"`  // 版本号
-	CreatedAt   time.Time    `json:"created_at"`   // 创建时间
-	CreatedBy   CallbackUser `json:"created_by"`   // 创建者
-	Description string       `json:"description"`  // 版本描述
-	Size        int64        `json:"size"`         // 文件大小
-	Checksum    string       `json:"checksum"`     // 文件校验和
-	Changes     []VersionChange `json:"changes"`   // 变更摘要
+	VersionID   string          `json:"version_id"`  // 版本 ID
+	DocID       string          `json:"doc_id"`      // 文档 ID
+	VersionNum  int             `json:"version_num"` // 版本号
+	CreatedAt   time.Time       `json:"created_at"`  // 创建时间
+	CreatedBy   CallbackUser    `json:"created_by"`  // 创建者
+	Description string          `json:"description"` // 版本描述
+	Size        int64           `json:"size"`        // 文件大小
+	Checksum    string          `json:"checksum"`    // 文件校验和
+	Changes     []VersionChange `json:"changes"`     // 变更摘要
 }
 
 // VersionChange 版本变更
 type VersionChange struct {
-	Type        string `json:"type"`         // add, modify, delete
-	Region      string `json:"region"`       // 变更区域描述
-	Description string `json:"description"`  // 变更描述
+	Type        string `json:"type"`        // add, modify, delete
+	Region      string `json:"region"`      // 变更区域描述
+	Description string `json:"description"` // 变更描述
 }
 
 // VersionHistory 版本历史响应
 type VersionHistory struct {
-	DocID       string            `json:"doc_id"`
-	CurrentVer  int               `json:"current_version"`
-	TotalVers   int               `json:"total_versions"`
-	Versions    []DocumentVersion `json:"versions"`
-	HasMore     bool              `json:"has_more"`
+	DocID      string            `json:"doc_id"`
+	CurrentVer int               `json:"current_version"`
+	TotalVers  int               `json:"total_versions"`
+	Versions   []DocumentVersion `json:"versions"`
+	HasMore    bool              `json:"has_more"`
 }
 
 // ========== 文档评论 ==========
 
 // DocumentComment 文档评论
 type DocumentComment struct {
-	CommentID  string       `json:"comment_id"`  // 评论 ID
-	DocID      string       `json:"doc_id"`      // 文档 ID
-	UserID     string       `json:"user_id"`     // 用户 ID
-	UserName   string       `json:"user_name"`   // 用户名
-	Content    string       `json:"content"`     // 评论内容
-	CreatedAt  time.Time    `json:"created_at"`  // 创建时间
-	UpdatedAt  time.Time    `json:"updated_at"`  // 更新时间
-	Position   CommentPos   `json:"position"`    // 评论位置
-	Resolved   bool         `json:"resolved"`    // 是否已解决
-	Replies    []CommentReply `json:"replies"`   // 回复列表
+	CommentID string         `json:"comment_id"` // 评论 ID
+	DocID     string         `json:"doc_id"`     // 文档 ID
+	UserID    string         `json:"user_id"`    // 用户 ID
+	UserName  string         `json:"user_name"`  // 用户名
+	Content   string         `json:"content"`    // 评论内容
+	CreatedAt time.Time      `json:"created_at"` // 创建时间
+	UpdatedAt time.Time      `json:"updated_at"` // 更新时间
+	Position  CommentPos     `json:"position"`   // 评论位置
+	Resolved  bool           `json:"resolved"`   // 是否已解决
+	Replies   []CommentReply `json:"replies"`    // 回复列表
 }
 
 // CommentPos 评论位置
@@ -568,17 +568,17 @@ type CommentListResponse struct {
 
 // 错误常量
 var (
-	ErrNotEnabled           = "OnlyOffice 服务未启用"
-	ErrServerNotReachable   = "OnlyOffice 服务不可达"
-	ErrInvalidConfig        = "配置无效"
-	ErrSessionNotFound      = "会话不存在"
-	ErrSessionExpired       = "会话已过期"
-	ErrFileNotFound         = "文件不存在"
-	ErrFileTypeNotSupported = "不支持的文件类型"
-	ErrPermissionDenied     = "没有权限"
-	ErrCallbackFailed       = "回调处理失败"
-	ErrSaveFailed           = "保存失败"
-	ErrInvalidToken         = "无效的 Token"
+	ErrNotEnabled            = "OnlyOffice 服务未启用"
+	ErrServerNotReachable    = "OnlyOffice 服务不可达"
+	ErrInvalidConfig         = "配置无效"
+	ErrSessionNotFound       = "会话不存在"
+	ErrSessionExpired        = "会话已过期"
+	ErrFileNotFound          = "文件不存在"
+	ErrFileTypeNotSupported  = "不支持的文件类型"
+	ErrPermissionDenied      = "没有权限"
+	ErrCallbackFailed        = "回调处理失败"
+	ErrSaveFailed            = "保存失败"
+	ErrInvalidToken          = "无效的 Token"
 	ErrCollaborationNotFound = "协作会话不存在"
 	ErrVersionNotFound       = "版本不存在"
 	ErrCommentNotFound       = "评论不存在"

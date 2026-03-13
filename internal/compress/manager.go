@@ -447,9 +447,9 @@ func (c *Lz4Compressor) Name() Algorithm {
 
 // AlgorithmPreference 算法偏好配置
 type AlgorithmPreference struct {
-	Algorithm    Algorithm `json:"algorithm"`
-	Priority     int       `json:"priority"`     // 优先级 (越高越优先)
-	SpeedPriority bool     `json:"speedPriority"` // 是否优先考虑速度
+	Algorithm     Algorithm `json:"algorithm"`
+	Priority      int       `json:"priority"`      // 优先级 (越高越优先)
+	SpeedPriority bool      `json:"speedPriority"` // 是否优先考虑速度
 }
 
 // FileTypeRule 文件类型压缩规则
@@ -491,13 +491,13 @@ var DefaultFileTypeRules = []FileTypeRule{
 	{
 		Extensions: []string{".txt", ".md", ".log", ".csv"},
 		Algorithm:  AlgorithmGzip,
-		MinSize:   512,
+		MinSize:    512,
 	},
 	// 源代码 - 使用 gzip
 	{
 		Extensions: []string{".go", ".py", ".js", ".ts", ".java", ".c", ".cpp", ".h", ".rs", ".rb", ".php", ".sh"},
 		Algorithm:  AlgorithmGzip,
-		MinSize:   256,
+		MinSize:    256,
 	},
 	// 配置文件 - 使用 gzip
 	{
@@ -516,7 +516,7 @@ var DefaultFileTypeRules = []FileTypeRule{
 // SelectAlgorithmForFile 根据文件类型自动选择最佳压缩算法
 func (m *Manager) SelectAlgorithmForFile(path string, size int64) (Algorithm, string, bool) {
 	ext := strings.ToLower(filepath.Ext(path))
-	
+
 	// 检查文件类型规则
 	for _, rule := range DefaultFileTypeRules {
 		for _, ruleExt := range rule.Extensions {
@@ -638,15 +638,15 @@ func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm A
 
 // BatchCompressResultV2 批量压缩结果 (v2.4.0)
 type BatchCompressResultV2 struct {
-	Total      int64                     `json:"total"`
-	Succeeded  int64                     `json:"succeeded"`
-	Failed     int64                     `json:"failed"`
-	Skipped    int64                     `json:"skipped"`
-	TotalSize  int64                     `json:"totalSize"`
-	SavedSize  int64                     `json:"savedSize"`
-	Duration   time.Duration             `json:"duration"`
-	Results    []SingleCompressResult    `json:"results"`
-	Errors     []CompressErrorV2         `json:"errors"`
+	Total     int64                  `json:"total"`
+	Succeeded int64                  `json:"succeeded"`
+	Failed    int64                  `json:"failed"`
+	Skipped   int64                  `json:"skipped"`
+	TotalSize int64                  `json:"totalSize"`
+	SavedSize int64                  `json:"savedSize"`
+	Duration  time.Duration          `json:"duration"`
+	Results   []SingleCompressResult `json:"results"`
+	Errors    []CompressErrorV2      `json:"errors"`
 }
 
 // SingleCompressResult 单个压缩结果
@@ -669,13 +669,13 @@ type CompressErrorV2 struct {
 
 // BatchCompressOptions 批量压缩选项
 type BatchCompressOptions struct {
-	Workers          int        `json:"workers"`          // 并发工作数
-	DeleteOriginal   bool       `json:"deleteOriginal"`   // 压缩后删除原文件
-	Overwrite        bool       `json:"overwrite"`        // 覆盖已存在文件
-	Algorithm        Algorithm  `json:"algorithm"`        // 指定算法 (空则自动选择)
-	MinSize          int64      `json:"minSize"`          // 最小压缩大小
-	ContinueOnError  bool       `json:"continueOnError"`  // 遇错继续
-	DryRun           bool       `json:"dryRun"`           // 仅模拟不实际压缩
+	Workers         int       `json:"workers"`         // 并发工作数
+	DeleteOriginal  bool      `json:"deleteOriginal"`  // 压缩后删除原文件
+	Overwrite       bool      `json:"overwrite"`       // 覆盖已存在文件
+	Algorithm       Algorithm `json:"algorithm"`       // 指定算法 (空则自动选择)
+	MinSize         int64     `json:"minSize"`         // 最小压缩大小
+	ContinueOnError bool      `json:"continueOnError"` // 遇错继续
+	DryRun          bool      `json:"dryRun"`          // 仅模拟不实际压缩
 }
 
 // DefaultBatchCompressOptions 默认批量压缩选项
@@ -710,7 +710,7 @@ func (m *Manager) BatchCompressWithOptions(paths []string, opts *BatchCompressOp
 	}
 
 	start := time.Now()
-	
+
 	// 使用工作池并发处理
 	workerCount := opts.Workers
 	if workerCount <= 0 {
@@ -819,7 +819,7 @@ func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, r
 		// 执行压缩
 		dstPath := path
 		var compressResult *CompressResult
-		
+
 		if opts.Algorithm != "" {
 			compressResult, err = m.CompressFileWithAlgorithm(path, dstPath, opts.Algorithm)
 		} else {

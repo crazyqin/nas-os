@@ -37,16 +37,16 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		{
 			firewall.GET("/status", h.getFirewallStatus)
 			firewall.GET("/rules", h.listFirewallRules)
-			firewall.POST("/rules", h.addFirewallRule)              // 需要管理员权限
-			firewall.PUT("/rules/:id", h.updateFirewallRule)        // 需要管理员权限
-			firewall.DELETE("/rules/:id", h.deleteFirewallRule)     // 需要管理员权限
+			firewall.POST("/rules", h.addFirewallRule)          // 需要管理员权限
+			firewall.PUT("/rules/:id", h.updateFirewallRule)    // 需要管理员权限
+			firewall.DELETE("/rules/:id", h.deleteFirewallRule) // 需要管理员权限
 
 			firewall.GET("/blacklist", h.getBlacklist)
-			firewall.POST("/blacklist", h.addToBlacklist)           // 需要管理员权限
+			firewall.POST("/blacklist", h.addToBlacklist)            // 需要管理员权限
 			firewall.DELETE("/blacklist/:ip", h.removeFromBlacklist) // 需要管理员权限
 
 			firewall.GET("/whitelist", h.getWhitelist)
-			firewall.POST("/whitelist", h.addToWhitelist)           // 需要管理员权限
+			firewall.POST("/whitelist", h.addToWhitelist)            // 需要管理员权限
 			firewall.DELETE("/whitelist/:ip", h.removeFromWhitelist) // 需要管理员权限
 		}
 
@@ -54,9 +54,9 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		fail2ban := security.Group("/fail2ban")
 		{
 			fail2ban.GET("/status", h.getFail2BanStatus)
-			fail2ban.PUT("/config", h.updateFail2BanConfig)         // 需要管理员权限
+			fail2ban.PUT("/config", h.updateFail2BanConfig) // 需要管理员权限
 			fail2ban.GET("/banned", h.getBannedIPs)
-			fail2ban.POST("/unban/:ip", h.unbanIP)                  // 需要管理员权限
+			fail2ban.POST("/unban/:ip", h.unbanIP) // 需要管理员权限
 			fail2ban.GET("/attempts/:ip", h.getFailedAttempts)
 		}
 

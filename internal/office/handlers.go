@@ -24,13 +24,13 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	{
 		// 配置管理 - 需要管理员权限
 		office.GET("/config", h.getConfig)
-		office.PUT("/config", h.updateConfig)  // 需要管理员权限
+		office.PUT("/config", h.updateConfig) // 需要管理员权限
 
 		// 服务状态
 		office.GET("/status", h.getStatus)
 
 		// 编辑会话 - 需要认证
-		office.POST("/edit/:fileId", h.startEdit)        // 需要认证
+		office.POST("/edit/:fileId", h.startEdit) // 需要认证
 		office.GET("/sessions", h.listSessions)
 		office.GET("/sessions/:sessionId", h.getSession)
 		office.DELETE("/sessions/:sessionId", h.closeSession) // 需要认证
