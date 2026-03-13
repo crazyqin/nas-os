@@ -32,7 +32,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		backup.PUT("/configs/:id", h.updateConfig)
 		backup.DELETE("/configs/:id", h.deleteConfig)
 		backup.POST("/configs/:id/enable", h.enableConfig)
-		
+
 		// 配置检查
 		backup.GET("/configs/:id/check", h.checkConfig)
 		backup.GET("/configs/:id/check-detailed", h.checkConfigDetailed)
@@ -40,7 +40,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		// 备份操作
 		backup.POST("/run/:id", h.runBackup)
 		backup.POST("/restore", h.restore)
-		
+
 		// 恢复预设
 		backup.GET("/restore-presets", h.listRestorePresets)
 		backup.POST("/restore/preview", h.previewRestore)
@@ -52,10 +52,10 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 		// 历史记录
 		backup.GET("/history/:configId", h.getHistory)
-		
+
 		// 统计信息
 		backup.GET("/stats", h.getStats)
-		
+
 		// 健康检查
 		backup.GET("/health", h.healthCheck)
 
@@ -505,7 +505,7 @@ func (h *Handlers) restoreVersion(c *gin.Context) {
 
 func (h *Handlers) checkConfig(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	// 获取配置并检查云端连接
 	config, err := h.manager.GetConfig(id)
 	if err != nil {
@@ -653,8 +653,8 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 
 // ConfigCheckResult 配置检查结果
 type ConfigCheckResult struct {
-	ConfigID string     `json:"configId"`
-	Status   string     `json:"status"` // pass, warn, fail
+	ConfigID string      `json:"configId"`
+	Status   string      `json:"status"` // pass, warn, fail
 	Checks   []CheckItem `json:"checks"`
 }
 

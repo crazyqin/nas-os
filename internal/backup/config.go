@@ -392,8 +392,8 @@ func (m *Manager) CheckConfigDetailed(configID string) (*DetailedConfigCheck, er
 
 // DetailedConfigCheck 详细配置检查结果
 type DetailedConfigCheck struct {
-	ConfigID string          `json:"configId"`
-	Status   string          `json:"status"` // pass, warn, fail
+	ConfigID string            `json:"configId"`
+	Status   string            `json:"status"` // pass, warn, fail
 	Checks   []ConfigCheckItem `json:"checks"`
 }
 
@@ -475,8 +475,8 @@ func (m *Manager) checkBackupDiskSpace(config BackupConfig) error {
 	_, _ = fmt.Sscanf(string(output), "%d", &availSpace)
 
 	if availSpace < totalSize {
-		return fmt.Errorf("可用空间 (%.2f GB) 小于源目录大小 (%.2f GB)", 
-			float64(availSpace)/1024/1024/1024, 
+		return fmt.Errorf("可用空间 (%.2f GB) 小于源目录大小 (%.2f GB)",
+			float64(availSpace)/1024/1024/1024,
 			float64(totalSize)/1024/1024/1024)
 	}
 

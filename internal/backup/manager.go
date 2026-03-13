@@ -54,8 +54,8 @@ type BackupConfig struct {
 	Exclude      []string `json:"exclude,omitempty"`
 
 	// 云端备份配置
-	CloudBackup bool          `json:"cloudBackup,omitempty"`
-	CloudConfig *CloudConfig  `json:"cloudConfig,omitempty"`
+	CloudBackup bool         `json:"cloudBackup,omitempty"`
+	CloudConfig *CloudConfig `json:"cloudConfig,omitempty"`
 
 	// 加密配置
 	Encryption        bool   `json:"encryption,omitempty"`
@@ -671,14 +671,14 @@ func copyDirectory(src, dst string) error {
 
 // RestorePreview 恢复预览信息
 type RestorePreview struct {
-	BackupPath    string   `json:"backupPath"`
-	TargetPath    string   `json:"targetPath"`
-	TotalSize     int64    `json:"totalSize"`
-	TotalSizeHuman string  `json:"totalSizeHuman"`
-	FileCount     int      `json:"fileCount"`
-	Files         []string `json:"files,omitempty"`
-	Overwrite     bool     `json:"overwrite"`
-	EstimatedTime string   `json:"estimatedTime"`
+	BackupPath     string   `json:"backupPath"`
+	TargetPath     string   `json:"targetPath"`
+	TotalSize      int64    `json:"totalSize"`
+	TotalSizeHuman string   `json:"totalSizeHuman"`
+	FileCount      int      `json:"fileCount"`
+	Files          []string `json:"files,omitempty"`
+	Overwrite      bool     `json:"overwrite"`
+	EstimatedTime  string   `json:"estimatedTime"`
 }
 
 // PreviewRestore 预览恢复操作（不实际执行）
@@ -696,11 +696,11 @@ func (m *Manager) PreviewRestore(options RestoreOptions) (*RestorePreview, error
 	}
 
 	preview := &RestorePreview{
-		BackupPath:    backupPath,
-		TargetPath:    options.TargetPath,
-		TotalSize:     info.Size(),
+		BackupPath:     backupPath,
+		TargetPath:     options.TargetPath,
+		TotalSize:      info.Size(),
 		TotalSizeHuman: humanReadableSize(info.Size()),
-		Overwrite:     options.Overwrite,
+		Overwrite:      options.Overwrite,
 	}
 
 	// 如果是压缩包，列出内容
@@ -716,7 +716,7 @@ func (m *Manager) PreviewRestore(options RestoreOptions) (*RestorePreview, error
 
 		files := strings.Split(strings.TrimSpace(string(output)), "\n")
 		preview.FileCount = len(files)
-		
+
 		// 只显示前 100 个文件
 		if len(files) > 100 {
 			preview.Files = files[:100]
