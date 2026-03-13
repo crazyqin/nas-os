@@ -75,12 +75,15 @@ func DefaultConfig() *Config {
 
 // Manager 复制管理器
 type Manager struct {
-	mu         sync.RWMutex
-	config     *Config
-	tasks      map[string]*ReplicationTask
-	configPath string
-	stopChan   chan struct{}
-	wg         sync.WaitGroup
+	mu            sync.RWMutex
+	config        *Config
+	tasks         map[string]*ReplicationTask
+	configPath    string
+	stopChan      chan struct{}
+	wg            sync.WaitGroup
+	watcher       *Watcher                 // 实时监控器
+	bidiSync      *BidirectionalSyncManager // 双向同步管理器
+	conflictDet   *ConflictDetector        // 冲突检测器
 }
 
 // NewManager 创建复制管理器
@@ -89,11 +92,23 @@ func NewManager(configPath string, config *Config) (*Manager, error) {
 		config = DefaultConfig()
 	}
 
+	// 创建冲突检测器
+	conflictDetector := NewConflictDetector(ConflictNewerWins)
+
+	// 创建文件监控器
+	watcher, err := NewWatcher(conflictDetector)
+	if err != nil {
+		return nil, fmt.Errorf("创建监控器失败：%w", err)
+	}
+
 	m := &Manager{
-		config:     config,
-		tasks:      make(map[string]*ReplicationTask),
-		configPath: configPath,
-		stopChan:   make(chan struct{}),
+		config:      config,
+		tasks:       make(map[string]*ReplicationTask),
+		configPath:  configPath,
+		stopChan:    make(chan struct{}),
+		watcher:     watcher,
+		bidiSync:    NewBidirectionalSyncManager(watcher, conflictDetector),
+		conflictDet: conflictDetector,
 	}
 
 	// 加载配置
@@ -109,6 +124,10 @@ func NewManager(configPath string, config *Config) (*Manager, error) {
 
 	// 启动调度器
 	go m.startScheduler()
+
+	// 启动实时监控
+	m.watcher.Start()
+	m.bidiSync.Start()
 
 	return m, nil
 }
@@ -436,6 +455,14 @@ func (m *Manager) saveConfig() error {
 func (m *Manager) Stop() {
 	close(m.stopChan)
 	m.wg.Wait()
+	
+	// 停止实时监控
+	if m.watcher != nil {
+		m.watcher.Stop()
+	}
+	if m.bidiSync != nil {
+		m.bidiSync.Stop()
+	}
 }
 
 // GetStats 获取统计信息
@@ -463,13 +490,54 @@ func (m *Manager) GetStats() map[string]interface{} {
 		totalBytes += task.BytesTransferred
 	}
 
+	// 获取监控统计
+	var watcherStats *WatcherStats
+	if m.watcher != nil {
+		stats := m.watcher.GetStats()
+		watcherStats = &stats
+	}
+
 	return map[string]interface{}{
 		"total_tasks":       total,
 		"syncing":           syncing,
 		"paused":            paused,
 		"errors":            errors,
 		"bytes_transferred": totalBytes,
+		"watcher_stats":     watcherStats,
 	}
+}
+
+// GetConflicts 获取冲突列表
+func (m *Manager) GetConflicts(taskID string) []*ConflictInfo {
+	if m.conflictDet == nil {
+		return nil
+	}
+	return m.conflictDet.GetConflicts(taskID)
+}
+
+// ResolveConflict 手动解决冲突
+func (m *Manager) ResolveConflict(conflictID string, strategy ConflictStrategy) error {
+	if m.conflictDet == nil {
+		return fmt.Errorf("冲突检测器未初始化")
+	}
+	
+	m.mu.RLock()
+	conflicts := m.conflictDet.GetConflicts("")
+	var conflict *ConflictInfo
+	for _, c := range conflicts {
+		if c.ID == conflictID {
+			conflict = c
+			break
+		}
+	}
+	m.mu.RUnlock()
+	
+	if conflict == nil {
+		return fmt.Errorf("冲突不存在：%s", conflictID)
+	}
+	
+	conflict.Strategy = strategy
+	return m.conflictDet.ResolveConflict(conflict)
 }
 
 // generateTaskID 生成任务 ID
