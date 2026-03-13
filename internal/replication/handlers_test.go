@@ -385,3 +385,28 @@ func TestHandlers_SyncTask(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }
+
+func TestHandlers_ListConflicts(t *testing.T) {
+	mgr, router, tmpDir := setupTestHandlers(t)
+	defer os.RemoveAll(tmpDir)
+
+	req := httptest.NewRequest("GET", "/api/v1/replications/conflicts", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	_ = mgr
+}
+
+func TestHandlers_ResolveConflict_InvalidJSON(t *testing.T) {
+	_, router, tmpDir := setupTestHandlers(t)
+	defer os.RemoveAll(tmpDir)
+
+	req := httptest.NewRequest("POST", "/api/v1/replications/conflicts/nonexistent/resolve", bytes.NewReader([]byte("invalid")))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
