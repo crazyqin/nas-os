@@ -2,17 +2,25 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v1.1.0 Stable (2026-03-12)
+> **最新版本**: v1.6.0 Stable (2026-03-13)  
+> **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)  
+> **Docker**: [![Docker](https://img.shields.io/badge/docker-v1.6.0-blue)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
-- 💾 **btrfs 存储管理** - 卷、子卷、快照、RAID ✅
-- 🌐 **Web 管理界面** - 简洁易用的可视化操作 ✅
-- 📁 **文件共享** - SMB/CIFS、NFS ✅
-- 👥 **用户权限** - 多用户、访问控制 ✅
-- 📊 **监控告警** - 磁盘健康、空间预警 ✅
-- 🔒 **安全认证** - JWT、RBAC、审计日志 ✅
-- 🐳 **Docker 部署** - 多架构镜像支持 ✅
+### 核心功能 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 💾 btrfs 存储 | 卷/子卷/快照/RAID | ✅ 完成 |
+| 🌐 Web 界面 | 响应式设计/移动端 | ✅ 完成 |
+| 📁 文件共享 | SMB/NFS/RBAC | ✅ 完成 |
+| 👥 用户权限 | RBAC/MFA/审计 | ✅ 完成 |
+| 📊 监控告警 | 实时指标/多通道通知 | ✅ 完成 |
+| 🔒 安全认证 | JWT/RBAC/加密 | ✅ 完成 |
+| 🐳 Docker | 多架构镜像 | ✅ 完成 |
+| ⚡ 性能优化 | LRU 缓存/GC 调优/工作池 | ✅ 完成 |
+| 🛡️ 集群支持 | 多节点/负载均衡 | ✅ 完成 |
 
 ## 快速开始
 
@@ -21,17 +29,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.1.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v1.6.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.1.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v1.6.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.1.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v1.6.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -43,7 +51,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v1.1.0
+docker pull ghcr.io/crazyqin/nas-os:v1.6.0
 
 # 运行容器
 docker run -d \
