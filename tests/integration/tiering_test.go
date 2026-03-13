@@ -13,11 +13,11 @@ import (
 
 // MockTieringManager 模拟分层管理器
 type MockTieringManager struct {
-	tiers   map[tiering.TierType]*tiering.TierConfig
+	tiers    map[tiering.TierType]*tiering.TierConfig
 	policies map[string]*tiering.Policy
-	tasks   map[string]*tiering.MigrateTask
-	stats   *tiering.AccessStats
-	mu      sync.RWMutex
+	tasks    map[string]*tiering.MigrateTask
+	stats    *tiering.AccessStats
+	mu       sync.RWMutex
 }
 
 // NewMockTieringManager 创建模拟分层管理器
@@ -146,12 +146,12 @@ func TestTiering_TierConfigurations(t *testing.T) {
 	manager := NewMockTieringManager()
 
 	tests := []struct {
-		name      string
-		tierType  tiering.TierType
-		wantName  string
-		wantPath  string
-		enabled   bool
-		priority  int
+		name     string
+		tierType tiering.TierType
+		wantName string
+		wantPath string
+		enabled  bool
+		priority int
 	}{
 		{
 			name:     "SSD Cache Tier",
@@ -232,14 +232,14 @@ func TestTiering_PolicyLifecycle(t *testing.T) {
 
 	// 创建策略
 	policy := &tiering.Policy{
-		ID:          "policy-001",
-		Name:        "Hot to Cold",
-		Description: "Move hot data to cold storage after 30 days",
-		Enabled:     true,
-		Status:      tiering.PolicyStatusEnabled,
-		SourceTier:  tiering.TierTypeSSD,
-		TargetTier:  tiering.TierTypeHDD,
-		Action:      tiering.PolicyActionMove,
+		ID:             "policy-001",
+		Name:           "Hot to Cold",
+		Description:    "Move hot data to cold storage after 30 days",
+		Enabled:        true,
+		Status:         tiering.PolicyStatusEnabled,
+		SourceTier:     tiering.TierTypeSSD,
+		TargetTier:     tiering.TierTypeHDD,
+		Action:         tiering.PolicyActionMove,
 		MinAccessCount: 10,
 		MaxAccessAge:   720 * time.Hour,
 		ScheduleType:   tiering.ScheduleTypeInterval,
