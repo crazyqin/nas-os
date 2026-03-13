@@ -18,8 +18,6 @@ import (
 	"go.uber.org/zap"
 )
 
-
-
 // Manager 下载管理器
 type Manager struct {
 	mu         sync.RWMutex
