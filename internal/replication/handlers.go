@@ -27,7 +27,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		repl.POST("", h.create)
 		repl.PUT("/:id", h.update)
 		repl.DELETE("/:id", h.delete)
-		
+
 		repl.POST("/:id/sync", h.startSync)
 		repl.POST("/:id/pause", h.pause)
 		repl.POST("/:id/resume", h.resume)
@@ -51,15 +51,15 @@ func apiError(code int, message string) APIResponse {
 
 // CreateTaskRequest 创建任务请求
 type CreateTaskRequest struct {
-	Name             string  `json:"name" binding:"required"`
-	SourcePath       string  `json:"source_path" binding:"required"`
-	TargetPath       string  `json:"target_path" binding:"required"`
-	TargetHost       string  `json:"target_host"`
-	Type             string  `json:"type" binding:"required"`
-	Schedule         string  `json:"schedule"`
-	Enabled          bool    `json:"enabled"`
-	Compress         bool    `json:"compress"`
-	DeleteExtraneous bool    `json:"delete_extraneous"`
+	Name             string `json:"name" binding:"required"`
+	SourcePath       string `json:"source_path" binding:"required"`
+	TargetPath       string `json:"target_path" binding:"required"`
+	TargetHost       string `json:"target_host"`
+	Type             string `json:"type" binding:"required"`
+	Schedule         string `json:"schedule"`
+	Enabled          bool   `json:"enabled"`
+	Compress         bool   `json:"compress"`
+	DeleteExtraneous bool   `json:"delete_extraneous"`
 }
 
 // create 创建复制任务
