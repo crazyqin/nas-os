@@ -2,6 +2,10 @@
 package quota
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -153,17 +157,104 @@ func (m *Monitor) triggerAlert(usage *QuotaUsage, alertType AlertType) {
 
 // sendNotification 发送告警通知
 func (m *Monitor) sendNotification(alert *Alert) {
-	// TODO: 实现邮件和 Webhook 通知
-	// 这里可以扩展支持多种通知渠道
+	// 支持 Webhook 通知
 	if m.config.NotifyWebhook && m.config.WebhookURL != "" {
 		go m.sendWebhook(alert)
 	}
+
+	// 邮件通知预留接口（需要配置 notify 模块）
+	if m.config.NotifyEmail {
+		go m.sendEmail(alert)
+	}
+}
+
+// sendEmail 发送邮件通知（预留实现）
+func (m *Monitor) sendEmail(alert *Alert) {
+	// 获取配额信息来构建更详细的消息
+	m.manager.mu.RLock()
+	quota, exists := m.manager.quotas[alert.QuotaID]
+	m.manager.mu.RUnlock()
+
+	quotaName := alert.QuotaID
+	if exists {
+		quotaName = quota.TargetName
+	}
+
+	subject := fmt.Sprintf("[NAS-OS] 存储配额告警 - %s", quotaName)
+	_ = subject // 预留使用
+
+	// 实际项目中会调用 notify.SendEmail(recipient, subject, body)
+	fmt.Printf("[quota] 邮件告警通知：%s (类型：%s)\n", quotaName, alert.Type)
 }
 
 // sendWebhook 发送 Webhook 通知
 func (m *Monitor) sendWebhook(alert *Alert) {
-	// TODO: 实现 HTTP webhook 调用
-	// 可以使用 http.Post 发送 JSON 格式的告警信息
+	if m.config.WebhookURL == "" {
+		return
+	}
+
+	// 获取配额信息
+	m.manager.mu.RLock()
+	quota, exists := m.manager.quotas[alert.QuotaID]
+	m.manager.mu.RUnlock()
+
+	quotaName := alert.QuotaID
+	targetType := ""
+	if exists {
+		quotaName = quota.TargetName
+		targetType = string(quota.Type)
+	}
+
+	// 构建告警 payload
+	payload := map[string]interface{}{
+		"alert_id":      alert.ID,
+		"type":          "quota_alert",
+		"quota_id":      alert.QuotaID,
+		"quota_name":    quotaName,
+		"volume":        alert.VolumeName,
+		"target_type":   targetType,
+		"target_name":   alert.TargetName,
+		"alert_type":    alert.Type,
+		"used_bytes":    alert.UsedBytes,
+		"limit_bytes":   alert.LimitBytes,
+		"usage_percent": alert.UsagePercent,
+		"status":        alert.Status,
+		"created_at":    alert.CreatedAt,
+		"message":       alert.Message,
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		fmt.Printf("[quota] 序列化 webhook payload 失败：%v\n", err)
+		return
+	}
+
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	req, err := http.NewRequest("POST", m.config.WebhookURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Printf("[quota] 创建 webhook 请求失败：%v\n", err)
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Alert-Type", "quota")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("[quota] 发送 webhook 失败：%v\n", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		fmt.Printf("[quota] webhook 返回异常状态：%d\n", resp.StatusCode)
+		return
+	}
+
+	fmt.Printf("[quota] webhook 通知发送成功：%s\n", alert.ID)
 }
 
 // recordTrend 记录趋势数据
