@@ -16,7 +16,7 @@ type Manager struct {
 	mu sync.RWMutex
 
 	// 备份配置
-	configs map[string]*BackupConfig
+	configs map[string]*JobConfig
 
 	// 备份任务状态
 	tasks map[string]*BackupTask
@@ -28,8 +28,8 @@ type Manager struct {
 	storagePath string
 }
 
-// BackupConfig 备份配置
-type BackupConfig struct {
+// JobConfig 备份作业配置
+type JobConfig struct {
 	ID          string     `json:"id"`
 	Name        string     `json:"name"`
 	Source      string     `json:"source"`
@@ -62,6 +62,9 @@ type BackupConfig struct {
 	EncryptionType    string `json:"encryptionType,omitempty"`
 	EncryptionKey     string `json:"encryptionKey,omitempty"`
 	EncryptionKeyFile string `json:"encryptionKeyFile,omitempty"`
+
+	// 增量备份配置
+	ChunkPath string `json:"chunkPath,omitempty"`
 }
 
 // BackupType 备份类型
@@ -113,6 +116,21 @@ type BackupHistory struct {
 	Checksum  string     `json:"checksum,omitempty"`
 }
 
+// BackupStats 备份统计
+type BackupStats struct {
+	TotalBackups     int           `json:"totalBackups"`
+	TotalSize        int64         `json:"totalSize"`
+	TotalSizeHuman   string        `json:"totalSizeHuman"`
+	AvgDuration      time.Duration `json:"avgDuration"`
+	AverageDuration  time.Duration `json:"averageDuration"`
+	SuccessCount     int           `json:"successCount"`
+	FailedCount      int           `json:"failedCount"`
+	SuccessRate      float64       `json:"successRate"`
+	LastBackupTime   time.Time     `json:"lastBackupTime"`
+	NextBackupTime   time.Time     `json:"nextBackupTime"`
+	IncrementalRatio float64       `json:"incrementalRatio"`
+}
+
 // RestoreOptions 恢复选项
 type RestoreOptions struct {
 	BackupID   string `json:"backupId"`
@@ -125,7 +143,7 @@ type RestoreOptions struct {
 // NewManager 创建备份管理器
 func NewManager(configPath, storagePath string) *Manager {
 	return &Manager{
-		configs:     make(map[string]*BackupConfig),
+		configs:     make(map[string]*JobConfig),
 		tasks:       make(map[string]*BackupTask),
 		configPath:  configPath,
 		storagePath: storagePath,
@@ -137,7 +155,7 @@ func (m *Manager) Initialize() error {
 	if err := m.loadConfig(); err != nil {
 		// 配置文件不存在是正常的，记录但不返回错误
 		m.mu.Lock()
-		m.configs = make(map[string]*BackupConfig)
+		m.configs = make(map[string]*JobConfig)
 		m.mu.Unlock()
 	}
 	return nil
@@ -145,18 +163,18 @@ func (m *Manager) Initialize() error {
 
 // ========== 备份配置管理 ==========
 
-func (m *Manager) ListConfigs() []*BackupConfig {
+func (m *Manager) ListConfigs() []*JobConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var configs []*BackupConfig
+	var configs []*JobConfig
 	for _, cfg := range m.configs {
 		configs = append(configs, cfg)
 	}
 	return configs
 }
 
-func (m *Manager) GetConfig(id string) (*BackupConfig, error) {
+func (m *Manager) GetConfig(id string) (*JobConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -167,7 +185,7 @@ func (m *Manager) GetConfig(id string) (*BackupConfig, error) {
 	return cfg, nil
 }
 
-func (m *Manager) CreateConfig(config BackupConfig) error {
+func (m *Manager) CreateConfig(config JobConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -202,7 +220,7 @@ func (m *Manager) CreateConfig(config BackupConfig) error {
 	return nil
 }
 
-func (m *Manager) UpdateConfig(id string, config BackupConfig) error {
+func (m *Manager) UpdateConfig(id string, config JobConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -274,7 +292,7 @@ func (m *Manager) RunBackup(configID string) (*BackupTask, error) {
 	return task, nil
 }
 
-func (m *Manager) executeBackup(cfg *BackupConfig, task *BackupTask) {
+func (m *Manager) executeBackup(cfg *JobConfig, task *BackupTask) {
 	defer func() {
 		task.EndTime = time.Now()
 		cfg.LastRun = task.StartTime.Format("2006-01-02 15:04:05")
@@ -308,7 +326,7 @@ func (m *Manager) executeBackup(cfg *BackupConfig, task *BackupTask) {
 }
 
 // runLocalBackup 本地备份（支持增量）
-func (m *Manager) runLocalBackup(cfg *BackupConfig, task *BackupTask) (string, error) {
+func (m *Manager) runLocalBackup(cfg *JobConfig, task *BackupTask) (string, error) {
 	destDir := cfg.Destination
 	if destDir == "" {
 		destDir = filepath.Join(m.storagePath, "backups", cfg.Name)
@@ -319,23 +337,15 @@ func (m *Manager) runLocalBackup(cfg *BackupConfig, task *BackupTask) (string, e
 
 	var backupPath string
 
-	// 使用增量备份
-	ib := NewIncrementalBackup(destDir)
-	result, err := ib.CreateBackup(cfg.Source, cfg.Name)
-	if err != nil {
-		// 回退到传统备份
-		timestamp := time.Now().Format("20060102_150405")
-		backupName := fmt.Sprintf("%s_%s", cfg.Name, timestamp)
-		backupPath = filepath.Join(destDir, backupName+".tar.gz")
-		cmd := exec.Command("tar", "czf", backupPath, "-C", cfg.Source, ".")
-		if output, err := cmd.CombinedOutput(); err != nil {
-			return "", fmt.Errorf("压缩失败：%w, output: %s", err, string(output))
-		}
-	} else {
-		backupPath = result.BackupPath
-		task.Progress = 100
-		task.TotalFiles = result.TotalFiles
+	// 使用传统备份方式
+	timestamp := time.Now().Format("20060102_150405")
+	backupName := fmt.Sprintf("%s_%s", cfg.Name, timestamp)
+	backupPath = filepath.Join(destDir, backupName+".tar.gz")
+	cmd := exec.Command("tar", "czf", backupPath, "-C", cfg.Source, ".")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		return "", fmt.Errorf("压缩失败：%w, output: %s", err, string(output))
 	}
+	task.Progress = 100
 
 	// 加密备份
 	if cfg.Encrypt {
@@ -352,13 +362,11 @@ func (m *Manager) runLocalBackup(cfg *BackupConfig, task *BackupTask) (string, e
 		if encryptKey == "" {
 			return "", fmt.Errorf("启用加密但未配置加密密钥")
 		}
-		encryptor, err := NewEncryptor(encryptKey)
-		if err != nil {
-			return "", fmt.Errorf("创建加密器失败：%w", err)
-		}
-		if err := encryptor.EncryptFile(backupPath, encryptedPath); err != nil {
+		// 使用 openssl 进行加密
+		cmd := exec.Command("openssl", "enc", "-aes-256-cbc", "-salt", "-in", backupPath, "-out", encryptedPath, "-pass", "pass:"+encryptKey)
+		if output, err := cmd.CombinedOutput(); err != nil {
 			os.Remove(encryptedPath)
-			return "", fmt.Errorf("加密失败：%w", err)
+			return "", fmt.Errorf("加密失败：%w, output: %s", err, string(output))
 		}
 		os.Remove(backupPath)
 		backupPath = encryptedPath
@@ -371,7 +379,7 @@ func (m *Manager) runLocalBackup(cfg *BackupConfig, task *BackupTask) (string, e
 	return backupPath, nil
 }
 
-func (m *Manager) runRemoteBackup(cfg *BackupConfig, task *BackupTask) (string, error) {
+func (m *Manager) runRemoteBackup(cfg *JobConfig, task *BackupTask) (string, error) {
 	if cfg.RemoteHost == "" {
 		return "", fmt.Errorf("远程主机地址不能为空")
 	}
@@ -403,7 +411,7 @@ func (m *Manager) runRemoteBackup(cfg *BackupConfig, task *BackupTask) (string, 
 	return remoteTarget, nil
 }
 
-func (m *Manager) runRsyncBackup(cfg *BackupConfig, task *BackupTask) (string, error) {
+func (m *Manager) runRsyncBackup(cfg *JobConfig, task *BackupTask) (string, error) {
 	destination := cfg.Destination
 
 	if cfg.RemoteHost != "" {
@@ -626,10 +634,6 @@ func (m *Manager) saveConfig() error {
 	return os.WriteFile(m.configPath, data, 0644)
 }
 
-func generateID() string {
-	return fmt.Sprintf("backup_%d", time.Now().UnixNano())
-}
-
 func copyDirectory(src, dst string) error {
 	// 清理和验证源目录路径
 	cleanSrc := filepath.Clean(src)
@@ -807,7 +811,7 @@ func (m *Manager) GetStats() *BackupStats {
 	// 计算平均耗时
 	if successCount > 0 {
 		avgDuration := totalDuration / time.Duration(successCount)
-		stats.AverageDuration = avgDuration.String()
+		stats.AverageDuration = avgDuration
 	}
 
 	// 计算增量备份节省比例
@@ -838,4 +842,141 @@ func humanReadableSize(size int64) string {
 	default:
 		return fmt.Sprintf("%d B", size)
 	}
+}
+
+// CheckConfigDetailed 详细检查配置
+func (m *Manager) CheckConfigDetailed(id string) (*ConfigCheckResult, error) {
+	config, err := m.GetConfig(id)
+	if err != nil {
+		return nil, err
+	}
+	
+	result := &ConfigCheckResult{
+		ConfigID: id,
+		Status:   "pass",
+		Checks:   []CheckItem{},
+	}
+	
+	// 检查源路径
+	if config.Source != "" {
+		if _, err := os.Stat(config.Source); err != nil {
+			result.Checks = append(result.Checks, CheckItem{
+				Name:    "source_path",
+				Status:  "fail",
+				Message: fmt.Sprintf("源路径不存在: %v", err),
+			})
+			result.Status = "fail"
+		} else {
+			result.Checks = append(result.Checks, CheckItem{
+				Name:    "source_path",
+				Status:  "pass",
+				Message: "源路径正常",
+			})
+		}
+	}
+	
+	// 检查目标路径
+	if config.Destination != "" {
+		if _, err := os.Stat(config.Destination); err != nil {
+			// 尝试创建目录
+			if err := os.MkdirAll(config.Destination, 0755); err != nil {
+				result.Checks = append(result.Checks, CheckItem{
+					Name:    "destination_path",
+					Status:  "fail",
+					Message: fmt.Sprintf("目标路径无法创建: %v", err),
+				})
+				result.Status = "fail"
+			} else {
+				result.Checks = append(result.Checks, CheckItem{
+					Name:    "destination_path",
+					Status:  "pass",
+					Message: "目标路径已创建",
+				})
+			}
+		} else {
+			result.Checks = append(result.Checks, CheckItem{
+				Name:    "destination_path",
+				Status:  "pass",
+				Message: "目标路径正常",
+			})
+		}
+	}
+	
+	return result, nil
+}
+
+// HealthCheck 健康检查
+func (m *Manager) HealthCheck() (*HealthCheckResult, error) {
+	result := &HealthCheckResult{
+		Status:    "healthy",
+		Timestamp: time.Now(),
+		Details:   make(map[string]interface{}),
+	}
+	
+	m.mu.RLock()
+	result.Details["config_count"] = len(m.configs)
+	result.Details["task_count"] = len(m.tasks)
+	m.mu.RUnlock()
+	
+	// 检查最近的备份状态
+	hasRecentBackup := false
+	m.mu.RLock()
+	for _, task := range m.tasks {
+		if task.Status == TaskStatusCompleted && time.Since(task.StartTime) < 24*time.Hour {
+			hasRecentBackup = true
+			break
+		}
+	}
+	m.mu.RUnlock()
+	
+	if !hasRecentBackup {
+		result.Details["warning"] = "no recent backup in last 24 hours"
+	}
+	
+	return result, nil
+}
+
+// HealthCheckResult 健康检查结果
+type HealthCheckResult struct {
+	Status    string                 `json:"status"`
+	Timestamp time.Time              `json:"timestamp"`
+	Details   map[string]interface{} `json:"details"`
+}
+
+// DefaultRestorePresets 默认恢复预设
+func DefaultRestorePresets() []RestorePreset {
+	return []RestorePreset{
+		{
+			ID:          "full",
+			Name:        "完整恢复",
+			Description: "恢复所有文件",
+			Options: RestoreOptions{
+				Overwrite: true,
+			},
+		},
+		{
+			ID:          "selective",
+			Name:        "选择性恢复",
+			Description: "选择特定文件恢复",
+			Options: RestoreOptions{
+				Overwrite: false,
+			},
+		},
+		{
+			ID:          "incremental",
+			Name:        "增量恢复",
+			Description: "只恢复变化的文件",
+			Options: RestoreOptions{
+				Overwrite: true,
+			},
+		},
+	}
+}
+
+// RestorePreset 恢复预设
+type RestorePreset struct {
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Options     RestoreOptions `json:"options"`
 }

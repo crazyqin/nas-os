@@ -1,361 +1,608 @@
 package backup
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
-	"fmt"
+	"encoding/base64"
+	"errors"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"sync"
+	"time"
+
+	"golang.org/x/crypto/pbkdf2"
+	"go.uber.org/zap"
 )
 
-// Encryptor 备份加密器
-type Encryptor struct {
-	password string
-	key      []byte
+var (
+	ErrInvalidKey        = errors.New("invalid encryption key")
+	ErrEncryptionFailed  = errors.New("encryption failed")
+	ErrDecryptionFailed  = errors.New("decryption failed")
+	ErrKeyNotFound       = errors.New("encryption key not found")
+)
+
+// EncryptionManagerConfig 加密管理器配置
+type EncryptionManagerConfig struct {
+	Enabled       bool   `json:"enabled"`
+	Algorithm     string `json:"algorithm"`     // aes-256-gcm, aes-256-cbc
+	KeyDerivation string `json:"key_derivation"` // pbkdf2, argon2
+	KeyPath       string `json:"key_path"`      // 密钥存储路径
+	SaltLength    int    `json:"salt_length"`
+	Iterations    int    `json:"iterations"`    // PBKDF2 迭代次数
 }
 
-// NewEncryptor 创建加密器
-func NewEncryptor(password string) (*Encryptor, error) {
-	if password == "" {
-		return nil, fmt.Errorf("密码不能为空")
-	}
-
-	// 使用 SHA256 生成 32 字节密钥
-	hasher := sha256.New()
-	hasher.Write([]byte(password))
-	key := hasher.Sum(nil)
-
-	return &Encryptor{
-		password: password,
-		key:      key,
-	}, nil
+// EncryptionManager 加密管理器
+type EncryptionManager struct {
+	config    *EncryptionManagerConfig
+	keys      map[string]*EncryptionKey
+	keyStore  *KeyStore
+	mu        sync.RWMutex
+	logger    *zap.Logger
 }
 
-// EncryptFile 使用 OpenSSL 加密文件
-func (e *Encryptor) EncryptFile(inputPath, outputPath string) error {
-	// 使用 OpenSSL AES-256-CBC 加密
-	cmd := exec.Command(
-		"openssl",
-		"enc",
-		"-aes-256-cbc",
-		"-salt",
-		"-pbkdf2",
-		"-iter", "100000",
-		"-in", inputPath,
-		"-out", outputPath,
-		"-pass", "pass:"+e.password,
-	)
-
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("OpenSSL 加密失败：%w, output: %s", err, string(output))
-	}
-
-	return nil
+// EncryptionKey 加密密钥
+type EncryptionKey struct {
+	ID        string `json:"id"`
+	Key       []byte `json:"key"`
+	Salt      []byte `json:"salt"`
+	CreatedAt string `json:"created_at"`
+	Algorithm string `json:"algorithm"`
 }
 
-// DecryptFile 使用 OpenSSL 解密文件
-func (e *Encryptor) DecryptFile(inputPath, outputPath string) error {
-	// 使用 OpenSSL AES-256-CBC 解密
-	cmd := exec.Command(
-		"openssl",
-		"enc",
-		"-aes-256-cbc",
-		"-d",
-		"-pbkdf2",
-		"-iter", "100000",
-		"-in", inputPath,
-		"-out", outputPath,
-		"-pass", "pass:"+e.password,
-	)
-
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("OpenSSL 解密失败：%w, output: %s", err, string(output))
-	}
-
-	return nil
+// KeyStore 密钥存储
+type KeyStore struct {
+	path     string
+	keys     map[string]*EncryptionKey
+	mu       sync.RWMutex
 }
 
-// EncryptDirectory 加密整个目录
-func (e *Encryptor) EncryptDirectory(inputDir, outputDir string) error {
-	// 先打包成 tar
-	tarPath := outputDir + ".tar"
-	if err := createTar(inputDir, tarPath); err != nil {
-		return fmt.Errorf("创建 tar 失败：%w", err)
+// NewKeyStore 创建密钥存储
+func NewKeyStore(path string) *KeyStore {
+	ks := &KeyStore{
+		path: path,
+		keys: make(map[string]*EncryptionKey),
 	}
-
-	// 加密 tar 文件
-	encryptedPath := tarPath + ".enc"
-	if err := e.EncryptFile(tarPath, encryptedPath); err != nil {
-		os.Remove(tarPath)
-		return fmt.Errorf("加密失败：%w", err)
-	}
-
-	// 删除未加密的 tar
-	os.Remove(tarPath)
-
-	return nil
+	ks.load()
+	return ks
 }
 
-// DecryptDirectory 解密目录
-func (e *Encryptor) DecryptDirectory(encryptedPath, outputDir string) error {
-	// 解密文件
-	decryptedTar := encryptedPath + ".dec.tar"
-	if err := e.DecryptFile(encryptedPath, decryptedTar); err != nil {
-		return fmt.Errorf("解密失败：%w", err)
-	}
-
-	// 解压 tar
-	if err := extractTar(decryptedTar, outputDir); err != nil {
-		os.Remove(decryptedTar)
-		return fmt.Errorf("解压失败：%w", err)
-	}
-
-	// 删除临时 tar
-	os.Remove(decryptedTar)
-
-	return nil
+// load 加载密钥
+func (ks *KeyStore) load() {
+	// 确保目录存在
+	os.MkdirAll(ks.path, 0700)
+	
+	// 加载已有密钥
+	filepath.Walk(ks.path, func(path string, info os.FileInfo, err error) error {
+		if err != nil || info.IsDir() {
+			return nil
+		}
+		
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil
+		}
+		
+		// 解析密钥（简化实现）
+		key := &EncryptionKey{
+			ID:  filepath.Base(path),
+			Key: data,
+		}
+		ks.keys[key.ID] = key
+		return nil
+	})
 }
 
-// createTar 创建 tar 包
-func createTar(srcDir, dstTar string) error {
-	cmd := exec.Command("tar", "cf", dstTar, "-C", filepath.Dir(srcDir), filepath.Base(srcDir))
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("tar 创建失败：%w, output: %s", err, string(output))
-	}
-	return nil
-}
-
-// extractTar 解压 tar 包
-func extractTar(srcTar, dstDir string) error {
-	if err := os.MkdirAll(dstDir, 0755); err != nil {
+// Store 存储密钥
+func (ks *KeyStore) Store(key *EncryptionKey) error {
+	ks.mu.Lock()
+	defer ks.mu.Unlock()
+	
+	path := filepath.Join(ks.path, key.ID)
+	if err := os.WriteFile(path, key.Key, 0600); err != nil {
 		return err
 	}
-
-	cmd := exec.Command("tar", "xf", srcTar, "-C", dstDir)
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("tar 解压失败：%w, output: %s", err, string(output))
-	}
+	
+	ks.keys[key.ID] = key
 	return nil
 }
 
-// ========== Go 原生加密实现（备用方案）==========
-
-// EncryptData 使用 AES-GCM 加密数据（Go 原生实现）
-func (e *Encryptor) EncryptData(data []byte) ([]byte, error) {
-	// 创建 AES cipher
-	block, err := aes.NewCipher(e.key)
-	if err != nil {
-		return nil, fmt.Errorf("创建 cipher 失败：%w", err)
-	}
-
-	// 创建 GCM mode
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return nil, fmt.Errorf("创建 GCM 失败：%w", err)
-	}
-
-	// 生成 nonce
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, fmt.Errorf("生成 nonce 失败：%w", err)
-	}
-
-	// 加密数据
-	ciphertext := gcm.Seal(nonce, nonce, data, nil)
-
-	return ciphertext, nil
+// Get 获取密钥
+func (ks *KeyStore) Get(id string) (*EncryptionKey, bool) {
+	ks.mu.RLock()
+	defer ks.mu.RUnlock()
+	
+	key, exists := ks.keys[id]
+	return key, exists
 }
 
-// DecryptData 使用 AES-GCM 解密数据（Go 原生实现）
-func (e *Encryptor) DecryptData(ciphertext []byte) ([]byte, error) {
-	// 创建 AES cipher
-	block, err := aes.NewCipher(e.key)
-	if err != nil {
-		return nil, fmt.Errorf("创建 cipher 失败：%w", err)
+// Delete 删除密钥
+func (ks *KeyStore) Delete(id string) error {
+	ks.mu.Lock()
+	defer ks.mu.Unlock()
+	
+	path := filepath.Join(ks.path, id)
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		return err
 	}
+	
+	delete(ks.keys, id)
+	return nil
+}
 
-	// 创建 GCM mode
+// List 列出所有密钥ID
+func (ks *KeyStore) List() []string {
+	ks.mu.RLock()
+	defer ks.mu.RUnlock()
+	
+	ids := make([]string, 0, len(ks.keys))
+	for id := range ks.keys {
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+// NewEncryptionManager 创建加密管理器
+func NewEncryptionManager(config *EncryptionManagerConfig, logger *zap.Logger) *EncryptionManager {
+	em := &EncryptionManager{
+		config:   config,
+		keys:     make(map[string]*EncryptionKey),
+		keyStore: NewKeyStore(config.KeyPath),
+		logger:   logger,
+	}
+	
+	// 加载已有密钥
+	for _, id := range em.keyStore.List() {
+		if key, exists := em.keyStore.Get(id); exists {
+			em.keys[id] = key
+		}
+	}
+	
+	return em
+}
+
+// GenerateKey 生成密钥
+func (em *EncryptionManager) GenerateKey(passphrase string) (*EncryptionKey, error) {
+	// 生成盐
+	salt := make([]byte, em.config.SaltLength)
+	if _, err := rand.Read(salt); err != nil {
+		return nil, err
+	}
+	
+	// 使用 PBKDF2 派生密钥
+	key := pbkdf2.Key([]byte(passphrase), salt, em.config.Iterations, 32, sha256.New)
+	
+	encKey := &EncryptionKey{
+		ID:        generateKeyID(),
+		Key:       key,
+		Salt:      salt,
+		CreatedAt: currentTime(),
+		Algorithm: em.config.Algorithm,
+	}
+	
+	// 存储密钥
+	if err := em.keyStore.Store(encKey); err != nil {
+		return nil, err
+	}
+	
+	em.mu.Lock()
+	em.keys[encKey.ID] = encKey
+	em.mu.Unlock()
+	
+	em.logger.Info("Encryption key generated",
+		zap.String("key_id", encKey.ID),
+		zap.String("algorithm", encKey.Algorithm),
+	)
+	
+	return encKey, nil
+}
+
+// DeriveKey 从密码派生密钥
+func (em *EncryptionManager) DeriveKey(passphrase string, salt []byte) []byte {
+	return pbkdf2.Key([]byte(passphrase), salt, em.config.Iterations, 32, sha256.New)
+}
+
+// Encrypt 加密数据
+func (em *EncryptionManager) Encrypt(plaintext []byte, keyID string) ([]byte, error) {
+	em.mu.RLock()
+	key, exists := em.keys[keyID]
+	em.mu.RUnlock()
+	
+	if !exists {
+		return nil, ErrKeyNotFound
+	}
+	
+	switch em.config.Algorithm {
+	case "aes-256-gcm":
+		return em.encryptGCM(plaintext, key.Key)
+	case "aes-256-cbc":
+		return em.encryptCBC(plaintext, key.Key)
+	default:
+		return em.encryptGCM(plaintext, key.Key)
+	}
+}
+
+// encryptGCM 使用 AES-GCM 加密
+func (em *EncryptionManager) encryptGCM(plaintext, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return nil, fmt.Errorf("创建 GCM 失败：%w", err)
+		return nil, err
 	}
+	
+	// 生成随机 nonce
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := rand.Read(nonce); err != nil {
+		return nil, err
+	}
+	
+	// 加密
+	ciphertext := gcm.Seal(nil, nonce, plaintext, nil)
+	
+	// 将 nonce 附加到密文
+	result := make([]byte, len(nonce)+len(ciphertext))
+	copy(result[:len(nonce)], nonce)
+	copy(result[len(nonce):], ciphertext)
+	
+	return result, nil
+}
 
-	// 验证 nonce 大小
+// encryptCBC 使用 AES-CBC 加密
+func (em *EncryptionManager) encryptCBC(plaintext, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	
+	// PKCS7 填充
+	blockSize := block.BlockSize()
+	padding := blockSize - len(plaintext)%blockSize
+	padded := make([]byte, len(plaintext)+padding)
+	copy(padded, plaintext)
+	for i := len(plaintext); i < len(padded); i++ {
+		padded[i] = byte(padding)
+	}
+	
+	// 生成随机 IV
+	iv := make([]byte, block.BlockSize())
+	if _, err := rand.Read(iv); err != nil {
+		return nil, err
+	}
+	
+	// 加密
+	ciphertext := make([]byte, len(padded))
+	mode := cipher.NewCBCEncrypter(block, iv)
+	mode.CryptBlocks(ciphertext, padded)
+	
+	// 将 IV 附加到密文
+	result := make([]byte, len(iv)+len(ciphertext))
+	copy(result[:len(iv)], iv)
+	copy(result[len(iv):], ciphertext)
+	
+	return result, nil
+}
+
+// Decrypt 解密数据
+func (em *EncryptionManager) Decrypt(ciphertext []byte, keyID string) ([]byte, error) {
+	em.mu.RLock()
+	key, exists := em.keys[keyID]
+	em.mu.RUnlock()
+	
+	if !exists {
+		return nil, ErrKeyNotFound
+	}
+	
+	switch em.config.Algorithm {
+	case "aes-256-gcm":
+		return em.decryptGCM(ciphertext, key.Key)
+	case "aes-256-cbc":
+		return em.decryptCBC(ciphertext, key.Key)
+	default:
+		return em.decryptGCM(ciphertext, key.Key)
+	}
+}
+
+// decryptGCM 使用 AES-GCM 解密
+func (em *EncryptionManager) decryptGCM(ciphertext, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return nil, err
+	}
+	
 	nonceSize := gcm.NonceSize()
 	if len(ciphertext) < nonceSize {
-		return nil, fmt.Errorf("密文太短")
+		return nil, ErrDecryptionFailed
 	}
-
-	// 提取 nonce 和密文
-	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
-
-	// 解密数据
-	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		return nil, fmt.Errorf("解密失败：%w", err)
-	}
-
-	return plaintext, nil
-}
-
-// EncryptStream 流式加密（适用于大文件）
-func (e *Encryptor) EncryptStream(input io.Reader, output io.Writer) error {
-	block, err := aes.NewCipher(e.key)
-	if err != nil {
-		return err
-	}
-
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return err
-	}
-
-	// 生成 nonce
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return err
-	}
-
-	// 写入 nonce
-	if _, err := output.Write(nonce); err != nil {
-		return err
-	}
-
-	// 读取全部数据并加密（简化实现，大文件需要分块）
-	data, err := io.ReadAll(input)
-	if err != nil {
-		return err
-	}
-
-	ciphertext := gcm.Seal(nil, nonce, data, nil)
-	_, err = output.Write(ciphertext)
-	return err
-}
-
-// DecryptStream 流式解密
-func (e *Encryptor) DecryptStream(input io.Reader, output io.Writer) error {
-	block, err := aes.NewCipher(e.key)
-	if err != nil {
-		return err
-	}
-
-	gcm, err := cipher.NewGCM(block)
-	if err != nil {
-		return err
-	}
-
-	// 读取 nonce
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err := io.ReadFull(input, nonce); err != nil {
-		return err
-	}
-
-	// 读取密文
-	ciphertext, err := io.ReadAll(input)
-	if err != nil {
-		return err
-	}
-
+	
+	// 提取 nonce
+	nonce := ciphertext[:nonceSize]
+	ciphertext = ciphertext[nonceSize:]
+	
 	// 解密
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
+		return nil, ErrDecryptionFailed
+	}
+	
+	return plaintext, nil
+}
+
+// decryptCBC 使用 AES-CBC 解密
+func (em *EncryptionManager) decryptCBC(ciphertext, key []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+	
+	blockSize := block.BlockSize()
+	if len(ciphertext) < blockSize {
+		return nil, ErrDecryptionFailed
+	}
+	
+	// 提取 IV
+	iv := ciphertext[:blockSize]
+	ciphertext = ciphertext[blockSize:]
+	
+	// 解密
+	plaintext := make([]byte, len(ciphertext))
+	mode := cipher.NewCBCDecrypter(block, iv)
+	mode.CryptBlocks(plaintext, ciphertext)
+	
+	// 移除 PKCS7 填充
+	padding := int(plaintext[len(plaintext)-1])
+	if padding > blockSize || padding > len(plaintext) {
+		return nil, ErrDecryptionFailed
+	}
+	
+	return plaintext[:len(plaintext)-padding], nil
+}
+
+// EncryptFile 加密文件
+func (em *EncryptionManager) EncryptFile(srcPath, dstPath, keyID string) error {
+	// 读取源文件
+	plaintext, err := os.ReadFile(srcPath)
+	if err != nil {
 		return err
 	}
+	
+	// 加密
+	ciphertext, err := em.Encrypt(plaintext, keyID)
+	if err != nil {
+		return err
+	}
+	
+	// 写入目标文件
+	return os.WriteFile(dstPath, ciphertext, 0600)
+}
 
-	_, err = output.Write(plaintext)
+// DecryptFile 解密文件
+func (em *EncryptionManager) DecryptFile(srcPath, dstPath, keyID string) error {
+	// 读取源文件
+	ciphertext, err := os.ReadFile(srcPath)
+	if err != nil {
+		return err
+	}
+	
+	// 解密
+	plaintext, err := em.Decrypt(ciphertext, keyID)
+	if err != nil {
+		return err
+	}
+	
+	// 写入目标文件
+	return os.WriteFile(dstPath, plaintext, 0600)
+}
+
+// RotateKey 密钥轮换
+func (em *EncryptionManager) RotateKey(oldKeyID, newPassphrase string) (*EncryptionKey, error) {
+	// 生成新密钥
+	newKey, err := em.GenerateKey(newPassphrase)
+	if err != nil {
+		return nil, err
+	}
+	
+	em.logger.Info("Key rotated",
+		zap.String("old_key_id", oldKeyID),
+		zap.String("new_key_id", newKey.ID),
+	)
+	
+	return newKey, nil
+}
+
+// DeleteKey 删除密钥
+func (em *EncryptionManager) DeleteKey(keyID string) error {
+	em.mu.Lock()
+	defer em.mu.Unlock()
+	
+	if err := em.keyStore.Delete(keyID); err != nil {
+		return err
+	}
+	
+	delete(em.keys, keyID)
+	
+	em.logger.Info("Key deleted", zap.String("key_id", keyID))
+	return nil
+}
+
+// ListKeys 列出密钥
+func (em *EncryptionManager) ListKeys() []string {
+	em.mu.RLock()
+	defer em.mu.RUnlock()
+	
+	ids := make([]string, 0, len(em.keys))
+	for id := range em.keys {
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+// GetKeyInfo 获取密钥信息
+func (em *EncryptionManager) GetKeyInfo(keyID string) (map[string]interface{}, error) {
+	em.mu.RLock()
+	defer em.mu.RUnlock()
+	
+	key, exists := em.keys[keyID]
+	if !exists {
+		return nil, ErrKeyNotFound
+	}
+	
+	return map[string]interface{}{
+		"id":         key.ID,
+		"algorithm":  key.Algorithm,
+		"created_at": key.CreatedAt,
+	}, nil
+}
+
+// EncryptStream 加密流
+func (em *EncryptionManager) EncryptStream(reader io.Reader, writer io.Writer, keyID string) error {
+	em.mu.RLock()
+	key, exists := em.keys[keyID]
+	em.mu.RUnlock()
+	
+	if !exists {
+		return ErrKeyNotFound
+	}
+	
+	// 读取所有数据
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+	
+	// 加密
+	encrypted, err := em.encryptGCM(data, key.Key)
+	if err != nil {
+		return err
+	}
+	
+	// 写入
+	_, err = writer.Write(encrypted)
 	return err
 }
 
-// GenerateKey 生成随机密钥
-func GenerateKey() (string, error) {
-	key := make([]byte, 32)
-	if _, err := io.ReadFull(rand.Reader, key); err != nil {
-		return "", err
+// DecryptStream 解密流
+func (em *EncryptionManager) DecryptStream(reader io.Reader, writer io.Writer, keyID string) error {
+	em.mu.RLock()
+	key, exists := em.keys[keyID]
+	em.mu.RUnlock()
+	
+	if !exists {
+		return ErrKeyNotFound
 	}
-
-	// 返回 base64 编码的密钥
-	return fmt.Sprintf("%x", key), nil
-}
-
-// EncryptBackupWithGPG 使用 GPG 加密（如果系统安装了 GPG）
-func EncryptBackupWithGPG(inputPath, outputPath, recipient string) error {
-	cmd := exec.Command(
-		"gpg",
-		"--yes",
-		"--batch",
-		"--encrypt",
-		"--recipient", recipient,
-		"--output", outputPath,
-		inputPath,
-	)
-
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("GPG 加密失败：%w, output: %s", err, string(output))
-	}
-
-	return nil
-}
-
-// DecryptBackupWithGPG 使用 GPG 解密
-func DecryptBackupWithGPG(inputPath, outputPath string) error {
-	cmd := exec.Command(
-		"gpg",
-		"--yes",
-		"--batch",
-		"--decrypt",
-		"--output", outputPath,
-		inputPath,
-	)
-
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("GPG 解密失败：%w, output: %s", err, string(output))
-	}
-
-	return nil
-}
-
-// VerifyIntegrity 验证备份完整性（使用 checksum）
-func VerifyIntegrity(filePath string) (string, error) {
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return "", err
-	}
-
-	// 计算 SHA256
-	hash := sha256.Sum256(data)
-	return fmt.Sprintf("%x", hash), nil
-}
-
-// WriteChecksum 写入校验和文件
-func WriteChecksum(filePath string) error {
-	checksum, err := VerifyIntegrity(filePath)
+	
+	// 读取所有数据
+	data, err := io.ReadAll(reader)
 	if err != nil {
 		return err
 	}
-
-	checksumPath := filePath + ".sha256"
-	return os.WriteFile(checksumPath, []byte(checksum+"  "+filepath.Base(filePath)), 0644)
+	
+	// 解密
+	decrypted, err := em.decryptGCM(data, key.Key)
+	if err != nil {
+		return err
+	}
+	
+	// 写入
+	_, err = writer.Write(decrypted)
+	return err
 }
 
-// VerifyChecksum 验证校验和
-func VerifyChecksum(filePath string) (bool, error) {
-	checksumPath := filePath + ".sha256"
-
-	expectedData, err := os.ReadFile(checksumPath)
-	if err != nil {
-		return false, err
+// ExportKey 导出密钥（Base64编码）
+func (em *EncryptionManager) ExportKey(keyID string) (string, error) {
+	em.mu.RLock()
+	defer em.mu.RUnlock()
+	
+	key, exists := em.keys[keyID]
+	if !exists {
+		return "", ErrKeyNotFound
 	}
+	
+	// 将密钥和盐打包
+	data := append(key.Salt, key.Key...)
+	return base64.StdEncoding.EncodeToString(data), nil
+}
 
-	expected := string(bytes.Fields(expectedData)[0])
-	actual, err := VerifyIntegrity(filePath)
+// ImportKey 导入密钥
+func (em *EncryptionManager) ImportKey(encodedKey, algorithm string) (*EncryptionKey, error) {
+	data, err := base64.StdEncoding.DecodeString(encodedKey)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
+	
+	if len(data) < 32 {
+		return nil, ErrInvalidKey
+	}
+	
+	salt := data[:16]
+	key := data[16:]
+	
+	encKey := &EncryptionKey{
+		ID:        generateKeyID(),
+		Key:       key,
+		Salt:      salt,
+		CreatedAt: currentTime(),
+		Algorithm: algorithm,
+	}
+	
+	if err := em.keyStore.Store(encKey); err != nil {
+		return nil, err
+	}
+	
+	em.mu.Lock()
+	em.keys[encKey.ID] = encKey
+	em.mu.Unlock()
+	
+	return encKey, nil
+}
 
-	return expected == actual, nil
+// EncryptionStats 加密统计
+type EncryptionStats struct {
+	Enabled    bool     `json:"enabled"`
+	Algorithm  string   `json:"algorithm"`
+	KeyCount   int      `json:"key_count"`
+	KeyIDs     []string `json:"key_ids"`
+}
+
+// GetStats 获取统计
+func (em *EncryptionManager) GetStats() EncryptionStats {
+	em.mu.RLock()
+	defer em.mu.RUnlock()
+	
+	ids := make([]string, 0, len(em.keys))
+	for id := range em.keys {
+		ids = append(ids, id)
+	}
+	
+	return EncryptionStats{
+		Enabled:   em.config.Enabled,
+		Algorithm: em.config.Algorithm,
+		KeyCount:  len(em.keys),
+		KeyIDs:    ids,
+	}
+}
+
+// generateKeyID 生成密钥ID
+func generateKeyID() string {
+	return "key-" + randomString(8)
+}
+
+// currentTime 获取当前时间字符串
+func currentTime() string {
+	return timeNow().Format("2006-01-02T15:04:05Z07:00")
+}
+
+// 时间函数，便于测试
+var timeNow = func() time.Time {
+	return time.Now()
 }

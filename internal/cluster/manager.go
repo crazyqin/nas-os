@@ -50,8 +50,8 @@ type ClusterNode struct {
 	JoinTime  time.Time   `json:"join_time"`
 }
 
-// ClusterConfig 集群配置
-type ClusterConfig struct {
+// SimpleClusterConfig 简化集群配置（用于 mDNS 发现模式）
+type SimpleClusterConfig struct {
 	Name              string `json:"name"`
 	NodeID            string `json:"node_id"`
 	DiscoveryPort     int    `json:"discovery_port"`
@@ -62,7 +62,7 @@ type ClusterConfig struct {
 
 // ClusterManager 集群管理器
 type ClusterManager struct {
-	config     ClusterConfig
+	config     SimpleClusterConfig
 	nodes      map[string]*ClusterNode
 	nodesMutex sync.RWMutex
 	masterID   string
@@ -82,7 +82,7 @@ type ClusterCallbacks struct {
 }
 
 // NewManager 创建集群管理器
-func NewManager(config ClusterConfig, logger *zap.Logger) (*ClusterManager, error) {
+func NewManager(config SimpleClusterConfig, logger *zap.Logger) (*ClusterManager, error) {
 	if config.NodeID == "" {
 		hostname, _ := os.Hostname()
 		config.NodeID = fmt.Sprintf("node-%s", hostname)
@@ -485,7 +485,7 @@ func (cm *ClusterManager) SetCallbacks(callbacks ClusterCallbacks) {
 }
 
 // GetConfig 获取集群配置
-func (cm *ClusterManager) GetConfig() ClusterConfig {
+func (cm *ClusterManager) GetConfig() SimpleClusterConfig {
 	return cm.config
 }
 

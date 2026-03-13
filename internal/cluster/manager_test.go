@@ -11,7 +11,7 @@ import (
 func TestNewManager(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	config := ClusterConfig{
+	config := SimpleClusterConfig{
 		Name:              "test-cluster",
 		NodeID:            "test-node-1",
 		DiscoveryPort:     8081,
@@ -38,7 +38,7 @@ func TestNewManager(t *testing.T) {
 func TestGetNodes(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	config := ClusterConfig{
+	config := SimpleClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
 	}
@@ -82,7 +82,7 @@ func TestGetNodes(t *testing.T) {
 func TestGetOnlineNodes(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	config := ClusterConfig{
+	config := SimpleClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
 	}
@@ -123,7 +123,7 @@ func TestGetOnlineNodes(t *testing.T) {
 func TestRemoveNode(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	config := ClusterConfig{
+	config := SimpleClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
 	}
@@ -163,7 +163,7 @@ func TestRemoveNode(t *testing.T) {
 func TestUpdateNodeMetrics(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	config := ClusterConfig{
+	config := SimpleClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
 	}
@@ -207,7 +207,7 @@ func TestUpdateNodeMetrics(t *testing.T) {
 func TestIsMaster(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	config := ClusterConfig{
+	config := SimpleClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
 	}
@@ -228,7 +228,7 @@ func TestIsMaster(t *testing.T) {
 func TestClusterCallbacks(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	config := ClusterConfig{
+	config := SimpleClusterConfig{
 		NodeID:  "test-node-1",
 		DataDir: "/tmp/test-cluster",
 	}

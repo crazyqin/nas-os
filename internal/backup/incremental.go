@@ -1,373 +1,687 @@
 package backup
 
 import (
-	"fmt"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"errors"
+	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strconv"
-	"strings"
+	"sync"
 	"time"
+
+	"go.uber.org/zap"
+)
+
+var (
+	ErrBackupNotFound    = errors.New("backup not found")
+	ErrBackupInProgress  = errors.New("backup already in progress")
+	ErrInvalidConfig     = errors.New("invalid backup configuration")
+	ErrVerificationFailed = errors.New("backup verification failed")
 )
 
 // IncrementalBackup 增量备份管理器
 type IncrementalBackup struct {
-	baseDir string
+	config      *BackupConfig
+	snapshots   map[string]*Snapshot
+	fileIndex   *FileIndex
+	chunkStore  *ChunkStore
+	activeJobs  map[string]*BackupJob
+	mu          sync.RWMutex
+	logger      *zap.Logger
+	
+	// 性能优化
+	changeDetector *ChangeDetector
+	compressor     *Compressor
+}
+
+// Snapshot 快照
+type Snapshot struct {
+	ID          string            `json:"id"`
+	CreatedAt   time.Time         `json:"created_at"`
+	Type        SnapshotType      `json:"type"`
+	BaseID      string            `json:"base_id,omitempty"` // 增量备份的基础快照
+	Files       map[string]FileInfo `json:"files"`
+	Chunks      []string          `json:"chunks"`
+	Size        int64             `json:"size"`
+	Duration    time.Duration     `json:"duration"`
+	Status      SnapshotStatus    `json:"status"`
+	Error       string            `json:"error,omitempty"`
+	Metadata    map[string]string `json:"metadata,omitempty"`
+}
+
+// SnapshotType 快照类型
+type SnapshotType string
+
+const (
+	SnapshotTypeFull  SnapshotType = "full"
+	SnapshotTypeInc   SnapshotType = "incremental"
+	SnapshotTypeDiff  SnapshotType = "differential"
+)
+
+// SnapshotStatus 快照状态
+type SnapshotStatus string
+
+const (
+	SnapshotStatusPending   SnapshotStatus = "pending"
+	SnapshotStatusRunning   SnapshotStatus = "running"
+	SnapshotStatusCompleted SnapshotStatus = "completed"
+	SnapshotStatusFailed    SnapshotStatus = "failed"
+)
+
+// FileInfo 文件信息
+type FileInfo struct {
+	Path     string      `json:"path"`
+	Size     int64       `json:"size"`
+	ModTime  time.Time   `json:"mod_time"`
+	Mode     os.FileMode `json:"mode"`
+	Checksum string      `json:"checksum,omitempty"`
+	Chunks   []string    `json:"chunks,omitempty"`
+}
+
+// BackupJob 备份作业
+type BackupJob struct {
+	ID          string
+	Source      string
+	Destination string
+	Type        SnapshotType
+	Progress    float64
+	StartTime   time.Time
+	Status      SnapshotStatus
+	Cancel      context.CancelFunc
+}
+
+// FileIndex 文件索引（用于快速变更检测）
+type FileIndex struct {
+	entries map[string]*IndexEntry
+	mu      sync.RWMutex
+}
+
+// IndexEntry 索引条目
+type IndexEntry struct {
+	Path        string
+	Checksum    string
+	Size        int64
+	ModTime     time.Time
+	LastChecked time.Time
+}
+
+// NewFileIndex 创建文件索引
+func NewFileIndex() *FileIndex {
+	return &FileIndex{
+		entries: make(map[string]*IndexEntry),
+	}
+}
+
+// Update 更新索引
+func (fi *FileIndex) Update(path string, checksum string, size int64, modTime time.Time) {
+	fi.mu.Lock()
+	defer fi.mu.Unlock()
+	
+	fi.entries[path] = &IndexEntry{
+		Path:        path,
+		Checksum:    checksum,
+		Size:        size,
+		ModTime:     modTime,
+		LastChecked: time.Now(),
+	}
+}
+
+// Get 获取索引条目
+func (fi *FileIndex) Get(path string) *IndexEntry {
+	fi.mu.RLock()
+	defer fi.mu.RUnlock()
+	return fi.entries[path]
+}
+
+// Remove 移除索引条目
+func (fi *FileIndex) Remove(path string) {
+	fi.mu.Lock()
+	defer fi.mu.Unlock()
+	delete(fi.entries, path)
+}
+
+// GetAll 获取所有条目
+func (fi *FileIndex) GetAll() []*IndexEntry {
+	fi.mu.RLock()
+	defer fi.mu.RUnlock()
+	
+	entries := make([]*IndexEntry, 0, len(fi.entries))
+	for _, entry := range fi.entries {
+		entries = append(entries, entry)
+	}
+	return entries
+}
+
+// ChangeDetector 变更检测器
+type ChangeDetector struct {
+	fileIndex *FileIndex
+}
+
+// NewChangeDetector 创建变更检测器
+func NewChangeDetector(fileIndex *FileIndex) *ChangeDetector {
+	return &ChangeDetector{
+		fileIndex: fileIndex,
+	}
+}
+
+// DetectChanges 检测变更文件
+func (cd *ChangeDetector) DetectChanges(ctx context.Context, source string) ([]string, []string, []string, error) {
+	var added, modified, deleted []string
+	
+	// 遍历源目录
+	currentFiles := make(map[string]bool)
+	
+	err := filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		
+		if info.IsDir() {
+			return nil
+		}
+		
+		relPath, err := filepath.Rel(source, path)
+		if err != nil {
+			return err
+		}
+		
+		currentFiles[relPath] = true
+		
+		// 检查索引
+		entry := cd.fileIndex.Get(relPath)
+		if entry == nil {
+			// 新文件
+			added = append(added, relPath)
+		} else {
+			// 检查是否修改
+			if info.ModTime().After(entry.ModTime) || info.Size() != entry.Size {
+				modified = append(modified, relPath)
+			}
+		}
+		
+		return nil
+	})
+	
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	
+	// 检测删除的文件
+	for _, entry := range cd.fileIndex.GetAll() {
+		if !currentFiles[entry.Path] {
+			deleted = append(deleted, entry.Path)
+		}
+	}
+	
+	return added, modified, deleted, nil
+}
+
+// ChunkStore 块存储（用于去重）
+type ChunkStore struct {
+	chunks   map[string][]byte
+	refs     map[string]int // 引用计数
+	path     string
+	mu       sync.RWMutex
+}
+
+// NewChunkStore 创建块存储
+func NewChunkStore(path string) *ChunkStore {
+	return &ChunkStore{
+		chunks: make(map[string][]byte),
+		refs:   make(map[string]int),
+		path:   path,
+	}
+}
+
+// Store 存储块
+func (cs *ChunkStore) Store(id string, data []byte) error {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	
+	// 检查是否已存在
+	if _, exists := cs.chunks[id]; exists {
+		cs.refs[id]++
+		return nil
+	}
+	
+	// 存储新块
+	cs.chunks[id] = data
+	cs.refs[id] = 1
+	
+	return nil
+}
+
+// Get 获取块
+func (cs *ChunkStore) Get(id string) ([]byte, bool) {
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
+	
+	data, exists := cs.chunks[id]
+	return data, exists
+}
+
+// Remove 移除块（减少引用计数）
+func (cs *ChunkStore) Remove(id string) {
+	cs.mu.Lock()
+	defer cs.mu.Unlock()
+	
+	if refs, exists := cs.refs[id]; exists {
+		refs--
+		if refs <= 0 {
+			delete(cs.chunks, id)
+			delete(cs.refs, id)
+		} else {
+			cs.refs[id] = refs
+		}
+	}
+}
+
+// Stats 块存储统计
+func (cs *ChunkStore) Stats() map[string]interface{} {
+	cs.mu.RLock()
+	defer cs.mu.RUnlock()
+	
+	var totalSize int64
+	for _, data := range cs.chunks {
+		totalSize += int64(len(data))
+	}
+	
+	return map[string]interface{}{
+		"total_chunks": len(cs.chunks),
+		"total_size":   totalSize,
+		"total_refs":   len(cs.refs),
+	}
+}
+
+// Compressor 压缩器
+type Compressor struct {
+	algorithm string
+	level     int
+}
+
+// NewCompressor 创建压缩器
+func NewCompressor(algorithm string, level int) *Compressor {
+	return &Compressor{
+		algorithm: algorithm,
+		level:     level,
+	}
 }
 
 // NewIncrementalBackup 创建增量备份管理器
-func NewIncrementalBackup(baseDir string) *IncrementalBackup {
+func NewIncrementalBackup(config *BackupConfig, logger *zap.Logger) *IncrementalBackup {
 	return &IncrementalBackup{
-		baseDir: baseDir,
+		config:         config,
+		snapshots:      make(map[string]*Snapshot),
+		fileIndex:      NewFileIndex(),
+		chunkStore:     NewChunkStore(config.ChunkPath),
+		activeJobs:     make(map[string]*BackupJob),
+		changeDetector: NewChangeDetector(NewFileIndex()),
+		compressor:     NewCompressor("gzip", 6),
+		logger:         logger,
 	}
 }
 
-// BackupResult 备份结果
-type BackupResult struct {
-	BackupPath    string
-	IsIncremental bool
-	TotalFiles    int64
-	ChangedFiles  int64
-	Size          int64
-	Duration      time.Duration
-	PreviousLink  string // 指向的上一个备份
-}
-
-// CreateBackup 创建增量备份
-// 使用 rsync --link-dest 实现硬链接增量备份
-func (ib *IncrementalBackup) CreateBackup(sourceDir, backupName string) (*BackupResult, error) {
-	startTime := time.Now()
-
-	// 创建备份根目录
-	backupRoot := filepath.Join(ib.baseDir, backupName)
-	if err := os.MkdirAll(backupRoot, 0755); err != nil {
-		return nil, fmt.Errorf("创建备份目录失败：%w", err)
-	}
-
-	// 生成时间戳目录名
-	timestamp := time.Now().Format("20060102_150405")
-	currentBackup := filepath.Join(backupRoot, timestamp)
-
-	// 查找上一个备份（用于硬链接）
-	previousBackup, err := ib.findPreviousBackup(backupRoot)
-	if err != nil {
-		previousBackup = "" // 没有上一个备份，执行完整备份
-	}
-
-	// 构建 rsync 命令
-	rsyncArgs := []string{
-		"-av",
-		"--delete",
-		"--hard-links",
-		"--numeric-ids",
-		"--stats",
-	}
-
-	// 如果有上一个备份，使用 --link-dest 实现增量
-	if previousBackup != "" {
-		rsyncArgs = append(rsyncArgs, "--link-dest="+previousBackup)
-	}
-
-	rsyncArgs = append(rsyncArgs, sourceDir+"/", currentBackup)
-
-	// 执行 rsync
-	cmd := exec.Command("rsync", rsyncArgs...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("rsync 失败：%w, output: %s", err, string(output))
-	}
-
-	// 解析 rsync 输出统计
-	stats := ib.parseRsyncStats(string(output))
-
-	// 创建备份元数据
-	if err := ib.writeBackupMetadata(currentBackup, &BackupMetadata{
-		Timestamp:     timestamp,
-		SourceDir:     sourceDir,
-		IsIncremental: previousBackup != "",
-		PreviousLink:  previousBackup,
-		TotalFiles:    stats.totalFiles,
-		ChangedFiles:  stats.changedFiles,
-		Size:          stats.totalSize,
-	}); err != nil {
-		return nil, fmt.Errorf("写入元数据失败：%w", err)
-	}
-
-	// 创建 latest 符号链接
-	latestLink := filepath.Join(backupRoot, "latest")
-	os.Remove(latestLink) // 删除旧链接
-	if err := os.Symlink(currentBackup, latestLink); err != nil {
-		return nil, fmt.Errorf("创建 latest 链接失败：%w", err)
-	}
-
-	duration := time.Since(startTime)
-
-	return &BackupResult{
-		BackupPath:    currentBackup,
-		IsIncremental: previousBackup != "",
-		TotalFiles:    stats.totalFiles,
-		ChangedFiles:  stats.changedFiles,
-		Size:          stats.totalSize,
-		Duration:      duration,
-		PreviousLink:  previousBackup,
-	}, nil
-}
-
-// BackupMetadata 备份元数据
-type BackupMetadata struct {
-	Timestamp     string `json:"timestamp"`
-	SourceDir     string `json:"sourceDir"`
-	IsIncremental bool   `json:"isIncremental"`
-	PreviousLink  string `json:"previousLink,omitempty"`
-	TotalFiles    int64  `json:"totalFiles"`
-	ChangedFiles  int64  `json:"changedFiles"`
-	Size          int64  `json:"size"`
-}
-
-// writeBackupMetadata 写入备份元数据
-func (ib *IncrementalBackup) writeBackupMetadata(backupPath string, meta *BackupMetadata) error {
-	metaPath := filepath.Join(backupPath, ".backup-meta.json")
-
-	// 简单的 JSON 手动序列化（避免导入 encoding/json）
-	content := fmt.Sprintf(`{
-  "timestamp": "%s",
-  "sourceDir": "%s",
-  "isIncremental": %v,
-  "previousLink": "%s",
-  "totalFiles": %d,
-  "changedFiles": %d,
-  "size": %d
-}`, meta.Timestamp, meta.SourceDir, meta.IsIncremental, meta.PreviousLink, meta.TotalFiles, meta.ChangedFiles, meta.Size)
-
-	return os.WriteFile(metaPath, []byte(content), 0644)
-}
-
-// rsyncStats rsync 统计信息
-type rsyncStats struct {
-	totalFiles   int64
-	changedFiles int64
-	totalSize    int64
-}
-
-// parseRsyncStats 解析 rsync 统计输出
-func (ib *IncrementalBackup) parseRsyncStats(output string) rsyncStats {
-	stats := rsyncStats{}
-
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-
-		// 解析总文件数
-		if strings.Contains(line, "Number of regular files transferred:") {
-			parts := strings.Split(line, ":")
-			if len(parts) == 2 {
-				if val, err := strconv.ParseInt(strings.TrimSpace(parts[1]), 10, 64); err == nil {
-					stats.totalFiles = val
-				}
-			}
-		}
-
-		// 解析总大小
-		if strings.Contains(line, "Total file size:") {
-			parts := strings.Split(line, ":")
-			if len(parts) == 2 {
-				sizeStr := strings.TrimSpace(parts[1])
-				if val, err := ib.parseSize(sizeStr); err == nil {
-					stats.totalSize = val
-				}
-			}
+// CreateSnapshot 创建快照
+func (ib *IncrementalBackup) CreateSnapshot(ctx context.Context, source string, dest string, snapshotType SnapshotType) (*Snapshot, error) {
+	ib.mu.Lock()
+	
+	// 检查是否有进行中的作业
+	for _, job := range ib.activeJobs {
+		if job.Source == source && job.Status == SnapshotStatusRunning {
+			ib.mu.Unlock()
+			return nil, ErrBackupInProgress
 		}
 	}
-
-	// 估算变化文件数（通过检查新创建的文件）
-	stats.changedFiles = stats.totalFiles // 默认假设全部变化
-
-	return stats
+	
+	// 创建作业
+	jobID := generateID()
+	job := &BackupJob{
+		ID:          jobID,
+		Source:      source,
+		Destination: dest,
+		Type:        snapshotType,
+		Progress:    0,
+		StartTime:   time.Now(),
+		Status:      SnapshotStatusRunning,
+	}
+	
+	ib.activeJobs[jobID] = job
+	
+	// 创建快照
+	snapshot := &Snapshot{
+		ID:        jobID,
+		CreatedAt: time.Now(),
+		Type:      snapshotType,
+		Files:     make(map[string]FileInfo),
+		Chunks:    make([]string, 0),
+		Status:    SnapshotStatusRunning,
+	}
+	
+	ib.mu.Unlock()
+	
+	// 执行备份
+	var err error
+	switch snapshotType {
+	case SnapshotTypeFull:
+		err = ib.performFullBackup(ctx, snapshot, source, dest)
+	case SnapshotTypeInc:
+		err = ib.performIncrementalBackup(ctx, snapshot, source, dest)
+	case SnapshotTypeDiff:
+		err = ib.performDifferentialBackup(ctx, snapshot, source, dest)
+	}
+	
+	ib.mu.Lock()
+	if err != nil {
+		snapshot.Status = SnapshotStatusFailed
+		snapshot.Error = err.Error()
+		job.Status = SnapshotStatusFailed
+	} else {
+		snapshot.Status = SnapshotStatusCompleted
+		job.Status = SnapshotStatusCompleted
+	}
+	snapshot.Duration = time.Since(job.StartTime)
+	ib.snapshots[jobID] = snapshot
+	delete(ib.activeJobs, jobID)
+	ib.mu.Unlock()
+	
+	return snapshot, err
 }
 
-// parseSize 解析带单位的大小字符串 (如 "1.23G", "456.78M")
-func (ib *IncrementalBackup) parseSize(sizeStr string) (int64, error) {
-	sizeStr = strings.ToUpper(strings.TrimSpace(sizeStr))
-
-	var multiplier int64 = 1
-	if strings.HasSuffix(sizeStr, "G") {
-		multiplier = 1024 * 1024 * 1024
-		sizeStr = strings.TrimSuffix(sizeStr, "G")
-	} else if strings.HasSuffix(sizeStr, "M") {
-		multiplier = 1024 * 1024
-		sizeStr = strings.TrimSuffix(sizeStr, "M")
-	} else if strings.HasSuffix(sizeStr, "K") {
-		multiplier = 1024
-		sizeStr = strings.TrimSuffix(sizeStr, "K")
-	}
-
-	var val float64
-	_, err := fmt.Sscanf(sizeStr, "%f", &val)
+// performFullBackup 执行完整备份
+func (ib *IncrementalBackup) performFullBackup(ctx context.Context, snapshot *Snapshot, source, dest string) error {
+	ib.logger.Info("Starting full backup",
+		zap.String("snapshot_id", snapshot.ID),
+		zap.String("source", source),
+	)
+	
+	var totalSize int64
+	
+	err := filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		
+		if info.IsDir() {
+			return nil
+		}
+		
+		relPath, err := filepath.Rel(source, path)
+		if err != nil {
+			return err
+		}
+		
+		// 计算文件校验和
+		checksum, chunks, err := ib.processFile(path, snapshot)
+		if err != nil {
+			ib.logger.Warn("Failed to process file",
+				zap.String("path", path),
+				zap.Error(err),
+			)
+			return nil // 继续处理其他文件
+		}
+		
+		// 更新文件索引
+		ib.fileIndex.Update(relPath, checksum, info.Size(), info.ModTime())
+		
+		// 记录文件信息
+		snapshot.Files[relPath] = FileInfo{
+			Path:     relPath,
+			Size:     info.Size(),
+			ModTime:  info.ModTime(),
+			Mode:     info.Mode(),
+			Checksum: checksum,
+			Chunks:   chunks,
+		}
+		
+		totalSize += info.Size()
+		
+		return nil
+	})
+	
 	if err != nil {
-		return 0, err
+		return err
 	}
-
-	return int64(val * float64(multiplier)), nil
+	
+	snapshot.Size = totalSize
+	
+	ib.logger.Info("Full backup completed",
+		zap.String("snapshot_id", snapshot.ID),
+		zap.Int64("size", totalSize),
+		zap.Duration("duration", snapshot.Duration),
+	)
+	
+	return nil
 }
 
-// findPreviousBackup 查找上一个备份
-func (ib *IncrementalBackup) findPreviousBackup(backupRoot string) (string, error) {
-	// 读取 latest 符号链接
-	latestLink := filepath.Join(backupRoot, "latest")
-
-	prevPath, err := os.Readlink(latestLink)
+// performIncrementalBackup 执行增量备份
+func (ib *IncrementalBackup) performIncrementalBackup(ctx context.Context, snapshot *Snapshot, source, dest string) error {
+	ib.logger.Info("Starting incremental backup",
+		zap.String("snapshot_id", snapshot.ID),
+	)
+	
+	// 找到最新的完整备份作为基础
+	ib.mu.RLock()
+	var baseSnapshot *Snapshot
+	for _, s := range ib.snapshots {
+		if s.Type == SnapshotTypeFull && s.Status == SnapshotStatusCompleted {
+			if baseSnapshot == nil || s.CreatedAt.After(baseSnapshot.CreatedAt) {
+				baseSnapshot = s
+			}
+		}
+	}
+	ib.mu.RUnlock()
+	
+	if baseSnapshot == nil {
+		// 没有完整备份，执行完整备份
+		return ib.performFullBackup(ctx, snapshot, source, dest)
+	}
+	
+	snapshot.BaseID = baseSnapshot.ID
+	
+	// 检测变更
+	added, modified, deleted, err := ib.changeDetector.DetectChanges(ctx, source)
 	if err != nil {
-		return "", err // 没有上一个备份
+		return err
 	}
-
-	// 如果是绝对路径，直接使用；否则拼接
-	if !filepath.IsAbs(prevPath) {
-		prevPath = filepath.Join(backupRoot, prevPath)
-	}
-
-	return prevPath, nil
-}
-
-// ListBackups 列出所有备份
-func (ib *IncrementalBackup) ListBackups(backupName string) ([]BackupInfo, error) {
-	backupRoot := filepath.Join(ib.baseDir, backupName)
-
-	entries, err := os.ReadDir(backupRoot)
-	if err != nil {
-		return nil, err
-	}
-
-	var backups []BackupInfo
-	for _, entry := range entries {
-		if !entry.IsDir() || entry.Name() == "latest" {
+	
+	ib.logger.Info("Changes detected",
+		zap.Int("added", len(added)),
+		zap.Int("modified", len(modified)),
+		zap.Int("deleted", len(deleted)),
+	)
+	
+	// 处理变更文件
+	var totalSize int64
+	
+	for _, path := range added {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		
+		fullPath := filepath.Join(source, path)
+		info, err := os.Stat(fullPath)
+		if err != nil {
 			continue
 		}
-
-		backupPath := filepath.Join(backupRoot, entry.Name())
-		meta, err := ib.readMetadata(backupPath)
+		
+		checksum, chunks, err := ib.processFile(fullPath, snapshot)
 		if err != nil {
-			continue // 跳过没有元数据的目录
+			continue
 		}
-
-		backups = append(backups, BackupInfo{
-			Name:     entry.Name(),
-			Path:     backupPath,
-			Metadata: meta,
-		})
-	}
-
-	return backups, nil
-}
-
-// BackupInfo 备份信息
-type BackupInfo struct {
-	Name     string
-	Path     string
-	Metadata *BackupMetadata
-}
-
-// readMetadata 读取备份元数据
-func (ib *IncrementalBackup) readMetadata(backupPath string) (*BackupMetadata, error) {
-	metaPath := filepath.Join(backupPath, ".backup-meta.json")
-
-	data, err := os.ReadFile(metaPath)
-	if err != nil {
-		return nil, err
-	}
-
-	// 简单的 JSON 手动解析
-	meta := &BackupMetadata{}
-	content := string(data)
-
-	// 提取字段（简化解析）
-	meta.Timestamp = ib.extractJSONString(content, "timestamp")
-	meta.SourceDir = ib.extractJSONString(content, "sourceDir")
-	meta.PreviousLink = ib.extractJSONString(content, "previousLink")
-	meta.IsIncremental = strings.Contains(content, `"isIncremental": true`)
-	meta.TotalFiles = ib.extractJSONInt(content, "totalFiles")
-	meta.ChangedFiles = ib.extractJSONInt(content, "changedFiles")
-	meta.Size = ib.extractJSONInt(content, "size")
-
-	return meta, nil
-}
-
-// extractJSONString 提取 JSON 字符串字段
-func (ib *IncrementalBackup) extractJSONString(json, key string) string {
-	searchKey := fmt.Sprintf(`"%s":`, key)
-	idx := strings.Index(json, searchKey)
-	if idx == -1 {
-		return ""
-	}
-
-	start := idx + len(searchKey)
-	// 跳过空白和引号
-	for start < len(json) && (json[start] == ' ' || json[start] == '"') {
-		start++
-	}
-
-	end := start
-	for end < len(json) && json[end] != '"' {
-		if json[end] == '\\' && end+1 < len(json) {
-			end += 2 // 跳过转义字符
-		} else {
-			end++
+		
+		ib.fileIndex.Update(path, checksum, info.Size(), info.ModTime())
+		
+		snapshot.Files[path] = FileInfo{
+			Path:     path,
+			Size:     info.Size(),
+			ModTime:  info.ModTime(),
+			Mode:     info.Mode(),
+			Checksum: checksum,
+			Chunks:   chunks,
 		}
+		
+		totalSize += info.Size()
 	}
-
-	return json[start:end]
+	
+	for _, path := range modified {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		
+		fullPath := filepath.Join(source, path)
+		info, err := os.Stat(fullPath)
+		if err != nil {
+			continue
+		}
+		
+		checksum, chunks, err := ib.processFile(fullPath, snapshot)
+		if err != nil {
+			continue
+		}
+		
+		ib.fileIndex.Update(path, checksum, info.Size(), info.ModTime())
+		
+		snapshot.Files[path] = FileInfo{
+			Path:     path,
+			Size:     info.Size(),
+			ModTime:  info.ModTime(),
+			Mode:     info.Mode(),
+			Checksum: checksum,
+			Chunks:   chunks,
+		}
+		
+		totalSize += info.Size()
+	}
+	
+	snapshot.Size = totalSize
+	
+	return nil
 }
 
-// extractJSONInt 提取 JSON 整数字段
-func (ib *IncrementalBackup) extractJSONInt(json, key string) int64 {
-	searchKey := fmt.Sprintf(`"%s":`, key)
-	idx := strings.Index(json, searchKey)
-	if idx == -1 {
-		return 0
-	}
-
-	start := idx + len(searchKey)
-	// 跳过空白
-	for start < len(json) && json[start] == ' ' {
-		start++
-	}
-
-	end := start
-	for end < len(json) && json[end] >= '0' && json[end] <= '9' {
-		end++
-	}
-
-	var val int64
-	_, _ = fmt.Sscanf(json[start:end], "%d", &val)
-	return val
+// performDifferentialBackup 执行差异备份
+func (ib *IncrementalBackup) performDifferentialBackup(ctx context.Context, snapshot *Snapshot, source, dest string) error {
+	// 差异备份与增量备份类似，但基于最近的完整备份
+	return ib.performIncrementalBackup(ctx, snapshot, source, dest)
 }
 
-// DeleteBackup 删除备份
-func (ib *IncrementalBackup) DeleteBackup(backupName, timestamp string) error {
-	backupPath := filepath.Join(ib.baseDir, backupName, timestamp)
-
-	// 检查是否有后续备份引用此备份的硬链接
-	// 如果有，需要先复制实际文件
-
-	return os.RemoveAll(backupPath)
-}
-
-// GetSpaceUsage 获取备份空间使用情况
-func (ib *IncrementalBackup) GetSpaceUsage(backupName string) (int64, error) {
-	backupRoot := filepath.Join(ib.baseDir, backupName)
-
-	// 使用 du 命令获取目录大小
-	cmd := exec.Command("du", "-sb", backupRoot)
-	output, err := cmd.Output()
+// processFile 处理文件（分块、去重、存储）
+func (ib *IncrementalBackup) processFile(path string, snapshot *Snapshot) (string, []string, error) {
+	file, err := os.Open(path)
 	if err != nil {
-		return 0, err
+		return "", nil, err
 	}
-
-	parts := strings.Fields(string(output))
-	if len(parts) < 1 {
-		return 0, fmt.Errorf("du 输出格式错误")
+	defer file.Close()
+	
+	// 计算完整文件校验和
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", nil, err
 	}
+	checksum := hex.EncodeToString(hash.Sum(nil))
+	
+	// 分块处理
+	chunks := make([]string, 0)
+	
+	// 简化实现：整个文件作为一个块
+	file.Seek(0, 0)
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return "", nil, err
+	}
+	
+	chunkID := checksum
+	if err := ib.chunkStore.Store(chunkID, data); err != nil {
+		return "", nil, err
+	}
+	
+	chunks = append(chunks, chunkID)
+	snapshot.Chunks = append(snapshot.Chunks, chunkID)
+	
+	return checksum, chunks, nil
+}
 
-	var size int64
-	_, _ = fmt.Sscanf(parts[0], "%d", &size)
-	return size, nil
+// GetSnapshot 获取快照
+func (ib *IncrementalBackup) GetSnapshot(id string) (*Snapshot, error) {
+	ib.mu.RLock()
+	defer ib.mu.RUnlock()
+	
+	snapshot, exists := ib.snapshots[id]
+	if !exists {
+		return nil, ErrBackupNotFound
+	}
+	return snapshot, nil
+}
+
+// ListSnapshots 列出快照
+func (ib *IncrementalBackup) ListSnapshots() []*Snapshot {
+	ib.mu.RLock()
+	defer ib.mu.RUnlock()
+	
+	snapshots := make([]*Snapshot, 0, len(ib.snapshots))
+	for _, snapshot := range ib.snapshots {
+		snapshots = append(snapshots, snapshot)
+	}
+	return snapshots
+}
+
+// DeleteSnapshot 删除快照
+func (ib *IncrementalBackup) DeleteSnapshot(id string) error {
+	ib.mu.Lock()
+	defer ib.mu.Unlock()
+	
+	snapshot, exists := ib.snapshots[id]
+	if !exists {
+		return ErrBackupNotFound
+	}
+	
+	// 清理块引用
+	for _, chunkID := range snapshot.Chunks {
+		ib.chunkStore.Remove(chunkID)
+	}
+	
+	delete(ib.snapshots, id)
+	return nil
+}
+
+// GetStats 获取统计
+func (ib *IncrementalBackup) GetStats() map[string]interface{} {
+	ib.mu.RLock()
+	defer ib.mu.RUnlock()
+	
+	var totalSize int64
+	for _, snapshot := range ib.snapshots {
+		totalSize += snapshot.Size
+	}
+	
+	return map[string]interface{}{
+		"total_snapshots": len(ib.snapshots),
+		"total_size":      totalSize,
+		"active_jobs":     len(ib.activeJobs),
+		"chunk_stats":     ib.chunkStore.Stats(),
+	}
+}
+
+// generateID 生成ID
+func generateID() string {
+	return time.Now().Format("20060102-150405") + "-" + randomString(8)
+}
+
+// randomString 生成随机字符串
+func randomString(n int) string {
+	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letters[time.Now().Nanosecond()%len(letters)]
+	}
+	return string(b)
 }
