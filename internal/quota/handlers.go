@@ -106,6 +106,22 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		reports.GET("/:id", h.getReport)
 		reports.GET("/:id/export", h.exportReport)
 	}
+
+	// ========== Webhook 配置 ==========
+	webhook := api.Group("/quota-webhook")
+	{
+		webhook.GET("/config", h.getWebhookConfig)
+		webhook.PUT("/config", h.setWebhookConfig)
+		webhook.POST("/test", h.testWebhook)
+	}
+
+	// ========== 报告调度 ==========
+	schedule := api.Group("/quota-schedule")
+	{
+		schedule.GET("", h.getScheduleConfig)
+		schedule.POST("", h.setScheduleConfig)
+		schedule.DELETE("", h.cancelSchedule)
+	}
 }
 
 // ========== 通用响应 ==========
@@ -662,4 +678,133 @@ func (h *Handlers) exportReport(c *gin.Context) {
 	default:
 		c.JSON(http.StatusOK, report)
 	}
+}
+
+// ========== Webhook 配置 API ==========
+
+// WebhookConfigRequest Webhook 配置请求
+type WebhookConfigRequest struct {
+	Enabled     bool     `json:"enabled"`
+	WebhookURLs []string `json:"webhook_urls"`
+	AlertLevels []string `json:"alert_levels"` // warning, critical
+	TimeoutSecs int      `json:"timeout_secs"`
+	RetryCount  int      `json:"retry_count"`
+}
+
+func (h *Handlers) getWebhookConfig(c *gin.Context) {
+	config := map[string]interface{}{
+		"enabled":       h.monitor.config.NotifyWebhook,
+		"webhook_url":   h.monitor.config.WebhookURL,
+		"check_interval": h.monitor.config.CheckInterval.String(),
+		"silence_duration": h.monitor.config.SilenceDuration.String(),
+	}
+	c.JSON(http.StatusOK, Success(config))
+}
+
+func (h *Handlers) setWebhookConfig(c *gin.Context) {
+	var req WebhookConfigRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	webhookURL := h.monitor.config.WebhookURL
+	if len(req.WebhookURLs) > 0 {
+		webhookURL = req.WebhookURLs[0]
+	}
+
+	h.monitor.UpdateConfig(AlertConfig{
+		Enabled:            req.Enabled,
+		SoftLimitThreshold: h.monitor.config.SoftLimitThreshold,
+		HardLimitThreshold: h.monitor.config.HardLimitThreshold,
+		CheckInterval:      h.monitor.config.CheckInterval,
+		NotifyEmail:        h.monitor.config.NotifyEmail,
+		NotifyWebhook:      req.Enabled,
+		WebhookURL:         webhookURL,
+		SilenceDuration:    h.monitor.config.SilenceDuration,
+	})
+
+	c.JSON(http.StatusOK, Success(map[string]string{"status": "updated"}))
+}
+
+func (h *Handlers) testWebhook(c *gin.Context) {
+	// 创建测试告警
+	testAlert := &Alert{
+		ID:           "test-alert",
+		QuotaID:      "test",
+		Type:         "warning",
+		Status:       "active",
+		TargetID:     "test",
+		TargetName:   "Test Quota",
+		VolumeName:   "test-volume",
+		Path:         "/test",
+		UsedBytes:    1000000,
+		LimitBytes:   2000000,
+		UsagePercent: 50.0,
+		Message:      "NAS-OS 配额 Webhook 测试",
+		CreatedAt:    time.Now(),
+	}
+
+	// 临时设置 webhook URL
+	url := c.Query("url")
+	if url != "" {
+		originalURL := h.monitor.config.WebhookURL
+		h.monitor.config.WebhookURL = url
+		h.monitor.sendWebhook(testAlert)
+		h.monitor.config.WebhookURL = originalURL
+	} else {
+		if h.monitor.config.WebhookURL == "" {
+			c.JSON(http.StatusBadRequest, Error(400, "请提供 webhook URL"))
+			return
+		}
+		h.monitor.sendWebhook(testAlert)
+	}
+
+	c.JSON(http.StatusOK, Success(map[string]string{"status": "sent"}))
+}
+
+// ========== 报告调度 API ==========
+
+// ScheduleConfigRequest 报告调度配置请求
+type ScheduleConfigRequest struct {
+	ReportRequest
+	Schedule   string `json:"schedule"`    // cron 表达式（秒级）
+	OutputPath string `json:"output_path"` // 导出路径
+	Enabled    bool   `json:"enabled"`
+}
+
+func (h *Handlers) getScheduleConfig(c *gin.Context) {
+	// 返回当前调度配置状态
+	config := map[string]interface{}{
+		"enabled": h.reportGen.scheduledID != 0,
+		"status":  "active",
+	}
+	c.JSON(http.StatusOK, Success(config))
+}
+
+func (h *Handlers) setScheduleConfig(c *gin.Context) {
+	var req ScheduleConfigRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	if !req.Enabled {
+		h.reportGen.Stop()
+		c.JSON(http.StatusOK, Success(map[string]string{"status": "cancelled"}))
+		return
+	}
+
+	err := h.reportGen.ScheduleReport(req.ReportRequest, req.Schedule, req.OutputPath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(map[string]string{"status": "scheduled"}))
+}
+
+func (h *Handlers) cancelSchedule(c *gin.Context) {
+	h.reportGen.Stop()
+	c.JSON(http.StatusOK, Success(map[string]string{"status": "cancelled"}))
 }
