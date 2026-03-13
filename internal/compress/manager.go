@@ -4,6 +4,7 @@ package compress
 import (
 	"compress/gzip"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -440,4 +441,454 @@ func (c *Lz4Compressor) Extension() string {
 
 func (c *Lz4Compressor) Name() Algorithm {
 	return AlgorithmLz4
+}
+
+// ================== v2.4.0 压缩存储增强 ==================
+
+// AlgorithmPreference 算法偏好配置
+type AlgorithmPreference struct {
+	Algorithm    Algorithm `json:"algorithm"`
+	Priority     int       `json:"priority"`     // 优先级 (越高越优先)
+	SpeedPriority bool     `json:"speedPriority"` // 是否优先考虑速度
+}
+
+// FileTypeRule 文件类型压缩规则
+type FileTypeRule struct {
+	Extensions   []string  `json:"extensions"`   // 文件扩展名
+	Algorithm    Algorithm `json:"algorithm"`    // 推荐算法
+	MinSize      int64     `json:"minSize"`      // 最小压缩大小
+	SkipCompress bool      `json:"skipCompress"` // 跳过压缩
+	Reason       string    `json:"reason"`       // 原因说明
+}
+
+// DefaultFileTypeRules 默认文件类型规则
+var DefaultFileTypeRules = []FileTypeRule{
+	// 已压缩格式 - 跳过
+	{
+		Extensions:   []string{".zip", ".gz", ".bz2", ".xz", ".zst", ".lz4", ".rar", ".7z"},
+		SkipCompress: true,
+		Reason:       "已压缩格式",
+	},
+	// 媒体文件 - 跳过
+	{
+		Extensions:   []string{".mp3", ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm"},
+		SkipCompress: true,
+		Reason:       "媒体文件已编码压缩",
+	},
+	// 图片文件 - 跳过
+	{
+		Extensions:   []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".ico"},
+		SkipCompress: true,
+		Reason:       "图片文件已压缩",
+	},
+	// 文档文件 - 跳过
+	{
+		Extensions:   []string{".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"},
+		SkipCompress: true,
+		Reason:       "文档文件已内置压缩",
+	},
+	// 文本文件 - 使用 gzip (兼容性好)
+	{
+		Extensions: []string{".txt", ".md", ".log", ".csv"},
+		Algorithm:  AlgorithmGzip,
+		MinSize:   512,
+	},
+	// 源代码 - 使用 gzip
+	{
+		Extensions: []string{".go", ".py", ".js", ".ts", ".java", ".c", ".cpp", ".h", ".rs", ".rb", ".php", ".sh"},
+		Algorithm:  AlgorithmGzip,
+		MinSize:   256,
+	},
+	// 配置文件 - 使用 gzip
+	{
+		Extensions: []string{".json", ".yaml", ".yml", ".xml", ".toml", ".ini", ".conf", ".cfg"},
+		Algorithm:  AlgorithmGzip,
+		MinSize:    128,
+	},
+	// 大数据文件 - 使用 zstd (高压缩比)
+	{
+		Extensions: []string{".sql", ".db", ".dump", ".backup"},
+		Algorithm:  AlgorithmZstd,
+		MinSize:    1024 * 1024, // 1MB
+	},
+}
+
+// SelectAlgorithmForFile 根据文件类型自动选择最佳压缩算法
+func (m *Manager) SelectAlgorithmForFile(path string, size int64) (Algorithm, string, bool) {
+	ext := strings.ToLower(filepath.Ext(path))
+	
+	// 检查文件类型规则
+	for _, rule := range DefaultFileTypeRules {
+		for _, ruleExt := range rule.Extensions {
+			if ext == ruleExt {
+				if rule.SkipCompress {
+					return AlgorithmNone, rule.Reason, true
+				}
+				if size >= rule.MinSize {
+					return rule.Algorithm, "", false
+				}
+			}
+		}
+	}
+
+	// 基于文件大小的智能选择
+	switch {
+	case size < 1024:
+		// 小文件 - 不值得压缩
+		return AlgorithmNone, "文件太小，压缩收益不明显", true
+	case size < 100*1024:
+		// 100KB 以下 - gzip 快速压缩
+		return AlgorithmGzip, "", false
+	case size < 10*1024*1024:
+		// 10MB 以下 - zstd 平衡压缩
+		return AlgorithmZstd, "", false
+	default:
+		// 大文件 - 使用 zstd 高压缩比
+		return AlgorithmZstd, "", false
+	}
+}
+
+// SmartCompressFile 智能压缩文件（自动选择算法）
+func (m *Manager) SmartCompressFile(srcPath, dstPath string) (*CompressResult, error) {
+	// 获取文件信息
+	srcInfo, err := os.Stat(srcPath)
+	if err != nil {
+		return nil, err
+	}
+
+	// 自动选择算法
+	algorithm, reason, skip := m.SelectAlgorithmForFile(srcPath, srcInfo.Size())
+	if skip {
+		return &CompressResult{
+			Skipped:      true,
+			SkipReason:   reason,
+			OriginalSize: srcInfo.Size(),
+			Algorithm:    AlgorithmNone,
+		}, nil
+	}
+
+	// 使用选择的算法进行压缩
+	return m.CompressFileWithAlgorithm(srcPath, dstPath, algorithm)
+}
+
+// CompressFileWithAlgorithm 使用指定算法压缩文件
+func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm Algorithm) (*CompressResult, error) {
+	compressor, ok := m.compressors[algorithm]
+	if !ok {
+		return nil, fmt.Errorf("unsupported algorithm: %s", algorithm)
+	}
+
+	// 获取压缩级别
+	m.mu.RLock()
+	level := m.config.CompressionLevel
+	m.mu.RUnlock()
+
+	// 打开源文件
+	srcFile, err := os.Open(srcPath)
+	if err != nil {
+		return nil, err
+	}
+	defer srcFile.Close()
+
+	// 获取源文件信息
+	srcInfo, err := srcFile.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	// 创建目标文件
+	dstFilePath := dstPath + compressor.Extension()
+	dstFile, err := os.Create(dstFilePath)
+	if err != nil {
+		return nil, err
+	}
+	defer dstFile.Close()
+
+	// 压缩
+	start := time.Now()
+	err = compressor.Compress(dstFile, srcFile, level)
+	if err != nil {
+		os.Remove(dstFilePath)
+		return nil, err
+	}
+
+	// 获取压缩后大小
+	dstInfo, err := dstFile.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	result := &CompressResult{
+		Skipped:        false,
+		OriginalSize:   srcInfo.Size(),
+		CompressedSize: dstInfo.Size(),
+		SavedBytes:     srcInfo.Size() - dstInfo.Size(),
+		Ratio:          float64(dstInfo.Size()) / float64(srcInfo.Size()),
+		Duration:       time.Since(start),
+		Algorithm:      algorithm,
+	}
+
+	// 更新统计
+	if m.config.StatsEnabled {
+		m.stats.Update(algorithm, srcInfo.Size(), dstInfo.Size())
+	}
+
+	return result, nil
+}
+
+// BatchCompressResultV2 批量压缩结果 (v2.4.0)
+type BatchCompressResultV2 struct {
+	Total      int64                     `json:"total"`
+	Succeeded  int64                     `json:"succeeded"`
+	Failed     int64                     `json:"failed"`
+	Skipped    int64                     `json:"skipped"`
+	TotalSize  int64                     `json:"totalSize"`
+	SavedSize  int64                     `json:"savedSize"`
+	Duration   time.Duration             `json:"duration"`
+	Results    []SingleCompressResult    `json:"results"`
+	Errors     []CompressErrorV2         `json:"errors"`
+}
+
+// SingleCompressResult 单个压缩结果
+type SingleCompressResult struct {
+	Path           string    `json:"path"`
+	OriginalSize   int64     `json:"originalSize"`
+	CompressedSize int64     `json:"compressedSize"`
+	SavedBytes     int64     `json:"savedBytes"`
+	Ratio          float64   `json:"ratio"`
+	Algorithm      Algorithm `json:"algorithm"`
+	Skipped        bool      `json:"skipped"`
+	SkipReason     string    `json:"skipReason,omitempty"`
+}
+
+// CompressErrorV2 压缩错误
+type CompressErrorV2 struct {
+	Path  string `json:"path"`
+	Error string `json:"error"`
+}
+
+// BatchCompressOptions 批量压缩选项
+type BatchCompressOptions struct {
+	Workers          int        `json:"workers"`          // 并发工作数
+	DeleteOriginal   bool       `json:"deleteOriginal"`   // 压缩后删除原文件
+	Overwrite        bool       `json:"overwrite"`        // 覆盖已存在文件
+	Algorithm        Algorithm  `json:"algorithm"`        // 指定算法 (空则自动选择)
+	MinSize          int64      `json:"minSize"`          // 最小压缩大小
+	ContinueOnError  bool       `json:"continueOnError"`  // 遇错继续
+	DryRun           bool       `json:"dryRun"`           // 仅模拟不实际压缩
+}
+
+// DefaultBatchCompressOptions 默认批量压缩选项
+func DefaultBatchCompressOptions() *BatchCompressOptions {
+	return &BatchCompressOptions{
+		Workers:         4,
+		DeleteOriginal:  false,
+		Overwrite:       false,
+		ContinueOnError: true,
+		DryRun:          false,
+	}
+}
+
+// BatchCompress 批量压缩文件
+func (m *Manager) BatchCompress(paths []string) (*BatchCompressResultV2, error) {
+	return m.BatchCompressWithOptions(paths, nil)
+}
+
+// BatchCompressWithOptions 带选项的批量压缩
+func (m *Manager) BatchCompressWithOptions(paths []string, opts *BatchCompressOptions) (*BatchCompressResultV2, error) {
+	if opts == nil {
+		opts = DefaultBatchCompressOptions()
+	}
+
+	result := &BatchCompressResultV2{
+		Results: make([]SingleCompressResult, 0, len(paths)),
+		Errors:  make([]CompressErrorV2, 0),
+	}
+
+	if len(paths) == 0 {
+		return result, nil
+	}
+
+	start := time.Now()
+	
+	// 使用工作池并发处理
+	workerCount := opts.Workers
+	if workerCount <= 0 {
+		workerCount = 4
+	}
+	if workerCount > len(paths) {
+		workerCount = len(paths)
+	}
+
+	// 创建通道
+	pathChan := make(chan string, len(paths))
+	resultChan := make(chan SingleCompressResult, len(paths))
+	errorChan := make(chan CompressErrorV2, len(paths))
+
+	// 启动 workers
+	var wg sync.WaitGroup
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go m.batchCompressWorker(&wg, pathChan, resultChan, errorChan, opts)
+	}
+
+	// 发送任务
+	for _, path := range paths {
+		pathChan <- path
+	}
+	close(pathChan)
+
+	// 等待完成
+	go func() {
+		wg.Wait()
+		close(resultChan)
+		close(errorChan)
+	}()
+
+	// 收集结果
+	for res := range resultChan {
+		result.Results = append(result.Results, res)
+		result.Total++
+		result.TotalSize += res.OriginalSize
+		if res.Skipped {
+			result.Skipped++
+		} else {
+			result.Succeeded++
+			result.SavedSize += res.SavedBytes
+		}
+	}
+
+	for err := range errorChan {
+		result.Errors = append(result.Errors, err)
+		result.Failed++
+	}
+
+	result.Duration = time.Since(start)
+	return result, nil
+}
+
+// batchCompressWorker 批量压缩工作协程
+func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, results chan<- SingleCompressResult, errors chan<- CompressErrorV2, opts *BatchCompressOptions) {
+	defer wg.Done()
+
+	for path := range paths {
+		// 检查文件是否存在
+		info, err := os.Stat(path)
+		if err != nil {
+			if opts.ContinueOnError {
+				errors <- CompressErrorV2{Path: path, Error: err.Error()}
+				continue
+			}
+			return
+		}
+
+		// 跳过目录
+		if info.IsDir() {
+			results <- SingleCompressResult{
+				Path:       path,
+				Skipped:    true,
+				SkipReason: "目录不支持压缩",
+			}
+			continue
+		}
+
+		// 检查最小大小
+		if opts.MinSize > 0 && info.Size() < opts.MinSize {
+			results <- SingleCompressResult{
+				Path:         path,
+				OriginalSize: info.Size(),
+				Skipped:      true,
+				SkipReason:   "文件大小小于最小压缩大小",
+			}
+			continue
+		}
+
+		// DryRun 模式
+		if opts.DryRun {
+			algorithm, reason, skip := m.SelectAlgorithmForFile(path, info.Size())
+			results <- SingleCompressResult{
+				Path:         path,
+				OriginalSize: info.Size(),
+				Skipped:      skip,
+				SkipReason:   reason,
+				Algorithm:    algorithm,
+			}
+			continue
+		}
+
+		// 执行压缩
+		dstPath := path
+		var compressResult *CompressResult
+		
+		if opts.Algorithm != "" {
+			compressResult, err = m.CompressFileWithAlgorithm(path, dstPath, opts.Algorithm)
+		} else {
+			compressResult, err = m.SmartCompressFile(path, dstPath)
+		}
+
+		if err != nil {
+			if opts.ContinueOnError {
+				errors <- CompressErrorV2{Path: path, Error: err.Error()}
+				continue
+			}
+			return
+		}
+
+		// 删除原文件
+		if opts.DeleteOriginal && !compressResult.Skipped {
+			os.Remove(path)
+		}
+
+		results <- SingleCompressResult{
+			Path:           path,
+			OriginalSize:   compressResult.OriginalSize,
+			CompressedSize: compressResult.CompressedSize,
+			SavedBytes:     compressResult.SavedBytes,
+			Ratio:          compressResult.Ratio,
+			Algorithm:      compressResult.Algorithm,
+			Skipped:        compressResult.Skipped,
+			SkipReason:     compressResult.SkipReason,
+		}
+	}
+}
+
+// GetAlgorithmStats 获取各算法统计信息
+func (m *Manager) GetAlgorithmStats() map[Algorithm]*AlgorithmStats {
+	return m.stats.ByAlgorithm
+}
+
+// EstimateCompressRatio 预估压缩比
+func (m *Manager) EstimateCompressRatio(path string) (float64, Algorithm, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0, AlgorithmNone, err
+	}
+
+	algorithm, _, skip := m.SelectAlgorithmForFile(path, info.Size())
+	if skip {
+		return 1.0, AlgorithmNone, nil
+	}
+
+	// 基于文件类型预估压缩比
+	ext := strings.ToLower(filepath.Ext(path))
+	ratios := map[string]float64{
+		".txt":  0.3,
+		".log":  0.2,
+		".csv":  0.25,
+		".json": 0.25,
+		".xml":  0.2,
+		".go":   0.25,
+		".py":   0.25,
+		".js":   0.3,
+		".html": 0.2,
+		".css":  0.25,
+		".sql":  0.15,
+	}
+
+	if ratio, ok := ratios[ext]; ok {
+		return ratio, algorithm, nil
+	}
+
+	// 默认预估
+	return 0.5, algorithm, nil
 }
