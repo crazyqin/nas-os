@@ -14,6 +14,7 @@ import (
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
 	"nas-os/internal/files"
+	// ftp "nas-os/internal/ftp" // TODO: v1.9.0
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
@@ -25,6 +26,7 @@ import (
 	"nas-os/internal/quota"
 	"nas-os/internal/replication"
 	"nas-os/internal/shares"
+	// sftp "nas-os/internal/sftp" // TODO: v1.9.0
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/system"
@@ -76,6 +78,8 @@ type Server struct {
 	trashMgr      *trash.Manager
 	replMgr       *replication.Manager
 	webdavSrv     *webdav.Server
+	// ftpSrv        *ftp.Server // TODO: v1.9.0
+	// sftpSrv       *sftp.Server // TODO: v1.9.0
 	aiClassifyMgr *ai_classify.Classifier
 	versioningMgr *versioning.Manager
 	dedupMgr      *dedup.Manager
@@ -336,6 +340,16 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			srv, _ := webdav.NewServer(nil)
 			return srv
 		}(),
+		/*
+		ftpSrv: func() *ftp.Server {
+			srv, _ := ftp.NewServer(userMgr, "/etc/nas-os/ftp-config.json")
+			return srv
+		}(),
+		sftpSrv: func() *sftp.Server {
+			srv, _ := sftp.NewServer("/etc/nas-os/sftp-config.json")
+			return srv
+		}(),
+		*/
 		aiClassifyMgr: aiClassifyMgr,
 		versioningMgr: versioningMgr,
 		dedupMgr:      dedupMgr,
@@ -350,6 +364,23 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			return err == nil
 		})
 	}
+
+	// TODO: v1.9.0 - SFTP 认证函数
+	/*
+	// 设置 SFTP 认证函数
+	if s.sftpSrv != nil && s.userMgr != nil {
+		s.sftpSrv.SetAuthFunc(func(username, password string) bool {
+			_, err := s.userMgr.Authenticate(username, password)
+			return err == nil
+		})
+		s.sftpSrv.SetGetUserHome(func(username string) string {
+			if user, err := s.userMgr.GetUser(username); err == nil {
+				return user.HomeDir
+			}
+			return ""
+		})
+	}
+	*/
 
 	// 添加性能监控中间件 (在日志中间件之后)
 	if perfMgr != nil {
@@ -466,6 +497,19 @@ func (s *Server) setupRoutes() {
 		if s.webdavSrv != nil {
 			webdav.NewHandlers(s.webdavSrv).RegisterRoutes(api)
 		}
+
+		// TODO: v1.9.0 - FTP/SFTP 服务器
+		/*
+		// ========== FTP 服务器 ==========
+		if s.ftpSrv != nil {
+			ftp.NewHandlers(s.ftpSrv).RegisterRoutes(api)
+		}
+
+		// ========== SFTP 服务器 ==========
+		if s.sftpSrv != nil {
+			s.sftpSrv.RegisterRoutes(api)
+		}
+		*/
 
 		// ========== AI 分类 ==========
 		if s.aiClassifyMgr != nil {
@@ -631,6 +675,33 @@ func (s *Server) Start(addr string) error {
 		}
 	}
 
+	// TODO: v1.9.0 - FTP/SFTP 服务器启动
+	/*
+	// 启动 FTP 服务器
+	if s.ftpSrv != nil {
+		cfg := s.ftpSrv.GetConfig()
+		if cfg.Enabled {
+			if err := s.ftpSrv.Start(); err != nil {
+				log.Printf("⚠️ FTP 服务器启动警告：%v", err)
+			} else {
+				log.Println("✅ FTP 服务器已启动")
+			}
+		}
+	}
+
+	// 启动 SFTP 服务器
+	if s.sftpSrv != nil {
+		cfg := s.sftpSrv.GetConfig()
+		if cfg.Enabled {
+			if err := s.sftpSrv.Start(); err != nil {
+				log.Printf("⚠️ SFTP 服务器启动警告：%v", err)
+			} else {
+				log.Println("✅ SFTP 服务器已启动")
+			}
+		}
+	}
+	*/
+
 	s.httpSrv = &http.Server{
 		Addr:    addr,
 		Handler: s.engine,
@@ -659,6 +730,19 @@ func (s *Server) Stop() error {
 	if s.webdavSrv != nil {
 		s.webdavSrv.Stop()
 	}
+
+	// TODO: v1.9.0 - FTP/SFTP 服务器停止
+	/*
+	// 停止 FTP 服务器
+	if s.ftpSrv != nil {
+		s.ftpSrv.Stop()
+	}
+
+	// 停止 SFTP 服务器
+	if s.sftpSrv != nil {
+		s.sftpSrv.Stop()
+	}
+	*/
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
