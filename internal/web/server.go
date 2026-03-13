@@ -20,6 +20,7 @@ import (
 	"nas-os/internal/photos"
 	"nas-os/internal/plugin"
 	"nas-os/internal/quota"
+	"nas-os/internal/replication"
 	"nas-os/internal/shares"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
@@ -67,6 +68,7 @@ type Server struct {
 	monitorMgr    *monitor.Manager
 	optimizer     *optimizer.PerformanceOptimizer
 	trashMgr      *trash.Manager
+	replMgr       *replication.Manager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -274,6 +276,10 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			mgr, _ := trash.NewManager("/etc/nas-os/trash.json", "/var/lib/nas-os/trash", nil)
 			return mgr
 		}(),
+		replMgr: func() *replication.Manager {
+			mgr, _ := replication.NewManager("/etc/nas-os/replication.json", nil)
+			return mgr
+		}(),
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -381,6 +387,11 @@ func (s *Server) setupRoutes() {
 		// ========== 回收站 ==========
 		if s.trashMgr != nil {
 			trash.NewHandlers(s.trashMgr).RegisterRoutes(api)
+		}
+
+		// ========== 存储复制 ==========
+		if s.replMgr != nil {
+			replication.NewHandlers(s.replMgr).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
@@ -508,6 +519,7 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/containers", "./webui/pages/containers.html")
 	s.engine.StaticFile("/vms", "./webui/pages/vms.html")
 	s.engine.StaticFile("/trash", "./webui/pages/trash.html")
+	s.engine.StaticFile("/replication", "./webui/pages/replication.html")
 }
 
 // Start 启动服务器
