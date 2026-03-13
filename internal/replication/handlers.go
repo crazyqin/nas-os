@@ -23,6 +23,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	{
 		repl.GET("", h.list)
 		repl.GET("/stats", h.getStats)
+		repl.GET("/conflicts", h.listConflicts)
 		repl.GET("/:id", h.get)
 		repl.POST("", h.create)
 		repl.PUT("/:id", h.update)
@@ -31,6 +32,10 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		repl.POST("/:id/sync", h.startSync)
 		repl.POST("/:id/pause", h.pause)
 		repl.POST("/:id/resume", h.resume)
+		repl.GET("/:id/conflicts", h.listTaskConflicts)
+		
+		// 冲突解决
+		repl.POST("/conflicts/:conflictId/resolve", h.resolveConflict)
 	}
 }
 
@@ -207,6 +212,48 @@ func (h *Handlers) resume(c *gin.Context) {
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	c.JSON(http.StatusOK, success(stats))
+}
+
+// listConflicts 列出所有冲突
+func (h *Handlers) listConflicts(c *gin.Context) {
+	conflicts := h.manager.GetConflicts("")
+	c.JSON(http.StatusOK, success(conflicts))
+}
+
+// listTaskConflicts 列出指定任务的冲突
+func (h *Handlers) listTaskConflicts(c *gin.Context) {
+	taskID := c.Param("id")
+	conflicts := h.manager.GetConflicts(taskID)
+	c.JSON(http.StatusOK, success(conflicts))
+}
+
+// ResolveConflictRequest 解决冲突请求
+type ResolveConflictRequest struct {
+	Strategy string `json:"strategy" binding:"required"`
+}
+
+// resolveConflict 解决冲突
+func (h *Handlers) resolveConflict(c *gin.Context) {
+	conflictID := c.Param("conflictId")
+
+	var req ResolveConflictRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+		return
+	}
+
+	strategy := ConflictStrategy(req.Strategy)
+	if strategy == "" {
+		c.JSON(http.StatusBadRequest, apiError(400, "无效的冲突解决策略"))
+		return
+	}
+
+	if err := h.manager.ResolveConflict(conflictID, strategy); err != nil {
+		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, success(nil))
 }
 
 // TaskResponse 任务响应
