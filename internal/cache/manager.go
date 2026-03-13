@@ -158,3 +158,15 @@ func (m *Manager) GetMemoryCache() *LRUCache {
 func (m *Manager) GetRedisCache() *RedisCache {
 	return m.redisCache
 }
+
+// Clear clears all cache entries (both memory and redis)
+func (m *Manager) Clear() {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.memoryCache.Clear()
+	if m.redisCache != nil {
+		_ = m.redisCache.Clear()
+	}
+	m.logger.Info("Cache cleared")
+}
