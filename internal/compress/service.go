@@ -17,8 +17,8 @@ type Service struct {
 
 // ServiceConfig 服务配置
 type ServiceConfig struct {
-	RootPath string        `json:"root_path"`
-	Config   *Config       `json:"config"`
+	RootPath string  `json:"root_path"`
+	Config   *Config `json:"config"`
 }
 
 // DefaultServiceConfig 默认服务配置

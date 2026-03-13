@@ -64,13 +64,13 @@ type StorageCallbacks interface {
 
 // PoolInfo 存储池信息
 type PoolInfo struct {
-	Name        string `json:"name"`
-	Type        string `json:"type"` // btrfs, zfs, etc.
-	TotalBytes  int64  `json:"totalBytes"`
-	UsedBytes   int64  `json:"usedBytes"`
-	FreeBytes   int64  `json:"freeBytes"`
-	Health      string `json:"health"`
-	MountPoint  string `json:"mountPoint"`
+	Name       string `json:"name"`
+	Type       string `json:"type"` // btrfs, zfs, etc.
+	TotalBytes int64  `json:"totalBytes"`
+	UsedBytes  int64  `json:"usedBytes"`
+	FreeBytes  int64  `json:"freeBytes"`
+	Health     string `json:"health"`
+	MountPoint string `json:"mountPoint"`
 }
 
 // VolumeInfo 卷信息
@@ -85,13 +85,13 @@ type VolumeInfo struct {
 
 // FileAccessStats 文件访问统计
 type FileAccessStats struct {
-	Path          string    `json:"path"`
-	LastAccess    time.Time `json:"lastAccess"`
-	AccessCount   int64     `json:"accessCount"`
-	ReadBytes     int64     `json:"readBytes"`
-	WriteBytes    int64     `json:"writeBytes"`
-	IsHot         bool      `json:"isHot"`
-	IsCold        bool      `json:"isCold"`
+	Path        string    `json:"path"`
+	LastAccess  time.Time `json:"lastAccess"`
+	AccessCount int64     `json:"accessCount"`
+	ReadBytes   int64     `json:"readBytes"`
+	WriteBytes  int64     `json:"writeBytes"`
+	IsHot       bool      `json:"isHot"`
+	IsCold      bool      `json:"isCold"`
 }
 
 // FSWatcher 文件系统监控器
@@ -139,11 +139,11 @@ type IntegrationConfig struct {
 // DefaultIntegrationConfig 默认集成配置
 func DefaultIntegrationConfig() IntegrationConfig {
 	return IntegrationConfig{
-		ConfigPath:    "/etc/nas-os/tiering/config.json",
+		ConfigPath:     "/etc/nas-os/tiering/config.json",
 		EnableAutoTier: true,
-		WatchPaths:    []string{"/mnt/ssd", "/mnt/hdd"},
-		LogLevel:      "info",
-		SyncInterval:  5 * time.Minute,
+		WatchPaths:     []string{"/mnt/ssd", "/mnt/hdd"},
+		LogLevel:       "info",
+		SyncInterval:   5 * time.Minute,
 	}
 }
 
@@ -156,10 +156,10 @@ func NewIntegration(config IntegrationConfig, logger *zap.Logger) *Integration {
 	metrics := NewMetrics()
 
 	return &Integration{
-		manager:  manager,
-		metrics:  metrics,
-		logger:   logger,
-		stopCh:   make(chan struct{}),
+		manager: manager,
+		metrics: metrics,
+		logger:  logger,
+		stopCh:  make(chan struct{}),
 		fsWatcher: &FSWatcher{
 			events: make(chan FSEvent, 1000),
 			stopCh: make(chan struct{}),
@@ -232,11 +232,11 @@ func (i *Integration) syncTierConfig(ctx context.Context) error {
 
 			// 更新指标
 			stats := &TierStats{
-				Type:     tierType,
-				Name:     tier.Name,
-				Capacity: tier.Capacity,
-				Used:     tier.Used,
-				Available: poolInfo.FreeBytes,
+				Type:         tierType,
+				Name:         tier.Name,
+				Capacity:     tier.Capacity,
+				Used:         tier.Used,
+				Available:    poolInfo.FreeBytes,
 				UsagePercent: float64(tier.Used) / float64(max(tier.Capacity, 1)) * 100,
 			}
 			i.metrics.UpdateTierMetrics(tierType, stats)
@@ -506,8 +506,8 @@ func (i *Integration) HealthCheck(ctx context.Context) *HealthStatus {
 
 // HealthStatus 健康状态
 type HealthStatus struct {
-	Healthy   bool                       `json:"healthy"`
-	Timestamp time.Time                  `json:"timestamp"`
+	Healthy   bool                         `json:"healthy"`
+	Timestamp time.Time                    `json:"timestamp"`
 	Checks    map[string]HealthCheckResult `json:"checks"`
 }
 

@@ -249,9 +249,9 @@ func (w *CompressWriter) Close() error {
 
 // DecompressReader 解压读取器
 type DecompressReader struct {
-	file     *os.File
-	reader   io.Reader
-	closed   bool
+	file   *os.File
+	reader io.Reader
+	closed bool
 }
 
 // NewDecompressReader 创建解压读取器
@@ -297,14 +297,14 @@ func gzipNewReader(r io.Reader) (io.Reader, error) {
 
 // CompressedFileInfo 压缩文件信息
 type CompressedFileInfo struct {
-	Name          string      `json:"name"`
-	Path          string      `json:"path"`
-	OriginalSize  int64       `json:"original_size"`
-	CompressedSize int64      `json:"compressed_size"`
-	Ratio         float64     `json:"ratio"`
-	Algorithm     Algorithm   `json:"algorithm"`
-	ModTime       time.Time   `json:"mod_time"`
-	Mode          os.FileMode `json:"mode"`
+	Name           string      `json:"name"`
+	Path           string      `json:"path"`
+	OriginalSize   int64       `json:"original_size"`
+	CompressedSize int64       `json:"compressed_size"`
+	Ratio          float64     `json:"ratio"`
+	Algorithm      Algorithm   `json:"algorithm"`
+	ModTime        time.Time   `json:"mod_time"`
+	Mode           os.FileMode `json:"mode"`
 }
 
 // GetCompressedFiles 获取压缩文件列表

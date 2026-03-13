@@ -369,11 +369,11 @@ func (h *Handlers) GetStatus(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"enabled":       config.Enabled,
-			"algorithm":     config.DefaultAlgorithm,
-			"total_files":   stats.TotalFiles,
-			"saved_bytes":   stats.SavedBytes,
-			"avg_ratio":     stats.AvgRatio,
+			"enabled":     config.Enabled,
+			"algorithm":   config.DefaultAlgorithm,
+			"total_files": stats.TotalFiles,
+			"saved_bytes": stats.SavedBytes,
+			"avg_ratio":   stats.AvgRatio,
 		},
 	})
 }

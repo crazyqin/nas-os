@@ -24,16 +24,16 @@ const (
 
 // Config 压缩配置
 type Config struct {
-	Enabled           bool              `json:"enabled"`
-	DefaultAlgorithm  Algorithm         `json:"default_algorithm"`
-	CompressionLevel  int               `json:"compression_level"` // 1-9
-	MinSize           int64             `json:"min_size"`          // 最小压缩大小 (字节)
-	ExcludeExtensions []string          `json:"exclude_extensions"` // 不压缩的扩展名
-	ExcludeDirs       []string          `json:"exclude_dirs"`       // 不压缩的目录
-	IncludeDirs       []string          `json:"include_dirs"`       // 只压缩这些目录 (空=全部)
-	CompressOnWrite   bool              `json:"compress_on_write"`  // 写入时压缩
-	DecompressOnRead  bool              `json:"decompress_on_read"` // 读取时解压
-	StatsEnabled      bool              `json:"stats_enabled"`      // 启用统计
+	Enabled           bool      `json:"enabled"`
+	DefaultAlgorithm  Algorithm `json:"default_algorithm"`
+	CompressionLevel  int       `json:"compression_level"`  // 1-9
+	MinSize           int64     `json:"min_size"`           // 最小压缩大小 (字节)
+	ExcludeExtensions []string  `json:"exclude_extensions"` // 不压缩的扩展名
+	ExcludeDirs       []string  `json:"exclude_dirs"`       // 不压缩的目录
+	IncludeDirs       []string  `json:"include_dirs"`       // 只压缩这些目录 (空=全部)
+	CompressOnWrite   bool      `json:"compress_on_write"`  // 写入时压缩
+	DecompressOnRead  bool      `json:"decompress_on_read"` // 读取时解压
+	StatsEnabled      bool      `json:"stats_enabled"`      // 启用统计
 }
 
 // DefaultConfig 默认配置
@@ -77,21 +77,21 @@ type Compressor interface {
 // Stats 压缩统计
 type Stats struct {
 	mu              sync.RWMutex
-	TotalFiles      int64   `json:"total_files"`
-	CompressedFiles int64   `json:"compressed_files"`
-	TotalBytes      int64   `json:"total_bytes"`
-	CompressedBytes int64   `json:"compressed_bytes"`
-	SavedBytes      int64   `json:"saved_bytes"`
-	AvgRatio        float64 `json:"avg_ratio"`
+	TotalFiles      int64                         `json:"total_files"`
+	CompressedFiles int64                         `json:"compressed_files"`
+	TotalBytes      int64                         `json:"total_bytes"`
+	CompressedBytes int64                         `json:"compressed_bytes"`
+	SavedBytes      int64                         `json:"saved_bytes"`
+	AvgRatio        float64                       `json:"avg_ratio"`
 	ByAlgorithm     map[Algorithm]*AlgorithmStats `json:"by_algorithm"`
 }
 
 // AlgorithmStats 算法统计
 type AlgorithmStats struct {
-	Files    int64   `json:"files"`
-	Original int64   `json:"original_bytes"`
-	Compressed int64 `json:"compressed_bytes"`
-	Ratio    float64 `json:"avg_ratio"`
+	Files      int64   `json:"files"`
+	Original   int64   `json:"original_bytes"`
+	Compressed int64   `json:"compressed_bytes"`
+	Ratio      float64 `json:"avg_ratio"`
 }
 
 // NewManager 创建压缩管理器
@@ -235,13 +235,13 @@ func (m *Manager) CompressFile(srcPath, dstPath string) (*CompressResult, error)
 
 	// 更新统计
 	result := &CompressResult{
-		Skipped:       false,
-		OriginalSize:  srcInfo.Size(),
+		Skipped:        false,
+		OriginalSize:   srcInfo.Size(),
 		CompressedSize: dstInfo.Size(),
-		SavedBytes:    srcInfo.Size() - dstInfo.Size(),
-		Ratio:         float64(dstInfo.Size()) / float64(srcInfo.Size()),
-		Duration:      time.Since(start),
-		Algorithm:     algorithm,
+		SavedBytes:     srcInfo.Size() - dstInfo.Size(),
+		Ratio:          float64(dstInfo.Size()) / float64(srcInfo.Size()),
+		Duration:       time.Since(start),
+		Algorithm:      algorithm,
 	}
 
 	if m.config.StatsEnabled {
@@ -304,14 +304,14 @@ func (m *Manager) GetStats() *Stats {
 
 // CompressResult 压缩结果
 type CompressResult struct {
-	Skipped        bool      `json:"skipped"`
-	SkipReason     string    `json:"skip_reason,omitempty"`
-	OriginalSize   int64     `json:"original_size"`
-	CompressedSize int64     `json:"compressed_size"`
-	SavedBytes     int64     `json:"saved_bytes"`
-	Ratio          float64   `json:"ratio"`
+	Skipped        bool          `json:"skipped"`
+	SkipReason     string        `json:"skip_reason,omitempty"`
+	OriginalSize   int64         `json:"original_size"`
+	CompressedSize int64         `json:"compressed_size"`
+	SavedBytes     int64         `json:"saved_bytes"`
+	Ratio          float64       `json:"ratio"`
 	Duration       time.Duration `json:"duration"`
-	Algorithm      Algorithm `json:"algorithm"`
+	Algorithm      Algorithm     `json:"algorithm"`
 }
 
 // NewStats 创建统计

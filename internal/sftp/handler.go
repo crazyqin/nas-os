@@ -91,13 +91,13 @@ func (h *SFTPHandler) Fileread(r *Request) (io.ReadCloser, error) {
 
 	// 包装读取器以跟踪进度
 	return &trackedReader{
-		ReadCloser:    file,
-		handler:       h,
-		transferLog:   transferLog,
-		startTime:     time.Now(),
-		bytesRead:     0,
-		totalSize:     info.Size(),
-		bandwidthLim:  h.bandwidthLim,
+		ReadCloser:   file,
+		handler:      h,
+		transferLog:  transferLog,
+		startTime:    time.Now(),
+		bytesRead:    0,
+		totalSize:    info.Size(),
+		bandwidthLim: h.bandwidthLim,
 	}, nil
 }
 
@@ -129,12 +129,12 @@ func (h *SFTPHandler) Filewrite(r *Request) (io.WriteCloser, error) {
 	}
 
 	return &trackedWriter{
-		WriteCloser:   file,
-		handler:       h,
-		transferLog:   transferLog,
-		startTime:     time.Now(),
-		bytesWritten:  0,
-		bandwidthLim:  h.bandwidthLim,
+		WriteCloser:  file,
+		handler:      h,
+		transferLog:  transferLog,
+		startTime:    time.Now(),
+		bytesWritten: 0,
+		bandwidthLim: h.bandwidthLim,
 	}, nil
 }
 
