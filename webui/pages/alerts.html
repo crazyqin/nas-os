@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>告警中心 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .alerts-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .alerts-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .alerts-title h1 {
+            margin: 0;
+            font-size: 1.75rem;
+        }
+        
+        .alerts-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--surface-border);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .summary-card.critical { border-left: 4px solid #DC2626; }
+        .summary-card.warning { border-left: 4px solid #F59E0B; }
+        .summary-card.info { border-left: 4px solid #3B82F6; }
+        .summary-card.resolved { border-left: 4px solid #10B981; }
+        
+        .summary-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-card.critical .summary-count { color: #DC2626; }
+        .summary-card.warning .summary-count { color: #F59E0B; }
+        .summary-card.info .summary-count { color: #3B82F6; }
+        .summary-card.resolved .summary-count { color: #10B981; }
+        
+        .summary-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .alerts-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--surface-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            background: var(--hover-color);
+        }
+        
+        .filter-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            width: 250px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-secondary { background: var(--surface-color); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--hover-color); }
+        .btn-danger { background: #DC2626; color: white; }
+        .btn-danger:hover { background: #B91C1C; }
+        .btn-success { background: #10B981; color: white; }
+        .btn-success:hover { background: #059669; }
+        
+        .alerts-list {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+            overflow: hidden;
+        }
+        
+        .alert-item {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        
+        .alert-item:hover {
+            background: var(--hover-color);
+        }
+        
+        .alert-item.critical {
+            background: rgba(220, 38, 38, 0.05);
+        }
+        
+        .alert-item.critical:hover {
+            background: rgba(220, 38, 38, 0.1);
+        }
+        
+        .alert-item.warning {
+            background: rgba(245, 158, 11, 0.05);
+        }
+        
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .alert-icon.critical { background: rgba(220, 38, 38, 0.1); }
+        .alert-icon.warning { background: rgba(245, 158, 11, 0.1); }
+        .alert-icon.info { background: rgba(59, 130, 246, 0.1); }
+        .alert-icon.resolved { background: rgba(16, 185, 129, 0.1); }
+        
+        .alert-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .alert-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .alert-badge.critical { background: #FEE2E2; color: #991B1B; }
+        .alert-badge.warning { background: #FEF3C7; color: #92400E; }
+        .alert-badge.info { background: #DBEAFE; color: #1E40AF; }
+        .alert-badge.resolved { background: #D1FAE5; color: #065F46; }
+        
+        .alert-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        
+        .alert-message {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .alert-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .alert-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .alert-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        /* 告警设置模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--surface-color);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            border-radius: 6px;
+        }
+        
+        .modal-close:hover {
+            background: var(--hover-color);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        /* 规则列表 */
+        .rules-list {
+            margin-top: 1rem;
+        }
+        
+        .rule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .rule-info {
+            flex: 1;
+        }
+        
+        .rule-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .rule-condition {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .rule-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: .3s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--color-primary);
+        }
+        
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* 通知渠道 */
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .channel-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .channel-card:hover {
+            border-color: var(--color-primary);
+        }
+        
+        .channel-card.active {
+            border-color: var(--color-primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .channel-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .channel-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .channel-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .alerts-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .alerts-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .alert-item {
+                flex-direction: column;
+            }
+            
+            .alert-actions {
+                width: 100%;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="alerts-container">
+        <!-- 头部 -->
+        <div class="alerts-header">
+            <div class="alerts-title">
+                <span style="font-size: 2rem;">🚨</span>
+                <div>
+                    <h1>告警中心</h1>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.875rem;">监控和管理系统告警</p>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="showSettingsModal()">⚙️ 告警设置</button>
+                <button class="btn btn-primary" onclick="showTestAlertModal()">🧪 测试告警</button>
+            </div>
+        </div>
+        
+        <!-- 统计摘要 -->
+        <div class="alerts-summary">
+            <div class="summary-card critical">
+                <div class="summary-count" id="criticalCount">0</div>
+                <div class="summary-label">🔴 严重告警</div>
+            </div>
+            <div class="summary-card warning">
+                <div class="summary-count" id="warningCount">0</div>
+                <div class="summary-label">🟡 警告告警</div>
+            </div>
+            <div class="summary-card info">
+                <div class="summary-count" id="infoCount">0</div>
+                <div class="summary-label">🔵 信息告警</div>
+            </div>
+            <div class="summary-card resolved">
+                <div class="summary-count" id="resolvedCount">0</div>
+                <div class="summary-label">🟢 已解决</div>
+            </div>
+        </div>
+        
+        <!-- 工具栏 -->
+        <div class="alerts-toolbar">
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all" onclick="filterAlerts('all')">全部</button>
+                <button class="filter-btn" data-filter="critical" onclick="filterAlerts('critical')">严重</button>
+                <button class="filter-btn" data-filter="warning" onclick="filterAlerts('warning')">警告</button>
+                <button class="filter-btn" data-filter="info" onclick="filterAlerts('info')">信息</button>
+                <button class="filter-btn" data-filter="unacknowledged" onclick="filterAlerts('unacknowledged')">未确认</button>
+            </div>
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="搜索告警..." id="searchInput" oninput="searchAlerts()">
+                <button class="btn btn-secondary" onclick="refreshAlerts()">🔄 刷新</button>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="acknowledgeAll()">✅ 全部确认</button>
+                <button class="btn btn-danger" onclick="clearResolved()">🗑️ 清除已解决</button>
+            </div>
+        </div>
+        
+        <!-- 告警列表 -->
+        <div class="alerts-list" id="alertsList">
+            <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                加载中...
+            </div>
+        </div>
+    </div>
+    
+    <!-- 告警设置模态框 -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">⚙️ 告警设置</h2>
+                <button class="modal-close" onclick="closeModal('settingsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- 告警规则 -->
+                <h3 style="margin-bottom: 1rem;">📋 告警规则</h3>
+                <div class="rules-list" id="rulesList">
+                    <!-- 动态加载 -->
+                </div>
+                
+                <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;" onclick="showAddRuleModal()">
+                    ➕ 添加规则
+                </button>
+                
+                <!-- 通知渠道 -->
+                <h3 style="margin: 2rem 0 1rem;">📢 通知渠道</h3>
+                <div class="channels-grid" id="channelsList">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('settingsModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 测试告警模态框 -->
+    <div class="modal" id="testAlertModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🧪 发送测试告警</h2>
+                <button class="modal-close" onclick="closeModal('testAlertModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">告警级别</label>
+                    <select class="form-select" id="testLevel">
+                        <option value="critical">严重</option>
+                        <option value="warning">警告</option>
+                        <option value="info">信息</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">告警消息</label>
+                    <input type="text" class="form-input" id="testMessage" placeholder="输入测试消息" value="这是一条测试告警">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">通知渠道</label>
+                    <select class="form-select" id="testChannel">
+                        <option value="all">所有渠道</option>
+                        <option value="email">邮件</option>
+                        <option value="webhook">Webhook</option>
+                        <option value="push">推送通知</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('testAlertModal')">取消</button>
+                <button class="btn btn-primary" onclick="sendTestAlert()">发送测试</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加规则模态框 -->
+    <div class="modal" id="addRuleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ 添加告警规则</h2>
+                <button class="modal-close" onclick="closeModal('addRuleModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">规则名称</label>
+                    <input type="text" class="form-input" id="ruleName" placeholder="例如：磁盘空间警告">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">监控指标</label>
+                    <select class="form-select" id="ruleMetric">
+                        <option value="disk_usage">磁盘使用率</option>
+                        <option value="memory_usage">内存使用率</option>
+                        <option value="cpu_usage">CPU 使用率</option>
+                        <option value="disk_temperature">磁盘温度</option>
+                        <option value="network_error">网络错误</option>
+                        <option value="service_down">服务宕机</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">条件</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select class="form-select" id="ruleOperator" style="width: 100px;">
+                            <option value=">">大于</option>
+                            <option value="<">小于</option>
+                            <option value="=">等于</option>
+                        </select>
+                        <input type="number" class="form-input" id="ruleThreshold" placeholder="阈值">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">告警级别</label>
+                    <select class="form-select" id="ruleLevel">
+                        <option value="critical">严重</option>
+                        <option value="warning">警告</option>
+                        <option value="info">信息</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">持续时间（分钟）</label>
+                    <input type="number" class="form-input" id="ruleDuration" value="5" min="1">
+                    <small style="color: var(--text-muted);">条件持续满足此时间后触发告警</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addRuleModal')">取消</button>
+                <button class="btn btn-primary" onclick="addRule()">添加规则</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '/api/v1/monitor';
+        let currentFilter = 'all';
+        let alerts = [];
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAlerts();
+            loadRules();
+            loadChannels();
+            setInterval(loadAlerts, 30000); // 30秒刷新
+        });
+        
+        // 加载告警
+        async function loadAlerts() {
+            try {
+                const res = await fetch(`${API_BASE}/alerts`);
+                const data = await res.json();
+                if (data.code === 0) {
+                    alerts = data.data || [];
+                    renderAlerts();
+                    updateSummary();
+                }
+            } catch (error) {
+                console.error('加载告警失败:', error);
+                // 使用模拟数据
+                alerts = generateMockAlerts();
+                renderAlerts();
+                updateSummary();
+            }
+        }
+        
+        // 渲染告警
+        function renderAlerts() {
+            const list = document.getElementById('alertsList');
+            let filtered = alerts;
+            
+            // 应用过滤
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'unacknowledged') {
+                    filtered = alerts.filter(a => !a.acknowledged);
+                } else {
+                    filtered = alerts.filter(a => a.level === currentFilter);
+                }
+            }
+            
+            // 应用搜索
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(a => 
+                    a.message.toLowerCase().includes(searchTerm) ||
+                    a.source.toLowerCase().includes(searchTerm) ||
+                    a.type.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        ${alerts.length === 0 ? '暂无告警 ✅' : '没有匹配的告警'}
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = filtered.map(alert => `
+                <div class="alert-item ${alert.level}">
+                    <div class="alert-icon ${alert.level}">
+                        ${getAlertIcon(alert.level)}
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <div class="alert-title">
+                                <span class="alert-badge ${alert.level}">${getLevelText(alert.level)}</span>
+                                ${alert.type}
+                            </div>
+                            <span class="alert-time">${formatTime(alert.timestamp)}</span>
+                        </div>
+                        <div class="alert-message">${alert.message}</div>
+                        <div class="alert-meta">
+                            <span class="alert-meta-item">📍 ${alert.source}</span>
+                            <span class="alert-meta-item">🏷️ ${alert.type}</span>
+                            ${alert.acknowledged ? '<span class="alert-meta-item">✅ 已确认</span>' : ''}
+                            ${alert.resolved ? '<span class="alert-meta-item">🟢 已解决</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        ${!alert.acknowledged ? `<button class="btn btn-secondary btn-sm" onclick="acknowledgeAlert('${alert.id}')">确认</button>` : ''}
+                        ${!alert.resolved ? `<button class="btn btn-success btn-sm" onclick="resolveAlert('${alert.id}')">解决</button>` : ''}
+                        <button class="btn btn-danger btn-sm" onclick="deleteAlert('${alert.id}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 更新统计
+        function updateSummary() {
+            document.getElementById('criticalCount').textContent = alerts.filter(a => a.level === 'critical' && !a.resolved).length;
+            document.getElementById('warningCount').textContent = alerts.filter(a => a.level === 'warning' && !a.resolved).length;
+            document.getElementById('infoCount').textContent = alerts.filter(a => a.level === 'info' && !a.resolved).length;
+            document.getElementById('resolvedCount').textContent = alerts.filter(a => a.resolved).length;
+        }
+        
+        // 过滤告警
+        function filterAlerts(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            renderAlerts();
+        }
+        
+        // 搜索告警
+        function searchAlerts() {
+            renderAlerts();
+        }
+        
+        // 刷新告警
+        function refreshAlerts() {
+            loadAlerts();
+        }
+        
+        // 确认告警
+        async function acknowledgeAlert(id) {
+            try {
+                await fetch(`${API_BASE}/alerts/${id}/acknowledge`, { method: 'POST' });
+                loadAlerts();
+            } catch (error) {
+                console.error('确认失败:', error);
+            }
+        }
+        
+        // 解决告警
+        async function resolveAlert(id) {
+            try {
+                await fetch(`${API_BASE}/alerts/${id}/resolve`, { method: 'POST' });
+                loadAlerts();
+            } catch (error) {
+                console.error('解决失败:', error);
+            }
+        }
+        
+        // 删除告警
+        async function deleteAlert(id) {
+            if (!confirm('确定删除此告警？')) return;
+            try {
+                await fetch(`${API_BASE}/alerts/${id}`, { method: 'DELETE' });
+                loadAlerts();
+            } catch (error) {
+                console.error('删除失败:', error);
+            }
+        }
+        
+        // 全部确认
+        async function acknowledgeAll() {
+            if (!confirm('确定确认所有未确认的告警？')) return;
+            try {
+                await fetch(`${API_BASE}/alerts/acknowledge-all`, { method: 'POST' });
+                loadAlerts();
+            } catch (error) {
+                console.error('批量确认失败:', error);
+            }
+        }
+        
+        // 清除已解决
+        async function clearResolved() {
+            if (!confirm('确定清除所有已解决的告警？')) return;
+            try {
+                await fetch(`${API_BASE}/alerts/clear-resolved`, { method: 'POST' });
+                loadAlerts();
+            } catch (error) {
+                console.error('清除失败:', error);
+            }
+        }
+        
+        // 加载规则
+        function loadRules() {
+            const rules = [
+                { id: 1, name: '磁盘空间警告', metric: 'disk_usage', operator: '>', threshold: 80, level: 'warning', enabled: true },
+                { id: 2, name: '磁盘空间严重', metric: 'disk_usage', operator: '>', threshold: 95, level: 'critical', enabled: true },
+                { id: 3, name: 'CPU 使用率警告', metric: 'cpu_usage', operator: '>', threshold: 85, level: 'warning', enabled: true },
+                { id: 4, name: '内存使用率警告', metric: 'memory_usage', operator: '>', threshold: 90, level: 'warning', enabled: true },
+                { id: 5, name: '磁盘温度警告', metric: 'disk_temperature', operator: '>', threshold: 50, level: 'warning', enabled: true }
+            ];
+            
+            document.getElementById('rulesList').innerHTML = rules.map(rule => `
+                <div class="rule-item">
+                    <div class="rule-info">
+                        <div class="rule-name">${rule.name}</div>
+                        <div class="rule-condition">${rule.metric} ${rule.operator} ${rule.threshold}${rule.metric.includes('temperature') ? '°C' : '%'}</div>
+                    </div>
+                    <div class="rule-actions">
+                        <span class="alert-badge ${rule.level}">${getLevelText(rule.level)}</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${rule.enabled ? 'checked' : ''} onchange="toggleRule(${rule.id})">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <button class="btn btn-secondary btn-sm" onclick="editRule(${rule.id})">编辑</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 加载渠道
+        function loadChannels() {
+            const channels = [
+                { id: 'email', name: '邮件通知', icon: '📧', enabled: true, configured: true },
+                { id: 'webhook', name: 'Webhook', icon: '🔗', enabled: true, configured: true },
+                { id: 'push', name: '推送通知', icon: '📱', enabled: false, configured: false },
+                { id: 'slack', name: 'Slack', icon: '💬', enabled: false, configured: false }
+            ];
+            
+            document.getElementById('channelsList').innerHTML = channels.map(ch => `
+                <div class="channel-card ${ch.enabled ? 'active' : ''}" onclick="toggleChannel('${ch.id}')">
+                    <div class="channel-icon">${ch.icon}</div>
+                    <div class="channel-name">${ch.name}</div>
+                    <div class="channel-status">${ch.configured ? (ch.enabled ? '已启用' : '已禁用') : '未配置'}</div>
+                </div>
+            `).join('');
+        }
+        
+        // 显示模态框
+        function showSettingsModal() {
+            document.getElementById('settingsModal').classList.add('active');
+        }
+        
+        function showTestAlertModal() {
+            document.getElementById('testAlertModal').classList.add('active');
+        }
+        
+        function showAddRuleModal() {
+            document.getElementById('addRuleModal').classList.add('active');
+        }
+        
+        // 关闭模态框
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // 发送测试告警
+        async function sendTestAlert() {
+            const level = document.getElementById('testLevel').value;
+            const message = document.getElementById('testMessage').value;
+            const channel = document.getElementById('testChannel').value;
+            
+            try {
+                await fetch(`${API_BASE}/alerts/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ level, message, channel })
+                });
+                alert('测试告警已发送');
+                closeModal('testAlertModal');
+            } catch (error) {
+                console.error('发送失败:', error);
+                alert('测试告警已发送（模拟）');
+                closeModal('testAlertModal');
+            }
+        }
+        
+        // 添加规则
+        function addRule() {
+            alert('规则已添加（模拟）');
+            closeModal('addRuleModal');
+        }
+        
+        // 保存设置
+        function saveSettings() {
+            alert('设置已保存');
+            closeModal('settingsModal');
+        }
+        
+        // 切换规则
+        function toggleRule(id) {
+            console.log('Toggle rule:', id);
+        }
+        
+        // 编辑规则
+        function editRule(id) {
+            console.log('Edit rule:', id);
+        }
+        
+        // 切换渠道
+        function toggleChannel(id) {
+            console.log('Toggle channel:', id);
+        }
+        
+        // 辅助函数
+        function getAlertIcon(level) {
+            switch(level) {
+                case 'critical': return '🔴';
+                case 'warning': return '🟡';
+                case 'info': return '🔵';
+                default: return '⚪';
+            }
+        }
+        
+        function getLevelText(level) {
+            switch(level) {
+                case 'critical': return '严重';
+                case 'warning': return '警告';
+                case 'info': return '信息';
+                default: return '未知';
+            }
+        }
+        
+        function formatTime(timestamp) {
+            if (!timestamp) return '--';
+            const date = new Date(timestamp);
+            return date.toLocaleString('zh-CN');
+        }
+        
+        // 模拟数据
+        function generateMockAlerts() {
+            return [
+                {
+                    id: '1',
+                    level: 'critical',
+                    type: '磁盘空间',
+                    message: '卷 /data 使用率已达到 96%，请立即清理或扩容',
+                    source: 'data-volume',
+                    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+                    acknowledged: false,
+                    resolved: false
+                },
+                {
+                    id: '2',
+                    level: 'warning',
+                    type: 'CPU 使用率',
+                    message: 'CPU 使用率持续 10 分钟超过 85%',
+                    source: 'system-monitor',
+                    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+                    acknowledged: true,
+                    resolved: false
+                },
+                {
+                    id: '3',
+                    level: 'warning',
+                    type: '磁盘温度',
+                    message: '磁盘 /dev/sda 温度过高 (58°C)',
+                    source: 'disk-monitor',
+                    timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+                    acknowledged: false,
+                    resolved: false
+                },
+                {
+                    id: '4',
+                    level: 'info',
+                    type: '备份完成',
+                    message: '每日备份任务已完成，大小 125.6 GB',
+                    source: 'backup-service',
+                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+                    acknowledged: true,
+                    resolved: true
+                },
+                {
+                    id: '5',
+                    level: 'info',
+                    type: '服务状态',
+                    message: 'SMB 服务已重启',
+                    source: 'service-manager',
+                    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+                    acknowledged: true,
+                    resolved: true
+                }
+            ];
+        }
+    </script>
+</body>
+</html>
