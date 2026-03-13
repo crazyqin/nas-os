@@ -115,6 +115,21 @@ func (m *Manager) initDefaultTiers() {
 
 // ==================== 存储层管理 ====================
 
+// CreateTier 创建存储层
+func (m *Manager) CreateTier(tierType TierType, config TierConfig) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, ok := m.tiers[tierType]; ok {
+		return fmt.Errorf("存储层已存在: %s", tierType)
+	}
+
+	config.Type = tierType
+	m.tiers[tierType] = &config
+
+	return m.saveConfigLocked()
+}
+
 // GetTier 获取存储层配置
 func (m *Manager) GetTier(tierType TierType) (*TierConfig, error) {
 	m.mu.RLock()
@@ -133,7 +148,7 @@ func (m *Manager) ListTiers() []*TierConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var list []*TierConfig
+	list := make([]*TierConfig, 0, len(m.tiers))
 	for _, tier := range m.tiers {
 		list = append(list, tier)
 	}
@@ -151,6 +166,20 @@ func (m *Manager) UpdateTier(tierType TierType, config TierConfig) error {
 
 	config.Type = tierType
 	m.tiers[tierType] = &config
+
+	return m.saveConfigLocked()
+}
+
+// DeleteTier 删除存储层
+func (m *Manager) DeleteTier(tierType TierType) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, ok := m.tiers[tierType]; !ok {
+		return fmt.Errorf("存储层不存在: %s", tierType)
+	}
+
+	delete(m.tiers, tierType)
 
 	return m.saveConfigLocked()
 }
@@ -596,12 +625,31 @@ func (m *Manager) GetTask(id string) (*MigrateTask, error) {
 	return task, nil
 }
 
+// CancelTask 取消迁移任务
+func (m *Manager) CancelTask(id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	task, ok := m.tasks[id]
+	if !ok {
+		return fmt.Errorf("任务不存在: %s", id)
+	}
+
+	// 只有 pending 或 running 状态的任务可以取消
+	if task.Status == MigrateStatusPending || task.Status == MigrateStatusRunning {
+		task.Status = MigrateStatusCancelled
+		return nil
+	}
+
+	return fmt.Errorf("任务状态不允许取消: %s", task.Status)
+}
+
 // ListTasks 列出迁移任务
 func (m *Manager) ListTasks(limit int) []*MigrateTask {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var list []*MigrateTask
+	list := make([]*MigrateTask, 0, len(m.tasks))
 	for _, task := range m.tasks {
 		list = append(list, task)
 		if limit > 0 && len(list) >= limit {

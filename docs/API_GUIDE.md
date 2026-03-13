@@ -1,7 +1,7 @@
 # NAS-OS API 使用指南
 
-**版本**: v2.2.0  
-**更新日期**: 2026-03-21
+**版本**: v2.3.0  
+**更新日期**: 2026-03-28
 
 ---
 
@@ -23,8 +23,12 @@
 14. [文件版本控制](#文件版本控制)
 15. [云同步](#云同步)
 16. [数据去重](#数据去重)
-17. [iSCSI 目标](#iscsi-目标-) 🆕
-18. [快照策略](#快照策略-) 🆕
+17. [iSCSI 目标](#iscsi-目标-)
+18. [快照策略](#快照策略-)
+19. [存储分层](#存储分层-) 🆕
+20. [FTP 服务器](#ftp-服务器-) 🆕
+21. [SFTP 服务器](#sftp-服务器-) 🆕
+22. [文件标签](#文件标签-) 🆕
 
 ---
 
@@ -1207,6 +1211,374 @@ curl -X POST http://localhost:8080/api/v1/snapshot-policies/daily-backup/run \
 
 ---
 
+## 存储分层 🆕
+
+### 获取存储层列表
+
+```bash
+curl http://localhost:8080/api/v1/tiering/tiers \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "type": "hot",
+      "name": "SSD缓存层",
+      "path": "/data/hot",
+      "capacity": 536870912000,
+      "used": 107374182400,
+      "enabled": true
+    },
+    {
+      "type": "cold",
+      "name": "HDD存储层",
+      "path": "/data/cold",
+      "capacity": 10995116277760,
+      "used": 2199023255552,
+      "enabled": true
+    }
+  ]
+}
+```
+
+### 获取存储层配置
+
+```bash
+curl http://localhost:8080/api/v1/tiering/tiers/hot \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 更新存储层配置
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/tiering/tiers/hot \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "SSD缓存层",
+    "path": "/data/ssd-cache",
+    "capacity": 1073741824000,
+    "enabled": true
+  }'
+```
+
+### 获取分层策略列表
+
+```bash
+curl http://localhost:8080/api/v1/tiering/policies \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 创建分层策略
+
+```bash
+curl -X POST http://localhost:8080/api/v1/tiering/policies \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "照片归档",
+    "source_tier": "hot",
+    "target_tier": "cold",
+    "rules": [
+      {"type": "access_age", "days": 30},
+      {"type": "file_size", "min_size": 1048576}
+    ],
+    "schedule": "0 3 * * *",
+    "enabled": true
+  }'
+```
+
+### 执行分层策略
+
+```bash
+curl -X POST http://localhost:8080/api/v1/tiering/policies/policy-001/execute \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 手动迁移文件
+
+```bash
+curl -X POST http://localhost:8080/api/v1/tiering/migrate \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": "/data/photos/old_photos",
+    "target_tier": "cold"
+  }'
+```
+
+### 获取分层任务列表
+
+```bash
+curl http://localhost:8080/api/v1/tiering/tasks \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 获取分层状态
+
+```bash
+curl http://localhost:8080/api/v1/tiering/status \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## FTP 服务器 🆕
+
+### 获取 FTP 配置
+
+```bash
+curl http://localhost:8080/api/v1/ftp/config \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "enabled": true,
+    "port": 21,
+    "passive_ports": "50000-51000",
+    "max_connections": 50,
+    "anonymous": false,
+    "bandwidth_limit": 10485760,
+    "welcome_message": "Welcome to NAS-OS FTP Server"
+  }
+}
+```
+
+### 更新 FTP 配置
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/ftp/config \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "port": 21,
+    "passive_ports": "50000-51000",
+    "max_connections": 100,
+    "anonymous": false
+  }'
+```
+
+### 获取 FTP 状态
+
+```bash
+curl http://localhost:8080/api/v1/ftp/status \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "running": true,
+    "active_connections": 5,
+    "total_transfers": 1234,
+    "bytes_transferred": 10737418240
+  }
+}
+```
+
+### 重启 FTP 服务
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ftp/restart \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## SFTP 服务器 🆕
+
+### 获取 SFTP 配置
+
+```bash
+curl http://localhost:8080/api/v1/sftp/config \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "enabled": true,
+    "port": 22,
+    "host_key_path": "/etc/nas-os/ssh_host_key",
+    "max_connections": 50,
+    "auth_methods": ["password", "publickey"],
+    "chroot_enabled": true
+  }
+}
+```
+
+### 更新 SFTP 配置
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/sftp/config \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "port": 2222,
+    "max_connections": 100,
+    "auth_methods": ["publickey"]
+  }'
+```
+
+### 获取 SFTP 状态
+
+```bash
+curl http://localhost:8080/api/v1/sftp/status \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "running": true,
+    "active_connections": 3,
+    "total_transfers": 567,
+    "bytes_transferred": 5368709120
+  }
+}
+```
+
+### 重启 SFTP 服务
+
+```bash
+curl -X POST http://localhost:8080/api/v1/sftp/restart \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## 文件标签 🆕
+
+### 获取标签列表
+
+```bash
+curl http://localhost:8080/api/v1/tags \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "id": "tag-001",
+      "name": "重要",
+      "color": "#EF4444",
+      "icon": "star",
+      "file_count": 45,
+      "created_at": "2026-03-20T10:00:00Z"
+    },
+    {
+      "id": "tag-002",
+      "name": "工作",
+      "color": "#3B82F6",
+      "icon": "briefcase",
+      "file_count": 128,
+      "created_at": "2026-03-20T10:00:00Z"
+    }
+  ]
+}
+```
+
+### 创建标签
+
+```bash
+curl -X POST http://localhost:8080/api/v1/tags \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "个人",
+    "color": "#10B981",
+    "icon": "user"
+  }'
+```
+
+### 更新标签
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/tags/tag-001 \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "非常重要",
+    "color": "#DC2626"
+  }'
+```
+
+### 删除标签
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/tags/tag-001 \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 为文件添加标签
+
+```bash
+curl -X POST http://localhost:8080/api/v1/tags/tag-001/files \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "paths": ["/data/documents/report.pdf", "/data/important/contract.docx"]
+  }'
+```
+
+### 移除文件标签
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/tags/tag-001/files \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "paths": ["/data/documents/report.pdf"]
+  }'
+```
+
+### 按标签搜索文件
+
+```bash
+curl "http://localhost:8080/api/v1/tags/tag-001/files" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 批量添加标签
+
+```bash
+curl -X POST http://localhost:8080/api/v1/tags/batch \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "paths": ["/data/photos/1.jpg", "/data/photos/2.jpg"],
+    "tags": ["tag-001", "tag-002"]
+  }'
+```
+
+### 获取标签云
+
+```bash
+curl http://localhost:8080/api/v1/tags/cloud \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
 ## 错误处理
 
 ### 错误响应格式
@@ -1297,4 +1669,4 @@ func main() {
 
 ---
 
-**最后更新**: 2026-03-20
+**最后更新**: 2026-03-28

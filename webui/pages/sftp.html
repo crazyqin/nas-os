@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFTP 服务器 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .sftp-container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) { .config-grid { grid-template-columns: 1fr; } }
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .status-indicator.running { background: var(--color-success-bg); color: var(--color-success); }
+        .status-indicator.stopped { background: var(--color-error-bg); color: var(--color-error); }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .status-indicator.running .status-dot { background: var(--color-success); }
+        .status-indicator.stopped .status-dot { background: var(--color-error); }
+        .info-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        .info-card h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider { background-color: var(--color-primary); }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-dark); }
+        .btn-secondary { background: var(--surface-secondary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--surface-tertiary); }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 1rem; }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--surface-secondary);
+            border-radius: var(--radius-md);
+        }
+    </style>
+</head>
+<body>
+    <div class="sftp-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">🔐 SFTP 服务器</h1>
+                <p class="page-subtitle">SSH 文件传输协议服务配置</p>
+            </div>
+            <div id="statusIndicator" class="status-indicator stopped">
+                <span class="status-dot"></span>
+                <span id="statusText">已停止</span>
+            </div>
+        </div>
+
+        <div class="config-grid">
+            <div class="info-card">
+                <h3>⚙️ 基本设置</h3>
+                <div class="form-group">
+                    <label class="form-label">启用 SFTP 服务</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="enabled">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">监听端口</label>
+                    <input type="number" class="form-input" id="port" value="22">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大连接数</label>
+                    <input type="number" class="form-input" id="maxConnections" value="50">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">主机密钥路径</label>
+                    <input type="text" class="form-input" id="hostKeyPath" value="/etc/nas-os/ssh_host_key">
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h3>🔒 安全设置</h3>
+                <div class="form-group">
+                    <label class="form-label">认证方式</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="authPassword" checked>
+                            <span>密码认证</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="authPublicKey" checked>
+                            <span>公钥认证</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">启用 Chroot 限制</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="chrootEnabled" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">空闲超时 (秒)</label>
+                    <input type="number" class="form-input" id="idleTimeout" value="300">
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card" style="margin-bottom: 1.5rem;">
+            <h3>📊 服务状态</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                <div style="text-align: center; padding: 1rem; background: var(--surface-secondary); border-radius: var(--radius-md);">
+                    <div style="font-size: 24px; font-weight: 700; color: var(--color-primary);" id="activeConnections">0</div>
+                    <div style="color: var(--text-muted); font-size: 14px;">活跃连接</div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: var(--surface-secondary); border-radius: var(--radius-md);">
+                    <div style="font-size: 24px; font-weight: 700; color: var(--color-success);" id="totalTransfers">0</div>
+                    <div style="color: var(--text-muted); font-size: 14px;">总传输次数</div>
+                </div>
+                <div style="text-align: center; padding: 1rem; background: var(--surface-secondary); border-radius: var(--radius-md);">
+                    <div style="font-size: 24px; font-weight: 700; color: var(--color-warning);" id="bytesTransferred">0 B</div>
+                    <div style="color: var(--text-muted); font-size: 14px;">已传输字节</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-primary" onclick="saveConfig()">💾 保存配置</button>
+            <button class="btn btn-secondary" onclick="restartService()">🔄 重启服务</button>
+        </div>
+    </div>
+
+    <script>
+        async function loadConfig() {
+            try {
+                const resp = await fetch('/api/v1/sftp/config');
+                const data = await resp.json();
+                if (data.code === 0) {
+                    document.getElementById('enabled').checked = data.data.enabled;
+                    document.getElementById('port').value = data.data.port;
+                    document.getElementById('maxConnections').value = data.data.max_connections;
+                    document.getElementById('hostKeyPath').value = data.data.host_key_path || '/etc/nas-os/ssh_host_key';
+                    document.getElementById('chrootEnabled').checked = data.data.chroot_enabled;
+                    document.getElementById('idleTimeout').value = data.data.idle_timeout || 300;
+                    const authMethods = data.data.auth_methods || [];
+                    document.getElementById('authPassword').checked = authMethods.includes('password');
+                    document.getElementById('authPublicKey').checked = authMethods.includes('publickey');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadStatus() {
+            try {
+                const resp = await fetch('/api/v1/sftp/status');
+                const data = await resp.json();
+                if (data.code === 0) {
+                    const indicator = document.getElementById('statusIndicator');
+                    const statusText = document.getElementById('statusText');
+                    if (data.data.running) {
+                        indicator.className = 'status-indicator running';
+                        statusText.textContent = '运行中';
+                    } else {
+                        indicator.className = 'status-indicator stopped';
+                        statusText.textContent = '已停止';
+                    }
+                    document.getElementById('activeConnections').textContent = data.data.active_connections || 0;
+                    document.getElementById('totalTransfers').textContent = data.data.total_transfers || 0;
+                    document.getElementById('bytesTransferred').textContent = formatBytes(data.data.bytes_transferred || 0);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function saveConfig() {
+            const authMethods = [];
+            if (document.getElementById('authPassword').checked) authMethods.push('password');
+            if (document.getElementById('authPublicKey').checked) authMethods.push('publickey');
+            
+            const config = {
+                enabled: document.getElementById('enabled').checked,
+                port: parseInt(document.getElementById('port').value),
+                max_connections: parseInt(document.getElementById('maxConnections').value),
+                host_key_path: document.getElementById('hostKeyPath').value,
+                auth_methods: authMethods,
+                chroot_enabled: document.getElementById('chrootEnabled').checked,
+                idle_timeout: parseInt(document.getElementById('idleTimeout').value)
+            };
+            try {
+                const resp = await fetch('/api/v1/sftp/config', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    alert('配置已保存');
+                    loadStatus();
+                } else {
+                    alert('保存失败: ' + data.message);
+                }
+            } catch (e) { alert('保存失败: ' + e.message); }
+        }
+
+        async function restartService() {
+            try {
+                const resp = await fetch('/api/v1/sftp/restart', { method: 'POST' });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    alert('服务已重启');
+                    loadStatus();
+                } else {
+                    alert('重启失败: ' + data.message);
+                }
+            } catch (e) { alert('重启失败: ' + e.message); }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        loadConfig();
+        loadStatus();
+        setInterval(loadStatus, 5000);
+    </script>
+</body>
+</html>

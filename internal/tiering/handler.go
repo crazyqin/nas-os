@@ -24,9 +24,11 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	tiering := r.Group("/tiering")
 	{
 		// 存储层配置
+		tiering.POST("/tiers", h.CreateTier)
 		tiering.GET("/tiers", h.ListTiers)
 		tiering.GET("/tiers/:type", h.GetTier)
 		tiering.PUT("/tiers/:type", h.UpdateTier)
+		tiering.DELETE("/tiers/:type", h.DeleteTier)
 
 		// 分层策略
 		tiering.GET("/policies", h.ListPolicies)
@@ -42,9 +44,12 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 		// 任务管理
 		tiering.GET("/tasks", h.ListTasks)
 		tiering.GET("/tasks/:id", h.GetTask)
+		tiering.DELETE("/tasks/:id", h.CancelTask)
 
 		// 状态查询
 		tiering.GET("/status", h.GetStatus)
+		tiering.GET("/stats", h.GetStats)
+		tiering.GET("/stats/:type", h.GetTierStats)
 	}
 }
 
@@ -55,6 +60,40 @@ func (h *Handler) ListTiers(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data":    tiers,
+	})
+}
+
+// CreateTier 创建存储层
+func (h *Handler) CreateTier(c *gin.Context) {
+	var config TierConfig
+	if err := c.ShouldBindJSON(&config); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "无效的请求参数: " + err.Error(),
+		})
+		return
+	}
+
+	if config.Type == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "存储层类型不能为空",
+		})
+		return
+	}
+
+	if err := h.manager.CreateTier(config.Type, config); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "存储层已创建",
+		"data":    config,
 	})
 }
 
@@ -98,6 +137,22 @@ func (h *Handler) UpdateTier(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "存储层配置已更新",
+	})
+}
+
+// DeleteTier 删除存储层
+func (h *Handler) DeleteTier(c *gin.Context) {
+	tierType := TierType(c.Param("type"))
+	if err := h.manager.DeleteTier(tierType); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "存储层已删除",
 	})
 }
 
@@ -265,6 +320,22 @@ func (h *Handler) GetTask(c *gin.Context) {
 	})
 }
 
+// CancelTask 取消任务
+func (h *Handler) CancelTask(c *gin.Context) {
+	id := c.Param("id")
+	if err := h.manager.CancelTask(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "任务已取消",
+	})
+}
+
 // GetStatus 获取分层状态
 func (h *Handler) GetStatus(c *gin.Context) {
 	status := h.manager.GetStatus()
@@ -272,5 +343,47 @@ func (h *Handler) GetStatus(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data":    status,
+	})
+}
+
+// GetStats 获取分层统计
+func (h *Handler) GetStats(c *gin.Context) {
+	stats := h.manager.GetAccessStats()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    stats,
+	})
+}
+
+// GetTierStats 获取存储层统计
+func (h *Handler) GetTierStats(c *gin.Context) {
+	tierType := TierType(c.Param("type"))
+
+	tier, err := h.manager.GetTier(tierType)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	stats, err := h.manager.GetTierStats(tierType)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": gin.H{
+			"tier":  tier,
+			"stats": stats,
+		},
 	})
 }
