@@ -49,7 +49,7 @@ func (m *MockFileAccessor) AddFile(fileID, name string, size int64) {
 
 func TestNewManager(t *testing.T) {
 	accessor := NewMockFileAccessor()
-	mgr, err := NewManager("", accessor)
+	mgr, err := NewManager("", accessor, WithCleanupWorker(false))
 	if err != nil {
 		t.Fatalf("创建管理器失败: %v", err)
 	}
@@ -94,7 +94,7 @@ func TestDefaultConfig(t *testing.T) {
 }
 
 func TestGetDocumentType(t *testing.T) {
-	mgr, _ := NewManager("", NewMockFileAccessor())
+	mgr, _ := NewManager("", NewMockFileAccessor(), WithCleanupWorker(false))
 	defer mgr.Close()
 
 	tests := []struct {
@@ -121,7 +121,7 @@ func TestGetDocumentType(t *testing.T) {
 
 func TestIsSupported(t *testing.T) {
 	accessor := NewMockFileAccessor()
-	mgr, _ := NewManager("", accessor)
+	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
 	defer mgr.Close()
 
 	// 默认支持的格式
@@ -145,7 +145,7 @@ func TestCreateSession(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file123", "test.docx", 1024)
 
-	mgr, err := NewManager("", accessor)
+	mgr, err := NewManager("", accessor, WithCleanupWorker(false))
 	if err != nil {
 		t.Fatalf("创建管理器失败: %v", err)
 	}
@@ -188,7 +188,7 @@ func TestGetSession(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file123", "test.docx", 1024)
 
-	mgr, _ := NewManager("", accessor)
+	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
 	defer mgr.Close()
 	mgr.UpdateConfig(UpdateConfigRequest{Enabled: boolPtr(true)})
 
@@ -211,7 +211,7 @@ func TestListSessions(t *testing.T) {
 	accessor.AddFile("file1", "test1.docx", 1024)
 	accessor.AddFile("file2", "test2.xlsx", 2048)
 
-	mgr, _ := NewManager("", accessor)
+	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
 	defer mgr.Close()
 	mgr.UpdateConfig(UpdateConfigRequest{Enabled: boolPtr(true)})
 
@@ -240,7 +240,7 @@ func TestCloseSession(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file123", "test.docx", 1024)
 
-	mgr, _ := NewManager("", accessor)
+	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
 	defer mgr.Close()
 	mgr.UpdateConfig(UpdateConfigRequest{Enabled: boolPtr(true)})
 
@@ -300,7 +300,7 @@ func TestFileAssociations(t *testing.T) {
 }
 
 func TestGetFileAssociation(t *testing.T) {
-	mgr, _ := NewManager("", NewMockFileAccessor())
+	mgr, _ := NewManager("", NewMockFileAccessor(), WithCleanupWorker(false))
 	defer mgr.Close()
 
 	assoc, ok := mgr.GetFileAssociation("docx")
@@ -318,7 +318,7 @@ func TestGetFileAssociation(t *testing.T) {
 }
 
 func TestUpdateConfig(t *testing.T) {
-	mgr, _ := NewManager("", NewMockFileAccessor())
+	mgr, _ := NewManager("", NewMockFileAccessor(), WithCleanupWorker(false))
 	defer mgr.Close()
 
 	// 更新配置
@@ -351,7 +351,7 @@ func TestBuildEditorConfig(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	accessor.AddFile("file123", "test.xlsx", 1024)
 
-	mgr, _ := NewManager("", accessor)
+	mgr, _ := NewManager("", accessor, WithCleanupWorker(false))
 	defer mgr.Close()
 	mgr.UpdateConfig(UpdateConfigRequest{
 		Enabled:   boolPtr(true),
