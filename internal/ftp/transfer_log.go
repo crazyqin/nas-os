@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -264,7 +265,7 @@ func (l *TransferLogger) rotateLog() {
 
 	// 重命名旧文件
 	backup := l.logPath + "." + time.Now().Format("20060102-150405")
-	os.Rename(l.logPath, backup)
+	_ = os.Rename(l.logPath, backup)
 
 	// 创建新文件
 	l.initLogFile()
@@ -293,7 +294,7 @@ func (l *TransferLogger) cleanupOldBackups() {
 		}
 
 		name := entry.Name()
-		if name == base || !filepath.HasPrefix(name, base+".") {
+		if name == base || !strings.HasPrefix(name, base+".") {
 			continue
 		}
 

@@ -96,9 +96,9 @@ type FileAccessStats struct {
 
 // FSWatcher 文件系统监控器
 type FSWatcher struct {
-	watchPaths []string
-	events     chan FSEvent
-	stopCh     chan struct{}
+	_      struct{} // 防止空结构体
+	events chan FSEvent
+	stopCh chan struct{}
 }
 
 // FSEvent 文件系统事件
@@ -300,7 +300,7 @@ func (i *Integration) OnFileAccess(ctx context.Context, path string, tierType Ti
 // OnFileCreate 文件创建回调
 func (i *Integration) OnFileCreate(ctx context.Context, path string, size int64, tierType TierType) error {
 	// 创建访问记录
-	i.manager.tracker.RecordAccess(path, tierType, 0, size)
+	_ = i.manager.tracker.RecordAccess(path, tierType, 0, size)
 
 	i.logger.Debug("新文件创建", zap.String("path", path), zap.String("tier", string(tierType)))
 
@@ -310,7 +310,7 @@ func (i *Integration) OnFileCreate(ctx context.Context, path string, size int64,
 // OnFileDelete 文件删除回调
 func (i *Integration) OnFileDelete(ctx context.Context, path string, tierType TierType) error {
 	// 移除访问记录
-	i.manager.tracker.RemoveRecord(path)
+	_ = i.manager.tracker.RemoveRecord(path)
 
 	i.logger.Debug("文件删除", zap.String("path", path))
 
@@ -320,8 +320,8 @@ func (i *Integration) OnFileDelete(ctx context.Context, path string, tierType Ti
 // OnFileMove 文件移动回调
 func (i *Integration) OnFileMove(ctx context.Context, srcPath, dstPath string, srcTier, dstTier TierType) error {
 	// 更新访问记录的存储层
-	i.manager.tracker.RemoveRecord(srcPath)
-	i.manager.tracker.RecordAccess(dstPath, dstTier, 0, 0)
+	_ = i.manager.tracker.RemoveRecord(srcPath)
+	_ = i.manager.tracker.RecordAccess(dstPath, dstTier, 0, 0)
 
 	// 更新迁移指标
 	i.metrics.RecordTierMigration(srcTier, 0, 1, 0, 0)
