@@ -276,3 +276,191 @@ func TestGetStats(t *testing.T) {
 	assert.Equal(t, 1, stats["totalFiles"])
 	assert.Equal(t, 1, stats["totalVersions"])
 }
+
+func TestWatchFile(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "versioning-test")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	testFile := filepath.Join(tmpDir, "test.txt")
+	err = os.WriteFile(testFile, []byte("initial content"), 0644)
+	require.NoError(t, err)
+
+	configPath := filepath.Join(tmpDir, "config.json")
+	versionRoot := filepath.Join(tmpDir, "versions")
+
+	mgr, err := NewManager(configPath, testConfig(versionRoot))
+	require.NoError(t, err)
+	defer mgr.Close()
+
+	// 添加文件监控
+	err = mgr.WatchFile(testFile)
+	require.NoError(t, err)
+
+	// 验证监控列表
+	watched := mgr.GetWatchedFiles()
+	assert.Contains(t, watched, testFile)
+
+	// 移除监控
+	mgr.UnwatchFile(testFile)
+	watched = mgr.GetWatchedFiles()
+	assert.NotContains(t, watched, testFile)
+}
+
+func TestWatchNonExistentFile(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "versioning-test")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	configPath := filepath.Join(tmpDir, "config.json")
+	versionRoot := filepath.Join(tmpDir, "versions")
+
+	mgr, err := NewManager(configPath, testConfig(versionRoot))
+	require.NoError(t, err)
+	defer mgr.Close()
+
+	// 监控不存在的文件应该失败
+	err = mgr.WatchFile("/nonexistent/file.txt")
+	assert.Error(t, err)
+}
+
+func TestWatchDirectory(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "versioning-test")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	configPath := filepath.Join(tmpDir, "config.json")
+	versionRoot := filepath.Join(tmpDir, "versions")
+
+	mgr, err := NewManager(configPath, testConfig(versionRoot))
+	require.NoError(t, err)
+	defer mgr.Close()
+
+	// 监控目录应该失败
+	err = mgr.WatchFile(tmpDir)
+	assert.Error(t, err)
+}
+
+func TestChangeBasedSnapshot(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "versioning-test")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	testFile := filepath.Join(tmpDir, "test.txt")
+	err = os.WriteFile(testFile, []byte("initial content"), 0644)
+	require.NoError(t, err)
+
+	configPath := filepath.Join(tmpDir, "config.json")
+	versionRoot := filepath.Join(tmpDir, "versions")
+
+	config := testConfig(versionRoot)
+	config.Snapshot.Enabled = true
+	config.Snapshot.TriggerMode = "change"
+	config.Snapshot.MinChangeSize = 0 // 任何变更都触发
+
+	mgr, err := NewManager(configPath, config)
+	require.NoError(t, err)
+	defer mgr.Close()
+
+	// 添加文件监控
+	err = mgr.WatchFile(testFile)
+	require.NoError(t, err)
+
+	// 手动触发变更检查（模拟时间触发）
+	mgr.checkAndSnapshotChanges()
+
+	// 此时应该没有版本（因为文件没有被修改）
+	versions, err := mgr.GetVersions(testFile)
+	require.NoError(t, err)
+	assert.Len(t, versions, 0)
+
+	// 修改文件
+	time.Sleep(10 * time.Millisecond)
+	err = os.WriteFile(testFile, []byte("modified content"), 0644)
+	require.NoError(t, err)
+
+	// 触发变更检查
+	mgr.checkAndSnapshotChanges()
+
+	// 此时应该有版本
+	versions, err = mgr.GetVersions(testFile)
+	require.NoError(t, err)
+	assert.GreaterOrEqual(t, len(versions), 1)
+}
+
+func TestMinChangeSizeThreshold(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "versioning-test")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	testFile := filepath.Join(tmpDir, "test.txt")
+	err = os.WriteFile(testFile, []byte("initial content"), 0644)
+	require.NoError(t, err)
+
+	configPath := filepath.Join(tmpDir, "config.json")
+	versionRoot := filepath.Join(tmpDir, "versions")
+
+	config := testConfig(versionRoot)
+	config.Snapshot.Enabled = true
+	config.Snapshot.TriggerMode = "change"
+	config.Snapshot.MinChangeSize = 1000 // 需要 1000 字节变更才触发
+
+	mgr, err := NewManager(configPath, config)
+	require.NoError(t, err)
+	defer mgr.Close()
+
+	// 先创建一个初始版本
+	_, err = mgr.CreateVersion(testFile, "user1", "initial", "manual")
+	require.NoError(t, err)
+
+	// 添加文件监控
+	err = mgr.WatchFile(testFile)
+	require.NoError(t, err)
+
+	// 小幅度修改文件（不满足阈值）
+	time.Sleep(10 * time.Millisecond)
+	err = os.WriteFile(testFile, []byte("small change"), 0644)
+	require.NoError(t, err)
+
+	// 触发变更检查
+	mgr.checkAndSnapshotChanges()
+
+	// 不应该创建新版本（变更太小）
+	versions, err := mgr.GetVersions(testFile)
+	require.NoError(t, err)
+	assert.Len(t, versions, 1) // 只有初始版本
+}
+
+func TestTimeBasedSnapshot(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "versioning-test")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	testFile := filepath.Join(tmpDir, "test.txt")
+	err = os.WriteFile(testFile, []byte("initial content"), 0644)
+	require.NoError(t, err)
+
+	configPath := filepath.Join(tmpDir, "config.json")
+	versionRoot := filepath.Join(tmpDir, "versions")
+
+	config := testConfig(versionRoot)
+	config.Snapshot.Enabled = true
+	config.Snapshot.TriggerMode = "time"
+	config.Snapshot.Interval = 1 // 1 分钟
+
+	mgr, err := NewManager(configPath, config)
+	require.NoError(t, err)
+	defer mgr.Close()
+
+	// 添加文件监控
+	err = mgr.WatchFile(testFile)
+	require.NoError(t, err)
+
+	// 手动触发时间快照
+	mgr.snapshotWatchedFiles("time")
+
+	// 应该有版本
+	versions, err := mgr.GetVersions(testFile)
+	require.NoError(t, err)
+	assert.GreaterOrEqual(t, len(versions), 1)
+}

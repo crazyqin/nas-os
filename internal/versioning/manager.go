@@ -132,6 +132,9 @@ func NewManager(configPath string, config *Config) (*Manager, error) {
 		go m.startAutoCleanup()
 	}
 
+	// 启动自动快照
+	m.StartAutoSnapshot()
+
 	return m, nil
 }
 
@@ -436,6 +439,168 @@ func (m *Manager) UpdateConfig(config *Config) error {
 // Close 关闭管理器
 func (m *Manager) Close() {
 	close(m.stopChan)
+}
+
+// ========== 自动快照触发功能 ==========
+
+// WatchFile 添加文件监控，当文件变更时自动创建快照
+func (m *Manager) WatchFile(filePath string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	// 检查文件是否存在
+	info, err := os.Stat(filePath)
+	if err != nil {
+		return fmt.Errorf("文件不存在：%w", err)
+	}
+
+	if info.IsDir() {
+		return fmt.Errorf("不支持监控目录")
+	}
+
+	m.watchers[filePath] = info.ModTime()
+	return nil
+}
+
+// UnwatchFile 移除文件监控
+func (m *Manager) UnwatchFile(filePath string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	delete(m.watchers, filePath)
+}
+
+// GetWatchedFiles 获取监控的文件列表
+func (m *Manager) GetWatchedFiles() []string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	files := make([]string, 0, len(m.watchers))
+	for f := range m.watchers {
+		files = append(files, f)
+	}
+	return files
+}
+
+// StartAutoSnapshot 启动自动快照服务
+// 根据配置的触发模式启动相应的自动快照功能
+func (m *Manager) StartAutoSnapshot() {
+	if !m.config.Snapshot.Enabled {
+		return
+	}
+
+	switch m.config.Snapshot.TriggerMode {
+	case "time":
+		go m.startTimeBasedSnapshot()
+	case "change":
+		go m.startChangeBasedSnapshot()
+	}
+}
+
+// startTimeBasedSnapshot 基于时间的自动快照
+func (m *Manager) startTimeBasedSnapshot() {
+	if m.config.Snapshot.Interval <= 0 {
+		m.config.Snapshot.Interval = 60 // 默认 60 分钟
+	}
+
+	ticker := time.NewTicker(time.Duration(m.config.Snapshot.Interval) * time.Minute)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			m.snapshotWatchedFiles("time")
+		case <-m.stopChan:
+			return
+		}
+	}
+}
+
+// startChangeBasedSnapshot 基于变更的自动快照
+func (m *Manager) startChangeBasedSnapshot() {
+	ticker := time.NewTicker(30 * time.Second) // 每 30 秒检查一次变更
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			m.checkAndSnapshotChanges()
+		case <-m.stopChan:
+			return
+		}
+	}
+}
+
+// snapshotWatchedFiles 为所有监控的文件创建快照
+func (m *Manager) snapshotWatchedFiles(triggerType string) {
+	m.mu.RLock()
+	files := make([]string, 0, len(m.watchers))
+	for f := range m.watchers {
+		files = append(files, f)
+	}
+	m.mu.RUnlock()
+
+	for _, filePath := range files {
+		_, err := m.CreateVersion(filePath, "system", "自动快照", triggerType)
+		if err != nil {
+			// 记录错误但不中断
+			continue
+		}
+	}
+}
+
+// checkAndSnapshotChanges 检查文件变更并创建快照
+func (m *Manager) checkAndSnapshotChanges() {
+	// 首先收集需要创建快照的文件
+	m.mu.Lock()
+	var toSnapshot []struct {
+		path    string
+		modTime time.Time
+	}
+
+	for filePath, lastModTime := range m.watchers {
+		info, err := os.Stat(filePath)
+		if err != nil {
+			// 文件可能被删除，移除监控
+			delete(m.watchers, filePath)
+			continue
+		}
+
+		// 检查修改时间是否变化
+		if info.ModTime().After(lastModTime) {
+			// 检查变更大小是否达到阈值
+			if m.config.Snapshot.MinChangeSize > 0 {
+				// 获取最新版本的文件大小进行比较
+				versions := m.versions[filePath]
+				if len(versions) > 0 {
+					latestVersion := versions[len(versions)-1]
+					sizeDiff := info.Size() - latestVersion.Size
+					if sizeDiff < 0 {
+						sizeDiff = -sizeDiff
+					}
+					if sizeDiff < m.config.Snapshot.MinChangeSize {
+						m.watchers[filePath] = info.ModTime()
+						continue
+					}
+				}
+			}
+
+			toSnapshot = append(toSnapshot, struct {
+				path    string
+				modTime time.Time
+			}{filePath, info.ModTime()})
+		}
+	}
+	m.mu.Unlock()
+
+	// 在锁外创建快照
+	for _, item := range toSnapshot {
+		version, _ := m.CreateVersion(item.path, "system", "变更触发快照", "change")
+		if version != nil {
+			m.mu.Lock()
+			m.watchers[item.path] = item.modTime
+			m.mu.Unlock()
+		}
+	}
 }
 
 // ========== 内部方法 ==========
