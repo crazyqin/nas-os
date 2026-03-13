@@ -300,8 +300,8 @@ func (c *RetentionCleaner) EstimateRetention(policy *Policy, snapshotCount int, 
 
 // RetentionEstimate 保留策略估算
 type RetentionEstimate struct {
-	PolicyType        RetentionPolicyType `json:"policyType"`
-	MaxSnapshots      int                 `json:"maxSnapshots"`
-	EstimatedStorage  int64               `json:"estimatedStorage"`
-	Warnings          []string            `json:"warnings,omitempty"`
+	PolicyType       RetentionPolicyType `json:"policyType"`
+	MaxSnapshots     int                 `json:"maxSnapshots"`
+	EstimatedStorage int64               `json:"estimatedStorage"`
+	Warnings         []string            `json:"warnings,omitempty"`
 }

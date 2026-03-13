@@ -161,11 +161,11 @@ func (h *APIHandlers) GetHealthChecks(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"status":  health.Status,
-			"score":   health.Score,
-			"checks":  health.Checks,
-			"issues":  health.Issues,
-			"uptime":  health.Uptime,
+			"status": health.Status,
+			"score":  health.Score,
+			"checks": health.Checks,
+			"issues": health.Issues,
+			"uptime": health.Uptime,
 		},
 	})
 }

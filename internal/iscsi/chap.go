@@ -95,10 +95,10 @@ func (cm *CHAPManager) GetConfig(targetID string) *CHAPConfig {
 
 	// Return copy with secret hidden
 	return &CHAPConfig{
-		Enabled:     config.Enabled,
-		Username:    config.Username,
-		Mutual:      config.Mutual,
-		MutualUser:  config.MutualUser,
+		Enabled:    config.Enabled,
+		Username:   config.Username,
+		Mutual:     config.Mutual,
+		MutualUser: config.MutualUser,
 		// Secrets not included for security
 	}
 }

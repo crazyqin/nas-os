@@ -31,21 +31,21 @@ type HealthCheckResult struct {
 
 // SystemHealth 系统健康状态
 type SystemHealth struct {
-	Status       HealthStatus        `json:"status"`
-	Score        int                 `json:"score"` // 0-100
-	Checks       []HealthCheckResult `json:"checks"`
-	Issues       []string            `json:"issues,omitempty"`
-	Uptime       uint64              `json:"uptime_seconds"`
-	LastChecked  time.Time           `json:"last_checked"`
-	Version      string              `json:"version"`
+	Status      HealthStatus        `json:"status"`
+	Score       int                 `json:"score"` // 0-100
+	Checks      []HealthCheckResult `json:"checks"`
+	Issues      []string            `json:"issues,omitempty"`
+	Uptime      uint64              `json:"uptime_seconds"`
+	LastChecked time.Time           `json:"last_checked"`
+	Version     string              `json:"version"`
 }
 
 // HealthChecker 健康检查器
 type HealthChecker struct {
-	logger     *zap.Logger
-	collector  *SystemCollector
-	storage    *StorageCollector
-	mu         sync.RWMutex
+	logger    *zap.Logger
+	collector *SystemCollector
+	storage   *StorageCollector
+	mu        sync.RWMutex
 
 	// 检查项
 	checks     []HealthCheck
@@ -58,8 +58,8 @@ type HealthChecker struct {
 
 // HealthCheck 健康检查函数
 type HealthCheck struct {
-	Name    string
-	Check   func() HealthCheckResult
+	Name  string
+	Check func() HealthCheckResult
 }
 
 // HealthThresholds 健康检查阈值

@@ -14,8 +14,8 @@ type Lock struct {
 	Path      string    `json:"path"`
 	Owner     string    `json:"owner"`
 	Depth     int       `json:"depth"`
-	Scope     string    `json:"scope"`     // exclusive 或 shared
-	Type      string    `json:"type"`      // write
+	Scope     string    `json:"scope"` // exclusive 或 shared
+	Type      string    `json:"type"`  // write
 	Timeout   time.Time `json:"timeout"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -23,7 +23,7 @@ type Lock struct {
 // LockManager 锁管理器
 type LockManager struct {
 	mu    sync.RWMutex
-	locks map[string]*Lock // token -> Lock
+	locks map[string]*Lock  // token -> Lock
 	paths map[string]string // path -> token
 }
 
@@ -232,13 +232,13 @@ func generateLockToken() (string, error) {
 
 // LockDiscovery 锁发现 XML
 type LockDiscovery struct {
-	XMLName xml.Name `xml:"D:lockdiscovery"`
+	XMLName    xml.Name    `xml:"D:lockdiscovery"`
 	ActiveLock *ActiveLock `xml:"D:activelock,omitempty"`
 }
 
 // ActiveLock 活动锁 XML
 type ActiveLock struct {
-	XMLName   xml.Name `xml:"D:activelock"`
+	XMLName   xml.Name   `xml:"D:activelock"`
 	LockType  *LockType  `xml:"D:locktype"`
 	LockScope *LockScope `xml:"D:lockscope"`
 	Depth     int        `xml:"D:depth"`
@@ -256,7 +256,7 @@ type LockType struct {
 
 // LockScope 锁范围
 type LockScope struct {
-	XMLName   xml.Name `xml:"D:lockscope"`
+	XMLName   xml.Name  `xml:"D:lockscope"`
 	Exclusive *struct{} `xml:"D:exclusive,omitempty"`
 	Shared    *struct{} `xml:"D:shared,omitempty"`
 }

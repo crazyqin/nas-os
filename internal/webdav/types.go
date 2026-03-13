@@ -4,15 +4,15 @@ import "encoding/xml"
 
 // PropFind PROPFIND 请求
 type PropFind struct {
-	XMLName  xml.Name `xml:"propfind"`
-	AllProp  *struct{} `xml:"allprop"`
-	PropName *struct{} `xml:"propname"`
+	XMLName  xml.Name     `xml:"propfind"`
+	AllProp  *struct{}    `xml:"allprop"`
+	PropName *struct{}    `xml:"propname"`
 	Prop     *PropRequest `xml:"prop"`
 }
 
 // PropRequest 请求的属性
 type PropRequest struct {
-	XMLName          xml.Name `xml:"prop"`
+	XMLName          xml.Name  `xml:"prop"`
 	Displayname      *struct{} `xml:"displayname"`
 	GetContentType   *struct{} `xml:"getcontenttype"`
 	GetContentLength *struct{} `xml:"getcontentlength"`
@@ -23,7 +23,7 @@ type PropRequest struct {
 
 // Multistatus 多状态响应
 type Multistatus struct {
-	XMLName   xml.Name          `xml:"DAV:multistatus"`
+	XMLName   xml.Name           `xml:"DAV:multistatus"`
 	Responses []PropfindResponse `xml:"response"`
 }
 
@@ -55,6 +55,6 @@ type Prop struct {
 
 // ResourceType 资源类型
 type ResourceType struct {
-	XMLName    xml.Name `xml:"resourcetype"`
+	XMLName    xml.Name  `xml:"resourcetype"`
 	Collection *struct{} `xml:"collection,omitempty"`
 }

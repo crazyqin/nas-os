@@ -17,32 +17,32 @@ import (
 type StorageMetrics struct {
 	// IOPS 指标
 	IOPS struct {
-		Read       uint64  `json:"read"`
-		Write      uint64  `json:"write"`
-		Total      uint64  `json:"total"`
-		ReadAvg    uint64  `json:"read_avg"`
-		WriteAvg   uint64  `json:"write_avg"`
-		ReadMax    uint64  `json:"read_max"`
-		WriteMax   uint64  `json:"write_max"`
+		Read     uint64 `json:"read"`
+		Write    uint64 `json:"write"`
+		Total    uint64 `json:"total"`
+		ReadAvg  uint64 `json:"read_avg"`
+		WriteAvg uint64 `json:"write_avg"`
+		ReadMax  uint64 `json:"read_max"`
+		WriteMax uint64 `json:"write_max"`
 	} `json:"iops"`
 
 	// 延迟指标
 	Latency struct {
-		ReadAvgMs   float64 `json:"read_avg_ms"`
-		WriteAvgMs  float64 `json:"write_avg_ms"`
-		ReadP95Ms   float64 `json:"read_p95_ms"`
-		WriteP95Ms  float64 `json:"write_p95_ms"`
-		ReadP99Ms   float64 `json:"read_p99_ms"`
-		WriteP99Ms  float64 `json:"write_p99_ms"`
-		ReadMaxMs   float64 `json:"read_max_ms"`
-		WriteMaxMs  float64 `json:"write_max_ms"`
+		ReadAvgMs  float64 `json:"read_avg_ms"`
+		WriteAvgMs float64 `json:"write_avg_ms"`
+		ReadP95Ms  float64 `json:"read_p95_ms"`
+		WriteP95Ms float64 `json:"write_p95_ms"`
+		ReadP99Ms  float64 `json:"read_p99_ms"`
+		WriteP99Ms float64 `json:"write_p99_ms"`
+		ReadMaxMs  float64 `json:"read_max_ms"`
+		WriteMaxMs float64 `json:"write_max_ms"`
 	} `json:"latency"`
 
 	// 吞吐量指标
 	Throughput struct {
-		ReadBytesPerSec  uint64 `json:"read_bytes_per_sec"`
-		WriteBytesPerSec uint64 `json:"write_bytes_per_sec"`
-		TotalBytesPerSec uint64 `json:"total_bytes_per_sec"`
+		ReadBytesPerSec  uint64  `json:"read_bytes_per_sec"`
+		WriteBytesPerSec uint64  `json:"write_bytes_per_sec"`
+		TotalBytesPerSec uint64  `json:"total_bytes_per_sec"`
 		ReadMBPerSec     float64 `json:"read_mb_per_sec"`
 		WriteMBPerSec    float64 `json:"write_mb_per_sec"`
 		TotalMBPerSec    float64 `json:"total_mb_per_sec"`
@@ -73,13 +73,13 @@ type StorageMetrics struct {
 
 // StorageDeviceMetrics 单个存储设备指标
 type StorageDeviceMetrics struct {
-	Device       string  `json:"device"`
-	Type         string  `json:"type"` // ssd, hdd, nvme
-	Model        string  `json:"model,omitempty"`
-	Serial       string  `json:"serial,omitempty"`
-	SizeBytes    uint64  `json:"size_bytes"`
-	Temperature  int     `json:"temperature,omitempty"`
-	Health       int     `json:"health,omitempty"` // 0-100
+	Device      string `json:"device"`
+	Type        string `json:"type"` // ssd, hdd, nvme
+	Model       string `json:"model,omitempty"`
+	Serial      string `json:"serial,omitempty"`
+	SizeBytes   uint64 `json:"size_bytes"`
+	Temperature int    `json:"temperature,omitempty"`
+	Health      int    `json:"health,omitempty"` // 0-100
 
 	// IOPS
 	ReadIOPS  uint64 `json:"read_iops"`
@@ -94,18 +94,18 @@ type StorageDeviceMetrics struct {
 	WriteSpeed uint64 `json:"write_speed"` // bytes/s
 
 	// SMART 状态
-	SMARTStatus  string `json:"smart_status,omitempty"`
-	Reallocates  uint64 `json:"reallocates,omitempty"`
+	SMARTStatus    string `json:"smart_status,omitempty"`
+	Reallocates    uint64 `json:"reallocates,omitempty"`
 	PendingSectors uint64 `json:"pending_sectors,omitempty"`
 }
 
 // StorageCollector 存储性能收集器
 type StorageCollector struct {
-	logger     *zap.Logger
-	mu         sync.RWMutex
-	history    []StorageMetrics
+	logger      *zap.Logger
+	mu          sync.RWMutex
+	history     []StorageMetrics
 	historySize int
-	collector  *SystemCollector
+	collector   *SystemCollector
 }
 
 // NewStorageCollector 创建存储性能收集器
@@ -129,13 +129,13 @@ func (sc *StorageCollector) Collect() *StorageMetrics {
 
 	for _, dio := range diskIO {
 		device := StorageDeviceMetrics{
-			Device:        dio.Device,
-			ReadIOPS:      dio.ReadOps,
-			WriteIOPS:     dio.WriteOps,
-			ReadLatencyMs: dio.ReadLatency,
+			Device:         dio.Device,
+			ReadIOPS:       dio.ReadOps,
+			WriteIOPS:      dio.WriteOps,
+			ReadLatencyMs:  dio.ReadLatency,
 			WriteLatencyMs: dio.WriteLatency,
-			ReadSpeed:     dio.ReadSpeed,
-			WriteSpeed:    dio.WriteSpeed,
+			ReadSpeed:      dio.ReadSpeed,
+			WriteSpeed:     dio.WriteSpeed,
 		}
 
 		// 获取设备类型和信息

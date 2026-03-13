@@ -348,11 +348,11 @@ func TestHandlers_SetAlertConfig(t *testing.T) {
 	_, router := setupTestHandlers(t)
 
 	configReq := map[string]interface{}{
-		"enabled":               true,
-		"soft_limit_threshold":  85.0,
-		"hard_limit_threshold":  95.0,
-		"notify_webhook":        true,
-		"webhook_url":           "https://example.com/webhook",
+		"enabled":              true,
+		"soft_limit_threshold": 85.0,
+		"hard_limit_threshold": 95.0,
+		"notify_webhook":       true,
+		"webhook_url":          "https://example.com/webhook",
 	}
 
 	body, _ := json.Marshal(configReq)

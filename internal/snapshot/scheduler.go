@@ -28,7 +28,7 @@ type Scheduler struct {
 // NewScheduler 创建调度器
 func NewScheduler(pm *PolicyManager) *Scheduler {
 	return &Scheduler{
-		cron: cron.New(cron.WithSeconds(), cron.WithLocation(time.Local)),
+		cron:          cron.New(cron.WithSeconds(), cron.WithLocation(time.Local)),
 		jobIDs:        make(map[string]cron.EntryID),
 		policyManager: pm,
 	}
@@ -227,12 +227,12 @@ func (s *Scheduler) ListJobs() []JobInfo {
 		policy, _ := s.policyManager.GetPolicy(policyID)
 
 		jobs = append(jobs, JobInfo{
-			PolicyID:    policyID,
-			PolicyName:  policy.Name,
-			NextRun:     entry.Next,
-			PrevRun:     entry.Prev,
-			Schedule:    fmt.Sprintf("%v", entry.Schedule),
-			Enabled:     policy.Enabled,
+			PolicyID:   policyID,
+			PolicyName: policy.Name,
+			NextRun:    entry.Next,
+			PrevRun:    entry.Prev,
+			Schedule:   fmt.Sprintf("%v", entry.Schedule),
+			Enabled:    policy.Enabled,
 		})
 	}
 	return jobs

@@ -10,8 +10,8 @@ import (
 
 // Manager 性能监控管理器
 type Manager struct {
-	logger     *zap.Logger
-	config     Config
+	logger *zap.Logger
+	config Config
 
 	collector  *SystemCollector
 	storage    *StorageCollector
@@ -20,9 +20,9 @@ type Manager struct {
 	prometheus *PrometheusExporter
 	monitor    *PerformanceMonitor
 
-	mu         sync.RWMutex
-	running    bool
-	cancel     context.CancelFunc
+	mu      sync.RWMutex
+	running bool
+	cancel  context.CancelFunc
 }
 
 // Config 配置

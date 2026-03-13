@@ -33,7 +33,7 @@ type persistentConfig struct {
 // NewManager creates a new iSCSI manager
 func NewManager(configPath, basePath string) (*Manager, error) {
 	m := &Manager{
-		targets:    make(map[string]*Target),
+		targets: make(map[string]*Target),
 		config: &Config{
 			Enabled:       true,
 			PortalIP:      "0.0.0.0",
@@ -164,17 +164,17 @@ func (m *Manager) CreateTarget(input TargetInput) (*Target, error) {
 	// Create target
 	targetID := uuid.New().String()
 	target := &Target{
-		ID:               targetID,
-		IQN:              iqn,
-		Name:             input.Name,
-		Alias:            input.Alias,
-		LUNs:             make([]*LUN, 0),
-		MaxSessions:      maxSessions,
-		CurrentSessions:  0,
+		ID:                targetID,
+		IQN:               iqn,
+		Name:              input.Name,
+		Alias:             input.Alias,
+		LUNs:              make([]*LUN, 0),
+		MaxSessions:       maxSessions,
+		CurrentSessions:   0,
 		AllowedInitiators: input.AllowedInitiators,
-		Enabled:          true,
-		CreatedAt:        time.Now(),
-		UpdatedAt:        time.Now(),
+		Enabled:           true,
+		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
 	}
 
 	// Configure CHAP
