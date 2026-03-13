@@ -1,7 +1,7 @@
 # NAS-OS API 使用指南
 
-**版本**: v1.7.0  
-**更新日期**: 2026-03-13
+**版本**: v1.8.0  
+**更新日期**: 2026-03-20
 
 ---
 
@@ -15,11 +15,14 @@
 6. [虚拟机](#虚拟机)
 7. [监控告警](#监控告警)
 8. [性能优化](#性能优化)
-9. [配额管理](#配额管理) 🆕
-10. [回收站](#回收站) 🆕
-11. [WebDAV](#webdav) 🆕
-12. [存储复制](#存储复制) 🆕
-13. [AI 分类](#ai-分类) 🆕
+9. [配额管理](#配额管理)
+10. [回收站](#回收站)
+11. [WebDAV](#webdav)
+12. [存储复制](#存储复制)
+13. [AI 分类](#ai-分类)
+14. [文件版本控制](#文件版本控制) 🆕
+15. [云同步](#云同步) 🆕
+16. [数据去重](#数据去重) 🆕
 
 ---
 
@@ -523,6 +526,383 @@ curl http://localhost:8080/api/v1/ai-classify/stats \
 
 ---
 
+## 文件版本控制 🆕
+
+### 列出文件版本
+
+```bash
+curl "http://localhost:8080/api/v1/files/data/important.docx?versions=true" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "id": "ver-20260320-001",
+      "path": "/data/important.docx",
+      "size": 102400,
+      "checksum": "sha256:abc123...",
+      "createdAt": "2026-03-20T10:00:00Z",
+      "triggerType": "manual",
+      "description": "重要修改前备份"
+    }
+  ]
+}
+```
+
+### 创建文件版本
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/files/data/important.docx/versions" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "description": "重要修改前备份",
+    "triggerType": "manual"
+  }'
+```
+
+### 获取版本详情
+
+```bash
+curl "http://localhost:8080/api/v1/versions/ver-001" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 恢复版本
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/versions/ver-001/restore" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"targetPath": ""}'
+```
+
+### 删除版本
+
+```bash
+curl -X DELETE "http://localhost:8080/api/v1/versions/ver-001" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 版本对比
+
+```bash
+curl "http://localhost:8080/api/v1/versions/ver-001/diff" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "versionId": "ver-001",
+    "changes": [
+      {
+        "type": "modified",
+        "line": 10,
+        "oldContent": "原始内容",
+        "newContent": "修改后内容"
+      }
+    ],
+    "addedLines": 5,
+    "removedLines": 2,
+    "modifiedLines": 3
+  }
+}
+```
+
+### 获取版本统计
+
+```bash
+curl "http://localhost:8080/api/v1/versions/stats" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 配置管理
+
+```bash
+# 获取配置
+curl "http://localhost:8080/api/v1/versions/config" \
+  -H "Authorization: Bearer TOKEN"
+
+# 更新配置
+curl -X PUT "http://localhost:8080/api/v1/versions/config" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "autoVersion": true,
+    "maxVersions": 100,
+    "maxAge": "30d"
+  }'
+```
+
+---
+
+## 云同步 🆕
+
+### 云存储提供商管理
+
+#### 添加云存储
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/cloudsync/providers" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "我的阿里云OSS",
+    "type": "aliyun_oss",
+    "endpoint": "oss-cn-hangzhou.aliyuncs.com",
+    "bucket": "my-bucket",
+    "accessKey": "YOUR_ACCESS_KEY",
+    "secretKey": "YOUR_SECRET_KEY"
+  }'
+```
+
+#### 列出云存储
+
+```bash
+curl "http://localhost:8080/api/v1/cloudsync/providers" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+#### 删除云存储
+
+```bash
+curl -X DELETE "http://localhost:8080/api/v1/cloudsync/providers/provider-001" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 同步任务管理
+
+#### 创建同步任务
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/cloudsync/tasks" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "照片备份",
+    "providerId": "provider-001",
+    "localPath": "/data/photos",
+    "remotePath": "/backup/photos",
+    "direction": "bidirect",
+    "mode": "sync",
+    "scheduleType": "realtime",
+    "conflictStrategy": "newer"
+  }'
+```
+
+#### 列出同步任务
+
+```bash
+curl "http://localhost:8080/api/v1/cloudsync/tasks" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+#### 执行同步
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/cloudsync/tasks/task-001/run" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+#### 获取同步状态
+
+```bash
+curl "http://localhost:8080/api/v1/cloudsync/tasks/task-001/status" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "taskId": "task-001",
+    "status": "running",
+    "totalFiles": 1000,
+    "processedFiles": 450,
+    "totalBytes": 1073741824,
+    "transferredBytes": 483183820,
+    "speed": 2048,
+    "progress": 45.0,
+    "currentFile": "/data/photos/IMG_001.jpg",
+    "uploadedFiles": 400,
+    "downloadedFiles": 50
+  }
+}
+```
+
+#### 暂停/恢复/取消同步
+
+```bash
+# 暂停
+curl -X POST "http://localhost:8080/api/v1/cloudsync/tasks/task-001/pause" \
+  -H "Authorization: Bearer TOKEN"
+
+# 恢复
+curl -X POST "http://localhost:8080/api/v1/cloudsync/tasks/task-001/resume" \
+  -H "Authorization: Bearer TOKEN"
+
+# 取消
+curl -X POST "http://localhost:8080/api/v1/cloudsync/tasks/task-001/cancel" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 获取同步统计
+
+```bash
+curl "http://localhost:8080/api/v1/cloudsync/stats" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## 数据去重 🆕
+
+### 扫描重复文件
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/dedup/scan" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "paths": ["/data/photos", "/data/documents"]
+  }'
+```
+
+### 获取重复文件列表
+
+```bash
+curl "http://localhost:8080/api/v1/dedup/duplicates" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "checksum": "sha256:abc123...",
+      "size": 1048576,
+      "files": [
+        {"path": "/data/photos/IMG_001.jpg", "modTime": "2026-03-20T10:00:00Z"},
+        {"path": "/data/backup/IMG_001.jpg", "modTime": "2026-03-19T15:00:00Z"}
+      ],
+      "potentialSaving": 1048576
+    }
+  ]
+}
+```
+
+### 执行去重
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/dedup/deduplicate" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "checksum": "sha256:abc123...",
+    "keepPath": "/data/photos/IMG_001.jpg",
+    "mode": "file",
+    "action": "softlink"
+  }'
+```
+
+### 批量去重
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/dedup/deduplicate/all" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "file",
+    "action": "softlink",
+    "dryRun": true
+  }'
+```
+
+### 获取去重报告
+
+```bash
+curl "http://localhost:8080/api/v1/dedup/report" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "totalFiles": 10000,
+    "duplicateFiles": 1500,
+    "duplicateGroups": 300,
+    "potentialSaving": 5368709120,
+    "potentialSavingHuman": "5.0 GB",
+    "deduplicated": 200,
+    "actualSaving": 1073741824,
+    "actualSavingHuman": "1.0 GB"
+  }
+}
+```
+
+### 获取去重统计
+
+```bash
+curl "http://localhost:8080/api/v1/dedup/stats" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 配置管理
+
+```bash
+# 获取配置
+curl "http://localhost:8080/api/v1/dedup/config" \
+  -H "Authorization: Bearer TOKEN"
+
+# 更新配置
+curl -X PUT "http://localhost:8080/api/v1/dedup/config" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "autoDedup": false,
+    "mode": "file",
+    "action": "softlink",
+    "minFileSize": 1024
+  }'
+```
+
+### 自动去重
+
+```bash
+# 获取自动去重任务
+curl "http://localhost:8080/api/v1/dedup/auto" \
+  -H "Authorization: Bearer TOKEN"
+
+# 启用自动去重
+curl -X POST "http://localhost:8080/api/v1/dedup/auto/enable" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "schedule": "0 3 * * 0"
+  }'
+
+# 手动执行自动去重
+curl -X POST "http://localhost:8080/api/v1/dedup/auto/run" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
 ## 错误处理
 
 ### 错误响应格式
@@ -613,4 +993,4 @@ func main() {
 
 ---
 
-**最后更新**: 2026-03-13
+**最后更新**: 2026-03-20
