@@ -9,6 +9,7 @@ import (
 	"nas-os/internal/ai_classify"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
+	"nas-os/internal/cloudsync"
 	"nas-os/internal/dedup"
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
@@ -78,6 +79,7 @@ type Server struct {
 	aiClassifyMgr *ai_classify.Classifier
 	versioningMgr *versioning.Manager
 	dedupMgr      *dedup.Manager
+	cloudsyncMgr  *cloudsync.Manager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -276,6 +278,14 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ 数据去重模块就绪")
 	}
 
+	// 初始化云同步管理器
+	cloudsyncMgr := cloudsync.NewManager("/etc/nas-os/cloudsync-config.json")
+	if err := cloudsyncMgr.Initialize(); err != nil {
+		log.Printf("⚠️ 云同步初始化警告：%v", err)
+	} else {
+		log.Println("✅ 云同步模块就绪")
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -329,6 +339,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		aiClassifyMgr: aiClassifyMgr,
 		versioningMgr: versioningMgr,
 		dedupMgr:      dedupMgr,
+		cloudsyncMgr:  cloudsyncMgr,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -472,6 +483,11 @@ func (s *Server) setupRoutes() {
 		// ========== 数据去重 ==========
 		if s.dedupMgr != nil {
 			dedup.NewHandlers(s.dedupMgr).RegisterRoutes(api)
+		}
+
+		// ========== 云同步 ==========
+		if s.cloudsyncMgr != nil {
+			cloudsync.NewHandlers(s.cloudsyncMgr).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
