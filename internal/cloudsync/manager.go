@@ -96,7 +96,7 @@ func (m *Manager) CreateProvider(config ProviderConfig) (*ProviderConfig, error)
 
 	m.providers[config.ID] = &config
 
-	if err := m.saveConfig(); err != nil {
+	if err := m.saveConfigLocked(); err != nil {
 		delete(m.providers, config.ID)
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (m *Manager) UpdateProvider(id string, config ProviderConfig) error {
 	// 清除已初始化的客户端
 	delete(m.activeProviders, id)
 
-	return m.saveConfig()
+	return m.saveConfigLocked()
 }
 
 // DeleteProvider 删除提供商
@@ -173,7 +173,7 @@ func (m *Manager) DeleteProvider(id string) error {
 	delete(m.providers, id)
 	delete(m.activeProviders, id)
 
-	return m.saveConfig()
+	return m.saveConfigLocked()
 }
 
 // TestProvider 测试提供商连接
@@ -320,7 +320,7 @@ func (m *Manager) CreateSyncTask(task SyncTask) (*SyncTask, error) {
 
 	m.tasks[task.ID] = &task
 
-	if err := m.saveConfig(); err != nil {
+	if err := m.saveConfigLocked(); err != nil {
 		delete(m.tasks, task.ID)
 		return nil, err
 	}
@@ -378,7 +378,7 @@ func (m *Manager) UpdateSyncTask(id string, task SyncTask) error {
 		m.scheduleTask(&task)
 	}
 
-	return m.saveConfig()
+	return m.saveConfigLocked()
 }
 
 // DeleteSyncTask 删除同步任务
@@ -400,7 +400,7 @@ func (m *Manager) DeleteSyncTask(id string) error {
 	delete(m.tasks, id)
 	delete(m.statuses, id)
 
-	return m.saveConfig()
+	return m.saveConfigLocked()
 }
 
 // ==================== 同步执行 ====================
@@ -642,13 +642,11 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-func (m *Manager) saveConfig() error {
-	m.mu.RLock()
+func (m *Manager) saveConfigLocked() error {
 	cfg := configData{
 		Providers: m.providers,
 		Tasks:     m.tasks,
 	}
-	m.mu.RUnlock()
 
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
