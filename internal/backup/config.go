@@ -223,8 +223,39 @@ func (m *Manager) HealthCheck() *HealthCheckResult {
 		})
 	}
 
-	// 检查 4: 云端连接（如果配置）
-	// TODO: 实现云端连接检查
+	// 检查 4: 云端连接（遍历所有配置）
+	cloudConfigsChecked := 0
+	cloudConfigsPassed := 0
+	m.mu.RLock()
+	for _, cfg := range m.configs {
+		if cfg.CloudBackup && cfg.CloudConfig != nil {
+			cloudConfigsChecked++
+			if err := m.checkCloudConnection(cfg.CloudConfig); err != nil {
+				result.Checks = append(result.Checks, Check{
+					Name:    "cloud_connection",
+					Status:  "warn",
+					Message: fmt.Sprintf("云端连接异常 (%s): %v", cfg.Name, err),
+				})
+				result.Recommendations = append(result.Recommendations, fmt.Sprintf("检查 %s 的云端配置和网络连接", cfg.Name))
+				if result.Status == "healthy" {
+					result.Status = "warning"
+				}
+			} else {
+				cloudConfigsPassed++
+			}
+		}
+	}
+	m.mu.RUnlock()
+
+	if cloudConfigsChecked > 0 {
+		if cloudConfigsPassed == cloudConfigsChecked {
+			result.Checks = append(result.Checks, Check{
+				Name:    "cloud_connection",
+				Status:  "pass",
+				Message: fmt.Sprintf("云端连接正常 (%d/%d)", cloudConfigsPassed, cloudConfigsChecked),
+			})
+		}
+	}
 
 	return result
 }
