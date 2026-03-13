@@ -312,11 +312,9 @@ type OptimizedManager struct {
 }
 
 type thumbnailRequest struct {
-	path     string
-	size     int64
-	modTime  time.Time
+	path      string
 	thumbSize uint
-	result   chan<- thumbnailResult
+	result    chan<- thumbnailResult
 }
 
 type thumbnailResult struct {

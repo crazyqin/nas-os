@@ -304,8 +304,8 @@ func (s *Server) handlePropfind(w http.ResponseWriter, r *http.Request, fullPath
 
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	w.WriteHeader(http.StatusMultiStatus)
-	w.Write([]byte(`<?xml version="1.0" encoding="utf-8"?>`))
-	w.Write(output)
+	_, _ = w.Write([]byte(`<?xml version="1.0" encoding="utf-8"?>`))
+	_, _ = w.Write(output)
 }
 
 // parsePropfind 解析 PROPFIND 请求
@@ -434,8 +434,8 @@ func (s *Server) handleProppatch(w http.ResponseWriter, r *http.Request, fullPat
 
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	w.WriteHeader(http.StatusMultiStatus)
-	w.Write([]byte(`<?xml version="1.0" encoding="utf-8"?>`))
-	w.Write(output)
+	_, _ = w.Write([]byte(`<?xml version="1.0" encoding="utf-8"?>`))
+	_, _ = w.Write(output)
 }
 
 // handleGet 处理 GET 请求（下载文件）
@@ -551,7 +551,7 @@ func (s *Server) handlePut(w http.ResponseWriter, r *http.Request, fullPath, use
 
 	// 更新配额
 	if s.quotaProvider != nil && username != "" && written > 0 {
-		s.quotaProvider.ConsumeQuota(username, written)
+		_ = s.quotaProvider.ConsumeQuota(username, written)
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -591,7 +591,7 @@ func (s *Server) handleDelete(w http.ResponseWriter, r *http.Request, fullPath, 
 
 	// 释放配额
 	if s.quotaProvider != nil && username != "" && size > 0 {
-		s.quotaProvider.ReleaseQuota(username, size)
+		_ = s.quotaProvider.ReleaseQuota(username, size)
 	}
 
 	w.WriteHeader(http.StatusNoContent)
