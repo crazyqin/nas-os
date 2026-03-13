@@ -383,11 +383,63 @@ curl http://localhost:8080/api/v1/trash \
   -H "Authorization: Bearer TOKEN"
 ```
 
+**响应**:
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": [
+    {
+      "id": "trash-1710123456789",
+      "name": "old_file.txt",
+      "original_path": "/data/documents/old_file.txt",
+      "size": 1024,
+      "is_dir": false,
+      "deleted_at": "2026-03-20T10:00:00Z",
+      "expires_at": "2026-04-19T10:00:00Z",
+      "days_left": 30
+    }
+  ]
+}
+```
+
+### 获取回收站文件详情
+
+```bash
+curl http://localhost:8080/api/v1/trash/trash-1710123456789 \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "id": "trash-1710123456789",
+    "name": "old_file.txt",
+    "original_path": "/data/documents/old_file.txt",
+    "size": 1024,
+    "is_dir": false,
+    "deleted_at": "2026-03-20T10:00:00Z",
+    "expires_at": "2026-04-19T10:00:00Z",
+    "days_left": 30
+  }
+}
+```
+
 ### 恢复文件
 
 ```bash
+# 恢复到原始路径
 curl -X POST http://localhost:8080/api/v1/trash/trash-123/restore \
   -H "Authorization: Bearer TOKEN"
+
+# 恢复到指定路径
+curl -X POST http://localhost:8080/api/v1/trash/trash-123/restore \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"target_path": "/data/restored/file.txt"}'
 ```
 
 ### 永久删除
@@ -402,6 +454,60 @@ curl -X DELETE http://localhost:8080/api/v1/trash/trash-123 \
 ```bash
 curl -X DELETE http://localhost:8080/api/v1/trash \
   -H "Authorization: Bearer TOKEN"
+```
+
+### 获取回收站配置
+
+```bash
+curl http://localhost:8080/api/v1/trash/config \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "enabled": true,
+    "retention_days": 30,
+    "max_size": 10737418240,
+    "auto_empty": true
+  }
+}
+```
+
+### 更新回收站配置
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/trash/config \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "retention_days": 60,
+    "max_size": 21474836480
+  }'
+```
+
+### 获取回收站统计
+
+```bash
+curl http://localhost:8080/api/v1/trash/stats \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "total_items": 15,
+    "total_size": 5368709120,
+    "max_size": 10737418240,
+    "usage_percent": 50.0,
+    "retention_days": 30,
+    "enabled": true
+  }
+}
 ```
 
 ---

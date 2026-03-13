@@ -349,3 +349,40 @@ func TestConfigPersistence(t *testing.T) {
 
 	_ = mgr1
 }
+
+func TestGet(t *testing.T) {
+	mgr, _, cleanup := setupTestManager(t)
+	defer cleanup()
+
+	// 创建测试文件
+	tmpFile := filepath.Join(t.TempDir(), "testfile.txt")
+	if err := os.WriteFile(tmpFile, []byte("test content"), 0644); err != nil {
+		t.Fatalf("创建测试文件失败：%v", err)
+	}
+
+	// 移动到回收站
+	item, err := mgr.MoveToTrash(tmpFile, "user1")
+	if err != nil {
+		t.Fatalf("MoveToTrash 失败：%v", err)
+	}
+
+	// 获取项目
+	gotItem, err := mgr.Get(item.ID)
+	if err != nil {
+		t.Fatalf("Get 失败：%v", err)
+	}
+
+	if gotItem.ID != item.ID {
+		t.Errorf("期望 ID=%s, 得到 %s", item.ID, gotItem.ID)
+	}
+
+	if gotItem.Name != "testfile.txt" {
+		t.Errorf("期望 Name=testfile.txt, 得到 %s", gotItem.Name)
+	}
+
+	// 获取不存在的项目
+	_, err = mgr.Get("nonexistent")
+	if err == nil {
+		t.Error("期望获取不存在的项目失败")
+	}
+}
