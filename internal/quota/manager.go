@@ -145,9 +145,9 @@ func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 	}
 
 	quota := &Quota{
-		ID:         generateID(),
-		Type:       input.Type,
-		TargetID:   input.TargetID,
+		ID:       generateID(),
+		Type:     input.Type,
+		TargetID: input.TargetID,
 		TargetName: func() string {
 			if input.Type == QuotaTypeDirectory {
 				return input.Path
