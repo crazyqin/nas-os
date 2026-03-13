@@ -92,7 +92,7 @@ func (m *Manager) Set(key string, value interface{}) {
 	
 	// Also store in redis if enabled
 	if m.redisCache != nil {
-		m.redisCache.Set(key, value)
+		_ = m.redisCache.Set(key, value)
 	}
 }
 
@@ -100,7 +100,7 @@ func (m *Manager) Set(key string, value interface{}) {
 func (m *Manager) Delete(key string) {
 	m.memoryCache.Delete(key)
 	if m.redisCache != nil {
-		m.redisCache.Delete(key)
+		_ = m.redisCache.Delete(key)
 	}
 }
 
