@@ -2,9 +2,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v1.8.0 Stable (2026-03-20)  
+> **最新版本**: v2.2.0 Stable (2026-03-21)  
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)  
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v1.8.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.2.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -198,9 +198,21 @@ nas-os/
 | v1.5.x | Stable | 2026-03-13 | 监控告警系统 + WebUI | ✅ 已发布 |
 | v1.6.0 | Stable | 2026-03-13 | 性能优化 + CI/CD 完善 | ✅ 已发布 |
 | v1.7.0 | Stable | 2026-03-13 | 配额/回收站/WebDAV/复制/AI | ✅ 已发布 |
-| **v1.8.0** | **Stable** | **2026-03-20** | **版本控制/云同步/去重** | ✅ **已发布** |
+| v1.8.0 | Stable | 2026-03-20 | 版本控制/云同步/去重 | ✅ 已发布 |
+| v2.0.0 | Stable | 2026-04-01 | 存储复制/回收站增强 | ✅ 已发布 |
+| **v2.2.0** | **Stable** | **2026-03-21** | **iSCSI/快照策略/仪表板增强/性能监控** | ✅ **已发布** |
 
-## v1.8.0 新增功能
+## v2.2.0 新增功能
+
+| 功能 | 说明 |
+|------|------|
+| 🎯 iSCSI 目标 | iSCSI Target 服务，支持 LUN 管理和 CHAP 认证 |
+| 📸 快照策略 | 自动化快照调度，支持多种保留策略 |
+| 🖥️ 仪表板增强 | 全新 WebUI 仪表板，可自定义小部件布局 |
+| 📊 性能监控增强 | 性能基线学习、异常检测、优化建议 |
+
+<details>
+<summary>v1.8.0 新增功能</summary>
 
 | 功能 | 说明 |
 |------|------|
