@@ -10,20 +10,20 @@ import (
 
 // TransferLog 传输日志记录
 type TransferLog struct {
-	ID          string    `json:"id"`
-	Timestamp   time.Time `json:"timestamp"`
-	Username    string    `json:"username"`
-	ClientIP    string    `json:"client_ip"`
-	SessionID   string    `json:"session_id"`
-	Direction   string    `json:"direction"` // "upload" or "download"
-	FilePath    string    `json:"file_path"`
-	FileSize    int64     `json:"file_size"`
-	BytesTrans  int64     `json:"bytes_transferred"`
-	Duration    int64     `json:"duration_ms"`
-	Success     bool      `json:"success"`
-	Error       string    `json:"error,omitempty"`
-	Bandwidth   int64     `json:"bandwidth_bps"`
-	Method      string    `json:"method"` // sftp
+	ID         string    `json:"id"`
+	Timestamp  time.Time `json:"timestamp"`
+	Username   string    `json:"username"`
+	ClientIP   string    `json:"client_ip"`
+	SessionID  string    `json:"session_id"`
+	Direction  string    `json:"direction"` // "upload" or "download"
+	FilePath   string    `json:"file_path"`
+	FileSize   int64     `json:"file_size"`
+	BytesTrans int64     `json:"bytes_transferred"`
+	Duration   int64     `json:"duration_ms"`
+	Success    bool      `json:"success"`
+	Error      string    `json:"error,omitempty"`
+	Bandwidth  int64     `json:"bandwidth_bps"`
+	Method     string    `json:"method"` // sftp
 }
 
 // TransferLogger 传输日志管理器
@@ -115,8 +115,12 @@ func (l *TransferLogger) Log(log *TransferLog) {
 	if l.logFile != nil {
 		data, err := json.Marshal(log)
 		if err == nil {
-			l.logFile.Write(data)
-			l.logFile.Write([]byte("\n"))
+			if _, writeErr := l.logFile.Write(data); writeErr != nil {
+				// 写入失败，忽略
+			}
+			if _, writeErr := l.logFile.Write([]byte("\n")); writeErr != nil {
+				// 写入失败，忽略
+			}
 		}
 
 		if l.maxSize > 0 {
@@ -247,7 +251,7 @@ func (l *TransferLogger) rotateLog() {
 
 	l.logFile.Close()
 	backup := l.logPath + "." + time.Now().Format("20060102-150405")
-	os.Rename(l.logPath, backup)
+	_ = os.Rename(l.logPath, backup)
 	l.initLogFile()
 }
 
@@ -307,15 +311,15 @@ func (f *TransferLogFilter) Match(log *TransferLog) bool {
 
 // TransferStats 传输统计
 type TransferStats struct {
-	StartTime          time.Time `json:"start_time"`
-	TotalTransfers     int       `json:"total_transfers"`
-	Uploads            int       `json:"uploads"`
-	Downloads          int       `json:"downloads"`
-	SuccessfulTransfers int      `json:"successful_transfers"`
-	FailedTransfers    int       `json:"failed_transfers"`
-	TotalUploadBytes   int64     `json:"total_upload_bytes"`
-	TotalDownloadBytes int64     `json:"total_download_bytes"`
-	AvgBandwidth       int64     `json:"avg_bandwidth_bps"`
+	StartTime           time.Time `json:"start_time"`
+	TotalTransfers      int       `json:"total_transfers"`
+	Uploads             int       `json:"uploads"`
+	Downloads           int       `json:"downloads"`
+	SuccessfulTransfers int       `json:"successful_transfers"`
+	FailedTransfers     int       `json:"failed_transfers"`
+	TotalUploadBytes    int64     `json:"total_upload_bytes"`
+	TotalDownloadBytes  int64     `json:"total_download_bytes"`
+	AvgBandwidth        int64     `json:"avg_bandwidth_bps"`
 }
 
 // generateTransferID 生成传输 ID
