@@ -24,14 +24,14 @@ func NewRedisCache(addr, password string, db int) (*RedisCache, error) {
 		Password: password,
 		DB:       db,
 	})
-	
+
 	ctx := context.Background()
-	
+
 	// Test connection
 	if err := client.Ping(ctx).Err(); err != nil {
 		return nil, err
 	}
-	
+
 	return &RedisCache{
 		client: client,
 		ctx:    ctx,
@@ -56,14 +56,14 @@ func (r *RedisCache) Get(key string) (interface{}, bool) {
 		}
 		return nil, false
 	}
-	
+
 	// Try to unmarshal as JSON first
 	var result interface{}
 	if err := json.Unmarshal(val, &result); err != nil {
 		// If not JSON, return as string
 		return string(val), true
 	}
-	
+
 	return result, true
 }
 
@@ -78,7 +78,7 @@ func (r *RedisCache) SetWithTTL(key string, value interface{}, ttl time.Duration
 	if err != nil {
 		return err
 	}
-	
+
 	return r.client.Set(r.ctx, r.prefix+key, data, ttl).Err()
 }
 
@@ -99,7 +99,7 @@ func (r *RedisCache) Clear() error {
 	if err != nil {
 		return err
 	}
-	
+
 	if len(keys) > 0 {
 		return r.client.Del(r.ctx, keys...).Err()
 	}

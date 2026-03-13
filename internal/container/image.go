@@ -11,17 +11,17 @@ import (
 
 // Image 镜像信息
 type Image struct {
-	ID          string    `json:"id"`
-	Repository  string    `json:"repository"`
-	Tag         string    `json:"tag"`
-	FullName    string    `json:"fullName"`
-	Size        uint64    `json:"size"`
-	SizeHuman   string    `json:"sizeHuman"`
-	Created     time.Time `json:"created"`
-	Containers  int       `json:"containers"` // 使用该镜像的容器数
-	Labels      map[string]string `json:"labels"`
-	Architecture string   `json:"architecture"`
-	OS          string    `json:"os"`
+	ID           string            `json:"id"`
+	Repository   string            `json:"repository"`
+	Tag          string            `json:"tag"`
+	FullName     string            `json:"fullName"`
+	Size         uint64            `json:"size"`
+	SizeHuman    string            `json:"sizeHuman"`
+	Created      time.Time         `json:"created"`
+	Containers   int               `json:"containers"` // 使用该镜像的容器数
+	Labels       map[string]string `json:"labels"`
+	Architecture string            `json:"architecture"`
+	OS           string            `json:"os"`
 }
 
 // ImagePullProgress 镜像拉取进度
@@ -108,13 +108,13 @@ func (im *ImageManager) GetImage(id string) (*Image, error) {
 	}
 
 	var raw struct {
-		ID          string    `json:"Id"`
-		RepoTags    []string  `json:"RepoTags"`
-		Size        uint64    `json:"Size"`
-		Created     time.Time `json:"Created"`
-		Architecture string  `json:"Architecture"`
-		OS          string    `json:"Os"`
-		Config      struct {
+		ID           string    `json:"Id"`
+		RepoTags     []string  `json:"RepoTags"`
+		Size         uint64    `json:"Size"`
+		Created      time.Time `json:"Created"`
+		Architecture string    `json:"Architecture"`
+		OS           string    `json:"Os"`
+		Config       struct {
 			Labels map[string]string `json:"Labels"`
 		} `json:"Config"`
 	}
@@ -317,10 +317,10 @@ func (im *ImageManager) SearchImages(term string, limit int) ([]*Image, error) {
 			Tag:        "latest",
 			FullName:   raw.Name,
 			Labels: map[string]string{
-				"description":   raw.Description,
-				"star_count":    fmt.Sprintf("%d", raw.StarCount),
-				"is_official":   fmt.Sprintf("%t", raw.IsOfficial),
-				"is_automated":  fmt.Sprintf("%t", raw.IsAutomated),
+				"description":  raw.Description,
+				"star_count":   fmt.Sprintf("%d", raw.StarCount),
+				"is_official":  fmt.Sprintf("%t", raw.IsOfficial),
+				"is_automated": fmt.Sprintf("%t", raw.IsAutomated),
 			},
 		})
 	}

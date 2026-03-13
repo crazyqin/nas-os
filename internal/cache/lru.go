@@ -16,10 +16,10 @@ type LRUCache struct {
 }
 
 type cacheItem struct {
-	key       interface{}
-	value     interface{}
-	expiry    time.Time
-	hitCount  int64
+	key        interface{}
+	value      interface{}
+	expiry     time.Time
+	hitCount   int64
 	lastAccess time.Time
 }
 
@@ -44,7 +44,7 @@ func (c *LRUCache) Get(key interface{}) (interface{}, bool) {
 	}
 
 	item := elem.Value.(*cacheItem)
-	
+
 	// Check if expired
 	if time.Now().After(item.expiry) {
 		c.removeElement(elem)
@@ -148,7 +148,7 @@ func (c *LRUCache) Cleanup() int {
 
 	now := time.Now()
 	removed := 0
-	
+
 	for elem := c.lru.Front(); elem != nil; {
 		next := elem.Next()
 		item := elem.Value.(*cacheItem)
@@ -158,6 +158,6 @@ func (c *LRUCache) Cleanup() int {
 		}
 		elem = next
 	}
-	
+
 	return removed
 }

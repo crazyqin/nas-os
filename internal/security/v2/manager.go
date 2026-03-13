@@ -49,12 +49,12 @@ func NewSecurityManagerV2() *SecurityManagerV2 {
 				EncryptedPrefix: ".encrypted_",
 			},
 			Alerting: AlertingConfig{
-				Enabled:         true,
-				EmailEnabled:    false,
-				WeComEnabled:    false,
-				WebhookEnabled:  false,
-				MinSeverity:     "medium",
-				RateLimit:       10,
+				Enabled:        true,
+				EmailEnabled:   false,
+				WeComEnabled:   false,
+				WebhookEnabled: false,
+				MinSeverity:    "medium",
+				RateLimit:      10,
 			},
 		},
 	}
@@ -136,10 +136,10 @@ func (sm *SecurityManagerV2) GetSecurityDashboard() map[string]interface{} {
 	encryptionStatus := sm.getEncryptionStatus()
 
 	return map[string]interface{}{
-		"mfa":         mfaStats,
-		"alerting":    alertStats,
-		"encryption":  encryptionStatus,
-		"timestamp":   time.Now().Format(time.RFC3339),
+		"mfa":        mfaStats,
+		"alerting":   alertStats,
+		"encryption": encryptionStatus,
+		"timestamp":  time.Now().Format(time.RFC3339),
 	}
 }
 
@@ -169,12 +169,12 @@ func (sm *SecurityManagerV2) getMFAStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total_users":     totalUsers,
-		"enabled_users":   enabledUsers,
-		"totp_enabled":    totpEnabled,
-		"sms_enabled":     smsEnabled,
-		"email_enabled":   emailEnabled,
-		"coverage_rate":   float64(enabledUsers) / float64(totalUsers) * 100,
+		"total_users":   totalUsers,
+		"enabled_users": enabledUsers,
+		"totp_enabled":  totpEnabled,
+		"sms_enabled":   smsEnabled,
+		"email_enabled": emailEnabled,
+		"coverage_rate": float64(enabledUsers) / float64(totalUsers) * 100,
 	}
 }
 
@@ -183,9 +183,9 @@ func (sm *SecurityManagerV2) getEncryptionStatus() map[string]interface{} {
 	isInitialized := sm.encryption.IsInitialized()
 
 	return map[string]interface{}{
-		"initialized":        isInitialized,
-		"encrypted_dirs":     len(dirs),
-		"algorithm":          sm.config.Encryption.Algorithm,
-		"key_derivation":     sm.config.Encryption.KeyDerivation,
+		"initialized":    isInitialized,
+		"encrypted_dirs": len(dirs),
+		"algorithm":      sm.config.Encryption.Algorithm,
+		"key_derivation": sm.config.Encryption.KeyDerivation,
 	}
 }

@@ -9,10 +9,10 @@ import (
 
 // Handler VM HTTP 处理器
 type Handler struct {
-	manager        *Manager
-	isoManager     *ISOManager
+	manager         *Manager
+	isoManager      *ISOManager
 	snapshotManager *SnapshotManager
-	logger         *zap.Logger
+	logger          *zap.Logger
 }
 
 // NewHandler 创建 VM 处理器
@@ -101,7 +101,7 @@ func (h *Handler) handleListVMs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	vms := h.manager.ListVMs()
 	h.jsonResponse(w, vms)
 }
@@ -112,7 +112,7 @@ func (h *Handler) handleVM(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "VM ID required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		h.getVM(w, r, vmID)
@@ -133,7 +133,7 @@ func (h *Handler) getVM(w http.ResponseWriter, r *http.Request, vmID string) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	
+
 	h.jsonResponse(w, vm)
 }
 
@@ -143,7 +143,7 @@ func (h *Handler) updateVM(w http.ResponseWriter, r *http.Request, vmID string) 
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	
+
 	// TODO: 实现 VM 更新
 	h.jsonResponse(w, map[string]string{"status": "not implemented"})
 }
@@ -153,12 +153,12 @@ func (h *Handler) vmAction(w http.ResponseWriter, r *http.Request, vmID string) 
 		Action string `json:"action"`
 		Force  bool   `json:"force"`
 	}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	
+
 	var err error
 	switch action.Action {
 	case "start":
@@ -184,24 +184,24 @@ func (h *Handler) vmAction(w http.ResponseWriter, r *http.Request, vmID string) 
 		http.Error(w, "Unknown action: "+action.Action, http.StatusBadRequest)
 		return
 	}
-	
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	h.jsonResponse(w, map[string]string{"status": "success"})
 }
 
 func (h *Handler) deleteVM(w http.ResponseWriter, r *http.Request, vmID string) {
 	force := r.URL.Query().Get("force") == "true"
-	
+
 	err := h.manager.DeleteVM(r.Context(), vmID, force)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	h.jsonResponse(w, map[string]string{"status": "success"})
 }
 
@@ -212,7 +212,7 @@ func (h *Handler) handleListISOs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	isos := h.isoManager.ListISOs()
 	h.jsonResponse(w, isos)
 }
@@ -223,7 +223,7 @@ func (h *Handler) handleISO(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "ISO ID required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		h.getISO(w, r, isoID)
@@ -242,7 +242,7 @@ func (h *Handler) getISO(w http.ResponseWriter, r *http.Request, isoID string) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	
+
 	h.jsonResponse(w, iso)
 }
 
@@ -252,7 +252,7 @@ func (h *Handler) deleteISO(w http.ResponseWriter, r *http.Request, isoID string
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	h.jsonResponse(w, map[string]string{"status": "success"})
 }
 
@@ -260,12 +260,12 @@ func (h *Handler) isoAction(w http.ResponseWriter, r *http.Request, isoID string
 	var action struct {
 		Action string `json:"action"`
 	}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch action.Action {
 	case "download":
 		// 异步下载
@@ -288,10 +288,10 @@ func (h *Handler) handleListSnapshots(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	vmID := r.URL.Query().Get("vmId")
 	var snapshots []*VMSnapshot
-	
+
 	if vmID != "" {
 		snapshots = h.snapshotManager.ListSnapshots(vmID)
 	} else {
@@ -299,7 +299,7 @@ func (h *Handler) handleListSnapshots(w http.ResponseWriter, r *http.Request) {
 		h.jsonResponse(w, map[string]interface{}{"snapshots": "query vmId required"})
 		return
 	}
-	
+
 	h.jsonResponse(w, snapshots)
 }
 
@@ -309,7 +309,7 @@ func (h *Handler) handleSnapshot(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Snapshot ID required", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch r.Method {
 	case http.MethodGet:
 		h.getSnapshot(w, r, snapshotID)
@@ -328,7 +328,7 @@ func (h *Handler) getSnapshot(w http.ResponseWriter, r *http.Request, snapshotID
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	
+
 	h.jsonResponse(w, snapshot)
 }
 
@@ -336,12 +336,12 @@ func (h *Handler) snapshotAction(w http.ResponseWriter, r *http.Request, snapsho
 	var action struct {
 		Action string `json:"action"`
 	}
-	
+
 	if err := json.NewDecoder(r.Body).Decode(&action); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	
+
 	switch action.Action {
 	case "restore":
 		err := h.snapshotManager.RestoreSnapshot(r.Context(), snapshotID)
@@ -361,7 +361,7 @@ func (h *Handler) deleteSnapshot(w http.ResponseWriter, r *http.Request, snapsho
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 	h.jsonResponse(w, map[string]string{"status": "success"})
 }
 
@@ -372,7 +372,7 @@ func (h *Handler) handleListTemplates(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	// TODO: 实现模板列表
 	h.jsonResponse(w, []VMTemplate{})
 }
@@ -384,7 +384,7 @@ func (h *Handler) handleUSBDevices(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	// TODO: 实现 USB 设备列表
 	h.jsonResponse(w, []USBDevice{})
 }
@@ -394,7 +394,7 @@ func (h *Handler) handlePCIDevices(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	// TODO: 实现 PCIe 设备列表
 	h.jsonResponse(w, []PCIDevice{})
 }
@@ -431,13 +431,13 @@ func (h *Handler) handleCreateVM(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	
+
 	var req CreateVMRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	
+
 	vmType := VMTypeLinux
 	switch req.Type {
 	case "windows":
@@ -445,7 +445,7 @@ func (h *Handler) handleCreateVM(w http.ResponseWriter, r *http.Request) {
 	case "other":
 		vmType = VMTypeOther
 	}
-	
+
 	config := VMConfig{
 		Name:        req.Name,
 		Description: req.Description,
@@ -460,13 +460,13 @@ func (h *Handler) handleCreateVM(w http.ResponseWriter, r *http.Request) {
 		PCIDevices:  req.PCIDevices,
 		Tags:        req.Tags,
 	}
-	
+
 	vm, err := h.manager.CreateVM(r.Context(), config)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusCreated)
 	h.jsonResponse(w, vm)
 }

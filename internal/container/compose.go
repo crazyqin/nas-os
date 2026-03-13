@@ -15,22 +15,22 @@ import (
 
 // ComposeService Compose 服务定义
 type ComposeService struct {
-	Name        string                 `json:"name"`
-	Image       string                 `json:"image"`
-	Container   string                 `json:"container,omitempty"`
-	Build       interface{}            `json:"build,omitempty"`
-	Command     interface{}            `json:"command,omitempty"`
-	Volumes     []string               `json:"volumes,omitempty"`
-	Ports       []string               `json:"ports,omitempty"`
-	Environment map[string]string      `json:"environment,omitempty"`
-	EnvFile     []string               `json:"envFile,omitempty"`
-	Networks    []string               `json:"networks,omitempty"`
-	DependsOn   []string               `json:"dependsOn,omitempty"`
-	Restart     string                 `json:"restart,omitempty"`
-	CPULimit    string                 `json:"cpuLimit,omitempty"`
-	MemLimit    string                 `json:"memLimit,omitempty"`
-	Labels      map[string]string      `json:"labels,omitempty"`
-	HealthCheck *HealthCheckConfig     `json:"healthCheck,omitempty"`
+	Name        string             `json:"name"`
+	Image       string             `json:"image"`
+	Container   string             `json:"container,omitempty"`
+	Build       interface{}        `json:"build,omitempty"`
+	Command     interface{}        `json:"command,omitempty"`
+	Volumes     []string           `json:"volumes,omitempty"`
+	Ports       []string           `json:"ports,omitempty"`
+	Environment map[string]string  `json:"environment,omitempty"`
+	EnvFile     []string           `json:"envFile,omitempty"`
+	Networks    []string           `json:"networks,omitempty"`
+	DependsOn   []string           `json:"dependsOn,omitempty"`
+	Restart     string             `json:"restart,omitempty"`
+	CPULimit    string             `json:"cpuLimit,omitempty"`
+	MemLimit    string             `json:"memLimit,omitempty"`
+	Labels      map[string]string  `json:"labels,omitempty"`
+	HealthCheck *HealthCheckConfig `json:"healthCheck,omitempty"`
 }
 
 // HealthCheckConfig 健康检查配置
@@ -304,7 +304,7 @@ func (cm *ComposeManager) DeployWithProgress(composePath string, progressChan ch
 	}
 
 	total := len(project.Services)
-	
+
 	// 发送开始进度
 	progressChan <- &DeployProgress{
 		Current: 0,
@@ -316,10 +316,10 @@ func (cm *ComposeManager) DeployWithProgress(composePath string, progressChan ch
 	dir := filepath.Dir(composePath)
 	cmd := exec.Command("docker", "compose", "-f", composePath, "up", "-d", "--build")
 	cmd.Dir = dir
-	
+
 	// 捕获输出
 	output, err := cmd.CombinedOutput()
-	
+
 	current := 0
 	for _, service := range project.Services {
 		current++

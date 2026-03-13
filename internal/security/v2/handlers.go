@@ -137,8 +137,8 @@ func (h *HandlersV2) getMFAStatus(c *gin.Context) {
 }
 
 type SetupMFARequest struct {
-	Phone  string `json:"phone"`
-	Email  string `json:"email"`
+	Phone string `json:"phone"`
+	Email string `json:"email"`
 }
 
 func (h *HandlersV2) setupMFA(c *gin.Context) {
@@ -159,10 +159,10 @@ func (h *HandlersV2) setupMFA(c *gin.Context) {
 
 	// 返回 TOTP 密钥和恢复码（仅显示一次）
 	c.JSON(http.StatusOK, success(map[string]interface{}{
-		"totp_secret":     secret.TOTPSecret,
-		"totp_uri":        h.generateTOTPURI(username, secret.TOTPSecret),
-		"recovery_codes":  secret.RecoveryCodes, // 实际应该返回明文，这里简化
-		"message":         "请安全保存恢复码，它们只会显示一次",
+		"totp_secret":    secret.TOTPSecret,
+		"totp_uri":       h.generateTOTPURI(username, secret.TOTPSecret),
+		"recovery_codes": secret.RecoveryCodes, // 实际应该返回明文，这里简化
+		"message":        "请安全保存恢复码，它们只会显示一次",
 	}))
 }
 

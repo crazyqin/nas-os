@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	ErrPoolClosed   = errors.New("worker pool is closed")
-	ErrPoolTimeout  = errors.New("worker pool timeout")
-	ErrQueueFull    = errors.New("worker queue is full")
+	ErrPoolClosed  = errors.New("worker pool is closed")
+	ErrPoolTimeout = errors.New("worker pool timeout")
+	ErrQueueFull   = errors.New("worker queue is full")
 )
 
 // Task represents a unit of work
@@ -20,28 +20,28 @@ type Task func() error
 
 // WorkerPool manages a pool of worker goroutines
 type WorkerPool struct {
-	workers    int
-	maxQueue   int
-	taskChan   chan Task
-	errChan    chan error
-	wg         sync.WaitGroup
-	ctx        context.Context
-	cancel     context.CancelFunc
-	closed     bool
-	mu         sync.Mutex
-	
+	workers  int
+	maxQueue int
+	taskChan chan Task
+	errChan  chan error
+	wg       sync.WaitGroup
+	ctx      context.Context
+	cancel   context.CancelFunc
+	closed   bool
+	mu       sync.Mutex
+
 	// Statistics
 	submitted int64
 	completed int64
 	failed    int64
-	
+
 	logger *zap.Logger
 }
 
 // NewWorkerPool creates a new worker pool
 func NewWorkerPool(workers, maxQueue int, logger *zap.Logger) *WorkerPool {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	pool := &WorkerPool{
 		workers:  workers,
 		maxQueue: maxQueue,
@@ -51,20 +51,20 @@ func NewWorkerPool(workers, maxQueue int, logger *zap.Logger) *WorkerPool {
 		cancel:   cancel,
 		logger:   logger,
 	}
-	
+
 	// Start workers
 	for i := 0; i < workers; i++ {
 		pool.wg.Add(1)
 		go pool.worker(i)
 	}
-	
+
 	return pool
 }
 
 // worker is the main worker loop
 func (p *WorkerPool) worker(id int) {
 	defer p.wg.Done()
-	
+
 	for {
 		select {
 		case <-p.ctx.Done():
@@ -73,12 +73,12 @@ func (p *WorkerPool) worker(id int) {
 			if !ok {
 				return
 			}
-			
+
 			if err := task(); err != nil {
 				p.mu.Lock()
 				p.failed++
 				p.mu.Unlock()
-				
+
 				select {
 				case p.errChan <- err:
 				default:
@@ -104,7 +104,7 @@ func (p *WorkerPool) Submit(task Task) error {
 		return ErrPoolClosed
 	}
 	p.mu.Unlock()
-	
+
 	select {
 	case p.taskChan <- task:
 		p.mu.Lock()
@@ -121,17 +121,17 @@ func (p *WorkerPool) Submit(task Task) error {
 // SubmitWait submits a task and waits for completion
 func (p *WorkerPool) SubmitWait(task Task, timeout time.Duration) error {
 	done := make(chan error, 1)
-	
+
 	err := p.Submit(func() error {
 		err := task()
 		done <- err
 		return err
 	})
-	
+
 	if err != nil {
 		return err
 	}
-	
+
 	select {
 	case err := <-done:
 		return err
@@ -151,7 +151,7 @@ func (p *WorkerPool) Close() {
 	}
 	p.closed = true
 	p.mu.Unlock()
-	
+
 	p.cancel()
 	close(p.taskChan)
 	p.wg.Wait()
@@ -162,15 +162,15 @@ func (p *WorkerPool) Close() {
 func (p *WorkerPool) Stats() PoolStats {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	
+
 	return PoolStats{
-		Workers:     p.workers,
-		QueueSize:   len(p.taskChan),
-		MaxQueue:    p.maxQueue,
-		Submitted:   p.submitted,
-		Completed:   p.completed,
-		Failed:      p.failed,
-		Pending:     int64(len(p.taskChan)),
+		Workers:   p.workers,
+		QueueSize: len(p.taskChan),
+		MaxQueue:  p.maxQueue,
+		Submitted: p.submitted,
+		Completed: p.completed,
+		Failed:    p.failed,
+		Pending:   int64(len(p.taskChan)),
 	}
 }
 
