@@ -434,16 +434,16 @@ func (m *Manager) allocateVNCPort() int {
 func (m *Manager) saveVMConfig(vm *VM) error {
 	vmDir := filepath.Join(m.storagePath, vm.ID)
 	configPath := filepath.Join(vmDir, "config.json")
-	
+
 	data, err := json.MarshalIndent(vm, "", "  ")
 	if err != nil {
 		return fmt.Errorf("序列化 VM 配置失败：%w", err)
 	}
-	
+
 	if err := os.WriteFile(configPath, data, 0644); err != nil {
 		return fmt.Errorf("写入 VM 配置文件失败：%w", err)
 	}
-	
+
 	return nil
 }
 
@@ -453,12 +453,12 @@ func loadVMConfig(configPath string) (*VM, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var vm VM
 	if err := json.Unmarshal(data, &vm); err != nil {
 		return nil, fmt.Errorf("解析 VM 配置失败：%w", err)
 	}
-	
+
 	return &vm, nil
 }
 
@@ -758,11 +758,11 @@ func (m *Manager) ListUSBDevices() ([]*USBDevice, error) {
 		description := strings.Join(idFields[1:], " ")
 
 		devices = append(devices, &USBDevice{
-			ID:       idStr,
-			VendorID: idParts[0],
+			ID:        idStr,
+			VendorID:  idParts[0],
 			ProductID: idParts[1],
-			Product:  description,
-			InUse:    inUse,
+			Product:   description,
+			InUse:     inUse,
 		})
 	}
 
@@ -795,7 +795,7 @@ func (m *Manager) ListPCIDevices() ([]*PCIDevice, error) {
 		}
 
 		bdf := strings.Trim(fields[0], `"`)
-		
+
 		// 提取 vendor:device ID
 		var vendorID, deviceID, name string
 		for i, field := range fields {
@@ -887,23 +887,23 @@ func (m *Manager) getLibvirtStats(vmName string) (*VMStats, error) {
 
 	stats := &VMStats{}
 	lines := strings.Split(string(output), "\n")
-	
+
 	var memoryTotal, memoryAvailable uint64
-	
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
-		
+
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
 			continue
 		}
-		
+
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
-		
+
 		switch key {
 		case "cpu.time":
 			// CPU 时间 (纳秒)，需要计算使用率
@@ -939,11 +939,11 @@ func (m *Manager) getLibvirtStats(vmName string) (*VMStats, error) {
 			}
 		}
 	}
-	
+
 	// 计算 CPU 使用率 (简化版本)
 	if memoryTotal > 0 && memoryAvailable > 0 {
 		stats.CPUUsage = float64(memoryTotal-memoryAvailable) / float64(memoryTotal) * 100
 	}
-	
+
 	return stats, nil
 }
