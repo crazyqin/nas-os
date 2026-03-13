@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据去重 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .dedup-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .page-desc { color: var(--text-muted); }
+        
+        /* Stats */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+        .stat-card.highlight {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+        }
+        .stat-label { font-size: 14px; margin-bottom: 0.5rem; opacity: 0.9; }
+        .stat-value { font-size: 32px; font-weight: 700; }
+        .stat-sub { font-size: 13px; margin-top: 0.25rem; opacity: 0.8; }
+        
+        /* Scan Panel */
+        .scan-panel {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .scan-icon {
+            font-size: 64px;
+            margin-bottom: 1rem;
+        }
+        .scan-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .scan-desc {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        
+        .scan-options {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .scan-option {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .scan-option:hover {
+            border-color: var(--color-primary);
+        }
+        .scan-option.active {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+        }
+        
+        .scan-progress {
+            max-width: 500px;
+            margin: 0 auto 1rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+            transition: width 0.3s;
+        }
+        .progress-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+        
+        /* Duplicate List */
+        .duplicate-list {
+            background: var(--surface-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        .duplicate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .duplicate-title { font-size: 18px; font-weight: 600; }
+        .duplicate-actions { display: flex; gap: 0.5rem; }
+        
+        .duplicate-group {
+            border-bottom: 1px solid var(--border-color);
+        }
+        .duplicate-group:last-child { border-bottom: none; }
+        
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .group-header:hover { background: var(--hover-color); }
+        
+        .group-info { display: flex; align-items: center; gap: 1rem; }
+        .group-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: var(--color-warning-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .group-details { display: flex; flex-direction: column; gap: 0.25rem; }
+        .group-hash {
+            font-family: var(--font-family-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .group-meta { font-size: 13px; color: var(--text-muted); }
+        
+        .group-stats {
+            text-align: right;
+        }
+        .group-count {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-warning);
+        }
+        .group-size {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        .group-files {
+            padding: 0 1.5rem 1rem;
+            display: none;
+        }
+        .group-files.expanded { display: block; }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+        }
+        .file-item:last-child { margin-bottom: 0; }
+        .file-item.keep {
+            border-color: var(--color-success);
+            background: var(--color-success-bg);
+        }
+        .file-item.remove {
+            border-color: var(--color-error);
+            background: var(--color-error-bg);
+            opacity: 0.7;
+        }
+        
+        .file-info { display: flex; align-items: center; gap: 0.75rem; }
+        .file-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-path {
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+        .file-size {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .file-actions { display: flex; gap: 0.5rem; }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 16px;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-primary:disabled { background: var(--color-gray-400); cursor: not-allowed; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--hover-color); }
+        .btn-success { background: var(--color-success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #DC2626; color: white; }
+        .btn-danger:hover { background: #B91C1C; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 13px; }
+        
+        /* Savings Card */
+        .savings-card {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .savings-icon { font-size: 48px; margin-bottom: 1rem; }
+        .savings-title { font-size: 24px; font-weight: 700; margin-bottom: 0.5rem; }
+        .savings-value { font-size: 48px; font-weight: 700; margin-bottom: 0.5rem; }
+        .savings-desc { opacity: 0.9; }
+        
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle.active { background: var(--color-primary); }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .toggle.active::after { transform: translateX(24px); }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface-color);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        /* Form */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 0.25rem; }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 64px; margin-bottom: 1rem; }
+        .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+        
+        /* Checkbox */
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .checkbox.checked {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .scan-options { flex-direction: column; align-items: stretch; }
+            .group-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .group-stats { text-align: left; }
+            .file-item { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+            .file-actions { width: 100%; }
+            .file-actions .btn { flex: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dedup-container">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">🔄 数据去重</h1>
+                <p class="page-desc">扫描并清理重复文件，释放存储空间</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-secondary" onclick="showSettings()">⚙️ 设置</button>
+                <button class="btn btn-primary" onclick="startScan()" id="scanBtn">🔍 开始扫描</button>
+            </div>
+        </div>
+        
+        <!-- Savings Card -->
+        <div class="savings-card" id="savingsCard" style="display: none;">
+            <div class="savings-icon">💾</div>
+            <div class="savings-title">已节省空间</div>
+            <div class="savings-value" id="savingsValue">0 GB</div>
+            <div class="savings-desc">通过去重释放的存储空间</div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-label">扫描文件数</div>
+                <div class="stat-value" id="statScanned">0</div>
+                <div class="stat-sub">已扫描的文件</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">重复文件组</div>
+                <div class="stat-value" id="statGroups">0</div>
+                <div class="stat-sub">发现重复文件组</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">重复文件数</div>
+                <div class="stat-value" id="statDuplicates">0</div>
+                <div class="stat-sub">重复文件数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">可释放空间</div>
+                <div class="stat-value" id="statReleasable">0 GB</div>
+                <div class="stat-sub">去重后可释放</div>
+            </div>
+        </div>
+        
+        <!-- Scan Panel -->
+        <div class="scan-panel" id="scanPanel">
+            <div class="scan-icon">🔍</div>
+            <div class="scan-title">扫描重复文件</div>
+            <div class="scan-desc">选择要扫描的目录，系统将检测并显示重复文件</div>
+            
+            <div class="scan-options">
+                <div class="scan-option active" onclick="selectScanPath('/data')" data-path="/data">
+                    📁 全部数据
+                </div>
+                <div class="scan-option" onclick="selectScanPath('/data/photos')" data-path="/data/photos">
+                    🖼️ 照片
+                </div>
+                <div class="scan-option" onclick="selectScanPath('/data/documents')" data-path="/data/documents">
+                    📄 文档
+                </div>
+                <div class="scan-option" onclick="selectScanPath('/data/media')" data-path="/data/media">
+                    🎬 媒体
+                </div>
+                <div class="scan-option" onclick="selectScanPath('custom')" data-path="custom">
+                    ⚙️ 自定义
+                </div>
+            </div>
+            
+            <div id="customPath" style="display: none; max-width: 500px; margin: 0 auto 1.5rem;">
+                <input type="text" class="form-input" id="inputCustomPath" placeholder="输入目录路径，如：/data/backup">
+            </div>
+            
+            <div class="scan-progress" id="scanProgress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progressText">准备扫描...</div>
+            </div>
+            
+            <button class="btn btn-primary btn-lg" id="startScanBtn" onclick="startScan()">
+                🔍 开始扫描
+            </button>
+            <button class="btn btn-danger btn-lg" id="stopScanBtn" style="display: none;" onclick="stopScan()">
+                ⏹️ 停止扫描
+            </button>
+        </div>
+        
+        <!-- Duplicate List -->
+        <div class="duplicate-list" id="duplicateList" style="display: none;">
+            <div class="duplicate-header">
+                <div>
+                    <h3 class="duplicate-title">📋 重复文件列表</h3>
+                    <p style="font-size: 13px; color: var(--text-muted); margin: 0.25rem 0 0;">
+                        找到 <span id="groupCount">0</span> 组重复文件，共 <span id="dupCount">0</span> 个文件
+                    </p>
+                </div>
+                <div class="duplicate-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="selectAllDuplicates()">全选重复</button>
+                    <button class="btn btn-success btn-sm" onclick="dedupSelected()">✨ 一键去重</button>
+                </div>
+            </div>
+            <div id="duplicateGroups">
+                <!-- Duplicate groups will be rendered here -->
+            </div>
+        </div>
+        
+        <!-- History -->
+        <div class="duplicate-list">
+            <div class="duplicate-header">
+                <h3 class="duplicate-title">📊 去重历史</h3>
+            </div>
+            <div id="historyList" style="padding: 1.5rem;">
+                <div class="empty-state" style="padding: 2rem;">
+                    <p style="margin: 0; color: var(--text-muted);">暂无去重记录</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">⚙️ 去重设置</h3>
+                <button class="modal-close" onclick="hideSettings()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">最小文件大小</label>
+                    <select class="form-select" id="inputMinSize">
+                        <option value="0">不限</option>
+                        <option value="1024">1 KB</option>
+                        <option value="1048576" selected>1 MB</option>
+                        <option value="10485760">10 MB</option>
+                        <option value="104857600">100 MB</option>
+                    </select>
+                    <div class="form-hint">小于此大小的文件将被忽略</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">扫描方式</label>
+                    <select class="form-select" id="inputScanMethod">
+                        <option value="hash">哈希对比（精确）</option>
+                        <option value="name">文件名对比（快速）</option>
+                        <option value="size">大小对比（最快）</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">文件类型过滤</label>
+                    <select class="form-select" id="inputFileType">
+                        <option value="all">全部文件</option>
+                        <option value="images">仅图片</option>
+                        <option value="documents">仅文档</option>
+                        <option value="media">仅媒体文件</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">排除目录（逗号分隔）</label>
+                    <input type="text" class="form-input" id="inputExcludeDirs" placeholder="/tmp,/cache,.git">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">处理方式</label>
+                    <select class="form-select" id="inputAction">
+                        <option value="hardlink">创建硬链接（推荐）</option>
+                        <option value="delete">直接删除</option>
+                        <option value="move">移动到回收站</option>
+                    </select>
+                    <div class="form-hint">硬链接可节省空间且不影响文件访问</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideSettings()">取消</button>
+                <button class="btn btn-primary" onclick="saveSettings()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">⚠️ 确认去重</h3>
+                <button class="modal-close" onclick="hideConfirm()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>即将删除/硬链接 <strong id="confirmCount">0</strong> 个重复文件</p>
+                <p>预计释放空间：<strong id="confirmSize">0 GB</strong></p>
+                <p style="color: var(--text-muted); font-size: 13px; margin-top: 1rem;">此操作可能需要一些时间，请勿关闭页面</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideConfirm()">取消</button>
+                <button class="btn btn-danger" onclick="confirmDedup()">确认执行</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1/dedup';
+        let scanPath = '/data';
+        let isScanning = false;
+        let selectedFiles = new Set();
+        let duplicateGroups = [];
+        let settings = {
+            minSize: 1048576,
+            method: 'hash',
+            fileType: 'all',
+            excludeDirs: [],
+            action: 'hardlink'
+        };
+        
+        // Select scan path
+        function selectScanPath(path) {
+            document.querySelectorAll('.scan-option').forEach(opt => opt.classList.remove('active'));
+            event.target.closest('.scan-option').classList.add('active');
+            
+            if (path === 'custom') {
+                document.getElementById('customPath').style.display = 'block';
+                scanPath = document.getElementById('inputCustomPath').value;
+            } else {
+                document.getElementById('customPath').style.display = 'none';
+                scanPath = path;
+            }
+        }
+        
+        // Start scan
+        async function startScan() {
+            if (isScanning) return;
+            
+            const customPath = document.getElementById('inputCustomPath').value;
+            if (scanPath === 'custom' && customPath) {
+                scanPath = customPath;
+            }
+            
+            isScanning = true;
+            selectedFiles.clear();
+            
+            document.getElementById('startScanBtn').style.display = 'none';
+            document.getElementById('stopScanBtn').style.display = 'inline-flex';
+            document.getElementById('scanProgress').style.display = 'block';
+            document.getElementById('duplicateList').style.display = 'none';
+            
+            updateProgress(0, '正在扫描...');
+            
+            try {
+                const res = await fetch(`${API_BASE}/scan`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        path: scanPath,
+                        min_size: settings.minSize,
+                        method: settings.method,
+                        file_type: settings.fileType,
+                        exclude_dirs: settings.excludeDirs
+                    })
+                });
+                
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+                    
+                    for (const line of lines) {
+                        if (line.trim()) {
+                            try {
+                                const data = JSON.parse(line);
+                                handleScanProgress(data);
+                            } catch (e) {}
+                        }
+                    }
+                }
+                
+                // Final load
+                await loadDuplicates();
+            } catch (e) {
+                console.error('扫描失败:', e);
+                alert('扫描失败：' + e.message);
+            }
+            
+            isScanning = false;
+            document.getElementById('startScanBtn').style.display = 'inline-flex';
+            document.getElementById('stopScanBtn').style.display = 'none';
+        }
+        
+        function handleScanProgress(data) {
+            if (data.progress !== undefined) {
+                updateProgress(data.progress, data.message || `已扫描 ${data.files_scanned || 0} 个文件`);
+            }
+            if (data.stats) {
+                document.getElementById('statScanned').textContent = data.stats.scanned || 0;
+                document.getElementById('statGroups').textContent = data.stats.groups || 0;
+                document.getElementById('statDuplicates').textContent = data.stats.duplicates || 0;
+                document.getElementById('statReleasable').textContent = formatSize(data.stats.releasable || 0);
+            }
+        }
+        
+        function updateProgress(percent, text) {
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+        
+        async function stopScan() {
+            try {
+                await fetch(`${API_BASE}/scan/stop`, { method: 'POST' });
+            } catch (e) {}
+            isScanning = false;
+            document.getElementById('startScanBtn').style.display = 'inline-flex';
+            document.getElementById('stopScanBtn').style.display = 'none';
+        }
+        
+        // Load duplicates
+        async function loadDuplicates() {
+            try {
+                const res = await fetch(`${API_BASE}/duplicates`);
+                const data = await res.json();
+                
+                if (data.code === 0 && data.data) {
+                    duplicateGroups = data.data;
+                    renderDuplicates();
+                }
+            } catch (e) {
+                console.error('加载重复文件失败:', e);
+            }
+        }
+        
+        function renderDuplicates() {
+            const container = document.getElementById('duplicateGroups');
+            document.getElementById('duplicateList').style.display = 'block';
+            
+            let totalFiles = 0;
+            duplicateGroups.forEach(g => totalFiles += g.files.length);
+            
+            document.getElementById('groupCount').textContent = duplicateGroups.length;
+            document.getElementById('dupCount').textContent = totalFiles;
+            
+            if (duplicateGroups.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 3rem;">
+                        <div class="empty-icon">✨</div>
+                        <div class="empty-title">没有发现重复文件</div>
+                        <p>您的存储很干净！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = duplicateGroups.map((group, gi) => `
+                <div class="duplicate-group">
+                    <div class="group-header" onclick="toggleGroup(${gi})">
+                        <div class="group-info">
+                            <div class="group-icon">${getFileIcon(group.files[0]?.name || 'file')}</div>
+                            <div class="group-details">
+                                <div style="font-weight: 600;">${escapeHtml(group.files[0]?.name || '未知文件')}</div>
+                                <div class="group-hash">SHA256: ${group.hash?.substring(0, 16) || '--'}...</div>
+                                <div class="group-meta">
+                                    ${group.files.length} 个副本 • 每个 ${formatSize(group.size || 0)}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="group-stats">
+                            <div class="group-count">${group.files.length}</div>
+                            <div class="group-size">可节省 ${formatSize((group.files.length - 1) * (group.size || 0))}</div>
+                        </div>
+                    </div>
+                    <div class="group-files" id="group-${gi}">
+                        ${group.files.map((file, fi) => `
+                            <div class="file-item ${selectedFiles.has(file.path) ? 'remove' : (fi === 0 ? 'keep' : '')}" data-path="${escapeHtml(file.path)}">
+                                <div class="file-info">
+                                    <div class="checkbox ${selectedFiles.has(file.path) ? 'checked' : ''}" onclick="toggleFile('${escapeHtml(file.path)}', event)"></div>
+                                    <div>
+                                        <div class="file-path">${escapeHtml(file.path)}</div>
+                                        <div class="file-size">${formatSize(file.size || group.size || 0)} • ${formatDate(file.modified)}</div>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    ${fi === 0 ? '<span class="badge" style="background: var(--color-success-bg); color: #065F46;">保留</span>' : 
+                                    `<button class="btn btn-danger btn-sm" onclick="markRemove('${escapeHtml(file.path)}')">标记删除</button>`}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleGroup(index) {
+            const group = document.getElementById(`group-${index}`);
+            group.classList.toggle('expanded');
+        }
+        
+        function toggleFile(path, event) {
+            event.stopPropagation();
+            if (selectedFiles.has(path)) {
+                selectedFiles.delete(path);
+            } else {
+                selectedFiles.add(path);
+            }
+            renderDuplicates();
+        }
+        
+        function markRemove(path) {
+            selectedFiles.add(path);
+            renderDuplicates();
+        }
+        
+        function selectAllDuplicates() {
+            duplicateGroups.forEach(group => {
+                // Keep the first file, mark others for removal
+                group.files.slice(1).forEach(file => {
+                    selectedFiles.add(file.path);
+                });
+            });
+            renderDuplicates();
+        }
+        
+        // Deduplication
+        function dedupSelected() {
+            if (selectedFiles.size === 0) {
+                alert('请先选择要删除的文件');
+                return;
+            }
+            
+            let totalSize = 0;
+            duplicateGroups.forEach(group => {
+                group.files.forEach(file => {
+                    if (selectedFiles.has(file.path)) {
+                        totalSize += file.size || group.size || 0;
+                    }
+                });
+            });
+            
+            document.getElementById('confirmCount').textContent = selectedFiles.size;
+            document.getElementById('confirmSize').textContent = formatSize(totalSize);
+            document.getElementById('confirmModal').classList.add('active');
+        }
+        
+        function hideConfirm() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+        
+        async function confirmDedup() {
+            hideConfirm();
+            
+            try {
+                const res = await fetch(`${API_BASE}/dedup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        files: Array.from(selectedFiles),
+                        action: settings.action
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    alert(`去重完成！已释放 ${formatSize(data.data.released || 0)}`);
+                    
+                    // Update savings
+                    const savingsCard = document.getElementById('savingsCard');
+                    savingsCard.style.display = 'block';
+                    document.getElementById('savingsValue').textContent = formatSize(data.data.released || 0);
+                    
+                    selectedFiles.clear();
+                    await loadDuplicates();
+                } else {
+                    alert('去重失败：' + data.message);
+                }
+            } catch (e) {
+                alert('去重失败：' + e.message);
+            }
+        }
+        
+        // Settings
+        function showSettings() {
+            document.getElementById('inputMinSize').value = settings.minSize;
+            document.getElementById('inputScanMethod').value = settings.method;
+            document.getElementById('inputFileType').value = settings.fileType;
+            document.getElementById('inputExcludeDirs').value = settings.excludeDirs.join(',');
+            document.getElementById('inputAction').value = settings.action;
+            document.getElementById('settingsModal').classList.add('active');
+        }
+        
+        function hideSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+        
+        async function saveSettings() {
+            settings = {
+                minSize: parseInt(document.getElementById('inputMinSize').value),
+                method: document.getElementById('inputScanMethod').value,
+                fileType: document.getElementById('inputFileType').value,
+                excludeDirs: document.getElementById('inputExcludeDirs').value.split(',').filter(d => d.trim()),
+                action: document.getElementById('inputAction').value
+            };
+            
+            try {
+                await fetch(`${API_BASE}/settings`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+            } catch (e) {}
+            
+            hideSettings();
+        }
+        
+        // Utilities
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '--';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('zh-CN');
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function getFileIcon(filename) {
+            if (!filename) return '📄';
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'bmp': '🖼️', 'webp': '🖼️',
+                'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mov': '🎬', 'wmv': '🎬',
+                'mp3': '🎵', 'wav': '🎵', 'flac': '🎵', 'aac': '🎵', 'ogg': '🎵',
+                'pdf': '📕', 'doc': '📘', 'docx': '📘', 'xls': '📗', 'xlsx': '📗',
+                'txt': '📄', 'md': '📄', 'json': '📄', 'xml': '📄',
+                'zip': '📦', 'rar': '📦', '7z': '📦', 'tar': '📦', 'gz': '📦',
+                'exe': '⚙️', 'msi': '⚙️', 'dmg': '⚙️', 'deb': '⚙️', 'rpm': '⚙️'
+            };
+            return icons[ext] || '📄';
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch(`${API_BASE}/stats`);
+                const data = await res.json();
+                if (data.code === 0 && data.data) {
+                    document.getElementById('statScanned').textContent = data.data.scanned || 0;
+                    document.getElementById('statGroups').textContent = data.data.groups || 0;
+                    document.getElementById('statDuplicates').textContent = data.data.duplicates || 0;
+                    document.getElementById('statReleasable').textContent = formatSize(data.data.releasable || 0);
+                    
+                    if (data.data.released > 0) {
+                        document.getElementById('savingsCard').style.display = 'block';
+                        document.getElementById('savingsValue').textContent = formatSize(data.data.released);
+                    }
+                }
+            } catch (e) {
+                console.error('加载统计失败:', e);
+            }
+        });
+        
+        // Custom path input
+        document.getElementById('inputCustomPath')?.addEventListener('input', (e) => {
+            scanPath = e.target.value;
+        });
+    </script>
+</body>
+</html>

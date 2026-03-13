@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云同步管理 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .cloudsync-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .page-desc { color: var(--text-muted); }
+        
+        /* Stats */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .stat-sub { font-size: 13px; color: var(--text-muted); margin-top: 0.25rem; }
+        .stat-value.success { color: var(--color-success); }
+        .stat-value.warning { color: var(--color-warning); }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            font-size: 14px;
+        }
+        .tab:hover { color: var(--text-secondary); }
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+            font-weight: 600;
+        }
+        
+        /* Cloud Provider Cards */
+        .provider-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .provider-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .provider-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .provider-card.connected {
+            border-color: var(--color-success);
+        }
+        
+        .provider-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .provider-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: var(--bg-secondary);
+        }
+        .provider-icon.google { background: linear-gradient(135deg, #4285F4, #34A853); }
+        .provider-icon.dropbox { background: linear-gradient(135deg, #0061FF, #00C7FF); }
+        .provider-icon.onedrive { background: linear-gradient(135deg, #0078D4, #28A8EA); }
+        .provider-icon.s3 { background: linear-gradient(135deg, #FF9900, #FF6600); }
+        .provider-icon.aliyun { background: linear-gradient(135deg, #FF6A00, #FF3200); }
+        .provider-icon.tencent { background: linear-gradient(135deg, #00A4FF, #0066FF); }
+        
+        .provider-info { flex: 1; }
+        .provider-name { font-weight: 600; font-size: 16px; color: var(--text-primary); }
+        .provider-desc { font-size: 13px; color: var(--text-muted); }
+        
+        .provider-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 13px;
+            margin-bottom: 1rem;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .status-dot.connected { background: var(--color-success); }
+        .status-dot.disconnected { background: var(--color-gray-400); }
+        .status-dot.error { background: var(--color-error); }
+        
+        .provider-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        .provider-stat {
+            text-align: center;
+        }
+        .provider-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .provider-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        .provider-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Sync Task List */
+        .task-list {
+            background: var(--surface-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+        .task-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .task-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+            padding: 1.25rem 1.5rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        .task-item:hover { background: var(--hover-color); }
+        .task-item:last-child { border-bottom: none; }
+        
+        .task-name { display: flex; align-items: center; gap: 0.75rem; }
+        .task-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: var(--color-primary-light);
+        }
+        .task-info { display: flex; flex-direction: column; gap: 0.25rem; }
+        .task-title { font-weight: 600; color: var(--text-primary); }
+        .task-path { font-size: 12px; color: var(--text-muted); }
+        
+        /* Progress */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+            transition: width 0.3s;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.syncing { background: var(--color-info-bg); color: #1E40AF; }
+        .status-badge.synced { background: var(--color-success-bg); color: #065F46; }
+        .status-badge.paused { background: var(--color-warning-bg); color: #92400E; }
+        .status-badge.error { background: var(--color-error-bg); color: #991B1B; }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--hover-color); }
+        .btn-success { background: var(--color-success); color: white; }
+        .btn-danger { background: #DC2626; color: white; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 13px; }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface-color);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        /* Form */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 0.25rem; }
+        
+        /* Sync Monitor */
+        .monitor-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1rem;
+        }
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .monitor-title { font-size: 16px; font-weight: 600; }
+        
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .activity-icon.upload { background: var(--color-info-bg); }
+        .activity-icon.download { background: var(--color-success-bg); }
+        .activity-icon.error { background: var(--color-error-bg); }
+        
+        .activity-info { flex: 1; }
+        .activity-name { font-size: 14px; font-weight: 500; }
+        .activity-meta { font-size: 12px; color: var(--text-muted); }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 64px; margin-bottom: 1rem; }
+        .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .task-header, .task-item { grid-template-columns: 2fr 1fr 1fr 100px; }
+            .task-header > *:nth-child(4), .task-item > *:nth-child(4) { display: none; }
+        }
+        @media (max-width: 768px) {
+            .task-header, .task-item { grid-template-columns: 1fr 100px; }
+            .task-header > *:nth-child(2), .task-item > *:nth-child(2),
+            .task-header > *:nth-child(3), .task-item > *:nth-child(3) { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cloudsync-container">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">☁️ 云同步管理</h1>
+                <p class="page-desc">管理云存储连接和同步任务</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-secondary" onclick="syncAll()">🔄 全部同步</button>
+                <button class="btn btn-primary" onclick="showAddProvider()">+ 添加云存储</button>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-label">已连接云存储</div>
+                <div class="stat-value" id="statProviders">0</div>
+                <div class="stat-sub">个云服务</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">同步任务</div>
+                <div class="stat-value" id="statTasks">0</div>
+                <div class="stat-sub">个任务</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">今日上传</div>
+                <div class="stat-value success" id="statUpload">0 MB</div>
+                <div class="stat-sub">已上传</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">今日下载</div>
+                <div class="stat-value" id="statDownload">0 MB</div>
+                <div class="stat-sub">已下载</div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('providers')">☁️ 云存储</button>
+            <button class="tab" onclick="switchTab('tasks')">📋 同步任务</button>
+            <button class="tab" onclick="switchTab('monitor')">📊 同步监控</button>
+        </div>
+        
+        <!-- Providers Tab -->
+        <div id="tab-providers">
+            <div class="provider-grid" id="providerGrid">
+                <!-- Provider cards will be rendered here -->
+            </div>
+        </div>
+        
+        <!-- Tasks Tab -->
+        <div id="tab-tasks" style="display: none;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h3 style="margin: 0;">同步任务列表</h3>
+                <button class="btn btn-primary btn-sm" onclick="showAddTask()">+ 新建任务</button>
+            </div>
+            <div class="task-list">
+                <div class="task-header">
+                    <div>任务名称</div>
+                    <div>云存储</div>
+                    <div>状态</div>
+                    <div>进度</div>
+                    <div>操作</div>
+                </div>
+                <div id="taskItems">
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-title">暂无同步任务</div>
+                        <p>创建同步任务以自动同步文件到云端</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monitor Tab -->
+        <div id="tab-monitor" style="display: none;">
+            <div class="monitor-card">
+                <div class="monitor-header">
+                    <h3 class="monitor-title">📊 实时同步状态</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="refreshMonitor()">🔄 刷新</button>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <!-- Activity items -->
+                </div>
+            </div>
+            
+            <div class="monitor-card">
+                <div class="monitor-header">
+                    <h3 class="monitor-title">📈 同步统计 (最近 7 天)</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;">
+                    <div id="chart-days"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Provider Modal -->
+    <div class="modal-overlay" id="providerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">☁️ 添加云存储</h3>
+                <button class="modal-close" onclick="hideProviderModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">云服务商</label>
+                    <select class="form-select" id="inputProvider" onchange="updateProviderFields()">
+                        <option value="">选择云服务商...</option>
+                        <option value="google">Google Drive</option>
+                        <option value="dropbox">Dropbox</option>
+                        <option value="onedrive">OneDrive</option>
+                        <option value="s3">Amazon S3</option>
+                        <option value="aliyun">阿里云 OSS</option>
+                        <option value="tencent">腾讯云 COS</option>
+                        <option value="webdav">WebDAV</option>
+                    </select>
+                </div>
+                
+                <div id="commonFields">
+                    <div class="form-group">
+                        <label class="form-label">显示名称</label>
+                        <input type="text" class="form-input" id="inputDisplayName" placeholder="例如：我的 Google Drive">
+                    </div>
+                </div>
+                
+                <div id="s3Fields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Endpoint</label>
+                        <input type="text" class="form-input" id="inputEndpoint" placeholder="https://s3.amazonaws.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bucket 名称</label>
+                        <input type="text" class="form-input" id="inputBucket" placeholder="my-bucket">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Access Key</label>
+                        <input type="text" class="form-input" id="inputAccessKey" placeholder="AKIAIOSFODNN7EXAMPLE">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Secret Key</label>
+                        <input type="password" class="form-input" id="inputSecretKey" placeholder="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Region</label>
+                        <input type="text" class="form-input" id="inputRegion" placeholder="us-east-1">
+                    </div>
+                </div>
+                
+                <div id="webdavFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">服务器地址</label>
+                        <input type="text" class="form-input" id="inputWebdavUrl" placeholder="https://webdav.example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-input" id="inputWebdavUser" placeholder="username">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-input" id="inputWebdavPass" placeholder="password">
+                    </div>
+                </div>
+                
+                <div id="oauthFields" style="display: none;">
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">点击下方按钮进行 OAuth 授权</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideProviderModal()">取消</button>
+                <button class="btn btn-primary" id="providerSubmitBtn" onclick="addProvider()">连接</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Task Modal -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">📋 新建同步任务</h3>
+                <button class="modal-close" onclick="hideTaskModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">任务名称</label>
+                    <input type="text" class="form-input" id="inputTaskName" placeholder="例如：照片备份">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">云存储</label>
+                    <select class="form-select" id="inputTaskProvider">
+                        <option value="">选择云存储...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">本地路径</label>
+                    <input type="text" class="form-input" id="inputLocalPath" placeholder="/data/photos">
+                    <div class="form-hint">要同步的本地目录</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">远程路径</label>
+                    <input type="text" class="form-input" id="inputRemotePath" placeholder="/backup/photos">
+                    <div class="form-hint">云端目标路径</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">同步方向</label>
+                    <select class="form-select" id="inputSyncDirection">
+                        <option value="bidirectional">双向同步</option>
+                        <option value="upload">仅上传</option>
+                        <option value="download">仅下载</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">同步计划</label>
+                    <select class="form-select" id="inputSchedule">
+                        <option value="realtime">实时同步</option>
+                        <option value="hourly">每小时</option>
+                        <option value="daily">每天</option>
+                        <option value="manual">手动</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideTaskModal()">取消</button>
+                <button class="btn btn-primary" onclick="addTask()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1/cloud-sync';
+        let providers = [];
+        let tasks = [];
+        
+        // Load data
+        async function loadData() {
+            await Promise.all([
+                loadProviders(),
+                loadTasks(),
+                loadStats()
+            ]);
+        }
+        
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`);
+                const data = await res.json();
+                if (data.code === 0) {
+                    document.getElementById('statProviders').textContent = data.data.providers || 0;
+                    document.getElementById('statTasks').textContent = data.data.tasks || 0;
+                    document.getElementById('statUpload').textContent = formatSize(data.data.upload_today || 0);
+                    document.getElementById('statDownload').textContent = formatSize(data.data.download_today || 0);
+                }
+            } catch (e) {
+                console.error('加载统计失败:', e);
+            }
+        }
+        
+        async function loadProviders() {
+            try {
+                const res = await fetch(`${API_BASE}/providers`);
+                const data = await res.json();
+                providers = data.data || [];
+                renderProviders();
+                updateProviderSelect();
+            } catch (e) {
+                console.error('加载云存储失败:', e);
+                renderProviders();
+            }
+        }
+        
+        function renderProviders() {
+            const grid = document.getElementById('providerGrid');
+            
+            // Default providers
+            const defaultProviders = [
+                { id: 'google', name: 'Google Drive', icon: '📁', class: 'google', desc: '15 GB 免费' },
+                { id: 'dropbox', name: 'Dropbox', icon: '📦', class: 'dropbox', desc: '2 GB 免费' },
+                { id: 'onedrive', name: 'OneDrive', icon: '☁️', class: 'onedrive', desc: '5 GB 免费' },
+                { id: 's3', name: 'Amazon S3', icon: '🪣', class: 's3', desc: '按量付费' },
+                { id: 'aliyun', name: '阿里云 OSS', icon: '🌐', class: 'aliyun', desc: '按量付费' },
+                { id: 'tencent', name: '腾讯云 COS', icon: '☁️', class: 'tencent', desc: '按量付费' }
+            ];
+            
+            grid.innerHTML = defaultProviders.map(p => {
+                const connected = providers.find(c => c.type === p.id);
+                return `
+                    <div class="provider-card ${connected ? 'connected' : ''}">
+                        <div class="provider-header">
+                            <div class="provider-icon ${p.class}">${p.icon}</div>
+                            <div class="provider-info">
+                                <div class="provider-name">${p.name}</div>
+                                <div class="provider-desc">${p.desc}</div>
+                            </div>
+                        </div>
+                        ${connected ? `
+                            <div class="provider-status">
+                                <span class="status-dot ${connected.status === 'connected' ? 'connected' : 'error'}"></span>
+                                <span>${connected.status === 'connected' ? '已连接' : '连接异常'}</span>
+                            </div>
+                            <div class="provider-stats">
+                                <div class="provider-stat">
+                                    <div class="provider-stat-value">${formatSize(connected.used || 0)}</div>
+                                    <div class="provider-stat-label">已使用</div>
+                                </div>
+                                <div class="provider-stat">
+                                    <div class="provider-stat-value">${connected.sync_count || 0}</div>
+                                    <div class="provider-stat-label">同步任务</div>
+                                </div>
+                            </div>
+                            <div class="provider-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="syncProvider('${connected.id}')">🔄 同步</button>
+                                <button class="btn btn-secondary btn-sm" onclick="editProvider('${connected.id}')">⚙️</button>
+                                <button class="btn btn-danger btn-sm" onclick="removeProvider('${connected.id}')">🗑️</button>
+                            </div>
+                        ` : `
+                            <div class="provider-status">
+                                <span class="status-dot disconnected"></span>
+                                <span>未连接</span>
+                            </div>
+                            <button class="btn btn-primary" style="width: 100%;" onclick="showAddProvider('${p.id}')">连接</button>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function loadTasks() {
+            try {
+                const res = await fetch(`${API_BASE}/tasks`);
+                const data = await res.json();
+                tasks = data.data || [];
+                renderTasks();
+            } catch (e) {
+                console.error('加载任务失败:', e);
+                renderTasks();
+            }
+        }
+        
+        function renderTasks() {
+            const container = document.getElementById('taskItems');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-title">暂无同步任务</div>
+                        <p>创建同步任务以自动同步文件到云端</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = tasks.map(t => `
+                <div class="task-item">
+                    <div class="task-name">
+                        <div class="task-icon">☁️</div>
+                        <div class="task-info">
+                            <div class="task-title">${escapeHtml(t.name)}</div>
+                            <div class="task-path">${escapeHtml(t.local_path)} → ${escapeHtml(t.remote_path)}</div>
+                        </div>
+                    </div>
+                    <div>${escapeHtml(t.provider_name || '--')}</div>
+                    <div>
+                        <span class="status-badge ${t.status}">${getStatusText(t.status)}</span>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; margin-bottom: 0.25rem;">${t.progress || 0}%</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${t.progress || 0}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary btn-sm" onclick="syncTask('${t.id}')">▶️</button>
+                        <button class="btn btn-secondary btn-sm" onclick="pauseTask('${t.id}')">⏸️</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('tab-providers').style.display = tab === 'providers' ? 'block' : 'none';
+            document.getElementById('tab-tasks').style.display = tab === 'tasks' ? 'block' : 'none';
+            document.getElementById('tab-monitor').style.display = tab === 'monitor' ? 'block' : 'none';
+            
+            if (tab === 'monitor') loadMonitor();
+        }
+        
+        // Provider operations
+        function showAddProvider(type) {
+            document.getElementById('inputProvider').value = type || '';
+            document.getElementById('inputDisplayName').value = '';
+            updateProviderFields();
+            document.getElementById('providerModal').classList.add('active');
+        }
+        
+        function hideProviderModal() {
+            document.getElementById('providerModal').classList.remove('active');
+        }
+        
+        function updateProviderFields() {
+            const type = document.getElementById('inputProvider').value;
+            
+            document.getElementById('s3Fields').style.display = ['s3', 'aliyun', 'tencent'].includes(type) ? 'block' : 'none';
+            document.getElementById('webdavFields').style.display = type === 'webdav' ? 'block' : 'none';
+            document.getElementById('oauthFields').style.display = ['google', 'dropbox', 'onedrive'].includes(type) ? 'block' : 'none';
+            
+            const submitBtn = document.getElementById('providerSubmitBtn');
+            if (['google', 'dropbox', 'onedrive'].includes(type)) {
+                submitBtn.textContent = '授权连接';
+            } else {
+                submitBtn.textContent = '连接';
+            }
+        }
+        
+        async function addProvider() {
+            const type = document.getElementById('inputProvider').value;
+            const name = document.getElementById('inputDisplayName').value;
+            
+            if (!type) {
+                alert('请选择云服务商');
+                return;
+            }
+            
+            const payload = {
+                type: type,
+                name: name || type.toUpperCase()
+            };
+            
+            // Add S3-style credentials
+            if (['s3', 'aliyun', 'tencent'].includes(type)) {
+                payload.endpoint = document.getElementById('inputEndpoint').value;
+                payload.bucket = document.getElementById('inputBucket').value;
+                payload.access_key = document.getElementById('inputAccessKey').value;
+                payload.secret_key = document.getElementById('inputSecretKey').value;
+                payload.region = document.getElementById('inputRegion').value;
+            }
+            
+            // WebDAV credentials
+            if (type === 'webdav') {
+                payload.url = document.getElementById('inputWebdavUrl').value;
+                payload.username = document.getElementById('inputWebdavUser').value;
+                payload.password = document.getElementById('inputWebdavPass').value;
+            }
+            
+            // OAuth providers
+            if (['google', 'dropbox', 'onedrive'].includes(type)) {
+                // Start OAuth flow
+                window.location.href = `/api/v1/cloud-sync/oauth/${type}`;
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/providers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('云存储连接成功');
+                    hideProviderModal();
+                    loadProviders();
+                    loadStats();
+                } else {
+                    alert('连接失败：' + data.message);
+                }
+            } catch (e) {
+                alert('连接失败：' + e.message);
+            }
+        }
+        
+        async function removeProvider(id) {
+            if (!confirm('确定要删除此云存储连接吗？相关的同步任务将被停止。')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/providers/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('已删除');
+                    loadProviders();
+                    loadStats();
+                } else {
+                    alert('删除失败：' + data.message);
+                }
+            } catch (e) {
+                alert('删除失败：' + e.message);
+            }
+        }
+        
+        function editProvider(id) {
+            alert('编辑功能开发中...');
+        }
+        
+        async function syncProvider(id) {
+            try {
+                const res = await fetch(`${API_BASE}/providers/${id}/sync`, { method: 'POST' });
+                const data = await res.json();
+                alert(data.message || '同步已启动');
+            } catch (e) {
+                alert('同步失败：' + e.message);
+            }
+        }
+        
+        // Task operations
+        function updateProviderSelect() {
+            const select = document.getElementById('inputTaskProvider');
+            select.innerHTML = '<option value="">选择云存储...</option>' +
+                providers.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        }
+        
+        function showAddTask() {
+            document.getElementById('inputTaskName').value = '';
+            document.getElementById('inputLocalPath').value = '';
+            document.getElementById('inputRemotePath').value = '';
+            updateProviderSelect();
+            document.getElementById('taskModal').classList.add('active');
+        }
+        
+        function hideTaskModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+        
+        async function addTask() {
+            const payload = {
+                name: document.getElementById('inputTaskName').value,
+                provider_id: document.getElementById('inputTaskProvider').value,
+                local_path: document.getElementById('inputLocalPath').value,
+                remote_path: document.getElementById('inputRemotePath').value,
+                direction: document.getElementById('inputSyncDirection').value,
+                schedule: document.getElementById('inputSchedule').value
+            };
+            
+            if (!payload.name || !payload.provider_id || !payload.local_path) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('任务创建成功');
+                    hideTaskModal();
+                    loadTasks();
+                    loadStats();
+                } else {
+                    alert('创建失败：' + data.message);
+                }
+            } catch (e) {
+                alert('创建失败：' + e.message);
+            }
+        }
+        
+        async function syncTask(id) {
+            try {
+                const res = await fetch(`${API_BASE}/tasks/${id}/sync`, { method: 'POST' });
+                alert('同步已启动');
+                loadTasks();
+            } catch (e) {
+                alert('操作失败：' + e.message);
+            }
+        }
+        
+        async function pauseTask(id) {
+            try {
+                const res = await fetch(`${API_BASE}/tasks/${id}/pause`, { method: 'POST' });
+                alert('任务已暂停');
+                loadTasks();
+            } catch (e) {
+                alert('操作失败：' + e.message);
+            }
+        }
+        
+        async function deleteTask(id) {
+            if (!confirm('确定要删除此同步任务吗？')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('任务已删除');
+                    loadTasks();
+                } else {
+                    alert('删除失败：' + data.message);
+                }
+            } catch (e) {
+                alert('删除失败：' + e.message);
+            }
+        }
+        
+        async function syncAll() {
+            try {
+                const res = await fetch(`${API_BASE}/sync-all`, { method: 'POST' });
+                alert('全部同步已启动');
+            } catch (e) {
+                alert('操作失败：' + e.message);
+            }
+        }
+        
+        // Monitor
+        async function loadMonitor() {
+            try {
+                const res = await fetch(`${API_BASE}/activities`);
+                const data = await res.json();
+                const container = document.getElementById('activityList');
+                
+                if (data.code === 0 && data.data && data.data.length > 0) {
+                    container.innerHTML = data.data.map(a => `
+                        <div class="activity-item">
+                            <div class="activity-icon ${a.type}">${a.type === 'upload' ? '⬆️' : a.type === 'download' ? '⬇️' : '❌'}</div>
+                            <div class="activity-info">
+                                <div class="activity-name">${escapeHtml(a.filename)}</div>
+                                <div class="activity-meta">${formatDate(a.time)} • ${formatSize(a.size)}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">暂无活动记录</div>';
+                }
+            } catch (e) {
+                console.error('加载监控数据失败:', e);
+            }
+        }
+        
+        function refreshMonitor() {
+            loadMonitor();
+        }
+        
+        // Utilities
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '--';
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function getStatusText(status) {
+            const map = {
+                'syncing': '同步中',
+                'synced': '已同步',
+                'paused': '已暂停',
+                'error': '错误'
+            };
+            return map[status] || status;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadData);
+        setInterval(loadStats, 60000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>版本控制 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .version-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .page-desc { color: var(--text-muted); }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .stat-sub { font-size: 13px; color: var(--text-muted); margin-top: 0.25rem; }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            font-size: 14px;
+        }
+        .tab:hover { color: var(--text-secondary); }
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+            font-weight: 600;
+        }
+        
+        /* File List */
+        .file-list {
+            background: var(--surface-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+        .file-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 100px;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .file-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 100px;
+            padding: 1.25rem 1.5rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .file-item:hover { background: var(--hover-color); }
+        .file-item:last-child { border-bottom: none; }
+        
+        .file-name { display: flex; align-items: center; gap: 0.75rem; }
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        /* Version Panel */
+        .version-panel {
+            background: var(--surface-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .panel-title { font-size: 18px; font-weight: 600; }
+        
+        .version-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .version-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        .version-item:hover { background: var(--hover-color); }
+        .version-item:last-child { border-bottom: none; }
+        
+        .version-info { display: flex; flex-direction: column; gap: 0.25rem; }
+        .version-name { font-weight: 600; color: var(--text-primary); }
+        .version-meta { font-size: 13px; color: var(--text-muted); }
+        
+        .version-actions { display: flex; gap: 0.5rem; }
+        
+        /* Diff View */
+        .diff-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .diff-panel {
+            background: var(--surface-color);
+            padding: 1rem;
+        }
+        .diff-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .diff-content {
+            font-family: var(--font-family-mono);
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .diff-add { background: #D1FAE5; color: #065F46; }
+        .diff-remove { background: #FEE2E2; color: #991B1B; }
+        
+        /* Retention Policy */
+        .policy-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        .policy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .policy-title { font-size: 16px; font-weight: 600; }
+        
+        .policy-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .policy-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        .policy-label { color: var(--text-secondary); }
+        .policy-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--hover-color); }
+        .btn-success { background: var(--color-success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #DC2626; color: white; }
+        .btn-danger:hover { background: #B91C1C; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 13px; }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface-color);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        /* Form */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle.active { background: var(--color-primary); }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .toggle.active::after { transform: translateX(24px); }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 64px; margin-bottom: 1rem; }
+        .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+        
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-primary { background: var(--color-primary-light); color: var(--color-primary); }
+        .badge-success { background: var(--color-success-bg); color: #065F46; }
+        .badge-warning { background: var(--color-warning-bg); color: #92400E; }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .file-header, .file-item { grid-template-columns: 2fr 1fr 1fr 80px; }
+            .file-header > *:nth-child(4), .file-item > *:nth-child(4) { display: none; }
+        }
+        @media (max-width: 768px) {
+            .file-header, .file-item { grid-template-columns: 1fr 80px; }
+            .file-header > *:nth-child(2), .file-item > *:nth-child(2),
+            .file-header > *:nth-child(3), .file-item > *:nth-child(3) { display: none; }
+            .diff-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="version-container">
+        <!-- Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">📦 版本控制</h1>
+                <p class="page-desc">管理文件版本，支持版本对比与恢复</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-secondary" onclick="showPolicyModal()">⚙️ 保留策略</button>
+                <button class="btn btn-primary" onclick="showCreateVersion()">+ 创建快照</button>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-label">已追踪文件</div>
+                <div class="stat-value" id="statFiles">0</div>
+                <div class="stat-sub">个文件有版本历史</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">总版本数</div>
+                <div class="stat-value" id="statVersions">0</div>
+                <div class="stat-sub">个历史版本</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">占用空间</div>
+                <div class="stat-value" id="statSize">0 GB</div>
+                <div class="stat-sub">版本数据占用</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">上次快照</div>
+                <div class="stat-value" id="statLastSnap">--</div>
+                <div class="stat-sub">最近一次备份时间</div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('files')">📄 版本文件</button>
+            <button class="tab" onclick="switchTab('snapshots')">📸 快照管理</button>
+            <button class="tab" onclick="switchTab('policy')">📋 保留策略</button>
+        </div>
+        
+        <!-- Files Tab -->
+        <div id="tab-files">
+            <div class="file-list">
+                <div class="file-header">
+                    <div>文件名</div>
+                    <div>版本数</div>
+                    <div>最新版本</div>
+                    <div>占用空间</div>
+                    <div>操作</div>
+                </div>
+                <div id="fileItems">
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <div class="empty-title">暂无版本文件</div>
+                        <p>开启版本控制后，文件修改将自动创建版本</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Snapshots Tab -->
+        <div id="tab-snapshots" style="display: none;">
+            <div class="version-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">📸 快照列表</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateSnapshot()">+ 创建快照</button>
+                </div>
+                <div class="version-list" id="snapshotList">
+                    <div class="empty-state">
+                        <div class="empty-icon">📸</div>
+                        <div class="empty-title">暂无快照</div>
+                        <p>创建快照以保存当前系统状态</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Policy Tab -->
+        <div id="tab-policy" style="display: none;">
+            <div class="policy-card">
+                <div class="policy-header">
+                    <h3 class="policy-title">📋 版本保留策略</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="showPolicyModal()">编辑策略</button>
+                </div>
+                <div class="policy-list">
+                    <div class="policy-item">
+                        <span class="policy-label">保留最近版本数</span>
+                        <span class="policy-value" id="policyKeepLast">10 个</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-label">日版本保留天数</span>
+                        <span class="policy-value" id="policyDailyDays">7 天</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-label">周版本保留周数</span>
+                        <span class="policy-value" id="policyWeeklyWeeks">4 周</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-label">月版本保留月数</span>
+                        <span class="policy-value" id="policyMonthlyMonths">12 月</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-label">自动清理过期版本</span>
+                        <span class="policy-value" id="policyAutoClean">已启用</span>
+                    </div>
+                    <div class="policy-item">
+                        <span class="policy-label">最小保留时间</span>
+                        <span class="policy-value" id="policyMinRetention">24 小时</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Version Detail Modal -->
+    <div class="modal-overlay" id="versionModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">📋 版本历史 - <span id="versionFileName">--</span></h3>
+                <button class="modal-close" onclick="hideVersionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="version-list" id="versionList" style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
+                    <!-- Version items -->
+                </div>
+                
+                <!-- Diff View -->
+                <div id="diffSection" style="display: none;">
+                    <h4 style="margin-bottom: 1rem;">🔍 版本对比</h4>
+                    <div class="diff-container">
+                        <div class="diff-panel">
+                            <div class="diff-title" id="diffOldTitle">旧版本</div>
+                            <div class="diff-content" id="diffOldContent"></div>
+                        </div>
+                        <div class="diff-panel">
+                            <div class="diff-title" id="diffNewTitle">新版本</div>
+                            <div class="diff-content" id="diffNewContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideVersionModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Policy Modal -->
+    <div class="modal-overlay" id="policyModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">⚙️ 保留策略配置</h3>
+                <button class="modal-close" onclick="hidePolicyModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">保留最近版本数</label>
+                    <input type="number" class="form-input" id="inputKeepLast" value="10" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">日版本保留天数</label>
+                    <input type="number" class="form-input" id="inputDailyDays" value="7" min="1" max="30">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">周版本保留周数</label>
+                    <input type="number" class="form-input" id="inputWeeklyWeeks" value="4" min="1" max="52">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">月版本保留月数</label>
+                    <input type="number" class="form-input" id="inputMonthlyMonths" value="12" min="1" max="60">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最小保留时间（小时）</label>
+                    <input type="number" class="form-input" id="inputMinRetention" value="24" min="1" max="720">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">自动清理过期版本</label>
+                    <div class="toggle-container">
+                        <div class="toggle active" id="toggleAutoClean" onclick="toggleAutoClean()"></div>
+                        <span id="autoCleanLabel">已启用</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hidePolicyModal()">取消</button>
+                <button class="btn btn-primary" onclick="savePolicy()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Snapshot Modal -->
+    <div class="modal-overlay" id="snapshotModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">📸 创建快照</h3>
+                <button class="modal-close" onclick="hideSnapshotModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">快照名称</label>
+                    <input type="text" class="form-input" id="inputSnapName" placeholder="例如：daily-2024-01-15">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">快照类型</label>
+                    <select class="form-select" id="inputSnapType">
+                        <option value="manual">手动快照</option>
+                        <option value="daily">日快照</option>
+                        <option value="weekly">周快照</option>
+                        <option value="monthly">月快照</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">描述（可选）</label>
+                    <input type="text" class="form-input" id="inputSnapDesc" placeholder="快照说明">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">只读快照</label>
+                    <div class="toggle-container">
+                        <div class="toggle active" id="toggleReadonly" onclick="toggleReadonly()"></div>
+                        <span id="readonlyLabel">是</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideSnapshotModal()">取消</button>
+                <button class="btn btn-primary" onclick="createSnapshot()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1/versions';
+        let autoCleanEnabled = true;
+        let readonlyEnabled = true;
+        let currentFile = null;
+        let selectedVersions = [];
+        
+        // Load data
+        async function loadData() {
+            await Promise.all([
+                loadStats(),
+                loadFiles(),
+                loadSnapshots()
+            ]);
+        }
+        
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/stats`);
+                const data = await res.json();
+                if (data.code === 0) {
+                    document.getElementById('statFiles').textContent = data.data.tracked_files || 0;
+                    document.getElementById('statVersions').textContent = data.data.total_versions || 0;
+                    document.getElementById('statSize').textContent = formatSize(data.data.total_size || 0);
+                    document.getElementById('statLastSnap').textContent = data.data.last_snapshot || '--';
+                }
+            } catch (e) {
+                console.error('加载统计失败:', e);
+            }
+        }
+        
+        async function loadFiles() {
+            try {
+                const res = await fetch(`${API_BASE}/files`);
+                const data = await res.json();
+                const container = document.getElementById('fileItems');
+                
+                if (data.code === 0 && data.data && data.data.length > 0) {
+                    container.innerHTML = data.data.map(f => `
+                        <div class="file-item" onclick="showFileVersion('${f.path}')">
+                            <div class="file-name">
+                                <div class="file-icon">${getFileIcon(f.name)}</div>
+                                <div>
+                                    <div style="font-weight: 600;">${escapeHtml(f.name)}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(f.path)}</div>
+                                </div>
+                            </div>
+                            <div><span class="badge badge-primary">${f.version_count || 0} 个版本</span></div>
+                            <div style="color: var(--text-muted);">${formatDate(f.last_modified)}</div>
+                            <div style="font-weight: 600;">${formatSize(f.size || 0)}</div>
+                            <div>
+                                <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); showFileVersion('${f.path}')">查看</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📦</div>
+                            <div class="empty-title">暂无版本文件</div>
+                            <p>开启版本控制后，文件修改将自动创建版本</p>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error('加载文件失败:', e);
+            }
+        }
+        
+        async function loadSnapshots() {
+            try {
+                const res = await fetch(`${API_BASE}/snapshots`);
+                const data = await res.json();
+                const container = document.getElementById('snapshotList');
+                
+                if (data.code === 0 && data.data && data.data.length > 0) {
+                    container.innerHTML = data.data.map(s => `
+                        <div class="version-item">
+                            <div class="version-info">
+                                <div class="version-name">${escapeHtml(s.name)}</div>
+                                <div class="version-meta">
+                                    ${s.type} • ${formatDate(s.created_at)} • ${formatSize(s.size || 0)}
+                                    ${s.readonly ? ' • 只读' : ''}
+                                </div>
+                            </div>
+                            <div class="version-actions">
+                                <button class="btn btn-success btn-sm" onclick="restoreSnapshot('${s.id}')">↩️ 恢复</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteSnapshot('${s.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📸</div>
+                            <div class="empty-title">暂无快照</div>
+                            <p>创建快照以保存当前系统状态</p>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error('加载快照失败:', e);
+            }
+        }
+        
+        // Tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('tab-files').style.display = tab === 'files' ? 'block' : 'none';
+            document.getElementById('tab-snapshots').style.display = tab === 'snapshots' ? 'block' : 'none';
+            document.getElementById('tab-policy').style.display = tab === 'policy' ? 'block' : 'none';
+        }
+        
+        // File version detail
+        async function showFileVersion(path) {
+            currentFile = path;
+            document.getElementById('versionFileName').textContent = path.split('/').pop();
+            
+            try {
+                const res = await fetch(`${API_BASE}/files/${encodeURIComponent(path)}/versions`);
+                const data = await res.json();
+                const container = document.getElementById('versionList');
+                
+                if (data.code === 0 && data.data && data.data.length > 0) {
+                    container.innerHTML = data.data.map((v, i) => `
+                        <div class="version-item">
+                            <div class="version-info">
+                                <div class="version-name">版本 ${data.data.length - i}</div>
+                                <div class="version-meta">${formatDate(v.created_at)} • ${formatSize(v.size)} • ${v.created_by || 'system'}</div>
+                            </div>
+                            <div class="version-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="compareVersions(${i})">🔍 对比</button>
+                                <button class="btn btn-success btn-sm" onclick="restoreVersion('${v.id}')">↩️ 恢复</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">暂无版本历史</div>';
+                }
+            } catch (e) {
+                console.error('加载版本失败:', e);
+            }
+            
+            document.getElementById('diffSection').style.display = 'none';
+            document.getElementById('versionModal').classList.add('active');
+        }
+        
+        function hideVersionModal() {
+            document.getElementById('versionModal').classList.remove('active');
+        }
+        
+        // Compare versions
+        async function compareVersions(index) {
+            const diffSection = document.getElementById('diffSection');
+            diffSection.style.display = 'block';
+            
+            // Mock diff data
+            document.getElementById('diffOldTitle').textContent = `版本 ${index + 2}`;
+            document.getElementById('diffNewTitle').textContent = `版本 ${index + 1}`;
+            document.getElementById('diffOldContent').textContent = '旧版本内容...';
+            document.getElementById('diffNewContent').textContent = '新版本内容...';
+        }
+        
+        // Restore version
+        async function restoreVersion(versionId) {
+            if (!confirm('确定要恢复到此版本吗？当前版本将被保留为历史版本。')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/versions/${versionId}/restore`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('版本已恢复');
+                    hideVersionModal();
+                    loadFiles();
+                } else {
+                    alert('恢复失败：' + data.message);
+                }
+            } catch (e) {
+                alert('恢复失败：' + e.message);
+            }
+        }
+        
+        // Snapshot operations
+        function showCreateSnapshot() {
+            const now = new Date();
+            document.getElementById('inputSnapName').value = `snap-${now.toISOString().slice(0, 10)}`;
+            document.getElementById('snapshotModal').classList.add('active');
+        }
+        
+        function hideSnapshotModal() {
+            document.getElementById('snapshotModal').classList.remove('active');
+        }
+        
+        async function createSnapshot() {
+            const name = document.getElementById('inputSnapName').value.trim();
+            const type = document.getElementById('inputSnapType').value;
+            const desc = document.getElementById('inputSnapDesc').value.trim();
+            
+            if (!name) {
+                alert('请输入快照名称');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/snapshots`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, type, description: desc, readonly: readonlyEnabled })
+                });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('快照创建成功');
+                    hideSnapshotModal();
+                    loadData();
+                } else {
+                    alert('创建失败：' + data.message);
+                }
+            } catch (e) {
+                alert('创建失败：' + e.message);
+            }
+        }
+        
+        async function restoreSnapshot(id) {
+            if (!confirm('确定要恢复到此快照吗？此操作将覆盖当前数据。')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/snapshots/${id}/restore`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('快照已恢复');
+                    loadData();
+                } else {
+                    alert('恢复失败：' + data.message);
+                }
+            } catch (e) {
+                alert('恢复失败：' + e.message);
+            }
+        }
+        
+        async function deleteSnapshot(id) {
+            if (!confirm('确定要删除此快照吗？此操作不可恢复。')) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/snapshots/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('快照已删除');
+                    loadSnapshots();
+                } else {
+                    alert('删除失败：' + data.message);
+                }
+            } catch (e) {
+                alert('删除失败：' + e.message);
+            }
+        }
+        
+        // Policy
+        function showPolicyModal() {
+            document.getElementById('policyModal').classList.add('active');
+        }
+        
+        function hidePolicyModal() {
+            document.getElementById('policyModal').classList.remove('active');
+        }
+        
+        function toggleAutoClean() {
+            autoCleanEnabled = !autoCleanEnabled;
+            document.getElementById('toggleAutoClean').classList.toggle('active', autoCleanEnabled);
+            document.getElementById('autoCleanLabel').textContent = autoCleanEnabled ? '已启用' : '已禁用';
+        }
+        
+        function toggleReadonly() {
+            readonlyEnabled = !readonlyEnabled;
+            document.getElementById('toggleReadonly').classList.toggle('active', readonlyEnabled);
+            document.getElementById('readonlyLabel').textContent = readonlyEnabled ? '是' : '否';
+        }
+        
+        async function savePolicy() {
+            const policy = {
+                keep_last: parseInt(document.getElementById('inputKeepLast').value),
+                daily_days: parseInt(document.getElementById('inputDailyDays').value),
+                weekly_weeks: parseInt(document.getElementById('inputWeeklyWeeks').value),
+                monthly_months: parseInt(document.getElementById('inputMonthlyMonths').value),
+                min_retention_hours: parseInt(document.getElementById('inputMinRetention').value),
+                auto_clean: autoCleanEnabled
+            };
+            
+            try {
+                const res = await fetch(`${API_BASE}/policy`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(policy)
+                });
+                const data = await res.json();
+                if (data.code === 0) {
+                    alert('策略已保存');
+                    hidePolicyModal();
+                    // Update display
+                    document.getElementById('policyKeepLast').textContent = policy.keep_last + ' 个';
+                    document.getElementById('policyDailyDays').textContent = policy.daily_days + ' 天';
+                    document.getElementById('policyWeeklyWeeks').textContent = policy.weekly_weeks + ' 周';
+                    document.getElementById('policyMonthlyMonths').textContent = policy.monthly_months + ' 月';
+                    document.getElementById('policyAutoClean').textContent = policy.auto_clean ? '已启用' : '已禁用';
+                    document.getElementById('policyMinRetention').textContent = policy.min_retention_hours + ' 小时';
+                } else {
+                    alert('保存失败：' + data.message);
+                }
+            } catch (e) {
+                alert('保存失败：' + e.message);
+            }
+        }
+        
+        function showCreateVersion() {
+            showCreateSnapshot();
+        }
+        
+        // Utilities
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '--';
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN');
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️',
+                'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬',
+                'mp3': '🎵', 'wav': '🎵', 'flac': '🎵',
+                'doc': '📄', 'docx': '📄', 'pdf': '📄', 'txt': '📄',
+                'xls': '📊', 'xlsx': '📊', 'csv': '📊',
+                'zip': '📦', 'rar': '📦', '7z': '📦'
+            };
+            return icons[ext] || '📄';
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadData);
+        setInterval(loadStats, 60000);
+    </script>
+</body>
+</html>
