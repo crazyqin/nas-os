@@ -530,7 +530,7 @@ func (e *PrometheusExporter) Handler(w http.ResponseWriter, r *http.Request) {
 	output := e.collectAllMetrics()
 
 	w.Header().Set("Content-Type", "text/plain; version=0.0.4")
-	w.Write([]byte(output))
+	_, _ = w.Write([]byte(output))
 }
 
 // collectAllMetrics 收集所有指标

@@ -649,3 +649,546 @@ func BenchmarkAddLUN(b *testing.B) {
 		})
 	}
 }
+
+// ========== Additional Coverage Tests ==========
+
+func TestManagerGetConfig(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	config := mgr.GetConfig()
+	if config == nil {
+		t.Error("Config should not be nil")
+	}
+	if !config.Enabled {
+		t.Error("Config should be enabled by default")
+	}
+}
+
+func TestManagerSetBaseDomain(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	mgr.SetBaseDomain("new.domain.com")
+
+	target, err := mgr.CreateTarget(TargetInput{Name: "domain-test"})
+	if err != nil {
+		t.Fatalf("Failed to create target: %v", err)
+	}
+
+	// IQN should contain the new domain
+	if len(target.IQN) < 10 {
+		t.Errorf("IQN too short: %s", target.IQN)
+	}
+}
+
+func TestCreateTargetWithCHAP(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	input := TargetInput{
+		Name: "chap-target",
+		CHAP: &CHAPInput{
+			Enabled:  true,
+			Username: "chapuser",
+			Secret:   "chapsecret1234",
+		},
+	}
+
+	target, err := mgr.CreateTarget(input)
+	if err != nil {
+		t.Fatalf("Failed to create target with CHAP: %v", err)
+	}
+
+	if target.CHAP == nil {
+		t.Error("CHAP config should be set")
+	}
+	if !target.CHAP.Enabled {
+		t.Error("CHAP should be enabled")
+	}
+}
+
+func TestCreateTargetWithMutualCHAP(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	input := TargetInput{
+		Name: "mutual-chap-target",
+		CHAP: &CHAPInput{
+			Enabled:      true,
+			Username:     "chapuser",
+			Secret:       "chapsecret1234",
+			Mutual:       true,
+			MutualUser:   "mutualuser",
+			MutualSecret: "mutualsecret12",
+		},
+	}
+
+	target, err := mgr.CreateTarget(input)
+	if err != nil {
+		t.Fatalf("Failed to create target with mutual CHAP: %v", err)
+	}
+
+	if !target.CHAP.Mutual {
+		t.Error("Mutual CHAP should be enabled")
+	}
+}
+
+func TestGetTargetByIQN(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	input := TargetInput{
+		Name: "iqn-lookup-target",
+		IQN:  "iqn.2024-03.com.example:iqn-lookup",
+	}
+	created, _ := mgr.CreateTarget(input)
+
+	target, err := mgr.GetTargetByIQN(created.IQN)
+	if err != nil {
+		t.Fatalf("Failed to get target by IQN: %v", err)
+	}
+
+	if target.ID != created.ID {
+		t.Error("Target ID mismatch")
+	}
+
+	// Test not found
+	_, err = mgr.GetTargetByIQN("iqn.2024-03.com.example:nonexistent")
+	if err != ErrTargetNotFound {
+		t.Errorf("Expected ErrTargetNotFound, got: %v", err)
+	}
+}
+
+func TestCreateTargetInvalidIQN(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	input := TargetInput{
+		Name: "invalid-iqn-target",
+		IQN:  "not-a-valid-iqn",
+	}
+
+	_, err := mgr.CreateTarget(input)
+	if err != ErrInvalidIQN {
+		t.Errorf("Expected ErrInvalidIQN, got: %v", err)
+	}
+}
+
+func TestCreateTargetDuplicateIQN(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	input := TargetInput{
+		Name: "dup-iqn-1",
+		IQN:  "iqn.2024-03.com.example:dup-iqn",
+	}
+	_, err := mgr.CreateTarget(input)
+	if err != nil {
+		t.Fatalf("First create should succeed: %v", err)
+	}
+
+	input2 := TargetInput{
+		Name: "dup-iqn-2",
+		IQN:  "iqn.2024-03.com.example:dup-iqn",
+	}
+	_, err = mgr.CreateTarget(input2)
+	if err == nil {
+		t.Error("Should fail with duplicate IQN")
+	}
+}
+
+func TestUpdateTargetNotFound(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	_, err := mgr.UpdateTarget("non-existent", TargetInput{Alias: "test"})
+	if err != ErrTargetNotFound {
+		t.Errorf("Expected ErrTargetNotFound, got: %v", err)
+	}
+}
+
+func TestDeleteTargetNotFound(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	err := mgr.DeleteTarget("non-existent")
+	if err != ErrTargetNotFound {
+		t.Errorf("Expected ErrTargetNotFound, got: %v", err)
+	}
+}
+
+func TestAddLUNNotFound(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	_, err := mgr.AddLUN("non-existent", LUNInput{Name: "test", Type: LUNTypeFile, Size: 1024 * 1024})
+	if err != ErrTargetNotFound {
+		t.Errorf("Expected ErrTargetNotFound, got: %v", err)
+	}
+}
+
+func TestAddLUNInvalidSize(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "invalid-lun-size"})
+
+	_, err := mgr.AddLUN(target.ID, LUNInput{
+		Name: "too-small",
+		Type: LUNTypeFile,
+		Size: 1024, // Too small
+	})
+	if err == nil {
+		t.Error("Should fail with size too small")
+	}
+}
+
+func TestAddLUNDuplicateName(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "dup-lun-target"})
+	input := LUNInput{Name: "dup-lun", Type: LUNTypeFile, Size: 1024 * 1024 * 100}
+
+	_, err := mgr.AddLUN(target.ID, input)
+	if err != nil {
+		t.Fatalf("First add should succeed: %v", err)
+	}
+
+	_, err = mgr.AddLUN(target.ID, input)
+	if err != ErrLUNExists {
+		t.Errorf("Expected ErrLUNExists, got: %v", err)
+	}
+}
+
+func TestRemoveLUNNotFound(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "remove-lun-notfound"})
+
+	err := mgr.RemoveLUN(target.ID, "non-existent-lun")
+	if err != ErrLUNNotFound {
+		t.Errorf("Expected ErrLUNNotFound, got: %v", err)
+	}
+}
+
+func TestExpandLUNNotFound(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "expand-lun-notfound"})
+
+	_, err := mgr.ExpandLUN(target.ID, "non-existent-lun", 1024*1024*200)
+	if err != ErrLUNNotFound {
+		t.Errorf("Expected ErrLUNNotFound, got: %v", err)
+	}
+}
+
+func TestCreateLUNSnapshotNotFound(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "snapshot-notfound"})
+
+	_, err := mgr.CreateLUNSnapshot(target.ID, "non-existent-lun", LUNSnapshotInput{Name: "test"})
+	if err != ErrLUNNotFound {
+		t.Errorf("Expected ErrLUNNotFound, got: %v", err)
+	}
+}
+
+func TestGetLUNNotFound(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "get-lun-notfound"})
+
+	_, err := mgr.GetLUN(target.ID, "non-existent-lun")
+	if err != ErrLUNNotFound {
+		t.Errorf("Expected ErrLUNNotFound, got: %v", err)
+	}
+}
+
+func TestEnableDisableTargetNotFound(t *testing.T) {
+	mgr, tmpDir := setupTestManager(t)
+	defer cleanupTestManager(tmpDir)
+
+	err := mgr.EnableTarget("non-existent")
+	if err != ErrTargetNotFound {
+		t.Errorf("Expected ErrTargetNotFound, got: %v", err)
+	}
+
+	err = mgr.DisableTarget("non-existent")
+	if err != ErrTargetNotFound {
+		t.Errorf("Expected ErrTargetNotFound, got: %v", err)
+	}
+}
+
+func TestGenerateSecret(t *testing.T) {
+	secret, err := GenerateSecret()
+	if err != nil {
+		t.Fatalf("Failed to generate secret: %v", err)
+	}
+	if len(secret) != 16 {
+		t.Errorf("Expected 16 character secret, got %d", len(secret))
+	}
+}
+
+func TestISError(t *testing.T) {
+	err := &ISError{Code: 404, Message: "not found"}
+	if err.Error() != "not found" {
+		t.Errorf("Error message mismatch: %s", err.Error())
+	}
+}
+
+func TestLUNManagerValidateInput(t *testing.T) {
+	lm := NewLUNManager("/tmp/test")
+
+	// Test empty name
+	err := lm.validateInput(LUNInput{Name: ""})
+	if err == nil {
+		t.Error("Should fail with empty name")
+	}
+
+	// Test invalid type
+	err = lm.validateInput(LUNInput{Name: "test", Type: "invalid"})
+	if err == nil {
+		t.Error("Should fail with invalid type")
+	}
+
+	// Test missing path for block type
+	err = lm.validateInput(LUNInput{Name: "test", Type: LUNTypeBlock})
+	if err == nil {
+		t.Error("Should fail with missing block device path")
+	}
+}
+
+func TestCHAPManagerMutualSecret(t *testing.T) {
+	chapMgr := NewCHAPManager()
+
+	input := &CHAPInput{
+		Enabled:      true,
+		Username:     "user",
+		Secret:       "secret123456",
+		Mutual:       true,
+		MutualUser:   "mutual",
+		MutualSecret: "mutual1234567",
+	}
+
+	err := chapMgr.ValidateInput(input)
+	if err != nil {
+		t.Fatalf("Valid mutual CHAP should pass: %v", err)
+	}
+
+	_ = chapMgr.CreateConfig("test-id", input)
+	mu, ms, ok := chapMgr.GetMutualSecret("test-id")
+	if !ok {
+		t.Error("Should have mutual secret")
+	}
+	if mu != "mutual" || ms != "mutual1234567" {
+		t.Errorf("Mutual credentials mismatch: %s/%s", mu, ms)
+	}
+
+	// Test delete
+	chapMgr.DeleteConfig("test-id")
+	if chapMgr.HasAuth("test-id") {
+		t.Error("Should not have auth after delete")
+	}
+}
+
+// ========== LUN Manager Tests ==========
+
+func TestLUNManagerCreateBlockDevice(t *testing.T) {
+	tmpDir, _ := os.MkdirTemp("", "lun-test-*")
+	defer os.RemoveAll(tmpDir)
+
+	lm := NewLUNManager(tmpDir)
+
+	// Test block device validation
+	err := lm.ValidatePath("/dev/null", LUNTypeBlock)
+	if err != nil {
+		t.Errorf("/dev/null should be a valid block device path: %v", err)
+	}
+}
+
+func TestLUNManagerAssignNumber(t *testing.T) {
+	lm := NewLUNManager("/tmp")
+
+	lun := &LUN{Name: "test"}
+	err := lm.AssignNumber(lun, 5)
+	if err != nil {
+		t.Fatalf("Failed to assign number: %v", err)
+	}
+	if lun.Number != 5 {
+		t.Errorf("Expected number 5, got %d", lun.Number)
+	}
+
+	// Test invalid number
+	err = lm.AssignNumber(lun, 300)
+	if err == nil {
+		t.Error("Should fail with invalid LUN number")
+	}
+}
+
+func TestLUNManagerDelete(t *testing.T) {
+	tmpDir, _ := os.MkdirTemp("", "lun-delete-*")
+	defer os.RemoveAll(tmpDir)
+
+	lm := NewLUNManager(tmpDir)
+
+	// Create a file-backed LUN
+	lun, err := lm.Create("test-target", LUNInput{
+		Name: "delete-test",
+		Type: LUNTypeFile,
+		Size: 1024 * 1024,
+	})
+	if err != nil {
+		t.Fatalf("Failed to create LUN: %v", err)
+	}
+
+	// Delete should succeed
+	err = lm.Delete(lun)
+	if err != nil {
+		t.Errorf("Delete should succeed: %v", err)
+	}
+}
+
+func TestLUNManagerShrink(t *testing.T) {
+	lm := NewLUNManager("/tmp")
+
+	lun := &LUN{
+		Name: "shrink-test",
+		Type: LUNTypeFile,
+		Size: 1024 * 1024 * 100,
+	}
+
+	err := lm.Shrink(lun, 1024*1024*50)
+	if err != ErrShrinkNotSupported {
+		t.Errorf("Expected ErrShrinkNotSupported, got: %v", err)
+	}
+}
+
+func TestLUNManagerDeleteSnapshot(t *testing.T) {
+	tmpDir, _ := os.MkdirTemp("", "lun-snap-*")
+	defer os.RemoveAll(tmpDir)
+
+	lm := NewLUNManager(tmpDir)
+
+	lun, _ := lm.Create("test-target", LUNInput{
+		Name: "snap-delete-test",
+		Type: LUNTypeFile,
+		Size: 1024 * 1024,
+	})
+
+	// Add a snapshot
+	snap, _ := lm.CreateSnapshot(lun, LUNSnapshotInput{Name: "test-snap"})
+
+	// Delete snapshot
+	err := lm.DeleteSnapshot(lun, snap.ID)
+	if err != nil {
+		t.Errorf("Delete snapshot should succeed: %v", err)
+	}
+
+	// Delete non-existent snapshot
+	err = lm.DeleteSnapshot(lun, "non-existent")
+	if err == nil {
+		t.Error("Should fail deleting non-existent snapshot")
+	}
+}
+
+func TestLUNManagerCreateSnapshotBlockDevice(t *testing.T) {
+	lm := NewLUNManager("/tmp")
+
+	lun := &LUN{
+		Name: "block-snap-test",
+		Type: LUNTypeBlock,
+	}
+
+	_, err := lm.CreateSnapshot(lun, LUNSnapshotInput{Name: "test"})
+	if err == nil {
+		t.Error("Should fail creating snapshot for block device")
+	}
+}
+
+// ========== CHAP Validation Edge Cases ==========
+
+func TestCHAPValidationShortMutualSecret(t *testing.T) {
+	chapMgr := NewCHAPManager()
+
+	input := &CHAPInput{
+		Enabled:      true,
+		Username:     "user",
+		Secret:       "secret123456",
+		Mutual:       true,
+		MutualUser:   "mutual",
+		MutualSecret: "short", // Too short
+	}
+
+	err := chapMgr.ValidateInput(input)
+	if err == nil {
+		t.Error("Should fail with short mutual secret")
+	}
+}
+
+func TestCHAPValidationLongSecret(t *testing.T) {
+	chapMgr := NewCHAPManager()
+
+	input := &CHAPInput{
+		Enabled:  true,
+		Username: "user",
+		Secret:   "thissecretistoolong12345678", // Too long
+	}
+
+	err := chapMgr.ValidateInput(input)
+	if err == nil {
+		t.Error("Should fail with too long secret")
+	}
+}
+
+func TestCHAPManagerGetConfig(t *testing.T) {
+	chapMgr := NewCHAPManager()
+
+	// Test non-existent
+	config := chapMgr.GetConfig("non-existent")
+	if config != nil {
+		t.Error("Should return nil for non-existent target")
+	}
+
+	// Create config
+	input := &CHAPInput{
+		Enabled:  true,
+		Username: "user",
+		Secret:   "secret123456",
+	}
+	chapMgr.CreateConfig("test-id", input)
+
+	config = chapMgr.GetConfig("test-id")
+	if config == nil {
+		t.Error("Should return config")
+	}
+	if config.Secret != "" {
+		t.Error("Secret should be hidden in response")
+	}
+}
+
+func TestCHAPManagerUpdateConfig(t *testing.T) {
+	chapMgr := NewCHAPManager()
+
+	// Update non-existent (should create)
+	input := &CHAPInput{
+		Enabled:  true,
+		Username: "user",
+		Secret:   "secret123456",
+	}
+	config := chapMgr.UpdateConfig("test-id", input)
+	if config == nil {
+		t.Error("Should create config")
+	}
+
+	// Update with nil (should delete)
+	config = chapMgr.UpdateConfig("test-id", nil)
+	if config != nil {
+		t.Error("Should delete config")
+	}
+}

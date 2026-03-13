@@ -295,7 +295,7 @@ func (pm *PolicyManager) Initialize() error {
 	pm.mu.RLock()
 	for _, policy := range pm.policies {
 		if policy.Enabled && policy.Type == PolicyTypeScheduled {
-			pm.scheduler.AddJob(policy)
+			_ = pm.scheduler.AddJob(policy)
 		}
 	}
 	pm.mu.RUnlock()
@@ -342,7 +342,7 @@ func (pm *PolicyManager) CreatePolicy(policy *Policy) error {
 
 	// 如果是定时策略且已启用，添加到调度器
 	if policy.Enabled && policy.Type == PolicyTypeScheduled {
-		pm.scheduler.AddJob(policy)
+		_ = pm.scheduler.AddJob(policy)
 	}
 
 	return nil
@@ -468,7 +468,7 @@ func (pm *PolicyManager) EnablePolicy(id string, enabled bool) error {
 	// 更新调度器
 	if policy.Type == PolicyTypeScheduled {
 		if enabled {
-			pm.scheduler.AddJob(policy)
+			_ = pm.scheduler.AddJob(policy)
 		} else {
 			pm.scheduler.RemoveJob(id)
 		}
