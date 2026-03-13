@@ -20,6 +20,7 @@ type Manager struct {
 	quotas       map[string]*Quota            // quotaID -> Quota
 	groupQuotas  map[string]*Quota            // groupID -> Quota (用户组配额)
 	userQuotas   map[string]map[string]*Quota // username -> volumeName -> Quota
+	dirQuotas    map[string]*Quota            // path -> Quota (目录配额)
 	policies     map[string]*CleanupPolicy    // policyID -> CleanupPolicy
 	alerts       map[string]*Alert            // alertID -> Alert
 	alertHistory []*Alert                     // 历史告警
@@ -58,6 +59,7 @@ func NewManager(configPath string, storage StorageProvider, userProv UserProvide
 		quotas:       make(map[string]*Quota),
 		groupQuotas:  make(map[string]*Quota),
 		userQuotas:   make(map[string]map[string]*Quota),
+		dirQuotas:    make(map[string]*Quota),
 		policies:     make(map[string]*CleanupPolicy),
 		alerts:       make(map[string]*Alert),
 		alertHistory: make([]*Alert, 0),
@@ -116,6 +118,14 @@ func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 		if m.userProvider != nil && !m.userProvider.GroupExists(input.TargetID) {
 			return nil, ErrGroupNotFound
 		}
+	} else if input.Type == QuotaTypeDirectory {
+		// 验证目录存在
+		if input.Path == "" {
+			return nil, fmt.Errorf("目录配额需要指定路径")
+		}
+		if _, err := os.Stat(input.Path); os.IsNotExist(err) {
+			return nil, fmt.Errorf("目录不存在：%s", input.Path)
+		}
 	}
 
 	// 验证限制值
@@ -138,7 +148,12 @@ func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 		ID:         generateID(),
 		Type:       input.Type,
 		TargetID:   input.TargetID,
-		TargetName: input.TargetID,
+		TargetName: func() string {
+			if input.Type == QuotaTypeDirectory {
+				return input.Path
+			}
+			return input.TargetID
+		}(),
 		VolumeName: input.VolumeName,
 		Path:       input.Path,
 		HardLimit:  input.HardLimit,
@@ -150,13 +165,16 @@ func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 	m.quotas[quota.ID] = quota
 
 	// 更新索引
-	if input.Type == QuotaTypeUser {
+	switch input.Type {
+	case QuotaTypeUser:
 		if m.userQuotas[input.TargetID] == nil {
 			m.userQuotas[input.TargetID] = make(map[string]*Quota)
 		}
 		m.userQuotas[input.TargetID][input.VolumeName] = quota
-	} else {
+	case QuotaTypeGroup:
 		m.groupQuotas[input.TargetID] = quota
+	case QuotaTypeDirectory:
+		m.dirQuotas[input.Path] = quota
 	}
 
 	m.saveConfig()
@@ -211,6 +229,30 @@ func (m *Manager) ListGroupQuotas(groupName string) []*Quota {
 		if q.Type == QuotaTypeGroup && q.TargetID == groupName {
 			result = append(result, q)
 		}
+	}
+	return result
+}
+
+// GetDirectoryQuota 获取目录配额
+func (m *Manager) GetDirectoryQuota(path string) (*Quota, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	quota, exists := m.dirQuotas[path]
+	if !exists {
+		return nil, ErrQuotaNotFound
+	}
+	return quota, nil
+}
+
+// ListDirectoryQuotas 列出所有目录配额
+func (m *Manager) ListDirectoryQuotas() []*Quota {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	result := make([]*Quota, 0, len(m.dirQuotas))
+	for _, q := range m.dirQuotas {
+		result = append(result, q)
 	}
 	return result
 }

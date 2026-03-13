@@ -540,6 +540,7 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/trash", "./webui/pages/trash.html")
 	s.engine.StaticFile("/replication", "./webui/pages/replication.html")
 	s.engine.StaticFile("/webdav", "./webui/pages/webdav.html")
+	s.engine.StaticFile("/dir-quota", "./webui/pages/dir-quota.html")
 }
 
 // Start 启动服务器
