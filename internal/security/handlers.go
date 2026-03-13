@@ -19,41 +19,44 @@ func NewHandlers(mgr *SecurityManager) *Handlers {
 }
 
 // RegisterRoutes 注册路由
+// 注意：调用方应在应用此路由组前添加认证和权限中间件
+// 这些都是敏感的安全操作，应该限制为管理员权限
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	security := api.Group("/security")
+	// 安全操作需要管理员权限，调用方应添加相应中间件
 	{
 		// 仪表板
 		security.GET("/dashboard", h.getDashboard)
 
-		// 配置
+		// 配置 - 需要管理员权限
 		security.GET("/config", h.getConfig)
-		security.PUT("/config", h.updateConfig)
+		security.PUT("/config", h.updateConfig) // 需要管理员权限
 
-		// ========== 防火墙 ==========
+		// ========== 防火墙 ========== // 需要管理员权限
 		firewall := security.Group("/firewall")
 		{
 			firewall.GET("/status", h.getFirewallStatus)
 			firewall.GET("/rules", h.listFirewallRules)
-			firewall.POST("/rules", h.addFirewallRule)
-			firewall.PUT("/rules/:id", h.updateFirewallRule)
-			firewall.DELETE("/rules/:id", h.deleteFirewallRule)
+			firewall.POST("/rules", h.addFirewallRule)              // 需要管理员权限
+			firewall.PUT("/rules/:id", h.updateFirewallRule)        // 需要管理员权限
+			firewall.DELETE("/rules/:id", h.deleteFirewallRule)     // 需要管理员权限
 
 			firewall.GET("/blacklist", h.getBlacklist)
-			firewall.POST("/blacklist", h.addToBlacklist)
-			firewall.DELETE("/blacklist/:ip", h.removeFromBlacklist)
+			firewall.POST("/blacklist", h.addToBlacklist)           // 需要管理员权限
+			firewall.DELETE("/blacklist/:ip", h.removeFromBlacklist) // 需要管理员权限
 
 			firewall.GET("/whitelist", h.getWhitelist)
-			firewall.POST("/whitelist", h.addToWhitelist)
-			firewall.DELETE("/whitelist/:ip", h.removeFromWhitelist)
+			firewall.POST("/whitelist", h.addToWhitelist)           // 需要管理员权限
+			firewall.DELETE("/whitelist/:ip", h.removeFromWhitelist) // 需要管理员权限
 		}
 
-		// ========== 失败登录保护 ==========
+		// ========== 失败登录保护 ========== // 需要管理员权限
 		fail2ban := security.Group("/fail2ban")
 		{
 			fail2ban.GET("/status", h.getFail2BanStatus)
-			fail2ban.PUT("/config", h.updateFail2BanConfig)
+			fail2ban.PUT("/config", h.updateFail2BanConfig)         // 需要管理员权限
 			fail2ban.GET("/banned", h.getBannedIPs)
-			fail2ban.POST("/unban/:ip", h.unbanIP)
+			fail2ban.POST("/unban/:ip", h.unbanIP)                  // 需要管理员权限
 			fail2ban.GET("/attempts/:ip", h.getFailedAttempts)
 		}
 
@@ -63,7 +66,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 			audit.GET("/logs", h.getAuditLogs)
 			audit.GET("/login-logs", h.getLoginLogs)
 			audit.GET("/alerts", h.getAlerts)
-			audit.POST("/alerts/:id/acknowledge", h.acknowledgeAlert)
+			audit.POST("/alerts/:id/acknowledge", h.acknowledgeAlert) // 需要管理员权限
 			audit.GET("/stats", h.getAuditStats)
 			audit.GET("/export", h.exportLogs)
 		}

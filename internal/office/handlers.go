@@ -17,23 +17,26 @@ func NewHandlers(mgr *Manager) *Handlers {
 }
 
 // RegisterRoutes 注册路由
+// 注意：编辑和配置操作需要认证，调用方应添加认证中间件
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	office := api.Group("/office")
+	// 敏感操作需要认证，调用方应添加认证中间件
 	{
-		// 配置管理
+		// 配置管理 - 需要管理员权限
 		office.GET("/config", h.getConfig)
-		office.PUT("/config", h.updateConfig)
+		office.PUT("/config", h.updateConfig)  // 需要管理员权限
 
 		// 服务状态
 		office.GET("/status", h.getStatus)
 
-		// 编辑会话
-		office.POST("/edit/:fileId", h.startEdit)
+		// 编辑会话 - 需要认证
+		office.POST("/edit/:fileId", h.startEdit)        // 需要认证
 		office.GET("/sessions", h.listSessions)
 		office.GET("/sessions/:sessionId", h.getSession)
-		office.DELETE("/sessions/:sessionId", h.closeSession)
+		office.DELETE("/sessions/:sessionId", h.closeSession) // 需要认证
 
 		// OnlyOffice 回调（不带 sessionId，通过 body 中的 key 识别）
+		// 这是一个内部回调接口，应该验证来源
 		office.POST("/callback", h.handleCallback)
 
 		// 文件关联

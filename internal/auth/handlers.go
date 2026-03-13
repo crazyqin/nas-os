@@ -17,8 +17,10 @@ func NewHandlers(mgr *MFAManager) *Handlers {
 }
 
 // RegisterRoutes 注册路由
+// 注意：MFA 操作需要认证，调用方应在应用此路由组前添加认证中间件
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	mfa := api.Group("/mfa")
+	// 所有 MFA 操作都需要认证
 	{
 		// 状态查询
 		mfa.GET("/status", h.getStatus)

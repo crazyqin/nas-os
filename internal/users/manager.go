@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"math/big"
 	"os"
 	"path/filepath"
 	"sync"
@@ -137,13 +139,24 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		// 默认密码：admin123（首次登录后应修改）
-		hash, err := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+		// 生成随机默认密码（首次登录后应修改）
+		// 安全改进：不再使用硬编码密码
+		defaultPassword := generateRandomPassword(16)
+		hash, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, err
 		}
 		adminUser.PasswordHash = string(hash)
 		m.users["admin"] = adminUser
+		
+		// 将初始密码输出到控制台和日志文件（仅首次启动）
+		// 生产环境建议：通过邮件或安全渠道发送初始密码
+		log.Printf("========================================")
+		log.Printf("⚠️  首次启动：默认管理员账号已创建")
+		log.Printf("   用户名: admin")
+		log.Printf("   密码: %s", defaultPassword)
+		log.Printf("   请立即登录并修改密码！")
+		log.Printf("========================================")
 	}
 
 	return m, nil
@@ -848,4 +861,51 @@ func (m *Manager) SetUserRole(username string, role Role) error {
 	user.UpdatedAt = time.Now()
 	m.saveConfig()
 	return nil
+}
+
+// ========== 安全辅助函数 ==========
+
+// generateRandomPassword 生成随机密码
+func generateRandomPassword(length int) string {
+	const (
+		uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		lowercase = "abcdefghijklmnopqrstuvwxyz"
+		digits    = "0123456789"
+		special   = "!@#$%^&*"
+	)
+	allChars := uppercase + lowercase + digits + special
+
+	// 确保密码包含各类字符
+	password := make([]byte, length)
+	
+	// 至少一个大写字母
+	password[0] = uppercase[mustRandomInt(len(uppercase))]
+	// 至少一个小写字母
+	password[1] = lowercase[mustRandomInt(len(lowercase))]
+	// 至少一个数字
+	password[2] = digits[mustRandomInt(len(digits))]
+	// 至少一个特殊字符
+	password[3] = special[mustRandomInt(len(special))]
+	
+	// 填充其余字符
+	for i := 4; i < length; i++ {
+		password[i] = allChars[mustRandomInt(len(allChars))]
+	}
+	
+	// 打乱顺序
+	for i := range password {
+		j := mustRandomInt(len(password))
+		password[i], password[j] = password[j], password[i]
+	}
+	
+	return string(password)
+}
+
+// mustRandomInt 生成随机整数
+func mustRandomInt(max int) int {
+	n, err := rand.Int(rand.Reader, big.NewInt(int64(max)))
+	if err != nil {
+		panic(err) // 如果系统随机数生成器失败，应该立即终止
+	}
+	return int(n.Int64())
 }
