@@ -32,29 +32,29 @@ type Version struct {
 
 // RetentionPolicy 版本保留策略
 type RetentionPolicy struct {
-	MaxVersions   int   `json:"maxVersions"`   // 最大版本数量，0 表示无限制
-	MaxAge        int   `json:"maxAge"`        // 最大保留天数，0 表示无限制
-	MaxSpace      int64 `json:"maxSpace"`      // 最大占用空间 (字节)，0 表示无限制
-	AutoCleanup   bool  `json:"autoCleanup"`   // 自动清理过期版本
+	MaxVersions    int   `json:"maxVersions"`    // 最大版本数量，0 表示无限制
+	MaxAge         int   `json:"maxAge"`         // 最大保留天数，0 表示无限制
+	MaxSpace       int64 `json:"maxSpace"`       // 最大占用空间 (字节)，0 表示无限制
+	AutoCleanup    bool  `json:"autoCleanup"`    // 自动清理过期版本
 	SnapshotOnSave bool  `json:"snapshotOnSave"` // 保存时自动创建快照
 }
 
 // SnapshotConfig 快照配置
 type SnapshotConfig struct {
 	Enabled       bool   `json:"enabled"`
-	TriggerMode   string `json:"triggerMode"` // time, change, manual
-	Interval      int    `json:"interval"`    // 时间间隔（分钟）
+	TriggerMode   string `json:"triggerMode"`   // time, change, manual
+	Interval      int    `json:"interval"`      // 时间间隔（分钟）
 	MinChangeSize int64  `json:"minChangeSize"` // 最小变更大小触发快照
 }
 
 // Config 版本控制配置
 type Config struct {
-	Enabled        bool             `json:"enabled"`
-	VersionRoot    string           `json:"versionRoot"`
-	Retention      RetentionPolicy  `json:"retention"`
-	Snapshot       SnapshotConfig   `json:"snapshot"`
-	ExcludePaths   []string         `json:"excludePaths"`
-	MaxFileSize    int64            `json:"maxFileSize"` // 最大支持的文件大小
+	Enabled      bool            `json:"enabled"`
+	VersionRoot  string          `json:"versionRoot"`
+	Retention    RetentionPolicy `json:"retention"`
+	Snapshot     SnapshotConfig  `json:"snapshot"`
+	ExcludePaths []string        `json:"excludePaths"`
+	MaxFileSize  int64           `json:"maxFileSize"` // 最大支持的文件大小
 }
 
 // DefaultConfig 默认配置
@@ -63,10 +63,10 @@ func DefaultConfig() *Config {
 		Enabled:     true,
 		VersionRoot: "/var/lib/nas-os/versions",
 		Retention: RetentionPolicy{
-			MaxVersions: 50,
-			MaxAge:      30,
-			MaxSpace:    10 * 1024 * 1024 * 1024, // 10GB
-			AutoCleanup: true,
+			MaxVersions:    50,
+			MaxAge:         30,
+			MaxSpace:       10 * 1024 * 1024 * 1024, // 10GB
+			AutoCleanup:    true,
 			SnapshotOnSave: false,
 		},
 		Snapshot: SnapshotConfig{
@@ -81,14 +81,14 @@ func DefaultConfig() *Config {
 
 // Manager 版本控制管理器
 type Manager struct {
-	mu         sync.RWMutex
-	config     *Config
-	versions   map[string][]*Version // filePath -> versions
+	mu          sync.RWMutex
+	config      *Config
+	versions    map[string][]*Version // filePath -> versions
 	allVersions map[string]*Version   // id -> version
-	configPath string
-	totalSize  int64
-	watchers   map[string]time.Time // 监控的文件 -> 上次修改时间
-	stopChan   chan struct{}
+	configPath  string
+	totalSize   int64
+	watchers    map[string]time.Time // 监控的文件 -> 上次修改时间
+	stopChan    chan struct{}
 }
 
 // NewManager 创建版本控制管理器

@@ -583,13 +583,13 @@ func TestFileInfo(t *testing.T) {
 
 func TestSyncStatus(t *testing.T) {
 	status := &SyncStatus{
-		TaskID:          "task-123",
-		Status:          TaskStatusRunning,
-		TotalFiles:      100,
-		ProcessedFiles:  50,
-		TotalBytes:      1024 * 1024 * 100,
+		TaskID:           "task-123",
+		Status:           TaskStatusRunning,
+		TotalFiles:       100,
+		ProcessedFiles:   50,
+		TotalBytes:       1024 * 1024 * 100,
 		TransferredBytes: 1024 * 1024 * 50,
-		Progress:        50.0,
+		Progress:         50.0,
 	}
 
 	assert.Equal(t, "task-123", status.TaskID)
@@ -609,7 +609,7 @@ func TestSyncTaskDefaults(t *testing.T) {
 	}
 
 	// 测试默认值应该由 Manager 设置
-	assert.Empty(t, task.Direction) // 应该默认为 bidirect
+	assert.Empty(t, task.Direction)    // 应该默认为 bidirect
 	assert.Empty(t, task.ScheduleType) // 应该默认为 manual
 }
 

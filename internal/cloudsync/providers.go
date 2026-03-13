@@ -42,13 +42,13 @@ type Provider interface {
 
 // ConnectionTestResult 连接测试结果
 type ConnectionTestResult struct {
-	Success   bool          `json:"success"`
-	Provider  ProviderType  `json:"provider"`
-	Endpoint  string        `json:"endpoint"`
-	Bucket    string        `json:"bucket,omitempty"`
-	LatencyMs int64         `json:"latencyMs"`
-	Message   string        `json:"message"`
-	Error     string        `json:"error,omitempty"`
+	Success   bool         `json:"success"`
+	Provider  ProviderType `json:"provider"`
+	Endpoint  string       `json:"endpoint"`
+	Bucket    string       `json:"bucket,omitempty"`
+	LatencyMs int64        `json:"latencyMs"`
+	Message   string       `json:"message"`
+	Error     string       `json:"error,omitempty"`
 }
 
 // ==================== S3 兼容存储 ====================
@@ -373,8 +373,8 @@ func NewBackblazeB2Provider(ctx context.Context, cfg *ProviderConfig) (*Backblaz
 
 // WebDAVProvider WebDAV 提供商
 type WebDAVProvider struct {
-	client *http.Client
-	config *ProviderConfig
+	client  *http.Client
+	config  *ProviderConfig
 	baseURL string
 }
 
