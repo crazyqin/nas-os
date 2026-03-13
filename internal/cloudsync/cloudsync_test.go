@@ -539,9 +539,8 @@ func TestScheduler_AddRemoveTask(t *testing.T) {
 	go scheduler.Run()
 	defer scheduler.Stop()
 
-	executed := false
 	handler := func() {
-		executed = true
+		// 空的处理函数用于测试
 	}
 
 	err := scheduler.AddCronTask("test-task", "*/5 * * * * *", handler)
