@@ -24,10 +24,21 @@ func TestWorkerPool_Basic(t *testing.T) {
 		assert.NoError(t, err)
 	}
 
-	// Wait for completion
-	time.Sleep(100 * time.Millisecond)
+	// Wait for completion with proper synchronization
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 50; i++ {
+			if atomic.LoadInt32(&completed) >= 10 {
+				return
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+	}()
+	wg.Wait()
 
-	assert.Equal(t, int32(10), completed)
+	assert.Equal(t, int32(10), atomic.LoadInt32(&completed))
 }
 
 func TestWorkerPool_WithError(t *testing.T) {
