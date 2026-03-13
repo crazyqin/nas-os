@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -20,7 +19,6 @@ type SFTPHandler struct {
 	clientIP     string
 	logger       *TransferLogger
 	bandwidthLim *BandwidthLimiter
-	mu           sync.Mutex
 }
 
 // BandwidthLimiter 带宽限制器

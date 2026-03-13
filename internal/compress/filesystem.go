@@ -6,13 +6,11 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 )
 
 // FileSystem 透明压缩文件系统
 type FileSystem struct {
-	mu       sync.RWMutex
 	manager  *Manager
 	rootPath string
 }
@@ -125,7 +123,7 @@ func (fs *FileSystem) Rename(oldName, newName string) error {
 	for _, ext := range exts {
 		oldCompressed := oldPath + ext
 		newCompressed := newPath + ext
-		os.Rename(oldCompressed, newCompressed)
+		_ = os.Rename(oldCompressed, newCompressed)
 	}
 
 	return nil
