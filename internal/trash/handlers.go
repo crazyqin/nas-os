@@ -26,6 +26,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		trash.GET("/config", h.getConfig)
 		trash.PUT("/config", h.updateConfig)
 
+		trash.GET("/:id", h.get)
 		trash.POST("/:id/restore", h.restore)
 		trash.DELETE("/:id", h.deletePermanently)
 
@@ -60,27 +61,44 @@ type TrashResponse struct {
 	DaysLeft     int       `json:"days_left"`
 }
 
+// convertToResponse 将 TrashItem 转换为响应格式
+func convertToResponse(item *TrashItem) TrashResponse {
+	daysLeft := int(time.Until(item.ExpiresAt).Hours() / 24)
+	if daysLeft < 0 {
+		daysLeft = 0
+	}
+	return TrashResponse{
+		ID:           item.ID,
+		Name:         item.Name,
+		OriginalPath: item.OriginalPath,
+		Size:         item.Size,
+		IsDir:        item.IsDir,
+		DeletedAt:    item.DeletedAt,
+		ExpiresAt:    item.ExpiresAt,
+		DaysLeft:     daysLeft,
+	}
+}
+
+// get 获取单个回收站项目详情
+func (h *Handlers) get(c *gin.Context) {
+	id := c.Param("id")
+
+	item, err := h.manager.Get(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, apiError(404, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, success(convertToResponse(item)))
+}
+
 // list 列出回收站项目
 func (h *Handlers) list(c *gin.Context) {
 	items := h.manager.List()
 
 	response := make([]TrashResponse, len(items))
 	for i, item := range items {
-		daysLeft := int(time.Until(item.ExpiresAt).Hours() / 24)
-		if daysLeft < 0 {
-			daysLeft = 0
-		}
-
-		response[i] = TrashResponse{
-			ID:           item.ID,
-			Name:         item.Name,
-			OriginalPath: item.OriginalPath,
-			Size:         item.Size,
-			IsDir:        item.IsDir,
-			DeletedAt:    item.DeletedAt,
-			ExpiresAt:    item.ExpiresAt,
-			DaysLeft:     daysLeft,
-		}
+		response[i] = convertToResponse(item)
 	}
 
 	c.JSON(http.StatusOK, success(response))

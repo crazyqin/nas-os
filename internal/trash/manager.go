@@ -268,6 +268,19 @@ func (m *Manager) List() []*TrashItem {
 	return items
 }
 
+// Get 获取单个回收站项目
+func (m *Manager) Get(id string) (*TrashItem, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	item, exists := m.items[id]
+	if !exists {
+		return nil, fmt.Errorf("回收站项目不存在：%s", id)
+	}
+
+	return item, nil
+}
+
 // GetStats 获取统计信息
 func (m *Manager) GetStats() map[string]interface{} {
 	m.mu.RLock()
