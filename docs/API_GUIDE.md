@@ -1,7 +1,7 @@
 # NAS-OS API 使用指南
 
-**版本**: v1.8.0  
-**更新日期**: 2026-03-20
+**版本**: v2.2.0  
+**更新日期**: 2026-03-21
 
 ---
 
@@ -20,9 +20,11 @@
 11. [WebDAV](#webdav)
 12. [存储复制](#存储复制)
 13. [AI 分类](#ai-分类)
-14. [文件版本控制](#文件版本控制) 🆕
-15. [云同步](#云同步) 🆕
-16. [数据去重](#数据去重) 🆕
+14. [文件版本控制](#文件版本控制)
+15. [云同步](#云同步)
+16. [数据去重](#数据去重)
+17. [iSCSI 目标](#iscsi-目标-) 🆕
+18. [快照策略](#快照策略-) 🆕
 
 ---
 
@@ -1004,6 +1006,202 @@ curl -X POST "http://localhost:8080/api/v1/dedup/auto/enable" \
 
 # 手动执行自动去重
 curl -X POST "http://localhost:8080/api/v1/dedup/auto/run" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## iSCSI 目标 🆕
+
+### 获取 iSCSI 目标列表
+
+```bash
+curl http://localhost:8080/api/v1/iscsi/targets \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "id": "target-001",
+      "name": "target1",
+      "iqn": "iqn.2026-03.com.nas-os:target1",
+      "luns": [
+        {"lun": 0, "size": 107374182400, "path": "/data/iscsi/lun0.img"}
+      ],
+      "sessions": 2,
+      "enabled": true,
+      "created_at": "2026-03-21T10:00:00Z"
+    }
+  ]
+}
+```
+
+### 创建 iSCSI 目标
+
+```bash
+curl -X POST http://localhost:8080/api/v1/iscsi/targets \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "target1",
+    "lun": 0,
+    "path": "/data/iscsi/lun0.img",
+    "size": 107374182400,
+    "chap_user": "admin",
+    "chap_password": "SecurePass123"
+  }'
+```
+
+### 获取 iSCSI 目标详情
+
+```bash
+curl http://localhost:8080/api/v1/iscsi/targets/target1 \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 更新 iSCSI 目标
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/iscsi/targets/target1 \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "allowed_initiators": [
+      "iqn.2026-03.com.vmware:esxi-host1"
+    ]
+  }'
+```
+
+### 删除 iSCSI 目标
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/iscsi/targets/target1 \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 查看连接会话
+
+```bash
+curl http://localhost:8080/api/v1/iscsi/targets/target1/sessions \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "session_id": "sid-001",
+      "initiator_iqn": "iqn.2026-03.com.vmware:esxi-host1",
+      "connected_at": "2026-03-21T10:00:00Z",
+      "bytes_read": 1073741824,
+      "bytes_written": 2147483648
+    }
+  ]
+}
+```
+
+---
+
+## 快照策略 🆕
+
+### 获取策略列表
+
+```bash
+curl http://localhost:8080/api/v1/snapshot-policies \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "id": "policy-001",
+      "name": "daily-backup",
+      "volume": "data",
+      "schedule": "0 2 * * *",
+      "retention": {
+        "count": 30,
+        "max_age": "30d"
+      },
+      "enabled": true,
+      "last_run": "2026-03-21T02:00:00Z",
+      "next_run": "2026-03-22T02:00:00Z",
+      "snapshot_count": 15
+    }
+  ]
+}
+```
+
+### 创建策略
+
+```bash
+curl -X POST http://localhost:8080/api/v1/snapshot-policies \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "daily-backup",
+    "volume": "data",
+    "schedule": "0 2 * * *",
+    "retention": {
+      "count": 30,
+      "max_age": "30d"
+    },
+    "enabled": true
+  }'
+```
+
+### 获取策略详情
+
+```bash
+curl http://localhost:8080/api/v1/snapshot-policies/daily-backup \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 更新策略
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/snapshot-policies/daily-backup \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "schedule": "0 3 * * *",
+    "retention": {
+      "count": 60
+    }
+  }'
+```
+
+### 删除策略
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/snapshot-policies/daily-backup \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 启用/禁用策略
+
+```bash
+# 启用
+curl -X POST http://localhost:8080/api/v1/snapshot-policies/daily-backup/enable \
+  -H "Authorization: Bearer TOKEN"
+
+# 禁用
+curl -X POST http://localhost:8080/api/v1/snapshot-policies/daily-backup/disable \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 手动执行策略
+
+```bash
+curl -X POST http://localhost:8080/api/v1/snapshot-policies/daily-backup/run \
   -H "Authorization: Bearer TOKEN"
 ```
 

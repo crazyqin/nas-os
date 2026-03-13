@@ -15,6 +15,7 @@ import (
 	"nas-os/internal/downloader"
 	"nas-os/internal/files"
 	ftp "nas-os/internal/ftp"
+	"nas-os/internal/iscsi"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
@@ -88,6 +89,7 @@ type Server struct {
 	cloudsyncMgr  *cloudsync.Manager
 	tagsMgr       *tags.Manager
 	officeMgr     *office.Manager
+	iscsiMgr      *iscsi.Manager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -313,6 +315,15 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ OnlyOffice 文档编辑模块就绪")
 	}
 
+	// 初始化 iSCSI 管理器
+	iscsiMgr, err := iscsi.NewManager("/etc/nas-os/iscsi-config.json", "/var/lib/nas-os/iscsi")
+	if err != nil {
+		log.Printf("⚠️ iSCSI 初始化警告：%v", err)
+		iscsiMgr = nil
+	} else {
+		log.Println("✅ iSCSI 目标管理模块就绪")
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -377,6 +388,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		cloudsyncMgr:  cloudsyncMgr,
 		tagsMgr:       tagsMgr,
 		officeMgr:     officeMgr,
+		iscsiMgr:      iscsiMgr,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -573,6 +585,11 @@ func (s *Server) setupRoutes() {
 		// ========== OnlyOffice 文档编辑 ==========
 		if s.officeMgr != nil {
 			office.NewHandlers(s.officeMgr).RegisterRoutes(api)
+		}
+
+		// ========== iSCSI 目标管理 ==========
+		if s.iscsiMgr != nil {
+			iscsi.NewHandlers(s.iscsiMgr).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
