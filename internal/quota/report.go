@@ -6,25 +6,114 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/robfig/cron/v3"
 )
 
 // ReportGenerator 报告生成器
 type ReportGenerator struct {
-	manager *Manager
-	monitor *Monitor
-	cleanup *CleanupManager
+	manager     *Manager
+	monitor     *Monitor
+	cleanup     *CleanupManager
+	cron        *cron.Cron
+	scheduledID cron.EntryID
+	mu          sync.Mutex
+}
+
+// ScheduledReport 定时报告配置
+type ScheduledReport struct {
+	Request    ReportRequest
+	Schedule   string
+	OutputPath string
+	LastRun    time.Time
+	NextRun    time.Time
+	Enabled    bool
 }
 
 // NewReportGenerator 创建报告生成器
 func NewReportGenerator(manager *Manager, monitor *Monitor, cleanup *CleanupManager) *ReportGenerator {
+	cronInstance := cron.New(cron.WithSeconds())
+	cronInstance.Start()
+
 	return &ReportGenerator{
 		manager: manager,
 		monitor: monitor,
 		cleanup: cleanup,
+		cron:    cronInstance,
 	}
+}
+
+// Stop 停止定时任务
+func (g *ReportGenerator) Stop() {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	if g.cron != nil {
+		g.cron.Stop()
+	}
+}
+
+// ScheduleReport 定时生成报告
+// schedule 格式：秒 分 时 日 月 周 (例如："0 0 8 * * *" 表示每天早上 8 点)
+func (g *ReportGenerator) ScheduleReport(req ReportRequest, schedule string, outputPath string) error {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+
+	// 如果已有定时任务，先取消
+	if g.scheduledID != 0 {
+		g.cron.Remove(g.scheduledID)
+	}
+
+	// 解析 schedule 验证格式（支持秒级）
+	parser := cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+	_, err := parser.Parse(schedule)
+	if err != nil {
+		return fmt.Errorf("无效的 cron 表达式：%v", err)
+	}
+
+	// 创建定时任务
+	g.scheduledID, err = g.cron.AddFunc(schedule, func() {
+		g.generateAndExport(req, outputPath)
+	})
+
+	if err != nil {
+		return fmt.Errorf("创建定时任务失败：%v", err)
+	}
+
+	// 获取下次执行时间
+	entry := g.cron.Entry(g.scheduledID)
+	fmt.Printf("[quota] 定时报告已调度：%s - 下次执行：%s\n", schedule, entry.Next.Format("2006-01-02 15:04:05"))
+
+	return nil
+}
+
+// generateAndExport 生成并导出报告
+func (g *ReportGenerator) generateAndExport(req ReportRequest, outputPath string) {
+	report, err := g.GenerateReport(req)
+	if err != nil {
+		fmt.Printf("[quota] 生成报告失败：%v\n", err)
+		return
+	}
+
+	// 创建输出目录
+	dir := filepath.Dir(outputPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		fmt.Printf("[quota] 创建目录失败：%v\n", err)
+		return
+	}
+
+	// 导出报告
+	if err := g.ExportReport(report, outputPath); err != nil {
+		fmt.Printf("[quota] 导出报告失败：%v\n", err)
+		return
+	}
+
+	fmt.Printf("[quota] 定时报告已生成：%s\n", outputPath)
 }
 
 // GenerateReport 生成报告
@@ -528,11 +617,4 @@ func formatBytes(bytes uint64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
-}
-
-// ScheduleReport 定时生成报告
-func (g *ReportGenerator) ScheduleReport(req ReportRequest, schedule string, outputPath string) error {
-	// TODO: 实现定时任务调度
-	// 可以使用 cron 库实现
-	return nil
 }
