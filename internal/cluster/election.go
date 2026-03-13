@@ -42,7 +42,7 @@ func NewElectionState(timeout time.Duration) *ElectionState {
 func (es *ElectionState) StartElection() {
 	es.mu.Lock()
 	defer es.mu.Unlock()
-	
+
 	select {
 	case es.electionChan <- struct{}{}:
 	default:
@@ -96,7 +96,7 @@ func (es *ElectionState) GetVotedFor() string {
 func (es *ElectionState) SetVotedFor(candidateID string) bool {
 	es.mu.Lock()
 	defer es.mu.Unlock()
-	
+
 	if es.votedFor == "" || es.votedFor == candidateID {
 		es.votedFor = candidateID
 		return true
@@ -123,7 +123,7 @@ func (es *ElectionState) SetPhase(phase ElectionPhase) {
 	es.mu.Lock()
 	defer es.mu.Unlock()
 	es.state = phase
-	
+
 	if phase == ElectionPhaseCandidate {
 		es.lastElection = time.Now()
 	}
@@ -142,7 +142,7 @@ func (es *ElectionState) BecomeFollower(newLeaderID string) {
 	es.mu.Lock()
 	defer es.mu.Unlock()
 	es.state = ElectionPhaseFollower
-	
+
 	select {
 	case es.leaderChangeCh <- newLeaderID:
 	default:
@@ -179,12 +179,12 @@ type ElectionStats struct {
 func (es *ElectionState) GetStats() ElectionStats {
 	es.mu.RLock()
 	defer es.mu.RUnlock()
-	
+
 	var since time.Duration
 	if !es.lastElection.IsZero() {
 		since = time.Since(es.lastElection)
 	}
-	
+
 	return ElectionStats{
 		CurrentTerm:   es.term,
 		CurrentPhase:  es.state,
@@ -197,8 +197,8 @@ func (es *ElectionState) GetStats() ElectionStats {
 
 // VoteRequest 投票请求
 type VoteRequest struct {
-	Term        uint64 `json:"term"`
-	CandidateID string `json:"candidate_id"`
+	Term         uint64 `json:"term"`
+	CandidateID  string `json:"candidate_id"`
 	LastLogIndex uint64 `json:"last_log_index"`
 	LastLogTerm  uint64 `json:"last_log_term"`
 }
@@ -214,23 +214,23 @@ type VoteResponse struct {
 func (es *ElectionState) RequestVote(req VoteRequest) VoteResponse {
 	es.mu.Lock()
 	defer es.mu.Unlock()
-	
+
 	resp := VoteResponse{Term: es.term}
-	
+
 	// 任期过旧
 	if req.Term < es.term {
 		resp.VoteGranted = false
 		resp.Reason = "stale term"
 		return resp
 	}
-	
+
 	// 更新任期
 	if req.Term > es.term {
 		es.term = req.Term
 		es.votedFor = ""
 		es.state = ElectionPhaseFollower
 	}
-	
+
 	// 检查是否已投票
 	if es.votedFor == "" || es.votedFor == req.CandidateID {
 		es.votedFor = req.CandidateID
@@ -239,7 +239,7 @@ func (es *ElectionState) RequestVote(req VoteRequest) VoteResponse {
 		resp.VoteGranted = false
 		resp.Reason = "already voted for another candidate"
 	}
-	
+
 	return resp
 }
 
@@ -259,25 +259,25 @@ type HeartbeatResponse struct {
 func (es *ElectionState) ProcessHeartbeat(req HeartbeatRequest) HeartbeatResponse {
 	es.mu.Lock()
 	defer es.mu.Unlock()
-	
+
 	resp := HeartbeatResponse{Term: es.term}
-	
+
 	// 任期过旧
 	if req.Term < es.term {
 		resp.Success = false
 		return resp
 	}
-	
+
 	// 更新任期
 	if req.Term > es.term {
 		es.term = req.Term
 	}
-	
+
 	// 成为跟随者
 	es.state = ElectionPhaseFollower
 	es.votedFor = req.LeaderID
 	resp.Success = true
-	
+
 	return resp
 }
 
@@ -289,10 +289,10 @@ type FollowerTracker struct {
 
 // FollowerInfo 跟随者信息
 type FollowerInfo struct {
-	ID            string        `json:"id"`
-	LastContact   time.Time     `json:"last_contact"`
-	NextIndex     uint64        `json:"next_index"`
-	MatchIndex    uint64        `json:"match_index"`
+	ID             string        `json:"id"`
+	LastContact    time.Time     `json:"last_contact"`
+	NextIndex      uint64        `json:"next_index"`
+	MatchIndex     uint64        `json:"match_index"`
 	ReplicationLag time.Duration `json:"replication_lag"`
 }
 
@@ -307,7 +307,7 @@ func NewFollowerTracker() *FollowerTracker {
 func (ft *FollowerTracker) AddFollower(id string) {
 	ft.mu.Lock()
 	defer ft.mu.Unlock()
-	
+
 	ft.followers[id] = &FollowerInfo{
 		ID:          id,
 		LastContact: time.Now(),
@@ -327,7 +327,7 @@ func (ft *FollowerTracker) RemoveFollower(id string) {
 func (ft *FollowerTracker) UpdateFollower(id string, matchIndex uint64) {
 	ft.mu.Lock()
 	defer ft.mu.Unlock()
-	
+
 	if info, exists := ft.followers[id]; exists {
 		info.LastContact = time.Now()
 		info.MatchIndex = matchIndex
@@ -346,7 +346,7 @@ func (ft *FollowerTracker) GetFollower(id string) *FollowerInfo {
 func (ft *FollowerTracker) GetAllFollowers() []*FollowerInfo {
 	ft.mu.RLock()
 	defer ft.mu.RUnlock()
-	
+
 	followers := make([]*FollowerInfo, 0, len(ft.followers))
 	for _, info := range ft.followers {
 		followers = append(followers, info)
@@ -358,7 +358,7 @@ func (ft *FollowerTracker) GetAllFollowers() []*FollowerInfo {
 func (ft *FollowerTracker) GetMatchIndices() []uint64 {
 	ft.mu.RLock()
 	defer ft.mu.RUnlock()
-	
+
 	indices := make([]uint64, 0, len(ft.followers))
 	for _, info := range ft.followers {
 		indices = append(indices, info.MatchIndex)
@@ -370,13 +370,13 @@ func (ft *FollowerTracker) GetMatchIndices() []uint64 {
 func (ft *FollowerTracker) ComputeCommitIndex(leaderIndex uint64) uint64 {
 	ft.mu.RLock()
 	defer ft.mu.RUnlock()
-	
+
 	indices := make([]uint64, 0, len(ft.followers)+1)
 	indices = append(indices, leaderIndex)
 	for _, info := range ft.followers {
 		indices = append(indices, info.MatchIndex)
 	}
-	
+
 	// 排序并找中位数
 	return computeMajorityIndex(indices)
 }
@@ -386,7 +386,7 @@ func computeMajorityIndex(indices []uint64) uint64 {
 	if len(indices) == 0 {
 		return 0
 	}
-	
+
 	// 简单冒泡排序
 	for i := 0; i < len(indices)-1; i++ {
 		for j := i + 1; j < len(indices); j++ {
@@ -395,7 +395,7 @@ func computeMajorityIndex(indices []uint64) uint64 {
 			}
 		}
 	}
-	
+
 	// 返回中位数
 	return indices[len(indices)/2]
 }

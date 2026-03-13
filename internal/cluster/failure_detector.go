@@ -11,12 +11,12 @@ import (
 // FailureDetector Phi Accrual 故障检测器
 // 使用 Phi Accrual 算法进行更精确的故障检测
 type FailureDetector struct {
-	threshold   float64
-	samples     map[string]*SampleWindow
-	maxSamples  int
-	mu          sync.RWMutex
-	logger      *zap.Logger
-	
+	threshold  float64
+	samples    map[string]*SampleWindow
+	maxSamples int
+	mu         sync.RWMutex
+	logger     *zap.Logger
+
 	// 快速检测参数
 	minStdDev        time.Duration
 	acceptableHBTime time.Duration
@@ -24,10 +24,10 @@ type FailureDetector struct {
 
 // SampleWindow 心跳样本窗口
 type SampleWindow struct {
-	intervals    []time.Duration
+	intervals     []time.Duration
 	lastHeartbeat time.Time
-	mean         float64
-	variance     float64
+	mean          float64
+	variance      float64
 }
 
 // NewFailureDetector 创建故障检测器
@@ -46,9 +46,9 @@ func NewFailureDetector(timeout time.Duration, threshold int, logger *zap.Logger
 func (fd *FailureDetector) RecordHeartbeat(nodeID string) {
 	fd.mu.Lock()
 	defer fd.mu.Unlock()
-	
+
 	now := time.Now()
-	
+
 	sample, exists := fd.samples[nodeID]
 	if !exists {
 		sample = &SampleWindow{
@@ -58,17 +58,17 @@ func (fd *FailureDetector) RecordHeartbeat(nodeID string) {
 		fd.samples[nodeID] = sample
 		return
 	}
-	
+
 	// 计算间隔
 	interval := now.Sub(sample.lastHeartbeat)
 	sample.lastHeartbeat = now
-	
+
 	// 添加到样本窗口
 	sample.intervals = append(sample.intervals, interval)
 	if len(sample.intervals) > fd.maxSamples {
 		sample.intervals = sample.intervals[1:]
 	}
-	
+
 	// 更新统计
 	fd.updateStats(sample)
 }
@@ -78,14 +78,14 @@ func (fd *FailureDetector) updateStats(sample *SampleWindow) {
 	if len(sample.intervals) == 0 {
 		return
 	}
-	
+
 	// 计算均值
 	var sum float64
 	for _, i := range sample.intervals {
 		sum += float64(i)
 	}
 	sample.mean = sum / float64(len(sample.intervals))
-	
+
 	// 计算方差
 	var varianceSum float64
 	for _, i := range sample.intervals {
@@ -100,42 +100,42 @@ func (fd *FailureDetector) updateStats(sample *SampleWindow) {
 func (fd *FailureDetector) Phi(nodeID string, elapsed time.Duration) float64 {
 	fd.mu.RLock()
 	defer fd.mu.RUnlock()
-	
+
 	sample, exists := fd.samples[nodeID]
 	if !exists {
 		// 没有历史数据，使用默认阈值
 		return float64(elapsed) / float64(fd.acceptableHBTime)
 	}
-	
+
 	if len(sample.intervals) == 0 {
 		return float64(elapsed) / float64(fd.acceptableHBTime)
 	}
-	
+
 	// 使用正态分布计算概率
 	mean := sample.mean
 	variance := sample.variance
-	
+
 	// 确保方差有最小值
 	stdDev := math.Sqrt(variance)
 	if stdDev < float64(fd.minStdDev) {
 		stdDev = float64(fd.minStdDev)
 	}
-	
+
 	// 计算 Phi
 	// Phi(t) = -log(1 - F(t)) 其中 F 是累积分布函数
 	elapsedF := float64(elapsed)
-	
+
 	// 使用误差函数近似正态分布的累积分布函数
 	y := (elapsedF - mean) / stdDev
 	probability := 1 - normalCDF(y)
-	
+
 	// 避免 log(0)
 	if probability < 1e-10 {
 		probability = 1e-10
 	}
-	
+
 	phi := -math.Log10(probability)
-	
+
 	return phi
 }
 
@@ -160,7 +160,7 @@ func (fd *FailureDetector) IsFailed(nodeID string, elapsed time.Duration) bool {
 func (fd *FailureDetector) GetStats(nodeID string) map[string]interface{} {
 	fd.mu.RLock()
 	defer fd.mu.RUnlock()
-	
+
 	sample, exists := fd.samples[nodeID]
 	if !exists {
 		return map[string]interface{}{
@@ -169,13 +169,13 @@ func (fd *FailureDetector) GetStats(nodeID string) map[string]interface{} {
 			"stddev":  0,
 		}
 	}
-	
+
 	stdDev := math.Sqrt(sample.variance)
-	
+
 	return map[string]interface{}{
-		"samples":       len(sample.intervals),
-		"mean":          time.Duration(sample.mean).String(),
-		"stddev":        time.Duration(stdDev).String(),
+		"samples":        len(sample.intervals),
+		"mean":           time.Duration(sample.mean).String(),
+		"stddev":         time.Duration(stdDev).String(),
 		"last_heartbeat": sample.lastHeartbeat,
 	}
 }
@@ -184,7 +184,7 @@ func (fd *FailureDetector) GetStats(nodeID string) map[string]interface{} {
 func (fd *FailureDetector) Remove(nodeID string) {
 	fd.mu.Lock()
 	defer fd.mu.Unlock()
-	
+
 	delete(fd.samples, nodeID)
 }
 
@@ -192,7 +192,7 @@ func (fd *FailureDetector) Remove(nodeID string) {
 func (fd *FailureDetector) Reset(nodeID string) {
 	fd.mu.Lock()
 	defer fd.mu.Unlock()
-	
+
 	delete(fd.samples, nodeID)
 }
 
@@ -209,7 +209,7 @@ const (
 // GetAccrualLevel 获取累积级别
 func (fd *FailureDetector) GetAccrualLevel(nodeID string, elapsed time.Duration) AccrualLevel {
 	phi := fd.Phi(nodeID, elapsed)
-	
+
 	switch {
 	case phi < fd.threshold*0.5:
 		return AccrualLevelHealthy
@@ -224,21 +224,21 @@ func (fd *FailureDetector) GetAccrualLevel(nodeID string, elapsed time.Duration)
 
 // FailureDetectorStats 故障检测器统计
 type FailureDetectorStats struct {
-	NodeID          string    `json:"node_id"`
-	Samples         int       `json:"samples"`
-	MeanInterval    string    `json:"mean_interval"`
-	StdDev          string    `json:"std_dev"`
-	LastHeartbeat   time.Time `json:"last_heartbeat"`
-	Phi             float64   `json:"phi"`
-	AccrualLevel    string    `json:"accrual_level"`
-	Threshold       float64   `json:"threshold"`
+	NodeID        string    `json:"node_id"`
+	Samples       int       `json:"samples"`
+	MeanInterval  string    `json:"mean_interval"`
+	StdDev        string    `json:"std_dev"`
+	LastHeartbeat time.Time `json:"last_heartbeat"`
+	Phi           float64   `json:"phi"`
+	AccrualLevel  string    `json:"accrual_level"`
+	Threshold     float64   `json:"threshold"`
 }
 
 // GetDetailedStats 获取详细统计
 func (fd *FailureDetector) GetDetailedStats(nodeID string, elapsed time.Duration) *FailureDetectorStats {
 	fd.mu.RLock()
 	defer fd.mu.RUnlock()
-	
+
 	sample, exists := fd.samples[nodeID]
 	if !exists {
 		return &FailureDetectorStats{
@@ -248,11 +248,11 @@ func (fd *FailureDetector) GetDetailedStats(nodeID string, elapsed time.Duration
 			Threshold:    fd.threshold,
 		}
 	}
-	
+
 	stdDev := math.Sqrt(sample.variance)
 	phi := fd.Phi(nodeID, elapsed)
 	level := fd.GetAccrualLevel(nodeID, elapsed)
-	
+
 	var levelStr string
 	switch level {
 	case AccrualLevelHealthy:
@@ -264,7 +264,7 @@ func (fd *FailureDetector) GetDetailedStats(nodeID string, elapsed time.Duration
 	case AccrualLevelCritical:
 		levelStr = "critical"
 	}
-	
+
 	return &FailureDetectorStats{
 		NodeID:        nodeID,
 		Samples:       len(sample.intervals),

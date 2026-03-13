@@ -850,13 +850,13 @@ func (m *Manager) CheckConfigDetailed(id string) (*ConfigCheckResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	result := &ConfigCheckResult{
 		ConfigID: id,
 		Status:   "pass",
 		Checks:   []CheckItem{},
 	}
-	
+
 	// 检查源路径
 	if config.Source != "" {
 		if _, err := os.Stat(config.Source); err != nil {
@@ -874,7 +874,7 @@ func (m *Manager) CheckConfigDetailed(id string) (*ConfigCheckResult, error) {
 			})
 		}
 	}
-	
+
 	// 检查目标路径
 	if config.Destination != "" {
 		if _, err := os.Stat(config.Destination); err != nil {
@@ -901,7 +901,7 @@ func (m *Manager) CheckConfigDetailed(id string) (*ConfigCheckResult, error) {
 			})
 		}
 	}
-	
+
 	return result, nil
 }
 
@@ -912,12 +912,12 @@ func (m *Manager) HealthCheck() (*HealthCheckResult, error) {
 		Timestamp: time.Now(),
 		Details:   make(map[string]interface{}),
 	}
-	
+
 	m.mu.RLock()
 	result.Details["config_count"] = len(m.configs)
 	result.Details["task_count"] = len(m.tasks)
 	m.mu.RUnlock()
-	
+
 	// 检查最近的备份状态
 	hasRecentBackup := false
 	m.mu.RLock()
@@ -928,11 +928,11 @@ func (m *Manager) HealthCheck() (*HealthCheckResult, error) {
 		}
 	}
 	m.mu.RUnlock()
-	
+
 	if !hasRecentBackup {
 		result.Details["warning"] = "no recent backup in last 24 hours"
 	}
-	
+
 	return result, nil
 }
 
@@ -975,8 +975,8 @@ func DefaultRestorePresets() []RestorePreset {
 
 // RestorePreset 恢复预设
 type RestorePreset struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
 	Options     RestoreOptions `json:"options"`
 }

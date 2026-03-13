@@ -24,16 +24,16 @@ const (
 
 // BackupInfo 备份信息
 type BackupInfo struct {
-	ID        string       `json:"id"`
-	Name      string       `json:"name"`
-	Source    string       `json:"source"`
-	Target    string       `json:"target"`
-	Size      int64        `json:"size"`
-	Status    BackupStatus `json:"status"`
-	CreatedAt time.Time    `json:"created_at"`
-	CompletedAt time.Time  `json:"completed_at,omitempty"`
-	Files     []string     `json:"files,omitempty"`
-	Checksum  string       `json:"checksum,omitempty"`
+	ID          string       `json:"id"`
+	Name        string       `json:"name"`
+	Source      string       `json:"source"`
+	Target      string       `json:"target"`
+	Size        int64        `json:"size"`
+	Status      BackupStatus `json:"status"`
+	CreatedAt   time.Time    `json:"created_at"`
+	CompletedAt time.Time    `json:"completed_at,omitempty"`
+	Files       []string     `json:"files,omitempty"`
+	Checksum    string       `json:"checksum,omitempty"`
 }
 
 // MockBackupManager 备份管理器 Mock
@@ -107,12 +107,12 @@ type MockRestoreManager struct {
 }
 
 type RestoreResult struct {
-	BackupID     string    `json:"backup_id"`
-	TargetPath   string    `json:"target_path"`
-	Success      bool      `json:"success"`
-	RestoredAt   time.Time `json:"restored_at"`
-	FilesCount   int       `json:"files_count"`
-	TotalSize    int64     `json:"total_size"`
+	BackupID   string    `json:"backup_id"`
+	TargetPath string    `json:"target_path"`
+	Success    bool      `json:"success"`
+	RestoredAt time.Time `json:"restored_at"`
+	FilesCount int       `json:"files_count"`
+	TotalSize  int64     `json:"total_size"`
 }
 
 func NewMockRestoreManager(backups *MockBackupManager) *MockRestoreManager {

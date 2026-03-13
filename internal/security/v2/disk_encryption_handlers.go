@@ -94,13 +94,13 @@ func (h *DiskEncryptionHandlers) getVolume(c *gin.Context) {
 // createVolume 创建加密卷
 func (h *DiskEncryptionHandlers) createVolume(c *gin.Context) {
 	var req struct {
-		DevicePath     string          `json:"devicePath" binding:"required"`
-		Passphrase     string          `json:"passphrase" binding:"required"`
-		EncryptionType EncryptionType  `json:"encryptionType"`
-		Cipher         string          `json:"cipher"`
-		KeySize        int             `json:"keySize"`
-		MountPoint     string          `json:"mountPoint"`
-		AutoUnlock     bool            `json:"autoUnlock"`
+		DevicePath     string         `json:"devicePath" binding:"required"`
+		Passphrase     string         `json:"passphrase" binding:"required"`
+		EncryptionType EncryptionType `json:"encryptionType"`
+		Cipher         string         `json:"cipher"`
+		KeySize        int            `json:"keySize"`
+		MountPoint     string         `json:"mountPoint"`
+		AutoUnlock     bool           `json:"autoUnlock"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -379,7 +379,7 @@ func (h *DiskEncryptionHandlers) rotateKey(c *gin.Context) {
 		"code":    0,
 		"message": "密钥轮换成功",
 		"data": gin.H{
-			"rotatedAt":    time.Now(),
+			"rotatedAt":     time.Now(),
 			"newPassphrase": newPassphrase, // 返回新密码（仅此一次）
 		},
 	})
@@ -509,7 +509,7 @@ func (h *DiskEncryptionHandlers) getOptimization(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"devicePath":     devicePath,
+			"devicePath":      devicePath,
 			"recommendations": recommendations,
 		},
 	})
@@ -574,12 +574,12 @@ func (h *DiskEncryptionHandlers) getStatus(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"totalVolumes":       totalVolumes,
-			"lockedVolumes":      lockedVolumes,
-			"unlockedVolumes":    unlockedVolumes,
-			"autoUnlockEnabled":  autoUnlockEnabled,
-			"rotationEnabled":    rotationEnabled,
-			"hardwareAccel":      h.manager.checkHardwareAcceleration(),
+			"totalVolumes":      totalVolumes,
+			"lockedVolumes":     lockedVolumes,
+			"unlockedVolumes":   unlockedVolumes,
+			"autoUnlockEnabled": autoUnlockEnabled,
+			"rotationEnabled":   rotationEnabled,
+			"hardwareAccel":     h.manager.checkHardwareAcceleration(),
 		},
 	})
 }

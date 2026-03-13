@@ -25,15 +25,15 @@ func TestStorageCostCalculator_Calculate(t *testing.T) {
 	calculator := NewStorageCostCalculator(config)
 
 	metrics := StorageMetrics{
-		VolumeName:           "test-volume",
-		TotalCapacityBytes:   1 * 1024 * 1024 * 1024 * 1024, // 1TB
-		UsedCapacityBytes:    500 * 1024 * 1024 * 1024,      // 500GB
-		AvailableCapacityBytes: 524 * 1024 * 1024 * 1024,    // 524GB
-		IOPS:                 1000,
-		ReadBandwidthBytes:   10 * 1024 * 1024,  // 10MB/s
-		WriteBandwidthBytes:  5 * 1024 * 1024,   // 5MB/s
-		FileCount:            100000,
-		Timestamp:            time.Now(),
+		VolumeName:             "test-volume",
+		TotalCapacityBytes:     1 * 1024 * 1024 * 1024 * 1024, // 1TB
+		UsedCapacityBytes:      500 * 1024 * 1024 * 1024,      // 500GB
+		AvailableCapacityBytes: 524 * 1024 * 1024 * 1024,      // 524GB
+		IOPS:                   1000,
+		ReadBandwidthBytes:     10 * 1024 * 1024, // 10MB/s
+		WriteBandwidthBytes:    5 * 1024 * 1024,  // 5MB/s
+		FileCount:              100000,
+		Timestamp:              time.Now(),
 	}
 
 	result := calculator.Calculate(metrics)
@@ -60,10 +60,10 @@ func TestStorageCostCalculator_Calculate(t *testing.T) {
 
 func TestStorageCostCalculator_CalculateAll(t *testing.T) {
 	config := StorageCostConfig{
-		CostPerGBMonthly:   0.5,
-		OpsCostMonthly:     100,
-		DepreciationYears:  5,
-		HardwareCost:       10000,
+		CostPerGBMonthly:  0.5,
+		OpsCostMonthly:    100,
+		DepreciationYears: 5,
+		HardwareCost:      10000,
 	}
 
 	calculator := NewStorageCostCalculator(config)
@@ -158,12 +158,12 @@ func TestStorageCostCalculator_AnalyzeTrend(t *testing.T) {
 
 func TestCapacityPlanner_Analyze(t *testing.T) {
 	config := CapacityPlanningConfig{
-		AlertThreshold:     70.0,
-		CriticalThreshold:  85.0,
-		ForecastDays:       30,
-		GrowthModel:        GrowthModelLinear,
-		ExpansionLeadTime:  14,
-		SafetyBuffer:       20.0,
+		AlertThreshold:    70.0,
+		CriticalThreshold: 85.0,
+		ForecastDays:      30,
+		GrowthModel:       GrowthModelLinear,
+		ExpansionLeadTime: 14,
+		SafetyBuffer:      20.0,
 	}
 
 	planner := NewCapacityPlanner(config)
@@ -204,8 +204,8 @@ func TestCapacityPlanner_Analyze(t *testing.T) {
 
 func TestCapacityPlanner_PredictCapacityNeeds(t *testing.T) {
 	config := CapacityPlanningConfig{
-		GrowthModel:   GrowthModelLinear,
-		SafetyBuffer:  20.0,
+		GrowthModel:  GrowthModelLinear,
+		SafetyBuffer: 20.0,
 	}
 
 	planner := NewCapacityPlanner(config)
@@ -250,8 +250,8 @@ func TestCapacityPlanner_GrowthModels(t *testing.T) {
 
 	// 测试线性增长模型
 	linearConfig := CapacityPlanningConfig{
-		GrowthModel:   GrowthModelLinear,
-		ForecastDays:  30,
+		GrowthModel:    GrowthModelLinear,
+		ForecastDays:   30,
 		AlertThreshold: 70,
 	}
 	linearPlanner := NewCapacityPlanner(linearConfig)
@@ -260,8 +260,8 @@ func TestCapacityPlanner_GrowthModels(t *testing.T) {
 
 	// 测试指数增长模型
 	expConfig := CapacityPlanningConfig{
-		GrowthModel:   GrowthModelExponential,
-		ForecastDays:  30,
+		GrowthModel:    GrowthModelExponential,
+		ForecastDays:   30,
 		AlertThreshold: 70,
 	}
 	expPlanner := NewCapacityPlanner(expConfig)
@@ -270,8 +270,8 @@ func TestCapacityPlanner_GrowthModels(t *testing.T) {
 
 	// 测试对数增长模型
 	logConfig := CapacityPlanningConfig{
-		GrowthModel:   GrowthModelLogarithmic,
-		ForecastDays:  30,
+		GrowthModel:    GrowthModelLogarithmic,
+		ForecastDays:   30,
 		AlertThreshold: 70,
 	}
 	logPlanner := NewCapacityPlanner(logConfig)

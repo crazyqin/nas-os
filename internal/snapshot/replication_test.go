@@ -298,12 +298,12 @@ func TestDataBlock_Checksum(t *testing.T) {
 
 func TestReplicationStatus(t *testing.T) {
 	status := &ReplicationStatus{
-		ConfigID:               "config-1",
-		TotalJobs:              10,
-		CompletedJobs:          8,
-		FailedJobs:             2,
-		TotalBytesTransferred:  1024 * 1024 * 1024, // 1GB
-		NodeStatuses:           make(map[string]NodeReplicationStatus),
+		ConfigID:              "config-1",
+		TotalJobs:             10,
+		CompletedJobs:         8,
+		FailedJobs:            2,
+		TotalBytesTransferred: 1024 * 1024 * 1024, // 1GB
+		NodeStatuses:          make(map[string]NodeReplicationStatus),
 	}
 
 	status.NodeStatuses["node-1"] = NodeReplicationStatus{
