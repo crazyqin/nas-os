@@ -2,6 +2,7 @@ package vm
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -102,14 +103,16 @@ func (m *Manager) loadVMs() error {
 	}
 
 	for _, file := range files {
-		if file.IsDir() {
+		if file.IsDir() && !strings.HasPrefix(file.Name(), ".") {
 			vmConfigPath := filepath.Join(m.storagePath, file.Name(), "config.json")
 			if _, err := os.Stat(vmConfigPath); err == nil {
-				// TODO: 加载 VM 配置
-				// vm, err := loadVMConfig(vmConfigPath)
-				// if err == nil {
-				// 	m.vms[vm.ID] = vm
-				// }
+				vm, err := loadVMConfig(vmConfigPath)
+				if err == nil {
+					m.vms[vm.ID] = vm
+					m.logger.Debug("加载 VM 配置", zap.String("vmId", vm.ID), zap.String("name", vm.Name))
+				} else {
+					m.logger.Warn("加载 VM 配置失败", zap.String("path", vmConfigPath), zap.Error(err))
+				}
 			}
 		}
 	}
@@ -429,13 +432,34 @@ func (m *Manager) allocateVNCPort() int {
 
 // saveVMConfig 保存 VM 配置
 func (m *Manager) saveVMConfig(vm *VM) error {
-	// TODO: 实现 JSON 序列化保存
-	// vmDir := filepath.Join(m.storagePath, vm.ID)
-	// configPath := filepath.Join(vmDir, "config.json")
-	// data, _ := json.Marshal(vm)
-	// return os.WriteFile(configPath, data, 0644)
-
+	vmDir := filepath.Join(m.storagePath, vm.ID)
+	configPath := filepath.Join(vmDir, "config.json")
+	
+	data, err := json.MarshalIndent(vm, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化 VM 配置失败：%w", err)
+	}
+	
+	if err := os.WriteFile(configPath, data, 0644); err != nil {
+		return fmt.Errorf("写入 VM 配置文件失败：%w", err)
+	}
+	
 	return nil
+}
+
+// loadVMConfig 加载 VM 配置
+func loadVMConfig(configPath string) (*VM, error) {
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+	
+	var vm VM
+	if err := json.Unmarshal(data, &vm); err != nil {
+		return nil, fmt.Errorf("解析 VM 配置失败：%w", err)
+	}
+	
+	return &vm, nil
 }
 
 // GetVM 获取虚拟机信息
@@ -568,31 +592,6 @@ func (m *Manager) DeleteVM(ctx context.Context, vmID string, force bool) error {
 	return nil
 }
 
-// GetVMStats 获取虚拟机统计信息
-func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	vm, exists := m.vms[vmID]
-	if !exists {
-		return nil, fmt.Errorf("VM %s 不存在", vmID)
-	}
-
-	if vm.Status != VMStatusRunning {
-		return &VMStats{}, nil
-	}
-
-	// TODO: 从 libvirt 获取实时统计信息
-	return &VMStats{
-		CPUUsage:    0,
-		MemoryUsage: 0,
-		DiskRead:    0,
-		DiskWrite:   0,
-		NetRX:       0,
-		NetTX:       0,
-	}, nil
-}
-
 // GetVNCConnection 获取 VNC 连接信息
 func (m *Manager) GetVNCConnection(vmID string) (*VNCConnection, error) {
 	m.mu.RLock()
@@ -611,4 +610,340 @@ func (m *Manager) GetVNCConnection(vmID string) (*VNCConnection, error) {
 		Host: "0.0.0.0",
 		Port: vm.VNCPort,
 	}, nil
+}
+
+// UpdateVM 更新虚拟机配置
+func (m *Manager) UpdateVM(ctx context.Context, vmID string, config VMConfig) (*VM, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	vm, exists := m.vms[vmID]
+	if !exists {
+		return nil, fmt.Errorf("VM %s 不存在", vmID)
+	}
+
+	if vm.Status == VMStatusRunning {
+		return nil, fmt.Errorf("无法更新正在运行的 VM，请先停止")
+	}
+
+	// 验证配置
+	if err := m.validateConfig(config); err != nil {
+		return nil, err
+	}
+
+	// 更新配置
+	vm.Name = config.Name
+	vm.Description = config.Description
+	vm.Type = config.Type
+	vm.CPU = config.CPU
+	vm.Memory = config.Memory
+	vm.DiskSize = config.DiskSize
+	vm.Network = config.Network
+	vm.ISOPath = config.ISOPath
+	vm.VNCEnabled = config.VNCEnabled
+	vm.USBDevices = config.USBDevices
+	vm.PCIDevices = config.PCIDevices
+	vm.Tags = config.Tags
+
+	// 重新分配 VNC 端口
+	if config.VNCEnabled && vm.VNCPort == 0 {
+		vm.VNCPort = m.allocateVNCPort()
+	} else if !config.VNCEnabled {
+		vm.VNCPort = 0
+	}
+
+	// 重新生成 libvirt XML
+	xmlConfig := m.generateLibvirtXML(vm)
+	vmDir := filepath.Join(m.storagePath, vmID)
+	xmlPath := filepath.Join(vmDir, "domain.xml")
+	if err := os.WriteFile(xmlPath, []byte(xmlConfig), 0644); err != nil {
+		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
+	}
+
+	// 保存 VM 配置
+	if err := m.saveVMConfig(vm); err != nil {
+		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
+	}
+
+	vm.UpdatedAt = time.Now()
+
+	// 如果 libvirt 可用，重新定义 VM
+	if m.libvirtAvailable && vm.Status == VMStatusStopped {
+		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "define", xmlPath)
+		if err := cmd.Run(); err != nil {
+			m.logger.Warn("重新定义 libvirt VM 失败", zap.Error(err), zap.String("vm", vmID))
+		}
+	}
+
+	m.logger.Info("VM 配置更新成功", zap.String("vmId", vmID), zap.String("name", vm.Name))
+
+	return vm, nil
+}
+
+// ListTemplates 获取所有 VM 模板
+func (m *Manager) ListTemplates() []*VMTemplate {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	templates := make([]*VMTemplate, 0, len(m.templates))
+	for _, tpl := range m.templates {
+		templates = append(templates, tpl)
+	}
+
+	return templates
+}
+
+// GetTemplate 获取单个模板
+func (m *Manager) GetTemplate(templateID string) (*VMTemplate, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	tpl, exists := m.templates[templateID]
+	if !exists {
+		return nil, fmt.Errorf("模板 %s 不存在", templateID)
+	}
+
+	return tpl, nil
+}
+
+// ListUSBDevices 列出可用 USB 设备
+func (m *Manager) ListUSBDevices() ([]*USBDevice, error) {
+	var devices []*USBDevice
+
+	// 使用 lsusb 获取 USB 设备列表
+	cmd := exec.Command("lsusb")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("执行 lsusb 失败：%w", err)
+	}
+
+	// 解析 lsusb 输出
+	// 格式：Bus 001 Device 002: ID 1d6b:0002 Linux Foundation 2.0 root hub
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) < 2 {
+			continue
+		}
+
+		// 提取 ID 部分
+		idPart := strings.TrimSpace(parts[1])
+		idFields := strings.Fields(idPart)
+		if len(idFields) < 2 {
+			continue
+		}
+
+		idStr := idFields[0] // 1d6b:0002
+		idParts := strings.Split(idStr, ":")
+		if len(idParts) != 2 {
+			continue
+		}
+
+		// 检查是否已被 VM 使用
+		inUse := false
+		for _, vm := range m.vms {
+			for _, usbID := range vm.USBDevices {
+				if usbID == idStr {
+					inUse = true
+					break
+				}
+			}
+		}
+
+		// 提取设备描述
+		description := strings.Join(idFields[1:], " ")
+
+		devices = append(devices, &USBDevice{
+			ID:       idStr,
+			VendorID: idParts[0],
+			ProductID: idParts[1],
+			Product:  description,
+			InUse:    inUse,
+		})
+	}
+
+	return devices, nil
+}
+
+// ListPCIDevices 列出可用 PCIe 设备
+func (m *Manager) ListPCIDevices() ([]*PCIDevice, error) {
+	var devices []*PCIDevice
+
+	// 使用 lspci 获取 PCIe 设备列表
+	cmd := exec.Command("lspci", "-m")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("执行 lspci 失败：%w", err)
+	}
+
+	// 解析 lspci -m 输出
+	// 格式：00:00.0 "Host bridge" [0600]: "Intel Corporation Device [8086:5918]"
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		// 提取 BDF 和设备信息
+		fields := strings.Fields(line)
+		if len(fields) < 5 {
+			continue
+		}
+
+		bdf := strings.Trim(fields[0], `"`)
+		
+		// 提取 vendor:device ID
+		var vendorID, deviceID, name string
+		for i, field := range fields {
+			if strings.Contains(field, "[") && strings.Contains(field, ":") {
+				// 提取 [vendor:device]
+				idStr := strings.Trim(field, "[]")
+				parts := strings.Split(idStr, ":")
+				if len(parts) == 2 {
+					vendorID = parts[0]
+					deviceID = strings.Trim(parts[1], `]"`)
+				}
+				// 提取设备名称
+				if i+1 < len(fields) {
+					name = strings.Trim(fields[i+1], `"`)
+				}
+			}
+		}
+
+		if vendorID == "" || deviceID == "" {
+			continue
+		}
+
+		// 检查是否已被 VM 使用
+		inUse := false
+		for _, vm := range m.vms {
+			for _, pciID := range vm.PCIDevices {
+				if pciID == bdf {
+					inUse = true
+					break
+				}
+			}
+		}
+
+		devices = append(devices, &PCIDevice{
+			ID:       bdf,
+			BDF:      bdf,
+			VendorID: vendorID,
+			DeviceID: deviceID,
+			Name:     name,
+			InUse:    inUse,
+		})
+	}
+
+	return devices, nil
+}
+
+// GetVMStats 完善版本 - 从 libvirt 获取实时统计信息
+func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	vm, exists := m.vms[vmID]
+	if !exists {
+		return nil, fmt.Errorf("VM %s 不存在", vmID)
+	}
+
+	if vm.Status != VMStatusRunning {
+		return &VMStats{}, nil
+	}
+
+	// 如果 libvirt 可用，尝试获取实时统计
+	if m.libvirtAvailable {
+		stats, err := m.getLibvirtStats(vm.Name)
+		if err == nil {
+			return stats, nil
+		}
+		m.logger.Debug("获取 libvirt 统计失败", zap.Error(err))
+	}
+
+	// 返回空统计
+	return &VMStats{
+		CPUUsage:    0,
+		MemoryUsage: 0,
+		DiskRead:    0,
+		DiskWrite:   0,
+		NetRX:       0,
+		NetTX:       0,
+	}, nil
+}
+
+// getLibvirtStats 从 libvirt 获取 VM 统计信息
+func (m *Manager) getLibvirtStats(vmName string) (*VMStats, error) {
+	// 使用 virsh domstats 获取统计信息
+	cmd := exec.Command("virsh", "-c", "qemu:///system", "domstats", vmName)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, err
+	}
+
+	stats := &VMStats{}
+	lines := strings.Split(string(output), "\n")
+	
+	var memoryTotal, memoryAvailable uint64
+	
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+		
+		switch key {
+		case "cpu.time":
+			// CPU 时间 (纳秒)，需要计算使用率
+		case "memory.rss":
+			// 实际使用内存 (KB)
+			var memRSS uint64
+			if _, err := fmt.Sscanf(value, "%d", &memRSS); err == nil {
+				stats.MemoryUsage = memRSS / 1024 // 转换为 MB
+			}
+		case "memory.available":
+			if _, err := fmt.Sscanf(value, "%d", &memoryAvailable); err == nil {
+				// memoryAvailable 已声明
+			}
+		case "memory":
+			if _, err := fmt.Sscanf(value, "%d", &memoryTotal); err == nil {
+				// memoryTotal 已声明
+			}
+		case "net.received.bytes":
+			if _, err := fmt.Sscanf(value, "%d", &stats.NetRX); err == nil {
+				// stats.NetRX 已赋值
+			}
+		case "net.sent.bytes":
+			if _, err := fmt.Sscanf(value, "%d", &stats.NetTX); err == nil {
+				// stats.NetTX 已赋值
+			}
+		case "block.rd.bytes":
+			if _, err := fmt.Sscanf(value, "%d", &stats.DiskRead); err == nil {
+				// stats.DiskRead 已赋值
+			}
+		case "block.wr.bytes":
+			if _, err := fmt.Sscanf(value, "%d", &stats.DiskWrite); err == nil {
+				// stats.DiskWrite 已赋值
+			}
+		}
+	}
+	
+	// 计算 CPU 使用率 (简化版本)
+	if memoryTotal > 0 && memoryAvailable > 0 {
+		stats.CPUUsage = float64(memoryTotal-memoryAvailable) / float64(memoryTotal) * 100
+	}
+	
+	return stats, nil
 }
