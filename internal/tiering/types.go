@@ -321,3 +321,69 @@ type ErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
+
+// ==================== v2.4.0 新增类型 ====================
+
+// SSDCacheOptimizeResult SSD缓存优化结果
+type SSDCacheOptimizeResult struct {
+	StartTime         time.Time `json:"startTime"`
+	EndTime           time.Time `json:"endTime"`
+	Duration          time.Duration `json:"duration"`
+	Tier              TierType  `json:"tier"`
+
+	// 冷数据统计
+	ColdFilesIdentified int   `json:"coldFilesIdentified"`
+	DemotedFiles        int   `json:"demotedFiles"`
+	DemotedBytes        int64 `json:"demotedBytes"`
+	FailedDemotions     int   `json:"failedDemotions"`
+
+	// 热数据统计
+	HotFilesIdentified  int   `json:"hotFilesIdentified"`
+	PromotedFiles       int   `json:"promotedFiles"`
+	PromotedBytes       int64 `json:"promotedBytes"`
+	FailedPromotions    int   `json:"failedPromotions"`
+
+	// 迁移任务ID列表
+	Tasks []string `json:"tasks"`
+}
+
+// AutoMigrateResult 自动迁移结果
+type AutoMigrateResult struct {
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
+	Duration  time.Duration `json:"duration"`
+
+	// 按存储层的迁移统计
+	Tiers map[TierType]*TierMigrationStats `json:"tiers"`
+}
+
+// TierMigrationStats 存储层迁移统计
+type TierMigrationStats struct {
+	TierType          TierType            `json:"tierType"`
+	FilesToMigrate    []*FileAccessRecord `json:"filesToMigrate,omitempty"`
+	TotalMigrateBytes int64               `json:"totalMigrateBytes"`
+	MigratedFiles     int                 `json:"migratedFiles"`
+	FailedFiles       int                 `json:"failedFiles"`
+}
+
+// TieringStatsReport 分层统计报告
+type TieringStatsReport struct {
+	GeneratedAt time.Time               `json:"generatedAt"`
+	Tiers       map[TierType]*TierStats `json:"tiers"`
+	Summary     *TieringSummary         `json:"summary"`
+}
+
+// TieringSummary 分层统计摘要
+type TieringSummary struct {
+	TotalFiles   int64   `json:"totalFiles"`
+	TotalBytes   int64   `json:"totalBytes"`
+	TotalHot     int64   `json:"totalHot"`
+	TotalWarm    int64   `json:"totalWarm"`
+	TotalCold    int64   `json:"totalCold"`
+	HotPercent   float64 `json:"hotPercent"`
+	WarmPercent  float64 `json:"warmPercent"`
+	ColdPercent  float64 `json:"coldPercent"`
+	HitRateSSD   float64 `json:"hitRateSSD"`
+	MigrateTasks int     `json:"migrateTasks"`
+	ActivePolicy int     `json:"activePolicy"`
+}

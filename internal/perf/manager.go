@@ -1,10 +1,14 @@
 package perf
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -726,4 +730,638 @@ func (m *Manager) GetTimeWindowStats() map[string]interface{} {
 		"avgRPS":        avgRPS,
 		"errorRate":     errorRate,
 	}
+}
+
+// ==================== v2.4.0 性能监控增强 ====================
+
+// AlertRule 性能告警规则
+type AlertRule struct {
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description,omitempty"`
+	Enabled     bool          `json:"enabled"`
+
+	// 触发条件
+	Metric       string        `json:"metric"`       // 指标名: response_time, error_rate, rps, cpu, memory
+	Operator     string        `json:"operator"`     // 操作符: >, <, >=, <=, ==
+	Threshold    float64       `json:"threshold"`    // 阈值
+	Duration     time.Duration `json:"duration"`     // 持续时间
+
+	// 严重程度
+	Severity     string        `json:"severity"`     // info, warning, critical
+
+	// 通知配置
+	NotifyEmail  []string      `json:"notifyEmail,omitempty"`
+	NotifyWebhook string       `json:"notifyWebhook,omitempty"`
+
+	// 触发动作
+	Action       string        `json:"action,omitempty"` // 自定义动作
+
+	// 元数据
+	CreatedAt    time.Time     `json:"createdAt"`
+	UpdatedAt    time.Time     `json:"updatedAt"`
+	LastTriggered time.Time    `json:"lastTriggered,omitempty"`
+	TriggerCount int           `json:"triggerCount"`
+}
+
+// AlertInstance 告警实例
+type AlertInstance struct {
+	RuleID     string    `json:"ruleId"`
+	RuleName   string    `json:"ruleName"`
+	Severity   string    `json:"severity"`
+	Message    string    `json:"message"`
+	Value      float64   `json:"value"`
+	Threshold  float64   `json:"threshold"`
+	TriggeredAt time.Time `json:"triggeredAt"`
+	ResolvedAt  time.Time `json:"resolvedAt,omitempty"`
+	Resolved    bool      `json:"resolved"`
+}
+
+// ExportFormat 导出格式
+type ExportFormat string
+
+const (
+	ExportFormatJSON  ExportFormat = "json"
+	ExportFormatCSV   ExportFormat = "csv"
+	ExportFormatHTML  ExportFormat = "html"
+	ExportFormatMarkdown ExportFormat = "markdown"
+)
+
+// PerformanceReport 性能报告
+type PerformanceReport struct {
+	GeneratedAt   time.Time               `json:"generatedAt"`
+	TimeRange     string                  `json:"timeRange"`
+	Summary       *ReportSummary          `json:"summary"`
+	Endpoints     []*EndpointReport       `json:"endpoints"`
+	SlowRequests  []*SlowLogEntry         `json:"slowRequests,omitempty"`
+	Throughput    *ThroughputReport       `json:"throughput"`
+	Alerts        []*AlertInstance        `json:"alerts,omitempty"`
+	Recommendations []string               `json:"recommendations,omitempty"`
+}
+
+// ReportSummary 报告摘要
+type ReportSummary struct {
+	TotalRequests   uint64  `json:"totalRequests"`
+	TotalErrors     uint64  `json:"totalErrors"`
+	ErrorRate       float64 `json:"errorRate"`
+	AvgResponseTime float64 `json:"avgResponseTime"`
+	P50ResponseTime float64 `json:"p50ResponseTime"`
+	P95ResponseTime float64 `json:"p95ResponseTime"`
+	P99ResponseTime float64 `json:"p99ResponseTime"`
+	PeakRPS         float64 `json:"peakRPS"`
+	AvgRPS          float64 `json:"avgRPS"`
+}
+
+// EndpointReport 端点报告
+type EndpointReport struct {
+	Path         string  `json:"path"`
+	Method       string  `json:"method"`
+	RequestCount uint64  `json:"requestCount"`
+	ErrorCount   uint64  `json:"errorCount"`
+	ErrorRate    float64 `json:"errorRate"`
+	AvgDuration  float64 `json:"avgDuration"`
+	P50Duration  float64 `json:"p50Duration"`
+	P95Duration  float64 `json:"p95Duration"`
+	P99Duration  float64 `json:"p99Duration"`
+}
+
+// ThroughputReport 吞吐量报告
+type ThroughputReport struct {
+	CurrentRPS float64         `json:"currentRPS"`
+	PeakRPS    float64         `json:"peakRPS"`
+	Hourly     []*HourlyStat   `json:"hourly"`
+	Daily      []*DailyStat    `json:"daily"`
+}
+
+// alertManager 告警管理器（内部使用）
+type alertManager struct {
+	mu      sync.RWMutex
+	rules   map[string]*AlertRule
+	alerts  []*AlertInstance
+	enabled bool
+}
+
+// 告警管理器实例
+var globalAlertManager = &alertManager{
+	rules:   make(map[string]*AlertRule),
+	alerts:  make([]*AlertInstance, 0),
+	enabled: true,
+}
+
+// SetAlertRule 设置性能告警规则
+func (m *Manager) SetAlertRule(rule AlertRule) (*AlertRule, error) {
+	if rule.Name == "" {
+		return nil, fmt.Errorf("告警规则名称不能为空")
+	}
+
+	// 验证指标名
+	validMetrics := map[string]bool{
+		"response_time": true,
+		"error_rate":    true,
+		"rps":           true,
+		"cpu":           true,
+		"memory":        true,
+	}
+	if !validMetrics[rule.Metric] {
+		return nil, fmt.Errorf("无效的指标名: %s", rule.Metric)
+	}
+
+	// 验证操作符
+	validOperators := map[string]bool{
+		">":  true,
+		"<":  true,
+		">=": true,
+		"<=": true,
+		"==": true,
+	}
+	if !validOperators[rule.Operator] {
+		return nil, fmt.Errorf("无效的操作符: %s", rule.Operator)
+	}
+
+	// 验证严重程度
+	validSeverities := map[string]bool{
+		"info":     true,
+		"warning":  true,
+		"critical": true,
+	}
+	if !validSeverities[rule.Severity] {
+		rule.Severity = "warning" // 默认
+	}
+
+	// 设置ID和时间
+	if rule.ID == "" {
+		rule.ID = "alert_" + time.Now().Format("20060102150405")
+	}
+	rule.UpdatedAt = time.Now()
+	if rule.CreatedAt.IsZero() {
+		rule.CreatedAt = time.Now()
+	}
+
+	// 保存规则
+	globalAlertManager.mu.Lock()
+	globalAlertManager.rules[rule.ID] = &rule
+	globalAlertManager.mu.Unlock()
+
+	// 启动告警检查（如果启用）
+	if rule.Enabled {
+		go m.startAlertCheck(&rule)
+	}
+
+	return &rule, nil
+}
+
+// GetAlertRules 获取所有告警规则
+func (m *Manager) GetAlertRules() []*AlertRule {
+	globalAlertManager.mu.RLock()
+	defer globalAlertManager.mu.RUnlock()
+
+	rules := make([]*AlertRule, 0, len(globalAlertManager.rules))
+	for _, rule := range globalAlertManager.rules {
+		rules = append(rules, rule)
+	}
+	return rules
+}
+
+// DeleteAlertRule 删除告警规则
+func (m *Manager) DeleteAlertRule(id string) error {
+	globalAlertManager.mu.Lock()
+	defer globalAlertManager.mu.Unlock()
+
+	if _, ok := globalAlertManager.rules[id]; !ok {
+		return fmt.Errorf("告警规则不存在: %s", id)
+	}
+
+	delete(globalAlertManager.rules, id)
+	return nil
+}
+
+// GetActiveAlerts 获取活跃告警
+func (m *Manager) GetActiveAlerts() []*AlertInstance {
+	globalAlertManager.mu.RLock()
+	defer globalAlertManager.mu.RUnlock()
+
+	alerts := make([]*AlertInstance, 0)
+	for _, alert := range globalAlertManager.alerts {
+		if !alert.Resolved {
+			alerts = append(alerts, alert)
+		}
+	}
+	return alerts
+}
+
+// startAlertCheck 启动告警检查
+func (m *Manager) startAlertCheck(rule *AlertRule) {
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	checkDuration := rule.Duration
+	if checkDuration == 0 {
+		checkDuration = time.Minute
+	}
+
+	var triggerStartTime time.Time
+	var triggered bool
+
+	for {
+		select {
+		case <-ticker.C:
+			if !rule.Enabled {
+				return
+			}
+
+			// 获取当前指标值
+			value := m.getMetricValue(rule.Metric)
+
+			// 检查条件
+			conditionMet := m.checkCondition(value, rule.Operator, rule.Threshold)
+
+			if conditionMet {
+				if !triggered {
+					triggerStartTime = time.Now()
+					triggered = true
+				}
+
+				// 检查是否持续足够时间
+				if time.Since(triggerStartTime) >= checkDuration {
+					m.triggerAlert(rule, value)
+					rule.LastTriggered = time.Now()
+					rule.TriggerCount++
+				}
+			} else {
+				triggered = false
+				triggerStartTime = time.Time{}
+			}
+		case <-m.stopChan:
+			return
+		}
+	}
+}
+
+// getMetricValue 获取指标值
+func (m *Manager) getMetricValue(metric string) float64 {
+	switch metric {
+	case "response_time":
+		return float64(m.metrics.AvgResponseTime.Milliseconds())
+	case "error_rate":
+		if m.metrics.TotalRequests > 0 {
+			return float64(m.metrics.TotalErrors) / float64(m.metrics.TotalRequests) * 100
+		}
+		return 0
+	case "rps":
+		stats := m.GetTimeWindowStats()
+		if rps, ok := stats["avgRPS"].(float64); ok {
+			return rps
+		}
+		return 0
+	default:
+		return 0
+	}
+}
+
+// checkCondition 检查条件
+func (m *Manager) checkCondition(value float64, operator string, threshold float64) bool {
+	switch operator {
+	case ">":
+		return value > threshold
+	case "<":
+		return value < threshold
+	case ">=":
+		return value >= threshold
+	case "<=":
+		return value <= threshold
+	case "==":
+		return value == threshold
+	default:
+		return false
+	}
+}
+
+// triggerAlert 触发告警
+func (m *Manager) triggerAlert(rule *AlertRule, value float64) {
+	alert := &AlertInstance{
+		RuleID:      rule.ID,
+		RuleName:    rule.Name,
+		Severity:    rule.Severity,
+		Message:     fmt.Sprintf("%s: %.2f %s %.2f", rule.Name, value, rule.Operator, rule.Threshold),
+		Value:       value,
+		Threshold:   rule.Threshold,
+		TriggeredAt: time.Now(),
+	}
+
+	globalAlertManager.mu.Lock()
+	globalAlertManager.alerts = append(globalAlertManager.alerts, alert)
+	// 保留最近100条告警
+	if len(globalAlertManager.alerts) > 100 {
+		globalAlertManager.alerts = globalAlertManager.alerts[len(globalAlertManager.alerts)-100:]
+	}
+	globalAlertManager.mu.Unlock()
+
+	// 记录日志
+	log.Printf("[ALERT] %s: %s", rule.Severity, alert.Message)
+
+	// TODO: 发送通知（email/webhook）
+}
+
+// ExportReport 导出性能报告
+func (m *Manager) ExportReport(format string) ([]byte, error) {
+	exportFormat := ExportFormat(format)
+	if exportFormat == "" {
+		exportFormat = ExportFormatJSON
+	}
+
+	// 生成报告数据
+	report := m.generateReport()
+
+	switch exportFormat {
+	case ExportFormatJSON:
+		return m.exportJSON(report)
+	case ExportFormatCSV:
+		return m.exportCSV(report)
+	case ExportFormatHTML:
+		return m.exportHTML(report)
+	case ExportFormatMarkdown:
+		return m.exportMarkdown(report)
+	default:
+		return m.exportJSON(report)
+	}
+}
+
+// generateReport 生成报告数据
+func (m *Manager) generateReport() *PerformanceReport {
+	report := &PerformanceReport{
+		GeneratedAt: time.Now(),
+		TimeRange:   "最近24小时",
+		Summary:     &ReportSummary{},
+		Endpoints:   make([]*EndpointReport, 0),
+		Throughput:  &ThroughputReport{},
+		Alerts:      m.GetActiveAlerts(),
+		Recommendations: make([]string, 0),
+	}
+
+	// 填充摘要
+	m.metrics.mu.RLock()
+	report.Summary.TotalRequests = m.metrics.TotalRequests
+	report.Summary.TotalErrors = m.metrics.TotalErrors
+	if m.metrics.TotalRequests > 0 {
+		report.Summary.ErrorRate = float64(m.metrics.TotalErrors) / float64(m.metrics.TotalRequests) * 100
+	}
+	report.Summary.AvgResponseTime = float64(m.metrics.AvgResponseTime.Milliseconds())
+	report.Summary.P95ResponseTime = m.metrics.Baseline.P95ResponseTime
+	report.Summary.P99ResponseTime = m.metrics.Baseline.P99ResponseTime
+	report.Summary.PeakRPS = m.metrics.Baseline.PeakRPS
+	report.Summary.AvgRPS = m.metrics.Baseline.AvgRPS
+
+	// 填充端点数据
+	for key, em := range m.metrics.Endpoints {
+		parts := strings.SplitN(key, ":", 2)
+		method := ""
+		path := key
+		if len(parts) == 2 {
+			method = parts[0]
+			path = parts[1]
+		}
+
+		epReport := &EndpointReport{
+			Path:         path,
+			Method:       method,
+			RequestCount: em.RequestCount,
+			ErrorCount:   em.ErrorCount,
+			AvgDuration:  float64(em.AvgDuration.Milliseconds()),
+			P50Duration:  float64(em.P50Duration.Milliseconds()),
+			P95Duration:  float64(em.P95Duration.Milliseconds()),
+			P99Duration:  float64(em.P99Duration.Milliseconds()),
+		}
+		if em.RequestCount > 0 {
+			epReport.ErrorRate = float64(em.ErrorCount) / float64(em.RequestCount) * 100
+		}
+		report.Endpoints = append(report.Endpoints, epReport)
+	}
+	m.metrics.mu.RUnlock()
+
+	// 填充吞吐量
+	throughputStats := m.GetThroughputStats()
+	if currentRPS, ok := throughputStats["currentRPS"].(float64); ok {
+		report.Throughput.CurrentRPS = currentRPS
+	}
+	if peakRPS, ok := throughputStats["peakRPS"].(float64); ok {
+		report.Throughput.PeakRPS = peakRPS
+	}
+	if hourly, ok := throughputStats["hourly"].([]*HourlyStat); ok {
+		report.Throughput.Hourly = hourly
+	}
+	if daily, ok := throughputStats["daily"].([]*DailyStat); ok {
+		report.Throughput.Daily = daily
+	}
+
+	// 添加慢请求
+	report.SlowRequests = m.GetSlowLogs(50)
+
+	// 生成建议
+	report.Recommendations = m.generateRecommendations(report)
+
+	return report
+}
+
+// generateRecommendations 生成性能建议
+func (m *Manager) generateRecommendations(report *PerformanceReport) []string {
+	var recommendations []string
+
+	// 高错误率
+	if report.Summary.ErrorRate > 5 {
+		recommendations = append(recommendations,
+			fmt.Sprintf("错误率较高 (%.2f%%)，建议检查日志排查问题", report.Summary.ErrorRate))
+	}
+
+	// 响应时间
+	if report.Summary.P95ResponseTime > 500 {
+		recommendations = append(recommendations,
+			fmt.Sprintf("P95响应时间较高 (%.0fms)，建议优化慢接口", report.Summary.P95ResponseTime))
+	}
+
+	// 慢请求
+	if len(report.SlowRequests) > 10 {
+		recommendations = append(recommendations,
+			fmt.Sprintf("存在%d个慢请求，建议进行性能优化", len(report.SlowRequests)))
+	}
+
+	// 活跃告警
+	if len(report.Alerts) > 0 {
+		recommendations = append(recommendations,
+			fmt.Sprintf("有%d个活跃告警需要处理", len(report.Alerts)))
+	}
+
+	if len(recommendations) == 0 {
+		recommendations = append(recommendations, "系统性能良好，继续保持")
+	}
+
+	return recommendations
+}
+
+// exportJSON 导出JSON格式
+func (m *Manager) exportJSON(report *PerformanceReport) ([]byte, error) {
+	return json.MarshalIndent(report, "", "  ")
+}
+
+// exportCSV 导出CSV格式
+func (m *Manager) exportCSV(report *PerformanceReport) ([]byte, error) {
+	var buf bytes.Buffer
+	writer := csv.NewWriter(&buf)
+
+	// 写入摘要
+	_ = writer.Write([]string{"指标", "值"})
+	_ = writer.Write([]string{"总请求数", fmt.Sprintf("%d", report.Summary.TotalRequests)})
+	_ = writer.Write([]string{"总错误数", fmt.Sprintf("%d", report.Summary.TotalErrors)})
+	_ = writer.Write([]string{"错误率", fmt.Sprintf("%.2f%%", report.Summary.ErrorRate)})
+	_ = writer.Write([]string{"平均响应时间", fmt.Sprintf("%.0fms", report.Summary.AvgResponseTime)})
+	_ = writer.Write([]string{"P95响应时间", fmt.Sprintf("%.0fms", report.Summary.P95ResponseTime)})
+	_ = writer.Write([]string{"峰值RPS", fmt.Sprintf("%.2f", report.Summary.PeakRPS)})
+	_ = writer.Write([]string{""}) // 空行
+
+	// 写入端点数据
+	_ = writer.Write([]string{"端点", "方法", "请求数", "错误数", "错误率", "平均响应时间", "P95响应时间"})
+	for _, ep := range report.Endpoints {
+		_ = writer.Write([]string{
+			ep.Path,
+			ep.Method,
+			fmt.Sprintf("%d", ep.RequestCount),
+			fmt.Sprintf("%d", ep.ErrorCount),
+			fmt.Sprintf("%.2f%%", ep.ErrorRate),
+			fmt.Sprintf("%.0fms", ep.AvgDuration),
+			fmt.Sprintf("%.0fms", ep.P95Duration),
+		})
+	}
+
+	writer.Flush()
+	return buf.Bytes(), writer.Error()
+}
+
+// exportHTML 导出HTML格式
+func (m *Manager) exportHTML(report *PerformanceReport) ([]byte, error) {
+	var buf bytes.Buffer
+
+	buf.WriteString(`<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>NAS-OS 性能报告</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        h2 { color: #666; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .summary { background-color: #e7f3fe; padding: 15px; border-radius: 5px; }
+        .alert { background-color: #fff3cd; padding: 10px; margin: 5px 0; border-left: 4px solid #ffc107; }
+        .recommendation { background-color: #d4edda; padding: 10px; margin: 5px 0; border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+    <h1>NAS-OS 性能报告</h1>
+    <p>生成时间: ` + report.GeneratedAt.Format("2006-01-02 15:04:05") + `</p>
+`)
+
+	// 摘要
+	buf.WriteString(`<div class="summary">
+    <h2>性能摘要</h2>
+    <table>
+        <tr><th>指标</th><th>值</th></tr>
+        <tr><td>总请求数</td><td>` + fmt.Sprintf("%d", report.Summary.TotalRequests) + `</td></tr>
+        <tr><td>总错误数</td><td>` + fmt.Sprintf("%d", report.Summary.TotalErrors) + `</td></tr>
+        <tr><td>错误率</td><td>` + fmt.Sprintf("%.2f%%", report.Summary.ErrorRate) + `</td></tr>
+        <tr><td>平均响应时间</td><td>` + fmt.Sprintf("%.0fms", report.Summary.AvgResponseTime) + `</td></tr>
+        <tr><td>P95响应时间</td><td>` + fmt.Sprintf("%.0fms", report.Summary.P95ResponseTime) + `</td></tr>
+        <tr><td>峰值RPS</td><td>` + fmt.Sprintf("%.2f", report.Summary.PeakRPS) + `</td></tr>
+    </table>
+</div>
+`)
+
+	// 端点
+	buf.WriteString(`<h2>端点性能</h2>
+<table>
+    <tr><th>路径</th><th>方法</th><th>请求数</th><th>错误率</th><th>平均响应时间</th><th>P95响应时间</th></tr>
+`)
+	for _, ep := range report.Endpoints {
+		buf.WriteString(fmt.Sprintf(`<tr>
+        <td>%s</td><td>%s</td><td>%d</td><td>%.2f%%</td><td>%.0fms</td><td>%.0fms</td>
+    </tr>
+`, ep.Path, ep.Method, ep.RequestCount, ep.ErrorRate, ep.AvgDuration, ep.P95Duration))
+	}
+	buf.WriteString(`</table>
+`)
+
+	// 告警
+	if len(report.Alerts) > 0 {
+		buf.WriteString(`<h2>活跃告警</h2>
+`)
+		for _, alert := range report.Alerts {
+			buf.WriteString(fmt.Sprintf(`<div class="alert">
+    <strong>%s</strong>: %s (当前值: %.2f, 阈值: %.2f)
+</div>
+`, alert.Severity, alert.Message, alert.Value, alert.Threshold))
+		}
+	}
+
+	// 建议
+	if len(report.Recommendations) > 0 {
+		buf.WriteString(`<h2>性能建议</h2>
+`)
+		for _, rec := range report.Recommendations {
+			buf.WriteString(`<div class="recommendation">` + rec + `</div>
+`)
+		}
+	}
+
+	buf.WriteString(`</body>
+</html>
+`)
+
+	return buf.Bytes(), nil
+}
+
+// exportMarkdown 导出Markdown格式
+func (m *Manager) exportMarkdown(report *PerformanceReport) ([]byte, error) {
+	var buf bytes.Buffer
+
+	buf.WriteString("# NAS-OS 性能报告\n\n")
+	buf.WriteString(fmt.Sprintf("**生成时间**: %s\n\n", report.GeneratedAt.Format("2006-01-02 15:04:05")))
+
+	// 摘要
+	buf.WriteString("## 性能摘要\n\n")
+	buf.WriteString("| 指标 | 值 |\n|------|------|\n")
+	buf.WriteString(fmt.Sprintf("| 总请求数 | %d |\n", report.Summary.TotalRequests))
+	buf.WriteString(fmt.Sprintf("| 总错误数 | %d |\n", report.Summary.TotalErrors))
+	buf.WriteString(fmt.Sprintf("| 错误率 | %.2f%% |\n", report.Summary.ErrorRate))
+	buf.WriteString(fmt.Sprintf("| 平均响应时间 | %.0fms |\n", report.Summary.AvgResponseTime))
+	buf.WriteString(fmt.Sprintf("| P95响应时间 | %.0fms |\n", report.Summary.P95ResponseTime))
+	buf.WriteString(fmt.Sprintf("| 峰值RPS | %.2f |\n\n", report.Summary.PeakRPS))
+
+	// 端点
+	buf.WriteString("## 端点性能\n\n")
+	buf.WriteString("| 路径 | 方法 | 请求数 | 错误率 | 平均响应时间 | P95响应时间 |\n")
+	buf.WriteString("|------|------|--------|--------|--------------|-------------|\n")
+	for _, ep := range report.Endpoints {
+		buf.WriteString(fmt.Sprintf("| %s | %s | %d | %.2f%% | %.0fms | %.0fms |\n",
+			ep.Path, ep.Method, ep.RequestCount, ep.ErrorRate, ep.AvgDuration, ep.P95Duration))
+	}
+
+	// 告警
+	if len(report.Alerts) > 0 {
+		buf.WriteString("\n## 活跃告警\n\n")
+		for _, alert := range report.Alerts {
+			buf.WriteString(fmt.Sprintf("- **%s**: %s (当前值: %.2f, 阈值: %.2f)\n",
+				alert.Severity, alert.Message, alert.Value, alert.Threshold))
+		}
+	}
+
+	// 建议
+	if len(report.Recommendations) > 0 {
+		buf.WriteString("\n## 性能建议\n\n")
+		for _, rec := range report.Recommendations {
+			buf.WriteString(fmt.Sprintf("- %s\n", rec))
+		}
+	}
+
+	return buf.Bytes(), nil
 }
