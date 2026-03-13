@@ -32,6 +32,9 @@ type Manager struct {
 
 	// 文件访问回调（用于获取文件信息）
 	fileAccessor FileAccessor
+
+	// 停止信号
+	stopCh chan struct{}
 }
 
 // FileAccessor 文件访问接口（由外部提供实现）
@@ -65,6 +68,7 @@ func NewManager(configPath string, accessor FileAccessor) (*Manager, error) {
 		associations: DefaultFileAssociations(),
 		configPath:   configPath,
 		fileAccessor: accessor,
+		stopCh:       make(chan struct{}),
 	}
 
 	// 加载配置
@@ -652,9 +656,19 @@ func (m *Manager) sessionCleanupWorker() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		m.cleanupExpiredSessions()
+	for {
+		select {
+		case <-ticker.C:
+			m.cleanupExpiredSessions()
+		case <-m.stopCh:
+			return
+		}
 	}
+}
+
+// Close 关闭管理器
+func (m *Manager) Close() {
+	close(m.stopCh)
 }
 
 // cleanupExpiredSessions 清理过期会话
