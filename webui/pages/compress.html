@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>压缩管理 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .compress-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .page-header { margin-bottom: 2rem; }
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+        }
+        .stat-icon { font-size: 32px; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--color-primary); }
+        .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 0.25rem; }
+        .stat-change { font-size: 12px; margin-top: 0.5rem; }
+        .stat-change.positive { color: var(--color-success); }
+        .stat-change.negative { color: var(--color-error); }
+
+        .section {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .section-title { font-size: 18px; font-weight: 700; }
+
+        .algo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .algo-card {
+            border: 2px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .algo-card:hover { border-color: var(--color-primary); }
+        .algo-card.selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-bg);
+        }
+        .algo-name { font-weight: 600; margin-bottom: 0.5rem; }
+        .algo-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .algo-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+        .algo-speed { color: var(--color-success); }
+        .algo-ratio { color: var(--color-info); }
+
+        .rule-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .rule-item:last-child { border-bottom: none; }
+        .rule-icon { font-size: 24px; margin-right: 1rem; }
+        .rule-info { flex: 1; }
+        .rule-name { font-weight: 600; }
+        .rule-desc { font-size: 13px; color: var(--text-muted); }
+        .rule-toggle {
+            width: 48px;
+            height: 24px;
+            background: var(--surface-tertiary);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .rule-toggle.active { background: var(--color-primary); }
+        .rule-toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.2s;
+        }
+        .rule-toggle.active::after { left: 26px; }
+
+        .task-table { width: 100%; border-collapse: collapse; }
+        .task-table th, .task-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .task-table th { font-weight: 600; color: var(--text-muted); font-size: 13px; }
+        .task-table tr:hover { background: var(--surface-secondary); }
+
+        .progress-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .mini-progress {
+            flex: 1;
+            height: 6px;
+            background: var(--surface-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .mini-progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.running { background: #DBEAFE; color: #1E40AF; }
+        .status-badge.completed { background: #D1FAE5; color: #065F46; }
+        .status-badge.pending { background: #FEF3C7; color: #92400E; }
+        .status-badge.failed { background: #FEE2E2; color: #991B1B; }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-dark); }
+        .btn-secondary { background: var(--surface-secondary); color: var(--text-color); }
+        .btn-secondary:hover { background: var(--surface-tertiary); }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 14px; }
+        .btn-danger { background: var(--color-error); color: white; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 1rem; }
+        .modal-body { margin-bottom: 1rem; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: var(--surface-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="compress-container">
+        <div class="page-header">
+            <h1 class="page-title">🗜️ 压缩管理</h1>
+            <p class="page-subtitle">智能数据压缩，节省存储空间</p>
+        </div>
+
+        <!-- 统计概览 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">💾</div>
+                <div class="stat-value" id="totalSaved">0 GB</div>
+                <div class="stat-label">节省空间</div>
+                <div class="stat-change positive">↑ 较上月 +15%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value" id="avgRatio">0%</div>
+                <div class="stat-label">平均压缩率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📁</div>
+                <div class="stat-value" id="compressedFiles">0</div>
+                <div class="stat-label">已压缩文件</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-value" id="activeTasks">0</div>
+                <div class="stat-label">活动任务</div>
+            </div>
+        </div>
+
+        <!-- 压缩算法选择 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">⚙️ 压缩算法</h2>
+                <button class="btn btn-sm btn-secondary" onclick="showAlgoHelp()">📖 算法说明</button>
+            </div>
+            <div class="algo-grid" id="algoGrid">
+                <div class="algo-card selected" data-algo="zstd" onclick="selectAlgo('zstd')">
+                    <div class="algo-name">🚀 ZSTD</div>
+                    <div class="algo-desc">平衡压缩率与速度，推荐通用场景</div>
+                    <div class="algo-meta">
+                        <span class="algo-speed">速度: 快</span>
+                        <span class="algo-ratio">压缩率: 高</span>
+                    </div>
+                </div>
+                <div class="algo-card" data-algo="lz4" onclick="selectAlgo('lz4')">
+                    <div class="algo-name">⚡ LZ4</div>
+                    <div class="algo-desc">极速压缩解压，适合热数据</div>
+                    <div class="algo-meta">
+                        <span class="algo-speed">速度: 极快</span>
+                        <span class="algo-ratio">压缩率: 中</span>
+                    </div>
+                </div>
+                <div class="algo-card" data-algo="gzip" onclick="selectAlgo('gzip')">
+                    <div class="algo-name">📦 GZIP</div>
+                    <div class="algo-desc">经典算法，兼容性最好</div>
+                    <div class="algo-meta">
+                        <span class="algo-speed">速度: 中</span>
+                        <span class="algo-ratio">压缩率: 中</span>
+                    </div>
+                </div>
+                <div class="algo-card" data-algo="xz" onclick="selectAlgo('xz')">
+                    <div class="algo-name">🔥 XZ/LZMA</div>
+                    <div class="algo-desc">最高压缩率，适合归档数据</div>
+                    <div class="algo-meta">
+                        <span class="algo-speed">速度: 慢</span>
+                        <span class="algo-ratio">压缩率: 极高</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 压缩规则 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">📋 自动压缩规则</h2>
+                <button class="btn btn-sm btn-primary" onclick="showAddRule()">+ 添加规则</button>
+            </div>
+            <div id="rulesList">
+                <div class="rule-item">
+                    <div class="rule-icon">📄</div>
+                    <div class="rule-info">
+                        <div class="rule-name">日志文件压缩</div>
+                        <div class="rule-desc">自动压缩 30 天以上的 .log 文件</div>
+                    </div>
+                    <div class="rule-toggle active" onclick="toggleRule(this)"></div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon">🗂️</div>
+                    <div class="rule-info">
+                        <div class="rule-name">归档目录压缩</div>
+                        <div class="rule-desc">压缩 /archive 目录下所有文件</div>
+                    </div>
+                    <div class="rule-toggle active" onclick="toggleRule(this)"></div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon">🖼️</div>
+                    <div class="rule-info">
+                        <div class="rule-name">图片优化</div>
+                        <div class="rule-desc">无损压缩 PNG/JPG 图片</div>
+                    </div>
+                    <div class="rule-toggle" onclick="toggleRule(this)"></div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-icon">📹</div>
+                    <div class="rule-info">
+                        <div class="rule-name">视频转码</div>
+                        <div class="rule-desc">将旧视频转码为 H.265 格式</div>
+                    </div>
+                    <div class="rule-toggle" onclick="toggleRule(this)"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 压缩任务 -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">📊 压缩任务</h2>
+                <div>
+                    <button class="btn btn-sm btn-secondary" onclick="refreshTasks()">🔄 刷新</button>
+                    <button class="btn btn-sm btn-primary" onclick="showNewTask()">+ 新建任务</button>
+                </div>
+            </div>
+            <table class="task-table">
+                <thead>
+                    <tr>
+                        <th>任务名称</th>
+                        <th>路径</th>
+                        <th>算法</th>
+                        <th>进度</th>
+                        <th>状态</th>
+                        <th>节省空间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="taskTableBody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 新建任务模态框 -->
+    <div class="modal-overlay" id="newTaskModal">
+        <div class="modal">
+            <div class="modal-title">新建压缩任务</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">任务名称</label>
+                    <input type="text" class="form-input" id="taskName" placeholder="输入任务名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">压缩路径</label>
+                    <input type="text" class="form-input" id="taskPath" placeholder="/path/to/compress">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">压缩算法</label>
+                    <select class="form-select" id="taskAlgo">
+                        <option value="zstd">ZSTD (推荐)</option>
+                        <option value="lz4">LZ4 (极速)</option>
+                        <option value="gzip">GZIP (兼容)</option>
+                        <option value="xz">XZ (最高压缩率)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">压缩级别</label>
+                    <select class="form-select" id="taskLevel">
+                        <option value="1">1 - 最快</option>
+                        <option value="3" selected>3 - 默认</option>
+                        <option value="6">6 - 高压缩</option>
+                        <option value="9">9 - 最高压缩</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">文件类型过滤</label>
+                    <input type="text" class="form-input" id="taskFilter" placeholder="*.log,*.txt (留空压缩所有)">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideNewTask()">取消</button>
+                <button class="btn btn-primary" onclick="createTask()">创建任务</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let currentAlgo = 'zstd';
+        let tasks = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadTasks();
+            setInterval(loadStats, 30000);
+            setInterval(loadTasks, 5000);
+        });
+
+        // 加载统计数据
+        async function loadStats() {
+            try {
+                const resp = await fetch(`${API_BASE}/compress/stats`);
+                const data = await resp.json();
+                if (data.code === 0) {
+                    const stats = data.data;
+                    document.getElementById('totalSaved').textContent = formatBytes(stats.total_saved || 0);
+                    document.getElementById('avgRatio').textContent = (stats.avg_ratio || 0) + '%';
+                    document.getElementById('compressedFiles').textContent = stats.compressed_files || 0;
+                    document.getElementById('activeTasks').textContent = stats.active_tasks || 0;
+                }
+            } catch (e) {
+                console.error('加载统计失败:', e);
+            }
+        }
+
+        // 加载任务列表
+        async function loadTasks() {
+            try {
+                const resp = await fetch(`${API_BASE}/compress/tasks`);
+                const data = await resp.json();
+                if (data.code === 0) {
+                    tasks = data.data || [];
+                    renderTasks();
+                }
+            } catch (e) {
+                console.error('加载任务失败:', e);
+                document.getElementById('taskTableBody').innerHTML = 
+                    '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">暂无任务</td></tr>';
+            }
+        }
+
+        function renderTasks() {
+            const tbody = document.getElementById('taskTableBody');
+            if (!tasks || tasks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">暂无任务</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = tasks.map(t => {
+                const progress = t.progress || 0;
+                const statusClass = t.status === 'running' ? 'running' : 
+                                   t.status === 'completed' ? 'completed' : 
+                                   t.status === 'pending' ? 'pending' : 'failed';
+                const statusText = {running: '运行中', completed: '已完成', pending: '等待中', failed: '失败'}[t.status] || t.status;
+
+                return `
+                    <tr>
+                        <td><strong>${t.name || t.id}</strong></td>
+                        <td class="text-muted">${t.path || '-'}</td>
+                        <td><span class="status-badge" style="background: #EEF2FF; color: #3730A3;">${t.algorithm || 'zstd'}</span></td>
+                        <td>
+                            <div class="progress-cell">
+                                <div class="mini-progress">
+                                    <div class="mini-progress-fill" style="width: ${progress}%"></div>
+                                </div>
+                                <span>${progress}%</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${formatBytes(t.saved || 0)}</td>
+                        <td>
+                            ${t.status === 'running' ? 
+                                `<button class="btn btn-sm btn-danger" onclick="cancelTask('${t.id}')">取消</button>` :
+                                `<button class="btn btn-sm btn-secondary" onclick="deleteTask('${t.id}')">删除</button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 选择算法
+        function selectAlgo(algo) {
+            currentAlgo = algo;
+            document.querySelectorAll('.algo-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.algo === algo);
+            });
+        }
+
+        // 切换规则
+        function toggleRule(el) {
+            el.classList.toggle('active');
+            const isActive = el.classList.contains('active');
+            // TODO: 保存规则状态到后端
+        }
+
+        // 显示新建任务模态框
+        function showNewTask() {
+            document.getElementById('newTaskModal').classList.add('active');
+        }
+
+        function hideNewTask() {
+            document.getElementById('newTaskModal').classList.remove('active');
+        }
+
+        // 创建任务
+        async function createTask() {
+            const name = document.getElementById('taskName').value;
+            const path = document.getElementById('taskPath').value;
+            const algo = document.getElementById('taskAlgo').value;
+            const level = parseInt(document.getElementById('taskLevel').value);
+            const filter = document.getElementById('taskFilter').value;
+
+            if (!path) {
+                alert('请输入压缩路径');
+                return;
+            }
+
+            try {
+                const resp = await fetch(`${API_BASE}/compress/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name || `压缩任务 ${Date.now()}`,
+                        path: path,
+                        algorithm: algo,
+                        level: level,
+                        filter: filter
+                    })
+                });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    hideNewTask();
+                    loadTasks();
+                    alert('✓ 任务创建成功');
+                } else {
+                    alert('✗ 创建失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('✗ 创建失败: ' + e.message);
+            }
+        }
+
+        // 取消任务
+        async function cancelTask(id) {
+            if (!confirm('确定要取消此任务吗？')) return;
+            try {
+                const resp = await fetch(`${API_BASE}/compress/tasks/${id}/cancel`, { method: 'POST' });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    loadTasks();
+                } else {
+                    alert('取消失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('取消失败: ' + e.message);
+            }
+        }
+
+        // 删除任务
+        async function deleteTask(id) {
+            if (!confirm('确定要删除此任务吗？')) return;
+            try {
+                const resp = await fetch(`${API_BASE}/compress/tasks/${id}`, { method: 'DELETE' });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    loadTasks();
+                } else {
+                    alert('删除失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('删除失败: ' + e.message);
+            }
+        }
+
+        // 显示添加规则
+        function showAddRule() {
+            alert('添加规则功能开发中...');
+        }
+
+        // 显示算法帮助
+        function showAlgoHelp() {
+            alert(`压缩算法说明：
+
+🚀 ZSTD - 推荐通用场景
+- 压缩速度: 400-1000 MB/s
+- 压缩率: 2.5-3x
+- 解压速度: 1000+ MB/s
+
+⚡ LZ4 - 极速压缩
+- 压缩速度: 500+ MB/s
+- 压缩率: 2-2.5x
+- 适合实时压缩场景
+
+📦 GZIP - 经典兼容
+- 压缩速度: 100-200 MB/s
+- 压缩率: 2.5-3x
+- 广泛兼容性
+
+🔥 XZ/LZMA - 最高压缩率
+- 压缩速度: 10-50 MB/s
+- 压缩率: 3-5x
+- 适合归档冷数据`);
+        }
+
+        // 刷新任务
+        function refreshTasks() {
+            loadTasks();
+        }
+
+        // 格式化字节
+        function formatBytes(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
