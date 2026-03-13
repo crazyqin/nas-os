@@ -2,9 +2,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.2.0 Stable (2026-03-21)  
-> **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)  
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.2.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **最新版本**: v2.3.0 Stable (2026-03-28)
+> **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.3.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -201,8 +201,20 @@ nas-os/
 | v1.8.0 | Stable | 2026-03-20 | 版本控制/云同步/去重 | ✅ 已发布 |
 | v2.0.0 | Stable | 2026-04-01 | 存储复制/回收站增强 | ✅ 已发布 |
 | **v2.2.0** | **Stable** | **2026-03-21** | **iSCSI/快照策略/仪表板增强/性能监控** | ✅ **已发布** |
+| **v2.3.0** | **Stable** | **2026-03-28** | **存储分层/FTP-SFTP/压缩存储/文件标签** | ✅ **已发布** |
 
-## v2.2.0 新增功能
+## v2.3.0 新增功能
+
+| 功能 | 说明 |
+|------|------|
+| 🗂️ 存储分层 | 热/冷数据自动分层，SSD 缓存层加速，云存储归档 |
+| 📡 FTP 服务器 | 被动/主动模式，匿名登录，带宽限制，虚拟目录 |
+| 🔐 SFTP 服务器 | SSH 密钥认证，用户权限隔离，chroot 限制 |
+| 🗜️ 压缩存储 | 文件级/块级压缩，透明压缩，节省空间 |
+| 🏷️ 文件标签 | 标签分类，颜色图标，批量操作，标签云 |
+
+<details>
+<summary>v2.2.0 新增功能</summary>
 
 | 功能 | 说明 |
 |------|------|
@@ -210,6 +222,8 @@ nas-os/
 | 📸 快照策略 | 自动化快照调度，支持多种保留策略 |
 | 🖥️ 仪表板增强 | 全新 WebUI 仪表板，可自定义小部件布局 |
 | 📊 性能监控增强 | 性能基线学习、异常检测、优化建议 |
+
+</details>
 
 <details>
 <summary>v1.8.0 新增功能</summary>

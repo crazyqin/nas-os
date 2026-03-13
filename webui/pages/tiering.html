@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存储分层 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .tiering-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .page-header { margin-bottom: 2rem; }
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+        
+        .tier-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 900px) { .tier-cards { grid-template-columns: 1fr; } }
+        
+        .tier-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border-top: 4px solid var(--tier-color);
+        }
+        .tier-card.hot { --tier-color: #EF4444; }
+        .tier-card.cold { --tier-color: #3B82F6; }
+        .tier-card.archive { --tier-color: #8B5CF6; }
+        
+        .tier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .tier-name { font-size: 18px; font-weight: 700; }
+        .tier-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--surface-secondary);
+        }
+        
+        .tier-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .tier-stat {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--surface-secondary);
+            border-radius: var(--radius-md);
+        }
+        .tier-stat-value { font-size: 20px; font-weight: 700; }
+        .tier-stat-label { font-size: 12px; color: var(--text-muted); }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--surface-tertiary);
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--tier-color);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .policy-section {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .section-title { font-size: 20px; font-weight: 700; }
+        
+        .policy-table { width: 100%; border-collapse: collapse; }
+        .policy-table th, .policy-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .policy-table th { font-weight: 600; color: var(--text-muted); }
+        .policy-table tr:hover { background: var(--surface-secondary); }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.enabled { background: var(--color-success-bg); color: var(--color-success); }
+        .status-badge.disabled { background: var(--color-error-bg); color: var(--color-error); }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-dark); }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 14px; }
+        
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="tiering-container">
+        <div class="page-header">
+            <h1 class="page-title">🗂️ 存储分层</h1>
+            <p class="page-subtitle">热/冷数据自动分层，优化存储性能与成本</p>
+        </div>
+
+        <div class="tier-cards">
+            <div class="tier-card hot">
+                <div class="tier-header">
+                    <div class="tier-name">🔥 热数据层 (Hot)</div>
+                    <div class="tier-badge">SSD 缓存</div>
+                </div>
+                <div class="tier-stats">
+                    <div class="tier-stat">
+                        <div class="tier-stat-value" id="hotCapacity">0 GB</div>
+                        <div class="tier-stat-label">总容量</div>
+                    </div>
+                    <div class="tier-stat">
+                        <div class="tier-stat-value" id="hotUsed">0 GB</div>
+                        <div class="tier-stat-label">已使用</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="hotProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="tier-card cold">
+                <div class="tier-header">
+                    <div class="tier-name">❄️ 冷数据层 (Cold)</div>
+                    <div class="tier-badge">HDD 存储</div>
+                </div>
+                <div class="tier-stats">
+                    <div class="tier-stat">
+                        <div class="tier-stat-value" id="coldCapacity">0 GB</div>
+                        <div class="tier-stat-label">总容量</div>
+                    </div>
+                    <div class="tier-stat">
+                        <div class="tier-stat-value" id="coldUsed">0 GB</div>
+                        <div class="tier-stat-label">已使用</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="coldProgress" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="tier-card archive">
+                <div class="tier-header">
+                    <div class="tier-name">📦 归档层 (Archive)</div>
+                    <div class="tier-badge">云存储</div>
+                </div>
+                <div class="tier-stats">
+                    <div class="tier-stat">
+                        <div class="tier-stat-value" id="archiveCapacity">0 GB</div>
+                        <div class="tier-stat-label">总容量</div>
+                    </div>
+                    <div class="tier-stat">
+                        <div class="tier-stat-value" id="archiveUsed">0 GB</div>
+                        <div class="tier-stat-label">已使用</div>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="archiveProgress" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="policy-section">
+            <div class="section-header">
+                <h2 class="section-title">📋 分层策略</h2>
+                <button class="btn btn-primary btn-sm" onclick="createPolicy()">+ 新建策略</button>
+            </div>
+            <table class="policy-table">
+                <thead>
+                    <tr>
+                        <th>策略名称</th>
+                        <th>源层</th>
+                        <th>目标层</th>
+                        <th>规则</th>
+                        <th>调度</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="policyTableBody">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="policy-section">
+            <div class="section-header">
+                <h2 class="section-title">📊 迁移任务</h2>
+            </div>
+            <table class="policy-table">
+                <thead>
+                    <tr>
+                        <th>任务 ID</th>
+                        <th>策略</th>
+                        <th>文件数</th>
+                        <th>进度</th>
+                        <th>状态</th>
+                        <th>开始时间</th>
+                    </tr>
+                </thead>
+                <tbody id="taskTableBody">
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">暂无任务</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function loadTiers() {
+            try {
+                const resp = await fetch('/api/v1/tiering/tiers');
+                const data = await resp.json();
+                if (data.code === 0) {
+                    data.data.forEach(tier => {
+                        const tierType = tier.type || tier.name?.toLowerCase() || 'cold';
+                        const capacity = tier.capacity || 0;
+                        const used = tier.used || 0;
+                        const percent = capacity > 0 ? (used / capacity * 100).toFixed(1) : 0;
+                        
+                        if (tierType.includes('hot') || tierType === 'hot') {
+                            document.getElementById('hotCapacity').textContent = formatBytes(capacity);
+                            document.getElementById('hotUsed').textContent = formatBytes(used);
+                            document.getElementById('hotProgress').style.width = percent + '%';
+                        } else if (tierType.includes('archive')) {
+                            document.getElementById('archiveCapacity').textContent = formatBytes(capacity);
+                            document.getElementById('archiveUsed').textContent = formatBytes(used);
+                            document.getElementById('archiveProgress').style.width = percent + '%';
+                        } else {
+                            document.getElementById('coldCapacity').textContent = formatBytes(capacity);
+                            document.getElementById('coldUsed').textContent = formatBytes(used);
+                            document.getElementById('coldProgress').style.width = percent + '%';
+                        }
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadPolicies() {
+            try {
+                const resp = await fetch('/api/v1/tiering/policies');
+                const data = await resp.json();
+                if (data.code === 0 && data.data.length > 0) {
+                    const tbody = document.getElementById('policyTableBody');
+                    tbody.innerHTML = data.data.map(p => `
+                        <tr>
+                            <td>${p.name}</td>
+                            <td>${p.source_tier}</td>
+                            <td>${p.target_tier}</td>
+                            <td>${formatRules(p.rules)}</td>
+                            <td>${p.schedule || '手动'}</td>
+                            <td><span class="status-badge ${p.enabled ? 'enabled' : 'disabled'}">${p.enabled ? '已启用' : '已禁用'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="executePolicy('${p.id}')">执行</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    document.getElementById('policyTableBody').innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">暂无策略</td></tr>';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadTasks() {
+            try {
+                const resp = await fetch('/api/v1/tiering/tasks');
+                const data = await resp.json();
+                if (data.code === 0 && data.data.length > 0) {
+                    const tbody = document.getElementById('taskTableBody');
+                    tbody.innerHTML = data.data.map(t => `
+                        <tr>
+                            <td>${t.id}</td>
+                            <td>${t.policy_name || '-'}</td>
+                            <td>${t.files_total || 0}</td>
+                            <td>${t.progress || 0}%</td>
+                            <td><span class="status-badge ${t.status === 'completed' ? 'enabled' : t.status === 'running' ? 'enabled' : 'disabled'}">${t.status}</span></td>
+                            <td>${t.started_at || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function formatRules(rules) {
+            if (!rules || !rules.length) return '-';
+            return rules.map(r => {
+                if (r.type === 'access_age') return `${r.days}天未访问`;
+                if (r.type === 'file_size') return `>${formatBytes(r.min_size)}`;
+                return r.type;
+            }).join(', ');
+        }
+
+        function formatBytes(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function createPolicy() {
+            alert('创建分层策略功能开发中...');
+        }
+
+        async function executePolicy(id) {
+            try {
+                const resp = await fetch(`/api/v1/tiering/policies/${id}/execute`, { method: 'POST' });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    alert('策略执行已启动');
+                    loadTasks();
+                } else {
+                    alert('执行失败: ' + data.message);
+                }
+            } catch (e) { alert('执行失败: ' + e.message); }
+        }
+
+        loadTiers();
+        loadPolicies();
+        loadTasks();
+        setInterval(() => { loadTiers(); loadTasks(); }, 10000);
+    </script>
+</body>
+</html>

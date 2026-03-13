@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件标签 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .tags-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .page-header { margin-bottom: 2rem; }
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+        
+        .tags-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .tag-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid var(--tag-color);
+        }
+        .tag-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .tag-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .tag-name {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tag-icon { font-size: 20px; }
+        .tag-count {
+            background: var(--surface-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .tag-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .tag-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .search-input {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            width: 300px;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-dark); }
+        .btn-secondary { background: var(--surface-secondary); color: var(--text-primary); }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 14px; }
+        
+        .tag-cloud {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+        .tag-cloud h3 { margin-bottom: 1rem; }
+        .cloud-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .cloud-tag {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cloud-tag:hover {
+            transform: scale(1.05);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            width: 400px;
+            max-width: 90%;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title { font-size: 20px; font-weight: 700; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .color-option {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .color-option.selected { border-color: var(--text-primary); }
+        
+        .icon-picker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .icon-option {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .icon-option.selected { border-color: var(--color-primary); }
+    </style>
+</head>
+<body>
+    <div class="tags-container">
+        <div class="page-header">
+            <h1 class="page-title">🏷️ 文件标签</h1>
+            <p class="page-subtitle">通过标签组织和分类文件</p>
+        </div>
+
+        <div class="tag-cloud">
+            <h3>☁️ 标签云</h3>
+            <div class="cloud-tags" id="cloudTags">
+                <span style="color: var(--text-muted);">加载中...</span>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索标签...">
+                <button class="btn btn-secondary" onclick="searchTags()">🔍 搜索</button>
+            </div>
+            <button class="btn btn-primary" onclick="openCreateModal()">+ 新建标签</button>
+        </div>
+
+        <div class="tags-grid" id="tagsGrid">
+            <div style="color: var(--text-muted); text-align: center; padding: 2rem;">加载中...</div>
+        </div>
+    </div>
+
+    <div class="modal" id="tagModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新建标签</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <form id="tagForm">
+                <input type="hidden" id="tagId">
+                <div class="form-group">
+                    <label class="form-label">标签名称</label>
+                    <input type="text" class="form-input" id="tagName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">颜色</label>
+                    <div class="color-picker" id="colorPicker">
+                        <div class="color-option selected" data-color="#EF4444" style="background: #EF4444;"></div>
+                        <div class="color-option" data-color="#F59E0B" style="background: #F59E0B;"></div>
+                        <div class="color-option" data-color="#10B981" style="background: #10B981;"></div>
+                        <div class="color-option" data-color="#3B82F6" style="background: #3B82F6;"></div>
+                        <div class="color-option" data-color="#8B5CF6" style="background: #8B5CF6;"></div>
+                        <div class="color-option" data-color="#EC4899" style="background: #EC4899;"></div>
+                        <div class="color-option" data-color="#6B7280" style="background: #6B7280;"></div>
+                        <div class="color-option" data-color="#14B8A6" style="background: #14B8A6;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">图标</label>
+                    <div class="icon-picker" id="iconPicker">
+                        <div class="icon-option selected" data-icon="tag">🏷️</div>
+                        <div class="icon-option" data-icon="star">⭐</div>
+                        <div class="icon-option" data-icon="heart">❤️</div>
+                        <div class="icon-option" data-icon="bookmark">🔖</div>
+                        <div class="icon-option" data-icon="folder">📁</div>
+                        <div class="icon-option" data-icon="work">💼</div>
+                        <div class="icon-option" data-icon="home">🏠</div>
+                        <div class="icon-option" data-icon="user">👤</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedColor = '#EF4444';
+        let selectedIcon = 'tag';
+
+        async function loadTags() {
+            try {
+                const resp = await fetch('/api/v1/tags');
+                const data = await resp.json();
+                if (data.code === 0) {
+                    renderTags(data.data);
+                    renderCloud(data.data);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function renderTags(tags) {
+            const grid = document.getElementById('tagsGrid');
+            if (tags.length === 0) {
+                grid.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 2rem; grid-column: 1/-1;">暂无标签，点击"新建标签"创建</div>';
+                return;
+            }
+            grid.innerHTML = tags.map(t => `
+                <div class="tag-card" style="--tag-color: ${t.color};" onclick="viewTagFiles('${t.id}')">
+                    <div class="tag-header">
+                        <div class="tag-name">
+                            <span class="tag-icon">${getIcon(t.icon)}</span>
+                            ${t.name}
+                        </div>
+                        <div class="tag-count">${t.file_count || 0} 文件</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="tag-color" style="background: ${t.color};"></span>
+                        <span style="color: var(--text-muted); font-size: 14px;">${t.color}</span>
+                    </div>
+                    <div class="tag-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); editTag('${t.id}', '${t.name}', '${t.color}', '${t.icon}')">编辑</button>
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); deleteTag('${t.id}')">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCloud(tags) {
+            const cloud = document.getElementById('cloudTags');
+            if (tags.length === 0) {
+                cloud.innerHTML = '<span style="color: var(--text-muted);">暂无标签</span>';
+                return;
+            }
+            cloud.innerHTML = tags.map(t => {
+                const size = Math.min(18 + (t.file_count || 0) * 0.5, 28);
+                return `<span class="cloud-tag" style="background: ${t.color}20; color: ${t.color}; font-size: ${size}px;" onclick="viewTagFiles('${t.id}')">${getIcon(t.icon)} ${t.name}</span>`;
+            }).join('');
+        }
+
+        function getIcon(icon) {
+            const icons = { tag: '🏷️', star: '⭐', heart: '❤️', bookmark: '🔖', folder: '📁', work: '💼', home: '🏠', user: '👤' };
+            return icons[icon] || '🏷️';
+        }
+
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = '新建标签';
+            document.getElementById('tagId').value = '';
+            document.getElementById('tagName').value = '';
+            document.getElementById('tagForm').reset();
+            document.getElementById('tagModal').classList.add('active');
+        }
+
+        function editTag(id, name, color, icon) {
+            document.getElementById('modalTitle').textContent = '编辑标签';
+            document.getElementById('tagId').value = id;
+            document.getElementById('tagName').value = name;
+            selectedColor = color;
+            selectedIcon = icon;
+            updateColorSelection();
+            updateIconSelection();
+            document.getElementById('tagModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('tagModal').classList.remove('active');
+        }
+
+        async function deleteTag(id) {
+            if (!confirm('确定要删除此标签吗？标签与文件的关联将被移除。')) return;
+            try {
+                const resp = await fetch(`/api/v1/tags/${id}`, { method: 'DELETE' });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    loadTags();
+                } else {
+                    alert('删除失败: ' + data.message);
+                }
+            } catch (e) { alert('删除失败: ' + e.message); }
+        }
+
+        function viewTagFiles(id) {
+            window.location.href = `files.html?tag=${id}`;
+        }
+
+        function updateColorSelection() {
+            document.querySelectorAll('.color-option').forEach(el => {
+                el.classList.toggle('selected', el.dataset.color === selectedColor);
+            });
+        }
+
+        function updateIconSelection() {
+            document.querySelectorAll('.icon-option').forEach(el => {
+                el.classList.toggle('selected', el.dataset.icon === selectedIcon);
+            });
+        }
+
+        document.getElementById('colorPicker').addEventListener('click', e => {
+            if (e.target.classList.contains('color-option')) {
+                selectedColor = e.target.dataset.color;
+                updateColorSelection();
+            }
+        });
+
+        document.getElementById('iconPicker').addEventListener('click', e => {
+            const target = e.target.closest('.icon-option');
+            if (target) {
+                selectedIcon = target.dataset.icon;
+                updateIconSelection();
+            }
+        });
+
+        document.getElementById('tagForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const id = document.getElementById('tagId').value;
+            const name = document.getElementById('tagName').value;
+            const body = { name, color: selectedColor, icon: selectedIcon };
+            
+            try {
+                const url = id ? `/api/v1/tags/${id}` : '/api/v1/tags';
+                const method = id ? 'PUT' : 'POST';
+                const resp = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    closeModal();
+                    loadTags();
+                } else {
+                    alert('保存失败: ' + data.message);
+                }
+            } catch (e) { alert('保存失败: ' + e.message); }
+        });
+
+        function searchTags() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.tag-card').forEach(card => {
+                const name = card.querySelector('.tag-name').textContent.toLowerCase();
+                card.style.display = name.includes(query) ? '' : 'none';
+            });
+        }
+
+        loadTags();
+    </script>
+</body>
+</html>
