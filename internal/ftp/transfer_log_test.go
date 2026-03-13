@@ -28,17 +28,17 @@ func TestTransferLogger(t *testing.T) {
 
 	// 测试记录日志
 	log := &TransferLog{
-		ID:        "test-001",
-		Timestamp: time.Now(),
-		Username:  "testuser",
-		ClientIP:  "192.168.1.100",
-		Direction: "upload",
-		FilePath:  "/test/file.txt",
-		FileSize:  1024,
+		ID:         "test-001",
+		Timestamp:  time.Now(),
+		Username:   "testuser",
+		ClientIP:   "192.168.1.100",
+		Direction:  "upload",
+		FilePath:   "/test/file.txt",
+		FileSize:   1024,
 		BytesTrans: 1024,
-		Duration:  1000,
-		Success:   true,
-		Bandwidth: 8192,
+		Duration:   1000,
+		Success:    true,
+		Bandwidth:  8192,
 	}
 
 	logger.Log(log)
@@ -69,28 +69,28 @@ func TestTransferLoggerFilter(t *testing.T) {
 	now := time.Now()
 	logs := []*TransferLog{
 		{
-			ID:        "1",
-			Timestamp: now.Add(-2 * time.Hour),
-			Username:  "user1",
-			Direction: "upload",
+			ID:         "1",
+			Timestamp:  now.Add(-2 * time.Hour),
+			Username:   "user1",
+			Direction:  "upload",
 			BytesTrans: 1000,
-			Success:   true,
+			Success:    true,
 		},
 		{
-			ID:        "2",
-			Timestamp: now.Add(-1 * time.Hour),
-			Username:  "user1",
-			Direction: "download",
+			ID:         "2",
+			Timestamp:  now.Add(-1 * time.Hour),
+			Username:   "user1",
+			Direction:  "download",
 			BytesTrans: 2000,
-			Success:   true,
+			Success:    true,
 		},
 		{
-			ID:        "3",
-			Timestamp: now,
-			Username:  "user2",
-			Direction: "upload",
+			ID:         "3",
+			Timestamp:  now,
+			Username:   "user2",
+			Direction:  "upload",
 			BytesTrans: 3000,
-			Success:   false,
+			Success:    false,
 		},
 	}
 
@@ -138,20 +138,20 @@ func TestTransferLoggerStats(t *testing.T) {
 			direction = "download"
 		}
 		logger.Log(&TransferLog{
-			ID:          string(rune('A' + i)),
-			Timestamp:   now.Add(-time.Duration(i) * time.Minute),
-			Username:    "user1",
-			Direction:   direction,
-			BytesTrans:  int64((i + 1) * 1000),
-			Success:     i != 4,
-			Bandwidth:   8000,
+			ID:         string(rune('A' + i)),
+			Timestamp:  now.Add(-time.Duration(i) * time.Minute),
+			Username:   "user1",
+			Direction:  direction,
+			BytesTrans: int64((i + 1) * 1000),
+			Success:    i != 4,
+			Bandwidth:  8000,
 		})
 	}
 
 	stats := logger.GetStats(time.Hour)
 	assert.Equal(t, 5, stats.TotalTransfers)
-	assert.Equal(t, 3, stats.Downloads)  // i=0,2,4 是 download
-	assert.Equal(t, 2, stats.Uploads)    // i=1,3 是 upload
+	assert.Equal(t, 3, stats.Downloads) // i=0,2,4 是 download
+	assert.Equal(t, 2, stats.Uploads)   // i=1,3 是 upload
 	assert.Equal(t, 4, stats.SuccessfulTransfers)
 	assert.Equal(t, 1, stats.FailedTransfers)
 }
@@ -258,7 +258,7 @@ func TestTransferLogFilterMatch(t *testing.T) {
 			want:   true,
 		},
 		{
-			name:   "match time range",
+			name: "match time range",
 			filter: TransferLogFilter{
 				StartTime: now.Add(-2 * time.Hour),
 				EndTime:   now,

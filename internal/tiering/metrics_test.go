@@ -138,10 +138,10 @@ func TestMetrics_GetSummary(t *testing.T) {
 
 	// 添加一些数据
 	stats := &TierStats{
-		Type:       TierTypeSSD,
-		Name:       "SSD",
-		Capacity:   1000000,
-		Used:       500000,
+		Type:     TierTypeSSD,
+		Name:     "SSD",
+		Capacity: 1000000,
+		Used:     500000,
 	}
 	metrics.UpdateTierMetrics(TierTypeSSD, stats)
 
@@ -159,10 +159,10 @@ func TestMetrics_ExportPrometheus(t *testing.T) {
 
 	// 添加一些数据
 	stats := &TierStats{
-		Type:       TierTypeSSD,
-		Name:       "SSD",
-		Capacity:   1000000,
-		Used:       500000,
+		Type:     TierTypeSSD,
+		Name:     "SSD",
+		Capacity: 1000000,
+		Used:     500000,
 	}
 	metrics.UpdateTierMetrics(TierTypeSSD, stats)
 

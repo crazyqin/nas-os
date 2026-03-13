@@ -29,9 +29,9 @@ type Metrics struct {
 // TierMetrics 存储层指标
 type TierMetrics struct {
 	// 容量
-	TotalBytes     int64 `json:"totalBytes"`
-	UsedBytes      int64 `json:"usedBytes"`
-	AvailableBytes int64 `json:"availableBytes"`
+	TotalBytes     int64   `json:"totalBytes"`
+	UsedBytes      int64   `json:"usedBytes"`
+	AvailableBytes int64   `json:"availableBytes"`
 	UsagePercent   float64 `json:"usagePercent"`
 
 	// 文件统计
@@ -59,17 +59,17 @@ type TierMetrics struct {
 // MigrationMetrics 迁移指标
 type MigrationMetrics struct {
 	// 任务统计
-	TotalTasks      int64 `json:"totalTasks"`
-	RunningTasks    int64 `json:"runningTasks"`
-	CompletedTasks  int64 `json:"completedTasks"`
-	FailedTasks     int64 `json:"failedTasks"`
-	CancelledTasks  int64 `json:"cancelledTasks"`
+	TotalTasks     int64 `json:"totalTasks"`
+	RunningTasks   int64 `json:"runningTasks"`
+	CompletedTasks int64 `json:"completedTasks"`
+	FailedTasks    int64 `json:"failedTasks"`
+	CancelledTasks int64 `json:"cancelledTasks"`
 
 	// 数据量统计
-	TotalBytesMigrated   int64 `json:"totalBytesMigrated"`
-	TotalFilesMigrated   int64 `json:"totalFilesMigrated"`
-	TotalBytesFailed     int64 `json:"totalBytesFailed"`
-	TotalFilesFailed     int64 `json:"totalFilesFailed"`
+	TotalBytesMigrated int64 `json:"totalBytesMigrated"`
+	TotalFilesMigrated int64 `json:"totalFilesMigrated"`
+	TotalBytesFailed   int64 `json:"totalBytesFailed"`
+	TotalFilesFailed   int64 `json:"totalFilesFailed"`
 
 	// 性能指标
 	AverageMigrationTimeMs int64 `json:"averageMigrationTimeMs"`
@@ -87,34 +87,34 @@ type MigrationMetrics struct {
 
 // PolicyMigrationMetrics 策略迁移指标
 type PolicyMigrationMetrics struct {
-	PolicyID       string `json:"policyId"`
-	ExecutionCount int64  `json:"executionCount"`
-	SuccessCount   int64  `json:"successCount"`
-	FailureCount   int64  `json:"failureCount"`
-	TotalBytes     int64  `json:"totalBytes"`
-	TotalFiles     int64  `json:"totalFiles"`
-	LastRunTime    time.Time `json:"lastRunTime"`
-	AverageDurationMs int64 `json:"averageDurationMs"`
+	PolicyID          string    `json:"policyId"`
+	ExecutionCount    int64     `json:"executionCount"`
+	SuccessCount      int64     `json:"successCount"`
+	FailureCount      int64     `json:"failureCount"`
+	TotalBytes        int64     `json:"totalBytes"`
+	TotalFiles        int64     `json:"totalFiles"`
+	LastRunTime       time.Time `json:"lastRunTime"`
+	AverageDurationMs int64     `json:"averageDurationMs"`
 }
 
 // PolicyMetrics 策略指标
 type PolicyMetrics struct {
-	PolicyID     string `json:"policyId"`
-	Enabled      bool   `json:"enabled"`
+	PolicyID     string    `json:"policyId"`
+	Enabled      bool      `json:"enabled"`
 	LastRunTime  time.Time `json:"lastRunTime"`
 	NextRunTime  time.Time `json:"nextRunTime"`
-	RunCount     int64  `json:"runCount"`
-	SuccessCount int64  `json:"successCount"`
-	FailureCount int64  `json:"failureCount"`
+	RunCount     int64     `json:"runCount"`
+	SuccessCount int64     `json:"successCount"`
+	FailureCount int64     `json:"failureCount"`
 }
 
 // AccessMetrics 访问指标
 type AccessMetrics struct {
 	// 总体统计
-	TotalFiles       int64 `json:"totalFiles"`
-	TotalAccesses    int64 `json:"totalAccesses"`
-	TotalReadBytes   int64 `json:"totalReadBytes"`
-	TotalWriteBytes  int64 `json:"totalWriteBytes"`
+	TotalFiles      int64 `json:"totalFiles"`
+	TotalAccesses   int64 `json:"totalAccesses"`
+	TotalReadBytes  int64 `json:"totalReadBytes"`
+	TotalWriteBytes int64 `json:"totalWriteBytes"`
 
 	// 频率分布
 	HotFiles  int64 `json:"hotFiles"`
@@ -388,17 +388,17 @@ func (m *Metrics) GetSummary() *MetricsSummary {
 	defer m.mu.RUnlock()
 
 	summary := &MetricsSummary{
-		Uptime:           time.Since(m.startTime),
-		TotalTiers:       len(m.tierMetrics),
-		TotalPolicies:    len(m.policyMetrics),
-		ActivePolicies:   0,
-		RunningMigrations: m.migrationMetrics.RunningTasks,
-		TotalMigrations:  m.migrationMetrics.TotalTasks,
+		Uptime:              time.Since(m.startTime),
+		TotalTiers:          len(m.tierMetrics),
+		TotalPolicies:       len(m.policyMetrics),
+		ActivePolicies:      0,
+		RunningMigrations:   m.migrationMetrics.RunningTasks,
+		TotalMigrations:     m.migrationMetrics.TotalTasks,
 		CompletedMigrations: m.migrationMetrics.CompletedTasks,
-		FailedMigrations: m.migrationMetrics.FailedTasks,
-		TotalBytesMigrated: m.migrationMetrics.TotalBytesMigrated,
-		TotalFilesMigrated: m.migrationMetrics.TotalFilesMigrated,
-		TierMetrics:      make(map[TierType]*TierMetrics),
+		FailedMigrations:    m.migrationMetrics.FailedTasks,
+		TotalBytesMigrated:  m.migrationMetrics.TotalBytesMigrated,
+		TotalFilesMigrated:  m.migrationMetrics.TotalFilesMigrated,
+		TierMetrics:         make(map[TierType]*TierMetrics),
 	}
 
 	// 统计活跃策略
@@ -418,17 +418,17 @@ func (m *Metrics) GetSummary() *MetricsSummary {
 
 // MetricsSummary 指标汇总
 type MetricsSummary struct {
-	Uptime             time.Duration `json:"uptime"`
-	TotalTiers         int `json:"totalTiers"`
-	TotalPolicies      int `json:"totalPolicies"`
-	ActivePolicies     int `json:"activePolicies"`
-	RunningMigrations  int64 `json:"runningMigrations"`
-	TotalMigrations    int64 `json:"totalMigrations"`
-	CompletedMigrations int64 `json:"completedMigrations"`
-	FailedMigrations   int64 `json:"failedMigrations"`
-	TotalBytesMigrated int64 `json:"totalBytesMigrated"`
-	TotalFilesMigrated int64 `json:"totalFilesMigrated"`
-	TierMetrics        map[TierType]*TierMetrics `json:"tierMetrics"`
+	Uptime              time.Duration             `json:"uptime"`
+	TotalTiers          int                       `json:"totalTiers"`
+	TotalPolicies       int                       `json:"totalPolicies"`
+	ActivePolicies      int                       `json:"activePolicies"`
+	RunningMigrations   int64                     `json:"runningMigrations"`
+	TotalMigrations     int64                     `json:"totalMigrations"`
+	CompletedMigrations int64                     `json:"completedMigrations"`
+	FailedMigrations    int64                     `json:"failedMigrations"`
+	TotalBytesMigrated  int64                     `json:"totalBytesMigrated"`
+	TotalFilesMigrated  int64                     `json:"totalFilesMigrated"`
+	TierMetrics         map[TierType]*TierMetrics `json:"tierMetrics"`
 }
 
 // ==================== Prometheus 格式导出 ====================
