@@ -29,17 +29,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.7.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v1.8.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.7.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v1.8.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v1.7.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v1.8.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -51,7 +51,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v1.7.0
+docker pull ghcr.io/crazyqin/nas-os:v1.8.0
 
 # 运行容器
 docker run -d \
@@ -60,7 +60,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v1.7.0
+  ghcr.io/crazyqin/nas-os:v1.8.0
 
 # 查看日志
 docker logs -f nasd
@@ -158,7 +158,7 @@ nas-os/
 
 详细里程碑请查看 [MILESTONES.md](MILESTONES.md)
 
-### 当前状态 (2026-03-13) - v1.7.0 Stable ✅
+### 当前状态 (2026-03-20) - v1.8.0 Stable ✅
 
 **8/8 里程碑全部完成**
 
@@ -181,6 +181,9 @@ nas-os/
 - [x] **WebDAV 支持** (完整协议)
 - [x] **存储复制** (跨节点同步)
 - [x] **AI 智能分类** (照片/文件分类)
+- [x] **文件版本控制** (自动快照/版本对比/一键还原)
+- [x] **云同步增强** (多云存储/双向同步)
+- [x] **数据去重** (文件级/块级去重)
 
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
