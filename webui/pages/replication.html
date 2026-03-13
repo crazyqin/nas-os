@@ -3,166 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>存储复制 - NAS-OS</title>
+    <title>存储复制管理 - NAS-OS</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="stylesheet" href="../css/design-system.css">
     <style>
-        .repl-container { max-width: 1400px; margin: 0 auto; }
-        
-        /* 统计卡片 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .stat-label { font-size: 14px; color: #6B7280; margin-bottom: 0.5rem; }
-        .stat-value { font-size: 24px; font-weight: 700; color: #1F2937; }
-        .stat-value.success { color: #10B981; }
-        .stat-value.warning { color: #F59E0B; }
+        .repl-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
         
         /* 页面头部 */
         .page-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 2rem;
-        }
-        .page-title { font-size: 24px; font-weight: 700; color: #1F2937; }
-        
-        /* 任务列表 */
-        .task-list {
-            display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 1rem;
         }
-        .task-item {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .header-info h1 { margin: 0 0 0.5rem 0; font-size: 28px; }
+        .header-info p { margin: 0; color: var(--text-muted); }
+        .header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--surface-border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .stat-icon { font-size: 32px; margin-bottom: 0.75rem; }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-bottom: 0.25rem; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .stat-value.success { color: var(--color-success); }
+        .stat-value.warning { color: var(--color-warning); }
+        .stat-value.danger { color: var(--color-error); }
+        
+        /* 任务列表 */
+        .task-list { display: flex; flex-direction: column; gap: 1rem; }
+        .task-item {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--surface-border);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .task-item:hover { box-shadow: var(--shadow-lg); }
+        .task-item.running { border-left: 4px solid var(--color-primary); }
+        .task-item.paused { border-left: 4px solid var(--color-warning); }
+        .task-item.failed { border-left: 4px solid var(--color-error); }
+        .task-item.completed { border-left: 4px solid var(--color-success); }
+        
         .task-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--surface-border);
         }
-        .task-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1F2937;
+        .task-title-row { display: flex; align-items: center; gap: 0.75rem; }
+        .task-name { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .task-type-badge {
+            font-size: 12px;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
         }
-        .task-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
+        .task-actions { display: flex; gap: 0.5rem; }
         
         /* 状态标签 */
         .status-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 12px;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 13px;
             font-weight: 500;
         }
-        .status-badge.running { background: #DBEAFE; color: #1E40AF; }
-        .status-badge.completed { background: #D1FAE5; color: #065F46; }
-        .status-badge.failed { background: #FEE2E2; color: #991B1B; }
-        .status-badge.pending { background: #FEF3C7; color: #92400E; }
-        .status-badge.paused { background: #F3F4F6; color: #4B5563; }
+        .status-badge.running { background: var(--color-info-bg); color: #1E40AF; }
+        .status-badge.running::before { content: ''; width: 8px; height: 8px; background: #3B82F6; border-radius: 50%; animation: pulse 1.5s infinite; }
+        .status-badge.completed { background: var(--color-success-bg); color: #065F46; }
+        .status-badge.failed { background: var(--color-error-bg); color: #991B1B; }
+        .status-badge.pending { background: var(--color-warning-bg); color: #92400E; }
+        .status-badge.paused { background: var(--bg-tertiary); color: var(--text-muted); }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
         
         /* 任务详情 */
         .task-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            margin-bottom: 1rem;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-secondary);
         }
-        .detail-item {
-            font-size: 14px;
-        }
-        .detail-label { color: #6B7280; margin-bottom: 0.25rem; }
-        .detail-value { color: #1F2937; font-weight: 500; }
+        .detail-item { font-size: 14px; }
+        .detail-label { color: var(--text-muted); margin-bottom: 0.25rem; font-size: 12px; }
+        .detail-value { color: var(--text-primary); font-weight: 500; }
+        .detail-value.path { font-family: var(--font-family-mono); font-size: 13px; word-break: break-all; }
         
-        /* 进度条 */
+        /* 进度区域 */
         .progress-section {
-            margin-top: 1rem;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 13px;
         }
         .progress-bar {
             width: 100%;
             height: 8px;
-            background: #E5E7EB;
-            border-radius: 4px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
             overflow: hidden;
         }
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #3B82F6, #10B981);
-            transition: width 0.3s;
-            border-radius: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+            transition: width 0.3s ease;
+            border-radius: var(--radius-full);
         }
-        .progress-info {
+        .progress-stats {
             display: flex;
-            justify-content: space-between;
-            margin-top: 0.5rem;
-            font-size: 13px;
-            color: #6B7280;
+            gap: 2rem;
+            margin-top: 0.75rem;
+            font-size: 12px;
+            color: var(--text-muted);
         }
         
         /* 按钮 */
         .btn {
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: var(--radius-md);
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             border: none;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .btn-primary {
-            background: #3B82F6;
-            color: white;
-        }
-        .btn-primary:hover { background: #2563EB; }
-        .btn-secondary {
-            background: #F3F4F6;
-            color: #374151;
-        }
-        .btn-secondary:hover { background: #E5E7EB; }
-        .btn-danger {
-            background: #FEE2E2;
-            color: #991B1B;
-        }
-        .btn-danger:hover { background: #FECACA; }
-        .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 13px;
-        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-secondary { background: var(--surface-color); border: 1px solid var(--surface-border); color: var(--text-secondary); }
+        .btn-secondary:hover { background: var(--bg-tertiary); }
+        .btn-danger { background: transparent; color: var(--color-error); border: 1px solid var(--color-error); }
+        .btn-danger:hover { background: var(--color-error-bg); }
+        .btn-success { background: var(--color-success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 13px; }
         
         /* 空状态 */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
-            background: white;
-            border-radius: 12px;
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
         }
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 1rem;
-        }
-        .empty-state-text {
-            color: #6B7280;
-            margin-bottom: 1.5rem;
-        }
+        .empty-state-icon { font-size: 64px; margin-bottom: 1rem; opacity: 0.5; }
+        .empty-state-text { color: var(--text-muted); margin-bottom: 1.5rem; }
         
         /* 模态框 */
         .modal-overlay {
@@ -176,82 +192,163 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            padding: 1rem;
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             max-height: 90vh;
             overflow-y: auto;
         }
-        .modal-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--surface-border);
         }
-        .form-group {
-            margin-bottom: 1rem;
+        .modal-title { font-size: 20px; font-weight: 600; margin: 0; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            line-height: 1;
         }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-body { padding: 1.5rem; }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        
+        /* 表单 */
+        .form-group { margin-bottom: 1.25rem; }
         .form-label {
             display: block;
             margin-bottom: 0.5rem;
             font-size: 14px;
             font-weight: 500;
-            color: #374151;
+            color: var(--text-secondary);
         }
         .form-input, .form-select {
             width: 100%;
             padding: 0.625rem 0.875rem;
-            border: 1px solid #D1D5DB;
-            border-radius: 8px;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
             font-size: 14px;
+            background: var(--surface-color);
+            color: var(--text-primary);
             transition: all 0.2s;
         }
         .form-input:focus, .form-select:focus {
             outline: none;
-            border-color: #3B82F6;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37,130,246,0.1);
         }
-        .form-help {
-            font-size: 12px;
-            color: #6B7280;
-            margin-top: 0.25rem;
-        }
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-        }
+        .form-help { font-size: 12px; color: var(--text-muted); margin-top: 0.25rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         
-        /* 复制类型选择 */
-        .type-cards {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
+        /* 类型选择卡片 */
+        .type-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
         .type-card {
-            border: 2px solid #E5E7EB;
-            border-radius: 8px;
+            border: 2px solid var(--surface-border);
+            border-radius: var(--radius-md);
             padding: 1rem;
             cursor: pointer;
             transition: all 0.2s;
+            text-align: center;
         }
-        .type-card:hover { border-color: #3B82F6; }
-        .type-card.selected {
-            border-color: #3B82F6;
-            background: #EFF6FF;
+        .type-card:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
+        .type-card.selected { border-color: var(--color-primary); background: var(--color-primary-light); }
+        .type-card-icon { font-size: 32px; margin-bottom: 0.5rem; }
+        .type-card-title { font-weight: 600; margin-bottom: 0.25rem; }
+        .type-card-desc { font-size: 12px; color: var(--text-muted); }
+        
+        /* 高级选项 */
+        .advanced-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 0;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 14px;
         }
-        .type-card-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+        .advanced-toggle:hover { color: var(--text-primary); }
+        .advanced-options {
+            display: none;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
         }
-        .type-card-desc {
-            font-size: 12px;
-            color: #6B7280;
+        .advanced-options.show { display: block; }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        /* 历史记录模态框 */
+        .history-modal { max-width: 800px; }
+        .history-list { max-height: 400px; overflow-y: auto; }
+        .history-item {
+            display: grid;
+            grid-template-columns: 120px 80px 1fr 100px;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--surface-border);
+            font-size: 14px;
+            align-items: center;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-item:hover { background: var(--bg-secondary); }
+        .history-status { font-weight: 500; }
+        .history-status.success { color: var(--color-success); }
+        .history-status.failed { color: var(--color-error); }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .repl-container { padding: 1rem; }
+            .task-details { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .type-cards { grid-template-columns: 1fr; }
+            .history-item { grid-template-columns: 1fr; gap: 0.5rem; }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.show { display: block; }
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -259,34 +356,52 @@
     <div class="repl-container">
         <!-- 页面头部 -->
         <div class="page-header">
-            <h1 class="page-title">📦 存储复制</h1>
-            <button class="btn btn-primary" onclick="openCreateModal()">+ 新建复制任务</button>
+            <div class="header-info">
+                <h1>📦 存储复制管理</h1>
+                <p>管理数据复制任务，支持本地和远程同步</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="loadTasks()">🔄 刷新</button>
+                <button class="btn btn-primary" onclick="openCreateModal()">+ 新建任务</button>
+            </div>
         </div>
         
         <!-- 统计卡片 -->
-        <div class="stats-grid" id="statsGrid">
+        <div class="stats-grid">
             <div class="stat-card">
+                <div class="stat-icon">📋</div>
                 <div class="stat-label">总任务数</div>
                 <div class="stat-value" id="statTotal">0</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon">▶️</div>
                 <div class="stat-label">运行中</div>
                 <div class="stat-value success" id="statRunning">0</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon">⏸️</div>
                 <div class="stat-label">已暂停</div>
                 <div class="stat-value warning" id="statPaused">0</div>
             </div>
             <div class="stat-card">
+                <div class="stat-icon">📊</div>
                 <div class="stat-label">总传输量</div>
                 <div class="stat-value" id="statTransferred">0 B</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">成功任务</div>
+                <div class="stat-value success" id="statCompleted">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-label">失败任务</div>
+                <div class="stat-value danger" id="statFailed">0</div>
             </div>
         </div>
         
         <!-- 任务列表 -->
-        <div class="task-list" id="taskList">
-            <!-- 动态加载 -->
-        </div>
+        <div class="task-list" id="taskList"></div>
         
         <!-- 空状态 -->
         <div class="empty-state" id="emptyState" style="display: none;">
@@ -300,107 +415,179 @@
     <!-- 创建/编辑任务模态框 -->
     <div class="modal-overlay" id="taskModal">
         <div class="modal">
-            <h2 class="modal-title" id="modalTitle">新建复制任务</h2>
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新建复制任务</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
             <form id="taskForm">
-                <input type="hidden" id="taskId">
-                
-                <div class="form-group">
-                    <label class="form-label">任务名称 *</label>
-                    <input type="text" class="form-input" id="taskName" required placeholder="例如：每日备份到 NAS2">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">复制类型 *</label>
-                    <div class="type-cards">
-                        <div class="type-card selected" data-type="local" onclick="selectType('local')">
-                            <div class="type-card-title">📁 本地复制</div>
-                            <div class="type-card-desc">同一设备内的路径复制</div>
+                <div class="modal-body">
+                    <input type="hidden" id="taskId">
+                    
+                    <div class="form-group">
+                        <label class="form-label">任务名称 *</label>
+                        <input type="text" class="form-input" id="taskName" required placeholder="例如：每日备份到备份盘">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">复制类型 *</label>
+                        <div class="type-cards">
+                            <div class="type-card selected" data-type="local" onclick="selectType('local')">
+                                <div class="type-card-icon">📁</div>
+                                <div class="type-card-title">本地复制</div>
+                                <div class="type-card-desc">同一设备内的路径复制</div>
+                            </div>
+                            <div class="type-card" data-type="remote" onclick="selectType('remote')">
+                                <div class="type-card-icon">🌐</div>
+                                <div class="type-card-title">远程复制</div>
+                                <div class="type-card-desc">通过网络同步到远程服务器</div>
+                            </div>
                         </div>
-                        <div class="type-card" data-type="remote" onclick="selectType('remote')">
-                            <div class="type-card-title">🌐 远程复制</div>
-                            <div class="type-card-desc">通过网络同步到远程服务器</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">源路径 *</label>
+                            <input type="text" class="form-input" id="sourcePath" required placeholder="/data/photos">
+                            <div class="form-help">要复制的源目录路径</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">目标路径 *</label>
+                            <input type="text" class="form-input" id="targetPath" required placeholder="/backup/photos">
+                            <div class="form-help">复制的目标目录路径</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="targetHostGroup" style="display: none;">
+                        <label class="form-label">远程主机 *</label>
+                        <input type="text" class="form-input" id="targetHost" placeholder="user@192.168.1.100">
+                        <div class="form-help">格式：用户名@IP地址 或 用户名@域名。需提前配置 SSH 密钥认证。</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">同步计划</label>
+                            <input type="text" class="form-input" id="schedule" placeholder="0 2 * * *">
+                            <div class="form-help">Cron 表达式，留空表示手动触发</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">带宽限制</label>
+                            <select class="form-select" id="bandwidthLimit">
+                                <option value="0">不限制</option>
+                                <option value="1048576">1 MB/s</option>
+                                <option value="5242880">5 MB/s</option>
+                                <option value="10485760">10 MB/s</option>
+                                <option value="52428800">50 MB/s</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="advanced-toggle" onclick="toggleAdvanced()">
+                        <span id="advancedIcon">▶</span> 高级选项
+                    </div>
+                    <div class="advanced-options" id="advancedOptions">
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="compress"> 启用压缩传输（适合慢速网络）
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="deleteExtraneous"> 删除目标端多余文件（镜像模式）
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="preservePermissions" checked> 保留文件权限和属性
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="verifyChecksum"> 传输后校验文件完整性
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="enabled" checked> 启用任务
+                            </label>
                         </div>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label class="form-label">源路径 *</label>
-                    <input type="text" class="form-input" id="sourcePath" required placeholder="/data/source">
-                    <div class="form-help">要复制的源目录路径</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">目标路径 *</label>
-                    <input type="text" class="form-input" id="targetPath" required placeholder="/data/backup">
-                    <div class="form-help">复制的目标目录路径</div>
-                </div>
-                
-                <div class="form-group" id="targetHostGroup" style="display: none;">
-                    <label class="form-label">远程主机</label>
-                    <input type="text" class="form-input" id="targetHost" placeholder="user@192.168.1.100">
-                    <div class="form-help">格式：用户名@IP 地址 或 用户名@域名</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">同步计划</label>
-                    <input type="text" class="form-input" id="schedule" placeholder="0 2 * * *">
-                    <div class="form-help">Cron 表达式，留空表示手动触发。例如：0 2 * * * 表示每天凌晨 2 点</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">高级选项</label>
-                    <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
-                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 14px;">
-                            <input type="checkbox" id="compress"> 启用压缩传输
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 14px;">
-                            <input type="checkbox" id="deleteExtraneous"> 删除目标端多余文件（镜像模式）
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 14px;">
-                            <input type="checkbox" id="enabled" checked> 启用任务
-                        </label>
-                    </div>
-                </div>
-                
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
-                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="submit" class="btn btn-primary">保存任务</button>
                 </div>
             </form>
         </div>
     </div>
     
+    <!-- 历史记录模态框 -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal history-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">📋 同步历史 - <span id="historyTaskName"></span></h3>
+                <button class="modal-close" onclick="closeHistoryModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div class="history-list" id="historyList">
+                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">加载中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 确认删除模态框 -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-body" style="text-align: center; padding: 2rem;">
+                <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
+                <h3 style="margin: 0 0 0.5rem 0;">确认删除任务</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">确定要删除任务 "<span id="deleteTaskName"></span>" 吗？此操作无法撤销。</p>
+                <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                    <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
     <script>
         let selectedType = 'local';
-        
+        let tasks = [];
+        let deleteTaskId = null;
+        let refreshInterval = null;
+
         // 格式化字节数
         function formatBytes(bytes) {
-            if (bytes === 0) return '0 B';
+            if (!bytes || bytes === 0) return '0 B';
             const k = 1024;
             const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
-        
+
         // 格式化时间
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
-            return date.toLocaleString('zh-CN');
+            return date.toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
-        
+
+        function formatDuration(seconds) {
+            if (!seconds) return '-';
+            if (seconds < 60) return `${seconds}秒`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}分${seconds % 60}秒`;
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return `${h}小时${m}分`;
+        }
+
         // 获取状态标签
         function getStatusBadge(status) {
             const badges = {
-                'running': '<span class="status-badge running">● 运行中</span>',
-                'completed': '<span class="status-badge completed">✓ 已完成</span>',
-                'failed': '<span class="status-badge failed">✕ 失败</span>',
-                'pending': '<span class="status-badge pending">◌ 等待中</span>',
-                'paused': '<span class="status-badge paused">⏸ 已暂停</span>'
+                'running': '<span class="status-badge running">运行中</span>',
+                'completed': '<span class="status-badge completed">已完成</span>',
+                'failed': '<span class="status-badge failed">失败</span>',
+                'pending': '<span class="status-badge pending">等待中</span>',
+                'paused': '<span class="status-badge paused">已暂停</span>'
             };
             return badges[status] || `<span class="status-badge">${status}</span>`;
         }
-        
+
         // 选择复制类型
         function selectType(type) {
             selectedType = type;
@@ -408,22 +595,39 @@
                 card.classList.toggle('selected', card.dataset.type === type);
             });
             document.getElementById('targetHostGroup').style.display = type === 'remote' ? 'block' : 'none';
+            if (type === 'remote') {
+                document.getElementById('targetHost').required = true;
+            } else {
+                document.getElementById('targetHost').required = false;
+            }
         }
-        
+
+        // 切换高级选项
+        function toggleAdvanced() {
+            const options = document.getElementById('advancedOptions');
+            const icon = document.getElementById('advancedIcon');
+            options.classList.toggle('show');
+            icon.textContent = options.classList.contains('show') ? '▼' : '▶';
+        }
+
         // 打开创建模态框
         function openCreateModal() {
             document.getElementById('modalTitle').textContent = '新建复制任务';
             document.getElementById('taskForm').reset();
             document.getElementById('taskId').value = '';
+            document.getElementById('advancedOptions').classList.remove('show');
+            document.getElementById('advancedIcon').textContent = '▶';
             selectType('local');
+            document.getElementById('preservePermissions').checked = true;
+            document.getElementById('enabled').checked = true;
             document.getElementById('taskModal').classList.add('active');
         }
-        
+
         // 关闭模态框
         function closeModal() {
             document.getElementById('taskModal').classList.remove('active');
         }
-        
+
         // 打开编辑模态框
         async function openEditModal(id) {
             try {
@@ -439,17 +643,20 @@
                 document.getElementById('targetPath').value = task.target_path;
                 document.getElementById('targetHost').value = task.target_host || '';
                 document.getElementById('schedule').value = task.schedule || '';
-                document.getElementById('compress').checked = task.compress;
-                document.getElementById('deleteExtraneous').checked = task.delete_extraneous;
-                document.getElementById('enabled').checked = task.enabled;
+                document.getElementById('bandwidthLimit').value = task.bandwidth_limit || 0;
+                document.getElementById('compress').checked = task.compress || false;
+                document.getElementById('deleteExtraneous').checked = task.delete_extraneous || false;
+                document.getElementById('preservePermissions').checked = task.preserve_permissions !== false;
+                document.getElementById('verifyChecksum').checked = task.verify_checksum || false;
+                document.getElementById('enabled').checked = task.enabled !== false;
                 
-                selectType(task.target_host ? 'remote' : 'local');
+                selectType(task.type || (task.target_host ? 'remote' : 'local'));
                 document.getElementById('taskModal').classList.add('active');
             } catch (err) {
-                alert('获取任务详情失败：' + err.message);
+                showToast('获取任务详情失败：' + err.message, 'error');
             }
         }
-        
+
         // 加载任务列表
         async function loadTasks() {
             try {
@@ -457,74 +664,84 @@
                 const data = await res.json();
                 if (data.code !== 0) throw new Error(data.message);
                 
-                const tasks = data.data || [];
-                const taskList = document.getElementById('taskList');
-                const emptyState = document.getElementById('emptyState');
+                tasks = data.data || [];
+                renderTasks();
+                updateStats();
+            } catch (err) {
+                console.error('加载任务列表失败:', err);
+                showToast('加载失败，请刷新页面重试', 'error');
+            }
+        }
+
+        // 更新统计
+        function updateStats() {
+            const running = tasks.filter(t => t.status === 'running').length;
+            const paused = tasks.filter(t => t.status === 'paused').length;
+            const completed = tasks.filter(t => t.status === 'completed').length;
+            const failed = tasks.filter(t => t.status === 'failed').length;
+            const totalBytes = tasks.reduce((sum, t) => sum + (t.bytes_transferred || 0), 0);
+            
+            document.getElementById('statTotal').textContent = tasks.length;
+            document.getElementById('statRunning').textContent = running;
+            document.getElementById('statPaused').textContent = paused;
+            document.getElementById('statCompleted').textContent = completed;
+            document.getElementById('statFailed').textContent = failed;
+            document.getElementById('statTransferred').textContent = formatBytes(totalBytes);
+        }
+
+        // 渲染任务列表
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (tasks.length === 0) {
+                taskList.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            taskList.innerHTML = tasks.map(task => {
+                const typeLabel = task.type === 'remote' || task.target_host ? '远程' : '本地';
+                const targetDisplay = task.target_host 
+                    ? `${task.target_path} @ ${task.target_host}`
+                    : task.target_path;
                 
-                if (tasks.length === 0) {
-                    taskList.style.display = 'none';
-                    emptyState.style.display = 'block';
-                    
-                    // 更新统计
-                    document.getElementById('statTotal').textContent = '0';
-                    document.getElementById('statRunning').textContent = '0';
-                    document.getElementById('statPaused').textContent = '0';
-                    document.getElementById('statTransferred').textContent = '0 B';
-                    return;
-                }
-                
-                taskList.style.display = 'flex';
-                emptyState.style.display = 'none';
-                
-                // 更新统计
-                const running = tasks.filter(t => t.status === 'running').length;
-                const paused = tasks.filter(t => t.status === 'paused').length;
-                const totalBytes = tasks.reduce((sum, t) => sum + (t.bytes_transferred || 0), 0);
-                
-                document.getElementById('statTotal').textContent = tasks.length;
-                document.getElementById('statRunning').textContent = running;
-                document.getElementById('statPaused').textContent = paused;
-                document.getElementById('statTransferred').textContent = formatBytes(totalBytes);
-                
-                // 渲染任务列表
-                taskList.innerHTML = tasks.map(task => `
-                    <div class="task-item">
+                return `
+                    <div class="task-item ${task.status}">
                         <div class="task-header">
-                            <div>
+                            <div class="task-title-row">
                                 <span class="task-name">${escapeHtml(task.name)}</span>
+                                <span class="task-type-badge">${typeLabel}</span>
                                 ${getStatusBadge(task.status)}
                             </div>
                             <div class="task-actions">
-                                ${task.status !== 'running' ? `
-                                    <button class="btn btn-sm btn-primary" onclick="startSync('${task.id}')">▶ 同步</button>
-                                ` : ''}
                                 ${task.status === 'running' ? `
-                                    <button class="btn btn-sm btn-secondary" onclick="pauseTask('${task.id}')">⏸ 暂停</button>
-                                ` : ''}
-                                ${task.status === 'paused' ? `
-                                    <button class="btn btn-sm btn-primary" onclick="resumeTask('${task.id}')">▶ 恢复</button>
-                                ` : ''}
-                                <button class="btn btn-sm btn-secondary" onclick="openEditModal('${task.id}')">✏ 编辑</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteTask('${task.id}')">🗑 删除</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="pauseTask('${task.id}')">⏸ 暂停</button>
+                                ` : task.status === 'paused' ? `
+                                    <button class="btn btn-success btn-sm" onclick="resumeTask('${task.id}')">▶ 恢复</button>
+                                ` : `
+                                    <button class="btn btn-primary btn-sm" onclick="startSync('${task.id}')">▶ 同步</button>
+                                `}
+                                <button class="btn btn-secondary btn-sm" onclick="showHistory('${task.id}')">📋 历史</button>
+                                <button class="btn btn-secondary btn-sm" onclick="openEditModal('${task.id}')">✏ 编辑</button>
+                                <button class="btn btn-danger btn-sm" onclick="openDeleteConfirm('${task.id}', '${escapeHtml(task.name)}')">🗑</button>
                             </div>
                         </div>
                         
                         <div class="task-details">
                             <div class="detail-item">
                                 <div class="detail-label">源路径</div>
-                                <div class="detail-value">${escapeHtml(task.source_path)}</div>
+                                <div class="detail-value path">${escapeHtml(task.source_path)}</div>
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">目标路径</div>
-                                <div class="detail-value">${escapeHtml(task.target_path)}${task.target_host ? ' @ ' + escapeHtml(task.target_host) : ''}</div>
+                                <div class="detail-value path">${escapeHtml(targetDisplay)}</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">类型</div>
-                                <div class="detail-value">${task.type === 'remote' ? '远程复制' : '本地复制'}</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">计划</div>
-                                <div class="detail-value">${task.schedule || '手动'}</div>
+                                <div class="detail-label">同步计划</div>
+                                <div class="detail-value">${task.schedule || '手动触发'}</div>
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">上次同步</div>
@@ -532,86 +749,147 @@
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">下次同步</div>
-                                <div class="detail-value">${formatTime(task.next_sync_at)}</div>
+                                <div class="detail-value">${task.status === 'running' ? '进行中' : formatTime(task.next_sync_at)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">已传输</div>
+                                <div class="detail-value">${formatBytes(task.bytes_transferred)}</div>
                             </div>
                         </div>
                         
-                        ${task.status === 'running' && task.progress > 0 ? `
+                        ${task.status === 'running' ? `
                             <div class="progress-section">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${task.progress}%"></div>
+                                <div class="progress-header">
+                                    <span>传输进度</span>
+                                    <span>${task.progress ? task.progress.toFixed(1) : 0}%</span>
                                 </div>
-                                <div class="progress-info">
-                                    <span>进度：${task.progress.toFixed(1)}%</span>
-                                    <span>${formatBytes(task.bytes_transferred)} / ${formatBytes(task.total_bytes)}</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${task.progress || 0}%"></div>
+                                </div>
+                                <div class="progress-stats">
+                                    <span>已传输: ${formatBytes(task.bytes_transferred)} / ${formatBytes(task.total_bytes)}</span>
+                                    <span>速度: ${formatBytes(task.speed || 0)}/s</span>
+                                    ${task.eta ? `<span>预计剩余: ${formatDuration(task.eta)}</span>` : ''}
                                 </div>
                             </div>
                         ` : ''}
                     </div>
-                `).join('');
+                `;
+            }).join('');
+        }
+
+        // 显示历史记录
+        async function showHistory(id) {
+            const task = tasks.find(t => t.id === id);
+            document.getElementById('historyTaskName').textContent = task ? task.name : '';
+            document.getElementById('historyModal').classList.add('active');
+            
+            try {
+                const res = await fetch(`/api/v1/replications/${id}/history`);
+                const data = await res.json();
+                
+                if (data.code !== 0) throw new Error(data.message);
+                
+                const history = data.data || [];
+                const list = document.getElementById('historyList');
+                
+                if (history.length === 0) {
+                    list.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">暂无同步记录</div>';
+                    return;
+                }
+                
+                list.innerHTML = `
+                    <div class="history-item" style="background: var(--bg-tertiary); font-weight: 600;">
+                        <div>时间</div>
+                        <div>状态</div>
+                        <div>详情</div>
+                        <div>传输量</div>
+                    </div>
+                    ${history.map(h => `
+                        <div class="history-item">
+                            <div>${formatTime(h.started_at)}</div>
+                            <div class="history-status ${h.status}">${h.status === 'completed' ? '成功' : h.status === 'failed' ? '失败' : h.status}</div>
+                            <div>${h.message || '-'}</div>
+                            <div>${formatBytes(h.bytes_transferred)}</div>
+                        </div>
+                    `).join('')}
+                `;
             } catch (err) {
-                console.error('加载任务列表失败:', err);
+                document.getElementById('historyList').innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--color-error);">加载失败: ${err.message}</div>`;
             }
         }
-        
-        // 转义 HTML
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').classList.remove('active');
         }
-        
+
         // 开始同步
         async function startSync(id) {
             try {
                 const res = await fetch(`/api/v1/replications/${id}/sync`, { method: 'POST' });
                 const data = await res.json();
                 if (data.code !== 0) throw new Error(data.message);
-                alert('同步已启动');
+                showToast('同步已启动', 'success');
                 loadTasks();
             } catch (err) {
-                alert('启动同步失败：' + err.message);
+                showToast('启动同步失败：' + err.message, 'error');
             }
         }
-        
+
         // 暂停任务
         async function pauseTask(id) {
             try {
                 const res = await fetch(`/api/v1/replications/${id}/pause`, { method: 'POST' });
                 const data = await res.json();
                 if (data.code !== 0) throw new Error(data.message);
+                showToast('任务已暂停', 'success');
                 loadTasks();
             } catch (err) {
-                alert('暂停任务失败：' + err.message);
+                showToast('暂停任务失败：' + err.message, 'error');
             }
         }
-        
+
         // 恢复任务
         async function resumeTask(id) {
             try {
                 const res = await fetch(`/api/v1/replications/${id}/resume`, { method: 'POST' });
                 const data = await res.json();
                 if (data.code !== 0) throw new Error(data.message);
+                showToast('任务已恢复', 'success');
                 loadTasks();
             } catch (err) {
-                alert('恢复任务失败：' + err.message);
+                showToast('恢复任务失败：' + err.message, 'error');
             }
         }
-        
-        // 删除任务
-        async function deleteTask(id) {
-            if (!confirm('确定要删除这个复制任务吗？')) return;
+
+        // 删除确认
+        function openDeleteConfirm(id, name) {
+            deleteTaskId = id;
+            document.getElementById('deleteTaskName').textContent = name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            deleteTaskId = null;
+        }
+
+        async function confirmDelete() {
+            if (!deleteTaskId) return;
             
             try {
-                const res = await fetch(`/api/v1/replications/${id}`, { method: 'DELETE' });
+                const res = await fetch(`/api/v1/replications/${deleteTaskId}`, { method: 'DELETE' });
                 const data = await res.json();
                 if (data.code !== 0) throw new Error(data.message);
+                
+                closeDeleteModal();
+                showToast('任务已删除', 'success');
                 loadTasks();
             } catch (err) {
-                alert('删除任务失败：' + err.message);
+                showToast('删除任务失败：' + err.message, 'error');
             }
         }
-        
+
         // 提交表单
         document.getElementById('taskForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -619,13 +897,16 @@
             const taskId = document.getElementById('taskId').value;
             const data = {
                 name: document.getElementById('taskName').value,
+                type: selectedType,
                 source_path: document.getElementById('sourcePath').value,
                 target_path: document.getElementById('targetPath').value,
-                type: selectedType,
                 schedule: document.getElementById('schedule').value,
+                bandwidth_limit: parseInt(document.getElementById('bandwidthLimit').value) || 0,
                 enabled: document.getElementById('enabled').checked,
                 compress: document.getElementById('compress').checked,
-                delete_extraneous: document.getElementById('deleteExtraneous').checked
+                delete_extraneous: document.getElementById('deleteExtraneous').checked,
+                preserve_permissions: document.getElementById('preservePermissions').checked,
+                verify_checksum: document.getElementById('verifyChecksum').checked
             };
             
             if (selectedType === 'remote') {
@@ -646,16 +927,80 @@
                 if (result.code !== 0) throw new Error(result.message);
                 
                 closeModal();
+                showToast(taskId ? '任务已更新' : '任务已创建', 'success');
                 loadTasks();
             } catch (err) {
-                alert('保存失败：' + err.message);
+                showToast('保存失败：' + err.message, 'error');
             }
         });
-        
-        // 页面加载
-        loadTasks();
-        // 每 5 秒刷新一次
-        setInterval(loadTasks, 5000);
+
+        // Toast 提示
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.borderLeft = `4px solid ${type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6'}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // 转义 HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeHistoryModal();
+                closeDeleteModal();
+            }
+        });
+
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // WebSocket 实时更新
+        let ws = null;
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/api/v1/ws`);
+            
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'replication_update') {
+                        const index = tasks.findIndex(t => t.id === data.task.id);
+                        if (index !== -1) {
+                            tasks[index] = { ...tasks[index], ...data.task };
+                        }
+                        renderTasks();
+                        updateStats();
+                    }
+                } catch (err) {}
+            };
+            
+            ws.onclose = () => {
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTasks();
+            // 每 10 秒刷新一次（作为 WebSocket 的后备）
+            refreshInterval = setInterval(loadTasks, 10000);
+            connectWebSocket();
+        });
     </script>
 </body>
 </html>

@@ -3,208 +3,573 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>回收站 - NAS-OS</title>
+    <title>回收站管理 - NAS-OS</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="stylesheet" href="../css/design-system.css">
     <style>
         .trash-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        /* 头部 */
         .trash-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .header-info h1 { margin: 0 0 0.5rem 0; font-size: 28px; }
+        .header-info p { margin: 0; color: var(--text-muted); }
+        .header-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        
+        /* 统计栏 */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
             margin-bottom: 2rem;
         }
-        .stats-bar {
-            display: flex;
-            gap: 2rem;
+        .stat-card {
             background: var(--surface-color);
             padding: 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
+            border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
+            border: 1px solid var(--surface-border);
         }
-        .stat-item {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .stat-label {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+        
+        /* 进度条 */
+        .progress-wrapper { display: flex; align-items: center; gap: 1rem; }
         .progress-bar {
-            width: 200px;
+            flex: 1;
             height: 8px;
-            background: var(--border-color);
-            border-radius: 4px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
             overflow: hidden;
         }
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #2563EB, #3B82F6);
             transition: width 0.3s;
+            border-radius: var(--radius-full);
         }
         .progress-fill.warning { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
         .progress-fill.danger { background: linear-gradient(90deg, #DC2626, #EF4444); }
         
-        .trash-list {
-            background: var(--surface-color);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
-        .trash-item {
+        .search-box {
             display: flex;
             align-items: center;
-            padding: 1.25rem;
-            border-bottom: 1px solid var(--border-color);
-            transition: background 0.2s;
+            gap: 0.5rem;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            padding: 0.5rem 1rem;
+            flex: 1;
+            max-width: 400px;
         }
-        .trash-item:hover { background: var(--hover-color); }
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .search-box input::placeholder { color: var(--text-muted); }
+        .filter-group { display: flex; gap: 0.5rem; align-items: center; }
+        
+        /* 批量操作栏 */
+        .bulk-actions {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--color-primary-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+        }
+        .bulk-actions.show { display: flex; }
+        .bulk-count { font-weight: 600; color: var(--color-primary); }
+        
+        /* 列表 */
+        .trash-list {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--surface-border);
+        }
+        .list-header {
+            display: grid;
+            grid-template-columns: 40px 1fr 150px 120px 180px 120px;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: var(--bg-tertiary);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .trash-item {
+            display: grid;
+            grid-template-columns: 40px 1fr 150px 120px 180px 120px;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--surface-border);
+            transition: background 0.2s;
+            align-items: center;
+        }
+        .trash-item:hover { background: var(--bg-tertiary); }
         .trash-item:last-child { border-bottom: none; }
+        .trash-item.selected { background: var(--color-primary-light); }
+        
+        .item-checkbox { width: 20px; height: 20px; cursor: pointer; }
+        .item-main { display: flex; align-items: center; gap: 0.75rem; }
         .item-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-right: 1rem;
+            font-size: 20px;
             background: var(--bg-tertiary);
         }
-        .item-info { flex: 1; }
+        .item-info { min-width: 0; }
         .item-name {
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .item-meta {
-            font-size: 13px;
+        .item-path {
+            font-size: 12px;
             color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .item-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
+        .item-size, .item-deleted, .item-expires { font-size: 14px; color: var(--text-secondary); }
+        
+        .item-actions { display: flex; gap: 0.5rem; }
+        
+        /* 按钮 */
         .btn {
             padding: 0.5rem 1rem;
-            border-radius: 6px;
+            border-radius: var(--radius-md);
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             border: none;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .btn-primary { background: var(--color-primary); color: white; }
-        .btn-primary:hover { background: #1D4ED8; }
-        .btn-secondary { background: var(--surface-color); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--hover-color); }
-        .btn-danger { background: #DC2626; color: white; }
-        .btn-danger:hover { background: #B91C1C; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-secondary { background: var(--surface-color); border: 1px solid var(--surface-border); color: var(--text-secondary); }
+        .btn-secondary:hover { background: var(--bg-tertiary); }
+        .btn-danger { background: var(--color-error); color: white; }
+        .btn-danger:hover { background: #DC2626; }
         .btn-sm { padding: 0.375rem 0.75rem; font-size: 13px; }
+        .btn-icon { padding: 0.5rem; }
         
+        /* 徽章 */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-warning { background: var(--color-warning-bg); color: #92400E; }
+        .badge-danger { background: var(--color-error-bg); color: #991B1B; }
+        .badge-success { background: var(--color-success-bg); color: #065F46; }
+        
+        /* 空状态 */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
             color: var(--text-muted);
         }
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 1rem;
+        .empty-state-icon { font-size: 64px; margin-bottom: 1rem; opacity: 0.5; }
+        
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-title { font-size: 20px; font-weight: 600; margin: 0; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            line-height: 1;
+        }
+        .modal-close:hover { color: var(--text-primary); }
+        
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: var(--surface-color);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37,130,246,0.1);
+        }
+        .form-help {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface-border);
         }
         
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.625rem;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
+        /* 预览模态框 */
+        .preview-modal { max-width: 800px; }
+        .preview-content {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .badge-warning { background: #FEF3C7; color: #92400E; }
-        .badge-danger { background: #FEE2E2; color: #991B1B; }
-        .badge-success { background: #D1FAE5; color: #065F46; }
+        .preview-image { max-width: 100%; max-height: 400px; border-radius: var(--radius-md); }
+        .preview-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+        }
+        .preview-info-item { font-size: 14px; }
+        .preview-info-label { color: var(--text-muted); margin-bottom: 0.25rem; }
+        .preview-info-value { color: var(--text-primary); font-weight: 500; }
+        
+        /* 确认对话框 */
+        .confirm-modal { max-width: 400px; text-align: center; }
+        .confirm-icon { font-size: 48px; margin-bottom: 1rem; }
+        .confirm-message { color: var(--text-secondary); margin-bottom: 1.5rem; }
+        .confirm-actions { display: flex; gap: 0.75rem; justify-content: center; }
+        
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .list-header, .trash-item {
+                grid-template-columns: 40px 1fr 120px;
+            }
+            .item-size, .item-deleted { display: none; }
+        }
+        @media (max-width: 768px) {
+            .trash-container { padding: 1rem; }
+            .list-header { display: none; }
+            .trash-item {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            .item-checkbox { position: absolute; right: 1rem; }
+            .item-main { width: 100%; }
+            .item-expires, .item-actions { width: 100%; }
+            .search-box { max-width: none; }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.show { display: block; }
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
     <div class="trash-container">
         <!-- 头部 -->
         <div class="trash-header">
-            <div>
-                <h1 style="margin: 0 0 0.5rem 0;">🗑️ 回收站</h1>
-                <p style="margin: 0; color: var(--text-muted);">管理已删除的文件，{{retentionDays}} 天后自动清理</p>
+            <div class="header-info">
+                <h1>🗑️ 回收站管理</h1>
+                <p>管理已删除的文件，支持恢复、预览和批量操作</p>
             </div>
-            <div>
-                <button class="btn btn-secondary" onclick="showSettings()">⚙️ 设置</button>
-                <button class="btn btn-danger" onclick="confirmEmpty()">🗑️ 清空回收站</button>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="openSettingsModal()">⚙️ 设置</button>
+                <button class="btn btn-danger" onclick="openEmptyConfirm()">🗑️ 清空回收站</button>
             </div>
         </div>
 
         <!-- 统计栏 -->
         <div class="stats-bar">
-            <div class="stat-item">
-                <span class="stat-label">文件数量</span>
-                <span class="stat-value" id="statCount">0</span>
+            <div class="stat-card">
+                <div class="stat-label">文件数量</div>
+                <div class="stat-value" id="statCount">0</div>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">占用空间</span>
-                <span class="stat-value" id="statSize">0 B</span>
+            <div class="stat-card">
+                <div class="stat-label">占用空间</div>
+                <div class="stat-value" id="statSize">0 B</div>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">空间使用率</span>
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="stat-card">
+                <div class="stat-label">空间使用率</div>
+                <div class="progress-wrapper">
                     <div class="progress-bar">
                         <div class="progress-fill" id="sizeProgress" style="width: 0%"></div>
                     </div>
-                    <span class="stat-value" id="statPercent">0%</span>
+                    <span class="stat-value" id="statPercent" style="font-size: 16px; min-width: 60px;">0%</span>
                 </div>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">最大容量</span>
-                <span class="stat-value" id="statMax">10 GB</span>
+            <div class="stat-card">
+                <div class="stat-label">最大容量 / 保留天数</div>
+                <div class="stat-value" id="statConfig">10 GB / 30 天</div>
             </div>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="searchInput" placeholder="搜索文件名或路径..." oninput="filterItems()">
+            </div>
+            <div class="filter-group">
+                <select class="form-select" id="typeFilter" onchange="filterItems()" style="width: auto;">
+                    <option value="">全部类型</option>
+                    <option value="dir">文件夹</option>
+                    <option value="image">图片</option>
+                    <option value="video">视频</option>
+                    <option value="audio">音频</option>
+                    <option value="document">文档</option>
+                    <option value="other">其他</option>
+                </select>
+                <select class="form-select" id="sortFilter" onchange="sortItems()" style="width: auto;">
+                    <option value="deleted_desc">删除时间（最新）</option>
+                    <option value="deleted_asc">删除时间（最早）</option>
+                    <option value="size_desc">大小（最大）</option>
+                    <option value="size_asc">大小（最小）</option>
+                    <option value="name_asc">名称 A-Z</option>
+                    <option value="expires_asc">即将过期</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 批量操作栏 -->
+        <div class="bulk-actions" id="bulkActions">
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+            <span class="bulk-count">已选择 <span id="selectedCount">0</span> 项</span>
+            <button class="btn btn-primary btn-sm" onclick="bulkRestore()">↩️ 批量恢复</button>
+            <button class="btn btn-danger btn-sm" onclick="bulkDelete()">🗑️ 批量删除</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearSelection()">取消选择</button>
         </div>
 
         <!-- 回收站列表 -->
         <div class="trash-list" id="trashList">
-            <div class="empty-state">
-                <div class="empty-state-icon">🗑️</div>
-                <h3>回收站是空的</h3>
-                <p>删除的文件将显示在这里</p>
+            <div class="list-header">
+                <div><input type="checkbox" id="headerCheckbox" onchange="toggleSelectAll()"></div>
+                <div>文件</div>
+                <div>大小</div>
+                <div>类型</div>
+                <div>删除时间</div>
+                <div>操作</div>
+            </div>
+            <div id="listContent">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🗑️</div>
+                    <h3>回收站是空的</h3>
+                    <p>删除的文件将显示在这里</p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- 设置模态框 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">⚙️ 回收站设置</h3>
+                <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+            </div>
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label class="form-label">保留天数</label>
+                    <input type="number" class="form-input" id="retentionDays" min="1" max="365" value="30">
+                    <div class="form-help">文件在回收站中保留的天数，超过后自动删除</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大容量 (GB)</label>
+                    <input type="number" class="form-input" id="maxSizeGB" min="1" max="1000" value="10">
+                    <div class="form-help">回收站占用的最大空间，超出后自动清理最旧的文件</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">自动清理策略</label>
+                    <select class="form-select" id="autoCleanup">
+                        <option value="disabled">禁用</option>
+                        <option value="daily">每天凌晨 3 点</option>
+                        <option value="weekly">每周日凌晨 3 点</option>
+                    </select>
+                    <div class="form-help">自动清理过期或超出配额的文件</div>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 14px;">
+                        <input type="checkbox" id="confirmDelete" checked>
+                        删除文件时显示确认对话框
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeSettingsModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存设置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 预览模态框 -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal preview-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="previewTitle">文件预览</h3>
+                <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+            <div class="preview-content" id="previewContent">
+                <!-- 动态内容 -->
+            </div>
+            <div class="preview-info" id="previewInfo">
+                <!-- 文件信息 -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closePreviewModal()">关闭</button>
+                <button class="btn btn-primary" id="previewRestoreBtn">↩️ 恢复</button>
+                <button class="btn btn-danger" id="previewDeleteBtn">🗑️ 永久删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认清空模态框 -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal confirm-modal">
+            <div class="confirm-icon">⚠️</div>
+            <h3 style="margin: 0 0 0.5rem 0;">确认清空回收站</h3>
+            <p class="confirm-message">此操作将永久删除回收站中的所有文件，共 <strong id="confirmCount">0</strong> 个文件，总计 <strong id="confirmSize">0 B</strong>。此操作无法撤销！</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmEmptyTrash()">确认清空</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div class="toast" id="toast"></div>
+
     <script>
         const API_BASE = '/api/v1/trash';
         let trashItems = [];
+        let filteredItems = [];
+        let selectedItems = new Set();
+        let currentPreviewItem = null;
+        let config = { retentionDays: 30, maxSizeGB: 10, autoCleanup: 'disabled' };
 
         // 加载回收站数据
         async function loadTrash() {
             try {
-                const [itemsRes, statsRes] = await Promise.all([
+                const [itemsRes, statsRes, configRes] = await Promise.all([
                     fetch(`${API_BASE}`),
-                    fetch(`${API_BASE}/stats`)
+                    fetch(`${API_BASE}/stats`),
+                    fetch(`${API_BASE}/config`)
                 ]);
 
                 const itemsData = await itemsRes.json();
                 const statsData = await statsRes.json();
+                const configData = await configRes.json();
 
                 if (itemsData.code === 0) {
                     trashItems = itemsData.data || [];
-                    renderList();
+                    filterItems();
                 }
 
                 if (statsData.code === 0) {
                     updateStats(statsData.data);
                 }
+
+                if (configData.code === 0) {
+                    config = configData.data || config;
+                    updateConfigDisplay();
+                }
             } catch (error) {
                 console.error('加载回收站失败:', error);
+                showToast('加载失败，请刷新页面重试', 'error');
             }
         }
 
@@ -212,7 +577,6 @@
         function updateStats(stats) {
             document.getElementById('statCount').textContent = stats.total_items || 0;
             document.getElementById('statSize').textContent = formatSize(stats.total_size || 0);
-            document.getElementById('statMax').textContent = formatSize(stats.max_size || 0);
             
             const percent = stats.usage_percent || 0;
             document.getElementById('statPercent').textContent = percent.toFixed(1) + '%';
@@ -222,64 +586,299 @@
             progress.className = 'progress-fill' + (percent > 90 ? ' danger' : percent > 75 ? ' warning' : '');
         }
 
+        // 更新配置显示
+        function updateConfigDisplay() {
+            document.getElementById('statConfig').textContent = `${config.maxSizeGB} GB / ${config.retentionDays} 天`;
+            document.getElementById('retentionDays').value = config.retentionDays;
+            document.getElementById('maxSizeGB').value = config.maxSizeGB;
+            document.getElementById('autoCleanup').value = config.autoCleanup || 'disabled';
+        }
+
+        // 过滤项目
+        function filterItems() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const type = document.getElementById('typeFilter').value;
+            
+            filteredItems = trashItems.filter(item => {
+                const matchSearch = !search || 
+                    item.name.toLowerCase().includes(search) || 
+                    item.original_path.toLowerCase().includes(search);
+                const matchType = !type || getFileCategory(item) === type;
+                return matchSearch && matchType;
+            });
+            
+            sortItems();
+        }
+
+        // 排序项目
+        function sortItems() {
+            const sort = document.getElementById('sortFilter').value;
+            
+            filteredItems.sort((a, b) => {
+                switch(sort) {
+                    case 'deleted_desc': return new Date(b.deleted_at) - new Date(a.deleted_at);
+                    case 'deleted_asc': return new Date(a.deleted_at) - new Date(b.deleted_at);
+                    case 'size_desc': return b.size - a.size;
+                    case 'size_asc': return a.size - b.size;
+                    case 'name_asc': return a.name.localeCompare(b.name);
+                    case 'expires_asc': return a.days_left - b.days_left;
+                    default: return 0;
+                }
+            });
+            
+            renderList();
+        }
+
+        // 获取文件类别
+        function getFileCategory(item) {
+            if (item.is_dir) return 'dir';
+            const ext = item.name.split('.').pop().toLowerCase();
+            const categories = {
+                image: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'],
+                video: ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'],
+                audio: ['mp3', 'wav', 'flac', 'aac', 'ogg', 'wma', 'm4a'],
+                document: ['doc', 'docx', 'pdf', 'txt', 'xls', 'xlsx', 'ppt', 'pptx', 'md', 'csv']
+            };
+            for (const [cat, exts] of Object.entries(categories)) {
+                if (exts.includes(ext)) return cat;
+            }
+            return 'other';
+        }
+
         // 渲染列表
         function renderList() {
-            const list = document.getElementById('trashList');
+            const list = document.getElementById('listContent');
             
-            if (trashItems.length === 0) {
+            if (filteredItems.length === 0) {
                 list.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🗑️</div>
-                        <h3>回收站是空的</h3>
-                        <p>删除的文件将显示在这里</p>
+                        <h3>${trashItems.length === 0 ? '回收站是空的' : '没有匹配的文件'}</h3>
+                        <p>${trashItems.length === 0 ? '删除的文件将显示在这里' : '尝试修改搜索条件'}</p>
                     </div>
                 `;
                 return;
             }
 
-            list.innerHTML = trashItems.map(item => {
+            list.innerHTML = filteredItems.map(item => {
                 const icon = item.is_dir ? '📁' : getFileIcon(item.name);
+                const category = getFileCategory(item);
+                const categoryNames = { dir: '文件夹', image: '图片', video: '视频', audio: '音频', document: '文档', other: '其他' };
                 const daysLeft = item.days_left || 0;
                 const badgeClass = daysLeft <= 3 ? 'badge-danger' : daysLeft <= 7 ? 'badge-warning' : 'badge-success';
                 
                 return `
-                    <div class="trash-item">
-                        <div class="item-icon">${icon}</div>
-                        <div class="item-info">
-                            <div class="item-name">${escapeHtml(item.name)}</div>
-                            <div class="item-meta">
-                                原路径：${escapeHtml(item.original_path)} • 
-                                大小：${formatSize(item.size)} • 
-                                删除时间：${formatDate(item.deleted_at)} • 
-                                <span class="badge ${badgeClass}">剩余 ${daysLeft} 天</span>
+                    <div class="trash-item ${selectedItems.has(item.id) ? 'selected' : ''}" data-id="${item.id}">
+                        <input type="checkbox" class="item-checkbox" ${selectedItems.has(item.id) ? 'checked' : ''} onchange="toggleSelect('${item.id}')">
+                        <div class="item-main">
+                            <div class="item-icon">${icon}</div>
+                            <div class="item-info">
+                                <div class="item-name">${escapeHtml(item.name)}</div>
+                                <div class="item-path">${escapeHtml(item.original_path)}</div>
                             </div>
                         </div>
+                        <div class="item-size">${formatSize(item.size)}</div>
+                        <div class="item-deleted">${categoryNames[category]}</div>
+                        <div class="item-expires">
+                            <div>${formatDate(item.deleted_at)}</div>
+                            <span class="badge ${badgeClass}">剩余 ${daysLeft} 天</span>
+                        </div>
                         <div class="item-actions">
-                            <button class="btn btn-primary btn-sm" onclick="restore('${item.id}')">↩️ 恢复</button>
-                            <button class="btn btn-danger btn-sm" onclick="deletePermanent('${item.id}')">🗑️ 删除</button>
+                            <button class="btn btn-secondary btn-sm" onclick="openPreview('${item.id}')">👁 预览</button>
+                            <button class="btn btn-primary btn-sm" onclick="restoreItem('${item.id}')">↩️ 恢复</button>
+                            <button class="btn btn-danger btn-sm" onclick="deletePermanent('${item.id}')">🗑️</button>
                         </div>
                     </div>
                 `;
             }).join('');
+            
+            updateBulkActions();
         }
 
-        // 恢复文件
-        async function restore(id) {
-            if (!confirm('确定要恢复此文件？')) return;
+        // 切换选择
+        function toggleSelect(id) {
+            if (selectedItems.has(id)) {
+                selectedItems.delete(id);
+            } else {
+                selectedItems.add(id);
+            }
+            updateBulkActions();
+            renderList();
+        }
+
+        // 全选/取消全选
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll').checked || document.getElementById('headerCheckbox').checked;
+            if (selectAll) {
+                filteredItems.forEach(item => selectedItems.add(item.id));
+            } else {
+                selectedItems.clear();
+            }
+            updateBulkActions();
+            renderList();
+        }
+
+        // 更新批量操作栏
+        function updateBulkActions() {
+            const bulkActions = document.getElementById('bulkActions');
+            const selectedCount = document.getElementById('selectedCount');
+            const headerCheckbox = document.getElementById('headerCheckbox');
             
+            selectedCount.textContent = selectedItems.size;
+            bulkActions.classList.toggle('show', selectedItems.size > 0);
+            
+            if (headerCheckbox) {
+                headerCheckbox.checked = selectedItems.size === filteredItems.length && filteredItems.length > 0;
+            }
+        }
+
+        // 清除选择
+        function clearSelection() {
+            selectedItems.clear();
+            updateBulkActions();
+            renderList();
+        }
+
+        // 打开预览
+        function openPreview(id) {
+            const item = trashItems.find(i => i.id === id);
+            if (!item) return;
+            
+            currentPreviewItem = item;
+            document.getElementById('previewTitle').textContent = item.name;
+            
+            const content = document.getElementById('previewContent');
+            const category = getFileCategory(item);
+            
+            if (category === 'image') {
+                content.innerHTML = `<img class="preview-image" src="/api/v1/trash/${id}/preview" alt="${escapeHtml(item.name)}" onerror="this.parentElement.innerHTML='<p>预览不可用</p>'">`;
+            } else if (category === 'video') {
+                content.innerHTML = `<video class="preview-image" controls src="/api/v1/trash/${id}/preview"></video>`;
+            } else if (category === 'audio') {
+                content.innerHTML = `<audio controls src="/api/v1/trash/${id}/preview" style="width:100%"></audio>`;
+            } else if (category === 'document' || category === 'other') {
+                content.innerHTML = `
+                    <div style="text-align:center; padding:2rem;">
+                        <div style="font-size:64px; margin-bottom:1rem;">${getFileIcon(item.name)}</div>
+                        <p style="color:var(--text-muted)">此文件类型暂不支持预览</p>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div style="text-align:center; padding:2rem;">
+                        <div style="font-size:64px; margin-bottom:1rem;">📁</div>
+                        <p style="color:var(--text-muted)">文件夹预览</p>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('previewInfo').innerHTML = `
+                <div class="preview-info-item">
+                    <div class="preview-info-label">原路径</div>
+                    <div class="preview-info-value">${escapeHtml(item.original_path)}</div>
+                </div>
+                <div class="preview-info-item">
+                    <div class="preview-info-label">大小</div>
+                    <div class="preview-info-value">${formatSize(item.size)}</div>
+                </div>
+                <div class="preview-info-item">
+                    <div class="preview-info-label">删除时间</div>
+                    <div class="preview-info-value">${formatDate(item.deleted_at)}</div>
+                </div>
+                <div class="preview-info-item">
+                    <div class="preview-info-label">剩余时间</div>
+                    <div class="preview-info-value">${item.days_left} 天后自动清理</div>
+                </div>
+            `;
+            
+            document.getElementById('previewRestoreBtn').onclick = () => { closePreviewModal(); restoreItem(id); };
+            document.getElementById('previewDeleteBtn').onclick = () => { closePreviewModal(); deletePermanent(id); };
+            
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').classList.remove('active');
+            currentPreviewItem = null;
+        }
+
+        // 设置模态框
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.add('active');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        // 保存设置
+        document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                retentionDays: parseInt(document.getElementById('retentionDays').value),
+                maxSizeGB: parseInt(document.getElementById('maxSizeGB').value),
+                autoCleanup: document.getElementById('autoCleanup').value,
+                confirmDelete: document.getElementById('confirmDelete').checked
+            };
+            
+            try {
+                const res = await fetch(`${API_BASE}/config`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                
+                if (result.code === 0) {
+                    config = { ...config, ...data };
+                    updateConfigDisplay();
+                    closeSettingsModal();
+                    showToast('设置已保存', 'success');
+                } else {
+                    showToast('保存失败：' + result.message, 'error');
+                }
+            } catch (err) {
+                showToast('保存失败：' + err.message, 'error');
+            }
+        });
+
+        // 恢复文件
+        async function restoreItem(id) {
             try {
                 const res = await fetch(`${API_BASE}/${id}/restore`, { method: 'POST' });
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    alert('文件已恢复');
+                    showToast('文件已恢复', 'success');
+                    selectedItems.delete(id);
                     loadTrash();
                 } else {
-                    alert('恢复失败：' + data.message);
+                    showToast('恢复失败：' + data.message, 'error');
                 }
             } catch (error) {
-                alert('恢复失败：' + error.message);
+                showToast('恢复失败：' + error.message, 'error');
             }
+        }
+
+        // 批量恢复
+        async function bulkRestore() {
+            if (selectedItems.size === 0) return;
+            if (!confirm(`确定要恢复选中的 ${selectedItems.size} 个文件吗？`)) return;
+            
+            let success = 0, failed = 0;
+            for (const id of selectedItems) {
+                try {
+                    const res = await fetch(`${API_BASE}/${id}/restore`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.code === 0) success++;
+                    else failed++;
+                } catch { failed++; }
+            }
+            
+            showToast(`已恢复 ${success} 个文件${failed > 0 ? `，失败 ${failed} 个` : ''}`, failed > 0 ? 'warning' : 'success');
+            selectedItems.clear();
+            loadTrash();
         }
 
         // 永久删除
@@ -291,38 +890,75 @@
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    alert('文件已永久删除');
+                    showToast('文件已永久删除', 'success');
+                    selectedItems.delete(id);
                     loadTrash();
                 } else {
-                    alert('删除失败：' + data.message);
+                    showToast('删除失败：' + data.message, 'error');
                 }
             } catch (error) {
-                alert('删除失败：' + error.message);
+                showToast('删除失败：' + error.message, 'error');
             }
         }
 
-        // 清空回收站
-        async function confirmEmpty() {
-            if (!confirm('确定要清空回收站？所有文件将永久删除！')) return;
+        // 批量删除
+        async function bulkDelete() {
+            if (selectedItems.size === 0) return;
+            if (!confirm(`确定要永久删除选中的 ${selectedItems.size} 个文件吗？此操作不可恢复！`)) return;
             
+            let success = 0, failed = 0;
+            for (const id of selectedItems) {
+                try {
+                    const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.code === 0) success++;
+                    else failed++;
+                } catch { failed++; }
+            }
+            
+            showToast(`已删除 ${success} 个文件${failed > 0 ? `，失败 ${failed} 个` : ''}`, failed > 0 ? 'warning' : 'success');
+            selectedItems.clear();
+            loadTrash();
+        }
+
+        // 清空回收站确认
+        function openEmptyConfirm() {
+            const totalItems = trashItems.length;
+            const totalSize = trashItems.reduce((sum, i) => sum + i.size, 0);
+            
+            document.getElementById('confirmCount').textContent = totalItems;
+            document.getElementById('confirmSize').textContent = formatSize(totalSize);
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        async function confirmEmptyTrash() {
             try {
                 const res = await fetch(`${API_BASE}`, { method: 'DELETE' });
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    alert('回收站已清空');
+                    closeConfirmModal();
+                    showToast('回收站已清空', 'success');
                     loadTrash();
                 } else {
-                    alert('清空失败：' + data.message);
+                    showToast('清空失败：' + data.message, 'error');
                 }
             } catch (error) {
-                alert('清空失败：' + error.message);
+                showToast('清空失败：' + error.message, 'error');
             }
         }
 
-        // 显示设置
-        function showSettings() {
-            alert('回收站设置功能待实现');
+        // Toast 提示
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.borderLeftColor = type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : type === 'warning' ? '#F59E0B' : '#3B82F6';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
         // 工具函数
@@ -335,7 +971,7 @@
 
         function formatDate(dateStr) {
             const date = new Date(dateStr);
-            return date.toLocaleString('zh-CN');
+            return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
         function escapeHtml(text) {
@@ -347,23 +983,43 @@
         function getFileIcon(filename) {
             const ext = filename.split('.').pop().toLowerCase();
             const icons = {
-                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'bmp': '🖼️',
-                'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mov': '🎬',
-                'mp3': '🎵', 'wav': '🎵', 'flac': '🎵',
-                'doc': '📄', 'docx': '📄', 'pdf': '📄', 'txt': '📄',
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'bmp': '🖼️', 'webp': '🖼️', 'svg': '🖼️',
+                'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mov': '🎬', 'wmv': '🎬', 'webm': '🎬',
+                'mp3': '🎵', 'wav': '🎵', 'flac': '🎵', 'aac': '🎵', 'ogg': '🎵', 'm4a': '🎵',
+                'doc': '📄', 'docx': '📄', 'pdf': '📄', 'txt': '📄', 'md': '📄',
                 'xls': '📊', 'xlsx': '📊', 'csv': '📊',
-                'zip': '📦', 'rar': '📦', '7z': '📦',
-                'exe': '⚙️', 'msi': '⚙️',
-                'sh': '⚙️', 'py': '⚙️', 'js': '⚙️'
+                'ppt': '📽️', 'pptx': '📽️',
+                'zip': '📦', 'rar': '📦', '7z': '📦', 'tar': '📦', 'gz': '📦',
+                'exe': '⚙️', 'msi': '⚙️', 'dmg': '⚙️',
+                'sh': '💻', 'py': '💻', 'js': '💻', 'ts': '💻', 'go': '💻', 'java': '💻',
+                'html': '🌐', 'css': '🌐', 'json': '📋', 'xml': '📋'
             };
             return icons[ext] || '📄';
         }
 
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeSettingsModal();
+                closePreviewModal();
+                closeConfirmModal();
+            }
+        });
+
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
         // 初始化
         document.addEventListener('DOMContentLoaded', loadTrash);
         
-        // 自动刷新（每 30 秒）
-        setInterval(loadTrash, 30000);
+        // 自动刷新（每 60 秒）
+        setInterval(loadTrash, 60000);
     </script>
 </body>
 </html>
