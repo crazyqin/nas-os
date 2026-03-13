@@ -25,8 +25,8 @@ var (
 type QuotaType string
 
 const (
-	QuotaTypeUser     QuotaType = "user"     // 用户配额
-	QuotaTypeGroup    QuotaType = "group"    // 用户组配额
+	QuotaTypeUser      QuotaType = "user"      // 用户配额
+	QuotaTypeGroup     QuotaType = "group"     // 用户组配额
 	QuotaTypeDirectory QuotaType = "directory" // 目录配额
 )
 
