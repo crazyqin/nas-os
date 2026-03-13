@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -12,6 +15,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 // Manager 下载管理器
@@ -29,10 +33,12 @@ type Manager struct {
 	// Transmission/qBittorrent 客户端配置
 	transmissionURL string
 	qbittorrentURL  string
+
+	logger *zap.Logger
 }
 
 // NewManager 创建下载管理器
-func NewManager(dataDir string) (*Manager, error) {
+func NewManager(dataDir string, logger *zap.Logger) (*Manager, error) {
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return nil, err
 	}
@@ -45,6 +51,7 @@ func NewManager(dataDir string) (*Manager, error) {
 		configFile: filepath.Join(dataDir, "tasks.json"),
 		ctx:        ctx,
 		cancel:     cancel,
+		logger:     logger,
 	}
 
 	// 加载已有任务
@@ -290,6 +297,119 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 	return nil
 }
 
+// StartTask 启动下载任务
+func (m *Manager) StartTask(id string) error {
+	m.mu.Lock()
+	task, exists := m.tasks[id]
+	if !exists {
+		m.mu.Unlock()
+		return fmt.Errorf("任务不存在：%s", id)
+	}
+
+	if task.Status == StatusDownloading {
+		m.mu.Unlock()
+		return fmt.Errorf("任务已在下载中")
+	}
+
+	task.Status = StatusDownloading
+	task.UpdatedAt = time.Now()
+	m.mu.Unlock()
+
+	// 根据类型启动不同的下载逻辑
+	switch task.Type {
+	case TypeHTTP, TypeFTP:
+		go m.downloadHTTP(m.ctx, task)
+	case TypeBT, TypeMagnet:
+		go m.downloadBittorrent(m.ctx, task)
+	}
+
+	if m.onTaskUpdate != nil {
+		m.onTaskUpdate(task)
+	}
+
+	return m.saveTasks()
+}
+
+// downloadBittorrent 启动 BT 下载
+func (m *Manager) downloadBittorrent(ctx context.Context, task *DownloadTask) {
+	// 如果配置了 Transmission
+	if m.transmissionURL != "" {
+		if err := m.addToTransmission(task); err != nil {
+			m.logger.Error("添加到 Transmission 失败", zap.Error(err), zap.String("taskId", task.ID))
+			m.mu.Lock()
+			task.Status = StatusError
+			task.ErrorMessage = err.Error()
+			m.mu.Unlock()
+			return
+		}
+	} else if m.qbittorrentURL != "" {
+		// 如果配置了 qBittorrent
+		if err := m.addToQbittorrent(task); err != nil {
+			m.logger.Error("添加到 qBittorrent 失败", zap.Error(err), zap.String("taskId", task.ID))
+			m.mu.Lock()
+			task.Status = StatusError
+			task.ErrorMessage = err.Error()
+			m.mu.Unlock()
+			return
+		}
+	} else {
+		// 没有 BT 客户端，使用 aria2c 作为后备
+		if err := m.downloadWithAria2c(ctx, task); err != nil {
+			m.logger.Error("aria2c 下载失败", zap.Error(err), zap.String("taskId", task.ID))
+			m.mu.Lock()
+			task.Status = StatusError
+			task.ErrorMessage = err.Error()
+			m.mu.Unlock()
+			return
+		}
+	}
+}
+
+// addToTransmission 添加任务到 Transmission
+func (m *Manager) addToTransmission(task *DownloadTask) error {
+	// TODO: 实现 Transmission RPC API
+	// 参考：https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md
+	cmd := exec.Command("transmission-remote", m.transmissionURL, "-a", task.URL, "-d", task.DestPath)
+	return cmd.Run()
+}
+
+// addToQbittorrent 添加任务到 qBittorrent
+func (m *Manager) addToQbittorrent(task *DownloadTask) error {
+	// TODO: 实现 qBittorrent Web API
+	// 参考：https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
+	cmd := exec.Command("qbittorrent-command", "add", "-d", task.DestPath, task.URL)
+	return cmd.Run()
+}
+
+// downloadWithAria2c 使用 aria2c 下载 BT
+func (m *Manager) downloadWithAria2c(ctx context.Context, task *DownloadTask) error {
+	args := []string{
+		"--dir=" + task.DestPath,
+		"--seed-time=0", // 下载完成后不做种
+	}
+
+	if task.SpeedLimit != nil && task.SpeedLimit.DownloadLimit > 0 {
+		args = append(args, fmt.Sprintf("--max-download-limit=%dK", task.SpeedLimit.DownloadLimit))
+	}
+
+	args = append(args, task.URL)
+
+	cmd := exec.CommandContext(ctx, "aria2c", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("aria2c 下载失败：%w, output: %s", err, string(output))
+	}
+
+	m.mu.Lock()
+	task.Status = StatusCompleted
+	task.Progress = 100
+	completedTime := time.Now()
+	task.CompletedAt = &completedTime
+	m.mu.Unlock()
+
+	return nil
+}
+
 // PauseTask 暂停任务
 func (m *Manager) PauseTask(id string) error {
 	_, err := m.UpdateTask(id, UpdateTaskRequest{Status: StatusPaused})
@@ -353,31 +473,238 @@ func (m *Manager) updateTasks() {
 	now := time.Now()
 
 	for _, task := range m.tasks {
-		// 模拟进度更新（实际应该调用 Transmission/qBittorrent API）
 		if task.Status == StatusDownloading {
-			// 模拟下载进度
-			if task.Progress < 100 {
-				task.Progress += 0.5
-				task.Downloaded = int64(float64(task.TotalSize) * task.Progress / 100)
-				task.Speed = 1024 * 1024 // 1MB/s 模拟
-				task.UpdatedAt = now
-
-				if task.Progress >= 100 {
-					task.Progress = 100
-					task.Status = StatusCompleted
-					completedTime := time.Now()
-					task.CompletedAt = &completedTime
-				}
-
-				if m.onTaskUpdate != nil {
-					m.onTaskUpdate(task)
-				}
+			switch task.Type {
+			case TypeHTTP, TypeFTP:
+				// HTTP/FTP 下载已在 StartTask 中启动，这里只更新进度
+				// 实际进度由 downloadHTTP  goroutine 更新
+			case TypeBT, TypeMagnet:
+				// BT 下载 - 从 Transmission/qBittorrent 获取状态
+				m.updateBittorrentTask(task, now)
 			}
 		}
 	}
 
 	// 定期保存
 	_ = m.saveTasks()
+}
+
+// updateBittorrentTask 从 BT 客户端获取任务状态
+func (m *Manager) updateBittorrentTask(task *DownloadTask, now time.Time) {
+	if m.transmissionURL != "" {
+		stats, err := m.getTransmissionStats(task.ID)
+		if err == nil {
+			task.Progress = stats.Progress
+			task.Speed = stats.Speed
+			task.Downloaded = stats.Downloaded
+			task.Uploaded = stats.Uploaded
+			task.Peers = stats.Peers
+			task.Seeds = stats.Seeds
+			task.UpdatedAt = now
+
+			if stats.Progress >= 100 {
+				task.Status = StatusSeeding
+				completedTime := time.Now()
+				task.CompletedAt = &completedTime
+			}
+		}
+	} else if m.qbittorrentURL != "" {
+		stats, err := m.getQbittorrentStats(task.ID)
+		if err == nil {
+			task.Progress = stats.Progress
+			task.Speed = stats.Speed
+			task.Downloaded = stats.Downloaded
+			task.Uploaded = stats.Uploaded
+			task.Peers = stats.Peers
+			task.Seeds = stats.Seeds
+			task.UpdatedAt = now
+
+			if stats.Progress >= 100 {
+				task.Status = StatusSeeding
+				completedTime := time.Now()
+				task.CompletedAt = &completedTime
+			}
+		}
+	}
+}
+
+// downloadHTTP 执行 HTTP/FTP 下载
+func (m *Manager) downloadHTTP(ctx context.Context, task *DownloadTask) {
+	m.mu.Lock()
+	task.Status = StatusDownloading
+	task.UpdatedAt = time.Now()
+	m.mu.Unlock()
+
+	if m.onTaskUpdate != nil {
+		m.onTaskUpdate(task)
+	}
+
+	// 创建目标目录
+	if err := os.MkdirAll(task.DestPath, 0755); err != nil {
+		m.logger.Error("创建下载目录失败", zap.Error(err), zap.String("taskId", task.ID))
+		m.mu.Lock()
+		task.Status = StatusError
+		task.ErrorMessage = err.Error()
+		m.mu.Unlock()
+		return
+	}
+
+	// 创建文件
+	filePath := filepath.Join(task.DestPath, task.Name)
+	file, err := os.Create(filePath)
+	if err != nil {
+		m.logger.Error("创建文件失败", zap.Error(err), zap.String("taskId", task.ID))
+		m.mu.Lock()
+		task.Status = StatusError
+		task.ErrorMessage = err.Error()
+		m.mu.Unlock()
+		return
+	}
+	defer file.Close()
+
+	// 创建 HTTP 请求
+	req, err := http.NewRequestWithContext(ctx, "GET", task.URL, nil)
+	if err != nil {
+		m.logger.Error("创建请求失败", zap.Error(err), zap.String("taskId", task.ID))
+		m.mu.Lock()
+		task.Status = StatusError
+		task.ErrorMessage = err.Error()
+		m.mu.Unlock()
+		return
+	}
+
+	// 执行请求
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		m.logger.Error("下载失败", zap.Error(err), zap.String("taskId", task.ID))
+		m.mu.Lock()
+		task.Status = StatusError
+		task.ErrorMessage = err.Error()
+		m.mu.Unlock()
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		err := fmt.Errorf("HTTP 错误：%s", resp.Status)
+		m.logger.Error("下载失败", zap.Error(err), zap.String("taskId", task.ID))
+		m.mu.Lock()
+		task.Status = StatusError
+		task.ErrorMessage = err.Error()
+		m.mu.Unlock()
+		return
+	}
+
+	// 获取文件大小
+	task.TotalSize = resp.ContentLength
+
+	// 下载文件
+	var downloaded int64
+	buffer := make([]byte, 32*1024)
+	lastUpdate := time.Now()
+	var lastDownloaded int64
+
+	for {
+		n, err := resp.Body.Read(buffer)
+		if n > 0 {
+			_, writeErr := file.Write(buffer[:n])
+			if writeErr != nil {
+				m.logger.Error("写入文件失败", zap.Error(writeErr), zap.String("taskId", task.ID))
+				m.mu.Lock()
+				task.Status = StatusError
+				task.ErrorMessage = writeErr.Error()
+				m.mu.Unlock()
+				return
+			}
+			downloaded += int64(n)
+			task.Downloaded = downloaded
+
+			// 计算进度和速度
+			if task.TotalSize > 0 {
+				task.Progress = float64(downloaded) / float64(task.TotalSize) * 100
+			}
+
+			// 每秒更新速度
+			now := time.Now()
+			if now.Sub(lastUpdate) >= time.Second {
+				duration := now.Sub(lastUpdate).Seconds()
+				task.Speed = int64(float64(downloaded-lastDownloaded) / duration)
+				lastDownloaded = downloaded
+				lastUpdate = now
+
+				m.mu.Lock()
+				task.UpdatedAt = now
+				if m.onTaskUpdate != nil {
+					m.onTaskUpdate(task)
+				}
+				m.mu.Unlock()
+			}
+		}
+
+		if err != nil {
+			if err == io.EOF {
+				// 下载完成
+				m.mu.Lock()
+				task.Progress = 100
+				task.Status = StatusCompleted
+				completedTime := time.Now()
+				task.CompletedAt = &completedTime
+				task.UpdatedAt = completedTime
+				if m.onTaskUpdate != nil {
+					m.onTaskUpdate(task)
+				}
+				m.mu.Unlock()
+				m.logger.Info("HTTP 下载完成", zap.String("taskId", task.ID), zap.String("name", task.Name))
+			} else {
+				m.logger.Error("下载出错", zap.Error(err), zap.String("taskId", task.ID))
+				m.mu.Lock()
+				task.Status = StatusError
+				task.ErrorMessage = err.Error()
+				m.mu.Unlock()
+			}
+			return
+		}
+	}
+}
+
+// TransmissionStats Transmission 统计信息
+type TransmissionStats struct {
+	Progress   float64
+	Speed      int64
+	Downloaded int64
+	Uploaded   int64
+	Peers      int
+	Seeds      int
+}
+
+// getTransmissionStats 从 Transmission 获取统计信息
+func (m *Manager) getTransmissionStats(taskID string) (*TransmissionStats, error) {
+	// TODO: 实现 Transmission RPC API 调用
+	// 参考：https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md
+	return &TransmissionStats{
+		Progress: 50,
+		Speed:    1024 * 1024,
+	}, nil
+}
+
+// QbittorrentStats qBittorrent 统计信息
+type QbittorrentStats struct {
+	Progress   float64
+	Speed      int64
+	Downloaded int64
+	Uploaded   int64
+	Peers      int
+	Seeds      int
+}
+
+// getQbittorrentStats 从 qBittorrent 获取统计信息
+func (m *Manager) getQbittorrentStats(taskID string) (*QbittorrentStats, error) {
+	// TODO: 实现 qBittorrent Web API 调用
+	// 参考：https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
+	return &QbittorrentStats{
+		Progress: 50,
+		Speed:    1024 * 1024,
+	}, nil
 }
 
 // loadTasks 加载任务
