@@ -431,7 +431,7 @@ func (p *CapacityPlanner) generateRecommendations(current CapacityStatus, foreca
 		// 检查是否在预测期内会达到危险阈值
 		for _, f := range forecasts {
 			if f.ForecastUsagePercent >= p.config.CriticalThreshold {
-				daysRemaining := int(f.Timestamp.Sub(time.Now()).Hours() / 24)
+				daysRemaining := int(time.Until(f.Timestamp).Hours() / 24)
 
 				if daysRemaining <= p.config.ExpansionLeadTime {
 					recommendations = append(recommendations, CapacityRecommendation{
@@ -501,7 +501,7 @@ func (p *CapacityPlanner) calculateSummary(history []CapacityHistory, forecasts 
 	for _, f := range forecasts {
 		if f.ForecastUsagePercent >= 95 {
 			summary.FullCapacityDate = &f.Timestamp
-			summary.DaysToFullCapacity = int(f.Timestamp.Sub(time.Now()).Hours() / 24)
+			summary.DaysToFullCapacity = int(time.Until(f.Timestamp).Hours() / 24)
 			break
 		}
 	}

@@ -73,31 +73,46 @@ const (
 	AlertTypeCleanup   AlertType = "cleanup"    // 自动清理告警
 )
 
+// AlertSeverity 告警严重级别
+type AlertSeverity string
+
+const (
+	AlertSeverityInfo      AlertSeverity = "info"      // 信息
+	AlertSeverityWarning   AlertSeverity = "warning"   // 警告
+	AlertSeverityCritical  AlertSeverity = "critical"  // 严重
+	AlertSeverityEmergency AlertSeverity = "emergency" // 紧急
+)
+
 // AlertStatus 告警状态
 type AlertStatus string
 
 const (
-	AlertStatusActive   AlertStatus = "active"   // 活跃
-	AlertStatusResolved AlertStatus = "resolved" // 已解决
-	AlertStatusSilenced AlertStatus = "silenced" // 静默
+	AlertStatusActive    AlertStatus = "active"    // 活跃
+	AlertStatusResolved  AlertStatus = "resolved"  // 已解决
+	AlertStatusSilenced  AlertStatus = "silenced"  // 静默
+	AlertStatusEscalated AlertStatus = "escalated" // 已升级
 )
 
 // Alert 配额告警
 type Alert struct {
-	ID           string      `json:"id"`
-	QuotaID      string      `json:"quota_id"`
-	Type         AlertType   `json:"type"`
-	Status       AlertStatus `json:"status"`
-	TargetID     string      `json:"target_id"`
-	TargetName   string      `json:"target_name"`
-	VolumeName   string      `json:"volume_name"`
-	Path         string      `json:"path"`
-	UsedBytes    uint64      `json:"used_bytes"`
-	LimitBytes   uint64      `json:"limit_bytes"`
-	UsagePercent float64     `json:"usage_percent"`
-	Message      string      `json:"message"`
-	CreatedAt    time.Time   `json:"created_at"`
-	ResolvedAt   *time.Time  `json:"resolved_at,omitempty"`
+	ID              string        `json:"id"`
+	QuotaID         string        `json:"quota_id"`
+	Type            AlertType     `json:"type"`
+	Severity        AlertSeverity `json:"severity"` // 严重级别
+	Status          AlertStatus   `json:"status"`
+	TargetID        string        `json:"target_id"`
+	TargetName      string        `json:"target_name"`
+	VolumeName      string        `json:"volume_name"`
+	Path            string        `json:"path"`
+	UsedBytes       uint64        `json:"used_bytes"`
+	LimitBytes      uint64        `json:"limit_bytes"`
+	UsagePercent    float64       `json:"usage_percent"`
+	Threshold       float64       `json:"threshold"` // 触发阈值百分比
+	Message         string        `json:"message"`
+	CreatedAt       time.Time     `json:"created_at"`
+	ResolvedAt      *time.Time    `json:"resolved_at,omitempty"`
+	EscalatedAt     *time.Time    `json:"escalated_at,omitempty"` // 升级时间
+	EscalationLevel int           `json:"escalation_level"`       // 升级级别
 }
 
 // ========== 清理策略 ==========
@@ -266,6 +281,54 @@ type QuotaTrend struct {
 	ProjectedDaysToFull int              `json:"projected_days_to_full"` // 预计多少天填满
 }
 
+// TrendStats 趋势统计
+type TrendStats struct {
+	QuotaID    string    `json:"quota_id"`
+	TargetName string    `json:"target_name"`
+	StartTime  time.Time `json:"start_time"`
+	EndTime    time.Time `json:"end_time"`
+
+	// 使用量统计
+	MinUsedBytes     uint64  `json:"min_used_bytes"`
+	MaxUsedBytes     uint64  `json:"max_used_bytes"`
+	AvgUsedBytes     float64 `json:"avg_used_bytes"`
+	CurrentUsedBytes uint64  `json:"current_used_bytes"`
+
+	// 百分比统计
+	MinUsagePercent     float64 `json:"min_usage_percent"`
+	MaxUsagePercent     float64 `json:"max_usage_percent"`
+	AvgUsagePercent     float64 `json:"avg_usage_percent"`
+	CurrentUsagePercent float64 `json:"current_usage_percent"`
+
+	// 增长分析
+	GrowthRate          float64    `json:"growth_rate"`                   // 字节/天
+	GrowthPercent       float64    `json:"growth_percent"`                // 日增长百分比
+	ProjectedDaysToFull int        `json:"projected_days_to_full"`        // 预计多少天填满
+	ProjectedFullDate   *time.Time `json:"projected_full_date,omitempty"` // 预计填满日期
+
+	// 峰值分析
+	PeakTime         *time.Time `json:"peak_time,omitempty"`
+	PeakUsedBytes    uint64     `json:"peak_used_bytes"`
+	PeakUsagePercent float64    `json:"peak_usage_percent"`
+
+	// 数据点数量
+	DataPointCount int `json:"data_point_count"`
+}
+
+// TrendHistory 趋势历史记录（持久化用）
+type TrendHistory struct {
+	QuotaID    string           `json:"quota_id"`
+	DataPoints []TrendDataPoint `json:"data_points"`
+	LastUpdate time.Time        `json:"last_update"`
+}
+
+// TrendReportRequest 趋势报告请求
+type TrendReportRequest struct {
+	QuotaID     string        `json:"quota_id,omitempty"`    // 可选，不指定则返回所有
+	Duration    time.Duration `json:"duration"`              // 统计周期
+	Granularity time.Duration `json:"granularity,omitempty"` // 数据粒度（如每小时、每天）
+}
+
 // ========== 输入结构 ==========
 
 // QuotaInput 创建/更新配额输入
@@ -295,6 +358,33 @@ type CleanupPolicyInput struct {
 	MovePath      string            `json:"move_path"`
 	Schedule      string            `json:"schedule"`
 	RetentionDays int               `json:"retention_days"`
+
+	// 高级选项
+	Recursive       bool     `json:"recursive"`        // 是否递归子目录
+	ExcludePatterns []string `json:"exclude_patterns"` // 排除的文件模式
+	MaxFiles        int      `json:"max_files"`        // 单次最大处理文件数
+	DryRun          bool     `json:"dry_run"`          // 预览模式（不实际执行）
+}
+
+// CleanupPreview 清理预览结果
+type CleanupPreview struct {
+	PolicyID      string        `json:"policy_id"`
+	PolicyName    string        `json:"policy_name"`
+	Path          string        `json:"path"`
+	TotalFiles    int           `json:"total_files"`
+	TotalBytes    uint64        `json:"total_bytes"`
+	Files         []CleanupFile `json:"files"`
+	Warnings      []string      `json:"warnings,omitempty"`
+	EstimatedTime time.Duration `json:"estimated_time"`
+}
+
+// CleanupFile 清理文件信息
+type CleanupFile struct {
+	Path    string     `json:"path"`
+	Size    uint64     `json:"size"`
+	ModTime time.Time  `json:"mod_time"`
+	AccTime *time.Time `json:"acc_time,omitempty"` // 访问时间
+	Reason  string     `json:"reason"`             // 匹配原因
 }
 
 // ReportRequest 报告请求
@@ -318,4 +408,32 @@ type AlertConfig struct {
 	NotifyWebhook      bool          `json:"notify_webhook"`
 	WebhookURL         string        `json:"webhook_url"`
 	SilenceDuration    time.Duration `json:"silence_duration"`
+
+	// 多级预警阈值配置
+	WarningThreshold   float64 `json:"warning_threshold"`   // 警告级别阈值（默认 70%）
+	CriticalThreshold  float64 `json:"critical_threshold"`  // 严重级别阈值（默认 85%）
+	EmergencyThreshold float64 `json:"emergency_threshold"` // 紧急级别阈值（默认 95%）
+
+	// 告警升级配置
+	EscalationEnabled     bool          `json:"escalation_enabled"`      // 是否启用告警升级
+	EscalationInterval    time.Duration `json:"escalation_interval"`     // 升级间隔（未处理多久后升级）
+	MaxEscalationLevel    int           `json:"max_escalation_level"`    // 最大升级级别
+	EscalationNotifyEmail bool          `json:"escalation_notify_email"` // 升级时邮件通知
+	EscalationWebhookURL  string        `json:"escalation_webhook_url"`  // 升级通知 webhook
+}
+
+// AlertLevelConfig 预警级别配置
+type AlertLevelConfig struct {
+	Name      string        `json:"name"`      // 级别名称
+	Threshold float64       `json:"threshold"` // 触发阈值（百分比）
+	Severity  AlertSeverity `json:"severity"`  // 严重级别
+	Message   string        `json:"message"`   // 自定义消息模板
+}
+
+// DefaultAlertLevels 默认预警级别配置
+var DefaultAlertLevels = []AlertLevelConfig{
+	{Name: "info", Threshold: 60, Severity: AlertSeverityInfo, Message: "存储使用已达到 %.1f%%"},
+	{Name: "warning", Threshold: 70, Severity: AlertSeverityWarning, Message: "存储使用已达到 %.1f%%，请注意"},
+	{Name: "critical", Threshold: 85, Severity: AlertSeverityCritical, Message: "存储使用已达到 %.1f%%，请及时处理"},
+	{Name: "emergency", Threshold: 95, Severity: AlertSeverityEmergency, Message: "存储使用已达到 %.1f%%，即将超出限制"},
 }
