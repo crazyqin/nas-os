@@ -50,7 +50,7 @@ func apiError(code int, message string) APIResponse {
 // getStats 获取性能统计
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.optimizer.GetStats()
-	
+
 	// 添加额外信息
 	response := map[string]interface{}{
 		"cache": map[string]interface{}{
@@ -59,10 +59,10 @@ func (h *Handlers) getStats(c *gin.Context) {
 			"hit_ratio": stats.CacheHitRatio,
 		},
 		"gc": map[string]interface{}{
-			"count":        stats.GCCount,
-			"pause_total":  stats.GCPauseTotal.String(),
-			"pause_avg":    stats.GCPauseAvg.String(),
-			"last_gc":      stats.LastGCTime,
+			"count":       stats.GCCount,
+			"pause_total": stats.GCPauseTotal.String(),
+			"pause_avg":   stats.GCPauseAvg.String(),
+			"last_gc":     stats.LastGCTime,
 		},
 		"memory": map[string]interface{}{
 			"alloc":  stats.MemAlloc,
@@ -72,11 +72,11 @@ func (h *Handlers) getStats(c *gin.Context) {
 		},
 		"goroutines": stats.Goroutines,
 		"optimizations": map[string]interface{}{
-			"count":    stats.Optimizations,
+			"count":      stats.Optimizations,
 			"time_saved": stats.TimeSaved.String(),
 		},
 	}
-	
+
 	c.JSON(http.StatusOK, success(response))
 }
 
@@ -88,15 +88,15 @@ func (h *Handlers) getConfig(c *gin.Context) {
 
 // UpdateConfigRequest 更新配置请求
 type UpdateConfigRequest struct {
-	CacheEnabled     *bool          `json:"cache_enabled"`
-	CacheCapacity    *int           `json:"cache_capacity"`
-	CacheTTL         *time.Duration `json:"cache_ttl"`
-	GCEnabled        *bool          `json:"gc_enabled"`
-	GCInterval       *time.Duration `json:"gc_interval"`
-	BatchEnabled     *bool          `json:"batch_enabled"`
-	BatchSize        *int           `json:"batch_size"`
-	MaxGoroutines    *int           `json:"max_goroutines"`
-	WorkerPoolSize   *int           `json:"worker_pool_size"`
+	CacheEnabled   *bool          `json:"cache_enabled"`
+	CacheCapacity  *int           `json:"cache_capacity"`
+	CacheTTL       *time.Duration `json:"cache_ttl"`
+	GCEnabled      *bool          `json:"gc_enabled"`
+	GCInterval     *time.Duration `json:"gc_interval"`
+	BatchEnabled   *bool          `json:"batch_enabled"`
+	BatchSize      *int           `json:"batch_size"`
+	MaxGoroutines  *int           `json:"max_goroutines"`
+	WorkerPoolSize *int           `json:"worker_pool_size"`
 }
 
 // updateConfig 更新优化配置
@@ -106,9 +106,9 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	cfg := h.optimizer.GetConfig()
-	
+
 	// 更新字段
 	if req.CacheEnabled != nil {
 		cfg.CacheEnabled = *req.CacheEnabled
@@ -137,9 +137,9 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	if req.WorkerPoolSize != nil {
 		cfg.WorkerPoolSize = *req.WorkerPoolSize
 	}
-	
+
 	h.optimizer.UpdateConfig(cfg)
-	
+
 	c.JSON(http.StatusOK, success(cfg))
 }
 
@@ -155,30 +155,30 @@ func (h *Handlers) forceGC(c *gin.Context) {
 func (h *Handlers) getMemoryInfo(c *gin.Context) {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
-	
+
 	response := map[string]interface{}{
-		"alloc":       memStats.Alloc,
-		"total_alloc": memStats.TotalAlloc,
-		"sys":         memStats.Sys,
-		"heap_alloc":  memStats.HeapAlloc,
-		"heap_sys":    memStats.HeapSys,
-		"heap_idle":   memStats.HeapIdle,
-		"heap_in_use": memStats.HeapInuse,
-		"heap_released": memStats.HeapReleased,
-		"heap_objects":  memStats.HeapObjects,
-		"stack_in_use":  memStats.StackInuse,
-		"stack_sys":     memStats.StackSys,
-		"mspan_in_use":  memStats.MSpanInuse,
-		"mspan_sys":     memStats.MSpanSys,
-		"mcache_in_use": memStats.MCacheInuse,
-		"mcache_sys":    memStats.MCacheSys,
-		"gc_sys":        memStats.GCSys,
-		"other_sys":     memStats.OtherSys,
-		"num_gc":        memStats.NumGC,
+		"alloc":             memStats.Alloc,
+		"total_alloc":       memStats.TotalAlloc,
+		"sys":               memStats.Sys,
+		"heap_alloc":        memStats.HeapAlloc,
+		"heap_sys":          memStats.HeapSys,
+		"heap_idle":         memStats.HeapIdle,
+		"heap_in_use":       memStats.HeapInuse,
+		"heap_released":     memStats.HeapReleased,
+		"heap_objects":      memStats.HeapObjects,
+		"stack_in_use":      memStats.StackInuse,
+		"stack_sys":         memStats.StackSys,
+		"mspan_in_use":      memStats.MSpanInuse,
+		"mspan_sys":         memStats.MSpanSys,
+		"mcache_in_use":     memStats.MCacheInuse,
+		"mcache_sys":        memStats.MCacheSys,
+		"gc_sys":            memStats.GCSys,
+		"other_sys":         memStats.OtherSys,
+		"num_gc":            memStats.NumGC,
 		"gc_pause_total_ns": memStats.PauseTotalNs,
-		"last_gc_time": memStats.LastGC,
+		"last_gc_time":      memStats.LastGC,
 	}
-	
+
 	c.JSON(http.StatusOK, success(response))
 }
 
@@ -186,7 +186,7 @@ func (h *Handlers) getMemoryInfo(c *gin.Context) {
 func (h *Handlers) getGoroutines(c *gin.Context) {
 	buf := make([]byte, 1<<20)
 	n := runtime.Stack(buf, true)
-	
+
 	c.JSON(http.StatusOK, success(map[string]interface{}{
 		"count":  runtime.NumGoroutine(),
 		"stacks": string(buf[:n]),
@@ -207,18 +207,18 @@ func (h *Handlers) clearCache(c *gin.Context) {
 func PerformanceMiddleware(opt *PerformanceOptimizer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
-		
+
 		// 处理请求
 		c.Next()
-		
+
 		// 记录耗时
 		duration := time.Since(start)
-		
+
 		// 慢请求日志
 		if duration > 500*time.Millisecond {
 			// log.Printf("[SLOW] %s %s took %v", c.Request.Method, c.Request.URL.Path, duration)
 		}
-		
+
 		// 添加响应头
 		c.Header("X-Response-Time", duration.String())
 	}

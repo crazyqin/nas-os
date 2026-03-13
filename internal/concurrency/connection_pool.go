@@ -28,18 +28,18 @@ type ConnectionPool struct {
 	maxSize     int
 	minSize     int
 	idleTimeout time.Duration
-	
-	conns      chan Connection
-	mu         sync.Mutex
-	closed     bool
-	openCount  int
-	
+
+	conns     chan Connection
+	mu        sync.Mutex
+	closed    bool
+	openCount int
+
 	// Statistics
-	created   int64
-	reused    int64
+	created      int64
+	reused       int64
 	closed_count int64
-	waitCount int64
-	
+	waitCount    int64
+
 	logger *zap.Logger
 }
 
@@ -58,7 +58,7 @@ func NewConnectionPool(
 		conns:       make(chan Connection, maxSize),
 		logger:      logger,
 	}
-	
+
 	// Pre-create minimum connections
 	for i := 0; i < minSize; i++ {
 		if conn, err := factory(); err == nil {
@@ -69,10 +69,10 @@ func NewConnectionPool(
 			logger.Error("Failed to create initial connection", zap.Error(err))
 		}
 	}
-	
+
 	// Start connection health checker
 	go pool.healthCheck()
-	
+
 	return pool
 }
 
@@ -84,7 +84,7 @@ func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 		return nil, ErrConnClosed
 	}
 	p.mu.Unlock()
-	
+
 	// Try to get existing connection
 	select {
 	case conn := <-p.conns:
@@ -99,17 +99,17 @@ func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 		p.mu.Lock()
 		p.closed_count++
 		p.mu.Unlock()
-		
+
 	default:
 		// No available connections
 	}
-	
+
 	// Try to create new connection if under limit
 	p.mu.Lock()
 	if p.openCount < p.maxSize {
 		p.openCount++
 		p.mu.Unlock()
-		
+
 		conn, err := p.factory()
 		if err != nil {
 			p.mu.Lock()
@@ -123,12 +123,12 @@ func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 		return conn, nil
 	}
 	p.mu.Unlock()
-	
+
 	// Pool exhausted, wait for available connection
 	p.mu.Lock()
 	p.waitCount++
 	p.mu.Unlock()
-	
+
 	select {
 	case conn := <-p.conns:
 		if conn.IsHealthy() {
@@ -153,7 +153,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 	if conn == nil {
 		return
 	}
-	
+
 	p.mu.Lock()
 	if p.closed {
 		p.mu.Unlock()
@@ -165,7 +165,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 		return
 	}
 	p.mu.Unlock()
-	
+
 	if !conn.IsHealthy() {
 		conn.Close()
 		p.mu.Lock()
@@ -174,7 +174,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 		p.mu.Unlock()
 		return
 	}
-	
+
 	select {
 	case p.conns <- conn:
 	default:
@@ -196,9 +196,9 @@ func (p *ConnectionPool) Close() {
 	}
 	p.closed = true
 	p.mu.Unlock()
-	
+
 	close(p.conns)
-	
+
 	for conn := range p.conns {
 		conn.Close()
 		p.mu.Lock()
@@ -212,16 +212,16 @@ func (p *ConnectionPool) Close() {
 func (p *ConnectionPool) Stats() ConnPoolStats {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	
+
 	return ConnPoolStats{
-		MaxSize:     p.maxSize,
-		MinSize:     p.minSize,
-		OpenCount:   p.openCount,
-		Available:   len(p.conns),
-		Created:     p.created,
-		Reused:      p.reused,
-		Closed:      p.closed_count,
-		WaitCount:   p.waitCount,
+		MaxSize:   p.maxSize,
+		MinSize:   p.minSize,
+		OpenCount: p.openCount,
+		Available: len(p.conns),
+		Created:   p.created,
+		Reused:    p.reused,
+		Closed:    p.closed_count,
+		WaitCount: p.waitCount,
 	}
 }
 
@@ -241,7 +241,7 @@ type ConnPoolStats struct {
 func (p *ConnectionPool) healthCheck() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
-	
+
 	for range ticker.C {
 		p.mu.Lock()
 		if p.closed {
@@ -249,7 +249,7 @@ func (p *ConnectionPool) healthCheck() {
 			return
 		}
 		p.mu.Unlock()
-		
+
 		// Check idle connections
 		select {
 		case conn := <-p.conns:
@@ -259,7 +259,7 @@ func (p *ConnectionPool) healthCheck() {
 				p.closed_count++
 				p.openCount--
 				p.mu.Unlock()
-				
+
 				// Create replacement if below minSize
 				if p.openCount < p.minSize {
 					if newConn, err := p.factory(); err == nil {

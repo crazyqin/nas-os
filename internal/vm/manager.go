@@ -25,14 +25,14 @@ const (
 
 // Manager VM 管理器
 type Manager struct {
-	mu           sync.RWMutex
-	storagePath  string
-	isoPath      string
-	vncPortBase  int
-	vms          map[string]*VM
-	snapshots    map[string]*VMSnapshot
-	templates    map[string]*VMTemplate
-	logger       *zap.Logger
+	mu               sync.RWMutex
+	storagePath      string
+	isoPath          string
+	vncPortBase      int
+	vms              map[string]*VM
+	snapshots        map[string]*VMSnapshot
+	templates        map[string]*VMTemplate
+	logger           *zap.Logger
 	libvirtAvailable bool
 }
 
@@ -41,43 +41,43 @@ func NewManager(storagePath string, logger *zap.Logger) (*Manager, error) {
 	if storagePath == "" {
 		storagePath = DefaultVMStoragePath
 	}
-	
+
 	// 创建存储目录
 	if err := os.MkdirAll(storagePath, 0755); err != nil {
 		return nil, fmt.Errorf("创建 VM 存储目录失败：%w", err)
 	}
-	
+
 	isoPath := filepath.Join(filepath.Dir(storagePath), "isos")
 	if err := os.MkdirAll(isoPath, 0755); err != nil {
 		return nil, fmt.Errorf("创建 ISO 存储目录失败：%w", err)
 	}
-	
+
 	m := &Manager{
-		storagePath:  storagePath,
-		isoPath:      isoPath,
-		vncPortBase:  DefaultVNCPortBase,
-		vms:          make(map[string]*VM),
-		snapshots:    make(map[string]*VMSnapshot),
-		templates:    make(map[string]*VMTemplate),
-		logger:       logger,
+		storagePath:      storagePath,
+		isoPath:          isoPath,
+		vncPortBase:      DefaultVNCPortBase,
+		vms:              make(map[string]*VM),
+		snapshots:        make(map[string]*VMSnapshot),
+		templates:        make(map[string]*VMTemplate),
+		logger:           logger,
 		libvirtAvailable: checkLibvirt(),
 	}
-	
+
 	// 加载现有 VM 配置
 	if err := m.loadVMs(); err != nil {
 		logger.Warn("加载现有 VM 配置失败", zap.Error(err))
 	}
-	
+
 	// 加载快照
 	if err := m.loadSnapshots(); err != nil {
 		logger.Warn("加载快照配置失败", zap.Error(err))
 	}
-	
+
 	// 加载模板
 	if err := m.loadTemplates(); err != nil {
 		logger.Warn("加载模板配置失败", zap.Error(err))
 	}
-	
+
 	return m, nil
 }
 
@@ -94,13 +94,13 @@ func checkLibvirt() bool {
 func (m *Manager) loadVMs() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	// 从存储目录加载 VM 配置文件
 	files, err := os.ReadDir(m.storagePath)
 	if err != nil {
 		return err
 	}
-	
+
 	for _, file := range files {
 		if file.IsDir() {
 			vmConfigPath := filepath.Join(m.storagePath, file.Name(), "config.json")
@@ -113,7 +113,7 @@ func (m *Manager) loadVMs() error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -123,7 +123,7 @@ func (m *Manager) loadSnapshots() error {
 	if _, err := os.Stat(snapshotPath); os.IsNotExist(err) {
 		return nil
 	}
-	
+
 	// TODO: 加载快照配置
 	return nil
 }
@@ -134,7 +134,7 @@ func (m *Manager) loadTemplates() error {
 	if _, err := os.Stat(templatePath); os.IsNotExist(err) {
 		return nil
 	}
-	
+
 	// 创建内置模板
 	m.createBuiltInTemplates()
 	return nil
@@ -192,7 +192,7 @@ func (m *Manager) createBuiltInTemplates() {
 			CreatedAt:   time.Now(),
 		},
 	}
-	
+
 	for _, tpl := range templates {
 		m.templates[tpl.ID] = &tpl
 	}
@@ -202,15 +202,15 @@ func (m *Manager) createBuiltInTemplates() {
 func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	// 验证配置
 	if err := m.validateConfig(config); err != nil {
 		return nil, err
 	}
-	
+
 	vmID := "vm-" + uuid.New().String()[:8]
 	now := time.Now()
-	
+
 	vm := &VM{
 		ID:          vmID,
 		Name:        config.Name,
@@ -229,18 +229,18 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 		PCIDevices:  config.PCIDevices,
 		Tags:        config.Tags,
 	}
-	
+
 	// 分配 VNC 端口
 	if config.VNCEnabled {
 		vm.VNCPort = m.allocateVNCPort()
 	}
-	
+
 	// 创建 VM 目录
 	vmDir := filepath.Join(m.storagePath, vmID)
 	if err := os.MkdirAll(vmDir, 0755); err != nil {
 		return nil, fmt.Errorf("创建 VM 目录失败：%w", err)
 	}
-	
+
 	// 创建磁盘镜像
 	diskPath := filepath.Join(vmDir, "disk.qcow2")
 	if err := m.createDiskImage(diskPath, config.DiskSize); err != nil {
@@ -248,7 +248,7 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 		return nil, fmt.Errorf("创建磁盘镜像失败：%w", err)
 	}
 	vm.DiskPath = diskPath
-	
+
 	// 生成 libvirt XML 配置
 	xmlConfig := m.generateLibvirtXML(vm)
 	xmlPath := filepath.Join(vmDir, "domain.xml")
@@ -256,15 +256,15 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 		os.RemoveAll(vmDir)
 		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
 	}
-	
+
 	// 保存 VM 配置
 	if err := m.saveVMConfig(vm); err != nil {
 		os.RemoveAll(vmDir)
 		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
 	}
-	
+
 	m.vms[vmID] = vm
-	
+
 	// 如果 libvirt 可用，定义 VM
 	if m.libvirtAvailable {
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "define", xmlPath)
@@ -272,12 +272,12 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 			m.logger.Warn("定义 libvirt VM 失败", zap.Error(err), zap.String("vm", vmID))
 		}
 	}
-	
+
 	vm.Status = VMStatusStopped
 	vm.UpdatedAt = time.Now()
-	
+
 	m.logger.Info("VM 创建成功", zap.String("vmId", vmID), zap.String("name", vm.Name))
-	
+
 	return vm, nil
 }
 
@@ -286,30 +286,30 @@ func (m *Manager) validateConfig(config VMConfig) error {
 	if config.Name == "" {
 		return fmt.Errorf("VM 名称不能为空")
 	}
-	
+
 	// 检查名称是否重复
 	for _, vm := range m.vms {
 		if vm.Name == config.Name {
 			return fmt.Errorf("VM 名称 %s 已存在", config.Name)
 		}
 	}
-	
+
 	if config.CPU < 1 {
 		return fmt.Errorf("CPU 核心数至少为 1")
 	}
-	
+
 	if config.Memory < 256 {
 		return fmt.Errorf("内存至少为 256MB")
 	}
-	
+
 	if config.DiskSize < 1 {
 		return fmt.Errorf("磁盘大小至少为 1GB")
 	}
-	
+
 	if config.Network != "bridge" && config.Network != "nat" {
 		return fmt.Errorf("网络模式必须是 bridge 或 nat")
 	}
-	
+
 	return nil
 }
 
@@ -351,7 +351,7 @@ func (m *Manager) generateLibvirtXML(vm *VM) string {
 		vm.CPU,
 		vm.DiskPath,
 	)
-	
+
 	// 添加 CDROM (ISO)
 	if vm.ISOPath != "" {
 		xmlConfig += fmt.Sprintf(`
@@ -362,7 +362,7 @@ func (m *Manager) generateLibvirtXML(vm *VM) string {
       <readonly/>
     </disk>`, vm.ISOPath)
 	}
-	
+
 	// 添加网络
 	networkType := "network"
 	networkName := "default"
@@ -370,13 +370,13 @@ func (m *Manager) generateLibvirtXML(vm *VM) string {
 		networkType = "bridge"
 		networkName = "br0"
 	}
-	
+
 	xmlConfig += fmt.Sprintf(`
     <interface type='%s'>
       <source %s='%s'/>
       <model type='virtio'/>
     </interface>`, networkType, networkType, networkName)
-	
+
 	// 添加 VNC
 	if vm.VNCEnabled {
 		xmlConfig += fmt.Sprintf(`
@@ -387,7 +387,7 @@ func (m *Manager) generateLibvirtXML(vm *VM) string {
       <model type='qxl' ram='65536' vram='65536' vgamem='16384' heads='1'/>
     </video>`, vm.VNCPort)
 	}
-	
+
 	// 添加 USB 直通
 	for _, usbID := range vm.USBDevices {
 		parts := strings.Split(usbID, ":")
@@ -401,11 +401,11 @@ func (m *Manager) generateLibvirtXML(vm *VM) string {
     </hostdev>`, parts[0], parts[1])
 		}
 	}
-	
+
 	xmlConfig += `
   </devices>
 </domain>`
-	
+
 	return xmlConfig
 }
 
@@ -417,13 +417,13 @@ func (m *Manager) allocateVNCPort() int {
 			usedPorts[vm.VNCPort] = true
 		}
 	}
-	
+
 	for port := m.vncPortBase; port < m.vncPortBase+100; port++ {
 		if !usedPorts[port] {
 			return port
 		}
 	}
-	
+
 	return 0 // 无法分配
 }
 
@@ -434,7 +434,7 @@ func (m *Manager) saveVMConfig(vm *VM) error {
 	// configPath := filepath.Join(vmDir, "config.json")
 	// data, _ := json.Marshal(vm)
 	// return os.WriteFile(configPath, data, 0644)
-	
+
 	return nil
 }
 
@@ -442,12 +442,12 @@ func (m *Manager) saveVMConfig(vm *VM) error {
 func (m *Manager) GetVM(vmID string) (*VM, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	vm, exists := m.vms[vmID]
 	if !exists {
 		return nil, fmt.Errorf("VM %s 不存在", vmID)
 	}
-	
+
 	return vm, nil
 }
 
@@ -455,12 +455,12 @@ func (m *Manager) GetVM(vmID string) (*VM, error) {
 func (m *Manager) ListVMs() []*VM {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	vms := make([]*VM, 0, len(m.vms))
 	for _, vm := range m.vms {
 		vms = append(vms, vm)
 	}
-	
+
 	return vms
 }
 
@@ -468,19 +468,19 @@ func (m *Manager) ListVMs() []*VM {
 func (m *Manager) StartVM(ctx context.Context, vmID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	vm, exists := m.vms[vmID]
 	if !exists {
 		return fmt.Errorf("VM %s 不存在", vmID)
 	}
-	
+
 	if vm.Status == VMStatusRunning {
 		return fmt.Errorf("VM 已在运行中")
 	}
-	
+
 	vm.Status = VMStatusRunning
 	vm.UpdatedAt = time.Now()
-	
+
 	if m.libvirtAvailable {
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "start", vm.Name)
 		if err := cmd.Run(); err != nil {
@@ -489,7 +489,7 @@ func (m *Manager) StartVM(ctx context.Context, vmID string) error {
 			return fmt.Errorf("启动 VM 失败：%w", err)
 		}
 	}
-	
+
 	m.logger.Info("VM 启动成功", zap.String("vmId", vmID))
 	return nil
 }
@@ -498,19 +498,19 @@ func (m *Manager) StartVM(ctx context.Context, vmID string) error {
 func (m *Manager) StopVM(ctx context.Context, vmID string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	vm, exists := m.vms[vmID]
 	if !exists {
 		return fmt.Errorf("VM %s 不存在", vmID)
 	}
-	
+
 	if vm.Status == VMStatusStopped {
 		return fmt.Errorf("VM 已停止")
 	}
-	
+
 	vm.Status = VMStatusStopped
 	vm.UpdatedAt = time.Now()
-	
+
 	if m.libvirtAvailable {
 		var cmd *exec.Cmd
 		if force {
@@ -523,7 +523,7 @@ func (m *Manager) StopVM(ctx context.Context, vmID string, force bool) error {
 			return fmt.Errorf("停止 VM 失败：%w", err)
 		}
 	}
-	
+
 	m.logger.Info("VM 停止成功", zap.String("vmId", vmID))
 	return nil
 }
@@ -532,38 +532,38 @@ func (m *Manager) StopVM(ctx context.Context, vmID string, force bool) error {
 func (m *Manager) DeleteVM(ctx context.Context, vmID string, force bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	vm, exists := m.vms[vmID]
 	if !exists {
 		return fmt.Errorf("VM %s 不存在", vmID)
 	}
-	
+
 	if vm.Status == VMStatusRunning && !force {
 		return fmt.Errorf("VM 正在运行，请先停止或删除时强制删除")
 	}
-	
+
 	// 如果 libvirt 可用，先 undefine
 	if m.libvirtAvailable && vm.Status != VMStatusStopped {
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "destroy", vm.Name)
 		cmd.Run()
 	}
-	
+
 	if m.libvirtAvailable {
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "undefine", vm.Name)
 		if err := cmd.Run(); err != nil {
 			m.logger.Warn("Undefine VM 失败", zap.Error(err), zap.String("vm", vmID))
 		}
 	}
-	
+
 	// 删除 VM 目录
 	vmDir := filepath.Join(m.storagePath, vmID)
 	if err := os.RemoveAll(vmDir); err != nil {
 		m.logger.Warn("删除 VM 目录失败", zap.Error(err), zap.String("vm", vmID))
 		return fmt.Errorf("删除 VM 目录失败：%w", err)
 	}
-	
+
 	delete(m.vms, vmID)
-	
+
 	m.logger.Info("VM 删除成功", zap.String("vmId", vmID))
 	return nil
 }
@@ -572,16 +572,16 @@ func (m *Manager) DeleteVM(ctx context.Context, vmID string, force bool) error {
 func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	vm, exists := m.vms[vmID]
 	if !exists {
 		return nil, fmt.Errorf("VM %s 不存在", vmID)
 	}
-	
+
 	if vm.Status != VMStatusRunning {
 		return &VMStats{}, nil
 	}
-	
+
 	// TODO: 从 libvirt 获取实时统计信息
 	return &VMStats{
 		CPUUsage:    0,
@@ -597,16 +597,16 @@ func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
 func (m *Manager) GetVNCConnection(vmID string) (*VNCConnection, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	vm, exists := m.vms[vmID]
 	if !exists {
 		return nil, fmt.Errorf("VM %s 不存在", vmID)
 	}
-	
+
 	if !vm.VNCEnabled || vm.VNCPort == 0 {
 		return nil, fmt.Errorf("VM 未启用 VNC")
 	}
-	
+
 	return &VNCConnection{
 		Host: "0.0.0.0",
 		Port: vm.VNCPort,

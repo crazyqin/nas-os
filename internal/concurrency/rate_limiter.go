@@ -14,12 +14,12 @@ type RateLimiter struct {
 	tokens     float64
 	lastUpdate time.Time
 	mu         sync.Mutex
-	
+
 	// Statistics
-	total     int64
-	allowed   int64
-	denied    int64
-	
+	total   int64
+	allowed int64
+	denied  int64
+
 	logger *zap.Logger
 }
 
@@ -38,9 +38,9 @@ func NewRateLimiter(rate float64, burst int, logger *zap.Logger) *RateLimiter {
 func (r *RateLimiter) Allow() bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	r.total++
-	
+
 	// Refill tokens based on elapsed time
 	now := time.Now()
 	elapsed := now.Sub(r.lastUpdate).Seconds()
@@ -49,14 +49,14 @@ func (r *RateLimiter) Allow() bool {
 		r.tokens = float64(r.burst)
 	}
 	r.lastUpdate = now
-	
+
 	// Check if we have tokens
 	if r.tokens >= 1.0 {
 		r.tokens--
 		r.allowed++
 		return true
 	}
-	
+
 	r.denied++
 	return false
 }
@@ -84,7 +84,7 @@ func (r *RateLimiter) WaitTimeout(timeout time.Duration) bool {
 func (r *RateLimiter) Stats() RateLimiterStats {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	return RateLimiterStats{
 		Rate:    r.rate,
 		Burst:   r.burst,
@@ -132,16 +132,16 @@ func (r *RateLimiter) Reset() {
 
 // SlidingWindowLimiter implements a sliding window rate limiter
 type SlidingWindowLimiter struct {
-	windowSize time.Duration
+	windowSize  time.Duration
 	maxRequests int
-	requests   []time.Time
-	mu         sync.Mutex
-	
+	requests    []time.Time
+	mu          sync.Mutex
+
 	// Statistics
 	total   int64
 	allowed int64
 	denied  int64
-	
+
 	logger *zap.Logger
 }
 
@@ -163,12 +163,12 @@ func NewSlidingWindowLimiter(
 func (r *SlidingWindowLimiter) Allow() bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	r.total++
-	
+
 	now := time.Now()
 	windowStart := now.Add(-r.windowSize)
-	
+
 	// Remove old requests
 	valid := 0
 	for _, t := range r.requests {
@@ -178,14 +178,14 @@ func (r *SlidingWindowLimiter) Allow() bool {
 		}
 	}
 	r.requests = r.requests[:valid]
-	
+
 	// Check if under limit
 	if len(r.requests) < r.maxRequests {
 		r.requests = append(r.requests, now)
 		r.allowed++
 		return true
 	}
-	
+
 	r.denied++
 	return false
 }
@@ -194,7 +194,7 @@ func (r *SlidingWindowLimiter) Allow() bool {
 func (r *SlidingWindowLimiter) Stats() SlidingWindowStats {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	return SlidingWindowStats{
 		WindowSize:  r.windowSize,
 		MaxRequests: r.maxRequests,

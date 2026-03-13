@@ -18,22 +18,22 @@ type Manager struct {
 
 // Container 容器信息
 type Container struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Image       string            `json:"image"`
-	Command     string            `json:"command"`
-	Created     time.Time         `json:"created"`
-	Status      string            `json:"status"`
-	State       string            `json:"state"`
-	Running     bool              `json:"running"`
-	Ports       []PortMapping     `json:"ports"`
-	Labels      map[string]string `json:"labels"`
-	Networks    []string          `json:"networks"`
-	Volumes     []VolumeMount     `json:"volumes"`
-	CPUUsage    float64           `json:"cpuUsage"`
-	MemUsage    uint64            `json:"memUsage"`
-	MemLimit    uint64            `json:"memLimit"`
-	RestartPolicy string          `json:"restartPolicy"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Image         string            `json:"image"`
+	Command       string            `json:"command"`
+	Created       time.Time         `json:"created"`
+	Status        string            `json:"status"`
+	State         string            `json:"state"`
+	Running       bool              `json:"running"`
+	Ports         []PortMapping     `json:"ports"`
+	Labels        map[string]string `json:"labels"`
+	Networks      []string          `json:"networks"`
+	Volumes       []VolumeMount     `json:"volumes"`
+	CPUUsage      float64           `json:"cpuUsage"`
+	MemUsage      uint64            `json:"memUsage"`
+	MemLimit      uint64            `json:"memLimit"`
+	RestartPolicy string            `json:"restartPolicy"`
 }
 
 // PortMapping 端口映射
@@ -54,16 +54,16 @@ type VolumeMount struct {
 
 // ContainerStats 容器实时统计
 type ContainerStats struct {
-	CPUUsage    float64 `json:"cpuUsage"`
-	MemUsage    uint64  `json:"memUsage"`
-	MemLimit    uint64  `json:"memLimit"`
-	MemPercent  float64 `json:"memPercent"`
-	NetRX       uint64  `json:"netRx"`
-	NetTX       uint64  `json:"netTx"`
-	BlockRead   uint64  `json:"blockRead"`
-	BlockWrite  uint64  `json:"blockWrite"`
-	PIDs        uint64  `json:"pids"`
-	Timestamp   time.Time `json:"timestamp"`
+	CPUUsage   float64   `json:"cpuUsage"`
+	MemUsage   uint64    `json:"memUsage"`
+	MemLimit   uint64    `json:"memLimit"`
+	MemPercent float64   `json:"memPercent"`
+	NetRX      uint64    `json:"netRx"`
+	NetTX      uint64    `json:"netTx"`
+	BlockRead  uint64    `json:"blockRead"`
+	BlockWrite uint64    `json:"blockWrite"`
+	PIDs       uint64    `json:"pids"`
+	Timestamp  time.Time `json:"timestamp"`
 }
 
 // ContainerConfig 容器创建配置
@@ -71,13 +71,13 @@ type ContainerConfig struct {
 	Name        string            `json:"name"`
 	Image       string            `json:"image"`
 	Command     []string          `json:"command,omitempty"`
-	Ports       []string          `json:"ports,omitempty"`       // "8080:80"
-	Volumes     []string          `json:"volumes,omitempty"`     // "/host/path:/container/path"
+	Ports       []string          `json:"ports,omitempty"`   // "8080:80"
+	Volumes     []string          `json:"volumes,omitempty"` // "/host/path:/container/path"
 	Environment map[string]string `json:"environment,omitempty"`
 	Network     string            `json:"network,omitempty"`
-	Restart     string            `json:"restart,omitempty"`     // "no", "always", "on-failure", "unless-stopped"
-	CPULimit    string            `json:"cpuLimit,omitempty"`    // "0.5" = 50%
-	MemLimit    string            `json:"memLimit,omitempty"`    // "512m"
+	Restart     string            `json:"restart,omitempty"`  // "no", "always", "on-failure", "unless-stopped"
+	CPULimit    string            `json:"cpuLimit,omitempty"` // "0.5" = 50%
+	MemLimit    string            `json:"memLimit,omitempty"` // "512m"
 	Labels      map[string]string `json:"labels,omitempty"`
 	Detach      bool              `json:"detach,omitempty"`
 	Interactive bool              `json:"interactive,omitempty"`
@@ -162,10 +162,10 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 	}
 
 	var raw []struct {
-		ID    string `json:"Id"`
-		Name  string `json:"Name"`
-		Image string `json:"Image"`
-		Path  string `json:"Path"`
+		ID    string   `json:"Id"`
+		Name  string   `json:"Name"`
+		Image string   `json:"Image"`
+		Path  string   `json:"Path"`
 		Args  []string `json:"Args"`
 		State struct {
 			Status    string    `json:"Status"`
@@ -205,17 +205,17 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 
 	c := raw[0]
 	container := &Container{
-		ID:          c.ID[:12],
-		Name:        strings.TrimPrefix(c.Name, "/"),
-		Image:       c.Image,
-		Command:     c.Path,
-		State:       c.State.Status,
-		Running:     c.State.Running,
-		Status:      c.State.Status,
-		Created:     c.State.StartedAt,
-		Labels:      c.Config.Labels,
-		Volumes:     make([]VolumeMount, 0),
-		Ports:       make([]PortMapping, 0),
+		ID:            c.ID[:12],
+		Name:          strings.TrimPrefix(c.Name, "/"),
+		Image:         c.Image,
+		Command:       c.Path,
+		State:         c.State.Status,
+		Running:       c.State.Running,
+		Status:        c.State.Status,
+		Created:       c.State.StartedAt,
+		Labels:        c.Config.Labels,
+		Volumes:       make([]VolumeMount, 0),
+		Ports:         make([]PortMapping, 0),
 		RestartPolicy: c.HostConfig.RestartPolicy.Name,
 	}
 

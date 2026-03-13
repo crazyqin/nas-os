@@ -58,25 +58,25 @@ type RoleDefinition struct {
 
 // RBACManager RBAC 管理器
 type RBACManager struct {
-	mu            sync.RWMutex
-	roles         map[Role]*RoleDefinition      // 角色定义
-	userRoles     map[string][]Role             // userID -> roles
-	groupRoles    map[string][]Role             // groupID -> roles
-	resourceACLs  map[string]*ResourceACL       // resourceID -> ACL
-	defaultRole   Role
-	sessionCache  map[string]*SessionCache      // token -> cached permissions
-	cacheExpiry   time.Duration
+	mu           sync.RWMutex
+	roles        map[Role]*RoleDefinition // 角色定义
+	userRoles    map[string][]Role        // userID -> roles
+	groupRoles   map[string][]Role        // groupID -> roles
+	resourceACLs map[string]*ResourceACL  // resourceID -> ACL
+	defaultRole  Role
+	sessionCache map[string]*SessionCache // token -> cached permissions
+	cacheExpiry  time.Duration
 }
 
 // ResourceACL 资源访问控制列表
 type ResourceACL struct {
-	ResourceID   string          `json:"resource_id"`
-	ResourceType Resource        `json:"resource_type"`
-	OwnerID      string          `json:"owner_id"`
-	GroupACLs    []GroupACL      `json:"group_acls,omitempty"`
-	UserACLs     []UserACL       `json:"user_acls,omitempty"`
-	Inherit      bool            `json:"inherit"` // 是否继承父级权限
-	ParentID     string          `json:"parent_id,omitempty"`
+	ResourceID   string     `json:"resource_id"`
+	ResourceType Resource   `json:"resource_type"`
+	OwnerID      string     `json:"owner_id"`
+	GroupACLs    []GroupACL `json:"group_acls,omitempty"`
+	UserACLs     []UserACL  `json:"user_acls,omitempty"`
+	Inherit      bool       `json:"inherit"` // 是否继承父级权限
+	ParentID     string     `json:"parent_id,omitempty"`
 }
 
 // GroupACL 用户组 ACL
@@ -110,10 +110,10 @@ func NewRBACManager() *RBACManager {
 		sessionCache: make(map[string]*SessionCache),
 		cacheExpiry:  5 * time.Minute,
 	}
-	
+
 	// 初始化内置角色
 	mgr.initBuiltInRoles()
-	
+
 	return mgr
 }
 
@@ -159,7 +159,7 @@ func (m *RBACManager) initBuiltInRoles() {
 			{Resource: string(ResourceSnapshot), Action: string(ActionDelete)},
 		},
 	}
-	
+
 	// User 角色 - 普通用户权限
 	m.roles[RoleUser] = &RoleDefinition{
 		Name:        RoleUser,
@@ -177,7 +177,7 @@ func (m *RBACManager) initBuiltInRoles() {
 			{Resource: string(ResourceSnapshot), Action: string(ActionRead)},
 		},
 	}
-	
+
 	// Guest 角色 - 访客权限（只读）
 	m.roles[RoleGuest] = &RoleDefinition{
 		Name:        RoleGuest,
@@ -187,7 +187,7 @@ func (m *RBACManager) initBuiltInRoles() {
 			{Resource: string(ResourceFile), Action: string(ActionRead)},
 		},
 	}
-	
+
 	// System 角色 - 系统服务账号
 	m.roles[RoleSystem] = &RoleDefinition{
 		Name:        RoleSystem,
@@ -203,14 +203,14 @@ func (m *RBACManager) initBuiltInRoles() {
 func (m *RBACManager) AddRole(role Role, description string, permissions []Permission, inherits []Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	m.roles[role] = &RoleDefinition{
 		Name:        role,
 		Description: description,
 		Permissions: permissions,
 		Inherits:    inherits,
 	}
-	
+
 	return nil
 }
 
@@ -218,11 +218,11 @@ func (m *RBACManager) AddRole(role Role, description string, permissions []Permi
 func (m *RBACManager) AssignRoleToUser(userID string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, exists := m.roles[role]; !exists {
 		return ErrRoleNotFound
 	}
-	
+
 	m.userRoles[userID] = append(m.userRoles[userID], role)
 	return nil
 }
@@ -231,11 +231,11 @@ func (m *RBACManager) AssignRoleToUser(userID string, role Role) error {
 func (m *RBACManager) AssignRoleToGroup(groupID string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	if _, exists := m.roles[role]; !exists {
 		return ErrRoleNotFound
 	}
-	
+
 	m.groupRoles[groupID] = append(m.groupRoles[groupID], role)
 	return nil
 }
@@ -244,32 +244,32 @@ func (m *RBACManager) AssignRoleToGroup(groupID string, role Role) error {
 func (m *RBACManager) CheckPermission(userID string, userGroups []string, resource Resource, action Action) bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	// 收集用户所有角色
 	userRoles := m.userRoles[userID]
 	for _, groupID := range userGroups {
 		userRoles = append(userRoles, m.groupRoles[groupID]...)
 	}
-	
+
 	// 如果没有角色，使用默认角色
 	if len(userRoles) == 0 {
 		userRoles = []Role{m.defaultRole}
 	}
-	
+
 	// 检查每个角色的权限
 	for _, role := range userRoles {
 		roleDef, exists := m.roles[role]
 		if !exists {
 			continue
 		}
-		
+
 		// 检查角色直接权限
 		for _, perm := range roleDef.Permissions {
 			if perm.Resource == string(resource) && perm.Action == string(action) {
 				return true
 			}
 		}
-		
+
 		// 检查继承角色的权限
 		for _, inheritedRole := range roleDef.Inherits {
 			inheritedDef, exists := m.roles[inheritedRole]
@@ -283,7 +283,7 @@ func (m *RBACManager) CheckPermission(userID string, userGroups []string, resour
 			}
 		}
 	}
-	
+
 	// 检查资源 ACL
 	if acl, exists := m.resourceACLs[string(resource)+":"+userID]; exists {
 		for _, userACL := range acl.UserACLs {
@@ -296,7 +296,7 @@ func (m *RBACManager) CheckPermission(userID string, userGroups []string, resour
 			}
 		}
 	}
-	
+
 	return false
 }
 
@@ -304,28 +304,28 @@ func (m *RBACManager) CheckPermission(userID string, userGroups []string, resour
 func (m *RBACManager) GetPermissions(userID string, userGroups []string) []Permission {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	permissionsMap := make(map[string]bool)
 	var result []Permission
-	
+
 	// 收集用户所有角色
 	userRoles := m.userRoles[userID]
 	for _, groupID := range userGroups {
 		userRoles = append(userRoles, m.groupRoles[groupID]...)
 	}
-	
+
 	// 如果没有角色，使用默认角色
 	if len(userRoles) == 0 {
 		userRoles = []Role{m.defaultRole}
 	}
-	
+
 	// 收集所有权限
 	for _, role := range userRoles {
 		roleDef, exists := m.roles[role]
 		if !exists {
 			continue
 		}
-		
+
 		for _, perm := range roleDef.Permissions {
 			key := perm.Resource + ":" + perm.Action
 			if !permissionsMap[key] {
@@ -334,7 +334,7 @@ func (m *RBACManager) GetPermissions(userID string, userGroups []string) []Permi
 			}
 		}
 	}
-	
+
 	return result
 }
 
@@ -342,7 +342,7 @@ func (m *RBACManager) GetPermissions(userID string, userGroups []string) []Permi
 func (m *RBACManager) SetResourceACL(resourceID string, resourceType Resource, ownerID string, groupACLs []GroupACL, userACLs []UserACL) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	m.resourceACLs[resourceID] = &ResourceACL{
 		ResourceID:   resourceID,
 		ResourceType: resourceType,
@@ -356,10 +356,10 @@ func (m *RBACManager) SetResourceACL(resourceID string, resourceType Resource, o
 func (m *RBACManager) CacheSession(token string, userID string, groups []string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	permissions := m.GetPermissions(userID, groups)
 	roles := m.userRoles[userID]
-	
+
 	m.sessionCache[token] = &SessionCache{
 		UserID:      userID,
 		Roles:       roles,
@@ -372,17 +372,17 @@ func (m *RBACManager) CacheSession(token string, userID string, groups []string)
 func (m *RBACManager) GetCachedSession(token string) *SessionCache {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	session, exists := m.sessionCache[token]
 	if !exists {
 		return nil
 	}
-	
+
 	if time.Now().After(session.ExpiresAt) {
 		delete(m.sessionCache, token)
 		return nil
 	}
-	
+
 	return session
 }
 
@@ -397,7 +397,7 @@ func (m *RBACManager) InvalidateSession(token string) {
 func (m *RBACManager) CleanupExpiredSessions() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	now := time.Now()
 	for token, session := range m.sessionCache {
 		if now.After(session.ExpiresAt) {
@@ -410,12 +410,12 @@ func (m *RBACManager) CleanupExpiredSessions() {
 func (m *RBACManager) GetRoles() []*RoleDefinition {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	result := make([]*RoleDefinition, 0, len(m.roles))
 	for _, role := range m.roles {
 		result = append(result, role)
 	}
-	
+
 	return result
 }
 
@@ -430,7 +430,7 @@ func (m *RBACManager) GetUserRoles(userID string) []Role {
 func (m *RBACManager) RemoveUserRole(userID string, role Role) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	roles := m.userRoles[userID]
 	for i, r := range roles {
 		if r == role {
@@ -438,14 +438,14 @@ func (m *RBACManager) RemoveUserRole(userID string, role Role) error {
 			return nil
 		}
 	}
-	
+
 	return ErrRoleNotFound
 }
 
 // 错误定义
 var (
-	ErrRoleNotFound      = errors.New("角色不存在")
-	ErrPermissionDenied  = errors.New("权限不足")
-	ErrInvalidResource   = errors.New("无效的资源类型")
-	ErrInvalidAction     = errors.New("无效的操作类型")
+	ErrRoleNotFound     = errors.New("角色不存在")
+	ErrPermissionDenied = errors.New("权限不足")
+	ErrInvalidResource  = errors.New("无效的资源类型")
+	ErrInvalidAction    = errors.New("无效的操作类型")
 )

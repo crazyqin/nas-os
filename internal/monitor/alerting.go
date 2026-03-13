@@ -11,26 +11,26 @@ import (
 
 // AlertingManager 告警管理器
 type AlertingManager struct {
-	mu            sync.RWMutex
-	alerts        []*Alert
-	rules         []AlertRule
-	subscribers   []AlertSubscriber
-	alertHistory  []*AlertHistoryEntry
-	maxAlerts     int
-	maxHistory    int
+	mu           sync.RWMutex
+	alerts       []*Alert
+	rules        []AlertRule
+	subscribers  []AlertSubscriber
+	alertHistory []*AlertHistoryEntry
+	maxAlerts    int
+	maxHistory   int
 	// 通知回调
-	sendEmailFunc  func(to, subject, body string) error
+	sendEmailFunc   func(to, subject, body string) error
 	sendWebhookFunc func(url string, payload map[string]interface{}) error
 }
 
 // AlertSubscriber 告警订阅者
 type AlertSubscriber struct {
-	ID        string   `json:"id"`
-	Name      string   `json:"name"`
-	Type      string   `json:"type"` // email, webhook, wecom
-	Target    string   `json:"target"`
-	MinLevel  string   `json:"min_level"` // warning, critical
-	Enabled   bool     `json:"enabled"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Type      string    `json:"type"` // email, webhook, wecom
+	Target    string    `json:"target"`
+	MinLevel  string    `json:"min_level"` // warning, critical
+	Enabled   bool      `json:"enabled"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -76,9 +76,9 @@ func (am *AlertingManager) CheckThreshold(metricType string, value float64, sour
 
 		if value >= rule.Threshold {
 			level := rule.Level
-			message := fmt.Sprintf("%s 使用率 %.1f%% 超过阈值 %.1f%%", 
+			message := fmt.Sprintf("%s 使用率 %.1f%% 超过阈值 %.1f%%",
 				metricType, value, rule.Threshold)
-			
+
 			am.triggerAlert(metricType, level, message, source, map[string]interface{}{
 				"current_value": value,
 				"threshold":     rule.Threshold,
@@ -101,7 +101,7 @@ func (am *AlertingManager) triggerAlert(alertType, level, message, source string
 
 	// 添加到告警列表
 	am.alerts = append(am.alerts, alert)
-	
+
 	// 限制告警数量
 	if len(am.alerts) > am.maxAlerts {
 		am.alerts = am.alerts[1:]
@@ -113,7 +113,7 @@ func (am *AlertingManager) triggerAlert(alertType, level, message, source string
 		Action:    "triggered",
 		Timestamp: time.Now(),
 	})
-	
+
 	if len(am.alertHistory) > am.maxHistory {
 		am.alertHistory = am.alertHistory[1:]
 	}
@@ -184,7 +184,7 @@ func shouldNotify(minLevel, alertLevel string) bool {
 // formatEmailBody 格式化邮件正文
 func (am *AlertingManager) formatEmailBody(alert *Alert, details map[string]interface{}) string {
 	detailsJSON, _ := json.MarshalIndent(details, "", "  ")
-	
+
 	return fmt.Sprintf(`
 <!DOCTYPE html>
 <html>
@@ -230,14 +230,14 @@ func (am *AlertingManager) formatEmailBody(alert *Alert, details map[string]inte
 // formatWebhookPayload 格式化 Webhook 消息
 func (am *AlertingManager) formatWebhookPayload(alert *Alert, details map[string]interface{}) map[string]interface{} {
 	return map[string]interface{}{
-		"event":      "nasos.alert",
-		"alert_id":   alert.ID,
-		"timestamp":  alert.Timestamp,
-		"level":      alert.Level,
-		"type":       alert.Type,
-		"message":    alert.Message,
-		"source":     alert.Source,
-		"details":    details,
+		"event":     "nasos.alert",
+		"alert_id":  alert.ID,
+		"timestamp": alert.Timestamp,
+		"level":     alert.Level,
+		"type":      alert.Type,
+		"message":   alert.Message,
+		"source":    alert.Source,
+		"details":   details,
 	}
 }
 
@@ -271,14 +271,14 @@ func (am *AlertingManager) AcknowledgeAlert(alertID, user string) error {
 	for _, alert := range am.alerts {
 		if alert.ID == alertID {
 			alert.Acknowledged = true
-			
+
 			am.alertHistory = append(am.alertHistory, &AlertHistoryEntry{
 				AlertID:   alertID,
 				Action:    "acknowledged",
 				Timestamp: time.Now(),
 				User:      user,
 			})
-			
+
 			return nil
 		}
 	}
@@ -299,7 +299,7 @@ func (am *AlertingManager) ResolveAlert(alertID string) error {
 				Action:    "resolved",
 				Timestamp: time.Now(),
 			})
-			
+
 			// 从活动列表移除
 			am.alerts = append(am.alerts[:i], am.alerts[i+1:]...)
 			return nil
@@ -315,7 +315,7 @@ func (am *AlertingManager) GetAlerts(limit, offset int, filters map[string]strin
 	defer am.mu.RUnlock()
 
 	result := make([]*Alert, 0)
-	
+
 	for _, alert := range am.alerts {
 		if !matchesFilters(alert, filters) {
 			continue
@@ -378,7 +378,7 @@ func (am *AlertingManager) GetAlertHistory(limit, offset int) []*AlertHistoryEnt
 
 	result := make([]*AlertHistoryEntry, end-start)
 	copy(result, am.alertHistory[start:end])
-	
+
 	// 反转
 	for i, j := 0, len(result)-1; i < j; i, j = i+1, j-1 {
 		result[i], result[j] = result[j], result[i]
@@ -409,12 +409,12 @@ func (am *AlertingManager) GetAlertStats() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"total":        total,
-		"acknowledged": acknowledged,
+		"total":          total,
+		"acknowledged":   acknowledged,
 		"unacknowledged": total - acknowledged,
-		"critical":     critical,
-		"warning":      warning,
-		"history_size": len(am.alertHistory),
+		"critical":       critical,
+		"warning":        warning,
+		"history_size":   len(am.alertHistory),
 	}
 }
 

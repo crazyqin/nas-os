@@ -34,23 +34,23 @@ type EncryptionConfig struct {
 
 // EncryptedDirectory 加密目录
 type EncryptedDirectory struct {
-	Path        string            `json:"path"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	CreatedAt   string            `json:"created_at"`
-	Files       []EncryptedFile   `json:"files"`
-	Status      string            `json:"status"` // locked, unlocked
-	Key         []byte            `json:"-"`      // 目录密钥（内存中）
+	Path        string          `json:"path"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	CreatedAt   string          `json:"created_at"`
+	Files       []EncryptedFile `json:"files"`
+	Status      string          `json:"status"` // locked, unlocked
+	Key         []byte          `json:"-"`      // 目录密钥（内存中）
 }
 
 // EncryptedFile 加密文件
 type EncryptedFile struct {
-	OriginalName   string `json:"original_name"`
-	EncryptedName  string `json:"encrypted_name"`
-	Size           int64  `json:"size"`
-	EncryptedSize  int64  `json:"encrypted_size"`
-	LastModified   string `json:"last_modified"`
-	Checksum       string `json:"checksum"`
+	OriginalName  string `json:"original_name"`
+	EncryptedName string `json:"encrypted_name"`
+	Size          int64  `json:"size"`
+	EncryptedSize int64  `json:"encrypted_size"`
+	LastModified  string `json:"last_modified"`
+	Checksum      string `json:"checksum"`
 }
 
 // NewEncryptionManager 创建加密管理器

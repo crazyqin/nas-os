@@ -10,85 +10,85 @@ import (
 
 // PerformanceOptimizer 性能优化器
 type PerformanceOptimizer struct {
-	mu           sync.RWMutex
-	cache        *cache.Manager
-	config       *Config
-	stats        *Stats
-	stopChan     chan struct{}
-	initialized  bool
+	mu          sync.RWMutex
+	cache       *cache.Manager
+	config      *Config
+	stats       *Stats
+	stopChan    chan struct{}
+	initialized bool
 }
 
 // Config 优化配置
 type Config struct {
 	// 缓存配置
-	CacheEnabled     bool          `json:"cache_enabled"`
-	CacheCapacity    int           `json:"cache_capacity"`
-	CacheTTL         time.Duration `json:"cache_ttl"`
-	
+	CacheEnabled  bool          `json:"cache_enabled"`
+	CacheCapacity int           `json:"cache_capacity"`
+	CacheTTL      time.Duration `json:"cache_ttl"`
+
 	// GC 配置
-	GCEnabled        bool          `json:"gc_enabled"`
-	GCInterval       time.Duration `json:"gc_interval"`
-	GCMaxPause       time.Duration `json:"gc_max_pause"`
-	
+	GCEnabled  bool          `json:"gc_enabled"`
+	GCInterval time.Duration `json:"gc_interval"`
+	GCMaxPause time.Duration `json:"gc_max_pause"`
+
 	// 池化配置
-	PoolEnabled      bool          `json:"pool_enabled"`
-	
+	PoolEnabled bool `json:"pool_enabled"`
+
 	// 批处理配置
-	BatchEnabled     bool          `json:"batch_enabled"`
-	BatchSize        int           `json:"batch_size"`
-	BatchTimeout     time.Duration `json:"batch_timeout"`
-	
+	BatchEnabled bool          `json:"batch_enabled"`
+	BatchSize    int           `json:"batch_size"`
+	BatchTimeout time.Duration `json:"batch_timeout"`
+
 	// 并发配置
-	MaxGoroutines    int           `json:"max_goroutines"`
-	WorkerPoolSize   int           `json:"worker_pool_size"`
+	MaxGoroutines  int `json:"max_goroutines"`
+	WorkerPoolSize int `json:"worker_pool_size"`
 }
 
 // Stats 性能统计
 type Stats struct {
 	// 缓存统计
-	CacheHits        int64         `json:"cache_hits"`
-	CacheMisses      int64         `json:"cache_misses"`
-	CacheHitRatio    float64       `json:"cache_hit_ratio"`
-	
+	CacheHits     int64   `json:"cache_hits"`
+	CacheMisses   int64   `json:"cache_misses"`
+	CacheHitRatio float64 `json:"cache_hit_ratio"`
+
 	// GC 统计
-	GCCount          uint32        `json:"gc_count"`
-	GCPauseTotal     time.Duration `json:"gc_pause_total"`
-	GCPauseAvg       time.Duration `json:"gc_pause_avg"`
-	LastGCTime       time.Time     `json:"last_gc_time"`
-	
+	GCCount      uint32        `json:"gc_count"`
+	GCPauseTotal time.Duration `json:"gc_pause_total"`
+	GCPauseAvg   time.Duration `json:"gc_pause_avg"`
+	LastGCTime   time.Time     `json:"last_gc_time"`
+
 	// 内存统计
-	MemAlloc         uint64        `json:"mem_alloc"`
-	MemTotal         uint64        `json:"mem_total"`
-	MemSys           uint64        `json:"mem_sys"`
-	MemGC            uint64        `json:"mem_gc"`
-	
+	MemAlloc uint64 `json:"mem_alloc"`
+	MemTotal uint64 `json:"mem_total"`
+	MemSys   uint64 `json:"mem_sys"`
+	MemGC    uint64 `json:"mem_gc"`
+
 	// Goroutine 统计
-	Goroutines       int           `json:"goroutines"`
-	
+	Goroutines int `json:"goroutines"`
+
 	// 优化统计
-	Optimizations    int64         `json:"optimizations"`
-	TimeSaved        time.Duration `json:"time_saved"`
+	Optimizations int64         `json:"optimizations"`
+	TimeSaved     time.Duration `json:"time_saved"`
 }
 
 // DefaultConfig 默认配置
 func DefaultConfig() *Config {
 	return &Config{
-		CacheEnabled:     true,
-		CacheCapacity:    10000,
-		CacheTTL:         5 * time.Minute,
-		
-		GCEnabled:        true,
-		GCInterval:       1 * time.Minute,
-		GCMaxPause:       10 * time.Millisecond,
-		
-		PoolEnabled:      true,
-		
-		BatchEnabled:     true,
-		BatchSize:        100,
-		BatchTimeout:     100 * time.Millisecond,
-		
-		MaxGoroutines:    1000,
-		WorkerPoolSize:   runtime.NumCPU() * 2,
+		CacheEnabled:  true,
+		CacheCapacity: 10000,
+		CacheTTL:      5 * time.Minute,
+
+		GCEnabled:  true,
+		GCInterval: 1 * time.Minute,
+		GCMaxPause: 10 * time.Millisecond,
+
+		PoolEnabled: true,
+
+		BatchEnabled: true,
+		BatchSize:    100,
+		BatchTimeout: 100 * time.Millisecond,
+
+		MaxGoroutines:  1000,
+		WorkerPoolSize: runtime.NumCPU() * 2,
 	}
 }
 
@@ -97,27 +97,27 @@ func NewOptimizer(cfg *Config, logger interface{}) *PerformanceOptimizer {
 	if cfg == nil {
 		cfg = DefaultConfig()
 	}
-	
+
 	opt := &PerformanceOptimizer{
 		config:   cfg,
 		stats:    &Stats{},
 		stopChan: make(chan struct{}),
 	}
-	
+
 	// 初始化缓存
 	if cfg.CacheEnabled {
 		// TODO: 传入真实 logger
 		opt.cache = cache.NewManager(cfg.CacheCapacity, cfg.CacheTTL, nil)
 	}
-	
+
 	// 初始化 GC 调优
 	if cfg.GCEnabled {
 		opt.tuneGC()
 	}
-	
+
 	// 启动监控
 	go opt.startMonitoring()
-	
+
 	opt.initialized = true
 	return opt
 }
@@ -132,7 +132,7 @@ func (opt *PerformanceOptimizer) tuneGC() {
 func (opt *PerformanceOptimizer) startMonitoring() {
 	ticker := time.NewTicker(opt.config.GCInterval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ticker.C:
@@ -147,26 +147,26 @@ func (opt *PerformanceOptimizer) startMonitoring() {
 func (opt *PerformanceOptimizer) updateStats() {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
-	
+
 	opt.mu.Lock()
 	defer opt.mu.Unlock()
-	
+
 	// 内存统计
 	opt.stats.MemAlloc = memStats.Alloc
 	opt.stats.MemTotal = memStats.TotalAlloc
 	opt.stats.MemSys = memStats.Sys
 	opt.stats.MemGC = memStats.GCSys
-	
+
 	// GC 统计
 	opt.stats.GCCount = memStats.NumGC
 	opt.stats.GCPauseTotal = time.Duration(memStats.PauseTotalNs)
 	if memStats.NumGC > 0 {
 		opt.stats.GCPauseAvg = time.Duration(memStats.PauseTotalNs) / time.Duration(memStats.NumGC)
 	}
-	
+
 	// Goroutine 统计
 	opt.stats.Goroutines = runtime.NumGoroutine()
-	
+
 	// 缓存统计
 	if opt.cache != nil {
 		cacheStats := opt.cache.GetStats()
@@ -211,7 +211,7 @@ func (opt *PerformanceOptimizer) CacheDelete(key string) {
 func (opt *PerformanceOptimizer) GetStats() *Stats {
 	opt.mu.RLock()
 	defer opt.mu.RUnlock()
-	
+
 	stats := *opt.stats
 	return &stats
 }
@@ -222,20 +222,20 @@ func (opt *PerformanceOptimizer) OptimizeQuery(key string, queryFn func() (inter
 	if val, ok := opt.CacheGet(key); ok {
 		return val, nil
 	}
-	
+
 	// 执行查询
 	result, err := queryFn()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// 缓存结果
 	opt.CacheSet(key, result)
-	
+
 	opt.mu.Lock()
 	opt.stats.Optimizations++
 	opt.mu.Unlock()
-	
+
 	return result, nil
 }
 
@@ -250,7 +250,7 @@ func (opt *PerformanceOptimizer) BatchProcess(items []interface{}, processFn fun
 		}
 		return nil
 	}
-	
+
 	// 批处理
 	batchSize := opt.config.BatchSize
 	for i := 0; i < len(items); i += batchSize {
@@ -258,20 +258,20 @@ func (opt *PerformanceOptimizer) BatchProcess(items []interface{}, processFn fun
 		if end > len(items) {
 			end = len(items)
 		}
-		
+
 		batch := items[i:end]
 		for _, item := range batch {
 			if err := processFn(item); err != nil {
 				return err
 			}
 		}
-		
+
 		// 批次间短暂暂停，避免阻塞
 		if end < len(items) {
 			time.Sleep(opt.config.BatchTimeout)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -279,7 +279,7 @@ func (opt *PerformanceOptimizer) BatchProcess(items []interface{}, processFn fun
 func (opt *PerformanceOptimizer) WorkerPool(jobs <-chan func(), results chan<- interface{}) {
 	poolSize := opt.config.WorkerPoolSize
 	var wg sync.WaitGroup
-	
+
 	for i := 0; i < poolSize; i++ {
 		wg.Add(1)
 		go func() {
@@ -289,7 +289,7 @@ func (opt *PerformanceOptimizer) WorkerPool(jobs <-chan func(), results chan<- i
 			}
 		}()
 	}
-	
+
 	wg.Wait()
 	close(results)
 }
@@ -298,11 +298,11 @@ func (opt *PerformanceOptimizer) WorkerPool(jobs <-chan func(), results chan<- i
 func (opt *PerformanceOptimizer) ForceGC() {
 	start := time.Now()
 	runtime.GC()
-	
+
 	opt.mu.Lock()
 	opt.stats.LastGCTime = start
 	opt.mu.Unlock()
-	
+
 	// log.Printf("GC completed in %v", time.Since(start))
 }
 

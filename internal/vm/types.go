@@ -6,13 +6,13 @@ import "time"
 type VMStatus string
 
 const (
-	VMStatusRunning    VMStatus = "running"
-	VMStatusStopped    VMStatus = "stopped"
-	VMStatusPaused     VMStatus = "paused"
-	VMStatusCreating   VMStatus = "creating"
-	VMStatusDeleting   VMStatus = "deleting"
-	VMStatusSnapshot   VMStatus = "snapshotting"
-	VMStatusRestoring  VMStatus = "restoring"
+	VMStatusRunning   VMStatus = "running"
+	VMStatusStopped   VMStatus = "stopped"
+	VMStatusPaused    VMStatus = "paused"
+	VMStatusCreating  VMStatus = "creating"
+	VMStatusDeleting  VMStatus = "deleting"
+	VMStatusSnapshot  VMStatus = "snapshotting"
+	VMStatusRestoring VMStatus = "restoring"
 )
 
 // VMType 虚拟机类型
@@ -26,32 +26,32 @@ const (
 
 // VM 虚拟机信息
 type VM struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description string            `json:"description"`
-	Type        VMType            `json:"type"`
-	Status      VMStatus          `json:"status"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	UpdatedAt   time.Time         `json:"updatedAt"`
-	
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Type        VMType    `json:"type"`
+	Status      VMStatus  `json:"status"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+
 	// 资源配置
-	CPU        int    `json:"cpu"`        // CPU 核心数
-	Memory     uint64 `json:"memory"`     // 内存大小 (MB)
-	DiskSize   uint64 `json:"diskSize"`   // 磁盘大小 (GB)
-	Network    string `json:"network"`    // 网络模式：bridge/nat
-	
+	CPU      int    `json:"cpu"`      // CPU 核心数
+	Memory   uint64 `json:"memory"`   // 内存大小 (MB)
+	DiskSize uint64 `json:"diskSize"` // 磁盘大小 (GB)
+	Network  string `json:"network"`  // 网络模式：bridge/nat
+
 	// 镜像信息
-	ISOPath    string `json:"isoPath"`    // ISO 镜像路径
-	DiskPath   string `json:"diskPath"`   // 磁盘镜像路径
-	
+	ISOPath  string `json:"isoPath"`  // ISO 镜像路径
+	DiskPath string `json:"diskPath"` // 磁盘镜像路径
+
 	// VNC 配置
-	VNCPort    int    `json:"vncPort"`    // VNC 端口
-	VNCEnabled bool   `json:"vncEnabled"` // 是否启用 VNC
-	
+	VNCPort    int  `json:"vncPort"`    // VNC 端口
+	VNCEnabled bool `json:"vncEnabled"` // 是否启用 VNC
+
 	// 硬件直通
 	USBDevices []string `json:"usbDevices"` // USB 设备 ID 列表
 	PCIDevices []string `json:"pciDevices"` // PCIe 设备 ID 列表
-	
+
 	// 标签
 	Tags map[string]string `json:"tags"`
 }
@@ -102,7 +102,7 @@ type VMSnapshot struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"createdAt"`
-	Size        uint64    `json:"size"` // 快照大小 (bytes)
+	Size        uint64    `json:"size"`   // 快照大小 (bytes)
 	Status      string    `json:"status"` // creating/ready/restoring
 }
 
@@ -132,21 +132,21 @@ type VNCConnection struct {
 
 // USBDevice USB 设备信息
 type USBDevice struct {
-	ID          string `json:"id"`
-	VendorID    string `json:"vendorId"`
-	ProductID   string `json:"productId"`
+	ID           string `json:"id"`
+	VendorID     string `json:"vendorId"`
+	ProductID    string `json:"productId"`
 	Manufacturer string `json:"manufacturer"`
-	Product     string `json:"product"`
-	InUse       bool   `json:"inUse"` // 是否已被 VM 使用
+	Product      string `json:"product"`
+	InUse        bool   `json:"inUse"` // 是否已被 VM 使用
 }
 
 // PCIDevice PCIe 设备信息
 type PCIDevice struct {
-	ID        string `json:"id"`
-	BDF       string `json:"bdf"` // Bus:Device.Function
-	VendorID  string `json:"vendorId"`
-	DeviceID  string `json:"deviceId"`
-	Name      string `json:"name"`
-	InUse     bool   `json:"inUse"` // 是否已被 VM 使用
-	Driver    string `json:"driver"` // 当前驱动
+	ID       string `json:"id"`
+	BDF      string `json:"bdf"` // Bus:Device.Function
+	VendorID string `json:"vendorId"`
+	DeviceID string `json:"deviceId"`
+	Name     string `json:"name"`
+	InUse    bool   `json:"inUse"`  // 是否已被 VM 使用
+	Driver   string `json:"driver"` // 当前驱动
 }

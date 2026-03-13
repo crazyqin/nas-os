@@ -40,7 +40,7 @@ func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		// 提取 token (Bearer <token>)
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
@@ -51,9 +51,9 @@ func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		token := parts[1]
-		
+
 		// 检查缓存的会话
 		session := m.rbacManager.GetCachedSession(token)
 		if session != nil {
@@ -64,7 +64,7 @@ func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		
+
 		// 验证 token
 		userID, err := m.userManager.ValidateToken(token)
 		if err != nil {
@@ -75,7 +75,7 @@ func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		// 获取用户信息
 		user, err := m.userManager.GetUser(userID)
 		if err != nil {
@@ -86,18 +86,18 @@ func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		// 设置用户上下文
 		c.Set("user_id", userID)
 		c.Set("user", user)
-		
+
 		// TODO: 从用户对象获取组信息
 		// 暂时使用空组列表
 		groups := []string{}
-		
+
 		// 缓存会话权限
 		m.rbacManager.CacheSession(token, userID, groups)
-		
+
 		c.Next()
 	}
 }
@@ -115,13 +115,13 @@ func (m *AuthMiddleware) RequirePermission(resource Resource, action Action) gin
 			c.Abort()
 			return
 		}
-		
+
 		// 获取用户组（从上下文或查询参数）
 		groups, _ := c.Get("user_groups")
 		if groups == nil {
 			groups = []string{}
 		}
-		
+
 		// 检查权限
 		hasPermission := m.rbacManager.CheckPermission(
 			userID.(string),
@@ -129,7 +129,7 @@ func (m *AuthMiddleware) RequirePermission(resource Resource, action Action) gin
 			resource,
 			action,
 		)
-		
+
 		if !hasPermission {
 			c.JSON(http.StatusForbidden, APIResponse{
 				Code:    403,
@@ -138,7 +138,7 @@ func (m *AuthMiddleware) RequirePermission(resource Resource, action Action) gin
 			c.Abort()
 			return
 		}
-		
+
 		c.Next()
 	}
 }
@@ -155,10 +155,10 @@ func (m *AuthMiddleware) RequireRole(roles ...Role) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		// 获取用户角色
 		userRoles := m.rbacManager.GetUserRoles(userID.(string))
-		
+
 		// 检查是否有任一角色
 		hasRole := false
 		for _, userRole := range userRoles {
@@ -172,7 +172,7 @@ func (m *AuthMiddleware) RequireRole(roles ...Role) gin.HandlerFunc {
 				break
 			}
 		}
-		
+
 		if !hasRole {
 			c.JSON(http.StatusForbidden, APIResponse{
 				Code:    403,
@@ -181,7 +181,7 @@ func (m *AuthMiddleware) RequireRole(roles ...Role) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		c.Next()
 	}
 }
@@ -202,25 +202,25 @@ func (m *AuthMiddleware) OptionalAuth() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		
+
 		// 有 token 则执行认证
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.Next()
 			return
 		}
-		
+
 		token := parts[1]
 		userID, err := m.userManager.ValidateToken(token)
 		if err != nil {
 			c.Next()
 			return
 		}
-		
+
 		c.Set("user_id", userID)
 		groups := []string{}
 		m.rbacManager.CacheSession(token, userID, groups)
-		
+
 		c.Next()
 	}
 }
@@ -240,7 +240,7 @@ func HasPermission(c *gin.Context, resource Resource, action Action) bool {
 	if userID == "" {
 		return false
 	}
-	
+
 	// 从 RBAC 管理器获取（实际应该从上下文缓存获取）
 	// 这里简化处理
 	return true
@@ -251,10 +251,10 @@ func AuditLogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 从上下文获取用户信息
 		userID := GetUserID(c)
-		
+
 		// 处理请求
 		c.Next()
-		
+
 		// 记录错误请求的审计日志
 		if userID != "" && c.Writer.Status() >= 400 {
 			// log.Printf("[AUDIT] user=%s method=%s path=%s status=%d",
