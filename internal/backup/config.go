@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -252,6 +253,233 @@ func (m *Manager) checkDiskSpace() (float64, error) {
 
 func (m *Manager) checkRecentBackups() error {
 	// 检查最近 24 小时是否有成功备份
-	// TODO: 实现详细检查
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	now := time.Now()
+	cutoff := now.Add(-24 * time.Hour)
+
+	for _, task := range m.tasks {
+		if task.Status == TaskStatusCompleted && task.EndTime.After(cutoff) {
+			return nil // 找到 24 小时内的成功备份
+		}
+	}
+
+	// 如果没有找到，检查历史记录
+	entries, err := os.ReadDir(m.storagePath)
+	if err != nil {
+		return fmt.Errorf("读取备份目录失败：%w", err)
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() && strings.HasPrefix(entry.Name(), "backup-") {
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+			if info.ModTime().After(cutoff) {
+				return nil // 找到 24 小时内的备份目录
+			}
+		}
+	}
+
+	return fmt.Errorf("最近 24 小时内没有成功备份")
+}
+
+// CheckConfigDetailed 详细检查备份配置
+func (m *Manager) CheckConfigDetailed(configID string) (*DetailedConfigCheck, error) {
+	cfg, err := m.GetConfig(configID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &DetailedConfigCheck{
+		ConfigID: configID,
+		Status:   "pass",
+		Checks:   []ConfigCheckItem{},
+	}
+
+	// 检查 1: 源目录是否存在
+	if err := m.checkSourceDirectory(cfg.Source); err != nil {
+		result.Checks = append(result.Checks, ConfigCheckItem{
+			Name:    "source_directory",
+			Status:  "fail",
+			Message: fmt.Sprintf("源目录不存在：%v", err),
+		})
+		result.Status = "fail"
+	} else {
+		result.Checks = append(result.Checks, ConfigCheckItem{
+			Name:    "source_directory",
+			Status:  "pass",
+			Message: "源目录存在且可访问",
+		})
+	}
+
+	// 检查 2: 备份目标是否可写
+	if err := m.checkBackupDestination(cfg.Destination); err != nil {
+		result.Checks = append(result.Checks, ConfigCheckItem{
+			Name:    "backup_destination",
+			Status:  "fail",
+			Message: fmt.Sprintf("备份目标不可写：%v", err),
+		})
+		result.Status = "fail"
+	} else {
+		result.Checks = append(result.Checks, ConfigCheckItem{
+			Name:    "backup_destination",
+			Status:  "pass",
+			Message: "备份目标可写",
+		})
+	}
+
+	// 检查 3: 云端连接（如果启用）
+	if cfg.CloudBackup && cfg.CloudConfig != nil {
+		if err := m.checkCloudConnection(cfg.CloudConfig); err != nil {
+			result.Checks = append(result.Checks, ConfigCheckItem{
+				Name:    "cloud_connection",
+				Status:  "warn",
+				Message: fmt.Sprintf("云端连接检查失败：%v", err),
+			})
+			if result.Status == "pass" {
+				result.Status = "warn"
+			}
+		} else {
+			result.Checks = append(result.Checks, ConfigCheckItem{
+				Name:    "cloud_connection",
+				Status:  "pass",
+				Message: "云端连接正常",
+			})
+		}
+	}
+
+	// 检查 4: 磁盘空间
+	if err := m.checkBackupDiskSpace(*cfg); err != nil {
+		result.Checks = append(result.Checks, ConfigCheckItem{
+			Name:    "disk_space",
+			Status:  "warn",
+			Message: fmt.Sprintf("磁盘空间可能不足：%v", err),
+		})
+		if result.Status == "pass" {
+			result.Status = "warn"
+		}
+	} else {
+		result.Checks = append(result.Checks, ConfigCheckItem{
+			Name:    "disk_space",
+			Status:  "pass",
+			Message: "磁盘空间充足",
+		})
+	}
+
+	// 检查 5: 加密配置（如果启用）
+	if cfg.Encryption {
+		if cfg.EncryptionKey == "" && cfg.EncryptionKeyFile == "" {
+			result.Checks = append(result.Checks, ConfigCheckItem{
+				Name:    "encryption_config",
+				Status:  "fail",
+				Message: "启用加密但未配置密钥",
+			})
+			result.Status = "fail"
+		} else {
+			result.Checks = append(result.Checks, ConfigCheckItem{
+				Name:    "encryption_config",
+				Status:  "pass",
+				Message: "加密配置正确",
+			})
+		}
+	}
+
+	return result, nil
+}
+
+// DetailedConfigCheck 详细配置检查结果
+type DetailedConfigCheck struct {
+	ConfigID string          `json:"configId"`
+	Status   string          `json:"status"` // pass, warn, fail
+	Checks   []ConfigCheckItem `json:"checks"`
+}
+
+// ConfigCheckItem 配置检查项
+type ConfigCheckItem struct {
+	Name    string `json:"name"`
+	Status  string `json:"status"` // pass, warn, fail
+	Message string `json:"message"`
+}
+
+func (m *Manager) checkSourceDirectory(source string) error {
+	info, err := os.Stat(source)
+	if err != nil {
+		return err
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("源路径不是目录")
+	}
+	// 检查是否可读
+	testFile := filepath.Join(source, ".read-test-"+fmt.Sprintf("%d", time.Now().UnixNano()))
+	if err := os.WriteFile(testFile, []byte(""), 0644); err != nil {
+		return err
+	}
+	os.Remove(testFile)
+	return nil
+}
+
+func (m *Manager) checkBackupDestination(dest string) error {
+	if err := os.MkdirAll(dest, 0755); err != nil {
+		return err
+	}
+	testFile := filepath.Join(dest, ".write-test-"+fmt.Sprintf("%d", time.Now().UnixNano()))
+	if err := os.WriteFile(testFile, []byte(""), 0644); err != nil {
+		return err
+	}
+	os.Remove(testFile)
+	return nil
+}
+
+func (m *Manager) checkCloudConnection(cfg *CloudConfig) error {
+	cloud, err := NewCloudBackup(*cfg)
+	if err != nil {
+		return err
+	}
+	result, err := cloud.CheckConnection()
+	if err != nil {
+		return err
+	}
+	if !result.Success {
+		return fmt.Errorf(result.Message)
+	}
+	return nil
+}
+
+func (m *Manager) checkBackupDiskSpace(config BackupConfig) error {
+	// 估算源目录大小
+	var totalSize int64
+	err := filepath.Walk(config.Source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			totalSize += info.Size()
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("估算源目录大小失败：%w", err)
+	}
+
+	// 检查目标磁盘空间
+	cmd := exec.Command("df", "--output=avail", "-B", "1", config.Destination)
+	output, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+
+	var availSpace int64
+	_, _ = fmt.Sscanf(string(output), "%d", &availSpace)
+
+	if availSpace < totalSize {
+		return fmt.Errorf("可用空间 (%.2f GB) 小于源目录大小 (%.2f GB)", 
+			float64(availSpace)/1024/1024/1024, 
+			float64(totalSize)/1024/1024/1024)
+	}
+
+	// 如果启用压缩，所需空间会更小，这里保守估计
 	return nil
 }

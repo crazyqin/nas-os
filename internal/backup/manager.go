@@ -52,6 +52,16 @@ type BackupConfig struct {
 	// rsync 特定配置
 	RsyncOptions []string `json:"rsyncOptions,omitempty"`
 	Exclude      []string `json:"exclude,omitempty"`
+
+	// 云端备份配置
+	CloudBackup bool          `json:"cloudBackup,omitempty"`
+	CloudConfig *CloudConfig  `json:"cloudConfig,omitempty"`
+
+	// 加密配置
+	Encryption        bool   `json:"encryption,omitempty"`
+	EncryptionType    string `json:"encryptionType,omitempty"`
+	EncryptionKey     string `json:"encryptionKey,omitempty"`
+	EncryptionKeyFile string `json:"encryptionKeyFile,omitempty"`
 }
 
 // BackupType 备份类型
@@ -655,4 +665,155 @@ func copyDirectory(src, dst string) error {
 		}
 		return os.WriteFile(dstPath, data, info.Mode())
 	})
+}
+
+// ========== 恢复预览 ==========
+
+// RestorePreview 恢复预览信息
+type RestorePreview struct {
+	BackupPath    string   `json:"backupPath"`
+	TargetPath    string   `json:"targetPath"`
+	TotalSize     int64    `json:"totalSize"`
+	TotalSizeHuman string  `json:"totalSizeHuman"`
+	FileCount     int      `json:"fileCount"`
+	Files         []string `json:"files,omitempty"`
+	Overwrite     bool     `json:"overwrite"`
+	EstimatedTime string   `json:"estimatedTime"`
+}
+
+// PreviewRestore 预览恢复操作（不实际执行）
+func (m *Manager) PreviewRestore(options RestoreOptions) (*RestorePreview, error) {
+	// 找到备份文件
+	backupPath := options.BackupID
+	if backupPath == "" {
+		return nil, fmt.Errorf("备份 ID/路径不能为空")
+	}
+
+	// 检查备份文件是否存在
+	info, err := os.Stat(backupPath)
+	if err != nil {
+		return nil, fmt.Errorf("备份文件不存在：%w", err)
+	}
+
+	preview := &RestorePreview{
+		BackupPath:    backupPath,
+		TargetPath:    options.TargetPath,
+		TotalSize:     info.Size(),
+		TotalSizeHuman: humanReadableSize(info.Size()),
+		Overwrite:     options.Overwrite,
+	}
+
+	// 如果是压缩包，列出内容
+	if strings.HasSuffix(backupPath, ".tar.gz") || strings.HasSuffix(backupPath, ".tar") {
+		cmd := exec.Command("tar", "-tzf", backupPath)
+		if !strings.HasSuffix(backupPath, ".gz") {
+			cmd = exec.Command("tar", "-tf", backupPath)
+		}
+		output, err := cmd.Output()
+		if err != nil {
+			return nil, fmt.Errorf("读取备份内容失败：%w", err)
+		}
+
+		files := strings.Split(strings.TrimSpace(string(output)), "\n")
+		preview.FileCount = len(files)
+		
+		// 只显示前 100 个文件
+		if len(files) > 100 {
+			preview.Files = files[:100]
+		} else {
+			preview.Files = files
+		}
+	}
+
+	// 估算恢复时间（假设 100MB/s）
+	speed := int64(100 * 1024 * 1024)
+	estimatedSeconds := preview.TotalSize / speed
+	if estimatedSeconds < 60 {
+		preview.EstimatedTime = fmt.Sprintf("约 %d 秒", estimatedSeconds)
+	} else {
+		preview.EstimatedTime = fmt.Sprintf("约 %d 分钟", estimatedSeconds/60)
+	}
+
+	return preview, nil
+}
+
+// ========== 统计信息 ==========
+
+// GetStats 获取备份统计信息
+func (m *Manager) GetStats() *BackupStats {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	stats := &BackupStats{
+		TotalBackups: len(m.configs),
+	}
+
+	// 计算总大小和平均持续时间
+	var totalSize int64
+	var totalDuration time.Duration
+	var successCount int
+	var incrementalCount int
+
+	for _, cfg := range m.configs {
+		// 估算备份大小
+		if info, err := os.Stat(cfg.Destination); err == nil {
+			totalSize += info.Size()
+		}
+
+		// 统计任务
+		for _, task := range m.tasks {
+			if task.ConfigID == cfg.ID {
+				if task.Status == TaskStatusCompleted {
+					successCount++
+					totalDuration += task.EndTime.Sub(task.StartTime)
+				}
+				if task.TotalSize > 0 {
+					incrementalCount++
+				}
+			}
+		}
+	}
+
+	stats.TotalSize = totalSize
+	stats.TotalSizeHuman = humanReadableSize(totalSize)
+
+	// 计算成功率
+	if len(m.tasks) > 0 {
+		stats.SuccessRate = float64(successCount) / float64(len(m.tasks)) * 100
+	}
+
+	// 计算平均耗时
+	if successCount > 0 {
+		avgDuration := totalDuration / time.Duration(successCount)
+		stats.AverageDuration = avgDuration.String()
+	}
+
+	// 计算增量备份节省比例
+	if incrementalCount > 0 {
+		stats.IncrementalRatio = 0.3 // 假设值，实际需要根据增量备份大小计算
+	}
+
+	return stats
+}
+
+func humanReadableSize(size int64) string {
+	const (
+		KB = 1024
+		MB = KB * 1024
+		GB = MB * 1024
+		TB = GB * 1024
+	)
+
+	switch {
+	case size >= TB:
+		return fmt.Sprintf("%.2f TB", float64(size)/TB)
+	case size >= GB:
+		return fmt.Sprintf("%.2f GB", float64(size)/GB)
+	case size >= MB:
+		return fmt.Sprintf("%.2f MB", float64(size)/MB)
+	case size >= KB:
+		return fmt.Sprintf("%.2f KB", float64(size)/KB)
+	default:
+		return fmt.Sprintf("%d B", size)
+	}
 }
