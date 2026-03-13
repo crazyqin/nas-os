@@ -532,7 +532,7 @@ func (cb *CloudBackup) CheckConnection() (*ConnectionTestResult, error) {
 // checkS3Connection 检查 S3 连接
 func (cb *CloudBackup) checkS3Connection() (*ConnectionTestResult, error) {
 	startTime := time.Now()
-	
+
 	client, ok := cb.client.(*s3.Client)
 	if !ok {
 		return nil, fmt.Errorf("客户端类型错误")
@@ -572,7 +572,7 @@ func (cb *CloudBackup) checkS3Connection() (*ConnectionTestResult, error) {
 // checkWebDAVConnection 检查 WebDAV 连接
 func (cb *CloudBackup) checkWebDAVConnection() (*ConnectionTestResult, error) {
 	startTime := time.Now()
-	
+
 	client, ok := cb.client.(*gowebdav.Client)
 	if !ok {
 		return nil, fmt.Errorf("客户端类型错误")
