@@ -482,12 +482,12 @@ func NewBufferPool(bufferSize int) *BufferPool {
 }
 
 // Get retrieves a buffer from the pool
-func (p *BufferPool) Get() []byte {
-	return p.pool.Get().([]byte)
+func (p *BufferPool) Get() *[]byte {
+	return p.pool.Get().(*[]byte)
 }
 
 // Put returns a buffer to the pool
-func (p *BufferPool) Put(buf []byte) {
+func (p *BufferPool) Put(buf *[]byte) {
 	p.pool.Put(buf)
 }
 
