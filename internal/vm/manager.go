@@ -127,7 +127,43 @@ func (m *Manager) loadSnapshots() error {
 		return nil
 	}
 
-	// TODO: 加载快照配置
+	// 遍历所有 VM 的快照目录
+	entries, err := os.ReadDir(snapshotPath)
+	if err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		vmID := entry.Name()
+		vmSnapshotPath := filepath.Join(snapshotPath, vmID)
+
+		// 读取快照配置文件
+		snapshotConfigPath := filepath.Join(vmSnapshotPath, "snapshots.json")
+		data, err := os.ReadFile(snapshotConfigPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return err
+		}
+
+		var snapshots []*VMSnapshot
+		if err := json.Unmarshal(data, &snapshots); err != nil {
+			return err
+		}
+
+		// 加载到内存（使用快照 ID 作为 key）
+		m.mu.Lock()
+		for _, snap := range snapshots {
+			m.snapshots[snap.ID] = snap
+		}
+		m.mu.Unlock()
+	}
+
 	return nil
 }
 
