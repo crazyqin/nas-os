@@ -38,30 +38,30 @@ type FileRecord struct {
 	Size        int64     `json:"size"`
 	Checksum    string    `json:"checksum"`
 	ChunkHashes []string  `json:"chunkHashes"`
-	User        string    `json:"user,omitempty"`       // 文件所属用户
-	Shared      bool      `json:"shared,omitempty"`     // 是否为共享数据
+	User        string    `json:"user,omitempty"`   // 文件所属用户
+	Shared      bool      `json:"shared,omitempty"` // 是否为共享数据
 	CreatedAt   time.Time `json:"createdAt"`
 	ModifiedAt  time.Time `json:"modifiedAt"`
 }
 
 // UserFileIndex 用户文件索引
 type UserFileIndex struct {
-	User        string              `json:"user"`
-	Files       map[string]string   `json:"files"`       // path -> checksum
-	TotalSize   int64               `json:"totalSize"`
-	FileCount   int                 `json:"fileCount"`
-	SharedSize  int64               `json:"sharedSize"`  // 共享数据大小
-	SavedSize   int64               `json:"savedSize"`   // 通过去重节省的空间
+	User       string            `json:"user"`
+	Files      map[string]string `json:"files"` // path -> checksum
+	TotalSize  int64             `json:"totalSize"`
+	FileCount  int               `json:"fileCount"`
+	SharedSize int64             `json:"sharedSize"` // 共享数据大小
+	SavedSize  int64             `json:"savedSize"`  // 通过去重节省的空间
 }
 
 // DuplicateGroup 表示一组重复文件
 type DuplicateGroup struct {
-	Checksum   string            `json:"checksum"`
-	Size       int64             `json:"size"`
-	Files      []string          `json:"files"`
-	Users      []string          `json:"users,omitempty"`   // 涉及的用户
-	Savings    int64             `json:"savings"`           // 去重后可节省的空间
-	UserFiles  map[string][]string `json:"userFiles,omitempty"` // 按用户分组的文件
+	Checksum  string              `json:"checksum"`
+	Size      int64               `json:"size"`
+	Files     []string            `json:"files"`
+	Users     []string            `json:"users,omitempty"`     // 涉及的用户
+	Savings   int64               `json:"savings"`             // 去重后可节省的空间
+	UserFiles map[string][]string `json:"userFiles,omitempty"` // 按用户分组的文件
 }
 
 // DedupStats 去重统计信息
@@ -71,16 +71,16 @@ type DedupStats struct {
 	DuplicateFiles   int       `json:"duplicateFiles"`
 	DuplicateSize    int64     `json:"duplicateSize"`
 	SavingsPotential int64     `json:"savingsPotential"`
-	SavingsActual    int64     `json:"savingsActual"`       // 实际已节省空间
+	SavingsActual    int64     `json:"savingsActual"` // 实际已节省空间
 	ChunksStored     int       `json:"chunksStored"`
 	ChunkDataSize    int64     `json:"chunkDataSize"`
 	LastScanTime     time.Time `json:"lastScanTime"`
 	LastDedupTime    time.Time `json:"lastDedupTime"`
 	// 跨用户统计
-	SharedChunks     int       `json:"sharedChunks"`
-	SharedDataSize   int64     `json:"sharedDataSize"`
-	CrossUserSavings int64     `json:"crossUserSavings"`
-	UserCount        int       `json:"userCount"`
+	SharedChunks     int   `json:"sharedChunks"`
+	SharedDataSize   int64 `json:"sharedDataSize"`
+	CrossUserSavings int64 `json:"crossUserSavings"`
+	UserCount        int   `json:"userCount"`
 }
 
 // ScanResult 扫描结果
@@ -104,18 +104,18 @@ type ScanError struct {
 
 // Config 去重配置
 type Config struct {
-	Enabled         bool     `json:"enabled"`
-	ChunkSize       int64    `json:"chunkSize"`       // 块大小，默认 4MB
-	MinFileSize     int64    `json:"minFileSize"`     // 最小文件大小，小于此值不去重
-	ScanPaths       []string `json:"scanPaths"`       // 扫描路径
-	ExcludePaths    []string `json:"excludePaths"`    // 排除路径
-	ExcludePatterns []string `json:"excludePatterns"` // 排除文件模式
-	AutoDedup       bool     `json:"autoDedup"`       // 自动去重
-	AutoDedupCron   string   `json:"autoDedupCron"`   // 自动去重 cron 表达式
-	DedupMode       string   `json:"dedupMode"`       // file, chunk, hybrid
-	DedupAction     string   `json:"dedupAction"`     // softlink, hardlink
-	Compression     bool     `json:"compression"`     // 启用压缩
-	CrossUser       bool     `json:"crossUser"`       // 跨用户去重
+	Enabled         bool        `json:"enabled"`
+	ChunkSize       int64       `json:"chunkSize"`            // 块大小，默认 4MB
+	MinFileSize     int64       `json:"minFileSize"`          // 最小文件大小，小于此值不去重
+	ScanPaths       []string    `json:"scanPaths"`            // 扫描路径
+	ExcludePaths    []string    `json:"excludePaths"`         // 排除路径
+	ExcludePatterns []string    `json:"excludePatterns"`      // 排除文件模式
+	AutoDedup       bool        `json:"autoDedup"`            // 自动去重
+	AutoDedupCron   string      `json:"autoDedupCron"`        // 自动去重 cron 表达式
+	DedupMode       string      `json:"dedupMode"`            // file, chunk, hybrid
+	DedupAction     string      `json:"dedupAction"`          // softlink, hardlink
+	Compression     bool        `json:"compression"`          // 启用压缩
+	CrossUser       bool        `json:"crossUser"`            // 跨用户去重
 	ChunkStore      *ChunkStore `json:"chunkStore,omitempty"` // 块存储配置
 }
 
@@ -152,31 +152,31 @@ type DedupPolicy struct {
 
 // AutoDedupTask 自动去重任务
 type AutoDedupTask struct {
-	ID          string     `json:"id"`
-	Enabled     bool       `json:"enabled"`
-	Schedule    string     `json:"schedule"`
-	LastRun     time.Time  `json:"lastRun"`
-	NextRun     time.Time  `json:"nextRun"`
-	Status      string     `json:"status"` // pending, running, completed, failed
-	Result      *ScanResult `json:"result,omitempty"`
-	Error       string      `json:"error,omitempty"`
+	ID       string      `json:"id"`
+	Enabled  bool        `json:"enabled"`
+	Schedule string      `json:"schedule"`
+	LastRun  time.Time   `json:"lastRun"`
+	NextRun  time.Time   `json:"nextRun"`
+	Status   string      `json:"status"` // pending, running, completed, failed
+	Result   *ScanResult `json:"result,omitempty"`
+	Error    string      `json:"error,omitempty"`
 }
 
 // Manager 去重管理器
 type Manager struct {
-	mu             sync.RWMutex
-	config         *Config
-	configPath     string
-	chunks         map[string]*Chunk        // hash -> chunk
-	fileRecords    map[string]*FileRecord   // path -> record
-	checksums      map[string][]*FileRecord // checksum -> records
-	userIndexes    map[string]*UserFileIndex // user -> index
-	duplicates     []*DuplicateGroup
-	stats          DedupStats
-	scanning       bool
-	scanCancel     chan struct{}
-	autoTask       *AutoDedupTask
-	storagePath    string // 存储根路径
+	mu          sync.RWMutex
+	config      *Config
+	configPath  string
+	chunks      map[string]*Chunk         // hash -> chunk
+	fileRecords map[string]*FileRecord    // path -> record
+	checksums   map[string][]*FileRecord  // checksum -> records
+	userIndexes map[string]*UserFileIndex // user -> index
+	duplicates  []*DuplicateGroup
+	stats       DedupStats
+	scanning    bool
+	scanCancel  chan struct{}
+	autoTask    *AutoDedupTask
+	storagePath string // 存储根路径
 }
 
 // NewManager 创建去重管理器
@@ -515,10 +515,10 @@ func (m *Manager) GetDuplicatesForUser(user string) ([]*DuplicateGroup, error) {
 		if files, exists := group.UserFiles[user]; exists && len(files) > 1 {
 			// 创建用户特定的重复组
 			userGroup := &DuplicateGroup{
-				Checksum: group.Checksum,
-				Size:     group.Size,
-				Files:    files,
-				Savings:  group.Size * int64(len(files)-1),
+				Checksum:  group.Checksum,
+				Size:      group.Size,
+				Files:     files,
+				Savings:   group.Size * int64(len(files)-1),
 				UserFiles: map[string][]string{user: files},
 			}
 			result = append(result, userGroup)
@@ -635,8 +635,8 @@ func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult,
 	defer m.mu.Unlock()
 
 	result := &DedupResult{
-		Groups:      make([]DedupGroupResult, 0),
-		StartTime:   time.Now(),
+		Groups:    make([]DedupGroupResult, 0),
+		StartTime: time.Now(),
 	}
 
 	for _, group := range m.duplicates {
@@ -645,11 +645,11 @@ func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult,
 		}
 
 		groupResult := DedupGroupResult{
-			Checksum:   group.Checksum,
-			Size:       group.Size,
-			FileCount:  len(group.Files),
-			KeepPath:   group.Files[0], // 默认保留第一个文件
-			Savings:    group.Size * int64(len(group.Files)-1),
+			Checksum:  group.Checksum,
+			Size:      group.Size,
+			FileCount: len(group.Files),
+			KeepPath:  group.Files[0], // 默认保留第一个文件
+			Savings:   group.Size * int64(len(group.Files)-1),
 		}
 
 		// 计算潜在节省空间（无论是 dry run 还是实际执行）
@@ -818,11 +818,11 @@ func (m *Manager) generateRecommendations() []DedupRecommendation {
 
 // DedupReport 去重报告
 type DedupReport struct {
-	GeneratedAt     time.Time                      `json:"generatedAt"`
-	Stats           DedupStats                     `json:"stats"`
-	DuplicateGroups []DuplicateGroupSummary        `json:"duplicateGroups"`
-	UserReports     map[string]*UserDedupReport    `json:"userReports,omitempty"`
-	Recommendations []DedupRecommendation          `json:"recommendations,omitempty"`
+	GeneratedAt     time.Time                   `json:"generatedAt"`
+	Stats           DedupStats                  `json:"stats"`
+	DuplicateGroups []DuplicateGroupSummary     `json:"duplicateGroups"`
+	UserReports     map[string]*UserDedupReport `json:"userReports,omitempty"`
+	Recommendations []DedupRecommendation       `json:"recommendations,omitempty"`
 }
 
 // UserDedupReport 用户去重报告
@@ -1122,7 +1122,7 @@ func (m *Manager) DeleteChunk(hash string) error {
 	if chunk.RefCount < 0 {
 		chunk.RefCount = 0
 	}
-	
+
 	// 只有当引用计数为0且明确需要清理时才删除
 	// 这里保持块存在但引用计数为0，以便后续可能的重新引用
 
@@ -1206,11 +1206,11 @@ func (m *Manager) loadIndex() error {
 	}
 
 	var index struct {
-		FileRecords map[string]*FileRecord     `json:"fileRecords"`
-		Checksums   map[string][]*FileRecord   `json:"checksums"`
-		Stats       DedupStats                 `json:"stats"`
-		UserIndexes map[string]*UserFileIndex  `json:"userIndexes"`
-		Chunks      map[string]*Chunk          `json:"chunks"`
+		FileRecords map[string]*FileRecord    `json:"fileRecords"`
+		Checksums   map[string][]*FileRecord  `json:"checksums"`
+		Stats       DedupStats                `json:"stats"`
+		UserIndexes map[string]*UserFileIndex `json:"userIndexes"`
+		Chunks      map[string]*Chunk         `json:"chunks"`
 	}
 
 	if err := json.Unmarshal(data, &index); err != nil {
@@ -1246,11 +1246,11 @@ func (m *Manager) saveIndex() error {
 	indexPath := m.configPath + ".index"
 
 	data, err := json.MarshalIndent(struct {
-		FileRecords map[string]*FileRecord     `json:"fileRecords"`
-		Checksums   map[string][]*FileRecord   `json:"checksums"`
-		Stats       DedupStats                 `json:"stats"`
-		UserIndexes map[string]*UserFileIndex  `json:"userIndexes"`
-		Chunks      map[string]*Chunk          `json:"chunks"`
+		FileRecords map[string]*FileRecord    `json:"fileRecords"`
+		Checksums   map[string][]*FileRecord  `json:"checksums"`
+		Stats       DedupStats                `json:"stats"`
+		UserIndexes map[string]*UserFileIndex `json:"userIndexes"`
+		Chunks      map[string]*Chunk         `json:"chunks"`
 	}{
 		FileRecords: m.fileRecords,
 		Checksums:   m.checksums,
