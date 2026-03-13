@@ -10,14 +10,14 @@ import (
 
 // PerformanceAnalyzer analyzes performance bottlenecks
 type PerformanceAnalyzer struct {
-	slowQueries      []SlowQuery
-	hotspots         []Hotspot
-	bottlenecks      []Bottleneck
-	mu               sync.RWMutex
-	
+	slowQueries []SlowQuery
+	hotspots    []Hotspot
+	bottlenecks []Bottleneck
+	mu          sync.RWMutex
+
 	slowQueryThreshold time.Duration
 	maxSlowQueries     int
-	
+
 	logger *zap.Logger
 }
 
@@ -42,11 +42,11 @@ type Hotspot struct {
 
 // Bottleneck represents a system bottleneck
 type Bottleneck struct {
-	Resource    string  `json:"resource"` // "cpu", "memory", "disk", "network"
-	Severity    string  `json:"severity"` // "low", "medium", "high", "critical"
-	Description string  `json:"description"`
-	Usage       float64 `json:"usage"`
-	Threshold   float64 `json:"threshold"`
+	Resource    string    `json:"resource"` // "cpu", "memory", "disk", "network"
+	Severity    string    `json:"severity"` // "low", "medium", "high", "critical"
+	Description string    `json:"description"`
+	Usage       float64   `json:"usage"`
+	Threshold   float64   `json:"threshold"`
 	Timestamp   time.Time `json:"timestamp"`
 }
 
@@ -64,16 +64,16 @@ func (b *Bottleneck) ToResponse() *BottleneckResponse {
 
 // EndpointStats holds endpoint performance stats
 type EndpointStats struct {
-	Path        string        `json:"path"`
-	Method      string        `json:"method"`
-	AvgDuration time.Duration `json:"avg_duration"`
-	MinDuration time.Duration `json:"min_duration"`
-	MaxDuration time.Duration `json:"max_duration"`
-	P50         time.Duration `json:"p50"`
-	P95         time.Duration `json:"p95"`
-	P99         time.Duration `json:"p99"`
-	RequestCount int64        `json:"request_count"`
-	ErrorCount  int64        `json:"error_count"`
+	Path         string        `json:"path"`
+	Method       string        `json:"method"`
+	AvgDuration  time.Duration `json:"avg_duration"`
+	MinDuration  time.Duration `json:"min_duration"`
+	MaxDuration  time.Duration `json:"max_duration"`
+	P50          time.Duration `json:"p50"`
+	P95          time.Duration `json:"p95"`
+	P99          time.Duration `json:"p99"`
+	RequestCount int64         `json:"request_count"`
+	ErrorCount   int64         `json:"error_count"`
 }
 
 // FunctionStats holds function performance stats
@@ -88,12 +88,12 @@ type FunctionStats struct {
 // NewPerformanceAnalyzer creates a new performance analyzer
 func NewPerformanceAnalyzer(slowQueryThreshold time.Duration, maxSlowQueries int, logger *zap.Logger) *PerformanceAnalyzer {
 	return &PerformanceAnalyzer{
-		slowQueries:      make([]SlowQuery, 0),
-		hotspots:         make([]Hotspot, 0),
-		bottlenecks:      make([]Bottleneck, 0),
+		slowQueries:        make([]SlowQuery, 0),
+		hotspots:           make([]Hotspot, 0),
+		bottlenecks:        make([]Bottleneck, 0),
 		slowQueryThreshold: slowQueryThreshold,
-		maxSlowQueries:   maxSlowQueries,
-		logger:         logger,
+		maxSlowQueries:     maxSlowQueries,
+		logger:             logger,
 	}
 }
 
@@ -102,10 +102,10 @@ func (a *PerformanceAnalyzer) RecordSlowQuery(query string, duration time.Durati
 	if duration < a.slowQueryThreshold {
 		return
 	}
-	
+
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	
+
 	sq := SlowQuery{
 		Query:     query,
 		Duration:  duration,
@@ -113,14 +113,14 @@ func (a *PerformanceAnalyzer) RecordSlowQuery(query string, duration time.Durati
 		Source:    source,
 		Params:    params,
 	}
-	
+
 	a.slowQueries = append(a.slowQueries, sq)
-	
+
 	// Trim if exceeds max
 	if len(a.slowQueries) > a.maxSlowQueries {
 		a.slowQueries = a.slowQueries[len(a.slowQueries)-a.maxSlowQueries:]
 	}
-	
+
 	if a.logger != nil {
 		a.logger.Warn("Slow query detected",
 			zap.String("query", query),
@@ -139,28 +139,28 @@ func (a *PerformanceAnalyzer) RecordEndpoint(path, method string, duration time.
 func (a *PerformanceAnalyzer) AnalyzeHotspots() []Hotspot {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	// Group slow queries by pattern
 	queryStats := make(map[string]*Hotspot)
 	var totalTime time.Duration
-	
+
 	for _, sq := range a.slowQueries {
 		// Normalize query (remove specific values)
 		normalized := a.normalizeQuery(sq.Query)
-		
+
 		if _, ok := queryStats[normalized]; !ok {
 			queryStats[normalized] = &Hotspot{
 				Name: normalized,
 				Type: "query",
 			}
 		}
-		
+
 		stats := queryStats[normalized]
 		stats.CallCount++
 		stats.TotalTime += sq.Duration
 		totalTime += sq.Duration
 	}
-	
+
 	// Calculate averages and percentages
 	hotspots := make([]Hotspot, 0, len(queryStats))
 	for _, stats := range queryStats {
@@ -172,12 +172,12 @@ func (a *PerformanceAnalyzer) AnalyzeHotspots() []Hotspot {
 			hotspots = append(hotspots, *stats)
 		}
 	}
-	
+
 	// Sort by total time
 	sort.Slice(hotspots, func(i, j int) bool {
 		return hotspots[i].TotalTime > hotspots[j].TotalTime
 	})
-	
+
 	return hotspots
 }
 
@@ -185,10 +185,10 @@ func (a *PerformanceAnalyzer) AnalyzeHotspots() []Hotspot {
 func (a *PerformanceAnalyzer) DetectBottlenecks(cpu, mem float64, diskIO, netIO uint64) []Bottleneck {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	
+
 	var bottlenecks []Bottleneck
 	now := time.Now()
-	
+
 	// CPU bottleneck
 	if cpu > 90 {
 		bottlenecks = append(bottlenecks, Bottleneck{
@@ -209,7 +209,7 @@ func (a *PerformanceAnalyzer) DetectBottlenecks(cpu, mem float64, diskIO, netIO 
 			Timestamp:   now,
 		})
 	}
-	
+
 	// Memory bottleneck
 	if mem > 90 {
 		bottlenecks = append(bottlenecks, Bottleneck{
@@ -230,14 +230,14 @@ func (a *PerformanceAnalyzer) DetectBottlenecks(cpu, mem float64, diskIO, netIO 
 			Timestamp:   now,
 		})
 	}
-	
+
 	a.bottlenecks = append(a.bottlenecks, bottlenecks...)
-	
+
 	// Trim old bottlenecks
 	if len(a.bottlenecks) > 100 {
 		a.bottlenecks = a.bottlenecks[len(a.bottlenecks)-100:]
 	}
-	
+
 	return bottlenecks
 }
 
@@ -245,7 +245,7 @@ func (a *PerformanceAnalyzer) DetectBottlenecks(cpu, mem float64, diskIO, netIO 
 func (a *PerformanceAnalyzer) GetSlowQueries() []SlowQuery {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	result := make([]SlowQuery, len(a.slowQueries))
 	copy(result, a.slowQueries)
 	return result
@@ -255,7 +255,7 @@ func (a *PerformanceAnalyzer) GetSlowQueries() []SlowQuery {
 func (a *PerformanceAnalyzer) GetBottlenecks() []Bottleneck {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	result := make([]Bottleneck, len(a.bottlenecks))
 	copy(result, a.bottlenecks)
 	return result
@@ -265,12 +265,12 @@ func (a *PerformanceAnalyzer) GetBottlenecks() []Bottleneck {
 func (a *PerformanceAnalyzer) GetSummary() PerformanceSummary {
 	a.mu.RLock()
 	defer a.mu.RUnlock()
-	
+
 	summary := PerformanceSummary{
 		TotalSlowQueries: len(a.slowQueries),
 		TotalBottlenecks: len(a.bottlenecks),
 	}
-	
+
 	if len(a.slowQueries) > 0 {
 		var totalDuration time.Duration
 		for _, sq := range a.slowQueries {
@@ -278,16 +278,16 @@ func (a *PerformanceAnalyzer) GetSummary() PerformanceSummary {
 		}
 		summary.AvgSlowQueryDuration = totalDuration / time.Duration(len(a.slowQueries))
 	}
-	
+
 	return summary
 }
 
 // PerformanceSummary holds performance summary
 type PerformanceSummary struct {
-	TotalSlowQueries       int           `json:"total_slow_queries"`
-	AvgSlowQueryDuration   time.Duration `json:"avg_slow_query_duration"`
-	TotalBottlenecks       int           `json:"total_bottlenecks"`
-	CriticalBottlenecks    int           `json:"critical_bottlenecks"`
+	TotalSlowQueries     int           `json:"total_slow_queries"`
+	AvgSlowQueryDuration time.Duration `json:"avg_slow_query_duration"`
+	TotalBottlenecks     int           `json:"total_bottlenecks"`
+	CriticalBottlenecks  int           `json:"critical_bottlenecks"`
 }
 
 // ClearSlowQueries clears slow query log
@@ -308,7 +308,7 @@ func (a *PerformanceAnalyzer) ClearBottlenecks() {
 func (a *PerformanceAnalyzer) normalizeQuery(query string) string {
 	// Simple normalization - in production, use proper SQL parser
 	normalized := query
-	
+
 	// Replace string literals
 	// This is a simplified version
 	return normalized
@@ -319,16 +319,16 @@ func CalculatePercentile(durations []time.Duration, percentile float64) time.Dur
 	if len(durations) == 0 {
 		return 0
 	}
-	
+
 	sort.Slice(durations, func(i, j int) bool {
 		return durations[i] < durations[j]
 	})
-	
+
 	index := int(float64(len(durations)) * percentile / 100)
 	if index >= len(durations) {
 		index = len(durations) - 1
 	}
-	
+
 	return durations[index]
 }
 

@@ -27,25 +27,25 @@ func NewISOManager(isoPath string, logger *zap.Logger) (*ISOManager, error) {
 	if isoPath == "" {
 		isoPath = DefaultISOStoragePath
 	}
-	
+
 	if err := os.MkdirAll(isoPath, 0755); err != nil {
 		return nil, fmt.Errorf("创建 ISO 存储目录失败：%w", err)
 	}
-	
+
 	m := &ISOManager{
 		isoPath: isoPath,
 		isos:    make(map[string]*ISOImage),
 		logger:  logger,
 	}
-	
+
 	// 加载现有 ISO
 	if err := m.loadISOs(); err != nil {
 		logger.Warn("加载 ISO 列表失败", zap.Error(err))
 	}
-	
+
 	// 添加内置 ISO 下载源
 	m.addBuiltInISOs()
-	
+
 	return m, nil
 }
 
@@ -55,23 +55,23 @@ func (m *ISOManager) loadISOs() error {
 	if err != nil {
 		return err
 	}
-	
+
 	for _, file := range files {
 		if file.IsDir() {
 			continue
 		}
-		
+
 		ext := filepath.Ext(file.Name())
 		if ext != ".iso" && ext != ".ISO" {
 			continue
 		}
-		
+
 		filePath := filepath.Join(m.isoPath, file.Name())
 		info, err := os.Stat(filePath)
 		if err != nil {
 			continue
 		}
-		
+
 		isoID := "iso-" + uuid.New().String()[:8]
 		iso := &ISOImage{
 			ID:         isoID,
@@ -82,10 +82,10 @@ func (m *ISOManager) loadISOs() error {
 			UpdatedAt:  info.ModTime(),
 			IsUploaded: true,
 		}
-		
+
 		m.isos[isoID] = iso
 	}
-	
+
 	return nil
 }
 
@@ -149,7 +149,7 @@ func (m *ISOManager) addBuiltInISOs() {
 			IsUploaded: false,
 		},
 	}
-	
+
 	for _, iso := range builtInISOs {
 		m.isos[iso.ID] = &iso
 	}
@@ -159,12 +159,12 @@ func (m *ISOManager) addBuiltInISOs() {
 func (m *ISOManager) ListISOs() []*ISOImage {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	isos := make([]*ISOImage, 0, len(m.isos))
 	for _, iso := range m.isos {
 		isos = append(isos, iso)
 	}
-	
+
 	return isos
 }
 
@@ -172,12 +172,12 @@ func (m *ISOManager) ListISOs() []*ISOImage {
 func (m *ISOManager) GetISO(isoID string) (*ISOImage, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	iso, exists := m.isos[isoID]
 	if !exists {
 		return nil, fmt.Errorf("ISO %s 不存在", isoID)
 	}
-	
+
 	return iso, nil
 }
 
@@ -185,28 +185,28 @@ func (m *ISOManager) GetISO(isoID string) (*ISOImage, error) {
 func (m *ISOManager) UploadISO(ctx context.Context, name string, reader io.Reader) (*ISOImage, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	// 生成文件名
 	fileName := fmt.Sprintf("%s_%s.iso", name, time.Now().Format("20060102_150405"))
 	filePath := filepath.Join(m.isoPath, fileName)
-	
+
 	// 创建文件
 	file, err := os.Create(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("创建文件失败：%w", err)
 	}
 	defer file.Close()
-	
+
 	// 复制内容
 	written, err := io.Copy(file, reader)
 	if err != nil {
 		os.Remove(filePath)
 		return nil, fmt.Errorf("写入文件失败：%w", err)
 	}
-	
+
 	isoID := "iso-" + uuid.New().String()[:8]
 	now := time.Now()
-	
+
 	iso := &ISOImage{
 		ID:         isoID,
 		Name:       fileName,
@@ -216,11 +216,11 @@ func (m *ISOManager) UploadISO(ctx context.Context, name string, reader io.Reade
 		UpdatedAt:  now,
 		IsUploaded: true,
 	}
-	
+
 	m.isos[isoID] = iso
-	
+
 	m.logger.Info("ISO 上传成功", zap.String("isoId", isoID), zap.String("name", fileName))
-	
+
 	return iso, nil
 }
 
@@ -232,12 +232,12 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 		m.mu.Unlock()
 		return nil, fmt.Errorf("ISO %s 不存在", isoID)
 	}
-	
+
 	if iso.IsUploaded || iso.URL == "" {
 		m.mu.Unlock()
 		return nil, fmt.Errorf("该 ISO 不支持下载")
 	}
-	
+
 	// 检查是否已下载
 	if iso.Path != "" {
 		if _, err := os.Stat(iso.Path); err == nil {
@@ -246,23 +246,23 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 		}
 	}
 	m.mu.Unlock()
-	
+
 	// 创建 HTTP 请求
 	req, err := http.NewRequestWithContext(ctx, "GET", iso.URL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("创建请求失败：%w", err)
 	}
-	
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("下载失败：%w", err)
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("下载失败：HTTP %d", resp.StatusCode)
 	}
-	
+
 	// 创建文件
 	fileName := filepath.Base(iso.URL)
 	filePath := filepath.Join(m.isoPath, fileName)
@@ -271,7 +271,7 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 		return nil, fmt.Errorf("创建文件失败：%w", err)
 	}
 	defer file.Close()
-	
+
 	// 带进度跟踪的复制
 	var totalWritten int64
 	buf := make([]byte, 32*1024)
@@ -283,7 +283,7 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 				return nil, fmt.Errorf("写入失败")
 			}
 			totalWritten += int64(nw)
-			
+
 			// 发送进度
 			if progressChan != nil && resp.ContentLength > 0 {
 				select {
@@ -291,7 +291,7 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 				default:
 				}
 			}
-			
+
 			if ew != nil {
 				return nil, ew
 			}
@@ -303,18 +303,18 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 			return nil, er
 		}
 	}
-	
+
 	// 更新 ISO 信息
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	iso.Path = filePath
 	iso.Size = uint64(totalWritten)
 	iso.IsUploaded = true
 	iso.UpdatedAt = time.Now()
-	
+
 	m.logger.Info("ISO 下载成功", zap.String("isoId", isoID), zap.String("path", filePath))
-	
+
 	return iso, nil
 }
 
@@ -322,26 +322,26 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 func (m *ISOManager) DeleteISO(isoID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	iso, exists := m.isos[isoID]
 	if !exists {
 		return fmt.Errorf("ISO %s 不存在", isoID)
 	}
-	
+
 	if !iso.IsUploaded {
 		return fmt.Errorf("内置 ISO 不能删除")
 	}
-	
+
 	// 删除文件
 	if iso.Path != "" {
 		if err := os.Remove(iso.Path); err != nil {
 			return fmt.Errorf("删除文件失败：%w", err)
 		}
 	}
-	
+
 	delete(m.isos, isoID)
-	
+
 	m.logger.Info("ISO 删除成功", zap.String("isoId", isoID))
-	
+
 	return nil
 }

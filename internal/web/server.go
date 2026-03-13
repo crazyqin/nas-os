@@ -11,10 +11,10 @@ import (
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
 	"nas-os/internal/files"
+	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/notify"
-	"nas-os/internal/monitor"
 	"nas-os/internal/optimizer"
 	"nas-os/internal/perf"
 	"nas-os/internal/photos"
@@ -263,11 +263,11 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		isoMgr:        isoMgr,
 		snapshotMgr:   snapshotMgr,
 		rbacMgr:       auth.NewRBACManager(),
-		monitorMgr:    func() *monitor.Manager {
+		monitorMgr: func() *monitor.Manager {
 			mgr, _ := monitor.NewManager()
 			return mgr
 		}(),
-		optimizer:     optimizer.NewOptimizer(nil, nil),
+		optimizer: optimizer.NewOptimizer(nil, nil),
 		// mediaMgr:      mediaMgr,
 	}
 

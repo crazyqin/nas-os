@@ -11,27 +11,27 @@ import (
 
 // AlertingManager 告警通知管理器
 type AlertingManager struct {
-	config        AlertingConfig
-	alerts        []*SecurityAlertV2
-	subscribers   []AlertSubscriber
-	mu            sync.RWMutex
+	config      AlertingConfig
+	alerts      []*SecurityAlertV2
+	subscribers []AlertSubscriber
+	mu          sync.RWMutex
 	// 通知发送函数
-	sendEmailFunc  func(to, subject, body string) error
+	sendEmailFunc   func(to, subject, body string) error
 	sendWebhookFunc func(url string, payload map[string]interface{}) error
 }
 
 // AlertingConfig 告警配置
 type AlertingConfig struct {
-	Enabled         bool              `json:"enabled"`
-	EmailEnabled    bool              `json:"email_enabled"`
-	EmailRecipients []string          `json:"email_recipients"`
-	WeComEnabled    bool              `json:"wecom_enabled"`
-	WeComWebhook    string            `json:"wecom_webhook"`
-	WebhookEnabled  bool              `json:"webhook_enabled"`
-	WebhookURLs     []string          `json:"webhook_urls"`
-	MinSeverity     string            `json:"min_severity"` // 最小告警级别（low, medium, high, critical）
-	RateLimit       int               `json:"rate_limit"`   // 每分钟最大告警数
-	QuietHours      QuietHours        `json:"quiet_hours"`  // 免打扰时段
+	Enabled         bool       `json:"enabled"`
+	EmailEnabled    bool       `json:"email_enabled"`
+	EmailRecipients []string   `json:"email_recipients"`
+	WeComEnabled    bool       `json:"wecom_enabled"`
+	WeComWebhook    string     `json:"wecom_webhook"`
+	WebhookEnabled  bool       `json:"webhook_enabled"`
+	WebhookURLs     []string   `json:"webhook_urls"`
+	MinSeverity     string     `json:"min_severity"` // 最小告警级别（low, medium, high, critical）
+	RateLimit       int        `json:"rate_limit"`   // 每分钟最大告警数
+	QuietHours      QuietHours `json:"quiet_hours"`  // 免打扰时段
 }
 
 // QuietHours 免打扰时段配置
@@ -54,21 +54,21 @@ type AlertSubscriber struct {
 
 // SecurityAlertV2 安全告警（v2 版本）
 type SecurityAlertV2 struct {
-	ID          string                 `json:"id"`
-	Timestamp   time.Time              `json:"timestamp"`
-	Severity    string                 `json:"severity"` // low, medium, high, critical
-	Type        string                 `json:"type"`
-	Title       string                 `json:"title"`
-	Description string                 `json:"description"`
-	SourceIP    string                 `json:"source_ip,omitempty"`
-	Username    string                 `json:"username,omitempty"`
-	Resource    string                 `json:"resource,omitempty"`
-	Details     map[string]interface{} `json:"details,omitempty"`
-	Acknowledged bool                  `json:"acknowledged"`
-	AckedBy     string                 `json:"acked_by,omitempty"`
-	AckedAt     *time.Time             `json:"acked_at,omitempty"`
-	Notified    bool                   `json:"notified"`
-	NotifiedAt  *time.Time             `json:"notified_at,omitempty"`
+	ID           string                 `json:"id"`
+	Timestamp    time.Time              `json:"timestamp"`
+	Severity     string                 `json:"severity"` // low, medium, high, critical
+	Type         string                 `json:"type"`
+	Title        string                 `json:"title"`
+	Description  string                 `json:"description"`
+	SourceIP     string                 `json:"source_ip,omitempty"`
+	Username     string                 `json:"username,omitempty"`
+	Resource     string                 `json:"resource,omitempty"`
+	Details      map[string]interface{} `json:"details,omitempty"`
+	Acknowledged bool                   `json:"acknowledged"`
+	AckedBy      string                 `json:"acked_by,omitempty"`
+	AckedAt      *time.Time             `json:"acked_at,omitempty"`
+	Notified     bool                   `json:"notified"`
+	NotifiedAt   *time.Time             `json:"notified_at,omitempty"`
 }
 
 // NewAlertingManager 创建告警管理器

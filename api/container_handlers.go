@@ -9,8 +9,8 @@ import (
 
 // ContainerHandlers 容器 API 处理器
 type ContainerHandlers struct {
-	manager      *container.Manager
-	imageManager *container.ImageManager
+	manager        *container.Manager
+	imageManager   *container.ImageManager
 	networkManager *container.NetworkManager
 	volumeManager  *container.VolumeManager
 	composeManager *container.ComposeManager

@@ -100,12 +100,12 @@ func (nm *NetworkManager) GetNetwork(id string) (*Network, error) {
 	}
 
 	var raw struct {
-		ID         string    `json:"Id"`
-		Name       string    `json:"Name"`
-		Driver     string    `json:"Driver"`
-		Scope      string    `json:"Scope"`
-		Internal   bool      `json:"Internal"`
-		Attachable bool      `json:"Attachable"`
+		ID         string `json:"Id"`
+		Name       string `json:"Name"`
+		Driver     string `json:"Driver"`
+		Scope      string `json:"Scope"`
+		Internal   bool   `json:"Internal"`
+		Attachable bool   `json:"Attachable"`
 		IPAM       struct {
 			Config []struct {
 				Subnet  string `json:"Subnet"`
