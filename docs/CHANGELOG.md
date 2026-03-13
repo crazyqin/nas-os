@@ -6,6 +6,80 @@
 
 ---
 
+## [1.9.0] - 2026-03-14
+
+### 🎉 功能大更新 - 协议扩展 + 用户体验提升
+
+#### ✨ 新增功能
+
+**FTP 服务器**
+- 被动/主动模式支持
+- 匿名登录支持
+- 用户认证集成
+- 虚拟目录映射
+- 带宽限制配置
+- WebUI 配置界面
+
+**SFTP 服务器**
+- SSH 密钥认证
+- 用户权限隔离
+- chroot 目录限制
+- 安全文件传输
+- WebUI 配置界面
+
+**存储分层 (Storage Tiering)**
+- 热/冷数据自动分层
+- SSD 缓存层配置
+- HDD 存储层配置
+- 云存储归档层配置
+- 访问频率统计
+- 自动迁移规则
+- 分层状态可视化
+
+**文件标签系统 (File Tagging)**
+- 标签 CRUD 操作
+- 标签颜色和图标
+- 文件标签关联
+- 批量标签操作
+- 按标签搜索
+- 标签云显示
+
+**在线文档编辑 (OnlyOffice 集成)**
+- OnlyOffice 文档服务器集成
+- Office 文档预览
+- 在线编辑支持
+- 协作编辑支持
+- JWT 回调认证
+- 版本历史
+
+#### 🔧 改进优化
+
+- versioning 模块测试覆盖率: 72.2%
+- cloudsync 模块测试覆盖率: 19.3%
+- dedup 模块测试覆盖率: 75.7%
+- 新增多个模块的单元测试
+- 新增 API 处理器测试
+
+#### 📦 新增模块
+
+| 模块 | 路径 | 说明 |
+|------|------|------|
+| ftp | internal/ftp/ | FTP 服务器 |
+| sftp | internal/sftp/ | SFTP 服务器 |
+| tiering | internal/tiering/ | 存储分层 |
+| tags | internal/tags/ | 文件标签系统 |
+| office | internal/office/ | OnlyOffice 集成 |
+
+#### 📚 新增文档
+
+| 文档 | 路径 | 说明 |
+|------|------|------|
+| TODO-v1.9.0.md | docs/TODO-v1.9.0.md | 开发计划 |
+| office-integration.md | docs/office-integration.md | OnlyOffice 集成指南 |
+| security-audit-v1.9.0.md | docs/security-audit-v1.9.0.md | 安全审计报告 |
+
+---
+
 ## [1.8.0] - 2026-03-20
 
 ### 🎉 功能大更新 - 数据安全与智能管理
