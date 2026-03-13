@@ -131,14 +131,6 @@ type Config struct {
 	DiscoveryAuth bool   `json:"discoveryAuth"`
 }
 
-// Default configuration
-var defaultConfig = &Config{
-	Enabled:       true,
-	PortalIP:      "0.0.0.0",
-	PortalPort:    3260,
-	DiscoveryAuth: false,
-}
-
 // Errors
 var (
 	ErrTargetNotFound     = &ISError{Code: 404, Message: "target not found"}

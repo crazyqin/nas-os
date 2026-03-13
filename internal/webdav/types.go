@@ -43,14 +43,14 @@ type PropStat struct {
 
 // Prop 属性
 type Prop struct {
-	XMLName          xml.Name      `xml:"prop"`
-	Displayname      string        `xml:"displayname,omitempty"`
-	GetContentType   string        `xml:"getcontenttype,omitempty"`
-	GetContentLength int64         `xml:"getcontentlength,omitempty"`
-	GetLastModified  string        `xml:"getlastmodified,omitempty"`
-	GetETag          string        `xml:"getetag,omitempty"`
-	ResourceType     *ResourceType `xml:"resourcetype,omitempty"`
-	LockDiscovery    *LockDiscovery `xml:"lockdiscovery,omitempty"`
+	XMLName          xml.Name       `xml:"prop"`
+	Displayname      string         `xml:"displayname,omitempty"`
+	GetContentType   string         `xml:"getcontenttype,omitempty"`
+	GetContentLength int64          `xml:"getcontentlength,omitempty"`
+	GetLastModified  string         `xml:"getlastmodified,omitempty"`
+	GetETag          string         `xml:"getetag,omitempty"`
+	ResourceType     *ResourceType  `xml:"resourcetype,omitempty"`
+	LockDiscovery    *LockDiscovery `xml:"D:lockdiscovery,omitempty"`
 }
 
 // ResourceType 资源类型
