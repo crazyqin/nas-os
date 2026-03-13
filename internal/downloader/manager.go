@@ -255,7 +255,7 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 	if deleteFiles && task.DestPath != "" {
 		// 构建完整文件路径
 		filePath := filepath.Join(task.DestPath, task.Name)
-		
+
 		// 检查文件是否存在
 		if info, err := os.Stat(filePath); err == nil {
 			if info.IsDir() {
@@ -270,7 +270,7 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 				}
 			}
 		}
-		
+
 		// 如果配置了 Transmission/qBittorrent，从客户端也删除
 		if m.transmissionURL != "" && task.Type == TypeBT {
 			// TODO: 调用 Transmission API 删除种子
