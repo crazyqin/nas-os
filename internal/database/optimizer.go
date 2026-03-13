@@ -164,12 +164,12 @@ func (qc *QueryCache) Stats() CacheStats {
 	}
 
 	return CacheStats{
-		Size:     len(qc.cache),
-		MaxSize:  qc.maxSize,
-		TTL:      qc.ttl,
-		Hits:     hits,
-		Misses:   misses,
-		HitRate:  hitRate,
+		Size:    len(qc.cache),
+		MaxSize: qc.maxSize,
+		TTL:     qc.ttl,
+		Hits:    hits,
+		Misses:  misses,
+		HitRate: hitRate,
 	}
 }
 

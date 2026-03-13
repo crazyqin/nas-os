@@ -335,9 +335,9 @@ func (s *Server) buildPropfindResponse(href, fullPath string, info os.FileInfo, 
 		PropStat: []PropStat{
 			{
 				Prop: Prop{
-					Displayname:   info.Name(),
+					Displayname:     info.Name(),
 					GetLastModified: info.ModTime().UTC().Format(http.TimeFormat),
-					ResourceType:  s.resourceTypeXML(info),
+					ResourceType:    s.resourceTypeXML(info),
 				},
 				Status: "HTTP/1.1 200 OK",
 			},

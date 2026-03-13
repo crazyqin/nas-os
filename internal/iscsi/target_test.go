@@ -456,8 +456,8 @@ func TestCHAPAuthenticate(t *testing.T) {
 
 func TestValidateIQN(t *testing.T) {
 	tests := []struct {
-		iqn     string
-		valid   bool
+		iqn   string
+		valid bool
 	}{
 		{"iqn.2024-03.com.example:target1", true},
 		{"iqn.2024-03.com.example.nas:target1", true},

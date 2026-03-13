@@ -18,9 +18,9 @@ type SystemCollector struct {
 	mu     sync.RWMutex
 
 	// 历史数据
-	cpuHistory    []CPUMetric
-	memoryHistory []MemoryMetric
-	diskHistory   []DiskMetric
+	cpuHistory     []CPUMetric
+	memoryHistory  []MemoryMetric
+	diskHistory    []DiskMetric
 	networkHistory []NetworkMetric
 
 	// 上一次采集的数据（用于计算速率）
@@ -106,7 +106,7 @@ type DiskIOMetric struct {
 	ReadLatency  float64   `json:"read_latency"`  // ms
 	WriteLatency float64   `json:"write_latency"` // ms
 	IOPS         uint64    `json:"iops"`
-	Throughput   uint64    `json:"throughput"`    // bytes/s
+	Throughput   uint64    `json:"throughput"` // bytes/s
 	Timestamp    time.Time `json:"timestamp"`
 	// 内部使用
 	ReadMs  uint64 `json:"-"`
@@ -115,18 +115,18 @@ type DiskIOMetric struct {
 
 // NetworkMetric 网络指标
 type NetworkMetric struct {
-	Interface   string    `json:"interface"`
-	RXBytes     uint64    `json:"rx_bytes"`
-	TXBytes     uint64    `json:"tx_bytes"`
-	RXPackets   uint64    `json:"rx_packets"`
-	TXPackets   uint64    `json:"tx_packets"`
-	RXErrors    uint64    `json:"rx_errors"`
-	TXErrors    uint64    `json:"tx_errors"`
-	RXDropped   uint64    `json:"rx_dropped"`
-	TXDropped   uint64    `json:"tx_dropped"`
-	RXSpeed     uint64    `json:"rx_speed"`  // bytes/s
-	TXSpeed     uint64    `json:"tx_speed"`  // bytes/s
-	Timestamp   time.Time `json:"timestamp"`
+	Interface string    `json:"interface"`
+	RXBytes   uint64    `json:"rx_bytes"`
+	TXBytes   uint64    `json:"tx_bytes"`
+	RXPackets uint64    `json:"rx_packets"`
+	TXPackets uint64    `json:"tx_packets"`
+	RXErrors  uint64    `json:"rx_errors"`
+	TXErrors  uint64    `json:"tx_errors"`
+	RXDropped uint64    `json:"rx_dropped"`
+	TXDropped uint64    `json:"tx_dropped"`
+	RXSpeed   uint64    `json:"rx_speed"` // bytes/s
+	TXSpeed   uint64    `json:"tx_speed"` // bytes/s
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // NetworkIOMetric 网络 I/O 指标
@@ -145,26 +145,26 @@ type NetworkIOMetric struct {
 
 // SystemMetricsSummary 系统指标汇总
 type SystemMetricsSummary struct {
-	CPU     CPUMetric      `json:"cpu"`
-	Memory  MemoryMetric   `json:"memory"`
-	Disks   []DiskMetric   `json:"disks"`
-	DiskIO  []DiskIOMetric `json:"disk_io"`
+	CPU     CPUMetric       `json:"cpu"`
+	Memory  MemoryMetric    `json:"memory"`
+	Disks   []DiskMetric    `json:"disks"`
+	DiskIO  []DiskIOMetric  `json:"disk_io"`
 	Network []NetworkMetric `json:"network"`
-	Uptime  uint64         `json:"uptime_seconds"`
+	Uptime  uint64          `json:"uptime_seconds"`
 }
 
 // NewSystemCollector 创建系统指标收集器
 func NewSystemCollector(logger *zap.Logger, historySize int) *SystemCollector {
 	return &SystemCollector{
-		logger:       logger,
-		cpuHistory:   make([]CPUMetric, 0, historySize),
-		memoryHistory: make([]MemoryMetric, 0, historySize),
-		diskHistory:  make([]DiskMetric, 0, historySize*10),
+		logger:         logger,
+		cpuHistory:     make([]CPUMetric, 0, historySize),
+		memoryHistory:  make([]MemoryMetric, 0, historySize),
+		diskHistory:    make([]DiskMetric, 0, historySize*10),
 		networkHistory: make([]NetworkMetric, 0, historySize*5),
-		prevDiskIO:   make(map[string]DiskIOMetric),
-		prevNetwork:  make(map[string]NetworkIOMetric),
-		historySize:  historySize,
-		interval:     10 * time.Second,
+		prevDiskIO:     make(map[string]DiskIOMetric),
+		prevNetwork:    make(map[string]NetworkIOMetric),
+		historySize:    historySize,
+		interval:       10 * time.Second,
 	}
 }
 

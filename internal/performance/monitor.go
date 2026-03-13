@@ -17,35 +17,35 @@ import (
 // Metrics 性能指标
 type Metrics struct {
 	// API 性能指标
-	RequestCount    int64         `json:"requestCount"`
-	SuccessCount    int64         `json:"successCount"`
-	ErrorCount      int64         `json:"errorCount"`
-	AvgLatency      time.Duration `json:"avgLatency"`
-	MaxLatency      time.Duration `json:"maxLatency"`
-	MinLatency      time.Duration `json:"minLatency"`
-	P50Latency      time.Duration `json:"p50Latency"`
-	P95Latency      time.Duration `json:"p95Latency"`
-	P99Latency      time.Duration `json:"p99Latency"`
+	RequestCount int64         `json:"requestCount"`
+	SuccessCount int64         `json:"successCount"`
+	ErrorCount   int64         `json:"errorCount"`
+	AvgLatency   time.Duration `json:"avgLatency"`
+	MaxLatency   time.Duration `json:"maxLatency"`
+	MinLatency   time.Duration `json:"minLatency"`
+	P50Latency   time.Duration `json:"p50Latency"`
+	P95Latency   time.Duration `json:"p95Latency"`
+	P99Latency   time.Duration `json:"p99Latency"`
 
 	// 文件操作指标
-	FileListCount     int64 `json:"fileListCount"`
-	FileListAvgTime   int64 `json:"fileListAvgTime"` // ms
-	ThumbnailCount    int64 `json:"thumbnailCount"`
-	ThumbnailAvgTime  int64 `json:"thumbnailAvgTime"` // ms
-	UploadCount       int64 `json:"uploadCount"`
-	UploadBytes       int64 `json:"uploadBytes"`
-	DownloadCount     int64 `json:"downloadCount"`
-	DownloadBytes     int64 `json:"downloadBytes"`
+	FileListCount    int64 `json:"fileListCount"`
+	FileListAvgTime  int64 `json:"fileListAvgTime"` // ms
+	ThumbnailCount   int64 `json:"thumbnailCount"`
+	ThumbnailAvgTime int64 `json:"thumbnailAvgTime"` // ms
+	UploadCount      int64 `json:"uploadCount"`
+	UploadBytes      int64 `json:"uploadBytes"`
+	DownloadCount    int64 `json:"downloadCount"`
+	DownloadBytes    int64 `json:"downloadBytes"`
 
 	// 搜索指标
-	SearchCount      int64 `json:"searchCount"`
-	SearchAvgTime    int64 `json:"searchAvgTime"` // ms
-	IndexCount       int64 `json:"indexCount"`
-	IndexAvgTime     int64 `json:"indexAvgTime"` // ms
+	SearchCount   int64 `json:"searchCount"`
+	SearchAvgTime int64 `json:"searchAvgTime"` // ms
+	IndexCount    int64 `json:"indexCount"`
+	IndexAvgTime  int64 `json:"indexAvgTime"` // ms
 
 	// 缓存指标
-	CacheHits    int64 `json:"cacheHits"`
-	CacheMisses  int64 `json:"cacheMisses"`
+	CacheHits    int64   `json:"cacheHits"`
+	CacheMisses  int64   `json:"cacheMisses"`
 	CacheHitRate float64 `json:"cacheHitRate"`
 
 	// 数据库指标
@@ -74,9 +74,9 @@ type PerformanceMonitor struct {
 	logger *zap.Logger
 
 	// 计数器
-	requestCount   int64
-	successCount   int64
-	errorCount     int64
+	requestCount int64
+	successCount int64
+	errorCount   int64
 
 	// 延迟统计
 	latencies    []time.Duration
@@ -96,10 +96,10 @@ type PerformanceMonitor struct {
 	downloadBytes    int64
 
 	// 搜索
-	searchCount     int64
-	searchTimeSum   int64
-	indexCount      int64
-	indexTimeSum    int64
+	searchCount   int64
+	searchTimeSum int64
+	indexCount    int64
+	indexTimeSum  int64
 
 	// 缓存
 	cacheHits   int64
@@ -481,13 +481,13 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 			"timestamp": time.Now().Format(time.RFC3339),
 			"issues":    issues,
 			"metrics": gin.H{
-				"requestCount":  metrics.RequestCount,
-				"errorRate":     errorRate,
-				"avgLatencyMs":  metrics.AvgLatency.Milliseconds(),
-				"p95LatencyMs":  metrics.P95Latency.Milliseconds(),
-				"memoryMB":      metrics.MemoryAllocMB,
-				"goroutines":    metrics.GoroutineCount,
-				"cacheHitRate":  metrics.CacheHitRate,
+				"requestCount": metrics.RequestCount,
+				"errorRate":    errorRate,
+				"avgLatencyMs": metrics.AvgLatency.Milliseconds(),
+				"p95LatencyMs": metrics.P95Latency.Milliseconds(),
+				"memoryMB":     metrics.MemoryAllocMB,
+				"goroutines":   metrics.GoroutineCount,
+				"cacheHitRate": metrics.CacheHitRate,
 			},
 		},
 	})
@@ -495,11 +495,11 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 
 // PrometheusExporter Prometheus 指标导出器
 type PrometheusExporter struct {
-	monitor    *PerformanceMonitor
-	collector  *SystemCollector
-	storage    *StorageCollector
-	health     *HealthChecker
-	alerts     *AlertManager
+	monitor   *PerformanceMonitor
+	collector *SystemCollector
+	storage   *StorageCollector
+	health    *HealthChecker
+	alerts    *AlertManager
 }
 
 // NewPrometheusExporter 创建 Prometheus 导出器

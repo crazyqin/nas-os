@@ -7,43 +7,43 @@ import (
 
 // Target represents an iSCSI target
 type Target struct {
-	ID               string            `json:"id"`
-	IQN              string            `json:"iqn"`               // iSCSI Qualified Name
-	Name             string            `json:"name"`              // Friendly name
-	Alias            string            `json:"alias,omitempty"`   // Target alias
-	LUNs             []*LUN            `json:"luns"`              // Logical Unit Numbers
-	CHAP             *CHAPConfig       `json:"chap,omitempty"`    // CHAP authentication
-	MaxSessions      int               `json:"maxSessions"`       // Maximum concurrent sessions
-	CurrentSessions  int               `json:"currentSessions"`   // Current active sessions
-	AllowedInitiators []string         `json:"allowedInitiators,omitempty"` // Allowed initiator IQNs
-	Enabled          bool              `json:"enabled"`
-	CreatedAt        time.Time         `json:"createdAt"`
-	UpdatedAt        time.Time         `json:"updatedAt"`
+	ID                string      `json:"id"`
+	IQN               string      `json:"iqn"`                         // iSCSI Qualified Name
+	Name              string      `json:"name"`                        // Friendly name
+	Alias             string      `json:"alias,omitempty"`             // Target alias
+	LUNs              []*LUN      `json:"luns"`                        // Logical Unit Numbers
+	CHAP              *CHAPConfig `json:"chap,omitempty"`              // CHAP authentication
+	MaxSessions       int         `json:"maxSessions"`                 // Maximum concurrent sessions
+	CurrentSessions   int         `json:"currentSessions"`             // Current active sessions
+	AllowedInitiators []string    `json:"allowedInitiators,omitempty"` // Allowed initiator IQNs
+	Enabled           bool        `json:"enabled"`
+	CreatedAt         time.Time   `json:"createdAt"`
+	UpdatedAt         time.Time   `json:"updatedAt"`
 }
 
 // TargetInput for creating/updating targets
 type TargetInput struct {
-	Name             string   `json:"name" binding:"required"`
-	Alias            string   `json:"alias"`
-	IQN              string   `json:"iqn"` // Auto-generated if empty
-	MaxSessions      int      `json:"maxSessions"`
-	AllowedInitiators []string `json:"allowedInitiators"`
-	CHAP             *CHAPInput `json:"chap"`
+	Name              string     `json:"name" binding:"required"`
+	Alias             string     `json:"alias"`
+	IQN               string     `json:"iqn"` // Auto-generated if empty
+	MaxSessions       int        `json:"maxSessions"`
+	AllowedInitiators []string   `json:"allowedInitiators"`
+	CHAP              *CHAPInput `json:"chap"`
 }
 
 // LUN represents a Logical Unit Number
 type LUN struct {
-	ID          string       `json:"id"`
-	Number      int          `json:"number"`           // LUN number (0-255)
-	Name        string       `json:"name"`             // Friendly name
-	Type        LUNType      `json:"type"`             // file or block
-	Path        string       `json:"path"`             // File path or block device path
-	Size        int64        `json:"size"`             // Size in bytes
-	BlockSize   int          `json:"blockSize"`        // Block size (512, 4096, etc.)
-	ReadOnly    bool         `json:"readOnly"`
-	Snapshots   []*LUNSnapshot `json:"snapshots,omitempty"`
-	CreatedAt   time.Time    `json:"createdAt"`
-	UpdatedAt   time.Time    `json:"updatedAt"`
+	ID        string         `json:"id"`
+	Number    int            `json:"number"`    // LUN number (0-255)
+	Name      string         `json:"name"`      // Friendly name
+	Type      LUNType        `json:"type"`      // file or block
+	Path      string         `json:"path"`      // File path or block device path
+	Size      int64          `json:"size"`      // Size in bytes
+	BlockSize int            `json:"blockSize"` // Block size (512, 4096, etc.)
+	ReadOnly  bool           `json:"readOnly"`
+	Snapshots []*LUNSnapshot `json:"snapshots,omitempty"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
 }
 
 // LUNType defines the type of LUN backing
@@ -58,9 +58,9 @@ const (
 type LUNInput struct {
 	Name      string  `json:"name" binding:"required"`
 	Type      LUNType `json:"type" binding:"required"`
-	Path      string  `json:"path"`        // Auto-generated for file type
-	Size      int64   `json:"size"`        // Required for file type
-	BlockSize int     `json:"blockSize"`   // Default 512
+	Path      string  `json:"path"`      // Auto-generated for file type
+	Size      int64   `json:"size"`      // Required for file type
+	BlockSize int     `json:"blockSize"` // Default 512
 	ReadOnly  bool    `json:"readOnly"`
 }
 
@@ -85,11 +85,11 @@ type LUNSnapshotInput struct {
 
 // CHAPConfig holds CHAP authentication settings
 type CHAPConfig struct {
-	Enabled     bool   `json:"enabled"`
-	Username    string `json:"username"`
-	Secret      string `json:"secret,omitempty"`      // Hidden in responses
-	Mutual      bool   `json:"mutual"`               // Mutual CHAP enabled
-	MutualUser  string `json:"mutualUser,omitempty"`
+	Enabled      bool   `json:"enabled"`
+	Username     string `json:"username"`
+	Secret       string `json:"secret,omitempty"` // Hidden in responses
+	Mutual       bool   `json:"mutual"`           // Mutual CHAP enabled
+	MutualUser   string `json:"mutualUser,omitempty"`
 	MutualSecret string `json:"mutualSecret,omitempty"` // Hidden in responses
 }
 
@@ -115,12 +115,12 @@ type Session struct {
 
 // TargetStatus represents target operational status
 type TargetStatus struct {
-	IQN             string     `json:"iqn"`
-	Running         bool       `json:"running"`
-	Sessions        []*Session `json:"sessions"`
-	SessionCount    int        `json:"sessionCount"`
-	MaxSessions     int        `json:"maxSessions"`
-	LUNCount        int        `json:"lunCount"`
+	IQN          string     `json:"iqn"`
+	Running      bool       `json:"running"`
+	Sessions     []*Session `json:"sessions"`
+	SessionCount int        `json:"sessionCount"`
+	MaxSessions  int        `json:"maxSessions"`
+	LUNCount     int        `json:"lunCount"`
 }
 
 // Config for iSCSI service

@@ -858,16 +858,16 @@ type DirectoryQuotaInput struct {
 
 // UserQuotaResponse 用户配额响应
 type UserQuotaResponse struct {
-	Username     string       `json:"username"`
-	VolumeName   string       `json:"volume_name"`
-	HardLimit    uint64       `json:"hard_limit"`
-	SoftLimit    uint64       `json:"soft_limit"`
-	UsedBytes    uint64       `json:"used_bytes"`
-	UsagePercent float64      `json:"usage_percent"`
-	IsOverSoft   bool         `json:"is_over_soft"`
-	IsOverHard   bool         `json:"is_over_hard"`
-	Quota        *Quota       `json:"quota,omitempty"`
-	Usage        *QuotaUsage  `json:"usage,omitempty"`
+	Username     string      `json:"username"`
+	VolumeName   string      `json:"volume_name"`
+	HardLimit    uint64      `json:"hard_limit"`
+	SoftLimit    uint64      `json:"soft_limit"`
+	UsedBytes    uint64      `json:"used_bytes"`
+	UsagePercent float64     `json:"usage_percent"`
+	IsOverSoft   bool        `json:"is_over_soft"`
+	IsOverHard   bool        `json:"is_over_hard"`
+	Quota        *Quota      `json:"quota,omitempty"`
+	Usage        *QuotaUsage `json:"usage,omitempty"`
 }
 
 // GroupQuotaResponse 组配额响应

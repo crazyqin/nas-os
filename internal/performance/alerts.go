@@ -20,36 +20,36 @@ const (
 
 // Alert 告警
 type Alert struct {
-	ID           string                 `json:"id"`
-	Name         string                 `json:"name"`
-	Level        AlertLevel             `json:"level"`
-	Type         string                 `json:"type"`
-	Message      string                 `json:"message"`
-	Source       string                 `json:"source,omitempty"`
-	CurrentValue interface{}            `json:"current_value"`
-	Threshold    interface{}            `json:"threshold"`
-	Labels       map[string]string      `json:"labels,omitempty"`
-	Annotations  map[string]string      `json:"annotations,omitempty"`
-	Status       string                 `json:"status"` // firing, resolved
-	StartsAt     time.Time              `json:"starts_at"`
-	EndsAt       *time.Time             `json:"ends_at,omitempty"`
-	Acknowledged bool                   `json:"acknowledged"`
-	AcknowledgedBy string                `json:"acknowledged_by,omitempty"`
-	Silenced     bool                   `json:"silenced"`
-	Details      map[string]interface{} `json:"details,omitempty"`
+	ID             string                 `json:"id"`
+	Name           string                 `json:"name"`
+	Level          AlertLevel             `json:"level"`
+	Type           string                 `json:"type"`
+	Message        string                 `json:"message"`
+	Source         string                 `json:"source,omitempty"`
+	CurrentValue   interface{}            `json:"current_value"`
+	Threshold      interface{}            `json:"threshold"`
+	Labels         map[string]string      `json:"labels,omitempty"`
+	Annotations    map[string]string      `json:"annotations,omitempty"`
+	Status         string                 `json:"status"` // firing, resolved
+	StartsAt       time.Time              `json:"starts_at"`
+	EndsAt         *time.Time             `json:"ends_at,omitempty"`
+	Acknowledged   bool                   `json:"acknowledged"`
+	AcknowledgedBy string                 `json:"acknowledged_by,omitempty"`
+	Silenced       bool                   `json:"silenced"`
+	Details        map[string]interface{} `json:"details,omitempty"`
 }
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Type        string        `json:"type"`        // cpu, memory, disk, disk_io, network, service, performance
-	Metric      string        `json:"metric"`      // 指标名称
-	Operator    string        `json:"operator"`    // >, <, >=, <=, ==, !=
-	Threshold   float64       `json:"threshold"`   // 阈值
-	Level       AlertLevel    `json:"level"`       // warning, critical
-	Duration    time.Duration `json:"duration"`    // 持续时间
-	Enabled     bool          `json:"enabled"`     // 是否启用
+	ID          string            `json:"id"`
+	Name        string            `json:"name"`
+	Type        string            `json:"type"`      // cpu, memory, disk, disk_io, network, service, performance
+	Metric      string            `json:"metric"`    // 指标名称
+	Operator    string            `json:"operator"`  // >, <, >=, <=, ==, !=
+	Threshold   float64           `json:"threshold"` // 阈值
+	Level       AlertLevel        `json:"level"`     // warning, critical
+	Duration    time.Duration     `json:"duration"`  // 持续时间
+	Enabled     bool              `json:"enabled"`   // 是否启用
 	Labels      map[string]string `json:"labels,omitempty"`
 	Annotations map[string]string `json:"annotations,omitempty"`
 
@@ -63,25 +63,25 @@ type AlertRule struct {
 
 // AlertManager 告警管理器
 type AlertManager struct {
-	logger    *zap.Logger
-	mu        sync.RWMutex
+	logger *zap.Logger
+	mu     sync.RWMutex
 
-	rules     []*AlertRule
-	alerts    []*Alert
-	history   []*Alert
+	rules   []*AlertRule
+	alerts  []*Alert
+	history []*Alert
 
 	// 配置
 	maxAlerts  int
 	maxHistory int
 
 	// 回调
-	onAlert    func(alert *Alert)
-	onResolve  func(alert *Alert)
+	onAlert   func(alert *Alert)
+	onResolve func(alert *Alert)
 
 	// 收集器引用
-	collector  *SystemCollector
-	storage    *StorageCollector
-	health     *HealthChecker
+	collector *SystemCollector
+	storage   *StorageCollector
+	health    *HealthChecker
 }
 
 // NewAlertManager 创建告警管理器

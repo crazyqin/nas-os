@@ -395,3 +395,240 @@ func TestDeleteLUNSnapshotHandler(t *testing.T) {
 		t.Errorf("Expected status 200, got %d", w.Code)
 	}
 }
+
+// ========== Error Handler Tests ==========
+
+func TestAddLUNHandlerNotFound(t *testing.T) {
+	h, _, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: "non-existent"}}
+	req, _ := makeRequest("POST", "/iscsi/targets/non-existent/luns", LUNInput{Name: "test", Type: LUNTypeFile, Size: 1024 * 1024})
+	c.Request = req
+
+	h.addLUN(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}
+
+func TestAddLUNHandlerInvalidInput(t *testing.T) {
+	h, mgr, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "invalid-lun-target"})
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: target.ID}}
+	req, _ := makeRequest("POST", "/iscsi/targets/"+target.ID+"/luns", LUNInput{Name: "", Type: LUNTypeFile, Size: 1024})
+	c.Request = req
+
+	h.addLUN(c)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", w.Code)
+	}
+}
+
+func TestExpandLUNHandlerInvalidSize(t *testing.T) {
+	h, mgr, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "expand-invalid-target"})
+	lun, _ := mgr.AddLUN(target.ID, LUNInput{Name: "expand-invalid-lun", Type: LUNTypeFile, Size: 1024 * 1024 * 100})
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: target.ID}, {Key: "lunId", Value: lun.ID}}
+	// Try to shrink (which is not allowed)
+	req, _ := makeRequest("POST", "/iscsi/targets/"+target.ID+"/luns/"+lun.ID+"/expand", LUNExpandInput{Size: 1024 * 1024 * 50})
+	c.Request = req
+
+	h.expandLUN(c)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", w.Code)
+	}
+}
+
+func TestCreateTargetHandlerDuplicateName(t *testing.T) {
+	h, mgr, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	mgr.CreateTarget(TargetInput{Name: "dup-name"})
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	req, _ := makeRequest("POST", "/iscsi/targets", TargetInput{Name: "dup-name"})
+	c.Request = req
+
+	h.createTarget(c)
+
+	if w.Code != http.StatusConflict {
+		t.Errorf("Expected status 409, got %d", w.Code)
+	}
+}
+
+func TestCreateTargetHandlerInvalidInput(t *testing.T) {
+	h, _, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	req, _ := makeRequest("POST", "/iscsi/targets", TargetInput{Name: ""}) // Empty name
+	c.Request = req
+
+	h.createTarget(c)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", w.Code)
+	}
+}
+
+func TestRemoveLUNHandlerNotFound(t *testing.T) {
+	h, mgr, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "remove-lun-notfound-target"})
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: target.ID}, {Key: "lunId", Value: "non-existent"}}
+	req, _ := makeRequest("DELETE", "/iscsi/targets/"+target.ID+"/luns/non-existent", nil)
+	c.Request = req
+
+	h.removeLUN(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}
+
+func TestGetLUNHandlerNotFound(t *testing.T) {
+	h, mgr, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "get-lun-notfound-target"})
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: target.ID}, {Key: "lunId", Value: "non-existent"}}
+	req, _ := makeRequest("GET", "/iscsi/targets/"+target.ID+"/luns/non-existent", nil)
+	c.Request = req
+
+	h.getLUN(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}
+
+func TestListLUNsHandlerTargetNotFound(t *testing.T) {
+	h, _, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: "non-existent"}}
+	req, _ := makeRequest("GET", "/iscsi/targets/non-existent/luns", nil)
+	c.Request = req
+
+	h.listLUNs(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}
+
+func TestEnableTargetHandlerNotFound(t *testing.T) {
+	h, _, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: "non-existent"}}
+	req, _ := makeRequest("POST", "/iscsi/targets/non-existent/enable", nil)
+	c.Request = req
+
+	h.enableTarget(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}
+
+func TestDisableTargetHandlerNotFound(t *testing.T) {
+	h, _, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: "non-existent"}}
+	req, _ := makeRequest("POST", "/iscsi/targets/non-existent/disable", nil)
+	c.Request = req
+
+	h.disableTarget(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}
+
+func TestGetTargetStatusHandlerNotFound(t *testing.T) {
+	h, _, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: "non-existent"}}
+	req, _ := makeRequest("GET", "/iscsi/targets/non-existent/status", nil)
+	c.Request = req
+
+	h.getTargetStatus(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}
+
+func TestCreateLUNSnapshotHandlerNotFound(t *testing.T) {
+	h, mgr, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "snap-notfound-target"})
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: target.ID}, {Key: "lunId", Value: "non-existent"}}
+	req, _ := makeRequest("POST", "/iscsi/targets/"+target.ID+"/luns/non-existent/snapshots", LUNSnapshotInput{Name: "test"})
+	c.Request = req
+
+	h.createLUNSnapshot(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}
+
+func TestListLUNSnapshotsHandlerNotFound(t *testing.T) {
+	h, mgr, tmpDir := setupTestHandlers(t)
+	defer cleanupTestManager(tmpDir)
+
+	target, _ := mgr.CreateTarget(TargetInput{Name: "list-snap-notfound-target"})
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Params = gin.Params{{Key: "id", Value: target.ID}, {Key: "lunId", Value: "non-existent"}}
+	req, _ := makeRequest("GET", "/iscsi/targets/"+target.ID+"/luns/non-existent/snapshots", nil)
+	c.Request = req
+
+	h.listLUNSnapshots(c)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+}

@@ -159,7 +159,7 @@ func (c *FileListCache) startCleanup() {
 type ThumbnailCache struct {
 	cache     map[string]*ThumbnailEntry
 	mu        sync.RWMutex
-	maxSize   int // 最大条目数
+	maxSize   int   // 最大条目数
 	maxBytes  int64 // 最大字节数
 	curBytes  int64
 	hits      int64
@@ -300,10 +300,10 @@ func (c *ThumbnailCache) startCleanup() {
 
 // OptimizedManager 优化的文件管理器
 type OptimizedManager struct {
-	*Manager // 继承原有功能
-	fileListCache   *FileListCache
-	thumbnailCache  *ThumbnailCache
-	logger          *zap.Logger
+	*Manager       // 继承原有功能
+	fileListCache  *FileListCache
+	thumbnailCache *ThumbnailCache
+	logger         *zap.Logger
 
 	// 并发控制
 	thumbnailWorkers int
@@ -549,10 +549,10 @@ func (m *OptimizedManager) Close() {
 
 // SearchCache 搜索结果缓存
 type SearchCache struct {
-	cache     map[string]*CachedSearch
-	mu        sync.RWMutex
-	maxSize   int
-	ttl       time.Duration
+	cache   map[string]*CachedSearch
+	mu      sync.RWMutex
+	maxSize int
+	ttl     time.Duration
 }
 
 // CachedSearch 缓存的搜索结果
@@ -643,7 +643,7 @@ type BatchOperation struct {
 func (m *OptimizedManager) BatchDelete(paths []string) *BatchOperation {
 	result := &BatchOperation{
 		Success: make([]string, 0),
-		Failed:  make([]struct {
+		Failed: make([]struct {
 			Path  string `json:"path"`
 			Error string `json:"error"`
 		}, 0),
@@ -669,7 +669,7 @@ func (m *OptimizedManager) BatchDelete(paths []string) *BatchOperation {
 func (m *OptimizedManager) BatchRename(renames map[string]string) *BatchOperation {
 	result := &BatchOperation{
 		Success: make([]string, 0),
-		Failed:  make([]struct {
+		Failed: make([]struct {
 			Path  string `json:"path"`
 			Error string `json:"error"`
 		}, 0),
