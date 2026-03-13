@@ -195,8 +195,9 @@ func (h *Handlers) getGoroutines(c *gin.Context) {
 
 // clearCache 清空缓存
 func (h *Handlers) clearCache(c *gin.Context) {
-	if h.optimizer.GetCache() != nil {
-		// TODO: 添加 cache.Clear() 方法
+	cache := h.optimizer.GetCache()
+	if cache != nil {
+		cache.Clear()
 	}
 	c.JSON(http.StatusOK, success(map[string]string{
 		"status": "cache cleared",

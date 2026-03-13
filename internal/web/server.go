@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"nas-os/internal/ai_classify"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
 	"nas-os/internal/docker"
@@ -42,6 +43,7 @@ import (
 type Server struct {
 	engine        *gin.Engine
 	httpSrv       *http.Server
+	logger        *zap.Logger
 	storageMgr    *storage.Manager
 	userMgr       *users.Manager
 	mfaMgr        *auth.MFAManager
@@ -71,11 +73,17 @@ type Server struct {
 	trashMgr      *trash.Manager
 	replMgr       *replication.Manager
 	webdavSrv     *webdav.Server
+	aiClassifyMgr *ai_classify.Classifier
 	// mediaMgr      *media.LibraryManager
 }
 
 // NewServer 创建 Web 服务器
-func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager) *Server {
+func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Manager, nfsMgr *nfs.Manager, netMgr *network.Manager, downloadMgr *downloader.Manager, logger *zap.Logger) *Server {
+	// 如果未提供 logger，使用 nop logger
+	if logger == nil {
+		logger = zap.NewNop()
+	}
+
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 	engine.Use(gin.Recovery())
@@ -237,6 +245,15 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		}
 	}
 
+	// 初始化 AI 分类器
+	aiClassifyMgr, err := ai_classify.NewClassifier(ai_classify.DefaultConfig())
+	if err != nil {
+		log.Printf("⚠️ AI 分类器初始化警告：%v", err)
+		aiClassifyMgr = nil
+	} else {
+		log.Println("✅ AI 分类模块就绪")
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -245,6 +262,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	s := &Server{
 		engine:        engine,
+		logger:        logger,
 		storageMgr:    storMgr,
 		userMgr:       userMgr,
 		mfaMgr:        mfaMgr,
@@ -273,7 +291,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			mgr, _ := monitor.NewManager()
 			return mgr
 		}(),
-		optimizer: optimizer.NewOptimizer(nil, nil),
+		optimizer: optimizer.NewOptimizer(nil, logger),
 		trashMgr: func() *trash.Manager {
 			mgr, _ := trash.NewManager("/etc/nas-os/trash.json", "/var/lib/nas-os/trash", nil)
 			return mgr
@@ -286,6 +304,7 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			srv, _ := webdav.NewServer(nil)
 			return srv
 		}(),
+		aiClassifyMgr: aiClassifyMgr,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -411,6 +430,14 @@ func (s *Server) setupRoutes() {
 		// ========== WebDAV 服务器 ==========
 		if s.webdavSrv != nil {
 			webdav.NewHandlers(s.webdavSrv).RegisterRoutes(api)
+		}
+
+		// ========== AI 分类 ==========
+		if s.aiClassifyMgr != nil {
+			aiHandlers, err := ai_classify.NewHandlers(ai_classify.DefaultConfig())
+			if err == nil {
+				aiHandlers.RegisterRoutes(api)
+			}
 		}
 
 		// ========== 插件系统 ==========
