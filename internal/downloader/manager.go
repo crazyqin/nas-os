@@ -18,6 +18,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// HTTPClient 超时配置
+const (
+	httpTimeout    = 30 * time.Minute
+	connectTimeout = 30 * time.Second
+)
+
 // Manager 下载管理器
 type Manager struct {
 	mu         sync.RWMutex
