@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAS-OS 实时监控大屏</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --bg-card-hover: #334155;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --border-color: #334155;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* 顶部导航 */
+        .top-nav {
+            background: linear-gradient(135deg, #1E3A5F 0%, #0F172A 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .nav-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60A5FA, #A78BFA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-time {
+            text-align: right;
+        }
+        
+        .nav-time .date {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .nav-time .time {
+            font-size: 1.75rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .nav-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 999px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 1.5rem;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* 核心指标卡片 */
+        .metric-card {
+            grid-column: span 1;
+        }
+        
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .metric-value.good { color: var(--success); }
+        .metric-value.warning { color: var(--warning); }
+        .metric-value.danger { color: var(--danger); }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .metric-progress {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .metric-progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .metric-progress-bar.good { background: linear-gradient(90deg, #10B981, #34D399); }
+        .metric-progress-bar.warning { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+        .metric-progress-bar.danger { background: linear-gradient(90deg, #EF4444, #F87171); }
+        
+        .metric-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        /* 图表卡片 */
+        .chart-card {
+            grid-column: span 2;
+        }
+        
+        .chart-container {
+            height: 280px;
+            position: relative;
+        }
+        
+        /* 服务状态卡片 */
+        .services-card {
+            grid-column: span 1;
+        }
+        
+        .service-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .service-name {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .service-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .service-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.running {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34D399;
+        }
+        
+        .status-badge.stopped {
+            background: rgba(239, 68, 68, 0.2);
+            color: #F87171;
+        }
+        
+        /* 磁盘状态卡片 */
+        .disk-card {
+            grid-column: span 1;
+        }
+        
+        .disk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .disk-item {
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .disk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .disk-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .disk-temp {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .disk-temp.normal { background: rgba(16, 185, 129, 0.2); color: #34D399; }
+        .disk-temp.warm { background: rgba(245, 158, 11, 0.2); color: #FBBF24; }
+        .disk-temp.hot { background: rgba(239, 68, 68, 0.2); color: #F87171; }
+        
+        .disk-progress {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .disk-progress-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        
+        .disk-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        /* 网络流量卡片 */
+        .network-card {
+            grid-column: span 1;
+        }
+        
+        .network-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .network-stat {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+        }
+        
+        .network-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .network-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .network-stat.upload .network-stat-value { color: #F472B6; }
+        .network-stat.download .network-stat-value { color: #60A5FA; }
+        
+        /* 告警卡片 */
+        .alerts-card {
+            grid-column: span 2;
+        }
+        
+        .alerts-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid;
+        }
+        
+        .alert-item.critical {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .alert-item.warning {
+            border-left-color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .alert-item.info {
+            border-left-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .alert-icon {
+            font-size: 1.25rem;
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-message {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .alert-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .alert-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        
+        /* 进程卡片 */
+        .processes-card {
+            grid-column: span 1;
+        }
+        
+        .process-list {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        
+        .process-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .process-item:last-child {
+            border-bottom: none;
+        }
+        
+        .process-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .process-cpu, .process-mem {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            min-width: 60px;
+            text-align: right;
+        }
+        
+        /* 系统信息 */
+        .system-info {
+            grid-column: span 3;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        
+        .info-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .info-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        /* 响应式 */
+        @media (max-width: 1400px) {
+            .main-content {
+                grid-template-columns: 1fr 1fr;
+            }
+            .chart-card, .alerts-card {
+                grid-column: span 2;
+            }
+            .system-info {
+                grid-column: span 2;
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .chart-card, .alerts-card, .system-info {
+                grid-column: span 1;
+            }
+            .system-info {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+        
+        /* 全屏按钮 */
+        .fullscreen-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: transform 0.2s, background 0.2s;
+            z-index: 1000;
+        }
+        
+        .fullscreen-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-title">
+            <span style="font-size: 2rem;">📊</span>
+            <h1>NAS-OS 实时监控大屏</h1>
+        </div>
+        <div class="nav-status">
+            <span class="status-dot"></span>
+            <span>系统运行正常</span>
+        </div>
+        <div class="nav-time">
+            <div class="date" id="currentDate">--</div>
+            <div class="time" id="currentTime">--:--:--</div>
+        </div>
+    </nav>
+    
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- CPU 使用率 -->
+        <div class="card metric-card">
+            <div class="card-header">
+                <span class="card-title">💻 CPU 使用率</span>
+                <span style="color: var(--text-secondary); font-size: 0.875rem;" id="cpuCores">-- 核心</span>
+            </div>
+            <div class="card-body">
+                <div class="metric-value" id="cpuValue">--</div>
+                <div class="metric-label">当前使用率</div>
+                <div class="metric-progress">
+                    <div class="metric-progress-bar" id="cpuBar" style="width: 0%"></div>
+                </div>
+                <div class="metric-details">
+                    <span>用户: <span id="cpuUser">--</span></span>
+                    <span>系统: <span id="cpuSystem">--</span></span>
+                    <span>空闲: <span id="cpuIdle">--</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 内存使用率 -->
+        <div class="card metric-card">
+            <div class="card-header">
+                <span class="card-title">🧠 内存使用率</span>
+                <span style="color: var(--text-secondary); font-size: 0.875rem;" id="memTotal">-- GB</span>
+            </div>
+            <div class="card-body">
+                <div class="metric-value" id="memValue">--</div>
+                <div class="metric-label">当前使用率</div>
+                <div class="metric-progress">
+                    <div class="metric-progress-bar" id="memBar" style="width: 0%"></div>
+                </div>
+                <div class="metric-details">
+                    <span>已用: <span id="memUsed">--</span></span>
+                    <span>缓存: <span id="memCached">--</span></span>
+                    <span>可用: <span id="memAvailable">--</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 磁盘使用率 -->
+        <div class="card metric-card">
+            <div class="card-header">
+                <span class="card-title">💾 磁盘使用率</span>
+                <span style="color: var(--text-secondary); font-size: 0.875rem;" id="diskTotal">-- TB</span>
+            </div>
+            <div class="card-body">
+                <div class="metric-value" id="diskValue">--</div>
+                <div class="metric-label">当前使用率</div>
+                <div class="metric-progress">
+                    <div class="metric-progress-bar" id="diskBar" style="width: 0%"></div>
+                </div>
+                <div class="metric-details">
+                    <span>已用: <span id="diskUsed">--</span></span>
+                    <span>读速: <span id="diskRead">--</span></span>
+                    <span>写速: <span id="diskWrite">--</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CPU/内存趋势图 -->
+        <div class="card chart-card">
+            <div class="card-header">
+                <span class="card-title">📈 CPU & 内存趋势</span>
+                <select id="trendRange" style="background: var(--bg-dark); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.25rem 0.5rem; border-radius: 4px;">
+                    <option value="1h">1 小时</option>
+                    <option value="6h" selected>6 小时</option>
+                    <option value="24h">24 小时</option>
+                </select>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="resourceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 服务状态 -->
+        <div class="card services-card">
+            <div class="card-header">
+                <span class="card-title">⚙️ 服务状态</span>
+            </div>
+            <div class="card-body">
+                <div class="service-list" id="serviceList">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 磁盘状态 -->
+        <div class="card disk-card">
+            <div class="card-header">
+                <span class="card-title">💿 磁盘状态</span>
+            </div>
+            <div class="card-body">
+                <div class="disk-list" id="diskList">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 网络流量 -->
+        <div class="card network-card">
+            <div class="card-header">
+                <span class="card-title">🌐 网络流量</span>
+            </div>
+            <div class="card-body">
+                <div class="network-stats">
+                    <div class="network-stat upload">
+                        <div class="network-stat-value" id="uploadSpeed">-- KB/s</div>
+                        <div class="network-stat-label">↑ 上传</div>
+                    </div>
+                    <div class="network-stat download">
+                        <div class="network-stat-value" id="downloadSpeed">-- KB/s</div>
+                        <div class="network-stat-label">↓ 下载</div>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 150px;">
+                    <canvas id="networkChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 告警 -->
+        <div class="card alerts-card">
+            <div class="card-header">
+                <span class="card-title">🚨 活动告警</span>
+                <span style="background: rgba(239, 68, 68, 0.2); color: #F87171; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem;" id="alertCount">0</span>
+            </div>
+            <div class="card-body">
+                <div class="alerts-list" id="alertsList">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 进程监控 -->
+        <div class="card processes-card">
+            <div class="card-header">
+                <span class="card-title">📋 Top 进程 (CPU)</span>
+            </div>
+            <div class="card-body">
+                <div class="process-list" id="processList">
+                    <div class="process-item" style="font-weight: 600; color: var(--text-secondary);">
+                        <span class="process-name">进程名</span>
+                        <span class="process-cpu">CPU%</span>
+                        <span class="process-mem">内存%</span>
+                    </div>
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 系统信息 -->
+        <div class="system-info">
+            <div class="info-item">
+                <div class="info-value" id="sysUptime">--</div>
+                <div class="info-label">运行时间</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value" id="sysHostname">--</div>
+                <div class="info-label">主机名</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value" id="sysIP">--</div>
+                <div class="info-label">IP 地址</div>
+            </div>
+            <div class="info-item">
+                <div class="info-value" id="sysVersion">--</div>
+                <div class="info-label">系统版本</div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 全屏按钮 -->
+    <button class="fullscreen-btn" onclick="toggleFullscreen()" title="全屏">⛶</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const API_BASE = '/api/v1';
+        let resourceChart, networkChart;
+        let resourceData = { labels: [], cpu: [], memory: [] };
+        let networkData = { labels: [], upload: [], download: [] };
+        const MAX_POINTS = 60;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            updateTime();
+            setInterval(updateTime, 1000);
+            fetchAllData();
+            setInterval(fetchAllData, 5000);
+        });
+        
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('zh-CN', {
+                year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+            });
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('zh-CN', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            const ctx1 = document.getElementById('resourceChart').getContext('2d');
+            resourceChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'CPU %',
+                        data: [],
+                        borderColor: '#60A5FA',
+                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0
+                    }, {
+                        label: '内存 %',
+                        data: [],
+                        borderColor: '#34D399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94A3B8' } }
+                    },
+                    scales: {
+                        x: { 
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94A3B8', maxTicksLimit: 10 }
+                        },
+                        y: { 
+                            min: 0, max: 100,
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94A3B8' }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+            
+            const ctx2 = document.getElementById('networkChart').getContext('2d');
+            networkChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '上传',
+                        data: [],
+                        borderColor: '#F472B6',
+                        backgroundColor: 'rgba(244, 114, 182, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0
+                    }, {
+                        label: '下载',
+                        data: [],
+                        borderColor: '#60A5FA',
+                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { 
+                            display: false
+                        },
+                        y: { 
+                            min: 0,
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94A3B8' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 获取所有数据
+        async function fetchAllData() {
+            try {
+                const [statsRes, alertsRes, disksRes, servicesRes, processesRes] = await Promise.all([
+                    fetch(`${API_BASE}/monitor/stats`),
+                    fetch(`${API_BASE}/monitor/alerts?limit=10`),
+                    fetch(`${API_BASE}/storage/disks`),
+                    fetch(`${API_BASE}/services`),
+                    fetch(`${API_BASE}/monitor/processes?limit=10`)
+                ]);
+                
+                const stats = await statsRes.json();
+                const alerts = await alertsRes.json();
+                const disks = await disksRes.json();
+                const services = await servicesRes.json();
+                const processes = await processesRes.json();
+                
+                if (stats.code === 0) updateStats(stats.data);
+                if (alerts.code === 0) updateAlerts(alerts.data);
+                if (disks.code === 0) updateDisks(disks.data);
+                if (services.code === 0) updateServices(services.data);
+                if (processes.code === 0) updateProcesses(processes.data);
+                
+            } catch (error) {
+                console.error('数据获取失败:', error);
+                // 使用模拟数据
+                updateStats(generateMockStats());
+                updateAlerts([]);
+                updateDisks(generateMockDisks());
+                updateServices(generateMockServices());
+                updateProcesses(generateMockProcesses());
+            }
+        }
+        
+        // 更新统计
+        function updateStats(data) {
+            // CPU
+            const cpu = data.cpuUsage || 0;
+            const cpuEl = document.getElementById('cpuValue');
+            cpuEl.textContent = cpu.toFixed(1) + '%';
+            cpuEl.className = 'metric-value ' + getStatusClass(cpu);
+            
+            document.getElementById('cpuCores').textContent = (data.cpuCores || 4) + ' 核心';
+            document.getElementById('cpuUser').textContent = (data.cpuUser || cpu * 0.6).toFixed(1) + '%';
+            document.getElementById('cpuSystem').textContent = (data.cpuSystem || cpu * 0.3).toFixed(1) + '%';
+            document.getElementById('cpuIdle').textContent = (100 - cpu).toFixed(1) + '%';
+            
+            const cpuBar = document.getElementById('cpuBar');
+            cpuBar.style.width = cpu + '%';
+            cpuBar.className = 'metric-progress-bar ' + getStatusClass(cpu);
+            
+            // 内存
+            const mem = data.memoryUsage || 0;
+            const memEl = document.getElementById('memValue');
+            memEl.textContent = mem.toFixed(1) + '%';
+            memEl.className = 'metric-value ' + getStatusClass(mem);
+            
+            const memTotal = (data.memoryTotal / 1024 / 1024 / 1024).toFixed(1);
+            const memUsed = (data.memoryUsed / 1024 / 1024 / 1024).toFixed(1);
+            document.getElementById('memTotal').textContent = memTotal + ' GB';
+            document.getElementById('memUsed').textContent = memUsed + ' GB';
+            document.getElementById('memCached').textContent = (data.memoryCached || data.memoryUsed * 0.3 / 1024 / 1024 / 1024).toFixed(1) + ' GB';
+            document.getElementById('memAvailable').textContent = (memTotal - memUsed).toFixed(1) + ' GB';
+            
+            const memBar = document.getElementById('memBar');
+            memBar.style.width = mem + '%';
+            memBar.className = 'metric-progress-bar ' + getStatusClass(mem);
+            
+            // 磁盘
+            const disk = data.diskUsage || 0;
+            const diskEl = document.getElementById('diskValue');
+            diskEl.textContent = disk.toFixed(1) + '%';
+            diskEl.className = 'metric-value ' + getStatusClass(disk);
+            
+            const diskTotal = (data.diskTotal / 1024 / 1024 / 1024 / 1024).toFixed(2);
+            const diskUsed = (data.diskUsed / 1024 / 1024 / 1024 / 1024).toFixed(2);
+            document.getElementById('diskTotal').textContent = diskTotal + ' TB';
+            document.getElementById('diskUsed').textContent = diskUsed + ' TB';
+            document.getElementById('diskRead').textContent = formatSpeed(data.diskReadSpeed || 0);
+            document.getElementById('diskWrite').textContent = formatSpeed(data.diskWriteSpeed || 0);
+            
+            const diskBar = document.getElementById('diskBar');
+            diskBar.style.width = disk + '%';
+            diskBar.className = 'metric-progress-bar ' + getStatusClass(disk);
+            
+            // 网络
+            document.getElementById('uploadSpeed').textContent = formatSpeed(data.networkTx || 0);
+            document.getElementById('downloadSpeed').textContent = formatSpeed(data.networkRx || 0);
+            
+            // 系统信息
+            document.getElementById('sysUptime').textContent = formatUptime(data.uptime || 0);
+            document.getElementById('sysHostname').textContent = data.hostname || 'nas-os';
+            document.getElementById('sysIP').textContent = data.ipAddress || '192.168.1.100';
+            document.getElementById('sysVersion').textContent = data.version || 'v2.5.0';
+            
+            // 更新图表
+            updateCharts(data);
+        }
+        
+        // 更新图表
+        function updateCharts(data) {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            
+            // 资源图表
+            if (resourceChart.data.labels.length >= MAX_POINTS) {
+                resourceChart.data.labels.shift();
+                resourceChart.data.datasets[0].data.shift();
+                resourceChart.data.datasets[1].data.shift();
+            }
+            resourceChart.data.labels.push(timeLabel);
+            resourceChart.data.datasets[0].data.push(data.cpuUsage || 0);
+            resourceChart.data.datasets[1].data.push(data.memoryUsage || 0);
+            resourceChart.update('none');
+            
+            // 网络图表
+            if (networkChart.data.labels.length >= MAX_POINTS) {
+                networkChart.data.labels.shift();
+                networkChart.data.datasets[0].data.shift();
+                networkChart.data.datasets[1].data.shift();
+            }
+            networkChart.data.labels.push(timeLabel);
+            networkChart.data.datasets[0].data.push((data.networkTx || 0) / 1024);
+            networkChart.data.datasets[1].data.push((data.networkRx || 0) / 1024);
+            networkChart.update('none');
+        }
+        
+        // 更新告警
+        function updateAlerts(alerts) {
+            document.getElementById('alertCount').textContent = alerts.length;
+            
+            const list = document.getElementById('alertsList');
+            if (alerts.length === 0) {
+                list.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-secondary);">暂无活动告警 ✅</div>';
+                return;
+            }
+            
+            list.innerHTML = alerts.map(alert => `
+                <div class="alert-item ${alert.level || 'info'}">
+                    <span class="alert-icon">${getAlertIcon(alert.level)}</span>
+                    <div class="alert-content">
+                        <div class="alert-message">${alert.message}</div>
+                        <div class="alert-meta">${alert.source || '系统'} • ${alert.type || '告警'}</div>
+                    </div>
+                    <span class="alert-time">${formatTime(alert.timestamp)}</span>
+                </div>
+            `).join('');
+        }
+        
+        // 更新磁盘
+        function updateDisks(disks) {
+            const list = document.getElementById('diskList');
+            list.innerHTML = disks.map(disk => `
+                <div class="disk-item">
+                    <div class="disk-header">
+                        <span class="disk-name">💿 ${disk.name || disk.device}</span>
+                        <span class="disk-temp ${getTempClass(disk.temperature)}">${disk.temperature || '--'}°C</span>
+                    </div>
+                    <div class="disk-progress">
+                        <div class="disk-progress-bar ${getStatusClass(disk.usage)}" style="width: ${disk.usage || 0}%"></div>
+                    </div>
+                    <div class="disk-stats">
+                        <span>${disk.model || 'Unknown'}</span>
+                        <span>${formatSize(disk.size)}</span>
+                        <span>${disk.usage?.toFixed(1) || 0}%</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 更新服务
+        function updateServices(services) {
+            const list = document.getElementById('serviceList');
+            list.innerHTML = services.map(svc => `
+                <div class="service-item">
+                    <span class="service-name">
+                        <span class="service-icon" style="background: ${svc.running ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}">${getServiceIcon(svc.name)}</span>
+                        ${svc.displayName || svc.name}
+                    </span>
+                    <span class="service-status">
+                        <span class="status-badge ${svc.running ? 'running' : 'stopped'}">${svc.running ? '运行中' : '已停止'}</span>
+                    </span>
+                </div>
+            `).join('');
+        }
+        
+        // 更新进程
+        function updateProcesses(processes) {
+            const list = document.getElementById('processList');
+            list.innerHTML = `
+                <div class="process-item" style="font-weight: 600; color: var(--text-secondary);">
+                    <span class="process-name">进程名</span>
+                    <span class="process-cpu">CPU%</span>
+                    <span class="process-mem">内存%</span>
+                </div>
+                ${processes.map(proc => `
+                    <div class="process-item">
+                        <span class="process-name">${proc.name}</span>
+                        <span class="process-cpu">${proc.cpu.toFixed(1)}%</span>
+                        <span class="process-mem">${proc.memory.toFixed(1)}%</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        // 辅助函数
+        function getStatusClass(value) {
+            if (value >= 90) return 'danger';
+            if (value >= 75) return 'warning';
+            return 'good';
+        }
+        
+        function getTempClass(temp) {
+            if (temp >= 60) return 'hot';
+            if (temp >= 45) return 'warm';
+            return 'normal';
+        }
+        
+        function getAlertIcon(level) {
+            switch(level) {
+                case 'critical': return '🔴';
+                case 'warning': return '🟡';
+                default: return '🔵';
+            }
+        }
+        
+        function getServiceIcon(name) {
+            const icons = {
+                'smb': '📁',
+                'nfs': '📂',
+                'web': '🌐',
+                'docker': '🐳',
+                'backup': '💾',
+                'monitor': '📊'
+            };
+            return icons[name.toLowerCase()] || '⚙️';
+        }
+        
+        function formatSize(bytes) {
+            if (bytes >= 1e12) return (bytes / 1e12).toFixed(1) + ' TB';
+            if (bytes >= 1e9) return (bytes / 1e9).toFixed(1) + ' GB';
+            if (bytes >= 1e6) return (bytes / 1e6).toFixed(1) + ' MB';
+            return (bytes / 1e3).toFixed(1) + ' KB';
+        }
+        
+        function formatSpeed(bytes) {
+            if (bytes >= 1e6) return (bytes / 1e6).toFixed(1) + ' MB/s';
+            if (bytes >= 1e3) return (bytes / 1e3).toFixed(1) + ' KB/s';
+            return bytes + ' B/s';
+        }
+        
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            if (days > 0) return `${days}天 ${hours}小时`;
+            const mins = Math.floor((seconds % 3600) / 60);
+            return `${hours}小时 ${mins}分`;
+        }
+        
+        function formatTime(timestamp) {
+            if (!timestamp) return '--';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // 模拟数据
+        function generateMockStats() {
+            return {
+                cpuUsage: Math.random() * 30 + 20,
+                cpuCores: 8,
+                cpuUser: Math.random() * 20 + 10,
+                cpuSystem: Math.random() * 10 + 5,
+                memoryUsage: Math.random() * 30 + 40,
+                memoryTotal: 16 * 1024 * 1024 * 1024,
+                memoryUsed: 8 * 1024 * 1024 * 1024,
+                diskUsage: Math.random() * 20 + 50,
+                diskTotal: 4 * 1024 * 1024 * 1024 * 1024,
+                diskUsed: 2 * 1024 * 1024 * 1024 * 1024,
+                diskReadSpeed: Math.random() * 100 * 1024 * 1024,
+                diskWriteSpeed: Math.random() * 50 * 1024 * 1024,
+                networkRx: Math.random() * 10 * 1024 * 1024,
+                networkTx: Math.random() * 5 * 1024 * 1024,
+                uptime: Math.floor(Math.random() * 86400 * 15),
+                hostname: 'nas-os',
+                ipAddress: '192.168.1.100',
+                version: 'v2.5.0'
+            };
+        }
+        
+        function generateMockDisks() {
+            return [
+                { name: 'sda', device: '/dev/sda', model: 'WDC WD40EFRX', size: 4e12, usage: 55, temperature: 38 },
+                { name: 'sdb', device: '/dev/sdb', model: 'WDC WD40EFRX', size: 4e12, usage: 62, temperature: 40 },
+                { name: 'sdc', device: '/dev/sdc', model: 'Samsung 860 EVO', size: 1e12, usage: 45, temperature: 35 }
+            ];
+        }
+        
+        function generateMockServices() {
+            return [
+                { name: 'smb', displayName: 'SMB 服务', running: true },
+                { name: 'nfs', displayName: 'NFS 服务', running: true },
+                { name: 'web', displayName: 'Web 服务', running: true },
+                { name: 'docker', displayName: 'Docker', running: true },
+                { name: 'backup', displayName: '备份服务', running: true }
+            ];
+        }
+        
+        function generateMockProcesses() {
+            return [
+                { name: 'nasd', cpu: 5.2, memory: 2.1 },
+                { name: 'smbd', cpu: 3.1, memory: 1.5 },
+                { name: 'docker', cpu: 2.8, memory: 3.2 },
+                { name: 'node_exporter', cpu: 0.5, memory: 0.3 },
+                { name: 'rsync', cpu: 1.2, memory: 0.8 }
+            ];
+        }
+    </script>
+</body>
+</html>

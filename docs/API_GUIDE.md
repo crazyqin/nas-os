@@ -1,7 +1,7 @@
 # NAS-OS API 使用指南
 
-**版本**: v2.3.0  
-**更新日期**: 2026-03-28
+**版本**: v2.5.0  
+**更新日期**: 2026-03-14
 
 ---
 
@@ -1579,6 +1579,281 @@ curl http://localhost:8080/api/v1/tags/cloud \
 
 ---
 
+## 快照复制 🆕 v2.5.0
+
+### 获取复制任务列表
+
+```bash
+curl http://localhost:8080/api/v1/snapshot-replication \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "id": "repl-001",
+      "name": "数据备份复制",
+      "source_volume": "data",
+      "target_node": "node-2",
+      "target_path": "/backup/data",
+      "mode": "incremental",
+      "schedule": "0 */6 * * *",
+      "enabled": true,
+      "last_run": "2026-03-14T06:00:00Z",
+      "next_run": "2026-03-14T12:00:00Z",
+      "status": "completed",
+      "bytes_transferred": 1073741824
+    }
+  ]
+}
+```
+
+### 创建复制任务
+
+```bash
+curl -X POST http://localhost:8080/api/v1/snapshot-replication \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "数据备份复制",
+    "source_volume": "data",
+    "source_snapshot": "latest",
+    "target_node": "node-2",
+    "target_path": "/backup/data",
+    "mode": "incremental",
+    "schedule": "0 */6 * * *",
+    "bandwidth_limit": 10485760,
+    "enabled": true
+  }'
+```
+
+### 手动触发复制
+
+```bash
+curl -X POST http://localhost:8080/api/v1/snapshot-replication/repl-001/run \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 获取复制状态
+
+```bash
+curl http://localhost:8080/api/v1/snapshot-replication/repl-001/status \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "id": "repl-001",
+    "status": "running",
+    "progress": 45.5,
+    "bytes_transferred": 536870912,
+    "bytes_total": 1073741824,
+    "speed": 10485760,
+    "eta": "00:05:30",
+    "started_at": "2026-03-14T12:00:00Z"
+  }
+}
+```
+
+---
+
+## 磁盘加密管理 🆕 v2.5.0
+
+### 获取加密状态
+
+```bash
+curl http://localhost:8080/api/v1/encryption \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "enabled": true,
+    "algorithm": "aes-xts-plain64",
+    "key_size": 512,
+    "encrypted_devices": [
+      {
+        "device": "/dev/sdb1",
+        "name": "data_crypt",
+        "active": true,
+        "size": 4000787030016
+      }
+    ]
+  }
+}
+```
+
+### 启用磁盘加密
+
+```bash
+curl -X POST http://localhost:8080/api/v1/encryption/enable \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device": "/dev/sdb1",
+    "passphrase": "your-secure-passphrase",
+    "keyfile": "/etc/nas-os/encryption/keyfile"
+  }'
+```
+
+### 密钥轮换
+
+```bash
+curl -X POST http://localhost:8080/api/v1/encryption/rotate-key \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device": "/dev/sdb1",
+    "old_passphrase": "old-passphrase",
+    "new_passphrase": "new-passphrase"
+  }'
+```
+
+### 解锁加密设备
+
+```bash
+curl -X POST http://localhost:8080/api/v1/encryption/unlock \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device": "/dev/sdb1",
+    "passphrase": "your-passphrase"
+  }'
+```
+
+### 锁定加密设备
+
+```bash
+curl -X POST http://localhost:8080/api/v1/encryption/lock \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device": "/dev/sdb1"
+  }'
+```
+
+---
+
+## 高可用管理 🆕 v2.5.0
+
+### 获取集群状态
+
+```bash
+curl http://localhost:8080/api/v1/ha/cluster \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "cluster_name": "nas-cluster",
+    "status": "healthy",
+    "nodes": [
+      {
+        "id": "node-1",
+        "hostname": "nas-primary",
+        "role": "primary",
+        "status": "online",
+        "vip": "192.168.1.99"
+      },
+      {
+        "id": "node-2",
+        "hostname": "nas-secondary",
+        "role": "secondary",
+        "status": "online",
+        "vip": null
+      }
+    ],
+    "failover_enabled": true
+  }
+}
+```
+
+### 手动故障转移
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ha/failover \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target_node": "node-2",
+    "force": false
+  }'
+```
+
+### 获取故障历史
+
+```bash
+curl http://localhost:8080/api/v1/ha/failover-history \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## 备份增强 🆕 v2.5.0
+
+### 创建增量备份
+
+```bash
+curl -X POST http://localhost:8080/api/v1/backup/incremental \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "daily-incremental",
+    "source_path": "/data",
+    "destination": "/backup/data",
+    "base_snapshot": "snap-20260313-001",
+    "schedule": "0 2 * * *"
+  }'
+```
+
+### 验证备份完整性
+
+```bash
+curl -X POST http://localhost:8080/api/v1/backup/backup-001/verify \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "backup_id": "backup-001",
+    "status": "valid",
+    "verified_at": "2026-03-14T10:00:00Z",
+    "checksums_matched": 1256,
+    "checksums_failed": 0,
+    "total_files": 1256
+  }
+}
+```
+
+### 启用备份加密
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/backup/backup-001/encryption \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "algorithm": "aes-256-gcm"
+  }'
+```
+
+---
+
 ## 错误处理
 
 ### 错误响应格式
@@ -1669,4 +1944,4 @@ func main() {
 
 ---
 
-**最后更新**: 2026-03-28
+**最后更新**: 2026-03-14

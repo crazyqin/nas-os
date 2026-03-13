@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资源趋势分析 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        .trends-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .trends-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .trends-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .trends-title h1 {
+            margin: 0;
+        }
+        
+        .time-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .time-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--surface-color);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .time-btn:hover {
+            background: var(--hover-color);
+        }
+        
+        .time-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+            overflow: hidden;
+        }
+        
+        .chart-card.full-width {
+            grid-column: span 2;
+        }
+        
+        .chart-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chart-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .chart-body {
+            padding: 1.5rem;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        
+        .chart-wrapper.large {
+            height: 400px;
+        }
+        
+        .stat-row {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .stat-value.good { color: #10B981; }
+        .stat-value.warning { color: #F59E0B; }
+        .stat-value.danger { color: #EF4444; }
+        
+        /* 磁盘详细 */
+        .disk-charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .disk-chart-item {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+            padding: 1.5rem;
+        }
+        
+        .disk-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .disk-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .disk-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .disk-status.healthy { background: #D1FAE5; color: #065F46; }
+        .disk-status.warning { background: #FEF3C7; color: #92400E; }
+        .disk-status.error { background: #FEE2E2; color: #991B1B; }
+        
+        .mini-chart {
+            height: 150px;
+        }
+        
+        /* 网络详情 */
+        .network-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .network-stat-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .network-stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .network-stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        
+        .network-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        /* 进程排行 */
+        .process-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .process-table th,
+        .process-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .process-table th {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .process-table tbody tr:hover {
+            background: var(--hover-color);
+        }
+        
+        .process-name {
+            font-weight: 500;
+        }
+        
+        .usage-bar {
+            width: 100px;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .usage-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+        
+        .usage-fill.low { background: #10B981; }
+        .usage-fill.medium { background: #F59E0B; }
+        .usage-fill.high { background: #EF4444; }
+        
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-card.full-width {
+                grid-column: span 1;
+            }
+            .network-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .network-grid {
+                grid-template-columns: 1fr;
+            }
+            .stat-row {
+                flex-wrap: wrap;
+            }
+            .stat-item {
+                flex: 1 1 45%;
+            }
+        }
+        
+        /* 导出按钮 */
+        .export-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--surface-color);
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .export-btn:hover {
+            background: var(--hover-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="trends-container">
+        <!-- 头部 -->
+        <div class="trends-header">
+            <div class="trends-title">
+                <span style="font-size: 2rem;">📈</span>
+                <div>
+                    <h1>资源趋势分析</h1>
+                    <p style="margin: 0; color: var(--text-muted); font-size: 0.875rem;">查看系统资源历史使用情况</p>
+                </div>
+            </div>
+            <div class="time-selector">
+                <button class="time-btn" data-range="1h" onclick="setTimeRange('1h')">1小时</button>
+                <button class="time-btn" data-range="6h" onclick="setTimeRange('6h')">6小时</button>
+                <button class="time-btn active" data-range="24h" onclick="setTimeRange('24h')">24小时</button>
+                <button class="time-btn" data-range="7d" onclick="setTimeRange('7d')">7天</button>
+                <button class="time-btn" data-range="30d" onclick="setTimeRange('30d')">30天</button>
+            </div>
+        </div>
+        
+        <!-- CPU & 内存趋势 -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">💻 CPU 使用趋势</span>
+                    <div class="chart-actions">
+                        <button class="export-btn" onclick="exportChart('cpu')">📥 导出</button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div class="chart-wrapper">
+                        <canvas id="cpuChart"></canvas>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-item">
+                            <div class="stat-value" id="cpuAvg">--</div>
+                            <div class="stat-label">平均</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="cpuMax">--</div>
+                            <div class="stat-label">峰值</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="cpuMin">--</div>
+                            <div class="stat-label">最低</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="cpuCurrent">--</div>
+                            <div class="stat-label">当前</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">🧠 内存使用趋势</span>
+                    <div class="chart-actions">
+                        <button class="export-btn" onclick="exportChart('memory')">📥 导出</button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div class="chart-wrapper">
+                        <canvas id="memoryChart"></canvas>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-item">
+                            <div class="stat-value" id="memAvg">--</div>
+                            <div class="stat-label">平均</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="memMax">--</div>
+                            <div class="stat-label">峰值</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="memMin">--</div>
+                            <div class="stat-label">最低</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="memCurrent">--</div>
+                            <div class="stat-label">当前</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 网络流量 -->
+        <div class="chart-card full-width" style="margin-bottom: 1.5rem;">
+            <div class="chart-header">
+                <span class="chart-title">🌐 网络流量趋势</span>
+                <div class="chart-actions">
+                    <button class="export-btn" onclick="exportChart('network')">📥 导出</button>
+                </div>
+            </div>
+            <div class="chart-body">
+                <div class="network-grid">
+                    <div class="network-stat-card">
+                        <div class="network-stat-icon">📤</div>
+                        <div class="network-stat-value" id="totalUpload">-- GB</div>
+                        <div class="network-stat-label">总上传</div>
+                    </div>
+                    <div class="network-stat-card">
+                        <div class="network-stat-icon">📥</div>
+                        <div class="network-stat-value" id="totalDownload">-- GB</div>
+                        <div class="network-stat-label">总下载</div>
+                    </div>
+                    <div class="network-stat-card">
+                        <div class="network-stat-icon">⚡</div>
+                        <div class="network-stat-value" id="peakSpeed">-- MB/s</div>
+                        <div class="network-stat-label">峰值速度</div>
+                    </div>
+                    <div class="network-stat-card">
+                        <div class="network-stat-icon">📊</div>
+                        <div class="network-stat-value" id="avgSpeed">-- MB/s</div>
+                        <div class="network-stat-label">平均速度</div>
+                    </div>
+                </div>
+                <div class="chart-wrapper large">
+                    <canvas id="networkChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 磁盘 IO & 使用 -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">💾 磁盘 I/O 趋势</span>
+                    <div class="chart-actions">
+                        <button class="export-btn" onclick="exportChart('diskio')">📥 导出</button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div class="chart-wrapper">
+                        <canvas id="diskIOChart"></canvas>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-item">
+                            <div class="stat-value" id="readTotal">-- GB</div>
+                            <div class="stat-label">总读取</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="writeTotal">-- GB</div>
+                            <div class="stat-label">总写入</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="iops">--</div>
+                            <div class="stat-label">IOPS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span class="chart-title">💿 磁盘使用趋势</span>
+                    <div class="chart-actions">
+                        <button class="export-btn" onclick="exportChart('diskusage')">📥 导出</button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div class="chart-wrapper">
+                        <canvas id="diskUsageChart"></canvas>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-item">
+                            <div class="stat-value" id="diskUsed">-- TB</div>
+                            <div class="stat-label">已使用</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="diskFree">-- TB</div>
+                            <div class="stat-label">可用</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="diskGrowth">--</div>
+                            <div class="stat-label">日增长</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 各磁盘详情 -->
+        <div class="chart-card full-width" style="margin-bottom: 1.5rem;">
+            <div class="chart-header">
+                <span class="chart-title">💿 各磁盘性能</span>
+            </div>
+            <div class="chart-body">
+                <div class="disk-charts" id="diskCharts">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 进程排行 -->
+        <div class="chart-card full-width">
+            <div class="chart-header">
+                <span class="chart-title">📊 资源占用排行</span>
+                <div class="chart-actions">
+                    <select id="processSort" onchange="sortProcesses()" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px;">
+                        <option value="cpu">按 CPU</option>
+                        <option value="memory">按内存</option>
+                        <option value="io">按 I/O</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-body">
+                <table class="process-table">
+                    <thead>
+                        <tr>
+                            <th>进程</th>
+                            <th>PID</th>
+                            <th>CPU</th>
+                            <th>内存</th>
+                            <th>读取</th>
+                            <th>写入</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="processTable">
+                        <!-- 动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '/api/v1/monitor';
+        let timeRange = '24h';
+        let cpuChart, memoryChart, networkChart, diskIOChart, diskUsageChart;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            loadData();
+            setInterval(loadData, 30000);
+        });
+        
+        // 设置时间范围
+        function setTimeRange(range) {
+            timeRange = range;
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.range === range);
+            });
+            loadData();
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#94A3B8' }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: { displayFormats: { hour: 'HH:mm' } },
+                        grid: { color: '#334155' },
+                        ticks: { color: '#94A3B8' }
+                    },
+                    y: {
+                        grid: { color: '#334155' },
+                        ticks: { color: '#94A3B8' }
+                    }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            };
+            
+            // CPU 图表
+            cpuChart = new Chart(document.getElementById('cpuChart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'CPU %',
+                        data: [],
+                        borderColor: '#60A5FA',
+                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, max: 100 } } }
+            });
+            
+            // 内存图表
+            memoryChart = new Chart(document.getElementById('memoryChart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: '内存 %',
+                        data: [],
+                        borderColor: '#34D399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: '缓存 %',
+                        data: [],
+                        borderColor: '#F472B6',
+                        backgroundColor: 'rgba(244, 114, 182, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, max: 100 } } }
+            });
+            
+            // 网络图表
+            networkChart = new Chart(document.getElementById('networkChart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: '上传 MB/s',
+                        data: [],
+                        borderColor: '#F472B6',
+                        backgroundColor: 'rgba(244, 114, 182, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: '下载 MB/s',
+                        data: [],
+                        borderColor: '#60A5FA',
+                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: commonOptions
+            });
+            
+            // 磁盘 IO 图表
+            diskIOChart = new Chart(document.getElementById('diskIOChart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: '读取 MB/s',
+                        data: [],
+                        borderColor: '#34D399',
+                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }, {
+                        label: '写入 MB/s',
+                        data: [],
+                        borderColor: '#FBBF24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: commonOptions
+            });
+            
+            // 磁盘使用图表
+            diskUsageChart = new Chart(document.getElementById('diskUsageChart'), {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: '使用量 TB',
+                        data: [],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: commonOptions
+            });
+        }
+        
+        // 加载数据
+        async function loadData() {
+            try {
+                const res = await fetch(`${API_BASE}/trends?range=${timeRange}`);
+                const data = await res.json();
+                if (data.code === 0) {
+                    updateCharts(data.data);
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                // 使用模拟数据
+                updateCharts(generateMockData());
+            }
+            
+            loadDiskCharts();
+            loadProcesses();
+        }
+        
+        // 更新图表
+        function updateCharts(data) {
+            // CPU
+            cpuChart.data.datasets[0].data = data.cpu || [];
+            cpuChart.update('none');
+            updateStats('cpu', data.cpuStats || {});
+            
+            // 内存
+            memoryChart.data.datasets[0].data = data.memory || [];
+            memoryChart.data.datasets[1].data = data.cache || [];
+            memoryChart.update('none');
+            updateStats('mem', data.memoryStats || {});
+            
+            // 网络
+            networkChart.data.datasets[0].data = data.networkUpload || [];
+            networkChart.data.datasets[1].data = data.networkDownload || [];
+            networkChart.update('none');
+            updateNetworkStats(data.networkStats || {});
+            
+            // 磁盘 IO
+            diskIOChart.data.datasets[0].data = data.diskRead || [];
+            diskIOChart.data.datasets[1].data = data.diskWrite || [];
+            diskIOChart.update('none');
+            updateDiskIOStats(data.diskIOStats || {});
+            
+            // 磁盘使用
+            diskUsageChart.data.datasets[0].data = data.diskUsage || [];
+            diskUsageChart.update('none');
+            updateDiskUsageStats(data.diskUsageStats || {});
+        }
+        
+        // 更新统计
+        function updateStats(prefix, stats) {
+            if (prefix === 'cpu') {
+                document.getElementById('cpuAvg').textContent = (stats.avg || 35).toFixed(1) + '%';
+                document.getElementById('cpuMax').textContent = (stats.max || 75).toFixed(1) + '%';
+                document.getElementById('cpuMin').textContent = (stats.min || 15).toFixed(1) + '%';
+                document.getElementById('cpuCurrent').textContent = (stats.current || 42).toFixed(1) + '%';
+            } else {
+                document.getElementById('memAvg').textContent = (stats.avg || 55).toFixed(1) + '%';
+                document.getElementById('memMax').textContent = (stats.max || 85).toFixed(1) + '%';
+                document.getElementById('memMin').textContent = (stats.min || 40).toFixed(1) + '%';
+                document.getElementById('memCurrent').textContent = (stats.current || 62).toFixed(1) + '%';
+            }
+        }
+        
+        function updateNetworkStats(stats) {
+            document.getElementById('totalUpload').textContent = (stats.totalUpload || 12.5).toFixed(1) + ' GB';
+            document.getElementById('totalDownload').textContent = (stats.totalDownload || 45.2).toFixed(1) + ' GB';
+            document.getElementById('peakSpeed').textContent = (stats.peakSpeed || 125).toFixed(0) + ' MB/s';
+            document.getElementById('avgSpeed').textContent = (stats.avgSpeed || 35).toFixed(0) + ' MB/s';
+        }
+        
+        function updateDiskIOStats(stats) {
+            document.getElementById('readTotal').textContent = (stats.readTotal || 125.5).toFixed(1) + ' GB';
+            document.getElementById('writeTotal').textContent = (stats.writeTotal || 85.2).toFixed(1) + ' GB';
+            document.getElementById('iops').textContent = (stats.iops || 1500).toLocaleString();
+        }
+        
+        function updateDiskUsageStats(stats) {
+            document.getElementById('diskUsed').textContent = (stats.used || 2.5).toFixed(2) + ' TB';
+            document.getElementById('diskFree').textContent = (stats.free || 1.5).toFixed(2) + ' TB';
+            document.getElementById('diskGrowth').textContent = '+' + (stats.growth || 2.5).toFixed(1) + ' GB/天';
+        }
+        
+        // 加载磁盘图表
+        function loadDiskCharts() {
+            const disks = [
+                { name: 'sda', model: 'WDC WD40EFRX', status: 'healthy', temp: 38, usage: 55 },
+                { name: 'sdb', model: 'WDC WD40EFRX', status: 'healthy', temp: 40, usage: 62 },
+                { name: 'sdc', model: 'Samsung 860 EVO', status: 'healthy', temp: 35, usage: 45 }
+            ];
+            
+            document.getElementById('diskCharts').innerHTML = disks.map(disk => `
+                <div class="disk-chart-item">
+                    <div class="disk-chart-header">
+                        <span class="disk-name">💿 ${disk.name}</span>
+                        <span class="disk-status ${disk.status}">${disk.status === 'healthy' ? '健康' : '警告'}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-muted);">
+                        <span>温度: ${disk.temp}°C</span>
+                        <span>使用: ${disk.usage}%</span>
+                    </div>
+                    <div class="mini-chart">
+                        <canvas id="disk-${disk.name}"></canvas>
+                    </div>
+                </div>
+            `).join('');
+            
+            // 为每个磁盘创建迷你图表
+            disks.forEach(disk => {
+                const ctx = document.getElementById(`disk-${disk.name}`);
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: Array.from({length: 24}, (_, i) => i),
+                            datasets: [{
+                                data: generateRandomData(24, 0, 100),
+                                borderColor: '#60A5FA',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.4,
+                                pointRadius: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: { x: { display: false }, y: { display: false } }
+                        }
+                    });
+                }
+            });
+        }
+        
+        // 加载进程
+        function loadProcesses() {
+            const processes = [
+                { name: 'nasd', pid: 1234, cpu: 5.2, memory: 2.1, read: '125 MB', write: '45 MB', status: 'running' },
+                { name: 'smbd', pid: 1235, cpu: 3.1, memory: 1.5, read: '85 MB', write: '120 MB', status: 'running' },
+                { name: 'docker', pid: 1236, cpu: 2.8, memory: 3.2, read: '250 MB', write: '180 MB', status: 'running' },
+                { name: 'node_exporter', pid: 1237, cpu: 0.5, memory: 0.3, read: '5 MB', write: '0 MB', status: 'running' },
+                { name: 'rsync', pid: 1238, cpu: 1.2, memory: 0.8, read: '1.2 GB', write: '0 MB', status: 'running' },
+                { name: 'nginx', pid: 1239, cpu: 0.8, memory: 0.5, read: '15 MB', write: '25 MB', status: 'running' },
+                { name: 'postgres', pid: 1240, cpu: 1.5, memory: 4.2, read: '350 MB', write: '280 MB', status: 'running' },
+                { name: 'redis-server', pid: 1241, cpu: 0.3, memory: 0.8, read: '8 MB', write: '12 MB', status: 'running' }
+            ];
+            
+            document.getElementById('processTable').innerHTML = processes.map(p => `
+                <tr>
+                    <td class="process-name">${p.name}</td>
+                    <td>${p.pid}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div class="usage-bar">
+                                <div class="usage-fill ${p.cpu > 50 ? 'high' : p.cpu > 20 ? 'medium' : 'low'}" style="width: ${Math.min(p.cpu, 100)}%"></div>
+                            </div>
+                            <span>${p.cpu.toFixed(1)}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div class="usage-bar">
+                                <div class="usage-fill ${p.memory > 50 ? 'high' : p.memory > 20 ? 'medium' : 'low'}" style="width: ${Math.min(p.memory, 100)}%"></div>
+                            </div>
+                            <span>${p.memory.toFixed(1)}%</span>
+                        </div>
+                    </td>
+                    <td>${p.read}</td>
+                    <td>${p.write}</td>
+                    <td><span class="disk-status healthy">${p.status}</span></td>
+                </tr>
+            `).join('');
+        }
+        
+        // 排序进程
+        function sortProcesses() {
+            loadProcesses(); // 简化实现
+        }
+        
+        // 导出图表
+        function exportChart(type) {
+            alert(`导出 ${type} 图表数据（功能待实现）`);
+        }
+        
+        // 辅助函数
+        function generateRandomData(count, min, max) {
+            return Array.from({length: count}, () => Math.random() * (max - min) + min);
+        }
+        
+        function generateMockData() {
+            const now = Date.now();
+            const points = timeRange === '1h' ? 60 : timeRange === '6h' ? 72 : timeRange === '24h' ? 96 : timeRange === '7d' ? 168 : 720;
+            const interval = timeRange === '1h' ? 60000 : timeRange === '6h' ? 300000 : timeRange === '24h' ? 900000 : timeRange === '7d' ? 3600000 : 3600000;
+            
+            return {
+                cpu: Array.from({length: points}, (_, i) => ({
+                    x: now - (points - i) * interval,
+                    y: 20 + Math.random() * 40
+                })),
+                memory: Array.from({length: points}, (_, i) => ({
+                    x: now - (points - i) * interval,
+                    y: 50 + Math.random() * 20
+                })),
+                cache: Array.from({length: points}, (_, i) => ({
+                    x: now - (points - i) * interval,
+                    y: 15 + Math.random() * 10
+                })),
+                networkUpload: Array.from({length: points}, (_, i) => ({
+                    x: now - (points - i) * interval,
+                    y: 5 + Math.random() * 50
+                })),
+                networkDownload: Array.from({length: points}, (_, i) => ({
+                    x: now - (points - i) * interval,
+                    y: 10 + Math.random() * 100
+                })),
+                diskRead: Array.from({length: points}, (_, i) => ({
+                    x: now - (points - i) * interval,
+                    y: 10 + Math.random() * 100
+                })),
+                diskWrite: Array.from({length: points}, (_, i) => ({
+                    x: now - (points - i) * interval,
+                    y: 5 + Math.random() * 50
+                })),
+                diskUsage: Array.from({length: points}, (_, i) => ({
+                    x: now - (points - i) * interval,
+                    y: 2.4 + (i / points) * 0.1
+                })),
+                cpuStats: { avg: 35, max: 75, min: 15, current: 42 },
+                memoryStats: { avg: 55, max: 85, min: 40, current: 62 },
+                networkStats: { totalUpload: 12.5, totalDownload: 45.2, peakSpeed: 125, avgSpeed: 35 },
+                diskIOStats: { readTotal: 125.5, writeTotal: 85.2, iops: 1500 },
+                diskUsageStats: { used: 2.5, free: 1.5, growth: 2.5 }
+            };
+        }
+    </script>
+</body>
+</html>
