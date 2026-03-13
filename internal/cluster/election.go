@@ -11,7 +11,6 @@ type ElectionState struct {
 	state          ElectionPhase
 	term           uint64
 	votedFor       string
-	electionTimer  *time.Timer
 	electionChan   chan struct{}
 	timeout        time.Duration
 	lastElection   time.Time

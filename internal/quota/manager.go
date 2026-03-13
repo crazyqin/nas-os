@@ -513,28 +513,47 @@ func (m *Manager) ResolveAlert(alertID string) error {
 
 // CreateAlert 创建告警（内部使用）
 func (m *Manager) createAlert(quota *Quota, usage *QuotaUsage, alertType AlertType) *Alert {
-	alert := &Alert{
-		ID:           generateID(),
-		QuotaID:      quota.ID,
-		Type:         alertType,
-		Status:       AlertStatusActive,
-		TargetID:     quota.TargetID,
-		TargetName:   quota.TargetName,
-		VolumeName:   quota.VolumeName,
-		Path:         quota.Path,
-		UsedBytes:    usage.UsedBytes,
-		LimitBytes:   usage.HardLimit,
-		UsagePercent: usage.UsagePercent,
-		CreatedAt:    time.Now(),
+	severity := AlertSeverityWarning
+	if alertType == AlertTypeHardLimit {
+		severity = AlertSeverityCritical
 	}
 
-	switch alertType {
-	case AlertTypeSoftLimit:
-		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，超过软限制",
-			quota.TargetName, usage.UsagePercent)
-	case AlertTypeHardLimit:
-		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，超过硬限制，写入可能被拒绝",
-			quota.TargetName, usage.UsagePercent)
+	return m.createMultiLevelAlert(quota, usage, severity, usage.UsagePercent)
+}
+
+// createMultiLevelAlert 创建多级告警（内部使用）
+func (m *Manager) createMultiLevelAlert(quota *Quota, usage *QuotaUsage, severity AlertSeverity, threshold float64) *Alert {
+	alert := &Alert{
+		ID:              generateID(),
+		QuotaID:         quota.ID,
+		Type:            AlertTypeSoftLimit,
+		Severity:        severity,
+		Status:          AlertStatusActive,
+		TargetID:        quota.TargetID,
+		TargetName:      quota.TargetName,
+		VolumeName:      quota.VolumeName,
+		Path:            quota.Path,
+		UsedBytes:       usage.UsedBytes,
+		LimitBytes:      usage.HardLimit,
+		UsagePercent:    usage.UsagePercent,
+		Threshold:       threshold,
+		CreatedAt:       time.Now(),
+		EscalationLevel: 0,
+	}
+
+	// 根据严重级别设置消息
+	switch severity {
+	case AlertSeverityInfo:
+		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%", quota.TargetName, usage.UsagePercent)
+	case AlertSeverityWarning:
+		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，请注意", quota.TargetName, usage.UsagePercent)
+	case AlertSeverityCritical:
+		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，请及时处理", quota.TargetName, usage.UsagePercent)
+	case AlertSeverityEmergency:
+		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，即将超出限制", quota.TargetName, usage.UsagePercent)
+		if usage.IsOverHard {
+			alert.Type = AlertTypeHardLimit
+		}
 	}
 
 	m.alerts[alert.ID] = alert

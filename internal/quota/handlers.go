@@ -100,6 +100,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		policies.POST("/:id/enable", h.enablePolicy)
 		policies.POST("/:id/disable", h.disablePolicy)
 		policies.POST("/:id/run", h.runPolicy)
+		policies.GET("/:id/preview", h.previewPolicy) // 清理预览（dry-run）
 		policies.GET("/:id/tasks", h.getPolicyTasks)
 	}
 
@@ -544,6 +545,20 @@ func (h *Handlers) runPolicy(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, Success(task))
+}
+
+func (h *Handlers) previewPolicy(c *gin.Context) {
+	id := c.Param("id")
+	preview, err := h.cleanup.PreviewPolicy(id, 100)
+	if err != nil {
+		if err == ErrCleanupPolicyNotFound {
+			c.JSON(http.StatusNotFound, Error(404, err.Error()))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, Success(preview))
 }
 
 func (h *Handlers) getPolicyTasks(c *gin.Context) {

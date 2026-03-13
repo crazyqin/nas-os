@@ -211,6 +211,185 @@ func (m *CleanupManager) RunPolicy(policyID string) (*CleanupTask, error) {
 	return m.executePolicy(policy)
 }
 
+// PreviewPolicy 预览清理策略（dry-run 模式，不实际执行）
+func (m *CleanupManager) PreviewPolicy(policyID string, maxFiles int) (*CleanupPreview, error) {
+	m.quotaMgr.mu.RLock()
+	policy, exists := m.quotaMgr.policies[policyID]
+	m.quotaMgr.mu.RUnlock()
+
+	if !exists {
+		return nil, ErrCleanupPolicyNotFound
+	}
+
+	return m.previewPolicy(policy, maxFiles)
+}
+
+// previewPolicy 执行清理预览
+func (m *CleanupManager) previewPolicy(policy *CleanupPolicy, maxFiles int) (*CleanupPreview, error) {
+	preview := &CleanupPreview{
+		PolicyID:   policy.ID,
+		PolicyName: policy.Name,
+		Path:       policy.Path,
+		Files:      make([]CleanupFile, 0),
+		Warnings:   make([]string, 0),
+	}
+
+	// 获取目标路径
+	targetPath := policy.Path
+	if targetPath == "" && m.quotaMgr.storageMgr != nil {
+		vol := m.quotaMgr.storageMgr.GetVolume(policy.VolumeName)
+		if vol != nil {
+			targetPath = vol.MountPoint
+		}
+	}
+
+	if targetPath == "" {
+		preview.Warnings = append(preview.Warnings, "无法确定目标路径")
+		return preview, fmt.Errorf("无法确定目标路径")
+	}
+
+	// 查找符合条件的文件
+	files, err := m.findFilesWithInfo(targetPath, policy)
+	if err != nil {
+		preview.Warnings = append(preview.Warnings, err.Error())
+		return preview, err
+	}
+
+	// 限制返回数量
+	if maxFiles > 0 && len(files) > maxFiles {
+		preview.Warnings = append(preview.Warnings,
+			fmt.Sprintf("结果已截断，仅显示前 %d 个文件（共 %d 个）", maxFiles, len(files)))
+		files = files[:maxFiles]
+	}
+
+	// 统计
+	for _, file := range files {
+		preview.TotalBytes += file.Size
+	}
+	preview.TotalFiles = len(files)
+	preview.Files = files
+
+	// 估算执行时间（假设每秒处理 100 个文件）
+	preview.EstimatedTime = time.Duration(len(files)/100+1) * time.Second
+
+	return preview, nil
+}
+
+// findFilesWithInfo 查找符合条件的文件（带详细信息）
+func (m *CleanupManager) findFilesWithInfo(rootPath string, policy *CleanupPolicy) ([]CleanupFile, error) {
+	var files []CleanupFile
+	now := time.Now()
+
+	err := filepath.WalkDir(rootPath, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil // 跳过错误
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
+		info, err := d.Info()
+		if err != nil {
+			return nil
+		}
+
+		var match bool
+		var reason string
+
+		switch policy.Type {
+		case CleanupPolicyAge:
+			fileAge := now.Sub(info.ModTime()).Hours() / 24
+			if int(fileAge) > policy.MaxAge {
+				match = true
+				reason = fmt.Sprintf("文件已存在 %d 天（超过 %d 天）", int(fileAge), policy.MaxAge)
+			}
+
+		case CleanupPolicySize:
+			if uint64(info.Size()) >= policy.MinSize {
+				match = true
+				reason = fmt.Sprintf("文件大小 %s（超过 %s）",
+					formatBytes(uint64(info.Size())), formatBytes(policy.MinSize))
+			}
+
+		case CleanupPolicyPattern:
+			for _, pattern := range policy.Patterns {
+				matched, _ := filepath.Match(pattern, d.Name())
+				if matched {
+					match = true
+					reason = fmt.Sprintf("匹配模式: %s", pattern)
+					break
+				}
+				if reg, err := regexp.Compile(pattern); err == nil {
+					if reg.MatchString(d.Name()) {
+						match = true
+						reason = fmt.Sprintf("匹配正则: %s", pattern)
+						break
+					}
+				}
+			}
+
+		case CleanupPolicyQuota:
+			match = true
+			reason = "配额触发清理"
+
+		case CleanupPolicyAccess:
+			if atime, ok := getFileAccessTime(info.Sys()); ok {
+				accessAge := now.Sub(atime).Hours() / 24
+				if int(accessAge) > policy.MaxAccessAge {
+					match = true
+					reason = fmt.Sprintf("文件 %d 天未访问（超过 %d 天）", int(accessAge), policy.MaxAccessAge)
+				}
+			}
+		}
+
+		// 检查排除模式（使用 Patterns 作为排除模式）
+		if match && len(policy.Patterns) > 0 {
+			for _, pattern := range policy.Patterns {
+				matched, _ := filepath.Match(pattern, d.Name())
+				if matched {
+					match = false
+					break
+				}
+			}
+		}
+
+		if match {
+			file := CleanupFile{
+				Path:    path,
+				Size:    uint64(info.Size()),
+				ModTime: info.ModTime(),
+				Reason:  reason,
+			}
+
+			// 获取访问时间
+			if atime, ok := getFileAccessTime(info.Sys()); ok {
+				file.AccTime = &atime
+			}
+
+			files = append(files, file)
+		}
+
+		return nil
+	})
+
+	return files, err
+}
+
+// formatBytes 格式化字节数
+func formatBytes(bytes uint64) string {
+	const unit = 1024
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := uint64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
+}
+
 // executePolicy 执行清理策略
 func (m *CleanupManager) executePolicy(policy *CleanupPolicy) (*CleanupTask, error) {
 	// 创建任务记录

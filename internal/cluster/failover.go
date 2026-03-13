@@ -59,7 +59,6 @@ type FailoverState struct {
 	NewLeader        *Node           `json:"new_leader,omitempty"`
 	StatusHistory    []FailoverEvent `json:"status_history"`
 	LastStatusChange time.Time       `json:"last_status_change"`
-	mu               sync.RWMutex
 }
 
 // FailoverEvent 故障转移事件
