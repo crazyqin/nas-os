@@ -661,13 +661,15 @@ func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult,
 				switch policy.Action {
 				case "softlink":
 					if err := os.Remove(group.Files[i]); err == nil {
-						os.Symlink(group.Files[0], group.Files[i])
-						groupResult.Processed++
+						if err := os.Symlink(group.Files[0], group.Files[i]); err == nil {
+							groupResult.Processed++
+						}
 					}
 				case "hardlink":
 					if err := os.Remove(group.Files[i]); err == nil {
-						os.Link(group.Files[0], group.Files[i])
-						groupResult.Processed++
+						if err := os.Link(group.Files[0], group.Files[i]); err == nil {
+							groupResult.Processed++
+						}
 					}
 				}
 			}
