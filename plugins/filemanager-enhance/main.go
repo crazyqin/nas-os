@@ -136,7 +136,10 @@ func (p *FileManagerEnhance) Start() error {
 }
 
 // Stop 停止插件
-func (FileManagerEnhance) Stop() error {
+func (p *FileManagerEnhance) Stop() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.running = false
 	return nil
 }
 
