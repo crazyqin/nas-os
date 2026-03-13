@@ -327,7 +327,9 @@ func (m *Manager) CreateSyncTask(task SyncTask) (*SyncTask, error) {
 
 	// 如果是定时任务，添加到调度器
 	if task.ScheduleType != ScheduleTypeManual {
-		m.scheduleTask(&task)
+		if err := m.scheduleTask(&task); err != nil {
+			return nil, fmt.Errorf("添加定时任务失败: %w", err)
+		}
 	}
 
 	return &task, nil
@@ -375,7 +377,9 @@ func (m *Manager) UpdateSyncTask(id string, task SyncTask) error {
 	// 更新调度
 	m.scheduler.RemoveTask(id)
 	if task.ScheduleType != ScheduleTypeManual && task.Enabled {
-		m.scheduleTask(&task)
+		if err := m.scheduleTask(&task); err != nil {
+			return fmt.Errorf("添加定时任务失败: %w", err)
+		}
 	}
 
 	return m.saveConfigLocked()
