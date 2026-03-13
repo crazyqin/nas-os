@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"nas-os/internal/cache"
 )
 
@@ -93,9 +95,14 @@ func DefaultConfig() *Config {
 }
 
 // NewOptimizer 创建性能优化器
-func NewOptimizer(cfg *Config, logger interface{}) *PerformanceOptimizer {
+func NewOptimizer(cfg *Config, logger *zap.Logger) *PerformanceOptimizer {
 	if cfg == nil {
 		cfg = DefaultConfig()
+	}
+
+	// 如果未提供 logger，使用 nop logger
+	if logger == nil {
+		logger = zap.NewNop()
 	}
 
 	opt := &PerformanceOptimizer{
@@ -106,8 +113,7 @@ func NewOptimizer(cfg *Config, logger interface{}) *PerformanceOptimizer {
 
 	// 初始化缓存
 	if cfg.CacheEnabled {
-		// TODO: 传入真实 logger
-		opt.cache = cache.NewManager(cfg.CacheCapacity, cfg.CacheTTL, nil)
+		opt.cache = cache.NewManager(cfg.CacheCapacity, cfg.CacheTTL, logger)
 	}
 
 	// 初始化 GC 调优

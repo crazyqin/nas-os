@@ -498,3 +498,5 @@ func isAudio(ext string) bool {
 
 // 插件导入（实际使用时取消注释）
 // import "nas-os/internal/plugin"
+
+func main() {} // 插件模式需要 main 函数

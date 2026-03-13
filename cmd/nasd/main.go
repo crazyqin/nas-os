@@ -157,7 +157,7 @@ func main() {
 	}
 
 	// 初始化 Web 服务
-	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr, downloadMgr)
+	webServer := web.NewServer(storMgr, userMgr, smbMgr, nfsMgr, netMgr, downloadMgr, logger)
 
 	// 启动 Web 服务
 	go func() {
