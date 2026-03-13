@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存储复制 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .repl-container { max-width: 1400px; margin: 0 auto; }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-label { font-size: 14px; color: #6B7280; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #1F2937; }
+        .stat-value.success { color: #10B981; }
+        .stat-value.warning { color: #F59E0B; }
+        
+        /* 页面头部 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-title { font-size: 24px; font-weight: 700; color: #1F2937; }
+        
+        /* 任务列表 */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .task-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .task-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* 状态标签 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.running { background: #DBEAFE; color: #1E40AF; }
+        .status-badge.completed { background: #D1FAE5; color: #065F46; }
+        .status-badge.failed { background: #FEE2E2; color: #991B1B; }
+        .status-badge.pending { background: #FEF3C7; color: #92400E; }
+        .status-badge.paused { background: #F3F4F6; color: #4B5563; }
+        
+        /* 任务详情 */
+        .task-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .detail-item {
+            font-size: 14px;
+        }
+        .detail-label { color: #6B7280; margin-bottom: 0.25rem; }
+        .detail-value { color: #1F2937; font-weight: 500; }
+        
+        /* 进度条 */
+        .progress-section {
+            margin-top: 1rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3B82F6, #10B981);
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 13px;
+            color: #6B7280;
+        }
+        
+        /* 按钮 */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #3B82F6;
+            color: white;
+        }
+        .btn-primary:hover { background: #2563EB; }
+        .btn-secondary {
+            background: #F3F4F6;
+            color: #374151;
+        }
+        .btn-secondary:hover { background: #E5E7EB; }
+        .btn-danger {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        .btn-danger:hover { background: #FECACA; }
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 13px;
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+        }
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+        }
+        .empty-state-text {
+            color: #6B7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .form-help {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 0.25rem;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* 复制类型选择 */
+        .type-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .type-card {
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .type-card:hover { border-color: #3B82F6; }
+        .type-card.selected {
+            border-color: #3B82F6;
+            background: #EFF6FF;
+        }
+        .type-card-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .type-card-desc {
+            font-size: 12px;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="repl-container">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <h1 class="page-title">📦 存储复制</h1>
+            <button class="btn btn-primary" onclick="openCreateModal()">+ 新建复制任务</button>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-label">总任务数</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">运行中</div>
+                <div class="stat-value success" id="statRunning">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">已暂停</div>
+                <div class="stat-value warning" id="statPaused">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">总传输量</div>
+                <div class="stat-value" id="statTransferred">0 B</div>
+            </div>
+        </div>
+        
+        <!-- 任务列表 -->
+        <div class="task-list" id="taskList">
+            <!-- 动态加载 -->
+        </div>
+        
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">📤</div>
+            <h3>暂无复制任务</h3>
+            <p class="empty-state-text">创建复制任务，将数据同步到本地其他路径或远程服务器</p>
+            <button class="btn btn-primary" onclick="openCreateModal()">创建第一个任务</button>
+        </div>
+    </div>
+    
+    <!-- 创建/编辑任务模态框 -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <h2 class="modal-title" id="modalTitle">新建复制任务</h2>
+            <form id="taskForm">
+                <input type="hidden" id="taskId">
+                
+                <div class="form-group">
+                    <label class="form-label">任务名称 *</label>
+                    <input type="text" class="form-input" id="taskName" required placeholder="例如：每日备份到 NAS2">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">复制类型 *</label>
+                    <div class="type-cards">
+                        <div class="type-card selected" data-type="local" onclick="selectType('local')">
+                            <div class="type-card-title">📁 本地复制</div>
+                            <div class="type-card-desc">同一设备内的路径复制</div>
+                        </div>
+                        <div class="type-card" data-type="remote" onclick="selectType('remote')">
+                            <div class="type-card-title">🌐 远程复制</div>
+                            <div class="type-card-desc">通过网络同步到远程服务器</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">源路径 *</label>
+                    <input type="text" class="form-input" id="sourcePath" required placeholder="/data/source">
+                    <div class="form-help">要复制的源目录路径</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">目标路径 *</label>
+                    <input type="text" class="form-input" id="targetPath" required placeholder="/data/backup">
+                    <div class="form-help">复制的目标目录路径</div>
+                </div>
+                
+                <div class="form-group" id="targetHostGroup" style="display: none;">
+                    <label class="form-label">远程主机</label>
+                    <input type="text" class="form-input" id="targetHost" placeholder="user@192.168.1.100">
+                    <div class="form-help">格式：用户名@IP 地址 或 用户名@域名</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">同步计划</label>
+                    <input type="text" class="form-input" id="schedule" placeholder="0 2 * * *">
+                    <div class="form-help">Cron 表达式，留空表示手动触发。例如：0 2 * * * 表示每天凌晨 2 点</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">高级选项</label>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 14px;">
+                            <input type="checkbox" id="compress"> 启用压缩传输
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 14px;">
+                            <input type="checkbox" id="deleteExtraneous"> 删除目标端多余文件（镜像模式）
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 14px;">
+                            <input type="checkbox" id="enabled" checked> 启用任务
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let selectedType = 'local';
+        
+        // 格式化字节数
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 格式化时间
+        function formatTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN');
+        }
+        
+        // 获取状态标签
+        function getStatusBadge(status) {
+            const badges = {
+                'running': '<span class="status-badge running">● 运行中</span>',
+                'completed': '<span class="status-badge completed">✓ 已完成</span>',
+                'failed': '<span class="status-badge failed">✕ 失败</span>',
+                'pending': '<span class="status-badge pending">◌ 等待中</span>',
+                'paused': '<span class="status-badge paused">⏸ 已暂停</span>'
+            };
+            return badges[status] || `<span class="status-badge">${status}</span>`;
+        }
+        
+        // 选择复制类型
+        function selectType(type) {
+            selectedType = type;
+            document.querySelectorAll('.type-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.type === type);
+            });
+            document.getElementById('targetHostGroup').style.display = type === 'remote' ? 'block' : 'none';
+        }
+        
+        // 打开创建模态框
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = '新建复制任务';
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskId').value = '';
+            selectType('local');
+            document.getElementById('taskModal').classList.add('active');
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+        
+        // 打开编辑模态框
+        async function openEditModal(id) {
+            try {
+                const res = await fetch(`/api/v1/replications/${id}`);
+                const data = await res.json();
+                if (data.code !== 0) throw new Error(data.message);
+                
+                const task = data.data;
+                document.getElementById('modalTitle').textContent = '编辑复制任务';
+                document.getElementById('taskId').value = task.id;
+                document.getElementById('taskName').value = task.name;
+                document.getElementById('sourcePath').value = task.source_path;
+                document.getElementById('targetPath').value = task.target_path;
+                document.getElementById('targetHost').value = task.target_host || '';
+                document.getElementById('schedule').value = task.schedule || '';
+                document.getElementById('compress').checked = task.compress;
+                document.getElementById('deleteExtraneous').checked = task.delete_extraneous;
+                document.getElementById('enabled').checked = task.enabled;
+                
+                selectType(task.target_host ? 'remote' : 'local');
+                document.getElementById('taskModal').classList.add('active');
+            } catch (err) {
+                alert('获取任务详情失败：' + err.message);
+            }
+        }
+        
+        // 加载任务列表
+        async function loadTasks() {
+            try {
+                const res = await fetch('/api/v1/replications');
+                const data = await res.json();
+                if (data.code !== 0) throw new Error(data.message);
+                
+                const tasks = data.data || [];
+                const taskList = document.getElementById('taskList');
+                const emptyState = document.getElementById('emptyState');
+                
+                if (tasks.length === 0) {
+                    taskList.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    
+                    // 更新统计
+                    document.getElementById('statTotal').textContent = '0';
+                    document.getElementById('statRunning').textContent = '0';
+                    document.getElementById('statPaused').textContent = '0';
+                    document.getElementById('statTransferred').textContent = '0 B';
+                    return;
+                }
+                
+                taskList.style.display = 'flex';
+                emptyState.style.display = 'none';
+                
+                // 更新统计
+                const running = tasks.filter(t => t.status === 'running').length;
+                const paused = tasks.filter(t => t.status === 'paused').length;
+                const totalBytes = tasks.reduce((sum, t) => sum + (t.bytes_transferred || 0), 0);
+                
+                document.getElementById('statTotal').textContent = tasks.length;
+                document.getElementById('statRunning').textContent = running;
+                document.getElementById('statPaused').textContent = paused;
+                document.getElementById('statTransferred').textContent = formatBytes(totalBytes);
+                
+                // 渲染任务列表
+                taskList.innerHTML = tasks.map(task => `
+                    <div class="task-item">
+                        <div class="task-header">
+                            <div>
+                                <span class="task-name">${escapeHtml(task.name)}</span>
+                                ${getStatusBadge(task.status)}
+                            </div>
+                            <div class="task-actions">
+                                ${task.status !== 'running' ? `
+                                    <button class="btn btn-sm btn-primary" onclick="startSync('${task.id}')">▶ 同步</button>
+                                ` : ''}
+                                ${task.status === 'running' ? `
+                                    <button class="btn btn-sm btn-secondary" onclick="pauseTask('${task.id}')">⏸ 暂停</button>
+                                ` : ''}
+                                ${task.status === 'paused' ? `
+                                    <button class="btn btn-sm btn-primary" onclick="resumeTask('${task.id}')">▶ 恢复</button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-secondary" onclick="openEditModal('${task.id}')">✏ 编辑</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTask('${task.id}')">🗑 删除</button>
+                            </div>
+                        </div>
+                        
+                        <div class="task-details">
+                            <div class="detail-item">
+                                <div class="detail-label">源路径</div>
+                                <div class="detail-value">${escapeHtml(task.source_path)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">目标路径</div>
+                                <div class="detail-value">${escapeHtml(task.target_path)}${task.target_host ? ' @ ' + escapeHtml(task.target_host) : ''}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">类型</div>
+                                <div class="detail-value">${task.type === 'remote' ? '远程复制' : '本地复制'}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">计划</div>
+                                <div class="detail-value">${task.schedule || '手动'}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">上次同步</div>
+                                <div class="detail-value">${formatTime(task.last_sync_at)}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">下次同步</div>
+                                <div class="detail-value">${formatTime(task.next_sync_at)}</div>
+                            </div>
+                        </div>
+                        
+                        ${task.status === 'running' && task.progress > 0 ? `
+                            <div class="progress-section">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${task.progress}%"></div>
+                                </div>
+                                <div class="progress-info">
+                                    <span>进度：${task.progress.toFixed(1)}%</span>
+                                    <span>${formatBytes(task.bytes_transferred)} / ${formatBytes(task.total_bytes)}</span>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('加载任务列表失败:', err);
+            }
+        }
+        
+        // 转义 HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 开始同步
+        async function startSync(id) {
+            try {
+                const res = await fetch(`/api/v1/replications/${id}/sync`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code !== 0) throw new Error(data.message);
+                alert('同步已启动');
+                loadTasks();
+            } catch (err) {
+                alert('启动同步失败：' + err.message);
+            }
+        }
+        
+        // 暂停任务
+        async function pauseTask(id) {
+            try {
+                const res = await fetch(`/api/v1/replications/${id}/pause`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code !== 0) throw new Error(data.message);
+                loadTasks();
+            } catch (err) {
+                alert('暂停任务失败：' + err.message);
+            }
+        }
+        
+        // 恢复任务
+        async function resumeTask(id) {
+            try {
+                const res = await fetch(`/api/v1/replications/${id}/resume`, { method: 'POST' });
+                const data = await res.json();
+                if (data.code !== 0) throw new Error(data.message);
+                loadTasks();
+            } catch (err) {
+                alert('恢复任务失败：' + err.message);
+            }
+        }
+        
+        // 删除任务
+        async function deleteTask(id) {
+            if (!confirm('确定要删除这个复制任务吗？')) return;
+            
+            try {
+                const res = await fetch(`/api/v1/replications/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.code !== 0) throw new Error(data.message);
+                loadTasks();
+            } catch (err) {
+                alert('删除任务失败：' + err.message);
+            }
+        }
+        
+        // 提交表单
+        document.getElementById('taskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const taskId = document.getElementById('taskId').value;
+            const data = {
+                name: document.getElementById('taskName').value,
+                source_path: document.getElementById('sourcePath').value,
+                target_path: document.getElementById('targetPath').value,
+                type: selectedType,
+                schedule: document.getElementById('schedule').value,
+                enabled: document.getElementById('enabled').checked,
+                compress: document.getElementById('compress').checked,
+                delete_extraneous: document.getElementById('deleteExtraneous').checked
+            };
+            
+            if (selectedType === 'remote') {
+                data.target_host = document.getElementById('targetHost').value;
+            }
+            
+            try {
+                const url = taskId ? `/api/v1/replications/${taskId}` : '/api/v1/replications';
+                const method = taskId ? 'PUT' : 'POST';
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                if (result.code !== 0) throw new Error(result.message);
+                
+                closeModal();
+                loadTasks();
+            } catch (err) {
+                alert('保存失败：' + err.message);
+            }
+        });
+        
+        // 页面加载
+        loadTasks();
+        // 每 5 秒刷新一次
+        setInterval(loadTasks, 5000);
+    </script>
+</body>
+</html>
