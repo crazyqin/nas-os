@@ -677,6 +677,273 @@ func (m *Manager) GetTierStats(tierType TierType) (*TierStats, error) {
 	return m.tracker.GetTierStats(tierType, tier)
 }
 
+// ==================== v2.4.0 存储分层增强 ====================
+
+// OptimizeSSDCache SSD缓存层优化
+// 根据访问频率和缓存命中率优化SSD缓存内容
+func (m *Manager) OptimizeSSDCache() (*SSDCacheOptimizeResult, error) {
+	m.mu.RLock()
+	ssdTier, ssdExists := m.tiers[TierTypeSSD]
+	hddTier, hddExists := m.tiers[TierTypeHDD]
+	m.mu.RUnlock()
+
+	if !ssdExists || !ssdTier.Enabled {
+		return nil, fmt.Errorf("SSD缓存层未启用")
+	}
+
+	result := &SSDCacheOptimizeResult{
+		StartTime: time.Now(),
+		Tier:      TierTypeSSD,
+	}
+
+	// 1. 获取SSD上的冷数据（应该降级到HDD）
+	coldFiles := m.tracker.GetColdFiles(TierTypeSSD, 0)
+	result.ColdFilesIdentified = len(coldFiles)
+
+	// 2. 获取HDD上的热数据（应该提升到SSD）
+	var hotFilesToPromote []*FileAccessRecord
+	if hddExists && hddTier.Enabled {
+		hotFiles := m.tracker.GetHotFiles(TierTypeHDD, 0)
+		// 计算SSD可用空间
+		ssdAvailable := ssdTier.Capacity - ssdTier.Used
+		var promoteSize int64
+		for _, file := range hotFiles {
+			if promoteSize+file.Size <= ssdAvailable*80/100 { // 保留20%空间
+				hotFilesToPromote = append(hotFilesToPromote, file)
+				promoteSize += file.Size
+			}
+		}
+		result.HotFilesIdentified = len(hotFilesToPromote)
+	}
+
+	// 3. 执行冷数据降级
+	for _, file := range coldFiles {
+		if hddExists && hddTier.Enabled {
+			task, err := m.Migrate(MigrateRequest{
+				Paths:      []string{file.Path},
+				SourceTier: TierTypeSSD,
+				TargetTier: TierTypeHDD,
+				Action:     PolicyActionMove,
+				Preserve:   false,
+			})
+			if err == nil {
+				result.DemotedFiles++
+				result.DemotedBytes += file.Size
+				result.Tasks = append(result.Tasks, task.ID)
+			} else {
+				result.FailedDemotions++
+			}
+		}
+	}
+
+	// 4. 执行热数据提升
+	for _, file := range hotFilesToPromote {
+		task, err := m.Migrate(MigrateRequest{
+			Paths:      []string{file.Path},
+			SourceTier: TierTypeHDD,
+			TargetTier: TierTypeSSD,
+			Action:     PolicyActionCopy,
+			Preserve:   true, // 保留HDD上的副本作为备份
+		})
+		if err == nil {
+			result.PromotedFiles++
+			result.PromotedBytes += file.Size
+			result.Tasks = append(result.Tasks, task.ID)
+		} else {
+			result.FailedPromotions++
+		}
+	}
+
+	result.EndTime = time.Now()
+	result.Duration = result.EndTime.Sub(result.StartTime)
+
+	return result, nil
+}
+
+// AutoMigrate 自动数据迁移算法
+// 基于访问频率自动迁移数据到合适的存储层
+func (m *Manager) AutoMigrate() (*AutoMigrateResult, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	result := &AutoMigrateResult{
+		StartTime: time.Now(),
+		Tiers:     make(map[TierType]*TierMigrationStats),
+	}
+
+	// 获取所有存储层
+	tiers := m.ListTiers()
+	if len(tiers) < 2 {
+		return result, nil // 至少需要2层才能迁移
+	}
+
+	// 按优先级排序存储层（SSD > HDD > Cloud）
+	tierPriority := []TierType{TierTypeSSD, TierTypeHDD, TierTypeCloud}
+
+	for i, tierType := range tierPriority {
+		tier, exists := m.tiers[tierType]
+		if !exists || !tier.Enabled {
+			continue
+		}
+
+		stats := &TierMigrationStats{
+			TierType: tierType,
+		}
+
+		records := m.tracker.GetRecordsByTier(tierType)
+		for _, record := range records {
+			// 根据访问频率决定迁移目标
+			var targetTier TierType
+			var shouldMigrate bool
+
+			switch record.Frequency {
+			case AccessFrequencyHot:
+				// 热数据：迁移到更高优先级层（如果不在SSD）
+				if i > 0 && tierPriority[0] == TierTypeSSD {
+					if ssdTier, ok := m.tiers[TierTypeSSD]; ok && ssdTier.Enabled {
+						targetTier = TierTypeSSD
+						shouldMigrate = true
+					}
+				}
+			case AccessFrequencyCold:
+				// 冷数据：迁移到更低优先级层（归档）
+				if i < len(tierPriority)-1 {
+					nextTier := tierPriority[i+1]
+					if nextTierTier, ok := m.tiers[nextTier]; ok && nextTierTier.Enabled {
+						targetTier = nextTier
+						shouldMigrate = true
+					}
+				}
+			}
+
+			if shouldMigrate && targetTier != "" {
+				stats.FilesToMigrate = append(stats.FilesToMigrate, record)
+				stats.TotalMigrateBytes += record.Size
+			}
+		}
+
+		result.Tiers[tierType] = stats
+	}
+
+	// 执行迁移（异步）
+	for tierType, stats := range result.Tiers {
+		if len(stats.FilesToMigrate) == 0 {
+			continue
+		}
+
+		// 确定目标层
+		var targetTier TierType
+		records := m.tracker.GetRecordsByTier(tierType)
+		if len(records) > 0 && records[0].Frequency == AccessFrequencyHot {
+			targetTier = TierTypeSSD
+		} else if len(records) > 0 && records[0].Frequency == AccessFrequencyCold {
+			// 选择下一层
+			for i, t := range tierPriority {
+				if t == tierType && i < len(tierPriority)-1 {
+					targetTier = tierPriority[i+1]
+					break
+				}
+			}
+		}
+
+		if targetTier == "" || targetTier == tierType {
+			continue
+		}
+
+		// 批量迁移
+		var paths []string
+		for _, file := range stats.FilesToMigrate {
+			paths = append(paths, file.Path)
+		}
+
+		go func(sourceTier, target TierType, files []string) {
+			_, _ = m.Migrate(MigrateRequest{
+				Paths:      files,
+				SourceTier: sourceTier,
+				TargetTier: target,
+				Action:     PolicyActionMove,
+			})
+		}(tierType, targetTier, paths)
+	}
+
+	result.EndTime = time.Now()
+	result.Duration = result.EndTime.Sub(result.StartTime)
+
+	return result, nil
+}
+
+// GetAllTierStats 分层统计报告
+// 返回所有存储层的详细统计信息
+func (m *Manager) GetAllTierStats() (*TieringStatsReport, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	report := &TieringStatsReport{
+		GeneratedAt: time.Now(),
+		Tiers:       make(map[TierType]*TierStats),
+	}
+
+	// 收集每层统计
+	for tierType, tier := range m.tiers {
+		if !tier.Enabled {
+			continue
+		}
+
+		stats, err := m.tracker.GetTierStats(tierType, tier)
+		if err != nil {
+			continue
+		}
+		report.Tiers[tierType] = stats
+	}
+
+	// 计算总体统计
+	report.Summary = &TieringSummary{
+		TotalFiles:   0,
+		TotalBytes:   0,
+		TotalHot:     0,
+		TotalWarm:    0,
+		TotalCold:    0,
+		HotPercent:   0,
+		WarmPercent:  0,
+		ColdPercent:  0,
+		HitRateSSD:   0,
+		MigrateTasks: len(m.tasks),
+		ActivePolicy: 0,
+	}
+
+	for _, stats := range report.Tiers {
+		report.Summary.TotalFiles += stats.TotalFiles
+		report.Summary.TotalBytes += stats.TotalBytes
+		report.Summary.TotalHot += stats.HotFiles
+		report.Summary.TotalWarm += stats.WarmFiles
+		report.Summary.TotalCold += stats.ColdFiles
+	}
+
+	// 计算百分比
+	if report.Summary.TotalFiles > 0 {
+		report.Summary.HotPercent = float64(report.Summary.TotalHot) / float64(report.Summary.TotalFiles) * 100
+		report.Summary.WarmPercent = float64(report.Summary.TotalWarm) / float64(report.Summary.TotalFiles) * 100
+		report.Summary.ColdPercent = float64(report.Summary.TotalCold) / float64(report.Summary.TotalFiles) * 100
+	}
+
+	// 统计活跃策略
+	for _, policy := range m.policies {
+		if policy.Enabled {
+			report.Summary.ActivePolicy++
+		}
+	}
+
+	// 计算SSD命中率
+	if ssdStats, ok := report.Tiers[TierTypeSSD]; ok {
+		totalAccess := ssdStats.HotFiles + ssdStats.WarmFiles
+		if totalAccess > 0 {
+			report.Summary.HitRateSSD = float64(ssdStats.HotFiles) / float64(totalAccess) * 100
+		}
+	}
+
+	return report, nil
+}
+
 // ==================== 策略引擎 ====================
 
 // runPolicyEngine 运行策略引擎
