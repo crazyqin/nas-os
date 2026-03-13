@@ -904,8 +904,8 @@ func (s *Server) writeLockResponse(w http.ResponseWriter, lock *Lock, statusCode
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	w.Header().Set("Lock-Token", "<"+lock.Token+">")
 	w.WriteHeader(statusCode)
-	w.Write([]byte(`<?xml version="1.0" encoding="utf-8"?>`))
-	w.Write(output)
+	_, _ = w.Write([]byte(`<?xml version="1.0" encoding="utf-8"?>`))
+	_, _ = w.Write(output)
 }
 
 // parseTimeoutHeader 解析 Timeout 头

@@ -85,18 +85,6 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfig saves configuration to disk (acquires lock)
-func (m *Manager) saveConfig() error {
-	m.mu.RLock()
-	pc := persistentConfig{
-		Config:  m.config,
-		Targets: m.targets,
-	}
-	m.mu.RUnlock()
-
-	return m.writeConfigFile(pc)
-}
-
 // saveConfigLocked saves configuration (caller holds lock)
 func (m *Manager) saveConfigLocked() error {
 	pc := persistentConfig{
