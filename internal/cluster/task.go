@@ -267,16 +267,18 @@ func (ts *TaskScheduler) CreateTask(task *Task) error {
 		zap.String("type", task.Type),
 		zap.Int("priority", task.Priority))
 
-	// 加入待调度队列
+	// 加入待调度队列（在锁外执行，避免在 channel 阻塞时持有锁）
+	ts.tasksMutex.Unlock()
 	ts.pending <- task
+	ts.tasksMutex.Lock()
 
 	// 触发回调
 	if ts.callbacks.OnTaskCreated != nil {
 		go ts.callbacks.OnTaskCreated(task)
 	}
 
-	// 持久化
-	return ts.saveTasks()
+	// 持久化（使用不加锁版本）
+	return ts.saveTasksLocked()
 }
 
 // GetTask 获取任务
@@ -345,7 +347,7 @@ func (ts *TaskScheduler) CancelTask(taskID string) error {
 	task.Status = TaskStatusCancelled
 	ts.logger.Info("取消任务", zap.String("task_id", taskID))
 
-	return ts.saveTasks()
+	return ts.saveTasksLocked()
 }
 
 // RetryTask 重试任务
@@ -370,7 +372,7 @@ func (ts *TaskScheduler) RetryTask(taskID string) error {
 	ts.pending <- task
 	ts.logger.Info("重试任务", zap.String("task_id", taskID))
 
-	return ts.saveTasks()
+	return ts.saveTasksLocked()
 }
 
 // CreateScheduledTask 创建定时任务
@@ -736,10 +738,8 @@ func (ts *TaskScheduler) Shutdown() error {
 
 // 持久化
 
-func (ts *TaskScheduler) saveTasks() error {
-	ts.tasksMutex.RLock()
-	defer ts.tasksMutex.RUnlock()
-
+// saveTasksLocked 保存任务（调用者需持有锁）
+func (ts *TaskScheduler) saveTasksLocked() error {
 	tasksFile := filepath.Join(ts.config.DataDir, "tasks.json")
 
 	data, err := json.MarshalIndent(ts.tasks, "", "  ")
@@ -748,6 +748,12 @@ func (ts *TaskScheduler) saveTasks() error {
 	}
 
 	return os.WriteFile(tasksFile, data, 0644)
+}
+
+func (ts *TaskScheduler) saveTasks() error {
+	ts.tasksMutex.RLock()
+	defer ts.tasksMutex.RUnlock()
+	return ts.saveTasksLocked()
 }
 
 func (ts *TaskScheduler) loadTasks() error {

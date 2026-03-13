@@ -19,6 +19,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// ManagerOption 管理器选项
+type ManagerOption func(*Manager)
+
+// WithCleanupWorker 启用/禁用清理协程
+func WithCleanupWorker(enabled bool) ManagerOption {
+	return func(m *Manager) {
+		if !enabled {
+			m.noCleanup = true
+		}
+	}
+}
+
 // Manager OnlyOffice 管理器
 type Manager struct {
 	mu           sync.RWMutex
@@ -35,6 +47,9 @@ type Manager struct {
 
 	// 停止信号
 	stopCh chan struct{}
+
+	// 测试选项：禁用清理协程
+	noCleanup bool
 }
 
 // FileAccessor 文件访问接口（由外部提供实现）
@@ -60,7 +75,7 @@ type FileInfo struct {
 }
 
 // NewManager 创建 OnlyOffice 管理器
-func NewManager(configPath string, accessor FileAccessor) (*Manager, error) {
+func NewManager(configPath string, accessor FileAccessor, opts ...ManagerOption) (*Manager, error) {
 	m := &Manager{
 		config:       DefaultConfig(),
 		sessions:     make(map[string]*EditingSession),
@@ -71,6 +86,11 @@ func NewManager(configPath string, accessor FileAccessor) (*Manager, error) {
 		stopCh:       make(chan struct{}),
 	}
 
+	// 应用选项
+	for _, opt := range opts {
+		opt(m)
+	}
+
 	// 加载配置
 	if configPath != "" {
 		if err := m.loadConfig(); err != nil {
@@ -78,8 +98,10 @@ func NewManager(configPath string, accessor FileAccessor) (*Manager, error) {
 		}
 	}
 
-	// 启动会话清理协程
-	go m.sessionCleanupWorker()
+	// 启动会话清理协程（除非禁用）
+	if !m.noCleanup {
+		go m.sessionCleanupWorker()
+	}
 
 	return m, nil
 }
@@ -271,8 +293,8 @@ func (m *Manager) CreateSession(fileID, userID, userName, mode string) (*Editing
 	m.sessions[sessionID] = session
 	m.fileSessions[fileID] = append(m.fileSessions[fileID], sessionID)
 
-	// 构建编辑器配置
-	editorConfig := m.buildEditorConfig(session, fileInfo, fileURL, mode, docType)
+	// 构建编辑器配置（已在锁内）
+	editorConfig := m.buildEditorConfigLocked(session, fileInfo, fileURL, mode, docType)
 
 	return session, editorConfig, nil
 }
@@ -559,10 +581,15 @@ func (m *Manager) buildCallbackURL(sessionID string) string {
 	return fmt.Sprintf("/api/v1/office/callback/%s", sessionID)
 }
 
-// buildEditorConfig 构建编辑器配置
+// buildEditorConfig 构建编辑器配置（公共方法，获取锁）
 func (m *Manager) buildEditorConfig(session *EditingSession, fileInfo *FileInfo, fileURL, mode, docType string) *EditorInitConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
+	return m.buildEditorConfigLocked(session, fileInfo, fileURL, mode, docType)
+}
+
+// buildEditorConfigLocked 构建编辑器配置（内部方法，不获取锁，调用者需持有锁）
+func (m *Manager) buildEditorConfigLocked(session *EditingSession, fileInfo *FileInfo, fileURL, mode, docType string) *EditorInitConfig {
 
 	// 权限配置
 	canEdit := mode == "edit"
