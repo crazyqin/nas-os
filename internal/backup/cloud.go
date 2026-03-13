@@ -64,17 +64,7 @@ type CloudConfig struct {
 func NewCloudBackup(cfg CloudConfig) (*CloudBackup, error) {
 	cb := &CloudBackup{
 		provider: cfg.Provider,
-		config: cloudConfig{
-			Provider:   cfg.Provider,
-			Bucket:     cfg.Bucket,
-			Endpoint:   cfg.Endpoint,
-			Region:     cfg.Region,
-			AccessKey:  cfg.AccessKey,
-			SecretKey:  cfg.SecretKey,
-			Prefix:     cfg.Prefix,
-			Insecure:   cfg.Insecure,
-			Encryption: cfg.Encryption,
-		},
+		config:   cloudConfig(cfg),
 	}
 
 	switch cfg.Provider {
