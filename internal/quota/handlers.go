@@ -693,9 +693,9 @@ type WebhookConfigRequest struct {
 
 func (h *Handlers) getWebhookConfig(c *gin.Context) {
 	config := map[string]interface{}{
-		"enabled":       h.monitor.config.NotifyWebhook,
-		"webhook_url":   h.monitor.config.WebhookURL,
-		"check_interval": h.monitor.config.CheckInterval.String(),
+		"enabled":          h.monitor.config.NotifyWebhook,
+		"webhook_url":      h.monitor.config.WebhookURL,
+		"check_interval":   h.monitor.config.CheckInterval.String(),
 		"silence_duration": h.monitor.config.SilenceDuration.String(),
 	}
 	c.JSON(http.StatusOK, Success(config))
