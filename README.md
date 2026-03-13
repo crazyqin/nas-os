@@ -2,9 +2,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v1.7.0 Stable (2026-03-13)  
+> **最新版本**: v1.8.0 Stable (2026-03-20)  
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)  
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v1.7.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v1.8.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -194,11 +194,22 @@ nas-os/
 | v1.4.x | Stable | 2026-03-12 | RBAC 权限系统 + WebUI | ✅ 已发布 |
 | v1.5.x | Stable | 2026-03-13 | 监控告警系统 + WebUI | ✅ 已发布 |
 | v1.6.0 | Stable | 2026-03-13 | 性能优化 + CI/CD 完善 | ✅ 已发布 |
-| **v1.7.0** | **Stable** | **2026-03-13** | **配额/回收站/WebDAV/复制/AI** | ✅ **已发布** |
-| v1.8.0 | Stable | 2026-03-20 | 版本控制/云同步/去重 | 📋 计划中 |
-| **v1.7.0** | **Stable** | **2026-03-13** | **配额/回收站/WebDAV/复制/AI分类** | ✅ **已发布** |
+| v1.7.0 | Stable | 2026-03-13 | 配额/回收站/WebDAV/复制/AI | ✅ 已发布 |
+| **v1.8.0** | **Stable** | **2026-03-20** | **版本控制/云同步/去重** | ✅ **已发布** |
 
-## v1.7.0 新增功能
+## v1.8.0 新增功能
+
+| 功能 | 说明 |
+|------|------|
+| 📜 文件版本控制 | 自动保存历史版本，支持版本恢复和对比 |
+| ☁️ 云同步增强 | 支持阿里云 OSS、腾讯云 COS、AWS S3、Google Drive、OneDrive、Backblaze B2 |
+| 🔄 双向同步 | 本地↔云端实时/定时同步，冲突自动解决 |
+| 🗜️ 数据去重 | 文件级/块级去重，节省存储空间 |
+| 📊 去重报告 | 详细的空间节省统计和可视化 |
+| 🌐 多云存储 | 统一管理多个云存储提供商 |
+
+<details>
+<summary>v1.7.0 新增功能</summary>
 
 | 功能 | 说明 |
 |------|------|
@@ -209,6 +220,8 @@ nas-os/
 | 🤖 AI 分类 | 照片/文件智能分类 |
 | ⚡ 性能优化 | LRU 缓存/连接池/工作池 |
 | 📈 报告系统 | 定时生成存储/使用报告 |
+
+</details>
 
 ## 部署
 
