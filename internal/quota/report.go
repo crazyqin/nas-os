@@ -77,13 +77,9 @@ func (g *ReportGenerator) ScheduleReport(req ReportRequest, schedule string, out
 	}
 
 	// 创建定时任务
-	g.scheduledID, err = g.cron.AddFunc(schedule, func() {
+	g.scheduledID, _ = g.cron.AddFunc(schedule, func() {
 		g.generateAndExport(req, outputPath)
 	})
-
-	if err != nil {
-		return fmt.Errorf("创建定时任务失败：%v", err)
-	}
 
 	// 获取下次执行时间
 	entry := g.cron.Entry(g.scheduledID)
