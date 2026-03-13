@@ -38,8 +38,8 @@
 ### 🟡 中优先级
 
 #### 4. 备份功能完善 (internal/backup/)
-- [ ] 实现云端连接检查
-- [ ] 实现详细配置检查
+- [x] 实现云端连接检查 ✅
+- [x] 实现详细配置检查 ✅
 - [ ] 添加备份恢复 WebUI
 
 #### 5. AI 分类 (internal/ai_classify/)
@@ -63,16 +63,18 @@
 
 ## 发布检查清单
 
-- [ ] 更新 README.md 版本号为 v1.7.0
-- [ ] 更新 MILESTONES.md
-- [ ] 生成发布说明 (CHANGELOG)
-- [ ] 构建多架构二进制 (amd64/arm64/armv7)
-- [ ] 构建 Docker 镜像
-- [ ] 创建 GitHub Release
-- [ ] 更新文档
+- [x] 更新 README.md 版本号为 v1.7.0 ✅
+- [x] 更新 MILESTONES.md ✅
+- [x] 生成发布说明 (CHANGELOG) ✅
+- [x] 构建多架构二进制 (amd64/arm64/armv7) ✅
+- [x] 构建 Docker 镜像 ✅
+- [x] 创建 GitHub Release ✅
+- [x] 更新文档 ✅
 
 ## 备注
 
-- 当前 CI/CD 状态：✅ 正常
-- 最新提交：6ed4987 (2026-03-13 18:26)
+- 当前 CI/CD 状态：✅ 全部通过
+- 最新提交：25c5fa2 feat(backup): 实现健康检查中的云端连接检查功能 (2026-03-13 22:45)
 - 分支状态：master 领先 origin/master 0 提交
+- Docker 镜像：✅ ghcr.io/crazyqin/nas-os:v1.7.0 已发布
+- GitHub Release: ✅ v1.7.0 已发布
