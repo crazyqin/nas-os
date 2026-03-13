@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -236,7 +237,7 @@ func (m *Manager) scanPath(rootPath string, result *ScanResult) {
 		if info.IsDir() {
 			// 检查是否在排除路径中
 			for _, exclude := range m.config.ExcludePaths {
-				if filepath.HasPrefix(path, exclude) {
+				if strings.HasPrefix(path, exclude) {
 					return filepath.SkipDir
 				}
 			}

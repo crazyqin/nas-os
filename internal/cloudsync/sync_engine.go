@@ -364,7 +364,7 @@ func (e *SyncEngine) syncDownload(ctx context.Context) error {
 				}
 				// 保留修改时间
 				if e.task.PreserveModTime {
-					os.Chtimes(localPath, remoteFile.ModTime, remoteFile.ModTime)
+					_ = os.Chtimes(localPath, remoteFile.ModTime, remoteFile.ModTime)
 				}
 			}
 			e.status.Progress = float64(e.status.ProcessedFiles) / float64(e.status.TotalFiles) * 100
@@ -532,7 +532,7 @@ func (e *SyncEngine) syncBidirectional(ctx context.Context) error {
 				e.status.DownloadedFiles++
 				e.status.TransferredBytes += remoteFile.Size
 				if e.task.PreserveModTime {
-					os.Chtimes(localPath, remoteFile.ModTime, remoteFile.ModTime)
+					_ = os.Chtimes(localPath, remoteFile.ModTime, remoteFile.ModTime)
 				}
 			}
 

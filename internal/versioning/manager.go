@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -156,7 +157,7 @@ func (m *Manager) CreateVersion(filePath, userID, description string, triggerTyp
 
 	// 检查是否在排除路径中
 	for _, exclude := range m.config.ExcludePaths {
-		if filepath.HasPrefix(filePath, exclude) {
+		if strings.HasPrefix(filePath, exclude) {
 			return nil, fmt.Errorf("路径在排除列表中")
 		}
 	}
