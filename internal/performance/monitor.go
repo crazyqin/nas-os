@@ -495,7 +495,11 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 
 // PrometheusExporter Prometheus 指标导出器
 type PrometheusExporter struct {
-	monitor *PerformanceMonitor
+	monitor    *PerformanceMonitor
+	collector  *SystemCollector
+	storage    *StorageCollector
+	health     *HealthChecker
+	alerts     *AlertManager
 }
 
 // NewPrometheusExporter 创建 Prometheus 导出器
@@ -503,8 +507,59 @@ func NewPrometheusExporter(monitor *PerformanceMonitor) *PrometheusExporter {
 	return &PrometheusExporter{monitor: monitor}
 }
 
+// NewPrometheusExporterExtended 创建扩展的 Prometheus 导出器
+func NewPrometheusExporterExtended(
+	monitor *PerformanceMonitor,
+	collector *SystemCollector,
+	storage *StorageCollector,
+	health *HealthChecker,
+	alerts *AlertManager,
+) *PrometheusExporter {
+	return &PrometheusExporter{
+		monitor:   monitor,
+		collector: collector,
+		storage:   storage,
+		health:    health,
+		alerts:    alerts,
+	}
+}
+
 // Handler 返回 Prometheus 格式的指标
 func (e *PrometheusExporter) Handler(w http.ResponseWriter, r *http.Request) {
+	// 收集扩展指标
+	output := e.collectAllMetrics()
+
+	w.Header().Set("Content-Type", "text/plain; version=0.0.4")
+	w.Write([]byte(output))
+}
+
+// collectAllMetrics 收集所有指标
+func (e *PrometheusExporter) collectAllMetrics() string {
+	var output string
+
+	// 基础性能指标
+	output += e.collectPerformanceMetrics()
+
+	// 扩展系统指标
+	if e.collector != nil {
+		output += e.collectSystemMetrics()
+	}
+
+	// 健康指标
+	if e.health != nil {
+		output += e.collectHealthMetrics()
+	}
+
+	// 告警指标
+	if e.alerts != nil {
+		output += e.collectAlertMetrics()
+	}
+
+	return output
+}
+
+// collectPerformanceMetrics 收集性能指标
+func (e *PrometheusExporter) collectPerformanceMetrics() string {
 	metrics := e.monitor.GetMetrics()
 
 	// 生成 Prometheus 格式的指标
@@ -589,8 +644,102 @@ nas_goroutines %d
 		metrics.GoroutineCount,
 	)
 
-	w.Header().Set("Content-Type", "text/plain; version=0.0.4")
-	w.Write([]byte(output))
+	return output
+}
+
+// collectSystemMetrics 收集系统指标
+func (e *PrometheusExporter) collectSystemMetrics() string {
+	cpu := e.collector.collectCPU()
+	mem := e.collector.collectMemory()
+	uptime := e.collector.getUptime()
+
+	output := fmt.Sprintf(`
+# HELP nas_cpu_usage_percent CPU usage percentage
+# TYPE nas_cpu_usage_percent gauge
+nas_cpu_usage_percent{mode="total"} %.2f
+nas_cpu_usage_percent{mode="user"} %.2f
+nas_cpu_usage_percent{mode="system"} %.2f
+
+# HELP nas_cpu_load_average CPU load average
+# TYPE nas_cpu_load_average gauge
+nas_cpu_load_average{period="1m"} %.2f
+nas_cpu_load_average{period="5m"} %.2f
+nas_cpu_load_average{period="15m"} %.2f
+
+# HELP nas_system_memory_bytes System memory in bytes
+# TYPE nas_system_memory_bytes gauge
+nas_system_memory_bytes{type="total"} %d
+nas_system_memory_bytes{type="used"} %d
+nas_system_memory_bytes{type="available"} %d
+
+# HELP nas_system_memory_usage_percent System memory usage percentage
+# TYPE nas_system_memory_usage_percent gauge
+nas_system_memory_usage_percent %.2f
+
+# HELP nas_system_uptime_seconds System uptime in seconds
+# TYPE nas_system_uptime_seconds counter
+nas_system_uptime_seconds %d
+`,
+		cpu.UsagePercent,
+		cpu.UserPercent,
+		cpu.SystemPercent,
+		cpu.LoadAvg1,
+		cpu.LoadAvg5,
+		cpu.LoadAvg15,
+		mem.TotalBytes,
+		mem.UsedBytes,
+		mem.AvailableBytes,
+		mem.UsagePercent,
+		uptime,
+	)
+
+	return output
+}
+
+// collectHealthMetrics 收集健康指标
+func (e *PrometheusExporter) collectHealthMetrics() string {
+	health := e.health.GetHealth()
+
+	healthValue := 1
+	if health.Status == HealthStatusDegraded {
+		healthValue = 0
+	} else if health.Status == HealthStatusUnhealthy {
+		healthValue = -1
+	}
+
+	return fmt.Sprintf(`
+# HELP nas_health_score System health score (0-100)
+# TYPE nas_health_score gauge
+nas_health_score %d
+
+# HELP nas_health_status System health status (1=healthy, 0=degraded, -1=unhealthy)
+# TYPE nas_health_status gauge
+nas_health_status %d
+`,
+		health.Score,
+		healthValue,
+	)
+}
+
+// collectAlertMetrics 收集告警指标
+func (e *PrometheusExporter) collectAlertMetrics() string {
+	stats := e.alerts.GetAlertStats()
+	byLevel := stats["by_level"].(map[AlertLevel]int)
+
+	return fmt.Sprintf(`
+# HELP nas_alerts_total Total number of active alerts
+# TYPE nas_alerts_total gauge
+nas_alerts_total %d
+
+# HELP nas_alerts_by_level Number of alerts by level
+# TYPE nas_alerts_by_level gauge
+nas_alerts_by_level{level="warning"} %d
+nas_alerts_by_level{level="critical"} %d
+`,
+		stats["total_active"],
+		byLevel[AlertLevelWarning],
+		byLevel[AlertLevelCritical],
+	)
 }
 
 // StartMetricsServer 启动独立的 metrics 服务 (用于 Prometheus 抓取)

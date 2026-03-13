@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -224,7 +223,7 @@ func TestHandlers_DeleteLock(t *testing.T) {
 	}
 
 	// 先创建一个锁
-	lock, err := srv.lockManager.CreateLock("/test/file.txt", "owner-1", true, 3600)
+	lock, err := srv.lockManager.CreateLock("/test/file.txt", "owner-1", 0, "exclusive", 3600)
 	if err != nil {
 		t.Fatalf("创建锁失败: %v", err)
 	}
@@ -244,8 +243,8 @@ func TestHandlers_DeleteLock(t *testing.T) {
 	}
 
 	// 验证锁已删除
-	_, err = srv.lockManager.GetLock(lock.Token)
-	if err != ErrLockNotFound {
+	_, exists := srv.lockManager.GetLock(lock.Token)
+	if exists {
 		t.Errorf("期望锁已删除，但还能找到")
 	}
 }
@@ -343,7 +342,7 @@ func TestHandlers_FullWorkflow(t *testing.T) {
 	}
 
 	// 4. 创建锁
-	lock, err := srv.lockManager.CreateLock("/test/workflow.txt", "test-owner", true, 3600)
+	lock, err := srv.lockManager.CreateLock("/test/workflow.txt", "test-owner", 0, "exclusive", 3600)
 	if err != nil {
 		t.Fatalf("创建锁失败: %v", err)
 	}
