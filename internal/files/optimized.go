@@ -389,7 +389,6 @@ func (m *OptimizedManager) ListFilesCached(dirPath string, generateThumbnails bo
 
 // generateThumbnailsAsync 异步生成缩略图
 func (m *OptimizedManager) generateThumbnailsAsync(dirPath string, files []FileInfo) {
-	var updatedFiles []FileInfo
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 
@@ -646,14 +645,17 @@ type BatchOperation struct {
 func (m *OptimizedManager) BatchDelete(paths []string) *BatchOperation {
 	result := &BatchOperation{
 		Success: make([]string, 0),
-		Failed:  make([]struct{ Path string; Error string }, 0),
+		Failed:  make([]struct {
+			Path  string `json:"path"`
+			Error string `json:"error"`
+		}, 0),
 	}
 
 	for _, path := range paths {
 		if err := os.Remove(path); err != nil {
 			result.Failed = append(result.Failed, struct {
-				Path  string
-				Error string
+				Path  string `json:"path"`
+				Error string `json:"error"`
 			}{path, err.Error()})
 		} else {
 			result.Success = append(result.Success, path)
@@ -669,14 +671,17 @@ func (m *OptimizedManager) BatchDelete(paths []string) *BatchOperation {
 func (m *OptimizedManager) BatchRename(renames map[string]string) *BatchOperation {
 	result := &BatchOperation{
 		Success: make([]string, 0),
-		Failed:  make([]struct{ Path string; Error string }, 0),
+		Failed:  make([]struct {
+			Path  string `json:"path"`
+			Error string `json:"error"`
+		}, 0),
 	}
 
 	for oldPath, newPath := range renames {
 		if err := os.Rename(oldPath, newPath); err != nil {
 			result.Failed = append(result.Failed, struct {
-				Path  string
-				Error string
+				Path  string `json:"path"`
+				Error string `json:"error"`
 			}{oldPath, err.Error()})
 		} else {
 			result.Success = append(result.Success, oldPath)
