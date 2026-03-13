@@ -23,17 +23,40 @@ type RestoreOptionsExtended struct {
 	VerifyAfter bool
 }
 
+// BackupInfo 备份信息
+type BackupInfo struct {
+	ID        string          `json:"id"`
+	Name      string          `json:"name"`
+	Path      string          `json:"path"`
+	Size      int64           `json:"size"`
+	CreatedAt time.Time       `json:"createdAt"`
+	Type      BackupType      `json:"type"`
+	Metadata  *BackupMetadata `json:"metadata,omitempty"`
+}
+
+// BackupMetadata 备份元数据
+type BackupMetadata struct {
+	SourcePath string            `json:"sourcePath"`
+	FileCount  int               `json:"fileCount"`
+	Checksum   string            `json:"checksum"`
+	Timestamp  string            `json:"timestamp,omitempty"`
+	Size       int64             `json:"size,omitempty"`
+	Extra      map[string]string `json:"extra,omitempty"`
+}
+
 // RestoreManager 恢复管理器
 type RestoreManager struct {
 	backupDir  string
 	storageDir string
+	encryptor  *EncryptionManager
 }
 
 // NewRestoreManager 创建恢复管理器
-func NewRestoreManager(backupDir, storageDir string) *RestoreManager {
+func NewRestoreManager(backupDir, storageDir string, encryptor *EncryptionManager) *RestoreManager {
 	return &RestoreManager{
 		backupDir:  backupDir,
 		storageDir: storageDir,
+		encryptor:  encryptor,
 	}
 }
 
@@ -285,11 +308,6 @@ func (rm *RestoreManager) decryptBackup(backupPath, password string) (string, er
 		return "", err
 	}
 
-	encryptor, err := NewEncryptor(password)
-	if err != nil {
-		return "", err
-	}
-
 	// 判断是文件还是目录
 	info, err := os.Stat(backupPath)
 	if err != nil {
@@ -307,8 +325,16 @@ func (rm *RestoreManager) decryptBackup(backupPath, password string) (string, er
 	} else {
 		// 文件：解密
 		decryptedPath := filepath.Join(tempDir, "decrypted")
-		if err := encryptor.DecryptFile(backupPath, decryptedPath); err != nil {
-			return "", err
+		if rm.encryptor != nil {
+			if err := rm.encryptor.DecryptFile(backupPath, decryptedPath, ""); err != nil {
+				return "", err
+			}
+		} else {
+			// 如果没有加密器，直接复制
+			cmd := exec.Command("cp", backupPath, decryptedPath)
+			if output, err := cmd.CombinedOutput(); err != nil {
+				return "", fmt.Errorf("复制失败：%w, output: %s", err, string(output))
+			}
 		}
 		return decryptedPath, nil
 	}
@@ -367,8 +393,9 @@ func (rm *RestoreManager) loadBackupInfo(backupPath string) (*BackupInfo, error)
 		// 从文件系统获取基本信息
 		if stat, err := os.Stat(backupPath); err == nil {
 			info.Metadata = &BackupMetadata{
-				Timestamp: stat.ModTime().Format("20060102_150405"),
-				Size:      stat.Size(),
+				SourcePath: backupPath,
+				Timestamp:  stat.ModTime().Format("20060102_150405"),
+				Size:       stat.Size(),
 			}
 		}
 	}
@@ -442,13 +469,11 @@ func (rm *RestoreManager) ListAllBackups() ([]BackupInfo, error) {
 		}
 
 		backupName := entry.Name()
-		ib := NewIncrementalBackup(rm.backupDir)
-		backups, err := ib.ListBackups(backupName)
-		if err != nil {
-			continue
+		// 直接读取备份目录
+		backupPath := filepath.Join(rm.backupDir, backupName)
+		if info, err := rm.loadBackupInfo(backupPath); err == nil {
+			allBackups = append(allBackups, *info)
 		}
-
-		allBackups = append(allBackups, backups...)
 	}
 
 	// 按时间排序

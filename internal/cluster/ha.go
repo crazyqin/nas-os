@@ -27,8 +27,8 @@ const (
 	FailoverEventRecovery  = "recovery"
 )
 
-// FailoverEvent 故障转移事件
-type FailoverEvent struct {
+// HAEvent 高可用事件
+type HAEvent struct {
 	ID        string    `json:"id"`
 	Type      string    `json:"type"`
 	OldLeader string    `json:"old_leader"`
@@ -74,7 +74,7 @@ type HighAvailability struct {
 	term        uint64
 	peers       map[string]*PeerInfo
 	peersMutex  sync.RWMutex
-	events      []FailoverEvent
+	events      []HAEvent
 	eventsMutex sync.RWMutex
 	ctx         context.Context
 	cancel      context.CancelFunc
@@ -118,7 +118,7 @@ func NewHighAvailability(config HAConfig, logger *zap.Logger) (*HighAvailability
 		ctx:         ctx,
 		cancel:      cancel,
 		logger:      logger,
-		events:      make([]FailoverEvent, 0),
+		events:      make([]HAEvent, 0),
 		lastContact: time.Now(),
 	}
 
@@ -205,7 +205,7 @@ func (ha *HighAvailability) becomeLeader() {
 		zap.Uint64("term", ha.term))
 
 	// 记录故障转移事件
-	ha.recordFailoverEvent(FailoverEvent{
+	ha.recordFailoverEvent(HAEvent{
 		ID:        fmt.Sprintf("failover-%d", time.Now().UnixNano()),
 		Type:      FailoverEventElection,
 		OldLeader: oldLeader,
@@ -350,7 +350,7 @@ func (ha *HighAvailability) TransferLeadership(targetNodeID string) error {
 		zap.String("to", targetNodeID))
 
 	// 记录故障转移事件
-	ha.recordFailoverEvent(FailoverEvent{
+	ha.recordFailoverEvent(HAEvent{
 		ID:        fmt.Sprintf("failover-%d", time.Now().UnixNano()),
 		Type:      FailoverEventTransfer,
 		OldLeader: oldLeader,
@@ -375,7 +375,7 @@ func (ha *HighAvailability) GetPeers() []*PeerInfo {
 }
 
 // GetFailoverHistory 获取故障转移历史
-func (ha *HighAvailability) GetFailoverHistory(limit int) []FailoverEvent {
+func (ha *HighAvailability) GetFailoverHistory(limit int) []HAEvent {
 	ha.eventsMutex.RLock()
 	defer ha.eventsMutex.RUnlock()
 
@@ -388,13 +388,13 @@ func (ha *HighAvailability) GetFailoverHistory(limit int) []FailoverEvent {
 		start = 0
 	}
 
-	result := make([]FailoverEvent, limit)
+	result := make([]HAEvent, limit)
 	copy(result, ha.events[start:])
 	return result
 }
 
 // recordFailoverEvent 记录故障转移事件
-func (ha *HighAvailability) recordFailoverEvent(event FailoverEvent) {
+func (ha *HighAvailability) recordFailoverEvent(event HAEvent) {
 	ha.eventsMutex.Lock()
 	defer ha.eventsMutex.Unlock()
 

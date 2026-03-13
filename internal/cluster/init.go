@@ -15,13 +15,13 @@ type ClusterServices struct {
 
 // ClusterRootConfig 集群总配置
 type ClusterRootConfig struct {
-	Enabled      bool          `json:"enabled"`
-	NodeID       string        `json:"node_id"`
-	DataDir      string        `json:"data_dir"`
-	Cluster      ClusterConfig `json:"cluster"`
-	Sync         SyncConfig    `json:"sync"`
-	LoadBalancer LBConfig      `json:"load_balancer"`
-	HA           HAConfig      `json:"ha"`
+	Enabled      bool                `json:"enabled"`
+	NodeID       string              `json:"node_id"`
+	DataDir      string              `json:"data_dir"`
+	Cluster      SimpleClusterConfig `json:"cluster"`
+	Sync         SyncConfig          `json:"sync"`
+	LoadBalancer LBConfig            `json:"load_balancer"`
+	HA           HAConfig            `json:"ha"`
 }
 
 // InitializeCluster 初始化集群服务
@@ -34,7 +34,7 @@ func InitializeCluster(config ClusterRootConfig, logger *zap.Logger) (*ClusterSe
 	logger.Info("初始化集群服务")
 
 	// 初始化集群管理器
-	clusterMgr, err := NewManager(ClusterConfig{
+	clusterMgr, err := NewManager(SimpleClusterConfig{
 		Name:              "nas-os-cluster",
 		NodeID:            config.NodeID,
 		DiscoveryPort:     8081,

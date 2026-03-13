@@ -106,7 +106,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 }
 
 func (h *Handlers) createConfig(c *gin.Context) {
-	var config BackupConfig
+	var config JobConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
@@ -133,7 +133,7 @@ func (h *Handlers) createConfig(c *gin.Context) {
 func (h *Handlers) updateConfig(c *gin.Context) {
 	id := c.Param("id")
 
-	var config BackupConfig
+	var config JobConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
@@ -641,7 +641,14 @@ func (h *Handlers) getStats(c *gin.Context) {
 // ========== 健康检查 ==========
 
 func (h *Handlers) healthCheck(c *gin.Context) {
-	result := h.manager.HealthCheck()
+	result, err := h.manager.HealthCheck()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
