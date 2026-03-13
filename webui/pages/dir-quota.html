@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>目录配额 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .dir-quota-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--text-primary); }
+        .stat-sub { font-size: 13px; color: var(--text-muted); margin-top: 0.25rem; }
+        
+        .quota-list {
+            background: var(--surface-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
+        .quota-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 120px;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .quota-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 120px;
+            padding: 1.25rem 1.5rem;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        .quota-item:hover { background: var(--hover-color); }
+        .quota-item:last-child { border-bottom: none; }
+        
+        .path-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .folder-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .path-info { display: flex; flex-direction: column; gap: 0.25rem; }
+        .path-name { font-weight: 600; color: var(--text-primary); }
+        .path-full { font-size: 12px; color: var(--text-muted); }
+        
+        .usage-bar {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .usage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10B981, #34D399);
+            transition: width 0.3s;
+        }
+        .usage-fill.warning { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+        .usage-fill.danger { background: linear-gradient(90deg, #DC2626, #EF4444); }
+        
+        .btn-group { display: flex; gap: 0.5rem; }
+        .btn-sm {
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--border-color); }
+        .btn-danger { background: #DC2626; color: white; }
+        .btn-danger:hover { background: #B91C1C; }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface-color);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+        
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .form-hint { font-size: 12px; color: var(--text-muted); margin-top: 0.25rem; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 64px; margin-bottom: 1rem; }
+        .empty-title { font-size: 18px; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="dir-quota-container">
+        <div class="page-header">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 0.5rem;">目录配额管理</h1>
+                <p style="color: var(--text-muted);">为特定目录设置存储容量限制</p>
+            </div>
+            <button class="btn btn-primary" onclick="showCreateModal()" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                + 新建目录配额
+            </button>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-label">目录配额总数</div>
+                <div class="stat-value" id="totalQuotas">0</div>
+                <div class="stat-sub">个目录受限制</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">总限制容量</div>
+                <div class="stat-value" id="totalLimit">0 GB</div>
+                <div class="stat-sub">配额上限总和</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">已用容量</div>
+                <div class="stat-value" id="totalUsed">0 GB</div>
+                <div class="stat-sub">实际使用量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">告警数量</div>
+                <div class="stat-value" id="totalAlerts" style="color: #DC2626;">0</div>
+                <div class="stat-sub">需要关注</div>
+            </div>
+        </div>
+        
+        <div class="quota-list" id="quotaList">
+            <div class="quota-header">
+                <div>目录路径</div>
+                <div>已用 / 限制</div>
+                <div>使用率</div>
+                <div>软限制</div>
+                <div>状态</div>
+                <div>操作</div>
+            </div>
+            <div id="quotaItems"></div>
+        </div>
+        
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">📁</div>
+            <div class="empty-title">暂无目录配额</div>
+            <p>点击上方按钮创建第一个目录配额</p>
+        </div>
+    </div>
+    
+    <!-- 创建/编辑配额模态框 -->
+    <div class="modal-overlay" id="quotaModal">
+        <div class="modal">
+            <div class="modal-header" id="modalTitle">新建目录配额</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">目录路径 *</label>
+                    <input type="text" class="form-input" id="dirPath" placeholder="/data/shared">
+                    <div class="form-hint">需要限制的目录完整路径</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">硬限制 (GB) *</label>
+                    <input type="number" class="form-input" id="hardLimit" placeholder="100" min="1">
+                    <div class="form-hint">超出后将无法写入</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">软限制 (GB)</label>
+                    <input type="number" class="form-input" id="softLimit" placeholder="80" min="0">
+                    <div class="form-hint">超出时触发告警（可选）</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveQuota()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let quotas = [];
+        let editingId = null;
+        
+        // 格式化字节
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 加载配额列表
+        async function loadQuotas() {
+            try {
+                const res = await fetch('/api/v1/quota-usage/directories');
+                const data = await res.json();
+                quotas = data.data || [];
+                renderQuotas();
+                updateStats();
+            } catch (err) {
+                console.error('加载配额失败:', err);
+            }
+        }
+        
+        // 渲染配额列表
+        function renderQuotas() {
+            const container = document.getElementById('quotaItems');
+            const emptyState = document.getElementById('emptyState');
+            const quotaList = document.getElementById('quotaList');
+            
+            if (quotas.length === 0) {
+                emptyState.style.display = 'block';
+                quotaList.style.display = 'none';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            quotaList.style.display = 'block';
+            
+            container.innerHTML = quotas.map(q => {
+                const usagePercent = q.usage_percent || 0;
+                const usageClass = usagePercent >= 95 ? 'danger' : (usagePercent >= 80 ? 'warning' : '');
+                const statusText = q.is_over_hard ? '已超限' : (q.is_over_soft ? '警告' : '正常');
+                const statusColor = q.is_over_hard ? '#DC2626' : (q.is_over_soft ? '#F59E0B' : '#10B981');
+                
+                return `
+                    <div class="quota-item">
+                        <div class="path-cell">
+                            <div class="folder-icon">📁</div>
+                            <div class="path-info">
+                                <div class="path-name">${q.path.split('/').pop() || q.path}</div>
+                                <div class="path-full">${q.path}</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">${formatBytes(q.used_bytes)}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">/ ${formatBytes(q.hard_limit)}</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">${usagePercent.toFixed(1)}%</div>
+                            <div class="usage-bar">
+                                <div class="usage-fill ${usageClass}" style="width: ${Math.min(usagePercent, 100)}%"></div>
+                            </div>
+                        </div>
+                        <div>${q.soft_limit > 0 ? formatBytes(q.soft_limit) : '-'}</div>
+                        <div>
+                            <span style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 12px; font-weight: 600; background: ${statusColor}20; color: ${statusColor};">
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-sm btn-secondary" onclick="editQuota('${q.quota_id}')">编辑</button>
+                            <button class="btn-sm btn-danger" onclick="deleteQuota('${q.quota_id}')">删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 更新统计
+        function updateStats() {
+            document.getElementById('totalQuotas').textContent = quotas.length;
+            
+            const totalLimit = quotas.reduce((sum, q) => sum + (q.hard_limit || 0), 0);
+            const totalUsed = quotas.reduce((sum, q) => sum + (q.used_bytes || 0), 0);
+            const alerts = quotas.filter(q => q.is_over_soft || q.is_over_hard).length;
+            
+            document.getElementById('totalLimit').textContent = formatBytes(totalLimit);
+            document.getElementById('totalUsed').textContent = formatBytes(totalUsed);
+            document.getElementById('totalAlerts').textContent = alerts;
+        }
+        
+        // 显示创建模态框
+        function showCreateModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = '新建目录配额';
+            document.getElementById('dirPath').value = '';
+            document.getElementById('hardLimit').value = '';
+            document.getElementById('softLimit').value = '';
+            document.getElementById('quotaModal').classList.add('active');
+        }
+        
+        // 编辑配额
+        function editQuota(id) {
+            const quota = quotas.find(q => q.quota_id === id);
+            if (!quota) return;
+            
+            editingId = id;
+            document.getElementById('modalTitle').textContent = '编辑目录配额';
+            document.getElementById('dirPath').value = quota.path;
+            document.getElementById('hardLimit').value = Math.floor(quota.hard_limit / 1024 / 1024 / 1024);
+            document.getElementById('softLimit').value = quota.soft_limit > 0 ? Math.floor(quota.soft_limit / 1024 / 1024 / 1024) : '';
+            document.getElementById('quotaModal').classList.add('active');
+        }
+        
+        // 隐藏模态框
+        function hideModal() {
+            document.getElementById('quotaModal').classList.remove('active');
+        }
+        
+        // 保存配额
+        async function saveQuota() {
+            const path = document.getElementById('dirPath').value.trim();
+            const hardLimit = parseInt(document.getElementById('hardLimit').value) * 1024 * 1024 * 1024;
+            const softLimit = parseInt(document.getElementById('softLimit').value || 0) * 1024 * 1024 * 1024;
+            
+            if (!path || !hardLimit) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            try {
+                const payload = {
+                    type: 'directory',
+                    target_id: path,
+                    path: path,
+                    hard_limit: hardLimit,
+                    soft_limit: softLimit || hardLimit
+                };
+                
+                const url = editingId ? `/api/v1/quotas/${editingId}` : '/api/v1/quotas';
+                const method = editingId ? 'PUT' : 'POST';
+                
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    hideModal();
+                    loadQuotas();
+                } else {
+                    alert(data.message || data.error || '操作失败');
+                }
+            } catch (err) {
+                alert('保存失败：' + err.message);
+            }
+        }
+        
+        // 删除配额
+        async function deleteQuota(id) {
+            if (!confirm('确定要删除此目录配额吗？')) return;
+            
+            try {
+                const res = await fetch(`/api/v1/quotas/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    loadQuotas();
+                } else {
+                    alert('删除失败');
+                }
+            } catch (err) {
+                alert('删除失败：' + err.message);
+            }
+        }
+        
+        // 初始化
+        loadQuotas();
+        // 每 30 秒刷新
+        setInterval(loadQuotas, 30000);
+    </script>
+</body>
+</html>
