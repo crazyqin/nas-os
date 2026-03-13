@@ -39,7 +39,7 @@ func (a *StorageAdapter) ListSnapshots(volumeName string) ([]interface{}, error)
 			Name:      snap.Name,
 			Path:      snap.Path,
 			CreatedAt: snap.CreatedAt,
-			Size:      snap.Size,
+			Size:      int64(snap.Size),
 		}
 	}
 	return result, nil
