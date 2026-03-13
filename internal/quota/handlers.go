@@ -34,6 +34,29 @@ func NewHandlers(mgr *Manager) *Handlers {
 
 // RegisterRoutes 注册路由
 func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
+	// ========== v2.1.0 新增配额管理 API ==========
+	quotasV2 := api.Group("/quotas")
+	{
+		// 用户配额
+		quotasV2.GET("/users", h.listUserQuotas)
+		quotasV2.POST("/users/:id", h.setUserQuota)
+		quotasV2.DELETE("/users/:id", h.deleteUserQuota)
+
+		// 组配额
+		quotasV2.GET("/groups", h.listGroupQuotas)
+		quotasV2.POST("/groups/:id", h.setGroupQuota)
+		quotasV2.DELETE("/groups/:id", h.deleteGroupQuota)
+
+		// 目录配额
+		quotasV2.GET("/directories", h.listDirectoryQuotas)
+		quotasV2.POST("/directories", h.setDirectoryQuota)
+		quotasV2.DELETE("/directories/:id", h.deleteDirectoryQuota)
+
+		// 配额预警和使用报告
+		quotasV2.GET("/alerts", h.getQuotaAlerts)
+		quotasV2.GET("/report", h.getQuotaReport)
+	}
+
 	// ========== 配额管理 ==========
 	quotas := api.Group("/quotas")
 	{
@@ -807,4 +830,565 @@ func (h *Handlers) setScheduleConfig(c *gin.Context) {
 func (h *Handlers) cancelSchedule(c *gin.Context) {
 	h.reportGen.Stop()
 	c.JSON(http.StatusOK, Success(map[string]string{"status": "cancelled"}))
+}
+
+// ========== v2.1.0 新增 API 处理函数 ==========
+
+// UserQuotaInput 用户配额输入
+type UserQuotaInput struct {
+	VolumeName string `json:"volume_name" binding:"required"`
+	HardLimit  uint64 `json:"hard_limit" binding:"required"`
+	SoftLimit  uint64 `json:"soft_limit"`
+}
+
+// GroupQuotaInput 组配额输入
+type GroupQuotaInput struct {
+	VolumeName string `json:"volume_name" binding:"required"`
+	HardLimit  uint64 `json:"hard_limit" binding:"required"`
+	SoftLimit  uint64 `json:"soft_limit"`
+}
+
+// DirectoryQuotaInput 目录配额输入
+type DirectoryQuotaInput struct {
+	Path       string `json:"path" binding:"required"`
+	VolumeName string `json:"volume_name"`
+	HardLimit  uint64 `json:"hard_limit" binding:"required"`
+	SoftLimit  uint64 `json:"soft_limit"`
+}
+
+// UserQuotaResponse 用户配额响应
+type UserQuotaResponse struct {
+	Username     string       `json:"username"`
+	VolumeName   string       `json:"volume_name"`
+	HardLimit    uint64       `json:"hard_limit"`
+	SoftLimit    uint64       `json:"soft_limit"`
+	UsedBytes    uint64       `json:"used_bytes"`
+	UsagePercent float64      `json:"usage_percent"`
+	IsOverSoft   bool         `json:"is_over_soft"`
+	IsOverHard   bool         `json:"is_over_hard"`
+	Quota        *Quota       `json:"quota,omitempty"`
+	Usage        *QuotaUsage  `json:"usage,omitempty"`
+}
+
+// GroupQuotaResponse 组配额响应
+type GroupQuotaResponse struct {
+	GroupName    string      `json:"group_name"`
+	VolumeName   string      `json:"volume_name"`
+	HardLimit    uint64      `json:"hard_limit"`
+	SoftLimit    uint64      `json:"soft_limit"`
+	UsedBytes    uint64      `json:"used_bytes"`
+	UsagePercent float64     `json:"usage_percent"`
+	IsOverSoft   bool        `json:"is_over_soft"`
+	IsOverHard   bool        `json:"is_over_hard"`
+	Quota        *Quota      `json:"quota,omitempty"`
+	Usage        *QuotaUsage `json:"usage,omitempty"`
+}
+
+// DirectoryQuotaResponse 目录配额响应
+type DirectoryQuotaResponse struct {
+	Path         string      `json:"path"`
+	VolumeName   string      `json:"volume_name"`
+	HardLimit    uint64      `json:"hard_limit"`
+	SoftLimit    uint64      `json:"soft_limit"`
+	UsedBytes    uint64      `json:"used_bytes"`
+	UsagePercent float64     `json:"usage_percent"`
+	IsOverSoft   bool        `json:"is_over_soft"`
+	IsOverHard   bool        `json:"is_over_hard"`
+	Quota        *Quota      `json:"quota,omitempty"`
+	Usage        *QuotaUsage `json:"usage,omitempty"`
+}
+
+// listUserQuotas 列出所有用户配额
+func (h *Handlers) listUserQuotas(c *gin.Context) {
+	username := c.Query("username")
+	volumeName := c.Query("volume")
+
+	var quotas []*Quota
+	if username != "" {
+		quotas = h.manager.ListUserQuotas(username)
+	} else {
+		quotas = h.manager.ListQuotas()
+		// 过滤出用户配额
+		userQuotas := make([]*Quota, 0)
+		for _, q := range quotas {
+			if q.Type == QuotaTypeUser {
+				userQuotas = append(userQuotas, q)
+			}
+		}
+		quotas = userQuotas
+	}
+
+	// 按卷过滤
+	if volumeName != "" {
+		filtered := make([]*Quota, 0)
+		for _, q := range quotas {
+			if q.VolumeName == volumeName {
+				filtered = append(filtered, q)
+			}
+		}
+		quotas = filtered
+	}
+
+	// 构建响应
+	responses := make([]*UserQuotaResponse, 0, len(quotas))
+	for _, q := range quotas {
+		resp := &UserQuotaResponse{
+			Username:   q.TargetID,
+			VolumeName: q.VolumeName,
+			HardLimit:  q.HardLimit,
+			SoftLimit:  q.SoftLimit,
+			Quota:      q,
+		}
+
+		// 获取使用情况
+		usage, err := h.manager.GetUsage(q.ID)
+		if err == nil {
+			resp.UsedBytes = usage.UsedBytes
+			resp.UsagePercent = usage.UsagePercent
+			resp.IsOverSoft = usage.IsOverSoft
+			resp.IsOverHard = usage.IsOverHard
+			resp.Usage = usage
+		}
+
+		responses = append(responses, resp)
+	}
+
+	c.JSON(http.StatusOK, Success(responses))
+}
+
+// setUserQuota 设置用户配额
+func (h *Handlers) setUserQuota(c *gin.Context) {
+	username := c.Param("id")
+	var req UserQuotaInput
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	// 检查用户是否存在
+	if h.manager.userProvider != nil && !h.manager.userProvider.UserExists(username) {
+		c.JSON(http.StatusNotFound, Error(404, "用户不存在"))
+		return
+	}
+
+	// 查找现有配额
+	existingQuotas := h.manager.ListUserQuotas(username)
+	var existingQuota *Quota
+	for _, q := range existingQuotas {
+		if q.VolumeName == req.VolumeName {
+			existingQuota = q
+			break
+		}
+	}
+
+	var quota *Quota
+	var err error
+
+	if existingQuota != nil {
+		// 更新现有配额
+		quota, err = h.manager.UpdateQuota(existingQuota.ID, QuotaInput{
+			Type:       QuotaTypeUser,
+			TargetID:   username,
+			VolumeName: req.VolumeName,
+			HardLimit:  req.HardLimit,
+			SoftLimit:  req.SoftLimit,
+		})
+	} else {
+		// 创建新配额
+		quota, err = h.manager.CreateQuota(QuotaInput{
+			Type:       QuotaTypeUser,
+			TargetID:   username,
+			VolumeName: req.VolumeName,
+			HardLimit:  req.HardLimit,
+			SoftLimit:  req.SoftLimit,
+		})
+	}
+
+	if err != nil {
+		switch err {
+		case ErrUserNotFound:
+			c.JSON(http.StatusNotFound, Error(404, err.Error()))
+		case ErrInvalidLimit:
+			c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		default:
+			c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(quota))
+}
+
+// deleteUserQuota 删除用户配额
+func (h *Handlers) deleteUserQuota(c *gin.Context) {
+	username := c.Param("id")
+	volumeName := c.Query("volume")
+
+	quotas := h.manager.ListUserQuotas(username)
+	if len(quotas) == 0 {
+		c.JSON(http.StatusNotFound, Error(404, "未找到用户配额"))
+		return
+	}
+
+	deleted := false
+	for _, q := range quotas {
+		if volumeName == "" || q.VolumeName == volumeName {
+			if err := h.manager.DeleteQuota(q.ID); err == nil {
+				deleted = true
+			}
+		}
+	}
+
+	if !deleted {
+		c.JSON(http.StatusNotFound, Error(404, "未找到匹配的配额"))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(map[string]string{"status": "deleted"}))
+}
+
+// listGroupQuotas 列出所有组配额
+func (h *Handlers) listGroupQuotas(c *gin.Context) {
+	groupName := c.Query("groupname")
+	volumeName := c.Query("volume")
+
+	var quotas []*Quota
+	if groupName != "" {
+		quotas = h.manager.ListGroupQuotas(groupName)
+	} else {
+		quotas = h.manager.ListQuotas()
+		// 过滤出组配额
+		groupQuotas := make([]*Quota, 0)
+		for _, q := range quotas {
+			if q.Type == QuotaTypeGroup {
+				groupQuotas = append(groupQuotas, q)
+			}
+		}
+		quotas = groupQuotas
+	}
+
+	// 按卷过滤
+	if volumeName != "" {
+		filtered := make([]*Quota, 0)
+		for _, q := range quotas {
+			if q.VolumeName == volumeName {
+				filtered = append(filtered, q)
+			}
+		}
+		quotas = filtered
+	}
+
+	// 构建响应
+	responses := make([]*GroupQuotaResponse, 0, len(quotas))
+	for _, q := range quotas {
+		resp := &GroupQuotaResponse{
+			GroupName:  q.TargetID,
+			VolumeName: q.VolumeName,
+			HardLimit:  q.HardLimit,
+			SoftLimit:  q.SoftLimit,
+			Quota:      q,
+		}
+
+		// 获取使用情况
+		usage, err := h.manager.GetUsage(q.ID)
+		if err == nil {
+			resp.UsedBytes = usage.UsedBytes
+			resp.UsagePercent = usage.UsagePercent
+			resp.IsOverSoft = usage.IsOverSoft
+			resp.IsOverHard = usage.IsOverHard
+			resp.Usage = usage
+		}
+
+		responses = append(responses, resp)
+	}
+
+	c.JSON(http.StatusOK, Success(responses))
+}
+
+// setGroupQuota 设置组配额
+func (h *Handlers) setGroupQuota(c *gin.Context) {
+	groupName := c.Param("id")
+	var req GroupQuotaInput
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	// 检查组是否存在
+	if h.manager.userProvider != nil && !h.manager.userProvider.GroupExists(groupName) {
+		c.JSON(http.StatusNotFound, Error(404, "用户组不存在"))
+		return
+	}
+
+	// 查找现有配额
+	existingQuotas := h.manager.ListGroupQuotas(groupName)
+	var existingQuota *Quota
+	for _, q := range existingQuotas {
+		if q.VolumeName == req.VolumeName {
+			existingQuota = q
+			break
+		}
+	}
+
+	var quota *Quota
+	var err error
+
+	if existingQuota != nil {
+		// 更新现有配额
+		quota, err = h.manager.UpdateQuota(existingQuota.ID, QuotaInput{
+			Type:       QuotaTypeGroup,
+			TargetID:   groupName,
+			VolumeName: req.VolumeName,
+			HardLimit:  req.HardLimit,
+			SoftLimit:  req.SoftLimit,
+		})
+	} else {
+		// 创建新配额
+		quota, err = h.manager.CreateQuota(QuotaInput{
+			Type:       QuotaTypeGroup,
+			TargetID:   groupName,
+			VolumeName: req.VolumeName,
+			HardLimit:  req.HardLimit,
+			SoftLimit:  req.SoftLimit,
+		})
+	}
+
+	if err != nil {
+		switch err {
+		case ErrGroupNotFound:
+			c.JSON(http.StatusNotFound, Error(404, err.Error()))
+		case ErrInvalidLimit:
+			c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		default:
+			c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(quota))
+}
+
+// deleteGroupQuota 删除组配额
+func (h *Handlers) deleteGroupQuota(c *gin.Context) {
+	groupName := c.Param("id")
+	volumeName := c.Query("volume")
+
+	quotas := h.manager.ListGroupQuotas(groupName)
+	if len(quotas) == 0 {
+		c.JSON(http.StatusNotFound, Error(404, "未找到组配额"))
+		return
+	}
+
+	deleted := false
+	for _, q := range quotas {
+		if volumeName == "" || q.VolumeName == volumeName {
+			if err := h.manager.DeleteQuota(q.ID); err == nil {
+				deleted = true
+			}
+		}
+	}
+
+	if !deleted {
+		c.JSON(http.StatusNotFound, Error(404, "未找到匹配的配额"))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(map[string]string{"status": "deleted"}))
+}
+
+// listDirectoryQuotas 列出所有目录配额
+func (h *Handlers) listDirectoryQuotas(c *gin.Context) {
+	volumeName := c.Query("volume")
+
+	quotas := h.manager.ListDirectoryQuotas()
+
+	// 按卷过滤
+	if volumeName != "" {
+		filtered := make([]*Quota, 0)
+		for _, q := range quotas {
+			if q.VolumeName == volumeName {
+				filtered = append(filtered, q)
+			}
+		}
+		quotas = filtered
+	}
+
+	// 构建响应
+	responses := make([]*DirectoryQuotaResponse, 0, len(quotas))
+	for _, q := range quotas {
+		resp := &DirectoryQuotaResponse{
+			Path:       q.Path,
+			VolumeName: q.VolumeName,
+			HardLimit:  q.HardLimit,
+			SoftLimit:  q.SoftLimit,
+			Quota:      q,
+		}
+
+		// 获取使用情况
+		usage, err := h.manager.GetUsage(q.ID)
+		if err == nil {
+			resp.UsedBytes = usage.UsedBytes
+			resp.UsagePercent = usage.UsagePercent
+			resp.IsOverSoft = usage.IsOverSoft
+			resp.IsOverHard = usage.IsOverHard
+			resp.Usage = usage
+		}
+
+		responses = append(responses, resp)
+	}
+
+	c.JSON(http.StatusOK, Success(responses))
+}
+
+// setDirectoryQuota 设置目录配额
+func (h *Handlers) setDirectoryQuota(c *gin.Context) {
+	var req DirectoryQuotaInput
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	// 查找现有配额
+	existingQuota, _ := h.manager.GetDirectoryQuota(req.Path)
+
+	var quota *Quota
+	var err error
+
+	if existingQuota != nil {
+		// 更新现有配额
+		quota, err = h.manager.UpdateQuota(existingQuota.ID, QuotaInput{
+			Type:       QuotaTypeDirectory,
+			TargetID:   req.Path,
+			VolumeName: req.VolumeName,
+			Path:       req.Path,
+			HardLimit:  req.HardLimit,
+			SoftLimit:  req.SoftLimit,
+		})
+	} else {
+		// 创建新配额
+		quota, err = h.manager.CreateQuota(QuotaInput{
+			Type:       QuotaTypeDirectory,
+			TargetID:   req.Path,
+			VolumeName: req.VolumeName,
+			Path:       req.Path,
+			HardLimit:  req.HardLimit,
+			SoftLimit:  req.SoftLimit,
+		})
+	}
+
+	if err != nil {
+		switch err {
+		case ErrInvalidLimit:
+			c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		default:
+			c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(quota))
+}
+
+// deleteDirectoryQuota 删除目录配额
+func (h *Handlers) deleteDirectoryQuota(c *gin.Context) {
+	quotaID := c.Param("id")
+
+	if err := h.manager.DeleteQuota(quotaID); err != nil {
+		c.JSON(http.StatusNotFound, Error(404, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(map[string]string{"status": "deleted"}))
+}
+
+// getQuotaAlerts 获取配额预警列表
+func (h *Handlers) getQuotaAlerts(c *gin.Context) {
+	alertType := c.Query("type")
+	status := c.Query("status")
+
+	alerts := h.manager.GetAlerts()
+
+	// 按类型过滤
+	if alertType != "" {
+		filtered := make([]*Alert, 0)
+		for _, a := range alerts {
+			if string(a.Type) == alertType {
+				filtered = append(filtered, a)
+			}
+		}
+		alerts = filtered
+	}
+
+	// 按状态过滤
+	if status != "" {
+		filtered := make([]*Alert, 0)
+		for _, a := range alerts {
+			if string(a.Status) == status {
+				filtered = append(filtered, a)
+			}
+		}
+		alerts = filtered
+	}
+
+	// 如果没有活跃告警，检查是否需要返回历史告警
+	includeHistory := c.Query("history") == "true"
+	if includeHistory && len(alerts) == 0 {
+		limit := 100
+		if l := c.Query("limit"); l != "" {
+			fmt.Sscanf(l, "%d", &limit)
+		}
+		alerts = h.manager.GetAlertHistory(limit)
+	}
+
+	c.JSON(http.StatusOK, Success(alerts))
+}
+
+// getQuotaReport 获取配额使用报告
+func (h *Handlers) getQuotaReport(c *gin.Context) {
+	reportType := c.DefaultQuery("type", "summary")
+	volumeName := c.Query("volume")
+	userID := c.Query("user")
+	groupID := c.Query("group")
+
+	req := ReportRequest{
+		Type:       ReportType(reportType),
+		Format:     ReportFormatJSON,
+		VolumeName: volumeName,
+		UserID:     userID,
+		GroupID:    groupID,
+	}
+
+	// 解析时间范围
+	if startTime := c.Query("start_time"); startTime != "" {
+		if t, err := time.Parse(time.RFC3339, startTime); err == nil {
+			req.StartTime = &t
+		}
+	}
+	if endTime := c.Query("end_time"); endTime != "" {
+		if t, err := time.Parse(time.RFC3339, endTime); err == nil {
+			req.EndTime = &t
+		}
+	}
+
+	report, err := h.reportGen.GenerateReport(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
+
+	// 检查是否需要导出
+	format := c.Query("format")
+	if format != "" && format != "json" {
+		report.Format = ReportFormat(format)
+		switch format {
+		case "csv":
+			c.Header("Content-Type", "text/csv")
+			c.Header("Content-Disposition", "attachment; filename=quota-report.csv")
+		case "html":
+			c.Header("Content-Type", "text/html")
+			c.Header("Content-Disposition", "attachment; filename=quota-report.html")
+		}
+	}
+
+	c.JSON(http.StatusOK, Success(report))
 }
