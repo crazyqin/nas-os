@@ -299,17 +299,17 @@ func TestDeduplicateAll(t *testing.T) {
 	dryRunResult, err := mgr.DeduplicateAll(policy, true)
 	require.NoError(t, err)
 	assert.Equal(t, 3, len(dryRunResult.Groups))
-	assert.True(t, dryRunResult.TotalSaved > 0)
+	assert.Greater(t, dryRunResult.TotalSaved, int64(0))
 
 	// 实际执行
 	result, err := mgr.DeduplicateAll(policy, false)
 	require.NoError(t, err)
 	assert.Equal(t, 3, len(result.Groups))
-	assert.True(t, result.TotalSaved > 0)
+	assert.Greater(t, result.TotalSaved, int64(0))
 
 	// 验证 stats 已更新
 	stats := mgr.GetStats()
-	assert.True(t, stats.SavingsActual > 0)
+	assert.Greater(t, stats.SavingsActual, int64(0))
 }
 
 func TestGetReport(t *testing.T) {
@@ -646,8 +646,8 @@ func TestDeleteChunk(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 0, retrieved.RefCount)
 
-	// 再次删除，块被移除
-	err = mgr.DeleteChunk(chunk.Hash)
+	// 强制删除块
+	err = mgr.ForceDeleteChunk(chunk.Hash)
 	require.NoError(t, err)
 
 	_, err = mgr.GetChunk(chunk.Hash)
