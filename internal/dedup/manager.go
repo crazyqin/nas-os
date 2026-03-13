@@ -42,25 +42,25 @@ type DuplicateGroup struct {
 
 // DedupStats 去重统计信息
 type DedupStats struct {
-	TotalFiles       int   `json:"totalFiles"`
-	TotalSize        int64 `json:"totalSize"`
-	DuplicateFiles   int   `json:"duplicateFiles"`
-	DuplicateSize    int64 `json:"duplicateSize"`
-	SavingsPotential int64 `json:"savingsPotential"`
-	ChunksStored     int   `json:"chunksStored"`
-	ChunkDataSize    int64 `json:"chunkDataSize"`
+	TotalFiles       int       `json:"totalFiles"`
+	TotalSize        int64     `json:"totalSize"`
+	DuplicateFiles   int       `json:"duplicateFiles"`
+	DuplicateSize    int64     `json:"duplicateSize"`
+	SavingsPotential int64     `json:"savingsPotential"`
+	ChunksStored     int       `json:"chunksStored"`
+	ChunkDataSize    int64     `json:"chunkDataSize"`
 	LastScanTime     time.Time `json:"lastScanTime"`
 }
 
 // ScanResult 扫描结果
 type ScanResult struct {
-	FilesScanned     int              `json:"filesScanned"`
-	TotalSize        int64            `json:"totalSize"`
-	DuplicateGroups  int              `json:"duplicateGroups"`
-	DuplicatesFound  int              `json:"duplicatesFound"`
-	SavingsPotential int64            `json:"savingsPotential"`
-	Duration         time.Duration    `json:"duration"`
-	Errors           []ScanError      `json:"errors"`
+	FilesScanned     int           `json:"filesScanned"`
+	TotalSize        int64         `json:"totalSize"`
+	DuplicateGroups  int           `json:"duplicateGroups"`
+	DuplicatesFound  int           `json:"duplicatesFound"`
+	SavingsPotential int64         `json:"savingsPotential"`
+	Duration         time.Duration `json:"duration"`
+	Errors           []ScanError   `json:"errors"`
 }
 
 // ScanError 扫描错误
@@ -108,9 +108,9 @@ type Manager struct {
 	mu          sync.RWMutex
 	config      *Config
 	configPath  string
-	chunks      map[string]*Chunk         // hash -> chunk
-	fileRecords map[string]*FileRecord    // path -> record
-	checksums   map[string][]*FileRecord  // checksum -> records
+	chunks      map[string]*Chunk        // hash -> chunk
+	fileRecords map[string]*FileRecord   // path -> record
+	checksums   map[string][]*FileRecord // checksum -> records
 	duplicates  []*DuplicateGroup
 	stats       DedupStats
 	scanning    bool
@@ -272,11 +272,11 @@ func (m *Manager) scanPath(rootPath string, result *ScanResult) {
 
 		// 创建文件记录
 		record := &FileRecord{
-			Path:        path,
-			Size:        info.Size(),
-			Checksum:    checksum,
-			CreatedAt:   time.Now(),
-			ModifiedAt:  info.ModTime(),
+			Path:       path,
+			Size:       info.Size(),
+			Checksum:   checksum,
+			CreatedAt:  time.Now(),
+			ModifiedAt: info.ModTime(),
 		}
 
 		// 添加到索引
@@ -410,8 +410,8 @@ func (m *Manager) GetReport() (*DedupReport, error) {
 	defer m.mu.RUnlock()
 
 	report := &DedupReport{
-		GeneratedAt:    time.Now(),
-		Stats:          m.stats,
+		GeneratedAt:     time.Now(),
+		Stats:           m.stats,
 		DuplicateGroups: make([]DuplicateGroupSummary, 0),
 	}
 
@@ -431,10 +431,10 @@ func (m *Manager) GetReport() (*DedupReport, error) {
 	// 生成摘要
 	for _, group := range sortedDuplicates {
 		summary := DuplicateGroupSummary{
-			Checksum:    group.Checksum[:16] + "...", // 截断显示
-			Size:        group.Size,
-			FileCount:   len(group.Files),
-			Savings:     group.Savings,
+			Checksum:     group.Checksum[:16] + "...", // 截断显示
+			Size:         group.Size,
+			FileCount:    len(group.Files),
+			Savings:      group.Savings,
 			ExampleFiles: group.Files,
 		}
 		if len(summary.ExampleFiles) > 3 {

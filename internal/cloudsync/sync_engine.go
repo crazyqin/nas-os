@@ -15,27 +15,27 @@ import (
 
 // SyncEngine 同步引擎
 type SyncEngine struct {
-	mu           sync.RWMutex
-	provider     Provider
-	task         *SyncTask
-	status       *SyncStatus
-	cancelFunc   context.CancelFunc
-	pauseChan    chan struct{}
-	resumeChan   chan struct{}
+	mu         sync.RWMutex
+	provider   Provider
+	task       *SyncTask
+	status     *SyncStatus
+	cancelFunc context.CancelFunc
+	pauseChan  chan struct{}
+	resumeChan chan struct{}
 
 	// 回调函数
-	onProgress   func(status *SyncStatus)
-	onComplete   func(status *SyncStatus)
-	onError      func(err error, path string)
-	onConflict   func(conflict *ConflictInfo) ConflictStrategy
+	onProgress func(status *SyncStatus)
+	onComplete func(status *SyncStatus)
+	onError    func(err error, path string)
+	onConflict func(conflict *ConflictInfo) ConflictStrategy
 }
 
 // NewSyncEngine 创建同步引擎
 func NewSyncEngine(provider Provider, task *SyncTask) *SyncEngine {
 	return &SyncEngine{
-		provider:  provider,
-		task:      task,
-		pauseChan: make(chan struct{}),
+		provider:   provider,
+		task:       task,
+		pauseChan:  make(chan struct{}),
 		resumeChan: make(chan struct{}),
 		status: &SyncStatus{
 			TaskID: task.ID,

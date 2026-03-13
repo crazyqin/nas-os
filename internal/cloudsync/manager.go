@@ -20,12 +20,12 @@ type Manager struct {
 	configPath string
 
 	// 提供商
-	providers map[string]*ProviderConfig
+	providers       map[string]*ProviderConfig
 	activeProviders map[string]Provider
 
 	// 同步任务
-	tasks map[string]*SyncTask
-	engines map[string]*SyncEngine
+	tasks    map[string]*SyncTask
+	engines  map[string]*SyncEngine
 	statuses map[string]*SyncStatus
 
 	// 调度器
