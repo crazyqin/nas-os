@@ -74,7 +74,7 @@ func (w *Watcher) AddTask(task *ReplicationTask) error {
 
 	// 递归添加子目录
 	if err := w.addSubdirectories(task.SourcePath); err != nil {
-		w.watcher.Remove(task.SourcePath)
+		_ = w.watcher.Remove(task.SourcePath)
 		return fmt.Errorf("添加子目录监控失败：%w", err)
 	}
 
@@ -95,7 +95,7 @@ func (w *Watcher) RemoveTask(taskID string) error {
 	}
 
 	// 移除监控
-	w.watcher.Remove(task.SourcePath)
+	_ = w.watcher.Remove(task.SourcePath)
 	delete(w.tasks, taskID)
 	delete(w.pathToTask, task.SourcePath)
 
@@ -168,13 +168,10 @@ func (w *Watcher) handleEvent(event fsnotify.Event) {
 
 	// 查找对应的任务
 	var matchedTask *ReplicationTask
-	var relativePath string
 
 	for _, task := range w.tasks {
 		if strings.HasPrefix(event.Name, task.SourcePath) {
 			matchedTask = task
-			relativePath = strings.TrimPrefix(event.Name, task.SourcePath)
-			relativePath = strings.TrimPrefix(relativePath, "/")
 			break
 		}
 	}
@@ -191,7 +188,7 @@ func (w *Watcher) handleEvent(event fsnotify.Event) {
 	// 处理新目录创建
 	if event.Op&fsnotify.Create == fsnotify.Create {
 		if info, err := os.Stat(event.Name); err == nil && info.IsDir() {
-			w.watcher.Add(event.Name)
+			_ = w.watcher.Add(event.Name)
 		}
 	}
 
@@ -315,7 +312,7 @@ func (m *BidirectionalSyncManager) RemoveTask(taskID string) {
 	delete(m.tasks, taskID)
 	m.mu.Unlock()
 
-	m.watcher.RemoveTask(taskID)
+	_ = m.watcher.RemoveTask(taskID)
 }
 
 // Start 启动双向同步
