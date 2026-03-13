@@ -95,6 +95,7 @@ func TestDefaultConfig(t *testing.T) {
 
 func TestGetDocumentType(t *testing.T) {
 	mgr, _ := NewManager("", NewMockFileAccessor())
+	defer mgr.Close()
 
 	tests := []struct {
 		ext      string
@@ -121,6 +122,7 @@ func TestGetDocumentType(t *testing.T) {
 func TestIsSupported(t *testing.T) {
 	accessor := NewMockFileAccessor()
 	mgr, _ := NewManager("", accessor)
+	defer mgr.Close()
 
 	// 默认支持的格式
 	if !mgr.isSupported("docx") {
@@ -147,6 +149,7 @@ func TestCreateSession(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建管理器失败: %v", err)
 	}
+	defer mgr.Close()
 
 	// 启用服务
 	mgr.UpdateConfig(UpdateConfigRequest{Enabled: boolPtr(true)})
@@ -186,6 +189,7 @@ func TestGetSession(t *testing.T) {
 	accessor.AddFile("file123", "test.docx", 1024)
 
 	mgr, _ := NewManager("", accessor)
+	defer mgr.Close()
 	mgr.UpdateConfig(UpdateConfigRequest{Enabled: boolPtr(true)})
 
 	// 创建会话
@@ -208,6 +212,7 @@ func TestListSessions(t *testing.T) {
 	accessor.AddFile("file2", "test2.xlsx", 2048)
 
 	mgr, _ := NewManager("", accessor)
+	defer mgr.Close()
 	mgr.UpdateConfig(UpdateConfigRequest{Enabled: boolPtr(true)})
 
 	// 创建多个会话
@@ -236,6 +241,7 @@ func TestCloseSession(t *testing.T) {
 	accessor.AddFile("file123", "test.docx", 1024)
 
 	mgr, _ := NewManager("", accessor)
+	defer mgr.Close()
 	mgr.UpdateConfig(UpdateConfigRequest{Enabled: boolPtr(true)})
 
 	session, _, _ := mgr.CreateSession("file123", "user1", "Test User", "edit")
@@ -295,6 +301,7 @@ func TestFileAssociations(t *testing.T) {
 
 func TestGetFileAssociation(t *testing.T) {
 	mgr, _ := NewManager("", NewMockFileAccessor())
+	defer mgr.Close()
 
 	assoc, ok := mgr.GetFileAssociation("docx")
 	if !ok {
@@ -312,6 +319,7 @@ func TestGetFileAssociation(t *testing.T) {
 
 func TestUpdateConfig(t *testing.T) {
 	mgr, _ := NewManager("", NewMockFileAccessor())
+	defer mgr.Close()
 
 	// 更新配置
 	err := mgr.UpdateConfig(UpdateConfigRequest{
@@ -344,6 +352,7 @@ func TestBuildEditorConfig(t *testing.T) {
 	accessor.AddFile("file123", "test.xlsx", 1024)
 
 	mgr, _ := NewManager("", accessor)
+	defer mgr.Close()
 	mgr.UpdateConfig(UpdateConfigRequest{
 		Enabled:   boolPtr(true),
 		SecretKey: strPtr("test-secret"),
