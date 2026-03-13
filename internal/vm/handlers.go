@@ -144,8 +144,13 @@ func (h *Handler) updateVM(w http.ResponseWriter, r *http.Request, vmID string) 
 		return
 	}
 
-	// TODO: 实现 VM 更新
-	h.jsonResponse(w, map[string]string{"status": "not implemented"})
+	vm, err := h.manager.UpdateVM(r.Context(), vmID, config)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	h.jsonResponse(w, vm)
 }
 
 func (h *Handler) vmAction(w http.ResponseWriter, r *http.Request, vmID string) {
@@ -373,8 +378,8 @@ func (h *Handler) handleListTemplates(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 实现模板列表
-	h.jsonResponse(w, []VMTemplate{})
+	templates := h.manager.ListTemplates()
+	h.jsonResponse(w, templates)
 }
 
 // 硬件设备
@@ -385,8 +390,13 @@ func (h *Handler) handleUSBDevices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 实现 USB 设备列表
-	h.jsonResponse(w, []USBDevice{})
+	devices, err := h.manager.ListUSBDevices()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	h.jsonResponse(w, devices)
 }
 
 func (h *Handler) handlePCIDevices(w http.ResponseWriter, r *http.Request) {
@@ -395,8 +405,13 @@ func (h *Handler) handlePCIDevices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: 实现 PCIe 设备列表
-	h.jsonResponse(w, []PCIDevice{})
+	devices, err := h.manager.ListPCIDevices()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	h.jsonResponse(w, devices)
 }
 
 // 辅助函数
