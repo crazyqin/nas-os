@@ -194,7 +194,10 @@ func (m *Manager) CreateConfig(config BackupConfig) error {
 	}
 
 	m.configs[config.ID] = &config
-	_ = m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		delete(m.configs, config.ID)
+		return fmt.Errorf("保存配置失败：%w", err)
+	}
 
 	return nil
 }
@@ -209,7 +212,9 @@ func (m *Manager) UpdateConfig(id string, config BackupConfig) error {
 
 	config.ID = id
 	m.configs[id] = &config
-	_ = m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败：%w", err)
+	}
 
 	return nil
 }
@@ -223,7 +228,9 @@ func (m *Manager) DeleteConfig(id string) error {
 	}
 
 	delete(m.configs, id)
-	_ = m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败：%w", err)
+	}
 
 	return nil
 }
@@ -333,7 +340,19 @@ func (m *Manager) runLocalBackup(cfg *BackupConfig, task *BackupTask) (string, e
 	// 加密备份
 	if cfg.Encrypt {
 		encryptedPath := backupPath + ".enc"
-		encryptor, err := NewEncryptor("backup-password")
+		// 从配置获取加密密钥，如果未配置则使用默认值并警告
+		encryptKey := cfg.EncryptionKey
+		if encryptKey == "" && cfg.EncryptionKeyFile != "" {
+			keyData, err := os.ReadFile(cfg.EncryptionKeyFile)
+			if err != nil {
+				return "", fmt.Errorf("读取加密密钥文件失败：%w", err)
+			}
+			encryptKey = strings.TrimSpace(string(keyData))
+		}
+		if encryptKey == "" {
+			return "", fmt.Errorf("启用加密但未配置加密密钥")
+		}
+		encryptor, err := NewEncryptor(encryptKey)
 		if err != nil {
 			return "", fmt.Errorf("创建加密器失败：%w", err)
 		}
