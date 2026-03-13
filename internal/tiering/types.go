@@ -326,10 +326,10 @@ type ErrorResponse struct {
 
 // SSDCacheOptimizeResult SSD缓存优化结果
 type SSDCacheOptimizeResult struct {
-	StartTime         time.Time `json:"startTime"`
-	EndTime           time.Time `json:"endTime"`
-	Duration          time.Duration `json:"duration"`
-	Tier              TierType  `json:"tier"`
+	StartTime time.Time     `json:"startTime"`
+	EndTime   time.Time     `json:"endTime"`
+	Duration  time.Duration `json:"duration"`
+	Tier      TierType      `json:"tier"`
 
 	// 冷数据统计
 	ColdFilesIdentified int   `json:"coldFilesIdentified"`
@@ -338,10 +338,10 @@ type SSDCacheOptimizeResult struct {
 	FailedDemotions     int   `json:"failedDemotions"`
 
 	// 热数据统计
-	HotFilesIdentified  int   `json:"hotFilesIdentified"`
-	PromotedFiles       int   `json:"promotedFiles"`
-	PromotedBytes       int64 `json:"promotedBytes"`
-	FailedPromotions    int   `json:"failedPromotions"`
+	HotFilesIdentified int   `json:"hotFilesIdentified"`
+	PromotedFiles      int   `json:"promotedFiles"`
+	PromotedBytes      int64 `json:"promotedBytes"`
+	FailedPromotions   int   `json:"failedPromotions"`
 
 	// 迁移任务ID列表
 	Tasks []string `json:"tasks"`
@@ -349,8 +349,8 @@ type SSDCacheOptimizeResult struct {
 
 // AutoMigrateResult 自动迁移结果
 type AutoMigrateResult struct {
-	StartTime time.Time `json:"startTime"`
-	EndTime   time.Time `json:"endTime"`
+	StartTime time.Time     `json:"startTime"`
+	EndTime   time.Time     `json:"endTime"`
 	Duration  time.Duration `json:"duration"`
 
 	// 按存储层的迁移统计

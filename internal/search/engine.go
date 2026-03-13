@@ -684,14 +684,14 @@ func (e *Engine) Close() error {
 
 // SemanticSearchResult 语义搜索结果
 type SemanticSearchResult struct {
-	Path        string    `json:"path"`
-	Name        string    `json:"name"`
-	Ext         string    `json:"ext"`
-	Size        int64     `json:"size"`
-	ModTime     time.Time `json:"modTime"`
-	Score       float64   `json:"score"`
-	MatchType   string    `json:"matchType"` // exact, fuzzy, semantic
-	RelatedTo   []string  `json:"relatedTo,omitempty"`
+	Path      string    `json:"path"`
+	Name      string    `json:"name"`
+	Ext       string    `json:"ext"`
+	Size      int64     `json:"size"`
+	ModTime   time.Time `json:"modTime"`
+	Score     float64   `json:"score"`
+	MatchType string    `json:"matchType"` // exact, fuzzy, semantic
+	RelatedTo []string  `json:"relatedTo,omitempty"`
 }
 
 // SemanticSearchRequest 语义搜索请求
@@ -719,7 +719,7 @@ func (e *Engine) SemanticSearch(query string, limit int) (*SemanticSearchRespons
 
 	// 扩展查询词
 	expandedQueries := e.expandQuery(query)
-	
+
 	var allResults []SemanticSearchResult
 	seenPaths := make(map[string]bool)
 
@@ -855,9 +855,9 @@ func uniqueStrings(s []string) []string {
 
 // SemanticSearchResponse 语义搜索响应
 type SemanticSearchResponse struct {
-	Query         string                `json:"query"`
-	ExpandedTerms []string              `json:"expandedTerms"`
-	Total         int                   `json:"total"`
+	Query         string                 `json:"query"`
+	ExpandedTerms []string               `json:"expandedTerms"`
+	Total         int                    `json:"total"`
 	Results       []SemanticSearchResult `json:"results"`
 }
 
@@ -890,23 +890,23 @@ type SortedSearchRequest struct {
 
 // SortedSearchResult 排序搜索结果
 type SortedSearchResult struct {
-	Path     string    `json:"path"`
-	Name     string    `json:"name"`
-	Ext      string    `json:"ext"`
-	Size     int64     `json:"size"`
-	ModTime  time.Time `json:"modTime"`
-	IsDir    bool      `json:"isDir"`
-	Score    float64   `json:"score"`
-	SortKey  string    `json:"sortKey"` // 排序键值
+	Path    string    `json:"path"`
+	Name    string    `json:"name"`
+	Ext     string    `json:"ext"`
+	Size    int64     `json:"size"`
+	ModTime time.Time `json:"modTime"`
+	IsDir   bool      `json:"isDir"`
+	Score   float64   `json:"score"`
+	SortKey string    `json:"sortKey"` // 排序键值
 }
 
 // SortedSearchResponse 排序搜索响应
 type SortedSearchResponse struct {
-	Query    string             `json:"query"`
-	SortBy   SortOption         `json:"sortBy"`
-	Order    SortOrder          `json:"order"`
-	Total    int                `json:"total"`
-	Results  []SortedSearchResult `json:"results"`
+	Query   string               `json:"query"`
+	SortBy  SortOption           `json:"sortBy"`
+	Order   SortOrder            `json:"order"`
+	Total   int                  `json:"total"`
+	Results []SortedSearchResult `json:"results"`
 }
 
 // SortBy 排序搜索
@@ -1041,10 +1041,10 @@ func min(a, b int) int {
 
 // SuggestionResult 搜索建议结果
 type SuggestionResult struct {
-	Text        string   `json:"text"`
-	Type        string   `json:"type"` // completion, history, related
-	Score       float64  `json:"score"`
-	Category    string   `json:"category,omitempty"`
+	Text     string  `json:"text"`
+	Type     string  `json:"type"` // completion, history, related
+	Score    float64 `json:"score"`
+	Category string  `json:"category,omitempty"`
 }
 
 // SuggestionResponse 搜索建议响应
@@ -1129,14 +1129,14 @@ func (e *Engine) getExtensionSuggestions(query string) []SuggestionResult {
 
 	// 常见文件类型映射
 	extMapping := map[string][]string{
-		"图片":  {".jpg", ".png", ".gif", ".webp", ".bmp"},
-		"文档":  {".doc", ".docx", ".pdf", ".txt", ".md"},
-		"视频":  {".mp4", ".avi", ".mkv", ".mov", ".wmv"},
-		"音频":  {".mp3", ".wav", ".flac", ".aac", ".ogg"},
-		"压缩":  {".zip", ".rar", ".7z", ".tar", ".gz"},
-		"代码":  {".go", ".py", ".js", ".ts", ".java", ".c", ".cpp"},
-		"表格":  {".xls", ".xlsx", ".csv"},
-		"演示":  {".ppt", ".pptx"},
+		"图片": {".jpg", ".png", ".gif", ".webp", ".bmp"},
+		"文档": {".doc", ".docx", ".pdf", ".txt", ".md"},
+		"视频": {".mp4", ".avi", ".mkv", ".mov", ".wmv"},
+		"音频": {".mp3", ".wav", ".flac", ".aac", ".ogg"},
+		"压缩": {".zip", ".rar", ".7z", ".tar", ".gz"},
+		"代码": {".go", ".py", ".js", ".ts", ".java", ".c", ".cpp"},
+		"表格": {".xls", ".xlsx", ".csv"},
+		"演示": {".ppt", ".pptx"},
 	}
 
 	// 检查是否匹配类型关键词
@@ -1203,12 +1203,12 @@ func (e *Engine) getRelatedSuggestions(query string) []SuggestionResult {
 
 	// 相关词映射
 	relatedTerms := map[string][]string{
-		"photo": {"picture", "image", "img", "照片"},
-		"image": {"photo", "picture", "图片"},
-		"video": {"movie", "影片", "视频"},
-		"doc":   {"document", "文档", "file"},
-		"code":  {"source", "代码", "src"},
-		"music": {"audio", "音乐", "song"},
+		"photo":  {"picture", "image", "img", "照片"},
+		"image":  {"photo", "picture", "图片"},
+		"video":  {"movie", "影片", "视频"},
+		"doc":    {"document", "文档", "file"},
+		"code":   {"source", "代码", "src"},
+		"music":  {"audio", "音乐", "song"},
 		"backup": {"bak", "备份", "copy"},
 		"config": {"settings", "配置", "conf"},
 	}

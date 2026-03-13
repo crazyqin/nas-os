@@ -50,16 +50,16 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	// 示例：api.Group("/users", authMiddleware, adminMiddleware)
 	{
 		users.GET("", h.listUsers)
-		users.POST("", h.createUser)              // 需要 admin 权限
+		users.POST("", h.createUser) // 需要 admin 权限
 		users.GET("/:username", h.getUser)
-		users.PUT("/:username", h.updateUser)     // 需要 admin 权限或本人
-		users.DELETE("/:username", h.deleteUser)  // 需要 admin 权限
-		users.POST("/:username/disable", h.disableUser)  // 需要 admin 权限
-		users.POST("/:username/enable", h.enableUser)    // 需要 admin 权限
+		users.PUT("/:username", h.updateUser)           // 需要 admin 权限或本人
+		users.DELETE("/:username", h.deleteUser)        // 需要 admin 权限
+		users.POST("/:username/disable", h.disableUser) // 需要 admin 权限
+		users.POST("/:username/enable", h.enableUser)   // 需要 admin 权限
 		users.POST("/:username/password", h.changePassword)
-		users.POST("/:username/reset-password", h.resetPassword) // 需要 admin 权限
-		users.PUT("/:username/role", h.setUserRole)        // 需要 admin 权限
-		users.POST("/:username/groups/:group", h.addUserToGroup)    // 需要 admin 权限
+		users.POST("/:username/reset-password", h.resetPassword)        // 需要 admin 权限
+		users.PUT("/:username/role", h.setUserRole)                     // 需要 admin 权限
+		users.POST("/:username/groups/:group", h.addUserToGroup)        // 需要 admin 权限
 		users.DELETE("/:username/groups/:group", h.removeUserFromGroup) // 需要 admin 权限
 	}
 
@@ -68,10 +68,10 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	// 注意：调用方应在应用此路由组前添加认证和权限中间件
 	{
 		groups.GET("", h.listGroups)
-		groups.POST("", h.createGroup)            // 需要 admin 权限
+		groups.POST("", h.createGroup) // 需要 admin 权限
 		groups.GET("/:name", h.getGroup)
-		groups.PUT("/:name", h.updateGroup)       // 需要 admin 权限
-		groups.DELETE("/:name", h.deleteGroup)    // 需要 admin 权限
+		groups.PUT("/:name", h.updateGroup)    // 需要 admin 权限
+		groups.DELETE("/:name", h.deleteGroup) // 需要 admin 权限
 		groups.GET("/:name/users", h.getGroupUsers)
 	}
 }

@@ -148,7 +148,7 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 		}
 		adminUser.PasswordHash = string(hash)
 		m.users["admin"] = adminUser
-		
+
 		// 将初始密码输出到控制台和日志文件（仅首次启动）
 		// 生产环境建议：通过邮件或安全渠道发送初始密码
 		log.Printf("========================================")
@@ -877,7 +877,7 @@ func generateRandomPassword(length int) string {
 
 	// 确保密码包含各类字符
 	password := make([]byte, length)
-	
+
 	// 至少一个大写字母
 	password[0] = uppercase[mustRandomInt(len(uppercase))]
 	// 至少一个小写字母
@@ -886,18 +886,18 @@ func generateRandomPassword(length int) string {
 	password[2] = digits[mustRandomInt(len(digits))]
 	// 至少一个特殊字符
 	password[3] = special[mustRandomInt(len(special))]
-	
+
 	// 填充其余字符
 	for i := 4; i < length; i++ {
 		password[i] = allChars[mustRandomInt(len(allChars))]
 	}
-	
+
 	// 打乱顺序
 	for i := range password {
 		j := mustRandomInt(len(password))
 		password[i], password[j] = password[j], password[i]
 	}
-	
+
 	return string(password)
 }
 

@@ -736,42 +736,42 @@ func (m *Manager) GetTimeWindowStats() map[string]interface{} {
 
 // AlertRule 性能告警规则
 type AlertRule struct {
-	ID          string        `json:"id"`
-	Name        string        `json:"name"`
-	Description string        `json:"description,omitempty"`
-	Enabled     bool          `json:"enabled"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Enabled     bool   `json:"enabled"`
 
 	// 触发条件
-	Metric       string        `json:"metric"`       // 指标名: response_time, error_rate, rps, cpu, memory
-	Operator     string        `json:"operator"`     // 操作符: >, <, >=, <=, ==
-	Threshold    float64       `json:"threshold"`    // 阈值
-	Duration     time.Duration `json:"duration"`     // 持续时间
+	Metric    string        `json:"metric"`    // 指标名: response_time, error_rate, rps, cpu, memory
+	Operator  string        `json:"operator"`  // 操作符: >, <, >=, <=, ==
+	Threshold float64       `json:"threshold"` // 阈值
+	Duration  time.Duration `json:"duration"`  // 持续时间
 
 	// 严重程度
-	Severity     string        `json:"severity"`     // info, warning, critical
+	Severity string `json:"severity"` // info, warning, critical
 
 	// 通知配置
-	NotifyEmail  []string      `json:"notifyEmail,omitempty"`
-	NotifyWebhook string       `json:"notifyWebhook,omitempty"`
+	NotifyEmail   []string `json:"notifyEmail,omitempty"`
+	NotifyWebhook string   `json:"notifyWebhook,omitempty"`
 
 	// 触发动作
-	Action       string        `json:"action,omitempty"` // 自定义动作
+	Action string `json:"action,omitempty"` // 自定义动作
 
 	// 元数据
-	CreatedAt    time.Time     `json:"createdAt"`
-	UpdatedAt    time.Time     `json:"updatedAt"`
-	LastTriggered time.Time    `json:"lastTriggered,omitempty"`
-	TriggerCount int           `json:"triggerCount"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	LastTriggered time.Time `json:"lastTriggered,omitempty"`
+	TriggerCount  int       `json:"triggerCount"`
 }
 
 // AlertInstance 告警实例
 type AlertInstance struct {
-	RuleID     string    `json:"ruleId"`
-	RuleName   string    `json:"ruleName"`
-	Severity   string    `json:"severity"`
-	Message    string    `json:"message"`
-	Value      float64   `json:"value"`
-	Threshold  float64   `json:"threshold"`
+	RuleID      string    `json:"ruleId"`
+	RuleName    string    `json:"ruleName"`
+	Severity    string    `json:"severity"`
+	Message     string    `json:"message"`
+	Value       float64   `json:"value"`
+	Threshold   float64   `json:"threshold"`
 	TriggeredAt time.Time `json:"triggeredAt"`
 	ResolvedAt  time.Time `json:"resolvedAt,omitempty"`
 	Resolved    bool      `json:"resolved"`
@@ -781,22 +781,22 @@ type AlertInstance struct {
 type ExportFormat string
 
 const (
-	ExportFormatJSON  ExportFormat = "json"
-	ExportFormatCSV   ExportFormat = "csv"
-	ExportFormatHTML  ExportFormat = "html"
+	ExportFormatJSON     ExportFormat = "json"
+	ExportFormatCSV      ExportFormat = "csv"
+	ExportFormatHTML     ExportFormat = "html"
 	ExportFormatMarkdown ExportFormat = "markdown"
 )
 
 // PerformanceReport 性能报告
 type PerformanceReport struct {
-	GeneratedAt   time.Time               `json:"generatedAt"`
-	TimeRange     string                  `json:"timeRange"`
-	Summary       *ReportSummary          `json:"summary"`
-	Endpoints     []*EndpointReport       `json:"endpoints"`
-	SlowRequests  []*SlowLogEntry         `json:"slowRequests,omitempty"`
-	Throughput    *ThroughputReport       `json:"throughput"`
-	Alerts        []*AlertInstance        `json:"alerts,omitempty"`
-	Recommendations []string               `json:"recommendations,omitempty"`
+	GeneratedAt     time.Time         `json:"generatedAt"`
+	TimeRange       string            `json:"timeRange"`
+	Summary         *ReportSummary    `json:"summary"`
+	Endpoints       []*EndpointReport `json:"endpoints"`
+	SlowRequests    []*SlowLogEntry   `json:"slowRequests,omitempty"`
+	Throughput      *ThroughputReport `json:"throughput"`
+	Alerts          []*AlertInstance  `json:"alerts,omitempty"`
+	Recommendations []string          `json:"recommendations,omitempty"`
 }
 
 // ReportSummary 报告摘要
@@ -827,10 +827,10 @@ type EndpointReport struct {
 
 // ThroughputReport 吞吐量报告
 type ThroughputReport struct {
-	CurrentRPS float64         `json:"currentRPS"`
-	PeakRPS    float64         `json:"peakRPS"`
-	Hourly     []*HourlyStat   `json:"hourly"`
-	Daily      []*DailyStat    `json:"daily"`
+	CurrentRPS float64       `json:"currentRPS"`
+	PeakRPS    float64       `json:"peakRPS"`
+	Hourly     []*HourlyStat `json:"hourly"`
+	Daily      []*DailyStat  `json:"daily"`
 }
 
 // alertManager 告警管理器（内部使用）
@@ -1089,12 +1089,12 @@ func (m *Manager) ExportReport(format string) ([]byte, error) {
 // generateReport 生成报告数据
 func (m *Manager) generateReport() *PerformanceReport {
 	report := &PerformanceReport{
-		GeneratedAt: time.Now(),
-		TimeRange:   "最近24小时",
-		Summary:     &ReportSummary{},
-		Endpoints:   make([]*EndpointReport, 0),
-		Throughput:  &ThroughputReport{},
-		Alerts:      m.GetActiveAlerts(),
+		GeneratedAt:     time.Now(),
+		TimeRange:       "最近24小时",
+		Summary:         &ReportSummary{},
+		Endpoints:       make([]*EndpointReport, 0),
+		Throughput:      &ThroughputReport{},
+		Alerts:          m.GetActiveAlerts(),
 		Recommendations: make([]string, 0),
 	}
 
