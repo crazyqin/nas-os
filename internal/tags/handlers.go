@@ -565,31 +565,3 @@ type BatchTagRequest struct {
 // @Param q query string false "文件路径关键词"
 // @Success 200 {object} Response "成功"
 // @Router /files/by-tags [get]
-func (h *Handlers) getFilesByTags(c *gin.Context) {
-	tagStr := c.Query("tags")
-	if tagStr == "" {
-		c.JSON(http.StatusBadRequest, Error(400, "请提供标签ID"))
-		return
-	}
-
-	tagIDs := strings.Split(tagStr, ",")
-	matchMode := c.Query("match")
-	matchAll := matchMode == "all"
-	keyword := c.Query("q")
-
-	var files []string
-	var err error
-
-	if keyword != "" {
-		files, err = h.manager.SearchFilesByTags(keyword, tagIDs, matchAll)
-	} else {
-		files, err = h.manager.GetFilesByTags(tagIDs, matchAll)
-	}
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "查询文件失败"))
-		return
-	}
-
-	c.JSON(http.StatusOK, Success(files))
-}

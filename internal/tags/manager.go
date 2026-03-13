@@ -438,7 +438,7 @@ func (m *Manager) SetFileTags(filePath string, tagIDs []string) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	_ = tx.Rollback()
 
 	// 删除现有标签
 	_, err = tx.Exec("DELETE FROM file_tags WHERE file_path = ?", filePath)
@@ -658,7 +658,7 @@ func (m *Manager) BatchAddTagsToFile(filePaths []string, tagIDs []string) error 
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	_ = tx.Rollback()
 
 	for _, filePath := range filePaths {
 		for _, tagID := range tagIDs {
@@ -693,7 +693,7 @@ func (m *Manager) ClearAllTags() error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	_ = tx.Rollback()
 
 	_, err = tx.Exec("DELETE FROM file_tags")
 	if err != nil {

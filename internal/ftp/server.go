@@ -288,7 +288,7 @@ func (s *Server) acceptLoop() {
 			case s.connSem <- struct{}{}:
 				// 获得槽位
 			default:
-				conn.Write([]byte("421 Too many connections\r\n"))
+				_, _ = conn.Write([]byte("421 Too many connections\r\n"))
 				conn.Close()
 				continue
 			}
@@ -329,7 +329,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 	}()
 
 	// 发送欢迎消息
-	client.writeResponse(220, "NAS-OS FTP Server Ready")
+	_ = client.writeResponse(220, "NAS-OS FTP Server Ready")
 
 	// 命令处理循环
 	client.handleCommands()
@@ -369,7 +369,7 @@ func (c *clientConn) handleCommands() {
 		}
 
 		// 设置读取超时
-		c.conn.SetReadDeadline(time.Now().Add(5 * time.Minute))
+		_ = c.conn.SetReadDeadline(time.Now().Add(5 * time.Minute))
 
 		line, err := c.reader.ReadString('\n')
 		if err != nil {
@@ -400,7 +400,7 @@ func (c *clientConn) handleCommands() {
 func (c *clientConn) handleCommand(cmd, args string) {
 	// 未登录时只允许 USER, PASS, QUIT
 	if !c.loggedIn && cmd != "USER" && cmd != "PASS" && cmd != "QUIT" && cmd != "SYST" && cmd != "FEAT" {
-		c.writeResponse(530, "Please login with USER and PASS")
+		_ = c.writeResponse(530, "Please login with USER and PASS")
 		return
 	}
 
@@ -412,7 +412,7 @@ func (c *clientConn) handleCommand(cmd, args string) {
 	case "QUIT":
 		c.handleQUIT()
 	case "SYST":
-		c.writeResponse(215, "UNIX Type: L8")
+		_ = c.writeResponse(215, "UNIX Type: L8")
 	case "FEAT":
 		c.handleFEAT()
 	case "PWD", "XPWD":
@@ -450,7 +450,7 @@ func (c *clientConn) handleCommand(cmd, args string) {
 	case "ABOR":
 		c.handleABOR()
 	case "NOOP":
-		c.writeResponse(200, "OK")
+		_ = c.writeResponse(200, "OK")
 	default:
 		c.writeResponse(500, fmt.Sprintf("Unknown command: %s", cmd))
 	}
@@ -844,7 +844,7 @@ func (c *clientConn) handleRETR(path string) {
 
 	// 断点续传
 	if c.restOffset > 0 {
-		file.Seek(c.restOffset, io.SeekStart)
+		_, _ = file.Seek(c.restOffset, io.SeekStart)
 		c.restOffset = 0
 	}
 
@@ -883,7 +883,7 @@ func (c *clientConn) handleSTOR(path string) {
 
 	// 断点续传
 	if c.restOffset > 0 {
-		file.Seek(c.restOffset, io.SeekStart)
+		_, _ = file.Seek(c.restOffset, io.SeekStart)
 		c.restOffset = 0
 	}
 
