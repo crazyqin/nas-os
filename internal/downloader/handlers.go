@@ -24,6 +24,7 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 	r.GET("/downloader/tasks/:id", h.GetTask)
 	r.PUT("/downloader/tasks/:id", h.UpdateTask)
 	r.DELETE("/downloader/tasks/:id", h.DeleteTask)
+	r.POST("/downloader/tasks/:id/start", h.StartTask)
 	r.POST("/downloader/tasks/:id/pause", h.PauseTask)
 	r.POST("/downloader/tasks/:id/resume", h.ResumeTask)
 	r.GET("/downloader/stats", h.GetStats)
@@ -125,6 +126,18 @@ func (h *Handler) DeleteTask(c *gin.Context) {
 	deleteFiles := strings.ToLower(c.Query("delete_files")) == "true"
 
 	if err := h.manager.DeleteTask(id, deleteFiles); err != nil {
+		writeError(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	writeSuccess(c, nil)
+}
+
+// StartTask 启动任务
+func (h *Handler) StartTask(c *gin.Context) {
+	id := c.Param("id")
+
+	if err := h.manager.StartTask(id); err != nil {
 		writeError(c, http.StatusInternalServerError, err.Error())
 		return
 	}
