@@ -14,8 +14,8 @@ import (
 type ReplicationType string
 
 const (
-	TypeRealtime ReplicationType = "realtime"  // 实时同步
-	TypeScheduled ReplicationType = "scheduled" // 定时复制
+	TypeRealtime      ReplicationType = "realtime"      // 实时同步
+	TypeScheduled     ReplicationType = "scheduled"     // 定时复制
 	TypeBidirectional ReplicationType = "bidirectional" // 双向复制
 )
 
@@ -23,43 +23,43 @@ const (
 type ReplicationStatus string
 
 const (
-	StatusIdle       ReplicationStatus = "idle"        // 空闲
-	StatusSyncing    ReplicationStatus = "syncing"     // 同步中
-	StatusPaused     ReplicationStatus = "paused"      // 已暂停
-	StatusError      ReplicationStatus = "error"       // 错误
-	StatusCompleted  ReplicationStatus = "completed"   // 已完成
+	StatusIdle      ReplicationStatus = "idle"      // 空闲
+	StatusSyncing   ReplicationStatus = "syncing"   // 同步中
+	StatusPaused    ReplicationStatus = "paused"    // 已暂停
+	StatusError     ReplicationStatus = "error"     // 错误
+	StatusCompleted ReplicationStatus = "completed" // 已完成
 )
 
 // ReplicationTask 复制任务
 type ReplicationTask struct {
-	ID              string            `json:"id"`
-	Name            string            `json:"name"`
-	SourcePath      string            `json:"source_path"`
-	TargetPath      string            `json:"target_path"`
-	TargetHost      string            `json:"target_host,omitempty"` // 空表示本地
-	Type            ReplicationType   `json:"type"`
-	Status          ReplicationStatus `json:"status"`
-	Schedule        string            `json:"schedule,omitempty"` // cron 表达式
-	LastSyncAt      time.Time         `json:"last_sync_at,omitempty"`
-	NextSyncAt      time.Time         `json:"next_sync_at,omitempty"`
-	BytesTransferred int64            `json:"bytes_transferred"`
-	TotalBytes      int64            `json:"total_bytes"`
-	FilesCount      int              `json:"files_count"`
-	ErrorMessage    string            `json:"error_message,omitempty"`
-	CreatedAt       time.Time         `json:"created_at"`
-	UpdatedAt       time.Time         `json:"updated_at"`
-	Enabled         bool              `json:"enabled"`
-	Compress        bool              `json:"compress"`
-	DeleteExtraneous bool             `json:"delete_extraneous"` // 删除目标端多余文件
+	ID               string            `json:"id"`
+	Name             string            `json:"name"`
+	SourcePath       string            `json:"source_path"`
+	TargetPath       string            `json:"target_path"`
+	TargetHost       string            `json:"target_host,omitempty"` // 空表示本地
+	Type             ReplicationType   `json:"type"`
+	Status           ReplicationStatus `json:"status"`
+	Schedule         string            `json:"schedule,omitempty"` // cron 表达式
+	LastSyncAt       time.Time         `json:"last_sync_at,omitempty"`
+	NextSyncAt       time.Time         `json:"next_sync_at,omitempty"`
+	BytesTransferred int64             `json:"bytes_transferred"`
+	TotalBytes       int64             `json:"total_bytes"`
+	FilesCount       int               `json:"files_count"`
+	ErrorMessage     string            `json:"error_message,omitempty"`
+	CreatedAt        time.Time         `json:"created_at"`
+	UpdatedAt        time.Time         `json:"updated_at"`
+	Enabled          bool              `json:"enabled"`
+	Compress         bool              `json:"compress"`
+	DeleteExtraneous bool              `json:"delete_extraneous"` // 删除目标端多余文件
 }
 
 // Config 复制配置
 type Config struct {
-	MaxConcurrentTasks int  `json:"max_concurrent"`
-	BandwidthLimit     int  `json:"bandwidth_limit"` // KB/s, 0 表示不限
+	MaxConcurrentTasks int    `json:"max_concurrent"`
+	BandwidthLimit     int    `json:"bandwidth_limit"` // KB/s, 0 表示不限
 	SSHKeyPath         string `json:"ssh_key_path"`
-	Retries            int  `json:"retries"`
-	Timeout            int  `json:"timeout"` // 秒
+	Retries            int    `json:"retries"`
+	Timeout            int    `json:"timeout"` // 秒
 }
 
 // DefaultConfig 默认配置
@@ -465,9 +465,9 @@ func (m *Manager) GetStats() map[string]interface{} {
 
 	return map[string]interface{}{
 		"total_tasks":       total,
-		"syncing":          syncing,
-		"paused":           paused,
-		"errors":           errors,
+		"syncing":           syncing,
+		"paused":            paused,
+		"errors":            errors,
 		"bytes_transferred": totalBytes,
 	}
 }
