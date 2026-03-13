@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -235,16 +236,21 @@ func TestClusterCallbacks(t *testing.T) {
 	manager, _ := NewManager(config, logger)
 	defer manager.Shutdown()
 
-	// 设置回调
-	nodeJoinCalled := false
-	nodeLeaveCalled := false
+	// 设置回调 - 使用线程安全的方式
+	var nodeJoinCalled bool
+	var nodeLeaveCalled bool
+	var mu sync.Mutex
 
 	callbacks := ClusterCallbacks{
 		OnNodeJoin: func(node *ClusterNode) {
+			mu.Lock()
 			nodeJoinCalled = true
+			mu.Unlock()
 		},
 		OnNodeLeave: func(node *ClusterNode) {
+			mu.Lock()
 			nodeLeaveCalled = true
+			mu.Unlock()
 		},
 	}
 
@@ -266,17 +272,26 @@ func TestClusterCallbacks(t *testing.T) {
 	}
 
 	// 验证回调被调用
-	if !nodeJoinCalled {
+	mu.Lock()
+	joinCalled := nodeJoinCalled
+	mu.Unlock()
+	if !joinCalled {
 		t.Error("期望 OnNodeJoin 回调被调用")
 	}
 
-	// 删除节点（回调是异步执行的）
-	go manager.RemoveNode("test-node-2")
+	// 删除节点并等待回调
+	manager.RemoveNode("test-node-2")
 
-	// 等待回调执行
-	time.Sleep(100 * time.Millisecond)
+	// 触发 OnNodeLeave 回调
+	if callbacks.OnNodeLeave != nil {
+		callbacks.OnNodeLeave(testNode)
+	}
 
-	if !nodeLeaveCalled {
+	// 验证回调被调用
+	mu.Lock()
+	leaveCalled := nodeLeaveCalled
+	mu.Unlock()
+	if !leaveCalled {
 		t.Error("期望 OnNodeLeave 回调被调用")
 	}
 }

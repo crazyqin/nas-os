@@ -1,9 +1,12 @@
 package database
 
 import (
+	"container/list"
+	"context"
 	"database/sql"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"go.uber.org/zap"
@@ -23,27 +26,38 @@ type Optimizer struct {
 	cacheMisses int64
 	slowQueries int64
 
+	// 慢查询阈值 (可配置)
+	slowThreshold time.Duration
+
 	logger *zap.Logger
 }
 
 // QueryCacheEntry represents a cached query result
 type QueryCacheEntry struct {
-	Result    interface{}
-	ExpiresAt time.Time
+	key       string
+	result    interface{}
+	expiresAt time.Time
+	elem      *list.Element // LRU list element
 }
 
-// QueryCache implements query result caching
+// QueryCache implements query result caching with LRU eviction
 type QueryCache struct {
 	cache   map[string]*QueryCacheEntry
+	lru     *list.List // LRU list, front = most recent
 	mu      sync.RWMutex
 	ttl     time.Duration
 	maxSize int
+
+	// 统计
+	hits   int64
+	misses int64
 }
 
-// NewQueryCache creates a new query cache
+// NewQueryCache creates a new query cache with LRU eviction
 func NewQueryCache(ttl time.Duration, maxSize int) *QueryCache {
 	qc := &QueryCache{
 		cache:   make(map[string]*QueryCacheEntry),
+		lru:     list.New(),
 		ttl:     ttl,
 		maxSize: maxSize,
 	}
@@ -56,56 +70,84 @@ func NewQueryCache(ttl time.Duration, maxSize int) *QueryCache {
 
 // Get retrieves a cached query result
 func (qc *QueryCache) Get(key string) (interface{}, bool) {
-	qc.mu.RLock()
-	defer qc.mu.RUnlock()
+	qc.mu.Lock()
+	defer qc.mu.Unlock()
 
 	entry, ok := qc.cache[key]
 	if !ok {
+		atomic.AddInt64(&qc.misses, 1)
 		return nil, false
 	}
 
-	if time.Now().After(entry.ExpiresAt) {
+	// Check expiration
+	if time.Now().After(entry.expiresAt) {
+		qc.removeEntry(entry)
+		atomic.AddInt64(&qc.misses, 1)
 		return nil, false
 	}
 
-	return entry.Result, true
+	// Move to front (most recently used)
+	qc.lru.MoveToFront(entry.elem)
+	atomic.AddInt64(&qc.hits, 1)
+
+	return entry.result, true
 }
 
-// Set stores a query result in cache
+// Set stores a query result in cache with LRU eviction
 func (qc *QueryCache) Set(key string, result interface{}) {
 	qc.mu.Lock()
 	defer qc.mu.Unlock()
 
-	// Evict if at capacity
-	if len(qc.cache) >= qc.maxSize {
-		qc.evictOldest()
+	now := time.Now()
+
+	// Check if key already exists
+	if entry, ok := qc.cache[key]; ok {
+		entry.result = result
+		entry.expiresAt = now.Add(qc.ttl)
+		qc.lru.MoveToFront(entry.elem)
+		return
 	}
 
-	qc.cache[key] = &QueryCacheEntry{
-		Result:    result,
-		ExpiresAt: time.Now().Add(qc.ttl),
+	// Evict if at capacity (LRU eviction)
+	for qc.lru.Len() >= qc.maxSize {
+		qc.evictLRU()
 	}
+
+	// Add new entry
+	entry := &QueryCacheEntry{
+		key:       key,
+		result:    result,
+		expiresAt: now.Add(qc.ttl),
+	}
+	elem := qc.lru.PushFront(key)
+	entry.elem = elem
+	qc.cache[key] = entry
 }
 
 // Delete removes a key from cache
 func (qc *QueryCache) Delete(key string) {
 	qc.mu.Lock()
 	defer qc.mu.Unlock()
-	delete(qc.cache, key)
+
+	if entry, ok := qc.cache[key]; ok {
+		qc.removeEntry(entry)
+	}
 }
 
 // Clear clears all cached entries
 func (qc *QueryCache) Clear() {
 	qc.mu.Lock()
 	defer qc.mu.Unlock()
+
 	qc.cache = make(map[string]*QueryCacheEntry)
+	qc.lru = list.New()
 }
 
 // Len returns the number of cached entries
 func (qc *QueryCache) Len() int {
 	qc.mu.RLock()
 	defer qc.mu.RUnlock()
-	return len(qc.cache)
+	return qc.lru.Len()
 }
 
 // Stats returns cache statistics
@@ -113,10 +155,21 @@ func (qc *QueryCache) Stats() CacheStats {
 	qc.mu.RLock()
 	defer qc.mu.RUnlock()
 
+	hits := atomic.LoadInt64(&qc.hits)
+	misses := atomic.LoadInt64(&qc.misses)
+	var hitRate float64
+	total := hits + misses
+	if total > 0 {
+		hitRate = float64(hits) / float64(total) * 100
+	}
+
 	return CacheStats{
-		Size:    len(qc.cache),
-		MaxSize: qc.maxSize,
-		TTL:     qc.ttl,
+		Size:     len(qc.cache),
+		MaxSize:  qc.maxSize,
+		TTL:      qc.ttl,
+		Hits:     hits,
+		Misses:   misses,
+		HitRate:  hitRate,
 	}
 }
 
@@ -125,15 +178,28 @@ type CacheStats struct {
 	Size    int           `json:"size"`
 	MaxSize int           `json:"max_size"`
 	TTL     time.Duration `json:"ttl"`
+	Hits    int64         `json:"hits"`
+	Misses  int64         `json:"misses"`
+	HitRate float64       `json:"hitRate"`
 }
 
-// evictOldest removes the oldest entry (simple implementation)
-func (qc *QueryCache) evictOldest() {
-	// For simplicity, just remove a random entry
-	// In production, use LRU or similar
-	for key := range qc.cache {
-		delete(qc.cache, key)
+// removeEntry removes an entry from both the cache and LRU list
+func (qc *QueryCache) removeEntry(entry *QueryCacheEntry) {
+	delete(qc.cache, entry.key)
+	if entry.elem != nil {
+		qc.lru.Remove(entry.elem)
+	}
+}
+
+// evictLRU removes the least recently used entry
+func (qc *QueryCache) evictLRU() {
+	elem := qc.lru.Back()
+	if elem == nil {
 		return
+	}
+	key := elem.Value.(string)
+	if entry, ok := qc.cache[key]; ok {
+		qc.removeEntry(entry)
 	}
 }
 
@@ -145,10 +211,18 @@ func (qc *QueryCache) startCleanup() {
 	for range ticker.C {
 		qc.mu.Lock()
 		now := time.Now()
-		for key, entry := range qc.cache {
-			if now.After(entry.ExpiresAt) {
-				delete(qc.cache, key)
+		// Iterate from back (oldest) to front (newest) for efficiency
+		for elem := qc.lru.Back(); elem != nil; {
+			key := elem.Value.(string)
+			if entry, ok := qc.cache[key]; ok {
+				if now.After(entry.expiresAt) {
+					next := elem.Prev()
+					qc.removeEntry(entry)
+					elem = next
+					continue
+				}
 			}
+			elem = elem.Prev()
 		}
 		qc.mu.Unlock()
 	}
@@ -157,11 +231,19 @@ func (qc *QueryCache) startCleanup() {
 // NewOptimizer creates a new database optimizer
 func NewOptimizer(db *sql.DB, logger *zap.Logger) *Optimizer {
 	return &Optimizer{
-		db:         db,
-		queryCache: NewQueryCache(5*time.Minute, 1000),
-		pragmas:    make(map[string]interface{}),
-		logger:     logger,
+		db:            db,
+		queryCache:    NewQueryCache(5*time.Minute, 1000),
+		pragmas:       make(map[string]interface{}),
+		slowThreshold: 100 * time.Millisecond,
+		logger:        logger,
 	}
+}
+
+// SetSlowThreshold sets the slow query threshold
+func (o *Optimizer) SetSlowThreshold(threshold time.Duration) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	o.slowThreshold = threshold
 }
 
 // EnableWAL enables Write-Ahead Logging mode
@@ -254,32 +336,68 @@ func (o *Optimizer) AnalyzeAll() error {
 }
 
 // QueryWithCache executes a query with caching
-func (o *Optimizer) QueryWithCache(query string, args ...interface{}) (*sql.Rows, error) {
+// Note: Returns cached data as slice of maps, not *sql.Rows (which cannot be safely cached)
+func (o *Optimizer) QueryWithCache(query string, args ...interface{}) ([]map[string]interface{}, error) {
 	// Generate cache key
 	cacheKey := fmt.Sprintf("%s|%v", query, args)
 
 	// Check cache first
 	if cached, ok := o.queryCache.Get(cacheKey); ok {
-		o.mu.Lock()
-		o.cacheHits++
-		o.mu.Unlock()
-		return cached.(*sql.Rows), nil
+		atomic.AddInt64(&o.cacheHits, 1)
+		return cached.([]map[string]interface{}), nil
 	}
 
-	o.mu.Lock()
-	o.cacheMisses++
-	o.mu.Unlock()
+	atomic.AddInt64(&o.cacheMisses, 1)
 
 	// Execute query
 	rows, err := o.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	// Cache result (note: this is simplified, real implementation would cache data)
-	o.queryCache.Set(cacheKey, rows)
+	// Get column names
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
 
-	return rows, nil
+	// Read all rows into memory
+	var results []map[string]interface{}
+	for rows.Next() {
+		// Create a slice of interface{}'s to represent each column
+		values := make([]interface{}, len(columns))
+		valuePtrs := make([]interface{}, len(columns))
+		for i := range values {
+			valuePtrs[i] = &values[i]
+		}
+
+		if err := rows.Scan(valuePtrs...); err != nil {
+			return nil, err
+		}
+
+		// Convert to map
+		row := make(map[string]interface{})
+		for i, col := range columns {
+			val := values[i]
+			// Convert []byte to string
+			if b, ok := val.([]byte); ok {
+				row[col] = string(b)
+			} else {
+				row[col] = val
+			}
+		}
+		results = append(results, row)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Cache result
+	o.queryCache.Set(cacheKey, results)
+
+	return results, nil
 }
 
 // ExecWithTiming executes a statement and logs slow queries
@@ -289,15 +407,14 @@ func (o *Optimizer) ExecWithTiming(query string, args ...interface{}) (sql.Resul
 	result, err := o.db.Exec(query, args...)
 
 	duration := time.Since(start)
-	o.mu.Lock()
-	o.queryCount++
-	if duration > 100*time.Millisecond {
-		o.slowQueries++
+	atomic.AddInt64(&o.queryCount, 1)
+
+	if duration > o.slowThreshold {
+		atomic.AddInt64(&o.slowQueries, 1)
 		o.logger.Warn("Slow query detected",
 			zap.String("query", query),
 			zap.Duration("duration", duration))
 	}
-	o.mu.Unlock()
 
 	return result, err
 }
@@ -309,38 +426,30 @@ func (o *Optimizer) QueryWithTiming(query string, args ...interface{}) (*sql.Row
 	rows, err := o.db.Query(query, args...)
 
 	duration := time.Since(start)
-	o.mu.Lock()
-	o.queryCount++
-	if duration > 100*time.Millisecond {
-		o.slowQueries++
+	atomic.AddInt64(&o.queryCount, 1)
+
+	if duration > o.slowThreshold {
+		atomic.AddInt64(&o.slowQueries, 1)
 		o.logger.Warn("Slow query detected",
 			zap.String("query", query),
 			zap.Duration("duration", duration))
 	}
-	o.mu.Unlock()
 
 	return rows, err
 }
 
 // Stats returns optimizer statistics
 func (o *Optimizer) Stats() OptimizerStats {
-	o.mu.RLock()
-	defer o.mu.RUnlock()
-
-	cacheHitRate := float64(0)
-	total := o.cacheHits + o.cacheMisses
-	if total > 0 {
-		cacheHitRate = float64(o.cacheHits) / float64(total) * 100
-	}
+	cacheStats := o.queryCache.Stats()
 
 	return OptimizerStats{
-		QueryCount:   o.queryCount,
-		CacheHits:    o.cacheHits,
-		CacheMisses:  o.cacheMisses,
-		CacheHitRate: cacheHitRate,
-		SlowQueries:  o.slowQueries,
+		QueryCount:   atomic.LoadInt64(&o.queryCount),
+		CacheHits:    cacheStats.Hits,
+		CacheMisses:  cacheStats.Misses,
+		CacheHitRate: cacheStats.HitRate,
+		SlowQueries:  atomic.LoadInt64(&o.slowQueries),
 		WALEnabled:   o.walEnabled,
-		CacheSize:    o.queryCache.Len(),
+		CacheSize:    cacheStats.Size,
 	}
 }
 
@@ -353,6 +462,44 @@ type OptimizerStats struct {
 	SlowQueries  int64   `json:"slow_queries"`
 	WALEnabled   bool    `json:"wal_enabled"`
 	CacheSize    int     `json:"cache_size"`
+}
+
+// QueryContextWithTiming executes a query with context and logs slow queries
+func (o *Optimizer) QueryContextWithTiming(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+	start := time.Now()
+
+	rows, err := o.db.QueryContext(ctx, query, args...)
+
+	duration := time.Since(start)
+	atomic.AddInt64(&o.queryCount, 1)
+
+	if duration > o.slowThreshold {
+		atomic.AddInt64(&o.slowQueries, 1)
+		o.logger.Warn("Slow query detected",
+			zap.String("query", query),
+			zap.Duration("duration", duration))
+	}
+
+	return rows, err
+}
+
+// ExecContextWithTiming executes a statement with context and logs slow queries
+func (o *Optimizer) ExecContextWithTiming(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	start := time.Now()
+
+	result, err := o.db.ExecContext(ctx, query, args...)
+
+	duration := time.Since(start)
+	atomic.AddInt64(&o.queryCount, 1)
+
+	if duration > o.slowThreshold {
+		atomic.AddInt64(&o.slowQueries, 1)
+		o.logger.Warn("Slow query detected",
+			zap.String("query", query),
+			zap.Duration("duration", duration))
+	}
+
+	return result, err
 }
 
 // Vacuum runs VACUUM to reclaim space

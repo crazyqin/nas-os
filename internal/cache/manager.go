@@ -74,9 +74,8 @@ func (m *Manager) Get(key string) (interface{}, bool) {
 	if m.redisCache != nil {
 		if val, ok := m.redisCache.Get(key); ok {
 			atomic.AddInt64(&m.hits, 1)
-			// Populate memory cache
-			_ = m.redisCache.Set(key, val)
-			_ = m.redisCache.Delete(key)
+			// Populate memory cache for future requests
+			m.memoryCache.Set(key, val)
 			return val, true
 		}
 	}
@@ -169,4 +168,69 @@ func (m *Manager) Clear() {
 		_ = m.redisCache.Clear()
 	}
 	m.logger.Info("Cache cleared")
+}
+
+// GetMulti retrieves multiple values from cache
+func (m *Manager) GetMulti(keys []string) map[string]interface{} {
+	result := make(map[string]interface{})
+	for _, key := range keys {
+		if val, ok := m.Get(key); ok {
+			result[key] = val
+		}
+	}
+	return result
+}
+
+// SetMulti stores multiple values in cache
+func (m *Manager) SetMulti(items map[string]interface{}) {
+	for key, value := range items {
+		m.Set(key, value)
+	}
+}
+
+// DeleteMulti removes multiple keys from cache
+func (m *Manager) DeleteMulti(keys []string) {
+	for _, key := range keys {
+		m.Delete(key)
+	}
+}
+
+// GetOrSet retrieves a value or sets it using the provided function
+func (m *Manager) GetOrSet(key string, fn func() (interface{}, error)) (interface{}, error) {
+	// Try to get from cache first
+	if val, ok := m.Get(key); ok {
+		return val, nil
+	}
+
+	// Generate value
+	val, err := fn()
+	if err != nil {
+		return nil, err
+	}
+
+	// Store in cache
+	m.Set(key, val)
+	return val, nil
+}
+
+// Warmup preloads cache with frequently accessed data
+func (m *Manager) Warmup(items map[string]interface{}) {
+	for key, value := range items {
+		m.Set(key, value)
+	}
+	m.logger.Info("Cache warmed up", zap.Int("items", len(items)))
+}
+
+// InvalidatePattern invalidates all keys matching a pattern
+func (m *Manager) InvalidatePattern(pattern string) {
+	// For memory cache, we need to iterate through all keys
+	// This is a simplified implementation
+	m.memoryCache.Clear()
+
+	// For Redis, use pattern matching
+	if m.redisCache != nil {
+		_ = m.redisCache.Clear()
+	}
+
+	m.logger.Info("Cache invalidated by pattern", zap.String("pattern", pattern))
 }
