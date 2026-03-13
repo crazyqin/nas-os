@@ -28,6 +28,7 @@ import (
 	"nas-os/internal/trash"
 	"nas-os/internal/users"
 	"nas-os/internal/vm"
+	"nas-os/internal/webdav"
 
 	_ "nas-os/docs/swagger" // Swagger 文档
 
@@ -69,6 +70,7 @@ type Server struct {
 	optimizer     *optimizer.PerformanceOptimizer
 	trashMgr      *trash.Manager
 	replMgr       *replication.Manager
+	webdavSrv     *webdav.Server
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -280,7 +282,19 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			mgr, _ := replication.NewManager("/etc/nas-os/replication.json", nil)
 			return mgr
 		}(),
+		webdavSrv: func() *webdav.Server {
+			srv, _ := webdav.NewServer(nil)
+			return srv
+		}(),
 		// mediaMgr:      mediaMgr,
+	}
+
+	// 设置 WebDAV 认证函数
+	if s.webdavSrv != nil && s.userMgr != nil {
+		s.webdavSrv.SetAuthFunc(func(username, password string) bool {
+			_, err := s.userMgr.Authenticate(username, password)
+			return err == nil
+		})
 	}
 
 	// 添加性能监控中间件 (在日志中间件之后)
@@ -392,6 +406,11 @@ func (s *Server) setupRoutes() {
 		// ========== 存储复制 ==========
 		if s.replMgr != nil {
 			replication.NewHandlers(s.replMgr).RegisterRoutes(api)
+		}
+
+		// ========== WebDAV 服务器 ==========
+		if s.webdavSrv != nil {
+			webdav.NewHandlers(s.webdavSrv).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
@@ -520,10 +539,20 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/vms", "./webui/pages/vms.html")
 	s.engine.StaticFile("/trash", "./webui/pages/trash.html")
 	s.engine.StaticFile("/replication", "./webui/pages/replication.html")
+	s.engine.StaticFile("/webdav", "./webui/pages/webdav.html")
 }
 
 // Start 启动服务器
 func (s *Server) Start(addr string) error {
+	// 启动 WebDAV 服务器
+	if s.webdavSrv != nil {
+		if err := s.webdavSrv.Start(); err != nil {
+			log.Printf("⚠️ WebDAV 服务器启动警告：%v", err)
+		} else {
+			log.Println("✅ WebDAV 服务器已启动")
+		}
+	}
+
 	s.httpSrv = &http.Server{
 		Addr:    addr,
 		Handler: s.engine,
@@ -546,6 +575,11 @@ func (s *Server) Stop() error {
 	// 停止 AI 相册管理
 	if s.photosAIMgr != nil {
 		s.photosAIMgr.Close()
+	}
+
+	// 停止 WebDAV 服务器
+	if s.webdavSrv != nil {
+		s.webdavSrv.Stop()
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
