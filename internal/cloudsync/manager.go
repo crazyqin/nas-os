@@ -562,18 +562,19 @@ func (m *Manager) GetAllSyncStatuses() map[string]*SyncStatus {
 // ==================== 调度 ====================
 
 // scheduleTask 添加任务到调度器
-func (m *Manager) scheduleTask(task *SyncTask) {
+func (m *Manager) scheduleTask(task *SyncTask) error {
 	switch task.ScheduleType {
 	case ScheduleTypeInterval:
-		m.scheduler.AddIntervalTask(task.ID, task.ScheduleExpr, func() {
+		return m.scheduler.AddIntervalTask(task.ID, task.ScheduleExpr, func() {
 			m.RunSyncTask(task.ID)
 		})
 
 	case ScheduleTypeCron:
-		m.scheduler.AddCronTask(task.ID, task.ScheduleExpr, func() {
+		return m.scheduler.AddCronTask(task.ID, task.ScheduleExpr, func() {
 			m.RunSyncTask(task.ID)
 		})
 	}
+	return nil
 }
 
 // ==================== 统计 ====================
