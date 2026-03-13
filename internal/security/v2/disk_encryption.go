@@ -285,13 +285,13 @@ func NewDiskEncryptionManager(configPath string) *DiskEncryptionManager {
 		configPath:       configPath,
 		performanceCache: make(map[string]*EncryptionPerformance),
 		rotationPolicy: &KeyRotationPolicy{
-			Enabled:            false,
-			IntervalDays:       90,
-			MaxKeyAgeDays:      180,
-			NotificationDays:   14,
-			AutoRotate:         false,
-			BackupKeys:         true,
-			KeyHistory:         make([]KeyHistoryEntry, 0),
+			Enabled:          false,
+			IntervalDays:     90,
+			MaxKeyAgeDays:    180,
+			NotificationDays: 14,
+			AutoRotate:       false,
+			BackupKeys:       true,
+			KeyHistory:       make([]KeyHistoryEntry, 0),
 		},
 	}
 }
@@ -793,8 +793,8 @@ func (dm *DiskEncryptionManager) GetEncryptionPerformance(devicePath string) (*E
 // benchmarkEncryption 基准测试加密性能
 func (dm *DiskEncryptionManager) benchmarkEncryption(devicePath string) (*EncryptionPerformance, error) {
 	perf := &EncryptionPerformance{
-		DevicePath:    devicePath,
-		LastUpdated:   time.Now(),
+		DevicePath:          devicePath,
+		LastUpdated:         time.Now(),
 		HardwareAccelerated: dm.checkHardwareAcceleration(),
 	}
 

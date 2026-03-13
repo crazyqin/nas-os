@@ -12,18 +12,18 @@ import (
 type GrowthModel string
 
 const (
-	GrowthModelLinear    GrowthModel = "linear"    // 线性增长
+	GrowthModelLinear      GrowthModel = "linear"      // 线性增长
 	GrowthModelExponential GrowthModel = "exponential" // 指数增长
 	GrowthModelLogarithmic GrowthModel = "logarithmic" // 对数增长
 )
 
 // CapacityHistory 容量历史数据点
 type CapacityHistory struct {
-	Timestamp    time.Time `json:"timestamp"`
-	TotalBytes   uint64    `json:"total_bytes"`
-	UsedBytes    uint64    `json:"used_bytes"`
-	AvailableBytes uint64  `json:"available_bytes"`
-	UsagePercent float64   `json:"usage_percent"`
+	Timestamp      time.Time `json:"timestamp"`
+	TotalBytes     uint64    `json:"total_bytes"`
+	UsedBytes      uint64    `json:"used_bytes"`
+	AvailableBytes uint64    `json:"available_bytes"`
+	UsagePercent   float64   `json:"usage_percent"`
 }
 
 // CapacityForecast 容量预测
@@ -70,48 +70,48 @@ type CapacityPlanningConfig struct {
 
 // CapacityPlanningReport 容量规划报告
 type CapacityPlanningReport struct {
-	ID          string                    `json:"id"`
-	Name        string                    `json:"name"`
-	VolumeName  string                    `json:"volume_name"`
-	Period      ReportPeriod              `json:"period"`
-	Config      CapacityPlanningConfig    `json:"config"`
-	Current     CapacityStatus            `json:"current"`
-	Forecasts   []CapacityForecast        `json:"forecasts"`
-	Milestones  []CapacityMilestone       `json:"milestones"`
+	ID              string                   `json:"id"`
+	Name            string                   `json:"name"`
+	VolumeName      string                   `json:"volume_name"`
+	Period          ReportPeriod             `json:"period"`
+	Config          CapacityPlanningConfig   `json:"config"`
+	Current         CapacityStatus           `json:"current"`
+	Forecasts       []CapacityForecast       `json:"forecasts"`
+	Milestones      []CapacityMilestone      `json:"milestones"`
 	Recommendations []CapacityRecommendation `json:"recommendations"`
-	Summary     CapacityPlanningSummary   `json:"summary"`
-	GeneratedAt time.Time                 `json:"generated_at"`
+	Summary         CapacityPlanningSummary  `json:"summary"`
+	GeneratedAt     time.Time                `json:"generated_at"`
 }
 
 // CapacityStatus 当前容量状态
 type CapacityStatus struct {
-	TotalBytes      uint64    `json:"total_bytes"`
-	UsedBytes       uint64    `json:"used_bytes"`
-	AvailableBytes  uint64    `json:"available_bytes"`
-	UsagePercent    float64   `json:"usage_percent"`
-	Status          string    `json:"status"` // healthy, warning, critical
-	LastUpdated     time.Time `json:"last_updated"`
+	TotalBytes     uint64    `json:"total_bytes"`
+	UsedBytes      uint64    `json:"used_bytes"`
+	AvailableBytes uint64    `json:"available_bytes"`
+	UsagePercent   float64   `json:"usage_percent"`
+	Status         string    `json:"status"` // healthy, warning, critical
+	LastUpdated    time.Time `json:"last_updated"`
 }
 
 // CapacityMilestone 容量里程碑
 type CapacityMilestone struct {
-	Name            string    `json:"name"`             // 如 "70%预警线"
-	Threshold       float64   `json:"threshold"`        // 阈值百分比
-	ExpectedDate    time.Time `json:"expected_date"`    // 预计到达日期
-	DaysRemaining   int       `json:"days_remaining"`   // 剩余天数
-	CapacityNeeded  uint64    `json:"capacity_needed"`  // 达到此阈值所需容量
-	ActionRequired  string    `json:"action_required"`  // 建议行动
+	Name           string    `json:"name"`            // 如 "70%预警线"
+	Threshold      float64   `json:"threshold"`       // 阈值百分比
+	ExpectedDate   time.Time `json:"expected_date"`   // 预计到达日期
+	DaysRemaining  int       `json:"days_remaining"`  // 剩余天数
+	CapacityNeeded uint64    `json:"capacity_needed"` // 达到此阈值所需容量
+	ActionRequired string    `json:"action_required"` // 建议行动
 }
 
 // CapacityRecommendation 容量建议
 type CapacityRecommendation struct {
-	Type        string `json:"type"`        // expansion, cleanup, optimization, migration
-	Priority    string `json:"priority"`    // high, medium, low
+	Type        string `json:"type"`     // expansion, cleanup, optimization, migration
+	Priority    string `json:"priority"` // high, medium, low
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	Impact      string `json:"impact"`      // 预期影响
-	Effort      string `json:"effort"`      // 实施难度
-	SavingsGB   uint64 `json:"savings_gb"`  // 预计节省/增加容量（GB）
+	Impact      string `json:"impact"`     // 预期影响
+	Effort      string `json:"effort"`     // 实施难度
+	SavingsGB   uint64 `json:"savings_gb"` // 预计节省/增加容量（GB）
 }
 
 // CapacityPlanningSummary 容量规划汇总
@@ -191,17 +191,17 @@ func (p *CapacityPlanner) Analyze(history []CapacityHistory, volumeName string) 
 
 	now := time.Now()
 	return &CapacityPlanningReport{
-		ID:             "cap_" + now.Format("20060102150405"),
-		Name:           "容量规划报告",
-		VolumeName:     volumeName,
-		Period:         ReportPeriod{StartTime: history[0].Timestamp, EndTime: now},
-		Config:         p.config,
-		Current:        current,
-		Forecasts:      forecasts,
-		Milestones:     milestones,
+		ID:              "cap_" + now.Format("20060102150405"),
+		Name:            "容量规划报告",
+		VolumeName:      volumeName,
+		Period:          ReportPeriod{StartTime: history[0].Timestamp, EndTime: now},
+		Config:          p.config,
+		Current:         current,
+		Forecasts:       forecasts,
+		Milestones:      milestones,
 		Recommendations: recommendations,
-		Summary:        summary,
-		GeneratedAt:    now,
+		Summary:         summary,
+		GeneratedAt:     now,
 	}
 }
 

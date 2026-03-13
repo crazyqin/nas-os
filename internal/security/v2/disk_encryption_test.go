@@ -11,9 +11,9 @@ import (
 
 func TestDiskEncryptionConfig_Validation(t *testing.T) {
 	tests := []struct {
-		name    string
-		config  DiskEncryptionConfig
-		valid   bool
+		name   string
+		config DiskEncryptionConfig
+		valid  bool
 	}{
 		{
 			name: "valid LUKS2 config",
@@ -140,14 +140,14 @@ func TestEncryptionStatus(t *testing.T) {
 
 func TestLUKSInfo(t *testing.T) {
 	info := LUKSInfo{
-		Version:       "2",
-		Cipher:        "aes-xts-plain64",
-		KeySize:       512,
-		Device:        "/dev/sda1",
-		UUID:          "abc123-def456",
-		MapperName:    "encrypted_drive",
-		MetadataSize:  16384,
-		DataOffset:    32768,
+		Version:      "2",
+		Cipher:       "aes-xts-plain64",
+		KeySize:      512,
+		Device:       "/dev/sda1",
+		UUID:         "abc123-def456",
+		MapperName:   "encrypted_drive",
+		MetadataSize: 16384,
+		DataOffset:   32768,
 		KeySlots: []KeySlotInfo{
 			{SlotID: 0, Enabled: true, Type: "password"},
 			{SlotID: 1, Enabled: false, Type: "unused"},
@@ -198,13 +198,13 @@ func TestKeySlotInfo(t *testing.T) {
 
 func TestKeyRotationPolicy(t *testing.T) {
 	policy := KeyRotationPolicy{
-		Enabled:           true,
-		IntervalDays:      90,
-		MaxKeyAgeDays:     180,
-		NotificationDays:  14,
-		AutoRotate:        false,
-		BackupKeys:        true,
-		KeyHistory:        make([]KeyHistoryEntry, 0),
+		Enabled:          true,
+		IntervalDays:     90,
+		MaxKeyAgeDays:    180,
+		NotificationDays: 14,
+		AutoRotate:       false,
+		BackupKeys:       true,
+		KeyHistory:       make([]KeyHistoryEntry, 0),
 	}
 
 	if !policy.Enabled {
@@ -222,9 +222,9 @@ func TestKeyRotationPolicy(t *testing.T) {
 
 func TestKeyRotationPolicy_AutoRotation(t *testing.T) {
 	policy := KeyRotationPolicy{
-		Enabled:       true,
-		AutoRotate:    true,
-		IntervalDays:  30,
+		Enabled:      true,
+		AutoRotate:   true,
+		IntervalDays: 30,
 	}
 
 	if !policy.AutoRotate {
@@ -256,15 +256,15 @@ func TestKeyHistoryEntry(t *testing.T) {
 
 func TestEncryptionPerformance(t *testing.T) {
 	perf := EncryptionPerformance{
-		DevicePath:           "/dev/sda1",
-		ReadSpeedMBps:        500.0,
-		WriteSpeedMBps:       450.0,
-		CPUOverheadPercent:   5.0,
-		MemoryUsageMB:        32.0,
-		QueueDepth:           32,
-		Algorithm:            "aes-xts-plain64",
-		HardwareAccelerated:  true,
-		LastUpdated:          time.Now(),
+		DevicePath:          "/dev/sda1",
+		ReadSpeedMBps:       500.0,
+		WriteSpeedMBps:      450.0,
+		CPUOverheadPercent:  5.0,
+		MemoryUsageMB:       32.0,
+		QueueDepth:          32,
+		Algorithm:           "aes-xts-plain64",
+		HardwareAccelerated: true,
+		LastUpdated:         time.Now(),
 	}
 
 	if perf.ReadSpeedMBps <= 0 {
@@ -419,10 +419,10 @@ func TestDiskEncryptionManager_CheckKeyRotation(t *testing.T) {
 
 	// 添加一个从未轮换过的配置
 	dm.configs["/dev/sda1"] = &DiskEncryptionConfig{
-		ID:                "test-1",
-		DevicePath:        "/dev/sda1",
+		ID:                 "test-1",
+		DevicePath:         "/dev/sda1",
 		KeyRotationEnabled: true,
-		KeyRotationDays:   90,
+		KeyRotationDays:    90,
 	}
 
 	needsRotation, daysUntilExpiry, err := dm.CheckKeyRotation("/dev/sda1")

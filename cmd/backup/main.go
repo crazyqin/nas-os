@@ -1,12 +1,19 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
+	"time"
 
 	"nas-os/internal/backup"
+
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -56,11 +63,11 @@ func printUsage() {
   health       健康检查
 
 示例:
-  backup incremental create --source /data --name mydata
-  backup incremental list --name mydata
+  backup incremental create --source /data --dest /backup
+  backup incremental list
   backup cloud upload --config cloud.json --file backup.tar.gz
   backup encrypt --input backup.tar.gz --password "secret"
-  backup restore full --backup mydata/latest --target /restore
+  backup restore full --backup mydata --target /restore
 `)
 }
 
@@ -68,91 +75,78 @@ func printUsage() {
 
 func handleIncremental(args []string) {
 	if len(args) < 1 {
-		fmt.Println("用法：backup incremental <create|list|space|delete> [options]")
+		fmt.Println("用法：backup incremental <create|list|delete|stats> [options]")
 		os.Exit(1)
 	}
 
 	subcmd := args[0]
 	fs := flag.NewFlagSet("incremental", flag.ExitOnError)
 	sourceDir := fs.String("source", "", "源目录")
-	backupName := fs.String("name", "", "备份名称")
-	baseDir := fs.String("dest", "/srv/backups", "备份根目录")
+	destDir := fs.String("dest", "/srv/backups", "备份目录")
+	chunkDir := fs.String("chunks", "/srv/chunks", "块存储目录")
+	snapshotID := fs.String("id", "", "快照ID")
 
 	_ = fs.Parse(args[1:])
 
-	ib := backup.NewIncrementalBackup(*baseDir)
+	logger := zap.NewNop()
+	config := &backup.BackupConfig{
+		BackupPath: *destDir,
+		ChunkPath:  *chunkDir,
+	}
+	ib := backup.NewIncrementalBackup(config, logger)
 
 	switch subcmd {
 	case "create":
-		if *sourceDir == "" || *backupName == "" {
-			fmt.Println("错误：--source 和 --name 是必需的")
+		if *sourceDir == "" {
+			fmt.Println("错误：--source 是必需的")
 			os.Exit(1)
 		}
 
-		fmt.Printf("开始增量备份：%s -> %s/%s\n", *sourceDir, *baseDir, *backupName)
-		result, err := ib.CreateBackup(*sourceDir, *backupName)
+		fmt.Printf("开始增量备份：%s -> %s\n", *sourceDir, *destDir)
+		snapshot, err := ib.CreateSnapshot(nil, *sourceDir, *destDir, backup.SnapshotTypeInc)
 		if err != nil {
 			fmt.Printf("错误：%v\n", err)
 			os.Exit(1)
 		}
 
 		fmt.Printf("✅ 备份完成\n")
-		fmt.Printf("   路径：%s\n", result.BackupPath)
-		fmt.Printf("   增量：%v\n", result.IsIncremental)
-		fmt.Printf("   文件数：%d\n", result.TotalFiles)
-		fmt.Printf("   耗时：%v\n", result.Duration)
+		fmt.Printf("   快照ID：%s\n", snapshot.ID)
+		fmt.Printf("   类型：%s\n", snapshot.Type)
+		fmt.Printf("   文件数：%d\n", len(snapshot.Files))
+		fmt.Printf("   大小：%s\n", formatSize(snapshot.Size))
+		fmt.Printf("   耗时：%v\n", snapshot.Duration)
 
 	case "list":
-		if *backupName == "" {
-			fmt.Println("错误：--name 是必需的")
-			os.Exit(1)
+		snapshots := ib.ListSnapshots()
+		fmt.Printf("快照列表:\n")
+		for _, s := range snapshots {
+			fmt.Printf("  📦 %s\n", s.ID)
+			fmt.Printf("     时间：%s\n", s.CreatedAt.Format("2006-01-02 15:04:05"))
+			fmt.Printf("     类型：%s\n", s.Type)
+			fmt.Printf("     文件：%d\n", len(s.Files))
+			fmt.Printf("     大小：%s\n", formatSize(s.Size))
+			fmt.Printf("     状态：%s\n", s.Status)
 		}
-
-		backups, err := ib.ListBackups(*backupName)
-		if err != nil {
-			fmt.Printf("错误：%v\n", err)
-			os.Exit(1)
-		}
-
-		fmt.Printf("备份列表 (%s):\n", *backupName)
-		for _, b := range backups {
-			fmt.Printf("  📦 %s\n", b.Name)
-			if b.Metadata != nil {
-				fmt.Printf("     时间：%s\n", b.Metadata.Timestamp)
-				fmt.Printf("     文件：%d\n", b.Metadata.TotalFiles)
-				fmt.Printf("     增量：%v\n", b.Metadata.IsIncremental)
-			}
-		}
-
-	case "space":
-		if *backupName == "" {
-			fmt.Println("错误：--name 是必需的")
-			os.Exit(1)
-		}
-
-		size, err := ib.GetSpaceUsage(*backupName)
-		if err != nil {
-			fmt.Printf("错误：%v\n", err)
-			os.Exit(1)
-		}
-
-		fmt.Printf("备份空间使用 (%s): %s\n", *backupName, formatSize(size))
 
 	case "delete":
-		timestamp := fs.String("timestamp", "", "备份时间戳")
-		_ = fs.Parse(args[1:])
-
-		if *backupName == "" || *timestamp == "" {
-			fmt.Println("错误：--name 和 --timestamp 是必需的")
+		if *snapshotID == "" {
+			fmt.Println("错误：--id 是必需的")
 			os.Exit(1)
 		}
 
-		if err := ib.DeleteBackup(*backupName, *timestamp); err != nil {
+		if err := ib.DeleteSnapshot(*snapshotID); err != nil {
 			fmt.Printf("错误：%v\n", err)
 			os.Exit(1)
 		}
 
-		fmt.Printf("✅ 已删除备份：%s/%s\n", *backupName, *timestamp)
+		fmt.Printf("✅ 已删除快照：%s\n", *snapshotID)
+
+	case "stats":
+		stats := ib.GetStats()
+		fmt.Printf("备份统计:\n")
+		fmt.Printf("  快照总数：%v\n", stats["total_snapshots"])
+		fmt.Printf("  总大小：%v\n", stats["total_size"])
+		fmt.Printf("  活动任务：%v\n", stats["active_jobs"])
 
 	default:
 		fmt.Printf("未知子命令：%s\n", subcmd)
@@ -302,6 +296,7 @@ func handleEncrypt(args []string) {
 	outputFile := fs.String("output", "", "输出文件")
 	password := fs.String("password", "", "密码")
 	passwordFile := fs.String("password-file", "", "密码文件")
+	keyPath := fs.String("key-path", "/srv/keys", "密钥存储路径")
 
 	fs.Parse(args)
 
@@ -325,24 +320,36 @@ func handleEncrypt(args []string) {
 		os.Exit(1)
 	}
 
-	encryptor, err := backup.NewEncryptor(pwd)
+	logger := zap.NewNop()
+	emConfig := &backup.EncryptionManagerConfig{
+		Enabled:       true,
+		Algorithm:     "aes-256-gcm",
+		KeyDerivation: "pbkdf2",
+		KeyPath:       *keyPath,
+		SaltLength:    16,
+		Iterations:    100000,
+	}
+	em := backup.NewEncryptionManager(emConfig, logger)
+
+	key, err := em.GenerateKey(pwd)
 	if err != nil {
-		fmt.Printf("错误：%v\n", err)
+		fmt.Printf("错误：生成密钥失败：%v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Printf("加密：%s -> %s\n", *inputFile, *outputFile)
-	if err := encryptor.EncryptFile(*inputFile, *outputFile); err != nil {
+	if err := em.EncryptFile(*inputFile, *outputFile, key.ID); err != nil {
 		fmt.Printf("错误：%v\n", err)
 		os.Exit(1)
 	}
 
 	// 写入校验和
-	if err := backup.WriteChecksum(*outputFile); err != nil {
+	if err := writeChecksum(*outputFile); err != nil {
 		fmt.Printf("警告：写入校验和失败：%v\n", err)
 	}
 
 	fmt.Printf("✅ 加密完成\n")
+	fmt.Printf("   密钥ID：%s\n", key.ID)
 	fmt.Printf("   校验和：%s.sha256\n", *outputFile)
 }
 
@@ -350,8 +357,10 @@ func handleDecrypt(args []string) {
 	fs := flag.NewFlagSet("decrypt", flag.ExitOnError)
 	inputFile := fs.String("input", "", "输入文件")
 	outputFile := fs.String("output", "", "输出文件")
-	password := fs.String("password", "", "密码")
-	passwordFile := fs.String("password-file", "", "密码文件")
+	_ = fs.String("password", "", "密码（未使用）")
+	_ = fs.String("password-file", "", "密码文件（未使用）")
+	keyPath := fs.String("key-path", "/srv/keys", "密钥存储路径")
+	keyID := fs.String("key-id", "", "密钥ID")
 
 	fs.Parse(args)
 
@@ -360,29 +369,24 @@ func handleDecrypt(args []string) {
 		os.Exit(1)
 	}
 
-	var pwd string
-	if *password != "" {
-		pwd = *password
-	} else if *passwordFile != "" {
-		data, err := os.ReadFile(*passwordFile)
-		if err != nil {
-			fmt.Printf("错误：读取密码文件失败：%v\n", err)
-			os.Exit(1)
-		}
-		pwd = string(data)
-	} else {
-		fmt.Println("错误：需要 --password 或 --password-file")
+	if *keyID == "" {
+		fmt.Println("错误：需要 --key-id")
 		os.Exit(1)
 	}
 
-	encryptor, err := backup.NewEncryptor(pwd)
-	if err != nil {
-		fmt.Printf("错误：%v\n", err)
-		os.Exit(1)
+	logger := zap.NewNop()
+	emConfig := &backup.EncryptionManagerConfig{
+		Enabled:       true,
+		Algorithm:     "aes-256-gcm",
+		KeyDerivation: "pbkdf2",
+		KeyPath:       *keyPath,
+		SaltLength:    16,
+		Iterations:    100000,
 	}
+	em := backup.NewEncryptionManager(emConfig, logger)
 
 	fmt.Printf("解密：%s -> %s\n", *inputFile, *outputFile)
-	if err := encryptor.DecryptFile(*inputFile, *outputFile); err != nil {
+	if err := em.DecryptFile(*inputFile, *outputFile, *keyID); err != nil {
 		fmt.Printf("错误：%v\n", err)
 		os.Exit(1)
 	}
@@ -409,7 +413,13 @@ func handleRestore(args []string) {
 
 	fs.Parse(args[1:])
 
-	rm := backup.NewRestoreManager("/srv/backups", "/srv/storage")
+	logger := zap.NewNop()
+	emConfig := &backup.EncryptionManagerConfig{
+		Enabled:   false,
+		KeyPath:   "/srv/keys",
+		Algorithm: "aes-256-gcm",
+	}
+	rm := backup.NewRestoreManager("/srv/backups", "/srv/storage", backup.NewEncryptionManager(emConfig, logger))
 
 	switch subcmd {
 	case "list":
@@ -424,7 +434,7 @@ func handleRestore(args []string) {
 			fmt.Printf("  📦 %s\n", b.Name)
 			if b.Metadata != nil {
 				fmt.Printf("     时间：%s\n", b.Metadata.Timestamp)
-				fmt.Printf("     文件：%d\n", b.Metadata.TotalFiles)
+				fmt.Printf("     文件：%d\n", b.Metadata.FileCount)
 				fmt.Printf("     大小：%s\n", formatSize(b.Metadata.Size))
 			}
 		}
@@ -524,23 +534,39 @@ func handleVerify(args []string) {
 	fmt.Printf("验证：%s\n", *filePath)
 
 	// 验证校验和
-	valid, err := backup.VerifyChecksum(*filePath)
-	if err != nil {
-		fmt.Printf("警告：校验和文件不存在，计算新校验和...\n")
-		checksum, err := backup.VerifyIntegrity(*filePath)
+	checksumFile := *filePath + ".sha256"
+	if _, err := os.Stat(checksumFile); err == nil {
+		// 读取存储的校验和
+		storedChecksum, err := os.ReadFile(checksumFile)
+		if err != nil {
+			fmt.Printf("错误：读取校验和文件失败：%v\n", err)
+			os.Exit(1)
+		}
+
+		// 计算当前校验和
+		currentChecksum, err := calculateChecksum(*filePath)
 		if err != nil {
 			fmt.Printf("错误：%v\n", err)
 			os.Exit(1)
 		}
-		fmt.Printf("SHA256: %s\n", checksum)
-		if err := backup.WriteChecksum(*filePath); err != nil {
+
+		if hex.EncodeToString(currentChecksum) == string(storedChecksum)[:64] {
+			fmt.Printf("✅ 校验和验证通过\n")
+		} else {
+			fmt.Printf("❌ 校验和验证失败\n")
+			os.Exit(1)
+		}
+	} else {
+		fmt.Printf("校验和文件不存在，计算新校验和...\n")
+		checksum, err := calculateChecksum(*filePath)
+		if err != nil {
+			fmt.Printf("错误：%v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("SHA256: %s\n", hex.EncodeToString(checksum))
+		if err := writeChecksum(*filePath); err != nil {
 			fmt.Printf("警告：写入校验和失败：%v\n", err)
 		}
-	} else if valid {
-		fmt.Printf("✅ 校验和验证通过\n")
-	} else {
-		fmt.Printf("❌ 校验和验证失败\n")
-		os.Exit(1)
 	}
 }
 
@@ -552,7 +578,11 @@ func handleHealth(args []string) {
 		fmt.Printf("警告：初始化失败：%v\n", err)
 	}
 
-	result := manager.HealthCheck()
+	result, err := manager.HealthCheck()
+	if err != nil {
+		fmt.Printf("错误：%v\n", err)
+		os.Exit(1)
+	}
 
 	fmt.Printf("备份系统健康检查\n")
 	fmt.Printf("================\n\n")
@@ -566,22 +596,9 @@ func handleHealth(args []string) {
 
 	fmt.Printf("状态：%s %s\n\n", statusEmoji, result.Status)
 
-	fmt.Println("检查项:")
-	for _, check := range result.Checks {
-		emoji := "✅"
-		if check.Status == "fail" {
-			emoji = "❌"
-		} else if check.Status == "warn" {
-			emoji = "⚠️"
-		}
-		fmt.Printf("  %s %s: %s\n", emoji, check.Name, check.Message)
-	}
-
-	if len(result.Recommendations) > 0 {
-		fmt.Println("\n建议:")
-		for _, rec := range result.Recommendations {
-			fmt.Printf("  • %s\n", rec)
-		}
+	fmt.Println("详情:")
+	for k, v := range result.Details {
+		fmt.Printf("  %s: %v\n", k, v)
 	}
 }
 
@@ -604,4 +621,37 @@ func formatSize(bytes int64) string {
 	default:
 		return fmt.Sprintf("%d B", bytes)
 	}
+}
+
+func calculateChecksum(filePath string) ([]byte, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	hash := sha256.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return nil, err
+	}
+
+	return hash.Sum(nil), nil
+}
+
+func writeChecksum(filePath string) error {
+	checksum, err := calculateChecksum(filePath)
+	if err != nil {
+		return err
+	}
+
+	checksumFile := filePath + ".sha256"
+	return os.WriteFile(checksumFile, []byte(hex.EncodeToString(checksum)+"  "+filepath.Base(filePath)+"\n"), 0644)
+}
+
+// BackupResult 用于命令行输出的备份结果
+type BackupResult struct {
+	BackupPath    string        `json:"backupPath"`
+	IsIncremental bool          `json:"isIncremental"`
+	TotalFiles    int           `json:"totalFiles"`
+	Duration      time.Duration `json:"duration"`
 }

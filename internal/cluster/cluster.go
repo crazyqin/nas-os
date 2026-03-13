@@ -31,8 +31,8 @@ const (
 type NodeRole string
 
 const (
-	NodeRoleLeader   NodeRole = "leader"
-	NodeRoleFollower NodeRole = "follower"
+	NodeRoleLeader    NodeRole = "leader"
+	NodeRoleFollower  NodeRole = "follower"
 	NodeRoleCandidate NodeRole = "candidate"
 )
 
@@ -59,8 +59,8 @@ type ClusterConfig struct {
 	Peers               []PeerConfig  `json:"peers"`
 	HeartbeatInterval   time.Duration `json:"heartbeat_interval"`
 	HeartbeatTimeout    time.Duration `json:"heartbeat_timeout"`
-	FailureThreshold    int           `json:"failure_threshold"`    // 心跳失败次数阈值
-	ElectionTimeout     time.Duration `json:"election_timeout"`     // 选举超时
+	FailureThreshold    int           `json:"failure_threshold"`     // 心跳失败次数阈值
+	ElectionTimeout     time.Duration `json:"election_timeout"`      // 选举超时
 	SplitBrainThreshold int           `json:"split_brain_threshold"` // 脑裂检测阈值（需要多少节点确认）
 }
 
@@ -78,30 +78,30 @@ type Cluster struct {
 	localNode *Node
 	nodes     map[string]*Node
 	leader    *Node
-	
+
 	// 故障检测
 	heartbeatFailures map[string]int
 	detector          *FailureDetector
-	
+
 	// 脑裂防护
 	splitBrainGuard *SplitBrainGuard
-	
+
 	// 选举
 	electionState *ElectionState
-	
+
 	// 生命周期
 	ctx    context.Context
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
 	mu     sync.RWMutex
-	
+
 	logger *zap.Logger
 }
 
 // NewCluster 创建集群管理器
 func NewCluster(config *ClusterConfig, logger *zap.Logger) *Cluster {
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	c := &Cluster{
 		config: config,
 		localNode: &Node{
@@ -119,19 +119,19 @@ func NewCluster(config *ClusterConfig, logger *zap.Logger) *Cluster {
 		cancel:            cancel,
 		logger:            logger,
 	}
-	
+
 	// 初始化故障检测器
 	c.detector = NewFailureDetector(config.HeartbeatTimeout, config.FailureThreshold, logger)
-	
+
 	// 初始化脑裂防护
 	c.splitBrainGuard = NewSplitBrainGuard(config.SplitBrainThreshold, logger)
-	
+
 	// 初始化选举状态
 	c.electionState = NewElectionState(config.ElectionTimeout)
-	
+
 	// 添加本地节点
 	c.nodes[config.NodeID] = c.localNode
-	
+
 	// 添加对等节点
 	for _, peer := range config.Peers {
 		c.nodes[peer.ID] = &Node{
@@ -144,7 +144,7 @@ func NewCluster(config *ClusterConfig, logger *zap.Logger) *Cluster {
 			Priority: 50, // 默认优先级
 		}
 	}
-	
+
 	return c
 }
 
@@ -152,28 +152,28 @@ func NewCluster(config *ClusterConfig, logger *zap.Logger) *Cluster {
 func (c *Cluster) Start() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	// 启动心跳
 	c.wg.Add(1)
 	go c.heartbeatLoop()
-	
+
 	// 启动故障检测
 	c.wg.Add(1)
 	go c.failureDetectionLoop()
-	
+
 	// 启动选举
 	c.wg.Add(1)
 	go c.electionLoop()
-	
+
 	// 启动脑裂检测
 	c.wg.Add(1)
 	go c.splitBrainDetectionLoop()
-	
+
 	c.logger.Info("Cluster started",
 		zap.String("node_id", c.config.NodeID),
 		zap.Int("peers", len(c.config.Peers)),
 	)
-	
+
 	return nil
 }
 
@@ -187,10 +187,10 @@ func (c *Cluster) Stop() {
 // heartbeatLoop 心跳循环
 func (c *Cluster) heartbeatLoop() {
 	defer c.wg.Done()
-	
+
 	ticker := time.NewTicker(c.config.HeartbeatInterval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-c.ctx.Done():
@@ -205,12 +205,12 @@ func (c *Cluster) heartbeatLoop() {
 func (c *Cluster) sendHeartbeats() {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	for id, node := range c.nodes {
 		if id == c.localNode.ID {
 			continue
 		}
-		
+
 		// 发送心跳（这里用模拟实现）
 		if err := c.sendHeartbeat(node); err != nil {
 			c.logger.Debug("Heartbeat failed",
@@ -236,10 +236,10 @@ func (c *Cluster) sendHeartbeat(node *Node) error {
 // failureDetectionLoop 故障检测循环
 func (c *Cluster) failureDetectionLoop() {
 	defer c.wg.Done()
-	
+
 	ticker := time.NewTicker(c.config.HeartbeatTimeout / 2)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-c.ctx.Done():
@@ -254,14 +254,14 @@ func (c *Cluster) failureDetectionLoop() {
 func (c *Cluster) detectFailures() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	now := time.Now()
-	
+
 	for id, node := range c.nodes {
 		if id == c.localNode.ID {
 			continue
 		}
-		
+
 		// 使用 Phi Accrual 故障检测器
 		phi := c.detector.Phi(id, now.Sub(node.LastHeartbeat))
 
@@ -296,7 +296,7 @@ func (c *Cluster) detectFailures() {
 // electionLoop 选举循环
 func (c *Cluster) electionLoop() {
 	defer c.wg.Done()
-	
+
 	for {
 		select {
 		case <-c.ctx.Done():
@@ -311,9 +311,9 @@ func (c *Cluster) electionLoop() {
 func (c *Cluster) performElection() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	c.logger.Info("Starting leader election")
-	
+
 	// 收集活跃节点
 	var activeNodes []*Node
 	for _, node := range c.nodes {
@@ -321,12 +321,12 @@ func (c *Cluster) performElection() {
 			activeNodes = append(activeNodes, node)
 		}
 	}
-	
+
 	if len(activeNodes) == 0 {
 		c.logger.Error("No active nodes for election")
 		return
 	}
-	
+
 	// 按优先级选择领导者
 	var bestCandidate *Node
 	for _, node := range activeNodes {
@@ -334,7 +334,7 @@ func (c *Cluster) performElection() {
 			bestCandidate = node
 		}
 	}
-	
+
 	if bestCandidate != nil {
 		// 更新所有节点角色
 		for _, node := range c.nodes {
@@ -344,7 +344,7 @@ func (c *Cluster) performElection() {
 				node.Role = NodeRoleFollower
 			}
 		}
-		
+
 		c.leader = bestCandidate
 		c.logger.Info("Leader elected",
 			zap.String("leader_id", bestCandidate.ID),
@@ -356,10 +356,10 @@ func (c *Cluster) performElection() {
 // splitBrainDetectionLoop 脑裂检测循环
 func (c *Cluster) splitBrainDetectionLoop() {
 	defer c.wg.Done()
-	
+
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-c.ctx.Done():
@@ -374,7 +374,7 @@ func (c *Cluster) splitBrainDetectionLoop() {
 func (c *Cluster) checkSplitBrain() {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	// 收集活跃节点
 	var activeNodes []*Node
 	for _, node := range c.nodes {
@@ -382,7 +382,7 @@ func (c *Cluster) checkSplitBrain() {
 			activeNodes = append(activeNodes, node)
 		}
 	}
-	
+
 	// 检查是否存在多个领导者
 	leaderCount := 0
 	for _, node := range activeNodes {
@@ -390,14 +390,14 @@ func (c *Cluster) checkSplitBrain() {
 			leaderCount++
 		}
 	}
-	
+
 	if leaderCount > 1 {
 		c.logger.Error("Split brain detected",
 			zap.Int("leaders", leaderCount),
 		)
 		c.splitBrainGuard.HandleSplitBrain(activeNodes)
 	}
-	
+
 	// 检查网络分区
 	if len(activeNodes) < c.config.SplitBrainThreshold {
 		c.logger.Warn("Network partition suspected",
@@ -412,7 +412,7 @@ func (c *Cluster) checkSplitBrain() {
 func (c *Cluster) GetLeader() (*Node, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	if c.leader == nil {
 		return nil, ErrNoLeader
 	}
@@ -423,7 +423,7 @@ func (c *Cluster) GetLeader() (*Node, error) {
 func (c *Cluster) GetNodes() []*Node {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	nodes := make([]*Node, 0, len(c.nodes))
 	for _, node := range c.nodes {
 		nodes = append(nodes, node)
@@ -435,7 +435,7 @@ func (c *Cluster) GetNodes() []*Node {
 func (c *Cluster) GetNode(id string) (*Node, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	node, ok := c.nodes[id]
 	if !ok {
 		return nil, ErrNodeNotFound
@@ -447,7 +447,7 @@ func (c *Cluster) GetNode(id string) (*Node, error) {
 func (c *Cluster) IsLeader() bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	return c.localNode.Role == NodeRoleLeader
 }
 
@@ -455,33 +455,33 @@ func (c *Cluster) IsLeader() bool {
 func (c *Cluster) GetLocalNode() *Node {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	return c.localNode
 }
 
 // ClusterStats 集群统计
 type ClusterStats struct {
-	TotalNodes   int `json:"total_nodes"`
-	ActiveNodes  int `json:"active_nodes"`
-	FailedNodes  int `json:"failed_nodes"`
-	LeaderID     string `json:"leader_id"`
-	IsLeader     bool  `json:"is_leader"`
+	TotalNodes  int    `json:"total_nodes"`
+	ActiveNodes int    `json:"active_nodes"`
+	FailedNodes int    `json:"failed_nodes"`
+	LeaderID    string `json:"leader_id"`
+	IsLeader    bool   `json:"is_leader"`
 }
 
 // GetStats 获取集群统计
 func (c *Cluster) GetStats() ClusterStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	stats := ClusterStats{
 		TotalNodes: len(c.nodes),
 		IsLeader:   c.localNode.Role == NodeRoleLeader,
 	}
-	
+
 	if c.leader != nil {
 		stats.LeaderID = c.leader.ID
 	}
-	
+
 	for _, node := range c.nodes {
 		switch node.State {
 		case NodeStateActive:
@@ -490,6 +490,6 @@ func (c *Cluster) GetStats() ClusterStats {
 			stats.FailedNodes++
 		}
 	}
-	
+
 	return stats
 }

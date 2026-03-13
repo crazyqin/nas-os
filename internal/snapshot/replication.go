@@ -1092,12 +1092,12 @@ func (rm *ReplicationManager) SetHooks(hooks ReplicationHooks) {
 
 // TransferRequest 传输请求
 type TransferRequest struct {
-	SnapshotName string              `json:"snapshotName"`
-	Volume       string              `json:"volume"`
-	Path         string              `json:"path"`
+	SnapshotName string               `json:"snapshotName"`
+	Volume       string               `json:"volume"`
+	Path         string               `json:"path"`
 	Manifest     *IncrementalManifest `json:"manifest"`
-	Compress     bool                `json:"compress"`
-	Encrypt      bool                `json:"encrypt"`
+	Compress     bool                 `json:"compress"`
+	Encrypt      bool                 `json:"encrypt"`
 }
 
 // ReplicationServer 复制服务端

@@ -81,10 +81,10 @@ func (n *HANode) GetState() NodeState {
 
 // HACluster 高可用集群
 type HACluster struct {
-	mu        sync.RWMutex
-	nodes     map[string]*HANode
-	leader    string
-	term      uint64
+	mu     sync.RWMutex
+	nodes  map[string]*HANode
+	leader string
+	term   uint64
 }
 
 func NewHACluster() *HACluster {

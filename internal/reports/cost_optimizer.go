@@ -12,27 +12,27 @@ import (
 type WasteType string
 
 const (
-	WasteTypeDuplicate   WasteType = "duplicate"   // 重复文件
-	WasteTypeOrphan      WasteType = "orphan"      // 孤立文件
-	WasteTypeExpired     WasteType = "expired"     // 过期数据
-	WasteTypeTemp        WasteType = "temp"        // 临时文件
-	WasteTypeUnused      WasteType = "unused"      // 未使用配额
+	WasteTypeDuplicate       WasteType = "duplicate"        // 重复文件
+	WasteTypeOrphan          WasteType = "orphan"           // 孤立文件
+	WasteTypeExpired         WasteType = "expired"          // 过期数据
+	WasteTypeTemp            WasteType = "temp"             // 临时文件
+	WasteTypeUnused          WasteType = "unused"           // 未使用配额
 	WasteTypeOverProvisioned WasteType = "over_provisioned" // 过度分配
-	WasteTypeSnapshot    WasteType = "snapshot"    // 过多快照
-	WasteTypeOldVersion  WasteType = "old_version" // 旧版本文件
+	WasteTypeSnapshot        WasteType = "snapshot"         // 过多快照
+	WasteTypeOldVersion      WasteType = "old_version"      // 旧版本文件
 )
 
 // OptimizationType 优化类型
 type OptimizationType string
 
 const (
-	OptimizationTypeCleanup    OptimizationType = "cleanup"    // 清理
-	OptimizationTypeCompress   OptimizationType = "compress"   // 压缩
-	OptimizationTypeDedupe     OptimizationType = "dedupe"     // 去重
-	OptimizationTypeTiering    OptimizationType = "tiering"    // 分层存储
-	OptimizationTypeQuota      OptimizationType = "quota"      // 配额调整
-	OptimizationTypeArchive    OptimizationType = "archive"    // 归档
-	OptimizationTypeResize     OptimizationType = "resize"     // 卷调整
+	OptimizationTypeCleanup  OptimizationType = "cleanup"  // 清理
+	OptimizationTypeCompress OptimizationType = "compress" // 压缩
+	OptimizationTypeDedupe   OptimizationType = "dedupe"   // 去重
+	OptimizationTypeTiering  OptimizationType = "tiering"  // 分层存储
+	OptimizationTypeQuota    OptimizationType = "quota"    // 配额调整
+	OptimizationTypeArchive  OptimizationType = "archive"  // 归档
+	OptimizationTypeResize   OptimizationType = "resize"   // 卷调整
 )
 
 // WasteItem 浪费项
@@ -228,7 +228,7 @@ func NewCostOptimizer(config StorageCostConfig) *CostOptimizer {
 // AnalyzeWaste 分析浪费
 func (o *CostOptimizer) AnalyzeWaste(items []WasteItem, totalCapacity uint64) WasteSummary {
 	summary := WasteSummary{
-		ByType:    make(map[WasteType]uint64),
+		ByType:     make(map[WasteType]uint64),
 		ItemCounts: make(map[WasteType]int),
 	}
 

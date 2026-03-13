@@ -14,7 +14,7 @@ type SplitBrainGuard struct {
 	events       []SplitBrainEvent
 	mu           sync.RWMutex
 	logger       *zap.Logger
-	
+
 	// 仲裁相关
 	quorumSize      int
 	lastQuorumCheck time.Time
@@ -23,22 +23,22 @@ type SplitBrainGuard struct {
 
 // PartitionInfo 分区信息
 type PartitionInfo struct {
-	NodeID        string    `json:"node_id"`
-	DetectedAt    time.Time `json:"detected_at"`
-	ResolvedAt    time.Time `json:"resolved_at,omitempty"`
-	PartitionID   string    `json:"partition_id"`
-	IsLeader      bool      `json:"is_leader"`
-	ActiveNodes   []string  `json:"active_nodes"`
+	NodeID      string    `json:"node_id"`
+	DetectedAt  time.Time `json:"detected_at"`
+	ResolvedAt  time.Time `json:"resolved_at,omitempty"`
+	PartitionID string    `json:"partition_id"`
+	IsLeader    bool      `json:"is_leader"`
+	ActiveNodes []string  `json:"active_nodes"`
 }
 
 // SplitBrainEvent 脑裂事件
 type SplitBrainEvent struct {
-	Timestamp    time.Time `json:"timestamp"`
-	Type         string    `json:"type"` // "detected", "resolved", "partition"
-	Description  string    `json:"description"`
-	Leaders      []string  `json:"leaders,omitempty"`
-	Partitions   []string  `json:"partitions,omitempty"`
-	Resolution   string    `json:"resolution,omitempty"`
+	Timestamp   time.Time `json:"timestamp"`
+	Type        string    `json:"type"` // "detected", "resolved", "partition"
+	Description string    `json:"description"`
+	Leaders     []string  `json:"leaders,omitempty"`
+	Partitions  []string  `json:"partitions,omitempty"`
+	Resolution  string    `json:"resolution,omitempty"`
 }
 
 // QuorumStatus 仲裁状态
@@ -66,7 +66,7 @@ func NewSplitBrainGuard(threshold int, logger *zap.Logger) *SplitBrainGuard {
 func (sbg *SplitBrainGuard) HandleSplitBrain(activeNodes []*Node) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
-	
+
 	// 收集领导者
 	var leaders []string
 	for _, node := range activeNodes {
@@ -74,11 +74,11 @@ func (sbg *SplitBrainGuard) HandleSplitBrain(activeNodes []*Node) {
 			leaders = append(leaders, node.ID)
 		}
 	}
-	
+
 	if len(leaders) <= 1 {
 		return // 没有脑裂
 	}
-	
+
 	// 记录脑裂事件
 	event := SplitBrainEvent{
 		Timestamp:   time.Now(),
@@ -87,12 +87,12 @@ func (sbg *SplitBrainGuard) HandleSplitBrain(activeNodes []*Node) {
 		Leaders:     leaders,
 	}
 	sbg.events = append(sbg.events, event)
-	
+
 	sbg.logger.Error("Split brain detected",
 		zap.Strings("leaders", leaders),
 		zap.Int("active_nodes", len(activeNodes)),
 	)
-	
+
 	// 执行脑裂解决策略
 	sbg.resolveSplitBrain(activeNodes, leaders)
 }
@@ -108,12 +108,12 @@ func (sbg *SplitBrainGuard) resolveSplitBrain(activeNodes []*Node, leaders []str
 			}
 		}
 	}
-	
+
 	if bestLeader == nil {
 		sbg.logger.Error("No valid leader found during split brain resolution")
 		return
 	}
-	
+
 	// 降级其他领导者
 	for _, node := range activeNodes {
 		if node.Role == NodeRoleLeader && node.ID != bestLeader.ID {
@@ -124,7 +124,7 @@ func (sbg *SplitBrainGuard) resolveSplitBrain(activeNodes []*Node, leaders []str
 			)
 		}
 	}
-	
+
 	// 记录解决事件
 	event := SplitBrainEvent{
 		Timestamp:   time.Now(),
@@ -134,7 +134,7 @@ func (sbg *SplitBrainGuard) resolveSplitBrain(activeNodes []*Node, leaders []str
 		Resolution:  "Selected highest priority leader",
 	}
 	sbg.events = append(sbg.events, event)
-	
+
 	sbg.logger.Info("Split brain resolved",
 		zap.String("elected_leader", bestLeader.ID),
 	)
@@ -144,19 +144,19 @@ func (sbg *SplitBrainGuard) resolveSplitBrain(activeNodes []*Node, leaders []str
 func (sbg *SplitBrainGuard) HandlePartition(activeNodes []*Node) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
-	
+
 	// 检查仲裁
 	quorum := sbg.checkQuorumInternal(len(activeNodes))
-	
+
 	if !quorum.CanProceed {
 		event := SplitBrainEvent{
-			Timestamp:    time.Now(),
-			Type:         "partition",
-			Description:  "Network partition detected, quorum lost",
-			Partitions:   getNodeIDs(activeNodes),
+			Timestamp:   time.Now(),
+			Type:        "partition",
+			Description: "Network partition detected, quorum lost",
+			Partitions:  getNodeIDs(activeNodes),
 		}
 		sbg.events = append(sbg.events, event)
-		
+
 		sbg.logger.Warn("Network partition detected, entering read-only mode",
 			zap.Int("active_nodes", len(activeNodes)),
 			zap.Int("required_quorum", sbg.quorumSize),
@@ -178,7 +178,7 @@ func (sbg *SplitBrainGuard) checkQuorumInternal(activeCount int) QuorumStatus {
 	sbg.lastQuorumCheck = time.Now()
 	required := sbg.quorumSize
 	sbg.quorumHealthy = activeCount >= required
-	
+
 	return QuorumStatus{
 		Healthy:       sbg.quorumHealthy,
 		TotalNodes:    -1, // 需要从外部获取
@@ -193,11 +193,11 @@ func (sbg *SplitBrainGuard) checkQuorumInternal(activeCount int) QuorumStatus {
 func (sbg *SplitBrainGuard) CheckQuorum(totalNodes, activeNodes int) QuorumStatus {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
-	
+
 	sbg.quorumSize = totalNodes/2 + 1
 	sbg.lastQuorumCheck = time.Now()
 	sbg.quorumHealthy = activeNodes >= sbg.quorumSize
-	
+
 	return QuorumStatus{
 		Healthy:       sbg.quorumHealthy,
 		TotalNodes:    totalNodes,
@@ -212,7 +212,7 @@ func (sbg *SplitBrainGuard) CheckQuorum(totalNodes, activeNodes int) QuorumStatu
 func (sbg *SplitBrainGuard) CanCommit(activeNodes int) bool {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
-	
+
 	return activeNodes >= sbg.quorumSize
 }
 
@@ -220,17 +220,17 @@ func (sbg *SplitBrainGuard) CanCommit(activeNodes int) bool {
 func (sbg *SplitBrainGuard) GetEvents(limit int) []SplitBrainEvent {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
-	
+
 	if limit <= 0 || limit > len(sbg.events) {
 		limit = len(sbg.events)
 	}
-	
+
 	// 返回最近的事件
 	start := len(sbg.events) - limit
 	if start < 0 {
 		start = 0
 	}
-	
+
 	result := make([]SplitBrainEvent, limit)
 	copy(result, sbg.events[start:])
 	return result
@@ -240,14 +240,14 @@ func (sbg *SplitBrainGuard) GetEvents(limit int) []SplitBrainEvent {
 func (sbg *SplitBrainGuard) GetStatus() map[string]interface{} {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
-	
+
 	return map[string]interface{}{
-		"threshold":        sbg.threshold,
-		"quorum_size":      sbg.quorumSize,
-		"quorum_healthy":   sbg.quorumHealthy,
+		"threshold":         sbg.threshold,
+		"quorum_size":       sbg.quorumSize,
+		"quorum_healthy":    sbg.quorumHealthy,
 		"last_quorum_check": sbg.lastQuorumCheck,
-		"partition_count":  len(sbg.partitionMap),
-		"event_count":      len(sbg.events),
+		"partition_count":   len(sbg.partitionMap),
+		"event_count":       len(sbg.events),
 	}
 }
 
@@ -255,7 +255,7 @@ func (sbg *SplitBrainGuard) GetStatus() map[string]interface{} {
 func (sbg *SplitBrainGuard) ClearEvents() {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
-	
+
 	sbg.events = make([]SplitBrainEvent, 0)
 }
 
@@ -263,17 +263,17 @@ func (sbg *SplitBrainGuard) ClearEvents() {
 func (sbg *SplitBrainGuard) RecordPartition(nodeID string, partitionID string, isLeader bool, activeNodes []string) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
-	
+
 	info := &PartitionInfo{
-		NodeID:       nodeID,
-		DetectedAt:   time.Now(),
-		PartitionID:  partitionID,
-		IsLeader:     isLeader,
-		ActiveNodes:  activeNodes,
+		NodeID:      nodeID,
+		DetectedAt:  time.Now(),
+		PartitionID: partitionID,
+		IsLeader:    isLeader,
+		ActiveNodes: activeNodes,
 	}
-	
+
 	sbg.partitionMap[nodeID] = info
-	
+
 	sbg.logger.Info("Partition recorded",
 		zap.String("node_id", nodeID),
 		zap.String("partition_id", partitionID),
@@ -285,11 +285,11 @@ func (sbg *SplitBrainGuard) RecordPartition(nodeID string, partitionID string, i
 func (sbg *SplitBrainGuard) ResolvePartition(nodeID string) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
-	
+
 	if info, exists := sbg.partitionMap[nodeID]; exists {
 		info.ResolvedAt = time.Now()
 		delete(sbg.partitionMap, nodeID)
-		
+
 		sbg.logger.Info("Partition resolved",
 			zap.String("node_id", nodeID),
 			zap.Duration("duration", time.Since(info.DetectedAt)),
@@ -301,7 +301,7 @@ func (sbg *SplitBrainGuard) ResolvePartition(nodeID string) {
 func (sbg *SplitBrainGuard) GetActivePartitions() []*PartitionInfo {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
-	
+
 	partitions := make([]*PartitionInfo, 0, len(sbg.partitionMap))
 	for _, info := range sbg.partitionMap {
 		if info.ResolvedAt.IsZero() {
@@ -315,7 +315,7 @@ func (sbg *SplitBrainGuard) GetActivePartitions() []*PartitionInfo {
 func (sbg *SplitBrainGuard) IsQuorumHealthy() bool {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
-	
+
 	return sbg.quorumHealthy
 }
 
@@ -323,7 +323,7 @@ func (sbg *SplitBrainGuard) IsQuorumHealthy() bool {
 func (sbg *SplitBrainGuard) SetQuorumSize(size int) {
 	sbg.mu.Lock()
 	defer sbg.mu.Unlock()
-	
+
 	sbg.quorumSize = size
 	sbg.threshold = size
 }
@@ -333,12 +333,12 @@ func (sbg *SplitBrainGuard) SetQuorumSize(size int) {
 func (sbg *SplitBrainGuard) ValidateOperation(opType string, activeNodes int) error {
 	sbg.mu.RLock()
 	defer sbg.mu.RUnlock()
-	
+
 	// 读操作通常不需要仲裁检查
 	if opType == "read" {
 		return nil
 	}
-	
+
 	// 写操作需要仲裁
 	if !sbg.CanCommit(activeNodes) {
 		sbg.logger.Warn("Operation rejected due to insufficient quorum",
@@ -348,6 +348,6 @@ func (sbg *SplitBrainGuard) ValidateOperation(opType string, activeNodes int) er
 		)
 		return ErrClusterNotReady
 	}
-	
+
 	return nil
 }
