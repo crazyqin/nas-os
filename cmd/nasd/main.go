@@ -146,7 +146,7 @@ func main() {
 	}
 
 	// 初始化下载管理器
-	downloadMgr, err := downloader.NewManager("/var/lib/nas-os/downloads")
+	downloadMgr, err := downloader.NewManager("/var/lib/nas-os/downloads", logger)
 	if err != nil {
 		log.Printf("⚠️ 下载管理初始化警告：%v", err)
 	} else {
