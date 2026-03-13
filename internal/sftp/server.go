@@ -375,7 +375,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 	// 处理通道请求
 	for newChannel := range chans {
 		if newChannel.ChannelType() != "session" {
-			newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
+			_ = newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
 			continue
 		}
 
@@ -410,28 +410,28 @@ func (s *Server) handleSession(newChannel ssh.NewChannel, sshConn *ssh.ServerCon
 				Name string
 			}
 			if err := ssh.Unmarshal(req.Payload, &payload); err != nil {
-				req.Reply(false, nil)
+				_ = req.Reply(false, nil)
 				continue
 			}
 
 			if payload.Name == "sftp" {
-				req.Reply(true, nil)
+				_ = req.Reply(true, nil)
 				// 启动 SFTP 处理
 				s.handleSFTP(channel, username, homeDir)
 			} else {
-				req.Reply(false, nil)
+				_ = req.Reply(false, nil)
 			}
 		case "exec":
 			// 不允许执行命令
-			req.Reply(false, nil)
+			_ = req.Reply(false, nil)
 		case "shell":
 			// 不允许交互式 shell
-			req.Reply(false, nil)
+			_ = req.Reply(false, nil)
 		case "pty-req":
 			// 不允许 PTY
-			req.Reply(false, nil)
+			_ = req.Reply(false, nil)
 		default:
-			req.Reply(false, nil)
+			_ = req.Reply(false, nil)
 		}
 	}
 }

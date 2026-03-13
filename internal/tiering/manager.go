@@ -657,7 +657,7 @@ func (m *Manager) executeAutoPolicies() {
 
 	for _, policy := range policies {
 		// 异步执行
-		go m.ExecutePolicy(policy.ID)
+		go func() { _, _ = m.ExecutePolicy(policy.ID) }()
 
 		// 更新下次执行时间
 		m.mu.Lock()
