@@ -443,7 +443,7 @@ func (m *Manager) checkCloudConnection(cfg *CloudConfig) error {
 		return err
 	}
 	if !result.Success {
-		return fmt.Errorf(result.Message)
+		return fmt.Errorf("%s", result.Message)
 	}
 	return nil
 }
