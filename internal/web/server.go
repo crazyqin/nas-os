@@ -17,7 +17,6 @@ import (
 	"nas-os/internal/notify"
 	"nas-os/internal/optimizer"
 	"nas-os/internal/perf"
-	"nas-os/internal/trash"
 	"nas-os/internal/photos"
 	"nas-os/internal/plugin"
 	"nas-os/internal/quota"
@@ -25,6 +24,7 @@ import (
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/system"
+	"nas-os/internal/trash"
 	"nas-os/internal/users"
 	"nas-os/internal/vm"
 

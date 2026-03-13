@@ -25,10 +25,10 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		trash.GET("/stats", h.getStats)
 		trash.GET("/config", h.getConfig)
 		trash.PUT("/config", h.updateConfig)
-		
+
 		trash.POST("/:id/restore", h.restore)
 		trash.DELETE("/:id", h.deletePermanently)
-		
+
 		trash.DELETE("", h.empty)
 	}
 }
@@ -100,10 +100,10 @@ func (h *Handlers) getConfig(c *gin.Context) {
 
 // UpdateConfigRequest 更新配置请求
 type UpdateConfigRequest struct {
-	Enabled       *bool   `json:"enabled"`
-	RetentionDays *int    `json:"retention_days"`
-	MaxSize       *int64  `json:"max_size"`
-	AutoEmpty     *bool   `json:"auto_empty"`
+	Enabled       *bool  `json:"enabled"`
+	RetentionDays *int   `json:"retention_days"`
+	MaxSize       *int64 `json:"max_size"`
+	AutoEmpty     *bool  `json:"auto_empty"`
 }
 
 // updateConfig 更新配置
