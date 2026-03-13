@@ -414,7 +414,7 @@ func (pm *PolicyManager) UpdatePolicy(id string, updates *Policy) error {
 	if existing.Type == PolicyTypeScheduled {
 		pm.scheduler.RemoveJob(id)
 		if updates.Enabled && updates.Type == PolicyTypeScheduled {
-			pm.scheduler.AddJob(updates)
+			_ = pm.scheduler.AddJob(updates)
 		}
 	}
 

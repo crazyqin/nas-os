@@ -1,6 +1,7 @@
 package snapshot
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"time"
@@ -77,11 +78,15 @@ func (e *SnapshotExecutor) generateSnapshotName(policy *Policy) string {
 
 // runScript 执行脚本
 func (e *SnapshotExecutor) runScript(script string, timeoutSeconds int) error {
-	if timeoutSeconds <= 0 {
-		timeoutSeconds = 300 // 默认 5 分钟
+	timeout := 300 // 默认 5 分钟
+	if timeoutSeconds > 0 {
+		timeout = timeoutSeconds
 	}
 
-	cmd := exec.Command("sh", "-c", script)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, "sh", "-c", script)
 	cmd.Env = append(cmd.Env,
 		"SNAPSHOT_TIMESTAMP="+time.Now().Format(time.RFC3339),
 		"SNAPSHOT_SCRIPT_TYPE=snapshot",

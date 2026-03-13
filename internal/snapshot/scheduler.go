@@ -88,7 +88,7 @@ func (s *Scheduler) AddJob(policy *Policy) error {
 		if !p.Enabled {
 			return
 		}
-		s.policyManager.ExecutePolicy(policyID)
+		_, _ = s.policyManager.ExecutePolicy(policyID)
 	})
 
 	if err != nil {
