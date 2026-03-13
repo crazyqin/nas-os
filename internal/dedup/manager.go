@@ -425,12 +425,13 @@ func (m *Manager) extractUserFromPath(path string) string {
 	}
 
 	for _, pattern := range patterns {
-		if strings.Contains(path, pattern) {
-			parts := strings.Split(path, "/")
-			for i, p := range parts {
-				if p == strings.Trim(pattern, "/") && i+1 < len(parts) {
-					return parts[i+1]
-				}
+		idx := strings.Index(path, pattern)
+		if idx != -1 {
+			// 找到模式后的路径部分
+			afterPattern := path[idx+len(pattern):]
+			parts := strings.SplitN(afterPattern, "/", 2)
+			if len(parts) > 0 && parts[0] != "" {
+				return parts[0]
 			}
 		}
 	}
@@ -651,6 +652,9 @@ func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult,
 			Savings:    group.Size * int64(len(group.Files)-1),
 		}
 
+		// 计算潜在节省空间（无论是 dry run 还是实际执行）
+		result.TotalSaved += groupResult.Savings
+
 		if !dryRun {
 			// 执行去重
 			for i := 1; i < len(group.Files); i++ {
@@ -667,7 +671,6 @@ func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult,
 					}
 				}
 			}
-			result.TotalSaved += groupResult.Savings
 		}
 
 		result.Groups = append(result.Groups, groupResult)
@@ -1114,15 +1117,33 @@ func (m *Manager) DeleteChunk(hash string) error {
 	}
 
 	chunk.RefCount--
-	if chunk.RefCount <= 0 {
-		// 删除存储的块数据
-		if chunk.StorePath != "" {
-			os.Remove(chunk.StorePath)
-		}
-		delete(m.chunks, hash)
-		m.stats.ChunksStored--
-		m.stats.ChunkDataSize -= chunk.Size
+	if chunk.RefCount < 0 {
+		chunk.RefCount = 0
 	}
+	
+	// 只有当引用计数为0且明确需要清理时才删除
+	// 这里保持块存在但引用计数为0，以便后续可能的重新引用
+
+	return nil
+}
+
+// ForceDeleteChunk 强制删除数据块（无论引用计数）
+func (m *Manager) ForceDeleteChunk(hash string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	chunk, exists := m.chunks[hash]
+	if !exists {
+		return fmt.Errorf("块不存在：%s", hash)
+	}
+
+	// 删除存储的块数据
+	if chunk.StorePath != "" {
+		os.Remove(chunk.StorePath)
+	}
+	delete(m.chunks, hash)
+	m.stats.ChunksStored--
+	m.stats.ChunkDataSize -= chunk.Size
 
 	return nil
 }
