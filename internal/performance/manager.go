@@ -63,7 +63,7 @@ func NewManager(logger *zap.Logger, config Config) *Manager {
 	m.health = NewHealthChecker(logger, m.collector, m.storage)
 	m.monitor = NewPerformanceMonitor(logger)
 	m.alerts = NewAlertManager(logger, m.collector, m.storage, m.health)
-	m.prometheus = NewPrometheusExporter(m.monitor)
+	m.prometheus = NewPrometheusExporterExtended(m.monitor, m.collector, m.storage, m.health, m.alerts)
 
 	return m
 }
