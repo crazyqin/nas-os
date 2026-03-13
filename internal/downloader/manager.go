@@ -253,8 +253,31 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 
 	// 删除文件
 	if deleteFiles && task.DestPath != "" {
-		// TODO: 实际删除文件逻辑
-		// 当前为空实现，避免 staticcheck 警告
+		// 构建完整文件路径
+		filePath := filepath.Join(task.DestPath, task.Name)
+		
+		// 检查文件是否存在
+		if info, err := os.Stat(filePath); err == nil {
+			if info.IsDir() {
+				// 删除目录（BT 下载可能是文件夹）
+				if err := os.RemoveAll(filePath); err != nil {
+					return fmt.Errorf("删除目录失败：%w", err)
+				}
+			} else {
+				// 删除文件
+				if err := os.Remove(filePath); err != nil {
+					return fmt.Errorf("删除文件失败：%w", err)
+				}
+			}
+		}
+		
+		// 如果配置了 Transmission/qBittorrent，从客户端也删除
+		if m.transmissionURL != "" && task.Type == TypeBT {
+			// TODO: 调用 Transmission API 删除种子
+		}
+		if m.qbittorrentURL != "" && task.Type == TypeBT {
+			// TODO: 调用 qBittorrent API 删除种子
+		}
 	}
 
 	delete(m.tasks, id)
