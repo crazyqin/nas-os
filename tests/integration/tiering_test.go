@@ -4,6 +4,7 @@ package integration
 
 import (
 	"context"
+	"sort"
 	"sync"
 	"testing"
 	"time"
@@ -81,6 +82,10 @@ func (m *MockTieringManager) ListTiers() ([]*tiering.TierConfig, error) {
 	for _, t := range m.tiers {
 		tiers = append(tiers, t)
 	}
+	// 按优先级降序排序（优先级高的在前）
+	sort.Slice(tiers, func(i, j int) bool {
+		return tiers[i].Priority > tiers[j].Priority
+	})
 	return tiers, nil
 }
 

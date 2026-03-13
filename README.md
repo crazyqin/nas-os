@@ -2,9 +2,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.4.0 Stable (2026-03-14)
+> **最新版本**: v2.5.0 Stable (2026-03-14)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.4.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.5.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -203,6 +203,7 @@ nas-os/
 | **v2.2.0** | **Stable** | **2026-03-21** | **iSCSI/快照策略/仪表板增强/性能监控** | ✅ **已发布** |
 | **v2.3.0** | **Stable** | **2026-03-28** | **存储分层/FTP-SFTP/压缩存储/文件标签** | ✅ **已发布** |
 | **v2.4.0** | **Stable** | **2026-03-14** | **集成测试完善/文档更新** | ✅ **已发布** |
+| **v2.5.0** | **Stable** | **2026-03-14** | **快照复制/高可用/备份恢复集成测试** | ✅ **已发布** |
 
 ## v2.3.0 新增功能
 
