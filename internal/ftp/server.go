@@ -452,24 +452,24 @@ func (c *clientConn) handleCommand(cmd, args string) {
 	case "NOOP":
 		_ = c.writeResponse(200, "OK")
 	default:
-		c.writeResponse(500, fmt.Sprintf("Unknown command: %s", cmd))
+		_ = c.writeResponse(500, fmt.Sprintf("Unknown command: %s", cmd))
 	}
 }
 
 // handleUSER 处理 USER 命令
 func (c *clientConn) handleUSER(username string) {
 	if username == "" {
-		c.writeResponse(500, "USER requires a username")
+		_ = c.writeResponse(500, "USER requires a username")
 		return
 	}
 	c.user = username
-	c.writeResponse(331, "Password required")
+	_ = c.writeResponse(331, "Password required")
 }
 
 // handlePASS 处理 PASS 命令
 func (c *clientConn) handlePASS(password string) {
 	if c.user == "" {
-		c.writeResponse(503, "Login with USER first")
+		_ = c.writeResponse(503, "Login with USER first")
 		return
 	}
 
@@ -479,10 +479,10 @@ func (c *clientConn) handlePASS(password string) {
 			c.loggedIn = true
 			c.homeDir = c.server.config.RootPath
 			c.currentDir = "/"
-			c.writeResponse(230, "Anonymous login successful")
+			_ = c.writeResponse(230, "Anonymous login successful")
 			return
 		}
-		c.writeResponse(530, "Anonymous login not allowed")
+		_ = c.writeResponse(530, "Anonymous login not allowed")
 		return
 	}
 
@@ -497,17 +497,17 @@ func (c *clientConn) handlePASS(password string) {
 			c.homeDir = c.server.config.RootPath
 		}
 		c.currentDir = "/"
-		c.writeResponse(230, "Login successful")
+		_ = c.writeResponse(230, "Login successful")
 		return
 	}
 
-	c.writeResponse(530, "Login failed")
+	_ = c.writeResponse(530, "Login failed")
 	c.user = ""
 }
 
 // handleQUIT 处理 QUIT 命令
 func (c *clientConn) handleQUIT() {
-	c.writeResponse(221, "Goodbye")
+	_ = c.writeResponse(221, "Goodbye")
 	c.close()
 }
 
@@ -521,16 +521,16 @@ func (c *clientConn) handleFEAT() {
 		" SIZE",
 		" UTF8",
 	}
-	c.writeResponse(211, "Features:")
+	_ = c.writeResponse(211, "Features:")
 	for _, f := range features {
-		c.writeResponse(0, f)
+		_ = c.writeResponse(0, f)
 	}
-	c.writeResponse(211, "End")
+	_ = c.writeResponse(211, "End")
 }
 
 // handlePWD 处理 PWD 命令
 func (c *clientConn) handlePWD() {
-	c.writeResponse(257, fmt.Sprintf(`"%s" is current directory`, c.currentDir))
+	_ = c.writeResponse(257, fmt.Sprintf(`"%s" is current directory`, c.currentDir))
 }
 
 // handleCWD 处理 CWD 命令
@@ -539,25 +539,25 @@ func (c *clientConn) handleCWD(path string) {
 
 	info, err := os.Stat(realPath)
 	if err != nil || !info.IsDir() {
-		c.writeResponse(550, "Directory not found")
+		_ = c.writeResponse(550, "Directory not found")
 		return
 	}
 
 	c.currentDir = c.normalizePath(path)
-	c.writeResponse(250, "Directory changed")
+	_ = c.writeResponse(250, "Directory changed")
 }
 
 // handleCDUP 处理 CDUP 命令
 func (c *clientConn) handleCDUP() {
 	if c.currentDir == "/" {
-		c.writeResponse(250, "Directory not changed")
+		_ = c.writeResponse(250, "Directory not changed")
 		return
 	}
 	c.currentDir = filepath.Dir(c.currentDir)
 	if c.currentDir == "." {
 		c.currentDir = "/"
 	}
-	c.writeResponse(250, "Directory changed")
+	_ = c.writeResponse(250, "Directory changed")
 }
 
 // handleMKD 处理 MKD 命令
@@ -565,11 +565,11 @@ func (c *clientConn) handleMKD(path string) {
 	realPath := c.resolvePath(path)
 
 	if err := os.MkdirAll(realPath, 0755); err != nil {
-		c.writeResponse(550, fmt.Sprintf("Failed to create directory: %v", err))
+		_ = c.writeResponse(550, fmt.Sprintf("Failed to create directory: %v", err))
 		return
 	}
 
-	c.writeResponse(257, fmt.Sprintf(`"%s" created`, path))
+	_ = c.writeResponse(257, fmt.Sprintf(`"%s" created`, path))
 }
 
 // handleRMD 处理 RMD 命令
@@ -577,11 +577,11 @@ func (c *clientConn) handleRMD(path string) {
 	realPath := c.resolvePath(path)
 
 	if err := os.RemoveAll(realPath); err != nil {
-		c.writeResponse(550, fmt.Sprintf("Failed to remove directory: %v", err))
+		_ = c.writeResponse(550, fmt.Sprintf("Failed to remove directory: %v", err))
 		return
 	}
 
-	c.writeResponse(250, "Directory removed")
+	_ = c.writeResponse(250, "Directory removed")
 }
 
 // handleDELE 处理 DELE 命令
@@ -589,11 +589,11 @@ func (c *clientConn) handleDELE(path string) {
 	realPath := c.resolvePath(path)
 
 	if err := os.Remove(realPath); err != nil {
-		c.writeResponse(550, fmt.Sprintf("Failed to delete file: %v", err))
+		_ = c.writeResponse(550, fmt.Sprintf("Failed to delete file: %v", err))
 		return
 	}
 
-	c.writeResponse(250, "File deleted")
+	_ = c.writeResponse(250, "File deleted")
 }
 
 var renameFrom string
@@ -603,31 +603,31 @@ func (c *clientConn) handleRNFR(path string) {
 	realPath := c.resolvePath(path)
 
 	if _, err := os.Stat(realPath); err != nil {
-		c.writeResponse(550, "File not found")
+		_ = c.writeResponse(550, "File not found")
 		return
 	}
 
 	renameFrom = realPath
-	c.writeResponse(350, "Ready for RNTO")
+	_ = c.writeResponse(350, "Ready for RNTO")
 }
 
 // handleRNTO 处理 RNTO 命令
 func (c *clientConn) handleRNTO(path string) {
 	if renameFrom == "" {
-		c.writeResponse(503, "RNFR required first")
+		_ = c.writeResponse(503, "RNFR required first")
 		return
 	}
 
 	realPath := c.resolvePath(path)
 
 	if err := os.Rename(renameFrom, realPath); err != nil {
-		c.writeResponse(550, fmt.Sprintf("Failed to rename: %v", err))
+		_ = c.writeResponse(550, fmt.Sprintf("Failed to rename: %v", err))
 		renameFrom = ""
 		return
 	}
 
 	renameFrom = ""
-	c.writeResponse(250, "Rename successful")
+	_ = c.writeResponse(250, "Rename successful")
 }
 
 // handleLIST 处理 LIST 命令
@@ -640,17 +640,17 @@ func (c *clientConn) handleLIST(path string) {
 	// 获取数据连接
 	dataConn, err := c.getDataConnection()
 	if err != nil {
-		c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
+		_ = c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
 		return
 	}
 	defer dataConn.Close()
 
-	c.writeResponse(150, "Opening data connection for listing")
+	_ = c.writeResponse(150, "Opening data connection for listing")
 
 	// 列出目录
 	entries, err := os.ReadDir(realPath)
 	if err != nil {
-		c.writeResponse(550, fmt.Sprintf("Failed to list directory: %v", err))
+		_ = c.writeResponse(550, fmt.Sprintf("Failed to list directory: %v", err))
 		return
 	}
 
@@ -667,7 +667,7 @@ func (c *clientConn) handleLIST(path string) {
 	}
 	writer.Flush()
 
-	c.writeResponse(226, "Transfer complete")
+	_ = c.writeResponse(226, "Transfer complete")
 }
 
 // formatFileInfo 格式化文件信息
@@ -695,12 +695,12 @@ func (c *clientConn) handleTYPE(typ string) {
 	switch strings.ToUpper(typ) {
 	case "A":
 		c.binaryMode = false
-		c.writeResponse(200, "Type set to ASCII")
+		_ = c.writeResponse(200, "Type set to ASCII")
 	case "I":
 		c.binaryMode = true
-		c.writeResponse(200, "Type set to Binary")
+		_ = c.writeResponse(200, "Type set to Binary")
 	default:
-		c.writeResponse(500, fmt.Sprintf("Unsupported type: %s", typ))
+		_ = c.writeResponse(500, fmt.Sprintf("Unsupported type: %s", typ))
 	}
 }
 
@@ -708,7 +708,7 @@ func (c *clientConn) handleTYPE(typ string) {
 func (c *clientConn) handlePASV() {
 	port, listener, err := c.allocatePasvPort()
 	if err != nil {
-		c.writeResponse(425, fmt.Sprintf("Failed to enter passive mode: %v", err))
+		_ = c.writeResponse(425, fmt.Sprintf("Failed to enter passive mode: %v", err))
 		return
 	}
 
@@ -745,7 +745,7 @@ func (c *clientConn) handlePASV() {
 	response := fmt.Sprintf("Entering Passive Mode (%d,%d,%d,%d,%d,%d)",
 		ip[0], ip[1], ip[2], ip[3], p1, p2)
 
-	c.writeResponse(227, response)
+	_ = c.writeResponse(227, response)
 }
 
 // allocatePasvPort 分配被动模式端口
@@ -778,7 +778,7 @@ func (c *clientConn) handlePORT(args string) {
 	// 解析 PORT 参数: h1,h2,h3,h4,p1,p2
 	parts := strings.Split(args, ",")
 	if len(parts) != 6 {
-		c.writeResponse(500, "Invalid PORT format")
+		_ = c.writeResponse(500, "Invalid PORT format")
 		return
 	}
 
@@ -786,7 +786,7 @@ func (c *clientConn) handlePORT(args string) {
 	for _, p := range parts {
 		b, err := strconv.Atoi(p)
 		if err != nil {
-			c.writeResponse(500, "Invalid PORT format")
+			_ = c.writeResponse(500, "Invalid PORT format")
 			return
 		}
 		bytes = append(bytes, byte(b))
@@ -805,7 +805,7 @@ func (c *clientConn) handlePORT(args string) {
 	c.pasvPort = -port // 负数表示主动模式
 	c.pasvHost = ip
 
-	c.writeResponse(200, "PORT command successful")
+	_ = c.writeResponse(200, "PORT command successful")
 }
 
 // handleRETR 处理 RETR 命令（下载文件）
@@ -815,29 +815,29 @@ func (c *clientConn) handleRETR(path string) {
 	// 检查文件是否存在
 	info, err := os.Stat(realPath)
 	if err != nil {
-		c.writeResponse(550, "File not found")
+		_ = c.writeResponse(550, "File not found")
 		return
 	}
 
 	if info.IsDir() {
-		c.writeResponse(550, "Not a file")
+		_ = c.writeResponse(550, "Not a file")
 		return
 	}
 
 	// 获取数据连接
 	dataConn, err := c.getDataConnection()
 	if err != nil {
-		c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
+		_ = c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
 		return
 	}
 	defer dataConn.Close()
 
-	c.writeResponse(150, "Opening data connection for file transfer")
+	_ = c.writeResponse(150, "Opening data connection for file transfer")
 
 	// 打开文件
 	file, err := os.Open(realPath)
 	if err != nil {
-		c.writeResponse(550, fmt.Sprintf("Failed to open file: %v", err))
+		_ = c.writeResponse(550, fmt.Sprintf("Failed to open file: %v", err))
 		return
 	}
 	defer file.Close()
@@ -851,12 +851,12 @@ func (c *clientConn) handleRETR(path string) {
 	// 带限速的复制
 	written, err := c.copyWithLimit(dataConn, file, false)
 	if err != nil {
-		c.writeResponse(426, fmt.Sprintf("Transfer aborted: %v", err))
+		_ = c.writeResponse(426, fmt.Sprintf("Transfer aborted: %v", err))
 		return
 	}
 
 	_ = written
-	c.writeResponse(226, "Transfer complete")
+	_ = c.writeResponse(226, "Transfer complete")
 }
 
 // handleSTOR 处理 STOR 命令（上传文件）
@@ -866,17 +866,17 @@ func (c *clientConn) handleSTOR(path string) {
 	// 获取数据连接
 	dataConn, err := c.getDataConnection()
 	if err != nil {
-		c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
+		_ = c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
 		return
 	}
 	defer dataConn.Close()
 
-	c.writeResponse(150, "Opening data connection for file transfer")
+	_ = c.writeResponse(150, "Opening data connection for file transfer")
 
 	// 创建文件
 	file, err := os.Create(realPath)
 	if err != nil {
-		c.writeResponse(550, fmt.Sprintf("Failed to create file: %v", err))
+		_ = c.writeResponse(550, fmt.Sprintf("Failed to create file: %v", err))
 		return
 	}
 	defer file.Close()
@@ -890,23 +890,23 @@ func (c *clientConn) handleSTOR(path string) {
 	// 带限速的复制
 	written, err := c.copyWithLimit(file, dataConn, true)
 	if err != nil {
-		c.writeResponse(426, fmt.Sprintf("Transfer aborted: %v", err))
+		_ = c.writeResponse(426, fmt.Sprintf("Transfer aborted: %v", err))
 		return
 	}
 
 	_ = written
-	c.writeResponse(226, "Transfer complete")
+	_ = c.writeResponse(226, "Transfer complete")
 }
 
 // handleREST 处理 REST 命令（断点续传）
 func (c *clientConn) handleREST(offset string) {
 	o, err := strconv.ParseInt(offset, 10, 64)
 	if err != nil {
-		c.writeResponse(500, "Invalid offset")
+		_ = c.writeResponse(500, "Invalid offset")
 		return
 	}
 	c.restOffset = o
-	c.writeResponse(350, fmt.Sprintf("Restarting at %d", o))
+	_ = c.writeResponse(350, fmt.Sprintf("Restarting at %d", o))
 }
 
 // handleSIZE 处理 SIZE 命令
@@ -915,22 +915,22 @@ func (c *clientConn) handleSIZE(path string) {
 
 	info, err := os.Stat(realPath)
 	if err != nil {
-		c.writeResponse(550, "File not found")
+		_ = c.writeResponse(550, "File not found")
 		return
 	}
 
 	if info.IsDir() {
-		c.writeResponse(550, "Not a file")
+		_ = c.writeResponse(550, "Not a file")
 		return
 	}
 
-	c.writeResponse(213, fmt.Sprintf("%d", info.Size()))
+	_ = c.writeResponse(213, fmt.Sprintf("%d", info.Size()))
 }
 
 // handleABOR 处理 ABOR 命令
 func (c *clientConn) handleABOR() {
 	c.restOffset = 0
-	c.writeResponse(226, "Abort successful")
+	_ = c.writeResponse(226, "Abort successful")
 }
 
 // getDataConnection 获取数据连接
