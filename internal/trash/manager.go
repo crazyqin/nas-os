@@ -24,21 +24,21 @@ type TrashItem struct {
 
 // Config 回收站配置
 type Config struct {
-	Enabled        bool          `json:"enabled"`
-	RetentionDays int           `json:"retention_days"`
-	MaxSize        int64         `json:"max_size"` // 最大占用空间 (字节)
-	AutoEmpty      bool          `json:"auto_empty"`
-	EmptySchedule  string        `json:"empty_schedule"` // cron 表达式
+	Enabled       bool   `json:"enabled"`
+	RetentionDays int    `json:"retention_days"`
+	MaxSize       int64  `json:"max_size"` // 最大占用空间 (字节)
+	AutoEmpty     bool   `json:"auto_empty"`
+	EmptySchedule string `json:"empty_schedule"` // cron 表达式
 }
 
 // DefaultConfig 默认配置
 func DefaultConfig() *Config {
 	return &Config{
-		Enabled:        true,
-		RetentionDays:  30,
-		MaxSize:        10 * 1024 * 1024 * 1024, // 10GB
-		AutoEmpty:      true,
-		EmptySchedule:  "0 3 * * *", // 每天凌晨 3 点
+		Enabled:       true,
+		RetentionDays: 30,
+		MaxSize:       10 * 1024 * 1024 * 1024, // 10GB
+		AutoEmpty:     true,
+		EmptySchedule: "0 3 * * *", // 每天凌晨 3 点
 	}
 }
 
@@ -258,12 +258,12 @@ func (m *Manager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"total_items":  len(m.items),
-		"total_size":   m.totalSize,
-		"max_size":     m.config.MaxSize,
-		"usage_percent": float64(m.totalSize) / float64(m.config.MaxSize) * 100,
+		"total_items":    len(m.items),
+		"total_size":     m.totalSize,
+		"max_size":       m.config.MaxSize,
+		"usage_percent":  float64(m.totalSize) / float64(m.config.MaxSize) * 100,
 		"retention_days": m.config.RetentionDays,
-		"enabled":      m.config.Enabled,
+		"enabled":        m.config.Enabled,
 	}
 }
 
