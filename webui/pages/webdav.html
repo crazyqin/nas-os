@@ -4,436 +4,656 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebDAV 设置 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .status-card {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .status-card h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .status-item {
+        .webdav-container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .page-header {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+            margin-bottom: 2rem;
         }
-        
-        .status-item:last-child {
-            border-bottom: none;
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
-        
-        .status-label {
-            color: #666;
-            font-weight: 500;
+        .page-subtitle { color: var(--text-muted); }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
-        
-        .status-value {
-            color: #333;
+        @media (max-width: 768px) {
+            .config-grid { grid-template-columns: 1fr; }
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
             font-weight: 600;
-        }
-        
-        .status-value.enabled {
-            color: #28a745;
-        }
-        
-        .status-value.disabled {
-            color: #dc3545;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .form-group input[type="text"],
-        .form-group input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
             font-size: 14px;
-            transition: border-color 0.3s;
         }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
+        .status-indicator.running {
+            background: var(--color-success-bg);
+            color: var(--color-success);
         }
-        
-        .checkbox-group {
+        .status-indicator.stopped {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .status-indicator.running .status-dot { background: var(--color-success); }
+        .status-indicator.stopped .status-dot { background: var(--color-error); }
+
+        .connection-card {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #1D4ED8 100%);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+        .connection-card h3 { margin-bottom: 1rem; color: white; }
+        .connection-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .connection-item:last-child { border-bottom: none; }
+        .connection-label { opacity: 0.9; }
+        .connection-value {
+            font-family: var(--font-family-mono);
+            font-weight: 600;
+            background: rgba(255,255,255,0.15);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .info-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        .info-card h3 {
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.5rem;
         }
-        
-        .checkbox-group input[type="checkbox"] {
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .info-item:last-child { border-bottom: none; }
+        .info-label { color: var(--text-muted); }
+
+        .form-section {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+        .form-section h3 {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .switch-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .switch-container:last-child { border-bottom: none; }
+        .switch-label h4 { margin-bottom: 0.25rem; }
+        .switch-label p { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+        .switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: var(--bg-tertiary);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .switch.active { background: var(--color-primary); }
+        .switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
             width: 20px;
             height: 20px;
-            cursor: pointer;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
         }
-        
-        .checkbox-group label {
-            margin: 0;
-            cursor: pointer;
+        .switch.active::after { transform: translateX(24px); }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
-        
+        @media (max-width: 768px) {
+            .input-row { grid-template-columns: 1fr; }
+        }
+
         .btn-group {
             display: flex;
-            gap: 15px;
-            margin-top: 30px;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
         }
-        
-        .btn {
-            flex: 1;
-            padding: 14px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
+
+        .help-section {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-top: 2rem;
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .help-section h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
         }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
+        .help-item {
+            background: var(--surface-color);
+            padding: 1rem;
+            border-radius: var(--radius-md);
         }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
+        .help-item h4 {
+            font-size: 14px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #218838;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .alert {
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        
-        .alert-info {
-            background: #d1ecf1;
-            border: 1px solid #bee5eb;
-            color: #0c5460;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .connection-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 20px;
-        }
-        
-        .connection-info code {
-            background: #e9ecef;
-            padding: 2px 6px;
+        .help-item code {
+            display: block;
+            background: var(--bg-tertiary);
+            padding: 0.5rem;
             border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            color: #d63384;
+            font-size: 12px;
+            color: var(--color-primary);
+            margin-top: 0.5rem;
+            word-break: break-all;
         }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+        .mini-stat {
+            background: var(--surface-color);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .mini-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        .mini-stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .alert-info {
+            background: var(--color-info-bg);
+            color: #1E40AF;
+            border-left: 4px solid var(--color-info);
+        }
+        [data-theme="dark"] .alert-info { color: #93C5FD; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📁 WebDAV 设置</h1>
-            <p>配置 WebDAV 文件访问服务</p>
+    <div class="webdav-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">WebDAV 设置</h1>
+                <p class="page-subtitle">配置 WebDAV 文件访问服务，支持多平台文件同步</p>
+            </div>
+            <div class="status-indicator" id="serviceStatus">
+                <span class="status-dot"></span>
+                <span id="statusText">检查中...</span>
+            </div>
         </div>
-        
-        <div class="content">
-            <div id="alert-container"></div>
-            
-            <div class="status-card">
+
+        <div class="stats-row">
+            <div class="mini-stat">
+                <div class="mini-stat-value" id="statConnections">0</div>
+                <div class="mini-stat-label">当前连接</div>
+            </div>
+            <div class="mini-stat">
+                <div class="mini-stat-value" id="statUploads">0</div>
+                <div class="mini-stat-label">上传次数</div>
+            </div>
+            <div class="mini-stat">
+                <div class="mini-stat-value" id="statDownloads">0</div>
+                <div class="mini-stat-label">下载次数</div>
+            </div>
+            <div class="mini-stat">
+                <div class="mini-stat-value" id="statUptime">-</div>
+                <div class="mini-stat-label">运行时长</div>
+            </div>
+        </div>
+
+        <div class="config-grid">
+            <div class="connection-card">
+                <h3>连接信息</h3>
+                <div class="connection-item">
+                    <span class="connection-label">服务地址</span>
+                    <span class="connection-value" id="serviceUrl">http://:8081/</span>
+                </div>
+                <div class="connection-item">
+                    <span class="connection-label">服务端口</span>
+                    <span class="connection-value" id="servicePort">8081</span>
+                </div>
+                <div class="connection-item">
+                    <span class="connection-label">根目录</span>
+                    <span class="connection-value" id="rootPath">/data</span>
+                </div>
+                <div class="connection-item">
+                    <span class="connection-label">认证模式</span>
+                    <span class="connection-value" id="authMode">Basic</span>
+                </div>
+            </div>
+
+            <div class="info-card">
                 <h3>服务状态</h3>
-                <div class="status-item">
-                    <span class="status-label">运行状态</span>
-                    <span class="status-value" id="status-enabled">加载中...</span>
+                <div class="info-item">
+                    <span class="info-label">服务状态</span>
+                    <span id="infoStatus">-</span>
                 </div>
-                <div class="status-item">
-                    <span class="status-label">服务端口</span>
-                    <span class="status-value" id="status-port">-</span>
+                <div class="info-item">
+                    <span class="info-label">匿名访问</span>
+                    <span id="infoGuest">-</span>
                 </div>
-                <div class="status-item">
-                    <span class="status-label">根目录</span>
-                    <span class="status-value" id="status-root">-</span>
+                <div class="info-item">
+                    <span class="info-label">读写模式</span>
+                    <span id="infoReadonly">-</span>
                 </div>
-                <div class="status-item">
-                    <span class="status-label">匿名访问</span>
-                    <span class="status-value" id="status-guest">-</span>
+                <div class="info-item">
+                    <span class="info-label">TLS 加密</span>
+                    <span id="infoTls">-</span>
                 </div>
             </div>
-            
-            <div class="alert alert-info">
-                <strong>💡 提示：</strong>WebDAV 是一种基于 HTTP 的文件访问协议，允许您像访问本地文件夹一样访问 NAS 上的文件。
-                支持 Windows、macOS、Linux 以及各种移动应用。
+        </div>
+
+        <div class="alert alert-info">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <strong>提示：</strong>WebDAV 是一种基于 HTTP 的文件访问协议，允许您像访问本地文件夹一样访问 NAS 上的文件。支持 Windows、macOS、Linux 以及各种移动应用。
             </div>
-            
-            <form id="webdav-form">
-                <div class="form-group">
-                    <label for="enabled">启用 WebDAV 服务</label>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="enabled" name="enabled">
-                        <label for="enabled">开启 WebDAV 服务器</label>
+        </div>
+
+        <form id="webdav-form">
+            <div class="form-section">
+                <h3>基本设置</h3>
+
+                <div class="switch-container">
+                    <div class="switch-label">
+                        <h4>启用 WebDAV 服务</h4>
+                        <p>开启后可通过 WebDAV 协议访问文件</p>
+                    </div>
+                    <div class="switch" id="enabledSwitch" onclick="toggleSwitch('enabled')"></div>
+                    <input type="hidden" id="enabled" name="enabled" value="false">
+                </div>
+
+                <div class="switch-container">
+                    <div class="switch-label">
+                        <h4>允许匿名访问</h4>
+                        <p>允许不登录访问（不安全，不推荐）</p>
+                    </div>
+                    <div class="switch" id="allowGuestSwitch" onclick="toggleSwitch('allow_guest')"></div>
+                    <input type="hidden" id="allow_guest" name="allow_guest" value="false">
+                </div>
+
+                <div class="switch-container">
+                    <div class="switch-label">
+                        <h4>只读模式</h4>
+                        <p>禁止通过 WebDAV 修改或删除文件</p>
+                    </div>
+                    <div class="switch" id="readonlySwitch" onclick="toggleSwitch('readonly')"></div>
+                    <input type="hidden" id="readonly" name="readonly" value="false">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>网络设置</h3>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="form-label">服务端口</label>
+                        <input type="number" class="form-input" id="port" name="port" value="8081" min="1024" max="65535">
+                        <div class="form-hint">建议使用 1024-65535 范围内的端口</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">根目录路径</label>
+                        <input type="text" class="form-input" id="root_path" name="root_path" value="/data" placeholder="/data">
+                        <div class="form-hint">WebDAV 访问的根目录</div>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="port">服务端口</label>
-                    <input type="number" id="port" name="port" value="8081" min="1024" max="65535">
-                </div>
-                
-                <div class="form-group">
-                    <label for="root_path">根目录路径</label>
-                    <input type="text" id="root_path" name="root_path" value="/data" placeholder="/data">
-                </div>
-                
-                <div class="form-group">
-                    <label for="allow_guest">允许匿名访问</label>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="allow_guest" name="allow_guest">
-                        <label for="allow_guest">允许不登录访问（不安全，不推荐）</label>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label class="form-label">TLS 证书</label>
+                        <select class="form-input" id="tls_cert" name="tls_cert">
+                            <option value="">不使用 TLS</option>
+                            <option value="auto">自动生成证书</option>
+                        </select>
+                        <div class="form-hint">选择证书以启用 HTTPS</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">最大连接数</label>
+                        <input type="number" class="form-input" id="max_connections" name="max_connections" value="100" min="1">
+                        <div class="form-hint">同时连接的最大数量</div>
                     </div>
                 </div>
-                
-                <div class="btn-group">
-                    <button type="button" class="btn btn-success" id="btn-start" onclick="startService()">启动服务</button>
-                    <button type="button" class="btn btn-danger" id="btn-stop" onclick="stopService()">停止服务</button>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-success" onclick="startService()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    启动服务
+                </button>
+                <button type="button" class="btn btn-danger" onclick="stopService()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+                    </svg>
+                    停止服务
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    保存配置
+                </button>
+            </div>
+        </form>
+
+        <div class="help-section">
+            <h3>连接指南</h3>
+            <div class="help-grid">
+                <div class="help-item">
+                    <h4>Windows</h4>
+                    <p>在文件资源管理器地址栏输入：</p>
+                    <code id="winUrl">http://&lt;服务器IP&gt;:8081/</code>
                 </div>
-                
-                <div class="btn-group">
-                    <button type="submit" class="btn btn-primary">保存配置</button>
-                    <button type="button" class="btn btn-secondary" onclick="loadConfig()">重置</button>
+                <div class="help-item">
+                    <h4>macOS</h4>
+                    <p>在 Finder 中按 Cmd+K，输入：</p>
+                    <code id="macUrl">http://&lt;服务器IP&gt;:8081/</code>
                 </div>
-            </form>
-            
-            <div class="connection-info">
-                <h4>🔗 连接信息</h4>
-                <p style="margin-top: 10px;">
-                    <strong>Windows:</strong> 在文件资源管理器地址栏输入 <code>http://&lt;服务器 IP&gt;:8081/</code><br>
-                    <strong>macOS:</strong> 在 Finder 中按 Cmd+K，输入 <code>http://&lt;服务器 IP&gt;:8081/</code><br>
-                    <strong>Linux:</strong> 使用命令 <code>mount -t webdav http://&lt;服务器 IP&gt;:8081/ /mnt/webdav</code>
-                </p>
+                <div class="help-item">
+                    <h4>Linux</h4>
+                    <p>使用 mount 命令：</p>
+                    <code>mount -t davfs http://&lt;IP&gt;:8081/ /mnt</code>
+                </div>
+                <div class="help-item">
+                    <h4>iOS / Android</h4>
+                    <p>使用支持 WebDAV 的文件管理应用</p>
+                    <code>服务器: http://&lt;IP&gt;:8081/</code>
+                </div>
             </div>
         </div>
     </div>
-    
+
     <script>
         const API_BASE = '/api/v1';
-        
+        let config = {};
+
+        // 切换开关
+        function toggleSwitch(name) {
+            const input = document.getElementById(name);
+            const switchEl = document.getElementById(name + 'Switch');
+            const newValue = input.value === 'true' ? 'false' : 'true';
+            input.value = newValue;
+            switchEl.classList.toggle('active', newValue === 'true');
+        }
+
+        // 设置开关状态
+        function setSwitch(name, value) {
+            const input = document.getElementById(name);
+            const switchEl = document.getElementById(name + 'Switch');
+            input.value = value.toString();
+            switchEl.classList.toggle('active', value);
+        }
+
         // 加载配置
         async function loadConfig() {
             try {
                 const response = await fetch(`${API_BASE}/webdav/config`);
                 const data = await response.json();
-                
+
                 if (data.code === 0 && data.data) {
-                    const config = data.data;
-                    document.getElementById('enabled').checked = config.enabled;
+                    config = data.data;
+                    setSwitch('enabled', config.enabled);
+                    setSwitch('allow_guest', config.allow_guest);
+                    setSwitch('readonly', config.readonly || false);
                     document.getElementById('port').value = config.port;
                     document.getElementById('root_path').value = config.root_path;
-                    document.getElementById('allow_guest').checked = config.allow_guest;
-                    
+                    document.getElementById('max_connections').value = config.max_connections || 100;
+                    if (config.tls_cert) {
+                        document.getElementById('tls_cert').value = config.tls_cert;
+                    }
+
                     updateStatus(config);
+                    updateConnectionInfo(config);
                 }
             } catch (error) {
-                showAlert('加载配置失败：' + error.message, 'error');
+                console.error('加载配置失败:', error);
             }
         }
-        
+
         // 更新状态显示
-        function updateStatus(config) {
-            const statusEl = document.getElementById('status-enabled');
-            statusEl.textContent = config.enabled ? '运行中' : '已停止';
-            statusEl.className = 'status-value ' + (config.enabled ? 'enabled' : 'disabled');
-            
-            document.getElementById('status-port').textContent = config.port;
-            document.getElementById('status-root').textContent = config.root_path;
-            document.getElementById('status-guest').textContent = config.allow_guest ? '允许' : '禁止';
+        function updateStatus(cfg) {
+            const statusEl = document.getElementById('serviceStatus');
+            const statusText = document.getElementById('statusText');
+
+            if (cfg.enabled) {
+                statusEl.className = 'status-indicator running';
+                statusText.textContent = '运行中';
+            } else {
+                statusEl.className = 'status-indicator stopped';
+                statusText.textContent = '已停止';
+            }
+
+            document.getElementById('infoStatus').textContent = cfg.enabled ? '运行中' : '已停止';
+            document.getElementById('infoGuest').textContent = cfg.allow_guest ? '允许' : '禁止';
+            document.getElementById('infoReadonly').textContent = cfg.readonly ? '只读' : '读写';
+            document.getElementById('infoTls').textContent = cfg.tls_cert ? '已启用' : '未启用';
         }
-        
+
+        // 更新连接信息
+        function updateConnectionInfo(cfg) {
+            const host = window.location.hostname || '<服务器IP>';
+            const protocol = cfg.tls_cert ? 'https' : 'http';
+            const url = `${protocol}://${host}:${cfg.port}/`;
+
+            document.getElementById('serviceUrl').textContent = url;
+            document.getElementById('servicePort').textContent = cfg.port;
+            document.getElementById('rootPath').textContent = cfg.root_path;
+            document.getElementById('authMode').textContent = cfg.allow_guest ? '匿名' : 'Basic';
+
+            // 更新帮助文档中的 URL
+            document.getElementById('winUrl').textContent = url;
+            document.getElementById('macUrl').textContent = url;
+        }
+
         // 保存配置
         document.getElementById('webdav-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const config = {
-                enabled: document.getElementById('enabled').checked,
+
+            const newConfig = {
+                enabled: document.getElementById('enabled').value === 'true',
                 port: parseInt(document.getElementById('port').value),
                 root_path: document.getElementById('root_path').value,
-                allow_guest: document.getElementById('allow_guest').checked
+                allow_guest: document.getElementById('allow_guest').value === 'true',
+                readonly: document.getElementById('readonly').value === 'true',
+                tls_cert: document.getElementById('tls_cert').value,
+                max_connections: parseInt(document.getElementById('max_connections').value)
             };
-            
+
             try {
                 const response = await fetch(`${API_BASE}/webdav/config`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(config)
+                    body: JSON.stringify(newConfig)
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.code === 0) {
-                    showAlert('配置保存成功', 'success');
+                    showToast('配置保存成功', 'success');
+                    config = newConfig;
                     updateStatus(config);
+                    updateConnectionInfo(config);
                 } else {
-                    showAlert('保存失败：' + data.message, 'error');
+                    showToast('保存失败：' + (data.message || data.error), 'error');
                 }
             } catch (error) {
-                showAlert('保存失败：' + error.message, 'error');
+                showToast('保存失败：' + error.message, 'error');
             }
         });
-        
+
         // 启动服务
         async function startService() {
             try {
                 const response = await fetch(`${API_BASE}/webdav/start`, {
                     method: 'POST'
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.code === 0) {
-                    showAlert('WebDAV 服务已启动', 'success');
-                    loadConfig();
+                    showToast('WebDAV 服务已启动', 'success');
+                    setSwitch('enabled', true);
+                    config.enabled = true;
+                    updateStatus(config);
                 } else {
-                    showAlert('启动失败：' + data.message, 'error');
+                    showToast('启动失败：' + (data.message || data.error), 'error');
                 }
             } catch (error) {
-                showAlert('启动失败：' + error.message, 'error');
+                showToast('启动失败：' + error.message, 'error');
             }
         }
-        
+
         // 停止服务
         async function stopService() {
             if (!confirm('确定要停止 WebDAV 服务吗？')) return;
-            
+
             try {
                 const response = await fetch(`${API_BASE}/webdav/stop`, {
                     method: 'POST'
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.code === 0) {
-                    showAlert('WebDAV 服务已停止', 'success');
-                    loadConfig();
+                    showToast('WebDAV 服务已停止', 'success');
+                    setSwitch('enabled', false);
+                    config.enabled = false;
+                    updateStatus(config);
                 } else {
-                    showAlert('停止失败：' + data.message, 'error');
+                    showToast('停止失败：' + (data.message || data.error), 'error');
                 }
             } catch (error) {
-                showAlert('停止失败：' + error.message, 'error');
+                showToast('停止失败：' + error.message, 'error');
             }
         }
-        
+
         // 显示提示
-        function showAlert(message, type) {
-            const container = document.getElementById('alert-container');
-            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-            
-            setTimeout(() => {
-                container.innerHTML = '';
-            }, 5000);
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            if (!container) {
+                const div = document.createElement('div');
+                div.id = 'toast-container';
+                document.body.appendChild(div);
+            }
+            // 使用设计系统的 toast
+            if (window.ToastManager) {
+                ToastManager.show(message, type);
+            } else {
+                alert(message);
+            }
         }
-        
-        // 页面加载时获取配置
+
+        // 加载统计数据
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/webdav/stats`);
+                const data = await res.json();
+                if (data.code === 0 && data.data) {
+                    document.getElementById('statConnections').textContent = data.data.connections || 0;
+                    document.getElementById('statUploads').textContent = data.data.uploads || 0;
+                    document.getElementById('statDownloads').textContent = data.data.downloads || 0;
+                    document.getElementById('statUptime').textContent = formatUptime(data.data.uptime || 0);
+                }
+            } catch (e) {
+                console.log('统计数据暂不可用');
+            }
+        }
+
+        function formatUptime(seconds) {
+            if (!seconds) return '-';
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            if (days > 0) return `${days}天${hours}时`;
+            if (hours > 0) return `${hours}时${mins}分`;
+            return `${mins}分钟`;
+        }
+
+        // 初始化
         loadConfig();
+        loadStats();
+        setInterval(loadStats, 30000);
     </script>
 </body>
 </html>
