@@ -148,9 +148,16 @@ func (h *Handlers) restore(c *gin.Context) {
 
 	var req RestoreRequest
 	if c.ShouldBindJSON(&req) == nil && req.TargetPath != "" {
-		// TODO: 支持恢复到指定路径
+		// 恢复到指定路径
+		if err := h.manager.RestoreTo(id, req.TargetPath); err != nil {
+			c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, success(gin.H{"restored_to": req.TargetPath}))
+		return
 	}
 
+	// 恢复到原始路径
 	if err := h.manager.Restore(id); err != nil {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return

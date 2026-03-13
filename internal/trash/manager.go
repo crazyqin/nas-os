@@ -165,8 +165,13 @@ func (m *Manager) MoveToTrash(originalPath, userID string) (*TrashItem, error) {
 	return item, nil
 }
 
-// Restore 恢复文件
+// Restore 恢复文件到原始路径
 func (m *Manager) Restore(id string) error {
+	return m.RestoreTo(id, "")
+}
+
+// RestoreTo 恢复文件到指定路径（空路径则恢复到原始位置）
+func (m *Manager) RestoreTo(id string, targetPath string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -175,14 +180,25 @@ func (m *Manager) Restore(id string) error {
 		return fmt.Errorf("回收站项目不存在：%s", id)
 	}
 
-	// 确保原目录存在
-	originalDir := filepath.Dir(item.OriginalPath)
-	if err := os.MkdirAll(originalDir, 0755); err != nil {
+	// 确定目标路径
+	destPath := item.OriginalPath
+	if targetPath != "" {
+		destPath = targetPath
+	}
+
+	// 确保目标目录存在
+	destDir := filepath.Dir(destPath)
+	if err := os.MkdirAll(destDir, 0755); err != nil {
 		return fmt.Errorf("创建目录失败：%w", err)
 	}
 
-	// 移动回原位置
-	if err := os.Rename(item.TrashPath, item.OriginalPath); err != nil {
+	// 检查目标位置是否已存在
+	if _, err := os.Stat(destPath); err == nil {
+		return fmt.Errorf("目标位置已存在：%s", destPath)
+	}
+
+	// 移动到目标位置
+	if err := os.Rename(item.TrashPath, destPath); err != nil {
 		return fmt.Errorf("恢复文件失败：%w", err)
 	}
 
