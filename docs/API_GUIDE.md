@@ -1,6 +1,6 @@
 # NAS-OS API 使用指南
 
-**版本**: v1.6.0  
+**版本**: v1.7.0  
 **更新日期**: 2026-03-13
 
 ---
@@ -15,6 +15,11 @@
 6. [虚拟机](#虚拟机)
 7. [监控告警](#监控告警)
 8. [性能优化](#性能优化)
+9. [配额管理](#配额管理) 🆕
+10. [回收站](#回收站) 🆕
+11. [WebDAV](#webdav) 🆕
+12. [存储复制](#存储复制) 🆕
+13. [AI 分类](#ai-分类) 🆕
 
 ---
 
@@ -326,6 +331,194 @@ curl -X POST http://localhost:8080/api/v1/optimizer/gc \
 
 ```bash
 curl http://localhost:8080/api/v1/optimizer/memory
+```
+
+---
+
+## 配额管理 🆕
+
+### 获取配额列表
+
+```bash
+curl http://localhost:8080/api/v1/quota \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 设置用户配额
+
+```bash
+curl -X POST http://localhost:8080/api/v1/quota/users/user123 \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{"limit": 107374182400}'  # 100GB
+```
+
+### 设置目录配额
+
+```bash
+curl -X POST http://localhost:8080/api/v1/quota/dirs/data/photos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{"limit": 536870912000}'  # 500GB
+```
+
+### 获取配额使用情况
+
+```bash
+curl http://localhost:8080/api/v1/quota/users/user123/usage \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## 回收站 🆕
+
+### 列出回收站文件
+
+```bash
+curl http://localhost:8080/api/v1/trash \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 恢复文件
+
+```bash
+curl -X POST http://localhost:8080/api/v1/trash/trash-123/restore \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 永久删除
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/trash/trash-123 \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 清空回收站
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/trash \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## WebDAV 🆕
+
+### 获取 WebDAV 配置
+
+```bash
+curl http://localhost:8080/api/v1/webdav/config \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 更新 WebDAV 配置
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/webdav/config \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{
+    "enabled": true,
+    "port": 8090,
+    "root_path": "/data/webdav",
+    "read_only": false
+  }'
+```
+
+### 获取 WebDAV 状态
+
+```bash
+curl http://localhost:8080/api/v1/webdav/status \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## 存储复制 🆕
+
+### 获取复制任务列表
+
+```bash
+curl http://localhost:8080/api/v1/replication \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 创建复制任务
+
+```bash
+curl -X POST http://localhost:8080/api/v1/replication \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{
+    "name": "backup-repl",
+    "source_path": "/data/important",
+    "target_node": "node-2",
+    "target_path": "/backup/important",
+    "mode": "async",
+    "schedule": "0 */6 * * *"
+  }'
+```
+
+### 获取复制状态
+
+```bash
+curl http://localhost:8080/api/v1/replication/backup-repl/status \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 手动触发同步
+
+```bash
+curl -X POST http://localhost:8080/api/v1/replication/backup-repl/sync \
+  -H "Authorization: Bearer TOKEN"
+```
+
+---
+
+## AI 分类 🆕
+
+### 分类文件
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ai-classify/classify \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{
+    "path": "/data/photos/vacation.jpg",
+    "type": "image"
+  }'
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "categories": ["vacation", "beach", "sunset"],
+    "confidence": 0.92,
+    "suggested_tags": ["summer", "travel", "nature"]
+  }
+}
+```
+
+### 批量分类
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ai-classify/batch \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{
+    "paths": ["/data/photos/1.jpg", "/data/photos/2.jpg"],
+    "type": "image"
+  }'
+```
+
+### 获取分类统计
+
+```bash
+curl http://localhost:8080/api/v1/ai-classify/stats \
+  -H "Authorization: Bearer TOKEN"
 ```
 
 ---
