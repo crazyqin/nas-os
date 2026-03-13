@@ -14,11 +14,12 @@ import (
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
 	"nas-os/internal/files"
-	// ftp "nas-os/internal/ftp" // TODO: v1.9.0
+	ftp "nas-os/internal/ftp"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
 	"nas-os/internal/notify"
+	"nas-os/internal/office"
 	"nas-os/internal/optimizer"
 	"nas-os/internal/perf"
 	"nas-os/internal/photos"
@@ -26,10 +27,11 @@ import (
 	"nas-os/internal/quota"
 	"nas-os/internal/replication"
 	"nas-os/internal/shares"
-	// sftp "nas-os/internal/sftp" // TODO: v1.9.0
+	sftp "nas-os/internal/sftp"
 	"nas-os/internal/smb"
 	"nas-os/internal/storage"
 	"nas-os/internal/system"
+	"nas-os/internal/tags"
 	"nas-os/internal/trash"
 	"nas-os/internal/users"
 	"nas-os/internal/versioning"
@@ -78,12 +80,14 @@ type Server struct {
 	trashMgr      *trash.Manager
 	replMgr       *replication.Manager
 	webdavSrv     *webdav.Server
-	// ftpSrv        *ftp.Server // TODO: v1.9.0
-	// sftpSrv       *sftp.Server // TODO: v1.9.0
+	ftpSrv        *ftp.Server
+	sftpSrv       *sftp.Server
 	aiClassifyMgr *ai_classify.Classifier
 	versioningMgr *versioning.Manager
 	dedupMgr      *dedup.Manager
 	cloudsyncMgr  *cloudsync.Manager
+	tagsMgr       *tags.Manager
+	officeMgr     *office.Manager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -290,6 +294,25 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ 云同步模块就绪")
 	}
 
+	// 初始化标签管理器
+	tagsMgr, err := tags.NewManager("/var/lib/nas-os/tags.db")
+	if err != nil {
+		log.Printf("⚠️ 标签管理初始化警告：%v", err)
+		tagsMgr = nil
+	} else {
+		log.Println("✅ 标签管理模块就绪")
+	}
+
+	// 初始化 OnlyOffice 管理器
+	var officeMgr *office.Manager
+	officeMgr, err = office.NewManager("/etc/nas-os/office.json", nil)
+	if err != nil {
+		log.Printf("⚠️ OnlyOffice 初始化警告：%v", err)
+		officeMgr = nil
+	} else {
+		log.Println("✅ OnlyOffice 文档编辑模块就绪")
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -340,20 +363,20 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			srv, _ := webdav.NewServer(nil)
 			return srv
 		}(),
-		/*
-			ftpSrv: func() *ftp.Server {
-				srv, _ := ftp.NewServer(userMgr, "/etc/nas-os/ftp-config.json")
-				return srv
-			}(),
-			sftpSrv: func() *sftp.Server {
-				srv, _ := sftp.NewServer("/etc/nas-os/sftp-config.json")
-				return srv
-			}(),
-		*/
+		ftpSrv: func() *ftp.Server {
+			srv, _ := ftp.NewServer(nil)
+			return srv
+		}(),
+		sftpSrv: func() *sftp.Server {
+			srv, _ := sftp.NewServer(nil)
+			return srv
+		}(),
 		aiClassifyMgr: aiClassifyMgr,
 		versioningMgr: versioningMgr,
 		dedupMgr:      dedupMgr,
 		cloudsyncMgr:  cloudsyncMgr,
+		tagsMgr:       tagsMgr,
+		officeMgr:     officeMgr,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -365,22 +388,33 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		})
 	}
 
-	// TODO: v1.9.0 - SFTP 认证函数
-	/*
-		// 设置 SFTP 认证函数
-		if s.sftpSrv != nil && s.userMgr != nil {
-			s.sftpSrv.SetAuthFunc(func(username, password string) bool {
-				_, err := s.userMgr.Authenticate(username, password)
-				return err == nil
-			})
-			s.sftpSrv.SetGetUserHome(func(username string) string {
-				if user, err := s.userMgr.GetUser(username); err == nil {
-					return user.HomeDir
-				}
-				return ""
-			})
-		}
-	*/
+	// 设置 FTP 认证函数
+	if s.ftpSrv != nil && s.userMgr != nil {
+		s.ftpSrv.SetAuthFunc(func(username, password string) bool {
+			_, err := s.userMgr.Authenticate(username, password)
+			return err == nil
+		})
+		s.ftpSrv.SetGetUserHome(func(username string) string {
+			if user, err := s.userMgr.GetUser(username); err == nil {
+				return user.HomeDir
+			}
+			return ""
+		})
+	}
+
+	// 设置 SFTP 认证函数
+	if s.sftpSrv != nil && s.userMgr != nil {
+		s.sftpSrv.SetAuthFunc(func(username, password string) bool {
+			_, err := s.userMgr.Authenticate(username, password)
+			return err == nil
+		})
+		s.sftpSrv.SetGetUserHome(func(username string) string {
+			if user, err := s.userMgr.GetUser(username); err == nil {
+				return user.HomeDir
+			}
+			return ""
+		})
+	}
 
 	// 添加性能监控中间件 (在日志中间件之后)
 	if perfMgr != nil {
@@ -498,18 +532,15 @@ func (s *Server) setupRoutes() {
 			webdav.NewHandlers(s.webdavSrv).RegisterRoutes(api)
 		}
 
-		// TODO: v1.9.0 - FTP/SFTP 服务器
-		/*
-			// ========== FTP 服务器 ==========
-			if s.ftpSrv != nil {
-				ftp.NewHandlers(s.ftpSrv).RegisterRoutes(api)
-			}
+		// ========== FTP 服务器 ==========
+		if s.ftpSrv != nil {
+			ftp.NewHandlers(s.ftpSrv).RegisterRoutes(api)
+		}
 
-			// ========== SFTP 服务器 ==========
-			if s.sftpSrv != nil {
-				s.sftpSrv.RegisterRoutes(api)
-			}
-		*/
+		// ========== SFTP 服务器 ==========
+		if s.sftpSrv != nil {
+			s.sftpSrv.RegisterRoutes(api)
+		}
 
 		// ========== AI 分类 ==========
 		if s.aiClassifyMgr != nil {
@@ -532,6 +563,16 @@ func (s *Server) setupRoutes() {
 		// ========== 云同步 ==========
 		if s.cloudsyncMgr != nil {
 			cloudsync.NewHandlers(s.cloudsyncMgr).RegisterRoutes(api)
+		}
+
+		// ========== 标签管理 ==========
+		if s.tagsMgr != nil {
+			tags.NewHandlers(s.tagsMgr).RegisterRoutes(api)
+		}
+
+		// ========== OnlyOffice 文档编辑 ==========
+		if s.officeMgr != nil {
+			office.NewHandlers(s.officeMgr).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
@@ -675,32 +716,29 @@ func (s *Server) Start(addr string) error {
 		}
 	}
 
-	// TODO: v1.9.0 - FTP/SFTP 服务器启动
-	/*
-		// 启动 FTP 服务器
-		if s.ftpSrv != nil {
-			cfg := s.ftpSrv.GetConfig()
-			if cfg.Enabled {
-				if err := s.ftpSrv.Start(); err != nil {
-					log.Printf("⚠️ FTP 服务器启动警告：%v", err)
-				} else {
-					log.Println("✅ FTP 服务器已启动")
-				}
+	// 启动 FTP 服务器
+	if s.ftpSrv != nil {
+		cfg := s.ftpSrv.GetConfig()
+		if cfg.Enabled {
+			if err := s.ftpSrv.Start(); err != nil {
+				log.Printf("⚠️ FTP 服务器启动警告：%v", err)
+			} else {
+				log.Println("✅ FTP 服务器已启动")
 			}
 		}
+	}
 
-		// 启动 SFTP 服务器
-		if s.sftpSrv != nil {
-			cfg := s.sftpSrv.GetConfig()
-			if cfg.Enabled {
-				if err := s.sftpSrv.Start(); err != nil {
-					log.Printf("⚠️ SFTP 服务器启动警告：%v", err)
-				} else {
-					log.Println("✅ SFTP 服务器已启动")
-				}
+	// 启动 SFTP 服务器
+	if s.sftpSrv != nil {
+		cfg := s.sftpSrv.GetConfig()
+		if cfg.Enabled {
+			if err := s.sftpSrv.Start(); err != nil {
+				log.Printf("⚠️ SFTP 服务器启动警告：%v", err)
+			} else {
+				log.Println("✅ SFTP 服务器已启动")
 			}
 		}
-	*/
+	}
 
 	s.httpSrv = &http.Server{
 		Addr:    addr,
@@ -731,18 +769,15 @@ func (s *Server) Stop() error {
 		s.webdavSrv.Stop()
 	}
 
-	// TODO: v1.9.0 - FTP/SFTP 服务器停止
-	/*
-		// 停止 FTP 服务器
-		if s.ftpSrv != nil {
-			s.ftpSrv.Stop()
-		}
+	// 停止 FTP 服务器
+	if s.ftpSrv != nil {
+		s.ftpSrv.Stop()
+	}
 
-		// 停止 SFTP 服务器
-		if s.sftpSrv != nil {
-			s.sftpSrv.Stop()
-		}
-	*/
+	// 停止 SFTP 服务器
+	if s.sftpSrv != nil {
+		s.sftpSrv.Stop()
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

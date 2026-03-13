@@ -1,0 +1,142 @@
+# OnlyOffice Document Server 部署配置
+# 与 NAS-OS 配合使用
+# 
+# 使用方法:
+#   docker-compose -f docker-compose.onlyoffice.yml up -d
+
+version: '3.8'
+
+services:
+  # ========== OnlyOffice Document Server ==========
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: nas-onlyoffice
+    restart: unless-stopped
+    
+    # 端口映射
+    ports:
+      - "8081:80"
+      # HTTPS 端口（可选）
+      # - "8443:443"
+    
+    # 环境变量
+    environment:
+      # JWT 安全配置（强烈建议启用）
+      - JWT_ENABLED=true
+      - JWT_SECRET=your-jwt-secret-key-change-me
+      - JWT_HEADER=Authorization
+      - JWT_IN_BODY=true
+      
+      # 数据库配置（使用内置 PostgreSQL，生产环境建议外部数据库）
+      # - DB_TYPE=postgres
+      # - DB_HOST=postgres
+      # - DB_PORT=5432
+      # - DB_NAME=onlyoffice
+      # - DB_USER=onlyoffice
+      # - DB_PWD=onlyoffice-password
+      
+      # Redis 配置（用于缓存和会话）
+      # - REDIS_SERVER_HOST=redis
+      # - REDIS_SERVER_PORT=6379
+      
+      # 服务配置
+      - WOPI_ENABLED=false
+      - ALLOW_META_IP_ADDRESS=true
+      - ALLOW_PRIVATE_IP_ADDRESS=true
+      
+      # 字体配置（中文支持）
+      - USE_UNAUTHORIZED_STORAGE=true
+      
+      # 日志级别
+      - LOG_LEVEL=WARNING
+    
+    # 卷挂载
+    volumes:
+      # 数据持久化
+      - onlyoffice-data:/var/www/onlyoffice/Data
+      - onlyoffice-logs:/var/log/onlyoffice
+      - onlyoffice-lib:/var/lib/onlyoffice
+      - onlyoffice-db:/var/lib/postgresql
+      
+      # 自定义字体（可选）
+      # - ./fonts:/usr/share/fonts/truetype/custom:ro
+      
+      # 自定义配置（可选）
+      # - ./onlyoffice/local.json:/etc/onlyoffice/documentserver/local.json:ro
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # 资源限制（根据实际需求调整）
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ========== PostgreSQL（可选，生产环境推荐） ==========
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: nas-onlyoffice-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_DB=onlyoffice
+  #     - POSTGRES_USER=onlyoffice
+  #     - POSTGRES_PASSWORD=onlyoffice-password
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U onlyoffice"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # ========== Redis（可选，用于缓存） ==========
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: nas-onlyoffice-redis
+  #   restart: unless-stopped
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - redis-data:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+# ========== 网络配置 ==========
+networks:
+  default:
+    name: nas-network
+    external: true  # 使用 NAS-OS 创建的外部网络
+
+# ========== 卷配置 ==========
+volumes:
+  onlyoffice-data:
+    driver: local
+  onlyoffice-logs:
+    driver: local
+  onlyoffice-lib:
+    driver: local
+  onlyoffice-db:
+    driver: local
+  # postgres-data:
+  #   driver: local
+  # redis-data:
+  #   driver: local
