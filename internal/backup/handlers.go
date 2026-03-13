@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,10 +32,18 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		backup.PUT("/configs/:id", h.updateConfig)
 		backup.DELETE("/configs/:id", h.deleteConfig)
 		backup.POST("/configs/:id/enable", h.enableConfig)
+		
+		// 配置检查
+		backup.GET("/configs/:id/check", h.checkConfig)
+		backup.GET("/configs/:id/check-detailed", h.checkConfigDetailed)
 
 		// 备份操作
 		backup.POST("/run/:id", h.runBackup)
 		backup.POST("/restore", h.restore)
+		
+		// 恢复预设
+		backup.GET("/restore-presets", h.listRestorePresets)
+		backup.POST("/restore/preview", h.previewRestore)
 
 		// 任务管理
 		backup.GET("/tasks", h.listTasks)
@@ -43,6 +52,12 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 		// 历史记录
 		backup.GET("/history/:configId", h.getHistory)
+		
+		// 统计信息
+		backup.GET("/stats", h.getStats)
+		
+		// 健康检查
+		backup.GET("/health", h.healthCheck)
 
 		// 同步任务
 		sync := backup.Group("/sync")
@@ -484,4 +499,168 @@ func (h *Handlers) restoreVersion(c *gin.Context) {
 		"code":    0,
 		"message": "版本恢复成功",
 	})
+}
+
+// ========== 配置检查 ==========
+
+func (h *Handlers) checkConfig(c *gin.Context) {
+	id := c.Param("id")
+	
+	// 获取配置并检查云端连接
+	config, err := h.manager.GetConfig(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	result := &ConfigCheckResult{
+		ConfigID: id,
+		Status:   "pass",
+		Checks:   []CheckItem{},
+	}
+
+	// 检查云端连接（如果启用）
+	if config.CloudBackup && config.CloudConfig != nil {
+		cloud, err := NewCloudBackup(*config.CloudConfig)
+		if err != nil {
+			result.Checks = append(result.Checks, CheckItem{
+				Name:    "cloud_connection",
+				Status:  "fail",
+				Message: fmt.Sprintf("初始化云端客户端失败：%v", err),
+			})
+			result.Status = "fail"
+		} else {
+			connResult, err := cloud.CheckConnection()
+			if err != nil || !connResult.Success {
+				msg := "连接失败"
+				if err != nil {
+					msg = err.Error()
+				} else if connResult != nil {
+					msg = connResult.Message
+				}
+				result.Checks = append(result.Checks, CheckItem{
+					Name:    "cloud_connection",
+					Status:  "fail",
+					Message: msg,
+				})
+				result.Status = "fail"
+			} else {
+				result.Checks = append(result.Checks, CheckItem{
+					Name:    "cloud_connection",
+					Status:  "pass",
+					Message: fmt.Sprintf("连接成功，延迟：%dms", connResult.LatencyMs),
+				})
+			}
+		}
+	} else {
+		result.Checks = append(result.Checks, CheckItem{
+			Name:    "cloud_connection",
+			Status:  "skip",
+			Message: "未启用云端备份",
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    result,
+	})
+}
+
+func (h *Handlers) checkConfigDetailed(c *gin.Context) {
+	id := c.Param("id")
+
+	result, err := h.manager.CheckConfigDetailed(id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    result,
+	})
+}
+
+// ========== 恢复功能 ==========
+
+func (h *Handlers) listRestorePresets(c *gin.Context) {
+	presets := DefaultRestorePresets()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    presets,
+	})
+}
+
+func (h *Handlers) previewRestore(c *gin.Context) {
+	var options RestoreOptions
+	if err := c.ShouldBindJSON(&options); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 预览恢复操作（不实际执行）
+	preview, err := h.manager.PreviewRestore(options)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    preview,
+	})
+}
+
+// ========== 统计信息 ==========
+
+func (h *Handlers) getStats(c *gin.Context) {
+	stats := h.manager.GetStats()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    stats,
+	})
+}
+
+// ========== 健康检查 ==========
+
+func (h *Handlers) healthCheck(c *gin.Context) {
+	result := h.manager.HealthCheck()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    result,
+	})
+}
+
+// ========== 辅助类型 ==========
+
+// ConfigCheckResult 配置检查结果
+type ConfigCheckResult struct {
+	ConfigID string     `json:"configId"`
+	Status   string     `json:"status"` // pass, warn, fail
+	Checks   []CheckItem `json:"checks"`
+}
+
+// CheckItem 检查项
+type CheckItem struct {
+	Name    string `json:"name"`
+	Status  string `json:"status"` // pass, warn, fail, skip
+	Message string `json:"message"`
 }

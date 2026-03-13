@@ -18,10 +18,24 @@ import (
 	"github.com/studio-b12/gowebdav"
 )
 
+// cloudConfig 存储云端配置（内部使用）
+type cloudConfig struct {
+	Provider   CloudProvider
+	Bucket     string
+	Endpoint   string
+	Region     string
+	AccessKey  string
+	SecretKey  string
+	Prefix     string
+	Insecure   bool
+	Encryption bool
+}
+
 // CloudBackup 云端备份管理器
 type CloudBackup struct {
 	provider CloudProvider
 	client   interface{}
+	config   cloudConfig
 }
 
 // CloudProvider 云存储提供商类型
@@ -50,6 +64,17 @@ type CloudConfig struct {
 func NewCloudBackup(cfg CloudConfig) (*CloudBackup, error) {
 	cb := &CloudBackup{
 		provider: cfg.Provider,
+		config: cloudConfig{
+			Provider:   cfg.Provider,
+			Bucket:     cfg.Bucket,
+			Endpoint:   cfg.Endpoint,
+			Region:     cfg.Region,
+			AccessKey:  cfg.AccessKey,
+			SecretKey:  cfg.SecretKey,
+			Prefix:     cfg.Prefix,
+			Insecure:   cfg.Insecure,
+			Encryption: cfg.Encryption,
+		},
 	}
 
 	switch cfg.Provider {
@@ -433,8 +458,17 @@ func (cb *CloudBackup) deleteWebDAVBackup(remotePath string) error {
 
 // getCloudConfig 获取云端配置
 func (cb *CloudBackup) getCloudConfig() CloudConfig {
-	// 这里需要从结构体中获取配置，简化处理
-	return CloudConfig{}
+	return CloudConfig{
+		Provider:   cb.config.Provider,
+		Bucket:     cb.config.Bucket,
+		Endpoint:   cb.config.Endpoint,
+		Region:     cb.config.Region,
+		AccessKey:  cb.config.AccessKey,
+		SecretKey:  cb.config.SecretKey,
+		Prefix:     cb.config.Prefix,
+		Insecure:   cb.config.Insecure,
+		Encryption: cb.config.Encryption,
+	}
 }
 
 // VerifyBackup 验证云端备份完整性
@@ -481,4 +515,103 @@ func (cb *CloudBackup) verifyWebDAVBackup(remotePath string) (bool, error) {
 
 	_, err := client.Stat(remotePath)
 	return err == nil, nil
+}
+
+// ConnectionTestResult 连接测试结果
+type ConnectionTestResult struct {
+	Success   bool   `json:"success"`
+	Provider  string `json:"provider"`
+	Endpoint  string `json:"endpoint"`
+	Bucket    string `json:"bucket"`
+	LatencyMs int64  `json:"latencyMs"`
+	Message   string `json:"message"`
+}
+
+// CheckConnection 检查云端连接状态
+func (cb *CloudBackup) CheckConnection() (*ConnectionTestResult, error) {
+	switch cb.provider {
+	case CloudProviderS3, CloudProviderAliyun:
+		return cb.checkS3Connection()
+	case CloudProviderWebDAV:
+		return cb.checkWebDAVConnection()
+	default:
+		return nil, fmt.Errorf("不支持的提供商：%s", cb.provider)
+	}
+}
+
+// checkS3Connection 检查 S3 连接
+func (cb *CloudBackup) checkS3Connection() (*ConnectionTestResult, error) {
+	startTime := time.Now()
+	
+	client, ok := cb.client.(*s3.Client)
+	if !ok {
+		return nil, fmt.Errorf("客户端类型错误")
+	}
+
+	cfg := cb.getCloudConfig()
+
+	// 尝试列出 bucket 中的对象（仅检查连接，不获取实际数据）
+	_, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+		Bucket:  aws.String(cfg.Bucket),
+		MaxKeys: aws.Int32(1), // 只检查是否能连接，不获取大量数据
+	})
+
+	latency := time.Since(startTime).Milliseconds()
+
+	if err != nil {
+		return &ConnectionTestResult{
+			Success:   false,
+			Provider:  string(cb.provider),
+			Endpoint:  cfg.Endpoint,
+			Bucket:    cfg.Bucket,
+			LatencyMs: latency,
+			Message:   fmt.Sprintf("连接失败：%v", err),
+		}, err
+	}
+
+	return &ConnectionTestResult{
+		Success:   true,
+		Provider:  string(cb.provider),
+		Endpoint:  cfg.Endpoint,
+		Bucket:    cfg.Bucket,
+		LatencyMs: latency,
+		Message:   "连接成功",
+	}, nil
+}
+
+// checkWebDAVConnection 检查 WebDAV 连接
+func (cb *CloudBackup) checkWebDAVConnection() (*ConnectionTestResult, error) {
+	startTime := time.Now()
+	
+	client, ok := cb.client.(*gowebdav.Client)
+	if !ok {
+		return nil, fmt.Errorf("客户端类型错误")
+	}
+
+	cfg := cb.getCloudConfig()
+
+	// 尝试读取根目录
+	_, err := client.ReadDir("/")
+
+	latency := time.Since(startTime).Milliseconds()
+
+	if err != nil {
+		return &ConnectionTestResult{
+			Success:   false,
+			Provider:  string(cb.provider),
+			Endpoint:  cfg.Endpoint,
+			Bucket:    "",
+			LatencyMs: latency,
+			Message:   fmt.Sprintf("连接失败：%v", err),
+		}, err
+	}
+
+	return &ConnectionTestResult{
+		Success:   true,
+		Provider:  string(cb.provider),
+		Endpoint:  cfg.Endpoint,
+		Bucket:    "",
+		LatencyMs: latency,
+		Message:   "连接成功",
+	}, nil
 }
