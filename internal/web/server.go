@@ -341,14 +341,14 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			return srv
 		}(),
 		/*
-		ftpSrv: func() *ftp.Server {
-			srv, _ := ftp.NewServer(userMgr, "/etc/nas-os/ftp-config.json")
-			return srv
-		}(),
-		sftpSrv: func() *sftp.Server {
-			srv, _ := sftp.NewServer("/etc/nas-os/sftp-config.json")
-			return srv
-		}(),
+			ftpSrv: func() *ftp.Server {
+				srv, _ := ftp.NewServer(userMgr, "/etc/nas-os/ftp-config.json")
+				return srv
+			}(),
+			sftpSrv: func() *sftp.Server {
+				srv, _ := sftp.NewServer("/etc/nas-os/sftp-config.json")
+				return srv
+			}(),
 		*/
 		aiClassifyMgr: aiClassifyMgr,
 		versioningMgr: versioningMgr,
@@ -367,19 +367,19 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 
 	// TODO: v1.9.0 - SFTP 认证函数
 	/*
-	// 设置 SFTP 认证函数
-	if s.sftpSrv != nil && s.userMgr != nil {
-		s.sftpSrv.SetAuthFunc(func(username, password string) bool {
-			_, err := s.userMgr.Authenticate(username, password)
-			return err == nil
-		})
-		s.sftpSrv.SetGetUserHome(func(username string) string {
-			if user, err := s.userMgr.GetUser(username); err == nil {
-				return user.HomeDir
-			}
-			return ""
-		})
-	}
+		// 设置 SFTP 认证函数
+		if s.sftpSrv != nil && s.userMgr != nil {
+			s.sftpSrv.SetAuthFunc(func(username, password string) bool {
+				_, err := s.userMgr.Authenticate(username, password)
+				return err == nil
+			})
+			s.sftpSrv.SetGetUserHome(func(username string) string {
+				if user, err := s.userMgr.GetUser(username); err == nil {
+					return user.HomeDir
+				}
+				return ""
+			})
+		}
 	*/
 
 	// 添加性能监控中间件 (在日志中间件之后)
@@ -500,15 +500,15 @@ func (s *Server) setupRoutes() {
 
 		// TODO: v1.9.0 - FTP/SFTP 服务器
 		/*
-		// ========== FTP 服务器 ==========
-		if s.ftpSrv != nil {
-			ftp.NewHandlers(s.ftpSrv).RegisterRoutes(api)
-		}
+			// ========== FTP 服务器 ==========
+			if s.ftpSrv != nil {
+				ftp.NewHandlers(s.ftpSrv).RegisterRoutes(api)
+			}
 
-		// ========== SFTP 服务器 ==========
-		if s.sftpSrv != nil {
-			s.sftpSrv.RegisterRoutes(api)
-		}
+			// ========== SFTP 服务器 ==========
+			if s.sftpSrv != nil {
+				s.sftpSrv.RegisterRoutes(api)
+			}
 		*/
 
 		// ========== AI 分类 ==========
@@ -677,29 +677,29 @@ func (s *Server) Start(addr string) error {
 
 	// TODO: v1.9.0 - FTP/SFTP 服务器启动
 	/*
-	// 启动 FTP 服务器
-	if s.ftpSrv != nil {
-		cfg := s.ftpSrv.GetConfig()
-		if cfg.Enabled {
-			if err := s.ftpSrv.Start(); err != nil {
-				log.Printf("⚠️ FTP 服务器启动警告：%v", err)
-			} else {
-				log.Println("✅ FTP 服务器已启动")
+		// 启动 FTP 服务器
+		if s.ftpSrv != nil {
+			cfg := s.ftpSrv.GetConfig()
+			if cfg.Enabled {
+				if err := s.ftpSrv.Start(); err != nil {
+					log.Printf("⚠️ FTP 服务器启动警告：%v", err)
+				} else {
+					log.Println("✅ FTP 服务器已启动")
+				}
 			}
 		}
-	}
 
-	// 启动 SFTP 服务器
-	if s.sftpSrv != nil {
-		cfg := s.sftpSrv.GetConfig()
-		if cfg.Enabled {
-			if err := s.sftpSrv.Start(); err != nil {
-				log.Printf("⚠️ SFTP 服务器启动警告：%v", err)
-			} else {
-				log.Println("✅ SFTP 服务器已启动")
+		// 启动 SFTP 服务器
+		if s.sftpSrv != nil {
+			cfg := s.sftpSrv.GetConfig()
+			if cfg.Enabled {
+				if err := s.sftpSrv.Start(); err != nil {
+					log.Printf("⚠️ SFTP 服务器启动警告：%v", err)
+				} else {
+					log.Println("✅ SFTP 服务器已启动")
+				}
 			}
 		}
-	}
 	*/
 
 	s.httpSrv = &http.Server{
@@ -733,15 +733,15 @@ func (s *Server) Stop() error {
 
 	// TODO: v1.9.0 - FTP/SFTP 服务器停止
 	/*
-	// 停止 FTP 服务器
-	if s.ftpSrv != nil {
-		s.ftpSrv.Stop()
-	}
+		// 停止 FTP 服务器
+		if s.ftpSrv != nil {
+			s.ftpSrv.Stop()
+		}
 
-	// 停止 SFTP 服务器
-	if s.sftpSrv != nil {
-		s.sftpSrv.Stop()
-	}
+		// 停止 SFTP 服务器
+		if s.sftpSrv != nil {
+			s.sftpSrv.Stop()
+		}
 	*/
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
