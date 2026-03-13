@@ -52,6 +52,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		usage.GET("", h.getAllUsage)
 		usage.GET("/users/:username", h.getUserUsage)
 		usage.GET("/groups/:groupname", h.getGroupUsage)
+		usage.GET("/directories", h.getDirectoryUsage)
 	}
 
 	// ========== 告警管理 ==========
@@ -308,6 +309,38 @@ func (h *Handlers) getGroupUsage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, Success(result))
+}
+
+func (h *Handlers) getDirectoryUsage(c *gin.Context) {
+	path := c.Query("path")
+	if path == "" {
+		// 返回所有目录配额
+		usages := h.manager.ListDirectoryQuotas()
+		result := make([]*QuotaUsage, 0, len(usages))
+		for _, q := range usages {
+			usage, err := h.manager.GetUsage(q.ID)
+			if err == nil {
+				result = append(result, usage)
+			}
+		}
+		c.JSON(http.StatusOK, Success(result))
+		return
+	}
+
+	// 返回指定目录的使用情况
+	quota, err := h.manager.GetDirectoryQuota(path)
+	if err != nil {
+		c.JSON(http.StatusNotFound, Error(404, err.Error()))
+		return
+	}
+
+	usage, err := h.manager.GetUsage(quota.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(usage))
 }
 
 // ========== 告警管理 API ==========
