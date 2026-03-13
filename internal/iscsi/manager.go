@@ -85,7 +85,7 @@ func (m *Manager) loadConfig() error {
 	return nil
 }
 
-// saveConfig saves configuration to disk
+// saveConfig saves configuration to disk (acquires lock)
 func (m *Manager) saveConfig() error {
 	m.mu.RLock()
 	pc := persistentConfig{
@@ -94,6 +94,20 @@ func (m *Manager) saveConfig() error {
 	}
 	m.mu.RUnlock()
 
+	return m.writeConfigFile(pc)
+}
+
+// saveConfigLocked saves configuration (caller holds lock)
+func (m *Manager) saveConfigLocked() error {
+	pc := persistentConfig{
+		Config:  m.config,
+		Targets: m.targets,
+	}
+	return m.writeConfigFile(pc)
+}
+
+// writeConfigFile writes config to file
+func (m *Manager) writeConfigFile(pc persistentConfig) error {
 	data, err := json.MarshalIndent(pc, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to serialize config: %w", err)
@@ -183,7 +197,7 @@ func (m *Manager) CreateTarget(input TargetInput) (*Target, error) {
 	m.targets[targetID] = target
 
 	// Save configuration
-	if err := m.saveConfig(); err != nil {
+	if err := m.saveConfigLocked(); err != nil {
 		delete(m.targets, targetID)
 		return nil, err
 	}
@@ -264,7 +278,7 @@ func (m *Manager) UpdateTarget(id string, input TargetInput) (*Target, error) {
 
 	target.UpdatedAt = time.Now()
 
-	if err := m.saveConfig(); err != nil {
+	if err := m.saveConfigLocked(); err != nil {
 		return nil, err
 	}
 
@@ -293,7 +307,7 @@ func (m *Manager) DeleteTarget(id string) error {
 
 	delete(m.targets, id)
 
-	return m.saveConfig()
+	return m.saveConfigLocked()
 }
 
 // AddLUN adds a LUN to a target
@@ -329,7 +343,7 @@ func (m *Manager) AddLUN(targetID string, input LUNInput) (*LUN, error) {
 	target.LUNs = append(target.LUNs, lun)
 	target.UpdatedAt = time.Now()
 
-	if err := m.saveConfig(); err != nil {
+	if err := m.saveConfigLocked(); err != nil {
 		return nil, err
 	}
 
@@ -372,7 +386,7 @@ func (m *Manager) RemoveLUN(targetID, lunID string) error {
 			}
 			target.LUNs = append(target.LUNs[:i], target.LUNs[i+1:]...)
 			target.UpdatedAt = time.Now()
-			return m.saveConfig()
+			return m.saveConfigLocked()
 		}
 	}
 
@@ -395,7 +409,7 @@ func (m *Manager) ExpandLUN(targetID, lunID string, newSize int64) (*LUN, error)
 				return nil, err
 			}
 			target.UpdatedAt = time.Now()
-			if err := m.saveConfig(); err != nil {
+			if err := m.saveConfigLocked(); err != nil {
 				return nil, err
 			}
 			return lun, nil
@@ -422,7 +436,7 @@ func (m *Manager) CreateLUNSnapshot(targetID, lunID string, input LUNSnapshotInp
 				return nil, err
 			}
 			target.UpdatedAt = time.Now()
-			if err := m.saveConfig(); err != nil {
+			if err := m.saveConfigLocked(); err != nil {
 				return nil, err
 			}
 			return snapshot, nil
@@ -583,7 +597,7 @@ func (m *Manager) EnableTarget(id string) error {
 	target.Enabled = true
 	target.UpdatedAt = time.Now()
 
-	return m.saveConfig()
+	return m.saveConfigLocked()
 }
 
 // DisableTarget disables a target
@@ -599,7 +613,7 @@ func (m *Manager) DisableTarget(id string) error {
 	target.Enabled = false
 	target.UpdatedAt = time.Now()
 
-	return m.saveConfig()
+	return m.saveConfigLocked()
 }
 
 // GetConfig returns the current configuration
