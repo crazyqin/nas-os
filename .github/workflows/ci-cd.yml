@@ -228,10 +228,10 @@ jobs:
       - name: 整理发布文件
         run: |
           cd ./artifacts
-          # 移动所有二进制文件到根目录
-          find . -name "nasd-*" | xargs -I {} mv {} .
-          find . -name "checksums.txt" | xargs -I {} mv {} .
-          rm -rf nas-os-*
+          # 移动所有二进制文件到根目录（避免同文件移动错误）
+          find . -mindepth 2 -name "nasd-*" -exec mv {} . \;
+          find . -mindepth 2 -name "checksums.txt" -exec mv {} . \;
+          rm -rf nas-os-*/
           ls -la
       
       - name: 创建 Release
