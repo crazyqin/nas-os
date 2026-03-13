@@ -20,28 +20,28 @@ const (
 
 // ChunkInfo represents a file chunk
 type ChunkInfo struct {
-	Index      int    `json:"index"`
-	Offset     int64  `json:"offset"`
-	Size       int64  `json:"size"`
-	MD5        string `json:"md5"`
-	Uploaded   bool   `json:"uploaded"`
+	Index      int       `json:"index"`
+	Offset     int64     `json:"offset"`
+	Size       int64     `json:"size"`
+	MD5        string    `json:"md5"`
+	Uploaded   bool      `json:"uploaded"`
 	UploadTime time.Time `json:"upload_time,omitempty"`
 }
 
 // UploadProgress tracks upload progress
 type UploadProgress struct {
-	TotalChunks   int     `json:"total_chunks"`
-	UploadedChunks int    `json:"uploaded_chunks"`
-	TotalBytes    int64   `json:"total_bytes"`
-	UploadedBytes int64   `json:"uploaded_bytes"`
-	Progress      float64 `json:"progress"` // 0-100
-	Speed         float64 `json:"speed"`    // bytes/s
-	ETA           int64   `json:"eta"`      // seconds
+	TotalChunks    int     `json:"total_chunks"`
+	UploadedChunks int     `json:"uploaded_chunks"`
+	TotalBytes     int64   `json:"total_bytes"`
+	UploadedBytes  int64   `json:"uploaded_bytes"`
+	Progress       float64 `json:"progress"` // 0-100
+	Speed          float64 `json:"speed"`    // bytes/s
+	ETA            int64   `json:"eta"`      // seconds
 }
 
 // ChunkedUploader handles chunked file uploads
 type ChunkedUploader struct {
-	chunkSize int64
+	chunkSize  int64
 	maxRetries int
 }
 
@@ -53,7 +53,7 @@ func NewChunkedUploader(chunkSize int64, maxRetries int) *ChunkedUploader {
 	if maxRetries <= 0 {
 		maxRetries = MaxRetries
 	}
-	
+
 	return &ChunkedUploader{
 		chunkSize:  chunkSize,
 		maxRetries: maxRetries,
@@ -67,42 +67,42 @@ func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkI
 		return nil, err
 	}
 	defer file.Close()
-	
+
 	stat, err := file.Stat()
 	if err != nil {
 		return nil, err
 	}
-	
+
 	fileSize := stat.Size()
 	numChunks := (fileSize + u.chunkSize - 1) / u.chunkSize
-	
+
 	chunks := make([]ChunkInfo, numChunks)
 	buf := make([]byte, u.chunkSize)
-	
+
 	for i := int64(0); i < numChunks; i++ {
 		offset := i * u.chunkSize
 		n, err := file.ReadAt(buf, offset)
 		if err != nil && err != io.EOF {
 			return nil, fmt.Errorf("failed to read chunk %d: %w", i, err)
 		}
-		
+
 		chunkData := buf[:n]
 		chunkMD5 := calculateMD5(chunkData)
-		
+
 		chunks[i] = ChunkInfo{
 			Index:  int(i),
 			Offset: offset,
 			Size:   int64(n),
 			MD5:    chunkMD5,
 		}
-		
+
 		// Write chunk to file
 		chunkPath := filepath.Join(outputDir, fmt.Sprintf("%s.chunk.%d", filepath.Base(filePath), i))
 		if err := os.WriteFile(chunkPath, chunkData, 0644); err != nil {
 			return nil, fmt.Errorf("failed to write chunk %d: %w", i, err)
 		}
 	}
-	
+
 	return chunks, nil
 }
 
@@ -113,7 +113,7 @@ func (u *ChunkedUploader) MergeChunks(chunkDir string, outputPath string, totalC
 		return err
 	}
 	defer outputFile.Close()
-	
+
 	for i := 0; i < totalChunks; i++ {
 		chunkPath := filepath.Join(chunkDir, fmt.Sprintf("*.chunk.%d", i))
 		matches, err := filepath.Glob(chunkPath)
@@ -123,17 +123,17 @@ func (u *ChunkedUploader) MergeChunks(chunkDir string, outputPath string, totalC
 		if len(matches) == 0 {
 			return fmt.Errorf("chunk %d not found", i)
 		}
-		
+
 		chunkData, err := os.ReadFile(matches[0])
 		if err != nil {
 			return err
 		}
-		
+
 		if _, err := outputFile.Write(chunkData); err != nil {
 			return err
 		}
 	}
-	
+
 	return nil
 }
 
@@ -144,24 +144,24 @@ func (u *ChunkedUploader) UploadChunk(
 	chunk ChunkInfo,
 ) error {
 	var lastErr error
-	
+
 	for attempt := 0; attempt < u.maxRetries; attempt++ {
 		data, err := os.ReadFile(chunkPath)
 		if err != nil {
 			return err
 		}
-		
+
 		if err := uploadFunc(data, chunk); err != nil {
 			lastErr = err
 			time.Sleep(time.Duration(attempt+1) * time.Second)
 			continue
 		}
-		
+
 		chunk.Uploaded = true
 		chunk.UploadTime = time.Now()
 		return nil
 	}
-	
+
 	return fmt.Errorf("failed after %d attempts: %w", u.maxRetries, lastErr)
 }
 
@@ -172,12 +172,12 @@ func CalculateFileMD5(filePath string) (string, error) {
 		return "", err
 	}
 	defer file.Close()
-	
+
 	hash := md5.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err
 	}
-	
+
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
@@ -191,17 +191,17 @@ func calculateMD5(data []byte) string {
 func CompressReader(reader io.Reader) (io.Reader, error) {
 	pr, pw := io.Pipe()
 	gw := gzip.NewWriter(pw)
-	
+
 	go func() {
 		defer pw.Close()
 		defer gw.Close()
-		
+
 		_, err := io.Copy(gw, reader)
 		if err != nil {
 			pw.CloseWithError(err)
 		}
 	}()
-	
+
 	return pr, nil
 }
 
@@ -217,16 +217,16 @@ func CompressFile(inputPath, outputPath string) error {
 		return err
 	}
 	defer inputFile.Close()
-	
+
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
 	defer outputFile.Close()
-	
+
 	gw := gzip.NewWriter(outputFile)
 	defer gw.Close()
-	
+
 	_, err = io.Copy(gw, inputFile)
 	return err
 }
@@ -238,19 +238,19 @@ func DecompressFile(inputPath, outputPath string) error {
 		return err
 	}
 	defer inputFile.Close()
-	
+
 	gr, err := gzip.NewReader(inputFile)
 	if err != nil {
 		return err
 	}
 	defer gr.Close()
-	
+
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
 	defer outputFile.Close()
-	
+
 	_, err = io.Copy(outputFile, gr)
 	return err
 }
@@ -270,11 +270,11 @@ func NewResumableUpload(filePath string, chunkSize int64) (*ResumableUpload, err
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if chunkSize <= 0 {
 		chunkSize = DefaultChunkSize
 	}
-	
+
 	return &ResumableUpload{
 		filePath:  filePath,
 		fileSize:  stat.Size(),
@@ -286,26 +286,26 @@ func NewResumableUpload(filePath string, chunkSize int64) (*ResumableUpload, err
 func (r *ResumableUpload) GetNextChunk() ([]byte, int64, int64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	if r.uploadedSize >= r.fileSize {
 		return nil, 0, 0, io.EOF
 	}
-	
+
 	file, err := os.Open(r.filePath)
 	if err != nil {
 		return nil, 0, 0, err
 	}
 	defer file.Close()
-	
+
 	buf := make([]byte, r.chunkSize)
 	n, err := file.ReadAt(buf, r.uploadedSize)
 	if err != nil && err != io.EOF {
 		return nil, 0, 0, err
 	}
-	
+
 	offset := r.uploadedSize
 	r.uploadedSize += int64(n)
-	
+
 	return buf[:n], offset, int64(n), nil
 }
 
@@ -313,7 +313,7 @@ func (r *ResumableUpload) GetNextChunk() ([]byte, int64, int64, error) {
 func (r *ResumableUpload) GetProgress() float64 {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	
+
 	return float64(r.uploadedSize) / float64(r.fileSize) * 100
 }
 
@@ -353,11 +353,11 @@ func NewChunkedReader(filePath string, chunkSize int) (*ChunkedReader, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if chunkSize <= 0 {
 		chunkSize = DefaultChunkSize
 	}
-	
+
 	return &ChunkedReader{
 		file:      file,
 		chunkSize: chunkSize,
@@ -370,7 +370,7 @@ func (r *ChunkedReader) ReadNextChunk() ([]byte, error) {
 	if r.eof {
 		return nil, io.EOF
 	}
-	
+
 	n, err := r.file.Read(r.buf)
 	if err != nil {
 		if err == io.EOF {
@@ -382,7 +382,7 @@ func (r *ChunkedReader) ReadNextChunk() ([]byte, error) {
 		}
 		return nil, err
 	}
-	
+
 	r.offset += int64(n)
 	return r.buf[:n], nil
 }
@@ -412,11 +412,11 @@ func NewChunkedWriter(filePath string, chunkSize int) (*ChunkedWriter, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if chunkSize <= 0 {
 		chunkSize = DefaultChunkSize
 	}
-	
+
 	return &ChunkedWriter{
 		file:      file,
 		chunkSize: chunkSize,
@@ -428,12 +428,12 @@ func NewChunkedWriter(filePath string, chunkSize int) (*ChunkedWriter, error) {
 func (w *ChunkedWriter) WriteChunk(data []byte) (int64, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	
+
 	n, err := w.file.Write(data)
 	if err != nil {
 		return 0, err
 	}
-	
+
 	w.offset += int64(n)
 	return int64(n), nil
 }
@@ -442,12 +442,12 @@ func (w *ChunkedWriter) WriteChunk(data []byte) (int64, error) {
 func (w *ChunkedWriter) WriteAt(data []byte, offset int64) (int64, error) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	
+
 	n, err := w.file.WriteAt(data, offset)
 	if err != nil {
 		return 0, err
 	}
-	
+
 	return int64(n), nil
 }
 
@@ -495,22 +495,22 @@ func (p *BufferPool) Put(buf *[]byte) {
 func CopyWithProgress(dst io.Writer, src io.Reader, totalSize int64, progressFunc func(int64)) (int64, error) {
 	var written int64
 	buf := make([]byte, 32*1024) // 32KB buffer
-	
+
 	for {
 		n, err := src.Read(buf)
 		if n > 0 {
 			nw, ew := dst.Write(buf[:n])
 			written += int64(nw)
-			
+
 			if progressFunc != nil {
 				progressFunc(written)
 			}
-			
+
 			if ew != nil {
 				return written, ew
 			}
 		}
-		
+
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -518,7 +518,7 @@ func CopyWithProgress(dst io.Writer, src io.Reader, totalSize int64, progressFun
 			return written, err
 		}
 	}
-	
+
 	return written, nil
 }
 
@@ -527,7 +527,7 @@ func StreamCopy(dst io.Writer, src io.Reader, bufferSize int) (int64, error) {
 	if bufferSize <= 0 {
 		bufferSize = 32 * 1024
 	}
-	
+
 	buf := bufio.NewReaderSize(src, bufferSize)
 	return io.Copy(dst, buf)
 }

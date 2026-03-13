@@ -13,37 +13,37 @@ import (
 
 // Volume Docker 存储卷
 type Volume struct {
-	Name        string            `json:"name"`
-	Driver      string            `json:"driver"`
-	MountPoint  string            `json:"mountPoint"`
-	Created     time.Time         `json:"created"`
-	Size        uint64            `json:"size"`
-	SizeHuman   string            `json:"sizeHuman"`
-	Labels      map[string]string `json:"labels"`
-	Scope       string            `json:"scope"`
-	Options     map[string]string `json:"options"`
-	Containers  []string          `json:"containers"` // 使用该卷的容器
+	Name       string            `json:"name"`
+	Driver     string            `json:"driver"`
+	MountPoint string            `json:"mountPoint"`
+	Created    time.Time         `json:"created"`
+	Size       uint64            `json:"size"`
+	SizeHuman  string            `json:"sizeHuman"`
+	Labels     map[string]string `json:"labels"`
+	Scope      string            `json:"scope"`
+	Options    map[string]string `json:"options"`
+	Containers []string          `json:"containers"` // 使用该卷的容器
 }
 
 // VolumeConfig 卷创建配置
 type VolumeConfig struct {
-	Name       string            `json:"name"`
-	Driver     string            `json:"driver"`     // "local", "nfs", "cifs"
-	Labels     map[string]string `json:"labels"`
-	Options    map[string]string `json:"options"`    // 驱动特定选项
-	HostPath   string            `json:"hostPath"`   // 本地路径（bind mount）
+	Name     string            `json:"name"`
+	Driver   string            `json:"driver"` // "local", "nfs", "cifs"
+	Labels   map[string]string `json:"labels"`
+	Options  map[string]string `json:"options"`  // 驱动特定选项
+	HostPath string            `json:"hostPath"` // 本地路径（bind mount）
 }
 
 // VolumeBackup 卷备份信息
 type VolumeBackup struct {
-	Name        string    `json:"name"`
-	VolumeName  string    `json:"volumeName"`
-	BackupPath  string    `json:"backupPath"`
-	Size        uint64    `json:"size"`
-	SizeHuman   string    `json:"sizeHuman"`
-	Created     time.Time `json:"created"`
-	Checksum    string    `json:"checksum"`
-	Compressed  bool      `json:"compressed"`
+	Name       string    `json:"name"`
+	VolumeName string    `json:"volumeName"`
+	BackupPath string    `json:"backupPath"`
+	Size       uint64    `json:"size"`
+	SizeHuman  string    `json:"sizeHuman"`
+	Created    time.Time `json:"created"`
+	Checksum   string    `json:"checksum"`
+	Compressed bool      `json:"compressed"`
 }
 
 // VolumeManager 卷管理器
@@ -104,12 +104,12 @@ func (vm *VolumeManager) GetVolume(name string) (*Volume, error) {
 	}
 
 	var raw struct {
-		Name       string    `json:"Name"`
-		Driver     string    `json:"Driver"`
-		Mountpoint string    `json:"Mountpoint"`
-		CreatedAt  time.Time `json:"CreatedAt"`
+		Name       string            `json:"Name"`
+		Driver     string            `json:"Driver"`
+		Mountpoint string            `json:"Mountpoint"`
+		CreatedAt  time.Time         `json:"CreatedAt"`
 		Labels     map[string]string `json:"Labels"`
-		Scope      string    `json:"Scope"`
+		Scope      string            `json:"Scope"`
 		Options    map[string]string `json:"Options"`
 	}
 

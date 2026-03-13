@@ -23,8 +23,8 @@ type MFAManager struct {
 	userSecrets map[string]*MFASecret // UserID -> MFA 密钥
 	mu          sync.RWMutex
 	// 通知回调
-	sendEmailFunc func(to, subject, body string) error
-	sendSMSFunc   func(to, message string) error
+	sendEmailFunc   func(to, subject, body string) error
+	sendSMSFunc     func(to, message string) error
 	sendWebhookFunc func(url, event string, data map[string]interface{}) error
 }
 
@@ -45,24 +45,24 @@ type MFAConfig struct {
 
 // MFASecret 用户 MFA 密钥
 type MFASecret struct {
-	UserID        string   `json:"user_id"`
-	Username      string   `json:"username"`
-	TOTPSecret    string   `json:"totp_secret"`    // TOTP 密钥（Base32 编码）
-	SMSPhone      string   `json:"sms_phone"`      // 手机号
-	Email         string   `json:"email"`          // 邮箱
-	RecoveryCodes []string `json:"recovery_codes"` // 恢复码（加盐哈希存储）
-	Enabled       bool     `json:"enabled"`        // MFA 是否启用
-	PreferredMethod string `json:"preferred_method"` // 首选验证方式（totp, sms, email）
-	CreatedAt     time.Time `json:"created_at"`
-	LastUsed      *time.Time `json:"last_used,omitempty"`
+	UserID          string     `json:"user_id"`
+	Username        string     `json:"username"`
+	TOTPSecret      string     `json:"totp_secret"`      // TOTP 密钥（Base32 编码）
+	SMSPhone        string     `json:"sms_phone"`        // 手机号
+	Email           string     `json:"email"`            // 邮箱
+	RecoveryCodes   []string   `json:"recovery_codes"`   // 恢复码（加盐哈希存储）
+	Enabled         bool       `json:"enabled"`          // MFA 是否启用
+	PreferredMethod string     `json:"preferred_method"` // 首选验证方式（totp, sms, email）
+	CreatedAt       time.Time  `json:"created_at"`
+	LastUsed        *time.Time `json:"last_used,omitempty"`
 }
 
 // MFAVerificationResult MFA 验证结果
 type MFAVerificationResult struct {
-	Success      bool   `json:"success"`
-	Method       string `json:"method"`
-	Message      string `json:"message"`
-	RequiresMFA  bool   `json:"requires_mfa"`
+	Success        bool   `json:"success"`
+	Method         string `json:"method"`
+	Message        string `json:"message"`
+	RequiresMFA    bool   `json:"requires_mfa"`
 	TemporaryToken string `json:"temporary_token,omitempty"` // 临时令牌（用于 MFA 验证期间）
 }
 
@@ -209,15 +209,15 @@ func (mm *MFAManager) SetupMFA(userID, username, phone, email string) (*MFASecre
 	}
 
 	secret := &MFASecret{
-		UserID:        userID,
-		Username:      username,
-		TOTPSecret:    totpSecret,
-		SMSPhone:      phone,
-		Email:         email,
-		RecoveryCodes: hashedCodes,
-		Enabled:       false, // 初始为禁用，用户确认后再启用
+		UserID:          userID,
+		Username:        username,
+		TOTPSecret:      totpSecret,
+		SMSPhone:        phone,
+		Email:           email,
+		RecoveryCodes:   hashedCodes,
+		Enabled:         false, // 初始为禁用，用户确认后再启用
 		PreferredMethod: "totp",
-		CreatedAt:     time.Now(),
+		CreatedAt:       time.Now(),
 	}
 
 	mm.userSecrets[userID] = secret
@@ -291,27 +291,27 @@ func (mm *MFAManager) VerifyMFA(userID, code, method string) (*MFAVerificationRe
 
 	if !exists {
 		return &MFAVerificationResult{
-			Success:      false,
-			Message:      "用户 MFA 配置不存在",
-			RequiresMFA:  false,
+			Success:     false,
+			Message:     "用户 MFA 配置不存在",
+			RequiresMFA: false,
 		}, nil
 	}
 
 	if !secret.Enabled {
 		return &MFAVerificationResult{
-			Success:      true,
-			Message:      "MFA 未启用",
-			RequiresMFA:  false,
+			Success:     true,
+			Message:     "MFA 未启用",
+			RequiresMFA: false,
 		}, nil
 	}
 
 	// 验证代码
 	if !mm.verifyCode(secret, code) {
 		return &MFAVerificationResult{
-			Success:      false,
-			Method:       method,
-			Message:      "验证码错误",
-			RequiresMFA:  true,
+			Success:     false,
+			Method:      method,
+			Message:     "验证码错误",
+			RequiresMFA: true,
 		}, nil
 	}
 
@@ -322,10 +322,10 @@ func (mm *MFAManager) VerifyMFA(userID, code, method string) (*MFAVerificationRe
 	mm.mu.Unlock()
 
 	return &MFAVerificationResult{
-		Success:      true,
-		Method:       method,
-		Message:      "MFA 验证成功",
-		RequiresMFA:  false,
+		Success:     true,
+		Method:      method,
+		Message:     "MFA 验证成功",
+		RequiresMFA: false,
 	}, nil
 }
 
@@ -425,16 +425,16 @@ func (mm *MFAManager) GetMFAStatus(userID string) (map[string]interface{}, error
 	}
 
 	return map[string]interface{}{
-		"enabled":          secret.Enabled,
-		"totp_enabled":     mm.config.TOTPEnabled,
-		"sms_enabled":      mm.config.SMSEnabled && secret.SMSPhone != "",
-		"email_enabled":    mm.config.EmailEnabled && secret.Email != "",
-		"preferred_method": secret.PreferredMethod,
-		"phone_masked":     mm.maskPhone(secret.SMSPhone),
-		"email_masked":     mm.maskEmail(secret.Email),
+		"enabled":                  secret.Enabled,
+		"totp_enabled":             mm.config.TOTPEnabled,
+		"sms_enabled":              mm.config.SMSEnabled && secret.SMSPhone != "",
+		"email_enabled":            mm.config.EmailEnabled && secret.Email != "",
+		"preferred_method":         secret.PreferredMethod,
+		"phone_masked":             mm.maskPhone(secret.SMSPhone),
+		"email_masked":             mm.maskEmail(secret.Email),
 		"recovery_codes_remaining": len(secret.RecoveryCodes),
-		"created_at":       secret.CreatedAt,
-		"last_used":        secret.LastUsed,
+		"created_at":               secret.CreatedAt,
+		"last_used":                secret.LastUsed,
 	}, nil
 }
 

@@ -10,12 +10,12 @@ import (
 
 // Stats holds cache statistics
 type Stats struct {
-	Hits       int64 `json:"hits"`
-	Misses     int64 `json:"misses"`
-	Sets       int64 `json:"sets"`
-	Evictions  int64 `json:"evictions"`
-	ExpireCount int64 `json:"expire_count"`
-	HitRatio   float64 `json:"hit_ratio"`
+	Hits        int64   `json:"hits"`
+	Misses      int64   `json:"misses"`
+	Sets        int64   `json:"sets"`
+	Evictions   int64   `json:"evictions"`
+	ExpireCount int64   `json:"expire_count"`
+	HitRatio    float64 `json:"hit_ratio"`
 }
 
 // Manager handles multiple cache instances with statistics
@@ -23,14 +23,14 @@ type Manager struct {
 	memoryCache *LRUCache
 	redisCache  *RedisCache // Optional
 	mu          sync.RWMutex
-	
+
 	// Statistics
 	hits      int64
 	misses    int64
 	sets      int64
 	evictions int64
 	expires   int64
-	
+
 	logger *zap.Logger
 }
 
@@ -40,10 +40,10 @@ func NewManager(capacity int, ttl time.Duration, logger *zap.Logger) *Manager {
 		memoryCache: NewLRUCache(capacity, ttl),
 		logger:      logger,
 	}
-	
+
 	// Start background cleanup
 	go m.startCleanup()
-	
+
 	return m
 }
 
@@ -51,12 +51,12 @@ func NewManager(capacity int, ttl time.Duration, logger *zap.Logger) *Manager {
 func (m *Manager) EnableRedis(addr, password string, db int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	redisCache, err := NewRedisCache(addr, password, db)
 	if err != nil {
 		return err
 	}
-	
+
 	m.redisCache = redisCache
 	m.logger.Info("Redis cache enabled", zap.String("addr", addr))
 	return nil
@@ -69,7 +69,7 @@ func (m *Manager) Get(key string) (interface{}, bool) {
 		atomic.AddInt64(&m.hits, 1)
 		return val, true
 	}
-	
+
 	// Try redis cache
 	if m.redisCache != nil {
 		if val, ok := m.redisCache.Get(key); ok {
@@ -80,7 +80,7 @@ func (m *Manager) Get(key string) (interface{}, bool) {
 			return val, true
 		}
 	}
-	
+
 	atomic.AddInt64(&m.misses, 1)
 	return nil, false
 }
@@ -89,7 +89,7 @@ func (m *Manager) Get(key string) (interface{}, bool) {
 func (m *Manager) Set(key string, value interface{}) {
 	atomic.AddInt64(&m.sets, 1)
 	m.memoryCache.Set(key, value)
-	
+
 	// Also store in redis if enabled
 	if m.redisCache != nil {
 		_ = m.redisCache.Set(key, value)
@@ -109,20 +109,20 @@ func (m *Manager) GetStats() *Stats {
 	hits := atomic.LoadInt64(&m.hits)
 	misses := atomic.LoadInt64(&m.misses)
 	sets := atomic.LoadInt64(&m.sets)
-	
+
 	var hitRatio float64
 	total := hits + misses
 	if total > 0 {
 		hitRatio = float64(hits) / float64(total) * 100
 	}
-	
+
 	return &Stats{
-		Hits:      hits,
-		Misses:    misses,
-		Sets:      sets,
-		Evictions: atomic.LoadInt64(&m.evictions),
+		Hits:        hits,
+		Misses:      misses,
+		Sets:        sets,
+		Evictions:   atomic.LoadInt64(&m.evictions),
 		ExpireCount: atomic.LoadInt64(&m.expires),
-		HitRatio:  hitRatio,
+		HitRatio:    hitRatio,
 	}
 }
 
@@ -139,7 +139,7 @@ func (m *Manager) ResetStats() {
 func (m *Manager) startCleanup() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
-	
+
 	for range ticker.C {
 		removed := m.memoryCache.Cleanup()
 		if removed > 0 {

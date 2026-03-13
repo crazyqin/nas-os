@@ -25,21 +25,21 @@ func (h *RBACHandlers) RegisterRoutes(api *gin.RouterGroup) {
 		rbac.POST("/roles", h.createRole)
 		rbac.GET("/roles/:name", h.getRole)
 		rbac.DELETE("/roles/:name", h.deleteRole)
-		
+
 		// 用户角色分配
 		rbac.GET("/users/:id/roles", h.getUserRoles)
 		rbac.POST("/users/:id/roles", h.assignUserRole)
 		rbac.DELETE("/users/:id/roles/:role", h.removeUserRole)
-		
+
 		// 组角色分配
 		rbac.GET("/groups/:id/roles", h.getGroupRoles)
 		rbac.POST("/groups/:id/roles", h.assignGroupRole)
 		rbac.DELETE("/groups/:id/roles/:role", h.removeGroupRole)
-		
+
 		// 权限检查
 		rbac.POST("/check", h.checkPermission)
 		rbac.GET("/users/:id/permissions", h.getUserPermissions)
-		
+
 		// 资源 ACL
 		rbac.GET("/resources/:id/acl", h.getResourceACL)
 		rbac.PUT("/resources/:id/acl", h.setResourceACL)
@@ -84,19 +84,19 @@ func (h *RBACHandlers) createRole(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	// 检查是否已存在
 	if _, exists := h.manager.roles[Role(req.Name)]; exists {
 		c.JSON(http.StatusConflict, apiError(409, "角色已存在"))
 		return
 	}
-	
+
 	// 转换继承角色
 	inherits := make([]Role, len(req.Inherits))
 	for i, r := range req.Inherits {
 		inherits[i] = Role(r)
 	}
-	
+
 	err := h.manager.AddRole(
 		Role(req.Name),
 		req.Description,
@@ -107,40 +107,40 @@ func (h *RBACHandlers) createRole(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, success(nil))
 }
 
 // getRole 获取角色详情
 func (h *RBACHandlers) getRole(c *gin.Context) {
 	roleName := Role(c.Param("name"))
-	
+
 	h.manager.mu.RLock()
 	roleDef, exists := h.manager.roles[roleName]
 	h.manager.mu.RUnlock()
-	
+
 	if !exists {
 		c.JSON(http.StatusNotFound, apiError(404, "角色不存在"))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, success(roleDef))
 }
 
 // deleteRole 删除角色
 func (h *RBACHandlers) deleteRole(c *gin.Context) {
 	roleName := Role(c.Param("name"))
-	
+
 	// 不允许删除内置角色
 	if roleName == RoleAdmin || roleName == RoleUser || roleName == RoleGuest || roleName == RoleSystem {
 		c.JSON(http.StatusBadRequest, apiError(400, "不能删除内置角色"))
 		return
 	}
-	
+
 	h.manager.mu.Lock()
 	delete(h.manager.roles, roleName)
 	h.manager.mu.Unlock()
-	
+
 	c.JSON(http.StatusOK, success(nil))
 }
 
@@ -149,12 +149,12 @@ func (h *RBACHandlers) deleteRole(c *gin.Context) {
 // getUserRoles 获取用户的所有角色
 func (h *RBACHandlers) getUserRoles(c *gin.Context) {
 	userID := c.Param("id")
-	
+
 	roles := h.manager.GetUserRoles(userID)
 	if roles == nil {
 		roles = []Role{}
 	}
-	
+
 	c.JSON(http.StatusOK, success(roles))
 }
 
@@ -166,19 +166,19 @@ type AssignRoleRequest struct {
 // assignUserRole 给用户分配角色
 func (h *RBACHandlers) assignUserRole(c *gin.Context) {
 	userID := c.Param("id")
-	
+
 	var req AssignRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	err := h.manager.AssignRoleToUser(userID, Role(req.Role))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, success(nil))
 }
 
@@ -186,13 +186,13 @@ func (h *RBACHandlers) assignUserRole(c *gin.Context) {
 func (h *RBACHandlers) removeUserRole(c *gin.Context) {
 	userID := c.Param("id")
 	roleName := Role(c.Param("role"))
-	
+
 	err := h.manager.RemoveUserRole(userID, roleName)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, success(nil))
 }
 
@@ -201,34 +201,34 @@ func (h *RBACHandlers) removeUserRole(c *gin.Context) {
 // getGroupRoles 获取用户组的所有角色
 func (h *RBACHandlers) getGroupRoles(c *gin.Context) {
 	groupID := c.Param("id")
-	
+
 	h.manager.mu.RLock()
 	roles := h.manager.groupRoles[groupID]
 	h.manager.mu.RUnlock()
-	
+
 	if roles == nil {
 		roles = []Role{}
 	}
-	
+
 	c.JSON(http.StatusOK, success(roles))
 }
 
 // assignGroupRole 给用户组分配角色
 func (h *RBACHandlers) assignGroupRole(c *gin.Context) {
 	groupID := c.Param("id")
-	
+
 	var req AssignRoleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	err := h.manager.AssignRoleToGroup(groupID, Role(req.Role))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, success(nil))
 }
 
@@ -236,10 +236,10 @@ func (h *RBACHandlers) assignGroupRole(c *gin.Context) {
 func (h *RBACHandlers) removeGroupRole(c *gin.Context) {
 	groupID := c.Param("id")
 	roleName := Role(c.Param("role"))
-	
+
 	h.manager.mu.Lock()
 	defer h.manager.mu.Unlock()
-	
+
 	roles := h.manager.groupRoles[groupID]
 	for i, r := range roles {
 		if r == roleName {
@@ -248,7 +248,7 @@ func (h *RBACHandlers) removeGroupRole(c *gin.Context) {
 			return
 		}
 	}
-	
+
 	c.JSON(http.StatusBadRequest, apiError(400, "角色未分配"))
 }
 
@@ -269,14 +269,14 @@ func (h *RBACHandlers) checkPermission(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	hasPermission := h.manager.CheckPermission(
 		req.UserID,
 		req.Groups,
 		Resource(req.Resource),
 		Action(req.Action),
 	)
-	
+
 	c.JSON(http.StatusOK, success(map[string]interface{}{
 		"allowed": hasPermission,
 	}))
@@ -285,15 +285,15 @@ func (h *RBACHandlers) checkPermission(c *gin.Context) {
 // getUserPermissions 获取用户所有权限
 func (h *RBACHandlers) getUserPermissions(c *gin.Context) {
 	userID := c.Param("id")
-	
+
 	// 从查询参数获取用户组
 	groups := c.QueryArray("groups")
-	
+
 	permissions := h.manager.GetPermissions(userID, groups)
 	if permissions == nil {
 		permissions = []Permission{}
 	}
-	
+
 	c.JSON(http.StatusOK, success(permissions))
 }
 
@@ -301,40 +301,40 @@ func (h *RBACHandlers) getUserPermissions(c *gin.Context) {
 
 // ResourceACLRequest 资源 ACL 请求
 type ResourceACLRequest struct {
-	ResourceType string    `json:"resource_type" binding:"required"`
-	OwnerID      string    `json:"owner_id" binding:"required"`
+	ResourceType string     `json:"resource_type" binding:"required"`
+	OwnerID      string     `json:"owner_id" binding:"required"`
 	GroupACLs    []GroupACL `json:"group_acls"`
 	UserACLs     []UserACL  `json:"user_acls"`
-	ParentID     string    `json:"parent_id,omitempty"`
-	Inherit      bool      `json:"inherit"`
+	ParentID     string     `json:"parent_id,omitempty"`
+	Inherit      bool       `json:"inherit"`
 }
 
 // getResourceACL 获取资源 ACL
 func (h *RBACHandlers) getResourceACL(c *gin.Context) {
 	resourceID := c.Param("id")
-	
+
 	h.manager.mu.RLock()
 	acl, exists := h.manager.resourceACLs[resourceID]
 	h.manager.mu.RUnlock()
-	
+
 	if !exists {
 		c.JSON(http.StatusNotFound, apiError(404, "ACL 不存在"))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, success(acl))
 }
 
 // setResourceACL 设置资源 ACL
 func (h *RBACHandlers) setResourceACL(c *gin.Context) {
 	resourceID := c.Param("id")
-	
+
 	var req ResourceACLRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return
 	}
-	
+
 	h.manager.SetResourceACL(
 		resourceID,
 		Resource(req.ResourceType),
@@ -342,6 +342,6 @@ func (h *RBACHandlers) setResourceACL(c *gin.Context) {
 		req.GroupACLs,
 		req.UserACLs,
 	)
-	
+
 	c.JSON(http.StatusOK, success(nil))
 }
