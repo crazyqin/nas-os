@@ -21,9 +21,9 @@ import (
 
 // Manager OnlyOffice 管理器
 type Manager struct {
-	mu          sync.RWMutex
-	config      *Config
-	sessions    map[string]*EditingSession // sessionID -> Session
+	mu           sync.RWMutex
+	config       *Config
+	sessions     map[string]*EditingSession // sessionID -> Session
 	fileSessions map[string][]string        // fileID -> []sessionID（一个文件可能有多个会话）
 	associations map[string]FileAssociation
 
@@ -59,11 +59,11 @@ type FileInfo struct {
 // NewManager 创建 OnlyOffice 管理器
 func NewManager(configPath string, accessor FileAccessor) (*Manager, error) {
 	m := &Manager{
-		config:      DefaultConfig(),
-		sessions:    make(map[string]*EditingSession),
+		config:       DefaultConfig(),
+		sessions:     make(map[string]*EditingSession),
 		fileSessions: make(map[string][]string),
 		associations: DefaultFileAssociations(),
-		configPath:  configPath,
+		configPath:   configPath,
 		fileAccessor: accessor,
 	}
 
@@ -564,23 +564,23 @@ func (m *Manager) buildEditorConfig(session *EditingSession, fileInfo *FileInfo,
 	canEdit := mode == "edit"
 	permissions := Permissions{
 		Comment:              canEdit,
-		Copy:                true,
-		Download:            true,
-		Edit:                canEdit,
-		ModifyFilter:        canEdit,
+		Copy:                 true,
+		Download:             true,
+		Edit:                 canEdit,
+		ModifyFilter:         canEdit,
 		ModifyContentControl: canEdit,
-		Print:               true,
-		Protect:             canEdit,
-		Review:              canEdit,
-		FillForms:           canEdit,
+		Print:                true,
+		Protect:              canEdit,
+		Review:               canEdit,
+		FillForms:            canEdit,
 	}
 
 	// 文档配置
 	docConfig := DocumentConfig{
-		FileType: strings.TrimPrefix(filepath.Ext(fileInfo.Name), "."),
-		Key:      session.FileKey,
-		Title:    fileInfo.Name,
-		URL:      fileURL,
+		FileType:    strings.TrimPrefix(filepath.Ext(fileInfo.Name), "."),
+		Key:         session.FileKey,
+		Title:       fileInfo.Name,
+		URL:         fileURL,
 		Permissions: permissions,
 	}
 

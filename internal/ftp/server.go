@@ -35,30 +35,30 @@ type Server struct {
 	getUserHome   func(username string) string
 	ctx           context.Context
 	cancel        context.CancelFunc
-	connSem       chan struct{} // 连接数限制信号量
+	connSem       chan struct{}        // 连接数限制信号量
 	pasvListeners map[int]net.Listener // 被动模式监听器池
 	pasvPortMutex sync.Mutex
 }
 
 // clientConn 客户端连接
 type clientConn struct {
-	id          int
-	conn        net.Conn
-	server      *Server
-	remoteAddr  string
-	user        string
-	homeDir     string
-	currentDir  string
-	loggedIn    bool
-	binaryMode  bool
+	id           int
+	conn         net.Conn
+	server       *Server
+	remoteAddr   string
+	user         string
+	homeDir      string
+	currentDir   string
+	loggedIn     bool
+	binaryMode   bool
 	pasvListener net.Listener
-	pasvPort    int
-	pasvHost    string
-	restOffset  int64
-	lastCmd     time.Time
-	reader      *bufio.Reader
-	writer      *bufio.Writer
-	closed      bool
+	pasvPort     int
+	pasvHost     string
+	restOffset   int64
+	lastCmd      time.Time
+	reader       *bufio.Reader
+	writer       *bufio.Writer
+	closed       bool
 }
 
 // NewServer 创建 FTP 服务器
@@ -1054,9 +1054,9 @@ func (s *Server) GetStatus() map[string]interface{} {
 	defer s.mu.RUnlock()
 
 	status := map[string]interface{}{
-		"running":      s.running,
-		"port":         s.config.Port,
-		"connections":  len(s.clients),
+		"running":         s.running,
+		"port":            s.config.Port,
+		"connections":     len(s.clients),
 		"max_connections": s.config.MaxConnections,
 	}
 

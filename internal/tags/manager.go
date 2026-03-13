@@ -16,9 +16,9 @@ import (
 type Tag struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
-	Color     string    `json:"color"`     // 颜色代码，如 #FF5733
-	Icon      string    `json:"icon"`      // 图标名称或 emoji
-	Group     string    `json:"group"`     // 标签分组
+	Color     string    `json:"color"` // 颜色代码，如 #FF5733
+	Icon      string    `json:"icon"`  // 图标名称或 emoji
+	Group     string    `json:"group"` // 标签分组
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -60,19 +60,19 @@ type Stats struct {
 
 // 错误定义
 var (
-	ErrTagNotFound      = errors.New("标签不存在")
-	ErrTagExists        = errors.New("标签名称已存在")
-	ErrInvalidTagID     = errors.New("无效的标签ID")
-	ErrInvalidFilePath  = errors.New("无效的文件路径")
-	ErrTagAlreadyAdded  = errors.New("标签已添加到该文件")
-	ErrTagNotOnFile     = errors.New("文件没有此标签")
+	ErrTagNotFound     = errors.New("标签不存在")
+	ErrTagExists       = errors.New("标签名称已存在")
+	ErrInvalidTagID    = errors.New("无效的标签ID")
+	ErrInvalidFilePath = errors.New("无效的文件路径")
+	ErrTagAlreadyAdded = errors.New("标签已添加到该文件")
+	ErrTagNotOnFile    = errors.New("文件没有此标签")
 )
 
 // Manager 标签管理器
 type Manager struct {
-	db      *sql.DB
-	dbPath  string
-	mu      sync.RWMutex
+	db     *sql.DB
+	dbPath string
+	mu     sync.RWMutex
 }
 
 // NewManager 创建标签管理器

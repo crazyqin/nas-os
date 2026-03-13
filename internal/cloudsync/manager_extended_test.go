@@ -290,11 +290,11 @@ func TestSyncError(t *testing.T) {
 
 func TestConflictInfo_Fields(t *testing.T) {
 	conflict := ConflictInfo{
-		Path:          "/data/file.txt",
-		LocalSize:     1024,
-		LocalHash:     "abc123",
-		RemoteSize:    2048,
-		RemoteHash:    "def456",
+		Path:       "/data/file.txt",
+		LocalSize:  1024,
+		LocalHash:  "abc123",
+		RemoteSize: 2048,
+		RemoteHash: "def456",
 	}
 
 	assert.Equal(t, int64(1024), conflict.LocalSize)

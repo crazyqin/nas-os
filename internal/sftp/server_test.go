@@ -40,10 +40,10 @@ func TestNewServer(t *testing.T) {
 
 	t.Run("with custom config", func(t *testing.T) {
 		config := &Config{
-			Enabled:       false,
-			Port:          2222,
-			HostKeyPath:   t.TempDir() + "/ssh_host_key",
-			RootPath:      "/tmp/sftp-test",
+			Enabled:        false,
+			Port:           2222,
+			HostKeyPath:    t.TempDir() + "/ssh_host_key",
+			RootPath:       "/tmp/sftp-test",
 			MaxConnections: 50,
 		}
 
@@ -61,10 +61,10 @@ func TestNewServer(t *testing.T) {
 
 func TestServerLifecycle(t *testing.T) {
 	config := &Config{
-		Enabled:       false,
-		Port:          2222,
-		HostKeyPath:   t.TempDir() + "/ssh_host_key",
-		RootPath:      t.TempDir(),
+		Enabled:        false,
+		Port:           2222,
+		HostKeyPath:    t.TempDir() + "/ssh_host_key",
+		RootPath:       t.TempDir(),
 		MaxConnections: 10,
 	}
 
@@ -204,11 +204,11 @@ func TestConnectionLimit(t *testing.T) {
 
 func TestIdleTimeout(t *testing.T) {
 	config := &Config{
-		Enabled:      false,
-		Port:         2222,
-		HostKeyPath:  t.TempDir() + "/ssh_host_key",
-		RootPath:     t.TempDir(),
-		IdleTimeout:  600, // 10 分钟
+		Enabled:     false,
+		Port:        2222,
+		HostKeyPath: t.TempDir() + "/ssh_host_key",
+		RootPath:    t.TempDir(),
+		IdleTimeout: 600, // 10 分钟
 	}
 
 	server, err := NewServer(config)
