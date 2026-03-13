@@ -9,6 +9,7 @@ import (
 	"nas-os/internal/ai_classify"
 	"nas-os/internal/auth"
 	"nas-os/internal/backup"
+	"nas-os/internal/dedup"
 	"nas-os/internal/docker"
 	"nas-os/internal/downloader"
 	"nas-os/internal/files"
@@ -28,6 +29,7 @@ import (
 	"nas-os/internal/system"
 	"nas-os/internal/trash"
 	"nas-os/internal/users"
+	"nas-os/internal/versioning"
 	"nas-os/internal/vm"
 	"nas-os/internal/webdav"
 
@@ -74,6 +76,8 @@ type Server struct {
 	replMgr       *replication.Manager
 	webdavSrv     *webdav.Server
 	aiClassifyMgr *ai_classify.Classifier
+	versioningMgr *versioning.Manager
+	dedupMgr      *dedup.Manager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -254,6 +258,24 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ AI 分类模块就绪")
 	}
 
+	// 初始化版本控制管理器
+	versioningMgr, err := versioning.NewManager("/etc/nas-os/versioning-config.json", nil)
+	if err != nil {
+		log.Printf("⚠️ 版本控制初始化警告：%v", err)
+		versioningMgr = nil
+	} else {
+		log.Println("✅ 版本控制模块就绪")
+	}
+
+	// 初始化数据去重管理器
+	dedupMgr, err := dedup.NewManager("/etc/nas-os/dedup-config.json", nil)
+	if err != nil {
+		log.Printf("⚠️ 数据去重初始化警告：%v", err)
+		dedupMgr = nil
+	} else {
+		log.Println("✅ 数据去重模块就绪")
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -305,6 +327,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			return srv
 		}(),
 		aiClassifyMgr: aiClassifyMgr,
+		versioningMgr: versioningMgr,
+		dedupMgr:      dedupMgr,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -438,6 +462,16 @@ func (s *Server) setupRoutes() {
 			if err == nil {
 				aiHandlers.RegisterRoutes(api)
 			}
+		}
+
+		// ========== 文件版本控制 ==========
+		if s.versioningMgr != nil {
+			versioning.NewHandlers(s.versioningMgr).RegisterRoutes(api)
+		}
+
+		// ========== 数据去重 ==========
+		if s.dedupMgr != nil {
+			dedup.NewHandlers(s.dedupMgr).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
