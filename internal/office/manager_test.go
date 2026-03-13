@@ -405,6 +405,6 @@ func TestCallbackStatus(t *testing.T) {
 
 // ========== 辅助函数 ==========
 
-func boolPtr(b bool) *bool       { return &b }
-func strPtr(s string) *string    { return &s }
-func intPtr(i int) *int          { return &i }
+func boolPtr(b bool) *bool    { return &b }
+func strPtr(s string) *string { return &s }
+func intPtr(i int) *int       { return &i }

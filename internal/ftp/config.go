@@ -2,15 +2,15 @@ package ftp
 
 // Config FTP 服务器配置
 type Config struct {
-	Enabled       bool              `json:"enabled"`
-	Port          int               `json:"port"`          // FTP 端口 (默认 21)
-	PasvPortStart int               `json:"pasv_port_start"` // 被动模式端口范围起始
-	PasvPortEnd   int               `json:"pasv_port_end"`   // 被动模式端口范围结束
-	PasvHost      string            `json:"pasv_host"`       // 被动模式对外 IP
-	RootPath      string            `json:"root_path"`       // 根目录
-	AllowAnonymous bool             `json:"allow_anonymous"` // 允许匿名登录
-	MaxConnections int              `json:"max_connections"` // 最大连接数
-	BandwidthLimit BandwidthConfig  `json:"bandwidth_limit"` // 带宽限制
+	Enabled        bool              `json:"enabled"`
+	Port           int               `json:"port"`            // FTP 端口 (默认 21)
+	PasvPortStart  int               `json:"pasv_port_start"` // 被动模式端口范围起始
+	PasvPortEnd    int               `json:"pasv_port_end"`   // 被动模式端口范围结束
+	PasvHost       string            `json:"pasv_host"`       // 被动模式对外 IP
+	RootPath       string            `json:"root_path"`       // 根目录
+	AllowAnonymous bool              `json:"allow_anonymous"` // 允许匿名登录
+	MaxConnections int               `json:"max_connections"` // 最大连接数
+	BandwidthLimit BandwidthConfig   `json:"bandwidth_limit"` // 带宽限制
 	VirtualDirs    map[string]string `json:"virtual_dirs"`    // 虚拟目录映射: 虚拟路径 -> 实际路径
 }
 

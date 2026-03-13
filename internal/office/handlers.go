@@ -355,7 +355,7 @@ func (h *Handlers) getAssociations(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, Success(gin.H{
-		"total":  len(result),
+		"total": len(result),
 		"items": result,
 	}))
 }

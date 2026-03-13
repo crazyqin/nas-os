@@ -547,7 +547,7 @@ type addFileTagsRequest struct {
 
 // BatchTagRequest 批量标签请求
 type BatchTagRequest struct {
-	Action    string   `json:"action"`              // add, set, remove, clear
+	Action    string   `json:"action"` // add, set, remove, clear
 	FilePaths []string `json:"filePaths" binding:"required"`
 	TagIDs    []string `json:"tagIds"`
 }

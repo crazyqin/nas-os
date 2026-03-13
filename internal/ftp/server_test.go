@@ -31,9 +31,9 @@ func TestNewServer(t *testing.T) {
 
 	t.Run("with custom config", func(t *testing.T) {
 		config := &Config{
-			Enabled:       false,
-			Port:          2121,
-			RootPath:      "/tmp/ftp-test",
+			Enabled:        false,
+			Port:           2121,
+			RootPath:       "/tmp/ftp-test",
 			MaxConnections: 50,
 		}
 		server, err := NewServer(config)
