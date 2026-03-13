@@ -135,7 +135,10 @@ func NewManager(configPath, storagePath string) *Manager {
 // Initialize 初始化
 func (m *Manager) Initialize() error {
 	if err := m.loadConfig(); err != nil {
-		// 配置文件不存在是正常的
+		// 配置文件不存在是正常的，记录但不返回错误
+		m.mu.Lock()
+		m.configs = make(map[string]*BackupConfig)
+		m.mu.Unlock()
 	}
 	return nil
 }

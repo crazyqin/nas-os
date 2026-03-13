@@ -4,7 +4,7 @@
 
 > **最新版本**: v1.7.0 Stable (2026-03-13)  
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)  
-> **Docker**: [![Docker](https://img.shields.io/badge/docker-v1.7.0-blue)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v1.7.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -158,9 +158,9 @@ nas-os/
 
 详细里程碑请查看 [MILESTONES.md](MILESTONES.md)
 
-### 当前状态 (2026-03-13) - v1.6.0 Stable ✅
+### 当前状态 (2026-03-13) - v1.7.0 Stable ✅
 
-**7/7 里程碑全部完成**
+**8/8 里程碑全部完成**
 
 - [x] 项目骨架
 - [x] btrfs 完整功能 (卷/子卷/快照/balance/scrub)
@@ -176,6 +176,11 @@ nas-os/
 - [x] **权限管理 WebUI** (角色/ACL)
 - [x] **监控告警 WebUI** (实时图表)
 - [x] **六部轮值系统** (自动推进开发)
+- [x] **配额管理** (用户/组/目录三级)
+- [x] **回收站功能** (安全删除/恢复)
+- [x] **WebDAV 支持** (完整协议)
+- [x] **存储复制** (跨节点同步)
+- [x] **AI 智能分类** (照片/文件分类)
 
 ### 版本路线图
 | 版本 | 类型 | 发布日期 | 核心功能 | 状态 |
@@ -188,7 +193,22 @@ nas-os/
 | v1.3.0 | Stable | 2026-03-12 | 容器管理和 VM 功能 | ✅ 已发布 |
 | v1.4.x | Stable | 2026-03-12 | RBAC 权限系统 + WebUI | ✅ 已发布 |
 | v1.5.x | Stable | 2026-03-13 | 监控告警系统 + WebUI | ✅ 已发布 |
-| **v1.6.0** | **Stable** | **2026-03-13** | **性能优化 + CI/CD 完善** | ✅ **已发布** |
+| v1.6.0 | Stable | 2026-03-13 | 性能优化 + CI/CD 完善 | ✅ 已发布 |
+| **v1.7.0** | **Stable** | **2026-03-13** | **配额/回收站/WebDAV/复制/AI** | ✅ **已发布** |
+| v1.8.0 | Stable | 2026-03-20 | 版本控制/云同步/去重 | 📋 计划中 |
+| **v1.7.0** | **Stable** | **2026-03-13** | **配额/回收站/WebDAV/复制/AI分类** | ✅ **已发布** |
+
+## v1.7.0 新增功能
+
+| 功能 | 说明 |
+|------|------|
+| 📊 存储配额 | 用户/组/目录三级配额控制 |
+| 🗑️ 回收站 | 安全删除，支持恢复 |
+| 📁 WebDAV | 完整 WebDAV 协议支持 |
+| 🔄 存储复制 | 跨节点数据同步 |
+| 🤖 AI 分类 | 照片/文件智能分类 |
+| ⚡ 性能优化 | LRU 缓存/连接池/工作池 |
+| 📈 报告系统 | 定时生成存储/使用报告 |
 
 ## 部署
 
