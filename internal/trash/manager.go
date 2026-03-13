@@ -140,7 +140,10 @@ func (m *Manager) MoveToTrash(originalPath, userID string) (*TrashItem, error) {
 	// 保存项目列表
 	if err := m.saveItems(); err != nil {
 		// 回滚
-		os.Rename(trashPath, originalPath)
+		if renameErr := os.Rename(trashPath, originalPath); renameErr != nil {
+			// 记录回滚失败
+			fmt.Printf("回滚失败：%v\n", renameErr)
+		}
 		delete(m.items, id)
 		m.totalSize -= item.Size
 		return nil, err
