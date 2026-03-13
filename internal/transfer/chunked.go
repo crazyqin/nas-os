@@ -403,6 +403,7 @@ type ChunkedWriter struct {
 	chunkSize int
 	buf       []byte
 	offset    int64
+	mu        sync.Mutex
 }
 
 // NewChunkedWriter creates a new chunked writer
