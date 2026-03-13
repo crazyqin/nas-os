@@ -2,6 +2,7 @@ package versioning
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,23 +20,34 @@ func NewHandlers(manager *Manager) *Handlers {
 }
 
 // RegisterRoutes 注册路由
+// API 路径设计：
+// - GET /api/v1/files/:path/versions - 列出文件版本历史
+// - POST /api/v1/files/:path/versions - 创建文件版本
+// - GET /api/v1/versions/:id - 获取版本详情
+// - POST /api/v1/versions/:id/restore - 恢复版本
+// - DELETE /api/v1/versions/:id - 删除版本
+// - GET /api/v1/versions/:id/diff - 版本对比
 func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
+	// 文件版本管理
+	// 使用查询参数方式实现 RESTful 路径语义
+	// GET /api/v1/files/*path?versions=true 列出版本
+	// POST /api/v1/files/*path/versions 创建版本
+	files := r.Group("/files")
+	{
+		// 文件版本列表：GET /api/v1/files/*path?versions=true
+		files.GET("/*path", h.listFileVersions)
+		// 创建版本：POST /api/v1/files/*path/versions
+		files.POST("/*path/versions", h.createVersion)
+	}
+
+	// 版本操作
 	versions := r.Group("/versions")
 	{
-		// 文件版本管理
-		versions.GET("/files/*path", h.listFileVersions)
 		versions.GET("/:id", h.getVersion)
 		versions.POST("/:id/restore", h.restoreVersion)
 		versions.DELETE("/:id", h.deleteVersion)
 		versions.GET("/:id/diff", h.getVersionDiff)
-
-		// 手动创建版本
-		versions.POST("/files/*path", h.createVersion)
-
-		// 统计信息
 		versions.GET("/stats", h.getStats)
-
-		// 配置管理
 		versions.GET("/config", h.getConfig)
 		versions.PUT("/config", h.updateConfig)
 	}
@@ -52,14 +64,21 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Param path path string true "文件路径"
 // @Success 200 {object} GenericResponse "成功"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /api/v1/versions/files/{path} [get]
+// @Router /api/v1/files/{path}/versions [get]
 func (h *Handlers) listFileVersions(c *gin.Context) {
+	// 检查是否是版本列表请求
+	if c.Query("versions") != "true" {
+		c.Next()
+		return
+	}
+
 	filePath := c.Param("path")
 	if filePath == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
 			"message": "文件路径不能为空",
 		})
+		c.Abort()
 		return
 	}
 
@@ -69,6 +88,7 @@ func (h *Handlers) listFileVersions(c *gin.Context) {
 			"code":    500,
 			"message": err.Error(),
 		})
+		c.Abort()
 		return
 	}
 
@@ -77,6 +97,7 @@ func (h *Handlers) listFileVersions(c *gin.Context) {
 		"message": "success",
 		"data":    versions,
 	})
+	c.Abort()
 }
 
 // getVersion 获取指定版本详情
@@ -119,9 +140,15 @@ func (h *Handlers) getVersion(c *gin.Context) {
 // @Success 200 {object} GenericResponse "创建成功"
 // @Failure 400 {object} GenericResponse "请求参数错误"
 // @Failure 500 {object} GenericResponse "服务器内部错误"
-// @Router /api/v1/versions/files/{path} [post]
+// @Router /api/v1/files/{path}/versions [post]
 func (h *Handlers) createVersion(c *gin.Context) {
-	filePath := c.Param("path")
+	// 从 URL 中提取文件路径
+	// 路由格式: POST /api/v1/files/*path/versions
+	// Gin 会将整个路径（包括 /versions）作为 path 参数
+	fullPath := c.Param("path")
+
+	// 移除末尾的 /versions 以获取文件路径
+	filePath := strings.TrimSuffix(fullPath, "/versions")
 	if filePath == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
