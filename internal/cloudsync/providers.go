@@ -922,13 +922,17 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 		metaPart, _ := writer.CreatePart(textproto.MIMEHeader{
 			"Content-Type": []string{"application/json; charset=UTF-8"},
 		})
-		metaPart.Write(metadataBody)
+		if _, err := metaPart.Write(metadataBody); err != nil {
+			return fmt.Errorf("写入元数据失败: %w", err)
+		}
 
 		// 添加文件内容部分
 		filePart, _ := writer.CreatePart(textproto.MIMEHeader{
 			"Content-Type": []string{getContentType(localPath)},
 		})
-		io.Copy(filePart, file)
+		if _, err := io.Copy(filePart, file); err != nil {
+			return fmt.Errorf("写入文件内容失败: %w", err)
+		}
 
 		writer.Close()
 
@@ -943,7 +947,9 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 	uploadReq.Header.Set("Authorization", "Bearer "+p.accessToken)
 
 	// 重置文件指针
-	file.Seek(0, 0)
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("重置文件指针失败: %w", err)
+	}
 
 	// 简化上传：直接使用 resumable upload
 	uploadURL := "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable"
@@ -1094,11 +1100,11 @@ func (p *GoogleDriveProvider) List(ctx context.Context, prefix string, recursive
 
 	var result struct {
 		Files []struct {
-			ID          string `json:"id"`
-			Name        string `json:"name"`
-			Size        int64  `json:"size,string"`
+			ID           string `json:"id"`
+			Name         string `json:"name"`
+			Size         int64  `json:"size,string"`
 			ModifiedTime string `json:"modifiedTime"`
-			MimeType    string `json:"mimeType"`
+			MimeType     string `json:"mimeType"`
 		} `json:"files"`
 	}
 
@@ -1263,7 +1269,6 @@ type OneDriveProvider struct {
 	refreshToken string
 	accessToken  string
 	tokenExpiry  time.Time
-	driveID      string // OneDrive drive ID
 }
 
 // NewOneDriveProvider 创建 OneDrive 提供商
@@ -1334,33 +1339,6 @@ func (p *OneDriveProvider) refreshTokenIfNeeded(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-// getDriveID 获取 OneDrive drive ID
-func (p *OneDriveProvider) getDriveID(ctx context.Context) (string, error) {
-	if p.driveID != "" {
-		return p.driveID, nil
-	}
-
-	req, _ := http.NewRequestWithContext(ctx, "GET", "https://graph.microsoft.com/v1.0/me/drive", nil)
-	req.Header.Set("Authorization", "Bearer "+p.accessToken)
-
-	resp, err := p.client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("获取 drive 信息失败: %w", err)
-	}
-	defer resp.Body.Close()
-
-	var result struct {
-		ID string `json:"id"`
-	}
-
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("解析响应失败: %w", err)
-	}
-
-	p.driveID = result.ID
-	return p.driveID, nil
 }
 
 // ensureFolder 确保文件夹存在
@@ -1631,11 +1609,11 @@ func (p *OneDriveProvider) List(ctx context.Context, prefix string, recursive bo
 
 	var result struct {
 		Value []struct {
-			Name       string `json:"name"`
-			Size       int64  `json:"size"`
-			LastModifiedDateTime string `json:"lastModifiedDateTime"`
-			Folder     *struct{} `json:"folder,omitempty"`
-			File       *struct{} `json:"file,omitempty"`
+			Name                 string    `json:"name"`
+			Size                 int64     `json:"size"`
+			LastModifiedDateTime string    `json:"lastModifiedDateTime"`
+			Folder               *struct{} `json:"folder,omitempty"`
+			File                 *struct{} `json:"file,omitempty"`
 		} `json:"value"`
 	}
 
@@ -1689,9 +1667,9 @@ func (p *OneDriveProvider) Stat(ctx context.Context, remotePath string) (*FileIn
 	}
 
 	var result struct {
-		Name                 string `json:"name"`
-		Size                 int64  `json:"size"`
-		LastModifiedDateTime string `json:"lastModifiedDateTime"`
+		Name                 string    `json:"name"`
+		Size                 int64     `json:"size"`
+		LastModifiedDateTime string    `json:"lastModifiedDateTime"`
 		Folder               *struct{} `json:"folder,omitempty"`
 	}
 
