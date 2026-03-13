@@ -693,6 +693,416 @@ func (m *Manager) sessionCleanupWorker() {
 	}
 }
 
+// ========== 协作编辑 ==========
+
+// collaborationSessions 协作会话存储（内存）
+var collaborationSessions = make(map[string]*CollaborationSession)
+var collaborationMu sync.RWMutex
+
+// StartCollaboration 启动实时协作编辑
+func (m *Manager) StartCollaboration(docID string) (*CollaborationSession, error) {
+	m.mu.RLock()
+	if !m.config.Enabled {
+		m.mu.RUnlock()
+		return nil, errors.New(ErrNotEnabled)
+	}
+	m.mu.RUnlock()
+
+	collaborationMu.Lock()
+	defer collaborationMu.Unlock()
+
+	// 检查是否已有协作会话
+	if session, exists := collaborationSessions[docID]; exists {
+		if session.Status == "active" {
+			return session, nil
+		}
+	}
+
+	// 创建新的协作会话
+	sessionID := uuid.New().String()
+	now := time.Now()
+
+	session := &CollaborationSession{
+		DocID:      docID,
+		SessionID:  sessionID,
+		Users:      []Collaborator{},
+		StartedAt:  now,
+		LastActive: now,
+		Status:     "active",
+		Cursors:    make(map[string]Cursor),
+		Locks:      []DocumentLock{},
+	}
+
+	collaborationSessions[docID] = session
+	return session, nil
+}
+
+// JoinCollaboration 加入协作编辑
+func (m *Manager) JoinCollaboration(docID, userID, userName string) (*CollaborationSession, error) {
+	collaborationMu.Lock()
+	defer collaborationMu.Unlock()
+
+	session, exists := collaborationSessions[docID]
+	if !exists {
+		return nil, errors.New(ErrCollaborationNotFound)
+	}
+
+	// 生成用户颜色
+	colors := []string{"#EF4444", "#10B981", "#3B82F6", "#F59E0B", "#8B5CF6", "#EC4899"}
+	color := colors[len(session.Users)%len(colors)]
+
+	// 添加用户
+	collaborator := Collaborator{
+		UserID:    userID,
+		UserName:  userName,
+		JoinedAt:  time.Now(),
+		Color:     color,
+		IsEditing: false,
+	}
+
+	session.Users = append(session.Users, collaborator)
+	session.LastActive = time.Now()
+
+	return session, nil
+}
+
+// LeaveCollaboration 离开协作编辑
+func (m *Manager) LeaveCollaboration(docID, userID string) error {
+	collaborationMu.Lock()
+	defer collaborationMu.Unlock()
+
+	session, exists := collaborationSessions[docID]
+	if !exists {
+		return errors.New(ErrCollaborationNotFound)
+	}
+
+	// 移除用户
+	for i, u := range session.Users {
+		if u.UserID == userID {
+			session.Users = append(session.Users[:i], session.Users[i+1:]...)
+			break
+		}
+	}
+
+	// 移除光标
+	delete(session.Cursors, userID)
+
+	// 如果没有用户了，关闭会话
+	if len(session.Users) == 0 {
+		session.Status = "closed"
+	}
+
+	session.LastActive = time.Now()
+	return nil
+}
+
+// GetCollaborationSession 获取协作会话
+func (m *Manager) GetCollaborationSession(docID string) (*CollaborationSession, error) {
+	collaborationMu.RLock()
+	defer collaborationMu.RUnlock()
+
+	session, exists := collaborationSessions[docID]
+	if !exists {
+		return nil, errors.New(ErrCollaborationNotFound)
+	}
+
+	return session, nil
+}
+
+// UpdateCursor 更新用户光标位置
+func (m *Manager) UpdateCursor(docID, userID string, line, column int) error {
+	collaborationMu.Lock()
+	defer collaborationMu.Unlock()
+
+	session, exists := collaborationSessions[docID]
+	if !exists {
+		return errors.New(ErrCollaborationNotFound)
+	}
+
+	session.Cursors[userID] = Cursor{
+		UserID: userID,
+		Line:   line,
+		Column: column,
+	}
+	session.LastActive = time.Now()
+
+	return nil
+}
+
+// ========== 版本历史 ==========
+
+// versionStore 版本存储（模拟）
+var versionStore = make(map[string][]DocumentVersion)
+var versionMu sync.RWMutex
+
+// GetVersionHistory 获取文档版本历史
+func (m *Manager) GetVersionHistory(docID string) (*VersionHistory, error) {
+	m.mu.RLock()
+	if !m.config.Enabled {
+		m.mu.RUnlock()
+		return nil, errors.New(ErrNotEnabled)
+	}
+	m.mu.RUnlock()
+
+	versionMu.RLock()
+	defer versionMu.RUnlock()
+
+	versions, exists := versionStore[docID]
+	if !exists {
+		// 返回空历史
+		return &VersionHistory{
+			DocID:      docID,
+			CurrentVer: 0,
+			TotalVers:  0,
+			Versions:   []DocumentVersion{},
+			HasMore:    false,
+		}, nil
+	}
+
+	currentVer := 0
+	if len(versions) > 0 {
+		currentVer = versions[len(versions)-1].VersionNum
+	}
+
+	return &VersionHistory{
+		DocID:      docID,
+		CurrentVer: currentVer,
+		TotalVers:  len(versions),
+		Versions:   versions,
+		HasMore:    false,
+	}, nil
+}
+
+// CreateVersion 创建文档版本
+func (m *Manager) CreateVersion(docID, userID, userName, description string) (*DocumentVersion, error) {
+	m.mu.RLock()
+	if !m.config.Enabled {
+		m.mu.RUnlock()
+		return nil, errors.New(ErrNotEnabled)
+	}
+	m.mu.RUnlock()
+
+	versionMu.Lock()
+	defer versionMu.Unlock()
+
+	versions := versionStore[docID]
+	versionNum := len(versions) + 1
+
+	version := DocumentVersion{
+		VersionID:   uuid.New().String(),
+		DocID:       docID,
+		VersionNum:  versionNum,
+		CreatedAt:   time.Now(),
+		Description: description,
+		CreatedBy: CallbackUser{
+			ID:   userID,
+			Name: userName,
+		},
+		Changes: []VersionChange{},
+	}
+
+	versions = append(versions, version)
+	versionStore[docID] = versions
+
+	return &version, nil
+}
+
+// GetVersion 获取特定版本
+func (m *Manager) GetVersion(docID, versionID string) (*DocumentVersion, error) {
+	versionMu.RLock()
+	defer versionMu.RUnlock()
+
+	versions, exists := versionStore[docID]
+	if !exists {
+		return nil, errors.New(ErrVersionNotFound)
+	}
+
+	for _, v := range versions {
+		if v.VersionID == versionID {
+			return &v, nil
+		}
+	}
+
+	return nil, errors.New(ErrVersionNotFound)
+}
+
+// RestoreVersion 恢复到特定版本
+func (m *Manager) RestoreVersion(docID, versionID string) error {
+	versionMu.RLock()
+	versions, exists := versionStore[docID]
+	if !exists {
+		versionMu.RUnlock()
+		return errors.New(ErrVersionNotFound)
+	}
+
+	var targetVersion *DocumentVersion
+	for _, v := range versions {
+		if v.VersionID == versionID {
+			targetVersion = &v
+			break
+		}
+	}
+	versionMu.RUnlock()
+
+	if targetVersion == nil {
+		return errors.New(ErrVersionNotFound)
+	}
+
+	// 创建恢复版本记录
+	_, err := m.CreateVersion(docID, "system", "系统", fmt.Sprintf("恢复到版本 %d", targetVersion.VersionNum))
+	return err
+}
+
+// ========== 文档评论 ==========
+
+// commentStore 评论存储
+var commentStore = make(map[string][]DocumentComment)
+var commentMu sync.RWMutex
+
+// AddComment 添加文档评论
+func (m *Manager) AddComment(docID, userID, comment string) (*DocumentComment, error) {
+	return m.AddCommentWithPosition(docID, userID, comment, CommentPos{})
+}
+
+// AddCommentWithPosition 添加带位置的评论
+func (m *Manager) AddCommentWithPosition(docID, userID, comment string, pos CommentPos) (*DocumentComment, error) {
+	m.mu.RLock()
+	if !m.config.Enabled {
+		m.mu.RUnlock()
+		return nil, errors.New(ErrNotEnabled)
+	}
+	m.mu.RUnlock()
+
+	commentMu.Lock()
+	defer commentMu.Unlock()
+
+	comments := commentStore[docID]
+
+	// 获取用户名（从协作会话或使用默认值）
+	userName := userID
+	if sess, err := m.GetCollaborationSession(docID); err == nil {
+		for _, u := range sess.Users {
+			if u.UserID == userID {
+				userName = u.UserName
+				break
+			}
+		}
+	}
+
+	newComment := DocumentComment{
+		CommentID: uuid.New().String(),
+		DocID:     docID,
+		UserID:    userID,
+		UserName:  userName,
+		Content:   comment,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Position:  pos,
+		Resolved:  false,
+		Replies:   []CommentReply{},
+	}
+
+	comments = append(comments, newComment)
+	commentStore[docID] = comments
+
+	return &newComment, nil
+}
+
+// GetComments 获取文档评论列表
+func (m *Manager) GetComments(docID string) (*CommentListResponse, error) {
+	commentMu.RLock()
+	defer commentMu.RUnlock()
+
+	comments := commentStore[docID]
+	if comments == nil {
+		comments = []DocumentComment{}
+	}
+
+	unresolved := 0
+	for _, c := range comments {
+		if !c.Resolved {
+			unresolved++
+		}
+	}
+
+	return &CommentListResponse{
+		DocID:      docID,
+		Total:      len(comments),
+		Comments:   comments,
+		Unresolved: unresolved,
+	}, nil
+}
+
+// ResolveComment 解决评论
+func (m *Manager) ResolveComment(docID, commentID string) error {
+	commentMu.Lock()
+	defer commentMu.Unlock()
+
+	comments := commentStore[docID]
+	for i := range comments {
+		if comments[i].CommentID == commentID {
+			comments[i].Resolved = true
+			comments[i].UpdatedAt = time.Now()
+			commentStore[docID] = comments
+			return nil
+		}
+	}
+
+	return errors.New(ErrCommentNotFound)
+}
+
+// ReplyComment 回复评论
+func (m *Manager) ReplyComment(docID, commentID, userID, reply string) error {
+	commentMu.Lock()
+	defer commentMu.Unlock()
+
+	comments := commentStore[docID]
+	for i := range comments {
+		if comments[i].CommentID == commentID {
+			// 获取用户名
+			userName := userID
+			if sess, err := m.GetCollaborationSession(docID); err == nil {
+				for _, u := range sess.Users {
+					if u.UserID == userID {
+						userName = u.UserName
+						break
+					}
+				}
+			}
+
+			comments[i].Replies = append(comments[i].Replies, CommentReply{
+				ReplyID:   uuid.New().String(),
+				UserID:    userID,
+				UserName:  userName,
+				Content:   reply,
+				CreatedAt: time.Now(),
+			})
+			comments[i].UpdatedAt = time.Now()
+			commentStore[docID] = comments
+			return nil
+		}
+	}
+
+	return errors.New(ErrCommentNotFound)
+}
+
+// DeleteComment 删除评论
+func (m *Manager) DeleteComment(docID, commentID string) error {
+	commentMu.Lock()
+	defer commentMu.Unlock()
+
+	comments := commentStore[docID]
+	for i := range comments {
+		if comments[i].CommentID == commentID {
+			comments = append(comments[:i], comments[i+1:]...)
+			commentStore[docID] = comments
+			return nil
+		}
+	}
+
+	return errors.New(ErrCommentNotFound)
+}
+
 // Close 关闭管理器
 func (m *Manager) Close() {
 	close(m.stopCh)
