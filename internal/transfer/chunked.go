@@ -261,6 +261,7 @@ type ResumableUpload struct {
 	fileSize     int64
 	chunkSize    int64
 	uploadedSize int64
+	mu           sync.Mutex
 }
 
 // NewResumableUpload creates a new resumable upload session
