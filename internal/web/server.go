@@ -17,6 +17,7 @@ import (
 	"nas-os/internal/notify"
 	"nas-os/internal/optimizer"
 	"nas-os/internal/perf"
+	"nas-os/internal/trash"
 	"nas-os/internal/photos"
 	"nas-os/internal/plugin"
 	"nas-os/internal/quota"
@@ -65,6 +66,7 @@ type Server struct {
 	rbacMgr       *auth.RBACManager
 	monitorMgr    *monitor.Manager
 	optimizer     *optimizer.PerformanceOptimizer
+	trashMgr      *trash.Manager
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -268,6 +270,10 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			return mgr
 		}(),
 		optimizer: optimizer.NewOptimizer(nil, nil),
+		trashMgr: func() *trash.Manager {
+			mgr, _ := trash.NewManager("/etc/nas-os/trash.json", "/var/lib/nas-os/trash", nil)
+			return mgr
+		}(),
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -370,6 +376,11 @@ func (s *Server) setupRoutes() {
 		// ========== 性能优化 ==========
 		if s.optimizer != nil {
 			optimizer.NewHandlers(s.optimizer).RegisterRoutes(api)
+		}
+
+		// ========== 回收站 ==========
+		if s.trashMgr != nil {
+			trash.NewHandlers(s.trashMgr).RegisterRoutes(api)
 		}
 
 		// ========== 插件系统 ==========
@@ -496,6 +507,7 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/monitoring", "./webui/pages/monitoring.html")
 	s.engine.StaticFile("/containers", "./webui/pages/containers.html")
 	s.engine.StaticFile("/vms", "./webui/pages/vms.html")
+	s.engine.StaticFile("/trash", "./webui/pages/trash.html")
 }
 
 // Start 启动服务器
