@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/gin-gonic/gin"
-	"github.com/studio-b12/gowebdav"
 )
 
 // Config WebDAV 服务器配置
@@ -35,7 +34,6 @@ type Server struct {
 	mu       sync.RWMutex
 	config   *Config
 	server   *http.Server
-	fs       *gowebdav.Client
 	authFunc func(username, password string) bool // 认证函数
 }
 
@@ -199,7 +197,9 @@ func (s *Server) handlePropfind(w http.ResponseWriter, r *http.Request, fullPath
 
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	w.WriteHeader(http.StatusMultiStatus)
-	w.Write([]byte(xml))
+	if _, err := w.Write([]byte(xml)); err != nil {
+		fmt.Printf("写入响应失败：%v\n", err)
+	}
 }
 
 // propfindResponse 生成单个项目的 PROPFIND 响应
