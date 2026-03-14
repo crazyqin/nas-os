@@ -91,15 +91,54 @@ func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
 		c.Set("user_id", userID)
 		c.Set("user", user)
 
-		// TODO: 从用户对象获取组信息
-		// 暂时使用空组列表
-		groups := []string{}
+		// 从用户对象获取组信息
+		groups := extractUserGroups(user)
+		c.Set("user_groups", groups)
 
 		// 缓存会话权限
 		m.rbacManager.CacheSession(token, userID, groups)
 
 		c.Next()
 	}
+}
+
+// extractUserGroups 从用户对象中提取组信息
+// 支持多种用户类型，通过类型断言和反射获取 Groups 字段
+func extractUserGroups(user interface{}) []string {
+	if user == nil {
+		return []string{}
+	}
+
+	// 尝试类型断言获取 GroupProvider 接口
+	if gp, ok := user.(GroupProvider); ok {
+		return gp.GetGroups()
+	}
+
+	// 尝试通过 map 检查（适用于 map[string]interface{} 类型）
+	if m, ok := user.(map[string]interface{}); ok {
+		if groups, ok := m["groups"]; ok {
+			switch v := groups.(type) {
+			case []string:
+				return v
+			case []interface{}:
+				result := make([]string, 0, len(v))
+				for _, g := range v {
+					if s, ok := g.(string); ok {
+						result = append(result, s)
+					}
+				}
+				return result
+			}
+		}
+	}
+
+	// 默认返回空组列表
+	return []string{}
+}
+
+// GroupProvider 定义获取用户组的接口
+type GroupProvider interface {
+	GetGroups() []string
 }
 
 // RequirePermission 需要特定权限的中间件
