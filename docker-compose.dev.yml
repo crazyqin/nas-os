@@ -1,0 +1,232 @@
+# NAS-OS 开发环境 Docker Compose
+# 用于本地开发和测试
+#
+# 使用方式:
+#   docker compose -f docker-compose.dev.yml up -d
+#   docker compose -f docker-compose.dev.yml logs -f nas-os
+#   docker compose -f docker-compose.dev.yml down
+#
+# 特性:
+#   - 热重载（air）
+#   - 调试端口暴露
+#   - 开发工具集成
+#   - 模拟数据卷
+#
+# v2.34.0 初始配置
+
+services:
+  # ==================== NAS-OS 开发服务 ====================
+  nas-os-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: nas-os-dev
+    restart: unless-stopped
+    
+    # 使用 init 进程管理子进程
+    init: true
+    
+    # 网络模式：host 以获得最佳性能和简化调试
+    network_mode: host
+    
+    # 卷挂载（开发模式：挂载源码实现热重载）
+    volumes:
+      # 源码挂载（热重载）
+      - .:/app:ro
+      
+      # 配置文件
+      - ./configs:/etc/nas-os:ro
+      
+      # 数据目录（开发用）
+      - nas-dev-data:/var/lib/nas-os
+      
+      # 日志
+      - ./logs:/var/log/nas-os
+      
+      # 开发工具缓存
+      - go-cache:/root/.cache/go-build
+      - go-mod-cache:/go/pkg/mod
+    
+    # 环境变量
+    environment:
+      - NAS_OS_CONFIG=/etc/nas-os/config.yaml
+      - NAS_OS_DATA_ROOT=/var/lib/nas-os
+      - TZ=Asia/Shanghai
+      
+      # 开发模式标志
+      - NAS_OS_DEV_MODE=true
+      - NAS_OS_LOG_LEVEL=debug
+      
+      # 热重载配置
+      - AIR_WATCH=.:/app
+      
+      # Go 调试
+      - CGO_ENABLED=1
+      - GOPROXY=https://goproxy.cn,direct
+    
+    # 调试端口（Delve）
+    ports:
+      - "2345:2345"  # Delve debugger
+    
+    # 开发模式不需要资源限制
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    
+    # 健康检查（放宽条件）
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ==================== 数据库（开发用） ====================
+  
+  # Redis 缓存
+  redis-dev:
+    image: redis:7-alpine
+    container_name: nas-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # SQLite 可视化工具（可选）
+  # sqlite-web:
+  #   image: coleifer/sqlite-web:latest
+  #   container_name: nas-sqlite-web
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8082:8080"
+  #   volumes:
+  #     - nas-dev-data:/data
+  #   environment:
+  #     - SQLITE_DATABASE=/data/nas-os.db
+
+  # ==================== 开发工具 ====================
+  
+  # Mailhog（邮件测试）
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: nas-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    healthcheck:
+      test: ["CMD-SHELL", "echo | nc localhost 1025 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # MinIO（S3 兼容存储测试）
+  minio:
+    image: minio/minio:latest
+    container_name: nas-minio-dev
+    restart: unless-stopped
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    volumes:
+      - minio-dev-data:/data
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # ==================== 监控（开发用） ====================
+  
+  # Prometheus（指标收集）
+  prometheus-dev:
+    image: prom/prometheus:latest
+    container_name: nas-prometheus-dev
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-dev-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+    profiles:
+      - monitoring
+
+  # Grafana（可视化）
+  grafana-dev:
+    image: grafana/grafana:latest
+    container_name: nas-grafana-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-dev-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    profiles:
+      - monitoring
+
+  # ==================== 调试工具 ====================
+  
+  # Jaeger（分布式追踪）
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: nas-jaeger-dev
+    restart: unless-stopped
+    ports:
+      - "16686:16686"  # UI
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    profiles:
+      - tracing
+
+# ==================== 网络配置 ====================
+networks:
+  default:
+    name: nas-dev-network
+
+# ==================== 卷配置 ====================
+volumes:
+  nas-dev-data:
+    driver: local
+  
+  redis-dev-data:
+    driver: local
+  
+  minio-dev-data:
+    driver: local
+  
+  prometheus-dev-data:
+    driver: local
+  
+  grafana-dev-data:
+    driver: local
+  
+  # Go 缓存卷
+  go-cache:
+    driver: local
+  
+  go-mod-cache:
+    driver: local

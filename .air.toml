@@ -1,0 +1,68 @@
+# Air 配置 - Go 热重载工具
+# https://github.com/cosmtrek/air
+#
+# v2.34.0 初始配置
+
+root = "."
+tmp_dir = "tmp"
+
+[build]
+# 构建命令
+cmd = "go build -o ./tmp/nasd ./cmd/nasd"
+
+# 运行命令
+bin = "./tmp/nasd"
+
+# 监听的文件后缀
+include_ext = ["go", "yaml", "yml", "json", "html", "tmpl", "js", "css"]
+
+# 排除的目录
+exclude_dir = ["tmp", "vendor", "logs", "node_modules", "webui/node_modules", ".git"]
+
+# 排除的文件
+exclude_file = []
+
+# 排除正则
+exclude_regex = ["_test\\.go$"]
+
+# 排除不变的文件
+exclude_unchanged = true
+
+# 监听根目录下的子目录
+include_dir = ["cmd", "internal", "pkg", "configs", "webui"]
+
+# 同时监听以下文件
+include_file = ["go.mod", "go.sum"]
+
+# 延迟触发构建（毫秒）
+delay = 1000
+
+# 发送中断信号前的等待时间（毫秒）
+kill_delay = 500
+
+# 日志文件
+log = "logs/air.log"
+
+# 轮询监听（某些系统不支持 fsnotify）
+poll = false
+
+# 轮询间隔
+poll_interval = 500
+
+[log]
+# 显示日志时间
+time = true
+
+[color]
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[misc]
+# 退出时清理临时目录
+clean_on_exit = true
+
+[screen]
+# 保持滚动
+clear_on_rebuild = true
