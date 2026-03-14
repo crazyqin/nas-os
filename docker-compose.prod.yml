@@ -1,0 +1,405 @@
+# NAS-OS Production Docker Compose
+# 生产环境完整部署配置
+#
+# 使用方式:
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# 包含:
+#   - NAS-OS 主服务
+#   - Prometheus 监控
+#   - Grafana 可视化
+#   - Node Exporter (系统指标)
+#   - cAdvisor (容器指标)
+#   - Alertmanager (告警管理)
+#
+# v2.33.0 - 初始生产配置
+
+services:
+  # ==================== NAS-OS 主服务 ====================
+  nas-os:
+    image: ${NAS_OS_IMAGE:-ghcr.io/nas-os/nas-os:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nas-os
+    restart: unless-stopped
+    
+    # 使用 init 进程管理子进程
+    init: true
+    
+    # 优雅停止时间
+    stop_grace_period: 60s
+    
+    # ⚠️ 特权模式（访问磁盘设备）
+    # 生产环境建议使用 --device 精确授权
+    privileged: true
+    
+    # 网络模式：host 以获得最佳性能
+    network_mode: host
+    
+    # 卷挂载
+    volumes:
+      # 配置文件
+      - ${CONFIG_PATH:-./configs}:/etc/nas-os:ro
+      - nas-os-data:/var/lib/nas-os
+      
+      # 存储池（根据实际磁盘挂载点调整）
+      # - /mnt/pool1:/mnt/pool1
+      # - /mnt/pool2:/mnt/pool2
+      
+      # 日志
+      - ${LOG_PATH:-./logs}:/var/log/nas-os
+      
+      # 运行时数据
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    
+    # 环境变量
+    environment:
+      - NAS_OS_CONFIG=/etc/nas-os/config.yaml
+      - NAS_OS_DATA_ROOT=/var/lib/nas-os
+      - TZ=${TZ:-Asia/Shanghai}
+      # 日志级别
+      - NAS_OS_LOG_LEVEL=${LOG_LEVEL:-info}
+      # Prometheus 指标
+      - NAS_OS_METRICS_ENABLED=true
+      - NAS_OS_METRICS_PORT=8080
+    
+    # 资源限制（根据实际硬件调整）
+    deploy:
+      resources:
+        limits:
+          cpus: '${NAS_OS_CPU_LIMIT:-4.0}'
+          memory: ${NAS_OS_MEMORY_LIMIT:-4G}
+        reservations:
+          cpus: '${NAS_OS_CPU_RESERVATION:-1.0}'
+          memory: ${NAS_OS_MEMORY_RESERVATION:-1G}
+      # 部署约束
+      placement:
+        constraints:
+          - node.role == manager
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+        labels: "service"
+        tag: "{{.Name}}/{{.ID}}"
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/api/v1/health && wget -q -O /dev/null http://localhost:8080/api/v1/system/status 2>/dev/null || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    
+    # 依赖服务
+    depends_on:
+      prometheus:
+        condition: service_healthy
+        required: false
+
+  # ==================== 监控服务 ====================
+  
+  # Prometheus 监控
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: nas-prometheus
+    restart: unless-stopped
+    
+    # 使用独立网络
+    networks:
+      - monitoring
+    
+    # 端口映射
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    
+    # 卷挂载
+    volumes:
+      - ${PROMETHEUS_CONFIG:-./monitoring/prometheus.yml}:/etc/prometheus/prometheus.yml:ro
+      - ${PROMETHEUS_RULES:-./monitoring/alerts.yml}:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    
+    # 命令参数
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
+      - '--storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-10GB}'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Grafana 可视化
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: nas-grafana
+    restart: unless-stopped
+    
+    networks:
+      - monitoring
+    
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ${GRAFANA_PROVISIONING:-./monitoring/grafana/provisioning}:/etc/grafana/provisioning:ro
+    
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3000}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+      - GF_ALERTING_ENABLED=true
+      - GF_UNIFIED_ALERTING_ENABLED=true
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
+  # Alertmanager 告警管理
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: nas-alertmanager
+    restart: unless-stopped
+    
+    networks:
+      - monitoring
+    
+    ports:
+      - "${ALERTMANAGER_PORT:-9093}:9093"
+    
+    volumes:
+      - ${ALERTMANAGER_CONFIG:-./monitoring/alertmanager.yml}:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--cluster.listen-address='
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9093/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # Node Exporter 系统指标
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: nas-node-exporter
+    restart: unless-stopped
+    
+    networks:
+      - monitoring
+    
+    ports:
+      - "${NODE_EXPORTER_PORT:-9100}:9100"
+    
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+    
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.netclass.ignored-devices=^(veth.*)$$'
+      - '--collector.diskstats.ignored-devices=^(sr[0-9]+)$$'
+      # 启用额外收集器
+      - '--collector.btrfs'
+      - '--collector.systemd'
+    
+    pid: host
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9100/metrics || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # cAdvisor 容器指标
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
+    container_name: nas-cadvisor
+    restart: unless-stopped
+    
+    networks:
+      - monitoring
+    
+    ports:
+      - "${CADVISOR_PORT:-8081}:8080"
+    
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    
+    # 提权模式以访问容器信息
+    privileged: true
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ==================== 可选服务 ====================
+  
+  # Watchtower 自动更新（可选）
+  # watchtower:
+  #   image: containrrr/watchtower:latest
+  #   container_name: nas-watchtower
+  #   restart: unless-stopped
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     - WATCHTOWER_CLEANUP=true
+  #     - WATCHTOWER_INCLUDE_RESTARTING=true
+  #     - WATCHTOWER_POLL_INTERVAL=86400
+  #   command: nas-os prometheus grafana alertmanager node-exporter cadvisor
+
+# ==================== 网络配置 ====================
+networks:
+  monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ==================== 卷配置 ====================
+volumes:
+  nas-os-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${NAS_OS_DATA_PATH:-/var/lib/nas-os}
+  
+  prometheus-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PROMETHEUS_DATA_PATH:-/var/lib/prometheus}
+  
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${GRAFANA_DATA_PATH:-/var/lib/grafana}
+  
+  alertmanager-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ALERTMANAGER_DATA_PATH:-/var/lib/alertmanager}

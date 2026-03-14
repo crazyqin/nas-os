@@ -92,6 +92,15 @@ type ShareOverview struct {
 	Config interface{} `json:"config"`
 }
 
+// listAllShares 列出所有共享
+// @Summary 列出所有共享
+// @Description 获取所有 SMB 和 NFS 共享列表
+// @Tags shares
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=[]ShareOverview} "成功"
+// @Router /shares [get]
+// @Security BearerAuth
 func (h *Handlers) listAllShares(c *gin.Context) {
 	var result []ShareOverview
 
@@ -120,6 +129,15 @@ func (h *Handlers) listAllShares(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(result))
 }
 
+// getStatus 获取服务状态
+// @Summary 获取服务状态
+// @Description 获取 SMB 和 NFS 服务运行状态
+// @Tags shares
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response "成功"
+// @Router /shares/status [get]
+// @Security BearerAuth
 func (h *Handlers) getStatus(c *gin.Context) {
 	smbRunning, _ := h.smbManager.GetStatus()
 	nfsStatus, _ := h.nfsManager.Status()
@@ -161,6 +179,16 @@ func (h *Handlers) applyAllConfig(c *gin.Context) {
 
 // ========== SMB 共享 API ==========
 
+// listSMBShares 列出 SMB 共享
+// @Summary 列出 SMB 共享
+// @Description 获取所有 SMB 共享列表
+// @Tags shares/smb
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response "成功"
+// @Failure 500 {object} Response "服务器内部错误"
+// @Router /shares/smb [get]
+// @Security BearerAuth
 func (h *Handlers) listSMBShares(c *gin.Context) {
 	shares, err := h.smbManager.ListShares()
 	if err != nil {
@@ -170,6 +198,19 @@ func (h *Handlers) listSMBShares(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(shares))
 }
 
+// createSMBShare 创建 SMB 共享
+// @Summary 创建 SMB 共享
+// @Description 创建新的 SMB 共享
+// @Tags shares/smb
+// @Accept json
+// @Produce json
+// @Param request body smb.ShareInput true "共享配置"
+// @Success 201 {object} Response "创建成功"
+// @Failure 400 {object} Response "请求参数错误"
+// @Failure 409 {object} Response "共享已存在"
+// @Failure 500 {object} Response "服务器内部错误"
+// @Router /shares/smb [post]
+// @Security BearerAuth
 func (h *Handlers) createSMBShare(c *gin.Context) {
 	var req smb.ShareInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -338,6 +379,16 @@ func (h *Handlers) testSMBConfig(c *gin.Context) {
 
 // ========== NFS 共享 API ==========
 
+// listNFSExports 列出 NFS 导出
+// @Summary 列出 NFS 导出
+// @Description 获取所有 NFS 导出列表
+// @Tags shares/nfs
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response "成功"
+// @Failure 500 {object} Response "服务器内部错误"
+// @Router /shares/nfs [get]
+// @Security BearerAuth
 func (h *Handlers) listNFSExports(c *gin.Context) {
 	exports, err := h.nfsManager.ListExports()
 	if err != nil {
@@ -347,6 +398,19 @@ func (h *Handlers) listNFSExports(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(exports))
 }
 
+// createNFSExport 创建 NFS 导出
+// @Summary 创建 NFS 导出
+// @Description 创建新的 NFS 导出
+// @Tags shares/nfs
+// @Accept json
+// @Produce json
+// @Param request body nfs.ExportRequest true "导出配置"
+// @Success 201 {object} Response "创建成功"
+// @Failure 400 {object} Response "请求参数错误"
+// @Failure 409 {object} Response "导出已存在"
+// @Failure 500 {object} Response "服务器内部错误"
+// @Router /shares/nfs [post]
+// @Security BearerAuth
 func (h *Handlers) createNFSExport(c *gin.Context) {
 	var req nfs.ExportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

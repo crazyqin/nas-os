@@ -1,0 +1,30 @@
+# Grafana Datasources Provisioning
+# 自动配置 Prometheus 数据源
+
+apiVersion: 1
+
+datasources:
+  # Prometheus 数据源
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: "2.54.0"
+      cacheLevel: 'High'
+    version: 1
+
+  # Alertmanager 数据源（用于告警管理）
+  - name: Alertmanager
+    type: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    editable: false
+    jsonData:
+      implementation: prometheus
+    version: 1

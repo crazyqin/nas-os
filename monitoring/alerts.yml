@@ -1,13 +1,14 @@
 # NAS-OS Prometheus 告警规则
 # 适用于 Prometheus 2.x
-# 版本: v2.31.0
+# 版本: v2.33.0
 #
 # 告警规则分类：
 # - 系统资源：CPU、内存、磁盘、网络
-# - 存储健康：Btrfs、存储池
-# - 服务状态：NAS-OS 服务、共享服务
+# - 存储健康：Btrfs、存储池、SMART
+# - 服务状态：NAS-OS 服务、共享服务、容器
 # - 业务任务：备份、快照
 # - 安全监控：登录失败、用户配额
+# - 容器健康：Docker 容器状态
 
 groups:
   - name: nas-os-system
@@ -582,3 +583,180 @@ groups:
         annotations:
           summary: "活跃告警数量过多"
           description: "当前有 {{ $value }} 个活跃告警，建议及时处理"
+
+  # ==================== SMART 磁盘健康告警 ====================
+  - name: nas-os-smart
+    rules:
+      # SMART 整体健康状态
+      - alert: SmartHealthWarning
+        expr: smartmon_device_smart_healthy == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: disk
+        annotations:
+          summary: "SMART 检测到磁盘健康问题"
+          description: "磁盘 {{ $labels.device }} SMART 健康状态异常，请立即备份数据并更换磁盘"
+          runbook_url: "https://docs.nas-os.io/runbook/smart-health"
+      
+      # 重新分配扇区计数
+      - alert: SmartReallocatedSectors
+        expr: smartmon_attr_raw_value{attr_name="Reallocated_Sector_Ct"} > 0
+        for: 0m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: "检测到重新分配扇区"
+          description: "磁盘 {{ $labels.device }} 有 {{ $value }} 个重新分配扇区，磁盘可能有坏道"
+      
+      # 待映射扇区
+      - alert: SmartPendingSectors
+        expr: smartmon_attr_raw_value{attr_name="Current_Pending_Sector"} > 0
+        for: 0m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: "检测到待映射扇区"
+          description: "磁盘 {{ $labels.device }} 有 {{ $value }} 个待映射扇区，建议尽快检查"
+      
+      # CRC 错误
+      - alert: SmartCrcErrors
+        expr: smartmon_attr_raw_value{attr_name="CRC_Error_Count"} > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: "磁盘 CRC 错误过多"
+          description: "磁盘 {{ $labels.device }} CRC 错误计数 {{ $value }}，可能是线缆或接口问题"
+      
+      # SSD 寿命警告
+      - alert: SsdLifeWarning
+        expr: smartmon_attr_raw_value{attr_name="Percentage_Used"} > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: "SSD 寿命即将耗尽"
+          description: "SSD {{ $labels.device }} 已使用 {{ $value }}% 寿命，请准备更换"
+
+  # ==================== 容器健康告警 ====================
+  - name: nas-os-containers
+    rules:
+      # 容器停止
+      - alert: ContainerStopped
+        expr: container_last_seen{name!=""} < time() - 60
+        for: 1m
+        labels:
+          severity: critical
+          component: container
+        annotations:
+          summary: "容器已停止"
+          description: "容器 {{ $labels.name }} 已停止运行，请检查服务状态"
+          runbook_url: "https://docs.nas-os.io/runbook/container"
+      
+      # 容器重启频繁
+      - alert: ContainerRestartingFrequently
+        expr: increase(container_restart_count[1h]) > 5
+        for: 0m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "容器重启频繁"
+          description: "容器 {{ $labels.name }} 在过去 1 小时内重启了 {{ $value }} 次"
+      
+      # 容器 CPU 使用率过高
+      - alert: ContainerCpuUsageHigh
+        expr: rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "容器 CPU 使用率过高"
+          description: "容器 {{ $labels.name }} CPU 使用率 {{ $value | printf \"%.1f\" }}%"
+      
+      # 容器内存使用率过高
+      - alert: ContainerMemoryUsageHigh
+        expr: container_memory_usage_bytes{name!="" / container_spec_memory_limit_bytes{name!=""} * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "容器内存使用率过高"
+          description: "容器 {{ $labels.name }} 内存使用率 {{ $value | printf \"%.1f\" }}%"
+      
+      # 容器 OOM 风险
+      - alert: ContainerOomRisk
+        expr: container_memory_usage_bytes{name!="" / container_spec_memory_limit_bytes{name!=""} > 0.95
+        for: 1m
+        labels:
+          severity: critical
+          component: container
+        annotations:
+          summary: "容器即将 OOM"
+          description: "容器 {{ $labels.name }} 内存使用率接近限制，可能被 OOM Kill"
+      
+      # 容器网络错误
+      - alert: ContainerNetworkErrors
+        expr: rate(container_network_receive_errors_total{name!=""}[5m]) > 10 or rate(container_network_transmit_errors_total{name!=""}[5m]) > 10
+        for: 3m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "容器网络错误"
+          description: "容器 {{ $labels.name }} 存在网络错误"
+      
+      # 容器磁盘 I/O 异常
+      - alert: ContainerDiskIoHigh
+        expr: rate(container_fs_io_time_seconds_total{name!=""}[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: container
+        annotations:
+          summary: "容器磁盘 I/O 高"
+          description: "容器 {{ $labels.name }} 磁盘 I/O 时间占比 {{ $value | printf \"%.1f\" }}"
+
+  # ==================== RAID/存储阵列告警 ====================
+  - name: nas-os-raid
+    rules:
+      # MDADM RAID 状态
+      - alert: RaidArrayDegraded
+        expr: node_md_disks{state="active"} < node_md_disks_total
+        for: 0m
+        labels:
+          severity: critical
+          component: raid
+        annotations:
+          summary: "RAID 阵列降级"
+          description: "RAID {{ $labels.device }} 处于降级状态，活动磁盘 {{ $value }} 少于预期"
+          runbook_url: "https://docs.nas-os.io/runbook/raid"
+      
+      # RAID 重建中
+      - alert: RaidRebuilding
+        expr: node_md_state{state="rebuilding"} == 1
+        for: 0m
+        labels:
+          severity: warning
+          component: raid
+        annotations:
+          summary: "RAID 正在重建"
+          description: "RAID {{ $labels.device }} 正在重建，性能可能受影响"
+      
+      # RAID 同步速度过低
+      - alert: RaidSyncSlow
+        expr: node_md_sync_speed_bytes < 10485760 and node_md_sync_action == "resync"
+        for: 10m
+        labels:
+          severity: warning
+          component: raid
+        annotations:
+          summary: "RAID 同步速度过低"
+          description: "RAID {{ $labels.device }} 同步速度低于 10MB/s"

@@ -8,6 +8,11 @@
 #
 # 多架构构建:
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t nas-os:latest .
+#
+# v2.33.0 更新：
+# - 优化构建缓存策略
+# - 增强健康检查
+# - 添加 curl 替代 wget（更可靠）
 
 # ========== 构建阶段 ==========
 FROM golang:1.26-alpine AS builder
@@ -87,7 +92,8 @@ RUN apk add --no-cache \
     nfs-utils \
     ca-certificates \
     tzdata \
-    wget \
+    curl \
+    procps \
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
 # 创建非 root 用户（可选，某些操作需要 root）
