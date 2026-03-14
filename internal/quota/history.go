@@ -1110,11 +1110,12 @@ func (m *NotificationManager) sendDiscord(notification *AlertNotification, chann
 // sendTelegram 发送 Telegram 通知
 func (m *NotificationManager) sendTelegram(notification *AlertNotification, channel *NotificationChannel) error {
 	botToken, ok := channel.Config["bot_token"].(string)
-	if !ok {
+	if !ok || botToken == "" {
 		return fmt.Errorf("Telegram bot token 未配置")
 	}
 
-	fmt.Printf("[quota] 发送 Telegram 通知: %s -> %s\n", notification.AlertID, botToken)
+	// 注意：不记录 bot_token 到日志，避免敏感信息泄露
+	fmt.Printf("[quota] 发送 Telegram 通知: alert_id=%s\n", notification.AlertID)
 	return nil
 }
 

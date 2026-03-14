@@ -149,14 +149,15 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 		adminUser.PasswordHash = string(hash)
 		m.users["admin"] = adminUser
 
-		// 将初始密码输出到控制台和日志文件（仅首次启动）
+		// 将初始密码输出到控制台（仅首次启动）
 		// 生产环境建议：通过邮件或安全渠道发送初始密码
-		log.Printf("========================================")
-		log.Printf("⚠️  首次启动：默认管理员账号已创建")
-		log.Printf("   用户名: admin")
-		log.Printf("   密码: %s", defaultPassword)
-		log.Printf("   请立即登录并修改密码！")
-		log.Printf("========================================")
+		// 注意：密码仅输出到 stdout，不记录到日志文件
+		fmt.Println("========================================")
+		fmt.Println("⚠️  首次启动：默认管理员账号已创建")
+		fmt.Println("   用户名: admin")
+		fmt.Printf("   密码: %s\n", defaultPassword)
+		fmt.Println("   请立即登录并修改密码！")
+		fmt.Println("========================================")
 	}
 
 	return m, nil
