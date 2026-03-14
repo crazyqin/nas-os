@@ -329,13 +329,18 @@ curl -X POST http://localhost:8080/api/v1/quota-reports \
 
 ```
 internal/quota/
-├── types.go      # 数据类型定义
-├── manager.go    # 配额管理器核心逻辑
-├── monitor.go    # 监控和告警
-├── cleanup.go    # 自动清理策略
-├── report.go     # 报告生成
-├── handlers.go   # HTTP API 处理器
-└── adapter.go    # 接口适配器
+├── types.go           # 数据类型定义
+├── manager.go         # 配额管理器核心逻辑
+├── monitor.go         # 监控和告警
+├── cleanup.go         # 自动清理策略
+├── report.go          # 报告生成
+├── trend.go           # 趋势数据分析 (v2.6.0)
+├── alert_enhanced.go  # 预警增强 (v2.6.0)
+├── handlers.go        # HTTP API 处理器
+├── handlers_enhanced.go # 增强功能处理器 (v2.6.0)
+├── handlers_v2.go     # v2.7.0 新增处理器
+├── history.go         # 历史数据管理 (v2.7.0)
+└── adapter.go         # 接口适配器
 ```
 
 ### 核心组件
@@ -344,6 +349,11 @@ internal/quota/
 - **Monitor**: 监控器，定期检查配额使用情况并触发告警
 - **CleanupManager**: 清理管理器，执行自动清理策略
 - **ReportGenerator**: 报告生成器，生成各种格式的配额报告
+- **HistoryManager**: 历史数据管理器，采集和存储历史数据 (v2.7.0)
+- **TrendDataManager**: 趋势数据管理器，趋势分析和预测 (v2.6.0)
+- **ChartManager**: 图表数据管理器，生成多种图表数据 (v2.7.0)
+- **NotificationManager**: 通知管理器，多渠道通知发送 (v2.7.0)
+- **StorageStatsManager**: 存储统计管理器，存储使用统计 (v2.7.0)
 
 ### 数据流
 
@@ -353,4 +363,256 @@ internal/quota/
               Monitor（定期检查）→ 触发告警 → 通知
                   ↓
               CleanupManager（自动清理）→ 释放空间
+                  ↓
+              HistoryManager（历史采集）→ 统计分析 → 图表数据
+```
+
+---
+
+## v2.7.0 新增 API
+
+### 配额历史统计
+
+#### 查询历史数据
+```
+GET /api/v1/quota-history?quota_id=xxx&start_time=2024-01-01T00:00:00Z&end_time=2024-01-31T23:59:59Z&limit=100
+```
+
+#### 高级查询
+```
+POST /api/v1/quota-history/query
+{
+  "quota_id": "xxx",          // 可选，指定配额ID
+  "volume_name": "data",      // 可选，按卷过滤
+  "start_time": "2024-01-01T00:00:00Z",
+  "end_time": "2024-01-31T23:59:59Z",
+  "group_by": "day",          // hour, day, week, month
+  "limit": 100
+}
+```
+
+#### 获取历史统计
+```
+GET /api/v1/quota-history/statistics/:quotaId?duration=168h  // 7天
+```
+
+#### 获取所有配额历史统计
+```
+GET /api/v1/quota-history/statistics?duration=168h
+```
+
+### 配额使用图表
+
+#### 获取图表数据（通用）
+```
+POST /api/v1/quota-chart/data
+{
+  "quota_id": "xxx",          // 可选
+  "volume_name": "data",      // 可选
+  "chart_type": "line",       // line, bar, pie, gauge, heatmap
+  "start_time": "2024-01-01T00:00:00Z",
+  "end_time": "2024-01-31T23:59:59Z",
+  "granularity": "day",       // hour, day, week, month
+  "compare_with": "previous_period"  // previous_period, same_last_year
+}
+```
+
+#### 折线图
+```
+GET /api/v1/quota-chart/line/:quotaId?duration=24h
+```
+
+#### 柱状图
+```
+GET /api/v1/quota-chart/bar?volume=data
+```
+
+#### 饼图
+```
+GET /api/v1/quota-chart/pie?volume=data
+```
+
+#### 仪表盘
+```
+GET /api/v1/quota-chart/gauge/:quotaId
+```
+
+#### 热力图
+```
+GET /api/v1/quota-chart/heatmap/:quotaId?duration=168h
+```
+
+### 预警通知
+
+#### 获取通知渠道
+```
+GET /api/v1/quota-notification/channels
+```
+
+#### 添加通知渠道
+```
+POST /api/v1/quota-notification/channels
+{
+  "name": "运维邮件",
+  "type": "email",            // email, webhook, slack, discord, telegram, wechat, dingtalk
+  "enabled": true,
+  "config": {
+    "to": "admin@example.com"
+  },
+  "severity": ["warning", "critical", "emergency"]
+}
+```
+
+#### 更新通知渠道
+```
+PUT /api/v1/quota-notification/channels/:id
+```
+
+#### 删除通知渠道
+```
+DELETE /api/v1/quota-notification/channels/:id
+```
+
+#### 发送通知
+```
+POST /api/v1/quota-notification/send
+{
+  "alert_id": "alert-xxx",
+  "channel_id": "channel-xxx"
+}
+```
+
+#### 获取通知历史
+```
+GET /api/v1/quota-notification/history?limit=100
+```
+
+#### 测试通知渠道
+```
+POST /api/v1/quota-notification/test/:channelId
+```
+
+### 用户资源报告
+
+#### 获取用户资源报告
+```
+GET /api/v1/quota-user-report/:username?duration=168h
+```
+
+#### 导出用户报告
+```
+GET /api/v1/quota-user-report/:username/export?format=json&duration=168h
+```
+
+响应示例：
+```json
+{
+  "username": "zhangsan",
+  "generated_at": "2024-01-15T10:00:00Z",
+  "period": {
+    "start_time": "2024-01-08T10:00:00Z",
+    "end_time": "2024-01-15T10:00:00Z"
+  },
+  "quotas": [
+    {
+      "quota_id": "quota-xxx",
+      "volume_name": "data",
+      "hard_limit": 107374182400,
+      "used_bytes": 85899345920,
+      "usage_percent": 80,
+      "status": "warning"
+    }
+  ],
+  "summary": {
+    "total_quotas": 1,
+    "total_used_bytes": 85899345920,
+    "avg_usage_percent": 80,
+    "warning_count": 1
+  },
+  "recommendations": [
+    "部分配额使用率较高，建议检查并清理不需要的文件"
+  ]
+}
+```
+
+### 系统资源报告
+
+#### 获取系统资源报告
+```
+GET /api/v1/quota-system-report?duration=168h
+```
+
+#### 导出系统报告
+```
+GET /api/v1/quota-system-report/export?format=json
+```
+
+#### 获取系统摘要
+```
+GET /api/v1/quota-system-report/summary
+```
+
+响应示例：
+```json
+{
+  "total_quotas": 10,
+  "total_users": 5,
+  "total_groups": 2,
+  "total_used_bytes": 536870912000,
+  "total_limit_bytes": 1073741824000,
+  "avg_usage_percent": 50,
+  "over_soft_count": 2,
+  "over_hard_count": 0
+}
+```
+
+### 存储使用统计
+
+#### 获取全局存储统计
+```
+GET /api/v1/quota-storage-stats
+```
+
+#### 获取所有卷统计
+```
+GET /api/v1/quota-storage-stats/volumes
+```
+
+#### 获取指定卷统计
+```
+GET /api/v1/quota-storage-stats/volumes/:volumeName
+```
+
+#### 获取使用量最高的用户
+```
+GET /api/v1/quota-storage-stats/top-users?volume=data&limit=10
+```
+
+#### 获取存储趋势
+```
+GET /api/v1/quota-storage-stats/trend
+```
+
+响应示例：
+```json
+{
+  "volume_name": "data",
+  "total_bytes": 1073741824000,
+  "used_bytes": 536870912000,
+  "free_bytes": 536870912000,
+  "usage_percent": 50,
+  "quota_count": 10,
+  "top_users": [
+    {
+      "target_name": "zhangsan",
+      "used_bytes": 107374182400,
+      "usage_percent": 80
+    }
+  ],
+  "trend": {
+    "daily_growth_bytes": 1073741824,
+    "growth_percent": 0.2,
+    "days_to_full": 500
+  }
+}
 ```
