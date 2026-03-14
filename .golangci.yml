@@ -1,121 +1,65 @@
-# golangci-lint 配置文件
+# golangci-lint 配置文件 (v2 格式)
+
+version: 2
 
 run:
   timeout: 10m
   tests: true
 
 linters:
+  default: none
   enable:
     - errcheck
-    - gosimple
     - govet
     - ineffassign
     - staticcheck
     - unused
-  disable:
-    - gosec  # 安全问题已通过 gosec 单独扫描
-    - revive  # 代码风格问题，不影响功能
-    - gocritic  # 代码优化建议，不影响功能
-    - gocyclo  # 圈复杂度检查
-    - funlen  # 函数长度检查
-    - goconst  # 常量提取建议
-    - godot  # 注释句号检查
-    - gomnd  # 魔法数字检查
-    - mnd  # 魔法数字检查
-    - varnamelen  # 变量名长度检查
-    - wsl  # 空行检查
-    - nlreturn  # return 前空行检查
-    - wrapcheck  # error wrap 检查
-    - exhaustive  # exhaustiveness 检查
-    - exhaustruct  # 结构体字段检查
-    - ireturn  # 接口返回检查
-    - perfsprint  # 性能建议
-    - contextcheck  # context 检查
-    - dupl  # 重复代码检查
-    - lll  # 行长度检查
-    - godox  # TODO 检查
-    - gci  # import 排序
-    - goimports  # import 格式
-    - gofmt  # 格式检查（已用 gofmt 单独检查）
 
-linters-settings:
-  errcheck:
-    check-type-assertions: false
-    check-blank: false
-    # 忽略常见安全的错误（这些错误通常不需要处理）
-    exclude-functions: |
-      fmt:.*
-      io:Close
-      net/http:Write
-      net/http:Flush
-      bytes:Write
-      strings:Write
-      github.com/gin-gonic/gin:Stop
-      (*os.File).Write
-      (*os.File).WriteString
-  gosimple:
-    disable:
-      - S1039  # unnecessary use of fmt.Sprintf
+formatters:
+  enable:
+    - gofmt
 
 issues:
-  exclude-use-default: false
   exclude:
-    # 忽略测试文件中的 errcheck（测试代码可以简化错误处理）
+    # 忽略测试文件中的 errcheck
     - 'Error return value of .*(os\.Remove|os\.WriteFile|os\.MkdirAll).* is not checked'
-    # 忽略 defer close/flush 类型的错误检查（这些通常不会导致问题）
     - 'Error return value of .*(Close|Sync|Flush).* is not checked'
-    # 忽略 saveConfig/save 类函数
-    - 'Error return value of .*(saveConfig|saveNodes|saveState|saveVersions|saveNotifications|IncrementDownloads|VerifyPurchase).* is not checked'
-    # 忽略 Shutdown 类函数
-    - 'Error return value of .*(Shutdown|UpdateNodeStatus|UpdateNodeMetrics|loadState|saveState|removeRuleFromSystem|unblockIP|unbanIPInternal|removeBan).* is not checked'
-    # 忽略 photos 包中的 persist/save 类函数
+    - 'Error return value of .*(saveConfig|saveNodes|saveState|saveVersions|saveNotifications|save).* is not checked'
+    - 'Error return value of .*(Shutdown|UpdateNodeStatus|UpdateNodeMetrics|loadState|saveState|removeRuleFromSystem|unblockIP|unbanIPInternal|removeBan|Stop).* is not checked'
     - 'Error return value of .*(persistAIMemory|saveSmartAlbums).* is not checked'
-    # 忽略 scanSubvolumes
     - 'Error return value of .*(scanSubvolumes).* is not checked'
-    # 忽略 fmt.Fprint 类函数
     - 'Error return value of .*(fmt\.Fprint|fmt\.Fprintln|fmt\.Fprintf).* is not checked'
-    # 忽略 f.Write
     - 'Error return value of .*(f\.Write|writer\.Write).* is not checked'
-    # 忽略 rand.Read
     - 'Error return value of .*(rand\.Read).* is not checked'
-    # 忽略 fmt.Sscanf
     - 'Error return value of .*(fmt\.Sscanf).* is not checked'
-    # 忽略 save/execute/notify 类函数
-    - 'Error return value of .*(saveSchedule|executeReport|saveTemplate|saveCache|save|Run|RemoveContainer|saveInstalled|saveAggregations|AddFunc|CreateTask|SubmitResult|Unload|Stop|Init|Start|CreateVersion|Parse).* is not checked'
-    # 忽略 cmd.Run 和 iptables 相关
+    - 'Error return value of .*(saveSchedule|executeReport|saveTemplate|saveCache|Run|RemoveContainer|saveInstalled|saveAggregations|AddFunc|CreateTask|SubmitResult|Unload|Init|Start|CreateVersion|Parse).* is not checked'
     - 'Error return value of .*\(\*os/exec\.Cmd\)\.Run.* is not checked'
-    # 忽略 notifyEmail/notifyWebhook
     - 'Error return value of .*(notifyEmail|notifyWebhook).* is not checked'
-    # 忽略 os.Stdout/os.Stderr 的 Write 调用
     - 'Error return value of .*(os\.Stdout\.Write|os\.Stdout\.WriteString|os\.Stderr\.Write|os\.Stderr\.WriteString).* is not checked'
-  exclude-rules:
-    # 忽略空分支警告（SA9003）- 这些是有意为之的空实现
-    - text: "SA9003: empty branch"
-      linters:
-        - staticcheck
-    # 忽略测试文件中的大部分 lint 问题
-    - path: _test\.go$
-      linters:
-        - errcheck
-        - ineffassign
-        - staticcheck
-    # 忽略示例代码和插件
-    - path: plugins/
-      linters:
-        - unused
-        - errcheck
-        - govet
-    # 忽略工具函数
-    - path: pkg/btrfs/
-      linters:
-        - unused
-        - ineffassign
-    # 忽略 tests 目录中的 gosimple
-    - path: tests/
-      linters:
-        - gosimple
-    # 忽略 photos 包中的一些问题
-    - path: internal/photos/
-      linters:
-        - errcheck
-        - ineffassign
+    - 'Error return value of .*(resp\.Body\.Close|file\.Close|logger\.Sync).* is not checked'
+    - 'Error return value of .*(tabwriter\.Writer\.Flush|FlagSet\.Parse).* is not checked'
+    - 'Error return value of .*(IncrementDownloads|VerifyPurchase).* is not checked'
+    - 'Error return value of .*ShutdownCluster.* is not checked'
+  exclusions:
+    rules:
+      - path: _test\.go$
+        linters:
+          - errcheck
+          - ineffassign
+          - staticcheck
+      - path: plugins/
+        linters:
+          - unused
+          - errcheck
+          - govet
+      - path: pkg/btrfs/
+        linters:
+          - unused
+          - ineffassign
+      - path: tests/
+        linters:
+          - staticcheck
+      - path: internal/photos/
+        linters:
+          - errcheck
+          - ineffassign
