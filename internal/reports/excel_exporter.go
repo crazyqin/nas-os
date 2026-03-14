@@ -125,13 +125,13 @@ func (e *ExcelExporter) createExcelFile(report *GeneratedReport, options ExportO
 // setDocumentProperties 设置文档属性
 func (e *ExcelExporter) setDocumentProperties(f *excelize.File, report *GeneratedReport, options ExportOptions) {
 	props := &excelize.DocProperties{
-		Title:       options.Title,
-		Subject:     report.Name,
-		Creator:     options.Company,
-		Description: report.Name,
+		Title:          options.Title,
+		Subject:        report.Name,
+		Creator:        options.Company,
+		Description:    report.Name,
 		LastModifiedBy: "NAS-OS Reports System",
-		Created:     time.Now().Format(time.RFC3339),
-		Modified:    time.Now().Format(time.RFC3339),
+		Created:        time.Now().Format(time.RFC3339),
+		Modified:       time.Now().Format(time.RFC3339),
 	}
 
 	if props.Title == "" {
@@ -198,7 +198,7 @@ func (e *ExcelExporter) createSummarySheet(f *excelize.File, report *GeneratedRe
 	f.MergeCell(sheetName, "A2", "D2")
 	f.SetCellValue(sheetName, "A2", fmt.Sprintf("生成时间: %s", report.GeneratedAt.Format("2006-01-02 15:04:05")))
 	dateStyle, _ := f.NewStyle(&excelize.Style{
-		Font: &excelize.Font{Size: 10, Color: "#666666"},
+		Font:      &excelize.Font{Size: 10, Color: "#666666"},
 		Alignment: &excelize.Alignment{Horizontal: "center"},
 	})
 	f.SetCellStyle(sheetName, "A2", "D2", dateStyle)
@@ -244,7 +244,7 @@ func (e *ExcelExporter) createSummarySheet(f *excelize.File, report *GeneratedRe
 // createDataSheet 创建数据工作表
 func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedReport, options ExportOptions) error {
 	sheetName := "数据"
-	
+
 	// 检查是否已有摘要表，如果有则使用第一个位置
 	hasSummary := options.Summary && report.Summary != nil
 	if !hasSummary {

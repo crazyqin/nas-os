@@ -553,12 +553,12 @@ func (s *Synchronizer) SyncSingleUser(username string) (*SyncResult, error) {
 
 	entry := searchResult.Entries[0]
 	user := &User{
-		DN:          entry.DN,
-		Username:    entry.GetAttributeValue(s.config.Attributes.Username),
-		Email:       entry.GetAttributeValue(s.config.Attributes.Email),
-		FirstName:   entry.GetAttributeValue(s.config.Attributes.FirstName),
-		LastName:    entry.GetAttributeValue(s.config.Attributes.LastName),
-		FullName:    entry.GetAttributeValue(s.config.Attributes.FullName),
+		DN:        entry.DN,
+		Username:  entry.GetAttributeValue(s.config.Attributes.Username),
+		Email:     entry.GetAttributeValue(s.config.Attributes.Email),
+		FirstName: entry.GetAttributeValue(s.config.Attributes.FirstName),
+		LastName:  entry.GetAttributeValue(s.config.Attributes.LastName),
+		FullName:  entry.GetAttributeValue(s.config.Attributes.FullName),
 	}
 
 	// 处理组
@@ -630,21 +630,21 @@ func (s *Synchronizer) GetStatus() map[string]interface{} {
 	defer s.mu.Unlock()
 
 	status := map[string]interface{}{
-		"running":    s.running,
-		"last_sync":  s.lastSync,
-		"config":     s.config.Name,
-		"sync_mode":  s.config.SyncConfig.Mode,
+		"running":   s.running,
+		"last_sync": s.lastSync,
+		"config":    s.config.Name,
+		"sync_mode": s.config.SyncConfig.Mode,
 	}
 
 	if s.lastResult != nil {
 		status["last_result"] = map[string]interface{}{
-			"success":         s.lastResult.Success,
-			"duration":        s.lastResult.Duration.String(),
-			"users_created":   s.lastResult.UsersCreated,
-			"users_updated":   s.lastResult.UsersUpdated,
-			"groups_created":  s.lastResult.GroupsCreated,
-			"groups_updated":  s.lastResult.GroupsUpdated,
-			"message":         s.lastResult.Message,
+			"success":        s.lastResult.Success,
+			"duration":       s.lastResult.Duration.String(),
+			"users_created":  s.lastResult.UsersCreated,
+			"users_updated":  s.lastResult.UsersUpdated,
+			"groups_created": s.lastResult.GroupsCreated,
+			"groups_updated": s.lastResult.GroupsUpdated,
+			"message":        s.lastResult.Message,
 		}
 	}
 

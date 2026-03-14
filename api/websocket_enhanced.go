@@ -40,10 +40,10 @@ type HeartbeatConfig struct {
 
 // DefaultHeartbeatConfig 默认心跳配置
 var DefaultHeartbeatConfig = HeartbeatConfig{
-	PingInterval:           30 * time.Second,
-	PongTimeout:            10 * time.Second,
-	MaxMissedPongs:         3,
-	EnableServerHeartbeat:  true,
+	PingInterval:          30 * time.Second,
+	PongTimeout:           10 * time.Second,
+	MaxMissedPongs:        3,
+	EnableServerHeartbeat: true,
 }
 
 // ReconnectConfig 重连配置
@@ -117,21 +117,21 @@ type ConnectionStats struct {
 
 // EnhancedClient 增强版 WebSocket 客户端
 type EnhancedClient struct {
-	ID             string
-	UserID         string
-	Connection     *websocket.Conn
-	Send           chan []byte
-	Subscriptions  map[MessageType]bool
-	ConnectedAt    time.Time
-	LastActivity   time.Time
+	ID            string
+	UserID        string
+	Connection    *websocket.Conn
+	Send          chan []byte
+	Subscriptions map[MessageType]bool
+	ConnectedAt   time.Time
+	LastActivity  time.Time
 
 	// 状态管理
-	state           int32 // atomic: ConnectionState
-	reconnectCount  int32
-	messagesSent    int64
+	state            int32 // atomic: ConnectionState
+	reconnectCount   int32
+	messagesSent     int64
 	messagesReceived int64
-	bytesSent       int64
-	bytesReceived   int64
+	bytesSent        int64
+	bytesReceived    int64
 	missedHeartbeats int32
 
 	// 心跳
@@ -153,21 +153,21 @@ type EnhancedClient struct {
 
 // EnhancedWebSocketHub 增强版 WebSocket Hub
 type EnhancedWebSocketHub struct {
-	clients         map[string]*EnhancedClient
-	broadcast       chan *WebSocketMessage
-	register        chan *EnhancedClient
-	unregister      chan *EnhancedClient
-	statusChange    chan *ClientStatusChange
-	mu              sync.RWMutex
+	clients      map[string]*EnhancedClient
+	broadcast    chan *WebSocketMessage
+	register     chan *EnhancedClient
+	unregister   chan *EnhancedClient
+	statusChange chan *ClientStatusChange
+	mu           sync.RWMutex
 
 	// 配置
-	heartbeatConfig  HeartbeatConfig
-	reconnectConfig  ReconnectConfig
+	heartbeatConfig HeartbeatConfig
+	reconnectConfig ReconnectConfig
 
 	// 统计
-	totalConnections  int64
-	totalMessages     int64
-	totalBroadcasts   int64
+	totalConnections int64
+	totalMessages    int64
+	totalBroadcasts  int64
 
 	// 控制
 	ctx    context.Context
@@ -249,9 +249,9 @@ func (h *EnhancedWebSocketHub) unregisterClient(client *EnhancedClient) {
 
 // handleStatusChange 处理状态变化
 func (h *EnhancedWebSocketHub) handleStatusChange(status *ClientStatusChange) {
-	log.Printf("[WebSocket] Client %s state: %s -> %s", 
+	log.Printf("[WebSocket] Client %s state: %s -> %s",
 		status.ClientID, status.OldState, status.NewState)
-	
+
 	if status.Error != nil {
 		log.Printf("[WebSocket] Client %s error: %v", status.ClientID, status.Error)
 	}
@@ -315,7 +315,7 @@ func (h *EnhancedWebSocketHub) logStats() {
 
 	if count > 0 {
 		log.Printf("[WebSocket] Stats - Clients: %d, Total Connections: %d, Messages: %d, Broadcasts: %d",
-			count, 
+			count,
 			atomic.LoadInt64(&h.totalConnections),
 			atomic.LoadInt64(&h.totalMessages),
 			atomic.LoadInt64(&h.totalBroadcasts))
@@ -474,14 +474,14 @@ func (c *EnhancedClient) readPump(hub *EnhancedWebSocketHub) {
 
 	c.Connection.SetReadLimit(65536)
 	c.Connection.SetReadDeadline(time.Now().Add(c.heartbeatConfig.PongTimeout + c.heartbeatConfig.PingInterval))
-	
+
 	// Pong 处理器
 	c.Connection.SetPongHandler(func(string) error {
 		c.Connection.SetReadDeadline(time.Now().Add(c.heartbeatConfig.PongTimeout + c.heartbeatConfig.PingInterval))
 		c.missedPongs = 0
 		atomic.StoreInt32(&c.missedHeartbeats, 0)
 		c.LastActivity = time.Now()
-		
+
 		select {
 		case c.pongChan <- struct{}{}:
 		default:
@@ -569,7 +569,7 @@ func (c *EnhancedClient) heartbeatPump(hub *EnhancedWebSocketHub) {
 				atomic.AddInt32(&c.missedHeartbeats, 1)
 
 				if c.missedPongs >= c.heartbeatConfig.MaxMissedPongs {
-					log.Printf("[WebSocket] Client %s heartbeat timeout after %d missed pongs", 
+					log.Printf("[WebSocket] Client %s heartbeat timeout after %d missed pongs",
 						c.ID, c.missedPongs)
 					hub.statusChange <- &ClientStatusChange{
 						ClientID: c.ID,
@@ -611,7 +611,7 @@ func (c *EnhancedClient) sendCloseMessage() {
 
 	if c.Connection != nil {
 		c.Connection.SetWriteDeadline(time.Now().Add(5 * time.Second))
-		c.Connection.WriteMessage(websocket.CloseMessage, 
+		c.Connection.WriteMessage(websocket.CloseMessage,
 			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	}
 }
@@ -619,8 +619,8 @@ func (c *EnhancedClient) sendCloseMessage() {
 // handleMessage 处理消息
 func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *EnhancedWebSocketHub) {
 	var msg struct {
-		Action        string        `json:"action"`
-		Subscriptions []MessageType `json:"subscriptions,omitempty"`
+		Action        string          `json:"action"`
+		Subscriptions []MessageType   `json:"subscriptions,omitempty"`
 		Data          json.RawMessage `json:"data,omitempty"`
 	}
 
@@ -673,7 +673,7 @@ func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *Enh
 func (c *EnhancedClient) Close() {
 	c.setState(StateClosing)
 	c.cancel()
-	
+
 	c.mu.Lock()
 	if c.Connection != nil {
 		c.Connection.Close()
