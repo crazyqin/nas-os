@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.24.0] - 2026-03-15
+
+### Added
+- **Photos AI 增强** (兵部)
+  - AI 数据清除功能（ClearAIData、ClearPhotoAIData）
+  - 重新分析所有照片功能（ReanalyzeAll）
+  - AI 分析结果保存到存储
+
+- **Media 媒体库完善** (兵部)
+  - 获取/更新/删除单个媒体项
+  - 元数据搜索（电影/电视剧）
+  - 获取元数据详情
+  - 播放历史记录
+  - 收藏功能
+
+- **自动化触发器解析** (礼部)
+  - parseTriggerConfig 解析四种触发器类型
+  - parseActionConfig 解析九种动作类型
+  - 实际成功率计算
+
+- **插件管理增强** (礼部)
+  - 从插件实例获取完整依赖信息
+
+- **Replication 增强** (工部)
+  - rsync 输出完整解析
+  - 提取传输统计（字节数、速度、文件数）
+  - 新增 RsyncStats 结构体
+
+### Fixed
+- **代码格式修复**
+  - 修复 perf/manager.go gofmt 格式问题
+
 ## [v2.22.0] - 2026-03-15
 
 ### Added
