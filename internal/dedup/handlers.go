@@ -197,18 +197,18 @@ func (h *Handlers) deduplicate(c *gin.Context) {
 
 	// 设置默认策略
 	policy := DedupPolicy{
-		Mode:          req.Mode,
-		Action:        req.Action,
+		Mode:          DedupMode(req.Mode),
+		Action:        DedupAction(req.Action),
 		MinMatchCount: 1,
 		PreserveAttrs: true,
 		CrossUser:     req.CrossUser,
 	}
 
 	if policy.Mode == "" {
-		policy.Mode = "file"
+		policy.Mode = ModeFile
 	}
 	if policy.Action == "" {
-		policy.Action = "softlink"
+		policy.Action = ActionSoftlink
 	}
 
 	if err := h.manager.DeduplicateForUser(req.Checksum, req.KeepPath, policy, req.User); err != nil {
@@ -244,18 +244,18 @@ func (h *Handlers) deduplicateAll(c *gin.Context) {
 	}
 
 	policy := DedupPolicy{
-		Mode:          req.Mode,
-		Action:        req.Action,
+		Mode:          DedupMode(req.Mode),
+		Action:        DedupAction(req.Action),
 		MinMatchCount: 2,
 		PreserveAttrs: true,
 		CrossUser:     req.CrossUser,
 	}
 
 	if policy.Mode == "" {
-		policy.Mode = "file"
+		policy.Mode = ModeFile
 	}
 	if policy.Action == "" {
-		policy.Action = "softlink"
+		policy.Action = ActionSoftlink
 	}
 
 	result, err := h.manager.DeduplicateAll(policy, req.DryRun)

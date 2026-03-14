@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.6.0] - 2026-03-14
+
+### Added
+- **集成测试完善**
+  - 去重功能集成测试 (`tests/integration/dedup_test.go`)
+  - 健康检查集成测试 (`tests/integration/health_test.go`)
+  - 日志系统集成测试 (`tests/integration/logging_test.go`)
+  - 性能基准测试
+
+### Testing
+- **去重测试**: 文件扫描、重复检测、并发操作、用户权限隔离
+- **健康检查测试**: 内存检查、磁盘空间检查、HTTP 服务检查、超时处理、并发检查
+- **日志系统测试**: 日志级别过滤、JSON/文本格式化、字段支持、日志轮转、并发写入、上下文日志
+
 ## [v2.5.0] - 2026-03-14
 
 ### Added
