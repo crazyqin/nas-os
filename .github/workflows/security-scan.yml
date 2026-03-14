@@ -1,3 +1,9 @@
+# 安全扫描工作流
+# 定期运行安全扫描，发现问题但不阻塞CI
+#
+# v2.37.0 更新：
+# - 添加 Node.js 24 支持
+
 name: Security Scan
 
 on:
@@ -8,6 +14,10 @@ on:
   schedule:
     # 每周一 02:00 UTC 自动运行
     - cron: '0 2 * * 1'
+
+env:
+  # Node.js 24 支持
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 # 权限配置 - 最小权限原则
 permissions:

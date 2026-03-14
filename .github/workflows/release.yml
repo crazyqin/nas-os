@@ -1,6 +1,10 @@
 # GitHub Release 构建
 # 构建多平台二进制文件并上传到 GitHub Release
 #
+# v2.37.0 更新：
+# - 更新缓存版本
+# - 添加 Node.js 24 支持
+#
 # v2.35.0 更新：
 # - 添加 id-token 权限支持 OIDC 签名
 # - 优化构建产物缓存
@@ -20,7 +24,9 @@ on:
 
 env:
   GO_VERSION: '1.26'
-  CACHE_VERSION: 'v3'
+  CACHE_VERSION: 'v4'
+  # Node.js 24 支持
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 # 权限配置
 permissions:
