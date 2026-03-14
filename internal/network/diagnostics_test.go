@@ -502,8 +502,8 @@ func TestTracerouteMaxHopsDefault(t *testing.T) {
 // TestPacketLossCalculation 测试丢包率计算
 func TestPacketLossCalculation(t *testing.T) {
 	tests := []struct {
-		sent       int
-		recv       int
+		sent         int
+		recv         int
 		expectedLoss float64
 	}{
 		{4, 4, 0.0},
@@ -651,26 +651,26 @@ func TestServiceIdentificationAllPorts(t *testing.T) {
 	mgr := NewManager("/tmp/test-network")
 
 	knownPorts := map[int]string{
-		20:   "FTP Data",
-		21:   "FTP",
-		22:   "SSH",
-		23:   "Telnet",
-		25:   "SMTP",
-		53:   "DNS",
-		80:   "HTTP",
-		110:  "POP3",
-		143:  "IMAP",
-		443:  "HTTPS",
-		465:  "SMTPS",
-		587:  "SMTP (TLS)",
-		993:  "IMAPS",
-		995:  "POP3S",
-		3306: "MySQL",
-		5432: "PostgreSQL",
-		6379: "Redis",
-		8080: "HTTP Proxy",
-		8443: "HTTPS (Alt)",
-		9000: "PHP-FPM",
+		20:    "FTP Data",
+		21:    "FTP",
+		22:    "SSH",
+		23:    "Telnet",
+		25:    "SMTP",
+		53:    "DNS",
+		80:    "HTTP",
+		110:   "POP3",
+		143:   "IMAP",
+		443:   "HTTPS",
+		465:   "SMTPS",
+		587:   "SMTP (TLS)",
+		993:   "IMAPS",
+		995:   "POP3S",
+		3306:  "MySQL",
+		5432:  "PostgreSQL",
+		6379:  "Redis",
+		8080:  "HTTP Proxy",
+		8443:  "HTTPS (Alt)",
+		9000:  "PHP-FPM",
 		27017: "MongoDB",
 	}
 
@@ -742,8 +742,8 @@ example.com.		300	IN	A	93.184.216.35`
 func TestNetworkDiagnoseStructure(t *testing.T) {
 	// 测试综合诊断结果结构
 	results := map[string]interface{}{
-		"dns": &DNSLookupResult{Host: "example.com", Addresses: []string{"1.2.3.4"}},
-		"ping": &PingResult{Host: "example.com", PacketLoss: 0.0},
+		"dns":   &DNSLookupResult{Host: "example.com", Addresses: []string{"1.2.3.4"}},
+		"ping":  &PingResult{Host: "example.com", PacketLoss: 0.0},
 		"ports": &PortScanResult{Host: "example.com", Ports: []PortStatus{}},
 	}
 

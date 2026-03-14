@@ -428,17 +428,17 @@ const (
 
 // Condition 条件
 type Condition struct {
-	Field    string            `json:"field"`              // 字段路径，如 "event.type" 或 "event.data.size"
-	Operator ConditionOperator `json:"operator"`           // 运算符
-	Value    interface{}       `json:"value,omitempty"`    // 比较值
+	Field    string            `json:"field"`           // 字段路径，如 "event.type" 或 "event.data.size"
+	Operator ConditionOperator `json:"operator"`        // 运算符
+	Value    interface{}       `json:"value,omitempty"` // 比较值
 }
 
 // ConditionalAction 条件动作 - 根据条件决定是否执行
 type ConditionalAction struct {
-	Type        ActionType `json:"type"`
-	Condition   Condition  `json:"condition"`            // 条件
-	ThenAction  Action     `json:"then_action"`          // 条件为真时执行
-	ElseAction  Action     `json:"else_action,omitempty"` // 条件为假时执行（可选）
+	Type       ActionType `json:"type"`
+	Condition  Condition  `json:"condition"`             // 条件
+	ThenAction Action     `json:"then_action"`           // 条件为真时执行
+	ElseAction Action     `json:"else_action,omitempty"` // 条件为假时执行（可选）
 }
 
 func (a *ConditionalAction) GetType() ActionType {
@@ -621,7 +621,7 @@ type ActionConfig struct {
 	Attachments []string `json:"attachments,omitempty"`
 
 	// Conditional fields
-	Condition  Condition `json:"condition,omitempty"`
+	Condition  Condition     `json:"condition,omitempty"`
 	ThenAction *ActionConfig `json:"then_action,omitempty"`
 	ElseAction *ActionConfig `json:"else_action,omitempty"`
 }

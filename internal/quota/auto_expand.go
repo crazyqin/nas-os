@@ -14,20 +14,20 @@ import (
 
 // AutoExpandPolicy 自动扩展策略
 type AutoExpandPolicy struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	QuotaID      string    `json:"quota_id"`      // 关联的配额ID，为空表示全局策略
-	VolumeName   string    `json:"volume_name"`   // 适用卷名
-	Enabled      bool      `json:"enabled"`       // 是否启用
-	TriggerMode  string    `json:"trigger_mode"`  // 触发模式：threshold, scheduled, manual
+	ID           string        `json:"id"`
+	Name         string        `json:"name"`
+	QuotaID      string        `json:"quota_id"`      // 关联的配额ID，为空表示全局策略
+	VolumeName   string        `json:"volume_name"`   // 适用卷名
+	Enabled      bool          `json:"enabled"`       // 是否启用
+	TriggerMode  string        `json:"trigger_mode"`  // 触发模式：threshold, scheduled, manual
 	TriggerRules []TriggerRule `json:"trigger_rules"` // 触发规则
 
 	// 扩展配置
-	ExpandMode     string `json:"expand_mode"`     // 扩展模式：fixed, percent, dynamic
-	ExpandValue    uint64 `json:"expand_value"`    // 扩展值（固定字节数或百分比）
-	ExpandPercent  float64 `json:"expand_percent"` // 扩展百分比（percent模式）
-	MaxLimit       uint64 `json:"max_limit"`       // 最大限制（0表示无限制）
-	MinFreeSpace   uint64 `json:"min_free_space"`  // 最小保留空闲空间
+	ExpandMode    string  `json:"expand_mode"`    // 扩展模式：fixed, percent, dynamic
+	ExpandValue   uint64  `json:"expand_value"`   // 扩展值（固定字节数或百分比）
+	ExpandPercent float64 `json:"expand_percent"` // 扩展百分比（percent模式）
+	MaxLimit      uint64  `json:"max_limit"`      // 最大限制（0表示无限制）
+	MinFreeSpace  uint64  `json:"min_free_space"` // 最小保留空闲空间
 
 	// 条件约束
 	CooldownPeriod time.Duration `json:"cooldown_period"` // 扩展冷却期
@@ -41,7 +41,7 @@ type AutoExpandPolicy struct {
 
 	// 审计追踪
 	RequireApproval bool   `json:"require_approval"` // 是否需要审批
-	ApproverEmail    string `json:"approver_email"`   // 审批人邮箱
+	ApproverEmail   string `json:"approver_email"`   // 审批人邮箱
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -49,49 +49,49 @@ type AutoExpandPolicy struct {
 
 // TriggerRule 触发规则
 type TriggerRule struct {
-	ID              string  `json:"id"`
-	Type            string  `json:"type"`             // usage_percent, free_space, growth_rate
-	Operator        string  `json:"operator"`         // gt, gte, lt, lte, eq
-	Value           float64 `json:"value"`            // 触发阈值
-	Duration        time.Duration `json:"duration"`  // 持续时间（避免瞬时波动）
-	Severity        string  `json:"severity"`         // 触发严重级别
-	ConsecutiveHits int     `json:"consecutive_hits"` // 连续命中次数
+	ID              string        `json:"id"`
+	Type            string        `json:"type"`             // usage_percent, free_space, growth_rate
+	Operator        string        `json:"operator"`         // gt, gte, lt, lte, eq
+	Value           float64       `json:"value"`            // 触发阈值
+	Duration        time.Duration `json:"duration"`         // 持续时间（避免瞬时波动）
+	Severity        string        `json:"severity"`         // 触发严重级别
+	ConsecutiveHits int           `json:"consecutive_hits"` // 连续命中次数
 }
 
 // ExpandAction 扩展动作记录
 type ExpandAction struct {
-	ID              string        `json:"id"`
-	PolicyID        string        `json:"policy_id"`
-	QuotaID         string        `json:"quota_id"`
-	TriggerType     string        `json:"trigger_type"`
-	TriggerValue    float64       `json:"trigger_value"`
-	PreviousLimit   uint64        `json:"previous_limit"`
-	NewLimit        uint64        `json:"new_limit"`
-	ExpandBytes     uint64        `json:"expand_bytes"`
-	ExpandPercent   float64       `json:"expand_percent"`
-	Status          string        `json:"status"` // pending, approved, executed, failed, rolled_back
-	ApprovedBy      string        `json:"approved_by,omitempty"`
-	ApprovedAt      *time.Time    `json:"approved_at,omitempty"`
-	ExecutedAt      *time.Time    `json:"executed_at,omitempty"`
-	FailedReason    string        `json:"failed_reason,omitempty"`
-	RollbackReason  string        `json:"rollback_reason,omitempty"`
-	RollbackAt      *time.Time    `json:"rollback_at,omitempty"`
-	NotifiedAt      *time.Time    `json:"notified_at,omitempty"`
-	CreatedAt       time.Time     `json:"created_at"`
+	ID             string     `json:"id"`
+	PolicyID       string     `json:"policy_id"`
+	QuotaID        string     `json:"quota_id"`
+	TriggerType    string     `json:"trigger_type"`
+	TriggerValue   float64    `json:"trigger_value"`
+	PreviousLimit  uint64     `json:"previous_limit"`
+	NewLimit       uint64     `json:"new_limit"`
+	ExpandBytes    uint64     `json:"expand_bytes"`
+	ExpandPercent  float64    `json:"expand_percent"`
+	Status         string     `json:"status"` // pending, approved, executed, failed, rolled_back
+	ApprovedBy     string     `json:"approved_by,omitempty"`
+	ApprovedAt     *time.Time `json:"approved_at,omitempty"`
+	ExecutedAt     *time.Time `json:"executed_at,omitempty"`
+	FailedReason   string     `json:"failed_reason,omitempty"`
+	RollbackReason string     `json:"rollback_reason,omitempty"`
+	RollbackAt     *time.Time `json:"rollback_at,omitempty"`
+	NotifiedAt     *time.Time `json:"notified_at,omitempty"`
+	CreatedAt      time.Time  `json:"created_at"`
 }
 
 // ExpandPolicyStats 扩展策略统计
 type ExpandPolicyStats struct {
-	PolicyID          string    `json:"policy_id"`
-	TotalExpansions   int       `json:"total_expansions"`
-	SuccessCount      int       `json:"success_count"`
-	FailedCount       int       `json:"failed_count"`
-	RolledBackCount   int       `json:"rolled_back_count"`
-	TotalExpandedBytes uint64   `json:"total_expanded_bytes"`
-	LastExpansionAt   *time.Time `json:"last_expansion_at"`
-	LastExpansionBytes uint64   `json:"last_expansion_bytes"`
-	AverageExpandSize uint64    `json:"average_expand_size"`
-	NextExpansionAt   *time.Time `json:"next_expansion_at,omitempty"`
+	PolicyID           string     `json:"policy_id"`
+	TotalExpansions    int        `json:"total_expansions"`
+	SuccessCount       int        `json:"success_count"`
+	FailedCount        int        `json:"failed_count"`
+	RolledBackCount    int        `json:"rolled_back_count"`
+	TotalExpandedBytes uint64     `json:"total_expanded_bytes"`
+	LastExpansionAt    *time.Time `json:"last_expansion_at"`
+	LastExpansionBytes uint64     `json:"last_expansion_bytes"`
+	AverageExpandSize  uint64     `json:"average_expand_size"`
+	NextExpansionAt    *time.Time `json:"next_expansion_at,omitempty"`
 }
 
 // AutoExpandManager 自动扩展管理器
@@ -102,9 +102,9 @@ type AutoExpandManager struct {
 	actionHistory  []*ExpandAction
 	stats          map[string]*ExpandPolicyStats
 	quotaMgr       *Manager
-	triggerTracker map[string]int // quotaID -> consecutive trigger count
+	triggerTracker map[string]int       // quotaID -> consecutive trigger count
 	lastExpandTime map[string]time.Time // quotaID -> last expansion time
-	dailyExpand    map[string]uint64 // quotaID -> today's expansion total
+	dailyExpand    map[string]uint64    // quotaID -> today's expansion total
 	dailyReset     time.Time
 	configPath     string
 	stopChan       chan struct{}
@@ -461,14 +461,14 @@ func (m *AutoExpandManager) calculateExpandAmount(policy *AutoExpandPolicy, usag
 func (m *AutoExpandManager) executeExpand(policy *AutoExpandPolicy, quotaID string, expandBytes uint64, triggerRule *TriggerRule) {
 	// 创建扩展动作
 	action := &ExpandAction{
-		ID:            generateID(),
-		PolicyID:      policy.ID,
-		QuotaID:       quotaID,
-		TriggerType:   triggerRule.Type,
-		TriggerValue:  triggerRule.Value,
-		ExpandBytes:   expandBytes,
-		Status:        "pending",
-		CreatedAt:     time.Now(),
+		ID:           generateID(),
+		PolicyID:     policy.ID,
+		QuotaID:      quotaID,
+		TriggerType:  triggerRule.Type,
+		TriggerValue: triggerRule.Value,
+		ExpandBytes:  expandBytes,
+		Status:       "pending",
+		CreatedAt:    time.Now(),
 	}
 
 	// 获取当前配额
@@ -927,15 +927,15 @@ func (m *AutoExpandManager) Load() error {
 
 // ExpansionRecommendation 扩展建议
 type ExpansionRecommendation struct {
-	QuotaID          string    `json:"quota_id"`
-	TargetName       string    `json:"target_name"`
-	CurrentLimit     uint64    `json:"current_limit"`
-	CurrentUsage     uint64    `json:"current_usage"`
-	UsagePercent     float64   `json:"usage_percent"`
-	RecommendedLimit uint64    `json:"recommended_limit"`
-	ExpandAmount     uint64    `json:"expand_amount"`
-	Reason           string    `json:"reason"`
-	Urgency          string    `json:"urgency"` // low, medium, high, critical
+	QuotaID           string     `json:"quota_id"`
+	TargetName        string     `json:"target_name"`
+	CurrentLimit      uint64     `json:"current_limit"`
+	CurrentUsage      uint64     `json:"current_usage"`
+	UsagePercent      float64    `json:"usage_percent"`
+	RecommendedLimit  uint64     `json:"recommended_limit"`
+	ExpandAmount      uint64     `json:"expand_amount"`
+	Reason            string     `json:"reason"`
+	Urgency           string     `json:"urgency"` // low, medium, high, critical
 	PredictedFullDate *time.Time `json:"predicted_full_date,omitempty"`
 }
 

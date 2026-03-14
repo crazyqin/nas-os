@@ -23,11 +23,11 @@ func TestNewManager(t *testing.T) {
 // TestContainerFields 测试容器字段
 func TestContainerFields(t *testing.T) {
 	container := &Container{
-		ID:      "abc123",
-		Name:    "test-container",
-		Image:   "nginx:latest",
-		Status:  "Up 2 hours",
-		State:   "running",
+		ID:     "abc123",
+		Name:   "test-container",
+		Image:  "nginx:latest",
+		Status: "Up 2 hours",
+		State:  "running",
 		Ports: []PortMapping{
 			{HostIP: "0.0.0.0", HostPort: "8080", ContainerPort: "80", Protocol: "tcp"},
 		},
@@ -472,13 +472,13 @@ func TestVolumeDrivers(t *testing.T) {
 // TestContainerStatsResourceUsage 测试容器资源使用统计
 func TestContainerStatsResourceUsage(t *testing.T) {
 	stats := &ContainerStats{
-		CPUUsage:  50.0, // 50%
-		MemUsage:  512 * 1024 * 1024, // 512 MB
-		MemLimit:  1024 * 1024 * 1024, // 1 GB
-		NetRX:     1024 * 1024 * 100,  // 100 MB
-		NetTX:     1024 * 1024 * 50,   // 50 MB
-		BlockRead: 1024 * 1024 * 1024, // 1 GB
-		BlockWrite: 1024 * 1024 * 512, // 512 MB
+		CPUUsage:   50.0,               // 50%
+		MemUsage:   512 * 1024 * 1024,  // 512 MB
+		MemLimit:   1024 * 1024 * 1024, // 1 GB
+		NetRX:      1024 * 1024 * 100,  // 100 MB
+		NetTX:      1024 * 1024 * 50,   // 50 MB
+		BlockRead:  1024 * 1024 * 1024, // 1 GB
+		BlockWrite: 1024 * 1024 * 512,  // 512 MB
 	}
 
 	// 计算内存使用百分比

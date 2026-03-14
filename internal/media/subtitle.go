@@ -25,89 +25,89 @@ const (
 
 // SubtitleItem 字幕项
 type SubtitleItem struct {
-	Index     int       `json:"index"`
+	Index     int           `json:"index"`
 	StartTime time.Duration `json:"startTime"`
 	EndTime   time.Duration `json:"endTime"`
-	Text      string    `json:"text"`
+	Text      string        `json:"text"`
 	// ASS/SSA 特有字段
-	Style     string    `json:"style,omitempty"`
-	Name      string    `json:"name,omitempty"`
-	MarginL   int       `json:"marginL,omitempty"`
-	MarginR   int       `json:"marginR,omitempty"`
-	MarginV   int       `json:"marginV,omitempty"`
-	Effect    string    `json:"effect,omitempty"`
+	Style   string `json:"style,omitempty"`
+	Name    string `json:"name,omitempty"`
+	MarginL int    `json:"marginL,omitempty"`
+	MarginR int    `json:"marginR,omitempty"`
+	MarginV int    `json:"marginV,omitempty"`
+	Effect  string `json:"effect,omitempty"`
 }
 
 // Subtitle 字幕文档
 type Subtitle struct {
-	Format    SubtitleFormat `json:"format"`
-	Items     []SubtitleItem `json:"items"`
-	Language  string         `json:"language"`
-	Title     string         `json:"title"`
+	Format   SubtitleFormat `json:"format"`
+	Items    []SubtitleItem `json:"items"`
+	Language string         `json:"language"`
+	Title    string         `json:"title"`
 	// VTT 特有
-	Regions   []VTTRegion    `json:"regions,omitempty"`
+	Regions []VTTRegion `json:"regions,omitempty"`
 	// ASS/SSA 特有
-	Styles    []ASSStyle     `json:"styles,omitempty"`
-	ScriptInfo ASSScriptInfo  `json:"scriptInfo,omitempty"`
+	Styles     []ASSStyle    `json:"styles,omitempty"`
+	ScriptInfo ASSScriptInfo `json:"scriptInfo,omitempty"`
 }
 
 // VTTRegion VTT 区域定义
 type VTTRegion struct {
-	ID          string `json:"id"`
-	Width       float64 `json:"width"`
-	Height      float64 `json:"height"`
-	AnchorX     float64 `json:"anchorX"`
-	AnchorY     float64 `json:"anchorY"`
-	ViewportX   float64 `json:"viewportX"`
-	ViewportY   float64 `json:"viewportY"`
-	Scroll      string `json:"scroll"`
+	ID        string  `json:"id"`
+	Width     float64 `json:"width"`
+	Height    float64 `json:"height"`
+	AnchorX   float64 `json:"anchorX"`
+	AnchorY   float64 `json:"anchorY"`
+	ViewportX float64 `json:"viewportX"`
+	ViewportY float64 `json:"viewportY"`
+	Scroll    string  `json:"scroll"`
 }
 
 // ASSStyle ASS 样式定义
 type ASSStyle struct {
-	Name         string  `json:"name"`
-	FontName     string  `json:"fontName"`
-	FontSize     float64 `json:"fontSize"`
-	PrimaryColor string  `json:"primaryColor"`
-	SecondaryColor string `json:"secondaryColor"`
-	OutlineColor string  `json:"outlineColor"`
-	BackColour   string  `json:"backColor"`
-	Bold         bool    `json:"bold"`
-	Italic       bool    `json:"italic"`
-	Underline    bool    `json:"underline"`
-	StrikeOut    bool    `json:"strikeOut"`
-	ScaleX       float64 `json:"scaleX"`
-	ScaleY       float64 `json:"scaleY"`
-	Spacing      float64 `json:"spacing"`
-	Angle        float64 `json:"angle"`
-	BorderStyle  int     `json:"borderStyle"`
-	Outline      float64 `json:"outline"`
-	Shadow       float64 `json:"shadow"`
-	Alignment    int     `json:"alignment"`
-	MarginL      int     `json:"marginL"`
-	MarginR      int     `json:"marginR"`
-	MarginV      int     `json:"marginV"`
-	Encoding     int     `json:"encoding"`
+	Name           string  `json:"name"`
+	FontName       string  `json:"fontName"`
+	FontSize       float64 `json:"fontSize"`
+	PrimaryColor   string  `json:"primaryColor"`
+	SecondaryColor string  `json:"secondaryColor"`
+	OutlineColor   string  `json:"outlineColor"`
+	BackColour     string  `json:"backColor"`
+	Bold           bool    `json:"bold"`
+	Italic         bool    `json:"italic"`
+	Underline      bool    `json:"underline"`
+	StrikeOut      bool    `json:"strikeOut"`
+	ScaleX         float64 `json:"scaleX"`
+	ScaleY         float64 `json:"scaleY"`
+	Spacing        float64 `json:"spacing"`
+	Angle          float64 `json:"angle"`
+	BorderStyle    int     `json:"borderStyle"`
+	Outline        float64 `json:"outline"`
+	Shadow         float64 `json:"shadow"`
+	Alignment      int     `json:"alignment"`
+	MarginL        int     `json:"marginL"`
+	MarginR        int     `json:"marginR"`
+	MarginV        int     `json:"marginV"`
+	Encoding       int     `json:"encoding"`
 }
 
 // ASSScriptInfo ASS 脚本信息
 type ASSScriptInfo struct {
-	Title           string `json:"title"`
-	OriginalScript  string `json:"originalScript"`
-	Translation     string `json:"translation"`
-	Editing         string `json:"editing"`
-	Timing          string `json:"timing"`
-	SyncPoint       string `json:"syncPoint"`
-	UpdatedBy       string `json:"updatedBy"`
-	UpdateDetails   string `json:"updateDetails"`
-	ScriptType      string `json:"scriptType"`
-	Collisions      string `json:"collisions"`
-	PlayDepth       int    `json:"playDepth"`
-	PlayResX        int    `json:"playResX"`
-	PlayResY        int    `json:"playResY"`
-	Timer           float64 `json:"timer"`
-	WrapStyle       string `json:"wrapStyle"`
-	ScaledBorderAndShadow bool `json:"scaledBorderAndShadow"`
+	Title                 string  `json:"title"`
+	OriginalScript        string  `json:"originalScript"`
+	Translation           string  `json:"translation"`
+	Editing               string  `json:"editing"`
+	Timing                string  `json:"timing"`
+	SyncPoint             string  `json:"syncPoint"`
+	UpdatedBy             string  `json:"updatedBy"`
+	UpdateDetails         string  `json:"updateDetails"`
+	ScriptType            string  `json:"scriptType"`
+	Collisions            string  `json:"collisions"`
+	PlayDepth             int     `json:"playDepth"`
+	PlayResX              int     `json:"playResX"`
+	PlayResY              int     `json:"playResY"`
+	Timer                 float64 `json:"timer"`
+	WrapStyle             string  `json:"wrapStyle"`
+	ScaledBorderAndShadow bool    `json:"scaledBorderAndShadow"`
 }
 
 // SubtitleManager 字幕管理器
@@ -388,9 +388,9 @@ func parseVTTRegion(s string) VTTRegion {
 // ParseASS 解析 ASS/SSA 字幕
 func (sm *SubtitleManager) ParseASS(reader io.Reader) (*Subtitle, error) {
 	subtitle := &Subtitle{
-		Format:    SubtitleFormatASS,
-		Items:     make([]SubtitleItem, 0),
-		Styles:    make([]ASSStyle, 0),
+		Format: SubtitleFormatASS,
+		Items:  make([]SubtitleItem, 0),
+		Styles: make([]ASSStyle, 0),
 	}
 
 	scanner := bufio.NewScanner(reader)
@@ -486,8 +486,8 @@ func (sm *SubtitleManager) parseASSStyleLine(subtitle *Subtitle, line string) {
 	}
 
 	style := ASSStyle{
-		Name:         strings.TrimSpace(values[0]),
-		FontName:     strings.TrimSpace(values[1]),
+		Name:     strings.TrimSpace(values[0]),
+		FontName: strings.TrimSpace(values[1]),
 	}
 
 	if v, err := strconv.ParseFloat(strings.TrimSpace(values[2]), 64); err == nil {

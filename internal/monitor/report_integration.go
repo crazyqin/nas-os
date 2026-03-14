@@ -98,13 +98,13 @@ func (ri *ReportIntegration) CreateMonitorDataSource() *reports.MonitorDataSourc
 			result := make([]map[string]interface{}, 0, len(stats))
 			for _, n := range stats {
 				result = append(result, map[string]interface{}{
-					"interface":   n.Interface,
-					"rx_bytes":    n.RXBytes,
-					"tx_bytes":    n.TXBytes,
-					"rx_packets":  n.RXPackets,
-					"tx_packets":  n.TXPackets,
-					"rx_errors":   n.RXErrors,
-					"tx_errors":   n.TXErrors,
+					"interface":  n.Interface,
+					"rx_bytes":   n.RXBytes,
+					"tx_bytes":   n.TXBytes,
+					"rx_packets": n.RXPackets,
+					"tx_packets": n.TXPackets,
+					"rx_errors":  n.RXErrors,
+					"tx_errors":  n.TXErrors,
 				})
 			}
 			return result, nil
@@ -234,14 +234,14 @@ func (ri *ReportIntegration) CreateMonitorDataSource() *reports.MonitorDataSourc
 					},
 				},
 				"trends": map[string]interface{}{
-					"cpu_trend":     report.Trends.CPUTrend,
-					"memory_trend":  report.Trends.MemoryTrend,
-					"disk_trend":    report.Trends.DiskTrend,
-					"health_score":  report.Trends.HealthScore,
-					"health_grade":  report.Trends.HealthGrade,
+					"cpu_trend":    report.Trends.CPUTrend,
+					"memory_trend": report.Trends.MemoryTrend,
+					"disk_trend":   report.Trends.DiskTrend,
+					"health_score": report.Trends.HealthScore,
+					"health_grade": report.Trends.HealthGrade,
 				},
-				"disk_analysis":    diskAnalysis,
-				"recommendations":  report.Recommendations,
+				"disk_analysis":   diskAnalysis,
+				"recommendations": report.Recommendations,
 			}, nil
 		},
 	})

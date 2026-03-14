@@ -130,16 +130,16 @@ func (t *Transcoder) GetVideoInfo(path string) (*VideoInfo, error) {
 
 // VideoInfo 视频信息
 type VideoInfo struct {
-	Duration   float64          `json:"duration"`
-	Width      int              `json:"width"`
-	Height     int              `json:"height"`
-	Framerate  float64          `json:"framerate"`
-	VideoCodec string           `json:"videoCodec"`
-	AudioCodec string           `json:"audioCodec"`
-	Bitrate    int64            `json:"bitrate"`
-	Size       int64            `json:"size"`
-	Streams    []StreamInfo     `json:"streams"`
-	Format     FormatInfo       `json:"format"`
+	Duration   float64      `json:"duration"`
+	Width      int          `json:"width"`
+	Height     int          `json:"height"`
+	Framerate  float64      `json:"framerate"`
+	VideoCodec string       `json:"videoCodec"`
+	AudioCodec string       `json:"audioCodec"`
+	Bitrate    int64        `json:"bitrate"`
+	Size       int64        `json:"size"`
+	Streams    []StreamInfo `json:"streams"`
+	Format     FormatInfo   `json:"format"`
 }
 
 // StreamInfo 流信息
