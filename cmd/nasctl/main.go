@@ -520,13 +520,13 @@ func printVolumes(volumes []Volume) {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "NAME\tSIZE\tUSED\tFREE\tPROFILE\tSTATUS")
+	_, _ = fmt.Fprintln(w, "NAME\tSIZE\tUSED\tFREE\tPROFILE\tSTATUS")
 	for _, v := range volumes {
 		status := "✓"
 		if !v.Status.Healthy {
 			status = "✗"
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
 			v.Name,
 			formatSize(v.Size),
 			formatSize(v.Used),
@@ -535,7 +535,7 @@ func printVolumes(volumes []Volume) {
 			status,
 		)
 	}
-	w.Flush()
+	_ = w.Flush()
 }
 
 func printVolume(v Volume) {
@@ -564,15 +564,15 @@ func printSubvolumes(subvolumes []SubVolume) {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "ID\tNAME\tPATH\tREADONLY")
+	_, _ = fmt.Fprintln(w, "ID\tNAME\tPATH\tREADONLY")
 	for _, sv := range subvolumes {
 		ro := "false"
 		if sv.ReadOnly {
 			ro = "true"
 		}
-		fmt.Fprintf(w, "%d\t%s\t%s\t%s\n", sv.ID, sv.Name, sv.Path, ro)
+		_, _ = fmt.Fprintf(w, "%d\t%s\t%s\t%s\n", sv.ID, sv.Name, sv.Path, ro)
 	}
-	w.Flush()
+	_ = w.Flush()
 }
 
 func printSubvolume(sv SubVolume) {
@@ -596,15 +596,15 @@ func printSnapshots(snapshots []Snapshot) {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "NAME\tSOURCE\tREADONLY\tCREATED")
+	_, _ = fmt.Fprintln(w, "NAME\tSOURCE\tREADONLY\tCREATED")
 	for _, s := range snapshots {
 		ro := "false"
 		if s.ReadOnly {
 			ro = "true"
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", s.Name, s.Source, ro, s.CreatedAt.Format("2006-01-02 15:04:05"))
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", s.Name, s.Source, ro, s.CreatedAt.Format("2006-01-02 15:04:05"))
 	}
-	w.Flush()
+	_ = w.Flush()
 }
 
 func printSnapshot(s Snapshot) {
@@ -627,11 +627,11 @@ func printShares(shares []Share) {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "TYPE\tNAME\tPATH")
+	_, _ = fmt.Fprintln(w, "TYPE\tNAME\tPATH")
 	for _, s := range shares {
-		fmt.Fprintf(w, "%s\t%s\t%s\n", s.Type, s.Name, s.Path)
+		_, _ = fmt.Fprintf(w, "%s\t%s\t%s\n", s.Type, s.Name, s.Path)
 	}
-	w.Flush()
+	_ = w.Flush()
 }
 
 func printStatus(status Status, verbose bool) {
@@ -790,7 +790,7 @@ func apiRequest(method, path string, body interface{}) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("API 请求失败：%w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
