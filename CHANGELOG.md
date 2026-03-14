@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.42.0] - 2026-03-15
+
+### Fixed
+- **编译错误修复** (司礼监)
+  - ResourceAlert 结构体添加 Status 字段
+  - 修复 CI/CD 构建失败问题
+  - internal/reports/resource_report.go 类型定义完善
+
 ## [v2.41.0] - 2026-03-15
 
 ### Added
