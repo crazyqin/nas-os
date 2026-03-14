@@ -269,6 +269,17 @@ func parseUsage(output []byte) (total, used, free uint64, err error) {
 
 // CreateVolume 创建新的 btrfs 卷
 func (c *Client) CreateVolume(label string, devices []string, dataProfile, metadataProfile string) error {
+	// 验证设备路径（防止命令注入）
+	for _, device := range devices {
+		if err := validateDevicePath(device); err != nil {
+			return fmt.Errorf("invalid device path: %w", err)
+		}
+	}
+	// 验证标签
+	if strings.ContainsAny(label, ";|&$`\\") {
+		return fmt.Errorf("invalid label characters")
+	}
+
 	args := []string{"-f", "-L", label}
 	if dataProfile != "" && dataProfile != "single" {
 		args = append(args, "-d", dataProfile)
@@ -295,6 +306,11 @@ func (c *Client) CreateVolume(label string, devices []string, dataProfile, metad
 
 // DeleteVolume 删除卷（危险操作）
 func (c *Client) DeleteVolume(device string) error {
+	// 验证设备路径（防止命令注入）
+	if err := validateDevicePath(device); err != nil {
+		return fmt.Errorf("invalid device path: %w", err)
+	}
+
 	// 使用 wipefs 清除文件系统签名
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
