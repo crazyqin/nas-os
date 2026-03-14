@@ -503,6 +503,245 @@ func (m *Manager) ListNetworks() ([]*Network, error) {
 	return networks, nil
 }
 
+// ListVolumes 列出所有卷
+func (m *Manager) ListVolumes() ([]*Volume, error) {
+	cmd := exec.Command("docker", "volume", "ls", "--format", "{{json .}}")
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("无法列出卷: %w", err)
+	}
+
+	var volumes []*Volume
+	scanner := bufio.NewScanner(strings.NewReader(string(output)))
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		var raw struct {
+			Name       string `json:"Name"`
+			Driver     string `json:"Driver"`
+			Mountpoint string `json:"Mountpoint"`
+		}
+
+		if err := json.Unmarshal([]byte(line), &raw); err != nil {
+			continue
+		}
+
+		volume := &Volume{
+			Name:       raw.Name,
+			Driver:     raw.Driver,
+			MountPoint: raw.Mountpoint,
+		}
+
+		// 获取卷大小
+		if size, err := m.getVolumeSize(raw.Name); err == nil {
+			volume.Size = size
+		}
+
+		volumes = append(volumes, volume)
+	}
+
+	return volumes, nil
+}
+
+// CreateVolume 创建卷
+func (m *Manager) CreateVolume(name string, driver string, opts map[string]string) (*Volume, error) {
+	args := []string{"volume", "create"}
+
+	if name != "" {
+		args = append(args, "--name", name)
+	}
+
+	if driver != "" {
+		args = append(args, "-d", driver)
+	}
+
+	// 添加驱动选项
+	for k, v := range opts {
+		args = append(args, "-o", fmt.Sprintf("%s=%s", k, v))
+	}
+
+	cmd := exec.Command("docker", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("创建卷失败: %w, %s", err, string(output))
+	}
+
+	// 返回创建的卷信息
+	volumeName := strings.TrimSpace(string(output))
+	return m.GetVolume(volumeName)
+}
+
+// GetVolume 获取卷详情
+func (m *Manager) GetVolume(name string) (*Volume, error) {
+	cmd := exec.Command("docker", "volume", "inspect", "--format", "{{json .}}", name)
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("获取卷信息失败: %w", err)
+	}
+
+	var raw []struct {
+		Name       string `json:"Name"`
+		Driver     string `json:"Driver"`
+		Mountpoint string `json:"Mountpoint"`
+		CreatedAt  string `json:"CreatedAt"`
+	}
+
+	if err := json.Unmarshal(output, &raw); err != nil {
+		return nil, err
+	}
+
+	if len(raw) == 0 {
+		return nil, fmt.Errorf("卷不存在")
+	}
+
+	v := raw[0]
+	volume := &Volume{
+		Name:       v.Name,
+		Driver:     v.Driver,
+		MountPoint: v.Mountpoint,
+	}
+
+	// 解析创建时间
+	if v.CreatedAt != "" {
+		volume.Created, _ = time.Parse(time.RFC3339, v.CreatedAt)
+	}
+
+	// 获取大小
+	if size, err := m.getVolumeSize(v.Name); err == nil {
+		volume.Size = size
+	}
+
+	return volume, nil
+}
+
+// RemoveVolume 删除卷
+func (m *Manager) RemoveVolume(name string, force bool) error {
+	args := []string{"volume", "rm"}
+	if force {
+		args = append(args, "-f")
+	}
+	args = append(args, name)
+
+	cmd := exec.Command("docker", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("删除卷失败: %w, %s", err, string(output))
+	}
+	return nil
+}
+
+// getVolumeSize 获取卷大小
+func (m *Manager) getVolumeSize(name string) (uint64, error) {
+	// 简化实现：使用 du 命令获取目录大小
+	cmd := exec.Command("docker", "volume", "inspect", "--format", "{{.Mountpoint}}", name)
+	mpOutput, err := cmd.Output()
+	if err != nil {
+		return 0, err
+	}
+
+	mountpoint := strings.TrimSpace(string(mpOutput))
+	if mountpoint == "" {
+		return 0, fmt.Errorf("无法获取挂载点")
+	}
+
+	// 使用 du 获取大小
+	cmd = exec.Command("du", "-sb", mountpoint)
+	duOutput, err := cmd.Output()
+	if err != nil {
+		return 0, err
+	}
+
+	var size uint64
+	fmt.Sscanf(string(duOutput), "%d", &size)
+	return size, nil
+}
+
+// GetContainerLogs 获取容器日志
+func (m *Manager) GetContainerLogs(id string, opts LogOptions) (string, error) {
+	args := []string{"logs"}
+
+	if opts.Tail > 0 {
+		args = append(args, "--tail", fmt.Sprintf("%d", opts.Tail))
+	}
+
+	if opts.Since != "" {
+		args = append(args, "--since", opts.Since)
+	}
+
+	if opts.Until != "" {
+		args = append(args, "--until", opts.Until)
+	}
+
+	if opts.Timestamps {
+		args = append(args, "-t")
+	}
+
+	args = append(args, id)
+
+	cmd := exec.Command("docker", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("获取日志失败: %w", err)
+	}
+
+	return string(output), nil
+}
+
+// LogOptions 日志选项
+type LogOptions struct {
+	Tail       int    // 最后 N 行，0 表示全部
+	Since      string // 开始时间 (如 "2023-01-01", "1h30m")
+	Until      string // 结束时间
+	Timestamps bool   // 显示时间戳
+	Follow     bool   // 实时跟踪（不适用于此方法）
+}
+
+// StreamContainerLogs 实时流式获取容器日志
+func (m *Manager) StreamContainerLogs(id string, opts LogOptions) (<-chan string, error) {
+	args := []string{"logs", "-f"}
+
+	if opts.Tail > 0 {
+		args = append(args, "--tail", fmt.Sprintf("%d", opts.Tail))
+	}
+
+	if opts.Since != "" {
+		args = append(args, "--since", opts.Since)
+	}
+
+	if opts.Timestamps {
+		args = append(args, "-t")
+	}
+
+	args = append(args, id)
+
+	cmd := exec.Command("docker", args...)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, fmt.Errorf("创建日志流失败: %w", err)
+	}
+
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("启动日志流失败: %w", err)
+	}
+
+	logChan := make(chan string, 100)
+	go func() {
+		defer close(logChan)
+		defer cmd.Process.Kill()
+
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			select {
+			case logChan <- scanner.Text():
+			default:
+				// 缓冲区满，丢弃旧日志
+			}
+		}
+	}()
+
+	return logChan, nil
+}
+
 // GetAppCatalog 获取应用目录
 func (m *Manager) GetAppCatalog() []*AppCatalog {
 	return []*AppCatalog{

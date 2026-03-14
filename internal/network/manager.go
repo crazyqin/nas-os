@@ -209,3 +209,4 @@ func (m *Manager) saveConfig() error {
 
 	return nil
 }
+

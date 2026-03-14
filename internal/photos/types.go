@@ -218,12 +218,24 @@ type Person struct {
 
 // AIClassification AI 分类结果
 type AIClassification struct {
-	PhotoID    string                 `json:"photoId"`
-	Faces      []FaceInfo             `json:"faces"`
-	Objects    []string               `json:"objects"`
-	Scene      string                 `json:"scene"`
-	Colors     []string               `json:"colors"`
-	IsNSFW     bool                   `json:"isNsfw"`
-	Confidence float32                `json:"confidence"`
-	Metadata   map[string]interface{} `json:"metadata,omitempty"`
+	PhotoID       string                 `json:"photoId"`
+	Faces         []FaceInfo             `json:"faces"`
+	Objects       []string               `json:"objects"`
+	Scene         string                 `json:"scene"`
+	Colors        []string               `json:"colors"`
+	IsNSFW        bool                   `json:"isNsfw"`
+	Confidence    float32                `json:"confidence"`
+	QualityScore  float32                `json:"qualityScore"`  // 照片质量评分 (0-100)
+	AutoTags      []string               `json:"autoTags"`      // 自动生成的标签
+	Metadata      map[string]interface{} `json:"metadata,omitempty"`
+}
+
+// QualityMetrics 照片质量指标
+type QualityMetrics struct {
+	Brightness     float64 `json:"brightness"`     // 亮度 (0-255)
+	Contrast      float64 `json:"contrast"`       // 对比度
+	Sharpness     float64 `json:"sharpness"`      // 清晰度
+	Colorfulness  float64 `json:"colorfulness"`   // 色彩丰富度
+	Composition   float64 `json:"composition"`    // 构图评分 (基于三分法等)
+	OverallScore  float32 `json:"overallScore"`   // 综合质量评分 (0-100)
 }

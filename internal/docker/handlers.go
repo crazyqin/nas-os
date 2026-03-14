@@ -32,6 +32,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		docker.POST("/containers/:id/stop", h.stopContainer)
 		docker.POST("/containers/:id/restart", h.restartContainer)
 		docker.GET("/containers/:id/stats", h.getContainerStats)
+		docker.GET("/containers/:id/logs", h.getContainerLogs)
 
 		// 镜像管理
 		docker.GET("/images", h.listImages)
@@ -40,6 +41,12 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 		// 网络管理
 		docker.GET("/networks", h.listNetworks)
+
+		// 卷管理
+		docker.GET("/volumes", h.listVolumes)
+		docker.POST("/volumes", h.createVolume)
+		docker.GET("/volumes/:name", h.getVolume)
+		docker.DELETE("/volumes/:name", h.removeVolume)
 
 		// 应用商店
 		docker.GET("/apps", h.getAppCatalog)
@@ -275,4 +282,88 @@ func (h *Handlers) getStatus(c *gin.Context) {
 	api.OK(c, map[string]bool{
 		"running": running,
 	})
+}
+
+// getContainerLogs 获取容器日志
+func (h *Handlers) getContainerLogs(c *gin.Context) {
+	id := c.Param("id")
+
+	var opts LogOptions
+	if tail := c.Query("tail"); tail != "" {
+		fmt.Sscanf(tail, "%d", &opts.Tail)
+	}
+	if since := c.Query("since"); since != "" {
+		opts.Since = since
+	}
+	if until := c.Query("until"); until != "" {
+		opts.Until = until
+	}
+	opts.Timestamps = c.Query("timestamps") == "true"
+
+	logs, err := h.manager.GetContainerLogs(id, opts)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+
+	api.OK(c, map[string]string{"logs": logs})
+}
+
+// listVolumes 列出卷
+func (h *Handlers) listVolumes(c *gin.Context) {
+	volumes, err := h.manager.ListVolumes()
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+
+	api.OK(c, volumes)
+}
+
+// createVolume 创建卷
+func (h *Handlers) createVolume(c *gin.Context) {
+	var req struct {
+		Name   string            `json:"name"`
+		Driver string            `json:"driver"`
+		Opts   map[string]string `json:"opts"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	volume, err := h.manager.CreateVolume(req.Name, req.Driver, req.Opts)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+
+	api.Created(c, volume)
+}
+
+// getVolume 获取卷详情
+func (h *Handlers) getVolume(c *gin.Context) {
+	name := c.Param("name")
+
+	volume, err := h.manager.GetVolume(name)
+	if err != nil {
+		api.NotFound(c, err.Error())
+		return
+	}
+
+	api.OK(c, volume)
+}
+
+// removeVolume 删除卷
+func (h *Handlers) removeVolume(c *gin.Context) {
+	name := c.Param("name")
+	force := c.Query("force") == "true"
+
+	if err := h.manager.RemoveVolume(name, force); err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "卷已删除", nil)
 }

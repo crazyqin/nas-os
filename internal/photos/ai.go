@@ -9,11 +9,13 @@ import (
 	"image"
 	"image/jpeg"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -27,6 +29,8 @@ type AIEngine interface {
 	ClassifyScene(img image.Image) (string, float32, error)
 	DetectObjects(img image.Image) ([]string, error)
 	ExtractColors(img image.Image) ([]string, error)
+	QualityScore(img image.Image) (*QualityMetrics, error)
+	GenerateTags(result *AIClassification) []string
 }
 
 // LocalAIEngine 本地 AI 引擎（基于 CPU）
@@ -224,7 +228,7 @@ func (aim *AIManager) executeTask(task *AITask) {
 	case "analyze_all":
 		// 完整分析
 		// 1. 人脸检测
-		task.Progress = 25
+		task.Progress = 20
 		faces, err := aim.detectFaces(img)
 		if err != nil {
 			// 人脸检测失败不影响其他分析
@@ -234,7 +238,7 @@ func (aim *AIManager) executeTask(task *AITask) {
 		}
 
 		// 2. 场景分类
-		task.Progress = 50
+		task.Progress = 35
 		scene, confidence, err := aim.classifyScene(img)
 		if err != nil {
 			result.Metadata["scene_error"] = err.Error()
@@ -244,7 +248,7 @@ func (aim *AIManager) executeTask(task *AITask) {
 		}
 
 		// 3. 物体检测
-		task.Progress = 75
+		task.Progress = 50
 		objects, err := aim.detectObjects(img)
 		if err != nil {
 			result.Metadata["object_error"] = err.Error()
@@ -253,13 +257,28 @@ func (aim *AIManager) executeTask(task *AITask) {
 		}
 
 		// 4. 颜色提取
-		task.Progress = 90
+		task.Progress = 65
 		colors, err := aim.extractColors(img)
 		if err != nil {
 			result.Metadata["color_error"] = err.Error()
 		} else {
 			result.Colors = colors
 		}
+
+		// 5. 质量评分
+		task.Progress = 80
+		qualityMetrics, err := aim.qualityScore(img)
+		if err != nil {
+			result.Metadata["quality_error"] = err.Error()
+		} else {
+			result.QualityScore = qualityMetrics.OverallScore
+			result.Metadata["qualityMetrics"] = qualityMetrics
+		}
+
+		// 6. 自动标签生成
+		task.Progress = 90
+		autoTags := aim.generateTags(result)
+		result.AutoTags = autoTags
 
 		task.Progress = 100
 
@@ -365,6 +384,19 @@ func (aim *AIManager) extractColors(img image.Image) ([]string, error) {
 		return aim.cloudEngine.ExtractColors(img)
 	}
 	return aim.localEngine.ExtractColors(img)
+}
+
+// qualityScore 计算照片质量评分
+func (aim *AIManager) qualityScore(img image.Image) (*QualityMetrics, error) {
+	if aim.useCloud && aim.cloudEngine.enabled {
+		return aim.localEngine.QualityScore(img) // 云端暂不支持，使用本地
+	}
+	return aim.localEngine.QualityScore(img)
+}
+
+// generateTags 生成自动标签
+func (aim *AIManager) generateTags(result *AIClassification) []string {
+	return aim.localEngine.GenerateTags(result)
 }
 
 // detectNSFW 检测不当内容
@@ -1629,6 +1661,335 @@ func (e *LocalAIEngine) ExtractColors(img image.Image) ([]string, error) {
 	return result, nil
 }
 
+// QualityScore 计算照片质量评分
+// 基于亮度、对比度、清晰度、色彩丰富度、构图等指标综合评分
+func (e *LocalAIEngine) QualityScore(img image.Image) (*QualityMetrics, error) {
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	metrics := &QualityMetrics{}
+
+	// 1. 计算亮度
+	var brightnessSum float64
+	pixelCount := 0
+	for y := bounds.Min.Y; y < bounds.Max.Y; y += 2 {
+		for x := bounds.Min.X; x < bounds.Max.X; x += 2 {
+			r, g, b, _ := img.At(x, y).RGBA()
+			// 转换为 0-255 范围
+			r8, g8, b8 := float64(r>>8), float64(g>>8), float64(b>>8)
+			// 使用加权平均计算亮度
+			luminance := 0.299*r8 + 0.587*g8 + 0.114*b8
+			brightnessSum += luminance
+			pixelCount++
+		}
+	}
+	metrics.Brightness = brightnessSum / float64(pixelCount)
+
+	// 2. 计算对比度（亮度标准差）
+	var contrastSum float64
+	avgBrightness := metrics.Brightness
+	for y := bounds.Min.Y; y < bounds.Max.Y; y += 2 {
+		for x := bounds.Min.X; x < bounds.Max.X; x += 2 {
+			r, g, b, _ := img.At(x, y).RGBA()
+			r8, g8, b8 := float64(r>>8), float64(g>>8), float64(b>>8)
+			luminance := 0.299*r8 + 0.587*g8 + 0.114*b8
+			contrastSum += (luminance - avgBrightness) * (luminance - avgBrightness)
+		}
+	}
+	metrics.Contrast = 0
+	if pixelCount > 0 {
+		metrics.Contrast = contrastSum / float64(pixelCount)
+	}
+
+	// 3. 计算清晰度（使用 Laplacian 算子估计）
+	sharpnessSum := 0.0
+	sharpnessCount := 0
+	for y := bounds.Min.Y + 1; y < bounds.Max.Y-1; y += 2 {
+		for x := bounds.Min.X + 1; x < bounds.Max.X-1; x += 2 {
+			// Laplacian 算子
+			r, g, b, _ := img.At(x, y).RGBA()
+			rLeft, gLeft, bLeft, _ := img.At(x-1, y).RGBA()
+			rRight, gRight, bRight, _ := img.At(x+1, y).RGBA()
+			rTop, gTop, bTop, _ := img.At(x, y-1).RGBA()
+			rBottom, gBottom, bBottom, _ := img.At(x, y+1).RGBA()
+
+			// 转换为灰度
+			gray := 0.299*float64(r>>8) + 0.587*float64(g>>8) + 0.114*float64(b>>8)
+			grayLeft := 0.299*float64(rLeft>>8) + 0.587*float64(gLeft>>8) + 0.114*float64(bLeft>>8)
+			grayRight := 0.299*float64(rRight>>8) + 0.587*float64(gRight>>8) + 0.114*float64(bRight>>8)
+			grayTop := 0.299*float64(rTop>>8) + 0.587*float64(gTop>>8) + 0.114*float64(bTop>>8)
+			grayBottom := 0.299*float64(rBottom>>8) + 0.587*float64(gBottom>>8) + 0.114*float64(bBottom>>8)
+
+			// Laplacian 值
+			laplacian := 4*gray - grayLeft - grayRight - grayTop - grayBottom
+			sharpnessSum += laplacian * laplacian
+			sharpnessCount++
+		}
+	}
+	if sharpnessCount > 0 {
+		metrics.Sharpness = sharpnessSum / float64(sharpnessCount)
+	}
+
+	// 4. 计算色彩丰富度
+	var rgSum, ybSum float64
+	for y := bounds.Min.Y; y < bounds.Max.Y; y += 2 {
+		for x := bounds.Min.X; x < bounds.Max.X; x += 2 {
+			r, g, b, _ := img.At(x, y).RGBA()
+			r8, g8, b8 := float64(r>>8), float64(g>>8), float64(b>>8)
+
+			// rg 和 yb 通道
+			rg := r8 - g8
+			yb := 0.5*(r8+g8) - b8
+
+			rgSum += rg
+			ybSum += yb
+		}
+	}
+	pixelCountSample := float64((width/2 + 1) * (height/2 + 1))
+	meanRg := rgSum / pixelCountSample
+	meanYb := ybSum / pixelCountSample
+
+	var rgVar, ybVar float64
+	for y := bounds.Min.Y; y < bounds.Max.Y; y += 2 {
+		for x := bounds.Min.X; x < bounds.Max.X; x += 2 {
+			r, g, b, _ := img.At(x, y).RGBA()
+			r8, g8, b8 := float64(r>>8), float64(g>>8), float64(b>>8)
+
+			rg := r8 - g8
+			yb := 0.5*(r8+g8) - b8
+
+			rgVar += (rg - meanRg) * (rg - meanRg)
+			ybVar += (yb - meanYb) * (yb - meanYb)
+		}
+	}
+
+	rgVar /= pixelCountSample
+	ybVar /= pixelCountSample
+
+	metrics.Colorfulness = meanRg*meanRg + meanYb*meanYb + (rgVar+ybVar)*0.3
+
+	// 5. 计算构图评分（基于三分法）
+	metrics.Composition = e.evaluateComposition(img)
+
+	// 6. 计算综合评分
+	metrics.OverallScore = e.calculateOverallScore(metrics)
+
+	return metrics, nil
+}
+
+// evaluateComposition 评估构图（基于三分法）
+func (e *LocalAIEngine) evaluateComposition(img image.Image) float64 {
+	bounds := img.Bounds()
+	width := bounds.Dx()
+	height := bounds.Dy()
+
+	// 三分线位置
+	thirdX1 := width / 3
+	thirdX2 := width * 2 / 3
+	thirdY1 := height / 3
+	thirdY2 := height * 2 / 3
+
+	// 分析三分线附近的边缘强度
+	edgeStrength := 0.0
+	sampleCount := 0
+
+	// 垂直三分线
+	for y := bounds.Min.Y; y < bounds.Max.Y; y += 4 {
+		for _, x := range []int{thirdX1, thirdX2} {
+			if x > 0 && x < width-1 {
+				r1, g1, b1, _ := img.At(x-1, y).RGBA()
+				r2, g2, b2, _ := img.At(x+1, y).RGBA()
+
+				gray1 := 0.299*float64(r1>>8) + 0.587*float64(g1>>8) + 0.114*float64(b1>>8)
+				gray2 := 0.299*float64(r2>>8) + 0.587*float64(g2>>8) + 0.114*float64(b2>>8)
+
+				edgeStrength += (gray2 - gray1) * (gray2 - gray1)
+				sampleCount++
+			}
+		}
+	}
+
+	// 水平三分线
+	for x := bounds.Min.X; x < bounds.Max.X; x += 4 {
+		for _, y := range []int{thirdY1, thirdY2} {
+			if y > 0 && y < height-1 {
+				r1, g1, b1, _ := img.At(x, y-1).RGBA()
+				r2, g2, b2, _ := img.At(x, y+1).RGBA()
+
+				gray1 := 0.299*float64(r1>>8) + 0.587*float64(g1>>8) + 0.114*float64(b1>>8)
+				gray2 := 0.299*float64(r2>>8) + 0.587*float64(g2>>8) + 0.114*float64(b2>>8)
+
+				edgeStrength += (gray2 - gray1) * (gray2 - gray1)
+				sampleCount++
+			}
+		}
+	}
+
+	if sampleCount > 0 {
+		return edgeStrength / float64(sampleCount)
+	}
+	return 0
+}
+
+// calculateOverallScore 计算综合质量评分
+func (e *LocalAIEngine) calculateOverallScore(m *QualityMetrics) float32 {
+	score := 0.0
+
+	// 亮度评分（适中亮度最佳，50-200 为理想范围）
+	brightnessScore := 100.0
+	if m.Brightness < 50 {
+		brightnessScore = float64(m.Brightness) / 50.0 * 60 // 太暗
+	} else if m.Brightness > 200 {
+		brightnessScore = (255.0 - float64(m.Brightness)) / 55.0 * 60 + 40 // 太亮
+	} else {
+		brightnessScore = 80 + (100-math.Abs(m.Brightness-125))/125.0*20
+	}
+
+	// 对比度评分（对比度适中为佳）
+	contrastScore := math.Min(m.Contrast/100.0*50, 100)
+
+	// 清晰度评分
+	sharpnessScore := math.Min(m.Sharpness/1000.0*60, 100)
+
+	// 色彩丰富度评分
+	colorfulnessScore := math.Min(m.Colorfulness/50.0*70, 100)
+
+	// 构图评分
+	compositionScore := math.Min(m.Composition/100.0*60, 100)
+
+	// 加权平均
+	score = brightnessScore*0.2 + contrastScore*0.2 + sharpnessScore*0.25 + colorfulnessScore*0.2 + compositionScore*0.15
+
+	return float32(math.Min(math.Max(score, 0), 100))
+}
+
+// GenerateTags 根据 AI 分析结果自动生成标签
+func (e *LocalAIEngine) GenerateTags(result *AIClassification) []string {
+	tags := make([]string, 0)
+	tagSet := make(map[string]bool) // 用于去重
+
+	// 辅助函数：添加标签
+	addTag := func(tag string) {
+		tag = strings.ToLower(strings.TrimSpace(tag))
+		if tag != "" && !tagSet[tag] && len(tags) < 20 {
+			tagSet[tag] = true
+			tags = append(tags, tag)
+		}
+	}
+
+	// 1. 基于场景生成标签
+	sceneTags := map[string][]string{
+		"indoor":    {"室内", "indoor"},
+		"outdoor":   {"室外", "户外", "outdoor"},
+		"nature":    {"自然", "风景", "nature", "landscape"},
+		"landscape": {"风景", "自然风光", "landscape", "scenery"},
+		"sky":       {"天空", "sky"},
+		"night":     {"夜景", "夜晚", "night", "night-scene"},
+		"sunset":    {"日落", "黄昏", "sunset", "dusk"},
+		"portrait":  {"人像", "portrait"},
+		"food":      {"美食", "食物", "food"},
+		"beach":     {"海滩", "海边", "beach"},
+		"mountain":  {"山脉", "山", "mountain"},
+		"city":      {"城市", "都市", "city", "urban"},
+	}
+	if result.Scene != "" {
+		if mappedTags, ok := sceneTags[strings.ToLower(result.Scene)]; ok {
+			for _, tag := range mappedTags {
+				addTag(tag)
+			}
+		} else {
+			addTag(result.Scene)
+		}
+	}
+
+	// 2. 基于物体生成标签
+	for _, obj := range result.Objects {
+		// 物体标签映射
+		objectTags := map[string][]string{
+			"vegetation": {"植物", "绿色", "plants", "green"},
+			"plants":     {"植物", "plants"},
+			"sky":        {"天空", "sky"},
+			"water":      {"水", "水域", "water"},
+			"furniture":  {"家具", "室内", "furniture"},
+		}
+		if mappedTags, ok := objectTags[strings.ToLower(obj)]; ok {
+			for _, tag := range mappedTags {
+				addTag(tag)
+			}
+		} else {
+			addTag(obj)
+		}
+	}
+
+	// 3. 基于人脸生成标签
+	if len(result.Faces) > 0 {
+		addTag("人物")
+		addTag("people")
+		if len(result.Faces) > 1 {
+			addTag("合影")
+			addTag("group")
+		}
+		// 添加已识别的人物名称
+		for _, face := range result.Faces {
+			if face.Name != "" {
+				addTag(face.Name)
+			}
+		}
+	}
+
+	// 4. 基于颜色生成标签
+	colorTags := map[string]string{
+		"#FF0000": "红色",
+		"#00FF00": "绿色",
+		"#0000FF": "蓝色",
+		"#FFFF00": "黄色",
+		"#FF00FF": "紫色",
+		"#00FFFF": "青色",
+		"#FFFFFF": "白色",
+		"#000000": "黑色",
+		"#FFA500": "橙色",
+		"#FFC0CB": "粉色",
+	}
+	for _, color := range result.Colors {
+		// 检查颜色是否在映射中
+		if tagName, ok := colorTags[strings.ToUpper(color)]; ok {
+			addTag(tagName)
+		} else {
+			// 尝试解析颜色并生成标签
+			if len(color) >= 7 {
+				r, _ := strconv.ParseInt(color[1:3], 16, 64)
+				g, _ := strconv.ParseInt(color[3:5], 16, 64)
+				b, _ := strconv.ParseInt(color[5:7], 16, 64)
+
+				// 根据颜色值判断主要色调
+				if r > 200 && g < 100 && b < 100 {
+					addTag("暖色调")
+				} else if r < 100 && g < 100 && b > 200 {
+					addTag("冷色调")
+				} else if r > 200 && g > 200 && b < 100 {
+					addTag("明亮")
+				}
+			}
+		}
+	}
+
+	// 5. 基于质量评分生成标签
+	if result.QualityScore >= 80 {
+		addTag("高质量")
+		addTag("优质照片")
+	} else if result.QualityScore >= 60 {
+		addTag("良好")
+	}
+
+	// 6. 如果是 NSFW，添加标签（隐藏）
+	if result.IsNSFW {
+		addTag("敏感内容")
+	}
+
+	return tags
+}
+
 // ==================== 云端 AI 引擎实现 ====================
 
 // DetectFaces 云端人脸检测
@@ -1999,4 +2360,14 @@ func (e *CloudAIEngine) extractColorsAzure(img image.Image) ([]string, error) {
 	}
 
 	return result_colors, nil
+}
+
+// QualityScore 云端暂不支持质量评分，返回未实现错误
+func (e *CloudAIEngine) QualityScore(img image.Image) (*QualityMetrics, error) {
+	return nil, fmt.Errorf("云端 AI 暂不支持质量评分功能")
+}
+
+// GenerateTags 云端暂不支持自动标签生成
+func (e *CloudAIEngine) GenerateTags(result *AIClassification) []string {
+	return nil
 }
