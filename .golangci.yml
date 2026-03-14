@@ -1,15 +1,11 @@
-# golangci-lint 配置文件 (v2 格式)
-
-version: 2
-
 run:
   timeout: 10m
   tests: true
 
 linters:
-  default: none
+  disable-all: true
   enable:
-    - govet       # Go vet 检查
+    - govet
 
 issues:
   max-issues-per-linter: 0
