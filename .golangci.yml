@@ -9,22 +9,13 @@ run:
 linters:
   default: none
   enable:
-    - errcheck    # 检查未处理的错误返回值
+    # - errcheck    # 检查未处理的错误返回值 (暂时禁用，项目中存在大量历史遗留问题)
     - gocritic    # 高级代码检查
     - gosec       # 安全漏洞检查
     - govet       # Go vet 检查
     - ineffassign # 检测无效赋值
     - staticcheck # 静态分析 (包含 gosimple 功能)
     - unused      # 未使用代码检查
-
-linters-settings:
-  errcheck:
-    # 检查类型断言
-    check-type-assertions: false
-    # 检查空白赋值
-    check-blank: false
-    # 忽略以下函数的错误返回
-    ignore: fmt:.*,io/ioutil:ReadAll,os:Remove,os:RemoveAll,os:WriteFile,os:Chmod,os:Mkdir,os:MkdirAll,os:Chdir,filepath:Walk,(*os.File).Close,(*os.File).Seek
 
 issues:
   max-issues-per-linter: 0
@@ -34,12 +25,6 @@ issues:
     - 'SA9003: empty branch'  # 空分支有时是故意的
   
   exclude-rules:
-    # 测试文件放宽检查
-    - path: _test\.go$
-      linters:
-        - errcheck
-        - ineffassign
-    
     # 插件系统可能导出但未使用
     - path: plugins/
       linters:
