@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.33.0 Stable (2026-03-15)
+> **最新版本**: v2.34.0 Stable (2026-03-15)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.33.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.34.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -24,6 +24,37 @@
 | ⚡ 性能优化 | LRU 缓存/GC 调优/工作池 | ✅ 完成 |
 | 🛡️ 集群支持 | 多节点/负载均衡 | ✅ 完成 |
 
+### 扩展功能 ✅
+
+| 模块 | 说明 | 状态 |
+|------|------|------|
+| 📦 容器管理 | Docker 容器/镜像/网络/卷管理 | ✅ 完成 |
+| 🖥️ 虚拟机管理 | VM 创建/ISO 挂载/快照 | ✅ 完成 |
+| 🗂️ 存储分层 | 热/冷数据分层/SSD 缓存/云归档 | ✅ 完成 |
+| 🗜️ 压缩存储 | 文件级/块级压缩/透明压缩 | ✅ 完成 |
+| 🔄 存储复制 | 跨节点数据同步/灾备 | ✅ 完成 |
+| 📸 快照策略 | 定时快照/保留策略/自动清理 | ✅ 完成 |
+| 🎯 iSCSI 目标 | Target/LUN 管理/CHAP 认证 | ✅ 完成 |
+| 📁 WebDAV | 完整 WebDAV 协议支持 | ✅ 完成 |
+| 📡 FTP/SFTP | 被动/主动模式/SSH 密钥认证 | ✅ 完成 |
+| 📊 配额管理 | 用户/组/目录三级配额 | ✅ 完成 |
+| 🗑️ 回收站 | 安全删除/恢复/自动清理 | ✅ 完成 |
+| 🤖 AI 分类 | 照片/文件智能分类 | ✅ 完成 |
+| 📜 版本控制 | 文件历史版本/一键还原 | ✅ 完成 |
+| ☁️ 云同步 | 多云存储/双向同步 | ✅ 完成 |
+| 🔄 数据去重 | 文件级/块级去重 | ✅ 完成 |
+| 🔍 智能搜索 | 语义搜索/标签搜索 | ✅ 完成 |
+| 🏷️ 文件标签 | 标签分类/批量操作 | ✅ 完成 |
+| 📈 预测分析 | 磁盘健康预测/容量趋势 | ✅ 完成 |
+| 🔗 LDAP/AD | 企业目录集成/统一认证 | ✅ 完成 |
+| 📋 自动化引擎 | 工作流/定时任务/触发器 | ✅ 完成 |
+| 📰 下载器 | Transmission/qBittorrent 集成 | ✅ 完成 |
+| 🎬 媒体服务 | HLS/DASH 流媒体/转码/字幕 | ✅ 完成 |
+| 🖼️ 照片管理 | 相册/AI 分析/缩略图 | ✅ 完成 |
+| 📝 在线文档 | OnlyOffice 集成/协作编辑 | ✅ 完成 |
+| 🔧 网络诊断 | Ping/Traceroute/DNS/端口扫描 | ✅ 完成 |
+| 🛡️ 安全增强 | 限流/MFA/密码策略/会话管理 | ✅ 完成 |
+
 ## 快速开始
 
 ### 方式一：下载二进制文件 (推荐)
@@ -31,17 +62,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.33.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.34.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.33.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.34.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.33.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.34.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 

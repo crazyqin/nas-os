@@ -387,28 +387,20 @@ func (e *Exporter) runCommand(cmd string) error {
 // ========== Excel 导出 ==========
 
 func (e *Exporter) exportExcel(report *GeneratedReport, path string, options ExportOptions) error {
-	// Excel 导出需要额外的库支持
-	// 这里简化处理：生成 CSV 格式并保存为 .xlsx（实际应使用 excelize 库）
-
-	// 检查是否有 excelize 库
-	if e.hasExcelize() {
-		return e.exportExcelNative(report, path, options)
+	// 使用专门的 Excel 导出器
+	excelExporter := NewExcelExporter(e.dataDir)
+	result, err := excelExporter.Export(report, path, options)
+	if err != nil {
+		return err
 	}
-
-	// 没有 excelize，回退到 CSV
-	return e.exportCSV(report, strings.TrimSuffix(path, ".xlsx")+".csv", options)
-}
-
-// hasExcelize 检查是否有 Excel 库
-func (e *Exporter) hasExcelize() bool {
-	return false // 简化实现
-}
-
-// exportExcelNative 原生 Excel 导出
-func (e *Exporter) exportExcelNative(report *GeneratedReport, path string, options ExportOptions) error {
-	// 实际实现应使用 excelize 库
-	// 这里提供占位实现
-	return errors.New("excel 导出需要安装 excelize 库")
+	// 更新路径（可能由导出器自动生成）
+	if result.Path != path {
+		// 如果路径不同，重命名文件
+		if err := os.Rename(result.Path, path); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // ========== 辅助方法 ==========

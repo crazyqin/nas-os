@@ -1,0 +1,89 @@
+# Dependabot 配置
+# 自动检测依赖更新，创建 Pull Request
+#
+# v2.34.0 初始配置
+# - Go 模块依赖更新
+# - Docker 基础镜像更新
+# - GitHub Actions 更新
+
+version: 2
+
+updates:
+  # Go 模块依赖
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "02:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "go"
+    reviewers:
+      - "mrafter"
+    # 忽略重大版本更新（需要手动处理）
+    ignore:
+      # 示例：忽略 gin 框架主版本更新
+      # - dependency-name: "github.com/gin-gonic/gin"
+      #   update-types: ["version-update:semver-major"]
+    groups:
+      # 将相关的依赖更新合并为一个 PR
+      aws-sdk:
+        patterns:
+          - "github.com/aws/aws-sdk-go-v2*"
+      otel:
+        patterns:
+          - "go.opentelemetry.io/otel*"
+      bleve:
+        patterns:
+          - "github.com/blevesearch/*"
+
+  # Docker 基础镜像更新
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "02:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+    reviewers:
+      - "mrafter"
+    ignore:
+      # 稳定版本约束
+      - dependency-name: "golang"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions 更新
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "02:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - "mrafter"
+    groups:
+      # 将 GitHub Actions 更新合并为一个 PR
+      github-actions:
+        patterns:
+          - "*"

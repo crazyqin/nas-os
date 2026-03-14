@@ -1,0 +1,445 @@
+{
+  "id": "monthly-report",
+  "name": "系统月报",
+  "type": "system",
+  "description": "每月系统运行状态综合报告，包含月度趋势分析、资源使用统计、健康评分变化、异常事件汇总和运营建议",
+  "fields": [
+    {
+      "name": "report_month",
+      "label": "报告月份",
+      "type": "string",
+      "source": "report_month",
+      "required": true,
+      "sortable": true,
+      "description": "报告所属月份，格式 YYYY-MM"
+    },
+    {
+      "name": "health_score_avg",
+      "label": "健康评分均值",
+      "type": "number",
+      "source": "health.monthly_average",
+      "sortable": true,
+      "description": "月度健康评分平均值"
+    },
+    {
+      "name": "health_score_min",
+      "label": "最低健康评分",
+      "type": "number",
+      "source": "health.monthly_min",
+      "sortable": true,
+      "description": "月内最低健康评分"
+    },
+    {
+      "name": "health_score_max",
+      "label": "最高健康评分",
+      "type": "number",
+      "source": "health.monthly_max",
+      "sortable": true,
+      "description": "月内最高健康评分"
+    },
+    {
+      "name": "health_trend",
+      "label": "健康趋势",
+      "type": "string",
+      "source": "health.trend",
+      "filterable": true,
+      "description": "健康评分变化趋势：上升、稳定、下降"
+    },
+    {
+      "name": "uptime_percent",
+      "label": "系统可用率",
+      "type": "percent",
+      "source": "availability.uptime_percent",
+      "sortable": true,
+      "description": "月度系统可用率百分比"
+    },
+    {
+      "name": "total_uptime",
+      "label": "总运行时间",
+      "type": "duration",
+      "source": "availability.total_uptime",
+      "description": "月度总运行时长"
+    },
+    {
+      "name": "downtime_count",
+      "label": "宕机次数",
+      "type": "number",
+      "source": "availability.downtime_count",
+      "sortable": true,
+      "description": "月内系统宕机次数"
+    },
+    {
+      "name": "total_downtime",
+      "label": "总宕机时间",
+      "type": "duration",
+      "source": "availability.total_downtime",
+      "description": "月度总宕机时长"
+    },
+    {
+      "name": "cpu_avg",
+      "label": "CPU 平均使用率",
+      "type": "percent",
+      "source": "resources.cpu.monthly_avg",
+      "sortable": true,
+      "description": "月度 CPU 使用率平均值"
+    },
+    {
+      "name": "cpu_peak",
+      "label": "CPU 峰值使用率",
+      "type": "percent",
+      "source": "resources.cpu.monthly_peak",
+      "sortable": true,
+      "description": "月内 CPU 使用率峰值"
+    },
+    {
+      "name": "cpu_peak_time",
+      "label": "CPU 峰值时间",
+      "type": "datetime",
+      "source": "resources.cpu.peak_time",
+      "sortable": true,
+      "description": "CPU 使用率达到峰值的时间点"
+    },
+    {
+      "name": "cpu_trend",
+      "label": "CPU 趋势",
+      "type": "string",
+      "source": "trends.cpu_trend",
+      "filterable": true,
+      "description": "CPU 使用趋势分析"
+    },
+    {
+      "name": "memory_avg",
+      "label": "内存平均使用率",
+      "type": "percent",
+      "source": "resources.memory.monthly_avg",
+      "sortable": true,
+      "description": "月度内存使用率平均值"
+    },
+    {
+      "name": "memory_peak",
+      "label": "内存峰值使用率",
+      "type": "percent",
+      "source": "resources.memory.monthly_peak",
+      "sortable": true,
+      "description": "月内内存使用率峰值"
+    },
+    {
+      "name": "memory_peak_time",
+      "label": "内存峰值时间",
+      "type": "datetime",
+      "source": "resources.memory.peak_time",
+      "sortable": true,
+      "description": "内存使用率达到峰值的时间点"
+    },
+    {
+      "name": "memory_trend",
+      "label": "内存趋势",
+      "type": "string",
+      "source": "trends.memory_trend",
+      "filterable": true,
+      "description": "内存使用趋势分析"
+    },
+    {
+      "name": "disk_total",
+      "label": "磁盘总容量",
+      "type": "bytes",
+      "source": "storage.total_capacity",
+      "sortable": true,
+      "description": "存储系统总容量"
+    },
+    {
+      "name": "disk_used",
+      "label": "磁盘已使用",
+      "type": "bytes",
+      "source": "storage.used_capacity",
+      "sortable": true,
+      "description": "已使用存储容量"
+    },
+    {
+      "name": "disk_usage_percent",
+      "label": "磁盘使用率",
+      "type": "percent",
+      "source": "storage.usage_percent",
+      "sortable": true,
+      "description": "存储使用率百分比"
+    },
+    {
+      "name": "disk_growth",
+      "label": "磁盘月增长量",
+      "type": "bytes",
+      "source": "storage.monthly_growth",
+      "sortable": true,
+      "description": "本月新增存储使用量"
+    },
+    {
+      "name": "disk_trend",
+      "label": "磁盘趋势",
+      "type": "string",
+      "source": "trends.disk_trend",
+      "filterable": true,
+      "description": "存储使用趋势分析"
+    },
+    {
+      "name": "estimated_full_date",
+      "label": "预计满盘日期",
+      "type": "date",
+      "source": "predictions.disk_full_date",
+      "description": "基于当前增长率的磁盘满盘预测日期"
+    },
+    {
+      "name": "net_rx_total",
+      "label": "网络接收总量",
+      "type": "bytes",
+      "source": "network.monthly_rx_total",
+      "sortable": true,
+      "description": "月度网络接收数据总量"
+    },
+    {
+      "name": "net_tx_total",
+      "label": "网络发送总量",
+      "type": "bytes",
+      "source": "network.monthly_tx_total",
+      "sortable": true,
+      "description": "月度网络发送数据总量"
+    },
+    {
+      "name": "net_bandwidth_avg",
+      "label": "平均带宽使用",
+      "type": "bytes",
+      "source": "network.avg_bandwidth",
+      "sortable": true,
+      "description": "月度平均带宽使用量"
+    },
+    {
+      "name": "alerts_total",
+      "label": "总告警数",
+      "type": "number",
+      "source": "alerts.monthly_total",
+      "sortable": true,
+      "description": "月度告警总数量"
+    },
+    {
+      "name": "alerts_critical",
+      "label": "严重告警数",
+      "type": "number",
+      "source": "alerts.critical_count",
+      "sortable": true,
+      "description": "严重级别告警数量"
+    },
+    {
+      "name": "alerts_warning",
+      "label": "警告告警数",
+      "type": "number",
+      "source": "alerts.warning_count",
+      "sortable": true,
+      "description": "警告级别告警数量"
+    },
+    {
+      "name": "alerts_info",
+      "label": "信息告警数",
+      "type": "number",
+      "source": "alerts.info_count",
+      "sortable": true,
+      "description": "信息级别告警数量"
+    },
+    {
+      "name": "top_alert_types",
+      "label": "高频告警类型",
+      "type": "list",
+      "source": "alerts.top_types",
+      "description": "出现频率最高的告警类型列表"
+    },
+    {
+      "name": "users_active",
+      "label": "活跃用户数",
+      "type": "number",
+      "source": "users.monthly_active",
+      "sortable": true,
+      "description": "月度活跃用户数量"
+    },
+    {
+      "name": "users_new",
+      "label": "新增用户数",
+      "type": "number",
+      "source": "users.new_count",
+      "sortable": true,
+      "description": "本月新增用户数量"
+    },
+    {
+      "name": "files_uploaded",
+      "label": "上传文件数",
+      "type": "number",
+      "source": "activity.files_uploaded",
+      "sortable": true,
+      "description": "月度上传文件总数"
+    },
+    {
+      "name": "files_downloaded",
+      "label": "下载文件数",
+      "type": "number",
+      "source": "activity.files_downloaded",
+      "sortable": true,
+      "description": "月度下载文件总数"
+    },
+    {
+      "name": "data_uploaded",
+      "label": "上传数据量",
+      "type": "bytes",
+      "source": "activity.bytes_uploaded",
+      "sortable": true,
+      "description": "月度上传数据总量"
+    },
+    {
+      "name": "data_downloaded",
+      "label": "下载数据量",
+      "type": "bytes",
+      "source": "activity.bytes_downloaded",
+      "sortable": true,
+      "description": "月度下载数据总量"
+    },
+    {
+      "name": "backup_success_rate",
+      "label": "备份成功率",
+      "type": "percent",
+      "source": "backup.success_rate",
+      "sortable": true,
+      "description": "月度备份任务成功率"
+    },
+    {
+      "name": "backup_total_size",
+      "label": "备份数据量",
+      "type": "bytes",
+      "source": "backup.total_size",
+      "sortable": true,
+      "description": "月度备份数据总量"
+    },
+    {
+      "name": "recommendations",
+      "label": "优化建议",
+      "type": "list",
+      "source": "analysis.recommendations",
+      "description": "基于月度数据的系统优化建议"
+    }
+  ],
+  "filters": [
+    {
+      "field": "report_month",
+      "operator": "eq",
+      "value": ""
+    }
+  ],
+  "sorts": [
+    {
+      "field": "report_month",
+      "order": "desc"
+    }
+  ],
+  "is_default": true,
+  "is_public": true,
+  "sections": [
+    {
+      "id": "summary",
+      "title": "执行摘要",
+      "description": "本月系统运行状态总体概述",
+      "order": 1
+    },
+    {
+      "id": "health",
+      "title": "健康状态分析",
+      "description": "系统健康评分及各组件健康状态分析",
+      "order": 2
+    },
+    {
+      "id": "availability",
+      "title": "可用性分析",
+      "description": "系统可用率、宕机事件和稳定性分析",
+      "order": 3
+    },
+    {
+      "id": "resources",
+      "title": "资源使用分析",
+      "description": "CPU、内存、磁盘、网络资源使用情况分析",
+      "order": 4
+    },
+    {
+      "id": "alerts",
+      "title": "告警分析",
+      "description": "告警事件统计和趋势分析",
+      "order": 5
+    },
+    {
+      "id": "activity",
+      "title": "用户活动分析",
+      "description": "用户活跃度和文件操作统计分析",
+      "order": 6
+    },
+    {
+      "id": "backup",
+      "title": "备份状态分析",
+      "description": "备份任务执行情况和数据保护状态",
+      "order": 7
+    },
+    {
+      "id": "trends",
+      "title": "趋势分析与预测",
+      "description": "历史趋势对比和未来预测",
+      "order": 8
+    },
+    {
+      "id": "recommendations",
+      "title": "优化建议",
+      "description": "基于数据分析的系统优化建议",
+      "order": 9
+    }
+  ],
+  "charts": [
+    {
+      "id": "health_trend",
+      "title": "健康评分趋势",
+      "type": "line",
+      "x_axis": "date",
+      "y_axis": "health_score",
+      "description": "月内每日健康评分变化趋势"
+    },
+    {
+      "id": "resource_usage",
+      "title": "资源使用率对比",
+      "type": "bar",
+      "x_axis": "resource_type",
+      "y_axis": "usage_percent",
+      "description": "CPU、内存、磁盘平均使用率对比"
+    },
+    {
+      "id": "alert_distribution",
+      "title": "告警分布",
+      "type": "pie",
+      "data_source": "alerts.by_type",
+      "description": "各类型告警占比分布"
+    },
+    {
+      "id": "storage_growth",
+      "title": "存储增长趋势",
+      "type": "area",
+      "x_axis": "date",
+      "y_axis": "storage_used",
+      "description": "月内存储使用量增长趋势"
+    },
+    {
+      "id": "network_traffic",
+      "title": "网络流量趋势",
+      "type": "line",
+      "x_axis": "date",
+      "y_axis": ["rx_bytes", "tx_bytes"],
+      "description": "月内网络流量变化趋势"
+    }
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "author": "NAS-OS Reports Team",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "tags": ["monthly", "system", "operations", "analysis"],
+    "schedule": "monthly",
+    "retention_days": 365
+  }
+}

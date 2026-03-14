@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.34.0] - 2026-03-15
+
+### Added
+- **网络连接追踪增强** (工部)
+  - ConnectionStats 添加 UserID 字段，支持按用户追踪网络连接
+  - 增强网络监控的用户维度分析能力
+
+- **API 快速入门指南**
+  - 新增 docs/API_QUICK_START.md 快速入门文档
+  - 包含常用 API 示例和快速配置指南
+
+### Changed
+- 文档优化，补充功能说明
+
 ## [v2.33.0] - 2026-03-15
 
 ### Added
