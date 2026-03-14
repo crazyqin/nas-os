@@ -13,18 +13,18 @@ import (
 
 // Workflow 定义一个自动化工作流
 type Workflow struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name"`
-	Description string          `json:"description"`
-	Enabled     bool            `json:"enabled"`
-	Trigger     trigger.Trigger `json:"trigger"`
-	Actions     []action.Action `json:"actions"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
-	LastRun     *time.Time      `json:"last_run,omitempty"`
-	RunCount    int             `json:"run_count"`
-	SuccessCount int            `json:"success_count"`
-	FailCount   int             `json:"fail_count"`
+	ID           string          `json:"id"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	Enabled      bool            `json:"enabled"`
+	Trigger      trigger.Trigger `json:"trigger"`
+	Actions      []action.Action `json:"actions"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
+	LastRun      *time.Time      `json:"last_run,omitempty"`
+	RunCount     int             `json:"run_count"`
+	SuccessCount int             `json:"success_count"`
+	FailCount    int             `json:"fail_count"`
 }
 
 // WorkflowEngine 工作流引擎
