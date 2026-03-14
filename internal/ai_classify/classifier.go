@@ -622,7 +622,7 @@ func (c *Classifier) extractTextFeatures(path string, info os.FileInfo) (Feature
 	if err != nil {
 		return features, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	data := make([]byte, maxSize)
 	n, err := file.Read(data)
@@ -727,7 +727,7 @@ func (c *Classifier) calculateHash(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	hasher := sha256.New()
 	if _, err := io.Copy(hasher, file); err != nil {
@@ -840,13 +840,21 @@ func (c *Classifier) saveLocked() error {
 	for _, cat := range c.categories {
 		categories = append(categories, cat)
 	}
-	if data, err := json.MarshalIndent(categories, "", "  "); err == nil {
-		os.WriteFile(filepath.Join(dataDir, "categories.json"), data, 0644)
+	data, err := json.MarshalIndent(categories, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal categories: %w", err)
+	}
+	if err := os.WriteFile(filepath.Join(dataDir, "categories.json"), data, 0644); err != nil {
+		return fmt.Errorf("failed to write categories: %w", err)
 	}
 
 	// 保存规则
-	if data, err := json.MarshalIndent(c.rules, "", "  "); err == nil {
-		os.WriteFile(filepath.Join(dataDir, "rules.json"), data, 0644)
+	data, err = json.MarshalIndent(c.rules, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal rules: %w", err)
+	}
+	if err := os.WriteFile(filepath.Join(dataDir, "rules.json"), data, 0644); err != nil {
+		return fmt.Errorf("failed to write rules: %w", err)
 	}
 
 	// 保存标签
@@ -854,8 +862,12 @@ func (c *Classifier) saveLocked() error {
 	for _, tag := range c.tags {
 		tags = append(tags, tag)
 	}
-	if data, err := json.MarshalIndent(tags, "", "  "); err == nil {
-		os.WriteFile(filepath.Join(dataDir, "tags.json"), data, 0644)
+	data, err = json.MarshalIndent(tags, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal tags: %w", err)
+	}
+	if err := os.WriteFile(filepath.Join(dataDir, "tags.json"), data, 0644); err != nil {
+		return fmt.Errorf("failed to write tags: %w", err)
 	}
 
 	return nil

@@ -87,7 +87,10 @@ func handleIncremental(args []string) {
 	chunkDir := fs.String("chunks", "/srv/chunks", "块存储目录")
 	snapshotID := fs.String("id", "", "快照ID")
 
-	_ = fs.Parse(args[1:])
+	if err := fs.Parse(args[1:]); err != nil {
+		fmt.Printf("参数解析错误：%v\n", err)
+		os.Exit(1)
+	}
 
 	logger := zap.NewNop()
 	config := &backup.BackupConfig{
@@ -233,7 +236,7 @@ func handleCloud(args []string) {
 
 	case "list":
 		prefix := fs.String("prefix", "", "路径前缀")
-		fs.Parse(args[1:])
+		_ = fs.Parse(args[1:])
 
 		backups, err := cb.ListBackups(*prefix)
 		if err != nil {
@@ -299,7 +302,7 @@ func handleEncrypt(args []string) {
 	passwordFile := fs.String("password-file", "", "密码文件")
 	keyPath := fs.String("key-path", "/srv/keys", "密钥存储路径")
 
-	fs.Parse(args)
+	_ = fs.Parse(args)
 
 	if *inputFile == "" || *outputFile == "" {
 		fmt.Println("错误：--input 和 --output 是必需的")
@@ -363,7 +366,7 @@ func handleDecrypt(args []string) {
 	keyPath := fs.String("key-path", "/srv/keys", "密钥存储路径")
 	keyID := fs.String("key-id", "", "密钥ID")
 
-	fs.Parse(args)
+	_ = fs.Parse(args)
 
 	if *inputFile == "" || *outputFile == "" {
 		fmt.Println("错误：--input 和 --output 是必需的")
@@ -410,9 +413,9 @@ func handleRestore(args []string) {
 	overwrite := fs.Bool("overwrite", false, "覆盖现有文件")
 	verify := fs.Bool("verify", false, "恢复后验证")
 	filePath := fs.String("file", "", "单文件恢复路径")
-	fs.Bool("dry-run", false, "预览模式")
+	_ = fs.Bool("dry-run", false, "预览模式")
 
-	fs.Parse(args[1:])
+	_ = fs.Parse(args[1:])
 
 	logger := zap.NewNop()
 	emConfig := &backup.EncryptionManagerConfig{
@@ -525,7 +528,7 @@ func handleVerify(args []string) {
 	fs := flag.NewFlagSet("verify", flag.ExitOnError)
 	filePath := fs.String("file", "", "文件路径")
 
-	fs.Parse(args)
+	_ = fs.Parse(args)
 
 	if *filePath == "" {
 		fmt.Println("错误：--file 是必需的")
@@ -630,7 +633,7 @@ func calculateChecksum(filePath string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {

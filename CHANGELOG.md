@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.8.1] - 2026-03-14
+
+### Bug Fixes
+
+- **cmd/backup**: 修复 fs.Parse 和 file.Close 返回值未检查的问题
+- **cmd/nasctl**: 修复 fmt.Fprintln/Fprintf 和 w.Flush 返回值未检查的问题
+- **cmd/nasd**: 修复 logger.Sync、cluster.ShutdownCluster 和 webServer.Stop 返回值未检查的问题
+- **internal/ai_classify**: 修复 os.RemoveAll、os.WriteFile 和 file.Close 返回值未检查的问题
+- **CI/CD**: 修复 32 处 errcheck linter 错误
+
 ## [v2.8.0] - 2026-03-14
 
 ### Fixed

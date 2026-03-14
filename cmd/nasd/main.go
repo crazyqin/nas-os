@@ -92,7 +92,7 @@ func main() {
 
 	// 初始化日志
 	logger, _ := zap.NewProduction()
-	defer logger.Sync()
+	defer func() { _ = logger.Sync() }()
 
 	// 初始化用户管理
 	userMgr, err := users.NewManager("/mnt")
@@ -142,7 +142,11 @@ func main() {
 		log.Printf("⚠️ 集群服务初始化警告：%v", err)
 	} else if clusterServices != nil {
 		log.Println("✅ 集群服务就绪")
-		defer cluster.ShutdownCluster(clusterServices)
+		defer func() {
+			if err := cluster.ShutdownCluster(clusterServices); err != nil {
+				log.Printf("⚠️ 集群关闭错误：%v", err)
+			}
+		}()
 	}
 
 	// 初始化下载管理器
@@ -178,7 +182,9 @@ func main() {
 	<-sigChan
 
 	log.Println("👋 NAS-OS 正在关闭...")
-	webServer.Stop()
+	if err := webServer.Stop(); err != nil {
+		log.Printf("⚠️ Web 服务关闭错误：%v", err)
+	}
 }
 
 func getClusterRole(services *cluster.ClusterServices) string {
