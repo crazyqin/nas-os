@@ -43,8 +43,14 @@ func (a *AutomationAPI) RegisterRoutes(r *mux.Router) {
 
 	// 模板
 	s.HandleFunc("/templates", a.ListTemplates).Methods("GET")
+	s.HandleFunc("/templates/categories", a.ListTemplateCategories).Methods("GET")
 	s.HandleFunc("/templates/{id}", a.GetTemplate).Methods("GET")
+	s.HandleFunc("/templates/{id}/validate", a.ValidateTemplate).Methods("GET")
+	s.HandleFunc("/templates/{id}/params", a.GetTemplateParams).Methods("GET")
 	s.HandleFunc("/templates/{id}/use", a.UseTemplate).Methods("POST")
+	s.HandleFunc("/templates/export/{id}", a.ExportTemplate).Methods("GET")
+	s.HandleFunc("/templates/export-all", a.ExportAllTemplates).Methods("GET")
+	s.HandleFunc("/templates/import", a.ImportTemplate).Methods("POST")
 
 	// 统计
 	s.HandleFunc("/stats", a.GetStats).Methods("GET")
@@ -325,12 +331,11 @@ func (a *AutomationAPI) UseTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wf := &tpl.Workflow
-	wf.ID = ""
-	wf.CreatedAt = time.Now()
-	wf.UpdatedAt = time.Now()
-	wf.LastRun = nil
-	wf.RunCount = 0
+	// 解析可选的参数
+	var params map[string]string
+	_ = json.NewDecoder(r.Body).Decode(&params)
+
+	wf := templates.CreateWorkflowFromTemplate(tpl, params)
 
 	if err := a.engine.CreateWorkflow(wf); err != nil {
 		a.writeError(w, http.StatusInternalServerError, err.Error())
@@ -338,6 +343,105 @@ func (a *AutomationAPI) UseTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	a.writeJSON(w, http.StatusCreated, wf)
+}
+
+// ListTemplateCategories 列出模板分类
+func (a *AutomationAPI) ListTemplateCategories(w http.ResponseWriter, r *http.Request) {
+	categories := templates.GetCategories()
+	a.writeJSON(w, http.StatusOK, map[string]interface{}{
+		"categories": categories,
+	})
+}
+
+// ValidateTemplate 验证模板
+func (a *AutomationAPI) ValidateTemplate(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	tpl, err := templates.GetTemplate(id)
+	if err != nil || tpl == nil {
+		a.writeError(w, http.StatusNotFound, "Template not found")
+		return
+	}
+
+	result := templates.ValidateTemplate(tpl)
+	a.writeJSON(w, http.StatusOK, result)
+}
+
+// GetTemplateParams 获取模板参数
+func (a *AutomationAPI) GetTemplateParams(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	tpl, err := templates.GetTemplate(id)
+	if err != nil || tpl == nil {
+		a.writeError(w, http.StatusNotFound, "Template not found")
+		return
+	}
+
+	params := templates.GetTemplateParams(tpl)
+	a.writeJSON(w, http.StatusOK, map[string]interface{}{
+		"template_id":   tpl.ID,
+		"template_name": tpl.Name,
+		"params":        params,
+	})
+}
+
+// ExportTemplate 导出模板
+func (a *AutomationAPI) ExportTemplate(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	tpl, err := templates.GetTemplate(id)
+	if err != nil || tpl == nil {
+		a.writeError(w, http.StatusNotFound, "Template not found")
+		return
+	}
+
+	data, err := templates.ExportTemplate(tpl)
+	if err != nil {
+		a.writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Disposition", "attachment; filename=template_"+id+".json")
+	_, _ = w.Write(data)
+}
+
+// ExportAllTemplates 导出所有模板
+func (a *AutomationAPI) ExportAllTemplates(w http.ResponseWriter, r *http.Request) {
+	tpls := templates.GetTemplates()
+
+	allTemplates := make(map[string]json.RawMessage)
+	for _, tpl := range tpls {
+		data, err := templates.ExportTemplate(&tpl)
+		if err != nil {
+			continue
+		}
+		allTemplates[tpl.ID] = data
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Disposition", "attachment; filename=all_templates.json")
+	_ = json.NewEncoder(w).Encode(allTemplates)
+}
+
+// ImportTemplate 导入模板
+func (a *AutomationAPI) ImportTemplate(w http.ResponseWriter, r *http.Request) {
+	var data []byte
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		a.writeError(w, http.StatusBadRequest, "Invalid JSON")
+		return
+	}
+
+	tpl, err := templates.ImportTemplate(data)
+	if err != nil {
+		a.writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	a.writeJSON(w, http.StatusCreated, tpl)
 }
 
 // GetStats 获取统计信息

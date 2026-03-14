@@ -21,34 +21,34 @@ type DiagnosticResult struct {
 
 // PingOptions Ping 选项
 type PingOptions struct {
-	Count    int    `json:"count"`    // 发送次数
-	Interval int    `json:"interval"` // 间隔（毫秒）
-	Timeout  int    `json:"timeout"`  // 超时（毫秒")
-	Size     int    `json:"size"`     // 包大小
+	Count    int `json:"count"`    // 发送次数
+	Interval int `json:"interval"` // 间隔（毫秒）
+	Timeout  int `json:"timeout"`  // 超时（毫秒")
+	Size     int `json:"size"`     // 包大小
 }
 
 // PingResult Ping 结果
 type PingResult struct {
-	Host         string  `json:"host"`
-	PacketsSent  int     `json:"packetsSent"`
-	PacketsRecv  int     `json:"packetsRecv"`
-	PacketLoss   float64 `json:"packetLoss"`
-	MinRTT       float64 `json:"minRtt"`   // 毫秒
-	MaxRTT       float64 `json:"maxRtt"`   // 毫秒
-	AvgRTT       float64 `json:"avgRtt"`   // 毫秒
-	StdDevRTT    float64 `json:"stdDevRtt"` // 毫秒
-	Output       string  `json:"output"`
+	Host        string  `json:"host"`
+	PacketsSent int     `json:"packetsSent"`
+	PacketsRecv int     `json:"packetsRecv"`
+	PacketLoss  float64 `json:"packetLoss"`
+	MinRTT      float64 `json:"minRtt"`    // 毫秒
+	MaxRTT      float64 `json:"maxRtt"`    // 毫秒
+	AvgRTT      float64 `json:"avgRtt"`    // 毫秒
+	StdDevRTT   float64 `json:"stdDevRtt"` // 毫秒
+	Output      string  `json:"output"`
 }
 
 // TracerouteHop 路由跳
 type TracerouteHop struct {
-	Hop     int      `json:"hop"`
-	Host    string   `json:"host"`
-	IP      string   `json:"ip"`
-	RTT1    float64  `json:"rtt1"`    // 毫秒
-	RTT2    float64  `json:"rtt2"`    // 毫秒
-	RTT3    float64  `json:"rtt3"`    // 毫秒
-	Timeout bool     `json:"timeout"` // 是否超时
+	Hop     int     `json:"hop"`
+	Host    string  `json:"host"`
+	IP      string  `json:"ip"`
+	RTT1    float64 `json:"rtt1"`    // 毫秒
+	RTT2    float64 `json:"rtt2"`    // 毫秒
+	RTT3    float64 `json:"rtt3"`    // 毫秒
+	Timeout bool    `json:"timeout"` // 是否超时
 }
 
 // TracerouteResult Traceroute 结果
@@ -61,13 +61,13 @@ type TracerouteResult struct {
 
 // DNSLookupResult DNS 查询结果
 type DNSLookupResult struct {
-	Host       string   `json:"host"`
-	Addresses  []string `json:"addresses"`
-	CNAME      string   `json:"cname,omitempty"`
+	Host       string     `json:"host"`
+	Addresses  []string   `json:"addresses"`
+	CNAME      string     `json:"cname,omitempty"`
 	MXRecords  []MXRecord `json:"mxRecords,omitempty"`
 	NSRecords  []NSRecord `json:"nsRecords,omitempty"`
-	TXTRecords []string  `json:"txtRecords,omitempty"`
-	QueryTime  int64     `json:"queryTime"` // 纳秒
+	TXTRecords []string   `json:"txtRecords,omitempty"`
+	QueryTime  int64      `json:"queryTime"` // 纳秒
 }
 
 // MXRecord MX 记录
@@ -83,8 +83,8 @@ type NSRecord struct {
 
 // PortScanResult 端口扫描结果
 type PortScanResult struct {
-	Host    string        `json:"host"`
-	Ports   []PortStatus  `json:"ports"`
+	Host     string       `json:"host"`
+	Ports    []PortStatus `json:"ports"`
 	ScanTime int64        `json:"scanTime"` // 毫秒
 }
 
@@ -422,7 +422,7 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 			Protocol: protocol,
 		}
 
-		address := fmt.Sprintf("%s:%d", host, port)
+		address := net.JoinHostPort(host, fmt.Sprintf("%d", port))
 
 		if protocol == "tcp" {
 			conn, err := net.DialTimeout("tcp", address, timeout)
@@ -459,26 +459,26 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 // identifyService 识别端口对应的服务
 func (m *Manager) identifyService(port int) string {
 	services := map[int]string{
-		20:   "FTP Data",
-		21:   "FTP",
-		22:   "SSH",
-		23:   "Telnet",
-		25:   "SMTP",
-		53:   "DNS",
-		80:   "HTTP",
-		110:  "POP3",
-		143:  "IMAP",
-		443:  "HTTPS",
-		465:  "SMTPS",
-		587:  "SMTP (TLS)",
-		993:  "IMAPS",
-		995:  "POP3S",
-		3306: "MySQL",
-		5432: "PostgreSQL",
-		6379: "Redis",
-		8080: "HTTP Proxy",
-		8443: "HTTPS (Alt)",
-		9000: "PHP-FPM",
+		20:    "FTP Data",
+		21:    "FTP",
+		22:    "SSH",
+		23:    "Telnet",
+		25:    "SMTP",
+		53:    "DNS",
+		80:    "HTTP",
+		110:   "POP3",
+		143:   "IMAP",
+		443:   "HTTPS",
+		465:   "SMTPS",
+		587:   "SMTP (TLS)",
+		993:   "IMAPS",
+		995:   "POP3S",
+		3306:  "MySQL",
+		5432:  "PostgreSQL",
+		6379:  "Redis",
+		8080:  "HTTP Proxy",
+		8443:  "HTTPS (Alt)",
+		9000:  "PHP-FPM",
 		27017: "MongoDB",
 	}
 
@@ -626,8 +626,8 @@ func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
 
 	// 检查外网连接
 	testHosts := []string{
-		"8.8.8.8:53",     // Google DNS
-		"1.1.1.1:53",     // Cloudflare DNS
+		"8.8.8.8:53",        // Google DNS
+		"1.1.1.1:53",        // Cloudflare DNS
 		"208.67.222.222:53", // OpenDNS
 	}
 
@@ -655,8 +655,8 @@ func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
 
 // ConnectivityStatus 连接状态
 type ConnectivityStatus struct {
-	Connected bool              `json:"connected"`
-	Checks    map[string]bool   `json:"checks"`
+	Connected bool            `json:"connected"`
+	Checks    map[string]bool `json:"checks"`
 }
 
 // Netstat 获取网络连接状态
