@@ -2,15 +2,14 @@ package docker
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
 )
 
 // Handlers Docker 处理器
 type Handlers struct {
 	manager *Manager
-	// mu      sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 
 // NewHandlers 创建 Docker 处理器
@@ -57,18 +56,11 @@ func (h *Handlers) listContainers(c *gin.Context) {
 
 	containers, err := h.manager.ListContainers(all)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    containers,
-	})
+	api.OK(c, containers)
 }
 
 // createContainer 创建容器
@@ -80,27 +72,17 @@ func (h *Handlers) createContainer(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	container, err := h.manager.CreateContainer(req.Name, req.Image, req.Options)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "容器创建成功",
-		"data":    container,
-	})
+	api.Created(c, container)
 }
 
 // getContainer 获取容器详情
@@ -109,18 +91,11 @@ func (h *Handlers) getContainer(c *gin.Context) {
 
 	container, err := h.manager.GetContainer(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    container,
-	})
+	api.OK(c, container)
 }
 
 // removeContainer 删除容器
@@ -129,17 +104,11 @@ func (h *Handlers) removeContainer(c *gin.Context) {
 	force := c.Query("force") == "true"
 
 	if err := h.manager.RemoveContainer(id, force); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "容器已删除",
-	})
+	api.OKWithMessage(c, "容器已删除", nil)
 }
 
 // startContainer 启动容器
@@ -147,17 +116,11 @@ func (h *Handlers) startContainer(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.manager.StartContainer(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "容器已启动",
-	})
+	api.OKWithMessage(c, "容器已启动", nil)
 }
 
 // stopContainer 停止容器
@@ -165,17 +128,11 @@ func (h *Handlers) stopContainer(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.manager.StopContainer(id, 10); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "容器已停止",
-	})
+	api.OKWithMessage(c, "容器已停止", nil)
 }
 
 // restartContainer 重启容器
@@ -183,17 +140,11 @@ func (h *Handlers) restartContainer(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.manager.RestartContainer(id, 10); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "容器已重启",
-	})
+	api.OKWithMessage(c, "容器已重启", nil)
 }
 
 // getContainerStats 获取容器统计
@@ -202,36 +153,22 @@ func (h *Handlers) getContainerStats(c *gin.Context) {
 
 	stats, err := h.manager.GetContainerStats(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
+	api.OK(c, stats)
 }
 
 // listImages 列出镜像
 func (h *Handlers) listImages(c *gin.Context) {
 	images, err := h.manager.ListImages()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    images,
-	})
+	api.OK(c, images)
 }
 
 // pullImage 拉取镜像
@@ -241,25 +178,16 @@ func (h *Handlers) pullImage(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.PullImage(req.Image); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "镜像拉取成功",
-	})
+	api.OKWithMessage(c, "镜像拉取成功", nil)
 }
 
 // removeImage 删除镜像
@@ -268,46 +196,28 @@ func (h *Handlers) removeImage(c *gin.Context) {
 	force := c.Query("force") == "true"
 
 	if err := h.manager.RemoveImage(id, force); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "镜像已删除",
-	})
+	api.OKWithMessage(c, "镜像已删除", nil)
 }
 
 // listNetworks 列出网络
 func (h *Handlers) listNetworks(c *gin.Context) {
 	networks, err := h.manager.ListNetworks()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    networks,
-	})
+	api.OK(c, networks)
 }
 
 // getAppCatalog 获取应用目录
 func (h *Handlers) getAppCatalog(c *gin.Context) {
 	apps := h.manager.GetAppCatalog()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    apps,
-	})
+	api.OK(c, apps)
 }
 
 // installApp 安装应用
@@ -324,10 +234,7 @@ func (h *Handlers) installApp(c *gin.Context) {
 	}
 
 	if app == nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": "应用不存在",
-		})
+		api.NotFound(c, "应用不存在")
 		return
 	}
 
@@ -354,29 +261,18 @@ func (h *Handlers) installApp(c *gin.Context) {
 	// 创建容器
 	container, err := h.manager.CreateContainer(name, app.Image, opts)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "应用安装成功",
-		"data":    container,
-	})
+	api.OKWithMessage(c, "应用安装成功", container)
 }
 
 // getStatus 获取 Docker 状态
 func (h *Handlers) getStatus(c *gin.Context) {
 	running := h.manager.IsRunning()
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data": gin.H{
-			"running": running,
-		},
+	api.OK(c, map[string]bool{
+		"running": running,
 	})
 }

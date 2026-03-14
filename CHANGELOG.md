@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.9.0] - 2026-03-14
+
+### Added
+- **API 响应格式统一**
+  - 新增 `internal/api/response.go` 统一响应格式
+  - 新增 `internal/api/validator.go` 请求验证器
+  - 统一错误处理和响应格式
+
+- **Handlers 重构**
+  - `internal/docker/handlers.go` 使用统一响应格式
+  - `internal/network/handlers.go` 使用统一响应格式
+  - `internal/quota/handlers_v2.go` 响应格式优化
+
+- **测试覆盖完善**
+  - `internal/container/container_test.go` 容器测试
+  - `internal/monitor/manager_test.go` 监控测试
+  - `internal/users/manager_test.go` 用户管理测试
+
+- **文档更新**
+  - `docs/RELEASE-v2.9.0.md` WebUI 完成报告
+
+### Changed
+- API 端点使用统一的响应格式
+- 错误处理标准化
+
 ## [v2.8.1] - 2026-03-14
 
 ### Bug Fixes

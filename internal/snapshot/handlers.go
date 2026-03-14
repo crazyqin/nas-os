@@ -1,10 +1,10 @@
 package snapshot
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
 )
 
 // Handlers 快照策略 API 处理器
@@ -70,11 +70,7 @@ func (h *Handlers) listPolicies(c *gin.Context) {
 		filtered = append(filtered, p)
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    filtered,
-	})
+	api.OK(c, filtered)
 }
 
 // getPolicy 获取单个策略
@@ -83,44 +79,27 @@ func (h *Handlers) getPolicy(c *gin.Context) {
 
 	policy, err := h.policyManager.GetPolicy(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    policy,
-	})
+	api.OK(c, policy)
 }
 
 // createPolicy 创建策略
 func (h *Handlers) createPolicy(c *gin.Context) {
 	var policy Policy
 	if err := c.ShouldBindJSON(&policy); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "无效的请求数据: " + err.Error(),
-		})
+		api.BadRequest(c, "无效的请求数据: "+err.Error())
 		return
 	}
 
 	if err := h.policyManager.CreatePolicy(&policy); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "策略创建成功",
-		"data":    policy,
-	})
+	api.OKWithMessage(c, "策略创建成功", policy)
 }
 
 // updatePolicy 更新策略
@@ -129,26 +108,16 @@ func (h *Handlers) updatePolicy(c *gin.Context) {
 
 	var policy Policy
 	if err := c.ShouldBindJSON(&policy); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "无效的请求数据: " + err.Error(),
-		})
+		api.BadRequest(c, "无效的请求数据: "+err.Error())
 		return
 	}
 
 	if err := h.policyManager.UpdatePolicy(id, &policy); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "策略更新成功",
-		"data":    policy,
-	})
+	api.OK(c, policy)
 }
 
 // deletePolicy 删除策略
@@ -156,17 +125,11 @@ func (h *Handlers) deletePolicy(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.policyManager.DeletePolicy(id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "策略已删除",
-	})
+	api.OKWithMessage(c, "策略已删除", nil)
 }
 
 // enablePolicy 启用策略
@@ -174,17 +137,11 @@ func (h *Handlers) enablePolicy(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.policyManager.EnablePolicy(id, true); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "策略已启用",
-	})
+	api.OKWithMessage(c, "策略已启用", nil)
 }
 
 // disablePolicy 禁用策略
@@ -192,17 +149,11 @@ func (h *Handlers) disablePolicy(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.policyManager.EnablePolicy(id, false); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "策略已禁用",
-	})
+	api.OKWithMessage(c, "策略已禁用", nil)
 }
 
 // executePolicy 手动执行策略
@@ -211,20 +162,13 @@ func (h *Handlers) executePolicy(c *gin.Context) {
 
 	snapshotName, err := h.policyManager.ExecutePolicy(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "执行失败: " + err.Error(),
-		})
+		api.InternalError(c, "执行失败: "+err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "快照创建成功",
-		"data": gin.H{
-			"snapshotName": snapshotName,
-			"executedAt":   time.Now(),
-		},
+	api.OK(c, gin.H{
+		"snapshotName": snapshotName,
+		"executedAt":   time.Now(),
 	})
 }
 
@@ -236,29 +180,17 @@ func (h *Handlers) getScheduleInfo(c *gin.Context) {
 
 	jobInfo, err := h.policyManager.GetScheduler().GetJobStatus(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    jobInfo,
-	})
+	api.OK(c, jobInfo)
 }
 
 // listSchedules 列出所有调度任务
 func (h *Handlers) listSchedules(c *gin.Context) {
 	jobs := h.policyManager.GetScheduler().ListJobs()
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    jobs,
-	})
+	api.OK(c, jobs)
 }
 
 // ========== 清理预览 ==========
@@ -269,27 +201,17 @@ func (h *Handlers) cleanupPreview(c *gin.Context) {
 
 	policy, err := h.policyManager.GetPolicy(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
 	preview, err := h.policyManager.GetCleaner().PreviewDryRun(policy)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "预览失败: " + err.Error(),
-		})
+		api.InternalError(c, "预览失败: "+err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    preview,
-	})
+	api.OK(c, preview)
 }
 
 // ========== 辅助端点 ==========
@@ -300,10 +222,7 @@ func (h *Handlers) GetPolicyStats(c *gin.Context) {
 
 	policy, err := h.policyManager.GetPolicy(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
@@ -335,11 +254,7 @@ func (h *Handlers) GetPolicyStats(c *gin.Context) {
 		stats["successRate"] = float64(policy.Stats.SuccessfulRuns) / float64(policy.Stats.TotalRuns) * 100
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
+	api.OK(c, stats)
 }
 
 // ValidateCron 验证 cron 表达式
@@ -349,22 +264,15 @@ func (h *Handlers) ValidateCron(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "缺少 cron 表达式",
-		})
+		api.BadRequest(c, "缺少 cron 表达式")
 		return
 	}
 
 	valid := h.policyManager.GetScheduler().ValidateCron(req.Expression)
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data": gin.H{
-			"expression": req.Expression,
-			"valid":      valid,
-		},
+	api.OK(c, gin.H{
+		"expression": req.Expression,
+		"valid":      valid,
 	})
 }
 
@@ -418,11 +326,7 @@ func (h *Handlers) GetPresetPolicies(c *gin.Context) {
 		},
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    presets,
-	})
+	api.OK(c, presets)
 }
 
 // PolicyTemplate 策略模板

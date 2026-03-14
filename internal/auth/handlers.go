@@ -1,9 +1,8 @@
 package auth
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
 )
 
 // Handlers MFA HTTP 处理器
@@ -18,8 +17,8 @@ func NewHandlers(mgr *MFAManager) *Handlers {
 
 // RegisterRoutes 注册路由
 // 注意：MFA 操作需要认证，调用方应在应用此路由组前添加认证中间件
-func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
-	mfa := api.Group("/mfa")
+func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
+	mfa := apiGroup.Group("/mfa")
 	// 所有 MFA 操作都需要认证
 	{
 		// 状态查询
@@ -52,33 +51,17 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 	}
 }
 
-// ========== 通用响应 ==========
-
-type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-func Success(data interface{}) Response {
-	return Response{Code: 0, Message: "success", Data: data}
-}
-
-func Error(code int, message string) Response {
-	return Response{Code: code, Message: message}
-}
-
 // ========== 状态查询 ==========
 
 func (h *Handlers) getStatus(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	status := h.manager.GetStatus(userID)
-	c.JSON(http.StatusOK, Success(status))
+	api.OK(c, status)
 }
 
 // ========== TOTP ==========
@@ -100,65 +83,65 @@ func (h *Handlers) setupTOTP(c *gin.Context) {
 	username := c.GetString("username")
 
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	setup, err := h.manager.SetupTOTP(userID, username)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(TOTPSetupResponse{
+	api.OK(c, TOTPSetupResponse{
 		Secret:      setup.Secret,
 		URI:         setup.URI,
 		QRCode:      setup.QRCode,
 		Issuer:      setup.Issuer,
 		AccountName: setup.AccountName,
-	}))
+	})
 }
 
 func (h *Handlers) enableTOTP(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	var req EnableTOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.EnableTOTP(userID, req.Code); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	api.OK(c, nil)
 }
 
 func (h *Handlers) disableTOTP(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	var req EnableTOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.DisableTOTP(userID, req.Code); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	api.OK(c, nil)
 }
 
 // ========== 短信验证码 ==========
@@ -175,64 +158,64 @@ type EnableSMSRequest struct {
 func (h *Handlers) sendSMS(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	var req SendSMSRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.SendSMSCode(userID, req.Phone); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	api.OK(c, nil)
 }
 
 func (h *Handlers) enableSMS(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	var req EnableSMSRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.EnableSMS(userID, req.Phone, req.Code); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	api.OK(c, nil)
 }
 
 func (h *Handlers) disableSMS(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	var req EnableTOTPRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.DisableSMS(userID, req.Code); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	api.OK(c, nil)
 }
 
 // ========== 备份码 ==========
@@ -240,32 +223,32 @@ func (h *Handlers) disableSMS(c *gin.Context) {
 func (h *Handlers) generateBackupCodes(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	codes, err := h.manager.GenerateBackupCodes(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(BackupCodesResponse{
+	api.OK(c, BackupCodesResponse{
 		Codes: codes,
-	}))
+	})
 }
 
 func (h *Handlers) getBackupStatus(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	status := h.manager.GetStatus(userID)
-	c.JSON(http.StatusOK, Success(gin.H{
+	api.OK(c, gin.H{
 		"backup_codes_count": status.BackupCodesCount,
-	}))
+	})
 }
 
 // ========== WebAuthn ==========
@@ -284,13 +267,13 @@ func (h *Handlers) beginWebAuthnRegistration(c *gin.Context) {
 	username := c.GetString("username")
 
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	var req WebAuthnRegisterStartRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
@@ -301,118 +284,118 @@ func (h *Handlers) beginWebAuthnRegistration(c *gin.Context) {
 
 	sessionID, options, err := h.manager.BeginWebAuthnRegistration(userID, username, displayName)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(WebAuthnRegisterStartResponse{
+	api.OK(c, WebAuthnRegisterStartResponse{
 		SessionID: sessionID,
 		Options:   options,
-	}))
+	})
 }
 
 func (h *Handlers) finishWebAuthnRegistration(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	var responseData interface{}
 	if err := c.ShouldBindJSON(&responseData); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	// 需要从请求中获取 sessionID
 	sessionID := c.GetHeader("X-WebAuthn-Session-ID")
 	if sessionID == "" {
-		c.JSON(http.StatusBadRequest, Error(400, "缺少会话 ID"))
+		api.BadRequest(c, "缺少会话 ID")
 		return
 	}
 
 	if err := h.manager.FinishWebAuthnRegistration(sessionID, responseData); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	api.OK(c, nil)
 }
 
 func (h *Handlers) beginWebAuthnAuthentication(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	sessionID, options, err := h.manager.BeginWebAuthnAuthentication(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(WebAuthnRegisterStartResponse{
+	api.OK(c, WebAuthnRegisterStartResponse{
 		SessionID: sessionID,
 		Options:   options,
-	}))
+	})
 }
 
 func (h *Handlers) finishWebAuthnAuthentication(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	sessionID := c.GetHeader("X-WebAuthn-Session-ID")
 	if sessionID == "" {
-		c.JSON(http.StatusBadRequest, Error(400, "缺少会话 ID"))
+		api.BadRequest(c, "缺少会话 ID")
 		return
 	}
 
 	var responseData interface{}
 	if err := c.ShouldBindJSON(&responseData); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	resultUserID, err := h.manager.FinishWebAuthnAuthentication(sessionID, responseData)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(gin.H{
+	api.OK(c, gin.H{
 		"user_id": resultUserID,
-	}))
+	})
 }
 
 func (h *Handlers) getWebAuthnCredentials(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	credentials := h.manager.GetWebAuthnCredentials(userID)
-	c.JSON(http.StatusOK, Success(credentials))
+	api.OK(c, credentials)
 }
 
 func (h *Handlers) removeWebAuthnCredential(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	credentialID := c.Param("id")
 	if err := h.manager.RemoveWebAuthnCredential(userID, credentialID); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	api.OK(c, nil)
 }
 
 // ========== MFA 验证 ==========
@@ -426,20 +409,20 @@ type VerifyMFARequest struct {
 func (h *Handlers) verifyMFA(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
-		c.JSON(http.StatusUnauthorized, Error(401, "未授权"))
+		api.Unauthorized(c, "未授权")
 		return
 	}
 
 	var req VerifyMFARequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.VerifyMFA(userID, req.MFAType, req.Code, req.ResponseData); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	api.OK(c, nil)
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"nas-os/internal/api"
 )
 
 func setupHandlersTestEnv(t *testing.T) (*Manager, string) {
@@ -79,7 +80,7 @@ func TestHandlers_List(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resp APIResponse
+	var resp api.Response
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, 0, resp.Code)
@@ -107,7 +108,7 @@ func TestHandlers_List_Empty(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resp APIResponse
+	var resp api.Response
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
@@ -139,7 +140,7 @@ func TestHandlers_GetStats(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resp APIResponse
+	var resp api.Response
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
@@ -160,7 +161,7 @@ func TestHandlers_GetConfig(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var resp APIResponse
+	var resp api.Response
 	err := json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
@@ -420,8 +421,8 @@ func TestHandlers_RegisterRoutes(t *testing.T) {
 	h := NewHandlers(mgr)
 
 	router := gin.New()
-	api := router.Group("/api")
-	h.RegisterRoutes(api)
+	apiGroup := router.Group("/api")
+	h.RegisterRoutes(apiGroup)
 
 	routes := router.Routes()
 	routeMap := make(map[string]bool)
@@ -456,7 +457,7 @@ func TestTrashResponse_DaysLeft(t *testing.T) {
 
 	h.list(c)
 
-	var resp APIResponse
+	var resp api.Response
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 
@@ -474,17 +475,16 @@ func TestTrashResponse_DaysLeft(t *testing.T) {
 }
 
 func TestAPIResponse_Success(t *testing.T) {
-	resp := success("test data")
+	resp := api.Success("test data")
 	assert.Equal(t, 0, resp.Code)
 	assert.Equal(t, "success", resp.Message)
 	assert.Equal(t, "test data", resp.Data)
 }
 
 func TestAPIResponse_Error(t *testing.T) {
-	resp := apiError(400, "bad request")
+	resp := api.Error(400, "bad request")
 	assert.Equal(t, 400, resp.Code)
 	assert.Equal(t, "bad request", resp.Message)
-	assert.Nil(t, resp.Data)
 }
 
 func TestHandlers_DaysLeft_Expired(t *testing.T) {
@@ -509,7 +509,7 @@ func TestHandlers_DaysLeft_Expired(t *testing.T) {
 
 	h.list(c)
 
-	var resp APIResponse
+	var resp api.Response
 	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 

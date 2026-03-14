@@ -1,10 +1,10 @@
 package trash
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
 )
 
 // Handlers 回收站 HTTP 处理器
@@ -18,8 +18,8 @@ func NewHandlers(mgr *Manager) *Handlers {
 }
 
 // RegisterRoutes 注册路由
-func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
-	trash := api.Group("/trash")
+func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
+	trash := apiGroup.Group("/trash")
 	{
 		trash.GET("", h.list)
 		trash.GET("/stats", h.getStats)
@@ -32,21 +32,6 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 		trash.DELETE("", h.empty)
 	}
-}
-
-// APIResponse 通用响应
-type APIResponse struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-func success(data interface{}) APIResponse {
-	return APIResponse{Code: 0, Message: "success", Data: data}
-}
-
-func apiError(code int, message string) APIResponse {
-	return APIResponse{Code: code, Message: message}
 }
 
 // TrashResponse 回收站项目响应
@@ -85,11 +70,11 @@ func (h *Handlers) get(c *gin.Context) {
 
 	item, err := h.manager.Get(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, apiError(404, err.Error()))
+		api.NotFound(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, success(convertToResponse(item)))
+	api.OK(c, convertToResponse(item))
 }
 
 // list 列出回收站项目
@@ -101,19 +86,19 @@ func (h *Handlers) list(c *gin.Context) {
 		response[i] = convertToResponse(item)
 	}
 
-	c.JSON(http.StatusOK, success(response))
+	api.OK(c, response)
 }
 
 // getStats 获取统计信息
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
-	c.JSON(http.StatusOK, success(stats))
+	api.OK(c, stats)
 }
 
 // getConfig 获取配置
 func (h *Handlers) getConfig(c *gin.Context) {
 	config := h.manager.GetConfig()
-	c.JSON(http.StatusOK, success(config))
+	api.OK(c, config)
 }
 
 // UpdateConfigRequest 更新配置请求
@@ -128,7 +113,7 @@ type UpdateConfigRequest struct {
 func (h *Handlers) updateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
@@ -148,11 +133,11 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	}
 
 	if err := h.manager.UpdateConfig(config); err != nil {
-		c.JSON(http.StatusInternalServerError, apiError(500, err.Error()))
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, success(config))
+	api.OK(c, config)
 }
 
 // RestoreRequest 恢复请求
@@ -168,20 +153,20 @@ func (h *Handlers) restore(c *gin.Context) {
 	if c.ShouldBindJSON(&req) == nil && req.TargetPath != "" {
 		// 恢复到指定路径
 		if err := h.manager.RestoreTo(id, req.TargetPath); err != nil {
-			c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+			api.BadRequest(c, err.Error())
 			return
 		}
-		c.JSON(http.StatusOK, success(gin.H{"restored_to": req.TargetPath}))
+		api.OK(c, gin.H{"restored_to": req.TargetPath})
 		return
 	}
 
 	// 恢复到原始路径
 	if err := h.manager.Restore(id); err != nil {
-		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, success(nil))
+	api.OK(c, nil)
 }
 
 // deletePermanently 永久删除
@@ -189,21 +174,21 @@ func (h *Handlers) deletePermanently(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.manager.DeletePermanently(id); err != nil {
-		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, success(nil))
+	api.OK(c, nil)
 }
 
 // empty 清空回收站
 func (h *Handlers) empty(c *gin.Context) {
 	if err := h.manager.Empty(); err != nil {
-		c.JSON(http.StatusInternalServerError, apiError(500, err.Error()))
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, success(nil))
+	api.OK(c, nil)
 }
 
 // MoveToTrashRequest 移动到回收站请求
@@ -216,15 +201,15 @@ type MoveToTrashRequest struct {
 func (h *Handlers) MoveToTrash(c *gin.Context) {
 	var req MoveToTrashRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	item, err := h.manager.MoveToTrash(req.Path, req.UserID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
+		api.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, success(item))
+	api.OK(c, item)
 }
