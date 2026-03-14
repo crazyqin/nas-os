@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.15.0] - 2026-03-14
+
+### Fixed
+- **SQLite 驱动替换**
+  - 将 `github.com/mattn/go-sqlite3` 替换为 `modernc.org/sqlite`（纯 Go 实现）
+  - 消除 CGO 依赖，测试可在 `CGO_ENABLED=0` 环境下运行
+  - 修改 `internal/system/monitor.go` 和 `internal/tags/manager.go` 驱动名
+
+### Changed
+- CI/CD 添加 CGO 支持配置（备用）
+- 提升跨平台兼容性
+
 ## [v2.14.0] - 2026-03-14
 
 ### Added
