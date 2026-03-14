@@ -413,23 +413,31 @@ func (h *HandlersV2) sendNotification(c *gin.Context) {
 		return
 	}
 
-	// 获取告警
-	alert, err := h.manager.GetAlerts()[0], error(nil)
-	_ = alert // 简化处理
-
-	// 创建测试告警
-	testAlert := &Alert{
-		ID:         req.AlertID,
-		QuotaID:    "test",
-		Type:       AlertTypeSoftLimit,
-		Severity:   AlertSeverityWarning,
-		Status:     AlertStatusActive,
-		TargetName: "测试目标",
-		Message:    "测试通知消息",
-		CreatedAt:  time.Now(),
+	// 查找指定告警
+	var targetAlert *Alert
+	alerts := h.manager.GetAlerts()
+	for _, a := range alerts {
+		if a.ID == req.AlertID {
+			targetAlert = a
+			break
+		}
 	}
 
-	notification, err := h.notifyMgr.SendNotification(testAlert, req.ChannelID)
+	// 如果没有找到告警，创建一个测试告警
+	if targetAlert == nil {
+		targetAlert = &Alert{
+			ID:         req.AlertID,
+			QuotaID:    "test",
+			Type:       AlertTypeSoftLimit,
+			Severity:   AlertSeverityWarning,
+			Status:     AlertStatusActive,
+			TargetName: "测试目标",
+			Message:    "测试通知消息",
+			CreatedAt:  time.Now(),
+		}
+	}
+
+	notification, err := h.notifyMgr.SendNotification(targetAlert, req.ChannelID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return

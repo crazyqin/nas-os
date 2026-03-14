@@ -1,9 +1,8 @@
 package webdav
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
 )
 
 // Handlers WebDAV HTTP 处理器
@@ -17,25 +16,14 @@ func NewHandlers(srv *Server) *Handlers {
 }
 
 // RegisterRoutes 注册路由
-func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
-	h.server.RegisterRoutes(api)
-}
-
-// WebDAVConfigResponse WebDAV 配置响应
-type WebDAVConfigResponse struct {
-	Code    int     `json:"code"`
-	Message string  `json:"message"`
-	Data    *Config `json:"data"`
+func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
+	h.server.RegisterRoutes(apiGroup)
 }
 
 // GetConfig 获取 WebDAV 配置（外部调用）
 func (h *Handlers) GetConfig(c *gin.Context) {
 	config := h.server.GetConfig()
-	c.JSON(http.StatusOK, WebDAVConfigResponse{
-		Code:    0,
-		Message: "success",
-		Data:    config,
-	})
+	api.OK(c, config)
 }
 
 // UpdateConfigRequest 更新配置请求
@@ -51,10 +39,7 @@ type UpdateConfigRequest struct {
 func (h *Handlers) UpdateConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
@@ -77,28 +62,17 @@ func (h *Handlers) UpdateConfig(c *gin.Context) {
 	}
 
 	if err := h.server.UpdateConfig(config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, WebDAVConfigResponse{
-		Code:    0,
-		Message: "success",
-		Data:    config,
-	})
+	api.OK(c, config)
 }
 
 // GetStatus 获取 WebDAV 服务器状态
 func (h *Handlers) GetStatus(c *gin.Context) {
 	status := h.server.GetStatus()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    status,
-	})
+	api.OK(c, status)
 }
 
 // GetLocks 获取所有锁
@@ -110,34 +84,21 @@ func (h *Handlers) GetLocks(c *gin.Context) {
 	}
 	h.server.lockManager.mu.RUnlock()
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    locks,
-	})
+	api.OK(c, locks)
 }
 
 // DeleteLock 删除锁
 func (h *Handlers) DeleteLock(c *gin.Context) {
 	token := c.Param("token")
 	if token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "缺少锁令牌",
-		})
+		api.BadRequest(c, "缺少锁令牌")
 		return
 	}
 
 	if err := h.server.lockManager.RemoveLock(token); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "锁已删除",
-	})
+	api.OKWithMessage(c, "锁已删除", nil)
 }

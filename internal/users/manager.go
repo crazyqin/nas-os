@@ -203,18 +203,17 @@ func (m *Manager) loadConfig() error {
 }
 
 // saveConfig 保存配置到文件
+// 注意：调用者必须持有 m.mu 锁
 func (m *Manager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
 	}
 
-	m.mu.RLock()
 	pc := persistentConfig{
 		Users:  m.users,
 		Groups: m.groups,
 		Tokens: m.tokens,
 	}
-	m.mu.RUnlock()
 
 	data, err := json.MarshalIndent(pc, "", "  ")
 	if err != nil {

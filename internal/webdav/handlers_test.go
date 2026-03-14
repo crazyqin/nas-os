@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
 )
 
 func init() {
@@ -54,7 +55,7 @@ func TestHandlers_GetConfig(t *testing.T) {
 		t.Errorf("期望状态码 %d, 实际为 %d", http.StatusOK, w.Code)
 	}
 
-	var resp WebDAVConfigResponse
+	var resp api.Response
 	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("解析响应失败: %v", err)
 	}
@@ -63,8 +64,13 @@ func TestHandlers_GetConfig(t *testing.T) {
 		t.Errorf("期望 Code 为 0, 实际为 %d", resp.Code)
 	}
 
-	if resp.Data.Port != 8081 {
-		t.Errorf("期望端口 8081, 实际为 %d", resp.Data.Port)
+	data, ok := resp.Data.(map[string]interface{})
+	if !ok {
+		t.Fatalf("期望 Data 为 map[string]interface{}")
+	}
+
+	if int(data["port"].(float64)) != 8081 {
+		t.Errorf("期望端口 8081, 实际为 %v", data["port"])
 	}
 }
 

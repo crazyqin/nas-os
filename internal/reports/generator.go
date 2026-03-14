@@ -21,7 +21,7 @@ import (
 type ReportGenerator struct {
 	mu              sync.RWMutex
 	templateManager *TemplateManager
-	dataSources     map[string]DataSource
+	DataSources     map[string]DataSource // 导出供 handlers 访问
 	customReports   map[string]*CustomReport
 	dataDir         string
 }
@@ -30,7 +30,7 @@ type ReportGenerator struct {
 func NewReportGenerator(templateManager *TemplateManager, dataDir string) *ReportGenerator {
 	rg := &ReportGenerator{
 		templateManager: templateManager,
-		dataSources:     make(map[string]DataSource),
+		DataSources:     make(map[string]DataSource),
 		customReports:   make(map[string]*CustomReport),
 		dataDir:         dataDir,
 	}
@@ -43,7 +43,7 @@ func NewReportGenerator(templateManager *TemplateManager, dataDir string) *Repor
 
 // RegisterDataSource 注册数据源
 func (rg *ReportGenerator) RegisterDataSource(source DataSource) {
-	rg.dataSources[source.Name()] = source
+	rg.DataSources[source.Name()] = source
 }
 
 // loadCustomReports 加载自定义报表
@@ -85,7 +85,7 @@ func (rg *ReportGenerator) CreateCustomReport(input CustomReportInput, createdBy
 	defer rg.mu.Unlock()
 
 	// 验证数据源
-	if _, exists := rg.dataSources[input.DataSource]; !exists {
+	if _, exists := rg.DataSources[input.DataSource]; !exists {
 		return nil, ErrDataSourceNotFound
 	}
 
@@ -167,7 +167,7 @@ func (rg *ReportGenerator) UpdateCustomReport(id string, input CustomReportInput
 	}
 
 	// 验证数据源
-	if _, exists := rg.dataSources[input.DataSource]; !exists {
+	if _, exists := rg.DataSources[input.DataSource]; !exists {
 		return nil, ErrDataSourceNotFound
 	}
 
@@ -260,13 +260,13 @@ func (rg *ReportGenerator) generateReport(
 		dataSourceName = ds
 	} else {
 		// 默认使用第一个注册的数据源
-		for name := range rg.dataSources {
+		for name := range rg.DataSources {
 			dataSourceName = name
 			break
 		}
 	}
 
-	dataSource, exists := rg.dataSources[dataSourceName]
+	dataSource, exists := rg.DataSources[dataSourceName]
 	if !exists {
 		return nil, ErrDataSourceNotFound
 	}
@@ -621,7 +621,7 @@ func (rg *ReportGenerator) PreviewReport(templateID string, parameters map[strin
 
 // GetAvailableFields 获取数据源可用字段
 func (rg *ReportGenerator) GetAvailableFields(dataSource string) ([]TemplateField, error) {
-	ds, exists := rg.dataSources[dataSource]
+	ds, exists := rg.DataSources[dataSource]
 	if !exists {
 		return nil, ErrDataSourceNotFound
 	}
@@ -631,8 +631,8 @@ func (rg *ReportGenerator) GetAvailableFields(dataSource string) ([]TemplateFiel
 
 // ListDataSources 列出数据源
 func (rg *ReportGenerator) ListDataSources() []string {
-	result := make([]string, 0, len(rg.dataSources))
-	for name := range rg.dataSources {
+	result := make([]string, 0, len(rg.DataSources))
+	for name := range rg.DataSources {
 		result = append(result, name)
 	}
 	return result

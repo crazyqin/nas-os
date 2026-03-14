@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"nas-os/internal/api"
 )
 
 var upgrader = websocket.Upgrader{
@@ -68,10 +69,7 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 func (h *Handlers) websocketHandler(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": "WebSocket 升级失败",
-		})
+		api.InternalError(c, "WebSocket 升级失败")
 		return
 	}
 
@@ -116,32 +114,21 @@ func (h *Handlers) websocketHandler(c *gin.Context) {
 func (h *Handlers) getSystemStats(c *gin.Context) {
 	stats, err := h.monitor.GetSystemStats()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
+	api.OK(c, stats)
 }
 
 // getSystemInfo 获取系统信息
 func (h *Handlers) getSystemInfo(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data": gin.H{
-			"hostname":  h.monitor.GetHostname(),
-			"cores":     runtime.NumCPU(),
-			"goVersion": runtime.Version(),
-			"os":        runtime.GOOS,
-			"arch":      runtime.GOARCH,
-		},
+	api.OK(c, gin.H{
+		"hostname":  h.monitor.GetHostname(),
+		"cores":     runtime.NumCPU(),
+		"goVersion": runtime.Version(),
+		"os":        runtime.GOOS,
+		"arch":      runtime.GOARCH,
 	})
 }
 
@@ -149,81 +136,50 @@ func (h *Handlers) getSystemInfo(c *gin.Context) {
 func (h *Handlers) getDiskStats(c *gin.Context) {
 	stats, err := h.monitor.GetDiskStats()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
+	api.OK(c, stats)
 }
 
 // getSMARTInfo 获取 SMART 信息
 func (h *Handlers) getSMARTInfo(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "设备名称不能为空",
-		})
+		api.BadRequest(c, "设备名称不能为空")
 		return
 	}
 
 	info, err := h.monitor.GetSMARTInfo("/dev/" + device)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    info,
-	})
+	api.OK(c, info)
 }
 
 // checkAllDisks 检查所有磁盘
 func (h *Handlers) checkAllDisks(c *gin.Context) {
 	results, err := h.monitor.CheckAllDisks()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    results,
-	})
+	api.OK(c, results)
 }
 
 // getNetworkStats 获取网络统计
 func (h *Handlers) getNetworkStats(c *gin.Context) {
 	stats, err := h.monitor.GetNetworkStats(nil)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
+	api.OK(c, stats)
 }
 
 // getTopProcesses 获取 Top 进程
@@ -237,18 +193,11 @@ func (h *Handlers) getTopProcesses(c *gin.Context) {
 
 	processes, err := h.monitor.GetTopProcesses(limit)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    processes,
-	})
+	api.OK(c, processes)
 }
 
 // getHistoryData 获取历史数据
@@ -258,36 +207,22 @@ func (h *Handlers) getHistoryData(c *gin.Context) {
 
 	data, err := h.monitor.GetHistoryData(duration, interval)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    data,
-	})
+	api.OK(c, data)
 }
 
 // getAlerts 获取告警列表
 func (h *Handlers) getAlerts(c *gin.Context) {
 	alerts, err := h.monitor.GetAlerts()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    alerts,
-	})
+	api.OK(c, alerts)
 }
 
 // acknowledgeAlert 确认告警
@@ -295,15 +230,9 @@ func (h *Handlers) acknowledgeAlert(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.monitor.AcknowledgeAlert(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "告警已确认",
-	})
+	api.OKWithMessage(c, "告警已确认", nil)
 }

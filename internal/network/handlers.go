@@ -1,9 +1,8 @@
 package network
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
 )
 
 // Handlers 网络 API 处理器
@@ -67,46 +66,36 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 func (h *Handlers) listInterfaces(c *gin.Context) {
 	ifaces, err := h.manager.ListInterfaces()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    ifaces,
-	})
+	api.OK(c, ifaces)
 }
 
 func (h *Handlers) getInterface(c *gin.Context) {
 	name := c.Param("name")
 	iface, err := h.manager.GetInterface(name)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": err.Error()})
+		api.NotFound(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    iface,
-	})
+	api.OK(c, iface)
 }
 
 func (h *Handlers) configureInterface(c *gin.Context) {
 	name := c.Param("name")
 	var config InterfaceConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.ConfigureInterface(name, config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "配置成功"})
+	api.OKWithMessage(c, "配置成功", nil)
 }
 
 func (h *Handlers) toggleInterface(c *gin.Context) {
@@ -115,12 +104,12 @@ func (h *Handlers) toggleInterface(c *gin.Context) {
 		Up bool `json:"up"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.ToggleInterface(name, req.Up); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
@@ -128,88 +117,74 @@ func (h *Handlers) toggleInterface(c *gin.Context) {
 	if req.Up {
 		action = "已启用"
 	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "接口 " + action})
+	api.OKWithMessage(c, "接口 "+action, nil)
 }
 
 func (h *Handlers) getNetworkStats(c *gin.Context) {
 	stats, err := h.manager.GetNetworkStats()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
+	api.OK(c, stats)
 }
 
 // ========== DDNS API ==========
 
 func (h *Handlers) listDDNS(c *gin.Context) {
 	configs := h.manager.ListDDNS()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    configs,
-	})
+	api.OK(c, configs)
 }
 
 func (h *Handlers) addDDNS(c *gin.Context) {
 	var config DDNSConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.AddDDNS(config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "DDNS 配置已添加"})
+	api.OKWithMessage(c, "DDNS 配置已添加", config)
 }
 
 func (h *Handlers) getDDNS(c *gin.Context) {
 	domain := c.Param("domain")
 	config, err := h.manager.GetDDNS(domain)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": err.Error()})
+		api.NotFound(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    config,
-	})
+	api.OK(c, config)
 }
 
 func (h *Handlers) updateDDNS(c *gin.Context) {
 	domain := c.Param("domain")
 	var config DDNSConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.UpdateDDNS(domain, config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "DDNS 配置已更新"})
+	api.OKWithMessage(c, "DDNS 配置已更新", nil)
 }
 
 func (h *Handlers) deleteDDNS(c *gin.Context) {
 	domain := c.Param("domain")
 	if err := h.manager.DeleteDDNS(domain); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "DDNS 配置已删除"})
+	api.OKWithMessage(c, "DDNS 配置已删除", nil)
 }
 
 func (h *Handlers) enableDDNS(c *gin.Context) {
@@ -218,12 +193,12 @@ func (h *Handlers) enableDDNS(c *gin.Context) {
 		Enabled bool `json:"enabled"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.EnableDDNS(domain, req.Enabled); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
@@ -231,84 +206,75 @@ func (h *Handlers) enableDDNS(c *gin.Context) {
 	if req.Enabled {
 		action = "已启用"
 	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "DDNS " + action})
+	api.OKWithMessage(c, "DDNS "+action, nil)
 }
 
 func (h *Handlers) refreshDDNS(c *gin.Context) {
 	domain := c.Param("domain")
 	if err := h.manager.RefreshDDNS(domain); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "DDNS 已刷新"})
+	api.OKWithMessage(c, "DDNS 已刷新", nil)
 }
 
 // ========== 端口转发 API ==========
 
 func (h *Handlers) listPortForwards(c *gin.Context) {
 	rules := h.manager.ListPortForwards()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    rules,
-	})
+	api.OK(c, rules)
 }
 
 func (h *Handlers) addPortForward(c *gin.Context) {
 	var rule PortForward
 	if err := c.ShouldBindJSON(&rule); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.AddPortForward(rule); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "端口转发规则已添加"})
+	api.OKWithMessage(c, "端口转发规则已添加", rule)
 }
 
 func (h *Handlers) getPortForward(c *gin.Context) {
 	name := c.Param("name")
 	rule, err := h.manager.GetPortForward(name)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": err.Error()})
+		api.NotFound(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    rule,
-	})
+	api.OK(c, rule)
 }
 
 func (h *Handlers) updatePortForward(c *gin.Context) {
 	name := c.Param("name")
 	var rule PortForward
 	if err := c.ShouldBindJSON(&rule); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.UpdatePortForward(name, rule); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "端口转发规则已更新"})
+	api.OKWithMessage(c, "端口转发规则已更新", nil)
 }
 
 func (h *Handlers) deletePortForward(c *gin.Context) {
 	name := c.Param("name")
 	if err := h.manager.DeletePortForward(name); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "端口转发规则已删除"})
+	api.OKWithMessage(c, "端口转发规则已删除", nil)
 }
 
 func (h *Handlers) enablePortForward(c *gin.Context) {
@@ -317,12 +283,12 @@ func (h *Handlers) enablePortForward(c *gin.Context) {
 		Enabled bool `json:"enabled"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.EnablePortForward(name, req.Enabled); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
@@ -330,103 +296,85 @@ func (h *Handlers) enablePortForward(c *gin.Context) {
 	if req.Enabled {
 		action = "已启用"
 	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "端口转发规则 " + action})
+	api.OKWithMessage(c, "端口转发规则 "+action, nil)
 }
 
 func (h *Handlers) getPortForwardStatus(c *gin.Context) {
 	name := c.Param("name")
 	status, err := h.manager.GetPortForwardStatus(name)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    gin.H{"status": status},
-	})
+	api.OK(c, map[string]string{"status": status})
 }
 
 func (h *Handlers) listActivePortForwards(c *gin.Context) {
 	rules, err := h.manager.ListActivePortForwards()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    rules,
-	})
+	api.OK(c, rules)
 }
 
 // ========== 防火墙 API ==========
 
 func (h *Handlers) listFirewallRules(c *gin.Context) {
 	rules := h.manager.ListFirewallRules()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    rules,
-	})
+	api.OK(c, rules)
 }
 
 func (h *Handlers) addFirewallRule(c *gin.Context) {
 	var rule FirewallRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.AddFirewallRule(rule); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "防火墙规则已添加"})
+	api.OKWithMessage(c, "防火墙规则已添加", rule)
 }
 
 func (h *Handlers) getFirewallRule(c *gin.Context) {
 	name := c.Param("name")
 	rule, err := h.manager.GetFirewallRule(name)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": err.Error()})
+		api.NotFound(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    rule,
-	})
+	api.OK(c, rule)
 }
 
 func (h *Handlers) updateFirewallRule(c *gin.Context) {
 	name := c.Param("name")
 	var rule FirewallRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.UpdateFirewallRule(name, rule); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "防火墙规则已更新"})
+	api.OKWithMessage(c, "防火墙规则已更新", nil)
 }
 
 func (h *Handlers) deleteFirewallRule(c *gin.Context) {
 	name := c.Param("name")
 	if err := h.manager.DeleteFirewallRule(name); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "防火墙规则已删除"})
+	api.OKWithMessage(c, "防火墙规则已删除", nil)
 }
 
 func (h *Handlers) enableFirewallRule(c *gin.Context) {
@@ -435,12 +383,12 @@ func (h *Handlers) enableFirewallRule(c *gin.Context) {
 		Enabled bool `json:"enabled"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.EnableFirewallRule(name, req.Enabled); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
@@ -448,35 +396,25 @@ func (h *Handlers) enableFirewallRule(c *gin.Context) {
 	if req.Enabled {
 		action = "已启用"
 	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "防火墙规则 " + action})
+	api.OKWithMessage(c, "防火墙规则 "+action, nil)
 }
 
 func (h *Handlers) getFirewallStatus(c *gin.Context) {
 	status, err := h.manager.GetFirewallStatus()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    status,
-	})
+	api.OK(c, status)
 }
 
 func (h *Handlers) listActiveFirewallRules(c *gin.Context) {
 	rules, err := h.manager.ListActiveFirewallRules()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    rules,
-	})
+	api.OK(c, rules)
 }
 
 func (h *Handlers) setDefaultPolicy(c *gin.Context) {
@@ -485,33 +423,30 @@ func (h *Handlers) setDefaultPolicy(c *gin.Context) {
 		Policy string `json:"policy" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.SetDefaultPolicy(req.Chain, req.Policy); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "默认策略已设置"})
+	api.OKWithMessage(c, "默认策略已设置", nil)
 }
 
 func (h *Handlers) flushRules(c *gin.Context) {
 	var req struct {
 		Chain string `json:"chain"`
 	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error()})
-		return
-	}
+	_ = c.ShouldBindJSON(&req)
 
 	if err := h.manager.FlushRules(req.Chain); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "规则已清空"})
+	api.OKWithMessage(c, "规则已清空", nil)
 }
 
 func (h *Handlers) saveFirewallRules(c *gin.Context) {
@@ -521,11 +456,11 @@ func (h *Handlers) saveFirewallRules(c *gin.Context) {
 	_ = c.ShouldBindJSON(&req)
 
 	if err := h.manager.SaveFirewallRules(req.Path); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "防火墙规则已保存"})
+	api.OKWithMessage(c, "防火墙规则已保存", nil)
 }
 
 func (h *Handlers) restoreFirewallRules(c *gin.Context) {
@@ -535,9 +470,9 @@ func (h *Handlers) restoreFirewallRules(c *gin.Context) {
 	_ = c.ShouldBindJSON(&req)
 
 	if err := h.manager.RestoreFirewallRules(req.Path); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "防火墙规则已恢复"})
+	api.OKWithMessage(c, "防火墙规则已恢复", nil)
 }

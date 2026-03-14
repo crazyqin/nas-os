@@ -2,9 +2,9 @@ package backup
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
 )
 
 // Handlers 备份 API 处理器
@@ -80,54 +80,32 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 func (h *Handlers) listConfigs(c *gin.Context) {
 	configs := h.manager.ListConfigs()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    configs,
-	})
+	api.OK(c, configs)
 }
 
 func (h *Handlers) getConfig(c *gin.Context) {
 	id := c.Param("id")
 	config, err := h.manager.GetConfig(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    config,
-	})
+	api.OK(c, config)
 }
 
 func (h *Handlers) createConfig(c *gin.Context) {
 	var config JobConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.CreateConfig(config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "备份配置创建成功",
-		"data":    config,
-	})
+	api.OKWithMessage(c, "备份配置创建成功", config)
 }
 
 func (h *Handlers) updateConfig(c *gin.Context) {
@@ -135,42 +113,27 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 
 	var config JobConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.UpdateConfig(id, config); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "备份配置更新成功",
-	})
+	api.OKWithMessage(c, "备份配置更新成功", nil)
 }
 
 func (h *Handlers) deleteConfig(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.manager.DeleteConfig(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "备份配置已删除",
-	})
+	api.OKWithMessage(c, "备份配置已删除", nil)
 }
 
 func (h *Handlers) enableConfig(c *gin.Context) {
@@ -180,25 +143,16 @@ func (h *Handlers) enableConfig(c *gin.Context) {
 		Enabled bool `json:"enabled"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.manager.EnableConfig(id, req.Enabled); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "状态已更新",
-	})
+	api.OKWithMessage(c, "状态已更新", nil)
 }
 
 // ========== 备份操作 ==========
@@ -208,55 +162,34 @@ func (h *Handlers) runBackup(c *gin.Context) {
 
 	task, err := h.manager.RunBackup(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "备份任务已启动",
-		"data":    task,
-	})
+	api.OKWithMessage(c, "备份任务已启动", task)
 }
 
 func (h *Handlers) restore(c *gin.Context) {
 	var options RestoreOptions
 	if err := c.ShouldBindJSON(&options); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	task, err := h.manager.Restore(options)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "恢复任务已启动",
-		"data":    task,
-	})
+	api.OKWithMessage(c, "恢复任务已启动", task)
 }
 
 // ========== 任务管理 ==========
 
 func (h *Handlers) listTasks(c *gin.Context) {
 	tasks := h.manager.ListTasks()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    tasks,
-	})
+	api.OK(c, tasks)
 }
 
 func (h *Handlers) getTask(c *gin.Context) {
@@ -264,35 +197,22 @@ func (h *Handlers) getTask(c *gin.Context) {
 
 	task, err := h.manager.GetTask(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    task,
-	})
+	api.OK(c, task)
 }
 
 func (h *Handlers) cancelTask(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.manager.CancelTask(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "任务已取消",
-	})
+	api.OKWithMessage(c, "任务已取消", nil)
 }
 
 // ========== 历史记录 ==========
@@ -302,29 +222,18 @@ func (h *Handlers) getHistory(c *gin.Context) {
 
 	history, err := h.manager.GetHistory(configId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    history,
-	})
+	api.OK(c, history)
 }
 
 // ========== 同步任务管理 ==========
 
 func (h *Handlers) listSyncTasks(c *gin.Context) {
 	tasks := h.syncManager.ListSyncTasks()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    tasks,
-	})
+	api.OK(c, tasks)
 }
 
 func (h *Handlers) getSyncTask(c *gin.Context) {
@@ -332,43 +241,26 @@ func (h *Handlers) getSyncTask(c *gin.Context) {
 
 	task, err := h.syncManager.GetSyncTask(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    task,
-	})
+	api.OK(c, task)
 }
 
 func (h *Handlers) createSyncTask(c *gin.Context) {
 	var task SyncTask
 	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.syncManager.CreateSyncTask(task); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务创建成功",
-		"data":    task,
-	})
+	api.OKWithMessage(c, "同步任务创建成功", task)
 }
 
 func (h *Handlers) updateSyncTask(c *gin.Context) {
@@ -376,20 +268,14 @@ func (h *Handlers) updateSyncTask(c *gin.Context) {
 
 	var task SyncTask
 	if err := c.ShouldBindJSON(&task); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	// 先获取现有任务，保留 ID
 	existingTask, err := h.syncManager.GetSyncTask(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
@@ -398,51 +284,33 @@ func (h *Handlers) updateSyncTask(c *gin.Context) {
 	task.LastSync = existingTask.LastSync
 
 	if err := h.syncManager.CreateSyncTask(task); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务更新成功",
-	})
+	api.OKWithMessage(c, "同步任务更新成功", nil)
 }
 
 func (h *Handlers) deleteSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.syncManager.DeleteSyncTask(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务已删除",
-	})
+	api.OKWithMessage(c, "同步任务已删除", nil)
 }
 
 func (h *Handlers) runSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.syncManager.RunSync(id); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "同步任务已启动",
-	})
+	api.OKWithMessage(c, "同步任务已启动", nil)
 }
 
 // ========== 版本管理 ==========
@@ -450,27 +318,17 @@ func (h *Handlers) runSyncTask(c *gin.Context) {
 func (h *Handlers) listVersions(c *gin.Context) {
 	filePath := c.Query("path")
 	if filePath == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": "文件路径不能为空",
-		})
+		api.BadRequest(c, "文件路径不能为空")
 		return
 	}
 
 	versions, err := h.syncManager.versionManager.ListVersions(filePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    versions,
-	})
+	api.OK(c, versions)
 }
 
 func (h *Handlers) restoreVersion(c *gin.Context) {
@@ -480,25 +338,16 @@ func (h *Handlers) restoreVersion(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	if err := h.syncManager.versionManager.RestoreVersion(req.VersionID, req.TargetPath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "版本恢复成功",
-	})
+	api.OKWithMessage(c, "版本恢复成功", nil)
 }
 
 // ========== 配置检查 ==========
@@ -509,10 +358,7 @@ func (h *Handlers) checkConfig(c *gin.Context) {
 	// 获取配置并检查云端连接
 	config, err := h.manager.GetConfig(id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": err.Error(),
-		})
+		api.NotFound(c, err.Error())
 		return
 	}
 
@@ -563,11 +409,7 @@ func (h *Handlers) checkConfig(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    result,
-	})
+	api.OK(c, result)
 }
 
 func (h *Handlers) checkConfigDetailed(c *gin.Context) {
@@ -575,67 +417,42 @@ func (h *Handlers) checkConfigDetailed(c *gin.Context) {
 
 	result, err := h.manager.CheckConfigDetailed(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    result,
-	})
+	api.OK(c, result)
 }
 
 // ========== 恢复功能 ==========
 
 func (h *Handlers) listRestorePresets(c *gin.Context) {
 	presets := DefaultRestorePresets()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    presets,
-	})
+	api.OK(c, presets)
 }
 
 func (h *Handlers) previewRestore(c *gin.Context) {
 	var options RestoreOptions
 	if err := c.ShouldBindJSON(&options); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    400,
-			"message": err.Error(),
-		})
+		api.BadRequest(c, err.Error())
 		return
 	}
 
 	// 预览恢复操作（不实际执行）
 	preview, err := h.manager.PreviewRestore(options)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    preview,
-	})
+	api.OK(c, preview)
 }
 
 // ========== 统计信息 ==========
 
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    stats,
-	})
+	api.OK(c, stats)
 }
 
 // ========== 健康检查 ==========
@@ -643,17 +460,10 @@ func (h *Handlers) getStats(c *gin.Context) {
 func (h *Handlers) healthCheck(c *gin.Context) {
 	result, err := h.manager.HealthCheck()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"code":    500,
-			"message": err.Error(),
-		})
+		api.InternalError(c, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"code":    0,
-		"message": "success",
-		"data":    result,
-	})
+	api.OK(c, result)
 }
 
 // ========== 辅助类型 ==========
