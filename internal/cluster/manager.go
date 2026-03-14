@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -300,9 +301,32 @@ func (cm *ClusterManager) broadcastHeartbeat() {
 
 // sendHeartbeat 发送心跳到指定节点
 func (cm *ClusterManager) sendHeartbeat(node *ClusterNode) {
-	// TODO: 实现 HTTP 心跳请求
-	// 这里简化处理，只更新时间
-	node.Heartbeat = time.Now()
+	ctx, cancel := context.WithTimeout(cm.ctx, 5*time.Second)
+	defer cancel()
+
+	url := fmt.Sprintf("http://%s:%d/cluster/heartbeat", node.IP, node.Port)
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, nil)
+	if err != nil {
+		cm.logger.Debug("创建心跳请求失败", zap.String("node", node.ID), zap.Error(err))
+		return
+	}
+
+	req.Header.Set("X-Node-ID", cm.config.NodeID)
+	req.Header.Set("X-Master-ID", cm.masterID)
+
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		cm.logger.Debug("发送心跳失败", zap.String("node", node.ID), zap.Error(err))
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		node.Heartbeat = time.Now()
+		node.Status = StatusOnline
+	}
 }
 
 // monitorWorker 节点状态监控工作线程
@@ -560,17 +584,23 @@ func (cm *ClusterManager) loadState() error {
 		return err
 	}
 
-	var state map[string]interface{}
+	var state struct {
+		MasterID  string                  `json:"master_id"`
+		Nodes     map[string]*ClusterNode `json:"nodes"`
+		Timestamp time.Time               `json:"timestamp"`
+	}
+
 	if err := json.Unmarshal(data, &state); err != nil {
 		return err
 	}
 
-	if masterID, ok := state["master_id"].(string); ok {
-		cm.masterID = masterID
-	}
+	cm.masterID = state.MasterID
 
-	// TODO: 加载节点列表
-	// 注意：重启后节点需要重新发现，这里只保留主节点信息
+	// 加载节点列表（标记为离线，等待重新发现）
+	for id, node := range state.Nodes {
+		node.Status = StatusOffline
+		cm.nodes[id] = node
+	}
 
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sync"
@@ -242,15 +243,54 @@ func (ha *HighAvailability) broadcastHeartbeat() {
 	// 简化实现：只更新本地状态
 	ha.lastContact = time.Now()
 
-	// 实际应该发送心跳到所有 follower
+	// 发送心跳到所有 follower
 	ha.peersMutex.RLock()
 	for _, peer := range ha.peers {
 		if peer.Healthy {
-			// TODO: 发送心跳到 peer
-			_ = peer
+			go ha.sendHeartbeatToPeer(peer)
 		}
 	}
 	ha.peersMutex.RUnlock()
+}
+
+// sendHeartbeatToPeer 发送心跳到指定节点
+func (ha *HighAvailability) sendHeartbeatToPeer(peer *PeerInfo) {
+	ctx, cancel := context.WithTimeout(ha.ctx, 5*time.Second)
+	defer cancel()
+
+	url := fmt.Sprintf("http://%s/ha/heartbeat", peer.Address)
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, nil)
+	if err != nil {
+		ha.logger.Debug("创建心跳请求失败", zap.String("peer", peer.ID), zap.Error(err))
+		return
+	}
+
+	req.Header.Set("X-Leader-ID", ha.config.NodeID)
+	req.Header.Set("X-Term", fmt.Sprintf("%d", ha.term))
+
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		ha.logger.Debug("发送心跳失败", zap.String("peer", peer.ID), zap.Error(err))
+		ha.markPeerUnhealthy(peer.ID)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		ha.logger.Debug("心跳响应异常", zap.String("peer", peer.ID), zap.Int("status", resp.StatusCode))
+	}
+}
+
+// markPeerUnhealthy 标记节点为不健康
+func (ha *HighAvailability) markPeerUnhealthy(peerID string) {
+	ha.peersMutex.Lock()
+	defer ha.peersMutex.Unlock()
+
+	if peer, exists := ha.peers[peerID]; exists {
+		peer.Healthy = false
+	}
 }
 
 // IsLeader 检查当前节点是否为领导者

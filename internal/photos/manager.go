@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 
@@ -657,7 +658,39 @@ func (m *Manager) QueryPhotos(query *PhotoQuery) ([]*Photo, int, error) {
 	}
 
 	// 排序
-	// TODO: 实现排序逻辑
+	sort.Slice(result, func(i, j int) bool {
+		switch query.SortBy {
+		case "date", "takenAt", "":
+			// 默认按拍摄时间降序
+			if query.SortOrder == "asc" {
+				return result[i].TakenAt.Before(result[j].TakenAt)
+			}
+			return result[i].TakenAt.After(result[j].TakenAt)
+		case "name", "filename":
+			if query.SortOrder == "desc" {
+				return result[i].Filename > result[j].Filename
+			}
+			return result[i].Filename < result[j].Filename
+		case "size":
+			if query.SortOrder == "desc" {
+				return result[i].Size > result[j].Size
+			}
+			return result[i].Size < result[j].Size
+		case "uploadedAt", "createdAt":
+			if query.SortOrder == "desc" {
+				return result[i].UploadedAt.After(result[j].UploadedAt)
+			}
+			return result[i].UploadedAt.Before(result[j].UploadedAt)
+		case "modifiedAt":
+			if query.SortOrder == "desc" {
+				return result[i].ModifiedAt.After(result[j].ModifiedAt)
+			}
+			return result[i].ModifiedAt.Before(result[j].ModifiedAt)
+		default:
+			// 默认按拍摄时间降序
+			return result[i].TakenAt.After(result[j].TakenAt)
+		}
+	})
 
 	total := len(result)
 

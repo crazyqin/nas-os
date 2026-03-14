@@ -1,11 +1,17 @@
 package action
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/smtp"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 // ActionType 动作类型
@@ -151,8 +157,16 @@ func (a *ConvertAction) Execute(ctx context.Context, contextData map[string]inte
 	case "mp4", "avi", "mkv":
 		cmd = exec.CommandContext(ctx, "ffmpeg", "-i", source, dest)
 	case "pdf":
-		// TODO: 实现 PDF 转换
-		return fmt.Errorf("PDF conversion not implemented")
+		// PDF 转换使用 wkhtmltopdf 或类似工具
+		cmd = exec.CommandContext(ctx, "wkhtmltopdf", source, dest)
+		if _, err := exec.LookPath("wkhtmltopdf"); err != nil {
+			// 回退到其他 PDF 工具
+			if _, err := exec.LookPath("pandoc"); err == nil {
+				cmd = exec.CommandContext(ctx, "pandoc", source, "-o", dest)
+			} else {
+				return fmt.Errorf("PDF conversion requires wkhtmltopdf or pandoc")
+			}
+		}
 	default:
 		return fmt.Errorf("unsupported format: %s", a.Format)
 	}
@@ -180,9 +194,107 @@ func (a *NotifyAction) GetType() ActionType {
 func (a *NotifyAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	message := replaceVariables(a.Message, contextData)
 	title := replaceVariables(a.Title, contextData)
+	to := replaceVariables(a.To, contextData)
 
-	fmt.Printf("Notification [%s]: %s - %s\n", a.Channel, title, message)
-	// TODO: 实现实际的通知发送
+	switch a.Channel {
+	case "email":
+		return sendEmailNotification(to, title, message, false)
+	case "webhook":
+		return sendWebhookNotification(to, title, message)
+	case "discord":
+		return sendDiscordNotification(to, title, message)
+	default:
+		fmt.Printf("Notification [%s]: %s - %s\n", a.Channel, title, message)
+	}
+	return nil
+}
+
+// sendEmailNotification 发送邮件通知
+func sendEmailNotification(to, subject, body string, html bool) error {
+	// 从环境变量获取 SMTP 配置
+	smtpHost := os.Getenv("SMTP_HOST")
+	smtpPort := os.Getenv("SMTP_PORT")
+	smtpUser := os.Getenv("SMTP_USER")
+	smtpPass := os.Getenv("SMTP_PASS")
+	from := os.Getenv("SMTP_FROM")
+
+	if smtpHost == "" {
+		return fmt.Errorf("SMTP 未配置")
+	}
+
+	if smtpPort == "" {
+		smtpPort = "587"
+	}
+
+	// 构建邮件
+	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: %s\n", from, to, subject)
+	if html {
+		msg += "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
+	} else {
+		msg += "Content-Type: text/plain; charset=\"UTF-8\";\n\n"
+	}
+	msg += body
+
+	// 发送邮件
+	auth := smtp.PlainAuth("", smtpUser, smtpPass, smtpHost)
+	addr := fmt.Sprintf("%s:%s", smtpHost, smtpPort)
+
+	return smtp.SendMail(addr, auth, from, []string{to}, []byte(msg))
+}
+
+// sendWebhookNotification 发送 Webhook 通知
+func sendWebhookNotification(url, title, message string) error {
+	payload := map[string]interface{}{
+		"title":     title,
+		"message":   message,
+		"timestamp": time.Now().Unix(),
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("webhook failed with status: %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
+// sendDiscordNotification 发送 Discord 通知
+func sendDiscordNotification(webhookURL, title, message string) error {
+	payload := map[string]interface{}{
+		"embeds": []map[string]interface{}{
+			{
+				"title":       title,
+				"description": message,
+				"color":       5814783, // 蓝色
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post(webhookURL, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("discord webhook failed with status: %d", resp.StatusCode)
+	}
+
 	return nil
 }
 
@@ -232,8 +344,46 @@ func (a *WebhookAction) GetType() ActionType {
 }
 
 func (a *WebhookAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
-	// TODO: 实现 HTTP 请求
-	fmt.Printf("Sending webhook to: %s\n", a.URL)
+	url := replaceVariables(a.URL, contextData)
+	body := replaceVariables(a.Body, contextData)
+
+	method := a.Method
+	if method == "" {
+		method = "POST"
+	}
+
+	var reqBody *bytes.Buffer
+	if body != "" {
+		reqBody = bytes.NewBufferString(body)
+	} else {
+		reqBody = bytes.NewBuffer(nil)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, method, url, reqBody)
+	if err != nil {
+		return fmt.Errorf("create request failed: %w", err)
+	}
+
+	// 设置 headers
+	for key, value := range a.Headers {
+		req.Header.Set(key, replaceVariables(value, contextData))
+	}
+
+	if body != "" && req.Header.Get("Content-Type") == "" {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("webhook request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("webhook failed with status: %d", resp.StatusCode)
+	}
+
 	return nil
 }
 
@@ -252,9 +402,11 @@ func (a *EmailAction) GetType() ActionType {
 }
 
 func (a *EmailAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
-	// TODO: 实现邮件发送
-	fmt.Printf("Sending email to: %s, subject: %s\n", a.To, a.Subject)
-	return nil
+	to := replaceVariables(a.To, contextData)
+	subject := replaceVariables(a.Subject, contextData)
+	body := replaceVariables(a.Body, contextData)
+
+	return sendEmailNotification(to, subject, body, a.HTML)
 }
 
 // ActionConfig 动作配置（用于 JSON 序列化）
@@ -378,9 +530,83 @@ func NewActionFromConfig(config ActionConfig) (Action, error) {
 
 // 辅助函数
 func replaceVariables(s string, contextData map[string]interface{}) string {
-	// 简单的变量替换，支持 {{event.xxx}} 和 {{timestamp}} 等
-	// TODO: 实现更完善的模板引擎
-	return s
+	if contextData == nil {
+		return s
+	}
+
+	result := s
+
+	// 支持 {{variable}} 和 {{nested.path}} 格式
+	for i := 0; i < len(result); i++ {
+		if result[i] == '{' && i+1 < len(result) && result[i+1] == '{' {
+			// 找到结束的 }}
+			end := strings.Index(result[i:], "}}")
+			if end == -1 {
+				continue
+			}
+			end += i
+
+			// 提取变量名
+			varName := strings.TrimSpace(result[i+2 : end])
+
+			// 解析嵌套路径
+			value := getNestedValue(contextData, varName)
+
+			// 替换变量
+			if value != nil {
+				result = result[:i] + fmt.Sprintf("%v", value) + result[end+2:]
+				i-- // 重新检查当前位置
+			} else {
+				// 内置变量
+				switch varName {
+				case "timestamp":
+					result = result[:i] + time.Now().Format(time.RFC3339) + result[end+2:]
+					i--
+				case "date":
+					result = result[:i] + time.Now().Format("2006-01-02") + result[end+2:]
+					i--
+				case "time":
+					result = result[:i] + time.Now().Format("15:04:05") + result[end+2:]
+					i--
+				case "datetime":
+					result = result[:i] + time.Now().Format("2006-01-02 15:04:05") + result[end+2:]
+					i--
+				case "unix":
+					result = result[:i] + fmt.Sprintf("%d", time.Now().Unix()) + result[end+2:]
+					i--
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+// getNestedValue 从嵌套 map 中获取值
+func getNestedValue(data map[string]interface{}, path string) interface{} {
+	parts := strings.Split(path, ".")
+	var current interface{} = data
+
+	for _, part := range parts {
+		switch v := current.(type) {
+		case map[string]interface{}:
+			if val, ok := v[part]; ok {
+				current = val
+			} else {
+				return nil
+			}
+		case map[string]string:
+			if val, ok := v[part]; ok {
+				current = val
+			} else {
+				return nil
+			}
+		default:
+			return nil
+		}
+	}
+
+	return current
 }
 
 func copyFileOrDir(source, dest string, recursive bool) error {

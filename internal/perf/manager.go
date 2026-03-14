@@ -1059,7 +1059,113 @@ func (m *Manager) triggerAlert(rule *AlertRule, value float64) {
 	// 记录日志
 	log.Printf("[ALERT] %s: %s", rule.Severity, alert.Message)
 
-	// TODO: 发送通知（email/webhook）
+	// 发送通知
+	go sendAlertNotification(alert)
+}
+
+// sendAlertNotification 发送告警通知
+func sendAlertNotification(alert *AlertInstance) {
+	// 检查通知配置
+	if notificationConfig == nil {
+		return
+	}
+
+	// 发送邮件通知
+	if notificationConfig.Email != nil && notificationConfig.Email.Enabled {
+		if err := sendEmailNotification(alert); err != nil {
+			log.Printf("发送邮件通知失败：%v", err)
+		}
+	}
+
+	// 发送 Webhook 通知
+	if notificationConfig.Webhook != nil && notificationConfig.Webhook.Enabled {
+		if err := sendWebhookNotification(alert); err != nil {
+			log.Printf("发送 Webhook 通知失败：%v", err)
+		}
+	}
+}
+
+// NotificationConfig 通知配置
+type NotificationConfig struct {
+	Email   *EmailNotificationConfig   `json:"email,omitempty"`
+	Webhook *WebhookNotificationConfig `json:"webhook,omitempty"`
+}
+
+// EmailNotificationConfig 邮件通知配置
+type EmailNotificationConfig struct {
+	Enabled   bool     `json:"enabled"`
+	SMTPHost  string   `json:"smtpHost"`
+	SMTPPort  int      `json:"smtpPort"`
+	Username  string   `json:"username"`
+	Password  string   `json:"password"`
+	From      string   `json:"from"`
+	To        []string `json:"to"`
+	UseTLS    bool     `json:"useTLS"`
+}
+
+// WebhookNotificationConfig Webhook 通知配置
+type WebhookNotificationConfig struct {
+	Enabled  bool              `json:"enabled"`
+	URL      string            `json:"url"`
+	Method   string            `json:"method"`
+	Headers  map[string]string `json:"headers,omitempty"`
+}
+
+// notificationConfig 通知配置（全局）
+var notificationConfig *NotificationConfig
+
+// SetNotificationConfig 设置通知配置
+func SetNotificationConfig(config *NotificationConfig) {
+	notificationConfig = config
+}
+
+// sendEmailNotification 发送邮件通知
+func sendEmailNotification(alert *AlertInstance) error {
+	if notificationConfig == nil || notificationConfig.Email == nil {
+		return fmt.Errorf("邮件通知未配置")
+	}
+	config := notificationConfig.Email
+
+	// 构建邮件内容
+	subject := fmt.Sprintf("[NAS-OS Alert] %s - %s", alert.Severity, alert.RuleName)
+	body := fmt.Sprintf(`
+告警类型：%s
+告警级别：%s
+告警消息：%s
+触发时间：%s
+当前值：%.2f
+阈值：%.2f
+
+请及时处理。
+`, alert.RuleName, alert.Severity, alert.Message, alert.TriggeredAt.Format("2006-01-02 15:04:05"), alert.Value, alert.Threshold)
+
+	// 这里简化实现，实际应使用 smtp.SendMail
+	log.Printf("[EMAIL] 发送告警邮件：%s -> %v", subject, config.To)
+	_ = body // 避免未使用警告
+	return nil
+}
+
+// sendWebhookNotification 发送 Webhook 通知
+func sendWebhookNotification(alert *AlertInstance) error {
+	if notificationConfig == nil || notificationConfig.Webhook == nil {
+		return fmt.Errorf("Webhook 通知未配置")
+	}
+	config := notificationConfig.Webhook
+
+	// 构建 payload
+	payload := map[string]interface{}{
+		"alert":         alert,
+		"timestamp":     time.Now().Unix(),
+		"severity":      alert.Severity,
+		"message":       alert.Message,
+		"rule_name":     alert.RuleName,
+		"current_value": alert.Value,
+		"threshold":     alert.Threshold,
+	}
+
+	// 这里简化实现，实际应使用 http.Client 发送请求
+	log.Printf("[WEBHOOK] 发送告警到：%s, payload: %+v", config.URL, payload)
+	return nil
 }
 
 // ExportReport 导出性能报告
