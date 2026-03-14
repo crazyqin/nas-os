@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.36.0] - 2026-03-15
+
+### Added
+- **i18n 国际化框架增强** (礼部)
+  - 完整的翻译管理系统
+  - 支持 zh-CN、en-US、ja-JP、ko-KR 四种语言
+  - 可扩展的语言包架构
+  - WebUI 多语言切换支持
+
+- **API 中间件系统完善** (兵部)
+  - 统一错误处理中间件 (error_handler.go)
+  - 响应时间记录中间件 (response_time.go)
+  - WebSocket 增强支持 (房间管理、广播、心跳)
+  - 中间件完整测试覆盖
+
+- **成本分析报告** (户部)
+  - 存储成本分析模块 (cost_analysis.go)
+  - 资源使用计费统计
+  - 成本趋势预测
+  - 导出报告支持
+
+- **监控配置增强** (工部)
+  - monitoring.yaml 配置文件
+  - Prometheus 集成优化
+  - 告警规则完善
+
+### Changed
+- 文档国际化完善
+- API 文档更新至 v2.36.0
+- 用户指南重新组织
+- 版本号同步更新
+
+### Fixed
+- LDAP 模块类型定义规范化
+- 配额管理边界条件处理
+
 ## [v2.35.0] - 2026-03-15
 
 ### Added

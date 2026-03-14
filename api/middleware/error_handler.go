@@ -38,13 +38,13 @@ type APIError struct {
 
 // Common error codes
 const (
-	CodeSuccess           = 0
-	CodeBadRequest        = 400
-	CodeUnauthorized      = 401
-	CodeForbidden         = 403
-	CodeNotFound          = 404
-	CodeConflict          = 409
-	CodeInternalError     = 500
+	CodeSuccess            = 0
+	CodeBadRequest         = 400
+	CodeUnauthorized       = 401
+	CodeForbidden          = 403
+	CodeNotFound           = 404
+	CodeConflict           = 409
+	CodeInternalError      = 500
 	CodeServiceUnavailable = 503
 )
 
@@ -79,11 +79,16 @@ func ErrorHandlerMiddleware(config ...ErrorHandlerConfig) gin.HandlerFunc {
 					stack = string(debug.Stack())
 				}
 
-				requestID, _ := c.Get("requestId")
+				var requestID string
+				if rid, exists := c.Get("requestId"); exists {
+					if ridStr, ok := rid.(string); ok {
+						requestID = ridStr
+					}
+				}
 				response := APIError{
 					Code:      CodeInternalError,
 					Message:   "Internal server error",
-					RequestID: requestID.(string),
+					RequestID: requestID,
 					Stack:     stack,
 				}
 
@@ -127,7 +132,12 @@ func ErrorHandlerMiddleware(config ...ErrorHandlerConfig) gin.HandlerFunc {
 
 // mapErrorToAPIError maps an error to an APIError
 func mapErrorToAPIError(err error, c *gin.Context) APIError {
-	requestID, _ := c.Get("requestId")
+	var requestID string
+	if rid, exists := c.Get("requestId"); exists {
+		if ridStr, ok := rid.(string); ok {
+			requestID = ridStr
+		}
+	}
 
 	var message string
 	var code int
@@ -164,7 +174,7 @@ func mapErrorToAPIError(err error, c *gin.Context) APIError {
 	return APIError{
 		Code:      code,
 		Message:   message,
-		RequestID: requestID.(string),
+		RequestID: requestID,
 	}
 }
 
@@ -387,11 +397,16 @@ func RecoverMiddleware() gin.HandlerFunc {
 			if recovered := recover(); recovered != nil {
 				log.Printf("[PANIC] %v\n%s", recovered, debug.Stack())
 
-				requestID, _ := c.Get("requestId")
+				var requestID string
+				if rid, exists := c.Get("requestId"); exists {
+					if ridStr, ok := rid.(string); ok {
+						requestID = ridStr
+					}
+				}
 				c.JSON(http.StatusInternalServerError, APIError{
 					Code:      CodeInternalError,
 					Message:   "Internal server error",
-					RequestID: requestID.(string),
+					RequestID: requestID,
 				})
 				c.Abort()
 			}

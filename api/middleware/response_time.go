@@ -83,9 +83,9 @@ type ResponseTimeStats struct {
 
 // ResponseTimeCollector collects response time statistics
 type ResponseTimeCollector struct {
-	times    []int64
-	mu       sync.RWMutex
-	maxSize  int
+	times   []int64
+	mu      sync.RWMutex
+	maxSize int
 }
 
 var defaultCollector *ResponseTimeCollector
@@ -178,11 +178,15 @@ func percentile(sorted []int64, p int) int64 {
 	if len(sorted) == 0 {
 		return 0
 	}
-	index := (p * len(sorted)) / 100
-	if index >= len(sorted) {
-		index = len(sorted) - 1
+	// Use linear interpolation for more accurate percentile
+	index := float64(p) / 100.0 * float64(len(sorted)-1)
+	lower := int(index)
+	upper := lower + 1
+	if upper >= len(sorted) {
+		return sorted[len(sorted)-1]
 	}
-	return sorted[index]
+	weight := index - float64(lower)
+	return int64(float64(sorted[lower])*(1-weight) + float64(sorted[upper])*weight)
 }
 
 // ResponseTimeWithCollector creates middleware that records to a collector

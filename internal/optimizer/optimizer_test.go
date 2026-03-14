@@ -33,7 +33,7 @@ func TestDefaultConfig(t *testing.T) {
 func TestNewOptimizer(t *testing.T) {
 	cfg := DefaultConfig()
 	cfg.GCInterval = time.Minute // 确保有效的 GCInterval
-	
+
 	opt := NewOptimizer(cfg, nil)
 
 	if opt == nil {
@@ -143,7 +143,7 @@ func TestGetStats(t *testing.T) {
 	cfg.GCInterval = time.Minute // 确保有效的 GCInterval
 
 	opt := NewOptimizer(cfg, nil)
-	
+
 	// 等待 goroutine 启动
 	time.Sleep(10 * time.Millisecond)
 	defer opt.Stop()
@@ -236,12 +236,12 @@ func TestOptimizeQueryWithCacheDisabled(t *testing.T) {
 
 func TestBatchProcess(t *testing.T) {
 	cfg := &Config{
-		BatchEnabled:  true,
-		BatchSize:     3,
-		BatchTimeout:  10 * time.Millisecond,
-		CacheEnabled:  false,
-		GCEnabled:     false,
-		GCInterval:    time.Minute, // 添加有效的 GCInterval
+		BatchEnabled: true,
+		BatchSize:    3,
+		BatchTimeout: 10 * time.Millisecond,
+		CacheEnabled: false,
+		GCEnabled:    false,
+		GCInterval:   time.Minute, // 添加有效的 GCInterval
 	}
 
 	opt := NewOptimizer(cfg, nil)
@@ -271,11 +271,11 @@ func TestBatchProcess(t *testing.T) {
 
 func TestBatchProcessDisabled(t *testing.T) {
 	cfg := &Config{
-		BatchEnabled:  false,
-		BatchSize:     3,
-		CacheEnabled:  false,
-		GCEnabled:     false,
-		GCInterval:    time.Minute, // 添加有效的 GCInterval
+		BatchEnabled: false,
+		BatchSize:    3,
+		CacheEnabled: false,
+		GCEnabled:    false,
+		GCInterval:   time.Minute, // 添加有效的 GCInterval
 	}
 
 	opt := NewOptimizer(cfg, nil)
@@ -301,11 +301,11 @@ func TestBatchProcessDisabled(t *testing.T) {
 
 func TestBatchProcessWithError(t *testing.T) {
 	cfg := &Config{
-		BatchEnabled:  true,
-		BatchSize:     3,
-		CacheEnabled:  false,
-		GCEnabled:     false,
-		GCInterval:    time.Minute, // 添加有效的 GCInterval
+		BatchEnabled: true,
+		BatchSize:    3,
+		CacheEnabled: false,
+		GCEnabled:    false,
+		GCInterval:   time.Minute, // 添加有效的 GCInterval
 	}
 
 	opt := NewOptimizer(cfg, nil)
@@ -329,9 +329,9 @@ func TestBatchProcessWithError(t *testing.T) {
 func TestGetConfig(t *testing.T) {
 	cfg := DefaultConfig()
 	cfg.GCInterval = time.Minute // 确保有效的 GCInterval
-	
+
 	opt := NewOptimizer(cfg, nil)
-	
+
 	// 等待 goroutine 启动
 	time.Sleep(10 * time.Millisecond)
 	defer opt.Stop()
@@ -350,9 +350,9 @@ func TestGetConfig(t *testing.T) {
 func TestUpdateConfig(t *testing.T) {
 	cfg := DefaultConfig()
 	cfg.GCInterval = time.Minute // 确保有效的 GCInterval
-	
+
 	opt := NewOptimizer(cfg, nil)
-	
+
 	// 等待 goroutine 启动
 	time.Sleep(10 * time.Millisecond)
 	defer opt.Stop()

@@ -143,7 +143,7 @@ func TestErrorResponder(t *testing.T) {
 	})
 
 	tests := []struct {
-		path       string
+		path         string
 		expectedCode int
 	}{
 		{"/bad-request", http.StatusBadRequest},
