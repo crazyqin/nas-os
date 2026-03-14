@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.22.0] - 2026-03-15
+
+### Added
+- **Photos AI 增强** (兵部)
+  - HEIC 转 JPEG 支持（使用 ffmpeg）
+  - 日期范围匹配
+  - 回忆查询功能
+  - 云端 API 调用框架（Azure Face API、AWS Rekognition）
+
+- **Photos 处理器增强** (兵部)
+  - 多尺寸缩略图支持
+  - 从认证信息获取 userID
+  - 实际使用空间计算
+
+- **分层存储增强** (兵部)
+  - 下次执行时间计算
+
+- **自动化触发器** (礼部)
+  - 文件监控（基于 fsnotify）
+  - 事件订阅系统
+  - Webhook 端点实现
+  - HMAC 签名验证
+
+### Fixed
+- **集群竞态条件修复**
+  - 修复 `TestEdgeIntegration` 中 edgeManager 未设置的竞态条件
+  - 将 `SetEdgeManager` 调用移到 `Initialize` 之前
+
 ## [v2.21.0] - 2026-03-15
 
 ### Added

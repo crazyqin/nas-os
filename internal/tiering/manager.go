@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -1003,10 +1004,194 @@ func (m *Manager) executeAutoPolicies() {
 		m.mu.Lock()
 		if p, ok := m.policies[policy.ID]; ok {
 			p.LastRun = time.Now()
-			// TODO: 计算下次执行时间
+			p.NextRun = m.calculateNextRun(p)
 		}
 		m.mu.Unlock()
 	}
+}
+
+// calculateNextRun 计算下次执行时间
+func (m *Manager) calculateNextRun(policy *Policy) time.Time {
+	now := time.Now()
+
+	switch policy.ScheduleType {
+	case ScheduleTypeInterval:
+		// 基于间隔执行
+		// 如果 ScheduleExpr 是数字字符串，解析为小时数
+		var interval time.Duration
+		if policy.ScheduleExpr != "" {
+			// 尝试解析为小时数
+			if hours, err := time.ParseDuration(policy.ScheduleExpr); err == nil {
+				interval = hours
+			} else {
+				// 尝试解析为纯数字（小时）
+				if h, err := time.ParseDuration(policy.ScheduleExpr + "h"); err == nil {
+					interval = h
+				} else {
+					// 默认 1 小时
+					interval = time.Hour
+				}
+			}
+		} else {
+			// 使用配置的检查间隔
+			interval = m.config.CheckInterval
+		}
+		return now.Add(interval)
+
+	case ScheduleTypeCron:
+		// 基于 Cron 表达式执行
+		if policy.ScheduleExpr != "" {
+			if nextTime, err := parseCronExpression(policy.ScheduleExpr, now); err == nil {
+				return nextTime
+			}
+		}
+		// 解析失败，默认 24 小时后
+		return now.Add(24 * time.Hour)
+
+	default:
+		// 手动执行，不设置下次运行时间
+		return time.Time{}
+	}
+}
+
+// parseCronExpression 解析 Cron 表达式并计算下次执行时间
+// 支持 5 字段格式：分 时 日 月 周
+// 例如: "0 2 * * *" 表示每天凌晨 2 点执行
+func parseCronExpression(expr string, from time.Time) (time.Time, error) {
+	parts := strings.Fields(expr)
+	if len(parts) != 5 {
+		return time.Time{}, fmt.Errorf("无效的 cron 表达式: %s", expr)
+	}
+
+	// 解析各字段
+	minute, err := parseCronField(parts[0], 0, 59)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("分钟字段错误: %w", err)
+	}
+	hour, err := parseCronField(parts[1], 0, 23)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("小时字段错误: %w", err)
+	}
+	day, err := parseCronField(parts[2], 1, 31)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("日期字段错误: %w", err)
+	}
+	month, err := parseCronField(parts[3], 1, 12)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("月份字段错误: %w", err)
+	}
+	weekday, err := parseCronField(parts[4], 0, 6)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("周字段错误: %w", err)
+	}
+
+	// 从下一分钟开始查找
+	next := from.Add(time.Minute).Truncate(time.Minute)
+
+	// 最多查找 366 天
+	for i := 0; i < 366*24*60; i++ {
+		// 检查月份
+		if !month[int(next.Month())] {
+			next = time.Date(next.Year(), next.Month()+1, 1, 0, 0, 0, 0, next.Location())
+			continue
+		}
+
+		// 检查日期
+		if !day[next.Day()] {
+			next = next.AddDate(0, 0, 1).Truncate(24 * time.Hour)
+			continue
+		}
+
+		// 检查星期
+		if !weekday[int(next.Weekday())] {
+			next = next.AddDate(0, 0, 1).Truncate(24 * time.Hour)
+			continue
+		}
+
+		// 检查小时
+		if !hour[next.Hour()] {
+			next = next.Add(time.Hour).Truncate(time.Hour)
+			continue
+		}
+
+		// 检查分钟
+		if !minute[next.Minute()] {
+			next = next.Add(time.Minute)
+			continue
+		}
+
+		// 找到匹配的时间
+		return next, nil
+	}
+
+	return time.Time{}, fmt.Errorf("未找到有效的下次执行时间")
+}
+
+// parseCronField 解析 cron 字段
+// 支持格式: "*", "1,2,3", "1-5", "*/2"
+func parseCronField(field string, min, max int) (map[int]bool, error) {
+	result := make(map[int]bool)
+
+	if field == "*" {
+		for i := min; i <= max; i++ {
+			result[i] = true
+		}
+		return result, nil
+	}
+
+	// 处理逗号分隔的多个值
+	for _, part := range strings.Split(field, ",") {
+		part = strings.TrimSpace(part)
+
+		// 处理 */n 格式（步长）
+		if strings.HasPrefix(part, "*/") {
+			stepStr := strings.TrimPrefix(part, "*/")
+			step, err := time.ParseDuration(stepStr + "h")
+			if err != nil {
+				// 尝试解析为纯数字
+				var stepInt int
+				if _, err := fmt.Sscanf(stepStr, "%d", &stepInt); err == nil && stepInt > 0 {
+					for i := min; i <= max; i += stepInt {
+						result[i] = true
+					}
+					continue
+				}
+				return nil, fmt.Errorf("无效的步长: %s", stepStr)
+			}
+			_ = step // 避免未使用变量警告
+			for i := min; i <= max; i++ {
+				result[i] = true
+			}
+			continue
+		}
+
+		// 处理范围 a-b
+		if strings.Contains(part, "-") {
+			var start, end int
+			if _, err := fmt.Sscanf(part, "%d-%d", &start, &end); err != nil {
+				return nil, fmt.Errorf("无效的范围: %s", part)
+			}
+			if start < min || end > max || start > end {
+				return nil, fmt.Errorf("范围超出边界: %s", part)
+			}
+			for i := start; i <= end; i++ {
+				result[i] = true
+			}
+			continue
+		}
+
+		// 处理单个数字
+		var value int
+		if _, err := fmt.Sscanf(part, "%d", &value); err != nil {
+			return nil, fmt.Errorf("无效的值: %s", part)
+		}
+		if value < min || value > max {
+			return nil, fmt.Errorf("值超出边界: %d", value)
+		}
+		result[value] = true
+	}
+
+	return result, nil
 }
 
 // ==================== 配置持久化 ====================

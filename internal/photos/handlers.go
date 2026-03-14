@@ -709,32 +709,67 @@ func (h *Handlers) downloadPhoto(c *gin.Context) {
 // getThumbnail 获取缩略图
 func (h *Handlers) getThumbnail(c *gin.Context) {
 	photoID := c.Param("id")
-	size := c.Param("size")
+	sizeParam := c.Param("size")
 
-	if size == "" {
-		size = "512"
-	}
-	_ = size // TODO: 实现不同尺寸缩略图支持
-
-	// 查找缩略图文件
-	thumbFiles, _ := filepath.Glob(filepath.Join(h.manager.thumbsDir, fmt.Sprintf("%s_*.jpg", photoID)))
-	if len(thumbFiles) == 0 {
-		// 如果没有缩略图，返回原图
-		photo, err := h.manager.GetPhoto(photoID)
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{
-				"code":    404,
-				"message": "照片不存在",
-			})
-			return
+	// 解析尺寸参数
+	var targetSize int
+	switch sizeParam {
+	case "", "medium", "512":
+		targetSize = 512
+	case "small", "128":
+		targetSize = 128
+	case "large", "1024":
+		targetSize = 1024
+	case "original", "2048":
+		targetSize = 2048
+	default:
+		// 尝试解析数字
+		if parsed, err := strconv.Atoi(sizeParam); err == nil && parsed > 0 {
+			targetSize = parsed
+		} else {
+			targetSize = 512 // 默认中等尺寸
 		}
-		photoPath := filepath.Join(h.manager.photosDir, photo.Path)
-		c.File(photoPath)
+	}
+
+	// 查找最匹配的缩略图文件
+	// 优先查找精确匹配，然后查找更大的尺寸
+	sizes := []int{128, 512, 1024, 2048}
+	var bestMatch string
+	var bestSize int
+
+	for _, size := range sizes {
+		thumbPath := filepath.Join(h.manager.thumbsDir, fmt.Sprintf("%s_%d.jpg", photoID, size))
+		if _, err := os.Stat(thumbPath); err == nil {
+			if size == targetSize {
+				// 精确匹配，直接返回
+				c.File(thumbPath)
+				return
+			}
+			if size >= targetSize && (bestMatch == "" || size < bestSize) {
+				bestMatch = thumbPath
+				bestSize = size
+			}
+		}
+	}
+
+	// 如果找到合适的缩略图
+	if bestMatch != "" {
+		c.File(bestMatch)
 		return
 	}
 
-	// 返回第一个匹配的缩略图
-	c.File(thumbFiles[0])
+	// 如果没有缩略图，返回原图
+	photo, err := h.manager.GetPhoto(photoID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "照片不存在",
+		})
+		return
+	}
+
+	photoPath := filepath.Join(h.manager.photosDir, photo.Path)
+	c.File(photoPath)
 }
 
 // AlbumRequest 相册请求
@@ -754,8 +789,8 @@ func (h *Handlers) createAlbum(c *gin.Context) {
 		return
 	}
 
-	// TODO: 从认证信息获取 userID
-	userID := "default"
+	// 从认证信息获取 userID
+	userID := getUserIDFromContext(c)
 
 	album, err := h.manager.CreateAlbum(req.Name, req.Description, userID)
 	if err != nil {
@@ -773,10 +808,45 @@ func (h *Handlers) createAlbum(c *gin.Context) {
 	})
 }
 
+// getUserIDFromContext 从上下文获取用户 ID
+func getUserIDFromContext(c *gin.Context) string {
+	// 尝试从上下文获取用户信息（通常由认证中间件设置）
+	if userID, exists := c.Get("userID"); exists {
+		if id, ok := userID.(string); ok && id != "" {
+			return id
+		}
+	}
+	if userID, exists := c.Get("userId"); exists {
+		if id, ok := userID.(string); ok && id != "" {
+			return id
+		}
+	}
+	// 尝试从 JWT claims 获取
+	if claims, exists := c.Get("claims"); exists {
+		if m, ok := claims.(map[string]interface{}); ok {
+			if sub, ok := m["sub"].(string); ok && sub != "" {
+				return sub
+			}
+			if uid, ok := m["user_id"].(string); ok && uid != "" {
+				return uid
+			}
+		}
+	}
+	// 尝试从请求头获取
+	if authHeader := c.GetHeader("X-User-ID"); authHeader != "" {
+		return authHeader
+	}
+	// 默认值
+	return "default"
+}
+
 // listAlbums 列出相册
 func (h *Handlers) listAlbums(c *gin.Context) {
-	// TODO: 从认证信息获取 userID
-	userID := c.Query("userId")
+	// 从认证信息或查询参数获取 userID
+	userID := getUserIDFromContext(c)
+	if queryUserID := c.Query("userId"); queryUserID != "" {
+		userID = queryUserID
+	}
 
 	albums := h.manager.ListAlbums(userID)
 
@@ -1205,6 +1275,30 @@ func (h *Handlers) getStats(c *gin.Context) {
 	totalAlbums := len(h.manager.albums)
 	totalPersons := len(h.manager.persons)
 
+	// 计算实际使用空间
+	var storageUsed uint64
+	for _, photo := range h.manager.photos {
+		storageUsed += photo.Size
+	}
+
+	// 计算缩略图空间
+	var thumbsUsed int64
+	filepath.Walk(h.manager.thumbsDir, func(path string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() {
+			thumbsUsed += info.Size()
+		}
+		return nil
+	})
+
+	// 计算缓存空间
+	var cacheUsed int64
+	filepath.Walk(h.manager.cacheDir, func(path string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() {
+			cacheUsed += info.Size()
+		}
+		return nil
+	})
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -1212,7 +1306,10 @@ func (h *Handlers) getStats(c *gin.Context) {
 			"totalPhotos":  totalPhotos,
 			"totalAlbums":  totalAlbums,
 			"totalPersons": totalPersons,
-			"storageUsed":  0, // TODO: 计算实际使用空间
+			"storageUsed":  storageUsed,
+			"thumbsUsed":   uint64(thumbsUsed),
+			"cacheUsed":    uint64(cacheUsed),
+			"totalUsed":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),
 		},
 	})
 }
