@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.11.1] - 2026-03-14
+
+### Fixed
+- **依赖修复**
+  - 修复 gin 依赖版本约束，解决编译兼容性问题
+
+- **CI/CD 修复**
+  - 修复 GitHub Actions 工作流配置
+  - 重新发布 v2.11.1 版本
+
 ## [v2.11.0] - 2026-03-14
 
 ### Fixed
