@@ -401,9 +401,10 @@ func (am *AlertingManager) GetAlertStats() map[string]interface{} {
 		if alert.Acknowledged {
 			acknowledged++
 		}
-		if alert.Level == "critical" {
+		switch alert.Level {
+		case "critical":
 			critical++
-		} else if alert.Level == "warning" {
+		case "warning":
 			warning++
 		}
 	}

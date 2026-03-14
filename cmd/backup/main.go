@@ -589,9 +589,10 @@ func handleHealth(args []string) {
 	fmt.Printf("================\n\n")
 
 	statusEmoji := "✅"
-	if result.Status == "warning" {
+	switch result.Status {
+	case "warning":
 		statusEmoji = "⚠️"
-	} else if result.Status == "critical" {
+	case "critical":
 		statusEmoji = "❌"
 	}
 

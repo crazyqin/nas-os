@@ -360,11 +360,14 @@ func (h *Handlers) addAlert(alert *Alert) {
 
 	// 发送通知
 	if h.notifyMgr != nil {
-		level := notify.LevelInfo
-		if alert.Level == "warning" {
+		var level notify.AlertLevel
+		switch alert.Level {
+		case "warning":
 			level = notify.LevelWarning
-		} else if alert.Level == "critical" {
+		case "critical":
 			level = notify.LevelCritical
+		default:
+			level = notify.LevelInfo
 		}
 
 		notif := &notify.Notification{

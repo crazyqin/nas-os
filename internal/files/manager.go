@@ -567,9 +567,10 @@ func (h *Handlers) getThumbnail(c *gin.Context) {
 	fileType := h.manager.GetFileType(path)
 	var thumb string
 
-	if fileType == FileTypeImage {
+	switch fileType {
+	case FileTypeImage:
 		thumb, _, _ = h.manager.GenerateImageThumbnail(path)
-	} else if fileType == FileTypeVideo {
+	case FileTypeVideo:
 		thumb = h.manager.GenerateVideoThumbnail(path)
 	}
 

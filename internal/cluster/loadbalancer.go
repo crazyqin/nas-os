@@ -529,10 +529,9 @@ func (lb *LoadBalancer) CreateProxy() http.Handler {
 
 		// 记录请求
 		start := time.Now()
-		originalDirector := proxy.Director
-		proxy.Director = func(req *http.Request) {
-			originalDirector(req)
-			req.Host = target.Host
+		proxy.Rewrite = func(pr *httputil.ProxyRequest) {
+			pr.SetURL(target)
+			pr.Out.Host = target.Host
 		}
 
 		// 包装响应写入器以记录状态

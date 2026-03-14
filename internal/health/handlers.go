@@ -55,9 +55,10 @@ func (h *Handlers) getHealth(c *gin.Context) {
 
 	// 根据状态设置 HTTP 状态码
 	httpStatus := http.StatusOK
-	if report.Status == StatusUnhealthy {
+	switch report.Status {
+	case StatusUnhealthy:
 		httpStatus = http.StatusServiceUnavailable
-	} else if report.Status == StatusDegraded {
+	case StatusDegraded:
 		httpStatus = http.StatusOK // 降级状态仍然返回 200
 	}
 

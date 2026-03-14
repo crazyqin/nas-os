@@ -628,9 +628,10 @@ func (h *HandlersV2) getSystemSummary(c *gin.Context) {
 			summary.OverHardCount++
 		}
 
-		if usage.Type == QuotaTypeUser {
+		switch usage.Type {
+		case QuotaTypeUser:
 			userSet[usage.TargetID] = true
-		} else if usage.Type == QuotaTypeGroup {
+		case QuotaTypeGroup:
 			groupSet[usage.TargetID] = true
 		}
 	}

@@ -148,16 +148,22 @@ func (hc *HealthChecker) Run() *SystemHealth {
 		health.Checks = append(health.Checks, result)
 
 		// 更新整体状态
-		if result.Status == HealthStatusUnhealthy && health.Status != HealthStatusUnhealthy {
-			health.Status = HealthStatusUnhealthy
-		} else if result.Status == HealthStatusDegraded && health.Status == HealthStatusHealthy {
-			health.Status = HealthStatusDegraded
+		switch result.Status {
+		case HealthStatusUnhealthy:
+			if health.Status != HealthStatusUnhealthy {
+				health.Status = HealthStatusUnhealthy
+			}
+		case HealthStatusDegraded:
+			if health.Status == HealthStatusHealthy {
+				health.Status = HealthStatusDegraded
+			}
 		}
 
 		// 扣减分数
-		if result.Status == HealthStatusDegraded {
+		switch result.Status {
+		case HealthStatusDegraded:
 			health.Score -= 10
-		} else if result.Status == HealthStatusUnhealthy {
+		case HealthStatusUnhealthy:
 			health.Score -= 25
 		}
 

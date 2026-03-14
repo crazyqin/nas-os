@@ -1283,10 +1283,10 @@ func (m *Manager) exportHTML(report *PerformanceReport) ([]byte, error) {
     <tr><th>路径</th><th>方法</th><th>请求数</th><th>错误率</th><th>平均响应时间</th><th>P95响应时间</th></tr>
 `)
 	for _, ep := range report.Endpoints {
-		buf.WriteString(fmt.Sprintf(`<tr>
+		fmt.Fprintf(&buf, `<tr>
         <td>%s</td><td>%s</td><td>%d</td><td>%.2f%%</td><td>%.0fms</td><td>%.0fms</td>
     </tr>
-`, ep.Path, ep.Method, ep.RequestCount, ep.ErrorRate, ep.AvgDuration, ep.P95Duration))
+`, ep.Path, ep.Method, ep.RequestCount, ep.ErrorRate, ep.AvgDuration, ep.P95Duration)
 	}
 	buf.WriteString(`</table>
 `)
@@ -1296,10 +1296,10 @@ func (m *Manager) exportHTML(report *PerformanceReport) ([]byte, error) {
 		buf.WriteString(`<h2>活跃告警</h2>
 `)
 		for _, alert := range report.Alerts {
-			buf.WriteString(fmt.Sprintf(`<div class="alert">
+			fmt.Fprintf(&buf, `<div class="alert">
     <strong>%s</strong>: %s (当前值: %.2f, 阈值: %.2f)
 </div>
-`, alert.Severity, alert.Message, alert.Value, alert.Threshold))
+`, alert.Severity, alert.Message, alert.Value, alert.Threshold)
 		}
 	}
 
@@ -1325,33 +1325,33 @@ func (m *Manager) exportMarkdown(report *PerformanceReport) ([]byte, error) {
 	var buf bytes.Buffer
 
 	buf.WriteString("# NAS-OS 性能报告\n\n")
-	buf.WriteString(fmt.Sprintf("**生成时间**: %s\n\n", report.GeneratedAt.Format("2006-01-02 15:04:05")))
+	fmt.Fprintf(&buf, "**生成时间**: %s\n\n", report.GeneratedAt.Format("2006-01-02 15:04:05"))
 
 	// 摘要
 	buf.WriteString("## 性能摘要\n\n")
 	buf.WriteString("| 指标 | 值 |\n|------|------|\n")
-	buf.WriteString(fmt.Sprintf("| 总请求数 | %d |\n", report.Summary.TotalRequests))
-	buf.WriteString(fmt.Sprintf("| 总错误数 | %d |\n", report.Summary.TotalErrors))
-	buf.WriteString(fmt.Sprintf("| 错误率 | %.2f%% |\n", report.Summary.ErrorRate))
-	buf.WriteString(fmt.Sprintf("| 平均响应时间 | %.0fms |\n", report.Summary.AvgResponseTime))
-	buf.WriteString(fmt.Sprintf("| P95响应时间 | %.0fms |\n", report.Summary.P95ResponseTime))
-	buf.WriteString(fmt.Sprintf("| 峰值RPS | %.2f |\n\n", report.Summary.PeakRPS))
+	fmt.Fprintf(&buf, "| 总请求数 | %d |\n", report.Summary.TotalRequests)
+	fmt.Fprintf(&buf, "| 总错误数 | %d |\n", report.Summary.TotalErrors)
+	fmt.Fprintf(&buf, "| 错误率 | %.2f%% |\n", report.Summary.ErrorRate)
+	fmt.Fprintf(&buf, "| 平均响应时间 | %.0fms |\n", report.Summary.AvgResponseTime)
+	fmt.Fprintf(&buf, "| P95响应时间 | %.0fms |\n", report.Summary.P95ResponseTime)
+	fmt.Fprintf(&buf, "| 峰值RPS | %.2f |\n\n", report.Summary.PeakRPS)
 
 	// 端点
 	buf.WriteString("## 端点性能\n\n")
 	buf.WriteString("| 路径 | 方法 | 请求数 | 错误率 | 平均响应时间 | P95响应时间 |\n")
 	buf.WriteString("|------|------|--------|--------|--------------|-------------|\n")
 	for _, ep := range report.Endpoints {
-		buf.WriteString(fmt.Sprintf("| %s | %s | %d | %.2f%% | %.0fms | %.0fms |\n",
-			ep.Path, ep.Method, ep.RequestCount, ep.ErrorRate, ep.AvgDuration, ep.P95Duration))
+		fmt.Fprintf(&buf, "| %s | %s | %d | %.2f%% | %.0fms | %.0fms |\n",
+			ep.Path, ep.Method, ep.RequestCount, ep.ErrorRate, ep.AvgDuration, ep.P95Duration)
 	}
 
 	// 告警
 	if len(report.Alerts) > 0 {
 		buf.WriteString("\n## 活跃告警\n\n")
 		for _, alert := range report.Alerts {
-			buf.WriteString(fmt.Sprintf("- **%s**: %s (当前值: %.2f, 阈值: %.2f)\n",
-				alert.Severity, alert.Message, alert.Value, alert.Threshold))
+			fmt.Fprintf(&buf, "- **%s**: %s (当前值: %.2f, 阈值: %.2f)\n",
+				alert.Severity, alert.Message, alert.Value, alert.Threshold)
 		}
 	}
 
@@ -1359,7 +1359,7 @@ func (m *Manager) exportMarkdown(report *PerformanceReport) ([]byte, error) {
 	if len(report.Recommendations) > 0 {
 		buf.WriteString("\n## 性能建议\n\n")
 		for _, rec := range report.Recommendations {
-			buf.WriteString(fmt.Sprintf("- %s\n", rec))
+			fmt.Fprintf(&buf, "- %s\n", rec)
 		}
 	}
 

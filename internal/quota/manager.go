@@ -110,15 +110,16 @@ func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 	defer m.mu.Unlock()
 
 	// 验证目标存在
-	if input.Type == QuotaTypeUser {
+	switch input.Type {
+	case QuotaTypeUser:
 		if m.userProvider != nil && !m.userProvider.UserExists(input.TargetID) {
 			return nil, ErrUserNotFound
 		}
-	} else if input.Type == QuotaTypeGroup {
+	case QuotaTypeGroup:
 		if m.userProvider != nil && !m.userProvider.GroupExists(input.TargetID) {
 			return nil, ErrGroupNotFound
 		}
-	} else if input.Type == QuotaTypeDirectory {
+	case QuotaTypeDirectory:
 		// 验证目录存在
 		if input.Path == "" {
 			return nil, fmt.Errorf("目录配额需要指定路径")
