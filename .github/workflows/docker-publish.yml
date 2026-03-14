@@ -82,6 +82,9 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             
+            # SHA 标签（用于安全扫描）
+            type=sha,prefix=,suffix=,format=short
+            
             # latest (仅 main 分支)
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
             
@@ -151,13 +154,16 @@ jobs:
       
       - name: 拉取镜像进行扫描
         run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest || echo "镜像拉取失败，使用 SHA 标签..."
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} || true
+          # 获取短 SHA
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+          echo "尝试拉取镜像..."
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA || docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest || true
       
       - name: 运行 Trivy 扫描
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
