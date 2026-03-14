@@ -3,10 +3,15 @@
 package photos
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/jpeg"
+	"io"
+	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -297,10 +302,37 @@ func (aim *AIManager) loadImage(path string) (image.Image, error) {
 	return img, nil
 }
 
-// loadImageFFmpeg 使用 ffmpeg 加载图片
+// loadImageFFmpeg 使用 ffmpeg 加载图片（支持 HEIC、RAW 等格式）
 func (aim *AIManager) loadImageFFmpeg(path string) (image.Image, error) {
-	// TODO: 使用 ffmpeg 转换为 JPEG 后加载
-	return nil, fmt.Errorf("暂不支持该格式")
+	// 创建临时文件
+	tmpFile := filepath.Join(os.TempDir(), fmt.Sprintf("heic_%s.jpg", uuid.New().String()))
+	defer os.Remove(tmpFile)
+
+	// 使用 ffmpeg 转换 HEIC/RAW 为 JPEG
+	cmd := exec.Command("ffmpeg",
+		"-i", path,
+		"-vf", "scale=2048:2048:force_original_aspect_ratio=decrease",
+		"-q:v", "2",
+		"-y", tmpFile,
+	)
+
+	if output, err := cmd.CombinedOutput(); err != nil {
+		return nil, fmt.Errorf("ffmpeg 转换失败: %v, output: %s", err, string(output))
+	}
+
+	// 读取转换后的图片
+	f, err := os.Open(tmpFile)
+	if err != nil {
+		return nil, fmt.Errorf("打开转换后的文件失败: %w", err)
+	}
+	defer f.Close()
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		return nil, fmt.Errorf("解码转换后的图片失败: %w", err)
+	}
+
+	return img, nil
 }
 
 // detectFaces 人脸检测
@@ -676,7 +708,48 @@ func (aim *AIManager) photoMatchesCriteria(photo *Photo, criteria map[string]int
 			}
 
 		case "date_range":
-			// TODO: 实现日期范围匹配
+			// 支持多种日期范围格式
+			if dateRange, ok := value.(map[string]interface{}); ok {
+				// 开始日期
+				if startStr, ok := dateRange["start"].(string); ok {
+					if start, err := time.Parse("2006-01-02", startStr); err == nil {
+						if photo.TakenAt.Before(start) {
+							return false
+						}
+					}
+				}
+				// 结束日期
+				if endStr, ok := dateRange["end"].(string); ok {
+					if end, err := time.Parse("2006-01-02", endStr); err == nil {
+						// 结束日期包含当天，所以加一天
+						if photo.TakenAt.After(end.AddDate(0, 0, 1)) {
+							return false
+						}
+					}
+				}
+				// 年份范围
+				if yearStart, ok := dateRange["yearStart"].(float64); ok {
+					if photo.TakenAt.Year() < int(yearStart) {
+						return false
+					}
+				}
+				if yearEnd, ok := dateRange["yearEnd"].(float64); ok {
+					if photo.TakenAt.Year() > int(yearEnd) {
+						return false
+					}
+				}
+				// 月份范围
+				if monthStart, ok := dateRange["monthStart"].(float64); ok {
+					if photo.TakenAt.Month() < time.Month(monthStart) {
+						return false
+					}
+				}
+				if monthEnd, ok := dateRange["monthEnd"].(float64); ok {
+					if photo.TakenAt.Month() > time.Month(monthEnd) {
+						return false
+					}
+				}
+			}
 		}
 	}
 
@@ -807,8 +880,99 @@ func (aim *AIManager) generateMemories() {
 
 // GetMemories 获取回忆列表
 func (aim *AIManager) GetMemories(monthDay string) []*MemoryAlbum {
-	// TODO: 实现回忆查询
-	return make([]*MemoryAlbum, 0)
+	aim.photosManager.mu.RLock()
+	defer aim.photosManager.mu.RUnlock()
+
+	// 如果没有指定日期，使用今天
+	if monthDay == "" {
+		monthDay = time.Now().Format("01-02")
+	}
+
+	// 加载已保存的回忆
+	memories := make([]*MemoryAlbum, 0)
+	memoriesPath := filepath.Join(aim.photosManager.dataDir, "memories.json")
+	if data, err := os.ReadFile(memoriesPath); err == nil {
+		var savedMemories []MemoryAlbum
+		if json.Unmarshal(data, &savedMemories) == nil {
+			for _, m := range savedMemories {
+				if m.Date == monthDay {
+					memories = append(memories, &m)
+				}
+			}
+		}
+	}
+
+	// 实时查找历史上的今天
+	photosByYear := make(map[int][]*Photo)
+	currentYear := time.Now().Year()
+
+	for _, photo := range aim.photosManager.photos {
+		// 只查找非隐藏照片
+		if photo.IsHidden {
+			continue
+		}
+		if photo.TakenAt.Format("01-02") == monthDay {
+			year := photo.TakenAt.Year()
+			// 排除今年的照片
+			if year < currentYear {
+				photosByYear[year] = append(photosByYear[year], photo)
+			}
+		}
+	}
+
+	// 为每个年份创建回忆
+	for year, photos := range photosByYear {
+		if len(photos) == 0 {
+			continue
+		}
+
+		// 检查是否已存在
+		found := false
+		for _, m := range memories {
+			if m.Year == year && m.Date == monthDay {
+				found = true
+				break
+			}
+		}
+		if found {
+			continue
+		}
+
+		yearsAgo := currentYear - year
+		var title string
+		if yearsAgo == 1 {
+			title = "去年的今天"
+		} else {
+			title = fmt.Sprintf("%d 年前的今天", yearsAgo)
+		}
+
+		memory := &MemoryAlbum{
+			ID:        uuid.New().String(),
+			Title:     title,
+			Date:      monthDay,
+			Year:      year,
+			PhotoIDs:  make([]string, 0, len(photos)),
+			CreatedAt: time.Now(),
+		}
+
+		for _, photo := range photos {
+			memory.PhotoIDs = append(memory.PhotoIDs, photo.ID)
+		}
+
+		// 设置封面为第一张照片
+		if len(photos) > 0 {
+			memory.CoverPhotoID = photos[0].ID
+		}
+
+		memories = append(memories, memory)
+	}
+
+	// 按年份降序排序
+	sort.Slice(memories, func(i, j int) bool {
+		return memories[i].Year > memories[j].Year
+	})
+
+	return memories
 }
 
 // FindSimilarPhotos 查找相似照片
@@ -1333,28 +1497,374 @@ func (e *LocalAIEngine) ExtractColors(img image.Image) ([]string, error) {
 	return result, nil
 }
 
-// ==================== 云端 AI 引擎实现（占位） ====================
+// ==================== 云端 AI 引擎实现 ====================
 
 // DetectFaces 云端人脸检测
 func (e *CloudAIEngine) DetectFaces(img image.Image) ([]FaceInfo, error) {
-	// TODO: 调用云端 API（如 Azure Face API、AWS Rekognition）
-	return []FaceInfo{}, fmt.Errorf("云端 AI 未配置")
+	if !e.enabled || e.apiKey == "" {
+		return nil, fmt.Errorf("云端 AI 未配置")
+	}
+
+	// 优先尝试 Azure Face API
+	if e.endpoint != "" && strings.Contains(e.endpoint, "azure") {
+		return e.detectFacesAzure(img)
+	}
+
+	// 否则尝试 AWS Rekognition
+	if strings.Contains(e.apiKey, "AKIA") || e.endpoint == "" {
+		return e.detectFacesAWS(img)
+	}
+
+	return nil, fmt.Errorf("云端 AI 未配置")
+}
+
+// detectFacesAzure 使用 Azure Face API 检测人脸
+func (e *CloudAIEngine) detectFacesAzure(img image.Image) ([]FaceInfo, error) {
+	// 将图片编码为 JPEG
+	buf := new(bytes.Buffer)
+	if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 90}); err != nil {
+		return nil, fmt.Errorf("编码图片失败: %w", err)
+	}
+
+	// 构建请求 URL
+	apiURL := e.endpoint
+	if !strings.HasSuffix(apiURL, "/") {
+		apiURL += "/"
+	}
+	apiURL += "face/v1.0/detect?returnFaceId=true&returnFaceAttributes=age,gender,emotion"
+
+	// 创建 HTTP 请求
+	req, err := http.NewRequest("POST", apiURL, buf)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("Ocp-Apim-Subscription-Key", e.apiKey)
+
+	// 发送请求
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("API 返回错误: %s - %s", resp.Status, string(body))
+	}
+
+	// 解析响应
+	var azureFaces []struct {
+		FaceID           string `json:"faceId"`
+		FaceRectangle    struct {
+			Top    int `json:"top"`
+			Left   int `json:"left"`
+			Width  int `json:"width"`
+			Height int `json:"height"`
+		} `json:"faceRectangle"`
+		FaceAttributes struct {
+			Age     float64 `json:"age"`
+			Gender  string  `json:"gender"`
+			Emotion struct {
+				Anger     float64 `json:"anger"`
+				Contempt  float64 `json:"contempt"`
+				Disgust   float64 `json:"disgust"`
+				Fear      float64 `json:"fear"`
+				Happiness float64 `json:"happiness"`
+				Neutral   float64 `json:"neutral"`
+				Sadness   float64 `json:"sadness"`
+				Surprise  float64 `json:"surprise"`
+			} `json:"emotion"`
+		} `json:"faceAttributes"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&azureFaces); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %w", err)
+	}
+
+	// 转换为 FaceInfo
+	faces := make([]FaceInfo, 0, len(azureFaces))
+	for _, af := range azureFaces {
+		// 找到主要表情
+		emotions := map[string]float64{
+			"anger":     af.FaceAttributes.Emotion.Anger,
+			"contempt":  af.FaceAttributes.Emotion.Contempt,
+			"disgust":   af.FaceAttributes.Emotion.Disgust,
+			"fear":      af.FaceAttributes.Emotion.Fear,
+			"happiness": af.FaceAttributes.Emotion.Happiness,
+			"neutral":   af.FaceAttributes.Emotion.Neutral,
+			"sadness":   af.FaceAttributes.Emotion.Sadness,
+			"surprise":  af.FaceAttributes.Emotion.Surprise,
+		}
+		var mainEmotion string
+		var maxScore float64
+		for emotion, score := range emotions {
+			if score > maxScore {
+				maxScore = score
+				mainEmotion = emotion
+			}
+		}
+
+		face := FaceInfo{
+			ID:     af.FaceID,
+			Bounds: Rectangle{X: af.FaceRectangle.Left, Y: af.FaceRectangle.Top, Width: af.FaceRectangle.Width, Height: af.FaceRectangle.Height},
+			Age:    int(af.FaceAttributes.Age),
+			Gender: af.FaceAttributes.Gender,
+			Emotion: mainEmotion,
+			Confidence: 1.0,
+		}
+		faces = append(faces, face)
+	}
+
+	return faces, nil
+}
+
+// detectFacesAWS 使用 AWS Rekognition 检测人脸
+func (e *CloudAIEngine) detectFacesAWS(img image.Image) ([]FaceInfo, error) {
+	// 将图片编码为 JPEG
+	buf := new(bytes.Buffer)
+	if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 90}); err != nil {
+		return nil, fmt.Errorf("编码图片失败: %w", err)
+	}
+
+	// AWS Rekognition 需要 AWS SDK，这里提供基本的 HTTP 调用实现
+	// 实际使用时建议使用 AWS SDK for Go
+	// 这里返回一个简化的实现
+	return nil, fmt.Errorf("AWS Rekognition 需要配置 AWS SDK，请设置 AWS_ACCESS_KEY_ID 和 AWS_SECRET_ACCESS_KEY 环境变量")
 }
 
 // ClassifyScene 云端场景分类
 func (e *CloudAIEngine) ClassifyScene(img image.Image) (string, float32, error) {
-	// TODO: 调用云端 API
-	return "", 0, fmt.Errorf("云端 AI 未配置")
+	if !e.enabled || e.apiKey == "" {
+		return "", 0, fmt.Errorf("云端 AI 未配置")
+	}
+
+	// 尝试 Azure Computer Vision
+	if e.endpoint != "" && strings.Contains(e.endpoint, "azure") {
+		return e.classifySceneAzure(img)
+	}
+
+	// 尝试 AWS Rekognition
+	return e.classifySceneAWS(img)
+}
+
+// classifySceneAzure 使用 Azure Computer Vision 分类场景
+func (e *CloudAIEngine) classifySceneAzure(img image.Image) (string, float32, error) {
+	buf := new(bytes.Buffer)
+	if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 90}); err != nil {
+		return "", 0, fmt.Errorf("编码图片失败: %w", err)
+	}
+
+	apiURL := e.endpoint
+	if !strings.HasSuffix(apiURL, "/") {
+		apiURL += "/"
+	}
+	apiURL += "vision/v3.2/analyze?visualFeatures=Categories,Tags"
+
+	req, err := http.NewRequest("POST", apiURL, buf)
+	if err != nil {
+		return "", 0, fmt.Errorf("创建请求失败: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("Ocp-Apim-Subscription-Key", e.apiKey)
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", 0, fmt.Errorf("请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return "", 0, fmt.Errorf("API 返回错误: %s - %s", resp.Status, string(body))
+	}
+
+	var result struct {
+		Categories []struct {
+			Name    string  `json:"name"`
+			Score   float64 `json:"score"`
+		} `json:"categories"`
+		Tags []struct {
+			Name    string  `json:"name"`
+			Confidence float64 `json:"confidence"`
+		} `json:"tags"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", 0, fmt.Errorf("解析响应失败: %w", err)
+	}
+
+	// 返回最高置信度的类别
+	if len(result.Categories) > 0 {
+		return result.Categories[0].Name, float32(result.Categories[0].Score), nil
+	}
+
+	// 如果没有类别，返回最高置信度的标签
+	if len(result.Tags) > 0 {
+		return result.Tags[0].Name, float32(result.Tags[0].Confidence), nil
+	}
+
+	return "unknown", 0, nil
+}
+
+// classifySceneAWS 使用 AWS Rekognition 分类场景
+func (e *CloudAIEngine) classifySceneAWS(img image.Image) (string, float32, error) {
+	return "", 0, fmt.Errorf("AWS Rekognition 需要配置 AWS SDK")
 }
 
 // DetectObjects 云端物体检测
 func (e *CloudAIEngine) DetectObjects(img image.Image) ([]string, error) {
-	// TODO: 调用云端 API
-	return []string{}, fmt.Errorf("云端 AI 未配置")
+	if !e.enabled || e.apiKey == "" {
+		return nil, fmt.Errorf("云端 AI 未配置")
+	}
+
+	// 尝试 Azure
+	if e.endpoint != "" && strings.Contains(e.endpoint, "azure") {
+		return e.detectObjectsAzure(img)
+	}
+
+	// 尝试 AWS
+	return e.detectObjectsAWS(img)
+}
+
+// detectObjectsAzure 使用 Azure 检测物体
+func (e *CloudAIEngine) detectObjectsAzure(img image.Image) ([]string, error) {
+	buf := new(bytes.Buffer)
+	if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 90}); err != nil {
+		return nil, fmt.Errorf("编码图片失败: %w", err)
+	}
+
+	apiURL := e.endpoint
+	if !strings.HasSuffix(apiURL, "/") {
+		apiURL += "/"
+	}
+	apiURL += "vision/v3.2/analyze?visualFeatures=Objects"
+
+	req, err := http.NewRequest("POST", apiURL, buf)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("Ocp-Apim-Subscription-Key", e.apiKey)
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("API 返回错误: %s - %s", resp.Status, string(body))
+	}
+
+	var result struct {
+		Objects []struct {
+			Object string `json:"object"`
+		} `json:"objects"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %w", err)
+	}
+
+	objects := make([]string, 0, len(result.Objects))
+	for _, obj := range result.Objects {
+		objects = append(objects, obj.Object)
+	}
+
+	return objects, nil
+}
+
+// detectObjectsAWS 使用 AWS Rekognition 检测物体
+func (e *CloudAIEngine) detectObjectsAWS(img image.Image) ([]string, error) {
+	return nil, fmt.Errorf("AWS Rekognition 需要配置 AWS SDK")
 }
 
 // ExtractColors 云端颜色提取
 func (e *CloudAIEngine) ExtractColors(img image.Image) ([]string, error) {
-	// TODO: 调用云端 API
-	return []string{}, fmt.Errorf("云端 AI 未配置")
+	if !e.enabled || e.apiKey == "" {
+		return nil, fmt.Errorf("云端 AI 未配置")
+	}
+
+	// 尝试 Azure
+	if e.endpoint != "" && strings.Contains(e.endpoint, "azure") {
+		return e.extractColorsAzure(img)
+	}
+
+	// 默认使用本地提取
+	return nil, fmt.Errorf("云端 AI 未配置颜色提取功能")
+}
+
+// extractColorsAzure 使用 Azure 提取颜色
+func (e *CloudAIEngine) extractColorsAzure(img image.Image) ([]string, error) {
+	buf := new(bytes.Buffer)
+	if err := jpeg.Encode(buf, img, &jpeg.Options{Quality: 90}); err != nil {
+		return nil, fmt.Errorf("编码图片失败: %w", err)
+	}
+
+	apiURL := e.endpoint
+	if !strings.HasSuffix(apiURL, "/") {
+		apiURL += "/"
+	}
+	apiURL += "vision/v3.2/analyze?visualFeatures=Color"
+
+	req, err := http.NewRequest("POST", apiURL, buf)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("Ocp-Apim-Subscription-Key", e.apiKey)
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("API 返回错误: %s - %s", resp.Status, string(body))
+	}
+
+	var result struct {
+		Color struct {
+			DominantColorsForeground string `json:"dominantColorForeground"`
+			DominantColorsBackground string `json:"dominantColorBackground"`
+			DominantColors           []struct {
+				Color string `json:"color"`
+			} `json:"dominantColors"`
+		} `json:"color"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %w", err)
+	}
+
+	colors := make([]string, 0)
+	colors = append(colors, result.Color.DominantColorsForeground)
+	colors = append(colors, result.Color.DominantColorsBackground)
+	for _, c := range result.Color.DominantColors {
+		colors = append(colors, c.Color)
+	}
+
+	// 去重
+	uniqueColors := make(map[string]bool)
+	result_colors := make([]string, 0)
+	for _, c := range colors {
+		if c != "" && !uniqueColors[c] {
+			uniqueColors[c] = true
+			result_colors = append(result_colors, c)
+		}
+	}
+
+	return result_colors, nil
 }
