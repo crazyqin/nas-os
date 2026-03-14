@@ -73,7 +73,7 @@ func (v *PasswordValidator) loadCommonPasswords() {
 		"letmein", "login", "admin", "welcome", "hello",
 		"sunshine", "princess", "football", "baseball", "soccer",
 		"iloveyou", "trustno1", "shadow", "ashley", "michael",
-		"password!", "Password1", "P@ssw0rd", "Passw0rd!",
+		"password!", "Password1", "Password1!", "P@ssw0rd", "Passw0rd!",
 		"qwer1234", "asdf1234", "zxcv1234", "1qaz2wsx",
 		"密码", "密码123", "管理员", "admin123", "root123",
 	}

@@ -166,6 +166,19 @@ func Error(code int, message string) Response {
 
 // ========== 配额管理 API ==========
 
+// listQuotas 列出配额
+// @Summary 列出配额
+// @Description 获取配额列表，支持按类型和卷名过滤
+// @Tags quota
+// @Accept json
+// @Produce json
+// @Param type query string false "配额类型 (user/group/directory)"
+// @Param volume query string false "卷名"
+// @Param username query string false "用户名"
+// @Param groupname query string false "组名"
+// @Success 200 {object} Response{data=[]Quota}
+// @Router /quotas [get]
+// @Security BearerAuth
 func (h *Handlers) listQuotas(c *gin.Context) {
 	quotaType := c.Query("type")
 	volumeName := c.Query("volume")
@@ -204,6 +217,19 @@ func (h *Handlers) listQuotas(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(quotas))
 }
 
+// createQuota 创建配额
+// @Summary 创建配额
+// @Description 创建新的配额配置
+// @Tags quota
+// @Accept json
+// @Produce json
+// @Param quota body QuotaInput true "配额配置"
+// @Success 201 {object} Response{data=Quota}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 409 {object} Response
+// @Router /quotas [post]
+// @Security BearerAuth
 func (h *Handlers) createQuota(c *gin.Context) {
 	var req QuotaInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -229,6 +255,17 @@ func (h *Handlers) createQuota(c *gin.Context) {
 	c.JSON(http.StatusCreated, Success(quota))
 }
 
+// getQuota 获取配额
+// @Summary 获取配额详情
+// @Description 获取指定配额的详细信息
+// @Tags quota
+// @Accept json
+// @Produce json
+// @Param id path string true "配额 ID"
+// @Success 200 {object} Response{data=Quota}
+// @Failure 404 {object} Response
+// @Router /quotas/{id} [get]
+// @Security BearerAuth
 func (h *Handlers) getQuota(c *gin.Context) {
 	id := c.Param("id")
 	quota, err := h.manager.GetQuota(id)
@@ -239,6 +276,19 @@ func (h *Handlers) getQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(quota))
 }
 
+// updateQuota 更新配额
+// @Summary 更新配额
+// @Description 更新指定的配额配置
+// @Tags quota
+// @Accept json
+// @Produce json
+// @Param id path string true "配额 ID"
+// @Param quota body QuotaInput true "配额配置"
+// @Success 200 {object} Response{data=Quota}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Router /quotas/{id} [put]
+// @Security BearerAuth
 func (h *Handlers) updateQuota(c *gin.Context) {
 	id := c.Param("id")
 	var req QuotaInput
@@ -263,6 +313,17 @@ func (h *Handlers) updateQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(quota))
 }
 
+// deleteQuota 删除配额
+// @Summary 删除配额
+// @Description 删除指定的配额配置
+// @Tags quota
+// @Accept json
+// @Produce json
+// @Param id path string true "配额 ID"
+// @Success 200 {object} Response
+// @Failure 404 {object} Response
+// @Router /quotas/{id} [delete]
+// @Security BearerAuth
 func (h *Handlers) deleteQuota(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.manager.DeleteQuota(id); err != nil {
@@ -276,6 +337,17 @@ func (h *Handlers) deleteQuota(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
+// getQuotaUsage 获取配额使用情况
+// @Summary 获取配额使用情况
+// @Description 获取指定配额的使用统计
+// @Tags quota
+// @Accept json
+// @Produce json
+// @Param id path string true "配额 ID"
+// @Success 200 {object} Response{data=QuotaUsage}
+// @Failure 404 {object} Response
+// @Router /quotas/{id}/usage [get]
+// @Security BearerAuth
 func (h *Handlers) getQuotaUsage(c *gin.Context) {
 	id := c.Param("id")
 	usage, err := h.manager.GetUsage(id)

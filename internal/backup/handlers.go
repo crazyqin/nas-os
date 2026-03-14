@@ -78,11 +78,31 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 配置管理 ==========
 
+// listConfigs 列出备份配置
+// @Summary 列出备份配置
+// @Description 获取所有备份配置列表
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=[]JobConfig}
+// @Router /backup/configs [get]
+// @Security BearerAuth
 func (h *Handlers) listConfigs(c *gin.Context) {
 	configs := h.manager.ListConfigs()
 	api.OK(c, configs)
 }
 
+// getConfig 获取备份配置
+// @Summary 获取备份配置
+// @Description 获取指定备份配置的详细信息
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "配置 ID"
+// @Success 200 {object} api.Response{data=JobConfig}
+// @Failure 404 {object} api.Response
+// @Router /backup/configs/{id} [get]
+// @Security BearerAuth
 func (h *Handlers) getConfig(c *gin.Context) {
 	id := c.Param("id")
 	config, err := h.manager.GetConfig(id)
@@ -93,6 +113,18 @@ func (h *Handlers) getConfig(c *gin.Context) {
 	api.OK(c, config)
 }
 
+// createConfig 创建备份配置
+// @Summary 创建备份配置
+// @Description 创建新的备份配置
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param config body JobConfig true "备份配置"
+// @Success 200 {object} api.Response{data=JobConfig}
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/configs [post]
+// @Security BearerAuth
 func (h *Handlers) createConfig(c *gin.Context) {
 	var config JobConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
@@ -108,6 +140,19 @@ func (h *Handlers) createConfig(c *gin.Context) {
 	api.OKWithMessage(c, "备份配置创建成功", config)
 }
 
+// updateConfig 更新备份配置
+// @Summary 更新备份配置
+// @Description 更新指定的备份配置
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "配置 ID"
+// @Param config body JobConfig true "备份配置"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/configs/{id} [put]
+// @Security BearerAuth
 func (h *Handlers) updateConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -125,6 +170,17 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	api.OKWithMessage(c, "备份配置更新成功", nil)
 }
 
+// deleteConfig 删除备份配置
+// @Summary 删除备份配置
+// @Description 删除指定的备份配置
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "配置 ID"
+// @Success 200 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/configs/{id} [delete]
+// @Security BearerAuth
 func (h *Handlers) deleteConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -136,6 +192,19 @@ func (h *Handlers) deleteConfig(c *gin.Context) {
 	api.OKWithMessage(c, "备份配置已删除", nil)
 }
 
+// enableConfig 启用/禁用备份配置
+// @Summary 启用/禁用备份配置
+// @Description 启用或禁用指定的备份配置
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "配置 ID"
+// @Param request body object{enabled=bool} true "启用状态"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/configs/{id}/enable [post]
+// @Security BearerAuth
 func (h *Handlers) enableConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -157,6 +226,17 @@ func (h *Handlers) enableConfig(c *gin.Context) {
 
 // ========== 备份操作 ==========
 
+// runBackup 执行备份
+// @Summary 执行备份任务
+// @Description 手动执行指定的备份任务
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "配置 ID"
+// @Success 200 {object} api.Response{data=Task}
+// @Failure 500 {object} api.Response
+// @Router /backup/run/{id} [post]
+// @Security BearerAuth
 func (h *Handlers) runBackup(c *gin.Context) {
 	id := c.Param("id")
 
@@ -169,6 +249,18 @@ func (h *Handlers) runBackup(c *gin.Context) {
 	api.OKWithMessage(c, "备份任务已启动", task)
 }
 
+// restore 执行恢复
+// @Summary 执行恢复操作
+// @Description 从备份恢复数据
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param options body RestoreOptions true "恢复选项"
+// @Success 200 {object} api.Response{data=Task}
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/restore [post]
+// @Security BearerAuth
 func (h *Handlers) restore(c *gin.Context) {
 	var options RestoreOptions
 	if err := c.ShouldBindJSON(&options); err != nil {
@@ -187,11 +279,31 @@ func (h *Handlers) restore(c *gin.Context) {
 
 // ========== 任务管理 ==========
 
+// listTasks 列出备份任务
+// @Summary 列出备份任务
+// @Description 获取备份任务列表
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=[]Task}
+// @Router /backup/tasks [get]
+// @Security BearerAuth
 func (h *Handlers) listTasks(c *gin.Context) {
 	tasks := h.manager.ListTasks()
 	api.OK(c, tasks)
 }
 
+// getTask 获取任务详情
+// @Summary 获取任务详情
+// @Description 获取指定备份任务的详细信息
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "任务 ID"
+// @Success 200 {object} api.Response{data=Task}
+// @Failure 404 {object} api.Response
+// @Router /backup/tasks/{id} [get]
+// @Security BearerAuth
 func (h *Handlers) getTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -204,6 +316,17 @@ func (h *Handlers) getTask(c *gin.Context) {
 	api.OK(c, task)
 }
 
+// cancelTask 取消任务
+// @Summary 取消备份任务
+// @Description 取消正在执行的备份任务
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "任务 ID"
+// @Success 200 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/tasks/{id} [delete]
+// @Security BearerAuth
 func (h *Handlers) cancelTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -217,6 +340,17 @@ func (h *Handlers) cancelTask(c *gin.Context) {
 
 // ========== 历史记录 ==========
 
+// getHistory 获取历史记录
+// @Summary 获取备份历史
+// @Description 获取指定配置的备份历史记录
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param configId path string true "配置 ID"
+// @Success 200 {object} api.Response{data=[]HistoryEntry}
+// @Failure 500 {object} api.Response
+// @Router /backup/history/{configId} [get]
+// @Security BearerAuth
 func (h *Handlers) getHistory(c *gin.Context) {
 	configId := c.Param("configId")
 
@@ -231,11 +365,31 @@ func (h *Handlers) getHistory(c *gin.Context) {
 
 // ========== 同步任务管理 ==========
 
+// listSyncTasks 列出同步任务
+// @Summary 列出同步任务
+// @Description 获取所有同步任务列表
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=[]SyncTask}
+// @Router /backup/sync/tasks [get]
+// @Security BearerAuth
 func (h *Handlers) listSyncTasks(c *gin.Context) {
 	tasks := h.syncManager.ListSyncTasks()
 	api.OK(c, tasks)
 }
 
+// getSyncTask 获取同步任务
+// @Summary 获取同步任务详情
+// @Description 获取指定同步任务的详细信息
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "任务 ID"
+// @Success 200 {object} api.Response{data=SyncTask}
+// @Failure 404 {object} api.Response
+// @Router /backup/sync/tasks/{id} [get]
+// @Security BearerAuth
 func (h *Handlers) getSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -248,6 +402,18 @@ func (h *Handlers) getSyncTask(c *gin.Context) {
 	api.OK(c, task)
 }
 
+// createSyncTask 创建同步任务
+// @Summary 创建同步任务
+// @Description 创建新的同步任务
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param task body SyncTask true "同步任务配置"
+// @Success 200 {object} api.Response{data=SyncTask}
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/sync/tasks [post]
+// @Security BearerAuth
 func (h *Handlers) createSyncTask(c *gin.Context) {
 	var task SyncTask
 	if err := c.ShouldBindJSON(&task); err != nil {
@@ -263,6 +429,20 @@ func (h *Handlers) createSyncTask(c *gin.Context) {
 	api.OKWithMessage(c, "同步任务创建成功", task)
 }
 
+// updateSyncTask 更新同步任务
+// @Summary 更新同步任务
+// @Description 更新指定的同步任务配置
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "任务 ID"
+// @Param task body SyncTask true "同步任务配置"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Failure 404 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/sync/tasks/{id} [put]
+// @Security BearerAuth
 func (h *Handlers) updateSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -291,6 +471,17 @@ func (h *Handlers) updateSyncTask(c *gin.Context) {
 	api.OKWithMessage(c, "同步任务更新成功", nil)
 }
 
+// deleteSyncTask 删除同步任务
+// @Summary 删除同步任务
+// @Description 删除指定的同步任务
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "任务 ID"
+// @Success 200 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/sync/tasks/{id} [delete]
+// @Security BearerAuth
 func (h *Handlers) deleteSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -302,6 +493,17 @@ func (h *Handlers) deleteSyncTask(c *gin.Context) {
 	api.OKWithMessage(c, "同步任务已删除", nil)
 }
 
+// runSyncTask 执行同步任务
+// @Summary 执行同步任务
+// @Description 手动执行指定的同步任务
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "任务 ID"
+// @Success 200 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/sync/run/{id} [post]
+// @Security BearerAuth
 func (h *Handlers) runSyncTask(c *gin.Context) {
 	id := c.Param("id")
 
@@ -315,6 +517,18 @@ func (h *Handlers) runSyncTask(c *gin.Context) {
 
 // ========== 版本管理 ==========
 
+// listVersions 列出版本
+// @Summary 列出文件版本
+// @Description 获取文件的版本历史列表
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param path query string true "文件路径"
+// @Success 200 {object} api.Response{data=[]Version}
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/sync/versions [get]
+// @Security BearerAuth
 func (h *Handlers) listVersions(c *gin.Context) {
 	filePath := c.Query("path")
 	if filePath == "" {
@@ -331,6 +545,18 @@ func (h *Handlers) listVersions(c *gin.Context) {
 	api.OK(c, versions)
 }
 
+// restoreVersion 恢复版本
+// @Summary 恢复文件版本
+// @Description 恢复指定的文件版本
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param request body object{versionId=string,targetPath=string} true "恢复选项"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/sync/versions/restore [post]
+// @Security BearerAuth
 func (h *Handlers) restoreVersion(c *gin.Context) {
 	var req struct {
 		VersionID  string `json:"versionId"`
@@ -352,6 +578,17 @@ func (h *Handlers) restoreVersion(c *gin.Context) {
 
 // ========== 配置检查 ==========
 
+// checkConfig 检查配置
+// @Summary 检查备份配置
+// @Description 检查备份配置的有效性
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "配置 ID"
+// @Success 200 {object} api.Response{data=ConfigCheckResult}
+// @Failure 404 {object} api.Response
+// @Router /backup/configs/{id}/check [get]
+// @Security BearerAuth
 func (h *Handlers) checkConfig(c *gin.Context) {
 	id := c.Param("id")
 
@@ -412,6 +649,17 @@ func (h *Handlers) checkConfig(c *gin.Context) {
 	api.OK(c, result)
 }
 
+// checkConfigDetailed 详细检查配置
+// @Summary 详细检查备份配置
+// @Description 详细检查备份配置的所有方面
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param id path string true "配置 ID"
+// @Success 200 {object} api.Response{data=DetailedCheckResult}
+// @Failure 500 {object} api.Response
+// @Router /backup/configs/{id}/check-detailed [get]
+// @Security BearerAuth
 func (h *Handlers) checkConfigDetailed(c *gin.Context) {
 	id := c.Param("id")
 
@@ -426,11 +674,32 @@ func (h *Handlers) checkConfigDetailed(c *gin.Context) {
 
 // ========== 恢复功能 ==========
 
+// listRestorePresets 列出恢复预设
+// @Summary 列出恢复预设
+// @Description 获取可用的恢复预设模板列表
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=[]RestorePreset}
+// @Router /backup/restore-presets [get]
+// @Security BearerAuth
 func (h *Handlers) listRestorePresets(c *gin.Context) {
 	presets := DefaultRestorePresets()
 	api.OK(c, presets)
 }
 
+// previewRestore 预览恢复
+// @Summary 预览恢复操作
+// @Description 预览恢复操作将要执行的内容（不实际执行）
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Param options body RestoreOptions true "恢复选项"
+// @Success 200 {object} api.Response{data=RestorePreview}
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /backup/restore/preview [post]
+// @Security BearerAuth
 func (h *Handlers) previewRestore(c *gin.Context) {
 	var options RestoreOptions
 	if err := c.ShouldBindJSON(&options); err != nil {
@@ -450,6 +719,15 @@ func (h *Handlers) previewRestore(c *gin.Context) {
 
 // ========== 统计信息 ==========
 
+// getStats 获取统计信息
+// @Summary 获取备份统计
+// @Description 获取备份系统的统计信息
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=BackupStats}
+// @Router /backup/stats [get]
+// @Security BearerAuth
 func (h *Handlers) getStats(c *gin.Context) {
 	stats := h.manager.GetStats()
 	api.OK(c, stats)
@@ -457,6 +735,16 @@ func (h *Handlers) getStats(c *gin.Context) {
 
 // ========== 健康检查 ==========
 
+// healthCheck 健康检查
+// @Summary 备份系统健康检查
+// @Description 检查备份系统的健康状态
+// @Tags backup
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=HealthCheckResult}
+// @Failure 500 {object} api.Response
+// @Router /backup/health [get]
+// @Security BearerAuth
 func (h *Handlers) healthCheck(c *gin.Context) {
 	result, err := h.manager.HealthCheck()
 	if err != nil {

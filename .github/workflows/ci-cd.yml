@@ -4,8 +4,9 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
-# v2.30.0 更新：
-# - 增强缓存配置（Go modules + 构建缓存）
+# v2.31.0 更新：
+# - 添加依赖安全扫描 (Trivy)
+# - 优化缓存配置
 # - 添加失败重试机制
 # - 添加构建超时控制
 
@@ -56,11 +57,43 @@ jobs:
           gofmt -l .
           test -z "$(gofmt -l .)"
 
+  # ========== 依赖扫描 ==========
+  dependency-scan:
+    name: 依赖安全扫描
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 运行 Trivy 漏洞扫描
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+        continue-on-error: true
+      
+      - name: 上传扫描结果
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: 'trivy-results.sarif'
+        if: always() && hashFiles('trivy-results.sarif') != ''
+      
+      - name: 生成依赖报告
+        run: |
+          echo "## 🔍 依赖扫描完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "扫描结果已上传到 Security 页面" >> $GITHUB_STEP_SUMMARY
+
   # ========== 单元测试 ==========
   test:
     name: 单元测试
     runs-on: ubuntu-latest
-    needs: [lint]
+    needs: [lint, dependency-scan]
     timeout-minutes: 20
     env:
       CGO_ENABLED: 1

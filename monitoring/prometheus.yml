@@ -1,5 +1,10 @@
 # NAS-OS Prometheus 监控配置
-# 版本: 2.7.0
+# 版本: v2.31.0
+#
+# 更新日志：
+# - 优化抓取间隔配置
+# - 支持 Btrfs 和 SMART 监控
+# - 可选远程写入支持
 
 global:
   scrape_interval: 15s

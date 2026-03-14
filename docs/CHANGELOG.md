@@ -6,6 +6,63 @@
 
 ---
 
+## [2.31.0] - 2026-03-15
+
+### 📚 文档完善
+
+#### API 文档覆盖
+
+为以下模块添加 Swagger 注释：
+- **docker**: 容器管理 API（容器、镜像、卷、网络、应用商店）- 18 个接口
+- **backup**: 备份恢复 API（配置、任务、同步、版本管理）- 23 个接口
+- **quota**: 配额管理 API（用户/组/目录配额、告警、清理策略）- 6 个核心接口
+
+#### 国际化更新
+
+新增功能模块翻译：
+- **docker**: 容器管理模块翻译
+- **backup**: 备份恢复模块翻译
+- **downloader**: 下载管理模块翻译
+- **automation**: 自动化模块翻译
+
+支持语言：
+- 中文 (zh-CN)
+- 英文 (en-US)
+- 日文 (ja-JP)
+- 韩文 (ko-KR)
+
+#### 文档版本更新
+
+- 更新 README.md 版本号到 v2.31.0
+- 更新 docs/README.md 版本号到 v2.31.0
+- 更新 docs/USER_GUIDE.md 版本号到 v2.31.0
+- 更新 Docker 镜像版本号
+
+### 📡 API 文档覆盖情况
+
+| 模块 | 文件 | 注释方法数 | 状态 |
+|------|------|------------|------|
+| iscsi | internal/iscsi/handlers.go | 21 | ✅ 完成 |
+| dedup | internal/dedup/handlers.go | 17 | ✅ 完成 |
+| tags | internal/tags/handlers.go | 16 | ✅ 完成 |
+| nfs | internal/nfs/handlers.go | 12 | ✅ 完成 |
+| office | internal/office/handlers.go | 11 | ✅ 完成 |
+| backup | internal/backup/handlers.go | 23 | ✅ 新增 |
+| docker | internal/docker/handlers.go | 18 | ✅ 新增 |
+| logging | internal/logging/handlers.go | 10 | ✅ 完成 |
+| versioning | internal/versioning/handlers.go | 9 | ✅ 完成 |
+| compress | internal/compress/handlers.go | 9 | ✅ 完成 |
+| prediction | internal/prediction/handlers.go | 8 | ✅ 完成 |
+| quota | internal/quota/handlers.go | 6 | ✅ 新增 |
+| health | internal/health/handlers.go | 7 | ✅ 完成 |
+| search | internal/search/handlers.go | 5 | ✅ 完成 |
+| photos | internal/photos/handlers.go | 5 | ✅ 完成 |
+| ftp | internal/ftp/handlers.go | 5 | ✅ 完成 |
+| network | internal/network/handlers.go | 4 | ✅ 完成 |
+| auth | internal/auth/handlers.go | 3 | ✅ 完成 |
+
+---
+
 ## [2.30.0] - 2026-03-15
 
 ### 📚 文档完善

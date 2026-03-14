@@ -1,5 +1,13 @@
 # NAS-OS Prometheus 告警规则
 # 适用于 Prometheus 2.x
+# 版本: v2.31.0
+#
+# 告警规则分类：
+# - 系统资源：CPU、内存、磁盘、网络
+# - 存储健康：Btrfs、存储池
+# - 服务状态：NAS-OS 服务、共享服务
+# - 业务任务：备份、快照
+# - 安全监控：登录失败、用户配额
 
 groups:
   - name: nas-os-system
