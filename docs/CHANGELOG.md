@@ -6,6 +6,37 @@
 
 ---
 
+## [2.20.0] - 2026-03-14
+
+### 🔧 维护优化
+
+#### 代码质量改进
+
+- 清理未使用的函数和变量（initBTClients, parseUptime 等）
+- 移除未使用的结构体字段（LogSearcher.mu, ParallelCompressor.mu）
+- 删除冗余代码，提升代码可维护性
+
+#### CI/CD 优化
+
+- 重构 ci-cd.yml，移除与 docker-publish.yml/release.yml 重复的 job
+- 添加 Docker Compose 测试 job
+- Dockerfile 修复 TARGETOS/TARGETARCH 参数使用，支持 BuildKit 跨平台构建
+
+#### 文档完善
+
+- README.md 版本号同步到 v2.19.0
+- API 文档链接修复
+- CHANGELOG.md 格式规范化
+- MILESTONES.md 版本路线图更新（添加 v2.7.0 ~ v2.19.0）
+- 归档历史 TODO 文件到 docs/archive/todos/
+
+#### 项目清理
+
+- 清理临时文件和构建产物（节省约 224MB）
+- 更新 .gitignore 忽略测试和编译产物
+
+---
+
 ## [2.19.0] - 2026-03-15
 
 ### 🐛 Bug 修复

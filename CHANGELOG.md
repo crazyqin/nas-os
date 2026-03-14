@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.20.0] - 2026-03-14
+
+### Changed
+- **代码清理** - 删除未使用的函数和变量
+  - 移除 initBTClients, parseUptime 等未调用函数
+  - 移除 LogSearcher.mu, ParallelCompressor.mu 等未使用字段
+  - 清理冗余代码，提升可维护性
+
+- **CI/CD 优化** - 重构 ci-cd.yml，避免重复 job
+  - 添加 Docker Compose 测试 job
+  - 修复 Dockerfile BuildKit 跨平台构建参数
+
+- **文档完善**
+  - MILESTONES.md 版本路线图更新至 v2.19.0
+  - 归档历史 TODO 文件到 docs/archive/todos/
+  - CHANGELOG.md 格式规范化
+
+- **项目清理** - 清理临时文件，节省约 224MB 空间
+
 ## [v2.19.0] - 2026-03-15
 
 ### Fixed
