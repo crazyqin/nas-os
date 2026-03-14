@@ -88,7 +88,7 @@ func handleIncremental(args []string) {
 	snapshotID := fs.String("id", "", "快照ID")
 
 	if err := fs.Parse(args[1:]); err != nil {
-		fmt.Printf("参数解析错误：%v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -172,7 +172,10 @@ func handleCloud(args []string) {
 	localFile := fs.String("file", "", "本地文件路径")
 	remotePath := fs.String("remote", "", "云端路径")
 
-	_ = fs.Parse(args[1:])
+	if err := fs.Parse(args[1:]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	if *configFile == "" {
 		fmt.Println("错误：--config 是必需的")
@@ -236,7 +239,7 @@ func handleCloud(args []string) {
 
 	case "list":
 		prefix := fs.String("prefix", "", "路径前缀")
-		_ = fs.Parse(args[1:])
+		fs.Parse(args[1:])
 
 		backups, err := cb.ListBackups(*prefix)
 		if err != nil {
@@ -302,7 +305,10 @@ func handleEncrypt(args []string) {
 	passwordFile := fs.String("password-file", "", "密码文件")
 	keyPath := fs.String("key-path", "/srv/keys", "密钥存储路径")
 
-	_ = fs.Parse(args)
+	if err := fs.Parse(args); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	if *inputFile == "" || *outputFile == "" {
 		fmt.Println("错误：--input 和 --output 是必需的")
@@ -366,7 +372,10 @@ func handleDecrypt(args []string) {
 	keyPath := fs.String("key-path", "/srv/keys", "密钥存储路径")
 	keyID := fs.String("key-id", "", "密钥ID")
 
-	_ = fs.Parse(args)
+	if err := fs.Parse(args); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	if *inputFile == "" || *outputFile == "" {
 		fmt.Println("错误：--input 和 --output 是必需的")
@@ -415,7 +424,10 @@ func handleRestore(args []string) {
 	filePath := fs.String("file", "", "单文件恢复路径")
 	_ = fs.Bool("dry-run", false, "预览模式")
 
-	_ = fs.Parse(args[1:])
+	if err := fs.Parse(args[1:]); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 
 	logger := zap.NewNop()
 	emConfig := &backup.EncryptionManagerConfig{
@@ -528,7 +540,7 @@ func handleVerify(args []string) {
 	fs := flag.NewFlagSet("verify", flag.ExitOnError)
 	filePath := fs.String("file", "", "文件路径")
 
-	_ = fs.Parse(args)
+	fs.Parse(args)
 
 	if *filePath == "" {
 		fmt.Println("错误：--file 是必需的")
@@ -633,7 +645,11 @@ func calculateChecksum(filePath string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = file.Close() }()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing file: %v\n", err)
+		}
+	}()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
