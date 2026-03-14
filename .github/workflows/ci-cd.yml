@@ -4,6 +4,11 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
+# v2.37.0 更新：
+# - 优化构建并行化（build不再等待test-integration）
+# - 添加Node.js 24支持
+# - 改进缓存策略
+#
 # v2.35.0 更新：
 # - 修复权限配置问题（安全扫描需要 security-events: write）
 # - 添加 id-token: write 支持 OIDC 签名
@@ -37,7 +42,9 @@ permissions:
 env:
   GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v3'
+  CACHE_VERSION: 'v4'
+  # Node.js 24 支持
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:

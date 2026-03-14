@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
   - 响应时间记录中间件 (response_time.go)
   - WebSocket 增强支持 (房间管理、广播、心跳)
   - 中间件完整测试覆盖
+  - API Gateway (gateway.go) - 限流、熔断、重试机制
 
 - **成本分析报告** (户部)
   - 存储成本分析模块 (cost_analysis.go)
