@@ -638,9 +638,9 @@ func (h *Handlers) updatePhoto(c *gin.Context) {
 	photoID := c.Param("id")
 
 	var req struct {
-		Tags     []string `json:"tags"`
-		IsHidden *bool    `json:"isHidden"`
-		IsFavorite *bool  `json:"isFavorite"`
+		Tags       []string `json:"tags"`
+		IsHidden   *bool    `json:"isHidden"`
+		IsFavorite *bool    `json:"isFavorite"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
