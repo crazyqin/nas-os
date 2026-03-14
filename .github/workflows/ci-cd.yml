@@ -311,7 +311,8 @@ jobs:
   build:
     name: 构建二进制
     runs-on: ubuntu-latest
-    needs: [test-integration]
+    # 优化：不再等待test-integration，与docker-compose-test并行运行
+    needs: [test]
     timeout-minutes: 20
     strategy:
       fail-fast: false

@@ -3,6 +3,11 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
+# v2.37.0 更新：
+# - 更新缓存版本
+# - 添加 Node.js 24 支持
+# - 优化并行构建
+#
 # v2.35.0 更新：
 # - 修复权限配置（添加 security-events: write）
 # - 优化缓存策略
@@ -40,7 +45,9 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   # 缓存版本号
-  CACHE_VERSION: 'v3'
+  CACHE_VERSION: 'v4'
+  # Node.js 24 支持
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 # 权限配置 - 最小权限原则
 permissions:
