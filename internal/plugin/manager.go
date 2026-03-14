@@ -501,7 +501,7 @@ func (m *Manager) downloadPlugin(url string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("下载失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("下载失败: HTTP %d", resp.StatusCode)
@@ -687,7 +687,7 @@ func copyDir(src, dst string) error {
 // 	if err != nil {
 // 		return "", err
 // 	}
-// 	defer file.Close()
+// 	defer func() { _ = file.Close() }()
 //
 // 	hash := sha256.New()
 // 	if _, err := io.Copy(hash, file); err != nil {

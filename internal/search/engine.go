@@ -331,7 +331,7 @@ func (e *Engine) readFileContent(path string, maxSize int64) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 限制读取大小
 	if maxSize <= 0 {

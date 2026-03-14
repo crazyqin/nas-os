@@ -461,7 +461,7 @@ func (m *OptimizedManager) generateThumbnailInternal(path string, thumbSize uint
 	if err != nil {
 		return "", 0, 0
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var img image.Image
 	ext := strings.ToLower(filepath.Ext(path))

@@ -187,7 +187,7 @@ func (sc *StorageCollector) Collect() *StorageMetrics {
 func (sc *StorageCollector) collectCacheMetrics(metrics *StorageMetrics) {
 	// 读取 /proc/meminfo 获取页面缓存信息
 	if file, err := os.Open("/proc/meminfo"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
@@ -204,7 +204,7 @@ func (sc *StorageCollector) collectCacheMetrics(metrics *StorageMetrics) {
 
 	// 从 /proc/vmstat 获取缓存命中/未命中
 	if file, err := os.Open("/proc/vmstat"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 
 		var pswpin, pswpout uint64
 		scanner := bufio.NewScanner(file)

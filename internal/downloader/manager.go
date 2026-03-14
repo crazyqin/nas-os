@@ -560,7 +560,7 @@ func (m *Manager) downloadHTTP(ctx context.Context, task *DownloadTask) {
 		m.mu.Unlock()
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 创建 HTTP 请求
 	req, err := http.NewRequestWithContext(ctx, "GET", task.URL, nil)
@@ -583,7 +583,7 @@ func (m *Manager) downloadHTTP(ctx context.Context, task *DownloadTask) {
 		m.mu.Unlock()
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		err := fmt.Errorf("HTTP 错误：%s", resp.Status)

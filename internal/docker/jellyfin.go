@@ -98,7 +98,7 @@ func (jm *JellyfinManager) GetSystemInfo() (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -130,7 +130,7 @@ func (jm *JellyfinManager) GetLibraries() ([]map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -176,7 +176,7 @@ func (jm *JellyfinManager) CreateLibrary(name, libraryType string, paths []strin
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != 204 {
 		body, _ := io.ReadAll(resp.Body)
@@ -239,7 +239,7 @@ func (jm *JellyfinManager) ScanLibrary(libraryID string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	return nil
 }
@@ -301,7 +301,7 @@ func (jm *JellyfinManager) TestConnection() error {
 	if err != nil {
 		return fmt.Errorf("连接失败：%v", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("连接失败：HTTP %d", resp.StatusCode)

@@ -169,7 +169,7 @@ func ChunkFingerprint(filePath string, chunkSize int64) ([]*Chunk, error) {
 	if err != nil {
 		return nil, fmt.Errorf("打开文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	info, err := file.Stat()
 	if err != nil {
@@ -223,7 +223,7 @@ func ChunkFingerprintWithProgress(filePath string, chunkSize int64, callback Pro
 	if err != nil {
 		return nil, fmt.Errorf("打开文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	info, err := file.Stat()
 	if err != nil {
@@ -301,7 +301,7 @@ func FileChecksum(filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {

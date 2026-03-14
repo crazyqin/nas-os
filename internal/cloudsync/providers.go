@@ -103,7 +103,7 @@ func (p *S3Provider) Upload(ctx context.Context, localPath, remotePath string) e
 	if err != nil {
 		return fmt.Errorf("打开文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	key := strings.TrimPrefix(remotePath, "/")
 	_, err = p.client.PutObject(ctx, &s3.PutObjectInput{
@@ -125,7 +125,7 @@ func (p *S3Provider) Download(ctx context.Context, remotePath, localPath string)
 	if err != nil {
 		return fmt.Errorf("下载失败: %w", err)
 	}
-	defer result.Body.Close()
+	defer func() { _ = result.Body.Close() }()
 
 	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
 		return err
@@ -135,7 +135,7 @@ func (p *S3Provider) Download(ctx context.Context, remotePath, localPath string)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	_, err = io.Copy(file, result.Body)
 	return err
@@ -413,7 +413,7 @@ func (p *WebDAVProvider) Upload(ctx context.Context, localPath, remotePath strin
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	stat, err := file.Stat()
 	if err != nil {
@@ -433,7 +433,7 @@ func (p *WebDAVProvider) Upload(ctx context.Context, localPath, remotePath strin
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("上传失败: %s", resp.Status)
@@ -455,7 +455,7 @@ func (p *WebDAVProvider) Download(ctx context.Context, remotePath, localPath str
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusNotFound {
 		return fmt.Errorf("文件不存在")
@@ -473,7 +473,7 @@ func (p *WebDAVProvider) Download(ctx context.Context, remotePath, localPath str
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	_, err = io.Copy(file, resp.Body)
 	return err
@@ -492,7 +492,7 @@ func (p *WebDAVProvider) Delete(ctx context.Context, remotePath string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != http.StatusNotFound {
 		return fmt.Errorf("删除失败: %s", resp.Status)
@@ -516,7 +516,7 @@ func (p *WebDAVProvider) List(ctx context.Context, prefix string, recursive bool
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// 简化实现，返回空列表
 	// 实际实现需要解析 XML 响应
@@ -536,7 +536,7 @@ func (p *WebDAVProvider) Stat(ctx context.Context, remotePath string) (*FileInfo
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, fmt.Errorf("文件不存在")
@@ -563,7 +563,7 @@ func (p *WebDAVProvider) CreateDir(ctx context.Context, remotePath string) error
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 && resp.StatusCode != http.StatusMethodNotAllowed {
 		return fmt.Errorf("创建目录失败: %s", resp.Status)
@@ -590,7 +590,7 @@ func (p *WebDAVProvider) TestConnection(ctx context.Context) (*ConnectionTestRes
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	latency := time.Since(start).Milliseconds()
 
@@ -684,7 +684,7 @@ func (p *GoogleDriveProvider) refreshTokenIfNeeded(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("获取 access token 失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -791,7 +791,7 @@ func (p *GoogleDriveProvider) createFolder(ctx context.Context, name, parentID s
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		ID string `json:"id"`
@@ -830,7 +830,7 @@ func (p *GoogleDriveProvider) getFileID(ctx context.Context, path string) (strin
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Files []struct {
@@ -859,7 +859,7 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 	if err != nil {
 		return fmt.Errorf("打开文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	stat, err := file.Stat()
 	if err != nil {
@@ -987,7 +987,7 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 	if err != nil {
 		return fmt.Errorf("上传失败: %w", err)
 	}
-	defer uploadResp.Body.Close()
+	defer func() { _ = uploadResp.Body.Close() }()
 
 	if uploadResp.StatusCode >= 400 {
 		body, _ := io.ReadAll(uploadResp.Body)
@@ -1020,7 +1020,7 @@ func (p *GoogleDriveProvider) Download(ctx context.Context, remotePath, localPat
 	if err != nil {
 		return fmt.Errorf("下载失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("下载失败: %s", resp.Status)
@@ -1036,7 +1036,7 @@ func (p *GoogleDriveProvider) Download(ctx context.Context, remotePath, localPat
 	if err != nil {
 		return fmt.Errorf("创建文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	_, err = io.Copy(file, resp.Body)
 	return err
@@ -1063,7 +1063,7 @@ func (p *GoogleDriveProvider) Delete(ctx context.Context, remotePath string) err
 	if err != nil {
 		return fmt.Errorf("删除失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusNotFound {
 		return fmt.Errorf("删除失败: %s", resp.Status)
@@ -1096,7 +1096,7 @@ func (p *GoogleDriveProvider) List(ctx context.Context, prefix string, recursive
 	if err != nil {
 		return nil, fmt.Errorf("列出文件失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Files []struct {
@@ -1157,7 +1157,7 @@ func (p *GoogleDriveProvider) Stat(ctx context.Context, remotePath string) (*Fil
 	if err != nil {
 		return nil, fmt.Errorf("获取文件信息失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Name         string `json:"name"`
@@ -1230,7 +1230,7 @@ func (p *GoogleDriveProvider) TestConnection(ctx context.Context) (*ConnectionTe
 		result.Error = err.Error()
 		return result, nil
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		result.Success = false
@@ -1314,7 +1314,7 @@ func (p *OneDriveProvider) refreshTokenIfNeeded(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("获取 access token 失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -1421,7 +1421,7 @@ func (p *OneDriveProvider) Upload(ctx context.Context, localPath, remotePath str
 	if err != nil {
 		return fmt.Errorf("打开文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	stat, err := file.Stat()
 	if err != nil {
@@ -1450,7 +1450,7 @@ func (p *OneDriveProvider) Upload(ctx context.Context, localPath, remotePath str
 		if err != nil {
 			return fmt.Errorf("上传失败: %w", err)
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		if resp.StatusCode >= 400 {
 			body, _ := io.ReadAll(resp.Body)
@@ -1533,7 +1533,7 @@ func (p *OneDriveProvider) Download(ctx context.Context, remotePath, localPath s
 	if err != nil {
 		return fmt.Errorf("下载失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("下载失败: %s", resp.Status)
@@ -1549,7 +1549,7 @@ func (p *OneDriveProvider) Download(ctx context.Context, remotePath, localPath s
 	if err != nil {
 		return fmt.Errorf("创建文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	_, err = io.Copy(file, resp.Body)
 	return err
@@ -1571,7 +1571,7 @@ func (p *OneDriveProvider) Delete(ctx context.Context, remotePath string) error 
 	if err != nil {
 		return fmt.Errorf("删除失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusNoContent && resp.StatusCode != http.StatusNotFound {
 		return fmt.Errorf("删除失败: %s", resp.Status)
@@ -1605,7 +1605,7 @@ func (p *OneDriveProvider) List(ctx context.Context, prefix string, recursive bo
 	if err != nil {
 		return nil, fmt.Errorf("列出文件失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Value []struct {
@@ -1660,7 +1660,7 @@ func (p *OneDriveProvider) Stat(ctx context.Context, remotePath string) (*FileIn
 	if err != nil {
 		return nil, fmt.Errorf("获取文件信息失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusNotFound {
 		return nil, os.ErrNotExist
@@ -1734,7 +1734,7 @@ func (p *OneDriveProvider) TestConnection(ctx context.Context) (*ConnectionTestR
 		result.Error = err.Error()
 		return result, nil
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusUnauthorized {
 		result.Success = false

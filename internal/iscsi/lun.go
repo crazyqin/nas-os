@@ -118,7 +118,7 @@ func (lm *LUNManager) createFileBacking(path string, size int64) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Truncate to desired size (creates sparse file)
 	if err := file.Truncate(size); err != nil {
@@ -135,7 +135,7 @@ func (lm *LUNManager) getBlockDeviceSize(path string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	info, err := file.Stat()
 	if err != nil {
@@ -163,7 +163,7 @@ func (lm *LUNManager) Expand(lun *LUN, newSize int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to open LUN file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	if err := file.Truncate(newSize); err != nil {
 		return fmt.Errorf("failed to expand LUN: %w", err)

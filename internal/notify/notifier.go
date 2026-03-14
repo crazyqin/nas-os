@@ -239,7 +239,7 @@ func (w *WeChatNotifier) Send(notif *Notification) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("微信通知返回状态码：%d", resp.StatusCode)
@@ -304,7 +304,7 @@ func (w *WebhookNotifier) Send(notif *Notification) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("Webhook 返回状态码：%d", resp.StatusCode)

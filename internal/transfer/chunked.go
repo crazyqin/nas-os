@@ -66,7 +66,7 @@ func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkI
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	stat, err := file.Stat()
 	if err != nil {
@@ -171,7 +171,7 @@ func CalculateFileMD5(filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	hash := md5.New()
 	if _, err := io.Copy(hash, file); err != nil {
@@ -295,7 +295,7 @@ func (r *ResumableUpload) GetNextChunk() ([]byte, int64, int64, error) {
 	if err != nil {
 		return nil, 0, 0, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	buf := make([]byte, r.chunkSize)
 	n, err := file.ReadAt(buf, r.uploadedSize)

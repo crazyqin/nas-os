@@ -163,7 +163,7 @@ func (cb *CloudBackup) uploadToS3(localPath, remotePath string) (*UploadResult, 
 	if err != nil {
 		return nil, fmt.Errorf("打开文件失败：%w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	stat, err := file.Stat()
 	if err != nil {
@@ -258,7 +258,7 @@ func (cb *CloudBackup) downloadFromS3(remotePath, localPath string) (*DownloadRe
 	if err != nil {
 		return nil, fmt.Errorf("创建文件失败：%w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	result, err := client.GetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: aws.String(cfg.Bucket),
@@ -267,7 +267,7 @@ func (cb *CloudBackup) downloadFromS3(remotePath, localPath string) (*DownloadRe
 	if err != nil {
 		return nil, fmt.Errorf("S3 下载失败：%w", err)
 	}
-	defer result.Body.Close()
+	defer func() { _ = result.Body.Close() }()
 
 	_, err = io.Copy(file, result.Body)
 	if err != nil {

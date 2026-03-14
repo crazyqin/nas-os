@@ -198,7 +198,7 @@ func (m *Monitor) sendWebhookWithSeverity(alert *Alert, webhookURL string) {
 		fmt.Printf("[quota] 升级 webhook 发送失败：%v\n", err)
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	fmt.Printf("[quota] 升级 webhook 发送成功，状态：%d\n", resp.StatusCode)
 }
@@ -430,7 +430,7 @@ func (m *Monitor) sendWebhook(alert *Alert) {
 		fmt.Printf("[quota] 发送 webhook 失败：%v\n", err)
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		fmt.Printf("[quota] webhook 返回异常状态：%d\n", resp.StatusCode)

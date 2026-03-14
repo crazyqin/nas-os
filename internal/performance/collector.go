@@ -207,7 +207,7 @@ func (sc *SystemCollector) collectCPU() CPUMetric {
 
 	// 读取 /proc/stat
 	if file, err := os.Open("/proc/stat"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		if scanner.Scan() {
 			fields := strings.Fields(scanner.Text())
@@ -256,7 +256,7 @@ func (sc *SystemCollector) collectCPU() CPUMetric {
 
 	// 读取负载
 	if file, err := os.Open("/proc/loadavg"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		if scanner.Scan() {
 			fields := strings.Fields(scanner.Text())
@@ -284,7 +284,7 @@ func (sc *SystemCollector) collectMemory() MemoryMetric {
 	}
 
 	if file, err := os.Open("/proc/meminfo"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
 			fields := strings.Fields(scanner.Text())
@@ -333,7 +333,7 @@ func (sc *SystemCollector) collectDisks() []DiskMetric {
 	var metrics []DiskMetric
 
 	if file, err := os.Open("/proc/mounts"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		now := time.Now()
 
@@ -378,7 +378,7 @@ func (sc *SystemCollector) collectDiskIO() []DiskIOMetric {
 	var metrics []DiskIOMetric
 
 	if file, err := os.Open("/proc/diskstats"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		now := time.Now()
 
@@ -461,7 +461,7 @@ func (sc *SystemCollector) collectNetwork() []NetworkMetric {
 	var metrics []NetworkMetric
 
 	if file, err := os.Open("/proc/net/dev"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		now := time.Now()
 
@@ -537,7 +537,7 @@ func (sc *SystemCollector) collectNetwork() []NetworkMetric {
 // getUptime 获取系统运行时间
 func (sc *SystemCollector) getUptime() uint64 {
 	if file, err := os.Open("/proc/uptime"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		if scanner.Scan() {
 			fields := strings.Fields(scanner.Text())
@@ -605,7 +605,7 @@ func (sc *SystemCollector) GetMemoryHistory() []MemoryMetric {
 
 func getCPUCores() int {
 	if file, err := os.Open("/proc/cpuinfo"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		cores := 0
 		for scanner.Scan() {

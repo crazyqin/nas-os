@@ -149,7 +149,7 @@ func (p *AliDNSProvider) request(params map[string]string, result interface{}) e
 	if err != nil {
 		return fmt.Errorf("请求失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -299,7 +299,7 @@ func (p *CloudflareProvider) getZoneID(domain string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Success bool `json:"success"`
@@ -334,7 +334,7 @@ func (p *CloudflareProvider) listDNSRecords(name string) ([]CloudflareRecord, er
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Success bool               `json:"success"`
@@ -377,7 +377,7 @@ func (p *CloudflareProvider) createDNSRecord(name, ip string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Success bool `json:"success"`
@@ -423,7 +423,7 @@ func (p *CloudflareProvider) updateDNSRecord(recordID, name, ip string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Success bool `json:"success"`
@@ -480,7 +480,7 @@ func (p *TailscaleProvider) Update(domain, ip string) error {
 	if err != nil {
 		return fmt.Errorf("Tailscale API 请求失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Tailscale 的 MagicDNS 会自动处理
 	// 这里主要是验证连接状态
@@ -506,7 +506,7 @@ func (p *TailscaleProvider) GetDeviceIP(deviceName string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("获取设备列表失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Devices []struct {

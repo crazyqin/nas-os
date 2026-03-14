@@ -109,7 +109,7 @@ func (h *Handlers) uploadPhoto(c *gin.Context) {
 		})
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 检查文件大小
 	config := h.manager.GetConfig()

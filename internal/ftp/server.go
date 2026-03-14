@@ -840,7 +840,7 @@ func (c *clientConn) handleRETR(path string) {
 		_ = c.writeResponse(550, fmt.Sprintf("Failed to open file: %v", err))
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 断点续传
 	if c.restOffset > 0 {
@@ -879,7 +879,7 @@ func (c *clientConn) handleSTOR(path string) {
 		_ = c.writeResponse(550, fmt.Sprintf("Failed to create file: %v", err))
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 断点续传
 	if c.restOffset > 0 {

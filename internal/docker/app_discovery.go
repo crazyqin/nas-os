@@ -184,7 +184,7 @@ func (ad *AppDiscovery) searchGitHub(query string) ([]*GitHubRepo, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("GitHub API 返回 %d", resp.StatusCode)
@@ -288,7 +288,7 @@ func (ad *AppDiscovery) checkDockerCompose(fullName string) bool {
 	if err != nil {
 		return false
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != 200 {
 		return false
@@ -334,7 +334,7 @@ func (ad *AppDiscovery) DiscoverFromDockerHub() ([]*DiscoveredApp, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var result struct {
 		Summaries []struct {
@@ -448,7 +448,7 @@ func (ad *AppDiscovery) FetchComposeFile(repoFullName string) (string, error) {
 		if err != nil {
 			continue
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		if resp.StatusCode != 200 {
 			continue
