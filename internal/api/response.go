@@ -112,6 +112,7 @@ func CreatedWithMessage(c *gin.Context, message string, data interface{}) {
 // NoContent 返回 204 无内容响应
 func NoContent(c *gin.Context) {
 	c.Status(http.StatusNoContent)
+	c.Writer.WriteHeaderNow()
 }
 
 // BadRequest 返回 400 错误请求响应

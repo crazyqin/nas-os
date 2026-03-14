@@ -1,8 +1,14 @@
 {
-  "lastUpdate": "2026-03-15T05:53:00Z",
-  "version": "v2.36.0",
+  "lastUpdate": "2026-03-15T06:35:00Z",
+  "version": "v2.37.0",
   "status": "released",
-  "previousVersion": "v2.35.0",
+  "previousVersion": "v2.36.0",
+  "nextVersion": "v2.38.0",
+  "currentDev": {
+    "version": "v2.38.0",
+    "status": "in_progress",
+    "startedAt": "2026-03-15T06:35:00Z"
+  },
   "changes": {
     "code": [
       {
