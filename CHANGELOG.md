@@ -41,6 +41,9 @@ All notable changes to this project will be documented in this file.
   - 完善 API 处理器，支持更丰富的监控端点
 
 ### Fixed
+- 修复 CI/CD 构建问题
+  - 更新 golangci-lint 到 v2 兼容配置格式
+  - 更新 Dockerfile golang 镜像到 1.26 以匹配 go.mod 要求
 - 修复 `internal/quota/history.go` 编译错误
   - 修复未使用的 `quotaID` 变量
   - 修复 `TrendStatistics.GrowthRate` 字段名错误（应为 `DailyGrowthRate`）
