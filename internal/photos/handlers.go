@@ -101,6 +101,17 @@ type UploadResponse struct {
 }
 
 // uploadPhoto 上传单张照片
+// @Summary 上传照片
+// @Description 上传单张照片到相册系统
+// @Tags photos
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "照片文件"
+// @Success 200 {object} api.Response{data=UploadResponse}
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /photos/upload [post]
+// @Security BearerAuth
 func (h *Handlers) uploadPhoto(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
@@ -528,6 +539,22 @@ func (h *Handlers) completeUploadSession(c *gin.Context) {
 }
 
 // listPhotos 列出照片
+// @Summary 列出照片
+// @Description 获取照片列表，支持分页和过滤
+// @Tags photos
+// @Accept json
+// @Produce json
+// @Param albumId query string false "相册 ID"
+// @Param userId query string false "用户 ID"
+// @Param sortBy query string false "排序字段" default(takenAt)
+// @Param sortOrder query string false "排序方向" default(desc)
+// @Param limit query int false "每页数量" default(50)
+// @Param offset query int false "偏移量" default(0)
+// @Param favorite query bool false "仅收藏"
+// @Success 200 {object} api.Response{data=object{photos=[]Photo,total=int}}
+// @Failure 500 {object} api.Response
+// @Router /photos [get]
+// @Security BearerAuth
 func (h *Handlers) listPhotos(c *gin.Context) {
 	query := &PhotoQuery{
 		AlbumID:   c.Query("albumId"),
@@ -576,6 +603,16 @@ func (h *Handlers) listPhotos(c *gin.Context) {
 }
 
 // getPhoto 获取照片详情
+// @Summary 获取照片详情
+// @Description 获取指定照片的详细信息
+// @Tags photos
+// @Accept json
+// @Produce json
+// @Param id path string true "照片 ID"
+// @Success 200 {object} api.Response{data=Photo}
+// @Failure 404 {object} api.Response
+// @Router /photos/{id} [get]
+// @Security BearerAuth
 func (h *Handlers) getPhoto(c *gin.Context) {
 	photoID := c.Param("id")
 
@@ -779,6 +816,17 @@ type AlbumRequest struct {
 }
 
 // createAlbum 创建相册
+// @Summary 创建相册
+// @Description 创建新的相册
+// @Tags photos
+// @Accept json
+// @Produce json
+// @Param request body AlbumRequest true "相册信息"
+// @Success 200 {object} api.Response{data=Album}
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /photos/albums [post]
+// @Security BearerAuth
 func (h *Handlers) createAlbum(c *gin.Context) {
 	var req AlbumRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -1086,6 +1134,24 @@ func (h *Handlers) deletePerson(c *gin.Context) {
 }
 
 // searchPhotos 搜索照片
+// @Summary 搜索照片
+// @Description 根据关键词、标签、日期等条件搜索照片
+// @Tags photos
+// @Accept json
+// @Produce json
+// @Param q query string false "搜索关键词"
+// @Param tags query string false "标签（逗号分隔）"
+// @Param scene query string false "场景"
+// @Param person query string false "人物"
+// @Param location query string false "位置"
+// @Param startDate query string false "开始日期 (YYYY-MM-DD)"
+// @Param endDate query string false "结束日期 (YYYY-MM-DD)"
+// @Param limit query int false "每页数量" default(50)
+// @Param offset query int false "偏移量" default(0)
+// @Success 200 {object} api.Response{data=object{photos=[]Photo,total=int}}
+// @Failure 500 {object} api.Response
+// @Router /photos/search [get]
+// @Security BearerAuth
 func (h *Handlers) searchPhotos(c *gin.Context) {
 	query := c.Query("q")
 	tags := c.Query("tags")

@@ -6,6 +6,42 @@
 
 ---
 
+## [2.30.0] - 2026-03-15
+
+### 📚 文档完善
+
+#### 新增文档
+
+- **快速开始指南**: 新增 `docs/QUICKSTART.md`，5 分钟快速上手指南
+- **文档索引更新**: 更新 `docs/README.md`，按角色导航，版本更新到 v2.30.0
+
+#### API 文档覆盖
+
+为以下模块添加 Swagger 注释：
+- **auth**: MFA 认证 API（状态查询、TOTP 设置/启用）
+- **network**: 网络管理 API（接口列表、配置、诊断）
+- **photos**: 照片管理 API（上传、列表、搜索、相册）
+
+#### 文档结构优化
+
+- 更新 README.md 版本到 v2.30.0
+- 更新 Docker 镜像版本号
+- 完善下载链接版本号
+
+### 📡 API 文档覆盖情况
+
+| 模块 | 文件 | 注释方法数 | 状态 |
+|------|------|------------|------|
+| auth | internal/auth/handlers.go | 4 | ✅ 完成 |
+| network | internal/network/handlers.go | 4 | ✅ 完成 |
+| photos | internal/photos/handlers.go | 5 | ✅ 完成 |
+| dedup | internal/dedup/handlers.go | - | ✅ 已有 |
+| health | internal/health/handlers.go | - | ✅ 已有 |
+| iscsi | internal/iscsi/handlers.go | - | ✅ 已有 |
+| logging | internal/logging/handlers.go | - | ✅ 已有 |
+
+---
+
 ## [2.23.0] - 2026-03-14
 
 ### 🚀 新功能

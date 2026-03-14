@@ -53,6 +53,16 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 
 // ========== 状态查询 ==========
 
+// getStatus 获取 MFA 状态
+// @Summary 获取 MFA 状态
+// @Description 获取当前用户的 MFA 配置状态
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=MFAStatus}
+// @Failure 401 {object} api.Response
+// @Router /mfa/status [get]
+// @Security BearerAuth
 func (h *Handlers) getStatus(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {
@@ -66,6 +76,7 @@ func (h *Handlers) getStatus(c *gin.Context) {
 
 // ========== TOTP ==========
 
+// TOTPSetupResponse TOTP 设置响应
 type TOTPSetupResponse struct {
 	Secret      string `json:"secret"`
 	URI         string `json:"uri"`
@@ -74,10 +85,22 @@ type TOTPSetupResponse struct {
 	AccountName string `json:"account_name"`
 }
 
+// EnableTOTPRequest 启用 TOTP 请求
 type EnableTOTPRequest struct {
 	Code string `json:"code" binding:"required"`
 }
 
+// setupTOTP 设置 TOTP
+// @Summary 设置 TOTP
+// @Description 为当前用户设置 TOTP 二步验证，返回密钥和二维码
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=TOTPSetupResponse}
+// @Failure 400 {object} api.Response
+// @Failure 401 {object} api.Response
+// @Router /mfa/totp/setup [post]
+// @Security BearerAuth
 func (h *Handlers) setupTOTP(c *gin.Context) {
 	userID := c.GetString("user_id")
 	username := c.GetString("username")
@@ -102,6 +125,18 @@ func (h *Handlers) setupTOTP(c *gin.Context) {
 	})
 }
 
+// enableTOTP 启用 TOTP
+// @Summary 启用 TOTP
+// @Description 使用验证码启用 TOTP 二步验证
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body EnableTOTPRequest true "验证码"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Failure 401 {object} api.Response
+// @Router /mfa/totp/enable [post]
+// @Security BearerAuth
 func (h *Handlers) enableTOTP(c *gin.Context) {
 	userID := c.GetString("user_id")
 	if userID == "" {

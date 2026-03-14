@@ -75,6 +75,16 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 // ========== 网络接口 API ==========
 
+// listInterfaces 列出网络接口
+// @Summary 列出网络接口
+// @Description 获取系统所有网络接口信息
+// @Tags network
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response{data=[]Interface}
+// @Failure 500 {object} api.Response
+// @Router /network/interfaces [get]
+// @Security BearerAuth
 func (h *Handlers) listInterfaces(c *gin.Context) {
 	ifaces, err := h.manager.ListInterfaces()
 	if err != nil {
@@ -84,6 +94,17 @@ func (h *Handlers) listInterfaces(c *gin.Context) {
 	api.OK(c, ifaces)
 }
 
+// getInterface 获取网络接口详情
+// @Summary 获取网络接口详情
+// @Description 获取指定网络接口的详细信息
+// @Tags network
+// @Accept json
+// @Produce json
+// @Param name path string true "接口名称"
+// @Success 200 {object} api.Response{data=Interface}
+// @Failure 404 {object} api.Response
+// @Router /network/interfaces/{name} [get]
+// @Security BearerAuth
 func (h *Handlers) getInterface(c *gin.Context) {
 	name := c.Param("name")
 	iface, err := h.manager.GetInterface(name)
@@ -94,6 +115,19 @@ func (h *Handlers) getInterface(c *gin.Context) {
 	api.OK(c, iface)
 }
 
+// configureInterface 配置网络接口
+// @Summary 配置网络接口
+// @Description 配置指定网络接口的 IP、网关等参数
+// @Tags network
+// @Accept json
+// @Produce json
+// @Param name path string true "接口名称"
+// @Param config body InterfaceConfig true "接口配置"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /network/interfaces/{name} [put]
+// @Security BearerAuth
 func (h *Handlers) configureInterface(c *gin.Context) {
 	name := c.Param("name")
 	var config InterfaceConfig
@@ -491,6 +525,18 @@ func (h *Handlers) restoreFirewallRules(c *gin.Context) {
 
 // ========== 网络诊断 API ==========
 
+// ping 执行 Ping 测试
+// @Summary Ping 测试
+// @Description 对指定主机执行 Ping 测试
+// @Tags network
+// @Accept json
+// @Produce json
+// @Param request body object{host=string,count=int,timeout=int} true "Ping 参数"
+// @Success 200 {object} api.Response{data=PingResult}
+// @Failure 400 {object} api.Response
+// @Failure 500 {object} api.Response
+// @Router /network/diagnostics/ping [post]
+// @Security BearerAuth
 func (h *Handlers) ping(c *gin.Context) {
 	var req struct {
 		Host    string `json:"host" binding:"required"`
