@@ -62,17 +62,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.35.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.36.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.35.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.36.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.35.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.36.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 

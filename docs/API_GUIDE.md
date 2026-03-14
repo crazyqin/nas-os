@@ -32,6 +32,8 @@
 23. [文件标签](#文件标签-)
 24. [请求日志](#请求日志-)
 25. [Excel 导出](#excel-导出-)
+26. [成本分析](#成本分析--v2360)
+27. [API Gateway](#api-gateway--v2360)
 
 ---
 
@@ -2478,6 +2480,216 @@ curl "http://localhost:8080/api/v1/reports/history?limit=20" \
         "download_url": "/api/v1/reports/download/report-001.xlsx"
       }
     ]
+  }
+}
+```
+
+---
+
+## 成本分析 🆕 v2.36.0
+
+### 获取存储成本配置
+
+```bash
+curl "http://localhost:8080/api/v1/storage-cost/config" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "cost_per_gb_monthly": 0.5,
+    "cost_per_iops_monthly": 0.01,
+    "cost_per_bandwidth_monthly": 1.0,
+    "electricity_cost_per_kwh": 0.6,
+    "device_power_watts": 100,
+    "ops_cost_monthly": 500,
+    "depreciation_years": 5,
+    "hardware_cost": 50000
+  }
+}
+```
+
+### 计算存储成本
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/storage-cost/calculate" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "volume_names": ["data", "backup"],
+    "period": "monthly"
+  }'
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "total_cost": {
+      "storage_cost": 150.00,
+      "compute_cost": 50.00,
+      "network_cost": 30.00,
+      "operations_cost": 100.00,
+      "electricity_cost": 25.00,
+      "depreciation_cost": 200.00,
+      "total_monthly_cost": 555.00,
+      "cost_per_gb": 0.05,
+      "cost_per_user": 18.50
+    },
+    "volume_costs": [
+      {
+        "volume_name": "data",
+        "capacity_gb": 1000,
+        "used_gb": 600,
+        "usage_percent": 60.0,
+        "cost_breakdown": {}
+      }
+    ]
+  }
+}
+```
+
+### 生成成本分析报告
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/storage-cost/report" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "period": "monthly",
+    "include_forecast": true,
+    "include_recommendations": true
+  }'
+```
+
+### 获取成本优化建议
+
+```bash
+curl "http://localhost:8080/api/v1/cost-optimization/recommendations" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "recommendations": [
+      {
+        "type": "underutilized_volume",
+        "volume_name": "archive",
+        "current_cost": 50.00,
+        "potential_savings": 25.00,
+        "suggestion": "Consider reducing capacity or moving to cold storage"
+      },
+      {
+        "type": "unused_quota",
+        "user": "old_user",
+        "quota_gb": 100,
+        "suggestion": "Quota allocated but not used"
+      }
+    ],
+    "total_potential_savings": 75.00
+  }
+}
+```
+
+### 容量规划预测
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/capacity-planning/predict" \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "days": 90,
+    "growth_model": "linear"
+  }'
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "current_usage_gb": 600,
+    "predicted_usage_gb": 750,
+    "predicted_usage_percent": 75.0,
+    "days_until_full": 180,
+    "recommendations": [
+      "Consider expanding storage within 90 days"
+    ]
+  }
+}
+```
+
+---
+
+## API Gateway 🆕 v2.36.0
+
+### 限流配置
+
+```bash
+curl "http://localhost:8080/api/v1/gateway/rate-limit/config" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "requests_per_second": 100,
+    "burst": 200,
+    "enabled": true
+  }
+}
+```
+
+### 熔断器状态
+
+```bash
+curl "http://localhost:8080/api/v1/gateway/circuit-breaker/status" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "state": "closed",
+    "failure_count": 0,
+    "success_count": 1500,
+    "last_failure": null,
+    "config": {
+      "failure_threshold": 5,
+      "reset_timeout": "30s"
+    }
+  }
+}
+```
+
+### 重试策略
+
+```bash
+curl "http://localhost:8080/api/v1/gateway/retry/config" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": {
+    "max_retries": 3,
+    "initial_delay": "100ms",
+    "max_delay": "1s",
+    "multiplier": 2.0,
+    "retryable_status_codes": [502, 503, 504]
   }
 }
 ```

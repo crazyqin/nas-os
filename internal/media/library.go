@@ -215,7 +215,6 @@ func (lm *LibraryManager) ScanLibrary(id string) error {
 	lm.mu.Unlock()
 
 	now := time.Now()
-	library.LastScanTime = &now
 
 	// 扫描文件系统
 	items, err := lm.scanFileSystem(library.Path, library.Type)
@@ -228,7 +227,9 @@ func (lm *LibraryManager) ScanLibrary(id string) error {
 		lm.fetchMetadata(item)
 	}
 
+	// 在锁内更新共享数据，避免 DATA RACE
 	lm.mu.Lock()
+	library.LastScanTime = &now
 	library.Items = items
 	lm.mu.Unlock()
 
