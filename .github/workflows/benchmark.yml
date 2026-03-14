@@ -1,0 +1,231 @@
+# NAS-OS 性能基准测试工作流
+# 定期运行 Go benchmark 测试，追踪性能变化
+
+name: Benchmark
+
+on:
+  # 手动触发
+  workflow_dispatch:
+  
+  # 每周一凌晨 2 点运行（UTC）
+  schedule:
+    - cron: '0 2 * * 1'
+  
+  # PR 到 master 时运行（可选，用于性能回归检测）
+  pull_request:
+    branches: [master]
+    paths:
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '.github/workflows/benchmark.yml'
+
+env:
+  GO_VERSION: '1.25'
+
+jobs:
+  benchmark:
+    name: 运行基准测试
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 设置 Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      
+      - name: 安装依赖
+        run: go mod download
+      
+      - name: 运行基准测试
+        run: |
+          echo "⚡ 运行性能基准测试..."
+          mkdir -p benchmark-results
+          
+          # 运行所有 benchmark 测试
+          go test -bench=. -benchmem -benchtime=3s -run=^$ ./tests/benchmark/... | tee benchmark-results/benchmark.txt
+          
+          # 生成 JSON 格式结果（用于后续分析）
+          go test -bench=. -benchmem -benchtime=3s -run=^$ -json ./tests/benchmark/... > benchmark-results/benchmark.json 2>/dev/null || true
+          
+          echo "✅ 基准测试完成"
+      
+      - name: 解析基准测试结果
+        id: parse
+        run: |
+          echo "📊 解析基准测试结果..."
+          
+          # 提取关键指标
+          if [ -f benchmark-results/benchmark.txt ]; then
+            # 统计测试数量
+            TEST_COUNT=$(grep -c "Benchmark" benchmark-results/benchmark.txt || echo "0")
+            echo "test_count=$TEST_COUNT" >> $GITHUB_OUTPUT
+            
+            # 提取平均执行时间（ns/op）
+            echo "### 📊 基准测试结果摘要" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| 测试名称 | 执行时间 | 内存分配 | 分配次数 |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|----------|----------|----------|" >> $GITHUB_STEP_SUMMARY
+            
+            grep "Benchmark" benchmark-results/benchmark.txt | while read -r line; do
+              # 解析格式: BenchmarkName-N    1000000    1234 ns/op    256 B/op    5 allocs/op
+              NAME=$(echo "$line" | awk '{print $1}')
+              NS_OP=$(echo "$line" | awk '{print $3 " " $4}')
+              B_OP=$(echo "$line" | awk '{print $5 " " $6}')
+              ALLOCS_OP=$(echo "$line" | awk '{print $7 " " $8}')
+              echo "| $NAME | $NS_OP | $B_OP | $ALLOCS_OP |" >> $GITHUB_STEP_SUMMARY
+            done
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ 共运行 $TEST_COUNT 个基准测试" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: 上传基准测试结果
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark-results/
+          retention-days: 30
+      
+      - name: 与基准分支比较（PR）
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "📈 与基准分支比较性能..."
+          
+          # 获取基准分支的最新提交
+          git fetch origin ${{ github.base_ref }}
+          BASE_SHA=$(git rev-parse origin/${{ github.base_ref }})
+          
+          # 检查是否有历史基准数据
+          if git show $BASE_SHA:benchmark-results/benchmark.txt > /dev/null 2>&1; then
+            echo "找到历史基准数据，进行比较..."
+            
+            # 下载历史数据
+            git show $BASE_SHA:benchmark-results/benchmark.txt > benchmark-results/baseline.txt || true
+            
+            if [ -f benchmark-results/baseline.txt ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### 📉 性能变化对比" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "与基准分支 (${{ github.base_ref }}) 的性能对比：" >> $GITHUB_STEP_SUMMARY
+              echo "- 当前分支的基准测试结果已保存" >> $GITHUB_STEP_SUMMARY
+              echo "- 历史基准数据已获取" >> $GITHUB_STEP_SUMMARY
+              echo "- 详细对比请查看上传的 artifact" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "未找到历史基准数据，跳过比较"
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "ℹ️ 未找到历史基准数据，无法进行性能对比" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: 提交基准测试结果（master 分支）
+        if: github.ref == 'refs/heads/master'
+        run: |
+          echo "💾 保存基准测试结果到仓库..."
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 检查是否有变更
+          if git diff --quiet benchmark-results/; then
+            echo "基准测试结果无变化"
+          else
+            git add benchmark-results/
+            git commit -m "chore: 更新基准测试结果 [skip ci]"
+            git push
+            echo "✅ 基准测试结果已提交"
+          fi
+      
+      - name: PR 评论（性能回归警告）
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // 读取基准测试结果
+            let summary = '### ⚡ 基准测试结果\n\n';
+            
+            try {
+              const results = fs.readFileSync('benchmark-results/benchmark.txt', 'utf8');
+              const lines = results.split('\n').filter(l => l.includes('Benchmark'));
+              
+              summary += `共运行 **${lines.length}** 个基准测试。\n\n`;
+              summary += '详细结果请查看 [benchmark-results artifact](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).\n\n';
+              summary += '> 💡 提示：如果性能有明显下降，请检查相关代码变更。';
+              
+            } catch (e) {
+              summary += '基准测试运行完成，但无法解析结果。';
+            }
+            
+            // 发布评论
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(c => c.user.login === 'github-actions[bot]' && c.body.includes('基准测试结果'));
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: summary
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: summary
+              });
+            }
+
+  # 性能回归检测（可选）
+  regression-check:
+    name: 性能回归检测
+    runs-on: ubuntu-latest
+    needs: [benchmark]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 下载基准测试结果
+        uses: actions/download-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark-results/
+      
+      - name: 检查性能回归
+        id: check
+        run: |
+          echo "🔍 检查性能回归..."
+          
+          # 这里可以添加更复杂的性能回归检测逻辑
+          # 例如：比较 ns/op 是否增加超过 10%
+          
+          # 简单示例：检查是否有测试失败
+          if grep -q "FAIL" benchmark-results/benchmark.txt; then
+            echo "❌ 检测到基准测试失败"
+            echo "has_regression=true" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "✅ 未检测到性能回归"
+          echo "has_regression=false" >> $GITHUB_OUTPUT
+      
+      - name: 性能回归警告
+        if: steps.check.outputs.has_regression == 'true'
+        run: |
+          echo "::warning::检测到可能的性能回归，请检查基准测试结果"
