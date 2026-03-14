@@ -51,6 +51,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      short-sha: ${{ steps.meta.outputs.version }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -113,6 +116,7 @@ jobs:
             org.opencontainers.image.vendor=NAS-OS Team
       
       - name: 构建并推送
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
