@@ -1093,22 +1093,22 @@ type NotificationConfig struct {
 
 // EmailNotificationConfig 邮件通知配置
 type EmailNotificationConfig struct {
-	Enabled   bool     `json:"enabled"`
-	SMTPHost  string   `json:"smtpHost"`
-	SMTPPort  int      `json:"smtpPort"`
-	Username  string   `json:"username"`
-	Password  string   `json:"password"`
-	From      string   `json:"from"`
-	To        []string `json:"to"`
-	UseTLS    bool     `json:"useTLS"`
+	Enabled  bool     `json:"enabled"`
+	SMTPHost string   `json:"smtpHost"`
+	SMTPPort int      `json:"smtpPort"`
+	Username string   `json:"username"`
+	Password string   `json:"password"`
+	From     string   `json:"from"`
+	To       []string `json:"to"`
+	UseTLS   bool     `json:"useTLS"`
 }
 
 // WebhookNotificationConfig Webhook 通知配置
 type WebhookNotificationConfig struct {
-	Enabled  bool              `json:"enabled"`
-	URL      string            `json:"url"`
-	Method   string            `json:"method"`
-	Headers  map[string]string `json:"headers,omitempty"`
+	Enabled bool              `json:"enabled"`
+	URL     string            `json:"url"`
+	Method  string            `json:"method"`
+	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // notificationConfig 通知配置（全局）
