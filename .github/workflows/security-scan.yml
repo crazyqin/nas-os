@@ -9,6 +9,12 @@ on:
     # 每周一 02:00 UTC 自动运行
     - cron: '0 2 * * 1'
 
+# 权限配置 - 最小权限原则
+permissions:
+  contents: read           # 读取代码
+  security-events: write   # 上传安全扫描结果
+  id-token: write          # OIDC token 用于签名
+
 # Security Scan 作为信息收集，不阻塞 CI
 # 发现的问题会在 Security tab 显示，由开发者评估处理
 jobs:

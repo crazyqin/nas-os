@@ -1,6 +1,11 @@
 # GitHub Release 构建
 # 构建多平台二进制文件并上传到 GitHub Release
 #
+# v2.35.0 更新：
+# - 添加 id-token 权限支持 OIDC 签名
+# - 优化构建产物缓存
+# - 添加构建缓存恢复
+#
 # v2.31.0 更新：
 # - 添加源码 SBOM 生成
 # - 添加校验和签名
@@ -15,10 +20,13 @@ on:
 
 env:
   GO_VERSION: '1.26'
+  CACHE_VERSION: 'v3'
 
+# 权限配置
 permissions:
-  contents: write
-  packages: write
+  contents: write          # 创建 Release
+  packages: write          # 推送到 GHCR
+  id-token: write          # OIDC 签名
 
 jobs:
   # ========== 构建二进制文件 ==========

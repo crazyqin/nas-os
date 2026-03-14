@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.35.0] - 2026-03-15
+
+### Added
+- **API 中间件增强** (礼部)
+  - RequestLogger 中间件：完整请求日志记录
+  - 支持结构化日志输出（JSON/文本）
+  - 请求 ID 追踪
+  - 性能指标记录
+
+- **Excel 报告导出** (户部)
+  - 完整的 Excel 导出器实现
+  - 支持样式设置和格式化
+  - 多工作表支持
+  - 图表生成功能
+
+- **开发环境增强** (工部)
+  - Air 热重载配置
+  - Docker Compose 开发环境
+  - 开发者快速启动脚本
+
+- **文档完善** (礼部)
+  - API 快速入门指南优化
+  - 发布流程文档
+  - 模块依赖说明
+
+### Changed
+- 代码格式规范化 (gofmt)
+- 性能优化和资源使用改进
+- 错误处理增强
+
+### Fixed
+- LDAP 模块代码格式问题
+- WebSocket 连接稳定性改进
+
 ## [v2.34.0] - 2026-03-15
 
 ### Added

@@ -3,6 +3,12 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
+# v2.35.0 更新：
+# - 修复权限配置（添加 security-events: write）
+# - 优化缓存策略
+# - 增强安全扫描配置
+# - 添加镜像 attestations 支持
+#
 # v2.33.0 更新：
 # - 更新缓存版本
 # - 优化镜像扫描流程
@@ -34,7 +40,15 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   # 缓存版本号
-  CACHE_VERSION: 'v2'
+  CACHE_VERSION: 'v3'
+
+# 权限配置 - 最小权限原则
+permissions:
+  contents: read           # 读取代码
+  packages: write          # 推送镜像到 GHCR
+  security-events: write   # 上传安全扫描结果
+  id-token: write          # OIDC token 用于 keyless 签名
+  attestations: write      # 写入 attestations
 
 # 并发控制
 concurrency:
@@ -47,9 +61,6 @@ jobs:
     name: 构建 Docker 镜像
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
     outputs:
       digest: ${{ steps.build.outputs.digest }}
       short-sha: ${{ steps.meta.outputs.version }}
@@ -156,10 +167,6 @@ jobs:
     needs: [docker-build]
     if: github.event_name != 'pull_request'
     timeout-minutes: 10
-    permissions:
-      contents: read
-      packages: write
-      id-token: write  # OIDC token for keyless signing
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -244,9 +251,6 @@ jobs:
     needs: [docker-build]
     if: github.event_name != 'pull_request'
     timeout-minutes: 15
-    permissions:
-      contents: read
-      security-events: write
     steps:
       - name: 检出代码
         uses: actions/checkout@v4

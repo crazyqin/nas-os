@@ -324,6 +324,7 @@
 | **v2.28.0** | **Stable** | **2026-03-22** | **质量提升/性能优化/国际化增强** | ✅ 已发布 |
 | **v2.32.0** | **Stable** | **2026-03-15** | **稳定性提升/文档完善/安全增强** | ✅ **已发布** |
 | **v2.33.0** | **Stable** | **2026-03-15** | **项目治理完善/贡献指南/版本更新** | ✅ **已发布** |
+| **v2.35.0** | **Stable** | **2026-03-15** | **核心模块测试补充/覆盖率提升** | ✅ **已发布** |
 
 ---
 
@@ -482,6 +483,34 @@
 - **版本号**: 更新到 v2.33.0 ✅
 - **贡献指南**: 完善中文贡献指南 ✅
 - **模块整理**: 分析 internal/ 模块依赖关系 ✅
+
+---
+
+### 🎯 里程碑 15: v2.35.0 核心模块测试补充 (M15) ✅
+**时间**: 2026-03-15
+**负责人**: 吏部 (项目管理)
+**状态**: 已完成
+
+#### 任务清单
+- [x] 版本号更新 (v2.35.0)
+- [x] 通知模块测试 (notify/notifier_test.go)
+- [x] 性能优化器测试 (optimizer/optimizer_test.go)
+- [x] 下载管理器测试 (downloader/manager_test.go)
+- [x] 媒体库测试 (media/library_test.go)
+- [x] MILESTONES.md 更新
+
+#### 交付物
+- `internal/version/version.go` - 版本号更新 ✅
+- `internal/notify/notifier_test.go` - 通知模块测试 ✅
+- `internal/optimizer/optimizer_test.go` - 性能优化器测试 ✅
+- `internal/downloader/manager_test.go` - 下载管理器测试 ✅
+- `internal/media/library_test.go` - 媒体库测试 ✅
+
+#### 核心功能
+- **通知测试**: Manager/EmailNotifier/WeChatNotifier/WebhookNotifier 完整测试覆盖
+- **优化器测试**: 缓存操作、批处理、查询优化、配置管理测试
+- **下载测试**: 任务创建/更新/删除、状态管理、类型检测、持久化测试
+- **媒体库测试**: 库管理、扫描、媒体项、元数据提供商测试
 
 ---
 
