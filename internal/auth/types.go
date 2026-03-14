@@ -103,8 +103,17 @@ var (
 
 // User 用户信息（从 users 包复制，避免循环依赖）
 type User struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email,omitempty"`
-	Role     string `json:"role"`
+	ID       string   `json:"id"`
+	Username string   `json:"username"`
+	Email    string   `json:"email,omitempty"`
+	Role     string   `json:"role"`
+	Groups   []string `json:"groups,omitempty"`
+}
+
+// GetGroups 实现 GroupProvider 接口
+func (u *User) GetGroups() []string {
+	if u.Groups == nil {
+		return []string{}
+	}
+	return u.Groups
 }

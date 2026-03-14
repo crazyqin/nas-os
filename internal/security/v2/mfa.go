@@ -15,6 +15,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"nas-os/internal/cache"
+
+	"go.uber.org/zap"
 )
 
 // generateSecureCode 生成安全的随机验证码
@@ -31,6 +35,7 @@ type MFAManager struct {
 	config      MFAConfig
 	userSecrets map[string]*MFASecret // UserID -> MFA 密钥
 	mu          sync.RWMutex
+	cache       *cache.Manager // 缓存管理器，用于存储临时验证码
 	// 通知回调
 	sendEmailFunc   func(to, subject, body string) error
 	sendSMSFunc     func(to, message string) error
@@ -77,6 +82,10 @@ type MFAVerificationResult struct {
 
 // NewMFAManager 创建 MFA 管理器
 func NewMFAManager() *MFAManager {
+	// 创建缓存管理器（10000 容量，10 分钟 TTL）
+	logger := zap.NewNop() // 使用空 logger，实际使用时可以注入
+	cacheMgr := cache.NewManager(10000, 10*time.Minute, logger)
+
 	return &MFAManager{
 		config: MFAConfig{
 			Enabled:        true,
@@ -89,7 +98,33 @@ func NewMFAManager() *MFAManager {
 			ValidityPeriod: 30,
 		},
 		userSecrets: make(map[string]*MFASecret),
+		cache:       cacheMgr,
 	}
+}
+
+// NewMFAManagerWithCache 创建 MFA 管理器（带自定义缓存）
+func NewMFAManagerWithCache(cacheMgr *cache.Manager) *MFAManager {
+	return &MFAManager{
+		config: MFAConfig{
+			Enabled:        true,
+			RequiredFor:    []string{"admin"},
+			TOTPEnabled:    true,
+			SMSEnabled:     false,
+			EmailEnabled:   true,
+			RecoveryCodes:  10,
+			CodeLength:     6,
+			ValidityPeriod: 30,
+		},
+		userSecrets: make(map[string]*MFASecret),
+		cache:       cacheMgr,
+	}
+}
+
+// SetCache 设置缓存管理器
+func (mm *MFAManager) SetCache(cacheMgr *cache.Manager) {
+	mm.mu.Lock()
+	defer mm.mu.Unlock()
+	mm.cache = cacheMgr
 }
 
 // SetSendEmailFunc 设置邮件发送回调
@@ -200,6 +235,36 @@ func (mm *MFAManager) VerifyRecoveryCode(storedHashes []string, code string) boo
 		}
 	}
 	return false
+}
+
+// RemoveUsedRecoveryCode 移除已使用的恢复码
+func (mm *MFAManager) RemoveUsedRecoveryCode(userID, code string) error {
+	mm.mu.Lock()
+	defer mm.mu.Unlock()
+
+	secret, exists := mm.userSecrets[userID]
+	if !exists {
+		return fmt.Errorf("用户 MFA 配置不存在")
+	}
+
+	codeHash := mm.HashRecoveryCode(code)
+	newHashes := make([]string, 0, len(secret.RecoveryCodes))
+	found := false
+
+	for _, hash := range secret.RecoveryCodes {
+		if hmac.Equal([]byte(codeHash), []byte(hash)) {
+			found = true
+			continue // 跳过已使用的恢复码
+		}
+		newHashes = append(newHashes, hash)
+	}
+
+	if !found {
+		return fmt.Errorf("恢复码不存在")
+	}
+
+	secret.RecoveryCodes = newHashes
+	return nil
 }
 
 // SetupMFA 为用户设置 MFA
@@ -347,7 +412,8 @@ func (mm *MFAManager) verifyCode(secret *MFASecret, code string) bool {
 
 	// 尝试恢复码
 	if mm.VerifyRecoveryCode(secret.RecoveryCodes, code) {
-		// TODO: 移除已使用的恢复码
+		// 移除已使用的恢复码
+		_ = mm.RemoveUsedRecoveryCode(secret.UserID, code)
 		return true
 	}
 
@@ -382,10 +448,59 @@ func (mm *MFAManager) SendSMSCode(userID string) (string, error) {
 		}
 	}
 
-	// TODO: 临时存储验证码（带过期时间）
-	// 这里简化处理，实际应该存储到缓存（如 Redis）
+	// 使用缓存存储验证码（带过期时间）
+	if mm.cache != nil {
+		cacheKey := fmt.Sprintf("sms_code:%s", userID)
+		mm.cache.Set(cacheKey, &SMSVerificationData{
+			Code:      code,
+			Phone:     secret.SMSPhone,
+			CreatedAt: time.Now(),
+			ExpiresAt: time.Now().Add(time.Duration(mm.config.ValidityPeriod) * time.Second),
+		})
+	}
 
 	return code, nil
+}
+
+// SMSVerificationData 短信验证码数据
+type SMSVerificationData struct {
+	Code      string    `json:"code"`
+	Phone     string    `json:"phone"`
+	CreatedAt time.Time `json:"created_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
+// VerifySMSCode 验证短信验证码
+func (mm *MFAManager) VerifySMSCode(userID, code string) bool {
+	if mm.cache == nil {
+		return false
+	}
+
+	cacheKey := fmt.Sprintf("sms_code:%s", userID)
+	val, ok := mm.cache.Get(cacheKey)
+	if !ok {
+		return false
+	}
+
+	data, ok := val.(*SMSVerificationData)
+	if !ok {
+		return false
+	}
+
+	// 检查是否过期
+	if time.Now().After(data.ExpiresAt) {
+		mm.cache.Delete(cacheKey)
+		return false
+	}
+
+	// 验证码匹配
+	if data.Code == code {
+		// 验证成功后删除验证码
+		mm.cache.Delete(cacheKey)
+		return true
+	}
+
+	return false
 }
 
 // SendEmailCode 发送邮件验证码
