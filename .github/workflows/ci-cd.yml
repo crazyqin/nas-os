@@ -4,18 +4,18 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
+# v2.35.0 更新：
+# - 修复权限配置问题（安全扫描需要 security-events: write）
+# - 添加 id-token: write 支持 OIDC 签名
+# - 优化 Go 模块缓存策略
+# - 添加构建缓存恢复机制
+# - 增强安全扫描配置
+#
 # v2.34.0 更新：
 # - 添加 CodeQL 代码分析
 # - 优化测试矩阵策略
 # - 添加测试结果合并报告
 # - 增强缓存策略
-#
-# v2.33.0 更新：
-# - 添加缓存失效机制
-# - 修复集成测试依赖问题
-# - 增强构建矩阵配置
-# - 添加构建产物校验
-# - 添加测试结果报告
 
 name: CI/CD
 
@@ -26,10 +26,18 @@ on:
     branches: [master]
   workflow_dispatch:
 
+# 权限配置 - 最小权限原则
+permissions:
+  contents: read           # 读取代码
+  security-events: write   # 上传安全扫描结果（CodeQL, Trivy, gosec）
+  id-token: write          # OIDC token 用于 keyless 签名
+  actions: read            # 读取 workflow 信息
+  checks: write            # 写入检查结果
+
 env:
   GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v2'
+  CACHE_VERSION: 'v3'
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:
@@ -101,6 +109,9 @@ jobs:
     name: 依赖安全扫描
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -316,6 +327,19 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: true
           cache-dependency-path: go.sum
+      
+      # 使用 Go 构建缓存加速编译
+      - name: Go 构建缓存
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ env.CACHE_VERSION }}-go-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('**/*.go') }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-go-build-${{ matrix.os }}-${{ matrix.arch }}-
+            ${{ env.CACHE_VERSION }}-go-build-${{ matrix.os }}-
+            ${{ env.CACHE_VERSION }}-go-build-
       
       - name: 编译
         env:
