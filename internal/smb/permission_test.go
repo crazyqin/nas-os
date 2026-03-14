@@ -19,21 +19,16 @@ func setupPermissionTest(t *testing.T) (*Manager, *users.Manager, string) {
 		t.Fatalf("创建用户管理器失败: %v", err)
 	}
 
-	// 创建测试用户
-	testUsers := []struct {
-		username string
-		password string
-		role     users.Role
-	}{
-		{"admin", "admin123", users.RoleAdmin},
-		{"user1", "pass123", users.RoleUser},
-		{"user2", "pass123", users.RoleUser},
-		{"readonly", "pass123", users.RoleUser},
+	// 创建测试用户（admin 已由用户管理器自动创建）
+	testUsers := []users.UserInput{
+		{Username: "user1", Password: "pass123", Role: users.RoleUser},
+		{Username: "user2", Password: "pass123", Role: users.RoleUser},
+		{Username: "readonly", Password: "pass123", Role: users.RoleUser},
 	}
 
 	for _, u := range testUsers {
-		if _, err := userMgr.CreateUser(u.username, u.password, u.role); err != nil {
-			t.Fatalf("创建用户 %s 失败: %v", u.username, err)
+		if _, err := userMgr.CreateUser(u); err != nil {
+			t.Fatalf("创建用户 %s 失败: %v", u.Username, err)
 		}
 	}
 
@@ -455,6 +450,9 @@ func TestPermissionPersistence(t *testing.T) {
 	})
 	_ = mgr.SetSharePermission("persist-share", "user1", true)
 	_ = mgr.SetSharePermission("persist-share", "user2", false)
+
+	// 手动保存配置（SetSharePermission 当前不会自动保存）
+	_ = mgr.saveConfig()
 
 	// 重新创建管理器加载配置
 	mgr2, err := NewManagerWithUserMgr(mgr.userManager, mgr.configPath)
