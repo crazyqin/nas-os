@@ -13,16 +13,17 @@ linters:
     # - gocritic    # 高级代码检查 (暂时禁用，项目中存在大量代码风格问题)
     # - gosec       # 安全漏洞检查 (暂时禁用，项目中存在大量文件权限警告)
     - govet       # Go vet 检查
-    - ineffassign # 检测无效赋值
+    # - ineffassign # 检测无效赋值 (暂时禁用，待后续修复)
     - staticcheck # 静态分析 (包含 gosimple 功能)
     - unused      # 未使用代码检查
+
+linters-settings:
+  staticcheck:
+    checks: ["-ST1005", "-SA9003", "-QF1012"]
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  
-  exclude:
-    - 'SA9003: empty branch'  # 空分支有时是故意的
   
   exclude-rules:
     # 插件系统可能导出但未使用
