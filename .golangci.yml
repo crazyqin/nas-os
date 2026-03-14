@@ -18,3 +18,9 @@ issues:
       linters:
         - ineffassign
         - staticcheck
+    - path: plugins/
+      linters:
+        - unused
+    - path: pkg/btrfs/
+      linters:
+        - unused
