@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.41.0] - 2026-03-15
+
+### Added
+- **Swagger API 文档完善** (礼部)
+  - 生成完整的 OpenAPI/Swagger 文档 (docs/swagger.json, docs/swagger.yaml)
+  - 添加 docs/docs.go 自动生成支持
+  - API 文档覆盖所有主要模块
+
+### Fixed
+- **测试修复** (兵部)
+  - 并发测试用例优化
+  - 存储成本测试修复
+  - 容量规划测试修复
+  - 备份/快照/缓存模块测试完善
+
+### Improved
+- **CI/CD 优化** (工部)
+  - Node.js 24 支持
+  - 缓存策略优化
+  - 构建并行化改进
+  - 测试超时配置优化
+
 ## [v2.40.0] - 2026-03-15
 
 ### Added
