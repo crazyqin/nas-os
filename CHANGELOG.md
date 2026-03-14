@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.40.0] - 2026-03-15
+
+### Added
+- **安全审计系统** (刑部)
+  - 新增 internal/auth/security_audit.go 安全审计模块
+  - 9 项安全检查项：密码策略、会话管理、权限隔离等
+  - 完整的安全审计测试覆盖
+
+### Changed
+- **版本号统一更新** (礼部)
+  - 所有文档版本号同步至 v2.40.0
+  - README.md 版本信息更新
+  - docs/ 文档索引更新
+
+### Fixed
+- **并发安全修复** (兵部)
+  - websocket_enhanced.go closeOnce 并发问题
+  - response.go NoContent() 返回状态码
+  - validator_test.go 测试用例
+  - ldap/ad.go 负数解析问题
+  - capacity_planning_test.go 测试期望
+
+### Improved
+- **CI/CD 优化** (工部)
+  - 超时配置从 20m 增至 30m
+  - 测试并行化 (-parallel 4)
+  - Dockerfile 健康检查修复 (wget→curl)
+  - Makefile 测试参数优化
+
+- **配额管理优化** (户部)
+  - 配额管理模块分析 (13,914 行代码)
+  - 成本计算逻辑验证
+  - 资源效率评分分析
+
+## [v2.39.0] - 2026-03-15
+
+### Added
+- **项目治理完善** (礼部)
+  - 版本号统一更新至 v2.39.0
+  - CHANGELOG.md 格式规范化
+  - MILESTONES.md 里程碑进度更新
+
+- **文档体系完善**
+  - docs/ 目录文档结构优化
+  - 版本发布说明完善
+  - 贡献指南更新
+
 ## [v2.38.0] - 2026-03-15
 
 ### Changed
