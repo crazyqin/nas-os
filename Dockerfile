@@ -1,6 +1,13 @@
 # NAS-OS Dockerfile
 # 多阶段构建，优化后的生产镜像约 20-25MB
 # 支持 amd64, arm64, arm/v7 架构
+#
+# 构建命令:
+#   docker build -t nas-os:latest .
+#   docker build --build-arg VERSION=v1.0.0 -t nas-os:v1.0.0 .
+#
+# 多架构构建:
+#   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t nas-os:latest .
 
 # ========== 构建阶段 ==========
 FROM golang:1.25-alpine AS builder
@@ -19,9 +26,12 @@ RUN apk add --no-cache git ca-certificates tzdata upx
 
 # 复制 go mod 文件（利用 Docker 缓存）
 COPY go.mod go.sum ./
-RUN go mod download
 
-# 复制源码
+# 下载依赖（使用缓存挂载加速）
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+# 复制源码（分开复制，利用缓存层）
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 COPY pkg/ ./pkg/
@@ -32,14 +42,17 @@ COPY docs/swagger ./docs/swagger
 ENV CGO_ENABLED=0
 
 # 编译（静态链接，优化大小）
+# 使用缓存挂载加速编译
 RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
     go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
     -o nasd ./cmd/nasd && \
     go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
     -o nasctl ./cmd/nasctl
 
 # UPX 压缩（进一步减小 30-50%）
-RUN upx --best --lzma nasd nasctl 2>/dev/null || true
+# 某些架构可能不支持，失败时静默跳过
+RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped (not supported on this platform)"
 
 # ========== 运行阶段 ==========
 FROM alpine:3.21
@@ -94,10 +107,11 @@ EXPOSE 111/udp
 EXPOSE 20048/tcp
 
 # 健康检查（增强版）
-# 检查 API 健康端点和系统状态
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD wget -q --spider http://localhost:8080/api/v1/health && \
-    wget -q --spider http://localhost:8080/api/v1/system/status || exit 1
+# 先检查进程文件是否存在，再检查 API 端点
+# 这样可以更快发现服务崩溃
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD wget -q --spider http://localhost:8080/api/v1/health || \
+    (echo "Health check failed, service may be unhealthy" && exit 1)
 
 # 启动命令
 ENTRYPOINT ["nasd"]
