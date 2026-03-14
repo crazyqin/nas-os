@@ -1,20 +1,20 @@
 # NAS-OS CI/CD Pipeline
 # 构建、测试、发布自动化流程
+# 
+# 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
+# 此文件专注于代码质量、测试和二进制构建
 
 name: CI/CD
 
 on:
   push:
     branches: [master, develop]
-    tags: ['v*']
   pull_request:
     branches: [master]
   workflow_dispatch:
 
 env:
   GO_VERSION: '1.26'
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   # ========== 代码质量 ==========
@@ -215,139 +215,33 @@ jobs:
             nasd-*
             checksums.txt
 
-  # ========== Docker 镜像 ==========
-  docker:
-    name: Docker 镜像
+  # ========== Docker Compose 测试 ==========
+  docker-compose-test:
+    name: Docker Compose 测试
     runs-on: ubuntu-latest
     needs: [test]
-    if: github.event_name != 'pull_request'
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
       
-      - name: 设置 QEMU
-        uses: docker/setup-qemu-action@v3
-      
-      - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      
-      - name: 登录 GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
-      
-      - name: 提取版本信息
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'master') }}
-      
-      - name: 构建并推送
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            VERSION=${{ github.ref_name }}
-            BUILD_TIME=${{ github.event.head_commit.timestamp }}
-            REVISION=${{ github.sha }}
-
-  # ========== 发布 ==========
-  release:
-    name: 发布版本
-    runs-on: ubuntu-latest
-    needs: [build, docker]
-    if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
-      packages: write
-      id-token: write
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-      
-      - name: 下载构建产物
-        uses: actions/download-artifact@v4
-        with:
-          pattern: nas-os-*
-          merge-multiple: true
-          path: ./artifacts
-      
-      - name: 整理发布文件
+      - name: 创建必要目录
         run: |
-          cd ./artifacts
-          # 移动所有二进制文件到根目录（避免同文件移动错误）
-          find . -mindepth 2 -name "nasd-*" -exec mv {} . \;
-          find . -mindepth 2 -name "checksums.txt" -exec mv {} . \;
-          rm -rf nas-os-*/
-          ls -la
+          sudo mkdir -p /var/lib/nas-os
+          sudo chmod 777 /var/lib/nas-os
       
-      - name: 创建 Release
-        uses: softprops/action-gh-release@v2
-        with:
-          generate_release_notes: true
-          draft: false
-          prerelease: ${{ contains(github.ref, '-rc') }}
-          files: |
-            ./artifacts/nasd-*
-            ./artifacts/checksums.txt
-          body: |
-            ## 📦 版本说明
-            
-            ### 二进制文件
-            - `nasd-linux-amd64` - Linux x86_64
-            - `nasd-linux-arm64` - Linux ARM64 (树莓派 4/5, Orange Pi 5)
-            - `nasd-linux-armv7` - Linux ARMv7 (树莓派 3/Zero)
-            
-            ### Docker 镜像
-            ```bash
-            docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-            ```
-            
-            ### 校验和
-            所有文件都包含 SHA256 校验和，验证方法：
-            ```bash
-            sha256sum -c checksums.txt
-            ```
-            
-            ${{ github.ref_name == 'master' && '⚠️ 这是开发版本，不建议生产使用' || '' }}
-
-  # ========== 部署（可选）==========
-  deploy:
-    name: 部署到服务器
-    runs-on: ubuntu-latest
-    needs: [release]
-    if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref, '-rc')
-    environment: production
-    steps:
-      - name: 部署到服务器
+      - name: 构建并启动
         run: |
-          echo "🚀 部署到生产环境（需配置 SSH 密钥和服务器地址）"
-          # 示例：使用 SSH 部署
-          # - 设置 secrets.DEPLOY_SSH_KEY
-          # - 设置 secrets.DEPLOY_HOST
-          # - 设置 secrets.DEPLOY_USER
-          # 
-          # echo "$DEPLOY_SSH_KEY" | ssh-agent -s
-          # ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST
-          #   "cd /opt/nas-os && docker-compose pull && docker-compose up -d"
-        env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          docker compose build
+          docker compose up -d
+      
+      - name: 等待服务启动
+        run: sleep 10
+      
+      - name: 健康检查
+        run: |
+          docker compose ps
+          docker compose logs
+      
+      - name: 停止服务
+        if: always()
+        run: docker compose down -v

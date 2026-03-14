@@ -16,8 +16,10 @@ FROM golang:1.26-alpine AS builder
 ARG VERSION=dev
 ARG BUILD_TIME
 ARG REVISION
+# BuildKit 自动注入的跨平台构建参数
 ARG TARGETOS
 ARG TARGETARCH
+ARG TARGETVARIANT
 
 WORKDIR /build
 
@@ -43,10 +45,13 @@ ENV CGO_ENABLED=0
 
 # 编译（静态链接，优化大小）
 # 使用缓存挂载加速编译
+# 支持 BuildKit 自动注入的跨平台参数
 RUN --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=cache,target=/go/pkg/mod \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
     go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
     -o nasd ./cmd/nasd && \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
     go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
     -o nasctl ./cmd/nasctl
 
@@ -56,6 +61,11 @@ RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped (
 
 # ========== 运行阶段 ==========
 FROM alpine:3.21
+
+# 重新声明构建参数（运行阶段需要）
+ARG VERSION=dev
+ARG BUILD_TIME
+ARG REVISION
 
 # OCI 标签
 LABEL maintainer="NAS-OS Team"
