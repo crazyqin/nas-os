@@ -231,7 +231,10 @@ func TestManager_DeleteSyncTask(t *testing.T) {
 		SecretKey: "test-secret",
 		Bucket:    "test-bucket",
 	}
-	provider, _ := m.CreateProvider(providerConfig)
+	provider, err := m.CreateProvider(providerConfig)
+	if err != nil {
+		t.Fatalf("创建提供商失败: %v", err)
+	}
 
 	task := SyncTask{
 		Name:       "test-sync",
@@ -239,10 +242,13 @@ func TestManager_DeleteSyncTask(t *testing.T) {
 		LocalPath:  "/tmp/test",
 		RemotePath: "/backup",
 	}
-	createdTask, _ := m.CreateSyncTask(task)
+	createdTask, err := m.CreateSyncTask(task)
+	if err != nil {
+		t.Fatalf("创建同步任务失败: %v", err)
+	}
 
 	// 删除任务
-	err := m.DeleteSyncTask(createdTask.ID)
+	err = m.DeleteSyncTask(createdTask.ID)
 	require.NoError(t, err)
 
 	// 验证已删除
@@ -315,8 +321,10 @@ func TestSyncEngine_CalculateFileHash(t *testing.T) {
 
 	content := []byte("test content for hash calculation")
 	_, err = tmpFile.Write(content)
-	require.NoError(t, err)
-	tmpFile.Close()
+	if err != nil {
+		t.Fatalf("写入文件失败: %v", err)
+	}
+	_ = tmpFile.Close()
 
 	engine := NewSyncEngine(nil, &SyncTask{})
 	hash, err := engine.calculateFileHash(tmpFile.Name())

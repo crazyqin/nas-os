@@ -53,12 +53,12 @@ func InitializeEdgeComputing(config EdgeRootConfig, logger *zap.Logger, cluster 
 
 	taskScheduler, err := NewTaskScheduler(taskConfig, logger)
 	if err != nil {
-		nodeManager.Shutdown()
+		_ = nodeManager.Shutdown()
 		return nil, err
 	}
 
 	if err := taskScheduler.Initialize(); err != nil {
-		nodeManager.Shutdown()
+		_ = nodeManager.Shutdown()
 		return nil, err
 	}
 
@@ -68,30 +68,30 @@ func InitializeEdgeComputing(config EdgeRootConfig, logger *zap.Logger, cluster 
 
 	resultAgg, err := NewResultAggregator(resultConfig, logger)
 	if err != nil {
-		nodeManager.Shutdown()
-		taskScheduler.Shutdown()
+		_ = nodeManager.Shutdown()
+		_ = taskScheduler.Shutdown()
 		return nil, err
 	}
 
 	if err := resultAgg.Initialize(); err != nil {
-		nodeManager.Shutdown()
-		taskScheduler.Shutdown()
+		_ = nodeManager.Shutdown()
+		_ = taskScheduler.Shutdown()
 		return nil, err
 	}
 
 	// 4. 初始化边缘负载均衡器
 	edgeLB, err := NewEdgeLoadBalancer(config.LoadBalancer, nodeManager, logger)
 	if err != nil {
-		nodeManager.Shutdown()
-		taskScheduler.Shutdown()
-		resultAgg.Shutdown()
+		_ = nodeManager.Shutdown()
+		_ = taskScheduler.Shutdown()
+		_ = resultAgg.Shutdown()
 		return nil, err
 	}
 
 	if err := edgeLB.Initialize(); err != nil {
-		nodeManager.Shutdown()
-		taskScheduler.Shutdown()
-		resultAgg.Shutdown()
+		_ = nodeManager.Shutdown()
+		_ = taskScheduler.Shutdown()
+		_ = resultAgg.Shutdown()
 		return nil, err
 	}
 

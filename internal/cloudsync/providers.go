@@ -775,7 +775,10 @@ func (p *GoogleDriveProvider) createFolder(ctx context.Context, name, parentID s
 		"parents":  []string{parentID},
 	}
 
-	body, _ := json.Marshal(metadata)
+	body, err := json.Marshal(metadata)
+	if err != nil {
+		return "", fmt.Errorf("序列化元数据失败: %w", err)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, "POST",
 		"https://www.googleapis.com/drive/v3/files?fields=id,name",
@@ -957,9 +960,12 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 		"name":    filename,
 		"parents": []string{parentID},
 	}
-	metadataBody, _ := json.Marshal(metadata)
+	metadataBody, err := json.Marshal(metadata)
+	if err != nil {
+		return fmt.Errorf("序列化元数据失败: %w", err)
+	}
 
-	initReq, _ := http.NewRequestWithContext(ctx, "POST", uploadURL, bytes.NewReader(metadataBody))
+	initReq, err := http.NewRequestWithContext(ctx, "POST", uploadURL, bytes.NewReader(metadataBody))
 	initReq.Header.Set("Authorization", "Bearer "+p.accessToken)
 	initReq.Header.Set("Content-Type", "application/json")
 
@@ -1089,7 +1095,10 @@ func (p *GoogleDriveProvider) List(ctx context.Context, prefix string, recursive
 	listURL := fmt.Sprintf("https://www.googleapis.com/drive/v3/files?q=%s&fields=files(id,name,size,modifiedTime,mimeType)&pageSize=1000",
 		url.QueryEscape(query))
 
-	req, _ := http.NewRequestWithContext(ctx, "GET", listURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", listURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 
 	resp, err := p.client.Do(req)
@@ -1150,7 +1159,10 @@ func (p *GoogleDriveProvider) Stat(ctx context.Context, remotePath string) (*Fil
 	}
 
 	url := fmt.Sprintf("https://www.googleapis.com/drive/v3/files/%s?fields=name,size,modifiedTime,mimeType", fileID)
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 
 	resp, err := p.client.Do(req)
@@ -1219,8 +1231,14 @@ func (p *GoogleDriveProvider) TestConnection(ctx context.Context) (*ConnectionTe
 	}
 
 	// 尝试列出文件
-	req, _ := http.NewRequestWithContext(ctx, "GET",
+	req, err := http.NewRequestWithContext(ctx, "GET",
 		"https://www.googleapis.com/drive/v3/files?pageSize=1&fields=files(id)", nil)
+	if err != nil {
+		result.Success = false
+		result.Message = fmt.Sprintf("创建请求失败: %v", err)
+		result.Error = err.Error()
+		return result, nil
+	}
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 
 	resp, err := p.client.Do(req)
@@ -1359,7 +1377,10 @@ func (p *OneDriveProvider) ensureFolder(ctx context.Context, path string) error 
 
 		// 检查文件夹是否存在
 		url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:%s", currentPath)
-		req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+		req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+		if err != nil {
+			return fmt.Errorf("创建请求失败: %w", err)
+		}
 		req.Header.Set("Authorization", "Bearer "+p.accessToken)
 
 		resp, err := p.client.Do(req)
@@ -1368,10 +1389,10 @@ func (p *OneDriveProvider) ensureFolder(ctx context.Context, path string) error 
 		}
 
 		if resp.StatusCode == http.StatusOK {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			continue
 		}
-		resp.Body.Close()
+		_ = resp.Body.Close()
 
 		if resp.StatusCode == http.StatusNotFound {
 			// 创建文件夹
@@ -1391,8 +1412,15 @@ func (p *OneDriveProvider) ensureFolder(ctx context.Context, path string) error 
 				"@microsoft.graph.conflictBehavior": "rename",
 			}
 
-			body, _ := json.Marshal(folderData)
-			req, _ = http.NewRequestWithContext(ctx, "POST", folderURL, bytes.NewReader(body))
+			body, err := json.Marshal(folderData)
+			if err != nil {
+				return fmt.Errorf("序列化文件夹数据失败: %w", err)
+			}
+
+			req, err = http.NewRequestWithContext(ctx, "POST", folderURL, bytes.NewReader(body))
+			if err != nil {
+				return fmt.Errorf("创建文件夹请求失败: %w", err)
+			}
 			req.Header.Set("Authorization", "Bearer "+p.accessToken)
 			req.Header.Set("Content-Type", "application/json")
 
@@ -1400,7 +1428,7 @@ func (p *OneDriveProvider) ensureFolder(ctx context.Context, path string) error 
 			if err != nil {
 				return fmt.Errorf("创建文件夹失败: %w", err)
 			}
-			resp.Body.Close()
+			_ = resp.Body.Close()
 
 			if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
 				return fmt.Errorf("创建文件夹失败: %s", resp.Status)
@@ -1593,12 +1621,15 @@ func (p *OneDriveProvider) List(ctx context.Context, prefix string, recursive bo
 		folderPath = "/"
 	}
 
-	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:%s:/children", folderPath)
+	url := "https://graph.microsoft.com/v1.0/me/drive/root/children"
 	if folderPath == "/" {
 		url = "https://graph.microsoft.com/v1.0/me/drive/root/children"
 	}
 
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 
 	resp, err := p.client.Do(req)
@@ -1653,7 +1684,10 @@ func (p *OneDriveProvider) Stat(ctx context.Context, remotePath string) (*FileIn
 	}
 
 	url := fmt.Sprintf("https://graph.microsoft.com/v1.0/me/drive/root:%s", remotePath)
-	req, _ := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %w", err)
+	}
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 
 	resp, err := p.client.Do(req)
@@ -1724,7 +1758,13 @@ func (p *OneDriveProvider) TestConnection(ctx context.Context) (*ConnectionTestR
 	}
 
 	// 尝试获取 drive 信息
-	req, _ := http.NewRequestWithContext(ctx, "GET", "https://graph.microsoft.com/v1.0/me/drive", nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", "https://graph.microsoft.com/v1.0/me/drive", nil)
+	if err != nil {
+		result.Success = false
+		result.Message = fmt.Sprintf("创建请求失败: %v", err)
+		result.Error = err.Error()
+		return result, nil
+	}
 	req.Header.Set("Authorization", "Bearer "+p.accessToken)
 
 	resp, err := p.client.Do(req)

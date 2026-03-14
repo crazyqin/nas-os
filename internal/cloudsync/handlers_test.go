@@ -57,7 +57,10 @@ func TestCloudSyncHandlers_CreateProvider(t *testing.T) {
 		"bucket":    "test-bucket",
 		"region":    "us-east-1",
 	}
-	bodyBytes, _ := json.Marshal(body)
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		t.Fatalf("序列化请求失败: %v", err)
+	}
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/providers", bytes.NewReader(bodyBytes))
@@ -84,7 +87,10 @@ func TestCloudSyncHandlers_CreateProvider_MissingFields(t *testing.T) {
 		"name": "test-provider",
 		// 缺少必需字段
 	}
-	bodyBytes, _ := json.Marshal(body)
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		t.Fatalf("序列化请求失败: %v", err)
+	}
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/providers", bytes.NewReader(bodyBytes))
@@ -188,7 +194,10 @@ func TestCloudSyncHandlers_UpdateProvider(t *testing.T) {
 		Bucket:    "new-bucket",
 		Region:    "ap-northeast-1",
 	}
-	bodyBytes, _ := json.Marshal(body)
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		t.Fatalf("序列化请求失败: %v", err)
+	}
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("PUT", "/api/v1/cloudsync/providers/"+provider.ID, bytes.NewReader(bodyBytes))
@@ -275,7 +284,10 @@ func TestCloudSyncHandlers_CreateSyncTask(t *testing.T) {
 		"direction":    "bidirect",
 		"scheduleType": "manual",
 	}
-	bodyBytes, _ := json.Marshal(body)
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		t.Fatalf("序列化请求失败: %v", err)
+	}
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks", bytes.NewReader(bodyBytes))
