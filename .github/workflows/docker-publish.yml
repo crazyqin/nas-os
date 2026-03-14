@@ -5,10 +5,10 @@ name: Docker Publish
 
 on:
   push:
-    branches: [main, develop]
+    branches: [master, develop]
     tags: ['v*']
   pull_request:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
     inputs:
       platform:
@@ -72,7 +72,7 @@ jobs:
           tags: |
             # 分支
             type=ref,event=branch,suffix=-{{ sha }}
-            type=ref,event=branch,enable=${{ github.ref == 'refs/heads/main' }},suffix=
+            type=ref,event=branch,enable=${{ github.ref == 'refs/heads/master' }},suffix=
             
             # PR
             type=ref,event=pr
@@ -83,7 +83,7 @@ jobs:
             type=semver,pattern={{major}}
             
             # latest (仅 main 分支)
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
             
             # 手动触发
             type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
