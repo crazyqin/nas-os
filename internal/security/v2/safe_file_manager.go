@@ -885,7 +885,7 @@ func (a *SecurityAuditor) FixPermissions(ctx context.Context, dirPath string) (i
 	fixed := 0
 	var errs []error
 
-	err = filepath.Walk(safePath, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(safePath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}

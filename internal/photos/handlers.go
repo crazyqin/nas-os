@@ -514,6 +514,7 @@ func (h *Handlers) getThumbnail(c *gin.Context) {
 	if size == "" {
 		size = "512"
 	}
+	_ = size // TODO: 实现不同尺寸缩略图支持
 
 	// 查找缩略图文件
 	thumbFiles, _ := filepath.Glob(filepath.Join(h.manager.thumbsDir, fmt.Sprintf("%s_*.jpg", photoID)))
