@@ -175,12 +175,12 @@ func (m *Manager) loadConfig() error {
 }
 
 // saveConfig 保存配置文件
+// 注意：调用者必须持有锁（读锁或写锁）
 func (m *Manager) saveConfig() error {
 	if m.configPath == "" {
 		return nil
 	}
 
-	m.mu.RLock()
 	config := struct {
 		DDNSConfigs   map[string]*DDNSConfig   `json:"ddnsConfigs"`
 		PortForwards  map[string]*PortForward  `json:"portForwards"`
@@ -190,7 +190,6 @@ func (m *Manager) saveConfig() error {
 		PortForwards:  m.portForwards,
 		FirewallRules: m.firewallRules,
 	}
-	m.mu.RUnlock()
 
 	data, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
