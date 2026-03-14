@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.19.0] - 2026-03-15
+
+### Fixed
+- **prediction 模块数据竞争修复**
+  - 修复 `Predict()` 方法并发调用时的数据竞争问题
+  - 将 `Predict()` 的读锁改为写锁，因为 `trainModel()` 会修改模型状态
+  - 添加配置访问的安全读取方法
+
+### Changed
+- 改进并发安全性，确保多线程环境下稳定运行
+
 ## [v2.18.0] - 2026-03-15
 
 ### Added
