@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.26.0] - 2026-03-15
+
+### Added
+- **网络诊断工具集** (工部)
+  - Ping 测试（支持自定义选项）
+  - Traceroute 路由追踪
+  - DNS 查询（A/AAAA/MX/NS/TXT）
+  - 端口扫描（TCP/UDP）
+  - Whois 域名查询
+  - ARP 表获取
+  - 网络连通性检查
+  - Netstat 网络状态
+
+- **Docker 管理增强** (兵部)
+  - 容器批量操作
+  - 镜像管理完善
+  - 网络配置
+  - 卷管理
+
+- **自动化引擎完善** (礼部)
+  - 工作流执行优化
+  - Action 解析增强
+  - 错误处理改进
+
+- **Photos AI 增强** (兵部)
+  - 回忆数据持久化存储
+  - AI 分析结果缓存
+
+### Fixed
+- **网络模块测试超时问题**
+  - 移除重复的类型定义
+  - 统一使用 diagnostics.go 实现
+  - 修复方法签名不匹配问题
+
 ## [v2.25.0] - 2026-03-15
 
 ### Fixed
