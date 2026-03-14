@@ -109,7 +109,7 @@ func main() {
 	log.Println("✅ 存储管理模块就绪")
 
 	// 初始化 SMB 共享
-	smbMgr, err := smb.NewManager(userMgr, "/etc/samba/smb.conf")
+	smbMgr, err := smb.NewManagerWithUserMgr(userMgr, "/etc/samba/smb.conf")
 	if err != nil {
 		log.Fatalf("SMB 管理初始化失败：%v", err)
 	}

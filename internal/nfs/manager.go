@@ -1,3 +1,4 @@
+// Package nfs 提供NFS共享服务管理功能
 package nfs
 
 import (
@@ -8,249 +9,273 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"nas-os/internal/logging"
 )
+
+// ServiceStatus NFS服务状态
+type ServiceStatus struct {
+	Running     bool   `json:"running"`
+	Status      string `json:"status"`
+	Version     string `json:"version,omitempty"`
+	Connections int    `json:"connections,omitempty"`
+	Exports     int    `json:"exports"`
+}
+
+// Manager NFS服务管理器
+type Manager struct {
+	configPath string
+	exports    map[string]*Export
+	mu         sync.RWMutex
+	logger     *logging.Logger
+}
+
+// Export NFS导出配置
+type Export struct {
+	Path    string        `json:"path"`
+	Clients []Client      `json:"clients"`
+	Options ExportOptions `json:"options"`
+	FSID    int           `json:"fsid"`
+	Comment string        `json:"comment,omitempty"`
+}
+
+// Client NFS客户端配置
+type Client struct {
+	Host    string   `json:"host"`
+	Options []string `json:"options,omitempty"`
+}
+
+// ExportOptions NFS导出选项
+type ExportOptions struct {
+	Ro           bool `json:"ro"`
+	Rw           bool `json:"rw"`
+	NoRootSquash bool `json:"no_root_squash"`
+	Async        bool `json:"async"`
+	Secure       bool `json:"secure"`
+	SubtreeCheck bool `json:"subtree_check"`
+}
 
 // persistentConfig 持久化配置结构
 type persistentConfig struct {
-	Config  *Config            `json:"config"`
 	Exports map[string]*Export `json:"exports"`
 }
 
-// Export NFS 导出配置
-type Export struct {
-	Name            string   `json:"name"`
-	Path            string   `json:"path"`
-	Comment         string   `json:"comment"`
-	ReadOnly        bool     `json:"read_only"`
-	NoSubtreeCheck  bool     `json:"no_subtree_check"`
-	Sync            bool     `json:"sync"`
-	AllowedNetworks []string `json:"allowed_networks"` // CIDR 格式
-	AllowedHosts    []string `json:"allowed_hosts"`    // 单个 IP
-}
-
-// ExportInput 创建/更新导出输入
-type ExportInput struct {
-	Name            string   `json:"name" binding:"required"`
-	Path            string   `json:"path" binding:"required"`
-	Comment         string   `json:"comment"`
-	ReadOnly        bool     `json:"read_only"`
-	AllowedNetworks []string `json:"allowed_networks"`
-	AllowedHosts    []string `json:"allowed_hosts"`
-}
-
-// Config NFS 配置
-type Config struct {
-	Enabled     bool `json:"enabled"`
-	Threads     int  `json:"threads"`
-	GracePeriod int  `json:"grace_period"` // 秒
-	LeaseTime   int  `json:"lease_time"`   // 秒
-}
-
-// Manager NFS 管理器
-type Manager struct {
-	mu         sync.RWMutex
-	exports    map[string]*Export
-	config     *Config
-	configPath string
-}
-
-var defaultConfig = &Config{
-	Enabled:     true,
-	Threads:     8,
-	GracePeriod: 90,
-	LeaseTime:   90,
-}
-
-// NewManager 创建 NFS 管理器
+// NewManager 创建NFS管理器
 func NewManager(configPath string) (*Manager, error) {
+	logger := logging.NewLogger(nil).WithSource("nfs")
+
 	m := &Manager{
-		exports:    make(map[string]*Export),
-		config:     defaultConfig,
 		configPath: configPath,
+		exports:    make(map[string]*Export),
+		logger:     logger,
 	}
 
-	// 加载现有配置（如果有）
+	// 加载现有配置
 	if err := m.loadConfig(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("加载配置失败: %w", err)
 	}
 
+	logger.Info("NFS管理器初始化完成")
 	return m, nil
 }
 
 // loadConfig 从文件加载配置
 func (m *Manager) loadConfig() error {
-	// 检查配置文件是否存在
 	if _, err := os.Stat(m.configPath); os.IsNotExist(err) {
-		// 配置文件不存在，使用默认配置
+		m.logger.Debug("配置文件不存在，使用空配置")
 		return nil
 	}
 
 	data, err := os.ReadFile(m.configPath)
 	if err != nil {
-		return fmt.Errorf("读取配置文件失败：%w", err)
+		return fmt.Errorf("读取配置文件失败: %w", err)
 	}
 
 	var pc persistentConfig
 	if err := json.Unmarshal(data, &pc); err != nil {
-		return fmt.Errorf("解析配置文件失败：%w", err)
+		return fmt.Errorf("解析配置文件失败: %w", err)
 	}
 
-	if pc.Config != nil {
-		m.config = pc.Config
-	}
 	if pc.Exports != nil {
 		m.exports = pc.Exports
 	}
 
+	m.logger.Infof("加载了 %d 个导出配置", len(m.exports))
 	return nil
 }
 
-// saveConfig 保存配置到文件（线程安全）
+// saveConfig 保存配置到文件
 func (m *Manager) saveConfig() error {
 	m.mu.RLock()
 	pc := persistentConfig{
-		Config:  m.config,
 		Exports: m.exports,
 	}
 	m.mu.RUnlock()
 
-	return writeConfigFile(m.configPath, pc)
+	return m.writeConfigFile(pc)
 }
 
 // saveConfigLocked 保存配置（调用者已持有锁）
 func (m *Manager) saveConfigLocked() error {
 	pc := persistentConfig{
-		Config:  m.config,
 		Exports: m.exports,
 	}
-	return writeConfigFile(m.configPath, pc)
+	return m.writeConfigFile(pc)
 }
 
 // writeConfigFile 写入配置文件
-func writeConfigFile(configPath string, pc persistentConfig) error {
+func (m *Manager) writeConfigFile(pc persistentConfig) error {
 	data, err := json.MarshalIndent(pc, "", "  ")
 	if err != nil {
-		return fmt.Errorf("序列化配置失败：%w", err)
+		return fmt.Errorf("序列化配置失败: %w", err)
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {
-		return fmt.Errorf("创建配置目录失败：%w", err)
+	if err := os.MkdirAll(filepath.Dir(m.configPath), 0755); err != nil {
+		return fmt.Errorf("创建配置目录失败: %w", err)
 	}
 
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
-		return fmt.Errorf("写入配置文件失败：%w", err)
+	if err := os.WriteFile(m.configPath, data, 0644); err != nil {
+		return fmt.Errorf("写入配置文件失败: %w", err)
 	}
 
+	m.logger.Debug("配置文件已保存")
 	return nil
 }
 
-// generateExports 生成 /etc/exports 内容
-func (m *Manager) generateExports() string {
-	var sb strings.Builder
-
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	for _, exp := range m.exports {
-		options := []string{"rw"}
-		if exp.ReadOnly {
-			options = []string{"ro"}
-		}
-		if exp.NoSubtreeCheck {
-			options = append(options, "no_subtree_check")
-		}
-		if exp.Sync {
-			options = append(options, "sync")
-		} else {
-			options = append(options, "async")
-		}
-		options = append(options, "no_root_squash")
-
-		// 构建客户端列表
-		clients := exp.AllowedNetworks
-		clients = append(clients, exp.AllowedHosts...)
-		if len(clients) == 0 {
-			clients = []string{"*(rw,no_root_squash)"}
-		}
-
-		clientStr := strings.Join(clients, "("+strings.Join(options, ",")+"),")
-		sb.WriteString(fmt.Sprintf("%s\t%s(%s)\n", exp.Path, clientStr, strings.Join(options, ",")))
+// CreateExport 创建NFS导出
+func (m *Manager) CreateExport(export *Export) error {
+	if export == nil {
+		return fmt.Errorf("导出配置不能为空")
 	}
 
-	return sb.String()
-}
-
-// ApplyConfig 应用配置
-func (m *Manager) ApplyConfig() error {
-	m.mu.RLock()
-	exportsContent := m.generateExports()
-	m.mu.RUnlock()
-
-	// 写入 exports 文件
-	if err := os.WriteFile("/etc/exports", []byte(exportsContent), 0644); err != nil {
-		return fmt.Errorf("写入 exports 失败：%w", err)
+	if export.Path == "" {
+		return fmt.Errorf("导出路径不能为空")
 	}
 
-	// 重新导出
-	cmd := exec.Command("exportfs", "-ra")
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("重新导出失败：%w", err)
-	}
-
-	return nil
-}
-
-// CreateExport 创建导出
-func (m *Manager) CreateExport(input ExportInput) (*Export, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	if _, exists := m.exports[input.Name]; exists {
-		return nil, fmt.Errorf("导出已存在")
+	// 检查是否已存在
+	if _, exists := m.exports[export.Path]; exists {
+		m.logger.Warnf("导出已存在: %s", export.Path)
+		return fmt.Errorf("导出已存在: %s", export.Path)
 	}
 
 	// 确保路径存在
-	if err := os.MkdirAll(input.Path, 0755); err != nil {
-		return nil, fmt.Errorf("创建目录失败：%w", err)
+	if err := os.MkdirAll(export.Path, 0755); err != nil {
+		m.logger.Errorf("创建导出目录失败: %s - %v", export.Path, err)
+		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
-	exp := &Export{
-		Name:            input.Name,
-		Path:            input.Path,
-		Comment:         input.Comment,
-		ReadOnly:        input.ReadOnly,
-		NoSubtreeCheck:  true,
-		Sync:            false,
-		AllowedNetworks: input.AllowedNetworks,
-		AllowedHosts:    input.AllowedHosts,
-	}
+	// 设置默认选项
+	m.applyDefaultOptions(export)
 
-	m.exports[input.Name] = exp
+	// 添加到内存
+	m.exports[export.Path] = export
 
 	// 保存配置
 	if err := m.saveConfigLocked(); err != nil {
-		delete(m.exports, input.Name)
-		return nil, fmt.Errorf("保存配置失败：%w", err)
+		delete(m.exports, export.Path)
+		return fmt.Errorf("保存配置失败: %w", err)
 	}
 
-	return exp, nil
+	m.logger.Infof("创建NFS导出: %s", export.Path)
+	return nil
 }
 
-// GetExport 获取导出
-func (m *Manager) GetExport(name string) (*Export, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	exp, exists := m.exports[name]
-	if !exists {
-		return nil, fmt.Errorf("导出不存在")
+// applyDefaultOptions 应用默认选项
+func (m *Manager) applyDefaultOptions(export *Export) {
+	// 如果没有客户端，添加默认允许所有
+	if len(export.Clients) == 0 {
+		export.Clients = []Client{
+			{Host: "*", Options: []string{}},
+		}
 	}
-	return exp, nil
+
+	// 设置默认权限（如果没有指定读写权限）
+	if !export.Options.Ro && !export.Options.Rw {
+		export.Options.Rw = true
+	}
 }
 
-// ListExports 获取导出列表
-func (m *Manager) ListExports() []*Export {
+// UpdateExport 更新NFS导出
+func (m *Manager) UpdateExport(path string, export *Export) error {
+	if export == nil {
+		return fmt.Errorf("导出配置不能为空")
+	}
+
+	if path == "" {
+		return fmt.Errorf("导出路径不能为空")
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	// 检查是否存在
+	if _, exists := m.exports[path]; !exists {
+		m.logger.Warnf("导出不存在: %s", path)
+		return fmt.Errorf("导出不存在: %s", path)
+	}
+
+	// 如果路径变了，需要删除旧的
+	if export.Path != "" && export.Path != path {
+		delete(m.exports, path)
+		path = export.Path
+	}
+
+	// 确保路径存在
+	targetPath := export.Path
+	if targetPath == "" {
+		targetPath = path
+	}
+	if err := os.MkdirAll(targetPath, 0755); err != nil {
+		m.logger.Errorf("创建导出目录失败: %s - %v", targetPath, err)
+		return fmt.Errorf("创建目录失败: %w", err)
+	}
+
+	// 应用默认选项
+	m.applyDefaultOptions(export)
+
+	// 更新
+	m.exports[path] = export
+
+	// 保存配置
+	if err := m.saveConfigLocked(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
+
+	m.logger.Infof("更新NFS导出: %s", path)
+	return nil
+}
+
+// DeleteExport 删除NFS导出
+func (m *Manager) DeleteExport(path string) error {
+	if path == "" {
+		return fmt.Errorf("导出路径不能为空")
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, exists := m.exports[path]; !exists {
+		m.logger.Warnf("导出不存在: %s", path)
+		return fmt.Errorf("导出不存在: %s", path)
+	}
+
+	delete(m.exports, path)
+
+	// 保存配置
+	if err := m.saveConfigLocked(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
+
+	m.logger.Infof("删除NFS导出: %s", path)
+	return nil
+}
+
+// ListExports 列出所有NFS导出
+func (m *Manager) ListExports() ([]*Export, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -258,98 +283,258 @@ func (m *Manager) ListExports() []*Export {
 	for _, e := range m.exports {
 		exports = append(exports, e)
 	}
-	return exports
+
+	m.logger.Debugf("列出 %d 个导出", len(exports))
+	return exports, nil
 }
 
-// UpdateExport 更新导出
-func (m *Manager) UpdateExport(name string, input ExportInput) (*Export, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	exp, exists := m.exports[name]
-	if !exists {
-		return nil, fmt.Errorf("导出不存在")
+// GetExport 获取指定NFS导出
+func (m *Manager) GetExport(path string) (*Export, error) {
+	if path == "" {
+		return nil, fmt.Errorf("导出路径不能为空")
 	}
 
-	exp.Comment = input.Comment
-	exp.ReadOnly = input.ReadOnly
-	exp.AllowedNetworks = input.AllowedNetworks
-	exp.AllowedHosts = input.AllowedHosts
-
-	// 保存配置
-	if err := m.saveConfigLocked(); err != nil {
-		return nil, fmt.Errorf("保存配置失败：%w", err)
-	}
-
-	return exp, nil
-}
-
-// DeleteExport 删除导出
-func (m *Manager) DeleteExport(name string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	if _, exists := m.exports[name]; !exists {
-		return fmt.Errorf("导出不存在")
-	}
-
-	delete(m.exports, name)
-
-	// 保存配置
-	if err := m.saveConfigLocked(); err != nil {
-		return fmt.Errorf("保存配置失败：%w", err)
-	}
-
-	return nil
-}
-
-// GetStatus 获取 NFS 服务状态
-func (m *Manager) GetStatus() (running bool, err error) {
-	cmd := exec.Command("systemctl", "is-active", "nfs-kernel-server")
-	output, err := cmd.Output()
-	if err != nil {
-		return false, nil
-	}
-	return strings.TrimSpace(string(output)) == "active", nil
-}
-
-// Start 启动 NFS 服务
-func (m *Manager) Start() error {
-	cmd := exec.Command("systemctl", "start", "nfs-kernel-server")
-	return cmd.Run()
-}
-
-// Stop 停止 NFS 服务
-func (m *Manager) Stop() error {
-	cmd := exec.Command("systemctl", "stop", "nfs-kernel-server")
-	return cmd.Run()
-}
-
-// Restart 重启 NFS 服务
-func (m *Manager) Restart() error {
-	cmd := exec.Command("systemctl", "restart", "nfs-kernel-server")
-	return cmd.Run()
-}
-
-// GetClientInfo 获取连接的客户端信息
-func (m *Manager) GetClientInfo() ([]string, error) {
-	cmd := exec.Command("showmount", "-a", "localhost")
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, err
-	}
-
-	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
-	return lines, nil
-}
-
-// ExportPath 获取导出路径
-func (m *Manager) ExportPath(name string) string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	if exp, exists := m.exports[name]; exists {
-		return exp.Path
+	export, exists := m.exports[path]
+	if !exists {
+		return nil, fmt.Errorf("导出不存在: %s", path)
 	}
-	return ""
+
+	return export, nil
+}
+
+// Reload 重新加载NFS配置
+func (m *Manager) Reload() error {
+	m.logger.Info("重新加载NFS配置")
+
+	// 生成exports文件内容
+	content, err := m.GenerateExportsFile()
+	if err != nil {
+		return fmt.Errorf("生成配置失败: %w", err)
+	}
+
+	// 写入/etc/exports
+	if err := os.WriteFile("/etc/exports", []byte(content), 0644); err != nil {
+		m.logger.Errorf("写入exports文件失败: %v", err)
+		return fmt.Errorf("写入exports文件失败: %w", err)
+	}
+
+	// 执行exportfs重新导出
+	cmd := exec.Command("exportfs", "-ra")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		m.logger.Errorf("执行exportfs失败: %s - %v", string(output), err)
+		return fmt.Errorf("重新导出失败: %w - %s", err, string(output))
+	}
+
+	m.logger.Info("NFS配置重新加载成功")
+	return nil
+}
+
+// Status 获取NFS服务状态
+func (m *Manager) Status() (*ServiceStatus, error) {
+	m.mu.RLock()
+	exportsCount := len(m.exports)
+	m.mu.RUnlock()
+
+	status := &ServiceStatus{
+		Exports: exportsCount,
+	}
+
+	// 检查服务运行状态
+	cmd := exec.Command("systemctl", "is-active", "nfs-kernel-server")
+	output, err := cmd.Output()
+	if err != nil {
+		status.Running = false
+		status.Status = "stopped"
+		return status, nil
+	}
+
+	statusStr := strings.TrimSpace(string(output))
+	status.Running = statusStr == "active"
+	status.Status = statusStr
+
+	// 获取版本信息
+	cmd = exec.Command("nfsstat", "-v")
+	if output, err := cmd.Output(); err == nil {
+		lines := strings.Split(string(output), "\n")
+		if len(lines) > 0 {
+			status.Version = strings.TrimSpace(lines[0])
+		}
+	}
+
+	// 获取连接数
+	cmd = exec.Command("nfsstat", "-c")
+	if output, err := cmd.Output(); err == nil {
+		// 简单统计连接数
+		status.Connections = strings.Count(string(output), " ")
+	}
+
+	m.logger.Debugf("NFS服务状态: running=%v, exports=%d", status.Running, status.Exports)
+	return status, nil
+}
+
+// GenerateExportsFile 生成/etc/exports文件内容
+func (m *Manager) GenerateExportsFile() (string, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var sb strings.Builder
+
+	for path, export := range m.exports {
+		if len(export.Clients) == 0 {
+			// 默认允许所有客户端
+			sb.WriteString(fmt.Sprintf("%s *(%s)\n", path, m.optionsToString(&export.Options)))
+		} else {
+			// 为每个客户端生成配置
+			for _, client := range export.Clients {
+				opts := m.optionsToString(&export.Options)
+				if len(client.Options) > 0 {
+					opts = opts + "," + strings.Join(client.Options, ",")
+				}
+				sb.WriteString(fmt.Sprintf("%s %s(%s)\n", path, client.Host, opts))
+			}
+		}
+	}
+
+	return sb.String(), nil
+}
+
+// optionsToString 将导出选项转换为字符串
+func (m *Manager) optionsToString(opts *ExportOptions) string {
+	var parts []string
+
+	if opts.Ro {
+		parts = append(parts, "ro")
+	} else if opts.Rw || (!opts.Ro && !opts.Rw) {
+		parts = append(parts, "rw")
+	}
+
+	if opts.NoRootSquash {
+		parts = append(parts, "no_root_squash")
+	} else {
+		parts = append(parts, "root_squash")
+	}
+
+	if opts.Async {
+		parts = append(parts, "async")
+	} else {
+		parts = append(parts, "sync")
+	}
+
+	if opts.Secure {
+		parts = append(parts, "secure")
+	}
+
+	if opts.SubtreeCheck {
+		parts = append(parts, "subtree_check")
+	} else {
+		parts = append(parts, "no_subtree_check")
+	}
+
+	return strings.Join(parts, ",")
+}
+
+// Start 启动NFS服务
+func (m *Manager) Start() error {
+	m.logger.Info("启动NFS服务")
+
+	cmd := exec.Command("systemctl", "start", "nfs-kernel-server")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		m.logger.Errorf("启动NFS服务失败: %s - %v", string(output), err)
+		return fmt.Errorf("启动失败: %w - %s", err, string(output))
+	}
+
+	m.logger.Info("NFS服务启动成功")
+	return nil
+}
+
+// Stop 停止NFS服务
+func (m *Manager) Stop() error {
+	m.logger.Info("停止NFS服务")
+
+	cmd := exec.Command("systemctl", "stop", "nfs-kernel-server")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		m.logger.Errorf("停止NFS服务失败: %s - %v", string(output), err)
+		return fmt.Errorf("停止失败: %w - %s", err, string(output))
+	}
+
+	m.logger.Info("NFS服务已停止")
+	return nil
+}
+
+// Restart 重启NFS服务
+func (m *Manager) Restart() error {
+	m.logger.Info("重启NFS服务")
+
+	cmd := exec.Command("systemctl", "restart", "nfs-kernel-server")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		m.logger.Errorf("重启NFS服务失败: %s - %v", string(output), err)
+		return fmt.Errorf("重启失败: %w - %s", err, string(output))
+	}
+
+	m.logger.Info("NFS服务重启成功")
+	return nil
+}
+
+// GetClients 获取连接的客户端信息
+func (m *Manager) GetClients() ([]map[string]string, error) {
+	cmd := exec.Command("showmount", "-a", "localhost")
+	output, err := cmd.Output()
+	if err != nil {
+		m.logger.Errorf("获取客户端信息失败: %v", err)
+		return nil, fmt.Errorf("获取客户端信息失败: %w", err)
+	}
+
+	var clients []map[string]string
+	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+
+	// 跳过标题行
+	for i, line := range lines {
+		if i == 0 || line == "" {
+			continue
+		}
+
+		// 格式: hostname:path
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) == 2 {
+			clients = append(clients, map[string]string{
+				"host": parts[0],
+				"path": parts[1],
+			})
+		}
+	}
+
+	return clients, nil
+}
+
+// ValidateExport 验证导出配置
+func (m *Manager) ValidateExport(export *Export) error {
+	if export == nil {
+		return fmt.Errorf("导出配置不能为空")
+	}
+
+	if export.Path == "" {
+		return fmt.Errorf("导出路径不能为空")
+	}
+
+	// 检查路径格式
+	if !filepath.IsAbs(export.Path) {
+		return fmt.Errorf("导出路径必须是绝对路径")
+	}
+
+	// 验证客户端配置
+	for _, client := range export.Clients {
+		if client.Host == "" {
+			return fmt.Errorf("客户端主机不能为空")
+		}
+	}
+
+	// 检查选项冲突
+	if export.Options.Ro && export.Options.Rw {
+		return fmt.Errorf("不能同时设置只读和读写选项")
+	}
+
+	return nil
 }

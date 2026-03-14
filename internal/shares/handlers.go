@@ -49,36 +49,36 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		shares.POST("/apply", h.applyAllConfig) // 应用所有配置
 
 		// ========== SMB 共享 ==========
-		smb := shares.Group("/smb")
+		smbGroup := shares.Group("/smb")
 		{
-			smb.GET("", h.listSMBShares)
-			smb.POST("", h.createSMBShare)
-			smb.GET("/:name", h.getSMBShare)
-			smb.PUT("/:name", h.updateSMBShare)
-			smb.DELETE("/:name", h.deleteSMBShare)
-			smb.POST("/:name/permission", h.setSMBPermission)
-			smb.DELETE("/:name/permission/:user", h.removeSMBPermission)
-			smb.GET("/user", h.getUserSMBShares)
-			smb.POST("/restart", h.restartSMB)
-			smb.GET("/status", h.getSMBStatus)
-			smb.GET("/config", h.getSMBConfig)
-			smb.PUT("/config", h.updateSMBConfig)
-			smb.POST("/test", h.testSMBConfig)
+			smbGroup.GET("", h.listSMBShares)
+			smbGroup.POST("", h.createSMBShare)
+			smbGroup.GET("/:name", h.getSMBShare)
+			smbGroup.PUT("/:name", h.updateSMBShare)
+			smbGroup.DELETE("/:name", h.deleteSMBShare)
+			smbGroup.POST("/:name/permission", h.setSMBPermission)
+			smbGroup.DELETE("/:name/permission/:user", h.removeSMBPermission)
+			smbGroup.GET("/user", h.getUserSMBShares)
+			smbGroup.POST("/restart", h.restartSMB)
+			smbGroup.GET("/status", h.getSMBStatus)
+			smbGroup.GET("/config", h.getSMBConfig)
+			smbGroup.PUT("/config", h.updateSMBConfig)
+			smbGroup.POST("/test", h.testSMBConfig)
 		}
 
 		// ========== NFS 共享 ==========
-		nfs := shares.Group("/nfs")
+		nfsGroup := shares.Group("/nfs")
 		{
-			nfs.GET("", h.listNFSExports)
-			nfs.POST("", h.createNFSExport)
-			nfs.GET("/:name", h.getNFSExport)
-			nfs.PUT("/:name", h.updateNFSExport)
-			nfs.DELETE("/:name", h.deleteNFSExport)
-			nfs.POST("/restart", h.restartNFS)
-			nfs.GET("/status", h.getNFSStatus)
-			nfs.GET("/clients", h.getNFSClients)
-			nfs.GET("/config", h.getNFSConfig)
-			nfs.PUT("/config", h.updateNFSConfig)
+			nfsGroup.GET("", h.listNFSExports)
+			nfsGroup.POST("", h.createNFSExport)
+			nfsGroup.GET("/:path", h.getNFSExport)
+			nfsGroup.PUT("/:path", h.updateNFSExport)
+			nfsGroup.DELETE("/:path", h.deleteNFSExport)
+			nfsGroup.POST("/restart", h.restartNFS)
+			nfsGroup.GET("/status", h.getNFSStatus)
+			nfsGroup.GET("/clients", h.getNFSClients)
+			nfsGroup.GET("/config", h.getNFSConfig)
+			nfsGroup.PUT("/config", h.updateNFSConfig)
 		}
 	}
 }
@@ -96,7 +96,7 @@ func (h *Handlers) listAllShares(c *gin.Context) {
 	var result []ShareOverview
 
 	// 收集 SMB 共享
-	smbShares := h.smbManager.ListShares()
+	smbShares, _ := h.smbManager.ListShares()
 	for _, s := range smbShares {
 		result = append(result, ShareOverview{
 			Type:   "smb",
@@ -107,11 +107,11 @@ func (h *Handlers) listAllShares(c *gin.Context) {
 	}
 
 	// 收集 NFS 导出
-	nfsExports := h.nfsManager.ListExports()
+	nfsExports, _ := h.nfsManager.ListExports()
 	for _, e := range nfsExports {
 		result = append(result, ShareOverview{
 			Type:   "nfs",
-			Name:   e.Name,
+			Name:   e.Path, // NFS 用路径作为标识
 			Path:   e.Path,
 			Config: e,
 		})
@@ -122,21 +122,22 @@ func (h *Handlers) listAllShares(c *gin.Context) {
 
 func (h *Handlers) getStatus(c *gin.Context) {
 	smbRunning, _ := h.smbManager.GetStatus()
-	nfsRunning, _ := h.nfsManager.GetStatus()
+	nfsStatus, _ := h.nfsManager.Status()
 
 	c.JSON(http.StatusOK, Success(gin.H{
 		"smb": gin.H{
 			"running": smbRunning,
 		},
 		"nfs": gin.H{
-			"running": nfsRunning,
+			"running": nfsStatus.Running,
+			"status":  nfsStatus.Status,
 		},
 	}))
 }
 
 func (h *Handlers) applyAllConfig(c *gin.Context) {
 	smbErr := h.smbManager.ApplyConfig()
-	nfsErr := h.nfsManager.ApplyConfig()
+	nfsErr := h.nfsManager.Reload()
 
 	result := gin.H{
 		"smb": gin.H{"success": smbErr == nil},
@@ -161,7 +162,11 @@ func (h *Handlers) applyAllConfig(c *gin.Context) {
 // ========== SMB 共享 API ==========
 
 func (h *Handlers) listSMBShares(c *gin.Context) {
-	shares := h.smbManager.ListShares()
+	shares, err := h.smbManager.ListShares()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
 	c.JSON(http.StatusOK, Success(shares))
 }
 
@@ -172,7 +177,7 @@ func (h *Handlers) createSMBShare(c *gin.Context) {
 		return
 	}
 
-	share, err := h.smbManager.CreateShare(req)
+	share, err := h.smbManager.CreateShareFromInput(req)
 	if err != nil {
 		c.JSON(http.StatusConflict, Error(409, err.Error()))
 		return
@@ -205,7 +210,7 @@ func (h *Handlers) updateSMBShare(c *gin.Context) {
 		return
 	}
 
-	share, err := h.smbManager.UpdateShare(name, req)
+	share, err := h.smbManager.UpdateShareFromInput(name, req)
 	if err != nil {
 		c.JSON(http.StatusNotFound, Error(404, err.Error()))
 		return
@@ -320,25 +325,29 @@ func (h *Handlers) testSMBConfig(c *gin.Context) {
 // ========== NFS 共享 API ==========
 
 func (h *Handlers) listNFSExports(c *gin.Context) {
-	exports := h.nfsManager.ListExports()
+	exports, err := h.nfsManager.ListExports()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
+		return
+	}
 	c.JSON(http.StatusOK, Success(exports))
 }
 
 func (h *Handlers) createNFSExport(c *gin.Context) {
-	var req nfs.ExportInput
+	var req nfs.ExportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
 
-	exp, err := h.nfsManager.CreateExport(req)
-	if err != nil {
+	exp := req.ToExport()
+	if err := h.nfsManager.CreateExport(exp); err != nil {
 		c.JSON(http.StatusConflict, Error(409, err.Error()))
 		return
 	}
 
 	// 自动应用配置
-	if err := h.nfsManager.ApplyConfig(); err != nil {
+	if err := h.nfsManager.Reload(); err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, "应用配置失败："+err.Error()))
 		return
 	}
@@ -347,8 +356,8 @@ func (h *Handlers) createNFSExport(c *gin.Context) {
 }
 
 func (h *Handlers) getNFSExport(c *gin.Context) {
-	name := c.Param("name")
-	exp, err := h.nfsManager.GetExport(name)
+	path := c.Param("path")
+	exp, err := h.nfsManager.GetExport(path)
 	if err != nil {
 		c.JSON(http.StatusNotFound, Error(404, err.Error()))
 		return
@@ -357,21 +366,21 @@ func (h *Handlers) getNFSExport(c *gin.Context) {
 }
 
 func (h *Handlers) updateNFSExport(c *gin.Context) {
-	name := c.Param("name")
-	var req nfs.ExportInput
+	path := c.Param("path")
+	var req nfs.ExportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
 		return
 	}
 
-	exp, err := h.nfsManager.UpdateExport(name, req)
-	if err != nil {
+	exp := req.ToExport()
+	if err := h.nfsManager.UpdateExport(path, exp); err != nil {
 		c.JSON(http.StatusNotFound, Error(404, err.Error()))
 		return
 	}
 
 	// 自动应用配置
-	if err := h.nfsManager.ApplyConfig(); err != nil {
+	if err := h.nfsManager.Reload(); err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, "应用配置失败："+err.Error()))
 		return
 	}
@@ -380,14 +389,14 @@ func (h *Handlers) updateNFSExport(c *gin.Context) {
 }
 
 func (h *Handlers) deleteNFSExport(c *gin.Context) {
-	name := c.Param("name")
-	if err := h.nfsManager.DeleteExport(name); err != nil {
+	path := c.Param("path")
+	if err := h.nfsManager.DeleteExport(path); err != nil {
 		c.JSON(http.StatusNotFound, Error(404, err.Error()))
 		return
 	}
 
 	// 自动应用配置
-	if err := h.nfsManager.ApplyConfig(); err != nil {
+	if err := h.nfsManager.Reload(); err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, "应用配置失败："+err.Error()))
 		return
 	}
@@ -404,16 +413,16 @@ func (h *Handlers) restartNFS(c *gin.Context) {
 }
 
 func (h *Handlers) getNFSStatus(c *gin.Context) {
-	running, err := h.nfsManager.GetStatus()
+	status, err := h.nfsManager.Status()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, Success(gin.H{"running": running}))
+	c.JSON(http.StatusOK, Success(status))
 }
 
 func (h *Handlers) getNFSClients(c *gin.Context) {
-	clients, err := h.nfsManager.GetClientInfo()
+	clients, err := h.nfsManager.GetClients()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, Error(500, err.Error()))
 		return
