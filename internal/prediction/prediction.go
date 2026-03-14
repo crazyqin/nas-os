@@ -422,7 +422,7 @@ func getDefaultAdviceRules() []AdviceRule {
 
 // startCollection 启动数据收集
 func (m *Manager) startCollection() {
-	ticker := time.NewTicker(m.config.CollectionInterval)
+	ticker := time.NewTicker(m.getCollectionInterval())
 	defer ticker.Stop()
 
 	for {
@@ -433,6 +433,13 @@ func (m *Manager) startCollection() {
 			return
 		}
 	}
+}
+
+// getCollectionInterval 安全获取收集间隔
+func (m *Manager) getCollectionInterval() time.Duration {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.config.CollectionInterval
 }
 
 // collectData 收集数据（由外部调用 RecordUsage 触发）
@@ -446,7 +453,12 @@ func (m *Manager) cleanupOldHistory() {
 	m.history.mu.Lock()
 	defer m.history.mu.Unlock()
 
-	cutoff := time.Now().AddDate(0, 0, -m.config.HistoryRetentionDays)
+	// 安全读取配置
+	m.mu.RLock()
+	retentionDays := m.config.HistoryRetentionDays
+	m.mu.RUnlock()
+
+	cutoff := time.Now().AddDate(0, 0, -retentionDays)
 
 	for volName, volHistory := range m.history.VolumeData {
 		// 过滤使用率历史
@@ -632,6 +644,11 @@ func (m *Manager) Predict(volumeName string) (*PredictionResult, error) {
 	// 计算趋势
 	trend, growthRateDaily := m.analyzeTrend(volHistory)
 
+	// 安全读取模型准确度
+	m.model.mu.RLock()
+	accuracy := m.model.accuracy
+	m.model.mu.RUnlock()
+
 	// 生成预测
 	result := &PredictionResult{
 		VolumeName:        volumeName,
@@ -643,7 +660,7 @@ func (m *Manager) Predict(volumeName string) (*PredictionResult, error) {
 		GrowthRateDaily:   growthRateDaily,
 		GrowthRateWeekly:  growthRateDaily * 7,
 		GrowthRateMonthly: growthRateDaily * 30,
-		Confidence:        m.model.accuracy,
+		Confidence:        accuracy,
 	}
 
 	// 计算未来预测点
