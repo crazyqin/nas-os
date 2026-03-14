@@ -542,13 +542,11 @@ func (mc *MetricsCollector) GenerateResourceReport(period string) *ResourceUsage
 
 	// 网络统计
 	netStats, _ := mc.manager.GetNetworkStats()
-	if netStats != nil {
-		for _, n := range netStats {
-			report.ResourceUsage.Network.RXBytes += n.RXBytes
-			report.ResourceUsage.Network.TXBytes += n.TXBytes
-			report.ResourceUsage.Network.RXPackets += n.RXPackets
-			report.ResourceUsage.Network.TXPackets += n.TXPackets
-		}
+	for _, n := range netStats {
+		report.ResourceUsage.Network.RXBytes += n.RXBytes
+		report.ResourceUsage.Network.TXBytes += n.TXBytes
+		report.ResourceUsage.Network.RXPackets += n.RXPackets
+		report.ResourceUsage.Network.TXPackets += n.TXPackets
 	}
 
 	// 生成建议

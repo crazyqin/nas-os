@@ -457,7 +457,7 @@ func (t *WebhookTrigger) Start(ctx context.Context, callback func(map[string]int
 		Handler: mux,
 	}
 
-	ctx, cancel := context.WithCancel(ctx)
+	_, cancel := context.WithCancel(ctx)
 	t.cancel = cancel
 
 	// 启动服务器

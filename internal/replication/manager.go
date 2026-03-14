@@ -406,74 +406,11 @@ type RsyncStats struct {
 	TotalFiles       int     `json:"total_files"`       // 总文件数
 }
 
-// parseRsyncStats 解析 rsync 完整统计信息
-func parseRsyncStats(output string) *RsyncStats {
-	stats := &RsyncStats{}
-
-	// 解析发送字节数: "sent 123,456 bytes"
-	if sentMatch := regexp.MustCompile(`sent\s+([\d,]+)\s+bytes`).FindStringSubmatch(output); len(sentMatch) > 1 {
-		if val, err := parseNumber(sentMatch[1]); err == nil {
-			stats.BytesSent = val
-		}
-	}
-
-	// 解析接收字节数: "received 234,567 bytes"
-	if recvMatch := regexp.MustCompile(`received\s+([\d,]+)\s+bytes`).FindStringSubmatch(output); len(recvMatch) > 1 {
-		if val, err := parseNumber(recvMatch[1]); err == nil {
-			stats.BytesReceived = val
-		}
-	}
-
-	// 解析传输速度: "35,612.34 bytes/sec"
-	if speedMatch := regexp.MustCompile(`([\d,.]+)\s+bytes/sec`).FindStringSubmatch(output); len(speedMatch) > 1 {
-		if val, err := parseFloat(speedMatch[1]); err == nil {
-			stats.BytesPerSecond = val
-		}
-	}
-
-	// 解析总大小: "total size is 1,234,567,890"
-	if sizeMatch := regexp.MustCompile(`total size is\s+([\d,]+)`).FindStringSubmatch(output); len(sizeMatch) > 1 {
-		if val, err := parseNumber(sizeMatch[1]); err == nil {
-			stats.TotalSize = val
-		}
-	}
-
-	// 解析加速比: "speedup is 3,456.78"
-	if speedupMatch := regexp.MustCompile(`speedup is\s+([\d,.]+)`).FindStringSubmatch(output); len(speedupMatch) > 1 {
-		if val, err := parseFloat(speedupMatch[1]); err == nil {
-			stats.Speedup = val
-		}
-	}
-
-	// 解析传输文件数: "Number of regular files transferred: 567"
-	if filesMatch := regexp.MustCompile(`Number of regular files transferred:\s+(\d+)`).FindStringSubmatch(output); len(filesMatch) > 1 {
-		if val, err := strconv.Atoi(filesMatch[1]); err == nil {
-			stats.FilesTransferred = val
-		}
-	}
-
-	// 解析总文件数: "Number of files: 1,234"
-	if totalMatch := regexp.MustCompile(`Number of files:\s+([\d,]+)`).FindStringSubmatch(output); len(totalMatch) > 1 {
-		if val, err := parseNumber(totalMatch[1]); err == nil {
-			stats.TotalFiles = int(val)
-		}
-	}
-
-	return stats
-}
-
 // parseNumber 解析带逗号的数字字符串
 func parseNumber(s string) (int64, error) {
 	// 移除逗号
 	s = strings.ReplaceAll(s, ",", "")
 	return strconv.ParseInt(s, 10, 64)
-}
-
-// parseFloat 解析带逗号的浮点数字符串
-func parseFloat(s string) (float64, error) {
-	// 移除逗号
-	s = strings.ReplaceAll(s, ",", "")
-	return strconv.ParseFloat(s, 64)
 }
 
 // calculateNextSync 计算下次同步时间

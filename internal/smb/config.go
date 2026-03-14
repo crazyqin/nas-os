@@ -33,13 +33,6 @@ func logError(msg string, err error, fields ...interface{}) {
 	}
 }
 
-// logDebug 记录调试日志
-func logDebug(msg string, fields ...interface{}) {
-	if logger != nil {
-		logger.Debugw(msg, fields...)
-	}
-}
-
 // ConfigParser SMB 配置解析器
 type ConfigParser struct {
 	configPath string

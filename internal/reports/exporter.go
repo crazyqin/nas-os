@@ -408,7 +408,7 @@ func (e *Exporter) hasExcelize() bool {
 func (e *Exporter) exportExcelNative(report *GeneratedReport, path string, options ExportOptions) error {
 	// 实际实现应使用 excelize 库
 	// 这里提供占位实现
-	return errors.New("Excel 导出需要安装 excelize 库")
+	return errors.New("excel 导出需要安装 excelize 库")
 }
 
 // ========== 辅助方法 ==========

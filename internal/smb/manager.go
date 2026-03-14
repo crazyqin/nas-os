@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"nas-os/internal/users"
-
-	"go.uber.org/zap"
 )
 
 // ServiceStatus SMB 服务状态
@@ -141,7 +139,6 @@ type Manager struct {
 	config      *Config
 	userManager *users.Manager
 	configPath  string
-	logger      *zap.SugaredLogger
 }
 
 // newDefaultConfig 创建默认配置的副本

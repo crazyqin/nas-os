@@ -623,18 +623,16 @@ func TestList_SortedByTime(t *testing.T) {
 
 	// 创建多个测试文件
 	tmpDir := t.TempDir()
-	var items []string
 	for i := 0; i < 3; i++ {
 		tmpFile := filepath.Join(tmpDir, "testfile"+string(rune('0'+i))+".txt")
 		if err := os.WriteFile(tmpFile, []byte("test"), 0644); err != nil {
 			t.Fatalf("创建测试文件失败：%v", err)
 		}
 
-		item, err := mgr.MoveToTrash(tmpFile, "user1")
+		_, err := mgr.MoveToTrash(tmpFile, "user1")
 		if err != nil {
 			t.Fatalf("MoveToTrash 失败：%v", err)
 		}
-		items = append(items, item.ID)
 		time.Sleep(10 * time.Millisecond) // 确保时间不同
 	}
 

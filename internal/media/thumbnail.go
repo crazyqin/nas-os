@@ -35,7 +35,6 @@ type ThumbnailConfig struct {
 type ThumbnailGenerator struct {
 	ffmpegPath  string
 	ffprobePath string
-	mu          sync.Mutex
 }
 
 // NewThumbnailGenerator 创建缩略图生成器

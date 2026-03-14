@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -534,7 +533,7 @@ func benchmarkFileUpload(b *testing.B, size int) {
 	router := setupAPIBenchmarkRouter()
 
 	// 创建测试文件
-	tmpFile, err := ioutil.TempFile("", "upload-*.dat")
+	tmpFile, err := os.CreateTemp("", "upload-*.dat")
 	if err != nil {
 		b.Fatal(err)
 	}

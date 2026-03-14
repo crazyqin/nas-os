@@ -4,7 +4,6 @@ package quota
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"os"
 	"path/filepath"
 	"sync"
@@ -1701,9 +1700,4 @@ func formatBytesImpl(bytes uint64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %ciB", float64(bytes)/float64(div), "KMGTPE"[exp])
-}
-
-// Math helper
-func roundToTwoDecimal(val float64) float64 {
-	return math.Round(val*100) / 100
 }
