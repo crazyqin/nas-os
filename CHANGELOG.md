@@ -504,7 +504,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v2.8.1] - 2026-03-14
 
-### Bug Fixes
+### Fixed
 
 - **cmd/backup**: 修复 fs.Parse 和 file.Close 返回值未检查的问题
 - **cmd/nasctl**: 修复 fmt.Fprintln/Fprintf 和 w.Flush 返回值未检查的问题
