@@ -15,7 +15,7 @@ func TestSandboxCheckPermission(t *testing.T) {
 			name: "granted permission",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermReadFiles, PermWriteFiles},
+					Permissions: []PermissionType{PermReadFiles, PermWriteFiles},
 				},
 			},
 			permission:     PermReadFiles,
@@ -25,8 +25,8 @@ func TestSandboxCheckPermission(t *testing.T) {
 			name: "denied permission",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermReadFiles},
-					Deny:        []Permission{PermWriteFiles},
+					Permissions: []PermissionType{PermReadFiles},
+					Deny:        []PermissionType{PermWriteFiles},
 				},
 			},
 			permission:     PermWriteFiles,
@@ -36,7 +36,7 @@ func TestSandboxCheckPermission(t *testing.T) {
 			name: "admin grants all",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermAdmin},
+					Permissions: []PermissionType{PermAdmin},
 				},
 			},
 			permission:     PermWriteFiles,
@@ -46,8 +46,8 @@ func TestSandboxCheckPermission(t *testing.T) {
 			name: "admin deny blocks all",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermReadFiles},
-					Deny:        []Permission{PermAdmin},
+					Permissions: []PermissionType{PermReadFiles},
+					Deny:        []PermissionType{PermAdmin},
 				},
 			},
 			permission:     PermReadFiles,
@@ -57,7 +57,7 @@ func TestSandboxCheckPermission(t *testing.T) {
 			name: "not granted permission",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermReadFiles},
+					Permissions: []PermissionType{PermReadFiles},
 				},
 			},
 			permission:     PermWriteFiles,
@@ -89,7 +89,7 @@ func TestSandboxCheckFileAccess(t *testing.T) {
 			name: "allowed path read",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermReadFiles},
+					Permissions: []PermissionType{PermReadFiles},
 				},
 				AllowedPaths: []string{"/data"},
 			},
@@ -101,7 +101,7 @@ func TestSandboxCheckFileAccess(t *testing.T) {
 			name: "denied path",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermReadFiles},
+					Permissions: []PermissionType{PermReadFiles},
 				},
 				DeniedPaths: []string{"/etc"},
 			},
@@ -113,7 +113,7 @@ func TestSandboxCheckFileAccess(t *testing.T) {
 			name: "path not in allowed list",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermReadFiles},
+					Permissions: []PermissionType{PermReadFiles},
 				},
 				AllowedPaths: []string{"/data"},
 			},
@@ -125,7 +125,7 @@ func TestSandboxCheckFileAccess(t *testing.T) {
 			name: "write without permission",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermReadFiles},
+					Permissions: []PermissionType{PermReadFiles},
 				},
 			},
 			path:        "/data/file.txt",
@@ -161,7 +161,7 @@ func TestSandboxCheckNetworkAccess(t *testing.T) {
 			name: "allowed host",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermNetworkDial},
+					Permissions: []PermissionType{PermNetworkDial},
 				},
 				AllowedHosts: []string{"api.example.com"},
 			},
@@ -173,7 +173,7 @@ func TestSandboxCheckNetworkAccess(t *testing.T) {
 			name: "denied host",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermNetworkDial},
+					Permissions: []PermissionType{PermNetworkDial},
 				},
 				DeniedHosts: []string{"malicious.com"},
 			},
@@ -185,7 +185,7 @@ func TestSandboxCheckNetworkAccess(t *testing.T) {
 			name: "host not in allowed list",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermNetworkDial},
+					Permissions: []PermissionType{PermNetworkDial},
 				},
 				AllowedHosts: []string{"api.example.com"},
 			},
@@ -197,7 +197,7 @@ func TestSandboxCheckNetworkAccess(t *testing.T) {
 			name: "port not allowed",
 			config: SandboxConfig{
 				Permissions: PermissionSet{
-					Permissions: []Permission{PermNetworkDial},
+					Permissions: []PermissionType{PermNetworkDial},
 				},
 				AllowedPorts: []int{80, 443},
 			},
@@ -270,7 +270,7 @@ func TestSandboxManagerCustomProfile(t *testing.T) {
 	// Add custom profile
 	customConfig := SandboxConfig{
 		Permissions: PermissionSet{
-			Permissions: []Permission{PermReadFiles},
+			Permissions: []PermissionType{PermReadFiles},
 		},
 		MaxMemoryMB: 128,
 	}
@@ -291,7 +291,7 @@ func TestSandboxManagerCustomProfile(t *testing.T) {
 func TestSandboxViolations(t *testing.T) {
 	config := SandboxConfig{
 		Permissions: PermissionSet{
-			Permissions: []Permission{PermReadFiles},
+			Permissions: []PermissionType{PermReadFiles},
 		},
 	}
 	sandbox := NewSandbox("test-plugin", config)
@@ -309,8 +309,8 @@ func TestSandboxViolations(t *testing.T) {
 func TestSandboxConfigJSON(t *testing.T) {
 	config := SandboxConfig{
 		Permissions: PermissionSet{
-			Permissions: []Permission{PermReadFiles, PermWriteFiles},
-			Deny:        []Permission{PermExecFiles},
+			Permissions: []PermissionType{PermReadFiles, PermWriteFiles},
+			Deny:        []PermissionType{PermExecFiles},
 		},
 		AllowedPaths:  []string{"/data"},
 		MaxMemoryMB:   256,
