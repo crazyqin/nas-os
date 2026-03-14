@@ -1,6 +1,10 @@
 package network
 
 import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 )
 
@@ -132,12 +136,76 @@ func (m *Manager) Initialize() error {
 
 // loadConfig 加载配置文件
 func (m *Manager) loadConfig() error {
-	// TODO: 从文件加载配置
+	if m.configPath == "" {
+		return nil
+	}
+
+	data, err := os.ReadFile(m.configPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil // 配置文件不存在是正常的
+		}
+		return fmt.Errorf("读取配置文件失败：%w", err)
+	}
+
+	var config struct {
+		DDNSConfigs   map[string]*DDNSConfig   `json:"ddnsConfigs"`
+		PortForwards  map[string]*PortForward  `json:"portForwards"`
+		FirewallRules map[string]*FirewallRule `json:"firewallRules"`
+	}
+
+	if err := json.Unmarshal(data, &config); err != nil {
+		return fmt.Errorf("解析配置文件失败：%w", err)
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if config.DDNSConfigs != nil {
+		m.ddnsConfigs = config.DDNSConfigs
+	}
+	if config.PortForwards != nil {
+		m.portForwards = config.PortForwards
+	}
+	if config.FirewallRules != nil {
+		m.firewallRules = config.FirewallRules
+	}
+
 	return nil
 }
 
 // saveConfig 保存配置文件
 func (m *Manager) saveConfig() error {
-	// TODO: 保存配置到文件
+	if m.configPath == "" {
+		return nil
+	}
+
+	m.mu.RLock()
+	config := struct {
+		DDNSConfigs   map[string]*DDNSConfig   `json:"ddnsConfigs"`
+		PortForwards  map[string]*PortForward  `json:"portForwards"`
+		FirewallRules map[string]*FirewallRule `json:"firewallRules"`
+	}{
+		DDNSConfigs:   m.ddnsConfigs,
+		PortForwards:  m.portForwards,
+		FirewallRules: m.firewallRules,
+	}
+	m.mu.RUnlock()
+
+	data, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化配置失败：%w", err)
+	}
+
+	// 确保目录存在
+	dir := filepath.Dir(m.configPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("创建配置目录失败：%w", err)
+	}
+
+	if err := os.WriteFile(m.configPath, data, 0644); err != nil {
+		return fmt.Errorf("保存配置文件失败：%w", err)
+	}
+
 	return nil
 }
