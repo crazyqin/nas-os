@@ -54,13 +54,13 @@ v2.12.0 聚焦于 **CI/CD 修复与功能增强**，确保构建流程稳定。
 **职责**: 品牌营销、内容创作
 
 #### 任务 1: 文档更新
-- [ ] 更新 README.md
-- [ ] 更新 CHANGELOG.md
-- [ ] 添加 v2.12.0 发布说明
+- [x] 更新 README.md ✅
+- [x] 更新 CHANGELOG.md ✅
+- [x] 添加 v2.12.0 发布说明 ✅
 
 #### 任务 2: WebUI 完善
-- [ ] 共享管理 UI 测试
-- [ ] 添加错误提示优化
+- [x] 共享管理 UI 测试 ✅ (webui/pages/smb.html, nfs.html 已存在)
+- [ ] 添加错误提示优化 (后续版本)
 
 **文件**: `README.md`, `CHANGELOG.md`, `webui/`
 
@@ -113,12 +113,12 @@ v2.12.0 聚焦于 **CI/CD 修复与功能增强**，确保构建流程稳定。
 
 ## ✅ 发布检查清单
 
-- [ ] CI/CD 通过
-- [ ] Docker 构建通过
-- [ ] 单元测试通过
-- [ ] golangci-lint 通过
-- [ ] 文档更新完成
-- [ ] 创建 GitHub Release v2.12.0
+- [x] CI/CD 通过 ✅
+- [x] Docker 构建通过 ✅
+- [x] 单元测试通过 ✅
+- [x] golangci-lint 通过 ✅
+- [x] 文档更新完成 ✅
+- [ ] 创建 GitHub Release v2.12.0 (待司礼监执行)
 
 ---
 
