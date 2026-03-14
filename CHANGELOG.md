@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.25.0] - 2026-03-15
+
+### Fixed
+- **代码格式修复**
+  - 修复 automation/engine/workflow.go gofmt 格式问题
+  - 修复 media/library.go gofmt 格式问题
+  - 修复 replication/manager.go gofmt 格式问题
+
+### Changed
+- **代码质量改进**
+  - 统一代码格式，符合 Go 标准规范
+  - 通过 CI/CD 代码检查
+
 ## [v2.24.0] - 2026-03-15
 
 ### Added

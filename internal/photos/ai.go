@@ -873,9 +873,49 @@ func (aim *AIManager) generateMemories() {
 			memory.CoverPhotoID = photos[0].ID
 		}
 
-		// TODO: 保存到存储
-		_ = memory
+		// 保存到存储
+		aim.saveMemory(memory)
 	}
+}
+
+// saveMemory 保存单个回忆到存储
+func (aim *AIManager) saveMemory(memory *MemoryAlbum) {
+	memoriesPath := filepath.Join(aim.photosManager.dataDir, "memories.json")
+
+	// 确保目录存在
+	if err := os.MkdirAll(aim.photosManager.dataDir, 0755); err != nil {
+		return
+	}
+
+	// 读取已保存的回忆
+	var memories []MemoryAlbum
+	if data, err := os.ReadFile(memoriesPath); err == nil {
+		json.Unmarshal(data, &memories)
+	}
+
+	// 检查是否已存在相同年份和日期的回忆
+	for i, m := range memories {
+		if m.Date == memory.Date && m.Year == memory.Year {
+			// 更新已有的回忆
+			memories[i] = *memory
+			data, err := json.MarshalIndent(memories, "", "  ")
+			if err != nil {
+				return
+			}
+			os.WriteFile(memoriesPath, data, 0644)
+			return
+		}
+	}
+
+	// 添加新回忆
+	memories = append(memories, *memory)
+
+	// 保存到文件
+	data, err := json.MarshalIndent(memories, "", "  ")
+	if err != nil {
+		return
+	}
+	os.WriteFile(memoriesPath, data, 0644)
 }
 
 // GetMemories 获取回忆列表
