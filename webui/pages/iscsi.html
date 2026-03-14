@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSCSI 目标管理 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .iscsi-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        .stat-value { font-size: 32px; font-weight: 700; color: var(--color-primary); }
+        .stat-label { color: var(--text-muted); font-size: 14px; margin-top: 0.25rem; }
+        
+        .card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .card-title { font-size: 18px; font-weight: 600; }
+        
+        .targets-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .targets-table th, .targets-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .targets-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.active { background: var(--color-success-bg); color: var(--color-success); }
+        .status-badge.inactive { background: var(--color-error-bg); color: var(--color-error); }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-secondary { background: var(--surface-tertiary); color: var(--text-primary); }
+        .btn-danger { background: var(--color-error); color: white; }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 12px; }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--surface-color);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header { margin-bottom: 1.5rem; }
+        .modal-title { font-size: 20px; font-weight: 600; }
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--surface-border);
+        }
+    </style>
+</head>
+<body>
+    <div class="iscsi-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">iSCSI 目标管理</h1>
+                <p class="page-subtitle">配置和管理 iSCSI 存储目标，提供块级存储服务</p>
+            </div>
+            <button class="btn btn-primary" onclick="showCreateModal()">
+                <span>+</span> 创建目标
+            </button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTargets">0</div>
+                <div class="stat-label">iSCSI 目标</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeSessions">0</div>
+                <div class="stat-label">活动会话</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalLuns">0</div>
+                <div class="stat-label">LUN 数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalCapacity">0 GB</div>
+                <div class="stat-label">总容量</div>
+            </div>
+        </div>
+
+        <!-- 目标列表 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">iSCSI 目标列表</h2>
+                <button class="btn btn-secondary btn-sm" onclick="loadTargets()">刷新</button>
+            </div>
+            <table class="targets-table">
+                <thead>
+                    <tr>
+                        <th>目标名称 (IQN)</th>
+                        <th>LUN</th>
+                        <th>容量</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="targetsBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            加载中...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 配置说明 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">连接信息</h2>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Portal 地址</label>
+                <input type="text" class="form-input" id="portalAddress" readonly value="加载中...">
+            </div>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 1rem;">
+                客户端可使用以上地址连接到 iSCSI 目标。确保防火墙已开放端口 3260。
+            </p>
+        </div>
+    </div>
+
+    <!-- 创建目标模态框 -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">创建 iSCSI 目标</h3>
+            </div>
+            <form id="createForm">
+                <div class="form-group">
+                    <label class="form-label">目标名称</label>
+                    <input type="text" class="form-input" name="name" placeholder="target1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">存储路径</label>
+                    <input type="text" class="form-input" name="path" placeholder="/mnt/data/iscsi/target1.img" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">容量 (GB)</label>
+                    <input type="number" class="form-input" name="sizeGB" placeholder="100" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">允许的发起程序 (可选)</label>
+                    <input type="text" class="form-input" name="allowedInitiators" placeholder="ALL 或 iqn.1991-05.com.microsoft:...">
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="hideCreateModal()">取消</button>
+                <button class="btn btn-primary" onclick="createTarget()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTargets();
+            loadPortalInfo();
+        });
+
+        async function loadTargets() {
+            try {
+                const response = await fetch(`${API_BASE}/iscsi/targets`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data) {
+                    renderTargets(data.data.targets || []);
+                    updateStats(data.data);
+                } else {
+                    renderEmptyState('暂无 iSCSI 目标');
+                }
+            } catch (error) {
+                console.error('加载目标失败:', error);
+                renderEmptyState('加载失败，请检查服务状态');
+            }
+        }
+
+        async function loadPortalInfo() {
+            try {
+                const response = await fetch(`${API_BASE}/iscsi/portal`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data) {
+                    document.getElementById('portalAddress').value = `${data.data.ip}:${data.data.port || 3260}`;
+                }
+            } catch (error) {
+                document.getElementById('portalAddress').value = '获取失败';
+            }
+        }
+
+        function renderTargets(targets) {
+            const tbody = document.getElementById('targetsBody');
+            
+            if (targets.length === 0) {
+                renderEmptyState('暂无 iSCSI 目标，点击"创建目标"开始');
+                return;
+            }
+
+            tbody.innerHTML = targets.map(target => `
+                <tr>
+                    <td><code>${target.iqn}</code></td>
+                    <td>${target.luns ? target.luns.length : 0}</td>
+                    <td>${formatSize(target.size)}</td>
+                    <td>
+                        <span class="status-badge ${target.active ? 'active' : 'inactive'}">
+                            ${target.active ? '活动' : '离线'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="editTarget('${target.iqn}')">编辑</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTarget('${target.iqn}')">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderEmptyState(message) {
+            document.getElementById('targetsBody').innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        ${message}
+                    </td>
+                </tr>
+            `;
+        }
+
+        function updateStats(data) {
+            document.getElementById('totalTargets').textContent = data.targets?.length || 0;
+            document.getElementById('activeSessions').textContent = data.activeSessions || 0;
+            document.getElementById('totalLuns').textContent = data.totalLuns || 0;
+            document.getElementById('totalCapacity').textContent = formatSize(data.totalCapacity || 0);
+        }
+
+        function formatSize(bytes) {
+            if (!bytes) return '0 GB';
+            const gb = bytes / (1024 * 1024 * 1024);
+            return gb >= 1024 ? `${(gb / 1024).toFixed(1)} TB` : `${gb.toFixed(1)} GB`;
+        }
+
+        function showCreateModal() {
+            document.getElementById('createModal').classList.add('active');
+        }
+
+        function hideCreateModal() {
+            document.getElementById('createModal').classList.remove('active');
+            document.getElementById('createForm').reset();
+        }
+
+        async function createTarget() {
+            const form = document.getElementById('createForm');
+            const formData = new FormData(form);
+            
+            const payload = {
+                name: formData.get('name'),
+                path: formData.get('path'),
+                sizeGB: parseInt(formData.get('sizeGB')),
+                allowedInitiators: formData.get('allowedInitiators') || 'ALL'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/iscsi/targets`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                if (data.code === 0) {
+                    hideCreateModal();
+                    loadTargets();
+                    alert('目标创建成功');
+                } else {
+                    alert('创建失败: ' + data.message);
+                }
+            } catch (error) {
+                alert('创建失败: ' + error.message);
+            }
+        }
+
+        async function deleteTarget(iqn) {
+            if (!confirm(`确定要删除目标 ${iqn} 吗？此操作不可恢复。`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/iscsi/targets/${encodeURIComponent(iqn)}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                if (data.code === 0) {
+                    loadTargets();
+                } else {
+                    alert('删除失败: ' + data.message);
+                }
+            } catch (error) {
+                alert('删除失败: ' + error.message);
+            }
+        }
+
+        function editTarget(iqn) {
+            alert('编辑功能开发中...');
+        }
+    </script>
+</body>
+</html>

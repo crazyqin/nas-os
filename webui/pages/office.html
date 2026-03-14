@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线文档 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .office-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--surface-border);
+            padding-bottom: 0.5rem;
+        }
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .tab:hover { color: var(--text-primary); background: var(--surface-secondary); }
+        .tab.active {
+            color: var(--color-primary);
+            background: var(--color-primary-light);
+            border-bottom: 2px solid var(--color-primary);
+            margin-bottom: -2px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-md);
+        }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--color-primary); }
+        .stat-label { color: var(--text-muted); font-size: 13px; margin-top: 0.25rem; }
+        
+        .card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .card-title { font-size: 18px; font-weight: 600; }
+        
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .doc-card {
+            background: var(--surface-secondary);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .doc-card:hover {
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-md);
+        }
+        .doc-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 0.75rem;
+        }
+        .doc-icon.doc { background: var(--color-primary-light); color: var(--color-primary); }
+        .doc-icon.xls { background: #dcfce7; color: #16a34a; }
+        .doc-icon.ppt { background: #fef3c7; color: #d97706; }
+        .doc-name { font-weight: 600; margin-bottom: 0.25rem; }
+        .doc-meta { font-size: 12px; color: var(--text-muted); }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-secondary { background: var(--surface-tertiary); color: var(--text-primary); }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 13px; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 14px; }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-indicator.running { background: var(--color-success-bg); color: var(--color-success); }
+        .status-indicator.stopped { background: var(--color-error-bg); color: var(--color-error); }
+        
+        .recent-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .recent-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .recent-item:last-child { border-bottom: none; }
+        .recent-name { flex: 1; font-weight: 500; }
+        .recent-time { font-size: 12px; color: var(--text-muted); }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            background: var(--surface-secondary);
+            font-size: 14px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="office-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">在线文档</h1>
+                <p class="page-subtitle">OnlyOffice 文档编辑协作平台</p>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <span class="status-indicator" id="serviceStatus">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: currentColor;"></span>
+                    检测中...
+                </span>
+                <button class="btn btn-primary" onclick="showCreateModal()">
+                    + 新建文档
+                </button>
+            </div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs">
+            <div class="tab active" data-tab="recent">最近文档</div>
+            <div class="tab" data-tab="shared">共享文档</div>
+            <div class="tab" data-tab="templates">模板库</div>
+            <div class="tab" data-tab="settings">设置</div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalDocs">0</div>
+                <div class="stat-label">文档总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="sharedDocs">0</div>
+                <div class="stat-label">共享文档</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeEditors">0</div>
+                <div class="stat-label">正在编辑</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="storageUsed">0 MB</div>
+                <div class="stat-label">存储使用</div>
+            </div>
+        </div>
+
+        <!-- 最近文档内容 -->
+        <div id="recentContent" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">最近编辑</h2>
+                    <div class="search-box" style="width: 250px;">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="搜索文档..." oninput="filterDocs(this.value)">
+                    </div>
+                </div>
+                <div class="docs-grid" id="docsGrid">
+                    <div class="doc-card" onclick="openDoc('new', 'doc')">
+                        <div class="doc-icon doc">📄</div>
+                        <div class="doc-name">新建 Word 文档</div>
+                        <div class="doc-meta">创建空白文档</div>
+                    </div>
+                    <div class="doc-card" onclick="openDoc('new', 'xls')">
+                        <div class="doc-icon xls">📊</div>
+                        <div class="doc-name">新建 Excel 表格</div>
+                        <div class="doc-meta">创建空白表格</div>
+                    </div>
+                    <div class="doc-card" onclick="openDoc('new', 'ppt')">
+                        <div class="doc-icon ppt">📽️</div>
+                        <div class="doc-name">新建 PowerPoint</div>
+                        <div class="doc-meta">创建空白演示文稿</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置内容 -->
+        <div id="settingsContent" class="tab-content" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">OnlyOffice 配置</h2>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">服务地址</label>
+                    <input type="text" class="form-input" id="officeUrl" placeholder="http://onlyoffice:80">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">JWT 密钥</label>
+                    <input type="password" class="form-input" id="jwtSecret" placeholder="留空则不使用 JWT 验证">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">文档存储路径</label>
+                    <input type="text" class="form-input" id="storagePath" value="/mnt/data/office">
+                </div>
+                <button class="btn btn-primary" onclick="saveSettings()">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        
+        // 标签页切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const tabName = tab.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                const targetContent = document.getElementById(`${tabName}Content`);
+                if (targetContent) {
+                    targetContent.style.display = 'block';
+                }
+            });
+        });
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDocs();
+            loadStats();
+            checkServiceStatus();
+        });
+
+        async function loadDocs() {
+            try {
+                const response = await fetch(`${API_BASE}/office/documents`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data) {
+                    renderDocs(data.data.documents || []);
+                }
+            } catch (error) {
+                console.error('加载文档列表失败:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/office/stats`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data) {
+                    document.getElementById('totalDocs').textContent = data.data.totalDocs || 0;
+                    document.getElementById('sharedDocs').textContent = data.data.sharedDocs || 0;
+                    document.getElementById('activeEditors').textContent = data.data.activeEditors || 0;
+                    document.getElementById('storageUsed').textContent = formatSize(data.data.storageUsed || 0);
+                }
+            } catch (error) {
+                console.error('加载统计失败:', error);
+            }
+        }
+
+        async function checkServiceStatus() {
+            const statusEl = document.getElementById('serviceStatus');
+            try {
+                const response = await fetch(`${API_BASE}/office/status`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data?.running) {
+                    statusEl.classList.add('running');
+                    statusEl.classList.remove('stopped');
+                    statusEl.innerHTML = '<span style="width: 8px; height: 8px; border-radius: 50%; background: currentColor;"></span>服务运行中';
+                } else {
+                    throw new Error('服务未运行');
+                }
+            } catch (error) {
+                statusEl.classList.add('stopped');
+                statusEl.classList.remove('running');
+                statusEl.innerHTML = '<span style="width: 8px; height: 8px; border-radius: 50%; background: currentColor;"></span>服务未启动';
+            }
+        }
+
+        function renderDocs(docs) {
+            const grid = document.getElementById('docsGrid');
+            const defaultCards = grid.innerHTML;
+            
+            if (docs.length === 0) {
+                return;
+            }
+
+            const docCards = docs.map(doc => {
+                const iconClass = doc.type === 'xlsx' ? 'xls' : (doc.type === 'pptx' ? 'ppt' : 'doc');
+                const icon = doc.type === 'xlsx' ? '📊' : (doc.type === 'pptx' ? '📽️' : '📄');
+                
+                return `
+                    <div class="doc-card" onclick="openDoc('${doc.id}', '${iconClass}')">
+                        <div class="doc-icon ${iconClass}">${icon}</div>
+                        <div class="doc-name">${doc.name}</div>
+                        <div class="doc-meta">${formatDate(doc.modifiedAt)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            grid.innerHTML = defaultCards + docCards;
+        }
+
+        function openDoc(docId, type) {
+            // 打开 OnlyOffice 编辑器
+            const editorUrl = `/api/v1/office/editor/${docId}?type=${type}`;
+            window.open(editorUrl, '_blank');
+        }
+
+        function filterDocs(query) {
+            const cards = document.querySelectorAll('.doc-card');
+            const lowerQuery = query.toLowerCase();
+            
+            cards.forEach(card => {
+                const name = card.querySelector('.doc-name')?.textContent.toLowerCase() || '';
+                card.style.display = name.includes(lowerQuery) ? 'block' : 'none';
+            });
+        }
+
+        async function saveSettings() {
+            const settings = {
+                url: document.getElementById('officeUrl').value,
+                jwtSecret: document.getElementById('jwtSecret').value,
+                storagePath: document.getElementById('storagePath').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/office/config`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                
+                const data = await response.json();
+                if (data.code === 0) {
+                    alert('配置保存成功');
+                    checkServiceStatus();
+                } else {
+                    alert('保存失败: ' + data.message);
+                }
+            } catch (error) {
+                alert('保存失败: ' + error.message);
+            }
+        }
+
+        function showCreateModal() {
+            openDoc('new', 'doc');
+        }
+
+        function formatSize(bytes) {
+            if (!bytes) return '0 MB';
+            const mb = bytes / (1024 * 1024);
+            return mb >= 1024 ? `${(mb / 1024).toFixed(1)} GB` : `${mb.toFixed(1)} MB`;
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '未知时间';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+    </script>
+</body>
+</html>

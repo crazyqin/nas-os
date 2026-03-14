@@ -55,21 +55,31 @@
 
 ---
 
-### 🎯 里程碑 3: 文件共享服务 (M3)
-**时间**: 2026-04-15 ~ 2026-05-15  
+### 🎯 里程碑 3: 文件共享服务 (M3) ✅
+**时间**: 2026-03-14  
 **负责人**: 兵部 (软件工程)
+**状态**: 已完成
 
 #### 任务清单
-- [ ] SMB/CIFS 共享实现
-- [ ] NFS 共享实现
-- [ ] 共享权限配置
-- [ ] 访客访问控制
-- [ ] 共享连接监控
+- [x] SMB/CIFS 共享实现
+- [x] NFS 共享实现
+- [x] 共享权限配置
+- [x] 访客访问控制
+- [x] 共享连接监控
 
 #### 交付物
-- `internal/smb/server.go` - SMB 服务
-- `internal/nfs/server.go` - NFS 服务
-- `internal/shares/manager.go` - 共享管理
+- `internal/smb/manager.go` - SMB 服务管理器 ✅
+- `internal/smb/config.go` - SMB 配置管理 ✅
+- `internal/smb/handlers.go` - SMB API 处理器 ✅
+- `internal/nfs/manager.go` - NFS 服务管理器 ✅
+- `internal/nfs/config.go` - NFS 配置管理 ✅
+- `internal/nfs/handlers.go` - NFS API 处理器 ✅
+
+#### 核心功能
+- **SMB 共享**: 创建/更新/删除/列表共享，权限控制，访客访问，连接监控
+- **NFS 导出**: 创建/更新/删除/列表导出，客户端配置，选项管理
+- **服务管理**: 启动/停止/重启/状态查询
+- **配置持久化**: JSON 格式配置文件，自动保存/加载
 
 ---
 
