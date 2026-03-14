@@ -9,43 +9,8 @@ run:
 linters:
   default: none
   enable:
-    # - errcheck    # 检查未处理的错误返回值 (暂时禁用，项目中存在大量历史遗留问题)
-    # - gocritic    # 高级代码检查 (暂时禁用，项目中存在大量代码风格问题)
-    # - gosec       # 安全漏洞检查 (暂时禁用，项目中存在大量文件权限警告)
     - govet       # Go vet 检查
-    # - ineffassign # 检测无效赋值 (暂时禁用，待后续修复)
-    # - staticcheck # 静态分析 (暂时禁用，项目中存在大量风格问题)
-    - unused      # 未使用代码检查
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  
-  exclude-rules:
-    # 插件系统可能导出但未使用
-    - path: plugins/
-      linters:
-        - unused
-    
-    # 以下路径暂时排除 unused，TODO: 逐步清理死代码后移除
-    - path: pkg/btrfs/
-      linters:
-        - unused
-    - path: internal/quota/
-      linters:
-        - unused
-    - path: internal/dedup/
-      linters:
-        - unused
-    - path: internal/compress/
-      linters:
-        - unused
-        - govet
-    - path: internal/logging/
-      linters:
-        - unused
-    
-    # 生成的代码
-    - path: \.pb\.go$
-      linters:
-        - govet
