@@ -9,14 +9,14 @@ import (
 
 // Response 通用 API 响应结构
 type Response struct {
-	Code    int         `json:"code" example:"0"`              // 业务码：0=成功，非0=失败
-	Message string      `json:"message" example:"success"`     // 响应消息
-	Data    interface{} `json:"data,omitempty"`                // 响应数据
+	Code    int         `json:"code" example:"0"`          // 业务码：0=成功，非0=失败
+	Message string      `json:"message" example:"success"` // 响应消息
+	Data    interface{} `json:"data,omitempty"`            // 响应数据
 }
 
 // ErrorResponse 错误响应结构
 type ErrorResponse struct {
-	Code    int    `json:"code" example:"400"`         // 错误码
+	Code    int    `json:"code" example:"400"`     // 错误码
 	Message string `json:"message" example:"请求错误"` // 错误消息
 }
 
@@ -31,14 +31,14 @@ type PageData struct {
 
 // 业务错误码定义
 const (
-	CodeSuccess         = 0     // 成功
-	CodeBadRequest      = 400   // 请求参数错误
-	CodeUnauthorized    = 401   // 未授权
-	CodeForbidden       = 403   // 禁止访问
-	CodeNotFound        = 404   // 资源不存在
-	CodeConflict        = 409   // 资源冲突
-	CodeTooManyRequests = 429   // 请求过多
-	CodeInternalError   = 500   // 服务器内部错误
+	CodeSuccess            = 0   // 成功
+	CodeBadRequest         = 400 // 请求参数错误
+	CodeUnauthorized       = 401 // 未授权
+	CodeForbidden          = 403 // 禁止访问
+	CodeNotFound           = 404 // 资源不存在
+	CodeConflict           = 409 // 资源冲突
+	CodeTooManyRequests    = 429 // 请求过多
+	CodeInternalError      = 500 // 服务器内部错误
 	CodeServiceUnavailable = 503 // 服务不可用
 )
 

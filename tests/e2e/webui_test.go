@@ -46,12 +46,12 @@ func setupWebUITestRouter() *gin.Engine {
 					"txSpeed": 512000,
 				},
 				"services": gin.H{
-					"smb":     true,
-					"nfs":     true,
-					"webdav":  true,
-					"ftp":     false,
-					"iscsi":   true,
-					"docker":  true,
+					"smb":    true,
+					"nfs":    true,
+					"webdav": true,
+					"ftp":    false,
+					"iscsi":  true,
+					"docker": true,
 				},
 				"alerts": []gin.H{},
 			})
@@ -129,7 +129,7 @@ func setupWebUITestRouter() *gin.Engine {
 					{"id": 1, "name": "admins", "members": 1},
 					{"id": 2, "name": "users", "members": 1},
 				},
-				"totalUsers": 2,
+				"totalUsers":  2,
 				"activeUsers": 1,
 			})
 		})
@@ -165,10 +165,10 @@ func setupWebUITestRouter() *gin.Engine {
 					"alerts": true,
 				},
 				"security": gin.H{
-					"sshEnabled":   true,
-					"sshPort":      22,
-					"firewall":     true,
-					"fail2ban":     true,
+					"sshEnabled": true,
+					"sshPort":    22,
+					"firewall":   true,
+					"fail2ban":   true,
 				},
 			})
 		})
@@ -312,11 +312,11 @@ func setupWebUITestRouter() *gin.Engine {
 			c.JSON(http.StatusOK, gin.H{
 				"alerts": []gin.H{
 					{
-						"id":        "alert-001",
-						"level":     "warning",
-						"message":   "Disk usage above 80%",
-						"source":    "storage",
-						"timestamp": "2026-03-14T08:00:00Z",
+						"id":           "alert-001",
+						"level":        "warning",
+						"message":      "Disk usage above 80%",
+						"source":       "storage",
+						"timestamp":    "2026-03-14T08:00:00Z",
 						"acknowledged": false,
 					},
 				},

@@ -56,15 +56,15 @@ type HistoryStatistics struct {
 	RecordCount int       `json:"record_count"`
 
 	// 使用量统计
-	MinUsedBytes    uint64  `json:"min_used_bytes"`
-	MaxUsedBytes    uint64  `json:"max_used_bytes"`
-	AvgUsedBytes    float64 `json:"avg_used_bytes"`
-	CurrentUsedBytes uint64 `json:"current_used_bytes"`
+	MinUsedBytes     uint64  `json:"min_used_bytes"`
+	MaxUsedBytes     uint64  `json:"max_used_bytes"`
+	AvgUsedBytes     float64 `json:"avg_used_bytes"`
+	CurrentUsedBytes uint64  `json:"current_used_bytes"`
 
 	// 使用率统计
-	MinUsagePercent    float64 `json:"min_usage_percent"`
-	MaxUsagePercent    float64 `json:"max_usage_percent"`
-	AvgUsagePercent    float64 `json:"avg_usage_percent"`
+	MinUsagePercent     float64 `json:"min_usage_percent"`
+	MaxUsagePercent     float64 `json:"max_usage_percent"`
+	AvgUsagePercent     float64 `json:"avg_usage_percent"`
 	CurrentUsagePercent float64 `json:"current_usage_percent"`
 
 	// 增长统计
@@ -73,19 +73,19 @@ type HistoryStatistics struct {
 	DailyGrowthRate    float64 `json:"daily_growth_rate"` // 字节/天
 
 	// 超限统计
-	OverSoftCount  int `json:"over_soft_count"`  // 超软限制次数
-	OverHardCount  int `json:"over_hard_count"`  // 超硬限制次数
+	OverSoftCount  int     `json:"over_soft_count"`  // 超软限制次数
+	OverHardCount  int     `json:"over_hard_count"`  // 超硬限制次数
 	MaxOverPercent float64 `json:"max_over_percent"` // 最大超限百分比
 }
 
 // HistoryQuery 历史查询参数
 type HistoryQuery struct {
-	QuotaID   string     `json:"quota_id,omitempty"`
-	VolumeName string    `json:"volume_name,omitempty"`
-	StartTime *time.Time `json:"start_time,omitempty"`
-	EndTime   *time.Time `json:"end_time,omitempty"`
-	GroupBy   string     `json:"group_by,omitempty"` // hour, day, week, month
-	Limit     int        `json:"limit,omitempty"`
+	QuotaID    string     `json:"quota_id,omitempty"`
+	VolumeName string     `json:"volume_name,omitempty"`
+	StartTime  *time.Time `json:"start_time,omitempty"`
+	EndTime    *time.Time `json:"end_time,omitempty"`
+	GroupBy    string     `json:"group_by,omitempty"` // hour, day, week, month
+	Limit      int        `json:"limit,omitempty"`
 }
 
 // HistoryManager 历史数据管理器
@@ -429,34 +429,34 @@ func (m *HistoryManager) Load() error {
 type ChartType string
 
 const (
-	ChartTypeLine     ChartType = "line"     // 折线图
-	ChartTypeBar      ChartType = "bar"      // 柱状图
-	ChartTypePie      ChartType = "pie"      // 饼图
-	ChartTypeArea     ChartType = "area"     // 面积图
-	ChartTypeGauge    ChartType = "gauge"    // 仪表盘
-	ChartTypeHeatmap  ChartType = "heatmap"  // 热力图
+	ChartTypeLine    ChartType = "line"    // 折线图
+	ChartTypeBar     ChartType = "bar"     // 柱状图
+	ChartTypePie     ChartType = "pie"     // 饼图
+	ChartTypeArea    ChartType = "area"    // 面积图
+	ChartTypeGauge   ChartType = "gauge"   // 仪表盘
+	ChartTypeHeatmap ChartType = "heatmap" // 热力图
 )
 
 // ChartDataRequest 图表数据请求
 type ChartDataRequest struct {
-	QuotaID    string    `json:"quota_id,omitempty"`    // 单个配额ID
-	VolumeName string    `json:"volume_name,omitempty"` // 按卷过滤
-	ChartType  ChartType `json:"chart_type"`            // 图表类型
-	StartTime  time.Time `json:"start_time"`            // 开始时间
-	EndTime    time.Time `json:"end_time"`              // 结束时间
-	Granularity string   `json:"granularity,omitempty"` // 数据粒度: hour, day, week, month
-	CompareWith string   `json:"compare_with,omitempty"` // 对比选项: previous_period, same_last_year
+	QuotaID     string    `json:"quota_id,omitempty"`     // 单个配额ID
+	VolumeName  string    `json:"volume_name,omitempty"`  // 按卷过滤
+	ChartType   ChartType `json:"chart_type"`             // 图表类型
+	StartTime   time.Time `json:"start_time"`             // 开始时间
+	EndTime     time.Time `json:"end_time"`               // 结束时间
+	Granularity string    `json:"granularity,omitempty"`  // 数据粒度: hour, day, week, month
+	CompareWith string    `json:"compare_with,omitempty"` // 对比选项: previous_period, same_last_year
 }
 
 // ChartDataResponse 图表数据响应
 type ChartDataResponse struct {
-	ChartType   ChartType      `json:"chart_type"`
-	Title       string         `json:"title"`
-	GeneratedAt time.Time      `json:"generated_at"`
-	Period      ChartPeriod    `json:"period"`
-	Series      []ChartSeries  `json:"series"`
-	Summary     ChartSummary   `json:"summary"`
-	Options     ChartOptions   `json:"options,omitempty"`
+	ChartType   ChartType     `json:"chart_type"`
+	Title       string        `json:"title"`
+	GeneratedAt time.Time     `json:"generated_at"`
+	Period      ChartPeriod   `json:"period"`
+	Series      []ChartSeries `json:"series"`
+	Summary     ChartSummary  `json:"summary"`
+	Options     ChartOptions  `json:"options,omitempty"`
 }
 
 // ChartPeriod 图表时间范围
@@ -468,32 +468,32 @@ type ChartPeriod struct {
 
 // ChartSeries 图表数据系列
 type ChartSeries struct {
-	Name        string         `json:"name"`
-	Type        ChartType      `json:"type,omitempty"`
-	Color       string         `json:"color,omitempty"`
-	Data        []ChartPoint   `json:"data"`
-	CompareData []ChartPoint   `json:"compare_data,omitempty"` // 对比数据
-	Statistics  SeriesStats    `json:"statistics,omitempty"`
+	Name        string       `json:"name"`
+	Type        ChartType    `json:"type,omitempty"`
+	Color       string       `json:"color,omitempty"`
+	Data        []ChartPoint `json:"data"`
+	CompareData []ChartPoint `json:"compare_data,omitempty"` // 对比数据
+	Statistics  SeriesStats  `json:"statistics,omitempty"`
 }
 
 // ChartPoint 图表数据点
 type ChartPoint struct {
 	Timestamp time.Time `json:"timestamp"`
-	Label     string    `json:"label"`     // X轴标签
-	Value     float64   `json:"value"`     // Y轴值
-	Value2    float64   `json:"value2,omitempty"` // 第二Y轴值（如使用量和限制）
+	Label     string    `json:"label"`              // X轴标签
+	Value     float64   `json:"value"`              // Y轴值
+	Value2    float64   `json:"value2,omitempty"`   // 第二Y轴值（如使用量和限制）
 	Category  string    `json:"category,omitempty"` // 分类（用于饼图等）
 }
 
 // SeriesStats 系列统计
 type SeriesStats struct {
-	Min      float64 `json:"min"`
-	Max      float64 `json:"max"`
-	Avg      float64 `json:"avg"`
-	Sum      float64 `json:"sum"`
-	Count    int     `json:"count"`
-	Trend    string  `json:"trend"` // up, down, stable
-	Change   float64 `json:"change"` // 变化百分比
+	Min    float64 `json:"min"`
+	Max    float64 `json:"max"`
+	Avg    float64 `json:"avg"`
+	Sum    float64 `json:"sum"`
+	Count  int     `json:"count"`
+	Trend  string  `json:"trend"`  // up, down, stable
+	Change float64 `json:"change"` // 变化百分比
 }
 
 // ChartSummary 图表摘要
@@ -521,9 +521,9 @@ type ChartOptions struct {
 
 // ChartManager 图表数据管理器
 type ChartManager struct {
-	quotaMgr      *Manager
-	historyMgr    *HistoryManager
-	trendMgr      *TrendDataManager
+	quotaMgr   *Manager
+	historyMgr *HistoryManager
+	trendMgr   *TrendDataManager
 }
 
 // NewChartManager 创建图表管理器
@@ -604,9 +604,9 @@ func (m *ChartManager) getLineChartData(req ChartDataRequest, response *ChartDat
 	// 为每个配额创建系列
 	for _, data := range quotaData {
 		series := ChartSeries{
-			Name:  data[0].TargetName,
-			Type:  req.ChartType,
-			Data:  make([]ChartPoint, 0),
+			Name: data[0].TargetName,
+			Type: req.ChartType,
+			Data: make([]ChartPoint, 0),
 		}
 
 		for _, r := range data {
@@ -778,10 +778,10 @@ func (m *ChartManager) getHeatmapChartData(req ChartDataRequest, response *Chart
 	response.Title = "配额使用热力图"
 
 	records := m.historyMgr.Query(HistoryQuery{
-		QuotaID:   req.QuotaID,
+		QuotaID:    req.QuotaID,
 		VolumeName: req.VolumeName,
-		StartTime: &req.StartTime,
-		EndTime:   &req.EndTime,
+		StartTime:  &req.StartTime,
+		EndTime:    &req.EndTime,
 	})
 
 	// 按小时和日期聚合
@@ -945,30 +945,30 @@ const (
 
 // AlertNotification 预警通知
 type AlertNotification struct {
-	ID           string            `json:"id"`
-	AlertID      string            `json:"alert_id"`
-	Type         NotificationType  `json:"type"`
-	ChannelID    string            `json:"channel_id"`
-	Recipient    string            `json:"recipient"`
-	Subject      string            `json:"subject"`
-	Message      string            `json:"message"`
-	Data         map[string]interface{} `json:"data,omitempty"`
-	Status       string            `json:"status"` // pending, sent, failed
-	Error        string            `json:"error,omitempty"`
-	RetryCount   int               `json:"retry_count"`
-	SentAt       *time.Time        `json:"sent_at,omitempty"`
-	CreatedAt    time.Time         `json:"created_at"`
+	ID         string                 `json:"id"`
+	AlertID    string                 `json:"alert_id"`
+	Type       NotificationType       `json:"type"`
+	ChannelID  string                 `json:"channel_id"`
+	Recipient  string                 `json:"recipient"`
+	Subject    string                 `json:"subject"`
+	Message    string                 `json:"message"`
+	Data       map[string]interface{} `json:"data,omitempty"`
+	Status     string                 `json:"status"` // pending, sent, failed
+	Error      string                 `json:"error,omitempty"`
+	RetryCount int                    `json:"retry_count"`
+	SentAt     *time.Time             `json:"sent_at,omitempty"`
+	CreatedAt  time.Time              `json:"created_at"`
 }
 
 // NotificationTemplate 通知模板
 type NotificationTemplate struct {
-	ID          string           `json:"id"`
-	Name        string           `json:"name"`
-	Type        NotificationType `json:"type"`
-	Subject     string           `json:"subject,omitempty"`
-	Body        string           `json:"body"`
-	Severity    []AlertSeverity  `json:"severity"`
-	Variables   []string         `json:"variables"`
+	ID        string           `json:"id"`
+	Name      string           `json:"name"`
+	Type      NotificationType `json:"type"`
+	Subject   string           `json:"subject,omitempty"`
+	Body      string           `json:"body"`
+	Severity  []AlertSeverity  `json:"severity"`
+	Variables []string         `json:"variables"`
 }
 
 // NotificationManager 通知管理器
@@ -1181,12 +1181,12 @@ func (m *NotificationManager) GetHistory(limit int) []*AlertNotification {
 
 // UserResourceReport 用户资源使用报告
 type UserResourceReport struct {
-	Username       string              `json:"username"`
-	GeneratedAt    time.Time           `json:"generated_at"`
-	Period         ReportPeriod        `json:"period"`
-	Quotas         []UserQuotaDetail   `json:"quotas"`
-	Summary        UserReportSummary   `json:"summary"`
-	Trend          *UserTrendAnalysis  `json:"trend,omitempty"`
+	Username        string             `json:"username"`
+	GeneratedAt     time.Time          `json:"generated_at"`
+	Period          ReportPeriod       `json:"period"`
+	Quotas          []UserQuotaDetail  `json:"quotas"`
+	Summary         UserReportSummary  `json:"summary"`
+	Trend           *UserTrendAnalysis `json:"trend,omitempty"`
 	Recommendations []string           `json:"recommendations"`
 }
 
@@ -1204,36 +1204,36 @@ type UserQuotaDetail struct {
 	LastUpdated    time.Time `json:"last_updated"`
 
 	// 文件统计
-	FileCount      int    `json:"file_count,omitempty"`
-	DirectoryCount int    `json:"directory_count,omitempty"`
+	FileCount      int        `json:"file_count,omitempty"`
+	DirectoryCount int        `json:"directory_count,omitempty"`
 	TopFiles       []FileInfo `json:"top_files,omitempty"`
 }
 
 // FileInfo 文件信息
 type FileInfo struct {
-	Path     string    `json:"path"`
-	Size     uint64    `json:"size"`
-	ModTime  time.Time `json:"mod_time"`
-	Type     string    `json:"type,omitempty"`
+	Path    string    `json:"path"`
+	Size    uint64    `json:"size"`
+	ModTime time.Time `json:"mod_time"`
+	Type    string    `json:"type,omitempty"`
 }
 
 // UserReportSummary 用户报告摘要
 type UserReportSummary struct {
-	TotalQuotas      int     `json:"total_quotas"`
-	TotalLimitBytes  uint64  `json:"total_limit_bytes"`
-	TotalUsedBytes   uint64  `json:"total_used_bytes"`
-	TotalAvailable   uint64  `json:"total_available"`
-	AvgUsagePercent  float64 `json:"avg_usage_percent"`
-	WarningCount     int     `json:"warning_count"`
-	CriticalCount    int     `json:"critical_count"`
+	TotalQuotas     int     `json:"total_quotas"`
+	TotalLimitBytes uint64  `json:"total_limit_bytes"`
+	TotalUsedBytes  uint64  `json:"total_used_bytes"`
+	TotalAvailable  uint64  `json:"total_available"`
+	AvgUsagePercent float64 `json:"avg_usage_percent"`
+	WarningCount    int     `json:"warning_count"`
+	CriticalCount   int     `json:"critical_count"`
 }
 
 // UserTrendAnalysis 用户趋势分析
 type UserTrendAnalysis struct {
-	DailyGrowthBytes float64   `json:"daily_growth_bytes"`
-	GrowthTrend      string    `json:"growth_trend"` // increasing, decreasing, stable
-	PredictedDaysToFull int    `json:"predicted_days_to_full,omitempty"`
-	WeeklyPattern    []float64 `json:"weekly_pattern,omitempty"` // 每天平均使用率
+	DailyGrowthBytes    float64   `json:"daily_growth_bytes"`
+	GrowthTrend         string    `json:"growth_trend"` // increasing, decreasing, stable
+	PredictedDaysToFull int       `json:"predicted_days_to_full,omitempty"`
+	WeeklyPattern       []float64 `json:"weekly_pattern,omitempty"` // 每天平均使用率
 }
 
 // ReportGeneratorEnhanced 增强的报告生成器
@@ -1255,10 +1255,10 @@ func NewReportGeneratorEnhanced(quotaMgr *Manager, historyMgr *HistoryManager, t
 // GenerateUserReport 生成用户资源报告
 func (g *ReportGeneratorEnhanced) GenerateUserReport(username string, period ReportPeriod) (*UserResourceReport, error) {
 	report := &UserResourceReport{
-		Username:    username,
-		GeneratedAt: time.Now(),
-		Period:      period,
-		Quotas:      make([]UserQuotaDetail, 0),
+		Username:        username,
+		GeneratedAt:     time.Now(),
+		Period:          period,
+		Quotas:          make([]UserQuotaDetail, 0),
 		Recommendations: make([]string, 0),
 	}
 
@@ -1415,12 +1415,12 @@ func (g *ReportGeneratorEnhanced) GenerateSystemReport(period ReportPeriod) (*Sy
 
 // SystemResourceReport 系统资源报告
 type SystemResourceReport struct {
-	GeneratedAt    time.Time          `json:"generated_at"`
-	Period         ReportPeriod       `json:"period"`
-	Summary        SystemSummary      `json:"summary"`
-	Volumes        []VolumeResourceInfo `json:"volumes"`
-	Trend          *SystemTrend       `json:"trend,omitempty"`
-	Alerts         []AlertSummary     `json:"alerts,omitempty"`
+	GeneratedAt time.Time            `json:"generated_at"`
+	Period      ReportPeriod         `json:"period"`
+	Summary     SystemSummary        `json:"summary"`
+	Volumes     []VolumeResourceInfo `json:"volumes"`
+	Trend       *SystemTrend         `json:"trend,omitempty"`
+	Alerts      []AlertSummary       `json:"alerts,omitempty"`
 }
 
 // SystemSummary 系统摘要
@@ -1460,10 +1460,10 @@ type SystemTrend struct {
 
 // AlertSummary 告警摘要
 type AlertSummary struct {
-	TotalAlerts    int `json:"total_alerts"`
-	CriticalCount  int `json:"critical_count"`
-	WarningCount   int `json:"warning_count"`
-	ResolvedCount  int `json:"resolved_count"`
+	TotalAlerts   int `json:"total_alerts"`
+	CriticalCount int `json:"critical_count"`
+	WarningCount  int `json:"warning_count"`
+	ResolvedCount int `json:"resolved_count"`
 }
 
 // generateSystemTrend 生成系统趋势
@@ -1510,7 +1510,7 @@ type StorageStats struct {
 	UserQuotas      []QuotaUsage  `json:"user_quotas"`
 	GroupQuotas     []QuotaUsage  `json:"group_quotas"`
 	DirectoryQuotas []QuotaUsage  `json:"directory_quotas"`
-	TopUsers        []QuotaUsage  `json:"top_users"`    // 使用量最高的用户
+	TopUsers        []QuotaUsage  `json:"top_users"` // 使用量最高的用户
 	AlertCount      int           `json:"alert_count"`
 	Trend           *StorageTrend `json:"trend,omitempty"`
 }

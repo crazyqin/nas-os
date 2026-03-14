@@ -230,8 +230,8 @@ func setupTestRouter() *gin.Engine {
 		{
 			dedup.GET("/status", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{
-					"enabled":       true,
-					"savings":       50000000000,
+					"enabled":        true,
+					"savings":        50000000000,
 					"duplicateCount": 100,
 				})
 			})
@@ -302,7 +302,7 @@ func setupTestRouter() *gin.Engine {
 		{
 			compress.GET("/status", func(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{
-					"enabled":    true,
+					"enabled":   true,
 					"algorithm": "zstd",
 					"ratio":     2.5,
 				})
