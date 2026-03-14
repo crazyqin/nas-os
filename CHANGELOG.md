@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.20.1] - 2026-03-14
+
+### Added
+- **WebUI 页面完善**
+  - 新增 iSCSI 目标管理页面 (`/iscsi`)
+  - 新增在线文档页面 (`/office`) - OnlyOffice 集成
+  - 新增通知中心页面 (`/notify`) - 多渠道通知管理
+  - 新增性能优化页面 (`/optimizer`) - 智能分析与优化建议
+
+- **API 文档更新**
+  - 添加 iSCSI API 端点定义
+  - 添加 Office API 端点定义
+  - 添加 Notify API 端点定义
+  - 添加 Optimizer API 端点定义
+  - 更新版本号至 2.20.1
+
+### Changed
+- **路由注册完善** - 新增页面的静态路由注册
+- **模块覆盖检查** - 确保所有有 API 的模块都有对应 WebUI 页面
+
 ## [v2.20.0] - 2026-03-14
 
 ### Changed
