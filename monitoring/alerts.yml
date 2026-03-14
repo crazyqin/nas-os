@@ -487,3 +487,90 @@ groups:
         annotations:
           summary: "登录失败次数异常"
           description: "检测到频繁的登录失败尝试，可能存在暴力破解攻击"
+
+  # ==================== NAS-OS 内部指标告警 ====================
+  - name: nas-os-internal
+    rules:
+      # 健康评分告警
+      - alert: HealthScoreLow
+        expr: nas_os_health_score < 60
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "系统健康评分过低"
+          description: "系统健康评分 {{ $value | printf \"%.0f\" }} 低于 60 分，建议检查系统状态"
+
+      - alert: HealthScoreCritical
+        expr: nas_os_health_score < 30
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "系统健康评分严重过低"
+          description: "系统健康评分 {{ $value | printf \"%.0f\" }} 低于 30 分，系统可能存在严重问题"
+
+      # API 性能告警
+      - alert: APIHighLatency
+        expr: histogram_quantile(0.95, rate(nas_os_api_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "API 响应延迟过高"
+          description: "API P95 延迟 {{ $value | humanizeDuration }}，超过 1 秒阈值"
+
+      - alert: APIErrorRateHigh
+        expr: rate(nas_os_api_requests_total{status=~"5.."}[5m]) / rate(nas_os_api_requests_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "API 错误率过高"
+          description: "API 5xx 错误率 {{ $value | printf \"%.2f%%\" }}，超过 5% 阈值"
+
+      - alert: APIRequestsInFlightHigh
+        expr: nas_os_api_requests_in_flight > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "API 并发请求过多"
+          description: "当前并发请求数 {{ $value }}，可能影响系统性能"
+
+      # 服务状态告警
+      - alert: ServiceDegraded
+        expr: nas_os_service_health_status{status="degraded"} == 2
+        for: 2m
+        labels:
+          severity: warning
+          component: service
+        annotations:
+          summary: "服务状态降级"
+          description: "服务 {{ $labels.service }} 处于降级状态，部分功能可能不可用"
+
+      - alert: ServiceFailed
+        expr: nas_os_service_health_status{status="failed"} == 3
+        for: 1m
+        labels:
+          severity: critical
+          component: service
+        annotations:
+          summary: "服务失败"
+          description: "服务 {{ $labels.service }} 已失败，请立即检查"
+
+      # 活跃告警数量告警
+      - alert: TooManyActiveAlerts
+        expr: nas_os_alerts_active > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "活跃告警数量过多"
+          description: "当前有 {{ $value }} 个活跃告警，建议及时处理"

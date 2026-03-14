@@ -247,6 +247,11 @@ monitoring:
     annotations: {}
     relabelings: []
     metricRelabelings: []
+  # PrometheusRule for alerting
+  prometheusRule:
+    enabled: true
+    labels: {}
+    annotations: {}
 
 # Prometheus Operator
 prometheus:
