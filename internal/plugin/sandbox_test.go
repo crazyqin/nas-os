@@ -8,7 +8,7 @@ func TestSandboxCheckPermission(t *testing.T) {
 	tests := []struct {
 		name           string
 		config         SandboxConfig
-		permission     Permission
+		permission     PermissionType
 		expectedResult bool
 	}{
 		{
