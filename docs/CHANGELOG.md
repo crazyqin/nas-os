@@ -6,6 +6,15 @@
 
 ---
 
+## [2.20.1] - 2026-03-14
+
+### 🐛 Bug 修复
+
+- 修复 `internal/service/systemd.go` 未使用的 `regexp` 导入
+- 修复 `internal/dedup/dedup.go` 未使用的 `sync/atomic` 导入
+
+---
+
 ## [2.20.0] - 2026-03-14
 
 ### 🔧 维护优化
