@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.12.0] - 2026-03-14
+
+### Fixed
+- **CI/CD 修复**
+  - 统一所有工作流 Go 版本到 1.24（稳定版）
+  - 修复 golangci-lint 版本兼容性问题
+  - 修复 Docker 构建基础镜像版本
+
+### Changed
+- 更新 `.github/workflows/ci-cd.yml` GO_VERSION
+- 更新 `.github/workflows/docker-publish.yml` GO_VERSION
+- 更新 `.github/workflows/release.yml` GO_VERSION
+- 更新 `Dockerfile` 基础镜像到 `golang:1.24-alpine`
+- 更新 `go.mod` Go 版本到 1.24
+
 ## [v2.11.2] - 2026-03-14
 
 ### Fixed
