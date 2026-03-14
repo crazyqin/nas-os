@@ -640,7 +640,6 @@ type SearchResult struct {
 // LogSearcher 日志搜索器
 type LogSearcher struct {
 	path string
-	mu   sync.RWMutex
 }
 
 // NewLogSearcher 创建日志搜索器
