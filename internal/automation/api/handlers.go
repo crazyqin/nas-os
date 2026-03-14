@@ -2,12 +2,16 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
+	"nas-os/internal/automation/action"
 	"nas-os/internal/automation/engine"
 	"nas-os/internal/automation/templates"
+	"nas-os/internal/automation/trigger"
 )
 
 // AutomationAPI 自动化 API 处理器
@@ -91,7 +95,36 @@ func (a *AutomationAPI) CreateWorkflow(w http.ResponseWriter, r *http.Request) {
 		UpdatedAt:   time.Now(),
 	}
 
-	// TODO: 解析 trigger 和 actions
+	// 解析 trigger 配置
+	if len(req.Trigger) > 0 {
+		triggerConfig, err := parseTriggerConfig(req.Trigger)
+		if err != nil {
+			a.writeError(w, http.StatusBadRequest, "Invalid trigger config: "+err.Error())
+			return
+		}
+		trig, err := trigger.NewTriggerFromConfig(triggerConfig)
+		if err != nil {
+			a.writeError(w, http.StatusBadRequest, "Failed to create trigger: "+err.Error())
+			return
+		}
+		wf.Trigger = trig
+	}
+
+	// 解析 actions 配置
+	for i, actionData := range req.Actions {
+		actionConfig, err := parseActionConfig(actionData)
+		if err != nil {
+			a.writeError(w, http.StatusBadRequest, "Invalid action config at index "+strconv.Itoa(i)+": "+err.Error())
+			return
+		}
+		act, err := action.NewActionFromConfig(actionConfig)
+		if err != nil {
+			a.writeError(w, http.StatusBadRequest, "Failed to create action at index "+strconv.Itoa(i)+": "+err.Error())
+			return
+		}
+		wf.Actions = append(wf.Actions, act)
+	}
+
 	if err := a.engine.CreateWorkflow(wf); err != nil {
 		a.writeError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -111,12 +144,54 @@ func (a *AutomationAPI) UpdateWorkflow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 获取现有工作流以保留运行计数等信息
+	existing, err := a.engine.GetWorkflow(id)
+	if err != nil {
+		a.writeError(w, http.StatusNotFound, err.Error())
+		return
+	}
+
 	wf := &engine.Workflow{
-		ID:          id,
-		Name:        req.Name,
-		Description: req.Description,
-		Enabled:     req.Enabled,
-		UpdatedAt:   time.Now(),
+		ID:           id,
+		Name:         req.Name,
+		Description:  req.Description,
+		Enabled:      req.Enabled,
+		CreatedAt:    existing.CreatedAt,
+		LastRun:      existing.LastRun,
+		RunCount:     existing.RunCount,
+		SuccessCount: existing.SuccessCount,
+		FailCount:    existing.FailCount,
+		UpdatedAt:    time.Now(),
+	}
+
+	// 解析 trigger 配置
+	if len(req.Trigger) > 0 {
+		triggerConfig, err := parseTriggerConfig(req.Trigger)
+		if err != nil {
+			a.writeError(w, http.StatusBadRequest, "Invalid trigger config: "+err.Error())
+			return
+		}
+		trig, err := trigger.NewTriggerFromConfig(triggerConfig)
+		if err != nil {
+			a.writeError(w, http.StatusBadRequest, "Failed to create trigger: "+err.Error())
+			return
+		}
+		wf.Trigger = trig
+	}
+
+	// 解析 actions 配置
+	for i, actionData := range req.Actions {
+		actionConfig, err := parseActionConfig(actionData)
+		if err != nil {
+			a.writeError(w, http.StatusBadRequest, "Invalid action config at index "+strconv.Itoa(i)+": "+err.Error())
+			return
+		}
+		act, err := action.NewActionFromConfig(actionConfig)
+		if err != nil {
+			a.writeError(w, http.StatusBadRequest, "Failed to create action at index "+strconv.Itoa(i)+": "+err.Error())
+			return
+		}
+		wf.Actions = append(wf.Actions, act)
 	}
 
 	if err := a.engine.UpdateWorkflow(id, wf); err != nil {
@@ -272,19 +347,31 @@ func (a *AutomationAPI) GetStats(w http.ResponseWriter, r *http.Request) {
 	total := len(workflows)
 	active := 0
 	totalRuns := 0
+	totalSuccess := 0
+	totalFail := 0
 
 	for _, wf := range workflows {
 		if wf.Enabled {
 			active++
 		}
 		totalRuns += wf.RunCount
+		totalSuccess += wf.SuccessCount
+		totalFail += wf.FailCount
+	}
+
+	// 计算成功率
+	var successRate float64
+	if totalRuns > 0 {
+		successRate = float64(totalSuccess) / float64(totalRuns) * 100
 	}
 
 	stats := map[string]interface{}{
 		"total_workflows":  total,
 		"active_workflows": active,
 		"total_runs":       totalRuns,
-		"success_rate":     95, // TODO: 实现实际的成功率计算
+		"success_count":    totalSuccess,
+		"fail_count":       totalFail,
+		"success_rate":     int(successRate),
 	}
 
 	a.writeJSON(w, http.StatusOK, stats)
@@ -299,4 +386,188 @@ func (a *AutomationAPI) writeJSON(w http.ResponseWriter, status int, data interf
 
 func (a *AutomationAPI) writeError(w http.ResponseWriter, status int, message string) {
 	a.writeJSON(w, status, map[string]string{"error": message})
+}
+
+// parseTriggerConfig 从 map 解析触发器配置
+func parseTriggerConfig(data map[string]interface{}) (trigger.TriggerConfig, error) {
+	config := trigger.TriggerConfig{}
+
+	// 解析 type
+	if t, ok := data["type"].(string); ok {
+		config.Type = trigger.TriggerType(t)
+	} else {
+		return config, fmt.Errorf("missing or invalid trigger type")
+	}
+
+	// File trigger 字段
+	if v, ok := data["path"].(string); ok {
+		config.Path = v
+	}
+	if v, ok := data["pattern"].(string); ok {
+		config.Pattern = v
+	}
+	if v, ok := data["events"].([]interface{}); ok {
+		for _, e := range v {
+			if s, ok := e.(string); ok {
+				config.Events = append(config.Events, s)
+			}
+		}
+	}
+	if v, ok := data["recursive"].(bool); ok {
+		config.Recursive = v
+	}
+
+	// Time trigger 字段
+	if v, ok := data["schedule"].(string); ok {
+		config.Schedule = v
+	}
+	if v, ok := data["timezone"].(string); ok {
+		config.Timezone = v
+	}
+	if v, ok := data["once"].(bool); ok {
+		config.Once = v
+	}
+
+	// Event trigger 字段
+	if v, ok := data["event_type"].(string); ok {
+		config.EventType = v
+	}
+	if v, ok := data["filter"].(map[string]interface{}); ok {
+		config.Filter = v
+	}
+
+	// Webhook trigger 字段
+	if v, ok := data["method"].(string); ok {
+		config.Method = v
+	}
+	if v, ok := data["secret"].(string); ok {
+		config.Secret = v
+	}
+	if v, ok := data["headers"].(map[string]interface{}); ok {
+		config.Headers = make(map[string]string)
+		for key, val := range v {
+			if s, ok := val.(string); ok {
+				config.Headers[key] = s
+			}
+		}
+	}
+
+	return config, nil
+}
+
+// parseActionConfig 从 map 解析动作配置
+func parseActionConfig(data map[string]interface{}) (action.ActionConfig, error) {
+	config := action.ActionConfig{}
+
+	// 解析 type
+	if t, ok := data["type"].(string); ok {
+		config.Type = action.ActionType(t)
+	} else {
+		return config, fmt.Errorf("missing or invalid action type")
+	}
+
+	// 通用字段
+	if v, ok := data["source"].(string); ok {
+		config.Source = v
+	}
+	if v, ok := data["destination"].(string); ok {
+		config.Destination = v
+	}
+	if v, ok := data["path"].(string); ok {
+		config.Path = v
+	}
+	if v, ok := data["overwrite"].(bool); ok {
+		config.Overwrite = v
+	}
+	if v, ok := data["recursive"].(bool); ok {
+		config.Recursive = v
+	}
+
+	// Rename 字段
+	if v, ok := data["new_name"].(string); ok {
+		config.NewName = v
+	}
+
+	// Convert 字段
+	if v, ok := data["format"].(string); ok {
+		config.Format = v
+	}
+	if v, ok := data["options"].(map[string]interface{}); ok {
+		config.Options = v
+	}
+
+	// Notify 字段
+	if v, ok := data["channel"].(string); ok {
+		config.Channel = v
+	}
+	if v, ok := data["message"].(string); ok {
+		config.Message = v
+	}
+	if v, ok := data["title"].(string); ok {
+		config.Title = v
+	}
+	if v, ok := data["to"].(string); ok {
+		config.To = v
+	}
+
+	// Command 字段
+	if v, ok := data["command"].(string); ok {
+		config.Command = v
+	}
+	if v, ok := data["args"].([]interface{}); ok {
+		for _, arg := range v {
+			if s, ok := arg.(string); ok {
+				config.Args = append(config.Args, s)
+			}
+		}
+	}
+	if v, ok := data["work_dir"].(string); ok {
+		config.WorkDir = v
+	}
+	if v, ok := data["env"].([]interface{}); ok {
+		for _, e := range v {
+			if s, ok := e.(string); ok {
+				config.Env = append(config.Env, s)
+			}
+		}
+	}
+
+	// Webhook 字段
+	if v, ok := data["url"].(string); ok {
+		config.URL = v
+	}
+	if v, ok := data["method"].(string); ok {
+		config.Method = v
+	}
+	if v, ok := data["headers"].(map[string]interface{}); ok {
+		config.Headers = make(map[string]string)
+		for key, val := range v {
+			if s, ok := val.(string); ok {
+				config.Headers[key] = s
+			}
+		}
+	}
+	if v, ok := data["body"].(string); ok {
+		config.Body = v
+	}
+
+	// Email 字段
+	if v, ok := data["subject"].(string); ok {
+		config.Subject = v
+	}
+	if v, ok := data["body"].(string); ok {
+		config.Body = v
+	}
+	if v, ok := data["html"].(bool); ok {
+		config.HTML = v
+	}
+	if v, ok := data["attachments"].([]interface{}); ok {
+		for _, a := range v {
+			if s, ok := a.(string); ok {
+				config.Attachments = append(config.Attachments, s)
+			}
+		}
+	}
+
+	return config, nil
 }

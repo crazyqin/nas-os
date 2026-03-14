@@ -220,7 +220,8 @@ func (m *Manager) Uninstall(pluginID string) error {
 
 	// 检查是否有其他插件依赖
 	for _, s := range m.states {
-		for _, dep := range getDependenciesFromState(s) {
+		deps := m.getDependenciesFromPluginState(s)
+		for _, dep := range deps {
 			if dep.ID == pluginID && !dep.Optional {
 				return fmt.Errorf("插件 %s 依赖 %s，无法卸载", s.ID, pluginID)
 			}
@@ -631,8 +632,18 @@ func (m *Manager) saveStates() error {
 }
 
 // getDependenciesFromState 从状态获取依赖
-func getDependenciesFromState(state *PluginState) []Dependency {
-	return nil // TODO: 需要从插件信息中获取
+func (m *Manager) getDependenciesFromPluginState(state *PluginState) []Dependency {
+	if state == nil {
+		return nil
+	}
+
+	// 从已加载的插件实例中获取依赖信息
+	inst, exists := m.loader.GetInstance(state.ID)
+	if !exists {
+		return nil
+	}
+
+	return inst.Info.Dependencies
 }
 
 // isDir 检查是否是目录

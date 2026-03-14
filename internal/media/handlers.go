@@ -2,6 +2,8 @@ package media
 
 import (
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -299,11 +301,38 @@ func (h *Handlers) searchMedia(c *gin.Context) {
 func (h *Handlers) getMediaItem(c *gin.Context) {
 	id := c.Param("id")
 
-	// TODO: 实现获取单个媒体项
+	item, library := h.libraryMgr.GetMediaItemByID(id)
+	if item == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "媒体项不存在",
+		})
+		return
+	}
+
+	// 返回包含库信息的完整数据
+	result := gin.H{
+		"id":           item.ID,
+		"path":         item.Path,
+		"name":         item.Name,
+		"type":         item.Type,
+		"size":         item.Size,
+		"modifiedTime": item.ModifiedTime,
+		"metadata":     item.Metadata,
+		"posterPath":   item.PosterPath,
+		"isFavorite":   item.IsFavorite,
+		"tags":         item.Tags,
+		"rating":       item.Rating,
+		"playCount":    item.PlayCount,
+		"lastPlayed":   item.LastPlayed,
+		"libraryId":    library.ID,
+		"libraryName":  library.Name,
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    gin.H{"id": id},
+		"data":    result,
 	})
 }
 
@@ -325,11 +354,28 @@ func (h *Handlers) updateMediaItem(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现更新媒体项
+	updates := make(map[string]interface{})
+	if req.Tags != nil {
+		updates["tags"] = req.Tags
+	}
+	updates["rating"] = req.Rating
+	updates["isFavorite"] = req.IsFavorite
+
+	if err := h.libraryMgr.UpdateMediaItem(id, updates); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// 获取更新后的数据
+	item, _ := h.libraryMgr.GetMediaItemByID(id)
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "更新成功",
-		"data":    gin.H{"id": id},
+		"data":    item,
 	})
 }
 
@@ -337,11 +383,17 @@ func (h *Handlers) updateMediaItem(c *gin.Context) {
 func (h *Handlers) deleteMediaItem(c *gin.Context) {
 	id := c.Param("id")
 
-	// TODO: 实现删除媒体项
+	if err := h.libraryMgr.DeleteMediaItem(id); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "删除成功",
-		"data":    gin.H{"id": id},
 	})
 }
 
@@ -440,13 +492,31 @@ func (h *Handlers) searchMovieMetadata(c *gin.Context) {
 	query := c.Query("q")
 	source := c.Query("source") // tmdb/douban
 
-	// TODO: 实现元数据搜索
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请提供搜索关键词",
+		})
+		return
+	}
+
+	results, err := h.libraryMgr.SearchMovieMetadata(query, source)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "搜索失败：" + err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"query":  query,
-			"source": source,
+			"query":   query,
+			"source":  source,
+			"results": results,
+			"total":   len(results),
 		},
 	})
 }
@@ -456,13 +526,31 @@ func (h *Handlers) searchTVMetadata(c *gin.Context) {
 	query := c.Query("q")
 	source := c.Query("source")
 
-	// TODO: 实现元数据搜索
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请提供搜索关键词",
+		})
+		return
+	}
+
+	results, err := h.libraryMgr.SearchTVMetadata(query, source)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "搜索失败：" + err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"query":  query,
-			"source": source,
+			"query":   query,
+			"source":  source,
+			"results": results,
+			"total":   len(results),
 		},
 	})
 }
@@ -470,34 +558,85 @@ func (h *Handlers) searchTVMetadata(c *gin.Context) {
 // getMovieMetadata 获取电影元数据详情
 func (h *Handlers) getMovieMetadata(c *gin.Context) {
 	id := c.Param("id")
+	source := c.Query("source") // tmdb/douban
 
-	// TODO: 实现获取元数据详情
+	movie, err := h.libraryMgr.GetMovieMetadata(id, source)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "获取元数据失败：" + err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    gin.H{"id": id},
+		"data":    movie,
 	})
 }
 
 // getTVMetadata 获取电视剧元数据详情
 func (h *Handlers) getTVMetadata(c *gin.Context) {
 	id := c.Param("id")
+	source := c.Query("source") // tmdb/douban
 
-	// TODO: 实现获取元数据详情
+	tv, err := h.libraryMgr.GetTVMetadata(id, source)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "获取元数据失败：" + err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    gin.H{"id": id},
+		"data":    tv,
 	})
 }
 
 // getPlayHistory 获取播放历史
 func (h *Handlers) getPlayHistory(c *gin.Context) {
-	// TODO: 实现播放历史
+	limit := 50
+	if limitStr := c.Query("limit"); limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+			limit = l
+		}
+	}
+
+	mediaType := c.Query("type")
+	var mType MediaType
+	switch mediaType {
+	case "movie":
+		mType = MediaTypeMovie
+	case "tv":
+		mType = MediaTypeTV
+	case "music":
+		mType = MediaTypeMusic
+	}
+
+	history := h.libraryMgr.GetPlayHistory(limit)
+
+	// 按媒体类型过滤
+	if mType != "" {
+		filtered := make([]*PlayHistory, 0)
+		for _, h := range history {
+			if h.MediaType == mType {
+				filtered = append(filtered, h)
+			}
+		}
+		history = filtered
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    []interface{}{},
+		"data": gin.H{
+			"history": history,
+			"total":   len(history),
+		},
 	})
 }
 
@@ -518,20 +657,72 @@ func (h *Handlers) addPlayHistory(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现添加播放历史
+	// 获取媒体项信息
+	item, library := h.libraryMgr.GetMediaItemByID(req.MediaID)
+	if item == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "媒体项不存在",
+		})
+		return
+	}
+
+	// 创建播放历史记录
+	history := &PlayHistory{
+		MediaID:    req.MediaID,
+		MediaName:  item.Name,
+		MediaType:  item.Type,
+		PosterPath: item.PosterPath,
+		Position:   req.Position,
+		Duration:   req.Duration,
+		Completed:  req.Completed,
+		PlayedAt:   time.Now(),
+		LibraryID:  library.ID,
+	}
+
+	h.libraryMgr.AddPlayHistory(history)
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
+		"data":    history,
 	})
 }
 
 // getFavorites 获取收藏列表
 func (h *Handlers) getFavorites(c *gin.Context) {
-	// TODO: 实现收藏列表
+	mediaType := c.Query("type")
+	limit := 100
+	if limitStr := c.Query("limit"); limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+			limit = l
+		}
+	}
+
+	var mType MediaType
+	switch mediaType {
+	case "movie":
+		mType = MediaTypeMovie
+	case "tv":
+		mType = MediaTypeTV
+	case "music":
+		mType = MediaTypeMusic
+	}
+
+	favorites := h.libraryMgr.GetFavorites(mType)
+
+	// 限制数量
+	if limit > 0 && len(favorites) > limit {
+		favorites = favorites[:limit]
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    []interface{}{},
+		"data": gin.H{
+			"favorites": favorites,
+			"total":     len(favorites),
+		},
 	})
 }
 
@@ -539,10 +730,26 @@ func (h *Handlers) getFavorites(c *gin.Context) {
 func (h *Handlers) toggleFavorite(c *gin.Context) {
 	id := c.Param("id")
 
-	// TODO: 实现切换收藏
+	item, err := h.libraryMgr.ToggleFavorite(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	action := "已取消收藏"
+	if item.IsFavorite {
+		action = "已收藏"
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
-		"message": "success",
-		"data":    gin.H{"id": id},
+		"message": action,
+		"data": gin.H{
+			"id":         id,
+			"isFavorite": item.IsFavorite,
+		},
 	})
 }
