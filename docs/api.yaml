@@ -2181,6 +2181,39 @@ components:
           type: string
           format: date-time
 
+    AutoExpandPolicy:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        target_type:
+          type: string
+          enum: [user, group, directory]
+        target_id:
+          type: string
+        enabled:
+          type: boolean
+        trigger_threshold:
+          type: number
+          description: 触发扩展的使用率阈值（百分比）
+        expand_by:
+          type: integer
+          description: 每次扩展的字节数
+        max_limit:
+          type: integer
+          description: 最大配额限制
+        cooldown_minutes:
+          type: integer
+          description: 扩展冷却时间（分钟）
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
     # 错误响应
     ErrorResponse:
       type: object
