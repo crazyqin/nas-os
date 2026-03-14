@@ -762,8 +762,11 @@ func (s *Server) Start(addr string) error {
 	}
 
 	s.httpSrv = &http.Server{
-		Addr:    addr,
-		Handler: s.engine,
+		Addr:              addr,
+		Handler:           s.engine,
+		ReadHeaderTimeout: 10 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 	return s.httpSrv.ListenAndServe()
 }
