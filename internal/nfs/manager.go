@@ -26,6 +26,7 @@ type ServiceStatus struct {
 type Manager struct {
 	configPath string
 	exports    map[string]*Export
+	config     *Config
 	mu         sync.RWMutex
 	logger     *logging.Logger
 }
@@ -55,9 +56,42 @@ type ExportOptions struct {
 	SubtreeCheck bool `json:"subtree_check"`
 }
 
+// Config NFS 全局配置
+type Config struct {
+	Enabled        bool     `json:"enabled"`
+	Version        string   `json:"version"`         // NFS版本: "4", "3", "4.2"
+	Threads        int      `json:"threads"`         // 工作线程数
+	UDPPort        int      `json:"udp_port"`        // UDP端口
+	TCPPort        int      `json:"tcp_port"`        // TCP端口
+	MountdPort     int      `json:"mountd_port"`     // mountd端口
+	StatdPort      int      `json:"statd_port"`      // statd端口
+	LockdPort      int      `json:"lockd_port"`      // lockd端口
+	AllowedHosts   []string `json:"allowed_hosts"`   // 允许的主机
+	BlockedHosts   []string `json:"blocked_hosts"`   // 禁止的主机
+	MaxConnections int      `json:"max_connections"` // 最大连接数
+}
+
 // persistentConfig 持久化配置结构
 type persistentConfig struct {
+	Config  *Config            `json:"config"`
 	Exports map[string]*Export `json:"exports"`
+}
+
+// newDefaultConfig 创建默认配置
+func newDefaultConfig() *Config {
+	return &Config{
+		Enabled:        true,
+		Version:        "4",
+		Threads:        8,
+		TCPPort:        2049,
+		UDPPort:        2049,
+		MountdPort:     0, // 自动分配
+		StatdPort:      0,
+		LockdPort:      0,
+		AllowedHosts:   []string{},
+		BlockedHosts:   []string{},
+		MaxConnections: 0, // 无限制
+	}
 }
 
 // NewManager 创建NFS管理器
@@ -67,6 +101,7 @@ func NewManager(configPath string) (*Manager, error) {
 	m := &Manager{
 		configPath: configPath,
 		exports:    make(map[string]*Export),
+		config:     newDefaultConfig(),
 		logger:     logger,
 	}
 
@@ -99,6 +134,9 @@ func (m *Manager) loadConfig() error {
 	if pc.Exports != nil {
 		m.exports = pc.Exports
 	}
+	if pc.Config != nil {
+		m.config = pc.Config
+	}
 
 	m.logger.Infof("加载了 %d 个导出配置", len(m.exports))
 	return nil
@@ -108,6 +146,7 @@ func (m *Manager) loadConfig() error {
 func (m *Manager) saveConfig() error {
 	m.mu.RLock()
 	pc := persistentConfig{
+		Config:  m.config,
 		Exports: m.exports,
 	}
 	m.mu.RUnlock()
@@ -118,6 +157,7 @@ func (m *Manager) saveConfig() error {
 // saveConfigLocked 保存配置（调用者已持有锁）
 func (m *Manager) saveConfigLocked() error {
 	pc := persistentConfig{
+		Config:  m.config,
 		Exports: m.exports,
 	}
 	return m.writeConfigFile(pc)
@@ -553,6 +593,78 @@ func (m *Manager) ValidateExport(export *Export) error {
 	// 检查选项冲突
 	if export.Options.Ro && export.Options.Rw {
 		return fmt.Errorf("不能同时设置只读和读写选项")
+	}
+
+	return nil
+}
+
+// GetConfig 获取全局配置
+func (m *Manager) GetConfig() *Config {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.config
+}
+
+// UpdateConfig 更新全局配置
+func (m *Manager) UpdateConfig(config *Config) error {
+	if err := ValidateConfig(config); err != nil {
+		return fmt.Errorf("验证配置失败: %w", err)
+	}
+
+	m.mu.Lock()
+	m.config = config
+	m.mu.Unlock()
+
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
+
+	m.logger.Info("NFS全局配置已更新")
+	return nil
+}
+
+// ValidateConfig 验证全局配置
+func ValidateConfig(config *Config) error {
+	if config == nil {
+		return fmt.Errorf("配置不能为空")
+	}
+
+	// 验证 NFS 版本
+	validVersions := map[string]bool{
+		"3":   true,
+		"4":   true,
+		"4.1": true,
+		"4.2": true,
+	}
+	if config.Version != "" && !validVersions[config.Version] {
+		return fmt.Errorf("无效的NFS版本: %s", config.Version)
+	}
+
+	// 验证端口范围
+	if config.TCPPort != 0 && (config.TCPPort < 1 || config.TCPPort > 65535) {
+		return fmt.Errorf("TCP端口超出有效范围: %d", config.TCPPort)
+	}
+	if config.UDPPort != 0 && (config.UDPPort < 1 || config.UDPPort > 65535) {
+		return fmt.Errorf("UDP端口超出有效范围: %d", config.UDPPort)
+	}
+	if config.MountdPort != 0 && (config.MountdPort < 1 || config.MountdPort > 65535) {
+		return fmt.Errorf("Mountd端口超出有效范围: %d", config.MountdPort)
+	}
+	if config.StatdPort != 0 && (config.StatdPort < 1 || config.StatdPort > 65535) {
+		return fmt.Errorf("Statd端口超出有效范围: %d", config.StatdPort)
+	}
+	if config.LockdPort != 0 && (config.LockdPort < 1 || config.LockdPort > 65535) {
+		return fmt.Errorf("Lockd端口超出有效范围: %d", config.LockdPort)
+	}
+
+	// 验证线程数
+	if config.Threads < 0 {
+		return fmt.Errorf("线程数不能为负数: %d", config.Threads)
+	}
+
+	// 验证最大连接数
+	if config.MaxConnections < 0 {
+		return fmt.Errorf("最大连接数不能为负数: %d", config.MaxConnections)
 	}
 
 	return nil

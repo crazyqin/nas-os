@@ -299,15 +299,29 @@ func (h *Handlers) getSMBStatus(c *gin.Context) {
 }
 
 func (h *Handlers) getSMBConfig(c *gin.Context) {
-	// 返回全局 SMB 配置
-	c.JSON(http.StatusOK, Success(gin.H{
-		"message": "SMB 配置已加载",
-	}))
+	config := h.smbManager.GetConfig()
+	c.JSON(http.StatusOK, Success(config))
 }
 
 func (h *Handlers) updateSMBConfig(c *gin.Context) {
-	// TODO: 更新全局 SMB 配置
-	c.JSON(http.StatusOK, Success(gin.H{"message": "配置已更新"}))
+	var req smb.Config
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	if err := h.smbManager.UpdateConfig(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	// 应用配置到系统
+	if err := h.smbManager.ApplyConfig(); err != nil {
+		c.JSON(http.StatusInternalServerError, Error(500, "应用配置失败："+err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(gin.H{"message": "SMB全局配置已更新"}))
 }
 
 func (h *Handlers) testSMBConfig(c *gin.Context) {
@@ -431,13 +445,27 @@ func (h *Handlers) getNFSClients(c *gin.Context) {
 }
 
 func (h *Handlers) getNFSConfig(c *gin.Context) {
-	// 返回全局 NFS 配置
-	c.JSON(http.StatusOK, Success(gin.H{
-		"message": "NFS 配置已加载",
-	}))
+	config := h.nfsManager.GetConfig()
+	c.JSON(http.StatusOK, Success(config))
 }
 
 func (h *Handlers) updateNFSConfig(c *gin.Context) {
-	// TODO: 更新全局 NFS 配置
-	c.JSON(http.StatusOK, Success(gin.H{"message": "配置已更新"}))
+	var req nfs.Config
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	if err := h.nfsManager.UpdateConfig(&req); err != nil {
+		c.JSON(http.StatusBadRequest, Error(400, err.Error()))
+		return
+	}
+
+	// 应用配置到系统（重新加载 NFS 服务）
+	if err := h.nfsManager.Reload(); err != nil {
+		c.JSON(http.StatusInternalServerError, Error(500, "应用配置失败："+err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(gin.H{"message": "NFS全局配置已更新"}))
 }
