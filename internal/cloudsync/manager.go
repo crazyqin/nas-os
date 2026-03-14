@@ -195,7 +195,7 @@ func (m *Manager) TestProvider(id string) (*ConnectionTestResult, error) {
 			Message:  fmt.Sprintf("初始化失败: %v", err),
 		}, nil
 	}
-	defer provider.Close()
+	defer func() { _ = provider.Close() }()
 
 	return provider.TestConnection(context.Background())
 }

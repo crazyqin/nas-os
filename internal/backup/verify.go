@@ -235,7 +235,7 @@ func (vm *VerificationManager) verifyStructure(path string, info FileInfo) *Veri
 			Message: fmt.Sprintf("cannot open file: %v", err),
 		}
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 检查文件大小
 	stat, err := file.Stat()
@@ -276,7 +276,7 @@ func (vm *VerificationManager) verifyChecksum(path string, info FileInfo) *Verif
 			Message: fmt.Sprintf("cannot open file: %v", err),
 		}
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 计算校验和
 	hash := sha256.New()

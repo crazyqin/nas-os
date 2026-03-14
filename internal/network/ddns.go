@@ -174,7 +174,7 @@ func (m *Manager) getPublicIP(iface string) (string, error) {
 		if err != nil {
 			continue
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		data, err := io.ReadAll(resp.Body)
 		if err != nil {
@@ -211,7 +211,7 @@ func (p *DuckDNSProvider) Update(domain, ip string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -250,7 +250,7 @@ func (p *NoIPProvider) Update(domain, ip string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {

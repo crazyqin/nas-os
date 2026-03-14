@@ -214,7 +214,7 @@ func (vm *VersionManager) getLatestTag(image string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != 200 {
 		return "", fmt.Errorf("docker Hub API 返回 %d", resp.StatusCode)
@@ -298,7 +298,7 @@ func (vm *VersionManager) fetchVersionsFromDockerHub(image string) ([]*AppVersio
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("docker Hub API 返回 %d", resp.StatusCode)

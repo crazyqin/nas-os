@@ -580,7 +580,7 @@ func (ib *IncrementalBackup) processFile(path string, snapshot *Snapshot) (strin
 	if err != nil {
 		return "", nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 计算完整文件校验和
 	hash := sha256.New()

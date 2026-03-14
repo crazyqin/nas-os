@@ -730,7 +730,7 @@ func (s *LogSearcher) parseLogFile(path string, config *SearchConfig) ([]LogEntr
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	entries := make([]LogEntry, 0)
 	scanner := bufio.NewScanner(file)
@@ -862,7 +862,7 @@ func (s *LogSearcher) Stream(ctx context.Context, config *SearchConfig) (<-chan 
 		if err != nil {
 			return
 		}
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 
 		// 跳到文件末尾
 		file.Seek(0, io.SeekEnd)

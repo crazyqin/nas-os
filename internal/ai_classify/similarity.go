@@ -524,7 +524,7 @@ func (d *SimilarityDetector) calculateFileHash(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	hasher := sha256.New()
 	if _, err := io.Copy(hasher, file); err != nil {
@@ -565,7 +565,7 @@ func (d *SimilarityDetector) extractTextFeatures(path string, info os.FileInfo) 
 	if err != nil {
 		return features, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	data := make([]byte, maxSize)
 	n, err := file.Read(data)

@@ -384,7 +384,7 @@ func (c *HTTPChecker) Check(ctx context.Context) *CheckResult {
 		result.Details["error"] = err.Error()
 		return result
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	result.Details["status_code"] = resp.StatusCode
 	result.Details["response_time_ms"] = duration.Milliseconds()

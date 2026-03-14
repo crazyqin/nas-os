@@ -195,7 +195,7 @@ func (m *ISOManager) UploadISO(ctx context.Context, name string, reader io.Reade
 	if err != nil {
 		return nil, fmt.Errorf("创建文件失败：%w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 复制内容
 	written, err := io.Copy(file, reader)
@@ -257,7 +257,7 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 	if err != nil {
 		return nil, fmt.Errorf("下载失败：%w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("下载失败：HTTP %d", resp.StatusCode)
@@ -270,7 +270,7 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 	if err != nil {
 		return nil, fmt.Errorf("创建文件失败：%w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 带进度跟踪的复制
 	var totalWritten int64

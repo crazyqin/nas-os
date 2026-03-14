@@ -59,7 +59,7 @@ func (ctm *CustomTemplateManager) ImportFromURL(url, name, displayName, descript
 	if err != nil {
 		return nil, fmt.Errorf("下载失败：%w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("URL 返回状态码：%d", resp.StatusCode)

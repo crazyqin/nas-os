@@ -733,7 +733,7 @@ func (rm *ReplicationManager) transferData(job *ReplicationJob, config *Replicat
 	if err != nil {
 		return fmt.Errorf("发送完成通知失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("目标节点返回错误: %d", resp.StatusCode)
@@ -828,7 +828,7 @@ func (rm *ReplicationManager) calculateChecksum(path string) (string, error) {
 			if err != nil {
 				return err
 			}
-			defer f.Close()
+			defer func() { _ = f.Close() }()
 
 			if _, err := io.Copy(hash, f); err != nil {
 				return err
@@ -905,7 +905,7 @@ func (rm *ReplicationManager) checkNodeStatus(target ReplicationTarget) NodeStat
 	if err != nil {
 		return NodeStatusOffline
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusOK {
 		return NodeStatusOnline

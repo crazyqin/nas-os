@@ -525,7 +525,7 @@ func (s *Server) handlePut(w http.ResponseWriter, r *http.Request, fullPath, use
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 复制内容
 	written, err := io.Copy(file, r.Body)
@@ -688,14 +688,14 @@ func (s *Server) copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// 创建目标文件
 	dstFile, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// 复制内容
 	_, err = io.Copy(dstFile, srcFile)

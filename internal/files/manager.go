@@ -285,7 +285,7 @@ func (m *Manager) GenerateImageThumbnail(path string) (string, int, int) {
 	if err != nil {
 		return "", 0, 0
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var img image.Image
 	ext := strings.ToLower(filepath.Ext(path))
@@ -890,7 +890,7 @@ func (h *Handlers) compressZipGo(srcPath, dstPath string, level int) error {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 
 		_, err = io.Copy(writer, file)
 		return err

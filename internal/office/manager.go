@@ -213,7 +213,7 @@ func (m *Manager) CheckServer() error {
 	if err != nil {
 		return fmt.Errorf("服务器不可达: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("服务器返回错误状态: %d", resp.StatusCode)
@@ -511,7 +511,7 @@ func (m *Manager) handleSave(session *EditingSession, req CallbackRequest) error
 	if err != nil {
 		return fmt.Errorf("下载文档失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("下载文档失败: status=%d", resp.StatusCode)

@@ -457,7 +457,7 @@ func (hc *HealthChecker) checkBtrfs() HealthCheckResult {
 
 	// 检查 /proc/mounts 中的 btrfs 挂载
 	if file, err := os.Open("/proc/mounts"); err == nil {
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		scanner := bufio.NewScanner(file)
 		btrfsMounts := []string{}
 
