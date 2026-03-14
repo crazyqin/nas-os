@@ -364,15 +364,34 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 		}
 	}
 
-	// 获取连接数
-	cmd = exec.Command("nfsstat", "-c")
-	if output, err := cmd.Output(); err == nil {
-		// 简单统计连接数
-		status.Connections = strings.Count(string(output), " ")
-	}
+	// 获取连接数 - 通过解析 /proc/fs/nfsd/clients/ 目录
+	status.Connections = m.getConnectionsCount()
 
 	m.logger.Debugf("NFS服务状态: running=%v, exports=%d", status.Running, status.Exports)
 	return status, nil
+}
+
+// getConnectionsCount 获取NFS连接数
+// 通过解析 /proc/fs/nfsd/clients/ 目录统计活跃连接
+// 这是最可靠的方法，因为数据直接来自内核
+func (m *Manager) getConnectionsCount() int {
+	clientsDir := "/proc/fs/nfsd/clients"
+	
+	entries, err := os.ReadDir(clientsDir)
+	if err != nil {
+		m.logger.Debugf("无法读取NFS客户端目录 %s: %v", clientsDir, err)
+		return 0
+	}
+	
+	count := 0
+	for _, entry := range entries {
+		if entry.IsDir() {
+			// 每个子目录代表一个客户端连接
+			count++
+		}
+	}
+	
+	return count
 }
 
 // GenerateExportsFile 生成/etc/exports文件内容
