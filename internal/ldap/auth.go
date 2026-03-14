@@ -91,7 +91,7 @@ func (a *Authenticator) AuthenticateWithDN(dn, password string) (*AuthResult, er
 // findUser 查找用户
 func (a *Authenticator) findUser(username string) (*User, error) {
 	filter := a.buildUserFilter(username)
-	
+
 	searchDN := a.config.BaseDN
 	if a.config.UserSearchDN != "" {
 		searchDN = a.config.UserSearchDN
@@ -175,18 +175,18 @@ func (a *Authenticator) getUserAttributes() []string {
 func (a *Authenticator) entryToUser(entry *ldap.Entry) *User {
 	attrs := a.config.Attributes
 	user := &User{
-		DN:           entry.DN,
-		Username:     entry.GetAttributeValue(attrs.Username),
-		Email:        entry.GetAttributeValue(attrs.Email),
-		FirstName:    entry.GetAttributeValue(attrs.FirstName),
-		LastName:     entry.GetAttributeValue(attrs.LastName),
-		FullName:     entry.GetAttributeValue(attrs.FullName),
-		DisplayName:  entry.GetAttributeValue(attrs.DisplayName),
-		Phone:        entry.GetAttributeValue(attrs.Phone),
-		Mobile:       entry.GetAttributeValue(attrs.Mobile),
-		Department:   entry.GetAttributeValue(attrs.Department),
-		Title:        entry.GetAttributeValue(attrs.Title),
-		EmployeeID:   entry.GetAttributeValue(attrs.EmployeeID),
+		DN:          entry.DN,
+		Username:    entry.GetAttributeValue(attrs.Username),
+		Email:       entry.GetAttributeValue(attrs.Email),
+		FirstName:   entry.GetAttributeValue(attrs.FirstName),
+		LastName:    entry.GetAttributeValue(attrs.LastName),
+		FullName:    entry.GetAttributeValue(attrs.FullName),
+		DisplayName: entry.GetAttributeValue(attrs.DisplayName),
+		Phone:       entry.GetAttributeValue(attrs.Phone),
+		Mobile:      entry.GetAttributeValue(attrs.Mobile),
+		Department:  entry.GetAttributeValue(attrs.Department),
+		Title:       entry.GetAttributeValue(attrs.Title),
+		EmployeeID:  entry.GetAttributeValue(attrs.EmployeeID),
 	}
 
 	// 处理 memberOf 属性

@@ -2,6 +2,7 @@
 package reports
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -610,4 +611,646 @@ func (h *ResourceAPIHandlers) getBandwidthRecommendations(c *gin.Context) {
 
 	recommendations := h.bandwidthReporter.GenerateRecommendations(req.Stats)
 	api.OK(c, recommendations)
+}
+
+// ========== v2.35.0 增强功能：导出报告 API ==========
+
+// EnhancedExportAPIHandlers 增强的导出 API 处理器
+type EnhancedExportAPIHandlers struct {
+	exporter         *Exporter
+	advancedExporter *AdvancedExcelExporter
+}
+
+// NewEnhancedExportAPIHandlers 创建增强导出 API 处理器
+func NewEnhancedExportAPIHandlers(exporter *Exporter) *EnhancedExportAPIHandlers {
+	return &EnhancedExportAPIHandlers{
+		exporter:         exporter,
+		advancedExporter: NewAdvancedExcelExporter(NewExcelExporter("/tmp/reports")),
+	}
+}
+
+// RegisterEnhancedExportRoutes 注册增强导出路由
+func (h *EnhancedExportAPIHandlers) RegisterEnhancedExportRoutes(apiGroup *gin.RouterGroup) {
+	export := apiGroup.Group("/enhanced-export")
+	{
+		// 带图表导出
+		export.POST("/with-charts", h.exportWithCharts)
+		// 多工作表导出
+		export.POST("/multi-sheet", h.exportMultiSheet)
+		// 样式模板列表
+		export.GET("/style-templates", h.listStyleTemplates)
+		// 自定义样式模板
+		export.POST("/style-templates", h.createStyleTemplate)
+		// 批量导出
+		export.POST("/batch", h.exportBatch)
+		// 预览导出
+		export.POST("/preview", h.previewExport)
+	}
+}
+
+// exportWithCharts 带图表导出
+func (h *EnhancedExportAPIHandlers) exportWithCharts(c *gin.Context) {
+	var req struct {
+		Report        *GeneratedReport `json:"report" binding:"required"`
+		Charts        []ChartConfig    `json:"charts"`
+		StyleTemplate string           `json:"style_template"`
+		OutputPath    string           `json:"output_path"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	outputPath := req.OutputPath
+	if outputPath == "" {
+		outputPath = fmt.Sprintf("/tmp/reports/report_%s.xlsx", time.Now().Format("20060102_150405"))
+	}
+
+	result, err := h.advancedExporter.ExportWithCharts(req.Report, outputPath, req.Charts, req.StyleTemplate)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+
+	api.OK(c, result)
+}
+
+// exportMultiSheet 多工作表导出
+func (h *EnhancedExportAPIHandlers) exportMultiSheet(c *gin.Context) {
+	var req struct {
+		Report     *GeneratedReport  `json:"report" binding:"required"`
+		Config     *MultiSheetConfig `json:"config"`
+		OutputPath string            `json:"output_path"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	outputPath := req.OutputPath
+	if outputPath == "" {
+		outputPath = fmt.Sprintf("/tmp/reports/multi_sheet_%s.xlsx", time.Now().Format("20060102_150405"))
+	}
+
+	result, err := h.advancedExporter.ExportMultiSheet(req.Report, req.Config, outputPath)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+
+	api.OK(c, result)
+}
+
+// listStyleTemplates 列出样式模板
+func (h *EnhancedExportAPIHandlers) listStyleTemplates(c *gin.Context) {
+	templates := h.advancedExporter.ListStyleTemplates()
+	api.OK(c, templates)
+}
+
+// createStyleTemplate 创建样式模板
+func (h *EnhancedExportAPIHandlers) createStyleTemplate(c *gin.Context) {
+	var template ExcelStyleTemplate
+	if err := c.ShouldBindJSON(&template); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	h.advancedExporter.RegisterStyleTemplate(&template)
+	api.OK(c, gin.H{"message": "样式模板已注册", "id": template.ID})
+}
+
+// exportBatch 批量导出
+func (h *EnhancedExportAPIHandlers) exportBatch(c *gin.Context) {
+	var req struct {
+		Reports   []*GeneratedReport `json:"reports" binding:"required"`
+		Formats   []ExportFormat     `json:"formats" binding:"required"`
+		OutputDir string             `json:"output_dir"`
+		Options   ExportOptions      `json:"options"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	outputDir := req.OutputDir
+	if outputDir == "" {
+		outputDir = "/tmp/reports/outputs"
+	}
+
+	results := make([]*ExportResult, 0)
+	for _, report := range req.Reports {
+		for _, format := range req.Formats {
+			filename := fmt.Sprintf("%s_%s.%s", report.Name, time.Now().Format("20060102"), format)
+			outputPath := fmt.Sprintf("%s/%s", outputDir, filename)
+
+			result, err := h.exporter.Export(report, format, outputPath, req.Options)
+			if err != nil {
+				continue
+			}
+			results = append(results, result)
+		}
+	}
+
+	api.OK(c, gin.H{
+		"total":     len(req.Reports) * len(req.Formats),
+		"succeeded": len(results),
+		"results":   results,
+	})
+}
+
+// previewExport 预览导出
+func (h *EnhancedExportAPIHandlers) previewExport(c *gin.Context) {
+	var req struct {
+		Report *GeneratedReport `json:"report" binding:"required"`
+		Format ExportFormat     `json:"format"`
+		Limit  int              `json:"limit"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	format := req.Format
+	if format == "" {
+		format = ExportJSON
+	}
+
+	limit := req.Limit
+	if limit <= 0 || limit > 10 {
+		limit = 5
+	}
+
+	// 创建预览数据
+	preview := map[string]interface{}{
+		"report_name":   req.Report.Name,
+		"total_records": req.Report.TotalRecords,
+		"format":        format,
+		"preview_data":  req.Report.Data,
+	}
+
+	if len(preview["preview_data"].([]map[string]interface{})) > limit {
+		preview["preview_data"] = req.Report.Data[:limit]
+	}
+
+	api.OK(c, preview)
+}
+
+// ========== v2.35.0 增强功能：成本分析 API ==========
+
+// CostAnalysisAPIHandlers 成本分析 API 处理器
+type CostAnalysisAPIHandlers struct {
+	enhancedAnalyzer *EnhancedCostAnalyzer
+	capacityAnalyzer *CapacityPlanningAnalyzer
+	trendAnalyzer    *ResourceTrendAnalyzer
+}
+
+// NewCostAnalysisAPIHandlers 创建成本分析 API 处理器
+func NewCostAnalysisAPIHandlers(config StorageCostConfig) *CostAnalysisAPIHandlers {
+	return &CostAnalysisAPIHandlers{
+		enhancedAnalyzer: NewEnhancedCostAnalyzer(config),
+		capacityAnalyzer: NewCapacityPlanningAnalyzer(config),
+		trendAnalyzer:    NewResourceTrendAnalyzer(),
+	}
+}
+
+// RegisterCostAnalysisRoutes 注册成本分析路由
+func (h *CostAnalysisAPIHandlers) RegisterCostAnalysisRoutes(apiGroup *gin.RouterGroup) {
+	cost := apiGroup.Group("/cost-analysis")
+	{
+		// 增强成本预测
+		cost.POST("/forecast", h.forecastCost)
+		// 季节性分析
+		cost.POST("/seasonality", h.analyzeSeasonality)
+		// 异常检测
+		cost.POST("/anomalies", h.detectAnomalies)
+		// 多模型预测对比
+		cost.POST("/multi-model", h.multiModelForecast)
+		// 成本健康评分
+		cost.POST("/health-score", h.calculateHealthScore)
+	}
+
+	// 增强容量规划
+	capacity := apiGroup.Group("/capacity-planning-enhanced")
+	{
+		capacity.POST("/analyze", h.analyzeCapacityEnhanced)
+		capacity.POST("/scenarios", h.generateScenarios)
+		capacity.POST("/timeline", h.generateTimeline)
+		capacity.POST("/risks", h.assessRisks)
+		capacity.POST("/optimization-paths", h.getOptimizationPaths)
+	}
+
+	// 资源趋势分析
+	trend := apiGroup.Group("/resource-trend")
+	{
+		trend.POST("/analyze", h.analyzeResourceTrend)
+		trend.POST("/storage", h.analyzeStorageTrend)
+		trend.POST("/io", h.analyzeIOTrend)
+		trend.POST("/bandwidth", h.analyzeBandwidthTrendEnhanced)
+		trend.POST("/correlations", h.analyzeCorrelations)
+		trend.POST("/alerts", h.generateTrendAlerts)
+	}
+}
+
+// forecastCost 成本预测
+func (h *CostAnalysisAPIHandlers) forecastCost(c *gin.Context) {
+	var req struct {
+		History []CostTrendDataPoint `json:"history" binding:"required"`
+		Months  int                  `json:"months"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	months := req.Months
+	if months <= 0 {
+		months = 12
+	}
+
+	forecast := h.enhancedAnalyzer.ForecastEnhanced(req.History, months)
+	if forecast == nil {
+		api.BadRequest(c, "历史数据不足，至少需要3个数据点")
+		return
+	}
+
+	api.OK(c, forecast)
+}
+
+// analyzeSeasonality 季节性分析
+func (h *CostAnalysisAPIHandlers) analyzeSeasonality(c *gin.Context) {
+	var req struct {
+		History []CostTrendDataPoint `json:"history" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	seasonality := h.enhancedAnalyzer.seasonalityDetector.Analyze(req.History)
+	api.OK(c, seasonality)
+}
+
+// detectAnomalies 异常检测
+func (h *CostAnalysisAPIHandlers) detectAnomalies(c *gin.Context) {
+	var req struct {
+		History []CostTrendDataPoint `json:"history" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	anomalies := h.enhancedAnalyzer.anomalyDetector.Detect(req.History)
+	api.OK(c, anomalies)
+}
+
+// multiModelForecast 多模型预测对比
+func (h *CostAnalysisAPIHandlers) multiModelForecast(c *gin.Context) {
+	var req struct {
+		History []CostTrendDataPoint `json:"history" binding:"required"`
+		Months  int                  `json:"months"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	months := req.Months
+	if months <= 0 {
+		months = 12
+	}
+
+	forecast := h.enhancedAnalyzer.ForecastEnhanced(req.History, months)
+	if forecast == nil {
+		api.BadRequest(c, "历史数据不足")
+		return
+	}
+
+	api.OK(c, gin.H{
+		"linear":       forecast.MultiModelForecasts["linear"],
+		"exponential":  forecast.MultiModelForecasts["exponential"],
+		"holt_winters": forecast.MultiModelForecasts["holt_winters"],
+		"best_model":   forecast.Model,
+		"accuracy":     forecast.AccuracyMetrics,
+	})
+}
+
+// calculateHealthScore 计算成本健康评分
+func (h *CostAnalysisAPIHandlers) calculateHealthScore(c *gin.Context) {
+	var req struct {
+		VolumeCosts []VolumeCostAnalysis `json:"volume_costs"`
+		UserCosts   []UserCostAnalysis   `json:"user_costs"`
+		Trend       CostTrendAnalysis    `json:"trend"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	// 计算综合健康评分
+	score := 100.0
+
+	// 使用率评估
+	var avgUsage float64
+	for _, vc := range req.VolumeCosts {
+		avgUsage += vc.UsagePercent
+	}
+	if len(req.VolumeCosts) > 0 {
+		avgUsage /= float64(len(req.VolumeCosts))
+	}
+
+	if avgUsage < 30 {
+		score -= 20
+	} else if avgUsage > 90 {
+		score -= 30
+	} else if avgUsage > 80 {
+		score -= 15
+	}
+
+	// 趋势评估
+	if req.Trend.MonthlyGrowthRate > 20 {
+		score -= 20
+	} else if req.Trend.MonthlyGrowthRate > 10 {
+		score -= 10
+	}
+
+	// 波动评估
+	if req.Trend.Volatility > 30 {
+		score -= 15
+	}
+
+	if score < 0 {
+		score = 0
+	}
+
+	// 确定状态
+	status := "healthy"
+	if score < 60 {
+		status = "critical"
+	} else if score < 80 {
+		status = "warning"
+	}
+
+	api.OK(c, gin.H{
+		"health_score": int(score),
+		"status":       status,
+		"avg_usage":    avgUsage,
+		"factors": map[string]interface{}{
+			"usage_factor":  avgUsage,
+			"growth_factor": req.Trend.MonthlyGrowthRate,
+			"volatility":    req.Trend.Volatility,
+		},
+	})
+}
+
+// analyzeCapacityEnhanced 增强容量分析
+func (h *CostAnalysisAPIHandlers) analyzeCapacityEnhanced(c *gin.Context) {
+	var req struct {
+		History         []CapacityHistory `json:"history" binding:"required"`
+		VolumeName      string            `json:"volume_name"`
+		MonthsToProject int               `json:"months_to_project"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	months := req.MonthsToProject
+	if months <= 0 {
+		months = 12
+	}
+
+	plan := h.capacityAnalyzer.AnalyzeCapacityEnhanced(req.History, req.VolumeName, months)
+	if plan == nil {
+		api.BadRequest(c, "历史数据不足")
+		return
+	}
+
+	api.OK(c, plan)
+}
+
+// generateScenarios 生成场景分析
+func (h *CostAnalysisAPIHandlers) generateScenarios(c *gin.Context) {
+	var req struct {
+		History []CapacityHistory `json:"history" binding:"required"`
+		Months  int               `json:"months"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	months := req.Months
+	if months <= 0 {
+		months = 12
+	}
+
+	scenarios := h.capacityAnalyzer.generateScenarios(req.History, months)
+	api.OK(c, scenarios)
+}
+
+// generateTimeline 生成扩容时间线
+func (h *CostAnalysisAPIHandlers) generateTimeline(c *gin.Context) {
+	var req struct {
+		History    []CapacityHistory `json:"history" binding:"required"`
+		VolumeName string            `json:"volume_name"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	planner := NewCapacityPlanner(CapacityPlanningConfig{ForecastDays: 365})
+	report := planner.Analyze(req.History, req.VolumeName)
+	if report == nil {
+		api.BadRequest(c, "历史数据不足")
+		return
+	}
+
+	timeline := h.capacityAnalyzer.generateExpansionTimeline(report)
+	api.OK(c, timeline)
+}
+
+// assessRisks 风险评估
+func (h *CostAnalysisAPIHandlers) assessRisks(c *gin.Context) {
+	var req struct {
+		History    []CapacityHistory `json:"history" binding:"required"`
+		VolumeName string            `json:"volume_name"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	planner := NewCapacityPlanner(CapacityPlanningConfig{ForecastDays: 365})
+	report := planner.Analyze(req.History, req.VolumeName)
+	if report == nil {
+		api.BadRequest(c, "历史数据不足")
+		return
+	}
+
+	risks := h.capacityAnalyzer.assessRisks(report)
+	api.OK(c, risks)
+}
+
+// getOptimizationPaths 获取优化路径
+func (h *CostAnalysisAPIHandlers) getOptimizationPaths(c *gin.Context) {
+	var req struct {
+		History    []CapacityHistory `json:"history" binding:"required"`
+		VolumeName string            `json:"volume_name"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	planner := NewCapacityPlanner(CapacityPlanningConfig{ForecastDays: 365})
+	report := planner.Analyze(req.History, req.VolumeName)
+	if report == nil {
+		api.BadRequest(c, "历史数据不足")
+		return
+	}
+
+	paths := h.capacityAnalyzer.generateOptimizationPaths(report)
+	api.OK(c, paths)
+}
+
+// analyzeResourceTrend 资源趋势分析
+func (h *CostAnalysisAPIHandlers) analyzeResourceTrend(c *gin.Context) {
+	var req struct {
+		StorageHistory   []CapacityHistory       `json:"storage_history"`
+		IOHistory        []IOHistoryPoint        `json:"io_history"`
+		BandwidthHistory []BandwidthHistoryPoint `json:"bandwidth_history"`
+		VolumeName       string                  `json:"volume_name"`
+		StartTime        *time.Time              `json:"start_time"`
+		EndTime          *time.Time              `json:"end_time"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	period := ReportPeriod{
+		StartTime: time.Now().AddDate(0, -1, 0),
+		EndTime:   time.Now(),
+	}
+	if req.StartTime != nil && req.EndTime != nil {
+		period = ReportPeriod{
+			StartTime: *req.StartTime,
+			EndTime:   *req.EndTime,
+		}
+	}
+
+	analysis := h.trendAnalyzer.AnalyzeTrend(
+		req.StorageHistory,
+		req.IOHistory,
+		req.BandwidthHistory,
+		req.VolumeName,
+		period,
+	)
+
+	api.OK(c, analysis)
+}
+
+// analyzeStorageTrend 存储趋势分析
+func (h *CostAnalysisAPIHandlers) analyzeStorageTrend(c *gin.Context) {
+	var req struct {
+		History []CapacityHistory `json:"history" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	metrics := h.trendAnalyzer.analyzeStorageTrend(req.History)
+	api.OK(c, metrics)
+}
+
+// analyzeIOTrend IO 趋势分析
+func (h *CostAnalysisAPIHandlers) analyzeIOTrend(c *gin.Context) {
+	var req struct {
+		History []IOHistoryPoint `json:"history" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	metrics := h.trendAnalyzer.analyzeIOTrend(req.History)
+	api.OK(c, metrics)
+}
+
+// analyzeBandwidthTrendEnhanced 带宽趋势分析增强
+func (h *CostAnalysisAPIHandlers) analyzeBandwidthTrendEnhanced(c *gin.Context) {
+	var req struct {
+		History []BandwidthHistoryPoint `json:"history" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	metrics := h.trendAnalyzer.analyzeBandwidthTrend(req.History)
+	api.OK(c, metrics)
+}
+
+// analyzeCorrelations 相关性分析
+func (h *CostAnalysisAPIHandlers) analyzeCorrelations(c *gin.Context) {
+	var req struct {
+		StorageHistory   []CapacityHistory       `json:"storage_history"`
+		IOHistory        []IOHistoryPoint        `json:"io_history"`
+		BandwidthHistory []BandwidthHistoryPoint `json:"bandwidth_history"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	correlations := h.trendAnalyzer.calculateCorrelations(
+		req.StorageHistory,
+		req.IOHistory,
+		req.BandwidthHistory,
+	)
+
+	api.OK(c, correlations)
+}
+
+// generateTrendAlerts 生成趋势预警
+func (h *CostAnalysisAPIHandlers) generateTrendAlerts(c *gin.Context) {
+	var req struct {
+		StorageHistory []CapacityHistory `json:"storage_history"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	storageTrend := h.trendAnalyzer.analyzeStorageTrend(req.StorageHistory)
+
+	analysis := &ResourceTrendAnalysis{
+		StorageTrend: storageTrend,
+	}
+
+	alerts := h.trendAnalyzer.generateAlerts(analysis)
+	api.OK(c, alerts)
 }

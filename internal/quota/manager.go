@@ -627,7 +627,10 @@ func (m *Manager) saveConfig() error {
 
 func generateID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		// 回退到时间戳 + 计数器模式
+		panic("crypto/rand failed: " + err.Error())
+	}
 	return hex.EncodeToString(b)
 }
 

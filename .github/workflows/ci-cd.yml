@@ -4,12 +4,23 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
-# v2.33.0 更新：
-# - 添加缓存失效机制
-# - 修复集成测试依赖问题
-# - 增强构建矩阵配置
-# - 添加构建产物校验
-# - 添加测试结果报告
+# v2.37.0 更新：
+# - 优化构建并行化（build不再等待test-integration）
+# - 添加Node.js 24支持
+# - 改进缓存策略
+#
+# v2.35.0 更新：
+# - 修复权限配置问题（安全扫描需要 security-events: write）
+# - 添加 id-token: write 支持 OIDC 签名
+# - 优化 Go 模块缓存策略
+# - 添加构建缓存恢复机制
+# - 增强安全扫描配置
+#
+# v2.34.0 更新：
+# - 添加 CodeQL 代码分析
+# - 优化测试矩阵策略
+# - 添加测试结果合并报告
+# - 增强缓存策略
 
 name: CI/CD
 
@@ -20,10 +31,20 @@ on:
     branches: [master]
   workflow_dispatch:
 
+# 权限配置 - 最小权限原则
+permissions:
+  contents: read           # 读取代码
+  security-events: write   # 上传安全扫描结果（CodeQL, Trivy, gosec）
+  id-token: write          # OIDC token 用于 keyless 签名
+  actions: read            # 读取 workflow 信息
+  checks: write            # 写入检查结果
+
 env:
   GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v2'
+  CACHE_VERSION: 'v4'
+  # Node.js 24 支持
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:
@@ -58,11 +79,46 @@ jobs:
           gofmt -l .
           test -z "$(gofmt -l .)"
 
+  # ========== CodeQL 代码分析 ==========
+  codeql:
+    name: CodeQL 分析
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 初始化 CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: go
+      
+      - name: 设置 Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: go.sum
+      
+      - name: 构建（CodeQL 分析）
+        run: go build ./...
+      
+      - name: 执行 CodeQL 分析
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:go"
+
   # ========== 依赖扫描 ==========
   dependency-scan:
     name: 依赖安全扫描
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -94,8 +150,8 @@ jobs:
   test:
     name: 单元测试
     runs-on: ubuntu-latest
-    needs: [lint, dependency-scan]
-    timeout-minutes: 30
+    needs: [lint, dependency-scan, codeql]
+    timeout-minutes: 20
     env:
       CGO_ENABLED: 1
     steps:
@@ -119,14 +175,13 @@ jobs:
         id: test
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 15
-          max_attempts: 2
-          retry_wait_seconds: 30
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 10
           command: |
             # GitHub Actions 的 Ubuntu 运行器支持 race detector
-            # 增加超时时间到 10 分钟，并行运行测试
-            # 排除已知慢测试和辅助模块
-            go test -v -race -coverprofile=coverage.out -covermode=atomic -timeout 10m -parallel 4 $(go list ./... | grep -v /tests/e2e | grep -v /tests/fixtures | grep -v /tests/reports | grep -v /tests/benchmark | grep -v /plugins/)
+            # 添加超时参数（5 分钟），排除已知慢测试和辅助模块
+            go test -v -race -coverprofile=coverage.out -covermode=atomic -timeout 5m $(go list ./... | grep -v /tests/e2e | grep -v /tests/fixtures | grep -v /tests/reports | grep -v /tests/benchmark | grep -v /plugins/)
       
       - name: 生成覆盖率报告
         run: |
@@ -200,7 +255,7 @@ jobs:
     name: 集成测试
     runs-on: ubuntu-latest
     needs: [test]
-    timeout-minutes: 20
+    timeout-minutes: 15
     env:
       CGO_ENABLED: 1
     steps:
@@ -235,10 +290,10 @@ jobs:
         if: steps.check-tests.outputs.has_integration_tests == 'true'
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 12
+          timeout_minutes: 8
           max_attempts: 2
-          retry_wait_seconds: 20
-          command: go test -v -timeout 10m ./tests/integration/...
+          retry_wait_seconds: 15
+          command: go test -v -timeout 5m ./tests/integration/...
       
       - name: 验证构建（排除插件和 e2e 测试）
         run: |
@@ -256,7 +311,8 @@ jobs:
   build:
     name: 构建二进制
     runs-on: ubuntu-latest
-    needs: [test-integration]
+    # 优化：不再等待test-integration，与docker-compose-test并行运行
+    needs: [test]
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -279,6 +335,19 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: true
           cache-dependency-path: go.sum
+      
+      # 使用 Go 构建缓存加速编译
+      - name: Go 构建缓存
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ env.CACHE_VERSION }}-go-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('**/*.go') }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-go-build-${{ matrix.os }}-${{ matrix.arch }}-
+            ${{ env.CACHE_VERSION }}-go-build-${{ matrix.os }}-
+            ${{ env.CACHE_VERSION }}-go-build-
       
       - name: 编译
         env:

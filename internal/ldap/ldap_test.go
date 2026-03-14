@@ -146,11 +146,11 @@ func TestManagerRegisterConfig(t *testing.T) {
 	manager := NewManager()
 
 	config := Config{
-		Name:        "test",
-		URL:         "ldap://localhost:389",
-		BaseDN:      "dc=example,dc=com",
-		ServerType:  ServerTypeOpenLDAP,
-		Enabled:     true,
+		Name:       "test",
+		URL:        "ldap://localhost:389",
+		BaseDN:     "dc=example,dc=com",
+		ServerType: ServerTypeOpenLDAP,
+		Enabled:    true,
 	}
 
 	err := manager.RegisterConfig(config)
@@ -255,9 +255,9 @@ func TestValidateConfig(t *testing.T) {
 		{
 			name: "valid config",
 			config: Config{
-				Name:    "test",
-				URL:     "ldap://localhost:389",
-				BaseDN:  "dc=example,dc=com",
+				Name:   "test",
+				URL:    "ldap://localhost:389",
+				BaseDN: "dc=example,dc=com",
 			},
 			wantErr: nil,
 		},
@@ -363,8 +363,8 @@ func TestParseADGeneralizedTime(t *testing.T) {
 
 func TestADFunctionalLevelName(t *testing.T) {
 	tests := []struct {
-		version   string
-		expected  string
+		version  string
+		expected string
 	}{
 		{"0", "Windows 2000"},
 		{"2", "Windows Server 2003"},
@@ -391,20 +391,20 @@ func TestADFunctionalLevelName(t *testing.T) {
 func TestUserStruct(t *testing.T) {
 	now := time.Now()
 	user := User{
-		DN:            "cn=test,ou=users,dc=example,dc=com",
-		Username:      "testuser",
-		Email:         "test@example.com",
-		FirstName:     "Test",
-		LastName:      "User",
-		FullName:      "Test User",
-		DisplayName:   "Test User",
-		Department:    "Engineering",
-		Title:         "Developer",
-		EmployeeID:    "12345",
-		Disabled:      false,
-		Locked:        false,
-		Groups:        []string{"developers", "admins"},
-		LastLogin:     &now,
+		DN:          "cn=test,ou=users,dc=example,dc=com",
+		Username:    "testuser",
+		Email:       "test@example.com",
+		FirstName:   "Test",
+		LastName:    "User",
+		FullName:    "Test User",
+		DisplayName: "Test User",
+		Department:  "Engineering",
+		Title:       "Developer",
+		EmployeeID:  "12345",
+		Disabled:    false,
+		Locked:      false,
+		Groups:      []string{"developers", "admins"},
+		LastLogin:   &now,
 	}
 
 	assert.Equal(t, "cn=test,ou=users,dc=example,dc=com", user.DN)
@@ -435,16 +435,16 @@ func TestGroupStruct(t *testing.T) {
 func TestSyncResultStruct(t *testing.T) {
 	now := time.Now()
 	result := SyncResult{
-		StartTime:       now,
-		EndTime:         now.Add(5 * time.Second),
-		Duration:        5 * time.Second,
-		UsersCreated:    10,
-		UsersUpdated:    5,
+		StartTime:        now,
+		EndTime:          now.Add(5 * time.Second),
+		Duration:         5 * time.Second,
+		UsersCreated:     10,
+		UsersUpdated:     5,
 		UsersDeactivated: 2,
-		GroupsCreated:   3,
-		GroupsUpdated:   1,
-		Success:         true,
-		Message:         "同步完成",
+		GroupsCreated:    3,
+		GroupsUpdated:    1,
+		Success:          true,
+		Message:          "同步完成",
 	}
 
 	assert.True(t, result.Success)
@@ -585,7 +585,7 @@ func TestParseInt(t *testing.T) {
 	}{
 		{"123", 123},
 		{"0", 0},
-		{"-5", 0}, // 负数处理
+		{"-5", 0},  // 负数处理
 		{"abc", 0}, // 非数字
 	}
 

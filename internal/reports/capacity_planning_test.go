@@ -353,7 +353,7 @@ func TestCapacityPlanner_SingleDataPoint(t *testing.T) {
 	report := planner.Analyze(history, "volume1")
 	assert.NotNil(t, report)
 	assert.Equal(t, uint64(500*1024*1024*1024), report.Current.UsedBytes)
-	// 单点数据无法预测趋势，返回空预测
+	// 单点数据无法预测趋势，预测结果应为空
 	assert.Len(t, report.Forecasts, 0)
 }
 

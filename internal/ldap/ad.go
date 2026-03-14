@@ -19,7 +19,7 @@ func NewADClient(config Config) (*ADClient, error) {
 	if config.ServerType != ServerTypeAD {
 		config.ServerType = ServerTypeAD
 	}
-	
+
 	// 设置 AD 默认属性映射
 	if config.Attributes.Username == "" || config.Attributes.Username == "uid" {
 		config.Attributes = ADAttributeMapping()
@@ -85,8 +85,8 @@ func (a *ADClient) GetDomainInfo() (*DomainInfo, error) {
 
 	entry := result.Entries[0]
 	info := &DomainInfo{
-		DN:             entry.DN,
-		Name:           entry.GetAttributeValue("name"),
+		DN:                entry.DN,
+		Name:              entry.GetAttributeValue("name"),
 		DistinguishedName: entry.DN,
 	}
 
@@ -107,7 +107,7 @@ func (a *ADClient) GetForestInfo() (*ForestInfo, error) {
 	// 搜索 Partitions 容器
 	partitionsDN := fmt.Sprintf("CN=Partitions,CN=Configuration,%s", a.config.BaseDN)
 	filter := "(objectClass=crossRef)"
-	
+
 	searchRequest := ldap.NewSearchRequest(
 		partitionsDN,
 		ldap.ScopeSingleLevel,
@@ -129,9 +129,9 @@ func (a *ADClient) GetForestInfo() (*ForestInfo, error) {
 
 	for _, entry := range result.Entries {
 		ref := DomainRef{
-			Name:  entry.GetAttributeValue("cn"),
-			DN:    entry.GetAttributeValue("nCName"),
-			DNS:   entry.GetAttributeValue("dnsRoot"),
+			Name: entry.GetAttributeValue("cn"),
+			DN:   entry.GetAttributeValue("nCName"),
+			DNS:  entry.GetAttributeValue("dnsRoot"),
 		}
 		info.Domains = append(info.Domains, ref)
 	}
@@ -373,12 +373,12 @@ func (a *ADClient) Close() error {
 
 // DomainInfo 域信息
 type DomainInfo struct {
-	DN               string    `json:"dn"`
-	Name             string    `json:"name"`
-	DistinguishedName string   `json:"distinguished_name"`
-	FunctionalLevel  string    `json:"functional_level,omitempty"`
-	Created          *time.Time `json:"created,omitempty"`
-	Modified         *time.Time `json:"modified,omitempty"`
+	DN                string     `json:"dn"`
+	Name              string     `json:"name"`
+	DistinguishedName string     `json:"distinguished_name"`
+	FunctionalLevel   string     `json:"functional_level,omitempty"`
+	Created           *time.Time `json:"created,omitempty"`
+	Modified          *time.Time `json:"modified,omitempty"`
 }
 
 // ForestInfo 林信息
@@ -395,30 +395,30 @@ type DomainRef struct {
 
 // ADUserAccountInfo AD 用户账户信息
 type ADUserAccountInfo struct {
-	DN                string     `json:"dn"`
-	SAMAccountName    string     `json:"sam_account_name"`
-	UserPrincipalName string     `json:"user_principal_name,omitempty"`
-	DisplayName       string     `json:"display_name,omitempty"`
-	
+	DN                string `json:"dn"`
+	SAMAccountName    string `json:"sam_account_name"`
+	UserPrincipalName string `json:"user_principal_name,omitempty"`
+	DisplayName       string `json:"display_name,omitempty"`
+
 	// 账户状态
-	Disabled              bool      `json:"disabled"`
-	Locked                bool      `json:"locked"`
-	PasswordNotRequired   bool      `json:"password_not_required"`
-	PasswordCantChange    bool      `json:"password_cant_change"`
-	PasswordNeverExpires  bool      `json:"password_never_expires"`
-	SmartcardRequired     bool      `json:"smartcard_required"`
-	
+	Disabled             bool `json:"disabled"`
+	Locked               bool `json:"locked"`
+	PasswordNotRequired  bool `json:"password_not_required"`
+	PasswordCantChange   bool `json:"password_cant_change"`
+	PasswordNeverExpires bool `json:"password_never_expires"`
+	SmartcardRequired    bool `json:"smartcard_required"`
+
 	// 时间信息
-	AccountExpires     *time.Time `json:"account_expires,omitempty"`
-	PasswordLastSet    *time.Time `json:"password_last_set,omitempty"`
-	LastLogon          *time.Time `json:"last_logon,omitempty"`
-	LockoutTime        *time.Time `json:"lockout_time,omitempty"`
-	BadPasswordTime    *time.Time `json:"bad_password_time,omitempty"`
-	BadPasswordCount   int        `json:"bad_password_count"`
-	
+	AccountExpires   *time.Time `json:"account_expires,omitempty"`
+	PasswordLastSet  *time.Time `json:"password_last_set,omitempty"`
+	LastLogon        *time.Time `json:"last_logon,omitempty"`
+	LockoutTime      *time.Time `json:"lockout_time,omitempty"`
+	BadPasswordTime  *time.Time `json:"bad_password_time,omitempty"`
+	BadPasswordCount int        `json:"bad_password_count"`
+
 	// 组信息
-	MemberOf         []string `json:"member_of,omitempty"`
-	PrimaryGroupID   string   `json:"primary_group_id,omitempty"`
+	MemberOf       []string `json:"member_of,omitempty"`
+	PrimaryGroupID string   `json:"primary_group_id,omitempty"`
 }
 
 // parseADTimestamp 解析 AD 时间戳
@@ -496,11 +496,11 @@ func adFunctionalLevelName(version string) string {
 // parseInt 解析整数，负数返回 0
 func parseInt(value string) int {
 	var result int
-	for _, c := range value {
+	for i, c := range value {
 		if c >= '0' && c <= '9' {
 			result = result*10 + int(c-'0')
-		} else if c == '-' {
-			// 负数不支持，返回 0
+		} else if c == '-' && i == 0 {
+			// 负数返回 0
 			return 0
 		}
 	}
@@ -510,21 +510,21 @@ func parseInt(value string) int {
 // BuildADConfig 构建 AD 配置
 func BuildADConfig(name, url, bindDN, bindPassword, baseDN, domainName string) Config {
 	return Config{
-		Name:         name,
-		ServerType:   ServerTypeAD,
-		URL:          url,
-		BindDN:       bindDN,
-		BindPassword: bindPassword,
-		BaseDN:       baseDN,
-		UserFilter:   "(sAMAccountName=%s)",
-		GroupFilter:  "(member=%s)",
-		Attributes:   ADAttributeMapping(),
-		DomainName:   domainName,
-		UseTLS:       true,
-		Enabled:      true,
-		PoolSize:     10,
-		IdleTimeout:  30 * time.Minute,
-		ConnectTimeout: 10 * time.Second,
+		Name:             name,
+		ServerType:       ServerTypeAD,
+		URL:              url,
+		BindDN:           bindDN,
+		BindPassword:     bindPassword,
+		BaseDN:           baseDN,
+		UserFilter:       "(sAMAccountName=%s)",
+		GroupFilter:      "(member=%s)",
+		Attributes:       ADAttributeMapping(),
+		DomainName:       domainName,
+		UseTLS:           true,
+		Enabled:          true,
+		PoolSize:         10,
+		IdleTimeout:      30 * time.Minute,
+		ConnectTimeout:   10 * time.Second,
 		OperationTimeout: 30 * time.Second,
 	}
 }
@@ -532,20 +532,20 @@ func BuildADConfig(name, url, bindDN, bindPassword, baseDN, domainName string) C
 // BuildOpenLDAPConfig 构建 OpenLDAP 配置
 func BuildOpenLDAPConfig(name, url, bindDN, bindPassword, baseDN string) Config {
 	return Config{
-		Name:         name,
-		ServerType:   ServerTypeOpenLDAP,
-		URL:          url,
-		BindDN:       bindDN,
-		BindPassword: bindPassword,
-		BaseDN:       baseDN,
-		UserFilter:   "(uid=%s)",
-		GroupFilter:  "(memberUid=%s)",
-		Attributes:   DefaultAttributeMapping(),
-		UseTLS:       true,
-		Enabled:      true,
-		PoolSize:     10,
-		IdleTimeout:  30 * time.Minute,
-		ConnectTimeout: 10 * time.Second,
+		Name:             name,
+		ServerType:       ServerTypeOpenLDAP,
+		URL:              url,
+		BindDN:           bindDN,
+		BindPassword:     bindPassword,
+		BaseDN:           baseDN,
+		UserFilter:       "(uid=%s)",
+		GroupFilter:      "(memberUid=%s)",
+		Attributes:       DefaultAttributeMapping(),
+		UseTLS:           true,
+		Enabled:          true,
+		PoolSize:         10,
+		IdleTimeout:      30 * time.Minute,
+		ConnectTimeout:   10 * time.Second,
 		OperationTimeout: 30 * time.Second,
 	}
 }
@@ -558,20 +558,20 @@ func BuildFreeIPAConfig(name, url, bindDN, bindPassword, baseDN string) Config {
 	attrs.MemberAttribute = "memberUid"
 
 	return Config{
-		Name:         name,
-		ServerType:   ServerTypeFreeIPA,
-		URL:          url,
-		BindDN:       bindDN,
-		BindPassword: bindPassword,
-		BaseDN:       baseDN,
-		UserFilter:   "(uid=%s)",
-		GroupFilter:  "(memberUid=%s)",
-		Attributes:   attrs,
-		UseTLS:       true,
-		Enabled:      true,
-		PoolSize:     10,
-		IdleTimeout:  30 * time.Minute,
-		ConnectTimeout: 10 * time.Second,
+		Name:             name,
+		ServerType:       ServerTypeFreeIPA,
+		URL:              url,
+		BindDN:           bindDN,
+		BindPassword:     bindPassword,
+		BaseDN:           baseDN,
+		UserFilter:       "(uid=%s)",
+		GroupFilter:      "(memberUid=%s)",
+		Attributes:       attrs,
+		UseTLS:           true,
+		Enabled:          true,
+		PoolSize:         10,
+		IdleTimeout:      30 * time.Minute,
+		ConnectTimeout:   10 * time.Second,
 		OperationTimeout: 30 * time.Second,
 	}
 }

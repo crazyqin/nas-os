@@ -1,5 +1,5 @@
 // Package api provides enhanced WebSocket with heartbeat and reconnection support
-// Version: 2.33.0 - WebSocket heartbeat and reconnection mechanism
+// Version: 2.35.0 - WebSocket rooms, optimized broadcast, and message persistence
 package api
 
 import (
@@ -24,6 +24,9 @@ var (
 	ErrMaxReconnect       = errors.New("max reconnection attempts reached")
 	ErrHeartbeatTimeout   = errors.New("heartbeat timeout")
 	ErrConnectionNotFound = errors.New("connection not found")
+	ErrRoomNotFound       = errors.New("room not found")
+	ErrNotInRoom          = errors.New("client not in room")
+	ErrQueueFull          = errors.New("message queue full")
 )
 
 // HeartbeatConfig 心跳配置
@@ -40,10 +43,10 @@ type HeartbeatConfig struct {
 
 // DefaultHeartbeatConfig 默认心跳配置
 var DefaultHeartbeatConfig = HeartbeatConfig{
-	PingInterval:           30 * time.Second,
-	PongTimeout:            10 * time.Second,
-	MaxMissedPongs:         3,
-	EnableServerHeartbeat:  true,
+	PingInterval:          30 * time.Second,
+	PongTimeout:           10 * time.Second,
+	MaxMissedPongs:        3,
+	EnableServerHeartbeat: true,
 }
 
 // ReconnectConfig 重连配置
@@ -102,28 +105,271 @@ func (s ConnectionState) String() string {
 
 // ConnectionStats 连接统计
 type ConnectionStats struct {
-	ID               string          `json:"id"`
-	UserID           string          `json:"userId"`
-	State            string          `json:"state"`
-	ConnectedAt      time.Time       `json:"connectedAt"`
-	LastActivity     time.Time       `json:"lastActivity"`
-	ReconnectCount   int             `json:"reconnectCount"`
-	MessagesSent     int64           `json:"messagesSent"`
-	MessagesReceived int64           `json:"messagesReceived"`
-	BytesSent        int64           `json:"bytesSent"`
-	BytesReceived    int64           `json:"bytesReceived"`
-	MissedHeartbeats int             `json:"missedHeartbeats"`
+	ID               string    `json:"id"`
+	UserID           string    `json:"userId"`
+	State            string    `json:"state"`
+	ConnectedAt      time.Time `json:"connectedAt"`
+	LastActivity     time.Time `json:"lastActivity"`
+	ReconnectCount   int       `json:"reconnectCount"`
+	MessagesSent     int64     `json:"messagesSent"`
+	MessagesReceived int64     `json:"messagesReceived"`
+	BytesSent        int64     `json:"bytesSent"`
+	BytesReceived    int64     `json:"bytesReceived"`
+	MissedHeartbeats int       `json:"missedHeartbeats"`
+}
+
+// Room represents a chat room/channel
+type Room struct {
+	ID          string
+	Name        string
+	Description string
+	Clients     map[string]*EnhancedClient
+	CreatedAt   time.Time
+	MaxClients  int
+	mu          sync.RWMutex
+}
+
+// NewRoom creates a new room
+func NewRoom(id, name, description string, maxClients int) *Room {
+	if maxClients <= 0 {
+		maxClients = 100 // default max clients
+	}
+	return &Room{
+		ID:          id,
+		Name:        name,
+		Description: description,
+		Clients:     make(map[string]*EnhancedClient),
+		CreatedAt:   time.Now(),
+		MaxClients:  maxClients,
+	}
+}
+
+// AddClient adds a client to the room
+func (r *Room) AddClient(client *EnhancedClient) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if len(r.Clients) >= r.MaxClients {
+		return errors.New("room is full")
+	}
+
+	r.Clients[client.ID] = client
+	return nil
+}
+
+// RemoveClient removes a client from the room
+func (r *Room) RemoveClient(clientID string) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	delete(r.Clients, clientID)
+}
+
+// GetClientCount returns the number of clients in the room
+func (r *Room) GetClientCount() int {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return len(r.Clients)
+}
+
+// RoomStats represents room statistics
+type RoomStats struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	ClientCount int       `json:"clientCount"`
+	MaxClients  int       `json:"maxClients"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
+
+// PersistedMessage represents a message stored in the queue
+type PersistedMessage struct {
+	ID        string          `json:"id"`
+	Type      MessageType     `json:"type"`
+	RoomID    string          `json:"roomId,omitempty"`
+	UserID    string          `json:"userId,omitempty"`
+	Timestamp int64           `json:"timestamp"`
+	Data      json.RawMessage `json:"data"`
+	Delivered bool            `json:"delivered"`
+}
+
+// MessageQueueConfig configures the message queue
+type MessageQueueConfig struct {
+	// MaxSize maximum number of messages to persist
+	MaxSize int
+	// PersistToDisk whether to persist messages to disk
+	PersistToDisk bool
+	// StoragePath path for disk persistence
+	StoragePath string
+	// TTL message time-to-live in seconds
+	TTL time.Duration
+}
+
+// DefaultMessageQueueConfig default queue configuration
+var DefaultMessageQueueConfig = MessageQueueConfig{
+	MaxSize:       1000,
+	PersistToDisk: false,
+	TTL:           24 * time.Hour,
+}
+
+// MessageQueue manages message persistence
+type MessageQueue struct {
+	messages []*PersistedMessage
+	config   MessageQueueConfig
+	mu       sync.RWMutex
+}
+
+// NewMessageQueue creates a new message queue
+func NewMessageQueue(config MessageQueueConfig) *MessageQueue {
+	if config.MaxSize <= 0 {
+		config.MaxSize = DefaultMessageQueueConfig.MaxSize
+	}
+	if config.TTL <= 0 {
+		config.TTL = DefaultMessageQueueConfig.TTL
+	}
+	return &MessageQueue{
+		messages: make([]*PersistedMessage, 0),
+		config:   config,
+	}
+}
+
+// Enqueue adds a message to the queue
+func (q *MessageQueue) Enqueue(msg *PersistedMessage) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	// Remove oldest if at capacity
+	if len(q.messages) >= q.config.MaxSize {
+		q.messages = q.messages[1:]
+	}
+
+	q.messages = append(q.messages, msg)
+	return nil
+}
+
+// Dequeue removes and returns the oldest message
+func (q *MessageQueue) Dequeue() (*PersistedMessage, error) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	if len(q.messages) == 0 {
+		return nil, errors.New("queue is empty")
+	}
+
+	msg := q.messages[0]
+	q.messages = q.messages[1:]
+	return msg, nil
+}
+
+// Peek returns the oldest message without removing it
+func (q *MessageQueue) Peek() (*PersistedMessage, error) {
+	q.mu.RLock()
+	defer q.mu.RUnlock()
+
+	if len(q.messages) == 0 {
+		return nil, errors.New("queue is empty")
+	}
+
+	return q.messages[0], nil
+}
+
+// GetMessages returns all messages for a room
+func (q *MessageQueue) GetMessages(roomID string) []*PersistedMessage {
+	q.mu.RLock()
+	defer q.mu.RUnlock()
+
+	result := make([]*PersistedMessage, 0)
+	for _, msg := range q.messages {
+		if msg.RoomID == roomID || roomID == "" {
+			result = append(result, msg)
+		}
+	}
+	return result
+}
+
+// GetMessagesForUser returns all undelivered messages for a user
+func (q *MessageQueue) GetMessagesForUser(userID string) []*PersistedMessage {
+	q.mu.RLock()
+	defer q.mu.RUnlock()
+
+	result := make([]*PersistedMessage, 0)
+	for _, msg := range q.messages {
+		if msg.UserID == userID && !msg.Delivered {
+			result = append(result, msg)
+		}
+	}
+	return result
+}
+
+// MarkDelivered marks a message as delivered
+func (q *MessageQueue) MarkDelivered(messageID string) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	for _, msg := range q.messages {
+		if msg.ID == messageID {
+			msg.Delivered = true
+			break
+		}
+	}
+}
+
+// Cleanup removes expired messages
+func (q *MessageQueue) Cleanup() int {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	now := time.Now().Unix()
+	active := make([]*PersistedMessage, 0)
+	removed := 0
+
+	for _, msg := range q.messages {
+		if now-msg.Timestamp < int64(q.config.TTL.Seconds()) {
+			active = append(active, msg)
+		} else {
+			removed++
+		}
+	}
+
+	q.messages = active
+	return removed
+}
+
+// Size returns the current queue size
+func (q *MessageQueue) Size() int {
+	q.mu.RLock()
+	defer q.mu.RUnlock()
+	return len(q.messages)
+}
+
+// BroadcastConfig configures broadcast optimization
+type BroadcastConfig struct {
+	// BatchSize number of messages to batch
+	BatchSize int
+	// BatchTimeout max time to wait for batch
+	BatchTimeout time.Duration
+	// WorkerCount number of broadcast workers
+	WorkerCount int
+}
+
+// DefaultBroadcastConfig default broadcast configuration
+var DefaultBroadcastConfig = BroadcastConfig{
+	BatchSize:    100,
+	BatchTimeout: 10 * time.Millisecond,
+	WorkerCount:  4,
 }
 
 // EnhancedClient 增强版 WebSocket 客户端
 type EnhancedClient struct {
-	ID             string
-	UserID         string
-	Connection     *websocket.Conn
-	Send           chan []byte
-	Subscriptions  map[MessageType]bool
-	ConnectedAt    time.Time
-	LastActivity   time.Time
+	ID            string
+	UserID        string
+	Connection    *websocket.Conn
+	Send          chan []byte
+	Subscriptions map[MessageType]bool
+	ConnectedAt   time.Time
+	LastActivity  time.Time
+
+	// 房间支持
+	Rooms map[string]bool
 
 	// 状态管理
 	state            int32 // atomic: ConnectionState
@@ -145,35 +391,52 @@ type EnhancedClient struct {
 	stableTimer     *time.Timer
 
 	// 控制
-	ctx       context.Context
-	cancel    context.CancelFunc
-	mu        sync.RWMutex
-	wg        sync.WaitGroup
-	closeOnce sync.Once // 确保 Close 只执行一次
-	closed    bool      // 标记是否已关闭
+	ctx    context.Context
+	cancel context.CancelFunc
+	mu     sync.RWMutex
+	wg     sync.WaitGroup
 }
 
 // EnhancedWebSocketHub 增强版 WebSocket Hub
 type EnhancedWebSocketHub struct {
-	clients         map[string]*EnhancedClient
-	broadcast       chan *WebSocketMessage
-	register        chan *EnhancedClient
-	unregister      chan *EnhancedClient
-	statusChange    chan *ClientStatusChange
-	mu              sync.RWMutex
+	clients      map[string]*EnhancedClient
+	broadcast    chan *WebSocketMessage
+	register     chan *EnhancedClient
+	unregister   chan *EnhancedClient
+	statusChange chan *ClientStatusChange
+	mu           sync.RWMutex
 
 	// 配置
-	heartbeatConfig  HeartbeatConfig
-	reconnectConfig  ReconnectConfig
+	heartbeatConfig HeartbeatConfig
+	reconnectConfig ReconnectConfig
+	broadcastConfig BroadcastConfig
+
+	// 房间管理
+	rooms  map[string]*Room
+	roomMu sync.RWMutex
+
+	// 消息队列
+	messageQueue *MessageQueue
+	queueMu      sync.RWMutex
 
 	// 统计
-	totalConnections  int64
-	totalMessages     int64
-	totalBroadcasts   int64
+	totalConnections int64
+	totalMessages    int64
+	totalBroadcasts  int64
+
+	// 广播优化
+	broadcastWorkers sync.WaitGroup
+	broadcastQueue   chan *broadcastTask
 
 	// 控制
 	ctx    context.Context
 	cancel context.CancelFunc
+}
+
+// broadcastTask represents a broadcast task
+type broadcastTask struct {
+	message *WebSocketMessage
+	targets []*EnhancedClient
 }
 
 // ClientStatusChange 客户端状态变化
@@ -187,6 +450,27 @@ type ClientStatusChange struct {
 // NewEnhancedWebSocketHub 创建增强版 WebSocket Hub
 func NewEnhancedWebSocketHub(heartbeat HeartbeatConfig, reconnect ReconnectConfig) *EnhancedWebSocketHub {
 	ctx, cancel := context.WithCancel(context.Background())
+	hub := &EnhancedWebSocketHub{
+		clients:         make(map[string]*EnhancedClient),
+		broadcast:       make(chan *WebSocketMessage, 512),
+		register:        make(chan *EnhancedClient, 64),
+		unregister:      make(chan *EnhancedClient, 64),
+		statusChange:    make(chan *ClientStatusChange, 128),
+		heartbeatConfig: heartbeat,
+		reconnectConfig: reconnect,
+		broadcastConfig: DefaultBroadcastConfig,
+		rooms:           make(map[string]*Room),
+		messageQueue:    NewMessageQueue(DefaultMessageQueueConfig),
+		broadcastQueue:  make(chan *broadcastTask, 256),
+		ctx:             ctx,
+		cancel:          cancel,
+	}
+	return hub
+}
+
+// NewEnhancedWebSocketHubWithConfig creates hub with full configuration
+func NewEnhancedWebSocketHubWithConfig(heartbeat HeartbeatConfig, reconnect ReconnectConfig, broadcast BroadcastConfig, queueConfig MessageQueueConfig) *EnhancedWebSocketHub {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &EnhancedWebSocketHub{
 		clients:         make(map[string]*EnhancedClient),
 		broadcast:       make(chan *WebSocketMessage, 512),
@@ -195,6 +479,10 @@ func NewEnhancedWebSocketHub(heartbeat HeartbeatConfig, reconnect ReconnectConfi
 		statusChange:    make(chan *ClientStatusChange, 128),
 		heartbeatConfig: heartbeat,
 		reconnectConfig: reconnect,
+		broadcastConfig: broadcast,
+		rooms:           make(map[string]*Room),
+		messageQueue:    NewMessageQueue(queueConfig),
+		broadcastQueue:  make(chan *broadcastTask, 256),
 		ctx:             ctx,
 		cancel:          cancel,
 	}
@@ -202,6 +490,15 @@ func NewEnhancedWebSocketHub(heartbeat HeartbeatConfig, reconnect ReconnectConfi
 
 // Run 启动 Hub
 func (h *EnhancedWebSocketHub) Run() {
+	// 启动广播工作器
+	for i := 0; i < h.broadcastConfig.WorkerCount; i++ {
+		h.broadcastWorkers.Add(1)
+		go h.broadcastWorker(i)
+	}
+
+	// 启动消息队列清理
+	go h.messageQueueCleaner()
+
 	// 启动状态监控
 	go h.monitorStatus()
 
@@ -209,6 +506,7 @@ func (h *EnhancedWebSocketHub) Run() {
 		select {
 		case <-h.ctx.Done():
 			h.closeAllClients()
+			h.broadcastWorkers.Wait()
 			return
 
 		case client := <-h.register:
@@ -222,6 +520,59 @@ func (h *EnhancedWebSocketHub) Run() {
 
 		case message := <-h.broadcast:
 			h.broadcastMessage(message)
+
+		case task := <-h.broadcastQueue:
+			h.processBroadcastTask(task)
+		}
+	}
+}
+
+// broadcastWorker processes broadcast tasks
+func (h *EnhancedWebSocketHub) broadcastWorker(id int) {
+	defer h.broadcastWorkers.Done()
+
+	for {
+		select {
+		case <-h.ctx.Done():
+			return
+		case task := <-h.broadcastQueue:
+			h.processBroadcastTask(task)
+		}
+	}
+}
+
+// processBroadcastTask processes a single broadcast task
+func (h *EnhancedWebSocketHub) processBroadcastTask(task *broadcastTask) {
+	data, err := json.Marshal(task.message)
+	if err != nil {
+		return
+	}
+
+	for _, client := range task.targets {
+		select {
+		case client.Send <- data:
+			atomic.AddInt64(&client.messagesSent, 1)
+			atomic.AddInt64(&client.bytesSent, int64(len(data)))
+		default:
+			// Buffer full, skip
+		}
+	}
+}
+
+// messageQueueCleaner periodically cleans up expired messages
+func (h *EnhancedWebSocketHub) messageQueueCleaner() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-h.ctx.Done():
+			return
+		case <-ticker.C:
+			removed := h.messageQueue.Cleanup()
+			if removed > 0 {
+				log.Printf("[WebSocket] Cleaned up %d expired messages from queue", removed)
+			}
 		}
 	}
 }
@@ -251,9 +602,9 @@ func (h *EnhancedWebSocketHub) unregisterClient(client *EnhancedClient) {
 
 // handleStatusChange 处理状态变化
 func (h *EnhancedWebSocketHub) handleStatusChange(status *ClientStatusChange) {
-	log.Printf("[WebSocket] Client %s state: %s -> %s", 
+	log.Printf("[WebSocket] Client %s state: %s -> %s",
 		status.ClientID, status.OldState, status.NewState)
-	
+
 	if status.Error != nil {
 		log.Printf("[WebSocket] Client %s error: %v", status.ClientID, status.Error)
 	}
@@ -317,7 +668,7 @@ func (h *EnhancedWebSocketHub) logStats() {
 
 	if count > 0 {
 		log.Printf("[WebSocket] Stats - Clients: %d, Total Connections: %d, Messages: %d, Broadcasts: %d",
-			count, 
+			count,
 			atomic.LoadInt64(&h.totalConnections),
 			atomic.LoadInt64(&h.totalMessages),
 			atomic.LoadInt64(&h.totalBroadcasts))
@@ -374,6 +725,198 @@ func (h *EnhancedWebSocketHub) BroadcastToUser(userID string, msgType MessageTyp
 	return nil
 }
 
+// === Room Management ===
+
+// CreateRoom creates a new room
+func (h *EnhancedWebSocketHub) CreateRoom(id, name, description string, maxClients int) *Room {
+	h.roomMu.Lock()
+	defer h.roomMu.Unlock()
+
+	room := NewRoom(id, name, description, maxClients)
+	h.rooms[id] = room
+	log.Printf("[WebSocket] Room created: %s (%s)", id, name)
+	return room
+}
+
+// GetRoom gets a room by ID
+func (h *EnhancedWebSocketHub) GetRoom(roomID string) (*Room, error) {
+	h.roomMu.RLock()
+	defer h.roomMu.RUnlock()
+
+	room, exists := h.rooms[roomID]
+	if !exists {
+		return nil, ErrRoomNotFound
+	}
+	return room, nil
+}
+
+// DeleteRoom deletes a room
+func (h *EnhancedWebSocketHub) DeleteRoom(roomID string) error {
+	h.roomMu.Lock()
+	defer h.roomMu.Unlock()
+
+	room, exists := h.rooms[roomID]
+	if !exists {
+		return ErrRoomNotFound
+	}
+
+	// Remove all clients from the room
+	room.mu.RLock()
+	for _, client := range room.Clients {
+		client.mu.Lock()
+		delete(client.Rooms, roomID)
+		client.mu.Unlock()
+	}
+	room.mu.RUnlock()
+
+	delete(h.rooms, roomID)
+	log.Printf("[WebSocket] Room deleted: %s", roomID)
+	return nil
+}
+
+// JoinRoom adds a client to a room
+func (h *EnhancedWebSocketHub) JoinRoom(roomID, clientID string) error {
+	h.roomMu.RLock()
+	room, exists := h.rooms[roomID]
+	h.roomMu.RUnlock()
+
+	if !exists {
+		return ErrRoomNotFound
+	}
+
+	h.mu.RLock()
+	client, exists := h.clients[clientID]
+	h.mu.RUnlock()
+
+	if !exists {
+		return ErrConnectionNotFound
+	}
+
+	if err := room.AddClient(client); err != nil {
+		return err
+	}
+
+	client.mu.Lock()
+	if client.Rooms == nil {
+		client.Rooms = make(map[string]bool)
+	}
+	client.Rooms[roomID] = true
+	client.mu.Unlock()
+
+	log.Printf("[WebSocket] Client %s joined room %s", clientID, roomID)
+	return nil
+}
+
+// LeaveRoom removes a client from a room
+func (h *EnhancedWebSocketHub) LeaveRoom(roomID, clientID string) error {
+	h.roomMu.RLock()
+	room, exists := h.rooms[roomID]
+	h.roomMu.RUnlock()
+
+	if !exists {
+		return ErrRoomNotFound
+	}
+
+	h.mu.RLock()
+	client, exists := h.clients[clientID]
+	h.mu.RUnlock()
+
+	if !exists {
+		return ErrConnectionNotFound
+	}
+
+	room.RemoveClient(clientID)
+
+	client.mu.Lock()
+	delete(client.Rooms, roomID)
+	client.mu.Unlock()
+
+	log.Printf("[WebSocket] Client %s left room %s", clientID, roomID)
+	return nil
+}
+
+// BroadcastToRoom broadcasts a message to all clients in a room
+func (h *EnhancedWebSocketHub) BroadcastToRoom(roomID string, msgType MessageType, data interface{}, excludeClientID string) error {
+	h.roomMu.RLock()
+	room, exists := h.rooms[roomID]
+	h.roomMu.RUnlock()
+
+	if !exists {
+		return ErrRoomNotFound
+	}
+
+	dataBytes, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	msg := &WebSocketMessage{
+		Type:      msgType,
+		Timestamp: time.Now().Unix(),
+		Data:      dataBytes,
+	}
+
+	// Persist message
+	persistedMsg := &PersistedMessage{
+		ID:        generateSecureID(),
+		Type:      msgType,
+		RoomID:    roomID,
+		Timestamp: msg.Timestamp,
+		Data:      dataBytes,
+	}
+	h.messageQueue.Enqueue(persistedMsg)
+
+	msgBytes, _ := json.Marshal(msg)
+
+	room.mu.RLock()
+	for _, client := range room.Clients {
+		if client.ID == excludeClientID {
+			continue
+		}
+		select {
+		case client.Send <- msgBytes:
+			atomic.AddInt64(&client.messagesSent, 1)
+		default:
+		}
+	}
+	room.mu.RUnlock()
+
+	return nil
+}
+
+// GetRoomStats returns statistics for all rooms
+func (h *EnhancedWebSocketHub) GetRoomStats() []RoomStats {
+	h.roomMu.RLock()
+	defer h.roomMu.RUnlock()
+
+	stats := make([]RoomStats, 0, len(h.rooms))
+	for _, room := range h.rooms {
+		stats = append(stats, RoomStats{
+			ID:          room.ID,
+			Name:        room.Name,
+			Description: room.Description,
+			ClientCount: room.GetClientCount(),
+			MaxClients:  room.MaxClients,
+			CreatedAt:   room.CreatedAt,
+		})
+	}
+	return stats
+}
+
+// GetQueueStats returns message queue statistics
+func (h *EnhancedWebSocketHub) GetQueueStats() map[string]interface{} {
+	return map[string]interface{}{
+		"size":    h.messageQueue.Size(),
+		"maxSize": h.messageQueue.config.MaxSize,
+		"ttl":     h.messageQueue.config.TTL.String(),
+	}
+}
+
+// GetPendingMessages returns pending messages for a user
+func (h *EnhancedWebSocketHub) GetPendingMessages(userID string) []*PersistedMessage {
+	return h.messageQueue.GetMessagesForUser(userID)
+}
+
 // GetClientCount 获取客户端数量
 func (h *EnhancedWebSocketHub) GetClientCount() int {
 	h.mu.RLock()
@@ -420,6 +963,7 @@ func NewEnhancedClient(conn *websocket.Conn, userID string, heartbeat HeartbeatC
 		Connection:      conn,
 		Send:            make(chan []byte, 512),
 		Subscriptions:   make(map[MessageType]bool),
+		Rooms:           make(map[string]bool),
 		ConnectedAt:     time.Now(),
 		LastActivity:    time.Now(),
 		state:           int32(StateConnecting),
@@ -476,14 +1020,14 @@ func (c *EnhancedClient) readPump(hub *EnhancedWebSocketHub) {
 
 	c.Connection.SetReadLimit(65536)
 	c.Connection.SetReadDeadline(time.Now().Add(c.heartbeatConfig.PongTimeout + c.heartbeatConfig.PingInterval))
-	
+
 	// Pong 处理器
 	c.Connection.SetPongHandler(func(string) error {
 		c.Connection.SetReadDeadline(time.Now().Add(c.heartbeatConfig.PongTimeout + c.heartbeatConfig.PingInterval))
 		c.missedPongs = 0
 		atomic.StoreInt32(&c.missedHeartbeats, 0)
 		c.LastActivity = time.Now()
-		
+
 		select {
 		case c.pongChan <- struct{}{}:
 		default:
@@ -571,7 +1115,7 @@ func (c *EnhancedClient) heartbeatPump(hub *EnhancedWebSocketHub) {
 				atomic.AddInt32(&c.missedHeartbeats, 1)
 
 				if c.missedPongs >= c.heartbeatConfig.MaxMissedPongs {
-					log.Printf("[WebSocket] Client %s heartbeat timeout after %d missed pongs", 
+					log.Printf("[WebSocket] Client %s heartbeat timeout after %d missed pongs",
 						c.ID, c.missedPongs)
 					hub.statusChange <- &ClientStatusChange{
 						ClientID: c.ID,
@@ -613,7 +1157,7 @@ func (c *EnhancedClient) sendCloseMessage() {
 
 	if c.Connection != nil {
 		c.Connection.SetWriteDeadline(time.Now().Add(5 * time.Second))
-		c.Connection.WriteMessage(websocket.CloseMessage, 
+		c.Connection.WriteMessage(websocket.CloseMessage,
 			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	}
 }
@@ -621,8 +1165,9 @@ func (c *EnhancedClient) sendCloseMessage() {
 // handleMessage 处理消息
 func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *EnhancedWebSocketHub) {
 	var msg struct {
-		Action        string        `json:"action"`
-		Subscriptions []MessageType `json:"subscriptions,omitempty"`
+		Action        string          `json:"action"`
+		Subscriptions []MessageType   `json:"subscriptions,omitempty"`
+		RoomID        string          `json:"roomId,omitempty"`
 		Data          json.RawMessage `json:"data,omitempty"`
 	}
 
@@ -644,6 +1189,52 @@ func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *Enh
 			delete(c.Subscriptions, t)
 		}
 		c.mu.Unlock()
+
+	case "joinRoom":
+		if msg.RoomID != "" {
+			if err := hub.JoinRoom(msg.RoomID, c.ID); err != nil {
+				// Send error response
+				errResp, _ := json.Marshal(&WebSocketMessage{
+					Type:      MessageTypeSystem,
+					Timestamp: time.Now().Unix(),
+					Data:      json.RawMessage(`{"error":"` + err.Error() + `"}`),
+				})
+				select {
+				case c.Send <- errResp:
+				default:
+				}
+			} else {
+				// Send success response
+				resp, _ := json.Marshal(&WebSocketMessage{
+					Type:      MessageTypeSystem,
+					Timestamp: time.Now().Unix(),
+					Data:      json.RawMessage(`{"joinedRoom":"` + msg.RoomID + `"}`),
+				})
+				select {
+				case c.Send <- resp:
+				default:
+				}
+			}
+		}
+
+	case "leaveRoom":
+		if msg.RoomID != "" {
+			hub.LeaveRoom(msg.RoomID, c.ID)
+			resp, _ := json.Marshal(&WebSocketMessage{
+				Type:      MessageTypeSystem,
+				Timestamp: time.Now().Unix(),
+				Data:      json.RawMessage(`{"leftRoom":"` + msg.RoomID + `"}`),
+			})
+			select {
+			case c.Send <- resp:
+			default:
+			}
+		}
+
+	case "roomMessage":
+		if msg.RoomID != "" && len(msg.Data) > 0 {
+			hub.BroadcastToRoom(msg.RoomID, MessageTypeEvent, msg.Data, c.ID)
+		}
 
 	case "ping":
 		// 响应 pong
@@ -668,27 +1259,46 @@ func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *Enh
 		case c.Send <- response:
 		default:
 		}
+
+	case "getPendingMessages":
+		// 获取待发送消息
+		pending := hub.GetPendingMessages(c.UserID)
+		data, _ := json.Marshal(map[string]interface{}{
+			"pendingMessages": pending,
+		})
+		response, _ := json.Marshal(&WebSocketMessage{
+			Type:      MessageTypeSystem,
+			Timestamp: time.Now().Unix(),
+			Data:      data,
+		})
+		select {
+		case c.Send <- response:
+		default:
+		}
 	}
 }
 
 // Close 关闭客户端
 func (c *EnhancedClient) Close() {
-	c.closeOnce.Do(func() {
-		c.setState(StateClosing)
-		c.cancel()
+	c.setState(StateClosing)
+	c.cancel()
 
-		c.mu.Lock()
-		c.closed = true
-		if c.Connection != nil {
-			c.Connection.Close()
-			c.Connection = nil
-		}
+	c.mu.Lock()
+	if c.Connection != nil {
+		c.Connection.Close()
+		c.Connection = nil
+	}
+	// Only close channel once
+	select {
+	case <-c.Send:
+		// Already closed
+	default:
 		close(c.Send)
-		c.mu.Unlock()
+	}
+	c.mu.Unlock()
 
-		c.wg.Wait()
-		c.setState(StateDisconnected)
-	})
+	c.wg.Wait()
+	c.setState(StateDisconnected)
 }
 
 // generateSecureID 生成安全的随机 ID
@@ -763,11 +1373,126 @@ func (h *EnhancedWebSocketHandler) GetClientStatus(c *gin.Context) {
 	})
 }
 
+// === Room API Handlers ===
+
+// CreateRoom creates a new room
+func (h *EnhancedWebSocketHandler) CreateRoom(c *gin.Context) {
+	var req struct {
+		ID          string `json:"id"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		MaxClients  int    `json:"maxClients"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "invalid request body",
+		})
+		return
+	}
+
+	if req.ID == "" {
+		req.ID = generateSecureID()
+	}
+	if req.Name == "" {
+		req.Name = "Room " + req.ID[:8]
+	}
+
+	room := h.hub.CreateRoom(req.ID, req.Name, req.Description, req.MaxClients)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "room created",
+		"data": RoomStats{
+			ID:          room.ID,
+			Name:        room.Name,
+			Description: room.Description,
+			ClientCount: 0,
+			MaxClients:  room.MaxClients,
+			CreatedAt:   room.CreatedAt,
+		},
+	})
+}
+
+// GetRooms returns all rooms
+func (h *EnhancedWebSocketHandler) GetRooms(c *gin.Context) {
+	stats := h.hub.GetRoomStats()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    stats,
+	})
+}
+
+// GetRoom returns a specific room
+func (h *EnhancedWebSocketHandler) GetRoom(c *gin.Context) {
+	roomID := c.Param("roomId")
+	room, err := h.hub.GetRoom(roomID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": RoomStats{
+			ID:          room.ID,
+			Name:        room.Name,
+			Description: room.Description,
+			ClientCount: room.GetClientCount(),
+			MaxClients:  room.MaxClients,
+			CreatedAt:   room.CreatedAt,
+		},
+	})
+}
+
+// DeleteRoom deletes a room
+func (h *EnhancedWebSocketHandler) DeleteRoom(c *gin.Context) {
+	roomID := c.Param("roomId")
+	if err := h.hub.DeleteRoom(roomID); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "room deleted",
+	})
+}
+
+// GetQueueStats returns message queue statistics
+func (h *EnhancedWebSocketHandler) GetQueueStats(c *gin.Context) {
+	stats := h.hub.GetQueueStats()
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    stats,
+	})
+}
+
 // RegisterEnhancedWebSocketRoutes 注册增强版 WebSocket 路由
 func RegisterEnhancedWebSocketRoutes(r *gin.RouterGroup, hub *EnhancedWebSocketHub) {
 	handler := NewEnhancedWebSocketHandler(hub)
 
+	// WebSocket connection
 	r.GET("/ws", handler.HandleWebSocket)
+
+	// WebSocket status
 	r.GET("/ws/status", handler.GetStatus)
 	r.GET("/ws/client/:id", handler.GetClientStatus)
+	r.GET("/ws/queue", handler.GetQueueStats)
+
+	// Room management
+	r.POST("/ws/rooms", handler.CreateRoom)
+	r.GET("/ws/rooms", handler.GetRooms)
+	r.GET("/ws/rooms/:roomId", handler.GetRoom)
+	r.DELETE("/ws/rooms/:roomId", handler.DeleteRoom)
 }

@@ -235,14 +235,18 @@ func (m *Manager) saveConfig() error {
 // generateID 生成用户 ID
 func generateID() string {
 	b := make([]byte, 16)
-	_, _ = rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		panic("crypto/rand failed: " + err.Error())
+	}
 	return hex.EncodeToString(b)
 }
 
 // generateToken 生成会话令牌
 func generateToken() string {
 	b := make([]byte, 32)
-	_, _ = rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		panic("crypto/rand failed: " + err.Error())
+	}
 	return hex.EncodeToString(b)
 }
 

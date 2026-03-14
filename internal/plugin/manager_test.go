@@ -4,7 +4,6 @@ package plugin
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -31,47 +30,39 @@ func TestNewManager(t *testing.T) {
 }
 
 func TestNewManagerDefaultDirs(t *testing.T) {
-	// 测试默认目录值（不实际创建目录）
+	// 测试默认目录配置
+	// 注意：此测试验证默认值设置，但不实际创建系统目录
+	// 因为非 root 用户没有权限创建 /opt/nas 等目录
 	cfg := ManagerConfig{}
-	
-	// 验证默认值会正确设置
-	expectedPluginDir := "/opt/nas/plugins"
-	expectedConfigDir := "/etc/nas-os/plugins"
-	expectedDataDir := "/var/lib/nas-os/plugins"
-	
-	// 由于需要 root 权限创建这些目录，我们只验证配置逻辑
-	// 实际创建目录的功能在集成测试中验证
-	if cfg.PluginDir == "" {
-		// 默认值逻辑正确
-		t.Logf("默认插件目录将设置为: %s", expectedPluginDir)
+
+	// 检查是否有权限创建系统目录
+	testDir := "/opt/nas/plugins-test-perm"
+	err := os.MkdirAll(testDir, 0755)
+	if err != nil {
+		// 没有权限，跳过目录创建测试，仅验证默认值配置逻辑
+		t.Skipf("跳过：无权限创建系统目录 (%v)，仅验证默认值逻辑", err)
 	}
-	if cfg.ConfigDir == "" {
-		t.Logf("默认配置目录将设置为: %s", expectedConfigDir)
-	}
-	if cfg.DataDir == "" {
-		t.Logf("默认数据目录将设置为: %s", expectedDataDir)
-	}
-	
-	// 尝试创建管理器（可能在 CI 环境中因权限失败）
+	os.RemoveAll(testDir)
+
+	// 有权限，运行完整测试
 	mgr, err := NewManager(cfg)
 	if err != nil {
-		// 如果是权限错误，跳过测试而不是失败
-		if strings.Contains(err.Error(), "permission denied") {
-			t.Skipf("跳过测试：需要 root 权限创建系统目录: %v", err)
-		}
 		t.Fatalf("NewManager with defaults failed: %v", err)
 	}
-	
-	// 如果成功创建，验证目录值
-	if mgr.pluginDir != expectedPluginDir {
-		t.Errorf("Expected default pluginDir '%s', got %s", expectedPluginDir, mgr.pluginDir)
+	if mgr.pluginDir != "/opt/nas/plugins" {
+		t.Errorf("Expected default pluginDir '/opt/nas/plugins', got %s", mgr.pluginDir)
 	}
-	if mgr.configDir != expectedConfigDir {
-		t.Errorf("Expected default configDir '%s', got %s", expectedConfigDir, mgr.configDir)
+	if mgr.configDir != "/etc/nas-os/plugins" {
+		t.Errorf("Expected default configDir '/etc/nas-os/plugins', got %s", mgr.configDir)
 	}
-	if mgr.dataDir != expectedDataDir {
-		t.Errorf("Expected default dataDir '%s', got %s", expectedDataDir, mgr.dataDir)
+	if mgr.dataDir != "/var/lib/nas-os/plugins" {
+		t.Errorf("Expected default dataDir '/var/lib/nas-os/plugins', got %s", mgr.dataDir)
 	}
+
+	// 清理创建的目录（测试通过后）
+	os.RemoveAll("/opt/nas/plugins")
+	os.RemoveAll("/etc/nas-os")
+	os.RemoveAll("/var/lib/nas-os")
 }
 
 func TestManagerListEmpty(t *testing.T) {
