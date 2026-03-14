@@ -19,8 +19,8 @@ All notable changes to this project will be documented in this file.
 - 更新 `.github/workflows/ci-cd.yml` GO_VERSION
 - 更新 `.github/workflows/docker-publish.yml` GO_VERSION
 - 更新 `.github/workflows/release.yml` GO_VERSION
-- 更新 `Dockerfile` 基础镜像到 `golang:1.24-alpine`
-- 更新 `go.mod` Go 版本到 1.24
+- 更新 `Dockerfile` 基础镜像到 `golang:1.25-alpine`
+- 更新 `go.mod` Go 版本到 1.25.0
 
 ### Security
 - 安全审查完成，评分 **B+**
