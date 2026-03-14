@@ -35,24 +35,24 @@ type RequestLogger interface {
 
 // RequestLogEntry 请求日志条目
 type RequestLogEntry struct {
-	Timestamp      time.Time   `json:"timestamp"`
-	Method         string      `json:"method"`
-	Path           string      `json:"path"`
-	Query          string      `json:"query,omitempty"`
-	StatusCode     int         `json:"statusCode"`
-	Latency        float64     `json:"latencyMs"`
-	ClientIP       string      `json:"clientIp"`
-	UserAgent      string      `json:"userAgent"`
-	RequestID      string      `json:"requestId,omitempty"`
-	UserID         string      `json:"userId,omitempty"`
-	RequestBody    interface{} `json:"requestBody,omitempty"`
-	ResponseBody   interface{} `json:"responseBody,omitempty"`
-	RequestSize    int64       `json:"requestSize"`
-	ResponseSize   int64       `json:"responseSize"`
-	ContentType    string      `json:"contentType,omitempty"`
-	Referer        string      `json:"referer,omitempty"`
-	Error          string      `json:"error,omitempty"`
-	APIVersion     string      `json:"apiVersion,omitempty"`
+	Timestamp    time.Time   `json:"timestamp"`
+	Method       string      `json:"method"`
+	Path         string      `json:"path"`
+	Query        string      `json:"query,omitempty"`
+	StatusCode   int         `json:"statusCode"`
+	Latency      float64     `json:"latencyMs"`
+	ClientIP     string      `json:"clientIp"`
+	UserAgent    string      `json:"userAgent"`
+	RequestID    string      `json:"requestId,omitempty"`
+	UserID       string      `json:"userId,omitempty"`
+	RequestBody  interface{} `json:"requestBody,omitempty"`
+	ResponseBody interface{} `json:"responseBody,omitempty"`
+	RequestSize  int64       `json:"requestSize"`
+	ResponseSize int64       `json:"responseSize"`
+	ContentType  string      `json:"contentType,omitempty"`
+	Referer      string      `json:"referer,omitempty"`
+	Error        string      `json:"error,omitempty"`
+	APIVersion   string      `json:"apiVersion,omitempty"`
 }
 
 // DefaultRequestLogger 默认日志记录器

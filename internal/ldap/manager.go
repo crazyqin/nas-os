@@ -719,11 +719,11 @@ func (m *Manager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"total_configs":    len(m.configs),
-		"enabled_configs":  len(m.ListEnabledConfigs()),
-		"active_pools":     len(m.pools),
-		"active_syncs":     len(m.synchronizers),
-		"config_names":     m.getConfigNames(),
+		"total_configs":   len(m.configs),
+		"enabled_configs": len(m.ListEnabledConfigs()),
+		"active_pools":    len(m.pools),
+		"active_syncs":    len(m.synchronizers),
+		"config_names":    m.getConfigNames(),
 	}
 }
 

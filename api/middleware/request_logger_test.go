@@ -96,17 +96,17 @@ func TestRequestLoggerMiddleware(t *testing.T) {
 func TestRequestLogEntry(t *testing.T) {
 	now := time.Now()
 	entry := &RequestLogEntry{
-		Timestamp:   now,
-		Method:      "POST",
-		Path:        "/api/v1/users",
-		Query:       "name=test",
-		StatusCode:  201,
-		Latency:     15.5,
-		ClientIP:    "127.0.0.1",
-		UserAgent:   "test-agent",
-		RequestID:   "req-123",
-		UserID:      "user-456",
-		RequestSize: 100,
+		Timestamp:    now,
+		Method:       "POST",
+		Path:         "/api/v1/users",
+		Query:        "name=test",
+		StatusCode:   201,
+		Latency:      15.5,
+		ClientIP:     "127.0.0.1",
+		UserAgent:    "test-agent",
+		RequestID:    "req-123",
+		UserID:       "user-456",
+		RequestSize:  100,
 		ResponseSize: 200,
 	}
 

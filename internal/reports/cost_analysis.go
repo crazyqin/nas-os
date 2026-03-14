@@ -12,44 +12,44 @@ import (
 
 // CostAnalysisReport 成本分析报告
 type CostAnalysisReport struct {
-	ID              string                    `json:"id"`
-	Name            string                    `json:"name"`
-	GeneratedAt     time.Time                 `json:"generated_at"`
-	Period          ReportPeriod              `json:"period"`
-	TotalCost       CostBreakdown             `json:"total_cost"`
-	VolumeCosts     []VolumeCostAnalysis      `json:"volume_costs"`
-	UserCosts       []UserCostAnalysis        `json:"user_costs"`
-	TrendAnalysis   CostTrendAnalysis         `json:"trend_analysis"`
-	Forecast        *CostForecast             `json:"forecast,omitempty"`
-	Optimization    []CostOptimizationItem    `json:"optimization"`
-	Recommendations []CostRecommendation      `json:"recommendations"`
-	Summary         CostAnalysisSummary       `json:"summary"`
+	ID              string                 `json:"id"`
+	Name            string                 `json:"name"`
+	GeneratedAt     time.Time              `json:"generated_at"`
+	Period          ReportPeriod           `json:"period"`
+	TotalCost       CostBreakdown          `json:"total_cost"`
+	VolumeCosts     []VolumeCostAnalysis   `json:"volume_costs"`
+	UserCosts       []UserCostAnalysis     `json:"user_costs"`
+	TrendAnalysis   CostTrendAnalysis      `json:"trend_analysis"`
+	Forecast        *CostForecast          `json:"forecast,omitempty"`
+	Optimization    []CostOptimizationItem `json:"optimization"`
+	Recommendations []CostRecommendation   `json:"recommendations"`
+	Summary         CostAnalysisSummary    `json:"summary"`
 }
 
 // CostBreakdown 成本细分
 type CostBreakdown struct {
-	StorageCost       float64 `json:"storage_cost"`        // 存储成本
-	ComputeCost       float64 `json:"compute_cost"`        // 计算成本
-	NetworkCost       float64 `json:"network_cost"`        // 网络成本
-	OperationsCost    float64 `json:"operations_cost"`     // 运维成本
-	ElectricityCost   float64 `json:"electricity_cost"`    // 电费成本
-	DepreciationCost  float64 `json:"depreciation_cost"`   // 折旧成本
-	TotalMonthlyCost  float64 `json:"total_monthly_cost"`  // 月度总成本
-	CostPerGB         float64 `json:"cost_per_gb"`         // 每GB成本
-	CostPerUser       float64 `json:"cost_per_user"`       // 每用户成本
+	StorageCost      float64 `json:"storage_cost"`       // 存储成本
+	ComputeCost      float64 `json:"compute_cost"`       // 计算成本
+	NetworkCost      float64 `json:"network_cost"`       // 网络成本
+	OperationsCost   float64 `json:"operations_cost"`    // 运维成本
+	ElectricityCost  float64 `json:"electricity_cost"`   // 电费成本
+	DepreciationCost float64 `json:"depreciation_cost"`  // 折旧成本
+	TotalMonthlyCost float64 `json:"total_monthly_cost"` // 月度总成本
+	CostPerGB        float64 `json:"cost_per_gb"`        // 每GB成本
+	CostPerUser      float64 `json:"cost_per_user"`      // 每用户成本
 }
 
 // VolumeCostAnalysis 卷成本分析
 type VolumeCostAnalysis struct {
 	VolumeID          string        `json:"volume_id"`
 	VolumeName        string        `json:"volume_name"`
-	VolumeType        string        `json:"volume_type"`        // ssd, hdd, nvme
+	VolumeType        string        `json:"volume_type"` // ssd, hdd, nvme
 	CapacityGB        float64       `json:"capacity_gb"`
 	UsedGB            float64       `json:"used_gb"`
 	UsagePercent      float64       `json:"usage_percent"`
 	CostBreakdown     CostBreakdown `json:"cost_breakdown"`
-	EfficiencyScore   float64       `json:"efficiency_score"`   // 成本效率评分 0-100
-	CostTrend         string        `json:"cost_trend"`         // increasing, stable, decreasing
+	EfficiencyScore   float64       `json:"efficiency_score"` // 成本效率评分 0-100
+	CostTrend         string        `json:"cost_trend"`       // increasing, stable, decreasing
 	MonthlyGrowthRate float64       `json:"monthly_growth_rate"`
 	PeakUsagePercent  float64       `json:"peak_usage_percent"`
 	AvgUsagePercent   float64       `json:"avg_usage_percent"`
@@ -57,26 +57,26 @@ type VolumeCostAnalysis struct {
 
 // UserCostAnalysis 用户成本分析
 type UserCostAnalysis struct {
-	UserID          string        `json:"user_id"`
-	Username        string        `json:"username"`
-	QuotaBytes      uint64        `json:"quota_bytes"`
-	UsedBytes       uint64        `json:"used_bytes"`
-	UsagePercent    float64       `json:"usage_percent"`
-	CostBreakdown   CostBreakdown `json:"cost_breakdown"`
-	FileCount       uint64        `json:"file_count"`
-	AvgFileSize     float64       `json:"avg_file_size"`
-	CostEfficiency  float64       `json:"cost_efficiency"`  // 成本效率
-	LastAccessTime  *time.Time    `json:"last_access_time,omitempty"`
-	TopFileTypes    []FileTypeCost `json:"top_file_types"`
+	UserID         string         `json:"user_id"`
+	Username       string         `json:"username"`
+	QuotaBytes     uint64         `json:"quota_bytes"`
+	UsedBytes      uint64         `json:"used_bytes"`
+	UsagePercent   float64        `json:"usage_percent"`
+	CostBreakdown  CostBreakdown  `json:"cost_breakdown"`
+	FileCount      uint64         `json:"file_count"`
+	AvgFileSize    float64        `json:"avg_file_size"`
+	CostEfficiency float64        `json:"cost_efficiency"` // 成本效率
+	LastAccessTime *time.Time     `json:"last_access_time,omitempty"`
+	TopFileTypes   []FileTypeCost `json:"top_file_types"`
 }
 
 // FileTypeCost 文件类型成本
 type FileTypeCost struct {
-	Type        string  `json:"type"`         // 文件扩展名
-	Count       uint64  `json:"count"`        // 文件数量
-	TotalBytes  uint64  `json:"total_bytes"`  // 总字节数
-	Cost        float64 `json:"cost"`         // 成本
-	Percent     float64 `json:"percent"`      // 占比
+	Type       string  `json:"type"`        // 文件扩展名
+	Count      uint64  `json:"count"`       // 文件数量
+	TotalBytes uint64  `json:"total_bytes"` // 总字节数
+	Cost       float64 `json:"cost"`        // 成本
+	Percent    float64 `json:"percent"`     // 占比
 }
 
 // CostTrendAnalysis 成本趋势分析
@@ -84,91 +84,91 @@ type CostTrendAnalysis struct {
 	DataPoints        []CostTrendDataPoint `json:"data_points"`
 	AvgMonthlyCost    float64              `json:"avg_monthly_cost"`
 	MonthlyGrowthRate float64              `json:"monthly_growth_rate"`
-	SeasonalPattern   string               `json:"seasonal_pattern"`   // none, monthly, quarterly
+	SeasonalPattern   string               `json:"seasonal_pattern"` // none, monthly, quarterly
 	PeakMonth         string               `json:"peak_month"`
-	TrendDirection    string               `json:"trend_direction"`    // up, down, stable
-	Volatility        float64              `json:"volatility"`         // 成本波动率
+	TrendDirection    string               `json:"trend_direction"` // up, down, stable
+	Volatility        float64              `json:"volatility"`      // 成本波动率
 }
 
 // CostTrendDataPoint 成本趋势数据点
 type CostTrendDataPoint struct {
-	Timestamp      time.Time `json:"timestamp"`
-	TotalCost      float64   `json:"total_cost"`
-	StorageCost    float64   `json:"storage_cost"`
-	ComputeCost    float64   `json:"compute_cost"`
-	NetworkCost    float64   `json:"network_cost"`
-	UsageGB        float64   `json:"usage_gb"`
-	CostPerGB      float64   `json:"cost_per_gb"`
+	Timestamp   time.Time `json:"timestamp"`
+	TotalCost   float64   `json:"total_cost"`
+	StorageCost float64   `json:"storage_cost"`
+	ComputeCost float64   `json:"compute_cost"`
+	NetworkCost float64   `json:"network_cost"`
+	UsageGB     float64   `json:"usage_gb"`
+	CostPerGB   float64   `json:"cost_per_gb"`
 }
 
 // CostForecast 成本预测
 type CostForecast struct {
-	NextMonthCost     float64             `json:"next_month_cost"`
-	NextQuarterCost   float64             `json:"next_quarter_cost"`
-	NextYearCost      float64             `json:"next_year_cost"`
-	ForecastPoints    []ForecastPoint     `json:"forecast_points"`
-	Confidence        float64             `json:"confidence"`     // 置信度 0-1
-	Method            string              `json:"method"`         // linear, exponential, arima
-	WarningThreshold  float64             `json:"warning_threshold"`
-	BudgetAlert       bool                `json:"budget_alert"`
+	NextMonthCost    float64         `json:"next_month_cost"`
+	NextQuarterCost  float64         `json:"next_quarter_cost"`
+	NextYearCost     float64         `json:"next_year_cost"`
+	ForecastPoints   []ForecastPoint `json:"forecast_points"`
+	Confidence       float64         `json:"confidence"` // 置信度 0-1
+	Method           string          `json:"method"`     // linear, exponential, arima
+	WarningThreshold float64         `json:"warning_threshold"`
+	BudgetAlert      bool            `json:"budget_alert"`
 }
 
 // ForecastPoint 预测数据点
 type ForecastPoint struct {
-	Date            time.Time `json:"date"`
-	PredictedCost   float64   `json:"predicted_cost"`
-	LowerBound      float64   `json:"lower_bound"`     // 置信下限
-	UpperBound      float64   `json:"upper_bound"`     // 置信上限
-	IsBudgetExceed  bool      `json:"is_budget_exceed"`
+	Date           time.Time `json:"date"`
+	PredictedCost  float64   `json:"predicted_cost"`
+	LowerBound     float64   `json:"lower_bound"` // 置信下限
+	UpperBound     float64   `json:"upper_bound"` // 置信上限
+	IsBudgetExceed bool      `json:"is_budget_exceed"`
 }
 
 // CostOptimizationItem 成本优化项
 type CostOptimizationItem struct {
-	ID              string    `json:"id"`
-	Type            string    `json:"type"`            // cleanup, tiering, compression, dedupe
-	Title           string    `json:"title"`
-	Description     string    `json:"description"`
-	CurrentCost     float64   `json:"current_cost"`
-	OptimizedCost   float64   `json:"optimized_cost"`
-	Savings         float64   `json:"savings"`         // 节省金额
-	SavingsPercent  float64   `json:"savings_percent"` // 节省比例
-	Priority        string    `json:"priority"`        // high, medium, low
-	Effort          string    `json:"effort"`          // easy, medium, hard
-	Impact          string    `json:"impact"`          // 影响范围
-	Risk            string    `json:"risk"`            // 风险评估
-	Steps           []string  `json:"steps"`           // 实施步骤
-	CreatedAt       time.Time `json:"created_at"`
+	ID             string    `json:"id"`
+	Type           string    `json:"type"` // cleanup, tiering, compression, dedupe
+	Title          string    `json:"title"`
+	Description    string    `json:"description"`
+	CurrentCost    float64   `json:"current_cost"`
+	OptimizedCost  float64   `json:"optimized_cost"`
+	Savings        float64   `json:"savings"`         // 节省金额
+	SavingsPercent float64   `json:"savings_percent"` // 节省比例
+	Priority       string    `json:"priority"`        // high, medium, low
+	Effort         string    `json:"effort"`          // easy, medium, hard
+	Impact         string    `json:"impact"`          // 影响范围
+	Risk           string    `json:"risk"`            // 风险评估
+	Steps          []string  `json:"steps"`           // 实施步骤
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 // CostRecommendation 成本建议
 type CostRecommendation struct {
-	Type        string `json:"type"`        // reduce, optimize, monitor, expand
-	Priority    string `json:"priority"`    // critical, high, medium, low
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Savings     float64 `json:"savings"`     // 预计节省
-	Action      string `json:"action"`      // 建议操作
-	Deadline    string `json:"deadline"`    // 建议截止时间
+	Type        string  `json:"type"`     // reduce, optimize, monitor, expand
+	Priority    string  `json:"priority"` // critical, high, medium, low
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	Savings     float64 `json:"savings"`  // 预计节省
+	Action      string  `json:"action"`   // 建议操作
+	Deadline    string  `json:"deadline"` // 建议截止时间
 }
 
 // CostAnalysisSummary 成本分析摘要
 type CostAnalysisSummary struct {
-	TotalMonthlyCost      float64 `json:"total_monthly_cost"`
-	TotalStorageGB        float64 `json:"total_storage_gb"`
-	TotalUsedGB           float64 `json:"total_used_gb"`
-	AvgCostPerGB          float64 `json:"avg_cost_per_gb"`
-	AvgUsagePercent       float64 `json:"avg_usage_percent"`
-	PotentialSavings      float64 `json:"potential_savings"`     // 潜在节省
+	TotalMonthlyCost        float64 `json:"total_monthly_cost"`
+	TotalStorageGB          float64 `json:"total_storage_gb"`
+	TotalUsedGB             float64 `json:"total_used_gb"`
+	AvgCostPerGB            float64 `json:"avg_cost_per_gb"`
+	AvgUsagePercent         float64 `json:"avg_usage_percent"`
+	PotentialSavings        float64 `json:"potential_savings"` // 潜在节省
 	PotentialSavingsPercent float64 `json:"potential_savings_percent"`
-	HealthScore           int     `json:"health_score"`          // 成本健康评分 0-100
-	Status                string  `json:"status"`                // healthy, warning, critical
+	HealthScore             int     `json:"health_score"` // 成本健康评分 0-100
+	Status                  string  `json:"status"`       // healthy, warning, critical
 }
 
 // CostAnalyzer 成本分析器
 type CostAnalyzer struct {
-	config      StorageCostConfig
-	optimizer   *CostOptimizer
-	calculator  *StorageCostCalculator
+	config     StorageCostConfig
+	optimizer  *CostOptimizer
+	calculator *StorageCostCalculator
 }
 
 // NewCostAnalyzer 创建成本分析器
@@ -189,13 +189,13 @@ func (a *CostAnalyzer) Analyze(
 ) *CostAnalysisReport {
 	now := time.Now()
 	report := &CostAnalysisReport{
-		ID:           "cost_analysis_" + now.Format("20060102150405"),
-		Name:         "成本分析报告",
-		GeneratedAt:  now,
-		Period:       period,
-		VolumeCosts:  make([]VolumeCostAnalysis, 0),
-		UserCosts:    make([]UserCostAnalysis, 0),
-		Optimization: make([]CostOptimizationItem, 0),
+		ID:              "cost_analysis_" + now.Format("20060102150405"),
+		Name:            "成本分析报告",
+		GeneratedAt:     now,
+		Period:          period,
+		VolumeCosts:     make([]VolumeCostAnalysis, 0),
+		UserCosts:       make([]UserCostAnalysis, 0),
+		Optimization:    make([]CostOptimizationItem, 0),
 		Recommendations: make([]CostRecommendation, 0),
 	}
 
@@ -230,12 +230,12 @@ func (a *CostAnalyzer) Analyze(
 
 // UserStorageUsage 用户存储使用情况
 type UserStorageUsage struct {
-	UserID         string    `json:"user_id"`
-	Username       string    `json:"username"`
-	QuotaBytes     uint64    `json:"quota_bytes"`
-	UsedBytes      uint64    `json:"used_bytes"`
-	FileCount      uint64    `json:"file_count"`
-	LastAccessTime *time.Time `json:"last_access_time,omitempty"`
+	UserID         string            `json:"user_id"`
+	Username       string            `json:"username"`
+	QuotaBytes     uint64            `json:"quota_bytes"`
+	UsedBytes      uint64            `json:"used_bytes"`
+	FileCount      uint64            `json:"file_count"`
+	LastAccessTime *time.Time        `json:"last_access_time,omitempty"`
 	FileTypes      map[string]uint64 `json:"file_types"` // 扩展名 -> 字节数
 }
 
@@ -249,20 +249,20 @@ func (a *CostAnalyzer) analyzeVolumeCosts(metrics []StorageMetrics) []VolumeCost
 		usedGB := float64(m.UsedCapacityBytes) / (1024 * 1024 * 1024)
 
 		analysis := VolumeCostAnalysis{
-			VolumeID:       m.VolumeName,
-			VolumeName:     m.VolumeName,
-			VolumeType:     "hdd", // 默认
-			CapacityGB:     round(gb, 2),
-			UsedGB:         round(usedGB, 2),
-			UsagePercent:   cost.UsagePercent,
+			VolumeID:     m.VolumeName,
+			VolumeName:   m.VolumeName,
+			VolumeType:   "hdd", // 默认
+			CapacityGB:   round(gb, 2),
+			UsedGB:       round(usedGB, 2),
+			UsagePercent: cost.UsagePercent,
 			CostBreakdown: CostBreakdown{
 				StorageCost:      cost.CapacityCostMonthly,
 				TotalMonthlyCost: cost.TotalCostMonthly,
 				CostPerGB:        cost.CostPerGBMonthly,
 			},
-			EfficiencyScore: a.calculateEfficiencyScore(cost.UsagePercent),
-			CostTrend:       "stable",
-			AvgUsagePercent: cost.UsagePercent,
+			EfficiencyScore:  a.calculateEfficiencyScore(cost.UsagePercent),
+			CostTrend:        "stable",
+			AvgUsagePercent:  cost.UsagePercent,
 			PeakUsagePercent: cost.UsagePercent,
 		}
 
@@ -317,11 +317,11 @@ func (a *CostAnalyzer) analyzeUserCosts(usages []UserStorageUsage) []UserCostAna
 		}
 
 		analysis := UserCostAnalysis{
-			UserID:         u.UserID,
-			Username:       u.Username,
-			QuotaBytes:     u.QuotaBytes,
-			UsedBytes:      u.UsedBytes,
-			UsagePercent:   round(usagePercent, 2),
+			UserID:       u.UserID,
+			Username:     u.Username,
+			QuotaBytes:   u.QuotaBytes,
+			UsedBytes:    u.UsedBytes,
+			UsagePercent: round(usagePercent, 2),
 			CostBreakdown: CostBreakdown{
 				StorageCost:      round(cost, 2),
 				TotalMonthlyCost: round(cost, 2),
@@ -435,7 +435,7 @@ func (a *CostAnalyzer) forecastCost(history []CostTrendDataPoint) *CostForecast 
 	}
 
 	forecast := &CostForecast{
-		Method:   "linear",
+		Method:         "linear",
 		ForecastPoints: make([]ForecastPoint, 0),
 	}
 

@@ -84,7 +84,7 @@ func TestEnhancedClientState(t *testing.T) {
 			return
 		}
 		defer conn.Close()
-		
+
 		// Keep connection open briefly
 		time.Sleep(100 * time.Millisecond)
 	}))

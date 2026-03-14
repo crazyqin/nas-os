@@ -290,7 +290,7 @@ func (c *Client) PasswordModify(userDN, oldPassword, newPassword string) error {
 	}
 
 	request := ldap.NewModifyRequest(userDN, nil)
-	
+
 	// 根据服务器类型使用不同的密码属性
 	passwordAttr := "userPassword"
 	if c.config.ServerType == ServerTypeAD {
