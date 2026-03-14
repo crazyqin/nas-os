@@ -1,0 +1,190 @@
+# NAS-OS Alertmanager 配置
+# v2.30.0 - 支持多种通知渠道
+#
+# 部署方式：
+#   docker run -d -p 9093:9093 \
+#     -v ./alertmanager.yml:/etc/alertmanager/alertmanager.yml \
+#     prom/alertmanager:latest
+
+global:
+  # SMTP 配置（邮件通知）
+  smtp_smarthost: '${SMTP_HOST}:${SMTP_PORT}'
+  smtp_from: '${SMTP_FROM}'
+  smtp_auth_username: '${SMTP_USER}'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+
+  # 默认解决时间
+  resolve_timeout: 5m
+
+  # 默认标签
+  default_labels:
+    environment: production
+    service: nas-os
+
+# 告警路由配置
+route:
+  # 默认接收者
+  receiver: 'default-receiver'
+  
+  # 分组等待时间（同组告警合并）
+  group_wait: 30s
+  
+  # 同组新告警等待时间
+  group_interval: 5m
+  
+  # 重复告警发送间隔
+  repeat_interval: 4h
+  
+  # 分组依据
+  group_by: ['alertname', 'severity', 'component']
+  
+  # 子路由
+  routes:
+    # 严重告警 - 立即通知
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: true
+
+    # 警告告警 - 批量通知
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 5m
+      repeat_interval: 4h
+
+    # 存储相关告警 - 优先处理
+    - match_re:
+        component: (storage|disk|btrfs|storage-pool)
+      receiver: 'storage-alerts'
+      group_by: ['alertname', 'pool', 'device']
+      repeat_interval: 2h
+
+    # 备份任务告警
+    - match:
+        component: backup
+      receiver: 'backup-alerts'
+      group_by: ['alertname', 'task']
+
+    # 安全告警
+    - match:
+        component: security
+      receiver: 'security-alerts'
+      group_wait: 10s
+      repeat_interval: 30m
+
+# 接收者配置
+receivers:
+  # 默认接收者
+  - name: 'default-receiver'
+    webhook_configs:
+      - url: 'http://nasd:8080/api/v1/alerts/webhook'
+        send_resolved: true
+
+  # 严重告警接收者（多渠道通知）
+  - name: 'critical-alerts'
+    # 邮件通知
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[严重] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>🚨 严重告警</h2>
+          <p><strong>告警名称：</strong>{{ .GroupLabels.alertname }}</p>
+          <p><strong>严重程度：</strong>{{ .GroupLabels.severity }}</p>
+          <p><strong>组件：</strong>{{ .GroupLabels.component }}</p>
+          <hr>
+          {{ range .Alerts }}
+          <h3>{{ .Annotations.summary }}</h3>
+          <p>{{ .Annotations.description }}</p>
+          <p><small>开始时间：{{ .StartsAt }}</small></p>
+          {{ end }}
+    
+    # Webhook 通知
+    webhook_configs:
+      - url: '${WEBHOOK_URL}'
+        send_resolved: true
+    
+    # 企业微信通知（可选）
+    # wechat_configs:
+    #   - corp_id: '${WECOM_CORP_ID}'
+    #     to_party: '${WECOM_PARTY}'
+    #     agent_id: '${WECOM_AGENT_ID}'
+    #     api_secret: '${WECOM_SECRET}'
+    #     send_resolved: true
+
+  # 警告告警接收者
+  - name: 'warning-alerts'
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[警告] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+
+  # 存储告警接收者
+  - name: 'storage-alerts'
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[存储] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://nasd:8080/api/v1/alerts/webhook'
+        send_resolved: true
+
+  # 备份任务告警接收者
+  - name: 'backup-alerts'
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[备份] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+
+  # 安全告警接收者
+  - name: 'security-alerts'
+    email_configs:
+      - to: '${SECURITY_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[安全] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+
+# 静默规则（临时禁用告警）
+# 示例：维护期间静默
+# amtool silence add alertname=NasOsDown instance=nas-server --duration=2h
+
+# 抑制规则（告警抑制）
+inhibit_rules:
+  # 系统离线时抑制其他告警
+  - source_match:
+      alertname: 'NasOsDown'
+    target_match_re:
+      alertname: '.*'
+    equal: ['instance']
+  
+  # 存储池离线时抑制相关告警
+  - source_match:
+      alertname: 'StoragePoolOffline'
+    target_match_re:
+      alertname: '(StoragePoolCapacityWarning|StoragePoolCapacityCritical|BtrfsDeviceError)'
+    equal: ['pool']
+  
+  # 磁盘空间严重不足时抑制空间警告
+  - source_match:
+      severity: critical
+      alertname: 'DiskSpaceCritical'
+    target_match:
+      severity: warning
+      alertname: 'DiskSpaceWarning'
+    equal: ['mountpoint']
+  
+  # 内存严重不足时抑制内存警告
+  - source_match:
+      severity: critical
+      alertname: 'MemoryUsageCritical'
+    target_match:
+      severity: warning
+      alertname: 'MemoryUsageWarning'

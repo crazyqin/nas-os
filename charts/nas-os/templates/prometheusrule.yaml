@@ -1,0 +1,197 @@
+{{- if and .Values.monitoring.enabled .Values.monitoring.prometheusRule.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "nas-os.fullname" . }}
+  labels:
+    {{- include "nas-os.labels" . | nindent 4 }}
+    {{- with .Values.monitoring.prometheusRule.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.monitoring.prometheusRule.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  groups:
+    # ==================== CPU 告警 ====================
+    - name: nas-os-cpu
+      rules:
+        - alert: CPUUsageWarning
+          expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+          for: 5m
+          labels:
+            severity: warning
+            component: cpu
+          annotations:
+            summary: "CPU 使用率偏高"
+            description: "CPU 使用率 {{ $value | printf \"%.1f\" }}% 超过 80% 阈值，持续 5 分钟"
+
+        - alert: CPUUsageCritical
+          expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+          for: 2m
+          labels:
+            severity: critical
+            component: cpu
+          annotations:
+            summary: "CPU 使用率过高"
+            description: "CPU 使用率 {{ $value | printf \"%.1f\" }}% 超过 95% 阈值，系统可能过载"
+
+    # ==================== 内存告警 ====================
+    - name: nas-os-memory
+      rules:
+        - alert: MemoryUsageWarning
+          expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+          for: 5m
+          labels:
+            severity: warning
+            component: memory
+          annotations:
+            summary: "内存使用率偏高"
+            description: "内存使用率 {{ $value | printf \"%.1f\" }}% 超过 80% 阈值"
+
+        - alert: MemoryUsageCritical
+          expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+          for: 1m
+          labels:
+            severity: critical
+            component: memory
+          annotations:
+            summary: "内存使用率过高"
+            description: "内存使用率 {{ $value | printf \"%.1f\" }}% 超过 95% 阈值，可能发生 OOM"
+
+    # ==================== 磁盘告警 ====================
+    - name: nas-os-disk
+      rules:
+        - alert: DiskSpaceWarning
+          expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
+          for: 5m
+          labels:
+            severity: warning
+            component: disk
+          annotations:
+            summary: "磁盘空间不足"
+            description: "挂载点 {{ $labels.mountpoint }} 剩余空间仅 {{ $value | printf \"%.1f\" }}%"
+
+        - alert: DiskSpaceCritical
+          expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 5
+          for: 1m
+          labels:
+            severity: critical
+            component: disk
+          annotations:
+            summary: "磁盘空间严重不足"
+            description: "挂载点 {{ $labels.mountpoint }} 剩余空间仅 {{ $value | printf \"%.1f\" }}%，请立即清理"
+
+    # ==================== 服务健康告警 ====================
+    - name: nas-os-service
+      rules:
+        - alert: NasOsDown
+          expr: up{job="{{ include "nas-os.fullname" . }}"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            component: service
+          annotations:
+            summary: "NAS-OS 服务不可用"
+            description: "NAS-OS 实例 {{ $labels.instance }} 已停止响应超过 1 分钟"
+
+        - alert: NasOsHighErrorRate
+          expr: rate(nas_os_api_requests_total{status=~"5.."}[5m]) / rate(nas_os_api_requests_total[5m]) > 0.1
+          for: 3m
+          labels:
+            severity: warning
+            component: service
+          annotations:
+            summary: "NAS-OS 错误率高"
+            description: "API 错误率 {{ $value | printf \"%.2f\" }} 超过 10%"
+
+        - alert: NasOsSlowResponse
+          expr: histogram_quantile(0.95, rate(nas_os_api_request_duration_seconds_bucket[5m])) > 0.5
+          for: 5m
+          labels:
+            severity: warning
+            component: service
+          annotations:
+            summary: "NAS-OS 响应缓慢"
+            description: "P95 响应时间 {{ $value | humanizeDuration }}，超过 500ms 阈值"
+
+    # ==================== 健康评分告警 ====================
+    - name: nas-os-health
+      rules:
+        - alert: HealthScoreLow
+          expr: nas_os_health_score < 60
+          for: 5m
+          labels:
+            severity: warning
+            component: system
+          annotations:
+            summary: "系统健康评分过低"
+            description: "系统健康评分 {{ $value | printf \"%.0f\" }} 低于 60 分"
+
+        - alert: HealthScoreCritical
+          expr: nas_os_health_score < 30
+          for: 2m
+          labels:
+            severity: critical
+            component: system
+          annotations:
+            summary: "系统健康评分严重过低"
+            description: "系统健康评分 {{ $value | printf \"%.0f\" }} 低于 30 分，系统可能存在严重问题"
+
+    # ==================== 存储池告警 ====================
+    - name: nas-os-storage-pool
+      rules:
+        - alert: StoragePoolDegraded
+          expr: nas_os_storage_pool_health_status == 2
+          for: 1m
+          labels:
+            severity: critical
+            component: storage-pool
+          annotations:
+            summary: "存储池降级"
+            description: "存储池 {{ $labels.pool_name }} 处于降级状态，请检查磁盘健康"
+
+        - alert: StoragePoolOffline
+          expr: nas_os_storage_pool_health_status == 3
+          for: 0m
+          labels:
+            severity: critical
+            component: storage-pool
+          annotations:
+            summary: "存储池离线"
+            description: "存储池 {{ $labels.pool_name }} 已离线，数据不可访问"
+
+        - alert: StoragePoolCapacityWarning
+          expr: (nas_os_storage_pool_used_bytes / nas_os_storage_pool_total_bytes) * 100 > 80
+          for: 5m
+          labels:
+            severity: warning
+            component: storage-pool
+          annotations:
+            summary: "存储池容量不足"
+            description: "存储池 {{ $labels.pool_name }} 使用率 {{ $value | printf \"%.1f\" }}%"
+
+    # ==================== 备份任务告警 ====================
+    - name: nas-os-backup
+      rules:
+        - alert: BackupTaskFailed
+          expr: nas_os_backup_status == 3
+          for: 0m
+          labels:
+            severity: warning
+            component: backup
+          annotations:
+            summary: "备份任务失败"
+            description: "备份任务 {{ $labels.job_id }} 执行失败，请检查日志"
+
+        - alert: BackupTaskOverdue
+          expr: time() - nas_os_backup_last_run_timestamp_seconds > 86400 * 2
+          for: 0m
+          labels:
+            severity: warning
+            component: backup
+          annotations:
+            summary: "备份任务逾期"
+            description: "备份任务 {{ $labels.job_id }} 超过 48 小时未成功执行"
+{{- end }}

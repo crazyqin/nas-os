@@ -2,6 +2,11 @@
 # 支持多架构（amd64, arm64, arm/v7）
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
+#
+# v2.30.0 更新：
+# - 增强构建缓存配置
+# - 添加超时控制
+# - 优化镜像层缓存
 
 name: Docker Publish
 
@@ -28,12 +33,20 @@ env:
   GO_VERSION: '1.26'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  # 缓存版本号
+  CACHE_VERSION: 'v1'
+
+# 并发控制
+concurrency:
+  group: docker-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # ========== Docker 镜像构建 ==========
   docker-build:
     name: 构建 Docker 镜像
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       packages: write
@@ -108,8 +121,11 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           annotations: ${{ steps.meta.outputs.annotations }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # 多层缓存策略
+          cache-from: |
+            type=gha,scope=${{ env.CACHE_VERSION }}-${{ github.ref_name }}
+            type=gha,scope=${{ env.CACHE_VERSION }}-master
+          cache-to: type=gha,scope=${{ env.CACHE_VERSION }}-${{ github.ref_name }},mode=max
           build-args: |
             BUILD_TIME=${{ github.event.head_commit.timestamp }}
             VERSION=${{ github.ref_name }}
@@ -135,6 +151,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [docker-build]
     if: github.event_name != 'pull_request'
+    timeout-minutes: 15
     permissions:
       contents: read
       security-events: write

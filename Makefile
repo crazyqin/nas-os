@@ -207,6 +207,15 @@ help:
 	@echo "    make plugin-build   - 构建示例插件（提示）"
 	@echo "    make plugin-install - 安装插件目录"
 	@echo ""
+	@echo "  监控:"
+	@echo "    make monitor-up     - 启动监控栈"
+	@echo "    make monitor-down   - 停止监控栈"
+	@echo "    make monitor-logs   - 查看监控日志"
+	@echo "    make alert-validate - 验证告警规则"
+	@echo "    make prometheus-validate - 验证 Prometheus 配置"
+	@echo "    make alertmanager-validate - 验证 Alertmanager 配置"
+	@echo "    make monitor-validate - 验证所有监控配置"
+	@echo ""
 	@echo "  其他:"
 	@echo "    make clean          - 清理构建产物"
 	@echo "    make help           - 显示帮助"
@@ -269,3 +278,48 @@ docs-serve: swagger
 	@echo "📖 ReDoc: http://localhost:8081/docs/"
 	@echo "按 Ctrl+C 停止"
 	@cd docs/swagger && python3 -m http.server 8081 || python -m SimpleHTTPServer 8081
+
+# ========== 监控 ==========
+monitor-up:
+	@echo "📊 启动监控栈..."
+	docker-compose -f docker-compose.yml -f monitoring/docker-compose.monitoring.yml up -d 2>/dev/null || \
+		docker-compose up -d
+	@echo "✅ 监控服务已启动"
+	@echo "   Prometheus: http://localhost:9090"
+	@echo "   Grafana: http://localhost:3000"
+	@echo "   Alertmanager: http://localhost:9093"
+
+monitor-down:
+	@echo "📊 停止监控栈..."
+	docker-compose -f docker-compose.yml -f monitoring/docker-compose.monitoring.yml down 2>/dev/null || \
+		docker-compose down
+	@echo "✅ 监控服务已停止"
+
+monitor-logs:
+	docker-compose logs -f prometheus alertmanager grafana 2>/dev/null || \
+		docker-compose logs -f
+
+# 验证告警规则
+alert-validate:
+	@echo "🔍 验证 Prometheus 告警规则..."
+	@which promtool > /dev/null || (echo "安装 promtool..." && go install github.com/prometheus/prometheus/cmd/promtool@latest)
+	promtool check rules monitoring/alerts.yml
+	@echo "✅ 告警规则验证通过"
+
+# 验证 Prometheus 配置
+prometheus-validate:
+	@echo "🔍 验证 Prometheus 配置..."
+	@which promtool > /dev/null || (echo "安装 promtool..." && go install github.com/prometheus/prometheus/cmd/promtool@latest)
+	promtool check config monitoring/prometheus.yml
+	@echo "✅ Prometheus 配置验证通过"
+
+# 验证 Alertmanager 配置
+alertmanager-validate:
+	@echo "🔍 验证 Alertmanager 配置..."
+	@which amtool > /dev/null || (echo "安装 amtool..." && go install github.com/prometheus/alertmanager/cmd/amtool@latest)
+	amtool check-config monitoring/alertmanager.yml
+	@echo "✅ Alertmanager 配置验证通过"
+
+# 验证所有监控配置
+monitor-validate: alert-validate prometheus-validate alertmanager-validate
+	@echo "✅ 所有监控配置验证通过"
