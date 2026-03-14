@@ -553,3 +553,78 @@ func TestHandlers_UpdateConfig_AllFields(t *testing.T) {
 	assert.Equal(t, int64(1024*1024*1024), config.MaxSize)
 	assert.False(t, config.AutoEmpty)
 }
+
+// ========== v2.13.0 补充测试 ==========
+
+func TestHandlers_Get(t *testing.T) {
+	mgr, tmpDir := setupHandlersTestEnv(t)
+	defer mgr.Empty()
+
+	h := NewHandlers(mgr)
+
+	// 创建测试文件并移动到回收站
+	testFile := filepath.Join(tmpDir, "test.txt")
+	require.NoError(t, os.WriteFile(testFile, []byte("test content"), 0644))
+
+	item, err := mgr.MoveToTrash(testFile, "user1")
+	require.NoError(t, err)
+
+	c, w := createTestContext(t, "GET", "/trash/"+item.ID, nil)
+	c.Params = gin.Params{{Key: "id", Value: item.ID}}
+
+	h.get(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var resp api.Response
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+
+	data, ok := resp.Data.(map[string]interface{})
+	require.True(t, ok)
+	assert.Equal(t, "test.txt", data["name"])
+}
+
+func TestHandlers_Get_NotFound(t *testing.T) {
+	mgr, _ := setupHandlersTestEnv(t)
+	defer mgr.Empty()
+
+	h := NewHandlers(mgr)
+
+	c, w := createTestContext(t, "GET", "/trash/nonexistent", nil)
+	c.Params = gin.Params{{Key: "id", Value: "nonexistent"}}
+
+	h.get(c)
+
+	assert.Equal(t, http.StatusNotFound, w.Code)
+}
+
+func TestHandlers_Empty_WithItems(t *testing.T) {
+	mgr, tmpDir := setupHandlersTestEnv(t)
+	defer mgr.Empty()
+
+	h := NewHandlers(mgr)
+
+	// 创建多个测试文件
+	for i := 0; i < 5; i++ {
+		testFile := filepath.Join(tmpDir, "test"+string(rune('0'+i))+".txt")
+		require.NoError(t, os.WriteFile(testFile, []byte("test content"), 0644))
+
+		_, err := mgr.MoveToTrash(testFile, "user1")
+		require.NoError(t, err)
+	}
+
+	// 验证有项目
+	items := mgr.List()
+	require.Len(t, items, 5)
+
+	c, w := createTestContext(t, "DELETE", "/trash", nil)
+
+	h.empty(c)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	// 验证回收站为空
+	items = mgr.List()
+	assert.Empty(t, items)
+}
