@@ -102,16 +102,17 @@ func (s ConnectionState) String() string {
 
 // ConnectionStats 连接统计
 type ConnectionStats struct {
-	ID              string          `json:"id"`
-	State           string          `json:"state"`
-	ConnectedAt     time.Time       `json:"connectedAt"`
-	LastActivity    time.Time       `json:"lastActivity"`
-	ReconnectCount  int             `json:"reconnectCount"`
-	MessagesSent    int64           `json:"messagesSent"`
-	MessagesReceived int64          `json:"messagesReceived"`
-	BytesSent       int64           `json:"bytesSent"`
-	BytesReceived   int64           `json:"bytesReceived"`
-	MissedHeartbeats int            `json:"missedHeartbeats"`
+	ID               string    `json:"id"`
+	UserID           string    `json:"userId"`
+	State            string    `json:"state"`
+	ConnectedAt      time.Time `json:"connectedAt"`
+	LastActivity     time.Time `json:"lastActivity"`
+	ReconnectCount   int       `json:"reconnectCount"`
+	MessagesSent     int64     `json:"messagesSent"`
+	MessagesReceived int64     `json:"messagesReceived"`
+	BytesSent        int64     `json:"bytesSent"`
+	BytesReceived    int64     `json:"bytesReceived"`
+	MissedHeartbeats int       `json:"missedHeartbeats"`
 }
 
 // EnhancedClient 增强版 WebSocket 客户端
@@ -442,6 +443,7 @@ func (c *EnhancedClient) GetState() ConnectionState {
 func (c *EnhancedClient) GetStats() *ConnectionStats {
 	return &ConnectionStats{
 		ID:               c.ID,
+		UserID:           c.UserID,
 		State:            c.GetState().String(),
 		ConnectedAt:      c.ConnectedAt,
 		LastActivity:     c.LastActivity,
