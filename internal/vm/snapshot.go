@@ -7,12 +7,43 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
+
+// isSafeString 检查字符串是否只包含安全字符
+func isSafeString(s string) bool {
+	for _, r := range s {
+		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-' || r == ' ') {
+			return false
+		}
+	}
+	return true
+}
+
+// sanitizeDescription 清理描述字符串，移除危险字符
+func sanitizeDescription(s string) string {
+	// 移除可能的命令注入字符
+	replacer := strings.NewReplacer(
+		";", "",
+		"|", "",
+		"&", "",
+		"$", "",
+		"`", "",
+		"(", "",
+		")", "",
+		"<", "",
+		">", "",
+		"\n", " ",
+		"\r", " ",
+		"\x00", "",
+	)
+	return replacer.Replace(s)
+}
 
 // SnapshotManager 快照管理器
 type SnapshotManager struct {
@@ -99,6 +130,14 @@ func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name,
 	if err != nil {
 		return nil, err
 	}
+
+	// 输入验证：防止命令注入
+	if !isSafeString(name) {
+		return nil, fmt.Errorf("快照名称包含不安全的字符")
+	}
+
+	// 清理描述字符串
+	description = sanitizeDescription(description)
 
 	// 检查 VM 状态（运行中也可以创建快照，但可能需要 quiesce）
 	if vm.Status == VMStatusCreating || vm.Status == VMStatusDeleting {

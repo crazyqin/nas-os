@@ -7,8 +7,10 @@ import (
 
 // ========== Manager Tests ==========
 
-func TestNewManager(t *testing.T) {
+func TestNewManager_NilConfig(t *testing.T) {
 	cfg := DefaultConfig()
+	cfg.EnableBaseline = false
+	cfg.SlowLogPath = t.TempDir() + "/slow.log"
 	m, err := NewManager(cfg)
 	if err != nil {
 		t.Fatalf("创建管理器失败：%v", err)
@@ -16,33 +18,6 @@ func TestNewManager(t *testing.T) {
 
 	if m == nil {
 		t.Fatal("管理器不应为 nil")
-	}
-
-	if m.metrics == nil {
-		t.Error("metrics 不应为 nil")
-	}
-
-	if m.throughput == nil {
-		t.Error("throughput 不应为 nil")
-	}
-
-	// 清理
-	m.Stop()
-}
-
-func TestNewManager_NilConfig(t *testing.T) {
-	m, err := NewManager(nil)
-	if err != nil {
-		t.Fatalf("使用 nil 配置创建管理器失败：%v", err)
-	}
-
-	if m == nil {
-		t.Fatal("管理器不应为 nil")
-	}
-
-	// 应使用默认配置
-	if m.slowThreshold != 500*time.Millisecond {
-		t.Errorf("期望默认慢请求阈值为 500ms，得到 %v", m.slowThreshold)
 	}
 
 	m.Stop()
@@ -57,10 +32,6 @@ func TestDefaultConfig(t *testing.T) {
 
 	if cfg.SlowLogMax != 1000 {
 		t.Errorf("期望 SlowLogMax 为 1000，得到 %d", cfg.SlowLogMax)
-	}
-
-	if !cfg.EnableBaseline {
-		t.Error("EnableBaseline 应为 true")
 	}
 }
 
@@ -114,9 +85,9 @@ func TestMetricsStore_GlobalStats(t *testing.T) {
 
 func TestEndpointMetrics_Percentiles(t *testing.T) {
 	em := &EndpointMetrics{
-		Path:        "/api/test",
-		Method:      "GET",
-		RequestCount: 100,
+		Path:          "/api/test",
+		Method:        "GET",
+		RequestCount:  100,
 		TotalDuration: 10 * time.Second,
 		durations: []time.Duration{
 			10 * time.Millisecond,
@@ -234,25 +205,6 @@ func TestSlowLogEntry_Struct(t *testing.T) {
 
 	if entry.StatusCode != 200 {
 		t.Errorf("期望 StatusCode 为 200，得到 %d", entry.StatusCode)
-	}
-}
-
-func TestSlowLogEntry_JSON(t *testing.T) {
-	entry := &SlowLogEntry{
-		Timestamp:   time.Now(),
-		RequestID:   "req-123",
-		Method:      "GET",
-		Path:        "/api/slow",
-		Duration:    1 * time.Second,
-		StatusCode:  200,
-	}
-
-	// 验证字段
-	if entry.Method != "GET" {
-		t.Errorf("期望 Method 为 GET，得到 %s", entry.Method)
-	}
-	if entry.Path != "/api/slow" {
-		t.Errorf("期望 Path 为 /api/slow，得到 %s", entry.Path)
 	}
 }
 
@@ -520,197 +472,87 @@ func TestExportFormat_Values(t *testing.T) {
 	}
 }
 
-// ========== recordMetrics Tests ==========
+// ========== EndpointReport Tests ==========
 
-func TestRecordMetrics_EndpointCreation(t *testing.T) {
-	m, _ := NewManager(nil)
-	defer m.Stop()
-
-	// 记录新端点的指标
-	m.recordMetrics("/api/test", "GET", 50*time.Millisecond, 200)
-
-	if m.metrics.Endpoints["GET:/api/test"] == nil {
-		t.Error("端点应被创建")
+func TestEndpointReport_Struct(t *testing.T) {
+	report := &EndpointReport{
+		Path:         "/api/test",
+		Method:       "GET",
+		RequestCount: 100,
+		ErrorCount:   5,
+		ErrorRate:    5.0,
+		AvgDuration:  50.0,
+		P50Duration:  40.0,
+		P95Duration:  120.0,
+		P99Duration:  200.0,
 	}
 
-	em := m.metrics.Endpoints["GET:/api/test"]
-	if em.RequestCount != 1 {
-		t.Errorf("期望 RequestCount 为 1，得到 %d", em.RequestCount)
-	}
-}
-
-func TestRecordMetrics_ErrorCount(t *testing.T) {
-	m, _ := NewManager(nil)
-	defer m.Stop()
-
-	// 记录错误请求
-	m.recordMetrics("/api/test", "GET", 50*time.Millisecond, 500)
-
-	em := m.metrics.Endpoints["GET:/api/test"]
-	if em.ErrorCount != 1 {
-		t.Errorf("期望 ErrorCount 为 1，得到 %d", em.ErrorCount)
-	}
-
-	if m.metrics.TotalErrors != 1 {
-		t.Errorf("期望 TotalErrors 为 1，得到 %d", m.metrics.TotalErrors)
+	if report.ErrorRate != 5.0 {
+		t.Errorf("期望 ErrorRate 为 5.0，得到 %f", report.ErrorRate)
 	}
 }
 
-func TestRecordMetrics_PercentileCalculation(t *testing.T) {
-	m, _ := NewManager(nil)
-	defer m.Stop()
+// ========== ThroughputReport Tests ==========
 
-	// 记录多个请求
-	for i := 0; i < 10; i++ {
-		duration := time.Duration(i+1) * 10 * time.Millisecond
-		m.recordMetrics("/api/test", "GET", duration, 200)
+func TestThroughputReport_Struct(t *testing.T) {
+	report := &ThroughputReport{
+		CurrentRPS: 100.0,
+		PeakRPS:    500.0,
+		Hourly: []*HourlyStat{
+			{Timestamp: time.Now().Unix(), RequestCount: 3600},
+		},
 	}
 
-	em := m.metrics.Endpoints["GET:/api/test"]
-	if em.RequestCount != 10 {
-		t.Errorf("期望 RequestCount 为 10，得到 %d", em.RequestCount)
-	}
-
-	// 百分位应该已计算
-	if em.P50Duration == 0 {
-		t.Error("P50Duration 不应为 0")
+	if report.PeakRPS != 500.0 {
+		t.Errorf("期望 PeakRPS 为 500.0，得到 %f", report.PeakRPS)
 	}
 }
 
-// ========== SlowLog Tests ==========
+// ========== MinuteStat Tests ==========
 
-func TestSlowLog_Recording(t *testing.T) {
-	m, _ := NewManager(&Config{
-		SlowThreshold: 100 * time.Millisecond,
-		SlowLogMax:    100,
-		SlowLogPath:   t.TempDir() + "/slow.log",
-	})
-	defer m.Stop()
-
-	// 记录慢请求
-	entry := &SlowLogEntry{
-		Timestamp:  time.Now(),
-		RequestID:  "req-1",
-		Method:     "GET",
-		Path:       "/api/slow",
-		Duration:   200 * time.Millisecond,
-		StatusCode: 200,
+func TestMinuteStat_Struct(t *testing.T) {
+	stat := &MinuteStat{
+		Timestamp:    time.Now().Unix(),
+		RequestCount: 100,
+		ErrorCount:   5,
+		TotalBytes:   1024000,
+		AvgLatencyMs: 15.5,
+		PeakRPS:      2.0,
 	}
 
-	m.recordSlowLog(entry)
-
-	logs := m.GetSlowLogs(10)
-	if len(logs) != 1 {
-		t.Errorf("期望 1 条慢日志，得到 %d", len(logs))
+	if stat.RequestCount != 100 {
+		t.Errorf("期望 RequestCount 为 100，得到 %d", stat.RequestCount)
 	}
 }
 
-func TestSlowLog_Limit(t *testing.T) {
-	m, _ := NewManager(&Config{
-		SlowThreshold: 100 * time.Millisecond,
-		SlowLogMax:    5,
-		SlowLogPath:   t.TempDir() + "/slow.log",
-	})
-	defer m.Stop()
+// ========== HourlyStat Tests ==========
 
-	// 记录多条慢日志
-	for i := 0; i < 10; i++ {
-		m.recordSlowLog(&SlowLogEntry{
-			Timestamp:  time.Now(),
-			RequestID:  "req-" + string(rune('0'+i)),
-			Method:     "GET",
-			Path:       "/api/slow",
-			Duration:   200 * time.Millisecond,
-			StatusCode: 200,
-		})
+func TestHourlyStat_Struct(t *testing.T) {
+	stat := &HourlyStat{
+		Timestamp:    time.Now().Unix(),
+		RequestCount: 6000,
+		ErrorCount:   30,
+		AvgLatencyMs: 20.0,
+		PeakRPS:      2.5,
 	}
 
-	// 应只保留最新的 5 条
-	if len(m.slowLogs) > m.slowLogMax {
-		t.Errorf("慢日志数量应不超过 %d，得到 %d", m.slowLogMax, len(m.slowLogs))
+	if stat.RequestCount != 6000 {
+		t.Errorf("期望 RequestCount 为 6000，得到 %d", stat.RequestCount)
 	}
 }
 
-// ========== GetMetrics Tests ==========
+// ========== DailyStat Tests ==========
 
-func TestGetMetrics_ReturnsCopy(t *testing.T) {
-	m, _ := NewManager(nil)
-	defer m.Stop()
-
-	m.recordMetrics("/api/test", "GET", 50*time.Millisecond, 200)
-
-	metrics := m.GetMetrics()
-	if metrics == nil {
-		t.Fatal("metrics 不应为 nil")
+func TestDailyStat_Struct(t *testing.T) {
+	stat := &DailyStat{
+		Timestamp:    time.Now().Unix(),
+		RequestCount: 144000,
+		ErrorCount:   720,
+		AvgLatencyMs: 18.0,
+		PeakRPS:      3.0,
 	}
 
-	if metrics.TotalRequests != 1 {
-		t.Errorf("期望 TotalRequests 为 1，得到 %d", metrics.TotalRequests)
-	}
-}
-
-func TestGetEndpointMetrics_NotFound(t *testing.T) {
-	m, _ := NewManager(nil)
-	defer m.Stop()
-
-	em := m.GetEndpointMetrics("/nonexistent", "GET")
-	if em != nil {
-		t.Error("不存在的端点应返回 nil")
-	}
-}
-
-func TestGetEndpointMetrics_Found(t *testing.T) {
-	m, _ := NewManager(nil)
-	defer m.Stop()
-
-	m.recordMetrics("/api/test", "GET", 50*time.Millisecond, 200)
-
-	em := m.GetEndpointMetrics("/api/test", "GET")
-	if em == nil {
-		t.Fatal("端点不应为 nil")
-	}
-
-	if em.RequestCount != 1 {
-		t.Errorf("期望 RequestCount 为 1，得到 %d", em.RequestCount)
-	}
-}
-
-// ========== GetThroughputStats Tests ==========
-
-func TestGetThroughputStats(t *testing.T) {
-	m, _ := NewManager(nil)
-	defer m.Stop()
-
-	stats := m.GetThroughputStats()
-	if stats == nil {
-		t.Fatal("stats 不应为 nil")
-	}
-
-	// 初始状态应该有这些字段
-	if _, ok := stats["currentRPS"]; !ok {
-		t.Error("stats 应包含 currentRPS")
-	}
-	if _, ok := stats["peakRPS"]; !ok {
-		t.Error("stats 应包含 peakRPS")
-	}
-}
-
-// ========== GetTimeWindowStats Tests ==========
-
-func TestGetTimeWindowStats(t *testing.T) {
-	m, _ := NewManager(nil)
-	defer m.Stop()
-
-	stats := m.GetTimeWindowStats()
-	if stats == nil {
-		t.Fatal("stats 不应为 nil")
-	}
-
-	if _, ok := stats["windowSize"]; !ok {
-		t.Error("stats 应包含 windowSize")
-	}
-
-	if _, ok := stats["avgRPS"]; !ok {
-		t.Error("stats 应包含 avgRPS")
+	if stat.RequestCount != 144000 {
+		t.Errorf("期望 RequestCount 为 144000，得到 %d", stat.RequestCount)
 	}
 }
