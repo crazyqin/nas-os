@@ -8,14 +8,14 @@ import (
 
 // HealthScorer 系统健康评分器
 type HealthScorer struct {
-	mu          sync.RWMutex
-	manager     *Manager
-	history     []*HealthScore
-	maxHistory  int
-	weights     HealthWeights
-	thresholds  HealthThresholds
-	lastScore   *HealthScore
-	collector   *MetricsCollector
+	mu         sync.RWMutex
+	manager    *Manager
+	history    []*HealthScore
+	maxHistory int
+	weights    HealthWeights
+	thresholds HealthThresholds
+	lastScore  *HealthScore
+	collector  *MetricsCollector
 }
 
 // HealthWeights 健康评分权重
@@ -118,9 +118,9 @@ func NewHealthScorer(manager *Manager) *HealthScorer {
 			UptimeGraceDays: 1,
 		},
 	}
-	
+
 	scorer.collector = NewMetricsCollector(manager, scorer)
-	
+
 	return scorer
 }
 
@@ -311,8 +311,8 @@ func (hs *HealthScorer) calculateDiskScore(disks []*DiskStats, thresholds Health
 		case disk.UsagePercent >= thresholds.DiskCritical:
 			criticalCount++
 			health.Score -= 15
-			hs.addIssue(&health, "disk", "critical", 
-				"磁盘 "+disk.MountPoint+" 空间不足", 
+			hs.addIssue(&health, "disk", "critical",
+				"磁盘 "+disk.MountPoint+" 空间不足",
 				disk.UsagePercent, thresholds.DiskCritical)
 		case disk.UsagePercent >= thresholds.DiskWarning:
 			warningCount++
@@ -413,10 +413,10 @@ func (hs *HealthScorer) calculateSMARTScore(smarts []*SMARTInfo, thresholds Heal
 // calculateSystemScore 计算系统评分
 func (hs *HealthScorer) calculateSystemScore(stats *SystemStats, thresholds HealthThresholds) ComponentHealth {
 	health := ComponentHealth{
-		Weight:    hs.weights.Uptime,
-		Score:     100,
-		Status:    "healthy",
-		Message:   "系统运行正常",
+		Weight:  hs.weights.Uptime,
+		Score:   100,
+		Status:  "healthy",
+		Message: "系统运行正常",
 	}
 
 	// 运行时间影响（刚启动时扣分）
@@ -606,12 +606,12 @@ func (hs *HealthScorer) GetScoreStats(duration time.Duration) map[string]interfa
 	stdDev := math.Sqrt(variance / float64(len(scores)))
 
 	return map[string]interface{}{
-		"count":     len(scores),
-		"average":   avg,
-		"min":       min,
-		"max":       max,
-		"std_dev":   stdDev,
-		"trend":     hs.lastScore.Trend.Direction,
+		"count":      len(scores),
+		"average":    avg,
+		"min":        min,
+		"max":        max,
+		"std_dev":    stdDev,
+		"trend":      hs.lastScore.Trend.Direction,
 		"last_score": hs.lastScore.TotalScore,
 	}
 }

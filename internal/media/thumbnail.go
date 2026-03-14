@@ -230,13 +230,13 @@ func (tg *ThumbnailGenerator) GenerateSprite(videoPath, outputPath string, cols,
 
 // SpriteInfo 精灵图信息
 type SpriteInfo struct {
-	Path      string        `json:"path"`
-	Width     int           `json:"width"`
-	Height    int           `json:"height"`
-	Cols      int           `json:"cols"`
-	Rows      int           `json:"rows"`
-	Timestamps []float64    `json:"timestamps"`
-	Duration  float64       `json:"duration"`
+	Path       string    `json:"path"`
+	Width      int       `json:"width"`
+	Height     int       `json:"height"`
+	Cols       int       `json:"cols"`
+	Rows       int       `json:"rows"`
+	Timestamps []float64 `json:"timestamps"`
+	Duration   float64   `json:"duration"`
 }
 
 // createSprite 创建精灵图

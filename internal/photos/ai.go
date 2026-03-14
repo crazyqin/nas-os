@@ -1841,7 +1841,7 @@ func (e *LocalAIEngine) calculateOverallScore(m *QualityMetrics) float32 {
 	if m.Brightness < 50 {
 		brightnessScore = float64(m.Brightness) / 50.0 * 60 // 太暗
 	} else if m.Brightness > 200 {
-		brightnessScore = (255.0 - float64(m.Brightness)) / 55.0 * 60 + 40 // 太亮
+		brightnessScore = (255.0-float64(m.Brightness))/55.0*60 + 40 // 太亮
 	} else {
 		brightnessScore = 80 + (100-math.Abs(m.Brightness-125))/125.0*20
 	}

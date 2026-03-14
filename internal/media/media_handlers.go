@@ -323,8 +323,8 @@ func (h *MediaHandlers) convertSubtitle(c *gin.Context) {
 // mergeSubtitles 合并字幕文件
 func (h *MediaHandlers) mergeSubtitles(c *gin.Context) {
 	var req struct {
-		Paths     []string `json:"paths" binding:"required"`
-		OutputPath string  `json:"outputPath" binding:"required"`
+		Paths      []string `json:"paths" binding:"required"`
+		OutputPath string   `json:"outputPath" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -439,9 +439,9 @@ func (h *MediaHandlers) extractSubtitle(c *gin.Context) {
 // generateThumbnail 生成缩略图
 func (h *MediaHandlers) generateThumbnail(c *gin.Context) {
 	var req struct {
-		VideoPath   string           `json:"videoPath" binding:"required"`
-		OutputPath  string           `json:"outputPath" binding:"required"`
-		Config      ThumbnailConfig  `json:"config"`
+		VideoPath  string          `json:"videoPath" binding:"required"`
+		OutputPath string          `json:"outputPath" binding:"required"`
+		Config     ThumbnailConfig `json:"config"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -477,10 +477,10 @@ func (h *MediaHandlers) generateThumbnail(c *gin.Context) {
 // generateMultipleThumbnails 生成多个缩略图
 func (h *MediaHandlers) generateMultipleThumbnails(c *gin.Context) {
 	var req struct {
-		VideoPath  string          `json:"videoPath" binding:"required"`
-		OutputDir  string          `json:"outputDir" binding:"required"`
-		Count      int             `json:"count"`
-		Config     ThumbnailConfig `json:"config"`
+		VideoPath string          `json:"videoPath" binding:"required"`
+		OutputDir string          `json:"outputDir" binding:"required"`
+		Count     int             `json:"count"`
+		Config    ThumbnailConfig `json:"config"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -639,10 +639,10 @@ func (h *MediaHandlers) generateImageThumbnail(c *gin.Context) {
 // batchGenerateThumbnails 批量生成缩略图
 func (h *MediaHandlers) batchGenerateThumbnails(c *gin.Context) {
 	var req struct {
-		Videos     []string        `json:"videos" binding:"required"`
-		OutputDir  string          `json:"outputDir" binding:"required"`
-		Config     ThumbnailConfig `json:"config"`
-		Concurrency int            `json:"concurrency"`
+		Videos      []string        `json:"videos" binding:"required"`
+		OutputDir   string          `json:"outputDir" binding:"required"`
+		Config      ThumbnailConfig `json:"config"`
+		Concurrency int             `json:"concurrency"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -736,9 +736,9 @@ func (h *MediaHandlers) createDASHSession(c *gin.Context) {
 // createAdaptiveStream 创建自适应流
 func (h *MediaHandlers) createAdaptiveStream(c *gin.Context) {
 	var req struct {
-		SourcePath string            `json:"sourcePath" binding:"required"`
-		OutputDir  string            `json:"outputDir" binding:"required"`
-		Qualities  []AdaptiveStream  `json:"qualities"`
+		SourcePath string           `json:"sourcePath" binding:"required"`
+		OutputDir  string           `json:"outputDir" binding:"required"`
+		Qualities  []AdaptiveStream `json:"qualities"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

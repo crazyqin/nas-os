@@ -317,15 +317,15 @@ func (h *AutoExpandHandlers) getQuotaHistory(c *gin.Context) {
 
 // ExpandDashboardData 扩展仪表盘数据
 type ExpandDashboardData struct {
-	TotalPolicies     int                          `json:"total_policies"`
-	EnabledPolicies   int                          `json:"enabled_policies"`
-	PendingActions    int                          `json:"pending_actions"`
-	TodayExpansions   int                          `json:"today_expansions"`
-	TodayExpandedBytes uint64                      `json:"today_expanded_bytes"`
-	TotalExpandedBytes uint64                      `json:"total_expanded_bytes"`
-	RecentActions     []*ExpandAction              `json:"recent_actions"`
-	Recommendations   []*ExpansionRecommendation   `json:"recommendations"`
-	PolicyStats       map[string]*ExpandPolicyStats `json:"policy_stats"`
+	TotalPolicies      int                           `json:"total_policies"`
+	EnabledPolicies    int                           `json:"enabled_policies"`
+	PendingActions     int                           `json:"pending_actions"`
+	TodayExpansions    int                           `json:"today_expansions"`
+	TodayExpandedBytes uint64                        `json:"today_expanded_bytes"`
+	TotalExpandedBytes uint64                        `json:"total_expanded_bytes"`
+	RecentActions      []*ExpandAction               `json:"recent_actions"`
+	Recommendations    []*ExpansionRecommendation    `json:"recommendations"`
+	PolicyStats        map[string]*ExpandPolicyStats `json:"policy_stats"`
 }
 
 // GetExpandDashboardData 获取扩展仪表盘数据

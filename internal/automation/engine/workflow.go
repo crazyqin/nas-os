@@ -133,8 +133,8 @@ type WorkflowEngine struct {
 	mu          sync.RWMutex
 	ctx         context.Context
 	cancel      context.CancelFunc
-	storagePath string                // 持久化存储路径
-	history     *ExecutionHistory     // 执行历史
+	storagePath string            // 持久化存储路径
+	history     *ExecutionHistory // 执行历史
 }
 
 // NewWorkflowEngine 创建新的工作流引擎

@@ -44,15 +44,15 @@ type StreamServer struct {
 
 // StreamSession 流媒体会话
 type StreamSession struct {
-	ID          string        `json:"id"`
-	SourcePath  string        `json:"sourcePath"`
-	Type        string        `json:"type"` // hls, dash, rtsp, rtmp
-	Status      string        `json:"status"` // starting, running, stopped, error
-	StartTime   time.Time     `json:"startTime"`
-	Viewers     int           `json:"viewers"`
-	OutputDir   string        `json:"outputDir"`
-	ManifestURL string        `json:"manifestUrl"`
-	Error       string        `json:"error,omitempty"`
+	ID          string    `json:"id"`
+	SourcePath  string    `json:"sourcePath"`
+	Type        string    `json:"type"`   // hls, dash, rtsp, rtmp
+	Status      string    `json:"status"` // starting, running, stopped, error
+	StartTime   time.Time `json:"startTime"`
+	Viewers     int       `json:"viewers"`
+	OutputDir   string    `json:"outputDir"`
+	ManifestURL string    `json:"manifestUrl"`
+	Error       string    `json:"error,omitempty"`
 
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -80,13 +80,13 @@ func NewStreamServer(config StreamConfig, ffmpegPath, ffprobePath string) *Strea
 // DefaultStreamConfig 默认流配置
 func DefaultStreamConfig() StreamConfig {
 	return StreamConfig{
-		VideoBitrate:        "2M",
-		AudioBitrate:        "128k",
-		Resolution:          "1280x720",
-		Framerate:           30,
-		HLSSegmentDuration:  6,
-		HLSListSize:         10,
-		HWAccel:             "none",
+		VideoBitrate:       "2M",
+		AudioBitrate:       "128k",
+		Resolution:         "1280x720",
+		Framerate:          30,
+		HLSSegmentDuration: 6,
+		HLSListSize:        10,
+		HWAccel:            "none",
 	}
 }
 

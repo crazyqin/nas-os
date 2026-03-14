@@ -7,14 +7,14 @@ import (
 
 // MetricsCollector 指标收集器
 type MetricsCollector struct {
-	mu          sync.RWMutex
-	manager     *Manager
-	scorer      *HealthScorer
-	metrics     []*CollectedMetrics
-	maxMetrics  int
-	interval    time.Duration
-	stopChan    chan struct{}
-	running     bool
+	mu         sync.RWMutex
+	manager    *Manager
+	scorer     *HealthScorer
+	metrics    []*CollectedMetrics
+	maxMetrics int
+	interval   time.Duration
+	stopChan   chan struct{}
+	running    bool
 }
 
 // CollectedMetrics 收集的指标
@@ -30,9 +30,9 @@ type CollectedMetrics struct {
 	LoadAvg15    float64   `json:"load_avg_15"`
 	ProcessCount int       `json:"process_count"`
 
-	DiskMetrics   []DiskMetric   `json:"disk_metrics"`
-	NetworkMetric NetworkMetric  `json:"network_metric"`
-	HealthScore   float64        `json:"health_score"`
+	DiskMetrics   []DiskMetric  `json:"disk_metrics"`
+	NetworkMetric NetworkMetric `json:"network_metric"`
+	HealthScore   float64       `json:"health_score"`
 }
 
 // DiskMetric 磁盘指标
@@ -56,26 +56,26 @@ type NetworkMetric struct {
 
 // TrendData 趋势数据
 type TrendData struct {
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-	Interval    string    `json:"interval"`
-	DataPoints  int       `json:"data_points"`
-	Summary     TrendSummary `json:"summary"`
-	Data        []TrendPoint `json:"data"`
+	StartTime  time.Time    `json:"start_time"`
+	EndTime    time.Time    `json:"end_time"`
+	Interval   string       `json:"interval"`
+	DataPoints int          `json:"data_points"`
+	Summary    TrendSummary `json:"summary"`
+	Data       []TrendPoint `json:"data"`
 }
 
 // TrendSummary 趋势摘要
 type TrendSummary struct {
-	CPUAvg     float64 `json:"cpu_avg"`
-	CPUMax     float64 `json:"cpu_max"`
-	CPUMin     float64 `json:"cpu_min"`
-	MemoryAvg  float64 `json:"memory_avg"`
-	MemoryMax  float64 `json:"memory_max"`
-	MemoryMin  float64 `json:"memory_min"`
-	DiskAvg    float64 `json:"disk_avg"`
-	DiskMax    float64 `json:"disk_max"`
-	HealthAvg  float64 `json:"health_avg"`
-	PeakTime   string  `json:"peak_time"`
+	CPUAvg    float64 `json:"cpu_avg"`
+	CPUMax    float64 `json:"cpu_max"`
+	CPUMin    float64 `json:"cpu_min"`
+	MemoryAvg float64 `json:"memory_avg"`
+	MemoryMax float64 `json:"memory_max"`
+	MemoryMin float64 `json:"memory_min"`
+	DiskAvg   float64 `json:"disk_avg"`
+	DiskMax   float64 `json:"disk_max"`
+	HealthAvg float64 `json:"health_avg"`
+	PeakTime  string  `json:"peak_time"`
 }
 
 // TrendPoint 趋势点
@@ -117,7 +117,7 @@ func (mc *MetricsCollector) Start() {
 func (mc *MetricsCollector) Stop() {
 	mc.mu.Lock()
 	defer mc.mu.Unlock()
-	
+
 	if mc.running {
 		close(mc.stopChan)
 		mc.running = false
@@ -310,12 +310,12 @@ func (mc *MetricsCollector) GetTrendData(duration time.Duration, interval time.D
 	}
 
 	return &TrendData{
-		StartTime:   cutoff,
-		EndTime:     now,
-		Interval:    interval.String(),
-		DataPoints:  len(data),
-		Summary:     summary,
-		Data:        data,
+		StartTime:  cutoff,
+		EndTime:    now,
+		Interval:   interval.String(),
+		DataPoints: len(data),
+		Summary:    summary,
+		Data:       data,
 	}
 }
 
@@ -364,48 +364,48 @@ func (mc *MetricsCollector) GetMetricsHistory(limit int) []*CollectedMetrics {
 
 // ResourceUsageReport 资源使用报告
 type ResourceUsageReport struct {
-	GeneratedAt   time.Time           `json:"generated_at"`
-	Period        string              `json:"period"`
-	SystemInfo    SystemReportInfo    `json:"system_info"`
-	ResourceUsage ResourceSummary     `json:"resource_usage"`
-	Trends        TrendAnalysis       `json:"trends"`
-	DiskAnalysis  []DiskAnalysis      `json:"disk_analysis"`
-	Alerts        []AlertSummary      `json:"alerts"`
-	Recommendations []string          `json:"recommendations"`
+	GeneratedAt     time.Time        `json:"generated_at"`
+	Period          string           `json:"period"`
+	SystemInfo      SystemReportInfo `json:"system_info"`
+	ResourceUsage   ResourceSummary  `json:"resource_usage"`
+	Trends          TrendAnalysis    `json:"trends"`
+	DiskAnalysis    []DiskAnalysis   `json:"disk_analysis"`
+	Alerts          []AlertSummary   `json:"alerts"`
+	Recommendations []string         `json:"recommendations"`
 }
 
 // SystemReportInfo 系统报告信息
 type SystemReportInfo struct {
-	Hostname     string `json:"hostname"`
-	Uptime       string `json:"uptime"`
+	Hostname      string `json:"hostname"`
+	Uptime        string `json:"uptime"`
 	UptimeSeconds uint64 `json:"uptime_seconds"`
 }
 
 // ResourceSummary 资源摘要
 type ResourceSummary struct {
-	CPU         ResourceMetric `json:"cpu"`
-	Memory      ResourceMetric `json:"memory"`
-	Swap        ResourceMetric `json:"swap"`
-	TotalDisk   ResourceMetric `json:"total_disk"`
-	Network     NetworkSummary `json:"network"`
+	CPU       ResourceMetric `json:"cpu"`
+	Memory    ResourceMetric `json:"memory"`
+	Swap      ResourceMetric `json:"swap"`
+	TotalDisk ResourceMetric `json:"total_disk"`
+	Network   NetworkSummary `json:"network"`
 }
 
 // ResourceMetric 资源指标
 type ResourceMetric struct {
-	Used        uint64  `json:"used"`
-	Total       uint64  `json:"total"`
-	Percent     float64 `json:"percent"`
-	Average     float64 `json:"average"`
-	Peak        float64 `json:"peak"`
-	Status      string  `json:"status"`
+	Used    uint64  `json:"used"`
+	Total   uint64  `json:"total"`
+	Percent float64 `json:"percent"`
+	Average float64 `json:"average"`
+	Peak    float64 `json:"peak"`
+	Status  string  `json:"status"`
 }
 
 // NetworkSummary 网络摘要
 type NetworkSummary struct {
-	RXBytes     uint64 `json:"rx_bytes"`
-	TXBytes     uint64 `json:"tx_bytes"`
-	RXPackets   uint64 `json:"rx_packets"`
-	TXPackets   uint64 `json:"tx_packets"`
+	RXBytes   uint64 `json:"rx_bytes"`
+	TXBytes   uint64 `json:"tx_bytes"`
+	RXPackets uint64 `json:"rx_packets"`
+	TXPackets uint64 `json:"tx_packets"`
 }
 
 // TrendAnalysis 趋势分析
@@ -439,8 +439,8 @@ type AlertSummary struct {
 // GenerateResourceReport 生成资源使用报告
 func (mc *MetricsCollector) GenerateResourceReport(period string) *ResourceUsageReport {
 	report := &ResourceUsageReport{
-		GeneratedAt:   time.Now(),
-		Period:        period,
+		GeneratedAt:     time.Now(),
+		Period:          period,
 		Recommendations: make([]string, 0),
 	}
 

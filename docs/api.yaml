@@ -32,7 +32,7 @@ info:
     | 500 | 服务器内部错误 |
     | 503 | 服务暂时不可用 |
     
-  version: 2.20.1
+  version: 2.27.0
   contact:
     name: NAS-OS 团队
     email: support@nas-os.io
@@ -2614,3 +2614,335 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/Success'
+
+  # ==================== 媒体服务 API ====================
+  /media/stream/{id}:
+    get:
+      tags: [media]
+      summary: 获取媒体流
+      description: 获取视频/音频的流媒体地址，支持 HLS/DASH
+      operationId: getMediaStream
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: quality
+          in: query
+          schema:
+            type: string
+            enum: [original, 1080p, 720p, 480p]
+            default: original
+      responses:
+        '200':
+          description: 流媒体信息
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      stream_url:
+                        type: string
+                      format:
+                        type: string
+                      duration:
+                        type: integer
+
+  /media/transcode:
+    post:
+      tags: [media]
+      summary: 创建转码任务
+      description: 创建视频转码任务
+      operationId: createTranscodeTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source_path:
+                  type: string
+                target_format:
+                  type: string
+                quality:
+                  type: string
+                output_path:
+                  type: string
+      responses:
+        '200':
+          description: 转码任务已创建
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      task_id:
+                        type: string
+                      status:
+                        type: string
+
+  /media/transcode/{taskId}:
+    get:
+      tags: [media]
+      summary: 获取转码任务状态
+      operationId: getTranscodeStatus
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 转码任务状态
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      task_id:
+                        type: string
+                      status:
+                        type: string
+                        enum: [pending, processing, completed, failed]
+                      progress:
+                        type: number
+                      output_path:
+                        type: string
+
+  /media/thumbnail/{id}:
+    get:
+      tags: [media]
+      summary: 获取媒体缩略图
+      operationId: getMediaThumbnail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: time
+          in: query
+          description: 视频时间点（秒）
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: string
+            enum: [small, medium, large]
+            default: medium
+      responses:
+        '200':
+          description: 缩略图
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+
+  /media/subtitles/{id}:
+    get:
+      tags: [media]
+      summary: 获取字幕列表
+      operationId: getMediaSubtitles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 字幕列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        language:
+                          type: string
+                        format:
+                          type: string
+                        path:
+                          type: string
+
+  /media/subtitles/{id}/upload:
+    post:
+      tags: [media]
+      summary: 上传字幕文件
+      operationId: uploadSubtitle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                language:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 配额自动扩展 API ====================
+  /quota/auto-expand:
+    get:
+      tags: [quota]
+      summary: 获取自动扩展策略列表
+      operationId: getAutoExpandPolicies
+      responses:
+        '200':
+          description: 自动扩展策略列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AutoExpandPolicy'
+
+    post:
+      tags: [quota]
+      summary: 创建自动扩展策略
+      operationId: createAutoExpandPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoExpandPolicy'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /quota/auto-expand/{id}:
+    get:
+      tags: [quota]
+      summary: 获取自动扩展策略详情
+      operationId: getAutoExpandPolicy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 策略详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoExpandPolicy'
+
+    put:
+      tags: [quota]
+      summary: 更新自动扩展策略
+      operationId: updateAutoExpandPolicy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoExpandPolicy'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+    delete:
+      tags: [quota]
+      summary: 删除自动扩展策略
+      operationId: deleteAutoExpandPolicy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /quota/auto-expand/{id}/history:
+    get:
+      tags: [quota]
+      summary: 获取自动扩展历史
+      operationId: getAutoExpandHistory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 扩展历史
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        old_limit:
+                          type: integer
+                        new_limit:
+                          type: integer
+                        reason:
+                          type: string

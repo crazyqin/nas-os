@@ -520,9 +520,9 @@ func (h *Handlers) ping(c *gin.Context) {
 
 func (h *Handlers) traceroute(c *gin.Context) {
 	var req struct {
-		Host     string `json:"host" binding:"required"`
-		MaxHops  int    `json:"maxHops"`
-		Timeout  int    `json:"timeout"`
+		Host    string `json:"host" binding:"required"`
+		MaxHops int    `json:"maxHops"`
+		Timeout int    `json:"timeout"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		api.BadRequest(c, err.Error())
