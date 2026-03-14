@@ -63,17 +63,68 @@ jobs:
         run: |
           # GitHub Actions 的 Ubuntu 运行器支持 race detector
           # 添加超时参数（5 分钟），排除已知慢测试和有问题的模块
-          go test -v -race -coverprofile=coverage.out -timeout 5m $(go list ./... | grep -v /tests/e2e | grep -v /plugins/)
+          go test -v -race -coverprofile=coverage.out -covermode=atomic -timeout 5m $(go list ./... | grep -v /tests/e2e | grep -v /plugins/)
       
-      - name: 上传覆盖率
+      - name: 生成覆盖率报告
+        run: |
+          # 生成文本报告
+          go tool cover -func=coverage.out -o coverage.txt
+          
+          # 生成 HTML 报告
+          go tool cover -html=coverage.out -o coverage.html
+          
+          # 提取总覆盖率
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%')
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+          echo "📊 测试覆盖率：${COVERAGE}%"
+          
+          # 生成覆盖率徽章 JSON（用于 shields.io 动态徽章）
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+            COLOR="brightgreen"
+          elif (( $(echo "$COVERAGE >= 60" | bc -l) )); then
+            COLOR="green"
+          elif (( $(echo "$COVERAGE >= 40" | bc -l) )); then
+            COLOR="yellow"
+          elif (( $(echo "$COVERAGE >= 20" | bc -l) )); then
+            COLOR="orange"
+          else
+            COLOR="red"
+          fi
+          echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"${COLOR}\"}" > coverage-badge.json
+      
+      - name: 上传覆盖率到 Codecov
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage.out
           fail_ci_if_error: false
+          flags: unittests
+          name: nas-os-coverage
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      
+      - name: 上传覆盖率报告
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage.out
+            coverage.txt
+            coverage.html
+            coverage-badge.json
+          retention-days: 30
+      
+      - name: 发布覆盖率徽章
+        if: github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: coverage-badge.json
+          retention-days: 90
       
       - name: 检查覆盖率阈值
         run: |
-          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%')
+          COVERAGE=${{ env.COVERAGE }}
           echo "📊 测试覆盖率：${COVERAGE}%"
           if (( $(echo "$COVERAGE < 10" | bc -l) )); then
             echo "❌ 覆盖率低于 10%"
@@ -202,6 +253,10 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+            REVISION=${{ github.sha }}
 
   # ========== 发布 ==========
   release:

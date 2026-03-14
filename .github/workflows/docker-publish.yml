@@ -106,7 +106,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
             VERSION=${{ github.ref_name }}
             REVISION=${{ github.sha }}
       
@@ -121,6 +121,8 @@ jobs:
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**支持平台:** \`amd64\`, \`arm64\`, \`arm/v7\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**镜像大小:** 约 20-25MB（压缩后）" >> $GITHUB_STEP_SUMMARY
 
   # ========== 镜像扫描 ==========
   docker-scan:
