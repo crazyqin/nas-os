@@ -46,6 +46,8 @@ jobs:
     name: 单元测试
     runs-on: ubuntu-latest
     needs: [lint]
+    env:
+      CGO_ENABLED: 1
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -55,6 +57,9 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
+      
+      - name: 安装 CGO 依赖
+        run: sudo apt-get update && sudo apt-get install -y gcc libc6-dev
       
       - name: 安装依赖
         run: go mod download
@@ -137,6 +142,8 @@ jobs:
     name: 集成测试
     runs-on: ubuntu-latest
     needs: [test]
+    env:
+      CGO_ENABLED: 1
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -146,6 +153,9 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
+      
+      - name: 安装 CGO 依赖
+        run: sudo apt-get update && sudo apt-get install -y gcc libc6-dev
       
       - name: 安装依赖
         run: go mod download

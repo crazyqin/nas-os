@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // Tag 标签定义
@@ -90,7 +90,7 @@ func NewManager(dbPath string) (*Manager, error) {
 
 // initDB 初始化数据库
 func (m *Manager) initDB() error {
-	db, err := sql.Open("sqlite3", m.dbPath)
+	db, err := sql.Open("sqlite", m.dbPath)
 	if err != nil {
 		return err
 	}

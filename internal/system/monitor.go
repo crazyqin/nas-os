@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 // Monitor 系统监控器
@@ -166,7 +166,7 @@ func NewMonitor(dbPath string) (*Monitor, error) {
 
 // initDB 初始化 SQLite 数据库
 func (m *Monitor) initDB(dbPath string) error {
-	db, err := sql.Open("sqlite3", dbPath)
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return err
 	}
