@@ -278,15 +278,13 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 			}
 		}
 
-		// 如果配置了 Transmission/qBittorrent，从客户端也删除
-		if m.transmissionURL != "" && task.Type == TypeBT {
-			// TODO: 调用 Transmission API 删除种子
-			// _ = m.deleteFromTransmission(task.DownloadID)
-		}
-		if m.qbittorrentURL != "" && task.Type == TypeBT {
-			// TODO: 调用 qBittorrent API 删除种子
-			// _ = m.deleteFromQBittorrent(task.DownloadID)
-		}
+		// TODO: 如果配置了 Transmission/qBittorrent，从客户端也删除种子
+		// if m.transmissionURL != "" && task.Type == TypeBT {
+		// 	_ = m.deleteFromTransmission(task.DownloadID)
+		// }
+		// if m.qbittorrentURL != "" && task.Type == TypeBT {
+		// 	_ = m.deleteFromQBittorrent(task.DownloadID)
+		// }
 	}
 
 	delete(m.tasks, id)

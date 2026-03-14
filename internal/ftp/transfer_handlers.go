@@ -83,10 +83,11 @@ func (h *TransferHandlers) ListTransfers(c *gin.Context) {
 		Direction: req.Direction,
 	}
 
-	if req.Success == "true" {
+	switch req.Success {
+	case "true":
 		success := true
 		filter.Success = &success
-	} else if req.Success == "false" {
+	case "false":
 		success := false
 		filter.Success = &success
 	}

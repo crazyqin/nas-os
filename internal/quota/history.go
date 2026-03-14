@@ -1299,9 +1299,10 @@ func (g *ReportGeneratorEnhanced) GenerateUserReport(username string, period Rep
 		report.Summary.TotalUsedBytes += usage.UsedBytes
 		report.Summary.TotalAvailable += usage.Available
 
-		if detail.Status == "warning" {
+		switch detail.Status {
+		case "warning":
 			report.Summary.WarningCount++
-		} else if detail.Status == "critical" {
+		case "critical":
 			report.Summary.CriticalCount++
 		}
 	}
@@ -1374,9 +1375,10 @@ func (g *ReportGeneratorEnhanced) GenerateSystemReport(period ReportPeriod) (*Sy
 		vol.TotalAvailable += usage.Available
 		vol.QuotaCount++
 
-		if usage.Type == QuotaTypeUser {
+		switch usage.Type {
+		case QuotaTypeUser:
 			vol.UserCount++
-		} else if usage.Type == QuotaTypeGroup {
+		case QuotaTypeGroup:
 			vol.GroupCount++
 		}
 

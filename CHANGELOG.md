@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.8.0] - 2026-03-14
+
+### Fixed
+- 修复 golangci-lint 代码风格问题
+  - 修复未使用的变量和导入
+  - 修复错误处理规范
+  - 修复代码格式问题
+
 ## [v2.7.0] - 2026-03-14
 
 ### Added

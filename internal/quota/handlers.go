@@ -171,21 +171,22 @@ func (h *Handlers) listQuotas(c *gin.Context) {
 	volumeName := c.Query("volume")
 
 	var quotas []*Quota
-	if quotaType == "user" {
+	switch quotaType {
+	case "user":
 		username := c.Query("username")
 		if username != "" {
 			quotas = h.manager.ListUserQuotas(username)
 		} else {
 			quotas = h.manager.ListQuotas()
 		}
-	} else if quotaType == "group" {
+	case "group":
 		groupName := c.Query("groupname")
 		if groupName != "" {
 			quotas = h.manager.ListGroupQuotas(groupName)
 		} else {
 			quotas = h.manager.ListQuotas()
 		}
-	} else {
+	default:
 		quotas = h.manager.ListQuotas()
 	}
 

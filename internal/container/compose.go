@@ -467,7 +467,7 @@ func (cm *ComposeManager) ValidateComposeFile(path string) error {
 	cmd.Dir = dir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("Compose 文件验证失败：%w, %s", err, string(output))
+		return fmt.Errorf("compose 文件验证失败：%w, %s", err, string(output))
 	}
 	return nil
 }

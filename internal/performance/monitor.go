@@ -701,9 +701,10 @@ func (e *PrometheusExporter) collectHealthMetrics() string {
 	health := e.health.GetHealth()
 
 	healthValue := 1
-	if health.Status == HealthStatusDegraded {
+	switch health.Status {
+	case HealthStatusDegraded:
 		healthValue = 0
-	} else if health.Status == HealthStatusUnhealthy {
+	case HealthStatusUnhealthy:
 		healthValue = -1
 	}
 

@@ -692,7 +692,7 @@ func (m *CleanupEnhancedManager) ExecuteExpiredFileCleanup(ruleID string) (*Expi
 	}
 
 	m.mu.RLock()
-	rule, _ := m.expiredFileRules[ruleID]
+	rule := m.expiredFileRules[ruleID]
 	m.mu.RUnlock()
 
 	if rule == nil {
