@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 )
 
@@ -644,8 +645,7 @@ func TestConcurrentCreateExport(t *testing.T) {
 	mgr, tmpDir := setupTestManager(t)
 
 	var wg sync.WaitGroup
-	errCount := int32(0)
-	successCount := int32(0)
+	var errCount, successCount int32
 
 	testPath := filepath.Join(tmpDir, "concurrent")
 
@@ -656,9 +656,9 @@ func TestConcurrentCreateExport(t *testing.T) {
 			defer wg.Done()
 			err := mgr.CreateExport(&Export{Path: testPath})
 			if err != nil {
-				errCount++
+				atomic.AddInt32(&errCount, 1)
 			} else {
-				successCount++
+				atomic.AddInt32(&successCount, 1)
 			}
 		}()
 	}
