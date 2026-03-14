@@ -27,7 +27,7 @@ func TestEdgeNodeManager(t *testing.T) {
 	if err := manager.Initialize(); err != nil {
 		t.Fatalf("初始化边缘节点管理器失败: %v", err)
 	}
-	defer manager.Shutdown()
+	defer func() { _ = manager.Shutdown() }()
 
 	// 测试注册节点
 	node := &EdgeNode{
@@ -116,7 +116,7 @@ func TestTaskScheduler(t *testing.T) {
 	}
 	defer func() {
 		t.Log("Shutting down scheduler...")
-		scheduler.Shutdown()
+		_ = scheduler.Shutdown()
 		t.Log("Scheduler shutdown complete")
 	}()
 
@@ -204,7 +204,7 @@ func TestResultAggregator(t *testing.T) {
 	if err := agg.Initialize(); err != nil {
 		t.Fatalf("初始化结果聚合器失败: %v", err)
 	}
-	defer agg.Shutdown()
+	defer func() { _ = agg.Shutdown() }()
 
 	// 测试创建聚合
 	aggregation, err := agg.CreateAggregation("task-001", AggregationStrategyAll, 3)
@@ -259,8 +259,10 @@ func TestEdgeLoadBalancer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建边缘节点管理器失败: %v", err)
 	}
-	nodeManager.Initialize()
-	defer nodeManager.Shutdown()
+	if err := nodeManager.Initialize(); err != nil {
+		t.Fatalf("初始化边缘节点管理器失败: %v", err)
+	}
+	defer func() { _ = nodeManager.Shutdown() }()
 
 	// 注册测试节点
 	nodes := []*EdgeNode{
@@ -305,7 +307,9 @@ func TestEdgeLoadBalancer(t *testing.T) {
 	}
 
 	for _, node := range nodes {
-		nodeManager.RegisterNode(node)
+		if err := nodeManager.RegisterNode(node); err != nil {
+			t.Fatalf("注册节点失败: %v", err)
+		}
 	}
 
 	// 创建负载均衡器
@@ -321,8 +325,10 @@ func TestEdgeLoadBalancer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建边缘负载均衡器失败: %v", err)
 	}
-	lb.Initialize()
-	defer lb.Shutdown()
+	if err := lb.Initialize(); err != nil {
+		t.Fatalf("初始化边缘负载均衡器失败: %v", err)
+	}
+	defer func() { _ = lb.Shutdown() }()
 
 	// 测试选择节点
 	req := SelectNodeRequest{
@@ -384,9 +390,14 @@ func TestEdgeNodeSelection(t *testing.T) {
 		HeartbeatTimeout:  30 * time.Second,
 	}
 
-	nodeManager, _ := NewEdgeNodeManager(nodeConfig, logger, nil)
-	nodeManager.Initialize()
-	defer nodeManager.Shutdown()
+	nodeManager, err := NewEdgeNodeManager(nodeConfig, logger, nil)
+	if err != nil {
+		t.Fatalf("创建边缘节点管理器失败: %v", err)
+	}
+	if err := nodeManager.Initialize(); err != nil {
+		t.Fatalf("初始化边缘节点管理器失败: %v", err)
+	}
+	defer func() { _ = nodeManager.Shutdown() }()
 
 	// 注册不同类型的节点
 	testNodes := []*EdgeNode{
@@ -431,7 +442,9 @@ func TestEdgeNodeSelection(t *testing.T) {
 	}
 
 	for _, node := range testNodes {
-		nodeManager.RegisterNode(node)
+		if err := nodeManager.RegisterNode(node); err != nil {
+			t.Fatalf("注册节点失败: %v", err)
+		}
 	}
 
 	// 测试选择 GPU 节点
@@ -476,7 +489,7 @@ func TestEdgeIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("初始化边缘计算服务失败: %v", err)
 	}
-	defer ShutdownEdgeComputing(services)
+	defer func() { _ = ShutdownEdgeComputing(services) }()
 
 	// 测试边缘节点管理
 	node := &EdgeNode{

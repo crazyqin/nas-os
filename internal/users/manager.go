@@ -287,7 +287,9 @@ func (m *Manager) CreateUser(input UserInput) (*User, error) {
 	m.users[input.Username] = user
 
 	// 保存配置
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 
 	return user, nil
 }
@@ -373,7 +375,9 @@ func (m *Manager) UpdateUser(username string, input UserInput) (*User, error) {
 	}
 	user.UpdatedAt = time.Now()
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return user, nil
 }
 
@@ -412,7 +416,9 @@ func (m *Manager) DeleteUser(username string) error {
 		m.removeMemberFromGroup(group, username)
 	}
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return nil
 }
 
@@ -444,7 +450,9 @@ func (m *Manager) CreateGroup(input GroupInput) (*Group, error) {
 		}
 	}
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return group, nil
 }
 
@@ -515,7 +523,9 @@ func (m *Manager) UpdateGroup(name string, input GroupInput) (*Group, error) {
 		}
 	}
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return group, nil
 }
 
@@ -537,7 +547,9 @@ func (m *Manager) DeleteGroup(name string) error {
 	}
 
 	delete(m.groups, name)
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return nil
 }
 
@@ -566,7 +578,9 @@ func (m *Manager) AddUserToGroup(username, groupName string) error {
 	user.Groups = append(user.Groups, groupName)
 	group.Members = append(group.Members, username)
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return nil
 }
 
@@ -588,7 +602,9 @@ func (m *Manager) RemoveUserFromGroup(username, groupName string) error {
 	user.Groups = m.removeString(user.Groups, groupName)
 	group.Members = m.removeString(group.Members, username)
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return nil
 }
 
@@ -635,7 +651,9 @@ func (m *Manager) Authenticate(username, password string) (*Token, error) {
 	}
 	m.tokens[token.Token] = token
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return token, nil
 }
 
@@ -671,7 +689,9 @@ func (m *Manager) Logout(tokenStr string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.tokens, tokenStr)
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 }
 
 // RefreshToken 刷新令牌
@@ -686,7 +706,9 @@ func (m *Manager) RefreshToken(tokenStr string) (*Token, error) {
 
 	// 延长有效期
 	token.ExpiresAt = time.Now().Add(24 * time.Hour)
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return token, nil
 }
 
@@ -717,7 +739,9 @@ func (m *Manager) DisableUser(username string, disabled bool) error {
 
 	user.Disabled = disabled
 	user.UpdatedAt = time.Now()
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return nil
 }
 
@@ -743,7 +767,9 @@ func (m *Manager) ChangePassword(username, oldPassword, newPassword string) erro
 	}
 	user.PasswordHash = string(hash)
 	user.UpdatedAt = time.Now()
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return nil
 }
 
@@ -763,7 +789,9 @@ func (m *Manager) ResetPassword(username, newPassword string) error {
 	}
 	user.PasswordHash = string(hash)
 	user.UpdatedAt = time.Now()
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return nil
 }
 
@@ -859,7 +887,9 @@ func (m *Manager) SetUserRole(username string, role Role) error {
 
 	user.Role = role
 	user.UpdatedAt = time.Now()
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
 	return nil
 }
 

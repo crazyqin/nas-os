@@ -112,7 +112,7 @@ func (u *ChunkedUploader) MergeChunks(chunkDir string, outputPath string, totalC
 	if err != nil {
 		return err
 	}
-	defer outputFile.Close()
+	defer func() { _ = outputFile.Close() }()
 
 	for i := 0; i < totalChunks; i++ {
 		chunkPath := filepath.Join(chunkDir, fmt.Sprintf("*.chunk.%d", i))
@@ -183,7 +183,7 @@ func CalculateFileMD5(filePath string) (string, error) {
 
 func calculateMD5(data []byte) string {
 	hash := md5.New()
-	hash.Write(data)
+	_, _ = hash.Write(data)
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
@@ -216,16 +216,16 @@ func CompressFile(inputPath, outputPath string) error {
 	if err != nil {
 		return err
 	}
-	defer inputFile.Close()
+	defer func() { _ = inputFile.Close() }()
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
-	defer outputFile.Close()
+	defer func() { _ = outputFile.Close() }()
 
 	gw := gzip.NewWriter(outputFile)
-	defer gw.Close()
+	defer func() { _ = gw.Close() }()
 
 	_, err = io.Copy(gw, inputFile)
 	return err
@@ -237,19 +237,19 @@ func DecompressFile(inputPath, outputPath string) error {
 	if err != nil {
 		return err
 	}
-	defer inputFile.Close()
+	defer func() { _ = inputFile.Close() }()
 
 	gr, err := gzip.NewReader(inputFile)
 	if err != nil {
 		return err
 	}
-	defer gr.Close()
+	defer func() { _ = gr.Close() }()
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
-	defer outputFile.Close()
+	defer func() { _ = outputFile.Close() }()
 
 	_, err = io.Copy(outputFile, gr)
 	return err

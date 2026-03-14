@@ -154,7 +154,10 @@ func TestUpdateQuota(t *testing.T) {
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	}
-	quota, _ := mgr.CreateQuota(input)
+	quota, err := mgr.CreateQuota(input)
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 更新配额
 	updateInput := QuotaInput{
@@ -187,7 +190,10 @@ func TestDeleteQuota(t *testing.T) {
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	}
-	quota, _ := mgr.CreateQuota(input)
+	quota, err := mgr.CreateQuota(input)
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 删除配额
 	err = mgr.DeleteQuota(quota.ID)
@@ -214,18 +220,24 @@ func TestListQuotas(t *testing.T) {
 	}
 
 	// 创建多个配额
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "user1",
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	})
-	mgr.CreateQuota(QuotaInput{
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "user2",
 		VolumeName: "data",
 		HardLimit:  200 << 30,
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	quotas := mgr.ListQuotas()
 	if len(quotas) != 2 {
@@ -323,7 +335,10 @@ func TestCleanupPolicy(t *testing.T) {
 		t.Fatalf("禁用策略失败: %v", err)
 	}
 
-	updated, _ := cleanup.GetPolicy(policy.ID)
+	updated, err := cleanup.GetPolicy(policy.ID)
+	if err != nil {
+		t.Fatalf("获取策略失败: %v", err)
+	}
 	if updated.Enabled {
 		t.Error("策略应该被禁用")
 	}
@@ -365,12 +380,15 @@ func TestReportGeneration(t *testing.T) {
 	}
 
 	// 创建配额
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "testuser",
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	monitor := NewMonitor(mgr, mgr.alertConfig)
 	cleanup := NewCleanupManager(mgr)
@@ -476,12 +494,15 @@ func TestQuotaExceeded(t *testing.T) {
 	}
 
 	// 创建一个小配额
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "testuser",
 		VolumeName: "data",
 		HardLimit:  1 << 20, // 1MB
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 检查配额 - 这里由于没有实际文件，不会超限
 	err = mgr.CheckQuota("testuser", "data", 0)
@@ -506,26 +527,35 @@ func TestListUserQuotas(t *testing.T) {
 	}
 
 	// 创建用户配额
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "user1",
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	})
-	mgr.CreateQuota(QuotaInput{
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "user2",
 		VolumeName: "data",
 		HardLimit:  200 << 30,
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 创建组配额（应该不出现在用户配额列表中）
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeGroup,
 		TargetID:   "developers",
 		VolumeName: "data",
 		HardLimit:  500 << 30,
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 测试列出所有用户配额
 	quotas := mgr.ListQuotas()
@@ -559,18 +589,24 @@ func TestListGroupQuotas(t *testing.T) {
 	}
 
 	// 创建组配额
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeGroup,
 		TargetID:   "developers",
 		VolumeName: "data",
 		HardLimit:  500 << 30,
 	})
-	mgr.CreateQuota(QuotaInput{
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeGroup,
 		TargetID:   "admins",
 		VolumeName: "data",
 		HardLimit:  1000 << 30,
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 测试列出特定组的配额
 	devQuotas := mgr.ListGroupQuotas("developers")
@@ -668,7 +704,10 @@ func TestSetUserQuota(t *testing.T) {
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	}
-	quota, _ := mgr.CreateQuota(input)
+	quota, err := mgr.CreateQuota(input)
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 更新配额（模拟 setUserQuota）
 	updateInput := QuotaInput{
@@ -705,7 +744,10 @@ func TestSetGroupQuota(t *testing.T) {
 		VolumeName: "data",
 		HardLimit:  500 << 30,
 	}
-	quota, _ := mgr.CreateQuota(input)
+	quota, err := mgr.CreateQuota(input)
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 更新配额（模拟 setGroupQuota）
 	updateInput := QuotaInput{
@@ -736,12 +778,15 @@ func TestAlertsManagement(t *testing.T) {
 	}
 
 	// 创建配额
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "testuser",
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 初始应该没有告警
 	alerts := mgr.GetAlerts()
@@ -781,18 +826,24 @@ func TestQuotaReportTypes(t *testing.T) {
 	}
 
 	// 创建配额
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "testuser",
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	})
-	mgr.CreateQuota(QuotaInput{
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeGroup,
 		TargetID:   "developers",
 		VolumeName: "data",
 		HardLimit:  500 << 30,
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	monitor := NewMonitor(mgr, mgr.alertConfig)
 	cleanup := NewCleanupManager(mgr)
@@ -867,7 +918,7 @@ func TestQuotaReportExportFormats(t *testing.T) {
 	if err != nil {
 		t.Fatalf("导出 JSON 失败: %v", err)
 	}
-	os.Remove(jsonFile)
+	_ = os.Remove(jsonFile)
 
 	// 测试 CSV 导出
 	report.Format = ReportFormatCSV
@@ -876,7 +927,7 @@ func TestQuotaReportExportFormats(t *testing.T) {
 	if err != nil {
 		t.Fatalf("导出 CSV 失败: %v", err)
 	}
-	os.Remove(csvFile)
+	_ = os.Remove(csvFile)
 
 	// 测试 HTML 导出
 	report.Format = ReportFormatHTML
@@ -885,7 +936,7 @@ func TestQuotaReportExportFormats(t *testing.T) {
 	if err != nil {
 		t.Fatalf("导出 HTML 失败: %v", err)
 	}
-	os.Remove(htmlFile)
+	_ = os.Remove(htmlFile)
 }
 
 func TestMonitorWebhookNotification(t *testing.T) {
@@ -1021,25 +1072,34 @@ func TestMultipleQuotaTypes(t *testing.T) {
 	}
 
 	// 创建不同类型的配额
-	mgr.CreateQuota(QuotaInput{
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeUser,
 		TargetID:   "user1",
 		VolumeName: "data",
 		HardLimit:  100 << 30,
 	})
-	mgr.CreateQuota(QuotaInput{
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeGroup,
 		TargetID:   "developers",
 		VolumeName: "data",
 		HardLimit:  500 << 30,
 	})
-	mgr.CreateQuota(QuotaInput{
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
+	_, err = mgr.CreateQuota(QuotaInput{
 		Type:       QuotaTypeDirectory,
 		TargetID:   tmpDir,
 		VolumeName: "data",
 		Path:       tmpDir,
 		HardLimit:  200 << 30,
 	})
+	if err != nil {
+		t.Fatalf("创建配额失败: %v", err)
+	}
 
 	// 验证各类型配额
 	allQuotas := mgr.ListQuotas()

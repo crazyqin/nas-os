@@ -13,6 +13,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -111,7 +112,9 @@ func NewManager(config PreviewConfig) *Manager {
 	}
 
 	// 确保缓存目录存在
-	os.MkdirAll(config.CacheDir, 0755)
+	if err := os.MkdirAll(config.CacheDir, 0755); err != nil {
+		log.Printf("创建缓存目录失败: %v", err)
+	}
 
 	m := &Manager{
 		config: config,

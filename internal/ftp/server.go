@@ -148,13 +148,13 @@ func (s *Server) Stop() error {
 
 	// 关闭被动模式监听器
 	for port, ln := range s.pasvListeners {
-		ln.Close()
+		_ = ln.Close()
 		delete(s.pasvListeners, port)
 	}
 
 	// 关闭主监听器
 	if s.listener != nil {
-		s.listener.Close()
+		_ = s.listener.Close()
 		s.listener = nil
 	}
 
@@ -253,12 +253,12 @@ func (s *Server) stopInternal() {
 	s.clients = make(map[int]*clientConn)
 
 	for port, ln := range s.pasvListeners {
-		ln.Close()
+		_ = ln.Close()
 		delete(s.pasvListeners, port)
 	}
 
 	if s.listener != nil {
-		s.listener.Close()
+		_ = s.listener.Close()
 		s.listener = nil
 	}
 
@@ -289,7 +289,7 @@ func (s *Server) acceptLoop() {
 				// 获得槽位
 			default:
 				_, _ = conn.Write([]byte("421 Too many connections\r\n"))
-				conn.Close()
+				_ = conn.Close()
 				continue
 			}
 		}
@@ -342,10 +342,10 @@ func (c *clientConn) close() {
 	}
 	c.closed = true
 	if c.pasvListener != nil {
-		c.pasvListener.Close()
+		_ = c.pasvListener.Close()
 	}
 	if c.conn != nil {
-		c.conn.Close()
+		_ = c.conn.Close()
 	}
 }
 
@@ -643,7 +643,7 @@ func (c *clientConn) handleLIST(path string) {
 		_ = c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
 		return
 	}
-	defer dataConn.Close()
+	defer func() { _ = dataConn.Close() }()
 
 	_ = c.writeResponse(150, "Opening data connection for listing")
 
@@ -663,9 +663,9 @@ func (c *clientConn) handleLIST(path string) {
 
 		// Unix 风格的列表格式
 		line := c.formatFileInfo(entry.Name(), info)
-		writer.WriteString(line + "\r\n")
+		_, _ = writer.WriteString(line + "\r\n")
 	}
-	writer.Flush()
+	_ = writer.Flush()
 
 	_ = c.writeResponse(226, "Transfer complete")
 }
@@ -797,7 +797,7 @@ func (c *clientConn) handlePORT(args string) {
 
 	// 关闭之前的被动模式监听器
 	if c.pasvListener != nil {
-		c.pasvListener.Close()
+		_ = c.pasvListener.Close()
 		c.pasvListener = nil
 	}
 
@@ -830,7 +830,7 @@ func (c *clientConn) handleRETR(path string) {
 		_ = c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
 		return
 	}
-	defer dataConn.Close()
+	defer func() { _ = dataConn.Close() }()
 
 	_ = c.writeResponse(150, "Opening data connection for file transfer")
 
@@ -869,7 +869,7 @@ func (c *clientConn) handleSTOR(path string) {
 		_ = c.writeResponse(425, fmt.Sprintf("Failed to establish data connection: %v", err))
 		return
 	}
-	defer dataConn.Close()
+	defer func() { _ = dataConn.Close() }()
 
 	_ = c.writeResponse(150, "Opening data connection for file transfer")
 

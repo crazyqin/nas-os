@@ -57,12 +57,12 @@ func InitializeCluster(config ClusterRootConfig, logger *zap.Logger) (*ClusterSe
 		RetryDelay: 60,
 	}, logger, clusterMgr)
 	if err != nil {
-		clusterMgr.Shutdown()
+		_ = clusterMgr.Shutdown()
 		return nil, err
 	}
 
 	if err := syncMgr.Initialize(); err != nil {
-		clusterMgr.Shutdown()
+		_ = clusterMgr.Shutdown()
 		return nil, err
 	}
 
@@ -75,14 +75,14 @@ func InitializeCluster(config ClusterRootConfig, logger *zap.Logger) (*ClusterSe
 		MaxFailures:    3,
 	}, logger, clusterMgr)
 	if err != nil {
-		clusterMgr.Shutdown()
-		syncMgr.Shutdown()
+		_ = clusterMgr.Shutdown()
+		_ = syncMgr.Shutdown()
 		return nil, err
 	}
 
 	if err := lb.Initialize(); err != nil {
-		clusterMgr.Shutdown()
-		syncMgr.Shutdown()
+		_ = clusterMgr.Shutdown()
+		_ = syncMgr.Shutdown()
 		return nil, err
 	}
 
@@ -95,16 +95,16 @@ func InitializeCluster(config ClusterRootConfig, logger *zap.Logger) (*ClusterSe
 		ElectionTimeout:  5000,
 	}, logger)
 	if err != nil {
-		clusterMgr.Shutdown()
-		syncMgr.Shutdown()
-		lb.Shutdown()
+		_ = clusterMgr.Shutdown()
+		_ = syncMgr.Shutdown()
+		_ = lb.Shutdown()
 		return nil, err
 	}
 
 	if err := ha.Initialize(); err != nil {
-		clusterMgr.Shutdown()
-		syncMgr.Shutdown()
-		lb.Shutdown()
+		_ = clusterMgr.Shutdown()
+		_ = syncMgr.Shutdown()
+		_ = lb.Shutdown()
 		return nil, err
 	}
 

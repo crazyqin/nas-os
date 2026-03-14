@@ -196,7 +196,7 @@ func (m *Manager) CompressFile(srcPath, dstPath string) (*CompressResult, error)
 	if err != nil {
 		return nil, err
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// 获取源文件信息
 	srcInfo, err := srcFile.Stat()
@@ -218,13 +218,13 @@ func (m *Manager) CompressFile(srcPath, dstPath string) (*CompressResult, error)
 	if err != nil {
 		return nil, err
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// 压缩
 	start := time.Now()
 	err = compressor.Compress(dstFile, srcFile, level)
 	if err != nil {
-		os.Remove(dstPath + compressor.Extension())
+		_ = os.Remove(dstPath + compressor.Extension())
 		return nil, err
 	}
 
@@ -270,14 +270,14 @@ func (m *Manager) DecompressFile(srcPath, dstPath string) error {
 	if err != nil {
 		return nil
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// 创建目标文件
 	dstFile, err := os.Create(dstPath)
 	if err != nil {
 		return nil
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// 解压
 	return compressor.Decompress(dstFile, srcFile)
@@ -588,7 +588,7 @@ func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm A
 	if err != nil {
 		return nil, err
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// 获取源文件信息
 	srcInfo, err := srcFile.Stat()
@@ -602,13 +602,13 @@ func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm A
 	if err != nil {
 		return nil, err
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// 压缩
 	start := time.Now()
 	err = compressor.Compress(dstFile, srcFile, level)
 	if err != nil {
-		os.Remove(dstFilePath)
+		_ = os.Remove(dstFilePath)
 		return nil, err
 	}
 
@@ -836,7 +836,7 @@ func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, r
 
 		// 删除原文件
 		if opts.DeleteOriginal && !compressResult.Skipped {
-			os.Remove(path)
+			_ = os.Remove(path)
 		}
 
 		results <- SingleCompressResult{

@@ -778,7 +778,7 @@ func (pc *ParallelCompressor) compressFile(path string, config *CompressConfig, 
 		result.Error = err.Error()
 		return result
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// 创建目标文件
 	dstPath := path + compressor.Extension()
@@ -787,12 +787,12 @@ func (pc *ParallelCompressor) compressFile(path string, config *CompressConfig, 
 		result.Error = err.Error()
 		return result
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// 压缩
 	err = compressor.Compress(dstFile, srcFile, config.Level)
 	if err != nil {
-		os.Remove(dstPath)
+		_ = os.Remove(dstPath)
 		result.Error = err.Error()
 		return result
 	}
@@ -812,7 +812,7 @@ func (pc *ParallelCompressor) compressFile(path string, config *CompressConfig, 
 	// 验证（如果启用）
 	if config.VerifyAfter {
 		if err := pc.verifyCompression(path, dstPath, compressor); err != nil {
-			os.Remove(dstPath)
+			_ = os.Remove(dstPath)
 			result.Error = fmt.Sprintf("验证失败: %s", err.Error())
 			return result
 		}
@@ -820,7 +820,7 @@ func (pc *ParallelCompressor) compressFile(path string, config *CompressConfig, 
 
 	// 删除原文件（如果配置）
 	if config.DeleteOriginal {
-		os.Remove(path)
+		_ = os.Remove(path)
 	}
 
 	return result
@@ -850,15 +850,15 @@ func (pc *ParallelCompressor) verifyCompression(srcPath, dstPath string, compres
 	if err != nil {
 		return err
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	// 创建临时文件验证解压
 	tmpFile, err := os.CreateTemp("", "verify_*")
 	if err != nil {
 		return err
 	}
-	defer os.Remove(tmpFile.Name())
-	defer tmpFile.Close()
+	defer func() { _ = os.Remove(tmpFile.Name()) }()
+	defer func() { _ = tmpFile.Close() }()
 
 	// 解压到临时文件
 	if err := compressor.Decompress(tmpFile, dstFile); err != nil {

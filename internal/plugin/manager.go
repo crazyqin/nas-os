@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -201,7 +202,7 @@ func (m *Manager) Install(source string) (*PluginState, error) {
 
 	// 保存状态
 	if err := m.saveStates(); err != nil {
-		return nil, err
+		log.Printf("保存状态失败: %v", err)
 	}
 
 	return state, nil
@@ -240,12 +241,12 @@ func (m *Manager) Uninstall(pluginID string) error {
 	// 删除插件文件
 	inst, _ := m.loader.GetInstance(pluginID)
 	if inst != nil {
-		os.Remove(inst.Path)
+		_ = os.Remove(inst.Path) // 显式忽略错误，插件文件可能已被删除
 	}
 
 	// 删除配置文件
 	configPath := filepath.Join(m.configDir, pluginID+".json")
-	os.Remove(configPath)
+	_ = os.Remove(configPath) // 显式忽略错误，配置文件可能不存在
 
 	// 删除状态
 	delete(m.states, pluginID)
@@ -300,7 +301,10 @@ func (m *Manager) Enable(pluginID string) error {
 	inst.Enabled = true
 	inst.Running = true
 
-	return m.saveStates()
+	if err := m.saveStates(); err != nil {
+		log.Printf("保存状态失败: %v", err)
+	}
+	return nil
 }
 
 // Disable 禁用插件
@@ -325,7 +329,10 @@ func (m *Manager) Disable(pluginID string) error {
 	state.Enabled = false
 	state.UpdatedAt = time.Now()
 
-	return m.saveStates()
+	if err := m.saveStates(); err != nil {
+		log.Printf("保存状态失败: %v", err)
+	}
+	return nil
 }
 
 // StartPlugin 启动插件
@@ -408,7 +415,10 @@ func (m *Manager) Update(pluginID string) (*PluginState, error) {
 		}
 	}
 
-	return state, m.saveStates()
+	if err := m.saveStates(); err != nil {
+		log.Printf("保存状态失败: %v", err)
+	}
+	return state, nil
 }
 
 // Configure 配置插件

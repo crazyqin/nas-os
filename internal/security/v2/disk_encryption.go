@@ -309,7 +309,7 @@ func (dm *DiskEncryptionManager) Initialize() error {
 	// 扫描已加密设备
 	if err := dm.scanEncryptedDevices(); err != nil {
 		// 记录警告但不失败
-		fmt.Printf("警告: 扫描加密设备失败: %v\n", err)
+		_, _ = fmt.Printf("警告: 扫描加密设备失败: %v\n", err)
 	}
 
 	return nil
@@ -360,9 +360,9 @@ func (dm *DiskEncryptionManager) CreateLUKS(devicePath, passphrase string, confi
 	}
 
 	// 写入密码
-	fmt.Fprintln(stdin, passphrase)
-	fmt.Fprintln(stdin, passphrase)
-	stdin.Close()
+	_, _ = fmt.Fprintln(stdin, passphrase)
+	_, _ = fmt.Fprintln(stdin, passphrase)
+	_ = stdin.Close()
 
 	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("创建 LUKS 卷失败: %w", err)
@@ -539,9 +539,9 @@ func (dm *DiskEncryptionManager) AddKeySlot(devicePath, currentPassphrase, newPa
 	}
 
 	// 写入当前密码和新密码
-	fmt.Fprintln(stdin, currentPassphrase)
-	fmt.Fprintln(stdin, newPassphrase)
-	stdin.Close()
+	_, _ = fmt.Fprintln(stdin, currentPassphrase)
+	_, _ = fmt.Fprintln(stdin, newPassphrase)
+	_ = stdin.Close()
 
 	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("添加密钥失败: %w", err)
@@ -615,9 +615,9 @@ func (dm *DiskEncryptionManager) RotateKey(devicePath, currentPassphrase, newPas
 		return fmt.Errorf("启动 cryptsetup 失败: %w", err)
 	}
 
-	fmt.Fprintln(stdin, currentPassphrase)
-	fmt.Fprintln(stdin, newPassphrase)
-	stdin.Close()
+	_, _ = fmt.Fprintln(stdin, currentPassphrase)
+	_, _ = fmt.Fprintln(stdin, newPassphrase)
+	_ = stdin.Close()
 
 	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("添加新密钥失败: %w", err)
@@ -739,9 +739,9 @@ func (dm *DiskEncryptionManager) AutoRotateKeys(passphraseProvider func(devicePa
 			continue
 		}
 
-		fmt.Fprintln(stdin, currentPassphrase)
-		fmt.Fprintln(stdin, newPassphrase)
-		stdin.Close()
+		_, _ = fmt.Fprintln(stdin, currentPassphrase)
+		_, _ = fmt.Fprintln(stdin, newPassphrase)
+		_ = stdin.Close()
 
 		if err := cmd.Wait(); err != nil {
 			errors = append(errors, fmt.Sprintf("%s: 轮换失败: %v", devicePath, err))
