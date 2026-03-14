@@ -1,6 +1,6 @@
 # NAS-OS API 使用指南
 
-**版本**: v2.27.0  
+**版本**: v2.31.0  
 **更新日期**: 2026-03-15
 
 ---
@@ -11,24 +11,25 @@
 2. [认证](#认证)
 3. [存储管理](#存储管理)
 4. [用户权限](#用户权限)
-5. [容器管理](#容器管理)
-6. [虚拟机](#虚拟机)
-7. [监控告警](#监控告警)
-8. [性能优化](#性能优化)
-9. [配额管理](#配额管理)
-10. [回收站](#回收站)
-11. [WebDAV](#webdav)
-12. [存储复制](#存储复制)
-13. [AI 分类](#ai-分类)
-14. [文件版本控制](#文件版本控制)
-15. [云同步](#云同步)
-16. [数据去重](#数据去重)
-17. [iSCSI 目标](#iscsi-目标-)
-18. [快照策略](#快照策略-)
-19. [存储分层](#存储分层-) 🆕
-20. [FTP 服务器](#ftp-服务器-) 🆕
-21. [SFTP 服务器](#sftp-服务器-) 🆕
-22. [文件标签](#文件标签-) 🆕
+5. [LDAP/AD 集成](#ldapad-集成-)
+6. [容器管理](#容器管理)
+7. [虚拟机](#虚拟机)
+8. [监控告警](#监控告警)
+9. [性能优化](#性能优化)
+10. [配额管理](#配额管理)
+11. [回收站](#回收站)
+12. [WebDAV](#webdav)
+13. [存储复制](#存储复制)
+14. [AI 分类](#ai-分类)
+15. [文件版本控制](#文件版本控制)
+16. [云同步](#云同步)
+17. [数据去重](#数据去重)
+18. [iSCSI 目标](#iscsi-目标-)
+19. [快照策略](#快照策略-)
+20. [存储分层](#存储分层-)
+21. [FTP 服务器](#ftp-服务器-)
+22. [SFTP 服务器](#sftp-服务器-)
+23. [文件标签](#文件标签-)
 
 ---
 
@@ -165,6 +166,253 @@ curl -X POST http://localhost:8080/api/v1/rbac/check \
   }
 }
 ```
+
+---
+
+## LDAP/AD 集成 🆕
+
+NAS-OS 支持与企业 LDAP 和 Active Directory 集成，实现统一身份认证。
+
+### 配置管理
+
+#### 获取所有 LDAP 配置
+
+```bash
+curl http://localhost:8080/api/v1/ldap/configs \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "name": "company-ldap",
+      "url": "ldaps://ldap.example.com:636",
+      "base_dn": "dc=example,dc=com",
+      "enabled": true,
+      "is_ad": false
+    }
+  ]
+}
+```
+
+#### 创建 LDAP 配置
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ldap/configs \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "company-ldap",
+    "url": "ldaps://ldap.example.com:636",
+    "bind_dn": "cn=admin,dc=example,dc=com",
+    "bind_password": "admin-password",
+    "base_dn": "dc=example,dc=com",
+    "user_filter": "(uid=%s)",
+    "group_filter": "(memberUid=%s)",
+    "attribute_map": {
+      "username": "uid",
+      "email": "mail",
+      "first_name": "givenName",
+      "last_name": "sn",
+      "full_name": "cn",
+      "groups": "memberOf"
+    },
+    "use_tls": true,
+    "enabled": true,
+    "is_ad": false
+  }'
+```
+
+#### 创建 Active Directory 配置
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ldap/configs \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "company-ad",
+    "url": "ldaps://ad.example.com:636",
+    "bind_dn": "CN=ldap-bind,CN=Users,DC=example,DC=com",
+    "bind_password": "bind-password",
+    "base_dn": "DC=example,DC=com",
+    "user_filter": "(sAMAccountName=%s)",
+    "group_filter": "(member=%s)",
+    "attribute_map": {
+      "username": "sAMAccountName",
+      "email": "mail",
+      "first_name": "givenName",
+      "last_name": "sn",
+      "full_name": "displayName",
+      "groups": "memberOf"
+    },
+    "use_tls": true,
+    "enabled": true,
+    "is_ad": true
+  }'
+```
+
+#### 获取指定配置
+
+```bash
+curl http://localhost:8080/api/v1/ldap/configs/company-ldap \
+  -H "Authorization: Bearer TOKEN"
+```
+
+#### 更新配置
+
+```bash
+curl -X PUT http://localhost:8080/api/v1/ldap/configs/company-ldap \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "enabled": true,
+    "use_tls": true
+  }'
+```
+
+#### 删除配置
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/ldap/configs/company-ldap \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 连接测试
+
+#### 测试 LDAP 连接
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ldap/configs/company-ldap/test \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "message": "连接成功",
+  "data": {
+    "server_type": "OpenLDAP",
+    "server_version": "2.6.0",
+    "response_time": "45ms"
+  }
+}
+```
+
+### 用户认证
+
+#### LDAP 用户登录
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ldap/auth \
+  -H "Content-Type: application/json" \
+  -d '{
+    "config_name": "company-ldap",
+    "username": "zhangsan",
+    "password": "user-password"
+  }'
+```
+
+**成功响应**:
+```json
+{
+  "code": 0,
+  "message": "认证成功",
+  "data": {
+    "username": "zhangsan",
+    "email": "zhangsan@example.com",
+    "first_name": "San",
+    "last_name": "Zhang",
+    "full_name": "Zhang San",
+    "groups": ["developers", "admins"],
+    "dn": "uid=zhangsan,ou=users,dc=example,dc=com"
+  }
+}
+```
+
+**失败响应**:
+```json
+{
+  "code": 401,
+  "message": "LDAP 认证失败",
+  "data": null
+}
+```
+
+### 用户搜索
+
+#### 搜索 LDAP 用户
+
+```bash
+curl "http://localhost:8080/api/v1/ldap/users/search?config_name=company-ldap&query=zhang" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+**响应**:
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "username": "zhangsan",
+      "email": "zhangsan@example.com",
+      "full_name": "Zhang San",
+      "dn": "uid=zhangsan,ou=users,dc=example,dc=com"
+    },
+    {
+      "username": "zhangwei",
+      "email": "zhangwei@example.com",
+      "full_name": "Zhang Wei",
+      "dn": "uid=zhangwei,ou=users,dc=example,dc=com"
+    }
+  ]
+}
+```
+
+### 组映射管理
+
+#### 创建组映射
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ldap/group-mappings \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "config_name": "company-ldap",
+    "ldap_group": "nas-admins",
+    "nas_role": "admin"
+  }'
+```
+
+#### 列出组映射
+
+```bash
+curl http://localhost:8080/api/v1/ldap/group-mappings \
+  -H "Authorization: Bearer TOKEN"
+```
+
+#### 删除组映射
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/ldap/group-mappings/mapping-001 \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### LDAP 配置参数说明
+
+| 参数 | 说明 | OpenLDAP 示例 | AD 示例 |
+|------|------|---------------|---------|
+| `url` | LDAP 服务器地址 | `ldaps://ldap.example.com:636` | `ldaps://ad.example.com:636` |
+| `bind_dn` | 绑定账号 DN | `cn=admin,dc=example,dc=com` | `CN=admin,CN=Users,DC=example,DC=com` |
+| `base_dn` | 搜索基础 DN | `dc=example,dc=com` | `DC=example,DC=com` |
+| `user_filter` | 用户搜索过滤器 | `(uid=%s)` | `(sAMAccountName=%s)` |
+| `group_filter` | 组搜索过滤器 | `(memberUid=%s)` | `(member=%s)` |
+| `is_ad` | 是否为 AD | `false` | `true` |
+
+📖 详细配置请参考 [LDAP 集成指南](LDAP-INTEGRATION.md)
 
 ---
 
