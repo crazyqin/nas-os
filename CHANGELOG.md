@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.7.0] - 2026-03-14
+
+### Changed
+- **Dockerfile 优化**
+  - 使用 golang:1.24-alpine 构建镜像
+  - 添加 UPX 二进制压缩，镜像大小减少约 15%
+  - 添加 nasctl CLI 编译
+  - 增强 OCI 标签和元数据
+  - 优化健康检查命令
+
+- **监控增强**
+  - 整合并优化 Prometheus 告警规则 (alerts.yml)
+  - 添加 CPU、内存、磁盘、网络、服务、Btrfs 等多维度告警
+  - 增强健康检查模块，添加 Btrfs 和共享服务检查
+  - 完善 API 处理器，支持更丰富的监控端点
+
+### Fixed
+- 修复 `internal/quota/history.go` 编译错误
+  - 修复未使用的 `quotaID` 变量
+  - 修复 `TrendStatistics.GrowthRate` 字段名错误（应为 `DailyGrowthRate`）
+
 ## [v2.6.0] - 2026-03-14
 
 ### Added

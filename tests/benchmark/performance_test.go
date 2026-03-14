@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
+	"time"
 
 	"nas-os/internal/cache"
 	"nas-os/internal/dedup"
@@ -16,6 +18,7 @@ import (
 	"nas-os/internal/version"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // ========== 版本信息基准测试 ==========
@@ -92,7 +95,7 @@ func BenchmarkSnapshotCreation(b *testing.B) {
 			Path:      "/mnt/data/.snapshots/daily",
 			Source:    "documents",
 			ReadOnly:  true,
-			CreatedAt: storage.DefaultSnapshotConfig.TimeFormat,
+			CreatedAt: time.Now(),
 		}
 	}
 }
@@ -100,8 +103,7 @@ func BenchmarkSnapshotCreation(b *testing.B) {
 // ========== 缓存操作基准测试 ==========
 
 func BenchmarkCacheSet(b *testing.B) {
-	c := cache.NewMemoryCache()
-	defer c.Close()
+	c := cache.NewLRUCache(1000, time.Minute)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -110,8 +112,7 @@ func BenchmarkCacheSet(b *testing.B) {
 }
 
 func BenchmarkCacheGet(b *testing.B) {
-	c := cache.NewMemoryCache()
-	defer c.Close()
+	c := cache.NewLRUCache(1000, time.Minute)
 	c.Set("test-key", "test-value")
 
 	b.ResetTimer()
@@ -121,8 +122,7 @@ func BenchmarkCacheGet(b *testing.B) {
 }
 
 func BenchmarkCacheSetGet(b *testing.B) {
-	c := cache.NewMemoryCache()
-	defer c.Close()
+	c := cache.NewLRUCache(1000, time.Minute)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -132,8 +132,7 @@ func BenchmarkCacheSetGet(b *testing.B) {
 }
 
 func BenchmarkCacheDelete(b *testing.B) {
-	c := cache.NewMemoryCache()
-	defer c.Close()
+	c := cache.NewLRUCache(1000, time.Minute)
 	c.Set("test-key", "test-value")
 
 	b.ResetTimer()
@@ -143,8 +142,7 @@ func BenchmarkCacheDelete(b *testing.B) {
 }
 
 func BenchmarkCacheConcurrentAccess(b *testing.B) {
-	c := cache.NewMemoryCache()
-	defer c.Close()
+	c := cache.NewLRUCache(1000, time.Minute)
 
 	b.RunParallel(func(pb *testing.PB) {
 		i := 0
@@ -163,83 +161,102 @@ func BenchmarkCacheConcurrentAccess(b *testing.B) {
 // ========== 搜索操作基准测试 ==========
 
 func BenchmarkSearchRequest(b *testing.B) {
-	engine := search.NewEngine()
-	engine.Index("/test/file1.txt", "document content test")
-	engine.Index("/test/file2.txt", "another document")
+	config := search.IndexConfig{
+		IndexPath:    b.TempDir(),
+		MaxFileSize:  10 * 1024 * 1024,
+		Workers:      2,
+		IndexContent: true,
+		BatchSize:    100,
+	}
+	engine, _ := search.NewEngine(config, zap.NewNop())
+	// 创建测试文件
+	tmpDir := b.TempDir()
+	_ = os.WriteFile(tmpDir+"/file1.txt", []byte("document content test"), 0644)
+	_ = os.WriteFile(tmpDir+"/file2.txt", []byte("another document"), 0644)
+	_ = engine.IndexDirectory(tmpDir)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = engine.Search("document")
+		_, _ = engine.Search(search.SearchRequest{Query: "document"})
 	}
 }
 
 func BenchmarkSearchIndex(b *testing.B) {
-	engine := search.NewEngine()
+	config := search.IndexConfig{
+		IndexPath:    b.TempDir(),
+		MaxFileSize:  10 * 1024 * 1024,
+		Workers:      2,
+		IndexContent: true,
+		BatchSize:    100,
+	}
+	engine, _ := search.NewEngine(config, zap.NewNop())
+
+	// 创建测试文件
+	tmpDir := b.TempDir()
+	_ = os.WriteFile(tmpDir+"/file.txt", []byte("test content"), 0644)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		engine.Index("/test/file.txt", "test content")
+		_ = engine.IndexDirectory(tmpDir)
 	}
 }
 
 func BenchmarkSearchLargeIndex(b *testing.B) {
-	engine := search.NewEngine()
+	config := search.IndexConfig{
+		IndexPath:    b.TempDir(),
+		MaxFileSize:  10 * 1024 * 1024,
+		Workers:      2,
+		IndexContent: true,
+		BatchSize:    100,
+	}
+	engine, _ := search.NewEngine(config, zap.NewNop())
 
 	// 预填充大量文档
+	tmpDir := b.TempDir()
 	for i := 0; i < 1000; i++ {
-		engine.Index(string(rune(i)), "document content "+string(rune(i)))
+		_ = os.WriteFile(tmpDir+"/"+string(rune(i))+".txt", []byte("document content "+string(rune(i))), 0644)
 	}
+	_ = engine.IndexDirectory(tmpDir)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = engine.Search("document")
+		_, _ = engine.Search(search.SearchRequest{Query: "document"})
 	}
 }
 
 // ========== 去重操作基准测试 ==========
 
 func BenchmarkDedupChecksum(b *testing.B) {
-	config := dedup.DefaultConfig
-	mgr, _ := dedup.NewManager(config)
-
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = mgr.CalculateChecksum([]byte("test file content"))
+		_, _ = dedup.ChunkFingerprint("test file content", 4096)
 	}
 }
 
 func BenchmarkDedupDetect(b *testing.B) {
-	config := dedup.DefaultConfig
-	mgr, _ := dedup.NewManager(config)
+	mgr, _ := dedup.NewManager(b.TempDir()+"/dedup.json", dedup.DefaultConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = mgr.FindDuplicates("/test/path")
+		_, _ = mgr.GetDuplicates()
 	}
 }
 
 // ========== 分层存储基准测试 ==========
 
 func BenchmarkTieringPolicyCreate(b *testing.B) {
-	mgr := tiering.NewManager()
-
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = tiering.Policy{
-			Name:     "test-policy",
-			Source:   "ssd",
-			Target:   "hdd",
-			Action:   tiering.ActionMove,
-			MinAge:   30,
-			MinSize:  0,
-			Enabled:  true,
-			Priority: 1,
+			Name:        "test-policy",
+			Description: "test policy",
+			Enabled:     true,
 		}
 	}
 }
 
 func BenchmarkTieringGetTiers(b *testing.B) {
-	mgr := tiering.NewManager()
+	mgr := tiering.NewManager(b.TempDir()+"/tiering.json", tiering.DefaultPolicyEngineConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -285,7 +302,7 @@ func BenchmarkJSONEncodeSnapshot(b *testing.B) {
 		Path:      "/mnt/data/.snapshots/daily-20260314",
 		Source:    "documents",
 		ReadOnly:  true,
-		CreatedAt: "2026-03-14T00:00:00Z",
+		CreatedAt: time.Now(),
 	}
 
 	b.ResetTimer()
@@ -396,8 +413,7 @@ func BenchmarkConcurrentAPIRequests(b *testing.B) {
 }
 
 func BenchmarkConcurrentCacheOperations(b *testing.B) {
-	c := cache.NewMemoryCache()
-	defer c.Close()
+	c := cache.NewLRUCache(1000, time.Minute)
 
 	b.RunParallel(func(pb *testing.PB) {
 		i := 0

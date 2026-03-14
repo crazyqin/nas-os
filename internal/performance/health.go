@@ -1,9 +1,13 @@
 package performance
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
+	"strings"
 	"sync"
 	"time"
 
@@ -116,6 +120,8 @@ func (hc *HealthChecker) registerDefaultChecks() {
 		{Name: "network", Check: hc.checkNetwork},
 		{Name: "services", Check: hc.checkServices},
 		{Name: "uptime", Check: hc.checkUptime},
+		{Name: "btrfs", Check: hc.checkBtrfs},
+		{Name: "shares", Check: hc.checkShares},
 	}
 }
 
@@ -423,6 +429,128 @@ func (hc *HealthChecker) checkUptime() HealthCheckResult {
 	// 如果刚启动，可能需要额外检查
 	if uptime < 60 {
 		result.Message = "系统刚启动"
+	}
+
+	result.Duration = time.Since(start).Milliseconds()
+	return result
+}
+
+// checkBtrfs 检查 Btrfs 文件系统健康状态
+func (hc *HealthChecker) checkBtrfs() HealthCheckResult {
+	start := time.Now()
+
+	result := HealthCheckResult{
+		Name:      "btrfs",
+		Timestamp: start,
+		Status:    HealthStatusHealthy,
+		Details:   make(map[string]interface{}),
+	}
+
+	details := result.Details.(map[string]interface{})
+	var issues []string
+
+	// 检查 /proc/mounts 中的 btrfs 挂载
+	if file, err := os.Open("/proc/mounts"); err == nil {
+		defer file.Close()
+		scanner := bufio.NewScanner(file)
+		btrfsMounts := []string{}
+
+		for scanner.Scan() {
+			line := scanner.Text()
+			if strings.Contains(line, "btrfs") {
+				fields := strings.Fields(line)
+				if len(fields) >= 2 {
+					btrfsMounts = append(btrfsMounts, fields[1])
+				}
+			}
+		}
+
+		details["mounts"] = btrfsMounts
+
+		// 检查每个 btrfs 卷的状态
+		for _, mount := range btrfsMounts {
+			// 尝试读取 btrfs 设备状态
+			deviceStatsPath := mount + "/.btrfs_device_stats"
+			if _, err := os.Stat(deviceStatsPath); err == nil {
+				// 如果存在设备统计文件，检查是否有错误
+				if data, err := os.ReadFile(deviceStatsPath); err == nil {
+					stats := string(data)
+					if strings.Contains(stats, "write_io_errs") &&
+						!strings.Contains(stats, "write_io_errs 0") {
+						result.Status = HealthStatusDegraded
+						issues = append(issues, fmt.Sprintf("Btrfs 卷 %s 存在 I/O 错误", mount))
+					}
+				}
+			}
+		}
+	}
+
+	// 检查 btrfs scrub 状态（如果存在）
+	scrubPath := "/var/lib/btrfs/scrub.status"
+	if _, err := os.Stat(scrubPath); err == nil {
+		details["scrub_available"] = true
+	}
+
+	if len(issues) > 0 {
+		result.Message = issues[0]
+		details["issues"] = issues
+	}
+
+	result.Duration = time.Since(start).Milliseconds()
+	return result
+}
+
+// checkShares 检查共享服务状态
+func (hc *HealthChecker) checkShares() HealthCheckResult {
+	start := time.Now()
+
+	result := HealthCheckResult{
+		Name:      "shares",
+		Timestamp: start,
+		Status:    HealthStatusHealthy,
+		Details:   make(map[string]interface{}),
+	}
+
+	details := result.Details.(map[string]interface{})
+	var issues []string
+
+	// 检查 SMB 服务
+	smbStatus := "unknown"
+	if output, err := exec.Command("systemctl", "is-active", "smbd").Output(); err == nil {
+		smbStatus = strings.TrimSpace(string(output))
+	}
+	details["smb_status"] = smbStatus
+
+	if smbStatus != "active" && smbStatus != "running" {
+		result.Status = HealthStatusDegraded
+		issues = append(issues, "SMB 服务未运行")
+	}
+
+	// 检查 NFS 服务
+	nfsStatus := "unknown"
+	if output, err := exec.Command("systemctl", "is-active", "nfs-server").Output(); err == nil {
+		nfsStatus = strings.TrimSpace(string(output))
+	}
+	details["nfs_status"] = nfsStatus
+
+	if nfsStatus != "active" && nfsStatus != "running" {
+		// NFS 未运行不一定是问题，可能未配置
+		details["nfs_note"] = "NFS 服务未运行，可能未配置"
+	}
+
+	// 检查共享目录是否存在
+	sharePaths := []string{"/mnt", "/srv"}
+	accessibleShares := 0
+	for _, path := range sharePaths {
+		if _, err := os.Stat(path); err == nil {
+			accessibleShares++
+		}
+	}
+	details["accessible_mounts"] = accessibleShares
+
+	if len(issues) > 0 {
+		result.Message = issues[0]
+		details["issues"] = issues
 	}
 
 	result.Duration = time.Since(start).Milliseconds()
