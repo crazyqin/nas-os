@@ -730,15 +730,8 @@ func (m *Manager) SetSharePermission(shareName, username string, readWrite bool)
 		}
 	}
 
-	// 设置系统文件权限
-	mode := os.FileMode(0755)
-	if !readWrite {
-		mode = 0555 // 只读
-	}
-	if err := os.Chmod(share.Path, mode); err != nil {
-		logError("设置权限失败", err, "path", share.Path)
-		return fmt.Errorf("设置权限失败：%w", err)
-	}
+	// 注意：目录权限保持默认（0755），通过 SMB 配置控制读写权限
+	// 不应通过文件系统权限限制目录访问，否则会影响目录的正常使用
 
 	logInfo("共享权限已设置", "share", shareName, "user", username, "readWrite", readWrite)
 	return nil

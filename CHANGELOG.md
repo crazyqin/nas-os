@@ -7,8 +7,13 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - **CI/CD 修复**
   - 统一所有工作流 Go 版本到 1.24（稳定版）
-  - 修复 golangci-lint 版本兼容性问题
+  - 修复 golangci-lint v2 版本兼容性问题
   - 修复 Docker 构建基础镜像版本
+
+- **代码质量改进**
+  - 修复 SMB 共享权限验证逻辑
+  - 修复 NFS 连接统计计数器竞态条件
+  - 改进并发安全性
 
 ### Changed
 - 更新 `.github/workflows/ci-cd.yml` GO_VERSION
@@ -16,6 +21,11 @@ All notable changes to this project will be documented in this file.
 - 更新 `.github/workflows/release.yml` GO_VERSION
 - 更新 `Dockerfile` 基础镜像到 `golang:1.24-alpine`
 - 更新 `go.mod` Go 版本到 1.24
+
+### Security
+- 安全审查完成，评分 **B+**
+- SMB/NFS 权限边界检查通过
+- 无高危漏洞
 
 ## [v2.11.2] - 2026-03-14
 
