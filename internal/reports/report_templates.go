@@ -123,6 +123,53 @@ func WeeklyReportTemplate() *ReportTemplate {
 	}
 }
 
+// MonthlyReportTemplate 月报模板
+func MonthlyReportTemplate() *ReportTemplate {
+	return &ReportTemplate{
+		ID:          "monthly-report",
+		Name:        "系统月报",
+		Type:        TemplateTypeSystem,
+		Description: "每月系统运行状态综合报告，包含月度趋势分析、资源使用统计、健康评分变化和优化建议",
+		Fields: []TemplateField{
+			{Name: "report_month", Label: "报告月份", Type: FieldTypeString, Source: "report_month", Required: true, Sortable: true},
+			{Name: "health_score_avg", Label: "健康评分均值", Type: FieldTypeNumber, Source: "health.monthly_average", Sortable: true},
+			{Name: "health_score_min", Label: "最低健康评分", Type: FieldTypeNumber, Source: "health.monthly_min", Sortable: true},
+			{Name: "health_score_max", Label: "最高健康评分", Type: FieldTypeNumber, Source: "health.monthly_max", Sortable: true},
+			{Name: "health_trend", Label: "健康趋势", Type: FieldTypeString, Source: "health.trend", Filterable: true},
+			{Name: "uptime_percent", Label: "系统可用率", Type: FieldTypePercent, Source: "availability.uptime_percent", Sortable: true},
+			{Name: "downtime_count", Label: "宕机次数", Type: FieldTypeNumber, Source: "availability.downtime_count", Sortable: true},
+			{Name: "cpu_avg", Label: "CPU 平均使用率", Type: FieldTypePercent, Source: "resources.cpu.monthly_avg", Sortable: true},
+			{Name: "cpu_peak", Label: "CPU 峰值使用率", Type: FieldTypePercent, Source: "resources.cpu.monthly_peak", Sortable: true},
+			{Name: "cpu_trend", Label: "CPU 趋势", Type: FieldTypeString, Source: "trends.cpu_trend", Filterable: true},
+			{Name: "memory_avg", Label: "内存平均使用率", Type: FieldTypePercent, Source: "resources.memory.monthly_avg", Sortable: true},
+			{Name: "memory_peak", Label: "内存峰值使用率", Type: FieldTypePercent, Source: "resources.memory.monthly_peak", Sortable: true},
+			{Name: "memory_trend", Label: "内存趋势", Type: FieldTypeString, Source: "trends.memory_trend", Filterable: true},
+			{Name: "disk_total", Label: "磁盘总容量", Type: FieldTypeBytes, Source: "storage.total_capacity", Sortable: true},
+			{Name: "disk_used", Label: "磁盘已使用", Type: FieldTypeBytes, Source: "storage.used_capacity", Sortable: true},
+			{Name: "disk_usage_percent", Label: "磁盘使用率", Type: FieldTypePercent, Source: "storage.usage_percent", Sortable: true},
+			{Name: "disk_growth", Label: "磁盘月增长量", Type: FieldTypeBytes, Source: "storage.monthly_growth", Sortable: true},
+			{Name: "disk_trend", Label: "磁盘趋势", Type: FieldTypeString, Source: "trends.disk_trend", Filterable: true},
+			{Name: "net_rx_total", Label: "网络接收总量", Type: FieldTypeBytes, Source: "network.monthly_rx_total", Sortable: true},
+			{Name: "net_tx_total", Label: "网络发送总量", Type: FieldTypeBytes, Source: "network.monthly_tx_total", Sortable: true},
+			{Name: "alerts_total", Label: "总告警数", Type: FieldTypeNumber, Source: "alerts.monthly_total", Sortable: true},
+			{Name: "alerts_critical", Label: "严重告警数", Type: FieldTypeNumber, Source: "alerts.critical_count", Sortable: true},
+			{Name: "alerts_warning", Label: "警告告警数", Type: FieldTypeNumber, Source: "alerts.warning_count", Sortable: true},
+			{Name: "users_active", Label: "活跃用户数", Type: FieldTypeNumber, Source: "users.monthly_active", Sortable: true},
+			{Name: "users_new", Label: "新增用户数", Type: FieldTypeNumber, Source: "users.new_count", Sortable: true},
+			{Name: "files_uploaded", Label: "上传文件数", Type: FieldTypeNumber, Source: "activity.files_uploaded", Sortable: true},
+			{Name: "files_downloaded", Label: "下载文件数", Type: FieldTypeNumber, Source: "activity.files_downloaded", Sortable: true},
+			{Name: "data_uploaded", Label: "上传数据量", Type: FieldTypeBytes, Source: "activity.bytes_uploaded", Sortable: true},
+			{Name: "data_downloaded", Label: "下载数据量", Type: FieldTypeBytes, Source: "activity.bytes_downloaded", Sortable: true},
+			{Name: "backup_success_rate", Label: "备份成功率", Type: FieldTypePercent, Source: "backup.success_rate", Sortable: true},
+		},
+		Sorts: []TemplateSort{
+			{Field: "report_month", Order: "desc"},
+		},
+		IsDefault: true,
+		IsPublic:  true,
+	}
+}
+
 // DiskAnalysisTemplate 磁盘分析报告模板
 func DiskAnalysisTemplate() *ReportTemplate {
 	return &ReportTemplate{
@@ -240,6 +287,7 @@ func (r *TemplateRegistry) RegisterDefaults() {
 	r.Register(ResourceUsageTemplate())
 	r.Register(DailyReportTemplate())
 	r.Register(WeeklyReportTemplate())
+	r.Register(MonthlyReportTemplate())
 	r.Register(DiskAnalysisTemplate())
 	r.Register(TrendReportTemplate())
 }
@@ -280,8 +328,23 @@ func GetDefaultTemplates() []*ReportTemplate {
 		ResourceUsageTemplate(),
 		DailyReportTemplate(),
 		WeeklyReportTemplate(),
+		MonthlyReportTemplate(),
 		DiskAnalysisTemplate(),
 		TrendReportTemplate(),
+	}
+}
+
+// MonthlyScheduleConfig 月报调度配置
+func MonthlyScheduleConfig() ScheduledReportInput {
+	return ScheduledReportInput{
+		Name:         "系统健康月报",
+		TemplateID:   "monthly-report",
+		Frequency:    FrequencyMonthly,
+		CronExpr:     "0 0 9 1 * *", // 每月1日早上 9:00
+		ExportFormat: ExportExcel,
+		NotifyEmail:  []string{},
+		Enabled:      true,
+		Retention:    365, // 保留 365 天
 	}
 }
 
@@ -290,6 +353,7 @@ func GetDefaultScheduleConfigs() []ScheduledReportInput {
 	return []ScheduledReportInput{
 		DailyScheduleConfig(),
 		WeeklyScheduleConfig(),
+		MonthlyScheduleConfig(),
 		HourlyScheduleConfig(),
 	}
 }

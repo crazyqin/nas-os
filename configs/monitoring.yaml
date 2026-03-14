@@ -1,0 +1,141 @@
+# NAS-OS 监控增强配置
+# v2.35.0 新增
+#
+# 此文件定义健康检查和指标导出的详细配置
+
+# 健康检查配置
+healthcheck:
+  # 端点配置
+  endpoints:
+    health: "/api/v1/health"
+    ready: "/api/v1/health/ready"
+    live: "/api/v1/health/live"
+    metrics: "/metrics"
+  
+  # 检查间隔
+  interval: 30s
+  # 超时时间
+  timeout: 10s
+  # 启动等待时间
+  start_period: 30s
+  # 重试次数
+  retries: 3
+  
+  # 各组件检查配置
+  checks:
+    cpu:
+      enabled: true
+      warning_threshold: 80
+      critical_threshold: 95
+    memory:
+      enabled: true
+      warning_threshold: 85
+      critical_threshold: 95
+    disk:
+      enabled: true
+      warning_threshold: 85
+      critical_threshold: 95
+    disk_io:
+      enabled: true
+      latency_warning_ms: 50
+      latency_critical_ms: 100
+    network:
+      enabled: true
+    services:
+      enabled: true
+      services:
+        - nasd
+        - docker
+    btrfs:
+      enabled: true
+    shares:
+      enabled: true
+
+# 指标导出配置
+metrics:
+  # Prometheus 格式指标
+  prometheus:
+    enabled: true
+    path: "/metrics"
+    # 包含的指标命名空间
+    namespaces:
+      - nas      # NAS-OS 核心指标
+      - go       # Go 运行时指标
+      - process  # 进程指标
+  
+  # 指标标签
+  labels:
+    service: "nasd"
+    version: "${VERSION}"
+    instance: "${HOSTNAME}"
+  
+  # 指标收集配置
+  collection:
+    # 系统指标
+    system:
+      enabled: true
+      interval: 10s
+    # 存储指标
+    storage:
+      enabled: true
+      interval: 10s
+    # 性能指标
+    performance:
+      enabled: true
+      interval: 5s
+    # 业务指标
+    business:
+      enabled: true
+      interval: 30s
+
+# 告警配置
+alerts:
+  # 告警静默时间
+  silence_duration: 5m
+  # 重复告警间隔
+  repeat_interval: 1h
+  
+  # 通知渠道
+  receivers:
+    - name: "default"
+      type: "webhook"
+      # webhook_url 从环境变量读取
+      webhook_url_env: "ALERT_WEBHOOK_URL"
+  
+  # 告警规则
+  rules:
+    - name: "HighCPU"
+      expr: "nas_cpu_usage_percent > 90"
+      duration: 5m
+      severity: warning
+      message: "CPU 使用率过高: {{ $value }}%"
+    
+    - name: "HighMemory"
+      expr: "nas_system_memory_usage_percent > 90"
+      duration: 5m
+      severity: warning
+      message: "内存使用率过高: {{ $value }}%"
+    
+    - name: "DiskSpaceLow"
+      expr: "nas_disk_usage_percent > 90"
+      duration: 5m
+      severity: critical
+      message: "磁盘空间不足: {{ $value }}%"
+    
+    - name: "HighErrorRate"
+      expr: "rate(nas_requests_error_total[5m]) / rate(nas_requests_total[5m]) > 0.1"
+      duration: 2m
+      severity: warning
+      message: "错误率过高: {{ $value | humanizePercentage }}"
+    
+    - name: "HighLatency"
+      expr: "histogram_quantile(0.95, rate(nas_request_latency_seconds_bucket[5m])) > 0.5"
+      duration: 5m
+      severity: warning
+      message: "P95 延迟过高: {{ $value }}s"
+    
+    - name: "ServiceDown"
+      expr: "up{job='nas-os'} == 0"
+      duration: 1m
+      severity: critical
+      message: "NAS-OS 服务不可用"

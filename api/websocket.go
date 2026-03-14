@@ -3,6 +3,7 @@
 package api
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -311,12 +312,21 @@ func generateClientID() string {
 	return fmt.Sprintf("ws-%d-%s", time.Now().UnixNano(), randomString(6))
 }
 
-// randomString generates a random string
+// randomString generates a random string using crypto/rand
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, n)
+	// 使用 crypto/rand 生成安全的随机数
+	_, err := rand.Read(b)
+	if err != nil {
+		// 回退到时间戳（仅在极端情况下）
+		for i := range b {
+			b[i] = letters[time.Now().UnixNano()%int64(len(letters))]
+		}
+		return string(b)
+	}
 	for i := range b {
-		b[i] = letters[time.Now().UnixNano()%int64(len(letters))]
+		b[i] = letters[int(b[i])%len(letters)]
 	}
 	return string(b)
 }

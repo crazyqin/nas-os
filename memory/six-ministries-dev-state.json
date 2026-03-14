@@ -1,74 +1,80 @@
 {
-  "lastUpdate": "2026-03-14T17:15:00Z",
-  "version": "v2.27.0",
+  "lastUpdate": "2026-03-15T06:35:00Z",
+  "version": "v2.37.0",
   "status": "released",
-  "previousVersion": "v2.26.0",
+  "previousVersion": "v2.36.0",
+  "nextVersion": "v2.38.0",
+  "currentDev": {
+    "version": "v2.38.0",
+    "status": "in_progress",
+    "startedAt": "2026-03-15T06:35:00Z"
+  },
   "changes": {
     "code": [
       {
-        "file": "internal/network/diagnostics.go",
-        "change": "修复 IPv6 地址格式问题",
-        "ministry": "司礼监"
-      },
-      {
-        "file": "internal/media/*.go",
-        "change": "新增媒体模块 (handlers, streaming, subtitle, thumbnail, transcoder)",
+        "file": "api/middleware/gateway.go",
+        "change": "新增 API Gateway（限流、熔断、重试）",
         "ministry": "兵部"
       },
       {
-        "file": "internal/monitor/*.go",
-        "change": "新增监控模块 (health_score, metrics_collector, report_integration)",
-        "ministry": "工部"
-      },
-      {
-        "file": "internal/quota/auto_expand*.go",
-        "change": "新增配额自动扩展功能",
+        "file": "internal/reports/cost_analysis.go",
+        "change": "新增成本分析模块",
         "ministry": "户部"
       },
       {
-        "file": "internal/reports/*.go",
-        "change": "新增报告增强功能",
-        "ministry": "礼部"
+        "file": "internal/reports/resource_api.go",
+        "change": "新增资源分析 API",
+        "ministry": "户部"
+      },
+      {
+        "file": "internal/project/manager.go",
+        "change": "新增项目管理模块",
+        "ministry": "吏部"
+      },
+      {
+        "file": "scripts/migrate.sh",
+        "change": "新增数据库迁移脚本",
+        "ministry": "工部"
       }
     ]
   },
   "ministries": {
     "兵部": {
-      "status": "running",
-      "task": "代码质量检查、新增文件审查"
+      "status": "completed",
+      "task": "API Gateway、中间件完善"
     },
     "工部": {
-      "status": "running",
-      "task": "DevOps 检查、CI/CD 评估"
+      "status": "completed",
+      "task": "监控配置、数据库迁移"
     },
     "礼部": {
-      "status": "running",
+      "status": "completed",
       "task": "文档更新、CHANGELOG 维护"
     },
     "刑部": {
-      "status": "running",
+      "status": "completed",
       "task": "安全审计、代码审查"
     },
     "户部": {
-      "status": "running",
-      "task": "资源管理、配额检查"
+      "status": "completed",
+      "task": "成本分析、资源报告"
     },
     "吏部": {
-      "status": "pending",
-      "task": "项目状态评估、v2.28.0 规划"
+      "status": "completed",
+      "task": "项目管理、版本发布"
     }
   },
   "actions": {
-    "v2.27.0": {
+    "v2.36.0": {
       "git_tag": "done",
       "push": "done",
-      "CI/CD": "running"
+      "CI/CD": "done"
     }
   },
-  "nextVersion": "v2.28.0",
+  "nextVersion": "v2.37.0",
   "plannedFeatures": [
-    "测试覆盖率提升至 50%+",
-    "API 文档完善",
-    "性能优化"
+    "测试覆盖率提升",
+    "性能优化",
+    "Bug修复"
   ]
 }
