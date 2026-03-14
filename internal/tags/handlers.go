@@ -5,22 +5,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	apiresponse "nas-os/internal/api"
 )
-
-// Response 通用响应
-type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
-func Success(data interface{}) Response {
-	return Response{Code: 0, Message: "success", Data: data}
-}
-
-func Error(code int, message string) Response {
-	return Response{Code: code, Message: message}
-}
 
 // Handlers 标签管理 HTTP 处理器
 type Handlers struct {
@@ -87,11 +73,11 @@ func (h *Handlers) listTags(c *gin.Context) {
 	}
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "获取标签列表失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取标签列表失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(tags))
+	c.JSON(http.StatusOK, apiresponse.Success(tags))
 }
 
 // getTag 获取单个标签
@@ -110,14 +96,14 @@ func (h *Handlers) getTag(c *gin.Context) {
 	tag, err := h.manager.GetTag(id)
 	if err != nil {
 		if err == ErrTagNotFound {
-			c.JSON(http.StatusNotFound, Error(404, "标签不存在"))
+			c.JSON(http.StatusNotFound, apiresponse.Error(404, "标签不存在"))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, Error(500, "获取标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取标签失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(tag))
+	c.JSON(http.StatusOK, apiresponse.Success(tag))
 }
 
 // createTag 创建标签
@@ -134,28 +120,28 @@ func (h *Handlers) getTag(c *gin.Context) {
 func (h *Handlers) createTag(c *gin.Context) {
 	var req TagInput
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, "无效的请求参数"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "无效的请求参数"))
 		return
 	}
 
 	// 验证名称
 	req.Name = strings.TrimSpace(req.Name)
 	if req.Name == "" {
-		c.JSON(http.StatusBadRequest, Error(400, "标签名称不能为空"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "标签名称不能为空"))
 		return
 	}
 
 	tag, err := h.manager.CreateTag(req)
 	if err != nil {
 		if err == ErrTagExists {
-			c.JSON(http.StatusConflict, Error(409, "标签名称已存在"))
+			c.JSON(http.StatusConflict, apiresponse.Error(409, "标签名称已存在"))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, Error(500, "创建标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "创建标签失败"))
 		return
 	}
 
-	c.JSON(http.StatusCreated, Success(tag))
+	c.JSON(http.StatusCreated, apiresponse.Success(tag))
 }
 
 // updateTag 更新标签
@@ -176,7 +162,7 @@ func (h *Handlers) updateTag(c *gin.Context) {
 
 	var req TagInput
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, "无效的请求参数"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "无效的请求参数"))
 		return
 	}
 
@@ -187,16 +173,16 @@ func (h *Handlers) updateTag(c *gin.Context) {
 	if err != nil {
 		switch err {
 		case ErrTagNotFound:
-			c.JSON(http.StatusNotFound, Error(404, "标签不存在"))
+			c.JSON(http.StatusNotFound, apiresponse.Error(404, "标签不存在"))
 		case ErrTagExists:
-			c.JSON(http.StatusConflict, Error(409, "标签名称已存在"))
+			c.JSON(http.StatusConflict, apiresponse.Error(409, "标签名称已存在"))
 		default:
-			c.JSON(http.StatusInternalServerError, Error(500, "更新标签失败"))
+			c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "更新标签失败"))
 		}
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(tag))
+	c.JSON(http.StatusOK, apiresponse.Success(tag))
 }
 
 // deleteTag 删除标签
@@ -214,14 +200,14 @@ func (h *Handlers) deleteTag(c *gin.Context) {
 
 	if err := h.manager.DeleteTag(id); err != nil {
 		if err == ErrTagNotFound {
-			c.JSON(http.StatusNotFound, Error(404, "标签不存在"))
+			c.JSON(http.StatusNotFound, apiresponse.Error(404, "标签不存在"))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, Error(500, "删除标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "删除标签失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	c.JSON(http.StatusOK, apiresponse.Success(nil))
 }
 
 // searchTags 搜索标签
@@ -236,17 +222,17 @@ func (h *Handlers) deleteTag(c *gin.Context) {
 func (h *Handlers) searchTags(c *gin.Context) {
 	keyword := c.Query("q")
 	if keyword == "" {
-		c.JSON(http.StatusBadRequest, Error(400, "请提供搜索关键词"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "请提供搜索关键词"))
 		return
 	}
 
 	tags, err := h.manager.SearchTags(keyword)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "搜索标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "搜索标签失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(tags))
+	c.JSON(http.StatusOK, apiresponse.Success(tags))
 }
 
 // listGroups 列出标签分组
@@ -260,11 +246,11 @@ func (h *Handlers) searchTags(c *gin.Context) {
 func (h *Handlers) listGroups(c *gin.Context) {
 	groups, err := h.manager.ListGroups()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "获取分组列表失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取分组列表失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(groups))
+	c.JSON(http.StatusOK, apiresponse.Success(groups))
 }
 
 // getStats 获取统计信息
@@ -278,11 +264,11 @@ func (h *Handlers) listGroups(c *gin.Context) {
 func (h *Handlers) getStats(c *gin.Context) {
 	stats, err := h.manager.GetStats()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "获取统计信息失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取统计信息失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(stats))
+	c.JSON(http.StatusOK, apiresponse.Success(stats))
 }
 
 // getTagFiles 获取标签关联的文件
@@ -301,20 +287,20 @@ func (h *Handlers) getTagFiles(c *gin.Context) {
 	_, err := h.manager.GetTag(id)
 	if err != nil {
 		if err == ErrTagNotFound {
-			c.JSON(http.StatusNotFound, Error(404, "标签不存在"))
+			c.JSON(http.StatusNotFound, apiresponse.Error(404, "标签不存在"))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, Error(500, "获取标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取标签失败"))
 		return
 	}
 
 	files, err := h.manager.GetFilesByTags([]string{id}, false)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "获取文件列表失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取文件列表失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(files))
+	c.JSON(http.StatusOK, apiresponse.Success(files))
 }
 
 // getTagUsage 获取标签使用次数
@@ -333,20 +319,20 @@ func (h *Handlers) getTagUsage(c *gin.Context) {
 	_, err := h.manager.GetTag(id)
 	if err != nil {
 		if err == ErrTagNotFound {
-			c.JSON(http.StatusNotFound, Error(404, "标签不存在"))
+			c.JSON(http.StatusNotFound, apiresponse.Error(404, "标签不存在"))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, Error(500, "获取标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取标签失败"))
 		return
 	}
 
 	count, err := h.manager.GetTagUsageCount(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "获取使用次数失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取使用次数失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(gin.H{"count": count}))
+	c.JSON(http.StatusOK, apiresponse.Success(gin.H{"count": count}))
 }
 
 // ========== 文件标签 API ==========
@@ -365,11 +351,11 @@ func (h *Handlers) getFileTags(c *gin.Context) {
 
 	tags, err := h.manager.GetTagsForFile(filePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "获取文件标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取文件标签失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(tags))
+	c.JSON(http.StatusOK, apiresponse.Success(tags))
 }
 
 // addFileTags 为文件添加标签
@@ -388,12 +374,12 @@ func (h *Handlers) addFileTags(c *gin.Context) {
 
 	var req addFileTagsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, "无效的请求参数"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "无效的请求参数"))
 		return
 	}
 
 	if len(req.TagIDs) == 0 {
-		c.JSON(http.StatusBadRequest, Error(400, "请提供标签ID"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "请提供标签ID"))
 		return
 	}
 
@@ -401,16 +387,16 @@ func (h *Handlers) addFileTags(c *gin.Context) {
 	if err != nil {
 		switch err {
 		case ErrInvalidTagID:
-			c.JSON(http.StatusBadRequest, Error(400, "无效的标签ID"))
+			c.JSON(http.StatusBadRequest, apiresponse.Error(400, "无效的标签ID"))
 		case ErrInvalidFilePath:
-			c.JSON(http.StatusBadRequest, Error(400, "无效的文件路径"))
+			c.JSON(http.StatusBadRequest, apiresponse.Error(400, "无效的文件路径"))
 		default:
-			c.JSON(http.StatusInternalServerError, Error(500, "添加标签失败"))
+			c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "添加标签失败"))
 		}
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	c.JSON(http.StatusOK, apiresponse.Success(nil))
 }
 
 // removeFileTag 从文件移除单个标签
@@ -429,11 +415,11 @@ func (h *Handlers) removeFileTag(c *gin.Context) {
 
 	err := h.manager.RemoveTagsFromFile(filePath, []string{tagID})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "移除标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "移除标签失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	c.JSON(http.StatusOK, apiresponse.Success(nil))
 }
 
 // getFilesByTagId 按标签ID查询文件
@@ -452,20 +438,20 @@ func (h *Handlers) getFilesByTagId(c *gin.Context) {
 	_, err := h.manager.GetTag(tagID)
 	if err != nil {
 		if err == ErrTagNotFound {
-			c.JSON(http.StatusNotFound, Error(404, "标签不存在"))
+			c.JSON(http.StatusNotFound, apiresponse.Error(404, "标签不存在"))
 			return
 		}
-		c.JSON(http.StatusInternalServerError, Error(500, "获取标签失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "获取标签失败"))
 		return
 	}
 
 	files, err := h.manager.GetFilesByTags([]string{tagID}, false)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, Error(500, "查询文件失败"))
+		c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "查询文件失败"))
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(files))
+	c.JSON(http.StatusOK, apiresponse.Success(files))
 }
 
 // batchTagFiles 批量标签操作
@@ -481,16 +467,16 @@ func (h *Handlers) getFilesByTagId(c *gin.Context) {
 func (h *Handlers) batchTagFiles(c *gin.Context) {
 	var req BatchTagRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, Error(400, "无效的请求参数"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "无效的请求参数"))
 		return
 	}
 
 	if len(req.FilePaths) == 0 {
-		c.JSON(http.StatusBadRequest, Error(400, "请提供文件路径"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "请提供文件路径"))
 		return
 	}
 	if len(req.TagIDs) == 0 {
-		c.JSON(http.StatusBadRequest, Error(400, "请提供标签ID"))
+		c.JSON(http.StatusBadRequest, apiresponse.Error(400, "请提供标签ID"))
 		return
 	}
 
@@ -528,16 +514,16 @@ func (h *Handlers) batchTagFiles(c *gin.Context) {
 	if err != nil {
 		switch err {
 		case ErrInvalidTagID:
-			c.JSON(http.StatusBadRequest, Error(400, "无效的标签ID"))
+			c.JSON(http.StatusBadRequest, apiresponse.Error(400, "无效的标签ID"))
 		case ErrInvalidFilePath:
-			c.JSON(http.StatusBadRequest, Error(400, "无效的文件路径"))
+			c.JSON(http.StatusBadRequest, apiresponse.Error(400, "无效的文件路径"))
 		default:
-			c.JSON(http.StatusInternalServerError, Error(500, "批量操作失败"))
+			c.JSON(http.StatusInternalServerError, apiresponse.Error(500, "批量操作失败"))
 		}
 		return
 	}
 
-	c.JSON(http.StatusOK, Success(nil))
+	c.JSON(http.StatusOK, apiresponse.Success(nil))
 }
 
 // addFileTagsRequest 添加文件标签请求
