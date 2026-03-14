@@ -57,6 +57,9 @@ func InitializeEdgeComputing(config EdgeRootConfig, logger *zap.Logger, cluster 
 		return nil, err
 	}
 
+	// 先设置依赖，再初始化，避免竞态条件
+	taskScheduler.SetEdgeManager(nodeManager)
+
 	if err := taskScheduler.Initialize(); err != nil {
 		_ = nodeManager.Shutdown()
 		return nil, err
@@ -97,7 +100,6 @@ func InitializeEdgeComputing(config EdgeRootConfig, logger *zap.Logger, cluster 
 
 	// 5. 设置模块间依赖
 	nodeManager.SetTaskScheduler(taskScheduler)
-	taskScheduler.SetEdgeManager(nodeManager)
 	taskScheduler.SetResultAggregator(resultAgg)
 
 	// 6. 创建 API 处理器

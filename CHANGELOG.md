@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.21.0] - 2026-03-15
+
+### Added
+- **短信认证支持** (刑部)
+  - 阿里云短信 API 集成
+  - 腾讯云短信 API 集成
+  - 支持 SMS 验证码发送和验证
+
+- **MFA 增强** (刑部)
+  - 恢复码使用后自动移除
+  - 临时验证码存储（带过期时间）
+
+- **RBAC 中间件增强** (刑部)
+  - 从用户对象获取组信息
+
+- **NFS 管理增强** (礼部)
+  - 完整 NFS 服务配置管理
+  - 导出配置保存和加载
+
+- **Web 中间件安全增强** (礼部)
+  - CSRF 密钥从环境变量读取
+  - Token 验证完善
+
+- **共享服务完善** (礼部)
+  - 全局 SMB 配置更新
+  - 全局 NFS 配置更新
+
+### Fixed
+- **代码格式修复**
+  - 修复 `internal/photos/handlers.go` gofmt 格式问题
+  - 修复 `internal/photos/manager.go` gofmt 格式问题
+  - 解决 CI/CD 代码检查失败问题
+
 ## [v2.20.2] - 2026-03-15
 
 ### Fixed
