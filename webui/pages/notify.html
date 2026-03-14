@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通知中心 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .notify-container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--surface-secondary);
+            transition: all 0.2s;
+        }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active {
+            color: white;
+            background: var(--color-primary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-label { color: var(--text-muted); font-size: 13px; margin-top: 0.25rem; }
+        .stat-card.info .stat-value { color: var(--color-primary); }
+        .stat-card.warning .stat-value { color: var(--color-warning); }
+        .stat-card.error .stat-value { color: var(--color-error); }
+        .stat-card.success .stat-value { color: var(--color-success); }
+        
+        .card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .card-title { font-size: 18px; font-weight: 600; }
+        
+        .notify-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .notify-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .notify-item:hover { background: var(--surface-secondary); }
+        .notify-item.unread { background: var(--color-primary-light); }
+        .notify-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .notify-icon.info { background: var(--color-info-bg); color: var(--color-info); }
+        .notify-icon.warning { background: var(--color-warning-bg); color: var(--color-warning); }
+        .notify-icon.error { background: var(--color-error-bg); color: var(--color-error); }
+        .notify-icon.success { background: var(--color-success-bg); color: var(--color-success); }
+        .notify-content { flex: 1; }
+        .notify-title { font-weight: 600; margin-bottom: 0.25rem; }
+        .notify-message { font-size: 14px; color: var(--text-secondary); }
+        .notify-time { font-size: 12px; color: var(--text-muted); margin-top: 0.25rem; }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: var(--color-primary-hover); }
+        .btn-secondary { background: var(--surface-tertiary); color: var(--text-primary); }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 13px; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--surface-border);
+            color: var(--text-primary);
+        }
+        
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .channel-card {
+            background: var(--surface-secondary);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .channel-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: var(--surface-color);
+        }
+        .channel-info { flex: 1; }
+        .channel-name { font-weight: 600; }
+        .channel-status { font-size: 12px; color: var(--text-muted); }
+        
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider { background-color: var(--color-primary); }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 14px; }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="notify-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">通知中心</h1>
+                <p class="page-subtitle">系统通知与告警管理</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary btn-sm" onclick="markAllRead()">全部已读</button>
+                <button class="btn btn-outline btn-sm" onclick="showSettings()">设置</button>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card info" onclick="filterByType('all')">
+                <div class="stat-value" id="totalNotify">0</div>
+                <div class="stat-label">全部通知</div>
+            </div>
+            <div class="stat-card info" onclick="filterByType('info')">
+                <div class="stat-value" id="infoNotify">0</div>
+                <div class="stat-label">信息</div>
+            </div>
+            <div class="stat-card warning" onclick="filterByType('warning')">
+                <div class="stat-value" id="warningNotify">0</div>
+                <div class="stat-label">警告</div>
+            </div>
+            <div class="stat-card error" onclick="filterByType('error')">
+                <div class="stat-value" id="errorNotify">0</div>
+                <div class="stat-label">错误</div>
+            </div>
+            <div class="stat-card success" onclick="filterByType('success')">
+                <div class="stat-value" id="successNotify">0</div>
+                <div class="stat-label">成功</div>
+            </div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs">
+            <div class="tab active" data-tab="all">全部</div>
+            <div class="tab" data-tab="unread">未读</div>
+            <div class="tab" data-tab="system">系统</div>
+            <div class="tab" data-tab="alerts">告警</div>
+        </div>
+
+        <!-- 通知列表 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">通知列表</h2>
+                <button class="btn btn-secondary btn-sm" onclick="loadNotifications()">刷新</button>
+            </div>
+            <ul class="notify-list" id="notifyList">
+                <li class="empty-state">
+                    <div class="empty-icon">🔔</div>
+                    <div>暂无通知</div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 通知渠道 -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">通知渠道</h2>
+            </div>
+            <div class="channel-grid" id="channelGrid">
+                <div class="channel-card">
+                    <div class="channel-icon">📧</div>
+                    <div class="channel-info">
+                        <div class="channel-name">邮件</div>
+                        <div class="channel-status">SMTP 通知</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="emailChannel" onchange="toggleChannel('email', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon">💬</div>
+                    <div class="channel-info">
+                        <div class="channel-name">企业微信</div>
+                        <div class="channel-status">Webhook 通知</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="wechatChannel" onchange="toggleChannel('wechat', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon">🤖</div>
+                    <div class="channel-info">
+                        <div class="channel-name">Telegram</div>
+                        <div class="channel-status">Bot 通知</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="telegramChannel" onchange="toggleChannel('telegram', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="channel-card">
+                    <div class="channel-icon">🌐</div>
+                    <div class="channel-info">
+                        <div class="channel-name">Webhook</div>
+                        <div class="channel-status">自定义 URL</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="webhookChannel" onchange="toggleChannel('webhook', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let currentFilter = 'all';
+        let notifications = [];
+        
+        // 标签页切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.tab;
+                renderNotifications();
+            });
+        });
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNotifications();
+            loadChannels();
+        });
+
+        async function loadNotifications() {
+            try {
+                const response = await fetch(`${API_BASE}/notify/list`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data) {
+                    notifications = data.data.notifications || [];
+                    updateStats();
+                    renderNotifications();
+                }
+            } catch (error) {
+                console.error('加载通知失败:', error);
+            }
+        }
+
+        async function loadChannels() {
+            try {
+                const response = await fetch(`${API_BASE}/notify/channels`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data) {
+                    data.data.channels.forEach(ch => {
+                        const checkbox = document.getElementById(`${ch.type}Channel`);
+                        if (checkbox) checkbox.checked = ch.enabled;
+                    });
+                }
+            } catch (error) {
+                console.error('加载渠道配置失败:', error);
+            }
+        }
+
+        function updateStats() {
+            const counts = { info: 0, warning: 0, error: 0, success: 0 };
+            notifications.forEach(n => counts[n.type] = (counts[n.type] || 0) + 1);
+            
+            document.getElementById('totalNotify').textContent = notifications.length;
+            document.getElementById('infoNotify').textContent = counts.info || 0;
+            document.getElementById('warningNotify').textContent = counts.warning || 0;
+            document.getElementById('errorNotify').textContent = counts.error || 0;
+            document.getElementById('successNotify').textContent = counts.success || 0;
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notifyList');
+            let filtered = notifications;
+            
+            if (currentFilter === 'unread') {
+                filtered = notifications.filter(n => !n.read);
+            } else if (currentFilter === 'system') {
+                filtered = notifications.filter(n => n.category === 'system');
+            } else if (currentFilter === 'alerts') {
+                filtered = notifications.filter(n => n.category === 'alert');
+            }
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <li class="empty-state">
+                        <div class="empty-icon">🔔</div>
+                        <div>暂无${currentFilter === 'unread' ? '未读' : ''}通知</div>
+                    </li>
+                `;
+                return;
+            }
+
+            list.innerHTML = filtered.map(n => `
+                <li class="notify-item ${n.read ? '' : 'unread'}" onclick="openNotify('${n.id}')">
+                    <div class="notify-icon ${n.type}">${getIcon(n.type)}</div>
+                    <div class="notify-content">
+                        <div class="notify-title">${n.title}</div>
+                        <div class="notify-message">${n.message}</div>
+                        <div class="notify-time">${formatDate(n.timestamp)}</div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function getIcon(type) {
+            const icons = {
+                info: 'ℹ️',
+                warning: '⚠️',
+                error: '❌',
+                success: '✅'
+            };
+            return icons[type] || '📢';
+        }
+
+        function filterByType(type) {
+            currentFilter = type === 'all' ? 'all' : type;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-tab="all"]').classList.add('active');
+            renderNotifications();
+        }
+
+        async function markAllRead() {
+            try {
+                const response = await fetch(`${API_BASE}/notify/read-all`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.code === 0) {
+                    notifications.forEach(n => n.read = true);
+                    renderNotifications();
+                }
+            } catch (error) {
+                alert('操作失败: ' + error.message);
+            }
+        }
+
+        async function openNotify(id) {
+            try {
+                await fetch(`${API_BASE}/notify/${id}/read`, { method: 'POST' });
+                const notify = notifications.find(n => n.id === id);
+                if (notify) {
+                    notify.read = true;
+                    renderNotifications();
+                }
+                
+                // 可以在这里打开详情或跳转
+                alert(`通知: ${notify?.title}\n\n${notify?.message}`);
+            } catch (error) {
+                console.error('标记已读失败:', error);
+            }
+        }
+
+        async function toggleChannel(type, enabled) {
+            try {
+                await fetch(`${API_BASE}/notify/channels/${type}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+            } catch (error) {
+                alert('配置失败: ' + error.message);
+            }
+        }
+
+        function showSettings() {
+            alert('设置功能开发中...');
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前`;
+            if (diff < 86400000) return `${Math.floor(diff / 3600000)} 小时前`;
+            return date.toLocaleDateString('zh-CN');
+        }
+    </script>
+</body>
+</html>

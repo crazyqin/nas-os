@@ -32,7 +32,7 @@ info:
     | 500 | 服务器内部错误 |
     | 503 | 服务暂时不可用 |
     
-  version: 2.18.0
+  version: 2.20.1
   contact:
     name: NAS-OS 团队
     email: support@nas-os.io
@@ -60,6 +60,14 @@ tags:
     description: 卷管理 API - Btrfs 存储卷管理
   - name: users
     description: 用户管理 API - 用户和用户组管理
+  - name: iscsi
+    description: iSCSI 目标管理 API - 块级存储服务
+  - name: office
+    description: 在线文档 API - OnlyOffice 文档编辑协作
+  - name: notify
+    description: 通知中心 API - 系统通知与多渠道告警
+  - name: optimizer
+    description: 性能优化 API - 智能分析与系统优化建议
 
 paths:
   # ==================== 数据去重 API ====================
@@ -1965,6 +1973,214 @@ components:
           type: string
           format: date-time
 
+    # iSCSI 目标管理
+    IscsiTarget:
+      type: object
+      properties:
+        iqn:
+          type: string
+          description: iSCSI Qualified Name
+        luns:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              size:
+                type: integer
+              path:
+                type: string
+        size:
+          type: integer
+          description: 总容量（字节）
+        active:
+          type: boolean
+        sessions:
+          type: integer
+          description: 活动会话数
+        created_at:
+          type: string
+          format: date-time
+
+    IscsiTargetCreate:
+      type: object
+      required:
+        - name
+        - path
+        - sizeGB
+      properties:
+        name:
+          type: string
+          description: 目标名称
+        path:
+          type: string
+          description: 存储路径
+        sizeGB:
+          type: integer
+          description: 容量（GB）
+        allowedInitiators:
+          type: string
+          description: 允许的发起程序（默认 ALL）
+
+    # 在线文档
+    OfficeConfig:
+      type: object
+      properties:
+        url:
+          type: string
+          description: OnlyOffice 服务地址
+        jwtSecret:
+          type: string
+          description: JWT 密钥
+        storagePath:
+          type: string
+          description: 文档存储路径
+
+    OfficeDocument:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [docx, xlsx, pptx]
+        size:
+          type: integer
+        modifiedAt:
+          type: string
+          format: date-time
+        owner:
+          type: string
+        shared:
+          type: boolean
+
+    # 通知管理
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+          enum: [info, warning, error, success]
+        category:
+          type: string
+          enum: [system, alert, user]
+        read:
+          type: boolean
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+
+    NotifyChannel:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [email, wechat, telegram, webhook]
+        enabled:
+          type: boolean
+        config:
+          type: object
+          additionalProperties: true
+
+    # 性能优化
+    OptimizerAnalysis:
+      type: object
+      properties:
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        cpu:
+          type: object
+          properties:
+            usage:
+              type: number
+            temperature:
+              type: number
+        memory:
+          type: object
+          properties:
+            usage:
+              type: number
+            available:
+              type: integer
+            cached:
+              type: integer
+        disk:
+          type: object
+          properties:
+            usage:
+              type: number
+            io:
+              type: integer
+            latency:
+              type: number
+        cache:
+          type: object
+          properties:
+            hitRate:
+              type: number
+        network:
+          type: object
+          properties:
+            throughput:
+              type: integer
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptimizationRecommendation'
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptimizationTask'
+
+    OptimizationRecommendation:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        priority:
+          type: string
+          enum: [high, medium, low]
+        category:
+          type: string
+        impact:
+          type: string
+        autoFix:
+          type: boolean
+
+    OptimizationTask:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        progress:
+          type: number
+        completedAt:
+          type: string
+          format: date-time
+
     # 错误响应
     ErrorResponse:
       type: object
@@ -2049,3 +2265,352 @@ components:
 
 security:
   - BearerAuth: []
+
+paths:
+  # ==================== iSCSI 目标管理 API ====================
+  /iscsi/targets:
+    get:
+      tags: [iscsi]
+      summary: 获取 iSCSI 目标列表
+      operationId: listIscsiTargets
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  data:
+                    type: object
+                    properties:
+                      targets:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/IscsiTarget'
+    post:
+      tags: [iscsi]
+      summary: 创建 iSCSI 目标
+      operationId: createIscsiTarget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IscsiTargetCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /iscsi/targets/{iqn}:
+    get:
+      tags: [iscsi]
+      summary: 获取目标详情
+      operationId: getIscsiTarget
+      parameters:
+        - name: iqn
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [iscsi]
+      summary: 删除 iSCSI 目标
+      operationId: deleteIscsiTarget
+      parameters:
+        - name: iqn
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /iscsi/portal:
+    get:
+      tags: [iscsi]
+      summary: 获取 Portal 信息
+      operationId: getIscsiPortal
+      responses:
+        '200':
+          description: 成功
+
+  # ==================== 在线文档 API ====================
+  /office/documents:
+    get:
+      tags: [office]
+      summary: 获取文档列表
+      operationId: listOfficeDocuments
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [office]
+      summary: 创建文档
+      operationId: createOfficeDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum: [docx, xlsx, pptx]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /office/documents/{id}:
+    get:
+      tags: [office]
+      summary: 获取文档详情
+      operationId: getOfficeDocument
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [office]
+      summary: 删除文档
+      operationId: deleteOfficeDocument
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /office/editor/{id}:
+    get:
+      tags: [office]
+      summary: 打开编辑器
+      operationId: openOfficeEditor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 编辑器页面
+
+  /office/status:
+    get:
+      tags: [office]
+      summary: 获取服务状态
+      operationId: getOfficeStatus
+      responses:
+        '200':
+          description: 成功
+
+  /office/config:
+    get:
+      tags: [office]
+      summary: 获取配置
+      operationId: getOfficeConfig
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [office]
+      summary: 更新配置
+      operationId: updateOfficeConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfficeConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 通知中心 API ====================
+  /notify/list:
+    get:
+      tags: [notify]
+      summary: 获取通知列表
+      operationId: listNotifications
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [all, info, warning, error, success]
+        - name: unread
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: 成功
+
+  /notify/{id}:
+    get:
+      tags: [notify]
+      summary: 获取通知详情
+      operationId: getNotification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+
+  /notify/{id}/read:
+    post:
+      tags: [notify]
+      summary: 标记已读
+      operationId: markNotificationRead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /notify/read-all:
+    post:
+      tags: [notify]
+      summary: 全部标记已读
+      operationId: markAllNotificationsRead
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /notify/channels:
+    get:
+      tags: [notify]
+      summary: 获取通知渠道
+      operationId: listNotifyChannels
+      responses:
+        '200':
+          description: 成功
+
+  /notify/channels/{type}:
+    put:
+      tags: [notify]
+      summary: 更新渠道配置
+      operationId: updateNotifyChannel
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [email, wechat, telegram, webhook]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                config:
+                  type: object
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 性能优化 API ====================
+  /optimizer/analysis:
+    get:
+      tags: [optimizer]
+      summary: 获取性能分析结果
+      operationId: getOptimizerAnalysis
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizerAnalysis'
+
+  /optimizer/analyze:
+    post:
+      tags: [optimizer]
+      summary: 执行性能分析
+      operationId: runOptimizerAnalysis
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /optimizer/trends:
+    get:
+      tags: [optimizer]
+      summary: 获取性能趋势
+      operationId: getOptimizerTrends
+      parameters:
+        - name: range
+          in: query
+          schema:
+            type: string
+            enum: [1h, 24h, 7d]
+            default: 24h
+      responses:
+        '200':
+          description: 成功
+
+  /optimizer/recommendations:
+    get:
+      tags: [optimizer]
+      summary: 获取优化建议
+      operationId: getOptimizerRecommendations
+      responses:
+        '200':
+          description: 成功
+
+  /optimizer/apply/{id}:
+    post:
+      tags: [optimizer]
+      summary: 应用单个优化
+      operationId: applyOptimization
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /optimizer/apply-all:
+    post:
+      tags: [optimizer]
+      summary: 应用所有优化
+      operationId: applyAllOptimizations
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'

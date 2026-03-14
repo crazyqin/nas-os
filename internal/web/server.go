@@ -724,6 +724,11 @@ func (s *Server) setupRoutes() {
 	s.engine.StaticFile("/replication", "./webui/pages/replication.html")
 	s.engine.StaticFile("/webdav", "./webui/pages/webdav.html")
 	s.engine.StaticFile("/dir-quota", "./webui/pages/dir-quota.html")
+	// v2.20.0 新增页面
+	s.engine.StaticFile("/iscsi", "./webui/pages/iscsi.html")
+	s.engine.StaticFile("/office", "./webui/pages/office.html")
+	s.engine.StaticFile("/notify", "./webui/pages/notify.html")
+	s.engine.StaticFile("/optimizer", "./webui/pages/optimizer.html")
 }
 
 // Start 启动服务器
