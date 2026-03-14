@@ -376,13 +376,13 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 // 这是最可靠的方法，因为数据直接来自内核
 func (m *Manager) getConnectionsCount() int {
 	clientsDir := "/proc/fs/nfsd/clients"
-	
+
 	entries, err := os.ReadDir(clientsDir)
 	if err != nil {
 		m.logger.Debugf("无法读取NFS客户端目录 %s: %v", clientsDir, err)
 		return 0
 	}
-	
+
 	count := 0
 	for _, entry := range entries {
 		if entry.IsDir() {
@@ -390,7 +390,7 @@ func (m *Manager) getConnectionsCount() int {
 			count++
 		}
 	}
-	
+
 	return count
 }
 
