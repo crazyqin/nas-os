@@ -16,14 +16,14 @@ import (
 
 // HotReloader manages hot reloading of plugins
 type HotReloader struct {
-	pluginDir    string
-	manager      *Manager
-	watchers     map[string]*PluginWatcher
-	checksums    map[string]string
-	interval     time.Duration
-	stopCh       chan struct{}
-	mu           sync.RWMutex
-	notifyFunc   func(pluginID string, event HotReloadEvent)
+	pluginDir  string
+	manager    *Manager
+	watchers   map[string]*PluginWatcher
+	checksums  map[string]string
+	interval   time.Duration
+	stopCh     chan struct{}
+	mu         sync.RWMutex
+	notifyFunc func(pluginID string, event HotReloadEvent)
 }
 
 // PluginWatcher tracks plugin file changes
@@ -48,10 +48,10 @@ type HotReloadEvent struct {
 type HotReloadEventType string
 
 const (
-	EventPluginLoaded    HotReloadEventType = "loaded"
-	EventPluginUnloaded  HotReloadEventType = "unloaded"
-	EventPluginReloaded  HotReloadEventType = "reloaded"
-	EventPluginError     HotReloadEventType = "error"
+	EventPluginLoaded     HotReloadEventType = "loaded"
+	EventPluginUnloaded   HotReloadEventType = "unloaded"
+	EventPluginReloaded   HotReloadEventType = "reloaded"
+	EventPluginError      HotReloadEventType = "error"
 	EventPluginDiscovered HotReloadEventType = "discovered"
 )
 
@@ -404,18 +404,18 @@ func (hr *HotReloader) ForceReload(pluginID string) error {
 
 // HotReloadStatus represents the status of hot reloading
 type HotReloadStatus struct {
-	Running      bool                       `json:"running"`
-	CheckInterval string                    `json:"checkInterval"`
-	Watchers     map[string]WatcherStatus   `json:"watchers"`
+	Running       bool                     `json:"running"`
+	CheckInterval string                   `json:"checkInterval"`
+	Watchers      map[string]WatcherStatus `json:"watchers"`
 }
 
 // WatcherStatus represents status of a plugin watcher
 type WatcherStatus struct {
-	PluginID      string `json:"pluginId"`
-	Path          string `json:"path"`
-	LastMod       int64  `json:"lastMod"`
-	Checksum      string `json:"checksum"`
-	ReloadCount   int    `json:"reloadCount"`
+	PluginID    string `json:"pluginId"`
+	Path        string `json:"path"`
+	LastMod     int64  `json:"lastMod"`
+	Checksum    string `json:"checksum"`
+	ReloadCount int    `json:"reloadCount"`
 }
 
 // GetStatus returns hot reloader status

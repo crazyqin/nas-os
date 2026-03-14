@@ -31,12 +31,12 @@ type Session struct {
 
 // SessionConfig 会话配置
 type SessionConfig struct {
-	TokenExpiry         time.Duration `json:"token_expiry"`          // 令牌有效期
-	RefreshTokenExpiry  time.Duration `json:"refresh_token_expiry"`  // 刷新令牌有效期
-	MaxSessionsPerUser  int           `json:"max_sessions_per_user"` // 每用户最大会话数
-	EnableRefreshToken  bool          `json:"enable_refresh_token"`  // 启用刷新令牌
-	SessionFilePath     string        `json:"session_file_path"`     // 会话文件存储路径
-	CleanupInterval     time.Duration `json:"cleanup_interval"`      // 清理间隔
+	TokenExpiry        time.Duration `json:"token_expiry"`          // 令牌有效期
+	RefreshTokenExpiry time.Duration `json:"refresh_token_expiry"`  // 刷新令牌有效期
+	MaxSessionsPerUser int           `json:"max_sessions_per_user"` // 每用户最大会话数
+	EnableRefreshToken bool          `json:"enable_refresh_token"`  // 启用刷新令牌
+	SessionFilePath    string        `json:"session_file_path"`     // 会话文件存储路径
+	CleanupInterval    time.Duration `json:"cleanup_interval"`      // 清理间隔
 }
 
 // DefaultSessionConfig 默认会话配置
@@ -428,11 +428,11 @@ func (m *SessionManager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	return map[string]interface{}{
-		"total_sessions":       len(m.sessions),
-		"total_users":          len(m.userSession),
+		"total_sessions":        len(m.sessions),
+		"total_users":           len(m.userSession),
 		"max_sessions_per_user": m.config.MaxSessionsPerUser,
-		"token_expiry":         m.config.TokenExpiry.String(),
-		"refresh_token_expiry": m.config.RefreshTokenExpiry.String(),
+		"token_expiry":          m.config.TokenExpiry.String(),
+		"refresh_token_expiry":  m.config.RefreshTokenExpiry.String(),
 	}
 }
 
@@ -454,10 +454,10 @@ func generateSecureID() string {
 
 // 错误定义
 var (
-	ErrSessionNotFound      = errors.New("会话不存在")
-	ErrSessionExpired       = errors.New("会话已过期")
-	ErrRefreshTokenInvalid  = errors.New("刷新令牌无效")
-	ErrRefreshTokenExpired  = errors.New("刷新令牌已过期")
+	ErrSessionNotFound     = errors.New("会话不存在")
+	ErrSessionExpired      = errors.New("会话已过期")
+	ErrRefreshTokenInvalid = errors.New("刷新令牌无效")
+	ErrRefreshTokenExpired = errors.New("刷新令牌已过期")
 )
 
 // SessionMiddleware 会话中间件（用于 Gin）

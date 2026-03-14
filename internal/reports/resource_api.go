@@ -32,12 +32,12 @@ func NewResourceAPIHandlers(gen *ReportGenerator) *ResourceAPIHandlers {
 	}
 
 	capacityConfig := CapacityPlanningConfig{
-		AlertThreshold:     70.0,
-		CriticalThreshold:  85.0,
-		ForecastDays:       90,
-		GrowthModel:        GrowthModelLinear,
-		ExpansionLeadTime:  30,
-		SafetyBuffer:       20.0,
+		AlertThreshold:    70.0,
+		CriticalThreshold: 85.0,
+		ForecastDays:      90,
+		GrowthModel:       GrowthModelLinear,
+		ExpansionLeadTime: 30,
+		SafetyBuffer:      20.0,
 	}
 
 	bandwidthConfig := BandwidthReportConfig{
@@ -189,12 +189,12 @@ func (h *ResourceAPIHandlers) analyzeCostTrend(c *gin.Context) {
 
 func (h *ResourceAPIHandlers) analyzeCostOptimization(c *gin.Context) {
 	var req struct {
-		WasteItems    []WasteItem       `json:"waste_items"`
-		VolumeMetrics []StorageMetrics  `json:"volume_metrics"`
+		WasteItems    []WasteItem         `json:"waste_items"`
+		VolumeMetrics []StorageMetrics    `json:"volume_metrics"`
 		CurrentCosts  []StorageCostResult `json:"current_costs"`
-		TotalCapacity uint64            `json:"total_capacity"`
-		StartTime     *time.Time        `json:"start_time"`
-		EndTime       *time.Time        `json:"end_time"`
+		TotalCapacity uint64              `json:"total_capacity"`
+		StartTime     *time.Time          `json:"start_time"`
+		EndTime       *time.Time          `json:"end_time"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -226,8 +226,8 @@ func (h *ResourceAPIHandlers) analyzeCostOptimization(c *gin.Context) {
 
 func (h *ResourceAPIHandlers) analyzeWaste(c *gin.Context) {
 	var req struct {
-		WasteItems   []WasteItem `json:"waste_items" binding:"required"`
-		TotalCapacity uint64     `json:"total_capacity"`
+		WasteItems    []WasteItem `json:"waste_items" binding:"required"`
+		TotalCapacity uint64      `json:"total_capacity"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -241,8 +241,8 @@ func (h *ResourceAPIHandlers) analyzeWaste(c *gin.Context) {
 
 func (h *ResourceAPIHandlers) identifyOptimizationOpportunities(c *gin.Context) {
 	var req struct {
-		WasteItems    []WasteItem       `json:"waste_items"`
-		VolumeMetrics []StorageMetrics  `json:"volume_metrics"`
+		WasteItems    []WasteItem         `json:"waste_items"`
+		VolumeMetrics []StorageMetrics    `json:"volume_metrics"`
 		CurrentCosts  []StorageCostResult `json:"current_costs"`
 	}
 
@@ -262,12 +262,12 @@ func (h *ResourceAPIHandlers) identifyOptimizationOpportunities(c *gin.Context) 
 
 func (h *ResourceAPIHandlers) generateOptimizationReport(c *gin.Context) {
 	var req struct {
-		WasteItems    []WasteItem       `json:"waste_items"`
-		VolumeMetrics []StorageMetrics  `json:"volume_metrics"`
+		WasteItems    []WasteItem         `json:"waste_items"`
+		VolumeMetrics []StorageMetrics    `json:"volume_metrics"`
 		CurrentCosts  []StorageCostResult `json:"current_costs"`
-		TotalCapacity uint64            `json:"total_capacity"`
-		StartTime     *time.Time        `json:"start_time"`
-		EndTime       *time.Time        `json:"end_time"`
+		TotalCapacity uint64              `json:"total_capacity"`
+		StartTime     *time.Time          `json:"start_time"`
+		EndTime       *time.Time          `json:"end_time"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -385,8 +385,8 @@ func (h *ResourceAPIHandlers) analyzeCapacity(c *gin.Context) {
 
 func (h *ResourceAPIHandlers) predictCapacity(c *gin.Context) {
 	var req struct {
-		History       []CapacityHistory `json:"history" binding:"required"`
-		TargetMonths  int               `json:"target_months"`
+		History      []CapacityHistory `json:"history" binding:"required"`
+		TargetMonths int               `json:"target_months"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -406,10 +406,10 @@ func (h *ResourceAPIHandlers) predictCapacity(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"target_months":    targetMonths,
-		"predicted_bytes":  predicted,
-		"predicted_gb":     float64(predicted) / (1024 * 1024 * 1024),
-		"generated_at":     time.Now(),
+		"target_months":   targetMonths,
+		"predicted_bytes": predicted,
+		"predicted_gb":    float64(predicted) / (1024 * 1024 * 1024),
+		"generated_at":    time.Now(),
 	})
 }
 
@@ -436,11 +436,11 @@ func (h *ResourceAPIHandlers) generateCapacityForecast(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"volume_name":     volumeName,
-		"forecasts":       report.Forecasts,
-		"current":         report.Current,
-		"summary":         report.Summary,
-		"generated_at":    time.Now(),
+		"volume_name":  volumeName,
+		"forecasts":    report.Forecasts,
+		"current":      report.Current,
+		"summary":      report.Summary,
+		"generated_at": time.Now(),
 	})
 }
 

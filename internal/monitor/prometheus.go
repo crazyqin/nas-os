@@ -14,9 +14,9 @@ type PrometheusMetrics struct {
 	CPUUsageGauge prometheus.Gauge
 
 	// 内存使用
-	MemoryUsageGauge    prometheus.Gauge
-	MemoryTotalGauge    prometheus.Gauge
-	MemoryUsedGauge     prometheus.Gauge
+	MemoryUsageGauge     prometheus.Gauge
+	MemoryTotalGauge     prometheus.Gauge
+	MemoryUsedGauge      prometheus.Gauge
 	MemoryAvailableGauge prometheus.Gauge
 
 	// Swap 使用
@@ -61,11 +61,11 @@ type PrometheusMetrics struct {
 	// ========== NAS-OS 业务指标 ==========
 
 	// 备份指标
-	BackupTotalGauge     *prometheus.GaugeVec
-	BackupSizeGauge      *prometheus.GaugeVec
-	BackupDurationGauge  *prometheus.GaugeVec
-	BackupStatusGauge    *prometheus.GaugeVec
-	BackupLastRunGauge   *prometheus.GaugeVec
+	BackupTotalGauge    *prometheus.GaugeVec
+	BackupSizeGauge     *prometheus.GaugeVec
+	BackupDurationGauge *prometheus.GaugeVec
+	BackupStatusGauge   *prometheus.GaugeVec
+	BackupLastRunGauge  *prometheus.GaugeVec
 
 	// 快照指标
 	SnapshotTotalGauge     *prometheus.GaugeVec
@@ -74,25 +74,25 @@ type PrometheusMetrics struct {
 	SnapshotRetentionGauge *prometheus.GaugeVec
 
 	// 存储池指标
-	StoragePoolUsageGauge   *prometheus.GaugeVec
-	StoragePoolTotalGauge   *prometheus.GaugeVec
-	StoragePoolUsedGauge    *prometheus.GaugeVec
-	StoragePoolHealthGauge  *prometheus.GaugeVec
+	StoragePoolUsageGauge  *prometheus.GaugeVec
+	StoragePoolTotalGauge  *prometheus.GaugeVec
+	StoragePoolUsedGauge   *prometheus.GaugeVec
+	StoragePoolHealthGauge *prometheus.GaugeVec
 
 	// 共享指标
-	ShareTotalGauge     *prometheus.GaugeVec
+	ShareTotalGauge       *prometheus.GaugeVec
 	ShareConnectionsGauge *prometheus.GaugeVec
-	ShareBytesGauge     *prometheus.GaugeVec
+	ShareBytesGauge       *prometheus.GaugeVec
 
 	// 用户指标
-	UserTotalGauge      prometheus.Gauge
-	UserActiveGauge     prometheus.Gauge
-	UserSessionsGauge   *prometheus.GaugeVec
+	UserTotalGauge    prometheus.Gauge
+	UserActiveGauge   prometheus.Gauge
+	UserSessionsGauge *prometheus.GaugeVec
 
 	// API 指标
-	APIRequestsTotal     *prometheus.CounterVec
-	APIRequestDuration   *prometheus.HistogramVec
-	APIRequestsInFlight  prometheus.Gauge
+	APIRequestsTotal    *prometheus.CounterVec
+	APIRequestDuration  *prometheus.HistogramVec
+	APIRequestsInFlight prometheus.Gauge
 
 	// ========== 服务健康指标 ==========
 
@@ -101,8 +101,8 @@ type PrometheusMetrics struct {
 	ServiceUptimeGauge *prometheus.GaugeVec
 
 	// 告警
-	AlertsTotalGauge   *prometheus.GaugeVec
-	AlertsActiveGauge  prometheus.Gauge
+	AlertsTotalGauge  *prometheus.GaugeVec
+	AlertsActiveGauge prometheus.Gauge
 
 	// 健康评分
 	HealthScoreGauge prometheus.Gauge

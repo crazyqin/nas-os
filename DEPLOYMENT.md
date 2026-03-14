@@ -1,5 +1,18 @@
 # NAS-OS 部署指南
 
+> v2.31.0 更新 - 工部运维手册
+
+## 目录
+
+1. [快速开始](#快速开始)
+2. [生产部署](#生产部署)
+3. [配置详解](#配置详解)
+4. [监控告警](#监控告警)
+5. [升级维护](#升级维护)
+6. [故障排查](#故障排查)
+
+---
+
 ## 快速开始
 
 ### 方式一：Docker 部署（推荐开发测试）
@@ -129,25 +142,102 @@ make docker-build
 
 ## 监控告警
 
-### Prometheus 指标
-- `/metrics` - 系统指标
-- 磁盘使用率
-- CPU/内存使用
-- btrfs 健康状态
+### 架构概览
+
+```
+┌─────────────┐     ┌──────────────┐     ┌───────────────┐
+│   NAS-OS    │────▶│  Prometheus  │────▶│ Alertmanager  │
+│  :8080      │     │   :9090      │     │    :9093      │
+└─────────────┘     └──────────────┘     └───────────────┘
+       │                   │                     │
+       │                   ▼                     ▼
+       │            ┌──────────────┐      ┌───────────┐
+       │            │   Grafana    │      │  通知渠道  │
+       │            │   :3000      │      │ 邮件/企微  │
+       │            └──────────────┘      └───────────┘
+       │
+       ▼
+/metrics 端点 (60+ Prometheus 指标)
+```
+
+### Prometheus 指标分类
+
+| 类别 | 指标前缀 | 说明 |
+|------|---------|------|
+| 系统 | `nas_os_cpu_*`, `nas_os_memory_*` | CPU、内存、负载 |
+| 磁盘 | `nas_os_disk_*` | 磁盘空间、I/O |
+| 网络 | `nas_os_network_*` | 网络流量、错误 |
+| 存储 | `nas_os_storage_pool_*` | 存储池状态 |
+| 备份 | `nas_os_backup_*` | 备份任务状态 |
+| 快照 | `nas_os_snapshot_*` | 快照统计 |
+| 共享 | `nas_os_share_*` | SMB/NFS 连接 |
+| API | `nas_os_api_*` | 请求延迟、错误率 |
+| 服务 | `nas_os_service_*` | 服务健康状态 |
+| 健康评分 | `nas_os_health_score` | 系统健康评分 (0-100) |
+
+详细指标列表见 [`docs/PROMETHEUS_METRICS.md`](docs/PROMETHEUS_METRICS.md)
 
 ### 告警规则
-- 磁盘空间 <20% (警告) / <5% (严重)
+
+告警规则位于 `monitoring/alerts.yml`，包含 40+ 规则：
+
+**严重告警 (Critical)：**
+- 磁盘空间 <5%
+- 内存使用 >95%
 - 服务宕机 >1 分钟
-- CPU/内存 >80%
-- btrfs 设备错误
+- Btrfs 设备错误
+- 存储池离线
+
+**警告告警 (Warning)：**
+- 磁盘空间 <20%
+- 内存使用 >80%
+- CPU 使用 >80%
+- 备份任务失败
+- 快照复制延迟
+
+### 部署监控栈
+
+```bash
+# 使用 docker-compose 启动
+docker-compose -f docker-compose.yml -f monitoring/docker-compose.monitoring.yml up -d
+
+# 访问服务
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000 (admin/admin123)
+# Alertmanager: http://localhost:9093
+```
+
+### 配置告警通知
+
+编辑 `monitoring/alertmanager.yml`:
+
+```yaml
+global:
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_from: 'nas-os@example.com'
+  smtp_auth_username: 'nas-os@example.com'
+  smtp_auth_password: 'your-password'
+
+receivers:
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'admin@example.com'
+```
 
 ### 查看监控
+
 ```bash
 # 启动监控栈
 docker-compose up -d prometheus grafana
 
 # 访问 Grafana
 # http://localhost:3000 (admin/admin123)
+
+# 检查指标
+curl http://localhost:8080/metrics | grep nas_os
+
+# 查看活跃告警
+curl http://localhost:9093/api/v2/alerts | jq
 ```
 
 ## 故障排查

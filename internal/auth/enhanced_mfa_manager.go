@@ -13,16 +13,16 @@ import (
 // EnhancedMFAManager 增强版双因素认证管理器
 // 支持 TOTP Secret 加密存储、登录失败限制、会话管理
 type EnhancedMFAManager struct {
-	mu               sync.RWMutex
-	configs          map[string]*MFAConfig // userID -> MFAConfig
-	configPath       string
-	smsManager       *SMSManager
-	backupManager    *SecureBackupCodeManager
-	webauthnMgr      *WebAuthnManager
-	issuer           string
-	encryption       *SecretEncryption
-	loginTracker     *LoginAttemptTracker
-	sessionManager   *SessionManager
+	mu                sync.RWMutex
+	configs           map[string]*MFAConfig // userID -> MFAConfig
+	configPath        string
+	smsManager        *SMSManager
+	backupManager     *SecureBackupCodeManager
+	webauthnMgr       *WebAuthnManager
+	issuer            string
+	encryption        *SecretEncryption
+	loginTracker      *LoginAttemptTracker
+	sessionManager    *SessionManager
 	passwordValidator *PasswordValidator
 }
 
@@ -437,10 +437,10 @@ func (m *EnhancedMFAManager) GetStats() map[string]interface{} {
 	defer m.mu.RUnlock()
 
 	stats := map[string]interface{}{
-		"total_users":     len(m.configs),
-		"mfa_enabled":     0,
-		"totp_enabled":    0,
-		"sms_enabled":     0,
+		"total_users":      len(m.configs),
+		"mfa_enabled":      0,
+		"totp_enabled":     0,
+		"sms_enabled":      0,
 		"webauthn_enabled": 0,
 	}
 

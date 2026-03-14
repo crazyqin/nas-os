@@ -31,8 +31,8 @@ const (
 	PermSystemMount PermissionType = "system.mount"
 
 	// User permissions
-	PermUserRead   PermissionType = "user.read"
-	PermUserWrite  PermissionType = "user.write"
+	PermUserRead  PermissionType = "user.read"
+	PermUserWrite PermissionType = "user.write"
 
 	// Storage permissions
 	PermStorageRead  PermissionType = "storage.read"
@@ -74,15 +74,15 @@ type SandboxConfig struct {
 
 // Sandbox manages plugin isolation and permissions
 type Sandbox struct {
-	config    SandboxConfig
-	pluginID  string
+	config     SandboxConfig
+	pluginID   string
 	violations []Violation
-	mu        sync.RWMutex
+	mu         sync.RWMutex
 }
 
 // Violation represents a permission violation
 type Violation struct {
-	Timestamp int64          `json:"timestamp"`
+	Timestamp  int64          `json:"timestamp"`
 	Permission PermissionType `json:"permission"`
 	Resource   string         `json:"resource"`
 	Action     string         `json:"action"`
@@ -104,8 +104,8 @@ func NewSandbox(pluginID string, config SandboxConfig) *Sandbox {
 	}
 
 	return &Sandbox{
-		config:    config,
-		pluginID:  pluginID,
+		config:     config,
+		pluginID:   pluginID,
 		violations: make([]Violation, 0),
 	}
 }
@@ -546,4 +546,3 @@ func ParseSandboxConfig(jsonStr string) (SandboxConfig, error) {
 	err := json.Unmarshal([]byte(jsonStr), &config)
 	return config, err
 }
-

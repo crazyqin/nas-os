@@ -24,16 +24,16 @@ func (e *QuotaError) Conflict() bool {
 // ========== 错误码定义 ==========
 
 const (
-	ErrCodeQuotaNotFound   = 1001
-	ErrCodeQuotaExists     = 1002
-	ErrCodeQuotaExceeded   = 1003
-	ErrCodeUserNotFound    = 1004
-	ErrCodeGroupNotFound   = 1005
-	ErrCodeVolumeNotFound  = 1006
-	ErrCodeInvalidLimit    = 1007
-	ErrCodePolicyNotFound  = 1008
-	ErrCodeInvalidInput    = 1009
-	ErrCodeAlertNotFound   = 1010
+	ErrCodeQuotaNotFound  = 1001
+	ErrCodeQuotaExists    = 1002
+	ErrCodeQuotaExceeded  = 1003
+	ErrCodeUserNotFound   = 1004
+	ErrCodeGroupNotFound  = 1005
+	ErrCodeVolumeNotFound = 1006
+	ErrCodeInvalidLimit   = 1007
+	ErrCodePolicyNotFound = 1008
+	ErrCodeInvalidInput   = 1009
+	ErrCodeAlertNotFound  = 1010
 )
 
 // QuotaError 配额错误
@@ -72,15 +72,15 @@ func NewQuotaError(code int, message string, details ...map[string]interface{}) 
 
 // 预定义错误
 var (
-	ErrQuotaNotFoundAPI   = &QuotaError{code: ErrCodeQuotaNotFound, message: "配额不存在"}
-	ErrQuotaExistsAPI     = &QuotaError{code: ErrCodeQuotaExists, message: "配额已存在"}
-	ErrQuotaExceededAPI   = &QuotaError{code: ErrCodeQuotaExceeded, message: "超出配额限制"}
-	ErrUserNotFoundAPI    = &QuotaError{code: ErrCodeUserNotFound, message: "用户不存在"}
-	ErrGroupNotFoundAPI   = &QuotaError{code: ErrCodeGroupNotFound, message: "用户组不存在"}
-	ErrVolumeNotFoundAPI  = &QuotaError{code: ErrCodeVolumeNotFound, message: "卷不存在"}
-	ErrInvalidLimitAPI    = &QuotaError{code: ErrCodeInvalidLimit, message: "无效的配额限制"}
-	ErrPolicyNotFoundAPI  = &QuotaError{code: ErrCodePolicyNotFound, message: "清理策略不存在"}
-	ErrInvalidInputAPI    = &QuotaError{code: ErrCodeInvalidInput, message: "无效的输入参数"}
+	ErrQuotaNotFoundAPI  = &QuotaError{code: ErrCodeQuotaNotFound, message: "配额不存在"}
+	ErrQuotaExistsAPI    = &QuotaError{code: ErrCodeQuotaExists, message: "配额已存在"}
+	ErrQuotaExceededAPI  = &QuotaError{code: ErrCodeQuotaExceeded, message: "超出配额限制"}
+	ErrUserNotFoundAPI   = &QuotaError{code: ErrCodeUserNotFound, message: "用户不存在"}
+	ErrGroupNotFoundAPI  = &QuotaError{code: ErrCodeGroupNotFound, message: "用户组不存在"}
+	ErrVolumeNotFoundAPI = &QuotaError{code: ErrCodeVolumeNotFound, message: "卷不存在"}
+	ErrInvalidLimitAPI   = &QuotaError{code: ErrCodeInvalidLimit, message: "无效的配额限制"}
+	ErrPolicyNotFoundAPI = &QuotaError{code: ErrCodePolicyNotFound, message: "清理策略不存在"}
+	ErrInvalidInputAPI   = &QuotaError{code: ErrCodeInvalidInput, message: "无效的输入参数"}
 )
 
 // WithDetails 添加错误详情

@@ -15,22 +15,22 @@ type LoginAttempt struct {
 
 // LoginAttemptTracker 登录尝试跟踪器
 type LoginAttemptTracker struct {
-	mu                  sync.RWMutex
-	attempts            map[string]*UserAttempts // username -> attempts
-	ipAttempts          map[string]*IPAttempts   // ip -> attempts
-	maxAttempts         int                      // 最大尝试次数
-	lockoutDuration     time.Duration            // 锁定时长
-	attemptWindow       time.Duration            // 尝试计数窗口
-	ipMaxAttempts       int                      // IP 最大尝试次数
-	ipLockoutDuration   time.Duration            // IP 锁定时长
+	mu                sync.RWMutex
+	attempts          map[string]*UserAttempts // username -> attempts
+	ipAttempts        map[string]*IPAttempts   // ip -> attempts
+	maxAttempts       int                      // 最大尝试次数
+	lockoutDuration   time.Duration            // 锁定时长
+	attemptWindow     time.Duration            // 尝试计数窗口
+	ipMaxAttempts     int                      // IP 最大尝试次数
+	ipLockoutDuration time.Duration            // IP 锁定时长
 }
 
 // UserAttempts 用户登录尝试记录
 type UserAttempts struct {
-	Attempts     []time.Time `json:"attempts"`
-	LockedUntil  *time.Time  `json:"locked_until,omitempty"`
-	LastAttempt  time.Time   `json:"last_attempt"`
-	FailedCount  int         `json:"failed_count"`
+	Attempts    []time.Time `json:"attempts"`
+	LockedUntil *time.Time  `json:"locked_until,omitempty"`
+	LastAttempt time.Time   `json:"last_attempt"`
+	FailedCount int         `json:"failed_count"`
 }
 
 // IPAttempts IP 登录尝试记录
@@ -329,16 +329,16 @@ func (t *LoginAttemptTracker) GetLockoutInfo(username string) map[string]interfa
 	userAttempts, exists := t.attempts[username]
 	if !exists {
 		return map[string]interface{}{
-			"username":          username,
-			"locked":            false,
-			"failed_attempts":   0,
+			"username":           username,
+			"locked":             false,
+			"failed_attempts":    0,
 			"remaining_attempts": t.maxAttempts,
 		}
 	}
 
 	info := map[string]interface{}{
-		"username":          username,
-		"failed_attempts":   userAttempts.FailedCount,
+		"username":           username,
+		"failed_attempts":    userAttempts.FailedCount,
 		"remaining_attempts": t.maxAttempts - userAttempts.FailedCount,
 	}
 

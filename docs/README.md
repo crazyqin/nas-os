@@ -1,6 +1,6 @@
 # NAS-OS 文档中心
 
-> **版本**: v2.30.0  
+> **版本**: v2.31.0  
 > **发布日期**: 2026-03-15  
 > **项目**: NAS-OS 家用 NAS 系统
 
@@ -22,8 +22,8 @@
 
 | 文档 | 说明 | 状态 |
 |------|------|------|
-| [QUICKSTART.md](QUICKSTART.md) | 快速开始指南 | ✅ v2.30.0 |
-| [USER_GUIDE.md](USER_GUIDE.md) | 用户使用指南 | ✅ v2.27.0 |
+| [QUICKSTART.md](QUICKSTART.md) | 快速开始指南 | ✅ v2.31.0 |
+| [USER_GUIDE.md](USER_GUIDE.md) | 用户使用指南 | ✅ v2.31.0 |
 | [ADMIN_GUIDE_v2.5.0.md](ADMIN_GUIDE_v2.5.0.md) | 管理员指南 | ✅ v2.5.0 |
 | [API_GUIDE.md](API_GUIDE.md) | API 使用指南 | ✅ v2.27.0 |
 | [DEPLOYMENT_GUIDE_v2.5.0.md](DEPLOYMENT_GUIDE_v2.5.0.md) | 部署指南 | ✅ v2.5.0 |
@@ -134,5 +134,5 @@ nas-os/docs/
 
 ---
 
-*最后更新：2026-03-11*  
+*最后更新：2026-03-15*  
 *文档由 NAS-OS 社区维护*

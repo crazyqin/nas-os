@@ -82,7 +82,7 @@ func (vr *VersionRouter) SetupRoutes(engine *gin.Engine, basePath string) {
 	// Register each version
 	for version, config := range vr.versions {
 		group := engine.Group(basePath + "/" + version)
-		
+
 		// Add deprecation warning header if deprecated
 		if config.Deprecated {
 			group.Use(func(c *gin.Context) {
@@ -95,13 +95,13 @@ func (vr *VersionRouter) SetupRoutes(engine *gin.Engine, basePath string) {
 				c.Next()
 			})
 		}
-		
+
 		// Add version header
 		group.Use(func(c *gin.Context) {
 			c.Header("X-API-Version", version)
 			c.Next()
 		})
-		
+
 		// Register routes
 		if config.Router != nil {
 			config.Router(group)
@@ -118,12 +118,12 @@ func (vr *VersionRouter) SetupRoutes(engine *gin.Engine, basePath string) {
 func VersionMiddleware(currentVersion string, supportedVersions []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		path := c.Request.URL.Path
-		
+
 		// Extract version from path
 		parts := strings.Split(strings.Trim(path, "/"), "/")
 		if len(parts) >= 2 && strings.HasPrefix(parts[0], "api") {
 			requestedVersion := parts[1]
-			
+
 			// Validate version
 			valid := false
 			for _, v := range supportedVersions {
@@ -132,24 +132,24 @@ func VersionMiddleware(currentVersion string, supportedVersions []string) gin.Ha
 					break
 				}
 			}
-			
+
 			if !valid && requestedVersion != "versions" {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"code":    400,
 					"message": fmt.Sprintf("Unsupported API version: %s", requestedVersion),
 					"data": gin.H{
-						"currentVersion": currentVersion,
+						"currentVersion":    currentVersion,
 						"supportedVersions": supportedVersions,
 					},
 				})
 				c.Abort()
 				return
 			}
-			
+
 			// Store version in context
 			c.Set("apiVersion", requestedVersion)
 		}
-		
+
 		c.Next()
 	}
 }
@@ -159,7 +159,7 @@ func VersionMiddleware(currentVersion string, supportedVersions []string) gin.Ha
 func AcceptVersionMiddleware(currentVersion string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		accept := c.GetHeader("Accept")
-		
+
 		// Parse Accept header for version
 		// Format: application/vnd.nas-os.v1+json
 		if strings.Contains(accept, "application/vnd.nas-os.") {
@@ -171,7 +171,7 @@ func AcceptVersionMiddleware(currentVersion string) gin.HandlerFunc {
 		} else {
 			c.Set("apiVersion", currentVersion)
 		}
-		
+
 		c.Next()
 	}
 }
@@ -206,11 +206,11 @@ func (h *VersionHandler) GetVersions(c *gin.Context) {
 
 // DeprecationNotice represents a deprecation notice
 type DeprecationNotice struct {
-	Version     string   `json:"version"`
-	Endpoint    string   `json:"endpoint"`
-	Reason      string   `json:"reason"`
-	Migration   string   `json:"migration"`
-	RemovalDate string   `json:"removalDate"`
+	Version      string   `json:"version"`
+	Endpoint     string   `json:"endpoint"`
+	Reason       string   `json:"reason"`
+	Migration    string   `json:"migration"`
+	RemovalDate  string   `json:"removalDate"`
 	Alternatives []string `json:"alternatives,omitempty"`
 }
 
