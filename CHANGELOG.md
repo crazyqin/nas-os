@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.18.0] - 2026-03-15
+
+### Added
+- **下载器模块** - Transmission/qBittorrent 集成
+  - 支持 Transmission BT 下载器
+  - 支持 qBittorrent 下载器
+  - 统一下载任务管理 API
+  - WebUI 下载管理页面
+
+- **照片管理增强**
+  - 分片上传支持大文件
+  - 智能搜索功能
+  - AI 照片分析
+
+- **数据分层策略完善**
+  - 自动数据迁移规则
+  - 存储层监控增强
+
+- **网络配置持久化**
+  - 网络配置保存和恢复
+  - 配置版本管理
+
+- **测试覆盖率提升**
+  - 单元测试完善
+  - 集成测试增强
+  - 覆盖率达到 40%+
+
+### Changed
+- API 文档完善，更新到 v2.18.0
+- 用户指南更新
+- 国际化语言包完善
+
+### Fixed
+- 文档版本号同步
+- API 文档错误修正
+
 ## [v2.17.1] - 2026-03-14
 
 ### Fixed
