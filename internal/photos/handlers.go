@@ -1542,11 +1542,23 @@ func (h *Handlers) reanalyzeAll(c *gin.Context) {
 		return
 	}
 
-	// TODO: 清除现有 AI 数据并重新分析
+	// 清除现有 AI 数据并重新分析
+	count, err := h.aiManager.ReanalyzeAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "重新分析失败：" + err.Error(),
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "已重新开始分析",
+		"data": gin.H{
+			"photoCount":  count,
+			"description": fmt.Sprintf("已添加 %d 张照片到分析队列", count),
+		},
 	})
 }
 
@@ -1560,7 +1572,14 @@ func (h *Handlers) clearAIData(c *gin.Context) {
 		return
 	}
 
-	// TODO: 清除 AI 内存数据
+	// 清除 AI 内存数据
+	if err := h.aiManager.ClearAIData(); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "清除 AI 数据失败：" + err.Error(),
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
