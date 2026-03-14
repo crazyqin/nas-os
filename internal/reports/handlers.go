@@ -11,21 +11,23 @@ import (
 
 // Handlers 报表 HTTP 处理器
 type Handlers struct {
-	templateManager *TemplateManager
-	generator       *ReportGenerator
-	scheduleManager *ScheduleManager
-	exporter        *Exporter
-	resourceAPI     *ResourceAPIHandlers
+	templateManager  *TemplateManager
+	generator        *ReportGenerator
+	scheduleManager  *ScheduleManager
+	exporter         *Exporter
+	resourceAPI      *ResourceAPIHandlers
+	visualizationAPI *ResourceVisualizationHandlers // v2.30.0 资源可视化
 }
 
 // NewHandlers 创建处理器
 func NewHandlers(tm *TemplateManager, gen *ReportGenerator, sm *ScheduleManager, exp *Exporter) *Handlers {
 	return &Handlers{
-		templateManager: tm,
-		generator:       gen,
-		scheduleManager: sm,
-		exporter:        exp,
-		resourceAPI:     NewResourceAPIHandlers(gen),
+		templateManager:  tm,
+		generator:        gen,
+		scheduleManager:  sm,
+		exporter:         exp,
+		resourceAPI:      NewResourceAPIHandlers(gen),
+		visualizationAPI: NewResourceVisualizationHandlers(), // v2.30.0
 	}
 }
 
@@ -93,6 +95,10 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	// ========== v2.29.0 资源分析增强 ==========
 	// 注册存储成本、成本优化、容量规划、带宽报告 API
 	h.resourceAPI.RegisterResourceRoutes(apiGroup)
+
+	// ========== v2.30.0 资源可视化报告 ==========
+	// 注册资源可视化 API
+	h.visualizationAPI.RegisterResourceVisualizationRoutes(apiGroup)
 }
 
 // ========== 模板管理 API ==========
