@@ -405,10 +405,6 @@ func min(a, b int) int {
 	return b
 }
 
-func float64Ptr(v float64) *float64 {
-	return &v
-}
-
 // 插件导入（实际使用时取消注释）
 // import "nas-os/internal/plugin"
 

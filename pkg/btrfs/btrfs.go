@@ -16,39 +16,12 @@ import (
 var (
 	// 安全的设备路径模式：/dev/sdX, /dev/nvmeXnY, /dev/mapper/XXX
 	devicePathRegex = regexp.MustCompile(`^/dev/(sd[a-z]+[0-9]*|nvme[0-9]+n[0-9]+|mapper/[a-zA-Z0-9_-]+)$`)
-	// 安全的挂载点模式
-	mountPointRegex = regexp.MustCompile(`^/[a-zA-Z0-9/_-]*$`)
 )
 
 // validateDevicePath 验证设备路径是否安全
 func validateDevicePath(device string) error {
 	if !devicePathRegex.MatchString(device) {
 		return fmt.Errorf("invalid device path: %s", device)
-	}
-	return nil
-}
-
-// validateMountPoint 验证挂载点是否安全
-func validateMountPoint(path string) error {
-	if !mountPointRegex.MatchString(path) {
-		return fmt.Errorf("invalid mount point: %s", path)
-	}
-	// 检查是否包含危险字符
-	if strings.ContainsAny(path, ";|&$`\\") {
-		return fmt.Errorf("mount point contains dangerous characters: %s", path)
-	}
-	return nil
-}
-
-// validateSubVolumePath 验证子卷路径是否安全
-func validateSubVolumePath(path string) error {
-	// 子卷路径可以是相对路径
-	if strings.HasPrefix(path, "/") {
-		return validateMountPoint(path)
-	}
-	// 相对路径检查
-	if strings.ContainsAny(path, ";|&$`\\") {
-		return fmt.Errorf("subvolume path contains dangerous characters: %s", path)
 	}
 	return nil
 }

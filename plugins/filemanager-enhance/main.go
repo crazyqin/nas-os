@@ -452,10 +452,6 @@ func copyFile(src, dst string) error {
 	return os.WriteFile(dst, data, 0644)
 }
 
-func float64Ptr(v float64) *float64 {
-	return &v
-}
-
 func isImage(ext string) bool {
 	images := []string{".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"}
 	for _, i := range images {

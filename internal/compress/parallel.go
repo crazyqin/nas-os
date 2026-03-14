@@ -495,7 +495,6 @@ func DefaultCompressConfig() *CompressConfig {
 
 // ParallelCompressor 并行压缩器
 type ParallelCompressor struct {
-	mu          sync.RWMutex
 	config      *Config
 	compressors map[Algorithm]Compressor
 	progress    *CompressionProgress

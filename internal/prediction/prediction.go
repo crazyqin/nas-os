@@ -145,7 +145,6 @@ type PredictionModel struct {
 	// 季节性参数
 	seasonalityEnabled bool
 	seasonalPeriod     int // 季节周期（天）
-	seasonalFactors    []float64
 
 	// 模型准确度
 	accuracy float64

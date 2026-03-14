@@ -918,20 +918,3 @@ func extractUserFromPath(path string) string {
 
 	return ""
 }
-
-// atomicCounter 原子计数器
-type atomicCounter struct {
-	value int64
-}
-
-func (c *atomicCounter) Add(delta int64) int64 {
-	return atomic.AddInt64(&c.value, delta)
-}
-
-func (c *atomicCounter) Get() int64 {
-	return atomic.LoadInt64(&c.value)
-}
-
-func (c *atomicCounter) Reset() {
-	atomic.StoreInt64(&c.value, 0)
-}

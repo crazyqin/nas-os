@@ -95,25 +95,6 @@ func (m *Manager) SetQbittorrentAuth(username, password string) {
 	m.qbittorrentPassword = password
 }
 
-// initBTClients 初始化 BT 客户端
-func (m *Manager) initBTClients() {
-	if m.transmissionURL != "" {
-		m.transmissionClient = NewTransmissionClient(
-			m.transmissionURL,
-			m.transmissionUsername,
-			m.transmissionPassword,
-		)
-	}
-
-	if m.qbittorrentURL != "" {
-		m.qbittorrentClient = NewQBittorrentClient(
-			m.qbittorrentURL,
-			m.qbittorrentUsername,
-			m.qbittorrentPassword,
-		)
-	}
-}
-
 // SetOnTaskUpdate 设置任务更新回调
 func (m *Manager) SetOnTaskUpdate(callback func(*DownloadTask)) {
 	m.onTaskUpdate = callback

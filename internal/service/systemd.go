@@ -499,38 +499,3 @@ func (b *SystemdBackend) GetServiceDependencies(name string) ([]string, error) {
 
 	return deps, nil
 }
-
-// parseUptime 解析运行时间
-func parseUptime(uptimeStr string) time.Duration {
-	// systemd 时间格式可能是多种形式
-	// 例如: "1h 30min", "2d 5h", "30s"
-	re := regexp.MustCompile(`(\d+)([a-z]+)`)
-	matches := re.FindAllStringSubmatch(uptimeStr, -1)
-
-	var total time.Duration
-	for _, match := range matches {
-		if len(match) != 3 {
-			continue
-		}
-		value, err := strconv.Atoi(match[1])
-		if err != nil {
-			continue
-		}
-		unit := match[2]
-
-		switch unit {
-		case "s", "sec", "seconds":
-			total += time.Duration(value) * time.Second
-		case "min", "minutes":
-			total += time.Duration(value) * time.Minute
-		case "h", "hr", "hrs", "hours":
-			total += time.Duration(value) * time.Hour
-		case "d", "day", "days":
-			total += time.Duration(value) * 24 * time.Hour
-		case "w", "week", "weeks":
-			total += time.Duration(value) * 7 * 24 * time.Hour
-		}
-	}
-
-	return total
-}
