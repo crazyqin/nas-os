@@ -70,7 +70,7 @@ func TestCloudSyncHandlers_CreateProvider(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resp map[string]interface{}
-	err := json.Unmarshal(w.Body.Bytes(), &resp)
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
 	require.NoError(t, err)
 	assert.Equal(t, float64(0), resp["code"])
 
