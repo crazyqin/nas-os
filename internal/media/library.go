@@ -441,3 +441,313 @@ func (lm *LibraryManager) saveConfig() error {
 
 	return os.WriteFile(lm.configPath, data, 0644)
 }
+
+// PlayHistory 播放历史记录
+type PlayHistory struct {
+	ID         string     `json:"id"`
+	MediaID    string     `json:"mediaId"`
+	MediaName  string     `json:"mediaName"`
+	MediaType  MediaType  `json:"mediaType"`
+	PosterPath string     `json:"posterPath,omitempty"`
+	Position   int        `json:"position"`  // 播放位置（秒）
+	Duration   int        `json:"duration"`  // 总时长（秒）
+	Completed  bool       `json:"completed"` // 是否看完
+	PlayedAt   time.Time  `json:"playedAt"`
+	LibraryID  string     `json:"libraryId"`
+}
+
+// GetMediaItemByID 根据 ID 获取媒体项
+func (lm *LibraryManager) GetMediaItemByID(id string) (*MediaItem, *MediaLibrary) {
+	lm.mu.RLock()
+	defer lm.mu.RUnlock()
+
+	for _, lib := range lm.libraries {
+		for _, item := range lib.Items {
+			if item.ID == id {
+				return item, lib
+			}
+		}
+	}
+	return nil, nil
+}
+
+// UpdateMediaItem 更新媒体项
+func (lm *LibraryManager) UpdateMediaItem(id string, updates map[string]interface{}) error {
+	lm.mu.Lock()
+	defer lm.mu.Unlock()
+
+	for _, lib := range lm.libraries {
+		for _, item := range lib.Items {
+			if item.ID == id {
+				// 应用更新
+				for key, value := range updates {
+					switch key {
+					case "tags":
+						if v, ok := value.([]string); ok {
+							item.Tags = v
+						}
+					case "rating":
+						if v, ok := value.(float64); ok {
+							item.Rating = v
+						}
+					case "isFavorite":
+						if v, ok := value.(bool); ok {
+							item.IsFavorite = v
+						}
+					}
+				}
+				return lm.saveConfig()
+			}
+		}
+	}
+
+	return fmt.Errorf("媒体项不存在: %s", id)
+}
+
+// DeleteMediaItem 删除媒体项（仅从索引中删除，不删除文件）
+func (lm *LibraryManager) DeleteMediaItem(id string) error {
+	lm.mu.Lock()
+	defer lm.mu.Unlock()
+
+	for libID, lib := range lm.libraries {
+		for i, item := range lib.Items {
+			if item.ID == id {
+				// 从切片中删除
+				lib.Items = append(lib.Items[:i], lib.Items[i+1:]...)
+				lm.libraries[libID] = lib
+				return lm.saveConfig()
+			}
+		}
+	}
+
+	return fmt.Errorf("媒体项不存在: %s", id)
+}
+
+// ToggleFavorite 切换收藏状态
+func (lm *LibraryManager) ToggleFavorite(id string) (*MediaItem, error) {
+	lm.mu.Lock()
+	defer lm.mu.Unlock()
+
+	for _, lib := range lm.libraries {
+		for _, item := range lib.Items {
+			if item.ID == id {
+				item.IsFavorite = !item.IsFavorite
+				_ = lm.saveConfig()
+				return item, nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("媒体项不存在: %s", id)
+}
+
+// GetFavorites 获取收藏列表
+func (lm *LibraryManager) GetFavorites(mediaType MediaType) []*MediaItem {
+	lm.mu.RLock()
+	defer lm.mu.RUnlock()
+
+	favorites := make([]*MediaItem, 0)
+
+	for _, lib := range lm.libraries {
+		if !lib.Enabled {
+			continue
+		}
+		for _, item := range lib.Items {
+			if item.IsFavorite {
+				if mediaType == "" || item.Type == mediaType {
+					favorites = append(favorites, item)
+				}
+			}
+		}
+	}
+
+	// 按修改时间排序
+	for i := 0; i < len(favorites)-1; i++ {
+		for j := i + 1; j < len(favorites); j++ {
+			if favorites[i].ModifiedTime.Before(favorites[j].ModifiedTime) {
+				favorites[i], favorites[j] = favorites[j], favorites[i]
+			}
+		}
+	}
+
+	return favorites
+}
+
+// AddPlayHistory 添加播放历史
+func (lm *LibraryManager) AddPlayHistory(history *PlayHistory) {
+	lm.mu.Lock()
+	defer lm.mu.Unlock()
+
+	// 更新媒体项的播放信息
+	for _, lib := range lm.libraries {
+		for _, item := range lib.Items {
+			if item.ID == history.MediaID {
+				item.PlayCount++
+				item.LastPlayed = &history.PlayedAt
+				if history.Completed {
+					item.PlayCount++ // 完整观看额外计数
+				}
+				break
+			}
+		}
+	}
+
+	_ = lm.saveConfig()
+}
+
+// GetPlayHistory 获取播放历史
+func (lm *LibraryManager) GetPlayHistory(limit int) []*PlayHistory {
+	lm.mu.RLock()
+	defer lm.mu.RUnlock()
+
+	history := make([]*PlayHistory, 0)
+
+	for _, lib := range lm.libraries {
+		if !lib.Enabled {
+			continue
+		}
+		for _, item := range lib.Items {
+			if item.LastPlayed != nil && item.PlayCount > 0 {
+				history = append(history, &PlayHistory{
+					ID:         fmt.Sprintf("history_%s", item.ID),
+					MediaID:    item.ID,
+					MediaName:  item.Name,
+					MediaType:  item.Type,
+					PosterPath: item.PosterPath,
+					PlayedAt:   *item.LastPlayed,
+					LibraryID:  lib.ID,
+				})
+			}
+		}
+	}
+
+	// 按播放时间排序（最近的在前）
+	for i := 0; i < len(history)-1; i++ {
+		for j := i + 1; j < len(history); j++ {
+			if history[i].PlayedAt.Before(history[j].PlayedAt) {
+				history[i], history[j] = history[j], history[i]
+			}
+		}
+	}
+
+	// 限制数量
+	if limit > 0 && len(history) > limit {
+		history = history[:limit]
+	}
+
+	return history
+}
+
+// SearchMovieMetadata 搜索电影元数据
+func (lm *LibraryManager) SearchMovieMetadata(query, source string) ([]*MovieInfo, error) {
+	var provider MetadataProvider
+
+	lm.mu.RLock()
+	for _, p := range lm.metadataProviders {
+		// 根据指定的 source 选择提供商
+		if source == "" || source == "auto" {
+			provider = p
+			break
+		}
+		// 检查提供商类型
+		if tmdb, ok := p.(*TMDBProvider); ok && source == "tmdb" {
+			provider = tmdb
+			break
+		}
+		if douban, ok := p.(*DoubanProvider); ok && source == "douban" {
+			provider = douban
+			break
+		}
+	}
+	lm.mu.RUnlock()
+
+	if provider == nil {
+		return nil, fmt.Errorf("未配置元数据提供商")
+	}
+
+	return provider.SearchMovie(query)
+}
+
+// SearchTVMetadata 搜索电视剧元数据
+func (lm *LibraryManager) SearchTVMetadata(query, source string) ([]*TVShowInfo, error) {
+	var provider MetadataProvider
+
+	lm.mu.RLock()
+	for _, p := range lm.metadataProviders {
+		if source == "" || source == "auto" {
+			provider = p
+			break
+		}
+		if tmdb, ok := p.(*TMDBProvider); ok && source == "tmdb" {
+			provider = tmdb
+			break
+		}
+		if douban, ok := p.(*DoubanProvider); ok && source == "douban" {
+			provider = douban
+			break
+		}
+	}
+	lm.mu.RUnlock()
+
+	if provider == nil {
+		return nil, fmt.Errorf("未配置元数据提供商")
+	}
+
+	return provider.SearchTV(query)
+}
+
+// GetMovieMetadata 获取电影元数据详情
+func (lm *LibraryManager) GetMovieMetadata(id, source string) (*MovieInfo, error) {
+	var provider MetadataProvider
+
+	lm.mu.RLock()
+	for _, p := range lm.metadataProviders {
+		if source == "" || source == "auto" {
+			provider = p
+			break
+		}
+		if tmdb, ok := p.(*TMDBProvider); ok && source == "tmdb" {
+			provider = tmdb
+			break
+		}
+		if douban, ok := p.(*DoubanProvider); ok && source == "douban" {
+			provider = douban
+			break
+		}
+	}
+	lm.mu.RUnlock()
+
+	if provider == nil {
+		return nil, fmt.Errorf("未配置元数据提供商")
+	}
+
+	return provider.GetMovie(id)
+}
+
+// GetTVMetadata 获取电视剧元数据详情
+func (lm *LibraryManager) GetTVMetadata(id, source string) (*TVShowInfo, error) {
+	var provider MetadataProvider
+
+	lm.mu.RLock()
+	for _, p := range lm.metadataProviders {
+		if source == "" || source == "auto" {
+			provider = p
+			break
+		}
+		if tmdb, ok := p.(*TMDBProvider); ok && source == "tmdb" {
+			provider = tmdb
+			break
+		}
+		if douban, ok := p.(*DoubanProvider); ok && source == "douban" {
+			provider = douban
+			break
+		}
+	}
+	lm.mu.RUnlock()
+
+	if provider == nil {
+		return nil, fmt.Errorf("未配置元数据提供商")
+	}
+
+	return provider.GetTV(id)
+}

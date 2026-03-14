@@ -23,6 +23,8 @@ type Workflow struct {
 	UpdatedAt   time.Time       `json:"updated_at"`
 	LastRun     *time.Time      `json:"last_run,omitempty"`
 	RunCount    int             `json:"run_count"`
+	SuccessCount int            `json:"success_count"`
+	FailCount   int             `json:"fail_count"`
 }
 
 // WorkflowEngine 工作流引擎
@@ -171,12 +173,21 @@ func (e *WorkflowEngine) ExecuteWorkflow(id string, eventData map[string]interfa
 		"workflow_id": id,
 	}
 
-	for i, act := range actionsCopy {
-		if err := act.Execute(ctx, contextData); err != nil {
-			return fmt.Errorf("action %d failed: %w", i, err)
+	execErr := func() error {
+		for i, act := range actionsCopy {
+			if err := act.Execute(ctx, contextData); err != nil {
+				return fmt.Errorf("action %d failed: %w", i, err)
+			}
 		}
+		return nil
+	}()
+
+	if execErr != nil {
+		wf.FailCount++
+		return execErr
 	}
 
+	wf.SuccessCount++
 	return nil
 }
 
