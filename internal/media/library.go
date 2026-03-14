@@ -444,16 +444,16 @@ func (lm *LibraryManager) saveConfig() error {
 
 // PlayHistory 播放历史记录
 type PlayHistory struct {
-	ID         string     `json:"id"`
-	MediaID    string     `json:"mediaId"`
-	MediaName  string     `json:"mediaName"`
-	MediaType  MediaType  `json:"mediaType"`
-	PosterPath string     `json:"posterPath,omitempty"`
-	Position   int        `json:"position"`  // 播放位置（秒）
-	Duration   int        `json:"duration"`  // 总时长（秒）
-	Completed  bool       `json:"completed"` // 是否看完
-	PlayedAt   time.Time  `json:"playedAt"`
-	LibraryID  string     `json:"libraryId"`
+	ID         string    `json:"id"`
+	MediaID    string    `json:"mediaId"`
+	MediaName  string    `json:"mediaName"`
+	MediaType  MediaType `json:"mediaType"`
+	PosterPath string    `json:"posterPath,omitempty"`
+	Position   int       `json:"position"`  // 播放位置（秒）
+	Duration   int       `json:"duration"`  // 总时长（秒）
+	Completed  bool      `json:"completed"` // 是否看完
+	PlayedAt   time.Time `json:"playedAt"`
+	LibraryID  string    `json:"libraryId"`
 }
 
 // GetMediaItemByID 根据 ID 获取媒体项

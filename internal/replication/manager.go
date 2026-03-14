@@ -397,13 +397,13 @@ func (m *Manager) parseRsyncOutput(task *ReplicationTask, output string) {
 
 // RsyncStats rsync 详细统计信息
 type RsyncStats struct {
-	BytesSent       int64   `json:"bytes_sent"`        // 发送字节数
-	BytesReceived   int64   `json:"bytes_received"`    // 接收字节数
-	BytesPerSecond  float64 `json:"bytes_per_second"`  // 传输速度 (bytes/sec)
-	TotalSize       int64   `json:"total_size"`        // 总大小
-	Speedup         float64 `json:"speedup"`           // 加速比
-	FilesTransferred int    `json:"files_transferred"` // 传输文件数
-	TotalFiles      int     `json:"total_files"`       // 总文件数
+	BytesSent        int64   `json:"bytes_sent"`        // 发送字节数
+	BytesReceived    int64   `json:"bytes_received"`    // 接收字节数
+	BytesPerSecond   float64 `json:"bytes_per_second"`  // 传输速度 (bytes/sec)
+	TotalSize        int64   `json:"total_size"`        // 总大小
+	Speedup          float64 `json:"speedup"`           // 加速比
+	FilesTransferred int     `json:"files_transferred"` // 传输文件数
+	TotalFiles       int     `json:"total_files"`       // 总文件数
 }
 
 // parseRsyncStats 解析 rsync 完整统计信息
