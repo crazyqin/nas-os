@@ -20,16 +20,17 @@ import (
 
 // Manager 相册管理器
 type Manager struct {
-	dataDir    string
-	photosDir  string
-	thumbsDir  string
-	cacheDir   string
-	configPath string
-	photos     map[string]*Photo
-	albums     map[string]*Album
-	persons    map[string]*Person
-	mu         sync.RWMutex
-	config     *Config
+	dataDir       string
+	photosDir     string
+	thumbsDir     string
+	cacheDir      string
+	configPath    string
+	photos        map[string]*Photo
+	albums        map[string]*Album
+	persons       map[string]*Person
+	uploadSessions map[string]*UploadSession
+	mu            sync.RWMutex
+	config        *Config
 }
 
 // Config 相册配置
@@ -65,15 +66,16 @@ func DefaultConfig() *Config {
 // NewManager 创建相册管理器
 func NewManager(dataDir string) (*Manager, error) {
 	m := &Manager{
-		dataDir:    dataDir,
-		photosDir:  filepath.Join(dataDir, "photos"),
-		thumbsDir:  filepath.Join(dataDir, "thumbnails"),
-		cacheDir:   filepath.Join(dataDir, "cache"),
-		configPath: filepath.Join(dataDir, "photos-config.json"),
-		photos:     make(map[string]*Photo),
-		albums:     make(map[string]*Album),
-		persons:    make(map[string]*Person),
-		config:     DefaultConfig(),
+		dataDir:       dataDir,
+		photosDir:     filepath.Join(dataDir, "photos"),
+		thumbsDir:     filepath.Join(dataDir, "thumbnails"),
+		cacheDir:      filepath.Join(dataDir, "cache"),
+		configPath:    filepath.Join(dataDir, "photos-config.json"),
+		photos:        make(map[string]*Photo),
+		albums:        make(map[string]*Album),
+		persons:       make(map[string]*Person),
+		uploadSessions: make(map[string]*UploadSession),
+		config:        DefaultConfig(),
 	}
 
 	// 创建目录

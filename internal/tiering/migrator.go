@@ -1,6 +1,8 @@
 package tiering
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -261,9 +263,40 @@ func (m *Migrator) verifyFile(sourcePath, targetPath string) error {
 		return fmt.Errorf("文件大小不匹配: 源 %d, 目标 %d", sourceInfo.Size(), targetInfo.Size())
 	}
 
-	// TODO: 可以添加校验和验证
+	// 校验和验证（对于小于 100MB 的文件）
+	if sourceInfo.Size() < 100*1024*1024 {
+		sourceHash, err := m.calculateFileHash(sourcePath)
+		if err != nil {
+			return fmt.Errorf("计算源文件校验和失败: %w", err)
+		}
+
+		targetHash, err := m.calculateFileHash(targetPath)
+		if err != nil {
+			return fmt.Errorf("计算目标文件校验和失败: %w", err)
+		}
+
+		if sourceHash != targetHash {
+			return fmt.Errorf("文件校验和不匹配: 源 %s, 目标 %s", sourceHash, targetHash)
+		}
+	}
 
 	return nil
+}
+
+// calculateFileHash 计算文件的 MD5 哈希值
+func (m *Migrator) calculateFileHash(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
 // ==================== 批量迁移 ====================

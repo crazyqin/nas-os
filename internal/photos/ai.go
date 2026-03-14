@@ -916,6 +916,13 @@ func (aim *AIManager) calculateSimilarity(p1, p2 *Photo) float64 {
 	return 0
 }
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a
@@ -978,24 +985,309 @@ func (aim *AIManager) Close() {
 
 // ==================== 本地 AI 引擎实现（简化版） ====================
 
-// DetectFaces 人脸检测（简化实现）
+// DetectFaces 人脸检测
 func (e *LocalAIEngine) DetectFaces(img image.Image) ([]FaceInfo, error) {
-	// TODO: 集成 go-face 或 ONNX 模型
-	// 这里返回空结果，实际使用需要集成真实模型
-	return []FaceInfo{}, nil
+	// 基础实现：使用图像分析检测人脸区域
+	// 在生产环境中，应集成 go-face 或 ONNX 模型
+	// 这里提供一个简化的实现框架
+
+	bounds := img.Bounds()
+
+	faces := make([]FaceInfo, 0)
+
+	// 简化的人脸检测：基于肤色检测
+	// 这是一个基础实现，实际应使用专业的人脸检测库
+	for y := bounds.Min.Y; y < bounds.Max.Y-50; y += 20 {
+		for x := bounds.Min.X; x < bounds.Max.X-50; x += 20 {
+			// 检测肤色区域
+			if e.isSkinTone(img, x, y, 50, 50) {
+				// 可能是人脸区域
+				face := FaceInfo{
+					ID:         uuid.New().String(),
+					Bounds:     Rectangle{X: x, Y: y, Width: 50, Height: 50},
+					Confidence: 0.6, // 基础置信度
+				}
+				faces = append(faces, face)
+			}
+		}
+	}
+
+	// 去重和合并重叠区域
+	faces = e.mergeOverlappingFaces(faces)
+
+	// 限制最大人脸数
+	if len(faces) > 10 {
+		faces = faces[:10]
+	}
+
+	return faces, nil
 }
 
-// ClassifyScene 场景分类（简化实现）
+// isSkinTone 检测是否为肤色区域
+func (e *LocalAIEngine) isSkinTone(img image.Image, x, y, w, h int) bool {
+	skinPixels := 0
+	totalPixels := 0
+
+	bounds := img.Bounds()
+	for dy := y; dy < y+h && dy < bounds.Max.Y; dy += 4 {
+		for dx := x; dx < x+w && dx < bounds.Max.X; dx += 4 {
+			r, g, b, _ := img.At(dx, dy).RGBA()
+			r8, g8, b8 := r>>8, g>>8, b>>8
+
+			// YCbCr 肤色检测
+			yVal := 0.299*float64(r8) + 0.587*float64(g8) + 0.114*float64(b8)
+			cb := 128 - 0.168736*float64(r8) - 0.331264*float64(g8) + 0.5*float64(b8)
+			cr := 128 + 0.5*float64(r8) - 0.418688*float64(g8) - 0.081312*float64(b8)
+
+			// 肤色范围 (YCbCr)
+			if yVal > 80 && yVal < 230 &&
+				cb > 77 && cb < 127 &&
+				cr > 133 && cr < 173 {
+				skinPixels++
+			}
+			totalPixels++
+		}
+	}
+
+	// 如果超过40%的像素是肤色，则认为是肤色区域
+	return totalPixels > 0 && float64(skinPixels)/float64(totalPixels) > 0.4
+}
+
+// mergeOverlappingFaces 合并重叠的人脸区域
+func (e *LocalAIEngine) mergeOverlappingFaces(faces []FaceInfo) []FaceInfo {
+	if len(faces) <= 1 {
+		return faces
+	}
+
+	merged := make([]FaceInfo, 0)
+	used := make(map[int]bool)
+
+	for i, f1 := range faces {
+		if used[i] {
+			continue
+		}
+		for j, f2 := range faces {
+			if i >= j || used[j] {
+				continue
+			}
+			// 检查重叠
+			if e.rectsOverlap(f1.Bounds, f2.Bounds) {
+				// 合并
+				conf := f1.Confidence
+				if f2.Confidence > conf {
+					conf = f2.Confidence
+				}
+				merged = append(merged, FaceInfo{
+					ID:         f1.ID,
+					Bounds:     e.mergeRects(f1.Bounds, f2.Bounds),
+					Confidence: conf,
+				})
+				used[i] = true
+				used[j] = true
+				break
+			}
+		}
+		if !used[i] {
+			merged = append(merged, f1)
+		}
+	}
+
+	return merged
+}
+
+// rectsOverlap 检查两个矩形是否重叠
+func (e *LocalAIEngine) rectsOverlap(r1, r2 Rectangle) bool {
+	return r1.X < r2.X+r2.Width &&
+		r1.X+r1.Width > r2.X &&
+		r1.Y < r2.Y+r2.Height &&
+		r1.Y+r1.Height > r2.Y
+}
+
+// mergeRects 合并两个矩形
+func (e *LocalAIEngine) mergeRects(r1, r2 Rectangle) Rectangle {
+	x := min(r1.X, r2.X)
+	y := min(r1.Y, r2.Y)
+	w := max(r1.X+r1.Width, r2.X+r2.Width) - x
+	h := max(r1.Y+r1.Height, r2.Y+r2.Height) - y
+	return Rectangle{X: x, Y: y, Width: w, Height: h}
+}
+
+// ClassifyScene 场景分类
 func (e *LocalAIEngine) ClassifyScene(img image.Image) (string, float32, error) {
-	// TODO: 集成预训练模型（如 ResNet、MobileNet）
-	// 这里返回默认结果
-	return "unknown", 0.5, nil
+	// 基础实现：基于图像特征分析场景
+	// 在生产环境中，应集成 ResNet、MobileNet 等预训练模型
+
+	bounds := img.Bounds()
+
+	// 分析图像特征
+	features := e.analyzeImageFeatures(img)
+
+	// 基于特征推断场景
+	scene := "unknown"
+	confidence := float32(0.5)
+
+	// 室内/室外判断
+	if features.brightness > 150 && features.colorVariance < 2000 {
+		scene = "indoor"
+		confidence = 0.7
+	} else if features.skyRatio > 0.3 {
+		scene = "outdoor"
+		confidence = 0.75
+	}
+
+	// 细分场景
+	if features.greenRatio > 0.3 {
+		scene = "nature"
+		confidence = 0.8
+	} else if features.blueRatio > 0.4 {
+		scene = "sky"
+		confidence = 0.75
+	} else if features.brightness < 80 {
+		scene = "night"
+		confidence = 0.65
+	}
+
+	// 根据宽高比判断
+	if float64(bounds.Dx())/float64(bounds.Dy()) > 1.8 {
+		// 宽幅图像，可能是风景
+		if scene == "outdoor" || scene == "nature" {
+			scene = "landscape"
+			confidence = 0.8
+		}
+	}
+
+	return scene, confidence, nil
 }
 
-// DetectObjects 物体检测（简化实现）
+// imageFeatures 图像特征
+type imageFeatures struct {
+	brightness     float64
+	colorVariance  float64
+	greenRatio     float64
+	blueRatio      float64
+	skyRatio       float64
+	warmColorRatio float64
+}
+
+// analyzeImageFeatures 分析图像特征
+func (e *LocalAIEngine) analyzeImageFeatures(img image.Image) imageFeatures {
+	bounds := img.Bounds()
+	totalPixels := 0.0
+	var rSum, gSum, bSum float64
+	var rVar, gVar, bVar float64
+	greenCount := 0.0
+	blueCount := 0.0
+	skyCount := 0.0
+	warmCount := 0.0
+
+	// 第一遍：计算均值
+	for y := bounds.Min.Y; y < bounds.Max.Y; y += 4 {
+		for x := bounds.Min.X; x < bounds.Max.X; x += 4 {
+			r, g, b, _ := img.At(x, y).RGBA()
+			r8, g8, b8 := float64(r>>8), float64(g>>8), float64(b>>8)
+
+			rSum += r8
+			gSum += g8
+			bSum += b8
+			totalPixels++
+
+			// 统计颜色分布
+			if g8 > r8 && g8 > b8 {
+				greenCount++
+			}
+			if b8 > r8 && b8 > g8 {
+				blueCount++
+			}
+			// 天空区域（上半部分，蓝色为主）
+			if y < bounds.Max.Y/3 && b8 > r8 && b8 > g8 && b8 > 150 {
+				skyCount++
+			}
+			// 暖色调
+			if r8 > g8 && r8 > b8 {
+				warmCount++
+			}
+		}
+	}
+
+	if totalPixels == 0 {
+		return imageFeatures{}
+	}
+
+	// 计算平均亮度
+	avgR := rSum / totalPixels
+	avgG := gSum / totalPixels
+	avgB := bSum / totalPixels
+	brightness := (avgR + avgG + avgB) / 3
+
+	// 第二遍：计算方差
+	for y := bounds.Min.Y; y < bounds.Max.Y; y += 4 {
+		for x := bounds.Min.X; x < bounds.Max.X; x += 4 {
+			r, g, b, _ := img.At(x, y).RGBA()
+			r8, g8, b8 := float64(r>>8), float64(g>>8), float64(b>>8)
+
+			rVar += (r8 - avgR) * (r8 - avgR)
+			gVar += (g8 - avgG) * (g8 - avgG)
+			bVar += (b8 - avgB) * (b8 - avgB)
+		}
+	}
+
+	colorVariance := (rVar + gVar + bVar) / totalPixels
+
+	return imageFeatures{
+		brightness:     brightness,
+		colorVariance:  colorVariance,
+		greenRatio:     greenCount / totalPixels,
+		blueRatio:      blueCount / totalPixels,
+		skyRatio:       skyCount / totalPixels,
+		warmColorRatio: warmCount / totalPixels,
+	}
+}
+
+// DetectObjects 物体检测
 func (e *LocalAIEngine) DetectObjects(img image.Image) ([]string, error) {
-	// TODO: 集成 YOLO 或 SSD 模型
-	return []string{}, nil
+	// 基础实现：基于颜色和纹理特征检测物体
+	// 在生产环境中，应集成 YOLO、SSD 等目标检测模型
+
+	objects := make([]string, 0)
+	features := e.analyzeImageFeatures(img)
+
+	// 基于特征推断物体
+	// 植被
+	if features.greenRatio > 0.3 {
+		objects = append(objects, "vegetation", "plants")
+	}
+
+	// 天空
+	if features.skyRatio > 0.2 {
+		objects = append(objects, "sky")
+	}
+
+	// 水体（蓝色区域大，低亮度变化）
+	if features.blueRatio > 0.4 && features.colorVariance < 3000 {
+		objects = append(objects, "water")
+	}
+
+	// 日落/日出（暖色调比例高）
+	if features.warmColorRatio > 0.4 && features.brightness > 100 {
+		objects = append(objects, "sunset")
+	}
+
+	// 室内物品（低亮度变化）
+	if features.colorVariance < 2000 && features.brightness > 80 {
+		objects = append(objects, "furniture")
+	}
+
+	// 去重
+	uniqueObjects := make(map[string]bool)
+	result := make([]string, 0)
+	for _, obj := range objects {
+		if !uniqueObjects[obj] {
+			uniqueObjects[obj] = true
+			result = append(result, obj)
+		}
+	}
+
+	return result, nil
 }
 
 // ExtractColors 提取主色调

@@ -378,7 +378,26 @@ func (m *Manager) matchPolicy(record *FileAccessRecord, policy *Policy) bool {
 		return false
 	}
 
-	// TODO: 检查文件模式匹配
+	// 检查文件模式匹配
+	if len(policy.FilePatterns) > 0 {
+		matched := false
+		for _, pattern := range policy.FilePatterns {
+			if m, err := filepath.Match(pattern, filepath.Base(record.Path)); err == nil && m {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			return false
+		}
+	}
+
+	// 检查排除模式
+	for _, pattern := range policy.ExcludePatterns {
+		if m, err := filepath.Match(pattern, filepath.Base(record.Path)); err == nil && m {
+			return false
+		}
+	}
 
 	return true
 }
@@ -502,7 +521,13 @@ func (m *Manager) matchMigrateRequest(path string, info os.FileInfo, req Migrate
 		}
 	}
 
-	// TODO: 检查文件模式匹配
+	// 检查文件模式匹配
+	if req.Pattern != "" {
+		matched, err := filepath.Match(req.Pattern, filepath.Base(path))
+		if err != nil || !matched {
+			return false
+		}
+	}
 
 	return true
 }

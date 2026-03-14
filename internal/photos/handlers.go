@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -317,7 +318,10 @@ func (h *Handlers) createUploadSession(c *gin.Context) {
 	// 创建临时目录
 	os.MkdirAll(session.TempPath, 0755)
 
-	// TODO: 保存会话信息到内存或数据库
+	// 保存会话信息
+	h.mu.Lock()
+	h.manager.uploadSessions[sessionID] = session
+	h.mu.Unlock()
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -331,14 +335,96 @@ func (h *Handlers) uploadSessionChunk(c *gin.Context) {
 	sessionID := c.Param("sessionId")
 	chunkIndex, _ := strconv.Atoi(c.Query("chunk"))
 
-	// TODO: 实现分片上传逻辑
+	h.mu.RLock()
+	session, exists := h.manager.uploadSessions[sessionID]
+	h.mu.RUnlock()
+
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "上传会话不存在",
+		})
+		return
+	}
+
+	// 检查会话是否过期
+	if time.Now().After(session.ExpiresAt) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "上传会话已过期",
+		})
+		return
+	}
+
+	// 检查分片索引是否有效
+	if chunkIndex < 0 || chunkIndex >= session.TotalChunks {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "无效的分片索引",
+		})
+		return
+	}
+
+	// 获取上传的文件
+	file, _, err := c.Request.FormFile("chunk")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "读取分片数据失败：" + err.Error(),
+		})
+		return
+	}
+	defer file.Close()
+
+	// 保存分片到临时文件
+	chunkPath := filepath.Join(session.TempPath, fmt.Sprintf("chunk_%d", chunkIndex))
+	dst, err := os.Create(chunkPath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "保存分片失败：" + err.Error(),
+		})
+		return
+	}
+	defer dst.Close()
+
+	written, err := io.Copy(dst, file)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "写入分片失败：" + err.Error(),
+		})
+		return
+	}
+
+	// 更新会话状态
+	h.mu.Lock()
+	session.UploadedSize += written
+	// 检查是否已上传
+	alreadyUploaded := false
+	for _, idx := range session.UploadedChunks {
+		if idx == chunkIndex {
+			alreadyUploaded = true
+			break
+		}
+	}
+	if !alreadyUploaded {
+		session.UploadedChunks = append(session.UploadedChunks, chunkIndex)
+	}
+	h.mu.Unlock()
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "分片上传成功",
 		"data": gin.H{
-			"sessionId":  sessionID,
-			"chunkIndex": chunkIndex,
+			"sessionId":      sessionID,
+			"chunkIndex":     chunkIndex,
+			"chunkSize":      written,
+			"uploadedSize":   session.UploadedSize,
+			"totalSize":      session.TotalSize,
+			"uploadedChunks": len(session.UploadedChunks),
+			"totalChunks":    session.TotalChunks,
+			"progress":       float64(len(session.UploadedChunks)) / float64(session.TotalChunks) * 100,
 		},
 	})
 }
@@ -347,13 +433,96 @@ func (h *Handlers) uploadSessionChunk(c *gin.Context) {
 func (h *Handlers) completeUploadSession(c *gin.Context) {
 	sessionID := c.Param("sessionId")
 
-	// TODO: 合并分片并完成上传
+	h.mu.RLock()
+	session, exists := h.manager.uploadSessions[sessionID]
+	h.mu.RUnlock()
+
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "上传会话不存在",
+		})
+		return
+	}
+
+	// 检查所有分片是否都已上传
+	if len(session.UploadedChunks) != session.TotalChunks {
+		missingChunks := make([]int, 0)
+		uploadedMap := make(map[int]bool)
+		for _, idx := range session.UploadedChunks {
+			uploadedMap[idx] = true
+		}
+		for i := 0; i < session.TotalChunks; i++ {
+			if !uploadedMap[i] {
+				missingChunks = append(missingChunks, i)
+			}
+		}
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "部分分片未上传",
+			"data": gin.H{
+				"missingChunks": missingChunks,
+			},
+		})
+		return
+	}
+
+	// 生成唯一文件名
+	ext := strings.ToLower(filepath.Ext(session.Filename))
+	if ext == "" {
+		ext = ".jpg"
+	}
+	photoID := uuid.New().String()
+	filename := photoID + ext
+	photoPath := filepath.Join(h.manager.photosDir, filename)
+
+	// 合并所有分片
+	finalFile, err := os.Create(photoPath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "创建目标文件失败：" + err.Error(),
+		})
+		return
+	}
+	defer finalFile.Close()
+
+	for i := 0; i < session.TotalChunks; i++ {
+		chunkPath := filepath.Join(session.TempPath, fmt.Sprintf("chunk_%d", i))
+		chunkFile, err := os.Open(chunkPath)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":    500,
+				"message": fmt.Sprintf("打开分片 %d 失败：%s", i, err.Error()),
+			})
+			return
+		}
+		io.Copy(finalFile, chunkFile)
+		chunkFile.Close()
+	}
+
+	// 同步文件
+	finalFile.Sync()
+
+	// 清理临时文件
+	os.RemoveAll(session.TempPath)
+
+	// 删除会话
+	h.mu.Lock()
+	delete(h.manager.uploadSessions, sessionID)
+	h.mu.Unlock()
+
+	// 索引照片
+	go h.manager.indexPhoto(photoPath)
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "上传完成",
-		"data": gin.H{
-			"sessionId": sessionID,
+		"data": UploadResponse{
+			PhotoID:  photoID,
+			Filename: session.Filename,
+			Size:     uint64(session.TotalSize),
 		},
 	})
 }
@@ -466,11 +635,12 @@ func (h *Handlers) toggleFavorite(c *gin.Context) {
 
 // updatePhoto 更新照片信息
 func (h *Handlers) updatePhoto(c *gin.Context) {
-	_ = c.Param("id")
+	photoID := c.Param("id")
 
 	var req struct {
 		Tags     []string `json:"tags"`
 		IsHidden *bool    `json:"isHidden"`
+		IsFavorite *bool  `json:"isFavorite"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -481,11 +651,41 @@ func (h *Handlers) updatePhoto(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现更新逻辑
+	// 获取照片并更新
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	photo, exists := h.manager.photos[photoID]
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "照片不存在",
+		})
+		return
+	}
+
+	// 更新标签
+	if req.Tags != nil {
+		photo.Tags = req.Tags
+	}
+
+	// 更新隐藏状态
+	if req.IsHidden != nil {
+		photo.IsHidden = *req.IsHidden
+	}
+
+	// 更新收藏状态
+	if req.IsFavorite != nil {
+		photo.IsFavorite = *req.IsFavorite
+	}
+
+	// 更新修改时间
+	photo.ModifiedAt = time.Now()
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "更新成功",
+		"data":    photo,
 	})
 }
 
@@ -817,14 +1017,182 @@ func (h *Handlers) deletePerson(c *gin.Context) {
 
 // searchPhotos 搜索照片
 func (h *Handlers) searchPhotos(c *gin.Context) {
-	_ = c.Query("q")
+	query := c.Query("q")
+	tags := c.Query("tags")
+	scene := c.Query("scene")
+	person := c.Query("person")
+	location := c.Query("location")
+	startDate := c.Query("startDate")
+	endDate := c.Query("endDate")
 
-	// TODO: 实现搜索逻辑
+	limit := 50
+	if limitStr := c.Query("limit"); limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+			limit = l
+		}
+	}
+
+	offset := 0
+	if offsetStr := c.Query("offset"); offsetStr != "" {
+		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
+			offset = o
+		}
+	}
+
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	results := make([]*Photo, 0)
+
+	for _, photo := range h.manager.photos {
+		// 全文搜索（匹配文件名、标签、场景、物体）
+		if query != "" {
+			queryLower := strings.ToLower(query)
+			matched := false
+
+			// 匹配文件名
+			if strings.Contains(strings.ToLower(photo.Filename), queryLower) {
+				matched = true
+			}
+
+			// 匹配标签
+			for _, tag := range photo.Tags {
+				if strings.Contains(strings.ToLower(tag), queryLower) {
+					matched = true
+					break
+				}
+			}
+
+			// 匹配场景
+			if strings.Contains(strings.ToLower(photo.Scene), queryLower) {
+				matched = true
+			}
+
+			// 匹配物体
+			for _, obj := range photo.Objects {
+				if strings.Contains(strings.ToLower(obj), queryLower) {
+					matched = true
+					break
+				}
+			}
+
+			// 匹配位置
+			if photo.Location != nil {
+				if strings.Contains(strings.ToLower(photo.Location.City), queryLower) ||
+					strings.Contains(strings.ToLower(photo.Location.Country), queryLower) ||
+					strings.Contains(strings.ToLower(photo.Location.Location), queryLower) {
+					matched = true
+				}
+			}
+
+			if !matched {
+				continue
+			}
+		}
+
+		// 标签过滤
+		if tags != "" {
+			tagList := strings.Split(tags, ",")
+			hasAll := true
+			for _, t := range tagList {
+				t = strings.TrimSpace(t)
+				found := false
+				for _, pt := range photo.Tags {
+					if strings.EqualFold(pt, t) {
+						found = true
+						break
+					}
+				}
+				if !found {
+					hasAll = false
+					break
+				}
+			}
+			if !hasAll {
+				continue
+			}
+		}
+
+		// 场景过滤
+		if scene != "" && !strings.EqualFold(photo.Scene, scene) {
+			continue
+		}
+
+		// 人物过滤
+		if person != "" {
+			found := false
+			for _, face := range photo.Faces {
+				if strings.EqualFold(face.Name, person) {
+					found = true
+					break
+				}
+			}
+			if !found {
+				continue
+			}
+		}
+
+		// 位置过滤
+		if location != "" {
+			if photo.Location == nil {
+				continue
+			}
+			if !strings.Contains(strings.ToLower(photo.Location.City), strings.ToLower(location)) &&
+				!strings.Contains(strings.ToLower(photo.Location.Country), strings.ToLower(location)) &&
+				!strings.Contains(strings.ToLower(photo.Location.Location), strings.ToLower(location)) {
+				continue
+			}
+		}
+
+		// 日期范围过滤
+		if startDate != "" {
+			if start, err := time.Parse("2006-01-02", startDate); err == nil {
+				if photo.TakenAt.Before(start) {
+					continue
+				}
+			}
+		}
+
+		if endDate != "" {
+			if end, err := time.Parse("2006-01-02", endDate); err == nil {
+				if photo.TakenAt.After(end.Add(24 * time.Hour)) {
+					continue
+				}
+			}
+		}
+
+		// 排除隐藏照片
+		if photo.IsHidden {
+			continue
+		}
+
+		results = append(results, photo)
+	}
+
+	// 按拍摄时间排序
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].TakenAt.After(results[j].TakenAt)
+	})
+
+	total := len(results)
+
+	// 分页
+	if offset > 0 && offset < len(results) {
+		results = results[offset:]
+	}
+	if limit > 0 && len(results) > limit {
+		results = results[:limit]
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
-		"data":    []Photo{},
+		"data": gin.H{
+			"photos": results,
+			"total":  total,
+			"limit":  limit,
+			"offset": offset,
+		},
 	})
 }
 
