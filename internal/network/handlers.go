@@ -58,6 +58,18 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 		network.POST("/firewall/flush", h.flushRules)
 		network.POST("/firewall/save", h.saveFirewallRules)
 		network.POST("/firewall/restore", h.restoreFirewallRules)
+
+		// ========== 网络诊断 ==========
+		network.POST("/diagnostics/ping", h.ping)
+		network.POST("/diagnostics/traceroute", h.traceroute)
+		network.POST("/diagnostics/dns", h.dnsLookup)
+		network.POST("/diagnostics/portscan", h.portScan)
+		network.GET("/diagnostics/connectivity", h.checkConnectivity)
+		network.POST("/diagnostics/whois", h.whois)
+		network.POST("/diagnostics/nslookup", h.nslookup)
+		network.POST("/diagnostics/dig", h.dig)
+		network.GET("/diagnostics/netstat", h.netstat)
+		network.GET("/diagnostics/arp", h.arpTable)
 	}
 }
 
@@ -475,4 +487,171 @@ func (h *Handlers) restoreFirewallRules(c *gin.Context) {
 	}
 
 	api.OKWithMessage(c, "防火墙规则已恢复", nil)
+}
+
+// ========== 网络诊断 API ==========
+
+func (h *Handlers) ping(c *gin.Context) {
+	var req struct {
+		Host    string `json:"host" binding:"required"`
+		Count   int    `json:"count"`
+		Timeout int    `json:"timeout"` // 秒
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	if req.Count == 0 {
+		req.Count = 4
+	}
+
+	opts := PingOptions{
+		Count:   req.Count,
+		Timeout: req.Timeout * 1000, // 秒转毫秒
+	}
+	result, err := h.manager.Ping(req.Host, opts)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
+}
+
+func (h *Handlers) traceroute(c *gin.Context) {
+	var req struct {
+		Host     string `json:"host" binding:"required"`
+		MaxHops  int    `json:"maxHops"`
+		Timeout  int    `json:"timeout"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	if req.MaxHops == 0 {
+		req.MaxHops = 30
+	}
+
+	result, err := h.manager.Traceroute(req.Host, req.MaxHops)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
+}
+
+func (h *Handlers) dnsLookup(c *gin.Context) {
+	var req struct {
+		Host string `json:"host" binding:"required"`
+		Type string `json:"type"` // A, AAAA, MX, etc.
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	result, err := h.manager.DNSLookup(req.Host, req.Type)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
+}
+
+func (h *Handlers) portScan(c *gin.Context) {
+	var req struct {
+		Host  string `json:"host" binding:"required"`
+		Ports []int  `json:"ports"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	result, err := h.manager.PortScan(req.Host, req.Ports, "tcp")
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
+}
+
+func (h *Handlers) checkConnectivity(c *gin.Context) {
+	result, err := h.manager.CheckConnectivity()
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
+}
+
+func (h *Handlers) whois(c *gin.Context) {
+	var req struct {
+		Domain string `json:"domain" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	result, err := h.manager.Whois(req.Domain)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, map[string]string{"domain": req.Domain, "info": result})
+}
+
+func (h *Handlers) nslookup(c *gin.Context) {
+	var req struct {
+		Host string `json:"host" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	result, err := h.manager.DNSLookup(req.Host, "")
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
+}
+
+func (h *Handlers) dig(c *gin.Context) {
+	var req struct {
+		Host string `json:"host" binding:"required"`
+		Type string `json:"type"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	result, err := h.manager.DNSLookup(req.Host, req.Type)
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
+}
+
+func (h *Handlers) netstat(c *gin.Context) {
+	result, err := h.manager.Netstat()
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
+}
+
+func (h *Handlers) arpTable(c *gin.Context) {
+	result, err := h.manager.ARPTable()
+	if err != nil {
+		api.InternalError(c, err.Error())
+		return
+	}
+	api.OK(c, result)
 }

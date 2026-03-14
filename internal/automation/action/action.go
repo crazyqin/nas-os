@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -18,15 +19,16 @@ import (
 type ActionType string
 
 const (
-	ActionTypeMove    ActionType = "move"
-	ActionTypeCopy    ActionType = "copy"
-	ActionTypeDelete  ActionType = "delete"
-	ActionTypeRename  ActionType = "rename"
-	ActionTypeConvert ActionType = "convert"
-	ActionTypeNotify  ActionType = "notify"
-	ActionTypeCommand ActionType = "command"
-	ActionTypeWebhook ActionType = "webhook"
-	ActionTypeEmail   ActionType = "email"
+	ActionTypeMove        ActionType = "move"
+	ActionTypeCopy        ActionType = "copy"
+	ActionTypeDelete      ActionType = "delete"
+	ActionTypeRename      ActionType = "rename"
+	ActionTypeConvert     ActionType = "convert"
+	ActionTypeNotify      ActionType = "notify"
+	ActionTypeCommand     ActionType = "command"
+	ActionTypeWebhook     ActionType = "webhook"
+	ActionTypeEmail       ActionType = "email"
+	ActionTypeConditional ActionType = "conditional"
 )
 
 // Action 动作接口
@@ -409,6 +411,173 @@ func (a *EmailAction) Execute(ctx context.Context, contextData map[string]interf
 	return sendEmailNotification(to, subject, body, a.HTML)
 }
 
+// ConditionOperator 条件运算符
+type ConditionOperator string
+
+const (
+	OperatorEquals      ConditionOperator = "equals"
+	OperatorNotEquals   ConditionOperator = "not_equals"
+	OperatorContains    ConditionOperator = "contains"
+	OperatorNotContains ConditionOperator = "not_contains"
+	OperatorGreaterThan ConditionOperator = "greater_than"
+	OperatorLessThan    ConditionOperator = "less_than"
+	OperatorExists      ConditionOperator = "exists"
+	OperatorNotExists   ConditionOperator = "not_exists"
+	OperatorMatches     ConditionOperator = "matches" // 正则匹配
+)
+
+// Condition 条件
+type Condition struct {
+	Field    string            `json:"field"`              // 字段路径，如 "event.type" 或 "event.data.size"
+	Operator ConditionOperator `json:"operator"`           // 运算符
+	Value    interface{}       `json:"value,omitempty"`    // 比较值
+}
+
+// ConditionalAction 条件动作 - 根据条件决定是否执行
+type ConditionalAction struct {
+	Type        ActionType `json:"type"`
+	Condition   Condition  `json:"condition"`            // 条件
+	ThenAction  Action     `json:"then_action"`          // 条件为真时执行
+	ElseAction  Action     `json:"else_action,omitempty"` // 条件为假时执行（可选）
+}
+
+func (a *ConditionalAction) GetType() ActionType {
+	return ActionTypeConditional
+}
+
+func (a *ConditionalAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
+	// 评估条件
+	result, err := a.evaluateCondition(contextData)
+	if err != nil {
+		return fmt.Errorf("condition evaluation failed: %w", err)
+	}
+
+	// 根据条件执行相应动作
+	if result {
+		if a.ThenAction != nil {
+			return a.ThenAction.Execute(ctx, contextData)
+		}
+	} else {
+		if a.ElseAction != nil {
+			return a.ElseAction.Execute(ctx, contextData)
+		}
+	}
+
+	return nil
+}
+
+// evaluateCondition 评估条件
+func (a *ConditionalAction) evaluateCondition(contextData map[string]interface{}) (bool, error) {
+	// 获取字段值
+	fieldValue := getNestedValue(contextData, a.Condition.Field)
+
+	switch a.Condition.Operator {
+	case OperatorEquals:
+		return compareEquals(fieldValue, a.Condition.Value), nil
+	case OperatorNotEquals:
+		return !compareEquals(fieldValue, a.Condition.Value), nil
+	case OperatorContains:
+		return checkContains(fieldValue, a.Condition.Value)
+	case OperatorNotContains:
+		result, err := checkContains(fieldValue, a.Condition.Value)
+		return !result, err
+	case OperatorGreaterThan:
+		return compareNumbers(fieldValue, a.Condition.Value, ">")
+	case OperatorLessThan:
+		return compareNumbers(fieldValue, a.Condition.Value, "<")
+	case OperatorExists:
+		return fieldValue != nil, nil
+	case OperatorNotExists:
+		return fieldValue == nil, nil
+	case OperatorMatches:
+		return checkRegex(fieldValue, a.Condition.Value)
+	default:
+		return false, fmt.Errorf("unknown operator: %s", a.Condition.Operator)
+	}
+}
+
+// compareEquals 比较是否相等
+func compareEquals(a, b interface{}) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+	return fmt.Sprintf("%v", a) == fmt.Sprintf("%v", b)
+}
+
+// checkContains 检查是否包含
+func checkContains(field, value interface{}) (bool, error) {
+	if field == nil {
+		return false, nil
+	}
+
+	fieldStr := fmt.Sprintf("%v", field)
+	valueStr := fmt.Sprintf("%v", value)
+
+	return strings.Contains(fieldStr, valueStr), nil
+}
+
+// compareNumbers 比较数字
+func compareNumbers(a, b interface{}, op string) (bool, error) {
+	aFloat, err := toFloat64(a)
+	if err != nil {
+		return false, err
+	}
+
+	bFloat, err := toFloat64(b)
+	if err != nil {
+		return false, err
+	}
+
+	switch op {
+	case ">":
+		return aFloat > bFloat, nil
+	case "<":
+		return aFloat < bFloat, nil
+	default:
+		return false, fmt.Errorf("unknown comparison operator: %s", op)
+	}
+}
+
+// toFloat64 将值转换为 float64
+func toFloat64(v interface{}) (float64, error) {
+	switch val := v.(type) {
+	case int:
+		return float64(val), nil
+	case int64:
+		return float64(val), nil
+	case float32:
+		return float64(val), nil
+	case float64:
+		return val, nil
+	case string:
+		var f float64
+		_, err := fmt.Sscanf(val, "%f", &f)
+		return f, err
+	default:
+		return 0, fmt.Errorf("cannot convert %T to float64", v)
+	}
+}
+
+// checkRegex 正则匹配检查
+func checkRegex(field, pattern interface{}) (bool, error) {
+	if field == nil {
+		return false, nil
+	}
+
+	fieldStr := fmt.Sprintf("%v", field)
+	patternStr := fmt.Sprintf("%v", pattern)
+
+	matched, err := regexp.MatchString(patternStr, fieldStr)
+	if err != nil {
+		return false, fmt.Errorf("invalid regex pattern: %w", err)
+	}
+
+	return matched, nil
+}
+
 // ActionConfig 动作配置（用于 JSON 序列化）
 type ActionConfig struct {
 	Type ActionType `json:"type"`
@@ -450,6 +619,11 @@ type ActionConfig struct {
 	EmailBody   string   `json:"email_body,omitempty"`
 	HTML        bool     `json:"html,omitempty"`
 	Attachments []string `json:"attachments,omitempty"`
+
+	// Conditional fields
+	Condition  Condition `json:"condition,omitempty"`
+	ThenAction *ActionConfig `json:"then_action,omitempty"`
+	ElseAction *ActionConfig `json:"else_action,omitempty"`
 }
 
 // NewActionFromConfig 从配置创建动作
@@ -522,6 +696,31 @@ func NewActionFromConfig(config ActionConfig) (Action, error) {
 			Body:        config.Body,
 			HTML:        config.HTML,
 			Attachments: config.Attachments,
+		}, nil
+	case ActionTypeConditional:
+		// 解析嵌套的 then_action 和 else_action
+		var thenAction, elseAction Action
+		var err error
+
+		if config.ThenAction != nil {
+			thenAction, err = NewActionFromConfig(*config.ThenAction)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create then_action: %w", err)
+			}
+		}
+
+		if config.ElseAction != nil {
+			elseAction, err = NewActionFromConfig(*config.ElseAction)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create else_action: %w", err)
+			}
+		}
+
+		return &ConditionalAction{
+			Type:       config.Type,
+			Condition:  config.Condition,
+			ThenAction: thenAction,
+			ElseAction: elseAction,
 		}, nil
 	default:
 		return nil, fmt.Errorf("unknown action type: %s", config.Type)
