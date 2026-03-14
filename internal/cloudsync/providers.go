@@ -394,6 +394,7 @@ func NewWebDAVProvider(cfg *ProviderConfig) (*WebDAVProvider, error) {
 	}
 
 	if cfg.Insecure {
+		// #nosec G402 -- InsecureSkipVerify is enabled by user configuration for self-signed certificates
 		client.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}

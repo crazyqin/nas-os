@@ -974,7 +974,13 @@ func (h *Handlers) extractZipGo(archivePath, destPath string, overwrite bool) er
 	defer r.Close()
 
 	for _, f := range r.File {
+		// #nosec G305 -- 下方已添加路径遍历检查
 		path := filepath.Join(destPath, f.Name)
+
+		// 防止路径遍历攻击
+		if !strings.HasPrefix(filepath.Clean(path), filepath.Clean(destPath)+string(os.PathSeparator)) {
+			return fmt.Errorf("非法文件路径: %s", f.Name)
+		}
 
 		// 跳过已存在的文件（如果不覆盖）
 		if !overwrite {

@@ -654,6 +654,7 @@ func (sm *SyncManager) syncToWebDAV(task *SyncTask) error {
 	client := gowebdav.NewClient(cfg.URL, cfg.Username, cfg.Password)
 
 	if cfg.Insecure {
+		// #nosec G402 -- InsecureSkipVerify is enabled by user configuration for self-signed certificates
 		client.SetTransport(&http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		})
