@@ -1,5 +1,12 @@
 # 编译产物
 nasd
+nasd-*
+backup
+
+# 测试产物
+*.test
+coverage*.out
+coverage.out
 
 # Go
 *.o
