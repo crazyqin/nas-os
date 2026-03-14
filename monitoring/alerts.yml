@@ -297,3 +297,193 @@ groups:
         annotations:
           summary: "文件描述符使用率过高"
           description: "文件描述符使用率 {{ $value | printf \"%.1f\" }}%，可能影响系统稳定性"
+
+  # ==================== NAS-OS 业务告警 ====================
+  - name: nas-os-storage-pool
+    rules:
+      # 存储池状态告警
+      - alert: StoragePoolDegraded
+        expr: nas_storage_pool_status{status="degraded"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          component: storage-pool
+        annotations:
+          summary: "存储池降级"
+          description: "存储池 {{ $labels.pool }} 处于降级状态，请检查磁盘健康"
+          runbook_url: "https://docs.nas-os.io/runbook/storage-pool"
+
+      - alert: StoragePoolOffline
+        expr: nas_storage_pool_status{status="offline"} == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: storage-pool
+        annotations:
+          summary: "存储池离线"
+          description: "存储池 {{ $labels.pool }} 已离线，数据不可访问"
+
+      - alert: StoragePoolRebuilding
+        expr: nas_storage_pool_status{status="rebuilding"} == 1
+        for: 5m
+        labels:
+          severity: warning
+          component: storage-pool
+        annotations:
+          summary: "存储池正在重建"
+          description: "存储池 {{ $labels.pool }} 正在重建，性能可能受影响"
+
+      - alert: StoragePoolCapacityWarning
+        expr: (nas_storage_pool_used_bytes / nas_storage_pool_total_bytes) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: storage-pool
+        annotations:
+          summary: "存储池容量不足"
+          description: "存储池 {{ $labels.pool }} 使用率 {{ $value | printf \"%.1f\" }}%，请及时扩容或清理"
+
+      - alert: StoragePoolCapacityCritical
+        expr: (nas_storage_pool_used_bytes / nas_storage_pool_total_bytes) * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+          component: storage-pool
+        annotations:
+          summary: "存储池容量严重不足"
+          description: "存储池 {{ $labels.pool }} 使用率 {{ $value | printf \"%.1f\" }}%，请立即处理"
+
+  - name: nas-os-shares
+    rules:
+      # 共享服务告警
+      - alert: ShareServiceDown
+        expr: nas_share_service_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: share
+        annotations:
+          summary: "共享服务不可用"
+          description: "{{ $labels.service }} 共享服务已停止，请检查服务状态"
+          runbook_url: "https://docs.nas-os.io/runbook/share-service"
+
+      - alert: SMBConnectionLimit
+        expr: nas_smb_connections / nas_smb_max_connections > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: share
+        annotations:
+          summary: "SMB 连接数接近上限"
+          description: "SMB 连接数使用率 {{ $value | printf \"%.1f\" }}%，可能需要增加连接限制"
+
+      - alert: NFSExportError
+        expr: rate(nas_nfs_export_errors_total[5m]) > 10
+        for: 3m
+        labels:
+          severity: warning
+          component: share
+        annotations:
+          summary: "NFS 导出错误"
+          description: "NFS 导出错误率较高，请检查导出配置"
+
+  - name: nas-os-backup
+    rules:
+      # 备份任务告警
+      - alert: BackupTaskFailed
+        expr: nas_backup_task_status{status="failed"} == 1
+        for: 0m
+        labels:
+          severity: warning
+          component: backup
+        annotations:
+          summary: "备份任务失败"
+          description: "备份任务 {{ $labels.task }} 执行失败，请检查日志"
+          runbook_url: "https://docs.nas-os.io/runbook/backup"
+
+      - alert: BackupTaskOverdue
+        expr: time() - nas_backup_task_last_success_timestamp_seconds > 86400 * 2
+        for: 0m
+        labels:
+          severity: warning
+          component: backup
+        annotations:
+          summary: "备份任务逾期"
+          description: "备份任务 {{ $labels.task }} 超过 48 小时未成功执行"
+
+      - alert: BackupStorageWarning
+        expr: nas_backup_storage_used_bytes / nas_backup_storage_total_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: backup
+        annotations:
+          summary: "备份存储空间不足"
+          description: "备份存储使用率 {{ $value | printf \"%.1f\" }}%，请清理旧备份或扩容"
+
+  - name: nas-os-snapshot
+    rules:
+      # 快照告警
+      - alert: SnapshotReplicationLag
+        expr: nas_snapshot_replication_lag_seconds > 3600
+        for: 5m
+        labels:
+          severity: warning
+          component: snapshot
+        annotations:
+          summary: "快照复制延迟"
+          description: "快照 {{ $labels.snapshot }} 复制延迟超过 1 小时"
+
+      - alert: SnapshotReplicationFailed
+        expr: nas_snapshot_replication_status{status="failed"} == 1
+        for: 0m
+        labels:
+          severity: warning
+          component: snapshot
+        annotations:
+          summary: "快照复制失败"
+          description: "快照 {{ $labels.snapshot }} 复制失败，请检查网络和目标存储"
+
+      - alert: SnapshotCountHigh
+        expr: count(nas_snapshot_info) > 100
+        for: 5m
+        labels:
+          severity: info
+          component: snapshot
+        annotations:
+          summary: "快照数量过多"
+          description: "当前有 {{ $value }} 个快照，建议清理旧快照以节省空间"
+
+  - name: nas-os-users
+    rules:
+      # 用户管理告警
+      - alert: UserQuotaWarning
+        expr: (nas_user_quota_used_bytes / nas_user_quota_limit_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: quota
+        annotations:
+          summary: "用户配额即将用尽"
+          description: "用户 {{ $labels.user }} 配额使用率 {{ $value | printf \"%.1f\" }}%"
+          runbook_url: "https://docs.nas-os.io/runbook/user-quota"
+
+      - alert: UserQuotaExceeded
+        expr: nas_user_quota_exceeded == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: quota
+        annotations:
+          summary: "用户配额超限"
+          description: "用户 {{ $labels.user }} 已超出配额限制，无法写入新文件"
+
+      - alert: FailedLoginAttempts
+        expr: rate(nas_auth_failed_attempts_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "登录失败次数异常"
+          description: "检测到频繁的登录失败尝试，可能存在暴力破解攻击"
