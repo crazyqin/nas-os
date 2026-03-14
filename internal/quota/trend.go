@@ -434,10 +434,9 @@ func (m *TrendDataManager) GetTrendStats(quotaID string, duration time.Duration)
 
 	// 分析增加/减少/稳定天数
 	for i := 1; i < len(data); i++ {
-		diff := data[i].UsedBytes - data[i-1].UsedBytes
-		if diff > 0 {
+		if data[i].UsedBytes > data[i-1].UsedBytes {
 			stats.IncreasingDays++
-		} else if diff < 0 {
+		} else if data[i].UsedBytes < data[i-1].UsedBytes {
 			stats.DecreasingDays++
 		} else {
 			stats.StableDays++
@@ -628,10 +627,9 @@ func (m *TrendDataManager) detectPatterns(data []TrendDataPointExtended) []Trend
 	for i, p := range data {
 		sumUsed += float64(p.UsedBytes)
 		if i > 0 {
-			diff := p.UsedBytes - data[i-1].UsedBytes
-			if diff > 0 {
+			if p.UsedBytes > data[i-1].UsedBytes {
 				increasingDays++
-			} else if diff < 0 {
+			} else if p.UsedBytes < data[i-1].UsedBytes {
 				decreasingDays++
 			}
 		}
