@@ -360,8 +360,33 @@ func (m *Monitor) triggerAlert(usage *QuotaUsage, alertType AlertType) {
 		}
 	}
 
+	// 确定告警严重级别
+	severity := AlertSeverityWarning
+	if usage.UsagePercent >= 95 {
+		severity = AlertSeverityCritical
+	} else if usage.UsagePercent >= 90 {
+		severity = AlertSeverityWarning
+	} else if usage.UsagePercent >= 80 {
+		severity = AlertSeverityInfo
+	}
+
 	// 创建新告警
-	alert := m.manager.createAlert(quota, usage, alertType)
+	alert := &Alert{
+		ID:           generateID(),
+		QuotaID:      quota.ID,
+		Type:         alertType,
+		Severity:     severity,
+		Status:       AlertStatusActive,
+		TargetID:     quota.TargetID,
+		TargetName:   quota.TargetName,
+		Path:         quota.Path,
+		UsedBytes:    usage.UsedBytes,
+		LimitBytes:   quota.HardLimit,
+		UsagePercent: usage.UsagePercent,
+		Threshold:    usage.UsagePercent,
+		Message:      m.buildAlertMessage(usage, severity),
+		CreatedAt:    time.Now(),
+	}
 
 	// 发送通知
 	m.sendNotification(alert)

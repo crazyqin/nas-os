@@ -511,16 +511,6 @@ func (m *Manager) ResolveAlert(alertID string) error {
 	return nil
 }
 
-// CreateAlert 创建告警（内部使用）
-func (m *Manager) createAlert(quota *Quota, usage *QuotaUsage, alertType AlertType) *Alert {
-	severity := AlertSeverityWarning
-	if alertType == AlertTypeHardLimit {
-		severity = AlertSeverityCritical
-	}
-
-	return m.createMultiLevelAlert(quota, usage, severity, usage.UsagePercent)
-}
-
 // createMultiLevelAlert 创建多级告警（内部使用）
 func (m *Manager) createMultiLevelAlert(quota *Quota, usage *QuotaUsage, severity AlertSeverity, threshold float64) *Alert {
 	alert := &Alert{
