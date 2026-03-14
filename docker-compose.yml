@@ -11,6 +11,12 @@ services:
     container_name: nas-os
     restart: unless-stopped
     
+    # 使用 init 进程管理子进程
+    init: true
+    
+    # 优雅停止时间
+    stop_grace_period: 30s
+    
     # ⚠️ 特权模式（访问磁盘设备）
     # 生产环境建议使用 --device 精确授权
     privileged: true
@@ -36,6 +42,8 @@ services:
     environment:
       - NAS_OS_CONFIG=/etc/nas-os/config.yaml
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
+      # 时区设置
+      - TZ=Asia/Shanghai
     
     # 设备访问（非特权模式下使用）
     # devices:
@@ -58,6 +66,14 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    
+    # 健康检查（覆盖 Dockerfile 中的设置）
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   # ========== 可选：配套服务 ==========
   
