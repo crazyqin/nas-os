@@ -12,8 +12,8 @@ import (
 
 func TestBandwidthReporter_CalculateStats(t *testing.T) {
 	config := BandwidthReportConfig{
-		BandwidthLimitMbps:       1000, // 1Gbps
-		HighUtilizationThreshold: 70.0,
+		BandwidthLimitMbps:           1000, // 1Gbps
+		HighUtilizationThreshold:     70.0,
 		CriticalUtilizationThreshold: 90.0,
 	}
 
@@ -78,8 +78,8 @@ func TestBandwidthReporter_GenerateTrends(t *testing.T) {
 	history := []BandwidthHistoryPoint{
 		{
 			Timestamp: now.Add(-1 * time.Hour),
-			RxRate:    50 * 1024 * 1024,  // 50MB/s
-			TxRate:    25 * 1024 * 1024,  // 25MB/s
+			RxRate:    50 * 1024 * 1024, // 50MB/s
+			TxRate:    25 * 1024 * 1024, // 25MB/s
 		},
 		{
 			Timestamp: now.Add(-30 * time.Minute),
@@ -88,8 +88,8 @@ func TestBandwidthReporter_GenerateTrends(t *testing.T) {
 		},
 		{
 			Timestamp: now,
-			RxRate:    80 * 1024 * 1024,  // 80MB/s
-			TxRate:    40 * 1024 * 1024,  // 40MB/s
+			RxRate:    80 * 1024 * 1024, // 80MB/s
+			TxRate:    40 * 1024 * 1024, // 40MB/s
 		},
 	}
 
@@ -117,8 +117,8 @@ func TestBandwidthReporter_DetectAlerts(t *testing.T) {
 	history := []BandwidthHistoryPoint{
 		{
 			Timestamp:  now.Add(-1 * time.Hour),
-			RxRate:     10 * 1024 * 1024,  // 10MB/s = ~80Mbps
-			TxRate:     5 * 1024 * 1024,   // 5MB/s = ~40Mbps
+			RxRate:     10 * 1024 * 1024, // 10MB/s = ~80Mbps
+			TxRate:     5 * 1024 * 1024,  // 5MB/s = ~40Mbps
 			RxPackets:  10000,
 			TxPackets:  5000,
 			ErrorCount: 200, // 高错误率
@@ -167,10 +167,10 @@ func TestBandwidthReporter_GenerateRecommendations(t *testing.T) {
 	// 创建高利用率的统计数据
 	stats := []BandwidthUsageStats{
 		{
-			Interface:           "eth0",
-			UtilizationPercent:  95.0, // 超过严重阈值
-			ErrorRate:           2.0,  // 超过错误率阈值
-			DropRate:            1.0,  // 超过丢包率阈值
+			Interface:          "eth0",
+			UtilizationPercent: 95.0, // 超过严重阈值
+			ErrorRate:          2.0,  // 超过错误率阈值
+			DropRate:           1.0,  // 超过丢包率阈值
 		},
 	}
 
@@ -313,10 +313,10 @@ func TestBandwidthReporter_SingleHistoryPoint(t *testing.T) {
 
 func TestBandwidthReporter_NoAlerts(t *testing.T) {
 	config := BandwidthReportConfig{
-		BandwidthLimitMbps:           10000, // 10Gbps - 很大的带宽
-		HighUtilizationThreshold:     70.0,
-		ErrorRateThreshold:           10.0, // 高阈值
-		DropRateThreshold:            10.0, // 高阈值
+		BandwidthLimitMbps:       10000, // 10Gbps - 很大的带宽
+		HighUtilizationThreshold: 70.0,
+		ErrorRateThreshold:       10.0, // 高阈值
+		DropRateThreshold:        10.0, // 高阈值
 	}
 
 	reporter := NewBandwidthReporter(config)

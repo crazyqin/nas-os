@@ -716,15 +716,15 @@ type ResourceReportConfig struct {
 // DefaultResourceReportConfig 默认配置
 func DefaultResourceReportConfig() ResourceReportConfig {
 	return ResourceReportConfig{
-		StorageWarningThreshold:     70.0,
-		StorageCriticalThreshold:    85.0,
-		BandwidthHighThreshold:      70.0,
-		BandwidthCriticalThreshold:  90.0,
-		PredictionDays:              30,
-		TrendSampleInterval:         5,
-		HistoryRetentionDays:        90,
-		EnablePrediction:            true,
-		EnableRecommendations:       true,
-		TopUsersCount:               10,
+		StorageWarningThreshold:    70.0,
+		StorageCriticalThreshold:   85.0,
+		BandwidthHighThreshold:     70.0,
+		BandwidthCriticalThreshold: 90.0,
+		PredictionDays:             30,
+		TrendSampleInterval:        5,
+		HistoryRetentionDays:       90,
+		EnablePrediction:           true,
+		EnableRecommendations:      true,
+		TopUsersCount:              10,
 	}
 }

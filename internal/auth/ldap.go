@@ -13,19 +13,19 @@ import (
 
 // LDAPConfig LDAP/AD 配置
 type LDAPConfig struct {
-	Name           string   `json:"name"`
-	URL            string   `json:"url"`             // ldap://host:port 或 ldaps://host:port
-	BindDN         string   `json:"bind_dn"`         // 绑定 DN（用于搜索）
-	BindPassword   string   `json:"bind_password"`   // 绑定密码
-	BaseDN         string   `json:"base_dn"`         // 搜索基础 DN
-	UserFilter     string   `json:"user_filter"`     // 用户搜索过滤器，如 (uid=%s)
-	GroupFilter    string   `json:"group_filter"`    // 组搜索过滤器
-	AttributeMap   AttributeMap `json:"attribute_map"` // 属性映射
-	UseTLS         bool     `json:"use_tls"`         // 是否使用 TLS
-	SkipTLSVerify  bool     `json:"skip_tls_verify"` // 跳过 TLS 验证（仅测试用）
-	CACertPath     string   `json:"ca_cert_path"`    // CA 证书路径
-	Enabled        bool     `json:"enabled"`
-	IsAD           bool     `json:"is_ad"`           // 是否为 Active Directory
+	Name          string       `json:"name"`
+	URL           string       `json:"url"`             // ldap://host:port 或 ldaps://host:port
+	BindDN        string       `json:"bind_dn"`         // 绑定 DN（用于搜索）
+	BindPassword  string       `json:"bind_password"`   // 绑定密码
+	BaseDN        string       `json:"base_dn"`         // 搜索基础 DN
+	UserFilter    string       `json:"user_filter"`     // 用户搜索过滤器，如 (uid=%s)
+	GroupFilter   string       `json:"group_filter"`    // 组搜索过滤器
+	AttributeMap  AttributeMap `json:"attribute_map"`   // 属性映射
+	UseTLS        bool         `json:"use_tls"`         // 是否使用 TLS
+	SkipTLSVerify bool         `json:"skip_tls_verify"` // 跳过 TLS 验证（仅测试用）
+	CACertPath    string       `json:"ca_cert_path"`    // CA 证书路径
+	Enabled       bool         `json:"enabled"`
+	IsAD          bool         `json:"is_ad"` // 是否为 Active Directory
 }
 
 // AttributeMap 属性映射
@@ -51,17 +51,17 @@ type LDAPUser struct {
 
 // LDAPManager LDAP/AD 管理器
 type LDAPManager struct {
-	mu     sync.RWMutex
+	mu      sync.RWMutex
 	configs map[string]*LDAPConfig
 }
 
 var (
-	ErrLDAPConfigNotFound  = errors.New("LDAP 配置未找到")
+	ErrLDAPConfigNotFound   = errors.New("LDAP 配置未找到")
 	ErrLDAPConnectionFailed = errors.New("LDAP 连接失败")
-	ErrLDAPBindFailed      = errors.New("LDAP 绑定失败")
-	ErrLDAPUserNotFound    = errors.New("LDAP 用户未找到")
-	ErrLDAPAuthFailed      = errors.New("LDAP 认证失败")
-	ErrLDAPSearchFailed    = errors.New("LDAP 搜索失败")
+	ErrLDAPBindFailed       = errors.New("LDAP 绑定失败")
+	ErrLDAPUserNotFound     = errors.New("LDAP 用户未找到")
+	ErrLDAPAuthFailed       = errors.New("LDAP 认证失败")
+	ErrLDAPSearchFailed     = errors.New("LDAP 搜索失败")
 )
 
 // NewLDAPManager 创建 LDAP 管理器
@@ -320,10 +320,10 @@ func (m *LDAPManager) SearchUsers(configName, query string) ([]*LDAPUser, error)
 	users := make([]*LDAPUser, 0, len(sr.Entries))
 	for _, entry := range sr.Entries {
 		users = append(users, &LDAPUser{
-			DN:        entry.DN,
-			Username:  entry.GetAttributeValue(config.AttributeMap.Username),
-			Email:     entry.GetAttributeValue(config.AttributeMap.Email),
-			FullName:  entry.GetAttributeValue(config.AttributeMap.FullName),
+			DN:       entry.DN,
+			Username: entry.GetAttributeValue(config.AttributeMap.Username),
+			Email:    entry.GetAttributeValue(config.AttributeMap.Email),
+			FullName: entry.GetAttributeValue(config.AttributeMap.FullName),
 		})
 	}
 

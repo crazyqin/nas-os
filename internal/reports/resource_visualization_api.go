@@ -10,10 +10,10 @@ import (
 
 // ResourceVisualizationHandlers 资源可视化 API 处理器
 type ResourceVisualizationHandlers struct {
-	reporter        *ResourceReporter
-	costCalculator  *StorageCostCalculator
+	reporter          *ResourceReporter
+	costCalculator    *StorageCostCalculator
 	bandwidthReporter *BandwidthReporter
-	capacityPlanner *CapacityPlanner
+	capacityPlanner   *CapacityPlanner
 }
 
 // NewResourceVisualizationHandlers 创建资源可视化 API 处理器
@@ -55,12 +55,12 @@ func DefaultBandwidthReportConfig() BandwidthReportConfig {
 // DefaultCapacityPlanningConfig 默认容量规划配置
 func DefaultCapacityPlanningConfig() CapacityPlanningConfig {
 	return CapacityPlanningConfig{
-		AlertThreshold:     70.0,
-		CriticalThreshold:  85.0,
-		ForecastDays:       90,
-		GrowthModel:        GrowthModelLinear,
-		ExpansionLeadTime:  30,
-		SafetyBuffer:       20.0,
+		AlertThreshold:    70.0,
+		CriticalThreshold: 85.0,
+		ForecastDays:      90,
+		GrowthModel:       GrowthModelLinear,
+		ExpansionLeadTime: 30,
+		SafetyBuffer:      20.0,
 	}
 }
 
@@ -160,25 +160,25 @@ func (h *ResourceVisualizationHandlers) getDashboard(c *gin.Context) {
 			"status":        "unknown",
 		},
 		"bandwidth": map[string]interface{}{
-			"current_mbps":  0,
-			"peak_mbps":     0,
-			"utilization":   0,
-			"status":        "unknown",
+			"current_mbps": 0,
+			"peak_mbps":    0,
+			"utilization":  0,
+			"status":       "unknown",
 		},
 		"users": map[string]interface{}{
-			"total":         0,
-			"active":        0,
-			"over_quota":    0,
+			"total":      0,
+			"active":     0,
+			"over_quota": 0,
 		},
 		"system": map[string]interface{}{
-			"cpu_usage":     0,
-			"memory_usage":  0,
-			"status":        "unknown",
+			"cpu_usage":    0,
+			"memory_usage": 0,
+			"status":       "unknown",
 		},
 		"alerts": map[string]interface{}{
-			"critical":      0,
-			"warning":       0,
-			"total":         0,
+			"critical": 0,
+			"warning":  0,
+			"total":    0,
 		},
 	}
 
@@ -209,10 +209,10 @@ func (h *ResourceVisualizationHandlers) getDashboard(c *gin.Context) {
 			EndTime:   time.Now(),
 		})
 		dashboard["bandwidth"] = map[string]interface{}{
-			"current_mbps":  report.Summary.AvgTotalMbps,
-			"peak_mbps":     report.Summary.PeakTotalMbps,
-			"utilization":   report.Summary.PeakUtilization,
-			"status":        h.getBandwidthStatus(report.Summary.PeakUtilization),
+			"current_mbps": report.Summary.AvgTotalMbps,
+			"peak_mbps":    report.Summary.PeakTotalMbps,
+			"utilization":  report.Summary.PeakUtilization,
+			"status":       h.getBandwidthStatus(report.Summary.PeakUtilization),
 		}
 	}
 
@@ -337,7 +337,7 @@ func (h *ResourceVisualizationHandlers) getStorageDistributionViz(c *gin.Context
 			{"type": "视频", "count": 200, "size_gb": 30.0, "percent": 42.0},
 			{"type": "音频", "count": 800, "size_gb": 5.2, "percent": 8.0},
 		},
-		"by_user":   []interface{}{},
+		"by_user":      []interface{}{},
 		"by_directory": []interface{}{},
 	}
 	api.OK(c, distribution)
@@ -347,9 +347,9 @@ func (h *ResourceVisualizationHandlers) getStorageEfficiency(c *gin.Context) {
 	efficiency := StorageEfficiency{
 		CompressionRatio: 1.5,
 		DedupRatio:       1.2,
-		ActualDataSize:   100 * 1024 * 1024 * 1024,  // 100 GB
-		PhysicalSize:     60 * 1024 * 1024 * 1024,   // 60 GB
-		SavedSpace:       40 * 1024 * 1024 * 1024,   // 40 GB saved
+		ActualDataSize:   100 * 1024 * 1024 * 1024, // 100 GB
+		PhysicalSize:     60 * 1024 * 1024 * 1024,  // 60 GB
+		SavedSpace:       40 * 1024 * 1024 * 1024,  // 40 GB saved
 	}
 	api.OK(c, efficiency)
 }
@@ -378,13 +378,13 @@ func (h *ResourceVisualizationHandlers) getStorageTrendViz(c *gin.Context) {
 
 func (h *ResourceVisualizationHandlers) getStoragePrediction(c *gin.Context) {
 	prediction := map[string]interface{}{
-		"generated_at":         time.Now(),
-		"current_usage_percent": 0,
+		"generated_at":            time.Now(),
+		"current_usage_percent":   0,
 		"predicted_usage_percent": 0,
-		"growth_rate_per_day":  0,
-		"days_to_capacity":     0,
-		"confidence":           0.7,
-		"warning":              "",
+		"growth_rate_per_day":     0,
+		"days_to_capacity":        0,
+		"confidence":              0.7,
+		"warning":                 "",
 	}
 
 	metrics := h.collectStorageMetrics()
@@ -460,12 +460,12 @@ func (h *ResourceVisualizationHandlers) getInterfaceVisualization(c *gin.Context
 		interfaces = append(interfaces, InterfaceBandwidthInfo{
 			Name: iface,
 			Rate: BandwidthRate{
-				RxBytesPerSec:   rxRate,
-				TxBytesPerSec:   txRate,
+				RxBytesPerSec:    rxRate,
+				TxBytesPerSec:    txRate,
 				TotalBytesPerSec: rxRate + txRate,
-				RxMbps:          float64(rxRate) * 8 / (1024 * 1024),
-				TxMbps:          float64(txRate) * 8 / (1024 * 1024),
-				TotalMbps:       float64(rxRate+txRate) * 8 / (1024 * 1024),
+				RxMbps:           float64(rxRate) * 8 / (1024 * 1024),
+				TxMbps:           float64(txRate) * 8 / (1024 * 1024),
+				TotalMbps:        float64(rxRate+txRate) * 8 / (1024 * 1024),
 			},
 			TotalRx: totalRx,
 			TotalTx: totalTx,
@@ -499,12 +499,12 @@ func (h *ResourceVisualizationHandlers) getInterfaceDetailVisualization(c *gin.C
 		iface := InterfaceBandwidthInfo{
 			Name: name,
 			Rate: BandwidthRate{
-				RxBytesPerSec:   rxRate,
-				TxBytesPerSec:   txRate,
+				RxBytesPerSec:    rxRate,
+				TxBytesPerSec:    txRate,
 				TotalBytesPerSec: rxRate + txRate,
-				RxMbps:          float64(rxRate) * 8 / (1024 * 1024),
-				TxMbps:          float64(txRate) * 8 / (1024 * 1024),
-				TotalMbps:       float64(rxRate+txRate) * 8 / (1024 * 1024),
+				RxMbps:           float64(rxRate) * 8 / (1024 * 1024),
+				TxMbps:           float64(txRate) * 8 / (1024 * 1024),
+				TotalMbps:        float64(rxRate+txRate) * 8 / (1024 * 1024),
 			},
 			TotalRx: totalRx,
 			TotalTx: totalTx,
@@ -651,7 +651,7 @@ func (h *ResourceVisualizationHandlers) getCPUVisualization(c *gin.Context) {
 	metrics := h.collectSystemMetrics()
 	if metrics != nil {
 		api.OK(c, map[string]interface{}{
-			"usage":       metrics.CPUUsage,
+			"usage":        metrics.CPUUsage,
 			"load_average": metrics.LoadAverage,
 		})
 		return
@@ -806,8 +806,8 @@ func (h *ResourceVisualizationHandlers) collectSystemMetrics() *SystemResourceOv
 
 func (h *ResourceVisualizationHandlers) collectStorageSummary() map[string]interface{} {
 	return map[string]interface{}{
-		"total_gb":    0,
-		"used_gb":     0,
+		"total_gb":      0,
+		"used_gb":       0,
 		"usage_percent": 0,
 	}
 }
@@ -821,7 +821,7 @@ func (h *ResourceVisualizationHandlers) collectBandwidthSummary() map[string]int
 
 func (h *ResourceVisualizationHandlers) collectUserSummary() map[string]interface{} {
 	return map[string]interface{}{
-		"total_users": 0,
+		"total_users":  0,
 		"active_users": 0,
 	}
 }

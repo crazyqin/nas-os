@@ -14,65 +14,65 @@ func TestPasswordValidator_Validate(t *testing.T) {
 	validator := NewPasswordValidator(DefaultPasswordPolicy)
 
 	tests := []struct {
-		name     string
-		password string
-		userInfo []string
-		wantValid bool
+		name       string
+		password   string
+		userInfo   []string
+		wantValid  bool
 		wantErrors int
 	}{
 		{
-			name:      "有效密码",
-			password:  "SecurePass123!",
-			wantValid: true,
+			name:       "有效密码",
+			password:   "SecurePass123!",
+			wantValid:  true,
 			wantErrors: 0,
 		},
 		{
-			name:      "太短",
-			password:  "Ab1!",
-			wantValid: false,
+			name:       "太短",
+			password:   "Ab1!",
+			wantValid:  false,
 			wantErrors: 1,
 		},
 		{
-			name:      "缺少大写字母",
-			password:  "securepass123!",
-			wantValid: false,
+			name:       "缺少大写字母",
+			password:   "securepass123!",
+			wantValid:  false,
 			wantErrors: 1,
 		},
 		{
-			name:      "缺少小写字母",
-			password:  "SECUREPASS123!",
-			wantValid: false,
+			name:       "缺少小写字母",
+			password:   "SECUREPASS123!",
+			wantValid:  false,
 			wantErrors: 1,
 		},
 		{
-			name:      "缺少数字",
-			password:  "SecurePass!!!",
-			wantValid: false,
+			name:       "缺少数字",
+			password:   "SecurePass!!!",
+			wantValid:  false,
 			wantErrors: 1,
 		},
 		{
-			name:      "缺少特殊字符",
-			password:  "SecurePass123",
-			wantValid: false,
+			name:       "缺少特殊字符",
+			password:   "SecurePass123",
+			wantValid:  false,
 			wantErrors: 1,
 		},
 		{
-			name:      "常见弱密码",
-			password:  "Password1!",
-			wantValid: false,
+			name:       "常见弱密码",
+			password:   "Password1!",
+			wantValid:  false,
 			wantErrors: 1,
 		},
 		{
-			name:      "包含用户名",
-			password:  "JohnDoe123!",
-			userInfo: []string{"JohnDoe"},
-			wantValid: false,
+			name:       "包含用户名",
+			password:   "JohnDoe123!",
+			userInfo:   []string{"JohnDoe"},
+			wantValid:  false,
 			wantErrors: 1,
 		},
 		{
-			name:      "强密码",
-			password:  "MyStr0ng@Pass#2024",
-			wantValid: true,
+			name:       "强密码",
+			password:   "MyStr0ng@Pass#2024",
+			wantValid:  true,
 			wantErrors: 0,
 		},
 	}
@@ -323,10 +323,10 @@ func TestSessionManager_MaxSessionsPerUser(t *testing.T) {
 
 func TestSessionManager_RefreshToken(t *testing.T) {
 	config := SessionConfig{
-		TokenExpiry:         time.Hour,
-		RefreshTokenExpiry:  24 * time.Hour,
-		MaxSessionsPerUser:  5,
-		EnableRefreshToken:  true,
+		TokenExpiry:        time.Hour,
+		RefreshTokenExpiry: 24 * time.Hour,
+		MaxSessionsPerUser: 5,
+		EnableRefreshToken: true,
 	}
 	sm := NewSessionManager(config)
 

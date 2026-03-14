@@ -27,10 +27,10 @@ type RateLimitConfig struct {
 
 // DefaultRateLimitConfig 默认限流配置
 var DefaultRateLimitConfig = RateLimitConfig{
-	Rate:        100,              // 100 req/s
-	Burst:       200,              // 突发 200
-	WindowSize:  time.Minute,      // 1 分钟窗口
-	MaxRequests: 1000,             // 每分钟最多 1000 请求
+	Rate:        100,         // 100 req/s
+	Burst:       200,         // 突发 200
+	WindowSize:  time.Minute, // 1 分钟窗口
+	MaxRequests: 1000,        // 每分钟最多 1000 请求
 	Message:     "请求过于频繁，请稍后再试",
 }
 
@@ -230,8 +230,8 @@ func RateLimit(config RateLimitConfig) gin.HandlerFunc {
 // RateLimitByUser 按用户限流中间件
 func RateLimitByUser(rate float64, burst int) gin.HandlerFunc {
 	config := RateLimitConfig{
-		Rate:   rate,
-		Burst:  burst,
+		Rate:    rate,
+		Burst:   burst,
 		Message: "请求过于频繁，请稍后再试",
 		KeyFunc: func(c *gin.Context) string {
 			// 优先使用用户 ID
@@ -248,8 +248,8 @@ func RateLimitByUser(rate float64, burst int) gin.HandlerFunc {
 // RateLimitByIP 按 IP 限流中间件
 func RateLimitByIP(rate float64, burst int) gin.HandlerFunc {
 	config := RateLimitConfig{
-		Rate:   rate,
-		Burst:  burst,
+		Rate:    rate,
+		Burst:   burst,
 		Message: "请求过于频繁，请稍后再试",
 		KeyFunc: DefaultKeyFunc,
 	}
@@ -259,8 +259,8 @@ func RateLimitByIP(rate float64, burst int) gin.HandlerFunc {
 // RateLimitByEndpoint 按端点限流中间件
 func RateLimitByEndpoint(rate float64, burst int) gin.HandlerFunc {
 	config := RateLimitConfig{
-		Rate:   rate,
-		Burst:  burst,
+		Rate:    rate,
+		Burst:   burst,
 		Message: "该接口请求过于频繁，请稍后再试",
 		KeyFunc: func(c *gin.Context) string {
 			return c.ClientIP() + ":" + c.FullPath()
@@ -272,9 +272,9 @@ func RateLimitByEndpoint(rate float64, burst int) gin.HandlerFunc {
 // SlidingWindowRateLimit 滑动窗口限流中间件
 func SlidingWindowRateLimit(windowSize time.Duration, maxRequests int) gin.HandlerFunc {
 	store := &swLimiterStore{
-		limiters:  sync.Map{},
-		window:    windowSize,
-		maxReqs:   maxRequests,
+		limiters: sync.Map{},
+		window:   windowSize,
+		maxReqs:  maxRequests,
 	}
 
 	return func(c *gin.Context) {
@@ -316,8 +316,8 @@ type IPRateLimiter struct {
 func NewIPRateLimiter(rate float64, burst int) *IPRateLimiter {
 	return &IPRateLimiter{
 		store: NewRateLimiterStore(RateLimitConfig{
-			Rate:   rate,
-			Burst:  burst,
+			Rate:    rate,
+			Burst:   burst,
 			KeyFunc: DefaultKeyFunc,
 		}),
 	}
@@ -416,10 +416,10 @@ func APIRateLimit() gin.HandlerFunc {
 // RateLimitStats 限流统计中间件
 func RateLimitStats() gin.HandlerFunc {
 	var (
-		mu          sync.Mutex
-		total       int64
-		byEndpoint  = make(map[string]int64)
-		byIP        = make(map[string]int64)
+		mu         sync.Mutex
+		total      int64
+		byEndpoint = make(map[string]int64)
+		byIP       = make(map[string]int64)
 	)
 
 	return func(c *gin.Context) {

@@ -44,9 +44,9 @@ func (r *ResourceReporter) GenerateOverviewReport(
 			StartTime: now.AddDate(0, 0, -7),
 			EndTime:   now,
 		},
-		Charts:         make([]ChartData, 0),
+		Charts:          make([]ChartData, 0),
 		Recommendations: make([]ResourceRecommendation, 0),
-		Alerts:         make([]ResourceAlert, 0),
+		Alerts:          make([]ResourceAlert, 0),
 	}
 
 	// 生成存储概览
@@ -99,9 +99,9 @@ func (r *ResourceReporter) GenerateStorageReport(metrics []StorageMetrics) *Reso
 			StartTime: now.AddDate(0, 0, -7),
 			EndTime:   now,
 		},
-		Charts:         make([]ChartData, 0),
+		Charts:          make([]ChartData, 0),
 		Recommendations: make([]ResourceRecommendation, 0),
-		Alerts:         make([]ResourceAlert, 0),
+		Alerts:          make([]ResourceAlert, 0),
 	}
 
 	report.StorageOverview = r.generateStorageOverview(metrics)
@@ -124,9 +124,9 @@ func (r *ResourceReporter) GenerateBandwidthReport(history map[string][]Bandwidt
 			StartTime: now.AddDate(0, 0, -7),
 			EndTime:   now,
 		},
-		Charts:         make([]ChartData, 0),
+		Charts:          make([]ChartData, 0),
 		Recommendations: make([]ResourceRecommendation, 0),
-		Alerts:         make([]ResourceAlert, 0),
+		Alerts:          make([]ResourceAlert, 0),
 	}
 
 	report.BandwidthOverview = r.generateBandwidthOverview(history)
@@ -149,9 +149,9 @@ func (r *ResourceReporter) GenerateUserReport(metrics []UserResourceInfo) *Resou
 			StartTime: now.AddDate(0, 0, -7),
 			EndTime:   now,
 		},
-		Charts:         make([]ChartData, 0),
+		Charts:          make([]ChartData, 0),
 		Recommendations: make([]ResourceRecommendation, 0),
-		Alerts:         make([]ResourceAlert, 0),
+		Alerts:          make([]ResourceAlert, 0),
 	}
 
 	report.UserOverview = r.generateUserOverview(metrics)
@@ -178,13 +178,13 @@ func (r *ResourceReporter) generateStorageOverview(metrics []StorageMetrics) *St
 		totalDirs += m.DirCount
 
 		volume := VolumeStorageInfo{
-			Name:             m.VolumeName,
-			TotalCapacity:    m.TotalCapacityBytes,
-			UsedCapacity:     m.UsedCapacityBytes,
+			Name:              m.VolumeName,
+			TotalCapacity:     m.TotalCapacityBytes,
+			UsedCapacity:      m.UsedCapacityBytes,
 			AvailableCapacity: m.AvailableCapacityBytes,
-			IOPS:             m.IOPS,
-			ReadBandwidth:    m.ReadBandwidthBytes,
-			WriteBandwidth:   m.WriteBandwidthBytes,
+			IOPS:              m.IOPS,
+			ReadBandwidth:     m.ReadBandwidthBytes,
+			WriteBandwidth:    m.WriteBandwidthBytes,
 		}
 
 		if m.TotalCapacityBytes > 0 {
@@ -218,7 +218,7 @@ func (r *ResourceReporter) generateBandwidthOverview(history map[string][]Bandwi
 	overview := &BandwidthOverview{
 		InterfaceCount: len(history),
 		Interfaces:     make([]InterfaceBandwidthInfo, 0, len(history)),
-		Trend:         make([]BandwidthTrendPoint, 0),
+		Trend:          make([]BandwidthTrendPoint, 0),
 	}
 
 	var totalRxBytes, totalTxBytes uint64
@@ -261,12 +261,12 @@ func (r *ResourceReporter) generateBandwidthOverview(history map[string][]Bandwi
 		overview.Interfaces = append(overview.Interfaces, InterfaceBandwidthInfo{
 			Name: iface,
 			Rate: BandwidthRate{
-				RxBytesPerSec: ifaceRxRate,
-				TxBytesPerSec: ifaceTxRate,
+				RxBytesPerSec:    ifaceRxRate,
+				TxBytesPerSec:    ifaceTxRate,
 				TotalBytesPerSec: ifaceRxRate + ifaceTxRate,
-				RxMbps:       float64(ifaceRxRate) * 8 / (1024 * 1024),
-				TxMbps:       float64(ifaceTxRate) * 8 / (1024 * 1024),
-				TotalMbps:    float64(ifaceRxRate+ifaceTxRate) * 8 / (1024 * 1024),
+				RxMbps:           float64(ifaceRxRate) * 8 / (1024 * 1024),
+				TxMbps:           float64(ifaceTxRate) * 8 / (1024 * 1024),
+				TotalMbps:        float64(ifaceRxRate+ifaceTxRate) * 8 / (1024 * 1024),
 			},
 			TotalRx: ifaceRx,
 			TotalTx: ifaceTx,
@@ -283,8 +283,8 @@ func (r *ResourceReporter) generateBandwidthOverview(history map[string][]Bandwi
 	}
 
 	overview.Peak = BandwidthPeakInfo{
-		PeakMbps:     round(peakMbps, 2),
-		PeakTime:     peakTime,
+		PeakMbps:      round(peakMbps, 2),
+		PeakTime:      peakTime,
 		PeakInterface: peakInterface,
 	}
 
@@ -304,9 +304,9 @@ func (r *ResourceReporter) generateBandwidthOverview(history map[string][]Bandwi
 
 func (r *ResourceReporter) generateUserOverview(metrics []UserResourceInfo) *UserResourceOverview {
 	overview := &UserResourceOverview{
-		TotalUsers:  len(metrics),
-		TopUsers:    make([]UserResourceInfo, 0),
-		UserTrend:   make([]UserTrendPoint, 0),
+		TotalUsers: len(metrics),
+		TopUsers:   make([]UserResourceInfo, 0),
+		UserTrend:  make([]UserTrendPoint, 0),
 	}
 
 	var totalUsed, totalQuota uint64
@@ -361,9 +361,9 @@ func (r *ResourceReporter) generateStorageCharts(overview *StorageOverview) []Ch
 
 	// 存储使用率仪表盘
 	charts = append(charts, ChartData{
-		ID:     "storage_usage_gauge",
-		Type:   "gauge",
-		Title:  "存储使用率",
+		ID:    "storage_usage_gauge",
+		Type:  "gauge",
+		Title: "存储使用率",
 		Series: []ChartSeries{
 			{
 				Name: "使用率",
@@ -414,9 +414,9 @@ func (r *ResourceReporter) generateBandwidthCharts(overview *BandwidthOverview) 
 
 	// 当前带宽速率
 	charts = append(charts, ChartData{
-		ID:     "bandwidth_rate_gauge",
-		Type:   "gauge",
-		Title:  "当前带宽利用率",
+		ID:    "bandwidth_rate_gauge",
+		Type:  "gauge",
+		Title: "当前带宽利用率",
 		Series: []ChartSeries{
 			{
 				Name: "利用率",
@@ -499,9 +499,9 @@ func (r *ResourceReporter) generateSystemCharts(overview *SystemResourceOverview
 
 	// CPU 使用率仪表盘
 	charts = append(charts, ChartData{
-		ID:     "cpu_usage_gauge",
-		Type:   "gauge",
-		Title:  "CPU 使用率",
+		ID:    "cpu_usage_gauge",
+		Type:  "gauge",
+		Title: "CPU 使用率",
 		Series: []ChartSeries{
 			{Name: "使用率", Data: []ChartPoint{{X: "usage", Y: overview.CPUUsage}}},
 		},
@@ -509,9 +509,9 @@ func (r *ResourceReporter) generateSystemCharts(overview *SystemResourceOverview
 
 	// 内存使用率仪表盘
 	charts = append(charts, ChartData{
-		ID:     "memory_usage_gauge",
-		Type:   "gauge",
-		Title:  "内存使用率",
+		ID:    "memory_usage_gauge",
+		Type:  "gauge",
+		Title: "内存使用率",
 		Series: []ChartSeries{
 			{Name: "使用率", Data: []ChartPoint{{X: "usage", Y: overview.MemoryUsage}}},
 		},
@@ -687,16 +687,16 @@ func (r *ResourceReporter) generateStorageRecommendations(overview *StorageOverv
 		savedPercent := float64(overview.StorageEfficiency.SavedSpace) / float64(overview.TotalCapacity) * 100
 		if savedPercent > 10 {
 			recommendations = append(recommendations, ResourceRecommendation{
-				ID:          "storage_compress",
-				Type:        "storage",
-				Priority:    "low",
-				Title:       "优化存储效率",
-				Description: fmt.Sprintf("压缩和去重已节省 %.1f%% 空间，可继续优化", savedPercent),
+				ID:           "storage_compress",
+				Type:         "storage",
+				Priority:     "low",
+				Title:        "优化存储效率",
+				Description:  fmt.Sprintf("压缩和去重已节省 %.1f%% 空间，可继续优化", savedPercent),
 				CurrentValue: savedPercent,
-				Unit:        "%",
-				Impact:      "提高存储利用率",
-				Action:      "对适合的数据类型启用压缩",
-				CreatedAt:   now,
+				Unit:         "%",
+				Impact:       "提高存储利用率",
+				Action:       "对适合的数据类型启用压缩",
+				CreatedAt:    now,
 			})
 		}
 	}

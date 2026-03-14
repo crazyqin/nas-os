@@ -58,16 +58,16 @@ type BandwidthMetrics struct {
 
 // BandwidthHistoryPoint 带宽历史数据点
 type BandwidthHistoryPoint struct {
-	Timestamp   time.Time `json:"timestamp"`
-	RxBytes     uint64    `json:"rx_bytes"`
-	TxBytes     uint64    `json:"tx_bytes"`
-	RxRate      uint64    `json:"rx_rate"`      // 字节/秒
-	TxRate      uint64    `json:"tx_rate"`      // 字节/秒
-	TotalRate   uint64    `json:"total_rate"`   // 总速率
-	RxPackets   uint64    `json:"rx_packets"`
-	TxPackets   uint64    `json:"tx_packets"`
-	ErrorCount  uint64    `json:"error_count"`  // 错误总数
-	DropCount   uint64    `json:"drop_count"`   // 丢包总数
+	Timestamp  time.Time `json:"timestamp"`
+	RxBytes    uint64    `json:"rx_bytes"`
+	TxBytes    uint64    `json:"tx_bytes"`
+	RxRate     uint64    `json:"rx_rate"`    // 字节/秒
+	TxRate     uint64    `json:"tx_rate"`    // 字节/秒
+	TotalRate  uint64    `json:"total_rate"` // 总速率
+	RxPackets  uint64    `json:"rx_packets"`
+	TxPackets  uint64    `json:"tx_packets"`
+	ErrorCount uint64    `json:"error_count"` // 错误总数
+	DropCount  uint64    `json:"drop_count"`  // 丢包总数
 }
 
 // BandwidthUsageStats 带宽使用统计
@@ -491,25 +491,25 @@ func (r *BandwidthReporter) GenerateRecommendations(stats []BandwidthUsageStats)
 		// 高利用率建议
 		if s.UtilizationPercent >= r.config.CriticalUtilizationThreshold {
 			recommendations = append(recommendations, BandwidthRecommendation{
-				Type:          "upgrade",
-				Priority:      "high",
-				Interface:     s.Interface,
-				Title:         "升级带宽",
-				Description:   "当前带宽利用率持续过高，建议升级网络带宽",
-				CurrentValue:  s.UtilizationPercent,
+				Type:           "upgrade",
+				Priority:       "high",
+				Interface:      s.Interface,
+				Title:          "升级带宽",
+				Description:    "当前带宽利用率持续过高，建议升级网络带宽",
+				CurrentValue:   s.UtilizationPercent,
 				SuggestedValue: r.config.BandwidthLimitMbps * 1.5,
-				Impact:        "提升网络性能，减少延迟",
+				Impact:         "提升网络性能，减少延迟",
 			})
 		} else if s.UtilizationPercent >= r.config.HighUtilizationThreshold {
 			recommendations = append(recommendations, BandwidthRecommendation{
-				Type:          "monitor",
-				Priority:      "medium",
-				Interface:     s.Interface,
-				Title:         "监控带宽使用",
-				Description:   "带宽利用率较高，建议持续监控并规划扩容",
-				CurrentValue:  s.UtilizationPercent,
+				Type:           "monitor",
+				Priority:       "medium",
+				Interface:      s.Interface,
+				Title:          "监控带宽使用",
+				Description:    "带宽利用率较高，建议持续监控并规划扩容",
+				CurrentValue:   s.UtilizationPercent,
 				SuggestedValue: r.config.BandwidthLimitMbps * 1.2,
-				Impact:        "提前规划，避免性能瓶颈",
+				Impact:         "提前规划，避免性能瓶颈",
 			})
 		}
 

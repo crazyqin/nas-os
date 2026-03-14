@@ -363,4 +363,4 @@ sudo nasctl config import nas-config-backup.yaml
 
 ---
 
-*文档版本：2.27.0 | 最后更新：2026-03-15*
+*文档版本：2.31.0 | 最后更新：2026-03-15*

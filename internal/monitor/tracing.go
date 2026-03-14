@@ -20,12 +20,12 @@ import (
 
 // TracingConfig 分布式追踪配置
 type TracingConfig struct {
-	Enabled     bool   `json:"enabled"`
-	ServiceName string `json:"serviceName"`
-	Endpoint    string `json:"endpoint"`
-	Protocol    string `json:"protocol"` // grpc or http
+	Enabled     bool    `json:"enabled"`
+	ServiceName string  `json:"serviceName"`
+	Endpoint    string  `json:"endpoint"`
+	Protocol    string  `json:"protocol"` // grpc or http
 	SampleRate  float64 `json:"sampleRate"`
-	Insecure    bool   `json:"insecure"`
+	Insecure    bool    `json:"insecure"`
 }
 
 // DefaultTracingConfig 默认追踪配置
@@ -42,11 +42,11 @@ func DefaultTracingConfig() *TracingConfig {
 
 // TracingManager 追踪管理器
 type TracingManager struct {
-	config     *TracingConfig
-	tracer     trace.Tracer
-	provider   *sdktrace.TracerProvider
-	shutdown   func(context.Context) error
-	enabled    bool
+	config   *TracingConfig
+	tracer   trace.Tracer
+	provider *sdktrace.TracerProvider
+	shutdown func(context.Context) error
+	enabled  bool
 }
 
 // NewTracingManager 创建追踪管理器

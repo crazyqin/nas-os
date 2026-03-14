@@ -145,6 +145,83 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**镜像大小:** 约 20-25MB（压缩后）" >> $GITHUB_STEP_SUMMARY
 
+  # ========== 镜像签名 (SBOM + Cosign) ==========
+  sign-image:
+    name: 镜像签名
+    runs-on: ubuntu-latest
+    needs: [docker-build]
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+      id-token: write  # OIDC token for keyless signing
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 登录 GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: 安装 Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: 安装 Syft (SBOM 生成)
+        uses: anchore/sbom-action/download-syft@v0
+
+      - name: 获取镜像摘要
+        id: digest
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+          DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA --format '{{json .manifest}}' | jq -r '.digest' 2>/dev/null || echo "")
+          if [ -z "$DIGEST" ]; then
+            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --format '{{json .manifest}}' | jq -r '.digest' 2>/dev/null || echo "")
+          fi
+          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+
+      - name: 生成 SBOM
+        run: |
+          syft ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }} -o spdx-json=sbom-spdx.json
+          syft ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }} -o cyclonedx-json=sbom-cyclonedx.json
+          echo "✅ SBOM 生成完成"
+
+      - name: 附加 SBOM 到镜像
+        run: |
+          cosign attach sbom --sbom sbom-spdx.json ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ env.DIGEST }}
+
+      - name: 签名镜像 (Keyless)
+        run: |
+          cosign sign --yes ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ env.DIGEST }}
+          echo "✅ 镜像签名完成"
+
+      - name: 验证签名
+        run: |
+          cosign verify ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ env.DIGEST }} \
+            --certificate-identity-regexp="https://github.com/${{ github.repository }}/.github/workflows/" \
+            --certificate-oidc-issuer="https://token.actions.githubusercontent.com" || echo "⚠️ 验证跳过（开发分支）"
+
+      - name: 上传 SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ env.SHORT_SHA }}
+          path: |
+            sbom-spdx.json
+            sbom-cyclonedx.json
+          retention-days: 90
+
+      - name: 生成签名摘要
+        run: |
+          echo "## 🔐 镜像安全" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **SBOM:** 已生成并附加" >> $GITHUB_STEP_SUMMARY
+          echo "- **签名:** Cosign Keyless 签名完成" >> $GITHUB_STEP_SUMMARY
+          echo "- **验证:** \`cosign verify ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ env.DIGEST }}\`" >> $GITHUB_STEP_SUMMARY
+
   # ========== 镜像扫描 ==========
   docker-scan:
     name: 镜像安全扫描

@@ -56,9 +56,9 @@ type OAuth2State struct {
 
 // OAuth2Manager OAuth2 管理器
 type OAuth2Manager struct {
-	mu        sync.RWMutex
-	providers map[string]*OAuth2Provider
-	states    map[string]*OAuth2State
+	mu         sync.RWMutex
+	providers  map[string]*OAuth2Provider
+	states     map[string]*OAuth2State
 	httpClient *http.Client
 }
 
@@ -332,59 +332,59 @@ func (m *OAuth2Manager) cleanupStates() {
 // GetGoogleOAuth2Config 获取 Google OAuth2 配置
 func GetGoogleOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {
 	return OAuth2Provider{
-		Name:        "google",
-		ClientID:    clientID,
+		Name:         "google",
+		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		AuthURL:     "https://accounts.google.com/o/oauth2/v2/auth",
-		TokenURL:    "https://oauth2.googleapis.com/token",
-		UserInfoURL: "https://www.googleapis.com/oauth2/v2/userinfo",
-		RedirectURL: redirectURL,
-		Scopes:      []string{"openid", "email", "profile"},
-		Enabled:     true,
+		AuthURL:      "https://accounts.google.com/o/oauth2/v2/auth",
+		TokenURL:     "https://oauth2.googleapis.com/token",
+		UserInfoURL:  "https://www.googleapis.com/oauth2/v2/userinfo",
+		RedirectURL:  redirectURL,
+		Scopes:       []string{"openid", "email", "profile"},
+		Enabled:      true,
 	}
 }
 
 // GetGitHubOAuth2Config 获取 GitHub OAuth2 配置
 func GetGitHubOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {
 	return OAuth2Provider{
-		Name:        "github",
-		ClientID:    clientID,
+		Name:         "github",
+		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		AuthURL:     "https://github.com/login/oauth/authorize",
-		TokenURL:    "https://github.com/login/oauth/access_token",
-		UserInfoURL: "https://api.github.com/user",
-		RedirectURL: redirectURL,
-		Scopes:      []string{"read:user", "user:email"},
-		Enabled:     true,
+		AuthURL:      "https://github.com/login/oauth/authorize",
+		TokenURL:     "https://github.com/login/oauth/access_token",
+		UserInfoURL:  "https://api.github.com/user",
+		RedirectURL:  redirectURL,
+		Scopes:       []string{"read:user", "user:email"},
+		Enabled:      true,
 	}
 }
 
 // GetMicrosoftOAuth2Config 获取 Microsoft OAuth2 配置
 func GetMicrosoftOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {
 	return OAuth2Provider{
-		Name:        "microsoft",
-		ClientID:    clientID,
+		Name:         "microsoft",
+		ClientID:     clientID,
 		ClientSecret: clientSecret,
-		AuthURL:     "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
-		TokenURL:    "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-		UserInfoURL: "https://graph.microsoft.com/v1.0/me",
-		RedirectURL: redirectURL,
-		Scopes:      []string{"openid", "email", "profile"},
-		Enabled:     true,
+		AuthURL:      "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+		TokenURL:     "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+		UserInfoURL:  "https://graph.microsoft.com/v1.0/me",
+		RedirectURL:  redirectURL,
+		Scopes:       []string{"openid", "email", "profile"},
+		Enabled:      true,
 	}
 }
 
 // GetWeChatOAuth2Config 获取微信 OAuth2 配置
 func GetWeChatOAuth2Config(appID, appSecret, redirectURL string) OAuth2Provider {
 	return OAuth2Provider{
-		Name:        "wechat",
-		ClientID:    appID,
+		Name:         "wechat",
+		ClientID:     appID,
 		ClientSecret: appSecret,
-		AuthURL:     "https://open.weixin.qq.com/connect/qrconnect",
-		TokenURL:    "https://api.weixin.qq.com/sns/oauth2/access_token",
-		UserInfoURL: "https://api.weixin.qq.com/sns/userinfo",
-		RedirectURL: redirectURL,
-		Scopes:      []string{"snsapi_login"},
-		Enabled:     true,
+		AuthURL:      "https://open.weixin.qq.com/connect/qrconnect",
+		TokenURL:     "https://api.weixin.qq.com/sns/oauth2/access_token",
+		UserInfoURL:  "https://api.weixin.qq.com/sns/userinfo",
+		RedirectURL:  redirectURL,
+		Scopes:       []string{"snsapi_login"},
+		Enabled:      true,
 	}
 }

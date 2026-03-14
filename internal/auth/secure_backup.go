@@ -17,15 +17,15 @@ import (
 // SecureBackupCodeManager 安全备份码管理器
 // 使用 bcrypt 哈希存储备份码，防止明文泄露
 type SecureBackupCodeManager struct {
-	mu        sync.RWMutex
-	codes     map[string][]*HashedBackupCode // userID -> hashed codes
+	mu         sync.RWMutex
+	codes      map[string][]*HashedBackupCode // userID -> hashed codes
 	configPath string
 	encryption *SecretEncryption
 }
 
 // HashedBackupCode 哈希存储的备份码
 type HashedBackupCode struct {
-	Hash      string     `json:"hash"`       // bcrypt 哈希
+	Hash      string     `json:"hash"` // bcrypt 哈希
 	CreatedAt time.Time  `json:"created_at"`
 	Used      bool       `json:"used"`
 	UsedAt    *time.Time `json:"used_at,omitempty"`
@@ -34,7 +34,7 @@ type HashedBackupCode struct {
 // NewSecureBackupCodeManager 创建安全备份码管理器
 func NewSecureBackupCodeManager(configPath string, encryption *SecretEncryption) *SecureBackupCodeManager {
 	m := &SecureBackupCodeManager{
-		codes:     make(map[string][]*HashedBackupCode),
+		codes:      make(map[string][]*HashedBackupCode),
 		configPath: configPath,
 		encryption: encryption,
 	}
@@ -232,8 +232,8 @@ func (m *SecureBackupCodeManager) GetStats(userID string) map[string]interface{}
 	userCodes, ok := m.codes[userID]
 	if !ok {
 		return map[string]interface{}{
-			"total": 0,
-			"used":  0,
+			"total":  0,
+			"used":   0,
 			"unused": 0,
 		}
 	}

@@ -79,11 +79,11 @@ func TestSandboxCheckPermission(t *testing.T) {
 
 func TestSandboxCheckFileAccess(t *testing.T) {
 	tests := []struct {
-		name          string
-		config        SandboxConfig
-		path          string
-		op            string
-		expectError   bool
+		name        string
+		config      SandboxConfig
+		path        string
+		op          string
+		expectError bool
 	}{
 		{
 			name: "allowed path read",

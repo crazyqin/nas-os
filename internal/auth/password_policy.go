@@ -9,17 +9,17 @@ import (
 
 // PasswordPolicy 密码策略配置
 type PasswordPolicy struct {
-	MinLength        int  `json:"min_length"`         // 最小长度
-	MaxLength        int  `json:"max_length"`         // 最大长度
-	RequireUppercase bool `json:"require_uppercase"`  // 需要大写字母
-	RequireLowercase bool `json:"require_lowercase"`  // 需要小写字母
-	RequireDigit     bool `json:"require_digit"`      // 需要数字
-	RequireSpecial   bool `json:"require_special"`    // 需要特殊字符
-	MinSpecialCount  int  `json:"min_special_count"`  // 最少特殊字符数
-	PreventCommon    bool `json:"prevent_common"`     // 阻止常见弱密码
-	PreventUserInfo  bool `json:"prevent_user_info"`  // 阻止包含用户信息的密码
-	HistoryCount     int  `json:"history_count"`      // 密码历史记录数量
-	MaxAge           int  `json:"max_age"`            // 密码最大有效期（天），0 表示不限制
+	MinLength        int  `json:"min_length"`        // 最小长度
+	MaxLength        int  `json:"max_length"`        // 最大长度
+	RequireUppercase bool `json:"require_uppercase"` // 需要大写字母
+	RequireLowercase bool `json:"require_lowercase"` // 需要小写字母
+	RequireDigit     bool `json:"require_digit"`     // 需要数字
+	RequireSpecial   bool `json:"require_special"`   // 需要特殊字符
+	MinSpecialCount  int  `json:"min_special_count"` // 最少特殊字符数
+	PreventCommon    bool `json:"prevent_common"`    // 阻止常见弱密码
+	PreventUserInfo  bool `json:"prevent_user_info"` // 阻止包含用户信息的密码
+	HistoryCount     int  `json:"history_count"`     // 密码历史记录数量
+	MaxAge           int  `json:"max_age"`           // 密码最大有效期（天），0 表示不限制
 }
 
 // DefaultPasswordPolicy 默认密码策略
@@ -47,14 +47,14 @@ type PasswordValidationResult struct {
 
 // PasswordValidator 密码验证器
 type PasswordValidator struct {
-	policy        PasswordPolicy
+	policy          PasswordPolicy
 	commonPasswords map[string]bool
 }
 
 // NewPasswordValidator 创建密码验证器
 func NewPasswordValidator(policy PasswordPolicy) *PasswordValidator {
 	v := &PasswordValidator{
-		policy:        policy,
+		policy:          policy,
 		commonPasswords: make(map[string]bool),
 	}
 
@@ -296,8 +296,8 @@ func hasRepeatingChars(s string) bool {
 
 // PasswordHistory 密码历史记录
 type PasswordHistory struct {
-	Hashes    []string `json:"hashes"`
-	MaxCount  int      `json:"max_count"`
+	Hashes   []string `json:"hashes"`
+	MaxCount int      `json:"max_count"`
 }
 
 // NewPasswordHistory 创建密码历史记录

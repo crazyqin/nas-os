@@ -89,28 +89,28 @@ func TestVersionMiddleware(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	tests := []struct {
-		name            string
-		path            string
+		name              string
+		path              string
 		supportedVersions []string
-		expectedStatus   int
+		expectedStatus    int
 	}{
 		{
-			name:            "valid version v1",
-			path:            "/api/v1/test",
+			name:              "valid version v1",
+			path:              "/api/v1/test",
 			supportedVersions: []string{"v1", "v2"},
-			expectedStatus:   http.StatusOK,
+			expectedStatus:    http.StatusOK,
 		},
 		{
-			name:            "valid version v2",
-			path:            "/api/v2/test",
+			name:              "valid version v2",
+			path:              "/api/v2/test",
 			supportedVersions: []string{"v1", "v2"},
-			expectedStatus:   http.StatusOK,
+			expectedStatus:    http.StatusOK,
 		},
 		{
-			name:            "invalid version",
-			path:            "/api/v3/test",
+			name:              "invalid version",
+			path:              "/api/v3/test",
 			supportedVersions: []string{"v1", "v2"},
-			expectedStatus:   http.StatusBadRequest,
+			expectedStatus:    http.StatusBadRequest,
 		},
 	}
 

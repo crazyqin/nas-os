@@ -28,15 +28,15 @@ var upgrader = websocket.Upgrader{
 type MessageType string
 
 const (
-	MessageTypeSystem        MessageType = "system"
-	MessageTypeNotification  MessageType = "notification"
-	MessageTypeMetric        MessageType = "metric"
-	MessageTypeAlert         MessageType = "alert"
-	MessageTypeEvent         MessageType = "event"
-	MessageTypeContainer     MessageType = "container"
-	MessageTypeStorage       MessageType = "storage"
-	MessageTypeBackup        MessageType = "backup"
-	MessageTypeSync          MessageType = "sync"
+	MessageTypeSystem       MessageType = "system"
+	MessageTypeNotification MessageType = "notification"
+	MessageTypeMetric       MessageType = "metric"
+	MessageTypeAlert        MessageType = "alert"
+	MessageTypeEvent        MessageType = "event"
+	MessageTypeContainer    MessageType = "container"
+	MessageTypeStorage      MessageType = "storage"
+	MessageTypeBackup       MessageType = "backup"
+	MessageTypeSync         MessageType = "sync"
 )
 
 // WebSocketMessage represents a WebSocket message
@@ -48,12 +48,12 @@ type WebSocketMessage struct {
 
 // Client represents a connected WebSocket client
 type Client struct {
-	ID         string
-	Connection *websocket.Conn
-	Send       chan []byte
+	ID            string
+	Connection    *websocket.Conn
+	Send          chan []byte
 	Subscriptions map[MessageType]bool
-	UserID     string
-	ConnectedAt time.Time
+	UserID        string
+	ConnectedAt   time.Time
 }
 
 // WebSocketHub manages WebSocket connections and broadcasts
@@ -279,12 +279,12 @@ func (h *WebSocketHandler) HandleWebSocket(c *gin.Context) {
 	}
 
 	client := &Client{
-		ID:           generateClientID(),
-		Connection:   conn,
-		Send:         make(chan []byte, 256),
+		ID:            generateClientID(),
+		Connection:    conn,
+		Send:          make(chan []byte, 256),
 		Subscriptions: make(map[MessageType]bool),
-		UserID:       c.GetString("userID"),
-		ConnectedAt:  time.Now(),
+		UserID:        c.GetString("userID"),
+		ConnectedAt:   time.Now(),
 	}
 
 	h.hub.register <- client
@@ -321,8 +321,6 @@ func randomString(n int) string {
 	return string(b)
 }
 
-
-
 // Notification types for WebSocket
 
 // SystemNotification represents a system notification
@@ -334,9 +332,9 @@ type SystemNotification struct {
 
 // MetricUpdate represents a metric update
 type MetricUpdate struct {
-	CPU    float64 `json:"cpu"`
-	Memory float64 `json:"memory"`
-	Disk   float64 `json:"disk"`
+	CPU     float64 `json:"cpu"`
+	Memory  float64 `json:"memory"`
+	Disk    float64 `json:"disk"`
 	Network struct {
 		Rx int64 `json:"rx"`
 		Tx int64 `json:"tx"`
@@ -345,13 +343,13 @@ type MetricUpdate struct {
 
 // AlertNotification represents an alert
 type AlertNotification struct {
-	ID          string `json:"id"`
-	Type        string `json:"type"`
-	Severity    string `json:"severity"`
-	Title       string `json:"title"`
-	Message     string `json:"message"`
-	Source      string `json:"source"`
-	Timestamp   int64  `json:"timestamp"`
+	ID           string `json:"id"`
+	Type         string `json:"type"`
+	Severity     string `json:"severity"`
+	Title        string `json:"title"`
+	Message      string `json:"message"`
+	Source       string `json:"source"`
+	Timestamp    int64  `json:"timestamp"`
 	Acknowledged bool   `json:"acknowledged"`
 }
 
