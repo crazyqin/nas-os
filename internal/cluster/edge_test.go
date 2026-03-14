@@ -339,7 +339,7 @@ func TestEdgeLoadBalancer(t *testing.T) {
 	}
 
 	if selected == nil {
-		t.Error("应该选择到节点")
+		t.Fatal("应该选择到节点")
 	}
 
 	// 测试记录请求

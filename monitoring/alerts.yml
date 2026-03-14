@@ -1,64 +1,299 @@
-# NAS-OS 告警规则
+# NAS-OS Prometheus 告警规则
+# 适用于 Prometheus 2.x
 
 groups:
-  - name: nas-os-alerts
+  - name: nas-os-system
     rules:
-      # 磁盘空间警告
+      # ==================== CPU 告警 ====================
+      - alert: CPUUsageWarning
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: cpu
+        annotations:
+          summary: "CPU 使用率偏高"
+          description: "CPU 使用率 {{ $value | printf \"%.1f\" }}% 超过 80% 阈值，持续 5 分钟"
+          runbook_url: "https://docs.nas-os.io/runbook/cpu-usage"
+
+      - alert: CPUUsageCritical
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: cpu
+        annotations:
+          summary: "CPU 使用率过高"
+          description: "CPU 使用率 {{ $value | printf \"%.1f\" }}% 超过 95% 阈值，系统可能过载"
+          runbook_url: "https://docs.nas-os.io/runbook/cpu-usage"
+
+      - alert: CPULoadHigh
+        expr: node_load1 / count(node_cpu_seconds_total{mode="idle"}) without (cpu, mode) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: cpu
+        annotations:
+          summary: "CPU 负载过高"
+          description: "1分钟负载 {{ $value | printf \"%.2f\" }} 超过 CPU 核心数的 2 倍"
+
+  - name: nas-os-memory
+    rules:
+      # ==================== 内存告警 ====================
+      - alert: MemoryUsageWarning
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: memory
+        annotations:
+          summary: "内存使用率偏高"
+          description: "内存使用率 {{ $value | printf \"%.1f\" }}% 超过 80% 阈值"
+
+      - alert: MemoryUsageCritical
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+          component: memory
+        annotations:
+          summary: "内存使用率过高"
+          description: "内存使用率 {{ $value | printf \"%.1f\" }}% 超过 95% 阈值，可能发生 OOM"
+
+      - alert: MemoryLowAvailable
+        expr: node_memory_MemAvailable_bytes < 104857600
+        for: 1m
+        labels:
+          severity: critical
+          component: memory
+        annotations:
+          summary: "可用内存不足"
+          description: "可用内存仅剩 {{ $value | humanize1024 }}B，低于 100MB 阈值"
+
+      - alert: SwapUsageHigh
+        expr: (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 50
+        for: 5m
+        labels:
+          severity: warning
+          component: memory
+        annotations:
+          summary: "Swap 使用率过高"
+          description: "Swap 使用率 {{ $value | printf \"%.1f\" }}% 超过 50% 阈值，可能需要增加内存"
+
+  - name: nas-os-disk
+    rules:
+      # ==================== 磁盘空间告警 ====================
       - alert: DiskSpaceWarning
         expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
         for: 5m
         labels:
           severity: warning
+          component: disk
         annotations:
-          summary: "磁盘空间不足 20%"
-          description: "{{ $labels.mountpoint }} 剩余空间低于 20%"
-      
-      # 磁盘空间严重
+          summary: "磁盘空间不足"
+          description: "挂载点 {{ $labels.mountpoint }} 剩余空间仅 {{ $value | printf \"%.1f\" }}%，低于 20% 阈值"
+
       - alert: DiskSpaceCritical
         expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 5
-        for: 2m
+        for: 1m
         labels:
           severity: critical
+          component: disk
         annotations:
           summary: "磁盘空间严重不足"
-          description: "{{ $labels.mountpoint }} 剩余空间低于 5%"
-      
-      # 服务宕机
+          description: "挂载点 {{ $labels.mountpoint }} 剩余空间仅 {{ $value | printf \"%.1f\" }}%，低于 5% 阈值，请立即清理"
+
+      - alert: DiskSpaceLow
+        expr: node_filesystem_avail_bytes < 1073741824
+        for: 1m
+        labels:
+          severity: critical
+          component: disk
+        annotations:
+          summary: "磁盘可用空间不足 1GB"
+          description: "挂载点 {{ $labels.mountpoint }} 可用空间仅 {{ $value | humanize1024 }}B"
+
+      - alert: DiskInodeWarning
+        expr: (1 - (node_filesystem_files_free / node_filesystem_files)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: "Inode 使用率过高"
+          description: "挂载点 {{ $labels.mountpoint }} inode 使用率 {{ $value | printf \"%.1f\" }}%"
+
+  - name: nas-os-disk-io
+    rules:
+      # ==================== 磁盘 I/O 告警 ====================
+      - alert: DiskIOLatencyHigh
+        expr: rate(node_disk_read_time_seconds_total[5m]) / rate(node_disk_reads_completed_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: "磁盘读取延迟过高"
+          description: "磁盘 {{ $labels.device }} 平均读取延迟 {{ $value | printf \"%.3f\" }}s"
+
+      - alert: DiskIOWaitHigh
+        expr: irate(node_cpu_seconds_total{mode="iowait"}[5m]) > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: "磁盘 I/O 等待过高"
+          description: "CPU I/O 等待时间占比 {{ $value | printf \"%.1f\" }}%，可能存在 I/O 瓶颈"
+
+      - alert: DiskThroughputDegraded
+        expr: rate(node_disk_read_bytes_total[5m]) < 1048576 and rate(node_disk_reads_completed_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: disk
+        annotations:
+          summary: "磁盘读取吞吐量异常"
+          description: "磁盘 {{ $labels.device }} 读取吞吐量低于 1MB/s"
+
+  - name: nas-os-network
+    rules:
+      # ==================== 网络告警 ====================
+      - alert: NetworkErrorsHigh
+        expr: rate(node_network_receive_errs_total[5m]) > 10 or rate(node_network_transmit_errs_total[5m]) > 10
+        for: 3m
+        labels:
+          severity: warning
+          component: network
+        annotations:
+          summary: "网络错误率高"
+          description: "接口 {{ $labels.device }} 存在网络错误，可能存在线路或配置问题"
+
+      - alert: NetworkDroppedPackets
+        expr: rate(node_network_receive_drop_total[5m]) > 100 or rate(node_network_transmit_drop_total[5m]) > 100
+        for: 3m
+        labels:
+          severity: warning
+          component: network
+        annotations:
+          summary: "网络丢包率高"
+          description: "接口 {{ $labels.device }} 存在大量丢包"
+
+      - alert: NetworkSaturation
+        expr: (rate(node_network_receive_bytes_total[5m]) / node_network_speed_bytes) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: network
+        annotations:
+          summary: "网络带宽饱和"
+          description: "接口 {{ $labels.device }} 接收带宽使用率超过 80%"
+
+  - name: nas-os-service
+    rules:
+      # ==================== 服务告警 ====================
       - alert: NasOsDown
         expr: up{job="nas-os"} == 0
         for: 1m
         labels:
           severity: critical
+          component: service
         annotations:
-          summary: "NAS-OS 服务宕机"
-          description: "NAS-OS 服务已停止响应超过 1 分钟"
-      
-      # CPU 过高
-      - alert: HighCPUUsage
-        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
-        for: 10m
+          summary: "NAS-OS 服务不可用"
+          description: "NAS-OS 实例 {{ $labels.instance }} 已停止响应超过 1 分钟"
+
+      - alert: NasOsHighErrorRate
+        expr: rate(nas_requests_error_total[5m]) / rate(nas_requests_total[5m]) > 0.1
+        for: 3m
         labels:
           severity: warning
+          component: service
         annotations:
-          summary: "CPU 使用率过高"
-          description: "CPU 使用率超过 80% 持续 10 分钟"
-      
-      # 内存过高
-      - alert: HighMemoryUsage
-        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+          summary: "NAS-OS 错误率高"
+          description: "API 错误率 {{ $value | printf \"%.2f\" }} 超过 10%"
+
+      - alert: NasOsSlowResponse
+        expr: histogram_quantile(0.95, rate(nas_request_duration_seconds_bucket[5m])) > 0.5
         for: 5m
         labels:
           severity: warning
+          component: service
         annotations:
-          summary: "内存使用率过高"
-          description: "内存使用率超过 85%"
-      
-      # btrfs 设备错误
-      - alert: BtrfsDeviceErrors
+          summary: "NAS-OS 响应缓慢"
+          description: "P95 响应时间 {{ $value | humanizeDuration }}，超过 500ms 阈值"
+
+  - name: nas-os-btrfs
+    rules:
+      # ==================== Btrfs 告警 ====================
+      - alert: BtrfsDeviceError
         expr: rate(node_btrfs_device_stats_total[5m]) > 0
         for: 0m
         labels:
           severity: critical
+          component: storage
         annotations:
-          summary: "btrfs 设备错误"
-          description: "检测到 btrfs 设备错误：{{ $labels.device }}"
+          summary: "Btrfs 设备错误"
+          description: "检测到 Btrfs 设备 {{ $labels.device }} 错误，请立即检查"
+
+      - alert: BtrfsDeviceMissing
+        expr: node_btrfs_device_missing > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: storage
+        annotations:
+          summary: "Btrfs 设备丢失"
+          description: "检测到 Btrfs 有 {{ $value }} 个设备丢失，数据可能面临风险"
+
+      - alert: BtrfsAllocationWarning
+        expr: node_btrfs_allocation_ratio > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: storage
+        annotations:
+          summary: "Btrfs 空间分配异常"
+          description: "Btrfs 分配比例 {{ $value | printf \"%.2f\" }}，建议检查 RAID 状态"
+
+  - name: nas-os-system-health
+    rules:
+      # ==================== 系统健康告警 ====================
+      - alert: SystemTemperatureWarning
+        expr: node_thermal_zone_temp_celsius > 75
+        for: 2m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "系统温度偏高"
+          description: "系统温度 {{ $value }}°C 超过 75°C 阈值"
+
+      - alert: SystemTemperatureCritical
+        expr: node_thermal_zone_temp_celsius > 85
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "系统温度过高"
+          description: "系统温度 {{ $value }}°C 超过 85°C 阈值，可能导致硬件损坏"
+
+      - alert: ZombieProcessesHigh
+        expr: node_processes_state{state="Z"} > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "僵尸进程过多"
+          description: "系统存在 {{ $value }} 个僵尸进程"
+
+      - alert: FileDescriptorUsageHigh
+        expr: (node_filefd_allocated / node_filefd_maximum) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "文件描述符使用率过高"
+          description: "文件描述符使用率 {{ $value | printf \"%.1f\" }}%，可能影响系统稳定性"

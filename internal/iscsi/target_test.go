@@ -658,7 +658,7 @@ func TestManagerGetConfig(t *testing.T) {
 
 	config := mgr.GetConfig()
 	if config == nil {
-		t.Error("Config should not be nil")
+		t.Fatal("Config should not be nil")
 	}
 	if !config.Enabled {
 		t.Error("Config should be enabled by default")
@@ -1165,7 +1165,7 @@ func TestCHAPManagerGetConfig(t *testing.T) {
 
 	config = chapMgr.GetConfig("test-id")
 	if config == nil {
-		t.Error("Should return config")
+		t.Fatal("Should return config")
 	}
 	if config.Secret != "" {
 		t.Error("Secret should be hidden in response")

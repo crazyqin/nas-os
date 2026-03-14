@@ -1,33 +1,97 @@
-# Prometheus 监控配置
+# NAS-OS Prometheus 监控配置
+# 版本: 2.7.0
+
 global:
-  scrape_interval: 30s
-  evaluation_interval: 30s
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'nas-os'
+    environment: 'production'
 
-scrape_configs:
-  # NAS-OS 指标
-  - job_name: 'nas-os'
-    static_configs:
-      - targets: ['localhost:8080']
-    metrics_path: /metrics
-    scrape_interval: 15s
-  
-  # 系统指标 (node_exporter)
-  - job_name: 'node'
-    static_configs:
-      - targets: ['localhost:9100']
-  
-  # Docker 指标 (可选)
-  - job_name: 'docker'
-    static_configs:
-      - targets: ['localhost:9323']
-
-# 告警规则
+# 告警规则文件
 rule_files:
   - 'alerts.yml'
 
-# 告警管理器
+# 告警管理器配置
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
           - alertmanager:9093
+      timeout: 10s
+      api_version: v2
+
+# 抓取配置
+scrape_configs:
+  # ==================== NAS-OS 服务 ====================
+  - job_name: 'nas-os'
+    static_configs:
+      - targets: ['localhost:8080']
+        labels:
+          service: 'nasd'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    scheme: http
+
+  # ==================== Node Exporter (系统指标) ====================
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+        labels:
+          instance: 'nas-server'
+    scrape_interval: 15s
+
+  # ==================== Docker 指标 ====================
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['localhost:9323']
+    scrape_interval: 30s
+
+  # ==================== cAdvisor (容器指标) ====================
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['localhost:8081']
+    scrape_interval: 30s
+
+  # ==================== SMART 磁盘监控 ====================
+  - job_name: 'smartmon'
+    static_configs:
+      - targets: ['localhost:9633']
+    scrape_interval: 60s
+    scrape_timeout: 30s
+
+  # ==================== Btrfs 指标 ====================
+  - job_name: 'btrfs'
+    static_configs:
+      - targets: ['localhost:9400']
+    scrape_interval: 60s
+
+  # ==================== SNMP 网络设备 (可选) ====================
+  # - job_name: 'snmp'
+  #   static_configs:
+  #     - targets:
+  #       - 192.168.1.1  # Router
+  #       - 192.168.1.2  # Switch
+  #   metrics_path: /snmp
+  #   params:
+  #     module: [if_mib]
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       target_label: __param_target
+  #     - source_labels: [__param_target]
+  #       target_label: instance
+  #     - target_label: __address__
+  #       replacement: snmp-exporter:9116
+
+# 远程写入 (可选，用于长期存储)
+# remote_write:
+#   - url: "http://victoria-metrics:8428/api/v1/write"
+#     queue_config:
+#       max_samples_per_send: 10000
+#       max_shards: 5
+
+# 远程读取 (可选)
+# remote_read:
+#   - url: "http://victoria-metrics:8428/api/v1/read"
+#     read_recent: true

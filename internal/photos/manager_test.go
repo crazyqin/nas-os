@@ -343,19 +343,17 @@ func TestQueryPhotos(t *testing.T) {
 
 	// 按用户查询
 	query := &PhotoQuery{UserID: "user1"}
-	result, total, _ := m.QueryPhotos(query)
+	_, total, _ := m.QueryPhotos(query)
 	if total != 2 {
 		t.Errorf("期望 2 张照片，得到 %d", total)
 	}
 
 	// 按收藏查询
 	query = &PhotoQuery{UserID: "user1", IsFavorite: boolPtr(true)}
-	result, total, _ = m.QueryPhotos(query)
+	_, total, _ = m.QueryPhotos(query)
 	if total != 1 {
 		t.Errorf("期望 1 张收藏照片，得到 %d", total)
 	}
-
-	_ = result
 }
 
 func TestResizeDimensions(t *testing.T) {
