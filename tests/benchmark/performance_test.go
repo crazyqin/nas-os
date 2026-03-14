@@ -10,9 +10,7 @@ import (
 	"time"
 
 	"nas-os/internal/cache"
-	"nas-os/internal/dedup"
 	"nas-os/internal/storage"
-	"nas-os/internal/tiering"
 	"nas-os/internal/version"
 
 	"github.com/gin-gonic/gin"
@@ -153,57 +151,6 @@ func BenchmarkCacheConcurrentAccess(b *testing.B) {
 			i++
 		}
 	})
-}
-
-// ========== 去重操作基准测试 ==========
-
-func BenchmarkDedupChecksum(b *testing.B) {
-	config := dedup.DefaultConfig
-	mgr, _ := dedup.NewManager(config)
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, _ = mgr.CalculateChecksum([]byte("test file content"))
-	}
-}
-
-func BenchmarkDedupDetect(b *testing.B) {
-	config := dedup.DefaultConfig
-	mgr, _ := dedup.NewManager(config)
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, _ = mgr.FindDuplicates("/test/path")
-	}
-}
-
-// ========== 分层存储基准测试 ==========
-
-func BenchmarkTieringPolicyCreate(b *testing.B) {
-	mgr := tiering.NewManager()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = tiering.Policy{
-			Name:     "test-policy",
-			Source:   "ssd",
-			Target:   "hdd",
-			Action:   tiering.ActionMove,
-			MinAge:   30,
-			MinSize:  0,
-			Enabled:  true,
-			Priority: 1,
-		}
-	}
-}
-
-func BenchmarkTieringGetTiers(b *testing.B) {
-	mgr := tiering.NewManager()
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_ = mgr.GetTiers()
-	}
 }
 
 // ========== JSON 序列化基准测试 ==========
