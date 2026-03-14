@@ -1147,6 +1147,98 @@ func (aim *AIManager) Close() {
 	aim.saveSmartAlbums()
 }
 
+// ClearAIData 清除所有 AI 内存数据
+func (aim *AIManager) ClearAIData() error {
+	aim.memoryMu.Lock()
+	defer aim.memoryMu.Unlock()
+
+	// 清空内存缓存
+	aim.memoryCache = make(map[string]*AIMemory)
+
+	// 清空照片的 AI 相关信息
+	aim.photosManager.mu.Lock()
+	for _, photo := range aim.photosManager.photos {
+		photo.Faces = nil
+		photo.Objects = nil
+		photo.Scene = ""
+		photo.ColorPalette = nil
+	}
+	aim.photosManager.mu.Unlock()
+
+	// 删除存储文件
+	path := filepath.Join(aim.photosManager.dataDir, "ai-memory.json")
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("删除 AI 内存文件失败: %w", err)
+	}
+
+	return nil
+}
+
+// ClearPhotoAIData 清除单张照片的 AI 数据
+func (aim *AIManager) ClearPhotoAIData(photoID string) error {
+	aim.memoryMu.Lock()
+	defer aim.memoryMu.Unlock()
+
+	// 从缓存中删除
+	delete(aim.memoryCache, photoID)
+
+	// 更新照片信息
+	aim.photosManager.mu.Lock()
+	if photo, exists := aim.photosManager.photos[photoID]; exists {
+		photo.Faces = nil
+		photo.Objects = nil
+		photo.Scene = ""
+		photo.ColorPalette = nil
+	}
+	aim.photosManager.mu.Unlock()
+
+	return nil
+}
+
+// ReanalyzeAll 清除现有 AI 数据并重新分析所有照片
+func (aim *AIManager) ReanalyzeAll() (int, error) {
+	// 清除现有数据
+	if err := aim.ClearAIData(); err != nil {
+		return 0, err
+	}
+
+	// 清除任务结果
+	aim.taskMu.Lock()
+	aim.taskResults = make(map[string]*AITask)
+	aim.taskMu.Unlock()
+
+	// 获取所有照片并重新分析
+	aim.photosManager.mu.RLock()
+	photos := make([]*Photo, 0, len(aim.photosManager.photos))
+	for _, photo := range aim.photosManager.photos {
+		photos = append(photos, photo)
+	}
+	aim.photosManager.mu.RUnlock()
+
+	// 批量分析
+	taskIDs := aim.BatchAnalyze(photos)
+
+	return len(taskIDs), nil
+}
+
+// SaveAIClassification 保存单张照片的 AI 分析结果
+func (aim *AIManager) SaveAIClassification(photoID string, classification *AIClassification) error {
+	memory := &AIMemory{
+		PhotoID:        photoID,
+		Classification: classification,
+		ProcessedAt:    time.Now(),
+		ModelVersion:   "v1.0",
+	}
+
+	aim.saveAIMemory(memory)
+	return aim.persistAIMemory()
+}
+
+// SaveAllAIClassifications 保存所有 AI 分类结果到存储
+func (aim *AIManager) SaveAllAIClassifications() error {
+	return aim.persistAIMemory()
+}
+
 // ==================== 本地 AI 引擎实现（简化版） ====================
 
 // DetectFaces 人脸检测
