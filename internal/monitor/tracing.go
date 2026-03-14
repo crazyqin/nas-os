@@ -15,6 +15,7 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.opentelemetry.io/otel/trace"
+	nooptrace "go.opentelemetry.io/otel/trace/noop"
 )
 
 // TracingConfig 分布式追踪配置
@@ -60,7 +61,8 @@ func NewTracingManager(config *TracingConfig) (*TracingManager, error) {
 
 	if !config.Enabled {
 		tm.enabled = false
-		tm.tracer = trace.NoopTracerProvider{}.Tracer(config.ServiceName)
+		noopProvider := nooptrace.NewTracerProvider()
+		tm.tracer = noopProvider.Tracer(config.ServiceName)
 		return tm, nil
 	}
 
@@ -182,9 +184,7 @@ func (tm *TracingManager) TraceOperation(ctx context.Context, operationName stri
 }
 
 // TraceOperationWithResult 追踪带返回值的操作
-func (tm *TracingManager) TraceOperationWithResult[T any](ctx context.Context, operationName string, fn func(ctx context.Context) (T, error)) (T, error) {
-	var zero T
-
+func TraceOperationWithResult[T any](tm *TracingManager, ctx context.Context, operationName string, fn func(ctx context.Context) (T, error)) (T, error) {
 	if !tm.enabled {
 		return fn(ctx)
 	}

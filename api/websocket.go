@@ -150,11 +150,11 @@ func (h *WebSocketHub) BroadcastToUser(userID string, msgType MessageType, data 
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	data, _ := json.Marshal(msg)
+	msgBytes, _ := json.Marshal(msg)
 	for client := range h.clients {
 		if client.UserID == userID {
 			select {
-			case client.Send <- data:
+			case client.Send <- msgBytes:
 			default:
 				// Buffer full
 			}
