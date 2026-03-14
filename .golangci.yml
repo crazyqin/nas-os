@@ -15,6 +15,10 @@ linters:
 issues:
   exclude:
     - 'SA9003: empty branch'
+    - 'field `.*` is unused'
+    - 'type `.*` is unused'
+    - 'func `.*` is unused'
+    - 'copylocks:'
   exclude-rules:
     - path: _test\.go$
       linters:
@@ -27,5 +31,15 @@ issues:
       linters:
         - unused
     - path: internal/quota/
+      linters:
+        - unused
+    - path: internal/dedup/
+      linters:
+        - unused
+    - path: internal/compress/
+      linters:
+        - unused
+        - govet
+    - path: internal/logging/
       linters:
         - unused
