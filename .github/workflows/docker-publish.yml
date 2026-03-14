@@ -183,11 +183,22 @@ jobs:
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
-          DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA --format '{{json .manifest}}' | jq -r '.digest' 2>/dev/null || echo "")
+          # 优先使用 docker-build 输出的 digest
+          DIGEST="${{ needs.docker-build.outputs.digest }}"
           if [ -z "$DIGEST" ]; then
+            echo "⚠️ 从 docker-build 获取 digest 失败，尝试 imagetools"
+            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA --format '{{json .manifest}}' | jq -r '.digest' 2>/dev/null || echo "")
+          fi
+          if [ -z "$DIGEST" ]; then
+            echo "⚠️ 获取 digest 失败，使用 latest"
             DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --format '{{json .manifest}}' | jq -r '.digest' 2>/dev/null || echo "")
           fi
+          if [ -z "$DIGEST" ]; then
+            echo "❌ 无法获取镜像 digest"
+            exit 1
+          fi
           echo "DIGEST=$DIGEST" >> $GITHUB_ENV
+          echo "✅ 镜像摘要: $DIGEST"
 
       - name: 生成 SBOM
         run: |

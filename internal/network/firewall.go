@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -403,7 +404,11 @@ func (m *Manager) SaveFirewallRules(path string) error {
 		path = "/etc/iptables/rules.v4"
 	}
 
-	return exec.Command("sh", "-c", fmt.Sprintf("echo '%s' > %s", string(output), path)).Run()
+	// 安全：直接写入文件，避免命令注入风险
+	if err := os.WriteFile(path, output, 0600); err != nil {
+		return fmt.Errorf("保存规则失败: %w", err)
+	}
+	return nil
 }
 
 // RestoreFirewallRules 从文件恢复防火墙规则

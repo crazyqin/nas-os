@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.32.0] - 2026-03-15
+
+### Added
+- **稳定性提升** (吏部)
+  - 核心模块测试覆盖率提升
+  - 集成测试增强
+  - 测试工具完善
+
+- **性能优化**
+  - 缓存命中率优化
+  - 并发处理优化
+  - 资源使用效率提升
+
+- **文档完善**
+  - API 文档 Swagger 注释补充
+  - 版本号更新到 v2.32.0
+  - Docker 镜像版本号更新
+
+### Changed
+- 代码质量改进
+- 安全检查增强
+
+### Security
+- 权限检查增强
+- 安全审计更新
+
 ## [v2.30.0] - 2026-03-15
 
 ### Added

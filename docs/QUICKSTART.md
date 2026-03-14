@@ -1,6 +1,6 @@
 # NAS-OS 快速开始指南
 
-**版本**: v2.30.0  
+**版本**: v2.31.0  
 **更新日期**: 2026-03-15
 
 ---
@@ -11,7 +11,8 @@
 2. [安装方式](#安装方式)
 3. [首次配置](#首次配置)
 4. [基本使用](#基本使用)
-5. [常见问题](#常见问题)
+5. [LDAP/AD 集成](#ldapad-集成)
+6. [常见问题](#常见问题)
 
 ---
 
@@ -275,6 +276,56 @@ sudo nasctl notify add email \
 
 ---
 
+## LDAP/AD 集成
+
+NAS-OS 支持与企业 LDAP/Active Directory 集成，实现统一身份认证。
+
+### 快速配置 LDAP
+
+```bash
+# 添加 OpenLDAP 服务器
+curl -X POST http://localhost:8080/api/v1/ldap/configs \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "company-ldap",
+    "url": "ldaps://ldap.example.com:636",
+    "bind_dn": "cn=admin,dc=example,dc=com",
+    "bind_password": "password",
+    "base_dn": "dc=example,dc=com",
+    "user_filter": "(uid=%s)",
+    "group_filter": "(memberUid=%s)",
+    "enabled": true
+  }'
+
+# 测试连接
+curl -X POST http://localhost:8080/api/v1/ldap/configs/company-ldap/test \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### 快速配置 Active Directory
+
+```bash
+curl -X POST http://localhost:8080/api/v1/ldap/configs \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "company-ad",
+    "url": "ldaps://ad.example.com:636",
+    "bind_dn": "CN=ldap-bind,CN=Users,DC=example,DC=com",
+    "bind_password": "password",
+    "base_dn": "DC=example,DC=com",
+    "user_filter": "(sAMAccountName=%s)",
+    "group_filter": "(member=%s)",
+    "is_ad": true,
+    "enabled": true
+  }'
+```
+
+📖 详细配置请参考 [LDAP 集成指南](LDAP-INTEGRATION.md)
+
+---
+
 ## 常见问题
 
 ### Q: 无法访问 Web 界面？
@@ -310,6 +361,7 @@ sudo nasctl user reset-password admin --password NewPassword123
 - 🔧 查看 [管理员指南](ADMIN_GUIDE_v2.5.0.md)
 - 📡 参考 [API 文档](API_GUIDE.md)
 - 🚀 了解 [部署指南](DEPLOYMENT_GUIDE_v2.5.0.md)
+- 🔐 配置 [LDAP/AD 集成](LDAP-INTEGRATION.md)
 
 ---
 
