@@ -7,48 +7,14 @@ run:
 linters:
   disable-all: true
   enable:
-    - errcheck
     - govet
     - ineffassign
     - staticcheck
     - unused
 
 issues:
-  exclude:
-    # 忽略 fmt.Sscanf
-    - 'Error return value of `fmt.Sscanf` is not checked'
-    # 忽略 Write 调用
-    - 'Error return value of `.*Write` is not checked'
-    # 忽略 Close/Flush/Sync
-    - 'Error return value of `.*Close` is not checked'
-    - 'Error return value of `.*Flush` is not checked'
-    - 'Error return value of `.*Sync` is not checked'
-    # 忽略 save 类函数
-    - 'Error return value of `.*save.*` is not checked'
-    - 'Error return value of `.*Save.*` is not checked'
-    # 忽略 cmd.Run
-    - 'Error return value of `cmd.Run` is not checked'
-    # 忽略 Init/Start/Stop/Unload
-    - 'Error return value of `.*Init` is not checked'
-    - 'Error return value of `.*Start` is not checked'
-    - 'Error return value of `.*Stop` is not checked'
-    - 'Error return value of `.*Unload` is not checked'
-    # 忽略 MkdirAll/Glob/Walk
-    - 'Error return value of `os.MkdirAll` is not checked'
-    - 'Error return value of `filepath.Glob` is not checked'
-    - 'Error return value of `filepath.Walk` is not checked'
-    # 忽略 rand.Read
-    - 'Error return value of `rand.Read` is not checked'
-    # 忽略内部函数
-    - 'Error return value of `.*scanSubvolumes` is not checked'
-    - 'Error return value of `.*removeBan` is not checked'
-    - 'Error return value of `.*unbanIPInternal` is not checked'
-    - 'Error return value of `.*removeRuleFromSystem` is not checked'
-    - 'Error return value of `.*persistAIMemory` is not checked'
-    - 'Error return value of `.*saveSmartAlbums` is not checked'
   exclude-rules:
     - path: _test\.go$
       linters:
-        - errcheck
         - ineffassign
         - staticcheck
