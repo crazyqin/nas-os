@@ -242,6 +242,19 @@ curl http://localhost:9093/api/v2/alerts | jq
 
 ## 故障排查
 
+> 详细故障排查指南见 [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md)
+
+### 快速诊断
+
+```bash
+# 一键健康检查
+systemctl status nas-os
+curl http://localhost:8080/api/v1/health
+
+# 查看最近错误
+journalctl -u nas-os -p err -n 20
+```
+
 ### 服务无法启动
 ```bash
 # 检查日志

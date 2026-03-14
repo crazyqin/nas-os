@@ -3,10 +3,11 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
-# v2.30.0 更新：
+# v2.31.0 更新：
+# - 添加 Cosign 镜像签名（Keyless）
+# - 添加 SBOM 生成并附加到镜像
 # - 增强构建缓存配置
 # - 添加超时控制
-# - 优化镜像层缓存
 
 name: Docker Publish
 

@@ -332,13 +332,16 @@ func TestSessionManager_RefreshToken(t *testing.T) {
 
 	session, _ := sm.CreateSession("user1", "testuser", "192.168.1.1", "Mozilla/5.0", []string{"user"}, []string{})
 
+	// 保存旧 token 值
+	oldToken := session.Token
+
 	// 刷新令牌
 	newSession, err := sm.RefreshSession(session.RefreshToken)
 	require.NoError(t, err)
-	assert.NotEqual(t, session.Token, newSession.Token)
+	assert.NotEqual(t, oldToken, newSession.Token)
 
 	// 旧令牌应该无效
-	_, err = sm.ValidateSession(session.Token)
+	_, err = sm.ValidateSession(oldToken)
 	assert.Error(t, err)
 
 	// 新令牌应该有效
