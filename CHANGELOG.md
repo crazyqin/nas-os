@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.30.0] - 2026-03-15
+
+### Added
+- **安全增强系统** (刑部)
+  - API限流中间件（Token Bucket / Sliding Window 算法）
+  - 增强版MFA管理器（TOTP加密存储、会话管理集成）
+  - 密码策略验证器（强度评分、历史记录、弱密码检测）
+  - 登录尝试跟踪器（用户/IP锁定、自动解锁）
+  - 会话管理器（令牌刷新、多设备支持、MFA状态）
+  - 配额错误处理API（统一错误响应）
+
+- **测试完善**
+  - 安全模块完整测试覆盖
+  - 密码验证基准测试
+  - 会话管理并发测试
+
+### Fixed
+- **类型错误修复**
+  - 修复 sandbox_test.go Permission/PermissionType 类型不匹配
+  - 统一插件权限类型定义
+
+## [v2.29.1] - 2026-03-15
+
+### Fixed
+- **构建修复**
+  - 修复测试文件类型错误
+  - Windows 构建兼容性
+
+## [v2.29.0] - 2026-03-15
+
+### Added
+- **六部联建功能增强**
+  - API v2 规划（版本路由、WebSocket实时通信）
+  - 插件系统增强（热加载、沙箱隔离）
+  - WebUI响应式优化（移动端适配）
+  - Kubernetes Helm Chart（HPA、PDB、NetworkPolicy）
+  - 文档国际化（英文文档、翻译指南）
+  - 安全审计 v2.29.0
+
+## [v2.28.0] - 2026-03-15
+
+### Added
+- **六部联建完成**
+  - 48 files changed, 9437 insertions(+)
+  - 完整的插件系统架构
+  - 监控与可观测性增强
+
 ## [v2.27.0] - 2026-03-15
 
 ### Added
