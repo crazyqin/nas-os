@@ -1,0 +1,82 @@
+apiVersion: v2
+name: nas-os
+description: NAS-OS - Home NAS Management System with comprehensive storage, backup, and monitoring capabilities
+
+# Chart type
+type: application
+
+# Chart version
+version: 1.0.0
+
+# Application version
+appVersion: "2.29.0"
+
+# Kubernetes version compatibility
+kubeVersion: ">=1.25.0-0"
+
+# Maintainers
+maintainers:
+  - name: NAS-OS Team
+    email: support@nas-os.io
+    url: https://nas-os.io
+
+# Sources
+sources:
+  - https://github.com/nas-os/nas-os
+
+# Keywords for search
+keywords:
+  - nas
+  - storage
+  - backup
+  - btrfs
+  - home-server
+  - samba
+  - nfs
+
+# Home page
+home: https://nas-os.io
+
+# Icon
+icon: https://nas-os.io/logo.png
+
+# Annotations
+annotations:
+  artifacthub.io/category: storage
+  artifacthub.io/license: MIT
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://docs.nas-os.io
+    - name: GitHub
+      url: https://github.com/nas-os/nas-os
+  artifacthub.io/operator: "false"
+  artifacthub.io/prerelease: "false"
+
+# Dependencies
+dependencies:
+  - name: prometheus
+    version: "25.x.x"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: prometheus.enabled
+    alias: prometheus
+
+  - name: grafana
+    version: "7.x.x"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: grafana.enabled
+    alias: grafana
+
+# Security context defaults
+# For privileged operations (disk access)
+securityContext:
+  privileged: true
+  runAsNonRoot: false
+
+# Resource defaults
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi

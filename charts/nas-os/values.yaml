@@ -1,0 +1,294 @@
+# NAS-OS Helm Chart Values
+# =========================
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# NAS-OS application configuration
+replicaCount: 1
+
+image:
+  repository: nas-os/nas-os
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Service account configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Pod security context
+# Note: NAS-OS requires privileged access for disk operations
+podSecurityContext:
+  privileged: true
+  # runAsNonRoot: false  # Required for disk access
+  # runAsUser: 0
+
+# Container security context
+securityContext: {}
+
+# Service configuration
+service:
+  type: NodePort
+  port: 8080
+  # nodePort: 30080  # Optional: specify node port
+  annotations: {}
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: nas.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: nas-os-tls
+  #    hosts:
+  #      - nas.local
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+# Liveness probe
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /api/v1/health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+
+# Readiness probe
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /api/v1/health
+    port: http
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# Startup probe
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /api/v1/health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+
+# Autoscaling (usually not needed for NAS-OS)
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations:
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+# Affinity
+affinity: {}
+
+# Topology spread constraints
+topologySpreadConstraints: []
+
+# Priority class name
+priorityClassName: ""
+
+# Termination grace period
+terminationGracePeriodSeconds: 60
+
+# DNS configuration
+dnsPolicy: ClusterFirstWithHostNet
+dnsConfig: {}
+
+# Host network (recommended for NAS workloads)
+hostNetwork: true
+
+# Host PID (required for some monitoring features)
+hostPID: false
+
+# Host IPC
+hostIPC: false
+
+# Configuration
+config:
+  # Configuration file path
+  path: /etc/nas-os/config.yaml
+  # Configuration content (will be mounted as configmap)
+  content: |
+    # NAS-OS Configuration
+    server:
+      host: "0.0.0.0"
+      port: 8080
+    
+    storage:
+      dataPath: "/var/lib/nas-os"
+      logPath: "/var/log/nas-os"
+    
+    monitoring:
+      enabled: true
+      prometheus:
+        enabled: true
+        path: /metrics
+
+# Storage configuration
+persistence:
+  enabled: true
+  
+  # Data volume
+  data:
+    enabled: true
+    mountPath: /var/lib/nas-os
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    retain: true
+  
+  # Configuration volume
+  config:
+    enabled: true
+    mountPath: /etc/nas-os
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 100Mi
+    retain: true
+  
+  # Log volume
+  logs:
+    enabled: true
+    mountPath: /var/log/nas-os
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    retain: false
+  
+  # Storage pools (additional volumes for disks)
+  # pools:
+  #   - name: disk1
+  #     mountPath: /mnt/disk1
+  #     hostPath: /mnt/disk1
+  #   - name: disk2
+  #     mountPath: /mnt/disk2
+  #     hostPath: /mnt/disk2
+
+# Environment variables
+env:
+  - name: NAS_OS_CONFIG
+    value: /etc/nas-os/config.yaml
+  - name: NAS_OS_DATA_ROOT
+    value: /var/lib/nas-os
+  - name: TZ
+    value: Asia/Shanghai
+
+# Additional environment variables from ConfigMap/Secret
+envFrom: []
+
+# Additional volumes
+volumes: []
+
+# Additional volume mounts
+volumeMounts: []
+
+# Additional containers (sidecars)
+extraContainers: []
+
+# Init containers
+initContainers: []
+
+# Prometheus monitoring
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: ""
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+    annotations: {}
+    relabelings: []
+    metricRelabelings: []
+
+# Prometheus Operator
+prometheus:
+  enabled: false
+  # See: https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
+
+# Grafana
+grafana:
+  enabled: false
+  # See: https://github.com/grafana/helm-charts/tree/main/charts/grafana
+  # dashboards:
+  #   enabled: true
+  #   configMaps:
+  #     - name: nas-os-dashboard
+
+# Service mesh (Istio)
+istio:
+  enabled: false
+  # Gateway configuration
+  gateway:
+    enabled: false
+    name: nas-os-gateway
+  # Virtual service
+  virtualService:
+    enabled: false
+    hosts:
+      - nas.local
+
+# Network policies
+networkPolicy:
+  enabled: false
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+  egress:
+    - to:
+        - namespaceSelector: {}
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1

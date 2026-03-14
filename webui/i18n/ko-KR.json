@@ -34,7 +34,9 @@
     "security": "보안 센터",
     "predictions": "예측 분석",
     "settings": "시스템 설정",
-    "logs": "로그 뷰어"
+    "logs": "로그 뷰어",
+    "media": "미디어 서비스",
+    "quota": "할당량 관리"
   },
   "ops": {
     "title": "NAS-OS 운영 센터",
@@ -181,5 +183,47 @@
     "permissionDenied": "권한이 없습니다",
     "connectionLost": "연결이 끊어졌습니다",
     "reconnecting": "재연결 중..."
+  },
+  "media": {
+    "title": "미디어 서비스",
+    "subtitle": "스트리밍 및 트랜스코딩",
+    "streaming": "스트리밍 서비스",
+    "hls": "HLS 스트리밍",
+    "dash": "DASH 스트리밍",
+    "transcoding": "비디오 트랜스코딩",
+    "thumbnails": "썸네일 생성",
+    "subtitles": "자막 처리",
+    "library": "미디어 라이브러리",
+    "scanLibrary": "라이브러리 스캔",
+    "lastScan": "마지막 스캔",
+    "totalFiles": "총 파일 수",
+    "totalSize": "총 크기",
+    "formats": "지원 형식",
+    "codec": "코덱",
+    "resolution": "해상도",
+    "bitrate": "비트레이트",
+    "duration": "재생 시간",
+    "processing": "처리 중",
+    "queueSize": "큐 크기",
+    "activeJobs": "활성 작업"
+  },
+  "quota": {
+    "title": "할당량 관리",
+    "subtitle": "스토리지 할당량 및 자동 확장",
+    "userQuota": "사용자 할당량",
+    "groupQuota": "그룹 할당량",
+    "directoryQuota": "디렉토리 할당량",
+    "usedSpace": "사용된 공간",
+    "totalQuota": "총 할당량",
+    "available": "사용 가능",
+    "autoExpand": "자동 확장",
+    "expandThreshold": "확장 임계값",
+    "expandSize": "확장 크기",
+    "maxSize": "최대 크기",
+    "approvalRequired": "승인 필요",
+    "pendingRequests": "대기 중인 요청",
+    "expandNow": "지금 확장",
+    "quotaExceeded": "할당량 초과",
+    "nearLimit": "한계에 근접"
   }
 }

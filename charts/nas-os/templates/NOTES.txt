@@ -1,0 +1,103 @@
+NAS-OS has been deployed!
+
+================================================================================
+                            NAS-OS Deployment Info
+================================================================================
+
+{{- if .Values.ingress.enabled }}
+Access URL: http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.hosts | first }}
+
+{{- else if contains "NodePort" .Values.service.type }}
+
+Access URL: http://<NODE_IP>:{{ .Values.service.nodePort | default 30080 }}
+Or use port-forward:
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "nas-os.fullname" . }} 8080:8080
+
+{{- else if contains "LoadBalancer" .Values.service.type }}
+
+Access URL: http://<EXTERNAL-IP>:{{ .Values.service.port }}
+(NOTE: It may take a few minutes for the LoadBalancer IP to be available)
+
+{{- else }}
+
+Use port-forward to access:
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "nas-os.fullname" . }} 8080:8080
+
+{{- end }}
+
+================================================================================
+                              Configuration
+================================================================================
+
+Config file: {{ .Values.config.path }}
+Data directory: {{ .Values.persistence.data.mountPath }}
+Logs directory: {{ .Values.persistence.logs.mountPath }}
+
+{{- if .Values.monitoring.enabled }}
+
+================================================================================
+                              Monitoring
+================================================================================
+
+Prometheus metrics: http://<NAS-OS-URL>/metrics
+ServiceMonitor: {{ if .Values.monitoring.serviceMonitor.enabled }}Enabled{{ else }}Disabled{{ end }}
+
+{{- end }}
+
+{{- if .Values.prometheus.enabled }}
+
+Prometheus dashboard: http://<prometheus-server>
+
+{{- end }}
+
+{{- if .Values.grafana.enabled }}
+
+Grafana dashboard: http://<grafana-server>
+
+{{- end }}
+
+================================================================================
+                              Quick Start
+================================================================================
+
+1. Check pod status:
+   kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "nas-os.name" . }}
+
+2. View logs:
+   kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "nas-os.name" . }} -f
+
+3. Open Web UI:
+   {{- if .Values.ingress.enabled }}
+   Open http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.hosts | first }} in your browser
+   {{- else }}
+   Run: kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "nas-os.fullname" . }} 8080:8080
+   Then open: http://localhost:8080
+   {{- end }}
+
+================================================================================
+                              Storage Pools
+================================================================================
+
+{{- if .Values.persistence.pools }}
+
+Configured storage pools:
+{{- range .Values.persistence.pools }}
+  - {{ .name }}: {{ .mountPath }}
+{{- end }}
+
+{{- else }}
+
+No storage pools configured. Add pools in values.yaml:
+  persistence:
+    pools:
+      - name: disk1
+        mountPath: /mnt/disk1
+        hostPath: /mnt/disk1
+
+{{- end }}
+
+================================================================================
+
+Thank you for using NAS-OS!
+Documentation: https://docs.nas-os.io
+Support: https://github.com/nas-os/nas-os/issues

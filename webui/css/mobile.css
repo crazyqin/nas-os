@@ -1,8 +1,8 @@
 /* NAS-OS Mobile & PWA Styles */
-/* Version: 1.0 | 2026-03-10 */
+/* Version: 2.0 | 2026-03-15 - Enhanced Responsive Design */
 
 /* ========================================
-   Mobile Navigation
+   Mobile Navigation - Enhanced
    ======================================== */
 .mobile-header {
   display: none;
@@ -11,12 +11,13 @@
   left: 0;
   right: 0;
   height: 56px;
-  background: white;
-  border-bottom: 1px solid var(--color-gray-200);
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--surface-border);
   padding: 0 var(--space-4);
   z-index: 100;
   align-items: center;
   justify-content: space-between;
+  transition: background-color var(--transition-base), border-color var(--transition-base);
 }
 
 .mobile-header-brand {
@@ -33,6 +34,7 @@
 .mobile-header-brand h1 {
   font-size: 18px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .mobile-menu-btn {
@@ -40,7 +42,13 @@
   border: none;
   padding: var(--space-2);
   cursor: pointer;
-  color: var(--color-gray-600);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.mobile-menu-btn:hover {
+  background: var(--bg-tertiary);
 }
 
 .mobile-menu-btn svg {
@@ -70,7 +78,7 @@
   top: 0;
   bottom: 0;
   width: 280px;
-  background: white;
+  background: var(--surface-color);
   z-index: 201;
   transform: translateX(-100%);
   transition: transform var(--transition-slow);
@@ -88,7 +96,7 @@
   justify-content: space-between;
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .mobile-menu-close {
@@ -96,7 +104,13 @@
   border: none;
   padding: var(--space-2);
   cursor: pointer;
-  color: var(--color-gray-500);
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.mobile-menu-close:hover {
+  background: var(--bg-tertiary);
 }
 
 .mobile-nav-item {
@@ -104,7 +118,7 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  color: var(--color-gray-600);
+  color: var(--text-secondary);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-1);
   transition: all var(--transition-fast);
@@ -121,21 +135,24 @@
 .mobile-nav-item svg {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
 /* ========================================
-   Mobile Cards & Tables
+   Mobile Cards & Tables - Enhanced
    ======================================== */
 .mobile-card-list {
   display: none;
 }
 
 .mobile-card-item {
-  background: white;
+  background: var(--surface-color);
   border-radius: var(--radius-md);
   padding: var(--space-4);
   margin-bottom: var(--space-3);
   box-shadow: var(--shadow-sm);
+  border: 1px solid var(--surface-border);
+  transition: background-color var(--transition-base), border-color var(--transition-base);
 }
 
 .mobile-card-header {
@@ -148,6 +165,7 @@
 .mobile-card-title {
   font-weight: 600;
   font-size: 16px;
+  color: var(--text-primary);
 }
 
 .mobile-card-body {
@@ -162,12 +180,12 @@
 }
 
 .mobile-card-label {
-  color: var(--color-gray-500);
+  color: var(--text-muted);
 }
 
 .mobile-card-value {
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--text-primary);
 }
 
 .mobile-card-actions {
@@ -175,11 +193,11 @@
   gap: var(--space-2);
   margin-top: var(--space-3);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--color-gray-100);
+  border-top: 1px solid var(--surface-border);
 }
 
 /* ========================================
-   Mobile Form Adjustments
+   Mobile Form Adjustments - Enhanced
    ======================================== */
 .mobile-form-stack .form-group {
   margin-bottom: var(--space-4);
@@ -188,15 +206,19 @@
 .mobile-form-stack .form-label {
   font-size: 13px;
   margin-bottom: var(--space-1);
+  color: var(--text-secondary);
 }
 
 .mobile-form-stack .form-input,
 .mobile-form-stack .form-select {
   font-size: 16px; /* 防止 iOS 缩放 */
+  background: var(--surface-color);
+  border-color: var(--surface-border);
+  color: var(--text-primary);
 }
 
 /* ========================================
-   Mobile Bottom Navigation
+   Mobile Bottom Navigation - Enhanced
    ======================================== */
 .mobile-bottom-nav {
   display: none;
@@ -204,11 +226,12 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
-  border-top: 1px solid var(--color-gray-200);
+  background: var(--surface-color);
+  border-top: 1px solid var(--surface-border);
   padding: var(--space-2) 0;
   z-index: 100;
   padding-bottom: env(safe-area-inset-bottom);
+  transition: background-color var(--transition-base), border-color var(--transition-base);
 }
 
 .mobile-bottom-nav-items {
@@ -222,14 +245,19 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-2) var(--space-3);
-  color: var(--color-gray-500);
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 11px;
   transition: color var(--transition-fast);
+  border-radius: var(--radius-md);
 }
 
 .mobile-bottom-nav-item.active {
   color: var(--color-primary);
+}
+
+.mobile-bottom-nav-item:hover {
+  background: var(--bg-tertiary);
 }
 
 .mobile-bottom-nav-item svg {
@@ -238,7 +266,7 @@
 }
 
 /* ========================================
-   Responsive Breakpoints
+   Responsive Breakpoints - Enhanced
    ======================================== */
 @media (max-width: 1024px) {
   .sidebar {
@@ -289,6 +317,8 @@
   /* 卡片调整 */
   .card {
     padding: var(--space-4);
+    background: var(--surface-color);
+    border-color: var(--surface-border);
   }
 
   .card-header {
@@ -304,9 +334,20 @@
   .quick-actions .btn {
     width: 100%;
   }
+
+  /* 搜索栏优化 */
+  .search-bar {
+    width: 100%;
+  }
+
+  /* 分页优化 */
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .main-content {
     padding: var(--space-3);
     padding-top: 68px;
@@ -343,6 +384,7 @@
     width: 95%;
     margin: var(--space-2);
     max-height: 90vh;
+    background: var(--surface-color);
   }
 
   /* 按钮调整 */
@@ -354,10 +396,62 @@
   .btn-group .btn {
     width: 100%;
   }
+
+  /* 标签页优化 */
+  .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-item {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* 仪表盘卡片堆叠 */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .stat-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stat-label {
+    order: 1;
+  }
+
+  .stat-value {
+    order: 2;
+  }
+
+  /* 隐藏次要信息 */
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  /* 紧凑表格 */
+  .compact-on-mobile {
+    padding: var(--space-2);
+  }
+
+  /* 图表容器高度调整 */
+  .chart-container {
+    height: 200px !important;
+  }
 }
 
 /* ========================================
-   Touch Optimizations
+   Touch Optimizations - Enhanced
    ======================================== */
 @media (hover: none) and (pointer: coarse) {
   /* 增大点击区域 */
@@ -379,6 +473,13 @@
     min-height: 48px;
   }
 
+  /* 复选框和单选按钮 */
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 24px;
+    min-height: 24px;
+  }
+
   /* 移除 hover 效果 */
   .btn:hover {
     transform: none;
@@ -388,11 +489,39 @@
   .card:hover {
     box-shadow: var(--shadow-md);
   }
+
+  /* 链接点击区域 */
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 /* ========================================
-   Dark Mode Support (Manual Toggle)
-   Note: Dark mode is controlled by [data-theme="dark"] attribute
+   Landscape Mode Optimization
+   ======================================== */
+@media (max-height: 500px) and (orientation: landscape) {
+  .mobile-header {
+    height: 48px;
+  }
+
+  .main-content {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  .mobile-bottom-nav {
+    display: none;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ========================================
+   Dark Mode Support - Complete
    ======================================== */
 [data-theme="dark"] .mobile-header,
 [data-theme="dark"] .mobile-menu,
@@ -406,7 +535,9 @@
   border-color: var(--surface-border);
 }
 
-/* Remove old prefers-color-scheme dark styles - now handled by data-theme */
+[data-theme="dark"] .mobile-menu-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
 
 /* ========================================
    PWA Splash Screen
@@ -515,5 +646,81 @@
   .main-content {
     padding-top: calc(72px + env(safe-area-inset-top));
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-menu {
+    padding-top: calc(var(--space-4) + env(safe-area-inset-top));
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  }
+}
+
+/* ========================================
+   Performance Optimizations
+   ======================================== */
+/* GPU 加速 */
+.sidebar,
+.mobile-menu,
+.modal-content,
+.mobile-card-item {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* 减少重绘 */
+.nav-item,
+.mobile-nav-item,
+.btn {
+  transform: translateZ(0);
+}
+
+/* ========================================
+   Accessibility Improvements
+   ======================================== */
+/* 焦点样式 */
+.mobile-nav-item:focus-visible,
+.mobile-menu-btn:focus-visible,
+.mobile-bottom-nav-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .mobile-card-item,
+  .mobile-header,
+  .mobile-bottom-nav {
+    border-width: 2px;
+  }
+
+  .mobile-nav-item.active {
+    font-weight: 700;
+  }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+@media print {
+  .mobile-header,
+  .mobile-bottom-nav,
+  .mobile-menu-overlay {
+    display: none !important;
+  }
+
+  .main-content {
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 0;
   }
 }

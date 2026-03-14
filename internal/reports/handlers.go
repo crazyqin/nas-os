@@ -15,6 +15,7 @@ type Handlers struct {
 	generator       *ReportGenerator
 	scheduleManager *ScheduleManager
 	exporter        *Exporter
+	resourceAPI     *ResourceAPIHandlers
 }
 
 // NewHandlers 创建处理器
@@ -24,6 +25,7 @@ func NewHandlers(tm *TemplateManager, gen *ReportGenerator, sm *ScheduleManager,
 		generator:       gen,
 		scheduleManager: sm,
 		exporter:        exp,
+		resourceAPI:     NewResourceAPIHandlers(gen),
 	}
 }
 
@@ -87,6 +89,10 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	{
 		quick.POST("/generate", h.generateQuickReport)
 	}
+
+	// ========== v2.29.0 资源分析增强 ==========
+	// 注册存储成本、成本优化、容量规划、带宽报告 API
+	h.resourceAPI.RegisterResourceRoutes(apiGroup)
 }
 
 // ========== 模板管理 API ==========
