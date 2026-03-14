@@ -12,10 +12,9 @@ linters:
     - errcheck    # 检查未处理的错误返回值
     - gocritic    # 高级代码检查
     - gosec       # 安全漏洞检查
-    - gosimple    # 代码简化建议
     - govet       # Go vet 检查
     - ineffassign # 检测无效赋值
-    - staticcheck # 静态分析
+    - staticcheck # 静态分析 (包含 gosimple 功能)
     - unused      # 未使用代码检查
 
 issues:
