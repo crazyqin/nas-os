@@ -125,7 +125,7 @@ func TestRequestLogEntry(t *testing.T) {
 
 // TestMaskSensitiveFields 测试敏感字段脱敏
 func TestMaskSensitiveFields(t *testing.T) {
-	sensitiveFields := []string{"password", "token", "secret"}
+	sensitiveFields := []string{"password", "token", "secret", "apiKey"}
 
 	tests := []struct {
 		name     string

@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.35.0 Stable (2026-03-15)
+> **最新版本**: v2.36.0 Stable (2026-03-15)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.35.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.36.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -252,6 +252,17 @@ nas-os/
 | **v2.27.0** | **Stable** | **2026-03-15** | **媒体服务/配额自动扩展/监控增强** | ✅ 已发布 |
 | **v2.30.0** | **Stable** | **2026-03-15** | **文档完善/API 文档覆盖** | ✅ 已发布 |
 | **v2.31.0** | **Stable** | **2026-03-15** | **API 文档完善/国际化更新** | ✅ 已发布 |
+| **v2.35.0** | **Stable** | **2026-03-15** | **请求日志/Excel导出/开发环境增强** | ✅ 已发布 |
+| **v2.36.0** | **Stable** | **2026-03-15** | **i18n框架/API中间件/成本分析** | ✅ 已发布 |
+
+## v2.36.0 新增功能
+
+| 功能 | 说明 |
+|------|------|
+| 🌐 i18n 国际化框架 | 完整翻译系统，支持中/英/日/韩四种语言 |
+| 🔌 API 中间件系统 | 统一错误处理、响应时间记录、WebSocket 增强 |
+| 💰 成本分析报告 | 存储成本分析、资源计费统计、趋势预测 |
+| 📊 监控配置增强 | Prometheus 集成优化、告警规则完善 |
 
 ## v2.35.0 新增功能
 

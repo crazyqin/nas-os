@@ -801,3 +801,1310 @@ func (a *CostAnalyzer) calculateHealthScore(report *CostAnalysisReport) int {
 
 	return int(score)
 }
+
+// ========== v2.35.0 增强功能：存储成本预测 ==========
+
+// StorageCostForecastModel 存储成本预测模型
+type StorageCostForecastModel string
+
+const (
+	ForecastModelLinear      StorageCostForecastModel = "linear"
+	ForecastModelExponential StorageCostForecastModel = "exponential"
+	ForecastModelARIMA       StorageCostForecastModel = "arima"
+	ForecastModelHoltWinters StorageCostForecastModel = "holt_winters"
+)
+
+// EnhancedCostForecast 增强的成本预测
+type EnhancedCostForecast struct {
+	// 基础预测
+	*CostForecast
+
+	// 预测模型
+	Model StorageCostForecastModel `json:"model"`
+
+	// 多模型预测结果
+	MultiModelForecasts map[string]*CostForecast `json:"multi_model_forecasts,omitempty"`
+
+	// 季节性分析
+	Seasonality *SeasonalityAnalysis `json:"seasonality,omitempty"`
+
+	// 异常点检测
+	Anomalies []CostAnomaly `json:"anomalies,omitempty"`
+
+	// 置信区间详情
+	ConfidenceIntervals []ConfidenceInterval `json:"confidence_intervals,omitempty"`
+
+	// 预测准确性指标
+	AccuracyMetrics ForecastAccuracyMetrics `json:"accuracy_metrics"`
+}
+
+// SeasonalityAnalysis 季节性分析
+type SeasonalityAnalysis struct {
+	HasSeasonality bool             `json:"has_seasonality"`
+	Pattern        string           `json:"pattern"`  // daily, weekly, monthly, quarterly, yearly
+	Strength       float64          `json:"strength"` // 0-1
+	Peaks          []SeasonalPeak   `json:"peaks,omitempty"`
+	Troughs        []SeasonalTrough `json:"troughs,omitempty"`
+	CycleLength    int              `json:"cycle_length"` // 周期长度（天）
+}
+
+// SeasonalPeak 季节性峰值
+type SeasonalPeak struct {
+	Period    string  `json:"period"` // 如 "每月初", "周末"
+	Month     int     `json:"month,omitempty"`
+	DayOfWeek int     `json:"day_of_week,omitempty"`
+	Magnitude float64 `json:"magnitude"` // 相对增幅
+}
+
+// SeasonalTrough 季节性低谷
+type SeasonalTrough struct {
+	Period    string  `json:"period"`
+	Month     int     `json:"month,omitempty"`
+	DayOfWeek int     `json:"day_of_week,omitempty"`
+	Magnitude float64 `json:"magnitude"` // 相对降幅
+}
+
+// CostAnomaly 成本异常点
+type CostAnomaly struct {
+	Timestamp     time.Time `json:"timestamp"`
+	ActualCost    float64   `json:"actual_cost"`
+	ExpectedCost  float64   `json:"expected_cost"`
+	Deviation     float64   `json:"deviation"` // 偏差百分比
+	Severity      string    `json:"severity"`  // low, medium, high
+	PossibleCause string    `json:"possible_cause"`
+}
+
+// ConfidenceInterval 置信区间
+type ConfidenceInterval struct {
+	Level      float64   `json:"level"` // 0.95, 0.99 等
+	LowerBound float64   `json:"lower_bound"`
+	UpperBound float64   `json:"upper_bound"`
+	Timestamp  time.Time `json:"timestamp"`
+}
+
+// ForecastAccuracyMetrics 预测准确性指标
+type ForecastAccuracyMetrics struct {
+	MAE  float64 `json:"mae"`  // 平均绝对误差
+	MAPE float64 `json:"mape"` // 平均绝对百分比误差
+	RMSE float64 `json:"rmse"` // 均方根误差
+	R2   float64 `json:"r2"`   // R平方
+}
+
+// EnhancedCostAnalyzer 增强的成本分析器
+type EnhancedCostAnalyzer struct {
+	*CostAnalyzer
+	seasonalityDetector *SeasonalityDetector
+	anomalyDetector     *AnomalyDetector
+}
+
+// NewEnhancedCostAnalyzer 创建增强成本分析器
+func NewEnhancedCostAnalyzer(config StorageCostConfig) *EnhancedCostAnalyzer {
+	return &EnhancedCostAnalyzer{
+		CostAnalyzer:        NewCostAnalyzer(config),
+		seasonalityDetector: NewSeasonalityDetector(),
+		anomalyDetector:     NewAnomalyDetector(),
+	}
+}
+
+// ForecastEnhanced 增强的成本预测
+func (a *EnhancedCostAnalyzer) ForecastEnhanced(history []CostTrendDataPoint, months int) *EnhancedCostForecast {
+	if len(history) < 3 {
+		return nil
+	}
+
+	forecast := &EnhancedCostForecast{
+		Model:               ForecastModelLinear,
+		MultiModelForecasts: make(map[string]*CostForecast),
+	}
+
+	// 1. 多模型预测
+	forecast.MultiModelForecasts["linear"] = a.linearForecast(history, months)
+	forecast.MultiModelForecasts["exponential"] = a.exponentialForecast(history, months)
+
+	// 选择最佳模型
+	forecast.CostForecast = forecast.MultiModelForecasts["linear"]
+
+	// 2. 季节性分析
+	forecast.Seasonality = a.seasonalityDetector.Analyze(history)
+
+	// 如果检测到季节性，使用 Holt-Winters 模型
+	if forecast.Seasonality.HasSeasonality {
+		forecast.MultiModelForecasts["holt_winters"] = a.holtWintersForecast(history, months, forecast.Seasonality)
+	}
+
+	// 3. 异常点检测
+	forecast.Anomalies = a.anomalyDetector.Detect(history)
+
+	// 4. 计算准确性指标
+	forecast.AccuracyMetrics = a.calculateAccuracyMetrics(history, forecast.CostForecast)
+
+	// 5. 生成置信区间
+	forecast.ConfidenceIntervals = a.generateConfidenceIntervals(forecast.CostForecast)
+
+	return forecast
+}
+
+// linearForecast 线性预测
+func (a *EnhancedCostAnalyzer) linearForecast(history []CostTrendDataPoint, months int) *CostForecast {
+	n := float64(len(history))
+	var sumX, sumY, sumXY, sumX2 float64
+
+	for i, h := range history {
+		x := float64(i)
+		y := h.TotalCost
+		sumX += x
+		sumY += y
+		sumXY += x * y
+		sumX2 += x * x
+	}
+
+	denominator := n*sumX2 - sumX*sumX
+	if denominator == 0 {
+		return nil
+	}
+
+	b := (n*sumXY - sumX*sumY) / denominator
+	c := (sumY - b*sumX) / n
+
+	last := history[len(history)-1]
+	forecast := &CostForecast{
+		Method:         "linear",
+		ForecastPoints: make([]ForecastPoint, 0),
+	}
+
+	// 预测各月
+	for i := 1; i <= months; i++ {
+		date := last.Timestamp.AddDate(0, i, 0)
+		predicted := c + b*float64(len(history)+i-1)
+		margin := predicted * 0.15 // 15% 置信区间
+
+		forecast.ForecastPoints = append(forecast.ForecastPoints, ForecastPoint{
+			Date:          date,
+			PredictedCost: round(predicted, 2),
+			LowerBound:    round(predicted-margin, 2),
+			UpperBound:    round(predicted+margin, 2),
+		})
+
+		if i == 1 {
+			forecast.NextMonthCost = round(predicted, 2)
+		}
+		if i == 3 {
+			forecast.NextQuarterCost = round(predicted, 2)
+		}
+		if i == 12 {
+			forecast.NextYearCost = round(predicted, 2)
+		}
+	}
+
+	forecast.Confidence = a.calculateConfidence(history)
+	return forecast
+}
+
+// exponentialForecast 指数预测
+func (a *EnhancedCostAnalyzer) exponentialForecast(history []CostTrendDataPoint, months int) *CostForecast {
+	if len(history) < 2 {
+		return nil
+	}
+
+	// 计算指数增长率
+	first := history[0]
+	last := history[len(history)-1]
+
+	monthsDiff := last.Timestamp.Sub(first.Timestamp).Hours() / (24 * 30)
+	if monthsDiff == 0 {
+		return nil
+	}
+
+	// 指数增长率 r = ln(end/start) / n
+	growthRate := math.Log(last.TotalCost/first.TotalCost) / monthsDiff
+
+	forecast := &CostForecast{
+		Method:         "exponential",
+		ForecastPoints: make([]ForecastPoint, 0),
+	}
+
+	// 预测
+	for i := 1; i <= months; i++ {
+		date := last.Timestamp.AddDate(0, i, 0)
+		predicted := last.TotalCost * math.Exp(growthRate*float64(i))
+		margin := predicted * 0.2 // 20% 置信区间
+
+		forecast.ForecastPoints = append(forecast.ForecastPoints, ForecastPoint{
+			Date:          date,
+			PredictedCost: round(predicted, 2),
+			LowerBound:    round(predicted-margin, 2),
+			UpperBound:    round(predicted+margin, 2),
+		})
+
+		if i == 1 {
+			forecast.NextMonthCost = round(predicted, 2)
+		}
+		if i == 3 {
+			forecast.NextQuarterCost = round(predicted, 2)
+		}
+		if i == 12 {
+			forecast.NextYearCost = round(predicted, 2)
+		}
+	}
+
+	forecast.Confidence = a.calculateConfidence(history) * 0.9 // 指数模型置信度略低
+	return forecast
+}
+
+// holtWintersForecast Holt-Winters 预测
+func (a *EnhancedCostAnalyzer) holtWintersForecast(history []CostTrendDataPoint, months int, seasonality *SeasonalityAnalysis) *CostForecast {
+	if len(history) < seasonality.CycleLength*2 {
+		return nil
+	}
+
+	// 简化的 Holt-Winters 实现
+	// 使用季节性周期
+	period := seasonality.CycleLength
+	if period < 1 {
+		period = 12 // 默认12个月周期
+	}
+
+	// 初始化
+	alpha, beta, gamma := 0.3, 0.1, 0.1 // 平滑参数
+
+	// 计算初始值
+	var sum float64
+	for i := 0; i < period && i < len(history); i++ {
+		sum += history[i].TotalCost
+	}
+	level := sum / float64(min(period, len(history)))
+	trend := 0.0
+	if len(history) > period {
+		trend = (history[period].TotalCost - history[0].TotalCost) / float64(period)
+	}
+
+	// 季节因子
+	seasonalFactors := make([]float64, period)
+	for i := 0; i < period; i++ {
+		if i < len(history) && level > 0 {
+			seasonalFactors[i] = history[i].TotalCost / level
+		} else {
+			seasonalFactors[i] = 1.0
+		}
+	}
+
+	// 迭代更新
+	for i := 0; i < len(history); i++ {
+		seasonIdx := i % period
+		newLevel := alpha*(history[i].TotalCost/seasonalFactors[seasonIdx]) + (1-alpha)*(level+trend)
+		newTrend := beta*(newLevel-level) + (1-beta)*trend
+		seasonalFactors[seasonIdx] = gamma*(history[i].TotalCost/newLevel) + (1-gamma)*seasonalFactors[seasonIdx]
+		level = newLevel
+		trend = newTrend
+	}
+
+	// 预测
+	forecast := &CostForecast{
+		Method:         "holt_winters",
+		ForecastPoints: make([]ForecastPoint, 0),
+	}
+
+	last := history[len(history)-1]
+	for i := 1; i <= months; i++ {
+		date := last.Timestamp.AddDate(0, i, 0)
+		seasonIdx := (len(history) + i - 1) % period
+		predicted := (level + float64(i)*trend) * seasonalFactors[seasonIdx]
+		margin := predicted * 0.12
+
+		forecast.ForecastPoints = append(forecast.ForecastPoints, ForecastPoint{
+			Date:          date,
+			PredictedCost: round(predicted, 2),
+			LowerBound:    round(predicted-margin, 2),
+			UpperBound:    round(predicted+margin, 2),
+		})
+
+		if i == 1 {
+			forecast.NextMonthCost = round(predicted, 2)
+		}
+	}
+
+	forecast.Confidence = a.calculateConfidence(history) * 0.95
+	return forecast
+}
+
+// calculateConfidence 计算置信度
+func (a *EnhancedCostAnalyzer) calculateConfidence(history []CostTrendDataPoint) float64 {
+	if len(history) < 6 {
+		return 0.5
+	}
+
+	confidence := 0.7
+	if len(history) >= 12 {
+		confidence += 0.15
+	}
+
+	// 计算变异系数
+	var mean, variance float64
+	for _, h := range history {
+		mean += h.TotalCost
+	}
+	mean /= float64(len(history))
+	for _, h := range history {
+		variance += math.Pow(h.TotalCost-mean, 2)
+	}
+	variance /= float64(len(history))
+	cv := math.Sqrt(variance) / mean
+
+	if cv < 0.1 {
+		confidence += 0.1
+	} else if cv > 0.3 {
+		confidence -= 0.2
+	}
+
+	if confidence > 1 {
+		confidence = 1
+	}
+	if confidence < 0.3 {
+		confidence = 0.3
+	}
+
+	return round(confidence, 2)
+}
+
+// calculateAccuracyMetrics 计算准确性指标
+func (a *EnhancedCostAnalyzer) calculateAccuracyMetrics(history []CostTrendDataPoint, forecast *CostForecast) ForecastAccuracyMetrics {
+	metrics := ForecastAccuracyMetrics{}
+
+	if len(history) < 3 || forecast == nil {
+		return metrics
+	}
+
+	// 使用交叉验证计算准确性
+	var sumAE, sumAPE, sumSE, sumSS, sumMean float64
+	n := len(history)
+
+	// 计算均值
+	for _, h := range history {
+		sumMean += h.TotalCost
+	}
+	mean := sumMean / float64(n)
+
+	// 简单的回测
+	for i := 2; i < n; i++ {
+		// 使用前 i 个点预测第 i+1 个
+		actual := history[i].TotalCost
+		// 简化：使用移动平均预测
+		predicted := (history[i-1].TotalCost + history[i-2].TotalCost) / 2
+
+		ae := math.Abs(actual - predicted)
+		sumAE += ae
+		if actual > 0 {
+			sumAPE += ae / actual
+		}
+		sumSE += ae * ae
+		sumSS += math.Pow(actual-mean, 2)
+	}
+
+	count := float64(n - 2)
+	if count > 0 {
+		metrics.MAE = round(sumAE/count, 2)
+		metrics.MAPE = round(sumAPE/count*100, 2)
+		metrics.RMSE = round(math.Sqrt(sumSE/count), 2)
+		if sumSS > 0 {
+			metrics.R2 = round(1-sumSE/sumSS, 4)
+		}
+	}
+
+	return metrics
+}
+
+// generateConfidenceIntervals 生成置信区间
+func (a *EnhancedCostAnalyzer) generateConfidenceIntervals(forecast *CostForecast) []ConfidenceInterval {
+	intervals := make([]ConfidenceInterval, 0)
+
+	for _, fp := range forecast.ForecastPoints {
+		// 95% 置信区间
+		margin95 := (fp.UpperBound - fp.LowerBound) / 2
+
+		intervals = append(intervals, ConfidenceInterval{
+			Level:      0.95,
+			LowerBound: fp.PredictedCost - margin95,
+			UpperBound: fp.PredictedCost + margin95,
+			Timestamp:  fp.Date,
+		})
+	}
+
+	return intervals
+}
+
+// ========== v2.35.0 增强功能：容量规划建议 ==========
+
+// EnhancedCapacityPlan 增强的容量规划
+type EnhancedCapacityPlan struct {
+	// 基础规划报告
+	*CapacityPlanningReport
+
+	// 多场景分析
+	Scenarios []CapacityScenario `json:"scenarios"`
+
+	// 扩容时间线
+	ExpansionTimeline []ExpansionEvent `json:"expansion_timeline"`
+
+	// 成本影响分析
+	CostImpact CapacityCostImpact `json:"cost_impact"`
+
+	// 风险评估
+	Risks []CapacityRisk `json:"risks"`
+
+	// 优化路径
+	OptimizationPaths []OptimizationPath `json:"optimization_paths"`
+}
+
+// CapacityScenario 容量场景
+type CapacityScenario struct {
+	Name              string  `json:"name"`
+	Description       string  `json:"description"`
+	GrowthRate        float64 `json:"growth_rate"` // %/月
+	ProjectedMonths   int     `json:"projected_months"`
+	FinalCapacityGB   float64 `json:"final_capacity_gb"`
+	FinalUsagePercent float64 `json:"final_usage_percent"`
+	ExpansionNeededGB float64 `json:"expansion_needed_gb"`
+	CostImpact        float64 `json:"cost_impact"` // 月度成本变化
+	Probability       float64 `json:"probability"` // 发生概率
+}
+
+// ExpansionEvent 扩容事件
+type ExpansionEvent struct {
+	Date              time.Time `json:"date"`
+	VolumeName        string    `json:"volume_name"`
+	CurrentCapacityGB float64   `json:"current_capacity_gb"`
+	AddCapacityGB     float64   `json:"add_capacity_gb"`
+	Reason            string    `json:"reason"`
+	EstimatedCost     float64   `json:"estimated_cost"`
+	Priority          string    `json:"priority"`
+}
+
+// CapacityCostImpact 容量成本影响
+type CapacityCostImpact struct {
+	CurrentMonthlyCost   float64 `json:"current_monthly_cost"`
+	ProjectedMonthlyCost float64 `json:"projected_monthly_cost"`
+	CostIncrease         float64 `json:"cost_increase"`
+	CostIncreasePercent  float64 `json:"cost_increase_percent"`
+	AnnualCostImpact     float64 `json:"annual_cost_impact"`
+}
+
+// CapacityRisk 容量风险
+type CapacityRisk struct {
+	Type        string  `json:"type"`        // capacity_shortage, performance, budget
+	Severity    string  `json:"severity"`    // low, medium, high, critical
+	Probability float64 `json:"probability"` // 发生概率
+	Impact      string  `json:"impact"`
+	Mitigation  string  `json:"mitigation"`
+}
+
+// OptimizationPath 优化路径
+type OptimizationPath struct {
+	Name           string   `json:"name"`
+	Description    string   `json:"description"`
+	Steps          []string `json:"steps"`
+	SavingsGB      float64  `json:"savings_gb"`
+	SavingsPercent float64  `json:"savings_percent"`
+	Effort         string   `json:"effort"`
+	Timeline       string   `json:"timeline"`
+}
+
+// CapacityPlanningAnalyzer 容量规划分析器
+type CapacityPlanningAnalyzer struct {
+	config       StorageCostConfig
+	costAnalyzer *EnhancedCostAnalyzer
+}
+
+// NewCapacityPlanningAnalyzer 创建容量规划分析器
+func NewCapacityPlanningAnalyzer(config StorageCostConfig) *CapacityPlanningAnalyzer {
+	return &CapacityPlanningAnalyzer{
+		config:       config,
+		costAnalyzer: NewEnhancedCostAnalyzer(config),
+	}
+}
+
+// AnalyzeCapacityEnhanced 增强的容量分析
+func (a *CapacityPlanningAnalyzer) AnalyzeCapacityEnhanced(
+	history []CapacityHistory,
+	volumeName string,
+	monthsToProject int,
+) *EnhancedCapacityPlan {
+	if len(history) == 0 {
+		return nil
+	}
+
+	// 基础规划
+	planner := NewCapacityPlanner(CapacityPlanningConfig{
+		ForecastDays: monthsToProject * 30,
+	})
+	baseReport := planner.Analyze(history, volumeName)
+
+	plan := &EnhancedCapacityPlan{
+		CapacityPlanningReport: baseReport,
+		Scenarios:              a.generateScenarios(history, monthsToProject),
+		ExpansionTimeline:      a.generateExpansionTimeline(baseReport),
+		Risks:                  a.assessRisks(baseReport),
+		OptimizationPaths:      a.generateOptimizationPaths(baseReport),
+	}
+
+	// 计算成本影响
+	plan.CostImpact = a.calculateCostImpact(history, plan)
+
+	return plan
+}
+
+// generateScenarios 生成场景分析
+func (a *CapacityPlanningAnalyzer) generateScenarios(history []CapacityHistory, months int) []CapacityScenario {
+	scenarios := make([]CapacityScenario, 0)
+
+	if len(history) < 2 {
+		return scenarios
+	}
+
+	latest := history[len(history)-1]
+	currentGB := float64(latest.UsedBytes) / (1024 * 1024 * 1024)
+	totalGB := float64(latest.TotalBytes) / (1024 * 1024 * 1024)
+
+	// 计算历史增长率
+	monthsDiff := float64(len(history)) // 假设每月一个数据点
+	if monthsDiff > 0 {
+		first := history[0]
+		firstGB := float64(first.UsedBytes) / (1024 * 1024 * 1024)
+		growthRate := (currentGB - firstGB) / firstGB / monthsDiff * 100
+
+		// 保守场景
+		scenarios = append(scenarios, CapacityScenario{
+			Name:              "保守增长",
+			Description:       "增长率降低50%",
+			GrowthRate:        round(growthRate*0.5, 2),
+			ProjectedMonths:   months,
+			FinalCapacityGB:   round(currentGB*math.Pow(1+growthRate*0.5/100, float64(months)), 2),
+			ExpansionNeededGB: round(math.Max(0, currentGB*math.Pow(1+growthRate*0.5/100, float64(months))-totalGB*0.85), 2),
+			Probability:       0.3,
+		})
+
+		// 基线场景
+		scenarios = append(scenarios, CapacityScenario{
+			Name:              "基线增长",
+			Description:       "保持当前增长率",
+			GrowthRate:        round(growthRate, 2),
+			ProjectedMonths:   months,
+			FinalCapacityGB:   round(currentGB*math.Pow(1+growthRate/100, float64(months)), 2),
+			ExpansionNeededGB: round(math.Max(0, currentGB*math.Pow(1+growthRate/100, float64(months))-totalGB*0.85), 2),
+			Probability:       0.5,
+		})
+
+		// 激进场景
+		scenarios = append(scenarios, CapacityScenario{
+			Name:              "激进增长",
+			Description:       "增长率提高50%",
+			GrowthRate:        round(growthRate*1.5, 2),
+			ProjectedMonths:   months,
+			FinalCapacityGB:   round(currentGB*math.Pow(1+growthRate*1.5/100, float64(months)), 2),
+			ExpansionNeededGB: round(math.Max(0, currentGB*math.Pow(1+growthRate*1.5/100, float64(months))-totalGB*0.85), 2),
+			Probability:       0.2,
+		})
+	}
+
+	return scenarios
+}
+
+// generateExpansionTimeline 生成扩容时间线
+func (a *CapacityPlanningAnalyzer) generateExpansionTimeline(report *CapacityPlanningReport) []ExpansionEvent {
+	timeline := make([]ExpansionEvent, 0)
+
+	for _, m := range report.Milestones {
+		if m.DaysRemaining > 0 && m.DaysRemaining <= 365 {
+			// 建议在到达阈值前扩容
+			expandDate := m.ExpectedDate.AddDate(0, 0, -30) // 提前30天
+
+			timeline = append(timeline, ExpansionEvent{
+				Date:              expandDate,
+				VolumeName:        report.VolumeName,
+				CurrentCapacityGB: float64(report.Current.TotalBytes) / (1024 * 1024 * 1024),
+				AddCapacityGB:     float64(m.CapacityNeeded-report.Current.UsedBytes) / (1024 * 1024 * 1024) * 0.3,
+				Reason:            fmt.Sprintf("为达到 %s 做准备", m.Name),
+				Priority:          getPriority(m.Threshold),
+			})
+		}
+	}
+
+	return timeline
+}
+
+// assessRisks 评估风险
+func (a *CapacityPlanningAnalyzer) assessRisks(report *CapacityPlanningReport) []CapacityRisk {
+	risks := make([]CapacityRisk, 0)
+
+	// 容量不足风险
+	if report.Current.UsagePercent > 80 {
+		severity := "high"
+		if report.Current.UsagePercent > 90 {
+			severity = "critical"
+		}
+		risks = append(risks, CapacityRisk{
+			Type:        "capacity_shortage",
+			Severity:    severity,
+			Probability: 0.8,
+			Impact:      "存储空间即将耗尽，可能影响业务运行",
+			Mitigation:  "立即执行扩容或数据清理",
+		})
+	}
+
+	// 性能下降风险
+	if report.Current.UsagePercent > 85 {
+		risks = append(risks, CapacityRisk{
+			Type:        "performance",
+			Severity:    "medium",
+			Probability: 0.6,
+			Impact:      "高使用率可能导致存储性能下降",
+			Mitigation:  "监控 I/O 性能，考虑分层存储",
+		})
+	}
+
+	// 预算超支风险
+	if len(report.Forecasts) > 0 {
+		for _, f := range report.Forecasts {
+			if f.ForecastUsagePercent > 95 {
+				risks = append(risks, CapacityRisk{
+					Type:        "budget",
+					Severity:    "medium",
+					Probability: 0.4,
+					Impact:      "紧急扩容成本高于计划扩容",
+					Mitigation:  "提前规划扩容预算",
+				})
+				break
+			}
+		}
+	}
+
+	return risks
+}
+
+// generateOptimizationPaths 生成优化路径
+func (a *CapacityPlanningAnalyzer) generateOptimizationPaths(report *CapacityPlanningReport) []OptimizationPath {
+	paths := make([]OptimizationPath, 0)
+
+	// 数据清理路径
+	paths = append(paths, OptimizationPath{
+		Name:           "数据清理",
+		Description:    "清理过期和冗余数据",
+		SavingsGB:      float64(report.Current.UsedBytes) / (1024 * 1024 * 1024) * 0.15,
+		SavingsPercent: 15,
+		Effort:         "low",
+		Timeline:       "1-2周",
+		Steps: []string{
+			"1. 扫描过期文件",
+			"2. 识别重复数据",
+			"3. 生成清理报告",
+			"4. 执行清理操作",
+		},
+	})
+
+	// 压缩优化路径
+	paths = append(paths, OptimizationPath{
+		Name:           "启用压缩",
+		Description:    "对适合的数据启用压缩",
+		SavingsGB:      float64(report.Current.UsedBytes) / (1024 * 1024 * 1024) * 0.3,
+		SavingsPercent: 30,
+		Effort:         "medium",
+		Timeline:       "2-4周",
+		Steps: []string{
+			"1. 分析数据类型",
+			"2. 选择压缩算法",
+			"3. 分批启用压缩",
+			"4. 验证数据完整性",
+		},
+	})
+
+	// 分层存储路径
+	if report.Current.UsagePercent > 70 {
+		paths = append(paths, OptimizationPath{
+			Name:           "分层存储",
+			Description:    "将冷数据迁移到低成本存储",
+			SavingsGB:      float64(report.Current.UsedBytes) / (1024 * 1024 * 1024) * 0.4,
+			SavingsPercent: 40,
+			Effort:         "high",
+			Timeline:       "1-2月",
+			Steps: []string{
+				"1. 分析数据访问模式",
+				"2. 定义冷热数据策略",
+				"3. 部署分层存储",
+				"4. 迁移冷数据",
+			},
+		})
+	}
+
+	return paths
+}
+
+// calculateCostImpact 计算成本影响
+func (a *CapacityPlanningAnalyzer) calculateCostImpact(history []CapacityHistory, plan *EnhancedCapacityPlan) CapacityCostImpact {
+	impact := CapacityCostImpact{}
+
+	if len(history) == 0 {
+		return impact
+	}
+
+	latest := history[len(history)-1]
+	currentGB := float64(latest.UsedBytes) / (1024 * 1024 * 1024)
+
+	// 当前成本
+	impact.CurrentMonthlyCost = round(currentGB*a.config.CostPerGBMonthly, 2)
+
+	// 预测成本
+	if len(plan.Scenarios) > 0 {
+		// 使用基线场景
+		for _, s := range plan.Scenarios {
+			if s.Name == "基线增长" {
+				impact.ProjectedMonthlyCost = round(s.FinalCapacityGB*a.config.CostPerGBMonthly, 2)
+				break
+			}
+		}
+	}
+
+	impact.CostIncrease = round(impact.ProjectedMonthlyCost-impact.CurrentMonthlyCost, 2)
+	if impact.CurrentMonthlyCost > 0 {
+		impact.CostIncreasePercent = round(impact.CostIncrease/impact.CurrentMonthlyCost*100, 2)
+	}
+	impact.AnnualCostImpact = round(impact.CostIncrease*12, 2)
+
+	return impact
+}
+
+// ========== v2.35.0 增强功能：资源使用趋势分析 ==========
+
+// ResourceTrendAnalysis 资源使用趋势分析
+type ResourceTrendAnalysis struct {
+	ID          string       `json:"id"`
+	VolumeName  string       `json:"volume_name"`
+	GeneratedAt time.Time    `json:"generated_at"`
+	Period      ReportPeriod `json:"period"`
+
+	// 趋势指标
+	StorageTrend   StorageTrendMetrics   `json:"storage_trend"`
+	IOTrend        IOTrendMetrics        `json:"io_trend"`
+	BandwidthTrend BandwidthTrendMetrics `json:"bandwidth_trend"`
+
+	// 综合分析
+	Correlations []ResourceCorrelation `json:"correlations"`
+	Predictions  ResourcePredictions   `json:"predictions"`
+	Alerts       []TrendAlert          `json:"alerts"`
+}
+
+// StorageTrendMetrics 存储趋势指标
+type StorageTrendMetrics struct {
+	GrowthRate         float64    `json:"growth_rate"`         // %/月
+	GrowthAcceleration float64    `json:"growth_acceleration"` // 加速度
+	ProjectedFullDate  *time.Time `json:"projected_full_date,omitempty"`
+	DaysToFull         int        `json:"days_to_full"`
+	TrendDirection     string     `json:"trend_direction"` // up, down, stable
+	Volatility         float64    `json:"volatility"`
+}
+
+// IOTrendMetrics IO 趋势指标
+type IOTrendMetrics struct {
+	ReadIOPSTrend   string  `json:"read_iops_trend"` // increasing, stable, decreasing
+	WriteIOPSTrend  string  `json:"write_iops_trend"`
+	AvgReadIOPS     float64 `json:"avg_read_iops"`
+	AvgWriteIOPS    float64 `json:"avg_write_iops"`
+	PeakReadIOPS    float64 `json:"peak_read_iops"`
+	PeakWriteIOPS   float64 `json:"peak_write_iops"`
+	IOPSVariability float64 `json:"iops_variability"`
+}
+
+// BandwidthTrendMetrics 带宽趋势指标
+type BandwidthTrendMetrics struct {
+	ReadThroughputTrend  string  `json:"read_throughput_trend"`
+	WriteThroughputTrend string  `json:"write_throughput_trend"`
+	AvgReadMbps          float64 `json:"avg_read_mbps"`
+	AvgWriteMbps         float64 `json:"avg_write_mbps"`
+	PeakReadMbps         float64 `json:"peak_read_mbps"`
+	PeakWriteMbps        float64 `json:"peak_write_mbps"`
+	SaturationRisk       float64 `json:"saturation_risk"` // 0-1
+}
+
+// ResourceCorrelation 资源相关性
+type ResourceCorrelation struct {
+	Resource1    string  `json:"resource_1"`
+	Resource2    string  `json:"resource_2"`
+	Correlation  float64 `json:"correlation"`  // -1 到 1
+	Significance string  `json:"significance"` // strong, moderate, weak
+}
+
+// ResourcePredictions 资源预测
+type ResourcePredictions struct {
+	NextMonthStorageGB     float64 `json:"next_month_storage_gb"`
+	NextQuarterStorageGB   float64 `json:"next_quarter_storage_gb"`
+	NextMonthIOPS          float64 `json:"next_month_iops"`
+	NextMonthBandwidthMbps float64 `json:"next_month_bandwidth_mbps"`
+	Confidence             float64 `json:"confidence"`
+}
+
+// TrendAlert 趋势预警
+type TrendAlert struct {
+	Type       string    `json:"type"`     // capacity, performance, anomaly
+	Severity   string    `json:"severity"` // info, warning, critical
+	Message    string    `json:"message"`
+	Timestamp  time.Time `json:"timestamp"`
+	Value      float64   `json:"value"`
+	Threshold  float64   `json:"threshold"`
+	Suggestion string    `json:"suggestion"`
+}
+
+// ResourceTrendAnalyzer 资源趋势分析器
+type ResourceTrendAnalyzer struct{}
+
+// NewResourceTrendAnalyzer 创建资源趋势分析器
+func NewResourceTrendAnalyzer() *ResourceTrendAnalyzer {
+	return &ResourceTrendAnalyzer{}
+}
+
+// AnalyzeTrend 分析资源使用趋势
+func (a *ResourceTrendAnalyzer) AnalyzeTrend(
+	storageHistory []CapacityHistory,
+	ioHistory []IOHistoryPoint,
+	bandwidthHistory []BandwidthHistoryPoint,
+	volumeName string,
+	period ReportPeriod,
+) *ResourceTrendAnalysis {
+	analysis := &ResourceTrendAnalysis{
+		ID:           "trend_" + time.Now().Format("20060102150405"),
+		VolumeName:   volumeName,
+		GeneratedAt:  time.Now(),
+		Period:       period,
+		Correlations: make([]ResourceCorrelation, 0),
+		Alerts:       make([]TrendAlert, 0),
+	}
+
+	// 分析存储趋势
+	analysis.StorageTrend = a.analyzeStorageTrend(storageHistory)
+
+	// 分析 IO 趋势
+	analysis.IOTrend = a.analyzeIOTrend(ioHistory)
+
+	// 分析带宽趋势
+	analysis.BandwidthTrend = a.analyzeBandwidthTrend(bandwidthHistory)
+
+	// 计算相关性
+	analysis.Correlations = a.calculateCorrelations(storageHistory, ioHistory, bandwidthHistory)
+
+	// 生成预测
+	analysis.Predictions = a.generatePredictions(analysis)
+
+	// 生成预警
+	analysis.Alerts = a.generateAlerts(analysis)
+
+	return analysis
+}
+
+// IOHistoryPoint IO 历史数据点
+type IOHistoryPoint struct {
+	Timestamp    time.Time `json:"timestamp"`
+	ReadIOPS     float64   `json:"read_iops"`
+	WriteIOPS    float64   `json:"write_iops"`
+	ReadLatency  float64   `json:"read_latency_ms"`
+	WriteLatency float64   `json:"write_latency_ms"`
+}
+
+// analyzeStorageTrend 分析存储趋势
+func (a *ResourceTrendAnalyzer) analyzeStorageTrend(history []CapacityHistory) StorageTrendMetrics {
+	metrics := StorageTrendMetrics{
+		TrendDirection: "stable",
+	}
+
+	if len(history) < 2 {
+		return metrics
+	}
+
+	// 计算增长率
+	monthlyGrowth := a.calculateMonthlyGrowth(history)
+	metrics.GrowthRate = round(monthlyGrowth, 2)
+
+	// 计算加速度
+	if len(history) >= 6 {
+		recentGrowth := a.calculateMonthlyGrowth(history[len(history)-3:])
+		olderGrowth := a.calculateMonthlyGrowth(history[:3])
+		metrics.GrowthAcceleration = round(recentGrowth-olderGrowth, 2)
+	}
+
+	// 判断趋势方向
+	if metrics.GrowthRate > 5 {
+		metrics.TrendDirection = "up"
+	} else if metrics.GrowthRate < -5 {
+		metrics.TrendDirection = "down"
+	}
+
+	// 计算波动性
+	metrics.Volatility = round(a.calculateVolatility(history), 2)
+
+	// 预测满容量日期
+	latest := history[len(history)-1]
+	if metrics.GrowthRate > 0 && latest.UsagePercent < 100 {
+		daysToFull := int((100 - latest.UsagePercent) / metrics.GrowthRate * 30)
+		metrics.DaysToFull = daysToFull
+		fullDate := latest.Timestamp.AddDate(0, 0, daysToFull)
+		metrics.ProjectedFullDate = &fullDate
+	}
+
+	return metrics
+}
+
+// analyzeIOTrend 分析 IO 趋势
+func (a *ResourceTrendAnalyzer) analyzeIOTrend(history []IOHistoryPoint) IOTrendMetrics {
+	metrics := IOTrendMetrics{}
+
+	if len(history) == 0 {
+		return metrics
+	}
+
+	var sumRead, sumWrite, peakRead, peakWrite float64
+	for _, h := range history {
+		sumRead += h.ReadIOPS
+		sumWrite += h.WriteIOPS
+		if h.ReadIOPS > peakRead {
+			peakRead = h.ReadIOPS
+		}
+		if h.WriteIOPS > peakWrite {
+			peakWrite = h.WriteIOPS
+		}
+	}
+
+	n := float64(len(history))
+	metrics.AvgReadIOPS = round(sumRead/n, 2)
+	metrics.AvgWriteIOPS = round(sumWrite/n, 2)
+	metrics.PeakReadIOPS = round(peakRead, 2)
+	metrics.PeakWriteIOPS = round(peakWrite, 2)
+
+	// 判断趋势
+	if len(history) >= 3 {
+		recent := history[len(history)-3:]
+		older := history[:3]
+		recentAvg := (recent[0].ReadIOPS + recent[1].ReadIOPS + recent[2].ReadIOPS) / 3
+		olderAvg := (older[0].ReadIOPS + older[1].ReadIOPS + older[2].ReadIOPS) / 3
+
+		if recentAvg > olderAvg*1.1 {
+			metrics.ReadIOPSTrend = "increasing"
+		} else if recentAvg < olderAvg*0.9 {
+			metrics.ReadIOPSTrend = "decreasing"
+		} else {
+			metrics.ReadIOPSTrend = "stable"
+		}
+	}
+
+	return metrics
+}
+
+// analyzeBandwidthTrend 分析带宽趋势
+func (a *ResourceTrendAnalyzer) analyzeBandwidthTrend(history []BandwidthHistoryPoint) BandwidthTrendMetrics {
+	metrics := BandwidthTrendMetrics{}
+
+	if len(history) == 0 {
+		return metrics
+	}
+
+	var sumRead, sumWrite, peakRead, peakWrite float64
+	for _, h := range history {
+		readMbps := float64(h.RxBytes) * 8 / (1024 * 1024)
+		writeMbps := float64(h.TxBytes) * 8 / (1024 * 1024)
+		sumRead += readMbps
+		sumWrite += writeMbps
+		if readMbps > peakRead {
+			peakRead = readMbps
+		}
+		if writeMbps > peakWrite {
+			peakWrite = writeMbps
+		}
+	}
+
+	n := float64(len(history))
+	metrics.AvgReadMbps = round(sumRead/n, 2)
+	metrics.AvgWriteMbps = round(sumWrite/n, 2)
+	metrics.PeakReadMbps = round(peakRead, 2)
+	metrics.PeakWriteMbps = round(peakWrite, 2)
+
+	return metrics
+}
+
+// calculateCorrelations 计算相关性
+func (a *ResourceTrendAnalyzer) calculateCorrelations(
+	storage []CapacityHistory,
+	io []IOHistoryPoint,
+	bandwidth []BandwidthHistoryPoint,
+) []ResourceCorrelation {
+	correlations := make([]ResourceCorrelation, 0)
+
+	// 存储与 IO 相关性（简化计算）
+	if len(storage) >= 3 && len(io) >= 3 {
+		corr := a.pearsonCorrelation(
+			a.extractStorageValues(storage),
+			a.extractIOValues(io),
+		)
+		correlations = append(correlations, ResourceCorrelation{
+			Resource1:    "storage",
+			Resource2:    "iops",
+			Correlation:  round(corr, 3),
+			Significance: a.correlationSignificance(corr),
+		})
+	}
+
+	return correlations
+}
+
+// generatePredictions 生成预测
+func (a *ResourceTrendAnalyzer) generatePredictions(analysis *ResourceTrendAnalysis) ResourcePredictions {
+	predictions := ResourcePredictions{
+		Confidence: 0.7,
+	}
+
+	// 存储预测
+	if analysis.StorageTrend.GrowthRate > 0 {
+		// 基于当前增长预测
+		// 简化计算
+		predictions.NextMonthStorageGB = 1000 // 示例值
+		predictions.NextQuarterStorageGB = 1200
+	}
+
+	return predictions
+}
+
+// generateAlerts 生成预警
+func (a *ResourceTrendAnalyzer) generateAlerts(analysis *ResourceTrendAnalysis) []TrendAlert {
+	alerts := make([]TrendAlert, 0)
+
+	// 容量预警
+	if analysis.StorageTrend.DaysToFull > 0 && analysis.StorageTrend.DaysToFull <= 30 {
+		alerts = append(alerts, TrendAlert{
+			Type:       "capacity",
+			Severity:   "critical",
+			Message:    fmt.Sprintf("预计 %d 天后存储容量将满", analysis.StorageTrend.DaysToFull),
+			Timestamp:  time.Now(),
+			Threshold:  90,
+			Suggestion: "立即执行扩容或数据清理",
+		})
+	} else if analysis.StorageTrend.DaysToFull > 30 && analysis.StorageTrend.DaysToFull <= 90 {
+		alerts = append(alerts, TrendAlert{
+			Type:       "capacity",
+			Severity:   "warning",
+			Message:    fmt.Sprintf("预计 %d 天后存储容量将满", analysis.StorageTrend.DaysToFull),
+			Timestamp:  time.Now(),
+			Threshold:  80,
+			Suggestion: "规划扩容方案",
+		})
+	}
+
+	// 增长异常预警
+	if analysis.StorageTrend.GrowthAcceleration > 5 {
+		alerts = append(alerts, TrendAlert{
+			Type:       "anomaly",
+			Severity:   "warning",
+			Message:    "存储增长加速，请检查是否有异常数据增长",
+			Timestamp:  time.Now(),
+			Threshold:  3,
+			Suggestion: "审查新增数据来源",
+		})
+	}
+
+	return alerts
+}
+
+// 辅助方法
+func (a *ResourceTrendAnalyzer) calculateMonthlyGrowth(history []CapacityHistory) float64 {
+	if len(history) < 2 {
+		return 0
+	}
+
+	first := history[0]
+	last := history[len(history)-1]
+
+	if first.UsedBytes == 0 {
+		return 0
+	}
+
+	// 计算月数
+	months := last.Timestamp.Sub(first.Timestamp).Hours() / (24 * 30)
+	if months == 0 {
+		return 0
+	}
+
+	growth := float64(last.UsedBytes-first.UsedBytes) / float64(first.UsedBytes) * 100 / months
+	return growth
+}
+
+func (a *ResourceTrendAnalyzer) calculateVolatility(history []CapacityHistory) float64 {
+	if len(history) < 2 {
+		return 0
+	}
+
+	var mean, variance float64
+	for _, h := range history {
+		mean += h.UsagePercent
+	}
+	mean /= float64(len(history))
+
+	for _, h := range history {
+		variance += math.Pow(h.UsagePercent-mean, 2)
+	}
+	variance /= float64(len(history))
+
+	return math.Sqrt(variance)
+}
+
+func (a *ResourceTrendAnalyzer) pearsonCorrelation(x, y []float64) float64 {
+	if len(x) != len(y) || len(x) == 0 {
+		return 0
+	}
+
+	n := float64(len(x))
+	var sumX, sumY, sumXY, sumX2, sumY2 float64
+
+	for i := 0; i < len(x); i++ {
+		sumX += x[i]
+		sumY += y[i]
+		sumXY += x[i] * y[i]
+		sumX2 += x[i] * x[i]
+		sumY2 += y[i] * y[i]
+	}
+
+	num := n*sumXY - sumX*sumY
+	den := math.Sqrt((n*sumX2 - sumX*sumX) * (n*sumY2 - sumY*sumY))
+
+	if den == 0 {
+		return 0
+	}
+
+	return num / den
+}
+
+func (a *ResourceTrendAnalyzer) extractStorageValues(history []CapacityHistory) []float64 {
+	values := make([]float64, len(history))
+	for i, h := range history {
+		values[i] = float64(h.UsedBytes)
+	}
+	return values
+}
+
+func (a *ResourceTrendAnalyzer) extractIOValues(history []IOHistoryPoint) []float64 {
+	values := make([]float64, len(history))
+	for i, h := range history {
+		values[i] = h.ReadIOPS + h.WriteIOPS
+	}
+	return values
+}
+
+func (a *ResourceTrendAnalyzer) correlationSignificance(corr float64) string {
+	absCorr := math.Abs(corr)
+	if absCorr >= 0.7 {
+		return "strong"
+	} else if absCorr >= 0.4 {
+		return "moderate"
+	}
+	return "weak"
+}
+
+// ========== 辅助类型 ==========
+
+// SeasonalityDetector 季节性检测器
+type SeasonalityDetector struct{}
+
+// NewSeasonalityDetector 创建季节性检测器
+func NewSeasonalityDetector() *SeasonalityDetector {
+	return &SeasonalityDetector{}
+}
+
+// Analyze 分析季节性
+func (d *SeasonalityDetector) Analyze(history []CostTrendDataPoint) *SeasonalityAnalysis {
+	analysis := &SeasonalityAnalysis{
+		HasSeasonality: false,
+	}
+
+	if len(history) < 12 {
+		return analysis
+	}
+
+	// 简化的季节性检测
+	// 检查是否有月度周期性
+	monthlyPattern := d.detectMonthlyPattern(history)
+	if monthlyPattern > 0.3 {
+		analysis.HasSeasonality = true
+		analysis.Pattern = "monthly"
+		analysis.Strength = monthlyPattern
+		analysis.CycleLength = 30
+	}
+
+	return analysis
+}
+
+func (d *SeasonalityDetector) detectMonthlyPattern(history []CostTrendDataPoint) float64 {
+	// 简化：检测是否有月度周期
+	// 实际实现需要更复杂的傅里叶分析或自相关分析
+	return 0
+}
+
+// AnomalyDetector 异常检测器
+type AnomalyDetector struct{}
+
+// NewAnomalyDetector 创建异常检测器
+func NewAnomalyDetector() *AnomalyDetector {
+	return &AnomalyDetector{}
+}
+
+// Detect 检测异常点
+func (d *AnomalyDetector) Detect(history []CostTrendDataPoint) []CostAnomaly {
+	anomalies := make([]CostAnomaly, 0)
+
+	if len(history) < 5 {
+		return anomalies
+	}
+
+	// 计算均值和标准差
+	var mean, std float64
+	for _, h := range history {
+		mean += h.TotalCost
+	}
+	mean /= float64(len(history))
+
+	for _, h := range history {
+		std += math.Pow(h.TotalCost-mean, 2)
+	}
+	std = math.Sqrt(std / float64(len(history)))
+
+	// 检测异常（超过2个标准差）
+	threshold := 2 * std
+	for _, h := range history {
+		deviation := math.Abs(h.TotalCost - mean)
+		if deviation > threshold {
+			severity := "low"
+			if deviation > 3*std {
+				severity = "high"
+			} else if deviation > 2.5*std {
+				severity = "medium"
+			}
+
+			anomalies = append(anomalies, CostAnomaly{
+				Timestamp:     h.Timestamp,
+				ActualCost:    h.TotalCost,
+				ExpectedCost:  round(mean, 2),
+				Deviation:     round(deviation/std, 2),
+				Severity:      severity,
+				PossibleCause: "成本异常波动",
+			})
+		}
+	}
+
+	return anomalies
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// getPriority 获取优先级
+func getPriority(threshold float64) string {
+	if threshold >= 80 {
+		return "high"
+	}
+	return "medium"
+}

@@ -287,9 +287,9 @@ func TestEnhancedWebSocketHubQueueStats(t *testing.T) {
 // TestBroadcastConfig tests broadcast configuration
 func TestBroadcastConfig(t *testing.T) {
 	config := BroadcastConfig{
-		BatchSize:     50,
-		BatchTimeout:  5 * time.Millisecond,
-		WorkerCount:   2,
+		BatchSize:    50,
+		BatchTimeout: 5 * time.Millisecond,
+		WorkerCount:  2,
 	}
 
 	if config.BatchSize != 50 {

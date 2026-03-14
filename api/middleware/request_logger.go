@@ -3,6 +3,7 @@ package middleware
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/json"
 	"io"
 	"log"
@@ -304,8 +305,18 @@ func RequestIDMiddleware() gin.HandlerFunc {
 func generateRequestID() string {
 	const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, 16)
-	for i := range b {
-		b[i] = chars[time.Now().UnixNano()%int64(len(chars))]
+	// Use crypto/rand for better randomness
+	_, err := rand.Read(b)
+	if err != nil {
+		// Fallback to timestamp-based ID (should rarely happen)
+		t := time.Now().UnixNano()
+		for i := range b {
+			b[i] = chars[int(t+int64(i))%len(chars)]
+		}
+	} else {
+		for i := range b {
+			b[i] = chars[int(b[i])%len(chars)]
+		}
 	}
 	return string(b)
 }

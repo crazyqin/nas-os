@@ -17,49 +17,49 @@ import (
 type ChartType string
 
 const (
-	ChartTypeBar     ChartType = "bar"     // 柱状图
-	ChartTypeLine    ChartType = "line"    // 折线图
-	ChartTypePie     ChartType = "pie"     // 饼图
-	ChartTypeArea    ChartType = "area"    // 面积图
-	ChartTypeScatter ChartType = "scatter" // 散点图
+	ChartTypeBar      ChartType = "bar"      // 柱状图
+	ChartTypeLine     ChartType = "line"     // 折线图
+	ChartTypePie      ChartType = "pie"      // 饼图
+	ChartTypeArea     ChartType = "area"     // 面积图
+	ChartTypeScatter  ChartType = "scatter"  // 散点图
 	ChartTypeDoughnut ChartType = "doughnut" // 环形图
 )
 
 // ExcelStyleTemplate Excel 样式模板
 type ExcelStyleTemplate struct {
-	ID          string                    `json:"id"`
-	Name        string                    `json:"name"`
-	Description string                    `json:"description"`
-	Header      ExcelCellStyle            `json:"header"`
-	Data        ExcelCellStyle            `json:"data"`
-	Summary     ExcelCellStyle            `json:"summary"`
-	Title       ExcelCellStyle            `json:"title"`
-	Colors      ExcelColorScheme          `json:"colors"`
-	Fonts       ExcelFontScheme           `json:"fonts"`
-	Borders     ExcelBorderScheme         `json:"borders"`
-	NumberFormats map[string]string       `json:"number_formats"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	Description   string            `json:"description"`
+	Header        ExcelCellStyle    `json:"header"`
+	Data          ExcelCellStyle    `json:"data"`
+	Summary       ExcelCellStyle    `json:"summary"`
+	Title         ExcelCellStyle    `json:"title"`
+	Colors        ExcelColorScheme  `json:"colors"`
+	Fonts         ExcelFontScheme   `json:"fonts"`
+	Borders       ExcelBorderScheme `json:"borders"`
+	NumberFormats map[string]string `json:"number_formats"`
 }
 
 // ExcelCellStyle 单元格样式
 type ExcelCellStyle struct {
-	Font      *ExcelFontConfig  `json:"font,omitempty"`
-	Fill      *ExcelFillConfig  `json:"fill,omitempty"`
+	Font      *ExcelFontConfig      `json:"font,omitempty"`
+	Fill      *ExcelFillConfig      `json:"fill,omitempty"`
 	Alignment *ExcelAlignmentConfig `json:"alignment,omitempty"`
-	Border    *ExcelBorderConfig `json:"border,omitempty"`
+	Border    *ExcelBorderConfig    `json:"border,omitempty"`
 }
 
 // ExcelFontConfig 字体配置
 type ExcelFontConfig struct {
-	Family  string `json:"family,omitempty"`
-	Size    float64 `json:"size,omitempty"`
-	Bold    bool   `json:"bold,omitempty"`
-	Italic  bool   `json:"italic,omitempty"`
-	Color   string `json:"color,omitempty"`
+	Family string  `json:"family,omitempty"`
+	Size   float64 `json:"size,omitempty"`
+	Bold   bool    `json:"bold,omitempty"`
+	Italic bool    `json:"italic,omitempty"`
+	Color  string  `json:"color,omitempty"`
 }
 
 // ExcelFillConfig 填充配置
 type ExcelFillConfig struct {
-	Type    string   `json:"type,omitempty"`    // pattern, gradient
+	Type    string   `json:"type,omitempty"` // pattern, gradient
 	Color   []string `json:"color,omitempty"`
 	Pattern int      `json:"pattern,omitempty"`
 }
@@ -73,7 +73,7 @@ type ExcelAlignmentConfig struct {
 
 // ExcelBorderConfig 边框配置
 type ExcelBorderConfig struct {
-	Type  string `json:"type,omitempty"`  // left, right, top, bottom
+	Type  string `json:"type,omitempty"` // left, right, top, bottom
 	Style int    `json:"style,omitempty"`
 	Color string `json:"color,omitempty"`
 }
@@ -91,8 +91,8 @@ type ExcelColorScheme struct {
 
 // ExcelFontScheme 字体方案
 type ExcelFontScheme struct {
-	Title    string  `json:"title"`
-	Body     string  `json:"body"`
+	Title     string  `json:"title"`
+	Body      string  `json:"body"`
 	TitleSize float64 `json:"title_size"`
 	BodySize  float64 `json:"body_size"`
 }
@@ -106,48 +106,48 @@ type ExcelBorderScheme struct {
 
 // ChartConfig 图表配置
 type ChartConfig struct {
-	Type        ChartType           `json:"type"`
-	Title       string              `json:"title"`
-	XAxis       string              `json:"x_axis"`
-	YAxis       string              `json:"y_axis"`
-	DataRange   string              `json:"data_range"`
-	CategoryRange string            `json:"category_range"`
-	Series      []ChartSeriesConfig `json:"series"`
-	ShowLegend  bool                `json:"show_legend"`
-	LegendPosition string            `json:"legend_position"`
-	ShowValues  bool                `json:"show_values"`
-	Width       float64             `json:"width"`
-	Height      float64             `json:"height"`
+	Type           ChartType           `json:"type"`
+	Title          string              `json:"title"`
+	XAxis          string              `json:"x_axis"`
+	YAxis          string              `json:"y_axis"`
+	DataRange      string              `json:"data_range"`
+	CategoryRange  string              `json:"category_range"`
+	Series         []ChartSeriesConfig `json:"series"`
+	ShowLegend     bool                `json:"show_legend"`
+	LegendPosition string              `json:"legend_position"`
+	ShowValues     bool                `json:"show_values"`
+	Width          float64             `json:"width"`
+	Height         float64             `json:"height"`
 }
 
 // ChartSeriesConfig 图表系列配置
 type ChartSeriesConfig struct {
-	Name       string `json:"name"`
-	DataRange  string `json:"data_range"`
-	Color      string `json:"color,omitempty"`
-	LineStyle  string `json:"line_style,omitempty"` // solid, dash, dot
-	Marker     string `json:"marker,omitempty"`     // circle, square, triangle
+	Name      string `json:"name"`
+	DataRange string `json:"data_range"`
+	Color     string `json:"color,omitempty"`
+	LineStyle string `json:"line_style,omitempty"` // solid, dash, dot
+	Marker    string `json:"marker,omitempty"`     // circle, square, triangle
 }
 
 // SheetConfig 工作表配置
 type SheetConfig struct {
-	Name        string         `json:"name"`
-	Title       string         `json:"title,omitempty"`
-	Fields      []string       `json:"fields,omitempty"`
+	Name        string           `json:"name"`
+	Title       string           `json:"title,omitempty"`
+	Fields      []string         `json:"fields,omitempty"`
 	Filters     []TemplateFilter `json:"filters,omitempty"`
-	Charts      []ChartConfig  `json:"charts,omitempty"`
-	Conditional bool           `json:"conditional"`
-	FrozenRows  int            `json:"frozen_rows"`
-	FrozenCols  int            `json:"frozen_cols"`
-	AutoWidth   bool           `json:"auto_width"`
+	Charts      []ChartConfig    `json:"charts,omitempty"`
+	Conditional bool             `json:"conditional"`
+	FrozenRows  int              `json:"frozen_rows"`
+	FrozenCols  int              `json:"frozen_cols"`
+	AutoWidth   bool             `json:"auto_width"`
 }
 
 // MultiSheetConfig 多工作表配置
 type MultiSheetConfig struct {
-	Sheets       []SheetConfig      `json:"sheets"`
-	StyleTemplate string            `json:"style_template,omitempty"`
-	GlobalCharts  []ChartConfig     `json:"global_charts,omitempty"`
-	CreateSummary bool              `json:"create_summary"`
+	Sheets        []SheetConfig `json:"sheets"`
+	StyleTemplate string        `json:"style_template,omitempty"`
+	GlobalCharts  []ChartConfig `json:"global_charts,omitempty"`
+	CreateSummary bool          `json:"create_summary"`
 }
 
 // ExcelExporter Excel 导出器
@@ -983,8 +983,8 @@ func (a *AdvancedExcelExporter) registerBuiltinTemplates() {
 		Name:        "默认蓝色主题",
 		Description: "简洁的蓝色主题，适合通用报表",
 		Header: ExcelCellStyle{
-			Font: &ExcelFontConfig{Bold: true, Size: 11, Color: "#FFFFFF"},
-			Fill: &ExcelFillConfig{Type: "pattern", Color: []string{"#4472C4"}, Pattern: 1},
+			Font:      &ExcelFontConfig{Bold: true, Size: 11, Color: "#FFFFFF"},
+			Fill:      &ExcelFillConfig{Type: "pattern", Color: []string{"#4472C4"}, Pattern: 1},
 			Alignment: &ExcelAlignmentConfig{Horizontal: "center", Vertical: "center"},
 		},
 		Colors: ExcelColorScheme{
@@ -1000,8 +1000,8 @@ func (a *AdvancedExcelExporter) registerBuiltinTemplates() {
 		Name:        "专业绿色主题",
 		Description: "专业的绿色主题，适合财务报表",
 		Header: ExcelCellStyle{
-			Font: &ExcelFontConfig{Bold: true, Size: 11, Color: "#FFFFFF"},
-			Fill: &ExcelFillConfig{Type: "pattern", Color: []string{"#548235"}, Pattern: 1},
+			Font:      &ExcelFontConfig{Bold: true, Size: 11, Color: "#FFFFFF"},
+			Fill:      &ExcelFillConfig{Type: "pattern", Color: []string{"#548235"}, Pattern: 1},
 			Alignment: &ExcelAlignmentConfig{Horizontal: "center", Vertical: "center"},
 		},
 		Colors: ExcelColorScheme{
@@ -1017,8 +1017,8 @@ func (a *AdvancedExcelExporter) registerBuiltinTemplates() {
 		Name:        "简约灰色主题",
 		Description: "简约的灰色主题，适合数据分析",
 		Header: ExcelCellStyle{
-			Font: &ExcelFontConfig{Bold: true, Size: 11, Color: "#333333"},
-			Fill: &ExcelFillConfig{Type: "pattern", Color: []string{"#E8E8E8"}, Pattern: 1},
+			Font:      &ExcelFontConfig{Bold: true, Size: 11, Color: "#333333"},
+			Fill:      &ExcelFillConfig{Type: "pattern", Color: []string{"#E8E8E8"}, Pattern: 1},
 			Alignment: &ExcelAlignmentConfig{Horizontal: "center", Vertical: "center"},
 		},
 		Colors: ExcelColorScheme{
@@ -1278,7 +1278,7 @@ func (a *AdvancedExcelExporter) writeSheetData(f *excelize.File, config SheetCon
 // createSummarySheet 创建汇总表
 func (a *AdvancedExcelExporter) createSummarySheet(f *excelize.File, sheet string, report *GeneratedReport, tmpl *ExcelStyleTemplate) error {
 	titleStyleID, _ := f.NewStyle(&excelize.Style{
-		Font: &excelize.Font{Bold: true, Size: 16},
+		Font:      &excelize.Font{Bold: true, Size: 16},
 		Alignment: &excelize.Alignment{Horizontal: "center"},
 	})
 
@@ -1352,10 +1352,10 @@ func (a *AdvancedExcelExporter) createChart(f *excelize.File, chartSheet, dataSh
 
 	// 创建图表
 	chart := &excelize.Chart{
-		Type:    chartType,
-		Series:  series,
-		Title:   []excelize.RichTextRun{{Text: config.Title}},
-		Legend:  excelize.ChartLegend{Position: config.LegendPosition},
+		Type:   chartType,
+		Series: series,
+		Title:  []excelize.RichTextRun{{Text: config.Title}},
+		Legend: excelize.ChartLegend{Position: config.LegendPosition},
 		PlotArea: excelize.ChartPlotArea{
 			ShowVal: config.ShowValues,
 		},
@@ -1523,5 +1523,3 @@ func (a *AdvancedExcelExporter) ListStyleTemplates() []*ExcelStyleTemplate {
 	}
 	return templates
 }
-
-

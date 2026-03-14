@@ -353,9 +353,9 @@ type BroadcastConfig struct {
 
 // DefaultBroadcastConfig default broadcast configuration
 var DefaultBroadcastConfig = BroadcastConfig{
-	BatchSize:     100,
+	BatchSize:    100,
 	BatchTimeout: 10 * time.Millisecond,
-	WorkerCount:   4,
+	WorkerCount:  4,
 }
 
 // EnhancedClient 增强版 WebSocket 客户端
@@ -407,13 +407,13 @@ type EnhancedWebSocketHub struct {
 	mu           sync.RWMutex
 
 	// 配置
-	heartbeatConfig  HeartbeatConfig
-	reconnectConfig  ReconnectConfig
-	broadcastConfig  BroadcastConfig
+	heartbeatConfig HeartbeatConfig
+	reconnectConfig ReconnectConfig
+	broadcastConfig BroadcastConfig
 
 	// 房间管理
-	rooms      map[string]*Room
-	roomMu     sync.RWMutex
+	rooms  map[string]*Room
+	roomMu sync.RWMutex
 
 	// 消息队列
 	messageQueue *MessageQueue
@@ -906,9 +906,9 @@ func (h *EnhancedWebSocketHub) GetRoomStats() []RoomStats {
 // GetQueueStats returns message queue statistics
 func (h *EnhancedWebSocketHub) GetQueueStats() map[string]interface{} {
 	return map[string]interface{}{
-		"size":     h.messageQueue.Size(),
-		"maxSize":  h.messageQueue.config.MaxSize,
-		"ttl":      h.messageQueue.config.TTL.String(),
+		"size":    h.messageQueue.Size(),
+		"maxSize": h.messageQueue.config.MaxSize,
+		"ttl":     h.messageQueue.config.TTL.String(),
 	}
 }
 
@@ -1288,7 +1288,13 @@ func (c *EnhancedClient) Close() {
 		c.Connection.Close()
 		c.Connection = nil
 	}
-	close(c.Send)
+	// Only close channel once
+	select {
+	case <-c.Send:
+		// Already closed
+	default:
+		close(c.Send)
+	}
 	c.mu.Unlock()
 
 	c.wg.Wait()
