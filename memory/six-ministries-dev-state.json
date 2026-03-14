@@ -1,0 +1,58 @@
+{
+  "lastUpdate": "2026-03-14T16:03:00Z",
+  "version": "v2.25.0",
+  "status": "released",
+  "changes": {
+    "code": [
+      {
+        "file": "internal/photos/ai.go",
+        "change": "实现回忆数据持久化存储",
+        "ministry": "兵部"
+      }
+    ],
+    "docs": [
+      {
+        "file": "CHANGELOG.md",
+        "change": "新增 v2.25.0 版本日志",
+        "ministry": "礼部"
+      },
+      {
+        "file": "docs/API_GUIDE.md",
+        "change": "版本号更新",
+        "ministry": "礼部"
+      },
+      {
+        "file": "docs/USER_GUIDE.md",
+        "change": "版本号更新",
+        "ministry": "礼部"
+      },
+      {
+        "file": "docs/PHOTOS_API.md",
+        "change": "版本号更新",
+        "ministry": "礼部"
+      },
+      {
+        "file": "docs/NETWORK_API.md",
+        "change": "版本号更新",
+        "ministry": "礼部"
+      }
+    ]
+  },
+  "securityAudit": {
+    "highRisk": 1,
+    "mediumRisk": 3,
+    "lowRisk": 2,
+    "keyIssues": [
+      "CSRF Key 硬编码默认值",
+      "路径遍历防护可绕过",
+      "部分 API 路由缺少认证中间件",
+      "密码最小长度限制较弱"
+    ]
+  },
+  "nextVersion": "v2.26.0",
+  "plannedFeatures": [
+    "Media 媒体库增强",
+    "下载器模块完善",
+    "测试覆盖率提升至 50%+"
+  ]
+}
