@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.38.0 Stable (2026-03-15)
+> **最新版本**: v2.40.0 Stable (2026-03-15)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.38.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.40.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -62,17 +62,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.38.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.40.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.38.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.40.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.38.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.40.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -84,7 +84,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.38.0
+docker pull ghcr.io/crazyqin/nas-os:v2.40.0
 
 # 运行容器
 docker run -d \
@@ -93,7 +93,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.38.0
+  ghcr.io/crazyqin/nas-os:v2.40.0
 
 # 查看日志
 docker logs -f nasd
@@ -256,6 +256,24 @@ nas-os/
 | **v2.36.0** | **Stable** | **2026-03-15** | **i18n框架/API中间件/成本分析** | ✅ 已发布 |
 | **v2.37.0** | **Stable** | **2026-03-15** | **国际化补全/CI优化/文档更新** | ✅ 已发布 |
 | **v2.38.0** | **Stable** | **2026-03-15** | **文档同步/版本号更新** | ✅ 已发布 |
+| **v2.39.0** | **Stable** | **2026-03-15** | **项目治理/文档体系完善** | ✅ 已发布 |
+| **v2.40.0** | **Stable** | **2026-03-15** | **安全审计/并发修复/CI优化** | ✅ 已发布 |
+
+## v2.40.0 新增功能
+
+| 功能 | 说明 |
+|------|------|
+| 🛡️ 安全审计系统 | 9 项安全检查，完整测试覆盖 |
+| 🔧 并发安全修复 | WebSocket、Response、LDAP 等模块修复 |
+| 🚀 CI/CD 优化 | 超时配置、测试并行化、健康检查修复 |
+| 📊 配额管理优化 | 成本计算验证、资源效率分析 |
+
+## v2.39.0 新增功能
+
+| 功能 | 说明 |
+|------|------|
+| 📚 项目治理完善 | 版本号统一、CHANGELOG 规范化 |
+| 📖 文档体系完善 | 文档结构优化、发布说明完善 |
 
 ## v2.38.0 新增功能
 

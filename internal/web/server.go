@@ -25,6 +25,7 @@ import (
 	"nas-os/internal/perf"
 	"nas-os/internal/photos"
 	"nas-os/internal/plugin"
+	"nas-os/internal/project"
 	"nas-os/internal/quota"
 	"nas-os/internal/replication"
 	sftp "nas-os/internal/sftp"
@@ -78,6 +79,7 @@ type Server struct {
 	rbacMgr       *auth.RBACManager
 	monitorMgr    *monitor.Manager
 	optimizer     *optimizer.PerformanceOptimizer
+	projectMgr    *project.Manager
 	trashMgr      *trash.Manager
 	replMgr       *replication.Manager
 	webdavSrv     *webdav.Server
@@ -324,6 +326,10 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		log.Println("✅ iSCSI 目标管理模块就绪")
 	}
 
+	// 初始化项目管理器
+	projectMgr := project.NewManager()
+	log.Println("✅ 项目管理模块就绪")
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -361,7 +367,8 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 			mgr, _ := monitor.NewManager()
 			return mgr
 		}(),
-		optimizer: optimizer.NewOptimizer(nil, logger),
+		optimizer:  optimizer.NewOptimizer(nil, logger),
+		projectMgr: projectMgr,
 		trashMgr: func() *trash.Manager {
 			mgr, _ := trash.NewManager("/etc/nas-os/trash.json", "/var/lib/nas-os/trash", nil)
 			return mgr
@@ -683,6 +690,11 @@ func (s *Server) setupRoutes() {
 			api.GET("/vm-pci-devices", func(c *gin.Context) {
 				vmHandler.HandlePCIDevices(c.Writer, c.Request)
 			})
+		}
+
+		// ========== 项目管理 ==========
+		if s.projectMgr != nil {
+			project.NewHandlers(s.projectMgr).RegisterRoutes(api)
 		}
 
 		// ========== 媒体中心 ==========
