@@ -4,7 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [v2.7.0] - 2026-03-14
 
-### Changed
+### Added
+- **测试覆盖完善**
+  - API 端点集成测试 (`tests/integration/api_endpoints_test.go`)
+    - 系统端点测试 (health, system/info)
+    - 存储端点测试 (volumes, subvolumes, snapshots)
+    - 用户端点测试 (CRUD 操作)
+    - 认证端点测试 (login, logout, refresh)
+    - 配额、共享、备份、去重、搜索、监控等端点测试
+    - 分层存储、压缩存储、WebDAV/FTP/iSCSI 端点测试
+    - 容器和插件端点测试
+    - 并发请求和错误处理测试
+
+  - WebUI 端到端测试 (`tests/e2e/webui_test.go`)
+    - 仪表板、存储管理、用户管理、权限管理测试
+    - 系统设置、日志查看、服务管理测试
+    - 分层存储可视化、压缩管理、性能监控测试
+    - 告警管理、完整工作流、响应时间测试
+
+  - 性能基准测试 (`tests/benchmark/performance_test.go`)
+    - 版本信息、存储操作、缓存操作基准测试
+    - JSON 序列化、HTTP API、并发基准测试
+    - 内存分配基准测试
+
 - **Dockerfile 优化**
   - 使用 golang:1.24-alpine 构建镜像
   - 添加 UPX 二进制压缩，镜像大小减少约 15%
