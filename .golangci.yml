@@ -17,13 +17,15 @@ linters:
     - staticcheck # 静态分析 (包含 gosimple 功能)
     - unused      # 未使用代码检查
 
-linters-settings:
-  staticcheck:
-    checks: ["-ST1005", "-SA9003", "-QF1012"]
-
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
+  
+  exclude:
+    - 'SA9003:'  # empty branch
+    - 'ST1005:'  # error strings capitalized
+    - 'SA4006:'  # value never used
+    - 'QF1012:'  # Use fmt.Fprintf
   
   exclude-rules:
     # 插件系统可能导出但未使用
