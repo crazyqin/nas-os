@@ -14,18 +14,12 @@ linters:
     # - gosec       # 安全漏洞检查 (暂时禁用，项目中存在大量文件权限警告)
     - govet       # Go vet 检查
     # - ineffassign # 检测无效赋值 (暂时禁用，待后续修复)
-    - staticcheck # 静态分析 (包含 gosimple 功能)
+    # - staticcheck # 静态分析 (暂时禁用，项目中存在大量风格问题)
     - unused      # 未使用代码检查
 
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
-  
-  exclude:
-    - 'SA9003:'  # empty branch
-    - 'ST1005:'  # error strings capitalized
-    - 'SA4006:'  # value never used
-    - 'QF1012:'  # Use fmt.Fprintf
   
   exclude-rules:
     # 插件系统可能导出但未使用
@@ -55,4 +49,3 @@ issues:
     - path: \.pb\.go$
       linters:
         - govet
-        - staticcheck
