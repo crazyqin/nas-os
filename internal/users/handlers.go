@@ -95,6 +95,18 @@ type SetRoleRequest struct {
 
 // ========== 用户管理 API ==========
 
+// listUsers 列出所有用户
+// @Summary 列出所有用户
+// @Description 获取系统中所有用户列表，支持按角色筛选
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param role query string false "按角色筛选 (admin/user/guest)"
+// @Success 200 {object} apiresponse.Response{data=[]User} "成功"
+// @Failure 401 {object} apiresponse.Response "未认证"
+// @Failure 403 {object} apiresponse.Response "权限不足"
+// @Router /users [get]
+// @Security BearerAuth
 func (h *Handlers) listUsers(c *gin.Context) {
 	// 支持按角色筛选
 	role := c.Query("role")
@@ -108,6 +120,19 @@ func (h *Handlers) listUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, apiresponse.Success(users))
 }
 
+// createUser 创建用户
+// @Summary 创建用户
+// @Description 创建新的系统用户
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body UserInput true "用户信息"
+// @Success 201 {object} apiresponse.Response{data=User} "创建成功"
+// @Failure 400 {object} apiresponse.Response "请求参数错误"
+// @Failure 409 {object} apiresponse.Response "用户已存在"
+// @Failure 500 {object} apiresponse.Response "服务器内部错误"
+// @Router /users [post]
+// @Security BearerAuth
 func (h *Handlers) createUser(c *gin.Context) {
 	var req UserInput
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -128,6 +153,17 @@ func (h *Handlers) createUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, apiresponse.Success(user))
 }
 
+// getUser 获取用户详情
+// @Summary 获取用户详情
+// @Description 获取指定用户的详细信息
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param username path string true "用户名"
+// @Success 200 {object} apiresponse.Response{data=User} "成功"
+// @Failure 404 {object} apiresponse.Response "用户不存在"
+// @Router /users/{username} [get]
+// @Security BearerAuth
 func (h *Handlers) getUser(c *gin.Context) {
 	username := c.Param("username")
 	user, err := h.manager.GetUser(username)
@@ -138,6 +174,20 @@ func (h *Handlers) getUser(c *gin.Context) {
 	c.JSON(http.StatusOK, apiresponse.Success(user))
 }
 
+// updateUser 更新用户信息
+// @Summary 更新用户信息
+// @Description 更新指定用户的信息
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param username path string true "用户名"
+// @Param request body UserInput true "用户信息"
+// @Success 200 {object} apiresponse.Response{data=User} "更新成功"
+// @Failure 400 {object} apiresponse.Response "请求参数错误"
+// @Failure 404 {object} apiresponse.Response "用户不存在"
+// @Failure 500 {object} apiresponse.Response "服务器内部错误"
+// @Router /users/{username} [put]
+// @Security BearerAuth
 func (h *Handlers) updateUser(c *gin.Context) {
 	username := c.Param("username")
 	var req UserInput
@@ -159,6 +209,19 @@ func (h *Handlers) updateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, apiresponse.Success(user))
 }
 
+// deleteUser 删除用户
+// @Summary 删除用户
+// @Description 删除指定的系统用户
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param username path string true "用户名"
+// @Success 200 {object} apiresponse.Response "删除成功"
+// @Failure 403 {object} apiresponse.Response "禁止删除管理员或最后一个管理员"
+// @Failure 404 {object} apiresponse.Response "用户不存在"
+// @Failure 500 {object} apiresponse.Response "服务器内部错误"
+// @Router /users/{username} [delete]
+// @Security BearerAuth
 func (h *Handlers) deleteUser(c *gin.Context) {
 	username := c.Param("username")
 	if err := h.manager.DeleteUser(username); err != nil {
@@ -384,6 +447,17 @@ func (h *Handlers) getGroupUsers(c *gin.Context) {
 
 // ========== 认证 API ==========
 
+// login 用户登录
+// @Summary 用户登录
+// @Description 用户登录认证，支持 MFA 二次验证
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "登录凭证"
+// @Success 200 {object} apiresponse.Response{data=LoginResponse} "登录成功"
+// @Failure 400 {object} apiresponse.Response "请求参数错误"
+// @Failure 401 {object} apiresponse.Response "用户名或密码错误"
+// @Router /login [post]
 func (h *Handlers) login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -449,6 +523,15 @@ func (h *Handlers) login(c *gin.Context) {
 	}))
 }
 
+// logout 用户登出
+// @Summary 用户登出
+// @Description 注销当前会话，使 Token 失效
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} apiresponse.Response "登出成功"
+// @Router /logout [post]
+// @Security BearerAuth
 func (h *Handlers) logout(c *gin.Context) {
 	tokenStr := c.GetHeader("Authorization")
 	if tokenStr != "" {
@@ -457,6 +540,16 @@ func (h *Handlers) logout(c *gin.Context) {
 	c.JSON(http.StatusOK, apiresponse.Success(nil))
 }
 
+// refreshToken 刷新令牌
+// @Summary 刷新令牌
+// @Description 使用当前 Token 获取新的 Token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} apiresponse.Response{data=map[string]string} "刷新成功"
+// @Failure 401 {object} apiresponse.Response "认证失败"
+// @Router /refresh [post]
+// @Security BearerAuth
 func (h *Handlers) refreshToken(c *gin.Context) {
 	tokenStr := c.GetHeader("Authorization")
 	if tokenStr == "" {

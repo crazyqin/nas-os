@@ -1,7 +1,11 @@
 # NAS-OS Alertmanager 配置
-# v2.31.0 - 支持多种通知渠道
+# v2.33.0 - 支持多种通知渠道
 #
 # 更新日志：
+# v2.33.0:
+# - 添加容器和 RAID 告警路由
+# - 优化通知模板
+# v2.31.0:
 # - 添加按组件分组路由
 # - 添加存储/备份/安全专用通知渠道
 # - 优化抑制规则
@@ -81,6 +85,20 @@ route:
       group_wait: 10s
       repeat_interval: 30m
 
+    # 容器告警
+    - match:
+        component: container
+      receiver: 'container-alerts'
+      group_by: ['alertname', 'name']
+      repeat_interval: 1h
+
+    # RAID 告警
+    - match:
+        component: raid
+      receiver: 'storage-alerts'
+      group_by: ['alertname', 'device']
+      repeat_interval: 1h
+
 # 接收者配置
 receivers:
   # 默认接收者
@@ -157,6 +175,17 @@ receivers:
         headers:
           Subject: '[安全] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
 
+  # 容器告警接收者
+  - name: 'container-alerts'
+    webhook_configs:
+      - url: 'http://nasd:8080/api/v1/alerts/webhook'
+        send_resolved: true
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[容器] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+
 # 静默规则（临时禁用告警）
 # 示例：维护期间静默
 # amtool silence add alertname=NasOsDown instance=nas-server --duration=2h
@@ -193,3 +222,24 @@ inhibit_rules:
     target_match:
       severity: warning
       alertname: 'MemoryUsageWarning'
+  
+  # RAID 降级时抑制重建警告
+  - source_match:
+      alertname: 'RaidArrayDegraded'
+    target_match:
+      alertname: 'RaidRebuilding'
+    equal: ['device']
+  
+  # 容器 OOM 时抑制内存警告
+  - source_match:
+      alertname: 'ContainerOomRisk'
+    target_match:
+      alertname: 'ContainerMemoryUsageHigh'
+    equal: ['name']
+  
+  # SMART 严重告警时抑制其他磁盘警告
+  - source_match:
+      alertname: 'SmartHealthWarning'
+    target_match_re:
+      alertname: '(SmartReallocatedSectors|SmartPendingSectors)'
+    equal: ['device']

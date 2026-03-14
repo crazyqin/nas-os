@@ -58,6 +58,15 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 }
 
 // getSystemStats 获取系统统计信息
+// @Summary 获取系统统计信息
+// @Description 获取 CPU、内存、负载等系统运行状态
+// @Tags monitor
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "成功"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /monitor/system [get]
+// @Security BearerAuth
 func (h *Handlers) getSystemStats(c *gin.Context) {
 	stats, err := h.manager.GetSystemStats()
 	if err != nil {
@@ -76,6 +85,15 @@ func (h *Handlers) getSystemStats(c *gin.Context) {
 }
 
 // getDiskStats 获取磁盘统计信息
+// @Summary 获取磁盘统计信息
+// @Description 获取所有磁盘的使用情况、IO 状态等信息
+// @Tags monitor
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "成功"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /monitor/disks [get]
+// @Security BearerAuth
 func (h *Handlers) getDiskStats(c *gin.Context) {
 	stats, err := h.manager.GetDiskStats()
 	if err != nil {
@@ -94,6 +112,15 @@ func (h *Handlers) getDiskStats(c *gin.Context) {
 }
 
 // getNetworkStats 获取网络统计信息
+// @Summary 获取网络统计信息
+// @Description 获取网络接口流量、连接数等统计信息
+// @Tags monitor
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "成功"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /monitor/network [get]
+// @Security BearerAuth
 func (h *Handlers) getNetworkStats(c *gin.Context) {
 	stats, err := h.manager.GetNetworkStats()
 	if err != nil {
@@ -112,6 +139,17 @@ func (h *Handlers) getNetworkStats(c *gin.Context) {
 }
 
 // getSMARTInfo 获取 SMART 信息
+// @Summary 获取 SMART 信息
+// @Description 获取指定磁盘的 SMART 健康信息
+// @Tags monitor
+// @Accept json
+// @Produce json
+// @Param device path string true "磁盘设备名 (如 sda, nvme0n1)"
+// @Success 200 {object} map[string]interface{} "成功"
+// @Failure 400 {object} map[string]interface{} "参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /monitor/smart/{device} [get]
+// @Security BearerAuth
 func (h *Handlers) getSMARTInfo(c *gin.Context) {
 	device := c.Param("device")
 	if device == "" {
@@ -157,6 +195,16 @@ func (h *Handlers) checkAllDisks(c *gin.Context) {
 }
 
 // getAlerts 获取告警列表
+// @Summary 获取告警列表
+// @Description 获取系统告警列表，支持按级别和类型筛选
+// @Tags monitor
+// @Accept json
+// @Produce json
+// @Param level query string false "告警级别 (warning/critical)"
+// @Param type query string false "告警类型 (cpu/memory/disk)"
+// @Success 200 {object} map[string]interface{} "成功"
+// @Router /monitor/alerts [get]
+// @Security BearerAuth
 func (h *Handlers) getAlerts(c *gin.Context) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()

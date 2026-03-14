@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.33.0] - 2026-03-15
+
+### Added
+- **API 文档增强** (礼部)
+  - users/handlers.go: 用户管理 API Swagger 注释（登录、用户 CRUD、权限管理）
+  - monitor/handlers.go: 监控 API Swagger 注释（系统统计、磁盘、网络、SMART、告警）
+  - system/handlers.go: 系统信息 API Swagger 注释（系统信息、进程、历史数据）
+  - shares/handlers.go: 共享管理 API Swagger 注释（SMB/NFS 共享管理）
+  - network/handlers.go: 网络 API Swagger 注释（接口、DDNS、端口转发、防火墙）
+  - docker/handlers.go: Docker API Swagger 注释（容器、镜像、网络、卷）
+
+- **国际化支持增强**
+  - README 功能列表更新
+  - 版本号同步至 v2.33.0
+
+### Changed
+- 文档版本号统一更新
+- Swagger 注释格式规范化
+
 ## [v2.32.0] - 2026-03-15
 
 ### Added

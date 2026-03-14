@@ -1,0 +1,16 @@
+# Grafana Dashboard Provisioning
+# 自动加载预配置的仪表盘
+
+apiVersion: 1
+
+providers:
+  - name: 'NAS-OS Dashboards'
+    orgId: 1
+    folder: 'NAS-OS'
+    folderUid: 'nas-os'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

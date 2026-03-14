@@ -111,6 +111,15 @@ func (h *Handlers) websocketHandler(c *gin.Context) {
 }
 
 // getSystemStats 获取系统统计
+// @Summary 获取系统统计
+// @Description 获取 CPU、内存、负载等系统运行统计数据
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response "成功"
+// @Failure 500 {object} api.Response "服务器内部错误"
+// @Router /system/stats [get]
+// @Security BearerAuth
 func (h *Handlers) getSystemStats(c *gin.Context) {
 	stats, err := h.monitor.GetSystemStats()
 	if err != nil {
@@ -122,6 +131,14 @@ func (h *Handlers) getSystemStats(c *gin.Context) {
 }
 
 // getSystemInfo 获取系统信息
+// @Summary 获取系统信息
+// @Description 获取主机名、CPU 核心数、操作系统等基础信息
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response "成功"
+// @Router /system/info [get]
+// @Security BearerAuth
 func (h *Handlers) getSystemInfo(c *gin.Context) {
 	api.OK(c, gin.H{
 		"hostname":  h.monitor.GetHostname(),
@@ -133,6 +150,15 @@ func (h *Handlers) getSystemInfo(c *gin.Context) {
 }
 
 // getDiskStats 获取磁盘统计
+// @Summary 获取磁盘统计
+// @Description 获取所有磁盘的使用情况、IO 统计等信息
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response "成功"
+// @Failure 500 {object} api.Response "服务器内部错误"
+// @Router /system/disks [get]
+// @Security BearerAuth
 func (h *Handlers) getDiskStats(c *gin.Context) {
 	stats, err := h.monitor.GetDiskStats()
 	if err != nil {
@@ -172,6 +198,15 @@ func (h *Handlers) checkAllDisks(c *gin.Context) {
 }
 
 // getNetworkStats 获取网络统计
+// @Summary 获取网络统计
+// @Description 获取网络接口的流量、连接数等统计信息
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response "成功"
+// @Failure 500 {object} api.Response "服务器内部错误"
+// @Router /system/network [get]
+// @Security BearerAuth
 func (h *Handlers) getNetworkStats(c *gin.Context) {
 	stats, err := h.monitor.GetNetworkStats(nil)
 	if err != nil {
@@ -183,6 +218,16 @@ func (h *Handlers) getNetworkStats(c *gin.Context) {
 }
 
 // getTopProcesses 获取 Top 进程
+// @Summary 获取 Top 进程
+// @Description 获取 CPU/内存占用最高的进程列表
+// @Tags system
+// @Accept json
+// @Produce json
+// @Param limit query int false "返回数量限制" default(10)
+// @Success 200 {object} api.Response "成功"
+// @Failure 500 {object} api.Response "服务器内部错误"
+// @Router /system/processes [get]
+// @Security BearerAuth
 func (h *Handlers) getTopProcesses(c *gin.Context) {
 	limit := 10
 	if l := c.Query("limit"); l != "" {
@@ -201,6 +246,17 @@ func (h *Handlers) getTopProcesses(c *gin.Context) {
 }
 
 // getHistoryData 获取历史数据
+// @Summary 获取历史数据
+// @Description 获取系统历史监控数据
+// @Tags system
+// @Accept json
+// @Produce json
+// @Param duration query string false "时间范围 (如 24h, 7d)" default(24h)
+// @Param interval query string false "采样间隔 (如 1m, 5m)" default(1m)
+// @Success 200 {object} api.Response "成功"
+// @Failure 500 {object} api.Response "服务器内部错误"
+// @Router /system/history [get]
+// @Security BearerAuth
 func (h *Handlers) getHistoryData(c *gin.Context) {
 	duration := c.DefaultQuery("duration", "24h")
 	interval := c.DefaultQuery("interval", "1m")
@@ -215,6 +271,15 @@ func (h *Handlers) getHistoryData(c *gin.Context) {
 }
 
 // getAlerts 获取告警列表
+// @Summary 获取告警列表
+// @Description 获取系统告警列表
+// @Tags system
+// @Accept json
+// @Produce json
+// @Success 200 {object} api.Response "成功"
+// @Failure 500 {object} api.Response "服务器内部错误"
+// @Router /system/alerts [get]
+// @Security BearerAuth
 func (h *Handlers) getAlerts(c *gin.Context) {
 	alerts, err := h.monitor.GetAlerts()
 	if err != nil {
