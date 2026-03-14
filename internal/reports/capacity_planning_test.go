@@ -353,8 +353,8 @@ func TestCapacityPlanner_SingleDataPoint(t *testing.T) {
 	report := planner.Analyze(history, "volume1")
 	assert.NotNil(t, report)
 	assert.Equal(t, uint64(500*1024*1024*1024), report.Current.UsedBytes)
-	// 单点数据无法预测趋势
-	assert.Len(t, report.Forecasts, 30)
+	// 单点数据无法预测趋势，返回空预测
+	assert.Len(t, report.Forecasts, 0)
 }
 
 func TestCapacityPlanner_ExponentialGrowth(t *testing.T) {

@@ -280,10 +280,32 @@ func validateCSRFToken(token, expectedToken string, key []byte) bool {
 func auditLogMiddleware() gin.HandlerFunc {
 	// 需要审计的敏感操作路径
 	sensitivePaths := []string{
+		// 存储管理
 		"/api/v1/volumes",
-		"/api/v1/users",
-		"/api/v1/shares",
 		"/api/v1/raid",
+		"/api/v1/disks",
+		"/api/v1/pools",
+		// 用户与权限
+		"/api/v1/users",
+		"/api/v1/roles",
+		"/api/v1/permissions",
+		// 网络共享
+		"/api/v1/shares",
+		"/api/v1/smb",
+		"/api/v1/nfs",
+		// 安全设置
+		"/api/v1/security",
+		"/api/v1/auth",
+		"/api/v1/mfa",
+		"/api/v1/firewall",
+		// 系统配置
+		"/api/v1/system/config",
+		"/api/v1/network",
+		"/api/v1/backup",
+		// 应用管理
+		"/api/v1/docker",
+		"/api/v1/vms",
+		"/api/v1/plugins",
 	}
 
 	return func(c *gin.Context) {
@@ -301,38 +323,59 @@ func auditLogMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// 记录请求开始时间
+		startTime := time.Now()
+
+		// 执行请求
+		c.Next()
+
+		// 获取用户信息
+		userID, _ := c.Get("user_id")
+		username, _ := c.Get("username")
+
+		// 确定操作级别
+		level := "audit"
+		if c.Writer.Status() >= 400 {
+			level = "audit_warning"
+		}
+		if c.Writer.Status() >= 500 {
+			level = "audit_error"
+		}
+
 		// 记录审计日志
 		auditEntry := map[string]interface{}{
-			"timestamp":  time.Now().Format(time.RFC3339),
-			"level":      "audit",
-			"request_id": c.GetString("requestID"),
-			"client_ip":  c.ClientIP(),
-			"method":     c.Request.Method,
-			"path":       c.Request.URL.Path,
-			"user_agent": c.Request.UserAgent(),
+			"timestamp":    time.Now().Format(time.RFC3339),
+			"level":        level,
+			"request_id":   c.GetString("requestID"),
+			"client_ip":    c.ClientIP(),
+			"method":       c.Request.Method,
+			"path":         c.Request.URL.Path,
+			"query":        c.Request.URL.RawQuery,
+			"status":       c.Writer.Status(),
+			"duration_ms":  time.Since(startTime).Milliseconds(),
+			"user_id":      userID,
+			"username":     username,
+			"user_agent":   c.Request.UserAgent(),
+			"content_type": c.GetHeader("Content-Type"),
 		}
 
 		// 写入审计日志
 		auditJSON, err := json.Marshal(auditEntry)
 		if err != nil {
 			log.Printf("[ERROR] Failed to marshal audit entry: %v", err)
-			c.Next()
 			return
 		}
 
 		// 审计日志写入单独文件
-		f, err := os.OpenFile("/var/log/nas-os/audit.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		f, err := os.OpenFile("/var/log/nas-os/audit.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0640)
 		if err != nil {
 			log.Printf("[ERROR] Failed to open audit log: %v", err)
-			c.Next()
 			return
 		}
 		defer f.Close()
 
 		f.Write(auditJSON)
 		f.WriteString("\n")
-
-		c.Next()
 	}
 }
 

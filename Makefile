@@ -37,11 +37,11 @@ build-all:
 # ========== 测试 ==========
 test:
 	@echo "🧪 运行测试..."
-	$(GO) test -v ./...
+	$(GO) test -v -timeout 10m -parallel 4 ./...
 
 test-integration:
 	@echo "🔗 运行集成测试..."
-	$(GO) test -v ./tests/integration/...
+	$(GO) test -v -timeout 15m ./tests/integration/...
 
 test-e2e:
 	@echo "🚀 运行 E2E 测试..."

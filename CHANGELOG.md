@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.39.0] - 2026-03-15
+
+### Added
+- **项目治理完善** (礼部)
+  - 版本号统一更新至 v2.39.0
+  - CHANGELOG.md 格式规范化
+  - MILESTONES.md 里程碑进度更新
+
+- **文档体系完善**
+  - docs/ 目录文档结构优化
+  - 版本发布说明完善
+  - 贡献指南更新
+
+### Changed
+- 版本号一致性检查和更新
+- 文档索引优化
+
 ## [v2.33.0] - 2026-03-15
 
 ### Added

@@ -46,7 +46,7 @@ func TestValidatePassword(t *testing.T) {
 		{"123456", true},
 		{"short", false},
 		{"", false},
-		{"     ", true}, // spaces are valid (5 chars)
+		{"      ", true}, // 6 spaces = valid (>= 6 chars)
 	}
 
 	for _, tt := range tests {
