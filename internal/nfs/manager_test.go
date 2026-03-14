@@ -251,16 +251,16 @@ func TestGetExport(t *testing.T) {
 	// 创建测试导出
 	testPath := filepath.Join(tmpDir, "existing")
 	_ = mgr.CreateExport(&Export{
-		Path:     testPath,
-		Comment:  "Existing export",
-		Options:  ExportOptions{Ro: true},
+		Path:    testPath,
+		Comment: "Existing export",
+		Options: ExportOptions{Ro: true},
 	})
 
 	tests := []struct {
-		name     string
-		path     string
-		wantErr  bool
-		errMsg   string
+		name    string
+		path    string
+		wantErr bool
+		errMsg  string
 	}{
 		{name: "获取存在的导出", path: testPath, wantErr: false},
 		{name: "获取不存在的导出", path: "/nonexistent", wantErr: true, errMsg: "导出不存在"},
@@ -565,10 +565,10 @@ func TestOptionsToString(t *testing.T) {
 	mgr, _ := setupTestManager(t)
 
 	tests := []struct {
-		name        string
-		options     ExportOptions
-		shouldHave  []string
-		shouldNot   []string
+		name       string
+		options    ExportOptions
+		shouldHave []string
+		shouldNot  []string
 	}{
 		{
 			name:       "读写模式",

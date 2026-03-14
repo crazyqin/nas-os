@@ -587,7 +587,7 @@ func TestGetSharePath(t *testing.T) {
 
 // ========== 配置生成测试 ==========
 
-func TestGenerateSmbConf(t *testing.T) {
+func TestManagerGenerateSmbConf(t *testing.T) {
 	mgr, tmpDir := setupTestManager(t)
 
 	// 创建共享
