@@ -10,7 +10,7 @@
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t nas-os:latest .
 
 # ========== 构建阶段 ==========
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 # 构建参数
 ARG VERSION=dev
