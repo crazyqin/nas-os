@@ -364,3 +364,26 @@ sudo nasctl config import nas-config-backup.yaml
 ---
 
 *文档版本：2.31.0 | 最后更新：2026-03-15*
+
+---
+
+## 🔐 LDAP/AD 集成
+
+NAS-OS 支持与企业 LDAP 和 Active Directory 集成，实现统一身份认证。
+
+### 支持的服务器类型
+
+| 类型 | 说明 |
+|------|------|
+| OpenLDAP | 开源 LDAP 实现 |
+| Active Directory | 微软企业目录服务 |
+| FreeIPA | Red Hat 身份管理解决方案 |
+
+### 快速配置
+
+1. 进入「设置」→「LDAP/AD 集成」
+2. 点击「添加服务器」
+3. 填写服务器信息和认证参数
+4. 测试连接并保存
+
+详细配置请参考 [LDAP 集成指南](LDAP-INTEGRATION.md)。
