@@ -338,60 +338,6 @@ func getSeverityLevel(severity AlertSeverity) int {
 	}
 }
 
-// triggerAlert 触发告警
-func (m *Monitor) triggerAlert(usage *QuotaUsage, alertType AlertType) {
-	m.manager.mu.Lock()
-	defer m.manager.mu.Unlock()
-
-	quota, exists := m.manager.quotas[usage.QuotaID]
-	if !exists {
-		return
-	}
-
-	// 检查是否已有相同类型的活跃告警
-	for _, existingAlert := range m.manager.alerts {
-		if existingAlert.QuotaID == usage.QuotaID &&
-			existingAlert.Type == alertType &&
-			existingAlert.Status == AlertStatusActive {
-			// 更新现有告警
-			existingAlert.UsedBytes = usage.UsedBytes
-			existingAlert.UsagePercent = usage.UsagePercent
-			return
-		}
-	}
-
-	// 确定告警严重级别
-	severity := AlertSeverityWarning
-	if usage.UsagePercent >= 95 {
-		severity = AlertSeverityCritical
-	} else if usage.UsagePercent >= 90 {
-		severity = AlertSeverityWarning
-	} else if usage.UsagePercent >= 80 {
-		severity = AlertSeverityInfo
-	}
-
-	// 创建新告警
-	alert := &Alert{
-		ID:           generateID(),
-		QuotaID:      quota.ID,
-		Type:         alertType,
-		Severity:     severity,
-		Status:       AlertStatusActive,
-		TargetID:     quota.TargetID,
-		TargetName:   quota.TargetName,
-		Path:         quota.Path,
-		UsedBytes:    usage.UsedBytes,
-		LimitBytes:   quota.HardLimit,
-		UsagePercent: usage.UsagePercent,
-		Threshold:    usage.UsagePercent,
-		Message:      m.buildAlertMessage(usage, severity),
-		CreatedAt:    time.Now(),
-	}
-
-	// 发送通知
-	m.sendNotification(alert)
-}
-
 // sendNotification 发送告警通知
 func (m *Monitor) sendNotification(alert *Alert) {
 	// 支持 Webhook 通知

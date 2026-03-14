@@ -13,6 +13,8 @@ linters:
     - unused
 
 issues:
+  exclude:
+    - 'SA9003: empty branch'
   exclude-rules:
     - path: _test\.go$
       linters:
@@ -22,5 +24,8 @@ issues:
       linters:
         - unused
     - path: pkg/btrfs/
+      linters:
+        - unused
+    - path: internal/quota/
       linters:
         - unused

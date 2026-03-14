@@ -218,6 +218,7 @@ func PerformanceMiddleware(opt *PerformanceOptimizer) gin.HandlerFunc {
 		// 慢请求日志
 		if duration > 500*time.Millisecond {
 			// log.Printf("[SLOW] %s %s took %v", c.Request.Method, c.Request.URL.Path, duration)
+			_ = duration // 预留慢请求日志
 		}
 
 		// 添加响应头

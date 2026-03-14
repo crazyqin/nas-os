@@ -511,45 +511,6 @@ func (m *Manager) ResolveAlert(alertID string) error {
 	return nil
 }
 
-// createMultiLevelAlert 创建多级告警（内部使用）
-func (m *Manager) createMultiLevelAlert(quota *Quota, usage *QuotaUsage, severity AlertSeverity, threshold float64) *Alert {
-	alert := &Alert{
-		ID:              generateID(),
-		QuotaID:         quota.ID,
-		Type:            AlertTypeSoftLimit,
-		Severity:        severity,
-		Status:          AlertStatusActive,
-		TargetID:        quota.TargetID,
-		TargetName:      quota.TargetName,
-		VolumeName:      quota.VolumeName,
-		Path:            quota.Path,
-		UsedBytes:       usage.UsedBytes,
-		LimitBytes:      usage.HardLimit,
-		UsagePercent:    usage.UsagePercent,
-		Threshold:       threshold,
-		CreatedAt:       time.Now(),
-		EscalationLevel: 0,
-	}
-
-	// 根据严重级别设置消息
-	switch severity {
-	case AlertSeverityInfo:
-		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%", quota.TargetName, usage.UsagePercent)
-	case AlertSeverityWarning:
-		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，请注意", quota.TargetName, usage.UsagePercent)
-	case AlertSeverityCritical:
-		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，请及时处理", quota.TargetName, usage.UsagePercent)
-	case AlertSeverityEmergency:
-		alert.Message = fmt.Sprintf("用户 %s 存储使用已达 %.1f%%，即将超出限制", quota.TargetName, usage.UsagePercent)
-		if usage.IsOverHard {
-			alert.Type = AlertTypeHardLimit
-		}
-	}
-
-	m.alerts[alert.ID] = alert
-	return alert
-}
-
 // SetAlertConfig 设置告警配置
 func (m *Manager) SetAlertConfig(config AlertConfig) {
 	m.mu.Lock()
