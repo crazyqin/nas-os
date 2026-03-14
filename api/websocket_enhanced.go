@@ -102,16 +102,17 @@ func (s ConnectionState) String() string {
 
 // ConnectionStats 连接统计
 type ConnectionStats struct {
-	ID              string          `json:"id"`
-	State           string          `json:"state"`
-	ConnectedAt     time.Time       `json:"connectedAt"`
-	LastActivity    time.Time       `json:"lastActivity"`
-	ReconnectCount  int             `json:"reconnectCount"`
-	MessagesSent    int64           `json:"messagesSent"`
-	MessagesReceived int64          `json:"messagesReceived"`
-	BytesSent       int64           `json:"bytesSent"`
-	BytesReceived   int64           `json:"bytesReceived"`
-	MissedHeartbeats int            `json:"missedHeartbeats"`
+	ID               string          `json:"id"`
+	UserID           string          `json:"userId"`
+	State            string          `json:"state"`
+	ConnectedAt      time.Time       `json:"connectedAt"`
+	LastActivity     time.Time       `json:"lastActivity"`
+	ReconnectCount   int             `json:"reconnectCount"`
+	MessagesSent     int64           `json:"messagesSent"`
+	MessagesReceived int64           `json:"messagesReceived"`
+	BytesSent        int64           `json:"bytesSent"`
+	BytesReceived    int64           `json:"bytesReceived"`
+	MissedHeartbeats int             `json:"missedHeartbeats"`
 }
 
 // EnhancedClient 增强版 WebSocket 客户端
@@ -125,12 +126,12 @@ type EnhancedClient struct {
 	LastActivity   time.Time
 
 	// 状态管理
-	state           int32 // atomic: ConnectionState
-	reconnectCount  int32
-	messagesSent    int64
+	state            int32 // atomic: ConnectionState
+	reconnectCount   int32
+	messagesSent     int64
 	messagesReceived int64
-	bytesSent       int64
-	bytesReceived   int64
+	bytesSent        int64
+	bytesReceived    int64
 	missedHeartbeats int32
 
 	// 心跳
@@ -144,10 +145,12 @@ type EnhancedClient struct {
 	stableTimer     *time.Timer
 
 	// 控制
-	ctx    context.Context
-	cancel context.CancelFunc
-	mu     sync.RWMutex
-	wg     sync.WaitGroup
+	ctx       context.Context
+	cancel    context.CancelFunc
+	mu        sync.RWMutex
+	wg        sync.WaitGroup
+	closeOnce sync.Once // 确保 Close 只执行一次
+	closed    bool      // 标记是否已关闭
 }
 
 // EnhancedWebSocketHub 增强版 WebSocket Hub
@@ -442,6 +445,7 @@ func (c *EnhancedClient) GetState() ConnectionState {
 func (c *EnhancedClient) GetStats() *ConnectionStats {
 	return &ConnectionStats{
 		ID:               c.ID,
+		UserID:           c.UserID,
 		State:            c.GetState().String(),
 		ConnectedAt:      c.ConnectedAt,
 		LastActivity:     c.LastActivity,
@@ -669,19 +673,22 @@ func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *Enh
 
 // Close 关闭客户端
 func (c *EnhancedClient) Close() {
-	c.setState(StateClosing)
-	c.cancel()
-	
-	c.mu.Lock()
-	if c.Connection != nil {
-		c.Connection.Close()
-		c.Connection = nil
-	}
-	close(c.Send)
-	c.mu.Unlock()
+	c.closeOnce.Do(func() {
+		c.setState(StateClosing)
+		c.cancel()
 
-	c.wg.Wait()
-	c.setState(StateDisconnected)
+		c.mu.Lock()
+		c.closed = true
+		if c.Connection != nil {
+			c.Connection.Close()
+			c.Connection = nil
+		}
+		close(c.Send)
+		c.mu.Unlock()
+
+		c.wg.Wait()
+		c.setState(StateDisconnected)
+	})
 }
 
 // generateSecureID 生成安全的随机 ID

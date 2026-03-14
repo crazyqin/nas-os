@@ -493,12 +493,15 @@ func adFunctionalLevelName(version string) string {
 	}
 }
 
-// parseInt 解析整数
+// parseInt 解析整数，负数返回 0
 func parseInt(value string) int {
 	var result int
 	for _, c := range value {
 		if c >= '0' && c <= '9' {
 			result = result*10 + int(c-'0')
+		} else if c == '-' {
+			// 负数不支持，返回 0
+			return 0
 		}
 	}
 	return result

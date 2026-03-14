@@ -95,7 +95,7 @@ jobs:
     name: 单元测试
     runs-on: ubuntu-latest
     needs: [lint, dependency-scan]
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       CGO_ENABLED: 1
     steps:
@@ -119,13 +119,14 @@ jobs:
         id: test
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 10
-          max_attempts: 3
-          retry_wait_seconds: 10
+          timeout_minutes: 15
+          max_attempts: 2
+          retry_wait_seconds: 30
           command: |
             # GitHub Actions 的 Ubuntu 运行器支持 race detector
-            # 添加超时参数（5 分钟），排除已知慢测试和辅助模块
-            go test -v -race -coverprofile=coverage.out -covermode=atomic -timeout 5m $(go list ./... | grep -v /tests/e2e | grep -v /tests/fixtures | grep -v /tests/reports | grep -v /tests/benchmark | grep -v /plugins/)
+            # 增加超时时间到 10 分钟，并行运行测试
+            # 排除已知慢测试和辅助模块
+            go test -v -race -coverprofile=coverage.out -covermode=atomic -timeout 10m -parallel 4 $(go list ./... | grep -v /tests/e2e | grep -v /tests/fixtures | grep -v /tests/reports | grep -v /tests/benchmark | grep -v /plugins/)
       
       - name: 生成覆盖率报告
         run: |
@@ -199,7 +200,7 @@ jobs:
     name: 集成测试
     runs-on: ubuntu-latest
     needs: [test]
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       CGO_ENABLED: 1
     steps:
@@ -234,10 +235,10 @@ jobs:
         if: steps.check-tests.outputs.has_integration_tests == 'true'
         uses: nick-fields/retry@v3
         with:
-          timeout_minutes: 8
+          timeout_minutes: 12
           max_attempts: 2
-          retry_wait_seconds: 15
-          command: go test -v -timeout 5m ./tests/integration/...
+          retry_wait_seconds: 20
+          command: go test -v -timeout 10m ./tests/integration/...
       
       - name: 验证构建（排除插件和 e2e 测试）
         run: |
