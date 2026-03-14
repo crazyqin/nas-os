@@ -1557,8 +1557,8 @@ func (e *CloudAIEngine) detectFacesAzure(img image.Image) ([]FaceInfo, error) {
 
 	// 解析响应
 	var azureFaces []struct {
-		FaceID           string `json:"faceId"`
-		FaceRectangle    struct {
+		FaceID        string `json:"faceId"`
+		FaceRectangle struct {
 			Top    int `json:"top"`
 			Left   int `json:"left"`
 			Width  int `json:"width"`
@@ -1608,11 +1608,11 @@ func (e *CloudAIEngine) detectFacesAzure(img image.Image) ([]FaceInfo, error) {
 		}
 
 		face := FaceInfo{
-			ID:     af.FaceID,
-			Bounds: Rectangle{X: af.FaceRectangle.Left, Y: af.FaceRectangle.Top, Width: af.FaceRectangle.Width, Height: af.FaceRectangle.Height},
-			Age:    int(af.FaceAttributes.Age),
-			Gender: af.FaceAttributes.Gender,
-			Emotion: mainEmotion,
+			ID:         af.FaceID,
+			Bounds:     Rectangle{X: af.FaceRectangle.Left, Y: af.FaceRectangle.Top, Width: af.FaceRectangle.Width, Height: af.FaceRectangle.Height},
+			Age:        int(af.FaceAttributes.Age),
+			Gender:     af.FaceAttributes.Gender,
+			Emotion:    mainEmotion,
 			Confidence: 1.0,
 		}
 		faces = append(faces, face)
@@ -1685,11 +1685,11 @@ func (e *CloudAIEngine) classifySceneAzure(img image.Image) (string, float32, er
 
 	var result struct {
 		Categories []struct {
-			Name    string  `json:"name"`
-			Score   float64 `json:"score"`
+			Name  string  `json:"name"`
+			Score float64 `json:"score"`
 		} `json:"categories"`
 		Tags []struct {
-			Name    string  `json:"name"`
+			Name       string  `json:"name"`
 			Confidence float64 `json:"confidence"`
 		} `json:"tags"`
 	}
