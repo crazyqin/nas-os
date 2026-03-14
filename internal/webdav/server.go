@@ -99,8 +99,11 @@ func (s *Server) Start() error {
 	// 创建 HTTP 服务器
 	addr := fmt.Sprintf(":%d", s.config.Port)
 	s.server = &http.Server{
-		Addr:    addr,
-		Handler: handler,
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: 30 * time.Second, // 防止 Slowloris 攻击
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 
 	// 启动定期清理过期锁
