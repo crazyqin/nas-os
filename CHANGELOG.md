@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.17.1] - 2026-03-14
+
+### Fixed
+- **CI/CD Go 版本统一**
+  - 统一所有 workflow 文件的 Go 版本为 1.26
+  - 修复 go.mod 使用 Go 1.26.1 但 CI 配置使用 Go 1.25 导致的编译错误
+  - 解决 "compile: version go1.26.1 does not match go tool version go1.25.8" 问题
+
 ## [v2.17.0] - 2026-03-14
 
 ### Changed
