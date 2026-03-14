@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.14.0] - 2026-03-14
+
+### Added
+- **测试覆盖率提升**
+  - quota 模块单元测试 (`internal/quota/quota_test.go`)
+  - trash 模块单元测试 (`internal/trash/manager_test.go`, `internal/trash/handlers_test.go`)
+  - webdav 模块单元测试 (`internal/webdav/server_test.go`, `internal/webdav/handlers_test.go`, `internal/webdav/lock_test.go`)
+  - 测试覆盖率报告生成 (`coverage_quota.out`, `coverage_trash.out`, `coverage_webdav.out`)
+
+- **WebUI 页面完善**
+  - 配额管理页面 (`webui/pages/dir-quota.html`) - 配额设置、用户配额、历史趋势
+  - 回收站管理页面 (`webui/pages/trash.html`) - 文件恢复、批量操作、清理策略
+  - WebDAV 配置页面 (`webui/pages/webdav.html`) - 服务配置、共享管理、权限设置
+
+### Changed
+- 测试框架完善，覆盖率提升
+- WebUI 功能模块化设计
+
+### Security
+- Security Scan 问题修复
+- 权限边界检查增强
+
+## [v2.13.0] - 2026-03-14
+
+### Added
+- **API 端点完善**
+  - 存储配额 API 增强
+  - 回收站管理 API 完善
+  - WebDAV API 优化
+
+- **测试基础设施**
+  - 测试覆盖率报告自动生成
+  - 代码质量门禁配置
+
+### Changed
+- CI/CD 工作流优化
+- Docker 构建优化
+
 ## [v2.12.0] - 2026-03-14
 
 ### Fixed

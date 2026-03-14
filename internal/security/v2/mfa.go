@@ -9,13 +9,22 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math"
-	mrand "math/rand"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 )
+
+// generateSecureCode 生成安全的随机验证码
+func generateSecureCode() (string, error) {
+	n, err := rand.Int(rand.Reader, big.NewInt(1000000))
+	if err != nil {
+		return "", fmt.Errorf("生成随机数失败: %w", err)
+	}
+	return fmt.Sprintf("%06d", n.Int64()), nil
+}
 
 // MFAManager 双因素认证管理器
 type MFAManager struct {
@@ -360,7 +369,10 @@ func (mm *MFAManager) SendSMSCode(userID string) (string, error) {
 	}
 
 	// 生成 6 位随机验证码
-	code := fmt.Sprintf("%06d", mrand.Intn(1000000))
+	code, err := generateSecureCode()
+	if err != nil {
+		return "", err
+	}
 
 	// 发送短信
 	if mm.sendSMSFunc != nil {
@@ -391,7 +403,10 @@ func (mm *MFAManager) SendEmailCode(userID string) (string, error) {
 	}
 
 	// 生成 6 位随机验证码
-	code := fmt.Sprintf("%06d", mrand.Intn(1000000))
+	code, err := generateSecureCode()
+	if err != nil {
+		return "", err
+	}
 
 	// 发送邮件
 	if mm.sendEmailFunc != nil {

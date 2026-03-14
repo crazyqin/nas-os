@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"time"
 )
@@ -260,10 +261,10 @@ func (m *Manager) List() []*TrashItem {
 		items = append(items, item)
 	}
 
-	// 按删除时间倒序排序
-	for i, j := 0, len(items)-1; i < j; i, j = i+1, j-1 {
-		items[i], items[j] = items[j], items[i]
-	}
+	// 按删除时间倒序排序（最新的在前）
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].DeletedAt.After(items[j].DeletedAt)
+	})
 
 	return items
 }

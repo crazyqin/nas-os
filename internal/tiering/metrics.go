@@ -487,9 +487,13 @@ func prometheusGauge(name string, value float64, labels ...string) string {
 
 	labelStr := ""
 	for i := 0; i < len(labels); i += 2 {
+		if i+1 >= len(labels) {
+			break // 防止越界
+		}
 		if i > 0 {
 			labelStr += ","
 		}
+		// #nosec G602 -- 已在上方检查 i+1 < len(labels)
 		labelStr += labels[i] + `="` + labels[i+1] + `"`
 	}
 	return name + "{" + labelStr + "} " + floatToString(value) + "\n"

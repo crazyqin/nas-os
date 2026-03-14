@@ -116,7 +116,7 @@ func (cb *CloudBackup) initWebDAVClient(cfg CloudConfig) (*gowebdav.Client, erro
 	client := gowebdav.NewClient(cfg.Endpoint, cfg.AccessKey, cfg.SecretKey)
 
 	if cfg.Insecure {
-		// 跳过 TLS 验证
+		// #nosec G402 -- InsecureSkipVerify is enabled by user configuration for self-signed certificates
 		client.SetTransport(&http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		})
