@@ -600,6 +600,10 @@ func (s *Server) setupRoutes() {
 		// ========== 配额管理 ==========
 		if s.quotaMgr != nil {
 			quota.NewHandlers(s.quotaMgr).RegisterRoutes(api)
+			// 注册 V2 API（历史统计、图表、报告等）
+			v2 := quota.NewHandlersV2(s.quotaMgr)
+			v2.Start()
+			v2.RegisterRoutesV2(api)
 		}
 
 		// ========== 文件预览 ==========
