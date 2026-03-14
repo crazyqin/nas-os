@@ -453,8 +453,11 @@ func (t *WebhookTrigger) Start(ctx context.Context, callback func(map[string]int
 
 	// 使用随机可用端口
 	t.server = &http.Server{
-		Addr:    ":0", // 随机端口
-		Handler: mux,
+		Addr:              ":0", // 随机端口
+		Handler:           mux,
+		ReadHeaderTimeout: 30 * time.Second, // 防止 Slowloris 攻击
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 
 	_, cancel := context.WithCancel(ctx)

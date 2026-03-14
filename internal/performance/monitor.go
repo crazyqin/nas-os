@@ -749,8 +749,11 @@ func (e *PrometheusExporter) StartMetricsServer(ctx context.Context, addr string
 	mux.HandleFunc("/metrics", e.Handler)
 
 	server := &http.Server{
-		Addr:    addr,
-		Handler: mux,
+		Addr:              addr,
+		Handler:           mux,
+		ReadHeaderTimeout: 30 * time.Second, // 防止 Slowloris 攻击
+		WriteTimeout:      60 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 
 	go func() {

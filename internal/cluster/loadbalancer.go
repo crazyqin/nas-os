@@ -326,7 +326,8 @@ func (lb *LoadBalancer) selectWeighted(backends []*Backend) *Backend {
 		return backends[0]
 	}
 
-	// 加权随机
+	// 加权随机 - 使用 math/rand 足够，因为这只用于后端选择，不涉及安全敏感操作
+	// #nosec G404 -- 非加密用途的随机数生成，用于负载均衡后端选择
 	r := rand.Intn(totalWeight)
 	current := 0
 	for _, backend := range backends {

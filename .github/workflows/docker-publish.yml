@@ -1,5 +1,7 @@
 # Docker 镜像构建与推送
 # 支持多架构（amd64, arm64, arm/v7）
+#
+# 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 
 name: Docker Publish
 
@@ -150,7 +152,16 @@ jobs:
       - name: 等待镜像推送完成
         run: |
           echo "等待镜像推送到 GHCR..."
-          sleep 60
+          # 使用轮询等待镜像可用（最多等待 2 分钟）
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          for i in {1..12}; do
+            if docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA 2>/dev/null; then
+              echo "✅ 镜像已可用"
+              break
+            fi
+            echo "等待中... ($i/12)"
+            sleep 10
+          done
       
       - name: 拉取镜像进行扫描
         run: |
@@ -186,32 +197,4 @@ jobs:
             echo "⚠️ 扫描结果文件未生成，跳过上传" >> $GITHUB_STEP_SUMMARY
           fi
 
-  # ========== Docker Compose 测试 ==========
-  docker-compose-test:
-    name: Docker Compose 测试
-    runs-on: ubuntu-latest
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-      
-      - name: 创建必要目录
-        run: |
-          sudo mkdir -p /var/lib/nas-os
-          sudo chmod 777 /var/lib/nas-os
-      
-      - name: 构建并启动
-        run: |
-          docker compose build
-          docker compose up -d
-      
-      - name: 等待服务启动
-        run: sleep 10
-      
-      - name: 健康检查
-        run: |
-          docker compose ps
-          docker compose logs
-      
-      - name: 停止服务
-        if: always()
-        run: docker compose down -v
+# 注意：Docker Compose 测试已在 ci-cd.yml 中执行，此 workflow 专注于镜像构建和发布
