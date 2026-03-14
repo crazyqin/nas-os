@@ -6,6 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -343,13 +346,134 @@ func (m *Manager) executeSync(task *ReplicationTask) {
 	m.saveConfig()
 }
 
-// parseRsyncOutput 解析 rsync 输出
+// parseRsyncOutput 解析 rsync 输出获取详细统计
 func (m *Manager) parseRsyncOutput(task *ReplicationTask, output string) {
-	// 简单解析，实际可以更详细
 	task.FilesCount = 0
 	task.BytesTransferred = 0
 
-	// TODO: 解析 rsync 输出获取详细统计
+	// 解析发送字节数: "sent 123,456 bytes"
+	if sentMatch := regexp.MustCompile(`sent\s+([\d,]+)\s+bytes`).FindStringSubmatch(output); len(sentMatch) > 1 {
+		if val, err := parseNumber(sentMatch[1]); err == nil {
+			task.BytesTransferred = val
+		}
+	}
+
+	// 解析总大小: "total size is 1,234,567,890"
+	if sizeMatch := regexp.MustCompile(`total size is\s+([\d,]+)`).FindStringSubmatch(output); len(sizeMatch) > 1 {
+		if val, err := parseNumber(sizeMatch[1]); err == nil {
+			task.TotalBytes = val
+		}
+	}
+
+	// 解析传输文件数: "Number of regular files transferred: 567"
+	if filesMatch := regexp.MustCompile(`Number of regular files transferred:\s+(\d+)`).FindStringSubmatch(output); len(filesMatch) > 1 {
+		if val, err := strconv.Atoi(filesMatch[1]); err == nil {
+			task.FilesCount = val
+		}
+	}
+
+	// 备选：如果没有找到传输文件数，尝试解析文件列表
+	// rsync -v 会列出每个文件，格式如: "filename"
+	if task.FilesCount == 0 {
+		lines := strings.Split(output, "\n")
+		count := 0
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			// 跳过空行和统计行
+			if line == "" || strings.HasPrefix(line, "sent ") ||
+				strings.HasPrefix(line, "total size") ||
+				strings.HasPrefix(line, "speedup") ||
+				strings.Contains(line, "bytes/sec") {
+				continue
+			}
+			// 简单计数非统计行
+			count++
+		}
+		if count > 0 {
+			task.FilesCount = count
+		}
+	}
+}
+
+// RsyncStats rsync 详细统计信息
+type RsyncStats struct {
+	BytesSent       int64   `json:"bytes_sent"`        // 发送字节数
+	BytesReceived   int64   `json:"bytes_received"`    // 接收字节数
+	BytesPerSecond  float64 `json:"bytes_per_second"`  // 传输速度 (bytes/sec)
+	TotalSize       int64   `json:"total_size"`        // 总大小
+	Speedup         float64 `json:"speedup"`           // 加速比
+	FilesTransferred int    `json:"files_transferred"` // 传输文件数
+	TotalFiles      int     `json:"total_files"`       // 总文件数
+}
+
+// parseRsyncStats 解析 rsync 完整统计信息
+func parseRsyncStats(output string) *RsyncStats {
+	stats := &RsyncStats{}
+
+	// 解析发送字节数: "sent 123,456 bytes"
+	if sentMatch := regexp.MustCompile(`sent\s+([\d,]+)\s+bytes`).FindStringSubmatch(output); len(sentMatch) > 1 {
+		if val, err := parseNumber(sentMatch[1]); err == nil {
+			stats.BytesSent = val
+		}
+	}
+
+	// 解析接收字节数: "received 234,567 bytes"
+	if recvMatch := regexp.MustCompile(`received\s+([\d,]+)\s+bytes`).FindStringSubmatch(output); len(recvMatch) > 1 {
+		if val, err := parseNumber(recvMatch[1]); err == nil {
+			stats.BytesReceived = val
+		}
+	}
+
+	// 解析传输速度: "35,612.34 bytes/sec"
+	if speedMatch := regexp.MustCompile(`([\d,.]+)\s+bytes/sec`).FindStringSubmatch(output); len(speedMatch) > 1 {
+		if val, err := parseFloat(speedMatch[1]); err == nil {
+			stats.BytesPerSecond = val
+		}
+	}
+
+	// 解析总大小: "total size is 1,234,567,890"
+	if sizeMatch := regexp.MustCompile(`total size is\s+([\d,]+)`).FindStringSubmatch(output); len(sizeMatch) > 1 {
+		if val, err := parseNumber(sizeMatch[1]); err == nil {
+			stats.TotalSize = val
+		}
+	}
+
+	// 解析加速比: "speedup is 3,456.78"
+	if speedupMatch := regexp.MustCompile(`speedup is\s+([\d,.]+)`).FindStringSubmatch(output); len(speedupMatch) > 1 {
+		if val, err := parseFloat(speedupMatch[1]); err == nil {
+			stats.Speedup = val
+		}
+	}
+
+	// 解析传输文件数: "Number of regular files transferred: 567"
+	if filesMatch := regexp.MustCompile(`Number of regular files transferred:\s+(\d+)`).FindStringSubmatch(output); len(filesMatch) > 1 {
+		if val, err := strconv.Atoi(filesMatch[1]); err == nil {
+			stats.FilesTransferred = val
+		}
+	}
+
+	// 解析总文件数: "Number of files: 1,234"
+	if totalMatch := regexp.MustCompile(`Number of files:\s+([\d,]+)`).FindStringSubmatch(output); len(totalMatch) > 1 {
+		if val, err := parseNumber(totalMatch[1]); err == nil {
+			stats.TotalFiles = int(val)
+		}
+	}
+
+	return stats
+}
+
+// parseNumber 解析带逗号的数字字符串
+func parseNumber(s string) (int64, error) {
+	// 移除逗号
+	s = strings.ReplaceAll(s, ",", "")
+	return strconv.ParseInt(s, 10, 64)
+}
+
+// parseFloat 解析带逗号的浮点数字符串
+func parseFloat(s string) (float64, error) {
+	// 移除逗号
+	s = strings.ReplaceAll(s, ",", "")
+	return strconv.ParseFloat(s, 64)
 }
 
 // calculateNextSync 计算下次同步时间
