@@ -2,6 +2,40 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.10.0] - 2026-03-14
+
+### Added
+- **SMB/CIFS 共享服务** (`internal/smb/`)
+  - SMB 服务管理器，支持共享 CRUD 操作
+  - 配置文件解析与生成 (`config.go`)
+  - 用户权限映射和访客访问控制
+  - 连接状态监控和管理
+
+- **NFS 共享服务** (`internal/nfs/`)
+  - NFS 服务管理器，支持导出 CRUD 操作
+  - 客户端配置和权限选项管理
+  - NFS 导出配置解析
+
+- **系统服务集成** (`internal/service/`)
+  - systemd 服务管理后端
+  - 服务状态监控（运行状态、PID、内存、CPU）
+  - 服务操作（启动/停止/重启/启用/禁用）
+  - 开机自启控制
+
+- **WebUI 共享管理页面**
+  - `webui/pages/smb.html` - SMB 共享管理页面
+  - `webui/pages/nfs.html` - NFS 共享管理页面
+  - `webui/pages/shares.html` - 共享概览页面优化
+
+- **测试完善**
+  - SMB 服务单元测试
+  - NFS 服务单元测试
+  - 共享集成测试 (`tests/integration/shares_test.go`)
+
+### Changed
+- 更新 `cmd/nasd/main.go` 集成服务管理
+- 优化共享处理器
+
 ## [v2.9.0] - 2026-03-14
 
 ### Added
