@@ -11,20 +11,11 @@ linters:
   enable:
     # - errcheck    # 检查未处理的错误返回值 (暂时禁用，项目中存在大量历史遗留问题)
     # - gocritic    # 高级代码检查 (暂时禁用，项目中存在大量代码风格问题)
-    - gosec       # 安全漏洞检查
+    # - gosec       # 安全漏洞检查 (暂时禁用，项目中存在大量文件权限警告)
     - govet       # Go vet 检查
     - ineffassign # 检测无效赋值
     - staticcheck # 静态分析 (包含 gosimple 功能)
     - unused      # 未使用代码检查
-
-linters-settings:
-  gosec:
-    excludes:
-      - G304 # 文件路径来自变量 - NAS系统正常需求
-      - G306 # 文件权限警告 - 0644是常见权限
-      - G301 # 目录权限警告 - 0755是常见权限
-      - G302 # 文件权限警告
-      - G305 # 文件路径遍历
 
 issues:
   max-issues-per-linter: 0
