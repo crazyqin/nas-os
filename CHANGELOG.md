@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.11.0] - 2026-03-14
+
+### Fixed
+- **SMB 并发测试修复**
+  - 修复 `TestConcurrentCreateShare` 竞态条件
+  - 优化 manager.go 中的并发控制逻辑
+  - 竞态检测器通过
+
+### Changed
+- **共享服务完善**
+  - SMB 服务边界条件处理优化
+  - NFS 服务错误处理增强
+
+- **CI/CD 优化**
+  - GitHub Actions 配置检查
+  - 测试超时设置优化
+  - 测试结果缓存
+
+- **文档更新**
+  - README.md 版本号同步
+  - CHANGELOG.md 更新
+  - SMB/NFS 配置示例补充
+
+### Added
+- **测试覆盖率**
+  - 覆盖率分析报告
+  - 低覆盖率模块识别
+
+- **安全审计**
+  - SMB/NFS 安全配置审查
+  - 权限边界检查
+  - golangci-lint 静态分析通过
+
 ## [v2.10.0] - 2026-03-14
 
 ### Added

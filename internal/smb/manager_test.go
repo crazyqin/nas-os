@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 
 	"nas-os/internal/users"
@@ -668,8 +669,7 @@ func TestConcurrentCreateShare(t *testing.T) {
 	mgr, tmpDir := setupTestManager(t)
 
 	var wg sync.WaitGroup
-	errCount := int32(0)
-	successCount := int32(0)
+	var errCount, successCount int32
 
 	// 并发创建 50 个同名共享
 	for i := 0; i < 50; i++ {
@@ -681,9 +681,9 @@ func TestConcurrentCreateShare(t *testing.T) {
 				Path: filepath.Join(tmpDir, "concurrent"),
 			})
 			if err != nil {
-				errCount++
+				atomic.AddInt32(&errCount, 1)
 			} else {
-				successCount++
+				atomic.AddInt32(&successCount, 1)
 			}
 		}(i)
 	}

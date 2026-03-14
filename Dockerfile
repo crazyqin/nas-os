@@ -2,7 +2,7 @@
 # 多阶段构建，优化后的生产镜像约 25MB
 
 # ========== 构建阶段 ==========
-FROM golang:1.26-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 WORKDIR /build
 
