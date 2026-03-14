@@ -608,7 +608,19 @@ func (m *Manager) GetReportForUser(user string) (*DedupReport, error) {
 
 	report := &DedupReport{
 		GeneratedAt:     time.Now(),
-		Stats:           m.stats,
+		Stats: DedupStatsSnapshot{
+			TotalFiles:       m.stats.TotalFiles,
+			TotalSize:        m.stats.TotalSize,
+			DuplicateFiles:   m.stats.DuplicateFiles,
+			DuplicateSize:    m.stats.DuplicateSize,
+			SavingsPotential: m.stats.SavingsPotential,
+			SavingsActual:    m.stats.SavingsActual,
+			ChunksStored:     m.stats.ChunksStored,
+			ChunkDataSize:    m.stats.ChunkDataSize,
+			SharedChunks:     m.stats.SharedChunks,
+			SharedDataSize:   m.stats.SharedDataSize,
+			CrossUserSavings: m.stats.CrossUserSavings,
+		},
 		DuplicateGroups: make([]DuplicateGroupSummary, 0),
 		UserReports:     make(map[string]*UserDedupReport),
 	}
@@ -707,7 +719,7 @@ func (m *Manager) generateRecommendations() []DedupRecommendation {
 // DedupReport 去重报告
 type DedupReport struct {
 	GeneratedAt     time.Time                   `json:"generatedAt"`
-	Stats           DedupStats                  `json:"stats"`
+	Stats           DedupStatsSnapshot          `json:"stats"`
 	DuplicateGroups []DuplicateGroupSummary     `json:"duplicateGroups"`
 	UserReports     map[string]*UserDedupReport `json:"userReports,omitempty"`
 	Recommendations []DedupRecommendation       `json:"recommendations,omitempty"`
@@ -741,11 +753,23 @@ type DedupRecommendation struct {
 	Action      string `json:"action"`
 }
 
-// GetStats 获取统计信息
-func (m *Manager) GetStats() DedupStats {
+// GetStats 获取统计信息快照（不含锁）
+func (m *Manager) GetStats() DedupStatsSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	return m.stats
+	return DedupStatsSnapshot{
+		TotalFiles:       m.stats.TotalFiles,
+		TotalSize:        m.stats.TotalSize,
+		DuplicateFiles:   m.stats.DuplicateFiles,
+		DuplicateSize:    m.stats.DuplicateSize,
+		SavingsPotential: m.stats.SavingsPotential,
+		SavingsActual:    m.stats.SavingsActual,
+		ChunksStored:     m.stats.ChunksStored,
+		ChunkDataSize:    m.stats.ChunkDataSize,
+		SharedChunks:     m.stats.SharedChunks,
+		SharedDataSize:   m.stats.SharedDataSize,
+		CrossUserSavings: m.stats.CrossUserSavings,
+	}
 }
 
 // GetUserStats 获取用户统计信息
@@ -1107,7 +1131,18 @@ func (m *Manager) loadIndex() error {
 
 	m.fileRecords = index.FileRecords
 	m.checksums = index.Checksums
-	m.stats = index.Stats
+	// 手动复制统计字段，避免复制锁
+	m.stats.TotalFiles = index.Stats.TotalFiles
+	m.stats.TotalSize = index.Stats.TotalSize
+	m.stats.DuplicateFiles = index.Stats.DuplicateFiles
+	m.stats.DuplicateSize = index.Stats.DuplicateSize
+	m.stats.SavingsPotential = index.Stats.SavingsPotential
+	m.stats.SavingsActual = index.Stats.SavingsActual
+	m.stats.ChunksStored = index.Stats.ChunksStored
+	m.stats.ChunkDataSize = index.Stats.ChunkDataSize
+	m.stats.SharedChunks = index.Stats.SharedChunks
+	m.stats.SharedDataSize = index.Stats.SharedDataSize
+	m.stats.CrossUserSavings = index.Stats.CrossUserSavings
 	m.userIndexes = index.UserIndexes
 	m.chunks = index.Chunks
 
@@ -1133,16 +1168,31 @@ func (m *Manager) saveIndex() error {
 
 	indexPath := m.configPath + ".index"
 
+	// 创建统计快照以避免复制锁
+	statsSnapshot := DedupStatsSnapshot{
+		TotalFiles:       m.stats.TotalFiles,
+		TotalSize:        m.stats.TotalSize,
+		DuplicateFiles:   m.stats.DuplicateFiles,
+		DuplicateSize:    m.stats.DuplicateSize,
+		SavingsPotential: m.stats.SavingsPotential,
+		SavingsActual:    m.stats.SavingsActual,
+		ChunksStored:     m.stats.ChunksStored,
+		ChunkDataSize:    m.stats.ChunkDataSize,
+		SharedChunks:     m.stats.SharedChunks,
+		SharedDataSize:   m.stats.SharedDataSize,
+		CrossUserSavings: m.stats.CrossUserSavings,
+	}
+
 	data, err := json.MarshalIndent(struct {
 		FileRecords map[string]*FileRecord    `json:"fileRecords"`
 		Checksums   map[string][]*FileRecord  `json:"checksums"`
-		Stats       DedupStats                `json:"stats"`
+		Stats       DedupStatsSnapshot        `json:"stats"`
 		UserIndexes map[string]*UserFileIndex `json:"userIndexes"`
 		Chunks      map[string]*Chunk         `json:"chunks"`
 	}{
 		FileRecords: m.fileRecords,
 		Checksums:   m.checksums,
-		Stats:       m.stats,
+		Stats:       statsSnapshot,
 		UserIndexes: m.userIndexes,
 		Chunks:      m.chunks,
 	}, "", "  ")

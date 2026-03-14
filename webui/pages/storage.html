@@ -258,6 +258,205 @@
                 </div>
             </div>
 
+            <!-- 子卷管理 -->
+            <div class="volume-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="font-size: 18px;">📁 子卷管理</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-sm btn-secondary" onclick="loadSubvolumes()">🔄 刷新</button>
+                        <button class="btn btn-sm btn-primary" onclick="showCreateSubvolume()">➕ 创建子卷</button>
+                    </div>
+                </div>
+                <div id="subvolumes-container">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>子卷名称</th>
+                                    <th>所属卷</th>
+                                    <th>路径</th>
+                                    <th>大小</th>
+                                    <th>快照数</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subvolumes-list">
+                                <tr>
+                                    <td><strong>@home</strong></td>
+                                    <td class="text-muted">data</td>
+                                    <td class="text-muted">/mnt/data/home</td>
+                                    <td>125 GB</td>
+                                    <td><span class="badge badge-info">5</span></td>
+                                    <td><span class="badge badge-success">正常</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="viewSubvolume('@home')">查看</button>
+                                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('@home')">快照</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@share</strong></td>
+                                    <td class="text-muted">data</td>
+                                    <td class="text-muted">/mnt/data/share</td>
+                                    <td>89 GB</td>
+                                    <td><span class="badge badge-info">3</span></td>
+                                    <td><span class="badge badge-success">正常</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="viewSubvolume('@share')">查看</button>
+                                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('@share')">快照</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>@backup</strong></td>
+                                    <td class="text-muted">backup</td>
+                                    <td class="text-muted">/mnt/backup/data</td>
+                                    <td>1.2 TB</td>
+                                    <td><span class="badge badge-info">12</span></td>
+                                    <td><span class="badge badge-success">正常</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="viewSubvolume('@backup')">查看</button>
+                                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('@backup')">快照</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快照管理 -->
+            <div class="volume-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="font-size: 18px;">📸 快照管理</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select class="form-select" id="snapshot-volume-filter" style="width: auto;" onchange="loadSnapshots()">
+                            <option value="">全部卷</option>
+                            <option value="data">data</option>
+                            <option value="backup">backup</option>
+                        </select>
+                        <button class="btn btn-sm btn-secondary" onclick="loadSnapshots()">🔄 刷新</button>
+                        <button class="btn btn-sm btn-primary" onclick="showCreateSnapshotModal()">➕ 创建快照</button>
+                    </div>
+                </div>
+                
+                <!-- 快照可视化时间线 -->
+                <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">快照时间线</span>
+                        <span style="font-size: 12px; color: var(--text-muted);">最近 24 小时</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px; height: 40px;">
+                        ${Array.from({length: 24}, (_, i) => {
+                            const hour = 23 - i;
+                            const hasSnapshot = Math.random() > 0.7;
+                            const color = hasSnapshot ? 'var(--color-primary)' : 'var(--surface-border)';
+                            return `<div style="flex: 1; height: 100%; background: ${color}; border-radius: 2px;" title="${hour}:00"></div>`;
+                        }).reverse().join('')}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                        <span style="font-size: 11px; color: var(--text-muted);">24小时前</span>
+                        <span style="font-size: 11px; color: var(--text-muted);">现在</span>
+                    </div>
+                </div>
+
+                <div id="snapshots-container">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>快照名称</th>
+                                    <th>所属子卷</th>
+                                    <th>创建时间</th>
+                                    <th>大小</th>
+                                    <th>类型</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="snapshots-list">
+                                <tr>
+                                    <td><strong>daily-20260314</strong></td>
+                                    <td class="text-muted">@home</td>
+                                    <td>2026-03-14 00:00</td>
+                                    <td>2.3 GB</td>
+                                    <td><span class="badge badge-neutral">定时</span></td>
+                                    <td><span class="badge badge-success">完成</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('daily-20260314')">恢复</button>
+                                        <button class="btn btn-sm btn-secondary" onclick="browseSnapshot('daily-20260314')">浏览</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('daily-20260314')">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>manual-before-update</strong></td>
+                                    <td class="text-muted">@share</td>
+                                    <td>2026-03-13 18:30</td>
+                                    <td>1.8 GB</td>
+                                    <td><span class="badge badge-info">手动</span></td>
+                                    <td><span class="badge badge-success">完成</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('manual-before-update')">恢复</button>
+                                        <button class="btn btn-sm btn-secondary" onclick="browseSnapshot('manual-before-update')">浏览</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('manual-before-update')">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>hourly-14</strong></td>
+                                    <td class="text-muted">@backup</td>
+                                    <td>2026-03-14 14:00</td>
+                                    <td>512 MB</td>
+                                    <td><span class="badge badge-neutral">定时</span></td>
+                                    <td><span class="badge badge-success">完成</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('hourly-14')">恢复</button>
+                                        <button class="btn btn-sm btn-secondary" onclick="browseSnapshot('hourly-14')">浏览</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('hourly-14')">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快照策略 -->
+            <div class="volume-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="font-size: 18px;">⚙️ 快照策略</h2>
+                    <button class="btn btn-sm btn-primary" onclick="showSnapshotPolicyModal()">配置策略</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">每小时快照</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 18px; font-weight: 600;">启用</span>
+                            <span style="font-size: 12px; color: var(--color-success);">保留 24 个</span>
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">每日快照</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 18px; font-weight: 600;">启用</span>
+                            <span style="font-size: 12px; color: var(--color-success);">保留 7 个</span>
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">每周快照</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 18px; font-weight: 600;">启用</span>
+                            <span style="font-size: 12px; color: var(--color-success);">保留 4 个</span>
+                        </div>
+                    </div>
+                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">每月快照</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 18px; font-weight: 600;">启用</span>
+                            <span style="font-size: 12px; color: var(--color-success);">保留 12 个</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 快捷操作 -->
             <div class="volume-section">
                 <h2 style="font-size: 18px; margin-bottom: 1rem;">快捷操作</h2>
@@ -266,10 +465,73 @@
                     <button class="btn btn-secondary" onclick="runBalance()">⚖️ 平衡数据</button>
                     <button class="btn btn-secondary" onclick="createSnapshot()">📸 创建快照</button>
                     <button class="btn btn-secondary" onclick="checkSmart()">📊 SMART 检测</button>
+                    <button class="btn btn-secondary" onclick="cleanOldSnapshots()">🧹 清理旧快照</button>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- 创建子卷模态框 -->
+    <div class="modal-overlay" id="create-subvolume-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: var(--surface-color); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 480px; box-shadow: var(--shadow-xl);">
+            <h3 style="margin-bottom: 1rem; font-size: 18px;">📁 创建子卷</h3>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">子卷名称 *</label>
+                <input type="text" class="form-input" id="subvol-name" placeholder="例如: @home" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">所属卷 *</label>
+                <select class="form-select" id="subvol-volume" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+                    <option value="data">data</option>
+                    <option value="backup">backup</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">路径</label>
+                <input type="text" class="form-input" id="subvol-path" placeholder="自动生成或自定义路径" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('create-subvolume-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createSubvolume()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建快照模态框 -->
+    <div class="modal-overlay" id="create-snapshot-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: var(--surface-color); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 480px; box-shadow: var(--shadow-xl);">
+            <h3 style="margin-bottom: 1rem; font-size: 18px;">📸 创建快照</h3>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">快照名称 *</label>
+                <input type="text" class="form-input" id="snapshot-name" placeholder="例如: manual-20260314" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">所属卷 *</label>
+                <select class="form-select" id="snapshot-volume" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+                    <option value="data">data</option>
+                    <option value="backup">backup</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">子卷 *</label>
+                <select class="form-select" id="snapshot-subvol" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+                    <option value="@home">@home</option>
+                    <option value="@share">@share</option>
+                    <option value="@backup">@backup</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" id="snapshot-readonly" checked>
+                    <span>只读快照</span>
+                </label>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('create-snapshot-modal')">取消</button>
+                <button class="btn btn-primary" onclick="createSnapshotFromModal()">创建</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const API_BASE = '/api/v1';
@@ -451,11 +713,210 @@
             });
         }
 
+        // ========== 子卷管理 ==========
+
+        async function loadSubvolumes() {
+            try {
+                const res = await fetch(`${API_BASE}/volumes/subvolumes`);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    renderSubvolumes(data.data);
+                } else {
+                    console.error('加载子卷列表失败:', data.message);
+                }
+            } catch (err) {
+                console.error('加载子卷列表失败:', err);
+            }
+        }
+
+        function renderSubvolumes(subvolumes) {
+            const tbody = document.getElementById('subvolumes-list');
+            if (!subvolumes || subvolumes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #9CA3AF;">暂无子卷</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = subvolumes.map(sv => `
+                <tr>
+                    <td><strong>${sv.name}</strong></td>
+                    <td class="text-muted">${sv.volume || '-'}</td>
+                    <td class="text-muted">${sv.path || '-'}</td>
+                    <td>${formatSize(sv.size || 0)}</td>
+                    <td><span class="badge badge-info">${sv.snapshot_count || 0}</span></td>
+                    <td><span class="badge badge-success">正常</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="viewSubvolume('${sv.name}')">查看</button>
+                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('${sv.name}')">快照</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showCreateSubvolume() {
+            document.getElementById('subvol-name').value = '';
+            document.getElementById('subvol-path').value = '';
+            document.getElementById('create-subvolume-modal').style.display = 'flex';
+        }
+
+        async function createSubvolume() {
+            const name = document.getElementById('subvol-name').value.trim();
+            const volume = document.getElementById('subvol-volume').value;
+            const path = document.getElementById('subvol-path').value.trim();
+
+            if (!name) {
+                alert('请输入子卷名称');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${volume}/subvolumes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, path: path || undefined })
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    alert('✓ 子卷创建成功');
+                    closeModal('create-subvolume-modal');
+                    loadSubvolumes();
+                } else {
+                    alert('✗ 创建失败：' + data.message);
+                }
+            } catch (err) {
+                alert('✗ 创建失败：' + err.message);
+            }
+        }
+
+        function viewSubvolume(name) {
+            alert('查看子卷详情: ' + name);
+        }
+
+        function createSnapshotForSubvol(subvol) {
+            document.getElementById('snapshot-subvol').value = subvol;
+            document.getElementById('snapshot-name').value = 'manual-' + new Date().toISOString().slice(0,10).replace(/-/g,'');
+            document.getElementById('create-snapshot-modal').style.display = 'flex';
+        }
+
+        // ========== 快照管理 ==========
+
+        async function loadSnapshots() {
+            const volumeFilter = document.getElementById('snapshot-volume-filter')?.value || '';
+            
+            try {
+                let url = `${API_BASE}/volumes/snapshots`;
+                if (volumeFilter) {
+                    url = `${API_BASE}/volumes/${volumeFilter}/snapshots`;
+                }
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    renderSnapshots(data.data);
+                } else {
+                    console.error('加载快照列表失败:', data.message);
+                }
+            } catch (err) {
+                console.error('加载快照列表失败:', err);
+            }
+        }
+
+        function renderSnapshots(snapshots) {
+            const tbody = document.getElementById('snapshots-list');
+            if (!snapshots || snapshots.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #9CA3AF;">暂无快照</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = snapshots.map(snap => `
+                <tr>
+                    <td><strong>${snap.name}</strong></td>
+                    <td class="text-muted">${snap.subvolume || '-'}</td>
+                    <td>${formatDate(snap.created_at)}</td>
+                    <td>${formatSize(snap.size || 0)}</td>
+                    <td><span class="badge ${snap.type === 'manual' ? 'badge-info' : 'badge-neutral'}">${snap.type || '定时'}</span></td>
+                    <td><span class="badge badge-success">${snap.status || '完成'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('${snap.name}')">恢复</button>
+                        <button class="btn btn-sm btn-secondary" onclick="browseSnapshot('${snap.name}')">浏览</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('${snap.name}')">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showCreateSnapshotModal() {
+            document.getElementById('snapshot-name').value = 'manual-' + new Date().toISOString().slice(0,10).replace(/-/g,'');
+            document.getElementById('create-snapshot-modal').style.display = 'flex';
+        }
+
+        async function createSnapshotFromModal() {
+            const name = document.getElementById('snapshot-name').value.trim();
+            const volume = document.getElementById('snapshot-volume').value;
+            const subvol = document.getElementById('snapshot-subvol').value;
+            const readonly = document.getElementById('snapshot-readonly').checked;
+
+            if (!name) {
+                alert('请输入快照名称');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${volume}/snapshots`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subvolume: subvol,
+                        name: name,
+                        readonly: readonly
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    alert('✓ 快照创建成功');
+                    closeModal('create-snapshot-modal');
+                    loadSnapshots();
+                } else {
+                    alert('✗ 创建失败：' + data.message);
+                }
+            } catch (err) {
+                alert('✗ 创建失败：' + err.message);
+            }
+        }
+
+        function restoreSnapshot(name) {
+            if (!confirm(`确定要恢复到快照 "${name}" 吗？\n\n警告：当前数据将被覆盖！`)) return;
+            alert('恢复快照: ' + name);
+        }
+
+        function browseSnapshot(name) {
+            alert('浏览快照: ' + name);
+        }
+
+        function deleteSnapshot(name) {
+            if (!confirm(`确定要删除快照 "${name}" 吗？`)) return;
+            alert('删除快照: ' + name);
+        }
+
+        function showSnapshotPolicyModal() {
+            alert('快照策略配置功能（待实现）');
+        }
+
+        function cleanOldSnapshots() {
+            if (!confirm('确定要清理旧快照吗？将根据策略删除过期快照。')) return;
+            alert('清理旧快照...');
+        }
+
         // ========== 工具函数 ==========
 
         function loadDisks() {
             // TODO: 加载磁盘状态
             console.log('加载磁盘状态...');
+            loadSubvolumes();
+            loadSnapshots();
         }
 
         function formatSize(bytes) {
@@ -465,6 +926,31 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.style.display = 'none';
+                }
+            });
+        });
     </script>
 </body>
 </html>

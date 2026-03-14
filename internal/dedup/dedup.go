@@ -111,11 +111,38 @@ func (s *DedupStats) Update(fn func(*DedupStats)) {
 	fn(s)
 }
 
-// Clone 克隆统计
-func (s *DedupStats) Clone() DedupStats {
+// Clone 克隆统计（返回不含锁的快照）
+func (s *DedupStats) Clone() DedupStatsSnapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return *s
+	return DedupStatsSnapshot{
+		TotalFiles:       s.TotalFiles,
+		TotalSize:        s.TotalSize,
+		DuplicateFiles:   s.DuplicateFiles,
+		DuplicateSize:    s.DuplicateSize,
+		SavingsPotential: s.SavingsPotential,
+		SavingsActual:    s.SavingsActual,
+		ChunksStored:     s.ChunksStored,
+		ChunkDataSize:    s.ChunkDataSize,
+		SharedChunks:     s.SharedChunks,
+		SharedDataSize:   s.SharedDataSize,
+		CrossUserSavings: s.CrossUserSavings,
+	}
+}
+
+// DedupStatsSnapshot 统计快照（不含锁，可安全复制）
+type DedupStatsSnapshot struct {
+	TotalFiles       int64 `json:"totalFiles"`
+	TotalSize        int64 `json:"totalSize"`
+	DuplicateFiles   int64 `json:"duplicateFiles"`
+	DuplicateSize    int64 `json:"duplicateSize"`
+	SavingsPotential int64 `json:"savingsPotential"`
+	SavingsActual    int64 `json:"savingsActual"`
+	ChunksStored     int   `json:"chunksStored"`
+	ChunkDataSize    int64 `json:"chunkDataSize"`
+	SharedChunks     int   `json:"sharedChunks"`
+	SharedDataSize   int64 `json:"sharedDataSize"`
+	CrossUserSavings int64 `json:"crossUserSavings"`
 }
 
 // Progress 进度信息
@@ -785,11 +812,23 @@ func NewStatsCollector() *StatsCollector {
 	return &StatsCollector{}
 }
 
-// GetStats 获取统计
-func (s *StatsCollector) GetStats() DedupStats {
+// GetStats 获取统计快照（不含锁）
+func (s *StatsCollector) GetStats() DedupStatsSnapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return s.stats
+	return DedupStatsSnapshot{
+		TotalFiles:       s.stats.TotalFiles,
+		TotalSize:        s.stats.TotalSize,
+		DuplicateFiles:   s.stats.DuplicateFiles,
+		DuplicateSize:    s.stats.DuplicateSize,
+		SavingsPotential: s.stats.SavingsPotential,
+		SavingsActual:    s.stats.SavingsActual,
+		ChunksStored:     s.stats.ChunksStored,
+		ChunkDataSize:    s.stats.ChunkDataSize,
+		SharedChunks:     s.stats.SharedChunks,
+		SharedDataSize:   s.stats.SharedDataSize,
+		CrossUserSavings: s.stats.CrossUserSavings,
+	}
 }
 
 // IncrementFiles 增加文件计数
@@ -839,7 +878,20 @@ func (s *StatsCollector) Reset() {
 func (s *StatsCollector) ToJSON() string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	data, _ := json.MarshalIndent(s.stats, "", "  ")
+	snapshot := DedupStatsSnapshot{
+		TotalFiles:       s.stats.TotalFiles,
+		TotalSize:        s.stats.TotalSize,
+		DuplicateFiles:   s.stats.DuplicateFiles,
+		DuplicateSize:    s.stats.DuplicateSize,
+		SavingsPotential: s.stats.SavingsPotential,
+		SavingsActual:    s.stats.SavingsActual,
+		ChunksStored:     s.stats.ChunksStored,
+		ChunkDataSize:    s.stats.ChunkDataSize,
+		SharedChunks:     s.stats.SharedChunks,
+		SharedDataSize:   s.stats.SharedDataSize,
+		CrossUserSavings: s.stats.CrossUserSavings,
+	}
+	data, _ := json.MarshalIndent(snapshot, "", "  ")
 	return string(data)
 }
 

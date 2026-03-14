@@ -32,7 +32,7 @@ info:
     | 500 | 服务器内部错误 |
     | 503 | 服务暂时不可用 |
     
-  version: 2.6.0
+  version: 2.7.0
   contact:
     name: NAS-OS 团队
     email: support@nas-os.io
@@ -802,6 +802,496 @@ paths:
               schema:
                 $ref: '#/components/schemas/SecurityDashboard'
 
+  # ==================== 卷管理 API ====================
+  /volumes:
+    get:
+      tags: [volumes]
+      summary: 获取卷列表
+      description: 获取所有存储卷的列表
+      operationId: listVolumes
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Volume'
+              example:
+                code: 0
+                message: "success"
+                data:
+                  - name: "data"
+                    profile: "raid1"
+                    devices: ["/dev/sda", "/dev/sdb"]
+                    total: 500000000000
+                    used: 225000000000
+                    usage_percent: 45
+                    status: "healthy"
+                  - name: "backup"
+                    profile: "single"
+                    devices: ["/dev/sdc"]
+                    total: 2000000000000
+                    used: 1560000000000
+                    usage_percent: 78
+                    status: "healthy"
+
+  /volumes/{name}:
+    get:
+      tags: [volumes]
+      summary: 获取卷详情
+      operationId: getVolume
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/Volume'
+    delete:
+      tags: [volumes]
+      summary: 删除卷
+      operationId: deleteVolume
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /volumes/{name}/subvolumes:
+    get:
+      tags: [volumes]
+      summary: 获取子卷列表
+      operationId: listSubvolumes
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              example:
+                code: 0
+                data:
+                  - name: "@home"
+                    volume: "data"
+                    path: "/mnt/data/home"
+                    size: 125000000000
+                    snapshot_count: 5
+                  - name: "@share"
+                    volume: "data"
+                    path: "/mnt/data/share"
+                    size: 89000000000
+                    snapshot_count: 3
+    post:
+      tags: [volumes]
+      summary: 创建子卷
+      operationId: createSubvolume
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                path:
+                  type: string
+            example:
+              name: "@photos"
+              path: "/mnt/data/photos"
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /volumes/{name}/snapshots:
+    get:
+      tags: [volumes]
+      summary: 获取快照列表
+      operationId: listSnapshots
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              example:
+                code: 0
+                data:
+                  - name: "daily-20260314"
+                    subvolume: "@home"
+                    created_at: "2026-03-14T00:00:00Z"
+                    size: 2300000000
+                    type: "scheduled"
+                    status: "completed"
+                  - name: "manual-before-update"
+                    subvolume: "@share"
+                    created_at: "2026-03-13T18:30:00Z"
+                    size: 1800000000
+                    type: "manual"
+                    status: "completed"
+    post:
+      tags: [volumes]
+      summary: 创建快照
+      operationId: createSnapshot
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSnapshotRequest'
+            example:
+              subvolume: "@home"
+              name: "manual-20260314"
+              readonly: true
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /volumes/{name}/snapshots/{snapshot}:
+    delete:
+      tags: [volumes]
+      summary: 删除快照
+      operationId: deleteSnapshot
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: snapshot
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /volumes/{name}/snapshots/{snapshot}/restore:
+    post:
+      tags: [volumes]
+      summary: 恢复快照
+      operationId: restoreSnapshot
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: snapshot
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /volumes/{name}/scrub:
+    post:
+      tags: [volumes]
+      summary: 启动数据校验
+      operationId: startScrub
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 校验已启动
+          content:
+            application/json:
+              example:
+                code: 0
+                message: "数据校验已启动"
+                data:
+                  task_id: "scrub-data-20260314"
+                  status: "running"
+
+  /volumes/{name}/balance:
+    post:
+      tags: [volumes]
+      summary: 启动数据平衡
+      operationId: startBalance
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 平衡已启动
+          content:
+            application/json:
+              example:
+                code: 0
+                message: "数据平衡已启动"
+
+  # ==================== 用户管理 API ====================
+  /users:
+    get:
+      tags: [users]
+      summary: 获取用户列表
+      operationId: listUsers
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              example:
+                code: 0
+                data:
+                  - username: "admin"
+                    email: "admin@example.com"
+                    role: "admin"
+                    disabled: false
+                    created_at: "2026-01-01T00:00:00Z"
+                  - username: "zhangsan"
+                    email: "zhangsan@example.com"
+                    role: "user"
+                    disabled: false
+                    created_at: "2026-02-15T10:30:00Z"
+    post:
+      tags: [users]
+      summary: 创建用户
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            example:
+              username: "lisi"
+              password: "SecurePass123!"
+              email: "lisi@example.com"
+              role: "user"
+      responses:
+        '200':
+          description: 用户创建成功
+          content:
+            application/json:
+              example:
+                code: 0
+                message: "用户创建成功"
+                data:
+                  username: "lisi"
+
+  /users/{username}:
+    get:
+      tags: [users]
+      summary: 获取用户详情
+      operationId: getUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/User'
+    put:
+      tags: [users]
+      summary: 更新用户信息
+      operationId: updateUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                role:
+                  type: string
+            example:
+              email: "newemail@example.com"
+              role: "admin"
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+    delete:
+      tags: [users]
+      summary: 删除用户
+      operationId: deleteUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /users/{username}/disable:
+    post:
+      tags: [users]
+      summary: 禁用用户
+      operationId: disableUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /users/{username}/enable:
+    post:
+      tags: [users]
+      summary: 启用用户
+      operationId: enableUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /users/{username}/reset-password:
+    post:
+      tags: [users]
+      summary: 重置用户密码
+      operationId: resetUserPassword
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_password:
+                  type: string
+            example:
+              new_password: "NewSecurePass456!"
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /groups:
+    get:
+      tags: [users]
+      summary: 获取用户组列表
+      operationId: listGroups
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              example:
+                code: 0
+                data:
+                  - name: "administrators"
+                    members: ["admin"]
+                  - name: "users"
+                    members: ["zhangsan", "lisi"]
+    post:
+      tags: [users]
+      summary: 创建用户组
+      operationId: createGroup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                members:
+                  type: array
+                  items:
+                    type: string
+            example:
+              name: "developers"
+              description: "开发团队"
+              members: ["zhangsan"]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
 components:
   schemas:
     # 通用响应
@@ -816,6 +1306,155 @@ components:
           example: "success"
         data:
           type: object
+
+    # 卷相关
+    Volume:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "data"
+        profile:
+          type: string
+          enum: [single, raid0, raid1, raid5, raid6, raid10]
+          example: "raid1"
+        devices:
+          type: array
+          items:
+            type: string
+          example: ["/dev/sda", "/dev/sdb"]
+        total:
+          type: integer
+          description: 总容量（字节）
+        used:
+          type: integer
+          description: 已用容量（字节）
+        available:
+          type: integer
+          description: 可用容量（字节）
+        usage_percent:
+          type: number
+          description: 使用百分比
+        status:
+          type: string
+          enum: [healthy, degraded, error]
+
+    Subvolume:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "@home"
+        volume:
+          type: string
+          example: "data"
+        path:
+          type: string
+          example: "/mnt/data/home"
+        size:
+          type: integer
+        snapshot_count:
+          type: integer
+
+    Snapshot:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "daily-20260314"
+        subvolume:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        size:
+          type: integer
+        type:
+          type: string
+          enum: [manual, scheduled]
+        status:
+          type: string
+          enum: [pending, completed, failed]
+
+    CreateSnapshotRequest:
+      type: object
+      required:
+        - subvolume
+        - name
+      properties:
+        subvolume:
+          type: string
+          description: 子卷名称
+        name:
+          type: string
+          description: 快照名称
+        readonly:
+          type: boolean
+          default: true
+
+    # 用户相关
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "zhangsan"
+        email:
+          type: string
+          example: "zhangsan@example.com"
+        role:
+          type: string
+          enum: [admin, user, guest]
+        disabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        mfa_enabled:
+          type: boolean
+
+    CreateUserRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 32
+          pattern: '^[a-zA-Z][a-zA-Z0-9_-]*$'
+        password:
+          type: string
+          minLength: 6
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, user, guest]
+          default: user
+        home_dir:
+          type: string
+        groups:
+          type: array
+          items:
+            type: string
+
+    Group:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        members:
+          type: array
+          items:
+            type: string
 
     # 数据去重相关
     ScanRequest:

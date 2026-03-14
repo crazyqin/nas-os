@@ -189,11 +189,46 @@ func (p *CompressionProgress) GetPercent() float64 {
 	return float64(p.BytesDone) * 100 / float64(p.BytesTotal)
 }
 
-// GetSnapshot 获取进度快照
-func (p *CompressionProgress) GetSnapshot() CompressionProgress {
+// GetSnapshot 获取进度快照（返回不含锁的副本）
+func (p *CompressionProgress) GetSnapshot() CompressionProgressSnapshot {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
-	return *p
+	return CompressionProgressSnapshot{
+		Phase:        p.Phase,
+		CurrentFile:  p.CurrentFile,
+		FilesTotal:   p.FilesTotal,
+		FilesDone:    p.FilesDone,
+		FilesSkipped: p.FilesSkipped,
+		FilesFailed:  p.FilesFailed,
+		BytesTotal:   p.BytesTotal,
+		BytesDone:    p.BytesDone,
+		BytesSaved:   p.BytesSaved,
+		StartTime:    p.StartTime,
+		LastUpdate:   p.LastUpdate,
+		ETA:          p.ETA,
+		Speed:        p.Speed,
+		Workers:      p.Workers,
+		ActiveTasks:  p.ActiveTasks,
+	}
+}
+
+// CompressionProgressSnapshot 进度快照（不含锁，可安全复制）
+type CompressionProgressSnapshot struct {
+	Phase        ProgressPhase `json:"phase"`
+	CurrentFile  string        `json:"currentFile"`
+	FilesTotal   int64         `json:"filesTotal"`
+	FilesDone    int64         `json:"filesDone"`
+	FilesSkipped int64         `json:"filesSkipped"`
+	FilesFailed  int64         `json:"filesFailed"`
+	BytesTotal   int64         `json:"bytesTotal"`
+	BytesDone    int64         `json:"bytesDone"`
+	BytesSaved   int64         `json:"bytesSaved"`
+	StartTime    time.Time     `json:"startTime"`
+	LastUpdate   time.Time     `json:"lastUpdate"`
+	ETA          time.Duration `json:"eta"`
+	Speed        float64       `json:"speed"`
+	Workers      int           `json:"workers"`
+	ActiveTasks  int32         `json:"activeTasks"`
 }
 
 // ========== 压缩失败恢复 ==========
@@ -603,11 +638,12 @@ func (pc *ParallelCompressor) CompressParallel(ctx context.Context, paths []stri
 	}
 
 	// 发送任务
+sendLoop:
 	for _, path := range validPaths {
 		select {
 		case pathChan <- path:
 		case <-ctx.Done():
-			break
+			break sendLoop
 		}
 	}
 	close(pathChan)
