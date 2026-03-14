@@ -36,10 +36,10 @@ type TransmissionResponse struct {
 
 // TransmissionTorrentAddRequest 添加种子请求
 type TransmissionTorrentAddRequest struct {
-	Filename    string `json:"filename,omitempty"`    // .torrent 文件 URL 或磁力链接
-	Metainfo    string `json:"metainfo,omitempty"`    // base64 编码的 .torrent 文件内容
+	Filename    string `json:"filename,omitempty"`     // .torrent 文件 URL 或磁力链接
+	Metainfo    string `json:"metainfo,omitempty"`     // base64 编码的 .torrent 文件内容
 	DownloadDir string `json:"download-dir,omitempty"` // 下载目录
-	Paused      bool   `json:"paused,omitempty"`      // 是否暂停
+	Paused      bool   `json:"paused,omitempty"`       // 是否暂停
 }
 
 // TransmissionTorrentAddResponse 添加种子响应
@@ -69,25 +69,25 @@ type TransmissionTorrentGetResponse struct {
 
 // TransmissionTorrent 种子信息
 type TransmissionTorrent struct {
-	ID                int     `json:"id"`
-	Name              string  `json:"name"`
-	HashString        string  `json:"hashString"`
-	Status            int     `json:"status"`
-	TotalSize         int64   `json:"totalSize"`
-	DownloadedEver    int64   `json:"downloadedEver"`
-	UploadedEver      int64   `json:"uploadedEver"`
-	PercentDone       float64 `json:"percentDone"`
-	RateDownload      int64   `json:"rateDownload"`  // 下载速度 (bytes/s)
-	RateUpload        int64   `json:"rateUpload"`    // 上传速度 (bytes/s)
-	PeersConnected    int     `json:"peersConnected"`
-	Seeders           int     `json:"seeders"`
-	Leechers          int     `json:"leechers"`
-	DownloadDir       string  `json:"downloadDir"`
-	Error             int     `json:"error"`
-	ErrorString       string  `json:"errorString"`
-	DoneDate          int64   `json:"doneDate"`
-	AddedDate         int64   `json:"addedDate"`
-	ActivityDate      int64   `json:"activityDate"`
+	ID             int     `json:"id"`
+	Name           string  `json:"name"`
+	HashString     string  `json:"hashString"`
+	Status         int     `json:"status"`
+	TotalSize      int64   `json:"totalSize"`
+	DownloadedEver int64   `json:"downloadedEver"`
+	UploadedEver   int64   `json:"uploadedEver"`
+	PercentDone    float64 `json:"percentDone"`
+	RateDownload   int64   `json:"rateDownload"` // 下载速度 (bytes/s)
+	RateUpload     int64   `json:"rateUpload"`   // 上传速度 (bytes/s)
+	PeersConnected int     `json:"peersConnected"`
+	Seeders        int     `json:"seeders"`
+	Leechers       int     `json:"leechers"`
+	DownloadDir    string  `json:"downloadDir"`
+	Error          int     `json:"error"`
+	ErrorString    string  `json:"errorString"`
+	DoneDate       int64   `json:"doneDate"`
+	AddedDate      int64   `json:"addedDate"`
+	ActivityDate   int64   `json:"activityDate"`
 }
 
 // TransmissionTorrentRemoveRequest 删除种子请求
