@@ -118,7 +118,8 @@ func TestParseVetoFiles(t *testing.T) {
 		{"/.DS_Store/Thumbs.db/", 2},
 		{"/file1/", 1},
 		{"", 0},
-		{"/", 0},
+		{"/file1/file2/", 2},
+		{"no_slashes", 1},
 	}
 
 	for _, tt := range tests {
@@ -349,10 +350,10 @@ func TestValidateOctalMask(t *testing.T) {
 		{"0755", false},
 		{"0777", false},
 		{"0000", false},
-		{"644", true},   // 长度错误
-		{"0844", true},  // 非八进制
-		{"abcd", true},  // 非数字
-		{"", true},      // 空
+		{"644", true},  // 长度错误
+		{"0844", true}, // 非八进制
+		{"abcd", true}, // 非数字
+		{"", true},     // 空
 	}
 
 	for _, tt := range tests {

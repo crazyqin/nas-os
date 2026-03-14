@@ -62,36 +62,36 @@ func TestParseExportLine(t *testing.T) {
 	parser := NewConfigParser()
 
 	tests := []struct {
-		line     string
-		wantPath string
+		line        string
+		wantPath    string
 		wantClients int
-		wantErr  bool
+		wantErr     bool
 	}{
 		{
-			line:     "/data/share 192.168.1.0/24(rw,no_root_squash)",
-			wantPath: "/data/share",
+			line:        "/data/share 192.168.1.0/24(rw,no_root_squash)",
+			wantPath:    "/data/share",
 			wantClients: 1,
-			wantErr:  false,
+			wantErr:     false,
 		},
 		{
-			line:     "/data/share *(rw)",
-			wantPath: "/data/share",
+			line:        "/data/share *(rw)",
+			wantPath:    "/data/share",
 			wantClients: 1,
-			wantErr:  false,
+			wantErr:     false,
 		},
 		{
-			line:     "/data/share",
-			wantPath: "/data/share",
+			line:        "/data/share",
+			wantPath:    "/data/share",
 			wantClients: 0,
-			wantErr:  false,
+			wantErr:     false,
 		},
 		{
-			line:     "relative/path",
-			wantErr:  true,
+			line:    "relative/path",
+			wantErr: true,
 		},
 		{
-			line:     "",
-			wantErr:  true,
+			line:    "",
+			wantErr: true,
 		},
 	}
 
@@ -116,10 +116,10 @@ func TestParseClientSpec(t *testing.T) {
 	parser := NewConfigParser()
 
 	tests := []struct {
-		spec      string
-		wantHost  string
-		wantOpts  int
-		wantErr   bool
+		spec     string
+		wantHost string
+		wantOpts int
+		wantErr  bool
 	}{
 		{
 			spec:     "192.168.1.0/24(rw,no_root_squash)",
@@ -162,52 +162,52 @@ func TestParseClientOptions(t *testing.T) {
 	parser := NewConfigParser()
 
 	tests := []struct {
-		name     string
-		opts     []string
-		expected ExportOptions
+		name    string
+		opts    []string
+		checkFn func(ExportOptions) bool
 	}{
 		{
 			name: "读写模式",
 			opts: []string{"rw", "no_root_squash"},
-			expected: ExportOptions{Rw: true, NoRootSquash: true},
+			checkFn: func(o ExportOptions) bool {
+				return o.Rw && o.NoRootSquash
+			},
 		},
 		{
 			name: "只读模式",
 			opts: []string{"ro"},
-			expected: ExportOptions{Ro: true, Rw: false},
+			checkFn: func(o ExportOptions) bool {
+				return o.Ro && !o.Rw
+			},
 		},
 		{
 			name: "异步模式",
 			opts: []string{"async"},
-			expected: ExportOptions{Async: true},
+			checkFn: func(o ExportOptions) bool {
+				return o.Async
+			},
 		},
 		{
 			name: "子树检查",
 			opts: []string{"subtree_check"},
-			expected: ExportOptions{SubtreeCheck: true},
+			checkFn: func(o ExportOptions) bool {
+				return o.SubtreeCheck
+			},
 		},
 		{
 			name: "安全模式",
 			opts: []string{"secure"},
-			expected: ExportOptions{Secure: true},
+			checkFn: func(o ExportOptions) bool {
+				return o.Secure
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := parser.ParseClientOptions(tt.opts)
-
-			if result.Ro != tt.expected.Ro {
-				t.Errorf("Ro = %v, want %v", result.Ro, tt.expected.Ro)
-			}
-			if result.Rw != tt.expected.Rw {
-				t.Errorf("Rw = %v, want %v", result.Rw, tt.expected.Rw)
-			}
-			if result.NoRootSquash != tt.expected.NoRootSquash {
-				t.Errorf("NoRootSquash = %v, want %v", result.NoRootSquash, tt.expected.NoRootSquash)
-			}
-			if result.Async != tt.expected.Async {
-				t.Errorf("Async = %v, want %v", result.Async, tt.expected.Async)
+			if !tt.checkFn(result) {
+				t.Errorf("ParseClientOptions(%v) = %+v, check failed", tt.opts, result)
 			}
 		})
 	}
@@ -219,14 +219,14 @@ func TestWriteExportsFile(t *testing.T) {
 
 	exports := []*Export{
 		{
-			Path: "/data/share1",
+			Path:    "/data/share1",
 			Options: ExportOptions{Rw: true, NoRootSquash: true},
 			Clients: []Client{
 				{Host: "192.168.1.0/24"},
 			},
 		},
 		{
-			Path: "/data/share2",
+			Path:    "/data/share2",
 			Options: ExportOptions{Ro: true},
 			Clients: []Client{
 				{Host: "*"},
@@ -267,7 +267,7 @@ func TestFormatExportLine(t *testing.T) {
 		{
 			name: "单个客户端",
 			export: &Export{
-				Path: "/data/share",
+				Path:    "/data/share",
 				Options: ExportOptions{Rw: true},
 				Clients: []Client{{Host: "192.168.1.0/24"}},
 			},
@@ -276,7 +276,7 @@ func TestFormatExportLine(t *testing.T) {
 		{
 			name: "多个客户端",
 			export: &Export{
-				Path: "/data/share",
+				Path:    "/data/share",
 				Options: ExportOptions{Ro: true},
 				Clients: []Client{
 					{Host: "192.168.1.0/24"},
@@ -288,7 +288,7 @@ func TestFormatExportLine(t *testing.T) {
 		{
 			name: "无客户端",
 			export: &Export{
-				Path: "/data/share",
+				Path:    "/data/share",
 				Options: ExportOptions{Rw: true},
 				Clients: []Client{},
 			},
