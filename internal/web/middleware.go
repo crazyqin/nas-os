@@ -1,7 +1,9 @@
 package web
 
 import (
+	"crypto/subtle"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -22,12 +24,18 @@ type SecurityConfig struct {
 
 // DefaultSecurityConfig 默认安全配置
 func DefaultSecurityConfig() *SecurityConfig {
+	// CSRFKey 从环境变量读取，默认值保证32字节
+	csrfKey := os.Getenv("NAS_CSRF_KEY")
+	if csrfKey == "" {
+		csrfKey = "change-this-to-a-32-byte-secret-key-now!"
+	}
+
 	return &SecurityConfig{
 		AllowedOrigins: []string{
 			"http://localhost:8080",
 			"http://127.0.0.1:8080",
 		},
-		CSRFKey:         []byte("change-this-to-a-32-byte-secret-key-now!"), // TODO: 从环境变量读取
+		CSRFKey:         []byte(csrfKey),
 		EnableRateLimit: true,
 		RateLimitRPS:    100,
 	}
@@ -198,6 +206,8 @@ func csrfMiddleware(config *SecurityConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 只对状态修改操作进行验证
 		if c.Request.Method == "GET" || c.Request.Method == "HEAD" || c.Request.Method == "OPTIONS" {
+			// 对于安全方法，设置 CSRF token cookie
+			setCSRFToken(c, config)
 			c.Next()
 			return
 		}
@@ -208,20 +218,62 @@ func csrfMiddleware(config *SecurityConfig) gin.HandlerFunc {
 			token = c.PostForm("csrf_token")
 		}
 
-		// TODO: 验证 token (需要从 session 或 cookie 中获取期望的 token)
-		// 这里提供框架，具体实现需要配合认证系统
-		// if !validateCSRFToken(token) {
-		//     c.JSON(http.StatusForbidden, gin.H{
-		//         "code":    403,
-		//         "message": "CSRF token 验证失败",
-		//     })
-		//     c.Abort()
-		//     return
-		// }
+		// 从 cookie 中获取期望的 token
+		expectedToken, err := c.Cookie("csrf_token")
+		if err != nil {
+			// cookie 不存在，生成新 token 并拒绝请求
+			setCSRFToken(c, config)
+			c.JSON(http.StatusForbidden, gin.H{
+				"code":    403,
+				"message": "CSRF token 缺失，请刷新页面重试",
+			})
+			c.Abort()
+			return
+		}
+
+		// 验证 token
+		if !validateCSRFToken(token, expectedToken, config.CSRFKey) {
+			c.JSON(http.StatusForbidden, gin.H{
+				"code":    403,
+				"message": "CSRF token 验证失败",
+			})
+			c.Abort()
+			return
+		}
 
 		c.Set("csrfToken", token)
 		c.Next()
 	}
+}
+
+// setCSRFToken 设置 CSRF token cookie
+func setCSRFToken(c *gin.Context, config *SecurityConfig) {
+	// 生成新的 CSRF token
+	token := generateCSRFToken(config.CSRFKey)
+
+	// 设置 cookie
+	c.SetCookie("csrf_token", token, 3600, "/", "", false, true)
+	// 同时设置到上下文，方便模板使用
+	c.Set("csrfToken", token)
+}
+
+// generateCSRFToken 生成 CSRF token
+func generateCSRFToken(key []byte) string {
+	// 使用 UUID 作为 token，结合密钥增加安全性
+	timestamp := time.Now().Unix()
+	random := uuid.New().String()
+	// 简单的 token 格式: timestamp-random
+	// 生产环境可考虑使用 HMAC 签名
+	return fmt.Sprintf("%d-%s", timestamp, random)
+}
+
+// validateCSRFToken 验证 CSRF token
+func validateCSRFToken(token, expectedToken string, key []byte) bool {
+	if token == "" || expectedToken == "" {
+		return false
+	}
+	// 使用恒定时间比较防止时序攻击
+	return subtle.ConstantTimeCompare([]byte(token), []byte(expectedToken)) == 1
 }
 
 // auditLogMiddleware 审计日志中间件 (记录关键操作)
