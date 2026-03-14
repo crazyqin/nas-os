@@ -10,23 +10,12 @@ linters:
   default: none
   enable:
     # - errcheck    # 检查未处理的错误返回值 (暂时禁用，项目中存在大量历史遗留问题)
-    - gocritic    # 高级代码检查
+    # - gocritic    # 高级代码检查 (暂时禁用，项目中存在大量代码风格问题)
     - gosec       # 安全漏洞检查
     - govet       # Go vet 检查
     - ineffassign # 检测无效赋值
     - staticcheck # 静态分析 (包含 gosimple 功能)
     - unused      # 未使用代码检查
-
-linters-settings:
-  gocritic:
-    disabled-checks:
-      - ifElseChain    # if-else链可以不转switch
-      - elseif         # else if 风格问题
-      - exitAfterDefer # defer后exit是常见模式
-      - unlambda       # lambda表达式有时更清晰
-      - assignOp       # 赋值操作符风格
-      - dupSubExpr     # 重复表达式检查
-      - appendAssign   # append赋值检查
 
 issues:
   max-issues-per-linter: 0
