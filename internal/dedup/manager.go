@@ -607,7 +607,7 @@ func (m *Manager) GetReportForUser(user string) (*DedupReport, error) {
 	defer m.mu.RUnlock()
 
 	report := &DedupReport{
-		GeneratedAt:     time.Now(),
+		GeneratedAt: time.Now(),
 		Stats: DedupStatsSnapshot{
 			TotalFiles:       m.stats.TotalFiles,
 			TotalSize:        m.stats.TotalSize,
