@@ -37,7 +37,7 @@ func TestNewManagerWithStorage(t *testing.T) {
 	configPath := filepath.Join(tmpDir, "config.json")
 	storagePath := filepath.Join(tmpDir, "storage")
 	config := testConfig()
-	config.ChunkStore = &ChunkStore{
+	config.ChunkStore = &ChunkStoreConfig{
 		Enabled:  true,
 		BasePath: filepath.Join(storagePath, "chunks"),
 	}
@@ -339,8 +339,8 @@ func TestGetReport(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, report)
 
-	assert.Equal(t, 3, report.Stats.TotalFiles)
-	assert.Equal(t, 1, report.Stats.DuplicateFiles)
+	assert.Equal(t, int64(3), report.Stats.TotalFiles)
+	assert.Equal(t, int64(1), report.Stats.DuplicateFiles)
 	assert.Len(t, report.DuplicateGroups, 1)
 	assert.NotEmpty(t, report.Recommendations)
 }
@@ -355,7 +355,7 @@ func TestGetStats(t *testing.T) {
 	require.NoError(t, err)
 
 	stats := mgr.GetStats()
-	assert.Equal(t, 0, stats.TotalFiles)
+	assert.Equal(t, int64(0), stats.TotalFiles)
 	assert.Equal(t, int64(0), stats.TotalSize)
 }
 
@@ -375,13 +375,13 @@ func TestCreateChunk(t *testing.T) {
 
 	assert.NotEmpty(t, chunk.Hash)
 	assert.Equal(t, int64(len(data)), chunk.Size)
-	assert.Equal(t, 1, chunk.RefCount)
+	assert.Equal(t, int32(1), chunk.RefCount)
 
 	chunk2, err := mgr.CreateChunk(data)
 	require.NoError(t, err)
 
 	assert.Equal(t, chunk.Hash, chunk2.Hash)
-	assert.Equal(t, 2, chunk2.RefCount)
+	assert.Equal(t, int32(2), chunk2.RefCount)
 }
 
 func TestCreateChunkForUser(t *testing.T) {
@@ -477,7 +477,7 @@ func TestCancelScan(t *testing.T) {
 	mgr.CancelScan()
 
 	stats := mgr.GetStats()
-	assert.Equal(t, 0, stats.TotalFiles)
+	assert.Equal(t, int64(0), stats.TotalFiles)
 }
 
 func TestUpdateConfig(t *testing.T) {
@@ -644,7 +644,7 @@ func TestDeleteChunk(t *testing.T) {
 
 	retrieved, err := mgr.GetChunk(chunk.Hash)
 	require.NoError(t, err)
-	assert.Equal(t, 0, retrieved.RefCount)
+	assert.Equal(t, int32(0), retrieved.RefCount)
 
 	// 强制删除块
 	err = mgr.ForceDeleteChunk(chunk.Hash)

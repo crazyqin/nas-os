@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全中心 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .security-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        /* 页面头部 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 0.25rem 0;
+        }
+        .page-desc { color: var(--text-muted); margin: 0; }
+        
+        /* 安全评分卡片 */
+        .security-score-card {
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .score-value {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .score-label { font-size: 13px; opacity: 0.9; margin-top: 0.25rem; }
+        .score-details { flex: 1; min-width: 200px; }
+        .score-title { font-size: 20px; font-weight: 600; margin-bottom: 0.5rem; }
+        .score-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 1rem;
+        }
+        .score-issues { font-size: 14px; opacity: 0.9; }
+        
+        /* 统计卡片网格 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--surface-border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .stat-icon.blue { background: #DBEAFE; }
+        .stat-icon.green { background: #D1FAE5; }
+        .stat-icon.yellow { background: #FEF3C7; }
+        .stat-icon.red { background: #FEE2E2; }
+        .stat-icon.purple { background: #EDE9FE; }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 0.5rem;
+        }
+        .stat-trend.up { color: #10B981; }
+        .stat-trend.down { color: #EF4444; }
+        
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+        .tab-btn:hover { color: var(--text-primary); background: var(--hover-color); }
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* 面板 */
+        .panel {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+            margin-bottom: 1.5rem;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        .panel-body { padding: 1.5rem; }
+        
+        /* 加密目录列表 */
+        .encrypt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: background 0.2s;
+        }
+        .encrypt-item:last-child { margin-bottom: 0; }
+        .encrypt-item:hover { background: var(--hover-color); }
+        .encrypt-info { display: flex; align-items: center; gap: 1rem; }
+        .encrypt-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .encrypt-icon.locked { background: #FEF3C7; }
+        .encrypt-icon.unlocked { background: #D1FAE5; }
+        .encrypt-name { font-weight: 600; color: var(--text-primary); }
+        .encrypt-path { font-size: 13px; color: var(--text-muted); margin-top: 0.125rem; }
+        .encrypt-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 13px;
+        }
+        
+        /* 徽章 */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+            gap: 0.25rem;
+        }
+        .badge-success { background: #D1FAE5; color: #065F46; }
+        .badge-warning { background: #FEF3C7; color: #92400E; }
+        .badge-danger { background: #FEE2E2; color: #991B1B; }
+        .badge-info { background: #DBEAFE; color: #1E40AF; }
+        
+        /* 审计日志表格 */
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .audit-table th,
+        .audit-table td {
+            padding: 0.875rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .audit-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .audit-table tbody tr:hover { background: var(--hover-color); }
+        .audit-table td { font-size: 14px; }
+        .audit-level {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .audit-level.info { background: #DBEAFE; color: #1E40AF; }
+        .audit-level.warning { background: #FEF3C7; color: #92400E; }
+        .audit-level.error { background: #FEE2E2; color: #991B1B; }
+        .audit-level.critical { background: #7F1D1D; color: white; }
+        
+        /* 过滤器 */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-group { display: flex; align-items: center; gap: 0.5rem; }
+        .filter-label { font-size: 13px; color: var(--text-muted); }
+        .filter-select, .filter-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        
+        /* 按钮 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--hover-color); }
+        .btn-success { background: #10B981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #EF4444; color: white; }
+        .btn-danger:hover { background: #DC2626; }
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 13px; }
+        
+        /* 开关 */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-switch.active { background: var(--color-primary); }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+        .toggle-switch.active::after { transform: translateX(20px); }
+        
+        /* 设置项 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-info h4 { margin: 0 0 0.25rem 0; font-size: 14px; color: var(--text-primary); }
+        .setting-info p { margin: 0; font-size: 13px; color: var(--text-muted); }
+        
+        /* 进度条 */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--color-primary);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .page-btn {
+            padding: 0.5rem 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn:hover { background: var(--hover-color); }
+        .page-btn.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
+        }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 1rem; }
+        .empty-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .security-container { padding: 1rem; }
+            .security-score-card { flex-direction: column; text-align: center; }
+            .score-details { text-align: center; }
+            .encrypt-item { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .encrypt-meta { flex-wrap: wrap; }
+            .audit-table { display: block; overflow-x: auto; }
+            .filters { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">🔒 安全中心</h1>
+                <p class="page-desc">管理系统安全策略、加密设置和审计日志</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button class="btn btn-secondary" onclick="refreshAll()">🔄 刷新</button>
+                <button class="btn btn-primary" onclick="runSecurityScan()">🔍 安全扫描</button>
+            </div>
+        </div>
+        
+        <!-- 安全评分卡片 -->
+        <div class="security-score-card">
+            <div class="score-circle">
+                <span class="score-value" id="security-score">--</span>
+                <span class="score-label">安全评分</span>
+            </div>
+            <div class="score-details">
+                <div class="score-title">系统安全状态</div>
+                <div class="score-status" id="security-status">
+                    <span>●</span>
+                    <span>检测中...</span>
+                </div>
+                <div class="score-issues" id="security-issues">
+                    正在评估系统安全状况...
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="stat-encrypted">0</div>
+                        <div class="stat-label">加密目录</div>
+                    </div>
+                    <div class="stat-icon blue">🔐</div>
+                </div>
+                <div class="stat-trend up">受保护的数据存储</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="stat-alerts">0</div>
+                        <div class="stat-label">待处理告警</div>
+                    </div>
+                    <div class="stat-icon yellow">⚠️</div>
+                </div>
+                <div class="stat-trend" id="alerts-trend">需要关注的安全事件</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="stat-mfa">0%</div>
+                        <div class="stat-label">MFA 覆盖率</div>
+                    </div>
+                    <div class="stat-icon green">🛡️</div>
+                </div>
+                <div class="stat-trend">双因素认证启用率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value" id="stat-audit">0</div>
+                        <div class="stat-label">今日审计事件</div>
+                    </div>
+                    <div class="stat-icon purple">📋</div>
+                </div>
+                <div class="stat-trend" id="audit-trend">安全相关操作记录</div>
+            </div>
+        </div>
+        
+        <!-- 标签页 -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 仪表板</button>
+            <button class="tab-btn" onclick="switchTab('encryption')">🔐 加密管理</button>
+            <button class="tab-btn" onclick="switchTab('audit')">📋 审计日志</button>
+        </div>
+        
+        <!-- 仪表板 -->
+        <div id="dashboard" class="tab-content active">
+            <!-- 最近告警 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">⚠️ 最近安全告警</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="viewAllAlerts()">查看全部</button>
+                </div>
+                <div class="panel-body" id="recent-alerts">
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <div class="empty-title">暂无安全告警</div>
+                        <p>系统运行正常</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 安全建议 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">💡 安全建议</h3>
+                </div>
+                <div class="panel-body" id="security-recommendations">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>启用双因素认证</h4>
+                            <p>为管理员账户添加额外的安全保护</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="enableMFA()">立即启用</button>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>创建加密目录</h4>
+                            <p>保护敏感数据，防止未授权访问</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="switchTab('encryption')">前往设置</button>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>配置告警通知</h4>
+                            <p>及时接收安全事件通知</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm">配置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 加密管理 -->
+        <div id="encryption" class="tab-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">🔐 加密目录管理</h3>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateEncryptModal()">+ 创建加密目录</button>
+                </div>
+                <div class="panel-body" id="encrypted-dirs">
+                    <div class="empty-state">
+                        <div class="empty-icon">🔐</div>
+                        <div class="empty-title">暂无加密目录</div>
+                        <p>创建加密目录以保护敏感数据</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 加密设置 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">⚙️ 加密设置</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>自动加密新目录</h4>
+                            <p>在指定路径下创建的目录自动启用加密</p>
+                        </div>
+                        <div class="toggle-switch" id="auto-encrypt-toggle" onclick="toggleAutoEncrypt()"></div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>加密算法</h4>
+                            <p>当前使用 AES-256-GCM 加密算法</p>
+                        </div>
+                        <span class="badge badge-success">AES-256-GCM</span>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>密钥管理</h4>
+                            <p>管理加密密钥和备份</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="showKeyManagement()">管理密钥</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 审计日志 -->
+        <div id="audit" class="tab-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">📋 审计日志</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary btn-sm" onclick="exportAuditLogs()">📥 导出</button>
+                        <button class="btn btn-secondary btn-sm" onclick="refreshAuditLogs()">🔄 刷新</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <!-- 过滤器 -->
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">时间范围:</label>
+                            <select class="filter-select" id="filter-time" onchange="loadAuditLogs()">
+                                <option value="today">今天</option>
+                                <option value="week">最近7天</option>
+                                <option value="month">最近30天</option>
+                                <option value="all">全部</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">类别:</label>
+                            <select class="filter-select" id="filter-category" onchange="loadAuditLogs()">
+                                <option value="">全部类别</option>
+                                <option value="auth">认证</option>
+                                <option value="encryption">加密</option>
+                                <option value="firewall">防火墙</option>
+                                <option value="system">系统</option>
+                                <option value="file">文件</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">级别:</label>
+                            <select class="filter-select" id="filter-level" onchange="loadAuditLogs()">
+                                <option value="">全部级别</option>
+                                <option value="info">信息</option>
+                                <option value="warning">警告</option>
+                                <option value="error">错误</option>
+                                <option value="critical">严重</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <input type="text" class="filter-input" id="filter-search" placeholder="搜索关键词..." onkeyup="debounceSearch()">
+                        </div>
+                    </div>
+                    
+                    <!-- 日志表格 -->
+                    <div style="overflow-x: auto;">
+                        <table class="audit-table">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>级别</th>
+                                    <th>类别</th>
+                                    <th>事件</th>
+                                    <th>用户</th>
+                                    <th>来源 IP</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-log-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem;">
+                                        加载中...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="pagination" id="pagination">
+                        <!-- 分页按钮将由 JS 动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast 容器 -->
+    <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div>
+
+    <script>
+        const API_BASE = '/api/v1/security';
+        let auditPage = 1;
+        const auditPageSize = 20;
+        let searchTimeout = null;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+        });
+        
+        // 切换标签页
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabId === 'dashboard') loadDashboard();
+            if (tabId === 'encryption') loadEncryptedDirs();
+            if (tabId === 'audit') loadAuditLogs();
+        }
+        
+        // 加载仪表板
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/dashboard`);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    updateSecurityScore(data.data);
+                    updateStats(data.data);
+                    renderAlerts(data.data.recent_alerts || []);
+                }
+            } catch (e) {
+                console.error('加载仪表板失败:', e);
+                showToast('加载仪表板失败', 'error');
+            }
+        }
+        
+        // 更新安全评分
+        function updateSecurityScore(data) {
+            const score = data.security_score || 0;
+            document.getElementById('security-score').textContent = score;
+            
+            const statusEl = document.getElementById('security-status');
+            const issuesEl = document.getElementById('security-issues');
+            
+            if (score >= 80) {
+                statusEl.innerHTML = '<span style="color: #10B981;">●</span><span>安全</span>';
+                statusEl.style.background = 'rgba(16, 185, 129, 0.3)';
+            } else if (score >= 60) {
+                statusEl.innerHTML = '<span style="color: #F59E0B;">●</span><span>需关注</span>';
+                statusEl.style.background = 'rgba(245, 158, 11, 0.3)';
+            } else {
+                statusEl.innerHTML = '<span style="color: #EF4444;">●</span><span>风险</span>';
+                statusEl.style.background = 'rgba(239, 68, 68, 0.3)';
+            }
+            
+            const issues = data.issues || [];
+            if (issues.length > 0) {
+                issuesEl.textContent = `发现 ${issues.length} 个安全问题需要处理`;
+            } else {
+                issuesEl.textContent = '系统安全状态良好';
+            }
+        }
+        
+        // 更新统计
+        function updateStats(data) {
+            document.getElementById('stat-encrypted').textContent = data.encrypted_dirs || 0;
+            document.getElementById('stat-alerts').textContent = data.pending_alerts || 0;
+            document.getElementById('stat-mfa').textContent = (data.mfa_coverage || 0) + '%';
+            document.getElementById('stat-audit').textContent = data.today_audit_events || 0;
+        }
+        
+        // 渲染告警
+        function renderAlerts(alerts) {
+            const container = document.getElementById('recent-alerts');
+            
+            if (!alerts || alerts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <div class="empty-title">暂无安全告警</div>
+                        <p>系统运行正常</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = alerts.map(alert => `
+                <div class="encrypt-item" style="margin-bottom: 0.75rem;">
+                    <div class="encrypt-info">
+                        <div class="encrypt-icon ${alert.severity === 'critical' ? 'locked' : 'unlocked'}">
+                            ${alert.severity === 'critical' ? '🚨' : '⚠️'}
+                        </div>
+                        <div>
+                            <div class="encrypt-name">${escapeHtml(alert.title)}</div>
+                            <div class="encrypt-path">${escapeHtml(alert.description || '')}</div>
+                        </div>
+                    </div>
+                    <div class="encrypt-meta">
+                        <span class="badge badge-${alert.severity === 'critical' ? 'danger' : 'warning'}">${alert.severity}</span>
+                        <span>${formatTime(alert.timestamp)}</span>
+                        <button class="btn btn-secondary btn-sm" onclick="acknowledgeAlert('${alert.id}')">确认</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 加载加密目录
+        async function loadEncryptedDirs() {
+            try {
+                const res = await fetch(`${API_BASE}/encryption/directories`);
+                const data = await res.json();
+                
+                const container = document.getElementById('encrypted-dirs');
+                
+                if (data.code === 0 && data.data && data.data.length > 0) {
+                    document.getElementById('stat-encrypted').textContent = data.data.length;
+                    
+                    container.innerHTML = data.data.map(dir => `
+                        <div class="encrypt-item">
+                            <div class="encrypt-info">
+                                <div class="encrypt-icon ${dir.status === 'locked' ? 'locked' : 'unlocked'}">
+                                    ${dir.status === 'locked' ? '🔒' : '🔓'}
+                                </div>
+                                <div>
+                                    <div class="encrypt-name">${escapeHtml(dir.name)}</div>
+                                    <div class="encrypt-path">${escapeHtml(dir.path)}</div>
+                                </div>
+                            </div>
+                            <div class="encrypt-meta">
+                                <span class="badge badge-${dir.status === 'locked' ? 'success' : 'warning'}">
+                                    ${dir.status === 'locked' ? '已锁定' : '已解锁'}
+                                </span>
+                                <span>${formatSize(dir.size || 0)}</span>
+                                <button class="btn btn-secondary btn-sm" onclick="toggleEncrypt('${dir.path}', '${dir.status}')">
+                                    ${dir.status === 'locked' ? '解锁' : '锁定'}
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🔐</div>
+                            <div class="empty-title">暂无加密目录</div>
+                            <p>创建加密目录以保护敏感数据</p>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error('加载加密目录失败:', e);
+            }
+        }
+        
+        // 加载审计日志
+        async function loadAuditLogs() {
+            const timeRange = document.getElementById('filter-time').value;
+            const category = document.getElementById('filter-category').value;
+            const level = document.getElementById('filter-level').value;
+            const search = document.getElementById('filter-search').value;
+            
+            let url = `${API_BASE}/audit/logs?page=${auditPage}&size=${auditPageSize}`;
+            if (timeRange && timeRange !== 'all') url += `&time=${timeRange}`;
+            if (category) url += `&category=${category}`;
+            if (level) url += `&level=${level}`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                const tbody = document.getElementById('audit-log-body');
+                
+                if (data.code === 0 && data.data && data.data.items) {
+                    const logs = data.data.items;
+                    
+                    if (logs.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 2rem;">
+                                    暂无审计日志
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        tbody.innerHTML = logs.map(log => `
+                            <tr>
+                                <td>${formatTime(log.timestamp)}</td>
+                                <td><span class="audit-level ${log.level}">${getLevelText(log.level)}</span></td>
+                                <td>${getCategoryText(log.category)}</td>
+                                <td>${escapeHtml(log.event)}${log.message ? ` - ${escapeHtml(log.message)}` : ''}</td>
+                                <td>${escapeHtml(log.username || '-')}</td>
+                                <td>${escapeHtml(log.ip || '-')}</td>
+                                <td><span class="badge badge-${log.status === 'success' ? 'success' : 'danger'}">${log.status === 'success' ? '成功' : '失败'}</span></td>
+                            </tr>
+                        `).join('');
+                    }
+                    
+                    // 更新分页
+                    renderPagination(data.data.total || 0);
+                }
+            } catch (e) {
+                console.error('加载审计日志失败:', e);
+            }
+        }
+        
+        // 渲染分页
+        function renderPagination(total) {
+            const totalPages = Math.ceil(total / auditPageSize);
+            const container = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            html += `<button class="page-btn" onclick="goToPage(${auditPage - 1})" ${auditPage === 1 ? 'disabled' : ''}>上一页</button>`;
+            
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= auditPage - 2 && i <= auditPage + 2)) {
+                    html += `<button class="page-btn ${i === auditPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === auditPage - 3 || i === auditPage + 3) {
+                    html += `<span style="padding: 0 0.5rem;">...</span>`;
+                }
+            }
+            
+            html += `<button class="page-btn" onclick="goToPage(${auditPage + 1})" ${auditPage === totalPages ? 'disabled' : ''}>下一页</button>`;
+            
+            container.innerHTML = html;
+        }
+        
+        function goToPage(page) {
+            auditPage = page;
+            loadAuditLogs();
+        }
+        
+        // 防抖搜索
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                auditPage = 1;
+                loadAuditLogs();
+            }, 300);
+        }
+        
+        // 切换加密状态
+        async function toggleEncrypt(path, currentStatus) {
+            const action = currentStatus === 'locked' ? 'unlock' : 'lock';
+            
+            try {
+                const res = await fetch(`${API_BASE}/encryption/directories/${encodeURIComponent(path)}/${action}`, {
+                    method: 'POST'
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    showToast(`目录已${action === 'lock' ? '锁定' : '解锁'}`, 'success');
+                    loadEncryptedDirs();
+                } else {
+                    showToast(data.message || '操作失败', 'error');
+                }
+            } catch (e) {
+                showToast('操作失败', 'error');
+            }
+        }
+        
+        // 确认告警
+        async function acknowledgeAlert(alertId) {
+            try {
+                const res = await fetch(`${API_BASE}/alerts/${alertId}/acknowledge`, {
+                    method: 'POST'
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    showToast('告警已确认', 'success');
+                    loadDashboard();
+                }
+            } catch (e) {
+                showToast('操作失败', 'error');
+            }
+        }
+        
+        // 导出审计日志
+        function exportAuditLogs() {
+            const timeRange = document.getElementById('filter-time').value;
+            const category = document.getElementById('filter-category').value;
+            const level = document.getElementById('filter-level').value;
+            
+            let url = `${API_BASE}/audit/export?format=csv`;
+            if (timeRange && timeRange !== 'all') url += `&time=${timeRange}`;
+            if (category) url += `&category=${category}`;
+            if (level) url += `&level=${level}`;
+            
+            window.location.href = url;
+        }
+        
+        // 刷新
+        function refreshAll() {
+            loadDashboard();
+            showToast('数据已刷新', 'success');
+        }
+        
+        function refreshAuditLogs() {
+            loadAuditLogs();
+            showToast('日志已刷新', 'success');
+        }
+        
+        // 安全扫描
+        async function runSecurityScan() {
+            showToast('正在进行安全扫描...', 'info');
+            
+            try {
+                const res = await fetch(`${API_BASE}/scan`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    loadDashboard();
+                    showToast('安全扫描完成', 'success');
+                }
+            } catch (e) {
+                showToast('扫描失败', 'error');
+            }
+        }
+        
+        // 工具函数
+        function formatTime(timestamp) {
+            if (!timestamp) return '-';
+            const date = new Date(timestamp);
+            return date.toLocaleString('zh-CN');
+        }
+        
+        function formatSize(bytes) {
+            if (!bytes) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function getLevelText(level) {
+            const map = { info: '信息', warning: '警告', error: '错误', critical: '严重' };
+            return map[level] || level;
+        }
+        
+        function getCategoryText(category) {
+            const map = { auth: '认证', encryption: '加密', firewall: '防火墙', system: '系统', file: '文件' };
+            return map[category] || category;
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.cssText = `
+                padding: 0.75rem 1rem;
+                background: ${type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6'};
+                color: white;
+                border-radius: 8px;
+                margin-top: 0.5rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            toast.textContent = message;
+            container.appendChild(toast);
+            
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // 占位函数
+        function showCreateEncryptModal() { showToast('创建加密目录功能待实现', 'info'); }
+        function showKeyManagement() { showToast('密钥管理功能待实现', 'info'); }
+        function toggleAutoEncrypt() { 
+            const toggle = document.getElementById('auto-encrypt-toggle');
+            toggle.classList.toggle('active');
+        }
+        function enableMFA() { showToast('请前往用户设置启用 MFA', 'info'); }
+        function viewAllAlerts() { showToast('告警列表功能待实现', 'info'); }
+    </script>
+</body>
+</html>

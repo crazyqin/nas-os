@@ -1,0 +1,1412 @@
+openapi: 3.0.3
+info:
+  title: NAS-OS API
+  description: |
+    NAS-OS 是一个现代化的网络存储操作系统，提供完整的存储管理、用户管理、安全管理和监控功能。
+    
+    ## 功能模块
+    - **卷管理**: Btrfs 卷创建、快照、RAID 配置
+    - **用户管理**: 用户/组管理、认证授权
+    - **共享管理**: SMB/NFS 共享配置
+    - **安全中心**: 加密、审计日志、告警管理
+    - **数据去重**: 重复文件检测与清理
+    - **健康监控**: 系统健康检查
+    - **日志管理**: 结构化日志与轮转
+    
+    ## 认证
+    大部分 API 需要通过 JWT Token 认证。在请求头中添加：
+    ```
+    Authorization: Bearer {token}
+    ```
+    
+    ## 错误码说明
+    | 错误码 | 说明 |
+    |--------|------|
+    | 0 | 成功 |
+    | 400 | 请求参数错误 |
+    | 401 | 未认证或认证失败 |
+    | 403 | 权限不足 |
+    | 404 | 资源不存在 |
+    | 409 | 资源冲突 |
+    | 429 | 请求频率过高 |
+    | 500 | 服务器内部错误 |
+    | 503 | 服务暂时不可用 |
+    
+  version: 2.6.0
+  contact:
+    name: NAS-OS 团队
+    email: support@nas-os.io
+    url: https://github.com/nas-os/nas-os
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: 本地开发服务器
+  - url: https://nas.example.com/api/v1
+    description: 生产服务器
+
+tags:
+  - name: dedup
+    description: 数据去重 API - 重复文件检测与清理
+  - name: health
+    description: 健康监控 API - 系统健康检查与状态
+  - name: logging
+    description: 日志管理 API - 结构化日志与轮转配置
+  - name: security
+    description: 安全管理 API - 加密、审计、告警
+  - name: volumes
+    description: 卷管理 API - Btrfs 存储卷管理
+  - name: users
+    description: 用户管理 API - 用户和用户组管理
+
+paths:
+  # ==================== 数据去重 API ====================
+  /dedup/scan:
+    post:
+      tags: [dedup]
+      summary: 扫描重复文件
+      description: 扫描指定路径查找重复文件，支持多种扫描模式
+      operationId: dedupScan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScanRequest'
+            example:
+              paths: ["/data/photos", "/data/documents"]
+              min_size: 1048576
+              method: "hash"
+              file_type: "all"
+              exclude_dirs: [".git", "node_modules"]
+      responses:
+        '200':
+          description: 扫描完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /dedup/scan/cancel:
+    post:
+      tags: [dedup]
+      summary: 取消扫描
+      description: 取消正在进行的扫描任务
+      operationId: dedupCancelScan
+      responses:
+        '200':
+          description: 扫描已取消
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+              example:
+                code: 0
+                message: "扫描已取消"
+
+  /dedup/duplicates:
+    get:
+      tags: [dedup]
+      summary: 获取重复文件列表
+      description: 获取扫描发现的重复文件分组列表
+      operationId: getDuplicates
+      parameters:
+        - name: user
+          in: query
+          description: 用户名（可选，筛选特定用户的重复文件）
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DuplicateGroup'
+
+  /dedup/deduplicate:
+    post:
+      tags: [dedup]
+      summary: 执行去重操作
+      description: 对指定的重复文件组执行去重操作
+      operationId: deduplicate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeduplicateRequest'
+            example:
+              checksum: "sha256:abc123..."
+              keepPath: "/data/photos/vacation.jpg"
+              mode: "file"
+              action: "hardlink"
+      responses:
+        '200':
+          description: 去重完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeduplicateResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /dedup/deduplicate/all:
+    post:
+      tags: [dedup]
+      summary: 批量去重
+      description: 对所有重复文件执行批量去重操作
+      operationId: deduplicateAll
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeduplicateAllRequest'
+            example:
+              mode: "file"
+              action: "hardlink"
+              dryRun: true
+              crossUser: false
+      responses:
+        '200':
+          description: 批量去重完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchDedupResult'
+
+  /dedup/stats:
+    get:
+      tags: [dedup]
+      summary: 获取去重统计信息
+      description: 获取去重模块的统计信息
+      operationId: getDedupStats
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    $ref: '#/components/schemas/DedupStats'
+
+  /dedup/config:
+    get:
+      tags: [dedup]
+      summary: 获取去重配置
+      operationId: getDedupConfig
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/DedupConfig'
+    put:
+      tags: [dedup]
+      summary: 更新去重配置
+      operationId: updateDedupConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DedupConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /dedup/report:
+    get:
+      tags: [dedup]
+      summary: 获取去重报告
+      description: 获取详细的去重分析报告
+      operationId: getDedupReport
+      parameters:
+        - name: user
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    $ref: '#/components/schemas/DedupReport'
+
+  # ==================== 健康监控 API ====================
+  /health:
+    get:
+      tags: [health]
+      summary: 系统健康检查
+      description: 检查系统整体健康状态，包括 CPU、内存、磁盘、网络等
+      operationId: getHealth
+      responses:
+        '200':
+          description: 系统健康状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealth'
+              example:
+                status: "healthy"
+                score: 95
+                checks:
+                  - name: "cpu"
+                    status: "healthy"
+                    message: ""
+                    duration_ms: 2
+                  - name: "memory"
+                    status: "healthy"
+                    message: ""
+                    duration_ms: 1
+                  - name: "disk"
+                    status: "degraded"
+                    message: "磁盘 /dev/sda 使用率偏高: 87%"
+                    duration_ms: 5
+                uptime_seconds: 864000
+                last_checked: "2026-03-14T08:00:00Z"
+                version: "2.6.0"
+
+  /health/checks:
+    get:
+      tags: [health]
+      summary: 获取所有健康检查项
+      operationId: getHealthChecks
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/HealthCheckResult'
+
+  /health/checks/{name}:
+    get:
+      tags: [health]
+      summary: 执行单项健康检查
+      operationId: runHealthCheck
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [cpu, memory, disk, disk_io, network, services, uptime]
+      responses:
+        '200':
+          description: 检查结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResult'
+
+  /health/thresholds:
+    get:
+      tags: [health]
+      summary: 获取健康检查阈值配置
+      operationId: getHealthThresholds
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthThresholds'
+    put:
+      tags: [health]
+      summary: 更新健康检查阈值
+      operationId: updateHealthThresholds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthThresholds'
+            example:
+              cpu_warning_percent: 80
+              cpu_critical_percent: 95
+              memory_warning_percent: 85
+              memory_critical_percent: 95
+              disk_warning_percent: 85
+              disk_critical_percent: 95
+              disk_latency_ms: 50
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 日志管理 API ====================
+  /logging/config:
+    get:
+      tags: [logging]
+      summary: 获取日志配置
+      operationId: getLoggingConfig
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoggingConfig'
+    put:
+      tags: [logging]
+      summary: 更新日志配置
+      operationId: updateLoggingConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoggingConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /logging/entries:
+    get:
+      tags: [logging]
+      summary: 查询日志条目
+      description: 根据条件查询日志条目
+      operationId: queryLogEntries
+      parameters:
+        - name: level
+          in: query
+          description: 日志级别
+          schema:
+            type: string
+            enum: [debug, info, warn, error, fatal]
+        - name: source
+          in: query
+          description: 日志来源
+          schema:
+            type: string
+        - name: start
+          in: query
+          description: 开始时间 (RFC3339)
+          schema:
+            type: string
+            format: date-time
+        - name: end
+          in: query
+          description: 结束时间 (RFC3339)
+          schema:
+            type: string
+            format: date-time
+        - name: search
+          in: query
+          description: 搜索关键词
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/LogEntry'
+                      total:
+                        type: integer
+                      page:
+                        type: integer
+                      size:
+                        type: integer
+
+  /logging/rotation:
+    get:
+      tags: [logging]
+      summary: 获取日志轮转配置
+      operationId: getLogRotation
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogRotationConfig'
+    put:
+      tags: [logging]
+      summary: 更新日志轮转配置
+      operationId: updateLogRotation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRotationConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /logging/export:
+    get:
+      tags: [logging]
+      summary: 导出日志
+      description: 导出日志到文件
+      operationId: exportLogs
+      parameters:
+        - name: format
+          in: query
+          description: 导出格式
+          schema:
+            type: string
+            enum: [json, csv, txt]
+            default: json
+        - name: level
+          in: query
+          schema:
+            type: string
+        - name: start
+          in: query
+          schema:
+            type: string
+        - name: end
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 日志文件
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /logging/archive:
+    get:
+      tags: [logging]
+      summary: 获取日志归档列表
+      operationId: getLogArchives
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        size:
+                          type: integer
+                        created_at:
+                          type: string
+                          format: date-time
+
+  # ==================== 安全管理 API ====================
+  /security/dashboard:
+    get:
+      tags: [security]
+      summary: 获取安全仪表板数据
+      operationId: getSecurityDashboard
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityDashboard'
+
+  /security/encryption/directories:
+    get:
+      tags: [security]
+      summary: 获取加密目录列表
+      operationId: getEncryptedDirectories
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EncryptedDirectory'
+    post:
+      tags: [security]
+      summary: 创建加密目录
+      operationId: createEncryptedDirectory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEncryptedDirRequest'
+      responses:
+        '200':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncryptedDirectory'
+
+  /security/encryption/directories/{path}/lock:
+    post:
+      tags: [security]
+      summary: 锁定加密目录
+      operationId: lockEncryptedDirectory
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /security/encryption/directories/{path}/unlock:
+    post:
+      tags: [security]
+      summary: 解锁加密目录
+      operationId: unlockEncryptedDirectory
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '401':
+          description: 密码错误
+
+  /security/audit/logs:
+    get:
+      tags: [security]
+      summary: 获取审计日志
+      operationId: getAuditLogs
+      parameters:
+        - name: time
+          in: query
+          description: 时间范围
+          schema:
+            type: string
+            enum: [today, week, month, all]
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [auth, encryption, firewall, system, file]
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [info, warning, error, critical]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: size
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLogEntry'
+                      total:
+                        type: integer
+
+  /security/audit/export:
+    get:
+      tags: [security]
+      summary: 导出审计日志
+      operationId: exportAuditLogs
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [csv, json]
+            default: csv
+        - name: time
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 审计日志文件
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditLogEntry'
+
+  /security/alerts:
+    get:
+      tags: [security]
+      summary: 获取安全告警列表
+      operationId: getSecurityAlerts
+      parameters:
+        - name: acknowledged
+          in: query
+          schema:
+            type: boolean
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SecurityAlert'
+
+  /security/alerts/{id}/acknowledge:
+    post:
+      tags: [security]
+      summary: 确认告警
+      operationId: acknowledgeAlert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /security/scan:
+    post:
+      tags: [security]
+      summary: 执行安全扫描
+      operationId: runSecurityScan
+      responses:
+        '200':
+          description: 扫描完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityDashboard'
+
+components:
+  schemas:
+    # 通用响应
+    GenericResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 0
+        message:
+          type: string
+          example: "success"
+        data:
+          type: object
+
+    # 数据去重相关
+    ScanRequest:
+      type: object
+      properties:
+        paths:
+          type: array
+          items:
+            type: string
+          description: 要扫描的路径列表
+          example: ["/data/photos", "/data/documents"]
+        min_size:
+          type: integer
+          description: 最小文件大小（字节）
+          default: 0
+        method:
+          type: string
+          enum: [hash, name, size]
+          default: hash
+          description: 扫描方法
+        file_type:
+          type: string
+          enum: [all, images, documents, media]
+          default: all
+        exclude_dirs:
+          type: array
+          items:
+            type: string
+          description: 排除的目录
+        user:
+          type: string
+          description: 用户名（用于权限检查）
+
+    ScanResult:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            scanned:
+              type: integer
+              description: 已扫描文件数
+            duplicates:
+              type: integer
+              description: 发现的重复文件数
+            groups:
+              type: integer
+              description: 重复文件组数
+            releasable:
+              type: integer
+              description: 可释放空间（字节）
+            duration_ms:
+              type: integer
+
+    DuplicateGroup:
+      type: object
+      properties:
+        hash:
+          type: string
+          description: 文件哈希值
+        size:
+          type: integer
+          description: 文件大小
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+              name:
+                type: string
+              size:
+                type: integer
+              modified:
+                type: string
+                format: date-time
+
+    DeduplicateRequest:
+      type: object
+      required:
+        - checksum
+        - keepPath
+      properties:
+        checksum:
+          type: string
+          description: 重复文件组的校验和
+        keepPath:
+          type: string
+          description: 要保留的文件路径
+        mode:
+          type: string
+          enum: [file, chunk, hybrid]
+          default: file
+        action:
+          type: string
+          enum: [report, softlink, hardlink]
+          default: hardlink
+        user:
+          type: string
+        crossUser:
+          type: boolean
+          default: false
+
+    DeduplicateAllRequest:
+      type: object
+      properties:
+        mode:
+          type: string
+          enum: [file, chunk, hybrid]
+        action:
+          type: string
+          enum: [softlink, hardlink]
+        dryRun:
+          type: boolean
+          default: false
+          description: 是否只预览不执行
+        crossUser:
+          type: boolean
+          default: false
+
+    DeduplicateResult:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            processed:
+              type: integer
+            released:
+              type: integer
+              description: 释放的空间（字节）
+            errors:
+              type: array
+              items:
+                type: string
+
+    BatchDedupResult:
+      type: object
+      properties:
+        code:
+          type: integer
+        data:
+          type: object
+          properties:
+            total_groups:
+              type: integer
+            processed_groups:
+              type: integer
+            total_files:
+              type: integer
+            released:
+              type: integer
+            dry_run:
+              type: boolean
+            details:
+              type: array
+              items:
+                type: object
+
+    DedupStats:
+      type: object
+      properties:
+        scanned:
+          type: integer
+        duplicates:
+          type: integer
+        groups:
+          type: integer
+        releasable:
+          type: integer
+        released:
+          type: integer
+        chunks_stored:
+          type: integer
+        chunk_data_size:
+          type: integer
+        shared_chunks:
+          type: integer
+        shared_data_size:
+          type: integer
+
+    DedupConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        auto_scan:
+          type: boolean
+        scan_schedule:
+          type: string
+          description: cron 表达式
+        min_file_size:
+          type: integer
+        scan_method:
+          type: string
+        exclude_dirs:
+          type: array
+          items:
+            type: string
+        default_action:
+          type: string
+
+    DedupReport:
+      type: object
+      properties:
+        total_files:
+          type: integer
+        total_size:
+          type: integer
+        duplicate_files:
+          type: integer
+        duplicate_size:
+          type: integer
+        potential_savings:
+          type: integer
+        user_reports:
+          type: array
+          items:
+            type: object
+            properties:
+              user:
+                type: string
+              files:
+                type: integer
+              duplicates:
+                type: integer
+              savings:
+                type: integer
+
+    # 健康监控相关
+    SystemHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: 健康评分 0-100
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthCheckResult'
+        issues:
+          type: array
+          items:
+            type: string
+        uptime_seconds:
+          type: integer
+        last_checked:
+          type: string
+          format: date-time
+        version:
+          type: string
+
+    HealthCheckResult:
+      type: object
+      properties:
+        name:
+          type: string
+          enum: [cpu, memory, disk, disk_io, network, services, uptime]
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        message:
+          type: string
+        details:
+          type: object
+        duration_ms:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+
+    HealthThresholds:
+      type: object
+      properties:
+        cpu_warning_percent:
+          type: number
+          default: 80
+        cpu_critical_percent:
+          type: number
+          default: 95
+        memory_warning_percent:
+          type: number
+          default: 85
+        memory_critical_percent:
+          type: number
+          default: 95
+        disk_warning_percent:
+          type: number
+          default: 85
+        disk_critical_percent:
+          type: number
+          default: 95
+        disk_latency_ms:
+          type: number
+          default: 50
+
+    # 日志管理相关
+    LoggingConfig:
+      type: object
+      properties:
+        level:
+          type: string
+          enum: [debug, info, warn, error, fatal]
+          default: info
+        format:
+          type: string
+          enum: [json, text]
+          default: json
+        output:
+          type: string
+          description: 输出路径
+        include_source:
+          type: boolean
+          default: true
+        timestamp_format:
+          type: string
+
+    LogEntry:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        level:
+          type: string
+          enum: [DEBUG, INFO, WARN, ERROR, FATAL]
+        message:
+          type: string
+        source:
+          type: string
+        fields:
+          type: object
+          additionalProperties: true
+        request_id:
+          type: string
+
+    LogRotationConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          default: true
+        max_size_mb:
+          type: integer
+          default: 100
+          description: 单个日志文件最大大小（MB）
+        max_backups:
+          type: integer
+          default: 10
+          description: 最大备份文件数
+        max_age_days:
+          type: integer
+          default: 30
+          description: 日志保留天数
+        compress:
+          type: boolean
+          default: true
+          description: 是否压缩旧日志
+
+    # 安全管理相关
+    SecurityDashboard:
+      type: object
+      properties:
+        security_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        encrypted_dirs:
+          type: integer
+        pending_alerts:
+          type: integer
+        mfa_coverage:
+          type: number
+          description: MFA 启用百分比
+        today_audit_events:
+          type: integer
+        issues:
+          type: array
+          items:
+            type: string
+        recent_alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityAlert'
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              action:
+                type: string
+
+    EncryptedDirectory:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        status:
+          type: string
+          enum: [locked, unlocked]
+        size:
+          type: integer
+        algorithm:
+          type: string
+          default: "AES-256-GCM"
+        created_at:
+          type: string
+          format: date-time
+        last_accessed:
+          type: string
+          format: date-time
+        description:
+          type: string
+
+    CreateEncryptedDirRequest:
+      type: object
+      required:
+        - path
+        - password
+      properties:
+        path:
+          type: string
+          description: 目录路径
+        password:
+          type: string
+          description: 加密密码
+        name:
+          type: string
+          description: 显示名称
+        description:
+          type: string
+
+    AuditLogEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        level:
+          type: string
+          enum: [info, warning, error, critical]
+        category:
+          type: string
+          enum: [auth, encryption, firewall, system, file]
+        event:
+          type: string
+        message:
+          type: string
+        username:
+          type: string
+        ip:
+          type: string
+        user_agent:
+          type: string
+        status:
+          type: string
+          enum: [success, failure]
+        details:
+          type: object
+          additionalProperties: true
+
+    SecurityAlert:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        category:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        source_ip:
+          type: string
+        acknowledged:
+          type: boolean
+        acknowledged_by:
+          type: string
+        acknowledged_at:
+          type: string
+          format: date-time
+
+    # 错误响应
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "请求参数错误"
+        details:
+          type: object
+          description: 详细错误信息
+
+  responses:
+    Success:
+      description: 操作成功
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericResponse'
+          example:
+            code: 0
+            message: "success"
+
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 400
+            message: "请求参数错误"
+
+    Unauthorized:
+      description: 未认证或认证失败
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 401
+            message: "未授权访问"
+
+    Forbidden:
+      description: 权限不足
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 403
+            message: "权限不足"
+
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 404
+            message: "资源不存在"
+
+    InternalError:
+      description: 服务器内部错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            code: 500
+            message: "服务器内部错误"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT 认证令牌
+
+security:
+  - BearerAuth: []

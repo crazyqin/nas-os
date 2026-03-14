@@ -1,4 +1,4 @@
-// Package dedup 数据去重模块
+// Package dedup 数据去重管理器
 package dedup
 
 import (
@@ -15,153 +15,6 @@ import (
 	"time"
 )
 
-// Chunk 表示一个数据块
-type Chunk struct {
-	Hash      string            `json:"hash"`
-	Size      int64             `json:"size"`
-	Offset    int64             `json:"offset"`
-	RefCount  int               `json:"refCount"`
-	Users     map[string]bool   `json:"users,omitempty"`     // 引用此块的用户
-	StorePath string            `json:"storePath,omitempty"` // 块存储路径
-	Metadata  map[string]string `json:"metadata,omitempty"`
-}
-
-// ChunkStore 块存储
-type ChunkStore struct {
-	BasePath string `json:"basePath"`
-	Enabled  bool   `json:"enabled"`
-}
-
-// FileRecord 表示文件记录
-type FileRecord struct {
-	Path        string    `json:"path"`
-	Size        int64     `json:"size"`
-	Checksum    string    `json:"checksum"`
-	ChunkHashes []string  `json:"chunkHashes"`
-	User        string    `json:"user,omitempty"`   // 文件所属用户
-	Shared      bool      `json:"shared,omitempty"` // 是否为共享数据
-	CreatedAt   time.Time `json:"createdAt"`
-	ModifiedAt  time.Time `json:"modifiedAt"`
-}
-
-// UserFileIndex 用户文件索引
-type UserFileIndex struct {
-	User       string            `json:"user"`
-	Files      map[string]string `json:"files"` // path -> checksum
-	TotalSize  int64             `json:"totalSize"`
-	FileCount  int               `json:"fileCount"`
-	SharedSize int64             `json:"sharedSize"` // 共享数据大小
-	SavedSize  int64             `json:"savedSize"`  // 通过去重节省的空间
-}
-
-// DuplicateGroup 表示一组重复文件
-type DuplicateGroup struct {
-	Checksum  string              `json:"checksum"`
-	Size      int64               `json:"size"`
-	Files     []string            `json:"files"`
-	Users     []string            `json:"users,omitempty"`     // 涉及的用户
-	Savings   int64               `json:"savings"`             // 去重后可节省的空间
-	UserFiles map[string][]string `json:"userFiles,omitempty"` // 按用户分组的文件
-}
-
-// DedupStats 去重统计信息
-type DedupStats struct {
-	TotalFiles       int       `json:"totalFiles"`
-	TotalSize        int64     `json:"totalSize"`
-	DuplicateFiles   int       `json:"duplicateFiles"`
-	DuplicateSize    int64     `json:"duplicateSize"`
-	SavingsPotential int64     `json:"savingsPotential"`
-	SavingsActual    int64     `json:"savingsActual"` // 实际已节省空间
-	ChunksStored     int       `json:"chunksStored"`
-	ChunkDataSize    int64     `json:"chunkDataSize"`
-	LastScanTime     time.Time `json:"lastScanTime"`
-	LastDedupTime    time.Time `json:"lastDedupTime"`
-	// 跨用户统计
-	SharedChunks     int   `json:"sharedChunks"`
-	SharedDataSize   int64 `json:"sharedDataSize"`
-	CrossUserSavings int64 `json:"crossUserSavings"`
-	UserCount        int   `json:"userCount"`
-}
-
-// ScanResult 扫描结果
-type ScanResult struct {
-	FilesScanned     int           `json:"filesScanned"`
-	TotalSize        int64         `json:"totalSize"`
-	DuplicateGroups  int           `json:"duplicateGroups"`
-	DuplicatesFound  int           `json:"duplicatesFound"`
-	SavingsPotential int64         `json:"savingsPotential"`
-	CrossUserGroups  int           `json:"crossUserGroups"`
-	CrossUserSavings int64         `json:"crossUserSavings"`
-	Duration         time.Duration `json:"duration"`
-	Errors           []ScanError   `json:"errors"`
-}
-
-// ScanError 扫描错误
-type ScanError struct {
-	Path    string `json:"path"`
-	Message string `json:"message"`
-}
-
-// Config 去重配置
-type Config struct {
-	Enabled         bool        `json:"enabled"`
-	ChunkSize       int64       `json:"chunkSize"`            // 块大小，默认 4MB
-	MinFileSize     int64       `json:"minFileSize"`          // 最小文件大小，小于此值不去重
-	ScanPaths       []string    `json:"scanPaths"`            // 扫描路径
-	ExcludePaths    []string    `json:"excludePaths"`         // 排除路径
-	ExcludePatterns []string    `json:"excludePatterns"`      // 排除文件模式
-	AutoDedup       bool        `json:"autoDedup"`            // 自动去重
-	AutoDedupCron   string      `json:"autoDedupCron"`        // 自动去重 cron 表达式
-	DedupMode       string      `json:"dedupMode"`            // file, chunk, hybrid
-	DedupAction     string      `json:"dedupAction"`          // softlink, hardlink
-	Compression     bool        `json:"compression"`          // 启用压缩
-	CrossUser       bool        `json:"crossUser"`            // 跨用户去重
-	ChunkStore      *ChunkStore `json:"chunkStore,omitempty"` // 块存储配置
-}
-
-// DefaultConfig 默认配置
-func DefaultConfig() *Config {
-	return &Config{
-		Enabled:         true,
-		ChunkSize:       4 * 1024 * 1024, // 4MB
-		MinFileSize:     1024,            // 1KB
-		ScanPaths:       []string{},
-		ExcludePaths:    []string{"/proc", "/sys", "/dev", "/tmp"},
-		ExcludePatterns: []string{"*.tmp", "*.log", "*.cache"},
-		AutoDedup:       false,
-		AutoDedupCron:   "0 3 * * *", // 每天凌晨 3 点
-		DedupMode:       "file",
-		DedupAction:     "softlink",
-		Compression:     true,
-		CrossUser:       true,
-		ChunkStore: &ChunkStore{
-			Enabled:  false,
-			BasePath: "/var/lib/nas-os/chunks",
-		},
-	}
-}
-
-// DedupPolicy 去重策略
-type DedupPolicy struct {
-	Mode          string `json:"mode"`          // file, chunk, hybrid
-	Action        string `json:"action"`        // report, softlink, hardlink
-	MinMatchCount int    `json:"minMatchCount"` // 最小匹配数量
-	PreserveAttrs bool   `json:"preserveAttrs"` // 保留文件属性
-	CrossUser     bool   `json:"crossUser"`     // 允许跨用户去重
-}
-
-// AutoDedupTask 自动去重任务
-type AutoDedupTask struct {
-	ID       string      `json:"id"`
-	Enabled  bool        `json:"enabled"`
-	Schedule string      `json:"schedule"`
-	LastRun  time.Time   `json:"lastRun"`
-	NextRun  time.Time   `json:"nextRun"`
-	Status   string      `json:"status"` // pending, running, completed, failed
-	Result   *ScanResult `json:"result,omitempty"`
-	Error    string      `json:"error,omitempty"`
-}
-
 // Manager 去重管理器
 type Manager struct {
 	mu          sync.RWMutex
@@ -177,6 +30,41 @@ type Manager struct {
 	scanCancel  chan struct{}
 	autoTask    *AutoDedupTask
 	storagePath string // 存储根路径
+}
+
+// UserFileIndex 用户文件索引
+type UserFileIndex struct {
+	User       string            `json:"user"`
+	Files      map[string]string `json:"files"` // path -> checksum
+	TotalSize  int64             `json:"totalSize"`
+	FileCount  int               `json:"fileCount"`
+	SharedSize int64             `json:"sharedSize"` // 共享数据大小
+	SavedSize  int64             `json:"savedSize"`  // 通过去重节省的空间
+}
+
+// ScanResult 扫描结果
+type ScanResult struct {
+	FilesScanned     int           `json:"filesScanned"`
+	TotalSize        int64         `json:"totalSize"`
+	DuplicateGroups  int           `json:"duplicateGroups"`
+	DuplicatesFound  int           `json:"duplicatesFound"`
+	SavingsPotential int64         `json:"savingsPotential"`
+	CrossUserGroups  int           `json:"crossUserGroups"`
+	CrossUserSavings int64         `json:"crossUserSavings"`
+	Duration         time.Duration `json:"duration"`
+	Errors           []ScanError   `json:"errors"`
+}
+
+// AutoDedupTask 自动去重任务
+type AutoDedupTask struct {
+	ID       string      `json:"id"`
+	Enabled  bool        `json:"enabled"`
+	Schedule string      `json:"schedule"`
+	LastRun  time.Time   `json:"lastRun"`
+	NextRun  time.Time   `json:"nextRun"`
+	Status   string      `json:"status"` // pending, running, completed, failed
+	Result   *ScanResult `json:"result,omitempty"`
+	Error    string      `json:"error,omitempty"`
 }
 
 // NewManager 创建去重管理器
@@ -306,7 +194,7 @@ func (m *Manager) ScanForUser(paths []string, user string) (*ScanResult, error) 
 		}
 	}
 	result.TotalSize = m.stats.TotalSize
-	result.FilesScanned = m.stats.TotalFiles
+	result.FilesScanned = int(m.stats.TotalFiles)
 	result.Duration = time.Since(startTime)
 	m.stats.LastScanTime = startTime
 	m.mu.RUnlock()
@@ -481,7 +369,7 @@ func (m *Manager) analyzeDuplicates() {
 			m.duplicates = append(m.duplicates, group)
 
 			// 更新统计
-			m.stats.DuplicateFiles += len(records) - 1
+			m.stats.DuplicateFiles += int64(len(records) - 1)
 			m.stats.DuplicateSize += size * int64(len(records)-1)
 			m.stats.SavingsPotential += savings
 
@@ -593,7 +481,7 @@ func (m *Manager) DeduplicateForUser(checksum string, keepPath string, policy De
 		}
 
 		switch policy.Action {
-		case "softlink":
+		case ActionSoftlink:
 			// 删除文件并创建软链接
 			if err := os.Remove(record.Path); err != nil {
 				return fmt.Errorf("删除文件失败：%w", err)
@@ -603,7 +491,7 @@ func (m *Manager) DeduplicateForUser(checksum string, keepPath string, policy De
 			}
 			savedSize += record.Size
 
-		case "hardlink":
+		case ActionHardlink:
 			// 删除文件并创建硬链接
 			if err := os.Remove(record.Path); err != nil {
 				return fmt.Errorf("删除文件失败：%w", err)
@@ -613,7 +501,7 @@ func (m *Manager) DeduplicateForUser(checksum string, keepPath string, policy De
 			}
 			savedSize += record.Size
 
-		case "report":
+		case ActionReport:
 			// 只报告，不执行操作
 			savedSize += record.Size
 
@@ -659,13 +547,13 @@ func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult,
 			// 执行去重
 			for i := 1; i < len(group.Files); i++ {
 				switch policy.Action {
-				case "softlink":
+				case ActionSoftlink:
 					if err := os.Remove(group.Files[i]); err == nil {
 						if err := os.Symlink(group.Files[0], group.Files[i]); err == nil {
 							groupResult.Processed++
 						}
 					}
-				case "hardlink":
+				case ActionHardlink:
 					if err := os.Remove(group.Files[i]); err == nil {
 						if err := os.Link(group.Files[0], group.Files[i]); err == nil {
 							groupResult.Processed++

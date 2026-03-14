@@ -1,8 +1,12 @@
 // Package compress 提供透明压缩存储功能
+// v2.6.0 增强版本：并行压缩、进度追踪、失败恢复
 package compress
 
 import (
+	"context"
 	"log"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,12 +17,21 @@ type Service struct {
 	FS       *FileSystem
 	Handlers *Handlers
 	rootPath string
+
+	// v2.6.0 并行压缩
+	parallelCompressor *ParallelCompressor
+	stateDir           string
+
+	// 活跃任务
+	mu    sync.RWMutex
+	tasks map[string]*CompressTask
 }
 
 // ServiceConfig 服务配置
 type ServiceConfig struct {
 	RootPath string  `json:"root_path"`
 	Config   *Config `json:"config"`
+	StateDir string  `json:"state_dir"` // 状态存储目录（用于恢复）
 }
 
 // DefaultServiceConfig 默认服务配置
@@ -26,6 +39,7 @@ func DefaultServiceConfig() ServiceConfig {
 	return ServiceConfig{
 		RootPath: "/data",
 		Config:   DefaultConfig(),
+		StateDir: "/var/lib/nas-os/compress-state",
 	}
 }
 
@@ -46,12 +60,26 @@ func NewService(config ServiceConfig) (*Service, error) {
 	// 创建处理器
 	handlers := NewHandlers(manager, fs)
 
-	return &Service{
+	svc := &Service{
 		Manager:  manager,
 		FS:       fs,
 		Handlers: handlers,
 		rootPath: config.RootPath,
-	}, nil
+		stateDir: config.StateDir,
+		tasks:    make(map[string]*CompressTask),
+	}
+
+	// 创建并行压缩器
+	if config.StateDir != "" {
+		pc, err := NewParallelCompressor(config.Config, config.StateDir)
+		if err != nil {
+			log.Printf("⚠️ 并行压缩器初始化失败: %v", err)
+		} else {
+			svc.parallelCompressor = pc
+		}
+	}
+
+	return svc, nil
 }
 
 // Start 启动服务
@@ -138,4 +166,147 @@ func (s *Service) SetAlgorithm(algorithm Algorithm) {
 	s.Manager.mu.Lock()
 	defer s.Manager.mu.Unlock()
 	s.Manager.config.DefaultAlgorithm = algorithm
+}
+
+// ========== v2.6.0 并行压缩接口 ==========
+
+// CompressTask 压缩任务
+type CompressTask struct {
+	ID        string
+	Status    string // pending, running, completed, failed, paused
+	Progress  *CompressionProgress
+	Result    *ParallelCompressResult
+	Error     error
+	Cancel    context.CancelFunc
+	StartedAt time.Time
+}
+
+// CompressParallel 并行压缩文件
+func (s *Service) CompressParallel(ctx context.Context, paths []string, config *CompressConfig) (*ParallelCompressResult, error) {
+	if s.parallelCompressor == nil {
+		return nil, ErrParallelNotAvailable
+	}
+
+	// 创建任务
+	taskID := s.parallelCompressor.progress.StartTime.Format("20060102-150405")
+	taskCtx, cancel := context.WithCancel(ctx)
+
+	task := &CompressTask{
+		ID:        taskID,
+		Status:    "running",
+		Progress:  s.parallelCompressor.GetProgress(),
+		StartedAt: time.Now(),
+		Cancel:    cancel,
+	}
+
+	s.mu.Lock()
+	s.tasks[taskID] = task
+	s.mu.Unlock()
+
+	// 执行压缩
+	result, err := s.parallelCompressor.CompressParallel(taskCtx, paths, config)
+
+	s.mu.Lock()
+	if err != nil {
+		task.Status = "failed"
+		task.Error = err
+	} else {
+		task.Status = "completed"
+		task.Result = result
+	}
+	s.mu.Unlock()
+
+	return result, err
+}
+
+// CompressParallelWithProgress 带进度回调的并行压缩
+func (s *Service) CompressParallelWithProgress(ctx context.Context, paths []string, config *CompressConfig, callback ProgressCallback) (*ParallelCompressResult, error) {
+	if s.parallelCompressor == nil {
+		return nil, ErrParallelNotAvailable
+	}
+
+	// 注册进度回调
+	s.parallelCompressor.progress.OnProgress(callback)
+
+	return s.CompressParallel(ctx, paths, config)
+}
+
+// GetTaskProgress 获取任务进度
+func (s *Service) GetTaskProgress(taskID string) (*CompressionProgress, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	task, ok := s.tasks[taskID]
+	if !ok {
+		return nil, false
+	}
+	return task.Progress, true
+}
+
+// GetTaskResult 获取任务结果
+func (s *Service) GetTaskResult(taskID string) (*ParallelCompressResult, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	task, ok := s.tasks[taskID]
+	if !ok {
+		return nil, false
+	}
+	return task.Result, true
+}
+
+// CancelTask 取消任务
+func (s *Service) CancelTask(taskID string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	task, ok := s.tasks[taskID]
+	if !ok || task.Cancel == nil {
+		return false
+	}
+
+	task.Cancel()
+	task.Status = "cancelled"
+	return true
+}
+
+// ListPendingTasks 列出待恢复的任务
+func (s *Service) ListPendingTasks() []*CompressionState {
+	if s.parallelCompressor == nil {
+		return nil
+	}
+	return s.parallelCompressor.ListPendingTasks()
+}
+
+// ResumeTask 恢复中断的任务
+func (s *Service) ResumeTask(ctx context.Context, taskID string) (*ParallelCompressResult, error) {
+	if s.parallelCompressor == nil {
+		return nil, ErrParallelNotAvailable
+	}
+	return s.parallelCompressor.Resume(ctx, taskID)
+}
+
+// GetGlobalProgress 获取全局进度
+func (s *Service) GetGlobalProgress() *CompressionProgress {
+	if s.parallelCompressor == nil {
+		return nil
+	}
+	return s.parallelCompressor.GetProgress()
+}
+
+// 错误定义
+var (
+	ErrParallelNotAvailable = &CompressError{Code: "PARALLEL_NOT_AVAILABLE", Message: "并行压缩器未初始化"}
+	ErrTaskNotFound         = &CompressError{Code: "TASK_NOT_FOUND", Message: "任务不存在"}
+	ErrTaskAlreadyRunning   = &CompressError{Code: "TASK_RUNNING", Message: "任务正在运行"}
+)
+
+// CompressError 压缩错误
+type CompressError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+func (e *CompressError) Error() string {
+	return e.Message
 }
