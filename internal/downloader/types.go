@@ -49,6 +49,10 @@ type DownloadTask struct {
 	CompletedAt  *time.Time     `json:"completed_at,omitempty"`
 	ErrorMessage string         `json:"error_message,omitempty"`
 
+	// BT 客户端相关
+	DownloadID string `json:"download_id,omitempty"` // BT 种子 hash
+	ClientRef  string `json:"client_ref,omitempty"`  // 客户端引用 (如 "transmission:123")
+
 	// 计划任务
 	Schedule *ScheduleConfig `json:"schedule,omitempty"`
 	// 限速配置

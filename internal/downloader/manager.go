@@ -31,8 +31,16 @@ type Manager struct {
 	onTaskUpdate func(*DownloadTask)
 
 	// Transmission/qBittorrent 客户端配置
-	transmissionURL string
-	qbittorrentURL  string
+	transmissionURL      string
+	transmissionUsername string
+	transmissionPassword string
+	qbittorrentURL       string
+	qbittorrentUsername  string
+	qbittorrentPassword  string
+
+	// BT 客户端实例
+	transmissionClient *TransmissionClient
+	qbittorrentClient  *QBittorrentClient
 
 	logger *zap.Logger
 }
@@ -70,9 +78,40 @@ func (m *Manager) SetTransmissionURL(url string) {
 	m.transmissionURL = url
 }
 
+// SetTransmissionAuth 设置 Transmission 认证信息
+func (m *Manager) SetTransmissionAuth(username, password string) {
+	m.transmissionUsername = username
+	m.transmissionPassword = password
+}
+
 // SetQbittorrentURL 设置 qBittorrent 地址
 func (m *Manager) SetQbittorrentURL(url string) {
 	m.qbittorrentURL = url
+}
+
+// SetQbittorrentAuth 设置 qBittorrent 认证信息
+func (m *Manager) SetQbittorrentAuth(username, password string) {
+	m.qbittorrentUsername = username
+	m.qbittorrentPassword = password
+}
+
+// initBTClients 初始化 BT 客户端
+func (m *Manager) initBTClients() {
+	if m.transmissionURL != "" {
+		m.transmissionClient = NewTransmissionClient(
+			m.transmissionURL,
+			m.transmissionUsername,
+			m.transmissionPassword,
+		)
+	}
+
+	if m.qbittorrentURL != "" {
+		m.qbittorrentClient = NewQBittorrentClient(
+			m.qbittorrentURL,
+			m.qbittorrentUsername,
+			m.qbittorrentPassword,
+		)
+	}
 }
 
 // SetOnTaskUpdate 设置任务更新回调
@@ -278,13 +317,22 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 			}
 		}
 
-		// TODO: 如果配置了 Transmission/qBittorrent，从客户端也删除种子
-		// if m.transmissionURL != "" && task.Type == TypeBT {
-		// 	_ = m.deleteFromTransmission(task.DownloadID)
-		// }
-		// if m.qbittorrentURL != "" && task.Type == TypeBT {
-		// 	_ = m.deleteFromQBittorrent(task.DownloadID)
-		// }
+		// 如果配置了 Transmission/qBittorrent，从客户端也删除种子
+		if task.Type == TypeBT || task.Type == TypeMagnet {
+			if m.transmissionClient != nil && task.ClientRef != "" {
+				// 从 ClientRef 解析 ID
+				parts := strings.Split(task.ClientRef, ":")
+				if len(parts) == 2 && parts[0] == "transmission" {
+					var tid int
+					if _, err := fmt.Sscanf(parts[1], "%d", &tid); err == nil {
+						_ = m.transmissionClient.RemoveTorrent(tid, deleteFiles)
+					}
+				}
+			}
+			if m.qbittorrentClient != nil && task.DownloadID != "" {
+				_ = m.qbittorrentClient.DeleteTorrent(task.DownloadID, deleteFiles)
+			}
+		}
 	}
 
 	delete(m.tasks, id)
@@ -367,18 +415,61 @@ func (m *Manager) downloadBittorrent(ctx context.Context, task *DownloadTask) {
 
 // addToTransmission 添加任务到 Transmission
 func (m *Manager) addToTransmission(task *DownloadTask) error {
-	// TODO: 实现 Transmission RPC API
-	// 参考：https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md
-	cmd := exec.Command("transmission-remote", m.transmissionURL, "-a", task.URL, "-d", task.DestPath)
-	return cmd.Run()
+	// 初始化客户端
+	if m.transmissionClient == nil {
+		m.transmissionClient = NewTransmissionClient(
+			m.transmissionURL,
+			m.transmissionUsername,
+			m.transmissionPassword,
+		)
+	}
+
+	// 添加种子
+	hash, id, err := m.transmissionClient.AddTorrent(task.URL, task.DestPath)
+	if err != nil {
+		return fmt.Errorf("添加种子到 Transmission 失败: %w", err)
+	}
+
+	// 更新任务信息
+	m.mu.Lock()
+	task.DownloadID = hash
+	task.ClientRef = fmt.Sprintf("transmission:%d", id)
+	m.mu.Unlock()
+
+	m.logger.Info("已添加种子到 Transmission",
+		zap.String("taskId", task.ID),
+		zap.String("hash", hash),
+		zap.Int("transmissionId", id))
+
+	return nil
 }
 
 // addToQbittorrent 添加任务到 qBittorrent
 func (m *Manager) addToQbittorrent(task *DownloadTask) error {
-	// TODO: 实现 qBittorrent Web API
-	// 参考：https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
-	cmd := exec.Command("qbittorrent-command", "add", "-d", task.DestPath, task.URL)
-	return cmd.Run()
+	// 初始化客户端
+	if m.qbittorrentClient == nil {
+		m.qbittorrentClient = NewQBittorrentClient(
+			m.qbittorrentURL,
+			m.qbittorrentUsername,
+			m.qbittorrentPassword,
+		)
+	}
+
+	// 添加种子
+	if err := m.qbittorrentClient.AddTorrent(task.URL, task.DestPath); err != nil {
+		return fmt.Errorf("添加种子到 qBittorrent 失败: %w", err)
+	}
+
+	// qBittorrent 添加后需要查询获取 hash
+	// 这里先标记为已添加，后续在 updateBittorrentTask 中更新
+	m.mu.Lock()
+	task.ClientRef = "qbittorrent:pending"
+	m.mu.Unlock()
+
+	m.logger.Info("已添加种子到 qBittorrent",
+		zap.String("taskId", task.ID))
+
+	return nil
 }
 
 // downloadWithAria2c 使用 aria2c 下载 BT
@@ -679,12 +770,57 @@ type TransmissionStats struct {
 
 // getTransmissionStats 从 Transmission 获取统计信息
 func (m *Manager) getTransmissionStats(taskID string) (*TransmissionStats, error) {
-	// TODO: 实现 Transmission RPC API 调用
-	// 参考：https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md
-	return &TransmissionStats{
-		Progress: 50,
-		Speed:    1024 * 1024,
-	}, nil
+	if m.transmissionClient == nil {
+		return nil, fmt.Errorf("Transmission 客户端未初始化")
+	}
+
+	// 获取任务信息
+	m.mu.RLock()
+	task, exists := m.tasks[taskID]
+	m.mu.RUnlock()
+
+	if !exists {
+		return nil, fmt.Errorf("任务不存在: %s", taskID)
+	}
+
+	// 通过 hash 查询种子
+	if task.DownloadID == "" && task.ClientRef != "" {
+		// 尝试从 ClientRef 解析 ID
+		parts := strings.Split(task.ClientRef, ":")
+		if len(parts) == 2 && parts[0] == "transmission" {
+			var id int
+			if _, err := fmt.Sscanf(parts[1], "%d", &id); err == nil {
+				torrents, err := m.transmissionClient.GetTorrents(id)
+				if err == nil && len(torrents) > 0 {
+					m.mu.Lock()
+					task.DownloadID = torrents[0].HashString
+					m.mu.Unlock()
+				}
+			}
+		}
+	}
+
+	// 获取种子信息
+	torrents, err := m.transmissionClient.GetTorrents()
+	if err != nil {
+		return nil, err
+	}
+
+	// 查找对应的种子
+	for _, t := range torrents {
+		if t.HashString == task.DownloadID {
+			return &TransmissionStats{
+				Progress:   t.PercentDone * 100,
+				Speed:      t.RateDownload,
+				Downloaded: t.DownloadedEver,
+				Uploaded:   t.UploadedEver,
+				Peers:      t.PeersConnected,
+				Seeds:      t.Seeders,
+			}, nil
+		}
+	}
+
+	return nil, fmt.Errorf("未找到对应的种子: %s", task.DownloadID)
 }
 
 // QbittorrentStats qBittorrent 统计信息
@@ -699,11 +835,54 @@ type QbittorrentStats struct {
 
 // getQbittorrentStats 从 qBittorrent 获取统计信息
 func (m *Manager) getQbittorrentStats(taskID string) (*QbittorrentStats, error) {
-	// TODO: 实现 qBittorrent Web API 调用
-	// 参考：https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)
+	if m.qbittorrentClient == nil {
+		return nil, fmt.Errorf("qBittorrent 客户端未初始化")
+	}
+
+	// 获取任务信息
+	m.mu.RLock()
+	task, exists := m.tasks[taskID]
+	m.mu.RUnlock()
+
+	if !exists {
+		return nil, fmt.Errorf("任务不存在: %s", taskID)
+	}
+
+	// 获取所有种子
+	torrents, err := m.qbittorrentClient.GetTorrents()
+	if err != nil {
+		return nil, err
+	}
+
+	// 通过名字匹配（因为添加时可能还没有 hash）
+	var torrent *QBittorrentTorrentInfo
+	for i := range torrents {
+		if task.DownloadID != "" && torrents[i].Hash == task.DownloadID {
+			torrent = &torrents[i]
+			break
+		}
+		// 尝试通过名字匹配
+		if task.Name != "" && strings.Contains(torrents[i].Name, task.Name) {
+			torrent = &torrents[i]
+			// 更新 hash
+			m.mu.Lock()
+			task.DownloadID = torrents[i].Hash
+			m.mu.Unlock()
+			break
+		}
+	}
+
+	if torrent == nil {
+		return nil, fmt.Errorf("未找到对应的种子")
+	}
+
 	return &QbittorrentStats{
-		Progress: 50,
-		Speed:    1024 * 1024,
+		Progress:   torrent.Progress * 100,
+		Speed:      torrent.Dlspeed,
+		Downloaded: torrent.Downloaded,
+		Uploaded:   torrent.Uploaded,
+		Peers:      torrent.NumLeechs,
+		Seeds:      torrent.NumSeeds,
 	}, nil
 }
 
