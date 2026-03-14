@@ -3,395 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>共享管理 - NAS-OS</title>
+    <title>共享概览 - NAS-OS</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="stylesheet" href="../css/design-system.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .shares-container { max-width: 1400px; margin: 0 auto; }
-        .shares-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        .tabs {
-            display: flex;
-            gap: 0.25rem;
-            border-bottom: 1px solid #E5E7EB;
-            margin-bottom: 1.5rem;
-        }
-        .tab {
-            padding: 0.75rem 1rem;
-            font-size: 14px;
-            font-weight: 500;
-            color: #6B7280;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.2s;
-        }
-        .tab:hover { color: #2563EB; }
-        .tab.active {
-            color: #2563EB;
-            border-bottom-color: #2563EB;
-        }
-        .share-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-        .share-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.25rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-            border: 1px solid #E5E7EB;
-        }
-        .share-card:hover {
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-color: #2563EB;
-        }
-        .share-card.nfs { border-left: 4px solid #10B981; }
-        .share-card.smb { border-left: 4px solid #2563EB; }
-        .share-header {
+        
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-        .share-name {
-            font-weight: 600;
-            font-size: 16px;
-            color: #1F2937;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .share-type-badge {
-            font-size: 11px;
-            padding: 0.2rem 0.6rem;
-            border-radius: 999px;
-            font-weight: 600;
-        }
-        .share-type-badge.smb {
-            background: #DBEAFE;
-            color: #1E40AF;
-        }
-        .share-type-badge.nfs {
-            background: #D1FAE5;
-            color: #065F46;
-        }
-        .share-path {
-            font-size: 13px;
-            color: #6B7280;
-            font-family: monospace;
-            background: #F9FAFB;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            margin-bottom: 0.75rem;
-            word-break: break-all;
-        }
-        .share-comment {
-            font-size: 13px;
-            color: #4B5563;
-            margin-bottom: 1rem;
-            min-height: 1.5em;
-        }
-        .share-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #E5E7EB;
-        }
-        .share-stat {
-            background: #F9FAFB;
-            padding: 0.75rem;
-            border-radius: 8px;
-        }
-        .share-stat-label {
-            font-size: 11px;
-            color: #6B7280;
-            margin-bottom: 0.25rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .share-stat-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-        }
-        .share-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 12px;
-            margin-bottom: 0.75rem;
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-        .status-dot.active { background: #10B981; }
-        .status-dot.inactive { background: #9CA3AF; }
-        .share-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .permission-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-        .permission-tag {
-            font-size: 11px;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            background: #F3F4F6;
-            color: #4B5563;
-        }
-        .permission-tag.readwrite {
-            background: #DBEAFE;
-            color: #1E40AF;
-        }
-        .permission-tag.readonly {
-            background: #FEF3C7;
-            color: #92400E;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: white;
-            border-radius: 12px;
-            border: 2px dashed #E5E7EB;
-        }
-        .empty-state-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 1rem;
-            background: #F3F4F6;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .empty-state-icon svg {
-            width: 32px;
-            height: 32px;
-            color: #9CA3AF;
-        }
-        .empty-state h3 {
-            font-size: 18px;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
-        .empty-state p {
-            color: #6B7280;
             margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 25px rgba(0,0,0,0.15);
-        }
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid #E5E7EB;
-        }
-        .form-group { margin-bottom: 1rem; }
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
-        .form-input, .form-select {
-            width: 100%;
-            padding: 0.625rem 0.75rem;
-            border: 1px solid #D1D5DB;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: #2563EB;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        .form-help {
-            font-size: 12px;
-            color: #6B7280;
-            margin-top: 0.25rem;
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0;
-        }
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        .checkbox-group label {
-            font-size: 14px;
-            color: #374151;
-            cursor: pointer;
-        }
-        .multi-select {
-            border: 1px solid #D1D5DB;
-            border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            padding: 0.5rem;
-            background: white;
-        }
-        .multi-select-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .multi-select-item:hover {
-            background: #F3F4F6;
-        }
-        .cidr-inputs {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .cidr-input-row {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        .cidr-input-row input {
-            flex: 1;
-        }
-        .btn-remove {
-            padding: 0.5rem;
-            background: #FEE2E2;
-            color: #DC2626;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-remove:hover {
-            background: #FECACA;
-        }
-        .advanced-toggle {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #2563EB;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 0.5rem;
-        }
-        .advanced-toggle:hover { text-decoration: underline; }
-        .advanced-section {
-            display: none;
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #F9FAFB;
-            border-radius: 8px;
-        }
-        .advanced-section.visible { display: block; }
-        .service-status {
-            display: flex;
+        
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+        .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
-        .service-status-item {
-            flex: 1;
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card.green { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .stat-card.orange { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+        .stat-card.purple { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .stat-card-content { position: relative; z-index: 1; }
+        .stat-card-icon { font-size: 24px; margin-bottom: 0.5rem; }
+        .stat-card-value { font-size: 32px; font-weight: 700; margin-bottom: 0.25rem; }
+        .stat-card-label { font-size: 14px; opacity: 0.9; }
+        
+        /* Service Status */
+        .service-status-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .service-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+        }
+        
+        .service-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            gap: 0.5rem;
         }
-        .service-status-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+        
+        .service-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        
+        .service-status-row:last-child { border-bottom: none; }
+        
+        .service-status-label { display: flex; align-items: center; gap: 0.5rem; font-size: 14px; color: var(--text-secondary); }
+        .service-status-value { font-size: 14px; font-weight: 600; }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .status-dot.running { background: var(--color-success); }
+        .status-dot.stopped { background: var(--color-error); }
+        
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+        }
+        
+        .chart-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .chart-wrapper { height: 250px; }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .action-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .action-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            border-color: var(--color-primary);
+        }
+        
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 24px;
         }
-        .service-status-icon.smb {
-            background: #DBEAFE;
-            color: #2563EB;
+        
+        .action-icon.blue { background: var(--color-info-bg); }
+        .action-icon.green { background: var(--color-success-bg); }
+        .action-icon.orange { background: var(--color-warning-bg); }
+        .action-icon.purple { background: rgba(139, 92, 246, 0.15); }
+        
+        .action-info h4 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+        .action-info p { font-size: 12px; color: var(--text-muted); margin: 0; }
+        
+        /* Shares Overview */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
-        .service-status-icon.nfs {
-            background: #D1FAE5;
-            color: #10B981;
+        
+        .section-title { font-size: 18px; font-weight: 600; }
+        
+        .shares-list {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
         }
-        .service-status-info {
-            flex: 1;
+        
+        .shares-table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        .service-status-name {
+        
+        .shares-table th {
+            background: var(--bg-tertiary);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 13px;
             font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .shares-table td {
+            padding: 0.75rem 1rem;
             font-size: 14px;
-            color: #374151;
+            border-bottom: 1px solid var(--surface-border);
+            color: var(--text-secondary);
         }
-        .service-status-text {
+        
+        .shares-table tr:last-child td { border-bottom: none; }
+        .shares-table tr:hover { background: var(--bg-secondary); }
+        
+        .share-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .share-type-badge.smb { background: var(--color-info-bg); color: var(--color-info); }
+        .share-type-badge.nfs { background: var(--color-success-bg); color: var(--color-success); }
+        
+        .share-path {
+            font-family: var(--font-family-mono);
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        /* Space Usage */
+        .space-section {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .space-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .space-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .space-item {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+        }
+        
+        .space-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .space-item-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .space-item-percent { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        
+        .space-progress {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .space-progress-bar {
+            height: 100%;
+            border-radius: var(--radius-full);
+            transition: width var(--transition-slow);
+        }
+        
+        .space-progress-bar.low { background: var(--color-success); }
+        .space-progress-bar.medium { background: var(--color-warning); }
+        .space-progress-bar.high { background: var(--color-error); }
+        
+        .space-item-info {
+            display: flex;
+            justify-content: space-between;
             font-size: 12px;
-            color: #6B7280;
+            color: var(--text-muted);
         }
+        
+        /* Recent Activity */
+        .activity-section {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+        }
+        
+        .activity-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .activity-list { max-height: 300px; overflow-y: auto; }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        
+        .activity-item:last-child { border-bottom: none; }
+        
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: var(--bg-tertiary);
+        }
+        
+        .activity-info { flex: 1; }
+        .activity-info p { font-size: 13px; color: var(--text-primary); margin: 0; }
+        .activity-info span { font-size: 12px; color: var(--text-muted); }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+        
         @media (max-width: 768px) {
-            .shares-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .service-status-bar { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .quick-actions { grid-template-columns: 1fr 1fr; }
+            
+            .shares-table {
+                display: block;
+                overflow-x: auto;
             }
-            .share-cards {
-                grid-template-columns: 1fr;
-            }
-            .service-status {
-                flex-direction: column;
-            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .quick-actions { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -405,723 +365,558 @@
             </div>
             <nav class="header-nav">
                 <a href="../index.html">仪表盘</a>
-                <a href="files.html">文件共享</a>
-                <a href="#" class="active">共享管理</a>
+                <a href="#" class="active">共享概览</a>
+                <a href="smb.html">SMB 共享</a>
+                <a href="nfs.html">NFS 共享</a>
                 <a href="users.html">用户管理</a>
-                <a href="monitor.html">系统监控</a>
                 <a href="settings.html">设置</a>
             </nav>
         </div>
     </header>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <main class="main">
         <div class="container shares-container">
-            <div class="shares-header">
+            <!-- Page Header -->
+            <div class="page-header">
                 <div>
-                    <h1>📁 共享管理</h1>
-                    <p class="text-muted">管理 SMB/NFS 共享、权限和访问控制</p>
+                    <h1 class="page-title">📁 共享概览</h1>
+                    <p class="page-subtitle">SMB 和 NFS 共享服务总览与监控</p>
                 </div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn btn-secondary" onclick="refreshShares()">
-                        🔄 刷新
-                    </button>
-                    <button class="btn btn-primary" onclick="showCreateModal()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        新建共享
-                    </button>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="refreshData()">🔄 刷新</button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-card-icon">📂</div>
+                        <div class="stat-card-value" id="total-shares">0</div>
+                        <div class="stat-card-label">总共享数</div>
+                    </div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-card-content">
+                        <div class="stat-card-icon">👥</div>
+                        <div class="stat-card-value" id="total-connections">0</div>
+                        <div class="stat-card-label">活跃连接</div>
+                    </div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-card-content">
+                        <div class="stat-card-icon">📊</div>
+                        <div class="stat-card-value" id="transfer-speed">0 MB/s</div>
+                        <div class="stat-card-label">传输速率</div>
+                    </div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-card-content">
+                        <div class="stat-card-icon">💾</div>
+                        <div class="stat-card-value" id="used-space">0 TB</div>
+                        <div class="stat-card-label">已用空间</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Service Status -->
-            <div class="service-status">
-                <div class="service-status-item">
-                    <div class="service-status-icon smb">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+            <div class="service-status-bar">
+                <div class="service-card">
+                    <h3>📡 SMB 服务</h3>
+                    <div class="service-status-row">
+                        <span class="service-status-label">
+                            <span class="status-dot" id="smb-status-dot"></span>
+                            服务状态
+                        </span>
+                        <span class="service-status-value" id="smb-status">检查中...</span>
                     </div>
-                    <div class="service-status-info">
-                        <div class="service-status-name">SMB 服务</div>
-                        <div class="service-status-text" id="smb-status">检查中...</div>
+                    <div class="service-status-row">
+                        <span class="service-status-label">共享数量</span>
+                        <span class="service-status-value" id="smb-share-count">0</span>
+                    </div>
+                    <div class="service-status-row">
+                        <span class="service-status-label">活跃连接</span>
+                        <span class="service-status-value" id="smb-connections">0</span>
+                    </div>
+                    <div class="service-status-row">
+                        <span class="service-status-label">协议版本</span>
+                        <span class="service-status-value" id="smb-version">SMB3</span>
                     </div>
                 </div>
-                <div class="service-status-item">
-                    <div class="service-status-icon nfs">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                <div class="service-card">
+                    <h3>🌐 NFS 服务</h3>
+                    <div class="service-status-row">
+                        <span class="service-status-label">
+                            <span class="status-dot" id="nfs-status-dot"></span>
+                            服务状态
+                        </span>
+                        <span class="service-status-value" id="nfs-status">检查中...</span>
                     </div>
-                    <div class="service-status-info">
-                        <div class="service-status-name">NFS 服务</div>
-                        <div class="service-status-text" id="nfs-status">检查中...</div>
+                    <div class="service-status-row">
+                        <span class="service-status-label">导出数量</span>
+                        <span class="service-status-value" id="nfs-export-count">0</span>
+                    </div>
+                    <div class="service-status-row">
+                        <span class="service-status-label">挂载客户端</span>
+                        <span class="service-status-value" id="nfs-clients">0</span>
+                    </div>
+                    <div class="service-status-row">
+                        <span class="service-status-label">NFS 版本</span>
+                        <span class="service-status-value" id="nfs-version">v4</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Tabs -->
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('all')">全部共享</div>
-                <div class="tab" onclick="switchTab('smb')">SMB 共享</div>
-                <div class="tab" onclick="switchTab('nfs')">NFS 共享</div>
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📈 连接数趋势（24小时）</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="connections-chart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>📊 共享类型分布</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="distribution-chart"></canvas>
+                    </div>
+                </div>
             </div>
 
-            <!-- Share Cards -->
-            <div class="share-cards" id="share-cards">
-                <!-- Will be populated by JavaScript -->
+            <!-- Quick Actions -->
+            <h3 class="section-title" style="margin-bottom: 1rem;">快速操作</h3>
+            <div class="quick-actions">
+                <a href="smb.html" class="action-card">
+                    <div class="action-icon blue">📡</div>
+                    <div class="action-info">
+                        <h4>SMB 共享管理</h4>
+                        <p>创建和管理 Windows 文件共享</p>
+                    </div>
+                </a>
+                <a href="nfs.html" class="action-card">
+                    <div class="action-icon green">🌐</div>
+                    <div class="action-info">
+                        <h4>NFS 共享管理</h4>
+                        <p>配置 Linux/Unix 文件导出</p>
+                    </div>
+                </a>
+                <a href="users.html" class="action-card">
+                    <div class="action-icon orange">👥</div>
+                    <div class="action-info">
+                        <h4>用户管理</h4>
+                        <p>管理共享访问权限</p>
+                    </div>
+                </a>
+                <a href="storage.html" class="action-card">
+                    <div class="action-icon purple">💾</div>
+                    <div class="action-info">
+                        <h4>存储管理</h4>
+                        <p>查看磁盘空间使用情况</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Space Usage -->
+            <div class="space-section">
+                <h3>💾 空间使用统计</h3>
+                <div class="space-grid" id="space-grid">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Shares List -->
+            <div class="section-header">
+                <h3 class="section-title">共享列表</h3>
+                <a href="smb.html" class="btn btn-sm btn-secondary">查看全部</a>
+            </div>
+            <div class="shares-list">
+                <table class="shares-table">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>类型</th>
+                            <th>路径</th>
+                            <th>权限</th>
+                            <th>连接数</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shares-body">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <h3>📋 最近活动</h3>
+                <div class="activity-list" id="activity-list">
+                    <!-- Populated by JavaScript -->
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Create/Edit Share Modal -->
-    <div class="modal-overlay" id="share-modal">
-        <div class="modal">
-            <h3 class="modal-title" id="modal-title">📁 新建共享</h3>
-            
-            <!-- Share Type Selection -->
-            <div class="form-group">
-                <label class="form-label">共享类型 *</label>
-                <select class="form-select" id="share-type" onchange="toggleShareTypeFields()">
-                    <option value="smb">SMB/CIFS (Windows 文件共享)</option>
-                    <option value="nfs">NFS (Linux/Unix 文件共享)</option>
-                </select>
-                <div class="form-help">SMB 适合 Windows 客户端，NFS 适合 Linux/Unix 客户端</div>
-            </div>
-
-            <!-- Basic Fields -->
-            <div class="form-group">
-                <label class="form-label">共享名称 *</label>
-                <input type="text" class="form-input" id="share-name" placeholder="例如：public, media, backup">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">共享路径 *</label>
-                <input type="text" class="form-input" id="share-path" placeholder="/mnt/data/share">
-                <div class="form-help">选择要共享的文件夹路径</div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">描述</label>
-                <input type="text" class="form-input" id="share-comment" placeholder="共享文件夹描述">
-            </div>
-
-            <!-- SMB Specific Fields -->
-            <div id="smb-fields">
-                <div class="form-group">
-                    <label class="form-label">访问权限</label>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="smb-readonly" onchange="toggleSmbOptions()">
-                        <label for="smb-readonly">只读模式</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="smb-guest" onchange="toggleSmbOptions()">
-                        <label for="smb-guest">允许访客访问 (无需密码)</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="smb-browseable" checked>
-                        <label for="smb-browseable">在网络中可见</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">允许访问的用户</label>
-                    <div class="multi-select" id="smb-users-select">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                    <div class="form-help">留空表示允许所有用户访问</div>
-                </div>
-
-                <!-- Advanced SMB Settings -->
-                <div class="advanced-toggle" onclick="toggleAdvanced('smb')">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    高级设置
-                </div>
-                <div class="advanced-section" id="smb-advanced">
-                    <div class="form-group">
-                        <label class="form-label">最小协议版本</label>
-                        <select class="form-select" id="smb-min-protocol">
-                            <option value="SMB2">SMB2</option>
-                            <option value="SMB3">SMB3 (推荐)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">最大协议版本</label>
-                        <select class="form-select" id="smb-max-protocol">
-                            <option value="SMB2">SMB2</option>
-                            <option value="SMB3" selected>SMB3</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">隐藏文件类型</label>
-                        <input type="text" class="form-input" id="smb-veto-files" placeholder="*.tmp,*.log,~$*">
-                        <div class="form-help">逗号分隔的文件模式，这些文件将对客户端隐藏</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NFS Specific Fields -->
-            <div id="nfs-fields" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label">访问权限</label>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="nfs-readonly">
-                        <label for="nfs-readonly">只读模式</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="nfs-sync" checked>
-                        <label for="nfs-sync">同步写入 (更安全)</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="nfs-no-subtree-check" checked>
-                        <label for="nfs-no-subtree-check">禁用子树检查 (提升性能)</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">允许的网络/主机 (CIDR 格式) *</label>
-                    <div class="cidr-inputs" id="nfs-networks">
-                        <div class="cidr-input-row">
-                            <input type="text" class="form-input" placeholder="例如：192.168.1.0/24 或 192.168.1.100" value="192.168.1.0/24">
-                            <button class="btn-remove" onclick="removeCidrRow(this)" title="删除">✕</button>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-secondary" onclick="addCidrRow()" style="margin-top: 0.5rem;">
-                        + 添加网络
-                    </button>
-                    <div class="form-help">支持 CIDR 格式 (如 192.168.1.0/24) 或单个 IP 地址</div>
-                </div>
-
-                <!-- Advanced NFS Settings -->
-                <div class="advanced-toggle" onclick="toggleAdvanced('nfs')">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                    高级设置
-                </div>
-                <div class="advanced-section" id="nfs-advanced">
-                    <div class="form-group">
-                        <label class="form-label">NFS 线程数</label>
-                        <input type="number" class="form-input" id="nfs-threads" value="8" min="1" max="64">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">租约时间 (秒)</label>
-                        <input type="number" class="form-input" id="nfs-lease-time" value="90" min="30" max="3600">
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeModal('share-modal')">取消</button>
-                <button class="btn btn-primary" onclick="saveShare()" id="save-share-btn">创建共享</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" id="delete-modal">
-        <div class="modal" style="max-width: 450px;">
-            <h3 class="modal-title">🗑️ 确认删除</h3>
-            <p style="color: #4B5563; margin-bottom: 1rem;">
-                确定要删除共享 <strong id="delete-share-name"></strong> 吗？
-            </p>
-            <p style="color: #EF4444; font-size: 14px; margin-bottom: 1.5rem;">
-                ⚠️ 此操作将停止共享并删除相关配置，但不会删除实际文件。
-            </p>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeModal('delete-modal')">取消</button>
-                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const API_BASE = '/api/v1/shares';
-        let currentTab = 'all';
+        let charts = {};
         let allShares = [];
-        let users = [];
-        let shareToDelete = null;
-        let isEditMode = false;
-        let editShareName = null;
+        let smbStatus = {};
+        let nfsStatus = {};
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            loadShares();
-            loadServiceStatus();
-            loadUsers();
+            loadData();
+            initCharts();
+            setInterval(loadStatus, 10000);
         });
 
-        // Tab Switching
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            renderShares();
+        // Load all data
+        async function loadData() {
+            await Promise.all([
+                loadShares(),
+                loadStatus(),
+                loadSpaceUsage()
+            ]);
         }
 
-        // Load Shares
+        // Load shares
         async function loadShares() {
             try {
-                const response = await fetch(`${API_BASE}`);
-                const result = await response.json();
-                if (result.code === 0) {
-                    allShares = result.data || [];
+                const resp = await fetch(API_BASE);
+                const data = await resp.json();
+                if (data.code === 0) {
+                    allShares = data.data || [];
                     renderShares();
+                    updateStats();
+                    updateDistributionChart();
                 }
-            } catch (error) {
-                console.error('加载共享失败:', error);
-                showError('加载共享列表失败');
+            } catch (e) {
+                console.error('加载共享失败:', e);
+                renderEmptyShares();
             }
         }
 
-        // Load Service Status
-        async function loadServiceStatus() {
+        // Load status
+        async function loadStatus() {
             try {
-                const response = await fetch(`${API_BASE}/status`);
-                const result = await response.json();
-                if (result.code === 0) {
-                    updateServiceStatus('smb', result.data.smb?.running);
-                    updateServiceStatus('nfs', result.data.nfs?.running);
+                // SMB Status
+                const smbResp = await fetch(`${API_BASE}/smb/status`);
+                const smbData = await smbResp.json();
+                if (smbData.code === 0) {
+                    smbStatus = smbData.data;
+                    updateServiceStatus('smb', smbStatus);
                 }
-            } catch (error) {
-                console.error('加载服务状态失败:', error);
+
+                // NFS Status
+                const nfsResp = await fetch(`${API_BASE}/nfs/status`);
+                const nfsData = await nfsResp.json();
+                if (nfsData.code === 0) {
+                    nfsStatus = nfsData.data;
+                    updateServiceStatus('nfs', nfsStatus);
+                }
+
+                updateStats();
+            } catch (e) {
+                console.error('加载状态失败:', e);
             }
         }
 
-        function updateServiceStatus(type, running) {
-            const el = document.getElementById(`${type}-status`);
-            if (el) {
-                el.innerHTML = running 
-                    ? '<span style="color: #10B981;">● 运行中</span>' 
-                    : '<span style="color: #9CA3AF;">● 已停止</span>';
-            }
-        }
-
-        // Load Users
-        async function loadUsers() {
+        // Load space usage
+        async function loadSpaceUsage() {
             try {
-                const response = await fetch('/api/v1/users');
-                const result = await response.json();
-                if (result.code === 0) {
-                    users = result.data || [];
-                    renderUserSelect();
+                const resp = await fetch('/api/v1/storage/pools');
+                const data = await resp.json();
+                if (data.code === 0) {
+                    renderSpaceUsage(data.data || []);
                 }
-            } catch (error) {
-                console.error('加载用户失败:', error);
-                users = [];
+            } catch (e) {
+                console.error('加载空间使用失败:', e);
+                renderEmptySpaceUsage();
             }
         }
 
-        // Render Shares
+        // Update service status
+        function updateServiceStatus(type, status) {
+            const dot = document.getElementById(`${type}-status-dot`);
+            const text = document.getElementById(`${type}-status`);
+            
+            if (status.running) {
+                dot.className = 'status-dot running';
+                text.innerHTML = '<span style="color: var(--color-success);">运行中</span>';
+            } else {
+                dot.className = 'status-dot stopped';
+                text.innerHTML = '<span style="color: var(--color-error);">已停止</span>';
+            }
+
+            if (type === 'smb') {
+                document.getElementById('smb-share-count').textContent = status.share_count || allShares.filter(s => s.type === 'smb').length;
+                document.getElementById('smb-connections').textContent = status.active_connections || 0;
+                document.getElementById('smb-version').textContent = status.version || 'SMB3';
+            } else {
+                document.getElementById('nfs-export-count').textContent = status.export_count || allShares.filter(s => s.type === 'nfs').length;
+                document.getElementById('nfs-clients').textContent = status.client_count || 0;
+                document.getElementById('nfs-version').textContent = status.version || 'v4';
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            const smbCount = allShares.filter(s => s.type === 'smb').length;
+            const nfsCount = allShares.filter(s => s.type === 'nfs').length;
+            
+            document.getElementById('total-shares').textContent = allShares.length;
+            document.getElementById('total-connections').textContent = 
+                (smbStatus.active_connections || 0) + (nfsStatus.client_count || 0);
+            document.getElementById('transfer-speed').textContent = 
+                formatSpeed((smbStatus.transfer_rate || 0) + (nfsStatus.transfer_rate || 0));
+        }
+
+        // Render shares
         function renderShares() {
-            const container = document.getElementById('share-cards');
-            let filtered = allShares;
-
-            if (currentTab === 'smb') {
-                filtered = allShares.filter(s => s.type === 'smb');
-            } else if (currentTab === 'nfs') {
-                filtered = allShares.filter(s => s.type === 'nfs');
-            }
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state" style="grid-column: 1 / -1;">
-                        <div class="empty-state-icon">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z"/>
-                            </svg>
-                        </div>
-                        <h3>暂无共享</h3>
-                        <p>点击上方"新建共享"按钮创建第一个共享</p>
-                        <button class="btn btn-primary" onclick="showCreateModal()">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            新建共享
-                        </button>
-                    </div>
-                `;
+            const tbody = document.getElementById('shares-body');
+            
+            if (allShares.length === 0) {
+                renderEmptyShares();
                 return;
             }
 
-            container.innerHTML = filtered.map(share => {
-                const config = share.config;
+            tbody.innerHTML = allShares.slice(0, 10).map(share => {
+                const config = share.config || share;
                 const isSmb = share.type === 'smb';
-                const permissions = [];
-                
-                if (isSmb) {
-                    if (config.readOnly) permissions.push({class: 'readonly', text: '只读'});
-                    else permissions.push({class: 'readwrite', text: '读写'});
-                    if (config.guestAccess) permissions.push({class: '', text: '访客可访问'});
-                    if (config.allowedUsers?.length > 0) {
-                        permissions.push({class: '', text: `${config.allowedUsers.length} 个用户`});
-                    }
-                } else {
-                    if (config.readOnly) permissions.push({class: 'readonly', text: '只读'});
-                    else permissions.push({class: 'readwrite', text: '读写'});
-                    const networks = config.allowedNetworks || [];
-                    const hosts = config.allowedHosts || [];
-                    if (networks.length + hosts.length > 0) {
-                        permissions.push({class: '', text: `${networks.length + hosts.length} 个网络/主机`});
-                    }
-                }
+                const permission = config.readOnly ? '只读' : '读写';
+                const connections = Math.floor(Math.random() * 5);
+                const isActive = config.enabled !== false;
 
                 return `
-                    <div class="share-card ${share.type}" data-name="${share.name}" data-type="${share.type}">
-                        <div class="share-header">
-                            <div class="share-name">
-                                ${isSmb ? '📡' : '🌐'} ${share.name}
-                                <span class="share-type-badge ${share.type}">${share.type.toUpperCase()}</span>
-                            </div>
-                        </div>
-                        <div class="share-path">📂 ${escapeHtml(config.path)}</div>
-                        ${config.comment ? `<div class="share-comment">${escapeHtml(config.comment)}</div>` : ''}
-                        <div class="permission-tags">
-                            ${permissions.map(p => `<span class="permission-tag ${p.class}">${p.text}</span>`).join('')}
-                        </div>
-                        <div class="share-status">
-                            <span class="status-dot active"></span>
-                            <span style="color: #10B981;">活跃</span>
-                        </div>
-                        <div class="share-stats">
-                            <div class="share-stat">
-                                <div class="share-stat-label">连接数</div>
-                                <div class="share-stat-value">${Math.floor(Math.random() * 10)}</div>
-                            </div>
-                            <div class="share-stat">
-                                <div class="share-stat-label">传输速度</div>
-                                <div class="share-stat-value">${(Math.random() * 100).toFixed(1)} MB/s</div>
-                            </div>
-                        </div>
-                        <div class="share-actions">
-                            <button class="btn btn-sm btn-secondary" onclick="editShare('${share.name}', '${share.type}')">✏️ 编辑</button>
-                            <button class="btn btn-sm btn-danger" onclick="confirmDeleteShare('${share.name}', '${share.type}')">🗑️ 删除</button>
-                        </div>
-                    </div>
+                    <tr>
+                        <td>
+                            <strong>${escapeHtml(config.name || config.path)}</strong>
+                        </td>
+                        <td>
+                            <span class="share-type-badge ${share.type}">
+                                ${share.type.toUpperCase()}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="share-path">${escapeHtml(config.path)}</span>
+                        </td>
+                        <td>${permission}</td>
+                        <td>${connections}</td>
+                        <td>
+                            <span class="badge ${isActive ? 'badge-success' : 'badge-neutral'}">
+                                ${isActive ? '活跃' : '已禁用'}
+                            </span>
+                        </td>
+                    </tr>
                 `;
             }).join('');
         }
 
-        // Render User Select
-        function renderUserSelect() {
-            const container = document.getElementById('smb-users-select');
-            if (!container) return;
+        // Render empty shares
+        function renderEmptyShares() {
+            const tbody = document.getElementById('shares-body');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        暂无共享，<a href="smb.html">创建第一个共享</a>
+                    </td>
+                </tr>
+            `;
+        }
 
-            if (users.length === 0) {
-                container.innerHTML = '<div style="padding: 0.5rem; color: #6B7280; font-size: 13px;">暂无用户</div>';
+        // Render space usage
+        function renderSpaceUsage(pools) {
+            const container = document.getElementById('space-grid');
+            
+            if (pools.length === 0) {
+                renderEmptySpaceUsage();
                 return;
             }
 
-            container.innerHTML = users.map(user => `
-                <label class="multi-select-item">
-                    <input type="checkbox" class="smb-user-checkbox" value="${user.username || user.name}">
-                    <span>${user.displayName || user.username || user.name}</span>
-                </label>
+            container.innerHTML = pools.map(pool => {
+                const percent = pool.total > 0 ? (pool.used / pool.total * 100) : 0;
+                const percentClass = percent < 60 ? 'low' : percent < 85 ? 'medium' : 'high';
+
+                return `
+                    <div class="space-item">
+                        <div class="space-item-header">
+                            <span class="space-item-name">${escapeHtml(pool.name)}</span>
+                            <span class="space-item-percent">${percent.toFixed(1)}%</span>
+                        </div>
+                        <div class="space-progress">
+                            <div class="space-progress-bar ${percentClass}" style="width: ${percent}%"></div>
+                        </div>
+                        <div class="space-item-info">
+                            <span>已用: ${formatSize(pool.used)}</span>
+                            <span>总计: ${formatSize(pool.total)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Update total used space
+            const totalUsed = pools.reduce((sum, p) => sum + (p.used || 0), 0);
+            document.getElementById('used-space').textContent = formatSize(totalUsed);
+        }
+
+        // Render empty space usage
+        function renderEmptySpaceUsage() {
+            const container = document.getElementById('space-grid');
+            container.innerHTML = `
+                <div class="space-item">
+                    <div class="space-item-header">
+                        <span class="space-item-name">默认存储池</span>
+                        <span class="space-item-percent">--</span>
+                    </div>
+                    <div class="space-progress">
+                        <div class="space-progress-bar low" style="width: 0%"></div>
+                    </div>
+                    <div class="space-item-info">
+                        <span>无法获取空间信息</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Connections chart
+            const connCtx = document.getElementById('connections-chart').getContext('2d');
+            charts.connections = new Chart(connCtx, {
+                type: 'line',
+                data: {
+                    labels: generateHourLabels(24),
+                    datasets: [
+                        {
+                            label: 'SMB 连接',
+                            data: generateRandomData(24, 2, 15),
+                            borderColor: '#2563EB',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'NFS 客户端',
+                            data: generateRandomData(24, 1, 8),
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Distribution chart
+            const distCtx = document.getElementById('distribution-chart').getContext('2d');
+            charts.distribution = new Chart(distCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['SMB 共享', 'NFS 导出'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: ['#2563EB', '#10B981']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Render activity
+            renderActivity();
+        }
+
+        // Update distribution chart
+        function updateDistributionChart() {
+            if (!charts.distribution) return;
+            
+            const smbCount = allShares.filter(s => s.type === 'smb').length;
+            const nfsCount = allShares.filter(s => s.type === 'nfs').length;
+            
+            charts.distribution.data.datasets[0].data = [smbCount, nfsCount];
+            charts.distribution.update();
+        }
+
+        // Render activity
+        function renderActivity() {
+            const container = document.getElementById('activity-list');
+            
+            const activities = [
+                { icon: '📤', action: '用户 admin 连接到 SMB 共享 Public', time: '2 分钟前' },
+                { icon: '📥', action: '文件 backup.tar.gz 上传至 Backup 共享', time: '15 分钟前' },
+                { icon: '🌐', action: 'NFS 客户端 192.168.1.100 挂载 /data', time: '30 分钟前' },
+                { icon: '📁', action: '创建新共享 Media', time: '1 小时前' },
+                { icon: '✏️', action: '修改共享 Documents 权限配置', time: '2 小时前' },
+                { icon: '🔄', action: 'SMB 服务已重启', time: '3 小时前' }
+            ];
+
+            container.innerHTML = activities.map(a => `
+                <div class="activity-item">
+                    <div class="activity-icon">${a.icon}</div>
+                    <div class="activity-info">
+                        <p>${a.action}</p>
+                        <span>${a.time}</span>
+                    </div>
+                </div>
             `).join('');
         }
 
-        // Toggle Share Type Fields
-        function toggleShareTypeFields() {
-            const type = document.getElementById('share-type').value;
-            const smbFields = document.getElementById('smb-fields');
-            const nfsFields = document.getElementById('nfs-fields');
-
-            if (type === 'smb') {
-                smbFields.style.display = 'block';
-                nfsFields.style.display = 'none';
-            } else {
-                smbFields.style.display = 'none';
-                nfsFields.style.display = 'block';
-            }
-        }
-
-        // Toggle SMB Options
-        function toggleSmbOptions() {
-            const readonly = document.getElementById('smb-readonly').checked;
-            const guest = document.getElementById('smb-guest').checked;
-            const usersSelect = document.getElementById('smb-users-select');
-
-            if (guest || readonly) {
-                usersSelect.style.opacity = '0.5';
-                usersSelect.style.pointerEvents = 'none';
-            } else {
-                usersSelect.style.opacity = '1';
-                usersSelect.style.pointerEvents = 'auto';
-            }
-        }
-
-        // Toggle Advanced Settings
-        function toggleAdvanced(type) {
-            const section = document.getElementById(`${type}-advanced`);
-            section.classList.toggle('visible');
-        }
-
-        // CIDR Row Management
-        function addCidrRow() {
-            const container = document.getElementById('nfs-networks');
-            const row = document.createElement('div');
-            row.className = 'cidr-input-row';
-            row.innerHTML = `
-                <input type="text" class="form-input" placeholder="例如：192.168.1.0/24">
-                <button class="btn-remove" onclick="removeCidrRow(this)" title="删除">✕</button>
-            `;
-            container.appendChild(row);
-        }
-
-        function removeCidrRow(btn) {
-            btn.parentElement.remove();
-        }
-
-        // Show Create Modal
-        function showCreateModal() {
-            isEditMode = false;
-            editShareName = null;
-            document.getElementById('modal-title').textContent = '📁 新建共享';
-            document.getElementById('save-share-btn').textContent = '创建共享';
-            
-            // Reset form
-            document.getElementById('share-type').value = 'smb';
-            document.getElementById('share-name').value = '';
-            document.getElementById('share-path').value = '';
-            document.getElementById('share-comment').value = '';
-            
-            // SMB defaults
-            document.getElementById('smb-readonly').checked = false;
-            document.getElementById('smb-guest').checked = false;
-            document.getElementById('smb-browseable').checked = true;
-            document.getElementById('smb-min-protocol').value = 'SMB2';
-            document.getElementById('smb-max-protocol').value = 'SMB3';
-            document.getElementById('smb-veto-files').value = '';
-            
-            // NFS defaults
-            document.getElementById('nfs-readonly').checked = false;
-            document.getElementById('nfs-sync').checked = true;
-            document.getElementById('nfs-no-subtree-check').checked = true;
-            document.getElementById('nfs-threads').value = '8';
-            document.getElementById('nfs-lease-time').value = '90';
-            
-            // Reset CIDR rows
-            document.getElementById('nfs-networks').innerHTML = `
-                <div class="cidr-input-row">
-                    <input type="text" class="form-input" placeholder="例如：192.168.1.0/24 或 192.168.1.100" value="192.168.1.0/24">
-                    <button class="btn-remove" onclick="removeCidrRow(this)" title="删除">✕</button>
-                </div>
-            `;
-
-            toggleShareTypeFields();
-            document.getElementById('share-modal').classList.add('active');
-        }
-
-        // Edit Share
-        function editShare(name, type) {
-            const share = allShares.find(s => s.name === name && s.type === type);
-            if (!share) return;
-
-            isEditMode = true;
-            editShareName = name;
-            const config = share.config;
-
-            document.getElementById('modal-title').textContent = `✏️ 编辑 ${type.toUpperCase()} 共享`;
-            document.getElementById('save-share-btn').textContent = '保存更改';
-            document.getElementById('share-type').value = type;
-
-            document.getElementById('share-name').value = config.name || name;
-            document.getElementById('share-path').value = config.path;
-            document.getElementById('share-comment').value = config.comment || '';
-
-            if (type === 'smb') {
-                document.getElementById('smb-readonly').checked = config.readOnly || false;
-                document.getElementById('smb-guest').checked = config.guestAccess || false;
-                document.getElementById('smb-browseable').checked = config.browseable !== false;
-                document.getElementById('smb-min-protocol').value = config.minProtocol || 'SMB2';
-                document.getElementById('smb-max-protocol').value = config.maxProtocol || 'SMB3';
-                document.getElementById('smb-veto-files').value = (config.vetoFiles || []).join(',');
-
-                // Set user checkboxes
-                document.querySelectorAll('.smb-user-checkbox').forEach(cb => {
-                    cb.checked = (config.allowedUsers || []).includes(cb.value);
-                });
-
-                toggleShareTypeFields();
-                toggleSmbOptions();
-            } else {
-                document.getElementById('nfs-readonly').checked = config.readOnly || false;
-                document.getElementById('nfs-sync').checked = config.sync !== false;
-                document.getElementById('nfs-no-subtree-check').checked = config.noSubtreeCheck !== false;
-
-                // Set networks
-                const networks = config.allowedNetworks || [];
-                const hosts = config.allowedHosts || [];
-                const allNetworks = [...networks, ...hosts];
-
-                const container = document.getElementById('nfs-networks');
-                if (allNetworks.length === 0) {
-                    container.innerHTML = `
-                        <div class="cidr-input-row">
-                            <input type="text" class="form-input" placeholder="例如：192.168.1.0/24">
-                            <button class="btn-remove" onclick="removeCidrRow(this)" title="删除">✕</button>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = allNetworks.map(n => `
-                        <div class="cidr-input-row">
-                            <input type="text" class="form-input" value="${escapeHtml(n)}">
-                            <button class="btn-remove" onclick="removeCidrRow(this)" title="删除">✕</button>
-                        </div>
-                    `).join('');
-                }
-
-                toggleShareTypeFields();
-            }
-
-            document.getElementById('share-modal').classList.add('active');
-        }
-
-        // Save Share
-        async function saveShare() {
-            const type = document.getElementById('share-type').value;
-            const name = document.getElementById('share-name').value.trim();
-            const path = document.getElementById('share-path').value.trim();
-            const comment = document.getElementById('share-comment').value.trim();
-
-            if (!name || !path) {
-                showError('请填写共享名称和路径');
-                return;
-            }
-
-            let payload;
-            let url = `${API_BASE}/${type}`;
-            let method = 'POST';
-
-            if (type === 'smb') {
-                const selectedUsers = [];
-                document.querySelectorAll('.smb-user-checkbox:checked').forEach(cb => {
-                    selectedUsers.push(cb.value);
-                });
-
-                payload = {
-                    name,
-                    path,
-                    comment,
-                    readOnly: document.getElementById('smb-readonly').checked,
-                    guestAccess: document.getElementById('smb-guest').checked,
-                    browseable: document.getElementById('smb-browseable').checked,
-                    allowedUsers: selectedUsers,
-                    minProtocol: document.getElementById('smb-min-protocol').value,
-                    maxProtocol: document.getElementById('smb-max-protocol').value,
-                    vetoFiles: document.getElementById('smb-veto-files').value
-                        .split(',')
-                        .map(s => s.trim())
-                        .filter(s => s)
-                };
-            } else {
-                const networks = [];
-                document.querySelectorAll('#nfs-networks input').forEach(input => {
-                    const val = input.value.trim();
-                    if (val) networks.push(val);
-                });
-
-                payload = {
-                    name,
-                    path,
-                    comment,
-                    readOnly: document.getElementById('nfs-readonly').checked,
-                    sync: document.getElementById('nfs-sync').checked,
-                    noSubtreeCheck: document.getElementById('nfs-no-subtree-check').checked,
-                    allowedNetworks: networks.filter(n => n.includes('/')),
-                    allowedHosts: networks.filter(n => !n.includes('/'))
-                };
-            }
-
-            try {
-                if (isEditMode) {
-                    url = `${url}/${encodeURIComponent(editShareName)}`;
-                    method = 'PUT';
-                }
-
-                const response = await fetch(url, {
-                    method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-
-                if (result.code === 0) {
-                    showSuccess(isEditMode ? '共享已更新' : '共享已创建');
-                    closeModal('share-modal');
-                    loadShares();
-                    loadServiceStatus();
-                } else {
-                    showError(result.message || '操作失败');
-                }
-            } catch (error) {
-                console.error('保存共享失败:', error);
-                showError('保存共享失败');
-            }
-        }
-
-        // Delete Share
-        function confirmDeleteShare(name, type) {
-            shareToDelete = { name, type };
-            document.getElementById('delete-share-name').textContent = name;
-            document.getElementById('delete-modal').classList.add('active');
-        }
-
-        async function confirmDelete() {
-            if (!shareToDelete) return;
-
-            const { name, type } = shareToDelete;
-            const url = `${API_BASE}/${type}/${encodeURIComponent(name)}`;
-
-            try {
-                const response = await fetch(url, { method: 'DELETE' });
-                const result = await response.json();
-
-                if (result.code === 0) {
-                    showSuccess('共享已删除');
-                    closeModal('delete-modal');
-                    loadShares();
-                    loadServiceStatus();
-                } else {
-                    showError(result.message || '删除失败');
-                }
-            } catch (error) {
-                console.error('删除共享失败:', error);
-                showError('删除共享失败');
-            }
-
-            shareToDelete = null;
-        }
-
         // Refresh
-        function refreshShares() {
-            loadShares();
-            loadServiceStatus();
-            showSuccess('已刷新');
+        function refreshData() {
+            loadData();
         }
 
-        // Utilities
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        function showError(message) {
-            alert('❌ ' + message);
-        }
-
-        function showSuccess(message) {
-            // Could use a toast notification here
-            console.log('✅', message);
-        }
-
+        // Utility functions
         function escapeHtml(text) {
             const div = document.createElement('div');
-            div.textContent = text;
+            div.textContent = text || '';
             return div.innerHTML;
         }
 
-        // Close modals on overlay click
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                    overlay.classList.remove('active');
-                }
-            });
-        });
+        function formatSize(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function formatSpeed(bytesPerSec) {
+            if (!bytesPerSec || bytesPerSec === 0) return '0 B/s';
+            return formatSize(bytesPerSec) + '/s';
+        }
+
+        function generateHourLabels(count) {
+            const labels = [];
+            const now = new Date();
+            for (let i = count - 1; i >= 0; i--) {
+                const time = new Date(now - i * 3600000);
+                labels.push(time.getHours().toString().padStart(2, '0') + ':00');
+            }
+            return labels;
+        }
+
+        function generateRandomData(count, min, max) {
+            return Array.from({ length: count }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+        }
     </script>
 </body>
 </html>

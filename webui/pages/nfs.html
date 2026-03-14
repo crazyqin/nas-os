@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFS 共享管理 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .nfs-container { max-width: 1400px; margin: 0 auto; }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .page-title { font-size: 28px; font-weight: 700; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; }
+        .page-subtitle { color: var(--text-muted); }
+        .header-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        
+        /* Service Status */
+        .service-status-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .status-item {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+        }
+        
+        .status-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .status-icon.running { background: var(--color-success-bg); color: var(--color-success); }
+        .status-icon.stopped { background: var(--color-error-bg); color: var(--color-error); }
+        .status-icon.info { background: var(--color-info-bg); color: var(--color-info); }
+        
+        .status-info h4 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 0.125rem; }
+        .status-info p { font-size: 13px; color: var(--text-muted); margin: 0; }
+        .status-value { font-size: 18px; font-weight: 700; color: var(--color-success); }
+        
+        /* Exports Grid */
+        .exports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        
+        .export-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+            border-left: 4px solid var(--color-success);
+            transition: all var(--transition-base);
+        }
+        
+        .export-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .export-card.disabled { border-left-color: var(--color-gray-400); opacity: 0.7; }
+        
+        .export-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .export-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .export-status-badge {
+            font-size: 11px;
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+        }
+        
+        .export-status-badge.active { background: var(--color-success-bg); color: var(--color-success); }
+        .export-status-badge.inactive { background: var(--bg-tertiary); color: var(--text-muted); }
+        
+        .export-path {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: var(--font-family-mono);
+            background: var(--bg-tertiary);
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 0.75rem;
+            word-break: break-all;
+        }
+        
+        .export-comment {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .client-list {
+            margin-bottom: 1rem;
+        }
+        
+        .client-list-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        
+        .client-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .client-tag {
+            font-size: 12px;
+            padding: 0.25rem 0.6rem;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-family: var(--font-family-mono);
+        }
+        
+        .option-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .option-tag {
+            font-size: 11px;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+        
+        .option-tag.readwrite { background: var(--color-info-bg); color: var(--color-info); }
+        .option-tag.readonly { background: var(--color-warning-bg); color: var(--color-warning); }
+        .option-tag.secure { background: var(--color-success-bg); color: var(--color-success); }
+        
+        .export-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--surface-border);
+            margin-bottom: 1rem;
+        }
+        
+        .export-stat { text-align: center; }
+        .export-stat-value { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+        .export-stat-label { font-size: 11px; color: var(--text-muted); }
+        
+        .export-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-card {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+        }
+        
+        .chart-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .chart-wrapper { height: 200px; }
+        
+        /* Clients Section */
+        .clients-section { margin-bottom: 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-title { font-size: 18px; font-weight: 600; }
+        
+        .clients-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+        }
+        
+        .clients-table th {
+            background: var(--bg-tertiary);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .clients-table td {
+            padding: 0.75rem 1rem;
+            font-size: 14px;
+            border-bottom: 1px solid var(--surface-border);
+            color: var(--text-secondary);
+        }
+        
+        .clients-table tr:last-child td { border-bottom: none; }
+        .clients-table tr:hover { background: var(--bg-secondary); }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        
+        .modal-overlay.active { display: flex; }
+        
+        .modal {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            background: var(--surface-color);
+            color: var(--text-primary);
+            transition: all var(--transition-fast);
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-help { font-size: 12px; color: var(--text-muted); margin-top: 0.25rem; }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .checkbox-group label { font-size: 14px; color: var(--text-primary); cursor: pointer; }
+        
+        .network-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .network-input-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .network-input-row input { flex: 1; }
+        
+        .btn-remove {
+            padding: 0.5rem;
+            background: var(--color-error-bg);
+            color: var(--color-error);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .btn-remove:hover { background: #FECACA; }
+        
+        .advanced-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-primary);
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        
+        .advanced-toggle:hover { text-decoration: underline; }
+        
+        .advanced-section {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+        }
+        
+        .advanced-section.visible { display: block; }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            border: 2px dashed var(--surface-border);
+        }
+        
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        
+        .empty-state h3 { font-size: 18px; color: var(--text-primary); margin-bottom: 0.5rem; }
+        .empty-state p { color: var(--text-muted); margin-bottom: 1.5rem; }
+        
+        /* Service Config */
+        .service-config {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .service-config h3 { font-size: 16px; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .config-item label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 0.25rem; }
+        .config-item input { width: 100%; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .exports-grid { grid-template-columns: 1fr; }
+            .service-status-bar { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-brand">
+                <img src="../brand/logo/logo-64.png" alt="Logo" width="40" height="40">
+                <h1>NAS-OS</h1>
+            </div>
+            <nav class="header-nav">
+                <a href="../index.html">仪表盘</a>
+                <a href="shares.html">共享概览</a>
+                <a href="smb.html">SMB 共享</a>
+                <a href="#" class="active">NFS 共享</a>
+                <a href="users.html">用户管理</a>
+                <a href="settings.html">设置</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container nfs-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">🌐 NFS 共享管理</h1>
+                    <p class="page-subtitle">Linux/Unix 网络文件系统导出配置</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="refreshData()">🔄 刷新</button>
+                    <button class="btn btn-primary" onclick="showCreateModal()">+ 新建导出</button>
+                </div>
+            </div>
+
+            <!-- Service Status Bar -->
+            <div class="service-status-bar">
+                <div class="status-item">
+                    <div class="status-icon" id="service-icon">⏻</div>
+                    <div class="status-info">
+                        <h4>NFS 服务</h4>
+                        <p id="service-status">检查中...</p>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon info">📂</div>
+                    <div class="status-info">
+                        <h4>导出数量</h4>
+                        <p class="status-value" id="export-count">0</p>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon info">🖥️</div>
+                    <div class="status-info">
+                        <h4>挂载客户端</h4>
+                        <p class="status-value" id="client-count">0</p>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon info">⚡</div>
+                    <div class="status-info">
+                        <h4>NFS 版本</h4>
+                        <p class="status-value" id="nfs-version">v4</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Configuration -->
+            <div class="service-config">
+                <h3>⚙️ 服务配置</h3>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label>服务状态</label>
+                        <label class="checkbox-group" style="padding: 0;">
+                            <input type="checkbox" id="nfs-enabled" onchange="toggleService()">
+                            <label for="nfs-enabled">启用 NFS 服务</label>
+                        </label>
+                    </div>
+                    <div class="config-item">
+                        <label>线程数</label>
+                        <input type="number" class="form-input" id="nfs-threads" value="8" min="1" max="64">
+                    </div>
+                    <div class="config-item">
+                        <label>端口 (nfs)</label>
+                        <input type="number" class="form-input" id="nfs-port" value="2049">
+                    </div>
+                    <div class="config-item">
+                        <label>端口 (mountd)</label>
+                        <input type="number" class="form-input" id="mountd-port" value="20048">
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-sm btn-primary" onclick="saveServiceConfig()">💾 保存配置</button>
+                    <button class="btn btn-sm btn-secondary" onclick="restartService()">🔄 重启服务</button>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📈 客户端连接趋势</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="clients-chart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>📊 导出访问分布</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="exports-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exports Grid -->
+            <h3 class="section-title" style="margin-bottom: 1rem;">导出列表</h3>
+            <div class="exports-grid" id="exports-container">
+                <!-- Populated by JavaScript -->
+            </div>
+
+            <!-- Mounted Clients -->
+            <div class="clients-section">
+                <div class="section-header">
+                    <h3 class="section-title">已挂载客户端</h3>
+                    <button class="btn btn-sm btn-secondary" onclick="showMountInfo()">📋 挂载信息</button>
+                </div>
+                <table class="clients-table">
+                    <thead>
+                        <tr>
+                            <th>客户端 IP</th>
+                            <th>导出路径</th>
+                            <th>NFS 版本</th>
+                            <th>挂载时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-body">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create/Edit Modal -->
+    <div class="modal-overlay" id="export-modal">
+        <div class="modal">
+            <h3 class="modal-title" id="modal-title">🌐 新建 NFS 导出</h3>
+            
+            <div class="form-group">
+                <label class="form-label">导出路径 *</label>
+                <input type="text" class="form-input" id="export-path" placeholder="/mnt/data/export">
+                <div class="form-help">选择要导出的文件夹路径</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">描述</label>
+                <input type="text" class="form-input" id="export-comment" placeholder="导出描述">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">访问权限</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="nfs-readonly">
+                    <label for="nfs-readonly">只读模式 (ro)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="nfs-sync" checked>
+                    <label for="nfs-sync">同步写入 (sync) - 更安全但较慢</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="nfs-no-subtree-check" checked>
+                    <label for="nfs-no-subtree-check">禁用子树检查 (no_subtree_check)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="nfs-root-squash" checked>
+                    <label for="nfs-root-squash">Root Squash (root_squash) - 安全性</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">允许的网络/主机 (CIDR) *</label>
+                <div class="network-inputs" id="network-inputs">
+                    <div class="network-input-row">
+                        <input type="text" class="form-input" placeholder="192.168.1.0/24 或 10.0.0.100" value="192.168.1.0/24">
+                        <button class="btn-remove" onclick="removeNetworkRow(this)">✕</button>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="addNetworkRow()" style="margin-top: 0.5rem;">+ 添加网络</button>
+                <div class="form-help">支持 CIDR 格式（如 192.168.1.0/24）或单个 IP 地址</div>
+            </div>
+
+            <div class="advanced-toggle" onclick="toggleAdvanced()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                高级设置
+            </div>
+            <div class="advanced-section" id="advanced-section">
+                <div class="form-group">
+                    <label class="form-label">anonuid</label>
+                    <input type="number" class="form-input" id="nfs-anonuid" value="65534" min="0">
+                    <div class="form-help">匿名用户 UID（root_squash 时使用）</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">anongid</label>
+                    <input type="number" class="form-input" id="nfs-anongid" value="65534" min="0">
+                    <div class="form-help">匿名用户 GID（root_squash 时使用）</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">fsid</label>
+                    <input type="text" class="form-input" id="nfs-fsid" placeholder="自动生成或指定 UUID">
+                    <div class="form-help">文件系统 ID，用于 NFSv4</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">安全选项</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="nfs-secure">
+                        <label for="nfs-secure">仅允许安全端口 (&lt;1024)</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="nfs-sec-sys" checked>
+                        <label for="nfs-sec-sys">使用 AUTH_SYS 认证</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveExport()" id="save-btn">创建导出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal" style="max-width: 450px;">
+            <h3 class="modal-title">🗑️ 确认删除</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                确定要删除导出 <strong id="delete-export-path"></strong> 吗？
+            </p>
+            <p style="color: var(--color-error); font-size: 14px; margin-bottom: 1.5rem;">
+                ⚠️ 此操作将取消导出并删除相关配置，已挂载的客户端将断开连接。
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mount Info Modal -->
+    <div class="modal-overlay" id="mountinfo-modal">
+        <div class="modal">
+            <h3 class="modal-title">📋 挂载信息</h3>
+            <pre id="mountinfo-content" style="background: var(--bg-tertiary); padding: 1rem; border-radius: var(--radius-md); font-size: 13px; overflow-x: auto; max-height: 400px;"></pre>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeMountInfo()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1/shares/nfs';
+        let exports = [];
+        let clients = [];
+        let isEditMode = false;
+        let editExportPath = null;
+        let exportToDelete = null;
+        let charts = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            initCharts();
+            setInterval(loadStatus, 5000);
+        });
+
+        // Load all data
+        async function loadData() {
+            await Promise.all([
+                loadExports(),
+                loadClients(),
+                loadStatus()
+            ]);
+        }
+
+        // Load exports
+        async function loadExports() {
+            try {
+                const resp = await fetch(API_BASE);
+                const data = await resp.json();
+                if (data.code === 0) {
+                    exports = data.data || [];
+                    renderExports();
+                    updateExportsChart();
+                }
+            } catch (e) {
+                console.error('加载导出失败:', e);
+                renderEmptyState();
+            }
+        }
+
+        // Load clients
+        async function loadClients() {
+            try {
+                const resp = await fetch(`${API_BASE}/clients`);
+                const data = await resp.json();
+                if (data.code === 0) {
+                    clients = data.data || [];
+                    renderClients();
+                }
+            } catch (e) {
+                console.error('加载客户端失败:', e);
+                clients = [];
+                renderClients();
+            }
+        }
+
+        // Load status
+        async function loadStatus() {
+            try {
+                const resp = await fetch(`${API_BASE}/status`);
+                const data = await resp.json();
+                if (data.code === 0) {
+                    const status = data.data;
+                    const icon = document.getElementById('service-icon');
+                    const statusText = document.getElementById('service-status');
+                    
+                    if (status.running) {
+                        icon.className = 'status-icon running';
+                        icon.textContent = '✓';
+                        statusText.innerHTML = '<span style="color: var(--color-success);">运行中</span>';
+                    } else {
+                        icon.className = 'status-icon stopped';
+                        icon.textContent = '✕';
+                        statusText.innerHTML = '<span style="color: var(--color-error);">已停止</span>';
+                    }
+                    
+                    document.getElementById('export-count').textContent = exports.length;
+                    document.getElementById('client-count').textContent = clients.length;
+                    document.getElementById('nfs-version').textContent = status.version || 'v4';
+                    document.getElementById('nfs-enabled').checked = status.running;
+                }
+            } catch (e) {
+                console.error('加载状态失败:', e);
+            }
+        }
+
+        // Render exports
+        function renderExports() {
+            const container = document.getElementById('exports-container');
+            
+            if (exports.length === 0) {
+                renderEmptyState();
+                return;
+            }
+
+            container.innerHTML = exports.map(exp => {
+                const config = exp.config || exp;
+                const options = [];
+                
+                if (config.readOnly) options.push({class: 'readonly', text: '只读'});
+                else options.push({class: 'readwrite', text: '读写'});
+                
+                if (config.sync) options.push({class: 'secure', text: '同步'});
+                if (config.rootSquash) options.push({class: 'secure', text: 'Root Squash'});
+                
+                const networks = config.allowedNetworks || [];
+                const hosts = config.allowedHosts || [];
+                const allClients = [...networks, ...hosts];
+
+                const isActive = config.enabled !== false;
+                const clientCount = clients.filter(c => c.exportPath === config.path || c.exportPath === exp.path).length;
+
+                return `
+                    <div class="export-card ${isActive ? '' : 'disabled'}">
+                        <div class="export-header">
+                            <div class="export-name">
+                                🌐 ${escapeHtml(config.path || exp.path)}
+                            </div>
+                            <span class="export-status-badge ${isActive ? 'active' : 'inactive'}">
+                                ${isActive ? '活跃' : '已禁用'}
+                            </span>
+                        </div>
+                        ${config.comment ? `<div class="export-comment">${escapeHtml(config.comment)}</div>` : ''}
+                        <div class="client-list">
+                            <div class="client-list-title">允许的客户端</div>
+                            <div class="client-tags">
+                                ${allClients.length > 0 
+                                    ? allClients.slice(0, 5).map(c => `<span class="client-tag">${escapeHtml(c)}</span>`).join('') 
+                                    : '<span class="client-tag">无限制</span>'}
+                                ${allClients.length > 5 ? `<span class="client-tag">+${allClients.length - 5} 更多</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="option-tags">
+                            ${options.map(o => `<span class="option-tag ${o.class || ''}">${o.text}</span>`).join('')}
+                        </div>
+                        <div class="export-stats">
+                            <div class="export-stat">
+                                <div class="export-stat-value">${clientCount}</div>
+                                <div class="export-stat-label">挂载数</div>
+                            </div>
+                            <div class="export-stat">
+                                <div class="export-stat-value">${formatSize(config.usedSize || 0)}</div>
+                                <div class="export-stat-label">已用空间</div>
+                            </div>
+                            <div class="export-stat">
+                                <div class="export-stat-value">${formatSize(config.totalSize || 0)}</div>
+                                <div class="export-stat-label">总空间</div>
+                            </div>
+                        </div>
+                        <div class="export-actions">
+                            <button class="btn btn-sm btn-secondary" onclick="editExport('${escapeHtml(config.path || exp.path)}')">✏️ 编辑</button>
+                            <button class="btn btn-sm btn-danger" onclick="showDeleteModal('${escapeHtml(config.path || exp.path)}')">🗑️ 删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render empty state
+        function renderEmptyState() {
+            const container = document.getElementById('exports-container');
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-state-icon">🌐</div>
+                    <h3>暂无 NFS 导出</h3>
+                    <p>点击"新建导出"按钮创建第一个 NFS 导出</p>
+                    <button class="btn btn-primary" onclick="showCreateModal()">+ 新建导出</button>
+                </div>
+            `;
+        }
+
+        // Render clients
+        function renderClients() {
+            const tbody = document.getElementById('clients-body');
+            
+            if (clients.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                            暂无已挂载客户端
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = clients.map(client => `
+                <tr>
+                    <td style="font-family: var(--font-family-mono);">${escapeHtml(client.ip)}</td>
+                    <td>${escapeHtml(client.exportPath)}</td>
+                    <td>${escapeHtml(client.nfsVersion || 'v4')}</td>
+                    <td>${escapeHtml(client.mountTime || '-')}</td>
+                    <td>
+                        <span class="badge badge-success">已挂载</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="unmountClient('${client.ip}', '${client.exportPath}')">卸载</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Clients chart
+            const clientsCtx = document.getElementById('clients-chart').getContext('2d');
+            charts.clients = new Chart(clientsCtx, {
+                type: 'line',
+                data: {
+                    labels: generateTimeLabels(12),
+                    datasets: [{
+                        label: '客户端数',
+                        data: generateRandomData(12, 0, 15),
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Exports distribution chart
+            const exportsCtx = document.getElementById('exports-chart').getContext('2d');
+            charts.exports = new Chart(exportsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['/data', '/media', '/backup', '/home'],
+                    datasets: [{
+                        data: [40, 25, 20, 15],
+                        backgroundColor: ['#10B981', '#2563EB', '#F59E0B', '#8B5CF6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        // Update exports chart
+        function updateExportsChart() {
+            if (!charts.exports || exports.length === 0) return;
+            
+            const labels = exports.map(e => e.config?.path || e.path);
+            const data = exports.map(() => Math.floor(Math.random() * 40) + 10);
+            const colors = ['#10B981', '#2563EB', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4'];
+            
+            charts.exports.data.labels = labels.map(l => l.split('/').pop() || l);
+            charts.exports.data.datasets[0].data = data;
+            charts.exports.data.datasets[0].backgroundColor = colors.slice(0, labels.length);
+            charts.exports.update();
+        }
+
+        // Modal functions
+        function showCreateModal() {
+            isEditMode = false;
+            editExportPath = null;
+            document.getElementById('modal-title').textContent = '🌐 新建 NFS 导出';
+            document.getElementById('save-btn').textContent = '创建导出';
+            
+            // Reset form
+            document.getElementById('export-path').value = '';
+            document.getElementById('export-comment').value = '';
+            document.getElementById('nfs-readonly').checked = false;
+            document.getElementById('nfs-sync').checked = true;
+            document.getElementById('nfs-no-subtree-check').checked = true;
+            document.getElementById('nfs-root-squash').checked = true;
+            document.getElementById('nfs-anonuid').value = '65534';
+            document.getElementById('nfs-anongid').value = '65534';
+            document.getElementById('nfs-fsid').value = '';
+            document.getElementById('nfs-secure').checked = false;
+            document.getElementById('nfs-sec-sys').checked = true;
+            
+            // Reset network inputs
+            document.getElementById('network-inputs').innerHTML = `
+                <div class="network-input-row">
+                    <input type="text" class="form-input" placeholder="192.168.1.0/24 或 10.0.0.100" value="192.168.1.0/24">
+                    <button class="btn-remove" onclick="removeNetworkRow(this)">✕</button>
+                </div>
+            `;
+            
+            document.getElementById('advanced-section').classList.remove('visible');
+            document.getElementById('export-modal').classList.add('active');
+        }
+
+        function editExport(path) {
+            const exp = exports.find(e => (e.config?.path || e.path) === path);
+            if (!exp) return;
+
+            isEditMode = true;
+            editExportPath = path;
+            const config = exp.config || exp;
+
+            document.getElementById('modal-title').textContent = '✏️ 编辑 NFS 导出';
+            document.getElementById('save-btn').textContent = '保存更改';
+            
+            document.getElementById('export-path').value = config.path || path;
+            document.getElementById('export-comment').value = config.comment || '';
+            document.getElementById('nfs-readonly').checked = config.readOnly || false;
+            document.getElementById('nfs-sync').checked = config.sync !== false;
+            document.getElementById('nfs-no-subtree-check').checked = config.noSubtreeCheck !== false;
+            document.getElementById('nfs-root-squash').checked = config.rootSquash !== false;
+            document.getElementById('nfs-anonuid').value = config.anonUid || '65534';
+            document.getElementById('nfs-anongid').value = config.anonGid || '65534';
+            document.getElementById('nfs-fsid').value = config.fsid || '';
+            document.getElementById('nfs-secure').checked = config.secure || false;
+            document.getElementById('nfs-sec-sys').checked = true;
+
+            // Set networks
+            const networks = config.allowedNetworks || [];
+            const hosts = config.allowedHosts || [];
+            const allClients = [...networks, ...hosts];
+
+            const container = document.getElementById('network-inputs');
+            if (allClients.length === 0) {
+                container.innerHTML = `
+                    <div class="network-input-row">
+                        <input type="text" class="form-input" placeholder="192.168.1.0/24">
+                        <button class="btn-remove" onclick="removeNetworkRow(this)">✕</button>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = allClients.map(c => `
+                    <div class="network-input-row">
+                        <input type="text" class="form-input" value="${escapeHtml(c)}">
+                        <button class="btn-remove" onclick="removeNetworkRow(this)">✕</button>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('export-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('export-modal').classList.remove('active');
+        }
+
+        function showDeleteModal(path) {
+            exportToDelete = path;
+            document.getElementById('delete-export-path').textContent = path;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('active');
+            exportToDelete = null;
+        }
+
+        function showMountInfo() {
+            // Fetch mount info
+            fetch(`${API_BASE}/mounts`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.code === 0) {
+                        document.getElementById('mountinfo-content').textContent = data.data || '无挂载信息';
+                    } else {
+                        document.getElementById('mountinfo-content').textContent = '获取挂载信息失败';
+                    }
+                    document.getElementById('mountinfo-modal').classList.add('active');
+                })
+                .catch(e => {
+                    document.getElementById('mountinfo-content').textContent = '错误: ' + e.message;
+                    document.getElementById('mountinfo-modal').classList.add('active');
+                });
+        }
+
+        function closeMountInfo() {
+            document.getElementById('mountinfo-modal').classList.remove('active');
+        }
+
+        // Toggle advanced
+        function toggleAdvanced() {
+            document.getElementById('advanced-section').classList.toggle('visible');
+        }
+
+        // Network row management
+        function addNetworkRow() {
+            const container = document.getElementById('network-inputs');
+            const row = document.createElement('div');
+            row.className = 'network-input-row';
+            row.innerHTML = `
+                <input type="text" class="form-input" placeholder="192.168.1.0/24 或 10.0.0.100">
+                <button class="btn-remove" onclick="removeNetworkRow(this)">✕</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeNetworkRow(btn) {
+            btn.parentElement.remove();
+        }
+
+        // Save export
+        async function saveExport() {
+            const path = document.getElementById('export-path').value.trim();
+
+            if (!path) {
+                alert('请填写导出路径');
+                return;
+            }
+
+            const networks = [];
+            document.querySelectorAll('#network-inputs input').forEach(input => {
+                const val = input.value.trim();
+                if (val) networks.push(val);
+            });
+
+            const payload = {
+                path,
+                comment: document.getElementById('export-comment').value.trim(),
+                readOnly: document.getElementById('nfs-readonly').checked,
+                sync: document.getElementById('nfs-sync').checked,
+                noSubtreeCheck: document.getElementById('nfs-no-subtree-check').checked,
+                rootSquash: document.getElementById('nfs-root-squash').checked,
+                allowedNetworks: networks.filter(n => n.includes('/')),
+                allowedHosts: networks.filter(n => !n.includes('/')),
+                anonUid: parseInt(document.getElementById('nfs-anonuid').value) || 65534,
+                anonGid: parseInt(document.getElementById('nfs-anongid').value) || 65534,
+                fsid: document.getElementById('nfs-fsid').value.trim(),
+                secure: document.getElementById('nfs-secure').checked
+            };
+
+            try {
+                const url = isEditMode ? `${API_BASE}/${encodeURIComponent(editExportPath)}` : API_BASE;
+                const method = isEditMode ? 'PUT' : 'POST';
+
+                const resp = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await resp.json();
+                if (data.code === 0) {
+                    alert(isEditMode ? '导出已更新' : '导出已创建');
+                    closeModal();
+                    loadData();
+                } else {
+                    alert('操作失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('操作失败: ' + e.message);
+            }
+        }
+
+        // Confirm delete
+        async function confirmDelete() {
+            if (!exportToDelete) return;
+
+            try {
+                const resp = await fetch(`${API_BASE}/${encodeURIComponent(exportToDelete)}`, { method: 'DELETE' });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    alert('导出已删除');
+                    closeDeleteModal();
+                    loadData();
+                } else {
+                    alert('删除失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('删除失败: ' + e.message);
+            }
+        }
+
+        // Service functions
+        async function toggleService() {
+            const enabled = document.getElementById('nfs-enabled').checked;
+            try {
+                const resp = await fetch(`${API_BASE}/service`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled })
+                });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    loadStatus();
+                } else {
+                    alert('操作失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('操作失败: ' + e.message);
+            }
+        }
+
+        async function saveServiceConfig() {
+            const config = {
+                threads: parseInt(document.getElementById('nfs-threads').value),
+                nfsPort: parseInt(document.getElementById('nfs-port').value),
+                mountdPort: parseInt(document.getElementById('mountd-port').value)
+            };
+            
+            try {
+                const resp = await fetch(`${API_BASE}/config`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    alert('配置已保存');
+                } else {
+                    alert('保存失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('保存失败: ' + e.message);
+            }
+        }
+
+        async function restartService() {
+            if (!confirm('确定要重启 NFS 服务吗？')) return;
+            
+            try {
+                const resp = await fetch(`${API_BASE}/restart`, { method: 'POST' });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    alert('服务已重启');
+                    loadStatus();
+                } else {
+                    alert('重启失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('重启失败: ' + e.message);
+            }
+        }
+
+        // Unmount client
+        async function unmountClient(ip, exportPath) {
+            if (!confirm(`确定要卸载客户端 ${ip} 吗？`)) return;
+            
+            try {
+                const resp = await fetch(`${API_BASE}/clients/${encodeURIComponent(ip)}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ exportPath })
+                });
+                const data = await resp.json();
+                if (data.code === 0) {
+                    loadClients();
+                } else {
+                    alert('卸载失败: ' + data.message);
+                }
+            } catch (e) {
+                alert('卸载失败: ' + e.message);
+            }
+        }
+
+        // Refresh
+        function refreshData() {
+            loadData();
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        function formatSize(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function generateTimeLabels(count) {
+            const labels = [];
+            const now = new Date();
+            for (let i = count - 1; i >= 0; i--) {
+                const time = new Date(now - i * 5 * 60000);
+                labels.push(time.getHours().toString().padStart(2, '0') + ':' + time.getMinutes().toString().padStart(2, '0'));
+            }
+            return labels;
+        }
+
+        function generateRandomData(count, min, max) {
+            return Array.from({ length: count }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+        }
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
