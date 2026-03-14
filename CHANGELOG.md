@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.20.2] - 2026-03-15
+
+### Fixed
+- **代码格式修复**
+  - 修复 `internal/photos/handlers.go` gofmt 格式问题
+  - 修复 `internal/photos/manager.go` gofmt 格式问题
+  - 解决 CI/CD 代码检查失败问题
+
 ## [v2.20.1] - 2026-03-14
 
 ### Added
