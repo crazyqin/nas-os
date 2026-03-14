@@ -11,42 +11,42 @@ import (
 	"syscall"
 )
 
-// Permission represents a plugin permission
-type Permission string
+// PermissionType represents a plugin permission type
+type PermissionType string
 
 const (
 	// File system permissions
-	PermReadFiles   Permission = "fs.read"
-	PermWriteFiles  Permission = "fs.write"
-	PermDeleteFiles Permission = "fs.delete"
-	PermExecFiles   Permission = "fs.exec"
+	PermReadFiles   PermissionType = "fs.read"
+	PermWriteFiles  PermissionType = "fs.write"
+	PermDeleteFiles PermissionType = "fs.delete"
+	PermExecFiles   PermissionType = "fs.exec"
 
 	// Network permissions
-	PermNetworkListen Permission = "network.listen"
-	PermNetworkDial   Permission = "network.dial"
-	PermNetworkHTTP   Permission = "network.http"
+	PermNetworkListen PermissionType = "network.listen"
+	PermNetworkDial   PermissionType = "network.dial"
+	PermNetworkHTTP   PermissionType = "network.http"
 
 	// System permissions
-	PermSystemInfo  Permission = "system.info"
-	PermSystemExec  Permission = "system.exec"
-	PermSystemMount Permission = "system.mount"
+	PermSystemInfo  PermissionType = "system.info"
+	PermSystemExec  PermissionType = "system.exec"
+	PermSystemMount PermissionType = "system.mount"
 
 	// User permissions
-	PermUserRead   Permission = "user.read"
-	PermUserWrite  Permission = "user.write"
+	PermUserRead   PermissionType = "user.read"
+	PermUserWrite  PermissionType = "user.write"
 
 	// Storage permissions
-	PermStorageRead  Permission = "storage.read"
-	PermStorageWrite Permission = "storage.write"
+	PermStorageRead  PermissionType = "storage.read"
+	PermStorageWrite PermissionType = "storage.write"
 
 	// Admin permissions
-	PermAdmin Permission = "admin"
+	PermAdmin PermissionType = "admin"
 )
 
 // PermissionSet defines a set of permissions
 type PermissionSet struct {
-	Permissions []Permission `json:"permissions"`
-	Deny        []Permission `json:"deny,omitempty"`
+	Permissions []PermissionType `json:"permissions"`
+	Deny        []PermissionType `json:"deny,omitempty"`
 }
 
 // SandboxConfig defines sandbox configuration for a plugin
@@ -83,12 +83,12 @@ type Sandbox struct {
 
 // Violation represents a permission violation
 type Violation struct {
-	Timestamp int64       `json:"timestamp"`
-	Permission Permission  `json:"permission"`
-	Resource   string      `json:"resource"`
-	Action     string      `json:"action"`
-	Denied     bool        `json:"denied"`
-	Message    string      `json:"message"`
+	Timestamp int64          `json:"timestamp"`
+	Permission PermissionType `json:"permission"`
+	Resource   string         `json:"resource"`
+	Action     string         `json:"action"`
+	Denied     bool           `json:"denied"`
+	Message    string         `json:"message"`
 }
 
 // NewSandbox creates a new sandbox for a plugin
@@ -112,7 +112,7 @@ func NewSandbox(pluginID string, config SandboxConfig) *Sandbox {
 }
 
 // CheckPermission checks if a permission is granted
-func (s *Sandbox) CheckPermission(perm Permission) bool {
+func (s *Sandbox) CheckPermission(perm PermissionType) bool {
 	// Check if in deny list
 	for _, d := range s.config.Permissions.Deny {
 		if d == perm || d == PermAdmin {
@@ -164,7 +164,7 @@ func (s *Sandbox) CheckFileAccess(path string, op string) error {
 	}
 
 	// Check permission based on operation
-	var perm Permission
+	var perm PermissionType
 	switch op {
 	case "read", "stat":
 		perm = PermReadFiles
@@ -241,7 +241,7 @@ func (s *Sandbox) CheckNetworkAccess(host string, port int) error {
 }
 
 // recordViolation records a permission violation
-func (s *Sandbox) recordViolation(perm Permission, resource, action string, denied bool) {
+func (s *Sandbox) recordViolation(perm PermissionType, resource, action string, denied bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -402,7 +402,7 @@ func (sm *SandboxManager) registerDefaultProfiles() {
 	// Minimal profile - read-only, no network
 	sm.profiles["minimal"] = SandboxConfig{
 		Permissions: PermissionSet{
-			Permissions: []Permission{PermReadFiles},
+			Permissions: []PermissionType{PermReadFiles},
 		},
 		ReadOnlyRoot:    true,
 		NoNewPrivileges: true,
@@ -413,7 +413,7 @@ func (sm *SandboxManager) registerDefaultProfiles() {
 	// Standard profile - file read/write, limited network
 	sm.profiles["standard"] = SandboxConfig{
 		Permissions: PermissionSet{
-			Permissions: []Permission{
+			Permissions: []PermissionType{
 				PermReadFiles,
 				PermWriteFiles,
 				PermNetworkHTTP,
@@ -428,7 +428,7 @@ func (sm *SandboxManager) registerDefaultProfiles() {
 	// Full profile - most permissions
 	sm.profiles["full"] = SandboxConfig{
 		Permissions: PermissionSet{
-			Permissions: []Permission{
+			Permissions: []PermissionType{
 				PermReadFiles,
 				PermWriteFiles,
 				PermDeleteFiles,
@@ -446,7 +446,7 @@ func (sm *SandboxManager) registerDefaultProfiles() {
 	// Admin profile - full access
 	sm.profiles["admin"] = SandboxConfig{
 		Permissions: PermissionSet{
-			Permissions: []Permission{PermAdmin},
+			Permissions: []PermissionType{PermAdmin},
 		},
 		MaxMemoryMB:   1024,
 		MaxCPUPercent: 100,
