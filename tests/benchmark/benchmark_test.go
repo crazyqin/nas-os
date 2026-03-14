@@ -205,7 +205,7 @@ func BenchmarkMemory_VolumeSlice(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		volumes := make([]*storage.Volume, 0, 100)
 		for j := 0; j < 100; j++ {
-			volumes = append(volumes, &storage.Volume{
+			_ = append(volumes, &storage.Volume{
 				Name: fmt.Sprintf("vol-%d", j),
 			})
 		}

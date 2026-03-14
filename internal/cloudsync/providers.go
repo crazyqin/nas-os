@@ -967,6 +967,9 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 	}
 
 	initReq, err := http.NewRequestWithContext(ctx, "POST", uploadURL, bytes.NewReader(metadataBody))
+	if err != nil {
+		return fmt.Errorf("创建初始化请求失败: %w", err)
+	}
 	initReq.Header.Set("Authorization", "Bearer "+p.accessToken)
 	initReq.Header.Set("Content-Type", "application/json")
 

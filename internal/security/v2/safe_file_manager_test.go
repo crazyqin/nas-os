@@ -2,6 +2,7 @@
 package securityv2
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -268,7 +269,7 @@ func TestSecurityAuditor_AuditPath(t *testing.T) {
 	auditor := NewSecurityAuditor(manager)
 
 	// 测试安全路径
-	result, err := auditor.AuditPath(nil, "test.txt")
+	result, err := auditor.AuditPath(context.TODO(), "test.txt")
 	if err != nil {
 		t.Fatalf("AuditPath failed: %v", err)
 	}
@@ -278,7 +279,7 @@ func TestSecurityAuditor_AuditPath(t *testing.T) {
 	}
 
 	// 测试敏感文件名
-	result, _ = auditor.AuditPath(nil, "password.txt")
+	result, _ = auditor.AuditPath(context.TODO(), "password.txt")
 	if result.Severity != "medium" && result.Severity != "high" {
 		t.Errorf("Expected medium or high severity for sensitive filename, got %s", result.Severity)
 	}
@@ -685,7 +686,7 @@ func TestSecurityAuditor_AuditDirectory(t *testing.T) {
 	_ = os.WriteFile(filepath.Join(tmpDir, "open.txt"), []byte("open"), 0777)
 
 	// 审计目录
-	results, err := auditor.AuditDirectory(nil, ".")
+	results, err := auditor.AuditDirectory(context.TODO(), ".")
 	if err != nil {
 		t.Fatalf("AuditDirectory failed: %v", err)
 	}
@@ -724,7 +725,7 @@ func TestSecurityAuditor_FixPermissions(t *testing.T) {
 	_ = os.WriteFile(openFile, []byte("open"), 0777)
 
 	// 修复权限
-	fixed, errs := auditor.FixPermissions(nil, ".")
+	fixed, errs := auditor.FixPermissions(context.TODO(), ".")
 	if len(errs) > 0 {
 		t.Logf("Some errors occurred: %v", errs)
 	}
@@ -753,7 +754,7 @@ func TestSecurityAuditor_SymlinkDetection(t *testing.T) {
 	_ = os.Symlink(targetFile, linkFile)
 
 	// 审计符号链接
-	result, err := auditor.AuditPath(nil, "link.txt")
+	result, err := auditor.AuditPath(context.TODO(), "link.txt")
 	if err != nil {
 		t.Fatalf("AuditPath failed: %v", err)
 	}

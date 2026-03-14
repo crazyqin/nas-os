@@ -2,9 +2,6 @@ package media
 
 import (
 	"net/http"
-	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -898,33 +895,4 @@ func (h *MediaHandlers) GetThumbnailGenerator() *ThumbnailGenerator {
 // GetStreamServer 获取流媒体服务器
 func (h *MediaHandlers) GetStreamServer() *StreamServer {
 	return h.streamServer
-}
-
-// Helper functions
-
-func getQueryParam(c *gin.Context, key string, defaultValue string) string {
-	value := c.Query(key)
-	if value == "" {
-		return defaultValue
-	}
-	return value
-}
-
-func getQueryInt(c *gin.Context, key string, defaultValue int) int {
-	value := c.Query(key)
-	if value == "" {
-		return defaultValue
-	}
-	intValue, err := strconv.Atoi(value)
-	if err != nil {
-		return defaultValue
-	}
-	return intValue
-}
-
-func sanitizePath(path string) string {
-	// 清理路径，防止目录遍历攻击
-	path = filepath.Clean(path)
-	path = strings.TrimPrefix(path, "..")
-	return path
 }

@@ -118,8 +118,8 @@ func (g *ReportGenerator) generateMarkdown(report *TestReport) error {
 
 	// 摘要
 	md += "## 测试摘要\n\n"
-	md += fmt.Sprintf("| 指标 | 数值 |\n")
-	md += fmt.Sprintf("|------|------|\n")
+	md += "| 指标 | 数值 |\n"
+	md += "|------|------|\n"
 	md += fmt.Sprintf("| 总测试数 | %d |\n", report.Summary.Total)
 	md += fmt.Sprintf("| 通过 | %d |\n", report.Summary.Passed)
 	md += fmt.Sprintf("| 失败 | %d |\n", report.Summary.Failed)

@@ -4,7 +4,6 @@ package benchmark
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
@@ -18,7 +17,7 @@ import (
 
 // BenchmarkFileWrite 小文件写入性能
 func BenchmarkFileWrite_Small(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-write-small")
+	tmpDir, err := os.MkdirTemp("", "bench-write-small")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -29,7 +28,7 @@ func BenchmarkFileWrite_Small(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i))
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
+		if err := os.WriteFile(path, data, 0644); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -38,7 +37,7 @@ func BenchmarkFileWrite_Small(b *testing.B) {
 
 // BenchmarkFileWrite_Medium 中等文件写入性能
 func BenchmarkFileWrite_Medium(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-write-medium")
+	tmpDir, err := os.MkdirTemp("", "bench-write-medium")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -49,7 +48,7 @@ func BenchmarkFileWrite_Medium(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i))
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
+		if err := os.WriteFile(path, data, 0644); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -58,7 +57,7 @@ func BenchmarkFileWrite_Medium(b *testing.B) {
 
 // BenchmarkFileWrite_Large 大文件写入性能
 func BenchmarkFileWrite_Large(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-write-large")
+	tmpDir, err := os.MkdirTemp("", "bench-write-large")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -69,7 +68,7 @@ func BenchmarkFileWrite_Large(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i))
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
+		if err := os.WriteFile(path, data, 0644); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -78,7 +77,7 @@ func BenchmarkFileWrite_Large(b *testing.B) {
 
 // BenchmarkFileRead_Small 小文件读取性能
 func BenchmarkFileRead_Small(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-read-small")
+	tmpDir, err := os.MkdirTemp("", "bench-read-small")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -86,13 +85,13 @@ func BenchmarkFileRead_Small(b *testing.B) {
 
 	data := make([]byte, 1024) // 1KB
 	path := filepath.Join(tmpDir, "test.dat")
-	if err := ioutil.WriteFile(path, data, 0644); err != nil {
+	if err := os.WriteFile(path, data, 0644); err != nil {
 		b.Fatal(err)
 	}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := ioutil.ReadFile(path)
+		_, err := os.ReadFile(path)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -102,7 +101,7 @@ func BenchmarkFileRead_Small(b *testing.B) {
 
 // BenchmarkFileRead_Medium 中等文件读取性能
 func BenchmarkFileRead_Medium(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-read-medium")
+	tmpDir, err := os.MkdirTemp("", "bench-read-medium")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -110,13 +109,13 @@ func BenchmarkFileRead_Medium(b *testing.B) {
 
 	data := make([]byte, 64*1024) // 64KB
 	path := filepath.Join(tmpDir, "test.dat")
-	if err := ioutil.WriteFile(path, data, 0644); err != nil {
+	if err := os.WriteFile(path, data, 0644); err != nil {
 		b.Fatal(err)
 	}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := ioutil.ReadFile(path)
+		_, err := os.ReadFile(path)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -126,7 +125,7 @@ func BenchmarkFileRead_Medium(b *testing.B) {
 
 // BenchmarkFileRead_Large 大文件读取性能
 func BenchmarkFileRead_Large(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-read-large")
+	tmpDir, err := os.MkdirTemp("", "bench-read-large")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -134,13 +133,13 @@ func BenchmarkFileRead_Large(b *testing.B) {
 
 	data := make([]byte, 1024*1024) // 1MB
 	path := filepath.Join(tmpDir, "test.dat")
-	if err := ioutil.WriteFile(path, data, 0644); err != nil {
+	if err := os.WriteFile(path, data, 0644); err != nil {
 		b.Fatal(err)
 	}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := ioutil.ReadFile(path)
+		_, err := os.ReadFile(path)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -150,14 +149,14 @@ func BenchmarkFileRead_Large(b *testing.B) {
 
 // BenchmarkFileStat 文件状态查询性能
 func BenchmarkFileStat(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-stat")
+	tmpDir, err := os.MkdirTemp("", "bench-stat")
 	if err != nil {
 		b.Fatal(err)
 	}
 	defer os.RemoveAll(tmpDir)
 
 	path := filepath.Join(tmpDir, "test.dat")
-	if err := ioutil.WriteFile(path, []byte("test"), 0644); err != nil {
+	if err := os.WriteFile(path, []byte("test"), 0644); err != nil {
 		b.Fatal(err)
 	}
 
@@ -172,14 +171,14 @@ func BenchmarkFileStat(b *testing.B) {
 
 // BenchmarkFileExists 文件存在性检查性能
 func BenchmarkFileExists(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-exists")
+	tmpDir, err := os.MkdirTemp("", "bench-exists")
 	if err != nil {
 		b.Fatal(err)
 	}
 	defer os.RemoveAll(tmpDir)
 
 	path := filepath.Join(tmpDir, "test.dat")
-	if err := ioutil.WriteFile(path, []byte("test"), 0644); err != nil {
+	if err := os.WriteFile(path, []byte("test"), 0644); err != nil {
 		b.Fatal(err)
 	}
 
@@ -195,7 +194,7 @@ func BenchmarkFileExists(b *testing.B) {
 
 // BenchmarkConcurrentFileWrite 并发文件写入
 func BenchmarkConcurrentFileWrite(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-concurrent-write")
+	tmpDir, err := os.MkdirTemp("", "bench-concurrent-write")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -208,7 +207,7 @@ func BenchmarkConcurrentFileWrite(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			path := filepath.Join(tmpDir, fmt.Sprintf("concurrent-%d.dat", i))
-			if err := ioutil.WriteFile(path, data, 0644); err != nil {
+			if err := os.WriteFile(path, data, 0644); err != nil {
 				b.Fatal(err)
 			}
 			i++
@@ -218,7 +217,7 @@ func BenchmarkConcurrentFileWrite(b *testing.B) {
 
 // BenchmarkConcurrentFileRead 并发文件读取
 func BenchmarkConcurrentFileRead(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-concurrent-read")
+	tmpDir, err := os.MkdirTemp("", "bench-concurrent-read")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -228,7 +227,7 @@ func BenchmarkConcurrentFileRead(b *testing.B) {
 	data := make([]byte, 4*1024)
 	for i := 0; i < 100; i++ {
 		path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i))
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
+		if err := os.WriteFile(path, data, 0644); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -238,7 +237,7 @@ func BenchmarkConcurrentFileRead(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i%100))
-			_, err := ioutil.ReadFile(path)
+			_, err := os.ReadFile(path)
 			if err != nil {
 				b.Fatal(err)
 			}
@@ -249,7 +248,7 @@ func BenchmarkConcurrentFileRead(b *testing.B) {
 
 // BenchmarkConcurrentFileReadWrite 混合并发读写
 func BenchmarkConcurrentFileReadWrite(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-concurrent-rw")
+	tmpDir, err := os.MkdirTemp("", "bench-concurrent-rw")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -258,7 +257,7 @@ func BenchmarkConcurrentFileReadWrite(b *testing.B) {
 	data := make([]byte, 4*1024)
 	for i := 0; i < 50; i++ {
 		path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i))
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
+		if err := os.WriteFile(path, data, 0644); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -270,11 +269,11 @@ func BenchmarkConcurrentFileReadWrite(b *testing.B) {
 			if i%2 == 0 {
 				// 读操作
 				path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i%50))
-				_, _ = ioutil.ReadFile(path)
+				_, _ = os.ReadFile(path)
 			} else {
 				// 写操作
 				path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", (i%50)+50))
-				_ = ioutil.WriteFile(path, data, 0644)
+				_ = os.WriteFile(path, data, 0644)
 			}
 			i++
 		}
@@ -283,7 +282,7 @@ func BenchmarkConcurrentFileReadWrite(b *testing.B) {
 
 // BenchmarkConcurrentDirectoryCreate 并发目录创建
 func BenchmarkConcurrentDirectoryCreate(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-concurrent-dir")
+	tmpDir, err := os.MkdirTemp("", "bench-concurrent-dir")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -302,7 +301,7 @@ func BenchmarkConcurrentDirectoryCreate(b *testing.B) {
 
 // BenchmarkConcurrentCacheWithFileIO 缓存+文件IO混合并发
 func BenchmarkConcurrentCacheWithFileIO(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-cache-fileio")
+	tmpDir, err := os.MkdirTemp("", "bench-cache-fileio")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -314,7 +313,7 @@ func BenchmarkConcurrentCacheWithFileIO(b *testing.B) {
 	// 预创建文件
 	for i := 0; i < 50; i++ {
 		path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i))
-		_ = ioutil.WriteFile(path, data, 0644)
+		_ = os.WriteFile(path, data, 0644)
 	}
 
 	b.ResetTimer()
@@ -331,7 +330,7 @@ func BenchmarkConcurrentCacheWithFileIO(b *testing.B) {
 			} else {
 				// 文件读取
 				path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i%50))
-				_, _ = ioutil.ReadFile(path)
+				_, _ = os.ReadFile(path)
 			}
 			i++
 		}
@@ -511,7 +510,7 @@ func BenchmarkCacheZipf(b *testing.B) {
 
 // BenchmarkStorageWorkload_Simulated 模拟存储工作负载
 func BenchmarkStorageWorkload_Simulated(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-workload")
+	tmpDir, err := os.MkdirTemp("", "bench-workload")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -523,7 +522,7 @@ func BenchmarkStorageWorkload_Simulated(b *testing.B) {
 	// 预创建文件
 	for i := 0; i < 100; i++ {
 		path := filepath.Join(tmpDir, fmt.Sprintf("data-%d.bin", i))
-		_ = ioutil.WriteFile(path, data, 0644)
+		_ = os.WriteFile(path, data, 0644)
 		c.Set(fmt.Sprintf("path-%d", i), path)
 	}
 
@@ -536,12 +535,12 @@ func BenchmarkStorageWorkload_Simulated(b *testing.B) {
 				// 读操作 (40%)
 				key := fmt.Sprintf("path-%d", i%100)
 				if path, ok := c.Get(key); ok {
-					_, _ = ioutil.ReadFile(path.(string))
+					_, _ = os.ReadFile(path.(string))
 				}
 			case 2, 3:
 				// 写操作 (40%)
 				path := filepath.Join(tmpDir, fmt.Sprintf("write-%d.bin", i%50))
-				_ = ioutil.WriteFile(path, data, 0644)
+				_ = os.WriteFile(path, data, 0644)
 			case 4:
 				// 元数据操作 (20%)
 				_, _ = os.Stat(filepath.Join(tmpDir, fmt.Sprintf("data-%d.bin", i%100)))
@@ -553,7 +552,7 @@ func BenchmarkStorageWorkload_Simulated(b *testing.B) {
 
 // BenchmarkStorageWorkload_HeavyWrite 重写入工作负载
 func BenchmarkStorageWorkload_HeavyWrite(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-heavy-write")
+	tmpDir, err := os.MkdirTemp("", "bench-heavy-write")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -567,7 +566,7 @@ func BenchmarkStorageWorkload_HeavyWrite(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			path := filepath.Join(tmpDir, fmt.Sprintf("heavy-%d.bin", i%1000))
-			_ = ioutil.WriteFile(path, data, 0644)
+			_ = os.WriteFile(path, data, 0644)
 			c.Set(fmt.Sprintf("file-%d", i%100), path)
 			i++
 		}
@@ -576,7 +575,7 @@ func BenchmarkStorageWorkload_HeavyWrite(b *testing.B) {
 
 // BenchmarkStorageWorkload_HeavyRead 重读取工作负载
 func BenchmarkStorageWorkload_HeavyRead(b *testing.B) {
-	tmpDir, err := ioutil.TempDir("", "bench-heavy-read")
+	tmpDir, err := os.MkdirTemp("", "bench-heavy-read")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -588,7 +587,7 @@ func BenchmarkStorageWorkload_HeavyRead(b *testing.B) {
 	// 预创建大量文件
 	for i := 0; i < 500; i++ {
 		path := filepath.Join(tmpDir, fmt.Sprintf("read-%d.bin", i))
-		_ = ioutil.WriteFile(path, data, 0644)
+		_ = os.WriteFile(path, data, 0644)
 		c.Set(fmt.Sprintf("file-%d", i), path)
 	}
 
@@ -598,7 +597,7 @@ func BenchmarkStorageWorkload_HeavyRead(b *testing.B) {
 		for pb.Next() {
 			key := fmt.Sprintf("file-%d", i%500)
 			if path, ok := c.Get(key); ok {
-				_, _ = ioutil.ReadFile(path.(string))
+				_, _ = os.ReadFile(path.(string))
 			}
 			i++
 		}
