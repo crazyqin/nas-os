@@ -144,7 +144,7 @@ func main() {
 		log.Println("✅ 集群服务就绪")
 		defer func() {
 			if err := cluster.ShutdownCluster(clusterServices); err != nil {
-				log.Printf("⚠️ 集群关闭错误：%v", err)
+				logger.Error("failed to shutdown cluster", zap.Error(err))
 			}
 		}()
 	}
@@ -183,7 +183,7 @@ func main() {
 
 	log.Println("👋 NAS-OS 正在关闭...")
 	if err := webServer.Stop(); err != nil {
-		log.Printf("⚠️ Web 服务关闭错误：%v", err)
+		logger.Error("failed to stop web server", zap.Error(err))
 	}
 }
 

@@ -13,7 +13,7 @@ func TestClassifier_Classify(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建临时目录失败: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// 创建测试文件
 	testFiles := map[string]string{
@@ -75,7 +75,7 @@ func TestSimilarityDetector(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建临时目录失败: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// 创建相同内容的文件
 	content := []byte("This is test content for similarity detection")
@@ -99,7 +99,9 @@ func TestSimilarityDetector(t *testing.T) {
 	_ = detector.IndexFile(path1)
 	_ = detector.IndexFile(path2)
 	_ = detector.IndexFile(path3)
-	_ = detector.IndexFile(path4)
+	if err := detector.IndexFile(path4); err != nil {
+		t.Fatalf("IndexFile failed: %v", err)
+	}
 
 	// 检测相似文件
 	ctx := context.Background()
@@ -131,7 +133,7 @@ func TestLearner(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建临时目录失败: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// 创建分类器和学习器
 	config := DefaultConfig()
@@ -175,13 +177,15 @@ func TestBatchClassification(t *testing.T) {
 	if err != nil {
 		t.Fatalf("创建临时目录失败: %v", err)
 	}
-	t.Cleanup(func() { _ = os.RemoveAll(tmpDir) })
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// 创建多个测试文件
 	var paths []string
 	for i := 0; i < 10; i++ {
 		name := filepath.Join(tmpDir, "file_"+string(rune('a'+i))+".txt")
-		_ = os.WriteFile(name, []byte("test content"), 0644)
+		if err := os.WriteFile(name, []byte("test content"), 0644); err != nil {
+			t.Fatalf("WriteFile failed: %v", err)
+		}
 		paths = append(paths, name)
 	}
 

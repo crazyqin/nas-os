@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.11.2] - 2026-03-14
+
+### Fixed
+- 修复 CI/CD Go 版本配置错误（Go 1.26.1/1.25 → 1.24）
+- 解决代码合并冲突
+- 改进错误处理和日志记录
+
+### Changed
+- 统一使用 zap logger 进行日志记录
+- 测试代码使用 t.Cleanup 替代 defer
+
 ## [v2.11.1] - 2026-03-14
 
 ### Fixed
