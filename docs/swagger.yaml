@@ -1,0 +1,6912 @@
+basePath: /api/v1
+definitions:
+  compress.Algorithm:
+    enum:
+    - zstd
+    - lz4
+    - gzip
+    - none
+    type: string
+    x-enum-varnames:
+    - AlgorithmZstd
+    - AlgorithmLz4
+    - AlgorithmGzip
+    - AlgorithmNone
+  compress.BatchCompressRequest:
+    properties:
+      dir:
+        type: string
+      recursive:
+        type: boolean
+    required:
+    - dir
+    type: object
+  compress.CompressFileRequest:
+    properties:
+      dst_path:
+        type: string
+      src_path:
+        type: string
+    required:
+    - src_path
+    type: object
+  compress.DecompressFileRequest:
+    properties:
+      dst_path:
+        type: string
+      src_path:
+        type: string
+    required:
+    - dst_path
+    - src_path
+    type: object
+  compress.UpdateConfigRequest:
+    properties:
+      compress_on_write:
+        type: boolean
+      compression_level:
+        type: integer
+      decompress_on_read:
+        type: boolean
+      default_algorithm:
+        $ref: '#/definitions/compress.Algorithm'
+      enabled:
+        type: boolean
+      exclude_dirs:
+        items:
+          type: string
+        type: array
+      exclude_extensions:
+        items:
+          type: string
+        type: array
+      include_dirs:
+        items:
+          type: string
+        type: array
+      min_size:
+        type: integer
+      stats_enabled:
+        type: boolean
+    type: object
+  health.HealthResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  internal_dedup.ChunkFileRequest:
+    properties:
+      filePath:
+        type: string
+    required:
+    - filePath
+    type: object
+  internal_dedup.ChunkStoreConfig:
+    properties:
+      basePath:
+        type: string
+      cleanupAge:
+        description: 清理超过此天数未访问的块 (0 = 不清理)
+        type: integer
+      enabled:
+        type: boolean
+      maxSize:
+        description: 最大存储大小 (0 = 无限制)
+        type: integer
+    type: object
+  internal_dedup.Config:
+    properties:
+      autoDedup:
+        description: 自动去重
+        type: boolean
+      autoDedupCron:
+        type: string
+      chunkSize:
+        description: 块大小 (字节)
+        type: integer
+      chunkStore:
+        $ref: '#/definitions/internal_dedup.ChunkStoreConfig'
+      compression:
+        description: 启用压缩
+        type: boolean
+      createBackup:
+        description: 创建备份
+        type: boolean
+      crossUser:
+        description: 高级选项
+        type: boolean
+      dedupAction:
+        allOf:
+        - $ref: '#/definitions/internal_dedup.DedupAction'
+        description: 去重操作
+      dedupMode:
+        allOf:
+        - $ref: '#/definitions/internal_dedup.DedupMode'
+        description: 去重模式
+      dryRun:
+        description: 试运行模式
+        type: boolean
+      enabled:
+        description: 基本配置
+        type: boolean
+      excludePaths:
+        items:
+          type: string
+        type: array
+      excludePatterns:
+        items:
+          type: string
+        type: array
+      maxMemoryMB:
+        description: 最大内存使用 (MB)
+        type: integer
+      maxWorkers:
+        description: 性能配置
+        type: integer
+      minFileSize:
+        description: 最小文件大小
+        type: integer
+      progressReport:
+        description: 启用进度报告
+        type: boolean
+      retentionPolicy:
+        allOf:
+        - $ref: '#/definitions/internal_dedup.RetentionPolicy'
+        description: 保留策略
+      scanPaths:
+        description: 扫描配置
+        items:
+          type: string
+        type: array
+      strategy:
+        allOf:
+        - $ref: '#/definitions/internal_dedup.Strategy'
+        description: 去重策略
+      verifyAfterDedup:
+        description: 安全配置
+        type: boolean
+    type: object
+  internal_dedup.DedupAction:
+    enum:
+    - report
+    - softlink
+    - hardlink
+    - remove
+    type: string
+    x-enum-comments:
+      ActionHardlink: 创建硬链接
+      ActionRemove: 直接删除重复文件
+      ActionReport: 仅报告
+      ActionSoftlink: 创建软链接
+    x-enum-descriptions:
+    - 仅报告
+    - 创建软链接
+    - 创建硬链接
+    - 直接删除重复文件
+    x-enum-varnames:
+    - ActionReport
+    - ActionSoftlink
+    - ActionHardlink
+    - ActionRemove
+  internal_dedup.DedupMode:
+    enum:
+    - file
+    - chunk
+    - auto
+    type: string
+    x-enum-comments:
+      ModeAuto: 自动选择
+      ModeChunk: 块级去重
+      ModeFile: 文件级去重
+    x-enum-descriptions:
+    - 文件级去重
+    - 块级去重
+    - 自动选择
+    x-enum-varnames:
+    - ModeFile
+    - ModeChunk
+    - ModeAuto
+  internal_dedup.DeduplicateAllRequest:
+    properties:
+      action:
+        description: softlink, hardlink
+        type: string
+      crossUser:
+        description: 是否允许跨用户去重
+        type: boolean
+      dryRun:
+        description: 是否只预览不执行
+        type: boolean
+      mode:
+        description: file, chunk, hybrid
+        type: string
+    type: object
+  internal_dedup.DeduplicateRequest:
+    properties:
+      action:
+        description: report, softlink, hardlink
+        type: string
+      checksum:
+        description: 重复文件组的校验和
+        type: string
+      crossUser:
+        description: 是否允许跨用户去重
+        type: boolean
+      keepPath:
+        description: 要保留的文件路径
+        type: string
+      mode:
+        description: file, chunk, hybrid
+        type: string
+      user:
+        description: 用户名（可选，用于权限检查）
+        type: string
+    required:
+    - checksum
+    - keepPath
+    type: object
+  internal_dedup.EnableAutoRequest:
+    properties:
+      enabled:
+        type: boolean
+      schedule:
+        description: cron 表达式
+        type: string
+    type: object
+  internal_dedup.GenericResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  internal_dedup.RetentionPolicy:
+    enum:
+    - keep_oldest
+    - keep_newest
+    - keep_largest
+    - keep_first
+    - manual
+    type: string
+    x-enum-comments:
+      RetentionKeepFirst: 保留扫描到的第一个
+      RetentionKeepLargest: 保留最大的文件
+      RetentionKeepNewest: 保留最新的文件
+      RetentionKeepOldest: 保留最旧的文件
+      RetentionManual: 手动选择
+    x-enum-descriptions:
+    - 保留最旧的文件
+    - 保留最新的文件
+    - 保留最大的文件
+    - 保留扫描到的第一个
+    - 手动选择
+    x-enum-varnames:
+    - RetentionKeepOldest
+    - RetentionKeepNewest
+    - RetentionKeepLargest
+    - RetentionKeepFirst
+    - RetentionManual
+  internal_dedup.ScanRequest:
+    properties:
+      paths:
+        description: 要扫描的路径，为空则使用配置中的路径
+        items:
+          type: string
+        type: array
+      user:
+        description: 用户名（可选）
+        type: string
+    type: object
+  internal_dedup.Strategy:
+    enum:
+    - inline
+    - batch
+    - hybrid
+    type: string
+    x-enum-comments:
+      StrategyBatch: 批量去重 - 定期批量处理
+      StrategyHybrid: 混合模式 - 结合内联和批量
+      StrategyInline: 内联去重 - 写入时实时去重
+    x-enum-descriptions:
+    - 内联去重 - 写入时实时去重
+    - 批量去重 - 定期批量处理
+    - 混合模式 - 结合内联和批量
+    x-enum-varnames:
+    - StrategyInline
+    - StrategyBatch
+    - StrategyHybrid
+  internal_docker.AppCatalog:
+    properties:
+      category:
+        type: string
+      description:
+        type: string
+      environment:
+        additionalProperties:
+          type: string
+        type: object
+      image:
+        type: string
+      name:
+        type: string
+      ports:
+        items:
+          type: integer
+        type: array
+      volumes:
+        items:
+          type: string
+        type: array
+    type: object
+  internal_docker.Container:
+    properties:
+      cpuUsage:
+        type: number
+      created:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
+      memLimit:
+        type: integer
+      memUsage:
+        type: integer
+      name:
+        type: string
+      networks:
+        items:
+          type: string
+        type: array
+      ports:
+        items:
+          $ref: '#/definitions/internal_docker.PortMapping'
+        type: array
+      state:
+        type: string
+      status:
+        type: string
+      volumes:
+        items:
+          $ref: '#/definitions/internal_docker.VolumeMount'
+        type: array
+    type: object
+  internal_docker.Image:
+    properties:
+      created:
+        type: string
+      id:
+        type: string
+      repository:
+        type: string
+      size:
+        type: integer
+      tag:
+        type: string
+    type: object
+  internal_docker.PortMapping:
+    properties:
+      containerPort:
+        type: string
+      hostIp:
+        type: string
+      hostPort:
+        type: string
+      protocol:
+        type: string
+    type: object
+  internal_docker.VolumeMount:
+    properties:
+      destination:
+        type: string
+      mode:
+        type: string
+      rw:
+        type: boolean
+      source:
+        type: string
+    type: object
+  internal_ftp.BandwidthConfig:
+    properties:
+      download_kbps:
+        description: 下载速率限制 (KB/s), 0 表示无限制
+        type: integer
+      enabled:
+        type: boolean
+      per_user:
+        description: 是否按用户独立限制
+        type: boolean
+      upload_kbps:
+        description: 上传速率限制 (KB/s), 0 表示无限制
+        type: integer
+    type: object
+  internal_ftp.Config:
+    properties:
+      allow_anonymous:
+        description: 允许匿名登录
+        type: boolean
+      bandwidth_limit:
+        allOf:
+        - $ref: '#/definitions/internal_ftp.BandwidthConfig'
+        description: 带宽限制
+      enabled:
+        type: boolean
+      max_connections:
+        description: 最大连接数
+        type: integer
+      pasv_host:
+        description: 被动模式对外 IP
+        type: string
+      pasv_port_end:
+        description: 被动模式端口范围结束
+        type: integer
+      pasv_port_start:
+        description: 被动模式端口范围起始
+        type: integer
+      port:
+        description: FTP 端口 (默认 21)
+        type: integer
+      root_path:
+        description: 根目录
+        type: string
+      virtual_dirs:
+        additionalProperties:
+          type: string
+        description: '虚拟目录映射: 虚拟路径 -> 实际路径'
+        type: object
+    type: object
+  internal_ftp.UpdateConfigRequest:
+    properties:
+      enabled:
+        type: boolean
+    type: object
+  internal_iscsi.CHAPInput:
+    properties:
+      enabled:
+        type: boolean
+      mutual:
+        type: boolean
+      mutualSecret:
+        type: string
+      mutualUser:
+        type: string
+      secret:
+        type: string
+      username:
+        type: string
+    type: object
+  internal_iscsi.LUNExpandInput:
+    properties:
+      size:
+        description: New size (must be larger)
+        type: integer
+    required:
+    - size
+    type: object
+  internal_iscsi.LUNInput:
+    properties:
+      blockSize:
+        description: Default 512
+        type: integer
+      name:
+        type: string
+      path:
+        description: Auto-generated for file type
+        type: string
+      readOnly:
+        type: boolean
+      size:
+        description: Required for file type
+        type: integer
+      type:
+        $ref: '#/definitions/internal_iscsi.LUNType'
+    required:
+    - name
+    - type
+    type: object
+  internal_iscsi.LUNSnapshotInput:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  internal_iscsi.LUNType:
+    enum:
+    - file
+    - block
+    type: string
+    x-enum-varnames:
+    - LUNTypeFile
+    - LUNTypeBlock
+  internal_iscsi.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  internal_iscsi.TargetInput:
+    properties:
+      alias:
+        type: string
+      allowedInitiators:
+        items:
+          type: string
+        type: array
+      chap:
+        $ref: '#/definitions/internal_iscsi.CHAPInput'
+      iqn:
+        description: Auto-generated if empty
+        type: string
+      maxSessions:
+        type: integer
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  internal_logging.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  internal_logging.setLevelRequest:
+    properties:
+      level:
+        type: string
+    required:
+    - level
+    type: object
+  internal_network.DDNSConfig:
+    properties:
+      domain:
+        type: string
+      enabled:
+        type: boolean
+      interface:
+        description: 使用的网络接口，auto 为自动
+        type: string
+      interval:
+        description: 更新间隔（秒）
+        type: integer
+      lastIp:
+        description: 上次更新的 IP
+        type: string
+      lastUpdate:
+        description: 上次更新时间
+        type: string
+      provider:
+        description: alidns, cloudflare, duckdns, noip
+        type: string
+      secret:
+        description: API Secret (某些服务商需要)
+        type: string
+      status:
+        description: active, error, pending
+        type: string
+      token:
+        description: API Token
+        type: string
+    type: object
+  internal_network.FirewallRule:
+    properties:
+      action:
+        description: accept, drop, reject
+        type: string
+      comment:
+        type: string
+      destIp:
+        description: 目标 IP，空为任意
+        type: string
+      destPort:
+        description: 目标端口，空为任意
+        type: string
+      direction:
+        description: in, out, forward
+        type: string
+      enabled:
+        type: boolean
+      name:
+        type: string
+      protocol:
+        description: tcp, udp, icmp, all
+        type: string
+      sourceIp:
+        description: 源 IP，空为任意
+        type: string
+    type: object
+  internal_network.Interface:
+    properties:
+      dns:
+        type: string
+      gateway:
+        type: string
+      ip:
+        type: string
+      mac:
+        type: string
+      mtu:
+        type: integer
+      name:
+        type: string
+      netmask:
+        type: string
+      rxBytes:
+        type: integer
+      speed:
+        type: string
+      state:
+        description: up, down
+        type: string
+      txBytes:
+        type: integer
+      type:
+        description: ethernet, wifi, bridge
+        type: string
+    type: object
+  internal_network.InterfaceConfig:
+    properties:
+      dhcp:
+        type: boolean
+      dns:
+        type: string
+      gateway:
+        type: string
+      ip:
+        type: string
+      netmask:
+        type: string
+    type: object
+  internal_network.PortForward:
+    properties:
+      comment:
+        type: string
+      enabled:
+        type: boolean
+      externalPort:
+        type: integer
+      internalIp:
+        type: string
+      internalPort:
+        type: integer
+      name:
+        type: string
+      protocol:
+        description: tcp, udp
+        type: string
+    type: object
+  internal_nfs.Client:
+    properties:
+      host:
+        type: string
+      options:
+        items:
+          type: string
+        type: array
+    type: object
+  internal_nfs.Export:
+    properties:
+      clients:
+        items:
+          $ref: '#/definitions/internal_nfs.Client'
+        type: array
+      comment:
+        type: string
+      fsid:
+        type: integer
+      options:
+        $ref: '#/definitions/internal_nfs.ExportOptions'
+      path:
+        type: string
+    type: object
+  internal_nfs.ExportOptions:
+    properties:
+      async:
+        type: boolean
+      no_root_squash:
+        type: boolean
+      ro:
+        type: boolean
+      rw:
+        type: boolean
+      secure:
+        type: boolean
+      subtree_check:
+        type: boolean
+    type: object
+  internal_nfs.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  internal_office.Action:
+    properties:
+      type:
+        description: 1=连接，2=断开，3=强制保存
+        type: integer
+      userid:
+        description: 用户 ID
+        type: string
+    type: object
+  internal_office.CallbackRequest:
+    properties:
+      actions:
+        description: 用户操作
+        items:
+          $ref: '#/definitions/internal_office.Action'
+        type: array
+      changes:
+        description: 其他信息
+        items:
+          $ref: '#/definitions/internal_office.Change'
+        type: array
+      changesurl:
+        description: 变更历史下载地址
+        type: string
+      forcesave:
+        description: 是否强制保存
+        type: boolean
+      history:
+        allOf:
+        - $ref: '#/definitions/internal_office.History'
+        description: 历史记录
+      key:
+        description: 密钥
+        type: string
+      status:
+        description: 状态
+        type: integer
+      token:
+        description: JWT Token（如果启用）
+        type: string
+      url:
+        description: 文件信息（状态 2 时提供）
+        type: string
+      user:
+        description: 用户名
+        type: string
+      user_id:
+        description: 用户信息
+        type: string
+      users:
+        description: 创建者
+        items:
+          $ref: '#/definitions/internal_office.CallbackUser'
+        type: array
+    type: object
+  internal_office.CallbackResponse:
+    properties:
+      error:
+        description: 0=成功
+        type: integer
+    type: object
+  internal_office.CallbackUser:
+    properties:
+      email:
+        type: string
+      group:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  internal_office.Change:
+    properties:
+      time:
+        type: string
+      type:
+        type: string
+      user:
+        $ref: '#/definitions/internal_office.CallbackUser'
+    type: object
+  internal_office.CoEditingConfig:
+    properties:
+      auto_save:
+        description: 是否自动保存
+        type: boolean
+      enabled:
+        description: 是否启用协作编辑
+        type: boolean
+      save_delay:
+        description: 自动保存延迟（秒）
+        type: integer
+      show_changes:
+        description: 是否显示变更追踪
+        type: boolean
+    type: object
+  internal_office.CoEditingOptions:
+    properties:
+      mode:
+        description: fast, strict
+        type: string
+    type: object
+  internal_office.Config:
+    properties:
+      callback_auth:
+        description: 回调是否需要认证
+        type: boolean
+      editor_config:
+        allOf:
+        - $ref: '#/definitions/internal_office.EditorConfig'
+        description: 编辑器配置
+      enabled:
+        description: 功能开关
+        type: boolean
+      enabled_types:
+        description: 支持的文件类型
+        items:
+          type: string
+        type: array
+      secret_key:
+        description: JWT 密钥（用于签名）
+        type: string
+      server_url:
+        description: Document Server 配置
+        type: string
+      session_timeout:
+        description: 会话配置
+        type: integer
+    type: object
+  internal_office.ConfigResponse:
+    properties:
+      associations:
+        additionalProperties:
+          $ref: '#/definitions/internal_office.FileAssociation'
+        type: object
+      config:
+        $ref: '#/definitions/internal_office.Config'
+    type: object
+  internal_office.CustomizationConfig:
+    properties:
+      comment_author:
+        description: 是否允许评论
+        type: boolean
+      forcesave:
+        description: 功能限制
+        type: boolean
+      hide_header:
+        description: 隐藏头部
+        type: boolean
+      hide_right_menu:
+        description: 界面元素
+        type: boolean
+      logo_url:
+        description: Logo 配置
+        type: string
+    type: object
+  internal_office.CustomizationOptions:
+    properties:
+      forcesave:
+        type: boolean
+      hideRightMenu:
+        type: boolean
+      logo:
+        $ref: '#/definitions/internal_office.Logo'
+    type: object
+  internal_office.DocumentConfig:
+    properties:
+      directUrl:
+        description: 文档 URL（用于直接访问）
+        type: string
+      fileType:
+        description: 文件类型（扩展名）
+        type: string
+      key:
+        description: 文档唯一标识
+        type: string
+      permissions:
+        allOf:
+        - $ref: '#/definitions/internal_office.Permissions'
+        description: 文档权限
+      title:
+        description: 文档标题
+        type: string
+      url:
+        description: 文档 URL
+        type: string
+    type: object
+  internal_office.EditRequest:
+    properties:
+      file_id:
+        description: 文件 ID
+        type: string
+      language:
+        description: 界面语言，默认 zh-CN
+        type: string
+      mode:
+        description: edit 或 view，默认 edit
+        type: string
+    required:
+    - file_id
+    type: object
+  internal_office.EditResponse:
+    properties:
+      editor_config:
+        allOf:
+        - $ref: '#/definitions/internal_office.EditorInitConfig'
+        description: 编辑器配置
+      editor_url:
+        description: 编辑器页面 URL
+        type: string
+      expires_at:
+        description: 过期时间
+        type: string
+      session_id:
+        description: 会话 ID
+        type: string
+    type: object
+  internal_office.EditingSession:
+    properties:
+      callback_url:
+        description: 回调配置
+        type: string
+      created:
+        description: 是否已创建（OnlyOffice 端）
+        type: boolean
+      document_url:
+        description: 文档访问 URL
+        type: string
+      expires_at:
+        description: 过期时间
+        type: string
+      file_id:
+        description: 文件 ID
+        type: string
+      file_key:
+        description: OnlyOffice 文件唯一标识
+        type: string
+      file_name:
+        description: 文件名
+        type: string
+      file_path:
+        description: 文件存储路径
+        type: string
+      file_size:
+        description: 文件大小（字节）
+        type: integer
+      id:
+        description: 基本信息
+        type: string
+      last_active_at:
+        description: 最后活动时间
+        type: string
+      metadata:
+        additionalProperties: true
+        description: 元数据
+        type: object
+      started_at:
+        description: 时间信息
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/internal_office.SessionStatus'
+        description: 状态
+      user_group:
+        description: 用户组（可选）
+        type: string
+      user_id:
+        description: 用户信息
+        type: string
+      user_name:
+        description: 用户显示名
+        type: string
+    type: object
+  internal_office.EditorConfig:
+    properties:
+      co_editing:
+        allOf:
+        - $ref: '#/definitions/internal_office.CoEditingConfig'
+        description: 协作配置
+      customization:
+        allOf:
+        - $ref: '#/definitions/internal_office.CustomizationConfig'
+        description: 自定义配置
+      lang:
+        description: 界面语言
+        type: string
+      mode:
+        description: 模式
+        type: string
+    type: object
+  internal_office.EditorInitConfig:
+    properties:
+      document:
+        allOf:
+        - $ref: '#/definitions/internal_office.DocumentConfig'
+        description: 文档配置
+      documentType:
+        description: 文档类型
+        type: string
+      editorConfig:
+        allOf:
+        - $ref: '#/definitions/internal_office.EditorOptions'
+        description: 编辑器配置
+      token:
+        description: JWT Token（如果启用）
+        type: string
+      type:
+        description: 类型
+        type: string
+    type: object
+  internal_office.EditorOptions:
+    properties:
+      callbackUrl:
+        description: 回调 URL
+        type: string
+      coEditing:
+        allOf:
+        - $ref: '#/definitions/internal_office.CoEditingOptions'
+        description: 协作
+      createUrl:
+        description: 创建 URL（用于新建文档）
+        type: string
+      customization:
+        allOf:
+        - $ref: '#/definitions/internal_office.CustomizationOptions'
+        description: 自定义
+      lang:
+        description: 语言
+        type: string
+      mode:
+        description: 模式
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/internal_office.EditorUser'
+        description: 用户信息
+    type: object
+  internal_office.EditorUser:
+    properties:
+      group:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  internal_office.FileAssociation:
+    properties:
+      can_edit:
+        description: 是否可编辑
+        type: boolean
+      can_view:
+        description: 是否可查看
+        type: boolean
+      converter:
+        description: 转换器标识
+        type: string
+      extension:
+        description: 文件扩展名（不含点）
+        type: string
+      icon:
+        description: 图标路径
+        type: string
+      mime_type:
+        description: MIME 类型
+        type: string
+    type: object
+  internal_office.History:
+    properties:
+      currentVersion:
+        type: string
+      history:
+        items:
+          $ref: '#/definitions/internal_office.HistoryItem'
+        type: array
+    type: object
+  internal_office.HistoryItem:
+    properties:
+      changes:
+        type: string
+      created:
+        type: string
+      key:
+        type: string
+      serverVersion:
+        type: string
+      user:
+        $ref: '#/definitions/internal_office.CallbackUser'
+      version:
+        type: string
+    type: object
+  internal_office.Logo:
+    properties:
+      image:
+        type: string
+      url:
+        type: string
+    type: object
+  internal_office.Permissions:
+    properties:
+      comment:
+        description: 是否允许评论
+        type: boolean
+      copy:
+        description: 是否允许复制
+        type: boolean
+      download:
+        description: 是否允许下载
+        type: boolean
+      edit:
+        description: 是否允许编辑
+        type: boolean
+      fillForms:
+        description: 是否允许填写表单
+        type: boolean
+      modifyContentControl:
+        description: 是否允许修改内容控件
+        type: boolean
+      modifyFilter:
+        description: 是否允许修改筛选
+        type: boolean
+      print:
+        description: 是否允许打印
+        type: boolean
+      protect:
+        description: 是否允许保护文档
+        type: boolean
+      review:
+        description: 是否允许审阅
+        type: boolean
+    type: object
+  internal_office.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  internal_office.SessionListResponse:
+    properties:
+      sessions:
+        items:
+          $ref: '#/definitions/internal_office.EditingSession'
+        type: array
+      total:
+        type: integer
+    type: object
+  internal_office.SessionStatus:
+    enum:
+    - active
+    - editing
+    - saving
+    - closed
+    - expired
+    - error
+    type: string
+    x-enum-comments:
+      SessionStatusActive: 活动中
+      SessionStatusClosed: 已关闭
+      SessionStatusEditing: 编辑中
+      SessionStatusError: 错误
+      SessionStatusExpired: 已过期
+      SessionStatusSaving: 保存中
+    x-enum-descriptions:
+    - 活动中
+    - 编辑中
+    - 保存中
+    - 已关闭
+    - 已过期
+    - 错误
+    x-enum-varnames:
+    - SessionStatusActive
+    - SessionStatusEditing
+    - SessionStatusSaving
+    - SessionStatusClosed
+    - SessionStatusExpired
+    - SessionStatusError
+  internal_office.UpdateConfigRequest:
+    properties:
+      callback_auth:
+        type: boolean
+      editor_config:
+        $ref: '#/definitions/internal_office.EditorConfig'
+      enabled:
+        type: boolean
+      enabled_types:
+        items:
+          type: string
+        type: array
+      secret_key:
+        type: string
+      server_url:
+        type: string
+      session_timeout:
+        type: integer
+    type: object
+  internal_shares.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  internal_shares.ShareOverview:
+    properties:
+      config: {}
+      name:
+        type: string
+      path:
+        type: string
+      type:
+        description: '"smb" or "nfs"'
+        type: string
+    type: object
+  internal_tags.BatchTagRequest:
+    properties:
+      action:
+        description: add, set, remove, clear
+        type: string
+      filePaths:
+        items:
+          type: string
+        type: array
+      tagIds:
+        items:
+          type: string
+        type: array
+    required:
+    - filePaths
+    type: object
+  internal_tags.TagInput:
+    properties:
+      color:
+        type: string
+      group:
+        type: string
+      icon:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  internal_tags.addFileTagsRequest:
+    properties:
+      tagIds:
+        items:
+          type: string
+        type: array
+    required:
+    - tagIds
+    type: object
+  internal_users.LoginRequest:
+    properties:
+      backup_code:
+        description: 备份码
+        type: string
+      mfa_code:
+        description: TOTP 或短信验证码
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  internal_users.LoginResponse:
+    properties:
+      expires_at:
+        type: string
+      mfa_required:
+        type: boolean
+      mfa_type:
+        description: totp, sms, webauthn
+        type: string
+      session_id:
+        description: 临时会话 ID
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/internal_users.User'
+    type: object
+  internal_users.Role:
+    enum:
+    - admin
+    - user
+    - guest
+    type: string
+    x-enum-comments:
+      RoleAdmin: 管理员：全部权限
+      RoleGuest: 访客：只读访问
+      RoleUser: 普通用户：受限访问
+    x-enum-descriptions:
+    - 管理员：全部权限
+    - 普通用户：受限访问
+    - 访客：只读访问
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleUser
+    - RoleGuest
+  internal_users.User:
+    properties:
+      created_at:
+        type: string
+      disabled:
+        type: boolean
+      email:
+        type: string
+      groups:
+        description: 所属用户组
+        items:
+          type: string
+        type: array
+      home_dir:
+        description: 用户主目录
+        type: string
+      id:
+        type: string
+      role:
+        $ref: '#/definitions/internal_users.Role'
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  internal_users.UserInput:
+    properties:
+      email:
+        type: string
+      groups:
+        items:
+          type: string
+        type: array
+      home_dir:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        $ref: '#/definitions/internal_users.Role'
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  internal_versioning.Config:
+    properties:
+      enabled:
+        type: boolean
+      excludePaths:
+        items:
+          type: string
+        type: array
+      maxFileSize:
+        description: 最大支持的文件大小
+        type: integer
+      retention:
+        $ref: '#/definitions/internal_versioning.RetentionPolicy'
+      snapshot:
+        $ref: '#/definitions/internal_versioning.SnapshotConfig'
+      versionRoot:
+        type: string
+    type: object
+  internal_versioning.CreateVersionRequest:
+    properties:
+      description:
+        type: string
+      triggerType:
+        type: string
+      userId:
+        type: string
+    type: object
+  internal_versioning.GenericResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  internal_versioning.RestoreVersionRequest:
+    properties:
+      targetPath:
+        description: 目标路径，为空则恢复到原始位置
+        type: string
+    type: object
+  internal_versioning.RetentionPolicy:
+    properties:
+      autoCleanup:
+        description: 自动清理过期版本
+        type: boolean
+      maxAge:
+        description: 最大保留天数，0 表示无限制
+        type: integer
+      maxSpace:
+        description: 最大占用空间 (字节)，0 表示无限制
+        type: integer
+      maxVersions:
+        description: 最大版本数量，0 表示无限制
+        type: integer
+      snapshotOnSave:
+        description: 保存时自动创建快照
+        type: boolean
+    type: object
+  internal_versioning.SnapshotConfig:
+    properties:
+      enabled:
+        type: boolean
+      interval:
+        description: 时间间隔（分钟）
+        type: integer
+      minChangeSize:
+        description: 最小变更大小触发快照
+        type: integer
+      triggerMode:
+        description: time, change, manual
+        type: string
+    type: object
+  internal_web.DeviceAddRequest:
+    properties:
+      device:
+        example: /dev/sdc
+        type: string
+    required:
+    - device
+    type: object
+  internal_web.GenericResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data: {}
+      message:
+        example: success
+        type: string
+    type: object
+  internal_web.HealthResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      message:
+        example: healthy
+        type: string
+    type: object
+  internal_web.SubVolumeCreateRequest:
+    properties:
+      name:
+        example: documents
+        type: string
+    required:
+    - name
+    type: object
+  internal_web.VolumeCreateRequest:
+    properties:
+      devices:
+        example:
+        - /dev/sda
+        - /dev/sdb
+        items:
+          type: string
+        type: array
+      name:
+        example: data-vol
+        type: string
+      profile:
+        description: single, raid0, raid1, raid10, raid5, raid6
+        example: raid1
+        type: string
+    required:
+    - devices
+    - name
+    type: object
+  nas-os_internal_api.Response:
+    properties:
+      code:
+        description: 业务码：0=成功，非0=失败
+        example: 0
+        type: integer
+      data:
+        description: 响应数据
+      message:
+        description: 响应消息
+        example: success
+        type: string
+    type: object
+  nas-os_internal_nfs.Client:
+    properties:
+      host:
+        type: string
+      options:
+        items:
+          type: string
+        type: array
+    type: object
+  nas-os_internal_nfs.Export:
+    properties:
+      clients:
+        items:
+          $ref: '#/definitions/nas-os_internal_nfs.Client'
+        type: array
+      comment:
+        type: string
+      fsid:
+        type: integer
+      options:
+        $ref: '#/definitions/nas-os_internal_nfs.ExportOptions'
+      path:
+        type: string
+    type: object
+  nas-os_internal_nfs.ExportOptions:
+    properties:
+      async:
+        type: boolean
+      no_root_squash:
+        type: boolean
+      ro:
+        type: boolean
+      rw:
+        type: boolean
+      secure:
+        type: boolean
+      subtree_check:
+        type: boolean
+    type: object
+  nas-os_internal_nfs.ExportRequest:
+    properties:
+      clients:
+        items:
+          $ref: '#/definitions/nas-os_internal_nfs.Client'
+        type: array
+      comment:
+        type: string
+      fsid:
+        type: integer
+      options:
+        properties:
+          async:
+            type: boolean
+          no_root_squash:
+            type: boolean
+          ro:
+            type: boolean
+          rw:
+            type: boolean
+          secure:
+            type: boolean
+          subtree_check:
+            type: boolean
+        type: object
+      path:
+        type: string
+    required:
+    - path
+    type: object
+  nas-os_internal_smb.Share:
+    properties:
+      acl_group_control:
+        type: boolean
+      allowed_users:
+        items:
+          type: string
+        type: array
+      available:
+        type: boolean
+      browseable:
+        type: boolean
+      comment:
+        type: string
+      create_mask:
+        type: string
+      directory_mask:
+        type: string
+      ea_support:
+        type: boolean
+      follow_symlinks:
+        type: boolean
+      force_group:
+        type: string
+      force_user:
+        type: string
+      guest_access:
+        type: boolean
+      guest_ok:
+        type: boolean
+      hide_files:
+        items:
+          type: string
+        type: array
+      inherit_acls:
+        type: boolean
+      inherit_owner:
+        type: string
+      inherit_permissions:
+        type: boolean
+      name:
+        type: string
+      path:
+        type: string
+      printable:
+        type: boolean
+      read_only:
+        type: boolean
+      store_dos_attributes:
+        type: boolean
+      users:
+        items:
+          type: string
+        type: array
+      valid_users:
+        items:
+          type: string
+        type: array
+      veto_files:
+        items:
+          type: string
+        type: array
+      wide_links:
+        type: boolean
+      write_list:
+        items:
+          type: string
+        type: array
+    type: object
+  nas-os_internal_smb.ShareInput:
+    properties:
+      allowed_users:
+        items:
+          type: string
+        type: array
+      browseable:
+        type: boolean
+      comment:
+        type: string
+      create_mask:
+        type: string
+      directory_mask:
+        type: string
+      guest_access:
+        type: boolean
+      guest_ok:
+        type: boolean
+      name:
+        type: string
+      path:
+        type: string
+      read_only:
+        type: boolean
+      users:
+        items:
+          type: string
+        type: array
+      valid_users:
+        items:
+          type: string
+        type: array
+      veto_files:
+        items:
+          type: string
+        type: array
+      write_list:
+        items:
+          type: string
+        type: array
+    required:
+    - name
+    - path
+    type: object
+  performance.CPUMetric:
+    properties:
+      cores:
+        type: integer
+      idle_percent:
+        type: number
+      iowait_percent:
+        type: number
+      load_avg_1:
+        type: number
+      load_avg_5:
+        type: number
+      load_avg_15:
+        type: number
+      system_percent:
+        type: number
+      temperature:
+        type: integer
+      timestamp:
+        type: string
+      usage_percent:
+        type: number
+      user_percent:
+        type: number
+    type: object
+  performance.HealthCheckResult:
+    properties:
+      details: {}
+      duration_ms:
+        type: integer
+      message:
+        type: string
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/performance.HealthStatus'
+      timestamp:
+        type: string
+    type: object
+  performance.HealthStatus:
+    enum:
+    - healthy
+    - degraded
+    - unhealthy
+    type: string
+    x-enum-varnames:
+    - HealthStatusHealthy
+    - HealthStatusDegraded
+    - HealthStatusUnhealthy
+  performance.MemoryMetric:
+    properties:
+      available_bytes:
+        type: integer
+      buffers_bytes:
+        type: integer
+      cached_bytes:
+        type: integer
+      free_bytes:
+        type: integer
+      shared_bytes:
+        type: integer
+      swap_percent:
+        type: number
+      swap_total_bytes:
+        type: integer
+      swap_used_bytes:
+        type: integer
+      timestamp:
+        type: string
+      total_bytes:
+        type: integer
+      usage_percent:
+        type: number
+      used_bytes:
+        type: integer
+    type: object
+  performance.Metrics:
+    properties:
+      avgLatency:
+        $ref: '#/definitions/time.Duration'
+      cacheHitRate:
+        type: number
+      cacheHits:
+        description: 缓存指标
+        type: integer
+      cacheMisses:
+        type: integer
+      dbAvgTime:
+        description: ms
+        type: integer
+      dbQueries:
+        description: 数据库指标
+        type: integer
+      dbSlowQueries:
+        type: integer
+      downloadBytes:
+        type: integer
+      downloadCount:
+        type: integer
+      errorCount:
+        type: integer
+      fileListAvgTime:
+        description: ms
+        type: integer
+      fileListCount:
+        description: 文件操作指标
+        type: integer
+      gcPauseMs:
+        type: integer
+      goroutineCount:
+        description: 系统指标
+        type: integer
+      indexAvgTime:
+        description: ms
+        type: integer
+      indexCount:
+        type: integer
+      maxLatency:
+        $ref: '#/definitions/time.Duration'
+      memoryAllocMB:
+        type: integer
+      memorySysMB:
+        type: integer
+      minLatency:
+        $ref: '#/definitions/time.Duration'
+      p50Latency:
+        $ref: '#/definitions/time.Duration'
+      p95Latency:
+        $ref: '#/definitions/time.Duration'
+      p99Latency:
+        $ref: '#/definitions/time.Duration'
+      requestCount:
+        description: API 性能指标
+        type: integer
+      searchAvgTime:
+        description: ms
+        type: integer
+      searchCount:
+        description: 搜索指标
+        type: integer
+      successCount:
+        type: integer
+      thumbnailAvgTime:
+        description: ms
+        type: integer
+      thumbnailCount:
+        type: integer
+      uploadBytes:
+        type: integer
+      uploadCount:
+        type: integer
+    type: object
+  performance.NetworkMetric:
+    properties:
+      interface:
+        type: string
+      rx_bytes:
+        type: integer
+      rx_dropped:
+        type: integer
+      rx_errors:
+        type: integer
+      rx_packets:
+        type: integer
+      rx_speed:
+        description: bytes/s
+        type: integer
+      timestamp:
+        type: string
+      tx_bytes:
+        type: integer
+      tx_dropped:
+        type: integer
+      tx_errors:
+        type: integer
+      tx_packets:
+        type: integer
+      tx_speed:
+        description: bytes/s
+        type: integer
+    type: object
+  performance.StorageDeviceMetrics:
+    properties:
+      device:
+        type: string
+      health:
+        description: 0-100
+        type: integer
+      model:
+        type: string
+      pending_sectors:
+        type: integer
+      read_iops:
+        description: IOPS
+        type: integer
+      read_latency_ms:
+        description: 延迟
+        type: number
+      read_speed:
+        description: 吞吐量
+        type: integer
+      reallocates:
+        type: integer
+      serial:
+        type: string
+      size_bytes:
+        type: integer
+      smart_status:
+        description: SMART 状态
+        type: string
+      temperature:
+        type: integer
+      type:
+        description: ssd, hdd, nvme
+        type: string
+      write_iops:
+        type: integer
+      write_latency_ms:
+        type: number
+      write_speed:
+        description: bytes/s
+        type: integer
+    type: object
+  performance.StorageMetrics:
+    properties:
+      cache:
+        description: 缓存指标
+        properties:
+          dirty_pages:
+            type: integer
+          hit_rate:
+            type: number
+          read_hits:
+            type: integer
+          read_misses:
+            type: integer
+          write_hits:
+            type: integer
+          write_misses:
+            type: integer
+        type: object
+      devices:
+        description: 设备列表
+        items:
+          $ref: '#/definitions/performance.StorageDeviceMetrics'
+        type: array
+      iops:
+        description: IOPS 指标
+        properties:
+          read:
+            type: integer
+          read_avg:
+            type: integer
+          read_max:
+            type: integer
+          total:
+            type: integer
+          write:
+            type: integer
+          write_avg:
+            type: integer
+          write_max:
+            type: integer
+        type: object
+      latency:
+        description: 延迟指标
+        properties:
+          read_avg_ms:
+            type: number
+          read_max_ms:
+            type: number
+          read_p95_ms:
+            type: number
+          read_p99_ms:
+            type: number
+          write_avg_ms:
+            type: number
+          write_max_ms:
+            type: number
+          write_p95_ms:
+            type: number
+          write_p99_ms:
+            type: number
+        type: object
+      queue_depth:
+        description: 队列深度
+        properties:
+          avg:
+            type: number
+          current:
+            type: number
+          max:
+            type: number
+        type: object
+      throughput:
+        description: 吞吐量指标
+        properties:
+          read_bytes_per_sec:
+            type: integer
+          read_mb_per_sec:
+            type: number
+          total_bytes_per_sec:
+            type: integer
+          total_mb_per_sec:
+            type: number
+          write_bytes_per_sec:
+            type: integer
+          write_mb_per_sec:
+            type: number
+        type: object
+      timestamp:
+        type: string
+    type: object
+  performance.SystemHealth:
+    properties:
+      checks:
+        items:
+          $ref: '#/definitions/performance.HealthCheckResult'
+        type: array
+      issues:
+        items:
+          type: string
+        type: array
+      last_checked:
+        type: string
+      score:
+        description: 0-100
+        type: integer
+      status:
+        $ref: '#/definitions/performance.HealthStatus'
+      uptime_seconds:
+        type: integer
+      version:
+        type: string
+    type: object
+  search.Highlight:
+    properties:
+      field:
+        type: string
+      fragments:
+        items:
+          type: string
+        type: array
+    type: object
+  search.SearchRequest:
+    properties:
+      fromDate:
+        description: 修改时间起始
+        type: string
+      limit:
+        description: 结果数量限制
+        type: integer
+      maxSize:
+        description: 最大文件大小
+        type: integer
+      minSize:
+        description: 最小文件大小
+        type: integer
+      offset:
+        description: 偏移量
+        type: integer
+      paths:
+        description: 搜索路径限制
+        items:
+          type: string
+        type: array
+      query:
+        type: string
+      sortBy:
+        description: '排序字段: score, name, size, modTime'
+        type: string
+      sortDesc:
+        description: 是否降序
+        type: boolean
+      toDate:
+        description: 修改时间结束
+        type: string
+      types:
+        description: 文件类型过滤
+        items:
+          type: string
+        type: array
+    type: object
+  search.SearchResponse:
+    properties:
+      maxScore:
+        type: number
+      results:
+        items:
+          $ref: '#/definitions/search.SearchResult'
+        type: array
+      took:
+        $ref: '#/definitions/time.Duration'
+      total:
+        type: integer
+    type: object
+  search.SearchResult:
+    properties:
+      ext:
+        type: string
+      highlights:
+        items:
+          $ref: '#/definitions/search.Highlight'
+        type: array
+      isDir:
+        type: boolean
+      modTime:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      score:
+        type: number
+      size:
+        type: integer
+    type: object
+  search.deleteRequest:
+    properties:
+      paths:
+        items:
+          type: string
+        type: array
+    required:
+    - paths
+    type: object
+  search.indexDirRequest:
+    properties:
+      path:
+        type: string
+    required:
+    - path
+    type: object
+  search.indexRequest:
+    properties:
+      paths:
+        items:
+          type: string
+        type: array
+    required:
+    - paths
+    type: object
+  time.Duration:
+    enum:
+    - -9223372036854775808
+    - 9223372036854775807
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
+    - 60000000000
+    - 3600000000000
+    format: int64
+    type: integer
+    x-enum-varnames:
+    - minDuration
+    - maxDuration
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
+    - Minute
+    - Hour
+host: localhost:8080
+info:
+  contact:
+    email: support@nas-os.io
+    name: NAS-OS 团队
+    url: https://github.com/nas-os/nas-os
+  description: |-
+    NAS-OS 是一个现代化的网络存储操作系统，提供卷管理、用户管理、共享管理、网络配置等功能。
+
+    ## 功能模块
+    - **卷管理**: Btrfs 卷创建、快照、RAID 配置
+    - **用户管理**: 用户/组管理、认证授权
+    - **共享管理**: SMB/NFS 共享配置
+    - **网络管理**: 网络接口、DDNS、防火墙、端口转发
+    - **Docker 管理**: 容器、镜像、应用商店
+    - **插件系统**: 可扩展的插件架构
+    - **配额管理**: 存储配额控制
+    - **性能监控**: 系统性能监控与报告
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: NAS-OS API
+  version: 2.41.0
+paths:
+  /api/v1/alerts:
+    get:
+      description: 获取当前活动的告警列表
+      parameters:
+      - description: 告警级别过滤
+        in: query
+        name: level
+        type: string
+      - description: 告警类型过滤
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取活动告警
+      tags:
+      - 告警管理
+  /api/v1/alerts/{id}:
+    delete:
+      description: 清除一个告警
+      parameters:
+      - description: 告警ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 清除告警
+      tags:
+      - 告警管理
+  /api/v1/alerts/{id}/acknowledge:
+    post:
+      description: 确认一个告警
+      parameters:
+      - description: 告警ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 确认告警
+      tags:
+      - 告警管理
+  /api/v1/alerts/{id}/silence:
+    post:
+      description: 静默一个告警
+      parameters:
+      - description: 告警ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 静默告警
+      tags:
+      - 告警管理
+  /api/v1/alerts/history:
+    get:
+      description: 获取历史告警记录
+      parameters:
+      - default: 50
+        description: 返回数量限制
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取告警历史
+      tags:
+      - 告警管理
+  /api/v1/alerts/rules:
+    get:
+      description: 获取所有告警规则
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取告警规则
+      tags:
+      - 告警管理
+  /api/v1/alerts/rules/{id}:
+    put:
+      description: 更新告警规则配置
+      parameters:
+      - description: 规则ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新内容
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新告警规则
+      tags:
+      - 告警管理
+  /api/v1/dedup/auto:
+    get:
+      consumes:
+      - application/json
+      description: 获取自动去重任务的配置和状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取自动去重任务状态
+      tags:
+      - dedup
+  /api/v1/dedup/auto/enable:
+    post:
+      consumes:
+      - application/json
+      description: 配置自动去重任务的启用状态和调度
+      parameters:
+      - description: 自动去重配置
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_dedup.EnableAutoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 启用或禁用自动去重
+      tags:
+      - dedup
+  /api/v1/dedup/auto/run:
+    post:
+      consumes:
+      - application/json
+      description: 手动触发一次自动去重任务
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 执行成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 手动执行自动去重
+      tags:
+      - dedup
+  /api/v1/dedup/chunks:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有存储的数据块信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取数据块列表
+      tags:
+      - dedup
+  /api/v1/dedup/chunks/file:
+    post:
+      consumes:
+      - application/json
+      description: 将文件分割成数据块
+      parameters:
+      - description: 分块参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_dedup.ChunkFileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分块成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 文件分块
+      tags:
+      - dedup
+  /api/v1/dedup/chunks/shared:
+    get:
+      consumes:
+      - application/json
+      description: 获取被多个用户共享的数据块列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取共享数据块
+      tags:
+      - dedup
+  /api/v1/dedup/config:
+    get:
+      consumes:
+      - application/json
+      description: 获取去重模块的配置信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取去重配置
+      tags:
+      - dedup
+    put:
+      consumes:
+      - application/json
+      description: 更新去重模块的配置
+      parameters:
+      - description: 配置参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_dedup.Config'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 更新去重配置
+      tags:
+      - dedup
+  /api/v1/dedup/deduplicate:
+    post:
+      consumes:
+      - application/json
+      description: 对指定的重复文件组执行去重操作
+      parameters:
+      - description: 去重参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_dedup.DeduplicateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 去重完成
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 执行去重操作
+      tags:
+      - dedup
+  /api/v1/dedup/deduplicate/all:
+    post:
+      consumes:
+      - application/json
+      description: 对所有重复文件执行批量去重操作
+      parameters:
+      - description: 批量去重参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_dedup.DeduplicateAllRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 去重完成
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 批量去重
+      tags:
+      - dedup
+  /api/v1/dedup/duplicates:
+    get:
+      consumes:
+      - application/json
+      description: 获取扫描发现的重复文件分组列表
+      parameters:
+      - description: 用户名（可选，筛选特定用户的重复文件）
+        in: query
+        name: user
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取重复文件列表
+      tags:
+      - dedup
+  /api/v1/dedup/duplicates/cross-user:
+    get:
+      consumes:
+      - application/json
+      description: 获取跨用户共享的重复文件列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取跨用户重复文件
+      tags:
+      - dedup
+  /api/v1/dedup/report:
+    get:
+      consumes:
+      - application/json
+      description: 获取详细的去重分析报告
+      parameters:
+      - description: 用户名（可选，获取特定用户的报告）
+        in: query
+        name: user
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取去重报告
+      tags:
+      - dedup
+  /api/v1/dedup/scan:
+    post:
+      consumes:
+      - application/json
+      description: 扫描指定路径查找重复文件
+      parameters:
+      - description: 扫描参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_dedup.ScanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 扫描完成
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 扫描重复文件
+      tags:
+      - dedup
+  /api/v1/dedup/scan/cancel:
+    post:
+      consumes:
+      - application/json
+      description: 取消正在进行的扫描任务
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 已取消
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 取消扫描
+      tags:
+      - dedup
+  /api/v1/dedup/stats:
+    get:
+      consumes:
+      - application/json
+      description: 获取去重模块的统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取去重统计信息
+      tags:
+      - dedup
+  /api/v1/dedup/stats/users:
+    get:
+      consumes:
+      - application/json
+      description: 获取各用户的去重统计信息
+      parameters:
+      - description: 用户名（可选，获取特定用户的统计）
+        in: query
+        name: user
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_dedup.GenericResponse'
+      summary: 获取用户统计信息
+      tags:
+      - dedup
+  /api/v1/files/{path}/versions:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定文件的所有历史版本
+      parameters:
+      - description: 文件路径
+        in: path
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 获取文件版本列表
+      tags:
+      - versioning
+    post:
+      consumes:
+      - application/json
+      description: 为指定文件创建新版本快照
+      parameters:
+      - description: 文件路径
+        in: path
+        name: path
+        required: true
+        type: string
+      - description: 版本创建参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_versioning.CreateVersionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 创建文件版本
+      tags:
+      - versioning
+  /api/v1/health:
+    get:
+      description: 获取系统健康状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/performance.SystemHealth'
+      summary: 获取健康状态
+      tags:
+      - 性能监控
+  /api/v1/health/checks:
+    get:
+      description: 获取各项健康检查的详细结果
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取详细健康检查
+      tags:
+      - 性能监控
+  /api/v1/health/checks/{name}:
+    get:
+      description: 返回指定检查器的最近一次检查结果
+      parameters:
+      - description: 检查器名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/health.HealthResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/health.HealthResponse'
+      summary: 获取最近检查结果
+      tags:
+      - health
+  /api/v1/health/checks/{name}/run:
+    post:
+      description: 执行指定名称的健康检查并返回结果
+      parameters:
+      - description: 检查器名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/health.HealthResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/health.HealthResponse'
+      summary: 执行单个健康检查
+      tags:
+      - health
+  /api/v1/health/live:
+    get:
+      description: Kubernetes 存活探针，检查服务是否运行
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/health.HealthResponse'
+      summary: 存活探针
+      tags:
+      - health
+  /api/v1/health/ready:
+    get:
+      description: Kubernetes 就绪探针，检查服务是否准备好接收流量
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/health.HealthResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/health.HealthResponse'
+      summary: 就绪探针
+      tags:
+      - health
+  /api/v1/health/report:
+    get:
+      description: 返回包含所有检查详情的健康报告
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/health.HealthResponse'
+      summary: 获取详细健康报告
+      tags:
+      - health
+  /api/v1/history/cpu:
+    get:
+      description: 获取 CPU 使用率历史数据
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取 CPU 历史数据
+      tags:
+      - 历史数据
+  /api/v1/history/memory:
+    get:
+      description: 获取内存使用率历史数据
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取内存历史数据
+      tags:
+      - 历史数据
+  /api/v1/history/storage:
+    get:
+      description: 获取存储性能历史数据
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/performance.StorageMetrics'
+            type: array
+      summary: 获取存储历史数据
+      tags:
+      - 历史数据
+  /api/v1/loggers:
+    get:
+      description: 获取所有已注册的日志记录器列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 列出日志记录器
+      tags:
+      - logs
+  /api/v1/loggers/{name}:
+    get:
+      description: 获取指定日志记录器的详细信息
+      parameters:
+      - description: 日志记录器名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 获取日志记录器信息
+      tags:
+      - logs
+  /api/v1/loggers/{name}/level:
+    put:
+      consumes:
+      - application/json
+      description: 设置指定日志记录器的级别
+      parameters:
+      - description: 日志记录器名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 日志级别
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/internal_logging.setLevelRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 设置日志级别
+      tags:
+      - logs
+  /api/v1/logs:
+    get:
+      description: 根据条件搜索日志条目
+      parameters:
+      - description: 日志级别 (DEBUG, INFO, WARN, ERROR, FATAL)
+        in: query
+        name: level
+        type: string
+      - description: 搜索关键词
+        in: query
+        name: keyword
+        type: string
+      - description: 日志来源
+        in: query
+        name: source
+        type: string
+      - description: 请求 ID
+        in: query
+        name: request_id
+        type: string
+      - description: 开始时间 (RFC3339)
+        in: query
+        name: start_time
+        type: string
+      - description: 结束时间 (RFC3339)
+        in: query
+        name: end_time
+        type: string
+      - default: 100
+        description: 结果限制
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 搜索日志
+      tags:
+      - logs
+  /api/v1/logs/files:
+    get:
+      description: 获取日志目录下的所有文件列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 列出日志文件
+      tags:
+      - logs
+  /api/v1/logs/files/{name}:
+    get:
+      description: 获取指定日志文件的内容
+      parameters:
+      - description: 文件名
+        in: path
+        name: name
+        required: true
+        type: string
+      - default: 100
+        description: 行数限制
+        in: query
+        name: lines
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 获取日志文件内容
+      tags:
+      - logs
+  /api/v1/logs/rotate:
+    post:
+      description: 手动触发日志轮转
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 强制轮转日志
+      tags:
+      - logs
+  /api/v1/logs/rotator/status:
+    get:
+      description: 获取日志轮转器的当前状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 获取轮转器状态
+      tags:
+      - logs
+  /api/v1/logs/stats:
+    get:
+      description: 获取日志目录的统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_logging.Response'
+      summary: 获取日志统计
+      tags:
+      - logs
+  /api/v1/logs/stream:
+    get:
+      description: 实时获取日志流
+      parameters:
+      - description: 日志级别过滤
+        in: query
+        name: level
+        type: string
+      - description: 关键词过滤
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: 流式日志
+      tags:
+      - logs
+  /api/v1/metrics:
+    get:
+      description: 获取系统、存储、健康等综合指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取综合指标
+      tags:
+      - 性能监控
+  /api/v1/storage:
+    get:
+      description: 获取 IOPS、延迟、吞吐量等存储性能指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/performance.StorageMetrics'
+      summary: 获取存储性能指标
+      tags:
+      - 存储性能
+  /api/v1/storage/iops:
+    get:
+      description: 获取 IOPS 指标详情
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取 IOPS 指标
+      tags:
+      - 存储性能
+  /api/v1/storage/latency:
+    get:
+      description: 获取存储延迟指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取延迟指标
+      tags:
+      - 存储性能
+  /api/v1/storage/throughput:
+    get:
+      description: 获取存储吞吐量指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取吞吐量指标
+      tags:
+      - 存储性能
+  /api/v1/system:
+    get:
+      description: 获取系统资源指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取系统指标
+      tags:
+      - 系统指标
+  /api/v1/system/cpu:
+    get:
+      description: 获取 CPU 使用率和负载指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/performance.CPUMetric'
+      summary: 获取 CPU 指标
+      tags:
+      - 系统指标
+  /api/v1/system/disks:
+    get:
+      description: 获取磁盘使用和 I/O 指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取磁盘指标
+      tags:
+      - 系统指标
+  /api/v1/system/memory:
+    get:
+      description: 获取内存使用指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/performance.MemoryMetric'
+      summary: 获取内存指标
+      tags:
+      - 系统指标
+  /api/v1/system/network:
+    get:
+      description: 获取网络接口指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/performance.NetworkMetric'
+            type: array
+      summary: 获取网络指标
+      tags:
+      - 系统指标
+  /api/v1/versions/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定的历史版本
+      parameters:
+      - description: 版本 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "404":
+          description: 版本不存在
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 删除版本
+      tags:
+      - versioning
+    get:
+      consumes:
+      - application/json
+      description: 获取指定版本的详细信息
+      parameters:
+      - description: 版本 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "404":
+          description: 版本不存在
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 获取版本详情
+      tags:
+      - versioning
+  /api/v1/versions/{id}/diff:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定版本与当前文件的差异
+      parameters:
+      - description: 版本 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "404":
+          description: 版本不存在
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 获取版本差异
+      tags:
+      - versioning
+  /api/v1/versions/{id}/restore:
+    post:
+      consumes:
+      - application/json
+      description: 将文件恢复到指定版本
+      parameters:
+      - description: 版本 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 恢复参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_versioning.RestoreVersionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 恢复成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "404":
+          description: 版本不存在
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 恢复版本
+      tags:
+      - versioning
+  /api/v1/versions/config:
+    get:
+      consumes:
+      - application/json
+      description: 获取版本控制模块的配置信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 获取版本控制配置
+      tags:
+      - versioning
+    put:
+      consumes:
+      - application/json
+      description: 更新版本控制模块的配置
+      parameters:
+      - description: 配置参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_versioning.Config'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 更新版本控制配置
+      tags:
+      - versioning
+  /api/v1/versions/stats:
+    get:
+      consumes:
+      - application/json
+      description: 获取版本控制模块的统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_versioning.GenericResponse'
+      summary: 获取版本控制统计信息
+      tags:
+      - versioning
+  /compress/algorithms:
+    get:
+      consumes:
+      - application/json
+      description: 列出所有可用的压缩算法
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 列出可用算法
+      tags:
+      - compress
+  /compress/batch:
+    post:
+      consumes:
+      - application/json
+      description: 批量压缩指定目录下的文件
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/compress.BatchCompressRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 批量压缩
+      tags:
+      - compress
+  /compress/compress:
+    post:
+      consumes:
+      - application/json
+      description: 压缩指定的文件
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/compress.CompressFileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 压缩单个文件
+      tags:
+      - compress
+  /compress/config:
+    get:
+      consumes:
+      - application/json
+      description: 获取压缩服务配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取压缩配置
+      tags:
+      - compress
+    put:
+      consumes:
+      - application/json
+      description: 更新压缩服务配置
+      parameters:
+      - description: 配置
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/compress.UpdateConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新压缩配置
+      tags:
+      - compress
+  /compress/decompress:
+    post:
+      consumes:
+      - application/json
+      description: 解压指定的文件
+      parameters:
+      - description: 请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/compress.DecompressFileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 解压单个文件
+      tags:
+      - compress
+  /compress/files:
+    get:
+      consumes:
+      - application/json
+      description: 列出指定目录下的压缩文件
+      parameters:
+      - description: 目录路径
+        in: query
+        name: dir
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 列出压缩文件
+      tags:
+      - compress
+  /compress/stats:
+    get:
+      consumes:
+      - application/json
+      description: 获取压缩统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取压缩统计
+      tags:
+      - compress
+  /compress/stats/reset:
+    post:
+      consumes:
+      - application/json
+      description: 重置压缩统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 重置压缩统计
+      tags:
+      - compress
+  /docker/apps:
+    get:
+      consumes:
+      - application/json
+      description: 获取可安装的应用列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 应用列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_docker.AppCatalog'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取应用商店目录
+      tags:
+      - docker
+  /docker/containers:
+    get:
+      consumes:
+      - application/json
+      description: 获取 Docker 容器列表，支持显示已停止的容器
+      parameters:
+      - description: 是否显示所有容器（包括已停止）
+        in: query
+        name: all
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 容器列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_docker.Container'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出所有容器
+      tags:
+      - docker
+    post:
+      consumes:
+      - application/json
+      description: 使用指定镜像创建新的 Docker 容器
+      parameters:
+      - description: 容器配置
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_docker.Container'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建容器
+      tags:
+      - docker
+  /docker/containers/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根据容器 ID 获取详细信息
+      parameters:
+      - description: 容器 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 容器详情
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_docker.Container'
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "404":
+          description: 容器不存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取容器详情
+      tags:
+      - docker
+  /docker/containers/{id}/start:
+    post:
+      consumes:
+      - application/json
+      description: 启动指定的 Docker 容器
+      parameters:
+      - description: 容器 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 启动成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 启动容器
+      tags:
+      - docker
+  /docker/containers/{id}/stop:
+    post:
+      consumes:
+      - application/json
+      description: 停止指定的 Docker 容器
+      parameters:
+      - description: 容器 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 停止成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 停止容器
+      tags:
+      - docker
+  /docker/images:
+    get:
+      consumes:
+      - application/json
+      description: 获取 Docker 镜像列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 镜像列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_docker.Image'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出所有镜像
+      tags:
+      - docker
+  /docker/images/pull:
+    post:
+      consumes:
+      - application/json
+      description: 从 Docker Hub 拉取镜像
+      parameters:
+      - description: 镜像名称
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            image:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 拉取成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 拉取镜像
+      tags:
+      - docker
+  /files/{id}/tags:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定文件的所有标签
+      parameters:
+      - description: 文件路径（URL编码）
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 获取文件的标签
+      tags:
+      - files
+    post:
+      consumes:
+      - application/json
+      description: 为指定文件添加一个或多个标签
+      parameters:
+      - description: 文件路径（URL编码）
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 标签ID列表
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_tags.addFileTagsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 为文件添加标签
+      tags:
+      - files
+  /files/{id}/tags/{tagId}:
+    delete:
+      consumes:
+      - application/json
+      description: 从指定文件移除单个标签
+      parameters:
+      - description: 文件路径（URL编码）
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 标签ID
+        in: path
+        name: tagId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 从文件移除标签
+      tags:
+      - files
+  /files/batch-tags:
+    post:
+      consumes:
+      - application/json
+      description: 为多个文件批量添加或设置标签
+      parameters:
+      - description: 批量标签请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_tags.BatchTagRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 批量标签操作
+      tags:
+      - files
+  /files/by-tag/{tagId}:
+    get:
+      consumes:
+      - application/json
+      description: 获取拥有指定标签的所有文件
+      parameters:
+      - description: 标签ID
+        in: path
+        name: tagId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 按标签ID查询文件
+      tags:
+      - files
+  /ftp/config:
+    get:
+      consumes:
+      - application/json
+      description: 获取 FTP 服务器配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取 FTP 配置
+      tags:
+      - ftp
+    put:
+      consumes:
+      - application/json
+      description: 更新 FTP 服务器配置
+      parameters:
+      - description: 配置
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/internal_ftp.Config'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新 FTP 配置
+      tags:
+      - ftp
+  /ftp/restart:
+    post:
+      consumes:
+      - application/json
+      description: 重启 FTP 服务器
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 重启 FTP 服务器
+      tags:
+      - ftp
+  /ftp/start:
+    post:
+      consumes:
+      - application/json
+      description: 启动 FTP 服务器
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 启动 FTP 服务器
+      tags:
+      - ftp
+  /ftp/status:
+    get:
+      consumes:
+      - application/json
+      description: 获取 FTP 服务器运行状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取 FTP 状态
+      tags:
+      - ftp
+  /ftp/transfers:
+    delete:
+      consumes:
+      - application/json
+      description: 清除所有 FTP 传输日志
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 清除传输日志
+      tags:
+      - ftp
+    get:
+      consumes:
+      - application/json
+      description: 获取 FTP 传输日志列表，支持过滤
+      parameters:
+      - description: 用户名过滤
+        in: query
+        name: username
+        type: string
+      - description: 传输方向 (upload/download)
+        in: query
+        name: direction
+        type: string
+      - description: 是否成功 (true/false/all)
+        in: query
+        name: success
+        type: string
+      - description: 开始时间 (RFC3339)
+        in: query
+        name: start_time
+        type: string
+      - description: 结束时间 (RFC3339)
+        in: query
+        name: end_time
+        type: string
+      - description: 返回数量限制
+        in: query
+        name: limit
+        type: integer
+      - description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取传输日志列表
+      tags:
+      - ftp
+  /ftp/transfers/config:
+    get:
+      consumes:
+      - application/json
+      description: 获取传输日志配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取日志配置
+      tags:
+      - ftp
+    put:
+      consumes:
+      - application/json
+      description: 更新传输日志配置
+      parameters:
+      - description: 配置
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/internal_ftp.UpdateConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新日志配置
+      tags:
+      - ftp
+  /ftp/transfers/stats:
+    get:
+      consumes:
+      - application/json
+      description: 获取 FTP 传输统计信息
+      parameters:
+      - description: 统计周期 (1h/24h/7d/30d)
+        in: query
+        name: period
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取传输统计
+      tags:
+      - ftp
+  /iscsi/apply:
+    post:
+      consumes:
+      - application/json
+      description: Apply iSCSI configuration to the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Apply configuration
+      tags:
+      - iscsi
+  /iscsi/restart:
+    post:
+      consumes:
+      - application/json
+      description: Restart iSCSI target service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Restart service
+      tags:
+      - iscsi
+  /iscsi/start:
+    post:
+      consumes:
+      - application/json
+      description: Start iSCSI target service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Start service
+      tags:
+      - iscsi
+  /iscsi/status:
+    get:
+      consumes:
+      - application/json
+      description: Get iSCSI target service status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Get service status
+      tags:
+      - iscsi
+  /iscsi/stop:
+    post:
+      consumes:
+      - application/json
+      description: Stop iSCSI target service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Stop service
+      tags:
+      - iscsi
+  /iscsi/targets:
+    get:
+      consumes:
+      - application/json
+      description: Get all iSCSI targets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: List iSCSI targets
+      tags:
+      - iscsi
+    post:
+      consumes:
+      - application/json
+      description: Create a new iSCSI target
+      parameters:
+      - description: Target configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_iscsi.TargetInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Create iSCSI target
+      tags:
+      - iscsi
+  /iscsi/targets/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Delete iSCSI target
+      tags:
+      - iscsi
+    get:
+      consumes:
+      - application/json
+      description: Get an iSCSI target by ID
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Get iSCSI target
+      tags:
+      - iscsi
+    put:
+      consumes:
+      - application/json
+      description: Update an iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Target configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_iscsi.TargetInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Update iSCSI target
+      tags:
+      - iscsi
+  /iscsi/targets/{id}/disable:
+    post:
+      consumes:
+      - application/json
+      description: Disable an iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Disable target
+      tags:
+      - iscsi
+  /iscsi/targets/{id}/enable:
+    post:
+      consumes:
+      - application/json
+      description: Enable an iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Enable target
+      tags:
+      - iscsi
+  /iscsi/targets/{id}/luns:
+    get:
+      consumes:
+      - application/json
+      description: List all LUNs for a target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: List LUNs
+      tags:
+      - iscsi
+    post:
+      consumes:
+      - application/json
+      description: Add a LUN to a target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: LUN configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_iscsi.LUNInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Add LUN
+      tags:
+      - iscsi
+  /iscsi/targets/{id}/luns/{lunId}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a LUN from a target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: LUN ID
+        in: path
+        name: lunId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Remove LUN
+      tags:
+      - iscsi
+    get:
+      consumes:
+      - application/json
+      description: Get a specific LUN
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: LUN ID
+        in: path
+        name: lunId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Get LUN
+      tags:
+      - iscsi
+  /iscsi/targets/{id}/luns/{lunId}/expand:
+    post:
+      consumes:
+      - application/json
+      description: Expand a LUN's size
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: LUN ID
+        in: path
+        name: lunId
+        required: true
+        type: string
+      - description: New size
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_iscsi.LUNExpandInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Expand LUN
+      tags:
+      - iscsi
+  /iscsi/targets/{id}/luns/{lunId}/snapshots:
+    get:
+      consumes:
+      - application/json
+      description: List all snapshots for a LUN
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: LUN ID
+        in: path
+        name: lunId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: List LUN snapshots
+      tags:
+      - iscsi
+    post:
+      consumes:
+      - application/json
+      description: Create a snapshot of a LUN
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: LUN ID
+        in: path
+        name: lunId
+        required: true
+        type: string
+      - description: Snapshot configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_iscsi.LUNSnapshotInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Create LUN snapshot
+      tags:
+      - iscsi
+  /iscsi/targets/{id}/luns/{lunId}/snapshots/{snapId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a LUN snapshot
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: LUN ID
+        in: path
+        name: lunId
+        required: true
+        type: string
+      - description: Snapshot ID
+        in: path
+        name: snapId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Delete LUN snapshot
+      tags:
+      - iscsi
+  /iscsi/targets/{id}/status:
+    get:
+      consumes:
+      - application/json
+      description: Get operational status of an iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_iscsi.Response'
+      summary: Get target status
+      tags:
+      - iscsi
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 使用用户名和密码登录系统，返回 JWT 令牌
+      parameters:
+      - description: 登录信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_users.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_users.LoginResponse'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 用户登录
+      tags:
+      - auth
+  /metrics:
+    get:
+      description: 返回 Prometheus 格式的指标数据
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 获取 Prometheus 格式指标
+      tags:
+      - 性能监控
+  /monitor/alerts:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统告警列表，支持按级别和类型筛选
+      parameters:
+      - description: 按级别筛选 (warning, critical)
+        in: query
+        name: level
+        type: string
+      - description: 按类型筛选 (cpu, memory, disk)
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 告警列表
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取告警列表
+      tags:
+      - monitor
+  /monitor/alerts/rules:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统告警规则配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 告警规则列表
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取告警规则
+      tags:
+      - monitor
+  /monitor/disks:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有磁盘的使用情况和性能指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 磁盘统计信息
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取磁盘统计信息
+      tags:
+      - monitor
+  /monitor/network:
+    get:
+      consumes:
+      - application/json
+      description: 获取网络流量、连接数等网络性能指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 网络统计信息
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取网络统计信息
+      tags:
+      - monitor
+  /monitor/smart/{device}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定磁盘的 SMART 健康状态信息
+      parameters:
+      - description: 设备名称（如 sda）
+        in: path
+        name: device
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: SMART 信息
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取磁盘 SMART 信息
+      tags:
+      - monitor
+  /monitor/smart/check:
+    post:
+      consumes:
+      - application/json
+      description: 对所有磁盘执行健康检查
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 检查结果
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 检查所有磁盘
+      tags:
+      - monitor
+  /monitor/system:
+    get:
+      consumes:
+      - application/json
+      description: 获取 CPU、内存、负载等系统性能指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 系统统计信息
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 未授权
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 服务器错误
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取系统统计信息
+      tags:
+      - monitor
+  /network/ddns:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有 DDNS 动态域名配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: DDNS 配置列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_network.DDNSConfig'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出 DDNS 配置
+      tags:
+      - network
+    post:
+      consumes:
+      - application/json
+      description: 添加新的动态域名解析配置
+      parameters:
+      - description: DDNS 配置
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/internal_network.DDNSConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_network.DDNSConfig'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 添加 DDNS 配置
+      tags:
+      - network
+  /network/firewall/rules:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有防火墙规则
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 防火墙规则列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_network.FirewallRule'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出防火墙规则
+      tags:
+      - network
+    post:
+      consumes:
+      - application/json
+      description: 添加新的防火墙规则
+      parameters:
+      - description: 防火墙规则
+        in: body
+        name: rule
+        required: true
+        schema:
+          $ref: '#/definitions/internal_network.FirewallRule'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_network.FirewallRule'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 添加防火墙规则
+      tags:
+      - network
+  /network/interfaces:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统所有网络接口信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 接口列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_network.Interface'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出网络接口
+      tags:
+      - network
+  /network/interfaces/{name}:
+    put:
+      consumes:
+      - application/json
+      description: 配置指定网络接口的 IP、网关等参数
+      parameters:
+      - description: 接口名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 接口配置
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/internal_network.InterfaceConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 配置成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 配置网络接口
+      tags:
+      - network
+  /network/portforwards:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有端口转发规则
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 端口转发规则列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_network.PortForward'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出端口转发规则
+      tags:
+      - network
+    post:
+      consumes:
+      - application/json
+      description: 添加新的端口转发规则
+      parameters:
+      - description: 端口转发规则
+        in: body
+        name: rule
+        required: true
+        schema:
+          $ref: '#/definitions/internal_network.PortForward'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_network.PortForward'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 添加端口转发规则
+      tags:
+      - network
+  /nfs/clients:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 获取NFS客户端信息
+      tags:
+      - NFS
+  /nfs/config/exports:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 获取exports文件内容
+      tags:
+      - NFS
+  /nfs/exports:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 列出所有NFS导出
+      tags:
+      - NFS
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 导出配置
+        in: body
+        name: export
+        required: true
+        schema:
+          $ref: '#/definitions/internal_nfs.Export'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 创建NFS导出
+      tags:
+      - NFS
+  /nfs/exports/{path}:
+    delete:
+      parameters:
+      - description: 导出路径
+        in: path
+        name: path
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 删除NFS导出
+      tags:
+      - NFS
+    get:
+      parameters:
+      - description: 导出路径
+        in: path
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 获取NFS导出详情
+      tags:
+      - NFS
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 导出路径
+        in: path
+        name: path
+        required: true
+        type: string
+      - description: 导出配置
+        in: body
+        name: export
+        required: true
+        schema:
+          $ref: '#/definitions/internal_nfs.Export'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 更新NFS导出
+      tags:
+      - NFS
+  /nfs/reload:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 重新加载NFS配置
+      tags:
+      - NFS
+  /nfs/restart:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 重启NFS服务
+      tags:
+      - NFS
+  /nfs/start:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 启动NFS服务
+      tags:
+      - NFS
+  /nfs/status:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 获取NFS服务状态
+      tags:
+      - NFS
+  /nfs/stop:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_nfs.Response'
+      summary: 停止NFS服务
+      tags:
+      - NFS
+  /office/associations:
+    get:
+      description: 获取所有支持的文件类型及其关联配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_office.Response'
+      summary: 获取文件关联配置
+      tags:
+      - office
+  /office/associations/{ext}:
+    get:
+      description: 获取指定文件扩展名的关联配置
+      parameters:
+      - description: 文件扩展名
+        in: path
+        name: ext
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_office.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_office.FileAssociation'
+              type: object
+      summary: 获取文件关联
+      tags:
+      - office
+  /office/callback:
+    post:
+      consumes:
+      - application/json
+      description: 接收并处理 OnlyOffice Document Server 的回调通知
+      parameters:
+      - description: 回调请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_office.CallbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_office.CallbackResponse'
+      summary: 处理 OnlyOffice 回调
+      tags:
+      - office
+  /office/config:
+    get:
+      description: 获取 OnlyOffice 集成配置和支持的文件类型
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_office.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_office.ConfigResponse'
+              type: object
+      summary: 获取 OnlyOffice 配置
+      tags:
+      - office
+    put:
+      consumes:
+      - application/json
+      description: 更新 OnlyOffice 集成配置
+      parameters:
+      - description: 配置更新请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_office.UpdateConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_office.Response'
+      summary: 更新 OnlyOffice 配置
+      tags:
+      - office
+  /office/edit/{fileId}:
+    post:
+      consumes:
+      - application/json
+      description: 创建编辑会话，返回编辑器配置
+      parameters:
+      - description: 文件 ID
+        in: path
+        name: fileId
+        required: true
+        type: string
+      - description: 编辑请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_office.EditRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_office.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_office.EditResponse'
+              type: object
+      summary: 开始编辑文档
+      tags:
+      - office
+  /office/health:
+    get:
+      description: 检查 OnlyOffice 服务状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_office.Response'
+      summary: OnlyOffice 服务健康检查
+      tags:
+      - office
+  /office/sessions:
+    get:
+      description: 获取所有或指定状态的编辑会话
+      parameters:
+      - description: 会话状态过滤
+        in: query
+        name: status
+        type: string
+      - default: 20
+        description: 返回数量限制
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_office.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_office.SessionListResponse'
+              type: object
+      summary: 列出编辑会话
+      tags:
+      - office
+  /office/sessions/{sessionId}:
+    delete:
+      description: 关闭指定的编辑会话
+      parameters:
+      - description: 会话 ID
+        in: path
+        name: sessionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_office.Response'
+      summary: 关闭编辑会话
+      tags:
+      - office
+    get:
+      description: 获取指定编辑会话的详细信息
+      parameters:
+      - description: 会话 ID
+        in: path
+        name: sessionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_office.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_office.EditingSession'
+              type: object
+      summary: 获取会话详情
+      tags:
+      - office
+  /office/status:
+    get:
+      description: 获取 OnlyOffice 集成服务状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_office.Response'
+      summary: 获取 OnlyOffice 服务状态
+      tags:
+      - office
+  /performance/health:
+    get:
+      description: 系统健康检查
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 健康检查
+      tags:
+      - 性能监控
+  /performance/metrics:
+    get:
+      description: 获取系统性能指标
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/performance.Metrics'
+      summary: 获取性能指标
+      tags:
+      - 性能监控
+  /performance/reset:
+    post:
+      description: 重置所有性能指标
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 重置性能指标
+      tags:
+      - 性能监控
+  /search/index:
+    delete:
+      consumes:
+      - application/json
+      description: 从搜索索引中删除指定文件
+      parameters:
+      - description: 删除请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/search.deleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 从索引中删除
+      tags:
+      - 搜索
+    post:
+      consumes:
+      - application/json
+      description: 将指定文件添加到搜索索引
+      parameters:
+      - description: 索引请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/search.indexRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 索引文件
+      tags:
+      - 搜索
+  /search/index/dir:
+    post:
+      consumes:
+      - application/json
+      description: 递归索引指定目录下的所有文件
+      parameters:
+      - description: 索引目录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/search.indexDirRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 索引目录
+      tags:
+      - 搜索
+  /search/query:
+    post:
+      consumes:
+      - application/json
+      description: 根据查询条件搜索文件，支持文件名和内容搜索
+      parameters:
+      - description: 搜索请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/search.SearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/search.SearchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 搜索文件
+      tags:
+      - 搜索
+  /search/stats:
+    get:
+      description: 获取搜索索引的统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取索引统计
+      tags:
+      - 搜索
+  /shares:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有 SMB 和 NFS 共享的统一列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 共享列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_shares.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_shares.ShareOverview'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出所有共享
+      tags:
+      - shares
+  /shares/nfs:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有 NFS 导出列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: NFS 导出列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_shares.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/nas-os_internal_nfs.Export'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出 NFS 导出
+      tags:
+      - shares
+    post:
+      consumes:
+      - application/json
+      description: 创建新的 NFS 导出
+      parameters:
+      - description: 导出配置
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/nas-os_internal_nfs.ExportRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_shares.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/nas-os_internal_nfs.Export'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+        "409":
+          description: 导出已存在
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建 NFS 导出
+      tags:
+      - shares
+  /shares/smb:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有 SMB 共享列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: SMB 共享列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_shares.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/nas-os_internal_smb.Share'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出 SMB 共享
+      tags:
+      - shares
+    post:
+      consumes:
+      - application/json
+      description: 创建新的 SMB 共享
+      parameters:
+      - description: 共享配置
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/nas-os_internal_smb.ShareInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_shares.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/nas-os_internal_smb.Share'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+        "409":
+          description: 共享已存在
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建 SMB 共享
+      tags:
+      - shares
+  /shares/status:
+    get:
+      consumes:
+      - application/json
+      description: 获取 SMB 和 NFS 服务的运行状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 服务状态
+          schema:
+            allOf:
+            - $ref: '#/definitions/internal_shares.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/internal_shares.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取共享服务状态
+      tags:
+      - shares
+  /system/health:
+    get:
+      consumes:
+      - application/json
+      description: 检查系统是否正常运行
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 系统健康
+          schema:
+            $ref: '#/definitions/internal_web.HealthResponse'
+      summary: 健康检查
+      tags:
+      - system
+  /system/info:
+    get:
+      consumes:
+      - application/json
+      description: 获取 NAS-OS 系统的基本信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 获取系统信息
+      tags:
+      - system
+  /tags:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有标签列表，支持按分组筛选
+      parameters:
+      - description: 分组名称
+        in: query
+        name: group
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 列出所有标签
+      tags:
+      - tags
+    post:
+      consumes:
+      - application/json
+      description: 创建新的标签
+      parameters:
+      - description: 标签参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_tags.TagInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "409":
+          description: 标签名称已存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 创建标签
+      tags:
+      - tags
+  /tags/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定标签及其所有文件关联
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "404":
+          description: 标签不存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 删除标签
+      tags:
+      - tags
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取标签详细信息
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "404":
+          description: 标签不存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 获取标签详情
+      tags:
+      - tags
+    put:
+      consumes:
+      - application/json
+      description: 更新标签信息
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 标签参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_tags.TagInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "404":
+          description: 标签不存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "409":
+          description: 标签名称已存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 更新标签
+      tags:
+      - tags
+  /tags/{id}/files:
+    get:
+      consumes:
+      - application/json
+      description: 获取拥有指定标签的所有文件
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 获取标签关联的文件
+      tags:
+      - tags
+  /tags/{id}/usage:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定标签被多少文件使用
+      parameters:
+      - description: 标签ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 获取标签使用次数
+      tags:
+      - tags
+  /tags/groups:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有标签分组及其标签数量
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 列出标签分组
+      tags:
+      - tags
+  /tags/search:
+    get:
+      consumes:
+      - application/json
+      description: 按名称模糊搜索标签
+      parameters:
+      - description: 搜索关键词
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 搜索标签
+      tags:
+      - tags
+  /tags/stats:
+    get:
+      consumes:
+      - application/json
+      description: 获取标签系统的统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      summary: 获取统计信息
+      tags:
+      - tags
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统中所有用户列表，支持按角色筛选
+      parameters:
+      - description: 按角色筛选 (admin, user)
+        in: query
+        name: role
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_users.User'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 列出所有用户
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: 创建新的系统用户，需要管理员权限
+      parameters:
+      - description: 用户信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_users.UserInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_users.User'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "409":
+          description: 用户已存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 创建用户
+      tags:
+      - users
+  /users/{username}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定用户，需要管理员权限
+      parameters:
+      - description: 用户名
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "403":
+          description: 禁止删除（管理员或最后一个管理员）
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 删除用户
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: 根据用户名获取用户详细信息
+      parameters:
+      - description: 用户名
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户信息
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_users.User'
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 获取用户详情
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: 更新指定用户的信息，需要管理员权限或本人
+      parameters:
+      - description: 用户名
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: 用户信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_users.UserInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/nas-os_internal_api.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_users.User'
+              type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/nas-os_internal_api.Response'
+      security:
+      - BearerAuth: []
+      summary: 更新用户信息
+      tags:
+      - users
+  /volumes:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统中所有 Btrfs 卷的列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 列出所有卷
+      tags:
+      - volumes
+    post:
+      consumes:
+      - application/json
+      description: 使用指定设备和配置创建新的 Btrfs 卷
+      parameters:
+      - description: 卷创建参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_web.VolumeCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 创建新卷
+      tags:
+      - volumes
+  /volumes/{name}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定的 Btrfs 卷
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 强制删除
+        in: query
+        name: force
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 删除卷
+      tags:
+      - volumes
+    get:
+      consumes:
+      - application/json
+      description: 根据卷名称获取卷的详细信息
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "404":
+          description: 卷不存在
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 获取卷详情
+      tags:
+      - volumes
+  /volumes/{name}/devices:
+    post:
+      consumes:
+      - application/json
+      - application/json
+      description: |-
+        向指定卷添加存储设备
+        向指定卷添加存储设备
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 设备参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_web.DeviceAddRequest'
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 设备参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_web.DeviceAddRequest'
+      produces:
+      - application/json
+      - application/json
+      responses:
+        "200":
+          description: 添加成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 添加设备到卷
+      tags:
+      - volumes
+      - volumes
+  /volumes/{name}/devices/{device}:
+    delete:
+      consumes:
+      - application/json
+      description: 从指定卷移除存储设备
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 设备路径
+        in: path
+        name: device
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 移除成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 从卷移除设备
+      tags:
+      - volumes
+  /volumes/{name}/mount:
+    post:
+      consumes:
+      - application/json
+      description: 挂载指定的 Btrfs 卷
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 挂载成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 挂载卷
+      tags:
+      - volumes
+  /volumes/{name}/snapshots:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定卷的所有快照列表
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 列出快照
+      tags:
+      - snapshots
+  /volumes/{name}/subvolumes:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定卷的所有子卷列表
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 列出子卷
+      tags:
+      - volumes
+    post:
+      consumes:
+      - application/json
+      description: 在指定卷中创建新的子卷
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: 子卷参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_web.SubVolumeCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 创建子卷
+      tags:
+      - volumes
+  /volumes/{name}/unmount:
+    post:
+      consumes:
+      - application/json
+      description: 卸载指定的 Btrfs 卷
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 卸载成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 卸载卷
+      tags:
+      - volumes
+  /volumes/{name}/usage:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定卷的存储使用情况
+      parameters:
+      - description: 卷名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/internal_web.GenericResponse'
+      summary: 获取卷使用量
+      tags:
+      - volumes
+schemes:
+- http
+- https
+securityDefinitions:
+  ApiKeyAuth:
+    description: API 密钥认证
+    in: query
+    name: token
+    type: apiKey
+  BearerAuth:
+    description: JWT 认证令牌，格式：Bearer {token}
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
+tags:
+- description: 卷管理 API - 创建、管理 Btrfs 存储卷
+  name: volumes
+- description: 快照管理 API - 创建、恢复、删除快照
+  name: snapshots
+- description: 用户管理 API - 用户和用户组的 CRUD 操作
+  name: users
+- description: 认证 API - 登录、登出、令牌刷新
+  name: auth
+- description: 共享管理 API - SMB 和 NFS 共享配置
+  name: shares
+- description: 网络管理 API - 网络接口、DDNS、防火墙配置
+  name: network
+- description: Docker 管理 API - 容器、镜像、应用管理
+  name: docker
+- description: 插件系统 API - 插件安装、配置、管理
+  name: plugins
+- description: 配额管理 API - 存储配额设置与查询
+  name: quota
+- description: 性能监控 API - 系统性能指标查询
+  name: perf
+- description: 系统信息 API - 系统状态、健康检查
+  name: system
