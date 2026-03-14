@@ -34,7 +34,9 @@
     "security": "Security Center",
     "predictions": "Predictive Analytics",
     "settings": "System Settings",
-    "logs": "Log Viewer"
+    "logs": "Log Viewer",
+    "media": "Media Service",
+    "quota": "Quota Management"
   },
   "ops": {
     "title": "NAS-OS Operations Center",
@@ -181,5 +183,47 @@
     "permissionDenied": "Permission denied",
     "connectionLost": "Connection lost",
     "reconnecting": "Reconnecting..."
+  },
+  "media": {
+    "title": "Media Service",
+    "subtitle": "Media Streaming & Transcoding",
+    "streaming": "Streaming Service",
+    "hls": "HLS Streaming",
+    "dash": "DASH Streaming",
+    "transcoding": "Video Transcoding",
+    "thumbnails": "Thumbnail Generation",
+    "subtitles": "Subtitle Processing",
+    "library": "Media Library",
+    "scanLibrary": "Scan Library",
+    "lastScan": "Last Scan",
+    "totalFiles": "Total Files",
+    "totalSize": "Total Size",
+    "formats": "Supported Formats",
+    "codec": "Codec",
+    "resolution": "Resolution",
+    "bitrate": "Bitrate",
+    "duration": "Duration",
+    "processing": "Processing",
+    "queueSize": "Queue Size",
+    "activeJobs": "Active Jobs"
+  },
+  "quota": {
+    "title": "Quota Management",
+    "subtitle": "Storage Quota & Auto-Expansion",
+    "userQuota": "User Quota",
+    "groupQuota": "Group Quota",
+    "directoryQuota": "Directory Quota",
+    "usedSpace": "Used Space",
+    "totalQuota": "Total Quota",
+    "available": "Available",
+    "autoExpand": "Auto Expansion",
+    "expandThreshold": "Expand Threshold",
+    "expandSize": "Expansion Size",
+    "maxSize": "Maximum Size",
+    "approvalRequired": "Approval Required",
+    "pendingRequests": "Pending Requests",
+    "expandNow": "Expand Now",
+    "quotaExceeded": "Quota Exceeded",
+    "nearLimit": "Near Limit"
   }
 }

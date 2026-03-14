@@ -34,7 +34,9 @@
     "security": "セキュリティセンター",
     "predictions": "予測分析",
     "settings": "システム設定",
-    "logs": "ログビューア"
+    "logs": "ログビューア",
+    "media": "メディアサービス",
+    "quota": "クォータ管理"
   },
   "ops": {
     "title": "NAS-OS 運用センター",
@@ -181,5 +183,47 @@
     "permissionDenied": "権限がありません",
     "connectionLost": "接続が切断されました",
     "reconnecting": "再接続中..."
+  },
+  "media": {
+    "title": "メディアサービス",
+    "subtitle": "ストリーミングとトランスコーディング",
+    "streaming": "ストリーミングサービス",
+    "hls": "HLSストリーミング",
+    "dash": "DASHストリーミング",
+    "transcoding": "ビデオトランスコーディング",
+    "thumbnails": "サムネイル生成",
+    "subtitles": "字幕処理",
+    "library": "メディアライブラリ",
+    "scanLibrary": "ライブラリをスキャン",
+    "lastScan": "最終スキャン",
+    "totalFiles": "総ファイル数",
+    "totalSize": "合計サイズ",
+    "formats": "対応フォーマット",
+    "codec": "コーデック",
+    "resolution": "解像度",
+    "bitrate": "ビットレート",
+    "duration": "再生時間",
+    "processing": "処理中",
+    "queueSize": "キューサイズ",
+    "activeJobs": "アクティブジョブ"
+  },
+  "quota": {
+    "title": "クォータ管理",
+    "subtitle": "ストレージクォータと自動拡張",
+    "userQuota": "ユーザークォータ",
+    "groupQuota": "グループクォータ",
+    "directoryQuota": "ディレクトリクォータ",
+    "usedSpace": "使用済みスペース",
+    "totalQuota": "総クォータ",
+    "available": "利用可能",
+    "autoExpand": "自動拡張",
+    "expandThreshold": "拡張しきい値",
+    "expandSize": "拡張サイズ",
+    "maxSize": "最大サイズ",
+    "approvalRequired": "承認が必要",
+    "pendingRequests": "保留中のリクエスト",
+    "expandNow": "今すぐ拡張",
+    "quotaExceeded": "クォータ超過",
+    "nearLimit": "制限に近い"
   }
 }

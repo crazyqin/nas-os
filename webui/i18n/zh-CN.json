@@ -34,7 +34,9 @@
     "security": "安全中心",
     "predictions": "预测分析",
     "settings": "系统设置",
-    "logs": "日志查看"
+    "logs": "日志查看",
+    "media": "媒体服务",
+    "quota": "配额管理"
   },
   "ops": {
     "title": "NAS-OS 运维中心",
@@ -181,5 +183,47 @@
     "permissionDenied": "权限不足",
     "connectionLost": "连接已断开",
     "reconnecting": "正在重连..."
+  },
+  "media": {
+    "title": "媒体服务",
+    "subtitle": "流媒体与转码服务",
+    "streaming": "流媒体服务",
+    "hls": "HLS 流媒体",
+    "dash": "DASH 流媒体",
+    "transcoding": "视频转码",
+    "thumbnails": "缩略图生成",
+    "subtitles": "字幕处理",
+    "library": "媒体库",
+    "scanLibrary": "扫描媒体库",
+    "lastScan": "上次扫描",
+    "totalFiles": "文件总数",
+    "totalSize": "总大小",
+    "formats": "支持格式",
+    "codec": "编码",
+    "resolution": "分辨率",
+    "bitrate": "码率",
+    "duration": "时长",
+    "processing": "处理中",
+    "queueSize": "队列大小",
+    "activeJobs": "活动任务"
+  },
+  "quota": {
+    "title": "配额管理",
+    "subtitle": "存储配额与自动扩展",
+    "userQuota": "用户配额",
+    "groupQuota": "组配额",
+    "directoryQuota": "目录配额",
+    "usedSpace": "已用空间",
+    "totalQuota": "配额总量",
+    "available": "可用",
+    "autoExpand": "自动扩展",
+    "expandThreshold": "扩展阈值",
+    "expandSize": "扩展大小",
+    "maxSize": "最大限制",
+    "approvalRequired": "需要审批",
+    "pendingRequests": "待处理请求",
+    "expandNow": "立即扩展",
+    "quotaExceeded": "配额超限",
+    "nearLimit": "接近上限"
   }
 }

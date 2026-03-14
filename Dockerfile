@@ -116,12 +116,14 @@ EXPOSE 111/udp
 # NFS auxiliary
 EXPOSE 20048/tcp
 
-# 健康检查（增强版）
-# 先检查进程文件是否存在，再检查 API 端点
-# 这样可以更快发现服务崩溃
-HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD wget -q --spider http://localhost:8080/api/v1/health || \
-    (echo "Health check failed, service may be unhealthy" && exit 1)
+# 健康检查（增强版 v2.29.0）
+# 多层健康检查：进程检测 + API 端点 + 磁盘状态
+# 支持更细粒度的故障检测
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD (test -f /var/run/nasd.pid || pgrep -x nasd > /dev/null) && \
+         wget -q --spider http://localhost:8080/api/v1/health && \
+         wget -q -O /dev/null http://localhost:8080/api/v1/system/status 2>/dev/null || \
+         (echo "Health check failed: service unhealthy" && exit 1)
 
 # 启动命令
 ENTRYPOINT ["nasd"]

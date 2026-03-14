@@ -1,5 +1,7 @@
 # NAS-OS 🖥️
 
+**中文** | [English](docs/README_EN.md)
+
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
 > **最新版本**: v2.27.0 Stable (2026-03-15)
