@@ -1,7 +1,7 @@
 # 监控 API 文档
 
-**版本**: v2.67.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ## 概述
 
@@ -191,7 +191,7 @@ GET /api/v1/monitor/alerts
       "level": "warning",
       "message": "磁盘空间不足",
       "source": "sda",
-      "timestamp": "2026-03-15T11:13:00Z",
+      "timestamp": "2026-03-16T11:13:00Z",
       "acknowledged": false
     }
   ]
@@ -294,7 +294,7 @@ GET /api/v1/monitor/cluster/nodes
       "port": 8080,
       "is_active": true,
       "is_leader": true,
-      "last_heartbeat": "2026-03-15T11:12:55Z"
+      "last_heartbeat": "2026-03-16T11:12:55Z"
     },
     {
       "id": "node-002",
@@ -303,7 +303,7 @@ GET /api/v1/monitor/cluster/nodes
       "port": 8080,
       "is_active": true,
       "is_leader": false,
-      "last_heartbeat": "2026-03-15T11:12:58Z"
+      "last_heartbeat": "2026-03-16T11:12:58Z"
     }
   ]
 }
@@ -324,7 +324,7 @@ GET /api/v1/monitor/cluster/nodes/:node_id/metrics
   "data": {
     "node_id": "node-001",
     "node_name": "nas-node-1",
-    "timestamp": "2026-03-15T11:13:00Z",
+    "timestamp": "2026-03-16T11:13:00Z",
     "system_metrics": {
       "cpu_usage": 35.2,
       "memory_usage": 62.5,

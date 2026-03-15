@@ -1,7 +1,7 @@
 # 仪表板 API 文档
 
-**版本**: v2.67.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ## 概述
 
@@ -37,8 +37,8 @@ GET /api/v1/dashboard
         "description": "默认系统监控仪表板",
         "widgetCount": 6,
         "isDefault": true,
-        "createdAt": "2026-03-15T10:00:00Z",
-        "updatedAt": "2026-03-15T12:00:00Z"
+        "createdAt": "2026-03-16T10:00:00Z",
+        "updatedAt": "2026-03-16T12:00:00Z"
       }
     ]
   }
@@ -84,7 +84,7 @@ Content-Type: application/json
   "data": {
     "id": "db-12345",
     "name": "我的仪表板",
-    "createdAt": "2026-03-15T12:30:00Z"
+    "createdAt": "2026-03-16T12:30:00Z"
   }
 }
 ```
@@ -122,8 +122,8 @@ GET /api/v1/dashboard/:id
       "gap": 16
     },
     "isDefault": true,
-    "createdAt": "2026-03-15T10:00:00Z",
-    "updatedAt": "2026-03-15T12:00:00Z"
+    "createdAt": "2026-03-16T10:00:00Z",
+    "updatedAt": "2026-03-16T12:00:00Z"
   }
 }
 ```
@@ -165,12 +165,12 @@ GET /api/v1/dashboard/:id/widgets
   "message": "success",
   "data": {
     "dashboardId": "default",
-    "lastUpdate": "2026-03-15T12:35:00Z",
+    "lastUpdate": "2026-03-16T12:35:00Z",
     "widgetData": {
       "cpu-1": {
         "widgetId": "cpu-1",
         "type": "cpu",
-        "timestamp": "2026-03-15T12:35:00Z",
+        "timestamp": "2026-03-16T12:35:00Z",
         "data": {
           "usage": 35.2,
           "perCore": [32.1, 38.5, 31.2, 39.0],
@@ -183,7 +183,7 @@ GET /api/v1/dashboard/:id/widgets
       "memory-1": {
         "widgetId": "memory-1",
         "type": "memory",
-        "timestamp": "2026-03-15T12:35:00Z",
+        "timestamp": "2026-03-16T12:35:00Z",
         "data": {
           "total": 8589934592,
           "used": 5368709120,
@@ -310,7 +310,7 @@ ws://localhost:8080/api/v1/dashboard/:id/stream
   "type": "widget_update",
   "dashboardId": "default",
   "widgetId": "cpu-1",
-  "timestamp": "2026-03-15T12:35:00Z",
+  "timestamp": "2026-03-16T12:35:00Z",
   "data": {...}
 }
 ```

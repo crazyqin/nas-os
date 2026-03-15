@@ -1,7 +1,7 @@
 # 审计 API 文档
 
-**版本**: v2.67.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ## 概述
 
@@ -58,7 +58,7 @@ curl -X GET "https://nas.local/api/v1/audit/logs?limit=20&category=auth&start_ti
     "entries": [
       {
         "id": "audit-20260315111300-001",
-        "timestamp": "2026-03-15T11:13:00Z",
+        "timestamp": "2026-03-16T11:13:00Z",
         "level": "info",
         "category": "auth",
         "event": "login",
@@ -71,7 +71,7 @@ curl -X GET "https://nas.local/api/v1/audit/logs?limit=20&category=auth&start_ti
       },
       {
         "id": "audit-20260315111230-002",
-        "timestamp": "2026-03-15T11:12:30Z",
+        "timestamp": "2026-03-16T11:12:30Z",
         "level": "warning",
         "category": "auth",
         "event": "login_failed",
@@ -112,7 +112,7 @@ curl -X GET "https://nas.local/api/v1/audit/logs/audit-20260315111300-001" \
   "message": "success",
   "data": {
     "id": "audit-20260315111300-001",
-    "timestamp": "2026-03-15T11:13:00Z",
+    "timestamp": "2026-03-16T11:13:00Z",
     "level": "info",
     "category": "auth",
     "event": "login",
@@ -259,9 +259,9 @@ curl -X GET "https://nas.local/api/v1/audit/compliance/report?standard=gdpr" \
   "data": {
     "report_id": "rpt-20260315-001",
     "standard": "gdpr",
-    "generated_at": "2026-03-15T11:13:00Z",
+    "generated_at": "2026-03-16T11:13:00Z",
     "period_start": "2026-02-13T00:00:00Z",
-    "period_end": "2026-03-15T11:13:00Z",
+    "period_end": "2026-03-16T11:13:00Z",
     "summary": {
       "total_events": 15420,
       "auth_events": 4560,
@@ -327,7 +327,7 @@ GET /api/v1/audit/integrity
   "code": 0,
   "message": "success",
   "data": {
-    "generated_at": "2026-03-15T11:13:00Z",
+    "generated_at": "2026-03-16T11:13:00Z",
     "total_entries": 15420,
     "verified": 15420,
     "tampered": 0,

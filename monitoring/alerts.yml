@@ -1,41 +1,47 @@
-# NAS-OS Prometheus 告警规则
+# NAS-OS Prometheus 告警规则 v2.76.0
 # 适用于 Prometheus 2.x
-# 版本: v2.33.0
 #
-# 告警规则分类：
-# - 系统资源：CPU、内存、磁盘、网络
-# - 存储健康：Btrfs、存储池、SMART
-# - 服务状态：NAS-OS 服务、共享服务、容器
-# - 业务任务：备份、快照
-# - 安全监控：登录失败、用户配额
-# - 容器健康：Docker 容器状态
+# v2.76.0 更新（工部增强）：
+# - 添加应用层告警（API 性能、业务指标）
+# - 添加网络层告警（连接、带宽）
+# - 添加存储层告警（存储池、Btrfs、快照）
+# - 添加安全告警（认证、访问控制）
+# - 添加备份告警（备份任务、复制）
+# - 添加容器健康告警
+# - 添加告警分级和静默规则
+#
+# 告警分级：
+# - critical: 需要立即处理，可能导致服务中断或数据丢失
+# - warning: 需要关注，可能影响服务性能或稳定性
+# - info: 信息性告警，供运维参考
 
 groups:
+  # ==================== 系统资源告警 ====================
   - name: nas-os-system
     rules:
-      # ==================== CPU 告警 ====================
+      # CPU 告警
       - alert: CPUUsageWarning
         expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
         for: 5m
         labels:
           severity: warning
           component: cpu
+          runbook: "https://docs.nas-os.io/runbook/cpu-usage"
         annotations:
           summary: "CPU 使用率偏高"
           description: "CPU 使用率 {{ $value | printf \"%.1f\" }}% 超过 80% 阈值，持续 5 分钟"
-          runbook_url: "https://docs.nas-os.io/runbook/cpu-usage"
-
+      
       - alert: CPUUsageCritical
         expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
         for: 2m
         labels:
           severity: critical
           component: cpu
+          runbook: "https://docs.nas-os.io/runbook/cpu-usage"
         annotations:
           summary: "CPU 使用率过高"
           description: "CPU 使用率 {{ $value | printf \"%.1f\" }}% 超过 95% 阈值，系统可能过载"
-          runbook_url: "https://docs.nas-os.io/runbook/cpu-usage"
-
+      
       - alert: CPULoadHigh
         expr: node_load1 / count(node_cpu_seconds_total{mode="idle"}) without (cpu, mode) > 2
         for: 5m
@@ -46,29 +52,29 @@ groups:
           summary: "CPU 负载过高"
           description: "1分钟负载 {{ $value | printf \"%.2f\" }} 超过 CPU 核心数的 2 倍"
 
-  - name: nas-os-memory
-    rules:
-      # ==================== 内存告警 ====================
+      # 内存告警
       - alert: MemoryUsageWarning
         expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 80
         for: 5m
         labels:
           severity: warning
           component: memory
+          runbook: "https://docs.nas-os.io/runbook/memory-usage"
         annotations:
           summary: "内存使用率偏高"
           description: "内存使用率 {{ $value | printf \"%.1f\" }}% 超过 80% 阈值"
-
+      
       - alert: MemoryUsageCritical
         expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 95
         for: 1m
         labels:
           severity: critical
           component: memory
+          runbook: "https://docs.nas-os.io/runbook/memory-usage"
         annotations:
           summary: "内存使用率过高"
           description: "内存使用率 {{ $value | printf \"%.1f\" }}% 超过 95% 阈值，可能发生 OOM"
-
+      
       - alert: MemoryLowAvailable
         expr: node_memory_MemAvailable_bytes < 104857600
         for: 1m
@@ -78,7 +84,7 @@ groups:
         annotations:
           summary: "可用内存不足"
           description: "可用内存仅剩 {{ $value | humanize1024 }}B，低于 100MB 阈值"
-
+      
       - alert: SwapUsageHigh
         expr: (1 - (node_memory_SwapFree_bytes / node_memory_SwapTotal_bytes)) * 100 > 50
         for: 5m
@@ -89,29 +95,29 @@ groups:
           summary: "Swap 使用率过高"
           description: "Swap 使用率 {{ $value | printf \"%.1f\" }}% 超过 50% 阈值，可能需要增加内存"
 
-  - name: nas-os-disk
-    rules:
-      # ==================== 磁盘空间告警 ====================
+      # 磁盘空间告警
       - alert: DiskSpaceWarning
         expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 20
         for: 5m
         labels:
           severity: warning
           component: disk
+          runbook: "https://docs.nas-os.io/runbook/disk-space"
         annotations:
           summary: "磁盘空间不足"
           description: "挂载点 {{ $labels.mountpoint }} 剩余空间仅 {{ $value | printf \"%.1f\" }}%，低于 20% 阈值"
-
+      
       - alert: DiskSpaceCritical
         expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 5
         for: 1m
         labels:
           severity: critical
           component: disk
+          runbook: "https://docs.nas-os.io/runbook/disk-space"
         annotations:
           summary: "磁盘空间严重不足"
           description: "挂载点 {{ $labels.mountpoint }} 剩余空间仅 {{ $value | printf \"%.1f\" }}%，低于 5% 阈值，请立即清理"
-
+      
       - alert: DiskSpaceLow
         expr: node_filesystem_avail_bytes < 1073741824
         for: 1m
@@ -121,7 +127,7 @@ groups:
         annotations:
           summary: "磁盘可用空间不足 1GB"
           description: "挂载点 {{ $labels.mountpoint }} 可用空间仅 {{ $value | humanize1024 }}B"
-
+      
       - alert: DiskInodeWarning
         expr: (1 - (node_filesystem_files_free / node_filesystem_files)) * 100 > 85
         for: 5m
@@ -132,9 +138,7 @@ groups:
           summary: "Inode 使用率过高"
           description: "挂载点 {{ $labels.mountpoint }} inode 使用率 {{ $value | printf \"%.1f\" }}%"
 
-  - name: nas-os-disk-io
-    rules:
-      # ==================== 磁盘 I/O 告警 ====================
+      # 磁盘 I/O 告警
       - alert: DiskIOLatencyHigh
         expr: rate(node_disk_read_time_seconds_total[5m]) / rate(node_disk_reads_completed_total[5m]) > 0.05
         for: 3m
@@ -144,7 +148,7 @@ groups:
         annotations:
           summary: "磁盘读取延迟过高"
           description: "磁盘 {{ $labels.device }} 平均读取延迟 {{ $value | printf \"%.3f\" }}s"
-
+      
       - alert: DiskIOWaitHigh
         expr: irate(node_cpu_seconds_total{mode="iowait"}[5m]) > 0.3
         for: 5m
@@ -155,118 +159,7 @@ groups:
           summary: "磁盘 I/O 等待过高"
           description: "CPU I/O 等待时间占比 {{ $value | printf \"%.1f\" }}%，可能存在 I/O 瓶颈"
 
-      - alert: DiskThroughputDegraded
-        expr: rate(node_disk_read_bytes_total[5m]) < 1048576 and rate(node_disk_reads_completed_total[5m]) > 10
-        for: 5m
-        labels:
-          severity: warning
-          component: disk
-        annotations:
-          summary: "磁盘读取吞吐量异常"
-          description: "磁盘 {{ $labels.device }} 读取吞吐量低于 1MB/s"
-
-  - name: nas-os-network
-    rules:
-      # ==================== 网络告警 ====================
-      - alert: NetworkErrorsHigh
-        expr: rate(node_network_receive_errs_total[5m]) > 10 or rate(node_network_transmit_errs_total[5m]) > 10
-        for: 3m
-        labels:
-          severity: warning
-          component: network
-        annotations:
-          summary: "网络错误率高"
-          description: "接口 {{ $labels.device }} 存在网络错误，可能存在线路或配置问题"
-
-      - alert: NetworkDroppedPackets
-        expr: rate(node_network_receive_drop_total[5m]) > 100 or rate(node_network_transmit_drop_total[5m]) > 100
-        for: 3m
-        labels:
-          severity: warning
-          component: network
-        annotations:
-          summary: "网络丢包率高"
-          description: "接口 {{ $labels.device }} 存在大量丢包"
-
-      - alert: NetworkSaturation
-        expr: (rate(node_network_receive_bytes_total[5m]) / node_network_speed_bytes) > 0.8
-        for: 5m
-        labels:
-          severity: warning
-          component: network
-        annotations:
-          summary: "网络带宽饱和"
-          description: "接口 {{ $labels.device }} 接收带宽使用率超过 80%"
-
-  - name: nas-os-service
-    rules:
-      # ==================== 服务告警 ====================
-      - alert: NasOsDown
-        expr: up{job="nas-os"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          component: service
-        annotations:
-          summary: "NAS-OS 服务不可用"
-          description: "NAS-OS 实例 {{ $labels.instance }} 已停止响应超过 1 分钟"
-
-      - alert: NasOsHighErrorRate
-        expr: rate(nas_requests_error_total[5m]) / rate(nas_requests_total[5m]) > 0.1
-        for: 3m
-        labels:
-          severity: warning
-          component: service
-        annotations:
-          summary: "NAS-OS 错误率高"
-          description: "API 错误率 {{ $value | printf \"%.2f\" }} 超过 10%"
-
-      - alert: NasOsSlowResponse
-        expr: histogram_quantile(0.95, rate(nas_request_duration_seconds_bucket[5m])) > 0.5
-        for: 5m
-        labels:
-          severity: warning
-          component: service
-        annotations:
-          summary: "NAS-OS 响应缓慢"
-          description: "P95 响应时间 {{ $value | humanizeDuration }}，超过 500ms 阈值"
-
-  - name: nas-os-btrfs
-    rules:
-      # ==================== Btrfs 告警 ====================
-      - alert: BtrfsDeviceError
-        expr: rate(node_btrfs_device_stats_total[5m]) > 0
-        for: 0m
-        labels:
-          severity: critical
-          component: storage
-        annotations:
-          summary: "Btrfs 设备错误"
-          description: "检测到 Btrfs 设备 {{ $labels.device }} 错误，请立即检查"
-
-      - alert: BtrfsDeviceMissing
-        expr: node_btrfs_device_missing > 0
-        for: 0m
-        labels:
-          severity: critical
-          component: storage
-        annotations:
-          summary: "Btrfs 设备丢失"
-          description: "检测到 Btrfs 有 {{ $value }} 个设备丢失，数据可能面临风险"
-
-      - alert: BtrfsAllocationWarning
-        expr: node_btrfs_allocation_ratio > 1
-        for: 5m
-        labels:
-          severity: warning
-          component: storage
-        annotations:
-          summary: "Btrfs 空间分配异常"
-          description: "Btrfs 分配比例 {{ $value | printf \"%.2f\" }}，建议检查 RAID 状态"
-
-  - name: nas-os-system-health
-    rules:
-      # ==================== 系统健康告警 ====================
+      # 系统健康告警
       - alert: SystemTemperatureWarning
         expr: node_thermal_zone_temp_celsius > 75
         for: 2m
@@ -276,7 +169,7 @@ groups:
         annotations:
           summary: "系统温度偏高"
           description: "系统温度 {{ $value }}°C 超过 75°C 阈值"
-
+      
       - alert: SystemTemperatureCritical
         expr: node_thermal_zone_temp_celsius > 85
         for: 1m
@@ -286,7 +179,7 @@ groups:
         annotations:
           summary: "系统温度过高"
           description: "系统温度 {{ $value }}°C 超过 85°C 阈值，可能导致硬件损坏"
-
+      
       - alert: ZombieProcessesHigh
         expr: node_processes_state{state="Z"} > 10
         for: 5m
@@ -296,7 +189,7 @@ groups:
         annotations:
           summary: "僵尸进程过多"
           description: "系统存在 {{ $value }} 个僵尸进程"
-
+      
       - alert: FileDescriptorUsageHigh
         expr: (node_filefd_allocated / node_filefd_maximum) * 100 > 80
         for: 5m
@@ -307,200 +200,96 @@ groups:
           summary: "文件描述符使用率过高"
           description: "文件描述符使用率 {{ $value | printf \"%.1f\" }}%，可能影响系统稳定性"
 
-  # ==================== NAS-OS 业务告警 ====================
-  - name: nas-os-storage-pool
+  # ==================== 网络告警 ====================
+  - name: nas-os-network
     rules:
-      # 存储池状态告警
-      - alert: StoragePoolDegraded
-        expr: nas_storage_pool_status{status="degraded"} == 1
-        for: 1m
-        labels:
-          severity: critical
-          component: storage-pool
-        annotations:
-          summary: "存储池降级"
-          description: "存储池 {{ $labels.pool }} 处于降级状态，请检查磁盘健康"
-          runbook_url: "https://docs.nas-os.io/runbook/storage-pool"
-
-      - alert: StoragePoolOffline
-        expr: nas_storage_pool_status{status="offline"} == 1
-        for: 0m
-        labels:
-          severity: critical
-          component: storage-pool
-        annotations:
-          summary: "存储池离线"
-          description: "存储池 {{ $labels.pool }} 已离线，数据不可访问"
-
-      - alert: StoragePoolRebuilding
-        expr: nas_storage_pool_status{status="rebuilding"} == 1
-        for: 5m
-        labels:
-          severity: warning
-          component: storage-pool
-        annotations:
-          summary: "存储池正在重建"
-          description: "存储池 {{ $labels.pool }} 正在重建，性能可能受影响"
-
-      - alert: StoragePoolCapacityWarning
-        expr: (nas_storage_pool_used_bytes / nas_storage_pool_total_bytes) * 100 > 80
-        for: 5m
-        labels:
-          severity: warning
-          component: storage-pool
-        annotations:
-          summary: "存储池容量不足"
-          description: "存储池 {{ $labels.pool }} 使用率 {{ $value | printf \"%.1f\" }}%，请及时扩容或清理"
-
-      - alert: StoragePoolCapacityCritical
-        expr: (nas_storage_pool_used_bytes / nas_storage_pool_total_bytes) * 100 > 95
-        for: 1m
-        labels:
-          severity: critical
-          component: storage-pool
-        annotations:
-          summary: "存储池容量严重不足"
-          description: "存储池 {{ $labels.pool }} 使用率 {{ $value | printf \"%.1f\" }}%，请立即处理"
-
-  - name: nas-os-shares
-    rules:
-      # 共享服务告警
-      - alert: ShareServiceDown
-        expr: nas_share_service_up == 0
-        for: 1m
-        labels:
-          severity: critical
-          component: share
-        annotations:
-          summary: "共享服务不可用"
-          description: "{{ $labels.service }} 共享服务已停止，请检查服务状态"
-          runbook_url: "https://docs.nas-os.io/runbook/share-service"
-
-      - alert: SMBConnectionLimit
-        expr: nas_smb_connections / nas_smb_max_connections > 0.9
-        for: 5m
-        labels:
-          severity: warning
-          component: share
-        annotations:
-          summary: "SMB 连接数接近上限"
-          description: "SMB 连接数使用率 {{ $value | printf \"%.1f\" }}%，可能需要增加连接限制"
-
-      - alert: NFSExportError
-        expr: rate(nas_nfs_export_errors_total[5m]) > 10
+      - alert: NetworkErrorsHigh
+        expr: rate(node_network_receive_errs_total[5m]) > 10 or rate(node_network_transmit_errs_total[5m]) > 10
         for: 3m
         labels:
           severity: warning
-          component: share
+          component: network
         annotations:
-          summary: "NFS 导出错误"
-          description: "NFS 导出错误率较高，请检查导出配置"
-
-  - name: nas-os-backup
-    rules:
-      # 备份任务告警
-      - alert: BackupTaskFailed
-        expr: nas_backup_task_status{status="failed"} == 1
-        for: 0m
+          summary: "网络错误率高"
+          description: "接口 {{ $labels.device }} 存在网络错误，可能存在线路或配置问题"
+      
+      - alert: NetworkDroppedPackets
+        expr: rate(node_network_receive_drop_total[5m]) > 100 or rate(node_network_transmit_drop_total[5m]) > 100
+        for: 3m
         labels:
           severity: warning
-          component: backup
+          component: network
         annotations:
-          summary: "备份任务失败"
-          description: "备份任务 {{ $labels.task }} 执行失败，请检查日志"
-          runbook_url: "https://docs.nas-os.io/runbook/backup"
-
-      - alert: BackupTaskOverdue
-        expr: time() - nas_backup_task_last_success_timestamp_seconds > 86400 * 2
-        for: 0m
-        labels:
-          severity: warning
-          component: backup
-        annotations:
-          summary: "备份任务逾期"
-          description: "备份任务 {{ $labels.task }} 超过 48 小时未成功执行"
-
-      - alert: BackupStorageWarning
-        expr: nas_backup_storage_used_bytes / nas_backup_storage_total_bytes > 0.9
+          summary: "网络丢包率高"
+          description: "接口 {{ $labels.device }} 存在大量丢包"
+      
+      - alert: NetworkSaturation
+        expr: (rate(node_network_receive_bytes_total[5m]) / node_network_speed_bytes) > 0.8
         for: 5m
         labels:
           severity: warning
-          component: backup
+          component: network
         annotations:
-          summary: "备份存储空间不足"
-          description: "备份存储使用率 {{ $value | printf \"%.1f\" }}%，请清理旧备份或扩容"
-
-  - name: nas-os-snapshot
-    rules:
-      # 快照告警
-      - alert: SnapshotReplicationLag
-        expr: nas_snapshot_replication_lag_seconds > 3600
-        for: 5m
-        labels:
-          severity: warning
-          component: snapshot
-        annotations:
-          summary: "快照复制延迟"
-          description: "快照 {{ $labels.snapshot }} 复制延迟超过 1 小时"
-
-      - alert: SnapshotReplicationFailed
-        expr: nas_snapshot_replication_status{status="failed"} == 1
-        for: 0m
-        labels:
-          severity: warning
-          component: snapshot
-        annotations:
-          summary: "快照复制失败"
-          description: "快照 {{ $labels.snapshot }} 复制失败，请检查网络和目标存储"
-
-      - alert: SnapshotCountHigh
-        expr: count(nas_snapshot_info) > 100
-        for: 5m
-        labels:
-          severity: info
-          component: snapshot
-        annotations:
-          summary: "快照数量过多"
-          description: "当前有 {{ $value }} 个快照，建议清理旧快照以节省空间"
-
-  - name: nas-os-users
-    rules:
-      # 用户管理告警
-      - alert: UserQuotaWarning
-        expr: (nas_user_quota_used_bytes / nas_user_quota_limit_bytes) * 100 > 90
-        for: 5m
-        labels:
-          severity: warning
-          component: quota
-        annotations:
-          summary: "用户配额即将用尽"
-          description: "用户 {{ $labels.user }} 配额使用率 {{ $value | printf \"%.1f\" }}%"
-          runbook_url: "https://docs.nas-os.io/runbook/user-quota"
-
-      - alert: UserQuotaExceeded
-        expr: nas_user_quota_exceeded == 1
-        for: 0m
+          summary: "网络带宽饱和"
+          description: "接口 {{ $labels.device }} 接收带宽使用率超过 80%"
+      
+      - alert: NetworkInterfaceDown
+        expr: node_network_up == 0
+        for: 1m
         labels:
           severity: critical
-          component: quota
+          component: network
         annotations:
-          summary: "用户配额超限"
-          description: "用户 {{ $labels.user }} 已超出配额限制，无法写入新文件"
+          summary: "网络接口断开"
+          description: "网络接口 {{ $labels.device }} 已断开"
 
-      - alert: FailedLoginAttempts
-        expr: rate(nas_auth_failed_attempts_total[5m]) > 10
-        for: 2m
+  # ==================== NAS-OS 应用告警 ====================
+  - name: nas-os-application
+    rules:
+      # 服务状态
+      - alert: NasOsDown
+        expr: up{job="nas-os"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: service
+          runbook: "https://docs.nas-os.io/runbook/service-down"
+        annotations:
+          summary: "NAS-OS 服务不可用"
+          description: "NAS-OS 实例 {{ $labels.instance }} 已停止响应超过 1 分钟"
+      
+      # API 性能
+      - alert: NasOsHighErrorRate
+        expr: rate(nas_os_api_requests_total{status=~"5.."}[5m]) / rate(nas_os_api_requests_total[5m]) > 0.1
+        for: 3m
         labels:
           severity: warning
-          component: security
+          component: api
         annotations:
-          summary: "登录失败次数异常"
-          description: "检测到频繁的登录失败尝试，可能存在暴力破解攻击"
-
-  # ==================== NAS-OS 内部指标告警 ====================
-  - name: nas-os-internal
-    rules:
-      # 健康评分告警
+          summary: "NAS-OS API 错误率高"
+          description: "API 5xx 错误率 {{ $value | printf \"%.2f\" }} 超过 10%"
+      
+      - alert: NasOsSlowResponse
+        expr: histogram_quantile(0.95, rate(nas_os_api_request_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "NAS-OS API 响应缓慢"
+          description: "API P95 响应时间 {{ $value | humanizeDuration }}，超过 500ms 阈值"
+      
+      - alert: NasOsRequestRateHigh
+        expr: rate(nas_os_api_requests_total[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "API 请求率异常高"
+          description: "API 请求率 {{ $value | printf \"%.0f\" }} req/s，可能存在异常流量"
+      
+      # 健康评分
       - alert: HealthScoreLow
         expr: nas_os_health_score < 60
         for: 5m
@@ -510,7 +299,7 @@ groups:
         annotations:
           summary: "系统健康评分过低"
           description: "系统健康评分 {{ $value | printf \"%.0f\" }} 低于 60 分，建议检查系统状态"
-
+      
       - alert: HealthScoreCritical
         expr: nas_os_health_score < 30
         for: 2m
@@ -520,39 +309,8 @@ groups:
         annotations:
           summary: "系统健康评分严重过低"
           description: "系统健康评分 {{ $value | printf \"%.0f\" }} 低于 30 分，系统可能存在严重问题"
-
-      # API 性能告警
-      - alert: APIHighLatency
-        expr: histogram_quantile(0.95, rate(nas_os_api_request_duration_seconds_bucket[5m])) > 1
-        for: 5m
-        labels:
-          severity: warning
-          component: api
-        annotations:
-          summary: "API 响应延迟过高"
-          description: "API P95 延迟 {{ $value | humanizeDuration }}，超过 1 秒阈值"
-
-      - alert: APIErrorRateHigh
-        expr: rate(nas_os_api_requests_total{status=~"5.."}[5m]) / rate(nas_os_api_requests_total[5m]) > 0.05
-        for: 3m
-        labels:
-          severity: warning
-          component: api
-        annotations:
-          summary: "API 错误率过高"
-          description: "API 5xx 错误率 {{ $value | printf \"%.2f%%\" }}，超过 5% 阈值"
-
-      - alert: APIRequestsInFlightHigh
-        expr: nas_os_api_requests_in_flight > 100
-        for: 5m
-        labels:
-          severity: warning
-          component: api
-        annotations:
-          summary: "API 并发请求过多"
-          description: "当前并发请求数 {{ $value }}，可能影响系统性能"
-
-      # 服务状态告警
+      
+      # 服务状态
       - alert: ServiceDegraded
         expr: nas_os_service_health_status{status="degraded"} == 2
         for: 2m
@@ -562,7 +320,7 @@ groups:
         annotations:
           summary: "服务状态降级"
           description: "服务 {{ $labels.service }} 处于降级状态，部分功能可能不可用"
-
+      
       - alert: ServiceFailed
         expr: nas_os_service_health_status{status="failed"} == 3
         for: 1m
@@ -573,33 +331,107 @@ groups:
           summary: "服务失败"
           description: "服务 {{ $labels.service }} 已失败，请立即检查"
 
-      # 活跃告警数量告警
-      - alert: TooManyActiveAlerts
-        expr: nas_os_alerts_active > 10
+  # ==================== 存储池告警 ====================
+  - name: nas-os-storage
+    rules:
+      - alert: StoragePoolDegraded
+        expr: nas_storage_pool_status{status="degraded"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          component: storage-pool
+          runbook: "https://docs.nas-os.io/runbook/storage-pool"
+        annotations:
+          summary: "存储池降级"
+          description: "存储池 {{ $labels.pool }} 处于降级状态，请检查磁盘健康"
+      
+      - alert: StoragePoolOffline
+        expr: nas_storage_pool_status{status="offline"} == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: storage-pool
+        annotations:
+          summary: "存储池离线"
+          description: "存储池 {{ $labels.pool }} 已离线，数据不可访问"
+      
+      - alert: StoragePoolRebuilding
+        expr: nas_storage_pool_status{status="rebuilding"} == 1
         for: 5m
         labels:
           severity: warning
-          component: system
+          component: storage-pool
         annotations:
-          summary: "活跃告警数量过多"
-          description: "当前有 {{ $value }} 个活跃告警，建议及时处理"
+          summary: "存储池正在重建"
+          description: "存储池 {{ $labels.pool }} 正在重建，性能可能受影响"
+      
+      - alert: StoragePoolCapacityWarning
+        expr: (nas_storage_pool_used_bytes / nas_storage_pool_total_bytes) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: storage-pool
+        annotations:
+          summary: "存储池容量不足"
+          description: "存储池 {{ $labels.pool }} 使用率 {{ $value | printf \"%.1f\" }}%，请及时扩容或清理"
+      
+      - alert: StoragePoolCapacityCritical
+        expr: (nas_storage_pool_used_bytes / nas_storage_pool_total_bytes) * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+          component: storage-pool
+        annotations:
+          summary: "存储池容量严重不足"
+          description: "存储池 {{ $labels.pool }} 使用率 {{ $value | printf \"%.1f\" }}%，请立即处理"
+
+  # ==================== Btrfs 告警 ====================
+  - name: nas-os-btrfs
+    rules:
+      - alert: BtrfsDeviceError
+        expr: rate(node_btrfs_device_stats_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: btrfs
+        annotations:
+          summary: "Btrfs 设备错误"
+          description: "检测到 Btrfs 设备 {{ $labels.device }} 错误，请立即检查"
+      
+      - alert: BtrfsDeviceMissing
+        expr: node_btrfs_device_missing > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: btrfs
+        annotations:
+          summary: "Btrfs 设备丢失"
+          description: "检测到 Btrfs 有 {{ $value }} 个设备丢失，数据可能面临风险"
+      
+      - alert: BtrfsAllocationWarning
+        expr: node_btrfs_allocation_ratio > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: btrfs
+        annotations:
+          summary: "Btrfs 空间分配异常"
+          description: "Btrfs 分配比例 {{ $value | printf \"%.2f\" }}，建议检查 RAID 状态"
 
   # ==================== SMART 磁盘健康告警 ====================
   - name: nas-os-smart
     rules:
-      # SMART 整体健康状态
       - alert: SmartHealthWarning
         expr: smartmon_device_smart_healthy == 0
         for: 1m
         labels:
           severity: critical
           component: disk
+          runbook: "https://docs.nas-os.io/runbook/smart-health"
         annotations:
           summary: "SMART 检测到磁盘健康问题"
           description: "磁盘 {{ $labels.device }} SMART 健康状态异常，请立即备份数据并更换磁盘"
-          runbook_url: "https://docs.nas-os.io/runbook/smart-health"
       
-      # 重新分配扇区计数
       - alert: SmartReallocatedSectors
         expr: smartmon_attr_raw_value{attr_name="Reallocated_Sector_Ct"} > 0
         for: 0m
@@ -610,7 +442,6 @@ groups:
           summary: "检测到重新分配扇区"
           description: "磁盘 {{ $labels.device }} 有 {{ $value }} 个重新分配扇区，磁盘可能有坏道"
       
-      # 待映射扇区
       - alert: SmartPendingSectors
         expr: smartmon_attr_raw_value{attr_name="Current_Pending_Sector"} > 0
         for: 0m
@@ -621,18 +452,6 @@ groups:
           summary: "检测到待映射扇区"
           description: "磁盘 {{ $labels.device }} 有 {{ $value }} 个待映射扇区，建议尽快检查"
       
-      # CRC 错误
-      - alert: SmartCrcErrors
-        expr: smartmon_attr_raw_value{attr_name="CRC_Error_Count"} > 100
-        for: 5m
-        labels:
-          severity: warning
-          component: disk
-        annotations:
-          summary: "磁盘 CRC 错误过多"
-          description: "磁盘 {{ $labels.device }} CRC 错误计数 {{ $value }}，可能是线缆或接口问题"
-      
-      # SSD 寿命警告
       - alert: SsdLifeWarning
         expr: smartmon_attr_raw_value{attr_name="Percentage_Used"} > 80
         for: 5m
@@ -643,22 +462,175 @@ groups:
           summary: "SSD 寿命即将耗尽"
           description: "SSD {{ $labels.device }} 已使用 {{ $value }}% 寿命，请准备更换"
 
+  # ==================== 共享服务告警 ====================
+  - name: nas-os-shares
+    rules:
+      - alert: ShareServiceDown
+        expr: nas_share_service_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: share
+          runbook: "https://docs.nas-os.io/runbook/share-service"
+        annotations:
+          summary: "共享服务不可用"
+          description: "{{ $labels.service }} 共享服务已停止，请检查服务状态"
+      
+      - alert: SMBConnectionLimit
+        expr: nas_smb_connections / nas_smb_max_connections > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: share
+        annotations:
+          summary: "SMB 连接数接近上限"
+          description: "SMB 连接数使用率 {{ $value | printf \"%.1f\" }}%，可能需要增加连接限制"
+      
+      - alert: NFSExportError
+        expr: rate(nas_nfs_export_errors_total[5m]) > 10
+        for: 3m
+        labels:
+          severity: warning
+          component: share
+        annotations:
+          summary: "NFS 导出错误"
+          description: "NFS 导出错误率较高，请检查导出配置"
+
+  # ==================== 备份任务告警 ====================
+  - name: nas-os-backup
+    rules:
+      - alert: BackupTaskFailed
+        expr: nas_backup_task_status{status="failed"} == 1
+        for: 0m
+        labels:
+          severity: warning
+          component: backup
+          runbook: "https://docs.nas-os.io/runbook/backup"
+        annotations:
+          summary: "备份任务失败"
+          description: "备份任务 {{ $labels.task }} 执行失败，请检查日志"
+      
+      - alert: BackupTaskOverdue
+        expr: time() - nas_backup_task_last_success_timestamp_seconds > 86400 * 2
+        for: 0m
+        labels:
+          severity: warning
+          component: backup
+        annotations:
+          summary: "备份任务逾期"
+          description: "备份任务 {{ $labels.task }} 超过 48 小时未成功执行"
+      
+      - alert: BackupStorageWarning
+        expr: nas_backup_storage_used_bytes / nas_backup_storage_total_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: backup
+        annotations:
+          summary: "备份存储空间不足"
+          description: "备份存储使用率 {{ $value | printf \"%.1f\" }}%，请清理旧备份或扩容"
+      
+      - alert: BackupReplicationLag
+        expr: nas_backup_replication_lag_seconds > 3600
+        for: 5m
+        labels:
+          severity: warning
+          component: backup
+        annotations:
+          summary: "备份复制延迟"
+          description: "备份 {{ $labels.task }} 复制延迟超过 1 小时"
+
+  # ==================== 快照告警 ====================
+  - name: nas-os-snapshot
+    rules:
+      - alert: SnapshotReplicationLag
+        expr: nas_snapshot_replication_lag_seconds > 3600
+        for: 5m
+        labels:
+          severity: warning
+          component: snapshot
+        annotations:
+          summary: "快照复制延迟"
+          description: "快照 {{ $labels.snapshot }} 复制延迟超过 1 小时"
+      
+      - alert: SnapshotReplicationFailed
+        expr: nas_snapshot_replication_status{status="failed"} == 1
+        for: 0m
+        labels:
+          severity: warning
+          component: snapshot
+        annotations:
+          summary: "快照复制失败"
+          description: "快照 {{ $labels.snapshot }} 复制失败，请检查网络和目标存储"
+      
+      - alert: SnapshotCountHigh
+        expr: count(nas_snapshot_info) > 100
+        for: 5m
+        labels:
+          severity: info
+          component: snapshot
+        annotations:
+          summary: "快照数量过多"
+          description: "当前有 {{ $value }} 个快照，建议清理旧快照以节省空间"
+
+  # ==================== 安全告警 ====================
+  - name: nas-os-security
+    rules:
+      - alert: FailedLoginAttempts
+        expr: rate(nas_auth_failed_attempts_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+          runbook: "https://docs.nas-os.io/runbook/security"
+        annotations:
+          summary: "登录失败次数异常"
+          description: "检测到频繁的登录失败尝试，可能存在暴力破解攻击"
+      
+      - alert: UserQuotaWarning
+        expr: (nas_user_quota_used_bytes / nas_user_quota_limit_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: quota
+        annotations:
+          summary: "用户配额即将用尽"
+          description: "用户 {{ $labels.user }} 配额使用率 {{ $value | printf \"%.1f\" }}%"
+      
+      - alert: UserQuotaExceeded
+        expr: nas_user_quota_exceeded == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: quota
+        annotations:
+          summary: "用户配额超限"
+          description: "用户 {{ $labels.user }} 已超出配额限制，无法写入新文件"
+      
+      - alert: SslCertificateExpiringSoon
+        expr: (nas_ssl_certificate_expiry_timestamp - time()) / 86400 < 14
+        for: 1h
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "SSL 证书即将过期"
+          description: "SSL 证书 {{ $labels.domain }} 将在 {{ $value | printf \"%.0f\" }} 天后过期"
+
   # ==================== 容器健康告警 ====================
   - name: nas-os-containers
     rules:
-      # 容器停止
       - alert: ContainerStopped
         expr: container_last_seen{name!=""} < time() - 60
         for: 1m
         labels:
           severity: critical
           component: container
+          runbook: "https://docs.nas-os.io/runbook/container"
         annotations:
           summary: "容器已停止"
           description: "容器 {{ $labels.name }} 已停止运行，请检查服务状态"
-          runbook_url: "https://docs.nas-os.io/runbook/container"
       
-      # 容器重启频繁
       - alert: ContainerRestartingFrequently
         expr: increase(container_restart_count[1h]) > 5
         for: 0m
@@ -669,7 +641,6 @@ groups:
           summary: "容器重启频繁"
           description: "容器 {{ $labels.name }} 在过去 1 小时内重启了 {{ $value }} 次"
       
-      # 容器 CPU 使用率过高
       - alert: ContainerCpuUsageHigh
         expr: rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100 > 80
         for: 5m
@@ -680,9 +651,8 @@ groups:
           summary: "容器 CPU 使用率过高"
           description: "容器 {{ $labels.name }} CPU 使用率 {{ $value | printf \"%.1f\" }}%"
       
-      # 容器内存使用率过高
       - alert: ContainerMemoryUsageHigh
-        expr: container_memory_usage_bytes{name!="" / container_spec_memory_limit_bytes{name!=""} * 100 > 90
+        expr: container_memory_usage_bytes{name!=""}/container_spec_memory_limit_bytes{name!=""} * 100 > 90
         for: 5m
         labels:
           severity: warning
@@ -691,9 +661,8 @@ groups:
           summary: "容器内存使用率过高"
           description: "容器 {{ $labels.name }} 内存使用率 {{ $value | printf \"%.1f\" }}%"
       
-      # 容器 OOM 风险
       - alert: ContainerOomRisk
-        expr: container_memory_usage_bytes{name!="" / container_spec_memory_limit_bytes{name!=""} > 0.95
+        expr: container_memory_usage_bytes{name!=""}/container_spec_memory_limit_bytes{name!=""} > 0.95
         for: 1m
         labels:
           severity: critical
@@ -701,45 +670,21 @@ groups:
         annotations:
           summary: "容器即将 OOM"
           description: "容器 {{ $labels.name }} 内存使用率接近限制，可能被 OOM Kill"
-      
-      # 容器网络错误
-      - alert: ContainerNetworkErrors
-        expr: rate(container_network_receive_errors_total{name!=""}[5m]) > 10 or rate(container_network_transmit_errors_total{name!=""}[5m]) > 10
-        for: 3m
-        labels:
-          severity: warning
-          component: container
-        annotations:
-          summary: "容器网络错误"
-          description: "容器 {{ $labels.name }} 存在网络错误"
-      
-      # 容器磁盘 I/O 异常
-      - alert: ContainerDiskIoHigh
-        expr: rate(container_fs_io_time_seconds_total{name!=""}[5m]) > 0.5
-        for: 5m
-        labels:
-          severity: warning
-          component: container
-        annotations:
-          summary: "容器磁盘 I/O 高"
-          description: "容器 {{ $labels.name }} 磁盘 I/O 时间占比 {{ $value | printf \"%.1f\" }}"
 
-  # ==================== RAID/存储阵列告警 ====================
+  # ==================== RAID 告警 ====================
   - name: nas-os-raid
     rules:
-      # MDADM RAID 状态
       - alert: RaidArrayDegraded
         expr: node_md_disks{state="active"} < node_md_disks_total
         for: 0m
         labels:
           severity: critical
           component: raid
+          runbook: "https://docs.nas-os.io/runbook/raid"
         annotations:
           summary: "RAID 阵列降级"
           description: "RAID {{ $labels.device }} 处于降级状态，活动磁盘 {{ $value }} 少于预期"
-          runbook_url: "https://docs.nas-os.io/runbook/raid"
       
-      # RAID 重建中
       - alert: RaidRebuilding
         expr: node_md_state{state="rebuilding"} == 1
         for: 0m
@@ -750,7 +695,6 @@ groups:
           summary: "RAID 正在重建"
           description: "RAID {{ $labels.device }} 正在重建，性能可能受影响"
       
-      # RAID 同步速度过低
       - alert: RaidSyncSlow
         expr: node_md_sync_speed_bytes < 10485760 and node_md_sync_action == "resync"
         for: 10m

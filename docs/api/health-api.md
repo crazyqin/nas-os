@@ -1,7 +1,7 @@
 # 健康检查 API 文档
 
-**版本**: v2.67.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ## 概述
 
@@ -32,7 +32,7 @@ GET /api/v1/health
   "data": {
     "status": "healthy",
     "score": 95,
-    "timestamp": "2026-03-15T12:35:00Z",
+    "timestamp": "2026-03-16T12:35:00Z",
     "checks": [
       {
         "name": "cpu",
@@ -177,9 +177,9 @@ GET /api/v1/health/history?period=24h
   "data": {
     "period": "24h",
     "scores": [
-      {"timestamp": "2026-03-15T00:00:00Z", "score": 95},
-      {"timestamp": "2026-03-15T06:00:00Z", "score": 92},
-      {"timestamp": "2026-03-15T12:00:00Z", "score": 88}
+      {"timestamp": "2026-03-16T00:00:00Z", "score": 95},
+      {"timestamp": "2026-03-16T06:00:00Z", "score": 92},
+      {"timestamp": "2026-03-16T12:00:00Z", "score": 88}
     ],
     "average": 91.7,
     "min": 85,
