@@ -14,11 +14,11 @@ import (
 type NodeStatus string
 
 const (
-	NodeStatusOnline    NodeStatus = "online"    // 在线
-	NodeStatusOffline   NodeStatus = "offline"   // 离线
-	NodeStatusDegraded  NodeStatus = "degraded"  // 降级
-	NodeStatusRecovery  NodeStatus = "recovery"  // 恢复中
-	NodeStatusMaintain  NodeStatus = "maintain"  // 维护中
+	NodeStatusOnline   NodeStatus = "online"   // 在线
+	NodeStatusOffline  NodeStatus = "offline"  // 离线
+	NodeStatusDegraded NodeStatus = "degraded" // 降级
+	NodeStatusRecovery NodeStatus = "recovery" // 恢复中
+	NodeStatusMaintain NodeStatus = "maintain" // 维护中
 )
 
 // StorageNode 存储节点
@@ -44,24 +44,24 @@ type StorageNode struct {
 
 // NodeHealth 健康检查结果
 type NodeHealth struct {
-	NodeID        string        `json:"nodeId"`
-	Status        NodeStatus    `json:"status"`
-	Healthy       bool          `json:"healthy"`
-	ResponseTime  time.Duration `json:"responseTime"`
-	ErrorCount    int           `json:"errorCount"`
-	LastError     string        `json:"lastError,omitempty"`
-	CheckTime     time.Time     `json:"checkTime"`
-	Details       HealthDetails `json:"details"`
+	NodeID       string        `json:"nodeId"`
+	Status       NodeStatus    `json:"status"`
+	Healthy      bool          `json:"healthy"`
+	ResponseTime time.Duration `json:"responseTime"`
+	ErrorCount   int           `json:"errorCount"`
+	LastError    string        `json:"lastError,omitempty"`
+	CheckTime    time.Time     `json:"checkTime"`
+	Details      HealthDetails `json:"details"`
 }
 
 // HealthDetails 健康检查详情
 type HealthDetails struct {
-	DiskHealth      bool    `json:"diskHealth"`      // 磁盘健康
-	MemoryUsage     float64 `json:"memoryUsage"`     // 内存使用率
-	CPUUsage        float64 `json:"cpuUsage"`        // CPU 使用率
-	NetworkHealthy  bool    `json:"networkHealthy"`  // 网络健康
-	ReplicationOK   bool    `json:"replicationOk"`   // 副本同步正常
-	LastSyncTime    time.Time `json:"lastSyncTime"`  // 最后同步时间
+	DiskHealth     bool      `json:"diskHealth"`     // 磁盘健康
+	MemoryUsage    float64   `json:"memoryUsage"`    // 内存使用率
+	CPUUsage       float64   `json:"cpuUsage"`       // CPU 使用率
+	NetworkHealthy bool      `json:"networkHealthy"` // 网络健康
+	ReplicationOK  bool      `json:"replicationOk"`  // 副本同步正常
+	LastSyncTime   time.Time `json:"lastSyncTime"`   // 最后同步时间
 }
 
 // ========== 分片策略 ==========
@@ -70,36 +70,36 @@ type HealthDetails struct {
 type ShardingStrategy string
 
 const (
-	ShardingHash    ShardingStrategy = "hash"     // 哈希分片
-	ShardingRange   ShardingStrategy = "range"    // 范围分片
+	ShardingHash       ShardingStrategy = "hash"       // 哈希分片
+	ShardingRange      ShardingStrategy = "range"      // 范围分片
 	ShardingConsistent ShardingStrategy = "consistent" // 一致性哈希
 )
 
 // ShardingPolicy 分片策略配置
 type ShardingPolicy struct {
-	ID             string           `json:"id"`
-	Name           string           `json:"name"`
-	Strategy       ShardingStrategy `json:"strategy"`       // 分片策略
-	ShardCount     int              `json:"shardCount"`     // 分片数量
-	VirtualNodes   int              `json:"virtualNodes"`   // 虚拟节点数（一致性哈希）
-	KeyPattern     string           `json:"keyPattern"`     // 键模式（范围分片）
-	HashAlgorithm  string           `json:"hashAlgorithm"`  // 哈希算法 (md5, sha256, crc32)
-	RebalanceThreshold float64      `json:"rebalanceThreshold"` // 重平衡阈值
-	CreatedAt      time.Time        `json:"createdAt"`
-	UpdatedAt      time.Time        `json:"updatedAt"`
+	ID                 string           `json:"id"`
+	Name               string           `json:"name"`
+	Strategy           ShardingStrategy `json:"strategy"`           // 分片策略
+	ShardCount         int              `json:"shardCount"`         // 分片数量
+	VirtualNodes       int              `json:"virtualNodes"`       // 虚拟节点数（一致性哈希）
+	KeyPattern         string           `json:"keyPattern"`         // 键模式（范围分片）
+	HashAlgorithm      string           `json:"hashAlgorithm"`      // 哈希算法 (md5, sha256, crc32)
+	RebalanceThreshold float64          `json:"rebalanceThreshold"` // 重平衡阈值
+	CreatedAt          time.Time        `json:"createdAt"`
+	UpdatedAt          time.Time        `json:"updatedAt"`
 }
 
 // Shard 分片信息
 type Shard struct {
-	ID           string   `json:"id"`
-	PoolID       string   `json:"poolId"`
-	ShardIndex   int      `json:"shardIndex"`   // 分片索引
-	PrimaryNode  string   `json:"primaryNode"`  // 主节点 ID
-	ReplicaNodes []string `json:"replicaNodes"` // 副本节点 ID 列表
-	KeyRange     KeyRange `json:"keyRange"`     // 键范围（范围分片）
-	Size         uint64   `json:"size"`         // 数据大小
-	ObjectCount  int64    `json:"objectCount"`  // 对象数量
-	Status       string   `json:"status"`       // 状态
+	ID           string    `json:"id"`
+	PoolID       string    `json:"poolId"`
+	ShardIndex   int       `json:"shardIndex"`   // 分片索引
+	PrimaryNode  string    `json:"primaryNode"`  // 主节点 ID
+	ReplicaNodes []string  `json:"replicaNodes"` // 副本节点 ID 列表
+	KeyRange     KeyRange  `json:"keyRange"`     // 键范围（范围分片）
+	Size         uint64    `json:"size"`         // 数据大小
+	ObjectCount  int64     `json:"objectCount"`  // 对象数量
+	Status       string    `json:"status"`       // 状态
 	CreatedAt    time.Time `json:"createdAt"`
 }
 
@@ -115,48 +115,48 @@ type KeyRange struct {
 type ReplicaStrategy string
 
 const (
-	ReplicaSync      ReplicaStrategy = "sync"      // 同步复制
-	ReplicaAsync     ReplicaStrategy = "async"    // 异步复制
-	ReplicaSemiSync  ReplicaStrategy = "semiSync" // 半同步复制
+	ReplicaSync     ReplicaStrategy = "sync"     // 同步复制
+	ReplicaAsync    ReplicaStrategy = "async"    // 异步复制
+	ReplicaSemiSync ReplicaStrategy = "semiSync" // 半同步复制
 )
 
 // PlacementConstraint 放置约束
 type PlacementConstraint struct {
-	ZoneAware       bool     `json:"zoneAware"`       // 机架/可用区感知
-	RegionAware     bool     `json:"regionAware"`     // 地域感知
-	MinZones        int      `json:"minZones"`        // 最少跨可用区数
-	ExcludeNodes    []string `json:"excludeNodes"`    // 排除节点
-	PreferredNodes  []string `json:"preferredNodes"`  // 优先节点
-	RequireLabels   map[string]string `json:"requireLabels"` // 必需标签
+	ZoneAware      bool              `json:"zoneAware"`      // 机架/可用区感知
+	RegionAware    bool              `json:"regionAware"`    // 地域感知
+	MinZones       int               `json:"minZones"`       // 最少跨可用区数
+	ExcludeNodes   []string          `json:"excludeNodes"`   // 排除节点
+	PreferredNodes []string          `json:"preferredNodes"` // 优先节点
+	RequireLabels  map[string]string `json:"requireLabels"`  // 必需标签
 }
 
 // ReplicaPolicy 副本策略配置
 type ReplicaPolicy struct {
-	ID               string             `json:"id"`
-	Name             string             `json:"name"`
-	ReplicaCount     int                `json:"replicaCount"`     // 副本数量
-	Strategy         ReplicaStrategy    `json:"strategy"`         // 复制策略
-	ConsistencyLevel string             `json:"consistencyLevel"` // 一致性级别 (one, quorum, all)
+	ID               string              `json:"id"`
+	Name             string              `json:"name"`
+	ReplicaCount     int                 `json:"replicaCount"`     // 副本数量
+	Strategy         ReplicaStrategy     `json:"strategy"`         // 复制策略
+	ConsistencyLevel string              `json:"consistencyLevel"` // 一致性级别 (one, quorum, all)
 	Constraints      PlacementConstraint `json:"constraints"`      // 放置约束
-	WriteQuorum      int                `json:"writeQuorum"`      // 写入仲裁
-	ReadQuorum       int                `json:"readQuorum"`       // 读取仲裁
-	RepairInterval   time.Duration      `json:"repairInterval"`   // 副本修复间隔
-	MaxLatency       time.Duration      `json:"maxLatency"`       // 最大允许延迟
-	CreatedAt        time.Time          `json:"createdAt"`
+	WriteQuorum      int                 `json:"writeQuorum"`      // 写入仲裁
+	ReadQuorum       int                 `json:"readQuorum"`       // 读取仲裁
+	RepairInterval   time.Duration       `json:"repairInterval"`   // 副本修复间隔
+	MaxLatency       time.Duration       `json:"maxLatency"`       // 最大允许延迟
+	CreatedAt        time.Time           `json:"createdAt"`
 	UpdatedAt        time.Time           `json:"updatedAt"`
 }
 
 // ReplicaStatus 副本状态
 type ReplicaStatus struct {
-	ShardID        string        `json:"shardId"`
-	NodeID          string        `json:"nodeId"`
-	ReplicaIndex   int           `json:"replicaIndex"`
-	Status         string        `json:"status"`       // syncing, synced, error
-	Progress       float64       `json:"progress"`     // 同步进度
-	LastSyncTime   time.Time     `json:"lastSyncTime"` // 最后同步时间
-	BytesSynced    uint64        `json:"bytesSynced"`  // 已同步字节数
-	BytesPending   uint64        `json:"bytesPending"` // 待同步字节数
-	Lag            time.Duration `json:"lag"`          // 副本延迟
+	ShardID      string        `json:"shardId"`
+	NodeID       string        `json:"nodeId"`
+	ReplicaIndex int           `json:"replicaIndex"`
+	Status       string        `json:"status"`       // syncing, synced, error
+	Progress     float64       `json:"progress"`     // 同步进度
+	LastSyncTime time.Time     `json:"lastSyncTime"` // 最后同步时间
+	BytesSynced  uint64        `json:"bytesSynced"`  // 已同步字节数
+	BytesPending uint64        `json:"bytesPending"` // 待同步字节数
+	Lag          time.Duration `json:"lag"`          // 副本延迟
 }
 
 // ========== 存储池管理 ==========
@@ -165,63 +165,63 @@ type ReplicaStatus struct {
 type PoolStatus string
 
 const (
-	PoolStatusActive    PoolStatus = "active"    // 活跃
-	PoolStatusDegraded  PoolStatus = "degraded"  // 降级
-	PoolStatusRecovery  PoolStatus = "recovery"  // 恢复中
-	PoolStatusReadOnly  PoolStatus = "readOnly"  // 只读
-	PoolStatusOffline   PoolStatus = "offline"  // 离线
+	PoolStatusActive   PoolStatus = "active"   // 活跃
+	PoolStatusDegraded PoolStatus = "degraded" // 降级
+	PoolStatusRecovery PoolStatus = "recovery" // 恢复中
+	PoolStatusReadOnly PoolStatus = "readOnly" // 只读
+	PoolStatusOffline  PoolStatus = "offline"  // 离线
 )
 
 // StoragePool 存储池
 type StoragePool struct {
-	ID            string         `json:"id"`
-	Name          string         `json:"name"`
-	Description   string         `json:"description"`
-	Status        PoolStatus     `json:"status"`
-	Nodes         []string       `json:"nodes"`         // 节点 ID 列表
+	ID            string          `json:"id"`
+	Name          string          `json:"name"`
+	Description   string          `json:"description"`
+	Status        PoolStatus      `json:"status"`
+	Nodes         []string        `json:"nodes"`         // 节点 ID 列表
 	ShardPolicy   *ShardingPolicy `json:"shardPolicy"`   // 分片策略
 	ReplicaPolicy *ReplicaPolicy  `json:"replicaPolicy"` // 副本策略
-	Shards        []*Shard       `json:"shards"`         // 分片列表
-	Capacity      uint64         `json:"capacity"`       // 总容量
-	Used          uint64         `json:"used"`           // 已用容量
-	Available     uint64         `json:"available"`      // 可用容量
-	ObjectCount   int64          `json:"objectCount"`    // 对象总数
-	CreatedAt     time.Time      `json:"createdAt"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
+	Shards        []*Shard        `json:"shards"`        // 分片列表
+	Capacity      uint64          `json:"capacity"`      // 总容量
+	Used          uint64          `json:"used"`          // 已用容量
+	Available     uint64          `json:"available"`     // 可用容量
+	ObjectCount   int64           `json:"objectCount"`   // 对象总数
+	CreatedAt     time.Time       `json:"createdAt"`
+	UpdatedAt     time.Time       `json:"updatedAt"`
 	mu            sync.RWMutex
 }
 
 // PoolStats 存储池统计
 type PoolStats struct {
-	PoolID          string        `json:"poolId"`
-	TotalNodes      int           `json:"totalNodes"`
-	OnlineNodes     int           `json:"onlineNodes"`
-	TotalShards     int           `json:"totalShards"`
-	HealthyShards   int           `json:"healthyShards"`
-	TotalReplicas   int           `json:"totalReplicas"`
-	SyncedReplicas  int           `json:"syncedReplicas"`
-	Capacity        uint64        `json:"capacity"`
-	Used            uint64        `json:"used"`
-	Available       uint64        `json:"available"`
-	ObjectCount     int64         `json:"objectCount"`
-	AvgLatency      time.Duration `json:"avgLatency"`
-	HealthScore     int           `json:"healthScore"` // 0-100
+	PoolID         string        `json:"poolId"`
+	TotalNodes     int           `json:"totalNodes"`
+	OnlineNodes    int           `json:"onlineNodes"`
+	TotalShards    int           `json:"totalShards"`
+	HealthyShards  int           `json:"healthyShards"`
+	TotalReplicas  int           `json:"totalReplicas"`
+	SyncedReplicas int           `json:"syncedReplicas"`
+	Capacity       uint64        `json:"capacity"`
+	Used           uint64        `json:"used"`
+	Available      uint64        `json:"available"`
+	ObjectCount    int64         `json:"objectCount"`
+	AvgLatency     time.Duration `json:"avgLatency"`
+	HealthScore    int           `json:"healthScore"` // 0-100
 }
 
 // ========== 分布式存储管理器 ==========
 
 // DistributedManager 分布式存储管理器
 type DistributedManager struct {
-	nodes       map[string]*StorageNode   // 节点映射
-	pools       map[string]*StoragePool   // 存储池映射
-	shardPolicies map[string]*ShardingPolicy // 分片策略
-	replicaPolicies map[string]*ReplicaPolicy // 副本策略
-	mu          sync.RWMutex
+	nodes               map[string]*StorageNode    // 节点映射
+	pools               map[string]*StoragePool    // 存储池映射
+	shardPolicies       map[string]*ShardingPolicy // 分片策略
+	replicaPolicies     map[string]*ReplicaPolicy  // 副本策略
+	mu                  sync.RWMutex
 	healthCheckInterval time.Duration
 	healthCheckTimeout  time.Duration
-	ctx         context.Context
-	cancel      context.CancelFunc
-	wg          sync.WaitGroup
+	ctx                 context.Context
+	cancel              context.CancelFunc
+	wg                  sync.WaitGroup
 }
 
 // DistributedConfig 分布式存储配置
@@ -245,14 +245,14 @@ func NewDistributedManager(config *DistributedConfig) *DistributedManager {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &DistributedManager{
-		nodes:       make(map[string]*StorageNode),
-		pools:       make(map[string]*StoragePool),
-		shardPolicies: make(map[string]*ShardingPolicy),
-		replicaPolicies: make(map[string]*ReplicaPolicy),
+		nodes:               make(map[string]*StorageNode),
+		pools:               make(map[string]*StoragePool),
+		shardPolicies:       make(map[string]*ShardingPolicy),
+		replicaPolicies:     make(map[string]*ReplicaPolicy),
 		healthCheckInterval: config.HealthCheckInterval,
 		healthCheckTimeout:  config.HealthCheckTimeout,
-		ctx:         ctx,
-		cancel:      cancel,
+		ctx:                 ctx,
+		cancel:              cancel,
 	}
 }
 
@@ -865,17 +865,17 @@ func (dm *DistributedManager) GetPoolStats(poolID string) (*PoolStats, error) {
 	}
 
 	stats := &PoolStats{
-		PoolID:        poolID,
-		TotalNodes:    len(pool.Nodes),
-		TotalShards:   len(pool.Shards),
-		TotalReplicas: 0,
+		PoolID:         poolID,
+		TotalNodes:     len(pool.Nodes),
+		TotalShards:    len(pool.Shards),
+		TotalReplicas:  0,
 		SyncedReplicas: 0,
-		Capacity:      pool.Capacity,
-		Used:          pool.Used,
-		Available:     pool.Available,
-		ObjectCount:   pool.ObjectCount,
-		AvgLatency:    0,
-		HealthScore:   100,
+		Capacity:       pool.Capacity,
+		Used:           pool.Used,
+		Available:      pool.Available,
+		ObjectCount:    pool.ObjectCount,
+		AvgLatency:     0,
+		HealthScore:    100,
 	}
 
 	// 统计在线节点
@@ -1008,12 +1008,12 @@ func (dm *DistributedManager) AllocateShards(poolID string) error {
 
 	for i := 0; i < shardCount; i++ {
 		shard := &Shard{
-			ID:          fmt.Sprintf("%s-shard-%d", poolID, i),
-			PoolID:      poolID,
-			ShardIndex:  i,
+			ID:           fmt.Sprintf("%s-shard-%d", poolID, i),
+			PoolID:       poolID,
+			ShardIndex:   i,
 			ReplicaNodes: make([]string, 0),
-			Status:      "active",
-			CreatedAt:   time.Now(),
+			Status:       "active",
+			CreatedAt:    time.Now(),
 		}
 
 		// 选择主节点（根据分片策略）

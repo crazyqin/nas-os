@@ -12,11 +12,11 @@ import (
 // ========== 计费相关错误 ==========
 
 var (
-	ErrQuotaExceeded       = errors.New("资源配额已超限")
-	ErrQuotaNotFound       = errors.New("配额配置不存在")
-	ErrBillingNotFound     = errors.New("计费记录不存在")
-	ErrInvalidCostAmount   = errors.New("无效的成本金额")
-	ErrInvalidQuotaValue   = errors.New("无效的配额值")
+	ErrQuotaExceeded     = errors.New("资源配额已超限")
+	ErrQuotaNotFound     = errors.New("配额配置不存在")
+	ErrBillingNotFound   = errors.New("计费记录不存在")
+	ErrInvalidCostAmount = errors.New("无效的成本金额")
+	ErrInvalidQuotaValue = errors.New("无效的配额值")
 )
 
 // ========== 资源配额类型 ==========
@@ -25,14 +25,14 @@ var (
 type ResourceType string
 
 const (
-	ResourceTypeCPU     ResourceType = "cpu"      // CPU核心数
-	ResourceTypeMemory  ResourceType = "memory"   // 内存(MB)
-	ResourceTypeStorage ResourceType = "storage"  // 存储(GB)
-	ResourceTypeNetwork ResourceType = "network"  // 网络带宽(Mbps)
-	ResourceTypeGPU     ResourceType = "gpu"      // GPU数量
-	ResourceTypeAPI     ResourceType = "api"      // API调用次数
-	ResourceTypeUser    ResourceType = "user"     // 用户数
-	ResourceTypeProject ResourceType = "project"  // 项目数
+	ResourceTypeCPU     ResourceType = "cpu"     // CPU核心数
+	ResourceTypeMemory  ResourceType = "memory"  // 内存(MB)
+	ResourceTypeStorage ResourceType = "storage" // 存储(GB)
+	ResourceTypeNetwork ResourceType = "network" // 网络带宽(Mbps)
+	ResourceTypeGPU     ResourceType = "gpu"     // GPU数量
+	ResourceTypeAPI     ResourceType = "api"     // API调用次数
+	ResourceTypeUser    ResourceType = "user"    // 用户数
+	ResourceTypeProject ResourceType = "project" // 项目数
 )
 
 // QuotaScope 配额范围
@@ -52,22 +52,22 @@ type ResourceQuota struct {
 	ProjectID    string       `json:"project_id"`
 	ResourceType ResourceType `json:"resource_type"`
 	Scope        QuotaScope   `json:"scope"`
-	
+
 	// 配额限制
-	HardLimit    int64   `json:"hard_limit"`     // 硬限制（绝对上限）
-	SoftLimit    int64   `json:"soft_limit"`     // 软限制（告警阈值）
-	Used         int64   `json:"used"`           // 已使用量
-	Reserved     int64   `json:"reserved"`       // 预留量
-	
+	HardLimit int64 `json:"hard_limit"` // 硬限制（绝对上限）
+	SoftLimit int64 `json:"soft_limit"` // 软限制（告警阈值）
+	Used      int64 `json:"used"`       // 已使用量
+	Reserved  int64 `json:"reserved"`   // 预留量
+
 	// 计费相关
-	UnitPrice    float64 `json:"unit_price"`     // 单价
-	Currency     string  `json:"currency"`       // 货币类型
-	BillingCycle string  `json:"billing_cycle"`  // 计费周期：hourly/daily/monthly
-	
+	UnitPrice    float64 `json:"unit_price"`    // 单价
+	Currency     string  `json:"currency"`      // 货币类型
+	BillingCycle string  `json:"billing_cycle"` // 计费周期：hourly/daily/monthly
+
 	// 告警配置
-	AlertThreshold int    `json:"alert_threshold"` // 告警阈值百分比
+	AlertThreshold int      `json:"alert_threshold"` // 告警阈值百分比
 	AlertEmails    []string `json:"alert_emails,omitempty"`
-	
+
 	// 时间戳
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -75,14 +75,14 @@ type ResourceQuota struct {
 
 // QuotaUsage 配额使用记录
 type QuotaUsage struct {
-	ID           string       `json:"id"`
-	ProjectID    string       `json:"project_id"`
-	ResourceType ResourceType `json:"resource_type"`
-	Amount       int64        `json:"amount"`        // 使用量
-	Action       string       `json:"action"`        // allocate/release/consume
-	Timestamp    time.Time    `json:"timestamp"`
-	UserID       string       `json:"user_id,omitempty"`
-	Description  string       `json:"description,omitempty"`
+	ID           string                 `json:"id"`
+	ProjectID    string                 `json:"project_id"`
+	ResourceType ResourceType           `json:"resource_type"`
+	Amount       int64                  `json:"amount"` // 使用量
+	Action       string                 `json:"action"` // allocate/release/consume
+	Timestamp    time.Time              `json:"timestamp"`
+	UserID       string                 `json:"user_id,omitempty"`
+	Description  string                 `json:"description,omitempty"`
 	Metadata     map[string]interface{} `json:"metadata,omitempty"`
 }
 
@@ -90,87 +90,87 @@ type QuotaUsage struct {
 
 // BillingRecord 计费记录
 type BillingRecord struct {
-	ID           string    `json:"id"`
-	ProjectID    string    `json:"project_id"`
-	PeriodStart  time.Time `json:"period_start"`
-	PeriodEnd    time.Time `json:"period_end"`
-	
+	ID          string    `json:"id"`
+	ProjectID   string    `json:"project_id"`
+	PeriodStart time.Time `json:"period_start"`
+	PeriodEnd   time.Time `json:"period_end"`
+
 	// 费用明细
-	ResourceCosts  []ResourceCost `json:"resource_costs"`
-	TotalCost      float64        `json:"total_cost"`
-	Currency       string         `json:"currency"`
-	Discount       float64        `json:"discount,omitempty"`     // 折扣比例
-	TaxRate        float64        `json:"tax_rate,omitempty"`     // 税率
-	FinalAmount    float64        `json:"final_amount"`           // 最终金额
-	
+	ResourceCosts []ResourceCost `json:"resource_costs"`
+	TotalCost     float64        `json:"total_cost"`
+	Currency      string         `json:"currency"`
+	Discount      float64        `json:"discount,omitempty"` // 折扣比例
+	TaxRate       float64        `json:"tax_rate,omitempty"` // 税率
+	FinalAmount   float64        `json:"final_amount"`       // 最终金额
+
 	// 状态
-	Status         string    `json:"status"` // draft/pending/paid/overdue/cancelled
-	PaidAt         *time.Time `json:"paid_at,omitempty"`
-	DueDate        *time.Time `json:"due_date,omitempty"`
-	
+	Status  string     `json:"status"` // draft/pending/paid/overdue/cancelled
+	PaidAt  *time.Time `json:"paid_at,omitempty"`
+	DueDate *time.Time `json:"due_date,omitempty"`
+
 	// 元数据
-	InvoiceNumber  string `json:"invoice_number,omitempty"`
-	Notes          string `json:"notes,omitempty"`
-	
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	InvoiceNumber string `json:"invoice_number,omitempty"`
+	Notes         string `json:"notes,omitempty"`
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // ResourceCost 资源成本
 type ResourceCost struct {
-	ResourceType   ResourceType `json:"resource_type"`
-	Quantity       int64        `json:"quantity"`       // 使用量
-	UnitPrice      float64      `json:"unit_price"`     // 单价
-	UsageHours     float64      `json:"usage_hours"`    // 使用时长（小时）
-	Subtotal       float64      `json:"subtotal"`       // 小计
-	Description    string       `json:"description,omitempty"`
+	ResourceType ResourceType `json:"resource_type"`
+	Quantity     int64        `json:"quantity"`    // 使用量
+	UnitPrice    float64      `json:"unit_price"`  // 单价
+	UsageHours   float64      `json:"usage_hours"` // 使用时长（小时）
+	Subtotal     float64      `json:"subtotal"`    // 小计
+	Description  string       `json:"description,omitempty"`
 }
 
 // ========== 成本分析 ==========
 
 // CostAnalysis 成本分析报告
 type CostAnalysis struct {
-	ProjectID      string             `json:"project_id"`
-	ProjectName    string             `json:"project_name"`
-	PeriodStart    time.Time          `json:"period_start"`
-	PeriodEnd      time.Time          `json:"period_end"`
-	
+	ProjectID   string    `json:"project_id"`
+	ProjectName string    `json:"project_name"`
+	PeriodStart time.Time `json:"period_start"`
+	PeriodEnd   time.Time `json:"period_end"`
+
 	// 总成本
-	TotalCost      float64            `json:"total_cost"`
-	Currency       string             `json:"currency"`
-	
+	TotalCost float64 `json:"total_cost"`
+	Currency  string  `json:"currency"`
+
 	// 按资源类型分类
 	ByResourceType map[string]ResourceCostSummary `json:"by_resource_type"`
-	
+
 	// 趋势数据
-	DailyCost      []DailyCost       `json:"daily_cost,omitempty"`
-	MonthlyCost    []MonthlyCost     `json:"monthly_cost,omitempty"`
-	
+	DailyCost   []DailyCost   `json:"daily_cost,omitempty"`
+	MonthlyCost []MonthlyCost `json:"monthly_cost,omitempty"`
+
 	// 预测
-	ForecastNextMonth float64        `json:"forecast_next_month,omitempty"`
-	ForecastTrend     string         `json:"forecast_trend,omitempty"` // increasing/stable/decreasing
-	
+	ForecastNextMonth float64 `json:"forecast_next_month,omitempty"`
+	ForecastTrend     string  `json:"forecast_trend,omitempty"` // increasing/stable/decreasing
+
 	// 对比
-	PreviousPeriod    *PeriodComparison `json:"previous_period,omitempty"`
-	
+	PreviousPeriod *PeriodComparison `json:"previous_period,omitempty"`
+
 	// 优化建议
-	Recommendations   []CostRecommendation `json:"recommendations,omitempty"`
+	Recommendations []CostRecommendation `json:"recommendations,omitempty"`
 }
 
 // ResourceCostSummary 资源成本汇总
 type ResourceCostSummary struct {
-	ResourceType   ResourceType `json:"resource_type"`
-	TotalCost      float64      `json:"total_cost"`
-	TotalQuantity  int64        `json:"total_quantity"`
-	AvgDailyCost   float64      `json:"avg_daily_cost"`
-	Percentage     float64      `json:"percentage"` // 占总成本百分比
-	Trend          string       `json:"trend"`      // up/down/stable
+	ResourceType  ResourceType `json:"resource_type"`
+	TotalCost     float64      `json:"total_cost"`
+	TotalQuantity int64        `json:"total_quantity"`
+	AvgDailyCost  float64      `json:"avg_daily_cost"`
+	Percentage    float64      `json:"percentage"` // 占总成本百分比
+	Trend         string       `json:"trend"`      // up/down/stable
 }
 
 // DailyCost 每日成本
 type DailyCost struct {
-	Date  string  `json:"date"`
-	Cost  float64 `json:"cost"`
+	Date string  `json:"date"`
+	Cost float64 `json:"cost"`
 }
 
 // MonthlyCost 每月成本
@@ -181,74 +181,74 @@ type MonthlyCost struct {
 
 // PeriodComparison 周期对比
 type PeriodComparison struct {
-	PreviousCost   float64 `json:"previous_cost"`
-	ChangeAmount   float64 `json:"change_amount"`
-	ChangePercent  float64 `json:"change_percent"`
+	PreviousCost  float64 `json:"previous_cost"`
+	ChangeAmount  float64 `json:"change_amount"`
+	ChangePercent float64 `json:"change_percent"`
 }
 
 // CostRecommendation 成本优化建议
 type CostRecommendation struct {
-	Type           string  `json:"type"`     // reduce/optimize/resize/schedule
-	ResourceType   string  `json:"resource_type"`
-	CurrentCost    float64 `json:"current_cost"`
+	Type             string  `json:"type"` // reduce/optimize/resize/schedule
+	ResourceType     string  `json:"resource_type"`
+	CurrentCost      float64 `json:"current_cost"`
 	PotentialSavings float64 `json:"potential_savings"`
-	Description    string  `json:"description"`
-	Priority       string  `json:"priority"` // high/medium/low
+	Description      string  `json:"description"`
+	Priority         string  `json:"priority"` // high/medium/low
 }
 
 // ========== 资源使用报告 ==========
 
 // ResourceUsageReport 资源使用报告
 type ResourceUsageReport struct {
-	ProjectID      string                    `json:"project_id"`
-	ProjectName    string                    `json:"project_name"`
-	ReportPeriod   string                    `json:"report_period"`
-	GeneratedAt    time.Time                 `json:"generated_at"`
-	
+	ProjectID    string    `json:"project_id"`
+	ProjectName  string    `json:"project_name"`
+	ReportPeriod string    `json:"report_period"`
+	GeneratedAt  time.Time `json:"generated_at"`
+
 	// 资源使用概览
-	Resources      []ResourceUsageDetail     `json:"resources"`
-	TotalResources int                       `json:"total_resources"`
-	
+	Resources      []ResourceUsageDetail `json:"resources"`
+	TotalResources int                   `json:"total_resources"`
+
 	// 配额使用情况
-	QuotaUsage     []QuotaUsageSummary       `json:"quota_usage"`
-	OverQuota      []OverQuotaAlert          `json:"over_quota,omitempty"`
-	
+	QuotaUsage []QuotaUsageSummary `json:"quota_usage"`
+	OverQuota  []OverQuotaAlert    `json:"over_quota,omitempty"`
+
 	// 使用统计
-	PeakUsage      map[string]int64          `json:"peak_usage"`      // 各资源峰值使用
-	AvgUsage       map[string]float64        `json:"avg_usage"`       // 各资源平均使用
-	UtilizationRate map[string]float64       `json:"utilization_rate"` // 利用率
-	
+	PeakUsage       map[string]int64   `json:"peak_usage"`       // 各资源峰值使用
+	AvgUsage        map[string]float64 `json:"avg_usage"`        // 各资源平均使用
+	UtilizationRate map[string]float64 `json:"utilization_rate"` // 利用率
+
 	// 趋势数据
-	UsageTrend     []UsageTrendPoint         `json:"usage_trend,omitempty"`
-	
+	UsageTrend []UsageTrendPoint `json:"usage_trend,omitempty"`
+
 	// 成本关联
-	TotalCost      float64                   `json:"total_cost"`
-	Currency       string                    `json:"currency"`
+	TotalCost float64 `json:"total_cost"`
+	Currency  string  `json:"currency"`
 }
 
 // ResourceUsageDetail 资源使用详情
 type ResourceUsageDetail struct {
-	ResourceType   ResourceType `json:"resource_type"`
-	Allocated      int64        `json:"allocated"`     // 分配量
-	Used           int64        `json:"used"`          // 使用量
-	Reserved       int64        `json:"reserved"`      // 预留量
-	Available      int64        `json:"available"`     // 可用量
-	UtilizationRate float64     `json:"utilization_rate"` // 利用率
-	QuotaLimit     int64        `json:"quota_limit"`   // 配额限制
-	QuotaUsed      int64        `json:"quota_used"`    // 配额已用
-	QuotaPercent   float64      `json:"quota_percent"` // 配额使用百分比
+	ResourceType    ResourceType `json:"resource_type"`
+	Allocated       int64        `json:"allocated"`        // 分配量
+	Used            int64        `json:"used"`             // 使用量
+	Reserved        int64        `json:"reserved"`         // 预留量
+	Available       int64        `json:"available"`        // 可用量
+	UtilizationRate float64      `json:"utilization_rate"` // 利用率
+	QuotaLimit      int64        `json:"quota_limit"`      // 配额限制
+	QuotaUsed       int64        `json:"quota_used"`       // 配额已用
+	QuotaPercent    float64      `json:"quota_percent"`    // 配额使用百分比
 }
 
 // QuotaUsageSummary 配额使用汇总
 type QuotaUsageSummary struct {
-	ResourceType   ResourceType `json:"resource_type"`
-	HardLimit      int64        `json:"hard_limit"`
-	SoftLimit      int64        `json:"soft_limit"`
-	Used           int64        `json:"used"`
-	Reserved       int64        `json:"reserved"`
-	Available      int64        `json:"available"`
-	UsagePercent   float64      `json:"usage_percent"`
-	Status         string       `json:"status"` // normal/warning/critical/exceeded
+	ResourceType ResourceType `json:"resource_type"`
+	HardLimit    int64        `json:"hard_limit"`
+	SoftLimit    int64        `json:"soft_limit"`
+	Used         int64        `json:"used"`
+	Reserved     int64        `json:"reserved"`
+	Available    int64        `json:"available"`
+	UsagePercent float64      `json:"usage_percent"`
+	Status       string       `json:"status"` // normal/warning/critical/exceeded
 }
 
 // OverQuotaAlert 配额超限告警
@@ -263,21 +263,21 @@ type OverQuotaAlert struct {
 
 // UsageTrendPoint 使用趋势数据点
 type UsageTrendPoint struct {
-	Timestamp   string             `json:"timestamp"`
-	Resources   map[string]int64   `json:"resources"`
+	Timestamp string           `json:"timestamp"`
+	Resources map[string]int64 `json:"resources"`
 }
 
 // ========== BillingManager 计费管理器 ==========
 
 // BillingManager 计费管理器
 type BillingManager struct {
-	mu            sync.RWMutex
-	quotas        map[string]*ResourceQuota           // quotaID -> quota
-	projectQuotas map[string]map[ResourceType]string  // projectID -> resourceType -> quotaID
-	usageRecords  map[string][]*QuotaUsage            // projectID -> usage records
+	mu             sync.RWMutex
+	quotas         map[string]*ResourceQuota          // quotaID -> quota
+	projectQuotas  map[string]map[ResourceType]string // projectID -> resourceType -> quotaID
+	usageRecords   map[string][]*QuotaUsage           // projectID -> usage records
 	billingRecords map[string]*BillingRecord          // billingID -> record
-	projectBills  map[string][]string                 // projectID -> billingIDs
-	manager       *Manager                            // 项目管理器引用
+	projectBills   map[string][]string                // projectID -> billingIDs
+	manager        *Manager                           // 项目管理器引用
 }
 
 // NewBillingManager 创建计费管理器
@@ -313,7 +313,7 @@ func (bm *BillingManager) SetQuota(projectID string, resourceType ResourceType, 
 	}
 
 	now := time.Now()
-	
+
 	// 检查是否已存在配额
 	var quota *ResourceQuota
 	if projectQuotas, ok := bm.projectQuotas[projectID]; ok {
@@ -332,22 +332,22 @@ func (bm *BillingManager) SetQuota(projectID string, resourceType ResourceType, 
 	} else {
 		// 创建新配额
 		quota = &ResourceQuota{
-			ID:           uuid.New().String(),
-			ProjectID:    projectID,
-			ResourceType: resourceType,
-			Scope:        QuotaScopeProject,
-			HardLimit:    hardLimit,
-			SoftLimit:    softLimit,
-			UnitPrice:    unitPrice,
-			Currency:     currency,
-			BillingCycle: "monthly",
+			ID:             uuid.New().String(),
+			ProjectID:      projectID,
+			ResourceType:   resourceType,
+			Scope:          QuotaScopeProject,
+			HardLimit:      hardLimit,
+			SoftLimit:      softLimit,
+			UnitPrice:      unitPrice,
+			Currency:       currency,
+			BillingCycle:   "monthly",
 			AlertThreshold: 80,
-			CreatedAt:    now,
-			UpdatedAt:    now,
+			CreatedAt:      now,
+			UpdatedAt:      now,
 		}
 
 		bm.quotas[quota.ID] = quota
-		
+
 		// 建立项目-配额映射
 		if _, ok := bm.projectQuotas[projectID]; !ok {
 			bm.projectQuotas[projectID] = make(map[ResourceType]string)
@@ -387,7 +387,7 @@ func (bm *BillingManager) ListQuotas(projectID string) []*ResourceQuota {
 	defer bm.mu.RUnlock()
 
 	result := make([]*ResourceQuota, 0)
-	
+
 	projectQuotas, ok := bm.projectQuotas[projectID]
 	if !ok {
 		return result
@@ -505,7 +505,7 @@ func (bm *BillingManager) GetQuotaUsage(projectID string, limit int) []*QuotaUsa
 	// 按时间倒序
 	result := make([]*QuotaUsage, len(records))
 	copy(result, records)
-	
+
 	// 简单排序
 	for i := 0; i < len(result)-1; i++ {
 		for j := 0; j < len(result)-i-1; j++ {
@@ -535,7 +535,7 @@ func (bm *BillingManager) CreateBillingRecord(projectID string, periodStart, per
 	}
 
 	now := time.Now()
-	
+
 	// 计算总成本
 	var totalCost float64
 	for _, rc := range resourceCosts {
@@ -724,14 +724,14 @@ func (bm *BillingManager) GetCostAnalysis(projectID string, periodStart, periodE
 // generateDailyCost 生成每日成本数据
 func (bm *BillingManager) generateDailyCost(projectID string, start, end time.Time) []DailyCost {
 	dailyCosts := make([]DailyCost, 0)
-	
+
 	// 按天遍历
 	for d := start; d.Before(end) || d.Equal(end); d = d.AddDate(0, 0, 1) {
 		dayStart := time.Date(d.Year(), d.Month(), d.Day(), 0, 0, 0, 0, d.Location())
 		dayEnd := dayStart.Add(24 * time.Hour)
-		
+
 		var dayCost float64
-		
+
 		// 收集当天的成本
 		billIDs := bm.projectBills[projectID]
 		for _, id := range billIDs {
@@ -739,23 +739,23 @@ func (bm *BillingManager) generateDailyCost(projectID string, start, end time.Ti
 			if !exists {
 				continue
 			}
-			
+
 			// 简化：如果账单周期覆盖这一天，则按天数分摊
 			if (record.PeriodStart.Before(dayEnd) || record.PeriodStart.Equal(dayStart)) &&
-			   (record.PeriodEnd.After(dayStart) || record.PeriodEnd.Equal(dayEnd)) {
+				(record.PeriodEnd.After(dayStart) || record.PeriodEnd.Equal(dayEnd)) {
 				days := record.PeriodEnd.Sub(record.PeriodStart).Hours() / 24
 				if days > 0 {
 					dayCost += record.TotalCost / days
 				}
 			}
 		}
-		
+
 		dailyCosts = append(dailyCosts, DailyCost{
 			Date: dayStart.Format("2006-01-02"),
 			Cost: dayCost,
 		})
 	}
-	
+
 	return dailyCosts
 }
 
@@ -807,17 +807,17 @@ func (bm *BillingManager) GetResourceUsageReport(projectID string, periodStart, 
 
 	now := time.Now()
 	report := &ResourceUsageReport{
-		ProjectID:      projectID,
-		ProjectName:    project.Name,
-		ReportPeriod:   periodStart.Format("2006-01-02") + " - " + periodEnd.Format("2006-01-02"),
-		GeneratedAt:    now,
-		Resources:      make([]ResourceUsageDetail, 0),
-		QuotaUsage:     make([]QuotaUsageSummary, 0),
-		OverQuota:      make([]OverQuotaAlert, 0),
-		PeakUsage:      make(map[string]int64),
-		AvgUsage:       make(map[string]float64),
+		ProjectID:       projectID,
+		ProjectName:     project.Name,
+		ReportPeriod:    periodStart.Format("2006-01-02") + " - " + periodEnd.Format("2006-01-02"),
+		GeneratedAt:     now,
+		Resources:       make([]ResourceUsageDetail, 0),
+		QuotaUsage:      make([]QuotaUsageSummary, 0),
+		OverQuota:       make([]OverQuotaAlert, 0),
+		PeakUsage:       make(map[string]int64),
+		AvgUsage:        make(map[string]float64),
 		UtilizationRate: make(map[string]float64),
-		Currency:       "CNY",
+		Currency:        "CNY",
 	}
 
 	// 收集配额信息
@@ -888,7 +888,7 @@ func (bm *BillingManager) GetResourceUsageReport(projectID string, periodStart, 
 		}
 
 		// 统计数据
-		report.PeakUsage[string(rt)] = quota.Used // 简化：当前值作为峰值
+		report.PeakUsage[string(rt)] = quota.Used               // 简化：当前值作为峰值
 		report.AvgUsage[string(rt)] = float64(quota.Used) * 0.7 // 简化：假设平均使用70%
 		report.UtilizationRate[string(rt)] = utilRate
 	}

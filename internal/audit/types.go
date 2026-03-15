@@ -20,16 +20,16 @@ const (
 type Category string
 
 const (
-	CategoryAuth      Category = "auth"      // 认证相关
-	CategoryAccess    Category = "access"    // 访问控制
-	CategoryData      Category = "data"      // 数据操作
-	CategorySystem    Category = "system"    // 系统配置
-	CategorySecurity  Category = "security"  // 安全事件
+	CategoryAuth       Category = "auth"       // 认证相关
+	CategoryAccess     Category = "access"     // 访问控制
+	CategoryData       Category = "data"       // 数据操作
+	CategorySystem     Category = "system"     // 系统配置
+	CategorySecurity   Category = "security"   // 安全事件
 	CategoryCompliance Category = "compliance" // 合规相关
-	CategoryFile      Category = "file"      // 文件操作
-	CategoryNetwork   Category = "network"   // 网络操作
-	CategoryUser      Category = "user"      // 用户管理
-	CategoryAudit     Category = "audit"     // 审计自身操作
+	CategoryFile       Category = "file"       // 文件操作
+	CategoryNetwork    Category = "network"    // 网络操作
+	CategoryUser       Category = "user"       // 用户管理
+	CategoryAudit      Category = "audit"      // 审计自身操作
 )
 
 // Status 操作状态
@@ -64,19 +64,19 @@ type Entry struct {
 
 // QueryOptions 审计日志查询选项
 type QueryOptions struct {
-	Limit     int          `json:"limit"`              // 返回数量限制
-	Offset    int          `json:"offset"`             // 偏移量
-	StartTime *time.Time   `json:"start_time,omitempty"` // 开始时间
-	EndTime   *time.Time   `json:"end_time,omitempty"`   // 结束时间
-	Level     Level        `json:"level,omitempty"`      // 日志级别
-	Category  Category     `json:"category,omitempty"`   // 日志分类
-	UserID    string       `json:"user_id,omitempty"`    // 用户ID
-	Username  string       `json:"username,omitempty"`   // 用户名
-	IP        string       `json:"ip,omitempty"`         // IP地址
-	Status    Status       `json:"status,omitempty"`     // 操作状态
-	Event     string       `json:"event,omitempty"`      // 事件类型
-	Resource  string       `json:"resource,omitempty"`   // 资源
-	Keyword   string       `json:"keyword,omitempty"`    // 关键词搜索
+	Limit     int        `json:"limit"`                // 返回数量限制
+	Offset    int        `json:"offset"`               // 偏移量
+	StartTime *time.Time `json:"start_time,omitempty"` // 开始时间
+	EndTime   *time.Time `json:"end_time,omitempty"`   // 结束时间
+	Level     Level      `json:"level,omitempty"`      // 日志级别
+	Category  Category   `json:"category,omitempty"`   // 日志分类
+	UserID    string     `json:"user_id,omitempty"`    // 用户ID
+	Username  string     `json:"username,omitempty"`   // 用户名
+	IP        string     `json:"ip,omitempty"`         // IP地址
+	Status    Status     `json:"status,omitempty"`     // 操作状态
+	Event     string     `json:"event,omitempty"`      // 事件类型
+	Resource  string     `json:"resource,omitempty"`   // 资源
+	Keyword   string     `json:"keyword,omitempty"`    // 关键词搜索
 }
 
 // QueryResult 查询结果
@@ -91,91 +91,91 @@ type QueryResult struct {
 type ComplianceStandard string
 
 const (
-	ComplianceGDPR       ComplianceStandard = "gdpr"        // GDPR
-	ComplianceHIPAA      ComplianceStandard = "hipaa"       // HIPAA
-	ComplianceSOX        ComplianceStandard = "sox"         // SOX
-	ComplianceISO27001   ComplianceStandard = "iso27001"    // ISO 27001
-	ComplianceMLPS       ComplianceStandard = "mlps"        // 等级保护（中国）
-	CompliancePCI        ComplianceStandard = "pci"         // PCI DSS
+	ComplianceGDPR     ComplianceStandard = "gdpr"     // GDPR
+	ComplianceHIPAA    ComplianceStandard = "hipaa"    // HIPAA
+	ComplianceSOX      ComplianceStandard = "sox"      // SOX
+	ComplianceISO27001 ComplianceStandard = "iso27001" // ISO 27001
+	ComplianceMLPS     ComplianceStandard = "mlps"     // 等级保护（中国）
+	CompliancePCI      ComplianceStandard = "pci"      // PCI DSS
 )
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ReportID      string              `json:"report_id"`      // 报告ID
-	Standard      ComplianceStandard  `json:"standard"`       // 合规标准
-	GeneratedAt   time.Time           `json:"generated_at"`   // 生成时间
-	PeriodStart   time.Time           `json:"period_start"`   // 统计周期开始
-	PeriodEnd     time.Time           `json:"period_end"`     // 统计周期结束
-	Summary       ComplianceSummary   `json:"summary"`        // 摘要统计
-	Findings      []ComplianceFinding `json:"findings"`       // 合规发现
-	Recommendations []string          `json:"recommendations"` // 改进建议
+	ReportID        string              `json:"report_id"`       // 报告ID
+	Standard        ComplianceStandard  `json:"standard"`        // 合规标准
+	GeneratedAt     time.Time           `json:"generated_at"`    // 生成时间
+	PeriodStart     time.Time           `json:"period_start"`    // 统计周期开始
+	PeriodEnd       time.Time           `json:"period_end"`      // 统计周期结束
+	Summary         ComplianceSummary   `json:"summary"`         // 摘要统计
+	Findings        []ComplianceFinding `json:"findings"`        // 合规发现
+	Recommendations []string            `json:"recommendations"` // 改进建议
 }
 
 // ComplianceSummary 合规摘要统计
 type ComplianceSummary struct {
-	TotalEvents          int            `json:"total_events"`           // 总事件数
-	AuthEvents           int            `json:"auth_events"`            // 认证事件
-	FailedAuthAttempts   int            `json:"failed_auth_attempts"`   // 失败认证尝试
-	DataAccessEvents     int            `json:"data_access_events"`     // 数据访问事件
-	ConfigChanges        int            `json:"config_changes"`         // 配置变更
-	SecurityAlerts       int            `json:"security_alerts"`        // 安全告警
-	UniqueUsers          int            `json:"unique_users"`           // 活跃用户数
-	UniqueIPs            int            `json:"unique_ips"`             // 活跃IP数
-	EventsByCategory     map[string]int `json:"events_by_category"`     // 分类统计
-	EventsByLevel        map[string]int `json:"events_by_level"`        // 级别统计
-	EventsByHour         map[int]int    `json:"events_by_hour"`         // 小时统计
+	TotalEvents        int            `json:"total_events"`         // 总事件数
+	AuthEvents         int            `json:"auth_events"`          // 认证事件
+	FailedAuthAttempts int            `json:"failed_auth_attempts"` // 失败认证尝试
+	DataAccessEvents   int            `json:"data_access_events"`   // 数据访问事件
+	ConfigChanges      int            `json:"config_changes"`       // 配置变更
+	SecurityAlerts     int            `json:"security_alerts"`      // 安全告警
+	UniqueUsers        int            `json:"unique_users"`         // 活跃用户数
+	UniqueIPs          int            `json:"unique_ips"`           // 活跃IP数
+	EventsByCategory   map[string]int `json:"events_by_category"`   // 分类统计
+	EventsByLevel      map[string]int `json:"events_by_level"`      // 级别统计
+	EventsByHour       map[int]int    `json:"events_by_hour"`       // 小时统计
 }
 
 // ComplianceFinding 合规发现项
 type ComplianceFinding struct {
-	ID          string                 `json:"id"`           // 发现ID
-	Severity    Level                  `json:"severity"`     // 严重程度
-	Category    Category               `json:"category"`     // 分类
-	Title       string                 `json:"title"`        // 标题
-	Description string                 `json:"description"`  // 描述
-	Evidence    []*Entry               `json:"evidence"`     // 证据日志
-	Metadata    map[string]interface{} `json:"metadata"`     // 元数据
+	ID          string                 `json:"id"`          // 发现ID
+	Severity    Level                  `json:"severity"`    // 严重程度
+	Category    Category               `json:"category"`    // 分类
+	Title       string                 `json:"title"`       // 标题
+	Description string                 `json:"description"` // 描述
+	Evidence    []*Entry               `json:"evidence"`    // 证据日志
+	Metadata    map[string]interface{} `json:"metadata"`    // 元数据
 }
 
 // ========== 审计配置 ==========
 
 // Config 审计配置
 type Config struct {
-	Enabled           bool          `json:"enabled"`             // 是否启用审计
-	LogPath           string        `json:"log_path"`            // 日志存储路径
-	MaxEntries        int           `json:"max_entries"`         // 最大日志条数
-	MaxAgeDays        int           `json:"max_age_days"`        // 最大保留天数
-	AutoSave          bool          `json:"auto_save"`           // 自动保存
-	SaveInterval      time.Duration `json:"save_interval"`       // 保存间隔
-	EnableSignatures  bool          `json:"enable_signatures"`   // 启用签名防篡改
-	EnableCompression bool          `json:"enable_compression"`  // 启用压缩
-	CompressionType   string        `json:"compression_type"`    // 压缩类型 (gzip, zstd)
+	Enabled           bool              `json:"enabled"`            // 是否启用审计
+	LogPath           string            `json:"log_path"`           // 日志存储路径
+	MaxEntries        int               `json:"max_entries"`        // 最大日志条数
+	MaxAgeDays        int               `json:"max_age_days"`       // 最大保留天数
+	AutoSave          bool              `json:"auto_save"`          // 自动保存
+	SaveInterval      time.Duration     `json:"save_interval"`      // 保存间隔
+	EnableSignatures  bool              `json:"enable_signatures"`  // 启用签名防篡改
+	EnableCompression bool              `json:"enable_compression"` // 启用压缩
+	CompressionType   string            `json:"compression_type"`   // 压缩类型 (gzip, zstd)
 	RetentionPolicies []RetentionPolicy `json:"retention_policies"` // 保留策略
 }
 
 // RetentionPolicy 日志保留策略
 type RetentionPolicy struct {
-	Category  Category `json:"category"`   // 适用分类
-	MaxAge    int      `json:"max_age"`    // 最大保留天数
-	MaxCount  int      `json:"max_count"`  // 最大条数
-	Compress  bool     `json:"compress"`   // 是否压缩
+	Category Category `json:"category"`  // 适用分类
+	MaxAge   int      `json:"max_age"`   // 最大保留天数
+	MaxCount int      `json:"max_count"` // 最大条数
+	Compress bool     `json:"compress"`  // 是否压缩
 }
 
 // ========== 统计信息 ==========
 
 // Statistics 审计统计
 type Statistics struct {
-	TotalEntries      int            `json:"total_entries"`      // 总日志数
-	TodayEntries      int            `json:"today_entries"`      // 今日日志数
-	FailedAuthToday   int            `json:"failed_auth_today"`  // 今日失败认证
-	SuccessAuthToday  int            `json:"success_auth_today"` // 今日成功认证
-	TopUsers          []UserActivity `json:"top_users"`          // 活跃用户
-	TopIPs            []IPActivity   `json:"top_ips"`            // 活跃IP
-	EventsByCategory  map[string]int `json:"events_by_category"` // 分类统计
-	EventsByLevel     map[string]int `json:"events_by_level"`    // 级别统计
-	StorageUsed       int64          `json:"storage_used"`       // 存储使用量(字节)
-	OldestEntry       *time.Time     `json:"oldest_entry,omitempty"` // 最早日志时间
-	NewestEntry       *time.Time     `json:"newest_entry,omitempty"` // 最新日志时间
+	TotalEntries     int            `json:"total_entries"`          // 总日志数
+	TodayEntries     int            `json:"today_entries"`          // 今日日志数
+	FailedAuthToday  int            `json:"failed_auth_today"`      // 今日失败认证
+	SuccessAuthToday int            `json:"success_auth_today"`     // 今日成功认证
+	TopUsers         []UserActivity `json:"top_users"`              // 活跃用户
+	TopIPs           []IPActivity   `json:"top_ips"`                // 活跃IP
+	EventsByCategory map[string]int `json:"events_by_category"`     // 分类统计
+	EventsByLevel    map[string]int `json:"events_by_level"`        // 级别统计
+	StorageUsed      int64          `json:"storage_used"`           // 存储使用量(字节)
+	OldestEntry      *time.Time     `json:"oldest_entry,omitempty"` // 最早日志时间
+	NewestEntry      *time.Time     `json:"newest_entry,omitempty"` // 最新日志时间
 }
 
 // UserActivity 用户活动统计
@@ -195,13 +195,13 @@ type IPActivity struct {
 
 // IntegrityReport 完整性验证报告
 type IntegrityReport struct {
-	GeneratedAt   time.Time        `json:"generated_at"`
-	TotalEntries  int              `json:"total_entries"`
-	Verified      int              `json:"verified"`
-	Tampered      int              `json:"tampered"`
-	Missing       int              `json:"missing"`
+	GeneratedAt     time.Time       `json:"generated_at"`
+	TotalEntries    int             `json:"total_entries"`
+	Verified        int             `json:"verified"`
+	Tampered        int             `json:"tampered"`
+	Missing         int             `json:"missing"`
 	TamperedEntries []TamperedEntry `json:"tampered_entries,omitempty"`
-	Valid         bool             `json:"valid"`
+	Valid           bool            `json:"valid"`
 }
 
 // TamperedEntry 被篡改的日志条目
@@ -227,12 +227,12 @@ const (
 
 // ExportOptions 导出选项
 type ExportOptions struct {
-	Format      ExportFormat `json:"format"`       // 导出格式
-	StartTime   time.Time    `json:"start_time"`   // 开始时间
-	EndTime     time.Time    `json:"end_time"`     // 结束时间
-	Categories  []Category   `json:"categories"`   // 包含的分类
-	IncludeSignatures bool   `json:"include_signatures"` // 包含签名
-	Compress    bool         `json:"compress"`     // 压缩导出
+	Format            ExportFormat `json:"format"`             // 导出格式
+	StartTime         time.Time    `json:"start_time"`         // 开始时间
+	EndTime           time.Time    `json:"end_time"`           // 结束时间
+	Categories        []Category   `json:"categories"`         // 包含的分类
+	IncludeSignatures bool         `json:"include_signatures"` // 包含签名
+	Compress          bool         `json:"compress"`           // 压缩导出
 }
 
 // ========== API 响应类型 ==========
@@ -258,17 +258,17 @@ func ErrorResponse(code int, message string) APIResponse {
 
 // 错误码定义
 const (
-	ErrCodeInvalidParam    = 400
-	ErrCodeNotFound        = 404
-	ErrCodeInternalError   = 500
-	ErrCodeAuditDisabled   = 503
+	ErrCodeInvalidParam  = 400
+	ErrCodeNotFound      = 404
+	ErrCodeInternalError = 500
+	ErrCodeAuditDisabled = 503
 )
 
 // 错误消息定义
 var (
-	ErrAuditDisabled     = "审计功能未启用"
-	ErrInvalidTimeRange  = "无效的时间范围"
-	ErrEntryNotFound     = "审计日志不存在"
-	ErrInvalidSignature  = "无效的数字签名"
-	ErrExportFailed      = "导出失败"
+	ErrAuditDisabled    = "审计功能未启用"
+	ErrInvalidTimeRange = "无效的时间范围"
+	ErrEntryNotFound    = "审计日志不存在"
+	ErrInvalidSignature = "无效的数字签名"
+	ErrExportFailed     = "导出失败"
 )

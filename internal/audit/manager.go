@@ -18,11 +18,11 @@ import (
 
 // Manager 审计日志管理器
 type Manager struct {
-	config    Config
-	entries   []*Entry
-	mu        sync.RWMutex
+	config     Config
+	entries    []*Entry
+	mu         sync.RWMutex
 	signingKey []byte // 签名密钥
-	stopCh    chan struct{}
+	stopCh     chan struct{}
 }
 
 // DefaultConfig 默认配置
@@ -514,12 +514,12 @@ func (m *Manager) VerifyIntegrity() *IntegrityReport {
 	defer m.mu.RUnlock()
 
 	report := &IntegrityReport{
-		GeneratedAt:      time.Now(),
-		TotalEntries:     len(m.entries),
-		Verified:         0,
-		Tampered:         0,
-		Missing:          0,
-		TamperedEntries:  make([]TamperedEntry, 0),
+		GeneratedAt:     time.Now(),
+		TotalEntries:    len(m.entries),
+		Verified:        0,
+		Tampered:        0,
+		Missing:         0,
+		TamperedEntries: make([]TamperedEntry, 0),
 	}
 
 	if !m.config.EnableSignatures {

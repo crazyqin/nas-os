@@ -31,12 +31,12 @@ func (r *ComplianceReporter) GenerateReport(standard ComplianceStandard, startTi
 	}
 
 	report := &ComplianceReport{
-		ReportID:      fmt.Sprintf("RPT-%d", time.Now().UnixNano()),
-		Standard:      standard,
-		GeneratedAt:   time.Now(),
-		PeriodStart:   startTime,
-		PeriodEnd:     endTime,
-		Findings:      make([]ComplianceFinding, 0),
+		ReportID:        fmt.Sprintf("RPT-%d", time.Now().UnixNano()),
+		Standard:        standard,
+		GeneratedAt:     time.Now(),
+		PeriodStart:     startTime,
+		PeriodEnd:       endTime,
+		Findings:        make([]ComplianceFinding, 0),
 		Recommendations: make([]string, 0),
 	}
 
@@ -65,10 +65,10 @@ func (r *ComplianceReporter) GenerateReport(standard ComplianceStandard, startTi
 // calculateSummary 计算摘要统计
 func (r *ComplianceReporter) calculateSummary(entries []*Entry) ComplianceSummary {
 	summary := ComplianceSummary{
-		TotalEvents:       len(entries),
-		EventsByCategory:  make(map[string]int),
-		EventsByLevel:     make(map[string]int),
-		EventsByHour:      make(map[int]int),
+		TotalEvents:      len(entries),
+		EventsByCategory: make(map[string]int),
+		EventsByLevel:    make(map[string]int),
+		EventsByHour:     make(map[int]int),
 	}
 
 	users := make(map[string]bool)

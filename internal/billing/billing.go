@@ -29,36 +29,36 @@ var (
 // BillingConfig 计费配置
 type BillingConfig struct {
 	// 基础配置
-	Enabled           bool          `json:"enabled"`            // 是否启用计费
-	DefaultCurrency   string        `json:"default_currency"`   // 默认货币（CNY, USD 等）
-	BillingCycle      BillingCycle  `json:"billing_cycle"`      // 计费周期
-	BillingDayOfMonth int           `json:"billing_day_of_month"` // 每月账单日（1-28）
+	Enabled           bool         `json:"enabled"`              // 是否启用计费
+	DefaultCurrency   string       `json:"default_currency"`     // 默认货币（CNY, USD 等）
+	BillingCycle      BillingCycle `json:"billing_cycle"`        // 计费周期
+	BillingDayOfMonth int          `json:"billing_day_of_month"` // 每月账单日（1-28）
 
 	// 存储计费配置
-	StoragePricing    StoragePricingConfig `json:"storage_pricing"`    // 存储计费配置
-	BandwidthPricing  BandwidthPricingConfig `json:"bandwidth_pricing"` // 带宽计费配置
+	StoragePricing   StoragePricingConfig   `json:"storage_pricing"`   // 存储计费配置
+	BandwidthPricing BandwidthPricingConfig `json:"bandwidth_pricing"` // 带宽计费配置
 
 	// 发票配置
-	InvoicePrefix     string        `json:"invoice_prefix"`     // 发票前缀
-	InvoiceDueDays    int           `json:"invoice_due_days"`   // 发票到期天数
-	TaxRate           float64       `json:"tax_rate"`           // 税率（如 0.13 表示 13%）
-	TaxIncluded       bool          `json:"tax_included"`       // 价格是否含税
+	InvoicePrefix  string  `json:"invoice_prefix"`   // 发票前缀
+	InvoiceDueDays int     `json:"invoice_due_days"` // 发票到期天数
+	TaxRate        float64 `json:"tax_rate"`         // 税率（如 0.13 表示 13%）
+	TaxIncluded    bool    `json:"tax_included"`     // 价格是否含税
 
 	// 提醒配置
-	ReminderDays      []int         `json:"reminder_days"`       // 提前提醒天数
-	OverdueReminder   bool          `json:"overdue_reminder"`    // 逾期提醒
-	OverdueGraceDays  int           `json:"overdue_grace_days"`  // 逾期宽限天数
+	ReminderDays     []int `json:"reminder_days"`      // 提前提醒天数
+	OverdueReminder  bool  `json:"overdue_reminder"`   // 逾期提醒
+	OverdueGraceDays int   `json:"overdue_grace_days"` // 逾期宽限天数
 
 	// 数据保留配置
-	UsageDataRetention int          `json:"usage_data_retention"` // 用量数据保留天数
-	InvoiceRetention   int          `json:"invoice_retention"`    // 发票保留天数
+	UsageDataRetention int `json:"usage_data_retention"` // 用量数据保留天数
+	InvoiceRetention   int `json:"invoice_retention"`    // 发票保留天数
 
 	// 公司信息
-	CompanyName       string        `json:"company_name"`
-	CompanyAddress     string        `json:"company_address"`
-	CompanyTaxID       string        `json:"company_tax_id"`
-	CompanyPhone       string        `json:"company_phone"`
-	CompanyEmail       string        `json:"company_email"`
+	CompanyName    string `json:"company_name"`
+	CompanyAddress string `json:"company_address"`
+	CompanyTaxID   string `json:"company_tax_id"`
+	CompanyPhone   string `json:"company_phone"`
+	CompanyEmail   string `json:"company_email"`
 }
 
 // BillingCycle 计费周期
@@ -74,28 +74,28 @@ const (
 // StoragePricingConfig 存储计费配置
 type StoragePricingConfig struct {
 	// 基础存储价格
-	BasePricePerGB     float64 `json:"base_price_per_gb"`     // 基础存储价格（元/GB/周期）
-	SSDPricePerGB      float64 `json:"ssd_price_per_gb"`      // SSD 存储价格
-	HDDPricePerGB      float64 `json:"hdd_price_per_gb"`      // HDD 存储价格
-	ArchivePricePerGB  float64 `json:"archive_price_per_gb"`  // 归档存储价格
+	BasePricePerGB    float64 `json:"base_price_per_gb"`    // 基础存储价格（元/GB/周期）
+	SSDPricePerGB     float64 `json:"ssd_price_per_gb"`     // SSD 存储价格
+	HDDPricePerGB     float64 `json:"hdd_price_per_gb"`     // HDD 存储价格
+	ArchivePricePerGB float64 `json:"archive_price_per_gb"` // 归档存储价格
 
 	// 存储池定价
-	PoolPricing        map[string]PoolPricing `json:"pool_pricing"` // 按存储池的定价
+	PoolPricing map[string]PoolPricing `json:"pool_pricing"` // 按存储池的定价
 
 	// 免费额度
-	FreeStorageGB      float64 `json:"free_storage_gb"`      // 免费存储额度（GB）
+	FreeStorageGB      float64 `json:"free_storage_gb"`       // 免费存储额度（GB）
 	FreeStoragePerUser float64 `json:"free_storage_per_user"` // 每用户免费额度
 
 	// 阶梯定价
-	TieredPricing      []StorageTier `json:"tiered_pricing"` // 阶梯定价配置
+	TieredPricing []StorageTier `json:"tiered_pricing"` // 阶梯定价配置
 }
 
 // PoolPricing 存储池定价
 type PoolPricing struct {
 	PoolID          string  `json:"pool_id"`
 	PoolName        string  `json:"pool_name"`
-	StorageType     string  `json:"storage_type"`     // ssd, hdd, archive
-	PricePerGB      float64 `json:"price_per_gb"`     // 价格（元/GB/周期）
+	StorageType     string  `json:"storage_type"` // ssd, hdd, archive
+	PricePerGB      float64 `json:"price_per_gb"` // 价格（元/GB/周期）
 	Currency        string  `json:"currency"`
 	MinCommitmentGB float64 `json:"min_commitment_gb"` // 最低承诺量
 	DiscountPercent float64 `json:"discount_percent"`  // 折扣百分比
@@ -103,15 +103,15 @@ type PoolPricing struct {
 
 // StorageTier 存储阶梯定价
 type StorageTier struct {
-	MinGB     float64 `json:"min_gb"`     // 起始 GB
-	MaxGB     float64 `json:"max_gb"`     // 结束 GB（-1 表示无限）
+	MinGB      float64 `json:"min_gb"`       // 起始 GB
+	MaxGB      float64 `json:"max_gb"`       // 结束 GB（-1 表示无限）
 	PricePerGB float64 `json:"price_per_gb"` // 该阶梯价格
 }
 
 // BandwidthPricingConfig 带宽计费配置
 type BandwidthPricingConfig struct {
 	// 带宽计费模式
-	Model             BandwidthModel `json:"model"`              // 计费模式
+	Model BandwidthModel `json:"model"` // 计费模式
 
 	// 按流量计费
 	TrafficPricePerGB float64 `json:"traffic_price_per_gb"` // 流量价格（元/GB）
@@ -120,11 +120,11 @@ type BandwidthPricingConfig struct {
 	BandwidthPriceMbps float64 `json:"bandwidth_price_mbps"` // 带宽价格（元/Mbps/周期）
 
 	// 免费额度
-	FreeTrafficGB     float64 `json:"free_traffic_gb"`      // 免费流量额度（GB）
-	FreeBandwidthMbps float64 `json:"free_bandwidth_mbps"`  // 免费带宽额度（Mbps）
+	FreeTrafficGB     float64 `json:"free_traffic_gb"`     // 免费流量额度（GB）
+	FreeBandwidthMbps float64 `json:"free_bandwidth_mbps"` // 免费带宽额度（Mbps）
 
 	// 阶梯定价
-	TieredPricing     []BandwidthTier `json:"tiered_pricing"` // 阶梯定价
+	TieredPricing []BandwidthTier `json:"tiered_pricing"` // 阶梯定价
 }
 
 // BandwidthModel 带宽计费模式
@@ -147,158 +147,158 @@ type BandwidthTier struct {
 
 // UsageRecord 用量记录
 type UsageRecord struct {
-	ID              string            `json:"id"`
-	UserID          string            `json:"user_id"`
-	UserName        string            `json:"user_name"`
-	PoolID          string            `json:"pool_id"`
-	PoolName        string            `json:"pool_name"`
+	ID       string `json:"id"`
+	UserID   string `json:"user_id"`
+	UserName string `json:"user_name"`
+	PoolID   string `json:"pool_id"`
+	PoolName string `json:"pool_name"`
 
 	// 时间信息
-	PeriodStart     time.Time         `json:"period_start"`
-	PeriodEnd       time.Time         `json:"period_end"`
-	RecordedAt      time.Time         `json:"recorded_at"`
+	PeriodStart time.Time `json:"period_start"`
+	PeriodEnd   time.Time `json:"period_end"`
+	RecordedAt  time.Time `json:"recorded_at"`
 
 	// 存储用量
-	StorageUsedBytes     uint64        `json:"storage_used_bytes"`
-	StorageUsedGB        float64       `json:"storage_used_gb"`
-	StoragePeakBytes     uint64        `json:"storage_peak_bytes"`
-	StoragePeakGB        float64       `json:"storage_peak_gb"`
-	StorageAverageBytes  uint64        `json:"storage_average_bytes"`
-	StorageAverageGB     float64       `json:"storage_average_gb"`
+	StorageUsedBytes    uint64  `json:"storage_used_bytes"`
+	StorageUsedGB       float64 `json:"storage_used_gb"`
+	StoragePeakBytes    uint64  `json:"storage_peak_bytes"`
+	StoragePeakGB       float64 `json:"storage_peak_gb"`
+	StorageAverageBytes uint64  `json:"storage_average_bytes"`
+	StorageAverageGB    float64 `json:"storage_average_gb"`
 
 	// 带宽用量
-	BandwidthInBytes     uint64        `json:"bandwidth_in_bytes"`     // 入站流量
-	BandwidthInGB        float64       `json:"bandwidth_in_gb"`
-	BandwidthOutBytes    uint64        `json:"bandwidth_out_bytes"`    // 出站流量
-	BandwidthOutGB        float64       `json:"bandwidth_out_gb"`
-	BandwidthTotalBytes  uint64        `json:"bandwidth_total_bytes"`  // 总流量
-	BandwidthTotalGB     float64       `json:"bandwidth_total_gb"`
-	PeakBandwidthMbps     float64       `json:"peak_bandwidth_mbps"`    // 峰值带宽
+	BandwidthInBytes    uint64  `json:"bandwidth_in_bytes"` // 入站流量
+	BandwidthInGB       float64 `json:"bandwidth_in_gb"`
+	BandwidthOutBytes   uint64  `json:"bandwidth_out_bytes"` // 出站流量
+	BandwidthOutGB      float64 `json:"bandwidth_out_gb"`
+	BandwidthTotalBytes uint64  `json:"bandwidth_total_bytes"` // 总流量
+	BandwidthTotalGB    float64 `json:"bandwidth_total_gb"`
+	PeakBandwidthMbps   float64 `json:"peak_bandwidth_mbps"` // 峰值带宽
 
 	// 操作次数
-	APIRequests          int64         `json:"api_requests"`           // API 请求次数
-	FileOperations       int64         `json:"file_operations"`        // 文件操作次数
+	APIRequests    int64 `json:"api_requests"`    // API 请求次数
+	FileOperations int64 `json:"file_operations"` // 文件操作次数
 
 	// 元数据
-	Metadata             map[string]interface{} `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // UsageRecordInput 用量记录输入
 type UsageRecordInput struct {
-	UserID          string    `json:"user_id" binding:"required"`
-	UserName        string    `json:"user_name"`
-	PoolID          string    `json:"pool_id"`
-	PoolName        string    `json:"pool_name"`
-	PeriodStart     time.Time `json:"period_start" binding:"required"`
-	PeriodEnd       time.Time `json:"period_end" binding:"required"`
-	StorageUsedBytes uint64   `json:"storage_used_bytes"`
-	StoragePeakBytes uint64   `json:"storage_peak_bytes"`
-	BandwidthInBytes uint64   `json:"bandwidth_in_bytes"`
-	BandwidthOutBytes uint64  `json:"bandwidth_out_bytes"`
-	PeakBandwidthMbps float64 `json:"peak_bandwidth_mbps"`
-	APIRequests      int64     `json:"api_requests"`
-	FileOperations   int64     `json:"file_operations"`
-	Metadata         map[string]interface{} `json:"metadata"`
+	UserID            string                 `json:"user_id" binding:"required"`
+	UserName          string                 `json:"user_name"`
+	PoolID            string                 `json:"pool_id"`
+	PoolName          string                 `json:"pool_name"`
+	PeriodStart       time.Time              `json:"period_start" binding:"required"`
+	PeriodEnd         time.Time              `json:"period_end" binding:"required"`
+	StorageUsedBytes  uint64                 `json:"storage_used_bytes"`
+	StoragePeakBytes  uint64                 `json:"storage_peak_bytes"`
+	BandwidthInBytes  uint64                 `json:"bandwidth_in_bytes"`
+	BandwidthOutBytes uint64                 `json:"bandwidth_out_bytes"`
+	PeakBandwidthMbps float64                `json:"peak_bandwidth_mbps"`
+	APIRequests       int64                  `json:"api_requests"`
+	FileOperations    int64                  `json:"file_operations"`
+	Metadata          map[string]interface{} `json:"metadata"`
 }
 
 // UsageSummary 用量汇总
 type UsageSummary struct {
-	UserID              string    `json:"user_id"`
-	UserName            string    `json:"user_name"`
-	PeriodStart         time.Time `json:"period_start"`
-	PeriodEnd           time.Time `json:"period_end"`
+	UserID      string    `json:"user_id"`
+	UserName    string    `json:"user_name"`
+	PeriodStart time.Time `json:"period_start"`
+	PeriodEnd   time.Time `json:"period_end"`
 
 	// 存储汇总
-	TotalStorageUsedGB   float64   `json:"total_storage_used_gb"`
-	MaxStorageUsedGB     float64   `json:"max_storage_used_gb"`
-	AvgStorageUsedGB     float64   `json:"avg_storage_used_gb"`
-	StorageRecords       int       `json:"storage_records"`
+	TotalStorageUsedGB float64 `json:"total_storage_used_gb"`
+	MaxStorageUsedGB   float64 `json:"max_storage_used_gb"`
+	AvgStorageUsedGB   float64 `json:"avg_storage_used_gb"`
+	StorageRecords     int     `json:"storage_records"`
 
 	// 带宽汇总
-	TotalBandwidthInGB   float64   `json:"total_bandwidth_in_gb"`
-	TotalBandwidthOutGB  float64   `json:"total_bandwidth_out_gb"`
-	TotalBandwidthGB     float64   `json:"total_bandwidth_gb"`
-	MaxPeakBandwidthMbps float64   `json:"max_peak_bandwidth_mbps"`
-	BandwidthRecords     int       `json:"bandwidth_records"`
+	TotalBandwidthInGB   float64 `json:"total_bandwidth_in_gb"`
+	TotalBandwidthOutGB  float64 `json:"total_bandwidth_out_gb"`
+	TotalBandwidthGB     float64 `json:"total_bandwidth_gb"`
+	MaxPeakBandwidthMbps float64 `json:"max_peak_bandwidth_mbps"`
+	BandwidthRecords     int     `json:"bandwidth_records"`
 
 	// 操作汇总
-	TotalAPIRequests     int64     `json:"total_api_requests"`
-	TotalFileOperations  int64     `json:"total_file_operations"`
+	TotalAPIRequests    int64 `json:"total_api_requests"`
+	TotalFileOperations int64 `json:"total_file_operations"`
 
 	// 按存储池汇总
-	PoolSummaries       map[string]*PoolUsageSummary `json:"pool_summaries"`
+	PoolSummaries map[string]*PoolUsageSummary `json:"pool_summaries"`
 }
 
 // PoolUsageSummary 存储池用量汇总
 type PoolUsageSummary struct {
-	PoolID              string    `json:"pool_id"`
-	PoolName            string    `json:"pool_name"`
-	TotalStorageUsedGB  float64   `json:"total_storage_used_gb"`
-	MaxStorageUsedGB     float64   `json:"max_storage_used_gb"`
-	AvgStorageUsedGB     float64   `json:"avg_storage_used_gb"`
-	TotalBandwidthInGB   float64   `json:"total_bandwidth_in_gb"`
-	TotalBandwidthOutGB  float64   `json:"total_bandwidth_out_gb"`
-	TotalBandwidthGB     float64   `json:"total_bandwidth_gb"`
-	Records              int       `json:"records"`
+	PoolID              string  `json:"pool_id"`
+	PoolName            string  `json:"pool_name"`
+	TotalStorageUsedGB  float64 `json:"total_storage_used_gb"`
+	MaxStorageUsedGB    float64 `json:"max_storage_used_gb"`
+	AvgStorageUsedGB    float64 `json:"avg_storage_used_gb"`
+	TotalBandwidthInGB  float64 `json:"total_bandwidth_in_gb"`
+	TotalBandwidthOutGB float64 `json:"total_bandwidth_out_gb"`
+	TotalBandwidthGB    float64 `json:"total_bandwidth_gb"`
+	Records             int     `json:"records"`
 }
 
 // ========== 发票 ==========
 
 // Invoice 发票
 type Invoice struct {
-	ID                  string            `json:"id"`
-	InvoiceNumber       string            `json:"invoice_number"`
-	UserID              string            `json:"user_id"`
-	UserName            string            `json:"user_name"`
+	ID            string `json:"id"`
+	InvoiceNumber string `json:"invoice_number"`
+	UserID        string `json:"user_id"`
+	UserName      string `json:"user_name"`
 
 	// 时间信息
-	PeriodStart         time.Time         `json:"period_start"`
-	PeriodEnd           time.Time         `json:"period_end"`
-	IssuedAt            time.Time         `json:"issued_at"`
-	DueAt               time.Time         `json:"due_at"`
-	PaidAt              *time.Time        `json:"paid_at,omitempty"`
+	PeriodStart time.Time  `json:"period_start"`
+	PeriodEnd   time.Time  `json:"period_end"`
+	IssuedAt    time.Time  `json:"issued_at"`
+	DueAt       time.Time  `json:"due_at"`
+	PaidAt      *time.Time `json:"paid_at,omitempty"`
 
 	// 状态
-	Status              InvoiceStatus     `json:"status"`
+	Status InvoiceStatus `json:"status"`
 
 	// 金额
-	Currency            string            `json:"currency"`
+	Currency string `json:"currency"`
 
 	// 存储费用
-	StorageAmount       float64           `json:"storage_amount"`        // 存储费用
-	StorageUsedGB       float64           `json:"storage_used_gb"`       // 存储用量
-	StorageUnitPrice    float64           `json:"storage_unit_price"`    // 存储单价
+	StorageAmount    float64 `json:"storage_amount"`     // 存储费用
+	StorageUsedGB    float64 `json:"storage_used_gb"`    // 存储用量
+	StorageUnitPrice float64 `json:"storage_unit_price"` // 存储单价
 
 	// 带宽费用
-	BandwidthAmount     float64           `json:"bandwidth_amount"`      // 带宽费用
-	BandwidthUsedGB     float64           `json:"bandwidth_used_gb"`     // 带宽用量
-	BandwidthUnitPrice  float64           `json:"bandwidth_unit_price"`  // 带宽单价
+	BandwidthAmount    float64 `json:"bandwidth_amount"`     // 带宽费用
+	BandwidthUsedGB    float64 `json:"bandwidth_used_gb"`    // 带宽用量
+	BandwidthUnitPrice float64 `json:"bandwidth_unit_price"` // 带宽单价
 
 	// 其他费用
-	OtherAmount         float64           `json:"other_amount"`          // 其他费用
+	OtherAmount float64 `json:"other_amount"` // 其他费用
 
 	// 折扣
-	DiscountAmount      float64           `json:"discount_amount"`      // 折扣金额
-	DiscountReason      string            `json:"discount_reason"`      // 折扣原因
+	DiscountAmount float64 `json:"discount_amount"` // 折扣金额
+	DiscountReason string  `json:"discount_reason"` // 折扣原因
 
 	// 小计
-	Subtotal            float64           `json:"subtotal"`             // 小计
-	TaxAmount           float64           `json:"tax_amount"`           // 税额
-	TotalAmount         float64           `json:"total_amount"`         // 总计
+	Subtotal    float64 `json:"subtotal"`     // 小计
+	TaxAmount   float64 `json:"tax_amount"`   // 税额
+	TotalAmount float64 `json:"total_amount"` // 总计
 
 	// 明细
-	LineItems           []InvoiceLineItem `json:"line_items"`
+	LineItems []InvoiceLineItem `json:"line_items"`
 
 	// 支付信息
-	PaymentMethod       string            `json:"payment_method,omitempty"`
-	PaymentReference    string            `json:"payment_reference,omitempty"`
+	PaymentMethod    string `json:"payment_method,omitempty"`
+	PaymentReference string `json:"payment_reference,omitempty"`
 
 	// 备注
-	Notes               string            `json:"notes,omitempty"`
-	Terms               string            `json:"terms,omitempty"`
+	Notes string `json:"notes,omitempty"`
+	Terms string `json:"terms,omitempty"`
 
 	// 元数据
-	Metadata            map[string]interface{} `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // InvoiceStatus 发票状态
@@ -310,39 +310,39 @@ const (
 	InvoiceStatusSent     InvoiceStatus = "sent"     // 已发送
 	InvoiceStatusPaid     InvoiceStatus = "paid"     // 已支付
 	InvoiceStatusOverdue  InvoiceStatus = "overdue"  // 逾期
-	InvoiceStatusVoid     InvoiceStatus = "void"      // 已作废
+	InvoiceStatusVoid     InvoiceStatus = "void"     // 已作废
 	InvoiceStatusRefunded InvoiceStatus = "refunded" // 已退款
 )
 
 // InvoiceLineItem 发票明细项
 type InvoiceLineItem struct {
-	ID              string  `json:"id"`
-	Description     string  `json:"description"`      // 描述
-	Quantity        float64 `json:"quantity"`         // 数量
-	Unit            string  `json:"unit"`             // 单位
-	UnitPrice       float64 `json:"unit_price"`      // 单价
-	Amount          float64 `json:"amount"`          // 金额
-	DiscountPercent float64 `json:"discount_percent"` // 折扣百分比
-	TaxRate         float64 `json:"tax_rate"`        // 税率
+	ID              string     `json:"id"`
+	Description     string     `json:"description"`          // 描述
+	Quantity        float64    `json:"quantity"`             // 数量
+	Unit            string     `json:"unit"`                 // 单位
+	UnitPrice       float64    `json:"unit_price"`           // 单价
+	Amount          float64    `json:"amount"`               // 金额
+	DiscountPercent float64    `json:"discount_percent"`     // 折扣百分比
+	TaxRate         float64    `json:"tax_rate"`             // 税率
 	StartDate       *time.Time `json:"start_date,omitempty"` // 开始日期
 	EndDate         *time.Time `json:"end_date,omitempty"`   // 结束日期
-	PoolID          string  `json:"pool_id,omitempty"`     // 存储池 ID
-	PoolName        string  `json:"pool_name,omitempty"`   // 存储池名称
+	PoolID          string     `json:"pool_id,omitempty"`    // 存储池 ID
+	PoolName        string     `json:"pool_name,omitempty"`  // 存储池名称
 }
 
 // InvoiceInput 发票输入
 type InvoiceInput struct {
-	UserID           string                 `json:"user_id" binding:"required"`
-	UserName         string                 `json:"user_name"`
-	PeriodStart      time.Time              `json:"period_start" binding:"required"`
-	PeriodEnd        time.Time              `json:"period_end" binding:"required"`
-	Currency         string                 `json:"currency"`
-	LineItems        []InvoiceLineItemInput `json:"line_items" binding:"required"`
-	DiscountAmount   float64                `json:"discount_amount"`
-	DiscountReason   string                 `json:"discount_reason"`
-	Notes            string                 `json:"notes"`
-	Terms            string                 `json:"terms"`
-	Metadata         map[string]interface{} `json:"metadata"`
+	UserID         string                 `json:"user_id" binding:"required"`
+	UserName       string                 `json:"user_name"`
+	PeriodStart    time.Time              `json:"period_start" binding:"required"`
+	PeriodEnd      time.Time              `json:"period_end" binding:"required"`
+	Currency       string                 `json:"currency"`
+	LineItems      []InvoiceLineItemInput `json:"line_items" binding:"required"`
+	DiscountAmount float64                `json:"discount_amount"`
+	DiscountReason string                 `json:"discount_reason"`
+	Notes          string                 `json:"notes"`
+	Terms          string                 `json:"terms"`
+	Metadata       map[string]interface{} `json:"metadata"`
 }
 
 // InvoiceLineItemInput 发票明细项输入
@@ -361,134 +361,134 @@ type InvoiceLineItemInput struct {
 
 // InvoiceSummary 发票汇总
 type InvoiceSummary struct {
-	UserID          string    `json:"user_id"`
-	UserName        string    `json:"user_name"`
-	PeriodStart     time.Time `json:"period_start"`
-	PeriodEnd       time.Time `json:"period_end"`
+	UserID      string    `json:"user_id"`
+	UserName    string    `json:"user_name"`
+	PeriodStart time.Time `json:"period_start"`
+	PeriodEnd   time.Time `json:"period_end"`
 
 	// 发票数量
-	TotalInvoices   int       `json:"total_invoices"`
-	DraftInvoices   int       `json:"draft_invoices"`
-	IssuedInvoices  int       `json:"issued_invoices"`
-	PaidInvoices    int       `json:"paid_invoices"`
-	OverdueInvoices int       `json:"overdue_invoices"`
-	VoidInvoices    int       `json:"void_invoices"`
+	TotalInvoices   int `json:"total_invoices"`
+	DraftInvoices   int `json:"draft_invoices"`
+	IssuedInvoices  int `json:"issued_invoices"`
+	PaidInvoices    int `json:"paid_invoices"`
+	OverdueInvoices int `json:"overdue_invoices"`
+	VoidInvoices    int `json:"void_invoices"`
 
 	// 金额汇总
-	TotalIssuedAmount  float64 `json:"total_issued_amount"`
-	TotalPaidAmount    float64 `json:"total_paid_amount"`
-	TotalOverdueAmount float64 `json:"total_overdue_amount"`
+	TotalIssuedAmount      float64 `json:"total_issued_amount"`
+	TotalPaidAmount        float64 `json:"total_paid_amount"`
+	TotalOverdueAmount     float64 `json:"total_overdue_amount"`
 	TotalOutstandingAmount float64 `json:"total_outstanding_amount"`
 
 	// 费用明细
-	TotalStorageAmount float64 `json:"total_storage_amount"`
+	TotalStorageAmount   float64 `json:"total_storage_amount"`
 	TotalBandwidthAmount float64 `json:"total_bandwidth_amount"`
-	TotalOtherAmount  float64   `json:"total_other_amount"`
-	TotalDiscountAmount float64 `json:"total_discount_amount"`
-	TotalTaxAmount    float64   `json:"total_tax_amount"`
+	TotalOtherAmount     float64 `json:"total_other_amount"`
+	TotalDiscountAmount  float64 `json:"total_discount_amount"`
+	TotalTaxAmount       float64 `json:"total_tax_amount"`
 }
 
 // ========== 计费统计 ==========
 
 // BillingStats 计费统计
 type BillingStats struct {
-	PeriodStart         time.Time       `json:"period_start"`
-	PeriodEnd           time.Time       `json:"period_end"`
-	GeneratedAt         time.Time       `json:"generated_at"`
+	PeriodStart time.Time `json:"period_start"`
+	PeriodEnd   time.Time `json:"period_end"`
+	GeneratedAt time.Time `json:"generated_at"`
 
 	// 总体统计
-	TotalUsers          int             `json:"total_users"`
-	ActiveUsers         int             `json:"active_users"`
-	TotalPools          int             `json:"total_pools"`
+	TotalUsers  int `json:"total_users"`
+	ActiveUsers int `json:"active_users"`
+	TotalPools  int `json:"total_pools"`
 
 	// 用量统计
-	TotalStorageUsedGB  float64         `json:"total_storage_used_gb"`
-	TotalBandwidthGB    float64         `json:"total_bandwidth_gb"`
+	TotalStorageUsedGB float64 `json:"total_storage_used_gb"`
+	TotalBandwidthGB   float64 `json:"total_bandwidth_gb"`
 
 	// 收入统计
-	TotalRevenue        float64         `json:"total_revenue"`
-	StorageRevenue      float64         `json:"storage_revenue"`
-	BandwidthRevenue    float64         `json:"bandwidth_revenue"`
-	OtherRevenue        float64         `json:"other_revenue"`
+	TotalRevenue     float64 `json:"total_revenue"`
+	StorageRevenue   float64 `json:"storage_revenue"`
+	BandwidthRevenue float64 `json:"bandwidth_revenue"`
+	OtherRevenue     float64 `json:"other_revenue"`
 
 	// 发票统计
-	TotalInvoices       int             `json:"total_invoices"`
-	PaidInvoices        int             `json:"paid_invoices"`
-	OverdueInvoices     int             `json:"overdue_invoices"`
-	OutstandingAmount   float64         `json:"outstanding_amount"`
+	TotalInvoices     int     `json:"total_invoices"`
+	PaidInvoices      int     `json:"paid_invoices"`
+	OverdueInvoices   int     `json:"overdue_invoices"`
+	OutstandingAmount float64 `json:"outstanding_amount"`
 
 	// 按用户统计
-	UserStats           []UserBillingStats `json:"user_stats"`
+	UserStats []UserBillingStats `json:"user_stats"`
 
 	// 按存储池统计
-	PoolStats           []PoolBillingStats `json:"pool_stats"`
+	PoolStats []PoolBillingStats `json:"pool_stats"`
 }
 
 // UserBillingStats 用户计费统计
 type UserBillingStats struct {
-	UserID              string    `json:"user_id"`
-	UserName            string    `json:"user_name"`
+	UserID   string `json:"user_id"`
+	UserName string `json:"user_name"`
 
 	// 用量
-	StorageUsedGB       float64   `json:"storage_used_gb"`
-	BandwidthGB         float64   `json:"bandwidth_gb"`
-	APIRequests         int64     `json:"api_requests"`
-	FileOperations      int64     `json:"file_operations"`
+	StorageUsedGB  float64 `json:"storage_used_gb"`
+	BandwidthGB    float64 `json:"bandwidth_gb"`
+	APIRequests    int64   `json:"api_requests"`
+	FileOperations int64   `json:"file_operations"`
 
 	// 费用
-	TotalAmount         float64   `json:"total_amount"`
-	StorageAmount      float64   `json:"storage_amount"`
-	BandwidthAmount    float64   `json:"bandwidth_amount"`
-	OtherAmount        float64   `json:"other_amount"`
-	DiscountAmount     float64   `json:"discount_amount"`
+	TotalAmount     float64 `json:"total_amount"`
+	StorageAmount   float64 `json:"storage_amount"`
+	BandwidthAmount float64 `json:"bandwidth_amount"`
+	OtherAmount     float64 `json:"other_amount"`
+	DiscountAmount  float64 `json:"discount_amount"`
 
 	// 发票
-	InvoiceCount       int       `json:"invoice_count"`
-	PaidAmount        float64   `json:"paid_amount"`
-	OutstandingAmount float64   `json:"outstanding_amount"`
+	InvoiceCount      int     `json:"invoice_count"`
+	PaidAmount        float64 `json:"paid_amount"`
+	OutstandingAmount float64 `json:"outstanding_amount"`
 
 	// 存储池
-	PoolCount         int       `json:"pool_count"`
+	PoolCount int `json:"pool_count"`
 }
 
 // PoolBillingStats 存储池计费统计
 type PoolBillingStats struct {
-	PoolID              string    `json:"pool_id"`
-	PoolName            string    `json:"pool_name"`
-	StorageType         string    `json:"storage_type"`
+	PoolID      string `json:"pool_id"`
+	PoolName    string `json:"pool_name"`
+	StorageType string `json:"storage_type"`
 
 	// 用量
-	StorageUsedGB       float64   `json:"storage_used_gb"`
-	BandwidthInGB      float64   `json:"bandwidth_in_gb"`
-	BandwidthOutGB     float64   `json:"bandwidth_out_gb"`
-	TotalBandwidthGB   float64   `json:"total_bandwidth_gb"`
+	StorageUsedGB    float64 `json:"storage_used_gb"`
+	BandwidthInGB    float64 `json:"bandwidth_in_gb"`
+	BandwidthOutGB   float64 `json:"bandwidth_out_gb"`
+	TotalBandwidthGB float64 `json:"total_bandwidth_gb"`
 
 	// 费用
-	TotalAmount        float64   `json:"total_amount"`
-	StorageAmount     float64   `json:"storage_amount"`
-	BandwidthAmount   float64   `json:"bandwidth_amount"`
+	TotalAmount     float64 `json:"total_amount"`
+	StorageAmount   float64 `json:"storage_amount"`
+	BandwidthAmount float64 `json:"bandwidth_amount"`
 
 	// 用户
-	UserCount         int       `json:"user_count"`
-	ActiveUserCount   int       `json:"active_user_count"`
+	UserCount       int `json:"user_count"`
+	ActiveUserCount int `json:"active_user_count"`
 
 	// 定价
-	PricePerGB        float64   `json:"price_per_gb"`
-	Currency         string    `json:"currency"`
+	PricePerGB float64 `json:"price_per_gb"`
+	Currency   string  `json:"currency"`
 }
 
 // ========== 计费管理器 ==========
 
 // BillingManager 计费管理器
 type BillingManager struct {
-	config     *BillingConfig
-	dataDir    string
-	mu         sync.RWMutex
+	config  *BillingConfig
+	dataDir string
+	mu      sync.RWMutex
 
 	// 数据存储
-	usageRecords   map[string]*UsageRecord   // 用量记录
-	invoices       map[string]*Invoice       // 发票
-	invoiceCounter int                       // 发票计数器
+	usageRecords   map[string]*UsageRecord // 用量记录
+	invoices       map[string]*Invoice     // 发票
+	invoiceCounter int                     // 发票计数器
 }
 
 // NewBillingManager 创建计费管理器
@@ -546,9 +546,9 @@ func DefaultBillingConfig() *BillingConfig {
 			},
 		},
 		BandwidthPricing: BandwidthPricingConfig{
-			Model:              BandwidthModelTraffic,
-			TrafficPricePerGB:  0.5,
-			FreeTrafficGB:      100,
+			Model:             BandwidthModelTraffic,
+			TrafficPricePerGB: 0.5,
+			FreeTrafficGB:     100,
 		},
 	}
 }
@@ -625,30 +625,30 @@ func (bm *BillingManager) RecordUsage(ctx context.Context, input *UsageRecordInp
 	defer bm.mu.Unlock()
 
 	record := &UsageRecord{
-		ID:                 generateID("usage"),
-		UserID:            input.UserID,
-		UserName:          input.UserName,
-		PoolID:            input.PoolID,
-		PoolName:          input.PoolName,
-		PeriodStart:       input.PeriodStart,
-		PeriodEnd:         input.PeriodEnd,
-		RecordedAt:        time.Now(),
-		StorageUsedBytes:  input.StorageUsedBytes,
-		StorageUsedGB:     bytesToGB(input.StorageUsedBytes),
-		StoragePeakBytes:  input.StoragePeakBytes,
-		StoragePeakGB:     bytesToGB(input.StoragePeakBytes),
+		ID:                  generateID("usage"),
+		UserID:              input.UserID,
+		UserName:            input.UserName,
+		PoolID:              input.PoolID,
+		PoolName:            input.PoolName,
+		PeriodStart:         input.PeriodStart,
+		PeriodEnd:           input.PeriodEnd,
+		RecordedAt:          time.Now(),
+		StorageUsedBytes:    input.StorageUsedBytes,
+		StorageUsedGB:       bytesToGB(input.StorageUsedBytes),
+		StoragePeakBytes:    input.StoragePeakBytes,
+		StoragePeakGB:       bytesToGB(input.StoragePeakBytes),
 		StorageAverageBytes: input.StorageUsedBytes, // 简化处理
-		StorageAverageGB:  bytesToGB(input.StorageUsedBytes),
-		BandwidthInBytes:  input.BandwidthInBytes,
-		BandwidthInGB:     bytesToGB(input.BandwidthInBytes),
-		BandwidthOutBytes: input.BandwidthOutBytes,
-		BandwidthOutGB:    bytesToGB(input.BandwidthOutBytes),
+		StorageAverageGB:    bytesToGB(input.StorageUsedBytes),
+		BandwidthInBytes:    input.BandwidthInBytes,
+		BandwidthInGB:       bytesToGB(input.BandwidthInBytes),
+		BandwidthOutBytes:   input.BandwidthOutBytes,
+		BandwidthOutGB:      bytesToGB(input.BandwidthOutBytes),
 		BandwidthTotalBytes: input.BandwidthInBytes + input.BandwidthOutBytes,
-		BandwidthTotalGB:  bytesToGB(input.BandwidthInBytes + input.BandwidthOutBytes),
-		PeakBandwidthMbps: input.PeakBandwidthMbps,
-		APIRequests:       input.APIRequests,
-		FileOperations:    input.FileOperations,
-		Metadata:          input.Metadata,
+		BandwidthTotalGB:    bytesToGB(input.BandwidthInBytes + input.BandwidthOutBytes),
+		PeakBandwidthMbps:   input.PeakBandwidthMbps,
+		APIRequests:         input.APIRequests,
+		FileOperations:      input.FileOperations,
+		Metadata:            input.Metadata,
 	}
 
 	bm.usageRecords[record.ID] = record
@@ -839,15 +839,15 @@ func (bm *BillingManager) CreateInvoice(ctx context.Context, input *InvoiceInput
 			ID:              generateID("item"),
 			Description:     item.Description,
 			Quantity:        item.Quantity,
-			Unit:           item.Unit,
-			UnitPrice:      item.UnitPrice,
-			Amount:         amount,
+			Unit:            item.Unit,
+			UnitPrice:       item.UnitPrice,
+			Amount:          amount,
 			DiscountPercent: item.DiscountPercent,
-			TaxRate:        item.TaxRate,
-			StartDate:      item.StartDate,
-			EndDate:        item.EndDate,
-			PoolID:         item.PoolID,
-			PoolName:       item.PoolName,
+			TaxRate:         item.TaxRate,
+			StartDate:       item.StartDate,
+			EndDate:         item.EndDate,
+			PoolID:          item.PoolID,
+			PoolName:        item.PoolName,
 		}
 		lineItems = append(lineItems, lineItem)
 		subtotal += amount
@@ -875,8 +875,8 @@ func (bm *BillingManager) CreateInvoice(ctx context.Context, input *InvoiceInput
 	}
 
 	invoice := &Invoice{
-		ID:               generateID("inv"),
-		InvoiceNumber:    invoiceNumber,
+		ID:              generateID("inv"),
+		InvoiceNumber:   invoiceNumber,
 		UserID:          input.UserID,
 		UserName:        input.UserName,
 		PeriodStart:     input.PeriodStart,
@@ -921,18 +921,18 @@ func (bm *BillingManager) GenerateInvoiceFromUsage(ctx context.Context, userID s
 		{
 			Description: "存储费用",
 			Quantity:    summary.TotalStorageUsedGB,
-			Unit:       "GB",
-			UnitPrice:  bm.getStorageUnitPrice(summary.TotalStorageUsedGB),
-			StartDate:  &start,
-			EndDate:    &end,
+			Unit:        "GB",
+			UnitPrice:   bm.getStorageUnitPrice(summary.TotalStorageUsedGB),
+			StartDate:   &start,
+			EndDate:     &end,
 		},
 		{
 			Description: "带宽费用",
 			Quantity:    summary.TotalBandwidthGB,
-			Unit:       "GB",
-			UnitPrice:  bm.getBandwidthUnitPrice(summary.TotalBandwidthGB),
-			StartDate:  &start,
-			EndDate:    &end,
+			Unit:        "GB",
+			UnitPrice:   bm.getBandwidthUnitPrice(summary.TotalBandwidthGB),
+			StartDate:   &start,
+			EndDate:     &end,
 		},
 	}
 
@@ -943,12 +943,12 @@ func (bm *BillingManager) GenerateInvoiceFromUsage(ctx context.Context, userID s
 			lineItems = append(lineItems, InvoiceLineItemInput{
 				Description: fmt.Sprintf("存储池 %s 存储费用", poolSummary.PoolName),
 				Quantity:    poolSummary.TotalStorageUsedGB,
-				Unit:       "GB",
-				UnitPrice:  bm.getPoolUnitPrice(poolID),
-				StartDate:  &start,
-				EndDate:    &end,
-				PoolID:     poolID,
-				PoolName:   poolSummary.PoolName,
+				Unit:        "GB",
+				UnitPrice:   bm.getPoolUnitPrice(poolID),
+				StartDate:   &start,
+				EndDate:     &end,
+				PoolID:      poolID,
+				PoolName:    poolSummary.PoolName,
 			})
 		}
 	}
@@ -1287,9 +1287,9 @@ func (bm *BillingManager) GetPoolBillingStats(poolID string, start, end time.Tim
 	defer bm.mu.RUnlock()
 
 	stats := &PoolBillingStats{
-		PoolID:   poolID,
+		PoolID:     poolID,
 		PricePerGB: bm.getPoolUnitPrice(poolID),
-		Currency: bm.config.DefaultCurrency,
+		Currency:   bm.config.DefaultCurrency,
 	}
 
 	// 遍历用量记录

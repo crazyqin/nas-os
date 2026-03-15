@@ -27,36 +27,36 @@ type LoginAuditor struct {
 
 // LoginAuditConfig 登录审计配置
 type LoginAuditConfig struct {
-	Enabled              bool          `json:"enabled"`
-	MaxEntries           int           `json:"max_entries"`
-	MaxSessions          int           `json:"max_sessions"`
-	SessionTimeout       time.Duration `json:"session_timeout"`
-	TrackDevice          bool          `json:"track_device"`
-	TrackLocation        bool          `json:"track_location"`
-	GeoIPDatabasePath    string        `json:"geoip_database_path"`
-	AnomalyThreshold     int           `json:"anomaly_threshold"` // 异常分数阈值
-	StoreIPHistory       bool          `json:"store_ip_history"`
-	MaxIPHistoryPerUser  int           `json:"max_ip_history_per_user"`
-	AlertOnAnomaly       bool          `json:"alert_on_anomaly"`
-	AlertOnNewDevice     bool          `json:"alert_on_new_device"`
-	AlertOnNewLocation   bool          `json:"alert_on_new_location"`
+	Enabled             bool          `json:"enabled"`
+	MaxEntries          int           `json:"max_entries"`
+	MaxSessions         int           `json:"max_sessions"`
+	SessionTimeout      time.Duration `json:"session_timeout"`
+	TrackDevice         bool          `json:"track_device"`
+	TrackLocation       bool          `json:"track_location"`
+	GeoIPDatabasePath   string        `json:"geoip_database_path"`
+	AnomalyThreshold    int           `json:"anomaly_threshold"` // 异常分数阈值
+	StoreIPHistory      bool          `json:"store_ip_history"`
+	MaxIPHistoryPerUser int           `json:"max_ip_history_per_user"`
+	AlertOnAnomaly      bool          `json:"alert_on_anomaly"`
+	AlertOnNewDevice    bool          `json:"alert_on_new_device"`
+	AlertOnNewLocation  bool          `json:"alert_on_new_location"`
 }
 
 // DefaultLoginAuditConfig 默认登录审计配置
 func DefaultLoginAuditConfig() LoginAuditConfig {
 	return LoginAuditConfig{
-		Enabled:              true,
-		MaxEntries:           100000,
-		MaxSessions:          10000,
-		SessionTimeout:       time.Hour * 24,
-		TrackDevice:          true,
-		TrackLocation:        true,
-		AnomalyThreshold:     70,
-		StoreIPHistory:       true,
-		MaxIPHistoryPerUser:  100,
-		AlertOnAnomaly:       true,
-		AlertOnNewDevice:     true,
-		AlertOnNewLocation:   true,
+		Enabled:             true,
+		MaxEntries:          100000,
+		MaxSessions:         10000,
+		SessionTimeout:      time.Hour * 24,
+		TrackDevice:         true,
+		TrackLocation:       true,
+		AnomalyThreshold:    70,
+		StoreIPHistory:      true,
+		MaxIPHistoryPerUser: 100,
+		AlertOnAnomaly:      true,
+		AlertOnNewDevice:    true,
+		AlertOnNewLocation:  true,
 	}
 }
 
@@ -208,7 +208,7 @@ func (la *LoginAuditor) RecordSessionExpired(userID, sessionID string) *LoginAud
 }
 
 // RecordPasswordChange 记录密码修改
-func (la *LoginAuditor) RecordPasswordChange(userID, username, ip, success bool) *LoginAuditEntry {
+func (la *LoginAuditor) RecordPasswordChange(userID, username, ip string, success bool) *LoginAuditEntry {
 	la.mu.Lock()
 	defer la.mu.Unlock()
 
@@ -260,16 +260,16 @@ func (la *LoginAuditor) RecordAccountLock(userID, username, ip, reason string) *
 	defer la.mu.Unlock()
 
 	entry := &LoginAuditEntry{
-		ID:        uuid.New().String(),
-		Timestamp: time.Now(),
-		EventType: LoginEventAccountLocked,
-		UserID:    userID,
-		Username:  username,
-		IP:        ip,
-		Status:    "success",
+		ID:            uuid.New().String(),
+		Timestamp:     time.Now(),
+		EventType:     LoginEventAccountLocked,
+		UserID:        userID,
+		Username:      username,
+		IP:            ip,
+		Status:        "success",
 		FailureReason: reason,
-		RiskFactors: []string{"account_locked"},
-		RiskScore:  80,
+		RiskFactors:   []string{"account_locked"},
+		RiskScore:     80,
 	}
 
 	la.entries = append(la.entries, entry)
