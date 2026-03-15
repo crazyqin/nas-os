@@ -141,14 +141,14 @@ type NetworkMetricData struct {
 
 // AggregationRule 指标聚合规则
 type AggregationRule struct {
-	Interval        time.Duration `json:"interval"`
-	RetentionPeriod time.Duration `json:"retention_period"`
-	MaxNodes        int           `json:"max_nodes"`
-	Aggregations    []Aggregation `json:"aggregations"`
+	Interval        time.Duration      `json:"interval"`
+	RetentionPeriod time.Duration      `json:"retention_period"`
+	MaxNodes        int                `json:"max_nodes"`
+	Aggregations    []MetricAggregation `json:"aggregations"`
 }
 
-// Aggregation 聚合配置
-type Aggregation struct {
+// MetricAggregation 指标聚合配置
+type MetricAggregation struct {
 	MetricName string `json:"metric_name"`
 	Method     string `json:"method"` // avg, max, min, sum, percentile
 	WindowSize string `json:"window_size"`
@@ -235,7 +235,7 @@ func NewDistributedMonitor(localManager *Manager, collector *MetricsCollector, a
 			Interval:        time.Minute,
 			RetentionPeriod: 24 * time.Hour,
 			MaxNodes:        64,
-			Aggregations: []Aggregation{
+			Aggregations: []MetricAggregation{
 				{MetricName: "cpu_usage", Method: "avg", WindowSize: "5m"},
 				{MetricName: "memory_usage", Method: "avg", WindowSize: "5m"},
 				{MetricName: "disk_usage", Method: "max", WindowSize: "5m"},
