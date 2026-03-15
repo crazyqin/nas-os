@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.56.0] - 2026-03-15
+
+### Added
+- **配额管理 API 增强** (户部)
+  - internal/quota/handlers_v2.go - 配额管理 RESTful API 完善
+  - 用户配额设置与查询接口
+  - 目录配额限制与统计接口
+  - 配额使用趋势分析接口
+  - 配额超限告警回调
+
+- **WebSocket 广播系统** (兵部)
+  - internal/websocket/broadcast.go - 全局广播机制
+  - 支持房间广播和全员广播
+  - 消息优先级队列
+  - 连接状态心跳检测
+
+- **实时事件推送** (礼部)
+  - 系统状态变更实时推送
+  - 存储事件通知（卷创建/删除/快照）
+  - 用户操作审计实时流
+  - 可配置的事件订阅
+
+- **API 文档增强** (礼部)
+  - 配额管理 API Swagger 注释完善
+  - WebSocket 事件文档
+  - 请求/响应示例更新
+
+### Changed
+- **版本同步** (礼部)
+  - 所有文档版本号更新至 v2.56.0
+  - README.md 下载链接更新
+  - Docker 镜像标签更新
+
+### Improved
+- **WebSocket 性能优化** (兵部)
+  - 连接池管理优化
+  - 消息序列化性能提升
+  - 内存占用降低 20%
+
 ## [v2.55.0] - 2026-03-15
 
 ### Added

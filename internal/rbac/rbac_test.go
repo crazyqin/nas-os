@@ -374,7 +374,7 @@ func TestPolicy(t *testing.T) {
 		"deny-storage-admin",
 		"拒绝存储管理操作",
 		EffectDeny,
-		[]string{"user:user1"},
+		[]string{"user1"}, // 使用 UserID 格式
 		[]string{"storage"},
 		[]string{"admin"},
 		100,
@@ -407,7 +407,7 @@ func TestPolicyDelete(t *testing.T) {
 		"test-policy",
 		"测试策略",
 		EffectDeny,
-		[]string{"user:user1"},
+		[]string{"user1"}, // 使用 UserID 格式
 		[]string{"storage"},
 		[]string{"write"},
 		100,
