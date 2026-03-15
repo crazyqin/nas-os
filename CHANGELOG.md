@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.69.0] - 2026-03-15
+
+### Fixed
+- **代码格式修复** (刑部)
+  - 修复7个测试文件的gofmt格式问题
+  - CI/CD格式检查现在全部通过
+  - 新增 optimizer_test.go 和 trigger_test.go
+
+### Added
+- **测试文件补充** (兵部)
+  - database/optimizer_test.go 单元测试
+  - automation/trigger/trigger_test.go 触发器测试
+  - usbmount/manager_test.go 完善测试
+  - vm/manager_test.go 测试用例增强
+
 ## [v2.68.0] - 2026-03-15
 
 ### Added

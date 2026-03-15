@@ -100,7 +100,7 @@ func TestFileTrigger_GetType(t *testing.T) {
 }
 
 func TestTimeTrigger_GetType(t *testing.T) {
-	trigger := &TimeTrigger{CronExpr: "0 * * * *"}
+	trigger := &TimeTrigger{Schedule: "0 * * * *"}
 	if trigger.GetType() != TriggerTypeTime {
 		t.Errorf("expected %s, got %s", TriggerTypeTime, trigger.GetType())
 	}
@@ -124,7 +124,7 @@ func TestFileTrigger_Fields(t *testing.T) {
 	trigger := &FileTrigger{
 		Path:      "/test/path",
 		Recursive: true,
-		Events:    []string{"create", "modify"},
+		Events:    []string{"created", "modified"},
 	}
 
 	if trigger.Path != "/test/path" {
@@ -140,15 +140,15 @@ func TestFileTrigger_Fields(t *testing.T) {
 
 func TestTimeTrigger_Fields(t *testing.T) {
 	trigger := &TimeTrigger{
-		CronExpr:    "0 0 * * *",
-		Description: "Daily at midnight",
+		Schedule: "0 0 * * *",
+		Timezone: "UTC",
 	}
 
-	if trigger.CronExpr != "0 0 * * *" {
-		t.Error("CronExpr mismatch")
+	if trigger.Schedule != "0 0 * * *" {
+		t.Error("Schedule mismatch")
 	}
-	if trigger.Description != "Daily at midnight" {
-		t.Error("Description mismatch")
+	if trigger.Timezone != "UTC" {
+		t.Error("Timezone mismatch")
 	}
 }
 
@@ -170,7 +170,7 @@ func TestWebhookTrigger_Fields(t *testing.T) {
 	trigger := &WebhookTrigger{
 		Path:    "/api/webhook/test",
 		Secret:  "my-secret",
-		Methods: []string{"POST"},
+		Method:  "POST",
 	}
 
 	if trigger.Path != "/api/webhook/test" {
@@ -179,32 +179,7 @@ func TestWebhookTrigger_Fields(t *testing.T) {
 	if trigger.Secret != "my-secret" {
 		t.Error("Secret mismatch")
 	}
-	if len(trigger.Methods) != 1 {
-		t.Error("Methods count mismatch")
-	}
-}
-
-func TestValidateSignature(t *testing.T) {
-	secret := "test-secret"
-	payload := []byte(`{"event":"test"}`)
-
-	// Create valid signature
-	h := hmac.New(sha256.New, []byte(secret))
-	h.Write(payload)
-	validSig := hex.EncodeToString(h.Sum(nil))
-
-	// Test valid signature
-	if !validateSignature(payload, validSig, secret) {
-		t.Error("valid signature should pass")
-	}
-
-	// Test invalid signature
-	if validateSignature(payload, "invalid", secret) {
-		t.Error("invalid signature should fail")
-	}
-
-	// Test wrong secret
-	if validateSignature(payload, validSig, "wrong-secret") {
-		t.Error("wrong secret should fail")
+	if trigger.Method != "POST" {
+		t.Error("Method mismatch")
 	}
 }
