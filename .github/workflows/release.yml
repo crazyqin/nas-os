@@ -57,6 +57,7 @@ permissions:
   contents: write          # 创建 Release
   packages: write          # 推送到 GHCR
   id-token: write          # OIDC 签名
+  actions: write           # 触发其他 workflow
 
 jobs:
   # ========== 准备发布 ==========
