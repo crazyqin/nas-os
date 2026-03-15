@@ -4,6 +4,10 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
+# v2.88.0 更新（工部优化）：
+# - 优化 build job 缓存策略（使用 go.sum 替代 **/*.go）
+# - 更新版本注释
+#
 # v2.86.0 更新（工部优化）：
 # - 更新缓存版本至 v9
 # - 提高覆盖率阈值（25% → 30%）
@@ -690,13 +694,13 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: false
       
-      - name: Go 构建缓存
+      # 注意：Go 模块缓存已从 prepare job 恢复
+      # 这里仅保存编译缓存，避免与模块缓存冲突
+      - name: Go 编译缓存
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('**/*.go') }}
+          path: ~/.cache/go-build
+          key: ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-${{ hashFiles('go.sum') }}
           restore-keys: |
             ${{ env.CACHE_VERSION }}-build-${{ matrix.os }}-${{ matrix.arch }}-
             ${{ env.CACHE_VERSION }}-build-
@@ -880,7 +884,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.86.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.88.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
