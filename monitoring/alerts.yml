@@ -704,3 +704,128 @@ groups:
         annotations:
           summary: "RAID 同步速度过低"
           description: "RAID {{ $labels.device }} 同步速度低于 10MB/s"
+
+  # ==================== CI/CD 构建告警 (v2.89.0) ====================
+  - name: nas-os-cicd
+    rules:
+      - alert: BuildFailureRateHigh
+        expr: rate(nas_os_build_failed_total[1h]) / rate(nas_os_build_total[1h]) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          component: cicd
+          runbook: "https://docs.nas-os.io/runbook/build-failure"
+        annotations:
+          summary: "构建失败率过高"
+          description: "构建失败率 {{ $value | printf \"%.1f%%\" }} 超过 20% 阈值，请检查 CI 配置"
+      
+      - alert: BuildFailureRateCritical
+        expr: rate(nas_os_build_failed_total[1h]) / rate(nas_os_build_total[1h]) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          component: cicd
+        annotations:
+          summary: "构建失败率严重过高"
+          description: "构建失败率 {{ $value | printf \"%.1f%%\" }} 超过 50% 阈值，CI 流程可能存在问题"
+      
+      - alert: BuildDurationHigh
+        expr: histogram_quantile(0.95, rate(nas_os_build_duration_seconds_bucket[10m])) > 600
+        for: 10m
+        labels:
+          severity: warning
+          component: cicd
+        annotations:
+          summary: "构建时间过长"
+          description: "P95 构建时间 {{ $value | humanizeDuration }}，超过 10 分钟阈值"
+      
+      - alert: CacheHitRateLow
+        expr: nas_os_build_cache_hit_rate < 0.5
+        for: 30m
+        labels:
+          severity: warning
+          component: cicd
+        annotations:
+          summary: "缓存命中率过低"
+          description: "缓存命中率 {{ $value | printf \"%.1f%%\" }} 低于 50%，建议检查缓存配置"
+      
+      - alert: DeployFailureRateHigh
+        expr: rate(nas_os_deploy_failed_total[1h]) / rate(nas_os_deploy_total[1h]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: cicd
+        annotations:
+          summary: "部署失败率过高"
+          description: "部署失败率 {{ $value | printf \"%.1f%%\" }} 超过 10% 阈值"
+      
+      - alert: DeployRollbackTriggered
+        expr: increase(nas_os_deploy_rollback_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          component: cicd
+        annotations:
+          summary: "部署回滚触发"
+          description: "检测到部署回滚，从 {{ $labels.from_version }} 回滚到 {{ $labels.to_version }}"
+      
+      - alert: DeployHealthScoreLow
+        expr: nas_os_deploy_health_score < 80
+        for: 5m
+        labels:
+          severity: warning
+          component: cicd
+        annotations:
+          summary: "部署健康评分过低"
+          description: "部署健康评分 {{ $value | printf \"%.0f\" }} 低于 80 分"
+      
+      - alert: TestCoverageLow
+        expr: nas_os_test_coverage_percent < 30
+        for: 30m
+        labels:
+          severity: warning
+          component: cicd
+        annotations:
+          summary: "测试覆盖率过低"
+          description: "测试覆盖率 {{ $value | printf \"%.1f%%\" }} 低于 30% 阈值"
+      
+      - alert: TestFailureSpike
+        expr: increase(nas_os_test_failed_total[10m]) > 5
+        for: 0m
+        labels:
+          severity: warning
+          component: cicd
+        annotations:
+          summary: "测试失败数激增"
+          description: "最近 10 分钟内有 {{ $value }} 个测试失败"
+      
+      - alert: SecurityVulnerabilitiesCritical
+        expr: nas_os_security_vulnerabilities{severity="critical"} > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: security
+          runbook: "https://docs.nas-os.io/runbook/security-vulnerability"
+        annotations:
+          summary: "发现严重安全漏洞"
+          description: "发现 {{ $value }} 个严重级别安全漏洞，请立即修复"
+      
+      - alert: SecurityVulnerabilitiesHigh
+        expr: nas_os_security_vulnerabilities{severity="high"} > 5
+        for: 1h
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "高危安全漏洞数量过多"
+          description: "发现 {{ $value }} 个高危安全漏洞，建议尽快修复"
+      
+      - alert: ImageSizeLarge
+        expr: nas_os_image_size_bytes / 1024 / 1024 > 500
+        for: 10m
+        labels:
+          severity: info
+          component: cicd
+        annotations:
+          summary: "Docker 镜像体积过大"
+          description: "镜像 {{ $labels.image }} 体积 {{ $value | printf \"%.0f\" }}MB，建议优化"

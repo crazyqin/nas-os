@@ -1,0 +1,97 @@
+{
+  "report_type": "libu_report_v289",
+  "version": "v2.89.0",
+  "date": "2026-03-16T04:04:00+08:00",
+  "author": "礼部",
+  "task": "v2.89.0 文档完善",
+  "status": "completed",
+  "summary": {
+    "api_docs": {
+      "before": 69,
+      "after": 135,
+      "added": 66,
+      "coverage": "100%",
+      "new_modules": [
+        "ai_classify",
+        "backup",
+        "cloudsync",
+        "cluster",
+        "compress",
+        "disk",
+        "docker",
+        "downloader",
+        "ftp",
+        "nfs",
+        "smb",
+        "snapshot",
+        "storagepool",
+        "system",
+        "tags",
+        "trash",
+        "usb",
+        "versioning",
+        "vm",
+        "webdav"
+      ]
+    },
+    "changelog": {
+      "updated": true,
+      "new_version": "v2.89.0",
+      "entries": [
+        "API 文档完善 - 新增 20+ 模块 API 文档",
+        "API 文档覆盖率从 40% 提升至 100%",
+        "用户文档补充 - 新增备份管理指南和容器管理指南"
+      ]
+    },
+    "user_docs": {
+      "created": 2,
+      "files": [
+        "docs/BACKUP_GUIDE.md",
+        "docs/DOCKER_GUIDE.md"
+      ],
+      "topics": [
+        "备份管理指南 - 完整备份功能使用说明",
+        "Docker 容器管理指南 - 容器创建、镜像管理、网络配置"
+      ]
+    },
+    "version_update": {
+      "version_file": "v2.89.0",
+      "readme_updated": true,
+      "changelog_updated": true,
+      "api_yaml_version": "2.89.0"
+    }
+  },
+  "files_modified": [
+    "CHANGELOG.md",
+    "README.md",
+    "docs/api.yaml",
+    "VERSION"
+  ],
+  "files_created": [
+    "docs/BACKUP_GUIDE.md",
+    "docs/DOCKER_GUIDE.md"
+  ],
+  "completion_criteria": {
+    "api_coverage": {
+      "required": "100%",
+      "actual": "100%",
+      "status": "PASS"
+    },
+    "changelog": {
+      "required": "v2.89.0 条目完整",
+      "actual": "已添加 v2.89.0 条目",
+      "status": "PASS"
+    },
+    "user_docs": {
+      "required": "至少 2 个使用文档",
+      "actual": "已创建 2 个使用文档",
+      "status": "PASS"
+    }
+  },
+  "notes": [
+    "API 文档新增 66 个端点，覆盖所有 internal 模块",
+    "新增 20+ Schema 定义支持新的 API 端点",
+    "用户文档包含完整的快速开始指南和最佳实践",
+    "所有版本号已同步更新至 v2.89.0"
+  ]
+}

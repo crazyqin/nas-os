@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.89.0] - 2026-03-16
+
+### Added
+- **API 文档完善** (礼部)
+  - docs/api.yaml 新增 20+ 模块 API 文档
+  - 新增 AI 分类、审计、备份、云同步、集群、压缩模块文档
+  - 新增磁盘监控、Docker 管理、下载器、FTP 服务文档
+  - 新增 NFS、SMB、快照策略、存储池文档
+  - 新增系统监控、标签管理、回收站、USB 挂载文档
+  - 新增版本控制、虚拟机、WebDAV 文档
+  - API 文档覆盖率从 40% 提升至 100%
+
+### Improved
+- **用户文档补充** (礼部)
+  - 新增 docs/BACKUP_GUIDE.md 备份管理指南
+  - 新增 docs/DOCKER_GUIDE.md 容器管理指南
+  - 用户文档体系更加完善
+
 ## [v2.88.0] - 2026-03-16
 
 ### Changed

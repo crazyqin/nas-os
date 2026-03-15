@@ -353,3 +353,236 @@ func detectMediaType(filename string) MediaType {
 		return MediaTypeMovie
 	}
 }
+
+func TestMediaItemFields(t *testing.T) {
+	now := time.Now()
+	item := &MediaItem{
+		ID:          "test-id",
+		Path:        "/path/to/file.mp4",
+		Name:        "Test Movie",
+		Type:        MediaTypeMovie,
+		Size:        1024000,
+		ModifiedTime: now,
+		Rating:      8.5,
+		PlayCount:   10,
+		Tags:        []string{"action", "sci-fi"},
+	}
+
+	if item.ID != "test-id" {
+		t.Error("ID mismatch")
+	}
+	if item.Type != MediaTypeMovie {
+		t.Error("Type mismatch")
+	}
+	if item.Rating != 8.5 {
+		t.Error("Rating mismatch")
+	}
+	if len(item.Tags) != 2 {
+		t.Error("Tags count mismatch")
+	}
+}
+
+func TestMediaLibraryFields(t *testing.T) {
+	now := time.Now()
+	lib := &MediaLibrary{
+		ID:             "lib-id",
+		Name:           "My Movies",
+		Description:    "Personal collection",
+		Path:           "/movies",
+		Type:           MediaTypeMovie,
+		Enabled:        true,
+		AutoScan:       true,
+		ScanInterval:   30,
+		LastScanTime:   &now,
+		MetadataSource: "tmdb",
+	}
+
+	if lib.ID != "lib-id" {
+		t.Error("ID mismatch")
+	}
+	if lib.MetadataSource != "tmdb" {
+		t.Error("MetadataSource mismatch")
+	}
+	if lib.ScanInterval != 30 {
+		t.Error("ScanInterval mismatch")
+	}
+}
+
+func TestListLibraries_Empty(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.json")
+	lm := NewLibraryManager(configPath)
+
+	libs := lm.ListLibraries()
+	if len(libs) != 0 {
+		t.Errorf("Expected empty list, got %d", len(libs))
+	}
+}
+
+func TestUpdateLibrary_NonExistent(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.json")
+	lm := NewLibraryManager(configPath)
+
+	updates := map[string]interface{}{"name": "New Name"}
+	err := lm.UpdateLibrary("nonexistent", updates)
+	if err == nil {
+		t.Error("UpdateLibrary should return error for nonexistent library")
+	}
+}
+
+func TestScanLibrary_NonExistent(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.json")
+	lm := NewLibraryManager(configPath)
+
+	err := lm.ScanLibrary("nonexistent")
+	if err == nil {
+		t.Error("ScanLibrary should return error for nonexistent library")
+	}
+}
+
+func TestLibraryManager_ConcurrentAccess(t *testing.T) {
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "config.json")
+	lm := NewLibraryManager(configPath)
+
+	mediaPath := filepath.Join(tempDir, "movies")
+	os.MkdirAll(mediaPath, 0755)
+
+	// Create library
+	lib, err := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
+	if err != nil {
+		t.Fatalf("Failed to create library: %v", err)
+	}
+
+	// Concurrent reads
+	done := make(chan bool)
+	for i := 0; i < 10; i++ {
+		go func() {
+			_ = lm.GetLibrary(lib.ID)
+			_ = lm.ListLibraries()
+			done <- true
+		}()
+	}
+
+	// Wait for all goroutines
+	for i := 0; i < 10; i++ {
+		<-done
+	}
+}
+
+func TestMediaType_Constants(t *testing.T) {
+	tests := []struct {
+		mediaType MediaType
+		expected  string
+	}{
+		{MediaTypeMovie, "movie"},
+		{MediaTypeTV, "tv"},
+		{MediaTypeMusic, "music"},
+		{MediaTypePhoto, "photo"},
+	}
+
+	for _, tt := range tests {
+		if string(tt.mediaType) != tt.expected {
+			t.Errorf("Expected %s, got %s", tt.expected, string(tt.mediaType))
+		}
+	}
+}
+
+func TestMovieInfo_Fields(t *testing.T) {
+	info := &MovieInfo{
+		ID:            "movie-1",
+		Title:         "Test Movie",
+		OriginalTitle: "Original Title",
+		ReleaseDate:   "2024-01-01",
+		Overview:      "A test movie",
+		PosterPath:    "/poster.jpg",
+		BackdropPath:  "/backdrop.jpg",
+		Rating:        8.5,
+		VoteCount:     1000,
+		Runtime:       120,
+		Genres:        []string{"Action", "Drama"},
+	}
+
+	if info.Title != "Test Movie" {
+		t.Error("Title mismatch")
+	}
+	if info.ReleaseDate != "2024-01-01" {
+		t.Error("ReleaseDate mismatch")
+	}
+	if len(info.Genres) != 2 {
+		t.Error("Genres count mismatch")
+	}
+}
+
+func TestTVShowInfo_Fields(t *testing.T) {
+	info := &TVShowInfo{
+		ID:           "tv-1",
+		Name:         "Test Show",
+		OriginalName: "Original Name",
+		FirstAirDate: "2024-01-01",
+		Overview:     "A test show",
+		PosterPath:   "/poster.jpg",
+		BackdropPath: "/backdrop.jpg",
+		Rating:       9.0,
+		VoteCount:    2000,
+		Seasons:      3,
+		Episodes:     30,
+		Genres:       []string{"Drama"},
+	}
+
+	if info.Name != "Test Show" {
+		t.Error("Name mismatch")
+	}
+	if info.Seasons != 3 {
+		t.Error("Seasons mismatch")
+	}
+}
+
+func TestMusicAlbumInfo_Fields(t *testing.T) {
+	info := &MusicAlbumInfo{
+		ID:          "album-1",
+		Title:       "Test Album",
+		Artist:      "Test Artist",
+		ReleaseDate: "2024-01-01",
+		TotalTracks: 12,
+		Genres:      []string{"Rock", "Alternative"},
+		CoverArt:    "/cover.jpg",
+	}
+
+	if info.Title != "Test Album" {
+		t.Error("Title mismatch")
+	}
+	if info.Artist != "Test Artist" {
+		t.Error("Artist mismatch")
+	}
+	if len(info.Genres) != 2 {
+		t.Error("Genres count mismatch")
+	}
+}
+
+func TestPlayHistory_Fields(t *testing.T) {
+	now := time.Now()
+	history := &PlayHistory{
+		ID:         "history-1",
+		MediaID:    "media-1",
+		MediaName:  "Test Movie",
+		MediaType:  MediaTypeMovie,
+		LibraryID:  "lib-1",
+		Position:   3600,
+		Duration:   7200,
+		PlayedAt:   now,
+		Completed:  false,
+	}
+
+	if history.MediaID != "media-1" {
+		t.Error("MediaID mismatch")
+	}
+	if history.Position != 3600 {
+		t.Error("Position mismatch")
+	}
+	if history.Completed {
+		t.Error("Completed should be false")
+	}
+}
