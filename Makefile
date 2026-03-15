@@ -223,6 +223,22 @@ help:
 	@echo "    make health-prometheus - Prometheus 格式输出"
 	@echo "    make health-monitor - 持续监控模式"
 	@echo ""
+	@echo "  快速状态 (v2.75.0):"
+	@echo "    make quick-status   - 快速状态检查"
+	@echo "    make quick-status-json - JSON 格式输出"
+	@echo ""
+	@echo "  版本管理 (v2.75.0):"
+	@echo "    make version        - 显示版本信息"
+	@echo "    make version-check  - 检查更新"
+	@echo "    make version-json   - JSON 格式版本信息"
+	@echo ""
+	@echo "  服务管理 (v2.75.0):"
+	@echo "    make service-start  - 启动服务"
+	@echo "    make service-stop   - 停止服务"
+	@echo "    make service-restart - 重启服务"
+	@echo "    make service-status - 服务状态"
+	@echo "    make service-logs   - 查看日志"
+	@echo ""
 	@echo "  备份监控 (v2.59.0):"
 	@echo "    make backup-monitor - 执行备份监控检查"
 	@echo "    make backup-monitor-status - 查看备份状态"
@@ -365,6 +381,41 @@ health-prometheus:
 health-monitor:
 	@echo "🏥 启动健康监控模式..."
 	@./scripts/health-check.sh monitor 30
+
+# ========== 快速状态 (v2.75.0) ==========
+quick-status:
+	@echo "⚡ 快速状态检查..."
+	@./scripts/quick-status.sh
+
+quick-status-json:
+	@echo "⚡ 快速状态检查 (JSON)..."
+	@./scripts/quick-status.sh --json
+
+# ========== 版本信息 (v2.75.0) ==========
+version:
+	@./scripts/version-info.sh
+
+version-check:
+	@./scripts/version-info.sh --check
+
+version-json:
+	@./scripts/version-info.sh --json
+
+# ========== 服务管理 (v2.75.0) ==========
+service-start:
+	@./scripts/service.sh start
+
+service-stop:
+	@./scripts/service.sh stop
+
+service-restart:
+	@./scripts/service.sh restart
+
+service-status:
+	@./scripts/service.sh status
+
+service-logs:
+	@./scripts/service.sh logs
 
 # ========== 备份监控 (v2.59.0) ==========
 backup-monitor:

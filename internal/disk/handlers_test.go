@@ -187,16 +187,16 @@ func TestGetDiskInfo(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock.disks["/dev/sda"] = &DiskInfo{
-		Device: "/dev/sda",
+	mock.disks["sda"] = &DiskInfo{
+		Device: "sda",
 		Model:  "Samsung SSD 860",
 		Size:   500 * 1024 * 1024 * 1024,
 		IsSSD:  true,
 		Status: StatusHealthy,
 	}
 
-	// 测试存在的磁盘 - 使用完整设备路径
-	req, _ := http.NewRequest("GET", "/api/disk/dev/sda", nil)
+	// 测试存在的磁盘
+	req, _ := http.NewRequest("GET", "/api/disk/sda", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -205,7 +205,7 @@ func TestGetDiskInfo(t *testing.T) {
 	}
 
 	// 测试不存在的磁盘
-	req2, _ := http.NewRequest("GET", "/api/disk/dev/sdz", nil)
+	req2, _ := http.NewRequest("GET", "/api/disk/sdz", nil)
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, req2)
 
@@ -438,8 +438,8 @@ func TestGetSMARTData(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock.disks["/dev/sda"] = &DiskInfo{
-		Device: "/dev/sda",
+	mock.disks["sda"] = &DiskInfo{
+		Device: "sda",
 		Model:  "Samsung SSD 860",
 		SmartData: &SMARTData{
 			OverallHealth: "PASSED",
@@ -452,8 +452,7 @@ func TestGetSMARTData(t *testing.T) {
 		},
 	}
 
-	// 使用完整设备路径
-	req, _ := http.NewRequest("GET", "/api/disk/dev/sda/smart", nil)
+	req, _ := http.NewRequest("GET", "/api/disk/sda/smart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -467,8 +466,8 @@ func TestGetDiskHealth(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock.disks["/dev/sda"] = &DiskInfo{
-		Device: "/dev/sda",
+	mock.disks["sda"] = &DiskInfo{
+		Device: "sda",
 		Model:  "Samsung SSD 860",
 		HealthScore: &HealthScore{
 			Score:     95,
@@ -486,8 +485,7 @@ func TestGetDiskHealth(t *testing.T) {
 		},
 	}
 
-	// 使用完整设备路径
-	req, _ := http.NewRequest("GET", "/api/disk/dev/sda/health", nil)
+	req, _ := http.NewRequest("GET", "/api/disk/sda/health", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -501,8 +499,8 @@ func TestGetDiskPredictions(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock.disks["/dev/sda"] = &DiskInfo{
-		Device: "/dev/sda",
+	mock.disks["sda"] = &DiskInfo{
+		Device: "sda",
 		Model:  "Samsung SSD 860",
 		Predictions: []*Prediction{
 			{
@@ -514,8 +512,7 @@ func TestGetDiskPredictions(t *testing.T) {
 		},
 	}
 
-	// 使用完整设备路径
-	req, _ := http.NewRequest("GET", "/api/disk/dev/sda/predictions", nil)
+	req, _ := http.NewRequest("GET", "/api/disk/sda/predictions", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

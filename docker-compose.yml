@@ -13,7 +13,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.74.0"
+      - "nas-os.version=2.75.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -50,6 +50,14 @@ services:
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
       # 时区设置
       - TZ=Asia/Shanghai
+      # 日志配置
+      - NAS_OS_LOG_LEVEL=${LOG_LEVEL:-info}
+      # 监控配置
+      - NAS_OS_METRICS_ENABLED=true
+      # 备份配置
+      - NAS_OS_BACKUP_DIR=/var/lib/nas-os/backups
+      # 调试模式
+      - NAS_OS_DEBUG=${DEBUG:-false}
     
     # 设备访问（非特权模式下使用）
     # devices:
