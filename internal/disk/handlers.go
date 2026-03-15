@@ -11,11 +11,11 @@ import (
 
 // Handlers 磁盘监控处理器
 type Handlers struct {
-	monitor *SMARTMonitor
+	monitor Monitor
 }
 
 // NewHandlers 创建磁盘监控处理器
-func NewHandlers(monitor *SMARTMonitor) *Handlers {
+func NewHandlers(monitor Monitor) *Handlers {
 	return &Handlers{
 		monitor: monitor,
 	}

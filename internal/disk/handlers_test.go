@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// mockSMARTMonitor 模拟 SMART 监控器
-type mockSMARTMonitor struct {
+// mockMonitor 模拟监控器（实现 Monitor 接口）
+type mockMonitor struct {
 	disks     map[string]*DiskInfo
 	alerts    []*SMARTAlert
 	rules     []*AlertRule
@@ -21,8 +22,8 @@ type mockSMARTMonitor struct {
 	scanError error
 }
 
-func newMockSMARTMonitor() *mockSMARTMonitor {
-	return &mockSMARTMonitor{
+func newMockMonitor() *mockMonitor {
+	return &mockMonitor{
 		disks: make(map[string]*DiskInfo),
 		alerts: []*SMARTAlert{
 			{
@@ -44,7 +45,7 @@ func newMockSMARTMonitor() *mockSMARTMonitor {
 	}
 }
 
-func (m *mockSMARTMonitor) GetAllDisks() []*DiskInfo {
+func (m *mockMonitor) GetAllDisks() []*DiskInfo {
 	disks := make([]*DiskInfo, 0, len(m.disks))
 	for _, d := range m.disks {
 		disks = append(disks, d)
@@ -52,7 +53,7 @@ func (m *mockSMARTMonitor) GetAllDisks() []*DiskInfo {
 	return disks
 }
 
-func (m *mockSMARTMonitor) GetDiskInfo(device string) (*DiskInfo, error) {
+func (m *mockMonitor) GetDiskInfo(device string) (*DiskInfo, error) {
 	disk, ok := m.disks[device]
 	if !ok {
 		return nil, nil
@@ -60,11 +61,11 @@ func (m *mockSMARTMonitor) GetDiskInfo(device string) (*DiskInfo, error) {
 	return disk, nil
 }
 
-func (m *mockSMARTMonitor) GetAlerts(device string, acknowledged bool) []*SMARTAlert {
+func (m *mockMonitor) GetAlerts(device string, acknowledged bool) []*SMARTAlert {
 	return m.alerts
 }
 
-func (m *mockSMARTMonitor) AcknowledgeAlert(id string) error {
+func (m *mockMonitor) AcknowledgeAlert(id string) error {
 	for _, a := range m.alerts {
 		if a.ID == id {
 			a.Acknowledged = true
@@ -74,11 +75,11 @@ func (m *mockSMARTMonitor) AcknowledgeAlert(id string) error {
 	return nil
 }
 
-func (m *mockSMARTMonitor) GetAlertRules() []*AlertRule {
+func (m *mockMonitor) GetAlertRules() []*AlertRule {
 	return m.rules
 }
 
-func (m *mockSMARTMonitor) SetAlertRule(rule *AlertRule) {
+func (m *mockMonitor) SetAlertRule(rule *AlertRule) {
 	for i, r := range m.rules {
 		if r.ID == rule.ID {
 			m.rules[i] = rule
@@ -88,60 +89,56 @@ func (m *mockSMARTMonitor) SetAlertRule(rule *AlertRule) {
 	m.rules = append(m.rules, rule)
 }
 
-func (m *mockSMARTMonitor) SetScoreWeights(w *ScoreWeights) {
+func (m *mockMonitor) SetScoreWeights(w *ScoreWeights) {
 	m.weights = w
 }
 
-func (m *mockSMARTMonitor) ScanDisks() error {
+func (m *mockMonitor) ScanDisks() error {
 	return m.scanError
 }
 
-func (m *mockSMARTMonitor) CheckAllDisks() error {
+func (m *mockMonitor) CheckAllDisks() error {
 	return nil
 }
 
-func (m *mockSMARTMonitor) GetHistory(device string, duration time.Duration) []*SMARTHistoryPoint {
+func (m *mockMonitor) GetHistory(device string, duration time.Duration) []*SMARTHistoryPoint {
 	return m.history[device]
 }
 
-func (m *mockSMARTMonitor) ExportJSON() ([]byte, error) {
+func (m *mockMonitor) ExportJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
 		"disks":  m.disks,
 		"alerts": m.alerts,
 	})
 }
 
-func (m *mockSMARTMonitor) ImportJSON(data []byte) error {
+func (m *mockMonitor) ImportJSON(data []byte) error {
 	return nil
 }
 
 // setupTestRouter 创建测试路由
-func setupTestRouter() (*gin.Engine, *Handlers) {
+func setupTestRouter() (*gin.Engine, *Handlers, *mockMonitor) {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
-	monitor := newMockSMARTMonitor()
+	monitor := newMockMonitor()
 	handlers := NewHandlers(monitor)
-	return router, handlers
+	return router, handlers, monitor
 }
 
 func TestNewHandlers(t *testing.T) {
-	monitor := newMockSMARTMonitor()
+	monitor := newMockMonitor()
 	handlers := NewHandlers(monitor)
 	if handlers == nil {
 		t.Fatal("NewHandlers should not return nil")
 	}
-	if handlers.monitor == nil {
-		t.Fatal("monitor should not be nil")
-	}
 }
 
 func TestListDisks(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, mock := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
 	// 添加测试数据
-	mock := handlers.monitor.(*mockSMARTMonitor)
 	mock.disks["/dev/sda"] = &DiskInfo{
 		Device: "/dev/sda",
 		Model:  "Samsung SSD 860",
@@ -149,8 +146,8 @@ func TestListDisks(t *testing.T) {
 		IsSSD:  true,
 		Status: StatusHealthy,
 		HealthScore: &HealthScore{
-			Score: 95,
-			Grade: "A",
+			Score:  95,
+			Grade:  "A",
 			Status: StatusHealthy,
 		},
 	}
@@ -161,8 +158,8 @@ func TestListDisks(t *testing.T) {
 		IsSSD:  false,
 		Status: StatusWarning,
 		HealthScore: &HealthScore{
-			Score: 75,
-			Grade: "C",
+			Score:  75,
+			Grade:  "C",
 			Status: StatusWarning,
 		},
 	}
@@ -186,11 +183,10 @@ func TestListDisks(t *testing.T) {
 }
 
 func TestGetDiskInfo(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, mock := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock := handlers.monitor.(*mockSMARTMonitor)
 	mock.disks["/dev/sda"] = &DiskInfo{
 		Device: "/dev/sda",
 		Model:  "Samsung SSD 860",
@@ -219,7 +215,7 @@ func TestGetDiskInfo(t *testing.T) {
 }
 
 func TestGetAlerts(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, _ := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -243,7 +239,7 @@ func TestGetAlerts(t *testing.T) {
 }
 
 func TestAcknowledgeAlert(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, mock := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -256,7 +252,6 @@ func TestAcknowledgeAlert(t *testing.T) {
 	}
 
 	// 验证告警已确认
-	mock := handlers.monitor.(*mockSMARTMonitor)
 	for _, a := range mock.alerts {
 		if a.ID == "alert-1" && !a.Acknowledged {
 			t.Error("Alert should be acknowledged")
@@ -265,7 +260,7 @@ func TestAcknowledgeAlert(t *testing.T) {
 }
 
 func TestGetAlertRules(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, _ := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -289,7 +284,7 @@ func TestGetAlertRules(t *testing.T) {
 }
 
 func TestUpdateAlertRule(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, _ := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -304,7 +299,7 @@ func TestUpdateAlertRule(t *testing.T) {
 	}
 	body, _ := json.Marshal(ruleUpdate)
 
-	req, _ := http.NewRequest("PUT", "/api/disk/alerts/rules/temp-warning", body)
+	req, _ := http.NewRequest("PUT", "/api/disk/alerts/rules/temp-warning", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -315,7 +310,7 @@ func TestUpdateAlertRule(t *testing.T) {
 }
 
 func TestSetScoreWeights(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, _ := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -329,7 +324,7 @@ func TestSetScoreWeights(t *testing.T) {
 	}
 	body, _ := json.Marshal(weights)
 
-	req, _ := http.NewRequest("PUT", "/api/disk/config/weights", body)
+	req, _ := http.NewRequest("PUT", "/api/disk/config/weights", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -340,7 +335,7 @@ func TestSetScoreWeights(t *testing.T) {
 }
 
 func TestScanDisks(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, _ := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -354,7 +349,7 @@ func TestScanDisks(t *testing.T) {
 }
 
 func TestCheckAllDisks(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, _ := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -368,11 +363,10 @@ func TestCheckAllDisks(t *testing.T) {
 }
 
 func TestGetDiskHistory(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, mock := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock := handlers.monitor.(*mockSMARTMonitor)
 	mock.history["sda"] = []*SMARTHistoryPoint{
 		{
 			Timestamp:   time.Now().Add(-1 * time.Hour),
@@ -396,7 +390,7 @@ func TestGetDiskHistory(t *testing.T) {
 }
 
 func TestExportData(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, _ := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -410,7 +404,7 @@ func TestExportData(t *testing.T) {
 }
 
 func TestImportData(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, _ := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
@@ -429,7 +423,7 @@ func TestImportData(t *testing.T) {
 	}
 	body, _ := json.Marshal(importData)
 
-	req, _ := http.NewRequest("POST", "/api/disk/import", body)
+	req, _ := http.NewRequest("POST", "/api/disk/import", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -440,11 +434,10 @@ func TestImportData(t *testing.T) {
 }
 
 func TestGetSMARTData(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, mock := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock := handlers.monitor.(*mockSMARTMonitor)
 	mock.disks["/dev/sda"] = &DiskInfo{
 		Device: "/dev/sda",
 		Model:  "Samsung SSD 860",
@@ -469,11 +462,10 @@ func TestGetSMARTData(t *testing.T) {
 }
 
 func TestGetDiskHealth(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, mock := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock := handlers.monitor.(*mockSMARTMonitor)
 	mock.disks["/dev/sda"] = &DiskInfo{
 		Device: "/dev/sda",
 		Model:  "Samsung SSD 860",
@@ -503,11 +495,10 @@ func TestGetDiskHealth(t *testing.T) {
 }
 
 func TestGetDiskPredictions(t *testing.T) {
-	router, handlers := setupTestRouter()
+	router, handlers, mock := setupTestRouter()
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	mock := handlers.monitor.(*mockSMARTMonitor)
 	mock.disks["/dev/sda"] = &DiskInfo{
 		Device: "/dev/sda",
 		Model:  "Samsung SSD 860",
