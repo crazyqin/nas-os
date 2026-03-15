@@ -107,14 +107,14 @@ func TestCalculateEfficiencyScore(t *testing.T) {
 	tests := []struct {
 		usagePercent float64
 	}{
-		{50,  // low usage
-		},
-		{70,  // optimal
-		},
-		{90,  // high
-		},
-		{95,  // critical
-		},
+		{50}, // low usage
+
+		{70}, // optimal
+
+		{90}, // high
+
+		{95}, // critical
+
 	}
 
 	for _, tt := range tests {
@@ -177,10 +177,10 @@ func TestCalculateMedian(t *testing.T) {
 		values   []float64
 		expected float64
 	}{
-		{[]float64{1, 2, 3, 4, 5}, 3},    // odd count
-		{[]float64{1, 2, 3, 4}, 2.5},     // even count
-		{[]float64{5, 1, 3, 2, 4}, 3},    // unsorted
-		{[]float64{}, 0},                  // empty
+		{[]float64{1, 2, 3, 4, 5}, 3}, // odd count
+		{[]float64{1, 2, 3, 4}, 2.5},  // even count
+		{[]float64{5, 1, 3, 2, 4}, 3}, // unsorted
+		{[]float64{}, 0},              // empty
 	}
 
 	for _, tt := range tests {
@@ -212,10 +212,10 @@ func TestCalculatePercentile(t *testing.T) {
 		percentile float64
 		expected   float64
 	}{
-		{50, 5.5},  // median
-		{90, 9.1},  // 90th percentile
-		{0, 1},     // min
-		{100, 10},  // max
+		{50, 5.5}, // median
+		{90, 9.1}, // 90th percentile
+		{0, 1},    // min
+		{100, 10}, // max
 	}
 
 	for _, tt := range tests {
@@ -267,13 +267,13 @@ func TestStorageUsageReporter(t *testing.T) {
 	// 创建测试数据
 	volumes := []VolumeUsageDetail{
 		{
-			Name:            "vol1",
-			TotalCapacity:   1000 * 1024 * 1024 * 1024, // 1TB
-			UsedCapacity:    800 * 1024 * 1024 * 1024,  // 800GB
-			UsagePercent:    80,
-			FileCount:       10000,
-			DirectoryCount:  500,
-			HealthStatus:    "warning",
+			Name:           "vol1",
+			TotalCapacity:  1000 * 1024 * 1024 * 1024, // 1TB
+			UsedCapacity:   800 * 1024 * 1024 * 1024,  // 800GB
+			UsagePercent:   80,
+			FileCount:      10000,
+			DirectoryCount: 500,
+			HealthStatus:   "warning",
 		},
 	}
 
@@ -321,22 +321,22 @@ func TestBandwidthReporter(t *testing.T) {
 	// 创建测试数据
 	history := []BandwidthHistoryPoint{
 		{
-			Timestamp:  time.Now().Add(-5 * time.Minute),
-			RxBytes:    100 * 1024 * 1024,
-			TxBytes:    50 * 1024 * 1024,
-			RxRate:     10 * 1024 * 1024, // 10 MB/s
-			TxRate:     5 * 1024 * 1024,  // 5 MB/s
-			RxPackets:  10000,
-			TxPackets:  5000,
+			Timestamp: time.Now().Add(-5 * time.Minute),
+			RxBytes:   100 * 1024 * 1024,
+			TxBytes:   50 * 1024 * 1024,
+			RxRate:    10 * 1024 * 1024, // 10 MB/s
+			TxRate:    5 * 1024 * 1024,  // 5 MB/s
+			RxPackets: 10000,
+			TxPackets: 5000,
 		},
 		{
-			Timestamp:  time.Now(),
-			RxBytes:    200 * 1024 * 1024,
-			TxBytes:    100 * 1024 * 1024,
-			RxRate:     15 * 1024 * 1024, // 15 MB/s
-			TxRate:     8 * 1024 * 1024,  // 8 MB/s
-			RxPackets:  15000,
-			TxPackets:  8000,
+			Timestamp: time.Now(),
+			RxBytes:   200 * 1024 * 1024,
+			TxBytes:   100 * 1024 * 1024,
+			RxRate:    15 * 1024 * 1024, // 15 MB/s
+			TxRate:    8 * 1024 * 1024,  // 8 MB/s
+			RxPackets: 15000,
+			TxPackets: 8000,
 		},
 	}
 

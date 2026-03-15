@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.78.0] - 2026-03-16
+
+### Added
+- **文档体系完善** (礼部)
+  - README.md 版本更新至 v2.78.0
+  - API 文档版本同步更新
+  - 用户指南版本号统一
+
+### Changed
+- **版本号统一更新** (礼部)
+  - docs/api.yaml 版本更新至 v2.78.0
+  - Docker 镜像标签更新准备
+  - WebUI 版本信息更新
+
+### Improved
+- **API 文档增强** (礼部)
+  - OpenAPI 规范版本同步
+  - API 端点文档完善
+  - 错误响应示例优化
+
 ## [v2.77.0] - 2026-03-16
 
 ### Added

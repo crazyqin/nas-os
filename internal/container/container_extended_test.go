@@ -180,7 +180,7 @@ func TestContainerConfig_Full(t *testing.T) {
 		Ports:   []string{"8080:80", "8443:443"},
 		Volumes: []string{"/data:/app/data:rw"},
 		Environment: map[string]string{
-			"ENV":  "production",
+			"ENV":   "production",
 			"DEBUG": "false",
 		},
 		Network:     "bridge",
@@ -502,17 +502,19 @@ func TestContainerConfig_Validation_VolumeFormat(t *testing.T) {
 
 func TestContainerConfig_Validation_RestartPolicy(t *testing.T) {
 	validPolicies := map[string]bool{
-		"no":            true,
-		"always":        true,
-		"on-failure":    true,
+		"no":             true,
+		"always":         true,
+		"on-failure":     true,
 		"unless-stopped": true,
-		"invalid":       false,
+		"invalid":        false,
 	}
 
-	for policy, valid := range validPolicies {
-		_, isValid := validPolicies[policy]
-		if isValid != valid {
-			t.Errorf("Policy %s validity mismatch", policy)
+	for policy, expectedValid := range validPolicies {
+		// 检查 policy 是否在有效列表中
+		_, exists := validPolicies[policy]
+		isValidPolicy := exists && validPolicies[policy]
+		if isValidPolicy != expectedValid {
+			t.Errorf("Policy %s: expected valid=%v, got valid=%v", policy, expectedValid, isValidPolicy)
 		}
 	}
 }

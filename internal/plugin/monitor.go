@@ -13,14 +13,14 @@ import (
 
 // PluginMonitor 插件状态监控器
 type PluginMonitor struct {
-	manager    *Manager
-	states     map[string]*PluginHealthStatus
-	alertChan  chan PluginAlert
-	mu         sync.RWMutex
-	ctx        context.Context
-	cancel     context.CancelFunc
-	config     MonitorConfig
-	stateFile  string
+	manager   *Manager
+	states    map[string]*PluginHealthStatus
+	alertChan chan PluginAlert
+	mu        sync.RWMutex
+	ctx       context.Context
+	cancel    context.CancelFunc
+	config    MonitorConfig
+	stateFile string
 }
 
 // PluginHealthStatus 插件健康状态
@@ -51,12 +51,12 @@ const (
 
 // PluginAlert 插件告警
 type PluginAlert struct {
-	PluginID    string           `json:"plugin_id"`
-	Type        AlertType        `json:"type"`
-	Severity    AlertSeverity    `json:"severity"`
-	Message     string           `json:"message"`
-	Timestamp   time.Time        `json:"timestamp"`
-	Details     map[string]interface{} `json:"details,omitempty"`
+	PluginID  string                 `json:"plugin_id"`
+	Type      AlertType              `json:"type"`
+	Severity  AlertSeverity          `json:"severity"`
+	Message   string                 `json:"message"`
+	Timestamp time.Time              `json:"timestamp"`
+	Details   map[string]interface{} `json:"details,omitempty"`
 }
 
 // AlertType 告警类型
@@ -82,7 +82,7 @@ const (
 
 // MonitorConfig 监控配置
 type MonitorConfig struct {
-	CheckInterval      time.Duration `json:"check_interval"`       // 检查间隔
+	CheckInterval      time.Duration `json:"check_interval"`      // 检查间隔
 	UnhealthyThreshold int           `json:"unhealthy_threshold"` // 不健康阈值（连续错误次数）
 	AutoRestart        bool          `json:"auto_restart"`        // 自动重启
 	MaxRestarts        int           `json:"max_restarts"`        // 最大重启次数
@@ -272,9 +272,9 @@ func (m *PluginMonitor) checkPluginHealth(pluginID string, status *PluginHealthS
 			// 发送告警
 			m.sendAlert(PluginAlert{
 				PluginID:  pluginID,
-				Type:     AlertTypePluginCrashed,
-				Severity: SeverityError,
-				Message:  fmt.Sprintf("插件 %s 未运行", pluginID),
+				Type:      AlertTypePluginCrashed,
+				Severity:  SeverityError,
+				Message:   fmt.Sprintf("插件 %s 未运行", pluginID),
 				Timestamp: time.Now(),
 			})
 
@@ -302,13 +302,13 @@ func (m *PluginMonitor) checkPluginHealth(pluginID string, status *PluginHealthS
 				if oldStatus != StatusUnhealthy {
 					m.sendAlert(PluginAlert{
 						PluginID:  pluginID,
-						Type:     AlertTypeHealthChanged,
-						Severity: SeverityWarning,
-						Message:  fmt.Sprintf("插件 %s 状态变为不健康: %s", pluginID, err.Error()),
+						Type:      AlertTypeHealthChanged,
+						Severity:  SeverityWarning,
+						Message:   fmt.Sprintf("插件 %s 状态变为不健康: %s", pluginID, err.Error()),
 						Timestamp: time.Now(),
 						Details: map[string]interface{}{
 							"previous_status": oldStatus,
-							"error":          err.Error(),
+							"error":           err.Error(),
 						},
 					})
 				}
@@ -336,9 +336,9 @@ func (m *PluginMonitor) checkPluginHealth(pluginID string, status *PluginHealthS
 	if previousStatus == StatusUnhealthy || previousStatus == StatusDegraded {
 		m.sendAlert(PluginAlert{
 			PluginID:  pluginID,
-			Type:     AlertTypePluginRecovered,
-			Severity: SeverityInfo,
-			Message:  fmt.Sprintf("插件 %s 已恢复健康", pluginID),
+			Type:      AlertTypePluginRecovered,
+			Severity:  SeverityInfo,
+			Message:   fmt.Sprintf("插件 %s 已恢复健康", pluginID),
 			Timestamp: time.Now(),
 			Details: map[string]interface{}{
 				"previous_status": previousStatus,
@@ -369,9 +369,9 @@ func (m *PluginMonitor) attemptRestart(pluginID string, status *PluginHealthStat
 
 	m.sendAlert(PluginAlert{
 		PluginID:  pluginID,
-		Type:     AlertTypeAutoRestarted,
-		Severity: SeverityWarning,
-		Message:  fmt.Sprintf("插件 %s 已自动重启 (第 %d 次)", pluginID, status.RestartCount),
+		Type:      AlertTypeAutoRestarted,
+		Severity:  SeverityWarning,
+		Message:   fmt.Sprintf("插件 %s 已自动重启 (第 %d 次)", pluginID, status.RestartCount),
 		Timestamp: time.Now(),
 		Details: map[string]interface{}{
 			"restart_count": status.RestartCount,

@@ -1,333 +1,274 @@
 {
-  "report_version": "1.0",
-  "generated_at": "2026-03-16T00:06:00+08:00",
-  "version": "v2.77.0",
-  "department": "工部",
-  "focus": "CI/CD 增强和监控完善",
+  "version": "v2.78.0",
+  "check_date": "2026-03-16T00:27:00+08:00",
+  "checked_by": "工部",
   "summary": {
-    "overall_status": "良好",
-    "completion_rate": "100%",
-    "issues_found": 0,
-    "improvements_suggested": 5,
-    "configuration_optimized": true
+    "status": "良好",
+    "issues_found": 2,
+    "suggestions": 5
   },
-  "sections": {
-    "workflows": {
-      "status": "优秀",
-      "files_checked": 5,
-      "details": [
-        {
-          "file": "ci-cd.yml",
-          "status": "完善",
-          "features": [
-            "智能变更检测 (paths-filter)",
-            "多级缓存策略 (模块缓存 + 编译缓存 + 工具缓存)",
-            "矩阵构建缓存分离 (按平台独立缓存)",
-            "测试覆盖率趋势追踪",
-            "并发控制策略",
-            "构建失败自动诊断"
-          ],
-          "cache_version": "v8",
-          "improvements": "配置已非常完善，无需修改"
-        },
-        {
-          "file": "release.yml",
-          "status": "完善",
-          "features": [
-            "多平台二进制构建 (linux/darwin/windows)",
-            "多架构支持 (amd64/arm64/armv7)",
-            "SBOM 生成 (SPDX/CycloneDX)",
-            "自动变更日志生成",
-            "发布验证",
-            "Cosign Keyless 签名"
-          ],
-          "improvements": "配置已非常完善"
-        },
-        {
-          "file": "docker-publish.yml",
-          "status": "完善",
-          "features": [
-            "多架构镜像 (amd64/arm64/arm/v7)",
-            "Buildx 缓存优化",
-            "镜像签名 (Cosign Keyless)",
-            "SBOM 附加",
-            "Trivy 安全扫描"
-          ],
-          "improvements": "配置已非常完善"
-        },
-        {
-          "file": "security-scan.yml",
-          "status": "完善",
-          "features": [
-            "gosec 静态分析",
-            "govulncheck 漏洞检查",
-            "已知误报排除"
-          ],
-          "improvements": "排除规则已覆盖所有已知误报"
-        },
-        {
-          "file": "benchmark.yml",
-          "status": "完善",
-          "features": [
-            "定期基准测试",
-            "性能回归检测",
-            "PR 评论反馈"
-          ],
-          "improvements": "配置完善"
-        }
-      ]
-    },
-    "monitoring": {
-      "status": "优秀",
-      "files_checked": 9,
-      "details": [
-        {
-          "file": "prometheus.yml",
-          "status": "完善",
-          "scrape_jobs": [
-            "nas-os (主服务)",
-            "node (Node Exporter)",
-            "docker (Docker 指标)",
-            "cadvisor (容器指标)",
-            "smartmon (SMART 监控)",
-            "btrfs (Btrfs 指标)"
-          ],
-          "features": [
-            "多数据源采集",
-            "告警规则集成",
-            "远程写入支持 (可选)"
-          ]
-        },
-        {
-          "file": "alerts.yml",
-          "status": "非常完善",
-          "rule_groups": [
-            "nas-os-system (系统资源告警)",
-            "nas-os-network (网络告警)",
-            "nas-os-application (应用告警)",
-            "nas-os-storage (存储池告警)",
-            "nas-os-btrfs (Btrfs 告警)",
-            "nas-os-smart (SMART 磁盘健康告警)",
-            "nas-os-shares (共享服务告警)",
-            "nas-os-backup (备份任务告警)",
-            "nas-os-snapshot (快照告警)",
-            "nas-os-security (安全告警)",
-            "nas-os-containers (容器健康告警)",
-            "nas-os-raid (RAID 告警)"
-          ],
-          "total_rules": 60,
-          "features": [
-            "告警分级 (critical/warning/info)",
-            "Runbook 链接",
-            "抑制规则",
-            "按组件分组"
-          ]
-        },
-        {
-          "file": "alertmanager.yml",
-          "status": "完善",
-          "receivers": [
-            "default-receiver",
-            "critical-alerts",
-            "warning-alerts",
-            "storage-alerts",
-            "backup-alerts",
-            "security-alerts",
-            "container-alerts"
-          ],
-          "features": [
-            "多渠道通知 (邮件/Webhook/企业微信)",
-            "告警分组和抑制",
-            "静默规则支持"
-          ]
-        },
-        {
-          "file": "grafana/provisioning/dashboards/nas-os-system.json",
-          "status": "完善",
-          "panels": [
-            "系统概览 (CPU/内存/磁盘/服务状态)",
-            "CPU 和内存趋势",
-            "磁盘 I/O",
-            "网络流量"
-          ],
-          "features": [
-            "30秒自动刷新",
-            "阈值颜色映射",
-            "多指标聚合"
-          ]
-        },
-        {
-          "file": "grafana/provisioning/dashboards/nas-os-storage.json",
-          "status": "存在",
-          "features": [
-            "存储池状态监控",
-            "磁盘健康状态"
-          ]
-        }
-      ]
-    },
-    "scripts": {
-      "status": "优秀",
-      "files_checked": 42,
-      "details": [
-        {
-          "file": "deploy.sh",
-          "status": "非常完善",
-          "features": [
-            "二进制部署",
-            "Docker 部署",
-            "蓝绿部署支持",
-            "自动回滚",
-            "健康检查",
-            "部署日志审计",
-            "Dry-run 模式"
-          ],
-          "commands": [
-            "install",
-            "docker",
-            "upgrade",
-            "rollback",
-            "uninstall",
-            "status"
-          ]
-        },
-        {
-          "file": "health-check.sh",
-          "status": "非常完善",
-          "version": "2.76.0",
-          "features": [
-            "组件级健康检查",
-            "存储池健康检查",
-            "网络连通性检查",
-            "容器健康检查",
-            "健康评分系统",
-            "Prometheus 指标输出",
-            "JSON/文本多格式输出"
-          ],
-          "check_components": [
-            "process",
-            "network",
-            "storage",
-            "memory",
-            "cpu",
-            "database",
-            "backup",
-            "api"
-          ]
-        },
-        {
-          "file": "healthcheck.sh",
-          "status": "完善",
-          "features": [
-            "Docker 健康检查",
-            "Kubernetes 探针支持 (ready/live)"
-          ]
-        },
-        {
-          "file": "service.sh",
-          "status": "完善",
-          "features": [
-            "统一服务管理入口",
-            "支持 systemd 和直接运行"
-          ]
-        },
-        {
-          "file": "backup.sh",
-          "status": "非常完善",
-          "features": [
-            "完整/增量备份",
-            "多目标支持 (本地/S3/SFTP)",
-            "压缩和加密",
-            "完整性校验",
-            "备份清单生成",
-            "通知告警",
-            "保留策略"
-          ]
-        },
-        {
-          "file": "scripts/ 目录其他脚本",
-          "count": 37,
-          "categories": [
-            "部署类 (deploy.sh, install.sh, rollback.sh)",
-            "健康检查 (health-check.sh, healthcheck.sh, disk-health-check.sh)",
-            "备份恢复 (backup.sh, restore.sh, backup-rotate.sh)",
-            "监控 (monitor.sh, service-monitor.sh, performance-test.sh)",
-            "维护 (maintenance.sh, log-rotate.sh)",
-            "数据库 (migrate.sh, db-backup.sh)",
-            "安全 (security-check.sh, security-cron.sh)"
-          ]
-        }
-      ]
-    },
-    "cache_optimization": {
-      "status": "已优化",
-      "strategy": {
-        "cache_version": "v8",
-        "levels": [
-          {
-            "name": "Go 模块缓存",
-            "path": "~/go/pkg/mod",
-            "key": "go-${CACHE_VERSION}-${hashFiles('go.sum')}"
-          },
-          {
-            "name": "Go 编译缓存",
-            "path": "~/.cache/go-build",
-            "key": "go-${CACHE_VERSION}-${hashFiles('**/*.go')}"
-          },
-          {
-            "name": "Go 工具缓存",
-            "path": "~/.cache/golangci-lint, ~/go/bin",
-            "key": "go-tools-${CACHE_VERSION}-${{ runner.os }}"
-          },
-          {
-            "name": "Docker 构建缓存",
-            "type": "gha",
-            "scope": "${CACHE_VERSION}-${github.ref_name}"
-          }
+  "cicd": {
+    "status": "优秀",
+    "workflows": [
+      {
+        "name": "ci-cd.yml",
+        "status": "配置完善",
+        "features": [
+          "智能变更检测（paths-filter）",
+          "多级缓存策略（模块缓存 + 编译缓存 + 工具缓存）",
+          "矩阵构建（amd64/arm64/armv7）",
+          "测试覆盖率追踪和阈值检查",
+          "测试失败自动诊断",
+          "并发控制（同分支只运行一个工作流）"
         ],
-        "matrix_cache": "按平台独立缓存 (linux/amd64, linux/arm64, linux/armv7)"
+        "cache_strategy": {
+          "go_modules": "使用 go mod download + cache action",
+          "build_cache": "按平台分离缓存",
+          "tools_cache": "golangci-lint 缓存",
+          "cache_version": "v8"
+        },
+        "issues": []
+      },
+      {
+        "name": "docker-publish.yml",
+        "status": "配置完善",
+        "features": [
+          "多架构构建（amd64/arm64/arm/v7）",
+          "GitHub Cache 缓存优化",
+          "镜像签名（Cosign Keyless）",
+          "SBOM 生成（Syft）",
+          "Trivy 安全扫描"
+        ],
+        "issues": []
+      },
+      {
+        "name": "release.yml",
+        "status": "配置完善",
+        "features": [
+          "多平台二进制构建",
+          "自动变更日志生成",
+          "SBOM 生成",
+          "校验和文件",
+          "发布验证"
+        ],
+        "issues": []
+      },
+      {
+        "name": "security-scan.yml",
+        "status": "配置完善",
+        "features": [
+          "gosec 静态分析",
+          "govulncheck 漏洞检查",
+          "定期扫描（每周一）",
+          "合理的规则排除（已评估风险）"
+        ],
+        "issues": []
+      },
+      {
+        "name": "benchmark.yml",
+        "status": "存在",
+        "note": "性能基准测试工作流"
       }
-    }
+    ],
+    "recommendations": [
+      "考虑添加 workflow call 复用机制，减少重复配置",
+      "可考虑使用 artifact attestation 替代手动 SBOM 上传"
+    ]
   },
-  "recommendations": [
+  "docker": {
+    "status": "良好",
+    "dockerfile": {
+      "status": "优秀",
+      "features": [
+        "多阶段构建（builder + runtime）",
+        "UPX 压缩优化",
+        "缓存挂载优化（BuildKit）",
+        "最小化运行时依赖",
+        "OCI 标准标签",
+        "增强健康检查（进程 + API + 指标）"
+      ],
+      "estimated_size": "20-25MB（压缩后）",
+      "issues": []
+    },
+    "docker_compose": {
+      "docker-compose.yml": {
+        "status": "良好",
+        "features": [
+          "资源限制配置",
+          "健康检查",
+          "日志轮转配置"
+        ],
+        "issues": [
+          {
+            "severity": "warning",
+            "message": "使用 privileged: true，生产环境建议精确设备授权"
+          }
+        ]
+      },
+      "docker-compose.dev.yml": {
+        "status": "完善",
+        "features": [
+          "热重载支持（air）",
+          "开发工具（Mailhog, MinIO, Jaeger）",
+          "调试端口暴露",
+          "profile 分组（monitoring/tracing）"
+        ],
+        "issues": []
+      },
+      "docker-compose.prod.yml": {
+        "status": "完善",
+        "features": [
+          "完整监控栈（Prometheus, Grafana, Alertmanager）",
+          "Node Exporter + cAdvisor",
+          "资源限制配置",
+          "健康检查",
+          "独立监控网络"
+        ],
+        "issues": []
+      }
+    },
+    "recommendations": [
+      "生产环境考虑移除 privileged 模式，使用 devices 精确授权",
+      "可考虑添加 Docker healthcheck 在 Dockerfile 中使用自定义脚本",
+      "建议添加 .dockerignore 文件优化构建上下文"
+    ]
+  },
+  "scripts": {
+    "status": "良好",
+    "total_scripts": 35,
+    "script_checks": [
+      {
+        "name": "scripts/health-check.sh",
+        "executable": true,
+        "syntax_valid": true,
+        "note": "完整健康检查脚本"
+      },
+      {
+        "name": "scripts/deploy.sh",
+        "executable": true,
+        "syntax_valid": true,
+        "note": "部署脚本（支持二进制和Docker）"
+      },
+      {
+        "name": "scripts/backup-monitor.sh",
+        "executable": true,
+        "syntax_valid": true,
+        "note": "备份监控脚本"
+      },
+      {
+        "name": "scripts/service.sh",
+        "executable": true,
+        "note": "服务管理脚本"
+      },
+      {
+        "name": "scripts/maintenance.sh",
+        "executable": true,
+        "note": "维护脚本"
+      },
+      {
+        "name": "scripts/quick-status.sh",
+        "executable": true,
+        "note": "快速状态检查"
+      }
+    ],
+    "deploy_scripts": [
+      {
+        "name": "deploy/deploy.sh",
+        "executable": true,
+        "features": [
+          "支持二进制和Docker部署",
+          "系统架构自动检测",
+          "依赖安装",
+          "systemd 服务创建",
+          "升级和卸载支持"
+        ]
+      },
+      {
+        "name": "deploy/pre-deploy-check.sh",
+        "executable": true,
+        "features": [
+          "全面系统检查",
+          "内存、磁盘、网络检查",
+          "端口冲突检测",
+          "防火墙和SELinux检查"
+        ]
+      }
+    ],
+    "issues": []
+  },
+  "makefile": {
+    "status": "完善",
+    "targets": {
+      "build": "编译二进制文件",
+      "test": "单元测试",
+      "test-integration": "集成测试",
+      "test-e2e": "E2E测试",
+      "test-coverage": "覆盖率报告",
+      "lint": "代码检查",
+      "docker-build": "Docker镜像构建",
+      "docker-run": "启动Docker容器",
+      "monitor-up": "启动监控栈",
+      "health": "健康检查",
+      "backup-monitor": "备份监控",
+      "disk-health": "磁盘健康检查"
+    },
+    "features": [
+      "多目标支持（构建、测试、Docker、监控）",
+      "跨平台构建支持",
+      "详细的帮助信息"
+    ],
+    "issues": []
+  },
+  "issues": [
     {
-      "priority": "低",
-      "category": "CI/CD",
-      "title": "添加依赖缓存预热",
-      "description": "当前配置已包含依赖下载，可考虑在 prepare job 中并行预热所有依赖"
+      "severity": "warning",
+      "category": "docker",
+      "location": "docker-compose.yml, docker-compose.prod.yml",
+      "description": "使用 privileged: true 特权模式",
+      "impact": "安全风险，容器拥有宿主机所有权限",
+      "suggestion": "生产环境使用 devices 参数精确授权需要的设备"
     },
     {
-      "priority": "低",
-      "category": "监控",
-      "title": "添加更多业务指标",
-      "description": "可考虑添加 NAS 特有的业务指标，如文件操作次数、共享连接数趋势等"
-    },
-    {
-      "priority": "低",
-      "category": "脚本",
-      "title": "添加配置验证脚本",
-      "description": "已有 config-validator.sh，可扩展验证更多配置项"
-    },
-    {
-      "priority": "低",
-      "category": "文档",
-      "title": "添加 Runbook 文档",
-      "description": "alerts.yml 中已引用 runbook 链接，建议创建对应的 Runbook 文档"
-    },
-    {
-      "priority": "低",
-      "category": "安全",
-      "title": "添加 SBOM 到发布流程",
-      "description": "release.yml 已包含 SBOM 生成，确保发布时包含在 artifacts 中"
+      "severity": "info",
+      "category": "docker",
+      "location": "Dockerfile",
+      "description": "缺少 .dockerignore 文件",
+      "impact": "构建上下文可能包含不必要的文件",
+      "suggestion": "创建 .dockerignore 排除不必要的文件"
     }
   ],
-  "checklist": {
-    "workflows_checked": true,
-    "cache_optimized": true,
-    "monitoring_reviewed": true,
-    "scripts_reviewed": true,
-    "health_check_updated": true,
-    "report_generated": true
-  },
-  "conclusion": "NAS-OS v2.77.0 的 CI/CD 配置和监控体系已经非常完善。GitHub Workflows 采用了先进的缓存策略和自动化流程，Prometheus 告警规则覆盖全面，部署脚本功能完备。无需进行重大修改，现有配置已达到生产级别标准。"
+  "suggestions": [
+    {
+      "category": "cicd",
+      "description": "考虑添加 workflow_call 复用机制",
+      "benefit": "减少重复配置，便于维护"
+    },
+    {
+      "category": "docker",
+      "description": "生产环境移除 privileged 模式",
+      "benefit": "提高安全性"
+    },
+    {
+      "category": "docker",
+      "description": "创建 .dockerignore 文件",
+      "benefit": "优化构建上下文，加快构建速度"
+    },
+    {
+      "category": "monitoring",
+      "description": "考虑添加 Podman 支持作为 Docker 替代方案",
+      "benefit": "无守护进程，更安全的容器运行时"
+    },
+    {
+      "category": "scripts",
+      "description": "统一脚本中的 wget/curl 使用",
+      "benefit": "docker-compose.dev.yml 中使用 wget，其他使用 curl，建议统一"
+    }
+  ],
+  "highlights": [
+    "CI/CD 配置非常完善，包含智能变更检测、多级缓存、矩阵构建",
+    "Dockerfile 使用多阶段构建和 UPX 压缩，镜像大小优化良好",
+    "部署脚本功能完整，支持多种部署方式和系统检查",
+    "Makefile 目标丰富，涵盖构建、测试、Docker、监控等",
+    "监控栈配置完善，包含 Prometheus、Grafana、Alertmanager"
+  ]
 }

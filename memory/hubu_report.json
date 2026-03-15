@@ -1,0 +1,163 @@
+{
+  "report_version": "v2.78.0",
+  "generated_at": "2026-03-16T00:27:00+08:00",
+  "resource_usage": {
+    "code_statistics": {
+      "total_lines": 351358,
+      "source_lines": 272024,
+      "test_lines": 79334,
+      "test_ratio": 22.6,
+      "recent_changes": {
+        "commits_analyzed": 20,
+        "lines_added": 66332,
+        "lines_deleted": 1383,
+        "net_change": 64949
+      }
+    },
+    "module_statistics": {
+      "internal_modules": 70,
+      "total_packages": 96,
+      "test_files": 168,
+      "test_coverage": "27.0%"
+    },
+    "module_distribution": {
+      "core_modules": [
+        "api", "auth", "disk", "container", "backup",
+        "database", "files", "health", "logging", "monitor"
+      ],
+      "feature_modules": [
+        "ai_classify", "automation", "billing", "budget", "cloudsync",
+        "cluster", "compliance", "dedup", "docker", "downloader",
+        "ftp", "iscsi", "ldap", "nfs", "plugins", "quota",
+        "raid", "recovery", "replication", "s3", "samba",
+        "scheduler", "search", "security", "shares", "smart",
+        "snapshot", "ssl", "storage", "system", "thumbnail",
+        "user", "version", "vpn", "webdav", "webhook"
+      ]
+    }
+  },
+  "dependency_management": {
+    "direct_dependencies": 34,
+    "indirect_dependencies": 93,
+    "total_dependencies": 245,
+    "key_dependencies": {
+      "web_framework": "github.com/gin-gonic/gin v1.11.0",
+      "database": "modernc.org/sqlite v1.34.5",
+      "search": "github.com/blevesearch/bleve/v2 v2.5.7",
+      "cloud_storage": "github.com/aws/aws-sdk-go-v2 v1.41.3",
+      "monitoring": "github.com/prometheus/client_golang v1.23.2",
+      "tracing": "go.opentelemetry.io/otel v1.42.0",
+      "logging": "go.uber.org/zap v1.27.0"
+    },
+    "updates_available": [
+      "github.com/Azure/go-ntlmssp v0.0.0 -> v0.1.0",
+      "github.com/GoogleCloudPlatform/opentelemetry-operations-go v1.30.0 -> v1.31.0",
+      "github.com/PuerkitoBio/purell v1.1.1 -> v1.2.1",
+      "github.com/RoaringBitmap/roaring/v2 v2.4.5 -> v2.15.0",
+      "github.com/aws/aws-sdk-go-v2 v1.41.3 -> v1.41.4",
+      "github.com/aws/aws-sdk-go-v2/service/s3 v1.96.4 -> v1.97.1"
+    ],
+    "unused_check": {
+      "status": "clean",
+      "note": "go mod tidy completed without removing packages"
+    },
+    "todo_fixme_count": 20
+  },
+  "performance_assessment": {
+    "concurrency": {
+      "goroutine_usage": 385,
+      "sync_operations": 4893,
+      "defer_cleanups": 2474,
+      "assessment": "良好 - 大量使用 defer 进行资源清理"
+    },
+    "error_handling": {
+      "panic_usage": 252,
+      "recover_usage": 3,
+      "context_background": 104,
+      "assessment": "警告 - panic 使用较多，recover 覆盖不足"
+    },
+    "timing_operations": {
+      "time_sleep_after_tick": 478,
+      "assessment": "注意 - 需要检查是否有泄漏的 time.After/ Tick"
+    },
+    "unsafe_code": {
+      "usage_count": 0,
+      "assessment": "优秀 - 无 unsafe 代码"
+    },
+    "loop_structures": 456,
+    "memory_leak_risks": [
+      {
+        "risk": "time.After 在循环中使用可能导致内存泄漏",
+        "locations": "需手动检查 for 循环内的 time.After 调用"
+      },
+      {
+        "risk": "goroutine 未正确退出",
+        "recommendation": "确保所有 goroutine 有退出机制 (context cancellation)"
+      },
+      {
+        "risk": "recover 覆盖不足",
+        "detail": "252 个 panic vs 3 个 recover，建议增加 recover 覆盖"
+      }
+    ]
+  },
+  "optimization_recommendations": {
+    "high_priority": [
+      {
+        "category": "测试覆盖率",
+        "current": "27.0%",
+        "target": "60%+",
+        "action": "增加核心模块的单元测试，特别是 disk, storage, backup 模块"
+      },
+      {
+        "category": "goroutine 管理",
+        "issue": "385 处 goroutine 启动",
+        "action": "审查所有 goroutine 是否有正确的退出机制，使用 errgroup 或 sync.WaitGroup"
+      },
+      {
+        "category": "panic/recover 平衡",
+        "issue": "252 panic vs 3 recover",
+        "action": "在关键入口点添加 recover，或在 HTTP 中间件中统一 recover"
+      }
+    ],
+    "medium_priority": [
+      {
+        "category": "依赖更新",
+        "action": "更新 AWS SDK、RoaringBitmap 等关键依赖到最新版本"
+      },
+      {
+        "category": "time.After 审查",
+        "action": "检查循环中的 time.After 使用，替换为 time.NewTimer"
+      },
+      {
+        "category": "TODO 清理",
+        "count": 20,
+        "action": "清理或解决现有 TODO/FIXME 注释"
+      }
+    ],
+    "low_priority": [
+      {
+        "category": "代码行数优化",
+        "note": "35万行代码量适中，测试代码占比 22.6% 合理"
+      },
+      {
+        "category": "模块数量",
+        "note": "70 个内部模块，模块边界清晰，可维护性良好"
+      }
+    ]
+  },
+  "summary": {
+    "overall_health": "良好",
+    "key_metrics": {
+      "code_quality": "B+",
+      "test_coverage": "C (27%)",
+      "dependency_health": "A-",
+      "performance_risk": "B"
+    },
+    "action_items": [
+      "提升测试覆盖率至 60% 以上",
+      "审查 goroutine 退出机制",
+      "增加 recover 覆盖关键入口点",
+      "更新可用的依赖版本"
+    ]
+  }
+}

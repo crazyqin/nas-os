@@ -88,8 +88,8 @@ func TestRetentionPolicy_ByAge(t *testing.T) {
 
 func TestRetentionPolicy_BySize(t *testing.T) {
 	policy := &RetentionPolicy{
-		Type:          RetentionBySize,
-		MaxSizeBytes:  1024 * 1024 * 1024, // 1GB
+		Type:         RetentionBySize,
+		MaxSizeBytes: 1024 * 1024 * 1024, // 1GB
 	}
 
 	if policy.Type != RetentionBySize {
@@ -311,7 +311,7 @@ func TestPolicy_WithScripts(t *testing.T) {
 		Type:       PolicyTypeApplicationConsistent,
 		VolumeName: "data",
 		Scripts: &ScriptConfig{
-			PreSnapshotScript: "/usr/local/bin/quiesce.sh",
+			PreSnapshotScript:  "/usr/local/bin/quiesce.sh",
 			PostSnapshotScript: "/usr/local/bin/unquiesce.sh",
 		},
 	}
@@ -721,7 +721,7 @@ func TestRetentionPolicy_NegativeAge(t *testing.T) {
 
 func TestPolicy_Timestamps(t *testing.T) {
 	before := time.Now()
-	
+
 	pm := NewPolicyManager("/tmp/test-timestamps.json", nil)
 	policy := &Policy{
 		Name:       "Timestamp Test",
@@ -733,7 +733,7 @@ func TestPolicy_Timestamps(t *testing.T) {
 		},
 	}
 	_ = pm.CreatePolicy(policy)
-	
+
 	after := time.Now()
 
 	if policy.CreatedAt.Before(before) || policy.CreatedAt.After(after) {

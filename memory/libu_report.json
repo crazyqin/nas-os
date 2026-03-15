@@ -1,161 +1,156 @@
 {
-  "report_type": "libu_documentation_report",
-  "version": "v2.77.0",
-  "date": "2026-03-16",
+  "report_version": "v2.78.0",
+  "generated_at": "2026-03-16T00:30:00+08:00",
   "department": "礼部",
-  "department_role": "品牌营销、内容创作",
-  "project": "nas-os",
-  "project_path": "/home/mrafter/clawd/nas-os",
+  "task": "v2.78.0 文档更新",
+  
+  "documentation_updates": {
+    "summary": "完成 v2.78.0 版本文档更新",
+    "files_updated": [
+      {
+        "file": "README.md",
+        "changes": [
+          "更新版本号 v2.77.0 → v2.78.0",
+          "更新下载链接版本",
+          "更新 Docker 镜像版本标签"
+        ]
+      },
+      {
+        "file": "CHANGELOG.md",
+        "changes": [
+          "添加 v2.78.0 版本变更记录",
+          "记录文档体系完善、版本号更新、API 文档增强"
+        ]
+      },
+      {
+        "file": "docs/api.yaml",
+        "changes": [
+          "更新 OpenAPI 规范版本 2.65.0 → 2.78.0"
+        ]
+      },
+      {
+        "file": "docs/API_GUIDE.md",
+        "changes": ["版本号更新至 v2.78.0"]
+      },
+      {
+        "file": "docs/FAQ.md",
+        "changes": ["版本号更新至 v2.78.0"]
+      },
+      {
+        "file": "docs/QUICKSTART.md",
+        "changes": ["版本号更新至 v2.78.0"]
+      },
+      {
+        "file": "docs/USER_GUIDE.md",
+        "changes": ["版本号更新至 v2.78.0"]
+      },
+      {
+        "file": "docs/TROUBLESHOOTING.md",
+        "changes": ["版本号更新至 v2.78.0"]
+      },
+      {
+        "file": "docs/README.md",
+        "changes": [
+          "版本号更新至 v2.78.0",
+          "文档索引版本同步"
+        ]
+      },
+      {
+        "file": "docs/README_EN.md",
+        "changes": [
+          "版本号更新至 v2.78.0",
+          "下载链接更新",
+          "Docker 镜像版本更新"
+        ]
+      },
+      {
+        "file": "docs/swagger/swagger.yaml",
+        "changes": ["版本号更新至 2.78.0"]
+      },
+      {
+        "file": "docs/user-guide/README.md",
+        "changes": ["版本号更新至 v2.78.0"]
+      },
+      {
+        "file": "docs/api/*.md (11 files)",
+        "changes": ["批量更新版本号 v2.76.0/v2.77.0 → v2.78.0"]
+      },
+      {
+        "file": "webui/pages/login.html",
+        "changes": ["页面版本信息 v2.52.0 → v2.78.0"]
+      }
+    ],
+    "total_files_updated": 15
+  },
+  
+  "api_documentation_coverage": {
+    "status": "complete",
+    "api_yaml_version": "2.78.0",
+    "swagger_version": "2.78.0",
+    "endpoints_documented": {
+      "dedup": ["scan", "cancel", "duplicates", "deduplicate", "stats", "config", "report"],
+      "health": ["system", "checks", "thresholds"],
+      "logging": ["config", "entries", "rotation", "export", "archive"],
+      "security": ["dashboard", "encryption", "audit", "alerts", "scan"],
+      "volumes": ["list", "create", "delete", "subvolumes", "snapshots", "scrub", "balance"],
+      "users": ["list", "create", "update", "delete", "disable", "enable", "reset-password", "groups"],
+      "iscsi": ["targets", "portal"],
+      "office": ["documents", "editor", "status", "config"],
+      "notify": ["list", "read", "channels"],
+      "optimizer": ["analysis", "trends", "recommendations", "apply"],
+      "media": ["stream", "transcode", "thumbnail", "subtitles"],
+      "quota": ["auto-expand", "history"]
+    },
+    "total_endpoint_groups": 12,
+    "issues": []
+  },
+  
+  "user_guide_improvements": {
+    "webui_pages_checked": [
+      "login.html - 登录页面，错误提示友好",
+      "dashboard.html - 仪表板页面，状态指示清晰"
+    ],
+    "error_messages_review": {
+      "login_page": {
+        "status": "good",
+        "examples": [
+          "用户名或密码错误，请重试",
+          "登录成功，正在跳转...",
+          "请联系系统管理员重置密码"
+        ],
+        "suggestions": []
+      },
+      "general_ui": {
+        "status": "good",
+        "feedback": "错误提示使用中文，清晰易懂"
+      }
+    },
+    "recommendations": []
+  },
+  
+  "issues_to_review": [
+    {
+      "type": "info",
+      "description": "历史版本发布说明文件（RELEASE-v2.52.0.md, RELEASE-v2.65.0.md 等）保持原版本号，这是正确的行为",
+      "priority": "low"
+    },
+    {
+      "type": "info",
+      "description": "README_EN.md 中路线图表格显示 v2.76.0 为最新发布版本，需要更新",
+      "priority": "medium",
+      "action": "建议在版本路线图中添加 v2.78.0 条目"
+    }
+  ],
+  
   "summary": {
-    "tasks_total": 6,
-    "tasks_completed": 6,
-    "documents_updated": 13,
-    "documents_created": 2
-  },
-  "tasks": [
-    {
-      "id": 1,
-      "name": "检查 docs/ 目录下的文档完整性",
-      "status": "completed",
-      "details": "识别了所有需要更新的文档，检查了核心文档、API文档、用户指南等"
-    },
-    {
-      "id": 2,
-      "name": "更新 CHANGELOG.md",
-      "status": "completed",
-      "details": "添加了 v2.77.0 条目，包含文档体系完善和版本号统一更新"
-    },
-    {
-      "id": 3,
-      "name": "更新 README.md",
-      "status": "completed",
-      "details": "更新版本号至 v2.77.0，更新下载链接和 Docker 镜像版本"
-    },
-    {
-      "id": 4,
-      "name": "完善 API 文档 docs/api/",
-      "status": "completed",
-      "details": "更新了 docs/api/README.md 和 docs/api/examples.md 的版本号"
-    },
-    {
-      "id": 5,
-      "name": "创建或更新用户指南",
-      "status": "completed",
-      "details": "更新了 docs/user-guide/README.md 的版本号（从 v2.72.0 到 v2.77.0）"
-    },
-    {
-      "id": 6,
-      "name": "生成工作报告",
-      "status": "completed",
-      "details": "创建了 libu_report.json 和 STATUS-v2.77.0.md"
-    }
-  ],
-  "documents_updated": [
-    {
-      "file": "CHANGELOG.md",
-      "change": "添加 v2.77.0 条目"
-    },
-    {
-      "file": "README.md",
-      "change": "版本号更新至 v2.77.0，下载链接更新"
-    },
-    {
-      "file": "docs/README.md",
-      "change": "文档中心索引版本更新"
-    },
-    {
-      "file": "docs/README_EN.md",
-      "change": "英文文档版本更新"
-    },
-    {
-      "file": "docs/USER_GUIDE.md",
-      "change": "用户指南版本更新"
-    },
-    {
-      "file": "docs/QUICKSTART.md",
-      "change": "快速开始指南版本更新"
-    },
-    {
-      "file": "docs/FAQ.md",
-      "change": "常见问题版本更新"
-    },
-    {
-      "file": "docs/API_GUIDE.md",
-      "change": "API 使用指南版本更新"
-    },
-    {
-      "file": "docs/TROUBLESHOOTING.md",
-      "change": "故障排查指南版本更新"
-    },
-    {
-      "file": "docs/api/README.md",
-      "change": "API 文档索引版本更新"
-    },
-    {
-      "file": "docs/api/examples.md",
-      "change": "API 示例代码版本更新"
-    },
-    {
-      "file": "docs/user-guide/README.md",
-      "change": "用户指南索引版本更新（从 v2.72.0）"
-    },
-    {
-      "file": "docs/swagger/swagger.yaml",
-      "change": "OpenAPI 规范版本更新"
-    }
-  ],
-  "documents_created": [
-    {
-      "file": "docs/RELEASE-v2.77.0.md",
-      "purpose": "v2.77.0 发布说明"
-    },
-    {
-      "file": "docs/STATUS-v2.77.0.md",
-      "purpose": "项目状态报告"
-    }
-  ],
-  "documentation_structure": {
-    "core_docs": [
-      "README.md",
-      "docs/README.md",
-      "docs/QUICKSTART.md",
-      "docs/USER_GUIDE.md",
-      "docs/FAQ.md",
-      "docs/API_GUIDE.md",
-      "docs/TROUBLESHOOTING.md"
-    ],
-    "api_docs": [
-      "docs/api/README.md",
-      "docs/api/audit-api.md",
-      "docs/api/billing-api.md",
-      "docs/api/dashboard-api.md",
-      "docs/api/health-api.md",
-      "docs/api/invoice-api.md",
-      "docs/api/monitor-api.md",
-      "docs/api/permission-api.md",
-      "docs/api/storage-api.md",
-      "docs/api/user-api.md",
-      "docs/api/examples.md"
-    ],
-    "user_guide_docs": [
-      "docs/user-guide/README.md",
-      "docs/user-guide/permission-guide.md",
-      "docs/user-guide/backup-guide.md",
-      "docs/user-guide/audit-guide.md",
-      "docs/user-guide/billing-guide.md",
-      "docs/user-guide/distributed-monitoring-guide.md",
-      "docs/user-guide/dashboard-guide.md"
-    ],
-    "swagger_docs": [
-      "docs/swagger/swagger.yaml",
-      "docs/swagger/swagger.json",
-      "docs/swagger/docs.go"
+    "status": "completed",
+    "documentation_sync": "所有主要文档已同步至 v2.78.0",
+    "api_docs": "OpenAPI/Swagger 文档版本已更新",
+    "webui": "登录页版本信息已更新",
+    "next_steps": [
+      "创建 RELEASE-v2.78.0.md 发布说明",
+      "更新 MILESTONES.md 添加 v2.78.0 里程碑",
+      "准备 GitHub Release 发布内容"
     ]
-  },
-  "notes": [
-    "未修改版本号，只做文档更新",
-    "未提交代码，只做文档更新和报告",
-    "docs/user-guide/README.md 原版本为 v2.72.0，已更新至 v2.77.0"
-  ],
-  "generated_at": "2026-03-16T00:10:00+08:00"
+  }
 }

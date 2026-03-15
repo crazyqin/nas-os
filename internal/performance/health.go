@@ -410,7 +410,8 @@ func (hc *HealthChecker) checkServiceStatus(service string) string {
 		return "unknown"
 	}
 
-	if _, err := http.Get("http://localhost:8080/api/v1/health"); err == nil {
+	if resp, err := http.Get("http://localhost:8080/api/v1/health"); err == nil {
+		resp.Body.Close()
 		return "running"
 	}
 
