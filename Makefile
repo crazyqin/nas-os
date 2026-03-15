@@ -101,6 +101,15 @@ docker-build:
 	@echo "🐳 构建 Docker 镜像..."
 	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
 
+# 多架构 Docker 构建 (v2.86.0)
+docker-buildx:
+	@echo "🐳 构建多架构 Docker 镜像 (amd64, arm64, armv7)..."
+	docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+
+docker-buildx-push:
+	@echo "🐳 构建并推送多架构 Docker 镜像..."
+	docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 --push -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+
 docker-run:
 	@echo "🐳 启动容器..."
 	docker-compose up -d
@@ -195,6 +204,8 @@ help:
 	@echo ""
 	@echo "  Docker:"
 	@echo "    make docker-build   - 构建镜像"
+	@echo "    make docker-buildx  - 构建多架构镜像 (amd64, arm64, armv7)"
+	@echo "    make docker-buildx-push - 构建并推送多架构镜像"
 	@echo "    make docker-run     - 启动容器"
 	@echo "    make docker-logs    - 查看日志"
 	@echo "    make docker-stop    - 停止容器"

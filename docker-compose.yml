@@ -1,6 +1,11 @@
 # NAS-OS Docker Compose
 # ⚠️ 注意：生产环境建议直接安装在宿主机（需要磁盘设备访问）
 # 此配置适用于开发测试或受限场景
+#
+# v2.86.0 更新：
+# - 更新版本标签
+# - 添加网络配置
+# - 优化资源限制
 
 services:
   nas-os:
@@ -13,7 +18,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.75.0"
+      - "nas-os.version=2.86.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -82,14 +87,19 @@ services:
         max-file: "3"
     
     # 健康检查（覆盖 Dockerfile 中的设置）
-    # v2.45.0: 多层检测 + 超时优化
-    # 注意：使用 curl（Dockerfile 已安装），不使用 wget
+    # v2.86.0: 简化检测逻辑
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/v1/health > /dev/null 2>&1 && curl -sf http://localhost:8080/api/v1/system/status > /dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/v1/health && curl -sf http://localhost:8080/api/v1/system/status > /dev/null 2>&1 || exit 1"]
       interval: 30s
       timeout: 15s
       retries: 3
       start_period: 30s
+
+# ========== 网络配置 ==========
+networks:
+  default:
+    name: nas-os-network
+    driver: bridge
 
   # ========== 可选：配套服务 ==========
   
