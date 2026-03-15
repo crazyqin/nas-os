@@ -447,10 +447,10 @@ func TestDashboardTemplate_JSON(t *testing.T) {
 		Category:    "infrastructure",
 		Widgets: []*WidgetConfig{
 			{
-				ShowPerCore:  true,
-				ShowSwap:     true,
-				ShowIOStats:  true,
-				ShowPackets:  true,
+				ShowPerCore:   true,
+				ShowSwap:      true,
+				ShowIOStats:   true,
+				ShowPackets:   true,
 				MaxDataPoints: 100,
 			},
 		},
