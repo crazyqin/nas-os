@@ -980,17 +980,3 @@ type RestorePreset struct {
 	Description string         `json:"description"`
 	Options     RestoreOptions `json:"options"`
 }
-
-// ConfigCheckResult 配置检查结果
-type ConfigCheckResult struct {
-	ConfigID string       `json:"configId"`
-	Status   string       `json:"status"`
-	Checks   []CheckItem  `json:"checks"`
-}
-
-// CheckItem 检查项
-type CheckItem struct {
-	Name    string `json:"name"`
-	Status  string `json:"status"`
-	Message string `json:"message"`
-}
