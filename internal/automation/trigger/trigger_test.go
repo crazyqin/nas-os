@@ -168,9 +168,9 @@ func TestEventTrigger_Fields(t *testing.T) {
 
 func TestWebhookTrigger_Fields(t *testing.T) {
 	trigger := &WebhookTrigger{
-		Path:    "/api/webhook/test",
-		Secret:  "my-secret",
-		Method:  "POST",
+		Path:   "/api/webhook/test",
+		Secret: "my-secret",
+		Method: "POST",
 	}
 
 	if trigger.Path != "/api/webhook/test" {
