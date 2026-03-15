@@ -41,6 +41,10 @@ on:
     branches: [master]
   workflow_dispatch:
     inputs:
+      version:
+        description: '版本号 (例如: v2.86.0)'
+        required: false
+        type: string
       platform:
         description: '目标平台'
         required: false
