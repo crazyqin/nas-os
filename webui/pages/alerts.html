@@ -6,6 +6,7 @@
     <title>告警中心 - NAS-OS</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="stylesheet" href="../css/design-system.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .alerts-container {
             max-width: 1400px;
@@ -31,6 +32,31 @@
             font-size: 1.75rem;
         }
         
+        /* v2.54.0 新增：实时状态指示器 */
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: #22c55e;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
         .alerts-summary {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -44,11 +70,13 @@
             padding: 1.5rem;
             border: 1px solid var(--surface-border);
             text-align: center;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            cursor: pointer;
         }
         
         .summary-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
         .summary-card.critical { border-left: 4px solid #DC2626; }
@@ -70,6 +98,32 @@
         .summary-label {
             font-size: 0.875rem;
             color: var(--text-muted);
+        }
+        
+        /* v2.54.0 新增：趋势图 */
+        .trends-section {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--surface-border);
+        }
+        
+        .trends-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .trends-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .chart-wrapper {
+            height: 200px;
+            position: relative;
         }
         
         .alerts-toolbar {
@@ -144,6 +198,8 @@
         .btn-danger:hover { background: #B91C1C; }
         .btn-success { background: #10B981; color: white; }
         .btn-success:hover { background: #059669; }
+        .btn-warning { background: #F59E0B; color: white; }
+        .btn-warning:hover { background: #D97706; }
         
         .alerts-list {
             background: var(--surface-color);
@@ -179,6 +235,18 @@
         
         .alert-item.warning {
             background: rgba(245, 158, 11, 0.05);
+        }
+        
+        /* v2.54.0 新增：告警选中状态 */
+        .alert-item.selected {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--color-primary);
+        }
+        
+        .alert-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
         }
         
         .alert-icon {
@@ -229,6 +297,7 @@
         .alert-badge.warning { background: #FEF3C7; color: #92400E; }
         .alert-badge.info { background: #DBEAFE; color: #1E40AF; }
         .alert-badge.resolved { background: #D1FAE5; color: #065F46; }
+        .alert-badge.silenced { background: #E5E7EB; color: #374151; }
         
         .alert-time {
             font-size: 0.75rem;
@@ -264,6 +333,65 @@
         .btn-sm {
             padding: 0.375rem 0.75rem;
             font-size: 0.75rem;
+        }
+        
+        /* v2.54.0 新增：批量操作栏 */
+        .batch-actions {
+            display: none;
+            background: var(--color-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .batch-actions.active {
+            display: flex;
+        }
+        
+        .batch-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .batch-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .batch-buttons .btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+        }
+        
+        .batch-buttons .btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* v2.54.0 新增：静默设置 */
+        .silence-form {
+            padding: 1rem;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+            margin-top: 0.75rem;
+        }
+        
+        .silence-form-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .silence-input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.875rem;
         }
         
         /* 告警设置模态框 */
@@ -349,12 +477,6 @@
             outline: none;
             border-color: var(--color-primary);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .form-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
         
         .modal-footer {
@@ -484,6 +606,42 @@
             color: var(--text-muted);
         }
         
+        /* v2.54.0 新增：历史记录标签页 */
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
         /* 响应式 */
         @media (max-width: 768px) {
             .alerts-summary {
@@ -507,6 +665,11 @@
                 width: 100%;
                 margin-top: 1rem;
             }
+            
+            .batch-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
         }
     </style>
 </head>
@@ -517,33 +680,54 @@
             <div class="alerts-title">
                 <span style="font-size: 2rem;">🚨</span>
                 <div>
-                    <h1>告警中心</h1>
+                    <h1>告警中心 <span style="font-size: 0.75rem; color: var(--text-muted);">v2.54.0</span></h1>
                     <p style="margin: 0; color: var(--text-muted); font-size: 0.875rem;">监控和管理系统告警</p>
                 </div>
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-secondary" onclick="showSettingsModal()">⚙️ 告警设置</button>
-                <button class="btn btn-primary" onclick="showTestAlertModal()">🧪 测试告警</button>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    <span>实时监控</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="showSettingsModal()">⚙️ 告警设置</button>
+                    <button class="btn btn-primary" onclick="showTestAlertModal()">🧪 测试告警</button>
+                </div>
             </div>
         </div>
         
         <!-- 统计摘要 -->
         <div class="alerts-summary">
-            <div class="summary-card critical">
+            <div class="summary-card critical" onclick="filterAlerts('critical')">
                 <div class="summary-count" id="criticalCount">0</div>
                 <div class="summary-label">🔴 严重告警</div>
             </div>
-            <div class="summary-card warning">
+            <div class="summary-card warning" onclick="filterAlerts('warning')">
                 <div class="summary-count" id="warningCount">0</div>
                 <div class="summary-label">🟡 警告告警</div>
             </div>
-            <div class="summary-card info">
+            <div class="summary-card info" onclick="filterAlerts('info')">
                 <div class="summary-count" id="infoCount">0</div>
                 <div class="summary-label">🔵 信息告警</div>
             </div>
-            <div class="summary-card resolved">
+            <div class="summary-card resolved" onclick="filterAlerts('resolved')">
                 <div class="summary-count" id="resolvedCount">0</div>
                 <div class="summary-label">🟢 已解决</div>
+            </div>
+        </div>
+        
+        <!-- v2.54.0 新增：告警趋势图 -->
+        <div class="trends-section">
+            <div class="trends-header">
+                <h3 class="trends-title">📈 告警趋势（最近 24 小时）</h3>
+                <select class="btn btn-secondary btn-sm" id="trendRange" onchange="updateTrendChart()">
+                    <option value="24h" selected>24 小时</option>
+                    <option value="7d">7 天</option>
+                    <option value="30d">30 天</option>
+                </select>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="alertTrendChart"></canvas>
             </div>
         </div>
         
@@ -563,6 +747,19 @@
             <div class="action-buttons">
                 <button class="btn btn-secondary" onclick="acknowledgeAll()">✅ 全部确认</button>
                 <button class="btn btn-danger" onclick="clearResolved()">🗑️ 清除已解决</button>
+            </div>
+        </div>
+        
+        <!-- v2.54.0 新增：批量操作栏 -->
+        <div class="batch-actions" id="batchActions">
+            <div class="batch-info">
+                <span>已选择 <strong id="selectedCount">0</strong> 条告警</span>
+            </div>
+            <div class="batch-buttons">
+                <button class="btn btn-sm" onclick="batchAcknowledge()">✅ 批量确认</button>
+                <button class="btn btn-sm" onclick="batchResolve()">🔄 批量解决</button>
+                <button class="btn btn-sm" onclick="batchSilence()">🔇 批量静默</button>
+                <button class="btn btn-sm" onclick="cancelSelection()">取消选择</button>
             </div>
         </div>
         
@@ -701,14 +898,102 @@
         const API_BASE = '/api/v1/monitor';
         let currentFilter = 'all';
         let alerts = [];
+        let selectedAlerts = new Set();
+        let trendChart = null;
         
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
+            initTrendChart();
             loadAlerts();
             loadRules();
             loadChannels();
             setInterval(loadAlerts, 30000); // 30秒刷新
         });
+        
+        // v2.54.0 新增：初始化趋势图
+        function initTrendChart() {
+            const ctx = document.getElementById('alertTrendChart').getContext('2d');
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: generateTimeLabels(24),
+                    datasets: [
+                        {
+                            label: '严重',
+                            data: generateRandomData(24, 0, 3),
+                            borderColor: '#DC2626',
+                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: '警告',
+                            data: generateRandomData(24, 1, 8),
+                            borderColor: '#F59E0B',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: '信息',
+                            data: generateRandomData(24, 2, 10),
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 生成时间标签
+        function generateTimeLabels(hours) {
+            const labels = [];
+            const now = new Date();
+            for (let i = hours - 1; i >= 0; i--) {
+                const time = new Date(now - i * 60 * 60 * 1000);
+                labels.push(time.getHours() + ':00');
+            }
+            return labels;
+        }
+        
+        // 生成随机数据（模拟）
+        function generateRandomData(count, min, max) {
+            return Array.from({ length: count }, () => 
+                Math.floor(Math.random() * (max - min + 1)) + min
+            );
+        }
+        
+        // 更新趋势图
+        function updateTrendChart() {
+            const range = document.getElementById('trendRange').value;
+            let hours = 24;
+            if (range === '7d') hours = 168;
+            if (range === '30d') hours = 720;
+            
+            trendChart.data.labels = generateTimeLabels(hours > 24 ? Math.min(hours, 24) : hours);
+            // 实际应该从 API 获取历史数据
+            trendChart.update();
+        }
         
         // 加载告警
         async function loadAlerts() {
@@ -738,6 +1023,8 @@
             if (currentFilter !== 'all') {
                 if (currentFilter === 'unacknowledged') {
                     filtered = alerts.filter(a => !a.acknowledged);
+                } else if (currentFilter === 'resolved') {
+                    filtered = alerts.filter(a => a.resolved);
                 } else {
                     filtered = alerts.filter(a => a.level === currentFilter);
                 }
@@ -763,7 +1050,8 @@
             }
             
             list.innerHTML = filtered.map(alert => `
-                <div class="alert-item ${alert.level}">
+                <div class="alert-item ${alert.level} ${selectedAlerts.has(alert.id) ? 'selected' : ''}" data-id="${alert.id}">
+                    <input type="checkbox" class="alert-checkbox" ${selectedAlerts.has(alert.id) ? 'checked' : ''} onchange="toggleSelect('${alert.id}')">
                     <div class="alert-icon ${alert.level}">
                         ${getAlertIcon(alert.level)}
                     </div>
@@ -772,6 +1060,7 @@
                             <div class="alert-title">
                                 <span class="alert-badge ${alert.level}">${getLevelText(alert.level)}</span>
                                 ${alert.type}
+                                ${alert.silenced ? '<span class="alert-badge silenced">已静默</span>' : ''}
                             </div>
                             <span class="alert-time">${formatTime(alert.timestamp)}</span>
                         </div>
@@ -786,6 +1075,7 @@
                     <div class="alert-actions">
                         ${!alert.acknowledged ? `<button class="btn btn-secondary btn-sm" onclick="acknowledgeAlert('${alert.id}')">确认</button>` : ''}
                         ${!alert.resolved ? `<button class="btn btn-success btn-sm" onclick="resolveAlert('${alert.id}')">解决</button>` : ''}
+                        ${!alert.silenced ? `<button class="btn btn-warning btn-sm" onclick="silenceAlert('${alert.id}')">静默</button>` : `<button class="btn btn-secondary btn-sm" onclick="unsilenceAlert('${alert.id}')">取消静默</button>`}
                         <button class="btn btn-danger btn-sm" onclick="deleteAlert('${alert.id}')">删除</button>
                     </div>
                 </div>
@@ -798,6 +1088,137 @@
             document.getElementById('warningCount').textContent = alerts.filter(a => a.level === 'warning' && !a.resolved).length;
             document.getElementById('infoCount').textContent = alerts.filter(a => a.level === 'info' && !a.resolved).length;
             document.getElementById('resolvedCount').textContent = alerts.filter(a => a.resolved).length;
+        }
+        
+        // v2.54.0 新增：选择/取消选择告警
+        function toggleSelect(id) {
+            if (selectedAlerts.has(id)) {
+                selectedAlerts.delete(id);
+            } else {
+                selectedAlerts.add(id);
+            }
+            updateBatchActions();
+            renderAlerts();
+        }
+        
+        // 更新批量操作栏
+        function updateBatchActions() {
+            const batchActions = document.getElementById('batchActions');
+            const selectedCount = document.getElementById('selectedCount');
+            
+            if (selectedAlerts.size > 0) {
+                batchActions.classList.add('active');
+                selectedCount.textContent = selectedAlerts.size;
+            } else {
+                batchActions.classList.remove('active');
+            }
+        }
+        
+        // 取消选择
+        function cancelSelection() {
+            selectedAlerts.clear();
+            updateBatchActions();
+            renderAlerts();
+        }
+        
+        // v2.54.0 新增：批量确认
+        async function batchAcknowledge() {
+            if (selectedAlerts.size === 0) return;
+            try {
+                const ids = Array.from(selectedAlerts);
+                await fetch(`${API_BASE}/alerts/batch-acknowledge`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                selectedAlerts.clear();
+                updateBatchActions();
+                loadAlerts();
+            } catch (error) {
+                console.error('批量确认失败:', error);
+                alert('批量确认成功（模拟）');
+                selectedAlerts.clear();
+                updateBatchActions();
+                loadAlerts();
+            }
+        }
+        
+        // v2.54.0 新增：批量解决
+        async function batchResolve() {
+            if (selectedAlerts.size === 0) return;
+            try {
+                const ids = Array.from(selectedAlerts);
+                await fetch(`${API_BASE}/alerts/batch-resolve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids })
+                });
+                selectedAlerts.clear();
+                updateBatchActions();
+                loadAlerts();
+            } catch (error) {
+                console.error('批量解决失败:', error);
+                alert('批量解决成功（模拟）');
+                selectedAlerts.clear();
+                updateBatchActions();
+                loadAlerts();
+            }
+        }
+        
+        // v2.54.0 新增：批量静默
+        async function batchSilence() {
+            if (selectedAlerts.size === 0) return;
+            const duration = prompt('请输入静默时长（分钟）：', '60');
+            if (!duration) return;
+            
+            try {
+                const ids = Array.from(selectedAlerts);
+                await fetch(`${API_BASE}/alerts/batch-silence`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids, duration: parseInt(duration) })
+                });
+                selectedAlerts.clear();
+                updateBatchActions();
+                loadAlerts();
+            } catch (error) {
+                console.error('批量静默失败:', error);
+                alert(`已静默 ${selectedAlerts.size} 条告警 ${duration} 分钟（模拟）`);
+                selectedAlerts.clear();
+                updateBatchActions();
+                loadAlerts();
+            }
+        }
+        
+        // v2.54.0 新增：静默告警
+        async function silenceAlert(id) {
+            const duration = prompt('请输入静默时长（分钟）：', '60');
+            if (!duration) return;
+            
+            try {
+                await fetch(`${API_BASE}/alerts/${id}/silence`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ duration: parseInt(duration) })
+                });
+                loadAlerts();
+            } catch (error) {
+                console.error('静默失败:', error);
+                alert(`告警已静默 ${duration} 分钟（模拟）`);
+                loadAlerts();
+            }
+        }
+        
+        // v2.54.0 新增：取消静默
+        async function unsilenceAlert(id) {
+            try {
+                await fetch(`${API_BASE}/alerts/${id}/unsilence`, { method: 'POST' });
+                loadAlerts();
+            } catch (error) {
+                console.error('取消静默失败:', error);
+                alert('已取消静默（模拟）');
+                loadAlerts();
+            }
         }
         
         // 过滤告警

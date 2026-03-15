@@ -12,9 +12,11 @@
 |------|------|----------|
 | [快速开始指南](QUICKSTART.md) | ⚡ 5 分钟快速上手 | 所有新用户 |
 | [用户手册](USER_GUIDE.md) | 📘 完整使用指南 | 所有用户 |
+| [常见问题](FAQ.md) | ❓ 30+ 常见问题解答 | 所有用户 |
 | [API 文档](API_GUIDE.md) | 📡 REST API 参考 | 开发者 |
 | [管理员指南](ADMIN_GUIDE_v2.5.0.md) | 🔧 高级配置 | 系统管理员 |
 | [部署指南](DEPLOYMENT_GUIDE_v2.5.0.md) | 🚀 生产部署 | DevOps |
+| [故障排查](TROUBLESHOOTING.md) | 🔍 问题诊断与解决 | 所有用户 |
 
 ---
 
@@ -22,13 +24,15 @@
 
 | 文档 | 说明 | 状态 |
 |------|------|------|
-| [QUICKSTART.md](QUICKSTART.md) | 快速开始指南 | ✅ v2.31.0 |
-| [USER_GUIDE.md](USER_GUIDE.md) | 用户使用指南 | ✅ v2.31.0 |
+| [QUICKSTART.md](QUICKSTART.md) | 快速开始指南 | ✅ v2.54.0 |
+| [USER_GUIDE.md](USER_GUIDE.md) | 用户使用指南 | ✅ v2.54.0 |
+| [FAQ.md](FAQ.md) | 常见问题解答 | ✅ v2.54.0 |
 | [ADMIN_GUIDE_v2.5.0.md](ADMIN_GUIDE_v2.5.0.md) | 管理员指南 | ✅ v2.5.0 |
-| [API_GUIDE.md](API_GUIDE.md) | API 使用指南 | ✅ v2.27.0 |
+| [API_GUIDE.md](API_GUIDE.md) | API 使用指南 | ✅ v2.54.0 |
 | [DEPLOYMENT_GUIDE_v2.5.0.md](DEPLOYMENT_GUIDE_v2.5.0.md) | 部署指南 | ✅ v2.5.0 |
 | [DEVELOPER.md](DEVELOPER.md) | 开发者文档 | ✅ 完成 |
 | [NASCTL-CLI.md](NASCTL-CLI.md) | CLI 工具指南 | ✅ 完成 |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 故障排查指南 | ✅ v2.54.0 |
 
 ---
 
