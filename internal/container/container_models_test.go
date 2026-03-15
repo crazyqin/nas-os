@@ -1,10 +1,13 @@
 package container
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // ========== ComposeService 测试 ==========
@@ -145,6 +148,117 @@ func TestDeployProgress_WithError(t *testing.T) {
 
 	assert.NotEmpty(t, progress.Error)
 	assert.False(t, progress.Completed)
+}
+
+// ========== CreateComposeFile 测试 ==========
+
+func TestCreateComposeFile(t *testing.T) {
+	tmpDir := t.TempDir()
+	composePath := filepath.Join(tmpDir, "docker-compose.yml")
+
+	mgr := &Manager{}
+	cm := NewComposeManager(mgr)
+
+	project := &ComposeProject{
+		Name: "test-app",
+		Services: []*ComposeService{
+			{
+				Name:    "web",
+				Image:   "nginx:latest",
+				Ports:   []string{"8080:80"},
+				Restart: "always",
+			},
+		},
+		Networks: map[string]interface{}{
+			"frontend": nil,
+		},
+		Volumes: map[string]interface{}{
+			"data": nil,
+		},
+	}
+
+	err := cm.CreateComposeFile(composePath, project)
+	require.NoError(t, err)
+	assert.FileExists(t, composePath)
+
+	// Read and verify content
+	data, err := os.ReadFile(composePath)
+	require.NoError(t, err)
+	content := string(data)
+	assert.Contains(t, content, "nginx:latest")
+	assert.Contains(t, content, "8080:80")
+}
+
+func TestCreateComposeFile_WithResources(t *testing.T) {
+	tmpDir := t.TempDir()
+	composePath := filepath.Join(tmpDir, "docker-compose.yml")
+
+	mgr := &Manager{}
+	cm := NewComposeManager(mgr)
+
+	project := &ComposeProject{
+		Name: "resource-app",
+		Services: []*ComposeService{
+			{
+				Name:     "api",
+				Image:    "myapi:latest",
+				CPULimit: "0.5",
+				MemLimit: "512m",
+			},
+		},
+	}
+
+	err := cm.CreateComposeFile(composePath, project)
+	require.NoError(t, err)
+
+	data, err := os.ReadFile(composePath)
+	require.NoError(t, err)
+	content := string(data)
+	assert.Contains(t, content, "cpus")
+	assert.Contains(t, content, "memory")
+}
+
+func TestCreateComposeFile_MultipleServices(t *testing.T) {
+	tmpDir := t.TempDir()
+	composePath := filepath.Join(tmpDir, "docker-compose.yml")
+
+	mgr := &Manager{}
+	cm := NewComposeManager(mgr)
+
+	project := &ComposeProject{
+		Name: "multi-service",
+		Services: []*ComposeService{
+			{
+				Name:  "web",
+				Image: "nginx:latest",
+				Ports: []string{"80:80"},
+			},
+			{
+				Name:  "db",
+				Image: "postgres:15",
+				Volumes: []string{"db-data:/var/lib/postgresql/data"},
+				Environment: map[string]string{
+					"POSTGRES_PASSWORD": "secret",
+				},
+			},
+			{
+				Name:      "cache",
+				Image:     "redis:alpine",
+				DependsOn: []string{"db"},
+			},
+		},
+	}
+
+	err := cm.CreateComposeFile(composePath, project)
+	require.NoError(t, err)
+
+	data, err := os.ReadFile(composePath)
+	require.NoError(t, err)
+	content := string(data)
+	assert.Contains(t, content, "nginx:latest")
+	assert.Contains(t, content, "postgres:15")
+	assert.Contains(t, content, "redis:alpine")
+	assert.Contains(t, content, "depends_on")
 }
 
 // ========== ComposeManager 测试 ==========
