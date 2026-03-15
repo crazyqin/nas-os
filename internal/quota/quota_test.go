@@ -6,65 +6,6 @@ import (
 	"time"
 )
 
-// MockStorageProvider 模拟存储提供者
-type MockStorageProvider struct {
-	volumes map[string]*VolumeInfo
-}
-
-func NewMockStorageProvider() *MockStorageProvider {
-	return &MockStorageProvider{
-		volumes: make(map[string]*VolumeInfo),
-	}
-}
-
-func (m *MockStorageProvider) GetVolume(name string) *VolumeInfo {
-	return m.volumes[name]
-}
-
-func (m *MockStorageProvider) GetUsage(volumeName string) (total, used, free uint64, err error) {
-	vol := m.volumes[volumeName]
-	if vol == nil {
-		return 0, 0, 0, ErrVolumeNotFound
-	}
-	return vol.Size, vol.Used, vol.Free, nil
-}
-
-// MockUserProvider 模拟用户提供者
-type MockUserProvider struct {
-	users  map[string]bool
-	groups map[string]bool
-	homes  map[string]string
-}
-
-func NewMockUserProvider() *MockUserProvider {
-	return &MockUserProvider{
-		users:  make(map[string]bool),
-		groups: make(map[string]bool),
-		homes:  make(map[string]string),
-	}
-}
-
-func (m *MockUserProvider) UserExists(username string) bool {
-	return m.users[username]
-}
-
-func (m *MockUserProvider) GroupExists(groupName string) bool {
-	return m.groups[groupName]
-}
-
-func (m *MockUserProvider) GetUserHomeDir(username string) string {
-	return m.homes[username]
-}
-
-func (m *MockUserProvider) AddUser(username, homeDir string) {
-	m.users[username] = true
-	m.homes[username] = homeDir
-}
-
-func (m *MockUserProvider) AddGroup(groupName string) {
-	m.groups[groupName] = true
-}
-
 // ========== 测试用例 ==========
 
 func TestNewManager(t *testing.T) {

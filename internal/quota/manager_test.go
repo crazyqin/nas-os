@@ -1,7 +1,6 @@
 package quota
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 	"time"

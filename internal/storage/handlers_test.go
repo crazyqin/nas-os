@@ -114,16 +114,16 @@ func TestListVolumes_WithVolumes(t *testing.T) {
 
 	// 添加测试卷
 	mgr.volumes["vol1"] = &Volume{
-		Name:       "vol1",
-		UUID:       "uuid-1",
-		Devices:    []string{"/dev/sda1"},
-		Size:       1000000000000,
-		Used:       500000000000,
-		Free:       500000000000,
+		Name:        "vol1",
+		UUID:        "uuid-1",
+		Devices:     []string{"/dev/sda1"},
+		Size:        1000000000000,
+		Used:        500000000000,
+		Free:        500000000000,
 		DataProfile: "raid1",
-		MountPoint: "/mnt/vol1",
-		Status:     VolumeStatus{Healthy: true},
-		Subvolumes: []*SubVolume{{Name: "docs"}},
+		MountPoint:  "/mnt/vol1",
+		Status:      VolumeStatus{Healthy: true},
+		Subvolumes:  []*SubVolume{{Name: "docs"}},
 	}
 
 	api := router.Group("/api/storage")
@@ -157,9 +157,9 @@ func TestGetVolume_Found(t *testing.T) {
 	mgr, handlers, router := setupTestHandlers()
 
 	mgr.volumes["data"] = &Volume{
-		Name:       "data",
-		UUID:       "test-uuid",
-		Devices:    []string{"/dev/sda1"},
+		Name:        "data",
+		UUID:        "test-uuid",
+		Devices:     []string{"/dev/sda1"},
 		DataProfile: "raid1",
 	}
 
