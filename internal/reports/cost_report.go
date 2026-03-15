@@ -17,10 +17,10 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrBillingCostReportNotFound     = errors.New("成本报告不存在")
+	ErrBillingCostReportNotFound = errors.New("成本报告不存在")
 	ErrInvalidBillingReportType  = errors.New("无效的报告类型")
-	ErrInvalidDateFormat  = errors.New("无效的日期格式")
-	ErrCostExportFailed       = errors.New("导出失败")
+	ErrInvalidDateFormat         = errors.New("无效的日期格式")
+	ErrCostExportFailed          = errors.New("导出失败")
 )
 
 // ========== 报告类型 ==========
@@ -47,12 +47,12 @@ const (
 // BillingCostReport 成本报告
 type BillingCostReport struct {
 	// 基本信息
-	ID           string      `json:"id"`
-	CostBillingReportType   CostBillingReportType  `json:"report_type"`
-	GeneratedAt  time.Time   `json:"generated_at"`
-	PeriodStart  time.Time   `json:"period_start"`
-	PeriodEnd    time.Time   `json:"period_end"`
-	Currency     string      `json:"currency"`
+	ID                    string                `json:"id"`
+	CostBillingReportType CostBillingReportType `json:"report_type"`
+	GeneratedAt           time.Time             `json:"generated_at"`
+	PeriodStart           time.Time             `json:"period_start"`
+	PeriodEnd             time.Time             `json:"period_end"`
+	Currency              string                `json:"currency"`
 
 	// 摘要
 	Summary BillingReportSummary `json:"summary"`
@@ -85,16 +85,16 @@ type BillingCostReport struct {
 // BillingReportSummary 成本报告摘要
 type BillingReportSummary struct {
 	// 总成本
-	TotalCost         float64 `json:"total_cost"`
-	StorageCost       float64 `json:"storage_cost"`
-	BandwidthCost     float64 `json:"bandwidth_cost"`
-	OtherCost         float64 `json:"other_cost"`
+	TotalCost     float64 `json:"total_cost"`
+	StorageCost   float64 `json:"storage_cost"`
+	BandwidthCost float64 `json:"bandwidth_cost"`
+	OtherCost     float64 `json:"other_cost"`
 
 	// 变化
-	CostChange         float64 `json:"cost_change"`          // 成本变化金额
-	CostChangePercent  float64 `json:"cost_change_percent"`  // 成本变化百分比
-	StorageChange      float64 `json:"storage_change"`
-	BandwidthChange    float64 `json:"bandwidth_change"`
+	CostChange        float64 `json:"cost_change"`         // 成本变化金额
+	CostChangePercent float64 `json:"cost_change_percent"` // 成本变化百分比
+	StorageChange     float64 `json:"storage_change"`
+	BandwidthChange   float64 `json:"bandwidth_change"`
 
 	// 资源使用
 	TotalStorageGB     float64 `json:"total_storage_gb"`
@@ -118,24 +118,24 @@ type StorageCostSection struct {
 	UtilizationRate float64 `json:"utilization_rate"`
 
 	// 成本
-	MonthlyCost   float64 `json:"monthly_cost"`
-	DailyCost     float64 `json:"daily_cost"`
-	AveragePrice  float64 `json:"average_price"`
+	MonthlyCost  float64 `json:"monthly_cost"`
+	DailyCost    float64 `json:"daily_cost"`
+	AveragePrice float64 `json:"average_price"`
 
 	// 按存储类型
-	SSDCost      float64 `json:"ssd_cost"`
-	SSDUsedGB    float64 `json:"ssd_used_gb"`
-	HDDCost      float64 `json:"hdd_cost"`
-	HDDUsedGB    float64 `json:"hdd_used_gb"`
-	ArchiveCost  float64 `json:"archive_cost"`
+	SSDCost       float64 `json:"ssd_cost"`
+	SSDUsedGB     float64 `json:"ssd_used_gb"`
+	HDDCost       float64 `json:"hdd_cost"`
+	HDDUsedGB     float64 `json:"hdd_used_gb"`
+	ArchiveCost   float64 `json:"archive_cost"`
 	ArchiveUsedGB float64 `json:"archive_used_gb"`
 
 	// 按访问频率
-	HotDataGB   float64 `json:"hot_data_gb"`
-	HotDataCost float64 `json:"hot_data_cost"`
-	WarmDataGB  float64 `json:"warm_data_gb"`
+	HotDataGB    float64 `json:"hot_data_gb"`
+	HotDataCost  float64 `json:"hot_data_cost"`
+	WarmDataGB   float64 `json:"warm_data_gb"`
 	WarmDataCost float64 `json:"warm_data_cost"`
-	ColdDataGB  float64 `json:"cold_data_gb"`
+	ColdDataGB   float64 `json:"cold_data_gb"`
 	ColdDataCost float64 `json:"cold_data_cost"`
 
 	// 阶梯定价明细
@@ -150,37 +150,37 @@ type BandwidthCostSection struct {
 	TotalTrafficGB    float64 `json:"total_traffic_gb"`
 
 	// 带宽统计
-	PeakMbps   float64 `json:"peak_mbps"`
+	PeakMbps    float64 `json:"peak_mbps"`
 	AverageMbps float64 `json:"average_mbps"`
-	Peak95Mbps float64 `json:"peak_95_mbps"`
+	Peak95Mbps  float64 `json:"peak_95_mbps"`
 
 	// 成本
-	TotalCost      float64 `json:"total_cost"`
-	TrafficCost    float64 `json:"traffic_cost"`
-	BandwidthCost  float64 `json:"bandwidth_cost"`
-	OverageCost    float64 `json:"overage_cost"`
+	TotalCost     float64 `json:"total_cost"`
+	TrafficCost   float64 `json:"traffic_cost"`
+	BandwidthCost float64 `json:"bandwidth_cost"`
+	OverageCost   float64 `json:"overage_cost"`
 
 	// 计费模式
 	BillingModel string `json:"billing_model"`
 
 	// 免费额度
-	FreeAllowanceGB float64 `json:"free_allowance_gb"`
+	FreeAllowanceGB  float64 `json:"free_allowance_gb"`
 	ChargedTrafficGB float64 `json:"charged_traffic_gb"`
 
 	// 时间分布
-	PeakHours   []int `json:"peak_hours"`   // 高峰时段
+	PeakHours    []int `json:"peak_hours"`     // 高峰时段
 	OffPeakHours []int `json:"off_peak_hours"` // 低谷时段
 }
 
 // BillingTrendItem 成本趋势项
 type BillingTrendItem struct {
-	Date          time.Time `json:"date"`
-	StorageCost   float64   `json:"storage_cost"`
-	BandwidthCost float64   `json:"bandwidth_cost"`
-	TotalCost     float64   `json:"total_cost"`
-	StorageGB     float64   `json:"storage_gb"`
-	TrafficGB     float64   `json:"traffic_gb"`
-	CumulativeCost float64  `json:"cumulative_cost"`
+	Date           time.Time `json:"date"`
+	StorageCost    float64   `json:"storage_cost"`
+	BandwidthCost  float64   `json:"bandwidth_cost"`
+	TotalCost      float64   `json:"total_cost"`
+	StorageGB      float64   `json:"storage_gb"`
+	TrafficGB      float64   `json:"traffic_gb"`
+	CumulativeCost float64   `json:"cumulative_cost"`
 }
 
 // PoolCostItem 存储池成本项
@@ -303,28 +303,28 @@ type ReportDataProvider interface {
 
 // StorageReportData 存储报告数据
 type StorageReportData struct {
-	TotalCapacityGB   float64 `json:"total_capacity_gb"`
-	UsedCapacityGB    float64 `json:"used_capacity_gb"`
-	MonthlyCost       float64 `json:"monthly_cost"`
-	DailyCost         float64 `json:"daily_cost"`
-	AveragePrice      float64 `json:"average_price"`
+	TotalCapacityGB float64 `json:"total_capacity_gb"`
+	UsedCapacityGB  float64 `json:"used_capacity_gb"`
+	MonthlyCost     float64 `json:"monthly_cost"`
+	DailyCost       float64 `json:"daily_cost"`
+	AveragePrice    float64 `json:"average_price"`
 
-	SSDCost          float64 `json:"ssd_cost"`
-	SSDUsedGB        float64 `json:"ssd_used_gb"`
-	HDDCost          float64 `json:"hdd_cost"`
-	HDDUsedGB        float64 `json:"hdd_used_gb"`
-	ArchiveCost      float64 `json:"archive_cost"`
-	ArchiveUsedGB    float64 `json:"archive_used_gb"`
+	SSDCost       float64 `json:"ssd_cost"`
+	SSDUsedGB     float64 `json:"ssd_used_gb"`
+	HDDCost       float64 `json:"hdd_cost"`
+	HDDUsedGB     float64 `json:"hdd_used_gb"`
+	ArchiveCost   float64 `json:"archive_cost"`
+	ArchiveUsedGB float64 `json:"archive_used_gb"`
 
-	HotDataGB        float64 `json:"hot_data_gb"`
-	HotDataCost      float64 `json:"hot_data_cost"`
-	WarmDataGB       float64 `json:"warm_data_gb"`
-	WarmDataCost     float64 `json:"warm_data_cost"`
-	ColdDataGB       float64 `json:"cold_data_gb"`
-	ColdDataCost     float64 `json:"cold_data_cost"`
+	HotDataGB    float64 `json:"hot_data_gb"`
+	HotDataCost  float64 `json:"hot_data_cost"`
+	WarmDataGB   float64 `json:"warm_data_gb"`
+	WarmDataCost float64 `json:"warm_data_cost"`
+	ColdDataGB   float64 `json:"cold_data_gb"`
+	ColdDataCost float64 `json:"cold_data_cost"`
 
-	UtilizationRate  float64 `json:"utilization_rate"`
-	TierBreakdown    []TierCostItem `json:"tier_breakdown"`
+	UtilizationRate float64        `json:"utilization_rate"`
+	TierBreakdown   []TierCostItem `json:"tier_breakdown"`
 }
 
 // PoolReportData 存储池报告数据
@@ -381,22 +381,22 @@ type TrendReportData struct {
 
 // BudgetReportData 预算报告数据
 type BudgetReportData struct {
-	BudgetID     string  `json:"budget_id"`
-	BudgetName   string  `json:"budget_name"`
-	TotalBudget  float64 `json:"total_budget"`
-	CurrentSpend float64 `json:"current_spend"`
-	Status       string  `json:"status"`
-	AlertLevel   string  `json:"alert_level"`
+	BudgetID     string               `json:"budget_id"`
+	BudgetName   string               `json:"budget_name"`
+	TotalBudget  float64              `json:"total_budget"`
+	CurrentSpend float64              `json:"current_spend"`
+	Status       string               `json:"status"`
+	AlertLevel   string               `json:"alert_level"`
 	Categories   []BudgetCategoryItem `json:"categories"`
 }
 
 // ReportConfig 报告配置
 type ReportConfig struct {
-	DefaultCurrency string        `json:"default_currency"`
-	DataRetentionDays int         `json:"data_retention_days"`
-	EnableCache     bool          `json:"enable_cache"`
-	CacheExpiry     time.Duration `json:"cache_expiry"`
-	OutputDir       string        `json:"output_dir"`
+	DefaultCurrency   string        `json:"default_currency"`
+	DataRetentionDays int           `json:"data_retention_days"`
+	EnableCache       bool          `json:"enable_cache"`
+	CacheExpiry       time.Duration `json:"cache_expiry"`
+	OutputDir         string        `json:"output_dir"`
 }
 
 // DefaultReportConfig 默认报告配置
@@ -429,13 +429,13 @@ func (g *BillingBillingReportGenerator) GenerateDailyReport(ctx context.Context,
 	end := start.Add(24 * time.Hour)
 
 	report := &BillingCostReport{
-		ID:          generateReportID(CostBillingReportTypeDaily, start),
-		CostBillingReportType:  CostBillingReportTypeDaily,
-		GeneratedAt: time.Now(),
-		PeriodStart: start,
-		PeriodEnd:   end,
-		Currency:    g.config.DefaultCurrency,
-		Metadata:    make(map[string]interface{}),
+		ID:                    generateReportID(CostBillingReportTypeDaily, start),
+		CostBillingReportType: CostBillingReportTypeDaily,
+		GeneratedAt:           time.Now(),
+		PeriodStart:           start,
+		PeriodEnd:             end,
+		Currency:              g.config.DefaultCurrency,
+		Metadata:              make(map[string]interface{}),
 	}
 
 	// 收集数据
@@ -462,13 +462,13 @@ func (g *BillingBillingReportGenerator) GenerateWeeklyReport(ctx context.Context
 	end := start.AddDate(0, 0, 7)
 
 	report := &BillingCostReport{
-		ID:          generateReportID(CostBillingReportTypeWeekly, start),
-		CostBillingReportType:  CostBillingReportTypeWeekly,
-		GeneratedAt: time.Now(),
-		PeriodStart: start,
-		PeriodEnd:   end,
-		Currency:    g.config.DefaultCurrency,
-		Metadata:    make(map[string]interface{}),
+		ID:                    generateReportID(CostBillingReportTypeWeekly, start),
+		CostBillingReportType: CostBillingReportTypeWeekly,
+		GeneratedAt:           time.Now(),
+		PeriodStart:           start,
+		PeriodEnd:             end,
+		Currency:              g.config.DefaultCurrency,
+		Metadata:              make(map[string]interface{}),
 	}
 
 	// 收集数据
@@ -496,13 +496,13 @@ func (g *BillingBillingReportGenerator) GenerateMonthlyReport(ctx context.Contex
 	end := start.AddDate(0, 1, 0)
 
 	report := &BillingCostReport{
-		ID:          generateReportID(CostBillingReportTypeMonthly, start),
-		CostBillingReportType:  CostBillingReportTypeMonthly,
-		GeneratedAt: time.Now(),
-		PeriodStart: start,
-		PeriodEnd:   end,
-		Currency:    g.config.DefaultCurrency,
-		Metadata:    make(map[string]interface{}),
+		ID:                    generateReportID(CostBillingReportTypeMonthly, start),
+		CostBillingReportType: CostBillingReportTypeMonthly,
+		GeneratedAt:           time.Now(),
+		PeriodStart:           start,
+		PeriodEnd:             end,
+		Currency:              g.config.DefaultCurrency,
+		Metadata:              make(map[string]interface{}),
 	}
 
 	// 收集数据
@@ -526,13 +526,13 @@ func (g *BillingBillingReportGenerator) GenerateMonthlyReport(ctx context.Contex
 // GenerateCustomReport 生成自定义时间范围报告
 func (g *BillingBillingReportGenerator) GenerateCustomReport(ctx context.Context, start, end time.Time) (*BillingCostReport, error) {
 	report := &BillingCostReport{
-		ID:          fmt.Sprintf("custom-%d-%s", start.Unix(), randomString(6)),
-		CostBillingReportType:  CostBillingReportTypeMonthly, // 使用月报类型
-		GeneratedAt: time.Now(),
-		PeriodStart: start,
-		PeriodEnd:   end,
-		Currency:    g.config.DefaultCurrency,
-		Metadata:    make(map[string]interface{}),
+		ID:                    fmt.Sprintf("custom-%d-%s", start.Unix(), randomString(6)),
+		CostBillingReportType: CostBillingReportTypeMonthly, // 使用月报类型
+		GeneratedAt:           time.Now(),
+		PeriodStart:           start,
+		PeriodEnd:             end,
+		Currency:              g.config.DefaultCurrency,
+		Metadata:              make(map[string]interface{}),
 	}
 
 	// 收集数据
@@ -748,11 +748,11 @@ func (g *BillingBillingReportGenerator) populateTrends(report *BillingCostReport
 // calculateSummary 计算摘要
 func (g *BillingBillingReportGenerator) calculateSummary(report *BillingCostReport) {
 	summary := BillingReportSummary{
-		TotalCost:         report.StorageCost.MonthlyCost + report.BandwidthCost.TotalCost,
-		StorageCost:       report.StorageCost.MonthlyCost,
-		BandwidthCost:     report.BandwidthCost.TotalCost,
-		TotalStorageGB:    report.StorageCost.UsedCapacityGB,
-		TotalTrafficGB:    report.BandwidthCost.TotalTrafficGB,
+		TotalCost:          report.StorageCost.MonthlyCost + report.BandwidthCost.TotalCost,
+		StorageCost:        report.StorageCost.MonthlyCost,
+		BandwidthCost:      report.BandwidthCost.TotalCost,
+		TotalStorageGB:     report.StorageCost.UsedCapacityGB,
+		TotalTrafficGB:     report.BandwidthCost.TotalTrafficGB,
 		StorageUtilization: report.StorageCost.UtilizationRate,
 	}
 

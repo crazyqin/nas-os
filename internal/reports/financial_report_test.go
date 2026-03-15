@@ -12,11 +12,11 @@ import (
 
 // MockFinancialDataProvider 模拟财务数据提供者
 type MockFinancialDataProvider struct {
-	revenue   []RevenueRecord
-	expense   []ExpenseRecord
-	budget    []BudgetRecord
-	cashFlow  []CashFlowRecord
-	cost      []CostRecord
+	revenue  []RevenueRecord
+	expense  []ExpenseRecord
+	budget   []BudgetRecord
+	cashFlow []CashFlowRecord
+	cost     []CostRecord
 }
 
 func (m *MockFinancialDataProvider) GetRevenueData(ctx context.Context, start, end time.Time) ([]RevenueRecord, error) {
@@ -80,12 +80,12 @@ func TestGenerateIncomeReport(t *testing.T) {
 
 	ctx := context.Background()
 	req := FinancialReportRequest{
-		Name:         "测试收入报告",
-		Type:         FinancialReportTypeIncome,
-		PeriodStart:  time.Now().AddDate(0, -1, 0),
-		PeriodEnd:    time.Now(),
-		Currency:     CurrencyCNY,
-		GenerateBy:   "test-user",
+		Name:        "测试收入报告",
+		Type:        FinancialReportTypeIncome,
+		PeriodStart: time.Now().AddDate(0, -1, 0),
+		PeriodEnd:   time.Now(),
+		Currency:    CurrencyCNY,
+		GenerateBy:  "test-user",
 	}
 
 	report, err := gen.GenerateReport(ctx, req)
@@ -505,12 +505,12 @@ func TestReportAuditTrail(t *testing.T) {
 
 	ctx := context.Background()
 	req := FinancialReportRequest{
-		Name:       "测试审计",
-		Type:       FinancialReportTypeIncome,
+		Name:        "测试审计",
+		Type:        FinancialReportTypeIncome,
 		PeriodStart: time.Now().AddDate(0, -1, 0),
-		PeriodEnd:  time.Now(),
-		Currency:   CurrencyCNY,
-		GenerateBy: "auditor",
+		PeriodEnd:   time.Now(),
+		Currency:    CurrencyCNY,
+		GenerateBy:  "auditor",
 	}
 
 	report, err := gen.GenerateReport(ctx, req)

@@ -11,12 +11,12 @@ import (
 type MilestoneHealthStatus string
 
 const (
-	HealthStatusHealthy    MilestoneHealthStatus = "healthy"    // 按计划进行
-	HealthStatusAtRisk     MilestoneHealthStatus = "at_risk"    // 有风险
-	HealthStatusCritical   MilestoneHealthStatus = "critical"   // 严重风险
-	HealthStatusOnTrack    MilestoneHealthStatus = "on_track"   // 超前进度
-	HealthStatusCompleted  MilestoneHealthStatus = "completed"  // 已完成
-	HealthStatusOverdue    MilestoneHealthStatus = "overdue"    // 已逾期
+	HealthStatusHealthy    MilestoneHealthStatus = "healthy"     // 按计划进行
+	HealthStatusAtRisk     MilestoneHealthStatus = "at_risk"     // 有风险
+	HealthStatusCritical   MilestoneHealthStatus = "critical"    // 严重风险
+	HealthStatusOnTrack    MilestoneHealthStatus = "on_track"    // 超前进度
+	HealthStatusCompleted  MilestoneHealthStatus = "completed"   // 已完成
+	HealthStatusOverdue    MilestoneHealthStatus = "overdue"     // 已逾期
 	HealthStatusNotStarted MilestoneHealthStatus = "not_started" // 未开始
 )
 
@@ -49,8 +49,8 @@ type MilestoneHealthReport struct {
 
 // RiskFactor 风险因素
 type RiskFactor struct {
-	Type        string `json:"type"`         // schedule, resource, dependency, scope
-	Severity    string `json:"severity"`     // low, medium, high, critical
+	Type        string `json:"type"`     // schedule, resource, dependency, scope
+	Severity    string `json:"severity"` // low, medium, high, critical
 	Description string `json:"description"`
 	Impact      string `json:"impact"`
 	Mitigation  string `json:"mitigation,omitempty"`
@@ -58,11 +58,11 @@ type RiskFactor struct {
 
 // BottleneckInfo 瓶颈信息
 type BottleneckInfo struct {
-	Type        string   `json:"type"`        // assignee, task, dependency
-	ID          string   `json:"id"`          // 相关 ID
-	Name        string   `json:"name"`        // 名称
+	Type        string   `json:"type"`         // assignee, task, dependency
+	ID          string   `json:"id"`           // 相关 ID
+	Name        string   `json:"name"`         // 名称
 	BlockedTask []string `json:"blocked_task"` // 被阻塞的任务
-	Impact      int      `json:"impact"`      // 影响任务数
+	Impact      int      `json:"impact"`       // 影响任务数
 }
 
 // MilestoneTracker 里程碑追踪器
@@ -482,11 +482,11 @@ func (mt *MilestoneTracker) GetAtRiskMilestones(projectID string) ([]*MilestoneH
 
 // MilestoneTrend 里程碑趋势
 type MilestoneTrend struct {
-	MilestoneID  string          `json:"milestone_id"`
-	TrendPoints  []TrendPoint    `json:"trend_points"`
-	Direction    string          `json:"direction"` // improving, declining, stable
-	Velocity     float64         `json:"velocity"`  // 进度变化速度
-	Acceleration float64         `json:"acceleration"` // 加速度
+	MilestoneID  string       `json:"milestone_id"`
+	TrendPoints  []TrendPoint `json:"trend_points"`
+	Direction    string       `json:"direction"`    // improving, declining, stable
+	Velocity     float64      `json:"velocity"`     // 进度变化速度
+	Acceleration float64      `json:"acceleration"` // 加速度
 }
 
 // TrendPoint 趋势数据点

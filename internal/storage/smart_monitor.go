@@ -58,46 +58,46 @@ type SMARTConfig struct {
 
 // DefaultSMARTConfig 默认 SMART 配置
 var DefaultSMARTConfig = SMARTConfig{
-	CheckInterval:          30 * time.Minute,
-	TempWarningThreshold:   50,
-	TempCriticalThreshold:  60,
-	ReallocatedWarning:     10,
-	ReallocatedCritical:    100,
-	PendingWarning:         10,
-	PendingCritical:        100,
-	SeekErrorWarning:       5.0,
-	AutoCheck:              true,
-	HistoryRetentionDays:   30,
+	CheckInterval:         30 * time.Minute,
+	TempWarningThreshold:  50,
+	TempCriticalThreshold: 60,
+	ReallocatedWarning:    10,
+	ReallocatedCritical:   100,
+	PendingWarning:        10,
+	PendingCritical:       100,
+	SeekErrorWarning:      5.0,
+	AutoCheck:             true,
+	HistoryRetentionDays:  30,
 }
 
 // DiskHealth 磁盘健康状态
 type DiskHealth struct {
-	Device         string          `json:"device"`
-	Model          string          `json:"model"`
-	Serial         string          `json:"serial"`
-	Size           uint64          `json:"size"` // 字节
-	Temperature    int             `json:"temperature"`
-	PowerOnHours   uint64          `json:"powerOnHours"`
-	PowerCycleCount uint64         `json:"powerCycleCount"`
+	Device          string `json:"device"`
+	Model           string `json:"model"`
+	Serial          string `json:"serial"`
+	Size            uint64 `json:"size"` // 字节
+	Temperature     int    `json:"temperature"`
+	PowerOnHours    uint64 `json:"powerOnHours"`
+	PowerCycleCount uint64 `json:"powerCycleCount"`
 
 	// SMART 属性
-	ReallocatedSectors    uint64  `json:"reallocatedSectors"`
-	PendingSectors        uint64  `json:"pendingSectors"`
-	OfflineUncorrectable  uint64  `json:"offlineUncorrectable"`
-	UDMACRCErrorCount     uint64  `json:"udmaCrcErrorCount"`
-	SeekErrorRate         float64 `json:"seekErrorRate"`
-	ReadErrorRate         float64 `json:"readErrorRate"`
-	WriteErrorRate        float64 `json:"writeErrorRate"`
+	ReallocatedSectors   uint64  `json:"reallocatedSectors"`
+	PendingSectors       uint64  `json:"pendingSectors"`
+	OfflineUncorrectable uint64  `json:"offlineUncorrectable"`
+	UDMACRCErrorCount    uint64  `json:"udmaCrcErrorCount"`
+	SeekErrorRate        float64 `json:"seekErrorRate"`
+	ReadErrorRate        float64 `json:"readErrorRate"`
+	WriteErrorRate       float64 `json:"writeErrorRate"`
 
 	// 状态
-	SMARTStatus      SMARTStatus   `json:"smartStatus"`
-	HealthStatus     HealthStatus  `json:"healthStatus"`
-	HealthScore      int           `json:"healthScore"` // 0-100
-	LastCheckTime    time.Time     `json:"lastCheckTime"`
-	LastAlertTime    time.Time     `json:"lastAlertTime"`
-	AlertCount       int           `json:"alertCount"`
-	PredictedFailure bool          `json:"predictedFailure"`
-	FailurePredicted string        `json:"failurePredicted"` // 预测失败原因
+	SMARTStatus      SMARTStatus  `json:"smartStatus"`
+	HealthStatus     HealthStatus `json:"healthStatus"`
+	HealthScore      int          `json:"healthScore"` // 0-100
+	LastCheckTime    time.Time    `json:"lastCheckTime"`
+	LastAlertTime    time.Time    `json:"lastAlertTime"`
+	AlertCount       int          `json:"alertCount"`
+	PredictedFailure bool         `json:"predictedFailure"`
+	FailurePredicted string       `json:"failurePredicted"` // 预测失败原因
 
 	// NVMe 特有属性
 	NVMeAvailableSpare   int    `json:"nvmeAvailableSpare"`   // 可用备用空间百分比
@@ -111,24 +111,24 @@ type DiskHealth struct {
 
 // SMARTAttribute SMART 属性
 type SMARTAttribute struct {
-	ID          uint8   `json:"id"`
-	Name        string  `json:"name"`
-	Value       uint8   `json:"value"`
-	Worst       uint8   `json:"worst"`
-	Threshold   uint8   `json:"threshold"`
-	RawValue    uint64  `json:"rawValue"`
-	Normalized  int     `json:"normalized"`
-	Description string  `json:"description"`
+	ID          uint8  `json:"id"`
+	Name        string `json:"name"`
+	Value       uint8  `json:"value"`
+	Worst       uint8  `json:"worst"`
+	Threshold   uint8  `json:"threshold"`
+	RawValue    uint64 `json:"rawValue"`
+	Normalized  int    `json:"normalized"`
+	Description string `json:"description"`
 }
 
 // SMARTStatus SMART 状态
 type SMARTStatus string
 
 const (
-	SMARTStatusPASSED    SMARTStatus = "PASSED"
-	SMARTStatusWARNING   SMARTStatus = "WARNING"
-	SMARTStatusFAILING   SMARTStatus = "FAILING"
-	SMARTStatusUNKNOWN   SMARTStatus = "UNKNOWN"
+	SMARTStatusPASSED      SMARTStatus = "PASSED"
+	SMARTStatusWARNING     SMARTStatus = "WARNING"
+	SMARTStatusFAILING     SMARTStatus = "FAILING"
+	SMARTStatusUNKNOWN     SMARTStatus = "UNKNOWN"
 	SMARTStatusUNSUPPORTED SMARTStatus = "UNSUPPORTED"
 )
 
@@ -145,11 +145,11 @@ const (
 
 // HealthSnapshot 健康快照
 type HealthSnapshot struct {
-	Timestamp          time.Time `json:"timestamp"`
-	Temperature        int       `json:"temperature"`
-	ReallocatedSectors uint64    `json:"reallocatedSectors"`
-	PendingSectors     uint64    `json:"pendingSectors"`
-	HealthScore        int       `json:"healthScore"`
+	Timestamp          time.Time    `json:"timestamp"`
+	Temperature        int          `json:"temperature"`
+	ReallocatedSectors uint64       `json:"reallocatedSectors"`
+	PendingSectors     uint64       `json:"pendingSectors"`
+	HealthScore        int          `json:"healthScore"`
 	HealthStatus       HealthStatus `json:"healthStatus"`
 }
 
@@ -168,14 +168,14 @@ const (
 
 // Alert 告警
 type Alert struct {
-	Type        AlertType    `json:"type"`
-	Device      string       `json:"device"`
-	Severity    string       `json:"severity"` // INFO, WARNING, CRITICAL
-	Message     string       `json:"message"`
-	Value       interface{}  `json:"value"`
-	Threshold   interface{}  `json:"threshold"`
-	Timestamp   time.Time    `json:"timestamp"`
-	HealthScore int          `json:"healthScore"`
+	Type        AlertType   `json:"type"`
+	Device      string      `json:"device"`
+	Severity    string      `json:"severity"` // INFO, WARNING, CRITICAL
+	Message     string      `json:"message"`
+	Value       interface{} `json:"value"`
+	Threshold   interface{} `json:"threshold"`
+	Timestamp   time.Time   `json:"timestamp"`
+	HealthScore int         `json:"healthScore"`
 }
 
 // AlertHandler 告警处理器
@@ -359,8 +359,8 @@ func (m *SMARTMonitor) CheckDevice(device string) error {
 // checkSATADevice 检查 SATA/SAS 设备
 func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 	health := &DiskHealth{
-		Device:     device,
-		Attributes: make(map[string]SMARTAttribute),
+		Device:        device,
+		Attributes:    make(map[string]SMARTAttribute),
 		LastCheckTime: time.Now(),
 	}
 
@@ -445,8 +445,8 @@ func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 // checkNVMeDevice 检查 NVMe 设备
 func (m *SMARTMonitor) checkNVMeDevice(device string) (*DiskHealth, error) {
 	health := &DiskHealth{
-		Device:     device,
-		Attributes: make(map[string]SMARTAttribute),
+		Device:        device,
+		Attributes:    make(map[string]SMARTAttribute),
 		LastCheckTime: time.Now(),
 	}
 
@@ -479,7 +479,7 @@ func (m *SMARTMonitor) checkNVMeDevice(device string) (*DiskHealth, error) {
 
 		// 容量
 		if strings.HasPrefix(line, "Namespace 1 Size/Capacity:") ||
-		   strings.HasPrefix(line, "Total NVM Capacity:") {
+			strings.HasPrefix(line, "Total NVM Capacity:") {
 			health.Size = parseCapacity(line)
 		}
 
@@ -871,10 +871,10 @@ func (m *SMARTMonitor) GetHistory(device string) []HealthSnapshot {
 func (m *SMARTMonitor) RunSelfTest(device string, testType string) error {
 	// testType: short, long, conveyance, offline
 	validTypes := map[string]bool{
-		"short":       true,
-		"long":        true,
-		"conveyance":  true,
-		"offline":     true,
+		"short":      true,
+		"long":       true,
+		"conveyance": true,
+		"offline":    true,
 	}
 
 	if !validTypes[testType] {

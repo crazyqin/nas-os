@@ -11,9 +11,9 @@ import (
 
 func TestNewQueryCache(t *testing.T) {
 	config := CacheConfig{
-		MaxItems:     100,
-		MaxMemory:    1024 * 1024,
-		DefaultTTL:   time.Minute,
+		MaxItems:   100,
+		MaxMemory:  1024 * 1024,
+		DefaultTTL: time.Minute,
 	}
 
 	cache := NewQueryCache(config)
@@ -31,9 +31,9 @@ func TestNewQueryCache_DefaultConfig(t *testing.T) {
 
 func TestQueryCache_Set_Get(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0, // 禁用自动清理
 	})
 
@@ -53,9 +53,9 @@ func TestQueryCache_Set_Get(t *testing.T) {
 
 func TestQueryCache_Set_WithTTL(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -75,9 +75,9 @@ func TestQueryCache_Set_WithTTL(t *testing.T) {
 
 func TestQueryCache_GetWithTTL(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -88,15 +88,15 @@ func TestQueryCache_GetWithTTL(t *testing.T) {
 	value, remainingTTL, ok := cache.GetWithTTL("key1")
 	assert.True(t, ok)
 	assert.Equal(t, "value1", value)
-	assert.GreaterOrEqual(t, remainingTTL.Seconds(), (time.Minute*4).Seconds())
+	assert.GreaterOrEqual(t, remainingTTL.Seconds(), (time.Minute * 4).Seconds())
 	assert.LessOrEqual(t, remainingTTL.Seconds(), ttl.Seconds())
 }
 
 func TestQueryCache_Delete(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -116,9 +116,9 @@ func TestQueryCache_Delete(t *testing.T) {
 
 func TestQueryCache_Clear(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -135,9 +135,9 @@ func TestQueryCache_Clear(t *testing.T) {
 
 func TestQueryCache_LRUEviction(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   3,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        3,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -166,9 +166,9 @@ func TestQueryCache_LRUEviction(t *testing.T) {
 
 func TestQueryCache_MemoryEviction(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  100, // 非常小的内存限制
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       100, // 非常小的内存限制
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -183,9 +183,9 @@ func TestQueryCache_MemoryEviction(t *testing.T) {
 
 func TestQueryCache_Cleanup(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Millisecond * 100,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Millisecond * 100,
 		CleanupInterval: 0, // 手动清理
 	})
 
@@ -208,9 +208,9 @@ func TestQueryCache_Cleanup(t *testing.T) {
 
 func TestQueryCache_Has(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -227,9 +227,9 @@ func TestQueryCache_Has(t *testing.T) {
 
 func TestQueryCache_Keys(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -246,9 +246,9 @@ func TestQueryCache_Keys(t *testing.T) {
 
 func TestQueryCache_Size_Memory(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -261,10 +261,10 @@ func TestQueryCache_Size_Memory(t *testing.T) {
 
 func TestQueryCache_Stats(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:     100,
-		MaxMemory:    1024 * 1024,
-		DefaultTTL:   time.Minute,
-		EnableStats:  true,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
+		EnableStats:     true,
 		CleanupInterval: 0,
 	})
 
@@ -299,9 +299,9 @@ func TestQueryCache_HitRate(t *testing.T) {
 
 func TestQueryCache_SetWithTags(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -316,9 +316,9 @@ func TestQueryCache_SetWithTags(t *testing.T) {
 
 func TestQueryCache_InvalidateByTag(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -342,9 +342,9 @@ func TestQueryCache_InvalidateByTag(t *testing.T) {
 
 func TestQueryCache_InvalidateByTags(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -358,9 +358,9 @@ func TestQueryCache_InvalidateByTags(t *testing.T) {
 
 func TestQueryCache_GetOrSet(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -385,9 +385,9 @@ func TestQueryCache_GetOrSet(t *testing.T) {
 
 func TestQueryCache_GetItem(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -426,9 +426,9 @@ func TestQueryCache_EstimateSize(t *testing.T) {
 
 func TestQueryCache_Export(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -451,9 +451,9 @@ func TestQueryCache_Export(t *testing.T) {
 
 func TestQueryCache_Warmup(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -471,10 +471,10 @@ func TestQueryCache_Warmup(t *testing.T) {
 
 func TestQueryCache_ResetStats(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:     100,
-		MaxMemory:    1024 * 1024,
-		DefaultTTL:   time.Minute,
-		EnableStats:  true,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
+		EnableStats:     true,
 		CleanupInterval: 0,
 	})
 
@@ -497,9 +497,9 @@ func TestQueryCache_ResetStats(t *testing.T) {
 
 func TestQueryCache_Overwrite(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   100,
-		MaxMemory:  1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        100,
+		MaxMemory:       1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 
@@ -514,9 +514,9 @@ func TestQueryCache_Overwrite(t *testing.T) {
 
 func TestQueryCache_Concurrent(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
-		MaxItems:   1000,
-		MaxMemory:  10 * 1024 * 1024,
-		DefaultTTL: time.Minute,
+		MaxItems:        1000,
+		MaxMemory:       10 * 1024 * 1024,
+		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
 	})
 

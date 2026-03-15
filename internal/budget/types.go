@@ -209,31 +209,31 @@ type EscalationRule struct {
 
 // BudgetAlert 预算预警记录
 type BudgetAlert struct {
-	ID              string      `json:"id"`
-	BudgetID        string      `json:"budget_id"`
-	BudgetName      string      `json:"budget_name"`
-	Level           AlertLevel  `json:"level"`
-	Threshold       float64     `json:"threshold"`
-	CurrentPercent  float64     `json:"current_percent"`
-	UsedAmount      float64     `json:"used_amount"`
-	CurrentSpend    float64     `json:"current_spend"`    // 当前支出（别名）
-	BudgetAmount    float64     `json:"budget_amount"`
-	Remaining       float64     `json:"remaining"`
-	RemainingAmount float64     `json:"remaining_amount"` // 剩余金额（别名）
-	Message         string      `json:"message"`
-	CustomMessage   string      `json:"custom_message,omitempty"`
-	Status          AlertStatus `json:"status"`
-	TriggeredAt     time.Time   `json:"triggered_at"`
-	ResolvedAt      *time.Time  `json:"resolved_at,omitempty"`
-	AcknowledgedAt  *time.Time  `json:"acknowledged_at,omitempty"`
-	AcknowledgedBy  string      `json:"acknowledged_by,omitempty"`
-	Actions         []string    `json:"actions,omitempty"`
-	EscalationLevel int         `json:"escalation_level"`
-	LastEscalatedAt *time.Time  `json:"last_escalated_at,omitempty"`
-	NotifySent      bool        `json:"notify_sent"`
-	NotifySentAt    *time.Time  `json:"notify_sent_at,omitempty"`
-	NotifyChannels  []string    `json:"notify_channels,omitempty"`
-	NotifyError     string      `json:"notify_error,omitempty"`
+	ID              string                 `json:"id"`
+	BudgetID        string                 `json:"budget_id"`
+	BudgetName      string                 `json:"budget_name"`
+	Level           AlertLevel             `json:"level"`
+	Threshold       float64                `json:"threshold"`
+	CurrentPercent  float64                `json:"current_percent"`
+	UsedAmount      float64                `json:"used_amount"`
+	CurrentSpend    float64                `json:"current_spend"` // 当前支出（别名）
+	BudgetAmount    float64                `json:"budget_amount"`
+	Remaining       float64                `json:"remaining"`
+	RemainingAmount float64                `json:"remaining_amount"` // 剩余金额（别名）
+	Message         string                 `json:"message"`
+	CustomMessage   string                 `json:"custom_message,omitempty"`
+	Status          AlertStatus            `json:"status"`
+	TriggeredAt     time.Time              `json:"triggered_at"`
+	ResolvedAt      *time.Time             `json:"resolved_at,omitempty"`
+	AcknowledgedAt  *time.Time             `json:"acknowledged_at,omitempty"`
+	AcknowledgedBy  string                 `json:"acknowledged_by,omitempty"`
+	Actions         []string               `json:"actions,omitempty"`
+	EscalationLevel int                    `json:"escalation_level"`
+	LastEscalatedAt *time.Time             `json:"last_escalated_at,omitempty"`
+	NotifySent      bool                   `json:"notify_sent"`
+	NotifySentAt    *time.Time             `json:"notify_sent_at,omitempty"`
+	NotifyChannels  []string               `json:"notify_channels,omitempty"`
+	NotifyError     string                 `json:"notify_error,omitempty"`
 	Metadata        map[string]interface{} `json:"metadata,omitempty"`
 }
 

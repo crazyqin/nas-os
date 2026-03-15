@@ -62,27 +62,27 @@ type MetricsExporterConfig struct {
 
 // SystemMetrics 系统指标
 type SystemMetrics struct {
-	CPUUsage       prometheus.Gauge
-	CPUIdle        prometheus.Gauge
-	CPUUser        prometheus.Gauge
-	CPUSystem      prometheus.Gauge
-	CPUIOWait      prometheus.Gauge
+	CPUUsage  prometheus.Gauge
+	CPUIdle   prometheus.Gauge
+	CPUUser   prometheus.Gauge
+	CPUSystem prometheus.Gauge
+	CPUIOWait prometheus.Gauge
 
-	MemoryTotal    prometheus.Gauge
-	MemoryUsed     prometheus.Gauge
-	MemoryFree     prometheus.Gauge
-	MemoryCached   prometheus.Gauge
-	MemoryBuffers  prometheus.Gauge
-	MemoryUsage    prometheus.Gauge
+	MemoryTotal   prometheus.Gauge
+	MemoryUsed    prometheus.Gauge
+	MemoryFree    prometheus.Gauge
+	MemoryCached  prometheus.Gauge
+	MemoryBuffers prometheus.Gauge
+	MemoryUsage   prometheus.Gauge
 
-	SwapTotal      prometheus.Gauge
-	SwapUsed       prometheus.Gauge
-	SwapFree       prometheus.Gauge
-	SwapUsage      prometheus.Gauge
+	SwapTotal prometheus.Gauge
+	SwapUsed  prometheus.Gauge
+	SwapFree  prometheus.Gauge
+	SwapUsage prometheus.Gauge
 
-	Load1          prometheus.Gauge
-	Load5          prometheus.Gauge
-	Load15         prometheus.Gauge
+	Load1  prometheus.Gauge
+	Load5  prometheus.Gauge
+	Load15 prometheus.Gauge
 
 	Uptime         prometheus.Gauge
 	ProcessCount   prometheus.Gauge
@@ -92,73 +92,73 @@ type SystemMetrics struct {
 
 // StorageMetrics 存储指标
 type StorageMetrics struct {
-	DiskTotal          *prometheus.GaugeVec
-	DiskUsed           *prometheus.GaugeVec
-	DiskFree           *prometheus.GaugeVec
-	DiskUsage          *prometheus.GaugeVec
-	DiskReadBytes      *prometheus.GaugeVec
-	DiskWriteBytes     *prometheus.GaugeVec
-	DiskReadOps        *prometheus.GaugeVec
-	DiskWriteOps       *prometheus.GaugeVec
-	DiskReadLatency    *prometheus.GaugeVec
-	DiskWriteLatency   *prometheus.GaugeVec
+	DiskTotal        *prometheus.GaugeVec
+	DiskUsed         *prometheus.GaugeVec
+	DiskFree         *prometheus.GaugeVec
+	DiskUsage        *prometheus.GaugeVec
+	DiskReadBytes    *prometheus.GaugeVec
+	DiskWriteBytes   *prometheus.GaugeVec
+	DiskReadOps      *prometheus.GaugeVec
+	DiskWriteOps     *prometheus.GaugeVec
+	DiskReadLatency  *prometheus.GaugeVec
+	DiskWriteLatency *prometheus.GaugeVec
 
-	VolumeTotal        *prometheus.GaugeVec
-	VolumeUsed         *prometheus.GaugeVec
-	VolumeFree         *prometheus.GaugeVec
-	VolumeUsage        *prometheus.GaugeVec
-	VolumeHealth       *prometheus.GaugeVec
+	VolumeTotal  *prometheus.GaugeVec
+	VolumeUsed   *prometheus.GaugeVec
+	VolumeFree   *prometheus.GaugeVec
+	VolumeUsage  *prometheus.GaugeVec
+	VolumeHealth *prometheus.GaugeVec
 
-	StoragePoolTotal   *prometheus.GaugeVec
-	StoragePoolUsed    *prometheus.GaugeVec
-	StoragePoolFree    *prometheus.GaugeVec
-	StoragePoolHealth  *prometheus.GaugeVec
+	StoragePoolTotal  *prometheus.GaugeVec
+	StoragePoolUsed   *prometheus.GaugeVec
+	StoragePoolFree   *prometheus.GaugeVec
+	StoragePoolHealth *prometheus.GaugeVec
 
-	QuotaUsed          *prometheus.GaugeVec
-	QuotaLimit         *prometheus.GaugeVec
-	QuotaUsage         *prometheus.GaugeVec
+	QuotaUsed  *prometheus.GaugeVec
+	QuotaLimit *prometheus.GaugeVec
+	QuotaUsage *prometheus.GaugeVec
 }
 
 // BackupMetrics 备份指标 (Prometheus 指标容器)
 type BackupMetrics struct {
-	BackupTotal       *prometheus.GaugeVec
-	BackupSize        *prometheus.GaugeVec
-	BackupDuration    *prometheus.GaugeVec
-	BackupStatus      *prometheus.GaugeVec
-	BackupLastRun     *prometheus.GaugeVec
-	BackupLastError   *prometheus.GaugeVec
-	BackupFiles       *prometheus.GaugeVec
-	BackupSpeed       *prometheus.GaugeVec
+	BackupTotal     *prometheus.GaugeVec
+	BackupSize      *prometheus.GaugeVec
+	BackupDuration  *prometheus.GaugeVec
+	BackupStatus    *prometheus.GaugeVec
+	BackupLastRun   *prometheus.GaugeVec
+	BackupLastError *prometheus.GaugeVec
+	BackupFiles     *prometheus.GaugeVec
+	BackupSpeed     *prometheus.GaugeVec
 
-	RestoreTotal      *prometheus.GaugeVec
-	RestoreDuration   *prometheus.GaugeVec
-	RestoreStatus     *prometheus.GaugeVec
+	RestoreTotal    *prometheus.GaugeVec
+	RestoreDuration *prometheus.GaugeVec
+	RestoreStatus   *prometheus.GaugeVec
 }
 
 // ServiceMetrics 服务指标
 type ServiceMetrics struct {
-	ServiceStatus     *prometheus.GaugeVec
-	ServiceUptime     *prometheus.GaugeVec
-	ServiceRestarts   *prometheus.GaugeVec
+	ServiceStatus      *prometheus.GaugeVec
+	ServiceUptime      *prometheus.GaugeVec
+	ServiceRestarts    *prometheus.GaugeVec
 	ServiceConnections *prometheus.GaugeVec
-	ServiceLatency    *prometheus.GaugeVec
-	ServiceErrors     *prometheus.CounterVec
+	ServiceLatency     *prometheus.GaugeVec
+	ServiceErrors      *prometheus.CounterVec
 
-	APIRequests       *prometheus.CounterVec
-	APILatency        *prometheus.HistogramVec
-	APIInFlight       prometheus.Gauge
-	APIErrors         *prometheus.CounterVec
+	APIRequests *prometheus.CounterVec
+	APILatency  *prometheus.HistogramVec
+	APIInFlight prometheus.Gauge
+	APIErrors   *prometheus.CounterVec
 
-	UserSessions      *prometheus.GaugeVec
-	UserTotal         prometheus.Gauge
-	UserActive        prometheus.Gauge
+	UserSessions *prometheus.GaugeVec
+	UserTotal    prometheus.Gauge
+	UserActive   prometheus.Gauge
 }
 
 // CustomMetrics 自定义指标容器
 type CustomMetrics struct {
-	mu      sync.RWMutex
-	gauges  map[string]*prometheus.GaugeVec
-	counters map[string]*prometheus.CounterVec
+	mu         sync.RWMutex
+	gauges     map[string]*prometheus.GaugeVec
+	counters   map[string]*prometheus.CounterVec
 	histograms map[string]*prometheus.HistogramVec
 	summaries  map[string]*prometheus.SummaryVec
 }
@@ -1058,17 +1058,17 @@ func (e *MetricsExporter) GetAggregatedStats() AggregatedStats {
 	defer e.aggregatedStats.mu.RUnlock()
 	// 手动复制字段，避免复制 mutex
 	return AggregatedStats{
-		lastUpdate:    e.aggregatedStats.lastUpdate,
-		updatePeriod:  e.aggregatedStats.updatePeriod,
-		avgCPUUsage:   e.aggregatedStats.avgCPUUsage,
-		maxCPUUsage:   e.aggregatedStats.maxCPUUsage,
+		lastUpdate:     e.aggregatedStats.lastUpdate,
+		updatePeriod:   e.aggregatedStats.updatePeriod,
+		avgCPUUsage:    e.aggregatedStats.avgCPUUsage,
+		maxCPUUsage:    e.aggregatedStats.maxCPUUsage,
 		avgMemoryUsage: e.aggregatedStats.avgMemoryUsage,
 		maxMemoryUsage: e.aggregatedStats.maxMemoryUsage,
-		avgDiskUsage:  e.aggregatedStats.avgDiskUsage,
-		maxDiskUsage:  e.aggregatedStats.maxDiskUsage,
-		totalRequests: e.aggregatedStats.totalRequests,
-		totalErrors:   e.aggregatedStats.totalErrors,
-		dataPoints:    e.aggregatedStats.dataPoints,
+		avgDiskUsage:   e.aggregatedStats.avgDiskUsage,
+		maxDiskUsage:   e.aggregatedStats.maxDiskUsage,
+		totalRequests:  e.aggregatedStats.totalRequests,
+		totalErrors:    e.aggregatedStats.totalErrors,
+		dataPoints:     e.aggregatedStats.dataPoints,
 	}
 }
 

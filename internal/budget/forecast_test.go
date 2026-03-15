@@ -37,7 +37,7 @@ func generateTestData(days int, baseAmount float64) []HistoricalDataPoint {
 	data := []HistoricalDataPoint{}
 	now := time.Now()
 	for i := 0; i < days; i++ {
-		date := now.AddDate(0, 0, -days + i)
+		date := now.AddDate(0, 0, -days+i)
 		// 添加一些波动
 		amount := baseAmount + float64(i%7)*10
 		data = append(data, HistoricalDataPoint{
@@ -124,7 +124,7 @@ func TestLinearRegressionForecast(t *testing.T) {
 	data := []HistoricalDataPoint{}
 	now := time.Now()
 	for i := 0; i < 60; i++ {
-		date := now.AddDate(0, 0, -60 + i)
+		date := now.AddDate(0, 0, -60+i)
 		amount := 100 + float64(i)*2 // 线性增长
 		data = append(data, HistoricalDataPoint{
 			Date:     date,
@@ -157,7 +157,7 @@ func TestSeasonalForecast(t *testing.T) {
 	data := []HistoricalDataPoint{}
 	now := time.Now()
 	for i := 0; i < 60; i++ {
-		date := now.AddDate(0, 0, -60 + i)
+		date := now.AddDate(0, 0, -60+i)
 		// 模拟周末消费更高的模式
 		baseAmount := 100.0
 		if date.Weekday() == time.Saturday || date.Weekday() == time.Sunday {
@@ -197,9 +197,9 @@ func TestForecastSummary(t *testing.T) {
 
 	ctx := context.Background()
 	req := ForecastRequest{
-		BudgetID:   "test-budget",
-		Period:     ForecastPeriodMonthly,
-		Horizon:    3,
+		BudgetID: "test-budget",
+		Period:   ForecastPeriodMonthly,
+		Horizon:  3,
 	}
 
 	result, err := engine.GenerateForecast(ctx, req)
@@ -217,7 +217,7 @@ func TestForecastRecommendations(t *testing.T) {
 	highData := []HistoricalDataPoint{}
 	now := time.Now()
 	for i := 0; i < 60; i++ {
-		date := now.AddDate(0, 0, -60 + i)
+		date := now.AddDate(0, 0, -60+i)
 		highData = append(highData, HistoricalDataPoint{
 			Date:     date,
 			Amount:   500, // 高消费
@@ -312,7 +312,7 @@ func TestAnalyzeTrend(t *testing.T) {
 	trendData := []HistoricalDataPoint{}
 	now := time.Now()
 	for i := 0; i < 30; i++ {
-		date := now.AddDate(0, 0, -30 + i)
+		date := now.AddDate(0, 0, -30+i)
 		trendData = append(trendData, HistoricalDataPoint{
 			Date:     date,
 			Amount:   100 + float64(i)*5, // 明显上升趋势
@@ -345,7 +345,7 @@ func TestInsufficientHistory(t *testing.T) {
 
 	ctx := context.Background()
 	req := ForecastRequest{
-		BudgetID: "test-budget",
+		BudgetID:    "test-budget",
 		HistoryDays: 30, // 请求30天历史数据
 	}
 

@@ -20,36 +20,36 @@ import (
 type ComplianceStandard string
 
 const (
-	StandardGDPR   ComplianceStandard = "gdpr"   // 通用数据保护条例
-	StandardSOC2   ComplianceStandard = "soc2"   // SOC 2 Type II
+	StandardGDPR     ComplianceStandard = "gdpr"     // 通用数据保护条例
+	StandardSOC2     ComplianceStandard = "soc2"     // SOC 2 Type II
 	StandardISO27001 ComplianceStandard = "iso27001" // ISO/IEC 27001
-	StandardHIPAA  ComplianceStandard = "hipaa"  // 健康保险流通与责任法案
-	StandardPCI    ComplianceStandard = "pci"    // PCI DSS
-	StandardCCPA   ComplianceStandard = "ccpa"   // 加州消费者隐私法
-	StandardNIST   ComplianceStandard = "nist"   // NIST Cybersecurity Framework
-	StandardCSL    ComplianceStandard = "csl"    // 中国网络安全法
-	StandardDSL    ComplianceStandard = "dsl"    // 中国数据安全法
-	StandardPIPL   ComplianceStandard = "pipl"   // 中国个人信息保护法
+	StandardHIPAA    ComplianceStandard = "hipaa"    // 健康保险流通与责任法案
+	StandardPCI      ComplianceStandard = "pci"      // PCI DSS
+	StandardCCPA     ComplianceStandard = "ccpa"     // 加州消费者隐私法
+	StandardNIST     ComplianceStandard = "nist"     // NIST Cybersecurity Framework
+	StandardCSL      ComplianceStandard = "csl"      // 中国网络安全法
+	StandardDSL      ComplianceStandard = "dsl"      // 中国数据安全法
+	StandardPIPL     ComplianceStandard = "pipl"     // 中国个人信息保护法
 )
 
 // ComplianceLevel 合规等级
 type ComplianceLevel string
 
 const (
-	LevelFull      ComplianceLevel = "full"      // 完全合规
-	LevelPartial   ComplianceLevel = "partial"   // 部分合规
+	LevelFull         ComplianceLevel = "full"          // 完全合规
+	LevelPartial      ComplianceLevel = "partial"       // 部分合规
 	LevelNonCompliant ComplianceLevel = "non_compliant" // 不合规
-	LevelUnknown   ComplianceLevel = "unknown"   // 未知
+	LevelUnknown      ComplianceLevel = "unknown"       // 未知
 )
 
 // ComplianceStatus 合规状态
 type ComplianceStatus string
 
 const (
-	StatusPassed    ComplianceStatus = "passed"
-	StatusFailed    ComplianceStatus = "failed"
-	StatusWarning   ComplianceStatus = "warning"
-	StatusSkipped   ComplianceStatus = "skipped"
+	StatusPassed        ComplianceStatus = "passed"
+	StatusFailed        ComplianceStatus = "failed"
+	StatusWarning       ComplianceStatus = "warning"
+	StatusSkipped       ComplianceStatus = "skipped"
 	StatusNotApplicable ComplianceStatus = "not_applicable"
 )
 
@@ -59,108 +59,108 @@ const (
 type ComplianceCategory string
 
 const (
-	CategoryAccessControl    ComplianceCategory = "access_control"
-	CategoryDataProtection   ComplianceCategory = "data_protection"
-	CategoryEncryption       ComplianceCategory = "encryption"
-	CategoryAudit            ComplianceCategory = "audit"
-	CategoryIncidentResponse ComplianceCategory = "incident_response"
+	CategoryAccessControl      ComplianceCategory = "access_control"
+	CategoryDataProtection     ComplianceCategory = "data_protection"
+	CategoryEncryption         ComplianceCategory = "encryption"
+	CategoryAudit              ComplianceCategory = "audit"
+	CategoryIncidentResponse   ComplianceCategory = "incident_response"
 	CategoryBusinessContinuity ComplianceCategory = "business_continuity"
-	CategoryAssetManagement  ComplianceCategory = "asset_management"
-	CategoryNetworkSecurity  ComplianceCategory = "network_security"
-	CategoryVulnerability    ComplianceCategory = "vulnerability"
-	CategoryPrivacy          ComplianceCategory = "privacy"
-	CategoryConsent          ComplianceCategory = "consent"
+	CategoryAssetManagement    ComplianceCategory = "asset_management"
+	CategoryNetworkSecurity    ComplianceCategory = "network_security"
+	CategoryVulnerability      ComplianceCategory = "vulnerability"
+	CategoryPrivacy            ComplianceCategory = "privacy"
+	CategoryConsent            ComplianceCategory = "consent"
 	CategoryBreachNotification ComplianceCategory = "breach_notification"
-	CategoryDataRetention    ComplianceCategory = "data_retention"
-	CategoryThirdParty       ComplianceCategory = "third_party"
+	CategoryDataRetention      ComplianceCategory = "data_retention"
+	CategoryThirdParty         ComplianceCategory = "third_party"
 )
 
 // ComplianceCheckItem 合规检查项
 type ComplianceCheckItem struct {
-	ID              string            `json:"id"`
+	ID              string             `json:"id"`
 	Standard        ComplianceStandard `json:"standard"`
-	ControlID       string            `json:"control_id"`    // 如 GDPR Article 5, SOC2 CC6.1
+	ControlID       string             `json:"control_id"` // 如 GDPR Article 5, SOC2 CC6.1
 	Category        ComplianceCategory `json:"category"`
-	Name            string            `json:"name"`
-	Description     string            `json:"description"`
-	Requirement     string            `json:"requirement"`
-	Weight          int               `json:"weight"`        // 权重
-	Severity        string            `json:"severity"`      // critical, high, medium, low
-	Remediation     string            `json:"remediation"`
-	References      []string          `json:"references"`
-	ApplicableRoles []string          `json:"applicable_roles"`
-	Tags            []string          `json:"tags"`
+	Name            string             `json:"name"`
+	Description     string             `json:"description"`
+	Requirement     string             `json:"requirement"`
+	Weight          int                `json:"weight"`   // 权重
+	Severity        string             `json:"severity"` // critical, high, medium, low
+	Remediation     string             `json:"remediation"`
+	References      []string           `json:"references"`
+	ApplicableRoles []string           `json:"applicable_roles"`
+	Tags            []string           `json:"tags"`
 }
 
 // ComplianceCheckResult 合规检查结果
 type ComplianceCheckResult struct {
-	ItemID          string            `json:"item_id"`
-	Standard        ComplianceStandard `json:"standard"`
-	ControlID       string            `json:"control_id"`
-	Category        ComplianceCategory `json:"category"`
-	Name            string            `json:"name"`
-	Status          ComplianceStatus  `json:"status"`
-	Level           ComplianceLevel   `json:"level"`
-	Score           int               `json:"score"`      // 0-100
-	Message         string            `json:"message"`
-	Details         map[string]interface{} `json:"details,omitempty"`
-	Evidence        []string          `json:"evidence,omitempty"`
-	Remediation     string            `json:"remediation,omitempty"`
-	CheckTime       time.Time         `json:"check_time"`
-	Duration        time.Duration     `json:"duration"`
-	CheckedBy       string            `json:"checked_by"`
-	Acknowledged    bool              `json:"acknowledged"`
-	AcknowledgedBy  string            `json:"acknowledged_by,omitempty"`
-	AcknowledgedAt  *time.Time        `json:"acknowledged_at,omitempty"`
+	ItemID         string                 `json:"item_id"`
+	Standard       ComplianceStandard     `json:"standard"`
+	ControlID      string                 `json:"control_id"`
+	Category       ComplianceCategory     `json:"category"`
+	Name           string                 `json:"name"`
+	Status         ComplianceStatus       `json:"status"`
+	Level          ComplianceLevel        `json:"level"`
+	Score          int                    `json:"score"` // 0-100
+	Message        string                 `json:"message"`
+	Details        map[string]interface{} `json:"details,omitempty"`
+	Evidence       []string               `json:"evidence,omitempty"`
+	Remediation    string                 `json:"remediation,omitempty"`
+	CheckTime      time.Time              `json:"check_time"`
+	Duration       time.Duration          `json:"duration"`
+	CheckedBy      string                 `json:"checked_by"`
+	Acknowledged   bool                   `json:"acknowledged"`
+	AcknowledgedBy string                 `json:"acknowledged_by,omitempty"`
+	AcknowledgedAt *time.Time             `json:"acknowledged_at,omitempty"`
 }
 
 // ========== 合规报告类型 ==========
 
 // ComplianceReport 合规报告
 type ComplianceReport struct {
-	ReportID        string            `json:"report_id"`
-	Title           string            `json:"title"`
-	Standard        ComplianceStandard `json:"standard"`
-	GeneratedAt     time.Time         `json:"generated_at"`
-	ValidUntil      time.Time         `json:"valid_until"`
-	OverallScore    int               `json:"overall_score"`   // 0-100
-	OverallLevel    ComplianceLevel   `json:"overall_level"`
-	Summary         ComplianceSummary `json:"summary"`
-	CategoryScores  map[string]int    `json:"category_scores"`
+	ReportID        string                   `json:"report_id"`
+	Title           string                   `json:"title"`
+	Standard        ComplianceStandard       `json:"standard"`
+	GeneratedAt     time.Time                `json:"generated_at"`
+	ValidUntil      time.Time                `json:"valid_until"`
+	OverallScore    int                      `json:"overall_score"` // 0-100
+	OverallLevel    ComplianceLevel          `json:"overall_level"`
+	Summary         ComplianceSummary        `json:"summary"`
+	CategoryScores  map[string]int           `json:"category_scores"`
 	Results         []*ComplianceCheckResult `json:"results"`
-	Remediations    []RemediationItem `json:"remediations"`
-	Recommendations []string          `json:"recommendations"`
-	NextReviewDate  time.Time         `json:"next_review_date"`
-	Version         string            `json:"version"`
+	Remediations    []RemediationItem        `json:"remediations"`
+	Recommendations []string                 `json:"recommendations"`
+	NextReviewDate  time.Time                `json:"next_review_date"`
+	Version         string                   `json:"version"`
 }
 
 // ComplianceSummary 合规摘要
 type ComplianceSummary struct {
-	TotalChecks     int `json:"total_checks"`
-	PassedChecks    int `json:"passed_checks"`
-	FailedChecks    int `json:"failed_checks"`
-	WarningChecks   int `json:"warning_checks"`
-	SkippedChecks   int `json:"skipped_checks"`
-	NotApplicable   int `json:"not_applicable"`
-	CriticalIssues  int `json:"critical_issues"`
-	HighIssues      int `json:"high_issues"`
-	MediumIssues    int `json:"medium_issues"`
-	LowIssues       int `json:"low_issues"`
+	TotalChecks    int `json:"total_checks"`
+	PassedChecks   int `json:"passed_checks"`
+	FailedChecks   int `json:"failed_checks"`
+	WarningChecks  int `json:"warning_checks"`
+	SkippedChecks  int `json:"skipped_checks"`
+	NotApplicable  int `json:"not_applicable"`
+	CriticalIssues int `json:"critical_issues"`
+	HighIssues     int `json:"high_issues"`
+	MediumIssues   int `json:"medium_issues"`
+	LowIssues      int `json:"low_issues"`
 }
 
 // RemediationItem 整改项
 type RemediationItem struct {
-	ID           string    `json:"id"`
-	ItemID       string    `json:"item_id"`
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	Priority     int       `json:"priority"`    // 1-4，1最高
-	Status       string    `json:"status"`      // open, in_progress, resolved
-	AssignedTo   string    `json:"assigned_to,omitempty"`
-	DueDate      *time.Time `json:"due_date,omitempty"`
-	CreatedAt    time.Time  `json:"created_at"`
-	ResolvedAt   *time.Time `json:"resolved_at,omitempty"`
-	Resolution   string     `json:"resolution,omitempty"`
+	ID          string     `json:"id"`
+	ItemID      string     `json:"item_id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	Priority    int        `json:"priority"` // 1-4，1最高
+	Status      string     `json:"status"`   // open, in_progress, resolved
+	AssignedTo  string     `json:"assigned_to,omitempty"`
+	DueDate     *time.Time `json:"due_date,omitempty"`
+	CreatedAt   time.Time  `json:"created_at"`
+	ResolvedAt  *time.Time `json:"resolved_at,omitempty"`
+	Resolution  string     `json:"resolution,omitempty"`
 }
 
 // ========== 合规检查器 ==========
@@ -178,15 +178,15 @@ type ComplianceChecker struct {
 
 // ComplianceCheckerConfig 合规检查器配置
 type ComplianceCheckerConfig struct {
-	Enabled            bool              `json:"enabled"`
-	AutoCheck          bool              `json:"auto_check"`
-	CheckInterval      time.Duration     `json:"check_interval"`
-	ReportRetention    int               `json:"report_retention"` // 天数
-	MaxReports         int               `json:"max_reports"`
-	NotifyOnFailure    bool              `json:"notify_on_failure"`
-	NotifyChannels     []string          `json:"notify_channels"`
-	EnabledStandards   []ComplianceStandard `json:"enabled_standards"`
-	CustomChecks       []CustomCheck     `json:"custom_checks"`
+	Enabled          bool                 `json:"enabled"`
+	AutoCheck        bool                 `json:"auto_check"`
+	CheckInterval    time.Duration        `json:"check_interval"`
+	ReportRetention  int                  `json:"report_retention"` // 天数
+	MaxReports       int                  `json:"max_reports"`
+	NotifyOnFailure  bool                 `json:"notify_on_failure"`
+	NotifyChannels   []string             `json:"notify_channels"`
+	EnabledStandards []ComplianceStandard `json:"enabled_standards"`
+	CustomChecks     []CustomCheck        `json:"custom_checks"`
 }
 
 // DefaultComplianceCheckerConfig 默认配置
@@ -204,21 +204,21 @@ func DefaultComplianceCheckerConfig() ComplianceCheckerConfig {
 
 // StandardDefinition 标准定义
 type StandardDefinition struct {
-	Standard   ComplianceStandard    `json:"standard"`
-	Name       string               `json:"name"`
-	Version    string               `json:"version"`
-	Effective  time.Time            `json:"effective"`
+	Standard   ComplianceStandard     `json:"standard"`
+	Name       string                 `json:"name"`
+	Version    string                 `json:"version"`
+	Effective  time.Time              `json:"effective"`
 	CheckItems []*ComplianceCheckItem `json:"check_items"`
-	Weights    map[string]int       `json:"weights"`
+	Weights    map[string]int         `json:"weights"`
 }
 
 // CustomCheck 自定义检查
 type CustomCheck struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Description string              `json:"description"`
-	Standard    ComplianceStandard  `json:"standard"`
-	Category    ComplianceCategory  `json:"category"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Description string             `json:"description"`
+	Standard    ComplianceStandard `json:"standard"`
+	Category    ComplianceCategory `json:"category"`
 	CheckFunc   func(ctx context.Context) (ComplianceStatus, string, error)
 }
 
@@ -264,147 +264,147 @@ func (cc *ComplianceChecker) initStandards() {
 // initGDPRStandard 初始化 GDPR 标准
 func (cc *ComplianceChecker) initGDPRStandard() *StandardDefinition {
 	return &StandardDefinition{
-		Standard: StandardGDPR,
-		Name:     "General Data Protection Regulation",
-		Version:  "2018",
+		Standard:  StandardGDPR,
+		Name:      "General Data Protection Regulation",
+		Version:   "2018",
 		Effective: time.Date(2018, 5, 25, 0, 0, 0, 0, time.UTC),
 		CheckItems: []*ComplianceCheckItem{
 			{
-				ID: "gdpr-001",
-				Standard: StandardGDPR,
-				ControlID: "Article 5.1.a",
-				Category: CategoryDataProtection,
-				Name: "数据处理的合法性",
+				ID:          "gdpr-001",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 5.1.a",
+				Category:    CategoryDataProtection,
+				Name:        "数据处理的合法性",
 				Description: "个人数据必须以合法、公平和透明的方式处理",
 				Requirement: "确保所有个人数据处理活动都有合法依据",
-				Weight: 10,
-				Severity: "high",
+				Weight:      10,
+				Severity:    "high",
 				Remediation: "建立数据处理合法依据评估流程",
-				References: []string{"https://gdpr.eu/article-5/"},
+				References:  []string{"https://gdpr.eu/article-5/"},
 			},
 			{
-				ID: "gdpr-002",
-				Standard: StandardGDPR,
-				ControlID: "Article 5.1.b",
-				Category: CategoryDataProtection,
-				Name: "数据最小化原则",
+				ID:          "gdpr-002",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 5.1.b",
+				Category:    CategoryDataProtection,
+				Name:        "数据最小化原则",
 				Description: "个人数据必须限于处理目的所必需的最小范围",
 				Requirement: "仅收集实现处理目的所必需的最少个人数据",
-				Weight: 8,
-				Severity: "medium",
+				Weight:      8,
+				Severity:    "medium",
 				Remediation: "审查数据收集范围，移除不必要的字段",
 			},
 			{
-				ID: "gdpr-003",
-				Standard: StandardGDPR,
-				ControlID: "Article 5.1.c",
-				Category: CategoryDataRetention,
-				Name: "数据存储限制",
+				ID:          "gdpr-003",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 5.1.c",
+				Category:    CategoryDataRetention,
+				Name:        "数据存储限制",
 				Description: "个人数据应以可识别数据主体的形式保存不超过处理目的所需的时间",
 				Requirement: "建立数据保留策略，定期清理过期数据",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 				Remediation: "实施数据保留策略和自动清理机制",
 			},
 			{
-				ID: "gdpr-004",
-				Standard: StandardGDPR,
-				ControlID: "Article 5.1.d",
-				Category: CategoryDataProtection,
-				Name: "数据准确性",
+				ID:          "gdpr-004",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 5.1.d",
+				Category:    CategoryDataProtection,
+				Name:        "数据准确性",
 				Description: "个人数据必须准确，并在必要时保持最新",
 				Requirement: "建立数据准确性验证和更新机制",
-				Weight: 7,
-				Severity: "medium",
+				Weight:      7,
+				Severity:    "medium",
 			},
 			{
-				ID: "gdpr-005",
-				Standard: StandardGDPR,
-				ControlID: "Article 5.1.f",
-				Category: CategoryDataProtection,
-				Name: "数据完整性",
+				ID:          "gdpr-005",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 5.1.f",
+				Category:    CategoryDataProtection,
+				Name:        "数据完整性",
 				Description: "个人数据必须以适当的安全方式处理",
 				Requirement: "实施适当的技术和组织措施保护个人数据",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 				Remediation: "实施加密、访问控制、审计日志等安全措施",
 			},
 			{
-				ID: "gdpr-006",
-				Standard: StandardGDPR,
-				ControlID: "Article 7",
-				Category: CategoryConsent,
-				Name: "同意管理",
+				ID:          "gdpr-006",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 7",
+				Category:    CategoryConsent,
+				Name:        "同意管理",
 				Description: "数据处理必须获得数据主体的有效同意",
 				Requirement: "建立同意收集、记录和撤回机制",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "gdpr-007",
-				Standard: StandardGDPR,
-				ControlID: "Article 15",
-				Category: CategoryPrivacy,
-				Name: "数据主体访问权",
+				ID:          "gdpr-007",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 15",
+				Category:    CategoryPrivacy,
+				Name:        "数据主体访问权",
 				Description: "数据主体有权获取其个人数据的副本",
 				Requirement: "建立数据主体访问请求处理流程",
-				Weight: 8,
-				Severity: "high",
+				Weight:      8,
+				Severity:    "high",
 			},
 			{
-				ID: "gdpr-008",
-				Standard: StandardGDPR,
-				ControlID: "Article 17",
-				Category: CategoryDataProtection,
-				Name: "删除权",
+				ID:          "gdpr-008",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 17",
+				Category:    CategoryDataProtection,
+				Name:        "删除权",
 				Description: "数据主体有权要求删除其个人数据",
 				Requirement: "建立数据删除请求处理流程",
-				Weight: 8,
-				Severity: "high",
+				Weight:      8,
+				Severity:    "high",
 			},
 			{
-				ID: "gdpr-009",
-				Standard: StandardGDPR,
-				ControlID: "Article 32",
-				Category: CategoryEncryption,
-				Name: "数据处理安全",
+				ID:          "gdpr-009",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 32",
+				Category:    CategoryEncryption,
+				Name:        "数据处理安全",
 				Description: "实施适当的技术和组织措施确保安全",
 				Requirement: "实施加密、伪匿名化、访问控制等措施",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 			{
-				ID: "gdpr-010",
-				Standard: StandardGDPR,
-				ControlID: "Article 33",
-				Category: CategoryBreachNotification,
-				Name: "数据泄露通知",
+				ID:          "gdpr-010",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 33",
+				Category:    CategoryBreachNotification,
+				Name:        "数据泄露通知",
 				Description: "发现数据泄露后72小时内通知监管机构",
 				Requirement: "建立数据泄露检测和通知机制",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 			{
-				ID: "gdpr-011",
-				Standard: StandardGDPR,
-				ControlID: "Article 35",
-				Category: CategoryPrivacy,
-				Name: "数据保护影响评估",
+				ID:          "gdpr-011",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 35",
+				Category:    CategoryPrivacy,
+				Name:        "数据保护影响评估",
 				Description: "高风险处理活动需进行DPIA",
 				Requirement: "建立DPIA评估流程",
-				Weight: 8,
-				Severity: "high",
+				Weight:      8,
+				Severity:    "high",
 			},
 			{
-				ID: "gdpr-012",
-				Standard: StandardGDPR,
-				ControlID: "Article 37",
-				Category: CategoryPrivacy,
-				Name: "数据保护官",
+				ID:          "gdpr-012",
+				Standard:    StandardGDPR,
+				ControlID:   "Article 37",
+				Category:    CategoryPrivacy,
+				Name:        "数据保护官",
 				Description: "指定数据保护官(DPO)",
 				Requirement: "任命合格的数据保护官",
-				Weight: 7,
-				Severity: "medium",
+				Weight:      7,
+				Severity:    "medium",
 			},
 		},
 		Weights: map[string]int{
@@ -419,131 +419,131 @@ func (cc *ComplianceChecker) initGDPRStandard() *StandardDefinition {
 // initSOC2Standard 初始化 SOC 2 标准
 func (cc *ComplianceChecker) initSOC2Standard() *StandardDefinition {
 	return &StandardDefinition{
-		Standard: StandardSOC2,
-		Name:     "SOC 2 Type II",
-		Version:  "2017",
+		Standard:  StandardSOC2,
+		Name:      "SOC 2 Type II",
+		Version:   "2017",
 		Effective: time.Date(2017, 1, 1, 0, 0, 0, 0, time.UTC),
 		CheckItems: []*ComplianceCheckItem{
 			{
-				ID: "soc2-001",
-				Standard: StandardSOC2,
-				ControlID: "CC6.1",
-				Category: CategoryAccessControl,
-				Name: "访问控制策略",
+				ID:          "soc2-001",
+				Standard:    StandardSOC2,
+				ControlID:   "CC6.1",
+				Category:    CategoryAccessControl,
+				Name:        "访问控制策略",
 				Description: "建立逻辑访问安全策略和程序",
 				Requirement: "制定并实施访问控制策略",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 			{
-				ID: "soc2-002",
-				Standard: StandardSOC2,
-				ControlID: "CC6.2",
-				Category: CategoryAccessControl,
-				Name: "系统账户管理",
+				ID:          "soc2-002",
+				Standard:    StandardSOC2,
+				ControlID:   "CC6.2",
+				Category:    CategoryAccessControl,
+				Name:        "系统账户管理",
 				Description: "在新用户创建前进行注册和授权",
 				Requirement: "实施用户账户生命周期管理",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "soc2-003",
-				Standard: StandardSOC2,
-				ControlID: "CC6.3",
-				Category: CategoryAccessControl,
-				Name: "权限管理",
+				ID:          "soc2-003",
+				Standard:    StandardSOC2,
+				ControlID:   "CC6.3",
+				Category:    CategoryAccessControl,
+				Name:        "权限管理",
 				Description: "基于角色和职责分配系统访问权限",
 				Requirement: "实施基于角色的访问控制(RBAC)",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "soc2-004",
-				Standard: StandardSOC2,
-				ControlID: "CC6.6",
-				Category: CategoryNetworkSecurity,
-				Name: "网络安全控制",
+				ID:          "soc2-004",
+				Standard:    StandardSOC2,
+				ControlID:   "CC6.6",
+				Category:    CategoryNetworkSecurity,
+				Name:        "网络安全控制",
 				Description: "实施边界保护措施",
 				Requirement: "配置防火墙、入侵检测等网络安全控制",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "soc2-005",
-				Standard: StandardSOC2,
-				ControlID: "CC6.7",
-				Category: CategoryVulnerability,
-				Name: "漏洞管理",
+				ID:          "soc2-005",
+				Standard:    StandardSOC2,
+				ControlID:   "CC6.7",
+				Category:    CategoryVulnerability,
+				Name:        "漏洞管理",
 				Description: "建立漏洞识别和管理流程",
 				Requirement: "实施漏洞扫描和补丁管理流程",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "soc2-006",
-				Standard: StandardSOC2,
-				ControlID: "CC7.1",
-				Category: CategoryVulnerability,
-				Name: "威胁识别",
+				ID:          "soc2-006",
+				Standard:    StandardSOC2,
+				ControlID:   "CC7.1",
+				Category:    CategoryVulnerability,
+				Name:        "威胁识别",
 				Description: "识别和评估潜在安全威胁",
 				Requirement: "建立威胁情报收集和分析流程",
-				Weight: 8,
-				Severity: "high",
+				Weight:      8,
+				Severity:    "high",
 			},
 			{
-				ID: "soc2-007",
-				Standard: StandardSOC2,
-				ControlID: "CC7.2",
-				Category: CategoryAudit,
-				Name: "系统监控",
+				ID:          "soc2-007",
+				Standard:    StandardSOC2,
+				ControlID:   "CC7.2",
+				Category:    CategoryAudit,
+				Name:        "系统监控",
 				Description: "监控系统运行和安全事件",
 				Requirement: "实施安全事件监控和日志记录",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "soc2-008",
-				Standard: StandardSOC2,
-				ControlID: "CC7.4",
-				Category: CategoryIncidentResponse,
-				Name: "事件响应",
+				ID:          "soc2-008",
+				Standard:    StandardSOC2,
+				ControlID:   "CC7.4",
+				Category:    CategoryIncidentResponse,
+				Name:        "事件响应",
 				Description: "建立安全事件响应流程",
 				Requirement: "制定并测试事件响应计划",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "soc2-009",
-				Standard: StandardSOC2,
-				ControlID: "CC8.1",
-				Category: CategoryBusinessContinuity,
-				Name: "变更管理",
+				ID:          "soc2-009",
+				Standard:    StandardSOC2,
+				ControlID:   "CC8.1",
+				Category:    CategoryBusinessContinuity,
+				Name:        "变更管理",
 				Description: "管理影响系统的变更",
 				Requirement: "建立变更管理和审批流程",
-				Weight: 8,
-				Severity: "medium",
+				Weight:      8,
+				Severity:    "medium",
 			},
 			{
-				ID: "soc2-010",
-				Standard: StandardSOC2,
-				ControlID: "A1.2",
-				Category: CategoryBusinessContinuity,
-				Name: "业务连续性",
+				ID:          "soc2-010",
+				Standard:    StandardSOC2,
+				ControlID:   "A1.2",
+				Category:    CategoryBusinessContinuity,
+				Name:        "业务连续性",
 				Description: "建立业务连续性和灾难恢复计划",
 				Requirement: "制定并测试业务连续性计划",
-				Weight: 8,
-				Severity: "high",
+				Weight:      8,
+				Severity:    "high",
 			},
 			{
-				ID: "soc2-011",
-				Standard: StandardSOC2,
-				ControlID: "CC9.2",
-				Category: CategoryThirdParty,
-				Name: "供应商管理",
+				ID:          "soc2-011",
+				Standard:    StandardSOC2,
+				ControlID:   "CC9.2",
+				Category:    CategoryThirdParty,
+				Name:        "供应商管理",
 				Description: "评估和管理供应商风险",
 				Requirement: "建立供应商风险评估流程",
-				Weight: 7,
-				Severity: "medium",
+				Weight:      7,
+				Severity:    "medium",
 			},
 		},
 		Weights: map[string]int{
@@ -558,40 +558,40 @@ func (cc *ComplianceChecker) initSOC2Standard() *StandardDefinition {
 // initISO27001Standard 初始化 ISO 27001 标准
 func (cc *ComplianceChecker) initISO27001Standard() *StandardDefinition {
 	return &StandardDefinition{
-		Standard: StandardISO27001,
-		Name:     "ISO/IEC 27001:2022",
-		Version:  "2022",
+		Standard:  StandardISO27001,
+		Name:      "ISO/IEC 27001:2022",
+		Version:   "2022",
 		Effective: time.Date(2022, 10, 1, 0, 0, 0, 0, time.UTC),
 		CheckItems: []*ComplianceCheckItem{
 			{
-				ID: "iso27001-001",
-				Standard: StandardISO27001,
-				ControlID: "A.5.1",
-				Category: CategoryAccessControl,
-				Name: "信息安全政策",
+				ID:          "iso27001-001",
+				Standard:    StandardISO27001,
+				ControlID:   "A.5.1",
+				Category:    CategoryAccessControl,
+				Name:        "信息安全政策",
 				Description: "建立信息安全政策并获得管理层批准",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 			{
-				ID: "iso27001-002",
-				Standard: StandardISO27001,
-				ControlID: "A.5.2",
-				Category: CategoryAssetManagement,
-				Name: "信息安全组织",
+				ID:          "iso27001-002",
+				Standard:    StandardISO27001,
+				ControlID:   "A.5.2",
+				Category:    CategoryAssetManagement,
+				Name:        "信息安全组织",
 				Description: "建立信息安全组织结构",
-				Weight: 8,
-				Severity: "high",
+				Weight:      8,
+				Severity:    "high",
 			},
 			{
-				ID: "iso27001-003",
-				Standard: StandardISO27001,
-				ControlID: "A.5.3",
-				Category: CategoryAccessControl,
-				Name: "角色和职责",
+				ID:          "iso27001-003",
+				Standard:    StandardISO27001,
+				ControlID:   "A.5.3",
+				Category:    CategoryAccessControl,
+				Name:        "角色和职责",
 				Description: "定义信息安全角色和职责",
-				Weight: 8,
-				Severity: "high",
+				Weight:      8,
+				Severity:    "high",
 			},
 		},
 		Weights: map[string]int{
@@ -606,50 +606,50 @@ func (cc *ComplianceChecker) initISO27001Standard() *StandardDefinition {
 // initCSLStandard 初始化网络安全法标准
 func (cc *ComplianceChecker) initCSLStandard() *StandardDefinition {
 	return &StandardDefinition{
-		Standard: StandardCSL,
-		Name:     "中华人民共和国网络安全法",
-		Version:  "2017",
+		Standard:  StandardCSL,
+		Name:      "中华人民共和国网络安全法",
+		Version:   "2017",
 		Effective: time.Date(2017, 6, 1, 0, 0, 0, 0, time.UTC),
 		CheckItems: []*ComplianceCheckItem{
 			{
-				ID: "csl-001",
-				Standard: StandardCSL,
-				ControlID: "第21条",
-				Category: CategoryNetworkSecurity,
-				Name: "网络安全等级保护",
+				ID:          "csl-001",
+				Standard:    StandardCSL,
+				ControlID:   "第21条",
+				Category:    CategoryNetworkSecurity,
+				Name:        "网络安全等级保护",
 				Description: "实施网络安全等级保护制度",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 			{
-				ID: "csl-002",
-				Standard: StandardCSL,
-				ControlID: "第22条",
-				Category: CategoryVulnerability,
-				Name: "安全漏洞修复",
+				ID:          "csl-002",
+				Standard:    StandardCSL,
+				ControlID:   "第22条",
+				Category:    CategoryVulnerability,
+				Name:        "安全漏洞修复",
 				Description: "及时修复系统漏洞",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "csl-003",
-				Standard: StandardCSL,
-				ControlID: "第25条",
-				Category: CategoryIncidentResponse,
-				Name: "网络安全事件应急预案",
+				ID:          "csl-003",
+				Standard:    StandardCSL,
+				ControlID:   "第25条",
+				Category:    CategoryIncidentResponse,
+				Name:        "网络安全事件应急预案",
 				Description: "制定网络安全事件应急预案",
-				Weight: 9,
-				Severity: "high",
+				Weight:      9,
+				Severity:    "high",
 			},
 			{
-				ID: "csl-004",
-				Standard: StandardCSL,
-				ControlID: "第40条",
-				Category: CategoryPrivacy,
-				Name: "用户信息保护",
+				ID:          "csl-004",
+				Standard:    StandardCSL,
+				ControlID:   "第40条",
+				Category:    CategoryPrivacy,
+				Name:        "用户信息保护",
 				Description: "严格保护用户个人信息",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 		},
 		Weights: map[string]int{
@@ -664,50 +664,50 @@ func (cc *ComplianceChecker) initCSLStandard() *StandardDefinition {
 // initPIPLStandard 初始化个人信息保护法标准
 func (cc *ComplianceChecker) initPIPLStandard() *StandardDefinition {
 	return &StandardDefinition{
-		Standard: StandardPIPL,
-		Name:     "中华人民共和国个人信息保护法",
-		Version:  "2021",
+		Standard:  StandardPIPL,
+		Name:      "中华人民共和国个人信息保护法",
+		Version:   "2021",
 		Effective: time.Date(2021, 11, 1, 0, 0, 0, 0, time.UTC),
 		CheckItems: []*ComplianceCheckItem{
 			{
-				ID: "pipl-001",
-				Standard: StandardPIPL,
-				ControlID: "第6条",
-				Category: CategoryDataProtection,
-				Name: "个人信息处理原则",
+				ID:          "pipl-001",
+				Standard:    StandardPIPL,
+				ControlID:   "第6条",
+				Category:    CategoryDataProtection,
+				Name:        "个人信息处理原则",
 				Description: "遵循合法、正当、必要原则处理个人信息",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 			{
-				ID: "pipl-002",
-				Standard: StandardPIPL,
-				ControlID: "第13条",
-				Category: CategoryConsent,
-				Name: "个人信息处理合法性",
+				ID:          "pipl-002",
+				Standard:    StandardPIPL,
+				ControlID:   "第13条",
+				Category:    CategoryConsent,
+				Name:        "个人信息处理合法性",
 				Description: "取得个人同意方可处理个人信息",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 			{
-				ID: "pipl-003",
-				Standard: StandardPIPL,
-				ControlID: "第51条",
-				Category: CategoryPrivacy,
-				Name: "个人信息保护负责人",
+				ID:          "pipl-003",
+				Standard:    StandardPIPL,
+				ControlID:   "第51条",
+				Category:    CategoryPrivacy,
+				Name:        "个人信息保护负责人",
 				Description: "指定个人信息保护负责人",
-				Weight: 8,
-				Severity: "high",
+				Weight:      8,
+				Severity:    "high",
 			},
 			{
-				ID: "pipl-004",
-				Standard: StandardPIPL,
-				ControlID: "第57条",
-				Category: CategoryBreachNotification,
-				Name: "个人信息泄露通知",
+				ID:          "pipl-004",
+				Standard:    StandardPIPL,
+				ControlID:   "第57条",
+				Category:    CategoryBreachNotification,
+				Name:        "个人信息泄露通知",
 				Description: "发生个人信息泄露时立即采取补救措施并通知",
-				Weight: 10,
-				Severity: "critical",
+				Weight:      10,
+				Severity:    "critical",
 			},
 		},
 		Weights: map[string]int{
