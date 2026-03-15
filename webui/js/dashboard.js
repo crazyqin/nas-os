@@ -1,7 +1,8 @@
 /**
  * NAS-OS Dashboard Module
- * v2.2.0 - 礼部实现
+ * v2.3.0 - 兵部优化
  * 功能：系统概览、服务状态、图表、实时更新、快速操作
+ * 优化：WebSocket 实时数据订阅、图表渲染性能优化
  */
 
 const Dashboard = {
@@ -11,7 +12,11 @@ const Dashboard = {
         wsUrl: null, // 动态生成
         refreshInterval: 5000,
         chartUpdateInterval: 1000,
-        maxDataPoints: 60
+        maxDataPoints: 60,
+        // 性能优化配置
+        batchUpdateInterval: 500,  // 批量更新间隔
+        maxBatchSize: 10,          // 最大批量大小
+        chartThrottleMs: 100       // 图表更新节流
     },
 
     // 状态
@@ -31,7 +36,13 @@ const Dashboard = {
         services: [],
         activities: [],
         autoRefresh: true,
-        refreshRate: 5000
+        refreshRate: 5000,
+        // 性能优化状态
+        pendingUpdates: [],         // 待处理更新队列
+        batchTimer: null,           // 批量更新定时器
+        lastChartUpdate: 0,         // 上次图表更新时间
+        isUpdating: false,          // 更新锁
+        subscribers: new Map()      // WebSocket 订阅者
     },
 
     // 初始化
@@ -416,7 +427,119 @@ const Dashboard = {
         }, 5000);
     },
 
+    // WebSocket 订阅管理
+    subscribe(channel, callback) {
+        if (!this.state.subscribers.has(channel)) {
+            this.state.subscribers.set(channel, new Set());
+        }
+        this.state.subscribers.get(channel).add(callback);
+
+        // 发送订阅消息
+        if (this.state.wsConnected && this.state.ws) {
+            this.state.ws.send(JSON.stringify({ type: 'subscribe', channel }));
+        }
+
+        // 返回取消订阅函数
+        return () => {
+            const callbacks = this.state.subscribers.get(channel);
+            if (callbacks) {
+                callbacks.delete(callback);
+                if (callbacks.size === 0) {
+                    this.state.subscribers.delete(channel);
+                    if (this.state.wsConnected && this.state.ws) {
+                        this.state.ws.send(JSON.stringify({ type: 'unsubscribe', channel }));
+                    }
+                }
+            }
+        };
+    },
+
+    // 发布消息给订阅者
+    notifySubscribers(channel, data) {
+        const callbacks = this.state.subscribers.get(channel);
+        if (callbacks) {
+            callbacks.forEach(cb => {
+                try {
+                    cb(data);
+                } catch (e) {
+                    console.error(`[Dashboard] 订阅者回调错误 [${channel}]:`, e);
+                }
+            });
+        }
+    },
+
     handleWsMessage(data) {
+        // 批量处理消息
+        this.queueUpdate(data);
+    },
+
+    // 队列更新（性能优化）
+    queueUpdate(data) {
+        this.state.pendingUpdates.push(data);
+        
+        if (!this.state.batchTimer) {
+            this.state.batchTimer = setTimeout(() => {
+                this.processBatchUpdates();
+            }, this.config.batchUpdateInterval);
+        }
+    },
+
+    // 批量处理更新
+    processBatchUpdates() {
+        this.state.batchTimer = null;
+        
+        if (this.state.pendingUpdates.length === 0) return;
+        
+        // 合并同类型更新
+        const updates = this.state.pendingUpdates;
+        this.state.pendingUpdates = [];
+
+        const mergedData = {
+            system: null,
+            disks: null,
+            network: null,
+            alerts: []
+        };
+
+        updates.forEach(data => {
+            switch (data.type) {
+                case 'init':
+                case 'system':
+                    if (data.system) mergedData.system = { ...mergedData.system, ...data.system };
+                    if (data.disks) mergedData.disks = data.disks;
+                    if (data.network) mergedData.network = data.network;
+                    break;
+                case 'metrics':
+                    mergedData.system = { ...mergedData.system, ...data.payload };
+                    break;
+                case 'alert':
+                case 'notification':
+                    mergedData.alerts.push(data);
+                    break;
+            }
+
+            // 通知订阅者
+            this.notifySubscribers(data.type, data);
+            this.notifySubscribers('*', data);
+        });
+
+        // 应用合并后的更新
+        if (mergedData.system) {
+            this.updateSystemStats(mergedData.system);
+        }
+        if (mergedData.disks) {
+            this.updateDiskStats(mergedData.disks);
+        }
+        if (mergedData.network) {
+            this.updateNetworkStats(mergedData.network);
+        }
+        mergedData.alerts.forEach(alert => {
+            this.showNotification(alert.level || 'info', alert.message);
+        });
+    },
+
+    // 旧版兼容
+    handleWsMessageLegacy(data) {
         switch (data.type) {
             case 'init':
             case 'system':
@@ -738,36 +861,38 @@ const Dashboard = {
     },
 
     updateCharts() {
-        const now = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        // 节流：避免频繁更新图表
+        const now = Date.now();
+        if (now - this.state.lastChartUpdate < this.config.chartThrottleMs) {
+            return;
+        }
+        this.state.lastChartUpdate = now;
+
+        // 使用 requestAnimationFrame 优化渲染
+        requestAnimationFrame(() => {
+            this._updateChartsInternal();
+        });
+    },
+
+    _updateChartsInternal() {
+        const timeLabel = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         
         // CPU 图表
         if (this.state.charts.cpu && this.state.metrics.cpu.length > 0) {
-            const chart = this.state.charts.cpu;
-            chart.data.labels.push(now);
-            chart.data.datasets[0].data.push(this.state.metrics.cpu[this.state.metrics.cpu.length - 1]);
-            if (chart.data.labels.length > this.config.maxDataPoints) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-            }
-            chart.update('none');
+            this.updateChartSafely(this.state.charts.cpu, timeLabel, 
+                this.state.metrics.cpu[this.state.metrics.cpu.length - 1]);
         }
 
         // 内存图表
         if (this.state.charts.memory && this.state.metrics.memory.length > 0) {
-            const chart = this.state.charts.memory;
-            chart.data.labels.push(now);
-            chart.data.datasets[0].data.push(this.state.metrics.memory[this.state.metrics.memory.length - 1]);
-            if (chart.data.labels.length > this.config.maxDataPoints) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-            }
-            chart.update('none');
+            this.updateChartSafely(this.state.charts.memory, timeLabel,
+                this.state.metrics.memory[this.state.metrics.memory.length - 1]);
         }
 
         // 网络图表
         if (this.state.charts.network && this.state.metrics.network.rx.length > 0) {
             const chart = this.state.charts.network;
-            chart.data.labels.push(now);
+            chart.data.labels.push(timeLabel);
             chart.data.datasets[0].data.push(this.state.metrics.network.rx[this.state.metrics.network.rx.length - 1]);
             chart.data.datasets[1].data.push(this.state.metrics.network.tx[this.state.metrics.network.tx.length - 1]);
             if (chart.data.labels.length > this.config.maxDataPoints) {
@@ -777,6 +902,39 @@ const Dashboard = {
             }
             chart.update('none');
         }
+    },
+
+    // 安全更新单个数据集图表
+    updateChartSafely(chart, label, value) {
+        if (!chart) return;
+        
+        chart.data.labels.push(label);
+        chart.data.datasets[0].data.push(value);
+        
+        if (chart.data.labels.length > this.config.maxDataPoints) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+        }
+        
+        chart.update('none');
+    },
+
+    // 批量更新图表数据（性能优化）
+    updateChartsBatch(updates) {
+        Object.keys(updates).forEach(key => {
+            if (this.state.metrics[key]) {
+                const arr = Array.isArray(this.state.metrics[key]) ? this.state.metrics[key] : null;
+                if (arr) {
+                    arr.push(updates[key]);
+                    if (arr.length > this.config.maxDataPoints) {
+                        arr.shift();
+                    }
+                }
+            }
+        });
+        
+        // 只触发一次图表更新
+        this.updateCharts();
     },
 
     setProgressBarColor(id, value) {
@@ -1014,6 +1172,14 @@ const Dashboard = {
         if (this.state.refreshTimer) {
             clearInterval(this.state.refreshTimer);
         }
+        if (this.state.batchTimer) {
+            clearTimeout(this.state.batchTimer);
+        }
+        // 清理订阅者
+        this.state.subscribers.clear();
+        // 清理待处理更新
+        this.state.pendingUpdates = [];
+        // 销毁图表
         Object.values(this.state.charts).forEach(chart => {
             if (chart) chart.destroy();
         });

@@ -59,9 +59,10 @@ Content-Type: application/json
 ## API 模块
 
 - [审计 API](./audit-api.md) - 审计日志管理
-- [计费 API](./billing-api.md) - 计费系统管理
+- [计费 API](./billing-api.md) - 计费系统管理、成本分析、预算警报
 - [仪表板 API](./dashboard-api.md) - 系统监控仪表板管理 (v2.52.0+)
 - [健康检查 API](./health-api.md) - 系统健康状态检查 (v2.52.0+)
+- [发票与支付 API](./invoice-api.md) - 发票管理、在线支付 (v2.58.0+)
 - [监控 API](./monitor-api.md) - 系统监控与分布式监控
 - [权限管理 API](./permission-api.md) - RBAC 权限管理 (v2.55.0+)
 - [存储 API](./storage-api.md) - 存储池管理
