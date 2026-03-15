@@ -184,15 +184,15 @@ func (m *MockReportDataProvider) GetRecommendations(ctx context.Context) ([]Reco
 	}, nil
 }
 
-func (m *MockReportDataProvider) GetHistoricalReport(ctx context.Context, reportType CostBillingReportType, date time.Time) (*BillingCostReport, error) {
+func (m *MockReportDataProvider) GetHistoricalReport(ctx context.Context, reportType CostReportType, date time.Time) (*CostReport, error) {
 	return nil, nil
 }
 
-func createTestReportGenerator(t *testing.T) *BillingBillingReportGenerator {
+func createTestReportGenerator(t *testing.T) *CostReportGenerator {
 	tmpDir := t.TempDir()
 	provider := &MockReportDataProvider{}
 	config := DefaultReportConfig()
-	return NewBillingBillingReportGenerator(tmpDir, provider, config)
+	return NewCostReportGenerator(tmpDir, provider, config)
 }
 
 func TestNewBillingReportGenerator(t *testing.T) {
@@ -210,7 +210,7 @@ func TestGenerateDailyReport(t *testing.T) {
 	require.NotNil(t, report)
 
 	assert.NotEmpty(t, report.ID)
-	assert.Equal(t, CostBillingReportTypeDaily, report.CostBillingReportType)
+	assert.Equal(t, CostReportTypeDaily, report.CostReportType)
 	assert.Equal(t, "CNY", report.Currency)
 	assert.NotEmpty(t, report.Trends) // 检查趋势数据而非 Sections
 }
@@ -224,7 +224,7 @@ func TestGenerateWeeklyReport(t *testing.T) {
 	require.NotNil(t, report)
 
 	assert.NotEmpty(t, report.ID)
-	assert.Equal(t, CostBillingReportTypeWeekly, report.CostBillingReportType)
+	assert.Equal(t, CostReportTypeWeekly, report.CostReportType)
 }
 
 func TestGenerateMonthlyReport(t *testing.T) {
@@ -236,7 +236,7 @@ func TestGenerateMonthlyReport(t *testing.T) {
 	require.NotNil(t, report)
 
 	assert.NotEmpty(t, report.ID)
-	assert.Equal(t, CostBillingReportTypeMonthly, report.CostBillingReportType)
+	assert.Equal(t, CostReportTypeMonthly, report.CostReportType)
 }
 
 func TestGenerateCustomReport(t *testing.T) {
@@ -360,7 +360,7 @@ func TestExportReportJSON(t *testing.T) {
 	require.NoError(t, err)
 
 	outputPath := t.TempDir() + "/report.json"
-	err = gen.ExportReport(report, CostBillingExportFormatJSON, outputPath)
+	err = gen.ExportReport(report, CostExportFormatJSON, outputPath)
 	require.NoError(t, err)
 	assert.FileExists(t, outputPath)
 }
@@ -373,7 +373,7 @@ func TestExportReportCSV(t *testing.T) {
 	require.NoError(t, err)
 
 	outputPath := t.TempDir() + "/report.csv"
-	err = gen.ExportReport(report, CostBillingExportFormatCSV, outputPath)
+	err = gen.ExportReport(report, CostExportFormatCSV, outputPath)
 	require.NoError(t, err)
 	assert.FileExists(t, outputPath)
 }
@@ -425,7 +425,7 @@ func TestListReports(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	reports, err := gen.ListReports(CostBillingReportTypeDaily, 10)
+	reports, err := gen.ListReports(CostReportTypeDaily, 10)
 	require.NoError(t, err)
 	assert.GreaterOrEqual(t, len(reports), 3)
 }
@@ -448,7 +448,7 @@ func TestHealthScoreCalculation(t *testing.T) {
 	gen := createTestReportGenerator(t)
 
 	// 高利用率报告
-	report := &BillingCostReport{
+	report := &CostReport{
 		StorageCost: StorageCostSection{
 			UtilizationRate: 95,
 			UsedCapacityGB:  950,
@@ -456,7 +456,7 @@ func TestHealthScoreCalculation(t *testing.T) {
 		},
 	}
 
-	summary := &BillingReportSummary{}
+	summary := &CostReportSummary{}
 	score := gen.calculateHealthScore(report, summary)
 	assert.Less(t, score, 100) // 高利用率应该扣分
 }
@@ -508,7 +508,7 @@ func TestBudgetComparison(t *testing.T) {
 
 	tmpDir := t.TempDir()
 	config := DefaultReportConfig()
-	gen := NewBillingBillingReportGenerator(tmpDir, provider, config)
+	gen := NewCostReportGenerator(tmpDir, provider, config)
 
 	ctx := context.Background()
 	report, err := gen.GenerateDailyReport(ctx, time.Now())
@@ -544,7 +544,7 @@ func TestTierBreakdown(t *testing.T) {
 
 	tmpDir := t.TempDir()
 	config := DefaultReportConfig()
-	gen := NewBillingBillingReportGenerator(tmpDir, provider, config)
+	gen := NewCostReportGenerator(tmpDir, provider, config)
 
 	ctx := context.Background()
 	report, err := gen.GenerateDailyReport(ctx, time.Now())
@@ -567,7 +567,7 @@ func TestReportPersistence(t *testing.T) {
 	provider := &MockReportDataProvider{}
 	config := DefaultReportConfig()
 
-	gen1 := NewBillingBillingReportGenerator(tmpDir, provider, config)
+	gen1 := NewCostReportGenerator(tmpDir, provider, config)
 	ctx := context.Background()
 
 	report, err := gen1.GenerateDailyReport(ctx, time.Now())
@@ -575,7 +575,7 @@ func TestReportPersistence(t *testing.T) {
 	reportID := report.ID
 
 	// 创建新的生成器
-	gen2 := NewBillingBillingReportGenerator(tmpDir, provider, config)
+	gen2 := NewCostReportGenerator(tmpDir, provider, config)
 
 	// 验证持久化
 	retrieved, err := gen2.GetReport(reportID)
