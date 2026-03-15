@@ -14,51 +14,51 @@ import (
 
 // EnhancedStorageReport 增强版存储成本分析报告
 type EnhancedStorageReport struct {
-	ID                string                `json:"id"`
-	GeneratedAt       time.Time             `json:"generated_at"`
-	PeriodStart       time.Time             `json:"period_start"`
-	PeriodEnd         time.Time             `json:"period_end"`
-	Summary           EnhancedCostSummary   `json:"summary"`
-	CostDistribution  CostDistribution      `json:"cost_distribution"`
-	AnomalyDetection  AnomalyDetection      `json:"anomaly_detection"`
-	Comparison        PeriodComparison      `json:"comparison"`
-	TrendAnalysis     TrendAnalysis         `json:"trend_analysis"`
-	PoolBreakdown     []PoolCostBreakdown   `json:"pool_breakdown"`
-	UserBreakdown     []UserCostBreakdown   `json:"user_breakdown"`
-	Recommendations   []CostRecommendation  `json:"recommendations"`
-	ExportFormats     []string              `json:"available_export_formats"`
+	ID               string               `json:"id"`
+	GeneratedAt      time.Time            `json:"generated_at"`
+	PeriodStart      time.Time            `json:"period_start"`
+	PeriodEnd        time.Time            `json:"period_end"`
+	Summary          EnhancedCostSummary  `json:"summary"`
+	CostDistribution CostDistribution     `json:"cost_distribution"`
+	AnomalyDetection AnomalyDetection     `json:"anomaly_detection"`
+	Comparison       PeriodComparison     `json:"comparison"`
+	TrendAnalysis    TrendAnalysis        `json:"trend_analysis"`
+	PoolBreakdown    []PoolCostBreakdown  `json:"pool_breakdown"`
+	UserBreakdown    []UserCostBreakdown  `json:"user_breakdown"`
+	Recommendations  []CostRecommendation `json:"recommendations"`
+	ExportFormats    []string             `json:"available_export_formats"`
 }
 
 // EnhancedCostSummary 增强版成本摘要
 type EnhancedCostSummary struct {
-	TotalCost              float64   `json:"total_cost"`
-	StorageCost            float64   `json:"storage_cost"`
-	BandwidthCost          float64   `json:"bandwidth_cost"`
-	OtherCost              float64   `json:"other_cost"`
-	Currency               string    `json:"currency"`
-	CostChangePercent      float64   `json:"cost_change_percent"`
-	AvgDailyCost           float64   `json:"avg_daily_cost"`
-	PeakDailyCost          float64   `json:"peak_daily_cost"`
-	MinDailyCost           float64   `json:"min_daily_cost"`
-	ProjectedMonthlyCost   float64   `json:"projected_monthly_cost"`
-	BudgetUtilization      float64   `json:"budget_utilization"`
-	CostEfficiencyScore    float64   `json:"cost_efficiency_score"`    // 0-100 成本效率评分
-	OptimizationPotential  float64   `json:"optimization_potential"`   // 可优化金额
-	TotalUsedGB            float64   `json:"total_used_gb"`
-	TotalBandwidthGB       float64   `json:"total_bandwidth_gb"`
-	ActiveUsers            int       `json:"active_users"`
-	ActivePools            int       `json:"active_pools"`
-	ReportConfidence       float64   `json:"report_confidence"` // 报告置信度 0-1
+	TotalCost             float64 `json:"total_cost"`
+	StorageCost           float64 `json:"storage_cost"`
+	BandwidthCost         float64 `json:"bandwidth_cost"`
+	OtherCost             float64 `json:"other_cost"`
+	Currency              string  `json:"currency"`
+	CostChangePercent     float64 `json:"cost_change_percent"`
+	AvgDailyCost          float64 `json:"avg_daily_cost"`
+	PeakDailyCost         float64 `json:"peak_daily_cost"`
+	MinDailyCost          float64 `json:"min_daily_cost"`
+	ProjectedMonthlyCost  float64 `json:"projected_monthly_cost"`
+	BudgetUtilization     float64 `json:"budget_utilization"`
+	CostEfficiencyScore   float64 `json:"cost_efficiency_score"`  // 0-100 成本效率评分
+	OptimizationPotential float64 `json:"optimization_potential"` // 可优化金额
+	TotalUsedGB           float64 `json:"total_used_gb"`
+	TotalBandwidthGB      float64 `json:"total_bandwidth_gb"`
+	ActiveUsers           int     `json:"active_users"`
+	ActivePools           int     `json:"active_pools"`
+	ReportConfidence      float64 `json:"report_confidence"` // 报告置信度 0-1
 }
 
 // CostDistribution 成本分布
 type CostDistribution struct {
-	ByStorageType  []StorageTypeCost  `json:"by_storage_type"`
-	ByUser         []UserCostDist     `json:"by_user"`
-	ByPool         []PoolCostDist     `json:"by_pool"`
-	ByTimeOfDay    []HourlyCost       `json:"by_time_of_day"`
-	ByDayOfWeek    []DailyCost        `json:"by_day_of_week"`
-	TopCostDrivers []CostDriver       `json:"top_cost_drivers"`
+	ByStorageType  []StorageTypeCost `json:"by_storage_type"`
+	ByUser         []UserCostDist    `json:"by_user"`
+	ByPool         []PoolCostDist    `json:"by_pool"`
+	ByTimeOfDay    []HourlyCost      `json:"by_time_of_day"`
+	ByDayOfWeek    []DailyCost       `json:"by_day_of_week"`
+	TopCostDrivers []CostDriver      `json:"top_cost_drivers"`
 }
 
 // StorageTypeCost 按存储类型的成本
@@ -73,34 +73,34 @@ type StorageTypeCost struct {
 
 // UserCostDist 用户成本分布
 type UserCostDist struct {
-	UserID       string  `json:"user_id"`
-	UserName     string  `json:"user_name"`
-	TotalCost    float64 `json:"total_cost"`
-	StorageGB    float64 `json:"storage_gb"`
-	BandwidthGB  float64 `json:"bandwidth_gb"`
-	Percentage   float64 `json:"percentage"`
-	Rank         int     `json:"rank"`
-	Trend        string  `json:"trend"` // up, down, stable
+	UserID      string  `json:"user_id"`
+	UserName    string  `json:"user_name"`
+	TotalCost   float64 `json:"total_cost"`
+	StorageGB   float64 `json:"storage_gb"`
+	BandwidthGB float64 `json:"bandwidth_gb"`
+	Percentage  float64 `json:"percentage"`
+	Rank        int     `json:"rank"`
+	Trend       string  `json:"trend"` // up, down, stable
 }
 
 // PoolCostDist 存储池成本分布
 type PoolCostDist struct {
-	PoolID       string  `json:"pool_id"`
-	PoolName     string  `json:"pool_name"`
-	StorageType  string  `json:"storage_type"`
-	TotalCost    float64 `json:"total_cost"`
-	UsedGB       float64 `json:"used_gb"`
-	Percentage   float64 `json:"percentage"`
-	Utilization  float64 `json:"utilization"`
-	Health       string  `json:"health"` // good, warning, critical
+	PoolID      string  `json:"pool_id"`
+	PoolName    string  `json:"pool_name"`
+	StorageType string  `json:"storage_type"`
+	TotalCost   float64 `json:"total_cost"`
+	UsedGB      float64 `json:"used_gb"`
+	Percentage  float64 `json:"percentage"`
+	Utilization float64 `json:"utilization"`
+	Health      string  `json:"health"` // good, warning, critical
 }
 
 // HourlyCost 每小时成本
 type HourlyCost struct {
-	Hour     int     `json:"hour"`
-	AvgCost  float64 `json:"avg_cost"`
-	MaxCost  float64 `json:"max_cost"`
-	MinCost  float64 `json:"min_cost"`
+	Hour    int     `json:"hour"`
+	AvgCost float64 `json:"avg_cost"`
+	MaxCost float64 `json:"max_cost"`
+	MinCost float64 `json:"min_cost"`
 }
 
 // DailyCost 每日成本
@@ -112,11 +112,11 @@ type DailyCost struct {
 
 // CostDriver 成本驱动因素
 type CostDriver struct {
-	Factor          string  `json:"factor"`
-	Description     string  `json:"description"`
-	ImpactAmount    float64 `json:"impact_amount"`
-	ImpactPercent   float64 `json:"impact_percent"`
-	Controllable    bool    `json:"controllable"`
+	Factor        string  `json:"factor"`
+	Description   string  `json:"description"`
+	ImpactAmount  float64 `json:"impact_amount"`
+	ImpactPercent float64 `json:"impact_percent"`
+	Controllable  bool    `json:"controllable"`
 }
 
 // AnomalyDetection 异常检测
@@ -132,21 +132,21 @@ type AnomalyDetection struct {
 
 // CostAnomaly 成本异常
 type CostAnomaly struct {
-	ID              string    `json:"id"`
-	DetectedAt      time.Time `json:"detected_at"`
-	Type            string    `json:"type"` // spike, drop, trend_change
-	Severity        string    `json:"severity"` // low, medium, high, critical
-	ResourceType    string    `json:"resource_type"` // storage, bandwidth, user, pool
-	ResourceID      string    `json:"resource_id"`
-	ResourceName    string    `json:"resource_name"`
-	ExpectedValue   float64   `json:"expected_value"`
-	ActualValue     float64   `json:"actual_value"`
-	Deviation       float64   `json:"deviation"` // 偏差百分比
-	PotentialCause  string    `json:"potential_cause"`
-	AffectedPeriod  string    `json:"affected_period"`
-	Status          string    `json:"status"` // new, investigating, resolved, ignored
-	Resolution      string    `json:"resolution,omitempty"`
-	ResolvedAt      *time.Time `json:"resolved_at,omitempty"`
+	ID             string     `json:"id"`
+	DetectedAt     time.Time  `json:"detected_at"`
+	Type           string     `json:"type"`          // spike, drop, trend_change
+	Severity       string     `json:"severity"`      // low, medium, high, critical
+	ResourceType   string     `json:"resource_type"` // storage, bandwidth, user, pool
+	ResourceID     string     `json:"resource_id"`
+	ResourceName   string     `json:"resource_name"`
+	ExpectedValue  float64    `json:"expected_value"`
+	ActualValue    float64    `json:"actual_value"`
+	Deviation      float64    `json:"deviation"` // 偏差百分比
+	PotentialCause string     `json:"potential_cause"`
+	AffectedPeriod string     `json:"affected_period"`
+	Status         string     `json:"status"` // new, investigating, resolved, ignored
+	Resolution     string     `json:"resolution,omitempty"`
+	ResolvedAt     *time.Time `json:"resolved_at,omitempty"`
 }
 
 // AnomalyStatistics 异常统计
@@ -161,54 +161,54 @@ type AnomalyStatistics struct {
 
 // PeriodComparison 周期对比
 type PeriodComparison struct {
-	CurrentPeriod   PeriodCostDetail  `json:"current_period"`
-	PreviousPeriod  PeriodCostDetail  `json:"previous_period"`
-	YearOverYear    *PeriodCostDetail `json:"year_over_year,omitempty"`
-	ChangeAnalysis  ChangeAnalysis    `json:"change_analysis"`
+	CurrentPeriod  PeriodCostDetail  `json:"current_period"`
+	PreviousPeriod PeriodCostDetail  `json:"previous_period"`
+	YearOverYear   *PeriodCostDetail `json:"year_over_year,omitempty"`
+	ChangeAnalysis ChangeAnalysis    `json:"change_analysis"`
 }
 
 // PeriodCostDetail 周期成本详情
 type PeriodCostDetail struct {
-	PeriodStart      time.Time `json:"period_start"`
-	PeriodEnd        time.Time `json:"period_end"`
-	TotalCost        float64   `json:"total_cost"`
-	StorageCost      float64   `json:"storage_cost"`
-	BandwidthCost    float64   `json:"bandwidth_cost"`
-	OtherCost        float64   `json:"other_cost"`
-	StorageUsedGB    float64   `json:"storage_used_gb"`
-	BandwidthUsedGB  float64   `json:"bandwidth_used_gb"`
-	UserCount        int       `json:"user_count"`
-	PoolCount        int       `json:"pool_count"`
+	PeriodStart     time.Time `json:"period_start"`
+	PeriodEnd       time.Time `json:"period_end"`
+	TotalCost       float64   `json:"total_cost"`
+	StorageCost     float64   `json:"storage_cost"`
+	BandwidthCost   float64   `json:"bandwidth_cost"`
+	OtherCost       float64   `json:"other_cost"`
+	StorageUsedGB   float64   `json:"storage_used_gb"`
+	BandwidthUsedGB float64   `json:"bandwidth_used_gb"`
+	UserCount       int       `json:"user_count"`
+	PoolCount       int       `json:"pool_count"`
 }
 
 // ChangeAnalysis 变化分析
 type ChangeAnalysis struct {
-	TotalCostChange      float64          `json:"total_cost_change"`
+	TotalCostChange        float64        `json:"total_cost_change"`
 	TotalCostChangePercent float64        `json:"total_cost_change_percent"`
-	StorageCostChange    float64          `json:"storage_cost_change"`
-	BandwidthCostChange  float64          `json:"bandwidth_cost_change"`
-	StorageUsageChange   float64          `json:"storage_usage_change"`
-	BandwidthUsageChange float64          `json:"bandwidth_usage_change"`
-	UserCountChange      int              `json:"user_count_change"`
-	KeyFactors           []ChangeFactor   `json:"key_factors"`
+	StorageCostChange      float64        `json:"storage_cost_change"`
+	BandwidthCostChange    float64        `json:"bandwidth_cost_change"`
+	StorageUsageChange     float64        `json:"storage_usage_change"`
+	BandwidthUsageChange   float64        `json:"bandwidth_usage_change"`
+	UserCountChange        int            `json:"user_count_change"`
+	KeyFactors             []ChangeFactor `json:"key_factors"`
 }
 
 // ChangeFactor 变化因素
 type ChangeFactor struct {
-	Factor        string  `json:"factor"`
-	Description   string  `json:"description"`
-	Impact        float64 `json:"impact"`
-	Direction     string  `json:"direction"` // increase, decrease
+	Factor      string  `json:"factor"`
+	Description string  `json:"description"`
+	Impact      float64 `json:"impact"`
+	Direction   string  `json:"direction"` // increase, decrease
 }
 
 // TrendAnalysis 趋势分析
 type TrendAnalysis struct {
-	OverallTrend       string           `json:"overall_trend"` // increasing, decreasing, stable
-	TrendStrength      float64          `json:"trend_strength"` // 0-1
-	DailyData          []DailyTrendData `json:"daily_data"`
-	WeeklyPattern      WeeklyPattern    `json:"weekly_pattern"`
-	MonthlyProjection  MonthlyProjection `json:"monthly_projection"`
-	Seasonality        SeasonalityInfo  `json:"seasonality"`
+	OverallTrend      string            `json:"overall_trend"`  // increasing, decreasing, stable
+	TrendStrength     float64           `json:"trend_strength"` // 0-1
+	DailyData         []DailyTrendData  `json:"daily_data"`
+	WeeklyPattern     WeeklyPattern     `json:"weekly_pattern"`
+	MonthlyProjection MonthlyProjection `json:"monthly_projection"`
+	Seasonality       SeasonalityInfo   `json:"seasonality"`
 }
 
 // DailyTrendData 每日趋势数据
@@ -226,84 +226,84 @@ type DailyTrendData struct {
 
 // WeeklyPattern 周模式
 type WeeklyPattern struct {
-	PeakDay       string  `json:"peak_day"`
-	LowDay        string  `json:"low_day"`
-	Variance      float64 `json:"variance"`
-	IsConsistent  bool    `json:"is_consistent"`
+	PeakDay      string  `json:"peak_day"`
+	LowDay       string  `json:"low_day"`
+	Variance     float64 `json:"variance"`
+	IsConsistent bool    `json:"is_consistent"`
 }
 
 // MonthlyProjection 月度预测
 type MonthlyProjection struct {
-	ProjectedCost      float64 `json:"projected_cost"`
-	ConfidenceLevel    float64 `json:"confidence_level"`
-	UpperBound         float64 `json:"upper_bound"`
-	LowerBound         float64 `json:"lower_bound"`
-	ProjectionMethod   string  `json:"projection_method"`
-	KeyAssumptions     []string `json:"key_assumptions"`
+	ProjectedCost    float64  `json:"projected_cost"`
+	ConfidenceLevel  float64  `json:"confidence_level"`
+	UpperBound       float64  `json:"upper_bound"`
+	LowerBound       float64  `json:"lower_bound"`
+	ProjectionMethod string   `json:"projection_method"`
+	KeyAssumptions   []string `json:"key_assumptions"`
 }
 
 // SeasonalityInfo 季节性信息
 type SeasonalityInfo struct {
-	HasSeasonality     bool      `json:"has_seasonality"`
-	PeakMonths         []string  `json:"peak_months,omitempty"`
-	LowMonths          []string  `json:"low_months,omitempty"`
-	SeasonalFactor     float64   `json:"seasonal_factor"`
+	HasSeasonality bool     `json:"has_seasonality"`
+	PeakMonths     []string `json:"peak_months,omitempty"`
+	LowMonths      []string `json:"low_months,omitempty"`
+	SeasonalFactor float64  `json:"seasonal_factor"`
 }
 
 // PoolCostBreakdown 存储池成本分解
 type PoolCostBreakdown struct {
-	PoolID             string            `json:"pool_id"`
-	PoolName           string            `json:"pool_name"`
-	StorageType        string            `json:"storage_type"`
-	TotalCost          float64           `json:"total_cost"`
-	StorageCost        float64           `json:"storage_cost"`
-	BandwidthCost      float64           `json:"bandwidth_cost"`
-	UsedGB             float64           `json:"used_gb"`
-	CapacityGB         float64           `json:"capacity_gb"`
-	Utilization        float64           `json:"utilization"`
-	PricePerGB         float64           `json:"price_per_gb"`
-	CostTrend          string            `json:"cost_trend"`
-	EfficiencyScore    float64           `json:"efficiency_score"`
-	UserCount          int               `json:"user_count"`
-	TopUsers           []TopUserInPool   `json:"top_users"`
-	GrowthRate         float64           `json:"growth_rate"`
-	Recommendation     string            `json:"recommendation,omitempty"`
+	PoolID          string          `json:"pool_id"`
+	PoolName        string          `json:"pool_name"`
+	StorageType     string          `json:"storage_type"`
+	TotalCost       float64         `json:"total_cost"`
+	StorageCost     float64         `json:"storage_cost"`
+	BandwidthCost   float64         `json:"bandwidth_cost"`
+	UsedGB          float64         `json:"used_gb"`
+	CapacityGB      float64         `json:"capacity_gb"`
+	Utilization     float64         `json:"utilization"`
+	PricePerGB      float64         `json:"price_per_gb"`
+	CostTrend       string          `json:"cost_trend"`
+	EfficiencyScore float64         `json:"efficiency_score"`
+	UserCount       int             `json:"user_count"`
+	TopUsers        []TopUserInPool `json:"top_users"`
+	GrowthRate      float64         `json:"growth_rate"`
+	Recommendation  string          `json:"recommendation,omitempty"`
 }
 
 // TopUserInPool 存储池中用量最大的用户
 type TopUserInPool struct {
-	UserID    string  `json:"user_id"`
-	UserName  string  `json:"user_name"`
-	UsedGB    float64 `json:"used_gb"`
-	Cost      float64 `json:"cost"`
+	UserID     string  `json:"user_id"`
+	UserName   string  `json:"user_name"`
+	UsedGB     float64 `json:"used_gb"`
+	Cost       float64 `json:"cost"`
 	Percentage float64 `json:"percentage"`
 }
 
 // UserCostBreakdown 用户成本分解
 type UserCostBreakdown struct {
-	UserID             string           `json:"user_id"`
-	UserName           string           `json:"user_name"`
-	TotalCost          float64          `json:"total_cost"`
-	StorageCost        float64          `json:"storage_cost"`
-	BandwidthCost      float64          `json:"bandwidth_cost"`
-	StorageUsedGB      float64          `json:"storage_used_gb"`
-	BandwidthUsedGB    float64          `json:"bandwidth_used_gb"`
-	QuotaLimitGB       float64          `json:"quota_limit_gb"`
-	QuotaUtilization   float64          `json:"quota_utilization"`
-	CostTrend          string           `json:"cost_trend"`
-	PoolCount          int              `json:"pool_count"`
-	PoolDistribution   []PoolUsage      `json:"pool_distribution"`
-	DailyTrend         []DailyUserCost  `json:"daily_trend"`
-	EfficiencyScore    float64          `json:"efficiency_score"`
-	Recommendation     string           `json:"recommendation,omitempty"`
+	UserID           string          `json:"user_id"`
+	UserName         string          `json:"user_name"`
+	TotalCost        float64         `json:"total_cost"`
+	StorageCost      float64         `json:"storage_cost"`
+	BandwidthCost    float64         `json:"bandwidth_cost"`
+	StorageUsedGB    float64         `json:"storage_used_gb"`
+	BandwidthUsedGB  float64         `json:"bandwidth_used_gb"`
+	QuotaLimitGB     float64         `json:"quota_limit_gb"`
+	QuotaUtilization float64         `json:"quota_utilization"`
+	CostTrend        string          `json:"cost_trend"`
+	PoolCount        int             `json:"pool_count"`
+	PoolDistribution []PoolUsage     `json:"pool_distribution"`
+	DailyTrend       []DailyUserCost `json:"daily_trend"`
+	EfficiencyScore  float64         `json:"efficiency_score"`
+	Recommendation   string          `json:"recommendation,omitempty"`
 }
 
 // PoolUsage 存储池使用情况
 type PoolUsage struct {
-	PoolID    string  `json:"pool_id"`
-	PoolName  string  `json:"pool_name"`
-	UsedGB    float64 `json:"used_gb"`
-	Cost      float64 `json:"cost"`
+	PoolID   string  `json:"pool_id"`
+	PoolName string  `json:"pool_name"`
+	UsedGB   float64 `json:"used_gb"`
+	Cost     float64 `json:"cost"`
 }
 
 // DailyUserCost 用户每日成本
@@ -504,12 +504,12 @@ func (e *CostAnalysisEngine) generateCostDistribution(start, end time.Time) Cost
 // detectAnomalies 检测异常
 func (e *CostAnalysisEngine) detectAnomalies(start, end time.Time) AnomalyDetection {
 	detection := AnomalyDetection{
-		HasAnomalies:   false,
-		AnomalyCount:   0,
-		Anomalies:      make([]CostAnomaly, 0),
+		HasAnomalies:    false,
+		AnomalyCount:    0,
+		Anomalies:       make([]CostAnomaly, 0),
 		DetectionMethod: "statistical",
-		BaselinePeriod: "30_days",
-		Threshold:      20.0, // 20% 偏差视为异常
+		BaselinePeriod:  "30_days",
+		Threshold:       20.0, // 20% 偏差视为异常
 		Statistics: AnomalyStatistics{
 			Mean:            100,
 			StdDev:          15,
@@ -551,7 +551,7 @@ func (e *CostAnalysisEngine) detectAnomalies(start, end time.Time) AnomalyDetect
 // generatePeriodComparison 生成周期对比
 func (e *CostAnalysisEngine) generatePeriodComparison(days int) PeriodComparison {
 	now := time.Now()
-	
+
 	comparison := PeriodComparison{
 		CurrentPeriod: PeriodCostDetail{
 			PeriodStart: now.AddDate(0, 0, -days),
@@ -840,7 +840,7 @@ func (e *CostAnalysisEngine) generateEnhancedRecommendations(report *EnhancedSto
 			Type:             "trend",
 			Priority:         "medium",
 			Title:            "成本上升趋势预警",
-			Description:       "近期成本呈上升趋势，建议关注",
+			Description:      "近期成本呈上升趋势，建议关注",
 			PotentialSavings: report.Summary.OptimizationPotential,
 			Impact:           "预算管理",
 			Action:           "评估是否需要调整预算或优化使用",
