@@ -211,6 +211,21 @@ func (a *NotifyAction) Execute(ctx context.Context, contextData map[string]inter
 	return nil
 }
 
+// sanitizeEmailHeader 安全清理邮件头部，防止 SMTP 注入攻击
+func sanitizeEmailHeader(s string) string {
+	// 移除换行符和其他危险字符
+	s = strings.ReplaceAll(s, "\r", "")
+	s = strings.ReplaceAll(s, "\n", "")
+	// 移除可能导致注入的控制字符
+	s = strings.Map(func(r rune) rune {
+		if r < 32 && r != '\t' {
+			return -1
+		}
+		return r
+	}, s)
+	return s
+}
+
 // sendEmailNotification 发送邮件通知
 func sendEmailNotification(to, subject, body string, html bool) error {
 	// 从环境变量获取 SMTP 配置
@@ -227,6 +242,11 @@ func sendEmailNotification(to, subject, body string, html bool) error {
 	if smtpPort == "" {
 		smtpPort = "587"
 	}
+
+	// 安全清理邮件头部，防止 SMTP 注入攻击
+	to = sanitizeEmailHeader(to)
+	subject = sanitizeEmailHeader(subject)
+	from = sanitizeEmailHeader(from)
 
 	// 构建邮件
 	msg := fmt.Sprintf("From: %s\nTo: %s\nSubject: %s\n", from, to, subject)
