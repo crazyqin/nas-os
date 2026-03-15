@@ -274,7 +274,9 @@ func parseRange(s string, min, max int, f *field) error {
 // Next 计算下次执行时间
 func (c *CronExpression) Next(t time.Time) time.Time {
 	// 转换到指定时区
-	t = t.In(c.location)
+	if c.location != nil {
+		t = t.In(c.location)
+	}
 
 	// 从下一秒开始
 	t = t.Add(time.Second).Truncate(time.Second)
@@ -292,7 +294,9 @@ func (c *CronExpression) Next(t time.Time) time.Time {
 
 // Prev 计算上次执行时间
 func (c *CronExpression) Prev(t time.Time) time.Time {
-	t = t.In(c.location)
+	if c.location != nil {
+		t = t.In(c.location)
+	}
 	t = t.Add(-time.Second).Truncate(time.Second)
 
 	for i := 0; i < 5*365*24*60*60; i++ {
