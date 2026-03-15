@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.48.0] - 2026-03-15
+
+### Added
+- **项目管理增强** (吏部)
+  - internal/project/manager.go - 项目管理器核心
+  - internal/project/types.go - 项目数据类型定义
+  - internal/project/manager_test.go - 项目管理测试
+  - 项目生命周期管理（创建/更新/删除/归档）
+  - 项目成员管理与权限控制
+  - 项目统计与进度追踪
+  - 项目模板支持
+
+### Improved
+- **文档体系完善** (礼部)
+  - 版本发布说明格式规范化
+  - README.md 版本信息更新
+  - 发布文档模板优化
+  - 文档索引更新
+
+### Changed
+- **版本同步** (礼部)
+  - 所有文档版本号同步至 v2.48.0
+  - 下载链接更新至最新版本
+  - Docker 镜像标签更新
+
+## [v2.48.0] - 2026-03-15
+
+### Added
+- **项目管理增强** (吏部)
+  - internal/project/manager.go - 项目管理器核心
+  - internal/project/types.go - 项目数据类型定义
+  - internal/project/manager_test.go - 项目管理测试
+  - 项目生命周期管理（创建/更新/删除/归档）
+  - 项目成员管理与权限控制
+  - 项目统计与进度追踪
+  - 项目模板支持
+
+### Improved
+- **版本同步** (吏部)
+  - 所有文档版本号同步至 v2.48.0
+  - 下载链接更新至最新版本
+
 ## [v2.47.0] - 2026-03-15
 
 ### Added
