@@ -51,12 +51,13 @@ func (im *IntegrityManager) SignEntry(entry *Entry, previousHash []byte) string 
 
 // buildSignData 构建签名数据
 func (im *IntegrityManager) buildSignData(entry *Entry, previousHash []byte) []byte {
-	data := fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s|%s",
+	data := fmt.Sprintf("%s|%s|%s|%s|%s|%s|%s|%s|%s",
 		entry.ID,
 		entry.Timestamp.Format(time.RFC3339Nano),
 		entry.Level,
 		entry.Category,
 		entry.Event,
+		entry.Message,
 		entry.UserID,
 		entry.Resource,
 		entry.Status,

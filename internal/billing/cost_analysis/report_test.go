@@ -429,12 +429,12 @@ func TestRecordTrendData(t *testing.T) {
 
 	// 记录趋势数据
 	trendData := CostTrend{
-		Date:           time.Now(),
-		StorageCost:    1000.0,
-		BandwidthCost:  500.0,
-		TotalCost:      1500.0,
-		StorageUsedGB:  100,
-		BandwidthGB:    50,
+		Date:          time.Now(),
+		StorageCost:   1000.0,
+		BandwidthCost: 500.0,
+		TotalCost:     1500.0,
+		StorageUsedGB: 100,
+		BandwidthGB:   50,
 	}
 	engine.RecordTrendData(trendData)
 
@@ -450,10 +450,10 @@ func TestCalculateCostChange(t *testing.T) {
 		current  float64
 		expected float64
 	}{
-		{100, 110, 10},    // 10% increase
-		{100, 90, -10},    // 10% decrease
-		{0, 100, 100},     // from zero
-		{100, 100, 0},     // no change
+		{100, 110, 10}, // 10% increase
+		{100, 90, -10}, // 10% decrease
+		{0, 100, 100},  // from zero
+		{100, 100, 0},  // no change
 	}
 
 	for _, tt := range tests {

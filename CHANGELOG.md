@@ -16,6 +16,28 @@ All notable changes to this project will be documented in this file.
   - API 文档版本同步
   - README 版本徽章更新
 
+## [v2.62.0] - 2026-03-15
+
+### Added
+- **文档体系完善** (礼部)
+  - API_GUIDE.md 版本更新至 v2.63.0
+  - FAQ 补充 6 个新问题 (仪表板/监控/API/成本/计费)
+  - 用户指南版本同步
+  - API 文档目录版本统一
+
+- **API 文档完善** (礼部)
+  - 所有 docs/api/ 文档添加版本号
+  - 审计 API、监控 API、仪表板 API 版本同步
+  - 健康检查 API、发票 API 版本同步
+
+### Changed
+- 文档版本号统一更新至 v2.63.0
+- Swagger 文档版本正确 (v2.63.0)
+
+### Improved
+- FAQ 内容扩充，涵盖更多使用场景
+- 文档导航结构优化
+
 ## [v2.61.0] - 2026-03-15
 
 ### Added

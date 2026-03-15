@@ -1,6 +1,6 @@
 # NAS-OS 常见问题 (FAQ)
 
-**版本**: v2.54.0  
+**版本**: v2.63.0  
 **更新日期**: 2026-03-15
 
 ---
@@ -716,6 +716,132 @@ sudo nasctl vm list
 
 ---
 
+## 仪表板与监控
+
+### Q31: 如何自定义监控仪表板？
+
+**A**: NAS-OS v2.52.0+ 支持自定义仪表板布局：
+
+```bash
+# 获取仪表板配置
+curl http://localhost:8080/api/v1/dashboard
+
+# 创建自定义仪表板
+curl -X POST http://localhost:8080/api/v1/dashboard \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "我的仪表板",
+    "layout": "grid",
+    "widgets": [
+      {"type": "cpu", "position": {"x": 0, "y": 0, "w": 4, "h": 2}},
+      {"type": "memory", "position": {"x": 4, "y": 0, "w": 4, "h": 2}},
+      {"type": "disk", "position": {"x": 0, "y": 2, "w": 8, "h": 3}}
+    ]
+  }'
+```
+
+### Q32: 如何配置告警规则？
+
+**A**: 使用告警规则引擎配置：
+
+```bash
+# 创建告警规则
+curl -X POST http://localhost:8080/api/v1/alerts/rules \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "磁盘空间告警",
+    "type": "disk_usage",
+    "condition": {"operator": ">", "value": 80},
+    "duration": "5m",
+    "actions": [
+      {"type": "email", "config": {"to": "admin@example.com"}},
+      {"type": "webhook", "config": {"url": "https://hooks.example.com/alert"}}
+    ]
+  }'
+```
+
+---
+
+## API 与集成
+
+### Q33: 如何使用 API 进行批量操作？
+
+**A**: 使用批量 API 端点：
+
+```bash
+# 批量创建用户
+curl -X POST http://localhost:8080/api/v1/users/batch \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "users": [
+      {"username": "user1", "password": "pass1", "role": "user"},
+      {"username": "user2", "password": "pass2", "role": "user"},
+      {"username": "user3", "password": "pass3", "role": "user"}
+    ]
+  }'
+
+# 批量创建共享
+curl -X POST http://localhost:8080/api/v1/shares/batch \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "shares": [
+      {"name": "share1", "path": "/data/share1", "type": "smb"},
+      {"name": "share2", "path": "/data/share2", "type": "smb"}
+    ]
+  }'
+```
+
+### Q34: 如何获取 API 文档？
+
+**A**: 访问 Swagger UI：
+
+- **Swagger UI**: `http://localhost:8080/swagger/`
+- **OpenAPI JSON**: `http://localhost:8080/swagger/doc.json`
+- **OpenAPI YAML**: `http://localhost:8080/swagger/doc.yaml`
+
+---
+
+## 成本与计费
+
+### Q35: 如何查看存储成本分析？
+
+**A**: 使用成本分析 API (v2.36.0+)：
+
+```bash
+# 获取成本分析报告
+curl http://localhost:8080/api/v1/billing/cost-analysis \
+  -H "Authorization: Bearer TOKEN"
+
+# 获取用量统计
+curl "http://localhost:8080/api/v1/billing/usage?period=current" \
+  -H "Authorization: Bearer TOKEN"
+```
+
+### Q36: 如何设置预算警报？
+
+**A**: 配置预算警报：
+
+```bash
+# 创建预算警报
+curl -X POST http://localhost:8080/api/v1/budget/alerts \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "月度预算",
+    "limit": 100.00,
+    "thresholds": [50, 75, 90, 100],
+    "notifications": [
+      {"type": "email", "config": {"to": "admin@example.com"}}
+    ]
+  }'
+```
+
+---
+
 ## 📞 获取更多帮助
 
 - **完整文档**: [docs/](.) 目录
@@ -726,4 +852,4 @@ sudo nasctl vm list
 
 ---
 
-*最后更新：2026-03-15 | 版本：v2.54.0*
+*最后更新：2026-03-15 | 版本：v2.63.0*
