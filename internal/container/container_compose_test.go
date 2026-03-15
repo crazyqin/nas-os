@@ -95,8 +95,8 @@ func TestCreateComposeFile_MultipleServices(t *testing.T) {
 				Ports: []string{"80:80"},
 			},
 			{
-				Name:  "db",
-				Image: "postgres:15",
+				Name:    "db",
+				Image:   "postgres:15",
 				Volumes: []string{"db-data:/var/lib/postgresql/data"},
 				Environment: map[string]string{
 					"POSTGRES_PASSWORD": "secret",
@@ -136,11 +136,11 @@ func TestCreateComposeFile_WithEnvironment(t *testing.T) {
 				Name:  "app",
 				Image: "myapp:latest",
 				Environment: map[string]string{
-					"DB_HOST":     "db",
-					"DB_PORT":     "5432",
-					"APP_ENV":     "production",
-					"DEBUG":       "false",
-					"LOG_LEVEL":   "info",
+					"DB_HOST":   "db",
+					"DB_PORT":   "5432",
+					"APP_ENV":   "production",
+					"DEBUG":     "false",
+					"LOG_LEVEL": "info",
 				},
 			},
 		},
@@ -246,7 +246,7 @@ func TestCreateComposeFile_WithNetworks(t *testing.T) {
 				"driver": "bridge",
 			},
 			"backend": map[string]interface{}{
-				"driver": "bridge",
+				"driver":   "bridge",
 				"internal": true,
 			},
 		},
@@ -266,7 +266,7 @@ func TestCreateComposeFile_WithNetworks(t *testing.T) {
 
 func TestParseService_Basic(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image":   "nginx:latest",
 		"command": "nginx -g 'daemon off;'",
@@ -282,7 +282,7 @@ func TestParseService_Basic(t *testing.T) {
 
 func TestParseService_WithPorts(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image": "nginx:latest",
 		"ports": []interface{}{"8080:80", "443:443"},
@@ -296,7 +296,7 @@ func TestParseService_WithPorts(t *testing.T) {
 
 func TestParseService_WithVolumes(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image": "postgres:15",
 		"volumes": []interface{}{
@@ -312,7 +312,7 @@ func TestParseService_WithVolumes(t *testing.T) {
 
 func TestParseService_WithEnvironment(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image": "postgres:15",
 		"environment": map[string]interface{}{
@@ -329,7 +329,7 @@ func TestParseService_WithEnvironment(t *testing.T) {
 
 func TestParseService_WithEnvironmentArray(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image": "myapp:latest",
 		"environment": []interface{}{
@@ -346,7 +346,7 @@ func TestParseService_WithEnvironmentArray(t *testing.T) {
 
 func TestParseService_WithLabels(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image": "nginx:latest",
 		"labels": map[string]interface{}{
@@ -363,7 +363,7 @@ func TestParseService_WithLabels(t *testing.T) {
 
 func TestParseService_WithLabelsArray(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image": "nginx:latest",
 		"labels": []interface{}{
@@ -379,7 +379,7 @@ func TestParseService_WithLabelsArray(t *testing.T) {
 
 func TestParseService_WithDependsOn(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image":      "myapp:latest",
 		"depends_on": []interface{}{"db", "redis"},
@@ -393,7 +393,7 @@ func TestParseService_WithDependsOn(t *testing.T) {
 
 func TestParseService_WithHealthCheck(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image": "nginx:latest",
 		"healthcheck": map[string]interface{}{
@@ -415,7 +415,7 @@ func TestParseService_WithHealthCheck(t *testing.T) {
 
 func TestParseService_WithDeployResources(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image": "myapp:latest",
 		"deploy": map[string]interface{}{
@@ -436,7 +436,7 @@ func TestParseService_WithDeployResources(t *testing.T) {
 
 func TestParseService_WithNetworks(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image":    "nginx:latest",
 		"networks": []interface{}{"frontend", "backend"},
@@ -449,7 +449,7 @@ func TestParseService_WithNetworks(t *testing.T) {
 
 func TestParseService_WithEnvFile(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image":    "myapp:latest",
 		"env_file": []interface{}{".env", ".env.local"},
@@ -462,7 +462,7 @@ func TestParseService_WithEnvFile(t *testing.T) {
 
 func TestParseService_WithContainerName(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := map[string]interface{}{
 		"image":          "nginx:latest",
 		"container_name": "my-nginx",
@@ -475,7 +475,7 @@ func TestParseService_WithContainerName(t *testing.T) {
 
 func TestParseService_InvalidData(t *testing.T) {
 	cm := &ComposeManager{}
-	
+
 	serviceData := "invalid data"
 
 	service, err := cm.parseService("web", serviceData)
