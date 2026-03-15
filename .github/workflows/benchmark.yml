@@ -22,6 +22,7 @@ on:
 
 env:
   GO_VERSION: '1.26'
+  CACHE_VERSION: 'v9'
 
 jobs:
   benchmark:
