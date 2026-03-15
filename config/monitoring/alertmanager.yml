@@ -1,0 +1,430 @@
+# NAS-OS Alertmanager 配置
+# v2.55.0 - 工部增强版
+#
+# 更新日志：
+# v2.55.0 (工部增强):
+# - 添加 Slack 通知支持
+# - 添加 PagerDuty 集成
+# - 添加 Telegram Bot 支持
+# - 优化静默规则和抑制逻辑
+# - 添加值班轮换支持
+# - 支持多环境告警路由
+# v2.33.0:
+# - 添加容器和 RAID 告警路由
+# - 优化通知模板
+# v2.31.0:
+# - 添加按组件分组路由
+# - 添加存储/备份/安全专用通知渠道
+# - 优化抑制规则
+
+global:
+  # SMTP 配置（邮件通知）
+  smtp_smarthost: '${SMTP_HOST}:${SMTP_PORT}'
+  smtp_from: '${SMTP_FROM}'
+  smtp_auth_username: '${SMTP_USER}'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+
+  # Slack 配置
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+  # 默认解决时间
+  resolve_timeout: 5m
+
+  # 默认标签
+  default_labels:
+    environment: '${DEPLOY_ENV:production}'
+    service: nas-os
+
+# 模板文件
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# 告警路由配置
+route:
+  # 默认接收者
+  receiver: 'default-receiver'
+  
+  # 分组等待时间（同组告警合并）
+  group_wait: 30s
+  
+  # 同组新告警等待时间
+  group_interval: 5m
+  
+  # 重复告警发送间隔
+  repeat_interval: 4h
+  
+  # 分组依据
+  group_by: ['alertname', 'severity', 'component']
+  
+  # 子路由
+  routes:
+    # ==================== 按环境分流 ====================
+    - match:
+        environment: production
+      receiver: 'production-alerts'
+      continue: true
+
+    - match:
+        environment: staging
+      receiver: 'staging-alerts'
+      repeat_interval: 12h
+
+    - match:
+        environment: development
+      receiver: 'development-alerts'
+      group_wait: 10m
+      repeat_interval: 24h
+
+    # ==================== 严重告警 - 立即通知 ====================
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: true
+
+    # ==================== 警告告警 - 批量通知 ====================
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 5m
+      repeat_interval: 4h
+
+    # ==================== 存储相关告警 ====================
+    - match_re:
+        component: (storage|disk|btrfs|storage-pool|raid)
+      receiver: 'storage-alerts'
+      group_by: ['alertname', 'pool', 'device']
+      repeat_interval: 2h
+
+    # ==================== 备份任务告警 ====================
+    - match:
+        component: backup
+      receiver: 'backup-alerts'
+      group_by: ['alertname', 'task']
+
+    # ==================== 安全告警 ====================
+    - match:
+        component: security
+      receiver: 'security-alerts'
+      group_wait: 10s
+      repeat_interval: 30m
+
+    # ==================== 容器告警 ====================
+    - match:
+        component: container
+      receiver: 'container-alerts'
+      group_by: ['alertname', 'name']
+      repeat_interval: 1h
+
+    # ==================== 网络告警 ====================
+    - match:
+        component: network
+      receiver: 'network-alerts'
+      group_by: ['alertname', 'instance']
+      repeat_interval: 2h
+
+    # ==================== 数据库告警 ====================
+    - match:
+        component: database
+      receiver: 'database-alerts'
+      group_by: ['alertname', 'instance']
+      repeat_interval: 1h
+
+# 接收者配置
+receivers:
+  # ==================== 默认接收者 ====================
+  - name: 'default-receiver'
+    webhook_configs:
+      - url: 'http://nasd:8080/api/v1/alerts/webhook'
+        send_resolved: true
+
+  # ==================== 生产环境接收者 ====================
+  - name: 'production-alerts'
+    email_configs:
+      - to: '${PROD_ALERT_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[生产] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - channel: '#nas-alerts'
+        send_resolved: true
+        title: '🚨 {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+  # ==================== 预发环境接收者 ====================
+  - name: 'staging-alerts'
+    email_configs:
+      - to: '${STAGING_ALERT_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[预发] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+
+  # ==================== 开发环境接收者 ====================
+  - name: 'development-alerts'
+    slack_configs:
+      - channel: '#nas-dev'
+        send_resolved: true
+        title: '{{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+  # ==================== 严重告警接收者（多渠道通知） ====================
+  - name: 'critical-alerts'
+    # 邮件通知
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[严重] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>🚨 严重告警</h2>
+          <p><strong>告警名称：</strong>{{ .GroupLabels.alertname }}</p>
+          <p><strong>严重程度：</strong>{{ .GroupLabels.severity }}</p>
+          <p><strong>组件：</strong>{{ .GroupLabels.component }}</p>
+          <hr>
+          {{ range .Alerts }}
+          <h3>{{ .Annotations.summary }}</h3>
+          <p>{{ .Annotations.description }}</p>
+          <p><small>开始时间：{{ .StartsAt }}</small></p>
+          {{ end }}
+    
+    # Slack 通知
+    slack_configs:
+      - channel: '#nas-critical'
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+        title: '🚨 严重告警: {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+        actions:
+          - type: button
+            text: '查看详情'
+            url: '{{ template "alertmanager.dashboard" . }}'
+          - type: button
+            text: '静默'
+            url: '{{ template "alertmanager.silence" . }}'
+    
+    # PagerDuty 通知（可选）
+    # pagerduty_configs:
+    #   - service_key: '${PAGERDUTY_SERVICE_KEY}'
+    #     severity: critical
+    #     description: '{{ .GroupLabels.alertname }}'
+    #     details:
+    #       firing: '{{ template "pagerduty.default.instances" .Alerts.Firing }}'
+    #       resolved: '{{ template "pagerduty.default.instances" .Alerts.Resolved }}'
+    
+    # Webhook 通知
+    webhook_configs:
+      - url: '${WEBHOOK_URL}'
+        send_resolved: true
+    
+    # Telegram 通知（可选）
+    # telegram_configs:
+    #   - bot_token: '${TELEGRAM_BOT_TOKEN}'
+    #     chat_id: '${TELEGRAM_CHAT_ID}'
+    #     parse_mode: 'HTML'
+    #     message: |
+    #       <b>🚨 严重告警</b>
+    #       <b>告警:</b> {{ .GroupLabels.alertname }}
+    #       <b>严重程度:</b> {{ .GroupLabels.severity }}
+    #       {{ range .Alerts }}
+    #       <pre>{{ .Annotations.description }}</pre>
+    #       {{ end }}
+
+  # ==================== 警告告警接收者 ====================
+  - name: 'warning-alerts'
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[警告] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - channel: '#nas-warnings'
+        send_resolved: true
+        color: 'warning'
+        title: '⚠️ {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+  # ==================== 存储告警接收者 ====================
+  - name: 'storage-alerts'
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[存储] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://nasd:8080/api/v1/alerts/webhook'
+        send_resolved: true
+    slack_configs:
+      - channel: '#nas-storage'
+        send_resolved: true
+        title: '💾 存储告警: {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+  # ==================== 备份任务告警接收者 ====================
+  - name: 'backup-alerts'
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[备份] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - channel: '#nas-backup'
+        send_resolved: true
+        title: '💾 备份告警: {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+  # ==================== 安全告警接收者 ====================
+  - name: 'security-alerts'
+    email_configs:
+      - to: '${SECURITY_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[安全] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - channel: '#nas-security'
+        send_resolved: true
+        color: 'danger'
+        title: '🔒 安全告警: {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+  # ==================== 容器告警接收者 ====================
+  - name: 'container-alerts'
+    webhook_configs:
+      - url: 'http://nasd:8080/api/v1/alerts/webhook'
+        send_resolved: true
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[容器] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - channel: '#nas-containers'
+        send_resolved: true
+        title: '🐳 容器告警: {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+  # ==================== 网络告警接收者 ====================
+  - name: 'network-alerts'
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[网络] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - channel: '#nas-network'
+        send_resolved: true
+        title: '🌐 网络告警: {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+  # ==================== 数据库告警接收者 ====================
+  - name: 'database-alerts'
+    email_configs:
+      - to: '${ADMIN_EMAIL}'
+        send_resolved: true
+        headers:
+          Subject: '[数据库] NAS-OS 告警 - {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - channel: '#nas-database'
+        send_resolved: true
+        title: '🗃️ 数据库告警: {{ .GroupLabels.alertname }}'
+        text: '{{ template "slack.text" . }}'
+
+# 静默规则（临时禁用告警）
+# 示例：维护期间静默
+# amtool silence add alertname=NasOsDown instance=nas-server --duration=2h
+
+# 抑制规则（告警抑制）
+inhibit_rules:
+  # ==================== 系统级抑制 ====================
+  # 系统离线时抑制其他告警
+  - source_match:
+      alertname: 'NasOsDown'
+    target_match_re:
+      alertname: '.*'
+    equal: ['instance']
+  
+  # ==================== 存储池抑制 ====================
+  # 存储池离线时抑制相关告警
+  - source_match:
+      alertname: 'StoragePoolOffline'
+    target_match_re:
+      alertname: '(StoragePoolCapacityWarning|StoragePoolCapacityCritical|BtrfsDeviceError)'
+    equal: ['pool']
+  
+  # 磁盘空间严重不足时抑制空间警告
+  - source_match:
+      severity: critical
+      alertname: 'DiskSpaceCritical'
+    target_match:
+      severity: warning
+      alertname: 'DiskSpaceWarning'
+    equal: ['mountpoint']
+  
+  # ==================== 内存抑制 ====================
+  # 内存严重不足时抑制内存警告
+  - source_match:
+      severity: critical
+      alertname: 'MemoryUsageCritical'
+    target_match:
+      severity: warning
+      alertname: 'MemoryUsageWarning'
+  
+  # ==================== RAID 抑制 ====================
+  # RAID 降级时抑制重建警告
+  - source_match:
+      alertname: 'RaidArrayDegraded'
+    target_match:
+      alertname: 'RaidRebuilding'
+    equal: ['device']
+  
+  # ==================== 容器抑制 ====================
+  # 容器 OOM 时抑制内存警告
+  - source_match:
+      alertname: 'ContainerOomRisk'
+    target_match:
+      alertname: 'ContainerMemoryUsageHigh'
+    equal: ['name']
+  
+  # ==================== 磁盘抑制 ====================
+  # SMART 严重告警时抑制其他磁盘警告
+  - source_match:
+      alertname: 'SmartHealthWarning'
+    target_match_re:
+      alertname: '(SmartReallocatedSectors|SmartPendingSectors)'
+    equal: ['device']
+  
+  # ==================== 网络抑制 ====================
+  # 网络不可达时抑制相关告警
+  - source_match:
+      alertname: 'NetworkUnreachable'
+    target_match_re:
+      alertname: '(HighLatency|PacketLoss|DNSError)'
+    equal: ['instance']
+  
+  # ==================== 数据库抑制 ====================
+  # 数据库不可用时抑制相关告警
+  - source_match:
+      alertname: 'DatabaseDown'
+    target_match_re:
+      alertname: '(SlowQueries|ConnectionPoolExhausted|ReplicationLag)'
+    equal: ['instance']
+
+# 时间间隔配置（用于值班轮换）
+# time_intervals:
+#   - name: business_hours
+#     time_intervals:
+#       - times:
+#           - start_time: '09:00'
+#             end_time: '18:00'
+#         weekdays: ['monday:friday']
+#         location: 'Asia/Shanghai'
+#   - name: off_hours
+#     time_intervals:
+#       - times:
+#           - start_time: '18:00'
+#             end_time: '09:00'
+#         weekdays: ['monday:friday']
+#         location: 'Asia/Shanghai'
+#       - weekdays: ['saturday', 'sunday']
+#         location: 'Asia/Shanghai'

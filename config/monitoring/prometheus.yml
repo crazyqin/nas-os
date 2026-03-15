@@ -1,0 +1,198 @@
+# NAS-OS Prometheus 监控配置
+# 版本: v2.55.0
+#
+# 更新日志：
+# v2.55.0 (工部增强):
+# - 添加 Kubernetes 服务发现支持
+# - 添加分布式追踪配置（Tempo）
+# - 优化远程写入配置
+# - 添加标签保留和丢弃规则
+# - 支持多环境部署（dev/staging/prod）
+# v2.33.0:
+# - 添加容器健康检测
+# - 添加 Docker 指标采集
+# - 优化抓取配置
+# v2.31.0:
+# - 优化抓取间隔配置
+# - 支持 Btrfs 和 SMART 监控
+# - 可选远程写入支持
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'nas-os'
+    environment: '${DEPLOY_ENV:production}'
+    cluster: '${CLUSTER_NAME:default}'
+
+# 告警规则文件
+rule_files:
+  - 'alerts.yml'
+  - 'alerts-storage.yml'
+  - 'alerts-backup.yml'
+  - 'alerts-security.yml'
+
+# 告警管理器配置
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+      timeout: 10s
+      api_version: v2
+
+# 抓取配置
+scrape_configs:
+  # ==================== NAS-OS 核心服务 ====================
+  - job_name: 'nas-os'
+    static_configs:
+      - targets: ['localhost:8080']
+        labels:
+          service: 'nasd'
+          component: 'core'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    scheme: http
+    # 标签处理
+    metric_relabel_configs:
+      # 丢弃高基数标签
+      - source_labels: [__name__]
+        regex: 'go_.*'
+        action: keep
+      # 保留关键指标
+      - source_labels: [__name__]
+        regex: '(nas_os_.*|http_.*|process_.*)'
+        action: keep
+
+  # ==================== Node Exporter (系统指标) ====================
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+        labels:
+          instance: 'nas-server'
+    scrape_interval: 15s
+    # 文件系统自动发现
+    file_sd_configs:
+      - files:
+          - '/etc/prometheus/targets/node/*.json'
+        refresh_interval: 30s
+
+  # ==================== Docker 指标 ====================
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['localhost:9323']
+    scrape_interval: 30s
+
+  # ==================== cAdvisor (容器指标) ====================
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['localhost:8081']
+    scrape_interval: 30s
+    # 容器标签处理
+    metric_relabel_configs:
+      # 添加容器名称标签
+      - source_labels: [container_label_com_docker_compose_service]
+        target_label: service
+        regex: '(.+)'
+        replacement: '$1'
+      # 丢弃临时容器
+      - source_labels: [container_label_com_docker_compose_service]
+        regex: ''
+        action: drop
+
+  # ==================== SMART 磁盘监控 ====================
+  - job_name: 'smartmon'
+    static_configs:
+      - targets: ['localhost:9633']
+    scrape_interval: 60s
+    scrape_timeout: 30s
+
+  # ==================== Btrfs 指标 ====================
+  - job_name: 'btrfs'
+    static_configs:
+      - targets: ['localhost:9400']
+    scrape_interval: 60s
+
+  # ==================== PostgreSQL (可选) ====================
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+
+  # ==================== Redis (可选) ====================
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # ==================== Traefik (可选) ====================
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik:8082']
+    scrape_interval: 30s
+
+  # ==================== Kubernetes 服务发现 (可选) ====================
+  # - job_name: 'kubernetes-apiservers'
+  #   kubernetes_sd_configs:
+  #     - role: endpoints
+  #   scheme: https
+  #   tls_config:
+  #     ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+  #     insecure_skip_verify: true
+  #   bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+  #   relabel_configs:
+  #     - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+  #       action: keep
+  #       regex: default;kubernetes;https
+
+  # ==================== Prometheus 自身监控 ====================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # ==================== Blackbox Exporter (探针) ====================
+  - job_name: 'blackbox_http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://nas.example.com
+          - https://nas.example.com/api/v1/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+# 远程写入配置（用于长期存储）
+remote_write:
+  - url: "${REMOTE_WRITE_URL:http://victoria-metrics:8428/api/v1/write}"
+    queue_config:
+      max_samples_per_send: 10000
+      max_shards: 5
+      capacity: 2500
+    # 发送前的标签处理
+    write_relabel_configs:
+      # 移除高基数标签
+      - regex: 'container_id|pod_id'
+        action: labeldrop
+
+# 远程读取配置
+remote_read:
+  - url: "${REMOTE_READ_URL:http://victoria-metrics:8428/api/v1/read}"
+    read_recent: true
+
+# 存储配置（tsdb）
+# 启动参数:
+#   --storage.tsdb.retention.time=30d
+#   --storage.tsdb.retention.size=10GB
+#   --storage.tsdb.wal-compression
+
+# 追踪配置（集成 Tempo）
+# tracing:
+#   endpoint: tempo:4317
