@@ -4,14 +4,11 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
-# v2.76.0 更新（工部增强）：
-# - 添加矩阵构建缓存分离（按平台独立缓存）
-# - 添加构建产物压缩和归档优化
-# - 添加测试覆盖率趋势追踪
-# - 添加性能基准测试（可选）
-# - 添加安全扫描结果聚合
-# - 添加构建失败自动诊断
-# - 优化并发控制策略
+# v2.86.0 更新（工部优化）：
+# - 更新缓存版本至 v9
+# - 提高覆盖率阈值（25% → 30%）
+# - 优化构建矩阵缓存分离
+# - 添加构建时间统计
 #
 # v2.55.0 更新（工部增强）：
 # - 添加覆盖率趋势追踪和徽章生成
@@ -77,7 +74,7 @@ permissions:
 env:
   GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v8'
+  CACHE_VERSION: 'v9'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # 测试环境目录
@@ -86,8 +83,8 @@ env:
   # 构建开始时间（用于计算总耗时）
   BUILD_START_TIME: ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
   # 覆盖率阈值
-  COVERAGE_THRESHOLD: 25
-  COVERAGE_WARN_THRESHOLD: 40
+  COVERAGE_THRESHOLD: 30
+  COVERAGE_WARN_THRESHOLD: 50
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:
