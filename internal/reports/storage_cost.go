@@ -271,7 +271,7 @@ func (c *StorageCostCalculator) GenerateReport(metrics []StorageMetrics, period 
 	report.TotalCost = round(totalCost, 2)
 
 	// 计算汇总
-	report.Summary = CostReportSummary{
+	report.Summary = StorageCostReportSummary{
 		TotalCostMonthly: round(totalCost, 2),
 		TotalCapacityGB:  round(totalCapacity, 2),
 		TotalUsedGB:      round(totalUsed, 2),
@@ -399,8 +399,8 @@ type StorageCostResult struct {
 	CalculatedAt            time.Time `json:"calculated_at"`
 }
 
-// CostReportSummary 成本报告摘要
-type CostReportSummary struct {
+// StorageCostReportSummary 存储成本报告摘要
+type StorageCostReportSummary struct {
 	TotalCostMonthly float64 `json:"total_cost_monthly"`
 	TotalCapacityGB  float64 `json:"total_capacity_gb"`
 	TotalUsedGB      float64 `json:"total_used_gb"`
@@ -412,14 +412,14 @@ type CostReportSummary struct {
 
 // StorageCostReport 存储成本报告
 type StorageCostReport struct {
-	ID              string              `json:"id"`
-	Name            string              `json:"name"`
-	GeneratedAt     time.Time           `json:"generated_at"`
-	Period          ReportPeriod        `json:"period"`
-	TotalCost       float64             `json:"total_cost"`
-	VolumeCosts     []StorageCostResult `json:"volume_costs"`
-	Summary         CostReportSummary   `json:"summary"`
-	Recommendations []string            `json:"recommendations"`
+	ID              string                    `json:"id"`
+	Name            string                    `json:"name"`
+	GeneratedAt     time.Time                 `json:"generated_at"`
+	Period          ReportPeriod              `json:"period"`
+	TotalCost       float64                   `json:"total_cost"`
+	VolumeCosts     []StorageCostResult       `json:"volume_costs"`
+	Summary         StorageCostReportSummary  `json:"summary"`
+	Recommendations []string                  `json:"recommendations"`
 }
 
 // ========== 存储空间利用率分析 v2.45.0 ==========
