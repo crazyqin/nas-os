@@ -48,6 +48,10 @@ func (h *StorageHandlers) RegisterRoutes(rg *gin.RouterGroup) {
 // @Success 200 {object} StorageResponse "成功"
 // @Router /api/storage/volumes [get]
 func (h *StorageHandlers) ListVolumes(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusOK, []VolumeResponse{})
+		return
+	}
 	volumes := h.storageMgr.ListVolumes()
 
 	// 转换为 API 响应格式
@@ -102,6 +106,13 @@ type CreateVolumeRequest struct {
 // @Failure 500 {object} StorageResponse "服务器内部错误"
 // @Router /api/storage/volumes [post]
 func (h *StorageHandlers) CreateVolume(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusInternalServerError, StorageResponse{
+			Code:    500,
+			Message: "storage manager not initialized",
+		})
+		return
+	}
 	var req CreateVolumeRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, StorageResponse{
@@ -167,6 +178,10 @@ type PoolResponse struct {
 // @Success 200 {object} StorageResponse "成功"
 // @Router /api/storage/pools [get]
 func (h *StorageHandlers) ListPools(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusOK, []PoolResponse{})
+		return
+	}
 	volumes := h.storageMgr.ListVolumes()
 
 	// 将卷转换为存储池格式
@@ -218,6 +233,14 @@ type SnapshotResponse struct {
 // @Success 200 {object} StorageResponse "成功"
 // @Router /api/storage/snapshots [get]
 func (h *StorageHandlers) ListAllSnapshots(c *gin.Context) {
+	if h.storageMgr == nil {
+		c.JSON(http.StatusOK, StorageResponse{
+			Code:    0,
+			Message: "success",
+			Data:    []SnapshotResponse{},
+		})
+		return
+	}
 	volumeFilter := c.Query("volume")
 
 	volumes := h.storageMgr.ListVolumes()
