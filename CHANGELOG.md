@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.93.0] - 2026-03-16
+
+### Changed
+- **版本号更新** (吏部)
+  - 版本号更新至 v2.93.0
+  - README.md 版本信息同步
+
+### Fixed
+- **测试代码修复** (司礼监)
+  - 修复 app_version_test.go 签名不匹配问题
+  - 更新测试辅助函数适配新 API
+
 ## [v2.92.0] - 2026-03-16
 
 ### Changed
