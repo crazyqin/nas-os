@@ -132,21 +132,21 @@ func DefaultScanOptions() ScanOptions {
 	}
 }
 
-// ScanReport 扫描报告
-type ScanReport struct {
-	ReportID        string         `json:"report_id"`
-	TaskID          string         `json:"task_id"`
-	GeneratedAt     time.Time      `json:"generated_at"`
-	ScanDuration    int64          `json:"scan_duration"` // 秒
-	Summary         ScanSummary    `json:"summary"`
-	Findings        []*FileFinding `json:"findings"`
-	Recommendations []string       `json:"recommendations"`
-	RiskScore       int            `json:"risk_score"`
-	RiskLevel       string         `json:"risk_level"`
+// FileScanReport 文件扫描报告
+type FileScanReport struct {
+	ReportID        string            `json:"report_id"`
+	TaskID          string            `json:"task_id"`
+	GeneratedAt     time.Time         `json:"generated_at"`
+	ScanDuration    int64             `json:"scan_duration"` // 秒
+	Summary         FileScanSummary   `json:"summary"`
+	Findings        []*FileFinding    `json:"findings"`
+	Recommendations []string          `json:"recommendations"`
+	RiskScore       int               `json:"risk_score"`
+	RiskLevel       string            `json:"risk_level"`
 }
 
-// ScanSummary 扫描摘要
-type ScanSummary struct {
+// FileScanSummary 文件扫描摘要
+type FileScanSummary struct {
 	TotalFiles     int            `json:"total_files"`
 	ScannedFiles   int            `json:"scanned_files"`
 	SkippedFiles   int            `json:"skipped_files"`

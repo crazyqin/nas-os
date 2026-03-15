@@ -681,12 +681,12 @@ func (s *FilesystemScanner) calculateFileHash(path string, algorithm string) (st
 }
 
 // generateReport 生成报告
-func (s *FilesystemScanner) generateReport(task *ScanTask) *ScanReport {
+func (s *FilesystemScanner) generateReport(task *ScanTask) *FileScanReport {
 	s.mu.RLock()
 	findings := s.findings[task.ID]
 	s.mu.RUnlock()
 
-	report := &ScanReport{
+	report := &FileScanReport{
 		ReportID:        fmt.Sprintf("RPT-%s", task.ID),
 		TaskID:          task.ID,
 		GeneratedAt:     time.Now(),
@@ -695,7 +695,7 @@ func (s *FilesystemScanner) generateReport(task *ScanTask) *ScanReport {
 	}
 
 	// 计算摘要
-	report.Summary = ScanSummary{
+	report.Summary = FileScanSummary{
 		TotalFiles:     task.FilesTotal,
 		ScannedFiles:   task.FilesScanned,
 		TotalFindings:  len(findings),
@@ -734,7 +734,7 @@ func (s *FilesystemScanner) generateReport(task *ScanTask) *ScanReport {
 }
 
 // calculateRiskScore 计算风险分数
-func (s *FilesystemScanner) calculateRiskScore(summary *ScanSummary) int {
+func (s *FilesystemScanner) calculateRiskScore(summary *FileScanSummary) int {
 	score := 100
 
 	// 根据发现的问题扣分
@@ -751,7 +751,7 @@ func (s *FilesystemScanner) calculateRiskScore(summary *ScanSummary) int {
 }
 
 // generateRecommendations 生成建议
-func (s *FilesystemScanner) generateRecommendations(summary *ScanSummary, findings []*FileFinding) []string {
+func (s *FilesystemScanner) generateRecommendations(summary *FileScanSummary, findings []*FileFinding) []string {
 	recommendations := make([]string, 0)
 
 	if summary.CriticalCount > 0 {
@@ -781,7 +781,7 @@ func (s *FilesystemScanner) GetFindings(taskID string) []*FileFinding {
 }
 
 // GetReport 获取扫描报告
-func (s *FilesystemScanner) GetReport(taskID string) *ScanReport {
+func (s *FilesystemScanner) GetReport(taskID string) *FileScanReport {
 	task := s.GetScanTask(taskID)
 	if task == nil {
 		return nil
