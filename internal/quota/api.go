@@ -56,13 +56,13 @@ func (a *API) RegisterRoutes(r *gin.RouterGroup) {
 
 // SetQuotaRequest 设置配额请求
 type SetQuotaRequest struct {
-	Type       QuotaType `json:"type" binding:"required"`       // user/group/directory
-	TargetID   string    `json:"targetId" binding:"required"`   // 用户名/组名/路径
-	VolumeName string    `json:"volumeName"`                    // 卷名
-	Path       string    `json:"path"`                          // 目录路径（目录配额必填）
-	HardLimit  uint64    `json:"hardLimit" binding:"required"`  // 硬限制（字节）
-	SoftLimit  uint64    `json:"softLimit"`                     // 软限制（字节）
-	GracePeriod int       `json:"gracePeriod"`                   // 宽限期（小时）
+	Type        QuotaType `json:"type" binding:"required"`      // user/group/directory
+	TargetID    string    `json:"targetId" binding:"required"`  // 用户名/组名/路径
+	VolumeName  string    `json:"volumeName"`                   // 卷名
+	Path        string    `json:"path"`                         // 目录路径（目录配额必填）
+	HardLimit   uint64    `json:"hardLimit" binding:"required"` // 硬限制（字节）
+	SoftLimit   uint64    `json:"softLimit"`                    // 软限制（字节）
+	GracePeriod int       `json:"gracePeriod"`                  // 宽限期（小时）
 }
 
 // SetQuota 设置配额
@@ -136,10 +136,10 @@ type BatchSetQuotaRequest struct {
 
 // BatchSetQuotaResponse 批量设置配额响应
 type BatchSetQuotaResponse struct {
-	Success  int      `json:"success"`
-	Failed   int      `json:"failed"`
-	Quotas   []Quota  `json:"quotas"`
-	Errors   []string `json:"errors,omitempty"`
+	Success int      `json:"success"`
+	Failed  int      `json:"failed"`
+	Quotas  []Quota  `json:"quotas"`
+	Errors  []string `json:"errors,omitempty"`
 }
 
 // BatchSetQuota 批量设置配额
@@ -226,9 +226,9 @@ type ListQuotasRequest struct {
 
 // ListQuotasResponse 列出配额响应
 type ListQuotasResponse struct {
-	Total   int     `json:"total"`
-	Page    int     `json:"page"`
-	Quotas  []Quota `json:"quotas"`
+	Total  int     `json:"total"`
+	Page   int     `json:"page"`
+	Quotas []Quota `json:"quotas"`
 }
 
 // ListQuotas 列出配额
@@ -377,9 +377,9 @@ func (a *API) GetAllUsage(c *gin.Context) {
 
 // AdjustQuotaRequest 调整配额请求
 type AdjustQuotaRequest struct {
-	HardLimitDelta int64 `json:"hardLimitDelta"` // 硬限制增量（可正可负）
-	SoftLimitDelta int64 `json:"softLimitDelta"` // 软限制增量（可正可负）
-	Reason         string `json:"reason"`        // 调整原因
+	HardLimitDelta int64  `json:"hardLimitDelta"` // 硬限制增量（可正可负）
+	SoftLimitDelta int64  `json:"softLimitDelta"` // 软限制增量（可正可负）
+	Reason         string `json:"reason"`         // 调整原因
 }
 
 // AdjustQuota 调整配额
@@ -536,9 +536,9 @@ func (a *API) DeleteQuota(c *gin.Context) {
 
 // SetLimitsRequest 设置限制请求
 type SetLimitsRequest struct {
-	HardLimit   uint64 `json:"hardLimit" binding:"required"`  // 硬限制
-	SoftLimit   uint64 `json:"softLimit"`                     // 软限制
-	GracePeriod int    `json:"gracePeriod"`                   // 宽限期（小时）
+	HardLimit   uint64 `json:"hardLimit" binding:"required"` // 硬限制
+	SoftLimit   uint64 `json:"softLimit"`                    // 软限制
+	GracePeriod int    `json:"gracePeriod"`                  // 宽限期（小时）
 }
 
 // SetLimits 设置配额限制
@@ -611,13 +611,13 @@ func (a *API) SetLimits(c *gin.Context) {
 
 // LimitsResponse 限制响应
 type LimitsResponse struct {
-	QuotaID       string    `json:"quotaId"`
-	HardLimit     uint64    `json:"hardLimit"`     // 硬限制（字节）
-	SoftLimit     uint64    `json:"softLimit"`     // 软限制（字节）
-	GracePeriod   int       `json:"gracePeriod"`   // 宽限期（小时）
-	GraceExpiry   *time.Time `json:"graceExpiry,omitempty"` // 宽限期到期时间
-	HardLimitStr  string    `json:"hardLimitStr"`  // 可读格式
-	SoftLimitStr  string    `json:"softLimitStr"`  // 可读格式
+	QuotaID      string     `json:"quotaId"`
+	HardLimit    uint64     `json:"hardLimit"`             // 硬限制（字节）
+	SoftLimit    uint64     `json:"softLimit"`             // 软限制（字节）
+	GracePeriod  int        `json:"gracePeriod"`           // 宽限期（小时）
+	GraceExpiry  *time.Time `json:"graceExpiry,omitempty"` // 宽限期到期时间
+	HardLimitStr string     `json:"hardLimitStr"`          // 可读格式
+	SoftLimitStr string     `json:"softLimitStr"`          // 可读格式
 }
 
 // GetLimits 获取配额限制
@@ -855,10 +855,10 @@ type GracePeriodManager struct {
 
 // GracePeriodInfo 宽限期信息
 type GracePeriodInfo struct {
-	QuotaID    string     `json:"quotaId"`
-	Duration   time.Duration `json:"duration"`
-	Expiry     *time.Time `json:"expiry,omitempty"`
-	StartedAt  time.Time  `json:"startedAt"`
+	QuotaID   string        `json:"quotaId"`
+	Duration  time.Duration `json:"duration"`
+	Expiry    *time.Time    `json:"expiry,omitempty"`
+	StartedAt time.Time     `json:"startedAt"`
 }
 
 // NewGracePeriodManager 创建宽限期管理器

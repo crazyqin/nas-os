@@ -16,20 +16,20 @@ import (
 
 // Manager 配额管理器
 type Manager struct {
-	mu           sync.RWMutex
-	quotas       map[string]*Quota            // quotaID -> Quota
-	groupQuotas  map[string]*Quota            // groupID -> Quota (用户组配额)
-	userQuotas   map[string]map[string]*Quota // username -> volumeName -> Quota
-	dirQuotas    map[string]*Quota            // path -> Quota (目录配额)
-	policies     map[string]*CleanupPolicy    // policyID -> CleanupPolicy
-	alerts       map[string]*Alert            // alertID -> Alert
-	alertHistory []*Alert                     // 历史告警
-	configPath   string
-	storageMgr   StorageProvider
-	userProvider UserProvider
-	alertConfig  AlertConfig
-	monitor      *Monitor
-	gracePeriodMgr *GracePeriodManager         // 宽限期管理器 v2.56.0
+	mu             sync.RWMutex
+	quotas         map[string]*Quota            // quotaID -> Quota
+	groupQuotas    map[string]*Quota            // groupID -> Quota (用户组配额)
+	userQuotas     map[string]map[string]*Quota // username -> volumeName -> Quota
+	dirQuotas      map[string]*Quota            // path -> Quota (目录配额)
+	policies       map[string]*CleanupPolicy    // policyID -> CleanupPolicy
+	alerts         map[string]*Alert            // alertID -> Alert
+	alertHistory   []*Alert                     // 历史告警
+	configPath     string
+	storageMgr     StorageProvider
+	userProvider   UserProvider
+	alertConfig    AlertConfig
+	monitor        *Monitor
+	gracePeriodMgr *GracePeriodManager // 宽限期管理器 v2.56.0
 }
 
 // StorageProvider 存储接口（用于获取卷使用情况）
