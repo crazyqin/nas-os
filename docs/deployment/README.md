@@ -5,6 +5,8 @@
 - [概述](#概述)
 - [系统要求](#系统要求)
 - [快速部署](#快速部署)
+- [服务管理](#服务管理)
+- [系统维护](#系统维护)
 - [配置说明](#配置说明)
 - [健康检查](#健康检查)
 - [服务监控](#服务监控)
@@ -51,6 +53,167 @@ cd /opt/nas-os
 
 ```bash
 ./scripts/health-check.sh
+```
+
+## 服务管理
+
+### 概述
+
+`deploy.sh` 支持服务管理命令，可以方便地启动、停止、重启和查看服务状态。
+
+### 使用方法
+
+```bash
+# 启动服务
+./scripts/deploy.sh start
+
+# 停止服务
+./scripts/deploy.sh stop
+
+# 重启服务
+./scripts/deploy.sh restart
+
+# 查看状态
+./scripts/deploy.sh status
+
+# 回滚到上一版本
+./scripts/deploy.sh rollback
+```
+
+### 部署新版本
+
+```bash
+# 部署指定版本
+./scripts/deploy.sh v2.68.0
+
+# 部署失败时自动回滚
+./scripts/deploy.sh v2.68.0 --rollback
+
+# 模拟部署（不实际执行）
+./scripts/deploy.sh v2.68.0 --dry-run
+
+# 跳过数据库备份
+./scripts/deploy.sh v2.68.0 --skip-backup
+```
+
+### 状态输出示例
+
+```
+========================================
+  NAS-OS 服务状态
+========================================
+
+  版本:    2.68.0
+  状态:    active
+  PID:     12345
+  内存:    256.5 MB
+  CPU:     2.5%
+  健康:    ✓ 正常
+
+  最近日志:
+  ----------------------------------------
+  [2026-03-15 21:00:00] Server started
+  [2026-03-15 21:00:01] API listening on :8080
+
+========================================
+```
+
+### 环境变量
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `DATA_DIR` | /var/lib/nas-os | 数据目录 |
+| `BACKUP_DIR` | /var/lib/nas-os/backups | 备份目录 |
+| `BINARY_PATH` | /usr/local/bin/nasd | 二进制文件路径 |
+| `SERVICE_NAME` | nas-os | 服务名称 |
+
+## 系统维护
+
+### 概述
+
+`maintenance.sh` 提供日志清理、临时文件清理、系统检查等功能，建议配置定时任务自动执行。
+
+### 使用方法
+
+```bash
+# 清理日志
+./scripts/maintenance.sh --logs
+
+# 清理临时文件
+./scripts/maintenance.sh --temp
+
+# 清理旧备份
+./scripts/maintenance.sh --backups
+
+# 执行系统检查
+./scripts/maintenance.sh --check
+
+# 执行所有维护任务
+./scripts/maintenance.sh --all
+
+# 执行维护并生成报告
+./scripts/maintenance.sh --all --report
+
+# 查看维护状态
+./scripts/maintenance.sh --status
+
+# 设置定时任务（每天凌晨 3:00）
+./scripts/maintenance.sh --schedule
+
+# 模拟运行
+./scripts/maintenance.sh --all --dry-run
+```
+
+### 清理策略
+
+| 清理项 | 默认保留策略 | 说明 |
+|--------|-------------|------|
+| 日志文件 | 30 天 | 超过 30 天的日志会被删除 |
+| 压缩日志 | 30 天 | 超过 30 天的 .gz 日志会被删除 |
+| 临时文件 | 7 天 | 超过 7 天的临时文件会被删除 |
+| 版本备份 | 90 天 / 10 个 | 按时间和数量双重限制 |
+| 数据库备份 | 90 天 | 超过 90 天的备份会被删除 |
+
+### 系统检查项目
+
+- 磁盘空间使用率
+- 内存使用率
+- 系统负载
+- 服务运行状态
+- 数据库完整性
+- 日志错误统计
+- API 健康检查
+
+### 配置环境变量
+
+```bash
+# 清理策略
+export LOG_MAX_AGE=30           # 日志保留天数
+export TEMP_MAX_AGE=7           # 临时文件保留天数
+export BACKUP_MAX_AGE=90        # 备份保留天数
+export BACKUP_MAX_COUNT=10      # 最大备份数量
+
+# 系统检查阈值
+export DISK_THRESHOLD_WARNING=80
+export DISK_THRESHOLD_CRITICAL=90
+export MEMORY_THRESHOLD_WARNING=80
+export MEMORY_THRESHOLD_CRITICAL=90
+```
+
+### 定时任务
+
+使用 `--schedule` 命令可以自动配置 cron 定时任务：
+
+```bash
+# 设置每天凌晨 3:00 执行维护
+sudo ./scripts/maintenance.sh --schedule
+```
+
+或者手动添加 crontab：
+
+```bash
+# 每天 3:00 执行维护
+0 3 * * * /opt/nas-os/scripts/maintenance.sh --all --report >> /var/log/nas-os/maintenance-cron.log 2>&1
 ```
 
 ## 配置说明

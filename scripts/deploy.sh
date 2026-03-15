@@ -1,8 +1,9 @@
 #!/bin/bash
 # NAS-OS 生产部署脚本
-# 版本: v2.55.0
+# 版本: v2.68.0
 #
 # 功能：
+# - 服务管理（启动/停止/重启/状态检查）
 # - 版本管理（备份当前版本）
 # - 健康检查
 # - 数据库备份
@@ -10,15 +11,18 @@
 # - 自动回滚
 #
 # 用法:
-#   ./deploy.sh [version] [options]
-#   ./deploy.sh v2.55.0
-#   ./deploy.sh --dry-run
-#   ./deploy.sh --skip-backup
+#   ./deploy.sh start                  # 启动服务
+#   ./deploy.sh stop                   # 停止服务
+#   ./deploy.sh restart                # 重启服务
+#   ./deploy.sh status                 # 查看状态
+#   ./deploy.sh [version] [options]    # 部署新版本
+#   ./deploy.sh --dry-run              # 模拟部署
+#   ./deploy.sh --rollback             # 回滚到上一版本
 
-set -e
+set -euo pipefail
 
 # 版本
-VERSION="2.55.0"
+VERSION="2.68.0"
 
 # ==================== 配置 ====================
 APP_NAME="nas-os"
@@ -58,10 +62,17 @@ show_help() {
     cat <<EOF
 NAS-OS 生产部署工具 v${VERSION}
 
-用法: $0 [version] [options]
+用法: $0 <command|version> [options]
 
-参数:
-  version         要部署的版本号 (如: v2.55.0)
+服务管理命令:
+  start           启动 NAS-OS 服务
+  stop            停止 NAS-OS 服务
+  restart         重启 NAS-OS 服务
+  status          查看服务状态
+  rollback        回滚到上一版本
+
+部署命令:
+  version         要部署的版本号 (如: v2.68.0)
 
 选项:
   --dry-run       模拟部署，不实际执行
@@ -79,10 +90,14 @@ NAS-OS 生产部署工具 v${VERSION}
   SERVICE_NAME    服务名称 (默认: nas-os)
 
 示例:
-  $0 v2.55.0                  # 部署 v2.55.0
-  $0 v2.55.0 --rollback       # 部署失败时自动回滚
-  $0 --dry-run                # 模拟部署
-  $0 --skip-backup v2.55.0    # 跳过备份直接部署
+  $0 start                        # 启动服务
+  $0 stop                         # 停止服务
+  $0 restart                      # 重启服务
+  $0 status                       # 查看状态
+  $0 v2.68.0                      # 部署 v2.68.0
+  $0 v2.68.0 --rollback           # 部署失败时自动回滚
+  $0 --dry-run                    # 模拟部署
+  $0 rollback                     # 回滚到上一版本
 
 EOF
 }
@@ -95,9 +110,15 @@ SKIP_HEALTH=false
 FORCE=false
 AUTO_ROLLBACK=false
 NO_START=false
+COMMAND=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        start) COMMAND="start"; shift ;;
+        stop) COMMAND="stop"; shift ;;
+        restart) COMMAND="restart"; shift ;;
+        status) COMMAND="status"; shift ;;
+        rollback) COMMAND="rollback"; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
         --skip-backup) SKIP_BACKUP=true; shift ;;
         --skip-health) SKIP_HEALTH=true; shift ;;
@@ -464,7 +485,248 @@ log_deployment() {
     echo "$log_entry" >> "$LOG_DIR/deploy.log"
 }
 
-# ==================== 主部署流程 ====================
+# ==================== 服务管理命令 ====================
+
+# 启动服务命令
+cmd_start() {
+    echo ""
+    echo "========================================"
+    echo "  NAS-OS 服务启动"
+    echo "========================================"
+    echo ""
+    
+    local current_status=$(check_service_status)
+    
+    if [ "$current_status" = "active" ] || [ "$current_status" = "running" ]; then
+        log_warn "服务已在运行中"
+        cmd_status
+        return 0
+    fi
+    
+    log_step "启动 NAS-OS 服务..."
+    
+    if command -v systemctl &> /dev/null; then
+        if ! systemctl start "$SERVICE_NAME" 2>&1; then
+            log_error "systemctl 启动失败"
+            return 1
+        fi
+    else
+        if [ ! -x "$BINARY_PATH" ]; then
+            log_error "找不到可执行文件: $BINARY_PATH"
+            return 1
+        fi
+        ensure_dirs
+        nohup $BINARY_PATH > "$LOG_DIR/nasd.log" 2>&1 &
+    fi
+    
+    sleep 2
+    
+    if ! wait_for_service; then
+        log_error "服务启动超时"
+        return 1
+    fi
+    
+    log_success "服务启动成功"
+    cmd_status
+}
+
+# 停止服务命令
+cmd_stop() {
+    echo ""
+    echo "========================================"
+    echo "  NAS-OS 服务停止"
+    echo "========================================"
+    echo ""
+    
+    local current_status=$(check_service_status)
+    
+    if [ "$current_status" = "inactive" ] || [ "$current_status" = "stopped" ]; then
+        log_warn "服务已停止"
+        return 0
+    fi
+    
+    log_step "停止 NAS-OS 服务..."
+    
+    if command -v systemctl &> /dev/null; then
+        systemctl stop "$SERVICE_NAME" 2>/dev/null || true
+    else
+        pkill -x nasd 2>/dev/null || true
+    fi
+    
+    sleep 2
+    
+    # 检查是否仍在运行
+    if pgrep -x nasd > /dev/null 2>&1; then
+        log_warn "进程仍在运行，强制终止..."
+        pkill -9 -x nasd 2>/dev/null || true
+        sleep 1
+    fi
+    
+    log_success "服务已停止"
+}
+
+# 重启服务命令
+cmd_restart() {
+    echo ""
+    echo "========================================"
+    echo "  NAS-OS 服务重启"
+    echo "========================================"
+    echo ""
+    
+    log_step "重启 NAS-OS 服务..."
+    
+    # 停止
+    if command -v systemctl &> /dev/null; then
+        systemctl restart "$SERVICE_NAME" 2>&1
+    else
+        pkill -x nasd 2>/dev/null || true
+        sleep 2
+        ensure_dirs
+        nohup $BINARY_PATH > "$LOG_DIR/nasd.log" 2>&1 &
+    fi
+    
+    sleep 2
+    
+    if ! wait_for_service; then
+        log_error "服务重启失败"
+        return 1
+    fi
+    
+    log_success "服务重启成功"
+    cmd_status
+}
+
+# 查看状态命令
+cmd_status() {
+    local current_version=$(get_current_version)
+    local service_status=$(check_service_status)
+    local pid=""
+    local memory=""
+    local cpu=""
+    
+    echo ""
+    echo "========================================"
+    echo "  NAS-OS 服务状态"
+    echo "========================================"
+    echo ""
+    
+    echo "  版本:    $current_version"
+    echo "  状态:    $service_status"
+    
+    if [ "$service_status" = "active" ] || [ "$service_status" = "running" ]; then
+        pid=$(pgrep -x nasd 2>/dev/null || echo "")
+        
+        if [ -n "$pid" ]; then
+            echo "  PID:     $pid"
+            
+            # 获取资源使用
+            if command -v ps &> /dev/null; then
+                memory=$(ps -p "$pid" -o rss= 2>/dev/null | awk '{printf "%.1f MB", $1/1024}')
+                cpu=$(ps -p "$pid" -o %cpu= 2>/dev/null | awk '{printf "%.1f%%", $1}')
+                echo "  内存:    $memory"
+                echo "  CPU:     $cpu"
+            fi
+        fi
+        
+        # 健康检查
+        if curl -sf --max-time 5 "$HEALTH_CHECK_URL" > /dev/null 2>&1; then
+            echo "  健康:    ✓ 正常"
+        else
+            echo "  健康:    ✗ 异常"
+        fi
+    fi
+    
+    echo ""
+    
+    # 显示最近日志
+    if [ -f "$LOG_DIR/nasd.log" ]; then
+        echo "  最近日志:"
+        echo "  ----------------------------------------"
+        tail -5 "$LOG_DIR/nasd.log" 2>/dev/null | sed 's/^/  /'
+        echo ""
+    fi
+    
+    echo "========================================"
+    echo ""
+    
+    # 返回状态码
+    case "$service_status" in
+        active|running) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# 回滚命令
+cmd_rollback() {
+    echo ""
+    echo "========================================"
+    echo "  NAS-OS 版本回滚"
+    echo "========================================"
+    echo ""
+    
+    local current_version=$(get_current_version)
+    
+    log_info "当前版本: $current_version"
+    
+    # 列出可用备份
+    if [ ! -d "$BACKUP_DIR/versions" ]; then
+        log_error "备份目录不存在: $BACKUP_DIR/versions"
+        return 1
+    fi
+    
+    local backups=($(ls -t "$BACKUP_DIR/versions"/nasd-* 2>/dev/null))
+    
+    if [ ${#backups[@]} -eq 0 ]; then
+        log_error "没有可用的备份版本"
+        return 1
+    fi
+    
+    echo "可用的备份版本:"
+    echo ""
+    local i=1
+    for backup in "${backups[@]}"; do
+        local version=$(basename "$backup" | sed 's/nasd-//')
+        local mtime=$(stat -c %y "$backup" 2>/dev/null | cut -d'.' -f1)
+        echo "  [$i] $version ($mtime)"
+        ((i++))
+    done
+    echo ""
+    
+    # 选择版本
+    local target_backup=""
+    if [ -n "${TARGET_VERSION:-}" ]; then
+        target_backup="$BACKUP_DIR/versions/nasd-$TARGET_VERSION"
+        if [ ! -f "$target_backup" ]; then
+            log_error "找不到指定版本: $TARGET_VERSION"
+            return 1
+        fi
+    else
+        # 默认回滚到上一个版本
+        if [ ${#backups[@]} -ge 2 ]; then
+            target_backup="${backups[1]}"
+        else
+            log_error "只有一个备份版本，无法回滚"
+            return 1
+        fi
+    fi
+    
+    local target_version=$(basename "$target_backup" | sed 's/nasd-//')
+    
+    log_info "将回滚到版本: $target_version"
+    
+    # 执行回滚
+    if do_rollback "$target_version"; then
+        log_success "回滚成功"
+        cmd_status
+    else
+        log_error "回滚失败"
+        return 1
+    fi
+}
+
+# ==================== 主入口 ====================
+
+# 主入口
 main() {
     local deploy_start=$(date +%s)
     local previous_version=$(get_current_version)
@@ -569,5 +831,32 @@ main() {
     echo ""
 }
 
-# 执行主流程
-main
+# ==================== 入口分发 ====================
+
+# 检查并执行命令
+case "${COMMAND:-}" in
+    start)
+        cmd_start
+        ;;
+    stop)
+        cmd_stop
+        ;;
+    restart)
+        cmd_restart
+        ;;
+    status)
+        cmd_status
+        ;;
+    rollback)
+        cmd_rollback
+        ;;
+    "")
+        # 无子命令，执行部署
+        main
+        ;;
+    *)
+        log_error "未知命令: $COMMAND"
+        show_help
+        exit 1
+        ;;
+esac

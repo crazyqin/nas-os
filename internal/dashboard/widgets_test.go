@@ -456,7 +456,12 @@ func TestCalculateUsagePercent(t *testing.T) {
 
 	for _, tt := range tests {
 		result := calculateUsagePercent(tt.used, tt.total)
-		if result != tt.expected {
+		// 使用容差比较浮点数
+		diff := result - tt.expected
+		if diff < 0 {
+			diff = -diff
+		}
+		if diff > 1e-9 {
 			t.Errorf("calculateUsagePercent(%d, %d) = %f, want %f", tt.used, tt.total, result, tt.expected)
 		}
 	}
