@@ -9,12 +9,13 @@
 # 多架构构建:
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t nas-os:latest .
 #
-# v2.35.0 更新：
+# v2.60.0 更新：
 # - 优化健康检查（添加 metrics 端点检测）
 # - 改进启动检查逻辑
 # - 添加就绪探针支持
+# - 添加 Git 信息标签
 #
-# v2.33.0 更新：
+# v2.35.0 更新：
 # - 优化构建缓存策略
 # - 增强健康检查
 # - 添加 curl 替代 wget（更可靠）

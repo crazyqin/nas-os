@@ -1,5 +1,8 @@
 # NAS-OS API 文档
 
+**版本**: v2.61.0  
+**更新日期**: 2026-03-15
+
 ## 概述
 
 NAS-OS 提供 RESTful API 接口，支持完整的系统管理功能。所有 API 使用 JSON 格式传输数据。
@@ -65,5 +68,5 @@ Content-Type: application/json
 - [发票与支付 API](./invoice-api.md) - 发票管理、在线支付 (v2.58.0+)
 - [监控 API](./monitor-api.md) - 系统监控与分布式监控
 - [权限管理 API](./permission-api.md) - RBAC 权限管理 (v2.55.0+)
-- [存储 API](./storage-api.md) - 存储池管理
-- [用户 API](./user-api.md) - 用户与权限管理
+- [存储 API](./storage-api.md) - 卷管理、子卷、快照 (v2.61.0+)
+- [用户 API](./user-api.md) - 用户管理、认证、MFA (v2.61.0+)

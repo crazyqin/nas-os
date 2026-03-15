@@ -540,7 +540,7 @@ func TestQueryCache_Concurrent(t *testing.T) {
 				cache.Get(string(rune('A' + j%10)))
 			}
 			done <- true
-		}(i)
+		}()
 	}
 
 	// 等待所有协程完成

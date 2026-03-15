@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.61.0] - 2026-03-15
+
+### Added
+- **文档体系完善** (礼部)
+  - README.md 版本同步至 v2.61.0
+  - 用户指南结构优化
+  - API 文档补充完善
+
+- **用户指南优化** (礼部)
+  - docs/user-guide/ 目录结构调整
+  - 权限管理指南更新
+  - 备份指南完善
+  - 审计指南补充
+
+- **API 文档增强** (礼部)
+  - docs/api/ 文档索引更新
+  - 补充存储 API 文档说明
+  - 补充用户 API 文档说明
+
+### Changed
+- 版本号升级至 v2.61.0
+- 文档版本号统一更新
+- Docker 镜像标签更新
+
+### Improved
+- 文档导航结构优化
+- 用户指南分类更清晰
+
 ## [v2.60.0] - 2026-03-15
 
 ### Added

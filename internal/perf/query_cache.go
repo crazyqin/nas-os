@@ -708,8 +708,12 @@ func (c *QueryCache) ResetStats() {
 	c.stats.mu.Lock()
 	defer c.stats.mu.Unlock()
 
-	c.stats = CacheStats{
-		TotalItems:  c.stats.TotalItems,
-		TotalMemory: c.stats.TotalMemory,
-	}
+	// 只重置统计字段，不覆盖互斥锁
+	c.stats.Hits = 0
+	c.stats.Misses = 0
+	c.stats.Evictions = 0
+	c.stats.Expirations = 0
+	c.stats.TotalSets = 0
+	c.stats.TotalDeletes = 0
+	c.stats.LastCleanupAt = 0
 }
