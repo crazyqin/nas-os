@@ -367,17 +367,21 @@ func (m *SensitiveOperationManager) DeleteOperation(id string) {
 	}
 }
 
-// GetOperation 获取敏感操作定义
-func (m *SensitiveOperationManager) GetOperation(id string) *SensitiveOperation {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
+// getOperationInternal 内部获取敏感操作定义（不获取锁，用于已持有锁的方法调用）
+func (m *SensitiveOperationManager) getOperationInternal(id string) *SensitiveOperation {
 	for _, op := range m.operations {
 		if op.ID == id {
 			return op
 		}
 	}
 	return nil
+}
+
+// GetOperation 获取敏感操作定义
+func (m *SensitiveOperationManager) GetOperation(id string) *SensitiveOperation {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.getOperationInternal(id)
 }
 
 // ListOperations 列出所有敏感操作定义
@@ -440,10 +444,11 @@ func (m *SensitiveOperationManager) RecordEvent(
 	userID, username, ip, sessionID, resource string,
 	details map[string]interface{},
 ) *SensitiveOperationEvent {
+	// 先获取操作信息（需要在锁外调用以避免死锁）
+	op := m.getOperationInternal(operationID)
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
-	op := m.GetOperation(operationID)
 	riskScore := 50
 	if op != nil {
 		switch op.SensitivityLevel {

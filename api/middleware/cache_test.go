@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -134,13 +135,14 @@ func TestCacheMiddleware(t *testing.T) {
 func TestCacheMiddlewareETag(t *testing.T) {
 	cache := NewMemoryCache(100, time.Minute)
 	config := &CacheConfig{
-		Backend:     cache,
-		DefaultTTL:  time.Minute,
-		EnableETag:  true,
-		GETOnly:     true,
-		Enabled:     true,
-		KeyPrefix:   "test:",
-		StatusCodes: []int{200},
+		Backend:      cache,
+		DefaultTTL:   time.Minute,
+		EnableETag:   true,
+		GETOnly:      true,
+		Enabled:      true,
+		KeyPrefix:    "test:",
+		StatusCodes:  []int{200},
+		IncludePaths: []string{"/api/"}, // 添加包含路径
 	}
 
 	router := gin.New()
@@ -156,13 +158,34 @@ func TestCacheMiddlewareETag(t *testing.T) {
 	router.ServeHTTP(w1, req1)
 	assert.Equal(t, http.StatusOK, w1.Code)
 	etag := w1.Header().Get("ETag")
+	t.Logf("First request - Status: %d, ETag: %s, Body: %s", w1.Code, etag, w1.Body.String())
 	assert.NotEmpty(t, etag)
+
+	// 检查缓存是否存储
+	ctx := context.Background()
+	cacheKey := "test:GET:/api/etag"
+	if data, ok := cache.Get(ctx, cacheKey); ok {
+		t.Logf("Cache hit for key %s: %s", cacheKey, string(data))
+	} else {
+		t.Logf("Cache miss for key %s", cacheKey)
+	}
 
 	// Second request with If-None-Match - should return 304
 	w2 := httptest.NewRecorder()
 	req2, _ := http.NewRequest(http.MethodGet, "/api/etag", nil)
 	req2.Header.Set("If-None-Match", etag)
 	router.ServeHTTP(w2, req2)
+	t.Logf("Second request - Status: %d, X-Cache: %s, ETag response: %s", w2.Code, w2.Header().Get("X-Cache"), w2.Header().Get("ETag"))
+
+	// Debug: 检查第二次请求后的缓存状态
+	if data, ok := cache.Get(ctx, cacheKey); ok {
+		t.Logf("After second request - Cache still has data")
+		var cached cachedResponse
+		if err := json.Unmarshal(data, &cached); err == nil {
+			t.Logf("Cached ETag: %s", cached.Headers["ETag"])
+		}
+	}
+
 	assert.Equal(t, http.StatusNotModified, w2.Code)
 }
 

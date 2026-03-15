@@ -255,12 +255,7 @@ func (h *APIHandler) HandleAlertByID(w http.ResponseWriter, r *http.Request) {
 
 // HandleTrends 处理趋势数据请求
 func (h *APIHandler) HandleTrends(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
-		return
-	}
-
-	// 可选：记录新的趋势数据点
+	// POST 方法用于记录新的趋势数据点
 	if r.Method == http.MethodPost {
 		var trend CostTrend
 		if err := json.NewDecoder(r.Body).Decode(&trend); err != nil {
@@ -274,6 +269,12 @@ func (h *APIHandler) HandleTrends(w http.ResponseWriter, r *http.Request) {
 
 		h.engine.RecordTrendData(trend)
 		h.writeJSON(w, http.StatusCreated, trend)
+		return
+	}
+
+	// GET 方法用于获取趋势数据
+	if r.Method != http.MethodGet {
+		h.writeError(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 

@@ -252,7 +252,7 @@ func TestGenerateComprehensiveReport(t *testing.T) {
 	assert.True(t, found, "应该包含关键指标区块")
 }
 
-func TestGetReport(t *testing.T) {
+func TestFinancialReport_GetReport(t *testing.T) {
 	provider := createMockProvider()
 	tmpDir := t.TempDir()
 	gen, err := NewFinancialReportGenerator(provider, tmpDir)
@@ -326,7 +326,7 @@ func TestQueryReports(t *testing.T) {
 	assert.Len(t, results, 2)
 }
 
-func TestDeleteReport(t *testing.T) {
+func TestFinancialReport_DeleteReport(t *testing.T) {
 	provider := createMockProvider()
 	tmpDir := t.TempDir()
 	gen, err := NewFinancialReportGenerator(provider, tmpDir)
@@ -402,7 +402,7 @@ func TestReportWithCharts(t *testing.T) {
 	assert.NotEmpty(t, report.Charts)
 }
 
-func TestReportPersistence(t *testing.T) {
+func TestFinancialReport_ReportPersistence(t *testing.T) {
 	provider := createMockProvider()
 	tmpDir := t.TempDir()
 
