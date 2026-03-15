@@ -184,8 +184,8 @@ func TestManager_DeleteRule(t *testing.T) {
 
 	// 添加规则
 	rule := &MountRule{
-		Name:     "Test Rule",
-		Enabled:  true,
+		Name:    "Test Rule",
+		Enabled: true,
 	}
 	m.AddRule(rule)
 
@@ -333,8 +333,8 @@ func TestManager_MatchRule(t *testing.T) {
 
 func TestMatchPattern(t *testing.T) {
 	tests := []struct {
-		pattern string
-		value   string
+		pattern  string
+		value    string
 		expected bool
 	}{
 		{"*", "anything", true},
