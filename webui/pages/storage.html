@@ -1060,27 +1060,90 @@
         async function loadDisks() {
             const container = document.getElementById('disks-grid');
             
-            // 模拟磁盘数据
-            const disks = [
-                { name: '/dev/sda', size: '500 GB', type: 'SSD', temp: '35°C', smart: '正常', usage: 45 },
-                { name: '/dev/sdb', size: '1 TB', type: 'HDD', temp: '42°C', smart: '正常', usage: 62 },
-                { name: '/dev/sdc', size: '2 TB', type: 'HDD', temp: '48°C', smart: '警告', usage: 78 }
-            ];
+            try {
+                const res = await fetch(`${API_BASE}/disk`);
+                const data = await res.json();
+                
+                if (data.code === 0 && data.data && data.data.disks) {
+                    renderDisks(data.data.disks);
+                } else {
+                    // 使用示例数据
+                    renderDisks(getDemoDisks());
+                }
+            } catch (err) {
+                renderDisks(getDemoDisks());
+            }
+        }
 
+        function getDemoDisks() {
+            return [
+                { 
+                    device: '/dev/sda', 
+                    size: 500000000000, 
+                    type: 'SSD', 
+                    model: 'Samsung 980 PRO',
+                    temp: 35, 
+                    smart_status: 'healthy',
+                    health_score: 98,
+                    usage: 45,
+                    power_on_hours: 8760,
+                    reallocated_sectors: 0,
+                    pending_sectors: 0
+                },
+                { 
+                    device: '/dev/sdb', 
+                    size: 1000000000000, 
+                    type: 'HDD', 
+                    model: 'WD Red Plus',
+                    temp: 42, 
+                    smart_status: 'healthy',
+                    health_score: 92,
+                    usage: 62,
+                    power_on_hours: 17520,
+                    reallocated_sectors: 2,
+                    pending_sectors: 0
+                },
+                { 
+                    device: '/dev/sdc', 
+                    size: 2000000000000, 
+                    type: 'HDD', 
+                    model: 'Seagate IronWolf',
+                    temp: 48, 
+                    smart_status: 'warning',
+                    health_score: 75,
+                    usage: 78,
+                    power_on_hours: 26280,
+                    reallocated_sectors: 24,
+                    pending_sectors: 8
+                }
+            ];
+        }
+
+        function renderDisks(disks) {
+            const container = document.getElementById('disks-grid');
+            
             container.innerHTML = disks.map(disk => {
-                const smartClass = disk.smart === '警告' ? 'warning' : '';
+                const isWarning = disk.smart_status === 'warning' || disk.smart_status === 'critical';
+                const isCritical = disk.smart_status === 'critical';
+                const tempClass = disk.temp > 55 ? 'error' : (disk.temp > 45 ? 'warning' : 'success');
+                const statusClass = isCritical ? 'error' : (isWarning ? 'warning' : 'success');
                 const progressClass = disk.usage > 90 ? 'error' : (disk.usage > 75 ? 'warning' : 'success');
                 
                 return `
-                    <div class="disk-card ${smartClass}">
+                    <div class="disk-card ${statusClass}">
                         <div class="disk-header">
-                            <span class="disk-name">${disk.name}</span>
-                            <span class="badge ${smartClass ? 'badge-warning' : 'badge-success'}">${disk.smart}</span>
+                            <div>
+                                <span class="disk-name">${disk.device}</span>
+                                <div style="font-size: 11px; color: var(--text-muted);">${disk.model || 'Unknown'}</div>
+                            </div>
+                            <span class="badge ${isWarning ? 'badge-warning' : 'badge-success'}">
+                                ${disk.smart_status === 'healthy' ? '✓ 正常' : (disk.smart_status === 'warning' ? '⚠ 警告' : '✗ 异常')}
+                            </span>
                         </div>
                         <div class="disk-info">
                             <div class="disk-stat">
                                 <div class="disk-stat-label">容量</div>
-                                <div class="disk-stat-value">${disk.size}</div>
+                                <div class="disk-stat-value">${formatSize(disk.size)}</div>
                             </div>
                             <div class="disk-stat">
                                 <div class="disk-stat-label">类型</div>
@@ -1088,23 +1151,56 @@
                             </div>
                             <div class="disk-stat">
                                 <div class="disk-stat-label">温度</div>
-                                <div class="disk-stat-value">${disk.temp}</div>
+                                <div class="disk-stat-value text-${tempClass}">${disk.temp}°C</div>
                             </div>
                             <div class="disk-stat">
-                                <div class="disk-stat-label">SMART</div>
-                                <div class="disk-stat-value ${smartClass ? 'text-warning' : 'text-success'}">${disk.smart}</div>
+                                <div class="disk-stat-label">健康评分</div>
+                                <div class="disk-stat-value text-${statusClass}">${disk.health_score || '-'}</div>
                             </div>
                         </div>
                         <div class="progress" style="margin-bottom: 0.5rem;">
                             <div class="progress-bar ${progressClass}" style="width: ${disk.usage}%"></div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
-                            <span>使用率</span>
-                            <span>${disk.usage}%</span>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">
+                            <span>使用率 ${disk.usage}%</span>
+                            <span>通电 ${Math.round((disk.power_on_hours || 0) / 24)} 天</span>
+                        </div>
+                        ${disk.reallocated_sectors > 0 || disk.pending_sectors > 0 ? `
+                            <div style="background: var(--color-warning-bg); padding: 0.5rem; border-radius: 6px; font-size: 12px; color: #92400E;">
+                                ${disk.reallocated_sectors > 0 ? `⚠ 重映射扇区: ${disk.reallocated_sectors}` : ''}
+                                ${disk.pending_sectors > 0 ? `<br>⚠ 待处理扇区: ${disk.pending_sectors}` : ''}
+                            </div>
+                        ` : ''}
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                            <button class="btn btn-sm btn-secondary" onclick="showDiskDetail('${disk.device}')">详情</button>
+                            <button class="btn btn-sm btn-secondary" onclick="runSmartTest('${disk.device}')">SMART 测试</button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function showDiskDetail(device) {
+            // 简单的详情展示
+            showToast(`磁盘 ${device} 详情功能开发中`, 'info');
+        }
+
+        async function runSmartTest(device) {
+            if (!confirm(`确定要对 ${device} 执行 SMART 自检吗？`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/disk/${encodeURIComponent(device)}/check`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    showToast('SMART 自检已启动', 'success');
+                    loadDisks();
+                } else {
+                    showToast('启动失败: ' + data.message, 'error');
+                }
+            } catch (err) {
+                showToast('启动失败: ' + err.message, 'error');
+            }
         }
 
         // ========== 工具函数 ==========

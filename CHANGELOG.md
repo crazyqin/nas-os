@@ -27,6 +27,17 @@ All notable changes to this project will be documented in this file.
   - 分页响应格式标准化 (PageData)
   - 请求验证中间件增强
 
+- **文档完善** (礼部)
+  - docs/FAQ.md - 新增常见问题解答 (30+ 问题)
+  - 涵盖安装/存储/共享/备份/监控/安全/网络等主题
+  - 文档索引更新，新增 FAQ 和故障排查链接
+
+### Changed
+- **文档版本更新** (礼部)
+  - 所有文档版本号统一更新至 v2.54.0
+  - Swagger/OpenAPI 规范版本同步
+  - 快速入门指南下载链接更新
+
 ### Improved
 - **存储页面交互优化** (兵部)
   - Tab 切换无需刷新
