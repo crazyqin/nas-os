@@ -3,8 +3,8 @@ package optimizer
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"strconv"
 )
 
 // APIHandler 配额优化 API 处理器
@@ -251,9 +251,9 @@ func (h *APIHandler) HandleAdjustHistory(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
-	if limit <= 0 {
-		limit = 100
+	limit := 0
+	if l := r.URL.Query().Get("limit"); l != "" {
+		fmt.Sscanf(l, "%d", &limit)
 	}
 
 	history := h.optimizer.GetAdjustHistory(limit)
