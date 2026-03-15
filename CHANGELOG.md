@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.70.0] - 2026-03-15
+
+### Added
+- **品牌形象升级** (礼部)
+  - 全新视觉设计语言
+  - 统一品牌色彩体系
+  - 优化用户界面体验
+
+- **文档体系完善** (礼部)
+  - 版本发布公告规范化
+  - README 版本信息同步
+  - CHANGELOG 格式优化
+
+### Changed
+- **版本更新至 v2.70.0** (礼部)
+  - README.md 版本信息同步
+  - 下载链接更新
+  - Docker 镜像标签更新
+  - 文档版本号统一
+
 ## [v2.69.0] - 2026-03-15
 
 ### Fixed
