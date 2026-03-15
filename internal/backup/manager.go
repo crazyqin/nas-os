@@ -362,8 +362,9 @@ func (m *Manager) runLocalBackup(cfg *JobConfig, task *BackupTask) (string, erro
 		if encryptKey == "" {
 			return "", fmt.Errorf("启用加密但未配置加密密钥")
 		}
-		// 使用 openssl 进行加密
-		cmd := exec.Command("openssl", "enc", "-aes-256-cbc", "-salt", "-in", backupPath, "-out", encryptedPath, "-pass", "pass:"+encryptKey)
+		// 使用 openssl 进行加密（通过环境变量传递密钥，避免命令行暴露）
+		cmd := exec.Command("openssl", "enc", "-aes-256-cbc", "-salt", "-in", backupPath, "-out", encryptedPath, "-pass", "env:NAS_BACKUP_KEY")
+		cmd.Env = append(os.Environ(), "NAS_BACKUP_KEY="+encryptKey)
 		if output, err := cmd.CombinedOutput(); err != nil {
 			os.Remove(encryptedPath)
 			return "", fmt.Errorf("加密失败：%w, output: %s", err, string(output))

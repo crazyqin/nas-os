@@ -3,6 +3,7 @@ package reports
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
@@ -1154,12 +1155,19 @@ func generateReportID(reportType CostReportType, date time.Time) string {
 	return fmt.Sprintf("%s-%s", reportType, date.Format("20060102"))
 }
 
-// randomString 生成随机字符串
+// randomString 生成随机字符串（使用加密安全的随机数）
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		// 回退到时间戳（非安全场景）
+		for i := range b {
+			b[i] = letters[time.Now().Nanosecond()%len(letters)]
+		}
+		return string(b)
+	}
 	for i := range b {
-		b[i] = letters[time.Now().Nanosecond()%len(letters)]
+		b[i] = letters[int(b[i])%len(letters)]
 	}
 	return string(b)
 }
