@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.72.0] - 2026-03-15
+
+### Added
+- **六部协同开发框架** (吏部)
+  - MILESTONES.md 添加 v2.71.0/v2.72.0 里程碑记录
+  - 创建 docs/STATUS-v2.71.0.md 项目状态报告
+  - 更新 ROADMAP.md 路线图
+
+- **安全审计系统** (刑部)
+  - SECURITY_AUDIT_v2.71.0.md 安全审计报告
+  - Go 标准库漏洞检查
+  - 依赖安全性检查
+
+- **DevOps 脚本增强** (工部)
+  - scripts/config-validator.sh 配置验证脚本 (749 行)
+  - scripts/log-analyzer.sh 日志分析脚本 (491 行)
+
+### Changed
+- **文档更新** (礼部)
+  - CHANGELOG.md v2.71.0 记录
+  - README.md 版本号和下载链接更新
+  - Docker 镜像标签更新
+  - 创建 docs/RELEASE-v2.71.0.md 发布说明
+  - 创建 docs/v2.72.0-documentation-plan.md 文档规划
+
+### Improved
+- **项目管理流程**
+  - 六部协同开发流程标准化
+  - 版本发布流程规范化
+  - 项目状态报告自动化
+
 ## [v2.71.0] - 2026-03-15
 
 ### Fixed

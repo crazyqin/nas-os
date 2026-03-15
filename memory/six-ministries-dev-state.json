@@ -1,80 +1,111 @@
 {
-  "lastUpdate": "2026-03-15T06:35:00Z",
-  "version": "v2.37.0",
+  "lastUpdate": "2026-03-15T22:25:00+08:00",
+  "version": "v2.71.0",
   "status": "released",
-  "previousVersion": "v2.36.0",
-  "nextVersion": "v2.38.0",
+  "previousVersion": "v2.70.0",
+  "nextVersion": "v2.72.0",
   "currentDev": {
-    "version": "v2.38.0",
-    "status": "in_progress",
-    "startedAt": "2026-03-15T06:35:00Z"
+    "version": "v2.72.0",
+    "status": "planning",
+    "startedAt": "2026-03-15T22:25:00+08:00"
   },
-  "changes": {
-    "code": [
-      {
-        "file": "api/middleware/gateway.go",
-        "change": "新增 API Gateway（限流、熔断、重试）",
-        "ministry": "兵部"
-      },
-      {
-        "file": "internal/reports/cost_analysis.go",
-        "change": "新增成本分析模块",
-        "ministry": "户部"
-      },
-      {
-        "file": "internal/reports/resource_api.go",
-        "change": "新增资源分析 API",
-        "ministry": "户部"
-      },
-      {
-        "file": "internal/project/manager.go",
-        "change": "新增项目管理模块",
-        "ministry": "吏部"
-      },
-      {
-        "file": "scripts/migrate.sh",
-        "change": "新增数据库迁移脚本",
-        "ministry": "工部"
-      }
-    ]
+  "projectStats": {
+    "totalModules": 68,
+    "totalPages": 47,
+    "completedMilestones": 5,
+    "totalMilestones": 8,
+    "completionRate": "62.5%"
+  },
+  "milestones": {
+    "M1": {
+      "name": "核心存储功能",
+      "status": "completed",
+      "completedAt": "2026-03-10"
+    },
+    "M2": {
+      "name": "Web 管理界面",
+      "status": "completed",
+      "pagesCount": 47,
+      "completedAt": "2026-03-15"
+    },
+    "M3": {
+      "name": "文件共享服务",
+      "status": "completed",
+      "completedAt": "2026-03-14"
+    },
+    "M4": {
+      "name": "用户权限系统",
+      "status": "pending"
+    },
+    "M5": {
+      "name": "监控告警系统",
+      "status": "pending"
+    },
+    "M6": {
+      "name": "Docker 集成",
+      "status": "completed",
+      "completedAt": "2026-03-11"
+    },
+    "M7": {
+      "name": "集群支持",
+      "status": "completed",
+      "completedAt": "2026-03-11"
+    },
+    "M8": {
+      "name": "v1.7.0 功能完善",
+      "status": "completed",
+      "completedAt": "2026-03-13"
+    }
   },
   "ministries": {
     "兵部": {
-      "status": "completed",
-      "task": "API Gateway、中间件完善"
+      "status": "active",
+      "currentTask": "v2.72.0 测试覆盖率提升",
+      "completedTasks": ["API Gateway", "核心模块开发", "测试补充"]
     },
     "工部": {
-      "status": "completed",
-      "task": "监控配置、数据库迁移"
+      "status": "active",
+      "currentTask": "v2.72.0 CI/CD 优化",
+      "completedTasks": ["Docker 集成", "集群部署", "DevOps 脚本"]
     },
     "礼部": {
-      "status": "completed",
-      "task": "文档更新、CHANGELOG 维护"
+      "status": "active",
+      "currentTask": "v2.72.0 文档完善",
+      "completedTasks": ["WebUI 设计", "文档编写", "CHANGELOG 维护"]
     },
     "刑部": {
-      "status": "completed",
-      "task": "安全审计、代码审查"
+      "status": "active",
+      "currentTask": "v2.72.0 安全审计",
+      "completedTasks": ["安全审计", "代码审查", "合规检查"]
     },
     "户部": {
-      "status": "completed",
-      "task": "成本分析、资源报告"
+      "status": "active",
+      "currentTask": "v2.72.0 成本分析",
+      "completedTasks": ["成本分析", "资源报告", "预算管理"]
     },
     "吏部": {
-      "status": "completed",
-      "task": "项目管理、版本发布"
+      "status": "active",
+      "currentTask": "v2.72.0 项目管理",
+      "completedTasks": ["版本发布", "里程碑跟踪", "进度报告"]
     }
   },
-  "actions": {
-    "v2.36.0": {
-      "git_tag": "done",
-      "push": "done",
-      "CI/CD": "done"
-    }
-  },
-  "nextVersion": "v2.37.0",
-  "plannedFeatures": [
-    "测试覆盖率提升",
-    "性能优化",
-    "Bug修复"
+  "nextSteps": [
+    "M4 用户权限系统开发",
+    "M5 监控告警系统开发",
+    "测试覆盖率提升至 40%+",
+    "性能基准测试"
+  ],
+  "moduleList": [
+    "ai_classify", "api", "audit", "auth", "automation", "backup",
+    "billing", "budget", "cache", "cloudsync", "cluster", "compliance",
+    "compress", "concurrency", "container", "dashboard", "database",
+    "dedup", "disk", "docker", "downloader", "files", "ftp", "health",
+    "iscsi", "ldap", "logging", "media", "monitor", "network", "nfs",
+    "notification", "notify", "office", "optimizer", "perf", "performance",
+    "photos", "plugin", "prediction", "project", "quota", "rbac",
+    "replication", "reports", "scheduler", "search", "security", "service",
+    "sftp", "shares", "smb", "snapshot", "storage", "storagepool", "system",
+    "tags", "tiering", "transfer", "trash", "usbmount", "users", "version",
+    "versioning", "vm", "web", "webdav", "websocket"
   ]
 }
