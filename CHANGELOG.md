@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.47.0] - 2026-03-15
+
+### Added
+- **项目管理 API** (吏部)
+  - internal/project/tasks.go - 任务追踪管理
+  - internal/project/milestones.go - 里程碑管理
+  - internal/project/handlers.go - 项目管理 API 端点
+  - 支持任务创建/更新/删除/查询
+  - 支持里程碑创建/更新/删除/查询
+  - 任务状态流转（待办→进行中→已完成→已关闭）
+  - 里程碑进度追踪
+  - 项目统计仪表板
+
+### Improved
+- **版本同步** (吏部)
+  - 所有文档版本号同步至 v2.47.0
+  - 下载链接更新至最新版本
+
 ## [v2.46.0] - 2026-03-15
 
 ### Improved
