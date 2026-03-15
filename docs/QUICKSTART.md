@@ -1,6 +1,6 @@
 # NAS-OS 快速开始指南
 
-**版本**: v2.31.0  
+**版本**: v2.52.0  
 **更新日期**: 2026-03-15
 
 ---
@@ -11,8 +11,9 @@
 2. [安装方式](#安装方式)
 3. [首次配置](#首次配置)
 4. [基本使用](#基本使用)
-5. [LDAP/AD 集成](#ldapad-集成)
-6. [常见问题](#常见问题)
+5. [Web 界面指南](#web-界面指南)
+6. [LDAP/AD 集成](#ldapad-集成)
+7. [常见问题](#常见问题)
 
 ---
 
@@ -50,17 +51,17 @@
 
 ```bash
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.30.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.52.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.30.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.52.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.30.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.52.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -72,7 +73,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.30.0
+docker pull ghcr.io/crazyqin/nas-os:v2.52.0
 
 # 创建配置目录
 mkdir -p /etc/nas-os /data
@@ -85,7 +86,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.30.0
+  ghcr.io/crazyqin/nas-os:v2.52.0
 
 # 查看日志
 docker logs -f nasd
@@ -169,6 +170,44 @@ sudo nasctl volume create data --devices /dev/sda,/dev/sdb --raid raid1
 
 ---
 
+## Web 界面指南
+
+### 主要功能模块
+
+| 模块 | 功能说明 |
+|------|----------|
+| 📊 仪表盘 | 系统概览、存储状态、资源使用 |
+| 💾 存储管理 | 卷、子卷、快照管理 |
+| 📁 文件管理 | 文件浏览器、上传下载 |
+| 📦 应用商店 | 一键安装常用应用 |
+| 🐳 容器管理 | Docker 容器管理 |
+| 🖥️ 虚拟机 | VM 创建和管理 |
+| 👥 用户管理 | 用户、组、权限管理 |
+| 📊 系统监控 | 实时监控、告警 |
+| ⚙️ 设置 | 系统配置、网络、安全 |
+| 📖 API 文档 | Swagger UI 交互式文档 |
+
+### 文件管理器
+
+文件管理器提供直观的 Web 界面来浏览和管理文件：
+
+- **上传**: 拖拽文件到窗口或点击上传按钮
+- **下载**: 单击文件名下载
+- **预览**: 支持图片、视频、PDF 等格式在线预览
+- **分享**: 右键菜单可生成分享链接
+- **版本**: 查看文件历史版本
+
+### 系统监控
+
+仪表盘实时显示：
+- CPU、内存使用率
+- 磁盘读写速度
+- 网络流量
+- 存储使用情况
+- 系统运行时间
+
+---
+
 ## 基本使用
 
 ### 创建共享文件夹
@@ -241,6 +280,25 @@ sudo nasctl notify add email \
   --events disk_warning,backup_failed
 ```
 
+### 容器管理
+
+```bash
+# 列出容器
+sudo nasctl container list
+
+# 创建容器
+sudo nasctl container create nginx \
+  --image nginx:latest \
+  --port 80:80
+
+# 启动/停止容器
+sudo nasctl container start nginx
+sudo nasctl container stop nginx
+
+# 查看日志
+sudo nasctl container logs nginx
+```
+
 ---
 
 ## 快速参考
@@ -256,6 +314,8 @@ sudo nasctl notify add email \
 | `nasctl volume list` | 卷列表 |
 | `nasctl share list` | 共享列表 |
 | `nasctl user list` | 用户列表 |
+| `nasctl container list` | 容器列表 |
+| `nasctl vm list` | 虚拟机列表 |
 
 ### 常用 API 端点
 
@@ -265,6 +325,8 @@ sudo nasctl notify add email \
 | `GET /api/v1/shares` | 获取共享列表 |
 | `GET /api/v1/monitor/stats` | 系统统计 |
 | `GET /api/v1/monitor/alerts` | 活动告警 |
+| `GET /api/v1/containers` | 容器列表 |
+| `GET /api/v1/vms` | 虚拟机列表 |
 
 ### 配置文件位置
 
@@ -353,13 +415,29 @@ curl -X POST http://localhost:8080/api/v1/ldap/configs \
 sudo nasctl user reset-password admin --password NewPassword123
 ```
 
+### Q: 如何启用 HTTPS？
+
+1. 进入「设置」→「网络设置」
+2. 上传 SSL 证书或使用 Let's Encrypt
+3. 启用 HTTPS 并设置端口
+
+### Q: 如何迁移数据？
+
+```bash
+# 使用 rsync 迁移数据
+rsync -avz --progress /old/data/ /new/data/
+
+# 或使用快照发送
+sudo btrfs send /old/data/.snapshot | sudo btrfs receive /new/data/
+```
+
 ---
 
 ## 下一步
 
 - 📖 阅读完整 [用户手册](USER_GUIDE.md)
 - 🔧 查看 [管理员指南](ADMIN_GUIDE_v2.5.0.md)
-- 📡 参考 [API 文档](API_GUIDE.md)
+- 📡 参考 [API 文档](API_GUIDE.md) 或访问 [Swagger UI](../webui/pages/api-docs.html)
 - 🚀 了解 [部署指南](DEPLOYMENT_GUIDE_v2.5.0.md)
 - 🔐 配置 [LDAP/AD 集成](LDAP-INTEGRATION.md)
 

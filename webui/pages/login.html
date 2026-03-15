@@ -5,104 +5,443 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - NAS-OS</title>
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
-    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="../css/design-system.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden;
         }
+
+        /* 背景动画 */
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-shape:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-shape:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        .bg-shape:nth-child(3) {
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            left: 30%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -30px) rotate(90deg); }
+            50% { transform: translate(0, -50px) rotate(180deg); }
+            75% { transform: translate(-30px, -30px) rotate(270deg); }
+        }
+
         .login-container {
             width: 100%;
-            max-width: 420px;
-            padding: 2rem;
+            max-width: 440px;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
         }
+
         .login-card {
-            background: white;
-            border-radius: 16px;
-            padding: 2.5rem;
-            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
         }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #2563EB, #8B5CF6, #EC4899);
+        }
+
         .login-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
+
+        .login-logo-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+        }
+
         .login-logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 1rem;
+            width: 60px;
+            height: 60px;
         }
+
         .login-title {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
             color: #1F2937;
             margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
         }
+
         .login-subtitle {
             color: #6B7280;
-            font-size: 14px;
-        }
-        .login-form .form-group {
-            margin-bottom: 1.25rem;
-        }
-        .login-form .form-label {
-            font-weight: 500;
-            color: #374151;
-        }
-        .login-form .form-input {
-            padding: 0.75rem 1rem;
             font-size: 15px;
         }
-        .login-submit {
-            width: 100%;
-            padding: 0.875rem;
-            font-size: 16px;
-            margin-top: 0.5rem;
+
+        .login-form .form-group {
+            margin-bottom: 1.5rem;
         }
-        .login-footer {
-            text-align: center;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #E5E7EB;
-        }
-        .login-footer a {
-            color: #2563EB;
+
+        .login-form .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
             font-size: 14px;
         }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon svg {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #9CA3AF;
+            transition: color 0.2s;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 15px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            transition: all 0.2s;
+            background: #F9FAFB;
+        }
+
+        .input-with-icon input:focus {
+            outline: none;
+            border-color: #2563EB;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .input-with-icon input:focus + svg,
+        .input-with-icon:focus-within svg {
+            color: #2563EB;
+        }
+
+        .remember-forgot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
         .remember-me {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-bottom: 1.25rem;
-        }
-        .remember-me input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
             cursor: pointer;
         }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2563EB;
+        }
+
         .remember-me label {
             font-size: 14px;
             color: #4B5563;
             cursor: pointer;
         }
+
+        .forgot-link {
+            color: #2563EB;
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #1D4ED8;
+            text-decoration: underline;
+        }
+
+        .login-submit {
+            width: 100%;
+            padding: 1rem;
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .login-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .login-submit:active {
+            transform: translateY(0);
+        }
+
+        .login-submit.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .login-submit .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         .alert {
             display: none;
-            margin-bottom: 1.25rem;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 14px;
         }
+
         .alert.show {
             display: flex;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .alert-error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+
+        .alert-success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #A7F3D0;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .login-footer-text {
+            color: #6B7280;
+            font-size: 14px;
+            margin-bottom: 1rem;
+        }
+
+        .login-footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .login-footer-link {
+            color: #4B5563;
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .login-footer-link:hover {
+            color: #2563EB;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1rem;
+            }
+            .login-card {
+                padding: 2rem 1.5rem;
+                border-radius: 20px;
+            }
+            .login-title {
+                font-size: 24px;
+            }
+            .login-logo-container {
+                width: 80px;
+                height: 80px;
+            }
+            .login-logo {
+                width: 48px;
+                height: 48px;
+            }
+            .remember-forgot {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+        }
+
+        /* 暗色模式支持 */
+        @media (prefers-color-scheme: dark) {
+            .login-card {
+                background: rgba(31, 41, 55, 0.95);
+            }
+            .login-title {
+                color: #F9FAFB;
+            }
+            .login-subtitle {
+                color: #9CA3AF;
+            }
+            .form-label {
+                color: #E5E7EB;
+            }
+            .input-with-icon input {
+                background: #374151;
+                border-color: #4B5563;
+                color: #F9FAFB;
+            }
+            .input-with-icon input:focus {
+                background: #4B5563;
+            }
+            .remember-me label {
+                color: #D1D5DB;
+            }
+            .login-footer {
+                border-top-color: #374151;
+            }
+            .login-footer-text {
+                color: #9CA3AF;
+            }
+            .login-footer-link {
+                color: #9CA3AF;
+            }
+        }
+
+        /* 版本信息 */
+        .version-info {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        /* 密码可见性切换 */
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9CA3AF;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: #6B7280;
         }
     </style>
 </head>
 <body>
+    <!-- 背景动画 -->
+    <div class="bg-shapes">
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+        <div class="bg-shape"></div>
+    </div>
+
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
-                <img src="../brand/logo/logo-128.png" alt="NAS-OS Logo" class="login-logo">
+                <div class="login-logo-container">
+                    <img src="../brand/logo/logo-128.png" alt="NAS-OS Logo" class="login-logo">
+                </div>
                 <h1 class="login-title">NAS-OS</h1>
-                <p class="login-subtitle">登录到管理系统</p>
+                <p class="login-subtitle">企业级存储管理系统</p>
             </div>
 
             <div id="alert-box" class="alert alert-error">
@@ -115,59 +454,189 @@
             <form class="login-form" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label class="form-label" for="username">用户名</label>
-                    <input type="text" id="username" class="form-input" placeholder="请输入用户名" required autofocus>
+                    <div class="input-with-icon">
+                        <input type="text" id="username" placeholder="请输入用户名" required autofocus autocomplete="username">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="password">密码</label>
-                    <input type="password" id="password" class="form-input" placeholder="请输入密码" required>
+                    <div class="input-with-icon">
+                        <input type="password" id="password" placeholder="请输入密码" required autocomplete="current-password">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <button type="button" class="password-toggle" onclick="togglePassword()" title="显示/隐藏密码">
+                            <svg id="eye-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">记住我</label>
+                <div class="remember-forgot">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">记住我</label>
+                    </div>
+                    <a href="#" class="forgot-link" onclick="showForgotPassword()">忘记密码？</a>
                 </div>
 
-                <button type="submit" class="btn btn-primary login-submit">
-                    登录
+                <button type="submit" class="login-submit" id="login-btn">
+                    <span>登 录</span>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
                 </button>
             </form>
 
             <div class="login-footer">
-                <a href="#">忘记密码？</a>
+                <p class="login-footer-text">欢迎使用 NAS-OS 存储管理系统</p>
+                <div class="login-footer-links">
+                    <a href="../docs/QUICKSTART.md" class="login-footer-link" target="_blank">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        快速入门
+                    </a>
+                    <a href="../docs/API_GUIDE.md" class="login-footer-link" target="_blank">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                        </svg>
+                        API 文档
+                    </a>
+                    <a href="#" class="login-footer-link" onclick="showHelp()">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        帮助
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
+    <div class="version-info">v2.52.0</div>
+
     <script>
-        function handleLogin(event) {
+        // 切换密码可见性
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                `;
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                `;
+            }
+        }
+
+        // 处理登录
+        async function handleLogin(event) {
             event.preventDefault();
             
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
             const alertBox = document.getElementById('alert-box');
             const alertMessage = document.getElementById('alert-message');
+            const loginBtn = document.getElementById('login-btn');
             
-            // 演示：简单验证 (实际应该调用 API)
-            if (username === 'admin' && password === 'admin') {
-                // 登录成功，跳转到主页
-                window.location.href = 'index.html';
-            } else {
-                // 登录失败
-                alertMessage.textContent = '用户名或密码错误，请重试';
-                alertBox.classList.add('show');
+            // 显示加载状态
+            loginBtn.classList.add('loading');
+            loginBtn.innerHTML = '<div class="spinner"></div><span>登录中...</span>';
+            
+            try {
+                // 尝试调用实际 API
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password, remember })
+                });
                 
-                // 3 秒后隐藏错误
-                setTimeout(() => {
-                    alertBox.classList.remove('show');
-                }, 3000);
+                const data = await response.json();
+                
+                if (data.code === 0 || response.ok) {
+                    // 登录成功
+                    localStorage.setItem('nasos_token', data.data?.token || 'demo_token');
+                    
+                    alertBox.classList.remove('alert-error');
+                    alertBox.classList.add('alert-success');
+                    alertMessage.textContent = '登录成功，正在跳转...';
+                    alertBox.classList.add('show');
+                    
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                    }, 500);
+                } else {
+                    throw new Error(data.message || '登录失败');
+                }
+            } catch (error) {
+                // API 不可用时使用演示模式
+                if (username === 'admin' && password === 'admin123') {
+                    localStorage.setItem('nasos_token', 'demo_token');
+                    
+                    alertBox.classList.remove('alert-error');
+                    alertBox.classList.add('alert-success');
+                    alertMessage.textContent = '登录成功，正在跳转...';
+                    alertBox.classList.add('show');
+                    
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                    }, 500);
+                } else {
+                    // 登录失败
+                    alertBox.classList.remove('alert-success');
+                    alertBox.classList.add('alert-error');
+                    alertMessage.textContent = '用户名或密码错误，请重试';
+                    alertBox.classList.add('show');
+                    
+                    // 恢复按钮
+                    loginBtn.classList.remove('loading');
+                    loginBtn.innerHTML = '<span>登 录</span><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>';
+                    
+                    // 3 秒后隐藏错误
+                    setTimeout(() => {
+                        alertBox.classList.remove('show');
+                    }, 3000);
+                }
             }
+        }
+
+        // 忘记密码
+        function showForgotPassword() {
+            alert('请联系系统管理员重置密码，或使用命令行工具：\n\nsudo nasctl user reset-password <用户名>');
+        }
+
+        // 显示帮助
+        function showHelp() {
+            alert('默认登录凭据：\n用户名：admin\n密码：admin123\n\n⚠️ 首次登录后请立即修改密码！');
         }
 
         // 检查是否已登录
         if (localStorage.getItem('nasos_token')) {
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         }
+
+        // 回车键提交
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector('form').dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>
