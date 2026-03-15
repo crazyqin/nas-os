@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.80.0] - 2026-03-16
+
+### Changed
+- **版本号统一更新** (礼部)
+  - README.md 版本更新至 v2.80.0
+  - docs/ 文档版本号同步
+  - Docker 镜像标签更新准备
+
+### Improved
+- **文档体系完善** (礼部)
+  - 用户指南版本同步更新
+  - API 文档版本同步
+  - FAQ 文档版本更新
+  - 故障排查指南版本同步
+  - 快速开始指南版本更新
+  - 英文文档版本同步
+
+### Added
+- **发布说明** (礼部)
+  - 创建 v2.80.0 发布说明文档
+  - 更新 CHANGELOG 版本记录
+
 ## [v2.79.0] - 2026-03-16
 
 ### Fixed
