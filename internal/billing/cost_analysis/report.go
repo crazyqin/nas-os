@@ -16,38 +16,38 @@ import (
 type CostReportType string
 
 const (
-	CostReportStorageTrend    CostReportType = "storage_trend"    // 存储成本趋势分析
-	CostReportResourceUtil    CostReportType = "resource_util"    // 资源利用率报告
-	CostReportOptimization    CostReportType = "optimization"     // 成本优化建议
-	CostReportBudgetTracking  CostReportType = "budget_tracking"  // 预算跟踪报告
-	CostReportComprehensive   CostReportType = "comprehensive"    // 综合成本分析报告
+	CostReportStorageTrend   CostReportType = "storage_trend"   // 存储成本趋势分析
+	CostReportResourceUtil   CostReportType = "resource_util"   // 资源利用率报告
+	CostReportOptimization   CostReportType = "optimization"    // 成本优化建议
+	CostReportBudgetTracking CostReportType = "budget_tracking" // 预算跟踪报告
+	CostReportComprehensive  CostReportType = "comprehensive"   // 综合成本分析报告
 )
 
 // CostReport 成本分析报告
 type CostReport struct {
-	ID           string                 `json:"id"`
-	Type         CostReportType         `json:"type"`
-	GeneratedAt  time.Time              `json:"generated_at"`
-	PeriodStart  time.Time              `json:"period_start"`
-	PeriodEnd    time.Time              `json:"period_end"`
-	Summary      CostSummary            `json:"summary"`
-	Details      interface{}            `json:"details,omitempty"`
-	Trends       []CostTrend            `json:"trends,omitempty"`
-	Recommendations []CostRecommendation `json:"recommendations,omitempty"`
-	Metadata     map[string]interface{} `json:"metadata,omitempty"`
+	ID              string                 `json:"id"`
+	Type            CostReportType         `json:"type"`
+	GeneratedAt     time.Time              `json:"generated_at"`
+	PeriodStart     time.Time              `json:"period_start"`
+	PeriodEnd       time.Time              `json:"period_end"`
+	Summary         CostSummary            `json:"summary"`
+	Details         interface{}            `json:"details,omitempty"`
+	Trends          []CostTrend            `json:"trends,omitempty"`
+	Recommendations []CostRecommendation   `json:"recommendations,omitempty"`
+	Metadata        map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // CostSummary 成本摘要
 type CostSummary struct {
-	TotalCost          float64   `json:"total_cost"`           // 总成本（元）
-	StorageCost        float64   `json:"storage_cost"`         // 存储成本
-	BandwidthCost      float64   `json:"bandwidth_cost"`       // 带宽成本
-	OtherCost          float64   `json:"other_cost"`           // 其他成本
-	Currency           string    `json:"currency"`             // 货币单位
-	CostChangePercent  float64   `json:"cost_change_percent"`  // 成本变化百分比
-	AvgDailyCost       float64   `json:"avg_daily_cost"`       // 平均日成本
+	TotalCost            float64 `json:"total_cost"`             // 总成本（元）
+	StorageCost          float64 `json:"storage_cost"`           // 存储成本
+	BandwidthCost        float64 `json:"bandwidth_cost"`         // 带宽成本
+	OtherCost            float64 `json:"other_cost"`             // 其他成本
+	Currency             string  `json:"currency"`               // 货币单位
+	CostChangePercent    float64 `json:"cost_change_percent"`    // 成本变化百分比
+	AvgDailyCost         float64 `json:"avg_daily_cost"`         // 平均日成本
 	ProjectedMonthlyCost float64 `json:"projected_monthly_cost"` // 预计月成本
-	BudgetUtilization  float64   `json:"budget_utilization"`   // 预算使用率
+	BudgetUtilization    float64 `json:"budget_utilization"`     // 预算使用率
 }
 
 // CostTrend 成本趋势
@@ -62,72 +62,72 @@ type CostTrend struct {
 
 // CostRecommendation 成本优化建议
 type CostRecommendation struct {
-	ID              string   `json:"id"`
-	Type            string   `json:"type"`             // storage, bandwidth, user, pool
-	Priority        string   `json:"priority"`         // high, medium, low
-	Title           string   `json:"title"`
-	Description     string   `json:"description"`
+	ID               string  `json:"id"`
+	Type             string  `json:"type"`     // storage, bandwidth, user, pool
+	Priority         string  `json:"priority"` // high, medium, low
+	Title            string  `json:"title"`
+	Description      string  `json:"description"`
 	PotentialSavings float64 `json:"potential_savings"` // 预计节省金额（元/月）
-	Impact          string   `json:"impact"`           // 影响范围
-	Action          string   `json:"action"`           // 建议操作
-	Implemented     bool     `json:"implemented"`      // 是否已实施
+	Impact           string  `json:"impact"`            // 影响范围
+	Action           string  `json:"action"`            // 建议操作
+	Implemented      bool    `json:"implemented"`       // 是否已实施
 }
 
 // ========== 存储成本趋势分析 ==========
 
 // StorageTrendAnalysis 存储成本趋势分析
 type StorageTrendAnalysis struct {
-	AnalysisDate    time.Time           `json:"analysis_date"`
-	PeriodDays      int                 `json:"period_days"`
-	CurrentUsage    StorageUsageSnapshot `json:"current_usage"`
-	TrendData       []StorageTrendPoint `json:"trend_data"`
-	GrowthRate      StorageGrowthRate   `json:"growth_rate"`
-	CostProjection  CostProjection      `json:"cost_projection"`
-	PoolAnalysis    []PoolCostAnalysis  `json:"pool_analysis"`
-	UserAnalysis    []UserCostAnalysis  `json:"user_analysis"`
-	Alerts          []CostAlert         `json:"alerts,omitempty"`
+	AnalysisDate   time.Time            `json:"analysis_date"`
+	PeriodDays     int                  `json:"period_days"`
+	CurrentUsage   StorageUsageSnapshot `json:"current_usage"`
+	TrendData      []StorageTrendPoint  `json:"trend_data"`
+	GrowthRate     StorageGrowthRate    `json:"growth_rate"`
+	CostProjection CostProjection       `json:"cost_projection"`
+	PoolAnalysis   []PoolCostAnalysis   `json:"pool_analysis"`
+	UserAnalysis   []UserCostAnalysis   `json:"user_analysis"`
+	Alerts         []CostAlert          `json:"alerts,omitempty"`
 }
 
 // StorageUsageSnapshot 存储使用快照
 type StorageUsageSnapshot struct {
-	Timestamp         time.Time `json:"timestamp"`
-	TotalBytes        uint64    `json:"total_bytes"`
-	UsedBytes         uint64    `json:"used_bytes"`
-	FreeBytes         uint64    `json:"free_bytes"`
-	UsagePercent      float64   `json:"usage_percent"`
-	CostPerGB         float64   `json:"cost_per_gb"`
-	MonthlyCost       float64   `json:"monthly_cost"`
+	Timestamp    time.Time `json:"timestamp"`
+	TotalBytes   uint64    `json:"total_bytes"`
+	UsedBytes    uint64    `json:"used_bytes"`
+	FreeBytes    uint64    `json:"free_bytes"`
+	UsagePercent float64   `json:"usage_percent"`
+	CostPerGB    float64   `json:"cost_per_gb"`
+	MonthlyCost  float64   `json:"monthly_cost"`
 }
 
 // StorageTrendPoint 存储趋势数据点
 type StorageTrendPoint struct {
-	Date           time.Time `json:"date"`
-	UsedBytes      uint64    `json:"used_bytes"`
-	UsedGB         float64   `json:"used_gb"`
-	UsagePercent   float64   `json:"usage_percent"`
-	DailyGrowth    float64   `json:"daily_growth"`    // 日增长量（GB）
-	CostPerGB      float64   `json:"cost_per_gb"`
-	DailyCost      float64   `json:"daily_cost"`
+	Date         time.Time `json:"date"`
+	UsedBytes    uint64    `json:"used_bytes"`
+	UsedGB       float64   `json:"used_gb"`
+	UsagePercent float64   `json:"usage_percent"`
+	DailyGrowth  float64   `json:"daily_growth"` // 日增长量（GB）
+	CostPerGB    float64   `json:"cost_per_gb"`
+	DailyCost    float64   `json:"daily_cost"`
 }
 
 // StorageGrowthRate 存储增长率
 type StorageGrowthRate struct {
-	DailyGrowthBytes    uint64  `json:"daily_growth_bytes"`
-	DailyGrowthGB       float64 `json:"daily_growth_gb"`
-	DailyGrowthPercent  float64 `json:"daily_growth_percent"`
-	WeeklyGrowthBytes   uint64  `json:"weekly_growth_bytes"`
-	MonthlyGrowthBytes  uint64  `json:"monthly_growth_bytes"`
-	TrendDirection      string  `json:"trend_direction"` // increasing, decreasing, stable
+	DailyGrowthBytes   uint64  `json:"daily_growth_bytes"`
+	DailyGrowthGB      float64 `json:"daily_growth_gb"`
+	DailyGrowthPercent float64 `json:"daily_growth_percent"`
+	WeeklyGrowthBytes  uint64  `json:"weekly_growth_bytes"`
+	MonthlyGrowthBytes uint64  `json:"monthly_growth_bytes"`
+	TrendDirection     string  `json:"trend_direction"` // increasing, decreasing, stable
 }
 
 // CostProjection 成本预测
 type CostProjection struct {
-	CurrentMonthlyCost    float64   `json:"current_monthly_cost"`
-	ProjectedNextMonth    float64   `json:"projected_next_month"`
-	ProjectedNextQuarter  float64   `json:"projected_next_quarter"`
-	ProjectedNextYear     float64   `json:"projected_next_year"`
-	ConfidenceLevel       float64   `json:"confidence_level"` // 0-1
-	Assumptions           []string  `json:"assumptions"`
+	CurrentMonthlyCost   float64  `json:"current_monthly_cost"`
+	ProjectedNextMonth   float64  `json:"projected_next_month"`
+	ProjectedNextQuarter float64  `json:"projected_next_quarter"`
+	ProjectedNextYear    float64  `json:"projected_next_year"`
+	ConfidenceLevel      float64  `json:"confidence_level"` // 0-1
+	Assumptions          []string `json:"assumptions"`
 }
 
 // PoolCostAnalysis 存储池成本分析
@@ -146,82 +146,82 @@ type PoolCostAnalysis struct {
 
 // UserCostAnalysis 用户成本分析
 type UserCostAnalysis struct {
-	UserID          string  `json:"user_id"`
-	UserName        string  `json:"user_name"`
-	TotalUsedGB     float64 `json:"total_used_gb"`
-	MonthlyCost     float64 `json:"monthly_cost"`
-	QuotaLimitGB    float64 `json:"quota_limit_gb"`
-	QuotaUsage      float64 `json:"quota_usage"`
-	TopPools        []string `json:"top_pools"`
-	GrowthRate      float64 `json:"growth_rate"`
+	UserID       string   `json:"user_id"`
+	UserName     string   `json:"user_name"`
+	TotalUsedGB  float64  `json:"total_used_gb"`
+	MonthlyCost  float64  `json:"monthly_cost"`
+	QuotaLimitGB float64  `json:"quota_limit_gb"`
+	QuotaUsage   float64  `json:"quota_usage"`
+	TopPools     []string `json:"top_pools"`
+	GrowthRate   float64  `json:"growth_rate"`
 }
 
 // CostAlert 成本告警
 type CostAlert struct {
-	ID          string    `json:"id"`
-	Type        string    `json:"type"`      // budget_exceeded, growth_anomaly, inefficiency
-	Severity    string    `json:"severity"`  // info, warning, critical
-	Message     string    `json:"message"`
-	Value       float64   `json:"value"`
-	Threshold   float64   `json:"threshold"`
-	CreatedAt   time.Time `json:"created_at"`
-	Acknowledged bool     `json:"acknowledged"`
+	ID           string    `json:"id"`
+	Type         string    `json:"type"`     // budget_exceeded, growth_anomaly, inefficiency
+	Severity     string    `json:"severity"` // info, warning, critical
+	Message      string    `json:"message"`
+	Value        float64   `json:"value"`
+	Threshold    float64   `json:"threshold"`
+	CreatedAt    time.Time `json:"created_at"`
+	Acknowledged bool      `json:"acknowledged"`
 }
 
 // ========== 资源利用率报告 ==========
 
 // ResourceUtilizationReport 资源利用率报告
 type ResourceUtilizationReport struct {
-	GeneratedAt       time.Time              `json:"generated_at"`
-	PeriodStart       time.Time              `json:"period_start"`
-	PeriodEnd         time.Time              `json:"period_end"`
-	OverallScore      float64                `json:"overall_score"`     // 整体利用率评分
-	StorageUtil       StorageUtilization     `json:"storage_utilization"`
-	BandwidthUtil     BandwidthUtilization   `json:"bandwidth_utilization"`
-	UserUtilization   []UserUtilStats        `json:"user_utilization"`
-	PoolUtilization   []PoolUtilStats        `json:"pool_utilization"`
-	IdleResources     []IdleResource         `json:"idle_resources"`
-	Underutilized     []UnderutilizedResource `json:"underutilized"`
-	Recommendations   []UtilizationRecommendation `json:"recommendations"`
+	GeneratedAt     time.Time                   `json:"generated_at"`
+	PeriodStart     time.Time                   `json:"period_start"`
+	PeriodEnd       time.Time                   `json:"period_end"`
+	OverallScore    float64                     `json:"overall_score"` // 整体利用率评分
+	StorageUtil     StorageUtilization          `json:"storage_utilization"`
+	BandwidthUtil   BandwidthUtilization        `json:"bandwidth_utilization"`
+	UserUtilization []UserUtilStats             `json:"user_utilization"`
+	PoolUtilization []PoolUtilStats             `json:"pool_utilization"`
+	IdleResources   []IdleResource              `json:"idle_resources"`
+	Underutilized   []UnderutilizedResource     `json:"underutilized"`
+	Recommendations []UtilizationRecommendation `json:"recommendations"`
 }
 
 // StorageUtilization 存储利用率
 type StorageUtilization struct {
-	TotalCapacity     uint64  `json:"total_capacity"`
-	UsedCapacity      uint64  `json:"used_capacity"`
-	FreeCapacity      uint64  `json:"free_capacity"`
-	UtilizationRate   float64 `json:"utilization_rate"`
-	AvgUtilization    float64 `json:"avg_utilization"`     // 平均利用率
-	PeakUtilization   float64 `json:"peak_utilization"`    // 峰值利用率
-	MinUtilization    float64 `json:"min_utilization"`     // 最低利用率
-	UtilTrend         string  `json:"util_trend"`          // up, down, stable
-	WastedCapacity    uint64  `json:"wasted_capacity"`     // 浪费容量（低利用率）
-	WastedCost        float64 `json:"wasted_cost"`         // 浪费成本
+	TotalCapacity   uint64  `json:"total_capacity"`
+	UsedCapacity    uint64  `json:"used_capacity"`
+	FreeCapacity    uint64  `json:"free_capacity"`
+	UtilizationRate float64 `json:"utilization_rate"`
+	AvgUtilization  float64 `json:"avg_utilization"`  // 平均利用率
+	PeakUtilization float64 `json:"peak_utilization"` // 峰值利用率
+	MinUtilization  float64 `json:"min_utilization"`  // 最低利用率
+	UtilTrend       string  `json:"util_trend"`       // up, down, stable
+	WastedCapacity  uint64  `json:"wasted_capacity"`  // 浪费容量（低利用率）
+	WastedCost      float64 `json:"wasted_cost"`      // 浪费成本
 }
 
 // BandwidthUtilization 带宽利用率
 type BandwidthUtilization struct {
-	TotalAllocated    uint64  `json:"total_allocated"`      // 分配带宽（Mbps）
-	PeakUsage         uint64  `json:"peak_usage"`           // 峰值使用
-	AvgUsage          uint64  `json:"avg_usage"`            // 平均使用
-	UtilizationRate   float64 `json:"utilization_rate"`
-	InboundBytes      uint64  `json:"inbound_bytes"`
-	OutboundBytes     uint64  `json:"outbound_bytes"`
-	TotalBytes        uint64  `json:"total_bytes"`
-	CostPerGB         float64 `json:"cost_per_gb"`
-	MonthlyCost       float64 `json:"monthly_cost"`
+	TotalAllocated  uint64  `json:"total_allocated"` // 分配带宽（Mbps）
+	PeakUsage       uint64  `json:"peak_usage"`      // 峰值使用
+	AvgUsage        uint64  `json:"avg_usage"`       // 平均使用
+	UtilizationRate float64 `json:"utilization_rate"`
+	InboundBytes    uint64  `json:"inbound_bytes"`
+	OutboundBytes   uint64  `json:"outbound_bytes"`
+	TotalBytes      uint64  `json:"total_bytes"`
+	CostPerGB       float64 `json:"cost_per_gb"`
+	MonthlyCost     float64 `json:"monthly_cost"`
 }
 
 // UserUtilStats 用户利用率统计
 type UserUtilStats struct {
-	UserID          string  `json:"user_id"`
-	UserName        string  `json:"user_name"`
-	QuotaAllocated  uint64  `json:"quota_allocated"`
-	QuotaUsed       uint64  `json:"quota_used"`
-	UtilizationRate float64 `json:"utilization_rate"`
-	Status          string  `json:"status"` // active, idle, underutilized
-	LastActive      *time.Time `json:"last_active,omitempty"`
-	SavingsPotential float64 `json:"savings_potential"` // 潜在节省
+	UserID           string     `json:"user_id"`
+	UserName         string     `json:"user_name"`
+	QuotaAllocated   uint64     `json:"quota_allocated"`
+	QuotaUsed        uint64     `json:"quota_used"`
+	UtilizationRate  float64    `json:"utilization_rate"`
+	Status           string     `json:"status"` // active, idle, underutilized
+	LastActive       *time.Time `json:"last_active,omitempty"`
+	SavingsPotential float64    `json:"savings_potential"` // 潜在节省
 }
 
 // PoolUtilStats 存储池利用率统计
@@ -250,73 +250,73 @@ type IdleResource struct {
 
 // UnderutilizedResource 低利用率资源
 type UnderutilizedResource struct {
-	ResourceID      string  `json:"resource_id"`
-	ResourceName    string  `json:"resource_name"`
-	ResourceType    string  `json:"resource_type"`
-	Allocated       uint64  `json:"allocated"`
-	Used            uint64  `json:"used"`
-	UtilizationRate float64 `json:"utilization_rate"`
-	Threshold       float64 `json:"threshold"`
+	ResourceID       string  `json:"resource_id"`
+	ResourceName     string  `json:"resource_name"`
+	ResourceType     string  `json:"resource_type"`
+	Allocated        uint64  `json:"allocated"`
+	Used             uint64  `json:"used"`
+	UtilizationRate  float64 `json:"utilization_rate"`
+	Threshold        float64 `json:"threshold"`
 	SavingsPotential float64 `json:"savings_potential"`
 }
 
 // UtilizationRecommendation 利用率建议
 type UtilizationRecommendation struct {
-	Type        string   `json:"type"` // consolidate, deallocate, optimize
-	Priority    string   `json:"priority"`
-	Description string   `json:"description"`
-	Savings     float64  `json:"savings"`
-	Effort      string   `json:"effort"` // low, medium, high
-	Impact      string   `json:"impact"`
+	Type        string  `json:"type"` // consolidate, deallocate, optimize
+	Priority    string  `json:"priority"`
+	Description string  `json:"description"`
+	Savings     float64 `json:"savings"`
+	Effort      string  `json:"effort"` // low, medium, high
+	Impact      string  `json:"impact"`
 }
 
 // ========== 预算跟踪功能 ==========
 
 // BudgetConfig 预算配置
 type BudgetConfig struct {
-	ID              string    `json:"id"`
-	Name            string    `json:"name"`
-	TotalBudget     float64   `json:"total_budget"`     // 总预算（元）
-	Period          string    `json:"period"`           // monthly, quarterly, yearly
-	StartDate       time.Time `json:"start_date"`
-	EndDate         time.Time `json:"end_date"`
-	AlertThresholds []float64 `json:"alert_thresholds"` // 告警阈值（百分比）
+	ID              string           `json:"id"`
+	Name            string           `json:"name"`
+	TotalBudget     float64          `json:"total_budget"` // 总预算（元）
+	Period          string           `json:"period"`       // monthly, quarterly, yearly
+	StartDate       time.Time        `json:"start_date"`
+	EndDate         time.Time        `json:"end_date"`
+	AlertThresholds []float64        `json:"alert_thresholds"` // 告警阈值（百分比）
 	Categories      []BudgetCategory `json:"categories"`
-	NotifyEmails    []string  `json:"notify_emails"`
-	NotifyWebhooks  []string  `json:"notify_webhooks"`
-	Enabled         bool      `json:"enabled"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	NotifyEmails    []string         `json:"notify_emails"`
+	NotifyWebhooks  []string         `json:"notify_webhooks"`
+	Enabled         bool             `json:"enabled"`
+	CreatedAt       time.Time        `json:"created_at"`
+	UpdatedAt       time.Time        `json:"updated_at"`
 }
 
 // BudgetCategory 预算分类
 type BudgetCategory struct {
-	Name        string  `json:"name"`         // storage, bandwidth, etc.
-	Budget      float64 `json:"budget"`       // 该分类预算
+	Name         string  `json:"name"`          // storage, bandwidth, etc.
+	Budget       float64 `json:"budget"`        // 该分类预算
 	CurrentSpend float64 `json:"current_spend"` // 当前支出
-	Percentage  float64 `json:"percentage"`   // 占总预算百分比
+	Percentage   float64 `json:"percentage"`    // 占总预算百分比
 }
 
 // BudgetTrackingReport 预算跟踪报告
 type BudgetTrackingReport struct {
-	GeneratedAt     time.Time          `json:"generated_at"`
-	BudgetID        string             `json:"budget_id"`
-	BudgetName      string             `json:"budget_name"`
-	Period          string             `json:"period"`
-	PeriodStart     time.Time          `json:"period_start"`
-	PeriodEnd       time.Time          `json:"period_end"`
-	DaysRemaining   int                `json:"days_remaining"`
-	TotalBudget     float64            `json:"total_budget"`
-	CurrentSpend    float64            `json:"current_spend"`
-	Remaining       float64            `json:"remaining"`
-	Utilization     float64            `json:"utilization"`      // 预算使用率
-	ProjectedSpend  float64            `json:"projected_spend"`  // 预计期末支出
-	ProjectedOverrun float64           `json:"projected_overrun"` // 预计超支
-	Status          string             `json:"status"`           // on_track, at_risk, over_budget
-	Categories      []CategorySpend    `json:"categories"`
-	Trend           []BudgetTrendPoint `json:"trend"`
-	Alerts          []BudgetAlert      `json:"alerts,omitempty"`
-	Recommendations []string           `json:"recommendations"`
+	GeneratedAt      time.Time          `json:"generated_at"`
+	BudgetID         string             `json:"budget_id"`
+	BudgetName       string             `json:"budget_name"`
+	Period           string             `json:"period"`
+	PeriodStart      time.Time          `json:"period_start"`
+	PeriodEnd        time.Time          `json:"period_end"`
+	DaysRemaining    int                `json:"days_remaining"`
+	TotalBudget      float64            `json:"total_budget"`
+	CurrentSpend     float64            `json:"current_spend"`
+	Remaining        float64            `json:"remaining"`
+	Utilization      float64            `json:"utilization"`       // 预算使用率
+	ProjectedSpend   float64            `json:"projected_spend"`   // 预计期末支出
+	ProjectedOverrun float64            `json:"projected_overrun"` // 预计超支
+	Status           string             `json:"status"`            // on_track, at_risk, over_budget
+	Categories       []CategorySpend    `json:"categories"`
+	Trend            []BudgetTrendPoint `json:"trend"`
+	Alerts           []BudgetAlert      `json:"alerts,omitempty"`
+	Recommendations  []string           `json:"recommendations"`
 }
 
 // CategorySpend 分类支出
@@ -330,23 +330,23 @@ type CategorySpend struct {
 
 // BudgetTrendPoint 预算趋势数据点
 type BudgetTrendPoint struct {
-	Date        time.Time `json:"date"`
-	Spend       float64   `json:"spend"`
-	Cumulative  float64   `json:"cumulative"`
-	Percentage  float64   `json:"percentage"`
+	Date       time.Time `json:"date"`
+	Spend      float64   `json:"spend"`
+	Cumulative float64   `json:"cumulative"`
+	Percentage float64   `json:"percentage"`
 }
 
 // BudgetAlert 预算告警
 type BudgetAlert struct {
-	ID          string    `json:"id"`
-	BudgetID    string    `json:"budget_id"`
-	Type        string    `json:"type"`      // threshold_exceeded, projected_overrun
-	Severity    string    `json:"severity"`
-	Message     string    `json:"message"`
-	Threshold   float64   `json:"threshold"`
-	Actual      float64   `json:"actual"`
-	CreatedAt   time.Time `json:"created_at"`
-	Acknowledged bool     `json:"acknowledged"`
+	ID           string    `json:"id"`
+	BudgetID     string    `json:"budget_id"`
+	Type         string    `json:"type"` // threshold_exceeded, projected_overrun
+	Severity     string    `json:"severity"`
+	Message      string    `json:"message"`
+	Threshold    float64   `json:"threshold"`
+	Actual       float64   `json:"actual"`
+	CreatedAt    time.Time `json:"created_at"`
+	Acknowledged bool      `json:"acknowledged"`
 }
 
 // ========== 成本分析引擎 ==========
@@ -381,60 +381,60 @@ type QuotaDataProvider interface {
 
 // UsageRecord 用量记录
 type UsageRecord struct {
-	ID              string    `json:"id"`
-	UserID          string    `json:"user_id"`
-	PoolID          string    `json:"pool_id"`
-	StorageUsedGB   float64   `json:"storage_used_gb"`
-	BandwidthGB     float64   `json:"bandwidth_gb"`
-	RecordedAt      time.Time `json:"recorded_at"`
+	ID            string    `json:"id"`
+	UserID        string    `json:"user_id"`
+	PoolID        string    `json:"pool_id"`
+	StorageUsedGB float64   `json:"storage_used_gb"`
+	BandwidthGB   float64   `json:"bandwidth_gb"`
+	RecordedAt    time.Time `json:"recorded_at"`
 }
 
 // UsageSummary 用量汇总
 type UsageSummary struct {
-	UserID              string  `json:"user_id"`
-	TotalStorageUsedGB  float64 `json:"total_storage_used_gb"`
-	TotalBandwidthGB    float64 `json:"total_bandwidth_gb"`
+	UserID             string  `json:"user_id"`
+	TotalStorageUsedGB float64 `json:"total_storage_used_gb"`
+	TotalBandwidthGB   float64 `json:"total_bandwidth_gb"`
 }
 
 // BillingStats 计费统计
 type BillingStats struct {
-	TotalStorageUsedGB  float64 `json:"total_storage_used_gb"`
-	TotalBandwidthGB    float64 `json:"total_bandwidth_gb"`
-	TotalRevenue        float64 `json:"total_revenue"`
-	StorageRevenue      float64 `json:"storage_revenue"`
-	BandwidthRevenue    float64 `json:"bandwidth_revenue"`
+	TotalStorageUsedGB float64 `json:"total_storage_used_gb"`
+	TotalBandwidthGB   float64 `json:"total_bandwidth_gb"`
+	TotalRevenue       float64 `json:"total_revenue"`
+	StorageRevenue     float64 `json:"storage_revenue"`
+	BandwidthRevenue   float64 `json:"bandwidth_revenue"`
 }
 
 // QuotaUsageInfo 配额使用信息
 type QuotaUsageInfo struct {
-	QuotaID     string  `json:"quota_id"`
-	TargetID    string  `json:"target_id"`
-	TargetName  string  `json:"target_name"`
-	VolumeName  string  `json:"volume_name"`
-	HardLimit   uint64  `json:"hard_limit"`
-	UsedBytes   uint64  `json:"used_bytes"`
-	Available   uint64  `json:"available"`
+	QuotaID      string  `json:"quota_id"`
+	TargetID     string  `json:"target_id"`
+	TargetName   string  `json:"target_name"`
+	VolumeName   string  `json:"volume_name"`
+	HardLimit    uint64  `json:"hard_limit"`
+	UsedBytes    uint64  `json:"used_bytes"`
+	Available    uint64  `json:"available"`
 	UsagePercent float64 `json:"usage_percent"`
 }
 
 // AnalysisConfig 分析配置
 type AnalysisConfig struct {
-	DataRetentionDays   int       `json:"data_retention_days"`
-	TrendAnalysisDays   int       `json:"trend_analysis_days"`
-	IdleThresholdDays   int       `json:"idle_threshold_days"`
-	UnderutilThreshold  float64   `json:"underutil_threshold"`
-	DefaultCurrency     string    `json:"default_currency"`
+	DataRetentionDays     int       `json:"data_retention_days"`
+	TrendAnalysisDays     int       `json:"trend_analysis_days"`
+	IdleThresholdDays     int       `json:"idle_threshold_days"`
+	UnderutilThreshold    float64   `json:"underutil_threshold"`
+	DefaultCurrency       string    `json:"default_currency"`
 	BudgetAlertThresholds []float64 `json:"budget_alert_thresholds"`
 }
 
 // DefaultAnalysisConfig 默认分析配置
 func DefaultAnalysisConfig() AnalysisConfig {
 	return AnalysisConfig{
-		DataRetentionDays:   365,
-		TrendAnalysisDays:   30,
-		IdleThresholdDays:   30,
-		UnderutilThreshold:  0.3, // 30% 以下为低利用率
-		DefaultCurrency:     "CNY",
+		DataRetentionDays:     365,
+		TrendAnalysisDays:     30,
+		IdleThresholdDays:     30,
+		UnderutilThreshold:    0.3, // 30% 以下为低利用率
+		DefaultCurrency:       "CNY",
 		BudgetAlertThresholds: []float64{50, 75, 90, 100},
 	}
 }
@@ -526,11 +526,11 @@ func (e *CostAnalysisEngine) GenerateStorageTrendReport(days int) (*CostReport, 
 
 	// 生成摘要
 	report.Summary = CostSummary{
-		TotalCost:     analysis.CurrentUsage.MonthlyCost,
-		StorageCost:   analysis.CurrentUsage.MonthlyCost,
-		Currency:      e.config.DefaultCurrency,
+		TotalCost:         analysis.CurrentUsage.MonthlyCost,
+		StorageCost:       analysis.CurrentUsage.MonthlyCost,
+		Currency:          e.config.DefaultCurrency,
 		CostChangePercent: e.calculateCostChange(days),
-		AvgDailyCost:  analysis.CurrentUsage.MonthlyCost / 30,
+		AvgDailyCost:      analysis.CurrentUsage.MonthlyCost / 30,
 	}
 
 	// 生成趋势数据
@@ -635,9 +635,9 @@ func (e *CostAnalysisEngine) GenerateBudgetTrackingReport(budgetID string) (*Cos
 
 	// 摘要
 	report.Summary = CostSummary{
-		TotalCost:          tracking.CurrentSpend,
-		Currency:           e.config.DefaultCurrency,
-		BudgetUtilization:  tracking.Utilization,
+		TotalCost:            tracking.CurrentSpend,
+		Currency:             e.config.DefaultCurrency,
+		BudgetUtilization:    tracking.Utilization,
 		ProjectedMonthlyCost: tracking.ProjectedSpend,
 	}
 
@@ -677,9 +677,9 @@ func (e *CostAnalysisEngine) GenerateComprehensiveReport() (*CostReport, error) 
 	}
 
 	report.Details = map[string]interface{}{
-		"storage_trend":    trendAnalysis,
-		"resource_util":    utilReport,
-		"budget_tracking":  budgetTrackings,
+		"storage_trend":   trendAnalysis,
+		"resource_util":   utilReport,
+		"budget_tracking": budgetTrackings,
 	}
 
 	// 综合摘要
@@ -689,9 +689,9 @@ func (e *CostAnalysisEngine) GenerateComprehensiveReport() (*CostReport, error) 
 	}
 
 	report.Summary = CostSummary{
-		TotalCost:        trendAnalysis.CurrentUsage.MonthlyCost,
-		StorageCost:      trendAnalysis.CurrentUsage.MonthlyCost,
-		Currency:         e.config.DefaultCurrency,
+		TotalCost:         trendAnalysis.CurrentUsage.MonthlyCost,
+		StorageCost:       trendAnalysis.CurrentUsage.MonthlyCost,
+		Currency:          e.config.DefaultCurrency,
 		CostChangePercent: e.calculateCostChange(30),
 	}
 
@@ -736,10 +736,10 @@ func (e *CostAnalysisEngine) analyzeStorageTrend(start, end time.Time) *StorageT
 		for _, u := range quotaUsages {
 			if _, exists := poolMap[u.VolumeName]; !exists {
 				poolMap[u.VolumeName] = &PoolCostAnalysis{
-					PoolID:      u.VolumeName,
-					PoolName:    u.VolumeName,
-					UsedBytes:   0,
-					PricePerGB:  e.billingClient.GetStoragePrice(u.VolumeName),
+					PoolID:     u.VolumeName,
+					PoolName:   u.VolumeName,
+					UsedBytes:  0,
+					PricePerGB: e.billingClient.GetStoragePrice(u.VolumeName),
 				}
 			}
 			poolMap[u.VolumeName].UsedBytes += u.UsedBytes
@@ -792,9 +792,9 @@ func (e *CostAnalysisEngine) analyzeStorageTrend(start, end time.Time) *StorageT
 // analyzeResourceUtilization 分析资源利用率
 func (e *CostAnalysisEngine) analyzeResourceUtilization(start, end time.Time) *ResourceUtilizationReport {
 	report := &ResourceUtilizationReport{
-		GeneratedAt:    time.Now(),
-		PeriodStart:    start,
-		PeriodEnd:      end,
+		GeneratedAt:     time.Now(),
+		PeriodStart:     start,
+		PeriodEnd:       end,
 		UserUtilization: make([]UserUtilStats, 0),
 		PoolUtilization: make([]PoolUtilStats, 0),
 		IdleResources:   make([]IdleResource, 0),
@@ -1066,16 +1066,16 @@ func (e *CostAnalysisEngine) ListBudgets() []*BudgetConfig {
 func (e *CostAnalysisEngine) generateBudgetTracking(budget *BudgetConfig) *BudgetTrackingReport {
 	now := time.Now()
 	tracking := &BudgetTrackingReport{
-		GeneratedAt:  now,
-		BudgetID:     budget.ID,
-		BudgetName:   budget.Name,
-		Period:       budget.Period,
-		PeriodStart:  budget.StartDate,
-		PeriodEnd:    budget.EndDate,
-		TotalBudget:  budget.TotalBudget,
-		Categories:   make([]CategorySpend, 0),
-		Trend:        make([]BudgetTrendPoint, 0),
-		Alerts:       make([]BudgetAlert, 0),
+		GeneratedAt:     now,
+		BudgetID:        budget.ID,
+		BudgetName:      budget.Name,
+		Period:          budget.Period,
+		PeriodStart:     budget.StartDate,
+		PeriodEnd:       budget.EndDate,
+		TotalBudget:     budget.TotalBudget,
+		Categories:      make([]CategorySpend, 0),
+		Trend:           make([]BudgetTrendPoint, 0),
+		Alerts:          make([]BudgetAlert, 0),
 		Recommendations: make([]string, 0),
 	}
 
@@ -1243,7 +1243,7 @@ func (e *CostAnalysisEngine) generateCostAlerts(analysis *StorageTrendAnalysis) 
 		alerts = append(alerts, CostAlert{
 			ID:        generateReportID(),
 			Type:      "growth_anomaly",
-			Severity:   "warning",
+			Severity:  "warning",
 			Message:   fmt.Sprintf("存储日增长率异常: %.1f%%", analysis.GrowthRate.DailyGrowthPercent),
 			Value:     analysis.GrowthRate.DailyGrowthPercent,
 			Threshold: 5,
@@ -1257,7 +1257,7 @@ func (e *CostAnalysisEngine) generateCostAlerts(analysis *StorageTrendAnalysis) 
 			alerts = append(alerts, CostAlert{
 				ID:        generateReportID(),
 				Type:      "budget_exceeded",
-				Severity:   "critical",
+				Severity:  "critical",
 				Message:   fmt.Sprintf("预计下月成本 %.2f 元将超出预算 %.2f 元", analysis.CostProjection.ProjectedNextMonth, budget.TotalBudget),
 				Value:     analysis.CostProjection.ProjectedNextMonth,
 				Threshold: budget.TotalBudget,
@@ -1382,11 +1382,11 @@ func (e *CostAnalysisEngine) generateUtilizationRecommendations(report *Resource
 			ID:               generateReportID(),
 			Type:             "utilization",
 			Priority:         util.Priority,
-			Title:           util.Description,
-			Description:     util.Description,
+			Title:            util.Description,
+			Description:      util.Description,
 			PotentialSavings: util.Savings,
-			Impact:          util.Impact,
-			Action:          util.Description,
+			Impact:           util.Impact,
+			Action:           util.Description,
 		})
 	}
 
@@ -1399,23 +1399,23 @@ func (e *CostAnalysisEngine) generateBudgetRecommendations(tracking *BudgetTrack
 
 	if tracking.Status == "over_budget" {
 		recs = append(recs, CostRecommendation{
-			ID:           generateReportID(),
-			Type:         "budget",
-			Priority:     "critical",
-			Title:        "预算已超支",
-			Description:  fmt.Sprintf("当前支出 %.2f 元已超过预算 %.2f 元", tracking.CurrentSpend, tracking.TotalBudget),
-			Impact:       "财务",
-			Action:       "立即审核支出并采取控制措施",
+			ID:          generateReportID(),
+			Type:        "budget",
+			Priority:    "critical",
+			Title:       "预算已超支",
+			Description: fmt.Sprintf("当前支出 %.2f 元已超过预算 %.2f 元", tracking.CurrentSpend, tracking.TotalBudget),
+			Impact:      "财务",
+			Action:      "立即审核支出并采取控制措施",
 		})
 	} else if tracking.Status == "at_risk" {
 		recs = append(recs, CostRecommendation{
-			ID:           generateReportID(),
-			Type:         "budget",
-			Priority:     "high",
-			Title:        "预算存在超支风险",
-			Description:  fmt.Sprintf("预计期末支出 %.2f 元，可能超出预算", tracking.ProjectedSpend),
-			Impact:       "财务",
-			Action:       "评估是否需要调整预算或控制支出",
+			ID:          generateReportID(),
+			Type:        "budget",
+			Priority:    "high",
+			Title:       "预算存在超支风险",
+			Description: fmt.Sprintf("预计期末支出 %.2f 元，可能超出预算", tracking.ProjectedSpend),
+			Impact:      "财务",
+			Action:      "评估是否需要调整预算或控制支出",
 		})
 	}
 

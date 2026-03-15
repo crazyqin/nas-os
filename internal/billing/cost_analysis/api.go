@@ -279,16 +279,16 @@ const (
 
 // ExportRequest 导出请求
 type ExportRequest struct {
-	ReportID   string       `json:"report_id"`
-	Format     ExportFormat `json:"format"`
-	IncludeChart bool        `json:"include_chart"`
+	ReportID     string       `json:"report_id"`
+	Format       ExportFormat `json:"format"`
+	IncludeChart bool         `json:"include_chart"`
 }
 
 // ExportResponse 导出响应
 type ExportResponse struct {
-	DownloadURL string    `json:"download_url"`
+	DownloadURL string       `json:"download_url"`
 	Format      ExportFormat `json:"format"`
-	ExpiresAt   time.Time `json:"expires_at"`
+	ExpiresAt   time.Time    `json:"expires_at"`
 }
 
 // HandleExportReport 处理报告导出请求

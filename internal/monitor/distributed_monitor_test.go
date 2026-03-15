@@ -252,26 +252,26 @@ func TestDistributedMonitor_StoragePoolMetrics(t *testing.T) {
 
 	poolMetrics := []StoragePoolMetric{
 		{
-			PoolName:      "data-pool",
-			PoolType:      "btrfs",
-			TotalBytes:    10 * 1024 * 1024 * 1024 * 1024, // 10TB
-			UsedBytes:     7 * 1024 * 1024 * 1024 * 1024,  // 7TB
-			UsagePercent:  70.0,
-			HealthStatus:  "healthy",
-			RAIDLevel:     "raid5",
-			DeviceCount:   4,
+			PoolName:       "data-pool",
+			PoolType:       "btrfs",
+			TotalBytes:     10 * 1024 * 1024 * 1024 * 1024, // 10TB
+			UsedBytes:      7 * 1024 * 1024 * 1024 * 1024,  // 7TB
+			UsagePercent:   70.0,
+			HealthStatus:   "healthy",
+			RAIDLevel:      "raid5",
+			DeviceCount:    4,
 			HealthyDevices: 4,
 			FailedDevices:  0,
 		},
 		{
-			PoolName:      "backup-pool",
-			PoolType:      "btrfs",
-			TotalBytes:    5 * 1024 * 1024 * 1024 * 1024, // 5TB
-			UsedBytes:     4 * 1024 * 1024 * 1024 * 1024,  // 4TB
-			UsagePercent:  90.0,
-			HealthStatus:  "degraded",
-			RAIDLevel:     "raid1",
-			DeviceCount:   2,
+			PoolName:       "backup-pool",
+			PoolType:       "btrfs",
+			TotalBytes:     5 * 1024 * 1024 * 1024 * 1024, // 5TB
+			UsedBytes:      4 * 1024 * 1024 * 1024 * 1024, // 4TB
+			UsagePercent:   90.0,
+			HealthStatus:   "degraded",
+			RAIDLevel:      "raid1",
+			DeviceCount:    2,
 			HealthyDevices: 1,
 			FailedDevices:  1,
 		},
@@ -336,7 +336,7 @@ func TestDistributedMonitor_GetClusterStats(t *testing.T) {
 	// 检查在线/离线统计
 	online := stats["nodes_online"].(int)
 	offline := stats["nodes_offline"].(int)
-	
+
 	if online != 1 {
 		t.Errorf("在线节点数不匹配: 期望 1, 实际 %d", online)
 	}
@@ -387,8 +387,8 @@ func TestDistributedMonitor_ConcurrentAccess(t *testing.T) {
 		go func(idx int) {
 			defer wg.Done()
 			metrics := &NodeMetrics{
-				NodeID:   string(rune('A' + idx)),
-				Status:   "healthy",
+				NodeID: string(rune('A' + idx)),
+				Status: "healthy",
 			}
 			dm.UpdateNodeMetrics(metrics)
 		}(i)

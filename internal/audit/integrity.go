@@ -150,11 +150,11 @@ func (im *IntegrityManager) GenerateMerkleRoot(entries []*Entry) string {
 
 // AuditProof 审计证明
 type AuditProof struct {
-	EntryID    string   `json:"entry_id"`
+	EntryID    string    `json:"entry_id"`
 	Timestamp  time.Time `json:"timestamp"`
-	RootHash   string   `json:"root_hash"`
-	ProofPath  []string `json:"proof_path"`
-	ProofIndex int      `json:"proof_index"`
+	RootHash   string    `json:"root_hash"`
+	ProofPath  []string  `json:"proof_path"`
+	ProofIndex int       `json:"proof_index"`
 }
 
 // GenerateAuditProof 生成审计证明
@@ -272,14 +272,14 @@ func (im *IntegrityManager) VerifyAuditProof(proof *AuditProof, entry *Entry) bo
 
 // ArchiveManifest 归档清单
 type ArchiveManifest struct {
-	ArchiveID    string    `json:"archive_id"`
-	CreatedAt    time.Time `json:"created_at"`
-	StartTime    time.Time `json:"start_time"`
-	EndTime      time.Time `json:"end_time"`
-	EntryCount   int       `json:"entry_count"`
-	MerkleRoot   string    `json:"merkle_root"`
-	Signature    string    `json:"signature"`
-	ChecksumSHA256 string  `json:"checksum_sha256"`
+	ArchiveID      string    `json:"archive_id"`
+	CreatedAt      time.Time `json:"created_at"`
+	StartTime      time.Time `json:"start_time"`
+	EndTime        time.Time `json:"end_time"`
+	EntryCount     int       `json:"entry_count"`
+	MerkleRoot     string    `json:"merkle_root"`
+	Signature      string    `json:"signature"`
+	ChecksumSHA256 string    `json:"checksum_sha256"`
 }
 
 // CreateArchiveManifest 创建归档清单
@@ -291,7 +291,7 @@ func (im *IntegrityManager) CreateArchiveManifest(entries []*Entry, archivePath 
 	// 排序按时间
 	sortedEntries := make([]*Entry, len(entries))
 	copy(sortedEntries, entries)
-	
+
 	// 找到时间范围
 	var startTime, endTime time.Time
 	for i, e := range sortedEntries {

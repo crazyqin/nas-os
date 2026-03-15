@@ -532,10 +532,10 @@ func (e *RuleEngine) DisableRule(id string) error {
 // TestRule 测试规则
 func (e *RuleEngine) TestRule(rule *Rule, notification *Notification) *RuleTestResult {
 	result := &RuleTestResult{
-		RuleID:    rule.ID,
-		RuleName:  rule.Name,
-		Matched:   false,
-		Errors:    make([]string, 0),
+		RuleID:      rule.ID,
+		RuleName:    rule.Name,
+		Matched:     false,
+		Errors:      make([]string, 0),
 		Evaluations: make([]ConditionEvaluation, 0),
 	}
 
@@ -553,11 +553,11 @@ func (e *RuleEngine) TestRule(rule *Rule, notification *Notification) *RuleTestR
 
 // RuleTestResult 规则测试结果
 type RuleTestResult struct {
-	RuleID      string                 `json:"ruleId"`
-	RuleName    string                 `json:"ruleName"`
-	Matched     bool                   `json:"matched"`
-	Errors      []string               `json:"errors,omitempty"`
-	Evaluations []ConditionEvaluation  `json:"evaluations,omitempty"`
+	RuleID      string                `json:"ruleId"`
+	RuleName    string                `json:"ruleName"`
+	Matched     bool                  `json:"matched"`
+	Errors      []string              `json:"errors,omitempty"`
+	Evaluations []ConditionEvaluation `json:"evaluations,omitempty"`
 }
 
 // ConditionEvaluation 条件评估结果

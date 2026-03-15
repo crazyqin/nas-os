@@ -40,15 +40,15 @@ type ClusterNodeInfo struct {
 
 // NodeMetrics 节点指标
 type NodeMetrics struct {
-	NodeID         string             `json:"node_id"`
-	NodeName       string             `json:"node_name"`
-	Timestamp      time.Time          `json:"timestamp"`
-	SystemMetrics  *SystemMetricData  `json:"system_metrics"`
-	DiskMetrics    []DiskMetricData   `json:"disk_metrics"`
+	NodeID         string              `json:"node_id"`
+	NodeName       string              `json:"node_name"`
+	Timestamp      time.Time           `json:"timestamp"`
+	SystemMetrics  *SystemMetricData   `json:"system_metrics"`
+	DiskMetrics    []DiskMetricData    `json:"disk_metrics"`
 	StorageMetrics []StoragePoolMetric `json:"storage_metrics"`
-	NetworkMetrics *NetworkMetricData `json:"network_metrics"`
-	HealthScore    float64            `json:"health_score"`
-	Status         string             `json:"status"`
+	NetworkMetrics *NetworkMetricData  `json:"network_metrics"`
+	HealthScore    float64             `json:"health_score"`
+	Status         string              `json:"status"`
 }
 
 // SystemMetricData 系统指标数据
@@ -119,32 +119,32 @@ type RebuildStatus struct {
 
 // PoolAlertState 存储池告警状态
 type PoolAlertState struct {
-	AlertType  string    `json:"alert_type"`
-	Level      string    `json:"level"`
-	Message    string    `json:"message"`
+	AlertType   string    `json:"alert_type"`
+	Level       string    `json:"level"`
+	Message     string    `json:"message"`
 	TriggeredAt time.Time `json:"triggered_at"`
 }
 
 // NetworkMetricData 网络指标数据
 type NetworkMetricData struct {
-	RXBytes     uint64  `json:"rx_bytes"`
-	TXBytes     uint64  `json:"tx_bytes"`
-	RXPackets   uint64  `json:"rx_packets"`
-	TXPackets   uint64  `json:"tx_packets"`
-	RXErrors    uint64  `json:"rx_errors"`
-	TXErrors    uint64  `json:"tx_errors"`
-	RXDrop      uint64  `json:"rx_drop"`
-	TXDrop      uint64  `json:"tx_drop"`
-	BandwidthIn float64 `json:"bandwidth_in_mbps"`
+	RXBytes      uint64  `json:"rx_bytes"`
+	TXBytes      uint64  `json:"tx_bytes"`
+	RXPackets    uint64  `json:"rx_packets"`
+	TXPackets    uint64  `json:"tx_packets"`
+	RXErrors     uint64  `json:"rx_errors"`
+	TXErrors     uint64  `json:"tx_errors"`
+	RXDrop       uint64  `json:"rx_drop"`
+	TXDrop       uint64  `json:"tx_drop"`
+	BandwidthIn  float64 `json:"bandwidth_in_mbps"`
 	BandwidthOut float64 `json:"bandwidth_out_mbps"`
 }
 
 // AggregationRule 指标聚合规则
 type AggregationRule struct {
-	Interval         time.Duration `json:"interval"`
-	RetentionPeriod  time.Duration `json:"retention_period"`
-	MaxNodes         int           `json:"max_nodes"`
-	Aggregations     []Aggregation `json:"aggregations"`
+	Interval        time.Duration `json:"interval"`
+	RetentionPeriod time.Duration `json:"retention_period"`
+	MaxNodes        int           `json:"max_nodes"`
+	Aggregations    []Aggregation `json:"aggregations"`
 }
 
 // Aggregation 聚合配置
@@ -166,55 +166,55 @@ type MetricReporter struct {
 
 // StoragePoolAlertRule 存储池告警规则
 type StoragePoolAlertRule struct {
-	Name            string  `json:"name"`
-	PoolPattern     string  `json:"pool_pattern"` // 支持通配符匹配
-	MetricType      string  `json:"metric_type"`  // usage, health, io_latency, device_failure
-	Threshold       float64 `json:"threshold"`
+	Name            string        `json:"name"`
+	PoolPattern     string        `json:"pool_pattern"` // 支持通配符匹配
+	MetricType      string        `json:"metric_type"`  // usage, health, io_latency, device_failure
+	Threshold       float64       `json:"threshold"`
 	Duration        time.Duration `json:"duration"` // 持续时间阈值
-	Level           string  `json:"level"` // warning, critical
-	Enabled         bool    `json:"enabled"`
-	MessageTemplate string  `json:"message_template"`
+	Level           string        `json:"level"`    // warning, critical
+	Enabled         bool          `json:"enabled"`
+	MessageTemplate string        `json:"message_template"`
 }
 
 // AggregatedMetrics 聚合后的指标
 type AggregatedMetrics struct {
-	Timestamp      time.Time               `json:"timestamp"`
-	NodeCount      int                     `json:"node_count"`
-	ActiveNodes    int                     `json:"active_nodes"`
-	ClusterHealth  float64                 `json:"cluster_health"`
-	TotalCPU       float64                 `json:"total_cpu_avg"`
-	TotalMemory    uint64                  `json:"total_memory"`
-	UsedMemory     uint64                  `json:"used_memory"`
-	TotalDisk      uint64                  `json:"total_disk"`
-	UsedDisk       uint64                  `json:"used_disk"`
-	StoragePools   []AggregatedPoolMetric  `json:"storage_pools"`
-	NetworkTotal   NetworkMetricData       `json:"network_total"`
-	NodeMetrics    []*NodeMetrics          `json:"node_metrics"`
-	Alerts         []ClusterAlert          `json:"alerts"`
+	Timestamp     time.Time              `json:"timestamp"`
+	NodeCount     int                    `json:"node_count"`
+	ActiveNodes   int                    `json:"active_nodes"`
+	ClusterHealth float64                `json:"cluster_health"`
+	TotalCPU      float64                `json:"total_cpu_avg"`
+	TotalMemory   uint64                 `json:"total_memory"`
+	UsedMemory    uint64                 `json:"used_memory"`
+	TotalDisk     uint64                 `json:"total_disk"`
+	UsedDisk      uint64                 `json:"used_disk"`
+	StoragePools  []AggregatedPoolMetric `json:"storage_pools"`
+	NetworkTotal  NetworkMetricData      `json:"network_total"`
+	NodeMetrics   []*NodeMetrics         `json:"node_metrics"`
+	Alerts        []ClusterAlert         `json:"alerts"`
 }
 
 // AggregatedPoolMetric 聚合的存储池指标
 type AggregatedPoolMetric struct {
-	PoolName      string  `json:"pool_name"`
-	TotalBytes    uint64  `json:"total_bytes"`
-	UsedBytes     uint64  `json:"used_bytes"`
-	UsagePercent  float64 `json:"usage_percent"`
-	HealthStatus  string  `json:"health_status"`
-	FaultTolerance int    `json:"fault_tolerance"`
-	AlertCount    int     `json:"alert_count"`
+	PoolName       string  `json:"pool_name"`
+	TotalBytes     uint64  `json:"total_bytes"`
+	UsedBytes      uint64  `json:"used_bytes"`
+	UsagePercent   float64 `json:"usage_percent"`
+	HealthStatus   string  `json:"health_status"`
+	FaultTolerance int     `json:"fault_tolerance"`
+	AlertCount     int     `json:"alert_count"`
 }
 
 // ClusterAlert 集群告警
 type ClusterAlert struct {
-	ID          string    `json:"id"`
-	Type        string    `json:"type"` // node_down, pool_degraded, high_usage, io_latency
-	Level       string    `json:"level"`
-	Message     string    `json:"message"`
-	NodeID      string    `json:"node_id,omitempty"`
-	PoolName    string    `json:"pool_name,omitempty"`
-	CurrentValue float64  `json:"current_value,omitempty"`
-	Threshold   float64   `json:"threshold,omitempty"`
-	Timestamp   time.Time `json:"timestamp"`
+	ID           string    `json:"id"`
+	Type         string    `json:"type"` // node_down, pool_degraded, high_usage, io_latency
+	Level        string    `json:"level"`
+	Message      string    `json:"message"`
+	NodeID       string    `json:"node_id,omitempty"`
+	PoolName     string    `json:"pool_name,omitempty"`
+	CurrentValue float64   `json:"current_value,omitempty"`
+	Threshold    float64   `json:"threshold,omitempty"`
+	Timestamp    time.Time `json:"timestamp"`
 }
 
 // NewDistributedMonitor 创建分布式监控管理器

@@ -54,23 +54,23 @@ type MockQuotaProvider struct{}
 func (m *MockQuotaProvider) GetAllUsage() ([]*QuotaUsageInfo, error) {
 	return []*QuotaUsageInfo{
 		{
-			QuotaID:     "quota-1",
-			TargetID:    "user1",
-			TargetName:  "用户1",
-			VolumeName:  "pool1",
-			HardLimit:   200 * 1024 * 1024 * 1024, // 200GB
-			UsedBytes:   100 * 1024 * 1024 * 1024, // 100GB
-			Available:   100 * 1024 * 1024 * 1024,
+			QuotaID:      "quota-1",
+			TargetID:     "user1",
+			TargetName:   "用户1",
+			VolumeName:   "pool1",
+			HardLimit:    200 * 1024 * 1024 * 1024, // 200GB
+			UsedBytes:    100 * 1024 * 1024 * 1024, // 100GB
+			Available:    100 * 1024 * 1024 * 1024,
 			UsagePercent: 50,
 		},
 		{
-			QuotaID:     "quota-2",
-			TargetID:    "user2",
-			TargetName:  "用户2",
-			VolumeName:  "pool1",
-			HardLimit:   500 * 1024 * 1024 * 1024, // 500GB
-			UsedBytes:   50 * 1024 * 1024 * 1024,  // 50GB
-			Available:   450 * 1024 * 1024 * 1024,
+			QuotaID:      "quota-2",
+			TargetID:     "user2",
+			TargetName:   "用户2",
+			VolumeName:   "pool1",
+			HardLimit:    500 * 1024 * 1024 * 1024, // 500GB
+			UsedBytes:    50 * 1024 * 1024 * 1024,  // 50GB
+			Available:    450 * 1024 * 1024 * 1024,
 			UsagePercent: 10,
 		},
 	}, nil
@@ -79,12 +79,12 @@ func (m *MockQuotaProvider) GetAllUsage() ([]*QuotaUsageInfo, error) {
 func (m *MockQuotaProvider) GetUserUsage(username string) ([]*QuotaUsageInfo, error) {
 	return []*QuotaUsageInfo{
 		{
-			QuotaID:     "quota-1",
-			TargetID:    username,
-			TargetName:  username,
-			VolumeName:  "pool1",
-			HardLimit:   200 * 1024 * 1024 * 1024,
-			UsedBytes:   100 * 1024 * 1024 * 1024,
+			QuotaID:      "quota-1",
+			TargetID:     username,
+			TargetName:   username,
+			VolumeName:   "pool1",
+			HardLimit:    200 * 1024 * 1024 * 1024,
+			UsedBytes:    100 * 1024 * 1024 * 1024,
 			UsagePercent: 50,
 		},
 	}, nil
@@ -92,10 +92,10 @@ func (m *MockQuotaProvider) GetUserUsage(username string) ([]*QuotaUsageInfo, er
 
 func (m *MockQuotaProvider) GetPoolUsage(poolID string) (*QuotaUsageInfo, error) {
 	return &QuotaUsageInfo{
-		QuotaID:     poolID,
-		VolumeName:  poolID,
-		HardLimit:   1000 * 1024 * 1024 * 1024,
-		UsedBytes:   500 * 1024 * 1024 * 1024,
+		QuotaID:      poolID,
+		VolumeName:   poolID,
+		HardLimit:    1000 * 1024 * 1024 * 1024,
+		UsedBytes:    500 * 1024 * 1024 * 1024,
 		UsagePercent: 50,
 	}, nil
 }
@@ -154,14 +154,14 @@ func TestGenerateResourceUtilizationReport(t *testing.T) {
 		t.Errorf("报告类型应该是 resource_util，实际是 %s", report.Type)
 	}
 
-	// 检查用户利用率统计
-	if len(report.UserUtilization) == 0 {
-		t.Error("用户利用率统计不应为空")
-	}
-
-	// 检查存储池利用率统计
-	if len(report.PoolUtilization) == 0 {
-		t.Error("存储池利用率统计不应为空")
+	// 检查报告详情中的利用率统计
+	if details, ok := report.Details.(*ResourceUtilizationReport); ok {
+		if len(details.UserUtilization) == 0 {
+			t.Error("用户利用率统计不应为空")
+		}
+		if len(details.PoolUtilization) == 0 {
+			t.Error("存储池利用率统计不应为空")
+		}
 	}
 }
 
@@ -212,12 +212,12 @@ func TestBudgetCRUD(t *testing.T) {
 
 	// 创建预算
 	budgetConfig := BudgetConfig{
-		Name:         "测试预算",
-		TotalBudget:  10000.0,
-		Period:       "monthly",
-		StartDate:    time.Now(),
-		EndDate:      time.Now().AddDate(0, 1, 0),
-		Enabled:      true,
+		Name:            "测试预算",
+		TotalBudget:     10000.0,
+		Period:          "monthly",
+		StartDate:       time.Now(),
+		EndDate:         time.Now().AddDate(0, 1, 0),
+		Enabled:         true,
 		AlertThresholds: []float64{50, 75, 90, 100},
 	}
 
@@ -283,12 +283,12 @@ func TestGenerateBudgetTrackingReport(t *testing.T) {
 
 	// 创建预算
 	budgetConfig := BudgetConfig{
-		Name:         "测试预算",
-		TotalBudget:  10000.0,
-		Period:       "monthly",
-		StartDate:    time.Now().AddDate(0, 0, -15), // 15天前开始
-		EndDate:      time.Now().AddDate(0, 0, 15),  // 15天后结束
-		Enabled:      true,
+		Name:            "测试预算",
+		TotalBudget:     10000.0,
+		Period:          "monthly",
+		StartDate:       time.Now().AddDate(0, 0, -15), // 15天前开始
+		EndDate:         time.Now().AddDate(0, 0, 15),  // 15天后结束
+		Enabled:         true,
 		AlertThresholds: []float64{50, 75, 90, 100},
 	}
 
@@ -308,13 +308,16 @@ func TestGenerateBudgetTrackingReport(t *testing.T) {
 		t.Errorf("报告类型应该是 budget_tracking，实际是 %s", report.Type)
 	}
 
-	if report.TotalBudget != 10000.0 {
-		t.Errorf("总预算应该是 10000，实际是 %.2f", report.TotalBudget)
-	}
+	// 检查详情中的预算信息
+	if details, ok := report.Details.(*BudgetTrackingReport); ok {
+		if details.TotalBudget != 10000.0 {
+			t.Errorf("总预算应该是 10000，实际是 %.2f", details.TotalBudget)
+		}
 
-	// 检查剩余天数
-	if report.DaysRemaining < 14 || report.DaysRemaining > 16 {
-		t.Errorf("剩余天数应该约为 15 天，实际是 %d", report.DaysRemaining)
+		// 检查剩余天数
+		if details.DaysRemaining < 14 || details.DaysRemaining > 16 {
+			t.Errorf("剩余天数应该约为 15 天，实际是 %d", details.DaysRemaining)
+		}
 	}
 }
 
@@ -327,9 +330,9 @@ func TestCalculateCostEfficiency(t *testing.T) {
 		expectedMin  float64
 		expectedMax  float64
 	}{
-		{50, 0.8, 0.9},   // 低于理想范围
-		{70, 0.99, 1.0},  // 理想范围
-		{90, 0.6, 0.7},   // 高于理想范围
+		{50, 0.8, 0.9},  // 低于理想范围
+		{70, 0.99, 1.0}, // 理想范围
+		{90, 0.6, 0.7},  // 高于理想范围
 	}
 
 	for _, tt := range tests {
@@ -376,7 +379,7 @@ func TestAlertManagement(t *testing.T) {
 	alert := &CostAlert{
 		ID:        "alert-1",
 		Type:      "budget_exceeded",
-		Severity:   "critical",
+		Severity:  "critical",
 		Message:   "预算超支",
 		Value:     11000,
 		Threshold: 10000,

@@ -358,15 +358,15 @@ func (s *WebSocketSender) Send(config *ChannelConfig, notification *Notification
 	}
 
 	message := map[string]interface{}{
-		"type":       "notification",
-		"id":         notification.ID,
-		"title":      notification.Title,
-		"message":    notification.Message,
-		"level":      notification.Level,
-		"category":   notification.Category,
-		"source":     notification.Source,
-		"timestamp":  notification.CreatedAt.Unix(),
-		"data":       notification.Data,
+		"type":      "notification",
+		"id":        notification.ID,
+		"title":     notification.Title,
+		"message":   notification.Message,
+		"level":     notification.Level,
+		"category":  notification.Category,
+		"source":    notification.Source,
+		"timestamp": notification.CreatedAt.Unix(),
+		"data":      notification.Data,
 	}
 
 	jsonData, err := json.Marshal(message)

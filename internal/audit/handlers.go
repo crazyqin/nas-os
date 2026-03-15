@@ -214,10 +214,10 @@ func (h *Handlers) exportLogs(c *gin.Context) {
 	includeSigs := c.Query("include_signatures") == "true"
 
 	opts := ExportOptions{
-		Format:           format,
-		StartTime:        startTime,
-		EndTime:          endTime,
-		Categories:       categories,
+		Format:            format,
+		StartTime:         startTime,
+		EndTime:           endTime,
+		Categories:        categories,
 		IncludeSignatures: includeSigs,
 	}
 

@@ -38,15 +38,15 @@ func NewReportGenerator(
 // GenerateReport 生成审计报告
 func (rg *ReportGenerator) GenerateReport(opts ReportGenerateOptions) (*AuditReport, error) {
 	report := &AuditReport{
-		ReportID:     fmt.Sprintf("RPT-%s", time.Now().Format("20060102150405")),
-		ReportType:   opts.ReportType,
-		GeneratedAt:  time.Now(),
-		PeriodStart:  opts.PeriodStart,
-		PeriodEnd:    opts.PeriodEnd,
-		Title:        rg.getReportTitle(opts.ReportType),
-		Description:  rg.getReportDescription(opts.ReportType),
+		ReportID:        fmt.Sprintf("RPT-%s", time.Now().Format("20060102150405")),
+		ReportType:      opts.ReportType,
+		GeneratedAt:     time.Now(),
+		PeriodStart:     opts.PeriodStart,
+		PeriodEnd:       opts.PeriodEnd,
+		Title:           rg.getReportTitle(opts.ReportType),
+		Description:     rg.getReportDescription(opts.ReportType),
 		Recommendations: make([]string, 0),
-		ChartData:    make(map[string]interface{}),
+		ChartData:       make(map[string]interface{}),
 	}
 
 	// 根据报告类型生成不同内容
@@ -123,12 +123,12 @@ func (rg *ReportGenerator) generateSensitiveSummary(start, end time.Time) *Sensi
 // generateRiskAnalysis 生成风险分析
 func (rg *ReportGenerator) generateRiskAnalysis(start, end time.Time) *RiskAnalysis {
 	analysis := &RiskAnalysis{
-		RiskLevel:        "low",
-		HighRiskEvents:   0,
-		HighRiskUsers:    make([]UserRisk, 0),
-		HighRiskIPs:      make([]IPRisk, 0),
-		RiskTrends:       make([]RiskTrend, 0),
-		ThreatIndicators: make([]ThreatIndicator, 0),
+		RiskLevel:         "low",
+		HighRiskEvents:    0,
+		HighRiskUsers:     make([]UserRisk, 0),
+		HighRiskIPs:       make([]IPRisk, 0),
+		RiskTrends:        make([]RiskTrend, 0),
+		ThreatIndicators:  make([]ThreatIndicator, 0),
 		MitigationActions: make([]MitigationAction, 0),
 	}
 
@@ -225,10 +225,10 @@ func (rg *ReportGenerator) detectThreatIndicators(start, end time.Time) []Threat
 
 	// 检测暴力破解
 	entries, _ := rg.loginAuditor.Query(LoginQueryOptions{
-		StartTime:  &start,
-		EndTime:    &end,
-		EventType:  LoginEventFailure,
-		Limit:      10000,
+		StartTime: &start,
+		EndTime:   &end,
+		EventType: LoginEventFailure,
+		Limit:     10000,
 	})
 
 	ipFailures := make(map[string]int)
@@ -408,12 +408,12 @@ func (rg *ReportGenerator) generateOperationSummary(stats *OperationStatistics) 
 	}
 
 	summary := &ReportSummary{
-		TotalEvents:     stats.TotalOperations,
-		SuccessfulOps:   stats.SuccessfulOps,
-		FailedOps:       stats.FailedOps,
-		SensitiveOps:    stats.SensitiveOpCount,
+		TotalEvents:      stats.TotalOperations,
+		SuccessfulOps:    stats.SuccessfulOps,
+		FailedOps:        stats.FailedOps,
+		SensitiveOps:     stats.SensitiveOpCount,
 		EventsByCategory: stats.OpsByCategory,
-		TopOperations:   make([]OperationCount, 0),
+		TopOperations:    make([]OperationCount, 0),
 	}
 
 	// 转换操作统计
@@ -433,9 +433,9 @@ func (rg *ReportGenerator) generateOperationSummary(stats *OperationStatistics) 
 	// 转换用户统计
 	for _, u := range stats.OpsByUser {
 		summary.TopUsers = append(summary.TopUsers, UserActivitySummary{
-			UserID:   u.UserID,
-			Username: u.Username,
-			Count:    u.Count,
+			UserID:         u.UserID,
+			Username:       u.Username,
+			OperationCount: u.Count,
 		})
 	}
 
@@ -500,8 +500,8 @@ func (rg *ReportGenerator) generateUserActivitySummary(start, end time.Time, use
 			ops := rg.operationAuditor.GetUserOperations(userID, 1000)
 			if len(ops) > 0 {
 				summary.TopUsers = append(summary.TopUsers, UserActivitySummary{
-					UserID:        userID,
-					Username:      ops[0].Username,
+					UserID:         userID,
+					Username:       ops[0].Username,
 					OperationCount: len(ops),
 				})
 				summary.TotalEvents += len(ops)

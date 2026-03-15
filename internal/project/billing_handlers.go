@@ -78,16 +78,16 @@ type ReleaseResourceRequest struct {
 
 // CreateBillingRecordRequest 创建计费记录请求
 type CreateBillingRecordRequest struct {
-	PeriodStart  time.Time     `json:"period_start" binding:"required"`
-	PeriodEnd    time.Time     `json:"period_end" binding:"required"`
+	PeriodStart   time.Time      `json:"period_start" binding:"required"`
+	PeriodEnd     time.Time      `json:"period_end" binding:"required"`
 	ResourceCosts []ResourceCost `json:"resource_costs" binding:"required"`
-	Discount     float64       `json:"discount"`
-	TaxRate      float64       `json:"tax_rate"`
+	Discount      float64        `json:"discount"`
+	TaxRate       float64        `json:"tax_rate"`
 }
 
 // UpdateBillingStatusRequest 更新计费状态请求
 type UpdateBillingStatusRequest struct {
-	Status string `json:"status" binding:"required"`
+	Status string     `json:"status" binding:"required"`
 	PaidAt *time.Time `json:"paid_at,omitempty"`
 }
 
