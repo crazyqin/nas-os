@@ -830,6 +830,11 @@ func (g *CostReportGenerator) addWeeklyAnalysis(ctx context.Context, report *Cos
 		return err
 	}
 
+	// 无历史报告时跳过对比
+	if prevReport == nil {
+		return nil
+	}
+
 	// 计算环比变化
 	if prevReport.Summary.TotalCost > 0 {
 		report.Summary.CostChange = report.Summary.TotalCost - prevReport.Summary.TotalCost
@@ -848,6 +853,11 @@ func (g *CostReportGenerator) addMonthlyAnalysis(ctx context.Context, report *Co
 	prevReport, err := g.providers.GetHistoricalReport(ctx, CostReportTypeMonthly, prevMonthStart)
 	if err != nil {
 		return err
+	}
+
+	// 无历史报告时跳过对比
+	if prevReport == nil {
+		return nil
 	}
 
 	// 计算环比变化
