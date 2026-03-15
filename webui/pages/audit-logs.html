@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审计日志 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <style>
+        .audit-container { max-width: 1600px; margin: 0 auto; padding: 2rem; }
+        
+        .audit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .audit-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .audit-title h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .audit-title .badge {
+            padding: 0.25rem 0.75rem;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .audit-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        /* 统计卡片 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid var(--surface-border);
+            transition: all 0.2s;
+        }
+        
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .stat-card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .stat-card-icon.info { background: #DBEAFE; color: #2563EB; }
+        .stat-card-icon.warning { background: #FEF3C7; color: #D97706; }
+        .stat-card-icon.error { background: #FEE2E2; color: #DC2626; }
+        .stat-card-icon.critical { background: #FEE2E2; color: #DC2626; }
+        
+        .stat-card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .stat-card-change {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .stat-card-change.up { color: #DC2626; }
+        .stat-card-change.down { color: #059669; }
+        
+        /* 高级筛选 */
+        .filter-panel {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid var(--surface-border);
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .filter-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        
+        .filter-select, .filter-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-width: 120px;
+        }
+        
+        .filter-input {
+            min-width: 180px;
+        }
+        
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px var(--color-primary-light);
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: auto;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--hover-color);
+        }
+        
+        /* 主内容区域 */
+        .audit-content {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .audit-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 侧边栏 */
+        .audit-sidebar {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid var(--surface-border);
+            height: fit-content;
+            position: sticky;
+            top: 1rem;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .sidebar-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        
+        .category-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .category-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.625rem 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .category-item:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .category-item.active {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+        
+        .category-item .icon {
+            margin-right: 0.5rem;
+        }
+        
+        .category-item .count {
+            font-size: 0.75rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 999px;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+        }
+        
+        .category-item.active .count {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        /* 日志列表 */
+        .audit-main {
+            background: var(--surface-color);
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+            overflow: hidden;
+        }
+        
+        .log-list-header {
+            display: grid;
+            grid-template-columns: 40px 1fr 120px 100px 100px 100px 100px;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .log-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .log-item {
+            display: grid;
+            grid-template-columns: 40px 1fr 120px 100px 100px 100px 100px;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--surface-border);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .log-item:hover {
+            background: var(--hover-color);
+        }
+        
+        .log-item:last-child {
+            border-bottom: none;
+        }
+        
+        .log-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .log-message {
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .log-user, .log-ip, .log-time {
+            color: var(--text-secondary);
+        }
+        
+        .log-level {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .log-level.info { background: #DBEAFE; color: #2563EB; }
+        .log-level.warning { background: #FEF3C7; color: #D97706; }
+        .log-level.error { background: #FEE2E2; color: #DC2626; }
+        .log-level.critical { background: #DC2626; color: white; }
+        
+        .log-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .log-status.success { color: #059669; }
+        .log-status.failure { color: #DC2626; }
+        
+        /* 详情面板 */
+        .detail-panel {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--surface-border);
+            margin-top: 1.5rem;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        
+        .detail-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+        
+        .detail-item-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-item-value {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .detail-json {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+        }
+        
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        
+        .pagination-info {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--surface-border);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--hover-color);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        /* 实时刷新指示器 */
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: #D1FAE5;
+            color: #059669;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #059669;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="audit-container">
+        <!-- 页头 -->
+        <div class="audit-header">
+            <div class="audit-title">
+                <h1>📋 审计日志</h1>
+                <span class="badge">实时</span>
+            </div>
+            <div class="audit-actions">
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    自动刷新
+                </div>
+                <button class="btn btn-secondary" onclick="exportLogs()">
+                    📥 导出
+                </button>
+                <button class="btn btn-secondary" onclick="verifyIntegrity()">
+                    🔐 验证完整性
+                </button>
+                <button class="btn btn-primary" onclick="generateReport()">
+                    📊 合规报告
+                </button>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">今日事件</span>
+                    <div class="stat-card-icon info">📊</div>
+                </div>
+                <div class="stat-card-value">1,234</div>
+                <div class="stat-card-change up">↑ 12% 较昨日</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">失败认证</span>
+                    <div class="stat-card-icon warning">⚠️</div>
+                </div>
+                <div class="stat-card-value">23</div>
+                <div class="stat-card-change">需要关注</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">安全告警</span>
+                    <div class="stat-card-icon error">🚨</div>
+                </div>
+                <div class="stat-card-value">3</div>
+                <div class="stat-card-change up">↑ 2 新告警</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">活跃用户</span>
+                    <div class="stat-card-icon info">👥</div>
+                </div>
+                <div class="stat-card-value">15</div>
+                <div class="stat-card-change">在线</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <span class="stat-card-label">日志完整性</span>
+                    <div class="stat-card-icon info">✅</div>
+                </div>
+                <div class="stat-card-value">100%</div>
+                <div class="stat-card-change down">已验证</div>
+            </div>
+        </div>
+        
+        <!-- 高级筛选 -->
+        <div class="filter-panel">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <span class="filter-label">时间范围</span>
+                    <select class="filter-select" id="timeRange">
+                        <option value="1h">最近1小时</option>
+                        <option value="24h" selected>最近24小时</option>
+                        <option value="7d">最近7天</option>
+                        <option value="30d">最近30天</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">级别</span>
+                    <select class="filter-select" id="levelFilter">
+                        <option value="">全部</option>
+                        <option value="info">信息</option>
+                        <option value="warning">警告</option>
+                        <option value="error">错误</option>
+                        <option value="critical">严重</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">用户</span>
+                    <input type="text" class="filter-input" id="userFilter" placeholder="用户名或ID">
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">IP地址</span>
+                    <input type="text" class="filter-input" id="ipFilter" placeholder="IP地址">
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">关键词</span>
+                    <input type="text" class="filter-input" id="keywordFilter" placeholder="搜索关键词">
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+                    <button class="btn btn-primary" onclick="applyFilters()">筛选</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主内容 -->
+        <div class="audit-content">
+            <!-- 侧边栏 -->
+            <div class="audit-sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">日志分类</div>
+                    <ul class="category-list">
+                        <li class="category-item active" data-category="all">
+                            <span><span class="icon">📁</span> 全部</span>
+                            <span class="count">1,234</span>
+                        </li>
+                        <li class="category-item" data-category="auth">
+                            <span><span class="icon">🔐</span> 认证</span>
+                            <span class="count">456</span>
+                        </li>
+                        <li class="category-item" data-category="access">
+                            <span><span class="icon">🚪</span> 访问</span>
+                            <span class="count">321</span>
+                        </li>
+                        <li class="category-item" data-category="data">
+                            <span><span class="icon">💾</span> 数据</span>
+                            <span class="count">189</span>
+                        </li>
+                        <li class="category-item" data-category="system">
+                            <span><span class="icon">⚙️</span> 系统</span>
+                            <span class="count">156</span>
+                        </li>
+                        <li class="category-item" data-category="security">
+                            <span><span class="icon">🛡️</span> 安全</span>
+                            <span class="count">67</span>
+                        </li>
+                        <li class="category-item" data-category="file">
+                            <span><span class="icon">📄</span> 文件</span>
+                            <span class="count">45</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-title">快速筛选</div>
+                    <ul class="category-list">
+                        <li class="category-item" data-quick="failed">
+                            <span><span class="icon">❌</span> 失败操作</span>
+                        </li>
+                        <li class="category-item" data-quick="suspicious">
+                            <span><span class="icon">🔍</span> 可疑活动</span>
+                        </li>
+                        <li class="category-item" data-quick="admin">
+                            <span><span class="icon">👤</span> 管理员操作</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 日志列表 -->
+            <div class="audit-main">
+                <div class="log-list-header">
+                    <span><input type="checkbox" class="log-checkbox" id="selectAll"></span>
+                    <span>事件</span>
+                    <span>用户</span>
+                    <span>IP地址</span>
+                    <span>级别</span>
+                    <span>状态</span>
+                    <span>时间</span>
+                </div>
+                <div class="log-list" id="logList">
+                    <!-- 动态加载 -->
+                </div>
+                <div class="pagination">
+                    <div class="pagination-info">
+                        显示 1-50 / 共 1,234 条
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn" disabled>上一页</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn">2</button>
+                        <button class="pagination-btn">3</button>
+                        <button class="pagination-btn">...</button>
+                        <button class="pagination-btn">25</button>
+                        <button class="pagination-btn">下一页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 详情面板 -->
+        <div class="detail-panel" id="detailPanel" style="display: none;">
+            <div class="detail-header">
+                <span class="detail-title">📋 日志详情</span>
+                <button class="btn btn-secondary" onclick="closeDetail()">关闭</button>
+            </div>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-item-label">事件ID</div>
+                    <div class="detail-item-value" id="detailId">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">事件类型</div>
+                    <div class="detail-item-value" id="detailEvent">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">操作用户</div>
+                    <div class="detail-item-value" id="detailUser">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">来源IP</div>
+                    <div class="detail-item-value" id="detailIP">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">操作状态</div>
+                    <div class="detail-item-value" id="detailStatus">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">时间戳</div>
+                    <div class="detail-item-value" id="detailTime">-</div>
+                </div>
+            </div>
+            <div class="detail-json" id="detailJson">
+                // 详细信息将以 JSON 格式显示
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 模拟数据
+        const sampleLogs = [
+            { id: 'audit-001', event: '用户登录', user: 'admin', ip: '192.168.1.100', level: 'info', status: 'success', time: '11:13:00', category: 'auth' },
+            { id: 'audit-002', event: '登录失败', user: 'unknown', ip: '192.168.1.200', level: 'warning', status: 'failure', time: '11:12:30', category: 'auth' },
+            { id: 'audit-003', event: '文件删除', user: 'user1', ip: '192.168.1.101', level: 'info', status: 'success', time: '11:11:00', category: 'data' },
+            { id: 'audit-004', event: '配置变更', user: 'admin', ip: '192.168.1.100', level: 'warning', status: 'success', time: '11:10:00', category: 'system' },
+            { id: 'audit-005', event: '入侵检测', user: '-', ip: '10.0.0.1', level: 'critical', status: 'failure', time: '11:09:00', category: 'security' },
+        ];
+        
+        // 渲染日志列表
+        function renderLogs(logs) {
+            const container = document.getElementById('logList');
+            container.innerHTML = logs.map(log => `
+                <div class="log-item" onclick="showDetail('${log.id}')">
+                    <span><input type="checkbox" class="log-checkbox"></span>
+                    <span class="log-message">${log.event}</span>
+                    <span class="log-user">${log.user}</span>
+                    <span class="log-ip">${log.ip}</span>
+                    <span><span class="log-level ${log.level}">${log.level}</span></span>
+                    <span class="log-status ${log.status}">${log.status === 'success' ? '✅ 成功' : '❌ 失败'}</span>
+                    <span class="log-time">${log.time}</span>
+                </div>
+            `).join('');
+        }
+        
+        // 显示详情
+        function showDetail(id) {
+            const log = sampleLogs.find(l => l.id === id);
+            if (log) {
+                document.getElementById('detailId').textContent = log.id;
+                document.getElementById('detailEvent').textContent = log.event;
+                document.getElementById('detailUser').textContent = log.user;
+                document.getElementById('detailIP').textContent = log.ip;
+                document.getElementById('detailStatus').textContent = log.status;
+                document.getElementById('detailTime').textContent = log.time;
+                document.getElementById('detailJson').textContent = JSON.stringify(log, null, 2);
+                document.getElementById('detailPanel').style.display = 'block';
+            }
+        }
+        
+        // 关闭详情
+        function closeDetail() {
+            document.getElementById('detailPanel').style.display = 'none';
+        }
+        
+        // 导出日志
+        function exportLogs() {
+            alert('导出功能：将导出当前筛选条件的日志');
+        }
+        
+        // 验证完整性
+        function verifyIntegrity() {
+            alert('完整性验证：检查所有日志的数字签名');
+        }
+        
+        // 生成报告
+        function generateReport() {
+            alert('合规报告：生成 GDPR/等级保护等合规报告');
+        }
+        
+        // 应用筛选
+        function applyFilters() {
+            alert('应用筛选条件');
+        }
+        
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('timeRange').value = '24h';
+            document.getElementById('levelFilter').value = '';
+            document.getElementById('userFilter').value = '';
+            document.getElementById('ipFilter').value = '';
+            document.getElementById('keywordFilter').value = '';
+        }
+        
+        // 分类点击
+        document.querySelectorAll('.category-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.category-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // 初始化
+        renderLogs(sampleLogs);
+        
+        // 自动刷新（模拟）
+        setInterval(() => {
+            // 实际应用中这里会调用 API 获取最新数据
+            console.log('自动刷新审计日志...');
+        }, 30000);
+    </script>
+</body>
+</html>
