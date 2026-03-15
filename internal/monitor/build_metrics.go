@@ -40,19 +40,19 @@ type BuildMetrics struct {
 	DeployHealthScore prometheus.Gauge
 
 	// 测试指标
-	TestDuration   *prometheus.HistogramVec
-	TestTotal      *prometheus.CounterVec
-	TestPassed     *prometheus.CounterVec
-	TestFailed     *prometheus.CounterVec
-	TestCoverage   *prometheus.GaugeVec
-	TestSkipped    *prometheus.CounterVec
+	TestDuration *prometheus.HistogramVec
+	TestTotal    *prometheus.CounterVec
+	TestPassed   *prometheus.CounterVec
+	TestFailed   *prometheus.CounterVec
+	TestCoverage *prometheus.GaugeVec
+	TestSkipped  *prometheus.CounterVec
 
 	// 安全扫描指标
-	SecurityScanDuration *prometheus.HistogramVec
-	SecurityScanTotal    *prometheus.CounterVec
+	SecurityScanDuration    *prometheus.HistogramVec
+	SecurityScanTotal       *prometheus.CounterVec
 	SecurityVulnerabilities *prometheus.GaugeVec
-	SecurityCriticalCount  prometheus.Gauge
-	SecurityHighCount      prometheus.Gauge
+	SecurityCriticalCount   prometheus.Gauge
+	SecurityHighCount       prometheus.Gauge
 
 	// 镜像构建指标
 	ImageBuildDuration *prometheus.HistogramVec
@@ -70,14 +70,14 @@ type BuildMetrics struct {
 
 // BuildStats 构建统计
 type BuildStats struct {
-	TotalBuilds     int64
+	TotalBuilds      int64
 	SuccessfulBuilds int64
-	FailedBuilds    int64
-	AvgBuildTime    float64
-	LastBuildTime   time.Time
-	LastBuildStatus string
-	CacheHitCount   int64
-	CacheMissCount  int64
+	FailedBuilds     int64
+	AvgBuildTime     float64
+	LastBuildTime    time.Time
+	LastBuildStatus  string
+	CacheHitCount    int64
+	CacheMissCount   int64
 }
 
 // NewBuildMetrics 创建构建指标
