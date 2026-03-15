@@ -166,7 +166,7 @@ func TestGetUserUsageSummary(t *testing.T) {
 	assert.Equal(t, "user1", summary.UserID)
 	assert.Equal(t, "测试用户", summary.UserName)
 	assert.Equal(t, 600.0, summary.TotalStorageUsedGB) // 100 + 200 + 300
-	assert.Equal(t, 240.0, summary.TotalBandwidthGB)   // 80 + 160 + 240
+	assert.Equal(t, 480.0, summary.TotalBandwidthGB)   // 80 + 160 + 240
 	assert.Equal(t, int64(6000), summary.TotalAPIRequests)
 	assert.NotNil(t, summary.PoolSummaries["pool1"])
 }
@@ -589,7 +589,7 @@ func TestTieredPricing(t *testing.T) {
 	}{
 		{50, 5.0},     // 50 * 0.1 = 5
 		{150, 14.0},   // 100 * 0.1 + 50 * 0.08 = 10 + 4 = 14
-		{2000, 130.0}, // 100 * 0.1 + 900 * 0.08 + 1000 * 0.05 = 10 + 72 + 50 = 132
+		{2000, 132.0}, // 100 * 0.1 + 900 * 0.08 + 1000 * 0.05 = 10 + 72 + 50 = 132
 	}
 
 	for _, tt := range tests {
@@ -629,4 +629,175 @@ func createTestInvoice(t *testing.T, bm *BillingManager) *Invoice {
 	})
 	require.NoError(t, err)
 	return invoice
+}
+
+// ========== 新增测试：提升覆盖率 ==========
+
+func TestGetPoolUsageSummary(t *testing.T) {
+	bm := createTestBillingManager(t)
+	defer os.RemoveAll(bm.dataDir)
+
+	ctx := context.Background()
+
+	// 创建存储池用量记录
+	for i := 0; i < 3; i++ {
+		_, err := bm.RecordUsage(ctx, &UsageRecordInput{
+			UserID:           "user1",
+			PoolID:           "pool1",
+			PoolName:         "存储池1",
+			PeriodStart:      time.Now().AddDate(0, 0, -30+i),
+			PeriodEnd:        time.Now().AddDate(0, 0, -25+i),
+			StorageUsedBytes: uint64((i + 1) * 50 * 1024 * 1024 * 1024),
+		})
+		require.NoError(t, err)
+	}
+
+	summary, err := bm.GetPoolUsageSummary("pool1", time.Now().AddDate(0, 0, -60), time.Now())
+	require.NoError(t, err)
+	require.NotNil(t, summary)
+	assert.Equal(t, "pool1", summary.PoolID)
+	assert.Equal(t, "存储池1", summary.PoolName)
+	assert.Equal(t, 300.0, summary.TotalStorageUsedGB) // 50 + 100 + 150
+	assert.Equal(t, 3, summary.Records)
+}
+
+func TestGetPoolBillingStats(t *testing.T) {
+	bm := createTestBillingManager(t)
+	defer os.RemoveAll(bm.dataDir)
+
+	ctx := context.Background()
+
+	// 创建存储池用量记录
+	_, err := bm.RecordUsage(ctx, &UsageRecordInput{
+		UserID:           "user1",
+		PoolID:           "pool1",
+		PoolName:         "存储池1",
+		PeriodStart:      time.Now().AddDate(0, 0, -30),
+		PeriodEnd:        time.Now(),
+		StorageUsedBytes: 100 * 1024 * 1024 * 1024,
+	})
+	require.NoError(t, err)
+
+	stats, err := bm.GetPoolBillingStats("pool1", time.Now().AddDate(0, -1, 0), time.Now())
+	require.NoError(t, err)
+	assert.Equal(t, "pool1", stats.PoolID)
+	assert.Equal(t, "存储池1", stats.PoolName)
+	assert.Equal(t, 100.0, stats.StorageUsedGB)
+	assert.Equal(t, 1, stats.UserCount)
+}
+
+func TestCalculatePoolStorageCost(t *testing.T) {
+	bm := createTestBillingManager(t)
+	defer os.RemoveAll(bm.dataDir)
+
+	// 测试默认定价
+	summary := &PoolUsageSummary{
+		PoolID:             "pool1",
+		TotalStorageUsedGB: 100,
+	}
+	cost := bm.calculatePoolStorageCost(summary)
+	assert.Greater(t, cost, 0.0)
+}
+
+func TestCalculateBandwidthTieredCost(t *testing.T) {
+	tiers := []BandwidthTier{
+		{MinGB: 0, MaxGB: 100, PricePerGB: 0.5},
+		{MinGB: 100, MaxGB: 1000, PricePerGB: 0.4},
+		{MinGB: 1000, MaxGB: -1, PricePerGB: 0.3},
+	}
+
+	tests := []struct {
+		amount   float64
+		expected float64
+	}{
+		{50, 25.0},    // 50 * 0.5 = 25
+		{150, 70.0},   // 100 * 0.5 + 50 * 0.4 = 50 + 20 = 70
+		{2000, 710.0}, // 100 * 0.5 + 900 * 0.4 + 1000 * 0.3 = 50 + 360 + 300 = 710
+	}
+
+	for _, tt := range tests {
+		result := calculateBandwidthTieredCost(tt.amount, tiers)
+		assert.InDelta(t, tt.expected, result, 0.01)
+	}
+}
+
+func TestExtractInvoiceNumber(t *testing.T) {
+	tests := []struct {
+		number   string
+		expected int
+	}{
+		{"INV-20240101-0001", 1},
+		{"INV-20240101-1234", 1234},
+		{"INV-20240101-9999", 9999},
+	}
+
+	for _, tt := range tests {
+		result := extractInvoiceNumber(tt.number)
+		assert.Equal(t, tt.expected, result)
+	}
+}
+
+func TestGetBandwidthUnitPrice(t *testing.T) {
+	bm := createTestBillingManager(t)
+	defer os.RemoveAll(bm.dataDir)
+
+	// 测试默认定价
+	price := bm.getBandwidthUnitPrice(50)
+	assert.Equal(t, 0.5, price)
+
+	price = bm.getBandwidthUnitPrice(150)
+	assert.Equal(t, 0.5, price) // 默认没有阶梯定价，返回基础价格
+}
+
+func TestLoadData(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("", "billing-test")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
+	config := DefaultBillingConfig()
+
+	// 创建第一个管理器并添加数据
+	bm1, err := NewBillingManager(config, tmpDir)
+	require.NoError(t, err)
+
+	ctx := context.Background()
+	_, err = bm1.RecordUsage(ctx, &UsageRecordInput{
+		UserID:           "user1",
+		PeriodStart:      time.Now().AddDate(0, 0, -30),
+		PeriodEnd:        time.Now(),
+		StorageUsedBytes: 100 * 1024 * 1024 * 1024,
+	})
+	require.NoError(t, err)
+
+	// 创建第二个管理器，应该加载已有数据
+	bm2, err := NewBillingManager(config, tmpDir)
+	require.NoError(t, err)
+
+	records, err := bm2.ListUsageRecords("", "", time.Time{}, time.Time{})
+	require.NoError(t, err)
+	assert.Len(t, records, 1)
+}
+
+func TestGetInvoiceByNumber(t *testing.T) {
+	bm := createTestBillingManager(t)
+	defer os.RemoveAll(bm.dataDir)
+
+	created := createTestInvoice(t, bm)
+
+	retrieved, err := bm.GetInvoiceByNumber(created.InvoiceNumber)
+	require.NoError(t, err)
+	assert.Equal(t, created.ID, retrieved.ID)
+
+	_, err = bm.GetInvoiceByNumber("nonexistent")
+	assert.Error(t, err)
+	assert.Equal(t, ErrInvoiceNotFound, err)
+}
+
+func TestGetPoolUsageSummaryNotFound(t *testing.T) {
+	bm := createTestBillingManager(t)
+	defer os.RemoveAll(bm.dataDir)
+
+	_, err := bm.GetPoolUsageSummary("nonexistent", time.Time{}, time.Time{})
+	assert.Error(t, err)
+	assert.Equal(t, ErrUsageRecordNotFound, err)
 }

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.63.0] - 2026-03-15
+
+### Changed
+- **代码质量提升** (兵部)
+  - 运行 gofmt 统一代码格式
+  - 修复 lint 错误
+  - 解决 mutex 复制问题
+
+### Improved
+- **文档同步** (礼部)
+  - 版本号更新至 v2.63.0
+  - API 文档版本同步
+  - README 版本徽章更新
+
 ## [v2.61.0] - 2026-03-15
 
 ### Added
