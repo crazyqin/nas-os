@@ -1,6 +1,6 @@
 # NAS-OS 文档中心
 
-> **版本**: v2.54.0  
+> **版本**: v2.55.0  
 > **发布日期**: 2026-03-15  
 > **项目**: NAS-OS 家用 NAS 系统
 
@@ -24,11 +24,11 @@
 
 | 文档 | 说明 | 状态 |
 |------|------|------|
-| [QUICKSTART.md](QUICKSTART.md) | 快速开始指南 | ✅ v2.54.0 |
-| [USER_GUIDE.md](USER_GUIDE.md) | 用户使用指南 | ✅ v2.54.0 |
+| [QUICKSTART.md](QUICKSTART.md) | 快速开始指南 | ✅ v2.55.0 |
+| [USER_GUIDE.md](USER_GUIDE.md) | 用户使用指南 | ✅ v2.55.0 |
 | [FAQ.md](FAQ.md) | 常见问题解答 | ✅ v2.54.0 |
 | [ADMIN_GUIDE_v2.5.0.md](ADMIN_GUIDE_v2.5.0.md) | 管理员指南 | ✅ v2.5.0 |
-| [API_GUIDE.md](API_GUIDE.md) | API 使用指南 | ✅ v2.54.0 |
+| [API_GUIDE.md](API_GUIDE.md) | API 使用指南 | ✅ v2.55.0 |
 | [DEPLOYMENT_GUIDE_v2.5.0.md](DEPLOYMENT_GUIDE_v2.5.0.md) | 部署指南 | ✅ v2.5.0 |
 | [DEVELOPER.md](DEVELOPER.md) | 开发者文档 | ✅ 完成 |
 | [NASCTL-CLI.md](NASCTL-CLI.md) | CLI 工具指南 | ✅ 完成 |
@@ -70,6 +70,7 @@
 
 | 模块 | 文档 | 说明 |
 |------|------|------|
+| 🔐 权限管理 | [user-guide/permission-guide.md](user-guide/permission-guide.md) | RBAC 权限系统指南 (v2.55.0+) |
 | 📸 照片管理 | [PHOTOS_API.md](PHOTOS_API.md) | 相册、AI 分类、人脸识别 |
 | 🌐 网络管理 | [NETWORK_API.md](NETWORK_API.md) | DDNS、防火墙、端口转发 |
 | 🎯 iSCSI | [ISCSI_GUIDE.md](ISCSI_GUIDE.md) | iSCSI 目标配置 |
