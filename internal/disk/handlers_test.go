@@ -195,8 +195,8 @@ func TestGetDiskInfo(t *testing.T) {
 		Status: StatusHealthy,
 	}
 
-	// 测试存在的磁盘
-	req, _ := http.NewRequest("GET", "/api/disk/sda", nil)
+	// 测试存在的磁盘 - 使用完整设备路径
+	req, _ := http.NewRequest("GET", "/api/disk/dev/sda", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -205,7 +205,7 @@ func TestGetDiskInfo(t *testing.T) {
 	}
 
 	// 测试不存在的磁盘
-	req2, _ := http.NewRequest("GET", "/api/disk/sdz", nil)
+	req2, _ := http.NewRequest("GET", "/api/disk/dev/sdz", nil)
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, req2)
 
@@ -452,7 +452,8 @@ func TestGetSMARTData(t *testing.T) {
 		},
 	}
 
-	req, _ := http.NewRequest("GET", "/api/disk/sda/smart", nil)
+	// 使用完整设备路径
+	req, _ := http.NewRequest("GET", "/api/disk/dev/sda/smart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -485,7 +486,8 @@ func TestGetDiskHealth(t *testing.T) {
 		},
 	}
 
-	req, _ := http.NewRequest("GET", "/api/disk/sda/health", nil)
+	// 使用完整设备路径
+	req, _ := http.NewRequest("GET", "/api/disk/dev/sda/health", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -512,7 +514,8 @@ func TestGetDiskPredictions(t *testing.T) {
 		},
 	}
 
-	req, _ := http.NewRequest("GET", "/api/disk/sda/predictions", nil)
+	// 使用完整设备路径
+	req, _ := http.NewRequest("GET", "/api/disk/dev/sda/predictions", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
