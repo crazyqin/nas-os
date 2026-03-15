@@ -73,7 +73,7 @@ func TestVolumeStatusResponse_Struct(t *testing.T) {
 		t.Error("Expected BalanceRunning=true")
 	}
 	if status.BalanceProgress != 50 {
-		t.Errorf("Expected BalanceProgress=50, got %d", status.BalanceProgress)
+		t.Errorf("Expected BalanceProgress=50, got %g", status.BalanceProgress)
 	}
 }
 
@@ -83,7 +83,7 @@ func TestSubvolumeResponse_Struct(t *testing.T) {
 		Path:      "/mnt/data/documents",
 		Size:      1073741824,
 		ReadOnly:  false,
-		Snapshots: []SnapshotResponse{},
+		SnapCount: 0,
 	}
 
 	if subvol.Name != "documents" {
@@ -96,15 +96,16 @@ func TestSubvolumeResponse_Struct(t *testing.T) {
 
 func TestSnapshotResponse_Struct(t *testing.T) {
 	snap := SnapshotResponse{
-		ID:        "snap-123",
-		Name:      "backup-2024-01-01",
-		CreatedAt: "2024-01-01T00:00:00Z",
-		Size:      104857600,
-		ReadOnly:  true,
+		Name:       "backup-2024-01-01",
+		Source:     "documents",
+		CreatedAt:  "2024-01-01T00:00:00Z",
+		Size:       104857600,
+		ReadOnly:   true,
+		VolumeName: "main-pool",
 	}
 
-	if snap.ID != "snap-123" {
-		t.Errorf("Expected ID=snap-123, got %s", snap.ID)
+	if snap.Name != "backup-2024-01-01" {
+		t.Errorf("Expected Name=backup-2024-01-01, got %s", snap.Name)
 	}
 	if !snap.ReadOnly {
 		t.Error("Expected ReadOnly=true")
@@ -114,11 +115,11 @@ func TestSnapshotResponse_Struct(t *testing.T) {
 func TestPoolResponse_Struct(t *testing.T) {
 	pool := PoolResponse{
 		Name:        "main-pool",
-		Type:        "raid1",
+		DataProfile: "raid1",
 		Size:        214748364800,
 		Used:        42949672960,
 		Free:        171798691840,
-		Health:      "healthy",
+		Healthy:     true,
 		Devices:     []string{"/dev/sda", "/dev/sdb"},
 		VolumeCount: 1,
 	}
@@ -126,8 +127,8 @@ func TestPoolResponse_Struct(t *testing.T) {
 	if pool.Name != "main-pool" {
 		t.Errorf("Expected Name=main-pool, got %s", pool.Name)
 	}
-	if pool.Health != "healthy" {
-		t.Errorf("Expected Health=healthy, got %s", pool.Health)
+	if !pool.Healthy {
+		t.Error("Expected Healthy=true")
 	}
 }
 
