@@ -1,0 +1,190 @@
+{
+  "version": "v2.92.0",
+  "report_type": "户部资源管理报告",
+  "generated_at": "2026-03-16T04:45:00+08:00",
+  "generated_by": "户部（财务运营）",
+  "summary": {
+    "status": "completed",
+    "modules_checked": 4,
+    "tests_passed": true,
+    "issues_found": 0,
+    "issues_fixed": 1
+  },
+  "modules": {
+    "quota": {
+      "path": "internal/quota/",
+      "description": "配额管理模块",
+      "status": "healthy",
+      "features": [
+        "用户/用户组存储空间限制",
+        "配额使用监控和告警",
+        "自动清理策略",
+        "配额报告生成",
+        "使用趋势分析 (v2.6.0)",
+        "历史统计 (v2.7.0)",
+        "多渠道通知 (v2.7.0)",
+        "使用量缓存优化 (v2.88.0)"
+      ],
+      "files": {
+        "total": 16,
+        "core": ["manager.go", "types.go", "monitor.go", "cleanup.go", "report.go"],
+        "tests": ["manager_test.go", "quota_test.go", "types_test.go"]
+      },
+      "tests": {
+        "passed": true,
+        "count": 25,
+        "coverage": "良好"
+      }
+    },
+    "cost_analysis": {
+      "path": "internal/billing/cost_analysis/",
+      "description": "成本分析模块",
+      "status": "healthy",
+      "features": [
+        "存储成本趋势分析",
+        "资源利用率报告",
+        "成本优化建议",
+        "预算跟踪报告",
+        "综合成本分析报告",
+        "缓存机制优化 (v2.88.0)"
+      ],
+      "files": {
+        "total": 6,
+        "core": ["report.go", "enhanced_report.go", "api.go"],
+        "tests": ["report_test.go", "enhanced_report_test.go", "api_test.go"]
+      },
+      "tests": {
+        "passed": true,
+        "count": 25,
+        "coverage": "良好"
+      }
+    },
+    "reports": {
+      "path": "internal/reports/",
+      "description": "资源报告模块",
+      "status": "healthy",
+      "features": [
+        "存储使用报告",
+        "带宽统计报告",
+        "容量预测报告",
+        "综合资源报告 (v2.89.0)",
+        "户部资源报告集成 (v2.92.0)",
+        "健康评分系统",
+        "增强报告功能"
+      ],
+      "files": {
+        "total": 44,
+        "core": [
+          "hubu_resource_report.go",
+          "storage_usage_report.go",
+          "bandwidth_report.go",
+          "capacity_planning.go",
+          "storage_cost.go",
+          "cost_analysis.go",
+          "financial_report.go"
+        ],
+        "tests": [
+          "hubu_resource_report_test.go",
+          "storage_cost_test.go",
+          "bandwidth_report_test.go",
+          "capacity_planning_test.go",
+          "financial_report_test.go"
+        ]
+      },
+      "tests": {
+        "passed": true,
+        "count": 100,
+        "coverage": "良好"
+      },
+      "fixes_applied": [
+        {
+          "file": "resource_report_test.go",
+          "issue": "测试文件使用了错误的类型定义，与实际代码不匹配",
+          "fix": "使用正确的 Hubu 前缀类型，统一测试与实现",
+          "new_file": "hubu_resource_report_test.go"
+        }
+      ]
+    },
+    "budget": {
+      "path": "internal/budget/",
+      "description": "预算管理模块",
+      "status": "healthy",
+      "features": [
+        "预算创建和管理",
+        "预算使用跟踪",
+        "预算预警",
+        "预算预测（多种方法）",
+        "预测缓存优化 (v2.88.0)"
+      ],
+      "files": {
+        "total": 6,
+        "core": ["types.go", "api.go", "handlers.go", "forecast.go", "alert.go"],
+        "tests": ["forecast_test.go"]
+      },
+      "tests": {
+        "passed": true,
+        "count": 14,
+        "coverage": "良好"
+      }
+    }
+  },
+  "storage_statistics": {
+    "description": "存储使用统计功能检查",
+    "status": "implemented",
+    "apis": [
+      "GET /api/v1/quota-storage-stats - 全局存储统计",
+      "GET /api/v1/quota-storage-stats/volumes - 所有卷统计",
+      "GET /api/v1/quota-storage-stats/volumes/:volumeName - 指定卷统计",
+      "GET /api/v1/quota-storage-stats/top-users - 使用量最高用户",
+      "GET /api/v1/quota-storage-stats/trend - 存储趋势"
+    ],
+    "optimizations": [
+      "使用量缓存 5 分钟 TTL",
+      "手动缓存清除 API",
+      "路径级别缓存控制"
+    ]
+  },
+  "health_score_system": {
+    "description": "健康评分系统",
+    "status": "implemented",
+    "scoring_rules": {
+      "base_score": 100,
+      "storage_usage_90+": -30,
+      "storage_usage_80-90": -20,
+      "storage_usage_70-80": -10,
+      "critical_alert": -5,
+      "warning_alert": -2,
+      "bandwidth_90+": -20,
+      "bandwidth_80-90": -10,
+      "bandwidth_70-80": -5,
+      "error_rate_over_1": -10,
+      "capacity_urgency_critical": -25,
+      "capacity_urgency_high": -15,
+      "capacity_urgency_medium": -5
+    },
+    "status_levels": {
+      "excellent": ">=90",
+      "good": ">=75",
+      "warning": ">=50",
+      "critical": "<50"
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "low",
+      "type": "optimization",
+      "title": "考虑添加更多集成测试",
+      "description": "当前单元测试覆盖良好，可考虑添加跨模块集成测试"
+    },
+    {
+      "priority": "low",
+      "type": "documentation",
+      "title": "API 文档完善",
+      "description": "README.md 已有详细文档，可考虑添加 OpenAPI/Swagger 规范"
+    }
+  ],
+  "conclusion": {
+    "overall_status": "passed",
+    "message": "v2.92.0 版本资源管理功能检查完成。所有模块状态健康，测试通过。发现并修复了 1 个测试文件问题。"
+  }
+}

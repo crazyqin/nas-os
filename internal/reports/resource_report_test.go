@@ -1,4 +1,4 @@
-// Package reports 提供资源报告测试 (v2.89.0)
+// Package reports 提供资源报告测试 (v2.92.0)
 package reports
 
 import (
@@ -8,257 +8,531 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// ========== 资源报告生成器测试 ==========
+// ========== ResourceReportGenerator 测试 ==========
 
-func TestResourceReportGenerator_GenerateStorageUsageReport(t *testing.T) {
-	storageConfig := DefaultStorageReportConfig()
-	bandwidthConfig := BandwidthReportConfig{
-		BandwidthLimitMbps: 1000,
+func TestNewResourceReportGenerator(t *testing.T) {
+	// 测试创建生成器
+	generator := NewResourceReportGenerator(func(period string) (map[string]interface{}, error) {
+		return map[string]interface{}{
+			"resource_usage": map[string]interface{}{
+				"cpu":    50.0,
+				"memory": 60.0,
+				"disk":   70.0,
+			},
+		}, nil
+	})
+
+	assert.NotNil(t, generator)
+}
+
+func TestResourceReportGenerator_GenerateDailyReport(t *testing.T) {
+	generator := NewResourceReportGenerator(func(period string) (map[string]interface{}, error) {
+		return map[string]interface{}{
+			"resource_usage": map[string]interface{}{
+				"cpu_usage":    45.5,
+				"memory_usage": 62.3,
+				"disk_usage":   78.9,
+			},
+			"period": period,
+		}, nil
+	})
+
+	report, err := generator.GenerateDailyReport()
+
+	assert.NoError(t, err)
+	assert.NotNil(t, report)
+	assert.NotEmpty(t, report.ID)
+	assert.Contains(t, report.Name, "日报")
+	// 验证时间范围是24小时
+	duration := report.Period.EndTime.Sub(report.Period.StartTime)
+	assert.Equal(t, 24*time.Hour, duration)
+}
+
+func TestResourceReportGenerator_GenerateWeeklyReport(t *testing.T) {
+	generator := NewResourceReportGenerator(func(period string) (map[string]interface{}, error) {
+		return map[string]interface{}{
+			"resource_usage": map[string]interface{}{
+				"cpu_avg":    42.0,
+				"memory_avg": 58.0,
+				"disk_peak":  85.0,
+			},
+			"period": period,
+		}, nil
+	})
+
+	report, err := generator.GenerateWeeklyReport()
+
+	assert.NoError(t, err)
+	assert.NotNil(t, report)
+	assert.NotEmpty(t, report.ID)
+	assert.Contains(t, report.Name, "周报")
+}
+
+func TestResourceReportGenerator_GenerateHourlyReport(t *testing.T) {
+	generator := NewResourceReportGenerator(func(period string) (map[string]interface{}, error) {
+		return map[string]interface{}{
+			"resource_usage": map[string]interface{}{
+				"current_cpu":    55.0,
+				"current_memory": 65.0,
+			},
+			"period": period,
+		}, nil
+	})
+
+	report, err := generator.GenerateHourlyReport()
+
+	assert.NoError(t, err)
+	assert.NotNil(t, report)
+	assert.Contains(t, report.Name, "时报")
+}
+
+func TestResourceReportGenerator_NilFunction(t *testing.T) {
+	generator := NewResourceReportGenerator(nil)
+
+	report, err := generator.GenerateDailyReport()
+
+	assert.Error(t, err)
+	assert.Nil(t, report)
+	assert.Contains(t, err.Error(), "未配置")
+}
+
+func TestResourceReportGenerator_ErrorFunction(t *testing.T) {
+	generator := NewResourceReportGenerator(func(period string) (map[string]interface{}, error) {
+		return nil, assert.AnError
+	})
+
+	report, err := generator.GenerateDailyReport()
+
+	assert.Error(t, err)
+	assert.Nil(t, report)
+}
+
+// ========== ResourceReporter 测试 ==========
+
+func TestNewResourceReporter(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
+
+	assert.NotNil(t, reporter)
+	assert.Equal(t, 70.0, reporter.config.StorageWarningThreshold)
+	assert.Equal(t, 85.0, reporter.config.StorageCriticalThreshold)
+}
+
+func TestResourceReporter_GenerateOverviewReport(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
+
+	storageMetrics := []StorageMetrics{
+		{
+			VolumeName:            "vol1",
+			TotalCapacityBytes:    1 * 1024 * 1024 * 1024 * 1024,
+			UsedCapacityBytes:     500 * 1024 * 1024 * 1024,
+			AvailableCapacityBytes: 524 * 1024 * 1024 * 1024,
+			FileCount:             10000,
+			DirCount:              500,
+			IOPS:                  1000,
+		},
 	}
-	capacityConfig := CapacityPlanningConfig{
-		AlertThreshold:    70.0,
-		CriticalThreshold: 85.0,
-		ForecastDays:      90,
-	}
-	costConfig := StorageCostConfig{
-		CostPerGBMonthly: 0.5,
-	}
 
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
-
-	now := time.Now()
-	start := now.AddDate(0, 0, -30)
-
-	req := ResourceReportRequest{
-		Type:      ResourceReportStorageUsage,
-		StartTime: &start,
-		EndTime:   &now,
+	bandwidthHistory := map[string][]BandwidthHistoryPoint{
+		"eth0": {
+			{
+				Timestamp: time.Now().Add(-time.Hour),
+				RxBytes:   100 * 1024 * 1024,
+				TxBytes:   50 * 1024 * 1024,
+				RxRate:    10 * 1024 * 1024,
+				TxRate:    5 * 1024 * 1024,
+			},
+		},
 	}
 
-	report := generator.GenerateReport(req)
+	userMetrics := []UserResourceInfo{
+		{
+			Username:     "user1",
+			UsedBytes:    100 * 1024 * 1024 * 1024,
+			QuotaBytes:   200 * 1024 * 1024 * 1024,
+			UsagePercent: 50.0,
+		},
+	}
+
+	systemMetrics := &SystemResourceOverview{
+		CPUUsage:     45.5,
+		MemoryUsage:  62.3,
+		Uptime:       86400 * 7,
+		SystemStatus: "healthy",
+	}
+
+	report := reporter.GenerateOverviewReport(storageMetrics, bandwidthHistory, userMetrics, systemMetrics)
 
 	assert.NotNil(t, report)
 	assert.NotEmpty(t, report.ID)
-	assert.Equal(t, ResourceReportStorageUsage, report.Type)
+	assert.Equal(t, ResourceReportOverview, report.Type)
+	assert.Equal(t, "资源可视化总览报告", report.Name)
+	assert.NotNil(t, report.StorageOverview)
+	assert.NotNil(t, report.BandwidthOverview)
+	assert.NotNil(t, report.UserOverview)
+	assert.NotNil(t, report.SystemOverview)
+	assert.NotEmpty(t, report.Charts)
+}
+
+func TestResourceReporter_GenerateStorageReport(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
+
+	metrics := []StorageMetrics{
+		{
+			VolumeName:            "vol1",
+			TotalCapacityBytes:    2 * 1024 * 1024 * 1024 * 1024,
+			UsedCapacityBytes:     1600 * 1024 * 1024 * 1024,
+			AvailableCapacityBytes: 448 * 1024 * 1024 * 1024,
+			FileCount:             25000,
+			DirCount:              1200,
+		},
+	}
+
+	report := reporter.GenerateStorageReport(metrics)
+
+	assert.NotNil(t, report)
+	assert.Equal(t, ResourceReportStorage, report.Type)
 	assert.Equal(t, "存储使用报告", report.Name)
-	assert.NotNil(t, report.StorageUsage)
-	assert.GreaterOrEqual(t, report.GenerationTimeMS, int64(0))
+	assert.NotNil(t, report.StorageOverview)
+	assert.Equal(t, 1, report.StorageOverview.VolumeCount)
+	assert.NotEmpty(t, report.Charts)
+
+	// 验证使用率计算
+	assert.InDelta(t, 78.125, report.StorageOverview.UsagePercent, 1.0)
 }
 
-func TestResourceReportGenerator_GenerateBandwidthStatsReport(t *testing.T) {
-	storageConfig := DefaultStorageReportConfig()
-	bandwidthConfig := BandwidthReportConfig{
-		BandwidthLimitMbps: 1000,
+func TestResourceReporter_GenerateBandwidthReport(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
+
+	history := map[string][]BandwidthHistoryPoint{
+		"eth0": {
+			{
+				Timestamp: time.Now().Add(-2 * time.Hour),
+				RxBytes:   500 * 1024 * 1024,
+				TxBytes:   200 * 1024 * 1024,
+				RxRate:    20 * 1024 * 1024,
+				TxRate:    10 * 1024 * 1024,
+			},
+			{
+				Timestamp: time.Now().Add(-time.Hour),
+				RxBytes:   800 * 1024 * 1024,
+				TxBytes:   400 * 1024 * 1024,
+				RxRate:    30 * 1024 * 1024,
+				TxRate:    15 * 1024 * 1024,
+			},
+		},
+		"eth1": {
+			{
+				Timestamp: time.Now().Add(-time.Hour),
+				RxBytes:   300 * 1024 * 1024,
+				TxBytes:   150 * 1024 * 1024,
+				RxRate:    15 * 1024 * 1024,
+				TxRate:    8 * 1024 * 1024,
+			},
+		},
 	}
-	capacityConfig := CapacityPlanningConfig{
-		ForecastDays: 90,
-	}
-	costConfig := StorageCostConfig{}
 
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
-
-	now := time.Now()
-	start := now.AddDate(0, 0, -30)
-
-	req := ResourceReportRequest{
-		Type:      ResourceReportBandwidthStats,
-		StartTime: &start,
-		EndTime:   &now,
-	}
-
-	report := generator.GenerateReport(req)
+	report := reporter.GenerateBandwidthReport(history)
 
 	assert.NotNil(t, report)
-	assert.NotEmpty(t, report.ID)
-	assert.Equal(t, ResourceReportBandwidthStats, report.Type)
-	assert.Equal(t, "带宽统计报告", report.Name)
-	assert.NotNil(t, report.BandwidthStats)
+	assert.Equal(t, ResourceReportBandwidth, report.Type)
+	assert.Equal(t, "带宽使用报告", report.Name)
+	assert.NotNil(t, report.BandwidthOverview)
+	assert.Equal(t, 2, report.BandwidthOverview.InterfaceCount)
+	assert.NotEmpty(t, report.BandwidthOverview.Interfaces)
+	assert.NotEmpty(t, report.Charts)
+
+	// 验证流量模式判断
+	assert.Contains(t, []string{"balanced", "download_heavy", "upload_heavy"}, report.BandwidthOverview.TrafficPattern)
 }
 
-func TestResourceReportGenerator_GenerateCapacityForecastReport(t *testing.T) {
-	storageConfig := DefaultStorageReportConfig()
-	bandwidthConfig := BandwidthReportConfig{}
-	capacityConfig := CapacityPlanningConfig{
-		AlertThreshold:    70.0,
-		CriticalThreshold: 85.0,
-		ForecastDays:      90,
-		GrowthModel:       GrowthModelLinear,
-	}
-	costConfig := StorageCostConfig{}
+func TestResourceReporter_GenerateUserReport(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
 
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
-
-	now := time.Now()
-	start := now.AddDate(0, 0, -30)
-
-	req := ResourceReportRequest{
-		Type:         ResourceReportCapacity,
-		StartTime:    &start,
-		EndTime:      &now,
-		ForecastDays: 90,
+	metrics := []UserResourceInfo{
+		{Username: "user1", UsedBytes: 500 * 1024 * 1024 * 1024, QuotaBytes: 1000 * 1024 * 1024 * 1024, UsagePercent: 50.0},
+		{Username: "user2", UsedBytes: 800 * 1024 * 1024 * 1024, QuotaBytes: 1000 * 1024 * 1024 * 1024, UsagePercent: 80.0},
+		{Username: "user3", UsedBytes: 1200 * 1024 * 1024 * 1024, QuotaBytes: 1000 * 1024 * 1024 * 1024, UsagePercent: 120.0},
 	}
 
-	report := generator.GenerateReport(req)
+	report := reporter.GenerateUserReport(metrics)
 
 	assert.NotNil(t, report)
-	assert.NotEmpty(t, report.ID)
-	assert.Equal(t, ResourceReportCapacity, report.Type)
-	assert.Equal(t, "容量预测报告", report.Name)
-	assert.NotNil(t, report.CapacityForecast)
+	assert.Equal(t, ResourceReportUser, report.Type)
+	assert.Equal(t, "用户资源报告", report.Name)
+	assert.NotNil(t, report.UserOverview)
+	assert.Equal(t, 3, report.UserOverview.TotalUsers)
+	assert.NotEmpty(t, report.UserOverview.TopUsers)
+
+	// 验证超限用户检测
+	assert.Equal(t, 1, report.UserOverview.OverHardLimit)
+	assert.Equal(t, 1, report.UserOverview.OverSoftLimit)
 }
 
-func TestResourceReportGenerator_GenerateComprehensiveReport(t *testing.T) {
-	storageConfig := DefaultStorageReportConfig()
-	bandwidthConfig := BandwidthReportConfig{
-		BandwidthLimitMbps: 1000,
-	}
-	capacityConfig := CapacityPlanningConfig{
-		ForecastDays: 90,
-	}
-	costConfig := StorageCostConfig{}
+func TestResourceReporter_DetectStorageAlerts(t *testing.T) {
+	config := DefaultResourceReportConfig()
+	config.StorageWarningThreshold = 70.0
+	config.StorageCriticalThreshold = 85.0
+	reporter := NewResourceReporter(config)
 
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
-
-	now := time.Now()
-	start := now.AddDate(0, 0, -30)
-
-	req := ResourceReportRequest{
-		Type:      ResourceReportComprehensive,
-		StartTime: &start,
-		EndTime:   &now,
+	overview := &StorageOverview{
+		UsagePercent: 90.0,
+		Volumes: []VolumeStorageInfo{
+			{Name: "vol1", UsagePercent: 92.0},
+			{Name: "vol2", UsagePercent: 75.0},
+		},
 	}
 
-	report := generator.GenerateReport(req)
+	alerts := reporter.detectStorageAlerts(overview)
 
-	assert.NotNil(t, report)
-	assert.NotEmpty(t, report.ID)
-	assert.Equal(t, ResourceReportComprehensive, report.Type)
-	assert.Equal(t, "综合资源报告", report.Name)
-	assert.NotNil(t, report.Comprehensive)
-	assert.Greater(t, report.Comprehensive.OverallHealthScore, 0.0)
-	assert.NotEmpty(t, report.Comprehensive.HealthStatus)
+	assert.NotEmpty(t, alerts)
+
+	// 验证有严重告警
+	hasCritical := false
+	for _, alert := range alerts {
+		if alert.Severity == "critical" {
+			hasCritical = true
+			break
+		}
+	}
+	assert.True(t, hasCritical)
 }
 
-// ========== 健康评分测试 ==========
+func TestResourceReporter_DetectUserAlerts(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
 
-func TestResourceReportGenerator_CalculateHealthScore(t *testing.T) {
-	storageConfig := DefaultStorageReportConfig()
-	bandwidthConfig := BandwidthReportConfig{}
-	capacityConfig := CapacityPlanningConfig{}
-	costConfig := StorageCostConfig{}
+	overview := &UserResourceOverview{
+		TopUsers: []UserResourceInfo{
+			{Username: "over_quota", UsagePercent: 110.0},
+			{Username: "normal", UsagePercent: 50.0},
+		},
+	}
 
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
+	alerts := reporter.detectUserAlerts(overview)
 
-	t.Run("健康状态", func(t *testing.T) {
-		storageReport := &StorageUsageReport{
-			Summary: StorageUsageSummary{
-				UsagePercent: 50.0,
-			},
-			Alerts: []StorageAlert{},
-		}
-
-		score := generator.CalculateHealthScore(storageReport, nil, nil)
-		assert.GreaterOrEqual(t, score, 80.0)
-	})
-
-	t.Run("警告状态", func(t *testing.T) {
-		storageReport := &StorageUsageReport{
-			Summary: StorageUsageSummary{
-				UsagePercent: 75.0,
-			},
-			Alerts: []StorageAlert{
-				{Severity: "warning", Message: "存储使用率较高"},
-			},
-		}
-
-		score := generator.CalculateHealthScore(storageReport, nil, nil)
-		assert.Less(t, score, 90.0)
-	})
-
-	t.Run("严重状态", func(t *testing.T) {
-		storageReport := &StorageUsageReport{
-			Summary: StorageUsageSummary{
-				UsagePercent: 95.0,
-			},
-			Alerts: []StorageAlert{
-				{Severity: "critical", Message: "存储空间不足"},
-			},
-		}
-
-		score := generator.CalculateHealthScore(storageReport, nil, nil)
-		assert.Less(t, score, 70.0)
-	})
-
-	t.Run("带宽影响", func(t *testing.T) {
-		storageReport := &StorageUsageReport{
-			Summary: StorageUsageSummary{
-				UsagePercent: 50.0,
-			},
-		}
-
-		bandwidthReport := &BandwidthReport{
-			Summary: BandwidthSummary{
-				PeakUtilization: 95.0,
-				AvgErrorRate:    2.0,
-			},
-		}
-
-		score := generator.CalculateHealthScore(storageReport, bandwidthReport, nil)
-		assert.Less(t, score, 70.0)
-	})
-
-	t.Run("容量影响", func(t *testing.T) {
-		storageReport := &StorageUsageReport{
-			Summary: StorageUsageSummary{
-				UsagePercent: 50.0,
-			},
-		}
-
-		capacityReport := &CapacityPlanningReport{
-			Summary: CapacityPlanningSummary{
-				Urgency: "critical",
-			},
-		}
-
-		score := generator.CalculateHealthScore(storageReport, nil, capacityReport)
-		assert.Less(t, score, 80.0)
-	})
+	assert.NotEmpty(t, alerts)
+	assert.Equal(t, "over_quota", alerts[0].Resource)
+	assert.Equal(t, "critical", alerts[0].Severity)
 }
 
-func TestResourceReportGenerator_GetHealthStatus(t *testing.T) {
-	storageConfig := DefaultStorageReportConfig()
-	bandwidthConfig := BandwidthReportConfig{}
-	capacityConfig := CapacityPlanningConfig{}
-	costConfig := StorageCostConfig{}
+func TestResourceReporter_GenerateStorageRecommendations(t *testing.T) {
+	config := DefaultResourceReportConfig()
+	config.StorageCriticalThreshold = 85.0
+	reporter := NewResourceReporter(config)
 
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
+	overview := &StorageOverview{
+		UsagePercent: 90.0,
+		TotalCapacity: 1 * 1024 * 1024 * 1024 * 1024,
+	}
 
-	testCases := []struct {
-		score          float64
-		expectedStatus string
+	recommendations := reporter.generateStorageRecommendations(overview)
+
+	assert.NotEmpty(t, recommendations)
+	assert.Equal(t, "high", recommendations[0].Priority)
+	assert.Equal(t, "storage", recommendations[0].Type)
+}
+
+// ========== 辅助函数测试 ==========
+
+func TestFormatBytesForResource(t *testing.T) {
+	tests := []struct {
+		bytes    uint64
+		contains string
 	}{
-		{95.0, "excellent"},
-		{85.0, "good"},
-		{75.0, "good"},
-		{60.0, "warning"},
-		{40.0, "critical"},
-		{10.0, "critical"},
+		{500, "500 B"},
+		{1024, "1.0 KiB"},
+		{1024 * 1024, "1.0 MiB"},
+		{1024 * 1024 * 1024, "1.0 GiB"},
+		{1024 * 1024 * 1024 * 1024, "1.0 TiB"},
 	}
 
-	for _, tc := range testCases {
-		status := generator.GetHealthStatus(tc.score)
-		assert.Equal(t, tc.expectedStatus, status, "score: %f", tc.score)
+	for _, tt := range tests {
+		result := formatBytesForResource(tt.bytes)
+		assert.Contains(t, result, tt.contains[:len(tt.contains)-3])
 	}
+}
+
+func TestGetPeriodDuration(t *testing.T) {
+	tests := []struct {
+		period   string
+		expected time.Duration
+	}{
+		{"hourly", time.Hour},
+		{"daily", 24 * time.Hour},
+		{"weekly", 7 * 24 * time.Hour},
+		{"unknown", 24 * time.Hour}, // default
+	}
+
+	for _, tt := range tests {
+		result := getPeriodDuration(tt.period)
+		assert.Equal(t, tt.expected, result)
+	}
+}
+
+// ========== MonitorDataSource 测试 ==========
+
+func TestNewMonitorDataSource(t *testing.T) {
+	config := MonitorDataSourceConfig{
+		Name: "test-monitor",
+		GetSystemStats: func() (map[string]interface{}, error) {
+			return map[string]interface{}{
+				"cpu_usage":    45.0,
+				"memory_usage": 60.0,
+			}, nil
+		},
+	}
+
+	ds := NewMonitorDataSource(config)
+
+	assert.NotNil(t, ds)
+	assert.Equal(t, "test-monitor", ds.Name())
+}
+
+func TestMonitorDataSource_Query(t *testing.T) {
+	ds := NewMonitorDataSource(MonitorDataSourceConfig{
+		Name: "test",
+		GetSystemStats: func() (map[string]interface{}, error) {
+			return map[string]interface{}{
+				"cpu_usage":    45.0,
+				"memory_usage": 60.0,
+			}, nil
+		},
+		GetHealthScore: func() (map[string]interface{}, error) {
+			return map[string]interface{}{
+				"total_score": 85.0,
+				"grade":       "good",
+			}, nil
+		},
+	})
+
+	// 测试系统查询
+	results, err := ds.Query(map[string]interface{}{"type": "system"}, nil, nil, nil, nil, nil, 0, 0)
+	assert.NoError(t, err)
+	assert.NotEmpty(t, results)
+	assert.Contains(t, results[0], "cpu_usage")
+}
+
+func TestMonitorDataSource_GetSummary(t *testing.T) {
+	ds := NewMonitorDataSource(MonitorDataSourceConfig{
+		Name: "test",
+		GetSystemStats: func() (map[string]interface{}, error) {
+			return map[string]interface{}{
+				"cpu_usage":    45.0,
+				"memory_usage": 60.0,
+			}, nil
+		},
+		GetHealthScore: func() (map[string]interface{}, error) {
+			return map[string]interface{}{
+				"total_score": 85.0,
+				"grade":       "good",
+			}, nil
+		},
+	})
+
+	summary, err := ds.GetSummary(nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, summary)
+	assert.Contains(t, summary, "health_score")
+	assert.Contains(t, summary, "health_grade")
+}
+
+func TestMonitorDataSource_GetAvailableFields(t *testing.T) {
+	ds := NewMonitorDataSource(MonitorDataSourceConfig{Name: "test"})
+
+	fields := ds.GetAvailableFields()
+
+	assert.NotEmpty(t, fields)
+	// 验证关键字段存在
+	fieldNames := make(map[string]bool)
+	for _, f := range fields {
+		fieldNames[f.Name] = true
+	}
+	assert.True(t, fieldNames["cpu_usage"])
+	assert.True(t, fieldNames["memory_usage"])
+	assert.True(t, fieldNames["health_score"])
+}
+
+// ========== 配置测试 ==========
+
+func TestDefaultResourceReportConfig(t *testing.T) {
+	config := DefaultResourceReportConfig()
+
+	assert.Equal(t, 70.0, config.StorageWarningThreshold)
+	assert.Equal(t, 85.0, config.StorageCriticalThreshold)
+	assert.Equal(t, 70.0, config.BandwidthHighThreshold)
+	assert.Equal(t, 90.0, config.BandwidthCriticalThreshold)
+	assert.Equal(t, 30, config.PredictionDays)
+	assert.True(t, config.EnablePrediction)
+	assert.True(t, config.EnableRecommendations)
+	assert.Equal(t, 10, config.TopUsersCount)
+}
+
+// ========== 边界条件测试 ==========
+
+func TestResourceReporter_EmptyMetrics(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
+
+	// 空存储指标
+	report := reporter.GenerateStorageReport([]StorageMetrics{})
+	assert.NotNil(t, report)
+	assert.Equal(t, 0, report.StorageOverview.VolumeCount)
+
+	// 空带宽历史
+	report = reporter.GenerateBandwidthReport(map[string][]BandwidthHistoryPoint{})
+	assert.NotNil(t, report)
+	assert.Equal(t, 0, report.BandwidthOverview.InterfaceCount)
+
+	// 空用户指标
+	report = reporter.GenerateUserReport([]UserResourceInfo{})
+	assert.NotNil(t, report)
+	assert.Equal(t, 0, report.UserOverview.TotalUsers)
+}
+
+func TestResourceReporter_ZeroCapacity(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
+
+	metrics := []StorageMetrics{
+		{VolumeName: "empty_vol"},
+	}
+
+	report := reporter.GenerateStorageReport(metrics)
+
+	assert.NotNil(t, report)
+	assert.Equal(t, uint64(0), report.StorageOverview.TotalCapacity)
+	assert.Equal(t, uint64(0), report.StorageOverview.UsedCapacity)
+	assert.Equal(t, 0.0, report.StorageOverview.UsagePercent)
+}
+
+// ========== 健康状态测试 ==========
+
+func TestResourceReporter_HealthStatus(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
+
+	// 健康系统
+	healthyMetrics := []StorageMetrics{
+		{
+			VolumeName:         "vol1",
+			TotalCapacityBytes: 1000,
+			UsedCapacityBytes:  500,
+		},
+	}
+
+	report := reporter.GenerateStorageReport(healthyMetrics)
+	alerts := reporter.detectStorageAlerts(report.StorageOverview)
+
+	// 使用率 50%，不应该有告警
+	assert.Empty(t, alerts)
 }
 
 // ========== 报告类型测试 ==========
 
-func TestResourceReportType_String(t *testing.T) {
+func TestResourceReportType_Values(t *testing.T) {
 	types := []ResourceReportType{
-		ResourceReportStorageUsage,
-		ResourceReportBandwidthStats,
+		ResourceReportOverview,
+		ResourceReportStorage,
+		ResourceReportBandwidth,
+		ResourceReportUser,
 		ResourceReportCapacity,
-		ResourceReportComprehensive,
+		ResourceReportPerformance,
 	}
 
 	for _, rt := range types {
@@ -266,443 +540,47 @@ func TestResourceReportType_String(t *testing.T) {
 	}
 }
 
-// ========== 报告请求测试 ==========
-
-func TestResourceReportRequest_Defaults(t *testing.T) {
-	req := ResourceReportRequest{
-		Type: ResourceReportStorageUsage,
-	}
-
-	// 验证默认值
-	assert.Equal(t, ResourceReportStorageUsage, req.Type)
-	assert.False(t, req.IncludeForecast)
-	assert.False(t, req.IncludeRecommendations)
-	assert.False(t, req.IncludeAlerts)
-}
-
-// ========== 综合报告测试 ==========
-
-func TestComprehensiveResourceReport_Initialization(t *testing.T) {
-	report := &ComprehensiveResourceReport{
-		OverallHealthScore: 85.0,
-		HealthStatus:       "good",
-		KeyMetrics:         []KeyMetric{},
-		AlertSummary: AlertSummary{
-			Total:      0,
-			Critical:   0,
-			Warning:    0,
-			Info:       0,
-			ByType:     make(map[string]int),
-			ByResource: make(map[string]int),
-		},
-		TopRecommendations: []PrioritizedRecommendation{},
-		TrendSummary: TrendSummary{
-			StorageTrend:   "stable",
-			BandwidthTrend: "stable",
-		},
-		ForecastSummary: ForecastSummary{
-			Confidence: 0.75,
-		},
-	}
-
-	assert.Equal(t, 85.0, report.OverallHealthScore)
-	assert.Equal(t, "good", report.HealthStatus)
-	assert.NotNil(t, report.AlertSummary.ByType)
-	assert.NotNil(t, report.AlertSummary.ByResource)
-}
-
-// ========== 关键指标测试 ==========
-
-func TestKeyMetric_Status(t *testing.T) {
-	metrics := []KeyMetric{
-		{Name: "存储使用率", Value: 50.0, Unit: "%", Status: "normal"},
-		{Name: "带宽利用率", Value: 85.0, Unit: "%", Status: "warning"},
-		{Name: "容量剩余天数", Value: 5.0, Unit: "天", Status: "critical"},
-	}
-
-	assert.Equal(t, "normal", metrics[0].Status)
-	assert.Equal(t, "warning", metrics[1].Status)
-	assert.Equal(t, "critical", metrics[2].Status)
-}
-
-// ========== 告警摘要测试 ==========
-
-func TestAlertSummary_Counts(t *testing.T) {
-	summary := AlertSummary{
-		Total:     5,
-		Critical:  1,
-		Warning:   2,
-		Info:      2,
-		ByType: map[string]int{
-			"capacity_high": 2,
-			"quota_exceeded": 1,
-			"bandwidth_high": 2,
-		},
-		ByResource: map[string]int{
-			"volume1": 2,
-			"volume2": 3,
-		},
-	}
-
-	assert.Equal(t, 5, summary.Total)
-	assert.Equal(t, 1, summary.Critical)
-	assert.Equal(t, 2, summary.Warning)
-	assert.Equal(t, 2, summary.Info)
-	assert.Equal(t, 2, summary.ByType["capacity_high"])
-	assert.Equal(t, 3, summary.ByResource["volume2"])
-}
-
-// ========== 优先建议测试 ==========
-
-func TestPrioritizedRecommendation_Ranking(t *testing.T) {
-	recommendations := []PrioritizedRecommendation{
-		{Rank: 1, Type: "storage", Priority: "critical", Title: "紧急扩容"},
-		{Rank: 2, Type: "bandwidth", Priority: "high", Title: "升级带宽"},
-		{Rank: 3, Type: "capacity", Priority: "medium", Title: "规划扩容"},
-		{Rank: 4, Type: "cost", Priority: "low", Title: "优化成本"},
-	}
-
-	assert.Equal(t, 1, recommendations[0].Rank)
-	assert.Equal(t, "critical", recommendations[0].Priority)
-	assert.Equal(t, "low", recommendations[3].Priority)
-}
-
-// ========== 趋势摘要测试 ==========
-
-func TestTrendSummary_GrowthRates(t *testing.T) {
-	summary := TrendSummary{
-		StorageTrend:      "increasing",
-		StorageGrowthRate: 5.0,
-		BandwidthTrend:    "stable",
-		BandwidthGrowthRate: 1.0,
-		DaysToStorageFull:  60,
-		DaysToBandwidthFull: 0,
-	}
-
-	assert.Equal(t, "increasing", summary.StorageTrend)
-	assert.Equal(t, 5.0, summary.StorageGrowthRate)
-	assert.Equal(t, 60, summary.DaysToStorageFull)
-}
-
-// ========== 预测摘要测试 ==========
-
-func TestForecastSummary_Predictions(t *testing.T) {
-	summary := ForecastSummary{
-		NextMonthStorageGB:    500.0,
-		NextQuarterStorageGB:  650.0,
-		NextMonthBandwidthGB:  100.0,
-		NextQuarterBandwidthGB: 300.0,
-		RecommendedExpansionGB: 200.0,
-		Confidence:            0.85,
-	}
-
-	assert.Equal(t, 500.0, summary.NextMonthStorageGB)
-	assert.Equal(t, 650.0, summary.NextQuarterStorageGB)
-	assert.Equal(t, 0.85, summary.Confidence)
-	assert.Greater(t, summary.NextQuarterStorageGB, summary.NextMonthStorageGB)
-}
-
-// ========== 存储增强报告测试 ==========
-
-func TestStorageUsageEnhancedReport(t *testing.T) {
-	now := time.Now()
-	report := &StorageUsageEnhancedReport{
-		StorageUsageReport: &StorageUsageReport{
-			ID:          "storage_001",
-			Name:        "存储使用报表",
-			GeneratedAt: now,
-			Summary: StorageUsageSummary{
-				TotalCapacity:  1 * 1024 * 1024 * 1024 * 1024,
-				TotalUsed:      500 * 1024 * 1024 * 1024,
-				UsagePercent:   50.0,
-				HealthStatus:   "healthy",
-			},
-		},
-		EnhancedMetrics: StorageEnhancedMetrics{
-			ReadIOPS:        1000,
-			WriteIOPS:       500,
-			ReadThroughputMB:  100.0,
-			WriteThroughputMB: 50.0,
-			AvgLatencyMs:    5.0,
-			CompressionRatio: 1.5,
-			DedupRatio:      1.2,
-		},
-		CostAnalysis: StorageCostAnalysis{
-			MonthlyCost:    500.0,
-			ProjectedCost:  550.0,
-			CostEfficiency: 85.0,
-		},
-	}
-
-	assert.Equal(t, "storage_001", report.ID)
-	assert.Equal(t, uint64(1000), report.EnhancedMetrics.ReadIOPS)
-	assert.Equal(t, 1.5, report.EnhancedMetrics.CompressionRatio)
-	assert.Equal(t, 500.0, report.CostAnalysis.MonthlyCost)
-}
-
-// ========== 带宽增强报告测试 ==========
-
-func TestBandwidthStatsEnhancedReport(t *testing.T) {
-	now := time.Now()
-	report := &BandwidthStatsEnhancedReport{
-		BandwidthReport: &BandwidthReport{
-			ID:          "bw_001",
-			Name:        "带宽使用报告",
-			GeneratedAt: now,
-			Summary: BandwidthSummary{
-				TotalGB:        500.0,
-				AvgTotalMbps:   100.0,
-				PeakTotalMbps:  500.0,
-				TrafficPattern: "balanced",
-			},
-		},
-		EnhancedMetrics: BandwidthEnhancedMetrics{
-			ActiveConnections: 100,
-			MaxConnections:    1000,
-			TotalSessions:     10000,
-			AvgSessionTime:    300.0,
-			RetransmitRate:    0.5,
-			AvgRTTMs:          20.0,
-		},
-		TrafficAnalysis: TrafficAnalysis{
-			Pattern: "steady",
-			PeakHours: []PeakHour{
-				{Hour: 10, AvgMbps: 200.0, PeakMbps: 400.0},
-				{Hour: 14, AvgMbps: 180.0, PeakMbps: 350.0},
-			},
-		},
-		ProtocolDistribution: []ProtocolStats{
-			{Protocol: "HTTPS", Percentage: 60.0},
-			{Protocol: "HTTP", Percentage: 20.0},
-			{Protocol: "Other", Percentage: 20.0},
-		},
-	}
-
-	assert.Equal(t, "bw_001", report.ID)
-	assert.Equal(t, 100, report.EnhancedMetrics.ActiveConnections)
-	assert.Equal(t, "steady", report.TrafficAnalysis.Pattern)
-	assert.Len(t, report.ProtocolDistribution, 3)
-}
-
-// ========== 容量预测增强报告测试 ==========
-
-func TestCapacityForecastEnhancedReport(t *testing.T) {
-	now := time.Now()
-	fullDate := now.AddDate(0, 2, 0)
-
-	report := &CapacityForecastEnhancedReport{
-		CapacityPlanningReport: &CapacityPlanningReport{
-			ID:          "cap_001",
-			Name:        "容量规划报告",
-			GeneratedAt: now,
-			Summary: CapacityPlanningSummary{
-				CurrentUsagePercent:   70.0,
-				MonthlyGrowthRate:     5.0,
-				DaysToFullCapacity:    60,
-				RecommendedExpansionGB: 200,
-				Urgency:               "high",
-				Trend:                 "growing",
-			},
-		},
-		EnhancedForecast: EnhancedCapacityForecast{
-			ConfidenceIntervals: []ConfidenceInterval{
-				{
-					Date:      now.AddDate(0, 1, 0),
-					Lower:     600 * 1024 * 1024 * 1024,
-					Predicted: 700 * 1024 * 1024 * 1024,
-					Upper:     800 * 1024 * 1024 * 1024,
-					Level:     0.95,
-				},
-			},
-			ModelDetails: ModelDetails{
-				Type:         "linear",
-				Accuracy:     0.92,
-				MAPE:         3.5,
-				TrainingDays: 90,
-			},
-			Seasonality: SeasonalityAnalysis{
-				HasSeasonality: true,
-				CycleDays:      30,
-				PeakDay:        15,
-				Variation:      10.0,
-			},
-		},
-		ScenarioAnalysis: []CapacityScenario{
-			{
-				Name:        "基准场景",
-				Description: "基于历史增长率的预测",
-				GrowthRate:  5.0,
-				FullDate:    &fullDate,
-			},
-		},
-	}
-
-	assert.Equal(t, "cap_001", report.ID)
-	assert.Equal(t, 70.0, report.Summary.CurrentUsagePercent)
-	assert.Equal(t, 0.92, report.EnhancedForecast.ModelDetails.Accuracy)
-	assert.True(t, report.EnhancedForecast.Seasonality.HasSeasonality)
-}
-
-// ========== 报告周期测试 ==========
-
-func TestReportPeriod_Duration(t *testing.T) {
-	now := time.Now()
-	start := now.AddDate(0, 0, -30)
-
-	period := ReportPeriod{
-		StartTime: start,
-		EndTime:   now,
-	}
-
-	duration := period.EndTime.Sub(period.StartTime)
-	assert.Equal(t, 30*24*time.Hour, duration)
-}
-
-// ========== 成本构成测试 ==========
-
-func TestCostBreakdown_Total(t *testing.T) {
-	breakdown := CostBreakdown{
-		StorageCost:      300.0,
-		ElectricityCost:  50.0,
-		OperationsCost:   100.0,
-		DepreciationCost: 50.0,
-	}
-
-	total := breakdown.StorageCost + breakdown.ElectricityCost + 
-		breakdown.OperationsCost + breakdown.DepreciationCost
-
-	assert.Equal(t, 500.0, total)
-}
-
-// ========== 流量分析测试 ==========
-
-func TestTrafficAnalysis_PeakHours(t *testing.T) {
-	analysis := TrafficAnalysis{
-		Pattern: "periodic",
-		PeakHours: []PeakHour{
-			{Hour: 9, AvgMbps: 150.0, PeakMbps: 300.0, Percentage: 15.0},
-			{Hour: 10, AvgMbps: 200.0, PeakMbps: 400.0, Percentage: 20.0},
-			{Hour: 14, AvgMbps: 180.0, PeakMbps: 350.0, Percentage: 18.0},
-		},
-		AppDistribution: []AppStats{
-			{Application: "Web", Percentage: 50.0},
-			{Application: "API", Percentage: 30.0},
-			{Application: "Other", Percentage: 20.0},
-		},
-	}
-
-	assert.Equal(t, "periodic", analysis.Pattern)
-	assert.Len(t, analysis.PeakHours, 3)
-	assert.Len(t, analysis.AppDistribution, 3)
-
-	// 找到峰值时段
-	var maxPeakHour int
-	var maxPeakMbps float64
-	for _, ph := range analysis.PeakHours {
-		if ph.PeakMbps > maxPeakMbps {
-			maxPeakMbps = ph.PeakMbps
-			maxPeakHour = ph.Hour
-		}
-	}
-	assert.Equal(t, 10, maxPeakHour)
-	assert.Equal(t, 400.0, maxPeakMbps)
-}
-
-// ========== 场景分析测试 ==========
-
-func TestCapacityScenario_Comparison(t *testing.T) {
-	now := time.Now()
-	scenarios := []CapacityScenario{
-		{
-			Name:        "乐观场景",
-			GrowthRate:  2.0,
-			FullDate:    ptrTime(now.AddDate(0, 6, 0)),
-		},
-		{
-			Name:        "基准场景",
-			GrowthRate:  5.0,
-			FullDate:    ptrTime(now.AddDate(0, 3, 0)),
-		},
-		{
-			Name:        "悲观场景",
-			GrowthRate:  10.0,
-			FullDate:    ptrTime(now.AddDate(0, 1, 0)),
-		},
-	}
-
-	// 验证场景排序（增长率越高，满载越快）
-	assert.Equal(t, 2.0, scenarios[0].GrowthRate)
-	assert.Equal(t, 5.0, scenarios[1].GrowthRate)
-	assert.Equal(t, 10.0, scenarios[2].GrowthRate)
-}
-
-// 辅助函数
-func ptrTime(t time.Time) *time.Time {
-	return &t
-}
-
-// ========== 边界条件测试 ==========
-
-func TestResourceReportGenerator_ZeroValues(t *testing.T) {
-	storageConfig := StorageReportConfig{}
-	bandwidthConfig := BandwidthReportConfig{}
-	capacityConfig := CapacityPlanningConfig{}
-	costConfig := StorageCostConfig{}
-
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
-
-	req := ResourceReportRequest{
-		Type: ResourceReportComprehensive,
-	}
-
-	report := generator.GenerateReport(req)
-
-	assert.NotNil(t, report)
-	assert.NotEmpty(t, report.ID)
-}
-
-func TestResourceReportGenerator_NilTimes(t *testing.T) {
-	storageConfig := DefaultStorageReportConfig()
-	bandwidthConfig := BandwidthReportConfig{}
-	capacityConfig := CapacityPlanningConfig{}
-	costConfig := StorageCostConfig{}
-
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
-
-	req := ResourceReportRequest{
-		Type:      ResourceReportStorageUsage,
-		StartTime: nil,
-		EndTime:   nil,
-	}
-
-	report := generator.GenerateReport(req)
-
-	assert.NotNil(t, report)
-	assert.NotNil(t, report.Period.StartTime)
-	assert.NotNil(t, report.Period.EndTime)
-}
-
 // ========== 性能测试 ==========
 
 func TestResourceReportGenerator_Performance(t *testing.T) {
-	storageConfig := DefaultStorageReportConfig()
-	bandwidthConfig := BandwidthReportConfig{}
-	capacityConfig := CapacityPlanningConfig{}
-	costConfig := StorageCostConfig{}
-
-	generator := NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig)
+	generator := NewResourceReportGenerator(func(period string) (map[string]interface{}, error) {
+		return map[string]interface{}{
+			"resource_usage": map[string]interface{}{
+				"cpu":    45.0,
+				"memory": 60.0,
+			},
+		}, nil
+	})
 
 	start := time.Now()
-	
 	for i := 0; i < 100; i++ {
-		req := ResourceReportRequest{
-			Type: ResourceReportComprehensive,
-		}
-		_ = generator.GenerateReport(req)
+		_, _ = generator.GenerateDailyReport()
 	}
-	
 	elapsed := time.Since(start)
-	
+
 	// 100次生成应该在1秒内完成
-	assert.Less(t, elapsed.Milliseconds(), int64(1000), "报告生成性能测试")
+	assert.Less(t, elapsed.Milliseconds(), int64(1000))
+}
+
+func TestResourceReporter_Performance(t *testing.T) {
+	reporter := NewResourceReporter(DefaultResourceReportConfig())
+
+	// 创建大量测试数据
+	metrics := make([]StorageMetrics, 100)
+	for i := 0; i < 100; i++ {
+		metrics[i] = StorageMetrics{
+			VolumeName:         "vol" + string(rune(i)),
+			TotalCapacityBytes: 1 * 1024 * 1024 * 1024 * 1024,
+			UsedCapacityBytes:  uint64(i) * 10 * 1024 * 1024 * 1024,
+		}
+	}
+
+	start := time.Now()
+	for i := 0; i < 10; i++ {
+		_ = reporter.GenerateStorageReport(metrics)
+	}
+	elapsed := time.Since(start)
+
+	// 10次生成应该在500毫秒内完成
+	assert.Less(t, elapsed.Milliseconds(), int64(500))
 }

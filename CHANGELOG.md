@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.92.0] - 2026-03-16
+
+### Changed
+- **版本号更新** (吏部)
+  - 版本号更新至 v2.92.0
+  - README.md 版本信息同步
+  - Docker 镜像标签更新
+
+### Improved
+- **文档体系完善** (礼部)
+  - CHANGELOG.md 添加 v2.91.0/v2.92.0 条目
+  - docs/api.yaml API 文档版本更新
+  - docs/RELEASE-v2.92.0.md 发布说明创建
+
 ## [v2.91.0] - 2026-03-16
 
 ### Changed
