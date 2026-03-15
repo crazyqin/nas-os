@@ -212,12 +212,12 @@ type MountResult struct {
 // ========== 错误定义 ==========
 
 var (
-	ErrDeviceNotFound     = fmt.Errorf("设备未找到")
-	ErrAlreadyMounted     = fmt.Errorf("设备已挂载")
-	ErrNotMounted         = fmt.Errorf("设备未挂载")
+	ErrDeviceNotFound       = fmt.Errorf("设备未找到")
+	ErrAlreadyMounted       = fmt.Errorf("设备已挂载")
+	ErrNotMounted           = fmt.Errorf("设备未挂载")
 	ErrFileSystemNotAllowed = fmt.Errorf("文件系统类型不被允许")
-	ErrMountPointBusy     = fmt.Errorf("挂载点被占用")
-	ErrRuleNotFound       = fmt.Errorf("规则未找到")
+	ErrMountPointBusy       = fmt.Errorf("挂载点被占用")
+	ErrRuleNotFound         = fmt.Errorf("规则未找到")
 )
 
 // ========== 构造函数 ==========
@@ -926,17 +926,17 @@ type lsblkOutput struct {
 
 // lsblkDevice lsblk 设备结构
 type lsblkDevice struct {
-	Name       string `json:"name"`
-	Path       string `json:"path"`
-	Label      string `json:"label"`
-	UUID       string `json:"uuid"`
-	Fstype     string `json:"fstype"`
-	Size       int64  `json:"size,string"`
-	Vendor     string `json:"vendor"`
-	Model      string `json:"model"`
-	Serial     string `json:"serial"`
-	Mountpoint string `json:"mountpoint"`
-	Hotplug    bool   `json:"hotplug,string"`
+	Name       string        `json:"name"`
+	Path       string        `json:"path"`
+	Label      string        `json:"label"`
+	UUID       string        `json:"uuid"`
+	Fstype     string        `json:"fstype"`
+	Size       int64         `json:"size,string"`
+	Vendor     string        `json:"vendor"`
+	Model      string        `json:"model"`
+	Serial     string        `json:"serial"`
+	Mountpoint string        `json:"mountpoint"`
+	Hotplug    bool          `json:"hotplug,string"`
 	Children   []lsblkDevice `json:"children"`
 }
 
@@ -957,8 +957,8 @@ func parseLSBLKOutput(output []byte) []*Device {
 				result = append(result, currentDevice)
 			}
 			currentDevice = &Device{
-				ID:        uuid.New().String(),
-				LastScan:  time.Now(),
+				ID:       uuid.New().String(),
+				LastScan: time.Now(),
 			}
 		}
 

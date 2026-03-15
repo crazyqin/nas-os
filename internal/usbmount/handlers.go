@@ -410,13 +410,13 @@ func (h *Handlers) getStatus(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"running":         h.manager.IsRunning(),
-			"totalDevices":    len(devices),
-			"mountedDevices":  mountedCount,
+			"running":          h.manager.IsRunning(),
+			"totalDevices":     len(devices),
+			"mountedDevices":   mountedCount,
 			"unmountedDevices": unmountedCount,
-			"totalRules":      len(h.manager.ListRules()),
-			"autoMount":       h.manager.GetConfig().AutoMount,
-			"timestamp":       time.Now(),
+			"totalRules":       len(h.manager.ListRules()),
+			"autoMount":        h.manager.GetConfig().AutoMount,
+			"timestamp":        time.Now(),
 		},
 	})
 }
