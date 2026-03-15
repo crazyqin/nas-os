@@ -1,6 +1,6 @@
 # NAS-OS 用户文档
 
-**版本**: v2.36.0 | **更新日期**: 2026-03-15
+**版本**: v2.44.0 | **更新日期**: 2026-03-15
 
 ## 📚 文档目录
 
@@ -392,6 +392,77 @@ sudo nasctl config import nas-config-backup.yaml
 - 使用 SSD 作为缓存设备
 - 启用 btrfs 压缩：`sudo btrfs property set /volumes/myvolume compression zstd`
 - 定期运行 balance 和 scrub
+
+### Q6: 如何启用双重认证 (MFA)
+**A**: 
+1. 登录 Web 界面
+2. 进入「设置」→「安全设置」
+3. 点击「启用 MFA」
+4. 使用 Google Authenticator 等应用扫描二维码
+5. 输入验证码确认启用
+
+### Q7: 如何配置定时快照
+**A**: 
+```bash
+# 创建快照策略
+sudo nasctl snapshot policy create daily \
+  --volume myvolume \
+  --schedule "0 2 * * *" \
+  --retention 7
+
+# 查看策略
+sudo nasctl snapshot policy list
+```
+
+### Q8: 如何扩展存储卷
+**A**: 
+```bash
+# 添加新磁盘到现有卷
+sudo nasctl volume add-device myvolume /dev/sdc
+
+# 重新平衡数据
+sudo nasctl balance start myvolume
+```
+
+### Q9: 如何迁移数据到新 NAS
+**A**: 
+1. 在新 NAS 上创建相同的存储卷和共享
+2. 使用 rsync 迁移数据：
+```bash
+rsync -avz --progress /data/ user@new-nas:/data/
+```
+3. 导出并导入用户配置：
+```bash
+# 旧 NAS
+sudo nasctl config export > nas-config.yaml
+
+# 新 NAS  
+sudo nasctl config import nas-config.yaml
+```
+
+### Q10: 如何查看系统日志
+**A**: 
+```bash
+# 查看服务日志
+sudo journalctl -u nas-os -f
+
+# 查看应用日志
+tail -f /var/log/nas-os/nasd.log
+```
+
+### Q11: 忘记管理员密码怎么办
+**A**: 
+```bash
+# 重置管理员密码
+sudo nasctl user reset-password admin --new-password NewPass123!
+```
+
+### Q12: 如何配置邮件告警
+**A**: 
+1. 进入「设置」→「通知设置」
+2. 配置 SMTP 服务器信息
+3. 添加告警接收邮箱
+4. 发送测试邮件验证配置
 
 ---
 

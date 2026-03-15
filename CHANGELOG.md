@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.44.0] - 2026-03-15
+
+### Fixed
+- **测试修复** (兵部)
+  - alerting_test.go 语法错误修复
+  - 告警规则测试用例优化
+
+### Improved
+- **文档完善** (礼部)
+  - 用户快速入门指南更新
+  - API 使用示例文档完善
+  - 常见问题 FAQ 补充
+  - 文档版本号统一更新
+
 ## [v2.43.0] - 2026-03-15
 
 ### Added
