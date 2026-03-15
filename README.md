@@ -94,7 +94,7 @@ nasd --version
 ```bash
 # 拉取镜像
 
-docker pull ghcr.io/crazyqin/nas-os:v2.83.0
+docker pull ghcr.io/crazyqin/nas-os:v2.85.0
 
 
 # 运行容器
@@ -105,7 +105,7 @@ docker run -d \
   -v /data:/data \
   -v /etc/nas-os:/config \
 
-  ghcr.io/crazyqin/nas-os:v2.83.0
+  ghcr.io/crazyqin/nas-os:v2.85.0
 
 
 # 查看日志
