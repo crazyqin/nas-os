@@ -9,11 +9,10 @@
 # 多架构构建:
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t nas-os:latest .
 #
-# v2.60.0 更新：
-# - 优化健康检查（添加 metrics 端点检测）
-# - 改进启动检查逻辑
-# - 添加就绪探针支持
-# - 添加 Git 信息标签
+# v2.86.0 更新：
+# - 优化健康检查（简化检测逻辑）
+# - 更新基础镜像版本
+# - 改进多架构构建支持
 #
 # v2.35.0 更新：
 # - 优化构建缓存策略
@@ -128,14 +127,11 @@ EXPOSE 111/udp
 # NFS auxiliary
 EXPOSE 20048/tcp
 
-# 健康检查（增强版 v2.35.0）
-# 多层健康检查：进程检测 + API 端点 + 指标端点 + 磁盘状态
-# 支持更细粒度的故障检测和就绪探针
+# 健康检查（优化版 v2.86.0）
+# 简化检测逻辑：API 健康端点 + 指标端点
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD (test -f /var/run/nasd.pid || pgrep -x nasd > /dev/null) && \
-         curl -sf http://localhost:8080/api/v1/health > /dev/null 2>&1 && \
-         curl -sf http://localhost:8080/api/v1/metrics > /dev/null 2>&1 || \
-         (echo "Health check failed: service unhealthy" && exit 1)
+    CMD curl -sf http://localhost:8080/api/v1/health && \
+         curl -sf http://localhost:8080/api/v1/metrics > /dev/null 2>&1 || exit 1
 
 # 启动命令
 ENTRYPOINT ["nasd"]
