@@ -1,0 +1,226 @@
+{
+  "version": "v2.88.0",
+  "audit_date": "2026-03-16T03:53:00+08:00",
+  "auditor": "刑部",
+  "summary": {
+    "total_issues": 1675,
+    "by_severity": {
+      "HIGH": 167,
+      "MEDIUM": 805,
+      "LOW": 703
+    },
+    "critical_categories": [
+      "命令注入风险",
+      "路径遍历漏洞",
+      "TLS配置问题",
+      "硬编码凭据风险"
+    ]
+  },
+  "issues_by_rule": {
+    "G104": {
+      "count": 703,
+      "severity": "LOW",
+      "description": "未检查错误返回值",
+      "risk": "可能导致程序状态不一致",
+      "recommendation": "建议检查所有错误返回值"
+    },
+    "G304": {
+      "count": 228,
+      "severity": "MEDIUM",
+      "description": "文件路径来自用户输入",
+      "risk": "路径遍历风险",
+      "recommendation": "对用户输入进行路径验证和清理"
+    },
+    "G204": {
+      "count": 206,
+      "severity": "MEDIUM",
+      "description": "子进程启动使用变量",
+      "risk": "命令注入风险",
+      "recommendation": "验证和清理所有外部输入"
+    },
+    "G301": {
+      "count": 180,
+      "severity": "MEDIUM",
+      "description": "目录权限设置过于宽松",
+      "risk": "可能导致未授权访问",
+      "recommendation": "使用更严格的权限设置(0750或更严格)"
+    },
+    "G306": {
+      "count": 154,
+      "severity": "MEDIUM",
+      "description": "文件权限设置过于宽松",
+      "risk": "敏感信息泄露风险",
+      "recommendation": "对敏感文件使用0600权限"
+    },
+    "G115": {
+      "count": 89,
+      "severity": "HIGH",
+      "description": "整数溢出转换",
+      "risk": "可能导致数据截断或溢出",
+      "recommendation": "添加边界检查或使用更大的类型"
+    },
+    "G703": {
+      "count": 48,
+      "severity": "HIGH",
+      "description": "路径遍历漏洞",
+      "risk": "攻击者可能访问/修改任意文件",
+      "recommendation": "使用filepath.Clean并验证路径在允许范围内"
+    },
+    "G702": {
+      "count": 10,
+      "severity": "HIGH",
+      "description": "命令注入漏洞",
+      "risk": "攻击者可能执行任意命令",
+      "recommendation": "避免将用户输入直接传递给命令"
+    },
+    "G402": {
+      "count": 4,
+      "severity": "HIGH",
+      "description": "TLS InsecureSkipVerify 设置为 true",
+      "risk": "中间人攻击风险",
+      "affected_files": [
+        "internal/auth/ldap.go",
+        "internal/ldap/client.go"
+      ],
+      "recommendation": "仅在开发环境使用，生产环境必须验证证书"
+    },
+    "G101": {
+      "count": 7,
+      "severity": "HIGH",
+      "description": "潜在硬编码凭据",
+      "risk": "凭据泄露风险",
+      "affected_files": [
+        "internal/auth/oauth2.go",
+        "internal/cloudsync/providers.go",
+        "internal/office/types.go"
+      ],
+      "recommendation": "将凭据移至配置文件或环境变量"
+    },
+    "G707": {
+      "count": 1,
+      "severity": "HIGH",
+      "description": "SMTP命令/头部注入",
+      "risk": "邮件伪造或钓鱼攻击",
+      "affected_file": "internal/automation/action/action.go",
+      "recommendation": "验证和清理邮件输入"
+    },
+    "G705": {
+      "count": 2,
+      "severity": "MEDIUM",
+      "description": "XSS漏洞",
+      "risk": "跨站脚本攻击",
+      "recommendation": "对输出进行HTML转义"
+    },
+    "G118": {
+      "count": 8,
+      "severity": "MEDIUM",
+      "description": "Context取消函数未调用",
+      "risk": "资源泄露",
+      "recommendation": "确保defer调用cancel函数"
+    },
+    "G122": {
+      "count": 7,
+      "severity": "HIGH",
+      "description": "文件系统竞态条件",
+      "risk": "TOCTOU攻击",
+      "recommendation": "考虑使用os.Root等安全API"
+    }
+  },
+  "sensitive_data_handling": {
+    "findings": [
+      {
+        "file": "internal/backup/cloud.go",
+        "issue": "SecretKey字段存储在配置中",
+        "risk": "MEDIUM",
+        "note": "需加密存储或使用密钥管理服务"
+      },
+      {
+        "file": "internal/backup/sync.go",
+        "issue": "Password字段明文存储",
+        "risk": "HIGH",
+        "note": "应使用加密存储"
+      },
+      {
+        "file": "internal/cache/redis.go",
+        "issue": "Redis密码作为参数传递",
+        "risk": "LOW",
+        "note": "正常用法，但需确保日志不记录"
+      },
+      {
+        "file": "internal/auth/ldap.go",
+        "issue": "LDAP SkipVerify可能绕过证书验证",
+        "risk": "HIGH",
+        "note": "生产环境必须禁用"
+      }
+    ]
+  },
+  "dependency_security": {
+    "total_dependencies": 192,
+    "notable_dependencies": [
+      {
+        "name": "github.com/aws/aws-sdk-go-v2",
+        "version": "v1.41.3",
+        "note": "AWS SDK，需关注安全公告"
+      },
+      {
+        "name": "golang.org/x/crypto",
+        "version": "v0.48.0",
+        "note": "加密库，需及时更新"
+      },
+      {
+        "name": "github.com/go-ldap/ldap/v3",
+        "version": "v3.4.12",
+        "note": "LDAP客户端，需关注CVE"
+      }
+    ],
+    "recommendation": "建议使用govulncheck检查已知漏洞"
+  },
+  "recommendations": [
+    {
+      "priority": "P0",
+      "category": "命令注入",
+      "description": "G702问题需立即修复，涉及virsh/qemu-img等命令执行",
+      "files": ["internal/vm/manager.go", "internal/vm/snapshot.go"]
+    },
+    {
+      "priority": "P0",
+      "category": "路径遍历",
+      "description": "G703问题需立即修复，涉及WebDAV和备份模块",
+      "files": ["internal/webdav/server.go", "internal/backup/*.go"]
+    },
+    {
+      "priority": "P1",
+      "category": "TLS配置",
+      "description": "禁用生产环境的InsecureSkipVerify",
+      "files": ["internal/auth/ldap.go", "internal/ldap/client.go"]
+    },
+    {
+      "priority": "P1",
+      "category": "敏感数据",
+      "description": "加密存储密码和密钥",
+      "files": ["internal/backup/*.go"]
+    },
+    {
+      "priority": "P2",
+      "category": "错误处理",
+      "description": "添加错误处理，避免资源泄露",
+      "count": 703
+    },
+    {
+      "priority": "P2",
+      "category": "文件权限",
+      "description": "收紧文件和目录权限",
+      "count": 334
+    }
+  ],
+  "conclusion": {
+    "overall_risk": "HIGH",
+    "summary": "发现1675个安全问题，其中167个高危。主要集中在命令注入、路径遍历、TLS配置和敏感数据处理方面。建议兵部优先处理P0级别问题。",
+    "next_steps": [
+      "运行govulncheck检查依赖漏洞",
+      "修复命令注入和路径遍历漏洞",
+      "加强敏感数据加密存储",
+      "禁用生产环境TLS跳过验证"
+    ]
+  }
+}
