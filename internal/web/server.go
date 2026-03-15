@@ -448,6 +448,9 @@ func (s *Server) setupRoutes() {
 	// API 路由
 	api := s.engine.Group("/api/v1")
 	{
+		// ========== 存储管理 API (v2) ==========
+		NewStorageHandlers(s.storageMgr).RegisterRoutes(api)
+
 		// ========== 卷管理 ==========
 		api.GET("/volumes", s.listVolumes)
 		api.POST("/volumes", s.createVolume)
