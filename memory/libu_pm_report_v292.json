@@ -1,0 +1,52 @@
+{
+  "report_type": "吏部项目管理报告",
+  "version": "v2.92.0",
+  "date": "2026-03-16T04:44:00+08:00",
+  "responsible_ministry": "吏部",
+  "tasks_completed": [
+    {
+      "task": "VERSION 文件确认",
+      "status": "completed",
+      "result": "确认版本号为 v2.92.0"
+    },
+    {
+      "task": "MILESTONES.md 更新",
+      "status": "completed",
+      "result": "添加 v2.91.0 完成记录，版本路线图表格更新至 v2.92.0"
+    },
+    {
+      "task": "ROADMAP.md 更新",
+      "status": "completed",
+      "result": "当前版本更新为 v2.92.0，规划内容更新"
+    },
+    {
+      "task": "internal/version/version.go 确认",
+      "status": "completed",
+      "result": "版本号确认为 2.92.0"
+    }
+  ],
+  "project_stats": {
+    "go_files": 640,
+    "total_lines": 365446,
+    "modules": 68
+  },
+  "version_history": {
+    "previous_version": "v2.91.0",
+    "current_version": "v2.92.0",
+    "release_type": "项目管理迭代"
+  },
+  "files_modified": [
+    "ROADMAP.md",
+    "MILESTONES.md"
+  ],
+  "files_verified": [
+    "VERSION",
+    "internal/version/version.go"
+  ],
+  "next_version": {
+    "version": "v2.93.0",
+    "target_date": "2026-03-20",
+    "theme": "测试覆盖率提升"
+  },
+  "summary": "v2.92.0 项目管理迭代完成，版本文件已确认，里程碑和路线图已更新。"
+}
