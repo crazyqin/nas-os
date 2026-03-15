@@ -676,9 +676,6 @@ type ResourceAlert struct {
 
 	// 关联资源
 	Resource string `json:"resource,omitempty"`
-
-	// 状态
-	Status string `json:"status"` // active, resolved, acknowledged
 }
 
 // ========== 资源报告配置 ==========

@@ -116,12 +116,10 @@ type CostForecast struct {
 // ForecastPoint 预测数据点
 type ForecastPoint struct {
 	Date           time.Time `json:"date"`
-	PredictedCost  float64   `json:"predicted_cost,omitempty"`
-	PredictedUsage float64   `json:"predicted_usage,omitempty"`
-	LowerBound     float64   `json:"lower_bound,omitempty"` // 置信下限
-	UpperBound     float64   `json:"upper_bound,omitempty"` // 置信上限
-	Confidence     float64   `json:"confidence,omitempty"`
-	IsBudgetExceed bool      `json:"is_budget_exceed,omitempty"`
+	PredictedCost  float64   `json:"predicted_cost"`
+	LowerBound     float64   `json:"lower_bound"` // 置信下限
+	UpperBound     float64   `json:"upper_bound"` // 置信上限
+	IsBudgetExceed bool      `json:"is_budget_exceed"`
 }
 
 // CostOptimizationItem 成本优化项
