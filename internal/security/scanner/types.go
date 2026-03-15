@@ -134,15 +134,15 @@ func DefaultScanOptions() ScanOptions {
 
 // FileScanReport 文件扫描报告
 type FileScanReport struct {
-	ReportID        string            `json:"report_id"`
-	TaskID          string            `json:"task_id"`
-	GeneratedAt     time.Time         `json:"generated_at"`
-	ScanDuration    int64             `json:"scan_duration"` // 秒
-	Summary         FileScanSummary   `json:"summary"`
-	Findings        []*FileFinding    `json:"findings"`
-	Recommendations []string          `json:"recommendations"`
-	RiskScore       int               `json:"risk_score"`
-	RiskLevel       string            `json:"risk_level"`
+	ReportID        string          `json:"report_id"`
+	TaskID          string          `json:"task_id"`
+	GeneratedAt     time.Time       `json:"generated_at"`
+	ScanDuration    int64           `json:"scan_duration"` // 秒
+	Summary         FileScanSummary `json:"summary"`
+	Findings        []*FileFinding  `json:"findings"`
+	Recommendations []string        `json:"recommendations"`
+	RiskScore       int             `json:"risk_score"`
+	RiskLevel       string          `json:"risk_level"`
 }
 
 // FileScanSummary 文件扫描摘要

@@ -10,10 +10,10 @@ import (
 
 // Handlers 安全扫描器 HTTP 处理器
 type Handlers struct {
-	filesystemScanner  *FilesystemScanner
-	permissionChecker  *PermissionChecker
-	vulnScanner        *VulnerabilityScanner
-	scoreEngine        *ScoreEngine
+	filesystemScanner *FilesystemScanner
+	permissionChecker *PermissionChecker
+	vulnScanner       *VulnerabilityScanner
+	scoreEngine       *ScoreEngine
 }
 
 // NewHandlers 创建安全扫描器处理器
@@ -109,11 +109,11 @@ func (h *Handlers) createScanTask(c *gin.Context) {
 	}
 
 	var req struct {
-		Name        string      `json:"name" binding:"required"`
-		Type        ScanType    `json:"type"`
-		TargetPaths []string    `json:"target_paths" binding:"required"`
-		ExcludePaths []string   `json:"exclude_paths"`
-		Options     *ScanOptions `json:"options"`
+		Name         string       `json:"name" binding:"required"`
+		Type         ScanType     `json:"type"`
+		TargetPaths  []string     `json:"target_paths" binding:"required"`
+		ExcludePaths []string     `json:"exclude_paths"`
+		Options      *ScanOptions `json:"options"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -661,10 +661,10 @@ func (h *Handlers) getDashboardData(c *gin.Context) {
 	if h.permissionChecker != nil {
 		permResult := h.permissionChecker.CheckSensitivePaths()
 		dashboard["permission_check"] = gin.H{
-			"total_checked":    permResult.TotalChecked,
-			"issues_found":     permResult.IssuesFound,
-			"critical_issues":  permResult.CriticalIssues,
-			"warning_issues":   permResult.WarningIssues,
+			"total_checked":   permResult.TotalChecked,
+			"issues_found":    permResult.IssuesFound,
+			"critical_issues": permResult.CriticalIssues,
+			"warning_issues":  permResult.WarningIssues,
 		}
 	}
 
@@ -673,9 +673,9 @@ func (h *Handlers) getDashboardData(c *gin.Context) {
 		history := h.scoreEngine.GetHistory(1)
 		if len(history) > 0 {
 			dashboard["security_score"] = gin.H{
-				"score":  history[0].Score,
-				"grade":  history[0].Grade,
-				"trend":  h.scoreEngine.GetTrendAnalysis(7)["trend"],
+				"score": history[0].Score,
+				"grade": history[0].Grade,
+				"trend": h.scoreEngine.GetTrendAnalysis(7)["trend"],
 			}
 		}
 	}
@@ -714,8 +714,8 @@ func (h *Handlers) getStatistics(c *gin.Context) {
 			statusCount[string(task.Status)]++
 		}
 		stats["scan_tasks"] = gin.H{
-			"total":      len(tasks),
-			"by_status":  statusCount,
+			"total":     len(tasks),
+			"by_status": statusCount,
 		}
 	}
 
