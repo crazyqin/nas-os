@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 文档 - NAS-OS</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css">
+    <style>
+        :root {
+            --api-primary: #2563EB;
+            --api-bg: #F8FAFC;
+            --api-surface: #FFFFFF;
+            --api-border: #E2E8F0;
+            --api-text: #1E293B;
+            --api-text-muted: #64748B;
+        }
+
+        body {
+            margin: 0;
+            background: var(--api-bg);
+        }
+
+        .api-docs-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .api-docs-sidebar {
+            width: 280px;
+            background: var(--api-surface);
+            border-right: 1px solid var(--api-border);
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .api-docs-main {
+            flex: 1;
+            margin-left: 280px;
+        }
+
+        .api-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--api-border);
+        }
+
+        .api-logo img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .api-logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--api-text);
+        }
+
+        .api-version-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            background: var(--api-primary);
+            color: white;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        .api-nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .api-nav-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--api-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+            padding-left: 0.75rem;
+        }
+
+        .api-nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.625rem 0.75rem;
+            color: var(--api-text);
+            border-radius: 8px;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .api-nav-item:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--api-primary);
+        }
+
+        .api-nav-item.active {
+            background: var(--api-primary);
+            color: white;
+        }
+
+        .api-method-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .api-method-get { background: #10B981; color: white; }
+        .api-method-post { background: #2563EB; color: white; }
+        .api-method-put { background: #F59E0B; color: white; }
+        .api-method-delete { background: #EF4444; color: white; }
+        .api-method-patch { background: #8B5CF6; color: white; }
+
+        .api-header {
+            background: var(--api-surface);
+            border-bottom: 1px solid var(--api-border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .api-header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--api-text);
+        }
+
+        .api-header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .api-content {
+            padding: 2rem;
+        }
+
+        /* Swagger UI 定制 */
+        .swagger-ui {
+            background: transparent;
+        }
+
+        .swagger-ui .topbar {
+            display: none;
+        }
+
+        .swagger-ui .information-container {
+            padding: 0;
+            margin: 0;
+        }
+
+        .swagger-ui .info {
+            margin: 0;
+        }
+
+        .swagger-ui .info .title {
+            font-size: 24px;
+            color: var(--api-text);
+        }
+
+        .swagger-ui .info .base-url {
+            display: none;
+        }
+
+        .swagger-ui .scheme-container {
+            background: var(--api-surface);
+            border: 1px solid var(--api-border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            box-shadow: none;
+        }
+
+        .swagger-ui .opblock-tag {
+            border-bottom: 1px solid var(--api-border);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .swagger-ui .opblock {
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            border: 1px solid var(--api-border);
+        }
+
+        .swagger-ui .opblock .opblock-summary {
+            padding: 0.75rem 1rem;
+        }
+
+        .swagger-ui .opblock.opblock-get {
+            border-color: #10B981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .swagger-ui .opblock.opblock-post {
+            border-color: #2563EB;
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .swagger-ui .opblock.opblock-put {
+            border-color: #F59E0B;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .swagger-ui .opblock.opblock-delete {
+            border-color: #EF4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .swagger-ui .opblock.opblock-patch {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .swagger-ui .btn {
+            border-radius: 6px;
+        }
+
+        .swagger-ui .btn.execute {
+            background: var(--api-primary);
+            border-color: var(--api-primary);
+        }
+
+        /* API 概览卡片 */
+        .api-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .api-overview-card {
+            background: var(--api-surface);
+            border: 1px solid var(--api-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .api-overview-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .api-overview-icon.get { background: rgba(16, 185, 129, 0.1); }
+        .api-overview-icon.post { background: rgba(37, 99, 235, 0.1); }
+        .api-overview-icon.put { background: rgba(245, 158, 11, 0.1); }
+        .api-overview-icon.delete { background: rgba(239, 68, 68, 0.1); }
+
+        .api-overview-count {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--api-text);
+        }
+
+        .api-overview-label {
+            font-size: 14px;
+            color: var(--api-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* 快速入口 */
+        .quick-links {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            background: var(--api-surface);
+            border: 1px solid var(--api-border);
+            border-radius: 8px;
+            color: var(--api-text);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .quick-link:hover {
+            border-color: var(--api-primary);
+            color: var(--api-primary);
+        }
+
+        /* 认证信息 */
+        .auth-info {
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            border: 1px solid #C7D2FE;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-info h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 0 0.75rem 0;
+            font-size: 16px;
+            color: #3730A3;
+        }
+
+        .auth-info code {
+            background: white;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #4338CA;
+        }
+
+        .auth-info p {
+            margin: 0.5rem 0 0;
+            color: #4F46E5;
+            font-size: 14px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .api-docs-sidebar {
+                width: 240px;
+            }
+            .api-docs-main {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .api-docs-sidebar {
+                display: none;
+            }
+            .api-docs-main {
+                margin-left: 0;
+            }
+            .api-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .api-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="api-docs-layout">
+        <!-- Sidebar -->
+        <nav class="api-docs-sidebar">
+            <div class="api-logo">
+                <img src="../brand/logo/logo-64.png" alt="NAS-OS">
+                <span class="api-logo-text">API 文档</span>
+                <span class="api-version-badge">v2.52.0</span>
+            </div>
+
+            <div class="api-nav-section">
+                <div class="api-nav-title">快速入口</div>
+                <a href="#overview" class="api-nav-item active">
+                    <span>📊 概览</span>
+                </a>
+                <a href="#swagger" class="api-nav-item">
+                    <span>📖 完整文档</span>
+                </a>
+            </div>
+
+            <div class="api-nav-section">
+                <div class="api-nav-title">核心 API</div>
+                <a href="#" class="api-nav-item" onclick="filterTag('存储管理')">
+                    <span>💾 存储管理</span>
+                    <span class="api-method-badge api-method-get">12</span>
+                </a>
+                <a href="#" class="api-nav-item" onclick="filterTag('共享管理')">
+                    <span>📁 共享管理</span>
+                    <span class="api-method-badge api-method-get">8</span>
+                </a>
+                <a href="#" class="api-nav-item" onclick="filterTag('用户管理')">
+                    <span>👥 用户管理</span>
+                    <span class="api-method-badge api-method-get">10</span>
+                </a>
+                <a href="#" class="api-nav-item" onclick="filterTag('系统监控')">
+                    <span>📊 系统监控</span>
+                    <span class="api-method-badge api-method-get">6</span>
+                </a>
+            </div>
+
+            <div class="api-nav-section">
+                <div class="api-nav-title">扩展 API</div>
+                <a href="#" class="api-nav-item" onclick="filterTag('容器管理')">
+                    <span>🐳 容器管理</span>
+                    <span class="api-method-badge api-method-get">15</span>
+                </a>
+                <a href="#" class="api-nav-item" onclick="filterTag('虚拟机')">
+                    <span>🖥️ 虚拟机</span>
+                    <span class="api-method-badge api-method-get">12</span>
+                </a>
+                <a href="#" class="api-nav-item" onclick="filterTag('云同步')">
+                    <span>☁️ 云同步</span>
+                    <span class="api-method-badge api-method-get">8</span>
+                </a>
+                <a href="#" class="api-nav-item" onclick="filterTag('备份恢复')">
+                    <span>💾 备份恢复</span>
+                    <span class="api-method-badge api-method-get">10</span>
+                </a>
+            </div>
+
+            <div class="api-nav-section">
+                <div class="api-nav-title">资源</div>
+                <a href="../docs/API_GUIDE.md" class="api-nav-item" target="_blank">
+                    <span>📄 API 指南</span>
+                </a>
+                <a href="../docs/API_QUICK_START.md" class="api-nav-item" target="_blank">
+                    <span>🚀 快速入门</span>
+                </a>
+                <a href="../docs/swagger.json" class="api-nav-item" target="_blank">
+                    <span>📦 OpenAPI JSON</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="api-docs-main">
+            <header class="api-header">
+                <h1 class="api-header-title">NAS-OS REST API 文档</h1>
+                <div class="api-header-actions">
+                    <button class="btn btn-secondary" onclick="exportOpenAPI()">
+                        📥 导出 OpenAPI
+                    </button>
+                    <a href="../index.html" class="btn btn-primary">
+                        🏠 返回首页
+                    </a>
+                </div>
+            </header>
+
+            <div class="api-content">
+                <!-- 概览 -->
+                <div id="overview">
+                    <div class="auth-info">
+                        <h3>🔐 认证说明</h3>
+                        <p>所有 API 请求需要在 Header 中携带 JWT Token：</p>
+                        <p><code>Authorization: Bearer &lt;your_token&gt;</code></p>
+                        <p>获取 Token：POST /api/v1/auth/login</p>
+                    </div>
+
+                    <div class="quick-links">
+                        <a href="#" class="quick-link" onclick="filterTag('存储管理')">💾 存储管理</a>
+                        <a href="#" class="quick-link" onclick="filterTag('共享管理')">📁 共享管理</a>
+                        <a href="#" class="quick-link" onclick="filterTag('用户管理')">👥 用户管理</a>
+                        <a href="#" class="quick-link" onclick="filterTag('容器管理')">🐳 容器管理</a>
+                        <a href="#" class="quick-link" onclick="filterTag('系统监控')">📊 监控</a>
+                        <a href="#" class="quick-link" onclick="filterTag('备份恢复')">💾 备份</a>
+                    </div>
+
+                    <div class="api-overview-grid">
+                        <div class="api-overview-card">
+                            <div class="api-overview-icon get">📥</div>
+                            <div class="api-overview-count" id="get-count">48</div>
+                            <div class="api-overview-label">GET 请求</div>
+                        </div>
+                        <div class="api-overview-card">
+                            <div class="api-overview-icon post">📤</div>
+                            <div class="api-overview-count" id="post-count">32</div>
+                            <div class="api-overview-label">POST 请求</div>
+                        </div>
+                        <div class="api-overview-card">
+                            <div class="api-overview-icon put">✏️</div>
+                            <div class="api-overview-count" id="put-count">16</div>
+                            <div class="api-overview-label">PUT 请求</div>
+                        </div>
+                        <div class="api-overview-card">
+                            <div class="api-overview-icon delete">🗑️</div>
+                            <div class="api-overview-count" id="delete-count">12</div>
+                            <div class="api-overview-label">DELETE 请求</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Swagger UI 容器 -->
+                <div id="swagger-ui"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast-container"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+    <script>
+        // 初始化 Swagger UI
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                url: "../docs/swagger.json",
+                dom_id: '#swagger-ui',
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                layout: "BaseLayout",
+                deepLinking: true,
+                displayOperationId: false,
+                displayRequestDuration: true,
+                docExpansion: 'list',
+                filter: true,
+                syntaxHighlight: {
+                    activate: true,
+                    theme: "monokai"
+                },
+                requestSnippetsEnabled: true,
+                tryItOutEnabled: true,
+                defaultModelsExpandDepth: 1,
+                defaultModelExpandDepth: 1,
+                supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+                onComplete: function() {
+                    updateStats();
+                }
+            });
+
+            window.ui = ui;
+        };
+
+        // 更新统计信息
+        function updateStats() {
+            let getCount = 0, postCount = 0, putCount = 0, deleteCount = 0;
+            
+            document.querySelectorAll('.opblock').forEach(el => {
+                const method = el.classList;
+                if (method.contains('opblock-get')) getCount++;
+                else if (method.contains('opblock-post')) postCount++;
+                else if (method.contains('opblock-put')) putCount++;
+                else if (method.contains('opblock-delete')) deleteCount++;
+            });
+
+            document.getElementById('get-count').textContent = getCount || 48;
+            document.getElementById('post-count').textContent = postCount || 32;
+            document.getElementById('put-count').textContent = putCount || 16;
+            document.getElementById('delete-count').textContent = deleteCount || 12;
+        }
+
+        // 过滤标签
+        function filterTag(tag) {
+            if (window.ui) {
+                // 使用 Swagger UI 的 filter 功能
+                document.querySelectorAll('.opblock-tag').forEach(el => {
+                    const tagText = el.querySelector('a.nostyle')?.textContent?.trim();
+                    if (tagText === tag) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+            showToast(`正在显示：${tag}`, 'info');
+        }
+
+        // 导出 OpenAPI
+        function exportOpenAPI() {
+            const link = document.createElement('a');
+            link.href = '../docs/swagger.json';
+            link.download = 'nas-os-api-v2.52.0.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('OpenAPI 文档已下载', 'success');
+        }
+
+        // Toast 提示
+        function showToast(message, type = 'info') {
+            const colors = {
+                info: '#3B82F6',
+                success: '#10B981',
+                error: '#EF4444',
+                warning: '#F59E0B'
+            };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                background: ${colors[type]};
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+            @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        `;
+        document.head.appendChild(style);
+
+        // 导航高亮
+        document.querySelectorAll('.api-nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.api-nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
