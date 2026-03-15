@@ -449,3 +449,322 @@ var (
 	ErrInvalidResource  = errors.New("无效的资源类型")
 	ErrInvalidAction    = errors.New("无效的操作类型")
 )
+
+// ========== 权限继承解析 ==========
+
+// resolveInheritedPermissions 解析角色继承的权限
+func (m *RBACManager) resolveInheritedPermissions(role Role, visited map[Role]bool) []Permission {
+	if visited[role] {
+		return nil // 防止循环继承
+	}
+	visited[role] = true
+
+	roleDef, exists := m.roles[role]
+	if !exists {
+		return nil
+	}
+
+	permissionsMap := make(map[string]Permission)
+
+	// 先添加继承的角色权限
+	for _, inheritedRole := range roleDef.Inherits {
+		inheritedPerms := m.resolveInheritedPermissions(inheritedRole, visited)
+		for _, perm := range inheritedPerms {
+			key := perm.Resource + ":" + perm.Action
+			permissionsMap[key] = perm
+		}
+	}
+
+	// 添加当前角色权限（覆盖继承的同名权限）
+	for _, perm := range roleDef.Permissions {
+		key := perm.Resource + ":" + perm.Action
+		permissionsMap[key] = perm
+	}
+
+	result := make([]Permission, 0, len(permissionsMap))
+	for _, perm := range permissionsMap {
+		result = append(result, perm)
+	}
+
+	return result
+}
+
+// GetRolePermissions 获取角色的所有权限（包括继承的）
+func (m *RBACManager) GetRolePermissions(role Role) []Permission {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.resolveInheritedPermissions(role, make(map[Role]bool))
+}
+
+// ========== 资源所有权检查 ==========
+
+// CheckResourceOwnership 检查用户是否是资源的所有者
+func (m *RBACManager) CheckResourceOwnership(userID, resourceID string) bool {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	acl, exists := m.resourceACLs[resourceID]
+	if !exists {
+		return false
+	}
+
+	return acl.OwnerID == userID
+}
+
+// SetResourceOwner 设置资源所有者
+func (m *RBACManager) SetResourceOwner(resourceID, ownerID string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if acl, exists := m.resourceACLs[resourceID]; exists {
+		acl.OwnerID = ownerID
+	} else {
+		m.resourceACLs[resourceID] = &ResourceACL{
+			ResourceID: resourceID,
+			OwnerID:    ownerID,
+		}
+	}
+}
+
+// GetResourcesByOwner 获取用户拥有的所有资源
+func (m *RBACManager) GetResourcesByOwner(ownerID string) []string {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	resources := make([]string, 0)
+	for id, acl := range m.resourceACLs {
+		if acl.OwnerID == ownerID {
+			resources = append(resources, id)
+		}
+	}
+	return resources
+}
+
+// CheckPermissionWithOwner 检查权限（考虑所有权）
+func (m *RBACManager) CheckPermissionWithOwner(userID string, userGroups []string, resource Resource, action Action, resourceID string) bool {
+	// 所有者拥有所有权限
+	if resourceID != "" && m.CheckResourceOwnership(userID, resourceID) {
+		return true
+	}
+
+	// 否则检查 RBAC 权限
+	return m.CheckPermission(userID, userGroups, resource, action)
+}
+
+// ========== 权限缓存优化 ==========
+
+// RefreshSessionCache 刷新会话权限缓存
+func (m *RBACManager) RefreshSessionCache(token string, userID string, groups []string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	// 使用递归解析获取完整权限
+	roles := m.userRoles[userID]
+	for _, groupID := range groups {
+		roles = append(roles, m.groupRoles[groupID]...)
+	}
+
+	if len(roles) == 0 {
+		roles = []Role{m.defaultRole}
+	}
+
+	permissionsMap := make(map[string]Permission)
+	for _, role := range roles {
+		perms := m.resolveInheritedPermissions(role, make(map[Role]bool))
+		for _, perm := range perms {
+			key := perm.Resource + ":" + perm.Action
+			permissionsMap[key] = perm
+		}
+	}
+
+	permissions := make([]Permission, 0, len(permissionsMap))
+	for _, perm := range permissionsMap {
+		permissions = append(permissions, perm)
+	}
+
+	m.sessionCache[token] = &SessionCache{
+		UserID:      userID,
+		Roles:       roles,
+		Permissions: permissions,
+		ExpiresAt:   time.Now().Add(m.cacheExpiry),
+	}
+}
+
+// GetSessionPermissions 从缓存获取会话权限
+func (m *RBACManager) GetSessionPermissions(token string) []Permission {
+	session := m.GetCachedSession(token)
+	if session == nil {
+		return nil
+	}
+	return session.Permissions
+}
+
+// InvalidateUserSessions 使用户所有会话缓存失效
+func (m *RBACManager) InvalidateUserSessions(userID string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	for token, session := range m.sessionCache {
+		if session.UserID == userID {
+			delete(m.sessionCache, token)
+		}
+	}
+}
+
+// InvalidateGroupSessions 使组成员的所有会话缓存失效
+func (m *RBACManager) InvalidateGroupSessions(groupID string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	// 找出组中的所有用户
+	usersInGroup := make(map[string]bool)
+	for userID, roles := range m.userRoles {
+		for _, role := range roles {
+			if role == Role(groupID) {
+				usersInGroup[userID] = true
+				break
+			}
+		}
+	}
+
+	// 使这些用户的会话失效
+	for token, session := range m.sessionCache {
+		if usersInGroup[session.UserID] {
+			delete(m.sessionCache, token)
+		}
+	}
+}
+
+// ========== 权限模板 ==========
+
+// PermissionTemplate 权限模板
+type PermissionTemplate struct {
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	Permissions []Permission `json:"permissions"`
+}
+
+// 预定义权限模板
+var permissionTemplates = map[string]PermissionTemplate{
+	"readonly": {
+		Name:        "readonly",
+		Description: "只读权限模板",
+		Permissions: []Permission{
+			{Resource: string(ResourceVolume), Action: string(ActionRead)},
+			{Resource: string(ResourceShare), Action: string(ActionRead)},
+			{Resource: string(ResourceFile), Action: string(ActionRead)},
+		},
+	},
+	"editor": {
+		Name:        "editor",
+		Description: "编辑权限模板",
+		Permissions: []Permission{
+			{Resource: string(ResourceVolume), Action: string(ActionRead)},
+			{Resource: string(ResourceShare), Action: string(ActionRead)},
+			{Resource: string(ResourceShare), Action: string(ActionWrite)},
+			{Resource: string(ResourceFile), Action: string(ActionRead)},
+			{Resource: string(ResourceFile), Action: string(ActionWrite)},
+		},
+	},
+	"operator": {
+		Name:        "operator",
+		Description: "运维权限模板",
+		Permissions: []Permission{
+			{Resource: string(ResourceContainer), Action: string(ActionRead)},
+			{Resource: string(ResourceContainer), Action: string(ActionWrite)},
+			{Resource: string(ResourceContainer), Action: string(ActionExec)},
+			{Resource: string(ResourceVM), Action: string(ActionRead)},
+			{Resource: string(ResourceVM), Action: string(ActionWrite)},
+			{Resource: string(ResourceVM), Action: string(ActionExec)},
+			{Resource: string(ResourceSnapshot), Action: string(ActionRead)},
+			{Resource: string(ResourceSnapshot), Action: string(ActionWrite)},
+		},
+	},
+}
+
+// GetPermissionTemplates 获取所有权限模板
+func GetPermissionTemplates() []PermissionTemplate {
+	templates := make([]PermissionTemplate, 0, len(permissionTemplates))
+	for _, t := range permissionTemplates {
+		templates = append(templates, t)
+	}
+	return templates
+}
+
+// CreateRoleFromTemplate 从模板创建角色
+func (m *RBACManager) CreateRoleFromTemplate(roleName, templateName, description string) error {
+	template, exists := permissionTemplates[templateName]
+	if !exists {
+		return errors.New("模板不存在")
+	}
+
+	return m.AddRole(Role(roleName), description, template.Permissions, nil)
+}
+
+// ========== 用户组权限管理 ==========
+
+// GetUserGroupRoles 获取用户组角色
+func (m *RBACManager) GetUserGroupRoles(groupID string) []Role {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return append([]Role{}, m.groupRoles[groupID]...)
+}
+
+// RemoveGroupRole 移除用户组角色
+func (m *RBACManager) RemoveGroupRole(groupID string, role Role) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	roles := m.groupRoles[groupID]
+	for i, r := range roles {
+		if r == role {
+			m.groupRoles[groupID] = append(roles[:i], roles[i+1:]...)
+			return nil
+		}
+	}
+
+	return ErrRoleNotFound
+}
+
+// RemoveResourceACL 移除资源 ACL
+func (m *RBACManager) RemoveResourceACL(resourceID string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	delete(m.resourceACLs, resourceID)
+}
+
+// GetResourceACL 获取资源 ACL
+func (m *RBACManager) GetResourceACL(resourceID string) *ResourceACL {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.resourceACLs[resourceID]
+}
+
+// ========== 权限统计 ==========
+
+// GetRBACStats 获取 RBAC 统计信息
+func (m *RBACManager) GetRBACStats() map[string]interface{} {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	userRoleCount := make(map[string]int)
+	for _, roles := range m.userRoles {
+		userRoleCount["total_assignments"] += len(roles)
+	}
+
+	groupRoleCount := make(map[string]int)
+	for _, roles := range m.groupRoles {
+		groupRoleCount["total_assignments"] += len(roles)
+	}
+
+	return map[string]interface{}{
+		"total_roles":            len(m.roles),
+		"custom_roles":           len(m.roles) - 4, // 减去内置角色
+		"total_user_roles":       len(m.userRoles),
+		"total_group_roles":      len(m.groupRoles),
+		"total_resource_acls":    len(m.resourceACLs),
+		"cached_sessions":        len(m.sessionCache),
+		"user_role_assignments":  userRoleCount["total_assignments"],
+		"group_role_assignments": groupRoleCount["total_assignments"],
+	}
+}

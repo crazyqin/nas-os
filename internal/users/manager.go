@@ -27,16 +27,41 @@ const (
 
 // User 用户信息
 type User struct {
-	ID           string    `json:"id"`
-	Username     string    `json:"username"`
-	PasswordHash string    `json:"-"` // 不序列化
-	Role         Role      `json:"role"`
-	Email        string    `json:"email,omitempty"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Disabled     bool      `json:"disabled"`
-	HomeDir      string    `json:"home_dir,omitempty"` // 用户主目录
-	Groups       []string  `json:"groups,omitempty"`   // 所属用户组
+	ID           string     `json:"id"`
+	Username     string     `json:"username"`
+	PasswordHash string     `json:"-"` // 不序列化
+	Role         Role       `json:"role"`
+	Email        string     `json:"email,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at"`
+	Disabled     bool       `json:"disabled"`
+	HomeDir      string     `json:"home_dir,omitempty"` // 用户主目录
+	Groups       []string   `json:"groups,omitempty"`   // 所属用户组
+	Config       UserConfig `json:"config,omitempty"`   // 用户配置
+	LastLoginAt  *time.Time `json:"last_login_at,omitempty"`
+	LastLoginIP  string     `json:"last_login_ip,omitempty"`
+}
+
+// UserConfig 用户配置
+type UserConfig struct {
+	Language         string            `json:"language,omitempty"`          // 界面语言
+	Timezone         string            `json:"timezone,omitempty"`          // 时区
+	Theme            string            `json:"theme,omitempty"`             // 界面主题
+	Notifications    NotificationPrefs `json:"notifications,omitempty"`     // 通知偏好
+	StorageQuota     int64             `json:"storage_quota,omitempty"`     // 存储配额 (字节)
+	AllowedServices  []string          `json:"allowed_services,omitempty"`  // 允许访问的服务
+	DeniedServices   []string          `json:"denied_services,omitempty"`   // 禁止访问的服务
+	CustomAttributes map[string]string `json:"custom_attributes,omitempty"` // 自定义属性
+}
+
+// NotificationPrefs 通知偏好配置
+type NotificationPrefs struct {
+	EmailEnabled  bool `json:"email_enabled"`   // 邮件通知
+	PushEnabled   bool `json:"push_enabled"`    // 推送通知
+	SMSEnabled    bool `json:"sms_enabled"`     // 短信通知
+	SystemEnabled bool `json:"system_enabled"`  // 系统通知
+	AlertOnLogin  bool `json:"alert_on_login"`  // 登录提醒
+	AlertOnChange bool `json:"alert_on_change"` // 变更提醒
 }
 
 // UserInput 创建/更新用户输入
@@ -942,4 +967,347 @@ func mustRandomInt(max int) int {
 		panic(err) // 如果系统随机数生成器失败，应该立即终止
 	}
 	return int(n.Int64())
+}
+
+// ========== 用户配置管理 ==========
+
+// GetUserConfig 获取用户配置
+func (m *Manager) GetUserConfig(username string) (*UserConfig, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	user, exists := m.users[username]
+	if !exists {
+		return nil, ErrUserNotFound
+	}
+
+	// 返回配置副本
+	config := user.Config
+	return &config, nil
+}
+
+// UpdateUserConfig 更新用户配置
+func (m *Manager) UpdateUserConfig(username string, config UserConfig) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	user, exists := m.users[username]
+	if !exists {
+		return ErrUserNotFound
+	}
+
+	user.Config = config
+	user.UpdatedAt = time.Now()
+
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
+	return nil
+}
+
+// PatchUserConfig 部分更新用户配置
+func (m *Manager) PatchUserConfig(username string, updates map[string]interface{}) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	user, exists := m.users[username]
+	if !exists {
+		return ErrUserNotFound
+	}
+
+	// 应用更新
+	for key, value := range updates {
+		switch key {
+		case "language":
+			if v, ok := value.(string); ok {
+				user.Config.Language = v
+			}
+		case "timezone":
+			if v, ok := value.(string); ok {
+				user.Config.Timezone = v
+			}
+		case "theme":
+			if v, ok := value.(string); ok {
+				user.Config.Theme = v
+			}
+		case "notifications":
+			if v, ok := value.(NotificationPrefs); ok {
+				user.Config.Notifications = v
+			}
+		case "storage_quota":
+			if v, ok := value.(int64); ok {
+				user.Config.StorageQuota = v
+			}
+		case "allowed_services":
+			if v, ok := value.([]string); ok {
+				user.Config.AllowedServices = v
+			}
+		case "denied_services":
+			if v, ok := value.([]string); ok {
+				user.Config.DeniedServices = v
+			}
+		case "custom_attributes":
+			if v, ok := value.(map[string]string); ok {
+				user.Config.CustomAttributes = v
+			}
+		}
+	}
+
+	user.UpdatedAt = time.Now()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
+	return nil
+}
+
+// SetUserLanguage 设置用户语言
+func (m *Manager) SetUserLanguage(username, language string) error {
+	return m.PatchUserConfig(username, map[string]interface{}{"language": language})
+}
+
+// SetUserTimezone 设置用户时区
+func (m *Manager) SetUserTimezone(username, timezone string) error {
+	return m.PatchUserConfig(username, map[string]interface{}{"timezone": timezone})
+}
+
+// SetUserTheme 设置用户主题
+func (m *Manager) SetUserTheme(username, theme string) error {
+	return m.PatchUserConfig(username, map[string]interface{}{"theme": theme})
+}
+
+// SetUserStorageQuota 设置用户存储配额
+func (m *Manager) SetUserStorageQuota(username string, quota int64) error {
+	return m.PatchUserConfig(username, map[string]interface{}{"storage_quota": quota})
+}
+
+// GetUserStorageQuota 获取用户存储配额
+func (m *Manager) GetUserStorageQuota(username string) (int64, error) {
+	config, err := m.GetUserConfig(username)
+	if err != nil {
+		return 0, err
+	}
+	return config.StorageQuota, nil
+}
+
+// SetUserNotificationPrefs 设置用户通知偏好
+func (m *Manager) SetUserNotificationPrefs(username string, prefs NotificationPrefs) error {
+	return m.PatchUserConfig(username, map[string]interface{}{"notifications": prefs})
+}
+
+// AllowService 允许用户访问指定服务
+func (m *Manager) AllowService(username, service string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	user, exists := m.users[username]
+	if !exists {
+		return ErrUserNotFound
+	}
+
+	// 从禁止列表移除
+	user.Config.DeniedServices = m.removeString(user.Config.DeniedServices, service)
+
+	// 添加到允许列表
+	for _, s := range user.Config.AllowedServices {
+		if s == service {
+			return nil // 已在允许列表
+		}
+	}
+	user.Config.AllowedServices = append(user.Config.AllowedServices, service)
+
+	user.UpdatedAt = time.Now()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
+	return nil
+}
+
+// DenyService 禁止用户访问指定服务
+func (m *Manager) DenyService(username, service string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	user, exists := m.users[username]
+	if !exists {
+		return ErrUserNotFound
+	}
+
+	// 从允许列表移除
+	user.Config.AllowedServices = m.removeString(user.Config.AllowedServices, service)
+
+	// 添加到禁止列表
+	for _, s := range user.Config.DeniedServices {
+		if s == service {
+			return nil // 已在禁止列表
+		}
+	}
+	user.Config.DeniedServices = append(user.Config.DeniedServices, service)
+
+	user.UpdatedAt = time.Now()
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
+	return nil
+}
+
+// SetCustomAttribute 设置用户自定义属性
+func (m *Manager) SetCustomAttribute(username, key, value string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	user, exists := m.users[username]
+	if !exists {
+		return ErrUserNotFound
+	}
+
+	if user.Config.CustomAttributes == nil {
+		user.Config.CustomAttributes = make(map[string]string)
+	}
+	user.Config.CustomAttributes[key] = value
+	user.UpdatedAt = time.Now()
+
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
+	return nil
+}
+
+// GetCustomAttribute 获取用户自定义属性
+func (m *Manager) GetCustomAttribute(username, key string) (string, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	user, exists := m.users[username]
+	if !exists {
+		return "", ErrUserNotFound
+	}
+
+	if user.Config.CustomAttributes == nil {
+		return "", nil
+	}
+	return user.Config.CustomAttributes[key], nil
+}
+
+// ========== 用户统计与审计 ==========
+
+// UpdateLastLogin 更新用户最后登录信息
+func (m *Manager) UpdateLastLogin(username, ip string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	user, exists := m.users[username]
+	if !exists {
+		return ErrUserNotFound
+	}
+
+	now := time.Now()
+	user.LastLoginAt = &now
+	user.LastLoginIP = ip
+	user.UpdatedAt = now
+
+	if err := m.saveConfig(); err != nil {
+		log.Printf("保存配置失败: %v", err)
+	}
+	return nil
+}
+
+// GetUserStats 获取用户统计信息
+func (m *Manager) GetUserStats() map[string]interface{} {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	stats := map[string]interface{}{
+		"total_users":  len(m.users),
+		"total_groups": len(m.groups),
+		"total_tokens": len(m.tokens),
+		"by_role":      make(map[Role]int),
+		"by_status": map[string]int{
+			"active":   0,
+			"disabled": 0,
+		},
+	}
+
+	roleStats := stats["by_role"].(map[Role]int)
+	statusStats := stats["by_status"].(map[string]int)
+
+	for _, user := range m.users {
+		roleStats[user.Role]++
+		if user.Disabled {
+			statusStats["disabled"]++
+		} else {
+			statusStats["active"]++
+		}
+	}
+
+	return stats
+}
+
+// GetActiveUsers 获取活跃用户列表（指定时间内登录过）
+func (m *Manager) GetActiveUsers(since time.Time) []*User {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	users := make([]*User, 0)
+	for _, u := range m.users {
+		if u.LastLoginAt != nil && u.LastLoginAt.After(since) {
+			users = append(users, u)
+		}
+	}
+	return users
+}
+
+// GetInactiveUsers 获取不活跃用户列表（超过指定时间未登录）
+func (m *Manager) GetInactiveUsers(duration time.Duration) []*User {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	cutoff := time.Now().Add(-duration)
+	users := make([]*User, 0)
+	for _, u := range m.users {
+		if u.LastLoginAt == nil || u.LastLoginAt.Before(cutoff) {
+			users = append(users, u)
+		}
+	}
+	return users
+}
+
+// ========== 批量操作 ==========
+
+// BatchCreateUsers 批量创建用户
+func (m *Manager) BatchCreateUsers(inputs []UserInput) ([]*User, []error) {
+	results := make([]*User, 0, len(inputs))
+	errs := make([]error, 0)
+
+	for _, input := range inputs {
+		user, err := m.CreateUser(input)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("创建用户 %s 失败: %w", input.Username, err))
+		} else {
+			results = append(results, user)
+		}
+	}
+
+	return results, errs
+}
+
+// BatchDeleteUsers 批量删除用户
+func (m *Manager) BatchDeleteUsers(usernames []string) []error {
+	errs := make([]error, 0)
+	for _, username := range usernames {
+		if err := m.DeleteUser(username); err != nil {
+			errs = append(errs, fmt.Errorf("删除用户 %s 失败: %w", username, err))
+		}
+	}
+	return errs
+}
+
+// BatchAddToGroup 批量将用户添加到组
+func (m *Manager) BatchAddToGroup(usernames []string, groupName string) []error {
+	errs := make([]error, 0)
+	for _, username := range usernames {
+		if err := m.AddUserToGroup(username, groupName); err != nil {
+			errs = append(errs, fmt.Errorf("添加用户 %s 到组 %s 失败: %w", username, groupName, err))
+		}
+	}
+	return errs
 }
