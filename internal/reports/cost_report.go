@@ -25,21 +25,21 @@ var (
 
 // ========== 报告类型 ==========
 
-// CostCostReportType 成本报告类型
-type CostCostReportType string
+// CostReportType 成本报告类型
+type CostReportType string
 
 const (
-	CostCostReportTypeDaily   CostCostReportType = "daily"   // 日报
-	CostCostReportTypeWeekly  CostCostReportType = "weekly"  // 周报
-	CostCostReportTypeMonthly CostCostReportType = "monthly" // 月报
+	CostReportTypeDaily   CostReportType = "daily"   // 日报
+	CostReportTypeWeekly  CostReportType = "weekly"  // 周报
+	CostReportTypeMonthly CostReportType = "monthly" // 月报
 )
 
-// CostCostExportFormat 成本导出格式
-type CostCostExportFormat string
+// CostExportFormat 成本导出格式
+type CostExportFormat string
 
 const (
-	CostCostExportFormatJSON CostCostExportFormat = "json" // JSON格式
-	CostCostExportFormatCSV  CostCostExportFormat = "csv"  // CSV格式
+	CostExportFormatJSON CostExportFormat = "json" // JSON格式
+	CostExportFormatCSV  CostExportFormat = "csv"  // CSV格式
 )
 
 // ========== 成本报告定义 ==========
