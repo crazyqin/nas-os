@@ -1,101 +1,16 @@
 {
-  "lastUpdate": "2026-03-16T01:10:00+08:00",
-  "version": "v2.79.0",
-  "status": "in_development",
-  "previousVersion": "v2.78.0",
-  "currentDev": {
-    "version": "v2.79.0",
-    "status": "in_progress",
-    "startedAt": "2026-03-16T01:10:00+08:00",
-    "focus": "安全问题修复"
-  },
-  "projectStats": {
-    "totalModules": 68,
-    "totalPages": 47,
-    "completedMilestones": 5,
-    "totalMilestones": 8,
-    "completionRate": "62.5%"
-  },
-  "milestones": {
-    "M1": {
-      "name": "核心存储功能",
-      "status": "completed",
-      "completedAt": "2026-03-10"
-    },
-    "M2": {
-      "name": "Web 管理界面",
-      "status": "completed",
-      "pagesCount": 47,
-      "completedAt": "2026-03-15"
-    },
-    "M3": {
-      "name": "文件共享服务",
-      "status": "completed",
-      "completedAt": "2026-03-14"
-    },
-    "M4": {
-      "name": "用户权限系统",
-      "status": "pending"
-    },
-    "M5": {
-      "name": "监控告警系统",
-      "status": "pending"
-    },
-    "M6": {
-      "name": "Docker 集成",
-      "status": "completed",
-      "completedAt": "2026-03-11"
-    },
-    "M7": {
-      "name": "集群支持",
-      "status": "completed",
-      "completedAt": "2026-03-11"
-    },
-    "M8": {
-      "name": "v1.7.0 功能完善",
-      "status": "completed",
-      "completedAt": "2026-03-13"
+  "currentVersion": "v2.81.0",
+  "previousVersion": "v2.80.0",
+  "lastUpdate": "2026-03-16T01:45:00+08:00",
+  "status": {
+    "v2.81.0": {
+      "兵部": { "status": "in_progress", "runtime": "pending", "work": "测试覆盖率提升" },
+      "户部": { "status": "in_progress", "runtime": "pending", "work": "资源统计报告" },
+      "礼部": { "status": "in_progress", "runtime": "pending", "work": "文档版本更新" },
+      "工部": { "status": "in_progress", "runtime": "pending", "work": "CI/CD 增强" },
+      "吏部": { "status": "pending", "runtime": "pending", "work": "项目管理更新" },
+      "刑部": { "status": "in_progress", "runtime": "pending", "work": "安全审计 v2.81.0" }
     }
   },
-  "ministries": {
-    "兵部": {
-      "status": "completed",
-      "currentTask": "v2.78.0 测试修复、资源泄漏修复",
-      "completedTasks": ["测试失败修复", "资源泄漏修复", "go vet 通过"]
-    },
-    "工部": {
-      "status": "completed",
-      "currentTask": "v2.78.0 CI/CD 检查、Docker 优化",
-      "completedTasks": ["CI/CD 检查完成", "Docker 优化"]
-    },
-    "礼部": {
-      "status": "completed",
-      "currentTask": "v2.78.0 文档更新、API 文档",
-      "completedTasks": ["README 更新", "CHANGELOG 更新", "API 文档完善"]
-    },
-    "刑部": {
-      "status": "completed",
-      "currentTask": "v2.78.0 安全审计",
-      "completedTasks": ["安全审计完成", "发现 TLS 证书验证问题", "发现弱随机数问题"],
-      "findings": ["TLS 证书验证问题", "弱随机数生成", "其他安全问题"]
-    },
-    "户部": {
-      "status": "completed",
-      "currentTask": "v2.78.0 资源统计",
-      "completedTasks": ["资源使用评估", "资源统计报告"]
-    },
-    "吏部": {
-      "status": "completed",
-      "currentTask": "v2.78.0 项目管理",
-      "completedTasks": ["MILESTONES.md 更新", "项目状态文件更新", "libu_pm_report.json 生成"]
-    }
-  },
-  "nextSteps": [
-    "M4 用户权限系统开发",
-    "M5 监控告警系统开发",
-    "处理刑部安全审计发现的问题",
-    "修复 TLS 证书验证问题",
-    "修复弱随机数生成问题"
-  ],
-  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.78.0"
+  "nextVersion": "v2.82.0"
 }
