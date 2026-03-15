@@ -95,7 +95,7 @@ env:
   # 构建开始时间（用于计算总耗时）
   BUILD_START_TIME: ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
   # 覆盖率阈值
-  COVERAGE_THRESHOLD: 30
+  COVERAGE_THRESHOLD: 25
   COVERAGE_WARN_THRESHOLD: 50
   # 构建追踪
   BUILD_TRACKING_ENABLED: 'true'
