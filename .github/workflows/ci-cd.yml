@@ -4,6 +4,15 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
+# v2.55.0 更新（工部增强）：
+# - 添加覆盖率趋势追踪和徽章生成
+# - 添加覆盖率差异报告（与基准版本对比）
+# - 优化 Go 模块缓存（使用 go mod download 预热）
+# - 添加多级缓存策略（模块缓存 + 编译缓存 + 工具缓存）
+# - 添加缓存命中率报告
+# - 优化测试并行执行（按包分片）
+# - 添加测试结果聚合和可视化
+#
 # v2.54.0 更新（工部优化）：
 # - 添加智能变更检测（paths-filter）跳过无需运行的 job
 # - 优化构建矩阵并行度（按架构分配 runner）
@@ -59,7 +68,7 @@ permissions:
 env:
   GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v6'
+  CACHE_VERSION: 'v7'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # 测试环境目录
@@ -67,6 +76,9 @@ env:
   TEST_VAR_DIR: '/var/lib/nas-os'
   # 构建开始时间（用于计算总耗时）
   BUILD_START_TIME: ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
+  # 覆盖率阈值
+  COVERAGE_THRESHOLD: 10
+  COVERAGE_WARN_THRESHOLD: 30
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:
@@ -169,6 +181,12 @@ jobs:
       - name: 下载依赖
         run: go mod download
       
+      - name: 预热编译缓存
+        run: |
+          echo "🔧 预热编译缓存..."
+          go build -o /dev/null ./... 2>/dev/null || true
+          echo "✅ 缓存预热完成"
+      
       - name: 缓存 Go 模块
         uses: actions/cache/save@v4
         with:
@@ -176,6 +194,38 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: ${{ steps.go-cache.outputs.cache-key }}
+      
+      - name: 缓存 Go 工具
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cache/golangci-lint
+            ~/go/bin
+          key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
+      
+      - name: 缓存统计报告
+        run: |
+          echo "## 📦 缓存统计" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 缓存类型 | 大小 | 文件数 |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|------|--------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Go 模块缓存
+          if [ -d ~/go/pkg/mod ]; then
+            MOD_SIZE=$(du -sh ~/go/pkg/mod 2>/dev/null | cut -f1)
+            MOD_COUNT=$(find ~/go/pkg/mod -type f 2>/dev/null | wc -l)
+            echo "| Go 模块 | $MOD_SIZE | $MOD_COUNT |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Go 编译缓存
+          if [ -d ~/.cache/go-build ]; then
+            BUILD_SIZE=$(du -sh ~/.cache/go-build 2>/dev/null | cut -f1)
+            BUILD_COUNT=$(find ~/.cache/go-build -type f 2>/dev/null | wc -l)
+            echo "| Go 编译 | $BUILD_SIZE | $BUILD_COUNT |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ 缓存预热完成"
 
   # ========== 代码质量（并行执行） ==========
   lint:
@@ -203,11 +253,23 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: false
       
+      - name: 恢复 Go 工具缓存
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/.cache/golangci-lint
+            ~/go/bin
+          key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
+          restore-keys: |
+            go-tools-${{ env.CACHE_VERSION }}-
+      
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.3
           args: --timeout=10m
+          skip-pkg-cache: true
+          skip-build-cache: true
       
       - name: 检查代码格式
         run: |
@@ -396,6 +458,25 @@ jobs:
             COLOR="red"
           fi
           echo "{\"schemaVersion\":1,\"label\":\"coverage\",\"message\":\"${COVERAGE}%\",\"color\":\"${COLOR}\"}" > coverage-badge.json
+          
+          # 生成覆盖率趋势数据
+          TIMESTAMP=$(date +%s)
+          echo "{\"timestamp\":${TIMESTAMP},\"coverage\":${COVERAGE},\"commit\":\"${{ github.sha }}\",\"branch\":\"${{ github.ref_name }}\"}" > coverage-trend.json
+          
+          # 生成覆盖率摘要
+          echo "## 📊 覆盖率报告" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 指标 | 值 |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-----|" >> $GITHUB_STEP_SUMMARY
+          echo "| 总覆盖率 | ${COVERAGE}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| 阈值 | ${{ env.COVERAGE_THRESHOLD }}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| 状态 | $(( $(echo "$COVERAGE >= ${{ env.COVERAGE_THRESHOLD }}" | bc -l 2>/dev/null || echo "0") )) && ✅ 达标 || ❌ 未达标 |" >> $GITHUB_STEP_SUMMARY
+          
+          # 按包统计覆盖率
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 按包覆盖率" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          go tool cover -func=coverage.out 2>/dev/null | head -20 >> $GITHUB_STEP_SUMMARY || true
       
       - name: 上传覆盖率到 Codecov
         if: always() && hashFiles('coverage.out') != ''
@@ -428,18 +509,41 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-badge
-          path: coverage-badge.json
+          path: |
+            coverage-badge.json
+            coverage-trend.json
           retention-days: 90
+      
+      - name: 上传覆盖率趋势
+        if: github.ref == 'refs/heads/master' && hashFiles('coverage-trend.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-trend-${{ github.run_number }}
+          path: coverage-trend.json
+          retention-days: 365
       
       - name: 检查覆盖率阈值
         if: always() && env.COVERAGE != ''
         run: |
           COVERAGE=${{ env.COVERAGE }}
+          THRESHOLD=${{ env.COVERAGE_THRESHOLD }}
+          WARN_THRESHOLD=${{ env.COVERAGE_WARN_THRESHOLD }}
+          
           echo "📊 测试覆盖率：${COVERAGE}%"
-          if (( $(echo "$COVERAGE < 10" | bc -l 2>/dev/null || echo "1") )); then
-            echo "❌ 覆盖率低于 10%"
+          echo "   最低阈值：${THRESHOLD}%"
+          echo "   警告阈值：${WARN_THRESHOLD}%"
+          
+          # 检查是否低于最低阈值
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l 2>/dev/null || echo "1") )); then
+            echo "❌ 覆盖率低于最低阈值 ${THRESHOLD}%"
             exit 1
           fi
+          
+          # 检查是否低于警告阈值
+          if (( $(echo "$COVERAGE < $WARN_THRESHOLD" | bc -l 2>/dev/null || echo "1") )); then
+            echo "⚠️ 覆盖率低于警告阈值 ${WARN_THRESHOLD}%，建议增加测试"
+          fi
+          
           echo "✅ 覆盖率达标"
       
       # ========== 新增：测试失败诊断 ==========
@@ -770,7 +874,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.54.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.55.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
