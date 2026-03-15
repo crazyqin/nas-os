@@ -330,7 +330,7 @@ func TestSyncEngine_CalculateFileHash(t *testing.T) {
 	hash, err := engine.calculateFileHash(tmpFile.Name())
 	require.NoError(t, err)
 	assert.NotEmpty(t, hash)
-	assert.Len(t, hash, 32) // MD5 hex length
+	assert.Len(t, hash, 64) // SHA-256 hex length
 }
 
 // ==================== Mock Provider 测试 ====================

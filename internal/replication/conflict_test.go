@@ -328,7 +328,7 @@ func TestCalculateFileHash(t *testing.T) {
 	hash, err := detector.calculateFileHash(tmpFile.Name())
 	require.NoError(t, err)
 	assert.NotEmpty(t, hash)
-	assert.Len(t, hash, 32) // MD5 hex 编码长度
+	assert.Len(t, hash, 64) // SHA-256 hex 编码长度
 
 	// 相同内容应产生相同哈希
 	hash2, err := detector.calculateFileHash(tmpFile.Name())
