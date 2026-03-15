@@ -12,10 +12,10 @@ import (
 // Dashboard 仪表板数据结构
 type Dashboard struct {
 	// 项目概览
-	TotalProjects    int `json:"total_projects"`
-	ActiveProjects   int `json:"active_projects"`
+	TotalProjects     int `json:"total_projects"`
+	ActiveProjects    int `json:"active_projects"`
 	CompletedProjects int `json:"completed_projects"`
-	
+
 	// 任务概览
 	TotalTasks      int `json:"total_tasks"`
 	TodoTasks       int `json:"todo_tasks"`
@@ -24,29 +24,29 @@ type Dashboard struct {
 	DoneTasks       int `json:"done_tasks"`
 	CancelledTasks  int `json:"cancelled_tasks"`
 	OverdueTasks    int `json:"overdue_tasks"`
-	
+
 	// 完成率
-	TaskCompletionRate    float64 `json:"task_completion_rate"`
-	OnTimeCompletionRate  float64 `json:"on_time_completion_rate"`
-	
+	TaskCompletionRate   float64 `json:"task_completion_rate"`
+	OnTimeCompletionRate float64 `json:"on_time_completion_rate"`
+
 	// 里程碑
-	TotalMilestones      int `json:"total_milestones"`
-	CompletedMilestones  int `json:"completed_milestones"`
-	ActiveMilestones     int `json:"active_milestones"`
-	OverdueMilestones    int `json:"overdue_milestones"`
+	TotalMilestones         int     `json:"total_milestones"`
+	CompletedMilestones     int     `json:"completed_milestones"`
+	ActiveMilestones        int     `json:"active_milestones"`
+	OverdueMilestones       int     `json:"overdue_milestones"`
 	MilestoneCompletionRate float64 `json:"milestone_completion_rate"`
-	
+
 	// 时间统计
-	TasksCreatedThisWeek   int `json:"tasks_created_this_week"`
-	TasksCompletedThisWeek int `json:"tasks_completed_this_week"`
-	TasksCreatedThisMonth  int `json:"tasks_created_this_month"`
+	TasksCreatedThisWeek    int `json:"tasks_created_this_week"`
+	TasksCompletedThisWeek  int `json:"tasks_completed_this_week"`
+	TasksCreatedThisMonth   int `json:"tasks_created_this_month"`
 	TasksCompletedThisMonth int `json:"tasks_completed_this_month"`
-	
+
 	// 趋势数据
-	DailyTaskTrend   []DailyTaskStats `json:"daily_task_trend,omitempty"`
-	WeeklyTaskTrend  []WeeklyTaskStats `json:"weekly_task_trend,omitempty"`
-	PriorityDistribution map[string]int `json:"priority_distribution"`
-	AssigneeWorkload map[string]int `json:"assignee_workload"`
+	DailyTaskTrend       []DailyTaskStats  `json:"daily_task_trend,omitempty"`
+	WeeklyTaskTrend      []WeeklyTaskStats `json:"weekly_task_trend,omitempty"`
+	PriorityDistribution map[string]int    `json:"priority_distribution"`
+	AssigneeWorkload     map[string]int    `json:"assignee_workload"`
 }
 
 // DailyTaskStats 每日任务统计
@@ -69,54 +69,54 @@ type WeeklyTaskStats struct {
 type ProjectDashboard struct {
 	ProjectID   string `json:"project_id"`
 	ProjectName string `json:"project_name"`
-	
+
 	// 进度统计
-	TaskStats       TaskStats `json:"task_stats"`
-	Progress        int       `json:"progress"` // 0-100
-	EstimatedHours  float64   `json:"estimated_hours"`
-	ActualHours     float64   `json:"actual_hours"`
-	HoursVariance   float64   `json:"hours_variance"` // 实际-预估
-	
+	TaskStats      TaskStats `json:"task_stats"`
+	Progress       int       `json:"progress"` // 0-100
+	EstimatedHours float64   `json:"estimated_hours"`
+	ActualHours    float64   `json:"actual_hours"`
+	HoursVariance  float64   `json:"hours_variance"` // 实际-预估
+
 	// 里程碑统计
 	TotalMilestones     int `json:"total_milestones"`
 	CompletedMilestones int `json:"completed_milestones"`
 	ActiveMilestones    int `json:"active_milestones"`
 	OverdueMilestones   int `json:"overdue_milestones"`
-	
+
 	// 时间线
-	StartDate *time.Time `json:"start_date,omitempty"`
-	EndDate   *time.Time `json:"end_date,omitempty"`
-	DaysRemaining int     `json:"days_remaining"`
-	
+	StartDate     *time.Time `json:"start_date,omitempty"`
+	EndDate       *time.Time `json:"end_date,omitempty"`
+	DaysRemaining int        `json:"days_remaining"`
+
 	// 团队统计
-	TeamSize        int            `json:"team_size"`
+	TeamSize        int                       `json:"team_size"`
 	MemberWorkloads map[string]MemberWorkload `json:"member_workloads"`
 }
 
 // MemberWorkload 成员工作量
 type MemberWorkload struct {
-	UserID         string  `json:"user_id"`
-	TotalTasks     int     `json:"total_tasks"`
-	TodoTasks      int     `json:"todo_tasks"`
-	InProgressTasks int    `json:"in_progress_tasks"`
-	DoneTasks      int     `json:"done_tasks"`
-	OverdueTasks   int     `json:"overdue_tasks"`
-	EstimatedHours float64 `json:"estimated_hours"`
-	ActualHours    float64 `json:"actual_hours"`
+	UserID          string  `json:"user_id"`
+	TotalTasks      int     `json:"total_tasks"`
+	TodoTasks       int     `json:"todo_tasks"`
+	InProgressTasks int     `json:"in_progress_tasks"`
+	DoneTasks       int     `json:"done_tasks"`
+	OverdueTasks    int     `json:"overdue_tasks"`
+	EstimatedHours  float64 `json:"estimated_hours"`
+	ActualHours     float64 `json:"actual_hours"`
 }
 
 // MilestoneProgress 里程碑进度
 type MilestoneProgress struct {
-	ID           string     `json:"id"`
-	Name         string     `json:"name"`
-	Status       string     `json:"status"`
-	TaskCount    int        `json:"task_count"`
-	DoneCount    int        `json:"done_count"`
-	Progress     int        `json:"progress"` // 0-100
-	DueDate      *time.Time `json:"due_date,omitempty"`
-	CompletedAt  *time.Time `json:"completed_at,omitempty"`
-	IsOverdue    bool       `json:"is_overdue"`
-	DaysRemaining int       `json:"days_remaining"`
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Status        string         `json:"status"`
+	TaskCount     int            `json:"task_count"`
+	DoneCount     int            `json:"done_count"`
+	Progress      int            `json:"progress"` // 0-100
+	DueDate       *time.Time     `json:"due_date,omitempty"`
+	CompletedAt   *time.Time     `json:"completed_at,omitempty"`
+	IsOverdue     bool           `json:"is_overdue"`
+	DaysRemaining int            `json:"days_remaining"`
 	TasksByStatus map[string]int `json:"tasks_by_status"`
 }
 

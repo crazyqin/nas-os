@@ -67,12 +67,12 @@ func (h *Handlers) listDisks(c *gin.Context) {
 	disks := h.monitor.GetAllDisks()
 
 	summary := struct {
-		Total     int `json:"total"`
-		Healthy   int `json:"healthy"`
-		Warning   int `json:"warning"`
-		Critical  int `json:"critical"`
-		Unknown   int `json:"unknown"`
-		Offline   int `json:"offline"`
+		Total    int `json:"total"`
+		Healthy  int `json:"healthy"`
+		Warning  int `json:"warning"`
+		Critical int `json:"critical"`
+		Unknown  int `json:"unknown"`
+		Offline  int `json:"offline"`
 	}{}
 
 	for _, disk := range disks {

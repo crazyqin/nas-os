@@ -19,35 +19,35 @@ func timePtr(t time.Time) *time.Time {
 
 // QuotaAPIHandlers 配额管理 API 处理器
 type QuotaAPIHandlers struct {
-	manager       *QuotaManagerAdapter
-	monitor       *QuotaMonitorService
-	alertManager  *QuotaAlertManager
-	usageStats    *QuotaUsageStatistics
-	exporter      *QuotaReportExporter
+	manager      *QuotaManagerAdapter
+	monitor      *QuotaMonitorService
+	alertManager *QuotaAlertManager
+	usageStats   *QuotaUsageStatistics
+	exporter     *QuotaReportExporter
 }
 
 // QuotaManagerAdapter 配额管理适配器
 type QuotaManagerAdapter struct {
-	quotas     map[string]*QuotaDefinition
-	usages     map[string]*QuotaUsageRecord
-	alerts     map[string]*QuotaAlertRecord
-	mu         interface{}
+	quotas map[string]*QuotaDefinition
+	usages map[string]*QuotaUsageRecord
+	alerts map[string]*QuotaAlertRecord
+	mu     interface{}
 }
 
 // QuotaDefinition 配额定义
 type QuotaDefinition struct {
-	ID          string    `json:"id"`
-	Type        string    `json:"type"`         // user, service, directory
-	TargetID    string    `json:"target_id"`    // 用户ID/服务名/路径
-	TargetName  string    `json:"target_name"`  // 显示名称
-	VolumeName  string    `json:"volume_name"`  // 卷名
-	Path        string    `json:"path"`         // 限制路径
-	HardLimit   uint64    `json:"hard_limit"`   // 硬限制（字节）
-	SoftLimit   uint64    `json:"soft_limit"`   // 软限制（字节）
-	WarningLimit uint64   `json:"warning_limit"` // 警告阈值（字节）
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Enabled     bool      `json:"enabled"`
+	ID           string    `json:"id"`
+	Type         string    `json:"type"`          // user, service, directory
+	TargetID     string    `json:"target_id"`     // 用户ID/服务名/路径
+	TargetName   string    `json:"target_name"`   // 显示名称
+	VolumeName   string    `json:"volume_name"`   // 卷名
+	Path         string    `json:"path"`          // 限制路径
+	HardLimit    uint64    `json:"hard_limit"`    // 硬限制（字节）
+	SoftLimit    uint64    `json:"soft_limit"`    // 软限制（字节）
+	WarningLimit uint64    `json:"warning_limit"` // 警告阈值（字节）
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Enabled      bool      `json:"enabled"`
 }
 
 // QuotaUsageRecord 配额使用记录
@@ -101,7 +101,7 @@ type QuotaReportExporter struct{}
 // NewQuotaAPIHandlers 创建配额管理 API 处理器
 func NewQuotaAPIHandlers() *QuotaAPIHandlers {
 	return &QuotaAPIHandlers{
-		manager:      &QuotaManagerAdapter{
+		manager: &QuotaManagerAdapter{
 			quotas: make(map[string]*QuotaDefinition),
 			usages: make(map[string]*QuotaUsageRecord),
 			alerts: make(map[string]*QuotaAlertRecord),
@@ -200,30 +200,30 @@ func (h *QuotaAPIHandlers) listQuotas(c *gin.Context) {
 	// 模拟返回数据
 	quotas := []QuotaDefinition{
 		{
-			ID:          "quota_001",
-			Type:        "user",
-			TargetID:    "user1",
-			TargetName:  "张三",
-			VolumeName:  "volume1",
-			HardLimit:   100 * 1024 * 1024 * 1024, // 100GB
-			SoftLimit:   80 * 1024 * 1024 * 1024,  // 80GB
-			WarningLimit: 60 * 1024 * 1024 * 1024, // 60GB
-			CreatedAt:   time.Now().AddDate(0, -1, 0),
-			UpdatedAt:   time.Now(),
-			Enabled:     true,
+			ID:           "quota_001",
+			Type:         "user",
+			TargetID:     "user1",
+			TargetName:   "张三",
+			VolumeName:   "volume1",
+			HardLimit:    100 * 1024 * 1024 * 1024, // 100GB
+			SoftLimit:    80 * 1024 * 1024 * 1024,  // 80GB
+			WarningLimit: 60 * 1024 * 1024 * 1024,  // 60GB
+			CreatedAt:    time.Now().AddDate(0, -1, 0),
+			UpdatedAt:    time.Now(),
+			Enabled:      true,
 		},
 		{
-			ID:          "quota_002",
-			Type:        "service",
-			TargetID:    "backup",
-			TargetName:  "备份服务",
-			VolumeName:  "volume1",
-			HardLimit:   500 * 1024 * 1024 * 1024, // 500GB
-			SoftLimit:   400 * 1024 * 1024 * 1024, // 400GB
+			ID:           "quota_002",
+			Type:         "service",
+			TargetID:     "backup",
+			TargetName:   "备份服务",
+			VolumeName:   "volume1",
+			HardLimit:    500 * 1024 * 1024 * 1024, // 500GB
+			SoftLimit:    400 * 1024 * 1024 * 1024, // 400GB
 			WarningLimit: 300 * 1024 * 1024 * 1024, // 300GB
-			CreatedAt:   time.Now().AddDate(0, -1, 0),
-			UpdatedAt:   time.Now(),
-			Enabled:     true,
+			CreatedAt:    time.Now().AddDate(0, -1, 0),
+			UpdatedAt:    time.Now(),
+			Enabled:      true,
 		},
 	}
 
@@ -260,17 +260,17 @@ func (h *QuotaAPIHandlers) getQuota(c *gin.Context) {
 
 	// 模拟返回数据
 	quota := &QuotaDefinition{
-		ID:          id,
-		Type:        "user",
-		TargetID:    "user1",
-		TargetName:  "张三",
-		VolumeName:  "volume1",
-		HardLimit:   100 * 1024 * 1024 * 1024,
-		SoftLimit:   80 * 1024 * 1024 * 1024,
+		ID:           id,
+		Type:         "user",
+		TargetID:     "user1",
+		TargetName:   "张三",
+		VolumeName:   "volume1",
+		HardLimit:    100 * 1024 * 1024 * 1024,
+		SoftLimit:    80 * 1024 * 1024 * 1024,
 		WarningLimit: 60 * 1024 * 1024 * 1024,
-		CreatedAt:   time.Now().AddDate(0, -1, 0),
-		UpdatedAt:   time.Now(),
-		Enabled:     true,
+		CreatedAt:    time.Now().AddDate(0, -1, 0),
+		UpdatedAt:    time.Now(),
+		Enabled:      true,
 	}
 
 	api.OK(c, quota)
@@ -336,7 +336,7 @@ func (h *QuotaAPIHandlers) updateQuota(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"message": "配额更新成功",
+		"message":  "配额更新成功",
 		"quota_id": id,
 	})
 }
@@ -357,17 +357,17 @@ func (h *QuotaAPIHandlers) getUserQuotas(c *gin.Context) {
 
 	quotas := []QuotaDefinition{
 		{
-			ID:          "quota_user_" + userID,
-			Type:        "user",
-			TargetID:    userID,
-			TargetName:  "用户" + userID,
-			VolumeName:  "volume1",
-			HardLimit:   100 * 1024 * 1024 * 1024,
-			SoftLimit:   80 * 1024 * 1024 * 1024,
+			ID:           "quota_user_" + userID,
+			Type:         "user",
+			TargetID:     userID,
+			TargetName:   "用户" + userID,
+			VolumeName:   "volume1",
+			HardLimit:    100 * 1024 * 1024 * 1024,
+			SoftLimit:    80 * 1024 * 1024 * 1024,
 			WarningLimit: 60 * 1024 * 1024 * 1024,
-			CreatedAt:   time.Now().AddDate(0, -1, 0),
-			UpdatedAt:   time.Now(),
-			Enabled:     true,
+			CreatedAt:    time.Now().AddDate(0, -1, 0),
+			UpdatedAt:    time.Now(),
+			Enabled:      true,
 		},
 	}
 
@@ -410,17 +410,17 @@ func (h *QuotaAPIHandlers) getServiceQuotas(c *gin.Context) {
 
 	quotas := []QuotaDefinition{
 		{
-			ID:          "quota_service_" + serviceName,
-			Type:        "service",
-			TargetID:    serviceName,
-			TargetName:  serviceName,
-			VolumeName:  "volume1",
-			HardLimit:   500 * 1024 * 1024 * 1024,
-			SoftLimit:   400 * 1024 * 1024 * 1024,
+			ID:           "quota_service_" + serviceName,
+			Type:         "service",
+			TargetID:     serviceName,
+			TargetName:   serviceName,
+			VolumeName:   "volume1",
+			HardLimit:    500 * 1024 * 1024 * 1024,
+			SoftLimit:    400 * 1024 * 1024 * 1024,
 			WarningLimit: 300 * 1024 * 1024 * 1024,
-			CreatedAt:   time.Now().AddDate(0, -1, 0),
-			UpdatedAt:   time.Now(),
-			Enabled:     true,
+			CreatedAt:    time.Now().AddDate(0, -1, 0),
+			UpdatedAt:    time.Now(),
+			Enabled:      true,
 		},
 	}
 
@@ -462,18 +462,18 @@ func (h *QuotaAPIHandlers) getDirectoryQuota(c *gin.Context) {
 	path := c.Param("path")
 
 	quota := &QuotaDefinition{
-		ID:          "quota_dir_" + path,
-		Type:        "directory",
-		TargetID:    path,
-		TargetName:  path,
-		VolumeName:  "volume1",
-		Path:        path,
-		HardLimit:   1000 * 1024 * 1024 * 1024, // 1TB
-		SoftLimit:   800 * 1024 * 1024 * 1024,  // 800GB
-		WarningLimit: 600 * 1024 * 1024 * 1024, // 600GB
-		CreatedAt:   time.Now().AddDate(0, -1, 0),
-		UpdatedAt:   time.Now(),
-		Enabled:     true,
+		ID:           "quota_dir_" + path,
+		Type:         "directory",
+		TargetID:     path,
+		TargetName:   path,
+		VolumeName:   "volume1",
+		Path:         path,
+		HardLimit:    1000 * 1024 * 1024 * 1024, // 1TB
+		SoftLimit:    800 * 1024 * 1024 * 1024,  // 800GB
+		WarningLimit: 600 * 1024 * 1024 * 1024,  // 600GB
+		CreatedAt:    time.Now().AddDate(0, -1, 0),
+		UpdatedAt:    time.Now(),
+		Enabled:      true,
 	}
 
 	api.OK(c, quota)
@@ -562,8 +562,8 @@ func (h *QuotaAPIHandlers) getUsageSummary(c *gin.Context) {
 		OverHardLimit:       1,
 		ActiveAlerts:        4,
 		ByType: map[string]TypeUsageStats{
-			"user":    {Count: 6, UsedBytes: 300 * 1024 * 1024 * 1024, LimitBytes: 500 * 1024 * 1024 * 1024},
-			"service": {Count: 3, UsedBytes: 250 * 1024 * 1024 * 1024, LimitBytes: 400 * 1024 * 1024 * 1024},
+			"user":      {Count: 6, UsedBytes: 300 * 1024 * 1024 * 1024, LimitBytes: 500 * 1024 * 1024 * 1024},
+			"service":   {Count: 3, UsedBytes: 250 * 1024 * 1024 * 1024, LimitBytes: 400 * 1024 * 1024 * 1024},
 			"directory": {Count: 1, UsedBytes: 100 * 1024 * 1024 * 1024, LimitBytes: 100 * 1024 * 1024 * 1024},
 		},
 		TopUsers: []TopUsageItem{
@@ -726,8 +726,8 @@ func (h *QuotaAPIHandlers) refreshUsage(c *gin.Context) {
 	volumeName := c.Query("volume")
 
 	api.OK(c, gin.H{
-		"message":     "使用统计刷新成功",
-		"volume":      volumeName,
+		"message":      "使用统计刷新成功",
+		"volume":       volumeName,
 		"refreshed_at": time.Now(),
 	})
 }
@@ -824,8 +824,8 @@ func (h *QuotaAPIHandlers) getActiveAlerts(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"alerts":     alerts,
-		"total":      len(alerts),
+		"alerts":       alerts,
+		"total":        len(alerts),
 		"generated_at": time.Now(),
 	})
 }
@@ -866,8 +866,8 @@ func (h *QuotaAPIHandlers) resolveAlert(c *gin.Context) {
 	now := time.Now()
 
 	api.OK(c, gin.H{
-		"message":    "告警已解决",
-		"alert_id":   alertID,
+		"message":     "告警已解决",
+		"alert_id":    alertID,
 		"resolved_at": now,
 	})
 }
@@ -883,9 +883,9 @@ func (h *QuotaAPIHandlers) silenceAlert(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"message":       "告警已静默",
-		"alert_id":      alertID,
-		"duration":      req.Duration,
+		"message":        "告警已静默",
+		"alert_id":       alertID,
+		"duration":       req.Duration,
 		"silenced_until": time.Now().Add(time.Duration(req.Duration) * time.Minute),
 	})
 }
@@ -907,18 +907,18 @@ func (h *QuotaAPIHandlers) testAlert(c *gin.Context) {
 // getAlertConfig 获取告警配置
 func (h *QuotaAPIHandlers) getAlertConfig(c *gin.Context) {
 	config := QuotaAlertConfig{
-		Enabled:             true,
-		WarningThreshold:    70.0,
-		CriticalThreshold:   85.0,
-		EmergencyThreshold:  95.0,
-		CheckInterval:       5, // 分钟
-		NotifyEmail:         true,
-		NotifyWebhook:       true,
-		WebhookURL:          "https://example.com/webhook",
-		SilenceDuration:     60, // 分钟
-		EscalationEnabled:   true,
-		EscalationInterval:  30, // 分钟
-		MaxEscalationLevel:  3,
+		Enabled:            true,
+		WarningThreshold:   70.0,
+		CriticalThreshold:  85.0,
+		EmergencyThreshold: 95.0,
+		CheckInterval:      5, // 分钟
+		NotifyEmail:        true,
+		NotifyWebhook:      true,
+		WebhookURL:         "https://example.com/webhook",
+		SilenceDuration:    60, // 分钟
+		EscalationEnabled:  true,
+		EscalationInterval: 30, // 分钟
+		MaxEscalationLevel: 3,
 	}
 
 	api.OK(c, config)
@@ -944,27 +944,27 @@ func (h *QuotaAPIHandlers) updateAlertConfig(c *gin.Context) {
 func (h *QuotaAPIHandlers) getWarnings(c *gin.Context) {
 	warnings := []QuotaWarning{
 		{
-			ID:          "warning_001",
-			QuotaID:     "quota_003",
-			TargetName:  "李四",
-			Type:        "usage_high",
-			Severity:    "warning",
+			ID:           "warning_001",
+			QuotaID:      "quota_003",
+			TargetName:   "李四",
+			Type:         "usage_high",
+			Severity:     "warning",
 			CurrentValue: 95.0,
-			Threshold:   85.0,
-			Message:     "用户李四配额使用率已达 95%",
-			CreatedAt:   time.Now(),
+			Threshold:    85.0,
+			Message:      "用户李四配额使用率已达 95%",
+			CreatedAt:    time.Now(),
 		},
 		{
-			ID:          "warning_002",
-			QuotaID:     "quota_004",
-			TargetName:  "备份服务",
-			Type:        "growth_fast",
-			Severity:    "info",
-			CurrentValue: 84.0,
-			Threshold:   80.0,
-			Message:     "备份服务配额增长较快，预计 5 天内将达到软限制",
+			ID:            "warning_002",
+			QuotaID:       "quota_004",
+			TargetName:    "备份服务",
+			Type:          "growth_fast",
+			Severity:      "info",
+			CurrentValue:  84.0,
+			Threshold:     80.0,
+			Message:       "备份服务配额增长较快，预计 5 天内将达到软限制",
 			PredictedDays: 5,
-			CreatedAt:   time.Now(),
+			CreatedAt:     time.Now(),
 		},
 	}
 
@@ -1002,7 +1002,7 @@ func (h *QuotaAPIHandlers) getPredictions(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"predictions": predictions,
+		"predictions":  predictions,
 		"generated_at": time.Now(),
 	})
 }
@@ -1027,9 +1027,9 @@ func (h *QuotaAPIHandlers) getForecast(c *gin.Context) {
 			predictedUsage = 100
 		}
 		forecast = append(forecast, ForecastPoint{
-			Date:          t,
+			Date:           t,
 			PredictedUsage: predictedUsage,
-			Confidence:    0.95 - float64(i)*0.01, // 置信度随时间降低
+			Confidence:     0.95 - float64(i)*0.01, // 置信度随时间降低
 		})
 	}
 
@@ -1056,7 +1056,7 @@ func (h *QuotaAPIHandlers) setWarningThresholds(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"message": "预警阈值设置成功",
+		"message":    "预警阈值设置成功",
 		"thresholds": req,
 	})
 }
@@ -1162,9 +1162,9 @@ func (h *QuotaAPIHandlers) exportQuotaReport(c *gin.Context) {
 	}
 
 	api.OK(c, gin.H{
-		"message":   "报告导出成功",
-		"report_id": reportID,
-		"format":    format,
+		"message":      "报告导出成功",
+		"report_id":    reportID,
+		"format":       format,
 		"download_url": fmt.Sprintf("/api/v1/quota-reports/%s/download?format=%s", reportID, format),
 	})
 }
@@ -1183,12 +1183,12 @@ func (h *QuotaAPIHandlers) deleteQuotaReport(c *gin.Context) {
 
 // CreateQuotaRequest 创建配额请求
 type CreateQuotaRequest struct {
-	Type         string `json:"type" binding:"required"`         // user, service, directory
-	TargetID     string `json:"target_id" binding:"required"`    // 用户ID/服务名/路径
-	TargetName   string `json:"target_name"`                     // 显示名称
-	VolumeName   string `json:"volume_name" binding:"required"`  // 卷名
+	Type         string `json:"type" binding:"required"`        // user, service, directory
+	TargetID     string `json:"target_id" binding:"required"`   // 用户ID/服务名/路径
+	TargetName   string `json:"target_name"`                    // 显示名称
+	VolumeName   string `json:"volume_name" binding:"required"` // 卷名
 	Path         string `json:"path"`                           // 限制路径
-	HardLimit    uint64 `json:"hard_limit" binding:"required"`   // 硬限制（字节）
+	HardLimit    uint64 `json:"hard_limit" binding:"required"`  // 硬限制（字节）
 	SoftLimit    uint64 `json:"soft_limit"`                     // 软限制（字节）
 	WarningLimit uint64 `json:"warning_limit"`                  // 警告阈值（字节）
 }
@@ -1282,18 +1282,18 @@ type TestAlertRequest struct {
 
 // QuotaAlertConfig 配额告警配置
 type QuotaAlertConfig struct {
-	Enabled             bool    `json:"enabled"`
-	WarningThreshold    float64 `json:"warning_threshold"`    // 警告阈值（%）
-	CriticalThreshold   float64 `json:"critical_threshold"`   // 严重阈值（%）
-	EmergencyThreshold  float64 `json:"emergency_threshold"`  // 紧急阈值（%）
-	CheckInterval       int     `json:"check_interval"`       // 检查间隔（分钟）
-	NotifyEmail         bool    `json:"notify_email"`
-	NotifyWebhook       bool    `json:"notify_webhook"`
-	WebhookURL          string  `json:"webhook_url"`
-	SilenceDuration     int     `json:"silence_duration"`    // 静默时长（分钟）
-	EscalationEnabled   bool    `json:"escalation_enabled"`
-	EscalationInterval  int     `json:"escalation_interval"` // 升级间隔（分钟）
-	MaxEscalationLevel  int     `json:"max_escalation_level"`
+	Enabled            bool    `json:"enabled"`
+	WarningThreshold   float64 `json:"warning_threshold"`   // 警告阈值（%）
+	CriticalThreshold  float64 `json:"critical_threshold"`  // 严重阈值（%）
+	EmergencyThreshold float64 `json:"emergency_threshold"` // 紧急阈值（%）
+	CheckInterval      int     `json:"check_interval"`      // 检查间隔（分钟）
+	NotifyEmail        bool    `json:"notify_email"`
+	NotifyWebhook      bool    `json:"notify_webhook"`
+	WebhookURL         string  `json:"webhook_url"`
+	SilenceDuration    int     `json:"silence_duration"` // 静默时长（分钟）
+	EscalationEnabled  bool    `json:"escalation_enabled"`
+	EscalationInterval int     `json:"escalation_interval"` // 升级间隔（分钟）
+	MaxEscalationLevel int     `json:"max_escalation_level"`
 }
 
 // QuotaWarning 配额预警
@@ -1354,11 +1354,11 @@ type QuotaReportMeta struct {
 
 // DetailedQuotaReport 详细配额报告
 type DetailedQuotaReport struct {
-	ID          string              `json:"id"`
-	Name        string              `json:"name"`
-	Type        string              `json:"type"`
-	GeneratedAt time.Time           `json:"generated_at"`
-	Period      ReportPeriod        `json:"period"`
-	Summary     QuotaUsageSummary   `json:"summary"`
-	Details     []QuotaUsageRecord  `json:"details"`
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Type        string             `json:"type"`
+	GeneratedAt time.Time          `json:"generated_at"`
+	Period      ReportPeriod       `json:"period"`
+	Summary     QuotaUsageSummary  `json:"summary"`
+	Details     []QuotaUsageRecord `json:"details"`
 }

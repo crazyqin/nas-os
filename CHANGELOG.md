@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.46.0] - 2026-03-15
+
+### Improved
+- **文档体系完善** (礼部)
+  - 版本发布说明格式规范化
+  - README.md 版本信息更新
+  - 发布文档模板优化
+
+### Changed
+- **版本同步** (礼部)
+  - 所有文档版本号同步至 v2.46.0
+  - 下载链接更新至最新版本
+
 ## [v2.45.0] - 2026-03-15
 
 ### Added

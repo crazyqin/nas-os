@@ -56,7 +56,7 @@ type DiskInfo struct {
 	Model        string        `json:"model"`
 	Serial       string        `json:"serial"`
 	Firmware     string        `json:"firmware"`
-	Size         uint64        `json:"size"`        // 字节
+	Size         uint64        `json:"size"`         // 字节
 	RotationRate int           `json:"rotationRate"` // RPM，SSD 为 0
 	IsSSD        bool          `json:"isSSD"`
 	SmartData    *SMARTData    `json:"smartData"`
@@ -70,11 +70,11 @@ type DiskInfo struct {
 type DiskStatus string
 
 const (
-	StatusHealthy   DiskStatus = "healthy"
-	StatusWarning   DiskStatus = "warning"
-	StatusCritical  DiskStatus = "critical"
-	StatusUnknown   DiskStatus = "unknown"
-	StatusOffline   DiskStatus = "offline"
+	StatusHealthy  DiskStatus = "healthy"
+	StatusWarning  DiskStatus = "warning"
+	StatusCritical DiskStatus = "critical"
+	StatusUnknown  DiskStatus = "unknown"
+	StatusOffline  DiskStatus = "offline"
 )
 
 // SMARTData SMART 数据
@@ -96,9 +96,9 @@ type SMARTData struct {
 	CRCErrors          *SMARTAttribute `json:"crcErrors"`
 
 	// NVMe 专用属性
-	PercentageUsed     *SMARTAttribute `json:"percentageUsed,omitempty"`
-	MediaErrors        *SMARTAttribute `json:"mediaErrors,omitempty"`
-	AvailableSpare     *SMARTAttribute `json:"availableSpare,omitempty"`
+	PercentageUsed *SMARTAttribute `json:"percentageUsed,omitempty"`
+	MediaErrors    *SMARTAttribute `json:"mediaErrors,omitempty"`
+	AvailableSpare *SMARTAttribute `json:"availableSpare,omitempty"`
 
 	// 原始属性列表
 	AllAttributes map[string]*SMARTAttribute `json:"allAttributes"`
@@ -106,46 +106,46 @@ type SMARTData struct {
 
 // SMARTAttribute SMART 属性
 type SMARTAttribute struct {
-	ID          uint    `json:"id"`
-	Name        string  `json:"name"`
-	Value       uint    `json:"value"`       // 标准化值 (0-100)
-	Worst       uint    `json:"worst"`       // 最差值
-	Threshold   uint    `json:"threshold"`   // 阈值
-	Raw         uint64  `json:"raw"`         // 原始值
-	Flags       uint16  `json:"flags"`       // 属性标志
-	IsPrefail   bool    `json:"isPrefail"`   // 是否为预失败属性
-	IsCritical  bool    `json:"isCritical"`  // 是否关键
-	Description string  `json:"description"` // 描述
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Value       uint   `json:"value"`       // 标准化值 (0-100)
+	Worst       uint   `json:"worst"`       // 最差值
+	Threshold   uint   `json:"threshold"`   // 阈值
+	Raw         uint64 `json:"raw"`         // 原始值
+	Flags       uint16 `json:"flags"`       // 属性标志
+	IsPrefail   bool   `json:"isPrefail"`   // 是否为预失败属性
+	IsCritical  bool   `json:"isCritical"`  // 是否关键
+	Description string `json:"description"` // 描述
 }
 
 // HealthScore 健康评分
 type HealthScore struct {
-	Score         int                `json:"score"`         // 0-100
-	Grade         string             `json:"grade"`         // A/B/C/D/F
-	Status        DiskStatus         `json:"status"`        // 健康状态
-	Components    *ScoreComponents   `json:"components"`    // 分项评分
+	Score           int              `json:"score"`           // 0-100
+	Grade           string           `json:"grade"`           // A/B/C/D/F
+	Status          DiskStatus       `json:"status"`          // 健康状态
+	Components      *ScoreComponents `json:"components"`      // 分项评分
 	Recommendations []string         `json:"recommendations"` // 建议
-	Timestamp     time.Time          `json:"timestamp"`
-	Trend         string             `json:"trend"`         // up/down/stable
+	Timestamp       time.Time        `json:"timestamp"`
+	Trend           string           `json:"trend"` // up/down/stable
 }
 
 // ScoreComponents 分项评分
 type ScoreComponents struct {
-	Temperature     ComponentScore `json:"temperature"`
-	Reallocation    ComponentScore `json:"reallocation"`
-	Pending         ComponentScore `json:"pending"`
-	Errors          ComponentScore `json:"errors"`
-	Age             ComponentScore `json:"age"`
-	Stability       ComponentScore `json:"stability"`
+	Temperature  ComponentScore `json:"temperature"`
+	Reallocation ComponentScore `json:"reallocation"`
+	Pending      ComponentScore `json:"pending"`
+	Errors       ComponentScore `json:"errors"`
+	Age          ComponentScore `json:"age"`
+	Stability    ComponentScore `json:"stability"`
 }
 
 // ComponentScore 组件评分
 type ComponentScore struct {
-	Score     int    `json:"score"`     // 0-100
-	Weight    float64 `json:"weight"`   // 权重
-	Status    string  `json:"status"`   // ok/warning/critical
-	Message   string  `json:"message"`  // 说明
-	Value     interface{} `json:"value"`
+	Score   int         `json:"score"`   // 0-100
+	Weight  float64     `json:"weight"`  // 权重
+	Status  string      `json:"status"`  // ok/warning/critical
+	Message string      `json:"message"` // 说明
+	Value   interface{} `json:"value"`
 }
 
 // ScoreWeights 评分权重
@@ -170,14 +170,14 @@ var DefaultScoreWeights = &ScoreWeights{
 
 // AlertRule 告警规则
 type AlertRule struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Attribute    string        `json:"attribute"`    // temperature, reallocated, pending, etc.
-	Condition    string        `json:"condition"`    // gt, lt, eq
-	Threshold    float64       `json:"threshold"`
-	Severity     AlertSeverity `json:"severity"`     // info, warning, critical
-	Enabled      bool          `json:"enabled"`
-	Cooldown     time.Duration `json:"cooldown"`     // 同一磁盘告警冷却时间
+	ID            string               `json:"id"`
+	Name          string               `json:"name"`
+	Attribute     string               `json:"attribute"` // temperature, reallocated, pending, etc.
+	Condition     string               `json:"condition"` // gt, lt, eq
+	Threshold     float64              `json:"threshold"`
+	Severity      AlertSeverity        `json:"severity"` // info, warning, critical
+	Enabled       bool                 `json:"enabled"`
+	Cooldown      time.Duration        `json:"cooldown"` // 同一磁盘告警冷却时间
 	LastTriggered map[string]time.Time `json:"-"`
 }
 
@@ -192,17 +192,17 @@ const (
 
 // SMARTAlert SMART 告警
 type SMARTAlert struct {
-	ID          string        `json:"id"`
-	Device      string        `json:"device"`
-	RuleID      string        `json:"ruleId"`
-	Attribute   string        `json:"attribute"`
-	Severity    AlertSeverity `json:"severity"`
-	Message     string        `json:"message"`
-	Value       interface{}   `json:"value"`
-	Threshold   float64       `json:"threshold"`
-	Timestamp   time.Time     `json:"timestamp"`
-	Acknowledged bool         `json:"acknowledged"`
-	Resolved    bool          `json:"resolved"`
+	ID           string        `json:"id"`
+	Device       string        `json:"device"`
+	RuleID       string        `json:"ruleId"`
+	Attribute    string        `json:"attribute"`
+	Severity     AlertSeverity `json:"severity"`
+	Message      string        `json:"message"`
+	Value        interface{}   `json:"value"`
+	Threshold    float64       `json:"threshold"`
+	Timestamp    time.Time     `json:"timestamp"`
+	Acknowledged bool          `json:"acknowledged"`
+	Resolved     bool          `json:"resolved"`
 }
 
 // Prediction 故障预测
@@ -216,13 +216,13 @@ type Prediction struct {
 
 // SMARTHistoryPoint SMART 历史数据点
 type SMARTHistoryPoint struct {
-	Timestamp         time.Time `json:"timestamp"`
-	HealthScore       int       `json:"healthScore"`
-	Temperature       int       `json:"temperature"`
-	ReallocatedSectors uint64   `json:"reallocatedSectors"`
-	PendingSectors    uint64   `json:"pendingSectors"`
-	ReadErrors        uint64   `json:"readErrors"`
-	WriteErrors       uint64   `json:"writeErrors"`
+	Timestamp          time.Time `json:"timestamp"`
+	HealthScore        int       `json:"healthScore"`
+	Temperature        int       `json:"temperature"`
+	ReallocatedSectors uint64    `json:"reallocatedSectors"`
+	PendingSectors     uint64    `json:"pendingSectors"`
+	ReadErrors         uint64    `json:"readErrors"`
+	WriteErrors        uint64    `json:"writeErrors"`
 }
 
 // NewSMARTMonitor 创建 SMART 监控器
@@ -256,80 +256,80 @@ func NewSMARTMonitor(config *MonitorConfig) *SMARTMonitor {
 func getDefaultAlertRules() []*AlertRule {
 	return []*AlertRule{
 		{
-			ID:          "temp-warning",
-			Name:        "温度警告",
-			Attribute:   "temperature",
-			Condition:   "gt",
-			Threshold:   50,
-			Severity:    AlertWarning,
-			Enabled:     true,
-			Cooldown:    1 * time.Hour,
+			ID:            "temp-warning",
+			Name:          "温度警告",
+			Attribute:     "temperature",
+			Condition:     "gt",
+			Threshold:     50,
+			Severity:      AlertWarning,
+			Enabled:       true,
+			Cooldown:      1 * time.Hour,
 			LastTriggered: make(map[string]time.Time),
 		},
 		{
-			ID:          "temp-critical",
-			Name:        "温度严重",
-			Attribute:   "temperature",
-			Condition:   "gt",
-			Threshold:   60,
-			Severity:    AlertCritical,
-			Enabled:     true,
-			Cooldown:    30 * time.Minute,
+			ID:            "temp-critical",
+			Name:          "温度严重",
+			Attribute:     "temperature",
+			Condition:     "gt",
+			Threshold:     60,
+			Severity:      AlertCritical,
+			Enabled:       true,
+			Cooldown:      30 * time.Minute,
 			LastTriggered: make(map[string]time.Time),
 		},
 		{
-			ID:          "reallocated-warning",
-			Name:        "重映射扇区警告",
-			Attribute:   "reallocatedSectors",
-			Condition:   "gt",
-			Threshold:   10,
-			Severity:    AlertWarning,
-			Enabled:     true,
-			Cooldown:    24 * time.Hour,
+			ID:            "reallocated-warning",
+			Name:          "重映射扇区警告",
+			Attribute:     "reallocatedSectors",
+			Condition:     "gt",
+			Threshold:     10,
+			Severity:      AlertWarning,
+			Enabled:       true,
+			Cooldown:      24 * time.Hour,
 			LastTriggered: make(map[string]time.Time),
 		},
 		{
-			ID:          "reallocated-critical",
-			Name:        "重映射扇区严重",
-			Attribute:   "reallocatedSectors",
-			Condition:   "gt",
-			Threshold:   100,
-			Severity:    AlertCritical,
-			Enabled:     true,
-			Cooldown:    6 * time.Hour,
+			ID:            "reallocated-critical",
+			Name:          "重映射扇区严重",
+			Attribute:     "reallocatedSectors",
+			Condition:     "gt",
+			Threshold:     100,
+			Severity:      AlertCritical,
+			Enabled:       true,
+			Cooldown:      6 * time.Hour,
 			LastTriggered: make(map[string]time.Time),
 		},
 		{
-			ID:          "pending-warning",
-			Name:        "待映射扇区警告",
-			Attribute:   "pendingSectors",
-			Condition:   "gt",
-			Threshold:   10,
-			Severity:    AlertWarning,
-			Enabled:     true,
-			Cooldown:    24 * time.Hour,
+			ID:            "pending-warning",
+			Name:          "待映射扇区警告",
+			Attribute:     "pendingSectors",
+			Condition:     "gt",
+			Threshold:     10,
+			Severity:      AlertWarning,
+			Enabled:       true,
+			Cooldown:      24 * time.Hour,
 			LastTriggered: make(map[string]time.Time),
 		},
 		{
-			ID:          "pending-critical",
-			Name:        "待映射扇区严重",
-			Attribute:   "pendingSectors",
-			Condition:   "gt",
-			Threshold:   100,
-			Severity:    AlertCritical,
-			Enabled:     true,
-			Cooldown:    6 * time.Hour,
+			ID:            "pending-critical",
+			Name:          "待映射扇区严重",
+			Attribute:     "pendingSectors",
+			Condition:     "gt",
+			Threshold:     100,
+			Severity:      AlertCritical,
+			Enabled:       true,
+			Cooldown:      6 * time.Hour,
 			LastTriggered: make(map[string]time.Time),
 		},
 		{
-			ID:          "health-critical",
-			Name:        "健康状态严重",
-			Attribute:   "healthScore",
-			Condition:   "lt",
-			Threshold:   50,
-			Severity:    AlertCritical,
-			Enabled:     true,
-			Cooldown:    1 * time.Hour,
+			ID:            "health-critical",
+			Name:          "健康状态严重",
+			Attribute:     "healthScore",
+			Condition:     "lt",
+			Threshold:     50,
+			Severity:      AlertCritical,
+			Enabled:       true,
+			Cooldown:      1 * time.Hour,
 			LastTriggered: make(map[string]time.Time),
 		},
 	}
@@ -365,9 +365,9 @@ func (m *SMARTMonitor) ScanDisks() error {
 
 		// 只处理硬盘和 NVMe 设备
 		if !strings.HasPrefix(deviceName, "sd") &&
-		   !strings.HasPrefix(deviceName, "nvme") &&
-		   !strings.HasPrefix(deviceName, "hd") &&
-		   !strings.HasPrefix(deviceName, "vd") {
+			!strings.HasPrefix(deviceName, "nvme") &&
+			!strings.HasPrefix(deviceName, "hd") &&
+			!strings.HasPrefix(deviceName, "vd") {
 			continue
 		}
 
@@ -447,8 +447,8 @@ func (m *SMARTMonitor) getSMARTData(device string) (*SMARTData, error) {
 // parseSMARTOutput 解析 smartctl 输出
 func (m *SMARTMonitor) parseSMARTOutput(output string, device string) *SMARTData {
 	data := &SMARTData{
-		OverallHealth:  "UNKNOWN",
-		AllAttributes:  make(map[string]*SMARTAttribute),
+		OverallHealth: "UNKNOWN",
+		AllAttributes: make(map[string]*SMARTAttribute),
 	}
 
 	scanner := bufio.NewScanner(strings.NewReader(output))
@@ -634,11 +634,11 @@ func isCriticalAttribute(id uint) bool {
 func (m *SMARTMonitor) calculateHealthScore(disk *DiskInfo) {
 	if disk.SmartData == nil {
 		disk.HealthScore = &HealthScore{
-			Score:  0,
-			Grade:  "?",
-			Status: StatusUnknown,
+			Score:      0,
+			Grade:      "?",
+			Status:     StatusUnknown,
 			Components: &ScoreComponents{},
-			Timestamp: time.Now(),
+			Timestamp:  time.Now(),
 		}
 		return
 	}
@@ -668,11 +668,11 @@ func (m *SMARTMonitor) calculateHealthScore(disk *DiskInfo) {
 	weights := m.scoreWeights
 	totalScore := int(
 		float64(components.Temperature.Score)*weights.Temperature +
-		float64(components.Reallocation.Score)*weights.Reallocation +
-		float64(components.Pending.Score)*weights.Pending +
-		float64(components.Errors.Score)*weights.Errors +
-		float64(components.Age.Score)*weights.Age +
-		float64(components.Stability.Score)*weights.Stability,
+			float64(components.Reallocation.Score)*weights.Reallocation +
+			float64(components.Pending.Score)*weights.Pending +
+			float64(components.Errors.Score)*weights.Errors +
+			float64(components.Age.Score)*weights.Age +
+			float64(components.Stability.Score)*weights.Stability,
 	)
 
 	// 确保分数在 0-100 范围内
@@ -1160,15 +1160,15 @@ func (m *SMARTMonitor) checkAlertRules(disk *DiskInfo) {
 
 		if triggered {
 			alert := &SMARTAlert{
-				ID:         generateAlertID(),
-				Device:     disk.Device,
-				RuleID:     rule.ID,
-				Attribute:  rule.Attribute,
-				Severity:   rule.Severity,
-				Value:      value,
-				Threshold:  threshold,
-				Timestamp:  now,
-				Message:    fmt.Sprintf("%s: %s (%v)", disk.Device, rule.Name, value),
+				ID:        generateAlertID(),
+				Device:    disk.Device,
+				RuleID:    rule.ID,
+				Attribute: rule.Attribute,
+				Severity:  rule.Severity,
+				Value:     value,
+				Threshold: threshold,
+				Timestamp: now,
+				Message:   fmt.Sprintf("%s: %s (%v)", disk.Device, rule.Name, value),
 			}
 			m.alerts = append(m.alerts, alert)
 			rule.LastTriggered[disk.Device] = now
@@ -1468,10 +1468,10 @@ func (m *SMARTMonitor) ExportJSON() ([]byte, error) {
 	defer m.mu.RUnlock()
 
 	export := struct {
-		Disks      []*DiskInfo    `json:"disks"`
-		Alerts     []*SMARTAlert  `json:"alerts"`
-		AlertRules []*AlertRule   `json:"alertRules"`
-		Timestamp  time.Time      `json:"timestamp"`
+		Disks      []*DiskInfo   `json:"disks"`
+		Alerts     []*SMARTAlert `json:"alerts"`
+		AlertRules []*AlertRule  `json:"alertRules"`
+		Timestamp  time.Time     `json:"timestamp"`
 	}{
 		Disks:      m.GetAllDisks(),
 		Alerts:     m.alerts,
