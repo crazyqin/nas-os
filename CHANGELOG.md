@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.85.0] - 2026-03-16
+
+### Changed
+- **版本号统一更新** (礼部)
+  - README.md 版本更新至 v2.85.0
+  - CHANGELOG.md 版本记录更新
+
+## [v2.84.0] - 2026-03-16
+
+### Fixed
+- **internal/backup 包类型重复声明修复** (兵部)
+  - 解决编译时类型重复声明问题
+  - 确保代码编译通过
+
 ## [v2.83.0] - 2026-03-16
 
 ### Changed
