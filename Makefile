@@ -216,6 +216,13 @@ help:
 	@echo "    make alertmanager-validate - 验证 Alertmanager 配置"
 	@echo "    make monitor-validate - 验证所有监控配置"
 	@echo ""
+	@echo "  健康检查:"
+	@echo "    make health         - 执行完整健康检查"
+	@echo "    make health-quick   - 快速健康检查"
+	@echo "    make health-json    - JSON 格式输出"
+	@echo "    make health-prometheus - Prometheus 格式输出"
+	@echo "    make health-monitor - 持续监控模式"
+	@echo ""
 	@echo "  其他:"
 	@echo "    make clean          - 清理构建产物"
 	@echo "    make help           - 显示帮助"
@@ -323,3 +330,24 @@ alertmanager-validate:
 # 验证所有监控配置
 monitor-validate: alert-validate prometheus-validate alertmanager-validate
 	@echo "✅ 所有监控配置验证通过"
+
+# ========== 健康检查 ==========
+health:
+	@echo "🏥 执行系统健康检查..."
+	@./scripts/health-check.sh full
+
+health-quick:
+	@echo "🏥 执行快速健康检查..."
+	@./scripts/health-check.sh quick
+
+health-json:
+	@echo "🏥 执行健康检查 (JSON 格式)..."
+	@./scripts/health-check.sh full --json
+
+health-prometheus:
+	@echo "🏥 执行健康检查 (Prometheus 格式)..."
+	@OUTPUT_FORMAT=prometheus ./scripts/health-check.sh full
+
+health-monitor:
+	@echo "🏥 启动健康监控模式..."
+	@./scripts/health-check.sh monitor 30
