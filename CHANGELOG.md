@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.49.0] - 2026-03-15
+
+### Added
+- **API 文档完善** (礼部)
+  - docs/api/README.md - API 文档索引与认证说明
+  - docs/api/audit-api.md - 审计 API 完整文档
+  - docs/api/billing-api.md - 计费 API 完整文档
+  - docs/api/monitor-api.md - 监控 API 完整文档
+  - Swagger 注释更新
+  - 请求/响应模型文档
+  - API 使用示例
+
+- **用户文档更新** (礼部)
+  - docs/user-guide/audit-guide.md - 审计模块使用指南
+  - docs/user-guide/billing-guide.md - 计费系统配置指南
+  - docs/user-guide/distributed-monitoring-guide.md - 分布式监控配置说明
+  - 快速开始指南
+  - 最佳实践建议
+  - 故障排除指南
+
+- **WebUI 界面优化** (礼部)
+  - 审计日志页面优化：高级筛选、实时刷新、详情展示
+  - 计费仪表板：用量统计、成本分析、账单管理
+  - 监控面板：集群视图、健康评分、告警聚合
+
+### Improved
+- **文档体系** (礼部)
+  - API 文档结构化组织
+  - 用户指南分类优化
+  - 示例代码规范化
+
 ## [v2.48.0] - 2026-03-15
 
 ### Added
