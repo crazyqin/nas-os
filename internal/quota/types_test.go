@@ -353,15 +353,15 @@ func TestQuota_Validation(t *testing.T) {
 
 func TestQuotaUsage_Percentage(t *testing.T) {
 	tests := []struct {
-		hardLimit uint64
-		usedBytes uint64
+		hardLimit   uint64
+		usedBytes   uint64
 		minExpected float64
 		maxExpected float64
 	}{
-		{10737418240, 5368709120, 49.9, 50.1}, // 10GB / 5GB = 50%
-		{10737418240, 10737418240, 99.9, 100.1}, // 10GB / 10GB = 100%
+		{10737418240, 5368709120, 49.9, 50.1},    // 10GB / 5GB = 50%
+		{10737418240, 10737418240, 99.9, 100.1},  // 10GB / 10GB = 100%
 		{10737418240, 11811160064, 109.9, 110.1}, // 10GB / 11GB = 110%
-		{10737418240, 0, -0.1, 0.1}, // 0%
+		{10737418240, 0, -0.1, 0.1},              // 0%
 	}
 
 	for _, tt := range tests {

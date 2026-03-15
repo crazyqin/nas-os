@@ -164,9 +164,9 @@ func TestConfig_UserChroots(t *testing.T) {
 	config := &Config{
 		ChrootEnabled: true,
 		UserChroots: map[string]string{
-			"admin":   "/data/admin",
-			"user1":   "/data/user1",
-			"guest":   "/data/guest",
+			"admin": "/data/admin",
+			"user1": "/data/user1",
+			"guest": "/data/guest",
 		},
 	}
 
@@ -289,9 +289,9 @@ func TestTransferLog_Error(t *testing.T) {
 func TestTransferLog_Bandwidth(t *testing.T) {
 	log := &TransferLog{
 		ID:         "tx-bandwidth",
-		FileSize:   10000000,  // 10 MB
+		FileSize:   10000000, // 10 MB
 		BytesTrans: 10000000,
-		Duration:   10000,     // 10 seconds (ms)
+		Duration:   10000, // 10 seconds (ms)
 	}
 
 	// 计算预期带宽 (bytes per second)

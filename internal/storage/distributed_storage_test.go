@@ -217,8 +217,8 @@ func TestUpdateNode(t *testing.T) {
 
 	// 更新节点
 	updates := map[string]interface{}{
-		"name":     "updated-node",
-		"capacity": uint64(2000000000000),
+		"name":      "updated-node",
+		"capacity":  uint64(2000000000000),
 		"available": uint64(1500000000000),
 	}
 
@@ -243,10 +243,10 @@ func TestCreateShardingPolicy(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
 	policy := &ShardingPolicy{
-		ID:          "policy-1",
-		Name:        "hash-policy",
-		Strategy:    ShardingHash,
-		ShardCount:  16,
+		ID:            "policy-1",
+		Name:          "hash-policy",
+		Strategy:      ShardingHash,
+		ShardCount:    16,
 		HashAlgorithm: "md5",
 	}
 

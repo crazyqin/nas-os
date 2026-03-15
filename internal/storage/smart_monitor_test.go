@@ -52,21 +52,21 @@ func TestSMARTMonitor_StartStop(t *testing.T) {
 
 func TestDiskHealth_Struct(t *testing.T) {
 	health := &DiskHealth{
-		Device:              "/dev/sda",
-		Model:               "Samsung SSD 860 EVO",
-		Serial:              "S3YJNX0K123456",
-		Size:                500107862016,
-		Temperature:         35,
-		PowerOnHours:        8760,
-		PowerCycleCount:     500,
-		ReallocatedSectors:  0,
-		PendingSectors:      0,
-		SMARTStatus:         SMARTStatusPASSED,
-		HealthStatus:        HealthStatusExcellent,
-		HealthScore:         99,
-		PredictedFailure:    false,
-		NVMeAvailableSpare:  100,
-		NVMePercentageUsed:  5,
+		Device:             "/dev/sda",
+		Model:              "Samsung SSD 860 EVO",
+		Serial:             "S3YJNX0K123456",
+		Size:               500107862016,
+		Temperature:        35,
+		PowerOnHours:       8760,
+		PowerCycleCount:    500,
+		ReallocatedSectors: 0,
+		PendingSectors:     0,
+		SMARTStatus:        SMARTStatusPASSED,
+		HealthStatus:       HealthStatusExcellent,
+		HealthScore:        99,
+		PredictedFailure:   false,
+		NVMeAvailableSpare: 100,
+		NVMePercentageUsed: 5,
 	}
 
 	if health.Device != "/dev/sda" {
@@ -387,12 +387,12 @@ func TestParseNVMeCount(t *testing.T) {
 func TestCalculateHealthScore_Excellent(t *testing.T) {
 	// 模拟一个健康的磁盘
 	health := &DiskHealth{
-		Device:              "/dev/sda",
-		Temperature:         35,
-		ReallocatedSectors:  0,
-		PendingSectors:      0,
-		SMARTStatus:         SMARTStatusPASSED,
-		PredictedFailure:    false,
+		Device:             "/dev/sda",
+		Temperature:        35,
+		ReallocatedSectors: 0,
+		PendingSectors:     0,
+		SMARTStatus:        SMARTStatusPASSED,
+		PredictedFailure:   false,
 	}
 
 	// 健康评分应该很高
@@ -405,12 +405,12 @@ func TestCalculateHealthScore_Excellent(t *testing.T) {
 func TestCalculateHealthScore_Critical(t *testing.T) {
 	// 模拟一个有问题的磁盘
 	health := &DiskHealth{
-		Device:              "/dev/sda",
-		Temperature:         70,
-		ReallocatedSectors:  1000,
-		PendingSectors:      500,
-		SMARTStatus:         SMARTStatusFAILING,
-		PredictedFailure:    true,
+		Device:             "/dev/sda",
+		Temperature:        70,
+		ReallocatedSectors: 1000,
+		PendingSectors:     500,
+		SMARTStatus:        SMARTStatusFAILING,
+		PredictedFailure:   true,
 	}
 
 	// 健康评分应该很低
@@ -541,16 +541,16 @@ func TestSMARTMonitor_WithMockDisk(t *testing.T) {
 	// 模拟添加磁盘健康数据
 	monitor.mu.Lock()
 	monitor.disks["/dev/sda"] = &DiskHealth{
-		Device:              "/dev/sda",
-		Model:               "Samsung SSD 860 EVO",
-		Temperature:         35,
-		ReallocatedSectors:  0,
-		PendingSectors:      0,
-		SMARTStatus:         SMARTStatusPASSED,
-		HealthStatus:        HealthStatusExcellent,
-		HealthScore:         98,
-		PredictedFailure:    false,
-		Attributes:          make(map[string]SMARTAttribute),
+		Device:             "/dev/sda",
+		Model:              "Samsung SSD 860 EVO",
+		Temperature:        35,
+		ReallocatedSectors: 0,
+		PendingSectors:     0,
+		SMARTStatus:        SMARTStatusPASSED,
+		HealthStatus:       HealthStatusExcellent,
+		HealthScore:        98,
+		PredictedFailure:   false,
+		Attributes:         make(map[string]SMARTAttribute),
 	}
 	monitor.mu.Unlock()
 
@@ -587,10 +587,10 @@ func TestSMARTMonitor_WithMultipleDisks(t *testing.T) {
 		HealthStatus: HealthStatusGood,
 	}
 	monitor.disks["/dev/nvme0n1"] = &DiskHealth{
-		Device:            "/dev/nvme0n1",
-		Model:             "Samsung 970 EVO Plus",
-		HealthScore:       99,
-		HealthStatus:      HealthStatusExcellent,
+		Device:             "/dev/nvme0n1",
+		Model:              "Samsung 970 EVO Plus",
+		HealthScore:        99,
+		HealthStatus:       HealthStatusExcellent,
 		NVMeAvailableSpare: 100,
 		NVMePercentageUsed: 5,
 	}
@@ -693,11 +693,11 @@ func TestSMARTMonitor_NegativeTemperature(t *testing.T) {
 
 func TestSMARTMonitor_MaxValues(t *testing.T) {
 	health := &DiskHealth{
-		Device:              "/dev/sda",
-		Size:                ^uint64(0), // 最大值
-		PowerOnHours:        ^uint64(0),
-		ReallocatedSectors:  ^uint64(0),
-		HealthScore:         100,
+		Device:             "/dev/sda",
+		Size:               ^uint64(0), // 最大值
+		PowerOnHours:       ^uint64(0),
+		ReallocatedSectors: ^uint64(0),
+		HealthScore:        100,
 	}
 
 	// 验证最大值处理
