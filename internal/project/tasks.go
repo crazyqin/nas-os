@@ -230,7 +230,7 @@ func (t *TaskTracker) GetSubTasks(parentID string) ([]*Task, error) {
 		ProjectID: "",
 		Limit:     1000,
 	}
-	
+
 	allTasks := t.manager.ListTasks(filter)
 	subTasks := make([]*Task, 0)
 	for _, task := range allTasks {

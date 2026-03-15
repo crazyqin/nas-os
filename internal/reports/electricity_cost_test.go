@@ -220,18 +220,18 @@ func TestElectricityCostCalculator_CalculateAll(t *testing.T) {
 	// 设备1: 每小时2度电
 	for hour := 0; hour < 24; hour++ {
 		readings = append(readings, PowerReading{
-			DeviceID:   "device_001",
-			Timestamp:  now.Add(time.Duration(hour) * time.Hour),
-			EnergyKWh:  2.0,
+			DeviceID:  "device_001",
+			Timestamp: now.Add(time.Duration(hour) * time.Hour),
+			EnergyKWh: 2.0,
 		})
 	}
 
 	// 设备2: 每小时1度电
 	for hour := 0; hour < 24; hour++ {
 		readings = append(readings, PowerReading{
-			DeviceID:   "device_002",
-			Timestamp:  now.Add(time.Duration(hour) * time.Hour),
-			EnergyKWh:  1.0,
+			DeviceID:  "device_002",
+			Timestamp: now.Add(time.Duration(hour) * time.Hour),
+			EnergyKWh: 1.0,
 		})
 	}
 

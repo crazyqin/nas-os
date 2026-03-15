@@ -167,21 +167,21 @@ func (mm *MilestoneManager) GetMilestoneTasks(milestoneID string, limit, offset 
 
 // ProgressRecord 里程碑进度记录
 type ProgressRecord struct {
-	ID           string    `json:"id"`
-	MilestoneID  string    `json:"milestone_id"`
-	Date         time.Time `json:"date"`
-	Progress     int       `json:"progress"`
-	TaskCount    int       `json:"task_count"`
-	DoneCount    int       `json:"done_count"`
-	RecordedBy   string    `json:"recorded_by"`
-	Notes        string    `json:"notes,omitempty"`
+	ID          string    `json:"id"`
+	MilestoneID string    `json:"milestone_id"`
+	Date        time.Time `json:"date"`
+	Progress    int       `json:"progress"`
+	TaskCount   int       `json:"task_count"`
+	DoneCount   int       `json:"done_count"`
+	RecordedBy  string    `json:"recorded_by"`
+	Notes       string    `json:"notes,omitempty"`
 }
 
 // MilestoneProgressTracker 进度追踪器
 type MilestoneProgressTracker struct {
-	mu        sync.RWMutex
-	progress  map[string][]*ProgressRecord // milestoneID -> progress records
-	manager   *Manager
+	mu       sync.RWMutex
+	progress map[string][]*ProgressRecord // milestoneID -> progress records
+	manager  *Manager
 }
 
 // NewMilestoneProgressTracker 创建进度追踪器
@@ -242,18 +242,18 @@ func (mpt *MilestoneProgressTracker) GetLatestProgress(milestoneID string) *Prog
 
 // MilestoneBurndown 燃尽图数据
 type MilestoneBurndown struct {
-	MilestoneID string                `json:"milestone_id"`
-	DataPoints  []BurndownDataPoint   `json:"data_points"`
-	IdealLine   []BurndownIdealPoint  `json:"ideal_line"`
+	MilestoneID string               `json:"milestone_id"`
+	DataPoints  []BurndownDataPoint  `json:"data_points"`
+	IdealLine   []BurndownIdealPoint `json:"ideal_line"`
 }
 
 // BurndownDataPoint 燃尽图数据点
 type BurndownDataPoint struct {
-	Date          time.Time `json:"date"`
-	Remaining     int       `json:"remaining"`     // 剩余任务数
-	RemainingPts  int       `json:"remaining_pts"` // 剩余故事点（可选）
-	Completed     int       `json:"completed"`     // 已完成任务数
-	CompletedPts  int       `json:"completed_pts"` // 已完成故事点（可选）
+	Date         time.Time `json:"date"`
+	Remaining    int       `json:"remaining"`     // 剩余任务数
+	RemainingPts int       `json:"remaining_pts"` // 剩余故事点（可选）
+	Completed    int       `json:"completed"`     // 已完成任务数
+	CompletedPts int       `json:"completed_pts"` // 已完成故事点（可选）
 }
 
 // BurndownIdealPoint 理想燃尽线数据点
@@ -320,12 +320,12 @@ func (mpt *MilestoneProgressTracker) CalculateBurndown(milestoneID string) (*Mil
 
 // MilestoneDependency 里程碑依赖
 type MilestoneDependency struct {
-	ID              string    `json:"id"`
-	MilestoneID     string    `json:"milestone_id"`
-	DependsOnID     string    `json:"depends_on_id"`
-	Type           string    `json:"type"` // finish_to_start, start_to_start, finish_to_finish, start_to_finish
-	CreatedAt      time.Time `json:"created_at"`
-	CreatedBy      string    `json:"created_by"`
+	ID          string    `json:"id"`
+	MilestoneID string    `json:"milestone_id"`
+	DependsOnID string    `json:"depends_on_id"`
+	Type        string    `json:"type"` // finish_to_start, start_to_start, finish_to_finish, start_to_finish
+	CreatedAt   time.Time `json:"created_at"`
+	CreatedBy   string    `json:"created_by"`
 }
 
 // DependencyManager 依赖管理器

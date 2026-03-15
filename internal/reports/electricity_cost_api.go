@@ -198,7 +198,7 @@ func (api *ElectricityAPI) ListProfiles(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"profiles": profiles,
-		"total":     len(profiles),
+		"total":    len(profiles),
 	})
 }
 
@@ -314,9 +314,9 @@ func (api *ElectricityAPI) DeleteProfile(c *gin.Context) {
 
 // CalculateCostRequest 计算电费请求
 type CalculateCostRequest struct {
-	DeviceID  string        `json:"device_id" binding:"required"`
-	Readings  []PowerReading `json:"readings"`
-	Period    ReportPeriod   `json:"period"`
+	DeviceID string         `json:"device_id" binding:"required"`
+	Readings []PowerReading `json:"readings"`
+	Period   ReportPeriod   `json:"period"`
 }
 
 // CalculateCost 计算指定设备电费
@@ -399,8 +399,8 @@ func (api *ElectricityAPI) EstimateCost(c *gin.Context) {
 
 // GenerateBillRequest 生成账单请求
 type GenerateBillRequest struct {
-	CustomerName string                       `json:"customer_name" binding:"required"`
-	Period       ReportPeriod                 `json:"period"`
+	CustomerName string                            `json:"customer_name" binding:"required"`
+	Period       ReportPeriod                      `json:"period"`
 	Results      map[string]*ElectricityCostResult `json:"results"`
 }
 
@@ -429,7 +429,7 @@ func (api *ElectricityAPI) GenerateBill(c *gin.Context) {
 // ForecastCostRequest 预测电费请求
 type ForecastCostRequest struct {
 	Historical []ElectricityTrendPoint `json:"historical" binding:"required"`
-	Months     int              `json:"months"`
+	Months     int                     `json:"months"`
 }
 
 // ForecastCost 预测未来电费
@@ -549,12 +549,12 @@ func (api *ElectricityAPI) ListReadings(c *gin.Context) {
 // DefaultElectricityConfig 默认电费计算配置
 func DefaultElectricityConfig() ElectricityCostConfig {
 	return ElectricityCostConfig{
-		Region:            "北京",
-		TariffID:         "beijing_general",
-		Currency:         "CNY",
-		TaxRate:          0.13,
-		AddOnCharges:     0.05,
-		DiscountRate:     0.0,
+		Region:             "北京",
+		TariffID:           "beijing_general",
+		Currency:           "CNY",
+		TaxRate:            0.13,
+		AddOnCharges:       0.05,
+		DiscountRate:       0.0,
 		PowerFactorPenalty: 0.0,
 	}
 }
