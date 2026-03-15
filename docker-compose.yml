@@ -1,6 +1,12 @@
 # NAS-OS Docker Compose
 # ⚠️ 注意：生产环境建议直接安装在宿主机（需要磁盘设备访问）
 # 此配置适用于开发测试或受限场景
+#
+# v2.50.0 更新：
+# - 添加备份调度服务
+# - 支持定时备份
+# - 备份卷挂载
+# - 环境变量配置
 
 services:
   nas-os:
@@ -13,7 +19,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.48.0"
+      - "nas-os.version=2.50.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -83,6 +89,107 @@ services:
       retries: 3
       start_period: 30s
 
+  # ========== v2.50.0: 备份服务 ==========
+  
+  # 定时备份调度服务
+  # 使用 ofelia 作为 cron 调度器
+  backup-scheduler:
+    image: mcuadros/ofelia:latest
+    container_name: nas-backup-scheduler
+    restart: unless-stopped
+    depends_on:
+      - nas-os
+    
+    # 访问 Docker socket 以执行备份命令
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./configs/backup-scheduler.ini:/etc/ofelia/config.ini:ro
+    
+    # 环境变量
+    environment:
+      - TZ=Asia/Shanghai
+    
+    labels:
+      - "nas-os.component=backup"
+      - "nas-os.version=2.50.0"
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+  
+  # 备份执行容器（由调度器按需启动）
+  # 此服务不自动运行，仅作为备份作业的模板
+  backup-executor:
+    image: nas-os:latest
+    container_name: nas-backup-executor
+    restart: "no"
+    
+    # 备份脚本挂载
+    volumes:
+      - ./scripts:/usr/local/bin/scripts:ro
+      - ./configs:/etc/nas-os:ro
+      - nas-os-data:/var/lib/nas-os
+      - nas-os-backups:/var/lib/nas-os/backups
+      - ./logs:/var/log/nas-os
+    
+    # 环境变量配置
+    environment:
+      # 备份类型: full | incremental
+      - BACKUP_TYPE=${BACKUP_TYPE:-full}
+      # 备份目标: local | s3 | sftp
+      - BACKUP_TARGET=${BACKUP_TARGET:-local}
+      # 保留天数
+      - RETENTION_DAYS=${RETENTION_DAYS:-30}
+      # 保留数量
+      - RETENTION_COUNT=${RETENTION_COUNT:-10}
+      # 启用压缩
+      - ENABLE_COMPRESS=${ENABLE_COMPRESS:-true}
+      # 启用加密
+      - ENABLE_ENCRYPTION=${ENABLE_ENCRYPTION:-false}
+      # 启用通知
+      - ENABLE_NOTIFICATION=${ENABLE_NOTIFICATION:-false}
+      
+      # S3 配置（如使用 S3 备份）
+      - S3_BUCKET=${S3_BUCKET:-}
+      - S3_REGION=${S3_REGION:-us-east-1}
+      - S3_ENDPOINT=${S3_ENDPOINT:-}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      
+      # SFTP 配置（如使用 SFTP 备份）
+      - SFTP_HOST=${SFTP_HOST:-}
+      - SFTP_PORT=${SFTP_PORT:-22}
+      - SFTP_USER=${SFTP_USER:-}
+      - SFTP_PATH=${SFTP_PATH:-/backup}
+      
+      # 通知配置
+      - NOTIFICATION_WEBHOOK=${NOTIFICATION_WEBHOOK:-}
+      - NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL:-}
+      - NOTIFICATION_DINGTALK=${NOTIFICATION_DINGTALK:-}
+      
+      # 时区
+      - TZ=Asia/Shanghai
+    
+    labels:
+      - "nas-os.component=backup"
+      - "nas-os.version=2.50.0"
+    
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    # 入口点：执行备份脚本
+    entrypoint: ["/bin/bash", "/usr/local/bin/scripts/backup.sh"]
+    command: ["-t", "${BACKUP_TYPE:-full}"]
+
   # ========== 可选：配套服务 ==========
   
   # Watchtower 自动更新
@@ -124,6 +231,14 @@ volumes:
       type: none
       o: bind
       device: /var/lib/nas-os
+  
+  # v2.50.0: 备份存储卷
+  nas-os-backups:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/nas-os/backups
   
   # prometheus-data:
   # grafana-data:

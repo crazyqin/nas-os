@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -270,7 +271,7 @@ func (m *Manager) Query(opts QueryOptions) (*QueryResult, error) {
 	defer m.mu.RUnlock()
 
 	if !m.config.Enabled {
-		return nil, fmt.Errorf(ErrAuditDisabled)
+		return nil, errors.New(ErrAuditDisabled)
 	}
 
 	// 筛选日志
@@ -324,7 +325,7 @@ func (m *Manager) GetByID(id string) (*Entry, error) {
 		}
 	}
 
-	return nil, fmt.Errorf(ErrEntryNotFound)
+	return nil, errors.New(ErrEntryNotFound)
 }
 
 // matchesFilters 检查日志是否匹配筛选条件

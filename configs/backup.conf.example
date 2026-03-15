@@ -1,0 +1,97 @@
+# NAS-OS 备份配置文件示例
+# 复制此文件到 /etc/nas-os/backup.conf 并根据需要修改
+
+# ========== 基本配置 ==========
+# 备份名称前缀
+BACKUP_NAME=nas-os
+
+# 备份存储目录
+BACKUP_DIR=/var/lib/nas-os/backups
+
+# 数据目录
+DATA_DIR=/var/lib/nas-os
+
+# 配置目录
+CONFIG_DIR=/etc/nas-os
+
+# 日志目录
+LOG_DIR=/var/log/nas-os
+
+# ========== 备份类型 ==========
+# full: 完整备份
+# incremental: 增量备份
+BACKUP_TYPE=full
+
+# ========== 保留策略 ==========
+# 保留天数
+RETENTION_DAYS=30
+
+# 保留数量上限
+RETENTION_COUNT=10
+
+# ========== 压缩配置 ==========
+# 启用压缩
+ENABLE_COMPRESS=true
+
+# 压缩级别 (1-9, 9 最高)
+COMPRESS_LEVEL=6
+
+# ========== 加密配置 ==========
+# 启用加密 (AES-256-GCM)
+ENABLE_ENCRYPTION=false
+
+# 加密密钥文件路径
+ENCRYPTION_KEY_FILE=/etc/nas-os/backup.key
+
+# ========== 校验配置 ==========
+# 启用校验和
+ENABLE_CHECKSUM=true
+
+# ========== 备份目标 ==========
+# local: 本地存储
+# s3: S3 兼容存储
+# sftp: SFTP 服务器
+BACKUP_TARGET=local
+
+# ========== S3 配置 ==========
+# S3 存储桶名称
+# S3_BUCKET=my-backup-bucket
+
+# S3 区域
+# S3_REGION=us-east-1
+
+# S3 兼容端点（用于 MinIO、阿里云 OSS 等）
+# S3_ENDPOINT=https://s3.amazonaws.com
+
+# S3 访问密钥（建议使用环境变量）
+# S3_ACCESS_KEY=your-access-key
+# S3_SECRET_KEY=your-secret-key
+
+# ========== SFTP 配置 ==========
+# SFTP 服务器地址
+# SFTP_HOST=backup.example.com
+
+# SFTP 端口
+# SFTP_PORT=22
+
+# SFTP 用户名
+# SFTP_USER=backup
+
+# SFTP 备份路径
+# SFTP_PATH=/backup/nas-os
+
+# SSH 私钥文件
+# SFTP_KEY_FILE=/root/.ssh/id_rsa
+
+# ========== 通知配置 ==========
+# 启用通知
+ENABLE_NOTIFICATION=false
+
+# Webhook 通知 URL
+# NOTIFICATION_WEBHOOK=https://hooks.slack.com/services/xxx
+
+# 钉钉 Webhook
+# NOTIFICATION_DINGTALK=https://oapi.dingtalk.com/robot/send?access_token=xxx
+
+# 邮件通知地址
+# NOTIFICATION_EMAIL=admin@example.com
