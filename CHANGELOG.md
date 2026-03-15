@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.77.0] - 2026-03-16
+
+### Added
+- **文档体系完善** (礼部)
+  - 用户指南索引优化 (docs/user-guide/README.md)
+  - API 文档版本同步
+  - 文档完整性检查报告
+
+### Changed
+- **版本号统一更新** (礼部)
+  - README.md 版本更新至 v2.77.0
+  - docs/ 文档版本号同步
+  - Docker 镜像标签更新准备
+
+### Improved
+- **文档结构优化** (礼部)
+  - docs/user-guide/ 版本号更新至 v2.77.0
+  - 文档索引完善
+  - 发布说明准备
+
 ## [v2.76.0] - 2026-03-16
 
 ### Added
