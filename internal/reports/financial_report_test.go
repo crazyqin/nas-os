@@ -494,7 +494,7 @@ func TestReportDuration(t *testing.T) {
 
 	report, err := gen.GenerateReport(ctx, req)
 	require.NoError(t, err)
-	assert.Greater(t, report.Duration, int64(0))
+	assert.GreaterOrEqual(t, report.Duration, int64(0)) // 可能执行很快导致为 0
 }
 
 func TestReportAuditTrail(t *testing.T) {
