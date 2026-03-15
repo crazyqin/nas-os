@@ -190,15 +190,7 @@ type AlertThreshold struct {
 	NotifyUsers []string   `json:"notify_users"` // 通知用户
 }
 
-// AlertLevel 预警级别
-type AlertLevel string
-
-const (
-	AlertLevelInfo      AlertLevel = "info"      // 信息
-	AlertLevelWarning   AlertLevel = "warning"   // 警告
-	AlertLevelCritical  AlertLevel = "critical"  // 严重
-	AlertLevelEmergency AlertLevel = "emergency" // 紧急
-)
+// AlertLevel, BudgetAlert, AlertStatus 定义在 alert.go 中
 
 // EscalationRule 升级规则
 type EscalationRule struct {
@@ -206,46 +198,6 @@ type EscalationRule struct {
 	ToLevel      AlertLevel `json:"to_level"`      // 升级到级别
 	NotifyUsers  []string   `json:"notify_users"`  // 通知用户
 }
-
-// BudgetAlert 预算预警记录
-type BudgetAlert struct {
-	ID              string                 `json:"id"`
-	BudgetID        string                 `json:"budget_id"`
-	BudgetName      string                 `json:"budget_name"`
-	Level           AlertLevel             `json:"level"`
-	Threshold       float64                `json:"threshold"`
-	CurrentPercent  float64                `json:"current_percent"`
-	UsedAmount      float64                `json:"used_amount"`
-	CurrentSpend    float64                `json:"current_spend"` // 当前支出（别名）
-	BudgetAmount    float64                `json:"budget_amount"`
-	Remaining       float64                `json:"remaining"`
-	RemainingAmount float64                `json:"remaining_amount"` // 剩余金额（别名）
-	Message         string                 `json:"message"`
-	CustomMessage   string                 `json:"custom_message,omitempty"`
-	Status          AlertStatus            `json:"status"`
-	TriggeredAt     time.Time              `json:"triggered_at"`
-	ResolvedAt      *time.Time             `json:"resolved_at,omitempty"`
-	AcknowledgedAt  *time.Time             `json:"acknowledged_at,omitempty"`
-	AcknowledgedBy  string                 `json:"acknowledged_by,omitempty"`
-	Actions         []string               `json:"actions,omitempty"`
-	EscalationLevel int                    `json:"escalation_level"`
-	LastEscalatedAt *time.Time             `json:"last_escalated_at,omitempty"`
-	NotifySent      bool                   `json:"notify_sent"`
-	NotifySentAt    *time.Time             `json:"notify_sent_at,omitempty"`
-	NotifyChannels  []string               `json:"notify_channels,omitempty"`
-	NotifyError     string                 `json:"notify_error,omitempty"`
-	Metadata        map[string]interface{} `json:"metadata,omitempty"`
-}
-
-// AlertStatus 预警状态
-type AlertStatus string
-
-const (
-	AlertStatusActive       AlertStatus = "active"       // 活跃
-	AlertStatusAcknowledged AlertStatus = "acknowledged" // 已确认
-	AlertStatusResolved     AlertStatus = "resolved"     // 已解决
-	AlertStatusSuppressed   AlertStatus = "suppressed"   // 已抑制
-)
 
 // ========== 预算报告 ==========
 
