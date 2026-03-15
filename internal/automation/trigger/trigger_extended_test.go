@@ -86,13 +86,8 @@ func TestTimeTrigger_InvalidSchedule(t *testing.T) {
 // ========== EventTrigger 测试 ==========
 
 func TestEventTrigger_StartStop(t *testing.T) {
-	em := &EventManager{
-		subscribers: make(map[string][]chan map[string]interface{}),
-	}
-
 	trigger := &EventTrigger{
 		EventType: "test.event",
-		eventMgr:  em,
 		Filter:    nil,
 	}
 
@@ -111,13 +106,8 @@ func TestEventTrigger_StartStop(t *testing.T) {
 }
 
 func TestEventTrigger_Filter(t *testing.T) {
-	em := &EventManager{
-		subscribers: make(map[string][]chan map[string]interface{}),
-	}
-
 	trigger := &EventTrigger{
 		EventType: "user.login",
-		eventMgr:  em,
 		Filter: map[string]interface{}{
 			"role": "admin",
 		},

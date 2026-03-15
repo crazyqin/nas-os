@@ -32,7 +32,7 @@ func TestLoggerMiddleware(t *testing.T) {
 
 func TestCORSMiddleware(t *testing.T) {
 	router := gin.New()
-	router.Use(corsMiddleware())
+	router.Use(corsMiddleware(DefaultSecurityConfig()))
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
@@ -50,7 +50,7 @@ func TestCORSMiddleware(t *testing.T) {
 
 func TestCORSMiddleware_Options(t *testing.T) {
 	router := gin.New()
-	router.Use(corsMiddleware())
+	router.Use(corsMiddleware(DefaultSecurityConfig()))
 	router.POST("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
@@ -188,35 +188,6 @@ func TestSecurityHeaders(t *testing.T) {
 	}
 	if headers.Get("X-Frame-Options") == "" {
 		t.Error("X-Frame-Options header should be set")
-	}
-}
-
-func securityHeadersMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Header("X-Content-Type-Options", "nosniff")
-		c.Header("X-Frame-Options", "DENY")
-		c.Header("X-XSS-Protection", "1; mode=block")
-		c.Next()
-	}
-}
-
-// ========== CORS Middleware Helper ==========
-
-func corsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		origin := c.GetHeader("Origin")
-		if origin != "" {
-			c.Header("Access-Control-Allow-Origin", origin)
-			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		}
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-
-		c.Next()
 	}
 }
 
