@@ -48,7 +48,7 @@ const (
 type BillingCostReport struct {
 	// 基本信息
 	ID           string      `json:"id"`
-	BillingReportType   BillingReportType  `json:"report_type"`
+	CostBillingReportType   CostBillingReportType  `json:"report_type"`
 	GeneratedAt  time.Time   `json:"generated_at"`
 	PeriodStart  time.Time   `json:"period_start"`
 	PeriodEnd    time.Time   `json:"period_end"`
@@ -298,7 +298,7 @@ type ReportDataProvider interface {
 	GetRecommendations(ctx context.Context) ([]RecommendationItem, error)
 
 	// 历史报告
-	GetHistoricalReport(ctx context.Context, reportType BillingReportType, date time.Time) (*BillingCostReport, error)
+	GetHistoricalReport(ctx context.Context, reportType CostBillingReportType, date time.Time) (*BillingCostReport, error)
 }
 
 // StorageReportData 存储报告数据
@@ -429,8 +429,8 @@ func (g *BillingBillingReportGenerator) GenerateDailyReport(ctx context.Context,
 	end := start.Add(24 * time.Hour)
 
 	report := &BillingCostReport{
-		ID:          generateReportID(BillingReportTypeDaily, start),
-		BillingReportType:  BillingReportTypeDaily,
+		ID:          generateReportID(CostBillingReportTypeDaily, start),
+		CostBillingReportType:  CostBillingReportTypeDaily,
 		GeneratedAt: time.Now(),
 		PeriodStart: start,
 		PeriodEnd:   end,
@@ -462,8 +462,8 @@ func (g *BillingBillingReportGenerator) GenerateWeeklyReport(ctx context.Context
 	end := start.AddDate(0, 0, 7)
 
 	report := &BillingCostReport{
-		ID:          generateReportID(BillingReportTypeWeekly, start),
-		BillingReportType:  BillingReportTypeWeekly,
+		ID:          generateReportID(CostBillingReportTypeWeekly, start),
+		CostBillingReportType:  CostBillingReportTypeWeekly,
 		GeneratedAt: time.Now(),
 		PeriodStart: start,
 		PeriodEnd:   end,
@@ -496,8 +496,8 @@ func (g *BillingBillingReportGenerator) GenerateMonthlyReport(ctx context.Contex
 	end := start.AddDate(0, 1, 0)
 
 	report := &BillingCostReport{
-		ID:          generateReportID(BillingReportTypeMonthly, start),
-		BillingReportType:  BillingReportTypeMonthly,
+		ID:          generateReportID(CostBillingReportTypeMonthly, start),
+		CostBillingReportType:  CostBillingReportTypeMonthly,
 		GeneratedAt: time.Now(),
 		PeriodStart: start,
 		PeriodEnd:   end,
@@ -527,7 +527,7 @@ func (g *BillingBillingReportGenerator) GenerateMonthlyReport(ctx context.Contex
 func (g *BillingBillingReportGenerator) GenerateCustomReport(ctx context.Context, start, end time.Time) (*BillingCostReport, error) {
 	report := &BillingCostReport{
 		ID:          fmt.Sprintf("custom-%d-%s", start.Unix(), randomString(6)),
-		BillingReportType:  BillingReportTypeMonthly, // 使用月报类型
+		CostBillingReportType:  CostBillingReportTypeMonthly, // 使用月报类型
 		GeneratedAt: time.Now(),
 		PeriodStart: start,
 		PeriodEnd:   end,
@@ -824,7 +824,7 @@ func (g *BillingBillingReportGenerator) calculateCostEfficiency(usagePercent flo
 func (g *BillingBillingReportGenerator) addWeeklyAnalysis(ctx context.Context, report *BillingCostReport) error {
 	// 获取上周报告进行对比
 	prevWeekStart := report.PeriodStart.AddDate(0, 0, -7)
-	prevReport, err := g.providers.GetHistoricalReport(ctx, BillingReportTypeWeekly, prevWeekStart)
+	prevReport, err := g.providers.GetHistoricalReport(ctx, CostBillingReportTypeWeekly, prevWeekStart)
 	if err != nil {
 		return err
 	}
@@ -844,7 +844,7 @@ func (g *BillingBillingReportGenerator) addWeeklyAnalysis(ctx context.Context, r
 func (g *BillingBillingReportGenerator) addMonthlyAnalysis(ctx context.Context, report *BillingCostReport) error {
 	// 获取上月报告进行对比
 	prevMonthStart := report.PeriodStart.AddDate(0, -1, 0)
-	prevReport, err := g.providers.GetHistoricalReport(ctx, BillingReportTypeMonthly, prevMonthStart)
+	prevReport, err := g.providers.GetHistoricalReport(ctx, CostBillingReportTypeMonthly, prevMonthStart)
 	if err != nil {
 		return err
 	}
@@ -873,11 +873,11 @@ func (g *BillingBillingReportGenerator) addMonthlyAnalysis(ctx context.Context, 
 // ========== 导出方法 ==========
 
 // ExportReport 导出报告
-func (g *BillingBillingReportGenerator) ExportReport(report *BillingCostReport, format BillingExportFormat, outputPath string) error {
+func (g *BillingBillingReportGenerator) ExportReport(report *BillingCostReport, format CostBillingExportFormat, outputPath string) error {
 	switch format {
-	case BillingExportFormatJSON:
+	case CostBillingExportFormatJSON:
 		return g.exportJSON(report, outputPath)
-	case BillingExportFormatCSV:
+	case CostBillingExportFormatCSV:
 		return g.exportCSV(report, outputPath)
 	default:
 		return ErrInvalidBillingReportType
@@ -934,7 +934,7 @@ func (g *BillingBillingReportGenerator) exportCSV(report *BillingCostReport, out
 	// 写入报告摘要
 	row := []string{
 		report.ID,
-		string(report.BillingReportType),
+		string(report.CostBillingReportType),
 		report.GeneratedAt.Format(time.RFC3339),
 		report.PeriodStart.Format(time.RFC3339),
 		report.PeriodEnd.Format(time.RFC3339),
@@ -1084,7 +1084,7 @@ func (g *BillingBillingReportGenerator) GetReport(id string) (*BillingCostReport
 }
 
 // ListReports 列出报告
-func (g *BillingBillingReportGenerator) ListReports(reportType BillingReportType, limit int) ([]*BillingCostReport, error) {
+func (g *BillingBillingReportGenerator) ListReports(reportType CostBillingReportType, limit int) ([]*BillingCostReport, error) {
 	reportsDir := filepath.Join(g.dataDir, "reports")
 	files, err := os.ReadDir(reportsDir)
 	if err != nil {
@@ -1150,7 +1150,7 @@ func (g *BillingBillingReportGenerator) saveReport(report *BillingCostReport) er
 // ========== 辅助函数 ==========
 
 // generateReportID 生成报告ID
-func generateReportID(reportType BillingReportType, date time.Time) string {
+func generateReportID(reportType CostBillingReportType, date time.Time) string {
 	return fmt.Sprintf("%s-%s", reportType, date.Format("20060102"))
 }
 
