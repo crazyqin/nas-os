@@ -1,82 +1,46 @@
 {
-  "version": "v2.92.0",
-  "releaseDate": "2026-03-16T04:55:00Z",
-  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.92.0",
-  "commitSha": "3e50f3e",
+  "version": "v2.93.0",
+  "releaseDate": "2026-03-16T05:30:00Z",
+  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.93.0",
+  "commitSha": "db3232d",
   "ministries": {
-    "libu_pm": {
+    "libu": {
       "name": "吏部",
       "role": "项目管理",
-      "status": "completed",
-      "tasks": [
-        "VERSION 确认为 v2.92.0",
-        "MILESTONES.md 添加 v2.91.0 完成记录",
-        "ROADMAP.md 更新至 v2.92.0",
-        "internal/version/version.go 确认"
-      ],
-      "reportFile": "memory/libu_pm_report_v292.json"
+      "status": "done",
+      "tasks": ["版本号更新至 v2.93.0"]
     },
     "gongbu": {
       "name": "工部",
       "role": "DevOps",
-      "status": "completed",
-      "tasks": [
-        "CI/CD 流程检查通过",
-        "监控配置完善（60 条告警规则）",
-        "脚本工具检查（42 个脚本）",
-        "Docker 配置验证"
-      ],
-      "reportFile": "memory/gongbu_report_v292.json"
+      "status": "timeout",
+      "tasks": ["CI/CD 流程检查", "修复 golangci-lint-action 参数"],
+      "note": "已推送修复"
     },
-    "libu": {
+    "libu_cm": {
       "name": "礼部",
       "role": "内容创作",
-      "status": "completed",
-      "tasks": [
-        "CHANGELOG.md 添加 v2.91.0/v2.92.0 条目",
-        "README.md 版本更新至 v2.92.0",
-        "docs/api.yaml 版本更新",
-        "docs/RELEASE-v2.92.0.md 发布说明"
-      ],
-      "reportFile": "memory/libu_report_v292.json"
+      "status": "skipped",
+      "note": "并发限制未启动"
     },
     "hubu": {
       "name": "户部",
       "role": "财务运营",
-      "status": "completed",
-      "tasks": [
-        "配额管理模块检查通过",
-        "成本分析模块检查通过",
-        "资源报告模块修复测试",
-        "预算管理模块检查通过"
-      ],
-      "reportFile": "memory/hubu_report_v292.json"
+      "status": "timeout",
+      "tasks": ["资源管理模块检查"]
     },
     "bingbu": {
       "name": "兵部",
       "role": "软件工程",
-      "status": "running",
-      "tasks": [
-        "运行测试确保代码质量",
-        "检查测试覆盖率",
-        "补充关键模块测试"
-      ],
-      "note": "测试运行时间较长，继续执行中"
+      "status": "timeout",
+      "tasks": ["测试覆盖率检查"]
     },
     "xingbu": {
       "name": "刑部",
       "role": "安全合规",
-      "status": "pending",
-      "tasks": [
-        "安全审计与扫描"
-      ],
-      "note": "因并发子代理限制，将在兵部完成后启动"
+      "status": "done",
+      "tasks": ["安全扫描报告生成"]
     }
-  },
-  "statistics": {
-    "filesChanged": 13,
-    "insertions": 1621,
-    "deletions": 978
   },
   "actionsStatus": {
     "CI/CD": "in_progress",
@@ -84,8 +48,8 @@
     "Security Scan": "in_progress"
   },
   "release": {
-    "tag": "v2.92.0",
-    "url": "https://github.com/crazyqin/nas-os/releases/tag/v2.92.0",
+    "tag": "v2.93.0",
+    "url": "https://github.com/crazyqin/nas-os/releases/tag/v2.93.0",
     "published": true
   }
 }

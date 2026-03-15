@@ -195,7 +195,7 @@ func createTestReportGenerator(t *testing.T) *CostReportGenerator {
 	return NewCostReportGenerator(tmpDir, provider, config)
 }
 
-func TestNewBillingReportGenerator(t *testing.T) {
+func TestNewCostReportGenerator(t *testing.T) {
 	gen := createTestReportGenerator(t)
 	require.NotNil(t, gen)
 	assert.Equal(t, "CNY", gen.config.DefaultCurrency)
