@@ -2166,17 +2166,17 @@ func (g *StorageCostReportGenerator) ExportToCSV(report *ComprehensiveStorageRep
 
 // CachedReport 缓存的报告
 type CachedReport struct {
-	Report     interface{}
+	Report      interface{}
 	GeneratedAt time.Time
 	ExpiresAt   time.Time
 }
 
 // ReportCache 报告缓存
 type ReportCache struct {
-	mu        sync.RWMutex
-	reports   map[string]*CachedReport
-	ttl       time.Duration
-	maxSize   int
+	mu      sync.RWMutex
+	reports map[string]*CachedReport
+	ttl     time.Duration
+	maxSize int
 }
 
 // NewReportCache 创建报告缓存
@@ -2222,7 +2222,7 @@ func (c *ReportCache) Set(key string, report interface{}) {
 
 	now := time.Now()
 	c.reports[key] = &CachedReport{
-		Report:     report,
+		Report:      report,
 		GeneratedAt: now,
 		ExpiresAt:   now.Add(c.ttl),
 	}
@@ -2460,10 +2460,10 @@ func (g *ConcurrentReportGenerator) GetCacheStats() map[string]interface{} {
 	defer g.cache.mu.RUnlock()
 
 	return map[string]interface{}{
-		"cache_size":    len(g.cache.reports),
-		"max_size":      g.cache.maxSize,
-		"ttl_minutes":   g.cache.ttl.Minutes(),
-		"worker_count":  g.workerCount,
+		"cache_size":   len(g.cache.reports),
+		"max_size":     g.cache.maxSize,
+		"ttl_minutes":  g.cache.ttl.Minutes(),
+		"worker_count": g.workerCount,
 	}
 }
 

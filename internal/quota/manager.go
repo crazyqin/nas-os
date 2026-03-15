@@ -33,9 +33,9 @@ type Manager struct {
 	monitor      *Monitor
 
 	// 缓存：提高目录大小计算性能
-	usageCache     map[string]*usageCacheEntry // path -> cache
-	usageCacheMu   sync.RWMutex
-	usageCacheTTL  time.Duration // 缓存有效期
+	usageCache    map[string]*usageCacheEntry // path -> cache
+	usageCacheMu  sync.RWMutex
+	usageCacheTTL time.Duration // 缓存有效期
 }
 
 // usageCacheEntry 使用量缓存条目
@@ -69,18 +69,18 @@ type UserProvider interface {
 // NewManager 创建配额管理器
 func NewManager(configPath string, storage StorageProvider, userProv UserProvider) (*Manager, error) {
 	m := &Manager{
-		quotas:         make(map[string]*Quota),
-		groupQuotas:    make(map[string]*Quota),
-		userQuotas:     make(map[string]map[string]*Quota),
-		dirQuotas:      make(map[string]*Quota),
-		policies:       make(map[string]*CleanupPolicy),
-		alerts:         make(map[string]*Alert),
-		alertHistory:   make([]*Alert, 0),
-		configPath:     configPath,
-		storageMgr:     storage,
-		userProvider:   userProv,
-		usageCache:     make(map[string]*usageCacheEntry),
-		usageCacheTTL:  5 * time.Minute, // 缓存5分钟有效
+		quotas:        make(map[string]*Quota),
+		groupQuotas:   make(map[string]*Quota),
+		userQuotas:    make(map[string]map[string]*Quota),
+		dirQuotas:     make(map[string]*Quota),
+		policies:      make(map[string]*CleanupPolicy),
+		alerts:        make(map[string]*Alert),
+		alertHistory:  make([]*Alert, 0),
+		configPath:    configPath,
+		storageMgr:    storage,
+		userProvider:  userProv,
+		usageCache:    make(map[string]*usageCacheEntry),
+		usageCacheTTL: 5 * time.Minute, // 缓存5分钟有效
 		alertConfig: AlertConfig{
 			Enabled:            true,
 			SoftLimitThreshold: 80,
