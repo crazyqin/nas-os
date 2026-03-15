@@ -26,12 +26,12 @@ func Error(code int, message string) Response {
 
 // Handlers 共享管理处理器（整合 SMB 和 NFS）
 type Handlers struct {
-	smbManager *smb.Manager
-	nfsManager *nfs.Manager
+	smbManager SMBManager
+	nfsManager NFSManager
 }
 
 // NewHandlers 创建处理器
-func NewHandlers(smbMgr *smb.Manager, nfsMgr *nfs.Manager) *Handlers {
+func NewHandlers(smbMgr SMBManager, nfsMgr NFSManager) *Handlers {
 	return &Handlers{
 		smbManager: smbMgr,
 		nfsManager: nfsMgr,
