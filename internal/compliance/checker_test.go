@@ -16,10 +16,10 @@ type mockCheck struct {
 	err         error
 }
 
-func (m *mockCheck) ID() string                 { return m.id }
-func (m *mockCheck) Type() CheckType            { return m.checkType }
-func (m *mockCheck) Name() string               { return m.name }
-func (m *mockCheck) Description() string        { return m.description }
+func (m *mockCheck) ID() string          { return m.id }
+func (m *mockCheck) Type() CheckType     { return m.checkType }
+func (m *mockCheck) Name() string        { return m.name }
+func (m *mockCheck) Description() string { return m.description }
 func (m *mockCheck) Execute(ctx context.Context) (CheckResult, error) {
 	if m.err != nil {
 		return CheckResult{}, m.err
@@ -49,9 +49,9 @@ func TestNewComplianceChecker(t *testing.T) {
 func TestRegisterCheck(t *testing.T) {
 	checker := NewComplianceChecker()
 	check := &mockCheck{id: "test-1", name: "Test Check"}
-	
+
 	checker.RegisterCheck(check)
-	
+
 	checks := checker.GetRegisteredChecks()
 	if len(checks) != 1 {
 		t.Errorf("expected 1 check, got %d", len(checks))
@@ -63,17 +63,17 @@ func TestRegisterCheck(t *testing.T) {
 
 func TestRunChecks(t *testing.T) {
 	checker := NewComplianceChecker()
-	
+
 	// 注册多个检查项
 	checker.RegisterCheck(&mockCheck{id: "sec-1", checkType: CheckSecurity, name: "Security Check 1", passed: true})
 	checker.RegisterCheck(&mockCheck{id: "sec-2", checkType: CheckSecurity, name: "Security Check 2", passed: false})
 	checker.RegisterCheck(&mockCheck{id: "audit-1", checkType: CheckAudit, name: "Audit Check", passed: true})
-	
+
 	report, err := checker.RunChecks(context.Background())
 	if err != nil {
 		t.Fatalf("RunChecks failed: %v", err)
 	}
-	
+
 	if report == nil {
 		t.Fatal("report should not be nil")
 	}
@@ -90,16 +90,16 @@ func TestRunChecks(t *testing.T) {
 
 func TestRunChecksByType(t *testing.T) {
 	checker := NewComplianceChecker()
-	
+
 	checker.RegisterCheck(&mockCheck{id: "sec-1", checkType: CheckSecurity, name: "Security 1", passed: true})
 	checker.RegisterCheck(&mockCheck{id: "sec-2", checkType: CheckSecurity, name: "Security 2", passed: true})
 	checker.RegisterCheck(&mockCheck{id: "audit-1", checkType: CheckAudit, name: "Audit 1", passed: true})
-	
+
 	report, err := checker.RunChecksByType(context.Background(), CheckSecurity)
 	if err != nil {
 		t.Fatalf("RunChecksByType failed: %v", err)
 	}
-	
+
 	if len(report.Results) != 2 {
 		t.Errorf("expected 2 security results, got %d", len(report.Results))
 	}
@@ -107,9 +107,9 @@ func TestRunChecksByType(t *testing.T) {
 
 func TestCalculateOverallLevel(t *testing.T) {
 	tests := []struct {
-		name      string
-		results   []CheckResult
-		expected  ComplianceLevel
+		name     string
+		results  []CheckResult
+		expected ComplianceLevel
 	}{
 		{
 			name:     "empty results",
@@ -171,7 +171,7 @@ func TestCountPassed(t *testing.T) {
 		{Passed: true},
 		{Passed: false},
 	}
-	
+
 	count := countPassed(results)
 	if count != 3 {
 		t.Errorf("expected 3 passed, got %d", count)
@@ -181,7 +181,7 @@ func TestCountPassed(t *testing.T) {
 func TestGenerateReportID(t *testing.T) {
 	id1 := generateReportID()
 	id2 := generateReportID()
-	
+
 	if id1 == "" {
 		t.Error("report ID should not be empty")
 	}
@@ -201,7 +201,7 @@ func TestCheckResultDefaults(t *testing.T) {
 		Passed:    true,
 		Timestamp: time.Now(),
 	}
-	
+
 	if result.ID != "test-1" {
 		t.Error("ID should match")
 	}

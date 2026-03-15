@@ -202,8 +202,8 @@ func TestToFloat64(t *testing.T) {
 
 func TestNewActionFromConfig(t *testing.T) {
 	tests := []struct {
-		name     string
-		config   ActionConfig
+		name      string
+		config    ActionConfig
 		typeCheck ActionType
 	}{
 		{"move", ActionConfig{Type: ActionTypeMove, Source: "/a", Destination: "/b"}, ActionTypeMove},
