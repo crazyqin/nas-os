@@ -65,9 +65,10 @@ NC='\033[0m'
 # 全局状态
 # =============================================================================
 
-STATE_DATA={}
-LAST_ALERTS={}
-ALERT_COUNTERS={}
+# 关联数组声明（必须在赋值前声明）
+declare -A STATE_DATA
+declare -A LAST_ALERTS
+declare -A ALERT_COUNTERS
 
 # =============================================================================
 # 日志函数
@@ -115,6 +116,30 @@ check_root() {
     fi
 }
 
+# 初始化环境和目录
+init_environment() {
+    # 创建必要的目录
+    local dirs=(
+        "$(dirname "$PID_FILE")"
+        "$(dirname "$STATE_FILE")"
+        "$(dirname "$LOG_FILE")"
+        "$(dirname "$ALERT_LOG")"
+    )
+
+    for dir in "${dirs[@]}"; do
+        if [ -n "$dir" ] && [ "$dir" != "." ]; then
+            mkdir -p "$dir" 2>/dev/null || {
+                log WARN "无法创建目录: $dir"
+            }
+        fi
+    done
+
+    # 初始化状态数据
+    STATE_DATA[checks_total]=0
+    STATE_DATA[alerts_sent]=0
+    STATE_DATA[start_time]=$(date -Iseconds)
+}
+
 # 获取进程状态
 get_daemon_status() {
     if [ -f "$PID_FILE" ]; then
@@ -136,16 +161,21 @@ get_daemon_status() {
 save_state() {
     local state_dir=$(dirname "$STATE_FILE")
     mkdir -p "$state_dir" 2>/dev/null || true
-    
+
+    # 安全获取状态值
+    local checks_total="${STATE_DATA[checks_total]:-0}"
+    local alerts_sent="${STATE_DATA[alerts_sent]:-0}"
+    local last_check="${STATE_DATA[last_check]:-never}"
+
     cat > "$STATE_FILE" 2>/dev/null << EOF
 {
     "timestamp": "$(date -Iseconds)",
     "pid": $$,
     "uptime_seconds": $SECONDS,
     "monitor_interval": $MONITOR_INTERVAL,
-    "checks_total": ${STATE_DATA[checks_total]:-0},
-    "alerts_sent": ${STATE_DATA[alerts_sent]:-0},
-    "last_check": "${STATE_DATA[last_check]:-never}"
+    "checks_total": $checks_total,
+    "alerts_sent": $alerts_sent,
+    "last_check": "$last_check"
 }
 EOF
 }
@@ -170,34 +200,37 @@ setup_signals() {
 
 # CPU 使用率检查
 check_cpu() {
-    local cpu_usage
-    
+    local cpu_usage=""
+
     # 尝试多种方法获取 CPU 使用率
     if command -v mpstat &>/dev/null; then
         cpu_usage=$(mpstat 1 1 2>/dev/null | tail -1 | awk '{print 100 - $NF}' | cut -d. -f1)
     elif [ -f /proc/stat ]; then
         # 读取两次 /proc/stat 计算差值
-        local stat1=$(head -1 /proc/stat)
+        local stat1 stat2
+        stat1=$(head -1 /proc/stat)
         sleep 0.5
-        local stat2=$(head -1 /proc/stat)
-        cpu_usage=$(echo "$stat1 $stat2" | awk '{
-            split($1, a, " "); split($13, b, " ");
-            idle1=a[5]; idle2=b[5];
-            total1=a[2]+a[3]+a[4]+a[5]+a[6]+a[7]+a[8]+a[9]+a[10];
-            total2=b[2]+b[3]+b[4]+b[5]+b[6]+b[7]+b[8]+b[9]+b[10];
-            diff_idle=idle2-idle1;
-            diff_total=total2-total1;
-            printf "%.0f", 100 * (1 - diff_idle/diff_total)
-        }')
+        stat2=$(head -1 /proc/stat)
+
+        # 使用 awk 计算CPU使用率
+        cpu_usage=$(echo "$stat1"$'\n'"$stat2" | awk '
+            NR==1 { split($0, a); idle1=a[5]; total1=a[2]+a[3]+a[4]+a[5]+a[6]+a[7]+a[8]+a[9]+a[10] }
+            NR==2 { split($0, b); idle2=b[5]; total2=b[2]+b[3]+b[4]+b[5]+b[6]+b[7]+b[8]+b[9]+b[10];
+                diff_idle=idle2-idle1; diff_total=total2-total1;
+                if (diff_total > 0) printf "%.0f", 100 * (1 - diff_idle/diff_total);
+                else print "0"
+            }')
     else
-        cpu_usage="unknown"
-    fi
-    
-    if [ "$cpu_usage" = "unknown" ]; then
         log DEBUG "无法获取 CPU 使用率"
         return 0
     fi
-    
+
+    # 验证获取的值
+    if [ -z "$cpu_usage" ] || ! [[ "$cpu_usage" =~ ^[0-9]+$ ]]; then
+        log DEBUG "CPU 使用率获取失败，跳过检查"
+        return 0
+    fi
+
     if [ "$cpu_usage" -ge "$CPU_THRESHOLD_CRITICAL" ]; then
         log WARN "CPU 使用率过高: ${cpu_usage}% (阈值: ${CPU_THRESHOLD_CRITICAL}%)"
         send_alert "critical" "CPU 使用率过高" "当前: ${cpu_usage}%, 阈值: ${CPU_THRESHOLD_CRITICAL}%"
@@ -213,23 +246,38 @@ check_cpu() {
 
 # 内存使用率检查
 check_memory() {
-    local mem_info
-    local mem_total
-    local mem_available
-    local mem_usage
-    
+    local mem_total mem_available mem_usage
+
     if [ -f /proc/meminfo ]; then
         mem_total=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-        mem_available=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}' || \
-                       grep MemFree /proc/meminfo | awk '{print $2}')
-        mem_usage=$((100 - (mem_available * 100 / mem_total)))
+        mem_available=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}')
+        if [ -z "$mem_available" ]; then
+            mem_available=$(grep MemFree /proc/meminfo | awk '{print $2}')
+        fi
+
+        if [ -n "$mem_total" ] && [ -n "$mem_available" ] && [ "$mem_total" -gt 0 ]; then
+            mem_usage=$((100 - (mem_available * 100 / mem_total)))
+        else
+            log DEBUG "无法从 /proc/meminfo 计算内存使用率"
+            return 0
+        fi
     elif command -v free &>/dev/null; then
-        mem_usage=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')
+        mem_usage=$(free 2>/dev/null | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')
+        if [ -z "$mem_usage" ]; then
+            log DEBUG "free 命令获取内存使用率失败"
+            return 0
+        fi
     else
         log DEBUG "无法获取内存使用率"
         return 0
     fi
-    
+
+    # 验证获取的值
+    if ! [[ "$mem_usage" =~ ^[0-9]+$ ]]; then
+        log DEBUG "内存使用率值无效: $mem_usage"
+        return 0
+    fi
+
     if [ "$mem_usage" -ge "$MEMORY_THRESHOLD_CRITICAL" ]; then
         log WARN "内存使用率过高: ${mem_usage}% (阈值: ${MEMORY_THRESHOLD_CRITICAL}%)"
         send_alert "critical" "内存使用率过高" "当前: ${mem_usage}%, 阈值: ${MEMORY_THRESHOLD_CRITICAL}%"
@@ -427,36 +475,36 @@ monitor_loop() {
     log INFO "监控守护进程启动 (PID: $$)"
     log INFO "监控间隔: ${MONITOR_INTERVAL}s"
     log INFO "PID 文件: ${PID_FILE}"
-    
+
+    # 初始化环境
+    init_environment
     setup_signals
-    
+
     # 写入 PID 文件
-    echo $$ > "$PID_FILE"
-    
-    # 初始化状态
-    STATE_DATA[checks_total]=0
-    STATE_DATA[alerts_sent]=0
-    STATE_DATA[start_time]=$(date -Iseconds)
-    
+    echo $$ > "$PID_FILE" || {
+        log ERROR "无法写入 PID 文件: $PID_FILE"
+        exit 1
+    }
+
     while true; do
         log DEBUG "执行监控检查..."
-        
+
         # 执行各项检查
         local checks_performed=0
-        
+
         check_cpu && checks_performed=$((checks_performed + 1))
         check_memory && checks_performed=$((checks_performed + 1))
         check_disk && checks_performed=$((checks_performed + 1))
         check_services && checks_performed=$((checks_performed + 1))
         check_network && checks_performed=$((checks_performed + 1))
-        
+
         # 更新状态
         STATE_DATA[checks_total]=$((${STATE_DATA[checks_total]:-0} + checks_performed))
         STATE_DATA[last_check]=$(date -Iseconds)
         save_state
-        
+
         log DEBUG "本轮检查完成: ${checks_performed} 项"
-        
+
         sleep "$MONITOR_INTERVAL"
     done
 }
