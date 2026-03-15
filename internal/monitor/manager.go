@@ -13,7 +13,10 @@ import (
 
 // Manager 监控管理器
 type Manager struct {
-	hostname string
+	hostname         string
+	diskHealthMonitor *DiskHealthMonitor
+	alertingManager  *AlertingManager
+	backupStats      *BackupStats
 }
 
 // SystemStats 系统统计信息
@@ -93,6 +96,68 @@ func NewManager() (*Manager, error) {
 	return &Manager{
 		hostname: hostname,
 	}, nil
+}
+
+// NewManagerWithComponents 创建带组件的监控管理器 (v2.59.0)
+func NewManagerWithComponents(diskMonitor *DiskHealthMonitor, alertMgr *AlertingManager) (*Manager, error) {
+	hostname, _ := os.Hostname()
+	return &Manager{
+		hostname:          hostname,
+		diskHealthMonitor: diskMonitor,
+		alertingManager:   alertMgr,
+	}, nil
+}
+
+// SetDiskHealthMonitor 设置磁盘健康监控器 (v2.59.0)
+func (m *Manager) SetDiskHealthMonitor(monitor *DiskHealthMonitor) {
+	m.diskHealthMonitor = monitor
+}
+
+// SetAlertingManager 设置告警管理器 (v2.59.0)
+func (m *Manager) SetAlertingManager(mgr *AlertingManager) {
+	m.alertingManager = mgr
+}
+
+// GetDiskHealthMonitor 获取磁盘健康监控器 (v2.59.0)
+func (m *Manager) GetDiskHealthMonitor() *DiskHealthMonitor {
+	return m.diskHealthMonitor
+}
+
+// GetAlertingManager 获取告警管理器 (v2.59.0)
+func (m *Manager) GetAlertingManager() *AlertingManager {
+	return m.alertingManager
+}
+
+// GetBackupStats 获取备份统计 (v2.59.0)
+func (m *Manager) GetBackupStats() (*BackupStats, error) {
+	// 如果有缓存的备份数据，返回它
+	if m.backupStats != nil {
+		return m.backupStats, nil
+	}
+	
+	// 否则返回一个空的统计结构
+	// 实际实现应该从备份服务或存储中获取数据
+	return nil, fmt.Errorf("备份统计未初始化")
+}
+
+// SetBackupStats 设置备份统计 (v2.59.0)
+func (m *Manager) SetBackupStats(stats *BackupStats) {
+	m.backupStats = stats
+}
+
+// UpdateBackupStats 更新备份统计 (v2.59.0)
+func (m *Manager) UpdateBackupStats(totalCount, fullCount, incrementalCount, databaseCount, configCount int, totalSize, spaceUsed, spaceTotal, spaceAvailable uint64) {
+	m.backupStats = &BackupStats{
+		TotalCount:       totalCount,
+		FullCount:        fullCount,
+		IncrementalCount: incrementalCount,
+		DatabaseCount:    databaseCount,
+		ConfigCount:      configCount,
+		TotalSize:        totalSize,
+		SpaceUsed:        spaceUsed,
+		SpaceTotal:       spaceTotal,
+		SpaceAvailable:   spaceAvailable,
+	}
 }
 
 // GetSystemStats 获取系统统计信息

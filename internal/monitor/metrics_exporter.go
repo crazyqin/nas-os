@@ -119,7 +119,7 @@ type StorageMetrics struct {
 	QuotaUsage         *prometheus.GaugeVec
 }
 
-// BackupMetrics 备份指标
+// BackupMetrics 备份指标 (Prometheus 指标容器)
 type BackupMetrics struct {
 	BackupTotal       *prometheus.GaugeVec
 	BackupSize        *prometheus.GaugeVec
