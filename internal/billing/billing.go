@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -686,10 +687,11 @@ func (bm *BillingManager) ListUsageRecords(userID string, poolID string, start, 
 		if poolID != "" && r.PoolID != poolID {
 			continue
 		}
-		if !start.IsZero() && r.PeriodStart.Before(start) {
+		// 时间过滤：记录的周期与查询范围有重叠即可
+		if !start.IsZero() && r.PeriodEnd.Before(start) {
 			continue
 		}
-		if !end.IsZero() && r.PeriodEnd.After(end) {
+		if !end.IsZero() && r.PeriodStart.After(end) {
 			continue
 		}
 		result = append(result, r)
@@ -1113,7 +1115,11 @@ func (bm *BillingManager) GetBillingStats(start, end time.Time) (*BillingStats, 
 
 	// 遍历用量记录
 	for _, r := range bm.usageRecords {
-		if r.PeriodStart.Before(start) || r.PeriodEnd.After(end) {
+		// 时间过滤：记录的周期与查询范围有重叠即可
+		if !start.IsZero() && r.PeriodEnd.Before(start) {
+			continue
+		}
+		if !end.IsZero() && r.PeriodStart.After(end) {
 			continue
 		}
 
@@ -1157,7 +1163,11 @@ func (bm *BillingManager) GetBillingStats(start, end time.Time) (*BillingStats, 
 
 	// 遍历发票
 	for _, inv := range bm.invoices {
-		if inv.PeriodStart.Before(start) || inv.PeriodEnd.After(end) {
+		// 时间过滤：发票的周期与查询范围有重叠即可
+		if !start.IsZero() && inv.PeriodEnd.Before(start) {
+			continue
+		}
+		if !end.IsZero() && inv.PeriodStart.After(end) {
 			continue
 		}
 
@@ -1233,10 +1243,11 @@ func (bm *BillingManager) GetUserBillingStats(userID string, start, end time.Tim
 		if r.UserID != userID {
 			continue
 		}
-		if !start.IsZero() && r.PeriodStart.Before(start) {
+		// 时间过滤：记录的周期与查询范围有重叠即可
+		if !start.IsZero() && r.PeriodEnd.Before(start) {
 			continue
 		}
-		if !end.IsZero() && r.PeriodEnd.After(end) {
+		if !end.IsZero() && r.PeriodStart.After(end) {
 			continue
 		}
 
@@ -1297,10 +1308,11 @@ func (bm *BillingManager) GetPoolBillingStats(poolID string, start, end time.Tim
 		if r.PoolID != poolID {
 			continue
 		}
-		if !start.IsZero() && r.PeriodStart.Before(start) {
+		// 时间过滤：记录的周期与查询范围有重叠即可
+		if !start.IsZero() && r.PeriodEnd.Before(start) {
 			continue
 		}
-		if !end.IsZero() && r.PeriodEnd.After(end) {
+		if !end.IsZero() && r.PeriodStart.After(end) {
 			continue
 		}
 
@@ -1478,9 +1490,15 @@ func bytesToGB(bytes uint64) float64 {
 
 // extractInvoiceNumber 从发票号提取编号
 func extractInvoiceNumber(number string) int {
-	var num int
-	fmt.Sscanf(number, "%*[^0-9]%d", &num)
-	return num
+	// 发票号格式: PREFIX-YYYYMMDD-NNNN
+	// 提取最后一个数字部分
+	parts := strings.Split(number, "-")
+	if len(parts) >= 3 {
+		var num int
+		fmt.Sscanf(parts[len(parts)-1], "%d", &num)
+		return num
+	}
+	return 0
 }
 
 // calculateTieredCost 阶梯定价计算（存储）
