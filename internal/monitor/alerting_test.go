@@ -271,8 +271,8 @@ func TestAlertingManager_ClearAlerts(t *testing.T) {
 
 func TestAlertingManager_ShouldNotify(t *testing.T) {
 	tests := []struct {
-		minLevel    string
-		alertLevel  string
+		minLevel     string
+		alertLevel   string
 		shouldNotify bool
 	}{
 		{"warning", "warning", true},
