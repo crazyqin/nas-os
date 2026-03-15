@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.55.0] - 2026-03-15
+
+### Added
+- **用户权限系统文档** (礼部)
+  - docs/user-guide/permission-guide.md - 完整权限管理指南
+  - 四级角色体系详解 (admin/operator/readonly/guest)
+  - 权限继承机制说明
+  - 策略管理使用指南
+  - 最佳实践与安全建议
+
+- **API 文档更新** (礼部)
+  - docs/api/permission-api.md - 权限管理 API 完整文档
+  - 用户权限 CRUD 操作说明
+  - 用户组权限管理 API
+  - 策略管理 API 端点
+  - 权限检查 API 使用示例
+
+- **WebUI 权限管理界面** (兵部)
+  - 权限角色可视化配置
+  - 用户组权限继承视图
+  - 策略管理界面
+  - 权限审计日志展示
+
+### Changed
+- **文档版本同步** (礼部)
+  - 所有文档版本号更新至 v2.55.0
+  - README.md 下载链接更新
+  - Docker 镜像标签更新
+
+### Improved
+- **权限系统文档完善** (礼部)
+  - 权限系统架构说明
+  - API 请求/响应示例
+  - 常见问题解答补充
+  - 安全最佳实践建议
+
 ## [v2.54.0] - 2026-03-15
 
 ### Added

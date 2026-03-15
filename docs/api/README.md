@@ -63,5 +63,6 @@ Content-Type: application/json
 - [仪表板 API](./dashboard-api.md) - 系统监控仪表板管理 (v2.52.0+)
 - [健康检查 API](./health-api.md) - 系统健康状态检查 (v2.52.0+)
 - [监控 API](./monitor-api.md) - 系统监控与分布式监控
+- [权限管理 API](./permission-api.md) - RBAC 权限管理 (v2.55.0+)
 - [存储 API](./storage-api.md) - 存储池管理
 - [用户 API](./user-api.md) - 用户与权限管理
