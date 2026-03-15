@@ -4,6 +4,25 @@
 
 ---
 
+## v2.98.0 - 2026-03-16 ✅
+
+### 礼部文档完善
+- docs/RELEASE-v2.98.0.md 发布说明文档
+- README.md 下载链接更新
+- docs/README.md 版本号更新
+- docs/api.yaml API 版本号更新
+- docs/API_GUIDE.md 版本更新
+- docs/FAQ.md 版本更新
+- docs/QUICKSTART.md 版本更新
+- docs/TROUBLESHOOTING.md 版本更新
+- docs/USER_GUIDE.md 版本更新
+
+### 发布状态
+- 版本号同步：README.md, docs/* ✅
+- 发布说明文档 ✅
+
+---
+
 ## v2.91.0 - 2026-03-16 ✅
 
 ### 礼部文档完善
