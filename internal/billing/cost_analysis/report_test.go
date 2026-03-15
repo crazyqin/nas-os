@@ -8,9 +8,9 @@ import (
 
 // Mock implementations for testing
 type mockBillingProvider struct {
-	storagePrice float64
+	storagePrice   float64
 	bandwidthPrice float64
-	stats *BillingStats
+	stats          *BillingStats
 }
 
 func (m *mockBillingProvider) GetUsageRecords(userID, poolID string, start, end time.Time) ([]*UsageRecord, error) {
@@ -250,12 +250,12 @@ func TestGenerateBudgetTrackingReport(t *testing.T) {
 
 	// Create budget
 	budgetConfig := BudgetConfig{
-		Name:        "Test Budget",
-		TotalBudget: 500,
-		Period:      "monthly",
-		StartDate:   time.Now().AddDate(0, 0, -15),
-		EndDate:     time.Now().AddDate(0, 0, 15),
-		Enabled:     true,
+		Name:            "Test Budget",
+		TotalBudget:     500,
+		Period:          "monthly",
+		StartDate:       time.Now().AddDate(0, 0, -15),
+		EndDate:         time.Now().AddDate(0, 0, 15),
+		Enabled:         true,
 		AlertThresholds: []float64{50, 75, 90, 100},
 	}
 
@@ -300,14 +300,14 @@ func TestGenerateComprehensiveReport(t *testing.T) {
 
 func TestCostSummary(t *testing.T) {
 	summary := CostSummary{
-		TotalCost:          1000,
-		StorageCost:        800,
-		BandwidthCost:      200,
-		Currency:           "CNY",
-		CostChangePercent:  10.5,
-		AvgDailyCost:       33.33,
+		TotalCost:            1000,
+		StorageCost:          800,
+		BandwidthCost:        200,
+		Currency:             "CNY",
+		CostChangePercent:    10.5,
+		AvgDailyCost:         33.33,
 		ProjectedMonthlyCost: 1100,
-		BudgetUtilization:  75,
+		BudgetUtilization:    75,
 	}
 
 	if summary.TotalCost != 1000 {
@@ -343,9 +343,9 @@ func TestCostRecommendation(t *testing.T) {
 
 func TestBudgetTrackingReportStatus(t *testing.T) {
 	tests := []struct {
-		utilization       float64
-		projectedOverrun  float64
-		expectedStatus    string
+		utilization      float64
+		projectedOverrun float64
+		expectedStatus   string
 	}{
 		{50, 0, "on_track"},
 		{90, 100, "at_risk"},
@@ -354,8 +354,8 @@ func TestBudgetTrackingReportStatus(t *testing.T) {
 
 	for _, tt := range tests {
 		tracking := BudgetTrackingReport{
-			Utilization:        tt.utilization,
-			ProjectedOverrun:   tt.projectedOverrun,
+			Utilization:      tt.utilization,
+			ProjectedOverrun: tt.projectedOverrun,
 		}
 
 		// Determine status based on values

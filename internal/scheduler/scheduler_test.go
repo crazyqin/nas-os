@@ -13,16 +13,16 @@ func TestCronExpression_Parse(t *testing.T) {
 		expression string
 		valid      bool
 	}{
-		{"0 * * * * *", true},        // 每分钟
-		{"0 0 * * * *", true},        // 每小时
-		{"0 0 0 * * *", true},        // 每天
-		{"0 0 0 1 * *", true},        // 每月
-		{"0 0 0 * * 0", true},        // 每周日
-		{"*/5 * * * * *", true},      // 每5秒
-		{"0 */15 * * * *", true},     // 每15分钟
-		{"0 0 */2 * * *", true},      // 每2小时
-		{"invalid", false},           // 无效
-		{"* * *", false},             // 字段不够
+		{"0 * * * * *", true},    // 每分钟
+		{"0 0 * * * *", true},    // 每小时
+		{"0 0 0 * * *", true},    // 每天
+		{"0 0 0 1 * *", true},    // 每月
+		{"0 0 0 * * 0", true},    // 每周日
+		{"*/5 * * * * *", true},  // 每5秒
+		{"0 */15 * * * *", true}, // 每15分钟
+		{"0 0 */2 * * *", true},  // 每2小时
+		{"invalid", false},       // 无效
+		{"* * *", false},         // 字段不够
 	}
 
 	for _, tt := range tests {
