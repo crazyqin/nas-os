@@ -352,6 +352,8 @@ type BudgetAlert struct {
 // ========== 成本分析引擎 ==========
 
 // CostAnalysisEngine 成本分析引擎
+// 提供成本分析报告生成、预算管理、趋势分析等功能
+// 支持多种报告类型：存储趋势、资源利用率、优化建议、预算跟踪等
 type CostAnalysisEngine struct {
 	mu            sync.RWMutex
 	dataDir       string
@@ -361,6 +363,11 @@ type CostAnalysisEngine struct {
 	budgets       map[string]*BudgetConfig
 	trendData     []CostTrend
 	alerts        []*CostAlert
+
+	// 缓存：提高频繁查询的性能
+	summaryCache     *CostSummary
+	summaryCacheTime time.Time
+	cacheTTL         time.Duration
 }
 
 // BillingDataProvider 计费数据提供者接口
@@ -449,6 +456,7 @@ func NewCostAnalysisEngine(dataDir string, billing BillingDataProvider, quota Qu
 		budgets:       make(map[string]*BudgetConfig),
 		trendData:     make([]CostTrend, 0),
 		alerts:        make([]*CostAlert, 0),
+		cacheTTL:      5 * time.Minute, // 缓存有效期5分钟
 	}
 
 	// 加载已有数据
@@ -1486,17 +1494,47 @@ func (e *CostAnalysisEngine) AcknowledgeAlert(alertID string) error {
 	return fmt.Errorf("告警不存在: %s", alertID)
 }
 
+// ClearCache 清除缓存
+// 用于在数据更新后强制刷新缓存
+func (e *CostAnalysisEngine) ClearCache() {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	e.summaryCache = nil
+	e.summaryCacheTime = time.Time{}
+}
+
+// GetCacheStatus 获取缓存状态
+// 返回缓存是否有效和缓存时间
+func (e *CostAnalysisEngine) GetCacheStatus() (valid bool, cacheTime time.Time) {
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+
+	if e.summaryCache == nil {
+		return false, time.Time{}
+	}
+
+	valid = time.Since(e.summaryCacheTime) < e.cacheTTL
+	return valid, e.summaryCacheTime
+}
+
 // generateReportID 生成报告ID
 func generateReportID() string {
 	return fmt.Sprintf("rpt-%d-%s", time.Now().UnixNano(), randomString(6))
 }
 
 // randomString 生成随机字符串
+// 注意：此函数用于生成非安全敏感的ID，如报告ID
+// 对于安全敏感的场景，应使用 crypto/rand
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
+	// 使用当前时间的纳秒作为种子，结合循环索引确保随机性
+	// 对于报告ID生成，这种简单实现足够
+	now := time.Now().UnixNano()
 	for i := range b {
-		b[i] = letters[time.Now().Nanosecond()%len(letters)]
+		// 简单的伪随机：交替使用时间戳的不同部分
+		seed := now + int64(i)*12345
+		b[i] = letters[(seed+int64(i)*7919)%int64(len(letters))]
 	}
 	return string(b)
 }
