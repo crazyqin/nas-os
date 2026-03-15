@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"sync"
 	"time"
 
@@ -67,8 +68,10 @@ func (c *Client) Connect() error {
 
 	// StartTLS for plain LDAP
 	if !c.config.UseTLS && len(c.config.URL) >= 5 && c.config.URL[:5] == "ldap:" {
+		// 仅测试环境允许跳过 TLS 验证，生产环境必须验证证书
+		skipVerify := c.config.SkipTLSVerify && os.Getenv("ENV") == "test"
 		tlsConfig := &tls.Config{
-			InsecureSkipVerify: c.config.SkipTLSVerify,
+			InsecureSkipVerify: skipVerify,
 		}
 		if c.config.CACertPath != "" {
 			pool, err := c.loadCACert()
@@ -95,8 +98,10 @@ func (c *Client) dialPlain() (*ldap.Conn, error) {
 
 // dialTLS TLS 连接
 func (c *Client) dialTLS() (*ldap.Conn, error) {
+	// 仅测试环境允许跳过 TLS 验证，生产环境必须验证证书
+	skipVerify := c.config.SkipTLSVerify && os.Getenv("ENV") == "test"
 	tlsConfig := &tls.Config{
-		InsecureSkipVerify: c.config.SkipTLSVerify,
+		InsecureSkipVerify: skipVerify,
 	}
 
 	// 加载 CA 证书

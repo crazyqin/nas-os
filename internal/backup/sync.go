@@ -2,7 +2,7 @@ package backup
 
 import (
 	"context"
-	"crypto/md5"
+	"crypto/sha256"
 	"crypto/tls"
 	"encoding/hex"
 	"fmt"
@@ -392,7 +392,7 @@ func (sm *SyncManager) scanDirectory(dir string) (map[string]FileEntry, error) {
 	return files, err
 }
 
-// calculateFileChecksum 计算文件 checksum
+// calculateFileChecksum 计算文件 checksum（使用 SHA256）
 func (sm *SyncManager) calculateFileChecksum(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -400,7 +400,7 @@ func (sm *SyncManager) calculateFileChecksum(path string) (string, error) {
 	}
 	defer func() { _ = file.Close() }()
 
-	hash := md5.New()
+	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err
 	}
@@ -831,7 +831,7 @@ func (vm *VersionManager) DeleteOldVersions(relativePath string, keepCount int) 
 	return nil
 }
 
-// calculateChecksum 计算文件 checksum
+// calculateChecksum 计算文件 checksum（使用 SHA256）
 func (vm *VersionManager) calculateChecksum(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -839,7 +839,7 @@ func (vm *VersionManager) calculateChecksum(path string) (string, error) {
 	}
 	defer func() { _ = file.Close() }()
 
-	hash := md5.New()
+	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err
 	}

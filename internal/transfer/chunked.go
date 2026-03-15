@@ -3,7 +3,7 @@ package transfer
 import (
 	"bufio"
 	"compress/gzip"
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -23,7 +23,7 @@ type ChunkInfo struct {
 	Index      int       `json:"index"`
 	Offset     int64     `json:"offset"`
 	Size       int64     `json:"size"`
-	MD5        string    `json:"md5"`
+	SHA256     string    `json:"sha256"` // 使用 SHA256 替代 MD5
 	Uploaded   bool      `json:"uploaded"`
 	UploadTime time.Time `json:"upload_time,omitempty"`
 }
@@ -87,13 +87,13 @@ func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkI
 		}
 
 		chunkData := buf[:n]
-		chunkMD5 := calculateMD5(chunkData)
+		chunkSHA256 := calculateSHA256(chunkData)
 
 		chunks[i] = ChunkInfo{
 			Index:  int(i),
 			Offset: offset,
 			Size:   int64(n),
-			MD5:    chunkMD5,
+			SHA256: chunkSHA256,
 		}
 
 		// Write chunk to file
@@ -165,15 +165,15 @@ func (u *ChunkedUploader) UploadChunk(
 	return fmt.Errorf("failed after %d attempts: %w", u.maxRetries, lastErr)
 }
 
-// CalculateFileMD5 calculates MD5 hash of a file
-func CalculateFileMD5(filePath string) (string, error) {
+// CalculateFileSHA256 calculates SHA256 hash of a file
+func CalculateFileSHA256(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
 	}
 	defer func() { _ = file.Close() }()
 
-	hash := md5.New()
+	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err
 	}
@@ -181,8 +181,8 @@ func CalculateFileMD5(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-func calculateMD5(data []byte) string {
-	hash := md5.New()
+func calculateSHA256(data []byte) string {
+	hash := sha256.New()
 	_, _ = hash.Write(data)
 	return hex.EncodeToString(hash.Sum(nil))
 }

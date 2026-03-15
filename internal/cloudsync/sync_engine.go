@@ -2,7 +2,7 @@ package cloudsync
 
 import (
 	"context"
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -789,7 +789,7 @@ func (e *SyncEngine) shouldSync(relPath string) bool {
 	return true
 }
 
-// calculateFileHash 计算文件哈希
+// calculateFileHash 计算文件哈希（使用 SHA256）
 func (e *SyncEngine) calculateFileHash(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -797,7 +797,7 @@ func (e *SyncEngine) calculateFileHash(path string) (string, error) {
 	}
 	defer func() { _ = file.Close() }()
 
-	hash := md5.New()
+	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err
 	}

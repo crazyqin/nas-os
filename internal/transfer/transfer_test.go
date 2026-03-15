@@ -34,7 +34,7 @@ func TestChunkInfo_Fields(t *testing.T) {
 		Index:  0,
 		Offset: 0,
 		Size:   1024,
-		MD5:    "abc123",
+		SHA256: "abc123",
 	}
 
 	if chunk.Index != 0 {
@@ -43,8 +43,8 @@ func TestChunkInfo_Fields(t *testing.T) {
 	if chunk.Size != 1024 {
 		t.Error("Size mismatch")
 	}
-	if chunk.MD5 != "abc123" {
-		t.Error("MD5 mismatch")
+	if chunk.SHA256 != "abc123" {
+		t.Error("SHA256 mismatch")
 	}
 }
 
@@ -88,23 +88,23 @@ func TestChunkedUploader_SplitFile(t *testing.T) {
 
 	// Verify chunk info
 	for _, chunk := range chunks {
-		t.Logf("Chunk %d: offset=%d, size=%d, md5=%s", chunk.Index, chunk.Offset, chunk.Size, chunk.MD5)
+		t.Logf("Chunk %d: offset=%d, size=%d, sha256=%s", chunk.Index, chunk.Offset, chunk.Size, chunk.SHA256)
 	}
 }
 
-func TestCalculateMD5(t *testing.T) {
+func TestCalculateSHA256(t *testing.T) {
 	data := []byte("hello world")
-	md5 := calculateMD5(data)
+	sha256Hash := calculateSHA256(data)
 
-	if md5 == "" {
-		t.Error("calculateMD5 should not return empty")
+	if sha256Hash == "" {
+		t.Error("calculateSHA256 should not return empty")
 	}
-	if len(md5) != 32 {
-		t.Errorf("MD5 hash should be 32 chars, got %d", len(md5))
+	if len(sha256Hash) != 64 {
+		t.Errorf("SHA256 hash should be 64 chars, got %d", len(sha256Hash))
 	}
 }
 
-func TestCalculateFileMD5(t *testing.T) {
+func TestCalculateFileSHA256(t *testing.T) {
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "test.txt")
 	testContent := []byte("hello world for file md5")
@@ -112,15 +112,15 @@ func TestCalculateFileMD5(t *testing.T) {
 		t.Fatalf("failed to create test file: %v", err)
 	}
 
-	md5, err := CalculateFileMD5(testFile)
+	hash, err := CalculateFileSHA256(testFile)
 	if err != nil {
-		t.Fatalf("CalculateFileMD5 failed: %v", err)
+		t.Fatalf("CalculateFileSHA256 failed: %v", err)
 	}
-	if md5 == "" {
-		t.Error("CalculateFileMD5 should not return empty")
+	if hash == "" {
+		t.Error("CalculateFileSHA256 should not return empty")
 	}
-	if len(md5) != 32 {
-		t.Errorf("MD5 hash should be 32 chars, got %d", len(md5))
+	if len(hash) != 64 {
+		t.Errorf("SHA256 hash should be 64 chars, got %d", len(hash))
 	}
 }
 
