@@ -1,7 +1,9 @@
 package web
 
 import (
+	"crypto/rand"
 	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -24,10 +26,20 @@ type SecurityConfig struct {
 
 // DefaultSecurityConfig 默认安全配置
 func DefaultSecurityConfig() *SecurityConfig {
-	// CSRFKey 从环境变量读取，默认值保证32字节
+	// CSRFKey 从环境变量读取
 	csrfKey := os.Getenv("NAS_CSRF_KEY")
 	if csrfKey == "" {
-		csrfKey = "change-this-to-a-32-byte-secret-key-now!"
+		// 生成随机密钥并警告
+		log.Println("⚠️  [SECURITY WARNING] NAS_CSRF_KEY 环境变量未设置，已生成临时随机密钥")
+		log.Println("⚠️  生产环境请设置 NAS_CSRF_KEY 环境变量（至少32字节）")
+		keyBytes := make([]byte, 32)
+		if _, err := rand.Read(keyBytes); err != nil {
+			// 回退到固定密钥（仅开发环境）
+			log.Println("⚠️  [SECURITY WARNING] 无法生成随机密钥，使用默认密钥（仅限开发环境）")
+			csrfKey = "dev-only-key-change-in-production-32b!"
+		} else {
+			csrfKey = hex.EncodeToString(keyBytes)
+		}
 	}
 
 	return &SecurityConfig{
