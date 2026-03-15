@@ -2240,11 +2240,11 @@ func (p *ResourcePredictor) PredictStorage(history []CapacityHistory, forecastDa
 
 	now := time.Now()
 	prediction := &MultiModelPrediction{
-		ID:            "pred_" + now.Format("20060102150405"),
-		PredictedAt:   now,
-		ForecastDays:  forecastDays,
-		ModelResults:  make(map[PredictionModelType][]PredictionResult),
-		BestModel:     PredictionModelLinear,
+		ID:           "pred_" + now.Format("20060102150405"),
+		PredictedAt:  now,
+		ForecastDays: forecastDays,
+		ModelResults: make(map[PredictionModelType][]PredictionResult),
+		BestModel:    PredictionModelLinear,
 	}
 
 	// 提取历史数据
