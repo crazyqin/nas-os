@@ -32,7 +32,7 @@ info:
     | 500 | 服务器内部错误 |
     | 503 | 服务暂时不可用 |
     
-  version: 2.79.0
+  version: 2.89.0
   contact:
     name: NAS-OS 团队
     email: support@nas-os.io
@@ -2979,3 +2979,1592 @@ paths:
                           type: integer
                         reason:
                           type: string
+  # ==================== AI 分类 API ====================
+  /ai/classify:
+    post:
+      tags: [ai]
+      summary: AI 文件分类
+      description: 使用 AI 对文件进行智能分类
+      operationId: classifyFile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  description: 文件路径
+      responses:
+        '200':
+          description: 分类结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  data:
+                    type: object
+                    properties:
+                      category:
+                        type: string
+                      confidence:
+                        type: number
+                      tags:
+                        type: array
+                        items:
+                          type: string
+
+  /ai/classify/batch:
+    post:
+      tags: [ai]
+      summary: 批量分类
+      description: 批量对文件进行 AI 分类
+      operationId: classifyBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paths:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: 批量分类结果
+
+  /ai/classify/result/{id}:
+    get:
+      tags: [ai]
+      summary: 获取分类结果
+      operationId: getClassifyResult
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 分类结果详情
+
+  # ==================== 备份管理 API ====================
+  /backup/configs:
+    get:
+      tags: [backup]
+      summary: 获取备份配置列表
+      operationId: listBackupConfigs
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [backup]
+      summary: 创建备份配置
+      operationId: createBackupConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BackupConfigCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /backup/configs/{id}:
+    get:
+      tags: [backup]
+      summary: 获取备份配置详情
+      operationId: getBackupConfig
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [backup]
+      summary: 删除备份配置
+      operationId: deleteBackupConfig
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /backup/configs/{id}/run:
+    post:
+      tags: [backup]
+      summary: 执行备份
+      operationId: runBackup
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 备份任务已启动
+
+  /backup/tasks:
+    get:
+      tags: [backup]
+      summary: 获取备份任务列表
+      operationId: listBackupTasks
+      responses:
+        '200':
+          description: 成功
+
+  /backup/restore:
+    post:
+      tags: [backup]
+      summary: 恢复备份
+      operationId: restoreBackup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backup_id:
+                  type: string
+                target_path:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 云同步 API ====================
+  /cloudsync/providers:
+    get:
+      tags: [cloudsync]
+      summary: 获取云存储提供商列表
+      operationId: listCloudProviders
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [cloudsync]
+      summary: 添加云存储提供商
+      operationId: createCloudProvider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum: [s3, aliyun, qiniu, onedrive, google]
+                credentials:
+                  type: object
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /cloudsync/providers/{id}:
+    get:
+      tags: [cloudsync]
+      summary: 获取提供商详情
+      operationId: getCloudProvider
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [cloudsync]
+      summary: 删除提供商
+      operationId: deleteCloudProvider
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /cloudsync/sync:
+    post:
+      tags: [cloudsync]
+      summary: 创建同步任务
+      operationId: createSyncTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                provider_id:
+                  type: string
+                local_path:
+                  type: string
+                remote_path:
+                  type: string
+                direction:
+                  type: string
+                  enum: [upload, download, bidirectional]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 集群管理 API ====================
+  /cluster/nodes:
+    get:
+      tags: [cluster]
+      summary: 获取集群节点列表
+      operationId: getClusterNodes
+      responses:
+        '200':
+          description: 成功
+
+  /cluster/nodes/{id}:
+    get:
+      tags: [cluster]
+      summary: 获取节点详情
+      operationId: getClusterNode
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [cluster]
+      summary: 移除节点
+      operationId: removeClusterNode
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /cluster/nodes/join:
+    post:
+      tags: [cluster]
+      summary: 加入集群
+      operationId: joinCluster
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                master_address:
+                  type: string
+                token:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /cluster/nodes/{id}/status:
+    get:
+      tags: [cluster]
+      summary: 获取节点状态
+      operationId: getClusterNodeStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+
+  # ==================== 压缩存储 API ====================
+  /compress/config:
+    get:
+      tags: [compress]
+      summary: 获取压缩配置
+      operationId: getCompressConfig
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [compress]
+      summary: 更新压缩配置
+      operationId: updateCompressConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompressConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /compress/stats:
+    get:
+      tags: [compress]
+      summary: 获取压缩统计
+      operationId: getCompressStats
+      responses:
+        '200':
+          description: 成功
+
+  /compress/compress:
+    post:
+      tags: [compress]
+      summary: 压缩文件/目录
+      operationId: compressFiles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paths:
+                  type: array
+                  items:
+                    type: string
+                algorithm:
+                  type: string
+                  enum: [gzip, zstd, lz4]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 磁盘管理 API ====================
+  /disk:
+    get:
+      tags: [disk]
+      summary: 获取磁盘列表
+      operationId: listDisks
+      responses:
+        '200':
+          description: 成功
+
+  /disk/{device}:
+    get:
+      tags: [disk]
+      summary: 获取磁盘详情
+      operationId: getDiskInfo
+      parameters:
+        - name: device
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+
+  /disk/{device}/smart:
+    get:
+      tags: [disk]
+      summary: 获取 SMART 数据
+      operationId: getDiskSMART
+      parameters:
+        - name: device
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SMART 数据
+
+  /disk/{device}/benchmark:
+    post:
+      tags: [disk]
+      summary: 磁盘性能测试
+      operationId: benchmarkDisk
+      parameters:
+        - name: device
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 测试结果
+
+  # ==================== Docker 管理 API ====================
+  /docker/containers:
+    get:
+      tags: [docker]
+      summary: 获取容器列表
+      operationId: listContainers
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [docker]
+      summary: 创建容器
+      operationId: createContainer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContainerCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /docker/containers/{id}:
+    get:
+      tags: [docker]
+      summary: 获取容器详情
+      operationId: getContainer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [docker]
+      summary: 删除容器
+      operationId: deleteContainer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /docker/containers/{id}/start:
+    post:
+      tags: [docker]
+      summary: 启动容器
+      operationId: startContainer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /docker/containers/{id}/stop:
+    post:
+      tags: [docker]
+      summary: 停止容器
+      operationId: stopContainer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /docker/containers/{id}/logs:
+    get:
+      tags: [docker]
+      summary: 获取容器日志
+      operationId: getContainerLogs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tail
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: 容器日志
+
+  /docker/images:
+    get:
+      tags: [docker]
+      summary: 获取镜像列表
+      operationId: listImages
+      responses:
+        '200':
+          description: 成功
+
+  # ==================== 下载器 API ====================
+  /downloader/tasks:
+    get:
+      tags: [downloader]
+      summary: 获取下载任务列表
+      operationId: listDownloaderTasks
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [downloader]
+      summary: 创建下载任务
+      operationId: createDownloaderTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                save_path:
+                  type: string
+                type:
+                  type: string
+                  enum: [http, torrent]
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /downloader/tasks/{id}:
+    get:
+      tags: [downloader]
+      summary: 获取任务详情
+      operationId: getDownloaderTask
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [downloader]
+      summary: 删除任务
+      operationId: deleteDownloaderTask
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== FTP 服务 API ====================
+  /ftp/config:
+    get:
+      tags: [ftp]
+      summary: 获取 FTP 配置
+      operationId: getFTPConfig
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [ftp]
+      summary: 更新 FTP 配置
+      operationId: updateFTPConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FTPConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /ftp/status:
+    get:
+      tags: [ftp]
+      summary: 获取 FTP 服务状态
+      operationId: getFTPStatus
+      responses:
+        '200':
+          description: 成功
+
+  /ftp/start:
+    post:
+      tags: [ftp]
+      summary: 启动 FTP 服务
+      operationId: startFTP
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /ftp/stop:
+    post:
+      tags: [ftp]
+      summary: 停止 FTP 服务
+      operationId: stopFTP
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== NFS 共享 API ====================
+  /nfs/exports:
+    get:
+      tags: [nfs]
+      summary: 获取 NFS 导出列表
+      operationId: listNFSExports
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [nfs]
+      summary: 创建 NFS 导出
+      operationId: createNFSExport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NFSExportCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /nfs/exports/{id}:
+    get:
+      tags: [nfs]
+      summary: 获取导出详情
+      operationId: getNFSExport
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [nfs]
+      summary: 删除 NFS 导出
+      operationId: deleteNFSExport
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== SMB 共享 API ====================
+  /smb/shares:
+    get:
+      tags: [smb]
+      summary: 获取 SMB 共享列表
+      operationId: listSMBShares
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [smb]
+      summary: 创建 SMB 共享
+      operationId: createSMBShare
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SMBShareCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /smb/shares/{name}:
+    get:
+      tags: [smb]
+      summary: 获取共享详情
+      operationId: getSMBShare
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [smb]
+      summary: 删除 SMB 共享
+      operationId: deleteSMBShare
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 快照策略 API ====================
+  /snapshots/policies:
+    get:
+      tags: [snapshot]
+      summary: 获取快照策略列表
+      operationId: listSnapshotPolicies
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [snapshot]
+      summary: 创建快照策略
+      operationId: createSnapshotPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SnapshotPolicyCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /snapshots/policies/{id}:
+    get:
+      tags: [snapshot]
+      summary: 获取策略详情
+      operationId: getSnapshotPolicy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [snapshot]
+      summary: 删除快照策略
+      operationId: deleteSnapshotPolicy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 存储池 API ====================
+  /storagepool/pools:
+    get:
+      tags: [storagepool]
+      summary: 获取存储池列表
+      operationId: listStoragePools
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [storagepool]
+      summary: 创建存储池
+      operationId: createStoragePool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoragePoolCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /storagepool/pools/{id}:
+    get:
+      tags: [storagepool]
+      summary: 获取存储池详情
+      operationId: getStoragePool
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [storagepool]
+      summary: 删除存储池
+      operationId: deleteStoragePool
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 系统监控 API ====================
+  /system/stats:
+    get:
+      tags: [system]
+      summary: 获取系统统计
+      operationId: getSystemStats
+      responses:
+        '200':
+          description: 成功
+
+  /system/info:
+    get:
+      tags: [system]
+      summary: 获取系统信息
+      operationId: getSystemInfo
+      responses:
+        '200':
+          description: 成功
+
+  /system/reboot:
+    post:
+      tags: [system]
+      summary: 重启系统
+      operationId: rebootSystem
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /system/shutdown:
+    post:
+      tags: [system]
+      summary: 关闭系统
+      operationId: shutdownSystem
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 标签管理 API ====================
+  /tags:
+    get:
+      tags: [tags]
+      summary: 获取标签列表
+      operationId: listTags
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [tags]
+      summary: 创建标签
+      operationId: createTag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /tags/search:
+    get:
+      tags: [tags]
+      summary: 搜索标签
+      operationId: searchTags
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+
+  # ==================== 回收站 API ====================
+  /trash:
+    get:
+      tags: [trash]
+      summary: 获取回收站列表
+      operationId: listTrash
+      responses:
+        '200':
+          description: 成功
+
+  /trash/stats:
+    get:
+      tags: [trash]
+      summary: 获取回收站统计
+      operationId: getTrashStats
+      responses:
+        '200':
+          description: 成功
+
+  /trash/config:
+    get:
+      tags: [trash]
+      summary: 获取回收站配置
+      operationId: getTrashConfig
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [trash]
+      summary: 更新回收站配置
+      operationId: updateTrashConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                retention_days:
+                  type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /trash/restore/{id}:
+    post:
+      tags: [trash]
+      summary: 恢复文件
+      operationId: restoreTrashItem
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /trash/empty:
+    post:
+      tags: [trash]
+      summary: 清空回收站
+      operationId: emptyTrash
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== USB 挂载 API ====================
+  /usb/devices:
+    get:
+      tags: [usb]
+      summary: 获取 USB 设备列表
+      operationId: listUSBDevices
+      responses:
+        '200':
+          description: 成功
+
+  /usb/devices/{id}:
+    get:
+      tags: [usb]
+      summary: 获取设备详情
+      operationId: getUSBDevice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+
+  /usb/devices/{id}/mount:
+    post:
+      tags: [usb]
+      summary: 挂载设备
+      operationId: mountUSBDevice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 版本控制 API ====================
+  /versioning/files/{path}:
+    get:
+      tags: [versioning]
+      summary: 获取文件版本列表
+      operationId: listFileVersions
+      parameters:
+        - name: path
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+
+  /versioning/versions/{id}:
+    get:
+      tags: [versioning]
+      summary: 获取版本详情
+      operationId: getFileVersion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+
+  /versioning/versions/{id}/restore:
+    post:
+      tags: [versioning]
+      summary: 恢复到指定版本
+      operationId: restoreFileVersion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  # ==================== 虚拟机管理 API ====================
+  /vm:
+    get:
+      tags: [vm]
+      summary: 获取虚拟机列表
+      operationId: listVMs
+      responses:
+        '200':
+          description: 成功
+    post:
+      tags: [vm]
+      summary: 创建虚拟机
+      operationId: createVM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VMCreate'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /vm/{id}:
+    get:
+      tags: [vm]
+      summary: 获取虚拟机详情
+      operationId: getVM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+    delete:
+      tags: [vm]
+      summary: 删除虚拟机
+      operationId: deleteVM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /vm/{id}/start:
+    post:
+      tags: [vm]
+      summary: 启动虚拟机
+      operationId: startVM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /vm/{id}/stop:
+    post:
+      tags: [vm]
+      summary: 停止虚拟机
+      operationId: stopVM
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /vm/isos:
+    get:
+      tags: [vm]
+      summary: 获取 ISO 列表
+      operationId: listISOs
+      responses:
+        '200':
+          description: 成功
+
+  # ==================== WebDAV API ====================
+  /webdav/config:
+    get:
+      tags: [webdav]
+      summary: 获取 WebDAV 配置
+      operationId: getWebDAVConfig
+      responses:
+        '200':
+          description: 成功
+    put:
+      tags: [webdav]
+      summary: 更新 WebDAV 配置
+      operationId: updateWebDAVConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebDAVConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+
+  /webdav/status:
+    get:
+      tags: [webdav]
+      summary: 获取 WebDAV 状态
+      operationId: getWebDAVStatus
+      responses:
+        '200':
+          description: 成功
+
+    # 新增 Schema 定义
+    BackupConfig:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        source_path:
+          type: string
+        destination_type:
+          type: string
+          enum: [local, s3, sftp]
+        destination_path:
+          type: string
+        schedule:
+          type: string
+        retention_days:
+          type: integer
+        compression:
+          type: string
+          enum: [none, gzip, zstd]
+        encryption:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    BackupConfigCreate:
+      type: object
+      required:
+        - name
+        - source_path
+        - destination_path
+      properties:
+        name:
+          type: string
+        source_path:
+          type: string
+        destination_type:
+          type: string
+          enum: [local, s3, sftp]
+        destination_path:
+          type: string
+        schedule:
+          type: string
+        retention_days:
+          type: integer
+          default: 30
+        compression:
+          type: string
+          enum: [none, gzip, zstd]
+          default: zstd
+        encryption:
+          type: boolean
+          default: false
+
+    ClusterNode:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        address:
+          type: string
+        role:
+          type: string
+          enum: [master, worker]
+        status:
+          type: string
+          enum: [online, offline, degraded]
+        cpu_usage:
+          type: number
+        memory_usage:
+          type: number
+        disk_usage:
+          type: number
+        last_seen:
+          type: string
+          format: date-time
+
+    CompressConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        algorithm:
+          type: string
+          enum: [gzip, zstd, lz4]
+        level:
+          type: integer
+          minimum: 1
+          maximum: 9
+        min_file_size:
+          type: integer
+        exclude_extensions:
+          type: array
+          items:
+            type: string
+
+    DiskInfo:
+      type: object
+      properties:
+        device:
+          type: string
+        model:
+          type: string
+        serial:
+          type: string
+        size:
+          type: integer
+        type:
+          type: string
+          enum: [hdd, ssd, nvme]
+        temperature:
+          type: integer
+        health:
+          type: string
+          enum: [healthy, warning, critical]
+        usage_percent:
+          type: number
+
+    SMARTData:
+      type: object
+      properties:
+        device:
+          type: string
+        overall_health:
+          type: string
+        temperature:
+          type: integer
+        power_on_hours:
+          type: integer
+        power_cycle_count:
+          type: integer
+        reallocated_sectors:
+          type: integer
+        pending_sectors:
+          type: integer
+        attributes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: integer
+              threshold:
+                type: integer
+              raw:
+                type: string
+
+    ContainerCreate:
+      type: object
+      required:
+        - name
+        - image
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+        ports:
+          type: array
+          items:
+            type: string
+        volumes:
+          type: array
+          items:
+            type: string
+        environment:
+          type: object
+          additionalProperties:
+            type: string
+        restart_policy:
+          type: string
+          enum: [no, always, on-failure]
+
+    FTPConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        port:
+          type: integer
+        passive_ports:
+          type: string
+        max_connections:
+          type: integer
+        anonymous:
+          type: boolean
+        welcome_message:
+          type: string
+
+    NFSExportCreate:
+      type: object
+      required:
+        - path
+      properties:
+        path:
+          type: string
+        clients:
+          type: array
+          items:
+            type: string
+        options:
+          type: string
+        read_only:
+          type: boolean
+          default: false
+
+    SMBShareCreate:
+      type: object
+      required:
+        - name
+        - path
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        comment:
+          type: string
+        browseable:
+          type: boolean
+          default: true
+        read_only:
+          type: boolean
+          default: false
+        valid_users:
+          type: array
+          items:
+            type: string
+        guest_ok:
+          type: boolean
+          default: false
+
+    SnapshotPolicyCreate:
+      type: object
+      required:
+        - name
+        - path
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        schedule:
+          type: string
+        retention_count:
+          type: integer
+          default: 7
+        exclude_patterns:
+          type: array
+          items:
+            type: string
+
+    StoragePoolCreate:
+      type: object
+      required:
+        - name
+        - devices
+      properties:
+        name:
+          type: string
+        devices:
+          type: array
+          items:
+            type: string
+        profile:
+          type: string
+          enum: [single, raid0, raid1, raid5, raid6, raid10]
+
+    SystemStats:
+      type: object
+      properties:
+        cpu:
+          type: object
+          properties:
+            usage:
+              type: number
+            cores:
+              type: integer
+            temperature:
+              type: number
+        memory:
+          type: object
+          properties:
+            total:
+              type: integer
+            used:
+              type: integer
+            available:
+              type: integer
+            cached:
+              type: integer
+        disk:
+          type: object
+          properties:
+            total:
+              type: integer
+            used:
+              type: integer
+            io_read:
+              type: integer
+            io_write:
+              type: integer
+        network:
+          type: object
+          properties:
+            rx_bytes:
+              type: integer
+            tx_bytes:
+              type: integer
+
+    SystemInfo:
+      type: object
+      properties:
+        hostname:
+          type: string
+        os:
+          type: string
+        kernel:
+          type: string
+        architecture:
+          type: string
+        uptime:
+          type: integer
+        version:
+          type: string
+        build_date:
+          type: string
+          format: date-time
+
+    VMCreate:
+      type: object
+      required:
+        - name
+        - memory
+        - cpus
+      properties:
+        name:
+          type: string
+        memory:
+          type: integer
+          description: 内存大小（MB）
+        cpus:
+          type: integer
+        disk_size:
+          type: integer
+          description: 磁盘大小（GB）
+        iso:
+          type: string
+        network_type:
+          type: string
+          enum: [nat, bridge]
+
+    WebDAVConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        port:
+          type: integer
+        root_path:
+          type: string
+        auth_required:
+          type: boolean
+        ssl_enabled:
+          type: boolean

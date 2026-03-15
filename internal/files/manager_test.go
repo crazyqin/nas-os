@@ -271,3 +271,150 @@ func TestGenerateRandomToken(t *testing.T) {
 	assert.Len(t, token2, 32)
 	assert.NotEqual(t, token1, token2, "tokens should be unique")
 }
+
+func TestManager_PreviewFile(t *testing.T) {
+	m := NewManager(PreviewConfig{
+		CacheDir:       t.TempDir(),
+		MaxPreviewSize: 10 * 1024 * 1024,
+	})
+
+	t.Run("small file", func(t *testing.T) {
+		content := "Hello, World!"
+		tmpFile := filepath.Join(t.TempDir(), "test.txt")
+		err := os.WriteFile(tmpFile, []byte(content), 0644)
+		require.NoError(t, err)
+
+		reader, mimeType, err := m.PreviewFile(tmpFile)
+		require.NoError(t, err)
+		defer reader.Close()
+		assert.Equal(t, "text/plain", mimeType)
+	})
+
+	t.Run("file too large", func(t *testing.T) {
+		tmpDir := t.TempDir()
+		largeFile := filepath.Join(tmpDir, "large.txt")
+		largeContent := make([]byte, 20*1024*1024) // 20MB
+		err := os.WriteFile(largeFile, largeContent, 0644)
+		require.NoError(t, err)
+
+		// Create manager with small limit
+		smallMgr := NewManager(PreviewConfig{
+			CacheDir:       t.TempDir(),
+			MaxPreviewSize: 1 * 1024 * 1024, // 1MB
+		})
+
+		_, _, err = smallMgr.PreviewFile(largeFile)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "过大")
+	})
+
+	t.Run("non-existent file", func(t *testing.T) {
+		_, _, err := m.PreviewFile("/nonexistent/file.txt")
+		assert.Error(t, err)
+	})
+}
+
+func TestManager_DefaultConfig(t *testing.T) {
+	// Test that default values are applied
+	m := NewManager(PreviewConfig{})
+
+	assert.Equal(t, uint(256), m.config.ThumbnailSize)
+	assert.Equal(t, int64(50*1024*1024), m.config.MaxPreviewSize)
+	assert.NotEmpty(t, m.config.CacheDir)
+	assert.Equal(t, 24*time.Hour, m.config.CacheExpiry)
+}
+
+func TestManager_ImageTypes(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	imageExts := []string{".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg", ".ico", ".tiff", ".tif", ".heic", ".heif"}
+	for _, ext := range imageExts {
+		assert.True(t, m.imageTypes[ext], "Expected %s to be an image type", ext)
+	}
+}
+
+func TestManager_VideoTypes(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	videoExts := []string{".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm", ".m4v", ".mpeg", ".mpg", ".3gp"}
+	for _, ext := range videoExts {
+		assert.True(t, m.videoTypes[ext], "Expected %s to be a video type", ext)
+	}
+}
+
+func TestManager_AudioTypes(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	audioExts := []string{".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a", ".ape"}
+	for _, ext := range audioExts {
+		assert.True(t, m.audioTypes[ext], "Expected %s to be an audio type", ext)
+	}
+}
+
+func TestManager_CodeTypes(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	codeExts := []string{".js", ".ts", ".py", ".go", ".java", ".c", ".cpp", ".h", ".html", ".css", ".json", ".xml", ".yaml", ".yml", ".md", ".sh", ".sql", ".php", ".rb", ".rs"}
+	for _, ext := range codeExts {
+		assert.True(t, m.codeTypes[ext], "Expected %s to be a code type", ext)
+	}
+}
+
+func TestManager_ListFiles_EmptyDir(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	emptyDir := t.TempDir()
+	result, err := m.ListFiles(emptyDir, false)
+	require.NoError(t, err)
+	assert.Empty(t, result)
+}
+
+func TestManager_ListFiles_NonExistent(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	_, err := m.ListFiles("/nonexistent/directory", false)
+	assert.Error(t, err)
+}
+
+func TestManager_GetMimeType_Unknown(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	tmpFile := filepath.Join(t.TempDir(), "unknown.xyz")
+	err := os.WriteFile(tmpFile, []byte("test"), 0644)
+	require.NoError(t, err)
+
+	result := m.GetMimeType(tmpFile)
+	assert.Equal(t, "application/octet-stream", result)
+}
+
+func TestNewHandlers(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+	h := NewHandlers(m)
+	require.NotNil(t, h)
+	assert.Equal(t, m, h.manager)
+}
+
+func TestManager_ArchiveTypes(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	tests := []struct {
+		filename string
+		expected FileType
+	}{
+		{"file.zip", FileTypeArchive},
+		{"file.rar", FileTypeArchive},
+		{"file.7z", FileTypeArchive},
+		{"file.tar", FileTypeArchive},
+		{"file.gz", FileTypeArchive},
+		{"file.tar.gz", FileTypeArchive},
+	}
+
+	for _, tt := range tests {
+		tmpFile := filepath.Join(t.TempDir(), tt.filename)
+		err := os.WriteFile(tmpFile, []byte("test"), 0644)
+		require.NoError(t, err)
+
+		result := m.GetFileType(tmpFile)
+		assert.Equal(t, tt.expected, result, "filename: %s", tt.filename)
+	}
+}

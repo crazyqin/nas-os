@@ -1,0 +1,611 @@
+// Package reports 提供资源报告增强API处理程序 (v2.89.0)
+package reports
+
+import (
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"nas-os/internal/api"
+)
+
+// ResourceReportAPIHandlers 资源报告API处理程序
+type ResourceReportAPIHandlers struct {
+	generator *ResourceReportGenerator
+}
+
+// NewResourceReportAPIHandlers 创建资源报告API处理程序
+func NewResourceReportAPIHandlers(
+	storageConfig StorageReportConfig,
+	bandwidthConfig BandwidthReportConfig,
+	capacityConfig CapacityPlanningConfig,
+	costConfig StorageCostConfig,
+) *ResourceReportAPIHandlers {
+	return &ResourceReportAPIHandlers{
+		generator: NewResourceReportGenerator(storageConfig, bandwidthConfig, capacityConfig, costConfig),
+	}
+}
+
+// RegisterResourceReportRoutes 注册资源报告路由
+func (h *ResourceReportAPIHandlers) RegisterResourceReportRoutes(apiGroup *gin.RouterGroup) {
+	// 资源报告 API
+	reports := apiGroup.Group("/resource-reports")
+	{
+		// 生成报告
+		reports.POST("/generate", h.GenerateReport)
+
+		// 存储使用报告
+		reports.POST("/storage-usage", h.GenerateStorageUsageReport)
+		reports.GET("/storage-usage/summary", h.GetStorageUsageSummary)
+		reports.GET("/storage-usage/volumes", h.GetStorageVolumes)
+		reports.GET("/storage-usage/users", h.GetStorageUsers)
+		reports.GET("/storage-usage/trend", h.GetStorageTrend)
+
+		// 带宽统计报告
+		reports.POST("/bandwidth-stats", h.GenerateBandwidthStatsReport)
+		reports.GET("/bandwidth-stats/summary", h.GetBandwidthSummary)
+		reports.GET("/bandwidth-stats/interfaces", h.GetBandwidthInterfaces)
+		reports.GET("/bandwidth-stats/trend", h.GetBandwidthTrend)
+
+		// 容量预测报告
+		reports.POST("/capacity-forecast", h.GenerateCapacityForecastReport)
+		reports.GET("/capacity-forecast/summary", h.GetCapacitySummary)
+		reports.GET("/capacity-forecast/milestones", h.GetCapacityMilestones)
+		reports.GET("/capacity-forecast/predict/:months", h.PredictCapacity)
+
+		// 综合报告
+		reports.POST("/comprehensive", h.GenerateComprehensiveReport)
+		reports.GET("/health-score", h.GetHealthScore)
+
+		// 报告历史
+		reports.GET("/history", h.GetReportHistory)
+		reports.GET("/history/:id", h.GetReportByID)
+	}
+}
+
+// GenerateReport 生成资源报告（统一入口）
+func (h *ResourceReportAPIHandlers) GenerateReport(c *gin.Context) {
+	var req ResourceReportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	// 设置默认值
+	if req.StartTime == nil || req.EndTime == nil {
+		now := time.Now()
+		start := now.AddDate(0, 0, -30)
+		req.StartTime = &start
+		req.EndTime = &now
+	}
+
+	report := h.generator.GenerateReport(req)
+	api.OK(c, report)
+}
+
+// GenerateStorageUsageReport 生成存储使用报告
+func (h *ResourceReportAPIHandlers) GenerateStorageUsageReport(c *gin.Context) {
+	var req ResourceReportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	req.Type = ResourceReportStorageUsage
+	report := h.generator.GenerateReport(req)
+	api.OK(c, report.StorageUsage)
+}
+
+// GetStorageUsageSummary 获取存储使用摘要
+func (h *ResourceReportAPIHandlers) GetStorageUsageSummary(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:      ResourceReportStorageUsage,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.StorageUsage != nil {
+		api.OK(c, report.StorageUsage.Summary)
+	} else {
+		api.OK(c, StorageUsageSummary{})
+	}
+}
+
+// GetStorageVolumes 获取存储卷列表
+func (h *ResourceReportAPIHandlers) GetStorageVolumes(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:      ResourceReportStorageUsage,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.StorageUsage != nil {
+		api.OK(c, report.StorageUsage.Volumes)
+	} else {
+		api.OK(c, []VolumeUsageDetail{})
+	}
+}
+
+// GetStorageUsers 获取存储用户统计
+func (h *ResourceReportAPIHandlers) GetStorageUsers(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:      ResourceReportStorageUsage,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.StorageUsage != nil {
+		api.OK(c, report.StorageUsage.TopUsers)
+	} else {
+		api.OK(c, []UserStorageUsage{})
+	}
+}
+
+// GetStorageTrend 获取存储趋势
+func (h *ResourceReportAPIHandlers) GetStorageTrend(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:      ResourceReportStorageUsage,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.StorageUsage != nil {
+		api.OK(c, report.StorageUsage.Trend)
+	} else {
+		api.OK(c, StorageTrendData{})
+	}
+}
+
+// GenerateBandwidthStatsReport 生成带宽统计报告
+func (h *ResourceReportAPIHandlers) GenerateBandwidthStatsReport(c *gin.Context) {
+	var req ResourceReportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	req.Type = ResourceReportBandwidthStats
+	report := h.generator.GenerateReport(req)
+	api.OK(c, report.BandwidthStats)
+}
+
+// GetBandwidthSummary 获取带宽摘要
+func (h *ResourceReportAPIHandlers) GetBandwidthSummary(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:      ResourceReportBandwidthStats,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.BandwidthStats != nil {
+		api.OK(c, report.BandwidthStats.Summary)
+	} else {
+		api.OK(c, BandwidthSummary{})
+	}
+}
+
+// GetBandwidthInterfaces 获取接口带宽统计
+func (h *ResourceReportAPIHandlers) GetBandwidthInterfaces(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:      ResourceReportBandwidthStats,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.BandwidthStats != nil {
+		api.OK(c, report.BandwidthStats.InterfaceStats)
+	} else {
+		api.OK(c, []BandwidthUsageStats{})
+	}
+}
+
+// GetBandwidthTrend 获取带宽趋势
+func (h *ResourceReportAPIHandlers) GetBandwidthTrend(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:      ResourceReportBandwidthStats,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.BandwidthStats != nil {
+		api.OK(c, report.BandwidthStats.Trends)
+	} else {
+		api.OK(c, []BandwidthTrend{})
+	}
+}
+
+// GenerateCapacityForecastReport 生成容量预测报告
+func (h *ResourceReportAPIHandlers) GenerateCapacityForecastReport(c *gin.Context) {
+	var req ResourceReportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	if req.ForecastDays == 0 {
+		req.ForecastDays = 90
+	}
+
+	req.Type = ResourceReportCapacity
+	report := h.generator.GenerateReport(req)
+	api.OK(c, report.CapacityForecast)
+}
+
+// GetCapacitySummary 获取容量摘要
+func (h *ResourceReportAPIHandlers) GetCapacitySummary(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:         ResourceReportCapacity,
+		StartTime:    &start,
+		EndTime:      &now,
+		ForecastDays: 90,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.CapacityForecast != nil {
+		api.OK(c, report.CapacityForecast.Summary)
+	} else {
+		api.OK(c, CapacityPlanningSummary{})
+	}
+}
+
+// GetCapacityMilestones 获取容量里程碑
+func (h *ResourceReportAPIHandlers) GetCapacityMilestones(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	req := ResourceReportRequest{
+		Type:         ResourceReportCapacity,
+		StartTime:    &start,
+		EndTime:      &now,
+		ForecastDays: 90,
+	}
+
+	report := h.generator.GenerateReport(req)
+	if report.CapacityForecast != nil {
+		api.OK(c, report.CapacityForecast.Milestones)
+	} else {
+		api.OK(c, []CapacityMilestone{})
+	}
+}
+
+// PredictCapacity 预测容量
+func (h *ResourceReportAPIHandlers) PredictCapacity(c *gin.Context) {
+	monthsStr := c.Param("months")
+	var months int
+	if monthsStr != "" {
+		if _, err := c.Params[0]; err {
+			months = 3 // 默认3个月
+		} else {
+			months = 3
+		}
+	} else {
+		months = 3
+	}
+
+	// 简化实现，返回预测结果
+	api.OK(c, gin.H{
+		"months":           months,
+		"predicted_gb":     0,
+		"confidence":       0.75,
+		"model":            "linear",
+		"recommended_gb":   0,
+	})
+}
+
+// GenerateComprehensiveReport 生成综合报告
+func (h *ResourceReportAPIHandlers) GenerateComprehensiveReport(c *gin.Context) {
+	var req ResourceReportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	req.Type = ResourceReportComprehensive
+	report := h.generator.GenerateReport(req)
+	api.OK(c, report.Comprehensive)
+}
+
+// GetHealthScore 获取健康评分
+func (h *ResourceReportAPIHandlers) GetHealthScore(c *gin.Context) {
+	now := time.Now()
+	start := now.AddDate(0, 0, -30)
+
+	// 生成各类报告
+	storageReq := ResourceReportRequest{
+		Type:      ResourceReportStorageUsage,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+	bandwidthReq := ResourceReportRequest{
+		Type:      ResourceReportBandwidthStats,
+		StartTime: &start,
+		EndTime:   &now,
+	}
+	capacityReq := ResourceReportRequest{
+		Type:         ResourceReportCapacity,
+		StartTime:    &start,
+		EndTime:      &now,
+		ForecastDays: 90,
+	}
+
+	storageReport := h.generator.GenerateReport(storageReq)
+	bandwidthReport := h.generator.GenerateReport(bandwidthReq)
+	capacityReport := h.generator.GenerateReport(capacityReq)
+
+	score := h.generator.CalculateHealthScore(
+		storageReport.StorageUsage,
+		bandwidthReport.BandwidthStats,
+		capacityReport.CapacityForecast,
+	)
+
+	api.OK(c, gin.H{
+		"score":        score,
+		"status":       h.generator.GetHealthStatus(score),
+		"generated_at": now,
+	})
+}
+
+// GetReportHistory 获取报告历史
+func (h *ResourceReportAPIHandlers) GetReportHistory(c *gin.Context) {
+	// 简化实现，返回空列表
+	api.OK(c, []ResourceReportResponse{})
+}
+
+// GetReportByID 根据ID获取报告
+func (h *ResourceReportAPIHandlers) GetReportByID(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		api.BadRequest(c, "报告ID不能为空")
+		return
+	}
+
+	// 简化实现
+	api.NotFound(c, "报告不存在: "+id)
+}
+
+// ========== 数据导出 API ==========
+
+// ExportReportRequest 导出报告请求
+type ExportReportRequest struct {
+	// 报告ID
+	ReportID string `json:"report_id" binding:"required"`
+
+	// 导出格式
+	Format string `json:"format" binding:"required"` // json, csv, excel, pdf, html
+
+	// 语言
+	Language string `json:"language"` // zh-CN, en-US
+
+	// 包含图表
+	IncludeCharts bool `json:"include_charts"`
+
+	// 图表格式
+	ChartFormat string `json:"chart_format"` // png, svg
+}
+
+// ExportReport 导出报告
+func (h *ResourceReportAPIHandlers) ExportReport(c *gin.Context) {
+	var req ExportReportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	// 简化实现
+	api.OK(c, gin.H{
+		"message":    "导出功能正在开发中",
+		"report_id":  req.ReportID,
+		"format":     req.Format,
+		"download_url": "",
+	})
+}
+
+// ========== 定时报告 API ==========
+
+// ScheduledReportConfig 定时报告配置
+type ScheduledReportConfig struct {
+	// 报告名称
+	Name string `json:"name" binding:"required"`
+
+	// 报告类型
+	Type ResourceReportType `json:"type" binding:"required"`
+
+	// 调度周期
+	Schedule string `json:"schedule" binding:"required"` // cron 表达式
+
+	// 接收人
+	Recipients []string `json:"recipients"` // 邮箱列表
+
+	// 导出格式
+	ExportFormat string `json:"export_format"`
+
+	// 是否启用
+	Enabled bool `json:"enabled"`
+
+	// 保留历史数
+	RetentionCount int `json:"retention_count"`
+}
+
+// CreateScheduledReport 创建定时报告
+func (h *ResourceReportAPIHandlers) CreateScheduledReport(c *gin.Context) {
+	var config ScheduledReportConfig
+	if err := c.ShouldBindJSON(&config); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	// 简化实现
+	api.Created(c, gin.H{
+		"id":      "sched_" + time.Now().Format("20060102150405"),
+		"name":    config.Name,
+		"type":    config.Type,
+		"enabled": config.Enabled,
+	})
+}
+
+// ListScheduledReports 列出定时报告
+func (h *ResourceReportAPIHandlers) ListScheduledReports(c *gin.Context) {
+	api.OK(c, []ScheduledReportConfig{})
+}
+
+// ========== 报告模板 API ==========
+
+// ReportTemplate 报告模板
+type ReportTemplate struct {
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Type        ResourceReportType     `json:"type"`
+	Sections    []ReportSection        `json:"sections"`
+	Charts      []ChartConfig          `json:"charts"`
+	CreatedAt   time.Time              `json:"created_at"`
+	UpdatedAt   time.Time              `json:"updated_at"`
+}
+
+// ReportSection 报告章节
+type ReportSection struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Type        string `json:"type"` // summary, table, chart, text
+	DataSource  string `json:"data_source"`
+	Order       int    `json:"order"`
+	Visible     bool   `json:"visible"`
+}
+
+// ChartConfig 图表配置
+type ChartConfig struct {
+	ID       string            `json:"id"`
+	Type     string            `json:"type"` // line, bar, pie, gauge
+	Title    string            `json:"title"`
+	Width    int               `json:"width"`
+	Height   int               `json:"height"`
+	Options  map[string]interface{} `json:"options"`
+}
+
+// ListReportTemplates 列出报告模板
+func (h *ResourceReportAPIHandlers) ListReportTemplates(c *gin.Context) {
+	templates := []ReportTemplate{
+		{
+			ID:          "tpl_storage_standard",
+			Name:        "标准存储报告",
+			Description: "包含存储使用、趋势、预测的标准报告",
+			Type:        ResourceReportStorageUsage,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		{
+			ID:          "tpl_bandwidth_standard",
+			Name:        "标准带宽报告",
+			Description: "包含带宽统计、趋势分析的标准报告",
+			Type:        ResourceReportBandwidthStats,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		{
+			ID:          "tpl_capacity_standard",
+			Name:        "标准容量预测报告",
+			Description: "包含容量预测、里程碑、建议的标准报告",
+			Type:        ResourceReportCapacity,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+		{
+			ID:          "tpl_comprehensive",
+			Name:        "综合资源报告",
+			Description: "包含存储、带宽、容量的综合报告",
+			Type:        ResourceReportComprehensive,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
+	}
+
+	api.OK(c, templates)
+}
+
+// GetReportTemplate 获取报告模板
+func (h *ResourceReportAPIHandlers) GetReportTemplate(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		api.BadRequest(c, "模板ID不能为空")
+		return
+	}
+
+	template := ReportTemplate{
+		ID:          id,
+		Name:        "标准存储报告",
+		Description: "包含存储使用、趋势、预测的标准报告",
+		Type:        ResourceReportStorageUsage,
+		Sections: []ReportSection{
+			{ID: "sec_summary", Title: "存储摘要", Type: "summary", Order: 1, Visible: true},
+			{ID: "sec_volumes", Title: "卷详情", Type: "table", Order: 2, Visible: true},
+			{ID: "sec_trend", Title: "使用趋势", Type: "chart", Order: 3, Visible: true},
+			{ID: "sec_forecast", Title: "容量预测", Type: "chart", Order: 4, Visible: true},
+		},
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	api.OK(c, template)
+}
+
+// GenerateFromTemplate 从模板生成报告
+func (h *ResourceReportAPIHandlers) GenerateFromTemplate(c *gin.Context) {
+	templateID := c.Param("id")
+	if templateID == "" {
+		api.BadRequest(c, "模板ID不能为空")
+		return
+	}
+
+	var req ResourceReportRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	// 根据模板类型设置报告类型
+	switch templateID {
+	case "tpl_storage_standard":
+		req.Type = ResourceReportStorageUsage
+	case "tpl_bandwidth_standard":
+		req.Type = ResourceReportBandwidthStats
+	case "tpl_capacity_standard":
+		req.Type = ResourceReportCapacity
+	case "tpl_comprehensive":
+		req.Type = ResourceReportComprehensive
+	default:
+		// 默认使用请求中的类型
+	}
+
+	report := h.generator.GenerateReport(req)
+	api.OK(c, report)
+}

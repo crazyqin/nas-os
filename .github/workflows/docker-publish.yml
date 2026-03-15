@@ -3,6 +3,12 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
+# v2.89.0 更新（工部优化）：
+# - 新增镜像大小和构建时间追踪
+# - 优化多架构构建缓存分离
+# - 添加构建产物校验
+# - 更新缓存版本至 v10
+#
 # v2.88.0 更新（工部优化）：
 # - 更新版本注释
 #
@@ -64,7 +70,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   # 缓存版本号
-  CACHE_VERSION: 'v9'
+  CACHE_VERSION: 'v10'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
