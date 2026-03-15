@@ -200,8 +200,9 @@ func (s *Server) resolvePath(r *http.Request, requestPath string) (string, error
 	// 清理路径
 	cleanPath := filepath.Clean("/" + decodedPath)
 
-	// 防止路径遍历攻击
-	if strings.Contains(cleanPath, "..") {
+	// 防止路径遍历攻击 - 检查原始路径中的 ..
+	// 注意：filepath.Clean 会消除 ..，所以需要检查原始解码路径
+	if strings.Contains(decodedPath, "..") {
 		return "", ErrPathTraversal
 	}
 
@@ -220,7 +221,17 @@ func (s *Server) resolvePath(r *http.Request, requestPath string) (string, error
 		}
 	}
 
-	return filepath.Join(basePath, cleanPath), nil
+	// 构建完整路径并验证是否在允许的根目录内
+	fullPath := filepath.Join(basePath, cleanPath)
+	absBasePath, _ := filepath.Abs(basePath)
+	absFullPath, _ := filepath.Abs(fullPath)
+
+	// 确保解析后的路径仍在根目录内
+	if !strings.HasPrefix(absFullPath, absBasePath) {
+		return "", ErrPathTraversal
+	}
+
+	return fullPath, nil
 }
 
 // handleWebDAV 处理 WebDAV 请求

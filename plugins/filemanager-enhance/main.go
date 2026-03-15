@@ -72,6 +72,7 @@ type FileManagerEnhance struct {
 	handlers map[string]interface{}
 	mu       sync.RWMutex
 	running  bool
+	rootPath string // 根目录，用于路径验证
 }
 
 // New 创建插件实例（入口函数）
@@ -106,6 +107,13 @@ func (p *FileManagerEnhance) Init(config map[string]interface{}) error {
 	}
 	if _, ok := p.config["previewSize"]; !ok {
 		p.config["previewSize"] = 300
+	}
+
+	// 设置根目录（用于路径安全验证）
+	if rootPath, ok := p.config["rootPath"].(string); ok && rootPath != "" {
+		p.rootPath = filepath.Clean(rootPath)
+	} else {
+		p.rootPath = "/data" // 默认根目录
 	}
 
 	// 初始化处理器
@@ -202,6 +210,18 @@ func (p *FileManagerEnhance) batchCopy(req BatchOperationRequest) (*BatchOperati
 		return nil, fmt.Errorf("目标目录不能为空")
 	}
 
+	// 验证目标路径是否在允许范围内
+	if err := p.validatePaths(req.Target); err != nil {
+		return nil, fmt.Errorf("目标路径验证失败: %w", err)
+	}
+
+	// 验证所有源文件路径
+	for _, src := range req.Files {
+		if err := p.validatePaths(src); err != nil {
+			return nil, fmt.Errorf("源文件路径验证失败: %w", err)
+		}
+	}
+
 	// 确保目标目录存在
 	if err := os.MkdirAll(req.Target, 0755); err != nil {
 		return nil, fmt.Errorf("创建目标目录失败: %w", err)
@@ -246,6 +266,18 @@ func (p *FileManagerEnhance) batchMove(req BatchOperationRequest) (*BatchOperati
 		return nil, fmt.Errorf("目标目录不能为空")
 	}
 
+	// 验证目标路径是否在允许范围内
+	if err := p.validatePaths(req.Target); err != nil {
+		return nil, fmt.Errorf("目标路径验证失败: %w", err)
+	}
+
+	// 验证所有源文件路径
+	for _, src := range req.Files {
+		if err := p.validatePaths(src); err != nil {
+			return nil, fmt.Errorf("源文件路径验证失败: %w", err)
+		}
+	}
+
 	if err := os.MkdirAll(req.Target, 0755); err != nil {
 		return nil, fmt.Errorf("创建目标目录失败: %w", err)
 	}
@@ -285,6 +317,13 @@ func (p *FileManagerEnhance) batchDelete(req BatchOperationRequest) (*BatchOpera
 		Failed:  []FileError{},
 	}
 
+	// 验证所有文件路径
+	for _, file := range req.Files {
+		if err := p.validatePaths(file); err != nil {
+			return nil, fmt.Errorf("文件路径验证失败: %w", err)
+		}
+	}
+
 	for _, file := range req.Files {
 		if req.DryRun {
 			result.Success = append(result.Success, file)
@@ -319,6 +358,13 @@ func (p *FileManagerEnhance) batchRename(req BatchOperationRequest) (*BatchOpera
 
 	if req.Pattern == "" {
 		return nil, fmt.Errorf("重命名模式不能为空")
+	}
+
+	// 验证所有文件路径
+	for _, src := range req.Files {
+		if err := p.validatePaths(src); err != nil {
+			return nil, fmt.Errorf("文件路径验证失败: %w", err)
+		}
 	}
 
 	for i, src := range req.Files {
@@ -362,6 +408,11 @@ func (p *FileManagerEnhance) batchRename(req BatchOperationRequest) (*BatchOpera
 
 // preview 文件预览
 func (p *FileManagerEnhance) preview(path string) (map[string]interface{}, error) {
+	// 验证路径
+	if err := p.validatePaths(path); err != nil {
+		return nil, fmt.Errorf("路径验证失败: %w", err)
+	}
+
 	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
@@ -421,6 +472,11 @@ func (p *FileManagerEnhance) preview(path string) (map[string]interface{}, error
 
 // advancedSearch 高级搜索
 func (p *FileManagerEnhance) advancedSearch(root, query string, options map[string]interface{}) ([]string, error) {
+	// 验证搜索根目录
+	if err := p.validatePaths(root); err != nil {
+		return nil, fmt.Errorf("搜索路径验证失败: %w", err)
+	}
+
 	results := []string{}
 	query = strings.ToLower(query)
 
@@ -443,6 +499,31 @@ func (p *FileManagerEnhance) advancedSearch(root, query string, options map[stri
 }
 
 // ========== 辅助函数 ==========
+
+// isPathAllowed 检查路径是否在允许的根目录内（防止路径遍历攻击）
+func (p *FileManagerEnhance) isPathAllowed(path string) bool {
+	if p.rootPath == "" {
+		return false
+	}
+	// 清理并获取绝对路径
+	cleanPath := filepath.Clean(path)
+	absPath, err := filepath.Abs(cleanPath)
+	if err != nil {
+		return false
+	}
+	// 检查路径是否以根目录开头
+	return strings.HasPrefix(absPath, p.rootPath)
+}
+
+// validatePaths 验证多个路径是否都在允许范围内
+func (p *FileManagerEnhance) validatePaths(paths ...string) error {
+	for _, path := range paths {
+		if !p.isPathAllowed(path) {
+			return fmt.Errorf("路径不在允许范围内: %s", path)
+		}
+	}
+	return nil
+}
 
 func copyFile(src, dst string) error {
 	data, err := os.ReadFile(src)
