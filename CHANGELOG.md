@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.91.0] - 2026-03-16
+
+### Changed
+- **版本号更新** (吏部)
+  - 版本号更新至 v2.91.0
+  - README.md 版本信息同步
+  - Docker 镜像标签更新
+
 ## [v2.89.0] - 2026-03-16
 
 ### Added
