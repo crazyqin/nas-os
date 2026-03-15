@@ -74,11 +74,11 @@ func InitializeService() (*Service, error) {
 
 // Monitor 存储池监控器
 type Monitor struct {
-	manager   *Manager
-	interval  time.Duration
-	stopChan  chan struct{}
-	running   bool
-	mu        sync.Mutex
+	manager  *Manager
+	interval time.Duration
+	stopChan chan struct{}
+	running  bool
+	mu       sync.Mutex
 }
 
 // NewMonitor 创建监控器

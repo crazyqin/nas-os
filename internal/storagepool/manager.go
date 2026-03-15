@@ -20,7 +20,7 @@ const (
 	PoolStatusDegraded   PoolStatus = "degraded"   // 降级（部分磁盘故障）
 	PoolStatusRebuilding PoolStatus = "rebuilding" // 重建中
 	PoolStatusFaulted    PoolStatus = "faulted"    // 故障（不可用）
-	PoolStatusOffline    PoolStatus = "offline"   // 离线
+	PoolStatusOffline    PoolStatus = "offline"    // 离线
 )
 
 // RAIDLevel RAID 级别
@@ -64,38 +64,38 @@ type Device struct {
 
 // Pool 存储池信息
 type Pool struct {
-	ID             string      `json:"id"`             // 存储池唯一标识
-	Name           string      `json:"name"`           // 存储池名称
-	Description    string      `json:"description"`    // 描述
-	RAIDLevel      RAIDLevel   `json:"raidLevel"`      // RAID 级别
-	Devices        []*Device   `json:"devices"`        // 设备列表
-	SpareDevices   []*Device   `json:"spareDevices"`   // 热备设备
-	Size           uint64      `json:"size"`           // 总容量（字节）
-	Used           uint64      `json:"used"`           // 已使用（字节）
-	Free           uint64      `json:"free"`           // 可用空间（字节）
-	Status         PoolStatus  `json:"status"`         // 状态
-	MountPoint     string      `json:"mountPoint"`     // 挂载点
-	FileSystem     string      `json:"fileSystem"`     // 文件系统类型 (btrfs, zfs, ext4)
-	HealthScore    int         `json:"healthScore"`    // 健康分数 0-100
-	ReadSpeed      uint64      `json:"readSpeed"`      // 读取速度 (bytes/s)
-	WriteSpeed     uint64      `json:"writeSpeed"`     // 写入速度 (bytes/s)
-	IOps           uint64      `json:"ioPs"`           // IOPS
+	ID              string     `json:"id"`              // 存储池唯一标识
+	Name            string     `json:"name"`            // 存储池名称
+	Description     string     `json:"description"`     // 描述
+	RAIDLevel       RAIDLevel  `json:"raidLevel"`       // RAID 级别
+	Devices         []*Device  `json:"devices"`         // 设备列表
+	SpareDevices    []*Device  `json:"spareDevices"`    // 热备设备
+	Size            uint64     `json:"size"`            // 总容量（字节）
+	Used            uint64     `json:"used"`            // 已使用（字节）
+	Free            uint64     `json:"free"`            // 可用空间（字节）
+	Status          PoolStatus `json:"status"`          // 状态
+	MountPoint      string     `json:"mountPoint"`      // 挂载点
+	FileSystem      string     `json:"fileSystem"`      // 文件系统类型 (btrfs, zfs, ext4)
+	HealthScore     int        `json:"healthScore"`     // 健康分数 0-100
+	ReadSpeed       uint64     `json:"readSpeed"`       // 读取速度 (bytes/s)
+	WriteSpeed      uint64     `json:"writeSpeed"`      // 写入速度 (bytes/s)
+	IOps            uint64     `json:"ioPs"`            // IOPS
 	RebuildProgress float64    `json:"rebuildProgress"` // 重建进度 0-100
-	CreatedAt      time.Time   `json:"createdAt"`      // 创建时间
-	UpdatedAt      time.Time   `json:"updatedAt"`      // 更新时间
-	Tags           []string    `json:"tags"`          // 标签
+	CreatedAt       time.Time  `json:"createdAt"`       // 创建时间
+	UpdatedAt       time.Time  `json:"updatedAt"`       // 更新时间
+	Tags            []string   `json:"tags"`            // 标签
 }
 
 // CreatePoolRequest 创建存储池请求
 type CreatePoolRequest struct {
-	Name         string     `json:"name" validate:"required,min=1,max=64"`
-	Description  string     `json:"description"`
-	RAIDLevel    RAIDLevel  `json:"raidLevel" validate:"required,oneof=single raid0 raid1 raid5 raid6 raid10"`
-	DevicePaths  []string   `json:"devicePaths" validate:"required,min=1"`
-	SparePaths   []string   `json:"sparePaths"`
-	MountPoint   string     `json:"mountPoint" validate:"omitempty"`
-	FileSystem   string     `json:"fileSystem" validate:"oneof=btrfs zfs ext4"`
-	Tags         []string   `json:"tags"`
+	Name        string    `json:"name" validate:"required,min=1,max=64"`
+	Description string    `json:"description"`
+	RAIDLevel   RAIDLevel `json:"raidLevel" validate:"required,oneof=single raid0 raid1 raid5 raid6 raid10"`
+	DevicePaths []string  `json:"devicePaths" validate:"required,min=1"`
+	SparePaths  []string  `json:"sparePaths"`
+	MountPoint  string    `json:"mountPoint" validate:"omitempty"`
+	FileSystem  string    `json:"fileSystem" validate:"oneof=btrfs zfs ext4"`
+	Tags        []string  `json:"tags"`
 }
 
 // AddDeviceRequest 添加设备请求
@@ -112,9 +112,9 @@ type RemoveDeviceRequest struct {
 
 // ResizePoolRequest 扩容/缩容请求
 type ResizePoolRequest struct {
-	NewRAIDLevel RAIDLevel `json:"newRaidLevel"` // 新的 RAID 级别（可选）
-	AddDevices   []string  `json:"addDevices"`   // 添加的设备
-	RemoveDevices []string `json:"removeDevices"` // 移除的设备
+	NewRAIDLevel  RAIDLevel `json:"newRaidLevel"`  // 新的 RAID 级别（可选）
+	AddDevices    []string  `json:"addDevices"`    // 添加的设备
+	RemoveDevices []string  `json:"removeDevices"` // 移除的设备
 }
 
 // RAIDConfig RAID 配置信息
@@ -188,11 +188,11 @@ var RAIDConfigs = map[RAIDLevel]RAIDConfig{
 
 // Manager 存储池管理器
 type Manager struct {
-	pools      map[string]*Pool
-	devices    map[string]*Device
-	mu         sync.RWMutex
-	dataPath   string // 数据存储路径
-	mountBase  string // 挂载基础目录
+	pools     map[string]*Pool
+	devices   map[string]*Device
+	mu        sync.RWMutex
+	dataPath  string // 数据存储路径
+	mountBase string // 挂载基础目录
 }
 
 // NewManager 创建存储池管理器
@@ -301,22 +301,22 @@ func (m *Manager) CreatePool(req *CreatePoolRequest) (*Pool, error) {
 
 	// 创建存储池对象
 	pool := &Pool{
-		ID:          generatePoolID(),
-		Name:        req.Name,
-		Description: req.Description,
-		RAIDLevel:   req.RAIDLevel,
-		Devices:     devices,
+		ID:           generatePoolID(),
+		Name:         req.Name,
+		Description:  req.Description,
+		RAIDLevel:    req.RAIDLevel,
+		Devices:      devices,
 		SpareDevices: spareDevices,
-		Size:        usableSize,
-		Used:        0,
-		Free:        usableSize,
-		Status:      PoolStatusCreating,
-		MountPoint:  mountPoint,
-		FileSystem:  fs,
-		HealthScore: 100,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-		Tags:        req.Tags,
+		Size:         usableSize,
+		Used:         0,
+		Free:         usableSize,
+		Status:       PoolStatusCreating,
+		MountPoint:   mountPoint,
+		FileSystem:   fs,
+		HealthScore:  100,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+		Tags:         req.Tags,
 	}
 
 	// 更新设备状态
@@ -612,21 +612,21 @@ func (m *Manager) GetPoolStats(poolID string) (map[string]interface{}, error) {
 	}
 
 	stats := map[string]interface{}{
-		"id":              pool.ID,
-		"name":            pool.Name,
-		"status":          pool.Status,
-		"healthScore":     pool.HealthScore,
-		"totalDevices":    len(pool.Devices),
-		"spareDevices":    len(pool.SpareDevices),
-		"size":            pool.Size,
-		"used":            pool.Used,
-		"free":            pool.Free,
-		"usagePercent":    float64(pool.Used) / float64(pool.Size) * 100,
-		"raidLevel":       pool.RAIDLevel,
-		"faultTolerance":  RAIDConfigs[pool.RAIDLevel].FaultTolerance,
-		"readSpeed":       pool.ReadSpeed,
-		"writeSpeed":      pool.WriteSpeed,
-		"ioPs":            pool.IOps,
+		"id":             pool.ID,
+		"name":           pool.Name,
+		"status":         pool.Status,
+		"healthScore":    pool.HealthScore,
+		"totalDevices":   len(pool.Devices),
+		"spareDevices":   len(pool.SpareDevices),
+		"size":           pool.Size,
+		"used":           pool.Used,
+		"free":           pool.Free,
+		"usagePercent":   float64(pool.Used) / float64(pool.Size) * 100,
+		"raidLevel":      pool.RAIDLevel,
+		"faultTolerance": RAIDConfigs[pool.RAIDLevel].FaultTolerance,
+		"readSpeed":      pool.ReadSpeed,
+		"writeSpeed":     pool.WriteSpeed,
+		"ioPs":           pool.IOps,
 	}
 
 	if pool.Status == PoolStatusRebuilding {
@@ -676,13 +676,13 @@ func (m *Manager) UpdatePoolStats(poolID string, stats *PoolStatsUpdate) error {
 
 // PoolStatsUpdate 存储池状态更新
 type PoolStatsUpdate struct {
-	Used            *uint64     `json:"used,omitempty"`
-	Status          PoolStatus  `json:"status,omitempty"`
-	HealthScore     *int        `json:"healthScore,omitempty"`
-	ReadSpeed       *uint64     `json:"readSpeed,omitempty"`
-	WriteSpeed      *uint64     `json:"writeSpeed,omitempty"`
-	IOps            *uint64     `json:"ioPs,omitempty"`
-	RebuildProgress *float64    `json:"rebuildProgress,omitempty"`
+	Used            *uint64    `json:"used,omitempty"`
+	Status          PoolStatus `json:"status,omitempty"`
+	HealthScore     *int       `json:"healthScore,omitempty"`
+	ReadSpeed       *uint64    `json:"readSpeed,omitempty"`
+	WriteSpeed      *uint64    `json:"writeSpeed,omitempty"`
+	IOps            *uint64    `json:"ioPs,omitempty"`
+	RebuildProgress *float64   `json:"rebuildProgress,omitempty"`
 }
 
 // getAvailableDevice 获取可用设备
