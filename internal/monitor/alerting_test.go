@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // ========== AlertingManager 基础测试 ==========
@@ -401,10 +402,4 @@ func TestAlertingManager_GetAlertHistory(t *testing.T) {
 
 	history := am.GetAlertHistory(10, 0)
 	assert.GreaterOrEqual(t, len(history), 1)
-}
-
-func require.Len(t *testing.T, actual interface{}, expected int, msgAndArgs ...interface{}) {
-	if !assert.Len(t, actual, expected, msgAndArgs...) {
-		t.FailNow()
-	}
 }
