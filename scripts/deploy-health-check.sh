@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # NAS-OS 部署健康检查脚本
-# v2.89.0 工部创建
+# v2.91.0 工部创建
 #
 # 功能：
 #   - 服务健康检查
@@ -20,7 +20,7 @@ set -euo pipefail
 
 # ========== 配置 ==========
 SCRIPT_NAME="deploy-health-check"
-SCRIPT_VERSION="2.89.0"
+SCRIPT_VERSION="2.91.0"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
@@ -161,17 +161,17 @@ check_http_health() {
 # 检查存储挂载
 check_storage_mount() {
     local mount_point="$1"
-    
+
     log_info "检查存储挂载: $mount_point"
-    
+
     if mountpoint -q "$mount_point" 2>/dev/null; then
         local usage
         usage=$(df -h "$mount_point" 2>/dev/null | awk 'NR==2 {print $5}' | tr -d '%')
-        
-        if [[ "$usage" -gt 90 ]]; then
-            check_result "storage_$mount_point" "warn" "挂载正常，使用率 ${usage}%"
-        elif [[ "$usage" -gt 95 ]]; then
+
+        if [[ "$usage" -gt 95 ]]; then
             check_result "storage_$mount_point" "fail" "挂载正常，但使用率过高 ${usage}%"
+        elif [[ "$usage" -gt 90 ]]; then
+            check_result "storage_$mount_point" "warn" "挂载正常，使用率 ${usage}%"
         else
             check_result "storage_$mount_point" "pass" "挂载正常，使用率 ${usage}%"
         fi
@@ -526,24 +526,26 @@ generate_report() {
   "checks": {
 EOF
         )
-        
+
         local first=true
         for key in "${!CHECK_RESULTS[@]}"; do
             local value="${CHECK_RESULTS[$key]}"
             local status="${value%%:*}"
             local message="${value#*:}"
-            
+
             if [[ "$first" == "true" ]]; then
                 first=false
             else
                 json_output+=","
             fi
-            
+
             json_output+="\"$key\": {\"status\": \"$status\", \"message\": \"$message\"}"
         done
-        
-        json_output+="\n  }\n}"
-        
+
+        json_output+="
+  }
+}"
+
         if [[ -n "$OUTPUT_FILE" ]]; then
             echo -e "$json_output" > "$OUTPUT_FILE"
             echo "报告已保存到: $OUTPUT_FILE"

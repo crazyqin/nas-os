@@ -17,6 +17,7 @@
 |------|------|------|
 | `service.sh` | v2.75.0 | 统一服务管理（start/stop/restart/status/logs） |
 | `service-status.sh` | v1.0.0 | 服务状态检查（systemd/Docker） |
+| `service-diagnose.sh` | v2.91.0 | 服务诊断（状态、端口、依赖、日志分析、修复建议） |
 | `auto-recovery.sh` | - | 自动故障恢复 |
 | `service-monitor.sh` | - | 服务监控守护进程 |
 | `monitor-daemon.sh` | v1.0.0 | 后台监控守护进程（CPU/内存/磁盘/服务/告警） |

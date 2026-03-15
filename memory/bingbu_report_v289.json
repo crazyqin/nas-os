@@ -1,0 +1,59 @@
+{
+  "version": "v2.89.0",
+  "task": "测试覆盖率提升",
+  "timestamp": "2026-03-16T04:30:00+08:00",
+  "summary": {
+    "before_coverage": 28.3,
+    "after_coverage": 28.8,
+    "improvement": 0.5
+  },
+  "modules": {
+    "internal/web": {
+      "before": 2.0,
+      "after": 30.9,
+      "improvement": 28.9,
+      "status": "exceeded_target"
+    },
+    "internal/docker": {
+      "before": 2.3,
+      "after": 7.6,
+      "improvement": 5.3,
+      "status": "improved"
+    },
+    "internal/container": {
+      "before": 3.4,
+      "after": 6.9,
+      "improvement": 3.5,
+      "status": "improved"
+    },
+    "internal/media": {
+      "before": 5.3,
+      "after": 5.5,
+      "improvement": 0.2,
+      "status": "improved"
+    },
+    "internal/files": {
+      "before": 7.5,
+      "after": 10.5,
+      "improvement": 3.0,
+      "status": "improved"
+    }
+  },
+  "tests_added": {
+    "internal/files/manager_test.go": {
+      "new_tests": 15,
+      "description": "PreviewFile, DefaultConfig, Type maps, Archive types, etc."
+    },
+    "internal/media/library_test.go": {
+      "new_tests": 18,
+      "description": "MediaItem, MediaLibrary, MovieInfo, TVShowInfo, MusicAlbumInfo, PlayHistory, etc."
+    },
+    "internal/docker/app_custom_test.go": {
+      "new_tests": 16,
+      "description": "CustomTemplateManager, CreateFromCompose, ListTemplates, GetTemplate, DeleteTemplate, UpdateTemplate, etc."
+    }
+  },
+  "modules_with_10_percent_improvement": 1,
+  "all_tests_passed": true,
+  "note": "internal/web 模块覆盖率大幅提升（+28.9%），因修复了编译错误后测试可正常运行。其他模块也有不同程度提升。"
+}
