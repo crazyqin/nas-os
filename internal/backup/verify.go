@@ -88,6 +88,9 @@ type VerificationManager struct {
 
 // NewVerificationManager 创建验证管理器
 func NewVerificationManager(config *VerificationConfig, backup *IncrementalBackup, encryption *EncryptionManager, logger *zap.Logger) *VerificationManager {
+	if logger == nil {
+		logger = zap.NewNop()
+	}
 	return &VerificationManager{
 		config:        config,
 		backupManager: backup,
@@ -99,6 +102,9 @@ func NewVerificationManager(config *VerificationConfig, backup *IncrementalBacku
 
 // VerifySnapshot 验证快照
 func (vm *VerificationManager) VerifySnapshot(ctx context.Context, snapshotID string) (*VerificationResult, error) {
+	if vm.backupManager == nil {
+		return nil, errors.New("backup manager is nil")
+	}
 	snapshot, err := vm.backupManager.GetSnapshot(snapshotID)
 	if err != nil {
 		return nil, err
@@ -392,6 +398,9 @@ func (vm *VerificationManager) repairFile(path string, info FileInfo, snapshot *
 
 // VerifyAll 验证所有快照
 func (vm *VerificationManager) VerifyAll(ctx context.Context) ([]*VerificationResult, error) {
+	if vm.backupManager == nil {
+		return nil, errors.New("backup manager is nil")
+	}
 	snapshots := vm.backupManager.ListSnapshots()
 	results := make([]*VerificationResult, 0, len(snapshots))
 
@@ -472,6 +481,9 @@ func (vm *VerificationManager) FullVerify(ctx context.Context, snapshotID string
 
 // ValidateSnapshot 验证快照是否可用
 func (vm *VerificationManager) ValidateSnapshot(snapshotID string) (bool, error) {
+	if vm.backupManager == nil {
+		return false, errors.New("backup manager is nil")
+	}
 	snapshot, err := vm.backupManager.GetSnapshot(snapshotID)
 	if err != nil {
 		return false, err
