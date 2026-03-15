@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"net/http"
 	"testing"
 	"time"
 
@@ -115,6 +116,7 @@ func TestAppDiscovery_InferCategory(t *testing.T) {
 func TestAppDiscovery_ParseGitHubRepo(t *testing.T) {
 	ad := &AppDiscovery{
 		discovered: make(map[string]*DiscoveredApp),
+		httpClient: &http.Client{Timeout: 10 * time.Second},
 	}
 
 	tests := []struct {
