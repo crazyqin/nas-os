@@ -122,13 +122,13 @@ func TestResourceReporter_GenerateOverviewReport(t *testing.T) {
 
 	storageMetrics := []StorageMetrics{
 		{
-			VolumeName:            "vol1",
-			TotalCapacityBytes:    1 * 1024 * 1024 * 1024 * 1024,
-			UsedCapacityBytes:     500 * 1024 * 1024 * 1024,
+			VolumeName:             "vol1",
+			TotalCapacityBytes:     1 * 1024 * 1024 * 1024 * 1024,
+			UsedCapacityBytes:      500 * 1024 * 1024 * 1024,
 			AvailableCapacityBytes: 524 * 1024 * 1024 * 1024,
-			FileCount:             10000,
-			DirCount:              500,
-			IOPS:                  1000,
+			FileCount:              10000,
+			DirCount:               500,
+			IOPS:                   1000,
 		},
 	}
 
@@ -178,12 +178,12 @@ func TestResourceReporter_GenerateStorageReport(t *testing.T) {
 
 	metrics := []StorageMetrics{
 		{
-			VolumeName:            "vol1",
-			TotalCapacityBytes:    2 * 1024 * 1024 * 1024 * 1024,
-			UsedCapacityBytes:     1600 * 1024 * 1024 * 1024,
+			VolumeName:             "vol1",
+			TotalCapacityBytes:     2 * 1024 * 1024 * 1024 * 1024,
+			UsedCapacityBytes:      1600 * 1024 * 1024 * 1024,
 			AvailableCapacityBytes: 448 * 1024 * 1024 * 1024,
-			FileCount:             25000,
-			DirCount:              1200,
+			FileCount:              25000,
+			DirCount:               1200,
 		},
 	}
 
@@ -320,7 +320,7 @@ func TestResourceReporter_GenerateStorageRecommendations(t *testing.T) {
 	reporter := NewResourceReporter(config)
 
 	overview := &StorageOverview{
-		UsagePercent: 90.0,
+		UsagePercent:  90.0,
 		TotalCapacity: 1 * 1024 * 1024 * 1024 * 1024,
 	}
 

@@ -357,15 +357,15 @@ func detectMediaType(filename string) MediaType {
 func TestMediaItemFields(t *testing.T) {
 	now := time.Now()
 	item := &MediaItem{
-		ID:          "test-id",
-		Path:        "/path/to/file.mp4",
-		Name:        "Test Movie",
-		Type:        MediaTypeMovie,
-		Size:        1024000,
+		ID:           "test-id",
+		Path:         "/path/to/file.mp4",
+		Name:         "Test Movie",
+		Type:         MediaTypeMovie,
+		Size:         1024000,
 		ModifiedTime: now,
-		Rating:      8.5,
-		PlayCount:   10,
-		Tags:        []string{"action", "sci-fi"},
+		Rating:       8.5,
+		PlayCount:    10,
+		Tags:         []string{"action", "sci-fi"},
 	}
 
 	if item.ID != "test-id" {
@@ -565,15 +565,15 @@ func TestMusicAlbumInfo_Fields(t *testing.T) {
 func TestPlayHistory_Fields(t *testing.T) {
 	now := time.Now()
 	history := &PlayHistory{
-		ID:         "history-1",
-		MediaID:    "media-1",
-		MediaName:  "Test Movie",
-		MediaType:  MediaTypeMovie,
-		LibraryID:  "lib-1",
-		Position:   3600,
-		Duration:   7200,
-		PlayedAt:   now,
-		Completed:  false,
+		ID:        "history-1",
+		MediaID:   "media-1",
+		MediaName: "Test Movie",
+		MediaType: MediaTypeMovie,
+		LibraryID: "lib-1",
+		Position:  3600,
+		Duration:  7200,
+		PlayedAt:  now,
+		Completed: false,
 	}
 
 	if history.MediaID != "media-1" {

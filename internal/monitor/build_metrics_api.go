@@ -48,26 +48,26 @@ type BuildMetricsResponse struct {
 
 // BuildStatsResponse 构建统计响应
 type BuildStatsResponse struct {
-	TotalBuilds       int64   `json:"totalBuilds"`
-	SuccessfulBuilds  int64   `json:"successfulBuilds"`
-	FailedBuilds      int64   `json:"failedBuilds"`
-	SuccessRate       float64 `json:"successRate"`
-	AvgBuildTime      float64 `json:"avgBuildTime"`
-	LastBuildTime     string  `json:"lastBuildTime"`
-	LastBuildStatus   string  `json:"lastBuildStatus"`
-	CacheHitCount     int64   `json:"cacheHitCount"`
-	CacheMissCount    int64   `json:"cacheMissCount"`
-	CacheHitRate      float64 `json:"cacheHitRate"`
+	TotalBuilds      int64   `json:"totalBuilds"`
+	SuccessfulBuilds int64   `json:"successfulBuilds"`
+	FailedBuilds     int64   `json:"failedBuilds"`
+	SuccessRate      float64 `json:"successRate"`
+	AvgBuildTime     float64 `json:"avgBuildTime"`
+	LastBuildTime    string  `json:"lastBuildTime"`
+	LastBuildStatus  string  `json:"lastBuildStatus"`
+	CacheHitCount    int64   `json:"cacheHitCount"`
+	CacheMissCount   int64   `json:"cacheMissCount"`
+	CacheHitRate     float64 `json:"cacheHitRate"`
 }
 
 // BuildHealthResponse 构建健康响应
 type BuildHealthResponse struct {
-	HealthScore   float64 `json:"healthScore"`
-	Status        string  `json:"status"`
-	BuildStreak   int64   `json:"buildStreak"`
-	DeployStreak  int64   `json:"deployStreak"`
-	LastFailure   string  `json:"lastFailure,omitempty"`
-	LastBuildStatus string `json:"lastBuildStatus"`
+	HealthScore     float64  `json:"healthScore"`
+	Status          string   `json:"status"`
+	BuildStreak     int64    `json:"buildStreak"`
+	DeployStreak    int64    `json:"deployStreak"`
+	LastFailure     string   `json:"lastFailure,omitempty"`
+	LastBuildStatus string   `json:"lastBuildStatus"`
 	Recommendations []string `json:"recommendations,omitempty"`
 }
 

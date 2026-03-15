@@ -344,10 +344,10 @@ func (g *HubuResourceReportGenerator) generateBandwidthStatsReport(req HubuRepor
 			StartTime: now.AddDate(0, 0, -30),
 			EndTime:   now,
 		},
-		InterfaceStats:    []BandwidthUsageStats{},
-		Trends:            []BandwidthTrend{},
-		Alerts:            []BandwidthAlert{},
-		Recommendations:   []BandwidthRecommendation{},
+		InterfaceStats:  []BandwidthUsageStats{},
+		Trends:          []BandwidthTrend{},
+		Alerts:          []BandwidthAlert{},
+		Recommendations: []BandwidthRecommendation{},
 	}
 }
 
@@ -367,10 +367,10 @@ func (g *HubuResourceReportGenerator) generateCapacityForecastReport(req HubuRep
 // generateComprehensiveReport 生成综合报告
 func (g *HubuResourceReportGenerator) generateComprehensiveReport(req HubuReportRequest) *HubuComprehensiveReport {
 	report := &HubuComprehensiveReport{
-		OverallHealthScore:   85.0,
-		HealthStatus:         "good",
-		KeyMetrics:           []HubuKeyMetric{},
-		TopRecommendations:   []HubuPrioritizedRecommendation{},
+		OverallHealthScore: 85.0,
+		HealthStatus:       "good",
+		KeyMetrics:         []HubuKeyMetric{},
+		TopRecommendations: []HubuPrioritizedRecommendation{},
 	}
 
 	// 初始化告警摘要
@@ -567,10 +567,10 @@ type HubuStorageHotspotAnalysis struct {
 
 // HubuHotDirectory 热点目录
 type HubuHotDirectory struct {
-	Path        string    `json:"path"`
-	AccessCount int64     `json:"access_count"`
-	SizeGB      float64   `json:"size_gb"`
-	GrowthRate  float64   `json:"growth_rate"` // %/day
+	Path        string  `json:"path"`
+	AccessCount int64   `json:"access_count"`
+	SizeGB      float64 `json:"size_gb"`
+	GrowthRate  float64 `json:"growth_rate"` // %/day
 }
 
 // HubuHotFile 热点文件
@@ -640,7 +640,7 @@ type HubuTrafficAnalysis struct {
 
 // HubuPeakHour 峰值时段
 type HubuPeakHour struct {
-	Hour       int     `json:"hour"`        // 0-23
+	Hour       int     `json:"hour"` // 0-23
 	AvgMbps    float64 `json:"avg_mbps"`
 	PeakMbps   float64 `json:"peak_mbps"`
 	Percentage float64 `json:"percentage"` // 占总流量比例
@@ -690,10 +690,10 @@ type HubuEnhancedCapacityForecast struct {
 // HubuConfidenceInterval 置信区间
 type HubuConfidenceInterval struct {
 	Date      time.Time `json:"date"`
-	Lower     uint64    `json:"lower"`      // 下限
-	Predicted uint64    `json:"predicted"`  // 预测值
-	Upper     uint64    `json:"upper"`      // 上限
-	Level     float64   `json:"level"`      // 置信水平 (0.95 = 95%)
+	Lower     uint64    `json:"lower"`     // 下限
+	Predicted uint64    `json:"predicted"` // 预测值
+	Upper     uint64    `json:"upper"`     // 上限
+	Level     float64   `json:"level"`     // 置信水平 (0.95 = 95%)
 }
 
 // HubuModelDetails 模型详情
@@ -708,16 +708,16 @@ type HubuModelDetails struct {
 // HubuSeasonalityAnalysis 季节性分析
 type HubuSeasonalityAnalysis struct {
 	HasSeasonality bool    `json:"has_seasonality"`
-	CycleDays      int     `json:"cycle_days"`   // 周期天数
-	PeakDay        int     `json:"peak_day"`     // 周期峰值日
-	Variation      float64 `json:"variation"`    // 波动幅度
+	CycleDays      int     `json:"cycle_days"` // 周期天数
+	PeakDay        int     `json:"peak_day"`   // 周期峰值日
+	Variation      float64 `json:"variation"`  // 波动幅度
 }
 
 // HubuCapacityScenario 容量场景
 type HubuCapacityScenario struct {
-	Name        string     `json:"name"`         // 乐观, 基准, 悲观
+	Name        string     `json:"name"` // 乐观, 基准, 悲观
 	Description string     `json:"description"`
-	GrowthRate  float64    `json:"growth_rate"`  // 增长率
-	FullDate    *time.Time `json:"full_date"`    // 满载日期
-	ActionDate  *time.Time `json:"action_date"`  // 建议行动日期
+	GrowthRate  float64    `json:"growth_rate"` // 增长率
+	FullDate    *time.Time `json:"full_date"`   // 满载日期
+	ActionDate  *time.Time `json:"action_date"` // 建议行动日期
 }

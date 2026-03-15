@@ -336,9 +336,9 @@ func TestHubuAlertSummary_Counts(t *testing.T) {
 		Warning:  2,
 		Info:     2,
 		ByType: map[string]int{
-			"capacity_high":   2,
-			"quota_exceeded":  1,
-			"bandwidth_high":  2,
+			"capacity_high":  2,
+			"quota_exceeded": 1,
+			"bandwidth_high": 2,
 		},
 		ByResource: map[string]int{
 			"volume1": 2,
@@ -414,10 +414,10 @@ func TestHubuStorageEnhancedReport(t *testing.T) {
 			Name:        "存储使用报表",
 			GeneratedAt: now,
 			Summary: StorageUsageSummary{
-				TotalCapacity:  1 * 1024 * 1024 * 1024 * 1024,
-				TotalUsed:      500 * 1024 * 1024 * 1024,
-				UsagePercent:   50.0,
-				HealthStatus:   "healthy",
+				TotalCapacity: 1 * 1024 * 1024 * 1024 * 1024,
+				TotalUsed:     500 * 1024 * 1024 * 1024,
+				UsagePercent:  50.0,
+				HealthStatus:  "healthy",
 			},
 		},
 		EnhancedMetrics: HubuStorageEnhancedMetrics{
