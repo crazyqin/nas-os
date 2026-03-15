@@ -141,9 +141,9 @@ type NetworkMetricData struct {
 
 // AggregationRule 指标聚合规则
 type AggregationRule struct {
-	Interval        time.Duration      `json:"interval"`
-	RetentionPeriod time.Duration      `json:"retention_period"`
-	MaxNodes        int                `json:"max_nodes"`
+	Interval        time.Duration       `json:"interval"`
+	RetentionPeriod time.Duration       `json:"retention_period"`
+	MaxNodes        int                 `json:"max_nodes"`
 	Aggregations    []MetricAggregation `json:"aggregations"`
 }
 

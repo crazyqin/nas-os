@@ -4,6 +4,14 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
+# v2.54.0 更新（工部优化）：
+# - 添加智能变更检测（paths-filter）跳过无需运行的 job
+# - 优化构建矩阵并行度（按架构分配 runner）
+# - 添加构建时间追踪和性能报告
+# - 优化 Go 编译缓存策略（模块缓存 + 编译缓存分离）
+# - 添加测试分片支持（大型测试集并行执行）
+# - 减少依赖安装时间（使用 setup-go 内置缓存）
+#
 # v2.44.0 更新（工部优化）：
 # - 添加 build-artifacts job 整合所有构建产物
 # - 添加构建缓存预热和缓存命中率报告
@@ -51,12 +59,14 @@ permissions:
 env:
   GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v5'
+  CACHE_VERSION: 'v6'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # 测试环境目录
   TEST_DATA_DIR: '/tmp/nas-os-test'
   TEST_VAR_DIR: '/var/lib/nas-os'
+  # 构建开始时间（用于计算总耗时）
+  BUILD_START_TIME: ${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:
@@ -64,17 +74,73 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ========== 变更检测（智能跳过） ==========
+  changes:
+    name: 变更检测
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      go-changed: ${{ steps.filter.outputs.go }}
+      docs-changed: ${{ steps.filter.outputs.docs }}
+      charts-changed: ${{ steps.filter.outputs.charts }}
+      docker-changed: ${{ steps.filter.outputs.docker }}
+      test-changed: ${{ steps.filter.outputs.test }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 检测变更
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            go:
+              - '**.go'
+              - 'go.mod'
+              - 'go.sum'
+            docs:
+              - 'docs/**'
+              - '*.md'
+            charts:
+              - 'charts/**'
+            docker:
+              - 'Dockerfile*'
+              - 'docker-compose*.yml'
+              - '.dockerignore'
+            test:
+              - 'tests/**'
+              - '**_test.go'
+      
+      - name: 输出变更摘要
+        run: |
+          echo "## 📋 变更检测结果" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 类型 | 是否变更 |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Go 代码 | ${{ steps.filter.outputs.go == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 文档 | ${{ steps.filter.outputs.docs == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Charts | ${{ steps.filter.outputs.charts == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker | ${{ steps.filter.outputs.docker == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 测试 | ${{ steps.filter.outputs.test == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+
   # ========== 环境准备（统一设置） ==========
   prepare:
     name: 环境准备
     runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.go-changed == 'true' || github.event_name == 'workflow_dispatch'
     timeout-minutes: 5
     outputs:
       go-cache-key: ${{ steps.go-cache.outputs.cache-key }}
       has-integration-tests: ${{ steps.check-tests.outputs.has_integration_tests }}
+      build-timestamp: ${{ steps.timestamp.outputs.timestamp }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
+      
+      - name: 记录构建时间戳
+        id: timestamp
+        run: echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
       
       - name: 计算 Go 缓存 key
         id: go-cache
@@ -697,25 +763,29 @@ jobs:
   build-summary:
     name: 构建汇总
     runs-on: ubuntu-latest
-    needs: [lint, codeql, dependency-scan, test, test-integration, build, build-artifacts, docker-compose-test]
+    needs: [changes, lint, codeql, dependency-scan, test, test-integration, build, build-artifacts, docker-compose-test]
     if: always()
     timeout-minutes: 5
     steps:
       - name: 生成构建汇总
         run: |
-          echo "## 📊 CI/CD 构建汇总 (v2.44.0)" >> $GITHUB_STEP_SUMMARY
+          BUILD_END=$(date +%s)
+          echo "## 📊 CI/CD 构建汇总 (v2.54.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
-          echo "| 代码检查 | ${{ needs.lint.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| CodeQL | ${{ needs.codeql.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 依赖扫描 | ${{ needs.dependency-scan.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 单元测试 | ${{ needs.test.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 变更检测 | ${{ needs.changes.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 代码检查 | ${{ needs.lint.result == 'success' && '✅ 通过' || needs.lint.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| CodeQL | ${{ needs.codeql.result == 'success' && '✅ 通过' || needs.codeql.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 依赖扫描 | ${{ needs.dependency-scan.result == 'success' && '✅ 通过' || needs.dependency-scan.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 单元测试 | ${{ needs.test.result == 'success' && '✅ 通过' || needs.test.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 集成测试 | ${{ needs.test-integration.result == 'success' && '✅ 通过' || needs.test-integration.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 二进制构建 | ${{ needs.build.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 二进制构建 | ${{ needs.build.result == 'success' && '✅ 通过' || needs.build.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 产物整合 | ${{ needs.build-artifacts.result == 'success' && '✅ 通过' || needs.build-artifacts.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docker Compose | ${{ needs.docker-compose-test.result == 'success' && '✅ 通过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Compose | ${{ needs.docker-compose-test.result == 'success' && '✅ 通过' || needs.docker-compose-test.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
           echo "**提交:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**分支:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY

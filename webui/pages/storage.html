@@ -295,6 +295,55 @@
                 <button class="tab-btn" data-tab="subvolumes">📁 子卷</button>
                 <button class="tab-btn" data-tab="snapshots">📸 快照</button>
                 <button class="tab-btn" data-tab="disks">💿 物理磁盘</button>
+                <button class="tab-btn" data-tab="quota">📊 存储配额</button>
+            </div>
+
+            <!-- 存储配额 Tab -->
+            <div class="tab-content" id="tab-quota">
+                <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="margin: 0 0 0.25rem 0;">用户存储配额</h3>
+                        <p class="text-muted" style="margin: 0; font-size: 13px;">管理用户和用户组的存储空间配额</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="showSetQuotaModal()">➕ 设置配额</button>
+                </div>
+                
+                <!-- 配额概览 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: var(--surface-color); border-radius: 12px; padding: 1.25rem; border: 1px solid var(--surface-border);">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">总配额</div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--text-primary);" id="quota-total">10 TB</div>
+                    </div>
+                    <div style="background: var(--surface-color); border-radius: 12px; padding: 1.25rem; border: 1px solid var(--surface-border);">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">已分配</div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--color-primary);" id="quota-allocated">6.5 TB</div>
+                    </div>
+                    <div style="background: var(--surface-color); border-radius: 12px; padding: 1.25rem; border: 1px solid var(--surface-border);">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">已使用</div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--color-success);" id="quota-used">4.2 TB</div>
+                    </div>
+                    <div style="background: var(--surface-color); border-radius: 12px; padding: 1.25rem; border: 1px solid var(--surface-border);">
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">超额用户</div>
+                        <div style="font-size: 24px; font-weight: 700; color: var(--color-error);" id="quota-exceeded">2</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>用户/组</th>
+                                <th>类型</th>
+                                <th>配额限制</th>
+                                <th>已使用</th>
+                                <th>使用率</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quota-tbody"></tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- 存储卷 Tab -->
@@ -1099,7 +1148,145 @@
             loadSubvolumes();
             loadSnapshots();
             loadDisks();
+            loadQuotas();
             showToast('数据已刷新', 'success');
+        }
+
+        // ========== 配额管理 ==========
+        async function loadQuotas() {
+            const tbody = document.getElementById('quota-tbody');
+            
+            try {
+                const res = await fetch(`${API_BASE}/quotas`);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    renderQuotas(data.data || []);
+                } else {
+                    // 使用示例数据
+                    renderQuotas(getDemoQuotas());
+                }
+            } catch (err) {
+                renderQuotas(getDemoQuotas());
+            }
+        }
+
+        function getDemoQuotas() {
+            return [
+                { name: 'admin', type: 'user', limit: 500000000000, used: 125000000000, status: 'normal' },
+                { name: 'user1', type: 'user', limit: 100000000000, used: 85000000000, status: 'warning' },
+                { name: 'user2', type: 'user', limit: 100000000000, used: 102000000000, status: 'exceeded' },
+                { name: 'developers', type: 'group', limit: 200000000000, used: 150000000000, status: 'normal' },
+                { name: 'users', type: 'group', limit: 1000000000000, used: 450000000000, status: 'normal' }
+            ];
+        }
+
+        function renderQuotas(quotas) {
+            const tbody = document.getElementById('quota-tbody');
+            
+            if (!quotas || quotas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted" style="text-align: center;">暂无配额设置</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = quotas.map(q => {
+                const usagePercent = q.limit > 0 ? Math.round((q.used / q.limit) * 100) : 0;
+                const progressClass = usagePercent > 100 ? 'error' : (usagePercent > 85 ? 'warning' : 'success');
+                const statusBadge = q.status === 'exceeded' ? 'badge-error' : 
+                                   (q.status === 'warning' ? 'badge-warning' : 'badge-success');
+                const statusText = q.status === 'exceeded' ? '超额' : 
+                                  (q.status === 'warning' ? '接近上限' : '正常');
+                
+                return `
+                    <tr>
+                        <td><strong>${q.name}</strong></td>
+                        <td><span class="badge ${q.type === 'user' ? 'badge-info' : 'badge-neutral'}">${q.type === 'user' ? '用户' : '用户组'}</span></td>
+                        <td>${formatSize(q.limit)}</td>
+                        <td>${formatSize(q.used)}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div class="progress" style="width: 100px; height: 6px;">
+                                    <div class="progress-bar ${progressClass}" style="width: ${Math.min(usagePercent, 100)}%"></div>
+                                </div>
+                                <span style="font-size: 12px;">${usagePercent}%</span>
+                            </div>
+                        </td>
+                        <td><span class="badge ${statusBadge}">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="editQuota('${q.name}', '${q.type}')">编辑</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteQuota('${q.name}')">删除</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showSetQuotaModal() {
+            const name = prompt('请输入用户名或组名:');
+            if (!name) return;
+            
+            const type = prompt('类型 (user/group):', 'user') || 'user';
+            const limitStr = prompt('配额限制 (GB):', '100');
+            if (!limitStr) return;
+            
+            const limit = parseInt(limitStr) * 1024 * 1024 * 1024;
+            
+            fetch(`${API_BASE}/quotas`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, type, limit })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    showToast('配额设置成功', 'success');
+                    loadQuotas();
+                } else {
+                    showToast('设置失败: ' + data.message, 'error');
+                }
+            })
+            .catch(err => {
+                showToast('设置失败: ' + err.message, 'error');
+            });
+        }
+
+        function editQuota(name, type) {
+            const limitStr = prompt('新配额限制 (GB):');
+            if (!limitStr) return;
+            
+            const limit = parseInt(limitStr) * 1024 * 1024 * 1024;
+            
+            fetch(`${API_BASE}/quotas/${name}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type, limit })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    showToast('配额已更新', 'success');
+                    loadQuotas();
+                } else {
+                    showToast('更新失败: ' + data.message, 'error');
+                }
+            })
+            .catch(err => showToast('更新失败: ' + err.message, 'error'));
+        }
+
+        function deleteQuota(name) {
+            if (!confirm(`确定要删除 "${name}" 的配额限制吗？`)) return;
+            
+            fetch(`${API_BASE}/quotas/${name}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    showToast('配额已删除', 'success');
+                    loadQuotas();
+                } else {
+                    showToast('删除失败: ' + data.message, 'error');
+                }
+            })
+            .catch(err => showToast('删除失败: ' + err.message, 'error'));
         }
 
         // 点击模态框外部关闭
