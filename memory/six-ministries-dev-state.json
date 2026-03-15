@@ -1,12 +1,13 @@
 {
-  "lastUpdate": "2026-03-16T00:40:00+08:00",
-  "version": "v2.78.0",
-  "status": "released",
-  "previousVersion": "v2.77.0",
+  "lastUpdate": "2026-03-16T01:10:00+08:00",
+  "version": "v2.79.0",
+  "status": "in_development",
+  "previousVersion": "v2.78.0",
   "currentDev": {
     "version": "v2.79.0",
-    "status": "planning",
-    "startedAt": "2026-03-16T00:40:00+08:00"
+    "status": "in_progress",
+    "startedAt": "2026-03-16T01:10:00+08:00",
+    "focus": "安全问题修复"
   },
   "projectStats": {
     "totalModules": 68,

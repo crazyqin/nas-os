@@ -1,7 +1,6 @@
 package scanner
 
 import (
-	"crypto/md5"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -656,7 +655,7 @@ func (s *FilesystemScanner) countFiles(rootPath string, options ScanOptions) (in
 	return count, nil
 }
 
-// calculateFileHash 计算文件哈希
+// calculateFileHash 计算文件哈希（使用 SHA256）
 func (s *FilesystemScanner) calculateFileHash(path string, algorithm string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -664,20 +663,10 @@ func (s *FilesystemScanner) calculateFileHash(path string, algorithm string) (st
 	}
 	defer file.Close()
 
-	switch strings.ToLower(algorithm) {
-	case "md5":
-		hash := md5.New()
-		io.Copy(hash, file)
-		return hex.EncodeToString(hash.Sum(nil)), nil
-	case "sha256":
-		hash := sha256.New()
-		io.Copy(hash, file)
-		return hex.EncodeToString(hash.Sum(nil)), nil
-	default:
-		hash := sha256.New()
-		io.Copy(hash, file)
-		return hex.EncodeToString(hash.Sum(nil)), nil
-	}
+	// 统一使用 SHA256，忽略算法参数以确保安全性
+	hash := sha256.New()
+	io.Copy(hash, file)
+	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
 // generateReport 生成报告

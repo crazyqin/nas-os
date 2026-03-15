@@ -1,7 +1,7 @@
 package tiering
 
 import (
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -283,7 +283,7 @@ func (m *Migrator) verifyFile(sourcePath, targetPath string) error {
 	return nil
 }
 
-// calculateFileHash 计算文件的 MD5 哈希值
+// calculateFileHash 计算文件的 SHA256 哈希值
 func (m *Migrator) calculateFileHash(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -291,7 +291,7 @@ func (m *Migrator) calculateFileHash(filePath string) (string, error) {
 	}
 	defer file.Close()
 
-	hash := md5.New()
+	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err
 	}

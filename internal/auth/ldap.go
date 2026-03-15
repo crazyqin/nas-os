@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"sync"
 
 	"github.com/go-ldap/ldap/v3"
@@ -147,8 +148,10 @@ func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 
 	if config.UseTLS {
 		// LDAPS 连接
+		// 仅测试环境允许跳过 TLS 验证，生产环境必须验证证书
+		skipVerify := config.SkipTLSVerify && os.Getenv("ENV") == "test"
 		tlsConfig := &tls.Config{
-			InsecureSkipVerify: config.SkipTLSVerify,
+			InsecureSkipVerify: skipVerify,
 		}
 
 		// 加载自定义 CA 证书
@@ -175,7 +178,9 @@ func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 
 	// 如果需要 StartTLS
 	if !config.UseTLS && config.URL[:5] == "ldap:" {
-		if config.SkipTLSVerify {
+		// 仅测试环境允许跳过 TLS 验证，生产环境必须验证证书
+		skipVerify := config.SkipTLSVerify && os.Getenv("ENV") == "test"
+		if skipVerify {
 			err = conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
 		} else {
 			err = conn.StartTLS(&tls.Config{ServerName: config.URL[7:]})

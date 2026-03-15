@@ -1,7 +1,7 @@
 package replication
 
 import (
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -242,7 +242,7 @@ func (d *ConflictDetector) resolveRename(conflict *ConflictInfo) error {
 	return nil
 }
 
-// calculateFileHash 计算文件哈希
+// calculateFileHash 计算文件哈希（使用 SHA256）
 func (d *ConflictDetector) calculateFileHash(filePath string) (string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -250,7 +250,7 @@ func (d *ConflictDetector) calculateFileHash(filePath string) (string, error) {
 	}
 	defer func() { _ = file.Close() }()
 
-	hash := md5.New()
+	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err
 	}

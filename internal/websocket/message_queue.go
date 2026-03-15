@@ -3,11 +3,12 @@
 package websocket
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -837,12 +838,18 @@ func generateMessageID() string {
 	return fmt.Sprintf("msg-%d-%s", time.Now().UnixNano(), randomString(8))
 }
 
-// randomString 生成随机字符串
+// randomString 生成随机字符串（使用 crypto/rand 安全随机数）
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			// 如果 crypto/rand 失败，使用时间作为回退
+			b[i] = letters[time.Now().UnixNano()%int64(len(letters))]
+			continue
+		}
+		b[i] = letters[num.Int64()]
 	}
 	return string(b)
 }

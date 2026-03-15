@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.79.0] - 2026-03-16
+
+### Fixed
+- **安全问题修复** (刑部)
+  - TLS 证书验证问题修复
+  - 弱随机数生成器替换为加密安全版本
+  - 弱加密算法升级 (MD5 → SHA-256, DES → AES-256)
+  - 敏感数据传输加密增强
+
+### Improved
+- **CI/CD 优化** (工部)
+  - 构建流程性能提升
+  - 测试并行化优化
+  - 缓存策略改进
+
+### Optimized
+- **Docker 优化** (工部)
+  - 镜像体积优化
+  - 多阶段构建改进
+  - 运行时资源限制优化
+
 ## [v2.78.0] - 2026-03-16
 
 ### Added
