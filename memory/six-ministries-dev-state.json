@@ -1,12 +1,12 @@
 {
-  "lastUpdate": "2026-03-15T22:35:00+08:00",
-  "version": "v2.73.0",
+  "lastUpdate": "2026-03-16T00:40:00+08:00",
+  "version": "v2.78.0",
   "status": "released",
-  "previousVersion": "v2.72.0",
+  "previousVersion": "v2.77.0",
   "currentDev": {
-    "version": "v2.74.0",
+    "version": "v2.79.0",
     "status": "planning",
-    "startedAt": "2026-03-15T22:35:00+08:00"
+    "startedAt": "2026-03-16T00:40:00+08:00"
   },
   "projectStats": {
     "totalModules": 68,
@@ -59,40 +59,42 @@
   "ministries": {
     "兵部": {
       "status": "completed",
-      "currentTask": "v2.73.0 存储 API 开发",
-      "completedTasks": ["storage_handlers.go", "/api/storage/* 路由"]
+      "currentTask": "v2.78.0 测试修复、资源泄漏修复",
+      "completedTasks": ["测试失败修复", "资源泄漏修复", "go vet 通过"]
     },
     "工部": {
       "status": "completed",
-      "currentTask": "v2.73.0 DevOps 检查",
-      "completedTasks": ["CI/CD 审查", "Dockerfile 检查", "部署脚本检查"]
+      "currentTask": "v2.78.0 CI/CD 检查、Docker 优化",
+      "completedTasks": ["CI/CD 检查完成", "Docker 优化"]
     },
     "礼部": {
       "status": "completed",
-      "currentTask": "v2.73.0 文档更新",
-      "completedTasks": ["README 更新", "CHANGELOG 更新", "docs/ 更新"]
+      "currentTask": "v2.78.0 文档更新、API 文档",
+      "completedTasks": ["README 更新", "CHANGELOG 更新", "API 文档完善"]
     },
     "刑部": {
       "status": "completed",
-      "currentTask": "v2.73.0 安全审计",
-      "completedTasks": ["go vet", "依赖安全检查", "代码审查"]
+      "currentTask": "v2.78.0 安全审计",
+      "completedTasks": ["安全审计完成", "发现 TLS 证书验证问题", "发现弱随机数问题"],
+      "findings": ["TLS 证书验证问题", "弱随机数生成", "其他安全问题"]
     },
     "户部": {
       "status": "completed",
-      "currentTask": "v2.73.0 成本分析",
-      "completedTasks": ["资源使用评估", "成本优化报告"]
+      "currentTask": "v2.78.0 资源统计",
+      "completedTasks": ["资源使用评估", "资源统计报告"]
     },
     "吏部": {
       "status": "completed",
-      "currentTask": "v2.73.0 项目管理",
-      "completedTasks": ["MILESTONES.md 更新", "项目状态文件更新"]
+      "currentTask": "v2.78.0 项目管理",
+      "completedTasks": ["MILESTONES.md 更新", "项目状态文件更新", "libu_pm_report.json 生成"]
     }
   },
   "nextSteps": [
     "M4 用户权限系统开发",
     "M5 监控告警系统开发",
-    "修复 Dockerfile.dev 语法错误",
-    "修复资源泄漏问题 (HTTP Client, Response Body, Manager Close)"
+    "处理刑部安全审计发现的问题",
+    "修复 TLS 证书验证问题",
+    "修复弱随机数生成问题"
   ],
-  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.73.0"
+  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.78.0"
 }

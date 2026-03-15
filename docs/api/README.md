@@ -1,6 +1,6 @@
 # NAS-OS API 文档
 
-**版本**: v2.77.0  
+**版本**: v2.78.0  
 **更新日期**: 2026-03-16
 
 ## 概述
@@ -73,7 +73,7 @@ Content-Type: application/json
 
 ## 示例代码
 
-- [API 示例代码](./examples.md) - Python、JavaScript、cURL 完整示例 (v2.76.0+)
+- [API 示例代码](./examples.md) - Python、JavaScript、cURL 完整示例 (v2.78.0+)
 
 ## 快速开始
 

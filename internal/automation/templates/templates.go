@@ -521,7 +521,7 @@ func GetTemplate(id string) (*Template, error) {
 			return &t, nil
 		}
 	}
-	return nil, nil
+	return nil, fmt.Errorf("template not found: %s", id)
 }
 
 // GetTemplatesByCategory 按分类获取模板

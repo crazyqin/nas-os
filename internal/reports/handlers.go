@@ -11,15 +11,15 @@ import (
 
 // Handlers 报表 HTTP 处理器
 type Handlers struct {
-	templateManager     *TemplateManager
-	generator           *ReportGenerator
-	scheduleManager     *ScheduleManager
-	exporter            *Exporter
-	resourceAPI         *ResourceAPIHandlers
-	visualizationAPI    *ResourceVisualizationHandlers // v2.30.0 资源可视化
-	enhancedExportAPI   *EnhancedExportAPIHandlers     // v2.35.0 增强导出
-	costAnalysisAPI     *CostAnalysisAPIHandlers       // v2.35.0 成本分析
-	enhancedReportAPI   *ResourceReportEnhancedAPI     // v2.76.0 资源报告增强
+	templateManager   *TemplateManager
+	generator         *ReportGenerator
+	scheduleManager   *ScheduleManager
+	exporter          *Exporter
+	resourceAPI       *ResourceAPIHandlers
+	visualizationAPI  *ResourceVisualizationHandlers // v2.30.0 资源可视化
+	enhancedExportAPI *EnhancedExportAPIHandlers     // v2.35.0 增强导出
+	costAnalysisAPI   *CostAnalysisAPIHandlers       // v2.35.0 成本分析
+	enhancedReportAPI *ResourceReportEnhancedAPI     // v2.76.0 资源报告增强
 }
 
 // NewHandlers 创建处理器
@@ -37,15 +37,15 @@ func NewHandlers(tm *TemplateManager, gen *ReportGenerator, sm *ScheduleManager,
 	}
 
 	return &Handlers{
-		templateManager:     tm,
-		generator:           gen,
-		scheduleManager:     sm,
-		exporter:            exp,
-		resourceAPI:         NewResourceAPIHandlers(gen),
-		visualizationAPI:    NewResourceVisualizationHandlers(),     // v2.30.0
-		enhancedExportAPI:   NewEnhancedExportAPIHandlers(exp),      // v2.35.0
-		costAnalysisAPI:     NewCostAnalysisAPIHandlers(costConfig), // v2.35.0
-		enhancedReportAPI:   NewResourceReportEnhancedAPI(),         // v2.76.0
+		templateManager:   tm,
+		generator:         gen,
+		scheduleManager:   sm,
+		exporter:          exp,
+		resourceAPI:       NewResourceAPIHandlers(gen),
+		visualizationAPI:  NewResourceVisualizationHandlers(),     // v2.30.0
+		enhancedExportAPI: NewEnhancedExportAPIHandlers(exp),      // v2.35.0
+		costAnalysisAPI:   NewCostAnalysisAPIHandlers(costConfig), // v2.35.0
+		enhancedReportAPI: NewResourceReportEnhancedAPI(),         // v2.76.0
 	}
 }
 

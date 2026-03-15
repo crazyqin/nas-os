@@ -13,19 +13,19 @@ import (
 
 // ResourceReportEnhancedAPI 资源报告增强 API 处理器
 type ResourceReportEnhancedAPI struct {
-	storageReporter  *StorageUsageReporter
+	storageReporter   *StorageUsageReporter
 	bandwidthReporter *BandwidthReporter
-	capacityPlanner  *CapacityPlanner
-	systemReporter   *SystemResourceReporter
+	capacityPlanner   *CapacityPlanner
+	systemReporter    *SystemResourceReporter
 }
 
 // NewResourceReportEnhancedAPI 创建资源报告增强 API 处理器
 func NewResourceReportEnhancedAPI() *ResourceReportEnhancedAPI {
 	return &ResourceReportEnhancedAPI{
-		storageReporter:  NewStorageUsageReporter(DefaultStorageReportConfig()),
+		storageReporter:   NewStorageUsageReporter(DefaultStorageReportConfig()),
 		bandwidthReporter: NewBandwidthReporter(BandwidthReportConfig{}),
-		capacityPlanner:  NewCapacityPlanner(CapacityPlanningConfig{}),
-		systemReporter:   NewSystemResourceReporter(DefaultSystemReportConfig()),
+		capacityPlanner:   NewCapacityPlanner(CapacityPlanningConfig{}),
+		systemReporter:    NewSystemResourceReporter(DefaultSystemReportConfig()),
 	}
 }
 
@@ -183,15 +183,15 @@ func (h *ResourceReportEnhancedAPI) generateStorageReport(c *gin.Context) {
 
 func (h *ResourceReportEnhancedAPI) getBandwidthSummary(c *gin.Context) {
 	summary := map[string]interface{}{
-		"generated_at":       time.Now(),
-		"total_rx_gb":        0.0,
-		"total_tx_gb":        0.0,
-		"avg_utilization":    0.0,
-		"peak_utilization":   0.0,
-		"traffic_pattern":    "balanced",
-		"primary_direction":  "in",
-		"avg_error_rate":     0.0,
-		"avg_drop_rate":      0.0,
+		"generated_at":      time.Now(),
+		"total_rx_gb":       0.0,
+		"total_tx_gb":       0.0,
+		"avg_utilization":   0.0,
+		"peak_utilization":  0.0,
+		"traffic_pattern":   "balanced",
+		"primary_direction": "in",
+		"avg_error_rate":    0.0,
+		"avg_drop_rate":     0.0,
 	}
 	api.OK(c, summary)
 }
@@ -281,12 +281,12 @@ func (h *ResourceReportEnhancedAPI) generateBandwidthReport(c *gin.Context) {
 
 func (h *ResourceReportEnhancedAPI) getCurrentCapacity(c *gin.Context) {
 	current := map[string]interface{}{
-		"generated_at":   time.Now(),
-		"total_bytes":    uint64(0),
-		"used_bytes":     uint64(0),
+		"generated_at":    time.Now(),
+		"total_bytes":     uint64(0),
+		"used_bytes":      uint64(0),
 		"available_bytes": uint64(0),
-		"usage_percent":  0.0,
-		"status":         "healthy",
+		"usage_percent":   0.0,
+		"status":          "healthy",
 	}
 	api.OK(c, current)
 }
@@ -300,11 +300,11 @@ func (h *ResourceReportEnhancedAPI) getCapacityForecast(c *gin.Context) {
 	model := c.DefaultQuery("model", "linear")
 
 	forecast := map[string]interface{}{
-		"generated_at":   time.Now(),
-		"forecast_days":  days,
-		"model":          model,
-		"forecasts":      []CapacityForecast{},
-		"confidence":     0.7,
+		"generated_at":  time.Now(),
+		"forecast_days": days,
+		"model":         model,
+		"forecasts":     []CapacityForecast{},
+		"confidence":    0.7,
 	}
 	api.OK(c, forecast)
 }
@@ -320,50 +320,50 @@ func (h *ResourceReportEnhancedAPI) getExpansionNeeded(c *gin.Context) {
 	}
 
 	result := map[string]interface{}{
-		"generated_at":           time.Now(),
-		"target_months":          months,
-		"current_used":           uint64(0),
-		"predicted_used":         uint64(0),
-		"current_available":      uint64(0),
-		"expansion_needed_gb":    uint64(0),
-		"recommended_action":     "监控使用趋势",
+		"generated_at":        time.Now(),
+		"target_months":       months,
+		"current_used":        uint64(0),
+		"predicted_used":      uint64(0),
+		"current_available":   uint64(0),
+		"expansion_needed_gb": uint64(0),
+		"recommended_action":  "监控使用趋势",
 	}
 	api.OK(c, result)
 }
 
 func (h *ResourceReportEnhancedAPI) getCapacityTimeline(c *gin.Context) {
 	timeline := map[string]interface{}{
-		"generated_at":      time.Now(),
-		"current_usage":     0.0,
-		"monthly_growth":    0.0,
-		"days_to_70":        -1,
-		"days_to_80":        -1,
-		"days_to_90":        -1,
-		"days_to_full":      -1,
-		"milestones":        []CapacityMilestone{},
+		"generated_at":   time.Now(),
+		"current_usage":  0.0,
+		"monthly_growth": 0.0,
+		"days_to_70":     -1,
+		"days_to_80":     -1,
+		"days_to_90":     -1,
+		"days_to_full":   -1,
+		"milestones":     []CapacityMilestone{},
 	}
 	api.OK(c, timeline)
 }
 
 func (h *ResourceReportEnhancedAPI) getCapacityRiskAssessment(c *gin.Context) {
 	risk := map[string]interface{}{
-		"generated_at":        time.Now(),
-		"overall_risk":        "low",
-		"risk_score":          0,
-		"capacity_risk":       "low",
-		"growth_risk":         "low",
-		"time_to_full_risk":   "low",
-		"mitigation_actions":  []string{},
+		"generated_at":       time.Now(),
+		"overall_risk":       "low",
+		"risk_score":         0,
+		"capacity_risk":      "low",
+		"growth_risk":        "low",
+		"time_to_full_risk":  "low",
+		"mitigation_actions": []string{},
 	}
 	api.OK(c, risk)
 }
 
 func (h *ResourceReportEnhancedAPI) simulateCapacityScenario(c *gin.Context) {
 	var req struct {
-		CurrentUsed     uint64  `json:"current_used"`
-		TotalCapacity   uint64  `json:"total_capacity"`
-		MonthlyGrowth   float64 `json:"monthly_growth_percent"`
-		SimulationMonths int    `json:"simulation_months"`
+		CurrentUsed      uint64  `json:"current_used"`
+		TotalCapacity    uint64  `json:"total_capacity"`
+		MonthlyGrowth    float64 `json:"monthly_growth_percent"`
+		SimulationMonths int     `json:"simulation_months"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -450,18 +450,18 @@ func (h *ResourceReportEnhancedAPI) getComprehensiveDashboard(c *gin.Context) {
 			"efficiency_score": 100.0,
 		},
 		"bandwidth": map[string]interface{}{
-			"utilization":      0.0,
-			"traffic_pattern":  "balanced",
-			"avg_mbps":         0.0,
+			"utilization":     0.0,
+			"traffic_pattern": "balanced",
+			"avg_mbps":        0.0,
 		},
 		"capacity": map[string]interface{}{
-			"days_to_full":     -1,
-			"monthly_growth":   0.0,
-			"urgency":          "low",
+			"days_to_full":   -1,
+			"monthly_growth": 0.0,
+			"urgency":        "low",
 		},
-		"health_score":   100,
-		"status":         "healthy",
-		"alerts_count":   0,
+		"health_score": 100,
+		"status":       "healthy",
+		"alerts_count": 0,
 	}
 	api.OK(c, dashboard)
 }
@@ -495,14 +495,14 @@ func (h *ResourceReportEnhancedAPI) getAllAlerts(c *gin.Context) {
 
 func (h *ResourceReportEnhancedAPI) getAllRecommendations(c *gin.Context) {
 	recs := map[string]interface{}{
-		"generated_at": time.Now(),
-		"storage":      []StorageRecommendation{},
-		"bandwidth":    []BandwidthRecommendation{},
-		"capacity":     []CapacityRecommendation{},
-		"system":       []SystemRecommendation{},
-		"high_priority": 0,
+		"generated_at":    time.Now(),
+		"storage":         []StorageRecommendation{},
+		"bandwidth":       []BandwidthRecommendation{},
+		"capacity":        []CapacityRecommendation{},
+		"system":          []SystemRecommendation{},
+		"high_priority":   0,
 		"medium_priority": 0,
-		"low_priority": 0,
+		"low_priority":    0,
 	}
 	api.OK(c, recs)
 }
@@ -530,4 +530,3 @@ func (h *ResourceReportEnhancedAPI) generateComprehensiveReport(c *gin.Context) 
 
 	api.OK(c, report)
 }
-
