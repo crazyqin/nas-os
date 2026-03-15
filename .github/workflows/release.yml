@@ -1,13 +1,10 @@
 # GitHub Release 构建
 # 构建多平台二进制文件并上传到 GitHub Release
 #
-# v2.76.0 更新（工部增强）：
-# - 添加多阶段构建缓存优化
-# - 添加构建产物并行构建
-# - 添加自动变更日志生成
+# v2.86.0 更新（工部优化）：
+# - 更新缓存版本至 v9
+# - 优化构建产物并行构建
 # - 添加发布验证步骤
-# - 添加回滚支持
-# - 优化 SBOM 生成流程
 #
 # v2.37.0 更新：
 # - 更新缓存版本
@@ -48,7 +45,7 @@ on:
 
 env:
   GO_VERSION: '1.26'
-  CACHE_VERSION: 'v8'
+  CACHE_VERSION: 'v9'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 

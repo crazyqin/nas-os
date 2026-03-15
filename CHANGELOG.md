@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.86.0] - 2026-03-16
+
+### Changed
+- **版本号统一更新** (礼部)
+  - README.md 版本更新至 v2.86.0
+  - CHANGELOG.md 版本记录更新
+  - docs/ 文档版本号同步
+
 ## [v2.85.0] - 2026-03-16
 
 ### Changed
