@@ -392,9 +392,9 @@ func TestUpdateSMBShare(t *testing.T) {
 
 	// ShareInput 需要 name 和 path 必填字段
 	share := map[string]interface{}{
-		"name":    "share1",
-		"path":    "/data/share1",
-		"comment": "Updated Comment",
+		"name":     "share1",
+		"path":     "/data/share1",
+		"comment":  "Updated Comment",
 		"readOnly": true,
 	}
 	body, _ := json.Marshal(share)
