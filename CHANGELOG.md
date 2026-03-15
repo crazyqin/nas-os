@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.45.0] - 2026-03-15
+
+### Added
+- **智能磁盘健康监控** (兵部)
+  - internal/disk/smart_monitor.go - SMART 数据解析与健康评分
+  - internal/disk/handlers.go - 磁盘监控 API 端点
+  - 预警阈值配置支持
+
+- **WebSocket 消息队列优化** (兵部)
+  - internal/websocket/message_queue.go - 消息优先级队列
+  - 背压控制与消息去重机制
+
+- **存储成本优化报告** (户部)
+  - internal/reports/storage_cost.go - 存储空间利用率分析
+  - 冗余数据识别与成本节省建议
+
+- **资源配额管理 API** (户部)
+  - internal/reports/quota_api.go - 用户/服务配额设置
+  - 配额使用统计与超额预警
+
+- **项目管理仪表板 API** (吏部)
+  - internal/project/dashboard.go - 项目进度统计
+  - 任务完成率计算与里程碑追踪
+
+### Improved
+- **CI/CD 优化** (工部)
+  - GitHub Actions workflow 优化
+  - 构建缓存与并行测试
+
+- **运维脚本增强** (工部)
+  - scripts/db-backup.sh - 增量备份、加密、远程同步
+  - scripts/health-check.sh - 增强健康检查
+  - scripts/rollback.sh - 部署回滚脚本
+
+- **Docker Compose 优化** (工部)
+  - 服务标签与网络配置优化
+
 ## [v2.44.0] - 2026-03-15
 
 ### Fixed
