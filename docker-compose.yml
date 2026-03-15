@@ -11,6 +11,12 @@ services:
     container_name: nas-os
     restart: unless-stopped
     
+    # 服务标签
+    labels:
+      - "nas-os.version=2.45.0"
+      - "nas-os.description=NAS-OS Storage Management System"
+      - "nas-os.maintainer=工部"
+    
     # 使用 init 进程管理子进程
     init: true
     
@@ -68,7 +74,7 @@ services:
         max-file: "3"
     
     # 健康检查（覆盖 Dockerfile 中的设置）
-    # v2.29.0 增强版：多层检测 + 超时优化
+    # v2.45.0: 多层检测 + 超时优化
     # 注意：使用 curl（Dockerfile 已安装），不使用 wget
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/v1/health > /dev/null 2>&1 && curl -sf http://localhost:8080/api/v1/system/status > /dev/null 2>&1 || exit 1"]
