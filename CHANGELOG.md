@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.53.0] - 2026-03-15
+
+### Added
+- **RBAC 权限系统** (刑部)
+  - internal/rbac/manager.go - RBAC 核心管理器
+  - internal/rbac/types.go - 角色与权限类型定义
+  - internal/rbac/middleware.go - 权限检查中间件
+  - internal/rbac/share_acl.go - 共享访问控制列表
+  - internal/rbac/audit.go - 审计日志记录
+  - internal/rbac/rbac_test.go - 完整测试覆盖
+  - 四级角色: admin/operator/readonly/guest
+  - 细粒度权限控制，支持资源:操作格式
+  - 用户组权限继承
+
+- **告警规则引擎** (工部)
+  - internal/monitor/alert_rule_engine.go - 告警规则引擎核心
+  - 灵活规则配置，支持多种触发条件
+  - CPU/内存/磁盘/磁盘健康规则类型
+  - 持续时间/冷却时间控制
+  - 多通知渠道支持
+
+- **监控增强** (工部)
+  - internal/monitor/disk_health.go - 磁盘健康监控
+  - internal/monitor/log_collector.go - 日志收集器
+  - internal/monitor/dashboard_api.go - 仪表板 API
+
+- **项目管理增强** (吏部)
+  - internal/project/stats.go - 项目统计扩展
+  - internal/project/export.go - 项目导出功能 (JSON/CSV)
+  - internal/project/template.go - 项目模板系统
+  - internal/project/archive.go - 项目归档管理
+
+- **存储处理器增强** (兵部)
+  - internal/storage/handlers.go - API 端点完善
+
 ## [v2.52.0] - 2026-03-15
 
 ### Added
