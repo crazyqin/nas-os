@@ -412,14 +412,14 @@ type StorageCostReportSummary struct {
 
 // StorageCostReport 存储成本报告
 type StorageCostReport struct {
-	ID              string                   `json:"id"`
-	Name            string                   `json:"name"`
-	GeneratedAt     time.Time                `json:"generated_at"`
-	Period          ReportPeriod             `json:"period"`
-	TotalCost       float64                  `json:"total_cost"`
-	VolumeCosts     []StorageCostResult      `json:"volume_costs"`
-	Summary         StorageCostReportSummary `json:"summary"`
-	Recommendations []string                 `json:"recommendations"`
+	ID              string                    `json:"id"`
+	Name            string                    `json:"name"`
+	GeneratedAt     time.Time                 `json:"generated_at"`
+	Period          ReportPeriod              `json:"period"`
+	TotalCost       float64                   `json:"total_cost"`
+	VolumeCosts     []StorageCostResult       `json:"volume_costs"`
+	Summary         StorageCostReportSummary  `json:"summary"`
+	Recommendations []string                  `json:"recommendations"`
 }
 
 // ========== 存储空间利用率分析 v2.45.0 ==========
