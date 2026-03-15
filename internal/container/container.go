@@ -44,12 +44,28 @@ type PortMapping struct {
 	Protocol      string `json:"protocol"`
 }
 
+// String 返回端口映射的字符串表示
+func (p *PortMapping) String() string {
+	if p.HostIP != "" {
+		return p.HostIP + ":" + p.HostPort + ":" + p.ContainerPort + "/" + p.Protocol
+	}
+	return p.HostPort + ":" + p.ContainerPort + "/" + p.Protocol
+}
+
 // VolumeMount 卷挂载
 type VolumeMount struct {
 	Source      string `json:"source"`
 	Destination string `json:"destination"`
 	Mode        string `json:"mode"`
 	RW          bool   `json:"rw"`
+}
+
+// String 返回卷挂载的字符串表示
+func (v *VolumeMount) String() string {
+	if v.Mode != "" {
+		return v.Source + ":" + v.Destination + ":" + v.Mode
+	}
+	return v.Source + ":" + v.Destination
 }
 
 // ContainerStats 容器实时统计
@@ -64,6 +80,14 @@ type ContainerStats struct {
 	BlockWrite uint64    `json:"blockWrite"`
 	PIDs       uint64    `json:"pids"`
 	Timestamp  time.Time `json:"timestamp"`
+}
+
+// MemoryPercent 计算内存使用百分比
+func (s *ContainerStats) MemoryPercent() float64 {
+	if s.MemLimit == 0 {
+		return 0.0
+	}
+	return float64(s.MemUsage) / float64(s.MemLimit) * 100
 }
 
 // ContainerConfig 容器创建配置
@@ -510,4 +534,15 @@ func parseSize(s string) uint64 {
 	default:
 		return uint64(size)
 	}
+}
+
+// Validate 验证容器配置
+func (c *ContainerConfig) Validate() error {
+	if c.Name == "" {
+		return fmt.Errorf("name is required")
+	}
+	if c.Image == "" {
+		return fmt.Errorf("image is required")
+	}
+	return nil
 }

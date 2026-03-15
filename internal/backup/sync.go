@@ -145,6 +145,11 @@ func (sm *SyncManager) CreateSyncTask(task SyncTask) error {
 		task.ID = generateID()
 	}
 
+	// 检查重复 ID
+	if _, exists := sm.syncTasks[task.ID]; exists {
+		return fmt.Errorf("同步任务已存在：%s", task.ID)
+	}
+
 	if task.Name == "" {
 		return fmt.Errorf("同步任务名称不能为空")
 	}
@@ -849,7 +854,7 @@ func (vm *VersionManager) calculateChecksum(path string) (string, error) {
 
 // saveVersionMetadata 保存版本元数据
 func (vm *VersionManager) saveVersionMetadata(version *VersionInfo) error {
-	metaPath := filepath.Join(vm.baseDir, version.FilePath, version.VersionID+".meta")
+	metaPath := filepath.Join(vm.baseDir, filepath.Dir(version.FilePath), version.VersionID+".meta")
 
 	content := fmt.Sprintf(`{
   "versionId": "%s",
