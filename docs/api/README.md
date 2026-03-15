@@ -60,6 +60,8 @@ Content-Type: application/json
 
 - [审计 API](./audit-api.md) - 审计日志管理
 - [计费 API](./billing-api.md) - 计费系统管理
+- [仪表板 API](./dashboard-api.md) - 系统监控仪表板管理 (v2.52.0+)
+- [健康检查 API](./health-api.md) - 系统健康状态检查 (v2.52.0+)
 - [监控 API](./monitor-api.md) - 系统监控与分布式监控
 - [存储 API](./storage-api.md) - 存储池管理
 - [用户 API](./user-api.md) - 用户与权限管理

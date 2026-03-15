@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.52.0] - 2026-03-15
+
+### Added
+- **系统监控仪表板** (礼部)
+  - internal/dashboard/manager.go - 仪表板管理器核心
+  - internal/dashboard/types.go - 仪表板数据类型定义
+  - internal/dashboard/widgets.go - 小组件数据提供者
+  - 支持 CPU/内存/磁盘/网络 多种小组件类型
+  - 可自定义布局和刷新率
+  - 实时数据更新和事件订阅
+
+- **健康检查器集成** (工部)
+  - internal/health/health.go - 健康检查核心模块
+  - internal/health/handlers.go - 健康检查 API 端点
+  - internal/dashboard/health/ - 仪表板健康检查集成目录
+  - 完整的健康评分系统
+  - 支持多种检查项配置
+
+### Fixed
+- **CI/CD 修复** (工部)
+  - 修复 govet 静态检查错误
+  - 优化代码格式规范
+  - 更新版本号至 v2.52.0
+
 ## [v2.50.0] - 2026-03-15
 
 ### Added
