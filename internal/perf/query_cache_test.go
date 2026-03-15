@@ -167,18 +167,26 @@ func TestQueryCache_LRUEviction(t *testing.T) {
 func TestQueryCache_MemoryEviction(t *testing.T) {
 	cache := NewQueryCache(CacheConfig{
 		MaxItems:        100,
-		MaxMemory:       100, // 非常小的内存限制
+		MaxMemory:       50, // 50字节限制
 		DefaultTTL:      time.Minute,
 		CleanupInterval: 0,
+		EnableStats:     true, // 启用统计
 	})
 
 	// 设置会触发内存淘汰
-	cache.Set("key1", "this is a longer string to use memory")
-	cache.Set("key2", "another string")
+	// "this is a longer string to use memory" 约37字节
+	err := cache.Set("key1", "this is a longer string to use memory")
+	require.NoError(t, err)
+	t.Logf("After key1: TotalMemory=%d, Evictions=%d", cache.Memory(), cache.Stats().Evictions)
+
+	// "another string that exceeds limit" 约33字节，但总内存会超过50字节限制
+	err = cache.Set("key2", "another string that exceeds limit")
+	require.NoError(t, err)
+	t.Logf("After key2: TotalMemory=%d, Evictions=%d", cache.Memory(), cache.Stats().Evictions)
 
 	// 因为内存限制，应该有淘汰发生
 	stats := cache.Stats()
-	assert.GreaterOrEqual(t, stats.Evictions, int64(1))
+	assert.GreaterOrEqual(t, stats.Evictions, int64(1), "应该有淘汰发生")
 }
 
 func TestQueryCache_Cleanup(t *testing.T) {

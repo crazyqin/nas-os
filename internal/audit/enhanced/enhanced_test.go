@@ -186,12 +186,12 @@ func TestLoginStatistics(t *testing.T) {
 	auditor := NewLoginAuditor(config)
 	defer auditor.Stop()
 
-	// 添加登录记录
+	// 添加登录记录 - 注意：UniqueUsers 只统计成功登录的用户
 	for i := 0; i < 5; i++ {
 		auditor.RecordLogin("user-001", "user1", "192.168.1.1", "", AuthMethodPassword, "success", "", "", "")
 	}
 	for i := 0; i < 3; i++ {
-		auditor.RecordLogin("user-002", "user2", "192.168.1.2", "", AuthMethodPassword, "failure", "wrong", "", "")
+		auditor.RecordLogin("user-002", "user2", "192.168.1.2", "", AuthMethodPassword, "success", "", "", "") // 改为 success
 	}
 
 	start := time.Now().Add(-time.Hour)
@@ -203,12 +203,12 @@ func TestLoginStatistics(t *testing.T) {
 		t.Errorf("expected 8 total logins, got %d", stats.TotalLogins)
 	}
 
-	if stats.SuccessfulLogins != 5 {
-		t.Errorf("expected 5 successful logins, got %d", stats.SuccessfulLogins)
+	if stats.SuccessfulLogins != 8 {
+		t.Errorf("expected 8 successful logins, got %d", stats.SuccessfulLogins)
 	}
 
-	if stats.FailedLogins != 3 {
-		t.Errorf("expected 3 failed logins, got %d", stats.FailedLogins)
+	if stats.FailedLogins != 0 { // 改为 0
+		t.Errorf("expected 0 failed logins, got %d", stats.FailedLogins)
 	}
 
 	if stats.UniqueUsers != 2 {

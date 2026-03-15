@@ -877,3 +877,499 @@ func containsLower(s, substr string) bool {
 	}
 	return false
 }
+
+// ========== 增强功能 ==========
+
+// BatchCreateInvoices 批量创建发票
+func (im *InvoiceManager) BatchCreateInvoices(ctx context.Context, inputs []InvoiceManagerInput) ([]*InvoiceManagerInvoice, []error) {
+	var invoices []*InvoiceManagerInvoice
+	var errors []error
+
+	for i, input := range inputs {
+		invoice, err := im.CreateInvoice(ctx, input)
+		if err != nil {
+			errors = append(errors, fmt.Errorf("发票 %d: %w", i, err))
+			continue
+		}
+		invoices = append(invoices, invoice)
+	}
+
+	return invoices, errors
+}
+
+// BulkUpdateStatus 批量更新发票状态
+func (im *InvoiceManager) BulkUpdateStatus(ctx context.Context, ids []string, status InvoiceStatus) ([]*InvoiceManagerInvoice, []error) {
+	var updated []*InvoiceManagerInvoice
+	var errors []error
+
+	for _, id := range ids {
+		invoice, err := im.UpdateInvoiceStatus(ctx, id, status)
+		if err != nil {
+			errors = append(errors, fmt.Errorf("发票 %s: %w", id, err))
+			continue
+		}
+		updated = append(updated, invoice)
+	}
+
+	return updated, errors
+}
+
+// GetInvoicesByUser 获取用户的发票列表
+func (im *InvoiceManager) GetInvoicesByUser(ctx context.Context, userID string, limit int) ([]*InvoiceManagerInvoice, error) {
+	im.mu.RLock()
+	defer im.mu.RUnlock()
+
+	var invoices []*InvoiceManagerInvoice
+	for _, invoice := range im.invoices {
+		if invoice.UserID == userID {
+			invoices = append(invoices, invoice)
+		}
+	}
+
+	// 按创建时间排序（最新的在前）
+	for i := 0; i < len(invoices)-1; i++ {
+		for j := i + 1; j < len(invoices); j++ {
+			if invoices[i].CreatedAt.Before(invoices[j].CreatedAt) {
+				invoices[i], invoices[j] = invoices[j], invoices[i]
+			}
+		}
+	}
+
+	if limit > 0 && len(invoices) > limit {
+		invoices = invoices[:limit]
+	}
+
+	return invoices, nil
+}
+
+// GetInvoicesByProject 获取项目的发票列表
+func (im *InvoiceManager) GetInvoicesByProject(ctx context.Context, projectID string) ([]*InvoiceManagerInvoice, error) {
+	im.mu.RLock()
+	defer im.mu.RUnlock()
+
+	var invoices []*InvoiceManagerInvoice
+	for _, invoice := range im.invoices {
+		if invoice.ProjectID == projectID {
+			invoices = append(invoices, invoice)
+		}
+	}
+
+	return invoices, nil
+}
+
+// GetInvoicesByOrder 获取订单相关的发票
+func (im *InvoiceManager) GetInvoicesByOrder(ctx context.Context, orderID string) ([]*InvoiceManagerInvoice, error) {
+	im.mu.RLock()
+	defer im.mu.RUnlock()
+
+	var invoices []*InvoiceManagerInvoice
+	for _, invoice := range im.invoices {
+		if invoice.OrderID == orderID {
+			invoices = append(invoices, invoice)
+		}
+	}
+
+	return invoices, nil
+}
+
+// GetOverdueInvoices 获取逾期发票
+func (im *InvoiceManager) GetOverdueInvoices(ctx context.Context) ([]*InvoiceManagerInvoice, error) {
+	im.mu.RLock()
+	defer im.mu.RUnlock()
+
+	now := time.Now()
+	var invoices []*InvoiceManagerInvoice
+
+	for _, invoice := range im.invoices {
+		if invoice.DueDate != nil && invoice.DueDate.Before(now) {
+			if invoice.Status != InvoiceStatusPaid && invoice.Status != InvoiceStatusVoid && invoice.Status != InvoiceStatusRefunded {
+				invoices = append(invoices, invoice)
+			}
+		}
+	}
+
+	return invoices, nil
+}
+
+// GetPendingInvoices 获取待处理发票
+func (im *InvoiceManager) GetPendingInvoices(ctx context.Context) ([]*InvoiceManagerInvoice, error) {
+	im.mu.RLock()
+	defer im.mu.RUnlock()
+
+	var invoices []*InvoiceManagerInvoice
+	for _, invoice := range im.invoices {
+		if invoice.Status == InvoiceStatusDraft || invoice.Status == InvoiceStatusIssued || invoice.Status == InvoiceStatusSent {
+			invoices = append(invoices, invoice)
+		}
+	}
+
+	return invoices, nil
+}
+
+// CalculateTotals 计算发票总额
+func (im *InvoiceManager) CalculateTotals(ctx context.Context, query InvoiceManagerQuery) (map[string]float64, error) {
+	invoices, _, err := im.QueryInvoices(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	totals := map[string]float64{
+		"subtotal":     0,
+		"tax_amount":   0,
+		"total_amount": 0,
+		"paid":         0,
+		"pending":      0,
+		"overdue":      0,
+	}
+
+	now := time.Now()
+	for _, inv := range invoices {
+		totals["subtotal"] += inv.Subtotal
+		totals["tax_amount"] += inv.TaxAmount
+		totals["total_amount"] += inv.TotalAmount
+
+		switch inv.Status {
+		case InvoiceStatusPaid:
+			totals["paid"] += inv.TotalAmount
+		case InvoiceStatusOverdue:
+			totals["overdue"] += inv.TotalAmount
+		default:
+			if inv.DueDate != nil && inv.DueDate.Before(now) {
+				totals["overdue"] += inv.TotalAmount
+			} else {
+				totals["pending"] += inv.TotalAmount
+			}
+		}
+	}
+
+	return totals, nil
+}
+
+// DuplicateInvoice 复制发票
+func (im *InvoiceManager) DuplicateInvoice(ctx context.Context, id string) (*InvoiceManagerInvoice, error) {
+	original, err := im.GetInvoice(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	input := InvoiceManagerInput{
+		Type:          original.Type,
+		Title:         original.Title + " (副本)",
+		Description:   original.Description,
+		Issuer:        original.Issuer,
+		Beneficiary:   original.Beneficiary,
+		Recipient:     original.Recipient,
+		Payer:         original.Payer,
+		Items:         original.Items,
+		TaxRate:       original.TaxRate,
+		TaxType:       original.TaxType,
+		TaxNumber:     original.TaxNumber,
+		PaymentMethod: original.PaymentMethod,
+		BankAccount:   original.BankAccount,
+		BankName:      original.BankName,
+		OrderID:       original.OrderID,
+		ContractID:    original.ContractID,
+		ProjectID:     original.ProjectID,
+		UserID:        original.UserID,
+		Remarks:       original.Remarks,
+		Tags:          original.Tags,
+	}
+
+	return im.CreateInvoice(ctx, input)
+}
+
+// AddInvoiceItem 添加发票明细项
+func (im *InvoiceManager) AddInvoiceItem(ctx context.Context, invoiceID string, item InvoiceManagerItem) (*InvoiceManagerInvoice, error) {
+	im.mu.Lock()
+	defer im.mu.Unlock()
+
+	invoice, exists := im.invoices[invoiceID]
+	if !exists {
+		return nil, ErrInvoiceNotFound
+	}
+
+	if invoice.Status != InvoiceStatusDraft {
+		return nil, fmt.Errorf("只有草稿状态的发票可以添加明细")
+	}
+
+	// 生成明细ID
+	if item.ID == "" {
+		item.ID = uuid.New().String()
+	}
+
+	// 计算明细金额
+	item.Amount = item.Quantity * item.UnitPrice * (1 - item.Discount/100)
+	if item.TaxRate == 0 {
+		item.TaxRate = invoice.TaxRate
+	}
+	item.TaxAmount = item.Amount * item.TaxRate / 100
+	item.TotalAmount = item.Amount + item.TaxAmount
+
+	invoice.Items = append(invoice.Items, item)
+
+	// 重新计算总额
+	im.recalculateInvoiceTotals(invoice)
+	invoice.UpdatedAt = time.Now()
+
+	if err := im.saveInvoice(invoice); err != nil {
+		return nil, err
+	}
+
+	return invoice, nil
+}
+
+// RemoveInvoiceItem 移除发票明细项
+func (im *InvoiceManager) RemoveInvoiceItem(ctx context.Context, invoiceID, itemID string) (*InvoiceManagerInvoice, error) {
+	im.mu.Lock()
+	defer im.mu.Unlock()
+
+	invoice, exists := im.invoices[invoiceID]
+	if !exists {
+		return nil, ErrInvoiceNotFound
+	}
+
+	if invoice.Status != InvoiceStatusDraft {
+		return nil, fmt.Errorf("只有草稿状态的发票可以移除明细")
+	}
+
+	// 查找并移除明细
+	found := false
+	newItems := make([]InvoiceManagerItem, 0, len(invoice.Items)-1)
+	for _, item := range invoice.Items {
+		if item.ID == itemID {
+			found = true
+			continue
+		}
+		newItems = append(newItems, item)
+	}
+
+	if !found {
+		return nil, fmt.Errorf("明细项不存在: %s", itemID)
+	}
+
+	invoice.Items = newItems
+
+	// 重新计算总额
+	im.recalculateInvoiceTotals(invoice)
+	invoice.UpdatedAt = time.Now()
+
+	if err := im.saveInvoice(invoice); err != nil {
+		return nil, err
+	}
+
+	return invoice, nil
+}
+
+// UpdateInvoiceItem 更新发票明细项
+func (im *InvoiceManager) UpdateInvoiceItem(ctx context.Context, invoiceID string, item InvoiceManagerItem) (*InvoiceManagerInvoice, error) {
+	im.mu.Lock()
+	defer im.mu.Unlock()
+
+	invoice, exists := im.invoices[invoiceID]
+	if !exists {
+		return nil, ErrInvoiceNotFound
+	}
+
+	if invoice.Status != InvoiceStatusDraft {
+		return nil, fmt.Errorf("只有草稿状态的发票可以更新明细")
+	}
+
+	// 查找并更新明细
+	found := false
+	for i := range invoice.Items {
+		if invoice.Items[i].ID == item.ID {
+			// 计算明细金额
+			item.Amount = item.Quantity * item.UnitPrice * (1 - item.Discount/100)
+			if item.TaxRate == 0 {
+				item.TaxRate = invoice.TaxRate
+			}
+			item.TaxAmount = item.Amount * item.TaxRate / 100
+			item.TotalAmount = item.Amount + item.TaxAmount
+
+			invoice.Items[i] = item
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return nil, fmt.Errorf("明细项不存在: %s", item.ID)
+	}
+
+	// 重新计算总额
+	im.recalculateInvoiceTotals(invoice)
+	invoice.UpdatedAt = time.Now()
+
+	if err := im.saveInvoice(invoice); err != nil {
+		return nil, err
+	}
+
+	return invoice, nil
+}
+
+// recalculateInvoiceTotals 重新计算发票总额
+func (im *InvoiceManager) recalculateInvoiceTotals(invoice *InvoiceManagerInvoice) {
+	var subtotal, taxAmount float64
+	for _, item := range invoice.Items {
+		subtotal += item.Amount
+		taxAmount += item.TaxAmount
+	}
+
+	invoice.Subtotal = subtotal
+	invoice.TaxAmount = taxAmount
+	invoice.TotalAmount = subtotal + taxAmount
+}
+
+// SendInvoice 发送发票
+func (im *InvoiceManager) SendInvoice(ctx context.Context, id string, recipient string) (*InvoiceManagerInvoice, error) {
+	invoice, err := im.UpdateInvoiceStatus(ctx, id, InvoiceStatusSent)
+	if err != nil {
+		return nil, err
+	}
+
+	// 记录发送信息
+	im.mu.Lock()
+	invoice.Metadata = map[string]interface{}{
+		"sent_at": time.Now(),
+		"sent_to": recipient,
+		"sent_by": "system",
+	}
+	im.mu.Unlock()
+
+	if err := im.saveInvoice(invoice); err != nil {
+		return nil, err
+	}
+
+	return invoice, nil
+}
+
+// MarkOverdue 标记发票为逾期
+func (im *InvoiceManager) MarkOverdue(ctx context.Context, id string) (*InvoiceManagerInvoice, error) {
+	invoice, err := im.GetInvoice(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if invoice.Status == InvoiceStatusSent {
+		return im.UpdateInvoiceStatus(ctx, id, InvoiceStatusOverdue)
+	}
+
+	return invoice, nil
+}
+
+// ApplyDiscount 应用折扣
+func (im *InvoiceManager) ApplyDiscount(ctx context.Context, id string, discountPercent float64, reason string) (*InvoiceManagerInvoice, error) {
+	im.mu.Lock()
+	defer im.mu.Unlock()
+
+	invoice, exists := im.invoices[id]
+	if !exists {
+		return nil, ErrInvoiceNotFound
+	}
+
+	if invoice.Status != InvoiceStatusDraft {
+		return nil, fmt.Errorf("只有草稿状态的发票可以应用折扣")
+	}
+
+	// 应用折扣到所有明细
+	for i := range invoice.Items {
+		invoice.Items[i].Discount = discountPercent
+		invoice.Items[i].Amount = invoice.Items[i].Quantity * invoice.Items[i].UnitPrice * (1 - discountPercent/100)
+		invoice.Items[i].TaxAmount = invoice.Items[i].Amount * invoice.Items[i].TaxRate / 100
+		invoice.Items[i].TotalAmount = invoice.Items[i].Amount + invoice.Items[i].TaxAmount
+	}
+
+	// 重新计算总额
+	im.recalculateInvoiceTotals(invoice)
+	invoice.UpdatedAt = time.Now()
+
+	// 记录折扣原因
+	if invoice.Metadata == nil {
+		invoice.Metadata = make(map[string]interface{})
+	}
+	invoice.Metadata["discount_percent"] = discountPercent
+	invoice.Metadata["discount_reason"] = reason
+
+	if err := im.saveInvoice(invoice); err != nil {
+		return nil, err
+	}
+
+	return invoice, nil
+}
+
+// GetInvoiceHistory 获取发票历史记录
+func (im *InvoiceManager) GetInvoiceHistory(ctx context.Context, id string) ([]map[string]interface{}, error) {
+	im.mu.RLock()
+	defer im.mu.RUnlock()
+
+	invoice, exists := im.invoices[id]
+	if !exists {
+		return nil, ErrInvoiceNotFound
+	}
+
+	history := []map[string]interface{}{
+		{
+			"action":    "created",
+			"timestamp": invoice.CreatedAt,
+			"status":    InvoiceStatusDraft,
+			"by":        "system",
+		},
+	}
+
+	// 根据当前状态推断历史
+	if invoice.Status != InvoiceStatusDraft {
+		history = append(history, map[string]interface{}{
+			"action":    "status_change",
+			"timestamp": invoice.UpdatedAt,
+			"from":      InvoiceStatusDraft,
+			"to":        invoice.Status,
+		})
+	}
+
+	if invoice.PaidDate != nil {
+		history = append(history, map[string]interface{}{
+			"action":    "paid",
+			"timestamp": *invoice.PaidDate,
+			"method":    invoice.PaymentMethod,
+			"reference": invoice.PaymentRef,
+		})
+	}
+
+	return history, nil
+}
+
+// ValidateInvoice 验证发票数据
+func (im *InvoiceManager) ValidateInvoice(invoice *InvoiceManagerInvoice) []string {
+	var errors []string
+
+	if len(invoice.Items) == 0 {
+		errors = append(errors, "发票必须包含至少一个明细项")
+	}
+
+	if invoice.TotalAmount <= 0 {
+		errors = append(errors, "发票总金额必须大于0")
+	}
+
+	if invoice.Recipient.Name == "" {
+		errors = append(errors, "收票方名称不能为空")
+	}
+
+	if invoice.Issuer.Name == "" {
+		errors = append(errors, "开票方名称不能为空")
+	}
+
+	// 验证明细
+	for i, item := range invoice.Items {
+		if item.Name == "" {
+			errors = append(errors, fmt.Sprintf("明细项 %d: 名称不能为空", i+1))
+		}
+		if item.Quantity <= 0 {
+			errors = append(errors, fmt.Sprintf("明细项 %d: 数量必须大于0", i+1))
+		}
+		if item.UnitPrice < 0 {
+			errors = append(errors, fmt.Sprintf("明细项 %d: 单价不能为负数", i+1))
+		}
+	}
+
+	return errors
+}

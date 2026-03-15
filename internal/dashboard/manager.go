@@ -209,11 +209,12 @@ func (m *Manager) getWidgetData(widget *Widget) (*WidgetData, error) {
 
 // CreateDashboard 创建仪表板
 func (m *Manager) CreateDashboard(name, description string) (*Dashboard, error) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	var dashboard *Dashboard
+	var subscribers []chan *DashboardEvent
 
+	m.mu.Lock()
 	now := time.Now()
-	dashboard := &Dashboard{
+	dashboard = &Dashboard{
 		ID:          generateID(),
 		Name:        name,
 		Description: description,
@@ -230,12 +231,24 @@ func (m *Manager) CreateDashboard(name, description string) (*Dashboard, error) 
 	m.dashboards[dashboard.ID] = dashboard
 	_ = m.saveDashboards()
 
-	m.publishEvent(&DashboardEvent{
+	// 在锁内复制订阅者列表
+	subscribers = m.getSubscribersInternal()
+	m.mu.Unlock()
+
+	// 在锁外发布事件
+	event := &DashboardEvent{
 		Type:        "create",
 		DashboardID: dashboard.ID,
 		Timestamp:   now,
 		Data:        dashboard,
-	})
+	}
+	for _, ch := range subscribers {
+		select {
+		case ch <- event:
+		default:
+			// channel 满，跳过
+		}
+	}
 
 	return dashboard, nil
 }
@@ -267,60 +280,82 @@ func (m *Manager) ListDashboards() []*Dashboard {
 
 // UpdateDashboard 更新仪表板
 func (m *Manager) UpdateDashboard(dashboard *Dashboard) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	var subscribers []chan *DashboardEvent
 
+	m.mu.Lock()
 	if _, ok := m.dashboards[dashboard.ID]; !ok {
+		m.mu.Unlock()
 		return fmt.Errorf("仪表板不存在: %s", dashboard.ID)
 	}
 
 	dashboard.UpdatedAt = time.Now()
 	m.dashboards[dashboard.ID] = dashboard
 	_ = m.saveDashboards()
+	subscribers = m.getSubscribersInternal()
+	m.mu.Unlock()
 
-	m.publishEvent(&DashboardEvent{
+	// 在锁外发布事件
+	event := &DashboardEvent{
 		Type:        "update",
 		DashboardID: dashboard.ID,
 		Timestamp:   time.Now(),
 		Data:        dashboard,
-	})
+	}
+	for _, ch := range subscribers {
+		select {
+		case ch <- event:
+		default:
+		}
+	}
 
 	return nil
 }
 
 // DeleteDashboard 删除仪表板
 func (m *Manager) DeleteDashboard(id string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	var subscribers []chan *DashboardEvent
 
+	m.mu.Lock()
 	if _, ok := m.dashboards[id]; !ok {
+		m.mu.Unlock()
 		return fmt.Errorf("仪表板不存在: %s", id)
 	}
 
 	delete(m.dashboards, id)
 	delete(m.states, id)
 	_ = m.saveDashboards()
+	subscribers = m.getSubscribersInternal()
+	m.mu.Unlock()
 
-	m.publishEvent(&DashboardEvent{
+	// 在锁外发布事件
+	event := &DashboardEvent{
 		Type:        "delete",
 		DashboardID: id,
 		Timestamp:   time.Now(),
-	})
+	}
+	for _, ch := range subscribers {
+		select {
+		case ch <- event:
+		default:
+		}
+	}
 
 	return nil
 }
 
 // AddWidget 添加小组件
 func (m *Manager) AddWidget(dashboardID string, widget *Widget) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	var subscribers []chan *DashboardEvent
+	var now time.Time
 
+	m.mu.Lock()
 	dashboard, ok := m.dashboards[dashboardID]
 	if !ok {
+		m.mu.Unlock()
 		return fmt.Errorf("仪表板不存在: %s", dashboardID)
 	}
 
-	now := time.Now()
+	now = time.Now()
 	widget.CreatedAt = now
 	widget.UpdatedAt = now
 
@@ -331,25 +366,35 @@ func (m *Manager) AddWidget(dashboardID string, widget *Widget) error {
 	dashboard.Widgets = append(dashboard.Widgets, widget)
 	dashboard.UpdatedAt = now
 	_ = m.saveDashboards()
+	subscribers = m.getSubscribersInternal()
+	m.mu.Unlock()
 
-	m.publishEvent(&DashboardEvent{
+	// 在锁外发布事件
+	event := &DashboardEvent{
 		Type:        "widget_add",
 		DashboardID: dashboardID,
 		WidgetID:    widget.ID,
 		Timestamp:   now,
 		Data:        widget,
-	})
+	}
+	for _, ch := range subscribers {
+		select {
+		case ch <- event:
+		default:
+		}
+	}
 
 	return nil
 }
 
 // RemoveWidget 移除小组件
 func (m *Manager) RemoveWidget(dashboardID, widgetID string) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	var subscribers []chan *DashboardEvent
 
+	m.mu.Lock()
 	dashboard, ok := m.dashboards[dashboardID]
 	if !ok {
+		m.mu.Unlock()
 		return fmt.Errorf("仪表板不存在: %s", dashboardID)
 	}
 
@@ -358,28 +403,38 @@ func (m *Manager) RemoveWidget(dashboardID, widgetID string) error {
 			dashboard.Widgets = append(dashboard.Widgets[:i], dashboard.Widgets[i+1:]...)
 			dashboard.UpdatedAt = time.Now()
 			_ = m.saveDashboards()
+			subscribers = m.getSubscribersInternal()
+			m.mu.Unlock()
 
-			m.publishEvent(&DashboardEvent{
+			// 在锁外发布事件
+			event := &DashboardEvent{
 				Type:        "widget_remove",
 				DashboardID: dashboardID,
 				WidgetID:    widgetID,
 				Timestamp:   time.Now(),
-			})
+			}
+			for _, ch := range subscribers {
+				select {
+				case ch <- event:
+				default:
+				}
+			}
 
 			return nil
 		}
 	}
-
+	m.mu.Unlock()
 	return fmt.Errorf("小组件不存在: %s", widgetID)
 }
 
 // UpdateWidget 更新小组件
 func (m *Manager) UpdateWidget(dashboardID string, widget *Widget) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	var subscribers []chan *DashboardEvent
 
+	m.mu.Lock()
 	dashboard, ok := m.dashboards[dashboardID]
 	if !ok {
+		m.mu.Unlock()
 		return fmt.Errorf("仪表板不存在: %s", dashboardID)
 	}
 
@@ -389,19 +444,28 @@ func (m *Manager) UpdateWidget(dashboardID string, widget *Widget) error {
 			dashboard.Widgets[i] = widget
 			dashboard.UpdatedAt = time.Now()
 			_ = m.saveDashboards()
+			subscribers = m.getSubscribersInternal()
+			m.mu.Unlock()
 
-			m.publishEvent(&DashboardEvent{
+			// 在锁外发布事件
+			event := &DashboardEvent{
 				Type:        "widget_update",
 				DashboardID: dashboardID,
 				WidgetID:    widget.ID,
 				Timestamp:   time.Now(),
 				Data:        widget,
-			})
+			}
+			for _, ch := range subscribers {
+				select {
+				case ch <- event:
+				default:
+				}
+			}
 
 			return nil
 		}
 	}
-
+	m.mu.Unlock()
 	return fmt.Errorf("小组件不存在: %s", widget.ID)
 }
 
@@ -495,13 +559,9 @@ func (m *Manager) Unsubscribe(ch chan *DashboardEvent) {
 	}
 }
 
-// publishEvent 发布事件
+// publishEvent 发布事件（调用时不应持有锁）
 func (m *Manager) publishEvent(event *DashboardEvent) {
-	m.mu.RLock()
-	subscribers := make([]chan *DashboardEvent, len(m.subscribers))
-	copy(subscribers, m.subscribers)
-	m.mu.RUnlock()
-
+	subscribers := m.getSubscribers()
 	for _, ch := range subscribers {
 		select {
 		case ch <- event:
@@ -509,6 +569,22 @@ func (m *Manager) publishEvent(event *DashboardEvent) {
 			// channel 满，跳过
 		}
 	}
+}
+
+// getSubscribers 获取订阅者列表副本（线程安全）
+func (m *Manager) getSubscribers() []chan *DashboardEvent {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	subscribers := make([]chan *DashboardEvent, len(m.subscribers))
+	copy(subscribers, m.subscribers)
+	return subscribers
+}
+
+// getSubscribersInternal 获取订阅者列表副本（内部使用，不获取锁）
+func (m *Manager) getSubscribersInternal() []chan *DashboardEvent {
+	subscribers := make([]chan *DashboardEvent, len(m.subscribers))
+	copy(subscribers, m.subscribers)
+	return subscribers
 }
 
 // saveDashboards 保存仪表板

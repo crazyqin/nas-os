@@ -825,7 +825,7 @@ func (g *BillingBillingReportGenerator) addWeeklyAnalysis(ctx context.Context, r
 	// 获取上周报告进行对比
 	prevWeekStart := report.PeriodStart.AddDate(0, 0, -7)
 	prevReport, err := g.providers.GetHistoricalReport(ctx, CostBillingReportTypeWeekly, prevWeekStart)
-	if err != nil {
+	if err != nil || prevReport == nil {
 		return err
 	}
 
@@ -845,7 +845,7 @@ func (g *BillingBillingReportGenerator) addMonthlyAnalysis(ctx context.Context, 
 	// 获取上月报告进行对比
 	prevMonthStart := report.PeriodStart.AddDate(0, -1, 0)
 	prevReport, err := g.providers.GetHistoricalReport(ctx, CostBillingReportTypeMonthly, prevMonthStart)
-	if err != nil {
+	if err != nil || prevReport == nil {
 		return err
 	}
 
@@ -1027,11 +1027,12 @@ func (g *BillingBillingReportGenerator) ExportToJSON(report *BillingCostReport) 
 func (g *BillingBillingReportGenerator) ExportToCSV(report *BillingCostReport) (string, error) {
 	var builder strings.Builder
 	writer := csv.NewWriter(&builder)
-	defer writer.Flush()
 
 	// 简化的CSV输出
 	headers := []string{"Category", "Metric", "Value"}
-	writer.Write(headers)
+	if err := writer.Write(headers); err != nil {
+		return "", err
+	}
 
 	// 摘要数据
 	writer.Write([]string{"Summary", "Total Cost", fmt.Sprintf("%.2f", report.Summary.TotalCost)})
@@ -1044,6 +1045,7 @@ func (g *BillingBillingReportGenerator) ExportToCSV(report *BillingCostReport) (
 		writer.Write([]string{"Pool", p.PoolName, fmt.Sprintf("%.2f GB / %.2f 元", p.UsedCapacityGB, p.MonthlyCost)})
 	}
 
+	writer.Flush()
 	return builder.String(), nil
 }
 

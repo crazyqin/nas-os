@@ -334,7 +334,7 @@ func CacheMiddleware(config ...*CacheConfig) gin.HandlerFunc {
 				if cfg.EnableETag {
 					etag := generateETag(cached.Body)
 					if match := c.GetHeader("If-None-Match"); match == etag {
-						c.Status(http.StatusNotModified)
+						c.AbortWithStatus(http.StatusNotModified)
 						return
 					}
 					c.Header("ETag", etag)
