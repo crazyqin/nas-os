@@ -647,8 +647,5 @@ func BenchmarkAlertRuleEngine_GetRules(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = engine.GetRules()
 	}
-
-}
-
 }
 
