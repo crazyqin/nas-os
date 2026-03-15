@@ -17,45 +17,45 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrBillingCostReportNotFound = errors.New("成本报告不存在")
-	ErrInvalidBillingReportType  = errors.New("无效的报告类型")
-	ErrInvalidDateFormat         = errors.New("无效的日期格式")
-	ErrCostExportFailed          = errors.New("导出失败")
+	ErrCostReportNotFound    = errors.New("成本报告不存在")
+	ErrInvalidCostReportType = errors.New("无效的报告类型")
+	ErrInvalidDateFormat     = errors.New("无效的日期格式")
+	ErrCostExportFailed      = errors.New("导出失败")
 )
 
 // ========== 报告类型 ==========
 
-// CostBillingReportType 成本报告类型
-type CostBillingReportType string
+// CostCostReportType 成本报告类型
+type CostCostReportType string
 
 const (
-	CostBillingReportTypeDaily   CostBillingReportType = "daily"   // 日报
-	CostBillingReportTypeWeekly  CostBillingReportType = "weekly"  // 周报
-	CostBillingReportTypeMonthly CostBillingReportType = "monthly" // 月报
+	CostCostReportTypeDaily   CostCostReportType = "daily"   // 日报
+	CostCostReportTypeWeekly  CostCostReportType = "weekly"  // 周报
+	CostCostReportTypeMonthly CostCostReportType = "monthly" // 月报
 )
 
-// CostBillingExportFormat 成本导出格式
-type CostBillingExportFormat string
+// CostCostExportFormat 成本导出格式
+type CostCostExportFormat string
 
 const (
-	CostBillingExportFormatJSON CostBillingExportFormat = "json" // JSON格式
-	CostBillingExportFormatCSV  CostBillingExportFormat = "csv"  // CSV格式
+	CostCostExportFormatJSON CostCostExportFormat = "json" // JSON格式
+	CostCostExportFormatCSV  CostCostExportFormat = "csv"  // CSV格式
 )
 
 // ========== 成本报告定义 ==========
 
-// BillingCostReport 成本报告
-type BillingCostReport struct {
+// CostReport 成本报告
+type CostReport struct {
 	// 基本信息
-	ID                    string                `json:"id"`
-	CostBillingReportType CostBillingReportType `json:"report_type"`
-	GeneratedAt           time.Time             `json:"generated_at"`
-	PeriodStart           time.Time             `json:"period_start"`
-	PeriodEnd             time.Time             `json:"period_end"`
-	Currency              string                `json:"currency"`
+	ID             string         `json:"id"`
+	CostReportType CostReportType `json:"report_type"`
+	GeneratedAt    time.Time      `json:"generated_at"`
+	PeriodStart    time.Time      `json:"period_start"`
+	PeriodEnd      time.Time      `json:"period_end"`
+	Currency       string         `json:"currency"`
 
 	// 摘要
-	Summary BillingReportSummary `json:"summary"`
+	Summary CostReportSummary `json:"summary"`
 
 	// 存储成本详情
 	StorageCost StorageCostSection `json:"storage_cost"`
@@ -64,7 +64,7 @@ type BillingCostReport struct {
 	BandwidthCost BandwidthCostSection `json:"bandwidth_cost"`
 
 	// 成本趋势
-	Trends []BillingTrendItem `json:"trends"`
+	Trends []CostTrendItem `json:"trends"`
 
 	// 按存储池分解
 	PoolBreakdown []PoolCostItem `json:"pool_breakdown"`
@@ -82,8 +82,8 @@ type BillingCostReport struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// BillingReportSummary 成本报告摘要
-type BillingReportSummary struct {
+// CostReportSummary 成本报告摘要
+type CostReportSummary struct {
 	// 总成本
 	TotalCost     float64 `json:"total_cost"`
 	StorageCost   float64 `json:"storage_cost"`
@@ -172,8 +172,8 @@ type BandwidthCostSection struct {
 	OffPeakHours []int `json:"off_peak_hours"` // 低谷时段
 }
 
-// BillingTrendItem 成本趋势项
-type BillingTrendItem struct {
+// CostTrendItem 成本趋势项
+type CostTrendItem struct {
 	Date           time.Time `json:"date"`
 	StorageCost    float64   `json:"storage_cost"`
 	BandwidthCost  float64   `json:"bandwidth_cost"`
@@ -266,15 +266,15 @@ type RecommendationItem struct {
 
 // ========== 报告生成器 ==========
 
-// BillingBillingReportGenerator 成本报告生成器
-type BillingBillingReportGenerator struct {
+// CostReportGenerator 成本报告生成器
+type CostReportGenerator struct {
 	mu        sync.RWMutex
 	dataDir   string
 	providers ReportDataProvider
 	config    ReportConfig
 
 	// 缓存
-	reportCache map[string]*BillingCostReport
+	reportCache map[string]*CostReport
 	cacheExpiry time.Duration
 }
 
@@ -298,7 +298,7 @@ type ReportDataProvider interface {
 	GetRecommendations(ctx context.Context) ([]RecommendationItem, error)
 
 	// 历史报告
-	GetHistoricalReport(ctx context.Context, reportType CostBillingReportType, date time.Time) (*BillingCostReport, error)
+	GetHistoricalReport(ctx context.Context, reportType CostReportType, date time.Time) (*CostReport, error)
 }
 
 // StorageReportData 存储报告数据
@@ -410,13 +410,13 @@ func DefaultReportConfig() ReportConfig {
 	}
 }
 
-// NewBillingBillingReportGenerator 创建成本报告生成器
-func NewBillingBillingReportGenerator(dataDir string, providers ReportDataProvider, config ReportConfig) *BillingBillingReportGenerator {
-	return &BillingBillingReportGenerator{
+// NewCostReportGenerator 创建成本报告生成器
+func NewCostReportGenerator(dataDir string, providers ReportDataProvider, config ReportConfig) *CostReportGenerator {
+	return &CostReportGenerator{
 		dataDir:     dataDir,
 		providers:   providers,
 		config:      config,
-		reportCache: make(map[string]*BillingCostReport),
+		reportCache: make(map[string]*CostReport),
 		cacheExpiry: config.CacheExpiry,
 	}
 }
@@ -424,18 +424,18 @@ func NewBillingBillingReportGenerator(dataDir string, providers ReportDataProvid
 // ========== 报告生成方法 ==========
 
 // GenerateDailyReport 生成日报
-func (g *BillingBillingReportGenerator) GenerateDailyReport(ctx context.Context, date time.Time) (*BillingCostReport, error) {
+func (g *CostReportGenerator) GenerateDailyReport(ctx context.Context, date time.Time) (*CostReport, error) {
 	start := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	end := start.Add(24 * time.Hour)
 
-	report := &BillingCostReport{
-		ID:                    generateReportID(CostBillingReportTypeDaily, start),
-		CostBillingReportType: CostBillingReportTypeDaily,
-		GeneratedAt:           time.Now(),
-		PeriodStart:           start,
-		PeriodEnd:             end,
-		Currency:              g.config.DefaultCurrency,
-		Metadata:              make(map[string]interface{}),
+	report := &CostReport{
+		ID:             generateReportID(CostReportTypeDaily, start),
+		CostReportType: CostReportTypeDaily,
+		GeneratedAt:    time.Now(),
+		PeriodStart:    start,
+		PeriodEnd:      end,
+		Currency:       g.config.DefaultCurrency,
+		Metadata:       make(map[string]interface{}),
 	}
 
 	// 收集数据
@@ -452,7 +452,7 @@ func (g *BillingBillingReportGenerator) GenerateDailyReport(ctx context.Context,
 }
 
 // GenerateWeeklyReport 生成周报
-func (g *BillingBillingReportGenerator) GenerateWeeklyReport(ctx context.Context, weekStart time.Time) (*BillingCostReport, error) {
+func (g *CostReportGenerator) GenerateWeeklyReport(ctx context.Context, weekStart time.Time) (*CostReport, error) {
 	// 计算周的开始（周一）和结束（周日）
 	start := weekStart
 	for start.Weekday() != time.Monday {
@@ -461,14 +461,14 @@ func (g *BillingBillingReportGenerator) GenerateWeeklyReport(ctx context.Context
 	start = time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, start.Location())
 	end := start.AddDate(0, 0, 7)
 
-	report := &BillingCostReport{
-		ID:                    generateReportID(CostBillingReportTypeWeekly, start),
-		CostBillingReportType: CostBillingReportTypeWeekly,
-		GeneratedAt:           time.Now(),
-		PeriodStart:           start,
-		PeriodEnd:             end,
-		Currency:              g.config.DefaultCurrency,
-		Metadata:              make(map[string]interface{}),
+	report := &CostReport{
+		ID:             generateReportID(CostReportTypeWeekly, start),
+		CostReportType: CostReportTypeWeekly,
+		GeneratedAt:    time.Now(),
+		PeriodStart:    start,
+		PeriodEnd:      end,
+		Currency:       g.config.DefaultCurrency,
+		Metadata:       make(map[string]interface{}),
 	}
 
 	// 收集数据
@@ -491,18 +491,18 @@ func (g *BillingBillingReportGenerator) GenerateWeeklyReport(ctx context.Context
 }
 
 // GenerateMonthlyReport 生成月报
-func (g *BillingBillingReportGenerator) GenerateMonthlyReport(ctx context.Context, month time.Time) (*BillingCostReport, error) {
+func (g *CostReportGenerator) GenerateMonthlyReport(ctx context.Context, month time.Time) (*CostReport, error) {
 	start := time.Date(month.Year(), month.Month(), 1, 0, 0, 0, 0, month.Location())
 	end := start.AddDate(0, 1, 0)
 
-	report := &BillingCostReport{
-		ID:                    generateReportID(CostBillingReportTypeMonthly, start),
-		CostBillingReportType: CostBillingReportTypeMonthly,
-		GeneratedAt:           time.Now(),
-		PeriodStart:           start,
-		PeriodEnd:             end,
-		Currency:              g.config.DefaultCurrency,
-		Metadata:              make(map[string]interface{}),
+	report := &CostReport{
+		ID:             generateReportID(CostReportTypeMonthly, start),
+		CostReportType: CostReportTypeMonthly,
+		GeneratedAt:    time.Now(),
+		PeriodStart:    start,
+		PeriodEnd:      end,
+		Currency:       g.config.DefaultCurrency,
+		Metadata:       make(map[string]interface{}),
 	}
 
 	// 收集数据
@@ -524,15 +524,15 @@ func (g *BillingBillingReportGenerator) GenerateMonthlyReport(ctx context.Contex
 }
 
 // GenerateCustomReport 生成自定义时间范围报告
-func (g *BillingBillingReportGenerator) GenerateCustomReport(ctx context.Context, start, end time.Time) (*BillingCostReport, error) {
-	report := &BillingCostReport{
-		ID:                    fmt.Sprintf("custom-%d-%s", start.Unix(), randomString(6)),
-		CostBillingReportType: CostBillingReportTypeMonthly, // 使用月报类型
-		GeneratedAt:           time.Now(),
-		PeriodStart:           start,
-		PeriodEnd:             end,
-		Currency:              g.config.DefaultCurrency,
-		Metadata:              make(map[string]interface{}),
+func (g *CostReportGenerator) GenerateCustomReport(ctx context.Context, start, end time.Time) (*CostReport, error) {
+	report := &CostReport{
+		ID:             fmt.Sprintf("custom-%d-%s", start.Unix(), randomString(6)),
+		CostReportType: CostReportTypeMonthly, // 使用月报类型
+		GeneratedAt:    time.Now(),
+		PeriodStart:    start,
+		PeriodEnd:      end,
+		Currency:       g.config.DefaultCurrency,
+		Metadata:       make(map[string]interface{}),
 	}
 
 	// 收集数据
@@ -546,7 +546,7 @@ func (g *BillingBillingReportGenerator) GenerateCustomReport(ctx context.Context
 // ========== 数据收集 ==========
 
 // collectReportData 收集报告数据
-func (g *BillingBillingReportGenerator) collectReportData(ctx context.Context, report *BillingCostReport, start, end time.Time) error {
+func (g *CostReportGenerator) collectReportData(ctx context.Context, report *CostReport, start, end time.Time) error {
 	var wg sync.WaitGroup
 	errChan := make(chan error, 6)
 
@@ -636,7 +636,7 @@ func (g *BillingBillingReportGenerator) collectReportData(ctx context.Context, r
 }
 
 // populateStorageSection 填充存储部分
-func (g *BillingBillingReportGenerator) populateStorageSection(report *BillingCostReport, data *StorageReportData) {
+func (g *CostReportGenerator) populateStorageSection(report *CostReport, data *StorageReportData) {
 	report.StorageCost = StorageCostSection{
 		TotalCapacityGB: data.TotalCapacityGB,
 		UsedCapacityGB:  data.UsedCapacityGB,
@@ -662,7 +662,7 @@ func (g *BillingBillingReportGenerator) populateStorageSection(report *BillingCo
 }
 
 // populateBandwidthSection 填充带宽部分
-func (g *BillingBillingReportGenerator) populateBandwidthSection(report *BillingCostReport, data *BandwidthReportData) {
+func (g *CostReportGenerator) populateBandwidthSection(report *CostReport, data *BandwidthReportData) {
 	report.BandwidthCost = BandwidthCostSection{
 		InboundTrafficGB:  data.InboundTrafficGB,
 		OutboundTrafficGB: data.OutboundTrafficGB,
@@ -680,7 +680,7 @@ func (g *BillingBillingReportGenerator) populateBandwidthSection(report *Billing
 }
 
 // populatePoolBreakdown 填充存储池分解
-func (g *BillingBillingReportGenerator) populatePoolBreakdown(report *BillingCostReport, data []PoolReportData) {
+func (g *CostReportGenerator) populatePoolBreakdown(report *CostReport, data []PoolReportData) {
 	report.PoolBreakdown = make([]PoolCostItem, 0, len(data))
 	for _, p := range data {
 		usagePercent := 0.0
@@ -708,7 +708,7 @@ func (g *BillingBillingReportGenerator) populatePoolBreakdown(report *BillingCos
 }
 
 // populateUserBreakdown 填充用户分解
-func (g *BillingBillingReportGenerator) populateUserBreakdown(report *BillingCostReport, data []UserReportData) {
+func (g *CostReportGenerator) populateUserBreakdown(report *CostReport, data []UserReportData) {
 	report.UserBreakdown = make([]UserCostItem, 0, len(data))
 	for _, u := range data {
 		report.UserBreakdown = append(report.UserBreakdown, UserCostItem{
@@ -725,15 +725,15 @@ func (g *BillingBillingReportGenerator) populateUserBreakdown(report *BillingCos
 }
 
 // populateTrends 填充趋势数据
-func (g *BillingBillingReportGenerator) populateTrends(report *BillingCostReport, data []TrendReportData) {
-	report.Trends = make([]BillingTrendItem, 0, len(data))
+func (g *CostReportGenerator) populateTrends(report *CostReport, data []TrendReportData) {
+	report.Trends = make([]CostTrendItem, 0, len(data))
 	var cumulative float64
 
 	for _, t := range data {
 		totalCost := t.StorageCost + t.BandwidthCost
 		cumulative += totalCost
 
-		report.Trends = append(report.Trends, BillingTrendItem{
+		report.Trends = append(report.Trends, CostTrendItem{
 			Date:           t.Date,
 			StorageCost:    t.StorageCost,
 			BandwidthCost:  t.BandwidthCost,
@@ -746,8 +746,8 @@ func (g *BillingBillingReportGenerator) populateTrends(report *BillingCostReport
 }
 
 // calculateSummary 计算摘要
-func (g *BillingBillingReportGenerator) calculateSummary(report *BillingCostReport) {
-	summary := BillingReportSummary{
+func (g *CostReportGenerator) calculateSummary(report *CostReport) {
+	summary := CostReportSummary{
 		TotalCost:          report.StorageCost.MonthlyCost + report.BandwidthCost.TotalCost,
 		StorageCost:        report.StorageCost.MonthlyCost,
 		BandwidthCost:      report.BandwidthCost.TotalCost,
@@ -769,7 +769,7 @@ func (g *BillingBillingReportGenerator) calculateSummary(report *BillingCostRepo
 }
 
 // calculateHealthScore 计算健康评分
-func (g *BillingBillingReportGenerator) calculateHealthScore(report *BillingCostReport, summary *BillingReportSummary) int {
+func (g *CostReportGenerator) calculateHealthScore(report *CostReport, summary *CostReportSummary) int {
 	score := 100
 
 	// 利用率评分
@@ -810,7 +810,7 @@ func (g *BillingBillingReportGenerator) calculateHealthScore(report *BillingCost
 }
 
 // calculateCostEfficiency 计算成本效率
-func (g *BillingBillingReportGenerator) calculateCostEfficiency(usagePercent float64) float64 {
+func (g *CostReportGenerator) calculateCostEfficiency(usagePercent float64) float64 {
 	if usagePercent >= 60 && usagePercent <= 80 {
 		return 1.0
 	} else if usagePercent > 80 {
@@ -821,11 +821,11 @@ func (g *BillingBillingReportGenerator) calculateCostEfficiency(usagePercent flo
 }
 
 // addWeeklyAnalysis 添加周环比分析
-func (g *BillingBillingReportGenerator) addWeeklyAnalysis(ctx context.Context, report *BillingCostReport) error {
+func (g *CostReportGenerator) addWeeklyAnalysis(ctx context.Context, report *CostReport) error {
 	// 获取上周报告进行对比
 	prevWeekStart := report.PeriodStart.AddDate(0, 0, -7)
-	prevReport, err := g.providers.GetHistoricalReport(ctx, CostBillingReportTypeWeekly, prevWeekStart)
-	if err != nil || prevReport == nil {
+	prevReport, err := g.providers.GetHistoricalReport(ctx, CostReportTypeWeekly, prevWeekStart)
+	if err != nil {
 		return err
 	}
 
@@ -841,11 +841,11 @@ func (g *BillingBillingReportGenerator) addWeeklyAnalysis(ctx context.Context, r
 }
 
 // addMonthlyAnalysis 添加月度分析
-func (g *BillingBillingReportGenerator) addMonthlyAnalysis(ctx context.Context, report *BillingCostReport) error {
+func (g *CostReportGenerator) addMonthlyAnalysis(ctx context.Context, report *CostReport) error {
 	// 获取上月报告进行对比
 	prevMonthStart := report.PeriodStart.AddDate(0, -1, 0)
-	prevReport, err := g.providers.GetHistoricalReport(ctx, CostBillingReportTypeMonthly, prevMonthStart)
-	if err != nil || prevReport == nil {
+	prevReport, err := g.providers.GetHistoricalReport(ctx, CostReportTypeMonthly, prevMonthStart)
+	if err != nil {
 		return err
 	}
 
@@ -873,19 +873,19 @@ func (g *BillingBillingReportGenerator) addMonthlyAnalysis(ctx context.Context, 
 // ========== 导出方法 ==========
 
 // ExportReport 导出报告
-func (g *BillingBillingReportGenerator) ExportReport(report *BillingCostReport, format CostBillingExportFormat, outputPath string) error {
+func (g *CostReportGenerator) ExportReport(report *CostReport, format CostExportFormat, outputPath string) error {
 	switch format {
-	case CostBillingExportFormatJSON:
+	case CostExportFormatJSON:
 		return g.exportJSON(report, outputPath)
-	case CostBillingExportFormatCSV:
+	case CostExportFormatCSV:
 		return g.exportCSV(report, outputPath)
 	default:
-		return ErrInvalidBillingReportType
+		return ErrInvalidCostReportType
 	}
 }
 
 // exportJSON 导出JSON格式
-func (g *BillingBillingReportGenerator) exportJSON(report *BillingCostReport, outputPath string) error {
+func (g *CostReportGenerator) exportJSON(report *CostReport, outputPath string) error {
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		return fmt.Errorf("序列化报告失败: %w", err)
@@ -905,7 +905,7 @@ func (g *BillingBillingReportGenerator) exportJSON(report *BillingCostReport, ou
 }
 
 // exportCSV 导出CSV格式
-func (g *BillingBillingReportGenerator) exportCSV(report *BillingCostReport, outputPath string) error {
+func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) error {
 	// 确保目录存在
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -934,7 +934,7 @@ func (g *BillingBillingReportGenerator) exportCSV(report *BillingCostReport, out
 	// 写入报告摘要
 	row := []string{
 		report.ID,
-		string(report.CostBillingReportType),
+		string(report.CostReportType),
 		report.GeneratedAt.Format(time.RFC3339),
 		report.PeriodStart.Format(time.RFC3339),
 		report.PeriodEnd.Format(time.RFC3339),
@@ -1015,7 +1015,7 @@ func (g *BillingBillingReportGenerator) exportCSV(report *BillingCostReport, out
 }
 
 // ExportToJSON 导出为JSON字符串
-func (g *BillingBillingReportGenerator) ExportToJSON(report *BillingCostReport) (string, error) {
+func (g *CostReportGenerator) ExportToJSON(report *CostReport) (string, error) {
 	data, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("序列化报告失败: %w", err)
@@ -1024,15 +1024,14 @@ func (g *BillingBillingReportGenerator) ExportToJSON(report *BillingCostReport) 
 }
 
 // ExportToCSV 导出为CSV字符串
-func (g *BillingBillingReportGenerator) ExportToCSV(report *BillingCostReport) (string, error) {
+func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 	var builder strings.Builder
 	writer := csv.NewWriter(&builder)
+	defer writer.Flush()
 
 	// 简化的CSV输出
 	headers := []string{"Category", "Metric", "Value"}
-	if err := writer.Write(headers); err != nil {
-		return "", err
-	}
+	writer.Write(headers)
 
 	// 摘要数据
 	writer.Write([]string{"Summary", "Total Cost", fmt.Sprintf("%.2f", report.Summary.TotalCost)})
@@ -1045,14 +1044,13 @@ func (g *BillingBillingReportGenerator) ExportToCSV(report *BillingCostReport) (
 		writer.Write([]string{"Pool", p.PoolName, fmt.Sprintf("%.2f GB / %.2f 元", p.UsedCapacityGB, p.MonthlyCost)})
 	}
 
-	writer.Flush()
 	return builder.String(), nil
 }
 
 // ========== 报告管理 ==========
 
 // GetReport 获取报告
-func (g *BillingBillingReportGenerator) GetReport(id string) (*BillingCostReport, error) {
+func (g *CostReportGenerator) GetReport(id string) (*CostReport, error) {
 	// 先查缓存
 	if g.config.EnableCache {
 		g.mu.RLock()
@@ -1070,7 +1068,7 @@ func (g *BillingBillingReportGenerator) GetReport(id string) (*BillingCostReport
 		return nil, ErrReportNotFound
 	}
 
-	var report BillingCostReport
+	var report CostReport
 	if err := json.Unmarshal(data, &report); err != nil {
 		return nil, fmt.Errorf("解析报告失败: %w", err)
 	}
@@ -1086,17 +1084,17 @@ func (g *BillingBillingReportGenerator) GetReport(id string) (*BillingCostReport
 }
 
 // ListReports 列出报告
-func (g *BillingBillingReportGenerator) ListReports(reportType CostBillingReportType, limit int) ([]*BillingCostReport, error) {
+func (g *CostReportGenerator) ListReports(reportType CostReportType, limit int) ([]*CostReport, error) {
 	reportsDir := filepath.Join(g.dataDir, "reports")
 	files, err := os.ReadDir(reportsDir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return []*BillingCostReport{}, nil
+			return []*CostReport{}, nil
 		}
 		return nil, err
 	}
 
-	var reports []*BillingCostReport
+	var reports []*CostReport
 	for _, f := range files {
 		if !strings.HasSuffix(f.Name(), ".json") {
 			continue
@@ -1122,7 +1120,7 @@ func (g *BillingBillingReportGenerator) ListReports(reportType CostBillingReport
 }
 
 // DeleteReport 删除报告
-func (g *BillingBillingReportGenerator) DeleteReport(id string) error {
+func (g *CostReportGenerator) DeleteReport(id string) error {
 	reportPath := filepath.Join(g.dataDir, "reports", id+".json")
 
 	// 删除文件
@@ -1139,7 +1137,7 @@ func (g *BillingBillingReportGenerator) DeleteReport(id string) error {
 }
 
 // saveReport 保存报告
-func (g *BillingBillingReportGenerator) saveReport(report *BillingCostReport) error {
+func (g *CostReportGenerator) saveReport(report *CostReport) error {
 	reportsDir := filepath.Join(g.dataDir, "reports")
 	if err := os.MkdirAll(reportsDir, 0755); err != nil {
 		return err
@@ -1152,7 +1150,7 @@ func (g *BillingBillingReportGenerator) saveReport(report *BillingCostReport) er
 // ========== 辅助函数 ==========
 
 // generateReportID 生成报告ID
-func generateReportID(reportType CostBillingReportType, date time.Time) string {
+func generateReportID(reportType CostReportType, date time.Time) string {
 	return fmt.Sprintf("%s-%s", reportType, date.Format("20060102"))
 }
 
@@ -1167,7 +1165,7 @@ func randomString(n int) string {
 }
 
 // CleanupOldReports 清理过期报告
-func (g *BillingBillingReportGenerator) CleanupOldReports() error {
+func (g *CostReportGenerator) CleanupOldReports() error {
 	cutoff := time.Now().AddDate(0, 0, -g.config.DataRetentionDays)
 
 	reports, err := g.ListReports("", 0)

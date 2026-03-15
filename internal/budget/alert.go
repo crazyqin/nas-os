@@ -82,6 +82,65 @@ func DefaultAlertManagerConfig() AlertManagerConfig {
 	}
 }
 
+// ========== 预算警报定义 ==========
+
+// BudgetAlert 预算警报
+type BudgetAlert struct {
+	ID             string     `json:"id"`
+	BudgetID       string     `json:"budget_id"`
+	BudgetName     string     `json:"budget_name"`
+	TriggeredAt    time.Time  `json:"triggered_at"`
+	ResolvedAt     *time.Time `json:"resolved_at,omitempty"`
+	AcknowledgedAt *time.Time `json:"acknowledged_at,omitempty"`
+	AcknowledgedBy string     `json:"acknowledged_by,omitempty"`
+
+	// 警报级别
+	Level           AlertLevel `json:"level"`
+	Threshold       float64    `json:"threshold"`        // 触发阈值
+	CurrentPercent  float64    `json:"current_percent"`  // 当前使用百分比
+	CurrentSpend    float64    `json:"current_spend"`    // 当前支出
+	BudgetAmount    float64    `json:"budget_amount"`    // 预算金额
+	RemainingAmount float64    `json:"remaining_amount"` // 剩余金额
+
+	// 状态
+	Status        AlertStatus `json:"status"`
+	Message       string      `json:"message"`
+	CustomMessage string      `json:"custom_message,omitempty"`
+
+	// 通知状态
+	NotifySent     bool       `json:"notify_sent"`
+	NotifySentAt   *time.Time `json:"notify_sent_at,omitempty"`
+	NotifyChannels []string   `json:"notify_channels"`
+	NotifyError    string     `json:"notify_error,omitempty"`
+
+	// 升级状态
+	EscalationLevel int        `json:"escalation_level"`
+	LastEscalatedAt *time.Time `json:"last_escalated_at,omitempty"`
+
+	// 元数据
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
+// AlertLevel 警报级别
+type AlertLevel string
+
+const (
+	AlertLevelInfo      AlertLevel = "info"      // 信息
+	AlertLevelWarning   AlertLevel = "warning"   // 警告
+	AlertLevelCritical  AlertLevel = "critical"  // 严重
+	AlertLevelEmergency AlertLevel = "emergency" // 紧急
+)
+
+// AlertStatus 警报状态
+type AlertStatus string
+
+const (
+	AlertStatusActive       AlertStatus = "active"       // 活跃
+	AlertStatusAcknowledged AlertStatus = "acknowledged" // 已确认
+	AlertStatusResolved     AlertStatus = "resolved"     // 已解决
+	AlertStatusSuppressed   AlertStatus = "suppressed"   // 已抑制
+)
+
 // AlertRule 警报规则
 type AlertRule struct {
 	ID           string            `json:"id"`

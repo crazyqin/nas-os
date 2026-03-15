@@ -408,20 +408,19 @@ func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 
 			// 创建新预警
 			alert := &BudgetAlert{
-				ID:             uuid.New().String(),
-				BudgetID:       budget.ID,
-				BudgetName:     budget.Name,
-				Level:          threshold.Level,
-				Threshold:      threshold.Percent,
-				CurrentPercent: budget.UsagePercent,
-				UsedAmount:     budget.UsedAmount,
-				BudgetAmount:   budget.Amount,
-				Remaining:      budget.Remaining,
-				Message:        threshold.Message,
-				Status:         AlertStatusActive,
-				TriggeredAt:    time.Now(),
-				Actions:        threshold.Actions,
-				NotifySent:     false,
+				ID:              uuid.New().String(),
+				BudgetID:        budget.ID,
+				BudgetName:      budget.Name,
+				Level:           threshold.Level,
+				Threshold:       threshold.Percent,
+				CurrentPercent:  budget.UsagePercent,
+				CurrentSpend:    budget.UsedAmount,
+				BudgetAmount:    budget.Amount,
+				RemainingAmount: budget.Remaining,
+				Message:         threshold.Message,
+				Status:          AlertStatusActive,
+				TriggeredAt:     time.Now(),
+				NotifySent:      false,
 			}
 
 			m.alerts[budget.ID] = alert
