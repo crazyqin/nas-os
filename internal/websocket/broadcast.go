@@ -15,11 +15,11 @@ type Broadcaster struct {
 	mu sync.RWMutex
 
 	// 房间管理
-	rooms      map[string]*Room        // roomID -> Room
+	rooms      map[string]*Room           // roomID -> Room
 	clientRoom map[string]map[string]bool // clientID -> roomID set
 
 	// 主题订阅
-	topics       map[string]*Topic        // topic -> Topic
+	topics       map[string]*Topic          // topic -> Topic
 	clientTopics map[string]map[string]bool // clientID -> topic set
 
 	// 房间到主题的映射
@@ -32,11 +32,11 @@ type Broadcaster struct {
 	config BroadcasterConfig
 
 	// 统计
-	sentCount     int64
-	droppedCount  int64
-	roomCount     int32
-	topicCount    int32
-	clientCount   int32
+	sentCount    int64
+	droppedCount int64
+	roomCount    int32
+	topicCount   int32
+	clientCount  int32
 
 	// 控制
 	stopChan chan struct{}
@@ -45,13 +45,13 @@ type Broadcaster struct {
 
 // BroadcasterConfig 广播器配置
 type BroadcasterConfig struct {
-	QueueSize        int           `json:"queueSize"`        // 消息队列大小
-	MaxRooms        int           `json:"maxRooms"`         // 最大房间数
-	MaxTopics       int           `json:"maxTopics"`        // 最大主题数
-	MaxClientsPerRoom int         `json:"maxClientsPerRoom"` // 每个房间最大客户端数
-	BroadcastTimeout time.Duration `json:"broadcastTimeout"` // 广播超时
-	EnableHistory    bool         `json:"enableHistory"`    // 启用历史记录
-	HistorySize      int          `json:"historySize"`      // 历史记录大小
+	QueueSize         int           `json:"queueSize"`         // 消息队列大小
+	MaxRooms          int           `json:"maxRooms"`          // 最大房间数
+	MaxTopics         int           `json:"maxTopics"`         // 最大主题数
+	MaxClientsPerRoom int           `json:"maxClientsPerRoom"` // 每个房间最大客户端数
+	BroadcastTimeout  time.Duration `json:"broadcastTimeout"`  // 广播超时
+	EnableHistory     bool          `json:"enableHistory"`     // 启用历史记录
+	HistorySize       int           `json:"historySize"`       // 历史记录大小
 }
 
 // DefaultBroadcasterConfig 默认广播器配置
@@ -67,22 +67,22 @@ var DefaultBroadcasterConfig = BroadcasterConfig{
 
 // Room 房间
 type Room struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Clients     map[string]*Client `json:"-"` // clientID -> Client
-	CreatedAt   time.Time         `json:"createdAt"`
-	LastActive  time.Time         `json:"lastActive"`
-	MessageCount int64            `json:"messageCount"`
-	history     []*BroadcastMessage `json:"-"`
+	ID           string              `json:"id"`
+	Name         string              `json:"name"`
+	Clients      map[string]*Client  `json:"-"` // clientID -> Client
+	CreatedAt    time.Time           `json:"createdAt"`
+	LastActive   time.Time           `json:"lastActive"`
+	MessageCount int64               `json:"messageCount"`
+	history      []*BroadcastMessage `json:"-"`
 }
 
 // Topic 主题
 type Topic struct {
-	Name        string    `json:"name"`
-	Subscribers map[string]bool `json:"-"` // clientID -> bool
-	CreatedAt   time.Time `json:"createdAt"`
-	LastActive  time.Time `json:"lastActive"`
-	MessageCount int64    `json:"messageCount"`
+	Name         string          `json:"name"`
+	Subscribers  map[string]bool `json:"-"` // clientID -> bool
+	CreatedAt    time.Time       `json:"createdAt"`
+	LastActive   time.Time       `json:"lastActive"`
+	MessageCount int64           `json:"messageCount"`
 }
 
 // Client 客户端
@@ -741,13 +741,13 @@ func (b *Broadcaster) GetRoomHistory(roomID string, limit int) ([]*BroadcastMess
 
 // BroadcasterStats 广播器统计
 type BroadcasterStats struct {
-	RoomCount     int32 `json:"roomCount"`
-	TopicCount    int32 `json:"topicCount"`
-	ClientCount   int32 `json:"clientCount"`
-	SentCount     int64 `json:"sentCount"`
-	DroppedCount  int64 `json:"droppedCount"`
-	QueueSize     int   `json:"queueSize"`
-	QueueUsed     int   `json:"queueUsed"`
+	RoomCount    int32 `json:"roomCount"`
+	TopicCount   int32 `json:"topicCount"`
+	ClientCount  int32 `json:"clientCount"`
+	SentCount    int64 `json:"sentCount"`
+	DroppedCount int64 `json:"droppedCount"`
+	QueueSize    int   `json:"queueSize"`
+	QueueUsed    int   `json:"queueUsed"`
 }
 
 // Stats 获取统计信息
@@ -798,11 +798,11 @@ func (b *Broadcaster) GetRoomStats(roomID string) (*RoomStats, error) {
 
 // TopicStats 主题统计
 type TopicStats struct {
-	Name         string    `json:"name"`
-	SubscriberCount int    `json:"subscriberCount"`
-	MessageCount int64     `json:"messageCount"`
-	CreatedAt    time.Time `json:"createdAt"`
-	LastActive   time.Time `json:"lastActive"`
+	Name            string    `json:"name"`
+	SubscriberCount int       `json:"subscriberCount"`
+	MessageCount    int64     `json:"messageCount"`
+	CreatedAt       time.Time `json:"createdAt"`
+	LastActive      time.Time `json:"lastActive"`
 }
 
 // GetTopicStats 获取主题统计

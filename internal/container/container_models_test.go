@@ -234,8 +234,8 @@ func TestCreateComposeFile_MultipleServices(t *testing.T) {
 				Ports: []string{"80:80"},
 			},
 			{
-				Name:  "db",
-				Image: "postgres:15",
+				Name:    "db",
+				Image:   "postgres:15",
 				Volumes: []string{"db-data:/var/lib/postgresql/data"},
 				Environment: map[string]string{
 					"POSTGRES_PASSWORD": "secret",

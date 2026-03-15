@@ -565,8 +565,8 @@ func TestAPI_GetViolations(t *testing.T) {
 		Type:       QuotaTypeUser,
 		TargetID:   "testuser",
 		VolumeName: "test-volume",
-		HardLimit:  100,  // 100 字节（非常小，会触发违规）
-		SoftLimit:  50,   // 50 字节
+		HardLimit:  100, // 100 字节（非常小，会触发违规）
+		SoftLimit:  50,  // 50 字节
 	})
 
 	req, _ := http.NewRequest(http.MethodGet, "/api/quota/v2/violations", nil)
