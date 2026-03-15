@@ -15,6 +15,194 @@ import (
 	"time"
 )
 
+// ========== 基础类型定义 ==========
+
+// StorageCostConfig 存储成本配置
+type StorageCostConfig struct {
+	CostPerGB               float64 `json:"cost_per_gb"`
+	CostPerGBMonthly        float64 `json:"cost_per_gb_monthly"`
+	CostPerIOPSMonthly      float64 `json:"cost_per_iops_monthly"`
+	CostPerBandwidthMonthly float64 `json:"cost_per_bandwidth_monthly"`
+	ElectricityCostPerKWh   float64 `json:"electricity_cost_per_kwh"`
+	DevicePowerWatts        float64 `json:"device_power_watts"`
+	OpsCostMonthly          float64 `json:"ops_cost_monthly"`
+	DepreciationYears       int     `json:"depreciation_years"`
+	HardwareCost            float64 `json:"hardware_cost"`
+	Currency                string  `json:"currency"`
+	BudgetLimit             float64 `json:"budget_limit"`
+	AlertThreshold          float64 `json:"alert_threshold"`
+	EnableOptimization      bool    `json:"enable_optimization"`
+}
+
+// StorageCostCalculator 存储成本计算器
+type StorageCostCalculator struct {
+	config StorageCostConfig
+}
+
+// CostCalculationResult 成本计算结果
+type CostCalculationResult struct {
+	UsagePercent         float64 `json:"usage_percent"`
+	CapacityCostMonthly  float64 `json:"capacity_cost_monthly"`
+	TotalCostMonthly     float64 `json:"total_cost_monthly"`
+	CostPerGBMonthly     float64 `json:"cost_per_gb_monthly"`
+	ProjectedAnnualCost  float64 `json:"projected_annual_cost"`
+	PotentialSavings     float64 `json:"potential_savings"`
+}
+
+// NewStorageCostCalculator 创建存储成本计算器
+func NewStorageCostCalculator(config StorageCostConfig) *StorageCostCalculator {
+	return &StorageCostCalculator{config: config}
+}
+
+// Calculate 计算存储成本
+func (c *StorageCostCalculator) Calculate(metrics StorageMetrics) CostCalculationResult {
+	totalGB := float64(metrics.TotalCapacityBytes) / (1024 * 1024 * 1024)
+	usedGB := float64(metrics.UsedCapacityBytes) / (1024 * 1024 * 1024)
+	
+	usagePercent := 0.0
+	if totalGB > 0 {
+		usagePercent = (usedGB / totalGB) * 100
+	}
+	
+	capacityCostMonthly := usedGB * c.config.CostPerGBMonthly
+	
+	return CostCalculationResult{
+		UsagePercent:        round(usagePercent, 2),
+		CapacityCostMonthly: round(capacityCostMonthly, 2),
+		TotalCostMonthly:    round(capacityCostMonthly, 2),
+		CostPerGBMonthly:    c.config.CostPerGBMonthly,
+		ProjectedAnnualCost: round(capacityCostMonthly * 12, 2),
+	}
+}
+
+// GetConfig 获取配置
+func (c *StorageCostCalculator) GetConfig() StorageCostConfig {
+	return c.config
+}
+
+// UpdateConfig 更新配置
+func (c *StorageCostCalculator) UpdateConfig(config StorageCostConfig) {
+	c.config = config
+}
+
+// CalculateAll 计算所有存储成本
+func (c *StorageCostCalculator) CalculateAll(metrics []StorageMetrics) []CostCalculationResult {
+	results := make([]CostCalculationResult, len(metrics))
+	for i, m := range metrics {
+		results[i] = c.Calculate(m)
+	}
+	return results
+}
+
+// CostTrendPoint 成本趋势点
+type CostTrendPoint struct {
+	Date       time.Time `json:"date"`
+	Cost       float64   `json:"cost"`
+	UsedGB     float64   `json:"used_gb"`
+	Trend      string    `json:"trend"` // up, down, stable
+}
+
+// GenerateReport 生成成本报告
+func (c *StorageCostCalculator) GenerateReport(metrics []StorageMetrics, period ReportPeriod) *StorageCostReport {
+	now := time.Now()
+	report := &StorageCostReport{
+		ID:          "cost_report_" + now.Format("20060102150405"),
+		Name:        "存储成本报告",
+		GeneratedAt: now,
+		Period:      period,
+		VolumeCosts: make([]StorageCostResult, len(metrics)),
+	}
+
+	totalCost := 0.0
+	for i, m := range metrics {
+		result := c.Calculate(m)
+		report.VolumeCosts[i] = StorageCostResult{
+			VolumeName:       m.VolumeName,
+			TotalGB:          float64(m.TotalCapacityBytes) / (1024 * 1024 * 1024),
+			UsedGB:           float64(m.UsedCapacityBytes) / (1024 * 1024 * 1024),
+			UsagePercent:     result.UsagePercent,
+			MonthlyCost:      result.TotalCostMonthly,
+			TotalCostMonthly: result.TotalCostMonthly,
+			CalculatedAt:     now,
+		}
+		totalCost += result.TotalCostMonthly
+	}
+	report.TotalCost = totalCost
+
+	return report
+}
+
+// AnalyzeTrend 分析成本趋势
+func (c *StorageCostCalculator) AnalyzeTrend(trendData []CostTrendPoint) []CostTrendPoint {
+	return trendData
+}
+
+// round 辅助函数 (定义在 bandwidth_report.go 中)
+
+// StorageMetrics 存储指标（用于报告）
+type StorageMetrics struct {
+	VolumeName             string    `json:"volume_name"`
+	TotalCapacityBytes     uint64    `json:"total_capacity_bytes"`
+	UsedCapacityBytes      uint64    `json:"used_capacity_bytes"`
+	AvailableCapacityBytes uint64    `json:"available_capacity_bytes"`
+	UsagePercent           float64   `json:"usage_percent"`
+	IOPS                   uint64    `json:"iops"`
+	IOPSRead               uint64    `json:"iops_read"`
+	IOPSWrite              uint64    `json:"iops_write"`
+	LatencyReadMs          float64   `json:"latency_read_ms"`
+	LatencyWriteMs         float64   `json:"latency_write_ms"`
+	ThroughputReadBytes    uint64    `json:"throughput_read_bytes"`
+	ThroughputWriteBytes   uint64    `json:"throughput_write_bytes"`
+	ReadBandwidthBytes     uint64    `json:"read_bandwidth_bytes"`
+	WriteBandwidthBytes    uint64    `json:"write_bandwidth_bytes"`
+	FileCount              uint64    `json:"file_count"`
+	DirCount               uint64    `json:"dir_count"`
+	Timestamp              time.Time `json:"timestamp"`
+}
+
+// StorageCostResult 存储成本结果
+type StorageCostResult struct {
+	VolumeName            string    `json:"volume_name"`
+	TotalGB               float64   `json:"total_gb"`
+	UsedGB                float64   `json:"used_gb"`
+	UsagePercent          float64   `json:"usage_percent"`
+	CostPerGB             float64   `json:"cost_per_gb"`
+	CostPerGBMonthly      float64   `json:"cost_per_gb_monthly"`
+	MonthlyCost           float64   `json:"monthly_cost"`
+	TotalCostMonthly      float64   `json:"total_cost_monthly"`
+	CapacityCostMonthly   float64   `json:"capacity_cost_monthly"`
+	IOPSCostMonthly       float64   `json:"iops_cost_monthly"`
+	BandwidthCostMonthly  float64   `json:"bandwidth_cost_monthly"`
+	ElectricityCostMonthly float64  `json:"electricity_cost_monthly"`
+	OpsCostMonthly        float64   `json:"ops_cost_monthly"`
+	DepreciationCostMonthly float64 `json:"depreciation_cost_monthly"`
+	AnnualCost            float64   `json:"annual_cost"`
+	CalculatedAt          time.Time `json:"calculated_at"`
+}
+
+// CostReportSummary 成本报告摘要
+type CostReportSummary struct {
+	TotalCostMonthly  float64 `json:"total_cost_monthly"`
+	TotalCapacityGB   float64 `json:"total_capacity_gb"`
+	TotalUsedGB       float64 `json:"total_used_gb"`
+	AvgUsagePercent   float64 `json:"avg_usage_percent"`
+	PotentialSavings  float64 `json:"potential_savings"`
+	HealthScore       int     `json:"health_score"`
+	VolumeCount       int     `json:"volume_count"`
+}
+
+// StorageCostReport 存储成本报告
+type StorageCostReport struct {
+	ID              string               `json:"id"`
+	Name            string               `json:"name"`
+	GeneratedAt     time.Time            `json:"generated_at"`
+	Period          ReportPeriod         `json:"period"`
+	TotalCost       float64              `json:"total_cost"`
+	VolumeCosts     []StorageCostResult  `json:"volume_costs"`
+	Summary         CostReportSummary    `json:"summary"`
+	Recommendations []string             `json:"recommendations"`
+}
+
 // ========== 存储空间利用率分析 v2.45.0 ==========
 
 // StorageUtilizationAnalyzer 存储空间利用率分析器

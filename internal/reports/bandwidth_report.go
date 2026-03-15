@@ -7,6 +7,12 @@ import (
 	"time"
 )
 
+// round 辅助函数：四舍五入到指定小数位
+func round(val float64, precision int) float64 {
+	multiplier := math.Pow(10, float64(precision))
+	return math.Round(val*multiplier) / multiplier
+}
+
 // ========== 带宽使用报告 ==========
 
 // BandwidthDirection 带宽方向
