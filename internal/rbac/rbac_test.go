@@ -535,7 +535,7 @@ func TestShareACL_Group(t *testing.T) {
 	_ = m.AddUserToGroup("user1", "dev1", "group1", "developers", false)
 
 	shareMgr, _ := NewShareACLManager(ShareACLConfig{}, m)
-	_ = shareMgr.CreateShareACL("share1", ShareTypeSMB, "/data/share1", "测试", AccessNone)
+	_, _ = shareMgr.CreateShareACL("share1", ShareTypeSMB, "/data/share1", "测试", AccessNone)
 
 	// 给组添加权限
 	_, _ = shareMgr.AddACLEntry("share1", PrincipalGroup, "group1", "developers", AccessWrite, "admin")
