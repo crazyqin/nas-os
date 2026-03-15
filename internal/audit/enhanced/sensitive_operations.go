@@ -537,7 +537,8 @@ func (m *SensitiveOperationManager) CreateApprovalRequest(
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	op := m.GetOperation(operationID)
+	// 使用内部方法避免死锁（已持有锁）
+	op := m.getOperationInternal(operationID)
 	if op == nil {
 		return nil, nil
 	}
