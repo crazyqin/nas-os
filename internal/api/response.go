@@ -109,11 +109,6 @@ func CreatedWithMessage(c *gin.Context, message string, data interface{}) {
 	c.JSON(http.StatusCreated, SuccessWithMessage(message, data))
 }
 
-// Accepted 返回 202 已接受响应（异步任务）
-func Accepted(c *gin.Context, data interface{}) {
-	c.JSON(http.StatusAccepted, Success(data))
-}
-
 // NoContent 返回 204 无内容响应
 func NoContent(c *gin.Context) {
 	c.Status(http.StatusNoContent)

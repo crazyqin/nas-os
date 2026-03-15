@@ -1,6 +1,6 @@
 # NAS-OS API 快速入门指南
 
-**版本**: v2.44.0  
+**版本**: v2.36.0  
 **更新日期**: 2026-03-15
 
 ---
@@ -11,7 +11,7 @@
 
 ```bash
 # 下载并启动
-wget https://github.com/crazyqin/nas-os/releases/download/v2.44.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.35.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo ./nasd-linux-amd64
 ```

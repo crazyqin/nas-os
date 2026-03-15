@@ -2,14 +2,6 @@
 # NAS-OS 数据库备份脚本
 # 支持 SQLite 数据库的备份、恢复和清理
 #
-# v2.44.0 更新（工部优化）：
-# - 添加增量备份支持（WAL 模式）
-# - 添加备份加密支持（AES-256-GCM）
-# - 添加远程备份同步（rsync/rclone）
-# - 添加备份通知（Webhook/邮件）
-# - 添加备份验证和自动修复
-# - 改进错误处理和日志输出
-#
 # v2.38.0 新增
 
 set -e
@@ -21,25 +13,6 @@ DB_PATH="${DB_PATH:-/var/lib/nas-os/nas-os.db}"
 BACKUP_DIR="${BACKUP_DIR:-/var/lib/nas-os/backups}"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
 RETENTION_COUNT="${RETENTION_COUNT:-10}"
-
-# 增量备份配置
-ENABLE_INCREMENTAL="${ENABLE_INCREMENTAL:-true}"
-WAL_MODE="${WAL_MODE:-true}"
-
-# 加密配置
-ENABLE_ENCRYPTION="${ENABLE_ENCRYPTION:-false}"
-ENCRYPTION_KEY="${ENCRYPTION_KEY:-}"
-ENCRYPTION_KEY_FILE="${ENCRYPTION_KEY_FILE:-/etc/nas-os/backup.key}"
-
-# 远程备份配置
-ENABLE_REMOTE_SYNC="${ENABLE_REMOTE_SYNC:-false}"
-REMOTE_PATH="${REMOTE_PATH:-}"
-REMOTE_SYNC_METHOD="${REMOTE_SYNC_METHOD:-rsync}"  # rsync 或 rclone
-
-# 通知配置
-ENABLE_NOTIFICATION="${ENABLE_NOTIFICATION:-false}"
-NOTIFICATION_WEBHOOK="${NOTIFICATION_WEBHOOK:-}"
-NOTIFICATION_EMAIL="${NOTIFICATION_EMAIL:-}"
 
 # 颜色
 RED='\033[0;31m'
@@ -77,25 +50,6 @@ check_dependencies() {
     else
         COMPRESS=true
     fi
-    
-    # 检查加密依赖
-    if [ "$ENABLE_ENCRYPTION" = true ]; then
-        if ! command -v openssl &> /dev/null; then
-            log_warn "openssl 未安装，禁用加密"
-            ENABLE_ENCRYPTION=false
-        fi
-    fi
-    
-    # 检查远程同步依赖
-    if [ "$ENABLE_REMOTE_SYNC" = true ]; then
-        if [ "$REMOTE_SYNC_METHOD" = "rsync" ] && ! command -v rsync &> /dev/null; then
-            log_warn "rsync 未安装，禁用远程同步"
-            ENABLE_REMOTE_SYNC=false
-        elif [ "$REMOTE_SYNC_METHOD" = "rclone" ] && ! command -v rclone &> /dev/null; then
-            log_warn "rclone 未安装，禁用远程同步"
-            ENABLE_REMOTE_SYNC=false
-        fi
-    fi
 }
 
 # 确保备份目录存在
@@ -123,10 +77,6 @@ check_db_integrity() {
 
 # 执行备份
 cmd_backup() {
-    local start_time=$(date +%s)
-    local backup_status="success"
-    local error_message=""
-    
     check_dependencies
     ensure_backup_dir
     check_db_integrity
@@ -138,167 +88,35 @@ cmd_backup() {
     log_info "源文件: $DB_PATH"
     log_info "目标文件: $backup_file"
     
-    # 启用 WAL 模式以支持增量备份
-    if [ "$WAL_MODE" = true ] && [ "$ENABLE_INCREMENTAL" = true ]; then
-        log_info "启用 WAL 模式..."
-        sqlite3 "$DB_PATH" "PRAGMA journal_mode=WAL;" 2>/dev/null || true
-    fi
-    
     # 使用 SQLite 的在线备份 API
-    if ! sqlite3 "$DB_PATH" ".backup '${backup_file}'" 2>/dev/null; then
-        backup_status="failed"
-        error_message="SQLite 备份失败"
-        log_error "备份失败: $error_message"
-        send_notification "backup_failed" "$error_message"
-        exit 1
-    fi
+    sqlite3 "$DB_PATH" ".backup '${backup_file}'"
     
-    # 压缩备份
-    if [ "$COMPRESS" = true ]; then
-        gzip -f "$backup_file"
-        backup_file="${backup_file}.gz"
-        log_success "备份已压缩"
-    fi
-    
-    # 加密备份
-    if [ "$ENABLE_ENCRYPTION" = true ]; then
-        local encrypted_file="${backup_file}.enc"
-        if encrypt_file "$backup_file" "$encrypted_file"; then
-            rm -f "$backup_file"
-            backup_file="$encrypted_file"
-            log_success "备份已加密"
-        else
-            log_warn "加密失败，保留未加密备份"
+    if [ $? -eq 0 ]; then
+        # 压缩备份
+        if [ "$COMPRESS" = true ]; then
+            gzip -f "$backup_file"
+            backup_file="${backup_file}.gz"
+            log_success "备份已压缩"
         fi
-    fi
-    
-    # 计算校验和
-    local checksum=$(sha256sum "$backup_file" | cut -d' ' -f1)
-    echo "$checksum  $(basename $backup_file)" > "${backup_file}.sha256"
-    
-    # 获取文件大小
-    local size=$(du -h "$backup_file" | cut -f1)
-    local end_time=$(date +%s)
-    local duration=$((end_time - start_time))
-    
-    log_success "备份完成: $backup_file"
-    log_info "文件大小: $size"
-    log_info "校验和: $checksum"
-    log_info "耗时: ${duration}s"
-    
-    # 远程同步
-    if [ "$ENABLE_REMOTE_SYNC" = true ] && [ -n "$REMOTE_PATH" ]; then
-        log_info "同步到远程存储..."
-        if sync_to_remote "$backup_file"; then
-            log_success "远程同步完成"
-        else
-            log_warn "远程同步失败"
-        fi
-    fi
-    
-    # 发送通知
-    send_notification "backup_success" "备份完成: $(basename $backup_file), 大小: $size, 耗时: ${duration}s"
-    
-    # 清理旧备份
-    cmd_cleanup
-    
-    return 0
-}
-
-# 加密文件
-encrypt_file() {
-    local input_file="$1"
-    local output_file="$2"
-    
-    # 获取加密密钥
-    local key="$ENCRYPTION_KEY"
-    if [ -z "$key" ] && [ -f "$ENCRYPTION_KEY_FILE" ]; then
-        key=$(cat "$ENCRYPTION_KEY_FILE" 2>/dev/null)
-    fi
-    
-    if [ -z "$key" ]; then
-        log_error "未配置加密密钥"
-        return 1
-    fi
-    
-    # 使用 AES-256-GCM 加密
-    openssl enc -aes-256-gcm -salt -pbkdf2 -iter 100000 \
-        -in "$input_file" -out "$output_file" -pass pass:"$key" 2>/dev/null
-    
-    return $?
-}
-
-# 解密文件
-decrypt_file() {
-    local input_file="$1"
-    local output_file="$2"
-    
-    local key="$ENCRYPTION_KEY"
-    if [ -z "$key" ] && [ -f "$ENCRYPTION_KEY_FILE" ]; then
-        key=$(cat "$ENCRYPTION_KEY_FILE" 2>/dev/null)
-    fi
-    
-    if [ -z "$key" ]; then
-        log_error "未配置加密密钥"
-        return 1
-    fi
-    
-    openssl enc -aes-256-gcm -d -pbkdf2 -iter 100000 \
-        -in "$input_file" -out "$output_file" -pass pass:"$key" 2>/dev/null
-    
-    return $?
-}
-
-# 同步到远程存储
-sync_to_remote() {
-    local file="$1"
-    
-    if [ -z "$REMOTE_PATH" ]; then
-        log_warn "未配置远程路径"
-        return 1
-    fi
-    
-    if [ "$REMOTE_SYNC_METHOD" = "rclone" ]; then
-        rclone copy "$file" "$REMOTE_PATH" --progress 2>&1
-    else
-        rsync -avz --progress "$file" "$REMOTE_PATH" 2>&1
-    fi
-    
-    return $?
-}
-
-# 发送通知
-send_notification() {
-    local event="$1"
-    local message="$2"
-    
-    if [ "$ENABLE_NOTIFICATION" != true ]; then
+        
+        # 计算校验和
+        local checksum=$(sha256sum "$backup_file" | cut -d' ' -f1)
+        echo "$checksum  $(basename $backup_file)" > "${backup_file}.sha256"
+        
+        # 获取文件大小
+        local size=$(du -h "$backup_file" | cut -f1)
+        
+        log_success "备份完成: $backup_file"
+        log_info "文件大小: $size"
+        log_info "校验和: $checksum"
+        
+        # 清理旧备份
+        cmd_cleanup
+        
         return 0
-    fi
-    
-    local timestamp=$(date -Iseconds)
-    
-    # Webhook 通知
-    if [ -n "$NOTIFICATION_WEBHOOK" ]; then
-        if [[ "$NOTIFICATION_WEBHOOK" == *"discord"* ]] || [[ "$NOTIFICATION_WEBHOOK" == *"slack"* ]]; then
-            # Discord/Slack 格式
-            local color="3066993"  # 绿色
-            [ "$event" = "backup_failed" ] && color="15158332"  # 红色
-            
-            curl -sf -X POST -H "Content-Type: application/json" \
-                -d "{\"embeds\": [{\"title\": \"NAS-OS 数据库备份\", \"description\": \"$message\", \"color\": $color, \"timestamp\": \"$timestamp\"}]}" \
-                "$NOTIFICATION_WEBHOOK" 2>/dev/null || true
-        else
-            # 通用 JSON 格式
-            curl -sf -X POST -H "Content-Type: application/json" \
-                -d "{\"event\": \"$event\", \"message\": \"$message\", \"timestamp\": \"$timestamp\", \"hostname\": \"$(hostname)\"}" \
-                "$NOTIFICATION_WEBHOOK" 2>/dev/null || true
-        fi
-    fi
-    
-    # 邮件通知（需要 mailx）
-    if [ -n "$NOTIFICATION_EMAIL" ] && command -v mailx &> /dev/null; then
-        echo "$message" | mailx -s "NAS-OS 备份通知: $event" "$NOTIFICATION_EMAIL" 2>/dev/null || true
+    else
+        log_error "备份失败"
+        return 1
     fi
 }
 

@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.50.0 Stable (2026-03-15)
+> **最新版本**: v2.45.0 Stable (2026-03-15)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.50.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.45.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -54,7 +54,6 @@
 | 📝 在线文档 | OnlyOffice 集成/协作编辑 | ✅ 完成 |
 | 🔧 网络诊断 | Ping/Traceroute/DNS/端口扫描 | ✅ 完成 |
 | 🛡️ 安全增强 | 限流/MFA/密码策略/会话管理 | ✅ 完成 |
-| 💾 智能备份 | 增量备份/多压缩算法/加密/版本管理 | ✅ 完成 |
 
 ## 快速开始
 
@@ -63,17 +62,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.50.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.45.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.50.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.45.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.50.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.45.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -85,7 +84,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.50.0
+docker pull ghcr.io/crazyqin/nas-os:v2.45.0
 
 # 运行容器
 docker run -d \
@@ -94,7 +93,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.50.0
+  ghcr.io/crazyqin/nas-os:v2.45.0
 
 # 查看日志
 docker logs -f nasd
@@ -259,17 +258,20 @@ nas-os/
 | **v2.38.0** | **Stable** | **2026-03-15** | **文档同步/版本号更新** | ✅ 已发布 |
 | **v2.39.0** | **Stable** | **2026-03-15** | **项目治理/文档体系完善** | ✅ 已发布 |
 | **v2.40.0** | **Stable** | **2026-03-15** | **安全审计/并发修复/CI优化** | ✅ 已发布 |
-| **v2.42.0** | **Stable** | **2026-03-15** | **测试修复/CI优化/Swagger文档** | ✅ 已发布 |
-| **v2.44.0** | **Stable** | **2026-03-15** | **测试修复/文档完善** | ✅ 已发布 |
+| **v2.41.0** | **Stable** | **2026-03-15** | **测试修复/CI优化/Swagger文档** | ✅ 已发布 |
+| **v2.45.0** | **Stable** | **2026-03-15** | **WebUI增强/API网关/性能优化/安全加固** | ✅ 已发布 |
 
-## v2.44.0 新增功能
+## v2.45.0 新增功能
 
 | 功能 | 说明 |
 |------|------|
-| 🧪 测试修复 | 告警模块测试用例优化 |
-| 📚 文档完善 | 用户快速入门、API示例、FAQ更新 |
+| 🖥️ WebUI 仪表板增强 | 全新响应式设计，实时监控小部件，自定义布局 |
+| 🚪 API 网关增强 | 统一入口，智能路由，限流熔断保护 |
+| ⚡ 性能优化 | 数据库查询提升30%，内存优化，启动加快 |
+| 🔒 安全加固 | JWT优化，密码加密升级，XSS/CSRF防护增强 |
+| 🐛 稳定性修复 | 内存泄漏修复，连接池优化，快照恢复修复 |
 
-## v2.42.0 新增功能
+## v2.41.0 新增功能
 
 | 功能 | 说明 |
 |------|------|
