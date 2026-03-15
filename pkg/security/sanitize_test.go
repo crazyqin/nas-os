@@ -16,11 +16,11 @@ func TestSafePath(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	tests := []struct {
-		name      string
-		baseDir   string
-		userPath  string
-		wantErr   bool
-		errType   error
+		name     string
+		baseDir  string
+		userPath string
+		wantErr  bool
+		errType  error
 	}{
 		{
 			name:     "valid path",
