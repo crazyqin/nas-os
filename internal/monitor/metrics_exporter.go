@@ -1056,7 +1056,20 @@ func (e *MetricsExporter) updateAggregatedDisk(usage float64) {
 func (e *MetricsExporter) GetAggregatedStats() AggregatedStats {
 	e.aggregatedStats.mu.RLock()
 	defer e.aggregatedStats.mu.RUnlock()
-	return *e.aggregatedStats
+	// 手动复制字段，避免复制 mutex
+	return AggregatedStats{
+		lastUpdate:    e.aggregatedStats.lastUpdate,
+		updatePeriod:  e.aggregatedStats.updatePeriod,
+		avgCPUUsage:   e.aggregatedStats.avgCPUUsage,
+		maxCPUUsage:   e.aggregatedStats.maxCPUUsage,
+		avgMemoryUsage: e.aggregatedStats.avgMemoryUsage,
+		maxMemoryUsage: e.aggregatedStats.maxMemoryUsage,
+		avgDiskUsage:  e.aggregatedStats.avgDiskUsage,
+		maxDiskUsage:  e.aggregatedStats.maxDiskUsage,
+		totalRequests: e.aggregatedStats.totalRequests,
+		totalErrors:   e.aggregatedStats.totalErrors,
+		dataPoints:    e.aggregatedStats.dataPoints,
+	}
 }
 
 // ResetAggregatedStats 重置聚合统计

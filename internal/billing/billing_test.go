@@ -281,7 +281,6 @@ func TestIssueInvoice(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
-	ctx := context.Background()
 	invoice := createTestInvoice(t, bm)
 
 	issued, err := bm.IssueInvoice(invoice.ID)
@@ -297,7 +296,6 @@ func TestMarkInvoicePaid(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
-	ctx := context.Background()
 	invoice := createTestInvoice(t, bm)
 
 	// 先开具
@@ -321,7 +319,6 @@ func TestVoidInvoice(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
-	ctx := context.Background()
 	invoice := createTestInvoice(t, bm)
 
 	voided, err := bm.VoidInvoice(invoice.ID)
@@ -338,7 +335,6 @@ func TestGetInvoice(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
-	ctx := context.Background()
 	created := createTestInvoice(t, bm)
 
 	retrieved, err := bm.GetInvoice(created.ID)

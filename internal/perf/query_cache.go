@@ -431,9 +431,19 @@ func (c *QueryCache) Cleanup() int {
 // Stats 获取统计信息
 func (c *QueryCache) Stats() CacheStats {
 	c.stats.mu.RLock()
-	stats := c.stats
-	c.stats.mu.RUnlock()
-	return stats
+	defer c.stats.mu.RUnlock()
+	// 手动复制字段，避免复制 mutex
+	return CacheStats{
+		TotalItems:    c.stats.TotalItems,
+		TotalMemory:   c.stats.TotalMemory,
+		Hits:          c.stats.Hits,
+		Misses:        c.stats.Misses,
+		Evictions:     c.stats.Evictions,
+		Expirations:   c.stats.Expirations,
+		TotalSets:     c.stats.TotalSets,
+		TotalDeletes:  c.stats.TotalDeletes,
+		LastCleanupAt: c.stats.LastCleanupAt,
+	}
 }
 
 // Keys 获取所有键
