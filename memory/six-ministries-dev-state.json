@@ -1,13 +1,12 @@
 {
-  "lastUpdate": "2026-03-15T22:25:00+08:00",
-  "version": "v2.71.0",
+  "lastUpdate": "2026-03-15T22:35:00+08:00",
+  "version": "v2.73.0",
   "status": "released",
-  "previousVersion": "v2.70.0",
-  "nextVersion": "v2.72.0",
+  "previousVersion": "v2.72.0",
   "currentDev": {
-    "version": "v2.72.0",
+    "version": "v2.74.0",
     "status": "planning",
-    "startedAt": "2026-03-15T22:25:00+08:00"
+    "startedAt": "2026-03-15T22:35:00+08:00"
   },
   "projectStats": {
     "totalModules": 68,
@@ -59,53 +58,41 @@
   },
   "ministries": {
     "兵部": {
-      "status": "active",
-      "currentTask": "v2.72.0 测试覆盖率提升",
-      "completedTasks": ["API Gateway", "核心模块开发", "测试补充"]
+      "status": "completed",
+      "currentTask": "v2.73.0 存储 API 开发",
+      "completedTasks": ["storage_handlers.go", "/api/storage/* 路由"]
     },
     "工部": {
-      "status": "active",
-      "currentTask": "v2.72.0 CI/CD 优化",
-      "completedTasks": ["Docker 集成", "集群部署", "DevOps 脚本"]
+      "status": "completed",
+      "currentTask": "v2.73.0 DevOps 检查",
+      "completedTasks": ["CI/CD 审查", "Dockerfile 检查", "部署脚本检查"]
     },
     "礼部": {
-      "status": "active",
-      "currentTask": "v2.72.0 文档完善",
-      "completedTasks": ["WebUI 设计", "文档编写", "CHANGELOG 维护"]
+      "status": "completed",
+      "currentTask": "v2.73.0 文档更新",
+      "completedTasks": ["README 更新", "CHANGELOG 更新", "docs/ 更新"]
     },
     "刑部": {
-      "status": "active",
-      "currentTask": "v2.72.0 安全审计",
-      "completedTasks": ["安全审计", "代码审查", "合规检查"]
+      "status": "completed",
+      "currentTask": "v2.73.0 安全审计",
+      "completedTasks": ["go vet", "依赖安全检查", "代码审查"]
     },
     "户部": {
-      "status": "active",
-      "currentTask": "v2.72.0 成本分析",
-      "completedTasks": ["成本分析", "资源报告", "预算管理"]
+      "status": "completed",
+      "currentTask": "v2.73.0 成本分析",
+      "completedTasks": ["资源使用评估", "成本优化报告"]
     },
     "吏部": {
-      "status": "active",
-      "currentTask": "v2.72.0 项目管理",
-      "completedTasks": ["版本发布", "里程碑跟踪", "进度报告"]
+      "status": "completed",
+      "currentTask": "v2.73.0 项目管理",
+      "completedTasks": ["MILESTONES.md 更新", "项目状态文件更新"]
     }
   },
   "nextSteps": [
     "M4 用户权限系统开发",
     "M5 监控告警系统开发",
-    "测试覆盖率提升至 40%+",
-    "性能基准测试"
+    "修复 Dockerfile.dev 语法错误",
+    "修复资源泄漏问题 (HTTP Client, Response Body, Manager Close)"
   ],
-  "moduleList": [
-    "ai_classify", "api", "audit", "auth", "automation", "backup",
-    "billing", "budget", "cache", "cloudsync", "cluster", "compliance",
-    "compress", "concurrency", "container", "dashboard", "database",
-    "dedup", "disk", "docker", "downloader", "files", "ftp", "health",
-    "iscsi", "ldap", "logging", "media", "monitor", "network", "nfs",
-    "notification", "notify", "office", "optimizer", "perf", "performance",
-    "photos", "plugin", "prediction", "project", "quota", "rbac",
-    "replication", "reports", "scheduler", "search", "security", "service",
-    "sftp", "shares", "smb", "snapshot", "storage", "storagepool", "system",
-    "tags", "tiering", "transfer", "trash", "usbmount", "users", "version",
-    "versioning", "vm", "web", "webdav", "websocket"
-  ]
+  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.73.0"
 }
