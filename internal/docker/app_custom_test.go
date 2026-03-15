@@ -79,12 +79,14 @@ func TestCustomTemplateManager_GetTemplate(t *testing.T) {
 	require.NoError(t, err)
 
 	// Get existing template
-	retrieved := ctm.GetTemplate(template.ID)
+	retrieved, err := ctm.GetTemplate(template.ID)
+	require.NoError(t, err)
 	require.NotNil(t, retrieved)
 	assert.Equal(t, template.ID, retrieved.ID)
 
 	// Get non-existing template
-	retrieved = ctm.GetTemplate("nonexistent")
+	retrieved, err = ctm.GetTemplate("nonexistent")
+	assert.Error(t, err)
 	assert.Nil(t, retrieved)
 }
 
@@ -102,7 +104,8 @@ func TestCustomTemplateManager_DeleteTemplate(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify deletion
-	retrieved := ctm.GetTemplate(template.ID)
+	retrieved, err := ctm.GetTemplate(template.ID)
+	assert.Error(t, err)
 	assert.Nil(t, retrieved)
 
 	// Delete non-existing template
@@ -125,13 +128,15 @@ func TestCustomTemplateManager_UpdateTemplate(t *testing.T) {
 		"description":  "Updated description",
 	}
 
-	err = ctm.UpdateTemplate(template.ID, updates)
+	updated, err := ctm.UpdateTemplate(template.ID, updates)
 	require.NoError(t, err)
 
-	retrieved := ctm.GetTemplate(template.ID)
+	retrieved, err := ctm.GetTemplate(template.ID)
+	require.NoError(t, err)
 	require.NotNil(t, retrieved)
 	assert.Equal(t, "Updated Name", retrieved.DisplayName)
 	assert.Equal(t, "Updated description", retrieved.Description)
+	_ = updated // use updated to avoid unused variable warning
 }
 
 func TestCustomTemplateManager_IncrementDownloads(t *testing.T) {
@@ -171,12 +176,14 @@ func TestCustomTemplate_Fields(t *testing.T) {
 }
 
 func TestGenerateTemplateID(t *testing.T) {
-	id1 := generateTemplateID()
-	id2 := generateTemplateID()
+	id1 := generateTemplateID("nginx")
+	id2 := generateTemplateID("apache")
 
 	assert.NotEmpty(t, id1)
 	assert.NotEmpty(t, id2)
 	assert.NotEqual(t, id1, id2)
+	assert.Contains(t, id1, "nginx")
+	assert.Contains(t, id2, "apache")
 }
 
 func TestCustomTemplateManager_SaveAndLoad(t *testing.T) {
@@ -190,12 +197,17 @@ func TestCustomTemplateManager_SaveAndLoad(t *testing.T) {
 	template, err := ctm1.CreateFromCompose("test", "Test", "Test app", "test", compose)
 	require.NoError(t, err)
 
+	// Save template
+	ctm1.templates[template.ID] = template
+	ctm1.saveTemplate(template)
+
 	// Create new manager to load templates
 	ctm2, err := NewCustomTemplateManager(tempDir)
 	require.NoError(t, err)
 
 	// Verify template was loaded
-	retrieved := ctm2.GetTemplate(template.ID)
+	retrieved, err := ctm2.GetTemplate(template.ID)
+	require.NoError(t, err)
 	require.NotNil(t, retrieved)
 	assert.Equal(t, template.ID, retrieved.ID)
 }
@@ -230,6 +242,6 @@ func TestCustomTemplateManager_UpdateNonExistent(t *testing.T) {
 	require.NoError(t, err)
 
 	updates := map[string]interface{}{"name": "test"}
-	err = ctm.UpdateTemplate("nonexistent", updates)
+	_, err = ctm.UpdateTemplate("nonexistent", updates)
 	assert.Error(t, err)
 }
