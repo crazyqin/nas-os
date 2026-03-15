@@ -41,12 +41,12 @@ type StorageCostCalculator struct {
 
 // CostCalculationResult 成本计算结果
 type CostCalculationResult struct {
-	UsagePercent         float64 `json:"usage_percent"`
-	CapacityCostMonthly  float64 `json:"capacity_cost_monthly"`
-	TotalCostMonthly     float64 `json:"total_cost_monthly"`
-	CostPerGBMonthly     float64 `json:"cost_per_gb_monthly"`
-	ProjectedAnnualCost  float64 `json:"projected_annual_cost"`
-	PotentialSavings     float64 `json:"potential_savings"`
+	UsagePercent        float64 `json:"usage_percent"`
+	CapacityCostMonthly float64 `json:"capacity_cost_monthly"`
+	TotalCostMonthly    float64 `json:"total_cost_monthly"`
+	CostPerGBMonthly    float64 `json:"cost_per_gb_monthly"`
+	ProjectedAnnualCost float64 `json:"projected_annual_cost"`
+	PotentialSavings    float64 `json:"potential_savings"`
 }
 
 // NewStorageCostCalculator 创建存储成本计算器
@@ -58,20 +58,20 @@ func NewStorageCostCalculator(config StorageCostConfig) *StorageCostCalculator {
 func (c *StorageCostCalculator) Calculate(metrics StorageMetrics) CostCalculationResult {
 	totalGB := float64(metrics.TotalCapacityBytes) / (1024 * 1024 * 1024)
 	usedGB := float64(metrics.UsedCapacityBytes) / (1024 * 1024 * 1024)
-	
+
 	usagePercent := 0.0
 	if totalGB > 0 {
 		usagePercent = (usedGB / totalGB) * 100
 	}
-	
+
 	capacityCostMonthly := usedGB * c.config.CostPerGBMonthly
-	
+
 	return CostCalculationResult{
 		UsagePercent:        round(usagePercent, 2),
 		CapacityCostMonthly: round(capacityCostMonthly, 2),
 		TotalCostMonthly:    round(capacityCostMonthly, 2),
 		CostPerGBMonthly:    c.config.CostPerGBMonthly,
-		ProjectedAnnualCost: round(capacityCostMonthly * 12, 2),
+		ProjectedAnnualCost: round(capacityCostMonthly*12, 2),
 	}
 }
 
@@ -96,10 +96,10 @@ func (c *StorageCostCalculator) CalculateAll(metrics []StorageMetrics) []CostCal
 
 // CostTrendPoint 成本趋势点
 type CostTrendPoint struct {
-	Date       time.Time `json:"date"`
-	Cost       float64   `json:"cost"`
-	UsedGB     float64   `json:"used_gb"`
-	Trend      string    `json:"trend"` // up, down, stable
+	Date   time.Time `json:"date"`
+	Cost   float64   `json:"cost"`
+	UsedGB float64   `json:"used_gb"`
+	Trend  string    `json:"trend"` // up, down, stable
 }
 
 // GenerateReport 生成成本报告
@@ -162,45 +162,45 @@ type StorageMetrics struct {
 
 // StorageCostResult 存储成本结果
 type StorageCostResult struct {
-	VolumeName            string    `json:"volume_name"`
-	TotalGB               float64   `json:"total_gb"`
-	UsedGB                float64   `json:"used_gb"`
-	UsagePercent          float64   `json:"usage_percent"`
-	CostPerGB             float64   `json:"cost_per_gb"`
-	CostPerGBMonthly      float64   `json:"cost_per_gb_monthly"`
-	MonthlyCost           float64   `json:"monthly_cost"`
-	TotalCostMonthly      float64   `json:"total_cost_monthly"`
-	CapacityCostMonthly   float64   `json:"capacity_cost_monthly"`
-	IOPSCostMonthly       float64   `json:"iops_cost_monthly"`
-	BandwidthCostMonthly  float64   `json:"bandwidth_cost_monthly"`
-	ElectricityCostMonthly float64  `json:"electricity_cost_monthly"`
-	OpsCostMonthly        float64   `json:"ops_cost_monthly"`
-	DepreciationCostMonthly float64 `json:"depreciation_cost_monthly"`
-	AnnualCost            float64   `json:"annual_cost"`
-	CalculatedAt          time.Time `json:"calculated_at"`
+	VolumeName              string    `json:"volume_name"`
+	TotalGB                 float64   `json:"total_gb"`
+	UsedGB                  float64   `json:"used_gb"`
+	UsagePercent            float64   `json:"usage_percent"`
+	CostPerGB               float64   `json:"cost_per_gb"`
+	CostPerGBMonthly        float64   `json:"cost_per_gb_monthly"`
+	MonthlyCost             float64   `json:"monthly_cost"`
+	TotalCostMonthly        float64   `json:"total_cost_monthly"`
+	CapacityCostMonthly     float64   `json:"capacity_cost_monthly"`
+	IOPSCostMonthly         float64   `json:"iops_cost_monthly"`
+	BandwidthCostMonthly    float64   `json:"bandwidth_cost_monthly"`
+	ElectricityCostMonthly  float64   `json:"electricity_cost_monthly"`
+	OpsCostMonthly          float64   `json:"ops_cost_monthly"`
+	DepreciationCostMonthly float64   `json:"depreciation_cost_monthly"`
+	AnnualCost              float64   `json:"annual_cost"`
+	CalculatedAt            time.Time `json:"calculated_at"`
 }
 
 // CostReportSummary 成本报告摘要
 type CostReportSummary struct {
-	TotalCostMonthly  float64 `json:"total_cost_monthly"`
-	TotalCapacityGB   float64 `json:"total_capacity_gb"`
-	TotalUsedGB       float64 `json:"total_used_gb"`
-	AvgUsagePercent   float64 `json:"avg_usage_percent"`
-	PotentialSavings  float64 `json:"potential_savings"`
-	HealthScore       int     `json:"health_score"`
-	VolumeCount       int     `json:"volume_count"`
+	TotalCostMonthly float64 `json:"total_cost_monthly"`
+	TotalCapacityGB  float64 `json:"total_capacity_gb"`
+	TotalUsedGB      float64 `json:"total_used_gb"`
+	AvgUsagePercent  float64 `json:"avg_usage_percent"`
+	PotentialSavings float64 `json:"potential_savings"`
+	HealthScore      int     `json:"health_score"`
+	VolumeCount      int     `json:"volume_count"`
 }
 
 // StorageCostReport 存储成本报告
 type StorageCostReport struct {
-	ID              string               `json:"id"`
-	Name            string               `json:"name"`
-	GeneratedAt     time.Time            `json:"generated_at"`
-	Period          ReportPeriod         `json:"period"`
-	TotalCost       float64              `json:"total_cost"`
-	VolumeCosts     []StorageCostResult  `json:"volume_costs"`
-	Summary         CostReportSummary    `json:"summary"`
-	Recommendations []string             `json:"recommendations"`
+	ID              string              `json:"id"`
+	Name            string              `json:"name"`
+	GeneratedAt     time.Time           `json:"generated_at"`
+	Period          ReportPeriod        `json:"period"`
+	TotalCost       float64             `json:"total_cost"`
+	VolumeCosts     []StorageCostResult `json:"volume_costs"`
+	Summary         CostReportSummary   `json:"summary"`
+	Recommendations []string            `json:"recommendations"`
 }
 
 // ========== 存储空间利用率分析 v2.45.0 ==========
@@ -414,10 +414,10 @@ type UtilizationRecommendation struct {
 func (a *StorageUtilizationAnalyzer) AnalyzeUtilization(metrics []StorageMetrics, period ReportPeriod) *UtilizationAnalysis {
 	now := time.Now()
 	analysis := &UtilizationAnalysis{
-		ID:          "util_" + now.Format("20060102150405"),
-		AnalyzedAt:  now,
-		Period:      period,
-		Alerts:      make([]UtilizationAlert, 0),
+		ID:              "util_" + now.Format("20060102150405"),
+		AnalyzedAt:      now,
+		Period:          period,
+		Alerts:          make([]UtilizationAlert, 0),
 		Recommendations: make([]UtilizationRecommendation, 0),
 	}
 
@@ -453,12 +453,12 @@ func (a *StorageUtilizationAnalyzer) AnalyzeUtilization(metrics []StorageMetrics
 // analyzeVolumeUtilization 分析单个卷利用率
 func (a *StorageUtilizationAnalyzer) analyzeVolumeUtilization(m StorageMetrics) VolumeUtilization {
 	vol := VolumeUtilization{
-		VolumeName:           m.VolumeName,
-		TotalCapacityBytes:   m.TotalCapacityBytes,
-		UsedBytes:            m.UsedCapacityBytes,
-		AvailableBytes:       m.AvailableCapacityBytes,
-		FileCount:            m.FileCount,
-		Timestamp:            m.Timestamp,
+		VolumeName:         m.VolumeName,
+		TotalCapacityBytes: m.TotalCapacityBytes,
+		UsedBytes:          m.UsedCapacityBytes,
+		AvailableBytes:     m.AvailableCapacityBytes,
+		FileCount:          m.FileCount,
+		Timestamp:          m.Timestamp,
 	}
 
 	// 计算使用率
@@ -519,42 +519,42 @@ func (a *StorageUtilizationAnalyzer) generateUtilizationAlerts(vol VolumeUtiliza
 	// 高使用率告警
 	if vol.UsagePercent >= 90 {
 		alerts = append(alerts, UtilizationAlert{
-			ID:             fmt.Sprintf("alert_%s_%d", vol.VolumeName, now.Unix()),
-			VolumeName:     vol.VolumeName,
-			Type:           "high_usage",
-			Severity:       "critical",
-			CurrentValue:   vol.UsagePercent,
-			Threshold:      90,
-			Message:        fmt.Sprintf("卷 %s 使用率已达 %.1f%%，需要立即处理", vol.VolumeName, vol.UsagePercent),
+			ID:              fmt.Sprintf("alert_%s_%d", vol.VolumeName, now.Unix()),
+			VolumeName:      vol.VolumeName,
+			Type:            "high_usage",
+			Severity:        "critical",
+			CurrentValue:    vol.UsagePercent,
+			Threshold:       90,
+			Message:         fmt.Sprintf("卷 %s 使用率已达 %.1f%%，需要立即处理", vol.VolumeName, vol.UsagePercent),
 			SuggestedAction: "清理无用数据或扩容",
-			TriggeredAt:    now,
+			TriggeredAt:     now,
 		})
 	} else if vol.UsagePercent >= 80 {
 		alerts = append(alerts, UtilizationAlert{
-			ID:             fmt.Sprintf("alert_%s_%d", vol.VolumeName, now.Unix()),
-			VolumeName:     vol.VolumeName,
-			Type:           "high_usage",
-			Severity:       "warning",
-			CurrentValue:   vol.UsagePercent,
-			Threshold:      80,
-			Message:        fmt.Sprintf("卷 %s 使用率已达 %.1f%%，建议关注", vol.VolumeName, vol.UsagePercent),
+			ID:              fmt.Sprintf("alert_%s_%d", vol.VolumeName, now.Unix()),
+			VolumeName:      vol.VolumeName,
+			Type:            "high_usage",
+			Severity:        "warning",
+			CurrentValue:    vol.UsagePercent,
+			Threshold:       80,
+			Message:         fmt.Sprintf("卷 %s 使用率已达 %.1f%%，建议关注", vol.VolumeName, vol.UsagePercent),
 			SuggestedAction: "规划扩容或清理",
-			TriggeredAt:    now,
+			TriggeredAt:     now,
 		})
 	}
 
 	// 低使用率告警
 	if vol.UsagePercent < 20 {
 		alerts = append(alerts, UtilizationAlert{
-			ID:             fmt.Sprintf("alert_%s_low_%d", vol.VolumeName, now.Unix()),
-			VolumeName:     vol.VolumeName,
-			Type:           "low_usage",
-			Severity:       "info",
-			CurrentValue:   vol.UsagePercent,
-			Threshold:      20,
-			Message:        fmt.Sprintf("卷 %s 使用率仅 %.1f%%，可能存在资源浪费", vol.VolumeName, vol.UsagePercent),
+			ID:              fmt.Sprintf("alert_%s_low_%d", vol.VolumeName, now.Unix()),
+			VolumeName:      vol.VolumeName,
+			Type:            "low_usage",
+			Severity:        "info",
+			CurrentValue:    vol.UsagePercent,
+			Threshold:       20,
+			Message:         fmt.Sprintf("卷 %s 使用率仅 %.1f%%，可能存在资源浪费", vol.VolumeName, vol.UsagePercent),
 			SuggestedAction: "考虑收缩卷大小或重新分配资源",
-			TriggeredAt:    now,
+			TriggeredAt:     now,
 		})
 	}
 
@@ -904,8 +904,8 @@ func (s *RedundantDataScanner) ScanRedundantData(
 		ScannedAt:      now,
 		RedundantItems: make([]RedundantDataItem, 0),
 		Summary: RedundantDataSummary{
-			ByTypeBytes: make(map[string]uint64),
-			ByTypeCount: make(map[string]int),
+			ByTypeBytes:  make(map[string]uint64),
+			ByTypeCount:  make(map[string]int),
 			ScannedBytes: totalScannedBytes,
 		},
 	}
@@ -1037,26 +1037,26 @@ func (s *RedundantDataScanner) ScanRedundantData(
 
 // DuplicateFileInfo 重复文件信息
 type DuplicateFileInfo struct {
-	Path        string    `json:"path"`
-	Name        string    `json:"name"`
-	OriginalPath string   `json:"original_path"`
-	SizeBytes   uint64    `json:"size_bytes"`
-	CreatedAt   time.Time `json:"created_at"`
-	ModifiedAt  time.Time `json:"modified_at"`
-	Hash        string    `json:"hash"`
+	Path         string    `json:"path"`
+	Name         string    `json:"name"`
+	OriginalPath string    `json:"original_path"`
+	SizeBytes    uint64    `json:"size_bytes"`
+	CreatedAt    time.Time `json:"created_at"`
+	ModifiedAt   time.Time `json:"modified_at"`
+	Hash         string    `json:"hash"`
 }
 
 // OrphanFileInfo 孤立文件信息
 type OrphanFileInfo struct {
-	Path          string     `json:"path"`
-	Name          string     `json:"name"`
-	SizeBytes     uint64     `json:"size_bytes"`
-	CreatedAt     time.Time  `json:"created_at"`
-	ModifiedAt    time.Time  `json:"modified_at"`
+	Path           string     `json:"path"`
+	Name           string     `json:"name"`
+	SizeBytes      uint64     `json:"size_bytes"`
+	CreatedAt      time.Time  `json:"created_at"`
+	ModifiedAt     time.Time  `json:"modified_at"`
 	LastAccessedAt *time.Time `json:"last_accessed_at,omitempty"`
-	Owner         string     `json:"owner,omitempty"`
-	SafeToDelete  bool       `json:"safe_to_delete"`
-	Risk          string     `json:"risk"`
+	Owner          string     `json:"owner,omitempty"`
+	SafeToDelete   bool       `json:"safe_to_delete"`
+	Risk           string     `json:"risk"`
 }
 
 // TempFileInfo 临时文件信息
@@ -1071,15 +1071,15 @@ type TempFileInfo struct {
 
 // ExpiredFileInfo 过期文件信息
 type ExpiredFileInfo struct {
-	Path             string     `json:"path"`
-	Name             string     `json:"name"`
-	SizeBytes        uint64     `json:"size_bytes"`
-	CreatedAt        time.Time  `json:"created_at"`
-	ModifiedAt       time.Time  `json:"modified_at"`
-	LastAccessedAt   *time.Time `json:"last_accessed_at,omitempty"`
-	RetentionPolicy  string     `json:"retention_policy"`
-	SafeToDelete     bool       `json:"safe_to_delete"`
-	Risk             string     `json:"risk"`
+	Path            string     `json:"path"`
+	Name            string     `json:"name"`
+	SizeBytes       uint64     `json:"size_bytes"`
+	CreatedAt       time.Time  `json:"created_at"`
+	ModifiedAt      time.Time  `json:"modified_at"`
+	LastAccessedAt  *time.Time `json:"last_accessed_at,omitempty"`
+	RetentionPolicy string     `json:"retention_policy"`
+	SafeToDelete    bool       `json:"safe_to_delete"`
+	Risk            string     `json:"risk"`
 }
 
 // OldVersionFileInfo 旧版本文件信息
@@ -1237,7 +1237,7 @@ type CostSavingsSummary struct {
 
 // SavingsTypeStats 节省类型统计
 type SavingsTypeStats struct {
-	Count         int     `json:"count"`
+	Count          int     `json:"count"`
 	SavingsMonthly float64 `json:"savings_monthly"`
 	SavingsGB      float64 `json:"savings_gb"`
 }
@@ -1310,19 +1310,19 @@ func (g *CostSavingsGenerator) GenerateCostSavingsReport(
 // convertRecommendationToOpportunity 转换建议为节省机会
 func (g *CostSavingsGenerator) convertRecommendationToOpportunity(rec UtilizationRecommendation) SavingsOpportunity {
 	opp := SavingsOpportunity{
-		ID:                rec.ID,
-		Type:              rec.Type,
-		Title:             rec.Title,
-		Description:       rec.Description,
-		TargetName:        rec.VolumeName,
-		Scope:             "volume",
-		SavingsGB:         rec.SavingsGB,
-		SavingsMonthly:    rec.SavingsMonthly,
-		SavingsYearly:     round(rec.SavingsMonthly*12, 2),
-		Implementation:    rec.Implementation,
-		Steps:             rec.Steps,
-		ExpectedBenefits:  []string{"降低存储成本", "提高资源利用率"},
-		PotentialRisks:    []string{"需要短暂服务中断"},
+		ID:               rec.ID,
+		Type:             rec.Type,
+		Title:            rec.Title,
+		Description:      rec.Description,
+		TargetName:       rec.VolumeName,
+		Scope:            "volume",
+		SavingsGB:        rec.SavingsGB,
+		SavingsMonthly:   rec.SavingsMonthly,
+		SavingsYearly:    round(rec.SavingsMonthly*12, 2),
+		Implementation:   rec.Implementation,
+		Steps:            rec.Steps,
+		ExpectedBenefits: []string{"降低存储成本", "提高资源利用率"},
+		PotentialRisks:   []string{"需要短暂服务中断"},
 	}
 
 	// 计算优先级和ROI
@@ -1367,22 +1367,22 @@ func (g *CostSavingsGenerator) generateRedundancySavingsOpportunity(scan *Redund
 
 	now := time.Now()
 	return &SavingsOpportunity{
-		ID:                  "savings_redundancy_" + now.Format("20060102"),
-		Type:                "cleanup",
-		Title:               "清理冗余数据",
-		Description:         fmt.Sprintf("发现 %.2f GB 冗余数据，可节省 %.2f 元/月", scan.Summary.TotalRedundantGB, scan.Summary.PotentialSavingsMonthly),
-		Scope:               "system-wide",
-		SavingsGB:           scan.Summary.TotalRedundantGB,
-		SavingsMonthly:      scan.Summary.PotentialSavingsMonthly,
-		SavingsYearly:       round(scan.Summary.PotentialSavingsMonthly*12, 2),
-		Implementation:      "easy",
-		EstimatedTime:       "1-3天",
-		ROIMonths:           1,
-		Priority:            8,
-		Risk:                "low",
-		Steps:               []string{"审核冗余数据列表", "确认删除范围", "执行清理", "验证结果"},
-		ExpectedBenefits:    []string{"释放存储空间", "降低存储成本", "提高管理效率"},
-		PotentialRisks:      []string{"误删有用数据"},
+		ID:               "savings_redundancy_" + now.Format("20060102"),
+		Type:             "cleanup",
+		Title:            "清理冗余数据",
+		Description:      fmt.Sprintf("发现 %.2f GB 冗余数据，可节省 %.2f 元/月", scan.Summary.TotalRedundantGB, scan.Summary.PotentialSavingsMonthly),
+		Scope:            "system-wide",
+		SavingsGB:        scan.Summary.TotalRedundantGB,
+		SavingsMonthly:   scan.Summary.PotentialSavingsMonthly,
+		SavingsYearly:    round(scan.Summary.PotentialSavingsMonthly*12, 2),
+		Implementation:   "easy",
+		EstimatedTime:    "1-3天",
+		ROIMonths:        1,
+		Priority:         8,
+		Risk:             "low",
+		Steps:            []string{"审核冗余数据列表", "确认删除范围", "执行清理", "验证结果"},
+		ExpectedBenefits: []string{"释放存储空间", "降低存储成本", "提高管理效率"},
+		PotentialRisks:   []string{"误删有用数据"},
 	}
 }
 
@@ -1390,20 +1390,20 @@ func (g *CostSavingsGenerator) generateRedundancySavingsOpportunity(scan *Redund
 func (g *CostSavingsGenerator) generateHighUsageOpportunity(cost StorageCostResult) SavingsOpportunity {
 	now := time.Now()
 	return SavingsOpportunity{
-		ID:                  fmt.Sprintf("savings_high_%s_%s", cost.VolumeName, now.Format("20060102")),
-		Type:                "resize",
-		Title:               fmt.Sprintf("扩展卷 %s 避免空间耗尽", cost.VolumeName),
-		Description:         fmt.Sprintf("当前使用率 %.1f%%，存在空间不足风险", cost.UsagePercent),
-		Scope:               "volume",
-		TargetName:          cost.VolumeName,
-		CurrentCostMonthly:  cost.TotalCostMonthly,
+		ID:                   fmt.Sprintf("savings_high_%s_%s", cost.VolumeName, now.Format("20060102")),
+		Type:                 "resize",
+		Title:                fmt.Sprintf("扩展卷 %s 避免空间耗尽", cost.VolumeName),
+		Description:          fmt.Sprintf("当前使用率 %.1f%%，存在空间不足风险", cost.UsagePercent),
+		Scope:                "volume",
+		TargetName:           cost.VolumeName,
+		CurrentCostMonthly:   cost.TotalCostMonthly,
 		OptimizedCostMonthly: round(cost.TotalCostMonthly*1.2, 2),
-		SavingsMonthly:      0, // 扩容不直接节省
-		Implementation:      "medium",
-		EstimatedTime:       "1-2周",
-		ROIMonths:           0,
-		Priority:            9,
-		Risk:                "medium",
+		SavingsMonthly:       0, // 扩容不直接节省
+		Implementation:       "medium",
+		EstimatedTime:        "1-2周",
+		ROIMonths:            0,
+		Priority:             9,
+		Risk:                 "medium",
 		Steps: []string{
 			"分析数据增长趋势",
 			"规划扩容方案",
@@ -1739,11 +1739,11 @@ func (e *StorageCostReportExporter) writeCostSavingsReportCSV(writer *csv.Writer
 
 // StorageCostReportGenerator 存储成本综合报告生成器
 type StorageCostReportGenerator struct {
-	costCalculator       *StorageCostCalculator
-	utilizationAnalyzer  *StorageUtilizationAnalyzer
-	redundantScanner     *RedundantDataScanner
-	savingsGenerator     *CostSavingsGenerator
-	exporter             *StorageCostReportExporter
+	costCalculator      *StorageCostCalculator
+	utilizationAnalyzer *StorageUtilizationAnalyzer
+	redundantScanner    *RedundantDataScanner
+	savingsGenerator    *CostSavingsGenerator
+	exporter            *StorageCostReportExporter
 }
 
 // NewStorageCostReportGenerator 创建综合报告生成器
@@ -1873,7 +1873,7 @@ func (g *StorageCostReportGenerator) GenerateComprehensiveReport(
 // generateExecutiveSummary 生成执行摘要
 func (g *StorageCostReportGenerator) generateExecutiveSummary(report *ComprehensiveStorageReport) ExecutiveSummary {
 	summary := ExecutiveSummary{
-		KeyFindings:       make([]string, 0),
+		KeyFindings:        make([]string, 0),
 		TopRecommendations: make([]string, 0),
 	}
 

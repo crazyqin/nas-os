@@ -41,17 +41,17 @@ func (p MessagePriority) String() string {
 
 // Message 消息结构
 type Message struct {
-	ID         string           `json:"id"`
-	Type       string           `json:"type"`
-	Priority   MessagePriority  `json:"priority"`
-	Data       json.RawMessage  `json:"data"`
-	Timestamp  time.Time        `json:"timestamp"`
-	Expiration time.Time        `json:"expiration,omitempty"`
-	Retries    int              `json:"retries"`
-	MaxRetries int              `json:"maxRetries"`
-	Hash       string           `json:"hash"`       // 去重哈希
-	From       string           `json:"from,omitempty"`
-	To         string           `json:"to,omitempty"`   // 目标客户端/房间
+	ID          string          `json:"id"`
+	Type        string          `json:"type"`
+	Priority    MessagePriority `json:"priority"`
+	Data        json.RawMessage `json:"data"`
+	Timestamp   time.Time       `json:"timestamp"`
+	Expiration  time.Time       `json:"expiration,omitempty"`
+	Retries     int             `json:"retries"`
+	MaxRetries  int             `json:"maxRetries"`
+	Hash        string          `json:"hash"` // 去重哈希
+	From        string          `json:"from,omitempty"`
+	To          string          `json:"to,omitempty"`          // 目标客户端/房间
 	Correlation string          `json:"correlation,omitempty"` // 关联 ID
 }
 
@@ -101,11 +101,11 @@ var DefaultMessageQueueConfig = &MessageQueueConfig{
 
 // PriorityQueue 优先级队列
 type PriorityQueue struct {
-	high    chan *Message
-	normal  chan *Message
-	low     chan *Message
+	high     chan *Message
+	normal   chan *Message
+	low      chan *Message
 	critical chan *Message
-	config  *MessageQueueConfig
+	config   *MessageQueueConfig
 }
 
 // NewPriorityQueue 创建优先级队列
@@ -383,10 +383,10 @@ type BackpressureController struct {
 type BackpressureState int
 
 const (
-	StateNormal     BackpressureState = iota // 正常状态
-	StateWarning                             // 警告状态
-	StateCritical                            // 临界状态
-	StateThrottled                           // 限流状态
+	StateNormal    BackpressureState = iota // 正常状态
+	StateWarning                            // 警告状态
+	StateCritical                           // 临界状态
+	StateThrottled                          // 限流状态
 )
 
 func (s BackpressureState) String() string {
@@ -522,18 +522,18 @@ type BackpressureStats struct {
 
 // EnhancedMessageQueue 增强消息队列
 type EnhancedMessageQueue struct {
-	config          *MessageQueueConfig
-	priorityQueue   *PriorityQueue
-	deduplicator    *Deduplicator
-	backpressure    *BackpressureController
-	pending         map[string]*Message // 待确认消息
-	mu              sync.RWMutex
-	stopChan        chan struct{}
-	onMessage       func(*Message)
-	onDropped       func(*Message, string)
-	sentCount       int64
-	droppedCount    int64
-	dedupedCount    int64
+	config        *MessageQueueConfig
+	priorityQueue *PriorityQueue
+	deduplicator  *Deduplicator
+	backpressure  *BackpressureController
+	pending       map[string]*Message // 待确认消息
+	mu            sync.RWMutex
+	stopChan      chan struct{}
+	onMessage     func(*Message)
+	onDropped     func(*Message, string)
+	sentCount     int64
+	droppedCount  int64
+	dedupedCount  int64
 }
 
 // NewEnhancedMessageQueue 创建增强消息队列
@@ -767,13 +767,13 @@ func (emq *EnhancedMessageQueue) Stats() EnhancedQueueStats {
 
 // EnhancedQueueStats 增强队列统计
 type EnhancedQueueStats struct {
-	Queue        QueueStats          `json:"queue"`
-	SentCount    int64               `json:"sentCount"`
-	DroppedCount int64               `json:"droppedCount"`
-	DedupedCount int64               `json:"dedupedCount"`
-	PendingCount int                 `json:"pendingCount"`
-	Dedup        *DedupStats         `json:"dedup,omitempty"`
-	Backpressure *BackpressureStats  `json:"backpressure,omitempty"`
+	Queue        QueueStats         `json:"queue"`
+	SentCount    int64              `json:"sentCount"`
+	DroppedCount int64              `json:"droppedCount"`
+	DedupedCount int64              `json:"dedupedCount"`
+	PendingCount int                `json:"pendingCount"`
+	Dedup        *DedupStats        `json:"dedup,omitempty"`
+	Backpressure *BackpressureStats `json:"backpressure,omitempty"`
 }
 
 // BatchPush 批量推送消息
@@ -849,10 +849,10 @@ func randomString(n int) string {
 
 // 错误定义
 var (
-	ErrQueueFull           = fmt.Errorf("队列已满")
-	ErrMessageExpired      = fmt.Errorf("消息已过期")
-	ErrDuplicateMessage    = fmt.Errorf("重复消息")
-	ErrBackpressureDrop    = fmt.Errorf("背压丢弃")
-	ErrMessageNotFound     = fmt.Errorf("消息不存在")
-	ErrMaxRetriesExceeded  = fmt.Errorf("超过最大重试次数")
+	ErrQueueFull          = fmt.Errorf("队列已满")
+	ErrMessageExpired     = fmt.Errorf("消息已过期")
+	ErrDuplicateMessage   = fmt.Errorf("重复消息")
+	ErrBackpressureDrop   = fmt.Errorf("背压丢弃")
+	ErrMessageNotFound    = fmt.Errorf("消息不存在")
+	ErrMaxRetriesExceeded = fmt.Errorf("超过最大重试次数")
 )

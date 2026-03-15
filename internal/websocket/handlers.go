@@ -219,10 +219,10 @@ func (h *QueueHandlers) batchPushMessages(c *gin.Context) {
 		"code":    0,
 		"message": "批量推送完成",
 		"data": gin.H{
-			"total":     len(messages),
-			"success":   successCount,
-			"failed":    len(messages) - successCount,
-			"errors":    errors,
+			"total":   len(messages),
+			"success": successCount,
+			"failed":  len(messages) - successCount,
+			"errors":  errors,
 		},
 	})
 }
