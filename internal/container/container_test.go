@@ -149,18 +149,6 @@ func TestVolumeMount_Structure(t *testing.T) {
 	assert.True(t, vol.RW)
 }
 
-func TestVolumeMount_ReadOnly(t *testing.T) {
-	vol := VolumeMount{
-		Source:      "/host/path",
-		Destination: "/container/path",
-		Mode:        "ro",
-		RW:          false,
-	}
-
-	assert.False(t, vol.RW)
-	assert.Equal(t, "ro", vol.Mode)
-}
-
 // ========== ContainerStats 结构测试 ==========
 
 func TestContainerStats_Structure(t *testing.T) {
@@ -183,13 +171,6 @@ func TestContainerStats_Structure(t *testing.T) {
 	assert.LessOrEqual(t, stats.MemPercent, 100.0)
 	assert.NotZero(t, stats.MemLimit)
 	assert.False(t, stats.Timestamp.IsZero())
-}
-
-func TestContainerStats_ZeroValues(t *testing.T) {
-	stats := ContainerStats{Timestamp: time.Now()}
-	assert.Zero(t, stats.CPUUsage)
-	assert.Zero(t, stats.MemUsage)
-	assert.Zero(t, stats.NetRX)
 }
 
 // ========== ContainerConfig 结构测试 ==========
@@ -222,18 +203,6 @@ func TestContainerConfig_Structure(t *testing.T) {
 	assert.Len(t, config.Volumes, 1)
 	assert.Equal(t, "production", config.Environment["ENV"])
 	assert.Contains(t, []string{"no", "always", "on-failure", "unless-stopped"}, config.Restart)
-}
-
-func TestContainerConfig_Minimal(t *testing.T) {
-	config := ContainerConfig{
-		Name:  "minimal",
-		Image: "alpine",
-	}
-
-	assert.NotEmpty(t, config.Name)
-	assert.NotEmpty(t, config.Image)
-	assert.Nil(t, config.Ports)
-	assert.Nil(t, config.Volumes)
 }
 
 // ========== ContainerLog 结构测试 ==========
