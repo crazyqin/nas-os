@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.57.0] - 2026-03-15
+
+### Added
+- **成本分析器** (户部)
+  - internal/billing/cost_analyzer.go - 完整成本分析系统
+  - 存储成本计算（容量/访问频率分层）
+  - 带宽成本追踪
+  - 成本趋势分析与预测
+  - 多维度成本报告
+
+- **预算警报系统** (户部)
+  - internal/budget/alert.go - 预算警报管理器
+  - 阈值配置（多级告警）
+  - 多渠道通知（邮件/Webhook/渠道）
+  - 警报升级机制
+  - 冷却时间与重试策略
+
+- **成本报告生成** (户部)
+  - internal/reports/cost_report.go - 成本报告生成器
+  - 日报/周报/月报自动生成
+  - JSON/CSV 多格式导出
+  - 成本趋势图表数据
+  - 部门成本分摊分析
+
+- **告警规则引擎测试** (刑部)
+  - internal/monitor/alert_rule_engine_test.go
+  - 规则匹配测试覆盖
+  - 告警触发边界条件测试
+
+- **部署文档** (工部)
+  - docs/deployment/README.md - 部署指南总览
+  - docs/deployment/health-check-guide.md - 健康检查详细指南
+
+- **服务监控脚本** (工部)
+  - scripts/service-monitor.sh - 服务状态监控脚本
+  - 自动重启、日志轮转、告警通知
+
+### Changed
+- **版本更新至 v2.57.0**
+- **健康检查脚本增强** - 重构优化脚本结构
+
 ## [v2.56.0] - 2026-03-15
 
 ### Added

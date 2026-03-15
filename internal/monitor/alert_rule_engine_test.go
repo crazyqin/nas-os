@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// ========== AlertRuleEngine 基础测试 ==========
+// === AlertRuleEngine 基础测试 ===
 
 func TestNewAlertRuleEngine(t *testing.T) {
 	alertMgr := NewAlertingManager()
@@ -231,7 +231,7 @@ func TestAlertRuleEngine_DisableRule(t *testing.T) {
 	assert.False(t, retrieved.Enabled)
 }
 
-// ========== 规则评估测试 ==========
+// === 规则评估测试 ===
 
 func TestAlertRuleEngine_Evaluate(t *testing.T) {
 	alertMgr := NewAlertingManager()
@@ -356,7 +356,7 @@ func TestAlertRuleEngine_Evaluate_OrLogic(t *testing.T) {
 	assert.GreaterOrEqual(t, len(alerts), 1) // OR 逻辑，满足
 }
 
-// ========== 持久化测试 ==========
+// === 持久化测试 ===
 
 func TestAlertRuleEngine_SaveAndLoad(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "alert-engine-test-*")
@@ -403,7 +403,7 @@ func TestAlertRuleEngine_LoadRules_Nonexistent(t *testing.T) {
 	assert.NotNil(t, engine)
 }
 
-// ========== 统计测试 ==========
+// === 统计测试 ===
 
 func TestAlertRuleEngine_GetRuleStats(t *testing.T) {
 	engine := NewAlertRuleEngine("", NewAlertingManager())
@@ -426,18 +426,26 @@ func TestAlertRuleEngine_GetRuleStats(t *testing.T) {
 	assert.GreaterOrEqual(t, disabled, 1)
 }
 
-// ========== 冷却时间测试 ==========
+// === 冷却时间测试 ===
 
 func TestAlertRuleEngine_Cooldown(t *testing.T) {
 	alertMgr := NewAlertingManager()
 	engine := NewAlertRuleEngine("", alertMgr)
 
 	rule := &AlertRuleConfig{
+
 		ID:       "cpu-high",
 		Name:     "CPU High",
 		Enabled:  true,
 		Type:     RuleTypeCPU,
 		Cooldown: time.Minute, // 1 分钟冷却
+
+		ID:        "cpu-high",
+		Name:      "CPU High",
+		Enabled:   true,
+		Type:      RuleTypeCPU,
+		Cooldown:  time.Minute, // 1 分钟冷却
+
 		Conditions: []RuleCondition{
 			{Field: "cpu_usage", Operator: OpGreaterThan, Value: 80},
 		},
@@ -458,7 +466,7 @@ func TestAlertRuleEngine_Cooldown(t *testing.T) {
 	assert.Len(t, alerts, 0) // 冷却期内不触发
 }
 
-// ========== 默认规则测试 ==========
+// === 默认规则测试 ===
 
 func TestAlertRuleEngine_DefaultRules(t *testing.T) {
 	engine := NewAlertRuleEngine("", NewAlertingManager())
@@ -479,7 +487,7 @@ func TestAlertRuleEngine_DefaultRules(t *testing.T) {
 	assert.True(t, hasCPURule, "应该包含 CPU 默认规则")
 }
 
-// ========== 比较运算符测试 ==========
+// === 比较运算符测试 ===
 
 func TestCompareOperators(t *testing.T) {
 	// 测试比较运算符常量
@@ -495,14 +503,14 @@ func TestCompareOperators(t *testing.T) {
 	assert.Equal(t, CompareOp("rate"), OpChangeRate)
 }
 
-// ========== 逻辑运算符测试 ==========
+// === 逻辑运算符测试 ===
 
 func TestLogicOperators(t *testing.T) {
 	assert.Equal(t, LogicOperator("and"), LogicAnd)
 	assert.Equal(t, LogicOperator("or"), LogicOr)
 }
 
-// ========== 规则类型测试 ==========
+// === 规则类型测试 ===
 
 func TestAlertRuleTypes(t *testing.T) {
 	types := []AlertRuleType{
@@ -522,7 +530,7 @@ func TestAlertRuleTypes(t *testing.T) {
 	}
 }
 
-// ========== 聚合类型测试 ==========
+// === 聚合类型测试 ===
 
 func TestAggregationTypes(t *testing.T) {
 	types := []AggregationType{
@@ -538,7 +546,7 @@ func TestAggregationTypes(t *testing.T) {
 	}
 }
 
-// ========== MetricValue 测试 ==========
+// === MetricValue 测试 ===
 
 func TestMetricValue(t *testing.T) {
 	now := time.Now()
@@ -556,7 +564,7 @@ func TestMetricValue(t *testing.T) {
 	assert.Equal(t, now, mv.Timestamp)
 }
 
-// ========== AlertRuleConfig 测试 ==========
+// === AlertRuleConfig 测试 ===
 
 func TestAlertRuleConfig(t *testing.T) {
 	now := time.Now()
@@ -588,7 +596,7 @@ func TestAlertRuleConfig(t *testing.T) {
 	assert.Len(t, rule.Channels, 2)
 }
 
-// ========== RuleCondition 测试 ==========
+// === RuleCondition 测试 ===
 
 func TestRuleCondition(t *testing.T) {
 	cond := RuleCondition{
@@ -610,7 +618,7 @@ func TestRuleCondition(t *testing.T) {
 	assert.Equal(t, AggAvg, cond.Aggregation.Type)
 }
 
-// ========== 基准测试 ==========
+// === 基准测试 ===
 
 func BenchmarkAlertRuleEngine_Evaluate(b *testing.B) {
 	engine := NewAlertRuleEngine("", NewAlertingManager())
@@ -639,4 +647,8 @@ func BenchmarkAlertRuleEngine_GetRules(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = engine.GetRules()
 	}
+
 }
+
+}
+
