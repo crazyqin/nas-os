@@ -19,6 +19,7 @@
 | `service-status.sh` | v1.0.0 | 服务状态检查（systemd/Docker） |
 | `auto-recovery.sh` | - | 自动故障恢复 |
 | `service-monitor.sh` | - | 服务监控守护进程 |
+| `monitor-daemon.sh` | v1.0.0 | 后台监控守护进程（CPU/内存/磁盘/服务/告警） |
 
 ### 版本管理
 | 脚本 | 版本 | 用途 |
@@ -33,7 +34,7 @@
 | `backup.sh` | - | 备份执行脚本 |
 | `backup-rotate.sh` | - | 备份轮转管理 |
 | `backup-rotation.sh` | v2.74.0 | 备份生命周期管理（压缩、归档、清理） |
-| `backup-verify.sh` | - | 备份验证 |
+| `backup-verify.sh` | v2.70.0 | 备份完整性验证（校验和、格式、内容检查） |
 | `restore.sh` | - | 数据恢复脚本 |
 | `db-backup.sh` | - | 数据库备份专用 |
 
