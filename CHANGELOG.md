@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.74.0] - 2026-03-15
+
+### Added
+- **版本发布完善** (礼部)
+  - 更新 CHANGELOG.md 添加 v2.73.0/v2.74.0 变更记录
+  - 更新 README.md 版本号和下载链接
+  - 创建 docs/RELEASE-v2.74.0.md 发布说明
+
+### Changed
+- **文档同步** (礼部)
+  - 版本号统一更新至 v2.74.0
+  - Docker 镜像标签更新
+
+## [v2.73.0] - 2026-03-15
+
+### Added
+- **存储管理 API** (兵部)
+  - internal/web/storage_handlers.go - 存储管理 API 处理器
+  - /api/storage/volumes - 卷管理 API
+  - /api/storage/pools - 存储池管理 API
+  - /api/storage/snapshots - 快照管理 API
+
+- **成本优化分析** (户部)
+  - 成本优化分析报告
+  - 资源使用评估报告
+
+### Changed
+- **文档更新** (礼部)
+  - README.md 版本信息同步
+  - CHANGELOG.md 添加 v2.73.0 记录
+  - docs/ 文档版本号更新
+
+### Improved
+- **里程碑完善** (吏部)
+  - MILESTONES.md 里程碑记录更新
+  - M2 Web 管理界面标记为完成
+  - 项目状态文件更新
+
+- **CI/CD 审查** (工部)
+  - DevOps 检查报告
+  - CI/CD 配置审查完成
+
 ## [v2.72.0] - 2026-03-15
 
 ### Added
