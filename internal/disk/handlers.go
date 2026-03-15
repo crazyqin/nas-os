@@ -131,6 +131,14 @@ func (h *Handlers) getDiskInfo(c *gin.Context) {
 		return
 	}
 
+	if disk == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "磁盘不存在",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "success",
@@ -163,6 +171,14 @@ func (h *Handlers) getSMARTData(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": err.Error(),
+		})
+		return
+	}
+
+	if disk == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "磁盘不存在",
 		})
 		return
 	}
@@ -207,6 +223,14 @@ func (h *Handlers) getDiskHealth(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": err.Error(),
+		})
+		return
+	}
+
+	if disk == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "磁盘不存在",
 		})
 		return
 	}
@@ -284,6 +308,14 @@ func (h *Handlers) getDiskPredictions(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": err.Error(),
+		})
+		return
+	}
+
+	if disk == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "磁盘不存在",
 		})
 		return
 	}

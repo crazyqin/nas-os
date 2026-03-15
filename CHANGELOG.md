@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.71.0] - 2026-03-15
+
+### Fixed
+- **测试代码类型修复** (兵部)
+  - 修复 disk/handlers 测试类型错误
+  - 修复 shares/handlers 测试类型错误
+  - 新增 shares 接口定义，提升代码可测试性
+  - 简化测试代码结构，提升可维护性
+
+### Changed
+- **版本更新至 v2.71.0** (礼部)
+  - README.md 版本信息同步
+  - 下载链接更新
+  - Docker 镜像标签更新
+  - 文档版本号统一
+
 ## [v2.70.0] - 2026-03-15
 
 ### Added
