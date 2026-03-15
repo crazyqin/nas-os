@@ -10,6 +10,11 @@ import (
 	"nas-os/internal/api"
 )
 
+// timePtr 辅助函数：将 time.Time 转换为 *time.Time
+func timePtr(t time.Time) *time.Time {
+	return &t
+}
+
 // ========== 配额管理 API 处理器 ==========
 
 // QuotaAPIHandlers 配额管理 API 处理器
@@ -979,8 +984,8 @@ func (h *QuotaAPIHandlers) getPredictions(c *gin.Context) {
 			DailyGrowthGB:     2.5,
 			DaysToSoftLimit:   6,
 			DaysToHardLimit:   14,
-			EstimatedSoftDate: time.Now().AddDate(0, 0, 6),
-			EstimatedHardDate: time.Now().AddDate(0, 0, 14),
+			EstimatedSoftDate: timePtr(time.Now().AddDate(0, 0, 6)),
+			EstimatedHardDate: timePtr(time.Now().AddDate(0, 0, 14)),
 			RiskLevel:         "medium",
 		},
 		{
@@ -991,7 +996,7 @@ func (h *QuotaAPIHandlers) getPredictions(c *gin.Context) {
 			DaysToSoftLimit:   0,
 			DaysToHardLimit:   10,
 			EstimatedSoftDate: nil,
-			EstimatedHardDate: time.Now().AddDate(0, 0, 10),
+			EstimatedHardDate: timePtr(time.Now().AddDate(0, 0, 10)),
 			RiskLevel:         "critical",
 		},
 	}
@@ -1317,13 +1322,6 @@ type QuotaPredictionOutput struct {
 	EstimatedSoftDate *time.Time `json:"estimated_soft_date,omitempty"`
 	EstimatedHardDate *time.Time `json:"estimated_hard_date,omitempty"`
 	RiskLevel         string     `json:"risk_level"` // low, medium, high, critical
-}
-
-// ForecastPoint 预测数据点
-type ForecastPoint struct {
-	Date           time.Time `json:"date"`
-	PredictedUsage float64   `json:"predicted_usage"`
-	Confidence     float64   `json:"confidence"`
 }
 
 // SetWarningThresholdsRequest 设置预警阈值请求
