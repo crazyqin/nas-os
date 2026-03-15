@@ -142,21 +142,26 @@ func (m *RBACManager) initBuiltInRoles() {
 			{Resource: string(ResourceGroup), Action: string(ActionAdmin)},
 			{Resource: string(ResourceSystem), Action: string(ActionRead)},
 			{Resource: string(ResourceSystem), Action: string(ActionWrite)},
+			{Resource: string(ResourceSystem), Action: string(ActionDelete)},
 			{Resource: string(ResourceSystem), Action: string(ActionAdmin)},
 			{Resource: string(ResourceContainer), Action: string(ActionRead)},
 			{Resource: string(ResourceContainer), Action: string(ActionWrite)},
 			{Resource: string(ResourceContainer), Action: string(ActionDelete)},
 			{Resource: string(ResourceContainer), Action: string(ActionExec)},
+			{Resource: string(ResourceContainer), Action: string(ActionAdmin)},
 			{Resource: string(ResourceVM), Action: string(ActionRead)},
 			{Resource: string(ResourceVM), Action: string(ActionWrite)},
 			{Resource: string(ResourceVM), Action: string(ActionDelete)},
 			{Resource: string(ResourceVM), Action: string(ActionExec)},
+			{Resource: string(ResourceVM), Action: string(ActionAdmin)},
 			{Resource: string(ResourceFile), Action: string(ActionRead)},
 			{Resource: string(ResourceFile), Action: string(ActionWrite)},
 			{Resource: string(ResourceFile), Action: string(ActionDelete)},
+			{Resource: string(ResourceFile), Action: string(ActionAdmin)},
 			{Resource: string(ResourceSnapshot), Action: string(ActionRead)},
 			{Resource: string(ResourceSnapshot), Action: string(ActionWrite)},
 			{Resource: string(ResourceSnapshot), Action: string(ActionDelete)},
+			{Resource: string(ResourceSnapshot), Action: string(ActionAdmin)},
 		},
 	}
 
@@ -357,7 +362,7 @@ func (m *RBACManager) CacheSession(token string, userID string, groups []string)
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	permissions := m.GetPermissions(userID, groups)
+	permissions := m.getPermissionsInternal(userID, groups)
 	roles := m.userRoles[userID]
 
 	m.sessionCache[token] = &SessionCache{
@@ -366,6 +371,41 @@ func (m *RBACManager) CacheSession(token string, userID string, groups []string)
 		Permissions: permissions,
 		ExpiresAt:   time.Now().Add(m.cacheExpiry),
 	}
+}
+
+// getPermissionsInternal 内部方法，获取用户所有权限（不获取锁，调用者需持有锁）
+func (m *RBACManager) getPermissionsInternal(userID string, userGroups []string) []Permission {
+	permissionsMap := make(map[string]bool)
+	var result []Permission
+
+	// 收集用户所有角色
+	userRoles := m.userRoles[userID]
+	for _, groupID := range userGroups {
+		userRoles = append(userRoles, m.groupRoles[groupID]...)
+	}
+
+	// 如果没有角色，使用默认角色
+	if len(userRoles) == 0 {
+		userRoles = []Role{m.defaultRole}
+	}
+
+	// 收集所有权限
+	for _, role := range userRoles {
+		roleDef, exists := m.roles[role]
+		if !exists {
+			continue
+		}
+
+		for _, perm := range roleDef.Permissions {
+			key := perm.Resource + ":" + perm.Action
+			if !permissionsMap[key] {
+				permissionsMap[key] = true
+				result = append(result, perm)
+			}
+		}
+	}
+
+	return result
 }
 
 // GetCachedSession 获取缓存的会话
