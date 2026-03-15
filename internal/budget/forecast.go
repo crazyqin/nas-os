@@ -267,7 +267,12 @@ func (fe *ForecastEngine) GenerateForecast(ctx context.Context, req ForecastRequ
 	}
 
 	// 检查数据量是否足够
-	if len(history) < fe.config.MinHistoryDays/7 { // 至少需要一定数量的数据点
+	// 需要至少有 MinHistoryDays/3 个数据点，或者数据覆盖的天数足够
+	minDataPoints := fe.config.MinHistoryDays / 3 // 降低阈值，允许更灵活的数据密度
+	if minDataPoints < 3 {
+		minDataPoints = 3 // 最少需要 3 个数据点
+	}
+	if len(history) < minDataPoints {
 		return nil, ErrInsufficientHistory
 	}
 
