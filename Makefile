@@ -223,6 +223,20 @@ help:
 	@echo "    make health-prometheus - Prometheus 格式输出"
 	@echo "    make health-monitor - 持续监控模式"
 	@echo ""
+	@echo "  备份监控 (v2.59.0):"
+	@echo "    make backup-monitor - 执行备份监控检查"
+	@echo "    make backup-monitor-status - 查看备份状态"
+	@echo "    make backup-monitor-daemon - 启动备份监控守护进程"
+	@echo "    make backup-verify  - 验证最新备份"
+	@echo "    make backup-report  - 生成备份报告"
+	@echo ""
+	@echo "  磁盘健康 (v2.59.0):"
+	@echo "    make disk-health    - 检查磁盘健康状态"
+	@echo "    make disk-health-json - JSON 格式输出"
+	@echo "    make disk-health-monitor - 启动磁盘健康监控"
+	@echo "    make disk-smart-test - 运行 SMART 短测试"
+	@echo "    make disk-smart-test-long - 运行 SMART 长测试"
+	@echo ""
 	@echo "  其他:"
 	@echo "    make clean          - 清理构建产物"
 	@echo "    make help           - 显示帮助"
@@ -351,3 +365,45 @@ health-prometheus:
 health-monitor:
 	@echo "🏥 启动健康监控模式..."
 	@./scripts/health-check.sh monitor 30
+
+# ========== 备份监控 (v2.59.0) ==========
+backup-monitor:
+	@echo "💾 执行备份监控检查..."
+	@./scripts/backup-monitor.sh
+
+backup-monitor-status:
+	@echo "💾 查看备份监控状态..."
+	@./scripts/backup-monitor.sh --status
+
+backup-monitor-daemon:
+	@echo "💾 启动备份监控守护进程..."
+	@./scripts/backup-monitor.sh --daemon
+
+backup-verify:
+	@echo "💾 验证最新备份..."
+	@./scripts/backup-monitor.sh --verify
+
+backup-report:
+	@echo "💾 生成备份报告..."
+	@./scripts/backup-monitor.sh --report
+
+# ========== 磁盘健康检查 (v2.59.0) ==========
+disk-health:
+	@echo "💿 检查磁盘健康状态..."
+	@./scripts/disk-health-check.sh
+
+disk-health-json:
+	@echo "💿 检查磁盘健康状态 (JSON)..."
+	@./scripts/disk-health-check.sh --json
+
+disk-health-monitor:
+	@echo "💿 启动磁盘健康监控..."
+	@./scripts/disk-health-check.sh --monitor
+
+disk-smart-test:
+	@echo "💿 运行 SMART 短测试..."
+	@./scripts/disk-health-check.sh --test short
+
+disk-smart-test-long:
+	@echo "💿 运行 SMART 长测试..."
+	@./scripts/disk-health-check.sh --test long

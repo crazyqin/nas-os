@@ -596,6 +596,79 @@ func analyzeTrend(data []TrendPoint, metric string) string {
 	return "stable"
 }
 
+// BackupMonitoringData 备份监控数据 (v2.59.0)
+type BackupMonitoringData struct {
+	Timestamp          time.Time `json:"timestamp"`
+	TotalBackups       int       `json:"total_backups"`
+	FullBackups        int       `json:"full_backups"`
+	IncrementalBackups int       `json:"incremental_backups"`
+	DatabaseBackups    int       `json:"database_backups"`
+	ConfigBackups      int       `json:"config_backups"`
+	TotalSizeBytes     uint64    `json:"total_size_bytes"`
+	OldestBackupAge    int       `json:"oldest_backup_age_hours"`
+	LatestBackupAge    int       `json:"latest_backup_age_hours"`
+	BackupSpaceUsed    uint64    `json:"backup_space_used"`
+	BackupSpaceTotal   uint64    `json:"backup_space_total"`
+	BackupSpaceAvail   uint64    `json:"backup_space_available"`
+	BackupHealthy      bool      `json:"backup_healthy"`
+	LastBackupTime     time.Time `json:"last_backup_time"`
+	Errors             []string  `json:"errors,omitempty"`
+}
+
+// DiskHealthMetrics 磁盘健康指标 (v2.59.0)
+type DiskHealthMetrics struct {
+	Timestamp          time.Time            `json:"timestamp"`
+	TotalDisks         int                  `json:"total_disks"`
+	HealthyDisks       int                  `json:"healthy_disks"`
+	WarningDisks       int                  `json:"warning_disks"`
+	CriticalDisks      int                  `json:"critical_disks"`
+	UnknownDisks       int                  `json:"unknown_disks"`
+	AverageTemperature int                  `json:"average_temperature"`
+	AverageHealthScore float64              `json:"average_health_score"`
+	TotalErrors        int                  `json:"total_errors"`
+	Disks              []DiskHealthMetric   `json:"disks"`
+	Summary            DiskHealthSummaryV25 `json:"summary"`
+}
+
+// DiskHealthMetric 单个磁盘健康指标
+type DiskHealthMetric struct {
+	Device            string    `json:"device"`
+	Model             string    `json:"model"`
+	Serial            string    `json:"serial_number"`
+	IsSSD             bool      `json:"is_ssd"`
+	Temperature       int       `json:"temperature"`
+	HealthScore       int       `json:"health_score"`
+	HealthStatus      string    `json:"health_status"`
+	ReallocatedSectors int      `json:"reallocated_sectors"`
+	PendingSectors    int       `json:"pending_sectors"`
+	CRCErrors         int       `json:"crc_errors"`
+	PowerOnHours      uint64    `json:"power_on_hours"`
+	PowerCycles       uint64    `json:"power_cycles"`
+	LastCheck         time.Time `json:"last_check"`
+}
+
+// DiskHealthSummaryV25 磁盘健康摘要
+type DiskHealthSummaryV25 struct {
+	MaxTemperature int `json:"max_temperature"`
+	MinTemperature int `json:"min_temperature"`
+	TotalCapacity  uint64 `json:"total_capacity_bytes"`
+	SSDCount       int `json:"ssd_count"`
+	HDDCount       int `json:"hdd_count"`
+}
+
+// ExtendedMetrics 扩展指标 (v2.59.0)
+type ExtendedMetrics struct {
+	Timestamp        time.Time               `json:"timestamp"`
+	System           *CollectedMetrics       `json:"system"`
+	Backup           *BackupMonitoringData   `json:"backup,omitempty"`
+	DiskHealth       *DiskHealthMetrics      `json:"disk_health,omitempty"`
+	AlertCount       int                     `json:"alert_count"`
+	CriticalAlerts   int                     `json:"critical_alerts"`
+	WarningAlerts    int                     `json:"warning_alerts"`
+	OverallStatus    string                  `json:"overall_status"`
+	Recommendations  []string                `json:"recommendations,omitempty"`
+}
+
 // generateRecommendations 生成建议
 func (mc *MetricsCollector) generateRecommendations(report *ResourceUsageReport) []string {
 	recs := make([]string, 0)
@@ -631,4 +704,328 @@ func (mc *MetricsCollector) generateRecommendations(report *ResourceUsageReport)
 	}
 
 	return recs
+}
+
+// CollectBackupMetrics 收集备份指标 (v2.59.0)
+func (mc *MetricsCollector) CollectBackupMetrics() *BackupMonitoringData {
+	metrics := &BackupMonitoringData{
+		Timestamp: time.Now(),
+		Errors:    make([]string, 0),
+	}
+
+	// 从监控管理器获取备份数据（如果实现了接口）
+	// 这里提供默认实现框架
+	backupStats, err := mc.manager.GetBackupStats()
+	if err != nil {
+		metrics.Errors = append(metrics.Errors, "无法获取备份统计: "+err.Error())
+		metrics.BackupHealthy = false
+		return metrics
+	}
+
+	if backupStats != nil {
+		metrics.TotalBackups = backupStats.TotalCount
+		metrics.FullBackups = backupStats.FullCount
+		metrics.IncrementalBackups = backupStats.IncrementalCount
+		metrics.DatabaseBackups = backupStats.DatabaseCount
+		metrics.ConfigBackups = backupStats.ConfigCount
+		metrics.TotalSizeBytes = backupStats.TotalSize
+		metrics.BackupSpaceUsed = backupStats.SpaceUsed
+		metrics.BackupSpaceTotal = backupStats.SpaceTotal
+		metrics.BackupSpaceAvail = backupStats.SpaceAvailable
+
+		if backupStats.LatestBackup != nil {
+			metrics.LatestBackupAge = int(time.Since(backupStats.LatestBackup.Timestamp).Hours())
+			metrics.LastBackupTime = backupStats.LatestBackup.Timestamp
+		}
+
+		if backupStats.OldestBackup != nil {
+			metrics.OldestBackupAge = int(time.Since(backupStats.OldestBackup.Timestamp).Hours())
+		}
+
+		// 判断备份健康状态
+		metrics.BackupHealthy = mc.evaluateBackupHealth(metrics)
+	}
+
+	return metrics
+}
+
+// BackupStats 备份统计信息
+type BackupStats struct {
+	TotalCount      int
+	FullCount       int
+	IncrementalCount int
+	DatabaseCount   int
+	ConfigCount     int
+	TotalSize       uint64
+	SpaceUsed       uint64
+	SpaceTotal      uint64
+	SpaceAvailable  uint64
+	LatestBackup    *BackupInfo
+	OldestBackup    *BackupInfo
+}
+
+// BackupInfo 备份信息
+type BackupInfo struct {
+	Timestamp time.Time
+	Size      uint64
+	Type      string
+	Path      string
+}
+
+// evaluateBackupHealth 评估备份健康状态
+func (mc *MetricsCollector) evaluateBackupHealth(metrics *BackupMonitoringData) bool {
+	// 无备份则不健康
+	if metrics.TotalBackups == 0 {
+		metrics.Errors = append(metrics.Errors, "无备份文件")
+		return false
+	}
+
+	// 最新备份超过24小时则不健康
+	if metrics.LatestBackupAge > 24 {
+		metrics.Errors = append(metrics.Errors, "备份过期，最新备份超过24小时")
+		return false
+	}
+
+	// 空间不足警告
+	if metrics.BackupSpaceTotal > 0 {
+		availPercent := float64(metrics.BackupSpaceAvail) / float64(metrics.BackupSpaceTotal) * 100
+		if availPercent < 10 {
+			metrics.Errors = append(metrics.Errors, "备份空间不足10%")
+			return false
+		}
+	}
+
+	return true
+}
+
+// CollectDiskHealthMetrics 收集磁盘健康指标 (v2.59.0)
+func (mc *MetricsCollector) CollectDiskHealthMetrics() *DiskHealthMetrics {
+	metrics := &DiskHealthMetrics{
+		Timestamp: time.Now(),
+		Disks:     make([]DiskHealthMetric, 0),
+	}
+
+	// 从磁盘健康监控器获取数据
+	diskMonitor := mc.manager.GetDiskHealthMonitor()
+	if diskMonitor == nil {
+		return metrics
+	}
+
+	allDisks := diskMonitor.GetAllDisksHealth()
+	metrics.TotalDisks = len(allDisks)
+
+	var totalTemp, totalScore int
+	var maxTemp, minTemp int = -1, 999
+	var totalCapacity uint64
+	var ssdCount, hddCount int
+
+	for _, disk := range allDisks {
+		metric := DiskHealthMetric{
+			Device:             disk.Device,
+			Model:              disk.Model,
+			Serial:             disk.SerialNumber,
+			IsSSD:              disk.IsSSD,
+			Temperature:        disk.Temperature,
+			HealthScore:        disk.HealthScore,
+			HealthStatus:       string(disk.HealthStatus),
+			ReallocatedSectors: 0,
+			PendingSectors:     0,
+			CRCErrors:          0,
+			PowerOnHours:       disk.PowerOnHours,
+			PowerCycles:        disk.PowerCycleCount,
+			LastCheck:          disk.LastCheck,
+		}
+
+		// 提取 SMART 属性
+		if attr, ok := disk.SmartAttributes["Reallocated_Sector_Ct"]; ok {
+			metric.ReallocatedSectors = int(attr.RawValue)
+		}
+		if attr, ok := disk.SmartAttributes["Current_Pending_Sector"]; ok {
+			metric.PendingSectors = int(attr.RawValue)
+		}
+		if attr, ok := disk.SmartAttributes["UDMA_CRC_Error_Count"]; ok {
+			metric.CRCErrors = int(attr.RawValue)
+		}
+
+		metrics.Disks = append(metrics.Disks, metric)
+
+		// 统计
+		totalTemp += disk.Temperature
+		totalScore += disk.HealthScore
+		metrics.TotalErrors += len(disk.Errors)
+		totalCapacity += disk.Capacity
+
+		if disk.Temperature > maxTemp {
+			maxTemp = disk.Temperature
+		}
+		if disk.Temperature < minTemp {
+			minTemp = disk.Temperature
+		}
+
+		if disk.IsSSD {
+			ssdCount++
+		} else {
+			hddCount++
+		}
+
+		// 按状态计数
+		switch disk.HealthStatus {
+		case HealthStatusHealthy:
+			metrics.HealthyDisks++
+		case HealthStatusWarning:
+			metrics.WarningDisks++
+		case HealthStatusDegraded, HealthStatusFailed:
+			metrics.CriticalDisks++
+		default:
+			metrics.UnknownDisks++
+		}
+	}
+
+	// 计算平均值
+	if metrics.TotalDisks > 0 {
+		metrics.AverageTemperature = totalTemp / metrics.TotalDisks
+		metrics.AverageHealthScore = float64(totalScore) / float64(metrics.TotalDisks)
+	}
+
+	// 填充摘要
+	metrics.Summary = DiskHealthSummaryV25{
+		MaxTemperature: maxTemp,
+		MinTemperature: minTemp,
+		TotalCapacity:  totalCapacity,
+		SSDCount:       ssdCount,
+		HDDCount:       hddCount,
+	}
+
+	return metrics
+}
+
+// CollectExtendedMetrics 收集扩展指标 (v2.59.0)
+func (mc *MetricsCollector) CollectExtendedMetrics() *ExtendedMetrics {
+	ext := &ExtendedMetrics{
+		Timestamp:       time.Now(),
+		Recommendations: make([]string, 0),
+	}
+
+	// 收集系统指标
+	ext.System = mc.GetLatestMetrics()
+
+	// 收集备份指标
+	ext.Backup = mc.CollectBackupMetrics()
+
+	// 收集磁盘健康指标
+	ext.DiskHealth = mc.CollectDiskHealthMetrics()
+
+	// 统计告警
+	if alertMgr := mc.manager.GetAlertingManager(); alertMgr != nil {
+		alerts := alertMgr.GetActiveAlerts()
+		ext.AlertCount = len(alerts)
+		for _, alert := range alerts {
+			if alert.Level == "critical" {
+				ext.CriticalAlerts++
+			} else if alert.Level == "warning" {
+				ext.WarningAlerts++
+			}
+		}
+	}
+
+	// 计算总体状态
+	ext.OverallStatus = mc.calculateOverallStatus(ext)
+
+	// 生成建议
+	ext.Recommendations = mc.generateExtendedRecommendations(ext)
+
+	return ext
+}
+
+// calculateOverallStatus 计算总体状态
+func (mc *MetricsCollector) calculateOverallStatus(ext *ExtendedMetrics) string {
+	// 有严重告警
+	if ext.CriticalAlerts > 0 {
+		return "critical"
+	}
+
+	// 磁盘健康问题
+	if ext.DiskHealth != nil && ext.DiskHealth.CriticalDisks > 0 {
+		return "critical"
+	}
+
+	// 备份不健康
+	if ext.Backup != nil && !ext.Backup.BackupHealthy {
+		return "warning"
+	}
+
+	// 有警告告警
+	if ext.WarningAlerts > 0 {
+		return "warning"
+	}
+
+	// 磁盘警告
+	if ext.DiskHealth != nil && ext.DiskHealth.WarningDisks > 0 {
+		return "warning"
+	}
+
+	return "healthy"
+}
+
+// generateExtendedRecommendations 生成扩展建议
+func (mc *MetricsCollector) generateExtendedRecommendations(ext *ExtendedMetrics) []string {
+	recs := make([]string, 0)
+
+	// 备份建议
+	if ext.Backup != nil {
+		if !ext.Backup.BackupHealthy {
+			if ext.Backup.TotalBackups == 0 {
+				recs = append(recs, "建议立即创建备份，当前无备份文件")
+			} else if ext.Backup.LatestBackupAge > 24 {
+				recs = append(recs, "备份已过期，建议立即执行备份任务")
+			}
+		}
+		if ext.Backup.BackupSpaceAvail > 0 && ext.Backup.BackupSpaceTotal > 0 {
+			availPercent := float64(ext.Backup.BackupSpaceAvail) / float64(ext.Backup.BackupSpaceTotal) * 100
+			if availPercent < 20 {
+				recs = append(recs, "备份空间不足20%，建议清理旧备份或扩展存储")
+			}
+		}
+	}
+
+	// 磁盘健康建议
+	if ext.DiskHealth != nil {
+		for _, disk := range ext.DiskHealth.Disks {
+			if disk.HealthStatus == "failed" || disk.HealthStatus == "critical" {
+				recs = append(recs, "磁盘 "+disk.Device+" 健康状态异常，建议立即更换")
+			} else if disk.HealthStatus == "warning" || disk.HealthStatus == "degraded" {
+				recs = append(recs, "磁盘 "+disk.Device+" 状态下降，建议关注")
+			}
+			if disk.Temperature > 55 {
+				recs = append(recs, "磁盘 "+disk.Device+" 温度过高("+string(rune(disk.Temperature))+"°C)，建议检查散热")
+			}
+			if disk.ReallocatedSectors > 0 {
+				recs = append(recs, "磁盘 "+disk.Device+" 存在重分配扇区，建议监控")
+			}
+			if disk.PendingSectors > 0 {
+				recs = append(recs, "磁盘 "+disk.Device+" 存在待定扇区，建议检查数据完整性")
+			}
+		}
+	}
+
+	// 告警建议
+	if ext.CriticalAlerts > 0 {
+		recs = append(recs, "存在严重告警，建议立即处理")
+	}
+
+	return recs
+}
+
+// GetBackupMetricsHistory 获取备份指标历史
+func (mc *MetricsCollector) GetBackupMetricsHistory(limit int) []*BackupMonitoringData {
+	// 这个方法可以扩展为从持久化存储读取历史数据
+	// 目前返回空列表
+	return make([]*BackupMonitoringData, 0)
+}
+
+// GetDiskHealthTrend 获取磁盘健康趋势
+func (mc *MetricsCollector) GetDiskHealthTrend(duration time.Duration) map[string][]DiskHealthMetric {
+	// 这个方法可以扩展为从持久化存储读取历史趋势
+	// 目前返回空 map
+	return make(map[string][]DiskHealthMetric)
 }

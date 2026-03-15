@@ -341,6 +341,20 @@ func (am *AlertingManager) GetAlerts(limit, offset int, filters map[string]strin
 	return result[start:end]
 }
 
+// GetActiveAlerts 获取活跃告警列表 (v2.59.0)
+func (am *AlertingManager) GetActiveAlerts() []*Alert {
+	am.mu.RLock()
+	defer am.mu.RUnlock()
+
+	result := make([]*Alert, 0)
+	for _, alert := range am.alerts {
+		if !alert.Acknowledged {
+			result = append(result, alert)
+		}
+	}
+	return result
+}
+
 func matchesFilters(alert *Alert, filters map[string]string) bool {
 	for key, value := range filters {
 		switch key {
