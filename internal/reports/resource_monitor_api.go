@@ -28,13 +28,13 @@ type ResourceMonitorConfig struct {
 	HistoryRetentionDays int `json:"history_retention_days"`
 
 	// 告警阈值
-	StorageWarningThreshold   float64 `json:"storage_warning_threshold"`
-	StorageCriticalThreshold  float64 `json:"storage_critical_threshold"`
-	CPUWarningThreshold       float64 `json:"cpu_warning_threshold"`
-	CPUCriticalThreshold      float64 `json:"cpu_critical_threshold"`
-	MemoryWarningThreshold    float64 `json:"memory_warning_threshold"`
-	MemoryCriticalThreshold   float64 `json:"memory_critical_threshold"`
-	BandwidthWarningThreshold float64 `json:"bandwidth_warning_threshold"`
+	StorageWarningThreshold    float64 `json:"storage_warning_threshold"`
+	StorageCriticalThreshold   float64 `json:"storage_critical_threshold"`
+	CPUWarningThreshold        float64 `json:"cpu_warning_threshold"`
+	CPUCriticalThreshold       float64 `json:"cpu_critical_threshold"`
+	MemoryWarningThreshold     float64 `json:"memory_warning_threshold"`
+	MemoryCriticalThreshold    float64 `json:"memory_critical_threshold"`
+	BandwidthWarningThreshold  float64 `json:"bandwidth_warning_threshold"`
 	BandwidthCriticalThreshold float64 `json:"bandwidth_critical_threshold"`
 
 	// 成本配置
@@ -44,29 +44,29 @@ type ResourceMonitorConfig struct {
 // DefaultResourceMonitorConfig 默认配置
 func DefaultResourceMonitorConfig() ResourceMonitorConfig {
 	return ResourceMonitorConfig{
-		CollectInterval:           60,
-		HistoryRetentionDays:      30,
-		StorageWarningThreshold:   70,
-		StorageCriticalThreshold:  85,
-		CPUWarningThreshold:       70,
-		CPUCriticalThreshold:      90,
-		MemoryWarningThreshold:    75,
-		MemoryCriticalThreshold:   90,
-		BandwidthWarningThreshold: 70,
+		CollectInterval:            60,
+		HistoryRetentionDays:       30,
+		StorageWarningThreshold:    70,
+		StorageCriticalThreshold:   85,
+		CPUWarningThreshold:        70,
+		CPUCriticalThreshold:       90,
+		MemoryWarningThreshold:     75,
+		MemoryCriticalThreshold:    90,
+		BandwidthWarningThreshold:  70,
 		BandwidthCriticalThreshold: 85,
-		CostPerGBMonthly:          0.5,
+		CostPerGBMonthly:           0.5,
 	}
 }
 
 // NewResourceMonitorService 创建资源监控服务
 func NewResourceMonitorService(config ResourceMonitorConfig) *ResourceMonitorService {
 	costConfig := StorageCostConfig{
-		CostPerGBMonthly:  config.CostPerGBMonthly,
+		CostPerGBMonthly:      config.CostPerGBMonthly,
 		ElectricityCostPerKWh: 0.6,
-		DevicePowerWatts: 100,
-		OpsCostMonthly:   500,
-		DepreciationYears: 5,
-		HardwareCost:     50000,
+		DevicePowerWatts:      100,
+		OpsCostMonthly:        500,
+		DepreciationYears:     5,
+		HardwareCost:          50000,
 	}
 
 	return &ResourceMonitorService{
@@ -82,43 +82,43 @@ func NewResourceMonitorService(config ResourceMonitorConfig) *ResourceMonitorSer
 type ResourceMonitorAPIHandlers struct {
 	service *ResourceMonitorService
 	// 数据获取函数
-	getSystemMetrics   func() (*SystemMetricsData, error)
-	getStorageMetrics  func() ([]StorageMetricsData, error)
-	getNetworkMetrics  func() ([]NetworkMetricsData, error)
-	getUserMetrics     func() ([]UserMetricsData, error)
-	getProcessMetrics  func() ([]ProcessMetricsData, error)
+	getSystemMetrics    func() (*SystemMetricsData, error)
+	getStorageMetrics   func() ([]StorageMetricsData, error)
+	getNetworkMetrics   func() ([]NetworkMetricsData, error)
+	getUserMetrics      func() ([]UserMetricsData, error)
+	getProcessMetrics   func() ([]ProcessMetricsData, error)
 	getBandwidthHistory func(iface string, duration time.Duration) ([]BandwidthHistoryPoint, error)
-	getCapacityHistory func(volume string, duration time.Duration) ([]CapacityHistory, error)
+	getCapacityHistory  func(volume string, duration time.Duration) ([]CapacityHistory, error)
 }
 
 // SystemMetricsData 系统指标数据
 type SystemMetricsData struct {
 	// CPU
-	CPUUsage    float64 `json:"cpu_usage"`
-	CPUCount    int     `json:"cpu_count"`
-	LoadAvg1    float64 `json:"load_avg_1"`
-	LoadAvg5    float64 `json:"load_avg_5"`
-	LoadAvg15   float64 `json:"load_avg_15"`
-	CPUSteal    float64 `json:"cpu_steal"`
-	CPUWait     float64 `json:"cpu_wait"`
+	CPUUsage  float64 `json:"cpu_usage"`
+	CPUCount  int     `json:"cpu_count"`
+	LoadAvg1  float64 `json:"load_avg_1"`
+	LoadAvg5  float64 `json:"load_avg_5"`
+	LoadAvg15 float64 `json:"load_avg_15"`
+	CPUSteal  float64 `json:"cpu_steal"`
+	CPUWait   float64 `json:"cpu_wait"`
 
 	// 内存
-	MemoryTotal     uint64  `json:"memory_total"`
-	MemoryUsed      uint64  `json:"memory_used"`
-	MemoryFree      uint64  `json:"memory_free"`
-	MemoryCached    uint64  `json:"memory_cached"`
-	MemoryBuffers   uint64  `json:"memory_buffers"`
-	MemoryUsage     float64 `json:"memory_usage"`
-	SwapTotal       uint64  `json:"swap_total"`
-	SwapUsed        uint64  `json:"swap_used"`
-	SwapUsage       float64 `json:"swap_usage"`
+	MemoryTotal   uint64  `json:"memory_total"`
+	MemoryUsed    uint64  `json:"memory_used"`
+	MemoryFree    uint64  `json:"memory_free"`
+	MemoryCached  uint64  `json:"memory_cached"`
+	MemoryBuffers uint64  `json:"memory_buffers"`
+	MemoryUsage   float64 `json:"memory_usage"`
+	SwapTotal     uint64  `json:"swap_total"`
+	SwapUsed      uint64  `json:"swap_used"`
+	SwapUsage     float64 `json:"swap_usage"`
 
 	// 系统
-	Uptime        int64   `json:"uptime"`
-	Hostname      string  `json:"hostname"`
-	OS            string  `json:"os"`
-	KernelVersion string  `json:"kernel_version"`
-	Arch          string  `json:"arch"`
+	Uptime        int64  `json:"uptime"`
+	Hostname      string `json:"hostname"`
+	OS            string `json:"os"`
+	KernelVersion string `json:"kernel_version"`
+	Arch          string `json:"arch"`
 
 	// 时间
 	Timestamp time.Time `json:"timestamp"`
@@ -126,26 +126,26 @@ type SystemMetricsData struct {
 
 // StorageMetricsData 存储指标数据
 type StorageMetricsData struct {
-	VolumeName     string    `json:"volume_name"`
-	Device         string    `json:"device"`
-	MountPoint     string    `json:"mount_point"`
-	TotalBytes     uint64    `json:"total_bytes"`
-	UsedBytes      uint64    `json:"used_bytes"`
-	FreeBytes      uint64    `json:"free_bytes"`
-	UsagePercent   float64   `json:"usage_percent"`
-	InodeTotal     uint64    `json:"inode_total"`
-	InodeUsed      uint64    `json:"inode_used"`
-	InodeFree      uint64    `json:"inode_free"`
-	InodeUsage     float64   `json:"inode_usage"`
-	ReadIOPS       uint64    `json:"read_iops"`
-	WriteIOPS      uint64    `json:"write_iops"`
-	ReadBytes      uint64    `json:"read_bytes"`
-	WriteBytes     uint64    `json:"write_bytes"`
-	ReadLatency    float64   `json:"read_latency_ms"`
-	WriteLatency   float64   `json:"write_latency_ms"`
-	FileCount      uint64    `json:"file_count"`
-	DirCount       uint64    `json:"dir_count"`
-	Timestamp      time.Time `json:"timestamp"`
+	VolumeName   string    `json:"volume_name"`
+	Device       string    `json:"device"`
+	MountPoint   string    `json:"mount_point"`
+	TotalBytes   uint64    `json:"total_bytes"`
+	UsedBytes    uint64    `json:"used_bytes"`
+	FreeBytes    uint64    `json:"free_bytes"`
+	UsagePercent float64   `json:"usage_percent"`
+	InodeTotal   uint64    `json:"inode_total"`
+	InodeUsed    uint64    `json:"inode_used"`
+	InodeFree    uint64    `json:"inode_free"`
+	InodeUsage   float64   `json:"inode_usage"`
+	ReadIOPS     uint64    `json:"read_iops"`
+	WriteIOPS    uint64    `json:"write_iops"`
+	ReadBytes    uint64    `json:"read_bytes"`
+	WriteBytes   uint64    `json:"write_bytes"`
+	ReadLatency  float64   `json:"read_latency_ms"`
+	WriteLatency float64   `json:"write_latency_ms"`
+	FileCount    uint64    `json:"file_count"`
+	DirCount     uint64    `json:"dir_count"`
+	Timestamp    time.Time `json:"timestamp"`
 }
 
 // NetworkMetricsData 网络指标数据
@@ -167,15 +167,15 @@ type NetworkMetricsData struct {
 
 // UserMetricsData 用户指标数据
 type UserMetricsData struct {
-	Username     string    `json:"username"`
-	UserID       string    `json:"user_id"`
-	QuotaBytes   uint64    `json:"quota_bytes"`
-	UsedBytes    uint64    `json:"used_bytes"`
-	UsagePercent float64   `json:"usage_percent"`
-	FileCount    uint64    `json:"file_count"`
-	DirCount     uint64    `json:"dir_count"`
+	Username     string     `json:"username"`
+	UserID       string     `json:"user_id"`
+	QuotaBytes   uint64     `json:"quota_bytes"`
+	UsedBytes    uint64     `json:"used_bytes"`
+	UsagePercent float64    `json:"usage_percent"`
+	FileCount    uint64     `json:"file_count"`
+	DirCount     uint64     `json:"dir_count"`
 	LastAccess   *time.Time `json:"last_access,omitempty"`
-	Timestamp    time.Time `json:"timestamp"`
+	Timestamp    time.Time  `json:"timestamp"`
 }
 
 // ProcessMetricsData 进程指标数据
@@ -482,14 +482,14 @@ func (h *ResourceMonitorAPIHandlers) getCapacityPrediction(c *gin.Context) {
 	}
 
 	prediction := gin.H{
-		"volume_name":     volume,
+		"volume_name":       volume,
 		"prediction_months": months,
-		"current_usage":   analysis.Current.UsagePercent,
-		"scenarios":       analysis.Scenarios,
-		"timeline":        analysis.ExpansionTimeline,
-		"risks":           analysis.Risks,
-		"cost_impact":     analysis.CostImpact,
-		"generated_at":    time.Now(),
+		"current_usage":     analysis.Current.UsagePercent,
+		"scenarios":         analysis.Scenarios,
+		"timeline":          analysis.ExpansionTimeline,
+		"risks":             analysis.Risks,
+		"cost_impact":       analysis.CostImpact,
+		"generated_at":      time.Now(),
 	}
 
 	api.OK(c, prediction)
@@ -567,7 +567,7 @@ func (h *ResourceMonitorAPIHandlers) getResourceAlerts(c *gin.Context) {
 // getActiveAlerts 获取活跃告警
 func (h *ResourceMonitorAPIHandlers) getActiveAlerts(c *gin.Context) {
 	alerts := h.getActiveAlertsData()
-	
+
 	// 过滤只返回活跃告警
 	active := make([]ResourceAlert, 0)
 	for _, alert := range alerts {
@@ -588,13 +588,13 @@ func (h *ResourceMonitorAPIHandlers) getAlertHistory(c *gin.Context) {
 
 	// 返回历史告警（简化实现）
 	history := gin.H{
-		"period_days":  days,
-		"alerts":       []ResourceAlert{},
+		"period_days": days,
+		"alerts":      []ResourceAlert{},
 		"summary": gin.H{
-			"total":      0,
-			"critical":   0,
-			"warning":    0,
-			"resolved":   0,
+			"total":    0,
+			"critical": 0,
+			"warning":  0,
+			"resolved": 0,
 		},
 	}
 
@@ -606,11 +606,11 @@ func (h *ResourceMonitorAPIHandlers) getAlertHistory(c *gin.Context) {
 // analyzeCost 分析成本
 func (h *ResourceMonitorAPIHandlers) analyzeCost(c *gin.Context) {
 	var req struct {
-		VolumeMetrics []StorageMetrics `json:"volume_metrics"`
-		UserUsages    []UserStorageUsage `json:"user_usages"`
+		VolumeMetrics []StorageMetrics     `json:"volume_metrics"`
+		UserUsages    []UserStorageUsage   `json:"user_usages"`
 		History       []CostTrendDataPoint `json:"history"`
-		StartTime     *time.Time `json:"start_time"`
-		EndTime       *time.Time `json:"end_time"`
+		StartTime     *time.Time           `json:"start_time"`
+		EndTime       *time.Time           `json:"end_time"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -670,44 +670,44 @@ func (h *ResourceMonitorAPIHandlers) getCostOptimization(c *gin.Context) {
 	// 返回通用优化建议
 	recommendations := []gin.H{
 		{
-			"type":           "cleanup",
-			"priority":       "high",
-			"title":          "清理重复文件",
-			"description":    "扫描并删除重复文件，释放存储空间",
+			"type":                      "cleanup",
+			"priority":                  "high",
+			"title":                     "清理重复文件",
+			"description":               "扫描并删除重复文件，释放存储空间",
 			"potential_savings_percent": 15,
-			"effort":         "low",
+			"effort":                    "low",
 		},
 		{
-			"type":           "cleanup",
-			"priority":       "high",
-			"title":          "清理过期数据",
-			"description":    "根据保留策略清理过期备份和临时文件",
+			"type":                      "cleanup",
+			"priority":                  "high",
+			"title":                     "清理过期数据",
+			"description":               "根据保留策略清理过期备份和临时文件",
 			"potential_savings_percent": 20,
-			"effort":         "low",
+			"effort":                    "low",
 		},
 		{
-			"type":           "compression",
-			"priority":       "medium",
-			"title":          "启用数据压缩",
-			"description":    "对适合的数据类型启用压缩",
+			"type":                      "compression",
+			"priority":                  "medium",
+			"title":                     "启用数据压缩",
+			"description":               "对适合的数据类型启用压缩",
 			"potential_savings_percent": 30,
-			"effort":         "medium",
+			"effort":                    "medium",
 		},
 		{
-			"type":           "deduplication",
-			"priority":       "medium",
-			"title":          "启用数据去重",
-			"description":    "启用块级或文件级去重",
+			"type":                      "deduplication",
+			"priority":                  "medium",
+			"title":                     "启用数据去重",
+			"description":               "启用块级或文件级去重",
 			"potential_savings_percent": 25,
-			"effort":         "medium",
+			"effort":                    "medium",
 		},
 		{
-			"type":           "tiering",
-			"priority":       "low",
-			"title":          "实施分层存储",
-			"description":    "将冷数据迁移到低成本存储",
+			"type":                      "tiering",
+			"priority":                  "low",
+			"title":                     "实施分层存储",
+			"description":               "将冷数据迁移到低成本存储",
 			"potential_savings_percent": 50,
-			"effort":         "high",
+			"effort":                    "high",
 		},
 	}
 
@@ -826,14 +826,14 @@ func (h *ResourceMonitorAPIHandlers) getProcessRanking(c *gin.Context) {
 	ranking := make([]gin.H, 0, limit)
 	for i, p := range metrics[:limit] {
 		ranking = append(ranking, gin.H{
-			"rank":        i + 1,
-			"pid":         p.PID,
-			"name":        p.Name,
-			"user":        p.User,
-			"cpu_usage":   p.CPUUsage,
-			"memory_rss":  p.MemoryRSS,
+			"rank":          i + 1,
+			"pid":           p.PID,
+			"name":          p.Name,
+			"user":          p.User,
+			"cpu_usage":     p.CPUUsage,
+			"memory_rss":    p.MemoryRSS,
 			"memory_rss_mb": float64(p.MemoryRSS) / (1024 * 1024),
-			"threads":     p.Threads,
+			"threads":       p.Threads,
 		})
 	}
 
@@ -865,7 +865,7 @@ func (h *ResourceMonitorAPIHandlers) getResourceHealth(c *gin.Context) {
 		if storage, err := h.getStorageMetrics(); err == nil {
 			storageScore, storageIssues := h.evaluateStorageHealth(storage)
 			health["components"].(gin.H)["storage"] = gin.H{
-				"score": storageScore,
+				"score":  storageScore,
 				"status": h.scoreToStatus(storageScore),
 			}
 			score = score - (100 - storageScore)
@@ -878,11 +878,11 @@ func (h *ResourceMonitorAPIHandlers) getResourceHealth(c *gin.Context) {
 		if system, err := h.getSystemMetrics(); err == nil {
 			cpuScore, memScore, systemIssues := h.evaluateSystemHealth(system)
 			health["components"].(gin.H)["cpu"] = gin.H{
-				"score": cpuScore,
+				"score":  cpuScore,
 				"status": h.scoreToStatus(cpuScore),
 			}
 			health["components"].(gin.H)["memory"] = gin.H{
-				"score": memScore,
+				"score":  memScore,
 				"status": h.scoreToStatus(memScore),
 			}
 			issues = append(issues, systemIssues...)
@@ -1105,12 +1105,12 @@ func (h *ResourceMonitorAPIHandlers) getStorageSummaryData() gin.H {
 // getUserSummaryData 获取用户汇总数据
 func (h *ResourceMonitorAPIHandlers) getUserSummaryData() gin.H {
 	summary := gin.H{
-		"total_users":    0,
-		"total_used":     uint64(0),
-		"total_quota":    uint64(0),
-		"over_soft":      0,
-		"over_hard":      0,
-		"top_users":      []gin.H{},
+		"total_users": 0,
+		"total_used":  uint64(0),
+		"total_quota": uint64(0),
+		"over_soft":   0,
+		"over_hard":   0,
+		"top_users":   []gin.H{},
 	}
 
 	if h.getUserMetrics == nil {
@@ -1305,11 +1305,11 @@ func (h *ResourceMonitorAPIHandlers) getBandwidthTrendData(days int) (gin.H, err
 	metrics := h.service.trendAnalyzer.analyzeBandwidthTrend(history)
 
 	return gin.H{
-		"avg_read_mbps":    metrics.AvgReadMbps,
-		"avg_write_mbps":   metrics.AvgWriteMbps,
-		"peak_read_mbps":   metrics.PeakReadMbps,
-		"peak_write_mbps":  metrics.PeakWriteMbps,
-		"saturation_risk":  metrics.SaturationRisk,
+		"avg_read_mbps":   metrics.AvgReadMbps,
+		"avg_write_mbps":  metrics.AvgWriteMbps,
+		"peak_read_mbps":  metrics.PeakReadMbps,
+		"peak_write_mbps": metrics.PeakWriteMbps,
+		"saturation_risk": metrics.SaturationRisk,
 	}, nil
 }
 
