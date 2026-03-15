@@ -7,7 +7,7 @@ import (
 
 func TestInfo(t *testing.T) {
 	info := Info()
-	
+
 	if info["version"] == "" {
 		t.Error("version should not be empty")
 	}
@@ -24,7 +24,7 @@ func TestInfo(t *testing.T) {
 
 func TestString(t *testing.T) {
 	s := String()
-	
+
 	if s == "" {
 		t.Error("String() should not return empty")
 	}
@@ -39,7 +39,7 @@ func TestString(t *testing.T) {
 func TestVersionFormat(t *testing.T) {
 	info := Info()
 	version := info["version"]
-	
+
 	// 版本号应该以数字开头
 	if len(version) == 0 {
 		t.Error("version should not be empty")

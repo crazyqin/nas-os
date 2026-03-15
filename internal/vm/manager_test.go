@@ -2,6 +2,8 @@ package vm
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -14,7 +16,8 @@ func TestCheckLibvirt(t *testing.T) {
 
 func TestManager_NewManager(t *testing.T) {
 	// Use temp directory for testing
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -30,7 +33,8 @@ func TestManager_NewManager(t *testing.T) {
 }
 
 func TestManager_ListVMs(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -42,7 +46,8 @@ func TestManager_ListVMs(t *testing.T) {
 }
 
 func TestManager_GetVM(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -58,7 +63,8 @@ func TestManager_GetVM(t *testing.T) {
 }
 
 func TestManager_ListTemplates(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -70,7 +76,8 @@ func TestManager_ListTemplates(t *testing.T) {
 }
 
 func TestManager_GetTemplate(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -86,7 +93,8 @@ func TestManager_GetTemplate(t *testing.T) {
 }
 
 func TestManager_ListUSBDevices(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -97,7 +105,8 @@ func TestManager_ListUSBDevices(t *testing.T) {
 }
 
 func TestManager_ListPCIDevices(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -108,7 +117,8 @@ func TestManager_ListPCIDevices(t *testing.T) {
 }
 
 func TestManager_GetVMStats(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -124,7 +134,8 @@ func TestManager_GetVMStats(t *testing.T) {
 }
 
 func TestManager_StartVM(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -137,7 +148,8 @@ func TestManager_StartVM(t *testing.T) {
 }
 
 func TestManager_StopVM(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -150,7 +162,8 @@ func TestManager_StopVM(t *testing.T) {
 }
 
 func TestManager_DeleteVM(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -163,7 +176,8 @@ func TestManager_DeleteVM(t *testing.T) {
 }
 
 func TestManager_GetVNCConnection(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -179,7 +193,8 @@ func TestManager_GetVNCConnection(t *testing.T) {
 }
 
 func TestManager_ValidateConfig(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -197,6 +212,7 @@ func TestManager_ValidateConfig(t *testing.T) {
 		CPU:      2,
 		Memory:   2048,
 		DiskSize: 20,
+		Network:  "bridge",
 	}
 	err = manager.validateConfig(config)
 	if err != nil {
@@ -205,7 +221,8 @@ func TestManager_ValidateConfig(t *testing.T) {
 }
 
 func TestManager_CreateVM(t *testing.T) {
-	manager, err := NewManager("", nil)
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
 		t.Fatalf("NewManager failed: %v", err)
 	}
@@ -214,5 +231,60 @@ func TestManager_CreateVM(t *testing.T) {
 	_, err = manager.CreateVM(context.Background(), VMConfig{})
 	if err == nil {
 		t.Error("CreateVM should fail for empty config")
+	}
+}
+
+func TestManager_SaveAndLoadVMConfig(t *testing.T) {
+	tmpDir := t.TempDir()
+	manager, err := NewManager(tmpDir, nil)
+	if err != nil {
+		t.Fatalf("NewManager failed: %v", err)
+	}
+
+	// Create a VM config file manually
+	config := VMConfig{
+		Name:     "test-vm",
+		Type:     VMTypeLinux,
+		CPU:      2,
+		Memory:   2048,
+		DiskSize: 20,
+		Network:  "bridge",
+	}
+
+	vm, err := manager.CreateVM(context.Background(), config)
+	if err != nil {
+		// Skip if qemu-img is not available
+		t.Skipf("CreateVM failed (likely qemu-img not installed): %v", err)
+	}
+
+	// Verify VM was created
+	if vm.ID == "" {
+		t.Error("VM ID should be set")
+	}
+	if vm.Name != "test-vm" {
+		t.Error("VM name mismatch")
+	}
+
+	// Verify we can get the VM
+	loadedVM, err := manager.GetVM(vm.ID)
+	if err != nil {
+		t.Fatalf("GetVM failed: %v", err)
+	}
+	if loadedVM.Name != "test-vm" {
+		t.Error("Loaded VM name mismatch")
+	}
+}
+
+func TestManager_LoadVMConfig(t *testing.T) {
+	// Create a temp config file
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "test-vm.json")
+
+	// Write invalid JSON
+	os.WriteFile(configPath, []byte("invalid json"), 0644)
+
+	_, err := loadVMConfig(configPath)
+	if err == nil {
+		t.Error("loadVMConfig should fail for invalid JSON")
 	}
 }
