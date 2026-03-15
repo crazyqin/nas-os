@@ -4,6 +4,7 @@ package reports
 
 import (
 	"bytes"
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -54,7 +56,7 @@ func NewStorageCostCalculator(config StorageCostConfig) *StorageCostCalculator {
 	return &StorageCostCalculator{config: config}
 }
 
-// Calculate 计算存储成本
+// Calculate 计算存储成本（v2.86.0 增强：完整成本模型）
 func (c *StorageCostCalculator) Calculate(metrics StorageMetrics) CostCalculationResult {
 	totalGB := float64(metrics.TotalCapacityBytes) / (1024 * 1024 * 1024)
 	usedGB := float64(metrics.UsedCapacityBytes) / (1024 * 1024 * 1024)
@@ -64,14 +66,80 @@ func (c *StorageCostCalculator) Calculate(metrics StorageMetrics) CostCalculatio
 		usagePercent = (usedGB / totalGB) * 100
 	}
 
+	// 1. 容量成本：按实际使用量计费
 	capacityCostMonthly := usedGB * c.config.CostPerGBMonthly
+
+	// 2. IOPS 成本：按 IOPS 使用量计费
+	iopsCostMonthly := 0.0
+	if c.config.CostPerIOPSMonthly > 0 {
+		totalIOPS := metrics.IOPS
+		if totalIOPS == 0 {
+			totalIOPS = metrics.IOPSRead + metrics.IOPSWrite
+		}
+		// 每1000 IOPS 计费
+		iopsCostMonthly = float64(totalIOPS) / 1000.0 * c.config.CostPerIOPSMonthly
+	}
+
+	// 3. 带宽成本：按带宽使用量计费
+	bandwidthCostMonthly := 0.0
+	if c.config.CostPerBandwidthMonthly > 0 {
+		totalBandwidthBytes := metrics.ReadBandwidthBytes + metrics.WriteBandwidthBytes
+		if totalBandwidthBytes == 0 {
+			totalBandwidthBytes = metrics.ThroughputReadBytes + metrics.ThroughputWriteBytes
+		}
+		// 转换为 Mbps（字节/秒 -> Mbps）
+		bandwidthMbps := float64(totalBandwidthBytes) * 8.0 / (1024 * 1024)
+		bandwidthCostMonthly = bandwidthMbps * c.config.CostPerBandwidthMonthly
+	}
+
+	// 4. 电力成本：按设备功耗计算
+	electricityCostMonthly := 0.0
+	if c.config.ElectricityCostPerKWh > 0 && c.config.DevicePowerWatts > 0 {
+		// 每月电力成本 = 功率(kW) * 24小时 * 30天 * 电费单价
+		powerKW := c.config.DevicePowerWatts / 1000.0
+		electricityCostMonthly = powerKW * 24.0 * 30.0 * c.config.ElectricityCostPerKWh
+	}
+
+	// 5. 运维成本：分摊到每个卷
+	opsCostMonthly := c.config.OpsCostMonthly
+	if opsCostMonthly == 0 {
+		opsCostMonthly = 0 // 默认无运维成本
+	}
+
+	// 6. 折旧成本：按硬件成本和使用年限计算
+	depreciationCostMonthly := 0.0
+	if c.config.HardwareCost > 0 && c.config.DepreciationYears > 0 {
+		// 月折旧 = 总硬件成本 / 折旧年数 / 12个月
+		depreciationCostMonthly = c.config.HardwareCost / float64(c.config.DepreciationYears) / 12.0
+	}
+
+	// 总月成本
+	totalCostMonthly := capacityCostMonthly + iopsCostMonthly + bandwidthCostMonthly +
+		electricityCostMonthly + opsCostMonthly + depreciationCostMonthly
+
+	// 计算单位成本（按实际使用量）
+	costPerGBMonthly := 0.0
+	if usedGB > 0 {
+		costPerGBMonthly = totalCostMonthly / usedGB
+	}
+
+	// 计算潜在节省（低使用率场景）
+	potentialSavings := 0.0
+	if usagePercent < 50 && totalGB > 0 {
+		// 使用率低于50%，存在资源浪费
+		wastedGB := totalGB*0.5 - usedGB
+		if wastedGB > 0 {
+			potentialSavings = wastedGB * c.config.CostPerGBMonthly
+		}
+	}
 
 	return CostCalculationResult{
 		UsagePercent:        round(usagePercent, 2),
 		CapacityCostMonthly: round(capacityCostMonthly, 2),
-		TotalCostMonthly:    round(capacityCostMonthly, 2),
-		CostPerGBMonthly:    c.config.CostPerGBMonthly,
-		ProjectedAnnualCost: round(capacityCostMonthly*12, 2),
+		TotalCostMonthly:    round(totalCostMonthly, 2),
+		CostPerGBMonthly:    round(costPerGBMonthly, 4),
+		ProjectedAnnualCost: round(totalCostMonthly*12, 2),
+		PotentialSavings:    round(potentialSavings, 2),
 	}
 }
 
@@ -102,7 +170,7 @@ type CostTrendPoint struct {
 	Trend  string    `json:"trend"` // up, down, stable
 }
 
-// GenerateReport 生成成本报告
+// GenerateReport 生成成本报告（v2.86.0 增强：完整成本分析）
 func (c *StorageCostCalculator) GenerateReport(metrics []StorageMetrics, period ReportPeriod) *StorageCostReport {
 	now := time.Now()
 	report := &StorageCostReport{
@@ -113,23 +181,174 @@ func (c *StorageCostCalculator) GenerateReport(metrics []StorageMetrics, period 
 		VolumeCosts: make([]StorageCostResult, len(metrics)),
 	}
 
-	totalCost := 0.0
+	var totalCost, totalCapacity, totalUsed float64
+	var totalIOPSCost, totalBandwidthCost, totalElecCost, totalOpsCost, totalDeprecCost float64
+
 	for i, m := range metrics {
 		result := c.Calculate(m)
-		report.VolumeCosts[i] = StorageCostResult{
-			VolumeName:       m.VolumeName,
-			TotalGB:          float64(m.TotalCapacityBytes) / (1024 * 1024 * 1024),
-			UsedGB:           float64(m.UsedCapacityBytes) / (1024 * 1024 * 1024),
-			UsagePercent:     result.UsagePercent,
-			MonthlyCost:      result.TotalCostMonthly,
-			TotalCostMonthly: result.TotalCostMonthly,
-			CalculatedAt:     now,
+		totalGB := float64(m.TotalCapacityBytes) / (1024 * 1024 * 1024)
+		usedGB := float64(m.UsedCapacityBytes) / (1024 * 1024 * 1024)
+
+		// 计算各项成本细分
+		capacityCost := usedGB * c.config.CostPerGBMonthly
+
+		// IOPS 成本
+		iopsCost := 0.0
+		if c.config.CostPerIOPSMonthly > 0 {
+			totalIOPS := m.IOPS
+			if totalIOPS == 0 {
+				totalIOPS = m.IOPSRead + m.IOPSWrite
+			}
+			iopsCost = float64(totalIOPS) / 1000.0 * c.config.CostPerIOPSMonthly
 		}
+
+		// 带宽成本
+		bandwidthCost := 0.0
+		if c.config.CostPerBandwidthMonthly > 0 {
+			totalBandwidth := m.ReadBandwidthBytes + m.WriteBandwidthBytes
+			if totalBandwidth == 0 {
+				totalBandwidth = m.ThroughputReadBytes + m.ThroughputWriteBytes
+			}
+			bandwidthMbps := float64(totalBandwidth) * 8.0 / (1024 * 1024)
+			bandwidthCost = bandwidthMbps * c.config.CostPerBandwidthMonthly
+		}
+
+		// 电力成本（按卷容量比例分摊）
+		elecCost := 0.0
+		if c.config.ElectricityCostPerKWh > 0 && c.config.DevicePowerWatts > 0 {
+			powerKW := c.config.DevicePowerWatts / 1000.0
+			totalElec := powerKW * 24.0 * 30.0 * c.config.ElectricityCostPerKWh
+			// 按容量比例分摊
+			if totalCapacity > 0 {
+				elecCost = totalElec * (totalGB / totalCapacity)
+			} else {
+				elecCost = totalElec / float64(len(metrics))
+			}
+		}
+
+		// 运维成本（平均分摊）
+		opsCost := c.config.OpsCostMonthly / float64(len(metrics))
+
+		// 折旧成本（按容量比例分摊）
+		deprecCost := 0.0
+		if c.config.HardwareCost > 0 && c.config.DepreciationYears > 0 {
+			totalDeprec := c.config.HardwareCost / float64(c.config.DepreciationYears) / 12.0
+			if totalCapacity > 0 {
+				deprecCost = totalDeprec * (totalGB / totalCapacity)
+			} else {
+				deprecCost = totalDeprec / float64(len(metrics))
+			}
+		}
+
+		report.VolumeCosts[i] = StorageCostResult{
+			VolumeName:              m.VolumeName,
+			TotalGB:                 round(totalGB, 2),
+			UsedGB:                  round(usedGB, 2),
+			UsagePercent:            result.UsagePercent,
+			CostPerGB:               round(c.config.CostPerGBMonthly, 4),
+			CostPerGBMonthly:        result.CostPerGBMonthly,
+			MonthlyCost:             result.TotalCostMonthly,
+			TotalCostMonthly:        result.TotalCostMonthly,
+			CapacityCostMonthly:     round(capacityCost, 2),
+			IOPSCostMonthly:         round(iopsCost, 2),
+			BandwidthCostMonthly:    round(bandwidthCost, 2),
+			ElectricityCostMonthly:  round(elecCost, 2),
+			OpsCostMonthly:          round(opsCost, 2),
+			DepreciationCostMonthly: round(deprecCost, 2),
+			AnnualCost:              round(result.TotalCostMonthly*12, 2),
+			CalculatedAt:            now,
+		}
+
 		totalCost += result.TotalCostMonthly
+		totalCapacity += totalGB
+		totalUsed += usedGB
+		totalIOPSCost += iopsCost
+		totalBandwidthCost += bandwidthCost
+		totalElecCost += elecCost
+		totalOpsCost += opsCost
+		totalDeprecCost += deprecCost
 	}
-	report.TotalCost = totalCost
+	report.TotalCost = round(totalCost, 2)
+
+	// 计算汇总
+	report.Summary = CostReportSummary{
+		TotalCostMonthly: round(totalCost, 2),
+		TotalCapacityGB:  round(totalCapacity, 2),
+		TotalUsedGB:      round(totalUsed, 2),
+		AvgUsagePercent:  0,
+		PotentialSavings: 0,
+		HealthScore:      0,
+		VolumeCount:      len(metrics),
+	}
+
+	if totalCapacity > 0 {
+		report.Summary.AvgUsagePercent = round(totalUsed/totalCapacity*100, 2)
+	}
+
+	// 计算健康评分
+	report.Summary.HealthScore = c.calculateHealthScore(report)
+
+	// 计算潜在节省
+	report.Summary.PotentialSavings = round(totalCost*0.15, 2) // 估计15%的优化空间
+
+	// 生成建议
+	report.Recommendations = c.generateRecommendations(report)
 
 	return report
+}
+
+// calculateHealthScore 计算健康评分
+func (c *StorageCostCalculator) calculateHealthScore(report *StorageCostReport) int {
+	score := 100.0
+
+	// 使用率评分
+	avgUsage := report.Summary.AvgUsagePercent
+	if avgUsage < 30 {
+		score -= (30 - avgUsage) // 低利用率扣分
+	} else if avgUsage > 85 {
+		score -= (avgUsage - 85) // 高利用率扣分
+	}
+
+	// 成本效率评分（每GB成本）
+	if report.Summary.TotalUsedGB > 0 {
+		avgCostPerGB := report.TotalCost / report.Summary.TotalUsedGB
+		if avgCostPerGB > c.config.CostPerGBMonthly*1.5 {
+			score -= 10 // 成本过高扣分
+		}
+	}
+
+	if score < 0 {
+		score = 0
+	}
+	if score > 100 {
+		score = 100
+	}
+
+	return int(score)
+}
+
+// generateRecommendations 生成建议
+func (c *StorageCostCalculator) generateRecommendations(report *StorageCostReport) []string {
+	recs := make([]string, 0)
+
+	// 基于使用率
+	if report.Summary.AvgUsagePercent > 80 {
+		recs = append(recs, "存储使用率较高，建议规划扩容或数据清理")
+	} else if report.Summary.AvgUsagePercent < 30 {
+		recs = append(recs, "存储使用率较低，存在资源浪费，建议收缩容量或重新分配")
+	}
+
+	// 基于健康评分
+	if report.Summary.HealthScore < 60 {
+		recs = append(recs, "存储健康状态不佳，建议进行全面检查")
+	}
+
+	// 基于潜在节省
+	if report.Summary.PotentialSavings > 0 {
+		recs = append(recs, fmt.Sprintf("存在 %.2f 元/月的潜在节省空间", report.Summary.PotentialSavings))
+	}
+
+	return recs
 }
 
 // AnalyzeTrend 分析成本趋势
@@ -1941,4 +2160,371 @@ func (g *StorageCostReportGenerator) ExportToJSON(report *ComprehensiveStorageRe
 // ExportToCSV 导出为CSV
 func (g *StorageCostReportGenerator) ExportToCSV(report *ComprehensiveStorageReport) (string, error) {
 	return g.ExportComprehensiveReport(report, "csv")
+}
+
+// ========== v2.86.0 增强功能：并发报告生成与缓存 ==========
+
+// CachedReport 缓存的报告
+type CachedReport struct {
+	Report     interface{}
+	GeneratedAt time.Time
+	ExpiresAt   time.Time
+}
+
+// ReportCache 报告缓存
+type ReportCache struct {
+	mu        sync.RWMutex
+	reports   map[string]*CachedReport
+	ttl       time.Duration
+	maxSize   int
+}
+
+// NewReportCache 创建报告缓存
+func NewReportCache(ttl time.Duration, maxSize int) *ReportCache {
+	cache := &ReportCache{
+		reports: make(map[string]*CachedReport),
+		ttl:     ttl,
+		maxSize: maxSize,
+	}
+
+	// 启动清理协程
+	go cache.cleanupExpired()
+
+	return cache
+}
+
+// Get 获取缓存的报告
+func (c *ReportCache) Get(key string) (interface{}, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	cached, ok := c.reports[key]
+	if !ok {
+		return nil, false
+	}
+
+	if time.Now().After(cached.ExpiresAt) {
+		return nil, false
+	}
+
+	return cached.Report, true
+}
+
+// Set 设置缓存的报告
+func (c *ReportCache) Set(key string, report interface{}) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	// 检查容量，必要时清理
+	if len(c.reports) >= c.maxSize {
+		c.evictOldest()
+	}
+
+	now := time.Now()
+	c.reports[key] = &CachedReport{
+		Report:     report,
+		GeneratedAt: now,
+		ExpiresAt:   now.Add(c.ttl),
+	}
+}
+
+// Delete 删除缓存的报告
+func (c *ReportCache) Delete(key string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.reports, key)
+}
+
+// Clear 清空缓存
+func (c *ReportCache) Clear() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.reports = make(map[string]*CachedReport)
+}
+
+// evictOldest 清理最旧的缓存
+func (c *ReportCache) evictOldest() {
+	var oldestKey string
+	var oldestTime time.Time
+
+	for k, v := range c.reports {
+		if oldestKey == "" || v.GeneratedAt.Before(oldestTime) {
+			oldestKey = k
+			oldestTime = v.GeneratedAt
+		}
+	}
+
+	if oldestKey != "" {
+		delete(c.reports, oldestKey)
+	}
+}
+
+// cleanupExpired 定期清理过期缓存
+func (c *ReportCache) cleanupExpired() {
+	ticker := time.NewTicker(time.Minute * 5)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		c.mu.Lock()
+		now := time.Now()
+		for k, v := range c.reports {
+			if now.After(v.ExpiresAt) {
+				delete(c.reports, k)
+			}
+		}
+		c.mu.Unlock()
+	}
+}
+
+// ConcurrentReportGenerator 并发报告生成器
+type ConcurrentReportGenerator struct {
+	costCalculator      *StorageCostCalculator
+	utilizationAnalyzer *StorageUtilizationAnalyzer
+	redundantScanner    *RedundantDataScanner
+	savingsGenerator    *CostSavingsGenerator
+	exporter            *StorageCostReportExporter
+	cache               *ReportCache
+	workerCount         int
+}
+
+// NewConcurrentReportGenerator 创建并发报告生成器
+func NewConcurrentReportGenerator(config StorageCostConfig, outputDir string, workerCount int) *ConcurrentReportGenerator {
+	if workerCount <= 0 {
+		workerCount = 4
+	}
+
+	return &ConcurrentReportGenerator{
+		costCalculator:      NewStorageCostCalculator(config),
+		utilizationAnalyzer: NewStorageUtilizationAnalyzer(config),
+		redundantScanner:    NewRedundantDataScanner(config),
+		savingsGenerator:    NewCostSavingsGenerator(config),
+		exporter:            NewStorageCostReportExporter(outputDir),
+		cache:               NewReportCache(time.Minute*30, 100),
+		workerCount:         workerCount,
+	}
+}
+
+// GenerateReportConcurrent 并发生成报告
+func (g *ConcurrentReportGenerator) GenerateReportConcurrent(
+	ctx context.Context,
+	metrics []StorageMetrics,
+	duplicates []DuplicateFileInfo,
+	orphanFiles []OrphanFileInfo,
+	tempFiles []TempFileInfo,
+	expiredFiles []ExpiredFileInfo,
+	oldVersions []OldVersionFileInfo,
+	period ReportPeriod,
+) *ComprehensiveStorageReport {
+	now := time.Now()
+
+	// 检查缓存
+	cacheKey := fmt.Sprintf("comprehensive_%s_%d", period.StartTime.Format("20060102"), len(metrics))
+	if cached, ok := g.cache.Get(cacheKey); ok {
+		if report, ok := cached.(*ComprehensiveStorageReport); ok {
+			return report
+		}
+	}
+
+	report := &ComprehensiveStorageReport{
+		ID:          "comprehensive_" + now.Format("20060102150405"),
+		Name:        "存储成本优化综合报告",
+		GeneratedAt: now,
+		Period:      period,
+	}
+
+	// 使用 WaitGroup 并发生成各部分报告
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	// 并发生成成本报告
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		costReport := g.costCalculator.GenerateReport(metrics, period)
+		mu.Lock()
+		report.CostReport = costReport
+		mu.Unlock()
+	}()
+
+	// 并发生成利用率分析
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		utilAnalysis := g.utilizationAnalyzer.AnalyzeUtilization(metrics, period)
+		mu.Lock()
+		report.UtilizationAnalysis = utilAnalysis
+		mu.Unlock()
+	}()
+
+	// 并发生成冗余数据扫描
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		// 计算总扫描字节数
+		var totalScannedBytes uint64
+		for _, m := range metrics {
+			totalScannedBytes += m.UsedCapacityBytes
+		}
+
+		redundantScan := g.redundantScanner.ScanRedundantData(
+			duplicates, orphanFiles, tempFiles, expiredFiles, oldVersions, totalScannedBytes,
+		)
+		mu.Lock()
+		report.RedundantDataScan = redundantScan
+		mu.Unlock()
+	}()
+
+	// 等待基础报告生成完成
+	wg.Wait()
+
+	// 生成成本节省建议（依赖前面的结果）
+	if report.UtilizationAnalysis != nil && report.CostReport != nil {
+		report.SavingsReport = g.savingsGenerator.GenerateCostSavingsReport(
+			report.UtilizationAnalysis,
+			report.RedundantDataScan,
+			report.CostReport.VolumeCosts,
+			period,
+		)
+	}
+
+	// 生成执行摘要
+	report.ExecutiveSummary = g.generateExecutiveSummary(report)
+
+	// 缓存结果
+	g.cache.Set(cacheKey, report)
+
+	return report
+}
+
+// GenerateReportsBatch 批量并发生成报告
+func (g *ConcurrentReportGenerator) GenerateReportsBatch(
+	ctx context.Context,
+	requests []ReportRequest,
+) []*ComprehensiveStorageReport {
+	results := make([]*ComprehensiveStorageReport, len(requests))
+
+	// 使用信号量控制并发数
+	sem := make(chan struct{}, g.workerCount)
+	var wg sync.WaitGroup
+
+	for i, req := range requests {
+		wg.Add(1)
+		go func(idx int, request ReportRequest) {
+			defer wg.Done()
+
+			// 获取信号量
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			// 检查上下文是否已取消
+			select {
+			case <-ctx.Done():
+				return
+			default:
+			}
+
+			// 生成报告
+			report := g.GenerateReportConcurrent(
+				ctx,
+				request.Metrics,
+				request.Duplicates,
+				request.OrphanFiles,
+				request.TempFiles,
+				request.ExpiredFiles,
+				request.OldVersions,
+				request.Period,
+			)
+			results[idx] = report
+		}(i, req)
+	}
+
+	wg.Wait()
+	return results
+}
+
+// ReportRequest 报告请求
+type ReportRequest struct {
+	Metrics      []StorageMetrics
+	Duplicates   []DuplicateFileInfo
+	OrphanFiles  []OrphanFileInfo
+	TempFiles    []TempFileInfo
+	ExpiredFiles []ExpiredFileInfo
+	OldVersions  []OldVersionFileInfo
+	Period       ReportPeriod
+}
+
+// GetCacheStats 获取缓存统计
+func (g *ConcurrentReportGenerator) GetCacheStats() map[string]interface{} {
+	g.cache.mu.RLock()
+	defer g.cache.mu.RUnlock()
+
+	return map[string]interface{}{
+		"cache_size":    len(g.cache.reports),
+		"max_size":      g.cache.maxSize,
+		"ttl_minutes":   g.cache.ttl.Minutes(),
+		"worker_count":  g.workerCount,
+	}
+}
+
+// ClearCache 清空缓存
+func (g *ConcurrentReportGenerator) ClearCache() {
+	g.cache.Clear()
+}
+
+// generateExecutiveSummary 生成执行摘要
+func (g *ConcurrentReportGenerator) generateExecutiveSummary(report *ComprehensiveStorageReport) ExecutiveSummary {
+	summary := ExecutiveSummary{
+		KeyFindings:        make([]string, 0),
+		TopRecommendations: make([]string, 0),
+	}
+
+	// 汇总数据
+	if report.CostReport != nil {
+		summary.TotalCapacityGB = report.CostReport.Summary.TotalCapacityGB
+		summary.TotalUsedGB = report.CostReport.Summary.TotalUsedGB
+		summary.AvgUsagePercent = report.CostReport.Summary.AvgUsagePercent
+		summary.TotalCostMonthly = report.CostReport.Summary.TotalCostMonthly
+		summary.VolumeCount = report.CostReport.Summary.VolumeCount
+	}
+
+	if report.UtilizationAnalysis != nil {
+		summary.HealthScore = report.UtilizationAnalysis.Summary.HealthScore
+		summary.AlertCount = len(report.UtilizationAnalysis.Alerts)
+	}
+
+	if report.SavingsReport != nil {
+		summary.PotentialSavingsMonthly = report.SavingsReport.Summary.TotalSavingsMonthly
+	}
+
+	// 关键发现
+	if report.UtilizationAnalysis != nil {
+		if report.UtilizationAnalysis.Summary.HighUtilizationCount > 0 {
+			summary.KeyFindings = append(summary.KeyFindings,
+				fmt.Sprintf("发现 %d 个高使用率卷（>80%%）", report.UtilizationAnalysis.Summary.HighUtilizationCount))
+		}
+		if report.UtilizationAnalysis.Summary.LowUtilizationCount > 0 {
+			summary.KeyFindings = append(summary.KeyFindings,
+				fmt.Sprintf("发现 %d 个低使用率卷（<30%%），存在资源浪费", report.UtilizationAnalysis.Summary.LowUtilizationCount))
+		}
+	}
+
+	if report.RedundantDataScan != nil && report.RedundantDataScan.Summary.TotalRedundantGB > 0 {
+		summary.KeyFindings = append(summary.KeyFindings,
+			fmt.Sprintf("发现 %.2f GB 冗余数据，可节省 %.2f 元/月",
+				report.RedundantDataScan.Summary.TotalRedundantGB,
+				report.RedundantDataScan.Summary.PotentialSavingsMonthly))
+	}
+
+	// 优先建议
+	if report.SavingsReport != nil && len(report.SavingsReport.SavingsOpportunities) > 0 {
+		for i, opp := range report.SavingsReport.SavingsOpportunities {
+			if i >= 3 {
+				break
+			}
+			summary.TopRecommendations = append(summary.TopRecommendations, opp.Title)
+		}
+	}
+
+	return summary
 }

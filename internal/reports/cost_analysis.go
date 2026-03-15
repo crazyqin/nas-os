@@ -2110,3 +2110,509 @@ func getPriority(threshold float64) string {
 	}
 	return "medium"
 }
+
+// ========== v2.86.0 增强功能：多模型资源预测 ==========
+
+// PredictionModelType 预测模型类型
+type PredictionModelType string
+
+const (
+	PredictionModelLinear      PredictionModelType = "linear"
+	PredictionModelExponential PredictionModelType = "exponential"
+	PredictionModelPolynomial  PredictionModelType = "polynomial"
+	PredictionModelARIMA       PredictionModelType = "arima"
+)
+
+// PredictionResult 预测结果
+type PredictionResult struct {
+	// 预测模型
+	Model PredictionModelType `json:"model"`
+
+	// 预测值
+	PredictedValue float64 `json:"predicted_value"`
+
+	// 置信下限
+	LowerBound float64 `json:"lower_bound"`
+
+	// 置信上限
+	UpperBound float64 `json:"upper_bound"`
+
+	// 置信度
+	Confidence float64 `json:"confidence"`
+
+	// 预测误差（MAPE）
+	ErrorRate float64 `json:"error_rate"`
+
+	// 预测日期
+	PredictedDate time.Time `json:"predicted_date"`
+}
+
+// MultiModelPrediction 多模型预测结果
+type MultiModelPrediction struct {
+	// 预测ID
+	ID string `json:"id"`
+
+	// 预测时间
+	PredictedAt time.Time `json:"predicted_at"`
+
+	// 预测天数
+	ForecastDays int `json:"forecast_days"`
+
+	// 各模型预测结果
+	ModelResults map[PredictionModelType][]PredictionResult `json:"model_results"`
+
+	// 最佳模型
+	BestModel PredictionModelType `json:"best_model"`
+
+	// 综合预测（加权平均）
+	EnsemblePredictions []PredictionResult `json:"ensemble_predictions"`
+
+	// 预测准确性指标
+	AccuracyMetrics PredictionAccuracyMetrics `json:"accuracy_metrics"`
+}
+
+// PredictionAccuracyMetrics 预测准确性指标
+type PredictionAccuracyMetrics struct {
+	// 平均绝对误差
+	MAE float64 `json:"mae"`
+
+	// 平均绝对百分比误差
+	MAPE float64 `json:"mape"`
+
+	// 均方根误差
+	RMSE float64 `json:"rmse"`
+
+	// R平方
+	R2 float64 `json:"r2"`
+
+	// 预测置信度
+	Confidence float64 `json:"confidence"`
+}
+
+// ResourcePredictor 资源预测器
+type ResourcePredictor struct {
+	config PredictionConfig
+}
+
+// PredictionConfig 预测配置
+type PredictionConfig struct {
+	// 默认预测天数
+	DefaultForecastDays int `json:"default_forecast_days"`
+
+	// 置信水平（0.95 表示95%置信区间）
+	ConfidenceLevel float64 `json:"confidence_level"`
+
+	// 最小历史数据点数
+	MinHistoryPoints int `json:"min_history_points"`
+
+	// 是否启用集成学习
+	EnableEnsemble bool `json:"enable_ensemble"`
+
+	// 是否启用异常检测
+	EnableAnomalyDetection bool `json:"enable_anomaly_detection"`
+}
+
+// DefaultPredictionConfig 默认预测配置
+func DefaultPredictionConfig() PredictionConfig {
+	return PredictionConfig{
+		DefaultForecastDays:    30,
+		ConfidenceLevel:        0.95,
+		MinHistoryPoints:       7,
+		EnableEnsemble:         true,
+		EnableAnomalyDetection: true,
+	}
+}
+
+// NewResourcePredictor 创建资源预测器
+func NewResourcePredictor(config PredictionConfig) *ResourcePredictor {
+	return &ResourcePredictor{config: config}
+}
+
+// PredictStorage 预测存储使用量
+func (p *ResourcePredictor) PredictStorage(history []CapacityHistory, forecastDays int) *MultiModelPrediction {
+	if len(history) < p.config.MinHistoryPoints {
+		return nil
+	}
+
+	if forecastDays <= 0 {
+		forecastDays = p.config.DefaultForecastDays
+	}
+
+	now := time.Now()
+	prediction := &MultiModelPrediction{
+		ID:            "pred_" + now.Format("20060102150405"),
+		PredictedAt:   now,
+		ForecastDays:  forecastDays,
+		ModelResults:  make(map[PredictionModelType][]PredictionResult),
+		BestModel:     PredictionModelLinear,
+	}
+
+	// 提取历史数据
+	values := make([]float64, len(history))
+	timestamps := make([]time.Time, len(history))
+	for i, h := range history {
+		values[i] = float64(h.UsedBytes)
+		timestamps[i] = h.Timestamp
+	}
+
+	// 1. 线性预测
+	linearResults := p.linearPredict(values, timestamps, forecastDays)
+	prediction.ModelResults[PredictionModelLinear] = linearResults
+
+	// 2. 指数预测
+	expResults := p.exponentialPredict(values, timestamps, forecastDays)
+	prediction.ModelResults[PredictionModelExponential] = expResults
+
+	// 3. 多项式预测（二次）
+	polyResults := p.polynomialPredict(values, timestamps, forecastDays, 2)
+	prediction.ModelResults[PredictionModelPolynomial] = polyResults
+
+	// 计算各模型准确性并选择最佳
+	bestMAPE := math.MaxFloat64
+	for model, results := range prediction.ModelResults {
+		mape := p.calculateModelMAPE(values, results)
+		if mape < bestMAPE && mape > 0 {
+			bestMAPE = mape
+			prediction.BestModel = model
+		}
+	}
+
+	// 生成集成预测
+	if p.config.EnableEnsemble {
+		prediction.EnsemblePredictions = p.generateEnsemblePredictions(prediction.ModelResults, forecastDays)
+	}
+
+	// 计算准确性指标
+	prediction.AccuracyMetrics = p.calculateAccuracyMetrics(values, prediction)
+
+	return prediction
+}
+
+// linearPredict 线性预测
+func (p *ResourcePredictor) linearPredict(values []float64, timestamps []time.Time, days int) []PredictionResult {
+	n := len(values)
+	if n < 2 {
+		return nil
+	}
+
+	results := make([]PredictionResult, days)
+
+	// 线性回归
+	var sumX, sumY, sumXY, sumX2 float64
+	for i, y := range values {
+		x := float64(i)
+		sumX += x
+		sumY += y
+		sumXY += x * y
+		sumX2 += x * x
+	}
+
+	nFloat := float64(n)
+	denominator := nFloat*sumX2 - sumX*sumX
+	if denominator == 0 {
+		return nil
+	}
+
+	slope := (nFloat*sumXY - sumX*sumY) / denominator
+	intercept := (sumY - slope*sumX) / nFloat
+
+	// 计算标准误差
+	var se float64
+	for i, y := range values {
+		predicted := intercept + slope*float64(i)
+		se += math.Pow(y-predicted, 2)
+	}
+	se = math.Sqrt(se / float64(n-2))
+
+	// 生成预测
+	lastTime := timestamps[n-1]
+	for i := 0; i < days; i++ {
+		predictedValue := intercept + slope*float64(n+i)
+		margin := se * 1.96 // 95% 置信区间
+
+		results[i] = PredictionResult{
+			Model:          PredictionModelLinear,
+			PredictedValue: round(predictedValue, 2),
+			LowerBound:     round(predictedValue-margin, 2),
+			UpperBound:     round(predictedValue+margin, 2),
+			Confidence:     0.95,
+			PredictedDate:  lastTime.AddDate(0, 0, i+1),
+		}
+	}
+
+	return results
+}
+
+// exponentialPredict 指数预测
+func (p *ResourcePredictor) exponentialPredict(values []float64, timestamps []time.Time, days int) []PredictionResult {
+	n := len(values)
+	if n < 2 {
+		return nil
+	}
+
+	results := make([]PredictionResult, days)
+
+	// 计算指数增长率
+	first := values[0]
+	last := values[n-1]
+
+	if first <= 0 {
+		return nil
+	}
+
+	// 指数增长率 r = ln(end/start) / n
+	growthRate := math.Log(last/first) / float64(n)
+
+	// 生成预测
+	lastTime := timestamps[n-1]
+	baseValue := last
+	for i := 0; i < days; i++ {
+		predictedValue := baseValue * math.Exp(growthRate*float64(i+1))
+
+		// 指数模型的置信区间更宽
+		margin := predictedValue * 0.15
+
+		results[i] = PredictionResult{
+			Model:          PredictionModelExponential,
+			PredictedValue: round(predictedValue, 2),
+			LowerBound:     round(predictedValue-margin, 2),
+			UpperBound:     round(predictedValue+margin, 2),
+			Confidence:     0.90,
+			PredictedDate:  lastTime.AddDate(0, 0, i+1),
+		}
+	}
+
+	return results
+}
+
+// polynomialPredict 多项式预测
+func (p *ResourcePredictor) polynomialPredict(values []float64, timestamps []time.Time, days int, degree int) []PredictionResult {
+	n := len(values)
+	if n < degree+1 {
+		return nil
+	}
+
+	results := make([]PredictionResult, days)
+
+	// 简化的二次多项式拟合
+	// y = a*x^2 + b*x + c
+	// 使用最小二乘法
+
+	// 构建矩阵方程 AX = B
+	// 对于二次多项式，需要计算 sum(x^4), sum(x^3), sum(x^2), sum(x), sum(y), sum(x*y), sum(x^2*y)
+	var sumX4, sumX3, sumX2, sumX, sumY, sumXY, sumX2Y float64
+
+	for i, y := range values {
+		x := float64(i)
+		x2 := x * x
+		x3 := x2 * x
+		x4 := x3 * x
+		sumX4 += x4
+		sumX3 += x3
+		sumX2 += x2
+		sumX += x
+		sumY += y
+		sumXY += x * y
+		sumX2Y += x2 * y
+	}
+
+	// 解线性方程组（简化：使用数值解）
+	// 这里使用简化的公式
+	N := float64(n)
+
+	// 计算系数（简化公式）
+	det := N*sumX2*sumX4 + 2*sumX*sumX2*sumX3 - sumX2*sumX2*sumX2 - N*sumX3*sumX3 - sumX*sumX*sumX4
+	if math.Abs(det) < 1e-10 {
+		// 矩阵奇异，退化为线性
+		return p.linearPredict(values, timestamps, days)
+	}
+
+	// 计算多项式系数
+	a := (N*sumX2*sumX2Y + sumX*sumX3*sumY + sumX2*sumX*sumXY - sumX2*sumX2*sumY - N*sumX3*sumXY - sumX*sumX*sumX2Y) / det
+	b := (N*sumX4*sumXY + sumX2*sumX2*sumY + sumX*sumX3*sumX2Y - sumX2*sumX3*sumY - N*sumX2*sumX2Y - sumX*sumX4*sumXY) / det
+	c := (sumX4*sumX2*sumY + sumX3*sumX*sumXY + sumX2*sumX3*sumX2Y - sumX2*sumX2*sumX2Y - sumX3*sumX3*sumY - sumX4*sumX*sumXY) / det
+
+	// 计算残差标准差
+	var se float64
+	for i, y := range values {
+		x := float64(i)
+		predicted := a*x*x + b*x + c
+		se += math.Pow(y-predicted, 2)
+	}
+	se = math.Sqrt(se / float64(n-degree-1))
+
+	// 生成预测
+	lastTime := timestamps[n-1]
+	for i := 0; i < days; i++ {
+		x := float64(n + i)
+		predictedValue := a*x*x + b*x + c
+		margin := se * 2.0 // 更宽的置信区间
+
+		results[i] = PredictionResult{
+			Model:          PredictionModelPolynomial,
+			PredictedValue: round(predictedValue, 2),
+			LowerBound:     round(predictedValue-margin, 2),
+			UpperBound:     round(predictedValue+margin, 2),
+			Confidence:     0.85,
+			PredictedDate:  lastTime.AddDate(0, 0, i+1),
+		}
+	}
+
+	return results
+}
+
+// generateEnsemblePredictions 生成集成预测
+func (p *ResourcePredictor) generateEnsemblePredictions(modelResults map[PredictionModelType][]PredictionResult, days int) []PredictionResult {
+	ensemble := make([]PredictionResult, days)
+
+	for i := 0; i < days; i++ {
+		var sumPredicted, sumLower, sumUpper float64
+		var count int
+		var maxConfidence float64
+
+		for _, results := range modelResults {
+			if i < len(results) {
+				sumPredicted += results[i].PredictedValue
+				sumLower += results[i].LowerBound
+				sumUpper += results[i].UpperBound
+				count++
+				if results[i].Confidence > maxConfidence {
+					maxConfidence = results[i].Confidence
+				}
+			}
+		}
+
+		if count > 0 {
+			ensemble[i] = PredictionResult{
+				Model:          "ensemble",
+				PredictedValue: round(sumPredicted/float64(count), 2),
+				LowerBound:     round(sumLower/float64(count), 2),
+				UpperBound:     round(sumUpper/float64(count), 2),
+				Confidence:     maxConfidence,
+				PredictedDate:  modelResults[PredictionModelLinear][i].PredictedDate,
+			}
+		}
+	}
+
+	return ensemble
+}
+
+// calculateModelMAPE 计算模型MAPE
+func (p *ResourcePredictor) calculateModelMAPE(actual []float64, predictions []PredictionResult) float64 {
+	if len(predictions) == 0 || len(actual) < 2 {
+		return math.MaxFloat64
+	}
+
+	// 使用最后几个数据点进行回测
+	testSize := min(len(predictions), len(actual)/4)
+	if testSize < 2 {
+		testSize = 2
+	}
+
+	var sumAPE float64
+	for i := 0; i < testSize && i < len(actual)-testSize; i++ {
+		predicted := predictions[i].PredictedValue
+		actualValue := actual[len(actual)-testSize+i]
+		if actualValue > 0 {
+			sumAPE += math.Abs(actualValue-predicted) / actualValue
+		}
+	}
+
+	return round(sumAPE/float64(testSize)*100, 2)
+}
+
+// calculateAccuracyMetrics 计算准确性指标
+func (p *ResourcePredictor) calculateAccuracyMetrics(actual []float64, prediction *MultiModelPrediction) PredictionAccuracyMetrics {
+	metrics := PredictionAccuracyMetrics{}
+
+	if len(actual) < 3 || len(prediction.ModelResults) == 0 {
+		return metrics
+	}
+
+	// 使用最佳模型的预测结果
+	bestResults := prediction.ModelResults[prediction.BestModel]
+	if len(bestResults) == 0 {
+		return metrics
+	}
+
+	// 计算各种误差指标
+	var sumAE, sumAPE, sumSE, sumSS, mean float64
+	n := len(actual)
+
+	// 计算均值
+	for _, v := range actual {
+		mean += v
+	}
+	mean /= float64(n)
+
+	// 使用回测计算误差
+	testLimit := min(7, min(len(bestResults), n))
+	for i := 0; i < testLimit; i++ {
+		actualVal := actual[n-1-i]
+		predictedVal := bestResults[i].PredictedValue
+
+		ae := math.Abs(actualVal - predictedVal)
+		sumAE += ae
+		if actualVal > 0 {
+			sumAPE += ae / actualVal
+		}
+		sumSE += ae * ae
+		sumSS += math.Pow(actualVal-mean, 2)
+	}
+
+	count := float64(testLimit)
+	if count > 0 {
+		metrics.MAE = round(sumAE/count, 2)
+		metrics.MAPE = round(sumAPE/count*100, 2)
+		metrics.RMSE = round(math.Sqrt(sumSE/count), 2)
+		if sumSS > 0 {
+			metrics.R2 = round(1-sumSE/sumSS, 4)
+		}
+	}
+
+	// 置信度基于数据量和一致性
+	metrics.Confidence = 0.7
+	if n >= 30 {
+		metrics.Confidence += 0.15
+	} else if n >= 14 {
+		metrics.Confidence += 0.1
+	}
+	if metrics.MAPE < 10 {
+		metrics.Confidence += 0.1
+	}
+
+	metrics.Confidence = round(metrics.Confidence, 2)
+
+	return metrics
+}
+
+// PredictCapacityFullDate 预测容量满载日期
+func (p *ResourcePredictor) PredictCapacityFullDate(history []CapacityHistory, totalCapacity uint64) (*time.Time, int) {
+	if len(history) < p.config.MinHistoryPoints || totalCapacity == 0 {
+		return nil, 0
+	}
+
+	// 使用线性预测估算满载日期
+	prediction := p.PredictStorage(history, 365)
+	if prediction == nil {
+		return nil, 0
+	}
+
+	// 查找首次超过容量的日期
+	for _, result := range prediction.EnsemblePredictions {
+		if uint64(result.PredictedValue) >= totalCapacity {
+			daysRemaining := int(result.PredictedDate.Sub(time.Now()).Hours() / 24)
+			return &result.PredictedDate, daysRemaining
+		}
+	}
+
+	// 检查最佳模型结果
+	for _, result := range prediction.ModelResults[prediction.BestModel] {
+		if uint64(result.PredictedValue) >= totalCapacity {
+			daysRemaining := int(result.PredictedDate.Sub(time.Now()).Hours() / 24)
+			return &result.PredictedDate, daysRemaining
+		}
+	}
+
+	return nil, 0
+}
