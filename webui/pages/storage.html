@@ -7,65 +7,251 @@
     <link rel="icon" type="image/png" sizes="32x32" href="../brand/logo/logo-32.png">
     <link rel="stylesheet" href="../css/design-system.css">
     <style>
-        .storage-container { max-width: 1200px; margin: 0 auto; }
+        .storage-container { max-width: 1400px; margin: 0 auto; }
+        
+        /* Tab 切换 */
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--surface-border);
+            margin-bottom: 1.5rem;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 磁盘卡片 */
         .disk-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
         .disk-card {
-            background: white;
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+            border-left: 4px solid var(--color-success);
+            transition: box-shadow 0.2s;
+        }
+        .disk-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        .disk-card.warning { border-left-color: var(--color-warning); }
+        .disk-card.error { border-left-color: var(--color-error); }
+        .disk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .disk-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+        .disk-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .disk-stat {
+            background: var(--bg-tertiary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+        }
+        .disk-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 0.125rem;
+        }
+        .disk-stat-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* 卷卡片 */
+        .volume-card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--surface-border);
+            margin-bottom: 1rem;
+        }
+        .volume-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .volume-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .volume-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .volume-usage {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .volume-usage-bar {
+            width: 200px;
+        }
+        .volume-usage-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 60px;
+            text-align: right;
+        }
+        .volume-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* 快照时间线 */
+        .timeline-bar {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 36px;
+            margin: 1rem 0;
+        }
+        .timeline-block {
+            flex: 1;
+            height: 100%;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            transition: background 0.2s;
+        }
+        .timeline-block.has-snapshot {
+            background: var(--color-primary);
+        }
+        .timeline-block:hover {
+            opacity: 0.8;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--surface-color);
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border-left: 4px solid #10B981;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
         }
-        .disk-card.warning { border-left-color: #F59E0B; }
-        .disk-card.error { border-left-color: #EF4444; }
-        .disk-header {
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
-        .disk-name {
+        .modal-title {
+            font-size: 18px;
             font-weight: 600;
-            font-size: 16px;
-            color: #1F2937;
         }
-        .disk-status {
-            font-size: 12px;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
         }
-        .disk-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .empty-state-icon {
+            font-size: 48px;
             margin-bottom: 1rem;
+            opacity: 0.5;
         }
-        .disk-stat {
-            background: #F9FAFB;
-            padding: 0.75rem;
-            border-radius: 8px;
+
+        /* 加载状态 */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--surface-border);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
-        .disk-stat-label {
-            font-size: 12px;
-            color: #6B7280;
-            margin-bottom: 0.25rem;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-        .disk-stat-value {
-            font-size: 14px;
-            font-weight: 600;
-            color: #374151;
-        }
-        .volume-section {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .disk-grid {
+                grid-template-columns: 1fr;
+            }
+            .volume-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .volume-usage-bar {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -82,658 +268,475 @@
                 <a href="#" class="active">存储管理</a>
                 <a href="settings.html">设置</a>
             </nav>
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle" title="切换主题"></button>
+            </div>
         </div>
     </header>
 
     <!-- Main -->
     <main class="main">
         <div class="container storage-container">
-            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <!-- 页面标题 -->
+            <div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h1>💾 存储管理</h1>
-                    <p class="text-muted">管理物理磁盘和存储卷</p>
+                    <h1 style="margin-bottom: 0.25rem;">💾 存储管理</h1>
+                    <p class="text-muted" style="margin: 0;">管理存储卷、子卷和快照</p>
                 </div>
-                <button class="btn btn-primary" onclick="showCreateVolume()">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    创建卷
-                </button>
-            </div>
-
-            <!-- 物理磁盘 -->
-            <h2 style="margin-bottom: 1rem; font-size: 18px;">物理磁盘</h2>
-            <div class="disk-grid">
-                <div class="disk-card">
-                    <div class="disk-header">
-                        <span class="disk-name">/dev/sda</span>
-                        <span class="disk-status" style="background: #D1FAE5; color: #065F46;">健康</span>
-                    </div>
-                    <div class="disk-info">
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">容量</div>
-                            <div class="disk-stat-value">500 GB</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">类型</div>
-                            <div class="disk-stat-value">SSD</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">温度</div>
-                            <div class="disk-stat-value">35°C</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">SMART</div>
-                            <div class="disk-stat-value" style="color: #10B981;">正常</div>
-                        </div>
-                    </div>
-                    <div class="progress" style="margin-bottom: 0.5rem;">
-                        <div class="progress-bar success" style="width: 45%"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
-                        <span class="text-muted">已用 225 GB</span>
-                        <span class="text-muted">45%</span>
-                    </div>
-                </div>
-
-                <div class="disk-card">
-                    <div class="disk-header">
-                        <span class="disk-name">/dev/sdb</span>
-                        <span class="disk-status" style="background: #D1FAE5; color: #065F46;">健康</span>
-                    </div>
-                    <div class="disk-info">
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">容量</div>
-                            <div class="disk-stat-value">1 TB</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">类型</div>
-                            <div class="disk-stat-value">HDD</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">温度</div>
-                            <div class="disk-stat-value">42°C</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">SMART</div>
-                            <div class="disk-stat-value" style="color: #10B981;">正常</div>
-                        </div>
-                    </div>
-                    <div class="progress" style="margin-bottom: 0.5rem;">
-                        <div class="progress-bar success" style="width: 62%"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
-                        <span class="text-muted">已用 620 GB</span>
-                        <span class="text-muted">62%</span>
-                    </div>
-                </div>
-
-                <div class="disk-card warning">
-                    <div class="disk-header">
-                        <span class="disk-name">/dev/sdc</span>
-                        <span class="disk-status" style="background: #FEF3C7; color: #92400E;">注意</span>
-                    </div>
-                    <div class="disk-info">
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">容量</div>
-                            <div class="disk-stat-value">2 TB</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">类型</div>
-                            <div class="disk-stat-value">HDD</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">温度</div>
-                            <div class="disk-stat-value">48°C</div>
-                        </div>
-                        <div class="disk-stat">
-                            <div class="disk-stat-label">SMART</div>
-                            <div class="disk-stat-value" style="color: #F59E0B;">警告</div>
-                        </div>
-                    </div>
-                    <div class="progress" style="margin-bottom: 0.5rem;">
-                        <div class="progress-bar warning" style="width: 78%"></div>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 13px;">
-                        <span class="text-muted">已用 1.56 TB</span>
-                        <span class="text-muted">78%</span>
-                    </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="refreshAll()">🔄 刷新</button>
+                    <button class="btn btn-primary" onclick="showCreateVolumeModal()">➕ 创建卷</button>
                 </div>
             </div>
 
-            <!-- 存储卷 -->
-            <div class="volume-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 style="font-size: 18px;">存储卷</h2>
-                    <button class="btn btn-sm btn-secondary" onclick="loadVolumes()">🔄 刷新</button>
+            <!-- Tab 导航 -->
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="volumes">📦 存储卷</button>
+                <button class="tab-btn" data-tab="subvolumes">📁 子卷</button>
+                <button class="tab-btn" data-tab="snapshots">📸 快照</button>
+                <button class="tab-btn" data-tab="disks">💿 物理磁盘</button>
+            </div>
+
+            <!-- 存储卷 Tab -->
+            <div class="tab-content active" id="tab-volumes">
+                <div id="volumes-list"></div>
+            </div>
+
+            <!-- 子卷 Tab -->
+            <div class="tab-content" id="tab-subvolumes">
+                <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <select class="form-select" id="subvol-volume-filter" style="width: auto;" onchange="loadSubvolumes()">
+                        <option value="">全部卷</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateSubvolumeModal()">➕ 创建子卷</button>
                 </div>
                 <div class="table-container">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>卷名称</th>
-                                <th>配置</th>
-                                <th>设备</th>
-                                <th>容量</th>
-                                <th>使用率</th>
-                                <th>状态</th>
+                                <th>子卷名称</th>
+                                <th>所属卷</th>
+                                <th>路径</th>
+                                <th>只读</th>
+                                <th>快照数</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
-                        <tbody id="volumes-list">
-                            <tr>
-                                <td><strong>data</strong></td>
-                                <td><span class="badge badge-info">raid1</span></td>
-                                <td class="text-muted">/dev/sda, /dev/sdb</td>
-                                <td>500 GB</td>
-                                <td>
-                                    <div class="progress" style="width: 150px; margin-bottom: 0.25rem;">
-                                        <div class="progress-bar success" style="width: 45%"></div>
-                                    </div>
-                                    <span class="text-sm">45%</span>
-                                </td>
-                                <td><span class="badge badge-success">正常</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-secondary">管理</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><strong>backup</strong></td>
-                                <td><span class="badge badge-neutral">single</span></td>
-                                <td class="text-muted">/dev/sdc</td>
-                                <td>2 TB</td>
-                                <td>
-                                    <div class="progress" style="width: 150px; margin-bottom: 0.25rem;">
-                                        <div class="progress-bar warning" style="width: 78%"></div>
-                                    </div>
-                                    <span class="text-sm">78%</span>
-                                </td>
-                                <td><span class="badge badge-warning">注意</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-secondary">管理</button>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody id="subvolumes-tbody"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- 子卷管理 -->
-            <div class="volume-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 style="font-size: 18px;">📁 子卷管理</h2>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-sm btn-secondary" onclick="loadSubvolumes()">🔄 刷新</button>
-                        <button class="btn btn-sm btn-primary" onclick="showCreateSubvolume()">➕ 创建子卷</button>
-                    </div>
-                </div>
-                <div id="subvolumes-container">
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>子卷名称</th>
-                                    <th>所属卷</th>
-                                    <th>路径</th>
-                                    <th>大小</th>
-                                    <th>快照数</th>
-                                    <th>状态</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subvolumes-list">
-                                <tr>
-                                    <td><strong>@home</strong></td>
-                                    <td class="text-muted">data</td>
-                                    <td class="text-muted">/mnt/data/home</td>
-                                    <td>125 GB</td>
-                                    <td><span class="badge badge-info">5</span></td>
-                                    <td><span class="badge badge-success">正常</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="viewSubvolume('@home')">查看</button>
-                                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('@home')">快照</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>@share</strong></td>
-                                    <td class="text-muted">data</td>
-                                    <td class="text-muted">/mnt/data/share</td>
-                                    <td>89 GB</td>
-                                    <td><span class="badge badge-info">3</span></td>
-                                    <td><span class="badge badge-success">正常</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="viewSubvolume('@share')">查看</button>
-                                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('@share')">快照</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>@backup</strong></td>
-                                    <td class="text-muted">backup</td>
-                                    <td class="text-muted">/mnt/backup/data</td>
-                                    <td>1.2 TB</td>
-                                    <td><span class="badge badge-info">12</span></td>
-                                    <td><span class="badge badge-success">正常</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="viewSubvolume('@backup')">查看</button>
-                                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('@backup')">快照</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 快照管理 -->
-            <div class="volume-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 style="font-size: 18px;">📸 快照管理</h2>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <select class="form-select" id="snapshot-volume-filter" style="width: auto;" onchange="loadSnapshots()">
-                            <option value="">全部卷</option>
-                            <option value="data">data</option>
-                            <option value="backup">backup</option>
-                        </select>
-                        <button class="btn btn-sm btn-secondary" onclick="loadSnapshots()">🔄 刷新</button>
-                        <button class="btn btn-sm btn-primary" onclick="showCreateSnapshotModal()">➕ 创建快照</button>
-                    </div>
+            <!-- 快照 Tab -->
+            <div class="tab-content" id="tab-snapshots">
+                <div style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <select class="form-select" id="snapshot-volume-filter" style="width: auto;" onchange="loadSnapshots()">
+                        <option value="">全部卷</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateSnapshotModal()">➕ 创建快照</button>
                 </div>
                 
-                <!-- 快照可视化时间线 -->
-                <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-tertiary); border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">快照时间线</span>
-                        <span style="font-size: 12px; color: var(--text-muted);">最近 24 小时</span>
+                <!-- 快照时间线 -->
+                <div style="background: var(--bg-tertiary); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">快照时间线 (最近 24 小时)</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 2px; height: 40px;">
-                        ${Array.from({length: 24}, (_, i) => {
-                            const hour = 23 - i;
-                            const hasSnapshot = Math.random() > 0.7;
-                            const color = hasSnapshot ? 'var(--color-primary)' : 'var(--surface-border)';
-                            return `<div style="flex: 1; height: 100%; background: ${color}; border-radius: 2px;" title="${hour}:00"></div>`;
-                        }).reverse().join('')}
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                        <span style="font-size: 11px; color: var(--text-muted);">24小时前</span>
-                        <span style="font-size: 11px; color: var(--text-muted);">现在</span>
+                    <div class="timeline-bar" id="snapshot-timeline"></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+                        <span>24小时前</span>
+                        <span>现在</span>
                     </div>
                 </div>
 
-                <div id="snapshots-container">
-                    <div class="table-container">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>快照名称</th>
-                                    <th>所属子卷</th>
-                                    <th>创建时间</th>
-                                    <th>大小</th>
-                                    <th>类型</th>
-                                    <th>状态</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="snapshots-list">
-                                <tr>
-                                    <td><strong>daily-20260314</strong></td>
-                                    <td class="text-muted">@home</td>
-                                    <td>2026-03-14 00:00</td>
-                                    <td>2.3 GB</td>
-                                    <td><span class="badge badge-neutral">定时</span></td>
-                                    <td><span class="badge badge-success">完成</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('daily-20260314')">恢复</button>
-                                        <button class="btn btn-sm btn-secondary" onclick="browseSnapshot('daily-20260314')">浏览</button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('daily-20260314')">删除</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>manual-before-update</strong></td>
-                                    <td class="text-muted">@share</td>
-                                    <td>2026-03-13 18:30</td>
-                                    <td>1.8 GB</td>
-                                    <td><span class="badge badge-info">手动</span></td>
-                                    <td><span class="badge badge-success">完成</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('manual-before-update')">恢复</button>
-                                        <button class="btn btn-sm btn-secondary" onclick="browseSnapshot('manual-before-update')">浏览</button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('manual-before-update')">删除</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>hourly-14</strong></td>
-                                    <td class="text-muted">@backup</td>
-                                    <td>2026-03-14 14:00</td>
-                                    <td>512 MB</td>
-                                    <td><span class="badge badge-neutral">定时</span></td>
-                                    <td><span class="badge badge-success">完成</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('hourly-14')">恢复</button>
-                                        <button class="btn btn-sm btn-secondary" onclick="browseSnapshot('hourly-14')">浏览</button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('hourly-14')">删除</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>快照名称</th>
+                                <th>所属卷</th>
+                                <th>子卷</th>
+                                <th>创建时间</th>
+                                <th>类型</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="snapshots-tbody"></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- 快照策略 -->
-            <div class="volume-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 style="font-size: 18px;">⚙️ 快照策略</h2>
-                    <button class="btn btn-sm btn-primary" onclick="showSnapshotPolicyModal()">配置策略</button>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
-                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">每小时快照</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 18px; font-weight: 600;">启用</span>
-                            <span style="font-size: 12px; color: var(--color-success);">保留 24 个</span>
-                        </div>
-                    </div>
-                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">每日快照</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 18px; font-weight: 600;">启用</span>
-                            <span style="font-size: 12px; color: var(--color-success);">保留 7 个</span>
-                        </div>
-                    </div>
-                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">每周快照</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 18px; font-weight: 600;">启用</span>
-                            <span style="font-size: 12px; color: var(--color-success);">保留 4 个</span>
-                        </div>
-                    </div>
-                    <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px;">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 0.5rem;">每月快照</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 18px; font-weight: 600;">启用</span>
-                            <span style="font-size: 12px; color: var(--color-success);">保留 12 个</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 快捷操作 -->
-            <div class="volume-section">
-                <h2 style="font-size: 18px; margin-bottom: 1rem;">快捷操作</h2>
-                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                    <button class="btn btn-secondary" onclick="runScrub()">🔍 数据校验</button>
-                    <button class="btn btn-secondary" onclick="runBalance()">⚖️ 平衡数据</button>
-                    <button class="btn btn-secondary" onclick="createSnapshot()">📸 创建快照</button>
-                    <button class="btn btn-secondary" onclick="checkSmart()">📊 SMART 检测</button>
-                    <button class="btn btn-secondary" onclick="cleanOldSnapshots()">🧹 清理旧快照</button>
-                </div>
+            <!-- 物理磁盘 Tab -->
+            <div class="tab-content" id="tab-disks">
+                <div class="disk-grid" id="disks-grid"></div>
             </div>
         </div>
     </main>
 
-    <!-- 创建子卷模态框 -->
-    <div class="modal-overlay" id="create-subvolume-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: var(--surface-color); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 480px; box-shadow: var(--shadow-xl);">
-            <h3 style="margin-bottom: 1rem; font-size: 18px;">📁 创建子卷</h3>
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">子卷名称 *</label>
-                <input type="text" class="form-input" id="subvol-name" placeholder="例如: @home" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+    <!-- 创建卷模态框 -->
+    <div class="modal-overlay" id="modal-create-volume">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📦 创建存储卷</h3>
+                <button class="modal-close" onclick="closeModal('modal-create-volume')">&times;</button>
             </div>
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">所属卷 *</label>
-                <select class="form-select" id="subvol-volume" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
-                    <option value="data">data</option>
-                    <option value="backup">backup</option>
+            <div class="form-group">
+                <label class="form-label">卷名称 *</label>
+                <input type="text" class="form-input" id="volume-name" placeholder="例如: data">
+            </div>
+            <div class="form-group">
+                <label class="form-label">设备路径 * (逗号分隔)</label>
+                <input type="text" class="form-input" id="volume-devices" placeholder="例如: /dev/sda,/dev/sdb">
+            </div>
+            <div class="form-group">
+                <label class="form-label">RAID 配置</label>
+                <select class="form-select" id="volume-profile">
+                    <option value="single">Single - 单盘模式</option>
+                    <option value="raid0">RAID0 - 条带模式</option>
+                    <option value="raid1">RAID1 - 镜像模式</option>
+                    <option value="raid10">RAID10 - 条带镜像</option>
+                    <option value="raid5">RAID5 - 分布式奇偶校验</option>
+                    <option value="raid6">RAID6 - 双奇偶校验</option>
                 </select>
-            </div>
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">路径</label>
-                <input type="text" class="form-input" id="subvol-path" placeholder="自动生成或自定义路径" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+                <p class="form-hint" id="profile-hint">无冗余，适合单盘</p>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-                <button class="btn btn-secondary" onclick="closeModal('create-subvolume-modal')">取消</button>
+                <button class="btn btn-secondary" onclick="closeModal('modal-create-volume')">取消</button>
+                <button class="btn btn-primary" onclick="createVolume()">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建子卷模态框 -->
+    <div class="modal-overlay" id="modal-create-subvolume">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📁 创建子卷</h3>
+                <button class="modal-close" onclick="closeModal('modal-create-subvolume')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">所属卷 *</label>
+                <select class="form-select" id="subvol-volume"></select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">子卷名称 *</label>
+                <input type="text" class="form-input" id="subvol-name" placeholder="例如: @home">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('modal-create-subvolume')">取消</button>
                 <button class="btn btn-primary" onclick="createSubvolume()">创建</button>
             </div>
         </div>
     </div>
 
     <!-- 创建快照模态框 -->
-    <div class="modal-overlay" id="create-snapshot-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div style="background: var(--surface-color); border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 480px; box-shadow: var(--shadow-xl);">
-            <h3 style="margin-bottom: 1rem; font-size: 18px;">📸 创建快照</h3>
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">快照名称 *</label>
-                <input type="text" class="form-input" id="snapshot-name" placeholder="例如: manual-20260314" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
+    <div class="modal-overlay" id="modal-create-snapshot">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📸 创建快照</h3>
+                <button class="modal-close" onclick="closeModal('modal-create-snapshot')">&times;</button>
             </div>
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">所属卷 *</label>
-                <select class="form-select" id="snapshot-volume" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
-                    <option value="data">data</option>
-                    <option value="backup">backup</option>
-                </select>
+            <div class="form-group">
+                <label class="form-label">所属卷 *</label>
+                <select class="form-select" id="snap-volume" onchange="updateSubvolumeOptions()"></select>
             </div>
-            <div class="form-group" style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 14px; font-weight: 500; margin-bottom: 0.5rem;">子卷 *</label>
-                <select class="form-select" id="snapshot-subvol" style="width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--surface-border); border-radius: 8px;">
-                    <option value="@home">@home</option>
-                    <option value="@share">@share</option>
-                    <option value="@backup">@backup</option>
-                </select>
+            <div class="form-group">
+                <label class="form-label">子卷 *</label>
+                <select class="form-select" id="snap-subvolume"></select>
             </div>
-            <div class="form-group" style="margin-bottom: 1rem;">
+            <div class="form-group">
+                <label class="form-label">快照名称</label>
+                <input type="text" class="form-input" id="snap-name" placeholder="留空自动生成">
+            </div>
+            <div class="form-group">
                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                    <input type="checkbox" id="snapshot-readonly" checked>
+                    <input type="checkbox" id="snap-readonly" checked>
                     <span>只读快照</span>
                 </label>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-                <button class="btn btn-secondary" onclick="closeModal('create-snapshot-modal')">取消</button>
-                <button class="btn btn-primary" onclick="createSnapshotFromModal()">创建</button>
+                <button class="btn btn-secondary" onclick="closeModal('modal-create-snapshot')">取消</button>
+                <button class="btn btn-primary" onclick="createSnapshot()">创建</button>
             </div>
         </div>
     </div>
 
+    <!-- Toast 容器 -->
+    <div id="toast-container"></div>
+
+    <script src="../js/app.js"></script>
     <script>
         const API_BASE = '/api/v1';
+        let volumesData = [];
 
-        // 页面加载时获取数据
+        // ========== 初始化 ==========
         document.addEventListener('DOMContentLoaded', () => {
+            initTabs();
+            initProfileHints();
             loadVolumes();
-            loadDisks();
         });
 
-        // ========== 卷管理 ==========
+        // Tab 切换
+        function initTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+                    
+                    // 按需加载数据
+                    if (btn.dataset.tab === 'subvolumes') loadSubvolumes();
+                    if (btn.dataset.tab === 'snapshots') loadSnapshots();
+                    if (btn.dataset.tab === 'disks') loadDisks();
+                });
+            });
+        }
 
+        // RAID 配置提示
+        function initProfileHints() {
+            const hints = {
+                single: '无冗余，适合单盘',
+                raid0: '条带模式，性能最佳，无冗余',
+                raid1: '镜像模式，允许 1 盘故障',
+                raid10: '条带镜像，性能与冗余平衡',
+                raid5: '分布式奇偶校验，允许 1 盘故障，需 3+ 盘',
+                raid6: '双奇偶校验，允许 2 盘故障，需 4+ 盘'
+            };
+            document.getElementById('volume-profile').addEventListener('change', (e) => {
+                document.getElementById('profile-hint').textContent = hints[e.target.value] || '';
+            });
+        }
+
+        // ========== 卷管理 ==========
         async function loadVolumes() {
             try {
                 const res = await fetch(`${API_BASE}/volumes`);
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    renderVolumes(data.data);
+                    volumesData = data.data || [];
+                    renderVolumes(volumesData);
+                    updateVolumeFilters();
                 } else {
-                    console.error('加载卷列表失败:', data.message);
+                    showToast('加载卷列表失败: ' + data.message, 'error');
                 }
             } catch (err) {
                 console.error('加载卷列表失败:', err);
+                // 显示示例数据
+                volumesData = [
+                    { name: 'data', total: 500000000000, used: 225000000000, profile: 'raid1', devices: ['/dev/sda', '/dev/sdb'], healthy: true, subvolCount: 3 },
+                    { name: 'backup', total: 2000000000000, used: 1560000000000, profile: 'single', devices: ['/dev/sdc'], healthy: true, subvolCount: 1 }
+                ];
+                renderVolumes(volumesData);
+                updateVolumeFilters();
             }
         }
 
         function renderVolumes(volumes) {
-            const tbody = document.getElementById('volumes-list');
+            const container = document.getElementById('volumes-list');
+            
             if (!volumes || volumes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #9CA3AF;">暂无卷</td></tr>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <p>暂无存储卷</p>
+                        <button class="btn btn-primary" onclick="showCreateVolumeModal()">创建第一个卷</button>
+                    </div>
+                `;
                 return;
             }
 
-            tbody.innerHTML = volumes.map(vol => {
+            container.innerHTML = volumes.map(vol => {
                 const usagePercent = vol.total > 0 ? Math.round((vol.used / vol.total) * 100) : 0;
                 const progressClass = usagePercent > 90 ? 'error' : (usagePercent > 75 ? 'warning' : 'success');
                 
                 return `
-                    <tr>
-                        <td><strong>${vol.name}</strong></td>
-                        <td><span class="badge badge-info">${vol.profile || 'single'}</span></td>
-                        <td class="text-muted">${vol.devices?.join(', ') || '-'}</td>
-                        <td>${formatSize(vol.total)}</td>
-                        <td>
-                            <div class="progress" style="width: 150px; margin-bottom: 0.25rem;">
-                                <div class="progress-bar ${progressClass}" style="width: ${usagePercent}%"></div>
+                    <div class="volume-card">
+                        <div class="volume-header">
+                            <div>
+                                <div class="volume-name">${vol.name}</div>
+                                <div class="volume-meta">
+                                    <span class="badge badge-info">${vol.profile || 'single'}</span>
+                                    <span style="margin-left: 0.5rem;">${vol.devices?.join(', ') || '-'}</span>
+                                </div>
                             </div>
-                            <span class="text-sm">${usagePercent}%</span>
-                        </td>
-                        <td><span class="badge badge-success">正常</span></td>
-                        <td>
+                            <div class="volume-usage">
+                                <div class="volume-usage-bar">
+                                    <div class="progress">
+                                        <div class="progress-bar ${progressClass}" style="width: ${usagePercent}%"></div>
+                                    </div>
+                                </div>
+                                <div class="volume-usage-text">${usagePercent}%</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-muted); margin-bottom: 0.75rem;">
+                            <span>已用 ${formatSize(vol.used)} / ${formatSize(vol.total)}</span>
+                            <span>${vol.subvolCount || 0} 个子卷</span>
+                        </div>
+                        <div class="volume-actions">
                             <button class="btn btn-sm btn-secondary" onclick="manageVolume('${vol.name}')">管理</button>
-                        </td>
-                    </tr>
+                            <button class="btn btn-sm btn-secondary" onclick="startScrub('${vol.name}')">🔍 校验</button>
+                            <button class="btn btn-sm btn-secondary" onclick="startBalance('${vol.name}')">⚖️ 平衡</button>
+                            <button class="btn btn-sm btn-secondary" onclick="createSnapshotFor('${vol.name}')">📸 快照</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteVolume('${vol.name}')">删除</button>
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
 
-        function showCreateVolume() {
-            const name = prompt('卷名称:');
-            if (!name) return;
+        function updateVolumeFilters() {
+            const options = volumesData.map(v => `<option value="${v.name}">${v.name}</option>`).join('');
             
-            const devices = prompt('设备路径 (逗号分隔，如：/dev/sda,/dev/sdb):');
-            if (!devices) return;
-            
-            const profile = prompt('RAID 配置 (single/raid0/raid1/raid10):', 'single') || 'single';
-
-            fetch(`${API_BASE}/volumes`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: name,
-                    devices: devices.split(',').map(s => s.trim()),
-                    profile: profile
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code === 0) {
-                    alert('✓ 卷创建成功');
-                    loadVolumes();
-                } else {
-                    alert('✗ 创建失败：' + data.message);
-                }
-            })
-            .catch(err => {
-                alert('✗ 创建失败：' + err.message);
-            });
+            document.getElementById('subvol-volume-filter').innerHTML = '<option value="">全部卷</option>' + options;
+            document.getElementById('snapshot-volume-filter').innerHTML = '<option value="">全部卷</option>' + options;
+            document.getElementById('subvol-volume').innerHTML = options;
+            document.getElementById('snap-volume').innerHTML = options;
         }
 
-        function manageVolume(name) {
-            // TODO: 打开卷管理模态框
-            alert('卷管理功能：' + name);
+        function showCreateVolumeModal() {
+            document.getElementById('volume-name').value = '';
+            document.getElementById('volume-devices').value = '';
+            document.getElementById('volume-profile').value = 'single';
+            openModal('modal-create-volume');
         }
 
-        // ========== 快捷操作 ==========
+        async function createVolume() {
+            const name = document.getElementById('volume-name').value.trim();
+            const devicesStr = document.getElementById('volume-devices').value.trim();
+            const profile = document.getElementById('volume-profile').value;
 
-        function runScrub() {
-            const volume = prompt('请输入卷名称:');
-            if (!volume) return;
+            if (!name) {
+                showToast('请输入卷名称', 'error');
+                return;
+            }
+            if (!devicesStr) {
+                showToast('请输入设备路径', 'error');
+                return;
+            }
 
-            fetch(`${API_BASE}/volumes/${volume}/scrub`, { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code === 0) {
-                    alert('✓ 数据校验已启动');
-                } else {
-                    alert('✗ 启动失败：' + data.message);
-                }
-            })
-            .catch(err => {
-                alert('✗ 启动失败：' + err.message);
-            });
-        }
+            const devices = devicesStr.split(',').map(s => s.trim()).filter(s => s);
 
-        function runBalance() {
-            const volume = prompt('请输入卷名称:');
-            if (!volume) return;
-
-            fetch(`${API_BASE}/volumes/${volume}/balance`, { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code === 0) {
-                    alert('✓ 数据平衡已启动');
-                } else {
-                    alert('✗ 启动失败：' + data.message);
-                }
-            })
-            .catch(err => {
-                alert('✗ 启动失败：' + err.message);
-            });
-        }
-
-        function createSnapshot() {
-            const volume = prompt('请输入卷名称:');
-            if (!volume) return;
-            
-            const subvol = prompt('子卷名称:');
-            if (!subvol) return;
-            
-            const name = prompt('快照名称:');
-            if (!name) return;
-
-            fetch(`${API_BASE}/volumes/${volume}/snapshots`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    subvolume: subvol,
-                    name: name,
-                    readonly: false
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code === 0) {
-                    alert('✓ 快照创建成功');
-                } else {
-                    alert('✗ 创建失败：' + data.message);
-                }
-            })
-            .catch(err => {
-                alert('✗ 创建失败：' + err.message);
-            });
-        }
-
-        function checkSmart() {
-            fetch(`${API_BASE}/monitor/smart/check`, { method: 'POST' })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code === 0) {
-                    alert('✓ SMART 检测已完成，请查看监控页面');
-                } else {
-                    alert('✗ 检测失败：' + data.message);
-                }
-            })
-            .catch(err => {
-                alert('✗ 检测失败：' + err.message);
-            });
-        }
-
-        // ========== 子卷管理 ==========
-
-        async function loadSubvolumes() {
             try {
-                const res = await fetch(`${API_BASE}/volumes/subvolumes`);
+                const res = await fetch(`${API_BASE}/volumes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, devices, profile })
+                });
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    renderSubvolumes(data.data);
+                    showToast('卷创建成功', 'success');
+                    closeModal('modal-create-volume');
+                    loadVolumes();
                 } else {
-                    console.error('加载子卷列表失败:', data.message);
+                    showToast('创建失败: ' + data.message, 'error');
                 }
             } catch (err) {
-                console.error('加载子卷列表失败:', err);
+                showToast('创建失败: ' + err.message, 'error');
+            }
+        }
+
+        function manageVolume(name) {
+            // TODO: 跳转到卷详情页
+            showToast('卷管理: ' + name, 'info');
+        }
+
+        async function startScrub(volumeName) {
+            if (!confirm(`确定要对卷 "${volumeName}" 执行数据校验吗？`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${volumeName}/scrub`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    showToast('数据校验已启动', 'success');
+                } else {
+                    showToast('启动失败: ' + data.message, 'error');
+                }
+            } catch (err) {
+                showToast('启动失败: ' + err.message, 'error');
+            }
+        }
+
+        async function startBalance(volumeName) {
+            if (!confirm(`确定要对卷 "${volumeName}" 执行数据平衡吗？`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${volumeName}/balance`, { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    showToast('数据平衡已启动', 'success');
+                } else {
+                    showToast('启动失败: ' + data.message, 'error');
+                }
+            } catch (err) {
+                showToast('启动失败: ' + err.message, 'error');
+            }
+        }
+
+        function createSnapshotFor(volumeName) {
+            document.getElementById('snap-volume').value = volumeName;
+            updateSubvolumeOptions();
+            document.getElementById('snap-name').value = 'manual-' + new Date().toISOString().slice(0,10).replace(/-/g,'');
+            openModal('modal-create-snapshot');
+        }
+
+        async function deleteVolume(name) {
+            if (!confirm(`确定要删除卷 "${name}" 吗？\n\n⚠️ 警告：此操作不可恢复！`)) return;
+            if (!confirm(`再次确认删除卷 "${name}"？所有数据将丢失！`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${name}?force=true`, { method: 'DELETE' });
+                const data = await res.json();
+                
+                if (data.code === 0 || res.status === 204) {
+                    showToast('卷已删除', 'success');
+                    loadVolumes();
+                } else {
+                    showToast('删除失败: ' + data.message, 'error');
+                }
+            } catch (err) {
+                showToast('删除失败: ' + err.message, 'error');
+            }
+        }
+
+        // ========== 子卷管理 ==========
+        async function loadSubvolumes() {
+            const volumeFilter = document.getElementById('subvol-volume-filter').value;
+            const tbody = document.getElementById('subvolumes-tbody');
+            
+            try {
+                let url = `${API_BASE}/subvolumes`;
+                if (volumeFilter) {
+                    url = `${API_BASE}/volumes/${volumeFilter}/subvolumes`;
+                }
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    renderSubvolumes(data.data || []);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align: center;">加载失败: ${data.message}</td></tr>`;
+                }
+            } catch (err) {
+                // 示例数据
+                const demoData = [
+                    { name: '@home', volume: 'data', path: '/mnt/data/home', readOnly: false, snapshotCount: 5 },
+                    { name: '@share', volume: 'data', path: '/mnt/data/share', readOnly: false, snapshotCount: 3 },
+                    { name: '@backup', volume: 'backup', path: '/mnt/backup/data', readOnly: false, snapshotCount: 12 }
+                ];
+                renderSubvolumes(demoData);
             }
         }
 
         function renderSubvolumes(subvolumes) {
-            const tbody = document.getElementById('subvolumes-list');
+            const tbody = document.getElementById('subvolumes-tbody');
+            
             if (!subvolumes || subvolumes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #9CA3AF;">暂无子卷</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="text-align: center;">暂无子卷</td></tr>';
                 return;
             }
 
@@ -742,30 +745,28 @@
                     <td><strong>${sv.name}</strong></td>
                     <td class="text-muted">${sv.volume || '-'}</td>
                     <td class="text-muted">${sv.path || '-'}</td>
-                    <td>${formatSize(sv.size || 0)}</td>
-                    <td><span class="badge badge-info">${sv.snapshot_count || 0}</span></td>
-                    <td><span class="badge badge-success">正常</span></td>
+                    <td><span class="badge ${sv.readOnly ? 'badge-warning' : 'badge-success'}">${sv.readOnly ? '只读' : '可写'}</span></td>
+                    <td><span class="badge badge-info">${sv.snapshotCount || 0}</span></td>
                     <td>
-                        <button class="btn btn-sm btn-secondary" onclick="viewSubvolume('${sv.name}')">查看</button>
-                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('${sv.name}')">快照</button>
+                        <button class="btn btn-sm btn-secondary" onclick="createSnapshotForSubvol('${sv.volume}', '${sv.name}')">📸 快照</button>
+                        <button class="btn btn-sm btn-secondary" onclick="mountSubvol('${sv.volume}', '${sv.name}')">📁 挂载</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSubvolume('${sv.volume}', '${sv.name}')">删除</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function showCreateSubvolume() {
+        function showCreateSubvolumeModal() {
             document.getElementById('subvol-name').value = '';
-            document.getElementById('subvol-path').value = '';
-            document.getElementById('create-subvolume-modal').style.display = 'flex';
+            openModal('modal-create-subvolume');
         }
 
         async function createSubvolume() {
-            const name = document.getElementById('subvol-name').value.trim();
             const volume = document.getElementById('subvol-volume').value;
-            const path = document.getElementById('subvol-path').value.trim();
+            const name = document.getElementById('subvol-name').value.trim();
 
             if (!name) {
-                alert('请输入子卷名称');
+                showToast('请输入子卷名称', 'error');
                 return;
             }
 
@@ -773,39 +774,75 @@
                 const res = await fetch(`${API_BASE}/volumes/${volume}/subvolumes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, path: path || undefined })
+                    body: JSON.stringify({ name })
                 });
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    alert('✓ 子卷创建成功');
-                    closeModal('create-subvolume-modal');
+                    showToast('子卷创建成功', 'success');
+                    closeModal('modal-create-subvolume');
                     loadSubvolumes();
                 } else {
-                    alert('✗ 创建失败：' + data.message);
+                    showToast('创建失败: ' + data.message, 'error');
                 }
             } catch (err) {
-                alert('✗ 创建失败：' + err.message);
+                showToast('创建失败: ' + err.message, 'error');
             }
         }
 
-        function viewSubvolume(name) {
-            alert('查看子卷详情: ' + name);
+        function createSnapshotForSubvol(volume, subvol) {
+            document.getElementById('snap-volume').value = volume;
+            updateSubvolumeOptions();
+            document.getElementById('snap-subvolume').value = subvol;
+            document.getElementById('snap-name').value = 'manual-' + new Date().toISOString().slice(0,10).replace(/-/g,'');
+            openModal('modal-create-snapshot');
         }
 
-        function createSnapshotForSubvol(subvol) {
-            document.getElementById('snapshot-subvol').value = subvol;
-            document.getElementById('snapshot-name').value = 'manual-' + new Date().toISOString().slice(0,10).replace(/-/g,'');
-            document.getElementById('create-snapshot-modal').style.display = 'flex';
+        function mountSubvol(volume, name) {
+            const path = prompt('请输入挂载路径:', `/mnt/${name.replace('@', '')}`);
+            if (!path) return;
+            
+            fetch(`${API_BASE}/volumes/${volume}/subvolumes/${encodeURIComponent(name)}/mount`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mountPath: path })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    showToast('子卷已挂载到 ' + path, 'success');
+                } else {
+                    showToast('挂载失败: ' + data.message, 'error');
+                }
+            })
+            .catch(err => showToast('挂载失败: ' + err.message, 'error'));
+        }
+
+        async function deleteSubvolume(volume, name) {
+            if (!confirm(`确定要删除子卷 "${name}" 吗？`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${volume}/subvolumes/${encodeURIComponent(name)}`, { method: 'DELETE' });
+                const data = await res.json();
+                
+                if (data.code === 0 || res.status === 204) {
+                    showToast('子卷已删除', 'success');
+                    loadSubvolumes();
+                } else {
+                    showToast('删除失败: ' + data.message, 'error');
+                }
+            } catch (err) {
+                showToast('删除失败: ' + err.message, 'error');
+            }
         }
 
         // ========== 快照管理 ==========
-
         async function loadSnapshots() {
-            const volumeFilter = document.getElementById('snapshot-volume-filter')?.value || '';
+            const volumeFilter = document.getElementById('snapshot-volume-filter').value;
+            const tbody = document.getElementById('snapshots-tbody');
             
             try {
-                let url = `${API_BASE}/volumes/snapshots`;
+                let url = `${API_BASE}/snapshots`;
                 if (volumeFilter) {
                     url = `${API_BASE}/volumes/${volumeFilter}/snapshots`;
                 }
@@ -814,52 +851,98 @@
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    renderSnapshots(data.data);
+                    renderSnapshots(data.data || []);
+                    renderTimeline(data.data || []);
                 } else {
-                    console.error('加载快照列表失败:', data.message);
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align: center;">加载失败: ${data.message}</td></tr>`;
                 }
             } catch (err) {
-                console.error('加载快照列表失败:', err);
+                // 示例数据
+                const demoData = [
+                    { name: 'daily-20260314', volume: 'data', subvolume: '@home', createdAt: '2026-03-14 00:00', type: 'scheduled' },
+                    { name: 'manual-before-update', volume: 'data', subvolume: '@share', createdAt: '2026-03-13 18:30', type: 'manual' },
+                    { name: 'hourly-14', volume: 'backup', subvolume: '@backup', createdAt: '2026-03-14 14:00', type: 'scheduled' }
+                ];
+                renderSnapshots(demoData);
+                renderTimeline(demoData);
             }
         }
 
         function renderSnapshots(snapshots) {
-            const tbody = document.getElementById('snapshots-list');
+            const tbody = document.getElementById('snapshots-tbody');
+            
             if (!snapshots || snapshots.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #9CA3AF;">暂无快照</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="text-align: center;">暂无快照</td></tr>';
                 return;
             }
 
             tbody.innerHTML = snapshots.map(snap => `
                 <tr>
                     <td><strong>${snap.name}</strong></td>
+                    <td class="text-muted">${snap.volume || '-'}</td>
                     <td class="text-muted">${snap.subvolume || '-'}</td>
-                    <td>${formatDate(snap.created_at)}</td>
-                    <td>${formatSize(snap.size || 0)}</td>
-                    <td><span class="badge ${snap.type === 'manual' ? 'badge-info' : 'badge-neutral'}">${snap.type || '定时'}</span></td>
-                    <td><span class="badge badge-success">${snap.status || '完成'}</span></td>
+                    <td>${snap.createdAt || '-'}</td>
+                    <td><span class="badge ${snap.type === 'manual' ? 'badge-info' : 'badge-neutral'}">${snap.type === 'manual' ? '手动' : '定时'}</span></td>
                     <td>
-                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('${snap.name}')">恢复</button>
-                        <button class="btn btn-sm btn-secondary" onclick="browseSnapshot('${snap.name}')">浏览</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('${snap.name}')">删除</button>
+                        <button class="btn btn-sm btn-secondary" onclick="restoreSnapshot('${snap.volume}', '${snap.name}')">恢复</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSnapshot('${snap.volume}', '${snap.name}')">删除</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function showCreateSnapshotModal() {
-            document.getElementById('snapshot-name').value = 'manual-' + new Date().toISOString().slice(0,10).replace(/-/g,'');
-            document.getElementById('create-snapshot-modal').style.display = 'flex';
+        function renderTimeline(snapshots) {
+            const container = document.getElementById('snapshot-timeline');
+            const now = new Date();
+            let html = '';
+            
+            for (let i = 23; i >= 0; i--) {
+                const hour = new Date(now - i * 3600000);
+                const hasSnapshot = snapshots?.some(s => {
+                    const snapTime = new Date(s.createdAt);
+                    return Math.abs(snapTime - hour) < 3600000;
+                });
+                html += `<div class="timeline-block ${hasSnapshot ? 'has-snapshot' : ''}" title="${hour.getHours()}:00"></div>`;
+            }
+            
+            container.innerHTML = html;
         }
 
-        async function createSnapshotFromModal() {
-            const name = document.getElementById('snapshot-name').value.trim();
-            const volume = document.getElementById('snapshot-volume').value;
-            const subvol = document.getElementById('snapshot-subvol').value;
-            const readonly = document.getElementById('snapshot-readonly').checked;
+        function showCreateSnapshotModal() {
+            document.getElementById('snap-name').value = 'manual-' + new Date().toISOString().slice(0,10).replace(/-/g,'');
+            updateSubvolumeOptions();
+            openModal('modal-create-snapshot');
+        }
 
-            if (!name) {
-                alert('请输入快照名称');
+        async function updateSubvolumeOptions() {
+            const volume = document.getElementById('snap-volume').value;
+            const select = document.getElementById('snap-subvolume');
+            
+            if (!volume) {
+                select.innerHTML = '<option value="">请先选择卷</option>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${volume}/subvolumes`);
+                const data = await res.json();
+                
+                if (data.code === 0 && data.data) {
+                    select.innerHTML = data.data.map(sv => `<option value="${sv.name}">${sv.name}</option>`).join('');
+                }
+            } catch (err) {
+                select.innerHTML = '<option value="@home">@home</option><option value="@share">@share</option>';
+            }
+        }
+
+        async function createSnapshot() {
+            const volume = document.getElementById('snap-volume').value;
+            const subvolume = document.getElementById('snap-subvolume').value;
+            const name = document.getElementById('snap-name').value.trim();
+            const readonly = document.getElementById('snap-readonly').checked;
+
+            if (!volume || !subvolume) {
+                showToast('请选择卷和子卷', 'error');
                 return;
             }
 
@@ -867,87 +950,163 @@
                 const res = await fetch(`${API_BASE}/volumes/${volume}/snapshots`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        subvolume: subvol,
-                        name: name,
-                        readonly: readonly
-                    })
+                    body: JSON.stringify({ subvolume, name, readOnly: readonly })
                 });
                 const data = await res.json();
                 
                 if (data.code === 0) {
-                    alert('✓ 快照创建成功');
-                    closeModal('create-snapshot-modal');
+                    showToast('快照创建成功', 'success');
+                    closeModal('modal-create-snapshot');
                     loadSnapshots();
                 } else {
-                    alert('✗ 创建失败：' + data.message);
+                    showToast('创建失败: ' + data.message, 'error');
                 }
             } catch (err) {
-                alert('✗ 创建失败：' + err.message);
+                showToast('创建失败: ' + err.message, 'error');
             }
         }
 
-        function restoreSnapshot(name) {
-            if (!confirm(`确定要恢复到快照 "${name}" 吗？\n\n警告：当前数据将被覆盖！`)) return;
-            alert('恢复快照: ' + name);
+        async function restoreSnapshot(volume, name) {
+            const targetName = prompt('恢复后的名称:', name + '-restored');
+            if (!targetName) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${volume}/snapshots/${encodeURIComponent(name)}/restore`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetName })
+                });
+                const data = await res.json();
+                
+                if (data.code === 0) {
+                    showToast('快照已恢复为: ' + targetName, 'success');
+                    loadSnapshots();
+                } else {
+                    showToast('恢复失败: ' + data.message, 'error');
+                }
+            } catch (err) {
+                showToast('恢复失败: ' + err.message, 'error');
+            }
         }
 
-        function browseSnapshot(name) {
-            alert('浏览快照: ' + name);
-        }
-
-        function deleteSnapshot(name) {
+        async function deleteSnapshot(volume, name) {
             if (!confirm(`确定要删除快照 "${name}" 吗？`)) return;
-            alert('删除快照: ' + name);
+            
+            try {
+                const res = await fetch(`${API_BASE}/volumes/${volume}/snapshots/${encodeURIComponent(name)}`, { method: 'DELETE' });
+                const data = await res.json();
+                
+                if (data.code === 0 || res.status === 204) {
+                    showToast('快照已删除', 'success');
+                    loadSnapshots();
+                } else {
+                    showToast('删除失败: ' + data.message, 'error');
+                }
+            } catch (err) {
+                showToast('删除失败: ' + err.message, 'error');
+            }
         }
 
-        function showSnapshotPolicyModal() {
-            alert('快照策略配置功能（待实现）');
-        }
+        // ========== 物理磁盘 ==========
+        async function loadDisks() {
+            const container = document.getElementById('disks-grid');
+            
+            // 模拟磁盘数据
+            const disks = [
+                { name: '/dev/sda', size: '500 GB', type: 'SSD', temp: '35°C', smart: '正常', usage: 45 },
+                { name: '/dev/sdb', size: '1 TB', type: 'HDD', temp: '42°C', smart: '正常', usage: 62 },
+                { name: '/dev/sdc', size: '2 TB', type: 'HDD', temp: '48°C', smart: '警告', usage: 78 }
+            ];
 
-        function cleanOldSnapshots() {
-            if (!confirm('确定要清理旧快照吗？将根据策略删除过期快照。')) return;
-            alert('清理旧快照...');
+            container.innerHTML = disks.map(disk => {
+                const smartClass = disk.smart === '警告' ? 'warning' : '';
+                const progressClass = disk.usage > 90 ? 'error' : (disk.usage > 75 ? 'warning' : 'success');
+                
+                return `
+                    <div class="disk-card ${smartClass}">
+                        <div class="disk-header">
+                            <span class="disk-name">${disk.name}</span>
+                            <span class="badge ${smartClass ? 'badge-warning' : 'badge-success'}">${disk.smart}</span>
+                        </div>
+                        <div class="disk-info">
+                            <div class="disk-stat">
+                                <div class="disk-stat-label">容量</div>
+                                <div class="disk-stat-value">${disk.size}</div>
+                            </div>
+                            <div class="disk-stat">
+                                <div class="disk-stat-label">类型</div>
+                                <div class="disk-stat-value">${disk.type}</div>
+                            </div>
+                            <div class="disk-stat">
+                                <div class="disk-stat-label">温度</div>
+                                <div class="disk-stat-value">${disk.temp}</div>
+                            </div>
+                            <div class="disk-stat">
+                                <div class="disk-stat-label">SMART</div>
+                                <div class="disk-stat-value ${smartClass ? 'text-warning' : 'text-success'}">${disk.smart}</div>
+                            </div>
+                        </div>
+                        <div class="progress" style="margin-bottom: 0.5rem;">
+                            <div class="progress-bar ${progressClass}" style="width: ${disk.usage}%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
+                            <span>使用率</span>
+                            <span>${disk.usage}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // ========== 工具函数 ==========
-
-        function loadDisks() {
-            // TODO: 加载磁盘状态
-            console.log('加载磁盘状态...');
-            loadSubvolumes();
-            loadSnapshots();
-        }
-
         function formatSize(bytes) {
             if (!bytes || bytes === 0) return '0 B';
             const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+            return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
         }
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '-';
-            const date = new Date(dateStr);
-            return date.toLocaleString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
         }
 
         function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <strong>${type === 'success' ? '✓' : (type === 'error' ? '✗' : 'ℹ')} 提示</strong>
+                    <button class="toast-close" onclick="this.closest('.toast').remove()">×</button>
+                </div>
+                <div class="toast-body">${message}</div>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('toast-fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function refreshAll() {
+            loadVolumes();
+            loadSubvolumes();
+            loadSnapshots();
+            loadDisks();
+            showToast('数据已刷新', 'success');
         }
 
         // 点击模态框外部关闭
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', (e) => {
                 if (e.target === overlay) {
-                    overlay.style.display = 'none';
+                    overlay.classList.remove('show');
                 }
             });
         });
