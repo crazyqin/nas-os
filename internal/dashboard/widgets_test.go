@@ -295,10 +295,10 @@ func TestCreateDefaultWidgets(t *testing.T) {
 
 func TestGetWidgetStatus_CPU(t *testing.T) {
 	tests := []struct {
-		name       string
-		usage      float64
-		threshold  WidgetConfig
-		expected   string
+		name      string
+		usage     float64
+		threshold WidgetConfig
+		expected  string
 	}{
 		{"Healthy", 50.0, WidgetConfig{WarningThreshold: 70, CriticalThreshold: 90}, "healthy"},
 		{"Warning", 75.0, WidgetConfig{WarningThreshold: 70, CriticalThreshold: 90}, "warning"},

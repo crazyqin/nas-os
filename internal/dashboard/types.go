@@ -10,11 +10,11 @@ import (
 type WidgetType string
 
 const (
-	WidgetTypeCPU    WidgetType = "cpu"
-	WidgetTypeMemory WidgetType = "memory"
-	WidgetTypeDisk   WidgetType = "disk"
+	WidgetTypeCPU     WidgetType = "cpu"
+	WidgetTypeMemory  WidgetType = "memory"
+	WidgetTypeDisk    WidgetType = "disk"
 	WidgetTypeNetwork WidgetType = "network"
-	WidgetTypeCustom WidgetType = "custom"
+	WidgetTypeCustom  WidgetType = "custom"
 )
 
 // WidgetSize 小组件尺寸
@@ -49,23 +49,23 @@ type Widget struct {
 // WidgetConfig 小组件配置
 type WidgetConfig struct {
 	// CPU 配置
-	ShowPerCore   bool `json:"showPerCore,omitempty"`
-	ShowAverage   bool `json:"showAverage,omitempty"`
+	ShowPerCore       bool    `json:"showPerCore,omitempty"`
+	ShowAverage       bool    `json:"showAverage,omitempty"`
 	WarningThreshold  float64 `json:"warningThreshold,omitempty"`
 	CriticalThreshold float64 `json:"criticalThreshold,omitempty"`
 
 	// 内存配置
-	ShowSwap      bool `json:"showSwap,omitempty"`
-	ShowBuffers   bool `json:"showBuffers,omitempty"`
+	ShowSwap    bool `json:"showSwap,omitempty"`
+	ShowBuffers bool `json:"showBuffers,omitempty"`
 
 	// 磁盘配置
-	MountPoints   []string `json:"mountPoints,omitempty"`
-	ShowIOStats   bool      `json:"showIOStats,omitempty"`
+	MountPoints []string `json:"mountPoints,omitempty"`
+	ShowIOStats bool     `json:"showIOStats,omitempty"`
 
 	// 网络配置
-	Interfaces    []string `json:"interfaces,omitempty"`
-	ShowPackets   bool     `json:"showPackets,omitempty"`
-	ShowErrors    bool     `json:"showErrors,omitempty"`
+	Interfaces  []string `json:"interfaces,omitempty"`
+	ShowPackets bool     `json:"showPackets,omitempty"`
+	ShowErrors  bool     `json:"showErrors,omitempty"`
 
 	// 通用配置
 	MaxDataPoints int    `json:"maxDataPoints,omitempty"`
@@ -78,8 +78,8 @@ type Dashboard struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Widgets     []*Widget `json:"widgets"`
-	Layout      Layout   `json:"layout"`
-	IsDefault   bool     `json:"isDefault"`
+	Layout      Layout    `json:"layout"`
+	IsDefault   bool      `json:"isDefault"`
 	OwnerID     string    `json:"ownerId"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
@@ -103,38 +103,38 @@ type WidgetData struct {
 
 // CPUWidgetData CPU 小组件数据
 type CPUWidgetData struct {
-	Timestamp   time.Time   `json:"timestamp"`
-	Usage       float64    `json:"usage"`
-	PerCore     []float64  `json:"perCore,omitempty"`
-	LoadAvg1    float64    `json:"loadAvg1"`
-	LoadAvg5    float64    `json:"loadAvg5"`
-	LoadAvg15   float64    `json:"loadAvg15"`
+	Timestamp    time.Time `json:"timestamp"`
+	Usage        float64   `json:"usage"`
+	PerCore      []float64 `json:"perCore,omitempty"`
+	LoadAvg1     float64   `json:"loadAvg1"`
+	LoadAvg5     float64   `json:"loadAvg5"`
+	LoadAvg15    float64   `json:"loadAvg15"`
 	ProcessCount int       `json:"processCount"`
-	Trend       []float64  `json:"trend,omitempty"`
+	Trend        []float64 `json:"trend,omitempty"`
 }
 
 // MemoryWidgetData 内存小组件数据
 type MemoryWidgetData struct {
-	Timestamp   time.Time   `json:"timestamp"`
-	Total       uint64    `json:"total"`
-	Used        uint64    `json:"used"`
-	Free        uint64    `json:"free"`
-	Available   uint64    `json:"available"`
-	Usage       float64   `json:"usage"`
-	SwapTotal   uint64    `json:"swapTotal"`
-	SwapUsed    uint64    `json:"swapUsed"`
-	SwapFree    uint64    `json:"swapFree"`
-	SwapUsage   float64   `json:"swapUsage"`
-	Buffers     uint64    `json:"buffers,omitempty"`
-	Cached      uint64    `json:"cached,omitempty"`
-	Trend       []float64 `json:"trend,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+	Total     uint64    `json:"total"`
+	Used      uint64    `json:"used"`
+	Free      uint64    `json:"free"`
+	Available uint64    `json:"available"`
+	Usage     float64   `json:"usage"`
+	SwapTotal uint64    `json:"swapTotal"`
+	SwapUsed  uint64    `json:"swapUsed"`
+	SwapFree  uint64    `json:"swapFree"`
+	SwapUsage float64   `json:"swapUsage"`
+	Buffers   uint64    `json:"buffers,omitempty"`
+	Cached    uint64    `json:"cached,omitempty"`
+	Trend     []float64 `json:"trend,omitempty"`
 }
 
 // DiskWidgetData 磁盘小组件数据
 type DiskWidgetData struct {
-	Timestamp time.Time         `json:"timestamp"`
-	Devices   []DiskDeviceData  `json:"devices"`
-	Total     DiskSummaryData   `json:"total"`
+	Timestamp time.Time        `json:"timestamp"`
+	Devices   []DiskDeviceData `json:"devices"`
+	Total     DiskSummaryData  `json:"total"`
 }
 
 // DiskDeviceData 磁盘设备数据
@@ -187,11 +187,11 @@ type NetworkSummaryData struct {
 
 // DashboardState 仪表板状态
 type DashboardState struct {
-	DashboardID string                `json:"dashboardId"`
-	LastUpdate  time.Time             `json:"lastUpdate"`
+	DashboardID string                 `json:"dashboardId"`
+	LastUpdate  time.Time              `json:"lastUpdate"`
 	WidgetData  map[string]*WidgetData `json:"widgetData"`
-	HealthScore float64               `json:"healthScore"`
-	Status      string                `json:"status"`
+	HealthScore float64                `json:"healthScore"`
+	Status      string                 `json:"status"`
 }
 
 // DashboardTemplate 仪表板模板
@@ -215,9 +215,9 @@ type WidgetTemplateConfig struct {
 
 // DashboardEvent 仪表板事件
 type DashboardEvent struct {
-	Type      string    `json:"type"`
-	DashboardID string   `json:"dashboardId"`
-	WidgetID  string    `json:"widgetId,omitempty"`
-	Timestamp time.Time `json:"timestamp"`
-	Data      interface{} `json:"data,omitempty"`
+	Type        string      `json:"type"`
+	DashboardID string      `json:"dashboardId"`
+	WidgetID    string      `json:"widgetId,omitempty"`
+	Timestamp   time.Time   `json:"timestamp"`
+	Data        interface{} `json:"data,omitempty"`
 }

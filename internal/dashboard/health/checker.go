@@ -24,41 +24,41 @@ import (
 type Status string
 
 const (
-	StatusHealthy   Status = "healthy"
-	StatusWarning   Status = "warning"
-	StatusCritical  Status = "critical"
-	StatusUnknown   Status = "unknown"
+	StatusHealthy  Status = "healthy"
+	StatusWarning  Status = "warning"
+	StatusCritical Status = "critical"
+	StatusUnknown  Status = "unknown"
 )
 
 // CheckType 检查类型
 type CheckType string
 
 const (
-	CheckTypeCPU      CheckType = "cpu"
-	CheckTypeMemory   CheckType = "memory"
-	CheckTypeDisk     CheckType = "disk"
-	CheckTypeLoad     CheckType = "load"
-	CheckTypeProcess  CheckType = "process"
-	CheckTypeService  CheckType = "service"
-	CheckTypeNetwork  CheckType = "network"
+	CheckTypeCPU     CheckType = "cpu"
+	CheckTypeMemory  CheckType = "memory"
+	CheckTypeDisk    CheckType = "disk"
+	CheckTypeLoad    CheckType = "load"
+	CheckTypeProcess CheckType = "process"
+	CheckTypeService CheckType = "service"
+	CheckTypeNetwork CheckType = "network"
 )
 
 // CheckResult 单项检查结果
 type CheckResult struct {
-	Type        CheckType   `json:"type"`
-	Name        string      `json:"name"`
-	Status      Status      `json:"status"`
-	Message     string      `json:"message"`
-	Value       interface{} `json:"value,omitempty"`
-	Threshold   Threshold   `json:"threshold,omitempty"`
-	Duration    time.Duration `json:"duration"`
-	Timestamp   time.Time   `json:"timestamp"`
+	Type      CheckType     `json:"type"`
+	Name      string        `json:"name"`
+	Status    Status        `json:"status"`
+	Message   string        `json:"message"`
+	Value     interface{}   `json:"value,omitempty"`
+	Threshold Threshold     `json:"threshold,omitempty"`
+	Duration  time.Duration `json:"duration"`
+	Timestamp time.Time     `json:"timestamp"`
 }
 
 // Threshold 阈值配置
 type Threshold struct {
-	Warning   float64 `json:"warning"`
-	Critical  float64 `json:"critical"`
+	Warning  float64 `json:"warning"`
+	Critical float64 `json:"critical"`
 }
 
 // HealthReport 健康检查报告
@@ -74,37 +74,37 @@ type HealthReport struct {
 
 // Summary 检查摘要
 type Summary struct {
-	Total     int `json:"total"`
-	Healthy   int `json:"healthy"`
-	Warning   int `json:"warning"`
-	Critical  int `json:"critical"`
-	Unknown   int `json:"unknown"`
+	Total    int `json:"total"`
+	Healthy  int `json:"healthy"`
+	Warning  int `json:"warning"`
+	Critical int `json:"critical"`
+	Unknown  int `json:"unknown"`
 }
 
 // CheckerConfig 检查器配置
 type CheckerConfig struct {
 	// 磁盘阈值
-	DiskWarningThreshold   float64
-	DiskCriticalThreshold  float64
-	
+	DiskWarningThreshold  float64
+	DiskCriticalThreshold float64
+
 	// 内存阈值
 	MemoryWarningThreshold  float64
 	MemoryCriticalThreshold float64
-	
+
 	// CPU 阈值
-	CPUWarningThreshold   float64
-	CPUCriticalThreshold  float64
-	
+	CPUWarningThreshold  float64
+	CPUCriticalThreshold float64
+
 	// 负载阈值（相对于核心数）
-	LoadWarningThreshold   float64
-	LoadCriticalThreshold  float64
-	
+	LoadWarningThreshold  float64
+	LoadCriticalThreshold float64
+
 	// 检查路径
 	DiskPaths []string
-	
+
 	// 服务检查
 	Services []ServiceCheck
-	
+
 	// 超时
 	Timeout time.Duration
 }
@@ -120,17 +120,17 @@ type ServiceCheck struct {
 // DefaultConfig 返回默认配置
 func DefaultConfig() *CheckerConfig {
 	return &CheckerConfig{
-		DiskWarningThreshold:   80,
-		DiskCriticalThreshold:  90,
-		MemoryWarningThreshold: 80,
+		DiskWarningThreshold:    80,
+		DiskCriticalThreshold:   90,
+		MemoryWarningThreshold:  80,
 		MemoryCriticalThreshold: 90,
-		CPUWarningThreshold:    80,
-		CPUCriticalThreshold:   95,
-		LoadWarningThreshold:   1.0,  // 核心数 * 1.0
-		LoadCriticalThreshold:  2.0,  // 核心数 * 2.0
-		DiskPaths:             []string{"/", "/var/lib/nas-os"},
-		Services:              []ServiceCheck{},
-		Timeout:               30 * time.Second,
+		CPUWarningThreshold:     80,
+		CPUCriticalThreshold:    95,
+		LoadWarningThreshold:    1.0, // 核心数 * 1.0
+		LoadCriticalThreshold:   2.0, // 核心数 * 2.0
+		DiskPaths:               []string{"/", "/var/lib/nas-os"},
+		Services:                []ServiceCheck{},
+		Timeout:                 30 * time.Second,
 	}
 }
 
@@ -147,12 +147,12 @@ func NewChecker(config *CheckerConfig) *Checker {
 	if config == nil {
 		config = DefaultConfig()
 	}
-	
+
 	hostname, _ := os.Hostname()
 	if hostname == "" {
 		hostname = "unknown"
 	}
-	
+
 	return &Checker{
 		config:   config,
 		hostname: hostname,
@@ -170,20 +170,20 @@ func (c *Checker) SetVersion(version string) {
 // Check 执行完整健康检查
 func (c *Checker) Check(ctx context.Context) *HealthReport {
 	start := time.Now()
-	
+
 	// 设置超时上下文
 	if c.config.Timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, c.config.Timeout)
 		defer cancel()
 	}
-	
+
 	var checks []CheckResult
-	
+
 	// 并行执行检查
 	var wg sync.WaitGroup
 	var mu sync.Mutex
-	
+
 	checkFuncs := []func(context.Context) CheckResult{
 		c.checkCPU,
 		c.checkMemory,
@@ -191,7 +191,7 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 		c.checkLoad,
 		c.checkProcess,
 	}
-	
+
 	// 添加服务检查
 	for _, svc := range c.config.Services {
 		svc := svc // 捕获变量
@@ -199,7 +199,7 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 			return c.checkService(ctx, svc)
 		})
 	}
-	
+
 	for _, fn := range checkFuncs {
 		wg.Add(1)
 		go func(f func(context.Context) CheckResult) {
@@ -210,13 +210,13 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 			mu.Unlock()
 		}(fn)
 	}
-	
+
 	wg.Wait()
-	
+
 	// 计算总体状态和摘要
 	summary := Summary{Total: len(checks)}
 	var overallStatus Status = StatusHealthy
-	
+
 	for _, check := range checks {
 		switch check.Status {
 		case StatusHealthy:
@@ -233,11 +233,11 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 			summary.Unknown++
 		}
 	}
-	
+
 	c.mu.RLock()
 	version := c.version
 	c.mu.RUnlock()
-	
+
 	return &HealthReport{
 		OverallStatus: overallStatus,
 		Hostname:      c.hostname,
@@ -252,17 +252,17 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 // QuickCheck 快速健康检查
 func (c *Checker) QuickCheck(ctx context.Context) *HealthReport {
 	start := time.Now()
-	
+
 	var checks []CheckResult
-	
+
 	// 只检查关键项
 	checks = append(checks, c.checkProcess(ctx))
 	checks = append(checks, c.checkMemory(ctx))
 	checks = append(checks, c.checkDisk(ctx))
-	
+
 	summary := Summary{Total: len(checks)}
 	var overallStatus Status = StatusHealthy
-	
+
 	for _, check := range checks {
 		switch check.Status {
 		case StatusHealthy:
@@ -279,11 +279,11 @@ func (c *Checker) QuickCheck(ctx context.Context) *HealthReport {
 			summary.Unknown++
 		}
 	}
-	
+
 	c.mu.RLock()
 	version := c.version
 	c.mu.RUnlock()
-	
+
 	return &HealthReport{
 		OverallStatus: overallStatus,
 		Hostname:      c.hostname,
@@ -303,7 +303,7 @@ func (c *Checker) checkCPU(ctx context.Context) CheckResult {
 		Name:      "CPU 使用率",
 		Timestamp: time.Now(),
 	}
-	
+
 	percentages, err := cpu.PercentWithContext(ctx, 1*time.Second, false)
 	if err != nil {
 		result.Status = StatusUnknown
@@ -311,14 +311,14 @@ func (c *Checker) checkCPU(ctx context.Context) CheckResult {
 		result.Duration = time.Since(start)
 		return result
 	}
-	
+
 	if len(percentages) == 0 {
 		result.Status = StatusUnknown
 		result.Message = "无法获取 CPU 使用率: 无数据"
 		result.Duration = time.Since(start)
 		return result
 	}
-	
+
 	usage := percentages[0]
 	result.Value = map[string]interface{}{
 		"usage":     usage,
@@ -329,7 +329,7 @@ func (c *Checker) checkCPU(ctx context.Context) CheckResult {
 		Warning:  c.config.CPUWarningThreshold,
 		Critical: c.config.CPUCriticalThreshold,
 	}
-	
+
 	if usage >= c.config.CPUCriticalThreshold {
 		result.Status = StatusCritical
 		result.Message = fmt.Sprintf("CPU 使用率过高: %.1f%%", usage)
@@ -340,7 +340,7 @@ func (c *Checker) checkCPU(ctx context.Context) CheckResult {
 		result.Status = StatusHealthy
 		result.Message = fmt.Sprintf("CPU 使用率正常: %.1f%%", usage)
 	}
-	
+
 	result.Duration = time.Since(start)
 	return result
 }
@@ -353,7 +353,7 @@ func (c *Checker) checkMemory(ctx context.Context) CheckResult {
 		Name:      "内存使用率",
 		Timestamp: time.Now(),
 	}
-	
+
 	vmStat, err := mem.VirtualMemoryWithContext(ctx)
 	if err != nil {
 		result.Status = StatusUnknown
@@ -361,7 +361,7 @@ func (c *Checker) checkMemory(ctx context.Context) CheckResult {
 		result.Duration = time.Since(start)
 		return result
 	}
-	
+
 	usage := vmStat.UsedPercent
 	result.Value = map[string]interface{}{
 		"total":     vmStat.Total,
@@ -376,7 +376,7 @@ func (c *Checker) checkMemory(ctx context.Context) CheckResult {
 		Warning:  c.config.MemoryWarningThreshold,
 		Critical: c.config.MemoryCriticalThreshold,
 	}
-	
+
 	if usage >= c.config.MemoryCriticalThreshold {
 		result.Status = StatusCritical
 		result.Message = fmt.Sprintf("内存使用率过高: %.1f%% (%.1f GB / %.1f GB)",
@@ -390,7 +390,7 @@ func (c *Checker) checkMemory(ctx context.Context) CheckResult {
 		result.Message = fmt.Sprintf("内存使用率正常: %.1f%% (%.1f GB / %.1f GB)",
 			usage, float64(vmStat.Used)/1024/1024/1024, float64(vmStat.Total)/1024/1024/1024)
 	}
-	
+
 	result.Duration = time.Since(start)
 	return result
 }
@@ -403,28 +403,28 @@ func (c *Checker) checkDisk(ctx context.Context) CheckResult {
 		Name:      "磁盘使用率",
 		Timestamp: time.Now(),
 	}
-	
+
 	// 检查所有配置的路径
 	var deviceResults []map[string]interface{}
 	var worstStatus Status = StatusHealthy
 	var worstMsg string
-	
+
 	for _, path := range c.config.DiskPaths {
 		usage, err := disk.UsageWithContext(ctx, path)
 		if err != nil {
 			// 路径不存在，跳过
 			continue
 		}
-		
+
 		deviceResults = append(deviceResults, map[string]interface{}{
-			"path":       path,
-			"total":      usage.Total,
-			"used":       usage.Used,
-			"free":       usage.Free,
-			"usage":      usage.UsedPercent,
-			"fstype":     usage.Fstype,
+			"path":   path,
+			"total":  usage.Total,
+			"used":   usage.Used,
+			"free":   usage.Free,
+			"usage":  usage.UsedPercent,
+			"fstype": usage.Fstype,
 		})
-		
+
 		// 更新最差状态
 		if usage.UsedPercent >= c.config.DiskCriticalThreshold && worstStatus != StatusCritical {
 			worstStatus = StatusCritical
@@ -434,14 +434,14 @@ func (c *Checker) checkDisk(ctx context.Context) CheckResult {
 			worstMsg = fmt.Sprintf("磁盘 %s 使用率较高: %.1f%%", path, usage.UsedPercent)
 		}
 	}
-	
+
 	if len(deviceResults) == 0 {
 		result.Status = StatusUnknown
 		result.Message = "无法获取磁盘信息"
 		result.Duration = time.Since(start)
 		return result
 	}
-	
+
 	result.Value = map[string]interface{}{
 		"devices": deviceResults,
 	}
@@ -449,7 +449,7 @@ func (c *Checker) checkDisk(ctx context.Context) CheckResult {
 		Warning:  c.config.DiskWarningThreshold,
 		Critical: c.config.DiskCriticalThreshold,
 	}
-	
+
 	if worstStatus == StatusCritical {
 		result.Status = StatusCritical
 		result.Message = worstMsg
@@ -460,7 +460,7 @@ func (c *Checker) checkDisk(ctx context.Context) CheckResult {
 		result.Status = StatusHealthy
 		result.Message = fmt.Sprintf("磁盘使用率正常 (检查了 %d 个挂载点)", len(deviceResults))
 	}
-	
+
 	result.Duration = time.Since(start)
 	return result
 }
@@ -473,7 +473,7 @@ func (c *Checker) checkLoad(ctx context.Context) CheckResult {
 		Name:      "系统负载",
 		Timestamp: time.Now(),
 	}
-	
+
 	loadAvg, err := load.AvgWithContext(ctx)
 	if err != nil {
 		result.Status = StatusUnknown
@@ -481,7 +481,7 @@ func (c *Checker) checkLoad(ctx context.Context) CheckResult {
 		result.Duration = time.Since(start)
 		return result
 	}
-	
+
 	cores := float64(runtime.NumCPU())
 	result.Value = map[string]interface{}{
 		"load1":  loadAvg.Load1,
@@ -493,7 +493,7 @@ func (c *Checker) checkLoad(ctx context.Context) CheckResult {
 		Warning:  cores * c.config.LoadWarningThreshold,
 		Critical: cores * c.config.LoadCriticalThreshold,
 	}
-	
+
 	// 根据 1 分钟负载判断
 	if loadAvg.Load1 >= cores*c.config.LoadCriticalThreshold {
 		result.Status = StatusCritical
@@ -505,7 +505,7 @@ func (c *Checker) checkLoad(ctx context.Context) CheckResult {
 		result.Status = StatusHealthy
 		result.Message = fmt.Sprintf("系统负载正常: %.2f (核心数: %.0f)", loadAvg.Load1, cores)
 	}
-	
+
 	result.Duration = time.Since(start)
 	return result
 }
@@ -518,7 +518,7 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 		Name:      "进程状态",
 		Timestamp: time.Now(),
 	}
-	
+
 	// 检查 nasd 进程
 	cmd := exec.CommandContext(ctx, "pgrep", "-x", "nasd")
 	output, err := cmd.Output()
@@ -528,7 +528,7 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 		result.Duration = time.Since(start)
 		return result
 	}
-	
+
 	pid := strings.TrimSpace(string(output))
 	if pid == "" {
 		result.Status = StatusCritical
@@ -536,14 +536,14 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 		result.Duration = time.Since(start)
 		return result
 	}
-	
+
 	// 获取进程信息
 	pidInt, _ := strconv.Atoi(pid)
-	
+
 	// 获取内存使用
 	var memRSS uint64
 	var cpuPercent float64
-	
+
 	if pidInt > 0 {
 		// 读取 /proc/<pid>/status 获取内存
 		if data, err := os.ReadFile(fmt.Sprintf("/proc/%d/status", pidInt)); err == nil {
@@ -560,7 +560,7 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 				}
 			}
 		}
-		
+
 		// 读取 /proc/<pid>/stat 获取 CPU
 		if data, err := os.ReadFile(fmt.Sprintf("/proc/%d/stat", pidInt)); err == nil {
 			fields := strings.Fields(string(data))
@@ -571,12 +571,12 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 			}
 		}
 	}
-	
+
 	result.Status = StatusHealthy
 	result.Message = fmt.Sprintf("nasd 进程运行中 (PID: %s)", pid)
 	result.Value = map[string]interface{}{
-		"pid":       pidInt,
-		"memRSS":    memRSS,
+		"pid":        pidInt,
+		"memRSS":     memRSS,
 		"cpuPercent": cpuPercent,
 	}
 	result.Duration = time.Since(start)
@@ -591,7 +591,7 @@ func (c *Checker) checkService(ctx context.Context, svc ServiceCheck) CheckResul
 		Name:      fmt.Sprintf("服务 %s", svc.Name),
 		Timestamp: time.Now(),
 	}
-	
+
 	// 检查进程
 	if svc.Process != "" {
 		cmd := exec.CommandContext(ctx, "pgrep", "-x", svc.Process)
@@ -602,7 +602,7 @@ func (c *Checker) checkService(ctx context.Context, svc ServiceCheck) CheckResul
 			return result
 		}
 	}
-	
+
 	// 检查端口
 	if svc.Port > 0 {
 		cmd := exec.CommandContext(ctx, "ss", "-tuln")
@@ -616,7 +616,7 @@ func (c *Checker) checkService(ctx context.Context, svc ServiceCheck) CheckResul
 			}
 		}
 	}
-	
+
 	// 检查 URL
 	if svc.URL != "" {
 		cmd := exec.CommandContext(ctx, "curl", "-sf", "--max-time", "5", svc.URL)
@@ -627,7 +627,7 @@ func (c *Checker) checkService(ctx context.Context, svc ServiceCheck) CheckResul
 			return result
 		}
 	}
-	
+
 	result.Status = StatusHealthy
 	result.Message = fmt.Sprintf("服务 %s 正常", svc.Name)
 	result.Value = map[string]interface{}{
@@ -643,7 +643,7 @@ func (c *Checker) checkService(ctx context.Context, svc ServiceCheck) CheckResul
 // GetSystemInfo 获取系统信息
 func (c *Checker) GetSystemInfo(ctx context.Context) (map[string]interface{}, error) {
 	info := make(map[string]interface{})
-	
+
 	// 主机信息
 	hostInfo, err := host.InfoWithContext(ctx)
 	if err == nil {
@@ -654,7 +654,7 @@ func (c *Checker) GetSystemInfo(ctx context.Context) (map[string]interface{}, er
 		info["kernelVersion"] = hostInfo.KernelVersion
 		info["uptime"] = hostInfo.Uptime
 	}
-	
+
 	// CPU 信息
 	cpuInfo, err := cpu.InfoWithContext(ctx)
 	if err == nil && len(cpuInfo) > 0 {
@@ -662,13 +662,13 @@ func (c *Checker) GetSystemInfo(ctx context.Context) (map[string]interface{}, er
 		info["cpuCores"] = cpuInfo[0].Cores
 	}
 	info["numCPU"] = runtime.NumCPU()
-	
+
 	// 内存信息
 	vmStat, err := mem.VirtualMemoryWithContext(ctx)
 	if err == nil {
 		info["memTotal"] = vmStat.Total
 		info["memAvailable"] = vmStat.Available
 	}
-	
+
 	return info, nil
 }
