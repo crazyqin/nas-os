@@ -15,8 +15,6 @@ import (
 )
 
 // Manager 配额管理器
-// 提供配额的创建、更新、删除和查询功能
-// 支持用户配额、用户组配额和目录配额
 type Manager struct {
 	mu           sync.RWMutex
 	quotas       map[string]*Quota            // quotaID -> Quota
@@ -31,17 +29,7 @@ type Manager struct {
 	userProvider UserProvider
 	alertConfig  AlertConfig
 	monitor      *Monitor
-
-	// 缓存：提高目录大小计算性能
-	usageCache    map[string]*usageCacheEntry // path -> cache
-	usageCacheMu  sync.RWMutex
-	usageCacheTTL time.Duration // 缓存有效期
-}
-
-// usageCacheEntry 使用量缓存条目
-type usageCacheEntry struct {
-	size      uint64
-	timestamp time.Time
+	gracePeriodMgr *GracePeriodManager         // 宽限期管理器 v2.56.0
 }
 
 // StorageProvider 存储接口（用于获取卷使用情况）
@@ -69,18 +57,16 @@ type UserProvider interface {
 // NewManager 创建配额管理器
 func NewManager(configPath string, storage StorageProvider, userProv UserProvider) (*Manager, error) {
 	m := &Manager{
-		quotas:        make(map[string]*Quota),
-		groupQuotas:   make(map[string]*Quota),
-		userQuotas:    make(map[string]map[string]*Quota),
-		dirQuotas:     make(map[string]*Quota),
-		policies:      make(map[string]*CleanupPolicy),
-		alerts:        make(map[string]*Alert),
-		alertHistory:  make([]*Alert, 0),
-		configPath:    configPath,
-		storageMgr:    storage,
-		userProvider:  userProv,
-		usageCache:    make(map[string]*usageCacheEntry),
-		usageCacheTTL: 5 * time.Minute, // 缓存5分钟有效
+		quotas:       make(map[string]*Quota),
+		groupQuotas:  make(map[string]*Quota),
+		userQuotas:   make(map[string]map[string]*Quota),
+		dirQuotas:    make(map[string]*Quota),
+		policies:     make(map[string]*CleanupPolicy),
+		alerts:       make(map[string]*Alert),
+		alertHistory: make([]*Alert, 0),
+		configPath:   configPath,
+		storageMgr:   storage,
+		userProvider: userProv,
 		alertConfig: AlertConfig{
 			Enabled:            true,
 			SoftLimitThreshold: 80,
@@ -99,6 +85,9 @@ func NewManager(configPath string, storage StorageProvider, userProv UserProvide
 
 	// 初始化监控器
 	m.monitor = NewMonitor(m, m.alertConfig)
+
+	// 初始化宽限期管理器 v2.56.0
+	m.gracePeriodMgr = NewGracePeriodManager()
 
 	return m, nil
 }
@@ -441,18 +430,7 @@ func (m *Manager) calculatePathUsage(quota *Quota) (uint64, error) {
 }
 
 // getDirSize 获取目录大小
-// 使用缓存机制提高性能，避免频繁调用 du 命令
 func (m *Manager) getDirSize(path string) (uint64, error) {
-	// 检查缓存
-	m.usageCacheMu.RLock()
-	if entry, ok := m.usageCache[path]; ok {
-		if time.Since(entry.timestamp) < m.usageCacheTTL {
-			m.usageCacheMu.RUnlock()
-			return entry.size, nil
-		}
-	}
-	m.usageCacheMu.RUnlock()
-
 	// 检查路径是否存在
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return 0, nil
@@ -468,31 +446,7 @@ func (m *Manager) getDirSize(path string) (uint64, error) {
 	// 解析输出
 	var size uint64
 	fmt.Sscanf(string(output), "%d", &size)
-
-	// 更新缓存
-	m.usageCacheMu.Lock()
-	m.usageCache[path] = &usageCacheEntry{
-		size:      size,
-		timestamp: time.Now(),
-	}
-	m.usageCacheMu.Unlock()
-
 	return size, nil
-}
-
-// ClearUsageCache 清除使用量缓存
-// 在执行清理操作后调用，确保数据准确性
-func (m *Manager) ClearUsageCache() {
-	m.usageCacheMu.Lock()
-	defer m.usageCacheMu.Unlock()
-	m.usageCache = make(map[string]*usageCacheEntry)
-}
-
-// ClearUsageCacheForPath 清除指定路径的使用量缓存
-func (m *Manager) ClearUsageCacheForPath(path string) {
-	m.usageCacheMu.Lock()
-	defer m.usageCacheMu.Unlock()
-	delete(m.usageCache, path)
 }
 
 // ========== 告警管理 ==========
@@ -712,4 +666,41 @@ func (m *Manager) CheckQuota(username, volumeName string, additionalBytes uint64
 	}
 
 	return nil
+}
+
+// ========== 宽限期管理 v2.56.0 ==========
+
+// SetGracePeriod 设置配额宽限期
+func (m *Manager) SetGracePeriod(quotaID string, duration time.Duration) {
+	if m.gracePeriodMgr != nil {
+		m.gracePeriodMgr.SetGracePeriod(quotaID, duration)
+	}
+}
+
+// ExtendGracePeriod 延长配额宽限期
+func (m *Manager) ExtendGracePeriod(quotaID string, expiry time.Time) {
+	if m.gracePeriodMgr != nil {
+		m.gracePeriodMgr.ExtendGracePeriod(quotaID, expiry)
+	}
+}
+
+// GetGracePeriodInfo 获取宽限期信息
+func (m *Manager) GetGracePeriodInfo(quotaID string) (time.Duration, *time.Time) {
+	if m.gracePeriodMgr != nil {
+		return m.gracePeriodMgr.GetGracePeriodInfo(quotaID)
+	}
+	return 0, nil
+}
+
+// RecordAdjustment 记录配额调整
+func (m *Manager) RecordAdjustment(quotaID string, hardDelta, softDelta int64, reason string) {
+	// 记录调整历史（可扩展为持久化）
+	adjustment := QuotaAdjustment{
+		QuotaID:    quotaID,
+		HardDelta:  hardDelta,
+		SoftDelta:  softDelta,
+		Reason:     reason,
+		AdjustedAt: time.Now(),
+	}
+	_ = adjustment // 可存储到数据库或日志
 }
