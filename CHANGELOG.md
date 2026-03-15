@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.43.0] - 2026-03-15
+
+### Added
+- **测试覆盖提升** (兵部)
+  - internal/monitor/alerting_test.go - 告警模块测试
+  - internal/monitor/health_score_test.go - 健康评分测试
+
+### Security
+- **安全审计报告** (刑部)
+  - SECURITY_AUDIT_v2.42.0.md - 完整安全审计
+  - 发现 150+ 安全问题，主要是路径遍历和命令注入
+
+### Improved
+- **资源优化分析** (户部)
+  - reports/resource-optimization-v2.42.0.md
+  - 分析内存泄漏风险、连接管理问题、并发控制问题
+
 ## [v2.42.0] - 2026-03-15
 
 ### Fixed
