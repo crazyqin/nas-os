@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.88.0] - 2026-03-16
+
+### Changed
+- **版本号统一更新** (礼部)
+  - README.md 版本更新至 v2.88.0
+  - CHANGELOG.md 版本记录更新
+  - docs/ 文档版本号同步
+
+### Added
+- **发布说明** (礼部)
+  - 创建 docs/RELEASE-v2.88.0.md 发布说明
+
+## [v2.87.0] - 2026-03-16
+
+### Security
+- **安全审计 v2.87.0** (刑部)
+  - gosec 代码漏洞扫描完成 (443 文件，273,102 行代码)
+  - go vet 静态分析问题修复
+  - 依赖安全性检查完成
+  - 测试代码类型错误修复
+
+### Fixed
+- **测试代码修复** (兵部)
+  - container_models_test.go 重复函数删除
+  - trigger_extended_test.go 字段引用修正
+  - manager_test.go 参数类型修正
+  - middleware_test.go 重复定义删除
+  - storage_handlers_test.go 字段引用修正
+
 ## [v2.86.0] - 2026-03-16
 
 ### Changed
