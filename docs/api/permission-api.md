@@ -1,7 +1,7 @@
 # 权限管理 API 文档
 
-**版本**: v2.67.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ---
 
@@ -61,7 +61,7 @@ GET /api/v1/rbac/users/{user_id}
         "is_owner": false
       }
     ],
-    "last_checked": "2026-03-15T10:30:00Z"
+    "last_checked": "2026-03-16T10:30:00Z"
   }
 }
 ```
@@ -238,7 +238,7 @@ POST /api/v1/rbac/groups
     "group_id": "developers",
     "group_name": "开发组",
     "permissions": ["storage:read", "storage:write", "share:read"],
-    "created_at": "2026-03-15T10:30:00Z"
+    "created_at": "2026-03-16T10:30:00Z"
   }
 }
 ```
@@ -265,8 +265,8 @@ GET /api/v1/rbac/groups/{group_id}
     "group_id": "developers",
     "group_name": "开发组",
     "permissions": ["storage:read", "storage:write", "share:read"],
-    "created_at": "2026-03-15T10:30:00Z",
-    "updated_at": "2026-03-15T10:30:00Z"
+    "created_at": "2026-03-16T10:30:00Z",
+    "updated_at": "2026-03-16T10:30:00Z"
   }
 }
 ```
@@ -461,7 +461,7 @@ POST /api/v1/rbac/policies
     "id": "policy-001",
     "name": "禁止访客修改网络",
     "enabled": true,
-    "created_at": "2026-03-15T10:30:00Z"
+    "created_at": "2026-03-16T10:30:00Z"
   }
 }
 ```
@@ -495,8 +495,8 @@ GET /api/v1/rbac/policies/{policy_id}
     "priority": 100,
     "enabled": true,
     "conditions": [],
-    "created_at": "2026-03-15T10:30:00Z",
-    "updated_at": "2026-03-15T10:30:00Z"
+    "created_at": "2026-03-16T10:30:00Z",
+    "updated_at": "2026-03-16T10:30:00Z"
   }
 }
 ```
@@ -815,4 +815,4 @@ DELETE /api/v1/rbac/cache
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| v2.55.0 | 2026-03-15 | 初始版本 |
+| v2.55.0 | 2026-03-16 | 初始版本 |

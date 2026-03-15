@@ -1,7 +1,7 @@
 # 计费 API 文档
 
-**版本**: v2.67.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ## 概述
 
@@ -149,7 +149,7 @@ GET /api/v1/billing/usage/history
   "data": {
     "records": [
       {
-        "date": "2026-03-15",
+        "date": "2026-03-16",
         "storage_gb": 500.5,
         "bandwidth_gb": 23.5,
         "cost": 50.05
@@ -448,7 +448,7 @@ GET /api/v1/billing/cost/trends
   "data": {
     "granularity": "daily",
     "start_date": "2026-03-01",
-    "end_date": "2026-03-15",
+    "end_date": "2026-03-16",
     "trends": [
       {
         "date": "2026-03-01",
@@ -725,7 +725,7 @@ POST /api/v1/billing/cost/recommendations/:id/apply
   "data": {
     "recommendation_id": "rec-001",
     "status": "applied",
-    "applied_at": "2026-03-15T16:00:00Z",
+    "applied_at": "2026-03-16T16:00:00Z",
     "estimated_savings": {
       "monthly": 40.00,
       "annual": 480.00,
@@ -836,7 +836,7 @@ POST /api/v1/billing/budgets
     "alert_thresholds": [50, 80, 100],
     "alert_channels": ["email", "webhook"],
     "status": "active",
-    "created_at": "2026-03-15T16:00:00Z"
+    "created_at": "2026-03-16T16:00:00Z"
   }
 }
 ```
@@ -1037,7 +1037,7 @@ POST /api/v1/billing/alert-channels
     "type": "webhook",
     "name": "Slack 通知",
     "enabled": true,
-    "created_at": "2026-03-15T16:00:00Z"
+    "created_at": "2026-03-16T16:00:00Z"
   }
 }
 ```

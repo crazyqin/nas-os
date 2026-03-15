@@ -1,7 +1,7 @@
 # NAS-OS API 文档
 
-**版本**: v2.72.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ## 概述
 
@@ -70,3 +70,20 @@ Content-Type: application/json
 - [权限管理 API](./permission-api.md) - RBAC 权限管理 (v2.55.0+)
 - [存储 API](./storage-api.md) - 卷管理、子卷、快照 (v2.61.0+)
 - [用户 API](./user-api.md) - 用户管理、认证、MFA (v2.61.0+)
+
+## 示例代码
+
+- [API 示例代码](./examples.md) - Python、JavaScript、cURL 完整示例 (v2.76.0+)
+
+## 快速开始
+
+```bash
+# 登录获取 Token
+TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"your-password"}' | jq -r '.data.token')
+
+# 获取卷列表
+curl http://localhost:8080/api/v1/volumes \
+  -H "Authorization: Bearer $TOKEN"
+```

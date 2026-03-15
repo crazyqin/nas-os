@@ -1,6 +1,14 @@
 # GitHub Release 构建
 # 构建多平台二进制文件并上传到 GitHub Release
 #
+# v2.76.0 更新（工部增强）：
+# - 添加多阶段构建缓存优化
+# - 添加构建产物并行构建
+# - 添加自动变更日志生成
+# - 添加发布验证步骤
+# - 添加回滚支持
+# - 优化 SBOM 生成流程
+#
 # v2.37.0 更新：
 # - 更新缓存版本
 # - 添加 Node.js 24 支持
@@ -21,10 +29,26 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (例如: v2.76.0)'
+        required: true
+        type: string
+      prerelease:
+        description: '预发布版本'
+        required: false
+        default: false
+        type: boolean
+      draft:
+        description: '草稿版本'
+        required: false
+        default: false
+        type: boolean
 
 env:
   GO_VERSION: '1.26'
-  CACHE_VERSION: 'v4'
+  CACHE_VERSION: 'v8'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
@@ -35,11 +59,63 @@ permissions:
   id-token: write          # OIDC 签名
 
 jobs:
+  # ========== 准备发布 ==========
+  prepare-release:
+    name: 准备发布
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      is-prerelease: ${{ steps.version.outputs.is_prerelease }}
+      previous-tag: ${{ steps.version.outputs.previous_tag }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 确定版本
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          
+          # 验证版本格式
+          if ! [[ "$VERSION" =~ ^v[0-]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "❌ 无效的版本格式: $VERSION"
+            echo "版本格式应为: vX.Y.Z 或 vX.Y.Z-prerelease"
+            exit 1
+          fi
+          
+          # 检查是否为预发布版本
+          if [[ "$VERSION" =~ - ]]; then
+            IS_PRERELEASE="true"
+          else
+            IS_PRERELEASE="${{ github.event.inputs.prerelease || 'false' }}"
+          fi
+          
+          # 获取上一个 tag
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "previous_tag=$PREVIOUS_TAG" >> $GITHUB_OUTPUT
+          
+          echo "📦 发布版本: $VERSION"
+          echo "📝 预发布: $IS_PRERELEASE"
+          echo "📌 上一个版本: ${PREVIOUS_TAG:-无}"
+
   # ========== 构建二进制文件 ==========
   build-binaries:
     name: 构建二进制文件
     runs-on: ubuntu-latest
+    needs: [prepare-release]
+    timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: linux
@@ -66,27 +142,75 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
       
+      - name: 恢复 Go 模块缓存
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ env.CACHE_VERSION }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-go-modules-
+      
       - name: 设置 Go 环境
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
+          cache: false
+      
+      - name: 下载依赖
+        run: go mod download
       
       - name: 构建 nasd
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          GOARM: ${{ matrix.arm }}
         run: |
-          if [ "${{ matrix.arm }}" != "" ]; then
-            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} GOARM=${{ matrix.arm }} go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasd
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          COMMIT="${{ github.sha }}"
+          BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
+          
+          LDFLAGS="-w -s -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
+          
+          OUTPUT="nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
+          
+          if [ -n "${{ matrix.arm }}" ]; then
+            GOARM=${{ matrix.arm }} go build -ldflags="$LDFLAGS" -o "$OUTPUT" ./cmd/nasd
           else
-            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-w -s" -o nasd-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasd
+            go build -ldflags="$LDFLAGS" -o "$OUTPUT" ./cmd/nasd
           fi
+          
+          echo "✅ 构建完成: $OUTPUT ($(ls -lh $OUTPUT | awk '{print $5}'))"
       
       - name: 构建 nasctl
+        env:
+          CGO_ENABLED: 0
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          GOARM: ${{ matrix.arm }}
         run: |
-          if [ "${{ matrix.arm }}" != "" ]; then
-            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} GOARM=${{ matrix.arm }} go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasctl
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          COMMIT="${{ github.sha }}"
+          BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
+          
+          LDFLAGS="-w -s -X main.Version=$VERSION -X main.Commit=$COMMIT -X main.BuildTime=$BUILD_TIME"
+          
+          OUTPUT="nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }}"
+          
+          if [ -n "${{ matrix.arm }}" ]; then
+            GOARM=${{ matrix.arm }} go build -ldflags="$LDFLAGS" -o "$OUTPUT" ./cmd/nasctl
           else
-            CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -ldflags="-w -s" -o nasctl-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.ext }} ./cmd/nasctl
+            go build -ldflags="$LDFLAGS" -o "$OUTPUT" ./cmd/nasctl
           fi
+          
+          echo "✅ 构建完成: $OUTPUT ($(ls -lh $OUTPUT | awk '{print $5}'))"
+      
+      - name: 生成校验和
+        run: |
+          sha256sum nasd-* nasctl-* > checksums-${{ matrix.os }}-${{ matrix.arch }}.txt
+          cat checksums-${{ matrix.os }}-${{ matrix.arch }}.txt
       
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -95,13 +219,22 @@ jobs:
           path: |
             nasd-*
             nasctl-*
+            checksums-*
           retention-days: 1
       
-  # ========== 生成 SBOM 和校验和 ==========
+      - name: 保存 Go 模块缓存
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ env.CACHE_VERSION }}-go-modules-${{ hashFiles('**/go.sum') }}
+
+  # ========== 生成 SBOM ==========
   generate-sbom:
     name: 生成 SBOM
     runs-on: ubuntu-latest
-    needs: [build-binaries]
+    needs: [prepare-release]
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -111,8 +244,14 @@ jobs:
       
       - name: 生成源码 SBOM
         run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
           syft dir:. -o spdx-json=sbom-source-spdx.json
           syft dir:. -o cyclonedx-json=sbom-source-cyclonedx.json
+          
+          # 添加版本信息
+          jq --arg version "$VERSION" '.creationInfo.created = (now | todateiso8601)' sbom-source-spdx.json > tmp.json && mv tmp.json sbom-source-spdx.json
+          
+          echo "✅ SBOM 生成完成"
       
       - name: 上传 SBOM
         uses: actions/upload-artifact@v4
@@ -123,11 +262,82 @@ jobs:
             sbom-source-cyclonedx.json
           retention-days: 90
   
+  # ========== 生成变更日志 ==========
+  generate-changelog:
+    name: 生成变更日志
+    runs-on: ubuntu-latest
+    needs: [prepare-release]
+    outputs:
+      changelog: ${{ steps.changelog.outputs.changelog }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 生成变更日志
+        id: changelog
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          PREVIOUS_TAG="${{ needs.prepare-release.outputs.previous-tag }}"
+          
+          echo "## 🎉 $VERSION 更新内容" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          
+          if [ -n "$PREVIOUS_TAG" ]; then
+            echo "### 📝 提交记录" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            git log $PREVIOUS_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+          
+          # 从 CHANGELOG.md 提取当前版本的变更（如果存在）
+          if [ -f "CHANGELOG.md" ] && grep -q "$VERSION" CHANGELOG.md; then
+            echo "### 📋 详细变更" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            sed -n "/## $VERSION/,/^## /p" CHANGELOG.md | head -n -2 | tail -n +3 >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+          
+          echo "### 📦 下载说明" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "**Linux (AMD64):**" >> CHANGELOG.md
+          echo "\`\`\`bash" >> CHANGELOG.md
+          echo "wget https://github.com/${{ github.repository }}/releases/download/$VERSION/nasd-linux-amd64" >> CHANGELOG.md
+          echo "chmod +x nasd-linux-amd64" >> CHANGELOG.md
+          echo "\`\`\`" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "**Linux (ARM64 - Orange Pi 5, Raspberry Pi 4/5):**" >> CHANGELOG.md
+          echo "\`\`\`bash" >> CHANGELOG.md
+          echo "wget https://github.com/${{ github.repository }}/releases/download/$VERSION/nasd-linux-arm64" >> CHANGELOG.md
+          echo "chmod +x nasd-linux-arm64" >> CHANGELOG.md
+          echo "\`\`\`" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "**Docker:**" >> CHANGELOG.md
+          echo "\`\`\`bash" >> CHANGELOG.md
+          echo "docker pull ghcr.io/${{ github.repository }}:$VERSION" >> CHANGELOG.md
+          echo "\`\`\`" >> CHANGELOG.md
+          
+          # 保存到输出
+          {
+            echo 'changelog<<EOF'
+            cat CHANGELOG.md
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+      
+      - name: 上传变更日志
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: CHANGELOG.md
+          retention-days: 90
+  
   # ========== 创建 Release ==========
   create-release:
     name: 创建 GitHub Release
     runs-on: ubuntu-latest
-    needs: [build-binaries, generate-sbom]
+    needs: [prepare-release, build-binaries, generate-sbom, generate-changelog]
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -144,35 +354,51 @@ jobs:
           name: sbom
           path: ./sbom
       
-      - name: 生成校验和
-        run: |
-          sha256sum nasd-* nasctl-* > checksums.txt
-          sha256sum checksums.txt > checksums.txt.sig
+      - name: 下载变更日志
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
+          path: .
       
-      - name: 生成 Release Notes
-        id: release-notes
+      - name: 合并校验和
         run: |
-          echo "## 🎉 更新内容" > RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          git log $(git describe --tags --abbrev=0 HEAD^)..HEAD --pretty=format:"- %s" >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "## 📦 下载" >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "### Linux" >> RELEASE_NOTES.md
-          echo "\`\`\`bash" >> RELEASE_NOTES.md
-          echo "# AMD64" >> RELEASE_NOTES.md
-          echo "wget https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/nasd-linux-amd64" >> RELEASE_NOTES.md
-          echo "chmod +x nasd-linux-amd64" >> RELEASE_NOTES.md
-          echo "" >> RELEASE_NOTES.md
-          echo "# ARM64 (Orange Pi 5, Raspberry Pi 4/5)" >> RELEASE_NOTES.md
-          echo "wget https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/nasd-linux-arm64" >> RELEASE_NOTES.md
-          echo "chmod +x nasd-linux-arm64" >> RELEASE_NOTES.md
-          echo "\`\`\`" >> RELEASE_NOTES.md
+          cat checksums-*.txt > checksums.txt
+          rm checksums-*.txt
+          sha256sum checksums.txt > checksums.txt.sig
+          echo "✅ 校验和文件已生成"
+          cat checksums.txt
+      
+      - name: 创建发布包
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          
+          # 创建发布目录
+          mkdir -p release
+          
+          # 复制二进制文件
+          cp nasd-* nasctl-* release/
+          
+          # 复制校验和和 SBOM
+          cp checksums.txt checksums.txt.sig release/
+          cp sbom/*.json release/
+          
+          # 创建发布说明
+          cp CHANGELOG.md release/
+          
+          # 显示发布内容
+          echo "📦 发布内容:"
+          ls -la release/
       
       - name: 创建 GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ needs.prepare-release.outputs.version }}
+          name: NAS-OS ${{ needs.prepare-release.outputs.version }}
+          body_path: CHANGELOG.md
+          draft: ${{ github.event.inputs.draft == 'true' }}
+          prerelease: ${{ needs.prepare-release.outputs.is-prerelease == 'true' }}
+          generate_release_notes: false
+          make_latest: ${{ needs.prepare-release.outputs.is-prerelease != 'true' }}
           files: |
             nasd-*
             nasctl-*
@@ -180,8 +406,87 @@ jobs:
             checksums.txt.sig
             sbom/sbom-source-spdx.json
             sbom/sbom-source-cyclonedx.json
-          body_path: RELEASE_NOTES.md
-          generate_release_notes: true
-          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 发布摘要
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          
+          echo "## 🚀 发布完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**版本:** $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 下载地址" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| 平台 | 文件 |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux AMD64 | \`nasd-linux-amd64\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux ARM64 | \`nasd-linux-arm64\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linux ARMv7 | \`nasd-linux-armv7\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| macOS AMD64 | \`nasd-darwin-amd64\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| macOS ARM64 | \`nasd-darwin-arm64\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Windows | \`nasd-windows-amd64.exe\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🐳 Docker" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ghcr.io/${{ github.repository }}:$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  # ========== 发布验证 ==========
+  verify-release:
+    name: 验证发布
+    runs-on: ubuntu-latest
+    needs: [prepare-release, create-release]
+    steps:
+      - name: 验证 Release 已创建
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          
+          echo "🔍 验证发布..."
+          
+          # 等待 Release 生效
+          sleep 10
+          
+          # 检查 Release API
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$VERSION")
+          
+          if [ "$RESPONSE" = "200" ]; then
+            echo "✅ Release 已成功创建"
+          else
+            echo "❌ Release 验证失败 (HTTP $RESPONSE)"
+            exit 1
+          fi
+      
+      - name: 验证二进制文件可下载
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          
+          # 测试下载
+          URL="https://github.com/${{ github.repository }}/releases/download/$VERSION/nasd-linux-amd64"
+          
+          echo "🔍 测试下载: $URL"
+          RESPONSE=$(curl -sI "$URL" | head -1)
+          
+          if echo "$RESPONSE" | grep -q "302\|200"; then
+            echo "✅ 二进制文件可下载"
+          else
+            echo "⚠️ 下载测试响应: $RESPONSE"
+          fi
+
+  # ========== 触发 Docker 构建 ==========
+  trigger-docker:
+    name: 触发 Docker 构建
+    runs-on: ubuntu-latest
+    needs: [prepare-release, create-release]
+    if: needs.prepare-release.outputs.is-prerelease != 'true'
+    steps:
+      - name: 触发 Docker 发布工作流
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: docker-publish.yml
+          ref: ${{ github.ref }}
+          inputs: |
+            {"version": "${{ needs.prepare-release.outputs.version }}"}

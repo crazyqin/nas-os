@@ -1,0 +1,18 @@
+{
+  "department": "兵部",
+  "version": "v2.76.0",
+  "files_modified": [
+    "internal/security/manager_test.go",
+    "internal/container/container_test.go",
+    "internal/quota/manager_test.go (deleted - duplicate)",
+    "internal/plugin/monitor_test.go"
+  ],
+  "files_created": [
+    "internal/plugin/monitor.go",
+    "internal/api/middleware.go",
+    "internal/api/middleware_test.go",
+    "internal/security/manager_test.go"
+  ],
+  "test_coverage": "26.7%",
+  "summary": "v2.76.0 版本开发完成，主题为'稳定性与性能优化'。主要成果：\n\n1. 测试覆盖率提升：\n   - 整体覆盖率：26.7%\n   - 新增 internal/plugin/monitor_test.go (28.1%)\n   - 新增 internal/api/middleware_test.go (56.2%)\n   - 新增 internal/security/manager_test.go\n   - 增强 internal/container/container_test.go (2.0%)\n\n2. API 稳定性增强：\n   - 创建 internal/api/middleware.go\n   - 实现统一错误处理中间件 (ErrorHandler)\n   - 实现请求日志中间件 (RequestLogger)\n   - 实现请求ID中间件 (RequestID)\n   - 实现超时中间件 (Timeout)\n   - 实现 CORS 中间件\n   - 实现安全头中间件 (SecurityHeaders)\n   - 实现缓存控制中间件\n   - 实现健康检查端点中间件\n   - 批量操作响应支持\n\n3. 插件系统完善：\n   - 创建 internal/plugin/monitor.go\n   - 实现插件健康状态监控 (PluginMonitor)\n   - 实现告警系统 (PluginAlert)\n   - 实现自动重启功能\n   - 实现状态持久化\n   - 定义 HealthChecker 和 MetricsCollector 接口\n   - 实现监控摘要和状态查询\n\n测试结果：84/87 模块测试通过，3个模块因模板解析问题待修复。"
+}

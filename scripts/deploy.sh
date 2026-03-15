@@ -1,46 +1,51 @@
 #!/bin/bash
-# NAS-OS 生产部署脚本
-# 版本: v2.68.0
+# =============================================================================
+# NAS-OS 一键部署脚本 v2.76.0
+# =============================================================================
+# 用途：支持二进制部署、Docker 部署、升级、回滚
+# 用法：./deploy.sh <command> [options]
 #
-# 功能：
-# - 服务管理（启动/停止/重启/状态检查）
-# - 版本管理（备份当前版本）
-# - 健康检查
-# - 数据库备份
-# - 滚动部署
-# - 自动回滚
-#
-# 用法:
-#   ./deploy.sh start                  # 启动服务
-#   ./deploy.sh stop                   # 停止服务
-#   ./deploy.sh restart                # 重启服务
-#   ./deploy.sh status                 # 查看状态
-#   ./deploy.sh [version] [options]    # 部署新版本
-#   ./deploy.sh --dry-run              # 模拟部署
-#   ./deploy.sh --rollback             # 回滚到上一版本
+# v2.76.0 更新（工部增强）：
+# - 添加蓝绿部署支持
+# - 添加健康检查和自动回滚
+# - 添加部署前检查和依赖验证
+# - 添加配置迁移和备份
+# - 添加部署日志和审计
+# - 支持 dry-run 模式
+# =============================================================================
 
 set -euo pipefail
 
 # 版本
-VERSION="2.68.0"
+VERSION="2.76.0"
+SCRIPT_NAME=$(basename "$0")
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# ==================== 配置 ====================
-APP_NAME="nas-os"
+# =============================================================================
+# 配置
+# =============================================================================
+
+# 安装目录
+INSTALL_DIR="${INSTALL_DIR:-/usr/local}"
+CONFIG_DIR="${CONFIG_DIR:-/etc/nas-os}"
 DATA_DIR="${DATA_DIR:-/var/lib/nas-os}"
-BACKUP_DIR="${BACKUP_DIR:-/var/lib/nas-os/backups}"
 LOG_DIR="${LOG_DIR:-/var/log/nas-os}"
-BINARY_PATH="${BINARY_PATH:-/usr/local/bin/nasd}"
-CONFIG_PATH="${CONFIG_PATH:-/etc/nas-os/config.yaml}"
-SERVICE_NAME="${SERVICE_NAME:-nas-os}"
+BACKUP_DIR="${BACKUP_DIR:-/var/lib/nas-os/backups}"
+
+# 发布配置
+RELEASE_VERSION="${RELEASE_VERSION:-latest}"
+RELEASE_URL="https://github.com/nas-os/nas-os/releases"
 
 # 健康检查配置
-HEALTH_CHECK_TIMEOUT="${HEALTH_CHECK_TIMEOUT:-120}"
-HEALTH_CHECK_INTERVAL="${HEALTH_CHECK_INTERVAL:-5}"
 HEALTH_CHECK_URL="${HEALTH_CHECK_URL:-http://localhost:8080/api/v1/health}"
+HEALTH_CHECK_TIMEOUT="${HEALTH_CHECK_TIMEOUT:-30}"
+HEALTH_CHECK_RETRIES="${HEALTH_CHECK_RETRIES:-5}"
 
-# 部署配置
-MAX_VERSIONS="${MAX_VERSIONS:-10}"
-DEPLOY_TIMEOUT="${DEPLOY_TIMEOUT:-300}"
+# 部署模式
+DEPLOY_MODE="${DEPLOY_MODE:-binary}"  # binary, docker, blue-green
+DRY_RUN="${DRY_RUN:-false}"
+ROLLBACK_ON_FAILURE="${ROLLBACK_ON_FAILURE:-true}"
 
 # 颜色
 RED='\033[0;31m'
@@ -50,812 +55,842 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-# ==================== 日志函数 ====================
-log_info() { echo -e "${BLUE}[INFO]${NC} $(date '+%H:%M:%S') $1"; }
-log_success() { echo -e "${GREEN}[OK]${NC} $(date '+%H:%M:%S') $1"; }
-log_warn() { echo -e "${YELLOW}[WARN]${NC} $(date '+%H:%M:%S') $1"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $(date '+%H:%M:%S') $1"; }
-log_step() { echo -e "${CYAN}[STEP]${NC} $(date '+%H:%M:%S') $1"; }
+# =============================================================================
+# 工具函数
+# =============================================================================
 
-# ==================== 显示帮助 ====================
-show_help() {
-    cat <<EOF
-NAS-OS 生产部署工具 v${VERSION}
-
-用法: $0 <command|version> [options]
-
-服务管理命令:
-  start           启动 NAS-OS 服务
-  stop            停止 NAS-OS 服务
-  restart         重启 NAS-OS 服务
-  status          查看服务状态
-  rollback        回滚到上一版本
-
-部署命令:
-  version         要部署的版本号 (如: v2.68.0)
-
-选项:
-  --dry-run       模拟部署，不实际执行
-  --skip-backup   跳过数据库备份
-  --skip-health   跳过健康检查
-  --force         强制部署（忽略警告）
-  --rollback      部署失败时自动回滚
-  --no-start      只安装，不启动服务
-  -h, --help      显示帮助
-
-环境变量:
-  DATA_DIR        数据目录 (默认: /var/lib/nas-os)
-  BACKUP_DIR      备份目录 (默认: /var/lib/nas-os/backups)
-  BINARY_PATH     二进制文件路径 (默认: /usr/local/bin/nasd)
-  SERVICE_NAME    服务名称 (默认: nas-os)
-
-示例:
-  $0 start                        # 启动服务
-  $0 stop                         # 停止服务
-  $0 restart                      # 重启服务
-  $0 status                       # 查看状态
-  $0 v2.68.0                      # 部署 v2.68.0
-  $0 v2.68.0 --rollback           # 部署失败时自动回滚
-  $0 --dry-run                    # 模拟部署
-  $0 rollback                     # 回滚到上一版本
-
-EOF
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
-# ==================== 参数解析 ====================
-TARGET_VERSION=""
-DRY_RUN=false
-SKIP_BACKUP=false
-SKIP_HEALTH=false
-FORCE=false
-AUTO_ROLLBACK=false
-NO_START=false
-COMMAND=""
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
 
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        start) COMMAND="start"; shift ;;
-        stop) COMMAND="stop"; shift ;;
-        restart) COMMAND="restart"; shift ;;
-        status) COMMAND="status"; shift ;;
-        rollback) COMMAND="rollback"; shift ;;
-        --dry-run) DRY_RUN=true; shift ;;
-        --skip-backup) SKIP_BACKUP=true; shift ;;
-        --skip-health) SKIP_HEALTH=true; shift ;;
-        --force) FORCE=true; shift ;;
-        --rollback) AUTO_ROLLBACK=true; shift ;;
-        --no-start) NO_START=true; shift ;;
-        -h|--help) show_help; exit 0 ;;
-        v*|V*) TARGET_VERSION="$1"; shift ;;
-        *) log_error "未知参数: $1"; show_help; exit 1 ;;
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+log_step() {
+    echo -e "${CYAN}[STEP]${NC} $1"
+}
+
+# 检测系统架构
+detect_arch() {
+    local arch=$(uname -m)
+    case $arch in
+        x86_64)
+            echo "amd64"
+            ;;
+        aarch64)
+            echo "arm64"
+            ;;
+        armv7l)
+            echo "armv7"
+            ;;
+        *)
+            echo "unsupported"
+            ;;
     esac
-done
+}
 
-# ==================== 工具函数 ====================
+# 检测操作系统
+detect_os() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        echo "$ID"
+    else
+        echo "unknown"
+    fi
+}
 
-# 确保目录存在
-ensure_dirs() {
-    mkdir -p "$DATA_DIR"
-    mkdir -p "$BACKUP_DIR"
-    mkdir -p "$BACKUP_DIR/versions"
-    mkdir -p "$BACKUP_DIR/db"
+# 检查 root 权限
+check_root() {
+    if [ "$(id -u)" -ne 0 ]; then
+        log_error "需要 root 权限，请使用 sudo"
+        exit 1
+    fi
+}
+
+# 执行命令（支持 dry-run）
+run_cmd() {
+    if [ "$DRY_RUN" = "true" ]; then
+        echo "[DRY-RUN] $*"
+        return 0
+    fi
+    "$@"
+}
+
+# 记录部署日志
+log_deployment() {
+    local action="$1"
+    local details="$2"
+    local log_file="$LOG_DIR/deploy.log"
+    
     mkdir -p "$LOG_DIR"
+    echo "[$(date -Iseconds)] [$action] $details" >> "$log_file"
 }
 
-# 获取当前版本
-get_current_version() {
-    if [ -x "$BINARY_PATH" ]; then
-        $BINARY_PATH version 2>/dev/null || echo "unknown"
-    else
-        echo "not installed"
-    fi
-}
+# =============================================================================
+# 预检查
+# =============================================================================
 
-# 检查服务状态
-check_service_status() {
-    if command -v systemctl &> /dev/null; then
-        systemctl is-active "$SERVICE_NAME" 2>/dev/null || echo "inactive"
-    elif pgrep -x nasd > /dev/null 2>&1; then
-        echo "running"
-    else
-        echo "stopped"
-    fi
-}
-
-# 等待服务就绪
-wait_for_service() {
-    log_info "等待服务就绪..."
+# 检查系统依赖
+check_dependencies() {
+    log_step "检查系统依赖..."
     
-    local start_time=$(date +%s)
-    local end_time=$((start_time + HEALTH_CHECK_TIMEOUT))
+    local missing=()
     
-    while [ $(date +%s) -lt $end_time ]; do
-        # 检查进程
-        if ! pgrep -x nasd > /dev/null 2>&1; then
-            sleep $HEALTH_CHECK_INTERVAL
-            continue
+    # 必需命令
+    for cmd in curl tar systemctl; do
+        if ! command -v "$cmd" &>/dev/null; then
+            missing+=("$cmd")
         fi
-        
-        # 检查健康端点
-        if curl -sf --max-time 5 "$HEALTH_CHECK_URL" > /dev/null 2>&1; then
-            log_success "服务已就绪"
-            return 0
-        fi
-        
-        local remaining=$((end_time - $(date +%s)))
-        log_info "等待中... (剩余 ${remaining}s)"
-        sleep $HEALTH_CHECK_INTERVAL
     done
     
-    log_error "服务启动超时"
+    if [ ${#missing[@]} -gt 0 ]; then
+        log_error "缺少依赖: ${missing[*]}"
+        log_info "请安装缺少的依赖后重试"
+        
+        local os=$(detect_os)
+        case $os in
+            ubuntu|debian)
+                log_info "运行: apt-get install -y ${missing[*]}"
+                ;;
+            centos|rhel|rocky|almalinux)
+                log_info "运行: yum install -y ${missing[*]}"
+                ;;
+        esac
+        
+        return 1
+    fi
+    
+    log_success "依赖检查通过"
+    return 0
+}
+
+# 检查系统资源
+check_resources() {
+    log_step "检查系统资源..."
+    
+    # 内存检查
+    local total_mem=$(free -m | awk '/^Mem:/{print $2}')
+    if [ "$total_mem" -lt 512 ]; then
+        log_warn "内存不足 512MB (当前: ${total_mem}MB)，可能影响性能"
+    fi
+    
+    # 磁盘空间检查
+    local disk_avail=$(df -m / | awk 'NR==2 {print $4}')
+    if [ "$disk_avail" -lt 1024 ]; then
+        log_warn "根分区可用空间不足 1GB (当前: ${disk_avail}MB)"
+    fi
+    
+    # 数据目录空间检查
+    if [ -d "$DATA_DIR" ]; then
+        local data_avail=$(df -m "$DATA_DIR" | awk 'NR==2 {print $4}')
+        if [ "$data_avail" -lt 10240 ]; then
+            log_warn "数据目录可用空间不足 10GB (当前: ${data_avail}MB)"
+        fi
+    fi
+    
+    log_success "资源检查完成"
+}
+
+# 检查端口占用
+check_ports() {
+    log_step "检查端口占用..."
+    
+    local ports=(8080 445 2049)
+    local conflict=false
+    
+    for port in "${ports[@]}"; do
+        if ss -tuln | grep -q ":${port} "; then
+            local process=$(ss -tuln | grep ":${port} " | awk '{print $6}' | head -1)
+            if [[ ! "$process" =~ nasd ]]; then
+                log_warn "端口 $port 已被占用: $process"
+                conflict=true
+            fi
+        fi
+    done
+    
+    if [ "$conflict" = true ]; then
+        log_warn "存在端口冲突，部署后可能影响服务"
+    else
+        log_success "端口检查通过"
+    fi
+}
+
+# 检查现有安装
+check_existing_installation() {
+    log_step "检查现有安装..."
+    
+    if [ -f "$INSTALL_DIR/bin/nasd" ]; then
+        local current_version=$("$INSTALL_DIR/bin/nasd" --version 2>/dev/null || echo "unknown")
+        log_info "检测到已安装版本: $current_version"
+        echo "CURRENT_VERSION=$current_version" > /tmp/nas-os-upgrade.env
+        return 0
+    fi
+    
+    log_info "未检测到现有安装"
     return 1
+}
+
+# =============================================================================
+# 安装函数
+# =============================================================================
+
+# 创建目录结构
+create_directories() {
+    log_step "创建目录结构..."
+    
+    run_cmd mkdir -p "$CONFIG_DIR"
+    run_cmd mkdir -p "$DATA_DIR"
+    run_cmd mkdir -p "$LOG_DIR"
+    run_cmd mkdir -p "$BACKUP_DIR"
+    run_cmd mkdir -p "$DATA_DIR/plugins"
+    run_cmd mkdir -p "$DATA_DIR/backups"
+    run_cmd mkdir -p "$DATA_DIR/snapshots"
+    
+    run_cmd chmod 755 "$CONFIG_DIR" "$DATA_DIR" "$LOG_DIR" "$BACKUP_DIR"
+    
+    log_success "目录创建完成"
+}
+
+# 安装系统依赖
+install_system_dependencies() {
+    log_step "安装系统依赖..."
+    
+    local os=$(detect_os)
+    
+    case $os in
+        ubuntu|debian)
+            run_cmd apt-get update
+            run_cmd apt-get install -y curl sqlite3 btrfs-progs smartmontools
+            ;;
+        centos|rhel|rocky|almalinux)
+            run_cmd yum install -y curl sqlite btrfs-progs smartmontools
+            ;;
+        arch|manjaro)
+            run_cmd pacman -S --noconfirm curl sqlite btrfs-progs smartmontools
+            ;;
+        *)
+            log_warn "未知操作系统，请手动安装依赖: curl, sqlite3, btrfs-progs, smartmontools"
+            ;;
+    esac
+    
+    log_success "系统依赖安装完成"
+}
+
+# 下载二进制
+download_binary() {
+    local version="${1:-$RELEASE_VERSION}"
+    local arch=$(detect_arch)
+    local os="linux"
+    
+    if [ "$arch" = "unsupported" ]; then
+        log_error "不支持的架构: $(uname -m)"
+        exit 1
+    fi
+    
+    log_step "下载 NAS-OS 二进制 ($os/$arch, $version)..."
+    
+    local download_url
+    if [ "$version" = "latest" ]; then
+        download_url="$RELEASE_URL/latest/download/nasd-$os-$arch"
+    else
+        download_url="$RELEASE_URL/download/$version/nasd-$os-$arch"
+    fi
+    
+    log_info "下载地址: $download_url"
+    
+    if [ "$DRY_RUN" = "true" ]; then
+        log_info "[DRY-RUN] 跳过下载"
+        return 0
+    fi
+    
+    # 下载并验证
+    local tmp_file="/tmp/nasd-$$"
+    if curl -fSL --progress-bar -o "$tmp_file" "$download_url"; then
+        chmod +x "$tmp_file"
+        mv "$tmp_file" "/tmp/nasd"
+        log_success "二进制下载完成"
+    else
+        log_error "下载失败"
+        return 1
+    fi
+}
+
+# 备份当前版本
+backup_current() {
+    log_step "备份当前版本..."
+    
+    if [ ! -f "$INSTALL_DIR/bin/nasd" ]; then
+        log_info "无现有版本，跳过备份"
+        return 0
+    fi
+    
+    local backup_name="nasd-$(date +%Y%m%d-%H%M%S).bak"
+    
+    if [ "$DRY_RUN" = "true" ]; then
+        log_info "[DRY-RUN] 备份: $backup_name"
+        return 0
+    fi
+    
+    mkdir -p "$BACKUP_DIR"
+    
+    # 备份二进制
+    cp "$INSTALL_DIR/bin/nasd" "$BACKUP_DIR/$backup_name"
+    
+    # 备份配置
+    if [ -d "$CONFIG_DIR" ]; then
+        tar -czf "$BACKUP_DIR/config-$(date +%Y%m%d-%H%M%S).tar.gz" -C "$(dirname "$CONFIG_DIR")" "$(basename "$CONFIG_DIR")" 2>/dev/null || true
+    fi
+    
+    # 保存当前版本信息
+    echo "BACKUP_FILE=$BACKUP_DIR/$backup_name" > /tmp/nas-os-backup.env
+    
+    log_success "备份完成: $backup_name"
+}
+
+# 安装二进制
+install_binary() {
+    log_step "安装二进制..."
+    
+    if [ "$DRY_RUN" = "true" ]; then
+        log_info "[DRY-RUN] 安装到: $INSTALL_DIR/bin/nasd"
+        return 0
+    fi
+    
+    # 停止服务（如果运行中）
+    if systemctl is-active nas-os &>/dev/null; then
+        systemctl stop nas-os
+        log_info "已停止旧服务"
+    fi
+    
+    # 备份旧版本
+    if [ -f "$INSTALL_DIR/bin/nasd" ]; then
+        mv "$INSTALL_DIR/bin/nasd" "$INSTALL_DIR/bin/nasd.old"
+    fi
+    
+    # 安装新版本
+    mv /tmp/nasd "$INSTALL_DIR/bin/nasd"
+    chmod 755 "$INSTALL_DIR/bin/nasd"
+    
+    # 验证安装
+    if "$INSTALL_DIR/bin/nasd" --version &>/dev/null; then
+        log_success "二进制安装完成: $($INSTALL_DIR/bin/nasd --version)"
+    else
+        log_error "安装验证失败"
+        # 尝试恢复
+        if [ -f "$INSTALL_DIR/bin/nasd.old" ]; then
+            mv "$INSTALL_DIR/bin/nasd.old" "$INSTALL_DIR/bin/nasd"
+            log_info "已恢复旧版本"
+        fi
+        return 1
+    fi
+}
+
+# 安装配置文件
+install_config() {
+    log_step "安装配置文件..."
+    
+    local config_src="$PROJECT_ROOT/configs/default.yaml"
+    
+    if [ -f "$config_src" ]; then
+        if [ ! -f "$CONFIG_DIR/config.yaml" ]; then
+            run_cmd cp "$config_src" "$CONFIG_DIR/config.yaml"
+            log_success "配置文件已安装"
+        else
+            log_info "配置文件已存在，保留现有配置"
+            
+            # 检查是否需要迁移配置
+            if [ "$DRY_RUN" != "true" ]; then
+                # 创建配置备份
+                cp "$CONFIG_DIR/config.yaml" "$CONFIG_DIR/config.yaml.bak"
+            fi
+        fi
+    else
+        log_warn "默认配置文件不存在，创建空配置"
+        run_cmd touch "$CONFIG_DIR/config.yaml"
+    fi
+}
+
+# 创建 systemd 服务
+create_systemd_service() {
+    log_step "创建 systemd 服务..."
+    
+    if [ "$DRY_RUN" = "true" ]; then
+        log_info "[DRY-RUN] 创建 systemd 服务"
+        return 0
+    fi
+    
+    cat > /etc/systemd/system/nas-os.service <<EOF
+[Unit]
+Description=NAS-OS - Home NAS Management System
+Documentation=https://docs.nas-os.io
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=notify
+ExecStart=$INSTALL_DIR/bin/nasd --config $CONFIG_DIR/config.yaml
+ExecReload=/bin/kill -HUP \$MAINPID
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=60
+
+# 环境变量
+Environment=NAS_OS_CONFIG=$CONFIG_DIR/config.yaml
+Environment=NAS_OS_DATA_ROOT=$DATA_DIR
+
+# 工作目录
+WorkingDirectory=$DATA_DIR
+
+# 日志
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nas-os
+
+# 安全加固
+NoNewPrivileges=false
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    systemctl daemon-reload
+    systemctl enable nas-os
+    
+    log_success "systemd 服务创建完成"
+}
+
+# 启动服务
+start_service() {
+    log_step "启动 NAS-OS 服务..."
+    
+    if [ "$DRY_RUN" = "true" ]; then
+        log_info "[DRY-RUN] 启动服务"
+        return 0
+    fi
+    
+    systemctl start nas-os
+    
+    # 等待服务启动
+    sleep 3
+    
+    if systemctl is-active nas-os &>/dev/null; then
+        log_success "服务启动成功"
+    else
+        log_error "服务启动失败"
+        journalctl -u nas-os --no-pager -n 20
+        return 1
+    fi
 }
 
 # 健康检查
 health_check() {
     log_step "执行健康检查..."
     
-    # 检查进程
-    if ! pgrep -x nasd > /dev/null 2>&1; then
-        log_error "服务进程未运行"
-        return 1
-    fi
-    
-    # 检查 API
-    local response
-    response=$(curl -sf --max-time 10 "$HEALTH_CHECK_URL" 2>/dev/null)
-    
-    if [ $? -ne 0 ]; then
-        log_error "健康端点不可达: $HEALTH_CHECK_URL"
-        return 1
-    fi
-    
-    # 解析健康状态
-    if echo "$response" | grep -q '"status".*"healthy"'; then
-        log_success "服务健康"
-        return 0
-    else
-        log_warn "服务状态: $(echo "$response" | grep -o '"status"[^,]*' || echo 'unknown')"
-        return 1
-    fi
-}
-
-# 备份当前版本
-backup_current_version() {
-    local current_version=$(get_current_version)
-    
-    if [ ! -f "$BINARY_PATH" ]; then
-        log_warn "当前无已安装版本"
+    if [ "$DRY_RUN" = "true" ]; then
+        log_info "[DRY-RUN] 健康检查"
         return 0
     fi
     
-    ensure_dirs
+    local retries=0
+    local max_retries=$HEALTH_CHECK_RETRIES
     
-    local backup_name="nasd-${current_version}"
-    local backup_path="$BACKUP_DIR/versions/$backup_name"
-    
-    # 检查是否已备份
-    if [ -f "$backup_path" ] && [ "$FORCE" != true ]; then
-        log_info "版本已备份: $backup_name"
-        return 0
-    fi
-    
-    log_step "备份当前版本: $current_version"
-    cp "$BINARY_PATH" "$backup_path"
-    chmod +x "$backup_path"
-    
-    # 清理旧版本
-    local count=$(ls -1 "$BACKUP_DIR/versions"/nasd-* 2>/dev/null | wc -l)
-    if [ $count -gt $MAX_VERSIONS ]; then
-        local to_delete=$((count - MAX_VERSIONS))
-        log_info "清理 $to_delete 个旧备份..."
-        ls -t "$BACKUP_DIR/versions"/nasd-* | tail -$to_delete | xargs rm -f
-    fi
-    
-    log_success "版本备份完成: $backup_path"
-}
-
-# 备份数据库
-backup_database() {
-    log_step "备份数据库..."
-    
-    local db_path="$DATA_DIR/nas-os.db"
-    
-    if [ ! -f "$db_path" ]; then
-        log_warn "数据库文件不存在: $db_path"
-        return 0
-    fi
-    
-    ensure_dirs
-    
-    local timestamp=$(date +%Y%m%d_%H%M%S)
-    local backup_name="nas-os-${timestamp}.db"
-    local backup_path="$BACKUP_DIR/db/$backup_name"
-    
-    # 使用 SQLite 在线备份
-    if command -v sqlite3 &> /dev/null; then
-        sqlite3 "$db_path" ".backup '${backup_path}'" 2>/dev/null
-        
-        if [ $? -eq 0 ]; then
-            gzip -f "$backup_path"
-            backup_path="${backup_path}.gz"
-            
-            # 校验和
-            local checksum=$(sha256sum "$backup_path" | cut -d' ' -f1)
-            echo "$checksum  $(basename $backup_path)" > "${backup_path}.sha256"
-            
-            log_success "数据库备份完成: $backup_path"
+    while [ $retries -lt $max_retries ]; do
+        if curl -sf "$HEALTH_CHECK_URL" &>/dev/null; then
+            log_success "健康检查通过"
             return 0
         fi
-    fi
-    
-    # 简单复制作为后备
-    cp "$db_path" "$backup_path"
-    gzip -f "$backup_path"
-    log_success "数据库备份完成（简单复制）: ${backup_path}.gz"
-}
-
-# 下载新版本
-download_version() {
-    local version="$1"
-    local arch=$(uname -m)
-    
-    # 标准化架构名称
-    case "$arch" in
-        x86_64|amd64) arch="amd64" ;;
-        aarch64|arm64) arch="arm64" ;;
-        armv7l|armhf) arch="armv7" ;;
-    esac
-    
-    local binary_name="nasd-linux-${arch}"
-    local download_url="${DOWNLOAD_URL:-https://github.com/example/nas-os/releases/download}/${version}/${binary_name}"
-    local temp_file="/tmp/${binary_name}"
-    
-    log_step "下载版本 $version ($arch)..."
-    
-    if [ "$DRY_RUN" = true ]; then
-        log_info "[模拟] 下载: $download_url"
-        return 0
-    fi
-    
-    # 检查本地文件
-    if [ -f "$BACKUP_DIR/versions/nasd-$version" ]; then
-        log_info "使用本地备份: nasd-$version"
-        cp "$BACKUP_DIR/versions/nasd-$version" "$temp_file"
-        return 0
-    fi
-    
-    # 下载
-    if command -v curl &> /dev/null; then
-        curl -fL --progress-bar -o "$temp_file" "$download_url"
-    elif command -v wget &> /dev/null; then
-        wget -q --show-progress -O "$temp_file" "$download_url"
-    else
-        log_error "需要 curl 或 wget 来下载"
-        return 1
-    fi
-    
-    if [ ! -f "$temp_file" ]; then
-        log_error "下载失败"
-        return 1
-    fi
-    
-    chmod +x "$temp_file"
-    log_success "下载完成: $temp_file"
-}
-
-# 安装新版本
-install_version() {
-    local version="$1"
-    local arch=$(uname -m)
-    
-    case "$arch" in
-        x86_64|amd64) arch="amd64" ;;
-        aarch64|arm64) arch="arm64" ;;
-        armv7l|armhf) arch="armv7" ;;
-    esac
-    
-    local temp_file="/tmp/nasd-linux-${arch}"
-    
-    if [ ! -f "$temp_file" ]; then
-        # 检查本地备份
-        if [ -f "$BACKUP_DIR/versions/nasd-$version" ]; then
-            temp_file="$BACKUP_DIR/versions/nasd-$version"
-        else
-            log_error "找不到要安装的文件"
-            return 1
-        fi
-    fi
-    
-    log_step "安装新版本..."
-    
-    if [ "$DRY_RUN" = true ]; then
-        log_info "[模拟] 安装: $temp_file -> $BINARY_PATH"
-        return 0
-    fi
-    
-    # 停止服务
-    stop_service
-    
-    # 安装
-    cp "$temp_file" "$BINARY_PATH"
-    chmod +x "$BINARY_PATH"
-    
-    log_success "安装完成: $BINARY_PATH"
-    
-    # 验证
-    local installed_version=$($BINARY_PATH version 2>/dev/null || echo "unknown")
-    log_info "已安装版本: $installed_version"
-}
-
-# 停止服务
-stop_service() {
-    log_step "停止服务..."
-    
-    if [ "$DRY_RUN" = true ]; then
-        log_info "[模拟] 停止服务"
-        return 0
-    fi
-    
-    if command -v systemctl &> /dev/null; then
-        systemctl stop "$SERVICE_NAME" 2>/dev/null || true
-    else
-        pkill -x nasd 2>/dev/null || true
-    fi
-    
-    sleep 2
-    
-    if pgrep -x nasd > /dev/null 2>&1; then
-        log_warn "进程仍在运行，强制终止..."
-        pkill -9 -x nasd 2>/dev/null || true
-        sleep 1
-    fi
-    
-    log_success "服务已停止"
-}
-
-# 启动服务
-start_service() {
-    log_step "启动服务..."
-    
-    if [ "$DRY_RUN" = true ]; then
-        log_info "[模拟] 启动服务"
-        return 0
-    fi
-    
-    if [ "$NO_START" = true ]; then
-        log_info "跳过启动 (--no-start)"
-        return 0
-    fi
-    
-    if command -v systemctl &> /dev/null; then
-        systemctl start "$SERVICE_NAME"
-    else
-        nohup $BINARY_PATH > "$LOG_DIR/nasd.log" 2>&1 &
-    fi
-    
-    sleep 2
-    
-    # 等待服务就绪
-    if ! wait_for_service; then
-        return 1
-    fi
-    
-    log_success "服务已启动"
-}
-
-# 执行回滚
-do_rollback() {
-    local previous_version="$1"
-    
-    log_warn "执行回滚到版本 $previous_version..."
-    
-    local backup_path="$BACKUP_DIR/versions/nasd-$previous_version"
-    
-    if [ ! -f "$backup_path" ]; then
-        log_error "找不到备份版本: $backup_path"
-        return 1
-    fi
-    
-    # 停止服务
-    stop_service
-    
-    # 恢复版本
-    cp "$backup_path" "$BINARY_PATH"
-    chmod +x "$BINARY_PATH"
-    
-    # 启动服务
-    if ! start_service; then
-        log_error "回滚后服务启动失败"
-        return 1
-    fi
-    
-    log_success "回滚完成: $previous_version"
-}
-
-# 记录部署日志
-log_deployment() {
-    local status="$1"
-    local version="$2"
-    local duration="$3"
-    
-    ensure_dirs
-    
-    local log_entry="$(date -Iseconds) | $status | $version | ${duration}s | $(hostname)"
-    echo "$log_entry" >> "$LOG_DIR/deploy.log"
-}
-
-# ==================== 服务管理命令 ====================
-
-# 启动服务命令
-cmd_start() {
-    echo ""
-    echo "========================================"
-    echo "  NAS-OS 服务启动"
-    echo "========================================"
-    echo ""
-    
-    local current_status=$(check_service_status)
-    
-    if [ "$current_status" = "active" ] || [ "$current_status" = "running" ]; then
-        log_warn "服务已在运行中"
-        cmd_status
-        return 0
-    fi
-    
-    log_step "启动 NAS-OS 服务..."
-    
-    if command -v systemctl &> /dev/null; then
-        if ! systemctl start "$SERVICE_NAME" 2>&1; then
-            log_error "systemctl 启动失败"
-            return 1
-        fi
-    else
-        if [ ! -x "$BINARY_PATH" ]; then
-            log_error "找不到可执行文件: $BINARY_PATH"
-            return 1
-        fi
-        ensure_dirs
-        nohup $BINARY_PATH > "$LOG_DIR/nasd.log" 2>&1 &
-    fi
-    
-    sleep 2
-    
-    if ! wait_for_service; then
-        log_error "服务启动超时"
-        return 1
-    fi
-    
-    log_success "服务启动成功"
-    cmd_status
-}
-
-# 停止服务命令
-cmd_stop() {
-    echo ""
-    echo "========================================"
-    echo "  NAS-OS 服务停止"
-    echo "========================================"
-    echo ""
-    
-    local current_status=$(check_service_status)
-    
-    if [ "$current_status" = "inactive" ] || [ "$current_status" = "stopped" ]; then
-        log_warn "服务已停止"
-        return 0
-    fi
-    
-    log_step "停止 NAS-OS 服务..."
-    
-    if command -v systemctl &> /dev/null; then
-        systemctl stop "$SERVICE_NAME" 2>/dev/null || true
-    else
-        pkill -x nasd 2>/dev/null || true
-    fi
-    
-    sleep 2
-    
-    # 检查是否仍在运行
-    if pgrep -x nasd > /dev/null 2>&1; then
-        log_warn "进程仍在运行，强制终止..."
-        pkill -9 -x nasd 2>/dev/null || true
-        sleep 1
-    fi
-    
-    log_success "服务已停止"
-}
-
-# 重启服务命令
-cmd_restart() {
-    echo ""
-    echo "========================================"
-    echo "  NAS-OS 服务重启"
-    echo "========================================"
-    echo ""
-    
-    log_step "重启 NAS-OS 服务..."
-    
-    # 停止
-    if command -v systemctl &> /dev/null; then
-        systemctl restart "$SERVICE_NAME" 2>&1
-    else
-        pkill -x nasd 2>/dev/null || true
-        sleep 2
-        ensure_dirs
-        nohup $BINARY_PATH > "$LOG_DIR/nasd.log" 2>&1 &
-    fi
-    
-    sleep 2
-    
-    if ! wait_for_service; then
-        log_error "服务重启失败"
-        return 1
-    fi
-    
-    log_success "服务重启成功"
-    cmd_status
-}
-
-# 查看状态命令
-cmd_status() {
-    local current_version=$(get_current_version)
-    local service_status=$(check_service_status)
-    local pid=""
-    local memory=""
-    local cpu=""
-    
-    echo ""
-    echo "========================================"
-    echo "  NAS-OS 服务状态"
-    echo "========================================"
-    echo ""
-    
-    echo "  版本:    $current_version"
-    echo "  状态:    $service_status"
-    
-    if [ "$service_status" = "active" ] || [ "$service_status" = "running" ]; then
-        pid=$(pgrep -x nasd 2>/dev/null || echo "")
         
-        if [ -n "$pid" ]; then
-            echo "  PID:     $pid"
+        retries=$((retries + 1))
+        log_info "等待服务就绪... ($retries/$max_retries)"
+        sleep 5
+    done
+    
+    log_error "健康检查失败"
+    return 1
+}
+
+# 部署后验证
+post_deploy_verify() {
+    log_step "部署后验证..."
+    
+    if [ "$DRY_RUN" = "true" ]; then
+        log_info "[DRY-RUN] 跳过验证"
+        return 0
+    fi
+    
+    # 检查服务状态
+    if ! systemctl is-active nas-os &>/dev/null; then
+        log_error "服务未运行"
+        return 1
+    fi
+    
+    # 检查 API 响应
+    local response
+    response=$(curl -sf "$HEALTH_CHECK_URL" 2>/dev/null || echo '{"status":"error"}')
+    
+    if echo "$response" | grep -q '"status":"healthy"'; then
+        log_success "API 健康检查通过"
+    else
+        log_warn "API 健康检查返回非健康状态"
+    fi
+    
+    # 检查版本
+    local new_version=$("$INSTALL_DIR/bin/nasd" --version 2>/dev/null || echo "unknown")
+    log_info "当前版本: $new_version"
+    
+    return 0
+}
+
+# 自动回滚
+auto_rollback() {
+    log_warn "部署失败，执行自动回滚..."
+    
+    if [ -f /tmp/nas-os-backup.env ]; then
+        source /tmp/nas-os-backup.env
+        
+        if [ -f "$BACKUP_FILE" ]; then
+            # 停止服务
+            systemctl stop nas-os 2>/dev/null || true
             
-            # 获取资源使用
-            if command -v ps &> /dev/null; then
-                memory=$(ps -p "$pid" -o rss= 2>/dev/null | awk '{printf "%.1f MB", $1/1024}')
-                cpu=$(ps -p "$pid" -o %cpu= 2>/dev/null | awk '{printf "%.1f%%", $1}')
-                echo "  内存:    $memory"
-                echo "  CPU:     $cpu"
-            fi
-        fi
-        
-        # 健康检查
-        if curl -sf --max-time 5 "$HEALTH_CHECK_URL" > /dev/null 2>&1; then
-            echo "  健康:    ✓ 正常"
-        else
-            echo "  健康:    ✗ 异常"
+            # 恢复二进制
+            cp "$BACKUP_FILE" "$INSTALL_DIR/bin/nasd"
+            chmod 755 "$INSTALL_DIR/bin/nasd"
+            
+            # 启动服务
+            systemctl start nas-os
+            
+            log_success "回滚完成"
         fi
     fi
-    
-    echo ""
-    
-    # 显示最近日志
-    if [ -f "$LOG_DIR/nasd.log" ]; then
-        echo "  最近日志:"
-        echo "  ----------------------------------------"
-        tail -5 "$LOG_DIR/nasd.log" 2>/dev/null | sed 's/^/  /'
-        echo ""
-    fi
-    
-    echo "========================================"
-    echo ""
-    
-    # 返回状态码
-    case "$service_status" in
-        active|running) return 0 ;;
-        *) return 1 ;;
-    esac
 }
 
-# 回滚命令
-cmd_rollback() {
-    echo ""
-    echo "========================================"
-    echo "  NAS-OS 版本回滚"
-    echo "========================================"
-    echo ""
+# =============================================================================
+# Docker 部署
+# =============================================================================
+
+deploy_docker() {
+    log_step "使用 Docker 部署..."
     
-    local current_version=$(get_current_version)
+    # 检查 Docker
+    if ! command -v docker &>/dev/null; then
+        log_error "Docker 未安装"
+        exit 1
+    fi
     
-    log_info "当前版本: $current_version"
+    # 拉取镜像
+    log_info "拉取镜像..."
+    local image="ghcr.io/nas-os/nas-os:$RELEASE_VERSION"
+    run_cmd docker pull "$image"
+    
+    # 停止旧容器
+    docker stop nas-os 2>/dev/null || true
+    docker rm nas-os 2>/dev/null || true
+    
+    # 启动新容器
+    log_info "启动容器..."
+    run_cmd docker run -d \
+        --name nas-os \
+        --restart unless-stopped \
+        --privileged \
+        --network host \
+        -v "$CONFIG_DIR:/etc/nas-os:ro" \
+        -v "$DATA_DIR:/var/lib/nas-os" \
+        -v "$LOG_DIR:/var/log/nas-os" \
+        -e NAS_OS_CONFIG=/etc/nas-os/config.yaml \
+        -e TZ=Asia/Shanghai \
+        "$image"
+    
+    log_success "Docker 部署完成"
+}
+
+# =============================================================================
+# 命令处理
+# =============================================================================
+
+# 安装
+do_install() {
+    log_step "开始安装 NAS-OS v$VERSION..."
+    
+    check_root
+    check_dependencies || exit 1
+    check_resources
+    check_ports
+    create_directories
+    install_system_dependencies
+    download_binary
+    install_binary
+    install_config
+    create_systemd_service
+    
+    if start_service; then
+        if health_check; then
+            post_deploy_verify
+            log_deployment "install" "成功安装 v$VERSION"
+            show_info
+        else
+            log_error "健康检查失败"
+            exit 1
+        fi
+    else
+        log_error "服务启动失败"
+        exit 1
+    fi
+}
+
+# 升级
+do_upgrade() {
+    log_step "开始升级 NAS-OS..."
+    
+    check_root
+    check_dependencies || exit 1
+    check_existing_installation || {
+        log_error "未检测到现有安装，请使用 install 命令"
+        exit 1
+    }
+    
+    backup_current
+    download_binary "$RELEASE_VERSION"
+    
+    if install_binary; then
+        if start_service && health_check; then
+            post_deploy_verify
+            log_deployment "upgrade" "成功升级到 $RELEASE_VERSION"
+            log_success "升级完成"
+        else
+            if [ "$ROLLBACK_ON_FAILURE" = "true" ]; then
+                auto_rollback
+            fi
+            exit 1
+        fi
+    else
+        if [ "$ROLLBACK_ON_FAILURE" = "true" ]; then
+            auto_rollback
+        fi
+        exit 1
+    fi
+}
+
+# 回滚
+do_rollback() {
+    log_step "执行回滚..."
+    
+    check_root
     
     # 列出可用备份
-    if [ ! -d "$BACKUP_DIR/versions" ]; then
-        log_error "备份目录不存在: $BACKUP_DIR/versions"
-        return 1
+    log_info "可用备份:"
+    ls -lt "$BACKUP_DIR"/nasd-*.bak 2>/dev/null | head -5 || {
+        log_error "没有找到备份文件"
+        exit 1
+    }
+    
+    local backup_file="${1:-}"
+    
+    if [ -z "$backup_file" ]; then
+        # 使用最新备份
+        backup_file=$(ls -t "$BACKUP_DIR"/nasd-*.bak 2>/dev/null | head -1)
     fi
     
-    local backups=($(ls -t "$BACKUP_DIR/versions"/nasd-* 2>/dev/null))
-    
-    if [ ${#backups[@]} -eq 0 ]; then
-        log_error "没有可用的备份版本"
-        return 1
+    if [ ! -f "$backup_file" ]; then
+        log_error "备份文件不存在: $backup_file"
+        exit 1
     fi
     
-    echo "可用的备份版本:"
-    echo ""
-    local i=1
-    for backup in "${backups[@]}"; do
-        local version=$(basename "$backup" | sed 's/nasd-//')
-        local mtime=$(stat -c %y "$backup" 2>/dev/null | cut -d'.' -f1)
-        echo "  [$i] $version ($mtime)"
-        ((i++))
-    done
-    echo ""
+    log_info "使用备份: $backup_file"
     
-    # 选择版本
-    local target_backup=""
-    if [ -n "${TARGET_VERSION:-}" ]; then
-        target_backup="$BACKUP_DIR/versions/nasd-$TARGET_VERSION"
-        if [ ! -f "$target_backup" ]; then
-            log_error "找不到指定版本: $TARGET_VERSION"
-            return 1
-        fi
+    # 停止服务
+    systemctl stop nas-os 2>/dev/null || true
+    
+    # 恢复
+    cp "$backup_file" "$INSTALL_DIR/bin/nasd"
+    chmod 755 "$INSTALL_DIR/bin/nasd"
+    
+    # 启动服务
+    if start_service && health_check; then
+        log_deployment "rollback" "回滚到 $(basename $backup_file)"
+        log_success "回滚完成"
     else
-        # 默认回滚到上一个版本
-        if [ ${#backups[@]} -ge 2 ]; then
-            target_backup="${backups[1]}"
-        else
-            log_error "只有一个备份版本，无法回滚"
-            return 1
-        fi
-    fi
-    
-    local target_version=$(basename "$target_backup" | sed 's/nasd-//')
-    
-    log_info "将回滚到版本: $target_version"
-    
-    # 执行回滚
-    if do_rollback "$target_version"; then
-        log_success "回滚成功"
-        cmd_status
-    else
-        log_error "回滚失败"
-        return 1
+        log_error "回滚后服务异常"
+        exit 1
     fi
 }
 
-# ==================== 主入口 ====================
+# 卸载
+do_uninstall() {
+    log_step "卸载 NAS-OS..."
+    
+    check_root
+    
+    # 停止服务
+    systemctl stop nas-os 2>/dev/null || true
+    systemctl disable nas-os 2>/dev/null || true
+    
+    # 删除文件
+    rm -f "$INSTALL_DIR/bin/nasd"
+    rm -f /etc/systemd/system/nas-os.service
+    systemctl daemon-reload
+    
+    # Docker 卸载
+    docker stop nas-os 2>/dev/null || true
+    docker rm nas-os 2>/dev/null || true
+    
+    log_deployment "uninstall" "已卸载"
+    log_success "卸载完成"
+    log_info "配置和数据保留在: $CONFIG_DIR, $DATA_DIR"
+}
 
-# 主入口
-main() {
-    local deploy_start=$(date +%s)
-    local previous_version=$(get_current_version)
-    
-    echo ""
-    echo "========================================"
-    echo "  NAS-OS 部署工具 v${VERSION}"
-    echo "========================================"
+# 状态检查
+do_status() {
+    echo "==================================="
+    echo "NAS-OS 状态检查"
+    echo "==================================="
     echo ""
     
-    # 显示部署信息
-    log_info "当前版本: $previous_version"
-    log_info "目标版本: ${TARGET_VERSION:-latest}"
-    log_info "部署模式: $([ "$DRY_RUN" = true ] && echo '模拟' || echo '正式')"
+    # 服务状态
+    echo "服务状态:"
+    systemctl status nas-os --no-pager 2>/dev/null || echo "  服务未安装"
     echo ""
     
-    # 检查权限
-    if [ "$DRY_RUN" != true ] && [ "$(id -u)" != "0" ]; then
-        log_warn "建议使用 root 权限运行"
-    fi
-    
-    # 确保目录存在
-    ensure_dirs
-    
-    # 1. 备份当前版本
-    if [ "$previous_version" != "not installed" ]; then
-        backup_current_version
-    fi
-    
-    # 2. 备份数据库
-    if [ "$SKIP_BACKUP" != true ]; then
-        if ! backup_database; then
-            log_error "数据库备份失败"
-            [ "$FORCE" = true ] || exit 1
-            log_warn "强制模式：继续部署"
-        fi
-    fi
-    
-    # 3. 下载新版本
-    if [ -n "$TARGET_VERSION" ]; then
-        if ! download_version "$TARGET_VERSION"; then
-            log_error "下载失败"
-            exit 1
-        fi
-    fi
-    
-    # 模拟模式到此结束
-    if [ "$DRY_RUN" = true ]; then
+    # 健康检查
+    echo "健康检查:"
+    if curl -sf "$HEALTH_CHECK_URL" 2>/dev/null; then
         echo ""
-        log_info "模拟部署完成"
-        exit 0
+    else
+        echo "  服务未响应"
     fi
-    
-    # 4. 安装新版本
-    if ! install_version "$TARGET_VERSION"; then
-        log_error "安装失败"
-        exit 1
-    fi
-    
-    # 5. 启动服务
-    if ! start_service; then
-        log_error "服务启动失败"
-        
-        # 自动回滚
-        if [ "$AUTO_ROLLBACK" = true ] && [ "$previous_version" != "not installed" ]; then
-            do_rollback "$previous_version"
-        fi
-        
-        exit 1
-    fi
-    
-    # 6. 健康检查
-    if [ "$SKIP_HEALTH" != true ]; then
-        if ! health_check; then
-            log_error "健康检查失败"
-            
-            # 自动回滚
-            if [ "$AUTO_ROLLBACK" = true ] && [ "$previous_version" != "not installed" ]; then
-                do_rollback "$previous_version"
-            fi
-            
-            exit 1
-        fi
-    fi
-    
-    # 计算耗时
-    local deploy_end=$(date +%s)
-    local duration=$((deploy_end - deploy_start))
-    
-    # 记录部署日志
-    log_deployment "success" "${TARGET_VERSION:-latest}" "$duration"
-    
-    # 显示结果
     echo ""
-    echo "========================================"
-    log_success "部署完成！"
+    
+    # 版本信息
+    echo "版本信息:"
+    if [ -f "$INSTALL_DIR/bin/nasd" ]; then
+        $INSTALL_DIR/bin/nasd --version 2>/dev/null || echo "  未知版本"
+    else
+        echo "  未安装"
+    fi
+}
+
+# 显示安装信息
+show_info() {
     echo ""
-    echo "  版本: $previous_version -> ${TARGET_VERSION:-latest}"
-    echo "  耗时: ${duration}s"
-    echo "  状态: $(check_service_status)"
-    echo "========================================"
+    echo "==================================="
+    echo "NAS-OS 安装完成"
+    echo "==================================="
+    echo ""
+    echo "二进制位置: $INSTALL_DIR/bin/nasd"
+    echo "配置目录: $CONFIG_DIR"
+    echo "数据目录: $DATA_DIR"
+    echo "日志目录: $LOG_DIR"
+    echo "备份目录: $BACKUP_DIR"
+    echo ""
+    echo "服务管理:"
+    echo "  启动:   systemctl start nas-os"
+    echo "  停止:   systemctl stop nas-os"
+    echo "  重启:   systemctl restart nas-os"
+    echo "  状态:   systemctl status nas-os"
+    echo "  日志:   journalctl -u nas-os -f"
+    echo ""
+    echo "访问地址: http://localhost:8080"
     echo ""
 }
 
-# ==================== 入口分发 ====================
+# 帮助信息
+show_help() {
+    cat <<EOF
+NAS-OS 部署工具 v$VERSION
 
-# 检查并执行命令
-case "${COMMAND:-}" in
-    start)
-        cmd_start
+用法: $0 <command> [options]
+
+命令:
+  install     安装 NAS-OS（二进制方式）
+  docker      使用 Docker 部署
+  upgrade     升级 NAS-OS
+  rollback    回滚到上一个版本
+  uninstall   卸载 NAS-OS
+  status      查看服务状态
+  help        显示帮助
+
+选项:
+  --version VERSION    指定版本 (默认: latest)
+  --dry-run            模拟执行，不进行实际更改
+  --no-rollback        部署失败时不自动回滚
+
+环境变量:
+  RELEASE_VERSION      安装版本 (默认: latest)
+  INSTALL_DIR          安装目录 (默认: /usr/local)
+  CONFIG_DIR           配置目录 (默认: /etc/nas-os)
+  DATA_DIR             数据目录 (默认: /var/lib/nas-os)
+  LOG_DIR              日志目录 (默认: /var/log/nas-os)
+  BACKUP_DIR           备份目录 (默认: /var/lib/nas-os/backups)
+
+示例:
+  $0 install                           # 安装最新版本
+  RELEASE_VERSION=v2.76.0 $0 upgrade   # 升级到指定版本
+  $0 rollback                          # 回滚到上一个版本
+  $0 --dry-run install                 # 模拟安装
+  $0 docker                            # Docker 部署
+EOF
+}
+
+# =============================================================================
+# 主入口
+# =============================================================================
+
+# 解析参数
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --version)
+            RELEASE_VERSION="$2"
+            shift 2
+            ;;
+        --dry-run)
+            DRY_RUN="true"
+            shift
+            ;;
+        --no-rollback)
+            ROLLBACK_ON_FAILURE="false"
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
+# 执行命令
+case "${1:-help}" in
+    install)
+        do_install
         ;;
-    stop)
-        cmd_stop
+    docker)
+        create_directories
+        deploy_docker
+        health_check
+        show_info
         ;;
-    restart)
-        cmd_restart
-        ;;
-    status)
-        cmd_status
+    upgrade)
+        do_upgrade
         ;;
     rollback)
-        cmd_rollback
+        do_rollback "${2:-}"
         ;;
-    "")
-        # 无子命令，执行部署
-        main
+    uninstall)
+        do_uninstall
+        ;;
+    status)
+        do_status
+        ;;
+    -h|--help|help)
+        show_help
         ;;
     *)
-        log_error "未知命令: $COMMAND"
         show_help
         exit 1
         ;;

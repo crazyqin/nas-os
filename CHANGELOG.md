@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.76.0] - 2026-03-16
+
+### Added
+- **文档体系完善** (礼部)
+  - 更新快速开始指南至 v2.76.0
+  - 完善 FAQ 常见问题文档
+  - 更新 Swagger/OpenAPI 文档版本
+  - 更新 API 使用指南版本
+  - 添加 API 示例代码补充
+
+### Changed
+- **版本号统一更新** (礼部)
+  - docs/QUICKSTART.md 版本更新至 v2.76.0
+  - docs/FAQ.md 版本更新至 v2.76.0
+  - docs/swagger/swagger.yaml 版本更新至 v2.76.0
+  - docs/api/README.md 版本更新至 v2.76.0
+  - docs/API_GUIDE.md 版本更新至 v2.76.0
+  - Docker 镜像标签更新
+
+### Improved
+- **API 文档增强** (礼部)
+  - OpenAPI/Swagger 规范版本同步
+  - API 端点文档完善
+  - 请求/响应示例优化
+
 ## [v2.75.0] - 2026-03-15
 
 ### Improved

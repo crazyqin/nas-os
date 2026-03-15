@@ -1,6 +1,6 @@
 basePath: /api/v1
 info:
-  version: "2.63.0"
+  version: "2.76.0"
   title: NAS-OS API
 definitions:
   web.DeviceAddRequest:
@@ -81,7 +81,7 @@ info:
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
   title: NAS-OS API
-  version: "2.62.0"
+  version: "2.76.0"
 paths:
   /system/health:
     get:

@@ -19,6 +19,51 @@ func TestNewManager(t *testing.T) {
 	assert.NotNil(t, mgr)
 }
 
+func TestNewManager_DefaultSocket(t *testing.T) {
+	mgr := &Manager{socketPath: "/var/run/docker.sock"}
+	assert.Equal(t, "/var/run/docker.sock", mgr.socketPath)
+}
+
+// ========== parseSize 测试 ==========
+
+func TestParseSize(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected uint64
+	}{
+		{"100", 100},
+		{"1KB", 1024},
+		{"1K", 1024},
+		{"1MB", 1024 * 1024},
+		{"1M", 1024 * 1024},
+		{"1GB", 1024 * 1024 * 1024},
+		{"1G", 1024 * 1024 * 1024},
+		{"1TB", 1024 * 1024 * 1024 * 1024},
+		{"512m", 512 * 1024 * 1024},
+		{"2.5G", uint64(2.5 * 1024 * 1024 * 1024)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			result := parseSize(tt.input)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestParseSize_EdgeCases(t *testing.T) {
+	// 空字符串
+	assert.Equal(t, uint64(0), parseSize(""))
+
+	// 只有空格
+	assert.Equal(t, uint64(0), parseSize("   "))
+
+	// 大小写混合
+	assert.Equal(t, uint64(1024), parseSize("1kb"))
+	assert.Equal(t, uint64(1024*1024), parseSize("1Mb"))
+	assert.Equal(t, uint64(1024*1024*1024), parseSize("1Gb"))
+}
+
 // ========== Container 结构测试 ==========
 
 func TestContainer_Structure(t *testing.T) {
@@ -55,6 +100,15 @@ func TestContainer_Structure(t *testing.T) {
 	assert.Len(t, container.Volumes, 1)
 }
 
+func TestContainer_Empty(t *testing.T) {
+	container := Container{}
+	assert.Empty(t, container.ID)
+	assert.Empty(t, container.Name)
+	assert.False(t, container.Running)
+	assert.Nil(t, container.Ports)
+	assert.Nil(t, container.Volumes)
+}
+
 // ========== PortMapping 结构测试 ==========
 
 func TestPortMapping_Structure(t *testing.T) {
@@ -70,6 +124,16 @@ func TestPortMapping_Structure(t *testing.T) {
 	assert.Contains(t, []string{"tcp", "udp"}, port.Protocol)
 }
 
+func TestPortMapping_AllProtocols(t *testing.T) {
+	tcpPort := PortMapping{Protocol: "tcp"}
+	udpPort := PortMapping{Protocol: "udp"}
+	sctpPort := PortMapping{Protocol: "sctp"}
+
+	assert.Equal(t, "tcp", tcpPort.Protocol)
+	assert.Equal(t, "udp", udpPort.Protocol)
+	assert.Equal(t, "sctp", sctpPort.Protocol)
+}
+
 // ========== VolumeMount 结构测试 ==========
 
 func TestVolumeMount_Structure(t *testing.T) {
@@ -83,6 +147,18 @@ func TestVolumeMount_Structure(t *testing.T) {
 	assert.NotEmpty(t, vol.Source)
 	assert.NotEmpty(t, vol.Destination)
 	assert.True(t, vol.RW)
+}
+
+func TestVolumeMount_ReadOnly(t *testing.T) {
+	vol := VolumeMount{
+		Source:      "/host/path",
+		Destination: "/container/path",
+		Mode:        "ro",
+		RW:          false,
+	}
+
+	assert.False(t, vol.RW)
+	assert.Equal(t, "ro", vol.Mode)
 }
 
 // ========== ContainerStats 结构测试 ==========
@@ -107,6 +183,13 @@ func TestContainerStats_Structure(t *testing.T) {
 	assert.LessOrEqual(t, stats.MemPercent, 100.0)
 	assert.NotZero(t, stats.MemLimit)
 	assert.False(t, stats.Timestamp.IsZero())
+}
+
+func TestContainerStats_ZeroValues(t *testing.T) {
+	stats := ContainerStats{Timestamp: time.Now()}
+	assert.Zero(t, stats.CPUUsage)
+	assert.Zero(t, stats.MemUsage)
+	assert.Zero(t, stats.NetRX)
 }
 
 // ========== ContainerConfig 结构测试 ==========
@@ -141,6 +224,18 @@ func TestContainerConfig_Structure(t *testing.T) {
 	assert.Contains(t, []string{"no", "always", "on-failure", "unless-stopped"}, config.Restart)
 }
 
+func TestContainerConfig_Minimal(t *testing.T) {
+	config := ContainerConfig{
+		Name:  "minimal",
+		Image: "alpine",
+	}
+
+	assert.NotEmpty(t, config.Name)
+	assert.NotEmpty(t, config.Image)
+	assert.Nil(t, config.Ports)
+	assert.Nil(t, config.Volumes)
+}
+
 // ========== ContainerLog 结构测试 ==========
 
 func TestContainerLog_Structure(t *testing.T) {
@@ -153,6 +248,14 @@ func TestContainerLog_Structure(t *testing.T) {
 	assert.NotEmpty(t, log.Line)
 	assert.Contains(t, []string{"stdout", "stderr"}, log.Source)
 	assert.False(t, log.Timestamp.IsZero())
+}
+
+func TestContainerLog_Sources(t *testing.T) {
+	stdoutLog := ContainerLog{Source: "stdout", Line: "info"}
+	stderrLog := ContainerLog{Source: "stderr", Line: "error"}
+
+	assert.Equal(t, "stdout", stdoutLog.Source)
+	assert.Equal(t, "stderr", stderrLog.Source)
 }
 
 // ========== 配置验证测试 ==========
@@ -302,5 +405,12 @@ func BenchmarkContainerStats_Structure(b *testing.B) {
 			MemPercent: 50.0,
 			Timestamp:  time.Now(),
 		}
+	}
+}
+
+func BenchmarkParseSize(b *testing.B) {
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = parseSize("512m")
 	}
 }

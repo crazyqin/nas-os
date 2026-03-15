@@ -1,7 +1,7 @@
 # 存储 API 文档
 
-**版本**: v2.67.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ---
 
@@ -126,7 +126,7 @@ POST /api/v1/volumes/:name/snapshots
 
 ```json
 {
-  "snapshot_name": "daily-2026-03-15",
+  "snapshot_name": "daily-2026-03-16",
   "source_path": "/data/photos",
   "readonly": true
 }
@@ -211,4 +211,4 @@ GET /api/v1/volumes/:name/scrub/status
 
 ---
 
-*最后更新：2026-03-15*
+*最后更新：2026-03-16*

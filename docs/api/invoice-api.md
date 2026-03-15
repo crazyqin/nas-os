@@ -1,7 +1,7 @@
 # 发票与支付 API 文档
 
-**版本**: v2.67.0  
-**更新日期**: 2026-03-15
+**版本**: v2.76.0  
+**更新日期**: 2026-03-16
 
 ## 概述
 
@@ -190,7 +190,7 @@ POST /api/v1/billing/invoices
     "amount": 100.00,
     "tax": 11.54,
     "total": 111.54,
-    "created_at": "2026-03-15T16:00:00Z"
+    "created_at": "2026-03-16T16:00:00Z"
   }
 }
 ```
@@ -242,7 +242,7 @@ POST /api/v1/billing/invoices/:id/void
   "data": {
     "id": "INV-2026-03-002",
     "status": "void",
-    "voided_at": "2026-03-15T16:00:00Z",
+    "voided_at": "2026-03-16T16:00:00Z",
     "void_reason": "重复开票"
   }
 }
@@ -291,7 +291,7 @@ POST /api/v1/billing/invoices/:id/send
     "sent": true,
     "recipients": ["finance@example.com", "admin@example.com"],
     "message_id": "msg-xyz789",
-    "sent_at": "2026-03-15T16:00:00Z"
+    "sent_at": "2026-03-16T16:00:00Z"
   }
 }
 ```
@@ -334,8 +334,8 @@ GET /api/v1/billing/payments
         "method": "alipay",
         "status": "completed",
         "transaction_id": "2026031522001401234567890",
-        "paid_at": "2026-03-15T14:30:00Z",
-        "created_at": "2026-03-15T14:25:00Z"
+        "paid_at": "2026-03-16T14:30:00Z",
+        "created_at": "2026-03-16T14:25:00Z"
       }
     ]
   }
@@ -368,9 +368,9 @@ GET /api/v1/billing/payments/:id
       "buyer_id": "2088123456789012",
       "buyer_logon_id": "user***@example.com"
     },
-    "paid_at": "2026-03-15T14:30:00Z",
-    "created_at": "2026-03-15T14:25:00Z",
-    "updated_at": "2026-03-15T14:30:00Z",
+    "paid_at": "2026-03-16T14:30:00Z",
+    "created_at": "2026-03-16T14:25:00Z",
+    "updated_at": "2026-03-16T14:30:00Z",
     "receipt_url": "https://example.com/receipts/PAY-2026-03-001.pdf"
   }
 }
@@ -409,7 +409,7 @@ POST /api/v1/billing/payments
     "status": "pending",
     "payment_url": "https://openapi.alipay.com/gateway.do?...",
     "qr_code": "https://qr.alipay.com/xxx",
-    "expires_at": "2026-03-15T15:25:00Z"
+    "expires_at": "2026-03-16T15:25:00Z"
   }
 }
 ```
@@ -460,7 +460,7 @@ POST /api/v1/billing/payments/:id/refund
     "currency": "CNY",
     "status": "processing",
     "reason": "服务取消",
-    "created_at": "2026-03-15T16:00:00Z"
+    "created_at": "2026-03-16T16:00:00Z"
   }
 }
 ```
@@ -486,8 +486,8 @@ GET /api/v1/billing/refunds/:id
     "status": "completed",
     "reason": "服务取消",
     "transaction_id": "2026031522001401234567891",
-    "refunded_at": "2026-03-15T16:30:00Z",
-    "created_at": "2026-03-15T16:00:00Z"
+    "refunded_at": "2026-03-16T16:30:00Z",
+    "created_at": "2026-03-16T16:00:00Z"
   }
 }
 ```
@@ -602,7 +602,7 @@ GET /api/v1/billing/balance
     "pending": 200.00,
     "available": 4800.00,
     "currency": "CNY",
-    "last_updated": "2026-03-15T16:00:00Z"
+    "last_updated": "2026-03-16T16:00:00Z"
   }
 }
 ```
@@ -669,7 +669,7 @@ POST /api/v1/billing/payments/balance
     "status": "completed",
     "balance_before": 5000.00,
     "balance_after": 3605.19,
-    "paid_at": "2026-03-15T16:00:00Z"
+    "paid_at": "2026-03-16T16:00:00Z"
   }
 }
 ```
@@ -703,7 +703,7 @@ GET /api/v1/billing/balance/transactions
         "amount": -1394.81,
         "balance_after": 3605.19,
         "description": "支付发票 INV-2026-03-001",
-        "created_at": "2026-03-15T16:00:00Z"
+        "created_at": "2026-03-16T16:00:00Z"
       },
       {
         "id": "TXN-2026-03-002",
@@ -861,7 +861,7 @@ interface Transaction {
 ```json
 {
   "event": "payment.completed",
-  "timestamp": "2026-03-15T16:00:00Z",
+  "timestamp": "2026-03-16T16:00:00Z",
   "data": {
     "payment_id": "PAY-2026-03-001",
     "invoice_id": "INV-2026-03-001",
@@ -879,7 +879,7 @@ interface Transaction {
 ```json
 {
   "event": "payment.failed",
-  "timestamp": "2026-03-15T16:00:00Z",
+  "timestamp": "2026-03-16T16:00:00Z",
   "data": {
     "payment_id": "PAY-2026-03-001",
     "invoice_id": "INV-2026-03-001",
@@ -899,7 +899,7 @@ interface Transaction {
 ```json
 {
   "event": "refund.completed",
-  "timestamp": "2026-03-15T16:30:00Z",
+  "timestamp": "2026-03-16T16:30:00Z",
   "data": {
     "refund_id": "REF-2026-03-001",
     "payment_id": "PAY-2026-03-001",
