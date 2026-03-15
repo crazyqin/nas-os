@@ -600,8 +600,6 @@ func (sm *StatsManager) calculateProgressStats(stats *ProjectStatsExtended, proj
 
 // calculateQualityMetrics 计算质量指标
 func (sm *StatsManager) calculateQualityMetrics(stats *ProjectStatsExtended, projectID string) {
-	now := time.Now()
-
 	filter := TaskFilter{ProjectID: projectID, Limit: 10000}
 	tasks := sm.manager.ListTasks(filter)
 
@@ -669,7 +667,6 @@ func (sm *StatsManager) calculateQualityMetrics(stats *ProjectStatsExtended, pro
 	}
 
 	// 每日完成任务数
-	_ = weekAgo // 用于未来扩展
 	if stats.TaskStats.CompletedThisWeek > 0 {
 		stats.QualityMetrics.TasksPerDay = float64(stats.TaskStats.CompletedThisWeek) / 7.0
 	}

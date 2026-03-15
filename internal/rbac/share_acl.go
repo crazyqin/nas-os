@@ -60,6 +60,7 @@ type ACLEntry struct {
 	Inherited     bool          `json:"inherited"`             // 是否继承
 	Disabled      bool          `json:"disabled"`              // 是否禁用
 	CreatedAt     time.Time     `json:"created_at"`
+	UpdatedAt     time.Time     `json:"updated_at"`
 	CreatedBy     string        `json:"created_by"` // 创建者用户ID
 }
 
