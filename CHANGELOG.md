@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.58.0] - 2026-03-15
+
+### Added
+- **系统优化** (兵部)
+  - 数据库查询优化
+  - 缓存策略改进
+  - 性能监控增强
+
+- **安全加固** (刑部)
+  - 依赖更新
+  - 漏洞修复
+  - 安全审计完善
+
+- **文档完善** (礼部)
+  - API 文档更新
+  - 部署指南完善
+  - 用户指南补充
+
+### Changed
+- 版本号升级至 v2.58.0
+- README.md 版本信息同步
+- Docker 镜像标签更新
+
 ## [v2.57.0] - 2026-03-15
 
 ### Added

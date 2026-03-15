@@ -479,6 +479,345 @@
             font-size: 13px;
             color: var(--text-primary);
         }
+
+        /* 存储健康概览 */
+        .storage-health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .health-card {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--surface-border);
+            transition: all 0.2s;
+        }
+
+        .health-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+
+        .health-card.warning {
+            border-color: var(--color-warning);
+        }
+
+        .health-card.critical {
+            border-color: var(--color-error);
+        }
+
+        .health-icon {
+            font-size: 32px;
+        }
+
+        .health-info {
+            flex: 1;
+        }
+
+        .health-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .health-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .health-detail {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.healthy {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .status-badge.warning {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+
+        .status-badge.critical {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        /* 成本分析 */
+        .cost-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--surface-border);
+        }
+
+        .cost-item {
+            text-align: center;
+        }
+
+        .cost-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .cost-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .cost-value.total {
+            color: var(--color-primary);
+            font-size: 20px;
+        }
+
+        /* 实时监控 */
+        .realtime-monitor-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .monitor-card {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid var(--surface-border);
+            transition: all 0.2s;
+        }
+
+        .monitor-card:hover {
+            border-color: var(--color-primary);
+        }
+
+        .monitor-icon {
+            font-size: 36px;
+        }
+
+        .monitor-info {
+            flex: 1;
+        }
+
+        .monitor-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .monitor-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .monitor-bar {
+            height: 6px;
+            background: var(--surface-border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .monitor-bar-fill {
+            height: 100%;
+            background: var(--color-primary);
+            border-radius: 3px;
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .monitor-bar-fill.warning {
+            background: var(--color-warning);
+        }
+
+        .monitor-bar-fill.critical {
+            background: var(--color-error);
+        }
+
+        .monitor-bar.temp .monitor-bar-fill {
+            background: linear-gradient(90deg, #10B981 0%, #F59E0B 50%, #EF4444 100%);
+        }
+
+        .monitor-detail {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .monitor-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* 存储池状态 */
+        .pool-item {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--surface-border);
+        }
+
+        .pool-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .pool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .pool-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pool-status {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .pool-status.online {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+
+        .pool-status.degraded {
+            background: var(--color-warning-bg);
+            color: var(--color-warning);
+        }
+
+        .pool-status.offline {
+            background: var(--color-error-bg);
+            color: var(--color-error);
+        }
+
+        .pool-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .pool-stat {
+            text-align: center;
+        }
+
+        .pool-stat-label {
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .pool-stat-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* 告警通知 */
+        .alert-count {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: var(--bg-tertiary);
+            border-left: 3px solid var(--color-warning);
+        }
+
+        .alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-item.critical {
+            border-left-color: var(--color-error);
+            background: var(--color-error-bg);
+        }
+
+        .alert-item.info {
+            border-left-color: var(--color-info);
+        }
+
+        .alert-icon {
+            font-size: 18px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-message {
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .alert-time {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .alert-dismiss {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .alert-dismiss:hover {
+            color: var(--text-primary);
+        }
+
+        /* 响应式补充 */
+        @media (max-width: 1200px) {
+            .realtime-monitor-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .realtime-monitor-grid {
+                grid-template-columns: 1fr;
+            }
+            .storage-health-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -718,7 +1057,146 @@
     <!-- Toast 容器 -->
     <div id="toast-container"></div>
 
-    <!-- 加载 Dashboard JS -->
+    <!-- 存储健康概览 -->
+    <div class="panel" style="margin-bottom: 24px;">
+        <div class="panel-header">
+            <h3 class="panel-title">🩺 存储健康概览</h3>
+            <span class="status-badge" id="storage-health-status">检测中...</span>
+        </div>
+        <div class="panel-body">
+            <div class="storage-health-grid" id="storage-health-grid">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 成本分析图表 -->
+    <div class="charts-grid" style="margin-bottom: 24px;">
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">💰 存储成本分析</h3>
+                <select class="refresh-rate-select" id="cost-period-select">
+                    <option value="day">今日</option>
+                    <option value="week" selected>本周</option>
+                    <option value="month">本月</option>
+                </select>
+            </div>
+            <div class="panel-body">
+                <div class="mini-chart">
+                    <canvas id="cost-chart"></canvas>
+                </div>
+                <div class="cost-summary" id="cost-summary">
+                    <div class="cost-item">
+                        <span class="cost-label">存储成本</span>
+                        <span class="cost-value" id="storage-cost">¥0.00</span>
+                    </div>
+                    <div class="cost-item">
+                        <span class="cost-label">流量成本</span>
+                        <span class="cost-value" id="traffic-cost">¥0.00</span>
+                    </div>
+                    <div class="cost-item">
+                        <span class="cost-label">总计</span>
+                        <span class="cost-value total" id="total-cost">¥0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">📈 容量趋势</h3>
+            </div>
+            <div class="panel-body">
+                <div class="mini-chart">
+                    <canvas id="capacity-trend-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 实时监控面板 -->
+    <div class="panel" style="margin-bottom: 24px;">
+        <div class="panel-header">
+            <h3 class="panel-title">📡 实时监控</h3>
+            <div class="monitor-controls">
+                <span class="monitor-status" id="monitor-status">
+                    <span class="status-dot connected"></span> 实时更新中
+                </span>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="realtime-monitor-grid">
+                <div class="monitor-card">
+                    <div class="monitor-icon">⚡</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">CPU</div>
+                        <div class="monitor-value" id="realtime-cpu">0%</div>
+                        <div class="monitor-bar">
+                            <div class="monitor-bar-fill" id="realtime-cpu-bar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="monitor-card">
+                    <div class="monitor-icon">💾</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">内存</div>
+                        <div class="monitor-value" id="realtime-memory">0%</div>
+                        <div class="monitor-bar">
+                            <div class="monitor-bar-fill" id="realtime-memory-bar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="monitor-card">
+                    <div class="monitor-icon">🌡️</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">温度</div>
+                        <div class="monitor-value" id="realtime-temp">--°C</div>
+                        <div class="monitor-bar temp">
+                            <div class="monitor-bar-fill" id="realtime-temp-bar"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="monitor-card">
+                    <div class="monitor-icon">🌐</div>
+                    <div class="monitor-info">
+                        <div class="monitor-label">网络</div>
+                        <div class="monitor-value" id="realtime-network">0 Mbps</div>
+                        <div class="monitor-detail">↓ <span id="realtime-rx">0</span> ↑ <span id="realtime-tx">0</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 存储池状态 -->
+    <div class="main-grid" style="margin-bottom: 24px;">
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">🗄️ 存储池状态</h3>
+                <button class="btn btn-sm btn-secondary" id="refresh-pools-btn">🔄 刷新</button>
+            </div>
+            <div class="panel-body">
+                <div id="storage-pools-list">
+                    <div class="empty-state">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h3 class="panel-title">🚨 告警通知</h3>
+                <span class="alert-count" id="alert-count">0 条告警</span>
+            </div>
+            <div class="panel-body">
+                <div id="alerts-list">
+                    <div class="empty-state">暂无告警</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载 JS -->
+    <script src="../js/storage-dashboard.js"></script>
     <script src="../js/dashboard.js"></script>
 </body>
 </html>
