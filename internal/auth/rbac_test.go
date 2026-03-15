@@ -37,6 +37,9 @@ func TestRBACManager_BuiltInRoles(t *testing.T) {
 func TestRBACManager_AdminHasAllPermissions(t *testing.T) {
 	mgr := NewRBACManager()
 
+	// 分配 Admin 角色给用户
+	_ = mgr.AssignRoleToUser("admin-user", RoleAdmin)
+
 	// Admin 应该有所有权限
 	resources := []Resource{ResourceVolume, ResourceShare, ResourceUser, ResourceSystem, ResourceContainer, ResourceVM}
 	actions := []Action{ActionRead, ActionWrite, ActionDelete, ActionAdmin}
