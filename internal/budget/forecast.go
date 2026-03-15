@@ -24,12 +24,12 @@ var (
 type ForecastMethod string
 
 const (
-	ForecastMethodMovingAverage  ForecastMethod = "moving_average"  // 移动平均
-	ForecastMethodExponential    ForecastMethod = "exponential"    // 指数平滑
-	ForecastMethodLinear         ForecastMethod = "linear"         // 线性回归
-	ForecastMethodSeasonal       ForecastMethod = "seasonal"       // 季节性预测
-	ForecastMethodARIMA          ForecastMethod = "arima"          // ARIMA模型
-	ForecastMethodProphet        ForecastMethod = "prophet"        // Prophet模型
+	ForecastMethodMovingAverage ForecastMethod = "moving_average" // 移动平均
+	ForecastMethodExponential   ForecastMethod = "exponential"    // 指数平滑
+	ForecastMethodLinear        ForecastMethod = "linear"         // 线性回归
+	ForecastMethodSeasonal      ForecastMethod = "seasonal"       // 季节性预测
+	ForecastMethodARIMA         ForecastMethod = "arima"          // ARIMA模型
+	ForecastMethodProphet       ForecastMethod = "prophet"        // Prophet模型
 )
 
 // ForecastPeriod 预测周期
@@ -47,9 +47,9 @@ const (
 type ForecastConfidence string
 
 const (
-	ConfidenceLow      ForecastConfidence = "low"      // 80%置信区间
-	ConfidenceMedium   ForecastConfidence = "medium"   // 90%置信区间
-	ConfidenceHigh     ForecastConfidence = "high"     // 95%置信区间
+	ConfidenceLow      ForecastConfidence = "low"       // 80%置信区间
+	ConfidenceMedium   ForecastConfidence = "medium"    // 90%置信区间
+	ConfidenceHigh     ForecastConfidence = "high"      // 95%置信区间
 	ConfidenceVeryHigh ForecastConfidence = "very_high" // 99%置信区间
 )
 
@@ -57,66 +57,66 @@ const (
 
 // ForecastRequest 预测请求
 type ForecastRequest struct {
-	BudgetID      string            `json:"budget_id" binding:"required"`
-	Method        ForecastMethod    `json:"method"`
-	Period        ForecastPeriod    `json:"period"`
-	Horizon       int               `json:"horizon"`        // 预测时长（周期数）
+	BudgetID      string             `json:"budget_id" binding:"required"`
+	Method        ForecastMethod     `json:"method"`
+	Period        ForecastPeriod     `json:"period"`
+	Horizon       int                `json:"horizon"` // 预测时长（周期数）
 	Confidence    ForecastConfidence `json:"confidence"`
-	Seasonality   bool              `json:"seasonality"`    // 是否考虑季节性
-	IncludeBounds bool              `json:"include_bounds"` // 是否包含置信区间
-	HistoryDays   int               `json:"history_days"`   // 历史数据天数
+	Seasonality   bool               `json:"seasonality"`    // 是否考虑季节性
+	IncludeBounds bool               `json:"include_bounds"` // 是否包含置信区间
+	HistoryDays   int                `json:"history_days"`   // 历史数据天数
 }
 
 // ForecastResult 预测结果
 type ForecastResult struct {
-	ID            string            `json:"id"`
-	BudgetID      string            `json:"budget_id"`
-	GeneratedAt   time.Time         `json:"generated_at"`
-	Method        ForecastMethod    `json:"method"`
-	Period        ForecastPeriod    `json:"period"`
-	Confidence    ForecastConfidence `json:"confidence"`
+	ID          string             `json:"id"`
+	BudgetID    string             `json:"budget_id"`
+	GeneratedAt time.Time          `json:"generated_at"`
+	Method      ForecastMethod     `json:"method"`
+	Period      ForecastPeriod     `json:"period"`
+	Confidence  ForecastConfidence `json:"confidence"`
 
 	// 预测数据点
-	DataPoints    []ForecastPoint   `json:"data_points"`
+	DataPoints []ForecastPoint `json:"data_points"`
 
 	// 汇总统计
-	Summary       ForecastSummary   `json:"summary"`
+	Summary ForecastSummary `json:"summary"`
 
 	// 模型信息
-	ModelInfo     ForecastModelInfo `json:"model_info"`
+	ModelInfo ForecastModelInfo `json:"model_info"`
 
 	// 建议
 	Recommendations []ForecastRecommendation `json:"recommendations"`
 
 	// 准确度评估
-	Accuracy      ForecastAccuracy  `json:"accuracy"`
+	Accuracy ForecastAccuracy `json:"accuracy"`
 }
 
 // ForecastPoint 预测数据点
 type ForecastPoint struct {
 	Date         time.Time `json:"date"`
-	PeriodLabel  string    `json:"period_label"`   // 周期标签（如 "2026-03"）
-	Predicted    float64   `json:"predicted"`      // 预测值
-	LowerBound   float64   `json:"lower_bound"`    // 下限
-	UpperBound   float64   `json:"upper_bound"`    // 上限
-	Trend        string    `json:"trend"`          // up, down, stable
-	Confidence   float64   `json:"confidence"`     // 置信度百分比
-	Contributors []string  `json:"contributors"`   // 影响因素
+	PeriodLabel  string    `json:"period_label"` // 周期标签（如 "2026-03"）
+	Predicted    float64   `json:"predicted"`    // 预测值
+	LowerBound   float64   `json:"lower_bound"`  // 下限
+	UpperBound   float64   `json:"upper_bound"`  // 上限
+	Trend        string    `json:"trend"`        // up, down, stable
+	Confidence   float64   `json:"confidence"`   // 置信度百分比
+	Contributors []string  `json:"contributors"` // 影响因素
 }
 
 // ForecastSummary 预测汇总
 type ForecastSummary struct {
-	TotalPredicted      float64   `json:"total_predicted"`       // 总预测值
-	AveragePredicted    float64   `json:"average_predicted"`     // 平均预测值
-	MaxPredicted        float64   `json:"max_predicted"`         // 最大预测值
-	MinPredicted        float64   `json:"min_predicted"`         // 最小预测值
-	GrowthRate          float64   `json:"growth_rate"`           // 增长率
-	Trend               string    `json:"trend"`                 // 整体趋势
-	SeasonalPattern     string    `json:"seasonal_pattern"`      // 季节性模式
-	ConfidenceScore     float64   `json:"confidence_score"`      // 置信度评分
-	RiskLevel           string    `json:"risk_level"`            // 风险等级
-	RecommendedBudget   float64   `json:"recommended_budget"`    // 建议预算
-	BudgetVariance      float64   `json:"budget_variance"`       // 预算偏差
+	TotalPredicted    float64 `json:"total_predicted"`    // 总预测值
+	AveragePredicted  float64 `json:"average_predicted"`  // 平均预测值
+	MaxPredicted      float64 `json:"max_predicted"`      // 最大预测值
+	MinPredicted      float64 `json:"min_predicted"`      // 最小预测值
+	GrowthRate        float64 `json:"growth_rate"`        // 增长率
+	Trend             string  `json:"trend"`              // 整体趋势
+	SeasonalPattern   string  `json:"seasonal_pattern"`   // 季节性模式
+	ConfidenceScore   float64 `json:"confidence_score"`   // 置信度评分
+	RiskLevel         string  `json:"risk_level"`         // 风险等级
+	RecommendedBudget float64 `json:"recommended_budget"` // 建议预算
+	BudgetVariance    float64 `json:"budget_variance"`    // 预算偏差
 }
 
 // ForecastModelInfo 预测模型信息
@@ -126,19 +126,19 @@ type ForecastModelInfo struct {
 	TrainingSize    int                    `json:"training_size"`
 	ValidationScore float64                `json:"validation_score"`
 	LastUpdated     time.Time              `json:"last_updated"`
-	Features        []string               `json:"features"`        // 使用的特征
-	Weights         map[string]float64     `json:"weights"`        // 特征权重
+	Features        []string               `json:"features"` // 使用的特征
+	Weights         map[string]float64     `json:"weights"`  // 特征权重
 }
 
 // ForecastRecommendation 预测建议
 type ForecastRecommendation struct {
-	Type        string  `json:"type"`        // budget_adjust, alert, optimize
-	Priority    string  `json:"priority"`    // high, medium, low
+	Type        string  `json:"type"`     // budget_adjust, alert, optimize
+	Priority    string  `json:"priority"` // high, medium, low
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
-	Impact      float64 `json:"impact"`      // 预计影响金额
-	Action      string  `json:"action"`      // 建议操作
-	Reason      string  `json:"reason"`      // 原因说明
+	Impact      float64 `json:"impact"` // 预计影响金额
+	Action      string  `json:"action"` // 建议操作
+	Reason      string  `json:"reason"` // 原因说明
 }
 
 // ForecastAccuracy 预测准确度
@@ -155,50 +155,50 @@ type ForecastAccuracy struct {
 
 // HistoricalDataPoint 历史数据点
 type HistoricalDataPoint struct {
-	Date      time.Time `json:"date"`
-	Amount    float64   `json:"amount"`
-	BudgetID  string    `json:"budget_id"`
-	Source    string    `json:"source"`
-	Metadata  map[string]interface{} `json:"metadata,omitempty"`
+	Date     time.Time              `json:"date"`
+	Amount   float64                `json:"amount"`
+	BudgetID string                 `json:"budget_id"`
+	Source   string                 `json:"source"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // HistoricalStats 历史统计
 type HistoricalStats struct {
-	Count          int       `json:"count"`
-	Mean           float64   `json:"mean"`
-	StdDev         float64   `json:"std_dev"`
-	Min            float64   `json:"min"`
-	Max            float64   `json:"max"`
-	Median         float64   `json:"median"`
-	FirstQuartile  float64   `json:"first_quartile"`
-	ThirdQuartile  float64   `json:"third_quartile"`
-	Trend          float64   `json:"trend"`           // 趋势斜率
-	Seasonality    float64   `json:"seasonality"`     // 季节性强度
-	StartDate      time.Time `json:"start_date"`
-	EndDate        time.Time `json:"end_date"`
+	Count         int       `json:"count"`
+	Mean          float64   `json:"mean"`
+	StdDev        float64   `json:"std_dev"`
+	Min           float64   `json:"min"`
+	Max           float64   `json:"max"`
+	Median        float64   `json:"median"`
+	FirstQuartile float64   `json:"first_quartile"`
+	ThirdQuartile float64   `json:"third_quartile"`
+	Trend         float64   `json:"trend"`       // 趋势斜率
+	Seasonality   float64   `json:"seasonality"` // 季节性强度
+	StartDate     time.Time `json:"start_date"`
+	EndDate       time.Time `json:"end_date"`
 }
 
 // ========== 预测引擎 ==========
 
 // ForecastEngine 预测引擎
 type ForecastEngine struct {
-	mu             sync.RWMutex
-	historyStore   HistoryStore
-	config         ForecastConfig
-	forecastCache  map[string]*ForecastResult
+	mu            sync.RWMutex
+	historyStore  HistoryStore
+	config        ForecastConfig
+	forecastCache map[string]*ForecastResult
 }
 
 // ForecastConfig 预测配置
 type ForecastConfig struct {
-	DefaultMethod      ForecastMethod    `json:"default_method"`
-	DefaultPeriod      ForecastPeriod    `json:"default_period"`
-	DefaultHorizon     int               `json:"default_horizon"`
+	DefaultMethod      ForecastMethod     `json:"default_method"`
+	DefaultPeriod      ForecastPeriod     `json:"default_period"`
+	DefaultHorizon     int                `json:"default_horizon"`
 	DefaultConfidence  ForecastConfidence `json:"default_confidence"`
-	MinHistoryDays     int               `json:"min_history_days"`
-	MaxHistoryDays     int               `json:"max_history_days"`
-	CacheEnabled       bool              `json:"cache_enabled"`
-	CacheTTLMinutes    int               `json:"cache_ttl_minutes"`
-	SeasonalityEnabled bool              `json:"seasonality_enabled"`
+	MinHistoryDays     int                `json:"min_history_days"`
+	MaxHistoryDays     int                `json:"max_history_days"`
+	CacheEnabled       bool               `json:"cache_enabled"`
+	CacheTTLMinutes    int                `json:"cache_ttl_minutes"`
+	SeasonalityEnabled bool               `json:"seasonality_enabled"`
 }
 
 // HistoryStore 历史数据存储接口
@@ -826,7 +826,7 @@ func (fe *ForecastEngine) formatPeriod(t time.Time, period ForecastPeriod) strin
 	case ForecastPeriodMonthly:
 		return t.Format("2006-01")
 	case ForecastPeriodQuarter:
-		q := (int(t.Month()) - 1) / 3 + 1
+		q := (int(t.Month())-1)/3 + 1
 		return fmt.Sprintf("%d-Q%d", t.Year(), q)
 	case ForecastPeriodYearly:
 		return fmt.Sprintf("%d", t.Year())
@@ -856,27 +856,27 @@ func (fe *ForecastEngine) ClearCache() {
 
 // TrendAnalysis 趋势分析
 type TrendAnalysis struct {
-	BudgetID      string           `json:"budget_id"`
-	AnalyzedAt    time.Time        `json:"analyzed_at"`
-	PeriodDays    int              `json:"period_days"`
-	Trend         TrendInfo        `json:"trend"`
-	Patterns      []PatternInfo    `json:"patterns"`
-	Anomalies     []AnomalyInfo    `json:"anomalies"`
-	Projections   []ProjectionInfo `json:"projections"`
+	BudgetID    string           `json:"budget_id"`
+	AnalyzedAt  time.Time        `json:"analyzed_at"`
+	PeriodDays  int              `json:"period_days"`
+	Trend       TrendInfo        `json:"trend"`
+	Patterns    []PatternInfo    `json:"patterns"`
+	Anomalies   []AnomalyInfo    `json:"anomalies"`
+	Projections []ProjectionInfo `json:"projections"`
 }
 
 // TrendInfo 趋势信息
 type TrendInfo struct {
-	Direction   string  `json:"direction"`   // up, down, stable
-	Strength    float64 `json:"strength"`    // 0-1
-	Slope       float64 `json:"slope"`       // 趋势斜率
+	Direction    string  `json:"direction"`    // up, down, stable
+	Strength     float64 `json:"strength"`     // 0-1
+	Slope        float64 `json:"slope"`        // 趋势斜率
 	Acceleration float64 `json:"acceleration"` // 加速度
-	Confidence  float64 `json:"confidence"`  // 置信度
+	Confidence   float64 `json:"confidence"`   // 置信度
 }
 
 // PatternInfo 模式信息
 type PatternInfo struct {
-	Type        string  `json:"type"`        // seasonal, weekly, monthly
+	Type        string  `json:"type"` // seasonal, weekly, monthly
 	Description string  `json:"description"`
 	Strength    float64 `json:"strength"`
 	PeakTime    string  `json:"peak_time,omitempty"`
@@ -885,22 +885,22 @@ type PatternInfo struct {
 
 // AnomalyInfo 异常信息
 type AnomalyInfo struct {
-	Date        time.Time `json:"date"`
-	Expected    float64   `json:"expected"`
-	Actual      float64   `json:"actual"`
-	Deviation   float64   `json:"deviation"`   // 偏差百分比
-	Severity    string    `json:"severity"`    // low, medium, high
-	PossibleCause string  `json:"possible_cause,omitempty"`
+	Date          time.Time `json:"date"`
+	Expected      float64   `json:"expected"`
+	Actual        float64   `json:"actual"`
+	Deviation     float64   `json:"deviation"` // 偏差百分比
+	Severity      string    `json:"severity"`  // low, medium, high
+	PossibleCause string    `json:"possible_cause,omitempty"`
 }
 
 // ProjectionInfo 投影信息
 type ProjectionInfo struct {
-	TargetDate   time.Time `json:"target_date"`
-	TargetAmount float64   `json:"target_amount"`
-	ProjectedAmount float64 `json:"projected_amount"`
-	Likelihood   float64   `json:"likelihood"` // 达成概率
-	Gap          float64   `json:"gap"`
-	GapPercent   float64   `json:"gap_percent"`
+	TargetDate      time.Time `json:"target_date"`
+	TargetAmount    float64   `json:"target_amount"`
+	ProjectedAmount float64   `json:"projected_amount"`
+	Likelihood      float64   `json:"likelihood"` // 达成概率
+	Gap             float64   `json:"gap"`
+	GapPercent      float64   `json:"gap_percent"`
 }
 
 // AnalyzeTrend 分析趋势
@@ -940,12 +940,12 @@ func (fe *ForecastEngine) AnalyzeTrend(ctx context.Context, budgetID string, day
 	projections := fe.calculateProjections(history, stats)
 
 	return &TrendAnalysis{
-		BudgetID:   budgetID,
-		AnalyzedAt: time.Now(),
-		PeriodDays: days,
-		Trend:      trend,
-		Patterns:   patterns,
-		Anomalies:  anomalies,
+		BudgetID:    budgetID,
+		AnalyzedAt:  time.Now(),
+		PeriodDays:  days,
+		Trend:       trend,
+		Patterns:    patterns,
+		Anomalies:   anomalies,
 		Projections: projections,
 	}, nil
 }
@@ -1019,11 +1019,11 @@ func (fe *ForecastEngine) detectAnomalies(history []HistoricalDataPoint, stats H
 
 		if severity != "low" {
 			anomalies = append(anomalies, AnomalyInfo{
-				Date:     h.Date,
-				Expected: stats.Mean,
-				Actual:   h.Amount,
+				Date:      h.Date,
+				Expected:  stats.Mean,
+				Actual:    h.Amount,
 				Deviation: deviation,
-				Severity: severity,
+				Severity:  severity,
 			})
 		}
 	}

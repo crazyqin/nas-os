@@ -80,9 +80,9 @@ func TestGetUsageRecord(t *testing.T) {
 
 	ctx := context.Background()
 	created, err := bm.RecordUsage(ctx, &UsageRecordInput{
-		UserID:          "user1",
-		PeriodStart:     time.Now().AddDate(0, 0, -30),
-		PeriodEnd:       time.Now(),
+		UserID:           "user1",
+		PeriodStart:      time.Now().AddDate(0, 0, -30),
+		PeriodEnd:        time.Now(),
 		StorageUsedBytes: 100 * 1024 * 1024 * 1024,
 	})
 	require.NoError(t, err)
@@ -105,10 +105,10 @@ func TestListUsageRecords(t *testing.T) {
 	// 创建多个用量记录
 	for i := 0; i < 5; i++ {
 		_, err := bm.RecordUsage(ctx, &UsageRecordInput{
-			UserID:          "user1",
-			PoolID:          "pool1",
-			PeriodStart:     time.Now().AddDate(0, 0, -30+i),
-			PeriodEnd:       time.Now().AddDate(0, 0, -25+i),
+			UserID:           "user1",
+			PoolID:           "pool1",
+			PeriodStart:      time.Now().AddDate(0, 0, -30+i),
+			PeriodEnd:        time.Now().AddDate(0, 0, -25+i),
 			StorageUsedBytes: uint64((i + 1) * 10 * 1024 * 1024 * 1024),
 		})
 		require.NoError(t, err)
@@ -146,16 +146,16 @@ func TestGetUserUsageSummary(t *testing.T) {
 	// 创建多个用量记录
 	for i := 0; i < 3; i++ {
 		_, err := bm.RecordUsage(ctx, &UsageRecordInput{
-			UserID:           "user1",
-			UserName:         "测试用户",
-			PoolID:           "pool1",
-			PoolName:         "存储池1",
-			PeriodStart:      time.Now().AddDate(0, 0, -30),
-			PeriodEnd:        time.Now(),
-			StorageUsedBytes: uint64((i + 1) * 100 * 1024 * 1024 * 1024),
-			BandwidthInBytes: uint64((i + 1) * 50 * 1024 * 1024 * 1024),
+			UserID:            "user1",
+			UserName:          "测试用户",
+			PoolID:            "pool1",
+			PoolName:          "存储池1",
+			PeriodStart:       time.Now().AddDate(0, 0, -30),
+			PeriodEnd:         time.Now(),
+			StorageUsedBytes:  uint64((i + 1) * 100 * 1024 * 1024 * 1024),
+			BandwidthInBytes:  uint64((i + 1) * 50 * 1024 * 1024 * 1024),
 			BandwidthOutBytes: uint64((i + 1) * 30 * 1024 * 1024 * 1024),
-			APIRequests:      int64((i + 1) * 1000),
+			APIRequests:       int64((i + 1) * 1000),
 		})
 		require.NoError(t, err)
 	}
@@ -166,7 +166,7 @@ func TestGetUserUsageSummary(t *testing.T) {
 	assert.Equal(t, "user1", summary.UserID)
 	assert.Equal(t, "测试用户", summary.UserName)
 	assert.Equal(t, 600.0, summary.TotalStorageUsedGB) // 100 + 200 + 300
-	assert.Equal(t, 240.0, summary.TotalBandwidthGB)    // 80 + 160 + 240
+	assert.Equal(t, 240.0, summary.TotalBandwidthGB)   // 80 + 160 + 240
 	assert.Equal(t, int64(6000), summary.TotalAPIRequests)
 	assert.NotNil(t, summary.PoolSummaries["pool1"])
 }
@@ -363,7 +363,7 @@ func TestListInvoices(t *testing.T) {
 			PeriodStart: time.Now().AddDate(0, -1, 0),
 			PeriodEnd:   time.Now(),
 			LineItems: []InvoiceLineItemInput{
-				{Description: "费用", Quantity: float64(i + 1) * 100, UnitPrice: 0.1},
+				{Description: "费用", Quantity: float64(i+1) * 100, UnitPrice: 0.1},
 			},
 		})
 		require.NoError(t, err)
@@ -388,14 +388,14 @@ func TestGenerateInvoiceFromUsage(t *testing.T) {
 
 	// 先记录用量
 	_, err := bm.RecordUsage(ctx, &UsageRecordInput{
-		UserID:           "user1",
-		UserName:         "测试用户",
-		PoolID:           "pool1",
-		PoolName:         "存储池1",
-		PeriodStart:      time.Now().AddDate(0, 0, -30),
-		PeriodEnd:        time.Now(),
-		StorageUsedBytes: 100 * 1024 * 1024 * 1024, // 100 GB
-		BandwidthInBytes: 50 * 1024 * 1024 * 1024,
+		UserID:            "user1",
+		UserName:          "测试用户",
+		PoolID:            "pool1",
+		PoolName:          "存储池1",
+		PeriodStart:       time.Now().AddDate(0, 0, -30),
+		PeriodEnd:         time.Now(),
+		StorageUsedBytes:  100 * 1024 * 1024 * 1024, // 100 GB
+		BandwidthInBytes:  50 * 1024 * 1024 * 1024,
 		BandwidthOutBytes: 30 * 1024 * 1024 * 1024,
 	})
 	require.NoError(t, err)
@@ -565,9 +565,9 @@ func TestBytesToGB(t *testing.T) {
 		expected float64
 	}{
 		{0, 0},
-		{1024 * 1024 * 1024, 1.0}, // 1 GB
+		{1024 * 1024 * 1024, 1.0},         // 1 GB
 		{100 * 1024 * 1024 * 1024, 100.0}, // 100 GB
-		{1024 * 1024, 0.0009765625}, // 1 MB
+		{1024 * 1024, 0.0009765625},       // 1 MB
 	}
 
 	for _, tt := range tests {
@@ -587,8 +587,8 @@ func TestTieredPricing(t *testing.T) {
 		amount   float64
 		expected float64
 	}{
-		{50, 5.0},    // 50 * 0.1 = 5
-		{150, 14.0},  // 100 * 0.1 + 50 * 0.08 = 10 + 4 = 14
+		{50, 5.0},     // 50 * 0.1 = 5
+		{150, 14.0},   // 100 * 0.1 + 50 * 0.08 = 10 + 4 = 14
 		{2000, 130.0}, // 100 * 0.1 + 900 * 0.08 + 1000 * 0.05 = 10 + 72 + 50 = 132
 	}
 

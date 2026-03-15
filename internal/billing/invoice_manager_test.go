@@ -98,8 +98,8 @@ func TestCreateInvoiceManagerWithItems(t *testing.T) {
 func TestGetInvoiceManagerInvoice(t *testing.T) {
 	tmpDir := t.TempDir()
 	im, err := NewInvoiceManager(InvoiceManagerConfig{
-		StoragePath: tmpDir,
-		AutoNumber:  true,
+		StoragePath:  tmpDir,
+		AutoNumber:   true,
 		NumberPrefix: "INV",
 	})
 	require.NoError(t, err)

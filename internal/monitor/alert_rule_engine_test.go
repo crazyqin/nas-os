@@ -433,11 +433,11 @@ func TestAlertRuleEngine_Cooldown(t *testing.T) {
 	engine := NewAlertRuleEngine("", alertMgr)
 
 	rule := &AlertRuleConfig{
-		ID:        "cpu-high",
-		Name:      "CPU High",
-		Enabled:   true,
-		Type:      RuleTypeCPU,
-		Cooldown:  time.Minute, // 1 分钟冷却
+		ID:       "cpu-high",
+		Name:     "CPU High",
+		Enabled:  true,
+		Type:     RuleTypeCPU,
+		Cooldown: time.Minute, // 1 分钟冷却
 		Conditions: []RuleCondition{
 			{Field: "cpu_usage", Operator: OpGreaterThan, Value: 80},
 		},
@@ -640,4 +640,3 @@ func BenchmarkAlertRuleEngine_GetRules(b *testing.B) {
 		_ = engine.GetRules()
 	}
 }
-

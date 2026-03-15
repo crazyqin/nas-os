@@ -13,10 +13,10 @@ import (
 
 // Manager 监控管理器
 type Manager struct {
-	hostname         string
+	hostname          string
 	diskHealthMonitor *DiskHealthMonitor
-	alertingManager  *AlertingManager
-	backupStats      *BackupStats
+	alertingManager   *AlertingManager
+	backupStats       *BackupStats
 }
 
 // SystemStats 系统统计信息
@@ -134,7 +134,7 @@ func (m *Manager) GetBackupStats() (*BackupStats, error) {
 	if m.backupStats != nil {
 		return m.backupStats, nil
 	}
-	
+
 	// 否则返回一个空的统计结构
 	// 实际实现应该从备份服务或存储中获取数据
 	return nil, fmt.Errorf("备份统计未初始化")

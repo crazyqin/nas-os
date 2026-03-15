@@ -36,7 +36,7 @@ type AlertManagerConfig struct {
 	CooldownMinutes int `json:"cooldown_minutes"`
 
 	// 升级配置
-	EscalationEnabled bool              `json:"escalation_enabled"`
+	EscalationEnabled bool                   `json:"escalation_enabled"`
 	EscalationRules   []EscalationRuleConfig `json:"escalation_rules"`
 
 	// 警报保留天数
@@ -69,10 +69,10 @@ func DefaultAlertManagerConfig() AlertManagerConfig {
 			{Percentage: 90, Level: "critical", Message: "预算已使用 90%，请及时处理"},
 			{Percentage: 100, Level: "emergency", Message: "预算已耗尽，请立即处理"},
 		},
-		NotifyEmail:        true,
-		NotifyWebhook:      false,
-		CooldownMinutes:    60,
-		EscalationEnabled:  true,
+		NotifyEmail:       true,
+		NotifyWebhook:     false,
+		CooldownMinutes:   60,
+		EscalationEnabled: true,
 		EscalationRules: []EscalationRuleConfig{
 			{AfterMinutes: 30, ToLevel: "warning", NotifyUsers: []string{"manager"}},
 			{AfterMinutes: 60, ToLevel: "critical", NotifyUsers: []string{"admin", "manager"}},
@@ -84,54 +84,54 @@ func DefaultAlertManagerConfig() AlertManagerConfig {
 
 // AlertRule 警报规则
 type AlertRule struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	BudgetID    string            `json:"budget_id"`    // 空表示全局规则
-	Enabled     bool              `json:"enabled"`
-	Thresholds  []ThresholdConfig `json:"thresholds"`
-	NotifyConfig NotifyConfig     `json:"notify_config"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID           string            `json:"id"`
+	Name         string            `json:"name"`
+	BudgetID     string            `json:"budget_id"` // 空表示全局规则
+	Enabled      bool              `json:"enabled"`
+	Thresholds   []ThresholdConfig `json:"thresholds"`
+	NotifyConfig NotifyConfig      `json:"notify_config"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 // NotifyConfig 通知配置
 type NotifyConfig struct {
-	NotifyEmail    bool     `json:"notify_email"`
+	NotifyEmail     bool     `json:"notify_email"`
 	EmailRecipients []string `json:"email_recipients"`
-	NotifyWebhook  bool     `json:"notify_webhook"`
-	WebhookURL     string   `json:"webhook_url"`
-	NotifyChannels []string `json:"notify_channels"`
-	NotifyUsers    []string `json:"notify_users"`
+	NotifyWebhook   bool     `json:"notify_webhook"`
+	WebhookURL      string   `json:"webhook_url"`
+	NotifyChannels  []string `json:"notify_channels"`
+	NotifyUsers     []string `json:"notify_users"`
 
 	// 自定义通知模板
-	EmailSubjectTemplate string `json:"email_subject_template,omitempty"`
-	EmailBodyTemplate    string `json:"email_body_template,omitempty"`
+	EmailSubjectTemplate   string `json:"email_subject_template,omitempty"`
+	EmailBodyTemplate      string `json:"email_body_template,omitempty"`
 	WebhookPayloadTemplate string `json:"webhook_payload_template,omitempty"`
 }
 
 // AlertHistory 警报历史
 type AlertHistory struct {
-	AlertID      string    `json:"alert_id"`
-	BudgetID     string    `json:"budget_id"`
-	Action       string    `json:"action"` // triggered, acknowledged, resolved, escalated
-	ActionAt     time.Time `json:"action_at"`
-	ActionBy     string    `json:"action_by,omitempty"`
-	OldStatus    string    `json:"old_status"`
-	NewStatus    string    `json:"new_status"`
-	OldLevel     string    `json:"old_level,omitempty"`
-	NewLevel     string    `json:"new_level,omitempty"`
-	Message      string    `json:"message,omitempty"`
+	AlertID   string    `json:"alert_id"`
+	BudgetID  string    `json:"budget_id"`
+	Action    string    `json:"action"` // triggered, acknowledged, resolved, escalated
+	ActionAt  time.Time `json:"action_at"`
+	ActionBy  string    `json:"action_by,omitempty"`
+	OldStatus string    `json:"old_status"`
+	NewStatus string    `json:"new_status"`
+	OldLevel  string    `json:"old_level,omitempty"`
+	NewLevel  string    `json:"new_level,omitempty"`
+	Message   string    `json:"message,omitempty"`
 }
 
 // AlertStats 警报统计
 type AlertStats struct {
-	TotalAlerts      int            `json:"total_alerts"`
-	ActiveAlerts     int            `json:"active_alerts"`
-	AcknowledgedAlerts int          `json:"acknowledged_alerts"`
-	ResolvedAlerts   int            `json:"resolved_alerts"`
-	ByLevel          map[AlertLevel]int `json:"by_level"`
-	ByBudget         map[string]int `json:"by_budget"`
-	AverageResolutionTime float64   `json:"average_resolution_time_minutes"`
+	TotalAlerts           int                `json:"total_alerts"`
+	ActiveAlerts          int                `json:"active_alerts"`
+	AcknowledgedAlerts    int                `json:"acknowledged_alerts"`
+	ResolvedAlerts        int                `json:"resolved_alerts"`
+	ByLevel               map[AlertLevel]int `json:"by_level"`
+	ByBudget              map[string]int     `json:"by_budget"`
+	AverageResolutionTime float64            `json:"average_resolution_time_minutes"`
 }
 
 // ========== 警报通知接口 ==========
@@ -149,8 +149,8 @@ type AlertNotifier interface {
 
 // AlertManager 警报管理器
 type AlertManager struct {
-	mu       sync.RWMutex
-	config   AlertManagerConfig
+	mu        sync.RWMutex
+	config    AlertManagerConfig
 	notifiers map[string]AlertNotifier
 
 	// 警报存储
@@ -179,15 +179,15 @@ type BudgetDataProvider interface {
 
 // BudgetInfo 预算信息
 type BudgetInfo struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Amount      float64   `json:"amount"`
-	UsedAmount  float64   `json:"used_amount"`
-	Remaining   float64   `json:"remaining"`
-	UsagePercent float64  `json:"usage_percent"`
-	Status      string    `json:"status"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Amount       float64   `json:"amount"`
+	UsedAmount   float64   `json:"used_amount"`
+	Remaining    float64   `json:"remaining"`
+	UsagePercent float64   `json:"usage_percent"`
+	Status       string    `json:"status"`
+	StartDate    time.Time `json:"start_date"`
+	EndDate      time.Time `json:"end_date"`
 }
 
 // NewAlertManager 创建警报管理器

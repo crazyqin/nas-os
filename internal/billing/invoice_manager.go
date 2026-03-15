@@ -18,8 +18,8 @@ import (
 // ========== 额外错误定义 ==========
 
 var (
-	ErrInvoiceNumberExists  = errors.New("发票号码已存在")
-	ErrInvoiceExportFailed  = errors.New("发票导出失败")
+	ErrInvoiceNumberExists = errors.New("发票号码已存在")
+	ErrInvoiceExportFailed = errors.New("发票导出失败")
 )
 
 // ========== 扩展类型 ==========
@@ -27,15 +27,15 @@ var (
 // InvoiceManagerInvoice 发票管理器使用的发票结构（扩展版）
 type InvoiceManagerInvoice struct {
 	ID          string        `json:"id"`
-	Number      string        `json:"number"`       // 发票号码
-	Type        string        `json:"type"`         // 发票类型
-	Status      InvoiceStatus `json:"status"`       // 发票状态
-	Title       string        `json:"title"`        // 发票抬头
-	Description string        `json:"description"`  // 描述
+	Number      string        `json:"number"`      // 发票号码
+	Type        string        `json:"type"`        // 发票类型
+	Status      InvoiceStatus `json:"status"`      // 发票状态
+	Title       string        `json:"title"`       // 发票抬头
+	Description string        `json:"description"` // 描述
 
 	// 开票方信息
-	Issuer      InvoiceParty  `json:"issuer"`
-	Beneficiary InvoiceParty  `json:"beneficiary"`
+	Issuer      InvoiceParty `json:"issuer"`
+	Beneficiary InvoiceParty `json:"beneficiary"`
 
 	// 收票方信息
 	Recipient InvoiceParty `json:"recipient"`
@@ -110,51 +110,51 @@ type InvoiceManagerItem struct {
 
 // InvoiceManagerInput 发票输入
 type InvoiceManagerInput struct {
-	Number        string              `json:"number" binding:"required"`
-	Type          string              `json:"type"`
-	Title         string              `json:"title"`
-	Description   string              `json:"description"`
-	Issuer        InvoiceParty        `json:"issuer"`
-	Beneficiary   InvoiceParty        `json:"beneficiary"`
-	Recipient     InvoiceParty        `json:"recipient"`
-	Payer         InvoiceParty        `json:"payer"`
-	Items         []InvoiceManagerItem `json:"items" binding:"required"`
-	TaxRate       float64             `json:"tax_rate"`
-	TaxType       string              `json:"tax_type"`
-	TaxNumber     string              `json:"tax_number"`
-	IssueDate     *time.Time          `json:"issue_date"`
-	DueDate       *time.Time          `json:"due_date"`
-	PaymentMethod string              `json:"payment_method"`
-	BankAccount   string              `json:"bank_account"`
-	BankName      string              `json:"bank_name"`
-	OrderID       string              `json:"order_id"`
-	ContractID    string              `json:"contract_id"`
-	ProjectID     string              `json:"project_id"`
-	UserID        string              `json:"user_id"`
-	Remarks       string              `json:"remarks"`
-	Tags          []string            `json:"tags"`
+	Number        string                 `json:"number" binding:"required"`
+	Type          string                 `json:"type"`
+	Title         string                 `json:"title"`
+	Description   string                 `json:"description"`
+	Issuer        InvoiceParty           `json:"issuer"`
+	Beneficiary   InvoiceParty           `json:"beneficiary"`
+	Recipient     InvoiceParty           `json:"recipient"`
+	Payer         InvoiceParty           `json:"payer"`
+	Items         []InvoiceManagerItem   `json:"items" binding:"required"`
+	TaxRate       float64                `json:"tax_rate"`
+	TaxType       string                 `json:"tax_type"`
+	TaxNumber     string                 `json:"tax_number"`
+	IssueDate     *time.Time             `json:"issue_date"`
+	DueDate       *time.Time             `json:"due_date"`
+	PaymentMethod string                 `json:"payment_method"`
+	BankAccount   string                 `json:"bank_account"`
+	BankName      string                 `json:"bank_name"`
+	OrderID       string                 `json:"order_id"`
+	ContractID    string                 `json:"contract_id"`
+	ProjectID     string                 `json:"project_id"`
+	UserID        string                 `json:"user_id"`
+	Remarks       string                 `json:"remarks"`
+	Tags          []string               `json:"tags"`
 	Metadata      map[string]interface{} `json:"metadata"`
 }
 
 // InvoiceManagerQuery 发票查询参数
 type InvoiceManagerQuery struct {
-	IDs        []string       `json:"ids,omitempty"`
-	Numbers    []string       `json:"numbers,omitempty"`
+	IDs        []string        `json:"ids,omitempty"`
+	Numbers    []string        `json:"numbers,omitempty"`
 	Statuses   []InvoiceStatus `json:"statuses,omitempty"`
-	Types      []string       `json:"types,omitempty"`
-	UserIDs    []string       `json:"user_ids,omitempty"`
-	ProjectIDs []string       `json:"project_ids,omitempty"`
-	OrderIDs   []string       `json:"order_ids,omitempty"`
-	StartDate  *time.Time     `json:"start_date,omitempty"`
-	EndDate    *time.Time     `json:"end_date,omitempty"`
-	MinAmount  *float64       `json:"min_amount,omitempty"`
-	MaxAmount  *float64       `json:"max_amount,omitempty"`
-	Keyword    string         `json:"keyword,omitempty"`
-	Tags       []string       `json:"tags,omitempty"`
-	Page       int            `json:"page"`
-	PageSize   int            `json:"page_size"`
-	SortBy     string         `json:"sort_by"`
-	SortOrder  string         `json:"sort_order"`
+	Types      []string        `json:"types,omitempty"`
+	UserIDs    []string        `json:"user_ids,omitempty"`
+	ProjectIDs []string        `json:"project_ids,omitempty"`
+	OrderIDs   []string        `json:"order_ids,omitempty"`
+	StartDate  *time.Time      `json:"start_date,omitempty"`
+	EndDate    *time.Time      `json:"end_date,omitempty"`
+	MinAmount  *float64        `json:"min_amount,omitempty"`
+	MaxAmount  *float64        `json:"max_amount,omitempty"`
+	Keyword    string          `json:"keyword,omitempty"`
+	Tags       []string        `json:"tags,omitempty"`
+	Page       int             `json:"page"`
+	PageSize   int             `json:"page_size"`
+	SortBy     string          `json:"sort_by"`
+	SortOrder  string          `json:"sort_order"`
 }
 
 // InvoiceExportOptions 发票导出选项
@@ -169,15 +169,15 @@ type InvoiceExportOptions struct {
 
 // InvoiceManagerStats 发票统计
 type InvoiceManagerStats struct {
-	TotalCount     int                         `json:"total_count"`
-	TotalAmount    float64                     `json:"total_amount"`
-	TotalTaxAmount float64                     `json:"total_tax_amount"`
+	TotalCount     int                           `json:"total_count"`
+	TotalAmount    float64                       `json:"total_amount"`
+	TotalTaxAmount float64                       `json:"total_tax_amount"`
 	ByStatus       map[InvoiceStatus]StatusStats `json:"by_status"`
-	ByType         map[string]TypeStats        `json:"by_type"`
-	ByMonth        []MonthlyStats              `json:"by_month"`
-	PendingAmount  float64                     `json:"pending_amount"`
-	OverdueCount   int                         `json:"overdue_count"`
-	OverdueAmount  float64                     `json:"overdue_amount"`
+	ByType         map[string]TypeStats          `json:"by_type"`
+	ByMonth        []MonthlyStats                `json:"by_month"`
+	PendingAmount  float64                       `json:"pending_amount"`
+	OverdueCount   int                           `json:"overdue_count"`
+	OverdueAmount  float64                       `json:"overdue_amount"`
 }
 
 // StatusStats 状态统计
@@ -327,38 +327,38 @@ func (im *InvoiceManager) CreateInvoice(ctx context.Context, input InvoiceManage
 	}
 
 	invoice := &InvoiceManagerInvoice{
-		ID:           id,
-		Number:       number,
-		Type:         input.Type,
-		Status:       InvoiceStatusDraft,
-		Title:        input.Title,
-		Description:  input.Description,
-		Issuer:       input.Issuer,
-		Beneficiary:  input.Beneficiary,
-		Recipient:    input.Recipient,
-		Payer:        input.Payer,
-		Items:        items,
-		Subtotal:     subtotal,
-		TaxAmount:    taxAmount,
-		TotalAmount:  subtotal + taxAmount,
-		Currency:     im.config.DefaultCurrency,
-		TaxRate:      taxRate,
-		TaxType:      input.TaxType,
-		TaxNumber:    input.TaxNumber,
-		IssueDate:    issueDate,
-		DueDate:      input.DueDate,
-		CreatedAt:    now,
-		UpdatedAt:    now,
+		ID:            id,
+		Number:        number,
+		Type:          input.Type,
+		Status:        InvoiceStatusDraft,
+		Title:         input.Title,
+		Description:   input.Description,
+		Issuer:        input.Issuer,
+		Beneficiary:   input.Beneficiary,
+		Recipient:     input.Recipient,
+		Payer:         input.Payer,
+		Items:         items,
+		Subtotal:      subtotal,
+		TaxAmount:     taxAmount,
+		TotalAmount:   subtotal + taxAmount,
+		Currency:      im.config.DefaultCurrency,
+		TaxRate:       taxRate,
+		TaxType:       input.TaxType,
+		TaxNumber:     input.TaxNumber,
+		IssueDate:     issueDate,
+		DueDate:       input.DueDate,
+		CreatedAt:     now,
+		UpdatedAt:     now,
 		PaymentMethod: input.PaymentMethod,
-		BankAccount:  input.BankAccount,
-		BankName:     input.BankName,
-		OrderID:      input.OrderID,
-		ContractID:   input.ContractID,
-		ProjectID:    input.ProjectID,
-		UserID:       input.UserID,
-		Remarks:      input.Remarks,
-		Tags:         input.Tags,
-		Metadata:     input.Metadata,
+		BankAccount:   input.BankAccount,
+		BankName:      input.BankName,
+		OrderID:       input.OrderID,
+		ContractID:    input.ContractID,
+		ProjectID:     input.ProjectID,
+		UserID:        input.UserID,
+		Remarks:       input.Remarks,
+		Tags:          input.Tags,
+		Metadata:      input.Metadata,
 	}
 
 	if err := im.saveInvoice(invoice); err != nil {

@@ -632,41 +632,41 @@ type DiskHealthMetrics struct {
 
 // DiskHealthMetric 单个磁盘健康指标
 type DiskHealthMetric struct {
-	Device            string    `json:"device"`
-	Model             string    `json:"model"`
-	Serial            string    `json:"serial_number"`
-	IsSSD             bool      `json:"is_ssd"`
-	Temperature       int       `json:"temperature"`
-	HealthScore       int       `json:"health_score"`
-	HealthStatus      string    `json:"health_status"`
-	ReallocatedSectors int      `json:"reallocated_sectors"`
-	PendingSectors    int       `json:"pending_sectors"`
-	CRCErrors         int       `json:"crc_errors"`
-	PowerOnHours      uint64    `json:"power_on_hours"`
-	PowerCycles       uint64    `json:"power_cycles"`
-	LastCheck         time.Time `json:"last_check"`
+	Device             string    `json:"device"`
+	Model              string    `json:"model"`
+	Serial             string    `json:"serial_number"`
+	IsSSD              bool      `json:"is_ssd"`
+	Temperature        int       `json:"temperature"`
+	HealthScore        int       `json:"health_score"`
+	HealthStatus       string    `json:"health_status"`
+	ReallocatedSectors int       `json:"reallocated_sectors"`
+	PendingSectors     int       `json:"pending_sectors"`
+	CRCErrors          int       `json:"crc_errors"`
+	PowerOnHours       uint64    `json:"power_on_hours"`
+	PowerCycles        uint64    `json:"power_cycles"`
+	LastCheck          time.Time `json:"last_check"`
 }
 
 // DiskHealthSummaryV25 磁盘健康摘要
 type DiskHealthSummaryV25 struct {
-	MaxTemperature int `json:"max_temperature"`
-	MinTemperature int `json:"min_temperature"`
+	MaxTemperature int    `json:"max_temperature"`
+	MinTemperature int    `json:"min_temperature"`
 	TotalCapacity  uint64 `json:"total_capacity_bytes"`
-	SSDCount       int `json:"ssd_count"`
-	HDDCount       int `json:"hdd_count"`
+	SSDCount       int    `json:"ssd_count"`
+	HDDCount       int    `json:"hdd_count"`
 }
 
 // ExtendedMetrics 扩展指标 (v2.59.0)
 type ExtendedMetrics struct {
-	Timestamp        time.Time               `json:"timestamp"`
-	System           *CollectedMetrics       `json:"system"`
-	Backup           *BackupMonitoringData   `json:"backup,omitempty"`
-	DiskHealth       *DiskHealthMetrics      `json:"disk_health,omitempty"`
-	AlertCount       int                     `json:"alert_count"`
-	CriticalAlerts   int                     `json:"critical_alerts"`
-	WarningAlerts    int                     `json:"warning_alerts"`
-	OverallStatus    string                  `json:"overall_status"`
-	Recommendations  []string                `json:"recommendations,omitempty"`
+	Timestamp       time.Time             `json:"timestamp"`
+	System          *CollectedMetrics     `json:"system"`
+	Backup          *BackupMonitoringData `json:"backup,omitempty"`
+	DiskHealth      *DiskHealthMetrics    `json:"disk_health,omitempty"`
+	AlertCount      int                   `json:"alert_count"`
+	CriticalAlerts  int                   `json:"critical_alerts"`
+	WarningAlerts   int                   `json:"warning_alerts"`
+	OverallStatus   string                `json:"overall_status"`
+	Recommendations []string              `json:"recommendations,omitempty"`
 }
 
 // generateRecommendations 生成建议
@@ -751,17 +751,17 @@ func (mc *MetricsCollector) CollectBackupMetrics() *BackupMonitoringData {
 
 // BackupStats 备份统计信息
 type BackupStats struct {
-	TotalCount      int
-	FullCount       int
+	TotalCount       int
+	FullCount        int
 	IncrementalCount int
-	DatabaseCount   int
-	ConfigCount     int
-	TotalSize       uint64
-	SpaceUsed       uint64
-	SpaceTotal      uint64
-	SpaceAvailable  uint64
-	LatestBackup    *BackupInfo
-	OldestBackup    *BackupInfo
+	DatabaseCount    int
+	ConfigCount      int
+	TotalSize        uint64
+	SpaceUsed        uint64
+	SpaceTotal       uint64
+	SpaceAvailable   uint64
+	LatestBackup     *BackupInfo
+	OldestBackup     *BackupInfo
 }
 
 // BackupInfo 备份信息

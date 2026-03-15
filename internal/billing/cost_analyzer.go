@@ -104,11 +104,11 @@ type AccessFrequencyTier struct {
 type BandwidthBillingModel string
 
 const (
-	BandwidthBillingTraffic   BandwidthBillingModel = "traffic"   // 按流量计费
-	BandwidthBillingPeak      BandwidthBillingModel = "peak"      // 按峰值带宽计费
-	BandwidthBillingPeak95    BandwidthBillingModel = "peak_95"   // 按95峰值计费
-	BandwidthBillingMonthly   BandwidthBillingModel = "monthly"   // 按月固定带宽
-	BandwidthBillingHybrid    BandwidthBillingModel = "hybrid"    // 混合计费
+	BandwidthBillingTraffic BandwidthBillingModel = "traffic" // 按流量计费
+	BandwidthBillingPeak    BandwidthBillingModel = "peak"    // 按峰值带宽计费
+	BandwidthBillingPeak95  BandwidthBillingModel = "peak_95" // 按95峰值计费
+	BandwidthBillingMonthly BandwidthBillingModel = "monthly" // 按月固定带宽
+	BandwidthBillingHybrid  BandwidthBillingModel = "hybrid"  // 混合计费
 )
 
 // BandwidthCostConfig 带宽成本配置
@@ -229,9 +229,9 @@ type AccessFrequencyCostAnalysis struct {
 
 // PoolStorageCost 存储池成本
 type PoolStorageCost struct {
-	PoolID       string  `json:"pool_id"`
-	PoolName     string  `json:"pool_name"`
-	StorageType  string  `json:"storage_type"` // ssd, hdd, archive
+	PoolID      string `json:"pool_id"`
+	PoolName    string `json:"pool_name"`
+	StorageType string `json:"storage_type"` // ssd, hdd, archive
 
 	// 容量
 	TotalCapacityGB float64 `json:"total_capacity_gb"`
@@ -252,13 +252,13 @@ type PoolStorageCost struct {
 
 // UserStorageCost 用户存储成本
 type UserStorageCost struct {
-	UserID       string  `json:"user_id"`
-	UserName     string  `json:"user_name"`
-	UsedGB       float64 `json:"used_gb"`
-	MonthlyCost  float64 `json:"monthly_cost"`
-	CostPerGB    float64 `json:"cost_per_gb"`
-	AccessScore  float64 `json:"access_score"` // 访问活跃度评分
-	Tier         string  `json:"tier"`         // 用户层级
+	UserID        string             `json:"user_id"`
+	UserName      string             `json:"user_name"`
+	UsedGB        float64            `json:"used_gb"`
+	MonthlyCost   float64            `json:"monthly_cost"`
+	CostPerGB     float64            `json:"cost_per_gb"`
+	AccessScore   float64            `json:"access_score"`   // 访问活跃度评分
+	Tier          string             `json:"tier"`           // 用户层级
 	PoolBreakdown map[string]float64 `json:"pool_breakdown"` // 各存储池用量
 }
 
@@ -285,12 +285,12 @@ type BandwidthCostAnalysis struct {
 	BillingModel string  `json:"billing_model"`
 
 	// 流量统计
-	InboundTrafficGB   float64 `json:"inbound_traffic_gb"`
-	OutboundTrafficGB  float64 `json:"outbound_traffic_gb"`
-	TotalTrafficGB     float64 `json:"total_traffic_gb"`
-	PeakBandwidthMbps  float64 `json:"peak_bandwidth_mbps"`
-	AverageMbps        float64 `json:"average_mbps"`
-	Peak95Mbps         float64 `json:"peak_95_mbps"`
+	InboundTrafficGB  float64 `json:"inbound_traffic_gb"`
+	OutboundTrafficGB float64 `json:"outbound_traffic_gb"`
+	TotalTrafficGB    float64 `json:"total_traffic_gb"`
+	PeakBandwidthMbps float64 `json:"peak_bandwidth_mbps"`
+	AverageMbps       float64 `json:"average_mbps"`
+	Peak95Mbps        float64 `json:"peak_95_mbps"`
 
 	// 成本明细
 	TrafficCost      float64 `json:"traffic_cost"`
@@ -322,20 +322,20 @@ type HourlyBandwidthCost struct {
 
 // DailyBandwidthCost 日带宽成本
 type DailyBandwidthCost struct {
-	Date       time.Time `json:"date"`
-	InboundGB  float64   `json:"inbound_gb"`
-	OutboundGB float64   `json:"outbound_gb"`
-	TotalGB    float64   `json:"total_gb"`
-	PeakMbps   float64   `json:"peak_mbps"`
-	AverageMbps float64  `json:"average_mbps"`
-	Cost       float64   `json:"cost"`
+	Date        time.Time `json:"date"`
+	InboundGB   float64   `json:"inbound_gb"`
+	OutboundGB  float64   `json:"outbound_gb"`
+	TotalGB     float64   `json:"total_gb"`
+	PeakMbps    float64   `json:"peak_mbps"`
+	AverageMbps float64   `json:"average_mbps"`
+	Cost        float64   `json:"cost"`
 }
 
 // CostRecommendation 成本优化建议
 type CostRecommendation struct {
 	ID               string  `json:"id"`
-	Type             string  `json:"type"`        // storage, bandwidth, access_pattern
-	Priority         string  `json:"priority"`    // high, medium, low
+	Type             string  `json:"type"`     // storage, bandwidth, access_pattern
+	Priority         string  `json:"priority"` // high, medium, low
 	Title            string  `json:"title"`
 	Description      string  `json:"description"`
 	PotentialSavings float64 `json:"potential_savings"` // 预计节省（元/月）
@@ -350,11 +350,11 @@ type CostRecommendation struct {
 
 // CostAnalyzer 成本分析器
 type CostAnalyzer struct {
-	config     *CostAnalyzerConfig
-	mu         sync.RWMutex
+	config *CostAnalyzerConfig
+	mu     sync.RWMutex
 
 	// 数据提供者
-	storageProvider  StorageDataProvider
+	storageProvider   StorageDataProvider
 	bandwidthProvider BandwidthDataProvider
 	accessTracker     AccessTracker
 
@@ -381,11 +381,11 @@ type StorageDataProvider interface {
 
 // StoragePoolInfo 存储池信息
 type StoragePoolInfo struct {
-	PoolID       string `json:"pool_id"`
-	PoolName     string `json:"pool_name"`
-	StorageType  string `json:"storage_type"` // ssd, hdd, archive
-	TotalBytes   uint64 `json:"total_bytes"`
-	UsedBytes    uint64 `json:"used_bytes"`
+	PoolID         string `json:"pool_id"`
+	PoolName       string `json:"pool_name"`
+	StorageType    string `json:"storage_type"` // ssd, hdd, archive
+	TotalBytes     uint64 `json:"total_bytes"`
+	UsedBytes      uint64 `json:"used_bytes"`
 	AvailableBytes uint64 `json:"available_bytes"`
 }
 
@@ -400,22 +400,22 @@ type StoragePoolUsage struct {
 
 // StorageUsageInfo 存储使用信息
 type StorageUsageInfo struct {
-	UserID     string `json:"user_id"`
-	UserName   string `json:"user_name"`
-	PoolID     string `json:"pool_id"`
-	PoolName   string `json:"pool_name"`
-	UsedBytes  uint64 `json:"used_bytes"`
-	AccessCount int64 `json:"access_count"` // 访问次数
-	LastAccess time.Time `json:"last_access"`
+	UserID      string    `json:"user_id"`
+	UserName    string    `json:"user_name"`
+	PoolID      string    `json:"pool_id"`
+	PoolName    string    `json:"pool_name"`
+	UsedBytes   uint64    `json:"used_bytes"`
+	AccessCount int64     `json:"access_count"` // 访问次数
+	LastAccess  time.Time `json:"last_access"`
 }
 
 // UserStorageUsage 用户存储使用情况
 type UserStorageUsage struct {
-	UserID      string              `json:"user_id"`
-	UserName    string              `json:"user_name"`
-	TotalBytes  uint64              `json:"total_bytes"`
-	PoolUsage   map[string]uint64   `json:"pool_usage"` // poolID -> bytes
-	AccessStats UserAccessStats     `json:"access_stats"`
+	UserID      string            `json:"user_id"`
+	UserName    string            `json:"user_name"`
+	TotalBytes  uint64            `json:"total_bytes"`
+	PoolUsage   map[string]uint64 `json:"pool_usage"` // poolID -> bytes
+	AccessStats UserAccessStats   `json:"access_stats"`
 }
 
 // UserAccessStats 用户访问统计
@@ -445,19 +445,19 @@ type BandwidthDataProvider interface {
 
 // BandwidthData 带宽数据
 type BandwidthData struct {
-	TotalInboundBytes  uint64 `json:"total_inbound_bytes"`
-	TotalOutboundBytes uint64 `json:"total_outbound_bytes"`
-	PeakMbps          float64 `json:"peak_mbps"`
-	AverageMbps       float64 `json:"average_mbps"`
-	Peak95Mbps        float64 `json:"peak_95_mbps"`
+	TotalInboundBytes  uint64  `json:"total_inbound_bytes"`
+	TotalOutboundBytes uint64  `json:"total_outbound_bytes"`
+	PeakMbps           float64 `json:"peak_mbps"`
+	AverageMbps        float64 `json:"average_mbps"`
+	Peak95Mbps         float64 `json:"peak_95_mbps"`
 }
 
 // HourlyBandwidth 小时带宽
 type HourlyBandwidth struct {
-	Hour        int     `json:"hour"`
+	Hour          int     `json:"hour"`
 	InboundBytes  uint64  `json:"inbound_bytes"`
 	OutboundBytes uint64  `json:"outbound_bytes"`
-	PeakMbps     float64 `json:"peak_mbps"`
+	PeakMbps      float64 `json:"peak_mbps"`
 }
 
 // AccessTracker 访问追踪器接口
@@ -474,11 +474,11 @@ type AccessTracker interface {
 
 // AccessDistribution 访问分布
 type AccessDistribution struct {
-	PoolID      string  `json:"pool_id"`
-	HotDataGB   float64 `json:"hot_data_gb"`
-	WarmDataGB  float64 `json:"warm_data_gb"`
-	ColdDataGB  float64 `json:"cold_data_gb"`
-	TotalGB     float64 `json:"total_gb"`
+	PoolID     string  `json:"pool_id"`
+	HotDataGB  float64 `json:"hot_data_gb"`
+	WarmDataGB float64 `json:"warm_data_gb"`
+	ColdDataGB float64 `json:"cold_data_gb"`
+	TotalGB    float64 `json:"total_gb"`
 }
 
 // NewCostAnalyzer 创建成本分析器
@@ -488,13 +488,13 @@ func NewCostAnalyzer(config *CostAnalyzerConfig, storage StorageDataProvider, ba
 	}
 
 	return &CostAnalyzer{
-		config:           config,
-		storageProvider:  storage,
+		config:            config,
+		storageProvider:   storage,
 		bandwidthProvider: bandwidth,
-		accessTracker:    access,
-		costCache:        make(map[string]*StorageCostAnalysis),
-		bandwidthCache:   make(map[string]*BandwidthCostAnalysis),
-		cacheExpiry:      5 * time.Minute,
+		accessTracker:     access,
+		costCache:         make(map[string]*StorageCostAnalysis),
+		bandwidthCache:    make(map[string]*BandwidthCostAnalysis),
+		cacheExpiry:       5 * time.Minute,
 	}
 }
 
@@ -503,7 +503,7 @@ func DefaultCostAnalyzerConfig() *CostAnalyzerConfig {
 	return &CostAnalyzerConfig{
 		Storage: StorageCostConfig{
 			CapacityPricing: CapacityPricingConfig{
-				BasePricePerGB: 0.1,
+				BasePricePerGB:      0.1,
 				EnableTieredPricing: true,
 				TieredPricing: []CapacityTier{
 					{MinGB: 0, MaxGB: 100, PricePerGB: 0.1},
@@ -525,13 +525,13 @@ func DefaultCostAnalyzerConfig() *CostAnalyzerConfig {
 			FreeStorageGB:     10,
 		},
 		Bandwidth: BandwidthCostConfig{
-			Model:                BandwidthBillingTraffic,
-			TrafficPricePerGB:    0.5,
+			Model:                 BandwidthBillingTraffic,
+			TrafficPricePerGB:     0.5,
 			BandwidthPricePerMbps: 20,
-			Peak95PricePerMbps:   15,
-			FreeTrafficGB:        100,
-			ChargeInbound:        false,
-			ChargeOutbound:       true,
+			Peak95PricePerMbps:    15,
+			FreeTrafficGB:         100,
+			ChargeInbound:         false,
+			ChargeOutbound:        true,
 		},
 		AnalysisPeriodDays: 30,
 		AccessFrequencyTiers: []AccessFrequencyTier{
@@ -552,13 +552,13 @@ func (a *CostAnalyzer) AnalyzeStorageCost(ctx context.Context) (*StorageCostAnal
 
 	now := time.Now()
 	analysis := &StorageCostAnalysis{
-		AnalysisTime: now,
-		PeriodStart:  now.AddDate(0, 0, -a.config.AnalysisPeriodDays),
-		PeriodEnd:    now,
-		Currency:     a.config.DefaultCurrency,
-		PoolCosts:    make([]PoolStorageCost, 0),
-		UserCosts:    make([]UserStorageCost, 0),
-		TrendData:    make([]CostTrendPoint, 0),
+		AnalysisTime:    now,
+		PeriodStart:     now.AddDate(0, 0, -a.config.AnalysisPeriodDays),
+		PeriodEnd:       now,
+		Currency:        a.config.DefaultCurrency,
+		PoolCosts:       make([]PoolStorageCost, 0),
+		UserCosts:       make([]UserStorageCost, 0),
+		TrendData:       make([]CostTrendPoint, 0),
 		Recommendations: make([]CostRecommendation, 0),
 	}
 
@@ -781,15 +781,15 @@ func (a *CostAnalyzer) AnalyzeBandwidthCost(ctx context.Context, start, end time
 	defer a.mu.Unlock()
 
 	analysis := &BandwidthCostAnalysis{
-		AnalysisTime:      time.Now(),
-		PeriodStart:       start,
-		PeriodEnd:         end,
-		Currency:          a.config.DefaultCurrency,
-		BillingModel:      string(a.config.Bandwidth.Model),
+		AnalysisTime:       time.Now(),
+		PeriodStart:        start,
+		PeriodEnd:          end,
+		Currency:           a.config.DefaultCurrency,
+		BillingModel:       string(a.config.Bandwidth.Model),
 		HourlyDistribution: make([]HourlyBandwidthCost, 24),
-		DailyDistribution: make([]DailyBandwidthCost, 0),
-		TrendData:        make([]CostTrendPoint, 0),
-		Recommendations:  make([]CostRecommendation, 0),
+		DailyDistribution:  make([]DailyBandwidthCost, 0),
+		TrendData:          make([]CostTrendPoint, 0),
+		Recommendations:    make([]CostRecommendation, 0),
 	}
 
 	// 获取带宽数据

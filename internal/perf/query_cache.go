@@ -55,15 +55,15 @@ var DefaultCacheConfig = CacheConfig{
 
 // CacheItem 缓存条目
 type CacheItem struct {
-	Key        string      `json:"key"`
-	Value      interface{} `json:"value"`
-	Size       int64       `json:"size"`       // 估算大小（字节）
-	CreatedAt  time.Time   `json:"createdAt"`  // 创建时间
-	ExpiresAt  time.Time   `json:"expiresAt"`   // 过期时间
-	AccessAt   time.Time   `json:"accessAt"`    // 最后访问时间
-	AccessCount int64      `json:"accessCount"` // 访问次数
-	HitCount   int64       `json:"hitCount"`    // 命中次数
-	Tags       []string    `json:"tags"`        // 标签（用于批量失效）
+	Key         string      `json:"key"`
+	Value       interface{} `json:"value"`
+	Size        int64       `json:"size"`        // 估算大小（字节）
+	CreatedAt   time.Time   `json:"createdAt"`   // 创建时间
+	ExpiresAt   time.Time   `json:"expiresAt"`   // 过期时间
+	AccessAt    time.Time   `json:"accessAt"`    // 最后访问时间
+	AccessCount int64       `json:"accessCount"` // 访问次数
+	HitCount    int64       `json:"hitCount"`    // 命中次数
+	Tags        []string    `json:"tags"`        // 标签（用于批量失效）
 }
 
 // CacheStats 缓存统计

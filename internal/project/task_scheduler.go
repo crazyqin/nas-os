@@ -18,14 +18,14 @@ type TaskScheduler struct {
 
 // SchedulerConfig 调度器配置
 type SchedulerConfig struct {
-	MaxTasksPerUser      int           `json:"max_tasks_per_user"`      // 每人最大任务数
-	PriorityWeight       float64       `json:"priority_weight"`         // 优先级权重
-	DueDateWeight        float64       `json:"due_date_weight"`         // 截止日期权重
-	DependencyWeight     float64       `json:"dependency_weight"`       // 依赖权重
-	WorkloadBalance      bool          `json:"workload_balance"`        // 是否平衡工作负载
-	ConsiderSkills       bool          `json:"consider_skills"`         // 是否考虑技能
-	BusinessHoursPerDay  int           `json:"business_hours_per_day"`  // 每天工作小时数
-	WorkingDays          []time.Weekday `json:"working_days"`           // 工作日
+	MaxTasksPerUser     int            `json:"max_tasks_per_user"`     // 每人最大任务数
+	PriorityWeight      float64        `json:"priority_weight"`        // 优先级权重
+	DueDateWeight       float64        `json:"due_date_weight"`        // 截止日期权重
+	DependencyWeight    float64        `json:"dependency_weight"`      // 依赖权重
+	WorkloadBalance     bool           `json:"workload_balance"`       // 是否平衡工作负载
+	ConsiderSkills      bool           `json:"consider_skills"`        // 是否考虑技能
+	BusinessHoursPerDay int            `json:"business_hours_per_day"` // 每天工作小时数
+	WorkingDays         []time.Weekday `json:"working_days"`           // 工作日
 }
 
 // DefaultSchedulerConfig 默认调度器配置
@@ -50,12 +50,12 @@ type SchedulingStrategy interface {
 
 // UserInfo 用户信息
 type UserInfo struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
-	Skills       map[string]int    `json:"skills,omitempty"`      // 技能 -> 熟练度 (1-10)
-	CurrentLoad  int               `json:"current_load"`          // 当前任务数
-	CompletedTasks int             `json:"completed_tasks"`       // 已完成任务数
-	History      *UserPerformance  `json:"history,omitempty"`
+	ID             string           `json:"id"`
+	Name           string           `json:"name"`
+	Skills         map[string]int   `json:"skills,omitempty"` // 技能 -> 熟练度 (1-10)
+	CurrentLoad    int              `json:"current_load"`     // 当前任务数
+	CompletedTasks int              `json:"completed_tasks"`  // 已完成任务数
+	History        *UserPerformance `json:"history,omitempty"`
 }
 
 // UserPerformance 用户绩效
@@ -67,24 +67,24 @@ type UserPerformance struct {
 
 // SchedulingContext 调度上下文
 type SchedulingContext struct {
-	ProjectTasks    []*Task              `json:"project_tasks"`
-	UserWorkloads   map[string]int       `json:"user_workloads"`
-	Dependencies    map[string][]string  `json:"dependencies"` // taskID -> dependent task IDs
-	CurrentDate     time.Time            `json:"current_date"`
-	ProjectDeadline *time.Time           `json:"project_deadline,omitempty"`
+	ProjectTasks    []*Task             `json:"project_tasks"`
+	UserWorkloads   map[string]int      `json:"user_workloads"`
+	Dependencies    map[string][]string `json:"dependencies"` // taskID -> dependent task IDs
+	CurrentDate     time.Time           `json:"current_date"`
+	ProjectDeadline *time.Time          `json:"project_deadline,omitempty"`
 }
 
 // SchedulingResult 调度结果
 type SchedulingResult struct {
-	TaskID         string        `json:"task_id"`
-	TaskTitle      string        `json:"task_title"`
+	TaskID          string       `json:"task_id"`
+	TaskTitle       string       `json:"task_title"`
 	RecommendedUser string       `json:"recommended_user,omitempty"`
 	RecommendedDate *time.Time   `json:"recommended_date,omitempty"`
-	Priority       TaskPriority  `json:"priority"`
-	Score          float64       `json:"score"`
-	Reason         string        `json:"reason"`
-	Alternatives   []UserScore   `json:"alternatives,omitempty"`
-	Conflicts      []Conflict    `json:"conflicts,omitempty"`
+	Priority        TaskPriority `json:"priority"`
+	Score           float64      `json:"score"`
+	Reason          string       `json:"reason"`
+	Alternatives    []UserScore  `json:"alternatives,omitempty"`
+	Conflicts       []Conflict   `json:"conflicts,omitempty"`
 }
 
 // UserScore 用户评分
@@ -96,11 +96,11 @@ type UserScore struct {
 
 // Conflict 冲突信息
 type Conflict struct {
-	Type        string `json:"type"`        // workload, skill, dependency, schedule
+	Type        string `json:"type"` // workload, skill, dependency, schedule
 	Description string `json:"description"`
 	TaskID      string `json:"task_id,omitempty"`
 	UserID      string `json:"user_id,omitempty"`
-	Severity    string `json:"severity"`    // low, medium, high
+	Severity    string `json:"severity"` // low, medium, high
 }
 
 // NewTaskScheduler 创建任务调度器
@@ -173,11 +173,11 @@ func (ts *TaskScheduler) ScheduleTask(taskID string, users []*UserInfo) (*Schedu
 	if task.AssigneeID != "" {
 		// 任务已分配
 		return &SchedulingResult{
-			TaskID:         taskID,
-			TaskTitle:      task.Title,
+			TaskID:          taskID,
+			TaskTitle:       task.Title,
 			RecommendedUser: task.AssigneeID,
-			Priority:       task.Priority,
-			Reason:         "任务已分配",
+			Priority:        task.Priority,
+			Reason:          "任务已分配",
 		}, nil
 	}
 
@@ -517,13 +517,13 @@ func (ts *TaskScheduler) GetSchedulingRecommendations(projectID string, users []
 	}
 
 	recs := &SchedulingRecommendations{
-		ProjectID:         projectID,
-		GeneratedAt:       time.Now(),
-		TaskAssignments:   results,
-		LoadDistribution:  make(map[string]int),
-		UnassignedTasks:   make([]*Task, 0),
+		ProjectID:            projectID,
+		GeneratedAt:          time.Now(),
+		TaskAssignments:      results,
+		LoadDistribution:     make(map[string]int),
+		UnassignedTasks:      make([]*Task, 0),
 		PotentialBottlenecks: make([]BottleneckInfo, 0),
-		Suggestions:       make([]string, 0),
+		Suggestions:          make([]string, 0),
 	}
 
 	// 统计负载分布
@@ -593,13 +593,13 @@ func (ts *TaskScheduler) GetSchedulingRecommendations(projectID string, users []
 
 // SchedulingRecommendations 调度建议
 type SchedulingRecommendations struct {
-	ProjectID           string              `json:"project_id"`
-	GeneratedAt         time.Time           `json:"generated_at"`
-	TaskAssignments     []*SchedulingResult `json:"task_assignments"`
-	LoadDistribution    map[string]int      `json:"load_distribution"`
-	UnassignedTasks     []*Task             `json:"unassigned_tasks"`
-	PotentialBottlenecks []BottleneckInfo   `json:"potential_bottlenecks"`
-	Suggestions         []string            `json:"suggestions"`
+	ProjectID            string              `json:"project_id"`
+	GeneratedAt          time.Time           `json:"generated_at"`
+	TaskAssignments      []*SchedulingResult `json:"task_assignments"`
+	LoadDistribution     map[string]int      `json:"load_distribution"`
+	UnassignedTasks      []*Task             `json:"unassigned_tasks"`
+	PotentialBottlenecks []BottleneckInfo    `json:"potential_bottlenecks"`
+	Suggestions          []string            `json:"suggestions"`
 }
 
 // OptimizeAssignment 优化任务分配
@@ -705,12 +705,12 @@ func (ts *TaskScheduler) GetWorkloadReport(projectID string, users []*UserInfo) 
 
 // WorkloadReport 负载报告
 type WorkloadReport struct {
-	ProjectID   string               `json:"project_id"`
-	GeneratedAt time.Time            `json:"generated_at"`
-	UserStats   []UserWorkloadStat   `json:"user_stats"`
-	TotalTasks  int                  `json:"total_tasks"`
-	AverageLoad float64              `json:"average_load"`
-	Bottlenecks []BottleneckInfo     `json:"bottlenecks"`
+	ProjectID   string             `json:"project_id"`
+	GeneratedAt time.Time          `json:"generated_at"`
+	UserStats   []UserWorkloadStat `json:"user_stats"`
+	TotalTasks  int                `json:"total_tasks"`
+	AverageLoad float64            `json:"average_load"`
+	Bottlenecks []BottleneckInfo   `json:"bottlenecks"`
 }
 
 // UserWorkloadStat 用户负载统计

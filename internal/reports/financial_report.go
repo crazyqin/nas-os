@@ -19,8 +19,8 @@ import (
 
 var (
 	ErrFinancialReportNotFound = errors.New("财务报告不存在")
-	ErrReportGenerationFailed = errors.New("报告生成失败")
-	ErrInvalidReportParams = errors.New("无效的报告参数")
+	ErrReportGenerationFailed  = errors.New("报告生成失败")
+	ErrInvalidReportParams     = errors.New("无效的报告参数")
 )
 
 // ========== 财务报告类型定义 ==========
@@ -29,24 +29,24 @@ var (
 type FinancialReportType string
 
 const (
-	FinancialReportTypeIncome       FinancialReportType = "income"       // 收入报告
-	FinancialReportTypeExpense      FinancialReportType = "expense"      // 支出报告
-	FinancialReportTypeCashFlow     FinancialReportType = "cash_flow"    // 现金流报告
-	FinancialReportTypeBudget       FinancialReportType = "budget"       // 预算执行报告
+	FinancialReportTypeIncome       FinancialReportType = "income"        // 收入报告
+	FinancialReportTypeExpense      FinancialReportType = "expense"       // 支出报告
+	FinancialReportTypeCashFlow     FinancialReportType = "cash_flow"     // 现金流报告
+	FinancialReportTypeBudget       FinancialReportType = "budget"        // 预算执行报告
 	FinancialReportTypeCostAnalysis FinancialReportType = "cost_analysis" // 成本分析报告
-	FinancialReportTypeProfitLoss   FinancialReportType = "profit_loss"  // 损益报告
+	FinancialReportTypeProfitLoss   FinancialReportType = "profit_loss"   // 损益报告
 	FinancialReportTypeBalanceSheet FinancialReportType = "balance_sheet" // 资产负债表
-	FinancialReportTypeCustom       FinancialReportType = "custom"       // 自定义报告
+	FinancialReportTypeCustom       FinancialReportType = "custom"        // 自定义报告
 )
 
 // ReportStatus 报告状态
 type ReportStatus string
 
 const (
-	ReportStatusPending   ReportStatus = "pending"   // 待生成
+	ReportStatusPending    ReportStatus = "pending"    // 待生成
 	ReportStatusGenerating ReportStatus = "generating" // 生成中
-	ReportStatusCompleted ReportStatus = "completed" // 已完成
-	ReportStatusFailed    ReportStatus = "failed"    // 失败
+	ReportStatusCompleted  ReportStatus = "completed"  // 已完成
+	ReportStatusFailed     ReportStatus = "failed"     // 失败
 )
 
 // Currency 货币类型
@@ -63,57 +63,57 @@ const (
 
 // FinancialReport 财务报告
 type FinancialReport struct {
-	ID           string              `json:"id"`
-	Name         string              `json:"name"`
-	Type         FinancialReportType `json:"type"`
-	Status       ReportStatus        `json:"status"`
-	Description  string              `json:"description"`
-	Currency     Currency            `json:"currency"`
+	ID          string              `json:"id"`
+	Name        string              `json:"name"`
+	Type        FinancialReportType `json:"type"`
+	Status      ReportStatus        `json:"status"`
+	Description string              `json:"description"`
+	Currency    Currency            `json:"currency"`
 
 	// 时间范围
-	Period       ReportPeriod        `json:"period"`
+	Period ReportPeriod `json:"period"`
 
 	// 报告数据
-	Summary      FinancialSummary    `json:"summary"`
-	Sections     []ReportSection     `json:"sections"`
-	Charts       []FinChartConfig   `json:"charts,omitempty"`
+	Summary  FinancialSummary `json:"summary"`
+	Sections []ReportSection  `json:"sections"`
+	Charts   []FinChartConfig `json:"charts,omitempty"`
 
 	// 元数据
-	GeneratedAt  time.Time           `json:"generated_at"`
-	GeneratedBy  string              `json:"generated_by"`
-	Duration     int64               `json:"duration"` // 生成耗时(ms)
-	Version      string              `json:"version"`
-	Tags         []string            `json:"tags"`
+	GeneratedAt time.Time `json:"generated_at"`
+	GeneratedBy string    `json:"generated_by"`
+	Duration    int64     `json:"duration"` // 生成耗时(ms)
+	Version     string    `json:"version"`
+	Tags        []string  `json:"tags"`
 
 	// 导出信息
-	ExportPath   string              `json:"export_path,omitempty"`
-	ExportFormat ExportFormat        `json:"export_format"`
+	ExportPath   string       `json:"export_path,omitempty"`
+	ExportFormat ExportFormat `json:"export_format"`
 
 	// 审计信息
-	AuditTrail   []AuditEntry        `json:"audit_trail,omitempty"`
-	ApprovedBy   string              `json:"approved_by,omitempty"`
-	ApprovedAt   *time.Time          `json:"approved_at,omitempty"`
+	AuditTrail []AuditEntry `json:"audit_trail,omitempty"`
+	ApprovedBy string       `json:"approved_by,omitempty"`
+	ApprovedAt *time.Time   `json:"approved_at,omitempty"`
 
 	// 错误信息
-	ErrorMessage string              `json:"error_message,omitempty"`
+	ErrorMessage string `json:"error_message,omitempty"`
 }
 
 // FinancialSummary 财务摘要
 type FinancialSummary struct {
 	// 收入
-	TotalRevenue       float64 `json:"total_revenue"`
-	OperatingRevenue   float64 `json:"operating_revenue"`
-	OtherRevenue       float64 `json:"other_revenue"`
+	TotalRevenue     float64 `json:"total_revenue"`
+	OperatingRevenue float64 `json:"operating_revenue"`
+	OtherRevenue     float64 `json:"other_revenue"`
 
 	// 支出
-	TotalExpense       float64 `json:"total_expense"`
-	OperatingExpense   float64 `json:"operating_expense"`
-	OtherExpense       float64 `json:"other_expense"`
+	TotalExpense     float64 `json:"total_expense"`
+	OperatingExpense float64 `json:"operating_expense"`
+	OtherExpense     float64 `json:"other_expense"`
 
 	// 利润
-	GrossProfit       float64 `json:"gross_profit"`
-	OperatingProfit   float64 `json:"operating_profit"`
-	NetProfit         float64 `json:"net_profit"`
+	GrossProfit     float64 `json:"gross_profit"`
+	OperatingProfit float64 `json:"operating_profit"`
+	NetProfit       float64 `json:"net_profit"`
 
 	// 现金流
 	NetCashFlow       float64 `json:"net_cash_flow"`
@@ -122,19 +122,19 @@ type FinancialSummary struct {
 	FinancingCashFlow float64 `json:"financing_cash_flow"`
 
 	// 预算
-	BudgetAmount      float64 `json:"budget_amount"`
-	BudgetUsed        float64 `json:"budget_used"`
-	BudgetVariance    float64 `json:"budget_variance"`
-	BudgetUsageRate   float64 `json:"budget_usage_rate"`
+	BudgetAmount    float64 `json:"budget_amount"`
+	BudgetUsed      float64 `json:"budget_used"`
+	BudgetVariance  float64 `json:"budget_variance"`
+	BudgetUsageRate float64 `json:"budget_usage_rate"`
 
 	// 比率
-	ProfitMargin      float64 `json:"profit_margin"`
-	ExpenseRatio      float64 `json:"expense_ratio"`
+	ProfitMargin       float64 `json:"profit_margin"`
+	ExpenseRatio       float64 `json:"expense_ratio"`
 	ReturnOnInvestment float64 `json:"return_on_investment"`
 
 	// 同比/环比
-	YoYGrowth         float64 `json:"yoy_growth"` // 同比增长
-	MoMGrowth         float64 `json:"mom_growth"` // 环比增长
+	YoYGrowth float64 `json:"yoy_growth"` // 同比增长
+	MoMGrowth float64 `json:"mom_growth"` // 环比增长
 }
 
 // SectionType 区块类型
@@ -150,16 +150,16 @@ const (
 
 // ReportSection 报告区块
 type ReportSection struct {
-	ID          string              `json:"id"`
-	Title       string              `json:"title"`
-	Type        SectionType         `json:"type"`
-	Position    int                 `json:"position"`
-	Visible     bool                `json:"visible"`
-	Summary     string              `json:"summary,omitempty"`
-	Data        []SectionDataRow    `json:"data,omitempty"`
-	Subtotals   map[string]float64  `json:"subtotals,omitempty"`
-	Children    []ReportSection     `json:"children,omitempty"`
-	Style       SectionStyle        `json:"style,omitempty"`
+	ID        string             `json:"id"`
+	Title     string             `json:"title"`
+	Type      SectionType        `json:"type"`
+	Position  int                `json:"position"`
+	Visible   bool               `json:"visible"`
+	Summary   string             `json:"summary,omitempty"`
+	Data      []SectionDataRow   `json:"data,omitempty"`
+	Subtotals map[string]float64 `json:"subtotals,omitempty"`
+	Children  []ReportSection    `json:"children,omitempty"`
+	Style     SectionStyle       `json:"style,omitempty"`
 }
 
 // SectionDataRow 区块数据行
@@ -174,20 +174,20 @@ type SectionDataRow struct {
 
 // SectionStyle 区块样式
 type SectionStyle struct {
-	Highlight   bool   `json:"highlight"`
-	Color       string `json:"color,omitempty"`
-	Icon        string `json:"icon,omitempty"`
-	Format      string `json:"format,omitempty"`
+	Highlight bool   `json:"highlight"`
+	Color     string `json:"color,omitempty"`
+	Icon      string `json:"icon,omitempty"`
+	Format    string `json:"format,omitempty"`
 }
 
 // FinChartConfig 财务图表配置
 type FinChartConfig struct {
-	ID         string            `json:"id"`
-	Type       FinChartType      `json:"type"`
-	Title      string            `json:"title"`
-	DataSource string            `json:"data_source"`
+	ID         string                 `json:"id"`
+	Type       FinChartType           `json:"type"`
+	Title      string                 `json:"title"`
+	DataSource string                 `json:"data_source"`
 	Options    map[string]interface{} `json:"options"`
-	Position   FinChartPosition  `json:"position"`
+	Position   FinChartPosition       `json:"position"`
 }
 
 // FinChartType 财务图表类型
@@ -222,20 +222,20 @@ type AuditEntry struct {
 
 // FinancialReportConfig 报告配置
 type FinancialReportConfig struct {
-	ID             string              `json:"id"`
-	Name           string              `json:"name"`
-	Type           FinancialReportType `json:"type"`
-	Description    string              `json:"description"`
-	TemplateID     string              `json:"template_id,omitempty"`
-	Sections       []SectionConfig     `json:"sections"`
-	DataSources    []DataSourceConfig  `json:"data_sources"`
-	Filters        []ReportFilter      `json:"filters,omitempty"`
-	Schedule       *ScheduleConfig     `json:"schedule,omitempty"`
-	ExportFormats  []ExportFormat      `json:"export_formats"`
-	Recipients     []string            `json:"recipients,omitempty"`
-	IsPublic       bool                `json:"is_public"`
-	CreatedAt      time.Time           `json:"created_at"`
-	CreatedBy      string              `json:"created_by"`
+	ID            string              `json:"id"`
+	Name          string              `json:"name"`
+	Type          FinancialReportType `json:"type"`
+	Description   string              `json:"description"`
+	TemplateID    string              `json:"template_id,omitempty"`
+	Sections      []SectionConfig     `json:"sections"`
+	DataSources   []DataSourceConfig  `json:"data_sources"`
+	Filters       []ReportFilter      `json:"filters,omitempty"`
+	Schedule      *ScheduleConfig     `json:"schedule,omitempty"`
+	ExportFormats []ExportFormat      `json:"export_formats"`
+	Recipients    []string            `json:"recipients,omitempty"`
+	IsPublic      bool                `json:"is_public"`
+	CreatedAt     time.Time           `json:"created_at"`
+	CreatedBy     string              `json:"created_by"`
 }
 
 // SectionConfig 区块配置
@@ -268,54 +268,54 @@ type ReportFilter struct {
 
 // ScheduleConfig 调度配置
 type ScheduleConfig struct {
-	Frequency string    `json:"frequency"`
-	Time      string    `json:"time"`
-	Timezone  string    `json:"timezone"`
+	Frequency string     `json:"frequency"`
+	Time      string     `json:"time"`
+	Timezone  string     `json:"timezone"`
 	NextRun   *time.Time `json:"next_run,omitempty"`
-	Enabled   bool      `json:"enabled"`
+	Enabled   bool       `json:"enabled"`
 }
 
 // ========== 报告请求 ==========
 
 // FinancialReportRequest 财务报告请求
 type FinancialReportRequest struct {
-	Name           string              `json:"name"`
-	Type           FinancialReportType `json:"type"`
-	PeriodStart    time.Time           `json:"period_start"`
-	PeriodEnd      time.Time           `json:"period_end"`
-	Currency       Currency            `json:"currency"`
-	Sections       []string            `json:"sections,omitempty"` // 要包含的区块
-	Filters        []ReportFilter      `json:"filters,omitempty"`
-	ComparePeriod  bool                `json:"compare_period"`     // 是否对比上期
-	IncludeCharts  bool                `json:"include_charts"`
-	ExportFormat   ExportFormat        `json:"export_format"`
-	GenerateBy     string              `json:"generate_by"`
-	Tags           []string            `json:"tags"`
+	Name          string              `json:"name"`
+	Type          FinancialReportType `json:"type"`
+	PeriodStart   time.Time           `json:"period_start"`
+	PeriodEnd     time.Time           `json:"period_end"`
+	Currency      Currency            `json:"currency"`
+	Sections      []string            `json:"sections,omitempty"` // 要包含的区块
+	Filters       []ReportFilter      `json:"filters,omitempty"`
+	ComparePeriod bool                `json:"compare_period"` // 是否对比上期
+	IncludeCharts bool                `json:"include_charts"`
+	ExportFormat  ExportFormat        `json:"export_format"`
+	GenerateBy    string              `json:"generate_by"`
+	Tags          []string            `json:"tags"`
 }
 
 // FinancialReportQuery 财务报告查询
 type FinancialReportQuery struct {
-	IDs          []string             `json:"ids,omitempty"`
-	Types        []FinancialReportType `json:"types,omitempty"`
-	Statuses     []ReportStatus       `json:"statuses,omitempty"`
-	StartDate    *time.Time           `json:"start_date,omitempty"`
-	EndDate      *time.Time           `json:"end_date,omitempty"`
-	GeneratedBy  []string             `json:"generated_by,omitempty"`
-	Tags         []string             `json:"tags,omitempty"`
-	Page         int                  `json:"page"`
-	PageSize     int                  `json:"page_size"`
-	SortBy       string               `json:"sort_by"`
-	SortOrder    string               `json:"sort_order"`
+	IDs         []string              `json:"ids,omitempty"`
+	Types       []FinancialReportType `json:"types,omitempty"`
+	Statuses    []ReportStatus        `json:"statuses,omitempty"`
+	StartDate   *time.Time            `json:"start_date,omitempty"`
+	EndDate     *time.Time            `json:"end_date,omitempty"`
+	GeneratedBy []string              `json:"generated_by,omitempty"`
+	Tags        []string              `json:"tags,omitempty"`
+	Page        int                   `json:"page"`
+	PageSize    int                   `json:"page_size"`
+	SortBy      string                `json:"sort_by"`
+	SortOrder   string                `json:"sort_order"`
 }
 
 // ========== 财务报告生成器 ==========
 
 // FinancialReportGenerator 财务报告生成器
 type FinancialReportGenerator struct {
-	mu          sync.RWMutex
-	reports     map[string]*FinancialReport
-	configs     map[string]*FinancialReportConfig
-	storagePath string
+	mu           sync.RWMutex
+	reports      map[string]*FinancialReport
+	configs      map[string]*FinancialReportConfig
+	storagePath  string
 	dataProvider FinancialDataProvider
 }
 
@@ -355,12 +355,12 @@ type ExpenseRecord struct {
 
 // BudgetRecord 预算记录
 type BudgetRecord struct {
-	ID         string  `json:"id"`
-	Name       string  `json:"name"`
-	Amount     float64 `json:"amount"`
-	Used       float64 `json:"used"`
-	Remaining  float64 `json:"remaining"`
-	Period     string  `json:"period"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	Amount    float64 `json:"amount"`
+	Used      float64 `json:"used"`
+	Remaining float64 `json:"remaining"`
+	Period    string  `json:"period"`
 }
 
 // CashFlowRecord 现金流记录
@@ -375,13 +375,13 @@ type CashFlowRecord struct {
 
 // CostRecord 成本记录
 type CostRecord struct {
-	ID          string    `json:"id"`
-	Date        time.Time `json:"date"`
-	Resource    string    `json:"resource"`
-	Type        string    `json:"type"`
-	Amount      float64   `json:"amount"`
-	Quantity    float64   `json:"quantity"`
-	UnitCost    float64   `json:"unit_cost"`
+	ID       string    `json:"id"`
+	Date     time.Time `json:"date"`
+	Resource string    `json:"resource"`
+	Type     string    `json:"type"`
+	Amount   float64   `json:"amount"`
+	Quantity float64   `json:"quantity"`
+	UnitCost float64   `json:"unit_cost"`
 }
 
 // NewFinancialReportGenerator 创建财务报告生成器
@@ -391,9 +391,9 @@ func NewFinancialReportGenerator(dataProvider FinancialDataProvider, storagePath
 	}
 
 	gen := &FinancialReportGenerator{
-		reports:     make(map[string]*FinancialReport),
-		configs:     make(map[string]*FinancialReportConfig),
-		storagePath: storagePath,
+		reports:      make(map[string]*FinancialReport),
+		configs:      make(map[string]*FinancialReportConfig),
+		storagePath:  storagePath,
 		dataProvider: dataProvider,
 	}
 
@@ -453,10 +453,10 @@ func (g *FinancialReportGenerator) GenerateReport(ctx context.Context, req Finan
 			StartTime: req.PeriodStart,
 			EndTime:   req.PeriodEnd,
 		},
-		GeneratedAt: startTime,
-		GeneratedBy: req.GenerateBy,
-		Version:     "1.0",
-		Tags:        req.Tags,
+		GeneratedAt:  startTime,
+		GeneratedBy:  req.GenerateBy,
+		Version:      "1.0",
+		Tags:         req.Tags,
 		ExportFormat: req.ExportFormat,
 	}
 
@@ -544,21 +544,21 @@ func (g *FinancialReportGenerator) generateIncomeReport(ctx context.Context, rep
 			Summary:  fmt.Sprintf("本期总收入: %.2f %s", summary.TotalRevenue, report.Currency),
 		},
 		{
-			ID:       "revenue_by_category",
-			Title:    "收入分类明细",
-			Type:     SectionTypeItems,
-			Position: 2,
-			Visible:  true,
-			Data:     g.buildCategoryData(categoryTotals, summary.TotalRevenue),
+			ID:        "revenue_by_category",
+			Title:     "收入分类明细",
+			Type:      SectionTypeItems,
+			Position:  2,
+			Visible:   true,
+			Data:      g.buildCategoryData(categoryTotals, summary.TotalRevenue),
 			Subtotals: map[string]float64{"total": summary.TotalRevenue},
 		},
 		{
-			ID:       "revenue_by_source",
-			Title:    "收入来源明细",
-			Type:     SectionTypeItems,
-			Position: 3,
-			Visible:  true,
-			Data:     g.buildCategoryData(sourceTotals, summary.TotalRevenue),
+			ID:        "revenue_by_source",
+			Title:     "收入来源明细",
+			Type:      SectionTypeItems,
+			Position:  3,
+			Visible:   true,
+			Data:      g.buildCategoryData(sourceTotals, summary.TotalRevenue),
 			Subtotals: map[string]float64{"total": summary.TotalRevenue},
 		},
 	}
@@ -622,21 +622,21 @@ func (g *FinancialReportGenerator) generateExpenseReport(ctx context.Context, re
 			Summary:  fmt.Sprintf("本期总支出: %.2f %s", summary.TotalExpense, report.Currency),
 		},
 		{
-			ID:       "expense_by_category",
-			Title:    "支出分类明细",
-			Type:     SectionTypeItems,
-			Position: 2,
-			Visible:  true,
-			Data:     g.buildCategoryData(categoryTotals, summary.TotalExpense),
+			ID:        "expense_by_category",
+			Title:     "支出分类明细",
+			Type:      SectionTypeItems,
+			Position:  2,
+			Visible:   true,
+			Data:      g.buildCategoryData(categoryTotals, summary.TotalExpense),
 			Subtotals: map[string]float64{"total": summary.TotalExpense},
 		},
 		{
-			ID:       "expense_by_department",
-			Title:    "部门支出明细",
-			Type:     SectionTypeItems,
-			Position: 3,
-			Visible:  true,
-			Data:     g.buildCategoryData(departmentTotals, summary.TotalExpense),
+			ID:        "expense_by_department",
+			Title:     "部门支出明细",
+			Type:      SectionTypeItems,
+			Position:  3,
+			Visible:   true,
+			Data:      g.buildCategoryData(departmentTotals, summary.TotalExpense),
 			Subtotals: map[string]float64{"total": summary.TotalExpense},
 		},
 	}
@@ -762,12 +762,12 @@ func (g *FinancialReportGenerator) generateBudgetReport(ctx context.Context, rep
 			Summary:  fmt.Sprintf("预算使用率: %.1f%%", summary.BudgetUsageRate),
 		},
 		{
-			ID:       "budget_details",
-			Title:    "预算执行明细",
-			Type:     SectionTypeItems,
-			Position: 2,
-			Visible:  true,
-			Data:     budgetDetails,
+			ID:        "budget_details",
+			Title:     "预算执行明细",
+			Type:      SectionTypeItems,
+			Position:  2,
+			Visible:   true,
+			Data:      budgetDetails,
 			Subtotals: map[string]float64{"budget": summary.BudgetAmount, "used": summary.BudgetUsed},
 		},
 	}
@@ -1316,12 +1316,12 @@ type FinancialReportTemplate struct {
 
 // SectionTemplate 区块模板
 type SectionTemplate struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	Type        string `json:"type"`
-	DataSource  string `json:"data_source"`
-	Required    bool   `json:"required"`
-	Position    int    `json:"position"`
+	ID         string `json:"id"`
+	Title      string `json:"title"`
+	Type       string `json:"type"`
+	DataSource string `json:"data_source"`
+	Required   bool   `json:"required"`
+	Position   int    `json:"position"`
 }
 
 // ChartTemplate 图表模板
