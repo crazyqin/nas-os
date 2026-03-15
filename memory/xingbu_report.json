@@ -1,0 +1,146 @@
+{
+  "report_type": "security_audit",
+  "department": "刑部",
+  "project": "nas-os",
+  "version": "v2.77.0",
+  "audit_date": "2026-03-16T00:06:00+08:00",
+  "auditor": "刑部",
+  "summary": {
+    "files_scanned": 443,
+    "lines_of_code": 272004,
+    "total_issues": 1691,
+    "high_severity": 15,
+    "medium_severity": 50,
+    "low_severity": 1626
+  },
+  "critical_findings": [
+    {
+      "id": "G402",
+      "name": "TLS InsecureSkipVerify",
+      "cwe": "CWE-295",
+      "severity": "HIGH",
+      "description": "TLS证书验证被跳过，存在中间人攻击风险",
+      "locations": [
+        "internal/auth/ldap.go:179",
+        "internal/ldap/client.go:99",
+        "internal/ldap/client.go:71",
+        "internal/auth/ldap.go:151"
+      ],
+      "recommendation": "仅在测试环境允许跳过验证，生产环境必须验证证书"
+    },
+    {
+      "id": "G404",
+      "name": "Weak Random Number Generator",
+      "cwe": "CWE-338",
+      "severity": "HIGH",
+      "description": "使用math/rand生成随机字符串，可能导致会话劫持",
+      "locations": [
+        "internal/websocket/message_queue.go:845"
+      ],
+      "recommendation": "使用crypto/rand替代math/rand"
+    },
+    {
+      "id": "G401",
+      "name": "Weak Cryptographic Primitive",
+      "cwe": "CWE-328",
+      "severity": "MEDIUM",
+      "description": "使用MD5/SHA1等弱哈希算法",
+      "locations": [
+        "internal/transfer/chunked.go:185",
+        "internal/transfer/chunked.go:176",
+        "internal/tiering/migrator.go:294",
+        "internal/security/scanner/filesystem_scanner.go:669",
+        "internal/replication/conflict.go:253",
+        "internal/cloudsync/sync_engine.go:800",
+        "internal/backup/sync.go:842",
+        "internal/backup/sync.go:403"
+      ],
+      "recommendation": "使用SHA256或更强的哈希算法"
+    },
+    {
+      "id": "G101",
+      "name": "Hardcoded Credentials",
+      "cwe": "CWE-798",
+      "severity": "MEDIUM",
+      "description": "潜在硬编码凭证",
+      "locations": [
+        "internal/office/types.go:581",
+        "internal/cloudsync/providers.go:1320",
+        "internal/cloudsync/providers.go:670",
+        "internal/auth/oauth2.go:379-389",
+        "internal/auth/oauth2.go:364-374",
+        "internal/auth/oauth2.go:349-359",
+        "internal/auth/oauth2.go:334-344"
+      ],
+      "recommendation": "审查并移除硬编码凭证，使用环境变量或密钥管理服务"
+    },
+    {
+      "id": "G204",
+      "name": "Subprocess Launched with Variable",
+      "cwe": "CWE-78",
+      "severity": "MEDIUM",
+      "description": "命令注入风险",
+      "locations": [
+        "pkg/btrfs/btrfs.go (多处)"
+      ],
+      "recommendation": "严格验证输入，使用参数化命令"
+    },
+    {
+      "id": "G304",
+      "name": "File Inclusion via Variable",
+      "cwe": "CWE-22",
+      "severity": "MEDIUM",
+      "description": "文件路径遍历风险",
+      "locations": [
+        "plugins/filemanager-enhance/main.go:448",
+        "plugins/filemanager-enhance/main.go:398",
+        "tests/reports/generator.go:288"
+      ],
+      "recommendation": "验证并规范化文件路径"
+    }
+  ],
+  "fix_priorities": [
+    {
+      "priority": "P0",
+      "issues": ["G402", "G404"],
+      "count": 5,
+      "deadline": "立即修复"
+    },
+    {
+      "priority": "P1",
+      "issues": ["G401", "G204", "G101"],
+      "count": 31,
+      "deadline": "1周内"
+    },
+    {
+      "priority": "P2",
+      "issues": ["G304", "G115"],
+      "count": 13,
+      "deadline": "2周内"
+    },
+    {
+      "priority": "P3",
+      "issues": ["G104", "G301", "G306"],
+      "count": 1642,
+      "deadline": "迭代修复"
+    }
+  ],
+  "dependencies": {
+    "total": 180,
+    "key_dependencies": [
+      {"name": "gin-gonic/gin", "version": "v1.11.0", "status": "latest"},
+      {"name": "golang.org/x/crypto", "version": "v0.48.0", "status": "latest"},
+      {"name": "go-ldap/ldap/v3", "version": "v3.4.12", "status": "latest"},
+      {"name": "gorilla/websocket", "version": "v1.5.3", "status": "latest"}
+    ]
+  },
+  "recommendations": [
+    "立即修复TLS验证绕过问题",
+    "将math/rand替换为crypto/rand",
+    "审查并移除硬编码凭证",
+    "加强命令参数输入验证",
+    "定期运行govulncheck检查依赖漏洞",
+    "考虑引入SAST工具到CI/CD流程"
+  ],
+  "generated_at": "2026-03-16T00:10:00+08:00"
+}
