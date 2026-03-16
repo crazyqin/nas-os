@@ -234,8 +234,8 @@ func TestAlertNotificationManager_DetermineSeverity(t *testing.T) {
 	mgr := NewAlertNotificationManager(config)
 
 	tests := []struct {
-		percent   float64
-		expected  AlertSeverity
+		percent  float64
+		expected AlertSeverity
 	}{
 		{50, AlertSeverityInfo},
 		{70, AlertSeverityWarning},

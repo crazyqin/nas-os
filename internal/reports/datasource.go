@@ -111,7 +111,7 @@ func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]
 
 	// 使用 int64 存储累加值，防止溢出
 	var totalLimit, totalUsed int64
-	
+
 	for _, usage := range usages {
 		row := ds.convertToMap(usage)
 
@@ -138,7 +138,7 @@ func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]
 			summary["over_hard_limit"] = summary["over_hard_limit"].(int) + 1
 		}
 	}
-	
+
 	// 更新 summary 为 int64 类型
 	summary["total_limit"] = totalLimit
 	summary["total_used"] = totalUsed
@@ -344,7 +344,7 @@ func (ds *StorageDataSource) GetSummary(query map[string]interface{}) (map[strin
 
 	// 使用 int64 存储累加值，防止溢出
 	var totalSize, totalUsed, totalFree int64
-	
+
 	for _, vol := range volumes {
 		row := ds.convertVolumeToMap(vol)
 		if size, ok := row["total_size"].(uint64); ok {
@@ -369,7 +369,7 @@ func (ds *StorageDataSource) GetSummary(query map[string]interface{}) (map[strin
 			}
 		}
 	}
-	
+
 	// 更新 summary 为 int64 类型
 	summary["total_size"] = totalSize
 	summary["total_used"] = totalUsed

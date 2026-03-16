@@ -1195,9 +1195,9 @@ func generateRecommendations(details []BudgetDetail, summary BudgetReportSummary
 
 const (
 	// 通知重试配置
-	maxNotifyRetries    = 3
-	baseRetryDelay      = 1 * time.Second
-	maxRetryDelay       = 30 * time.Second
+	maxNotifyRetries     = 3
+	baseRetryDelay       = 1 * time.Second
+	maxRetryDelay        = 30 * time.Second
 	retryDelayMultiplier = 2.0
 )
 
