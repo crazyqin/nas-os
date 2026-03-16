@@ -60,11 +60,11 @@ func TestHandlers_CreateLibrary(t *testing.T) {
 	require.NoError(t, os.MkdirAll(mediaPath, 0755))
 
 	body := map[string]interface{}{
-		"name":             "TV Shows",
-		"path":             mediaPath,
-		"type":             "tv",
-		"description":      "TV series library",
-		"metadataSource":   "tmdb",
+		"name":           "TV Shows",
+		"path":           mediaPath,
+		"type":           "tv",
+		"description":    "TV series library",
+		"metadataSource": "tmdb",
 	}
 	jsonBody, _ := json.Marshal(body)
 
@@ -264,10 +264,10 @@ func TestAddPlayHistory(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
 	body := map[string]interface{}{
-		"itemId":     "test-item-id",
-		"position":   120,
-		"duration":   3600,
-		"completed":  false,
+		"itemId":    "test-item-id",
+		"position":  120,
+		"duration":  3600,
+		"completed": false,
 	}
 	jsonBody, _ := json.Marshal(body)
 

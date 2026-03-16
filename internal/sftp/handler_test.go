@@ -2,6 +2,7 @@ package sftp
 
 import (
 	"bytes"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -265,9 +266,9 @@ func TestSFTPHandler_Filecmd_Setstat(t *testing.T) {
 
 	// 修改权限
 	req := &Request{
-		Method: "Setstat",
+		Method:   "Setstat",
 		Filepath: "/test.txt",
-		Mode:    0600,
+		Mode:     0600,
 	}
 
 	err := handler.Filecmd(req)
@@ -300,8 +301,8 @@ func TestSFTPHandler_Filecmd_ReadOnly(t *testing.T) {
 	handler.readOnly = true
 
 	tests := []struct {
-		name   string
-		req    *Request
+		name string
+		req  *Request
 	}{
 		{"Mkdir", &Request{Method: "Mkdir", Filepath: "/new"}},
 		{"Remove", &Request{Method: "Remove", Filepath: "/file"}},
@@ -460,10 +461,15 @@ func TestSliceListerAt(t *testing.T) {
 	lister := sliceListerAt(infos)
 
 	// 测试 ListAt 从偏移 0 开始
+	// io.EOF 是正常的结束信号，表示已读取完所有数据
 	result := make([]os.FileInfo, 10)
 	n, err := lister.ListAt(result, 0)
-	require.NoError(t, err)
+	// 当文件数少于目标切片长度时，返回 io.EOF 是正常行为
+	if err != nil && err != io.EOF {
+		require.NoError(t, err)
+	}
 	assert.GreaterOrEqual(t, n, 1) // 至少有一个文件
+	assert.Equal(t, 2, n)          // 应该正好有2个文件
 }
 
 func TestRequest(t *testing.T) {

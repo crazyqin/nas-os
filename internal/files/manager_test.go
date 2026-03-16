@@ -1,6 +1,11 @@
 package files
 
 import (
+	"bytes"
+	"image"
+	"image/color"
+	"image/jpeg"
+	"image/png"
 	"os"
 	"path/filepath"
 	"testing"
@@ -417,4 +422,185 @@ func TestManager_ArchiveTypes(t *testing.T) {
 		result := m.GetFileType(tmpFile)
 		assert.Equal(t, tt.expected, result, "filename: %s", tt.filename)
 	}
+}
+
+func TestManager_GenerateImageThumbnail(t *testing.T) {
+	m := NewManager(PreviewConfig{
+		CacheDir:       t.TempDir(),
+		ThumbnailSize:  128,
+	})
+
+	t.Run("jpeg image", func(t *testing.T) {
+		// 创建一个简单的测试图片
+		tmpFile := filepath.Join(t.TempDir(), "test.jpg")
+		imgData := createTestJPEG(200, 200)
+		err := os.WriteFile(tmpFile, imgData, 0644)
+		require.NoError(t, err)
+
+		thumb, w, h := m.GenerateImageThumbnail(tmpFile)
+		assert.NotEmpty(t, thumb)
+		assert.Contains(t, thumb, "data:image/jpeg;base64,")
+		assert.Equal(t, 200, w)
+		assert.Equal(t, 200, h)
+	})
+
+	t.Run("png image", func(t *testing.T) {
+		tmpFile := filepath.Join(t.TempDir(), "test.png")
+		imgData := createTestPNG(100, 100)
+		err := os.WriteFile(tmpFile, imgData, 0644)
+		require.NoError(t, err)
+
+		thumb, w, h := m.GenerateImageThumbnail(tmpFile)
+		assert.NotEmpty(t, thumb)
+		assert.Contains(t, thumb, "data:image/jpeg;base64,")
+		assert.Equal(t, 100, w)
+		assert.Equal(t, 100, h)
+	})
+
+	t.Run("non-existent file", func(t *testing.T) {
+		thumb, w, h := m.GenerateImageThumbnail("/nonexistent/image.jpg")
+		assert.Empty(t, thumb)
+		assert.Equal(t, 0, w)
+		assert.Equal(t, 0, h)
+	})
+
+	t.Run("cached thumbnail", func(t *testing.T) {
+		tmpFile := filepath.Join(t.TempDir(), "cached.jpg")
+		imgData := createTestJPEG(50, 50)
+		err := os.WriteFile(tmpFile, imgData, 0644)
+		require.NoError(t, err)
+
+		// 第一次调用
+		thumb1, _, _ := m.GenerateImageThumbnail(tmpFile)
+		// 第二次调用应该从缓存获取
+		thumb2, _, _ := m.GenerateImageThumbnail(tmpFile)
+		assert.Equal(t, thumb1, thumb2)
+	})
+}
+
+func TestManager_ListFiles_WithSubdirs(t *testing.T) {
+	m := NewManager(PreviewConfig{CacheDir: t.TempDir()})
+
+	tmpDir := t.TempDir()
+
+	// 创建目录结构
+	os.Mkdir(filepath.Join(tmpDir, "subdir1"), 0755)
+	os.Mkdir(filepath.Join(tmpDir, "subdir2"), 0755)
+	os.WriteFile(filepath.Join(tmpDir, "file1.txt"), []byte("test"), 0644)
+	os.WriteFile(filepath.Join(tmpDir, "subdir1", "file2.txt"), []byte("test"), 0644)
+
+	t.Run("non-recursive", func(t *testing.T) {
+		result, err := m.ListFiles(tmpDir, false)
+		require.NoError(t, err)
+		assert.Len(t, result, 3) // subdir1, subdir2, file1.txt
+	})
+
+	t.Run("with thumbnails", func(t *testing.T) {
+		// 创建测试图片
+		imgFile := filepath.Join(tmpDir, "test.jpg")
+		imgData := createTestJPEG(50, 50)
+		err := os.WriteFile(imgFile, imgData, 0644)
+		require.NoError(t, err)
+
+		result, err := m.ListFiles(tmpDir, true)
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, len(result), 4)
+
+		// 检查图片是否有缩略图
+		for _, f := range result {
+			if f.Name == "test.jpg" {
+				assert.NotEmpty(t, f.Thumbnail)
+				assert.Greater(t, f.Width, 0)
+				assert.Greater(t, f.Height, 0)
+			}
+		}
+	})
+}
+
+func TestShareStore_Operations(t *testing.T) {
+	// 清理 share store
+	shareStore.Lock()
+	shareStore.shares = make(map[string]*ShareInfo)
+	shareStore.Unlock()
+
+	// 测试创建分享
+	token := generateRandomToken(16)
+	share := &ShareInfo{
+		Token:         token,
+		Path:          "/test/path",
+		Password:      "secret",
+		Expiry:        time.Now().Add(24 * time.Hour),
+		AllowDownload: true,
+		CreatedAt:     time.Now(),
+		Downloads:     0,
+	}
+
+	shareStore.Lock()
+	shareStore.shares[token] = share
+	shareStore.Unlock()
+
+	// 验证可以读取
+	shareStore.RLock()
+	retrieved, exists := shareStore.shares[token]
+	shareStore.RUnlock()
+
+	assert.True(t, exists)
+	assert.Equal(t, "/test/path", retrieved.Path)
+	assert.Equal(t, "secret", retrieved.Password)
+
+	// 测试删除
+	shareStore.Lock()
+	delete(shareStore.shares, token)
+	shareStore.Unlock()
+
+	shareStore.RLock()
+	_, exists = shareStore.shares[token]
+	shareStore.RUnlock()
+
+	assert.False(t, exists)
+}
+
+func TestGenerateRandomToken_Uniqueness(t *testing.T) {
+	tokens := make(map[string]bool)
+	for i := 0; i < 100; i++ {
+		token := generateRandomToken(16)
+		assert.NotEmpty(t, token)
+		assert.False(t, tokens[token], "token should be unique")
+		tokens[token] = true
+	}
+}
+
+func TestGenerateRandomToken_Length(t *testing.T) {
+	for length := 1; length <= 32; length++ {
+		token := generateRandomToken(length)
+		assert.Len(t, token, length*2, "hex encoding doubles length")
+	}
+}
+
+// createTestJPEG 创建测试用的 JPEG 图片数据
+func createTestJPEG(width, height int) []byte {
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img.Set(x, y, color.RGBA{R: 255, G: 0, B: 0, A: 255})
+		}
+	}
+
+	var buf bytes.Buffer
+	jpeg.Encode(&buf, img, nil)
+	return buf.Bytes()
+}
+
+// createTestPNG 创建测试用的 PNG 图片数据
+func createTestPNG(width, height int) []byte {
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img.Set(x, y, color.RGBA{R: 0, G: 255, B: 0, A: 255})
+		}
+	}
+
+	var buf bytes.Buffer
+	png.Encode(&buf, img)
+	return buf.Bytes()
 }
