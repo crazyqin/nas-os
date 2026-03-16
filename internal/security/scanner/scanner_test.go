@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"os"
 	"testing"
 	"time"
 )
@@ -621,5 +622,223 @@ func TestScoreHistoryTiming(t *testing.T) {
 		if history[0].Date.Before(now.Add(-time.Second)) {
 			t.Error("history date should be recent")
 		}
+	}
+}
+
+// ========== 生成报告测试 ==========
+
+func TestGenerateScanID(t *testing.T) {
+	id1 := generateScanID()
+	id2 := generateScanID()
+
+	if id1 == "" {
+		t.Error("scan ID should not be empty")
+	}
+	if id1 == id2 {
+		t.Error("scan IDs should be unique")
+	}
+}
+
+func TestGenerateFindingID(t *testing.T) {
+	id1 := generateFindingID()
+	id2 := generateFindingID()
+
+	if id1 == "" {
+		t.Error("finding ID should not be empty")
+	}
+	if id1 == id2 {
+		t.Error("finding IDs should be unique")
+	}
+}
+
+// ========== SetProgressCallback 测试 ==========
+
+func TestSetProgressCallback(t *testing.T) {
+	config := DefaultScannerConfig()
+	scanner := NewFilesystemScanner(config)
+
+	called := false
+	scanner.SetProgressCallback(func(taskID string, progress int) {
+		called = true
+	})
+
+	if scanner.progressCallback == nil {
+		t.Error("progress callback should be set")
+	}
+	_ = called
+}
+
+// ========== GetFindings 测试 ==========
+
+func TestGetFindings(t *testing.T) {
+	config := DefaultScannerConfig()
+	scanner := NewFilesystemScanner(config)
+
+	task := scanner.CreateScanTask("test", ScanTypeQuick, []string{"/tmp"}, nil, nil)
+
+	findings := scanner.GetFindings(task.ID)
+	if findings == nil {
+		t.Error("findings should return a slice")
+	}
+}
+
+func TestGetFindings_NonExistentTask(t *testing.T) {
+	config := DefaultScannerConfig()
+	scanner := NewFilesystemScanner(config)
+
+	findings := scanner.GetFindings("nonexistent")
+	if findings != nil {
+		t.Error("findings should be nil for non-existent task")
+	}
+}
+
+// ========== GetReport 测试 ==========
+
+func TestGetReport(t *testing.T) {
+	config := DefaultScannerConfig()
+	scanner := NewFilesystemScanner(config)
+
+	task := scanner.CreateScanTask("test", ScanTypeQuick, []string{"/tmp"}, nil, nil)
+
+	report := scanner.GetReport(task.ID)
+	if report == nil {
+		t.Error("report should not be nil")
+	}
+}
+
+// ========== Stop 测试 ==========
+
+func TestStop(t *testing.T) {
+	config := DefaultScannerConfig()
+	scanner := NewFilesystemScanner(config)
+
+	// Stop should not panic
+	scanner.Stop()
+}
+
+// ========== ScoreToRiskLevel 测试 ==========
+
+func TestScoreToRiskLevel_EdgeCases(t *testing.T) {
+	tests := []struct {
+		score    int
+		expected string
+	}{
+		{100, "low"},
+		{90, "low"},
+		{75, "medium"},
+		{50, "high"},
+		{25, "critical"},
+		{0, "critical"},
+	}
+
+	for _, test := range tests {
+		result := scoreToRiskLevel(test.score)
+		if result != test.expected {
+			t.Errorf("score %d: expected level '%s', got '%s'", test.score, test.expected, result)
+		}
+	}
+}
+
+// ========== ParseFileMode 测试 ==========
+
+func TestParseFileMode(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected os.FileMode
+	}{
+		{"0755", os.FileMode(0755)},
+		{"0644", os.FileMode(0644)},
+		{"0600", os.FileMode(0600)},
+		{"0777", os.FileMode(0777)},
+		{"invalid", os.FileMode(0)},
+	}
+
+	for _, test := range tests {
+		result := parseFileMode(test.input)
+		if result != test.expected {
+			t.Errorf("parseFileMode(%s): expected %o, got %o", test.input, test.expected, result)
+		}
+	}
+}
+
+// ========== IsBinaryFile 测试 ==========
+
+func TestIsBinaryFile(t *testing.T) {
+	tests := []struct {
+		filename string
+		expected bool
+	}{
+		{"test.exe", true},
+		{"test.bin", true},
+		{"test.so", true},
+		{"test.dll", true},
+		{"test.txt", false},
+		{"test.go", false},
+		{"test.json", false},
+	}
+
+	for _, test := range tests {
+		result := isBinaryFile(test.filename)
+		if result != test.expected {
+			t.Errorf("isBinaryFile(%s): expected %v, got %v", test.filename, test.expected, result)
+		}
+	}
+}
+
+// ========== CalculateFileHash 测试 ==========
+
+func TestCalculateFileHash(t *testing.T) {
+	config := DefaultScannerConfig()
+	scanner := NewFilesystemScanner(config)
+
+	// Create a temp file
+	tmpFile := "/tmp/test_hash_file_" + generateScanID()
+	content := []byte("test content for hash calculation")
+
+	err := os.WriteFile(tmpFile, content, 0644)
+	if err != nil {
+		t.Skipf("could not create temp file: %v", err)
+	}
+	defer os.Remove(tmpFile)
+
+	hash, err := scanner.calculateFileHash(tmpFile, "sha256")
+	if err != nil {
+		t.Errorf("calculateFileHash should succeed: %v", err)
+	}
+	if hash == "" {
+		t.Error("hash should not be empty")
+	}
+	if len(hash) != 64 { // SHA256 hex length
+		t.Errorf("hash should be 64 chars, got %d", len(hash))
+	}
+}
+
+// ========== CountFiles 测试 ==========
+
+func TestCountFiles(t *testing.T) {
+	config := DefaultScannerConfig()
+	scanner := NewFilesystemScanner(config)
+
+	// Create temp directory with files
+	tmpDir := "/tmp/test_count_" + generateScanID()
+	err := os.MkdirAll(tmpDir, 0755)
+	if err != nil {
+		t.Skipf("could not create temp dir: %v", err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	// Create some files
+	os.WriteFile(tmpDir+"/file1.txt", []byte("test"), 0644)
+	os.WriteFile(tmpDir+"/file2.txt", []byte("test"), 0644)
+	os.MkdirAll(tmpDir+"/subdir", 0755)
+	os.WriteFile(tmpDir+"/subdir/file3.txt", []byte("test"), 0644)
+
+	opts := DefaultScanOptions()
+	count, err := scanner.countFiles(tmpDir, opts)
+	if err != nil {
+		t.Errorf("countFiles should succeed: %v", err)
+	}
+	if count < 3 {
+		t.Errorf("expected at least 3 files, got %d", count)
 	}
 }
