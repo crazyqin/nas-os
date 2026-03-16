@@ -12,6 +12,62 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateDashboardRequest 创建仪表板请求
+type CreateDashboardRequest struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+}
+
+// UpdateDashboardRequest 更新仪表板请求
+type UpdateDashboardRequest struct {
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Layout      *dashboard.Layout `json:"layout"`
+}
+
+// CloneDashboardRequest 克隆仪表板请求
+type CloneDashboardRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+// AddWidgetRequest 添加小组件请求
+type AddWidgetRequest struct {
+	Type        dashboard.WidgetType     `json:"type" binding:"required"`
+	Title       string                   `json:"title"`
+	Size        dashboard.WidgetSize     `json:"size"`
+	Position    dashboard.WidgetPosition `json:"position"`
+	Config      dashboard.WidgetConfig   `json:"config"`
+	RefreshRate int                      `json:"refreshRate"`
+}
+
+// UpdateWidgetRequest 更新小组件请求
+type UpdateWidgetRequest struct {
+	Title       string                    `json:"title"`
+	Size        dashboard.WidgetSize      `json:"size"`
+	Position    *dashboard.WidgetPosition `json:"position"`
+	Config      *dashboard.WidgetConfig   `json:"config"`
+	Enabled     *bool                     `json:"enabled"`
+	RefreshRate int                       `json:"refreshRate"`
+}
+
+// UpdatePositionRequest 更新位置请求
+type UpdatePositionRequest struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+// LayoutRequest 布局请求
+type LayoutRequest struct {
+	Columns int `json:"columns"`
+	Rows    int `json:"rows"`
+}
+
+// CreateFromTemplateRequest 从模板创建请求
+type CreateFromTemplateRequest struct {
+	TemplateID string `json:"templateId" binding:"required"`
+	Name       string `json:"name"`
+}
+
 // DashboardHandlers Dashboard API 处理器
 type DashboardHandlers struct {
 	manager    *dashboard.Manager
