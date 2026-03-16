@@ -1,7 +1,12 @@
 package web
 
 import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 // ========== 通用响应结构测试 ==========
@@ -418,5 +423,164 @@ func TestVolumeUsage_Calculation(t *testing.T) {
 	usedPercent := float64(usage.Used) / float64(usage.Total) * 100
 	if usedPercent != 30.0 {
 		t.Errorf("Expected usedPercent=30.0, got %.1f", usedPercent)
+	}
+}
+
+// ========== 错误响应辅助函数测试 ==========
+
+func TestRespondSuccess(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	data := map[string]string{"key": "value"}
+	respondSuccess(c, data)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if resp["code"].(float64) != 0 {
+		t.Errorf("Expected code=0, got %v", resp["code"])
+	}
+	if resp["message"].(string) != "success" {
+		t.Errorf("Expected message=success, got %v", resp["message"])
+	}
+}
+
+func TestRespondSuccessMessage(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	respondSuccessMessage(c, "操作成功")
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status 200, got %d", w.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if resp["code"].(float64) != 0 {
+		t.Errorf("Expected code=0, got %v", resp["code"])
+	}
+	if resp["message"].(string) != "操作成功" {
+		t.Errorf("Expected message=操作成功, got %v", resp["message"])
+	}
+}
+
+func TestRespondBadRequest(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	respondBadRequest(c, "参数无效")
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status 400, got %d", w.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if resp["code"].(float64) != 400 {
+		t.Errorf("Expected code=400, got %v", resp["code"])
+	}
+}
+
+func TestRespondNotFound(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	respondNotFound(c, "资源不存在")
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Expected status 404, got %d", w.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if resp["code"].(float64) != 404 {
+		t.Errorf("Expected code=404, got %v", resp["code"])
+	}
+}
+
+func TestRespondInternalError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	respondInternalError(c, "服务器错误")
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status 500, got %d", w.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if resp["code"].(float64) != 500 {
+		t.Errorf("Expected code=500, got %v", resp["code"])
+	}
+}
+
+func TestRespondServiceUnavailable(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	respondServiceUnavailable(c, "服务暂时不可用")
+
+	if w.Code != http.StatusServiceUnavailable {
+		t.Errorf("Expected status 503, got %d", w.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if resp["code"].(float64) != 503 {
+		t.Errorf("Expected code=503, got %v", resp["code"])
+	}
+}
+
+func TestRespondError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	respondError(c, http.StatusForbidden, 403, "访问被拒绝")
+
+	if w.Code != http.StatusForbidden {
+		t.Errorf("Expected status 403, got %d", w.Code)
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if resp["code"].(float64) != 403 {
+		t.Errorf("Expected code=403, got %v", resp["code"])
+	}
+	if resp["message"].(string) != "访问被拒绝" {
+		t.Errorf("Expected message=访问被拒绝, got %v", resp["message"])
 	}
 }

@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.125.0] - 2026-03-16
+
+### 六部协同汇报
+
+#### 工部 - Docker 构建修复
+- ✅ 修复 Docker 健康检查工具构建失败问题
+- ✅ 使用 heredoc 语法替代 echo 转义
+- ✅ 解决 shell 转义字符导致的构建错误
+
+#### 礼部 - 文档版本同步
+- ✅ VERSION → v2.125.0
+- ✅ README.md 版本信息同步
+- ✅ CHANGELOG.md 更新
+
+### Fixed
+- Dockerfile 健康检查脚本语法修复
+- 构建流程稳定性提升
+
 ## [v2.124.0] - 2026-03-16
 
 ### 六部协同汇报
