@@ -1,18 +1,18 @@
 {
-  "lastUpdate": "2026-03-17T05:44:00+08:00",
+  "lastUpdate": "2026-03-17T06:02:00+08:00",
   "currentVersion": "v2.147.0",
   "previousVersion": "v2.146.0",
   "status": "in_progress",
   "ministries": {
-    "吏部": { "task": "版本管理", "status": "done", "result": "版本号更新至 v2.147.0" },
-    "户部": { "task": "资源统计", "status": "pending", "result": "" },
+    "吏部": { "task": "版本管理", "status": "pending", "result": "" },
+    "户部": { "task": "成本模块检查", "status": "pending", "result": "" },
     "礼部": { "task": "文档更新", "status": "pending", "result": "" },
     "工部": { "task": "CI/CD检查", "status": "pending", "result": "" },
     "兵部": { "task": "代码质量", "status": "pending", "result": "" },
     "刑部": { "task": "安全审计", "status": "pending", "result": "" }
   },
-  "actionsStatus": "pending",
+  "actionsStatus": "completed",
   "nextVersion": "v2.148.0",
   "releaseUrl": "",
-  "gitCommit": ""
+  "gitCommit": "eb885e0"
 }
