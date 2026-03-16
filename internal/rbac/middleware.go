@@ -196,7 +196,9 @@ func (m *Middleware) RequireOperator() func(http.Handler) http.Handler {
 // GetUserIDFromContext 从上下文获取用户ID
 func GetUserIDFromContext(ctx context.Context) string {
 	if v := ctx.Value(UserIDKey); v != nil {
-		return v.(string)
+		if s, ok := v.(string); ok {
+			return s
+		}
 	}
 	return ""
 }
@@ -204,7 +206,9 @@ func GetUserIDFromContext(ctx context.Context) string {
 // GetUsernameFromContext 从上下文获取用户名
 func GetUsernameFromContext(ctx context.Context) string {
 	if v := ctx.Value(UsernameKey); v != nil {
-		return v.(string)
+		if s, ok := v.(string); ok {
+			return s
+		}
 	}
 	return ""
 }
@@ -212,7 +216,9 @@ func GetUsernameFromContext(ctx context.Context) string {
 // GetRoleFromContext 从上下文获取用户角色
 func GetRoleFromContext(ctx context.Context) Role {
 	if v := ctx.Value(UserRoleKey); v != nil {
-		return v.(Role)
+		if r, ok := v.(Role); ok {
+			return r
+		}
 	}
 	return ""
 }
@@ -220,7 +226,9 @@ func GetRoleFromContext(ctx context.Context) Role {
 // GetPermissionResultFromContext 从上下文获取权限检查结果
 func GetPermissionResultFromContext(ctx context.Context) *CheckResult {
 	if v := ctx.Value(PermissionKey); v != nil {
-		return v.(*CheckResult)
+		if r, ok := v.(*CheckResult); ok {
+			return r
+		}
 	}
 	return nil
 }
