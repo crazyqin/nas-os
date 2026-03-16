@@ -276,7 +276,7 @@ type CostReportGenerator struct {
 	config    ReportConfig
 
 	// 缓存
-	reportCache map[string]*CostReport
+	reportCache map[string]*cachedReport
 	cacheExpiry time.Duration
 }
 
@@ -418,7 +418,7 @@ func NewCostReportGenerator(dataDir string, providers ReportDataProvider, config
 		dataDir:     dataDir,
 		providers:   providers,
 		config:      config,
-		reportCache: make(map[string]*CostReport),
+		reportCache: make(map[string]*cachedReport),
 		cacheExpiry: config.CacheExpiry,
 	}
 }
@@ -828,6 +828,18 @@ func (g *CostReportGenerator) calculateCostEfficiency(usagePercent float64) floa
 	}
 }
 
+// compareWithPreviousReport 与历史报告对比计算环比变化
+func (g *CostReportGenerator) compareWithPreviousReport(report, prevReport *CostReport) {
+	if prevReport == nil || prevReport.Summary.TotalCost <= 0 {
+		return
+	}
+
+	report.Summary.CostChange = report.Summary.TotalCost - prevReport.Summary.TotalCost
+	report.Summary.CostChangePercent = (report.Summary.TotalCost - prevReport.Summary.TotalCost) / prevReport.Summary.TotalCost * 100
+	report.Summary.StorageChange = report.Summary.StorageCost - prevReport.Summary.StorageCost
+	report.Summary.BandwidthChange = report.Summary.BandwidthCost - prevReport.Summary.BandwidthCost
+}
+
 // addWeeklyAnalysis 添加周环比分析
 func (g *CostReportGenerator) addWeeklyAnalysis(ctx context.Context, report *CostReport) error {
 	// 获取上周报告进行对比
@@ -838,19 +850,7 @@ func (g *CostReportGenerator) addWeeklyAnalysis(ctx context.Context, report *Cos
 		return nil
 	}
 
-	// 无历史报告时跳过对比
-	if prevReport == nil {
-		return nil
-	}
-
-	// 计算环比变化
-	if prevReport.Summary.TotalCost > 0 {
-		report.Summary.CostChange = report.Summary.TotalCost - prevReport.Summary.TotalCost
-		report.Summary.CostChangePercent = (report.Summary.TotalCost - prevReport.Summary.TotalCost) / prevReport.Summary.TotalCost * 100
-	}
-	report.Summary.StorageChange = report.Summary.StorageCost - prevReport.Summary.StorageCost
-	report.Summary.BandwidthChange = report.Summary.BandwidthCost - prevReport.Summary.BandwidthCost
-
+	g.compareWithPreviousReport(report, prevReport)
 	return nil
 }
 
@@ -864,18 +864,7 @@ func (g *CostReportGenerator) addMonthlyAnalysis(ctx context.Context, report *Co
 		return nil
 	}
 
-	// 无历史报告时跳过对比
-	if prevReport == nil {
-		return nil
-	}
-
-	// 计算环比变化
-	if prevReport.Summary.TotalCost > 0 {
-		report.Summary.CostChange = report.Summary.TotalCost - prevReport.Summary.TotalCost
-		report.Summary.CostChangePercent = (report.Summary.TotalCost - prevReport.Summary.TotalCost) / prevReport.Summary.TotalCost * 100
-	}
-	report.Summary.StorageChange = report.Summary.StorageCost - prevReport.Summary.StorageCost
-	report.Summary.BandwidthChange = report.Summary.BandwidthCost - prevReport.Summary.BandwidthCost
+	g.compareWithPreviousReport(report, prevReport)
 
 	// 预测下月成本
 	if len(report.Trends) > 0 {
@@ -1076,14 +1065,23 @@ func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 
 // ========== 报告管理 ==========
 
+// cachedReport 缓存项（包含过期时间）
+type cachedReport struct {
+	report   *CostReport
+	cachedAt time.Time
+}
+
 // GetReport 获取报告
 func (g *CostReportGenerator) GetReport(id string) (*CostReport, error) {
 	// 先查缓存
 	if g.config.EnableCache {
 		g.mu.RLock()
-		if report, ok := g.reportCache[id]; ok {
-			g.mu.RUnlock()
-			return report, nil
+		if cached, ok := g.reportCache[id]; ok {
+			// 检查缓存是否过期
+			if time.Since(cached.cachedAt) < g.cacheExpiry {
+				g.mu.RUnlock()
+				return cached.report, nil
+			}
 		}
 		g.mu.RUnlock()
 	}
@@ -1103,7 +1101,10 @@ func (g *CostReportGenerator) GetReport(id string) (*CostReport, error) {
 	// 缓存
 	if g.config.EnableCache {
 		g.mu.Lock()
-		g.reportCache[id] = &report
+		g.reportCache[id] = &cachedReport{
+			report:   &report,
+			cachedAt: time.Now(),
+		}
 		g.mu.Unlock()
 	}
 
@@ -1171,7 +1172,21 @@ func (g *CostReportGenerator) saveReport(report *CostReport) error {
 	}
 
 	reportPath := filepath.Join(reportsDir, report.ID+".json")
-	return g.exportJSON(report, reportPath)
+	if err := g.exportJSON(report, reportPath); err != nil {
+		return err
+	}
+
+	// 更新缓存
+	if g.config.EnableCache {
+		g.mu.Lock()
+		g.reportCache[report.ID] = &cachedReport{
+			report:   report,
+			cachedAt: time.Now(),
+		}
+		g.mu.Unlock()
+	}
+
+	return nil
 }
 
 // ========== 辅助函数 ==========
@@ -1186,14 +1201,16 @@ func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {
-		// 回退到时间戳（非安全场景）
+		// 回退到时间戳 + 伪随机（非安全场景可接受）
+		mrand.Seed(time.Now().UnixNano())
 		for i := range b {
-			b[i] = letters[time.Now().Nanosecond()%len(letters)]
+			b[i] = letters[mrand.Intn(len(letters))]
 		}
 		return string(b)
 	}
+	// 直接使用 crypto/rand 生成的字节映射到字符集
 	for i := range b {
-		b[i] = letters[mrand.Intn(len(letters))]
+		b[i] = letters[int(b[i])%len(letters)]
 	}
 	return string(b)
 }

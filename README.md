@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.109.0 Stable (2026-03-16)
+> **最新版本**: v2.110.0 Stable (2026-03-16)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.109.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.110.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -64,17 +64,13 @@
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
 
-wget https://github.com/crazyqin/nas-os/releases/download/v2.109.0/nasd-linux-amd64
->>>>>>> 70d7ef9 (feat(v2.109.0): 六部协同开发)
-
+wget https://github.com/crazyqin/nas-os/releases/download/v2.110.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
 
-wget https://github.com/crazyqin/nas-os/releases/download/v2.109.0/nasd-linux-arm64
->>>>>>> 70d7ef9 (feat(v2.109.0): 六部协同开发)
-
+wget https://github.com/crazyqin/nas-os/releases/download/v2.110.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
@@ -94,8 +90,7 @@ nasd --version
 ```bash
 # 拉取镜像
 
-docker pull ghcr.io/crazyqin/nas-os:v2.109.0
->>>>>>> 70d7ef9 (feat(v2.109.0): 六部协同开发)
+docker pull ghcr.io/crazyqin/nas-os:v2.110.0
 
 
 # 运行容器
@@ -106,8 +101,7 @@ docker run -d \
   -v /data:/data \
   -v /etc/nas-os:/config \
 
-  ghcr.io/crazyqin/nas-os:v2.109.0
->>>>>>> 70d7ef9 (feat(v2.109.0): 六部协同开发)
+  ghcr.io/crazyqin/nas-os:v2.110.0
 
 
 # 查看日志
