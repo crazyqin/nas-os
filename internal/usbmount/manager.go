@@ -8,12 +8,53 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+// ========== 安全相关常量 ==========
+
+// 允许的通知命令模式（白名单）
+var allowedNotifyPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`^/usr/bin/notify-send\b`),
+	regexp.MustCompile(`^/bin/echo\b`),
+	regexp.MustCompile(`^/usr/bin/logger\b`),
+	regexp.MustCompile(`^/usr/local/bin/[a-zA-Z0-9_-]+$`),
+}
+
+// validateNotifyCommand 验证通知命令是否安全
+func validateNotifyCommand(cmd string) bool {
+	cmd = strings.TrimSpace(cmd)
+	if cmd == "" {
+		return false
+	}
+	// 检查是否匹配白名单
+	for _, pattern := range allowedNotifyPatterns {
+		if pattern.MatchString(cmd) {
+			return true
+		}
+	}
+	return false
+}
+
+// sanitizeEnvValue 清理环境变量值，防止注入
+func sanitizeEnvValue(value string) string {
+	// 移除可能导致命令注入的字符
+	replacer := strings.NewReplacer(
+		";", "",
+		"|", "",
+		"&", "",
+		"`", "",
+		"$", "",
+		"\n", "",
+		"\r", "",
+	)
+	return replacer.Replace(value)
+}
 
 // ========== 类型定义 ==========
 
@@ -880,13 +921,21 @@ func (m *Manager) sendNotification(device *Device, action string) {
 		return
 	}
 
+	// 安全验证：检查通知命令是否在白名单中
+	if !validateNotifyCommand(m.config.NotifyCommand) {
+		// 命令不在白名单中，记录警告并跳过执行
+		fmt.Printf("警告: 通知命令不在安全白名单中: %s\n", m.config.NotifyCommand)
+		return
+	}
+
+	// 清理环境变量值，防止注入攻击
 	cmd := exec.CommandContext(m.ctx, "sh", "-c", m.config.NotifyCommand)
 	cmd.Env = append(os.Environ(),
-		fmt.Sprintf("USB_DEVICE=%s", device.DevicePath),
-		fmt.Sprintf("USB_LABEL=%s", device.Label),
-		fmt.Sprintf("USB_UUID=%s", device.UUID),
-		fmt.Sprintf("USB_MOUNT_POINT=%s", device.MountPoint),
-		fmt.Sprintf("USB_ACTION=%s", action),
+		fmt.Sprintf("USB_DEVICE=%s", sanitizeEnvValue(device.DevicePath)),
+		fmt.Sprintf("USB_LABEL=%s", sanitizeEnvValue(device.Label)),
+		fmt.Sprintf("USB_UUID=%s", sanitizeEnvValue(device.UUID)),
+		fmt.Sprintf("USB_MOUNT_POINT=%s", sanitizeEnvValue(device.MountPoint)),
+		fmt.Sprintf("USB_ACTION=%s", sanitizeEnvValue(action)),
 	)
 	cmd.Run() //nolint:errcheck
 }

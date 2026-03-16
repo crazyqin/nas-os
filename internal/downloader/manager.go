@@ -18,6 +18,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// 安全 HTTP 客户端，设置合理的超时时间
+var safeHTTPClient = &http.Client{
+	Timeout: 30 * time.Minute, // 下载可能需要较长时间
+	Transport: &http.Transport{
+		MaxIdleConns:        10,
+		IdleConnTimeout:     30 * time.Second,
+		DisableCompression:  false,
+		TLSHandshakeTimeout: 10 * time.Second,
+	},
+}
+
 // Manager 下载管理器
 type Manager struct {
 	mu         sync.RWMutex
@@ -646,7 +657,7 @@ func (m *Manager) downloadHTTP(ctx context.Context, task *DownloadTask) {
 	}
 
 	// 执行请求
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := safeHTTPClient.Do(req)
 	if err != nil {
 		m.logger.Error("下载失败", zap.Error(err), zap.String("taskId", task.ID))
 		m.mu.Lock()

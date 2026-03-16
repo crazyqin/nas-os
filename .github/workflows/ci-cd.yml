@@ -4,6 +4,11 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
+# v2.134.0 更新（工部优化）：
+# - 修复 docker-compose.yml 健康检查命令
+# - 统一版本引用
+# - 缓存版本 v12
+#
 # v2.123.0 更新（工部优化）：
 # - 新增测试分片并行化（4 分片矩阵）
 # - 添加覆盖率增量检测（PR 时显示覆盖率变化）
@@ -908,7 +913,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.124.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.134.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -928,8 +933,7 @@ jobs:
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 v2.124.0 优化内容" >> $GITHUB_STEP_SUMMARY
-          echo "- 测试分片并行化（4分片，减少约60%测试时间）" >> $GITHUB_STEP_SUMMARY
-          echo "- 覆盖率增量检测（PR时显示覆盖率变化）" >> $GITHUB_STEP_SUMMARY
-          echo "- 构建时间追踪优化" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.134.0 优化内容" >> $GITHUB_STEP_SUMMARY
+          echo "- 修复 docker-compose.yml 健康检查命令" >> $GITHUB_STEP_SUMMARY
+          echo "- 统一版本引用" >> $GITHUB_STEP_SUMMARY
           echo "- 缓存版本升级至 v12" >> $GITHUB_STEP_SUMMARY
