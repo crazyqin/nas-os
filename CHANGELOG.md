@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.137.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 生成项目状态报告 STATUS-REPORT-2026-03-17.md
+- ✅ 检查版本文件一致性
+- ✅ 发现 README.md 版本落后问题
+
+#### 礼部 - 文档审查
+- ✅ 更新 README.md 版本号至 v2.136.0
+- ✅ 更新 docs/ 下 10 个文档版本号
+- ✅ 修复 docs/swagger.yaml 严重落后问题（2.117.0 → 2.136.0）
+
+#### 刑部 - 安全审计
+- ✅ go vet ./... 检查通过（0 问题）
+- ✅ govulncheck ./... 检查通过（0 漏洞）
+- ✅ 代码质量良好，无已知安全漏洞
+
+#### 工部 - DevOps
+- ✅ 检查 .github/workflows/ 下 5 个 CI/CD 配置
+- ✅ 确认 Dockerfile 多阶段构建正常
+- ✅ 确认 docker-compose.yml 配置正常
+- ✅ 所有 DevOps 配置运行正常
+
+#### 兵部 - 软件工程
+- ✅ 检查测试覆盖率
+- ✅ 查找代码中未解决的 TODO/FIXME（无）
+
+### 新增测试文件
+- internal/quota/adapter_test.go
+- internal/quota/alert_enhanced_test.go
+- internal/reports/generator_test.go
+
+### Changed
+- 文档版本号同步至 v2.136.0
+- 新增配额和报告模块单元测试
+
 ## [v2.136.0] - 2026-03-17
 
 ### 六部协同开发
