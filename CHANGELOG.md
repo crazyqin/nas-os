@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.128.0] - 2026-03-16
+
+### 六部协同开发
+
+#### 兵部 - 代码质量修复
+- ✅ 修复 13 个文件的代码格式问题
+- ✅ CI 代码格式检查通过
+
+#### 吏部 - 版本管理
+- ✅ 版本号更新至 v2.128.0
+- ✅ GitHub Release 发布
+
+### Fixed
+- 修复代码格式问题，CI 检查通过
+- internal/auth/handlers_test.go
+- internal/auth/totp_test.go
+- internal/disk/smart_monitor_test.go
+- internal/docker/handlers_test.go
+- internal/plugin/handlers_test.go
+- internal/plugin/manager.go
+- internal/quota/errors_test.go
+- internal/tiering/handler_test.go
+- internal/version/version.go
+- internal/web/middleware_test.go
+- internal/web/server_test.go
+- internal/web/storage_handlers_extended_test.go
+- pkg/safeguards/convert_test.go
+
 ## [v2.127.0] - 2026-03-16
 
 ### 六部协同开发
