@@ -1,6 +1,10 @@
 # GitHub Release 构建
 # 构建多平台二进制文件并上传到 GitHub Release
 #
+# v2.124.0 更新（工部优化）：
+# - 更新缓存版本至 v12（与其他 workflow 保持一致）
+# - 添加构建时间追踪优化
+#
 # v2.123.0 更新（工部优化）：
 # - 更新缓存版本至 v11（与其他 workflow 保持一致）
 # - 添加 GOPROXY 加速依赖下载
@@ -56,7 +60,7 @@ on:
 
 env:
   GO_VERSION: '1.26'
-  CACHE_VERSION: 'v11'
+  CACHE_VERSION: 'v12'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # v2.123.0 新增: GOPROXY 加速
