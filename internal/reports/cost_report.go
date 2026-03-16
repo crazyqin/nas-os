@@ -642,6 +642,10 @@ func (g *CostReportGenerator) populateStorageSection(report *CostReport, data *S
 	if data == nil {
 		return
 	}
+	tierBreakdown := data.TierBreakdown
+	if tierBreakdown == nil {
+		tierBreakdown = []TierCostItem{}
+	}
 	report.StorageCost = StorageCostSection{
 		TotalCapacityGB: data.TotalCapacityGB,
 		UsedCapacityGB:  data.UsedCapacityGB,
@@ -662,7 +666,7 @@ func (g *CostReportGenerator) populateStorageSection(report *CostReport, data *S
 		WarmDataCost:    data.WarmDataCost,
 		ColdDataGB:      data.ColdDataGB,
 		ColdDataCost:    data.ColdDataCost,
-		TierBreakdown:   data.TierBreakdown,
+		TierBreakdown:   tierBreakdown,
 	}
 }
 
@@ -1201,14 +1205,14 @@ func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {
-		// 回退到时间戳 + 伪随机（非安全场景可接受）
+		// 回退到伪随机数生成器
 		mrand.Seed(time.Now().UnixNano())
 		for i := range b {
 			b[i] = letters[mrand.Intn(len(letters))]
 		}
 		return string(b)
 	}
-	// 直接使用 crypto/rand 生成的字节映射到字符集
+	// 使用 crypto/rand 生成的字节映射到字符集
 	for i := range b {
 		b[i] = letters[int(b[i])%len(letters)]
 	}

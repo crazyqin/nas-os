@@ -426,8 +426,8 @@ func TestManager_ArchiveTypes(t *testing.T) {
 
 func TestManager_GenerateImageThumbnail(t *testing.T) {
 	m := NewManager(PreviewConfig{
-		CacheDir:       t.TempDir(),
-		ThumbnailSize:  128,
+		CacheDir:      t.TempDir(),
+		ThumbnailSize: 128,
 	})
 
 	t.Run("jpeg image", func(t *testing.T) {

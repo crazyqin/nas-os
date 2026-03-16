@@ -33,7 +33,7 @@
 # - 添加 curl 替代 wget（更可靠）
 
 # ========== 构建阶段 ==========
-FROM golang:1.26-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # 构建参数
 ARG VERSION=dev

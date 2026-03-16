@@ -3,8 +3,10 @@ package budget
 
 import (
 	"context"
+	cryptorand "crypto/rand"
 	"errors"
 	"fmt"
+	mrand "math/rand"
 	"sync"
 	"time"
 )
@@ -920,8 +922,17 @@ func generateRuleID() string {
 func randomAlertString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
+	// 使用 crypto/rand 生成更安全的随机字符串
+	if _, err := cryptorand.Read(b); err == nil {
+		for i := range b {
+			b[i] = letters[int(b[i])%len(letters)]
+		}
+		return string(b)
+	}
+	// 回退到伪随机
+	mrand.Seed(time.Now().UnixNano())
 	for i := range b {
-		b[i] = letters[time.Now().Nanosecond()%len(letters)]
+		b[i] = letters[mrand.Intn(len(letters))]
 	}
 	return string(b)
 }
