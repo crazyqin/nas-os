@@ -1,7 +1,7 @@
 {
   "report_type": "刑部安全审计报告",
-  "version": "v2.78.0",
-  "audit_date": "2026-03-16T00:27:00+08:00",
+  "version": "v2.108.0",
+  "audit_date": "2026-03-16T11:35:00+08:00",
   "auditor": "刑部",
   "project": "nas-os",
   "go_version": "1.26",
@@ -9,10 +9,10 @@
   "summary": {
     "files_scanned": 443,
     "lines_of_code": 272004,
-    "total_issues": 1691,
-    "high_severity": 15,
-    "medium_severity": 50,
-    "low_severity": 1626
+    "total_issues": 1666,
+    "high_severity": 169,
+    "medium_severity": 796,
+    "low_severity": 701
   },
   
   "go_vet_result": {
@@ -30,169 +30,157 @@
         "severity": "HIGH",
         "confidence": "HIGH",
         "locations": [
-          "internal/auth/ldap.go:179",
-          "internal/ldap/client.go:99",
-          "internal/ldap/client.go:71",
-          "internal/auth/ldap.go:151"
+          "internal/auth/ldap.go:154,184",
+          "internal/ldap/client.go:74,104"
         ],
+        "count": 4,
         "description": "LDAP连接时设置了 InsecureSkipVerify: true，跳过TLS证书验证，容易受到中间人攻击",
         "impact": "中间人攻击、数据泄露、凭证窃取",
-        "recommendation": "仅测试环境允许跳过验证，生产环境必须验证证书",
-        "code_example": "tls.Config{InsecureSkipVerify: config.SkipTLSVerify && os.Getenv(\"ENV\") == \"test\"}"
+        "recommendation": "仅测试环境允许跳过验证，生产环境必须验证证书"
       },
       {
         "id": "CVE-2026-NAS-002",
-        "category": "弱随机数生成器",
-        "cwe": "CWE-338",
-        "severity": "HIGH",
-        "confidence": "HIGH",
-        "locations": [
-          "internal/websocket/message_queue.go:845"
-        ],
-        "description": "使用 math/rand 而非 crypto/rand 生成随机字符串，随机数可预测",
-        "impact": "会话劫持、令牌预测、安全令牌失效",
-        "recommendation": "使用 crypto/rand 替代 math/rand 生成安全敏感的随机值"
-      }
-    ],
-    "high": [
-      {
-        "id": "CVE-2026-NAS-003",
-        "category": "弱加密算法",
-        "cwe": "CWE-328",
-        "severity": "MEDIUM",
-        "confidence": "HIGH",
-        "locations": [
-          "internal/transfer/chunked.go:185,176",
-          "internal/tiering/migrator.go:294",
-          "internal/security/scanner/filesystem_scanner.go:669",
-          "internal/replication/conflict.go:253",
-          "internal/cloudsync/sync_engine.go:800",
-          "internal/backup/sync.go:842,403"
-        ],
-        "description": "使用MD5或SHA1等弱哈希算法，存在碰撞漏洞风险",
-        "impact": "数据完整性受损、碰撞攻击",
-        "recommendation": "将MD5/SHA1替换为SHA256或更强算法"
-      },
-      {
-        "id": "CVE-2026-NAS-004",
-        "category": "潜在硬编码凭证",
-        "cwe": "CWE-798",
-        "severity": "MEDIUM",
-        "confidence": "MEDIUM",
-        "locations": [
-          "internal/office/types.go:581",
-          "internal/cloudsync/providers.go:1320,670",
-          "internal/auth/oauth2.go:379-389,364-374,349-359,334-344"
-        ],
-        "description": "代码中可能存在硬编码的凭证或密钥，需要人工审查确认",
-        "impact": "凭证泄露、未授权访问",
-        "recommendation": "审查所有标记位置，将凭证移至环境变量或密钥管理服务"
-      },
-      {
-        "id": "CVE-2026-NAS-005",
         "category": "命令注入风险",
         "cwe": "CWE-78",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": "MEDIUM",
-        "locations": [
-          "pkg/btrfs/btrfs.go (多处)",
-          "internal/backup/manager.go:344,366,396,406,436,516,734",
-          "internal/snapshot/replication.go:683,750,797,1118",
-          "internal/docker/manager.go (多处)"
-        ],
-        "description": "使用exec.Command执行外部命令，变量作为参数可能导致命令注入",
+        "count": 202,
+        "description": "大量使用exec.Command执行外部命令，变量作为参数可能导致命令注入",
         "impact": "远程代码执行、系统被控",
         "recommendation": "严格验证输入，使用参数化传递，限制命令白名单"
       },
       {
-        "id": "CVE-2026-NAS-006",
-        "category": "文件路径遍历",
+        "id": "CVE-2026-NAS-003",
+        "category": "路径遍历",
         "cwe": "CWE-22",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": "MEDIUM",
-        "locations": [
-          "plugins/filemanager-enhance/main.go:448,398",
-          "internal/backup/advanced/types.go:452",
-          "internal/reports/ (多处文件操作)"
-        ],
-        "description": "使用用户输入构建文件路径，可能导致路径遍历攻击",
+        "count": 278,
+        "description": "文件操作使用变量构建路径，可能导致路径遍历攻击",
         "impact": "未授权文件访问、敏感数据泄露",
         "recommendation": "使用filepath.Clean清理路径，验证路径在允许的基目录内"
-      },
+      }
+    ],
+    "high": [
       {
-        "id": "CVE-2026-NAS-007",
+        "id": "CVE-2026-NAS-004",
         "category": "整数溢出",
         "cwe": "CWE-190",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": "MEDIUM",
-        "locations": [
-          "internal/system/monitor.go:760,761",
-          "internal/snapshot/adapter.go:42",
-          "internal/reports/report_helpers.go:156",
-          "internal/quota/optimizer/optimizer.go:934,516",
-          "internal/storage/smart_monitor.go:617,606,420",
-          "internal/search/engine.go:539",
-          "internal/monitor/metrics_collector.go:847,844,841"
-        ],
+        "count": 91,
         "description": "uint64到int64/int的转换可能导致整数溢出",
         "impact": "数据损坏、逻辑错误、潜在崩溃",
         "recommendation": "添加边界检查，使用安全转换函数"
+      },
+      {
+        "id": "CVE-2026-NAS-005",
+        "category": "TOCTOU竞态条件",
+        "cwe": "CWE-367",
+        "severity": "HIGH",
+        "confidence": "MEDIUM",
+        "count": 7,
+        "locations": [
+          "internal/snapshot/replication.go",
+          "internal/backup/manager.go",
+          "internal/files/manager.go"
+        ],
+        "description": "filepath.Walk回调中的文件操作存在竞态条件",
+        "impact": "符号链接攻击、权限绕过",
+        "recommendation": "使用os.Root API或O_NOFOLLOW标志"
+      },
+      {
+        "id": "CVE-2026-NAS-006",
+        "category": "Context资源泄漏",
+        "cwe": "CWE-400",
+        "severity": "HIGH",
+        "confidence": "MEDIUM",
+        "count": 10,
+        "description": "context取消函数未调用，可能导致资源泄漏",
+        "impact": "内存泄漏、goroutine泄漏",
+        "recommendation": "确保所有context.WithCancel/WithTimeout后调用defer cancel()"
+      },
+      {
+        "id": "CVE-2026-NAS-007",
+        "category": "潜在硬编码凭证",
+        "cwe": "CWE-798",
+        "severity": "HIGH",
+        "confidence": "LOW",
+        "count": 7,
+        "locations": [
+          "internal/office/types.go:581",
+          "internal/cloudsync/providers.go:670,1320",
+          "internal/auth/oauth2.go:334-389"
+        ],
+        "description": "代码中可能存在硬编码的凭证或密钥，需人工审查确认",
+        "impact": "凭证泄露、未授权访问",
+        "recommendation": "审查所有标记位置，将凭证移至环境变量或密钥管理服务"
       }
     ],
     "medium": [
       {
         "id": "CVE-2026-NAS-008",
-        "category": "SSRF风险",
-        "cwe": "CWE-88",
+        "category": "文件权限过宽",
+        "cwe": "CWE-276",
         "severity": "MEDIUM",
-        "confidence": "MEDIUM",
-        "locations": [
-          "internal/plugin/manager.go:511"
-        ],
-        "description": "使用变量URL发起HTTP请求，可能导致服务端请求伪造",
-        "impact": "内网探测、数据泄露",
-        "recommendation": "验证和限制允许请求的URL域名"
+        "count": 345,
+        "description": "mkdir使用0755，文件写入使用0644，可能过宽",
+        "recommendation": "敏感目录权限应设为0750，敏感文件权限应设为0600"
       },
       {
         "id": "CVE-2026-NAS-009",
-        "category": "敏感信息处理",
-        "cwe": "CWE-200",
+        "category": "URL重定向风险",
+        "cwe": "CWE-88",
         "severity": "MEDIUM",
-        "confidence": "HIGH",
-        "locations": [
-          "internal/backup/cloud.go:57,92",
-          "internal/backup/sync.go:96,101",
-          "internal/cloudsync/types.go:89",
-          "internal/cloudsync/providers.go:70"
-        ],
-        "description": "配置中包含SecretKey、Password等敏感字段，需确保正确加密存储",
-        "impact": "凭证泄露",
-        "recommendation": "敏感字段应加密存储，日志中脱敏处理"
+        "count": 7,
+        "description": "HTTP请求使用变量URL，可能导致SSRF或开放重定向",
+        "recommendation": "验证和限制允许请求的URL域名"
+      },
+      {
+        "id": "CVE-2026-NAS-010",
+        "category": "弱哈希算法",
+        "cwe": "CWE-328",
+        "severity": "MEDIUM",
+        "count": 3,
+        "description": "使用MD5或SHA1等弱哈希算法",
+        "recommendation": "将MD5/SHA1替换为SHA256或更强算法"
       }
     ],
     "low": [
       {
-        "id": "CVE-2026-NAS-010",
+        "id": "CVE-2026-NAS-011",
         "category": "错误处理不当",
         "cwe": "CWE-703",
         "severity": "LOW",
-        "count": 1600,
+        "count": 701,
         "description": "大量函数调用未检查返回的错误",
         "recommendation": "审查并添加适当的错误处理"
-      },
-      {
-        "id": "CVE-2026-NAS-011",
-        "category": "文件权限过宽",
-        "cwe": "CWE-276",
-        "severity": "LOW",
-        "locations": [
-          "plugins/filemanager-enhance/main.go:249,206"
-        ],
-        "description": "目录权限0755可能过宽",
-        "recommendation": "敏感目录权限应设为0750或更严格"
       }
     ]
   },
+  
+  "rule_breakdown": [
+    {"rule": "G104", "severity": "LOW", "count": 701, "description": "错误返回值未检查"},
+    {"rule": "G304", "severity": "MEDIUM", "count": 230, "description": "文件路径包含变量输入"},
+    {"rule": "G204", "severity": "MEDIUM", "count": 192, "description": "子进程启动使用变量"},
+    {"rule": "G301", "severity": "MEDIUM", "count": 181, "description": "mkdir权限可能过宽"},
+    {"rule": "G306", "severity": "MEDIUM", "count": 154, "description": "文件写入权限过宽"},
+    {"rule": "G115", "severity": "HIGH", "count": 91, "description": "整数溢出转换"},
+    {"rule": "G703", "severity": "HIGH", "count": 48, "description": "路径遍历（污点分析）"},
+    {"rule": "G118", "severity": "HIGH", "count": 10, "description": "Context取消函数未调用"},
+    {"rule": "G702", "severity": "HIGH", "count": 10, "description": "命令注入（污点分析）"},
+    {"rule": "G101", "severity": "HIGH", "count": 7, "description": "潜在硬编码凭证"},
+    {"rule": "G107", "severity": "MEDIUM", "count": 7, "description": "URL重定向风险"},
+    {"rule": "G122", "severity": "HIGH", "count": 7, "description": "TOCTOU竞态条件"},
+    {"rule": "G110", "severity": "MEDIUM", "count": 4, "description": "潜在拒绝服务"},
+    {"rule": "G402", "severity": "HIGH", "count": 4, "description": "TLS InsecureSkipVerify"},
+    {"rule": "G505", "severity": "MEDIUM", "count": 3, "description": "弱哈希算法 (MD5/SHA1)"},
+    {"rule": "G117", "severity": "MEDIUM", "count": 2, "description": "无效内存分配"},
+    {"rule": "G705", "severity": "MEDIUM", "count": 2, "description": "XSS风险"},
+    {"rule": "G120", "severity": "MEDIUM", "count": 1, "description": "子进程启动"},
+    {"rule": "G305", "severity": "MEDIUM", "count": 1, "description": "文件路径包含变量"},
+    {"rule": "G707", "severity": "HIGH", "count": 1, "description": "SMTP注入"}
+  ],
   
   "code_security_analysis": {
     "sql_injection": {
@@ -201,14 +189,14 @@
       "note": "项目使用modernc.org/sqlite，需确保所有数据库操作都使用参数化"
     },
     "command_injection": {
-      "status": "MEDIUM_RISK",
-      "affected_files": 15,
-      "description": "多处使用exec.Command执行外部命令(btrfs, tar, rsync, docker, smartctl等)",
+      "status": "HIGH_RISK",
+      "affected_files": 50,
+      "description": "大量使用exec.Command执行外部命令(btrfs, docker, smartctl, iptables, virsh等)",
       "recommendation": "对所有输入进行严格验证，使用白名单限制可执行命令"
     },
     "path_traversal": {
-      "status": "MEDIUM_RISK",
-      "affected_files": 8,
+      "status": "HIGH_RISK",
+      "affected_files": 30,
       "description": "文件操作使用filepath.Join，需验证路径是否在允许范围内",
       "recommendation": "添加路径验证函数确保路径安全"
     },
@@ -226,77 +214,22 @@
     }
   },
   
-  "dependency_license_status": {
-    "project_license": "MIT",
-    "license_compatible": true,
-    "dependencies": {
-      "total_count": 145,
-      "direct_count": 39,
-      "indirect_count": 106
-    },
-    "license_analysis": {
-      "compatible_licenses": [
-        "MIT",
-        "Apache-2.0",
-        "BSD-2-Clause", 
-        "BSD-3-Clause",
-        "ISC"
-      ],
-      "review_required": [
-        {
-          "dependency": "github.com/KyleBanks/depth",
-          "license": "MIT",
-          "status": "OK"
-        },
-        {
-          "dependency": "github.com/blevesearch/bleve/v2",
-          "license": "Apache-2.0",
-          "status": "OK"
-        },
-        {
-          "dependency": "github.com/aws/aws-sdk-go-v2",
-          "license": "Apache-2.0",
-          "status": "OK"
-        }
-      ]
-    },
-    "vulnerability_check": {
-      "tool": "govulncheck",
-      "recommendation": "建议运行 govulncheck ./... 检查已知漏洞"
-    }
-  },
-  
-  "sensitive_data_handling": {
-    "credentials_in_code": {
-      "status": "NEEDS_REVIEW",
-      "locations": [
-        "internal/backup/cloud.go - SecretKey字段",
-        "internal/cloudsync/providers.go - ClientSecret, refreshToken",
-        "internal/auth/oauth2.go - OAuth配置"
-      ],
-      "recommendation": "确认这些是配置字段而非硬编码值"
-    },
-    "secrets_in_logs": {
-      "status": "UNKNOWN",
-      "recommendation": "审查日志输出确保敏感信息不被记录"
-    }
-  },
-  
   "recommendations": {
     "immediate": [
       "修复LDAP TLS验证绕过问题，生产环境必须验证证书",
-      "将 math/rand 替换为 crypto/rand 用于安全敏感的随机数生成",
-      "审查所有硬编码凭证位置，确认无敏感信息泄露"
+      "修复WebDAV模块路径遍历问题",
+      "审查并修复命令注入高风险点"
     ],
     "short_term": [
-      "将MD5/SHA1替换为SHA256+",
-      "添加exec.Command输入验证和白名单",
-      "实现路径遍历防护函数"
+      "添加整数溢出边界检查",
+      "修复Context资源泄漏问题",
+      "修复TOCTOU竞态条件"
     ],
     "long_term": [
       "运行 govulncheck 定期检查依赖漏洞",
       "实施自动化安全扫描CI/CD流程",
-      "添加安全测试用例覆盖关键安全功能"
+      "添加安全测试用例覆盖关键安全功能",
+      "建立安全编码规范"
     ]
   },
   
@@ -308,8 +241,8 @@
   
   "audit_conclusion": {
     "overall_status": "CONDITIONAL_PASS",
-    "summary": "项目安全状况整体良好，但存在几个需要立即关注的高危问题。主要风险集中在LDAP证书验证绕过和弱随机数生成。认证授权机制设计合理，依赖许可证合规。建议优先修复高危问题后再发布生产版本。",
-    "risk_level": "MEDIUM",
+    "summary": "项目安全状况存在较大风险，主要问题集中在命令注入、路径遍历和证书验证绕过。建议优先修复P0级别问题后再发布生产版本。",
+    "risk_level": "HIGH",
     "next_audit_date": "2026-04-16"
   }
 }

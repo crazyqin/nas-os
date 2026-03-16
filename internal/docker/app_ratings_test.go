@@ -292,10 +292,10 @@ func TestRatingManager_Sorting(t *testing.T) {
 	assert.Equal(t, 1, ratings[0].Rating)
 
 	// 测试按评分排序
-	ratings = rm.GetRatings("t1", "highest", 10, 0)
+	ratings = rm.GetRatings("t1", "rating_high", 10, 0)
 	assert.Equal(t, 5, ratings[0].Rating)
 
-	ratings = rm.GetRatings("t1", "lowest", 10, 0)
+	ratings = rm.GetRatings("t1", "rating_low", 10, 0)
 	assert.Equal(t, 1, ratings[0].Rating)
 }
 

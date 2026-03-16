@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.108.0] - 2026-03-16
+
+### Changed
+- **版本号更新** (吏部)
+  - 版本号更新至 v2.108.0
+  - README.md 版本信息同步
+  - Docker 镜像标签更新
+
+### Improved
+- **文档体系完善** (礼部)
+  - docs/README.md 文档中心版本同步至 v2.108.0
+  - docs/API_GUIDE.md API 文档版本同步至 v2.108.0
+  - API 文档完整性检查通过
+  - 文档完善报告生成
+
+### Documentation
+- **API 文档完整性检查** (礼部)
+  - API_GUIDE.md: 2695行，涵盖27个模块
+  - api.yaml: 4570行 OpenAPI 规范
+  - docs/api/: 12个专项API文档
+  - 存储管理 API (卷、快照、子卷)
+  - 用户权限 API (RBAC、认证)
+  - LDAP/AD 集成 API
+  - 容器管理 API
+  - 虚拟机管理 API
+  - 监控告警 API
+  - 配额管理 API
+  - WebDAV API
+  - 云同步 API
+  - iSCSI 目标 API
+  - 快照策略 API
+  - FTP/SFTP 服务器 API
+  - 文件标签 API
+  - 成本分析 API
+
 ## [v2.107.0] - 2026-03-16
 
 ### Added

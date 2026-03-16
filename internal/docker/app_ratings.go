@@ -99,11 +99,8 @@ func (rm *RatingManager) load() error {
 	return nil
 }
 
-// save 保存数据
+// save 保存数据（调用者负责加锁）
 func (rm *RatingManager) save() error {
-	rm.mu.RLock()
-	defer rm.mu.RUnlock()
-
 	var allRatings []*AppRating
 	for _, ratings := range rm.ratings {
 		allRatings = append(allRatings, ratings...)
