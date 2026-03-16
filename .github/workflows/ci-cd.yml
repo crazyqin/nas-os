@@ -87,7 +87,7 @@ permissions:
   checks: write            # 写入检查结果
 
 env:
-  GO_VERSION: '1.24'
+  GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
   CACHE_VERSION: 'v10'
   # Node.js 24 支持

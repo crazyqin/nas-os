@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.118.0] - 2026-03-16
+
+### 六部协同汇报
+
+#### 工部 - Go 版本升级
+- ✅ Dockerfile Go 版本升级至 1.26
+- ✅ 基础镜像更新: golang:1.26-alpine
+- ✅ 编译环境优化
+
+#### 礼部 - 文档版本同步
+- ✅ VERSION → v2.118.0
+- ✅ README.md 版本信息同步
+- ✅ docs/README.md 版本同步
+- ✅ docs/api.yaml API 文档版本同步
+- ✅ CHANGELOG.md 更新
+
+### Changed
+- Go 版本升级至 1.26
+- 版本号更新至 v2.118.0
+- 文档版本信息同步
+
 ## [v2.117.0] - 2026-03-16
 
 ### 六部协同汇报

@@ -175,11 +175,12 @@ func TestThumbnailCache_Stats(t *testing.T) {
 	// Miss
 	cache.Get("/test", 100, time.Now())
 
-	// Set
-	cache.Set("/test", 100, time.Now(), "thumb", 50, 50)
+	// Set - use same modTime for consistency
+	modTime := time.Now()
+	cache.Set("/test", 100, modTime, "thumb", 50, 50)
 
-	// Hit
-	cache.Get("/test", 100, time.Now())
+	// Hit - must use same modTime to match
+	cache.Get("/test", 100, modTime)
 
 	hits, misses, evictions, size, bytes := cache.Stats()
 	assert.Equal(t, int64(1), hits)
