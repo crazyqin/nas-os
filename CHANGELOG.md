@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.138.0] - 2026-03-17
+
+### Bug Fixes
+- 🐛 Fix deadlock in SMARTMonitor.ImportJSON method
+  - Add setAlertRuleLocked internal method to avoid double-locking
+  - ImportJSON now uses locked version to prevent deadlock
+- 🧪 Add defer monitor.Stop() to test cases for proper resource cleanup
+
+### Changed
+- Version bump to v2.138.0
+
 ## [v2.137.0] - 2026-03-17
 
 ### 六部协同开发
