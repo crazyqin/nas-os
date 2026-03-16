@@ -7,7 +7,7 @@
 # 或：wget -qO- https://... | sudo bash
 #
 
-set -e
+set -eo pipefail
 
 # ========== 配置 ==========
 NAS_OS_VERSION="${NAS_OS_VERSION:-latest}"

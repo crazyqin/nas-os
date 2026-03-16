@@ -240,6 +240,11 @@ func (m *BudgetManager) RecordUsage(input BudgetUsageInput) (*BudgetUsage, error
 		return nil, fmt.Errorf("预算状态不允许记录使用: %s", budget.Status)
 	}
 
+	// 验证金额
+	if input.Amount <= 0 {
+		return nil, fmt.Errorf("使用金额必须大于0: %.2f", input.Amount)
+	}
+
 	now := time.Now()
 	usage := &BudgetUsage{
 		ID:           uuid.New().String(),

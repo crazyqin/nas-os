@@ -4,7 +4,7 @@
 #
 # v2.38.0 新增
 
-set -e
+set -eo pipefail
 
 # 配置
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
