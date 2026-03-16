@@ -1043,6 +1043,11 @@ func (m *SMARTMonitor) calculateTrend(device string, currentScore int) string {
 
 // startPeriodicCheck 启动定期检查
 func (m *SMARTMonitor) startPeriodicCheck() {
+	// 如果 CheckInterval 为 0 或负数，不启动定时器
+	if m.config.CheckInterval <= 0 {
+		return
+	}
+
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
 

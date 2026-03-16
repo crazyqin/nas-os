@@ -11,7 +11,7 @@ GOFLAGS=-ldflags="-w -s"
 DOCKER_IMAGE=ghcr.io/nas-os/nas-os
 DOCKER_TAG=latest
 
-# 版本信息 (v2.123.0)
+# 版本信息 (v2.125.0)
 VERSION_FILE=VERSION
 VERSION=$(shell cat $(VERSION_FILE) 2>/dev/null || echo "v0.0.0")
 GIT_COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
