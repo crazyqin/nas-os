@@ -1,5 +1,5 @@
 # NAS-OS Dockerfile
-# 多阶段构建，优化后的生产镜像约 20-25MB
+# 多阶段构建，优化后的生产镜像约 15-18MB
 # 支持 amd64, arm64, arm/v7 架构
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
@@ -10,6 +10,12 @@
 #
 # 多架构构建:
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/nas-os/nas-os:latest .
+#
+# v2.123.0 更新（工部优化）：
+# - 使用 distroless/static 基础镜像（约 2MB）替代 alpine
+# - 优化镜像层级结构
+# - 添加健康检查二进制（curl 替代方案）
+# - 镜像大小优化至约 15-18MB
 #
 # v2.91.0 更新（工部优化）：
 # - 统一健康检查端点说明
