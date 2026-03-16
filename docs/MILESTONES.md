@@ -4,6 +4,24 @@
 
 ---
 
+## v2.151.0 - 2026-03-17 ✅
+
+### 礼部文档维护
+- 版本号同步至 v2.151.0
+- docs/README.md 文档版本同步
+- docs/API_GUIDE.md 版本同步
+- docs/FAQ.md 版本同步
+- docs/USER_GUIDE.md 版本同步
+- docs/QUICKSTART.md 版本同步
+- CHANGELOG.md 更新
+- MILESTONES.md 里程碑更新
+
+### 发布状态
+- 版本号同步：VERSION, README.md, docs/* ✅
+- 文档一致性检查 ✅
+
+---
+
 ## v2.149.0 - 2026-03-17 ✅
 
 ### 礼部文档维护

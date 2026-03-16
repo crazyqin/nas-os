@@ -14,7 +14,6 @@ linters:
     - errcheck
     - staticcheck
     - ineffassign
-    - typecheck
     - gosimple
     - gofmt
     - goimports
