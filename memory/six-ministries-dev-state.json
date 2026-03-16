@@ -1,147 +1,18 @@
 {
-  "version": "v2.106.0",
-  "lastUpdate": "2026-03-16T10:25:00+08:00",
-  "status": "in_progress",
-  "theme": "质量提升与安全加固",
+  "lastUpdate": "2026-03-16T13:10:00+08:00",
+  "currentVersion": "v2.112.0",
+  "previousVersion": "v2.111.0",
+  "status": "completed",
   "ministries": {
-    "libu": {
-      "name": "吏部",
-      "role": "项目管理",
-      "status": "completed",
-      "duration": "2m",
-      "files": [
-        "VERSION",
-        "internal/version/version.go",
-        "MILESTONES.md",
-        "ROADMAP.md"
-      ],
-      "summary": "版本号更新至 v2.106.0，版本规划完成，里程碑记录更新"
-    },
-    "libu_docs": {
-      "name": "礼部",
-      "role": "文档内容创作",
-      "status": "pending",
-      "tasks": [
-        "API 文档更新 (Swagger)",
-        "用户指南完善",
-        "CHANGELOG 更新",
-        "FAQ 补充",
-        "发布说明编写"
-      ],
-      "priority": "P1"
-    },
-    "gongbu": {
-      "name": "工部",
-      "role": "DevOps 运维",
-      "status": "pending",
-      "tasks": [
-        "CI 构建缓存优化",
-        "测试并行化",
-        "多平台构建验证",
-        "发布自动化完善",
-        "Docker 镜像优化"
-      ],
-      "priority": "P0"
-    },
-    "xingbu": {
-      "name": "刑部",
-      "role": "安全合规",
-      "status": "pending",
-      "tasks": [
-        "高危问题修复 (169 个)",
-        "中危问题修复 (808 个)",
-        "依赖漏洞扫描",
-        "安全审计报告",
-        "渗透测试准备"
-      ],
-      "priority": "P0",
-      "previousIssues": {
-        "total": 1678,
-        "high": 169,
-        "medium": 808,
-        "low": 701
-      }
-    },
-    "bingbu": {
-      "name": "兵部",
-      "role": "软件工程",
-      "status": "pending",
-      "tasks": [
-        "go vet 检查通过率 100%",
-        "静态分析问题修复 (golangci-lint)",
-        "代码格式规范化 (gofmt)",
-        "错误处理优化",
-        "单元测试补充 (目标覆盖率 35%+)"
-      ],
-      "priority": "P0"
-    },
-    "hubu": {
-      "name": "户部",
-      "role": "财务预算",
-      "status": "pending",
-      "tasks": [
-        "缓存命中率优化",
-        "数据库查询优化",
-        "内存使用优化",
-        "并发性能测试",
-        "性能基准报告"
-      ],
-      "priority": "P1",
-      "previousStats": {
-        "codeLines": 369815,
-        "goFiles": 645,
-        "modules": 68,
-        "dependencies": 245
-      }
-    }
+    "吏部": { "task": "版本管理", "status": "done", "result": "版本号更新至 v2.112.0，README/CHANGELOG/MILESTONES 更新" },
+    "户部": { "task": "性能分析", "status": "done", "result": "代码热点分析，优化建议报告" },
+    "礼部": { "task": "文档检查", "status": "done", "result": "文档完整性检查，API文档验证" },
+    "工部": { "task": "CI/CD审查", "status": "done", "result": "CI/CD健康状态检查，优化建议" },
+    "兵部": { "task": "代码质量", "status": "timeout", "result": "超时，下次继续" },
+    "刑部": { "task": "安全审计", "status": "skipped", "result": "因并发限制跳过" }
   },
-  "versionPlan": {
-    "version": "v2.106.0",
-    "theme": "质量提升与安全加固",
-    "targetDate": "2026-03-16",
-    "goals": [
-      {
-        "name": "安全加固",
-        "description": "修复 1678 个安全问题",
-        "priority": "P0",
-        "owner": "刑部"
-      },
-      {
-        "name": "代码质量",
-        "description": "go vet 检查通过率 100%",
-        "priority": "P0",
-        "owner": "兵部"
-      },
-      {
-        "name": "CI/CD优化",
-        "description": "构建效率提升 30%",
-        "priority": "P0",
-        "owner": "工部"
-      },
-      {
-        "name": "性能优化",
-        "description": "系统性能提升 20%+",
-        "priority": "P1",
-        "owner": "户部"
-      },
-      {
-        "name": "文档完善",
-        "description": "文档覆盖率 100%",
-        "priority": "P1",
-        "owner": "礼部"
-      }
-    ],
-    "successMetrics": [
-      "安全评级提升至 A",
-      "测试覆盖率 ≥ 35%",
-      "CI/CD 通过率 100%",
-      "API 文档覆盖率 100%"
-    ]
-  },
-  "releaseSchedule": {
-    "planning": "2026-03-16T10:00:00+08:00",
-    "development": "2026-03-16T10:30:00+08:00",
-    "testing": "2026-03-16T14:00:00+08:00",
-    "release": "2026-03-16T18:00:00+08:00"
-  }
+  "actionsStatus": "pending",
+  "nextVersion": "v2.113.0",
+  "releaseUrl": "",
+  "gitCommit": ""
 }
