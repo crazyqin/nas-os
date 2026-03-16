@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.146.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 礼部 - 文档更新
+- ✅ 版本号更新至 v2.146.0
+
+### Changed
+- Version bump to v2.146.0
+
 ## [v2.145.0] - 2026-03-17
 
 ### 六部协同开发
