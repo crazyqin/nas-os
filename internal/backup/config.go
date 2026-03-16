@@ -54,19 +54,19 @@ func (bc *BackupConfig) Sanitize() map[string]interface{} {
 	}
 
 	return map[string]interface{}{
-		"backup_path":          bc.BackupPath,
-		"chunk_path":           bc.ChunkPath,
-		"schedule":             bc.Schedule,
-		"retention_days":       bc.RetentionDays,
-		"max_backups":          bc.MaxBackups,
-		"incremental_enabled":  bc.IncrementalEnabled,
-		"encryption_enabled":   bc.EncryptionEnabled,
-		"encryption_key_id":    bc.EncryptionKeyID,
-		"compression_enabled":  bc.CompressionEnabled,
-		"verify_after_backup":  bc.VerifyAfterBackup,
-		"max_parallel_files":   bc.MaxParallelFiles,
-		"timeout":              bc.Timeout.String(),
-		"targets":              targets,
+		"backup_path":         bc.BackupPath,
+		"chunk_path":          bc.ChunkPath,
+		"schedule":            bc.Schedule,
+		"retention_days":      bc.RetentionDays,
+		"max_backups":         bc.MaxBackups,
+		"incremental_enabled": bc.IncrementalEnabled,
+		"encryption_enabled":  bc.EncryptionEnabled,
+		"encryption_key_id":   bc.EncryptionKeyID,
+		"compression_enabled": bc.CompressionEnabled,
+		"verify_after_backup": bc.VerifyAfterBackup,
+		"max_parallel_files":  bc.MaxParallelFiles,
+		"timeout":             bc.Timeout.String(),
+		"targets":             targets,
 	}
 }
 
@@ -82,10 +82,10 @@ type BackupTarget struct {
 // SanitizeConfig 返回脱敏后的配置副本（用于日志和调试）
 func (bt *BackupTarget) SanitizeConfig() map[string]interface{} {
 	return map[string]interface{}{
-		"name":    bt.Name,
-		"type":    bt.Type,
-		"path":    bt.Path,
-		"enabled": bt.Enabled,
+		"name":            bt.Name,
+		"type":            bt.Type,
+		"path":            bt.Path,
+		"enabled":         bt.Enabled,
 		"has_credentials": len(bt.Credentials) > 0,
 	}
 }

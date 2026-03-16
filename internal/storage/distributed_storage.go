@@ -1130,12 +1130,12 @@ func (dm *DistributedManager) RebalanceShards(poolID string) error {
 func (dm *DistributedManager) migrateShardData(poolID, shardID, sourceNode, targetNode string) {
 	// 记录迁移开始
 	migration := &MigrationTask{
-		PoolID:      poolID,
-		ShardID:     shardID,
-		SourceNode:  sourceNode,
-		TargetNode:  targetNode,
-		Status:      "running",
-		StartTime:   time.Now(),
+		PoolID:     poolID,
+		ShardID:    shardID,
+		SourceNode: sourceNode,
+		TargetNode: targetNode,
+		Status:     "running",
+		StartTime:  time.Now(),
 	}
 
 	dm.mu.Lock()

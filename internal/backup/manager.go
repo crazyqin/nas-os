@@ -160,11 +160,11 @@ type RestoreOptions struct {
 // NewManager 创建备份管理器
 func NewManager(configPath, storagePath string) *Manager {
 	return &Manager{
-		configs:       make(map[string]*JobConfig),
-		tasks:         make(map[string]*BackupTask),
-		cancels:       make(map[string]context.CancelFunc),
-		configPath:    configPath,
-		storagePath:   storagePath,
+		configs:        make(map[string]*JobConfig),
+		tasks:          make(map[string]*BackupTask),
+		cancels:        make(map[string]context.CancelFunc),
+		configPath:     configPath,
+		storagePath:    storagePath,
 		defaultTimeout: DefaultBackupTimeout,
 	}
 }
