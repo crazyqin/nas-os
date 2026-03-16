@@ -33,26 +33,26 @@ func ValidateSafeName(name string, fieldName string) error {
 func SanitizePath(baseDir, userPath string) (string, error) {
 	// Clean the user path to remove .. components
 	cleanPath := filepath.Clean(userPath)
-	
+
 	// Join with base directory
 	fullPath := filepath.Join(baseDir, cleanPath)
-	
+
 	// Get absolute paths for comparison
 	absBase, err := filepath.Abs(baseDir)
 	if err != nil {
 		return "", fmt.Errorf("failed to get absolute path for base directory: %w", err)
 	}
-	
+
 	absFull, err := filepath.Abs(fullPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to get absolute path for full path: %w", err)
 	}
-	
+
 	// Ensure the final path is under the base directory
 	if !strings.HasPrefix(absFull, absBase+string(filepath.Separator)) && absFull != absBase {
 		return "", fmt.Errorf("path traversal detected: path escapes base directory")
 	}
-	
+
 	return absFull, nil
 }
 
@@ -133,7 +133,7 @@ func ValidateFilePath(path string) error {
 	if strings.ContainsRune(path, 0) {
 		return fmt.Errorf("path contains null byte")
 	}
-	
+
 	// Check for suspicious patterns
 	suspicious := []string{"..", "//", "\\\\", "\x00"}
 	for _, s := range suspicious {
@@ -141,39 +141,39 @@ func ValidateFilePath(path string) error {
 			return fmt.Errorf("path contains suspicious pattern: %s", s)
 		}
 	}
-	
+
 	return nil
 }
 
 // IsAllowedCommand checks if a command is in the allowed list
 var allowedCommands = map[string]bool{
-	"virsh":     true,
-	"qemu-img":  true,
-	"rsync":     true,
-	"tar":       true,
-	"cp":        true,
-	"mv":        true,
-	"rm":        true,
-	"mkdir":     true,
-	"chmod":     true,
-	"chown":     true,
-	"ls":        true,
-	"cat":       true,
-	"head":      true,
-	"tail":      true,
-	"grep":      true,
-	"find":      true,
-	"df":        true,
-	"du":        true,
-	"mount":     true,
-	"umount":    true,
-	"losetup":   true,
+	"virsh":      true,
+	"qemu-img":   true,
+	"rsync":      true,
+	"tar":        true,
+	"cp":         true,
+	"mv":         true,
+	"rm":         true,
+	"mkdir":      true,
+	"chmod":      true,
+	"chown":      true,
+	"ls":         true,
+	"cat":        true,
+	"head":       true,
+	"tail":       true,
+	"grep":       true,
+	"find":       true,
+	"df":         true,
+	"du":         true,
+	"mount":      true,
+	"umount":     true,
+	"losetup":    true,
 	"cryptsetup": true,
-	"dd":        true,
-	"blkid":     true,
-	"lsblk":     true,
-	"parted":    true,
-	"mkfs":      true,
+	"dd":         true,
+	"blkid":      true,
+	"lsblk":      true,
+	"parted":     true,
+	"mkfs":       true,
 }
 
 // IsCommandAllowed checks if a command is in the allowed list
