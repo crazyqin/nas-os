@@ -310,7 +310,7 @@ func TestQueryReports(t *testing.T) {
 	assert.Len(t, results, 5)
 
 	// 按类型查询
-	results, total, err = gen.QueryReports(ctx, FinancialReportQuery{
+	_, total, err = gen.QueryReports(ctx, FinancialReportQuery{
 		Types: []FinancialReportType{FinancialReportTypeIncome},
 	})
 	require.NoError(t, err)

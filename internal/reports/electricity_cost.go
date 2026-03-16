@@ -857,12 +857,6 @@ func getSeason(t time.Time) SeasonType {
 	}
 }
 
-// roundElectricity 四舍五入
-func roundElectricity(val float64, precision int) float64 {
-	multiplier := math.Pow(10, float64(precision))
-	return math.Round(val*multiplier) / multiplier
-}
-
 // ========== 默认电价配置 ==========
 
 // DefaultTariffs 默认电价配置

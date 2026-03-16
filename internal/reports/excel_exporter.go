@@ -641,7 +641,6 @@ type ExcelReportBuilder struct {
 	report      *GeneratedReport
 	options     ExportOptions
 	styles      map[string]int
-	sheets      []string
 	conditional bool
 }
 

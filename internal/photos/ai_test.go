@@ -484,9 +484,7 @@ func TestTagGeneration(t *testing.T) {
 	if result.Scene != "" {
 		tags = append(tags, result.Scene)
 	}
-	for _, obj := range result.Objects {
-		tags = append(tags, obj)
-	}
+	tags = append(tags, result.Objects...)
 	for _, face := range result.Faces {
 		if face.Name != "" {
 			tags = append(tags, face.Name)

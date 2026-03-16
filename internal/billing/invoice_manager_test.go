@@ -219,7 +219,7 @@ func TestQueryInvoiceManagerInvoices(t *testing.T) {
 	assert.Equal(t, 5, total)
 	assert.Len(t, results, 5)
 
-	results, total, err = im.QueryInvoices(ctx, InvoiceManagerQuery{UserIDs: []string{"user1"}})
+	_, total, err = im.QueryInvoices(ctx, InvoiceManagerQuery{UserIDs: []string{"user1"}})
 	require.NoError(t, err)
 	assert.Equal(t, 5, total)
 

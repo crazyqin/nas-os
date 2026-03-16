@@ -764,7 +764,7 @@ func (s *PriorityBasedStrategy) Score(task *Task, user *UserInfo, context Schedu
 
 	// 考虑截止日期
 	if task.DueDate != nil {
-		daysUntilDue := task.DueDate.Sub(time.Now()).Hours() / 24
+		daysUntilDue := time.Until(*task.DueDate).Hours() / 24
 		if daysUntilDue < 1 {
 			baseScore *= 1.5 // 紧急任务加权
 		} else if daysUntilDue < 3 {

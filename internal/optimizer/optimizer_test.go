@@ -192,7 +192,7 @@ func TestOptimizeQuery(t *testing.T) {
 	}
 
 	// 第二次调用，应该从缓存获取
-	result, err = opt.OptimizeQuery("query1", queryFn)
+	_, err = opt.OptimizeQuery("query1", queryFn)
 	if err != nil {
 		t.Errorf("OptimizeQuery() returned error: %v", err)
 	}

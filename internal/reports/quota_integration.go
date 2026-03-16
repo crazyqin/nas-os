@@ -2,7 +2,6 @@
 package reports
 
 import (
-	"sync"
 	"time"
 )
 
@@ -68,7 +67,6 @@ type QuotaReportIntegrator struct {
 	quotaProvider QuotaIntegration
 	reporter      *ResourceReporter
 	planner       *CapacityPlanner
-	mu            sync.RWMutex
 }
 
 // NewQuotaReportIntegrator 创建配额报告集成器

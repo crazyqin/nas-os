@@ -160,6 +160,17 @@ func (r *ComplianceReporter) analyzeGDPR(entries []*Entry, report *ComplianceRep
 		})
 	}
 
+	if len(unauthorizedAccess) > 0 {
+		report.Findings = append(report.Findings, ComplianceFinding{
+			ID:          "GDPR-003",
+			Severity:    LevelWarning,
+			Category:    CategoryData,
+			Title:       "敏感数据访问警告",
+			Description: fmt.Sprintf("发现 %d 起敏感数据访问警告，建议审查", len(unauthorizedAccess)),
+			Evidence:    unauthorizedAccess,
+		})
+	}
+
 	if len(failedAccess) > 10 {
 		report.Findings = append(report.Findings, ComplianceFinding{
 			ID:          "GDPR-002",
@@ -249,6 +260,18 @@ func (r *ComplianceReporter) analyzeMLPS(entries []*Entry, report *ComplianceRep
 		})
 	}
 
+	// 审计日志篡改检查
+	if len(auditTampering) > 0 {
+		report.Findings = append(report.Findings, ComplianceFinding{
+			ID:          "MLPS-004",
+			Severity:    LevelCritical,
+			Category:    CategoryAudit,
+			Title:       "审计日志异常",
+			Description: fmt.Sprintf("发现 %d 起审计日志异常事件，需要立即调查", len(auditTampering)),
+			Evidence:    auditTampering,
+		})
+	}
+
 	// 添加等级保护建议
 	report.Recommendations = append(report.Recommendations,
 		"建议开启审计日志完整性保护功能",
@@ -303,6 +326,17 @@ func (r *ComplianceReporter) analyzeISO27001(entries []*Entry, report *Complianc
 		})
 	}
 
+	if len(systemChanges) > 0 {
+		report.Findings = append(report.Findings, ComplianceFinding{
+			ID:          "ISO-003",
+			Severity:    LevelInfo,
+			Category:    CategorySystem,
+			Title:       "系统变更记录",
+			Description: fmt.Sprintf("发现 %d 次系统变更", len(systemChanges)),
+			Evidence:    systemChanges[:min(20, len(systemChanges))],
+		})
+	}
+
 	report.Recommendations = append(report.Recommendations,
 		"建议建立信息安全事件响应流程",
 		"建议定期进行风险评估",
@@ -339,6 +373,17 @@ func (r *ComplianceReporter) analyzeHIPAA(entries []*Entry, report *ComplianceRe
 			Title:       "潜在PHI泄露",
 			Description: fmt.Sprintf("发现 %d 起潜在的安全事件", len(breaches)),
 			Evidence:    breaches,
+		})
+	}
+
+	if len(phiAccess) > 0 {
+		report.Findings = append(report.Findings, ComplianceFinding{
+			ID:          "HIPAA-002",
+			Severity:    LevelWarning,
+			Category:    CategoryData,
+			Title:       "PHI访问记录",
+			Description: fmt.Sprintf("发现 %d 起PHI访问事件", len(phiAccess)),
+			Evidence:    phiAccess[:min(20, len(phiAccess))],
 		})
 	}
 
@@ -384,6 +429,17 @@ func (r *ComplianceReporter) analyzePCI(entries []*Entry, report *ComplianceRepo
 		})
 	}
 
+	if len(unauthorized) > 0 {
+		report.Findings = append(report.Findings, ComplianceFinding{
+			ID:          "PCI-002",
+			Severity:    LevelWarning,
+			Category:    CategoryAccess,
+			Title:       "未授权访问尝试",
+			Description: fmt.Sprintf("发现 %d 次未授权访问尝试", len(unauthorized)),
+			Evidence:    unauthorized[:min(10, len(unauthorized))],
+		})
+	}
+
 	report.Recommendations = append(report.Recommendations,
 		"建议限制支付卡数据的存储",
 		"建议实施支付卡数据加密",
@@ -418,6 +474,17 @@ func (r *ComplianceReporter) analyzeGeneric(entries []*Entry, report *Compliance
 			Title:       "严重安全事件",
 			Description: fmt.Sprintf("发现 %d 起严重安全事件", len(criticalEvents)),
 			Evidence:    criticalEvents,
+		})
+	}
+
+	if len(failedOps) > 0 {
+		report.Findings = append(report.Findings, ComplianceFinding{
+			ID:          "GEN-002",
+			Severity:    LevelWarning,
+			Category:    CategorySecurity,
+			Title:       "操作失败记录",
+			Description: fmt.Sprintf("发现 %d 次操作失败", len(failedOps)),
+			Evidence:    failedOps[:min(20, len(failedOps))],
 		})
 	}
 

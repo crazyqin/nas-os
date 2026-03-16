@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sync"
 
@@ -156,7 +155,7 @@ func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 
 		// 加载自定义 CA 证书
 		if config.CACertPath != "" {
-			caCert, err := ioutil.ReadFile(config.CACertPath)
+			caCert, err := os.ReadFile(config.CACertPath)
 			if err != nil {
 				return nil, fmt.Errorf("读取 CA 证书失败: %w", err)
 			}
@@ -166,7 +165,8 @@ func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 			tlsConfig.RootCAs = caCertPool
 		}
 
-		conn, err = ldap.DialTLS("tcp", config.URL[7:], tlsConfig) // 移除 ldaps:// 前缀
+		// 使用 DialURL 替代已弃用的 DialTLS
+		conn, err = ldap.DialURL(config.URL, ldap.DialWithTLSConfig(tlsConfig))
 	} else {
 		// 普通 LDAP 连接
 		conn, err = ldap.DialURL(config.URL)

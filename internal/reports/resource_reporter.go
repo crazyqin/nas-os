@@ -10,10 +10,7 @@ import (
 // ResourceReporter 资源报告生成器
 type ResourceReporter struct {
 	config           ResourceReportConfig
-	storageMetrics   []StorageMetrics
 	bandwidthHistory map[string][]BandwidthHistoryPoint
-	userMetrics      []UserResourceInfo
-	systemMetrics    *SystemResourceOverview
 }
 
 // NewResourceReporter 创建资源报告生成器
