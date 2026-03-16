@@ -206,7 +206,7 @@ func TestSafeMulUint64(t *testing.T) {
 		{"anything * zero", 100, 0, 0, false},
 		{"one * one", 1, 1, 1, false},
 		{"normal multiplication", 10, 20, 200, false},
-		{"overflow", math.MaxUint64 / 2 + 1, 2, 0, true},
+		{"overflow", math.MaxUint64/2 + 1, 2, 0, true},
 		{"overflow max", math.MaxUint64, 2, 0, true},
 	}
 

@@ -198,4 +198,3 @@ func TestListAllSnapshots_WithVolumeFilter(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 }
-
