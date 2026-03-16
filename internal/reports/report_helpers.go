@@ -4,6 +4,7 @@ package reports
 import (
 	"fmt"
 	"math"
+	"sort"
 	"time"
 )
 
@@ -290,14 +291,8 @@ func CalculateMedian(values []float64) float64 {
 	sorted := make([]float64, len(values))
 	copy(sorted, values)
 
-	// 排序
-	for i := 0; i < len(sorted)-1; i++ {
-		for j := i + 1; j < len(sorted); j++ {
-			if sorted[i] > sorted[j] {
-				sorted[i], sorted[j] = sorted[j], sorted[i]
-			}
-		}
-	}
+	// 使用标准库排序 O(n log n) 替代冒泡排序 O(n²)
+	sort.Float64s(sorted)
 
 	n := len(sorted)
 	if n%2 == 0 {
@@ -328,16 +323,10 @@ func CalculatePercentile(values []float64, percentile float64) float64 {
 		return 0
 	}
 
-	// 复制并排序
+	// 复制并排序 - 使用标准库排序 O(n log n) 替代冒泡排序 O(n²)
 	sorted := make([]float64, len(values))
 	copy(sorted, values)
-	for i := 0; i < len(sorted)-1; i++ {
-		for j := i + 1; j < len(sorted); j++ {
-			if sorted[i] > sorted[j] {
-				sorted[i], sorted[j] = sorted[j], sorted[i]
-			}
-		}
-	}
+	sort.Float64s(sorted)
 
 	index := (percentile / 100) * float64(len(sorted)-1)
 	lower := int(index)
