@@ -6,22 +6,6 @@ All notable changes to this project will be documented in this file.
 
 ### 六部协同开发
 
-#### 司礼监
-- ✅ 召集六部协同开发
-- ✅ 版本号更新至 v2.142.0
-- ✅ 代码格式修复 (13个文件)
-
-#### 吏部 - 项目管理
-- ✅ 版本号更新
-- ✅ 里程碑记录更新
-
-（其他部门内容待补充）
-
-### Changed
-- Version bump to v2.142.0
-- Code formatting fixes for CI
-
-## [v2.142.0] - 2026-03-17
 
 ### 六部协同开发
 

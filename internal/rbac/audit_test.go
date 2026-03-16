@@ -153,15 +153,15 @@ func TestRBACAuditLogger_LogRoleChange(t *testing.T) {
 	defer logger.Close()
 
 	logger.LogSync(&AuditEvent{
-		Level:     AuditLevelInfo,
-		Category:  AuditCategoryRole,
-		Event:     "role_change",
-		UserID:    "admin",
-		Username:  "管理员",
-		TargetID:  "user1",
-		OldValue:  "guest",
-		NewValue:  "operator",
-		Result:    "success",
+		Level:    AuditLevelInfo,
+		Category: AuditCategoryRole,
+		Event:    "role_change",
+		UserID:   "admin",
+		Username: "管理员",
+		TargetID: "user1",
+		OldValue: "guest",
+		NewValue: "operator",
+		Result:   "success",
 	})
 
 	if receivedEvent == nil {
@@ -191,11 +191,11 @@ func TestRBACAuditLogger_LogRoleChange_Admin(t *testing.T) {
 
 	// 提升为管理员应该是警告级别
 	logger.LogSync(&AuditEvent{
-		Level:     AuditLevelWarning,
-		Category:  AuditCategoryRole,
-		Event:     "role_change",
-		OldValue:  "operator",
-		NewValue:  "admin",
+		Level:    AuditLevelWarning,
+		Category: AuditCategoryRole,
+		Event:    "role_change",
+		OldValue: "operator",
+		NewValue: "admin",
 	})
 
 	if receivedEvent == nil {
@@ -216,6 +216,9 @@ func TestRBACAuditLogger_LogPolicyCreate(t *testing.T) {
 	defer logger.Close()
 
 	logger.LogPolicyCreate("admin", "管理员", "deny-storage-admin")
+
+	// 等待异步处理
+	time.Sleep(100 * time.Millisecond)
 
 	if receivedEvent == nil {
 		t.Fatal("event not received")
@@ -241,6 +244,9 @@ func TestRBACAuditLogger_LogPolicyUpdate(t *testing.T) {
 	changes := map[string]interface{}{"enabled": false}
 	logger.LogPolicyUpdate("admin", "管理员", "policy-123", changes)
 
+	// 等待异步处理
+	time.Sleep(100 * time.Millisecond)
+
 	if receivedEvent == nil {
 		t.Fatal("event not received")
 	}
@@ -260,6 +266,9 @@ func TestRBACAuditLogger_LogPolicyDelete(t *testing.T) {
 
 	logger.LogPolicyDelete("admin", "管理员", "policy-123")
 
+	// 等待异步处理
+	time.Sleep(100 * time.Millisecond)
+
 	if receivedEvent == nil {
 		t.Fatal("event not received")
 	}
@@ -272,9 +281,9 @@ func TestRBACAuditLogger_LogPolicyDelete(t *testing.T) {
 
 func TestRBACAuditLogger_LogAccessCheck(t *testing.T) {
 	tests := []struct {
-		name     string
-		allowed  bool
-		wantLevel AuditLevel
+		name       string
+		allowed    bool
+		wantLevel  AuditLevel
 		wantResult string
 	}{
 		{"allowed", true, AuditLevelInfo, "success"},
@@ -291,6 +300,9 @@ func TestRBACAuditLogger_LogAccessCheck(t *testing.T) {
 			defer logger.Close()
 
 			logger.LogAccessCheck("user1", "storage", "write", tt.allowed, "test reason")
+
+			// 等待异步处理
+			time.Sleep(100 * time.Millisecond)
 
 			if receivedEvent == nil {
 				t.Fatal("event not received")
@@ -317,6 +329,9 @@ func TestRBACAuditLogger_LogGroupPermissionChange(t *testing.T) {
 
 	logger.LogGroupPermissionChange("admin", "管理员", "group1", []string{"storage:read", "storage:write"})
 
+	// 等待异步处理
+	time.Sleep(100 * time.Millisecond)
+
 	if receivedEvent == nil {
 		t.Fatal("event not received")
 	}
@@ -340,6 +355,9 @@ func TestRBACAuditLogger_LogShareACLChange(t *testing.T) {
 
 	changes := map[string]interface{}{"access": "read"}
 	logger.LogShareACLChange("admin", "管理员", "share1", changes)
+
+	// 等待异步处理
+	time.Sleep(100 * time.Millisecond)
 
 	if receivedEvent == nil {
 		t.Fatal("event not received")
