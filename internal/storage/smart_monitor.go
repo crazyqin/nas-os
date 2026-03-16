@@ -4,6 +4,7 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -603,9 +604,9 @@ func (m *SMARTMonitor) calculateHealthScore(health *DiskHealth) {
 
 	// 安全的 uint64 到 int 转换，防止溢出
 	safeUint64ToInt := func(u uint64) int {
-		const maxInt = uint64(1<<63 - 1) // int 在 64 位系统上是 int64
+		maxInt := uint64(math.MaxInt)
 		if u > maxInt {
-			return int(maxInt)
+			return math.MaxInt
 		}
 		return int(u)
 	}
