@@ -6,6 +6,23 @@
 
 ---
 
+## [2.99.0] - 2026-03-16
+
+### 🔄 版本同步 (吏部)
+
+- 版本号升级至 v2.99.0
+- `README.md` 版本信息、下载链接、Docker 镜像标签更新
+
+### 📝 文档完善 (礼部)
+
+- `docs/README.md` 版本号更新
+- `docs/api.yaml` API 版本号更新
+- `docs/API_GUIDE.md` 版本更新
+- `docs/FAQ.md` 版本更新
+- `docs/QUICKSTART.md` 版本更新
+- `docs/TROUBLESHOOTING.md` 版本更新
+- `docs/USER_GUIDE.md` 版本更新
+
 ## [2.98.0] - 2026-03-16
 
 ### 🔄 版本同步 (吏部)
