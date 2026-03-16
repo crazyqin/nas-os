@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	mrand "math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -638,6 +639,9 @@ func (g *CostReportGenerator) collectReportData(ctx context.Context, report *Cos
 
 // populateStorageSection 填充存储部分
 func (g *CostReportGenerator) populateStorageSection(report *CostReport, data *StorageReportData) {
+	if data == nil {
+		return
+	}
 	report.StorageCost = StorageCostSection{
 		TotalCapacityGB: data.TotalCapacityGB,
 		UsedCapacityGB:  data.UsedCapacityGB,
@@ -664,6 +668,9 @@ func (g *CostReportGenerator) populateStorageSection(report *CostReport, data *S
 
 // populateBandwidthSection 填充带宽部分
 func (g *CostReportGenerator) populateBandwidthSection(report *CostReport, data *BandwidthReportData) {
+	if data == nil {
+		return
+	}
 	report.BandwidthCost = BandwidthCostSection{
 		InboundTrafficGB:  data.InboundTrafficGB,
 		OutboundTrafficGB: data.OutboundTrafficGB,
@@ -826,8 +833,9 @@ func (g *CostReportGenerator) addWeeklyAnalysis(ctx context.Context, report *Cos
 	// 获取上周报告进行对比
 	prevWeekStart := report.PeriodStart.AddDate(0, 0, -7)
 	prevReport, err := g.providers.GetHistoricalReport(ctx, CostReportTypeWeekly, prevWeekStart)
-	if err != nil {
-		return err
+	if err != nil || prevReport == nil {
+		// 没有上周数据，跳过环比分析
+		return nil
 	}
 
 	// 无历史报告时跳过对比
@@ -851,8 +859,9 @@ func (g *CostReportGenerator) addMonthlyAnalysis(ctx context.Context, report *Co
 	// 获取上月报告进行对比
 	prevMonthStart := report.PeriodStart.AddDate(0, -1, 0)
 	prevReport, err := g.providers.GetHistoricalReport(ctx, CostReportTypeMonthly, prevMonthStart)
-	if err != nil {
-		return err
+	if err != nil || prevReport == nil {
+		// 没有上月数据，跳过环比分析
+		return nil
 	}
 
 	// 无历史报告时跳过对比
@@ -1083,7 +1092,7 @@ func (g *CostReportGenerator) GetReport(id string) (*CostReport, error) {
 	reportPath := filepath.Join(g.dataDir, "reports", id+".json")
 	data, err := os.ReadFile(reportPath)
 	if err != nil {
-		return nil, ErrReportNotFound
+		return nil, ErrCostReportNotFound
 	}
 
 	var report CostReport
@@ -1184,7 +1193,7 @@ func randomString(n int) string {
 		return string(b)
 	}
 	for i := range b {
-		b[i] = letters[int(b[i])%len(letters)]
+		b[i] = letters[mrand.Intn(len(letters))]
 	}
 	return string(b)
 }
