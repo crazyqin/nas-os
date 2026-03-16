@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.115.0] - 2026-03-16
+
+### 六部协同汇报
+
+#### 兵部 - 测试覆盖率提升
+- ✅ SFTP handler 测试补充 (覆盖率 5.6% → 22.8%)
+  - 新增 handler_test.go 测试文件
+  - 覆盖路径解析、文件读写、目录操作等核心功能
+  - 安全测试：路径遍历攻击防护验证
+- ✅ Media handlers 测试补充
+  - 新增 handlers_test.go 测试文件
+  - 覆盖媒体库 CRUD 操作
+  - 海报墙、元数据搜索等 API 测试
+
+#### 吏部 - 版本管理
+- ✅ VERSION → v2.115.0
+- ✅ internal/version/version.go → 2.115.0
+- ✅ ROADMAP.md 更新
+
+### Added
+- internal/sftp/handler_test.go - SFTP handler 单元测试
+- internal/media/handlers_test.go - Media handlers 单元测试
+
+### Changed
+- 版本号更新至 v2.115.0
+
 ## [v2.114.0] - 2026-03-16
 
 ### 六部协同汇报
