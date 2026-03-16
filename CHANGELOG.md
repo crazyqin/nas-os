@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.132.0] - 2026-03-16
+
+### 六部协同开发
+
+#### 礼部 - 品牌营销与版本发布
+- ✅ VERSION → v2.132.0
+- ✅ internal/version/version.go → 2.132.0
+- ✅ docs/api.yaml → 2.132.0
+- ✅ README.md 版本信息同步
+- ✅ CHANGELOG.md 更新
+- ✅ docs/RELEASE-v2.132.0.md 发布公告创建
+
+### Changed
+- 版本号升级至 v2.132.0
+- Docker 镜像标签更新准备
+
 ## [v2.131.0] - 2026-03-16
 
 ### 六部协同开发
