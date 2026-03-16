@@ -418,7 +418,7 @@ func TestParseSize(t *testing.T) {
 		{"50K", 50 * 1024},
 		{"1024", 1024},
 		{"2t", 2 * 1024 * 1024 * 1024 * 1024}, // lowercase
-		{"100g", 100 * 1024 * 1024 * 1024},     // lowercase
+		{"100g", 100 * 1024 * 1024 * 1024},    // lowercase
 	}
 
 	for _, tt := range tests {
