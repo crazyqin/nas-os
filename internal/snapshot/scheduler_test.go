@@ -51,14 +51,14 @@ func TestScheduler_ValidateCron(t *testing.T) {
 		expr     string
 		expected bool
 	}{
-		{"0 0 * * *", true},           // Every day at midnight
-		{"0 */2 * * *", true},         // Every 2 hours
-		{"0 0 * * 0", true},           // Every Sunday
-		{"0 0 1 * *", true},           // First day of month
-		{"invalid", false},            // Invalid expression
-		{"0 0 0 0 0", false},          // Invalid (month 0)
-		{"", false},                   // Empty
-		{"* * * * * *", false},        // 6 fields (standard cron is 5)
+		{"0 0 * * *", true},    // Every day at midnight
+		{"0 */2 * * *", true},  // Every 2 hours
+		{"0 0 * * 0", true},    // Every Sunday
+		{"0 0 1 * *", true},    // First day of month
+		{"invalid", false},     // Invalid expression
+		{"0 0 0 0 0", false},   // Invalid (month 0)
+		{"", false},            // Empty
+		{"* * * * * *", false}, // 6 fields (standard cron is 5)
 	}
 
 	for _, tt := range tests {
@@ -123,8 +123,8 @@ func TestScheduler_GenerateCronExpression(t *testing.T) {
 	scheduler := NewScheduler(pm)
 
 	tests := []struct {
-		name     string
-		schedule *ScheduleConfig
+		name         string
+		schedule     *ScheduleConfig
 		wantNonEmpty bool
 	}{
 		{
@@ -139,7 +139,7 @@ func TestScheduler_GenerateCronExpression(t *testing.T) {
 		{
 			name: "daily",
 			schedule: &ScheduleConfig{
-				Type:  ScheduleTypeDaily,
+				Type:   ScheduleTypeDaily,
 				Minute: 0,
 				Hour:   2,
 			},
@@ -148,20 +148,20 @@ func TestScheduler_GenerateCronExpression(t *testing.T) {
 		{
 			name: "weekly",
 			schedule: &ScheduleConfig{
-				Type:       ScheduleTypeWeekly,
-				Minute:     0,
-				Hour:       3,
-				DayOfWeek:  0, // Sunday
+				Type:      ScheduleTypeWeekly,
+				Minute:    0,
+				Hour:      3,
+				DayOfWeek: 0, // Sunday
 			},
 			wantNonEmpty: true,
 		},
 		{
 			name: "monthly",
 			schedule: &ScheduleConfig{
-				Type:        ScheduleTypeMonthly,
-				Minute:      0,
-				Hour:        4,
-				DayOfMonth:  1,
+				Type:       ScheduleTypeMonthly,
+				Minute:     0,
+				Hour:       4,
+				DayOfMonth: 1,
 			},
 			wantNonEmpty: true,
 		},
@@ -174,8 +174,8 @@ func TestScheduler_GenerateCronExpression(t *testing.T) {
 			wantNonEmpty: true,
 		},
 		{
-			name:     "nil schedule",
-			schedule: nil,
+			name:         "nil schedule",
+			schedule:     nil,
 			wantNonEmpty: false,
 		},
 	}
