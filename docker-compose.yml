@@ -4,7 +4,7 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
-# v2.125.0 更新：
+# v2.132.0 更新：
 # - 更新版本标签
 # - 添加版本环境变量支持
 # - 优化资源限制配置
@@ -32,7 +32,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.125.0"
+      - "nas-os.version=2.132.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -67,7 +67,7 @@ services:
     environment:
       - NAS_OS_CONFIG=/etc/nas-os/config.yaml
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
-      - NAS_OS_VERSION=2.125.0
+      - NAS_OS_VERSION=2.132.0
       # 时区设置
       - TZ=Asia/Shanghai
       # 日志配置
