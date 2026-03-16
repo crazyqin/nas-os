@@ -4,12 +4,14 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
-# v2.135.0 更新：
-# - 更新版本标签至 v2.135.0
+# v2.136.0 更新（工部优化）：
+# - 修复 YAML 格式（移除重复的 services 块）
+# - 修复健康检查命令（distroless 镜像使用 CMD 而非 CMD-SHELL）
+# - 添加 networks 定义
 #
 # v2.135.0 更新：
+# - 更新版本标签至 v2.135.0
 # - 修复健康检查命令（使用内置 healthcheck 工具，兼容 distroless 镜像）
-# - 更新版本标签
 #
 # v2.133.0 更新：
 # - 修复健康检查命令（wget 替代 curl，兼容 alpine 基础镜像）
@@ -21,11 +23,6 @@
 # v2.90.0 更新：
 # - 迁移到 GHCR (GitHub Container Registry)
 # - 更新镜像地址
-#
-# v2.86.0 更新：
-# - 更新版本标签
-# - 添加网络配置
-# - 优化资源限制
 
 services:
   nas-os:
@@ -38,7 +35,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.135.0"
+      - "nas-os.version=2.136.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -73,7 +70,7 @@ services:
     environment:
       - NAS_OS_CONFIG=/etc/nas-os/config.yaml
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
-      - NAS_OS_VERSION=2.135.0
+      - NAS_OS_VERSION=2.136.0
       # 时区设置
       - TZ=Asia/Shanghai
       # 日志配置
@@ -108,22 +105,17 @@ services:
         max-file: "3"
     
     # 健康检查（覆盖 Dockerfile 中的设置）
-    # v2.135.0: 使用内置 healthcheck 工具（兼容 distroless 镜像）
+    # v2.136.0: distroless 镜像无 shell，必须使用 CMD 而非 CMD-SHELL
     # 注意：如使用 Dockerfile.full (alpine)，可改为 wget 或 curl
     healthcheck:
-      test: ["CMD-SHELL", "/usr/local/bin/healthcheck || exit 1"]
+      test: ["CMD", "/usr/local/bin/healthcheck"]
       interval: 30s
       timeout: 15s
       retries: 3
       start_period: 30s
 
-# ========== 网络配置 ==========
-networks:
-  default:
-    name: nas-os-network
-    driver: bridge
-
   # ========== 可选：配套服务 ==========
+  # 取消注释以下服务以启用
   
   # Watchtower 自动更新
   # watchtower:
@@ -157,6 +149,13 @@ networks:
   #   environment:
   #     - GF_SECURITY_ADMIN_PASSWORD=admin123
 
+# ========== 网络配置 ==========
+networks:
+  default:
+    name: nas-os-network
+    driver: bridge
+
+# ========== 卷配置 ==========
 volumes:
   nas-os-data:
     driver: local
