@@ -1038,11 +1038,12 @@ func (g *CostReportGenerator) ExportToJSON(report *CostReport) (string, error) {
 func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 	var builder strings.Builder
 	writer := csv.NewWriter(&builder)
-	defer writer.Flush()
 
 	// 简化的CSV输出
 	headers := []string{"Category", "Metric", "Value"}
-	writer.Write(headers)
+	if err := writer.Write(headers); err != nil {
+		return "", err
+	}
 
 	// 摘要数据
 	writer.Write([]string{"Summary", "Total Cost", fmt.Sprintf("%.2f", report.Summary.TotalCost)})
@@ -1053,6 +1054,12 @@ func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 	// 存储池数据
 	for _, p := range report.PoolBreakdown {
 		writer.Write([]string{"Pool", p.PoolName, fmt.Sprintf("%.2f GB / %.2f 元", p.UsedCapacityGB, p.MonthlyCost)})
+	}
+
+	// 确保在返回前 flush
+	writer.Flush()
+	if err := writer.Error(); err != nil {
+		return "", err
 	}
 
 	return builder.String(), nil

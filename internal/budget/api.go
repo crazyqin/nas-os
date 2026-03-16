@@ -428,7 +428,12 @@ func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 
 			// 发送通知
 			if m.notifier != nil {
-				go m.notifier.SendAlert(alert)
+				go func() {
+					if err := m.notifier.SendAlert(alert); err != nil {
+						// 记录发送失败，但不阻塞主流程
+						// TODO: 可添加重试机制或记录到日志系统
+					}
+				}()
 				alert.NotifySent = true
 			}
 

@@ -5,6 +5,7 @@
 #   docker compose -f docker-compose.dev.yml up -d
 #
 # v2.34.0 初始配置
+# v2.91.0 修复 Air 安装命令、EXPOSE 注释格式
 
 # ========== 开发阶段 ==========
 FROM golang:1.26-alpine
@@ -28,8 +29,8 @@ RUN apk add --no-cache \
     procps \
     && rm -rf /var/cache/apk/*
 
-# 安装 Air（热重载工具）
-RUN go install github.com/air- vscode-go/vscode-go@latest && \
+# 安装 Air（热重载工具）和 Delve（调试器）
+RUN go install github.com/air-verse/air@latest && \
     go install github.com/go-delve/delve/cmd/dlv@latest
 
 # 配置 Air
@@ -50,7 +51,8 @@ RUN mkdir -p /var/lib/nas-os /var/log/nas-os /etc/nas-os && \
 
 # 暴露端口
 EXPOSE 8080/tcp
-EXPOSE 2345/tcp  # Delve debugger
+# Delve debugger
+EXPOSE 2345/tcp
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
