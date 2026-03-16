@@ -3,6 +3,7 @@ package budget
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"sync"
 	"time"
@@ -431,14 +432,10 @@ func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 			m.alerts[budget.ID] = alert
 			m.alertHistory[budget.ID] = append(m.alertHistory[budget.ID], alert)
 
-			// 发送通知
+			// 发送通知（带重试机制）
 			if m.notifier != nil {
-				go func() {
-					if err := m.notifier.SendAlert(alert); err != nil {
-						// 记录发送失败，但不阻塞主流程
-						// TODO: 可添加重试机制或记录到日志系统
-					}
-				}()
+				alertCopy := alert // 复制以避免并发问题
+				go m.sendAlertWithRetry(alertCopy)
 				alert.NotifySent = true
 			}
 
@@ -1192,4 +1189,51 @@ func generateRecommendations(details []BudgetDetail, summary BudgetReportSummary
 	}
 
 	return recommendations
+}
+
+// ========== 通知重试机制 ==========
+
+const (
+	// 通知重试配置
+	maxNotifyRetries    = 3
+	baseRetryDelay      = 1 * time.Second
+	maxRetryDelay       = 30 * time.Second
+	retryDelayMultiplier = 2.0
+)
+
+// sendAlertWithRetry 发送预警通知（带重试机制）
+func (m *BudgetManager) sendAlertWithRetry(alert *BudgetAlert) {
+	if m.notifier == nil {
+		return
+	}
+
+	var lastErr error
+	for attempt := 0; attempt < maxNotifyRetries; attempt++ {
+		if err := m.notifier.SendAlert(alert); err != nil {
+			lastErr = err
+			// 计算指数退避延迟
+			delay := time.Duration(float64(baseRetryDelay) * math.Pow(retryDelayMultiplier, float64(attempt)))
+			if delay > maxRetryDelay {
+				delay = maxRetryDelay
+			}
+
+			log.Printf("⚠️ 预算通知发送失败 (预算: %s, 尝试: %d/%d, 延迟: %v): %v",
+				alert.BudgetName, attempt+1, maxNotifyRetries, delay, err)
+
+			if attempt < maxNotifyRetries-1 {
+				time.Sleep(delay)
+			}
+			continue
+		}
+
+		// 发送成功
+		if attempt > 0 {
+			log.Printf("✅ 预算通知发送成功 (预算: %s, 重试次数: %d)", alert.BudgetName, attempt)
+		}
+		return
+	}
+
+	// 所有重试都失败
+	log.Printf("❌ 预算通知发送最终失败 (预算: %s, 级别: %s): %v",
+		alert.BudgetName, alert.Level, lastErr)
 }
