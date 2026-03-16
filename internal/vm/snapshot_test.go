@@ -46,7 +46,7 @@ func TestSanitizeDescription(t *testing.T) {
 		{"with(parens)", "withparens"},
 		{"with<angle>brackets", "withanglebrackets"},
 		{"multi\nline", "multi line"},
-		{"carriage\rreturn", "carriagereturn"},
+		{"carriage\rreturn", "carriage return"},
 	}
 
 	for _, tt := range tests {

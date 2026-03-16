@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"go.uber.org/zap"
 )
 
 func TestISOManager_NewISOManager(t *testing.T) {
@@ -96,7 +98,8 @@ func TestISOManager_GetISO_NotFound(t *testing.T) {
 func TestISOManager_UploadISO(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	mgr, err := NewISOManager(tmpDir, nil)
+	logger := zap.NewNop()
+	mgr, err := NewISOManager(tmpDir, logger)
 	if err != nil {
 		t.Fatalf("NewISOManager failed: %v", err)
 	}
@@ -126,7 +129,8 @@ func TestISOManager_UploadISO(t *testing.T) {
 func TestISOManager_DeleteISO(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	mgr, err := NewISOManager(tmpDir, nil)
+	logger := zap.NewNop()
+	mgr, err := NewISOManager(tmpDir, logger)
 	if err != nil {
 		t.Fatalf("NewISOManager failed: %v", err)
 	}
