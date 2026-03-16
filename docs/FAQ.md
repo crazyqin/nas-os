@@ -852,4 +852,4 @@ curl -X POST http://localhost:8080/api/v1/budget/alerts \
 
 ---
 
-*最后更新：2026-03-16 | 版本：v2.106.0*
+*最后更新：2026-03-16 | 版本：v2.137.0*
