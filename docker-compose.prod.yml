@@ -12,6 +12,9 @@
 #   - cAdvisor (容器指标)
 #   - Alertmanager (告警管理)
 #
+# v2.133.0 更新：
+# - 修复健康检查命令（使用内置 healthcheck 工具）
+#
 # v2.91.0 更新：
 # - 统一健康检查端点（与 Dockerfile 一致）
 #
@@ -90,10 +93,11 @@ services:
         labels: "service"
         tag: "{{.Name}}/{{.ID}}"
     
-    # 健康检查（使用 curl，Dockerfile 已安装）
-    # v2.91.0: 统一检测逻辑（与 Dockerfile 一致）
+    # 健康检查（使用内置 healthcheck 工具）
+    # v2.133.0: distroless 镜像使用内置 healthcheck 工具
+    # 如使用 Dockerfile.full (alpine)，可改为 curl 或 wget
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/v1/health && curl -sf http://localhost:8080/api/v1/metrics > /dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "/usr/local/bin/healthcheck || exit 1"]
       interval: 30s
       timeout: 15s
       retries: 3
