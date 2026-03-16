@@ -2,7 +2,11 @@
 # NAS-OS 一键部署脚本
 # 支持二进制部署和 Docker 部署
 #
-# v2.38.0 新增
+# v2.123.0 更新（工部优化）：
+# - 支持 minimal 和 full 两种 Docker 镜像版本
+# - minimal 镜像约 15-18MB（distroless，无系统工具）
+# - full 镜像约 35-40MB（alpine，包含系统工具）
+# - 默认使用 full 版本（兼容现有部署）
 
 set -e
 
@@ -14,6 +18,7 @@ CONFIG_DIR="${CONFIG_DIR:-/etc/nas-os}"
 DATA_DIR="${DATA_DIR:-/var/lib/nas-os}"
 LOG_DIR="${LOG_DIR:-/var/log/nas-os}"
 VERSION="${VERSION:-latest}"
+DOCKER_VARIANT="${DOCKER_VARIANT:-full}"  # minimal 或 full
 RELEASE_URL="https://github.com/nas-os/nas-os/releases"
 
 # 颜色
@@ -268,9 +273,22 @@ deploy_docker() {
         exit 1
     fi
     
+    # v2.123.0: 支持镜像版本选择
+    # minimal: distroless 基础镜像，约 15-18MB（无系统工具）
+    # full: alpine 基础镜像，约 35-40MB（包含 btrfs-progs, samba, nfs-utils）
+    local image_tag="${VERSION}"
+    if [ "$DOCKER_VARIANT" = "minimal" ] && [ "$VERSION" = "latest" ]; then
+        image_tag="minimal"
+    elif [ "$DOCKER_VARIANT" = "full" ] && [ "$VERSION" = "latest" ]; then
+        image_tag="full"
+    elif [ "$DOCKER_VARIANT" = "minimal" ]; then
+        image_tag="${VERSION}-minimal"
+    fi
+    
+    local image="ghcr.io/nas-os/nas-os:${image_tag}"
+    
     # 拉取镜像
-    log_info "拉取镜像..."
-    local image="ghcr.io/nas-os/nas-os:$VERSION"
+    log_info "拉取镜像: $image ($DOCKER_VARIANT 版本)..."
     docker pull "$image"
     
     # 停止旧容器
@@ -376,16 +394,20 @@ NAS-OS 部署工具
   help        显示帮助
 
 环境变量:
-  VERSION     安装版本 (默认: latest)
-  INSTALL_DIR 安装目录 (默认: /usr/local)
-  CONFIG_DIR  配置目录 (默认: /etc/nas-os)
-  DATA_DIR    数据目录 (默认: /var/lib/nas-os)
-  LOG_DIR     日志目录 (默认: /var/log/nas-os)
+  VERSION       安装版本 (默认: latest)
+  INSTALL_DIR   安装目录 (默认: /usr/local)
+  CONFIG_DIR    配置目录 (默认: /etc/nas-os)
+  DATA_DIR      数据目录 (默认: /var/lib/nas-os)
+  LOG_DIR       日志目录 (默认: /var/log/nas-os)
+  DOCKER_VARIANT Docker 镜像版本 (默认: full)
+                  - full: alpine 基础，包含系统工具 (约 35-40MB)
+                  - minimal: distroless 基础，轻量级 (约 15-18MB)
 
 示例:
   $0 install                    # 安装最新版本
-  VERSION=v2.38.0 $0 install    # 安装指定版本
-  $0 docker                     # Docker 部署
+  VERSION=v2.123.0 $0 install   # 安装指定版本
+  $0 docker                     # Docker 部署 (默认 full 版本)
+  DOCKER_VARIANT=minimal $0 docker  # Docker 部署 (minimal 版本)
   $0 upgrade                    # 升级
   $0 uninstall                  # 卸载
 EOF

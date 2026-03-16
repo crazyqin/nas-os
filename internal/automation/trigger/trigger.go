@@ -503,6 +503,10 @@ func (t *WebhookTrigger) handleWebhook(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// 限制请求体大小（最大 10MB）
+	const maxBodySize = 10 << 20
+	r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
+
 	// 读取请求体
 	body, err := io.ReadAll(r.Body)
 	if err != nil {

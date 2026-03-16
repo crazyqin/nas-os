@@ -1,17 +1,17 @@
 # NAS-OS Makefile
 # 构建、测试、部署自动化
 
-.PHONY: all build test clean run docker help
+.PHONY: all build test clean run docker help ci
 
 # 变量
 BINARY_NAME=nasd
 CLI_NAME=nasctl
 GO=go
 GOFLAGS=-ldflags="-w -s"
-DOCKER_IMAGE=nas-os
+DOCKER_IMAGE=ghcr.io/nas-os/nas-os
 DOCKER_TAG=latest
 
-# 版本信息 (v2.122.0)
+# 版本信息 (v2.123.0)
 VERSION_FILE=VERSION
 VERSION=$(shell cat $(VERSION_FILE) 2>/dev/null || echo "v0.0.0")
 GIT_COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
@@ -19,22 +19,25 @@ GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown"
 BUILD_TIME=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
 GO_VERSION=$(shell go version | awk '{print $$3}' 2>/dev/null || echo "unknown")
 
+# v2.123.0 新增: GOPROXY 配置
+GOPROXY ?= https://proxy.golang.org,direct
+
 # 默认目标
 all: build
 
 # ========== 构建 ==========
 build:
 	@echo "🔨 编译 nasd..."
-	$(GO) build $(GOFLAGS) -o $(BINARY_NAME) ./cmd/nasd
+	GOPROXY=$(GOPROXY) $(GO) build $(GOFLAGS) -o $(BINARY_NAME) ./cmd/nasd
 	@echo "🔨 编译 nasctl..."
-	$(GO) build $(GOFLAGS) -o $(CLI_NAME) ./cmd/nasctl
+	GOPROXY=$(GOPROXY) $(GO) build $(GOFLAGS) -o $(CLI_NAME) ./cmd/nasctl
 	@echo "✅ 构建完成"
 
 # 带版本信息的构建
 build-version:
 	@echo "🔨 编译带版本信息的二进制..."
-	$(GO) build -ldflags="-w -s -X main.Version=$(VERSION) -X main.GitCommit=$(GIT_COMMIT) -X main.BuildTime=$(BUILD_TIME)" -o $(BINARY_NAME) ./cmd/nasd
-	$(GO) build -ldflags="-w -s -X main.Version=$(VERSION)" -o $(CLI_NAME) ./cmd/nasctl
+	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s -X main.Version=$(VERSION) -X main.GitCommit=$(GIT_COMMIT) -X main.BuildTime=$(BUILD_TIME)" -o $(BINARY_NAME) ./cmd/nasd
+	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s -X main.Version=$(VERSION)" -o $(CLI_NAME) ./cmd/nasctl
 	@echo "✅ 构建完成: $(VERSION) ($(GIT_COMMIT))"
 
 build-debug:
@@ -44,9 +47,9 @@ build-debug:
 # 跨平台构建
 build-all:
 	@echo "🌍 构建多平台二进制..."
-	GOOS=linux GOARCH=amd64 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-amd64 ./cmd/nasd
-	GOOS=linux GOARCH=arm64 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-arm64 ./cmd/nasd
-	GOOS=linux GOARCH=arm GOARM=7 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-armv7 ./cmd/nasd
+	GOPROXY=$(GOPROXY) GOOS=linux GOARCH=amd64 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-amd64 ./cmd/nasd
+	GOPROXY=$(GOPROXY) GOOS=linux GOARCH=arm64 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-arm64 ./cmd/nasd
+	GOPROXY=$(GOPROXY) GOOS=linux GOARCH=arm GOARM=7 $(GO) build $(GOFLAGS) -o $(BINARY_NAME)-linux-armv7 ./cmd/nasd
 	@echo "✅ 多平台构建完成"
 
 # ========== 测试 ==========
@@ -612,3 +615,75 @@ quick: build
 # 完整构建流程
 all-checks: tidy fmt lint test
 	@echo "✅ 所有检查通过"
+
+# ========== CI/CD 辅助 (v2.123.0) ==========
+
+# CI 环境检查
+ci-check:
+	@echo "🔍 CI 环境检查..."
+	@./scripts/ci-helper.sh check
+
+# CI 环境准备
+ci-prep:
+	@echo "🔧 CI 环境准备..."
+	@./scripts/ci-helper.sh prep-test
+
+# CI 缓存清理
+ci-cache-clean:
+	@echo "🧹 CI 缓存清理..."
+	@./scripts/ci-helper.sh cache-clean
+
+# CI 构建报告
+ci-report:
+	@echo "📊 CI 构建报告..."
+	@./scripts/ci-helper.sh report --output ci-report.json
+
+# 构建时间追踪
+ci-timing:
+	@echo "⏱️ 构建时间追踪..."
+	@echo "构建开始时间: $(BUILD_TIME)"
+	@echo "当前时间: $$(date -u '+%Y-%m-%d_%H:%M:%S')"
+
+# 测试分片辅助（用于 CI）
+test-shard:
+	@echo "🧪 运行测试分片 $(SHARD_INDEX)/$(SHARD_TOTAL)..."
+	@if [ -z "$(SHARD_INDEX)" ] || [ -z "$(SHARD_TOTAL)" ]; then \
+		echo "❌ 请设置 SHARD_INDEX 和 SHARD_TOTAL 环境变量"; \
+		exit 1; \
+	fi
+	$(GO) test -v -race -coverprofile=coverage-shard-$(SHARD_INDEX).out -covermode=atomic \
+		$$(go list ./... | grep -v /tests/e2e | grep -v /tests/fixtures | grep -v /tests/reports | grep -v /tests/benchmark | grep -v /plugins/ | \
+			awk "NR % $(SHARD_TOTAL) == $(SHARD_INDEX)")
+
+# 合并测试分片覆盖率
+test-shard-merge:
+	@echo "📦 合并测试分片覆盖率..."
+	@echo "mode: atomic" > coverage.out
+	@for f in coverage-shard-*.out; do \
+		if [ -f "$$f" ]; then \
+			tail -n +2 "$$f" >> coverage.out; \
+		fi; \
+	done
+	@echo "✅ 覆盖率合并完成: coverage.out"
+
+# Docker 镜像构建（minimal 版本，distroless）
+docker-minimal:
+	@echo "🐳 构建 Docker 镜像 (minimal, distroless)..."
+	docker build -f Dockerfile -t $(DOCKER_IMAGE):minimal .
+	docker tag $(DOCKER_IMAGE):minimal $(DOCKER_IMAGE):$(DOCKER_TAG)
+
+# Docker 镜像构建（full 版本，alpine）
+docker-full:
+	@echo "🐳 构建 Docker 镜像 (full, alpine)..."
+	docker build -f Dockerfile.full -t $(DOCKER_IMAGE):full .
+
+# Docker 多架构构建
+docker-buildx-all:
+	@echo "🐳 构建多架构 Docker 镜像 (minimal + full)..."
+	docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t $(DOCKER_IMAGE):minimal .
+	docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile.full -t $(DOCKER_IMAGE):full .
+
+# 镜像大小检查
+docker-size:
+	@echo "📊 Docker 镜像大小..."
+	@docker images $(DOCKER_IMAGE) --format "table {{.Tag}}\t{{.Size}}" 2>/dev/null || echo "镜像不存在"

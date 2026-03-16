@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	neturl "net/url"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -508,6 +509,29 @@ func (m *Manager) GetExtensions(pointID string) []*Extension {
 
 // downloadPlugin 从 URL 下载插件
 func (m *Manager) downloadPlugin(url string) (string, error) {
+	// 安全检查：只允许 HTTPS URL（除非在测试环境）
+	if !strings.HasPrefix(url, "https://") {
+		if os.Getenv("ENV") != "test" && os.Getenv("ALLOW_HTTP_PLUGIN") != "true" {
+			return "", fmt.Errorf("安全限制：只允许从 HTTPS URL 下载插件")
+		}
+	}
+
+	// 解析并验证 URL
+	parsedURL, err := neturl.Parse(url)
+	if err != nil {
+		return "", fmt.Errorf("无效的 URL: %w", err)
+	}
+
+	// 防止访问内部网络地址（SSRF 防护）
+	host := parsedURL.Hostname()
+	if host == "localhost" || host == "127.0.0.1" || strings.HasPrefix(host, "192.168.") ||
+		strings.HasPrefix(host, "10.") || strings.HasPrefix(host, "172.") {
+		if os.Getenv("ENV") != "test" && os.Getenv("ALLOW_PRIVATE_NETWORK_PLUGIN") != "true" {
+			return "", fmt.Errorf("安全限制：不允许从私有网络地址下载插件")
+		}
+	}
+
+	// #nosec G107 -- URL is validated above with SSRF protection
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", fmt.Errorf("下载失败: %w", err)
