@@ -91,21 +91,24 @@ RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped (
 # ========== 健康检查工具构建阶段 ==========
 FROM golang:1.26-alpine AS healthcheck-builder
 
-# 构建一个极简的健康检查工具
-RUN echo 'package main\n\
-import (\n\
-	"fmt"\n\
-	"net/http"\n\
-	"os"\n\
-)\n\
-func main() {\n\
-	resp, err := http.Get("http://localhost:8080/api/v1/health")\n\
-	if err != nil || resp.StatusCode != 200 {\n\
-		os.Exit(1)\n\
-	}\n\
-	resp.Body.Close()\n\
-}' > /tmp/health.go && \
-	CGO_ENABLED=0 go build -ldflags="-w -s" -o /healthcheck /tmp/health.go
+# 构建一个极简的健康检查工具（使用 heredoc 语法避免转义问题）
+RUN cat > /tmp/health.go << 'EOF'
+package main
+
+import (
+	"net/http"
+	"os"
+)
+
+func main() {
+	resp, err := http.Get("http://localhost:8080/api/v1/health")
+	if err != nil || resp.StatusCode != 200 {
+		os.Exit(1)
+	}
+	resp.Body.Close()
+}
+EOF
+RUN CGO_ENABLED=0 go build -ldflags="-w -s" -o /healthcheck /tmp/health.go
 
 # ========== 运行阶段（轻量级） ==========
 # 使用 distroless/static 作为基础镜像（约 2MB，无 shell）
