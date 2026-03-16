@@ -92,8 +92,8 @@ RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped (
 # ========== 健康检查工具构建阶段 ==========
 FROM golang:1.26-alpine AS healthcheck-builder
 
-# 构建一个极简的健康检查工具（使用 heredoc 语法避免转义问题）
-RUN cat > /tmp/health.go << 'EOF'
+# 构建一个极简的健康检查工具（使用 Dockerfile 1.4 heredoc 语法）
+COPY <<EOF /tmp/health.go
 package main
 
 import (

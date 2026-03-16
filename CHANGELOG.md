@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.131.0] - 2026-03-16
+
+### 六部协同开发
+
+#### 工部 - Dockerfile 修复
+- ✅ 修复 Dockerfile heredoc 语法问题
+- ✅ 将 shell heredoc 改为 Dockerfile 1.4 COPY heredoc 语法
+- ✅ 解决 Docker Publish 构建失败问题
+
+#### 礼部 - 文档版本同步
+- ✅ VERSION → v2.131.0
+- ✅ internal/version/version.go → 2.131.0
+- ✅ docs/api.yaml → 2.131.0
+- ✅ README.md → v2.131.0
+
+### Fixed
+- Dockerfile 第 97 行 heredoc 语法错误
+  - 修复前: `RUN cat > /tmp/health.go << 'EOF'` (shell heredoc)
+  - 修复后: `COPY <<EOF /tmp/health.go` (Dockerfile 1.4 heredoc)
+
+## [v2.130.0] - 2026-03-16
+
+### Fixed
+- CI 修复 - storage_cost.go 格式修复
+- 合并冲突解决
+
+## [v2.129.0] - 2026-03-16
+
+### Fixed
+- CI 修复 - Dockerfile heredoc 语法
+- 安全修复 - integer overflow 问题修复
+
 ## [v2.128.0] - 2026-03-16
 
 ### 六部协同开发
