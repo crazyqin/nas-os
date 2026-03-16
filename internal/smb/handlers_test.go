@@ -333,8 +333,8 @@ func TestDeleteShare_Exists(t *testing.T) {
 	handlers, mgr, tmpDir := setupTestHandlers(t)
 
 	share := &Share{
-		Name:    "test-share",
-		Path:    filepath.Join(tmpDir, "share"),
+		Name: "test-share",
+		Path: filepath.Join(tmpDir, "share"),
 	}
 	_ = mgr.CreateShare(share)
 
@@ -423,8 +423,8 @@ func TestRemovePermission_Valid(t *testing.T) {
 	handlers, mgr, tmpDir := setupTestHandlers(t)
 
 	share := &Share{
-		Name: "test-share",
-		Path: filepath.Join(tmpDir, "share"),
+		Name:  "test-share",
+		Path:  filepath.Join(tmpDir, "share"),
 		Users: []string{"testuser"},
 	}
 	_ = mgr.CreateShare(share)
