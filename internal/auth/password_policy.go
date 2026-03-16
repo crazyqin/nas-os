@@ -270,7 +270,7 @@ func lowercase(s string) string {
 
 // containsIgnoreCase 不区分大小写检查子字符串
 func containsIgnoreCase(s, substr string) bool {
-	return regexp.MustCompile("(?i)"+regexp.QuoteMeta(substr)).MatchString(s)
+	return regexp.MustCompile("(?i)" + regexp.QuoteMeta(substr)).MatchString(s)
 }
 
 // hasSequentialChars 检查是否有连续字符（如 abc, 123, cba, 321）

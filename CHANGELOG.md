@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.145.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 礼部 - 文档更新
+- ✅ 版本号更新至 v2.145.0
+- ✅ 修复 CI 格式问题
+
+### Changed
+- Version bump to v2.145.0
+
 ## [v2.144.0] - 2026-03-17
 
 ### 六部协同开发
