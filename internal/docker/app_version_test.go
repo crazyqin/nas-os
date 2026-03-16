@@ -154,10 +154,10 @@ func TestVersionManager_GetAvailableVersions(t *testing.T) {
 		return
 	}
 
-	// Add versions manually
+	// Add versions manually with valid PublishedAt time (within 1 hour for cache to be valid)
 	vm.versions["template-1"] = []*AppVersion{
-		{ID: "v1", TemplateID: "template-1", Version: "latest", Digest: "abc123"},
-		{ID: "v2", TemplateID: "template-1", Version: "v1.0.0", Digest: "def456"},
+		{ID: "v1", TemplateID: "template-1", Version: "latest", Digest: "abc123", PublishedAt: time.Now()},
+		{ID: "v2", TemplateID: "template-1", Version: "v1.0.0", Digest: "def456", PublishedAt: time.Now()},
 	}
 
 	versions, err := vm.GetAvailableVersions("template-1")
@@ -172,8 +172,9 @@ func TestVersionManager_GetAvailableVersions_Empty(t *testing.T) {
 	}
 
 	versions, err := vm.GetAvailableVersions("nonexistent")
-	assert.NoError(t, err)
-	assert.Empty(t, versions)
+	// 期望返回错误，因为模板不存在
+	assert.Error(t, err)
+	assert.Nil(t, versions)
 }
 
 func TestUpdateNotification_Struct(t *testing.T) {
