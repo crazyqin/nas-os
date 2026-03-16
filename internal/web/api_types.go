@@ -1,6 +1,12 @@
 // Package web NAS-OS API 类型和文档模型
 package web
 
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
 // ========== 通用响应结构 ==========
 
 // Response 通用 API 响应
@@ -14,6 +20,65 @@ type Response struct {
 type ErrorResponse struct {
 	Code    int    `json:"code" example:"400"`
 	Message string `json:"message" example:"请求参数错误"`
+}
+
+// ========== 统一错误响应辅助函数 ==========
+
+// respondSuccess 成功响应
+func respondSuccess(c *gin.Context, data interface{}) {
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    data,
+	})
+}
+
+// respondSuccessMessage 成功响应（仅消息）
+func respondSuccessMessage(c *gin.Context, message string) {
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": message,
+	})
+}
+
+// respondBadRequest 400 错误响应
+func respondBadRequest(c *gin.Context, message string) {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"code":    400,
+		"message": message,
+	})
+}
+
+// respondNotFound 404 错误响应
+func respondNotFound(c *gin.Context, message string) {
+	c.JSON(http.StatusNotFound, gin.H{
+		"code":    404,
+		"message": message,
+	})
+}
+
+// respondInternalError 500 错误响应
+func respondInternalError(c *gin.Context, message string) {
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"code":    500,
+		"message": message,
+	})
+}
+
+// respondServiceUnavailable 503 错误响应
+func respondServiceUnavailable(c *gin.Context, message string) {
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"code":    503,
+		"message": message,
+	})
+}
+
+// respondError 通用错误响应
+func respondError(c *gin.Context, statusCode int, code int, message string) {
+	c.JSON(statusCode, gin.H{
+		"code":    code,
+		"message": message,
+	})
 }
 
 // ========== 卷管理 API 模型 ==========
