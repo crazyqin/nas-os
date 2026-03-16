@@ -20,7 +20,6 @@ type Service struct {
 	wg              sync.WaitGroup
 	ctx             context.Context
 	cancel          context.CancelFunc
-	mu              sync.RWMutex
 }
 
 type sendTask struct {

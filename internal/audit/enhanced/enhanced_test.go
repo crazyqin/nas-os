@@ -120,14 +120,14 @@ func TestLoginQueryWithFilters(t *testing.T) {
 
 	// 按用户ID筛选
 	opts := LoginQueryOptions{UserID: "user-001"}
-	entries, total := auditor.Query(opts)
+	_, total := auditor.Query(opts)
 	if total != 2 {
 		t.Errorf("expected 2 entries for user-001, got %d", total)
 	}
 
 	// 按状态筛选
 	opts = LoginQueryOptions{Status: "failure"}
-	entries, total = auditor.Query(opts)
+	entries, total := auditor.Query(opts)
 	if total != 1 {
 		t.Errorf("expected 1 failure entry, got %d", total)
 	}
@@ -407,7 +407,7 @@ func TestCheckSensitive(t *testing.T) {
 	// 测试用户删除操作（应该是敏感操作）
 	op := manager.CheckSensitive(OperationCategoryUser, ActionDelete, "")
 	if op == nil {
-		t.Error("user delete should be a sensitive operation")
+		t.Fatal("user delete should be a sensitive operation")
 	}
 
 	if op.SensitivityLevel != SensitivityCritical {

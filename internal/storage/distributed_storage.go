@@ -185,10 +185,9 @@ type StoragePool struct {
 	Capacity      uint64          `json:"capacity"`      // 总容量
 	Used          uint64          `json:"used"`          // 已用容量
 	Available     uint64          `json:"available"`     // 可用容量
-	ObjectCount   int64           `json:"objectCount"`   // 对象总数
-	CreatedAt     time.Time       `json:"createdAt"`
-	UpdatedAt     time.Time       `json:"updatedAt"`
-	mu            sync.RWMutex
+	ObjectCount   int64         `json:"objectCount"` // 对象总数
+	CreatedAt     time.Time     `json:"createdAt"`
+	UpdatedAt     time.Time     `json:"updatedAt"`
 }
 
 // PoolStats 存储池统计

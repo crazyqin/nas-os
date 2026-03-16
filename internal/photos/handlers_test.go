@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -534,21 +533,6 @@ func TestHandlers_UploadPhotoBatch_NoFiles(t *testing.T) {
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("期望状态码 400，得到 %d", w.Code)
 	}
-}
-
-// ========== Helper function for creating test files ==========
-
-func createTestImage(t *testing.T) string {
-	tmpDir := t.TempDir()
-	imgPath := filepath.Join(tmpDir, "test.jpg")
-
-	// 创建一个简单的测试文件
-	err := os.WriteFile(imgPath, []byte("fake image content"), 0644)
-	if err != nil {
-		t.Fatalf("创建测试文件失败：%v", err)
-	}
-
-	return imgPath
 }
 
 // ========== Integration Tests ==========

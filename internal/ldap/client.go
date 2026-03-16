@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sync"
 	"time"
@@ -131,12 +130,13 @@ func (c *Client) dialTLS() (*ldap.Conn, error) {
 	}
 	tlsConfig.ServerName = host
 
-	return ldap.DialTLS("tcp", host, tlsConfig)
+	// 使用 DialURL 替代已弃用的 DialTLS
+	return ldap.DialURL(c.config.URL, ldap.DialWithTLSConfig(tlsConfig))
 }
 
 // loadCACert 加载 CA 证书
 func (c *Client) loadCACert() (*x509.CertPool, error) {
-	caCert, err := ioutil.ReadFile(c.config.CACertPath)
+	caCert, err := os.ReadFile(c.config.CACertPath)
 	if err != nil {
 		return nil, fmt.Errorf("%w: 读取 CA 证书失败: %v", ErrTLSCertInvalid, err)
 	}

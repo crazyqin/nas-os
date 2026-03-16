@@ -45,7 +45,7 @@ func TestGetTemplate(t *testing.T) {
 	}
 
 	// 测试不存在的模板
-	tpl, err = GetTemplate("nonexistent")
+	_, err = GetTemplate("nonexistent")
 	if err == nil {
 		t.Error("Expected error for nonexistent template")
 	}

@@ -919,27 +919,6 @@ func (m *Manager) saveConfig() error {
 
 // ========== LSBLK 解析 ==========
 
-// lsblkOutput lsblk 输出结构
-type lsblkOutput struct {
-	BlockDevices []lsblkDevice `json:"blockdevices"`
-}
-
-// lsblkDevice lsblk 设备结构
-type lsblkDevice struct {
-	Name       string        `json:"name"`
-	Path       string        `json:"path"`
-	Label      string        `json:"label"`
-	UUID       string        `json:"uuid"`
-	Fstype     string        `json:"fstype"`
-	Size       int64         `json:"size,string"`
-	Vendor     string        `json:"vendor"`
-	Model      string        `json:"model"`
-	Serial     string        `json:"serial"`
-	Mountpoint string        `json:"mountpoint"`
-	Hotplug    bool          `json:"hotplug,string"`
-	Children   []lsblkDevice `json:"children"`
-}
-
 // parseLSBLKOutput 解析 lsblk 输出
 func parseLSBLKOutput(output []byte) []*Device {
 	var result []*Device

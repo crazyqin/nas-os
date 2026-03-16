@@ -248,9 +248,7 @@ func (m *SessionManager) InvalidateUserSessions(userID string) error {
 
 	tokens := m.userSession[userID]
 	for _, token := range tokens {
-		if _, exists := m.sessions[token]; exists {
-			delete(m.sessions, token)
-		}
+		delete(m.sessions, token)
 	}
 	delete(m.userSession, userID)
 

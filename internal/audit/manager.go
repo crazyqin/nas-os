@@ -703,8 +703,10 @@ func (m *Manager) Export(opts ExportOptions) ([]byte, error) {
 		// 如果不包含签名，清除签名字段
 		exportEntry := entry
 		if !opts.IncludeSignatures {
-			exportEntry = &(*entry) // 复制
-			exportEntry.Signature = ""
+			// 创建副本以避免修改原始数据
+			copy := *entry
+			copy.Signature = ""
+			exportEntry = &copy
 		}
 
 		filtered = append(filtered, exportEntry)

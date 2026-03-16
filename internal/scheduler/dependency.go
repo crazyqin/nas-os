@@ -310,14 +310,6 @@ func (dm *DependencyManager) GetExecutionOrder() ([]string, error) {
 		inDegree[taskID] = 0
 	}
 
-	for _, deps := range dm.dependencies {
-		for _, depID := range deps {
-			if _, exists := dm.tasks[depID]; exists {
-				// 反向：depID 被依赖，所以 inDegree 增加
-			}
-		}
-	}
-
 	// 计算入度
 	for taskID, deps := range dm.dependencies {
 		for _, depID := range deps {

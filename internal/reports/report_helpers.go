@@ -10,12 +10,6 @@ import (
 
 // ========== v2.76.0 资源报告增强辅助函数 ==========
 
-// formatFloatPrec 格式化浮点数
-func formatFloatPrec(val float64, precision int) string {
-	format := fmt.Sprintf("%%.%df", precision)
-	return fmt.Sprintf(format, val)
-}
-
 // FormatBytes 格式化字节为人类可读格式
 func FormatBytes(bytes uint64) string {
 	const (

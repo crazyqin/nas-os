@@ -31,7 +31,6 @@ type QuotaManagerAdapter struct {
 	quotas map[string]*QuotaDefinition
 	usages map[string]*QuotaUsageRecord
 	alerts map[string]*QuotaAlertRecord
-	mu     interface{}
 }
 
 // QuotaDefinition 配额定义
