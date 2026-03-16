@@ -1,7 +1,8 @@
 # NAS-OS 快速开始指南
 
-**版本**: v2.141.0  
+**版本**: v2.142.0  
 **更新日期**: 2026-03-17
+**更新日期**: 2026-03-16
 
 ---
 
@@ -51,17 +52,17 @@
 
 ```bash
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.138.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.142.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.138.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.142.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.138.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.142.0/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 

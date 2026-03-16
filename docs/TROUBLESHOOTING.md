@@ -623,5 +623,5 @@ nasctl diag --output diag-$(date +%Y%m%d).tar.gz
 ---
 
 **最后更新**: 2026-03-16
-**版本**: v2.138.0
+**版本**: v2.141.0
 **维护**: 工部 (DevOps Team)

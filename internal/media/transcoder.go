@@ -628,5 +628,5 @@ func parseFFmpegSpeed(line string) string {
 		return ""
 	}
 
-	return rest[:end+1] + "x"
+	return rest[:end+1]
 }
