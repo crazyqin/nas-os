@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.151.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.151.0
+- ✅ 里程碑记录更新
+
+### Fixed
+- CI 配置修复
+
+### Changed
+- Version bump to v2.151.0
+
 ## [v2.150.0] - 2026-03-17
 
 ### 六部协同开发
