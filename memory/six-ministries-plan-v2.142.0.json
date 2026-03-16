@@ -1,0 +1,34 @@
+{
+  "version": "v2.142.0",
+  "timestamp": "2026-03-17T03:42:00+08:00",
+  "tasks": {
+    "吏部": {
+      "task": "版本号更新、里程碑记录、项目状态报告",
+      "files": ["VERSION", "internal/version/version.go", "MILESTONES.md", "README.md"],
+      "priority": "P0"
+    },
+    "兵部": {
+      "task": "测试修复、代码质量检查、go vet",
+      "commands": ["go vet ./...", "go build ./...", "go test ./... -short"],
+      "priority": "P0"
+    },
+    "礼部": {
+      "task": "文档更新、CHANGELOG更新、API文档版本同步",
+      "files": ["CHANGELOG.md", "docs/README.md", "docs/CHANGELOG.md", "docs/api.yaml"],
+      "priority": "P1"
+    },
+    "工部": {
+      "task": "CI/CD检查、Docker配置检查、部署脚本验证",
+      "priority": "P1"
+    },
+    "刑部": {
+      "task": "安全审计、govulncheck检查",
+      "commands": ["govulncheck ./..."],
+      "priority": "P1"
+    },
+    "户部": {
+      "task": "资源统计、成本分析报告",
+      "priority": "P2"
+    }
+  }
+}

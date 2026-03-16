@@ -1,0 +1,68 @@
+{
+  "version": "v2.141.0",
+  "date": "2026-03-17",
+  "status": "in_progress",
+  "six_ministries": {
+    "bingbu": {
+      "name": "兵部",
+      "role": "软件工程",
+      "tasks": [
+        "为 internal/media (13.0%) 补充测试",
+        "为 internal/container (18.2%) 补充测试",
+        "为 internal/downloader (18.2%) 补充测试"
+      ],
+      "priority_modules": ["internal/media", "internal/container", "internal/downloader"],
+      "status": "pending"
+    },
+    "gongbu": {
+      "name": "工部",
+      "role": "DevOps",
+      "tasks": [
+        "检查 Docker 构建缓存优化",
+        "验证 CI/CD 流程稳定性",
+        "检查 GitHub Actions 运行状态"
+      ],
+      "status": "pending"
+    },
+    "libu": {
+      "name": "吏部",
+      "role": "项目管理",
+      "tasks": [
+        "版本号更新至 v2.141.0",
+        "更新 CHANGELOG.md",
+        "更新 MILESTONES.md"
+      ],
+      "status": "pending"
+    },
+    "libu_pm": {
+      "name": "礼部",
+      "role": "文档内容",
+      "tasks": [
+        "同步 README.md 版本号",
+        "检查 API 文档完整性",
+        "更新用户指南"
+      ],
+      "status": "pending"
+    },
+    "xingbu": {
+      "name": "刑部",
+      "role": "安全合规",
+      "tasks": [
+        "运行 govulncheck 安全扫描",
+        "检查依赖漏洞",
+        "生成安全审计报告"
+      ],
+      "status": "pending"
+    },
+    "hubu": {
+      "name": "户部",
+      "role": "财务预算",
+      "tasks": [
+        "生成项目资源统计",
+        "成本分析报告",
+        "检查测试覆盖率趋势"
+      ],
+      "status": "pending"
+    }
+  }
+}

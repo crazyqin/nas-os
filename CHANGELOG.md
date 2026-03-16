@@ -2,13 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.141.0] - 2026-03-17
+## [v2.142.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 司礼监
+- ✅ 召集六部协同开发
+- ✅ 版本号更新至 v2.142.0
+- ✅ 代码格式修复 (13个文件)
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新
+- ✅ 里程碑记录更新
+
+（其他部门内容待补充）
+
+### Changed
+- Version bump to v2.142.0
+- Code formatting fixes for CI
+
+## [v2.142.0] - 2026-03-17
 
 ### 六部协同开发
 
 #### 吏部 - 项目管理
-- ✅ 版本号更新至 v2.141.0
+- ✅ 版本号更新至 v2.142.0
 - ✅ 里程碑记录更新
+
+（其他部门内容待补充）
+
+### Changed
+- Version bump to v2.142.0
 
 ## [v2.140.0] - 2026-03-17
 
@@ -667,7 +691,6 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - **版本号更新** (吏部)
   - 版本号更新至 v2.109.0
->>>>>>> 70d7ef9 (feat(v2.109.0): 六部协同开发)
   - README.md 版本信息同步
   - Docker 镜像标签更新
 
@@ -675,7 +698,6 @@ All notable changes to this project will be documented in this file.
 - **CI/CD 优化** (工部)
   - 降低测试覆盖率阈值到 25% 以通过 CI/CD
   - 代码格式化优化
->>>>>>> 70d7ef9 (feat(v2.109.0): 六部协同开发)
 
 ## [v2.95.0] - 2026-03-16
 
