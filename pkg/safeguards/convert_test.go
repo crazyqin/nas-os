@@ -106,8 +106,8 @@ func TestSafeInt64ToInt(t *testing.T) {
 		{"negative", -42, -42, false},
 		{"max int", int64(math.MaxInt), math.MaxInt, false},
 		{"min int", int64(math.MinInt), math.MinInt, false},
-		{"overflow", int64(math.MaxInt) + 1, 0, true},
-		{"underflow", int64(math.MinInt) - 1, 0, true},
+		// Note: On 64-bit systems, int64 and int are the same size,
+		// so there's no overflow possible for int64 -> int
 	}
 
 	for _, tt := range tests {
