@@ -190,8 +190,10 @@ help:
 	@echo ""
 	@echo "  构建:"
 	@echo "    make build          - 编译二进制文件"
+	@echo "    make build-version  - 编译带版本信息的二进制"
 	@echo "    make build-all      - 跨平台构建"
 	@echo "    make build-debug    - 调试版本"
+	@echo "    make quick          - 快速构建 (跳过测试)"
 	@echo ""
 	@echo "  测试:"
 	@echo "    make test           - 运行单元测试"
@@ -207,6 +209,17 @@ help:
 	@echo "    make lint           - 代码检查"
 	@echo "    make fmt            - 格式化代码"
 	@echo "    make tidy           - 整理依赖"
+	@echo "    make check          - 快速检查 (fmt + lint)"
+	@echo "    make pre-commit     - 预提交检查 (tidy + fmt + lint + test)"
+	@echo "    make all-checks     - 完整检查流程"
+	@echo ""
+	@echo "  开发辅助 (v2.122.0):"
+	@echo "    make dev-setup      - 设置开发环境"
+	@echo "    make dev            - 热重载开发服务器"
+	@echo "    make stats          - 代码统计"
+	@echo "    make todos          - 查找 TODO/FIXME"
+	@echo "    make deps           - 显示依赖"
+	@echo "    make deps-update    - 更新依赖"
 	@echo ""
 	@echo "  文档:"
 	@echo "    make swagger        - 生成 Swagger/OpenAPI 文档"
@@ -253,10 +266,13 @@ help:
 	@echo "    make quick-status   - 快速状态检查"
 	@echo "    make quick-status-json - JSON 格式输出"
 	@echo ""
-	@echo "  版本管理 (v2.75.0):"
+	@echo "  版本管理 (v2.122.0):"
 	@echo "    make version        - 显示版本信息"
+	@echo "    make version-info   - 详细版本信息"
+	@echo "    make version-info-json - JSON 格式版本信息"
 	@echo "    make version-check  - 检查更新"
 	@echo "    make version-json   - JSON 格式版本信息"
+	@echo "    make version-status - 检查版本状态"
 	@echo ""
 	@echo "  服务管理 (v2.75.0):"
 	@echo "    make service-start  - 启动服务"
@@ -278,6 +294,11 @@ help:
 	@echo "    make disk-health-monitor - 启动磁盘健康监控"
 	@echo "    make disk-smart-test - 运行 SMART 短测试"
 	@echo "    make disk-smart-test-long - 运行 SMART 长测试"
+	@echo ""
+	@echo "  日志分析 (v2.122.0):"
+	@echo "    make log-analyze    - 分析日志文件"
+	@echo "    make log-analyze-json - JSON 格式输出"
+	@echo "    make log-report     - 生成日志报告"
 	@echo ""
 	@echo "  其他:"
 	@echo "    make clean          - 清理构建产物"
@@ -484,6 +505,19 @@ disk-smart-test:
 disk-smart-test-long:
 	@echo "💿 运行 SMART 长测试..."
 	@./scripts/disk-health-check.sh --test long
+
+# ========== 日志分析 (v2.122.0) ==========
+log-analyze:
+	@echo "📋 分析日志文件..."
+	@./scripts/log-analyzer.sh
+
+log-analyze-json:
+	@echo "📋 分析日志文件 (JSON)..."
+	@./scripts/log-analyzer.sh --json
+
+log-report:
+	@echo "📋 生成日志报告..."
+	@./scripts/log-analyzer.sh --report /var/log/nas-os/reports/log-report-$(shell date +%Y%m%d).txt
 
 # ========== 版本管理 (v2.122.0) ==========
 
