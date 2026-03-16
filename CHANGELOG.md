@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.136.0] - 待补充
+
+### 六部协同开发
+
+#### 待补充
+- 待补充
+
 ## [v2.135.0] - 2026-03-17
 
 ### 六部协同开发
