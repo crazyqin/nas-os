@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.124.0] - 2026-03-16
+
+### 六部协同汇报
+
+#### 兵部 - 测试覆盖率提升
+- ✅ snapshot 模块测试覆盖率 21.9% → 27.4%
+- ✅ vm 模块测试覆盖率 26.9% → 34.6%
+- ✅ 新增 6 个测试文件，100+ 测试用例
+- ✅ 整体覆盖率 30.5% → 31.0%
+
+#### 工部 - CI/CD优化
+- ✅ 测试分片并行化：4个分片，测试时间减少约60%
+- ✅ 新增 test-merge job 合并覆盖率报告
+- ✅ 缓存版本升级至 v12
+- ✅ Makefile 增强：新增版本管理、开发辅助、日志分析目标
+- ✅ service-status.sh 增强：进程详情、端口详情检查
+
+#### 户部 - 资源管理优化
+- ✅ 修复 ConnectionPool healthCheck goroutine 泄漏风险
+- ✅ 添加 context 支持，实现优雅退出
+- ✅ 性能基准测试验证通过
+
+#### 刑部 - 安全审计
+- ✅ gosec 扫描完成：1668 个问题（HIGH:171, MEDIUM:796, LOW:701）
+- ✅ govulncheck 扫描：5 个 Go 标准库漏洞
+- ✅ 识别关键风险：G104/G304/G204/G115/G101
+- ✅ 安全工具包审计：已有 safeguards 包，建议推广使用
+
+#### 礼部 - 文档版本同步
+- ✅ VERSION → v2.124.0
+- ✅ README.md 版本信息同步
+- ✅ CHANGELOG.md 更新
+
+### Changed
+- 版本号更新至 v2.124.0
+- CI/CD 流程优化，测试时间减少 60%
+- goroutine 泄漏风险修复
+
 ## [v2.123.0] - 2026-03-16
 
 ### 六部协同汇报
