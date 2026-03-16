@@ -11,6 +11,14 @@ GOFLAGS=-ldflags="-w -s"
 DOCKER_IMAGE=nas-os
 DOCKER_TAG=latest
 
+# 版本信息 (v2.122.0)
+VERSION_FILE=VERSION
+VERSION=$(shell cat $(VERSION_FILE) 2>/dev/null || echo "v0.0.0")
+GIT_COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+BUILD_TIME=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
+GO_VERSION=$(shell go version | awk '{print $$3}' 2>/dev/null || echo "unknown")
+
 # 默认目标
 all: build
 
@@ -21,6 +29,13 @@ build:
 	@echo "🔨 编译 nasctl..."
 	$(GO) build $(GOFLAGS) -o $(CLI_NAME) ./cmd/nasctl
 	@echo "✅ 构建完成"
+
+# 带版本信息的构建
+build-version:
+	@echo "🔨 编译带版本信息的二进制..."
+	$(GO) build -ldflags="-w -s -X main.Version=$(VERSION) -X main.GitCommit=$(GIT_COMMIT) -X main.BuildTime=$(BUILD_TIME)" -o $(BINARY_NAME) ./cmd/nasd
+	$(GO) build -ldflags="-w -s -X main.Version=$(VERSION)" -o $(CLI_NAME) ./cmd/nasctl
+	@echo "✅ 构建完成: $(VERSION) ($(GIT_COMMIT))"
 
 build-debug:
 	@echo "🔨 编译调试版本..."
@@ -469,3 +484,97 @@ disk-smart-test:
 disk-smart-test-long:
 	@echo "💿 运行 SMART 长测试..."
 	@./scripts/disk-health-check.sh --test long
+
+# ========== 版本管理 (v2.122.0) ==========
+
+# 显示版本信息
+version-info:
+	@echo "NAS-OS 版本信息"
+	@echo "================"
+	@echo "版本:     $(VERSION)"
+	@echo "提交:     $(GIT_COMMIT)"
+	@echo "分支:     $(GIT_BRANCH)"
+	@echo "构建时间: $(BUILD_TIME)"
+	@echo "Go版本:   $(GO_VERSION)"
+
+# 版本 JSON 输出
+version-info-json:
+	@echo "{\"version\": \"$(VERSION)\", \"commit\": \"$(GIT_COMMIT)\", \"branch\": \"$(GIT_BRANCH)\", \"build_time\": \"$(BUILD_TIME)\", \"go_version\": \"$(GO_VERSION)\"}"
+
+# 检查是否有未提交的更改
+version-status:
+	@echo "🔍 检查版本状态..."
+	@if git diff-index --quiet HEAD --; then \
+		echo "✅ 工作目录干净"; \
+	else \
+		echo "⚠️ 有未提交的更改"; \
+		git status --short; \
+	fi
+	@echo ""
+	@echo "当前版本: $(VERSION)"
+	@echo "最近标签: $$(git describe --tags --abbrev=0 2>/dev/null || echo '无')"
+
+# ========== 开发辅助 (v2.122.0) ==========
+
+# 开发环境设置
+dev-setup:
+	@echo "🔧 设置开发环境..."
+	@command -v golangci-lint >/dev/null || go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@command -v swag >/dev/null || go install github.com/swaggo/swag/cmd/swag@latest
+	@command -v air >/dev/null || go install github.com/cosmtrek/air@latest
+	@echo "✅ 开发工具安装完成"
+	@echo ""
+	@echo "已安装工具:"
+	@echo "  - golangci-lint: 代码检查"
+	@echo "  - swag: Swagger 文档生成"
+	@echo "  - air: 热重载开发服务器"
+
+# 热重载开发
+dev:
+	@echo "🔥 启动热重载开发服务器..."
+	@if command -v air >/dev/null; then \
+		air -c .air.toml; \
+	else \
+		echo "❌ 未安装 air，请运行 make dev-setup"; \
+	fi
+
+# 快速检查 (代码格式 + 简单 lint)
+check: fmt lint
+	@echo "✅ 快速检查完成"
+
+# 预提交检查
+pre-commit: tidy fmt lint test
+	@echo "✅ 预提交检查完成"
+
+# 显示依赖
+deps:
+	@echo "📦 项目依赖:"
+	$(GO) list -m all | head -20
+
+# 更新依赖
+deps-update:
+	@echo "📦 更新依赖..."
+	$(GO) get -u ./...
+	$(GO) mod tidy
+	@echo "✅ 依赖已更新"
+
+# 代码统计
+stats:
+	@echo "📊 代码统计:"
+	@echo "  Go 文件: $$(find . -name '*.go' -not -path './vendor/*' | wc -l)"
+	@echo "  代码行数: $$(find . -name '*.go' -not -path './vendor/*' -exec cat {} \; | wc -l)"
+	@echo "  测试文件: $$(find . -name '*_test.go' -not -path './vendor/*' | wc -l)"
+	@echo "  测试代码行数: $$(find . -name '*_test.go' -not -path './vendor/*' -exec cat {} \; | wc -l)"
+
+# 查找 TODO/FIXME
+todos:
+	@echo "📝 待办事项:"
+	@grep -rn --color=always 'TODO\|FIXME\|XXX\|HACK' --include='*.go' . 2>/dev/null | head -30 || echo "无待办事项"
+
+# 快速构建 (跳过测试)
+quick: build
+	@echo "✅ 快速构建完成"
+
+# 完整构建流程
+all-checks: tidy fmt lint test
+	@echo "✅ 所有检查通过"
