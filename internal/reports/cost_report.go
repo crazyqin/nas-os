@@ -850,7 +850,7 @@ func (g *CostReportGenerator) addWeeklyAnalysis(ctx context.Context, report *Cos
 	prevWeekStart := report.PeriodStart.AddDate(0, 0, -7)
 	prevReport, err := g.providers.GetHistoricalReport(ctx, CostReportTypeWeekly, prevWeekStart)
 	if err != nil || prevReport == nil {
-		// 没有上周数据，跳过环比分析
+		// 没有历史报告，跳过环比分析
 		return nil
 	}
 
@@ -864,7 +864,7 @@ func (g *CostReportGenerator) addMonthlyAnalysis(ctx context.Context, report *Co
 	prevMonthStart := report.PeriodStart.AddDate(0, -1, 0)
 	prevReport, err := g.providers.GetHistoricalReport(ctx, CostReportTypeMonthly, prevMonthStart)
 	if err != nil || prevReport == nil {
-		// 没有上月数据，跳过环比分析
+		// 没有历史报告，跳过环比分析
 		return nil
 	}
 
@@ -1044,7 +1044,7 @@ func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 	// 简化的CSV输出
 	headers := []string{"Category", "Metric", "Value"}
 	if err := writer.Write(headers); err != nil {
-		return "", err
+		return "", fmt.Errorf("写入CSV头部失败: %w", err)
 	}
 
 	// 摘要数据
@@ -1058,10 +1058,10 @@ func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 		writer.Write([]string{"Pool", p.PoolName, fmt.Sprintf("%.2f GB / %.2f 元", p.UsedCapacityGB, p.MonthlyCost)})
 	}
 
-	// 确保在返回前 flush
+	// 必须在返回前Flush
 	writer.Flush()
 	if err := writer.Error(); err != nil {
-		return "", err
+		return "", fmt.Errorf("CSV写入失败: %w", err)
 	}
 
 	return builder.String(), nil
