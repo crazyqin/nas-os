@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.141.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.141.0
+- ✅ 里程碑记录更新
+
 ## [v2.140.0] - 2026-03-17
 
 ### 六部协同开发
