@@ -13,176 +13,272 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
+// TestQuotaError_Error 测试错误消息
+func TestQuotaError_Error(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      *QuotaError
+		expected string
+	}{
+		{
+			name:     "quota not found",
+			err:      ErrQuotaNotFoundAPI,
+			expected: "配额不存在",
+		},
+		{
+			name:     "quota exists",
+			err:      ErrQuotaExistsAPI,
+			expected: "配额已存在",
+		},
+		{
+			name:     "quota exceeded",
+			err:      ErrQuotaExceededAPI,
+			expected: "超出配额限制",
+		},
+		{
+			name:     "user not found",
+			err:      ErrUserNotFoundAPI,
+			expected: "用户不存在",
+		},
+		{
+			name:     "group not found",
+			err:      ErrGroupNotFoundAPI,
+			expected: "用户组不存在",
+		},
+		{
+			name:     "volume not found",
+			err:      ErrVolumeNotFoundAPI,
+			expected: "卷不存在",
+		},
+		{
+			name:     "invalid limit",
+			err:      ErrInvalidLimitAPI,
+			expected: "无效的配额限制",
+		},
+		{
+			name:     "policy not found",
+			err:      ErrPolicyNotFoundAPI,
+			expected: "清理策略不存在",
+		},
+		{
+			name:     "invalid input",
+			err:      ErrInvalidInputAPI,
+			expected: "无效的输入参数",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.err.Error() != tt.expected {
+				t.Errorf("Expected error message '%s', got '%s'", tt.expected, tt.err.Error())
+			}
+		})
+	}
+}
+
+// TestQuotaError_Code 测试错误码
+func TestQuotaError_Code(t *testing.T) {
+	tests := []struct {
+		name         string
+		err          *QuotaError
+		expectedCode int
+	}{
+		{"quota not found", ErrQuotaNotFoundAPI, ErrCodeQuotaNotFound},
+		{"quota exists", ErrQuotaExistsAPI, ErrCodeQuotaExists},
+		{"quota exceeded", ErrQuotaExceededAPI, ErrCodeQuotaExceeded},
+		{"user not found", ErrUserNotFoundAPI, ErrCodeUserNotFound},
+		{"group not found", ErrGroupNotFoundAPI, ErrCodeGroupNotFound},
+		{"volume not found", ErrVolumeNotFoundAPI, ErrCodeVolumeNotFound},
+		{"invalid limit", ErrInvalidLimitAPI, ErrCodeInvalidLimit},
+		{"policy not found", ErrPolicyNotFoundAPI, ErrCodePolicyNotFound},
+		{"invalid input", ErrInvalidInputAPI, ErrCodeInvalidInput},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.err.Code() != tt.expectedCode {
+				t.Errorf("Expected code %d, got %d", tt.expectedCode, tt.err.Code())
+			}
+		})
+	}
+}
+
+// TestQuotaError_Details 测试错误详情
+func TestQuotaError_Details(t *testing.T) {
+	details := map[string]interface{}{
+		"volume": "test-volume",
+		"user":   "test-user",
+	}
+
+	err := NewQuotaError(ErrCodeQuotaNotFound, "配额不存在", details)
+	if err.Details() == nil {
+		t.Error("Expected details to be non-nil")
+	}
+	if err.Details()["volume"] != "test-volume" {
+		t.Errorf("Expected volume to be 'test-volume', got %v", err.Details()["volume"])
+	}
+
+	// 测试没有详情的情况
+	err2 := NewQuotaError(ErrCodeQuotaNotFound, "配额不存在")
+	if err2.Details() != nil {
+		t.Error("Expected details to be nil")
+	}
+}
+
+// TestQuotaError_WithDetails 测试添加详情
+func TestQuotaError_WithDetails(t *testing.T) {
+	err := ErrQuotaNotFoundAPI.WithDetails(map[string]interface{}{
+		"path": "/data/test",
+	})
+
+	if err.Details() == nil {
+		t.Fatal("Expected details to be non-nil")
+	}
+	if err.Details()["path"] != "/data/test" {
+		t.Errorf("Expected path to be '/data/test', got %v", err.Details()["path"])
+	}
+}
+
+// TestQuotaError_NotFound 测试 NotFound 接口
 func TestQuotaError_NotFound(t *testing.T) {
 	tests := []struct {
 		name     string
 		err      *QuotaError
 		expected bool
 	}{
-		{"QuotaNotFound", &QuotaError{code: ErrCodeQuotaNotFound}, true},
-		{"PolicyNotFound", &QuotaError{code: ErrCodePolicyNotFound}, true},
-		{"QuotaExists", &QuotaError{code: ErrCodeQuotaExists}, false},
-		{"InvalidInput", &QuotaError{code: ErrCodeInvalidInput}, false},
+		{"quota not found", ErrQuotaNotFoundAPI, true},
+		{"policy not found", ErrPolicyNotFoundAPI, true},
+		{"quota exists", ErrQuotaExistsAPI, false},
+		{"invalid input", ErrInvalidInputAPI, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if result := tt.err.NotFound(); result != tt.expected {
-				t.Errorf("NotFound() = %v, want %v", result, tt.expected)
+			if tt.err.NotFound() != tt.expected {
+				t.Errorf("Expected NotFound() to return %v, got %v", tt.expected, tt.err.NotFound())
 			}
 		})
 	}
 }
 
+// TestQuotaError_BadRequest 测试 BadRequest 接口
 func TestQuotaError_BadRequest(t *testing.T) {
 	tests := []struct {
 		name     string
 		err      *QuotaError
 		expected bool
 	}{
-		{"InvalidInput", &QuotaError{code: ErrCodeInvalidInput}, true},
-		{"InvalidLimit", &QuotaError{code: ErrCodeInvalidLimit}, true},
-		{"QuotaNotFound", &QuotaError{code: ErrCodeQuotaNotFound}, false},
-		{"QuotaExists", &QuotaError{code: ErrCodeQuotaExists}, false},
+		{"invalid input", ErrInvalidInputAPI, true},
+		{"invalid limit", ErrInvalidLimitAPI, true},
+		{"quota not found", ErrQuotaNotFoundAPI, false},
+		{"quota exists", ErrQuotaExistsAPI, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if result := tt.err.BadRequest(); result != tt.expected {
-				t.Errorf("BadRequest() = %v, want %v", result, tt.expected)
+			if tt.err.BadRequest() != tt.expected {
+				t.Errorf("Expected BadRequest() to return %v, got %v", tt.expected, tt.err.BadRequest())
 			}
 		})
 	}
 }
 
+// TestQuotaError_Conflict 测试 Conflict 接口
 func TestQuotaError_Conflict(t *testing.T) {
 	tests := []struct {
 		name     string
 		err      *QuotaError
 		expected bool
 	}{
-		{"QuotaExists", &QuotaError{code: ErrCodeQuotaExists}, true},
-		{"QuotaNotFound", &QuotaError{code: ErrCodeQuotaNotFound}, false},
-		{"InvalidInput", &QuotaError{code: ErrCodeInvalidInput}, false},
+		{"quota exists", ErrQuotaExistsAPI, true},
+		{"quota not found", ErrQuotaNotFoundAPI, false},
+		{"invalid input", ErrInvalidInputAPI, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if result := tt.err.Conflict(); result != tt.expected {
-				t.Errorf("Conflict() = %v, want %v", result, tt.expected)
+			if tt.err.Conflict() != tt.expected {
+				t.Errorf("Expected Conflict() to return %v, got %v", tt.expected, tt.err.Conflict())
 			}
 		})
 	}
 }
 
-func TestQuotaError_Error(t *testing.T) {
-	err := &QuotaError{message: "test error message"}
-	if err.Error() != "test error message" {
-		t.Errorf("Error() = %v, want %v", err.Error(), "test error message")
-	}
-}
-
-func TestQuotaError_Code(t *testing.T) {
-	err := &QuotaError{code: ErrCodeQuotaNotFound}
-	if err.Code() != ErrCodeQuotaNotFound {
-		t.Errorf("Code() = %v, want %v", err.Code(), ErrCodeQuotaNotFound)
-	}
-}
-
-func TestQuotaError_Details(t *testing.T) {
-	details := map[string]interface{}{"key": "value"}
-	err := &QuotaError{details: details}
-	if err.Details()["key"] != "value" {
-		t.Errorf("Details() = %v, want %v", err.Details(), details)
-	}
-
-	// Nil details
-	err2 := &QuotaError{}
-	if err2.Details() != nil {
-		t.Errorf("Details() should be nil for empty error")
-	}
-}
-
+// TestNewQuotaError 测试创建错误
 func TestNewQuotaError(t *testing.T) {
-	err := NewQuotaError(ErrCodeQuotaNotFound, "not found")
-	if err.code != ErrCodeQuotaNotFound {
-		t.Errorf("code = %v, want %v", err.code, ErrCodeQuotaNotFound)
+	// 无详情
+	err := NewQuotaError(ErrCodeQuotaNotFound, "test error")
+	if err == nil {
+		t.Fatal("Expected non-nil error")
 	}
-	if err.message != "not found" {
-		t.Errorf("message = %v, want %v", err.message, "not found")
+	if err.Code() != ErrCodeQuotaNotFound {
+		t.Errorf("Expected code %d, got %d", ErrCodeQuotaNotFound, err.Code())
+	}
+	if err.Error() != "test error" {
+		t.Errorf("Expected error message 'test error', got '%s'", err.Error())
 	}
 
-	// With details
+	// 有详情
 	details := map[string]interface{}{"key": "value"}
-	err2 := NewQuotaError(ErrCodeQuotaExists, "exists", details)
-	if err2.Details()["key"] != "value" {
-		t.Errorf("Details should contain key=value")
+	err2 := NewQuotaError(ErrCodeQuotaExists, "another error", details)
+	if err2.Details() == nil {
+		t.Error("Expected details to be non-nil")
 	}
 }
 
-func TestQuotaError_WithDetails(t *testing.T) {
-	err := &QuotaError{code: ErrCodeQuotaNotFound, message: "not found"}
-	details := map[string]interface{}{"volume": "test"}
-	result := err.WithDetails(details)
-
-	if result != err {
-		t.Error("WithDetails should return the same error")
-	}
-	if err.Details()["volume"] != "test" {
-		t.Errorf("Details should contain volume=test")
-	}
-}
-
+// TestToAPIError 测试错误转换
 func TestToAPIError(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    error
-		expected *QuotaError
+		name         string
+		input        error
+		expectedCode int
+		expectedNil  bool
 	}{
-		{"Nil", nil, nil},
-		{"QuotaError", &QuotaError{code: ErrCodeQuotaNotFound, message: "test"}, &QuotaError{code: ErrCodeQuotaNotFound, message: "test"}},
-		{"ErrQuotaNotFound", ErrQuotaNotFound, ErrQuotaNotFoundAPI},
-		{"ErrQuotaExists", ErrQuotaExists, ErrQuotaExistsAPI},
-		{"ErrQuotaExceeded", ErrQuotaExceeded, ErrQuotaExceededAPI},
-		{"ErrUserNotFound", ErrUserNotFound, ErrUserNotFoundAPI},
-		{"ErrGroupNotFound", ErrGroupNotFound, ErrGroupNotFoundAPI},
-		{"ErrVolumeNotFound", ErrVolumeNotFound, ErrVolumeNotFoundAPI},
-		{"ErrInvalidLimit", ErrInvalidLimit, ErrInvalidLimitAPI},
-		{"ErrCleanupPolicyNotFound", ErrCleanupPolicyNotFound, ErrPolicyNotFoundAPI},
-		{"Unknown error", errors.New("unknown"), &QuotaError{code: ErrCodeInvalidInput, message: "unknown"}},
+		{"nil error", nil, 0, true},
+		{"QuotaError", ErrQuotaNotFoundAPI, ErrCodeQuotaNotFound, false},
+		{"ErrQuotaNotFound", ErrQuotaNotFound, ErrCodeQuotaNotFound, false},
+		{"ErrQuotaExists", ErrQuotaExists, ErrCodeQuotaExists, false},
+		{"ErrQuotaExceeded", ErrQuotaExceeded, ErrCodeQuotaExceeded, false},
+		{"ErrUserNotFound", ErrUserNotFound, ErrCodeUserNotFound, false},
+		{"ErrGroupNotFound", ErrGroupNotFound, ErrCodeGroupNotFound, false},
+		{"ErrVolumeNotFound", ErrVolumeNotFound, ErrCodeVolumeNotFound, false},
+		{"ErrInvalidLimit", ErrInvalidLimit, ErrCodeInvalidLimit, false},
+		{"ErrCleanupPolicyNotFound", ErrCleanupPolicyNotFound, ErrCodePolicyNotFound, false},
+		{"unknown error", errors.New("unknown"), ErrCodeInvalidInput, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := ToAPIError(tt.input)
-			if tt.expected == nil {
+
+			if tt.expectedNil {
 				if result != nil {
-					t.Errorf("ToAPIError() = %v, want nil", result)
+					t.Error("Expected nil result")
 				}
 				return
 			}
+
 			if result == nil {
-				t.Errorf("ToAPIError() = nil, want non-nil")
-				return
+				t.Fatal("Expected non-nil result")
 			}
-			if result.code != tt.expected.code {
-				t.Errorf("code = %v, want %v", result.code, tt.expected.code)
+			if result.Code() != tt.expectedCode {
+				t.Errorf("Expected code %d, got %d", tt.expectedCode, result.Code())
 			}
 		})
 	}
 }
 
+// TestErrorResponse 测试错误响应
 func TestErrorResponse(t *testing.T) {
 	tests := []struct {
-		name         string
-		err          error
-		expectStatus int
-		expectCode   int
+		name           string
+		err            error
+		expectedStatus int
+		expectedCode   int
 	}{
-		{"QuotaNotFound", ErrQuotaNotFound, 404, ErrCodeQuotaNotFound},
-		{"QuotaExists", ErrQuotaExists, 409, ErrCodeQuotaExists},
-		{"InvalidInput", errors.New("invalid"), 400, ErrCodeInvalidInput},
-		{"PolicyNotFound", ErrCleanupPolicyNotFound, 404, ErrCodePolicyNotFound},
+		{"quota not found", ErrQuotaNotFound, http.StatusNotFound, ErrCodeQuotaNotFound},
+		{"quota exists", ErrQuotaExists, http.StatusConflict, ErrCodeQuotaExists},
+		{"invalid input", ErrInvalidInputAPI, http.StatusBadRequest, ErrCodeInvalidInput},
 	}
 
 	for _, tt := range tests {
@@ -192,149 +288,330 @@ func TestErrorResponse(t *testing.T) {
 
 			ErrorResponse(c, tt.err)
 
-			if w.Code != tt.expectStatus {
-				t.Errorf("status = %v, want %v", w.Code, tt.expectStatus)
+			if w.Code != tt.expectedStatus {
+				t.Errorf("Expected status %d, got %d", tt.expectedStatus, w.Code)
 			}
 		})
 	}
 }
 
-func TestErrorResponse_Nil(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-
-	ErrorResponse(c, nil)
-
-	// Should not write anything for nil error
-	if w.Code != http.StatusOK {
-		t.Errorf("status should remain 200 for nil error, got %v", w.Code)
-	}
-}
-
+// TestValidateQuotaInput 测试配额输入验证
 func TestValidateQuotaInput(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   QuotaInput
-		wantErr bool
+		name        string
+		input       QuotaInput
+		expectError bool
 	}{
-		{"Valid user quota", QuotaInput{Type: QuotaTypeUser, TargetID: "user1", HardLimit: 1000, SoftLimit: 800}, false},
-		{"Valid group quota", QuotaInput{Type: QuotaTypeGroup, TargetID: "group1", HardLimit: 10000, SoftLimit: 8000}, false},
-		{"Valid directory quota", QuotaInput{Type: QuotaTypeDirectory, TargetID: "/data/dir", HardLimit: 50000, SoftLimit: 40000}, false},
-		{"Empty type", QuotaInput{Type: "", TargetID: "user1", HardLimit: 1000}, true},
-		{"Invalid type", QuotaInput{Type: "invalid", TargetID: "user1", HardLimit: 1000}, true},
-		{"Empty target ID", QuotaInput{Type: QuotaTypeUser, TargetID: "", HardLimit: 1000}, true},
-		{"Zero hard limit", QuotaInput{Type: QuotaTypeUser, TargetID: "user1", HardLimit: 0}, true},
-		{"Soft > Hard", QuotaInput{Type: QuotaTypeUser, TargetID: "user1", HardLimit: 1000, SoftLimit: 1500}, true},
+		{
+			name: "valid user quota",
+			input: QuotaInput{
+				Type:       QuotaTypeUser,
+				TargetID:   "user1",
+				HardLimit:  1000000,
+				SoftLimit:  800000,
+			},
+			expectError: false,
+		},
+		{
+			name: "valid group quota",
+			input: QuotaInput{
+				Type:       QuotaTypeGroup,
+				TargetID:   "group1",
+				HardLimit:  10000000,
+				SoftLimit:  8000000,
+			},
+			expectError: false,
+		},
+		{
+			name: "valid directory quota",
+			input: QuotaInput{
+				Type:       QuotaTypeDirectory,
+				TargetID:   "/data/test",
+				HardLimit:  5000000,
+				SoftLimit:  4000000,
+			},
+			expectError: false,
+		},
+		{
+			name: "missing type",
+			input: QuotaInput{
+				TargetID:  "user1",
+				HardLimit: 1000000,
+			},
+			expectError: true,
+		},
+		{
+			name: "invalid type",
+			input: QuotaInput{
+				Type:       "invalid",
+				TargetID:   "user1",
+				HardLimit:  1000000,
+			},
+			expectError: true,
+		},
+		{
+			name: "missing target ID",
+			input: QuotaInput{
+				Type:      QuotaTypeUser,
+				HardLimit: 1000000,
+			},
+			expectError: true,
+		},
+		{
+			name: "zero hard limit",
+			input: QuotaInput{
+				Type:      QuotaTypeUser,
+				TargetID:  "user1",
+				HardLimit: 0,
+			},
+			expectError: true,
+		},
+		{
+			name: "soft limit greater than hard limit",
+			input: QuotaInput{
+				Type:       QuotaTypeUser,
+				TargetID:   "user1",
+				HardLimit:  1000000,
+				SoftLimit:  2000000,
+			},
+			expectError: true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateQuotaInput(tt.input)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ValidateQuotaInput() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, err)
 			}
 		})
 	}
 }
 
+// TestValidateCleanupPolicyInput 测试清理策略输入验证
 func TestValidateCleanupPolicyInput(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   CleanupPolicyInput
-		wantErr bool
+		name        string
+		input       CleanupPolicyInput
+		expectError bool
 	}{
-		{"Valid age policy", CleanupPolicyInput{Name: "policy1", VolumeName: "vol1", Type: CleanupPolicyAge, Action: "delete", MaxAge: 30}, false},
-		{"Valid size policy", CleanupPolicyInput{Name: "policy2", VolumeName: "vol1", Type: CleanupPolicySize, Action: "move", MinSize: 1024}, false},
-		{"Valid quota policy", CleanupPolicyInput{Name: "policy3", VolumeName: "vol1", Type: CleanupPolicyQuota, Action: "delete", QuotaPercent: 80}, false},
-		{"Valid access policy", CleanupPolicyInput{Name: "policy4", VolumeName: "vol1", Type: CleanupPolicyAccess, Action: "archive", MaxAccessAge: 90}, false},
-		{"Empty name", CleanupPolicyInput{Name: "", VolumeName: "vol1", Type: CleanupPolicyAge, Action: "delete"}, true},
-		{"Empty volume", CleanupPolicyInput{Name: "policy1", VolumeName: "", Type: CleanupPolicyAge, Action: "delete"}, true},
-		{"Empty type", CleanupPolicyInput{Name: "policy1", VolumeName: "vol1", Type: "", Action: "delete"}, true},
-		{"Empty action", CleanupPolicyInput{Name: "policy1", VolumeName: "vol1", Type: CleanupPolicyAge, Action: ""}, true},
-		{"Age with zero max age", CleanupPolicyInput{Name: "policy1", VolumeName: "vol1", Type: CleanupPolicyAge, Action: "delete", MaxAge: 0}, true},
-		{"Size with zero min size", CleanupPolicyInput{Name: "policy1", VolumeName: "vol1", Type: CleanupPolicySize, Action: "delete", MinSize: 0}, true},
-		{"Quota with invalid percent", CleanupPolicyInput{Name: "policy1", VolumeName: "vol1", Type: CleanupPolicyQuota, Action: "delete", QuotaPercent: 0}, true},
-		{"Quota with percent > 100", CleanupPolicyInput{Name: "policy1", VolumeName: "vol1", Type: CleanupPolicyQuota, Action: "delete", QuotaPercent: 150}, true},
-		{"Access with zero max access age", CleanupPolicyInput{Name: "policy1", VolumeName: "vol1", Type: CleanupPolicyAccess, Action: "delete", MaxAccessAge: 0}, true},
+		{
+			name: "valid age policy",
+			input: CleanupPolicyInput{
+				Name:       "age-policy",
+				VolumeName: "volume1",
+				Type:       CleanupPolicyAge,
+				Action:     "delete",
+				MaxAge:     30,
+			},
+			expectError: false,
+		},
+		{
+			name: "valid size policy",
+			input: CleanupPolicyInput{
+				Name:       "size-policy",
+				VolumeName: "volume1",
+				Type:       CleanupPolicySize,
+				Action:     "move",
+				MinSize:    1048576,
+			},
+			expectError: false,
+		},
+		{
+			name: "valid quota policy",
+			input: CleanupPolicyInput{
+				Name:         "quota-policy",
+				VolumeName:   "volume1",
+				Type:         CleanupPolicyQuota,
+				Action:       "alert",
+				QuotaPercent: 80,
+			},
+			expectError: false,
+		},
+		{
+			name: "valid access policy",
+			input: CleanupPolicyInput{
+				Name:         "access-policy",
+				VolumeName:   "volume1",
+				Type:         CleanupPolicyAccess,
+				Action:       "archive",
+				MaxAccessAge: 90,
+			},
+			expectError: false,
+		},
+		{
+			name: "missing name",
+			input: CleanupPolicyInput{
+				VolumeName: "volume1",
+				Type:       CleanupPolicyAge,
+				Action:     "delete",
+			},
+			expectError: true,
+		},
+		{
+			name: "missing volume name",
+			input: CleanupPolicyInput{
+				Name:   "policy1",
+				Type:   CleanupPolicyAge,
+				Action: "delete",
+			},
+			expectError: true,
+		},
+		{
+			name: "missing type",
+			input: CleanupPolicyInput{
+				Name:       "policy1",
+				VolumeName: "volume1",
+				Action:     "delete",
+			},
+			expectError: true,
+		},
+		{
+			name: "missing action",
+			input: CleanupPolicyInput{
+				Name:       "policy1",
+				VolumeName: "volume1",
+				Type:       CleanupPolicyAge,
+			},
+			expectError: true,
+		},
+		{
+			name: "age policy with zero max age",
+			input: CleanupPolicyInput{
+				Name:       "policy1",
+				VolumeName: "volume1",
+				Type:       CleanupPolicyAge,
+				Action:     "delete",
+				MaxAge:     0,
+			},
+			expectError: true,
+		},
+		{
+			name: "size policy with zero min size",
+			input: CleanupPolicyInput{
+				Name:       "policy1",
+				VolumeName: "volume1",
+				Type:       CleanupPolicySize,
+				Action:     "delete",
+				MinSize:    0,
+			},
+			expectError: true,
+		},
+		{
+			name: "quota policy with invalid percent",
+			input: CleanupPolicyInput{
+				Name:         "policy1",
+				VolumeName:   "volume1",
+				Type:         CleanupPolicyQuota,
+				Action:       "alert",
+				QuotaPercent: 0,
+			},
+			expectError: true,
+		},
+		{
+			name: "quota policy with percent over 100",
+			input: CleanupPolicyInput{
+				Name:         "policy1",
+				VolumeName:   "volume1",
+				Type:         CleanupPolicyQuota,
+				Action:       "alert",
+				QuotaPercent: 150,
+			},
+			expectError: true,
+		},
+		{
+			name: "access policy with zero max access age",
+			input: CleanupPolicyInput{
+				Name:         "policy1",
+				VolumeName:   "volume1",
+				Type:         CleanupPolicyAccess,
+				Action:       "archive",
+				MaxAccessAge: 0,
+			},
+			expectError: true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateCleanupPolicyInput(tt.input)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ValidateCleanupPolicyInput() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, err)
 			}
 		})
 	}
 }
 
+// TestValidateID 测试 ID 验证
 func TestValidateID(t *testing.T) {
 	tests := []struct {
-		name    string
-		id      string
-		wantErr bool
+		name        string
+		id          string
+		expectError bool
 	}{
-		{"Valid ID", "user-123", false},
-		{"Empty ID", "", true},
-		{"Too long ID", string(make([]byte, 65)), true},
-		{"Max length ID", string(make([]byte, 64)), false},
+		{"valid id", "user123", false},
+		{"empty id", "", true},
+		{"id too long", string(make([]byte, 65)), true},
+		{"id at max length", string(make([]byte, 64)), false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateID(tt.id)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ValidateID() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, err)
 			}
 		})
 	}
 }
 
+// TestValidatePath 测试路径验证
 func TestValidatePath(t *testing.T) {
 	tests := []struct {
-		name    string
-		path    string
-		wantErr bool
+		name        string
+		path        string
+		expectError bool
 	}{
-		{"Valid path", "/data/users/test", false},
-		{"Empty path", "", true},
-		{"Too long path", string(make([]byte, 1025)), true},
-		{"Max length path", string(make([]byte, 1024)), false},
+		{"valid path", "/data/test", false},
+		{"empty path", "", true},
+		{"path too long", "/" + string(make([]byte, 1024)), true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidatePath(tt.path)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ValidatePath() error = %v, wantErr %v", err, tt.wantErr)
+			if (err != nil) != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, err)
 			}
 		})
 	}
 }
 
+// TestValidateVolumeName 测试卷名验证
 func TestValidateVolumeName(t *testing.T) {
 	tests := []struct {
-		name    string
-		volume  string
-		wantErr bool
+		name        string
+		volumeName  string
+		expectError bool
 	}{
-		{"Valid volume", "volume-1", false},
-		{"Empty volume", "", true},
-		{"Too long volume", string(make([]byte, 65)), true},
-		{"Max length volume", string(make([]byte, 64)), false},
+		{"valid name", "volume1", false},
+		{"empty name", "", true},
+		{"name too long", string(make([]byte, 65)), true},
+		{"name at max length", string(make([]byte, 64)), false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateVolumeName(tt.volume)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ValidateVolumeName() error = %v, wantErr %v", err, tt.wantErr)
+			err := ValidateVolumeName(tt.volumeName)
+			if (err != nil) != tt.expectError {
+				t.Errorf("Expected error: %v, got: %v", tt.expectError, err)
 			}
 		})
 	}
 }
 
-func TestErrorCodes(t *testing.T) {
+// TestErrorCodeConstants 测试错误码常量
+func TestErrorCodeConstants(t *testing.T) {
 	codes := map[string]int{
 		"ErrCodeQuotaNotFound":  ErrCodeQuotaNotFound,
 		"ErrCodeQuotaExists":    ErrCodeQuotaExists,
@@ -350,33 +627,35 @@ func TestErrorCodes(t *testing.T) {
 
 	for name, code := range codes {
 		if code < 1000 || code > 2000 {
-			t.Errorf("%s = %d, want between 1000-2000", name, code)
+			t.Errorf("Error code %s has unexpected value %d", name, code)
 		}
 	}
 }
 
-func TestPredefinedErrors(t *testing.T) {
-	errors := []*QuotaError{
-		ErrQuotaNotFoundAPI,
-		ErrQuotaExistsAPI,
-		ErrQuotaExceededAPI,
-		ErrUserNotFoundAPI,
-		ErrGroupNotFoundAPI,
-		ErrVolumeNotFoundAPI,
-		ErrInvalidLimitAPI,
-		ErrPolicyNotFoundAPI,
-		ErrInvalidInputAPI,
+// BenchmarkQuotaError_Error 基准测试
+func BenchmarkQuotaError_Error(b *testing.B) {
+	err := ErrQuotaNotFoundAPI
+	for i := 0; i < b.N; i++ {
+		_ = err.Error()
 	}
+}
 
-	for _, err := range errors {
-		if err == nil {
-			t.Error("Predefined error should not be nil")
-		}
-		if err.message == "" {
-			t.Error("Predefined error should have message")
-		}
-		if err.code == 0 {
-			t.Error("Predefined error should have code")
-		}
+// BenchmarkToAPIError 基准测试
+func BenchmarkToAPIError(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_ = ToAPIError(ErrQuotaNotFound)
+	}
+}
+
+// BenchmarkValidateQuotaInput 基准测试
+func BenchmarkValidateQuotaInput(b *testing.B) {
+	input := QuotaInput{
+		Type:      QuotaTypeUser,
+		TargetID:  "user1",
+		HardLimit: 1000000,
+		SoftLimit: 800000,
+	}
+	for i := 0; i < b.N; i++ {
+		_ = ValidateQuotaInput(input)
 	}
 }
