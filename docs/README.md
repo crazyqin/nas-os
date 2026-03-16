@@ -1,6 +1,6 @@
 # NAS-OS 文档中心
 
-> **版本**: v2.151.0
+> **版本**: v2.153.0
 > **发布日期**: 2026-03-17
 > **项目**: NAS-OS 家用 NAS 系统
 
@@ -30,7 +30,7 @@
 | [DEPLOYMENT_GUIDE_v2.5.0.md](DEPLOYMENT_GUIDE_v2.5.0.md) | 部署指南 | ✅ v2.5.0 |
 | [DEVELOPER.md](DEVELOPER.md) | 开发者文档 | ✅ 完成 |
 | [NASCTL-CLI.md](NASCTL-CLI.md) | CLI 工具指南 | ✅ 完成 |
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 故障排查指南 | ✅ v2.151.0 |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 故障排查指南 | ✅ v2.153.0 |
 
 ---
 
@@ -113,8 +113,8 @@ nas-os/docs/
 
 ## 📅 更新日志
 
-### v2.151.0 (2026-03-17)
-- 📝 更新：所有文档版本号同步至 v2.151.0
+### v2.153.0 (2026-03-17)
+- 📝 更新：所有文档版本号同步至 v2.153.0
 - 📝 更新：API 文档版本同步
 - 📝 更新：英文文档版本同步
 
