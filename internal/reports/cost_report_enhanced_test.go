@@ -216,14 +216,15 @@ func TestRecommendationItem_Savings(t *testing.T) {
 
 func TestBudgetComparison_StatusScenarios(t *testing.T) {
 	tests := []struct {
-		name     string
-		spend    float64
-		budget   float64
-		expected string
+		name       string
+		spend      float64
+		budget     float64
+		expected   string
+		spendRatio float64
 	}{
-		{"正常", 500, 1000, "on_track"},
-		{"警告", 800, 1000, "at_risk"},
-		{"超支", 1100, 1000, "over_budget"},
+		{"正常", 500, 1000, "on_track", 0.5},
+		{"警告", 850, 1000, "at_risk", 0.85},
+		{"超支", 1100, 1000, "over_budget", 1.1},
 	}
 
 	for _, tt := range tests {
@@ -232,7 +233,7 @@ func TestBudgetComparison_StatusScenarios(t *testing.T) {
 				TotalBudget:  tt.budget,
 				CurrentSpend: tt.spend,
 				Remaining:    tt.budget - tt.spend,
-				Utilization:  (tt.spend / tt.budget) * 100,
+				Utilization:  tt.spendRatio * 100,
 			}
 
 			// 计算状态
@@ -245,7 +246,7 @@ func TestBudgetComparison_StatusScenarios(t *testing.T) {
 			}
 
 			if budget.Status != tt.expected {
-				t.Errorf("期望状态为 %s, 实际为 %s", tt.expected, budget.Status)
+				t.Errorf("期望状态为 %s, 实际为 %s (利用率=%.1f%%)", tt.expected, budget.Status, budget.Utilization)
 			}
 		})
 	}
