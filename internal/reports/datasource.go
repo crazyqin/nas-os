@@ -109,14 +109,27 @@ func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]
 		"over_hard_limit": 0,
 	}
 
+	// 使用 int64 存储累加值，防止溢出
+	var totalLimit, totalUsed int64
+	
 	for _, usage := range usages {
 		row := ds.convertToMap(usage)
 
 		if limit, ok := row["hard_limit"].(uint64); ok {
-			summary["total_limit"] = summary["total_limit"].(int) + int(limit)
+			// 安全转换：检查溢出
+			if limit > uint64(1<<63-1) {
+				totalLimit = 1<<63 - 1
+			} else {
+				totalLimit += int64(limit)
+			}
 		}
 		if used, ok := row["used_bytes"].(uint64); ok {
-			summary["total_used"] = summary["total_used"].(int) + int(used)
+			// 安全转换：检查溢出
+			if used > uint64(1<<63-1) {
+				totalUsed = 1<<63 - 1
+			} else {
+				totalUsed += int64(used)
+			}
 		}
 		if overSoft, ok := row["is_over_soft"].(bool); ok && overSoft {
 			summary["over_soft_limit"] = summary["over_soft_limit"].(int) + 1
@@ -125,6 +138,10 @@ func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]
 			summary["over_hard_limit"] = summary["over_hard_limit"].(int) + 1
 		}
 	}
+	
+	// 更新 summary 为 int64 类型
+	summary["total_limit"] = totalLimit
+	summary["total_used"] = totalUsed
 
 	return summary, nil
 }
@@ -320,23 +337,43 @@ func (ds *StorageDataSource) GetSummary(query map[string]interface{}) (map[strin
 
 	summary := map[string]interface{}{
 		"total_volumes": len(volumes),
-		"total_size":    0,
-		"total_used":    0,
-		"total_free":    0,
+		"total_size":    int64(0),
+		"total_used":    int64(0),
+		"total_free":    int64(0),
 	}
 
+	// 使用 int64 存储累加值，防止溢出
+	var totalSize, totalUsed, totalFree int64
+	
 	for _, vol := range volumes {
 		row := ds.convertVolumeToMap(vol)
 		if size, ok := row["total_size"].(uint64); ok {
-			summary["total_size"] = summary["total_size"].(int) + int(size)
+			if size > uint64(1<<63-1) {
+				totalSize = 1<<63 - 1
+			} else {
+				totalSize += int64(size)
+			}
 		}
 		if used, ok := row["used_size"].(uint64); ok {
-			summary["total_used"] = summary["total_used"].(int) + int(used)
+			if used > uint64(1<<63-1) {
+				totalUsed = 1<<63 - 1
+			} else {
+				totalUsed += int64(used)
+			}
 		}
 		if free, ok := row["free_size"].(uint64); ok {
-			summary["total_free"] = summary["total_free"].(int) + int(free)
+			if free > uint64(1<<63-1) {
+				totalFree = 1<<63 - 1
+			} else {
+				totalFree += int64(free)
+			}
 		}
 	}
+	
+	// 更新 summary 为 int64 类型
+	summary["total_size"] = totalSize
+	summary["total_used"] = totalUsed
+	summary["total_free"] = totalFree
 
 	return summary, nil
 }

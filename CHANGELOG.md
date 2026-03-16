@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.135.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 礼部 - 文档更新
+- ✅ 更新 CHANGELOG.md 添加 v2.135.0 条目
+- ✅ 同步 README.md 版本信息至 v2.135.0
+- ✅ 同步 docs/README.md 文档版本号
+- ✅ 同步 docs/README_EN.md 英文文档版本号
+- ✅ 同步 docs/api.yaml API 文档版本号
+- ✅ 同步 docs/swagger.json / swagger.yaml 版本号
+- ✅ 同步 docs/API_GUIDE.md / FAQ.md / QUICKSTART.md 等文档版本号
+
+### Changed
+- 版本号升级至 v2.135.0
+- 文档版本号统一同步
+
 ## [v2.134.0] - 2026-03-16
 
 ### 六部协同开发

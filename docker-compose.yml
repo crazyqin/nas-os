@@ -4,7 +4,10 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
-# v2.134.0 更新：
+# v2.135.0 更新：
+# - 更新版本标签至 v2.135.0
+#
+# v2.135.0 更新：
 # - 修复健康检查命令（使用内置 healthcheck 工具，兼容 distroless 镜像）
 # - 更新版本标签
 #
@@ -35,7 +38,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.134.0"
+      - "nas-os.version=2.135.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -70,7 +73,7 @@ services:
     environment:
       - NAS_OS_CONFIG=/etc/nas-os/config.yaml
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
-      - NAS_OS_VERSION=2.134.0
+      - NAS_OS_VERSION=2.135.0
       # 时区设置
       - TZ=Asia/Shanghai
       # 日志配置
@@ -105,7 +108,7 @@ services:
         max-file: "3"
     
     # 健康检查（覆盖 Dockerfile 中的设置）
-    # v2.134.0: 使用内置 healthcheck 工具（兼容 distroless 镜像）
+    # v2.135.0: 使用内置 healthcheck 工具（兼容 distroless 镜像）
     # 注意：如使用 Dockerfile.full (alpine)，可改为 wget 或 curl
     healthcheck:
       test: ["CMD-SHELL", "/usr/local/bin/healthcheck || exit 1"]

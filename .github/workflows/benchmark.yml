@@ -23,11 +23,9 @@ on:
 env:
   GO_VERSION: '1.26'
   CACHE_VERSION: 'v12'
-  # v2.124.0 更新（工部优化）：
-# - 更新缓存版本至 v12（与其他 workflow 保持一致）
-# - 添加构建时间追踪优化
+  # v2.135.0 更新（工部优化）：
+# - 更新版本标签至 v2.135.0
 #
-# v2.123.0 新增: GOPROXY 加速
   GOPROXY: 'https://proxy.golang.org,direct'
 
 jobs:

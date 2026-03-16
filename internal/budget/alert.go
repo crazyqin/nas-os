@@ -929,7 +929,8 @@ func randomAlertString(n int) string {
 		}
 		return string(b)
 	}
-	// 回退到伪随机
+	// 回退到伪随机 - 仅在 crypto/rand 失败时使用
+	// #nosec G404 -- Fallback to math/rand only when crypto/rand fails
 	mrand.Seed(time.Now().UnixNano())
 	for i := range b {
 		b[i] = letters[mrand.Intn(len(letters))]
