@@ -3,9 +3,6 @@ version: "2"
 run:
   timeout: 10m
   tests: true
-  skip-dirs:
-    - vendor
-    - tests/fixtures
 
 linters:
   default: none
@@ -14,33 +11,46 @@ linters:
     - errcheck
     - staticcheck
     - ineffassign
-    - gosimple
-    - gofmt
-    - goimports
     - misspell
     - revive
 
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-  
-  revive:
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+
+    revive:
+      rules:
+        - name: var-naming
+          disabled: false
+        - name: exported
+          disabled: false
+
+  exclusions:
+    generated: lax
+    paths:
+      - vendor
+      - tests/fixtures
     rules:
-      - name: var-naming
-        disabled: false
-      - name: exported
-        disabled: false
+      # 测试文件放宽检查
+      - path: _test\.go
+        linters:
+          - errcheck
+      # 生成的代码跳过检查
+      - path: docs/swagger/docs\.go
+        linters:
+          - all
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+  exclusions:
+    paths:
+      - vendor
+      - tests/fixtures
 
 issues:
   max-issues-per-linter: 50
   max-same-issues: 10
-  exclude-rules:
-    # 测试文件放宽检查
-    - path: _test\.go
-      linters:
-        - errcheck
-    # 生成的代码跳过检查
-    - path: docs/swagger/docs\.go
-      linters:
-        - all
