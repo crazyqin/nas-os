@@ -34,13 +34,13 @@ func ValidateSafePath(path string) error {
 	if strings.ContainsRune(path, '\x00') {
 		return fmt.Errorf("path contains null byte")
 	}
-	
+
 	// Check for path traversal
 	cleanPath := filepath.Clean(path)
 	if strings.Contains(cleanPath, "..") {
 		return fmt.Errorf("path contains traversal sequence")
 	}
-	
+
 	return nil
 }
 
@@ -48,30 +48,30 @@ func ValidateSafePath(path string) error {
 func SecureJoin(baseDir, userPath string) (string, error) {
 	// Clean the user path
 	cleanUserPath := filepath.Clean(userPath)
-	
+
 	// Remove leading slashes to prevent absolute paths
 	cleanUserPath = strings.TrimPrefix(cleanUserPath, "/")
 	cleanUserPath = strings.TrimPrefix(cleanUserPath, "\\")
-	
+
 	// Join with base
 	fullPath := filepath.Join(baseDir, cleanUserPath)
-	
+
 	// Get absolute paths
 	absBase, err := filepath.Abs(baseDir)
 	if err != nil {
 		return "", fmt.Errorf("failed to resolve base path: %w", err)
 	}
-	
+
 	absFull, err := filepath.Abs(fullPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to resolve full path: %w", err)
 	}
-	
+
 	// Verify result is under base directory
 	if !strings.HasPrefix(absFull, absBase+string(filepath.Separator)) && absFull != absBase {
 		return "", fmt.Errorf("path traversal detected")
 	}
-	
+
 	return absFull, nil
 }
 
@@ -88,7 +88,7 @@ func IsAllowedPath(path string, allowedDirs []string) bool {
 	if err != nil {
 		return false
 	}
-	
+
 	for _, dir := range allowedDirs {
 		absDir, err := filepath.Abs(dir)
 		if err != nil {
@@ -119,7 +119,7 @@ func ValidateAndSanitizeFilename(name string) (string, error) {
 		}
 		return r
 	}, name)
-	
+
 	// Check length
 	if len(name) == 0 {
 		return "", fmt.Errorf("filename cannot be empty")
@@ -127,7 +127,7 @@ func ValidateAndSanitizeFilename(name string) (string, error) {
 	if len(name) > 255 {
 		name = name[:255]
 	}
-	
+
 	// Check for reserved names
 	reserved := []string{".", "..", "CON", "PRN", "AUX", "NUL"}
 	upper := strings.ToUpper(name)
@@ -136,7 +136,7 @@ func ValidateAndSanitizeFilename(name string) (string, error) {
 			return "", fmt.Errorf("reserved filename: %s", name)
 		}
 	}
-	
+
 	return name, nil
 }
 
@@ -155,13 +155,13 @@ func SafeWriteFile(baseDir, userPath string, data []byte, perm os.FileMode) erro
 	if err != nil {
 		return err
 	}
-	
+
 	// Ensure parent directory exists
 	dir := filepath.Dir(safePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(safePath, data, perm)
 }
 
