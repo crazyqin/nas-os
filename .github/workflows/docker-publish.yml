@@ -3,6 +3,9 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
+# v2.91.0 更新（工部优化）：
+# - 更新版本注释格式
+#
 # v2.90.0 更新（工部优化）：
 # - 移除 Docker Hub，统一使用 GHCR (GitHub Container Registry)
 # - 简化镜像推送流程

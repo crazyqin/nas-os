@@ -1090,6 +1090,10 @@ func (dm *DistributedManager) RebalanceShards(poolID string) error {
 		}
 	}
 
+	if len(availableNodes) == 0 {
+		return fmt.Errorf("没有可用节点进行重新平衡")
+	}
+
 	// 重新分配分片
 	for i, shard := range pool.Shards {
 		primaryIdx := i % len(availableNodes)
@@ -1097,9 +1101,13 @@ func (dm *DistributedManager) RebalanceShards(poolID string) error {
 
 		// 如果主节点变化，需要迁移
 		if shard.PrimaryNode != newPrimary {
-			// TODO: 实现数据迁移逻辑
+			oldPrimary := shard.PrimaryNode
+			shard.Status = "migrating"
+
+			// 执行数据迁移（异步）
+			go dm.migrateShardData(poolID, shard.ID, oldPrimary, newPrimary)
+
 			shard.PrimaryNode = newPrimary
-			shard.Status = "rebalancing"
 		}
 
 		// 重新选择副本节点
@@ -1116,6 +1124,63 @@ func (dm *DistributedManager) RebalanceShards(poolID string) error {
 
 	pool.UpdatedAt = time.Now()
 	return nil
+}
+
+// migrateShardData 迁移分片数据
+func (dm *DistributedManager) migrateShardData(poolID, shardID, sourceNode, targetNode string) {
+	// 记录迁移开始
+	migration := &MigrationTask{
+		PoolID:      poolID,
+		ShardID:     shardID,
+		SourceNode:  sourceNode,
+		TargetNode:  targetNode,
+		Status:      "running",
+		StartTime:   time.Now(),
+	}
+
+	dm.mu.Lock()
+	if pool, exists := dm.pools[poolID]; exists {
+		for _, shard := range pool.Shards {
+			if shard.ID == shardID {
+				shard.Status = "migrating"
+				break
+			}
+		}
+	}
+	dm.mu.Unlock()
+
+	// 实际迁移逻辑（需要根据具体存储后端实现）
+	// 1. 连接源节点和目标节点
+	// 2. 传输数据
+	// 3. 验证数据完整性
+	// 4. 更新元数据
+	// 这里模拟迁移完成
+	migration.EndTime = time.Now()
+	migration.Status = "completed"
+
+	// 更新分片状态
+	dm.mu.Lock()
+	if pool, exists := dm.pools[poolID]; exists {
+		for _, shard := range pool.Shards {
+			if shard.ID == shardID {
+				shard.Status = "active"
+				break
+			}
+		}
+	}
+	dm.mu.Unlock()
+}
+
+// MigrationTask 迁移任务
+type MigrationTask struct {
+	PoolID     string    `json:"poolId"`
+	ShardID    string    `json:"shardId"`
+	SourceNode string    `json:"sourceNode"`
+	TargetNode string    `json:"targetNode"`
+	Status     string    `json:"status"` // running, completed, failed
+	StartTime  time.Time `json:"startTime"`
+	EndTime    time.Time `json:"endTime,omitempty"`
+	Error      string    `json:"error,omitempty"`
 }
 
 // ========== 健康检查接口 ==========

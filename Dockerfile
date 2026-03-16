@@ -11,6 +11,10 @@
 # 多架构构建:
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/nas-os/nas-os:latest .
 #
+# v2.91.0 更新（工部优化）：
+# - 统一健康检查端点说明
+# - 更新版本注释格式
+#
 # v2.90.0 更新：
 # - 迁移到 GHCR (GitHub Container Registry)
 # - 更新镜像地址注释

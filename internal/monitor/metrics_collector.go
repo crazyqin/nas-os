@@ -121,6 +121,8 @@ func (mc *MetricsCollector) Stop() {
 	if mc.running {
 		close(mc.stopChan)
 		mc.running = false
+		// 重新创建 stopChan 以支持重启
+		mc.stopChan = make(chan struct{})
 	}
 }
 

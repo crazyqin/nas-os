@@ -22,7 +22,8 @@ on:
 
 env:
   GO_VERSION: '1.26'
-  CACHE_VERSION: 'v9'
+  # v2.91.0: 更新缓存版本至 v10（与其他 workflow 保持一致）
+  CACHE_VERSION: 'v10'
 
 jobs:
   benchmark:

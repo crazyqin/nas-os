@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"sort"
 	"sync"
 	"time"
 )
@@ -359,16 +360,10 @@ func (fe *ForecastEngine) calculateHistoricalStats(history []HistoricalDataPoint
 	stats.Mean = sum / float64(len(history))
 	stats.StdDev = math.Sqrt(sumSq/float64(len(history)) - stats.Mean*stats.Mean)
 
-	// 排序计算分位数
+	// 排序计算分位数（使用标准库排序，O(n log n)）
 	sorted := make([]float64, len(amounts))
 	copy(sorted, amounts)
-	for i := 0; i < len(sorted)-1; i++ {
-		for j := i + 1; j < len(sorted); j++ {
-			if sorted[i] > sorted[j] {
-				sorted[i], sorted[j] = sorted[j], sorted[i]
-			}
-		}
-	}
+	sort.Float64s(sorted)
 
 	stats.Min = sorted[0]
 	stats.Max = sorted[len(sorted)-1]
