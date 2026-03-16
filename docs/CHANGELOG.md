@@ -10,7 +10,7 @@
 
 ### 🔄 版本同步 (礼部)
 
-- 版本号升级至 v2.141.0
+- 版本号升级至 v2.144.0
 - README.md 版本信息更新
 - docs/README.md 文档版本同步
 - docs/api.yaml API 文档版本同步
