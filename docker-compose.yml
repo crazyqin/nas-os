@@ -27,7 +27,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.86.0"
+      - "nas-os.version=2.104.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
