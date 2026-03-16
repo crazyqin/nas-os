@@ -4,7 +4,10 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
-# v2.134.0 更新（工部优化）：
+# v2.135.0 更新（工部优化）：
+# - 更新版本标签至 v2.135.0
+#
+# v2.135.0 更新（工部优化）：
 # - 修复 docker-compose.yml 健康检查命令
 # - 统一版本引用
 # - 缓存版本 v12
@@ -913,7 +916,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.134.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.135.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -933,7 +936,5 @@ jobs:
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 v2.134.0 优化内容" >> $GITHUB_STEP_SUMMARY
-          echo "- 修复 docker-compose.yml 健康检查命令" >> $GITHUB_STEP_SUMMARY
-          echo "- 统一版本引用" >> $GITHUB_STEP_SUMMARY
-          echo "- 缓存版本升级至 v12" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.135.0 优化内容" >> $GITHUB_STEP_SUMMARY
+          echo "- 更新版本标签至 v2.135.0" >> $GITHUB_STEP_SUMMARY

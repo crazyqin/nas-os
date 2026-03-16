@@ -415,9 +415,26 @@ func (a *API) AdjustQuota(c *gin.Context) {
 		return
 	}
 
-	// 计算新限制
-	newHardLimit := int64(quota.HardLimit) + req.HardLimitDelta
-	newSoftLimit := int64(quota.SoftLimit) + req.SoftLimitDelta
+	// 安全的类型转换：检查 uint64 -> int64 是否会溢出
+	// int64 最大值为 9223372036854775807
+	const maxInt64 = uint64(1<<63 - 1)
+	
+	var newHardLimit, newSoftLimit int64
+	
+	// 安全计算新硬限制
+	if quota.HardLimit > maxInt64 {
+		// uint64 值超过 int64 最大值，直接使用最大值
+		newHardLimit = int64(maxInt64) + req.HardLimitDelta
+	} else {
+		newHardLimit = int64(quota.HardLimit) + req.HardLimitDelta
+	}
+	
+	// 安全计算新软限制
+	if quota.SoftLimit > maxInt64 {
+		newSoftLimit = int64(maxInt64) + req.SoftLimitDelta
+	} else {
+		newSoftLimit = int64(quota.SoftLimit) + req.SoftLimitDelta
+	}
 
 	// 验证限制
 	if newHardLimit <= 0 {

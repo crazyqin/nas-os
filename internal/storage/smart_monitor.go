@@ -417,7 +417,12 @@ func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 	for name, attr := range health.Attributes {
 		switch name {
 		case "Temperature_Celsius", "Temperature":
-			health.Temperature = int(attr.RawValue)
+			// 安全转换：温度值通常在 0-100 范围内
+			if attr.RawValue > 1000 {
+				health.Temperature = 1000 // 异常值，设置上限
+			} else {
+				health.Temperature = int(attr.RawValue)
+			}
 		case "Power_On_Hours":
 			health.PowerOnHours = attr.RawValue
 		case "Power_Cycle_Count":
@@ -596,6 +601,15 @@ func (m *SMARTMonitor) calculateHealthScore(health *DiskHealth) {
 		return
 	}
 
+	// 安全的 uint64 到 int 转换，防止溢出
+	safeUint64ToInt := func(u uint64) int {
+		const maxInt = uint64(1<<63 - 1) // int 在 64 位系统上是 int64
+		if u > maxInt {
+			return int(maxInt)
+		}
+		return int(u)
+	}
+
 	// 重分配扇区扣分
 	if health.ReallocatedSectors > 0 {
 		if health.ReallocatedSectors >= uint64(m.config.ReallocatedCritical) {
@@ -603,7 +617,7 @@ func (m *SMARTMonitor) calculateHealthScore(health *DiskHealth) {
 		} else if health.ReallocatedSectors >= uint64(m.config.ReallocatedWarning) {
 			score -= 20
 		} else {
-			score -= int(health.ReallocatedSectors)
+			score -= safeUint64ToInt(health.ReallocatedSectors)
 		}
 	}
 
@@ -614,7 +628,7 @@ func (m *SMARTMonitor) calculateHealthScore(health *DiskHealth) {
 		} else if health.PendingSectors >= uint64(m.config.PendingWarning) {
 			score -= 15
 		} else {
-			score -= int(health.PendingSectors)
+			score -= safeUint64ToInt(health.PendingSectors)
 		}
 	}
 

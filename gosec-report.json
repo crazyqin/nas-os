@@ -1,0 +1,2446 @@
+{
+	"Golang errors": {},
+	"Issues": [
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/optimizer/optimizer.go",
+			"code": "517: \t// 检查变化是否足够大\n518: \tchangePercent := float64(abs(int64(suggestedLimit)-int64(usage.HardLimit))) / float64(usage.HardLimit)\n519: \tif changePercent \u003c cfg.AdjustmentThreshold {\n",
+			"line": "518",
+			"column": "58",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/optimizer/optimizer.go",
+			"code": "517: \t// 检查变化是否足够大\n518: \tchangePercent := float64(abs(int64(suggestedLimit)-int64(usage.HardLimit))) / float64(usage.HardLimit)\n519: \tif changePercent \u003c cfg.AdjustmentThreshold {\n",
+			"line": "518",
+			"column": "36",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/api.go",
+			"code": "419: \tnewHardLimit := int64(quota.HardLimit) + req.HardLimitDelta\n420: \tnewSoftLimit := int64(quota.SoftLimit) + req.SoftLimitDelta\n421: \n",
+			"line": "420",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/api.go",
+			"code": "418: \t// 计算新限制\n419: \tnewHardLimit := int64(quota.HardLimit) + req.HardLimitDelta\n420: \tnewSoftLimit := int64(quota.SoftLimit) + req.SoftLimitDelta\n",
+			"line": "419",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int64",
+			"file": "/home/mrafter/clawd/nas-os/internal/optimizer/optimizer.go",
+			"code": "169: \tif memStats.NumGC \u003e 0 {\n170: \t\topt.stats.GCPauseAvg = time.Duration(memStats.PauseTotalNs) / time.Duration(memStats.NumGC)\n171: \t}\n",
+			"line": "170",
+			"column": "39",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int64",
+			"file": "/home/mrafter/clawd/nas-os/internal/optimizer/optimizer.go",
+			"code": "167: \topt.stats.GCCount = memStats.NumGC\n168: \topt.stats.GCPauseTotal = time.Duration(memStats.PauseTotalNs)\n169: \tif memStats.NumGC \u003e 0 {\n",
+			"line": "168",
+			"column": "40",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "616: \t\t} else {\n617: \t\t\tscore -= int(health.PendingSectors)\n618: \t\t}\n",
+			"line": "617",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "605: \t\t} else {\n606: \t\t\tscore -= int(health.ReallocatedSectors)\n607: \t\t}\n",
+			"line": "606",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "419: \t\tcase \"Temperature_Celsius\", \"Temperature\":\n420: \t\t\thealth.Temperature = int(attr.RawValue)\n421: \t\tcase \"Power_On_Hours\":\n",
+			"line": "420",
+			"column": "28",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/search/engine.go",
+			"code": "538: \tresponse := \u0026SearchResponse{\n539: \t\tTotal:    int(result.Total),\n540: \t\tTook:     result.Took,\n",
+			"line": "539",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/reports/datasource.go",
+			"code": "336: \t\tif free, ok := row[\"free_size\"].(uint64); ok {\n337: \t\t\tsummary[\"total_free\"] = summary[\"total_free\"].(int) + int(free)\n338: \t\t}\n",
+			"line": "337",
+			"column": "61",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/reports/datasource.go",
+			"code": "333: \t\tif used, ok := row[\"used_size\"].(uint64); ok {\n334: \t\t\tsummary[\"total_used\"] = summary[\"total_used\"].(int) + int(used)\n335: \t\t}\n",
+			"line": "334",
+			"column": "61",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/reports/datasource.go",
+			"code": "330: \t\tif size, ok := row[\"total_size\"].(uint64); ok {\n331: \t\t\tsummary[\"total_size\"] = summary[\"total_size\"].(int) + int(size)\n332: \t\t}\n",
+			"line": "331",
+			"column": "61",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/reports/datasource.go",
+			"code": "118: \t\tif used, ok := row[\"used_bytes\"].(uint64); ok {\n119: \t\t\tsummary[\"total_used\"] = summary[\"total_used\"].(int) + int(used)\n120: \t\t}\n",
+			"line": "119",
+			"column": "61",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/reports/datasource.go",
+			"code": "115: \t\tif limit, ok := row[\"hard_limit\"].(uint64); ok {\n116: \t\t\tsummary[\"total_limit\"] = summary[\"total_limit\"].(int) + int(limit)\n117: \t\t}\n",
+			"line": "116",
+			"column": "63",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/metrics_collector.go",
+			"code": "848: \t\tif attr, ok := disk.SmartAttributes[\"UDMA_CRC_Error_Count\"]; ok {\n849: \t\t\tmetric.CRCErrors = int(attr.RawValue)\n850: \t\t}\n",
+			"line": "849",
+			"column": "26",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/metrics_collector.go",
+			"code": "845: \t\tif attr, ok := disk.SmartAttributes[\"Current_Pending_Sector\"]; ok {\n846: \t\t\tmetric.PendingSectors = int(attr.RawValue)\n847: \t\t}\n",
+			"line": "846",
+			"column": "31",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/metrics_collector.go",
+			"code": "842: \t\tif attr, ok := disk.SmartAttributes[\"Reallocated_Sector_Ct\"]; ok {\n843: \t\t\tmetric.ReallocatedSectors = int(attr.RawValue)\n844: \t\t}\n",
+			"line": "843",
+			"column": "35",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
+			"code": "377: \t\t\tif name == \"Temperature_Celsius\" || name == \"Airflow_Temperature_Cel\" {\n378: \t\t\t\tinfo.Temperature = int(rawValue)\n379: \t\t\t\tattr.Unit = \"°C\"\n",
+			"line": "378",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/disk/smart_monitor.go",
+			"code": "1110: \tif disk.SmartData.Temperature != nil {\n1111: \t\tpoint.Temperature = int(disk.SmartData.Temperature.Raw)\n1112: \t}\n",
+			"line": "1111",
+			"column": "26",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/disk/smart_monitor.go",
+			"code": "713: \n714: \ttemp := int(smartData.Temperature.Raw)\n715: \tscore := ComponentScore{\n",
+			"line": "714",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion rune -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
+			"code": "1343: \t\tfor _, c := range key {\n1344: \t\t\thash = hash*31 + uint32(c)\n1345: \t\t}\n",
+			"line": "1344",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion rune -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
+			"code": "1292: \t\tfor _, c := range key {\n1293: \t\t\thash = hash*31 + uint32(c)\n1294: \t\t}\n",
+			"line": "1293",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion rune -\u003e byte",
+			"file": "/home/mrafter/clawd/nas-os/internal/ldap/client.go",
+			"code": "321: \tfor i, r := range quoted {\n322: \t\tresult[i*2] = byte(r)\n323: \t\tresult[i*2+1] = 0\n",
+			"line": "322",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
+			"code": "189: \t\t\tif err == nil {\n190: \t\t\t\tsnapshot.Size = uint64(info.Size())\n191: \t\t\t}\n",
+			"line": "190",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/iso.go",
+			"code": "224: \t\tPath:       filePath,\n225: \t\tSize:       uint64(written),\n226: \t\tCreatedAt:  now,\n",
+			"line": "225",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/iso.go",
+			"code": "90: \t\t\tPath:       filePath,\n91: \t\t\tSize:       uint64(info.Size()),\n92: \t\t\tCreatedAt:  info.ModTime(),\n",
+			"line": "91",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/system/monitor.go",
+			"code": "703: \t\th.NetRX = uint64(netRX)\n704: \t\th.NetTX = uint64(netTX)\n705: \t\tdata = append(data, \u0026h)\n",
+			"line": "704",
+			"column": "19",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/system/monitor.go",
+			"code": "702: \t\t}\n703: \t\th.NetRX = uint64(netRX)\n704: \t\th.NetTX = uint64(netTX)\n",
+			"line": "703",
+			"column": "19",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/mfa.go",
+			"code": "173: \tvar buf [8]byte\n174: \tbinary.BigEndian.PutUint64(buf[:], uint64(timeStep))\n175: \n",
+			"line": "174",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "486: \t\t\t// 按文件大小\n487: \t\t\tif uint64(info.Size()) \u003e= policy.MinSize {\n488: \t\t\t\tmatch = true\n",
+			"line": "487",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "444: \t\tif info, err := os.Stat(file); err == nil {\n445: \t\t\ttask.BytesFreed += uint64(info.Size())\n446: \t\t}\n",
+			"line": "445",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "359: \t\t\t\tPath:    path,\n360: \t\t\t\tSize:    uint64(info.Size()),\n361: \t\t\t\tModTime: info.ModTime(),\n",
+			"line": "360",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "311: \t\t\t\treason = fmt.Sprintf(\"文件大小 %s（超过 %s）\",\n312: \t\t\t\t\tformatBytes(uint64(info.Size())), formatBytes(policy.MinSize))\n313: \t\t\t}\n",
+			"line": "312",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "308: \t\tcase CleanupPolicySize:\n309: \t\t\tif uint64(info.Size()) \u003e= policy.MinSize {\n310: \t\t\t\tmatch = true\n",
+			"line": "309",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/alert_enhanced.go",
+			"code": "646: \n647: \t\tsize := uint64(info.Size())\n648: \t\tfile := CleanupFile{\n",
+			"line": "647",
+			"column": "17",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/alert_enhanced.go",
+			"code": "410: \n411: \t\tsize := uint64(info.Size())\n412: \t\tif size \u003c rule.MinSize {\n",
+			"line": "411",
+			"column": "17",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/manager.go",
+			"code": "255: \t}\n256: \tphoto.Size = uint64(info.Size())\n257: \n",
+			"line": "256",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "1377: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1378: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n1379: \t\t},\n",
+			"line": "1378",
+			"column": "61",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "1377: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1378: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n1379: \t\t},\n",
+			"line": "1378",
+			"column": "40",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "1376: \t\t\t\"thumbsUsed\":   uint64(thumbsUsed),\n1377: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1378: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n",
+			"line": "1377",
+			"column": "26",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "1375: \t\t\t\"storageUsed\":  storageUsed,\n1376: \t\t\t\"thumbsUsed\":   uint64(thumbsUsed),\n1377: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n",
+			"line": "1376",
+			"column": "26",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "535: \t\t\tFilename: session.Filename,\n536: \t\t\tSize:     uint64(session.TotalSize),\n537: \t\t},\n",
+			"line": "536",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "274: \t\t\tFilename: fileHeader.Filename,\n275: \t\t\tSize:     uint64(written),\n276: \t\t})\n",
+			"line": "275",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "188: \t\t\tFilename: header.Filename,\n189: \t\t\tSize:     uint64(written),\n190: \t\t},\n",
+			"line": "189",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/performance/collector.go",
+			"code": "637: \ttotal := stat.Blocks * uint64(stat.Bsize)\n638: \tfree := stat.Bavail * uint64(stat.Bsize)\n639: \tused := total - free\n",
+			"line": "638",
+			"column": "30",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/performance/collector.go",
+			"code": "636: \n637: \ttotal := stat.Blocks * uint64(stat.Bsize)\n638: \tfree := stat.Bavail * uint64(stat.Bsize)\n",
+			"line": "637",
+			"column": "31",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/health/health.go",
+			"code": "453: \ttotalBytes := stat.Blocks * uint64(stat.Bsize)\n454: \tfreeBytes := stat.Bfree * uint64(stat.Bsize)\n455: \tusedBytes := totalBytes - freeBytes\n",
+			"line": "454",
+			"column": "34",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/health/health.go",
+			"code": "452: \n453: \ttotalBytes := stat.Blocks * uint64(stat.Bsize)\n454: \tfreeBytes := stat.Bfree * uint64(stat.Bsize)\n",
+			"line": "453",
+			"column": "36",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/container/volume.go",
+			"code": "418: \t\t\tSize:       uint64(info.Size()),\n419: \t\t\tSizeHuman:  formatSize(uint64(info.Size())),\n420: \t\t\tCreated:    info.ModTime(),\n",
+			"line": "419",
+			"column": "33",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/container/volume.go",
+			"code": "417: \t\t\tBackupPath: path,\n418: \t\t\tSize:       uint64(info.Size()),\n419: \t\t\tSizeHuman:  formatSize(uint64(info.Size())),\n",
+			"line": "418",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/container/volume.go",
+			"code": "361: \t}\n362: \treturn uint64(info.Size()), nil\n363: }\n",
+			"line": "362",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/config_backup.go",
+			"code": "471: \t\t\t// 创建文件\n472: \t\t\toutFile, err := os.OpenFile(targetPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.FileMode(header.Mode))\n473: \t\t\tif err != nil {\n",
+			"line": "472",
+			"column": "91",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/config_backup.go",
+			"code": "461: \t\tcase tar.TypeDir:\n462: \t\t\tif err := os.MkdirAll(targetPath, os.FileMode(header.Mode)); err != nil {\n463: \t\t\t\treturn nil, err\n",
+			"line": "462",
+			"column": "49",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/handlers.go",
+			"code": "469: \t\tMemory:      uint64(req.Memory),\n470: \t\tDiskSize:    uint64(req.DiskSize),\n471: \t\tNetwork:     req.Network,\n",
+			"line": "470",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/handlers.go",
+			"code": "468: \t\tCPU:         req.CPU,\n469: \t\tMemory:      uint64(req.Memory),\n470: \t\tDiskSize:    uint64(req.DiskSize),\n",
+			"line": "469",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "762: \t\thealth.AlertCount++\n763: \t} else if health.PendingSectors \u003e= uint64(m.config.PendingWarning) {\n764: \t\tm.sendAlert(Alert{\n",
+			"line": "763",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "749: \t// 待映射扇区告警\n750: \tif health.PendingSectors \u003e= uint64(m.config.PendingCritical) {\n751: \t\tm.sendAlert(Alert{\n",
+			"line": "750",
+			"column": "36",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "733: \t\thealth.AlertCount++\n734: \t} else if health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedWarning) {\n735: \t\tm.sendAlert(Alert{\n",
+			"line": "734",
+			"column": "47",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "718: \t// 重分配扇区告警\n719: \tif health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedCritical) {\n720: \t\tm.sendAlert(Alert{\n",
+			"line": "719",
+			"column": "40",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "613: \t\t\tscore -= 30\n614: \t\t} else if health.PendingSectors \u003e= uint64(m.config.PendingWarning) {\n615: \t\t\tscore -= 15\n",
+			"line": "614",
+			"column": "44",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "611: \tif health.PendingSectors \u003e 0 {\n612: \t\tif health.PendingSectors \u003e= uint64(m.config.PendingCritical) {\n613: \t\t\tscore -= 30\n",
+			"line": "612",
+			"column": "37",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "602: \t\t\tscore -= 40\n603: \t\t} else if health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedWarning) {\n604: \t\t\tscore -= 20\n",
+			"line": "603",
+			"column": "48",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
+			"code": "600: \tif health.ReallocatedSectors \u003e 0 {\n601: \t\tif health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedCritical) {\n602: \t\t\tscore -= 40\n",
+			"line": "601",
+			"column": "41",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/reports/capacity_planning.go",
+			"code": "326: func (p *CapacityPlanner) linearForecast(currentBytes uint64, dailyGrowth uint64, days int) uint64 {\n327: \treturn currentBytes + dailyGrowth*uint64(days)\n328: }\n",
+			"line": "327",
+			"column": "42",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/perf/manager.go",
+			"code": "404: \tminStat.RequestCount++\n405: \tminStat.TotalBytes += uint64(responseSize)\n406: \tif statusCode \u003e= 400 {\n",
+			"line": "405",
+			"column": "30",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
+			"code": "449: \tif attr, ok := info.SmartAttributes[\"UDMA_CRC_Error_Count\"]; ok {\n450: \t\tif attr.RawValue \u003e uint64(thresholds.UDMACRCErrorWarning) {\n451: \t\t\tscore -= 10\n",
+			"line": "450",
+			"column": "28",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
+			"code": "441: \t\t\t})\n442: \t\t} else if attr.RawValue \u003e uint64(thresholds.PendingSectorWarning) {\n443: \t\t\tscore -= 10\n",
+			"line": "442",
+			"column": "35",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
+			"code": "432: \tif attr, ok := info.SmartAttributes[\"Current_Pending_Sector\"]; ok {\n433: \t\tif attr.RawValue \u003e uint64(thresholds.PendingSectorCritical) {\n434: \t\t\tscore -= 25\n",
+			"line": "433",
+			"column": "28",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
+			"code": "424: \t\t\t})\n425: \t\t} else if attr.RawValue \u003e uint64(thresholds.ReallocatedSectorWarning) {\n426: \t\t\tscore -= 15\n",
+			"line": "425",
+			"column": "35",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
+			"code": "415: \tif attr, ok := info.SmartAttributes[\"Reallocated_Sector_Ct\"]; ok {\n416: \t\tif attr.RawValue \u003e uint64(thresholds.ReallocatedSectorCritical) {\n417: \t\t\tscore -= 30\n",
+			"line": "416",
+			"column": "28",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
+			"code": "1345: \t\t}\n1346: \t\tshardIndex = int(hash % uint32(len(pool.Shards)))\n1347: \tdefault:\n",
+			"line": "1346",
+			"column": "33",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
+			"code": "1294: \t\t}\n1295: \t\tshardIndex = int(hash % uint32(len(pool.Shards)))\n1296: \tcase ShardingRange:\n",
+			"line": "1295",
+			"column": "33",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/baseline.go",
+			"code": "699: \t\tmode := info.Mode().Perm()\n700: \t\tif mode != os.FileMode(expectedMode) {\n701: \t\t\tissues = append(issues, fmt.Sprintf(\"%s 权限为 %o (期望 %o)\", file, mode, expectedMode))\n",
+			"line": "700",
+			"column": "25",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e rune",
+			"file": "/home/mrafter/clawd/nas-os/internal/reports/bandwidth_report.go",
+			"code": "771: func formatFloat(val float64, precision int) string {\n772: \tformat := \"%.\" + string(rune('0'+precision)) + \"f\"\n773: \treturn sprintf(format, val)\n",
+			"line": "772",
+			"column": "30",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e rune",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/metrics_collector.go",
+			"code": "1001: \t\t\tif disk.Temperature \u003e 55 {\n1002: \t\t\t\trecs = append(recs, \"磁盘 \"+disk.Device+\" 温度过高(\"+string(rune(disk.Temperature))+\"°C)，建议检查散热\")\n1003: \t\t\t}\n",
+			"line": "1002",
+			"column": "75",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e rune",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/security_audit.go",
+			"code": "134: \t\t}\n135: \t\tnewPath := l.logPath + \".\" + string(rune('0'+i+1))\n136: \t\tos.Rename(oldPath, newPath)\n",
+			"line": "135",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e rune",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/security_audit.go",
+			"code": "132: \t\tif i \u003e 0 {\n133: \t\t\toldPath = l.logPath + \".\" + string(rune('0'+i))\n134: \t\t}\n",
+			"line": "133",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e rune",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/security_audit.go",
+			"code": "125: \t// 删除最旧的日志文件\n126: \toldestLog := l.logPath + \".\" + string(rune(l.maxFiles-1))\n127: \tos.Remove(oldestLog)\n",
+			"line": "126",
+			"column": "44",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e int32",
+			"file": "/home/mrafter/clawd/nas-os/api/middleware/gateway.go",
+			"code": "451: \t\tfailures := atomic.AddInt32(\u0026cb.failures, 1)\n452: \t\tif failures \u003e= int32(cb.config.FailureThreshold) {\n453: \t\t\tcb.mu.Lock()\n",
+			"line": "452",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e int32",
+			"file": "/home/mrafter/clawd/nas-os/api/middleware/gateway.go",
+			"code": "434: \t\tsuccesses := atomic.AddInt32(\u0026cb.successes, 1)\n435: \t\tif successes \u003e= int32(cb.config.SuccessThreshold) {\n436: \t\t\tcb.setState(StateClosed)\n",
+			"line": "435",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e int32",
+			"file": "/home/mrafter/clawd/nas-os/api/middleware/gateway.go",
+			"code": "410: \t\trequests := atomic.AddInt32(\u0026cb.requests, 1)\n411: \t\tif requests \u003c= int32(cb.config.HalfOpenRequests) {\n412: \t\t\treturn true\n",
+			"line": "411",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e byte",
+			"file": "/home/mrafter/clawd/nas-os/internal/ftp/server.go",
+			"code": "791: \t\t}\n792: \t\tbytes = append(bytes, byte(b))\n793: \t}\n",
+			"line": "792",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int -\u003e byte",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
+			"code": "268: \tfor i := len(plaintext); i \u003c len(padded); i++ {\n269: \t\tpadded[i] = byte(padding)\n270: \t}\n",
+			"line": "269",
+			"column": "19",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "338",
+				"url": "https://cwe.mitre.org/data/definitions/338.html"
+			},
+			"rule_id": "G404",
+			"details": "Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand)",
+			"file": "/home/mrafter/clawd/nas-os/internal/reports/cost_report.go",
+			"code": "1219: \tfor i := range b {\n1220: \t\tb[i] = letters[mrand.Intn(len(letters))]\n1221: \t}\n",
+			"line": "1220",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "338",
+				"url": "https://cwe.mitre.org/data/definitions/338.html"
+			},
+			"rule_id": "G404",
+			"details": "Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand)",
+			"file": "/home/mrafter/clawd/nas-os/internal/budget/alert.go",
+			"code": "934: \tfor i := range b {\n935: \t\tb[i] = letters[mrand.Intn(len(letters))]\n936: \t}\n",
+			"line": "935",
+			"column": "18",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "295",
+				"url": "https://cwe.mitre.org/data/definitions/295.html"
+			},
+			"rule_id": "G402",
+			"details": "TLS InsecureSkipVerify may be set to true.",
+			"file": "/home/mrafter/clawd/nas-os/internal/ldap/client.go",
+			"code": "102: \ttlsConfig := \u0026tls.Config{\n103: \t\tInsecureSkipVerify: skipVerify,\n104: \t}\n",
+			"line": "103",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "295",
+				"url": "https://cwe.mitre.org/data/definitions/295.html"
+			},
+			"rule_id": "G402",
+			"details": "TLS InsecureSkipVerify may be set to true.",
+			"file": "/home/mrafter/clawd/nas-os/internal/ldap/client.go",
+			"code": "72: \t\ttlsConfig := \u0026tls.Config{\n73: \t\t\tInsecureSkipVerify: skipVerify,\n74: \t\t}\n",
+			"line": "73",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "295",
+				"url": "https://cwe.mitre.org/data/definitions/295.html"
+			},
+			"rule_id": "G402",
+			"details": "TLS InsecureSkipVerify may be set to true.",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/ldap.go",
+			"code": "152: \t\ttlsConfig := \u0026tls.Config{\n153: \t\t\tInsecureSkipVerify: skipVerify,\n154: \t\t}\n",
+			"line": "153",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "93",
+				"url": "https://cwe.mitre.org/data/definitions/93.html"
+			},
+			"rule_id": "G707",
+			"details": "SMTP command/header injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/automation/action/action.go",
+			"code": "263: \n264: \treturn smtp.SendMail(addr, auth, from, []string{to}, []byte(msg))\n265: }\n",
+			"line": "264",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/office/types.go",
+			"code": "580: \tErrSaveFailed            = \"保存失败\"\n581: \tErrInvalidToken          = \"无效的 Token\"\n582: \tErrCollaborationNotFound = \"协作会话不存在\"\n",
+			"line": "581",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
+			"code": "1319: \t// 使用 refresh token 换取 access token\n1320: \ttokenURL := \"https://login.microsoftonline.com/common/oauth2/v2.0/token\"\n1321: \tdata := url.Values{\n",
+			"line": "1320",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
+			"code": "669: \t// 使用 refresh token 换取 access token\n670: \ttokenURL := \"https://oauth2.googleapis.com/token\"\n671: \tdata := url.Values{\n",
+			"line": "670",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
+			"code": "378: func GetWeChatOAuth2Config(appID, appSecret, redirectURL string) OAuth2Provider {\n379: \treturn OAuth2Provider{\n380: \t\tName:         \"wechat\",\n381: \t\tClientID:     appID,\n382: \t\tClientSecret: appSecret,\n383: \t\tAuthURL:      \"https://open.weixin.qq.com/connect/qrconnect\",\n384: \t\tTokenURL:     \"https://api.weixin.qq.com/sns/oauth2/access_token\",\n385: \t\tUserInfoURL:  \"https://api.weixin.qq.com/sns/userinfo\",\n386: \t\tRedirectURL:  redirectURL,\n387: \t\tScopes:       []string{\"snsapi_login\"},\n388: \t\tEnabled:      true,\n389: \t}\n390: }\n",
+			"line": "379-389",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
+			"code": "363: func GetMicrosoftOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n364: \treturn OAuth2Provider{\n365: \t\tName:         \"microsoft\",\n366: \t\tClientID:     clientID,\n367: \t\tClientSecret: clientSecret,\n368: \t\tAuthURL:      \"https://login.microsoftonline.com/common/oauth2/v2.0/authorize\",\n369: \t\tTokenURL:     \"https://login.microsoftonline.com/common/oauth2/v2.0/token\",\n370: \t\tUserInfoURL:  \"https://graph.microsoft.com/v1.0/me\",\n371: \t\tRedirectURL:  redirectURL,\n372: \t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n373: \t\tEnabled:      true,\n374: \t}\n375: }\n",
+			"line": "364-374",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
+			"code": "348: func GetGitHubOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n349: \treturn OAuth2Provider{\n350: \t\tName:         \"github\",\n351: \t\tClientID:     clientID,\n352: \t\tClientSecret: clientSecret,\n353: \t\tAuthURL:      \"https://github.com/login/oauth/authorize\",\n354: \t\tTokenURL:     \"https://github.com/login/oauth/access_token\",\n355: \t\tUserInfoURL:  \"https://api.github.com/user\",\n356: \t\tRedirectURL:  redirectURL,\n357: \t\tScopes:       []string{\"read:user\", \"user:email\"},\n358: \t\tEnabled:      true,\n359: \t}\n360: }\n",
+			"line": "349-359",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "LOW",
+			"cwe": {
+				"id": "798",
+				"url": "https://cwe.mitre.org/data/definitions/798.html"
+			},
+			"rule_id": "G101",
+			"details": "Potential hardcoded credentials",
+			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
+			"code": "333: func GetGoogleOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n334: \treturn OAuth2Provider{\n335: \t\tName:         \"google\",\n336: \t\tClientID:     clientID,\n337: \t\tClientSecret: clientSecret,\n338: \t\tAuthURL:      \"https://accounts.google.com/o/oauth2/v2/auth\",\n339: \t\tTokenURL:     \"https://oauth2.googleapis.com/token\",\n340: \t\tUserInfoURL:  \"https://www.googleapis.com/oauth2/v2/userinfo\",\n341: \t\tRedirectURL:  redirectURL,\n342: \t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n343: \t\tEnabled:      true,\n344: \t}\n345: }\n",
+			"line": "334-344",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/plugins/filemanager-enhance/main.go",
+			"code": "532: \t}\n533: \treturn os.WriteFile(dst, data, 0644)\n534: }\n",
+			"line": "533",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "863: \t\tif err := os.MkdirAll(dir, 0755); err == nil {\n864: \t\t\tos.WriteFile(fullPath, []byte{}, 0644)\n865: \t\t}\n",
+			"line": "864",
+			"column": "16",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "862: \t\tdir := filepath.Dir(fullPath)\n863: \t\tif err := os.MkdirAll(dir, 0755); err == nil {\n864: \t\t\tos.WriteFile(fullPath, []byte{}, 0644)\n",
+			"line": "863",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "860: \t// 如果资源不存在，创建空文件\n861: \tif _, err := os.Stat(fullPath); os.IsNotExist(err) {\n862: \t\tdir := filepath.Dir(fullPath)\n",
+			"line": "861",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "800: \t// 执行移动\n801: \tif err := os.Rename(fullPath, destPath); err != nil {\n802: \t\thttp.Error(w, \"Internal Server Error\", http.StatusInternalServerError)\n",
+			"line": "801",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "794: \t// 确保目标目录存在\n795: \tif err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {\n796: \t\thttp.Error(w, \"Internal Server Error\", http.StatusInternalServerError)\n",
+			"line": "795",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "790: \t\t// 删除现有目标\n791: \t\tos.RemoveAll(destPath)\n792: \t}\n",
+			"line": "791",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "784: \toverwrite := r.Header.Get(\"Overwrite\") != \"F\"\n785: \tif _, err := os.Stat(destPath); err == nil {\n786: \t\tif !overwrite {\n",
+			"line": "785",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "773: \t// 检查源是否存在\n774: \tif _, err := os.Stat(fullPath); err != nil {\n775: \t\tif os.IsNotExist(err) {\n",
+			"line": "774",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "722: \t// 创建目标目录\n723: \tif err := os.MkdirAll(dst, 0755); err != nil {\n724: \t\treturn err\n",
+			"line": "723",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "708: \t// 创建目标文件\n709: \tdstFile, err := os.Create(dst)\n710: \tif err != nil {\n",
+			"line": "709",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "701: \t// 打开源文件\n702: \tsrcFile, err := os.Open(src)\n703: \tif err != nil {\n",
+			"line": "702",
+			"column": "25",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "696: \t// 确保目标目录存在\n697: \tif err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {\n698: \t\treturn err\n",
+			"line": "697",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "686: \t// 返回状态\n687: \tif _, err := os.Stat(destPath); err == nil \u0026\u0026 overwrite {\n688: \t\tw.WriteHeader(http.StatusNoContent)\n",
+			"line": "687",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "670: \t\t// 删除现有目标\n671: \t\tos.RemoveAll(destPath)\n672: \t}\n",
+			"line": "671",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "664: \toverwrite := r.Header.Get(\"Overwrite\") != \"F\"\n665: \tif _, err := os.Stat(destPath); err == nil {\n666: \t\tif !overwrite {\n",
+			"line": "665",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "652: \t// 检查源是否存在\n653: \tinfo, err := os.Stat(fullPath)\n654: \tif err != nil {\n",
+			"line": "653",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "622: \n623: \tif err := os.MkdirAll(fullPath, 0755); err != nil {\n624: \t\thttp.Error(w, \"Internal Server Error\", http.StatusInternalServerError)\n",
+			"line": "623",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "617: \t// 检查是否已存在\n618: \tif _, err := os.Stat(fullPath); err == nil {\n619: \t\thttp.Error(w, \"Method Not Allowed\", http.StatusMethodNotAllowed)\n",
+			"line": "618",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "601: \n602: \tif err := os.RemoveAll(fullPath); err != nil {\n603: \t\thttp.Error(w, \"Internal Server Error\", http.StatusInternalServerError)\n",
+			"line": "602",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "585: \n586: \tinfo, err := os.Stat(fullPath)\n587: \tif err != nil {\n",
+			"line": "586",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "561: \tif err := os.Rename(tmpPath, fullPath); err != nil {\n562: \t\tos.Remove(tmpPath)\n563: \t\thttp.Error(w, \"Internal Server Error\", http.StatusInternalServerError)\n",
+			"line": "562",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "560: \t// 重命名临时文件\n561: \tif err := os.Rename(tmpPath, fullPath); err != nil {\n562: \t\tos.Remove(tmpPath)\n",
+			"line": "561",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "554: \tif err := file.Sync(); err != nil {\n555: \t\tos.Remove(tmpPath)\n556: \t\thttp.Error(w, \"Internal Server Error\", http.StatusInternalServerError)\n",
+			"line": "555",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "547: \tif err != nil {\n548: \t\tos.Remove(tmpPath)\n549: \t\thttp.Error(w, \"Internal Server Error\", http.StatusInternalServerError)\n",
+			"line": "548",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "537: \ttmpPath := fullPath + \".tmp\"\n538: \tfile, err := os.Create(tmpPath)\n539: \tif err != nil {\n",
+			"line": "538",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "530: \tdir := filepath.Dir(fullPath)\n531: \tif err := os.MkdirAll(dir, 0755); err != nil {\n532: \t\thttp.Error(w, \"Internal Server Error\", http.StatusInternalServerError)\n",
+			"line": "531",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "481: func (s *Server) handleHead(w http.ResponseWriter, r *http.Request, fullPath string) {\n482: \tinfo, err := os.Stat(fullPath)\n483: \tif err != nil {\n",
+			"line": "482",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "457: func (s *Server) handleGet(w http.ResponseWriter, r *http.Request, fullPath string) {\n458: \tinfo, err := os.Stat(fullPath)\n459: \tif err != nil {\n",
+			"line": "458",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "412: func (s *Server) handleProppatch(w http.ResponseWriter, r *http.Request, fullPath string) {\n413: \tinfo, err := os.Stat(fullPath)\n414: \tif err != nil {\n",
+			"line": "413",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
+			"code": "287: func (s *Server) handlePropfind(w http.ResponseWriter, r *http.Request, fullPath string) {\n288: \tinfo, err := os.Stat(fullPath)\n289: \tif err != nil {\n",
+			"line": "288",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
+			"code": "339: \tsnapshotFile := filepath.Join(m.storagePath, \"snapshots\", snapshotID+\".json\")\n340: \tos.Remove(snapshotFile)\n341: \n",
+			"line": "340",
+			"column": "11",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
+			"code": "333: \tsnapshotDir := filepath.Join(m.storagePath, \"snapshots\", snapshotID)\n334: \tif err := os.RemoveAll(snapshotDir); err != nil {\n335: \t\tm.logger.Warn(\"删除快照目录失败\", zap.Error(err))\n",
+			"line": "334",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
+			"code": "277: \tsnapshotDiskPath := filepath.Join(m.storagePath, \"snapshots\", snapshotID, \"disk.qcow2\")\n278: \tif _, err := os.Stat(snapshotDiskPath); err == nil {\n279: \t\t// #nosec G204 G703 -- paths are internally generated with validated IDs\n",
+			"line": "278",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "711: \txmlPath := filepath.Join(vmDir, \"domain.xml\")\n712: \tif err := os.WriteFile(xmlPath, []byte(xmlConfig), 0644); err != nil {\n713: \t\treturn nil, fmt.Errorf(\"保存 VM 配置失败：%w\", err)\n",
+			"line": "712",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "636: \tvmDir := filepath.Join(m.storagePath, vmID)\n637: \tif err := os.RemoveAll(vmDir); err != nil {\n638: \t\tm.logger.Warn(\"删除 VM 目录失败\", zap.Error(err), zap.String(\"vm\", vmID))\n",
+			"line": "637",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/smb/config.go",
+			"code": "441: \n442: \tif err := os.WriteFile(backupPath, data, 0644); err != nil {\n443: \t\treturn fmt.Errorf(\"写入备份文件失败: %w\", err)\n",
+			"line": "442",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
+			"code": "309: \t// 写入解密文件\n310: \tif err := os.WriteFile(dstPath, plaintext, 0644); err != nil {\n311: \t\treturn err\n",
+			"line": "310",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
+			"code": "280: \t// 写入加密文件\n281: \tif err := os.WriteFile(dstPath, ciphertext, 0600); err != nil {\n282: \t\treturn err\n",
+			"line": "281",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/scanner/permission_checker.go",
+			"code": "463: \n464: \t\tinfo, err := os.Stat(homeDir)\n465: \t\tif err != nil {\n",
+			"line": "464",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/docker/app_version.go",
+			"code": "476: \n477: \t\tif err := os.WriteFile(app.ComposePath, []byte(composeStr), 0644); err != nil {\n478: \t\t\treturn err\n",
+			"line": "477",
+			"column": "25",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/restore.go",
+			"code": "270: \n271: \t\treturn os.WriteFile(dst, data, info.Mode())\n272: \t}\n",
+			"line": "271",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
+			"code": "825: \t\t}\n826: \t\treturn os.WriteFile(dstPath, data, info.Mode())\n827: \t})\n",
+			"line": "826",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
+			"code": "403: \t// 写入目标文件\n404: \treturn os.WriteFile(dstPath, plaintext, 0600)\n405: }\n",
+			"line": "404",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
+			"code": "385: \t// 写入目标文件\n386: \treturn os.WriteFile(dstPath, ciphertext, 0600)\n387: }\n",
+			"line": "386",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/advanced/manager.go",
+			"code": "545: \n546: \treturn os.WriteFile(dstPath, decompressed, 0644)\n547: }\n",
+			"line": "546",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/advanced/manager.go",
+			"code": "377: \n378: \tif err := os.WriteFile(destPath, finalData, 0644); err != nil {\n379: \t\treturn manifest, 0, err\n",
+			"line": "378",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G703",
+			"details": "Path traversal via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/automation/action/action.go",
+			"code": "852: \t}\n853: \treturn os.WriteFile(dst, data, 0644)\n854: }\n",
+			"line": "853",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "400",
+				"url": "https://cwe.mitre.org/data/definitions/400.html"
+			},
+			"rule_id": "G118",
+			"details": "Goroutine uses context.Background/TODO while request-scoped context is available",
+			"file": "/home/mrafter/clawd/nas-os/internal/performance/monitor.go",
+			"code": "758: \n759: \tgo func() {\n760: \t\t\u003c-ctx.Done()\n",
+			"line": "759",
+			"column": "2",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "367",
+				"url": "https://cwe.mitre.org/data/definitions/367.html"
+			},
+			"rule_id": "G122",
+			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
+			"file": "/home/mrafter/clawd/nas-os/internal/snapshot/replication.go",
+			"code": "826: \t\tif !info.IsDir() {\n827: \t\t\tf, err := os.Open(filePath)\n828: \t\t\tif err != nil {\n",
+			"line": "827",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "367",
+				"url": "https://cwe.mitre.org/data/definitions/367.html"
+			},
+			"rule_id": "G122",
+			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
+			"file": "/home/mrafter/clawd/nas-os/internal/plugin/hotreload.go",
+			"code": "347: \t\t\tif !info.IsDir() {\n348: \t\t\t\tf, err := os.Open(p)\n349: \t\t\t\tif err != nil {\n",
+			"line": "348",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "367",
+				"url": "https://cwe.mitre.org/data/definitions/367.html"
+			},
+			"rule_id": "G122",
+			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
+			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
+			"code": "891: \n892: \t\tfile, err := os.Open(path)\n893: \t\tif err != nil {\n",
+			"line": "892",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "367",
+				"url": "https://cwe.mitre.org/data/definitions/367.html"
+			},
+			"rule_id": "G122",
+			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
+			"code": "821: \n822: \t\tdata, err := os.ReadFile(path)\n823: \t\tif err != nil {\n",
+			"line": "822",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "367",
+				"url": "https://cwe.mitre.org/data/definitions/367.html"
+			},
+			"rule_id": "G122",
+			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
+			"code": "82: \n83: \t\tdata, err := os.ReadFile(path)\n84: \t\tif err != nil {\n",
+			"line": "83",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "367",
+				"url": "https://cwe.mitre.org/data/definitions/367.html"
+			},
+			"rule_id": "G122",
+			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/config_backup.go",
+			"code": "261: \t\tif !info.IsDir() {\n262: \t\t\tfile, err := os.Open(path)\n263: \t\t\tif err != nil {\n",
+			"line": "262",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "367",
+				"url": "https://cwe.mitre.org/data/definitions/367.html"
+			},
+			"rule_id": "G122",
+			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
+			"file": "/home/mrafter/clawd/nas-os/internal/backup/advanced/verification.go",
+			"code": "191: \n192: \t\tfile, err := os.Open(path)\n193: \t\tif err != nil {\n",
+			"line": "192",
+			"column": "23",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
+			"code": "324: \t\t// #nosec G204 G703 -- vm.Name validated by validateConfig(), snapshotName is UUID-based\n325: \t\tcmd := exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"snapshot-delete\", vm.Name, snapshotName)\n326: \t\toutput, err := cmd.CombinedOutput()\n",
+			"line": "325",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
+			"code": "293: \t\t// #nosec G204 G703 -- vm.Name validated by validateConfig(), snapshotName is UUID-based\n294: \t\tcmd := exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"snapshot-revert\", vm.Name, snapshotName)\n295: \t\toutput, err := cmd.CombinedOutput()\n",
+			"line": "294",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
+			"code": "279: \t\t// #nosec G204 G703 -- paths are internally generated with validated IDs\n280: \t\tcmd := exec.CommandContext(ctx, \"qemu-img\", \"convert\", \"-f\", \"qcow2\", \"-O\", \"qcow2\", snapshotDiskPath, vm.DiskPath)\n281: \t\toutput, err := cmd.CombinedOutput()\n",
+			"line": "280",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "725: \t\t// #nosec G204 -- xmlPath is internally generated\n726: \t\tcmd := exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"define\", xmlPath)\n727: \t\tif err := cmd.Run(); err != nil {\n",
+			"line": "726",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "628: \t\t// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters\n629: \t\tcmd := exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"undefine\", vm.Name)\n630: \t\tif err := cmd.Run(); err != nil {\n",
+			"line": "629",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "622: \t\t// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters\n623: \t\tcmd := exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"destroy\", vm.Name)\n624: \t\tcmd.Run()\n",
+			"line": "623",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "593: \t\t\t// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters\n594: \t\t\tcmd = exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"shutdown\", vm.Name)\n595: \t\t}\n",
+			"line": "594",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "590: \t\t\t// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters\n591: \t\t\tcmd = exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"destroy\", vm.Name)\n592: \t\t} else {\n",
+			"line": "591",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "557: \t\t// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters\n558: \t\tcmd := exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"start\", vm.Name)\n559: \t\tif err := cmd.Run(); err != nil {\n",
+			"line": "558",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": null,
+			"rule_id": "G702",
+			"details": "Command injection via taint analysis",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
+			"code": "311: \t\t// #nosec G204 -- xmlPath is internally generated\n312: \t\tcmd := exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"define\", xmlPath)\n313: \t\tif err := cmd.Run(); err != nil {\n",
+			"line": "312",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		}
+	],
+	"Stats": {
+		"files": 452,
+		"lines": 277816,
+		"nosec": 30,
+		"found": 163
+	},
+	"GosecVersion": "dev"
+}
