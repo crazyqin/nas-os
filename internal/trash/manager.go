@@ -1,6 +1,7 @@
 package trash
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -52,6 +53,10 @@ type Manager struct {
 	trashRoot    string
 	totalSize    int64
 	onSizeChange func(int64) // 空间变化回调
+
+	// Lifecycle management
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 // NewManager 创建回收站管理器
@@ -60,15 +65,20 @@ func NewManager(configPath, trashRoot string, config *Config) (*Manager, error) 
 		config = DefaultConfig()
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	m := &Manager{
 		config:     config,
 		items:      make(map[string]*TrashItem),
 		configPath: configPath,
 		trashRoot:  trashRoot,
+		ctx:        ctx,
+		cancel:     cancel,
 	}
 
 	// 创建回收站根目录
 	if err := os.MkdirAll(trashRoot, 0755); err != nil {
+		cancel()
 		return nil, fmt.Errorf("创建回收站目录失败：%w", err)
 	}
 
@@ -77,15 +87,18 @@ func NewManager(configPath, trashRoot string, config *Config) (*Manager, error) 
 		// 配置不存在时保存默认配置
 		if os.IsNotExist(err) {
 			if err := m.saveConfig(); err != nil {
+				cancel()
 				return nil, err
 			}
 		} else {
+			cancel()
 			return nil, err
 		}
 	}
 
 	// 加载回收站项目
 	if err := m.loadItems(); err != nil {
+		cancel()
 		return nil, err
 	}
 
@@ -384,8 +397,20 @@ func (m *Manager) startAutoClean() {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		m.cleanupExpired()
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case <-ticker.C:
+			m.cleanupExpired()
+		}
+	}
+}
+
+// Stop stops the trash manager and cleanup goroutine
+func (m *Manager) Stop() {
+	if m.cancel != nil {
+		m.cancel()
 	}
 }
 

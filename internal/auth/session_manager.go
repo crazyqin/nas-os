@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -54,6 +55,10 @@ type SessionManager struct {
 	sessions    map[string]*Session // token -> session
 	userSession map[string][]string // userID -> token list
 	config      SessionConfig
+
+	// Lifecycle management
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 // NewSessionManager 创建会话管理器
@@ -68,10 +73,14 @@ func NewSessionManager(config SessionConfig) *SessionManager {
 		config.MaxSessionsPerUser = DefaultSessionConfig.MaxSessionsPerUser
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	m := &SessionManager{
 		sessions:    make(map[string]*Session),
 		userSession: make(map[string][]string),
 		config:      config,
+		ctx:         ctx,
+		cancel:      cancel,
 	}
 
 	// 加载已存储的会话
@@ -339,8 +348,20 @@ func (m *SessionManager) cleanupLoop() {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		m.Cleanup()
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case <-ticker.C:
+			m.Cleanup()
+		}
+	}
+}
+
+// Stop stops the session manager and cleanup goroutine
+func (m *SessionManager) Stop() {
+	if m.cancel != nil {
+		m.cancel()
 	}
 }
 

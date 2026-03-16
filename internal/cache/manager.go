@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"context"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -32,13 +33,20 @@ type Manager struct {
 	expires   int64
 
 	logger *zap.Logger
+
+	// Lifecycle management
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 // NewManager creates a new cache manager
 func NewManager(capacity int, ttl time.Duration, logger *zap.Logger) *Manager {
+	ctx, cancel := context.WithCancel(context.Background())
 	m := &Manager{
 		memoryCache: NewLRUCache(capacity, ttl),
 		logger:      logger,
+		ctx:         ctx,
+		cancel:      cancel,
 	}
 
 	// Start background cleanup
@@ -139,13 +147,26 @@ func (m *Manager) startCleanup() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		removed := m.memoryCache.Cleanup()
-		if removed > 0 {
-			atomic.AddInt64(&m.expires, int64(removed))
-			m.logger.Debug("Cache cleanup", zap.Int("removed", removed))
+	for {
+		select {
+		case <-m.ctx.Done():
+			return
+		case <-ticker.C:
+			removed := m.memoryCache.Cleanup()
+			if removed > 0 {
+				atomic.AddInt64(&m.expires, int64(removed))
+				m.logger.Debug("Cache cleanup", zap.Int("removed", removed))
+			}
 		}
 	}
+}
+
+// Stop stops the cache manager and cleanup goroutine
+func (m *Manager) Stop() {
+	if m.cancel != nil {
+		m.cancel()
+	}
+	m.logger.Info("Cache manager stopped")
 }
 
 // GetMemoryCache returns the underlying memory cache

@@ -110,6 +110,9 @@ func TestListLibraries(t *testing.T) {
 	lm.CreateLibrary("Movies", mediaPath1, MediaTypeMovie)
 	lm.CreateLibrary("TV Shows", mediaPath2, MediaTypeTV)
 
+	// 等待异步扫描完成
+	time.Sleep(100 * time.Millisecond)
+
 	libs := lm.ListLibraries()
 	if len(libs) != 2 {
 		t.Errorf("ListLibraries() returned %d libraries, expected 2", len(libs))
@@ -455,6 +458,9 @@ func TestLibraryManager_ConcurrentAccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create library: %v", err)
 	}
+
+	// Wait for async scan to complete
+	time.Sleep(100 * time.Millisecond)
 
 	// Concurrent reads
 	done := make(chan bool)
