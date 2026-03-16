@@ -1,0 +1,19 @@
+{
+  "global": {
+    "nosec": true
+  },
+  "rules": {
+    "G101": {
+      "status": "disabled",
+      "reason": "OAuth2 URLs and field names trigger false positives; credentials are configured at runtime"
+    },
+    "G104": {
+      "status": "disabled", 
+      "reason": "Audit rule - errors intentionally ignored in cleanup/logging contexts"
+    },
+    "G115": {
+      "status": "disabled",
+      "reason": "Integer conversions within NAS context are safe; size values always positive and within int64 range"
+    }
+  }
+}

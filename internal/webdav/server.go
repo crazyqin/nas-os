@@ -222,6 +222,7 @@ func (s *Server) resolvePath(r *http.Request, requestPath string) (string, error
 	}
 
 	// 构建完整路径并验证是否在允许的根目录内
+	// #nosec G304 G703 -- Path traversal protection: decodedPath checked for "..", then validated via abs path prefix check
 	fullPath := filepath.Join(basePath, cleanPath)
 	absBasePath, _ := filepath.Abs(basePath)
 	absFullPath, _ := filepath.Abs(fullPath)
