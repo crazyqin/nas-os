@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.133.0] - 2026-03-16
+
+### 六部协同开发
+
+#### 工部 - DevOps 优化
+- ✅ 修复 CI/CD 缓存版本不一致 (v11 -> v12)
+- ✅ 修复 docker-compose.yml 健康检查 (wget 替代 curl)
+- ✅ 修复 docker-compose.prod.yml 健康检查
+- ✅ Docker 健康检查兼容 distroless/alpine 镜像
+
+#### 礼部 - 文档更新
+- ✅ 更新文档版本号至 v2.133.0
+- ✅ 更新 Swagger API 文档版本号
+- ✅ 更新 docs/README.md 更新日志
+
+#### 刑部 - 安全审计
+- ✅ go vet 检查通过
+- ✅ 发现 Go 标准库漏洞 5 个，建议升级至 go1.26.1
+- ✅ 发现命令注入风险点 (快照执行器)
+- ✅ RBAC 权限系统评估完成
+
+### Changed
+- 版本号升级至 v2.133.0
+- CI 缓存版本统一为 v12
+- Docker 健康检查兼容性改进
+
 ## [v2.132.0] - 2026-03-16
 
 ### 六部协同开发
