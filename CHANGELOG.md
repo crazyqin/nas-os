@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.123.0] - 2026-03-16
+
+### 六部协同汇报
+
+#### 礼部 - 文档版本同步
+- ✅ VERSION → v2.123.0
+- ✅ internal/version/version.go → 2.123.0
+- ✅ README.md 版本信息同步
+- ✅ docs/api.yaml API 文档版本同步
+- ✅ CHANGELOG.md 更新
+- ✅ docs/RELEASE-v2.123.0.md 发布说明创建
+
+### Changed
+- 版本号更新至 v2.123.0
+
 ## [v2.122.0] - 2026-03-16
 
 ### 六部协同汇报

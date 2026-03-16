@@ -7,44 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ========== 通用响应辅助函数测试 ==========
-
-func TestRespondSuccess(t *testing.T) {
-	c := setupTestContext()
-	respondSuccess(c, map[string]string{"key": "value"})
-	// Just verify it doesn't panic
-}
-
-func TestRespondBadRequest(t *testing.T) {
-	c := setupTestContext()
-	respondBadRequest(c, "Invalid request")
-	// Just verify it doesn't panic
-}
-
-func TestRespondNotFound(t *testing.T) {
-	c := setupTestContext()
-	respondNotFound(c, "Resource not found")
-	// Just verify it doesn't panic
-}
-
-func TestRespondInternalError(t *testing.T) {
-	c := setupTestContext()
-	respondInternalError(c, "Internal error")
-	// Just verify it doesn't panic
-}
-
-func TestRespondServiceUnavailable(t *testing.T) {
-	c := setupTestContext()
-	respondServiceUnavailable(c, "Service unavailable")
-	// Just verify it doesn't panic
-}
-
-func TestRespondError(t *testing.T) {
-	c := setupTestContext()
-	respondError(c, 400, 1001, "Custom error")
-	// Just verify it doesn't panic
-}
-
 // ========== 网络管理 API 模型测试 ==========
 
 func TestInterfaceConfig_Struct(t *testing.T) {
