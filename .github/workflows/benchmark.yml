@@ -28,6 +28,10 @@ env:
 #
   GOPROXY: 'https://proxy.golang.org,direct'
 
+# v2.136.0 更新（工部优化）：
+# - 添加 Go 模块缓存提升构建速度
+# - 添加 GOPROXY 加速依赖下载
+
 jobs:
   benchmark:
     name: 运行基准测试
@@ -46,6 +50,16 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
+          cache-dependency-path: go.sum
+      
+      - name: 恢复 Go 编译缓存
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/go-build
+          key: ${{ env.CACHE_VERSION }}-benchmark-build-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            ${{ env.CACHE_VERSION }}-benchmark-build-
+            ${{ env.CACHE_VERSION }}-build-
       
       - name: 安装依赖
         run: go mod download
