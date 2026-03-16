@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 # NAS-OS Dockerfile
 # 多阶段构建，优化后的生产镜像约 15-18MB
 # 支持 amd64, arm64, arm/v7 架构
