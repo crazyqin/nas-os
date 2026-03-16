@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.147.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 兵部 - 软件工程
+- ✅ go vet 检查通过
+- ✅ 全部测试通过
+- ✅ 构建成功
+
+#### 礼部 - 文档更新
+- ✅ 版本号更新至 v2.147.0
+- ✅ 修复 API_GUIDE.md 重复行
+
+#### 刑部 - 安全审计
+- ✅ 无高危安全问题
+- ✅ 安全审计报告已完成
+
+#### 工部 - DevOps
+- ✅ CI/CD 流程正常
+- ✅ Docker 构建进行中
+
+### Changed
+- Version bump to v2.147.0
+
 ## [v2.146.0] - 2026-03-17
 
 ### 六部协同开发
