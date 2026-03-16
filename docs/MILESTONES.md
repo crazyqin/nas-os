@@ -4,6 +4,22 @@
 
 ---
 
+## v2.148.0 - 2026-03-17 ✅
+
+### 礼部文档维护
+- 版本号同步至 v2.148.0
+- docs/api.yaml API 文档版本更新
+- docs/README.md 文档版本同步
+- docs/README_EN.md 英文文档版本同步
+- CHANGELOG.md 更新
+- MILESTONES.md 里程碑更新
+
+### 发布状态
+- 版本号同步：VERSION, README.md, docs/* ✅
+- 文档一致性检查 ✅
+
+---
+
 ## v2.145.0 - 2026-03-17 ✅
 
 ### 吏部项目管理
