@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-VERSION="1.0.0"
+VERSION="1.1.0"
 SCRIPT_NAME=$(basename "$0")
 
 # 配置
@@ -206,6 +206,63 @@ check_system_resources() {
     # 负载
     local load=$(cat /proc/loadavg 2>/dev/null | awk '{print $1,$2,$3}')
     echo -e "  系统负载: ${CYAN}${load}${NC}"
+    
+    # 网络连接统计 (v2.122.0)
+    local net_connections=$(ss -s 2>/dev/null | grep -oP 'TCP:.*' | head -1 || echo "N/A")
+    echo -e "  网络连接: ${CYAN}${net_connections}${NC}"
+}
+
+# 进程详细信息 (v2.122.0)
+check_process_details() {
+    echo ""
+    echo -e "${BLUE}[进程详情]${NC}"
+    
+    # 检查 nasd 进程
+    local nasd_pid=$(pgrep -x "nasd" 2>/dev/null | head -1)
+    if [ -n "$nasd_pid" ]; then
+        echo -e "  NAS-OS 进程 (${nasd_pid}):"
+        
+        # 内存使用
+        local mem=$(ps -p "$nasd_pid" -o rss --no-headers 2>/dev/null | awk '{printf "%.1f MB", $1/1024}')
+        echo -e "    内存: ${CYAN}${mem}${NC}"
+        
+        # CPU 使用
+        local cpu=$(ps -p "$nasd_pid" -o %cpu --no-headers 2>/dev/null | tr -d ' ')
+        echo -e "    CPU: ${CYAN}${cpu}%${NC}"
+        
+        # 运行时间
+        local uptime=$(ps -p "$nasd_pid" -o etime --no-headers 2>/dev/null | tr -d ' ')
+        echo -e "    运行时间: ${CYAN}${uptime}${NC}"
+        
+        # 打开的文件数
+        local fds=$(ls /proc/"$nasd_pid"/fd 2>/dev/null | wc -l || echo "N/A")
+        echo -e "    文件描述符: ${CYAN}${fds}${NC}"
+        
+        # 线程数
+        local threads=$(cat /proc/"$nasd_pid"/status 2>/dev/null | grep Threads | awk '{print $2}' || echo "N/A")
+        echo -e "    线程数: ${CYAN}${threads}${NC}"
+    else
+        echo -e "  ${YELLOW}NAS-OS 进程未运行${NC}"
+    fi
+}
+
+# 端口详细信息 (v2.122.0)
+check_port_details() {
+    echo ""
+    echo -e "${BLUE}[端口详情]${NC}"
+    
+    # 检查主要服务端口
+    local ports="8080 9090 3000 9093"
+    for port in $ports; do
+        local listener=$(ss -tlnp 2>/dev/null | grep ":${port}" | awk '{print $5}' | cut -d: -f2 || echo "")
+        local process=$(ss -tlnp 2>/dev/null | grep ":${port}" | awk '{print $7}' | cut -d, -f2 || echo "")
+        
+        if [ -n "$listener" ]; then
+            echo -e "  端口 ${port}: ${GREEN}监听中${NC} (${process:-unknown})"
+        else
+            echo -e "  端口 ${port}: ${YELLOW}未使用${NC}"
+        fi
+    done
 }
 
 check_recent_logs() {
@@ -244,6 +301,12 @@ run_check() {
         IFS=':' read -r name display port <<< "$svc"
         check_service "$name" "$display" "$port"
     done
+    
+    # 进程详情 (v2.122.0)
+    check_process_details
+    
+    # 端口详情 (v2.122.0)
+    check_port_details
     
     # 检查 API 端点（如果主服务运行中）
     if check_http "$API_URL/api/v1/health" 2; then

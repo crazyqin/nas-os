@@ -19,7 +19,7 @@ set -euo pipefail
 # 版本与路径
 #===========================================
 
-VERSION="2.72.0"
+VERSION="2.122.0"
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
