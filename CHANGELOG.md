@@ -4,11 +4,52 @@ All notable changes to this project will be documented in this file.
 
 ## [v2.114.0] - 2026-03-16
 
+### 六部协同汇报
+
+#### 兵部 - 代码质量和测试
+- ✅ go vet ./... 检查通过，无问题
+- ✅ go test ./... 87个测试包全部通过
+- ✅ go build ./... 编译通过，无警告
+
+#### 户部 - 性能优化和资源管理
+- ⚠️ 发现 6 处 goroutine 泄漏风险
+  - internal/webdav/server.go - startLockCleanup()
+  - internal/database/optimizer.go - startCleanup()
+  - internal/reports/storage_cost.go - 清理循环
+  - internal/scheduler/logger.go - cleanup goroutine
+  - internal/notification/history.go - 清理 goroutine
+  - internal/docker/app_version.go - 版本检查循环
+- ✅ 数据库连接管理正常
+
+#### 礼部 - 文档和版本同步
+- ✅ VERSION → v2.114.0
+- ✅ internal/version/version.go → 2.114.0
+- ✅ README.md 版本信息同步
+- ✅ docs/README.md 版本同步
+- ✅ docs/api.yaml API 文档版本同步
+- ✅ docs/CHANGELOG.md 版本同步
+
+#### 工部 - CI/CD 和构建系统
+- ✅ GitHub Workflows 全部正常
+- ✅ Dockerfile 多架构支持正常
+- ✅ docker-compose.yml 版本标签已更新
+- ✅ Makefile 39个脚本全部存在
+
+#### 吏部 - 版本管理和进度追踪
+- ✅ 项目进度: 68个功能模块
+- ✅ 里程碑 M57 进行中
+- ✅ Git 提交信息规范正确
+- ⏳ M4 用户权限系统待开始
+- ⏳ M5 监控告警系统待开始
+
+#### 刑部 - 安全审计
+- ⏳ 因并发限制未执行（建议后续补充）
+
 ### Changed
-- **版本号更新** (吏部)
-  - 版本号更新至 v2.114.0
-  - README.md 版本信息同步
-  - Docker 镜像标签更新
+- 版本号更新至 v2.114.0
+- README.md 版本信息同步
+- Docker 镜像标签更新
+- docker-compose.yml 版本标签更新
 
 ## [v2.112.0] - 2026-03-16
 
