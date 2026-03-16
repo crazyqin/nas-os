@@ -1372,7 +1372,11 @@ func (m *SMARTMonitor) AcknowledgeAlert(alertID string) error {
 func (m *SMARTMonitor) SetAlertRule(rule *AlertRule) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	m.setAlertRuleLocked(rule)
+}
 
+// setAlertRuleLocked 设置告警规则（调用者必须持有锁）
+func (m *SMARTMonitor) setAlertRuleLocked(rule *AlertRule) {
 	// 查找并更新或添加
 	for i, r := range m.alertRules {
 		if r.ID == rule.ID {
@@ -1505,7 +1509,7 @@ func (m *SMARTMonitor) ImportJSON(data []byte) error {
 		if rule.LastTriggered == nil {
 			rule.LastTriggered = make(map[string]time.Time)
 		}
-		m.SetAlertRule(rule)
+		m.setAlertRuleLocked(rule)
 	}
 
 	return nil
