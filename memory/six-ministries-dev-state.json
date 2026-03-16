@@ -1,50 +1,43 @@
 {
-  "version": "v2.99.0",
-  "releaseDate": null,
-  "releaseUrl": null,
-  "commitSha": null,
-  "cycleStartTime": "2026-03-16T08:02:00+08:00",
+  "version": "v2.100.0",
+  "cycleStartTime": "2026-03-16T08:22:00+08:00",
   "ministries": {
     "bingbu": {
       "name": "兵部",
       "role": "软件工程",
       "status": "pending",
-      "tasks": ["代码质量检查", "TODO修复", "测试覆盖率提升"]
+      "tasks": ["代码质量检查", "测试覆盖率提升", "TODO项清理"]
     },
     "hubu": {
       "name": "户部",
       "role": "财务运营",
       "status": "pending",
-      "tasks": ["资源管理模块检查", "成本优化审查"]
+      "tasks": ["资源管理模块优化", "Goroutine泄漏修复", "敏感信息安全处理"]
     },
     "libu": {
       "name": "礼部",
       "role": "内容创作",
       "status": "pending",
-      "tasks": ["文档版本更新", "发布说明准备"]
+      "tasks": ["文档更新v2.100.0", "CHANGELOG更新"]
     },
     "gongbu": {
       "name": "工部",
       "role": "DevOps",
       "status": "pending",
-      "tasks": ["CI/CD流程检查", "Docker构建优化"]
+      "tasks": ["Docker发布迁移至GHCR", "CI/CD优化"]
     },
     "libu_pm": {
       "name": "吏部",
       "role": "项目管理",
       "status": "pending",
-      "tasks": ["版本号更新至v2.99.0", "README同步"]
+      "tasks": ["版本号更新v2.100.0", "项目状态同步"]
     },
     "xingbu": {
       "name": "刑部",
       "role": "安全合规",
       "status": "pending",
-      "tasks": ["安全扫描", "代码审查"]
+      "tasks": ["安全扫描", "敏感信息审计"]
     }
   },
-  "actionsStatus": {
-    "CI/CD": "in_progress",
-    "Docker Publish": "in_progress"
-  },
-  "notes": "新一轮六部开发开始，Actions仍在运行中"
+  "notes": "v2.100.0开发周期启动"
 }

@@ -53,11 +53,26 @@ type CloudConfig struct {
 	Bucket     string        `json:"bucket"`     // S3 bucket 或 WebDAV 根路径
 	Endpoint   string        `json:"endpoint"`   // S3 endpoint 或 WebDAV URL
 	Region     string        `json:"region"`     // S3 region
-	AccessKey  string        `json:"accessKey"`  // S3 Access Key 或 WebDAV 用户名
-	SecretKey  string        `json:"secretKey"`  // S3 Secret Key 或 WebDAV 密码
+	AccessKey  string        `json:"-"`          // S3 Access Key 或 WebDAV 用户名（敏感信息，不序列化）
+	SecretKey  string        `json:"-"`          // S3 Secret Key 或 WebDAV 密码（敏感信息，不序列化）
 	Prefix     string        `json:"prefix"`     // 路径前缀
 	Insecure   bool          `json:"insecure"`   // 跳过 TLS 验证（WebDAV）
 	Encryption bool          `json:"encryption"` // 上传前加密
+}
+
+// Sanitize 返回脱敏后的配置副本（用于日志和调试）
+func (cc *CloudConfig) Sanitize() map[string]interface{} {
+	return map[string]interface{}{
+		"provider":    cc.Provider,
+		"bucket":      cc.Bucket,
+		"endpoint":    cc.Endpoint,
+		"region":      cc.Region,
+		"prefix":      cc.Prefix,
+		"insecure":    cc.Insecure,
+		"encryption":  cc.Encryption,
+		"has_access_key": cc.AccessKey != "",
+		"has_secret_key": cc.SecretKey != "",
+	}
 }
 
 // NewCloudBackup 创建云端备份管理器

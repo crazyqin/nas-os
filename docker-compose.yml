@@ -2,6 +2,12 @@
 # ⚠️ 注意：生产环境建议直接安装在宿主机（需要磁盘设备访问）
 # 此配置适用于开发测试或受限场景
 #
+# 镜像地址: ghcr.io/nas-os/nas-os
+#
+# v2.90.0 更新：
+# - 迁移到 GHCR (GitHub Container Registry)
+# - 更新镜像地址
+#
 # v2.86.0 更新：
 # - 更新版本标签
 # - 添加网络配置
@@ -9,7 +15,7 @@
 
 services:
   nas-os:
-    image: nas-os:latest
+    image: ghcr.io/nas-os/nas-os:latest
     build:
       context: .
       dockerfile: Dockerfile
