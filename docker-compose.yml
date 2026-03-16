@@ -4,10 +4,8 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
-# v2.136.0 更新（工部优化）：
-# - 修复 YAML 格式（移除重复的 services 块）
-# - 修复健康检查命令（distroless 镜像使用 CMD 而非 CMD-SHELL）
-# - 添加 networks 定义
+# v2.149.0 更新（工部优化）：
+# - 版本标签同步更新
 #
 # v2.135.0 更新：
 # - 更新版本标签至 v2.135.0
@@ -35,7 +33,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.136.0"
+      - "nas-os.version=2.149.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -70,7 +68,7 @@ services:
     environment:
       - NAS_OS_CONFIG=/etc/nas-os/config.yaml
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
-      - NAS_OS_VERSION=2.136.0
+      - NAS_OS_VERSION=2.149.0
       # 时区设置
       - TZ=Asia/Shanghai
       # 日志配置

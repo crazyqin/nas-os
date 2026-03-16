@@ -4,10 +4,9 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
-# v2.136.0 更新（工部优化）：
-# - 优化构建依赖关系，减少等待时间
-# - 改进测试环境准备步骤
-# - 统一缓存策略
+# v2.149.0 更新（工部优化）：
+# - 更新 golangci.yml 启用更多代码检查规则
+# - 版本注释同步更新
 #
 # v2.135.0 更新（工部优化）：
 # - 修复 docker-compose.yml 健康检查命令
@@ -918,7 +917,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.136.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.149.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -938,8 +937,6 @@ jobs:
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 v2.136.0 优化内容" >> $GITHUB_STEP_SUMMARY
-          echo "- 添加 Go 模块缓存到 benchmark 和 security-scan workflow" >> $GITHUB_STEP_SUMMARY
-          echo "- 添加变更检测到 docker-publish workflow" >> $GITHUB_STEP_SUMMARY
-          echo "- 优化镜像等待策略" >> $GITHUB_STEP_SUMMARY
-          echo "- 统一缓存版本号和 GOPROXY 配置" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.149.0 优化内容" >> $GITHUB_STEP_SUMMARY
+          echo "- 更新 golangci.yml 启用更多代码检查规则" >> $GITHUB_STEP_SUMMARY
+          echo "- 版本注释同步更新" >> $GITHUB_STEP_SUMMARY
