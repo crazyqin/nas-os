@@ -32,7 +32,7 @@ info:
     | 500 | 服务器内部错误 |
     | 503 | 服务暂时不可用 |
     
-  version: 2.111.0
+  version: 2.112.0
 >>>>>>> 70d7ef9 (feat(v2.109.0): 六部协同开发)
   contact:
     name: NAS-OS 团队
