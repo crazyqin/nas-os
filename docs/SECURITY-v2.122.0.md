@@ -94,10 +94,19 @@ internal/monitor/metrics_collector.go:843-849 - uint64 → int
 
 **风险评级**: 高
 
+**现状分析**:
+项目已有安全工具包，但未充分使用：
+- `pkg/safeguards/paths.go` - 提供 `SecureJoin`, `SafeReadFile`, `SafeWriteFile`
+- `pkg/security/sanitize.go` - 提供 `SafePath`, `ValidateFilename`, `SanitizeCommandArg`
+- `internal/security/v2/safe_file_manager.go` - 提供文件管理器级别的安全封装
+
+**问题**: 经检查，`internal/backup/restore.go` 等关键文件未导入和使用这些安全函数。
+
 **建议**:
-- 使用 `filepath.Clean()` 规范化路径
-- 添加路径遍历检测（检查 `..` 和绝对路径）
-- 实现白名单目录限制
+1. 在所有文件操作中使用 `safeguards.SecureJoin()` 替代 `filepath.Join()`
+2. 使用 `safeguards.SafeReadFile()` 替代 `os.ReadFile()`
+3. 添加路径白名单和遍历检测
+4. 对关键模块进行安全重构
 
 ### 2.2 🟠 中危风险
 
@@ -234,10 +243,39 @@ rows, err := m.db.Query(query, timeRange)
 | go.etcd.io/bbolt | v1.4.0 | ✅ 最新 |
 | github.com/aws/aws-sdk-go-v2 | v1.41.3 | ✅ 最新 |
 
-### 5.2 建议
+### 5.2 govulncheck 漏洞扫描结果
 
+**扫描时间**: 2026-03-16 17:30  
+**Go 版本**: go1.26.0 (需升级至 go1.26.1)
+
+发现 **5 个 Go 标准库漏洞**：
+
+| 漏洞编号 | 组件 | 风险 | 影响 |
+|----------|------|------|------|
+| GO-2026-4603 | html/template | 中 | URL meta content 未转义 |
+| GO-2026-4602 | os | 中 | FileInfo 可从 Root 逃逸 |
+| GO-2026-4601 | net/url | 中 | IPv6 主机解析错误 |
+| GO-2026-4600 | crypto/x509 | 高 | 证书名称约束检查可导致 panic |
+| GO-2026-4599 | crypto/x509 | 中 | 邮件约束验证不正确 |
+
+**受影响调用链**：
+- `internal/reports/enhanced_export.go:308` - template.Execute
+- `internal/ldap/client.go:83` - x509 证书验证
+- `internal/office/manager.go:1158` - URL 解析
+- `internal/cloudsync/providers.go:1774` - OneDrive 连接测试
+
+**修复建议**：
+```bash
+# 升级 Go 到 1.26.1
+# 在 CI/CD 中添加 govulncheck 步骤
+govulncheck ./...
+```
+
+### 5.3 建议
+
+- ✅ 升级 Go 至 1.26.1 修复标准库漏洞
 - 定期运行 `go list -m -u all` 检查更新
-- 使用 `govulncheck` 扫描已知漏洞
+- 建立 govulncheck CI 检查流程
 - 考虑使用 Dependabot 自动化依赖更新
 
 ---
