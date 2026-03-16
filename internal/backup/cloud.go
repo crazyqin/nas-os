@@ -63,13 +63,13 @@ type CloudConfig struct {
 // Sanitize 返回脱敏后的配置副本（用于日志和调试）
 func (cc *CloudConfig) Sanitize() map[string]interface{} {
 	return map[string]interface{}{
-		"provider":    cc.Provider,
-		"bucket":      cc.Bucket,
-		"endpoint":    cc.Endpoint,
-		"region":      cc.Region,
-		"prefix":      cc.Prefix,
-		"insecure":    cc.Insecure,
-		"encryption":  cc.Encryption,
+		"provider":       cc.Provider,
+		"bucket":         cc.Bucket,
+		"endpoint":       cc.Endpoint,
+		"region":         cc.Region,
+		"prefix":         cc.Prefix,
+		"insecure":       cc.Insecure,
+		"encryption":     cc.Encryption,
 		"has_access_key": cc.AccessKey != "",
 		"has_secret_key": cc.SecretKey != "",
 	}
