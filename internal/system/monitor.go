@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"nas-os/pkg/safeguards"
 	_ "modernc.org/sqlite"
 )
 
@@ -757,8 +758,13 @@ func (m *Monitor) saveHistoryData(system *SystemStats, network []*NetworkStats) 
 
 	var netRX, netTX int64
 	for _, n := range network {
-		netRX += int64(n.RXSpeed)
-		netTX += int64(n.TXSpeed)
+		// 使用安全转换避免 integer overflow
+		if rx, err := safeguards.SafeUint64ToInt64(n.RXSpeed); err == nil {
+			netRX += rx
+		}
+		if tx, err := safeguards.SafeUint64ToInt64(n.TXSpeed); err == nil {
+			netTX += tx
+		}
 	}
 
 	query := `INSERT INTO system_history (timestamp, cpu_usage, memory_usage, memory_total, memory_used, 

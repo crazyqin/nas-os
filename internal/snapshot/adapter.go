@@ -2,6 +2,7 @@ package snapshot
 
 import (
 	"nas-os/internal/storage"
+	"nas-os/pkg/safeguards"
 )
 
 // StorageAdapter 存储管理器适配器
@@ -35,11 +36,12 @@ func (a *StorageAdapter) ListSnapshots(volumeName string) ([]interface{}, error)
 	// 转换为接口切片
 	result := make([]interface{}, len(snapshots))
 	for i, snap := range snapshots {
+		size, _ := safeguards.SafeUint64ToInt64(snap.Size)
 		result[i] = SnapshotInfo{
 			Name:      snap.Name,
 			Path:      snap.Path,
 			CreatedAt: snap.CreatedAt,
-			Size:      int64(snap.Size),
+			Size:      size,
 		}
 	}
 	return result, nil
