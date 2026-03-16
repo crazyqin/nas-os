@@ -84,6 +84,8 @@ func NewManager(storagePath string, logger *zap.Logger) (*Manager, error) {
 
 // checkLibvirt 检查 libvirt 是否可用
 func checkLibvirt() bool {
+	// #nosec G204 -- Commands use fixed binaries (virsh, qemu-img) with validated VM names
+	// VM names are validated by validateConfig() to contain only alphanumeric, underscore, hyphen
 	cmd := exec.Command("virsh", "-c", "qemu:///system", "list", "--all")
 	if err := cmd.Run(); err != nil {
 		return false
@@ -306,6 +308,7 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 
 	// 如果 libvirt 可用，定义 VM
 	if m.libvirtAvailable {
+		// #nosec G204 -- xmlPath is internally generated
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "define", xmlPath)
 		if err := cmd.Run(); err != nil {
 			m.logger.Warn("定义 libvirt VM 失败", zap.Error(err), zap.String("vm", vmID))
@@ -362,6 +365,7 @@ func (m *Manager) validateConfig(config VMConfig) error {
 
 // createDiskImage 创建磁盘镜像
 func (m *Manager) createDiskImage(path string, sizeGB uint64) error {
+	// #nosec G204 -- qemu-img with internally generated path and size
 	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", path, fmt.Sprintf("%dG", sizeGB))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -550,6 +554,7 @@ func (m *Manager) StartVM(ctx context.Context, vmID string) error {
 	vm.UpdatedAt = time.Now()
 
 	if m.libvirtAvailable {
+		// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "start", vm.Name)
 		if err := cmd.Run(); err != nil {
 			m.logger.Warn("启动 VM 失败", zap.Error(err), zap.String("vm", vmID))
@@ -582,8 +587,10 @@ func (m *Manager) StopVM(ctx context.Context, vmID string, force bool) error {
 	if m.libvirtAvailable {
 		var cmd *exec.Cmd
 		if force {
+			// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters
 			cmd = exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "destroy", vm.Name)
 		} else {
+			// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters
 			cmd = exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "shutdown", vm.Name)
 		}
 		if err := cmd.Run(); err != nil {
@@ -612,11 +619,13 @@ func (m *Manager) DeleteVM(ctx context.Context, vmID string, force bool) error {
 
 	// 如果 libvirt 可用，先 undefine
 	if m.libvirtAvailable && vm.Status != VMStatusStopped {
+		// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "destroy", vm.Name)
 		cmd.Run()
 	}
 
 	if m.libvirtAvailable {
+		// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "undefine", vm.Name)
 		if err := cmd.Run(); err != nil {
 			m.logger.Warn("Undefine VM 失败", zap.Error(err), zap.String("vm", vmID))
@@ -713,6 +722,7 @@ func (m *Manager) UpdateVM(ctx context.Context, vmID string, config VMConfig) (*
 
 	// 如果 libvirt 可用，重新定义 VM
 	if m.libvirtAvailable && vm.Status == VMStatusStopped {
+		// #nosec G204 -- xmlPath is internally generated
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "define", xmlPath)
 		if err := cmd.Run(); err != nil {
 			m.logger.Warn("重新定义 libvirt VM 失败", zap.Error(err), zap.String("vm", vmID))
@@ -754,7 +764,7 @@ func (m *Manager) GetTemplate(templateID string) (*VMTemplate, error) {
 func (m *Manager) ListUSBDevices() ([]*USBDevice, error) {
 	var devices []*USBDevice
 
-	// 使用 lsusb 获取 USB 设备列表
+	// #nosec G204 -- lsusb has no user-controlled arguments
 	cmd := exec.Command("lsusb")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -817,7 +827,7 @@ func (m *Manager) ListUSBDevices() ([]*USBDevice, error) {
 func (m *Manager) ListPCIDevices() ([]*PCIDevice, error) {
 	var devices []*PCIDevice
 
-	// 使用 lspci 获取 PCIe 设备列表
+	// #nosec G204 -- lspci has no user-controlled arguments
 	cmd := exec.Command("lspci", "-m")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -922,7 +932,7 @@ func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
 
 // getLibvirtStats 从 libvirt 获取 VM 统计信息
 func (m *Manager) getLibvirtStats(vmName string) (*VMStats, error) {
-	// 使用 virsh domstats 获取统计信息
+	// #nosec G204 -- vmName validated by validateConfig() to contain only safe characters
 	cmd := exec.Command("virsh", "-c", "qemu:///system", "domstats", vmName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {

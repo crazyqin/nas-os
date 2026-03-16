@@ -1,0 +1,151 @@
+ok  	nas-os/api	(cached)	coverage: 33.0% of statements
+ok  	nas-os/api/middleware	(cached)	coverage: 50.2% of statements
+	nas-os/cmd/backup		coverage: 0.0% of statements
+	nas-os/cmd/nasctl		coverage: 0.0% of statements
+	nas-os/cmd/nasd		coverage: 0.0% of statements
+	nas-os/docs		coverage: 0.0% of statements
+	nas-os/docs/swagger		coverage: 0.0% of statements
+ok  	nas-os/internal/ai_classify	(cached)	coverage: 36.0% of statements
+ok  	nas-os/internal/api	(cached)	coverage: 56.2% of statements
+ok  	nas-os/internal/api/handlers	(cached)	coverage: 40.1% of statements
+ok  	nas-os/internal/audit	(cached)	coverage: 35.5% of statements
+ok  	nas-os/internal/audit/enhanced	(cached)	coverage: 37.8% of statements
+ok  	nas-os/internal/auth	(cached)	coverage: 33.1% of statements
+ok  	nas-os/internal/automation/action	(cached)	coverage: 30.2% of statements
+ok  	nas-os/internal/automation/api	(cached)	coverage: 19.0% of statements
+ok  	nas-os/internal/automation/engine	(cached)	coverage: 44.4% of statements
+ok  	nas-os/internal/automation/templates	(cached)	coverage: 36.9% of statements
+ok  	nas-os/internal/automation/trigger	(cached)	coverage: 39.2% of statements
+ok  	nas-os/internal/backup	1.834s	coverage: 33.3% of statements
+ok  	nas-os/internal/backup/advanced	0.035s	coverage: 39.9% of statements
+ok  	nas-os/internal/billing	(cached)	coverage: 62.4% of statements
+ok  	nas-os/internal/billing/cost_analysis	0.073s	coverage: 82.2% of statements
+ok  	nas-os/internal/budget	0.008s	coverage: 22.9% of statements
+ok  	nas-os/internal/cache	(cached)	coverage: 42.2% of statements
+ok  	nas-os/internal/cloudsync	(cached)	coverage: 18.7% of statements
+ok  	nas-os/internal/cluster	(cached)	coverage: 26.1% of statements
+ok  	nas-os/internal/compliance	(cached)	coverage: 31.9% of statements
+ok  	nas-os/internal/compress	(cached)	coverage: 15.1% of statements
+ok  	nas-os/internal/concurrency	(cached)	coverage: 60.1% of statements
+ok  	nas-os/internal/container	(cached)	coverage: 18.2% of statements
+ok  	nas-os/internal/dashboard	(cached)	coverage: 77.3% of statements
+ok  	nas-os/internal/dashboard/health	(cached)	coverage: 26.6% of statements
+ok  	nas-os/internal/database	(cached)	coverage: 28.0% of statements
+ok  	nas-os/internal/dedup	(cached)	coverage: 46.1% of statements
+ok  	nas-os/internal/disk	(cached)	coverage: 13.1% of statements
+加载已安装应用列表失败: open /tmp/TestNewAppDiscoverywith_valid_directory1001178765/001/installed-apps.json: no such file or directory
+加载发现应用缓存失败: open /tmp/TestNewAppDiscoverywith_valid_directory1001178765/001/discovered-apps.json: no such file or directory
+加载已安装应用列表失败: open /tmp/TestNewAppDiscoverywith_empty_directory1830238178/001/installed-apps.json: no such file or directory
+加载发现应用缓存失败: open discovered-apps.json: no such file or directory
+加载已安装应用列表失败: open /tmp/TestAppDiscovery_SaveCache1034559545/001/installed-apps.json: no such file or directory
+加载发现应用缓存失败: open /tmp/TestAppDiscovery_SaveCache1034559545/001/discovered-apps.json: no such file or directory
+加载已安装应用列表失败: open /tmp/TestAppDiscovery_RefreshDiscovery4087844934/001/installed-apps.json: no such file or directory
+加载发现应用缓存失败: open /tmp/TestAppDiscovery_RefreshDiscovery4087844934/001/discovered-apps.json: no such file or directory
+GitHub 搜索失败 (docker-compose in:readme,filename stars:>1000): Get "https://api.github.com/search/repositories?q=docker-compose in:readme,filename stars:>1000&sort=stars&order=desc&per_page=30": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+GitHub 搜索失败 (docker-compose.yml in:path stars:>500): Get "https://api.github.com/search/repositories?q=docker-compose.yml in:path stars:>500&sort=stars&order=desc&per_page=30": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+GitHub 搜索失败 (awesome-docker in:name,description stars:>500): Get "https://api.github.com/search/repositories?q=awesome-docker in:name,description stars:>500&sort=stars&order=desc&per_page=30": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+GitHub 搜索失败 (self-hosted docker-compose in:readme stars:>200): Get "https://api.github.com/search/repositories?q=self-hosted docker-compose in:readme stars:>200&sort=stars&order=desc&per_page=30": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+加载评分数据失败: open /tmp/TestNewRatingManagerwith_valid_directory3581517997/001/app-ratings.json: no such file or directory
+加载评分数据失败: open /tmp/TestRatingManager_AddRating2991558469/001/app-ratings.json: no such file or directory
+coverage: 12.3% of statements
+panic: test timed out after 10m0s
+	running tests:
+		TestRatingManager_AddRating (7m58s)
+
+goroutine 1198 [running]:
+testing.(*M).startAlarm.func1()
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2802 +0x2c4
+created by time.goFunc
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/time/sleep.go:215 +0x38
+
+goroutine 1 [chan receive, 8 minutes]:
+testing.(*T).Run(0x7f718b6b48, {0x8d7d1f?, 0x7f71813b18?}, 0x8ffdf8)
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2109 +0x3bc
+testing.runTests.func1(0x7f718b6b48)
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2585 +0x38
+testing.tRunner(0x7f718b6b48, 0x7f71813c48)
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2036 +0xc4
+testing.runTests({0x8c2969, 0x6}, {0x8d38df, 0x16}, 0x7f71778738, {0x10103c0, 0x6e, 0x6e}, {0x8050147415440c73?, 0x8cd2d7?, ...})
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2583 +0x3f0
+testing.(*M).Run(0x7f718c5540)
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2443 +0x578
+main.main()
+	_testmain.go:282 +0x80
+
+goroutine 1182 [sync.RWMutex.RLock, 8 minutes]:
+sync.runtime_SemacquireRWMutexR(0x7f71a569a8?, 0xa0?, 0x700843d68?)
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/runtime/sema.go:100 +0x28
+sync.(*RWMutex).RLock(...)
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/sync/rwmutex.go:74
+nas-os/internal/docker.(*RatingManager).save(0x7f71a2c7d0)
+	/home/mrafter/clawd/nas-os/internal/docker/app_ratings.go:104 +0xa8
+nas-os/internal/docker.(*RatingManager).AddRating(0x7f71a2c7d0, {0x8c93c8, 0xa}, {0x8c2a6b, 0x6}, {0x8c84b1, 0x9}, 0x5, {0x8c93d2, 0xa}, ...)
+	/home/mrafter/clawd/nas-os/internal/docker/app_ratings.go:195 +0x4e0
+nas-os/internal/docker.TestRatingManager_AddRating(0x7f71d146c8)
+	/home/mrafter/clawd/nas-os/internal/docker/app_ratings_test.go:34 +0x9c
+testing.tRunner(0x7f71d146c8, 0x8ffdf8)
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2036 +0xc4
+created by testing.(*T).Run in goroutine 1
+	/home/linuxbrew/.linuxbrew/Cellar/go/1.26.0/libexec/src/testing/testing.go:2101 +0x3a8
+FAIL	nas-os/internal/docker	600.084s
+ok  	nas-os/internal/downloader	(cached)	coverage: 18.2% of statements
+ok  	nas-os/internal/files	(cached)	coverage: 9.4% of statements
+ok  	nas-os/internal/ftp	(cached)	coverage: 21.8% of statements
+ok  	nas-os/internal/health	(cached)	coverage: 63.8% of statements
+ok  	nas-os/internal/iscsi	(cached)	coverage: 72.5% of statements
+ok  	nas-os/internal/ldap	(cached)	coverage: 12.9% of statements
+ok  	nas-os/internal/logging	(cached)	coverage: 22.5% of statements
+ok  	nas-os/internal/media	(cached)	coverage: 4.7% of statements
+ok  	nas-os/internal/monitor	0.544s	coverage: 25.7% of statements
+ok  	nas-os/internal/network	(cached)	coverage: 22.4% of statements
+ok  	nas-os/internal/nfs	(cached)	coverage: 49.9% of statements
+ok  	nas-os/internal/notification	(cached)	coverage: 25.6% of statements
+ok  	nas-os/internal/notify	(cached)	coverage: 29.1% of statements
+ok  	nas-os/internal/office	(cached)	coverage: 20.9% of statements
+ok  	nas-os/internal/optimizer	(cached)	coverage: 41.4% of statements
+ok  	nas-os/internal/perf	(cached)	coverage: 22.9% of statements
+ok  	nas-os/internal/performance	(cached)	coverage: 45.5% of statements
+ok  	nas-os/internal/photos	(cached)	coverage: 20.9% of statements
+ok  	nas-os/internal/plugin	(cached)	coverage: 28.1% of statements
+ok  	nas-os/internal/prediction	(cached)	coverage: 63.6% of statements
+ok  	nas-os/internal/project	(cached)	coverage: 17.2% of statements
+ok  	nas-os/internal/quota	0.128s	coverage: 13.6% of statements
+ok  	nas-os/internal/quota/optimizer	(cached)	coverage: 62.7% of statements
+ok  	nas-os/internal/rbac	(cached)	coverage: 37.8% of statements
+ok  	nas-os/internal/replication	(cached)	coverage: 63.4% of statements
+ok  	nas-os/internal/reports	0.100s	coverage: 28.8% of statements
+ok  	nas-os/internal/scheduler	(cached)	coverage: 32.1% of statements
+ok  	nas-os/internal/search	(cached)	coverage: 33.5% of statements
+ok  	nas-os/internal/security	(cached)	coverage: 19.2% of statements
+ok  	nas-os/internal/security/scanner	(cached)	coverage: 24.5% of statements
+ok  	nas-os/internal/security/v2	(cached)	coverage: 18.5% of statements
+ok  	nas-os/internal/service	(cached)	coverage: 22.1% of statements
+ok  	nas-os/internal/sftp	(cached)	coverage: 5.6% of statements
+ok  	nas-os/internal/shares	(cached)	coverage: 40.0% of statements
+ok  	nas-os/internal/smb	(cached)	coverage: 49.6% of statements
+ok  	nas-os/internal/snapshot	(cached)	coverage: 14.2% of statements
+ok  	nas-os/internal/storage	0.082s	coverage: 52.4% of statements
+ok  	nas-os/internal/storagepool	(cached)	coverage: 34.4% of statements
+ok  	nas-os/internal/system	(cached)	coverage: 55.6% of statements
+ok  	nas-os/internal/tags	(cached)	coverage: 51.9% of statements
+ok  	nas-os/internal/tiering	(cached)	coverage: 32.0% of statements
+ok  	nas-os/internal/transfer	(cached)	coverage: 28.6% of statements
+ok  	nas-os/internal/trash	(cached)	coverage: 86.4% of statements
+ok  	nas-os/internal/usbmount	(cached)	coverage: 48.9% of statements
+ok  	nas-os/internal/users	(cached)	coverage: 48.1% of statements
+ok  	nas-os/internal/version	0.008s	coverage: 100.0% of statements
+ok  	nas-os/internal/versioning	(cached)	coverage: 72.3% of statements
+ok  	nas-os/internal/vm	(cached)	coverage: 14.8% of statements
+ok  	nas-os/internal/web	0.038s	coverage: 9.1% of statements
+ok  	nas-os/internal/webdav	(cached)	coverage: 26.4% of statements
+ok  	nas-os/internal/websocket	(cached)	coverage: 41.9% of statements
+ok  	nas-os/pkg/btrfs	(cached)	coverage: 68.2% of statements
+ok  	nas-os/pkg/security	(cached)	coverage: 43.1% of statements
+	nas-os/plugins/dark-theme		coverage: 0.0% of statements
+	nas-os/plugins/filemanager-enhance		coverage: 0.0% of statements
+ok  	nas-os/tests/benchmark	0.007s	coverage: [no statements] [no tests to run]
+ok  	nas-os/tests/e2e	(cached)	coverage: 33.9% of statements
+	nas-os/tests/fixtures		coverage: 0.0% of statements
+ok  	nas-os/tests/integration	(cached)	coverage: [no statements]
+	nas-os/tests/reports		coverage: 0.0% of statements
+FAIL

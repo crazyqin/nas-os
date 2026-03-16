@@ -1,7 +1,8 @@
 {
-  "version": "v2.104.0",
-  "lastUpdate": "2026-03-16T09:52:00+08:00",
-  "status": "completed",
+  "version": "v2.106.0",
+  "lastUpdate": "2026-03-16T10:25:00+08:00",
+  "status": "in_progress",
+  "theme": "质量提升与安全加固",
   "ministries": {
     "libu": {
       "name": "吏部",
@@ -11,90 +12,136 @@
       "files": [
         "VERSION",
         "internal/version/version.go",
-        "README.md",
-        "docs/README.md",
         "MILESTONES.md",
-        "docs/STATUS-v2.104.0.md"
+        "ROADMAP.md"
       ],
-      "summary": "版本号更新至 v2.104.0，里程碑记录更新"
+      "summary": "版本号更新至 v2.106.0，版本规划完成，里程碑记录更新"
     },
     "libu_docs": {
       "name": "礼部",
       "role": "文档内容创作",
-      "status": "completed",
-      "duration": "1m",
-      "files": [
-        "CHANGELOG.md",
-        "docs/api.yaml",
-        "docs/FAQ.md",
-        "docs/USER_GUIDE.md",
-        "docs/QUICKSTART.md",
-        "docs/TROUBLESHOOTING.md",
-        "docker-compose.yml"
+      "status": "pending",
+      "tasks": [
+        "API 文档更新 (Swagger)",
+        "用户指南完善",
+        "CHANGELOG 更新",
+        "FAQ 补充",
+        "发布说明编写"
       ],
-      "summary": "文档版本号更新，CHANGELOG 添加 v2.104.0 变更记录"
+      "priority": "P1"
     },
     "gongbu": {
       "name": "工部",
       "role": "DevOps 运维",
-      "status": "completed",
-      "duration": "1m",
-      "issues": [
-        {
-          "file": "internal/backup/credentials.go",
-          "issue": "代码格式不规范",
-          "status": "fixed"
-        },
-        {
-          "file": "internal/backup/encrypt_test.go",
-          "issue": "代码格式不规范",
-          "status": "fixed"
-        }
+      "status": "pending",
+      "tasks": [
+        "CI 构建缓存优化",
+        "测试并行化",
+        "多平台构建验证",
+        "发布自动化完善",
+        "Docker 镜像优化"
       ],
-      "summary": "CI/CD 检查通过，修复代码格式问题"
+      "priority": "P0"
     },
     "xingbu": {
       "name": "刑部",
       "role": "安全合规",
-      "status": "completed",
-      "duration": "3m",
-      "files": [
-        "gosec_report_v2.104.0.json",
-        "SECURITY_AUDIT_v2.104.0.md"
+      "status": "pending",
+      "tasks": [
+        "高危问题修复 (169 个)",
+        "中危问题修复 (808 个)",
+        "依赖漏洞扫描",
+        "安全审计报告",
+        "渗透测试准备"
       ],
-      "issues": {
+      "priority": "P0",
+      "previousIssues": {
         "total": 1678,
         "high": 169,
         "medium": 808,
         "low": 701
-      },
-      "summary": "安全审计完成，发现 1678 个问题"
+      }
     },
     "bingbu": {
       "name": "兵部",
       "role": "软件工程",
-      "status": "timeout",
-      "duration": "6m",
-      "summary": "测试检查超时（项目规模较大）"
+      "status": "pending",
+      "tasks": [
+        "go vet 检查通过率 100%",
+        "静态分析问题修复 (golangci-lint)",
+        "代码格式规范化 (gofmt)",
+        "错误处理优化",
+        "单元测试补充 (目标覆盖率 35%+)"
+      ],
+      "priority": "P0"
     },
     "hubu": {
       "name": "户部",
       "role": "财务预算",
-      "status": "completed",
-      "duration": "1m",
-      "stats": {
+      "status": "pending",
+      "tasks": [
+        "缓存命中率优化",
+        "数据库查询优化",
+        "内存使用优化",
+        "并发性能测试",
+        "性能基准报告"
+      ],
+      "priority": "P1",
+      "previousStats": {
         "codeLines": 369815,
         "goFiles": 645,
         "modules": 68,
         "dependencies": 245
-      },
-      "summary": "项目资源统计：369,815 行代码，645 个文件，68 个模块"
+      }
     }
   },
-  "github": {
-    "commit": "f77b239",
-    "release": "v2.104.0",
-    "url": "https://github.com/crazyqin/nas-os/releases/tag/v2.104.0",
-    "actions": "running"
+  "versionPlan": {
+    "version": "v2.106.0",
+    "theme": "质量提升与安全加固",
+    "targetDate": "2026-03-16",
+    "goals": [
+      {
+        "name": "安全加固",
+        "description": "修复 1678 个安全问题",
+        "priority": "P0",
+        "owner": "刑部"
+      },
+      {
+        "name": "代码质量",
+        "description": "go vet 检查通过率 100%",
+        "priority": "P0",
+        "owner": "兵部"
+      },
+      {
+        "name": "CI/CD优化",
+        "description": "构建效率提升 30%",
+        "priority": "P0",
+        "owner": "工部"
+      },
+      {
+        "name": "性能优化",
+        "description": "系统性能提升 20%+",
+        "priority": "P1",
+        "owner": "户部"
+      },
+      {
+        "name": "文档完善",
+        "description": "文档覆盖率 100%",
+        "priority": "P1",
+        "owner": "礼部"
+      }
+    ],
+    "successMetrics": [
+      "安全评级提升至 A",
+      "测试覆盖率 ≥ 35%",
+      "CI/CD 通过率 100%",
+      "API 文档覆盖率 100%"
+    ]
+  },
+  "releaseSchedule": {
+    "planning": "2026-03-16T10:00:00+08:00",
+    "development": "2026-03-16T10:30:00+08:00",
+    "testing": "2026-03-16T14:00:00+08:00",
+    "release": "2026-03-16T18:00:00+08:00"
   }
 }
