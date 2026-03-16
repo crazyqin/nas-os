@@ -1,59 +1,51 @@
 {
-  "version": "v2.101.0",
-  "cycleStartTime": "2026-03-16T08:45:00+08:00",
-  "cycleEndTime": "2026-03-16T08:50:00+08:00",
-  "status": "released",
-  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.101.0",
+  "version": "v2.102.0",
+  "cycleStartTime": "2026-03-16T09:02:00+08:00",
+  "status": "in_progress",
   "ministries": {
     "bingbu": {
       "name": "兵部",
       "role": "软件工程",
-      "status": "timeout",
-      "runtime": "6m",
-      "changes": ["存储模块优化", "报告生成器增强"]
+      "status": "running",
+      "runtime": "4m+",
+      "changes": ["版本号更新", "测试检查"]
     },
     "hubu": {
       "name": "户部",
       "role": "财务运营",
-      "status": "timeout",
-      "runtime": "5m",
-      "changes": ["成本分析模块优化", "预算预测功能增强"]
+      "status": "running",
+      "runtime": "4m+",
+      "changes": ["财务模块优化"]
     },
     "libu": {
       "name": "礼部",
       "role": "内容创作",
       "status": "done",
-      "runtime": "3m",
-      "changes": ["CHANGELOG.md更新", "README.md版本同步", "docs/文档更新"]
+      "runtime": "2m",
+      "changes": ["CHANGELOG.md更新", "README.md版本同步", "docs/目录文档更新", "发布说明创建"]
     },
     "gongbu": {
       "name": "工部",
       "role": "DevOps",
-      "status": "done",
+      "status": "timeout",
       "runtime": "3m",
-      "changes": ["CI/CD配置优化", "Dockerfile修复", "健康检查端点统一"]
+      "changes": ["CI/CD检查"]
     },
     "libu_pm": {
       "name": "吏部",
       "role": "项目管理",
       "status": "done",
       "runtime": "1m",
-      "changes": ["VERSION更新v2.101.0", "MILESTONES.md更新", "ROADMAP.md更新"]
+      "changes": ["VERSION更新v2.102.0", "MILESTONES.md更新"]
     },
     "xingbu": {
       "name": "刑部",
       "role": "安全合规",
       "status": "running",
-      "runtime": "0m",
-      "changes": []
+      "runtime": "4m+",
+      "changes": ["gosec安全扫描", "安全审计报告生成"]
     }
   },
-  "actions": {
-    "GitHub Release": "running",
-    "Docker Publish": "running",
-    "CI/CD": "running",
-    "Security Scan": "running"
-  },
-  "commitCount": 32,
-  "filesChanged": 32
+  "filesChanged": 15,
+  "docsUpdated": 10
 }
