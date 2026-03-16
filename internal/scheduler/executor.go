@@ -104,14 +104,21 @@ func (e *Executor) Execute(ctx context.Context, task *Task) (*TaskExecution, err
 		RetryAttempt: task.RetryCount,
 	}
 
-	// 创建可取消的上下文
+	// 创建可取消的上下文，设置默认超时
 	execCtx, cancel := context.WithCancel(ctx)
 
 	// 设置超时
 	if task.Timeout != "" {
 		timeout, err := ParseDuration(task.Timeout)
 		if err == nil {
-			execCtx, cancel = context.WithTimeout(execCtx, timeout)
+			// 先取消之前的 context，避免泄漏
+			childCtx, childCancel := context.WithTimeout(execCtx, timeout)
+			parentCancel := cancel
+			cancel = func() {
+				childCancel()
+				parentCancel()
+			}
+			execCtx = childCtx
 		}
 	}
 

@@ -22,15 +22,15 @@
 
 | 文档 | 说明 | 状态 |
 |------|------|------|
-| [QUICKSTART.md](QUICKSTART.md) | 快速开始指南 | ✅ v2.110.0 |
-| [USER_GUIDE.md](USER_GUIDE.md) | 用户使用指南 | ✅ v2.110.0 |
-| [FAQ.md](FAQ.md) | 常见问题解答 | ✅ v2.110.0 |
+| [QUICKSTART.md](QUICKSTART.md) | 快速开始指南 | ✅ v2.148.0 |
+| [USER_GUIDE.md](USER_GUIDE.md) | 用户使用指南 | ✅ v2.148.0 |
+| [FAQ.md](FAQ.md) | 常见问题解答 | ✅ v2.148.0 |
 | [ADMIN_GUIDE_v2.5.0.md](ADMIN_GUIDE_v2.5.0.md) | 管理员指南 | ✅ v2.5.0 |
-| [API_GUIDE.md](API_GUIDE.md) | API 使用指南 | ✅ v2.110.0 |
+| [API_GUIDE.md](API_GUIDE.md) | API 使用指南 | ✅ v2.148.0 |
 | [DEPLOYMENT_GUIDE_v2.5.0.md](DEPLOYMENT_GUIDE_v2.5.0.md) | 部署指南 | ✅ v2.5.0 |
 | [DEVELOPER.md](DEVELOPER.md) | 开发者文档 | ✅ 完成 |
 | [NASCTL-CLI.md](NASCTL-CLI.md) | CLI 工具指南 | ✅ 完成 |
-| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 故障排查指南 | ✅ v2.110.0 |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | 故障排查指南 | ✅ v2.148.0 |
 
 ---
 
