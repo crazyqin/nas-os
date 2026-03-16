@@ -4,14 +4,13 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
+# v2.134.0 更新：
+# - 修复健康检查命令（使用内置 healthcheck 工具，兼容 distroless 镜像）
+# - 更新版本标签
+#
 # v2.133.0 更新：
 # - 修复健康检查命令（wget 替代 curl，兼容 alpine 基础镜像）
 # - 添加 distroless 镜像健康检查说明
-#
-# v2.132.0 更新：
-# - 更新版本标签
-# - 添加版本环境变量支持
-# - 优化资源限制配置
 #
 # v2.114.0 更新：
 # - 统一健康检查端点（与 Dockerfile 一致）
@@ -36,7 +35,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.132.0"
+      - "nas-os.version=2.134.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -71,7 +70,7 @@ services:
     environment:
       - NAS_OS_CONFIG=/etc/nas-os/config.yaml
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
-      - NAS_OS_VERSION=2.132.0
+      - NAS_OS_VERSION=2.134.0
       # 时区设置
       - TZ=Asia/Shanghai
       # 日志配置
@@ -106,10 +105,10 @@ services:
         max-file: "3"
     
     # 健康检查（覆盖 Dockerfile 中的设置）
-    # v2.133.0: 使用 wget 替代 curl（alpine 基础镜像）
-    # 注意：distroless 镜像使用内置 healthcheck 工具，无需此配置
+    # v2.134.0: 使用内置 healthcheck 工具（兼容 distroless 镜像）
+    # 注意：如使用 Dockerfile.full (alpine)，可改为 wget 或 curl
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/api/v1/health || exit 1"]
+      test: ["CMD-SHELL", "/usr/local/bin/healthcheck || exit 1"]
       interval: 30s
       timeout: 15s
       retries: 3

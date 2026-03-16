@@ -14,6 +14,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// 安全 HTTP 客户端，设置合理的超时时间
+var safeHTTPClient = &http.Client{
+	Timeout: 30 * time.Minute, // ISO 文件下载可能需要较长时间
+	Transport: &http.Transport{
+		MaxIdleConns:        10,
+		IdleConnTimeout:     30 * time.Second,
+		DisableCompression:  false,
+		TLSHandshakeTimeout: 10 * time.Second,
+	},
+}
+
 // ISOManager ISO 镜像管理器
 type ISOManager struct {
 	mu      sync.RWMutex
@@ -253,7 +264,7 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 		return nil, fmt.Errorf("创建请求失败：%w", err)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := safeHTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("下载失败：%w", err)
 	}

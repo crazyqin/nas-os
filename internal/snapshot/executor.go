@@ -4,8 +4,34 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strings"
 	"time"
 )
+
+// 危险命令黑名单
+var dangerousCommands = []string{
+	"rm -rf /",
+	"rm -rf /*",
+	"mkfs",
+	"dd if=/dev/zero",
+	":(){:|:&};:",
+	"chmod -R 777 /",
+	"chown -R",
+	"> /dev/sda",
+	"wget | sh",
+	"curl | sh",
+}
+
+// validateScript 验证脚本内容安全性
+func validateScript(script string) error {
+	lowerScript := strings.ToLower(script)
+	for _, dangerous := range dangerousCommands {
+		if strings.Contains(lowerScript, strings.ToLower(dangerous)) {
+			return fmt.Errorf("脚本包含危险命令: %s", dangerous)
+		}
+	}
+	return nil
+}
 
 // SnapshotExecutor 快照执行器
 type SnapshotExecutor struct {
@@ -78,6 +104,11 @@ func (e *SnapshotExecutor) generateSnapshotName(policy *Policy) string {
 
 // runScript 执行脚本
 func (e *SnapshotExecutor) runScript(script string, timeoutSeconds int) error {
+	// 安全验证：检查脚本是否包含危险命令
+	if err := validateScript(script); err != nil {
+		return fmt.Errorf("脚本安全验证失败: %w", err)
+	}
+
 	timeout := 300 // 默认 5 分钟
 	if timeoutSeconds > 0 {
 		timeout = timeoutSeconds
