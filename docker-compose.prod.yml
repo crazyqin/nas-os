@@ -12,12 +12,13 @@
 #   - cAdvisor (容器指标)
 #   - Alertmanager (告警管理)
 #
+# v2.136.0 更新（工部优化）：
+# - 修复健康检查命令（distroless 镜像使用 CMD 而非 CMD-SHELL）
+# - 统一版本标签
+#
 # v2.135.0 更新：
 # - 更新版本标签
 # - 统一健康检查配置
-#
-# v2.133.0 更新：
-# - 修复健康检查命令（使用内置 healthcheck 工具）
 
 services:
   # ==================== NAS-OS 主服务 ====================
@@ -93,10 +94,10 @@ services:
         tag: "{{.Name}}/{{.ID}}"
     
     # 健康检查（使用内置 healthcheck 工具）
-    # v2.133.0: distroless 镜像使用内置 healthcheck 工具
+    # v2.136.0: distroless 镜像无 shell，必须使用 CMD 而非 CMD-SHELL
     # 如使用 Dockerfile.full (alpine)，可改为 curl 或 wget
     healthcheck:
-      test: ["CMD-SHELL", "/usr/local/bin/healthcheck || exit 1"]
+      test: ["CMD", "/usr/local/bin/healthcheck"]
       interval: 30s
       timeout: 15s
       retries: 3
