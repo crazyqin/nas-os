@@ -2,12 +2,18 @@
 # 多阶段构建，优化后的生产镜像约 20-25MB
 # 支持 amd64, arm64, arm/v7 架构
 #
+# 镜像地址: ghcr.io/nas-os/nas-os
+#
 # 构建命令:
-#   docker build -t nas-os:latest .
-#   docker build --build-arg VERSION=v1.0.0 -t nas-os:v1.0.0 .
+#   docker build -t ghcr.io/nas-os/nas-os:latest .
+#   docker build --build-arg VERSION=v1.0.0 -t ghcr.io/nas-os/nas-os:v1.0.0 .
 #
 # 多架构构建:
-#   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t nas-os:latest .
+#   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/nas-os/nas-os:latest .
+#
+# v2.90.0 更新：
+# - 迁移到 GHCR (GitHub Container Registry)
+# - 更新镜像地址注释
 #
 # v2.88.0 更新：
 # - 更新版本注释

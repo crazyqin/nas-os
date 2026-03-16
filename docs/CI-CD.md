@@ -56,8 +56,7 @@ NAS-OS 使用 GitHub Actions 实现完整的 CI/CD 自动化流程。
 
 **功能:**
 - 多架构镜像构建（amd64, arm64, arm/v7）
-- 自动推送到 GitHub Container Registry
-- 可选推送到 Docker Hub
+- 自动推送到 GitHub Container Registry (GHCR)
 - 安全扫描（Trivy）
 - Docker Compose 测试
 

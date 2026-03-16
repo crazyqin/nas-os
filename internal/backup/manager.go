@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,6 +10,13 @@ import (
 	"strings"
 	"sync"
 	"time"
+)
+
+// 默认超时时间
+const (
+	DefaultBackupTimeout  = 2 * time.Hour
+	DefaultCommandTimeout = 30 * time.Minute
+	DefaultRestoreTimeout = 1 * time.Hour
 )
 
 // Manager 备份管理器
@@ -21,11 +29,17 @@ type Manager struct {
 	// 备份任务状态
 	tasks map[string]*BackupTask
 
+	// 任务取消函数
+	cancels map[string]context.CancelFunc
+
 	// 配置文件路径
 	configPath string
 
 	// 存储挂载点
 	storagePath string
+
+	// 默认超时
+	defaultTimeout time.Duration
 }
 
 // JobConfig 备份作业配置
@@ -47,7 +61,7 @@ type JobConfig struct {
 	RemoteHost     string `json:"remoteHost,omitempty"`
 	RemoteUser     string `json:"remoteUser,omitempty"`
 	RemotePort     int    `json:"remotePort,omitempty"`
-	RemotePassword string `json:"remotePassword,omitempty"`
+	RemotePassword string `json:"-"` // 敏感信息，不序列化到 JSON
 
 	// rsync 特定配置
 	RsyncOptions []string `json:"rsyncOptions,omitempty"`
@@ -60,11 +74,14 @@ type JobConfig struct {
 	// 加密配置
 	Encryption        bool   `json:"encryption,omitempty"`
 	EncryptionType    string `json:"encryptionType,omitempty"`
-	EncryptionKey     string `json:"encryptionKey,omitempty"`
+	EncryptionKey     string `json:"-"` // 敏感信息，不序列化到 JSON
 	EncryptionKeyFile string `json:"encryptionKeyFile,omitempty"`
 
 	// 增量备份配置
 	ChunkPath string `json:"chunkPath,omitempty"`
+
+	// 超时配置
+	Timeout time.Duration `json:"timeout,omitempty"`
 }
 
 // BackupType 备份类型
@@ -143,10 +160,12 @@ type RestoreOptions struct {
 // NewManager 创建备份管理器
 func NewManager(configPath, storagePath string) *Manager {
 	return &Manager{
-		configs:     make(map[string]*JobConfig),
-		tasks:       make(map[string]*BackupTask),
-		configPath:  configPath,
-		storagePath: storagePath,
+		configs:       make(map[string]*JobConfig),
+		tasks:         make(map[string]*BackupTask),
+		cancels:       make(map[string]context.CancelFunc),
+		configPath:    configPath,
+		storagePath:   storagePath,
+		defaultTimeout: DefaultBackupTimeout,
 	}
 }
 
@@ -271,6 +290,11 @@ func (m *Manager) EnableConfig(id string, enabled bool) error {
 // ========== 备份执行 ==========
 
 func (m *Manager) RunBackup(configID string) (*BackupTask, error) {
+	return m.RunBackupWithContext(context.Background(), configID)
+}
+
+// RunBackupWithContext 带上下文的备份执行
+func (m *Manager) RunBackupWithContext(ctx context.Context, configID string) (*BackupTask, error) {
 	m.mu.Lock()
 	cfg, ok := m.configs[configID]
 	if !ok {
@@ -285,39 +309,64 @@ func (m *Manager) RunBackup(configID string) (*BackupTask, error) {
 		StartTime: time.Now(),
 	}
 	m.tasks[task.ID] = task
+
+	// 创建带超时的上下文
+	timeout := m.defaultTimeout
+	if cfg.Timeout > 0 {
+		timeout = cfg.Timeout
+	}
+	backupCtx, cancel := context.WithTimeout(ctx, timeout)
+	m.cancels[task.ID] = cancel
 	m.mu.Unlock()
 
-	go m.executeBackup(cfg, task)
+	go m.executeBackup(backupCtx, cfg, task)
 
 	return task, nil
 }
 
-func (m *Manager) executeBackup(cfg *JobConfig, task *BackupTask) {
+func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *BackupTask) {
 	defer func() {
 		task.EndTime = time.Now()
 		cfg.LastRun = task.StartTime.Format("2006-01-02 15:04:05")
 		m.mu.Lock()
 		m.saveConfig()
+		// 清理取消函数
+		delete(m.cancels, task.ID)
 		m.mu.Unlock()
 	}()
 
 	var err error
 
+	select {
+	case <-ctx.Done():
+		m.mu.Lock()
+		task.Status = TaskStatusCancelled
+		task.Error = ctx.Err().Error()
+		m.mu.Unlock()
+		return
+	default:
+	}
+
 	switch cfg.Type {
 	case BackupTypeLocal:
-		_, err = m.runLocalBackup(cfg, task)
+		_, err = m.runLocalBackup(ctx, cfg, task)
 	case BackupTypeRemote:
-		_, err = m.runRemoteBackup(cfg, task)
+		_, err = m.runRemoteBackup(ctx, cfg, task)
 	case BackupTypeRsync:
-		_, err = m.runRsyncBackup(cfg, task)
+		_, err = m.runRsyncBackup(ctx, cfg, task)
 	default:
 		err = fmt.Errorf("不支持的备份类型：%s", cfg.Type)
 	}
 
 	m.mu.Lock()
 	if err != nil {
-		task.Status = TaskStatusFailed
-		task.Error = err.Error()
+		if ctx.Err() != nil {
+			task.Status = TaskStatusCancelled
+			task.Error = "备份已取消或超时"
+		} else {
+			task.Status = TaskStatusFailed
+			task.Error = err.Error()
+		}
 	} else {
 		task.Status = TaskStatusCompleted
 		task.Progress = 100
@@ -326,7 +375,7 @@ func (m *Manager) executeBackup(cfg *JobConfig, task *BackupTask) {
 }
 
 // runLocalBackup 本地备份（支持增量）
-func (m *Manager) runLocalBackup(cfg *JobConfig, task *BackupTask) (string, error) {
+func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *BackupTask) (string, error) {
 	destDir := cfg.Destination
 	if destDir == "" {
 		destDir = filepath.Join(m.storagePath, "backups", cfg.Name)
@@ -341,8 +390,13 @@ func (m *Manager) runLocalBackup(cfg *JobConfig, task *BackupTask) (string, erro
 	timestamp := time.Now().Format("20060102_150405")
 	backupName := fmt.Sprintf("%s_%s", cfg.Name, timestamp)
 	backupPath = filepath.Join(destDir, backupName+".tar.gz")
-	cmd := exec.Command("tar", "czf", backupPath, "-C", cfg.Source, ".")
+
+	// 使用 context 控制命令超时
+	cmd := exec.CommandContext(ctx, "tar", "czf", backupPath, "-C", cfg.Source, ".")
 	if output, err := cmd.CombinedOutput(); err != nil {
+		if ctx.Err() != nil {
+			return "", fmt.Errorf("备份已取消或超时")
+		}
 		return "", fmt.Errorf("压缩失败：%w, output: %s", err, string(output))
 	}
 	task.Progress = 100
@@ -363,10 +417,13 @@ func (m *Manager) runLocalBackup(cfg *JobConfig, task *BackupTask) (string, erro
 			return "", fmt.Errorf("启用加密但未配置加密密钥")
 		}
 		// 使用 openssl 进行加密（通过环境变量传递密钥，避免命令行暴露）
-		cmd := exec.Command("openssl", "enc", "-aes-256-cbc", "-salt", "-in", backupPath, "-out", encryptedPath, "-pass", "env:NAS_BACKUP_KEY")
+		cmd := exec.CommandContext(ctx, "openssl", "enc", "-aes-256-cbc", "-salt", "-in", backupPath, "-out", encryptedPath, "-pass", "env:NAS_BACKUP_KEY")
 		cmd.Env = append(os.Environ(), "NAS_BACKUP_KEY="+encryptKey)
 		if output, err := cmd.CombinedOutput(); err != nil {
 			os.Remove(encryptedPath)
+			if ctx.Err() != nil {
+				return "", fmt.Errorf("加密已取消或超时")
+			}
 			return "", fmt.Errorf("加密失败：%w, output: %s", err, string(output))
 		}
 		os.Remove(backupPath)
@@ -380,7 +437,7 @@ func (m *Manager) runLocalBackup(cfg *JobConfig, task *BackupTask) (string, erro
 	return backupPath, nil
 }
 
-func (m *Manager) runRemoteBackup(cfg *JobConfig, task *BackupTask) (string, error) {
+func (m *Manager) runRemoteBackup(ctx context.Context, cfg *JobConfig, task *BackupTask) (string, error) {
 	if cfg.RemoteHost == "" {
 		return "", fmt.Errorf("远程主机地址不能为空")
 	}
@@ -394,8 +451,11 @@ func (m *Manager) runRemoteBackup(cfg *JobConfig, task *BackupTask) (string, err
 	backupName := fmt.Sprintf("%s_%s.tar.gz", cfg.Name, timestamp)
 	localTemp := filepath.Join(os.TempDir(), backupName)
 
-	cmd := exec.Command("tar", "czf", localTemp, "-C", cfg.Source, ".")
+	cmd := exec.CommandContext(ctx, "tar", "czf", localTemp, "-C", cfg.Source, ".")
 	if output, err := cmd.CombinedOutput(); err != nil {
+		if ctx.Err() != nil {
+			return "", fmt.Errorf("备份已取消或超时")
+		}
 		return "", fmt.Errorf("压缩失败：%w, output: %s", err, string(output))
 	}
 	defer os.Remove(localTemp)
@@ -404,15 +464,18 @@ func (m *Manager) runRemoteBackup(cfg *JobConfig, task *BackupTask) (string, err
 		cfg.RemoteUser, cfg.RemoteHost, remotePath, backupName)
 
 	scpArgs := []string{"-P", fmt.Sprintf("%d", cfg.RemotePort), localTemp, remoteTarget}
-	cmd = exec.Command("scp", scpArgs...)
+	cmd = exec.CommandContext(ctx, "scp", scpArgs...)
 	if output, err := cmd.CombinedOutput(); err != nil {
+		if ctx.Err() != nil {
+			return "", fmt.Errorf("传输已取消或超时")
+		}
 		return "", fmt.Errorf("传输失败：%w, output: %s", err, string(output))
 	}
 
 	return remoteTarget, nil
 }
 
-func (m *Manager) runRsyncBackup(cfg *JobConfig, task *BackupTask) (string, error) {
+func (m *Manager) runRsyncBackup(ctx context.Context, cfg *JobConfig, task *BackupTask) (string, error) {
 	destination := cfg.Destination
 
 	if cfg.RemoteHost != "" {
@@ -434,9 +497,12 @@ func (m *Manager) runRsyncBackup(cfg *JobConfig, task *BackupTask) (string, erro
 
 	args = append(args, cfg.Source+"/", destination)
 
-	cmd := exec.Command("rsync", args...)
+	cmd := exec.CommandContext(ctx, "rsync", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		if ctx.Err() != nil {
+			return "", fmt.Errorf("rsync 已取消或超时")
+		}
 		return "", fmt.Errorf("rsync 失败：%w, output: %s", err, string(output))
 	}
 
@@ -476,6 +542,11 @@ func (m *Manager) cleanupOldBackups(dir string, retention int) error {
 // ========== 恢复操作 ==========
 
 func (m *Manager) Restore(options RestoreOptions) (*BackupTask, error) {
+	return m.RestoreWithContext(context.Background(), options)
+}
+
+// RestoreWithContext 带上下文的恢复操作
+func (m *Manager) RestoreWithContext(ctx context.Context, options RestoreOptions) (*BackupTask, error) {
 	task := &BackupTask{
 		ID:        generateID(),
 		ConfigID:  options.BackupID,
@@ -485,20 +556,37 @@ func (m *Manager) Restore(options RestoreOptions) (*BackupTask, error) {
 
 	m.mu.Lock()
 	m.tasks[task.ID] = task
+
+	// 创建带超时的上下文
+	restoreCtx, cancel := context.WithTimeout(ctx, DefaultRestoreTimeout)
+	m.cancels[task.ID] = cancel
 	m.mu.Unlock()
 
-	go m.executeRestore(options, task)
+	go m.executeRestore(restoreCtx, options, task)
 
 	return task, nil
 }
 
-func (m *Manager) executeRestore(options RestoreOptions, task *BackupTask) {
+func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, task *BackupTask) {
 	defer func() {
 		task.EndTime = time.Now()
 		m.mu.Lock()
+		// 清理取消函数
+		delete(m.cancels, task.ID)
 		task.Status = TaskStatusCompleted
 		m.mu.Unlock()
 	}()
+
+	// 检查上下文是否已取消
+	select {
+	case <-ctx.Done():
+		m.mu.Lock()
+		task.Status = TaskStatusCancelled
+		task.Error = "恢复已取消或超时"
+		m.mu.Unlock()
+		return
+	default:
+	}
 
 	backupPath := options.BackupID
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
@@ -514,10 +602,15 @@ func (m *Manager) executeRestore(options RestoreOptions, task *BackupTask) {
 	}
 
 	if strings.HasSuffix(backupPath, ".tar.gz") {
-		cmd := exec.Command("tar", "xzf", backupPath, "-C", options.TargetPath)
+		cmd := exec.CommandContext(ctx, "tar", "xzf", backupPath, "-C", options.TargetPath)
 		if output, err := cmd.CombinedOutput(); err != nil {
-			task.Status = TaskStatusFailed
-			task.Error = fmt.Sprintf("解压失败：%v, output: %s", err, string(output))
+			if ctx.Err() != nil {
+				task.Status = TaskStatusCancelled
+				task.Error = "恢复已取消或超时"
+			} else {
+				task.Status = TaskStatusFailed
+				task.Error = fmt.Sprintf("解压失败：%v, output: %s", err, string(output))
+			}
 			return
 		}
 	} else {
@@ -568,8 +661,48 @@ func (m *Manager) CancelTask(taskID string) error {
 		return fmt.Errorf("任务不在运行中")
 	}
 
+	// 调用取消函数
+	if cancel, exists := m.cancels[taskID]; exists {
+		cancel()
+	}
+
 	task.Status = TaskStatusCancelled
 	return nil
+}
+
+// CleanupCompletedTasks 清理已完成的任务（防止内存泄漏）
+func (m *Manager) CleanupCompletedTasks() int {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	count := 0
+	for id, task := range m.tasks {
+		if task.Status == TaskStatusCompleted ||
+			task.Status == TaskStatusFailed ||
+			task.Status == TaskStatusCancelled {
+			delete(m.tasks, id)
+			delete(m.cancels, id)
+			count++
+		}
+	}
+	return count
+}
+
+// CleanupOldTasks 清理超过指定时间的任务
+func (m *Manager) CleanupOldTasks(maxAge time.Duration) int {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	count := 0
+	cutoff := time.Now().Add(-maxAge)
+	for id, task := range m.tasks {
+		if task.EndTime.Before(cutoff) && task.EndTime.After(time.Time{}) {
+			delete(m.tasks, id)
+			delete(m.cancels, id)
+			count++
+		}
+	}
+	return count
 }
 
 // ========== 备份历史 ==========

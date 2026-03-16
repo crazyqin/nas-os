@@ -14,8 +14,7 @@
 
 #### `docker-publish.yml` - Docker 镜像构建
 - ✅ 多架构镜像构建（amd64, arm64, arm/v7）
-- ✅ 自动推送到 GitHub Container Registry
-- ✅ 支持 Docker Hub（可选）
+- ✅ 自动推送到 GitHub Container Registry (GHCR)
 - ✅ 安全扫描（Trivy）
 - ✅ Docker Compose 测试
 
@@ -96,7 +95,7 @@ make test-race         # 竞态检测
 
 ## 🐳 Docker 镜像
 
-- **镜像仓库**: `ghcr.io/mrafter/clawd/nas-os`
+- **镜像仓库**: `ghcr.io/nas-os/nas-os`
 - **支持架构**: amd64, arm64, arm/v7
 - **镜像大小**: ~30MB（多阶段构建）
 - **健康检查**: ✅ 已配置

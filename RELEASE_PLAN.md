@@ -147,11 +147,11 @@
 - 源码包
 - 更新说明
 
-### 2. Docker Hub
+### 2. GitHub Container Registry (GHCR)
 ```bash
 # 版本镜像
-docker pull nas-os/nasd:v1.0.0
-docker pull nas-os/nasd:latest
+docker pull ghcr.io/nas-os/nas-os:v1.0.0
+docker pull ghcr.io/nas-os/nas-os:latest
 
 # 架构支持
 - linux/amd64

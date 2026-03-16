@@ -3851,7 +3851,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: 从 Docker Hub 拉取镜像
+      description: 从容器镜像仓库拉取镜像（支持 GHCR 等）
       parameters:
       - description: 镜像名称
         in: body

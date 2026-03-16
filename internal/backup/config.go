@@ -26,7 +26,7 @@ type BackupConfig struct {
 
 	// 加密配置
 	EncryptionEnabled bool   `json:"encryption_enabled"`
-	EncryptionKeyID   string `json:"encryption_key_id"`
+	EncryptionKeyID   string `json:"encryption_key_id"` // 只存储 KeyID，不存储实际密钥
 
 	// 压缩配置
 	CompressionEnabled bool   `json:"compression_enabled"`
@@ -46,13 +46,48 @@ type BackupConfig struct {
 	Targets []BackupTarget `json:"targets"`
 }
 
+// Sanitize 返回脱敏后的配置副本（用于日志和调试）
+func (bc *BackupConfig) Sanitize() map[string]interface{} {
+	targets := make([]map[string]interface{}, len(bc.Targets))
+	for i, t := range bc.Targets {
+		targets[i] = t.SanitizeConfig()
+	}
+
+	return map[string]interface{}{
+		"backup_path":          bc.BackupPath,
+		"chunk_path":           bc.ChunkPath,
+		"schedule":             bc.Schedule,
+		"retention_days":       bc.RetentionDays,
+		"max_backups":          bc.MaxBackups,
+		"incremental_enabled":  bc.IncrementalEnabled,
+		"encryption_enabled":   bc.EncryptionEnabled,
+		"encryption_key_id":    bc.EncryptionKeyID,
+		"compression_enabled":  bc.CompressionEnabled,
+		"verify_after_backup":  bc.VerifyAfterBackup,
+		"max_parallel_files":   bc.MaxParallelFiles,
+		"timeout":              bc.Timeout.String(),
+		"targets":              targets,
+	}
+}
+
 // BackupTarget 备份目标
 type BackupTarget struct {
 	Name        string            `json:"name"`
 	Type        string            `json:"type"` // local, s3, sftp
 	Path        string            `json:"path"`
-	Credentials map[string]string `json:"credentials,omitempty"`
+	Credentials map[string]string `json:"-"` // 敏感信息，不序列化到 JSON
 	Enabled     bool              `json:"enabled"`
+}
+
+// SanitizeConfig 返回脱敏后的配置副本（用于日志和调试）
+func (bt *BackupTarget) SanitizeConfig() map[string]interface{} {
+	return map[string]interface{}{
+		"name":    bt.Name,
+		"type":    bt.Type,
+		"path":    bt.Path,
+		"enabled": bt.Enabled,
+		"has_credentials": len(bt.Credentials) > 0,
+	}
 }
 
 // ConfigManager 配置管理器

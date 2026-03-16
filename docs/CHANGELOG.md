@@ -1596,7 +1596,7 @@
 
 ### 官方渠道
 - **GitHub Releases**: https://github.com/nas-os/nasd/releases
-- **Docker Hub**: https://hub.docker.com/r/nas-os/nasd
+- **GHCR**: https://github.com/nas-os/nas-os/pkgs/container/nas-os
 - **官方网站**: https://nas-os.com
 
 ### 包管理器（计划）

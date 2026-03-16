@@ -3,6 +3,11 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
+# v2.90.0 更新（工部优化）：
+# - 移除 Docker Hub，统一使用 GHCR (GitHub Container Registry)
+# - 简化镜像推送流程
+# - 镜像地址: ghcr.io/nas-os/nas-os
+#
 # v2.89.0 更新（工部优化）：
 # - 新增镜像大小和构建时间追踪
 # - 优化多架构构建缓存分离
@@ -115,21 +120,12 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
-      
-      - name: 登录 Docker Hub
-        uses: docker/login-action@v3
-        if: github.event_name != 'pull_request'
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: 提取元数据
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            docker.io/${{ secrets.DOCKERHUB_USERNAME }}/nas-os
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             # 分支
             type=ref,event=branch,suffix=-{{ sha }}
