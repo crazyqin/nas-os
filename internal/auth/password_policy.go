@@ -259,6 +259,7 @@ func GetStrengthLevel(score int) string {
 
 // 辅助函数
 
+// lowercase 将字符串转换为小写
 func lowercase(s string) string {
 	result := make([]rune, len(s))
 	for i, c := range s {
@@ -267,12 +268,13 @@ func lowercase(s string) string {
 	return string(result)
 }
 
+// containsIgnoreCase 不区分大小写检查子字符串
 func containsIgnoreCase(s, substr string) bool {
-	return regexp.MustCompile("(?i)" + regexp.QuoteMeta(substr)).MatchString(s)
+	return regexp.MustCompile("(?i)"+regexp.QuoteMeta(substr)).MatchString(s)
 }
 
+// hasSequentialChars 检查是否有连续字符（如 abc, 123, cba, 321）
 func hasSequentialChars(s string) bool {
-	// 检查是否有连续字符（如 abc, 123, cba, 321）
 	for i := 0; i < len(s)-2; i++ {
 		if s[i]+1 == s[i+1] && s[i+1]+1 == s[i+2] {
 			return true
@@ -284,8 +286,8 @@ func hasSequentialChars(s string) bool {
 	return false
 }
 
+// hasRepeatingChars 检查是否有重复字符（如 aaa, 111）
 func hasRepeatingChars(s string) bool {
-	// 检查是否有重复字符（如 aaa, 111）
 	for i := 0; i < len(s)-2; i++ {
 		if s[i] == s[i+1] && s[i+1] == s[i+2] {
 			return true

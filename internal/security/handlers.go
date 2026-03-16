@@ -90,10 +90,12 @@ type APIResponse struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+// success 创建成功响应
 func success(data interface{}) APIResponse {
 	return APIResponse{Code: 0, Message: "success", Data: data}
 }
 
+// apiError 创建错误响应
 func apiError(code int, message string) APIResponse {
 	return APIResponse{Code: code, Message: message}
 }

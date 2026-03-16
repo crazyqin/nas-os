@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -28,6 +29,9 @@ func setupTestHandlers(t *testing.T) (*Handlers, *gin.Engine, string) {
 	lm := NewLibraryManager(configPath)
 	_, err := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
 	require.NoError(t, err)
+
+	// 等待后台扫描完成
+	time.Sleep(100 * time.Millisecond)
 
 	h := NewHandlers(lm)
 
@@ -169,7 +173,7 @@ func TestHandlers_DeleteLibrary(t *testing.T) {
 func TestSearchMedia(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/items?query=test", nil)
+	req := httptest.NewRequest("GET", "/api/media/items?q=test", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -228,7 +232,7 @@ func TestGetMusicWall(t *testing.T) {
 func TestSearchMovieMetadata(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/metadata/search/movie?title=test", nil)
+	req := httptest.NewRequest("GET", "/api/media/metadata/search/movie?q=test", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -240,7 +244,7 @@ func TestSearchMovieMetadata(t *testing.T) {
 func TestSearchTVMetadata(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/metadata/search/tv?title=test", nil)
+	req := httptest.NewRequest("GET", "/api/media/metadata/search/tv?q=test", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
