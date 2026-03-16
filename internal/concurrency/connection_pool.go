@@ -1,6 +1,7 @@
 package concurrency
 
 import (
+	"context"
 	"errors"
 	"sync"
 	"time"
@@ -33,6 +34,8 @@ type ConnectionPool struct {
 	mu        sync.Mutex
 	closed    bool
 	openCount int
+	ctx       context.Context
+	cancel    context.CancelFunc
 
 	// Statistics
 	created      int64
@@ -50,12 +53,16 @@ func NewConnectionPool(
 	idleTimeout time.Duration,
 	logger *zap.Logger,
 ) *ConnectionPool {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	pool := &ConnectionPool{
 		factory:     factory,
 		maxSize:     maxSize,
 		minSize:     minSize,
 		idleTimeout: idleTimeout,
 		conns:       make(chan Connection, maxSize),
+		ctx:         ctx,
+		cancel:      cancel,
 		logger:      logger,
 	}
 
@@ -197,6 +204,9 @@ func (p *ConnectionPool) Close() {
 	p.closed = true
 	p.mu.Unlock()
 
+	// Signal healthCheck goroutine to stop
+	p.cancel()
+
 	close(p.conns)
 
 	for conn := range p.conns {
@@ -242,37 +252,47 @@ func (p *ConnectionPool) healthCheck() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		p.mu.Lock()
-		if p.closed {
+	for {
+		select {
+		case <-ticker.C:
+			p.mu.Lock()
+			if p.closed {
+				p.mu.Unlock()
+				return
+			}
 			p.mu.Unlock()
+
+			// Check idle connections
+			p.checkIdleConnections()
+		case <-p.ctx.Done():
 			return
 		}
-		p.mu.Unlock()
+	}
+}
 
-		// Check idle connections
-		select {
-		case conn := <-p.conns:
-			if !conn.IsHealthy() {
-				conn.Close()
-				p.mu.Lock()
-				p.closed_count++
-				p.openCount--
-				p.mu.Unlock()
+// checkIdleConnections checks and removes unhealthy idle connections
+func (p *ConnectionPool) checkIdleConnections() {
+	select {
+	case conn := <-p.conns:
+		if !conn.IsHealthy() {
+			conn.Close()
+			p.mu.Lock()
+			p.closed_count++
+			p.openCount--
+			p.mu.Unlock()
 
-				// Create replacement if below minSize
-				if p.openCount < p.minSize {
-					if newConn, err := p.factory(); err == nil {
-						p.conns <- newConn
-						p.openCount++
-						p.created++
-					}
+			// Create replacement if below minSize
+			if p.openCount < p.minSize {
+				if newConn, err := p.factory(); err == nil {
+					p.conns <- newConn
+					p.openCount++
+					p.created++
 				}
-			} else {
-				p.conns <- conn
 			}
-		default:
-			// No idle connections
+		} else {
+			p.conns <- conn
 		}
+	default:
+		// No idle connections
 	}
 }
