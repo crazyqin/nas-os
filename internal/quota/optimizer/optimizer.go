@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"nas-os/pkg/safeguards"
 )
 
 // ========== 配额优化类型定义 ==========
@@ -931,7 +933,9 @@ func (o *QuotaOptimizer) GenerateOptimizationReport() (*OptimizationReport, erro
 
 // calculateImpact 计算影响
 func (o *QuotaOptimizer) calculateImpact(usage *QuotaUsageInfo, suggestedLimit uint64) string {
-	changePercent := float64(int64(suggestedLimit)-int64(usage.HardLimit)) / float64(usage.HardLimit) * 100
+	suggestedInt, _ := safeguards.SafeUint64ToInt64(suggestedLimit)
+	limitInt, _ := safeguards.SafeUint64ToInt64(usage.HardLimit)
+	changePercent := float64(suggestedInt-limitInt) / float64(usage.HardLimit) * 100
 	if changePercent > 0 {
 		return fmt.Sprintf("配额将增加 %.1f%%，用户可用空间增加 %s",
 			changePercent, formatBytes(suggestedLimit-usage.HardLimit))

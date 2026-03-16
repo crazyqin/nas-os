@@ -6,6 +6,8 @@ import (
 	"math"
 	"sort"
 	"time"
+
+	"nas-os/pkg/safeguards"
 )
 
 // ========== v2.76.0 资源报告增强辅助函数 ==========
@@ -148,12 +150,14 @@ func CalculateRecommendedExpansion(currentUsed, totalCapacity uint64, forecastMo
 	remaining := totalCapacity - currentUsed
 
 	// 需要扩容量 = 预测使用量 - 当前剩余 - 安全缓冲(20%)
-	needed := int64(forecastUsed) - int64(remaining) - int64(float64(forecastUsed)*0.2)
+	forecastUsedInt, _ := safeguards.SafeUint64ToInt64(forecastUsed)
+	remainingInt, _ := safeguards.SafeUint64ToInt64(remaining)
+	bufferInt, _ := safeguards.SafeUint64ToInt64(uint64(float64(forecastUsed) * 0.2))
+	needed := forecastUsedInt - remainingInt - bufferInt
 
 	if needed <= 0 {
 		return 0
 	}
-
 	return uint64(needed)
 }
 
