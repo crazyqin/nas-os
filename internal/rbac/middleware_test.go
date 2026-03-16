@@ -142,9 +142,9 @@ func TestDefaultDeniedHandler(t *testing.T) {
 	req := httptest.NewRequest("GET", "/test", nil)
 
 	result := &CheckResult{
-		Allowed:  false,
-		Reason:   "权限不足",
-		DeniedBy: "policy-123",
+		Allowed:      false,
+		Reason:       "权限不足",
+		DeniedBy:     "policy-123",
 		MissingPerms: []string{"storage:write"},
 	}
 
