@@ -492,5 +492,4 @@ jobs:
         with:
           workflow: docker-publish.yml
           ref: ${{ github.ref }}
-          inputs: |
-            {"version": "${{ needs.prepare-release.outputs.version }}"}
+          inputs: '{"version": "${{ needs.prepare-release.outputs.version }}"}'

@@ -99,7 +99,8 @@ func (rm *RatingManager) load() error {
 	return nil
 }
 
-// save 保存数据（调用者负责加锁）
+// save 保存数据
+// 注意：调用此方法前必须已持有锁（读锁或写锁）
 func (rm *RatingManager) save() error {
 	var allRatings []*AppRating
 	for _, ratings := range rm.ratings {
