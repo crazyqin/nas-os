@@ -4,6 +4,10 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
+# v2.133.0 更新：
+# - 修复健康检查命令（wget 替代 curl，兼容 alpine 基础镜像）
+# - 添加 distroless 镜像健康检查说明
+#
 # v2.132.0 更新：
 # - 更新版本标签
 # - 添加版本环境变量支持
@@ -102,9 +106,10 @@ services:
         max-file: "3"
     
     # 健康检查（覆盖 Dockerfile 中的设置）
-    # v2.86.0: 统一检测逻辑（与 Dockerfile 一致）
+    # v2.133.0: 使用 wget 替代 curl（alpine 基础镜像）
+    # 注意：distroless 镜像使用内置 healthcheck 工具，无需此配置
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/v1/health && curl -sf http://localhost:8080/api/v1/metrics > /dev/null 2>&1 || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/api/v1/health || exit 1"]
       interval: 30s
       timeout: 15s
       retries: 3

@@ -97,7 +97,7 @@ permissions:
 env:
   GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v11'
+  CACHE_VERSION: 'v12'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # 测试环境目录
