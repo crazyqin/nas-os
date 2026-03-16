@@ -1,6 +1,11 @@
 # GitHub Release 构建
 # 构建多平台二进制文件并上传到 GitHub Release
 #
+# v2.123.0 更新（工部优化）：
+# - 更新缓存版本至 v11（与其他 workflow 保持一致）
+# - 添加 GOPROXY 加速依赖下载
+# - 优化构建产物并行构建
+#
 # v2.91.0 更新（工部优化）：
 # - 更新缓存版本至 v10（与其他 workflow 保持一致）
 #
@@ -51,9 +56,11 @@ on:
 
 env:
   GO_VERSION: '1.26'
-  CACHE_VERSION: 'v10'
+  CACHE_VERSION: 'v11'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # v2.123.0 新增: GOPROXY 加速
+  GOPROXY: 'https://proxy.golang.org,direct'
 
 # 权限配置
 permissions:

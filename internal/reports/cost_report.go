@@ -1204,17 +1204,20 @@ func generateReportID(reportType CostReportType, date time.Time) string {
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		// 回退到伪随机数生成器
-		mrand.Seed(time.Now().UnixNano())
+	// 使用 crypto/rand 生成加密安全的随机数
+	if _, err := rand.Read(b); err == nil {
+		// 使用 crypto/rand 生成的字节映射到字符集
 		for i := range b {
-			b[i] = letters[mrand.Intn(len(letters))]
+			b[i] = letters[int(b[i])%len(letters)]
 		}
 		return string(b)
 	}
-	// 使用 crypto/rand 生成的字节映射到字符集
+	// crypto/rand 失败时的安全回退：使用时间戳 + 进程ID 作为种子
+	// 注意：这不是加密安全的，但只在极端情况下使用
+	// #nosec G404 -- Fallback to math/rand only when crypto/rand fails (e.g., in constrained environments)
+	mrand.Seed(time.Now().UnixNano() + int64(os.Getpid()))
 	for i := range b {
-		b[i] = letters[int(b[i])%len(letters)]
+		b[i] = letters[mrand.Intn(len(letters))]
 	}
 	return string(b)
 }

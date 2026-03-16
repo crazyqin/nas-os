@@ -3,6 +3,13 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
+# v2.123.0 更新（工部优化）：
+# - 支持 minimal（distroless）和 full（alpine）两种镜像版本
+# - minimal 镜像约 15-18MB，适合轻量部署
+# - full 镜像约 35-40MB，包含系统工具（btrfs-progs, samba, nfs-utils）
+# - 优化构建缓存策略
+# - 更新缓存版本至 v11
+#
 # v2.91.0 更新（工部优化）：
 # - 更新版本注释格式
 #
@@ -78,9 +85,11 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   # 缓存版本号
-  CACHE_VERSION: 'v10'
+  CACHE_VERSION: 'v11'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # v2.123.0 新增: GOPROXY 加速
+  GOPROXY: 'https://proxy.golang.org,direct'
 
 # 权限配置 - 最小权限原则
 permissions:

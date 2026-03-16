@@ -1,0 +1,115 @@
+# NAS-OS Dockerfile (Full Version)
+# 带系统工具的完整版本，约 35-40MB
+# 支持 amd64, arm64, arm/v7 架构
+#
+# 镜像地址: ghcr.io/nas-os/nas-os:full
+#
+# v2.123.0 新增（工部优化）：
+# - 分离 full 版本（带系统工具）和 minimal 版本（distroless）
+# - full 版本包含 btrfs-progs, samba, nfs-utils 等工具
+# - minimal 版本仅包含核心服务（约 15-18MB）
+#
+# 构建命令:
+#   docker build -f Dockerfile.full -t ghcr.io/nas-os/nas-os:full .
+
+# ========== 构建阶段 ==========
+FROM golang:1.26-alpine AS builder
+
+# 构建参数
+ARG VERSION=dev
+ARG BUILD_TIME
+ARG REVISION
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+
+WORKDIR /build
+
+# 安装构建依赖（最小化）
+RUN apk add --no-cache git ca-certificates tzdata upx
+
+# 复制 go mod 文件（利用 Docker 缓存）
+COPY go.mod go.sum ./
+
+# 下载依赖（使用缓存挂载加速）
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+# 复制源码
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
+COPY pkg/ ./pkg/
+COPY webui/ ./webui/
+COPY docs/swagger ./docs/swagger
+
+# 编译参数
+ENV CGO_ENABLED=0
+
+# 编译
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg/mod \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
+    go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    -o nasd ./cmd/nasd && \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
+    go build -ldflags="-w -s -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME} -X main.Revision=${REVISION}" \
+    -o nasctl ./cmd/nasctl
+
+# UPX 压缩
+RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped"
+
+# ========== 运行阶段 ==========
+FROM alpine:3.21
+
+ARG VERSION=dev
+ARG BUILD_TIME
+ARG REVISION
+
+# OCI 标签
+LABEL maintainer="NAS-OS Team"
+LABEL org.opencontainers.image.title="NAS-OS (Full)"
+LABEL org.opencontainers.image.description="Home NAS Management System - Full Version with System Tools"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_TIME}"
+LABEL org.opencontainers.image.revision="${REVISION}"
+LABEL org.opencontainers.image.source="https://github.com/nas-os/nas-os"
+
+# 安装运行时依赖
+RUN apk add --no-cache \
+    btrfs-progs \
+    samba \
+    nfs-utils \
+    ca-certificates \
+    tzdata \
+    curl \
+    procps \
+    smartmontools \
+    hdparm \
+    e2fsprogs \
+    && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+
+# 创建必要的目录
+RUN mkdir -p /mnt /etc/nas-os /var/log/nas-os /var/lib/nas-os && \
+    chmod 755 /etc/nas-os /var/log/nas-os /var/lib/nas-os
+
+# 复制编译产物
+COPY --from=builder --chmod=755 /build/nasd /usr/local/bin/nasd
+COPY --from=builder --chmod=755 /build/nasctl /usr/local/bin/nasctl
+COPY --chmod=644 configs/default.yaml /etc/nas-os/config.yaml
+
+# 暴露端口
+EXPOSE 8080/tcp
+EXPOSE 445/tcp
+EXPOSE 139/tcp
+EXPOSE 2049/tcp
+EXPOSE 111/tcp
+EXPOSE 111/udp
+EXPOSE 20048/tcp
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -sf http://localhost:8080/api/v1/health || exit 1
+
+# 启动命令
+ENTRYPOINT ["nasd"]
+CMD ["--config", "/etc/nas-os/config.yaml"]

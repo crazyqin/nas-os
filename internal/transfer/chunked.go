@@ -251,7 +251,10 @@ func DecompressFile(inputPath, outputPath string) error {
 	}
 	defer func() { _ = outputFile.Close() }()
 
-	_, err = io.Copy(outputFile, gr)
+	// 限制解压后大小（最大 10GB），防止解压缩炸弹攻击
+	const maxDecompressSize = 10 << 30 // 10GB
+	limitedReader := io.LimitReader(gr, maxDecompressSize)
+	_, err = io.Copy(outputFile, limitedReader)
 	return err
 }
 

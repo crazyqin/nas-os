@@ -1,8 +1,13 @@
 package disk
 
 import (
+	"context"
+	"encoding/json"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // ========== MonitorConfig 测试 ==========
@@ -284,10 +289,19 @@ func TestDefaultScoreWeights(t *testing.T) {
 // ========== Monitor 测试 ==========
 
 func TestNewSMARTMonitor(t *testing.T) {
-	monitor := NewSMARTMonitor(nil)
+	// Use config with auto-scan disabled to avoid hanging on lsblk
+	config := &MonitorConfig{
+		CheckInterval:    30 * time.Minute,
+		HistoryRetention: 720,
+		MaxHistoryPoints: 1000,
+		EnableAutoScan:   false,
+		EnablePrediction: false,
+	}
+	monitor := NewSMARTMonitor(config)
 	if monitor == nil {
 		t.Fatal("NewSMARTMonitor should not return nil")
 	}
+	defer monitor.Stop()
 }
 
 func TestNewSMARTMonitor_WithConfig(t *testing.T) {
@@ -303,6 +317,7 @@ func TestNewSMARTMonitor_WithConfig(t *testing.T) {
 	if monitor == nil {
 		t.Fatal("NewSMARTMonitor should not return nil")
 	}
+	defer monitor.Stop()
 }
 
 // ========== Helper Functions 测试 ==========
@@ -332,7 +347,9 @@ func TestCalculateHealthGrade(t *testing.T) {
 // ========== SMART Monitor Basic Tests ==========
 
 func TestSMARTMonitor_GetDisks(t *testing.T) {
-	monitor := NewSMARTMonitor(nil)
+	config := &MonitorConfig{EnableAutoScan: false, EnablePrediction: false}
+	monitor := NewSMARTMonitor(config)
+	defer monitor.Stop()
 
 	// GetDisks might not exist, let's just verify monitor is created
 	if monitor == nil {
@@ -341,7 +358,9 @@ func TestSMARTMonitor_GetDisks(t *testing.T) {
 }
 
 func TestSMARTMonitor_GetAlerts(t *testing.T) {
-	monitor := NewSMARTMonitor(nil)
+	config := &MonitorConfig{EnableAutoScan: false, EnablePrediction: false}
+	monitor := NewSMARTMonitor(config)
+	defer monitor.Stop()
 
 	// GetAlerts requires parameters, just verify monitor works
 	if monitor == nil {
@@ -350,7 +369,9 @@ func TestSMARTMonitor_GetAlerts(t *testing.T) {
 }
 
 func TestSMARTMonitor_GetHistory(t *testing.T) {
-	monitor := NewSMARTMonitor(nil)
+	config := &MonitorConfig{EnableAutoScan: false, EnablePrediction: false}
+	monitor := NewSMARTMonitor(config)
+	defer monitor.Stop()
 
 	// Just verify monitor is created
 	if monitor == nil {
@@ -359,7 +380,8 @@ func TestSMARTMonitor_GetHistory(t *testing.T) {
 }
 
 func TestSMARTMonitor_Stop(t *testing.T) {
-	monitor := NewSMARTMonitor(nil)
+	config := &MonitorConfig{EnableAutoScan: false, EnablePrediction: false}
+	monitor := NewSMARTMonitor(config)
 
 	// Stop should not panic
 	monitor.Stop()
@@ -381,4 +403,203 @@ func TestDiskStatus_String(t *testing.T) {
 			t.Errorf("Expected %s, got %s", expected, string(status))
 		}
 	}
+}
+
+// ========== parseSize 测试 ==========
+
+func TestParseSize(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected uint64
+	}{
+		{"100G", 100 * 1024 * 1024 * 1024},
+		{"1T", 1 * 1024 * 1024 * 1024 * 1024},
+		{"500M", 500 * 1024 * 1024},
+		{"50K", 50 * 1024},
+		{"1024", 1024},
+		{"2t", 2 * 1024 * 1024 * 1024 * 1024}, // lowercase
+		{"100g", 100 * 1024 * 1024 * 1024},     // lowercase
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			result := parseSize(tt.input)
+			if result != tt.expected {
+				t.Errorf("parseSize(%s) = %d, expected %d", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestParseSize_InvalidInput(t *testing.T) {
+	// Empty string should return 0
+	result := parseSize("")
+	if result != 0 {
+		t.Errorf("parseSize('') = %d, expected 0", result)
+	}
+
+	// Non-numeric prefix should return 0
+	result = parseSize("abc")
+	if result != 0 {
+		t.Errorf("parseSize('abc') = %d, expected 0", result)
+	}
+}
+
+// ========== generateAlertID 测试 ==========
+
+func TestGenerateAlertID(t *testing.T) {
+	id1 := generateAlertID()
+	id2 := generateAlertID()
+
+	// Should have prefix "alert-"
+	if len(id1) < 6 {
+		t.Errorf("generateAlertID() returned too short: %s", id1)
+	}
+
+	// Should generate unique IDs
+	if id1 == id2 {
+		t.Error("generateAlertID() should generate unique IDs")
+	}
+}
+
+// ========== SMARTMonitor ExportJSON/ImportJSON 测试 ==========
+
+func TestSMARTMonitor_ExportJSON(t *testing.T) {
+	monitor := NewSMARTMonitor(nil)
+	require.NotNil(t, monitor)
+
+	data, err := monitor.ExportJSON()
+	require.NoError(t, err)
+	require.NotNil(t, data)
+
+	// Verify it's valid JSON
+	var result map[string]interface{}
+	err = json.Unmarshal(data, &result)
+	require.NoError(t, err)
+
+	// Should have expected fields
+	_, hasDisks := result["disks"]
+	_, hasAlerts := result["alerts"]
+	_, hasRules := result["alertRules"]
+	_, hasTimestamp := result["timestamp"]
+
+	if !hasDisks || !hasAlerts || !hasRules || !hasTimestamp {
+		t.Error("ExportJSON should contain disks, alerts, alertRules, and timestamp")
+	}
+}
+
+func TestSMARTMonitor_ImportJSON(t *testing.T) {
+	monitor := NewSMARTMonitor(nil)
+	require.NotNil(t, monitor)
+
+	// Import with custom alert rules
+	jsonData := `{
+		"alertRules": [
+			{
+				"id": "test-rule",
+				"name": "Test Rule",
+				"attribute": "temperature",
+				"condition": "gt",
+				"threshold": 70,
+				"severity": "warning",
+				"enabled": true,
+				"cooldown": 300000000000
+			}
+		]
+	}`
+
+	err := monitor.ImportJSON([]byte(jsonData))
+	require.NoError(t, err)
+
+	// Verify rule was imported
+	rules := monitor.GetAlertRules()
+	found := false
+	for _, rule := range rules {
+		if rule.ID == "test-rule" {
+			found = true
+			break
+		}
+	}
+	assert.True(t, found, "Imported alert rule should be present")
+}
+
+func TestSMARTMonitor_ImportJSON_Invalid(t *testing.T) {
+	monitor := NewSMARTMonitor(nil)
+	require.NotNil(t, monitor)
+
+	err := monitor.ImportJSON([]byte("invalid json"))
+	require.Error(t, err)
+}
+
+// ========== SMARTMonitor GetAlerts Extended 测试 ==========
+
+func TestSMARTMonitor_GetAlerts_WithParams(t *testing.T) {
+	monitor := NewSMARTMonitor(nil)
+	require.NotNil(t, monitor)
+
+	// GetAlerts should work even with no disks
+	alerts := monitor.GetAlerts("", true)
+	// May be nil or empty, both are valid
+	_ = alerts
+}
+
+// ========== SMARTMonitor SetScoreWeights 测试 ==========
+
+func TestSMARTMonitor_SetScoreWeights(t *testing.T) {
+	monitor := NewSMARTMonitor(nil)
+	require.NotNil(t, monitor)
+
+	customWeights := &ScoreWeights{
+		Temperature:  0.3,
+		Reallocation: 0.2,
+		Pending:      0.15,
+		Errors:       0.15,
+		Age:          0.1,
+		Stability:    0.1,
+	}
+
+	monitor.SetScoreWeights(customWeights)
+	// No error means success
+}
+
+// ========== SMARTMonitor GetHistory Extended 测试 ==========
+
+func TestSMARTMonitor_GetHistory_WithParams(t *testing.T) {
+	monitor := NewSMARTMonitor(nil)
+	require.NotNil(t, monitor)
+
+	// GetHistory with non-existent device should return nil or empty
+	history := monitor.GetHistory("/dev/nonexistent", 24*time.Hour)
+	// May be nil or empty, both are valid
+	_ = history
+}
+
+// ========== SMARTMonitor SetNotifyFunc 测试 ==========
+
+func TestSMARTMonitor_SetNotifyFunc(t *testing.T) {
+	monitor := NewSMARTMonitor(nil)
+	require.NotNil(t, monitor)
+
+	called := false
+	monitor.SetNotifyFunc(func(alert *SMARTAlert) {
+		called = true
+	})
+
+	// Function was set, verify monitor doesn't crash
+	_ = called
+}
+
+// ========== SMARTMonitor RunHealthCheck 测试 ==========
+
+func TestSMARTMonitor_RunHealthCheck(t *testing.T) {
+	monitor := NewSMARTMonitor(nil)
+	require.NotNil(t, monitor)
+
+	result := monitor.RunHealthCheck(context.Background())
+
+	// Should return a map with health info
+	require.NotNil(t, result)
+	require.Contains(t, result, "healthy")
+	require.Contains(t, result, "warning")
+	require.Contains(t, result, "critical")
 }

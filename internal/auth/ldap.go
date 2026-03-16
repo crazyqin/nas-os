@@ -181,6 +181,7 @@ func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 		// 仅测试环境允许跳过 TLS 验证，生产环境必须验证证书
 		skipVerify := config.SkipTLSVerify && os.Getenv("ENV") == "test"
 		if skipVerify {
+			// #nosec G402 -- InsecureSkipVerify is only allowed in test environment (ENV=test)
 			err = conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
 		} else {
 			err = conn.StartTLS(&tls.Config{ServerName: config.URL[7:]})

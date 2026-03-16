@@ -3,7 +3,7 @@ package securityv2
 import (
 	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505 -- TOTP (RFC 6238) requires HMAC-SHA1, this is not used for password hashing
 	"encoding/base32"
 	"encoding/binary"
 	"encoding/hex"

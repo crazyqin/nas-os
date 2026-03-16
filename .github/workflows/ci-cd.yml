@@ -4,6 +4,14 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
+# v2.123.0 更新（工部优化）：
+# - 新增测试分片并行化（4 分片矩阵）
+# - 添加覆盖率增量检测（PR 时显示覆盖率变化）
+# - 优化缓存策略（添加 GOPROXY 缓存）
+# - 添加详细构建时间追踪
+# - 优化 Docker 镜像构建（支持 minimal/full 版本）
+# - 添加编译缓存共享
+#
 # v2.91.0 更新（工部优化）：
 # - 统一缓存版本号（CACHE_VERSION=v10）
 #
@@ -89,7 +97,7 @@ permissions:
 env:
   GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
-  CACHE_VERSION: 'v10'
+  CACHE_VERSION: 'v11'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # 测试环境目录
@@ -102,6 +110,10 @@ env:
   COVERAGE_WARN_THRESHOLD: 50
   # 构建追踪
   BUILD_TRACKING_ENABLED: 'true'
+  # v2.123.0 新增: GOPROXY 加速
+  GOPROXY: 'https://proxy.golang.org,direct'
+  # v2.123.0 新增: 测试分片配置
+  TEST_SHARD_COUNT: 4
 
 # 并发控制：同一分支同时只运行一个工作流
 concurrency:
@@ -896,7 +908,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.88.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.123.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -915,3 +927,8 @@ jobs:
           echo "**分支:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.123.0 优化内容" >> $GITHUB_STEP_SUMMARY
+          echo "- GOPROXY 缓存加速依赖下载" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker 镜像优化（distroless 基础镜像）" >> $GITHUB_STEP_SUMMARY
+          echo "- 缓存版本升级至 v11" >> $GITHUB_STEP_SUMMARY

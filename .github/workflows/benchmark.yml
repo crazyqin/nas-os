@@ -22,7 +22,9 @@ on:
 
 env:
   GO_VERSION: '1.26'
-  CACHE_VERSION: 'v10'
+  CACHE_VERSION: 'v11'
+  # v2.123.0 新增: GOPROXY 加速
+  GOPROXY: 'https://proxy.golang.org,direct'
 
 jobs:
   benchmark:
