@@ -1,0 +1,63 @@
+{
+  "version": "v2.139.0",
+  "date": "2026-03-17",
+  "six_ministries": {
+    "bingbu": {
+      "name": "兵部",
+      "role": "软件工程",
+      "tasks": [
+        "检查测试覆盖率低的核心模块",
+        "为低覆盖率模块补充测试",
+        "修复发现的 bug"
+      ],
+      "priority_modules": [
+        "internal/storage",
+        "internal/smb",
+        "internal/nfs"
+      ]
+    },
+    "gongbu": {
+      "name": "工部",
+      "role": "DevOps",
+      "tasks": [
+        "验证 CI/CD 流程",
+        "检查 Docker 构建配置",
+        "优化构建缓存"
+      ]
+    },
+    "libu": {
+      "name": "吏部",
+      "role": "项目管理",
+      "tasks": [
+        "版本号更新至 v2.139.0",
+        "更新 CHANGELOG.md",
+        "更新 MILESTONES.md"
+      ]
+    },
+    "libu_pm": {
+      "name": "礼部",
+      "role": "文档内容",
+      "tasks": [
+        "同步 README.md 版本号",
+        "检查 API 文档完整性"
+      ]
+    },
+    "xingbu": {
+      "name": "刑部",
+      "role": "安全合规",
+      "tasks": [
+        "运行安全扫描",
+        "生成安全审计报告",
+        "检查依赖漏洞"
+      ]
+    },
+    "hubu": {
+      "name": "户部",
+      "role": "财务预算",
+      "tasks": [
+        "生成项目资源统计",
+        "成本分析报告"
+      ]
+    }
+  }
+}
