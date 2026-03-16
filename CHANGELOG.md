@@ -2,12 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.136.0] - 待补充
+## [v2.136.0] - 2026-03-17
 
 ### 六部协同开发
 
-#### 待补充
-- 待补充
+#### 吏部 - 项目管理
+- ✅ 更新 VERSION 文件为 v2.136.0
+- ✅ 更新 internal/version/version.go 版本号
+- ✅ 更新 CHANGELOG.md 添加 v2.136.0 条目
+
+#### 兵部 - 软件工程
+- ✅ 解决 internal/budget/api.go 第439行 TODO 注释
+- ✅ 新增 sendAlertWithRetry 方法，使用指数退避策略重试
+- ✅ 最多重试 3 次，延迟从 1s 逐步增加到最大 30s
+- ✅ 添加日志记录每次重试和最终失败状态
+
+#### 礼部 - 文档审查
+- ✅ 检查 docs/api.yaml 版本号一致性
+- ✅ 检查 README.md 内容完整性
+- ✅ 检查 CHANGELOG.md 最新版本记录
+
+#### 刑部 - 安全审计
+- ✅ 运行 govulncheck 安全扫描
+- ✅ 升级 Go 版本从 1.26.0 到 1.26.1
+- ✅ 修复 5 个标准库安全漏洞：
+  - GO-2026-4603: html/template URL未转义
+  - GO-2026-4602: os.FileInfo可从Root逃逸
+  - GO-2026-4601: net/url IPv6解析错误
+  - GO-2026-4600: crypto/x509证书名称约束检查Panic
+  - GO-2026-4599: crypto/x509邮件约束执行错误
+
+#### 工部 - CI/CD 优化
+- ✅ benchmark.yml: 添加 Go 模块缓存和编译缓存
+- ✅ security-scan.yml: 添加 GOPROXY 和 Go 模块缓存
+- ✅ docker-publish.yml: 添加变更检测，改进镜像等待策略
+- ✅ ci-cd.yml: 更新版本注释和构建汇总
+- ✅ release.yml: 统一缓存版本号
+
+### Changed
+- 版本号升级至 v2.136.0
+- Go 版本升级至 1.26.1（安全修复）
+- 优化 GitHub Actions workflow 效率
+- 添加预算通知重试机制
 
 ## [v2.135.0] - 2026-03-17
 
