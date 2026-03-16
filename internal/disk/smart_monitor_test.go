@@ -467,6 +467,7 @@ func TestGenerateAlertID(t *testing.T) {
 func TestSMARTMonitor_ExportJSON(t *testing.T) {
 	monitor := NewSMARTMonitor(nil)
 	require.NotNil(t, monitor)
+	defer monitor.Stop()
 
 	data, err := monitor.ExportJSON()
 	require.NoError(t, err)
@@ -491,6 +492,7 @@ func TestSMARTMonitor_ExportJSON(t *testing.T) {
 func TestSMARTMonitor_ImportJSON(t *testing.T) {
 	monitor := NewSMARTMonitor(nil)
 	require.NotNil(t, monitor)
+	defer monitor.Stop()
 
 	// Import with custom alert rules
 	jsonData := `{
@@ -526,6 +528,7 @@ func TestSMARTMonitor_ImportJSON(t *testing.T) {
 func TestSMARTMonitor_ImportJSON_Invalid(t *testing.T) {
 	monitor := NewSMARTMonitor(nil)
 	require.NotNil(t, monitor)
+	defer monitor.Stop()
 
 	err := monitor.ImportJSON([]byte("invalid json"))
 	require.Error(t, err)
@@ -536,6 +539,7 @@ func TestSMARTMonitor_ImportJSON_Invalid(t *testing.T) {
 func TestSMARTMonitor_GetAlerts_WithParams(t *testing.T) {
 	monitor := NewSMARTMonitor(nil)
 	require.NotNil(t, monitor)
+	defer monitor.Stop()
 
 	// GetAlerts should work even with no disks
 	alerts := monitor.GetAlerts("", true)
@@ -548,6 +552,7 @@ func TestSMARTMonitor_GetAlerts_WithParams(t *testing.T) {
 func TestSMARTMonitor_SetScoreWeights(t *testing.T) {
 	monitor := NewSMARTMonitor(nil)
 	require.NotNil(t, monitor)
+	defer monitor.Stop()
 
 	customWeights := &ScoreWeights{
 		Temperature:  0.3,
@@ -567,6 +572,7 @@ func TestSMARTMonitor_SetScoreWeights(t *testing.T) {
 func TestSMARTMonitor_GetHistory_WithParams(t *testing.T) {
 	monitor := NewSMARTMonitor(nil)
 	require.NotNil(t, monitor)
+	defer monitor.Stop()
 
 	// GetHistory with non-existent device should return nil or empty
 	history := monitor.GetHistory("/dev/nonexistent", 24*time.Hour)
@@ -579,6 +585,7 @@ func TestSMARTMonitor_GetHistory_WithParams(t *testing.T) {
 func TestSMARTMonitor_SetNotifyFunc(t *testing.T) {
 	monitor := NewSMARTMonitor(nil)
 	require.NotNil(t, monitor)
+	defer monitor.Stop()
 
 	called := false
 	monitor.SetNotifyFunc(func(alert *SMARTAlert) {
@@ -594,6 +601,7 @@ func TestSMARTMonitor_SetNotifyFunc(t *testing.T) {
 func TestSMARTMonitor_RunHealthCheck(t *testing.T) {
 	monitor := NewSMARTMonitor(nil)
 	require.NotNil(t, monitor)
+	defer monitor.Stop()
 
 	result := monitor.RunHealthCheck(context.Background())
 
