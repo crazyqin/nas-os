@@ -685,7 +685,7 @@ jobs:
   build:
     name: 构建二进制
     runs-on: ubuntu-latest
-    needs: [prepare, test]
+    needs: [prepare, test-merge]
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -901,14 +901,14 @@ jobs:
   build-summary:
     name: 构建汇总
     runs-on: ubuntu-latest
-    needs: [changes, lint, codeql, dependency-scan, test, test-integration, build, build-artifacts, docker-compose-test]
+    needs: [changes, lint, codeql, dependency-scan, test, test-merge, test-integration, build, build-artifacts, docker-compose-test]
     if: always()
     timeout-minutes: 5
     steps:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.123.0)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.124.0)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -916,7 +916,8 @@ jobs:
           echo "| 代码检查 | ${{ needs.lint.result == 'success' && '✅ 通过' || needs.lint.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| CodeQL | ${{ needs.codeql.result == 'success' && '✅ 通过' || needs.codeql.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 依赖扫描 | ${{ needs.dependency-scan.result == 'success' && '✅ 通过' || needs.dependency-scan.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| 单元测试 | ${{ needs.test.result == 'success' && '✅ 通过' || needs.test.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 单元测试 (分片) | ${{ needs.test.result == 'success' && '✅ 通过' || needs.test.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| 覆盖率合并 | ${{ needs.test-merge.result == 'success' && '✅ 通过' || needs.test-merge.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 集成测试 | ${{ needs.test-integration.result == 'success' && '✅ 通过' || needs.test-integration.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 二进制构建 | ${{ needs.build.result == 'success' && '✅ 通过' || needs.build.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| 产物整合 | ${{ needs.build-artifacts.result == 'success' && '✅ 通过' || needs.build-artifacts.result == 'skipped' && '⏭️ 跳过' || '❌ 失败' }} |" >> $GITHUB_STEP_SUMMARY
@@ -928,7 +929,8 @@ jobs:
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 v2.123.0 优化内容" >> $GITHUB_STEP_SUMMARY
-          echo "- GOPROXY 缓存加速依赖下载" >> $GITHUB_STEP_SUMMARY
-          echo "- Docker 镜像优化（distroless 基础镜像）" >> $GITHUB_STEP_SUMMARY
-          echo "- 缓存版本升级至 v11" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.124.0 优化内容" >> $GITHUB_STEP_SUMMARY
+          echo "- 测试分片并行化（4分片，减少约60%测试时间）" >> $GITHUB_STEP_SUMMARY
+          echo "- 覆盖率增量检测（PR时显示覆盖率变化）" >> $GITHUB_STEP_SUMMARY
+          echo "- 构建时间追踪优化" >> $GITHUB_STEP_SUMMARY
+          echo "- 缓存版本升级至 v12" >> $GITHUB_STEP_SUMMARY
