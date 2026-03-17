@@ -387,8 +387,6 @@ type EnhancedClient struct {
 
 	// 重连
 	reconnectConfig ReconnectConfig
-	reconnectTimer  *time.Timer
-	stableTimer     *time.Timer
 
 	// 控制
 	ctx    context.Context
@@ -417,7 +415,6 @@ type EnhancedWebSocketHub struct {
 
 	// 消息队列
 	messageQueue *MessageQueue
-	queueMu      sync.RWMutex
 
 	// 统计
 	totalConnections int64

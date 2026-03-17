@@ -1,10 +1,7 @@
 package web
 
 import (
-	"net/http/httptest"
 	"testing"
-
-	"github.com/gin-gonic/gin"
 )
 
 // ========== 网络管理 API 模型测试 ==========
@@ -192,13 +189,4 @@ func TestNFSExportInput_Struct(t *testing.T) {
 	if len(export.Clients) != 1 {
 		t.Errorf("Expected 1 client, got %d", len(export.Clients))
 	}
-}
-
-// ========== 测试辅助函数 ==========
-
-func setupTestContext() *gin.Context {
-	gin.SetMode(gin.TestMode)
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	return c
 }

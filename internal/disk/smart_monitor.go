@@ -50,7 +50,8 @@ var DefaultMonitorConfig = &MonitorConfig{
 	EnablePrediction: true,
 }
 
-// DiskInfo 磁盘信息
+// DiskInfo holds information about a disk.
+//nolint:revive // DiskInfo is intentional for clarity in API responses
 type DiskInfo struct {
 	Device       string        `json:"device"`
 	Model        string        `json:"model"`
@@ -66,15 +67,21 @@ type DiskInfo struct {
 	Predictions  []*Prediction `json:"predictions,omitempty"`
 }
 
-// DiskStatus 磁盘状态
+// DiskStatus represents the health status of a disk.
+//nolint:revive // DiskStatus is intentional for clarity in API responses
 type DiskStatus string
 
 const (
-	StatusHealthy  DiskStatus = "healthy"
-	StatusWarning  DiskStatus = "warning"
+	// StatusHealthy indicates the disk is healthy.
+	StatusHealthy DiskStatus = "healthy"
+	// StatusWarning indicates the disk has warnings.
+	StatusWarning DiskStatus = "warning"
+	// StatusCritical indicates the disk is in critical condition.
 	StatusCritical DiskStatus = "critical"
-	StatusUnknown  DiskStatus = "unknown"
-	StatusOffline  DiskStatus = "offline"
+	// StatusUnknown indicates the disk status is unknown.
+	StatusUnknown DiskStatus = "unknown"
+	// StatusOffline indicates the disk is offline.
+	StatusOffline DiskStatus = "offline"
 )
 
 // SMARTData SMART 数据
