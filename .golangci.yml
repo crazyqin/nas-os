@@ -14,8 +14,6 @@ linters:
     - misspell
     - revive
     - gosimple
-    - gofmt
-    - goimports
     - unused
 
   settings:
