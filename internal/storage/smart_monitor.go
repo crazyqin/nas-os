@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"nas-os/pkg/safeguards"
 )
 
 // SMARTMonitor SMART 磁盘健康监控器
@@ -421,8 +423,10 @@ func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 			// 安全转换：温度值通常在 0-100 范围内
 			if attr.RawValue > 1000 {
 				health.Temperature = 1000 // 异常值，设置上限
+			} else if val, err := safeguards.SafeUint64ToInt(attr.RawValue); err == nil {
+				health.Temperature = val
 			} else {
-				health.Temperature = int(attr.RawValue)
+				health.Temperature = math.MaxInt // 溢出时设置为最大值
 			}
 		case "Power_On_Hours":
 			health.PowerOnHours = attr.RawValue

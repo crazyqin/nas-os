@@ -608,7 +608,14 @@ func (o *QuotaOptimizer) PredictUsage(quotaID string) (*UsagePrediction, error) 
 
 	// 计算预计填满时间
 	if prediction.GrowthRate > 0 {
-		prediction.PredictedDaysToFull = int(float64(currentUsage.HardLimit-currentUsage.UsedBytes) / prediction.GrowthRate)
+		// 安全转换：uint64 运算结果转换为 int
+		remainingBytes := currentUsage.HardLimit - currentUsage.UsedBytes
+		daysToFull := float64(remainingBytes) / prediction.GrowthRate
+		if daysToFull > float64(math.MaxInt) {
+			prediction.PredictedDaysToFull = math.MaxInt
+		} else {
+			prediction.PredictedDaysToFull = int(daysToFull)
+		}
 		prediction.PredictedDaysToLimit = prediction.PredictedDaysToFull
 	}
 

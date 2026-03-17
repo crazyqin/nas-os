@@ -3,6 +3,7 @@ package photos
 import (
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -311,7 +312,14 @@ func (h *Handlers) createUploadSession(c *gin.Context) {
 		chunkSize = 5 * 1024 * 1024 // 默认 5MB
 	}
 
-	totalChunks := int((req.TotalSize + chunkSize - 1) / chunkSize)
+	// 安全转换：int64 到 int 可能溢出
+	totalChunksInt64 := (req.TotalSize + chunkSize - 1) / chunkSize
+	var totalChunks int
+	if totalChunksInt64 > int64(math.MaxInt) {
+		totalChunks = math.MaxInt
+	} else {
+		totalChunks = int(totalChunksInt64)
+	}
 
 	session := &UploadSession{
 		SessionID:      sessionID,
