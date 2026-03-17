@@ -108,8 +108,14 @@ func (h *Handlers) getLoginEntries(c *gin.Context) {
 	}
 
 	// 解析查询参数
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
-	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil {
+		limit = 50
+	}
+	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil {
+		offset = 0
+	}
 
 	opts := LoginQueryOptions{
 		Limit:  limit,
@@ -138,7 +144,10 @@ func (h *Handlers) getLoginEntries(c *gin.Context) {
 	opts.AuthMethod = AuthMethod(c.Query("auth_method"))
 	opts.Status = c.Query("status")
 	if minScore := c.Query("min_risk_score"); minScore != "" {
-		opts.MinRiskScore, _ = strconv.Atoi(minScore)
+		score, err := strconv.Atoi(minScore)
+		if err == nil {
+			opts.MinRiskScore = score
+		}
 	}
 
 	entries, total := h.loginAuditor.Query(opts)
@@ -265,12 +274,16 @@ func (h *Handlers) getHighRiskLogins(c *gin.Context) {
 
 	minScore := 70
 	if score := c.Query("min_score"); score != "" {
-		minScore, _ = strconv.Atoi(score)
+		if s, err := strconv.Atoi(score); err == nil {
+			minScore = s
+		}
 	}
 
 	limit := 50
 	if l := c.Query("limit"); l != "" {
-		limit, _ = strconv.Atoi(l)
+		if n, err := strconv.Atoi(l); err == nil {
+			limit = n
+		}
 	}
 
 	entries := h.loginAuditor.GetHighRiskLogins(minScore, limit)
@@ -337,8 +350,14 @@ func (h *Handlers) getOperationEntries(c *gin.Context) {
 		return
 	}
 
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
-	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil {
+		limit = 50
+	}
+	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil {
+		offset = 0
+	}
 
 	opts := OperationQueryOptions{
 		Limit:  limit,
@@ -376,7 +395,9 @@ func (h *Handlers) getOperationEntries(c *gin.Context) {
 	}
 
 	if minScore := c.Query("min_risk_score"); minScore != "" {
-		opts.MinRiskScore, _ = strconv.Atoi(minScore)
+		if s, err := strconv.Atoi(minScore); err == nil {
+			opts.MinRiskScore = s
+		}
 	}
 
 	entries, total := h.operationAuditor.Query(opts)
@@ -432,7 +453,10 @@ func (h *Handlers) getResourceOperations(c *gin.Context) {
 
 	resourceType := c.Query("type")
 	resourceID := c.Query("id")
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil {
+		limit = 50
+	}
 
 	if resourceType == "" || resourceID == "" {
 		c.JSON(http.StatusBadRequest, ErrorResponse(400, "缺少资源类型或ID"))
@@ -451,7 +475,10 @@ func (h *Handlers) getUserOperations(c *gin.Context) {
 	}
 
 	userID := c.Param("user_id")
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil {
+		limit = 50
+	}
 
 	entries := h.operationAuditor.GetUserOperations(userID, limit)
 	c.JSON(http.StatusOK, SuccessResponse(entries))
@@ -464,7 +491,10 @@ func (h *Handlers) getSensitiveOperations(c *gin.Context) {
 		return
 	}
 
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil {
+		limit = 50
+	}
 
 	entries := h.operationAuditor.GetSensitiveOperations(limit)
 	c.JSON(http.StatusOK, SuccessResponse(entries))
@@ -598,7 +628,10 @@ func (h *Handlers) addSensitiveOperation(c *gin.Context) {
 		return
 	}
 
-	h.sensitiveManager.AddOperation(&op)
+	if err := h.sensitiveManager.AddOperation(&op); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, "添加操作失败"))
+		return
+	}
 	c.JSON(http.StatusCreated, SuccessResponse(op))
 }
 
@@ -617,7 +650,10 @@ func (h *Handlers) updateSensitiveOperation(c *gin.Context) {
 	}
 
 	op.ID = id
-	h.sensitiveManager.UpdateOperation(&op)
+	if err := h.sensitiveManager.UpdateOperation(&op); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, "更新操作失败"))
+		return
+	}
 	c.JSON(http.StatusOK, SuccessResponse(op))
 }
 
@@ -731,14 +767,17 @@ func (h *Handlers) approveOperation(c *gin.Context) {
 		Notes string `json:"notes"`
 	}
 
-	c.ShouldBindJSON(&req) // 可选
+	_ = c.ShouldBindJSON(&req) // 可选，忽略错误
 
 	approvedBy := c.GetString("user_id")
 	if approvedBy == "" {
 		approvedBy = "system"
 	}
 
-	h.sensitiveManager.ApproveOperation(id, approvedBy, req.Notes)
+	if err := h.sensitiveManager.ApproveOperation(id, approvedBy, req.Notes); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, "批准失败"))
+		return
+	}
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "已批准"}))
 }
 
@@ -764,7 +803,10 @@ func (h *Handlers) rejectOperation(c *gin.Context) {
 		rejectedBy = "system"
 	}
 
-	h.sensitiveManager.RejectOperation(id, rejectedBy, req.Reason)
+	if err := h.sensitiveManager.RejectOperation(id, rejectedBy, req.Reason); err != nil {
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, "拒绝失败"))
+		return
+	}
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "已拒绝"}))
 }
 
@@ -777,7 +819,10 @@ func (h *Handlers) listReports(c *gin.Context) {
 		return
 	}
 
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if err != nil {
+		limit = 20
+	}
 	reports, err := h.reportGenerator.ListReports(limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(500, err.Error()))
@@ -815,7 +860,10 @@ func (h *Handlers) generateReport(c *gin.Context) {
 	}
 
 	// 保存报告
-	h.reportGenerator.SaveReport(report)
+	if err := h.reportGenerator.SaveReport(report); err != nil {
+		// 保存失败不影响返回，只记录日志
+		// TODO: 添加日志记录
+	}
 
 	c.JSON(http.StatusCreated, SuccessResponse(report))
 }

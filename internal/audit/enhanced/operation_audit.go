@@ -54,7 +54,7 @@ func DefaultOperationAuditConfig() OperationAuditConfig {
 // NewOperationAuditor 创建操作审计器
 func NewOperationAuditor(config OperationAuditConfig) *OperationAuditor {
 	storageDir := "/var/log/nas-os/audit/operations"
-	os.MkdirAll(storageDir, 0750)
+	_ = os.MkdirAll(storageDir, 0750) // 创建存储目录，忽略错误
 
 	oa := &OperationAuditor{
 		entries:    make([]*OperationAuditEntry, 0),
@@ -658,7 +658,7 @@ func (oa *OperationAuditor) save() {
 		return
 	}
 
-	os.WriteFile(filename, data, 0640)
+	_ = os.WriteFile(filename, data, 0640) // 写入文件，忽略错误
 }
 
 // Load 加载数据
