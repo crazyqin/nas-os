@@ -1,16 +1,24 @@
 {
-  "lastUpdate": "2026-03-17T12:45:00+08:00",
+  "lastUpdate": "2026-03-17T12:50:00+08:00",
   "currentVersion": "v2.165.0",
   "previousVersion": "v2.164.0",
-  "status": "in_progress",
+  "status": "completed",
+  "gitCommit": "92b05cb",
+  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.165.0",
   "fixApplied": "修复 golangci-lint v2 配置：从 linters.enable 移除 gofmt/goimports（已在 formatters.enable 中配置）",
   "ministries": {
-    "吏部": { "task": "版本管理", "status": "pending" },
-    "户部": { "task": "资源统计", "status": "pending" },
-    "礼部": { "task": "文档更新", "status": "pending" },
-    "工部": { "task": "CI/CD检查", "status": "pending" },
-    "兵部": { "task": "代码质量", "status": "pending" },
-    "刑部": { "task": "安全审计", "status": "pending" }
+    "吏部": { "task": "版本管理", "status": "done", "result": "VERSION、version.go 确认 2.165.0，go vet/build 通过，项目统计完成" },
+    "户部": { "task": "资源统计", "status": "skipped", "result": "因并发限制未执行" },
+    "礼部": { "task": "文档更新", "status": "done", "result": "CHANGELOG.md、README.md、docs/README.md、docs/README_EN.md、docs/api.yaml 版本号更新" },
+    "工部": { "task": "CI/CD检查", "status": "done", "result": "golangci-lint 配置验证通过，docker-compose.yml、docs/README.md 版本号修复" },
+    "兵部": { "task": "代码质量", "status": "timeout", "result": "go vet/build 检查进行中，超时中断" },
+    "刑部": { "task": "安全审计", "status": "timeout", "result": "gosec 扫描进行中，超时中断" }
   },
-  "actionsStatus": "to_check"
+  "actionsStatus": "running",
+  "actions": [
+    { "name": "CI/CD", "status": "in_progress" },
+    { "name": "Security Scan", "status": "in_progress" },
+    { "name": "Docker Publish", "status": "in_progress" },
+    { "name": "GitHub Release", "status": "in_progress" }
+  ]
 }
