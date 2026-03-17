@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.193.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.193.0
+- ✅ CHANGELOG.md 版本条目创建
+
+#### 兵部 - 代码质量修复
+- ✅ 修复 7 个 staticcheck 问题
+  - QF1003: 6 处 if-else 链改 switch (hubu_resource_report.go, quota_integration.go, resource_visualization_api.go, performance_test.go, storage_bench_test.go)
+  - QF1008: 1 处移除冗余嵌入字段选择器 (resource_monitor_api.go)
+
+#### 工部 - CI/CD 检查
+- ✅ CI/CD 配置检查完成
+- ✅ 构建测试通过 (go build ./...)
+- ✅ 单元测试通过 (82 个测试包)
+- ✅ golangci.yml 配置合理
+
+#### 刑部 - 安全审计
+- ✅ 安全扫描完成 (gosec)
+- ✅ 总问题数: 1452 (高危 151, 中危 791, 低危 510)
+- ✅ 与 v2.191.0 对比: 新增 0, 已解决 16
+- ✅ 安全态势: 稳定向好
+- ✅ 生成 SECURITY_AUDIT_v2.193.0.md
+
+#### 礼部 - 文档维护
+- ✅ 版本号同步至 v2.193.0
+- ✅ README.md 下载链接更新
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步
+- ✅ docs/api.yaml API 文档版本同步
+- ✅ docs/swagger.json OpenAPI 文档版本同步
+- ✅ internal/version/version.go 版本同步
+
+#### 户部 - 项目统计
+- ✅ 源代码文件: 454 个
+- ✅ 测试文件: 247 个
+- ✅ 代码总行数: 394,500 行
+- ✅ 待处理 Issue: 0 个
+- ✅ 测试覆盖率: 33.9%
+
 ## [v2.192.0] - 2026-03-17
 
 ### 六部协同开发

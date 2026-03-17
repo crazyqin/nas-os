@@ -418,9 +418,10 @@ func (g *HubuResourceReportGenerator) CalculateHealthScore(
 
 		// 告警扣分
 		for _, alert := range storageReport.Alerts {
-			if alert.Severity == "critical" {
+			switch alert.Severity {
+			case "critical":
 				score -= 5
-			} else if alert.Severity == "warning" {
+			case "warning":
 				score -= 2
 			}
 		}
@@ -445,11 +446,12 @@ func (g *HubuResourceReportGenerator) CalculateHealthScore(
 
 	// 容量预测扣分
 	if capacityReport != nil {
-		if capacityReport.Summary.Urgency == "critical" {
+		switch capacityReport.Summary.Urgency {
+		case "critical":
 			score -= 25
-		} else if capacityReport.Summary.Urgency == "high" {
+		case "high":
 			score -= 15
-		} else if capacityReport.Summary.Urgency == "medium" {
+		case "medium":
 			score -= 5
 		}
 	}

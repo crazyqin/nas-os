@@ -308,11 +308,12 @@ func BenchmarkConcurrentCacheOperations(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			key := string(rune(i % 100))
-			if i%3 == 0 {
+			switch i % 3 {
+			case 0:
 				c.Set(key, "value")
-			} else if i%3 == 1 {
+			case 1:
 				_, _ = c.Get(key)
-			} else {
+			default:
 				c.Delete(key)
 			}
 			i++

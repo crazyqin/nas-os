@@ -631,7 +631,7 @@ func (h *ResourceMonitorAPIHandlers) analyzeCost(c *gin.Context) {
 		}
 	}
 
-	report := h.service.costAnalyzer.CostAnalyzer.Analyze(
+	report := h.service.costAnalyzer.Analyze(
 		req.VolumeMetrics,
 		req.UserUsages,
 		req.History,

@@ -310,7 +310,8 @@ func (i *QuotaReportIntegrator) generateQuotaRecommendations(report *QuotaIntegr
 
 	// 基于预测建议
 	for _, pred := range report.Predictions {
-		if pred.RiskLevel == "critical" {
+		switch pred.RiskLevel {
+		case "critical":
 			recommendations = append(recommendations, QuotaRecommendation{
 				Type:        "capacity_planning",
 				Priority:    "critical",
@@ -321,7 +322,7 @@ func (i *QuotaReportIntegrator) generateQuotaRecommendations(report *QuotaIntegr
 				Action:      "立即扩容或迁移数据",
 				CreatedAt:   now,
 			})
-		} else if pred.RiskLevel == "high" {
+		case "high":
 			recommendations = append(recommendations, QuotaRecommendation{
 				Type:        "capacity_planning",
 				Priority:    "high",
