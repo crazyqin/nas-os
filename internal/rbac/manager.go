@@ -509,8 +509,7 @@ func (m *Manager) DeleteGroupPermission(groupID string) error {
 		}
 	}
 
-	m.save()
-	return nil
+	return m.save()
 }
 
 // AddUserToGroup 将用户添加到组

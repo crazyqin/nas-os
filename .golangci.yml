@@ -51,35 +51,61 @@ linters:
         linters:
           - errcheck
         text: "GetString|GetBool|GetInt|GetStringSlice|Scanln"
-      # nasctl main.go: encoder.Encode, resp.Body.Close 允许忽略
+      # cmd/nasctl/main.go: encoder.Encode 输出到 stdout 允许忽略错误
       - path: cmd/nasctl/main\.go
         linters:
           - errcheck
-        text: "encoder.Encode|resp.Body.Close"
-      # automation trigger: watcher.Close, Body.Close, json.Encode 允许忽略
+        text: "encoder.Encode"
+      # cmd/nasctl/main.go: resp.Body.Close 在 defer 中允许忽略错误
+      - path: cmd/nasctl/main\.go
+        linters:
+          - errcheck
+        text: "resp.Body.Close"
+      # internal/automation/trigger/trigger.go: watcher.Close 在错误处理路径中允许忽略错误
       - path: internal/automation/trigger/trigger\.go
         linters:
           - errcheck
-        text: "watcher.Close|r.Body.Close|json.NewEncoder|Encode"
-      # cache lru: 缓存操作允许忽略错误
-      - path: internal/cache/lru\.go
+        text: "watcher.Close"
+      # internal/automation/trigger/trigger.go: r.Body.Close 允许忽略错误
+      - path: internal/automation/trigger/trigger\.go
         linters:
           - errcheck
-      # dashboard health: strconv 转换允许忽略（已注释说明）
+        text: "r.Body.Close"
+      # internal/automation/trigger/trigger.go: json.Encoder.Encode 输出到 http response 允许忽略错误
+      - path: internal/automation/trigger/trigger\.go
+        linters:
+          - errcheck
+        text: "Encode"
+      # internal/dashboard/health/checker.go: strconv.Atoi/ParseFloat 在可信数据源场景允许忽略错误
       - path: internal/dashboard/health/checker\.go
         linters:
           - errcheck
         text: "strconv.Atoi|strconv.ParseFloat"
-      # quota optimizer: 数据加载、解析、预测允许忽略（已注释说明）
+      # internal/quota/optimizer/optimizer.go: 初始化加载允许忽略错误（使用空数据）
       - path: internal/quota/optimizer/optimizer\.go
         linters:
           - errcheck
-        text: "optimizer.load|json.Unmarshal|GetGrowthRate|PredictAllUsage|GetAllUsage|SafeUint64ToInt64"
-      # rbac manager: save 操作允许忽略
-      - path: internal/rbac/manager\.go
+        text: "optimizer.load|json.Unmarshal"
+      # internal/quota/optimizer/optimizer.go: GetGrowthRate 允许忽略错误（使用默认值 0）
+      - path: internal/quota/optimizer/optimizer\.go
         linters:
           - errcheck
-        text: "m.save"
+        text: "GetGrowthRate"
+      # internal/quota/optimizer/optimizer.go: PredictAllUsage 允许忽略错误（使用已获取的数据）
+      - path: internal/quota/optimizer/optimizer\.go
+        linters:
+          - errcheck
+        text: "PredictAllUsage"
+      # internal/quota/optimizer/optimizer.go: SafeUint64ToInt64 允许忽略错误（边界场景）
+      - path: internal/quota/optimizer/optimizer\.go
+        linters:
+          - errcheck
+        text: "SafeUint64ToInt64"
+      # internal/quota/optimizer/optimizer.go: GetAllUsage 允许忽略错误（使用空列表计算）
+      - path: internal/quota/optimizer/optimizer\.go
+        linters:
+          - errcheck
+        text: "GetAllUsage"
 
 formatters:
   enable:
