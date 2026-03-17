@@ -35,7 +35,7 @@ func DefaultScoreEngineConfig() ScoreEngineConfig {
 // NewScoreEngine 创建安全评分引擎
 func NewScoreEngine(config ScoreEngineConfig) *ScoreEngine {
 	storagePath := "/var/lib/nas-os/security/scores"
-	os.MkdirAll(storagePath, 0750)
+	_ = os.MkdirAll(storagePath, 0750)
 
 	engine := &ScoreEngine{
 		categories:  getDefaultScoreCategories(),
@@ -626,7 +626,7 @@ func (se *ScoreEngine) saveHistory() {
 		return
 	}
 
-	os.WriteFile(filename, data, 0640)
+	_ = os.WriteFile(filename, data, 0640)
 }
 
 // loadHistory 加载历史记录
