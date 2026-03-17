@@ -298,6 +298,7 @@ func TestAlgorithm_Constants(t *testing.T) {
 	}
 
 	for _, alg := range algorithms {
+		// 验证算法常量非空
 		if string(alg) == "" {
 			t.Errorf("Algorithm constant should not be empty")
 		}

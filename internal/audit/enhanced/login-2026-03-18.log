@@ -1,0 +1,21 @@
+[
+  {
+    "id": "107db307-46d3-4eb7-85c1-4442c717f72e",
+    "timestamp": "2026-03-18T05:09:52.841342345+08:00",
+    "event_type": "success",
+    "user_id": "user-001",
+    "username": "user1",
+    "ip": "192.168.1.1",
+    "user_agent": "",
+    "auth_method": "password",
+    "location": {
+      "country": "Unknown",
+      "country_code": "XX"
+    },
+    "status": "success",
+    "session_id": "76d4ffcb-8ca3-45d6-94ee-5de9b86a98bd",
+    "previous_login": "2026-03-18T05:09:52.841342345+08:00",
+    "risk_score": 10,
+    "risk_factors": []
+  }
+]

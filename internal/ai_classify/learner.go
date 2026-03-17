@@ -420,8 +420,11 @@ func (l *Learner) GetLearningStats() map[string]interface{} {
 	sort.Slice(ruleAccuracies, func(i, j int) bool {
 		accI, okI := ruleAccuracies[i]["accuracy"].(float64)
 		accJ, okJ := ruleAccuracies[j]["accuracy"].(float64)
-		if !okI || !okJ {
-			return false
+		if !okI {
+			accI = 0
+		}
+		if !okJ {
+			accJ = 0
 		}
 		return accI < accJ
 	})

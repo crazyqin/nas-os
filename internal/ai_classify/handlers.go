@@ -204,9 +204,11 @@ func buildCategoryTree(categories []Category) []map[string]interface{} {
 			roots = append(roots, *node)
 		} else {
 			if parent, ok := nodeMap[cat.ParentID]; ok {
-				if children, ok := (*parent)["children"].([]map[string]interface{}); ok {
-					(*parent)["children"] = append(children, *node)
+				children, ok := (*parent)["children"].([]map[string]interface{})
+				if !ok {
+					children = []map[string]interface{}{}
 				}
+				(*parent)["children"] = append(children, *node)
 			}
 		}
 	}

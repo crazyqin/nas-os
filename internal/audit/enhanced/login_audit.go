@@ -63,7 +63,10 @@ func DefaultLoginAuditConfig() LoginAuditConfig {
 // NewLoginAuditor 创建登录审计器
 func NewLoginAuditor(config LoginAuditConfig) *LoginAuditor {
 	storageDir := "/var/log/nas-os/audit/login"
-	_ = os.MkdirAll(storageDir, 0750) // 创建存储目录，忽略错误
+	if err := os.MkdirAll(storageDir, 0750); err != nil {
+		// 如果无法创建存储目录，继续运行但不持久化
+		storageDir = ""
+	}
 
 	return &LoginAuditor{
 		entries:    make([]*LoginAuditEntry, 0),
@@ -117,10 +120,9 @@ func (la *LoginAuditor) RecordLogin(
 	}
 
 	// 设置事件类型
-	switch status {
-	case "failure":
+	if status == "failure" {
 		entry.EventType = LoginEventFailure
-	case "success":
+	} else if status == "success" {
 		entry.EventType = LoginEventSuccess
 	}
 
@@ -823,7 +825,7 @@ func (la *LoginAuditor) save() {
 		return
 	}
 
-	_ = os.WriteFile(filename, data, 0640) // 写入文件，忽略错误
+	_ = os.WriteFile(filename, data, 0640)
 }
 
 // Load 加载数据

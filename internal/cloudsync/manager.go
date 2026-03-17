@@ -236,28 +236,28 @@ func (m *Manager) validateProviderConfig(config *ProviderConfig) error {
 	switch config.Type {
 	case ProviderAliyunOSS, ProviderTencentCOS, ProviderAWSS3, ProviderBackblazeB2, ProviderS3Compatible:
 		if config.AccessKey == "" {
-			return fmt.Errorf("Access Key 不能为空")
+			return fmt.Errorf("access key 不能为空")
 		}
 		if config.SecretKey == "" {
-			return fmt.Errorf("Secret Key 不能为空")
+			return fmt.Errorf("secret key 不能为空")
 		}
 		if config.Bucket == "" {
-			return fmt.Errorf("Bucket 不能为空")
+			return fmt.Errorf("bucket 不能为空")
 		}
 
 	case ProviderWebDAV:
 		if config.Endpoint == "" {
-			return fmt.Errorf("Endpoint 不能为空")
+			return fmt.Errorf("endpoint 不能为空")
 		}
 
 	case ProviderGoogleDrive:
 		if config.RefreshToken == "" {
-			return fmt.Errorf("Refresh Token 不能为空")
+			return fmt.Errorf("refresh token 不能为空")
 		}
 
 	case ProviderOneDrive:
 		if config.RefreshToken == "" {
-			return fmt.Errorf("Refresh Token 不能为空")
+			return fmt.Errorf("refresh token 不能为空")
 		}
 
 	default:

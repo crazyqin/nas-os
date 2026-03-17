@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 )
 
 // Handlers 增强审计模块 HTTP 处理器
@@ -16,7 +15,6 @@ type Handlers struct {
 	operationAuditor *OperationAuditor
 	sensitiveManager *SensitiveOperationManager
 	reportGenerator  *ReportGenerator
-	logger           *zap.Logger
 }
 
 // NewHandlers 创建增强审计处理器
@@ -29,7 +27,6 @@ func NewHandlers(
 		loginAuditor:     loginAuditor,
 		operationAuditor: operationAuditor,
 		sensitiveManager: sensitiveManager,
-		logger:           zap.L(),
 	}
 
 	if loginAuditor != nil || operationAuditor != nil {
@@ -147,8 +144,7 @@ func (h *Handlers) getLoginEntries(c *gin.Context) {
 	opts.AuthMethod = AuthMethod(c.Query("auth_method"))
 	opts.Status = c.Query("status")
 	if minScore := c.Query("min_risk_score"); minScore != "" {
-		score, err := strconv.Atoi(minScore)
-		if err == nil {
+		if score, err := strconv.Atoi(minScore); err == nil {
 			opts.MinRiskScore = score
 		}
 	}
@@ -398,8 +394,8 @@ func (h *Handlers) getOperationEntries(c *gin.Context) {
 	}
 
 	if minScore := c.Query("min_risk_score"); minScore != "" {
-		if s, err := strconv.Atoi(minScore); err == nil {
-			opts.MinRiskScore = s
+		if score, err := strconv.Atoi(minScore); err == nil {
+			opts.MinRiskScore = score
 		}
 	}
 
@@ -632,7 +628,7 @@ func (h *Handlers) addSensitiveOperation(c *gin.Context) {
 	}
 
 	if err := h.sensitiveManager.AddOperation(&op); err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse(500, "添加操作失败"))
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, err.Error()))
 		return
 	}
 	c.JSON(http.StatusCreated, SuccessResponse(op))
@@ -654,7 +650,7 @@ func (h *Handlers) updateSensitiveOperation(c *gin.Context) {
 
 	op.ID = id
 	if err := h.sensitiveManager.UpdateOperation(&op); err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse(500, "更新操作失败"))
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, err.Error()))
 		return
 	}
 	c.JSON(http.StatusOK, SuccessResponse(op))
@@ -696,7 +692,10 @@ func (h *Handlers) getSensitiveEvents(c *gin.Context) {
 	}
 
 	userID := c.Query("user_id")
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil {
+		limit = 50
+	}
 
 	events := h.sensitiveManager.QueryEvents(start, end, userID, limit)
 	c.JSON(http.StatusOK, SuccessResponse(events))
@@ -770,7 +769,7 @@ func (h *Handlers) approveOperation(c *gin.Context) {
 		Notes string `json:"notes"`
 	}
 
-	_ = c.ShouldBindJSON(&req) // 可选，忽略错误
+	c.ShouldBindJSON(&req) // 可选
 
 	approvedBy := c.GetString("user_id")
 	if approvedBy == "" {
@@ -778,7 +777,7 @@ func (h *Handlers) approveOperation(c *gin.Context) {
 	}
 
 	if err := h.sensitiveManager.ApproveOperation(id, approvedBy, req.Notes); err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse(500, "批准失败"))
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, err.Error()))
 		return
 	}
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "已批准"}))
@@ -807,7 +806,7 @@ func (h *Handlers) rejectOperation(c *gin.Context) {
 	}
 
 	if err := h.sensitiveManager.RejectOperation(id, rejectedBy, req.Reason); err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse(500, "拒绝失败"))
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, err.Error()))
 		return
 	}
 	c.JSON(http.StatusOK, SuccessResponse(gin.H{"message": "已拒绝"}))
@@ -864,8 +863,8 @@ func (h *Handlers) generateReport(c *gin.Context) {
 
 	// 保存报告
 	if err := h.reportGenerator.SaveReport(report); err != nil {
-		// 保存失败不影响返回，只记录日志
-		h.logger.Warn("保存报告失败", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, ErrorResponse(500, err.Error()))
+		return
 	}
 
 	c.JSON(http.StatusCreated, SuccessResponse(report))

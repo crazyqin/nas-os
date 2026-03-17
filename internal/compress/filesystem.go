@@ -269,6 +269,7 @@ func NewDecompressReader(file *os.File, algorithm Algorithm) (*DecompressReader,
 		reader = gzReader
 	default:
 		// 不支持的格式，返回原始文件
+		_ = file // 保持文件引用，后续读取时使用
 	}
 
 	return &DecompressReader{

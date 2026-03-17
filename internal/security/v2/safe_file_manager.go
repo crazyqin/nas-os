@@ -693,7 +693,9 @@ func (l *AccessLogger) writeToFile(log AccessLog) {
 	}
 	defer func() { _ = f.Close() }()
 
-	_, _ = f.Write(data)
+	if _, err := f.Write(data); err != nil {
+		return
+	}
 	_, _ = f.Write([]byte("\n"))
 }
 

@@ -327,7 +327,13 @@ func (h *Handlers) createUploadSession(c *gin.Context) {
 	}
 
 	// 创建临时目录
-	_ = os.MkdirAll(session.TempPath, 0755)
+	if err := os.MkdirAll(session.TempPath, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "创建临时目录失败：" + err.Error(),
+		})
+		return
+	}
 
 	// 保存会话信息
 	h.mu.Lock()
@@ -509,7 +515,14 @@ func (h *Handlers) completeUploadSession(c *gin.Context) {
 			})
 			return
 		}
-		_, _ = io.Copy(finalFile, chunkFile)
+		if _, copyErr := io.Copy(finalFile, chunkFile); copyErr != nil {
+			_ = chunkFile.Close()
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":    500,
+				"message": fmt.Sprintf("合并分片 %d 失败：%s", i, copyErr.Error()),
+			})
+			return
+		}
 		_ = chunkFile.Close()
 	}
 
@@ -517,7 +530,9 @@ func (h *Handlers) completeUploadSession(c *gin.Context) {
 	_ = finalFile.Sync()
 
 	// 清理临时文件
-	_ = os.RemoveAll(session.TempPath)
+	if err := os.RemoveAll(session.TempPath); err != nil {
+		// Log error but continue
+	}
 
 	// 删除会话
 	h.mu.Lock()

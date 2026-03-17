@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.210.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.210.0
+- ✅ CHANGELOG.md 版本条目创建
+- ✅ internal/version/version.go 版本同步
+- ✅ charts/nas-os/Chart.yaml appVersion 更新
+
+### Changed
+- Version bump to v2.210.0
+
+---
+
 ## [v2.208.0] - 2026-03-18
 
 ### 六部协同开发
