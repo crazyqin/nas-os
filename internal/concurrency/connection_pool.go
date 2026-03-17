@@ -102,7 +102,7 @@ func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 			return conn, nil
 		}
 		// Connection unhealthy, close and create new one
-		conn.Close()
+		_ = conn.Close()
 		p.mu.Lock()
 		p.closed_count++
 		p.mu.Unlock()
@@ -144,7 +144,7 @@ func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 			p.mu.Unlock()
 			return conn, nil
 		}
-		conn.Close()
+		_ = conn.Close()
 		p.mu.Lock()
 		p.closed_count++
 		p.openCount--
@@ -164,7 +164,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 	p.mu.Lock()
 	if p.closed {
 		p.mu.Unlock()
-		conn.Close()
+		_ = conn.Close()
 		p.mu.Lock()
 		p.closed_count++
 		p.openCount--
@@ -174,7 +174,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 	p.mu.Unlock()
 
 	if !conn.IsHealthy() {
-		conn.Close()
+		_ = conn.Close()
 		p.mu.Lock()
 		p.closed_count++
 		p.openCount--
@@ -186,7 +186,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 	case p.conns <- conn:
 	default:
 		// Pool full, close connection
-		conn.Close()
+		_ = conn.Close()
 		p.mu.Lock()
 		p.closed_count++
 		p.openCount--
@@ -210,7 +210,7 @@ func (p *ConnectionPool) Close() {
 	close(p.conns)
 
 	for conn := range p.conns {
-		conn.Close()
+		_ = conn.Close()
 		p.mu.Lock()
 		p.closed_count++
 		p.openCount--
@@ -275,7 +275,7 @@ func (p *ConnectionPool) checkIdleConnections() {
 	select {
 	case conn := <-p.conns:
 		if !conn.IsHealthy() {
-			conn.Close()
+			_ = conn.Close()
 			p.mu.Lock()
 			p.closed_count++
 			p.openCount--

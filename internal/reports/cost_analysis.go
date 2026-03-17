@@ -1147,7 +1147,8 @@ func (a *EnhancedCostAnalyzer) calculateConfidence(history []CostTrendDataPoint)
 	}
 	mean /= float64(len(history))
 	for _, h := range history {
-		variance += math.Pow(h.TotalCost-mean, 2)
+		diff := h.TotalCost - mean
+		variance += diff * diff
 	}
 	variance /= float64(len(history))
 	cv := math.Sqrt(variance) / mean
@@ -1199,7 +1200,7 @@ func (a *EnhancedCostAnalyzer) calculateAccuracyMetrics(history []CostTrendDataP
 			sumAPE += ae / actual
 		}
 		sumSE += ae * ae
-		sumSS += math.Pow(actual-mean, 2)
+		sumSS += (actual - mean) * (actual - mean)
 	}
 
 	count := float64(n - 2)
@@ -1944,7 +1945,8 @@ func (a *ResourceTrendAnalyzer) calculateVolatility(history []CapacityHistory) f
 	mean /= float64(len(history))
 
 	for _, h := range history {
-		variance += math.Pow(h.UsagePercent-mean, 2)
+		diff := h.UsagePercent - mean
+		variance += diff * diff
 	}
 	variance /= float64(len(history))
 
@@ -2066,7 +2068,8 @@ func (d *AnomalyDetector) Detect(history []CostTrendDataPoint) []CostAnomaly {
 	mean /= float64(len(history))
 
 	for _, h := range history {
-		std += math.Pow(h.TotalCost-mean, 2)
+		diff := h.TotalCost - mean
+		std += diff * diff
 	}
 	std = math.Sqrt(std / float64(len(history)))
 
@@ -2320,7 +2323,8 @@ func (p *ResourcePredictor) linearPredict(values []float64, timestamps []time.Ti
 	var se float64
 	for i, y := range values {
 		predicted := intercept + slope*float64(i)
-		se += math.Pow(y-predicted, 2)
+		diff := y - predicted
+		se += diff * diff
 	}
 	se = math.Sqrt(se / float64(n-2))
 
@@ -2437,7 +2441,8 @@ func (p *ResourcePredictor) polynomialPredict(values []float64, timestamps []tim
 	for i, y := range values {
 		x := float64(i)
 		predicted := a*x*x + b*x + c
-		se += math.Pow(y-predicted, 2)
+		diff := y - predicted
+		se += diff * diff
 	}
 	se = math.Sqrt(se / float64(n-degree-1))
 
@@ -2557,7 +2562,7 @@ func (p *ResourcePredictor) calculateAccuracyMetrics(actual []float64, predictio
 			sumAPE += ae / actualVal
 		}
 		sumSE += ae * ae
-		sumSS += math.Pow(actualVal-mean, 2)
+		sumSS += (actualVal - mean) * (actualVal - mean)
 	}
 
 	count := float64(testLimit)

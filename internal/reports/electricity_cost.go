@@ -426,9 +426,10 @@ func (c *ElectricityCostCalculator) Calculate(deviceID string, readings []PowerR
 		}
 		dailyData[dayKey].TotalEnergyKWh += reading.EnergyKWh
 		dailyData[dayKey].TotalCost += reading.EnergyKWh * price
-		if timeOfDay == TimeOfDayPeak || timeOfDay == TimeOfDayCritical {
+		switch timeOfDay {
+		case TimeOfDayPeak, TimeOfDayCritical:
 			dailyData[dayKey].PeakEnergyKWh += reading.EnergyKWh
-		} else if timeOfDay == TimeOfDayValley {
+		case TimeOfDayValley:
 			dailyData[dayKey].ValleyEnergyKWh += reading.EnergyKWh
 		}
 	}
