@@ -3995,3 +3995,16 @@ All notable changes to this project will be documented in this file.
 ---
 
 For older versions, see git history.
+## v2.216.0 (2026-03-18)
+
+### 修复
+- **兵部**: 修复 audit_test.go SetUserRole 参数不匹配问题
+- **兵部**: 修复 snapshot_extended_test.go 多个编译错误
+- **刑部**: 修复 RetentionPolicy 字段名 (MaxAge → MaxAgeDays)
+- **工部**: 修复测试函数返回值处理
+- **礼部**: 添加 transfer/webdav 扩展测试文档
+
+### 新增
+- internal/snapshot/snapshot_extended_test.go
+- internal/transfer/transfer_extended_test.go
+- internal/webdav/server_extended_test.go
