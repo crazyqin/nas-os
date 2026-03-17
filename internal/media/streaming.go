@@ -313,7 +313,9 @@ func (ss *StreamServer) StreamFile(w http.ResponseWriter, r *http.Request, fileP
 	if err != nil {
 		return fmt.Errorf("打开文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	stat, err := file.Stat()
 	if err != nil {
@@ -375,8 +377,8 @@ func (ss *StreamServer) handleRangeRequest(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusPartialContent)
 
 	// 定位并传输
-	file.Seek(start, 0)
-	io.CopyN(w, file, contentLength)
+	_, _ = file.Seek(start, 0)
+	_, _ = io.CopyN(w, file, contentLength)
 }
 
 // getContentType 获取内容类型

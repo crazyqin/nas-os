@@ -240,7 +240,7 @@ func (fm *FailoverManager) checkAndFailover() {
 			zap.String("leader_id", leader.ID),
 			zap.String("state", string(leader.State)),
 		)
-		fm.executeFailover(leader)
+		_ = fm.executeFailover(leader)
 	}
 }
 

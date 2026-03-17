@@ -592,7 +592,7 @@ func (enm *EdgeNodeManager) calculateNodeScore(node *EdgeNode) float64 {
 // Shutdown 关闭边缘节点管理器
 func (enm *EdgeNodeManager) Shutdown() error {
 	enm.cancel()
-	enm.saveNodes()
+	_ = enm.saveNodes()
 	enm.logger.Info("边缘节点管理器已关闭")
 	return nil
 }

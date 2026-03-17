@@ -201,7 +201,9 @@ func (tg *ThumbnailGenerator) GenerateSprite(videoPath, outputPath string, cols,
 	if err != nil {
 		return nil, fmt.Errorf("创建临时目录失败: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		_ = os.RemoveAll(tempDir)
+	}()
 
 	// 生成所有缩略图
 	thumbs := make([]string, 0, totalThumbs)

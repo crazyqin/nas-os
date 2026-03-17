@@ -2195,11 +2195,7 @@ info:
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
   title: NAS-OS API
-<<<<<<< HEAD
-  version: 2.201.0
-=======
-  version: 2.200.0
->>>>>>> origin/master
+version: 2.202.0
 paths:
   /api/v1/alerts:
     get:
