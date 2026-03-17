@@ -6,24 +6,32 @@ import (
 	"time"
 )
 
-// WidgetType 小组件类型
+// WidgetType defines the type of dashboard widget.
 type WidgetType string
 
 const (
-	WidgetTypeCPU     WidgetType = "cpu"
-	WidgetTypeMemory  WidgetType = "memory"
-	WidgetTypeDisk    WidgetType = "disk"
+	// WidgetTypeCPU displays CPU metrics.
+	WidgetTypeCPU WidgetType = "cpu"
+	// WidgetTypeMemory displays memory metrics.
+	WidgetTypeMemory WidgetType = "memory"
+	// WidgetTypeDisk displays disk usage metrics.
+	WidgetTypeDisk WidgetType = "disk"
+	// WidgetTypeNetwork displays network metrics.
 	WidgetTypeNetwork WidgetType = "network"
-	WidgetTypeCustom  WidgetType = "custom"
+	// WidgetTypeCustom is a user-defined widget type.
+	WidgetTypeCustom WidgetType = "custom"
 )
 
-// WidgetSize 小组件尺寸
+// WidgetSize defines the size of a dashboard widget.
 type WidgetSize string
 
 const (
-	WidgetSizeSmall  WidgetSize = "small"
+	// WidgetSizeSmall is a small widget.
+	WidgetSizeSmall WidgetSize = "small"
+	// WidgetSizeMedium is a medium widget.
 	WidgetSizeMedium WidgetSize = "medium"
-	WidgetSizeLarge  WidgetSize = "large"
+	// WidgetSizeLarge is a large widget.
+	WidgetSizeLarge WidgetSize = "large"
 )
 
 // WidgetPosition 小组件位置
@@ -185,7 +193,8 @@ type NetworkSummaryData struct {
 	TXPackets uint64 `json:"txPackets"`
 }
 
-// DashboardState 仪表板状态
+// DashboardState represents the runtime state of a dashboard.
+//nolint:revive // DashboardState is intentional for clarity in API responses
 type DashboardState struct {
 	DashboardID string                 `json:"dashboardId"`
 	LastUpdate  time.Time              `json:"lastUpdate"`
@@ -194,7 +203,8 @@ type DashboardState struct {
 	Status      string                 `json:"status"`
 }
 
-// DashboardTemplate 仪表板模板
+// DashboardTemplate represents a reusable dashboard template.
+//nolint:revive // DashboardTemplate is intentional for clarity in API responses
 type DashboardTemplate struct {
 	ID          string          `json:"id"`
 	Name        string          `json:"name"`
@@ -204,7 +214,7 @@ type DashboardTemplate struct {
 	Layout      Layout          `json:"layout"`
 }
 
-// WidgetConfig 模板中的小组件配置
+// WidgetTemplateConfig defines widget configuration within a template.
 type WidgetTemplateConfig struct {
 	Type     WidgetType     `json:"type"`
 	Title    string         `json:"title"`
@@ -213,7 +223,8 @@ type WidgetTemplateConfig struct {
 	Config   WidgetConfig   `json:"config"`
 }
 
-// DashboardEvent 仪表板事件
+// DashboardEvent represents a dashboard-related event.
+//nolint:revive // DashboardEvent is intentional for clarity in API responses
 type DashboardEvent struct {
 	Type        string      `json:"type"`
 	DashboardID string      `json:"dashboardId"`

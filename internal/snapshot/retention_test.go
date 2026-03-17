@@ -444,16 +444,3 @@ func TestRetentionEstimate_ZeroAvgSize(t *testing.T) {
 }
 
 // ========== Mock Storage Manager for Testing ==========
-
-type mockStorageManager struct {
-	snapshots []interface{}
-	err       error
-}
-
-func (m *mockStorageManager) ListSnapshots(volumeName string) ([]interface{}, error) {
-	return m.snapshots, m.err
-}
-
-func (m *mockStorageManager) DeleteSnapshot(volumeName, snapshotName string) error {
-	return m.err
-}
