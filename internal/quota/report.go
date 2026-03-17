@@ -535,7 +535,7 @@ func (g *ReportGenerator) exportCSV(report *Report, outputPath string) error {
 
 	// 写入头部
 	headers := []string{"报告ID", "类型", "生成时间", "总配额数", "总限制(字节)", "总使用(字节)", "平均使用率", "超软限制数", "超硬限制数", "活跃告警"}
-	writer.Write(headers)
+	_ = writer.Write(headers)
 
 	// 写入数据
 	row := []string{
@@ -550,7 +550,7 @@ func (g *ReportGenerator) exportCSV(report *Report, outputPath string) error {
 		fmt.Sprintf("%d", report.Summary.OverHardLimit),
 		fmt.Sprintf("%d", report.Summary.ActiveAlerts),
 	}
-	writer.Write(row)
+	_ = writer.Write(row)
 
 	return nil
 }

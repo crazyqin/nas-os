@@ -445,7 +445,7 @@ func (m *Manager) getDirSize(path string) (uint64, error) {
 
 	// 解析输出
 	var size uint64
-	fmt.Sscanf(string(output), "%d", &size)
+	_, _ = fmt.Sscanf(string(output), "%d", &size)
 	return size, nil
 }
 

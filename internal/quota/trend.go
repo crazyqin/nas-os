@@ -858,7 +858,7 @@ func (m *TrendDataManager) persist() {
 		return
 	}
 
-	os.WriteFile(m.config.PersistPath, jsonData, 0600)
+	_ = os.WriteFile(m.config.PersistPath, jsonData, 0600)
 }
 
 // Load 加载数据
