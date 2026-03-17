@@ -327,7 +327,7 @@ func (em *ExportManager) ImportProject(data []byte, options ImportOptions) (*Imp
 			updates["status"] = task.Status
 		}
 
-		em.manager.UpdateTask(newTask.ID, reporterID, updates)
+		_, _ = em.manager.UpdateTask(newTask.ID, reporterID, updates)
 
 		// 导入评论
 		if options.ImportComments && export.Comments != nil {
@@ -339,7 +339,7 @@ func (em *ExportManager) ImportProject(data []byte, options ImportOptions) (*Imp
 						userID = mapped
 					}
 				}
-				em.manager.AddComment(newTask.ID, userID, comment.Content)
+				_, _ = em.manager.AddComment(newTask.ID, userID, comment.Content)
 				result.ImportedComments++
 			}
 		}

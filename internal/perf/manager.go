@@ -233,8 +233,15 @@ func (m *Manager) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		requestID, _ := c.Get("requestID")
+		var requestIDStr string
 		if requestID == nil {
-			requestID = "unknown"
+			requestIDStr = "unknown"
+		} else {
+			var ok bool
+			requestIDStr, ok = requestID.(string)
+			if !ok {
+				requestIDStr = "unknown"
+			}
 		}
 
 		// 处理请求
@@ -259,7 +266,7 @@ func (m *Manager) Middleware() gin.HandlerFunc {
 		if duration > m.slowThreshold {
 			m.recordSlowLog(&SlowLogEntry{
 				Timestamp:   time.Now(),
-				RequestID:   requestID.(string),
+				RequestID:   requestIDStr,
 				Method:      method,
 				Path:        path,
 				Query:       c.Request.URL.RawQuery,

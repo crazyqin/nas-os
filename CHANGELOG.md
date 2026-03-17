@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.204.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.204.0
+- ✅ CHANGELOG.md 版本条目创建
+
+#### 兵部 - 代码质量修复
+- ✅ 修复 errcheck 错误（dedup、perf、project、replication 模块）
+- ✅ internal/dedup/config.go - Validate、Unmarshal 返回值检查
+- ✅ internal/dedup/dedup.go - os.Chtimes 返回值检查
+- ✅ internal/dedup/manager.go - saveIndex、os.Remove 返回值检查
+- ✅ internal/perf/manager.go - 类型断言检查
+- ✅ internal/perf/query_cache.go - 类型断言、Set 返回值检查
+- ✅ internal/project/archive.go - MkdirAll、UpdateProject、DeleteProject、os.Remove 返回值检查
+- ✅ internal/project/export.go - UpdateTask、AddComment 返回值检查
+- ✅ internal/replication/conflict.go - defer Close() 返回值检查
+
+### Changed
+- Version bump to v2.204.0
+- 代码质量改进，golangci-lint errcheck 检查通过
+
 ## [v2.202.0] - 2026-03-18
 
 ### 六部协同开发

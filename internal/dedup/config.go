@@ -194,13 +194,13 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	config.Validate()
+	_ = config.Validate()
 	return config, nil
 }
 
 // SaveConfig 保存配置到文件
 func (c *Config) SaveConfig(path string) error {
-	c.Validate()
+	_ = c.Validate()
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return err
@@ -212,7 +212,7 @@ func (c *Config) SaveConfig(path string) error {
 func (c *Config) Clone() *Config {
 	data, _ := json.Marshal(c)
 	newConfig := &Config{}
-	json.Unmarshal(data, newConfig)
+	_ = json.Unmarshal(data, newConfig)
 	return newConfig
 }
 

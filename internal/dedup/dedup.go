@@ -752,7 +752,7 @@ func executeDedupAction(targetPath, keepPath string, action DedupAction, preserv
 		// 恢复属性
 		if preserveAttrs {
 			if err := os.Chmod(targetPath, mode); err == nil {
-				os.Chtimes(targetPath, modTime, modTime)
+				_ = os.Chtimes(targetPath, modTime, modTime)
 			}
 		}
 
@@ -783,7 +783,7 @@ func executeDedupAction(targetPath, keepPath string, action DedupAction, preserv
 		// 恢复属性
 		if preserveAttrs {
 			if err := os.Chmod(targetPath, mode); err == nil {
-				os.Chtimes(targetPath, modTime, modTime)
+				_ = os.Chtimes(targetPath, modTime, modTime)
 			}
 		}
 
