@@ -225,14 +225,14 @@ func (m *EventMonitor) GetEventStats() map[string]interface{} {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
+	eventsByType := make(map[string]int)
+	eventsByIP := make(map[string]int)
+
 	stats := map[string]interface{}{
 		"buffer_size":    len(m.eventBuffer),
-		"events_by_type": make(map[string]int),
-		"events_by_ip":   make(map[string]int),
+		"events_by_type": eventsByType,
+		"events_by_ip":   eventsByIP,
 	}
-
-	eventsByType := stats["events_by_type"].(map[string]int)
-	eventsByIP := stats["events_by_ip"].(map[string]int)
 
 	for _, entry := range m.eventBuffer {
 		eventsByType[entry.Event]++

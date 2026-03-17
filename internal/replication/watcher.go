@@ -127,7 +127,7 @@ func (w *Watcher) Start() {
 // Stop 停止监控
 func (w *Watcher) Stop() {
 	close(w.stopChan)
-	w.watcher.Close()
+	_ = w.watcher.Close()
 	w.wg.Wait()
 }
 
