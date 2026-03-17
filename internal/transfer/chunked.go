@@ -66,7 +66,11 @@ func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkI
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = file.Close() }()
+	defer func() {
+		if err := file.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	stat, err := file.Stat()
 	if err != nil {
@@ -112,7 +116,11 @@ func (u *ChunkedUploader) MergeChunks(chunkDir string, outputPath string, totalC
 	if err != nil {
 		return err
 	}
-	defer func() { _ = outputFile.Close() }()
+	defer func() {
+		if err := outputFile.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	for i := 0; i < totalChunks; i++ {
 		chunkPath := filepath.Join(chunkDir, fmt.Sprintf("*.chunk.%d", i))
@@ -171,7 +179,11 @@ func CalculateFileSHA256(filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = file.Close() }()
+	defer func() {
+		if err := file.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
@@ -194,8 +206,16 @@ func CompressReader(reader io.Reader) (io.Reader, error) {
 
 	go func() {
 		// 关闭资源，忽略错误（通过 CloseWithError 传递主要错误）
-		defer func() { _ = pw.Close() }()
-		defer func() { _ = gw.Close() }()
+		defer func() {
+			if err := pw.Close(); err != nil {
+				// 忽略关闭错误
+			}
+		}()
+		defer func() {
+			if err := gw.Close(); err != nil {
+				// 忽略关闭错误
+			}
+		}()
 
 		_, err := io.Copy(gw, reader)
 		if err != nil {
@@ -217,16 +237,28 @@ func CompressFile(inputPath, outputPath string) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = inputFile.Close() }()
+	defer func() {
+		if err := inputFile.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = outputFile.Close() }()
+	defer func() {
+		if err := outputFile.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	gw := gzip.NewWriter(outputFile)
-	defer func() { _ = gw.Close() }()
+	defer func() {
+		if err := gw.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	_, err = io.Copy(gw, inputFile)
 	return err
@@ -238,19 +270,31 @@ func DecompressFile(inputPath, outputPath string) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = inputFile.Close() }()
+	defer func() {
+		if err := inputFile.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	gr, err := gzip.NewReader(inputFile)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = gr.Close() }()
+	defer func() {
+		if err := gr.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = outputFile.Close() }()
+	defer func() {
+		if err := outputFile.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	// 限制解压后大小（最大 10GB），防止解压缩炸弹攻击
 	const maxDecompressSize = 10 << 30 // 10GB
@@ -299,7 +343,11 @@ func (r *ResumableUpload) GetNextChunk() ([]byte, int64, int64, error) {
 	if err != nil {
 		return nil, 0, 0, err
 	}
-	defer func() { _ = file.Close() }()
+	defer func() {
+		if err := file.Close(); err != nil {
+			// 忽略关闭错误
+		}
+	}()
 
 	buf := make([]byte, r.chunkSize)
 	n, err := file.ReadAt(buf, r.uploadedSize)

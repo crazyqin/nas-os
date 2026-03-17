@@ -690,7 +690,11 @@ func parseSizeStr(s string) uint64 {
 		s = strings.TrimSuffix(s, "KiB")
 	}
 
-	val, _ := strconv.ParseFloat(strings.TrimSpace(s), 64) // 忽略错误，使用默认值 0
+	val, err := strconv.ParseFloat(strings.TrimSpace(s), 64)
+	if err != nil {
+		// 解析失败，使用默认值 0
+		val = 0
+	}
 	return uint64(val * float64(multiplier))
 }
 

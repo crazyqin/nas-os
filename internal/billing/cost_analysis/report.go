@@ -459,8 +459,8 @@ func NewCostAnalysisEngine(dataDir string, billing BillingDataProvider, quota Qu
 		cacheTTL:      5 * time.Minute, // 缓存有效期5分钟
 	}
 
-	// 加载已有数据
-	engine.load()
+	// 加载已有数据（忽略错误，使用默认值）
+	_ = engine.load()
 
 	return engine
 }

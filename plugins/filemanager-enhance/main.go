@@ -431,7 +431,11 @@ func (p *FileManagerEnhance) preview(path string) (map[string]interface{}, error
 
 	if info.IsDir() {
 		// 目录预览：列出文件
-		entries, _ := os.ReadDir(path)
+		entries, err := os.ReadDir(path)
+		if err != nil {
+			result["error"] = fmt.Sprintf("读取目录失败: %v", err)
+			return result, nil
+		}
 		files := []map[string]string{}
 		for _, e := range entries {
 			files = append(files, map[string]string{

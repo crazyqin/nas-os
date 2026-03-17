@@ -762,30 +762,63 @@ func (im *InvoiceManager) exportToCSV(invoices []*InvoiceManagerInvoice, outputP
 func (im *InvoiceManager) exportToExcel(invoices []*InvoiceManagerInvoice, outputPath, filename string) (string, error) {
 	filePath := filepath.Join(outputPath, filename+".xlsx")
 	f := excelize.NewFile()
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			// 记录关闭错误，但不影响主流程
+		}
+	}()
 
 	sheet := "发票列表"
-	f.SetSheetName("Sheet1", sheet)
+	if err := f.SetSheetName("Sheet1", sheet); err != nil {
+		return "", fmt.Errorf("设置工作表名称失败: %w", err)
+	}
 
 	headers := []string{"ID", "发票号", "类型", "状态", "抬头", "金额", "税额", "总金额", "开票日期", "收款方", "备注"}
 	for i, h := range headers {
-		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
-		f.SetCellValue(sheet, cell, h)
+		cell, err := excelize.CoordinatesToCellName(i+1, 1)
+		if err != nil {
+			return "", fmt.Errorf("获取单元格坐标失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, cell, h); err != nil {
+			return "", fmt.Errorf("设置表头失败: %w", err)
+		}
 	}
 
 	for i, inv := range invoices {
 		row := i + 2
-		f.SetCellValue(sheet, fmt.Sprintf("A%d", row), inv.ID)
-		f.SetCellValue(sheet, fmt.Sprintf("B%d", row), inv.Number)
-		f.SetCellValue(sheet, fmt.Sprintf("C%d", row), inv.Type)
-		f.SetCellValue(sheet, fmt.Sprintf("D%d", row), inv.Status)
-		f.SetCellValue(sheet, fmt.Sprintf("E%d", row), inv.Title)
-		f.SetCellValue(sheet, fmt.Sprintf("F%d", row), inv.Subtotal)
-		f.SetCellValue(sheet, fmt.Sprintf("G%d", row), inv.TaxAmount)
-		f.SetCellValue(sheet, fmt.Sprintf("H%d", row), inv.TotalAmount)
-		f.SetCellValue(sheet, fmt.Sprintf("I%d", row), inv.IssueDate.Format("2006-01-02"))
-		f.SetCellValue(sheet, fmt.Sprintf("J%d", row), inv.Recipient.Name)
-		f.SetCellValue(sheet, fmt.Sprintf("K%d", row), inv.Remarks)
+		if err := f.SetCellValue(sheet, fmt.Sprintf("A%d", row), inv.ID); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("B%d", row), inv.Number); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("C%d", row), inv.Type); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("D%d", row), inv.Status); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("E%d", row), inv.Title); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("F%d", row), inv.Subtotal); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("G%d", row), inv.TaxAmount); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("H%d", row), inv.TotalAmount); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("I%d", row), inv.IssueDate.Format("2006-01-02")); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("J%d", row), inv.Recipient.Name); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
+		if err := f.SetCellValue(sheet, fmt.Sprintf("K%d", row), inv.Remarks); err != nil {
+			return "", fmt.Errorf("设置单元格失败: %w", err)
+		}
 	}
 
 	if err := f.SaveAs(filePath); err != nil {
