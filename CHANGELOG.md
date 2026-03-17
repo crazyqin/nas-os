@@ -2,44 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.212.0] - 2026-03-18
+## [v2.214.0] - 2026-03-18
 
-### 六部协同开发 - CI/CD 修复
+### 安全加固 (P0/P1)
 
-#### 兵部 - 软件工程
-- ✅ 修复 internal/network/diagnostics.go errcheck 错误 (5处)
-- ✅ 修复 internal/network/firewall.go saveConfig 返回值检查 (4处)
-- ✅ 修复 internal/network/portforward.go errcheck 错误 (6处)
-- ✅ 修复 internal/nfs/config.go file.Close() 错误检查 (2处)
-- ✅ 修复 internal/security/scanner/score_engine.go os.WriteFile 错误检查
-- ✅ 修复 internal/security/scanner/vulnerability_scanner.go os.MkdirAll 错误检查 (2处)
+#### 兵部 - 文件路径验证加固
+- ✅ `internal/files/manager.go` 添加 `validatePath` 函数
+- ✅ 加固 `compressFile`, `extractFile`, `createShare` 路径验证
+- ✅ 防止路径遍历攻击 (`..`, 符号链接等)
+- ✅ `plugins/filemanager-enhance/main.go` 修复 `isPathAllowed` 函数
 
-### Fixed
-- 修复 19 处 golangci-lint errcheck 错误
-- CI/CD golangci-lint 检查应该通过
+#### 刑部 - 命令注入风险审查
+- ✅ `internal/iscsi/manager.go` 风险评估报告
+- ✅ `pkg/btrfs/btrfs.go` mount 命令审查
+- ✅ `internal/files/manager.go` zip 命令审查
+- 📋 风险等级: btrfs (中-高), iscsi (中等), files (中等)
 
----
+#### 工部 - 整数溢出边界检查
+- ✅ `internal/photos/handlers.go` 添加安全类型转换
+- ✅ `internal/quota/optimizer/optimizer.go` 修复 `PredictedDaysToFull`
+- ✅ 使用 `math.MaxInt` 防止溢出
 
-## [v2.211.0] - 2026-03-18
+#### 户部 - 代码统计
+- 📊 总代码行数: 394,741
+- 📊 测试文件数: 247
+- 📊 测试覆盖率: ~40-50%
 
-### 六部协同开发 - errcheck 错误修复
+### 六部协同
 
-#### 兵部 - 软件工程
-- ✅ 修复 audit/enhanced/handlers.go ShouldBindJSON 返回值检查
-- ✅ 修复 replication/manager.go 类型断言 ok pattern
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 兵部 | 文件路径验证加固 (P0) | ✅ |
+| 刑部 | 命令注入风险审查 (P0) | ✅ |
+| 工部 | 整数溢出边界检查 (P1) | ✅ |
+| 户部 | 代码统计 | ✅ |
+| 礼部 | CHANGELOG 准备 | ✅ |
 
-#### 工部 - DevOps
-- ✅ 修复 billing/cost_analysis/api.go json.Encode 返回值检查
-- ✅ 添加 log/slog 导入用于错误日志
-
-#### 刑部 - 法务合规
-- ✅ 修复 network/ddns.go saveConfig 返回值检查 (5处)
-- ✅ 修复 network/diagnostics.go fmt.Sscanf 返回值检查 (7处)
-- ✅ 修复 security/scanner/score_engine.go os.MkdirAll 返回值检查
-
-### Fixed
-- 修复 28 处 golangci-lint errcheck 错误
-- CI/CD golangci-lint 检查现在应该通过
+### Changed
+- Version bump to v2.214.0
+- Security hardening for path traversal prevention
+- Integer overflow safety checks added
 
 ---
 

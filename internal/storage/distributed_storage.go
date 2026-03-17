@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"nas-os/pkg/safeguards"
 )
 
 // ========== 分布式存储节点管理 ==========
@@ -1292,7 +1294,13 @@ func (dm *DistributedManager) GetNodeForKey(poolID, key string) (*StorageNode, e
 		for _, c := range key {
 			hash = hash*31 + uint32(c)
 		}
-		shardIndex = int(hash % uint32(len(pool.Shards)))
+		// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值
+		shardIndexVal := hash % uint32(len(pool.Shards))
+		if idx, err := safeguards.SafeUint64ToInt(uint64(shardIndexVal)); err == nil {
+			shardIndex = idx
+		} else {
+			shardIndex = 0 // 溢出时使用默认分片
+		}
 	case ShardingRange:
 		// 范围分片
 		shardIndex = 0
@@ -1343,7 +1351,13 @@ func (dm *DistributedManager) GetReplicaNodes(poolID, key string) ([]*StorageNod
 		for _, c := range key {
 			hash = hash*31 + uint32(c)
 		}
-		shardIndex = int(hash % uint32(len(pool.Shards)))
+		// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值
+		shardIndexVal := hash % uint32(len(pool.Shards))
+		if idx, err := safeguards.SafeUint64ToInt(uint64(shardIndexVal)); err == nil {
+			shardIndex = idx
+		} else {
+			shardIndex = 0 // 溢出时使用默认分片
+		}
 	default:
 		shardIndex = 0
 	}

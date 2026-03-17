@@ -3,6 +3,7 @@ package search
 import (
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -16,6 +17,8 @@ import (
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search/query"
 	"go.uber.org/zap"
+
+	"nas-os/pkg/safeguards"
 )
 
 // FileInfo 文件信息
@@ -534,9 +537,16 @@ func (e *Engine) Search(req SearchRequest) (*SearchResponse, error) {
 		return nil, fmt.Errorf("搜索失败: %w", err)
 	}
 
+	// 安全转换搜索结果总数
+	total, err := safeguards.SafeUint64ToInt(result.Total)
+	if err != nil {
+		// 如果结果数量溢出，使用最大值
+		total = math.MaxInt
+	}
+
 	// 处理结果
 	response := &SearchResponse{
-		Total:    int(result.Total),
+		Total:    total,
 		Took:     result.Took,
 		MaxScore: result.MaxScore,
 		Results:  make([]SearchResult, 0, len(result.Hits)),

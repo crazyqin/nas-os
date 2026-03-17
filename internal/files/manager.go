@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"image"
 	"image/gif"
@@ -88,6 +89,7 @@ var shareStore = struct {
 // Manager 文件管理器
 type Manager struct {
 	config     PreviewConfig
+	baseDir    string           // 基础目录，用于路径安全验证
 	imageTypes map[string]bool
 	videoTypes map[string]bool
 	audioTypes map[string]bool
@@ -117,7 +119,8 @@ func NewManager(config PreviewConfig) *Manager {
 	}
 
 	m := &Manager{
-		config: config,
+		config:  config,
+		baseDir: "/", // 默认根目录，可通过配置覆盖
 		imageTypes: map[string]bool{
 			".jpg": true, ".jpeg": true, ".png": true, ".gif": true,
 			".webp": true, ".bmp": true, ".svg": true, ".ico": true,
@@ -147,6 +150,38 @@ func NewManager(config PreviewConfig) *Manager {
 	}
 
 	return m
+}
+
+// SetBaseDir 设置基础目录
+func (m *Manager) SetBaseDir(dir string) {
+	m.baseDir = filepath.Clean(dir)
+}
+
+// sanitizePath 验证并清理路径，防止路径遍历攻击
+// baseDir 是允许的基础目录，userPath 是用户输入的路径
+// 返回清理后的绝对路径，如果路径遍历攻击则返回错误
+func sanitizePath(baseDir, userPath string) (string, error) {
+	// 清理基础目录
+	baseDir = filepath.Clean(baseDir)
+	if baseDir == "" {
+		return "", errors.New("baseDir cannot be empty")
+	}
+
+	// 将用户路径与基础目录连接后清理
+	cleaned := filepath.Clean(filepath.Join(baseDir, userPath))
+
+	// 确保清理后的路径以基础目录开头
+	// 需要确保 baseDir 以路径分隔符结尾进行比较
+	if !strings.HasPrefix(cleaned, baseDir+string(filepath.Separator)) && cleaned != baseDir {
+		return "", errors.New("path traversal detected: path escapes base directory")
+	}
+
+	return cleaned, nil
+}
+
+// validatePath 验证单个路径是否在允许范围内
+func (m *Manager) validatePath(userPath string) (string, error) {
+	return sanitizePath(m.baseDir, userPath)
 }
 
 // GetFileType 获取文件类型
@@ -449,11 +484,25 @@ func (m *Manager) GetFileContent(path string, maxSize int64) (string, error) {
 // Handlers 文件处理器
 type Handlers struct {
 	manager *Manager
+	baseDir string // 基础目录，用于路径安全验证
 }
 
 // NewHandlers 创建处理器
 func NewHandlers(manager *Manager) *Handlers {
-	return &Handlers{manager: manager}
+	return &Handlers{
+		manager: manager,
+		baseDir: manager.baseDir,
+	}
+}
+
+// SetBaseDir 设置基础目录
+func (h *Handlers) SetBaseDir(dir string) {
+	h.baseDir = filepath.Clean(dir)
+}
+
+// validatePath 验证用户输入的路径，返回安全路径或错误
+func (h *Handlers) validatePath(userPath string) (string, error) {
+	return sanitizePath(h.baseDir, userPath)
 }
 
 // RegisterRoutes 注册路由
@@ -489,15 +538,16 @@ func (h *Handlers) listFiles(c *gin.Context) {
 		path = "/"
 	}
 
-	// 安全检查：防止路径遍历
-	if strings.Contains(path, "..") {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
 		return
 	}
 
 	thumbnail := c.Query("thumbnail") == "true"
 
-	files, err := h.manager.ListFiles(path, thumbnail)
+	files, err := h.manager.ListFiles(safePath, thumbnail)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
@@ -507,7 +557,7 @@ func (h *Handlers) listFiles(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"path":  path,
+			"path":  safePath,
 			"files": files,
 		},
 	})
@@ -521,17 +571,18 @@ func (h *Handlers) previewFile(c *gin.Context) {
 		return
 	}
 
-	// 安全检查
-	if strings.Contains(path, "..") {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
 		return
 	}
 
-	fileType := h.manager.GetFileType(path)
+	fileType := h.manager.GetFileType(safePath)
 
 	// 文本文件直接返回内容
-	if fileType == FileTypeCode || fileType == FileTypeDocument && filepath.Ext(path) == ".txt" {
-		content, err := h.manager.GetFileContent(path, 10*1024*1024) // 10MB
+	if fileType == FileTypeCode || fileType == FileTypeDocument && filepath.Ext(safePath) == ".txt" {
+		content, err := h.manager.GetFileContent(safePath, 10*1024*1024) // 10MB
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 			return
@@ -548,7 +599,7 @@ func (h *Handlers) previewFile(c *gin.Context) {
 	}
 
 	// 其他文件流式返回
-	reader, mimeType, err := h.manager.PreviewFile(path)
+	reader, mimeType, err := h.manager.PreviewFile(safePath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
@@ -566,20 +617,21 @@ func (h *Handlers) getThumbnail(c *gin.Context) {
 		return
 	}
 
-	// 安全检查
-	if strings.Contains(path, "..") {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
 		return
 	}
 
-	fileType := h.manager.GetFileType(path)
+	fileType := h.manager.GetFileType(safePath)
 	var thumb string
 
 	switch fileType {
 	case FileTypeImage:
-		thumb, _, _ = h.manager.GenerateImageThumbnail(path)
+		thumb, _, _ = h.manager.GenerateImageThumbnail(safePath)
 	case FileTypeVideo:
-		thumb = h.manager.GenerateVideoThumbnail(path)
+		thumb = h.manager.GenerateVideoThumbnail(safePath)
 	}
 
 	if thumb == "" {
@@ -604,13 +656,14 @@ func (h *Handlers) downloadFile(c *gin.Context) {
 		return
 	}
 
-	// 安全检查
-	if strings.Contains(path, "..") {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
 		return
 	}
 
-	c.FileAttachment(path, filepath.Base(path))
+	c.FileAttachment(safePath, filepath.Base(safePath))
 }
 
 // uploadFile 上传文件
@@ -621,14 +674,34 @@ func (h *Handlers) uploadFile(c *gin.Context) {
 		return
 	}
 
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
+		return
+	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "缺少文件"})
 		return
 	}
 
+	// 验证文件名不包含路径遍历字符
+	filename := filepath.Base(file.Filename) // 只取文件名，忽略任何路径部分
+	if filename == "." || filename == ".." || filename == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效文件名"})
+		return
+	}
+
 	// 保存文件
-	dst := filepath.Join(path, file.Filename)
+	dst := filepath.Join(safePath, filename)
+	// 再次验证最终路径
+	if _, err := h.validatePath(filepath.Join(path, filename)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效文件路径: " + err.Error()})
+		return
+	}
+
 	if err := c.SaveUploadedFile(file, dst); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
@@ -638,7 +711,7 @@ func (h *Handlers) uploadFile(c *gin.Context) {
 		"code":    0,
 		"message": "上传成功",
 		"data": gin.H{
-			"name": file.Filename,
+			"name": filename,
 			"path": dst,
 			"size": file.Size,
 		},
@@ -657,7 +730,27 @@ func (h *Handlers) createDir(c *gin.Context) {
 		return
 	}
 
-	fullPath := filepath.Join(req.Path, req.Name)
+	// 验证名称不包含路径遍历字符
+	name := filepath.Base(req.Name)
+	if name == "." || name == ".." || name == "" || name != req.Name {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效目录名称"})
+		return
+	}
+
+	// 安全验证：防止路径遍历
+	safeBasePath, err := h.validatePath(req.Path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
+		return
+	}
+
+	fullPath := filepath.Join(safeBasePath, name)
+	// 再次验证最终路径
+	if _, err := h.validatePath(filepath.Join(req.Path, req.Name)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
+		return
+	}
+
 	if err := os.MkdirAll(fullPath, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
@@ -680,7 +773,14 @@ func (h *Handlers) deleteFile(c *gin.Context) {
 		return
 	}
 
-	if err := os.Remove(path); err != nil {
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
+		return
+	}
+
+	if err := os.Remove(safePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
 	}
@@ -699,34 +799,41 @@ func (h *Handlers) getFileInfo(c *gin.Context) {
 		return
 	}
 
-	info, err := os.Stat(path)
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
+		return
+	}
+
+	info, err := os.Stat(safePath)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "文件不存在"})
 		return
 	}
 
-	fileType := h.manager.GetFileType(path)
+	fileType := h.manager.GetFileType(safePath)
 	file := FileInfo{
 		Name:     info.Name(),
-		Path:     path,
+		Path:     safePath,
 		Size:     info.Size(),
 		Mode:     info.Mode().String(),
 		ModTime:  info.ModTime().Format(time.RFC3339),
 		IsDir:    info.IsDir(),
 		Type:     fileType,
-		MimeType: h.manager.GetMimeType(path),
+		MimeType: h.manager.GetMimeType(safePath),
 	}
 
 	// 图片获取尺寸
 	if fileType == FileTypeImage {
-		_, w, h := h.manager.GenerateImageThumbnail(path)
+		_, w, h := h.manager.GenerateImageThumbnail(safePath)
 		file.Width = w
 		file.Height = h
 	}
 
 	// 视频获取尺寸和时长
 	if fileType == FileTypeVideo {
-		w, h, d, err := h.manager.GetVideoInfo(path)
+		w, h, d, err := h.manager.GetVideoInfo(safePath)
 		if err == nil {
 			file.Width = w
 			file.Height = h
@@ -753,13 +860,20 @@ func (h *Handlers) renameFile(c *gin.Context) {
 		return
 	}
 
-	// 安全检查
-	if strings.Contains(req.OldPath, "..") || strings.Contains(req.NewPath, "..") {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+	// 安全验证：防止路径遍历
+	safeOldPath, err := h.validatePath(req.OldPath)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效原路径: " + err.Error()})
 		return
 	}
 
-	if err := os.Rename(req.OldPath, req.NewPath); err != nil {
+	safeNewPath, err := h.validatePath(req.NewPath)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效新路径: " + err.Error()})
+		return
+	}
+
+	if err := os.Rename(safeOldPath, safeNewPath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
 	}
@@ -784,9 +898,17 @@ func (h *Handlers) compressFile(c *gin.Context) {
 		return
 	}
 
-	// 安全检查
-	if strings.Contains(req.Path, "..") {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(req.Path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
+		return
+	}
+
+	// 验证输出文件名
+	archiveName := filepath.Base(req.Name)
+	if archiveName == "." || archiveName == ".." || archiveName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效压缩包名称"})
 		return
 	}
 
@@ -798,13 +920,19 @@ func (h *Handlers) compressFile(c *gin.Context) {
 	}
 
 	// 生成压缩包路径
-	archivePath := filepath.Join(filepath.Dir(req.Path), req.Name)
+	archivePath := filepath.Join(filepath.Dir(safePath), archiveName)
 	if req.Format == "tar.gz" {
 		archivePath = strings.TrimSuffix(archivePath, ".zip") + ".tar.gz"
 	}
 
+	// 验证输出路径
+	if _, err := h.validatePath(filepath.Join(filepath.Dir(req.Path), archiveName)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效输出路径: " + err.Error()})
+		return
+	}
+
 	// 检查源路径是否存在
-	if _, err := os.Stat(req.Path); err != nil {
+	if _, err := os.Stat(safePath); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "文件/文件夹不存在"})
 		return
 	}
@@ -812,9 +940,9 @@ func (h *Handlers) compressFile(c *gin.Context) {
 	// 执行压缩
 	var compressErr error
 	if req.Format == "zip" {
-		compressErr = h.compressZip(req.Path, archivePath, req.Level)
+		compressErr = h.compressZip(safePath, archivePath, req.Level)
 	} else {
-		compressErr = h.compressTarGz(req.Path, archivePath, req.Level)
+		compressErr = h.compressTarGz(safePath, archivePath, req.Level)
 	}
 
 	if compressErr != nil {
@@ -925,26 +1053,33 @@ func (h *Handlers) extractFile(c *gin.Context) {
 		return
 	}
 
-	// 安全检查
-	if strings.Contains(req.Path, "..") || strings.Contains(req.ExtractPath, "..") {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(req.Path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效压缩包路径: " + err.Error()})
 		return
 	}
 
-	ext := strings.ToLower(filepath.Ext(req.Path))
-	var err error
+	safeExtractPath, err := h.validatePath(req.ExtractPath)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效解压路径: " + err.Error()})
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(safePath))
+	var extractErr error
 
 	if ext == ".zip" {
-		err = h.extractZip(req.Path, req.ExtractPath, req.Overwrite)
-	} else if ext == ".gz" || strings.HasSuffix(req.Path, ".tar.gz") {
-		err = h.extractTarGz(req.Path, req.ExtractPath, req.Overwrite)
+		extractErr = h.extractZip(safePath, safeExtractPath, req.Overwrite)
+	} else if ext == ".gz" || strings.HasSuffix(safePath, ".tar.gz") {
+		extractErr = h.extractTarGz(safePath, safeExtractPath, req.Overwrite)
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "不支持的压缩格式"})
 		return
 	}
 
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+	if extractErr != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": extractErr.Error()})
 		return
 	}
 
@@ -1042,9 +1177,10 @@ func (h *Handlers) createShare(c *gin.Context) {
 		return
 	}
 
-	// 安全检查
-	if strings.Contains(req.Path, "..") {
-		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径"})
+	// 安全验证：防止路径遍历
+	safePath, err := h.validatePath(req.Path)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效路径: " + err.Error()})
 		return
 	}
 
@@ -1061,7 +1197,7 @@ func (h *Handlers) createShare(c *gin.Context) {
 
 	share := &ShareInfo{
 		Token:         token,
-		Path:          req.Path,
+		Path:          safePath,
 		Password:      req.Password,
 		Expiry:        expiry,
 		AllowDownload: req.AllowDownload,

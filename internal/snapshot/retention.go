@@ -2,6 +2,7 @@ package snapshot
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"time"
 )
@@ -282,7 +283,13 @@ func (c *RetentionCleaner) EstimateRetention(policy *Policy, snapshotCount int, 
 	case RetentionBySize:
 		estimate.EstimatedStorage = policy.Retention.MaxSizeBytes
 		if avgSize > 0 {
-			estimate.MaxSnapshots = int(policy.Retention.MaxSizeBytes / avgSize)
+			// 安全转换：int64 到 int 可能溢出
+			maxSnaps := policy.Retention.MaxSizeBytes / avgSize
+			if maxSnaps > int64(math.MaxInt) {
+				estimate.MaxSnapshots = math.MaxInt
+			} else {
+				estimate.MaxSnapshots = int(maxSnaps)
+			}
 		}
 
 	case RetentionCombined:

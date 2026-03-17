@@ -3,6 +3,8 @@ package monitor
 import (
 	"sync"
 	"time"
+
+	"nas-os/pkg/safeguards"
 )
 
 // MetricsCollector 指标收集器
@@ -840,13 +842,19 @@ func (mc *MetricsCollector) CollectDiskHealthMetrics() *DiskHealthMetrics {
 
 		// 提取 SMART 属性
 		if attr, ok := disk.SmartAttributes["Reallocated_Sector_Ct"]; ok {
-			metric.ReallocatedSectors = int(attr.RawValue)
+			if val, err := safeguards.SafeUint64ToInt(attr.RawValue); err == nil {
+				metric.ReallocatedSectors = val
+			}
 		}
 		if attr, ok := disk.SmartAttributes["Current_Pending_Sector"]; ok {
-			metric.PendingSectors = int(attr.RawValue)
+			if val, err := safeguards.SafeUint64ToInt(attr.RawValue); err == nil {
+				metric.PendingSectors = val
+			}
 		}
 		if attr, ok := disk.SmartAttributes["UDMA_CRC_Error_Count"]; ok {
-			metric.CRCErrors = int(attr.RawValue)
+			if val, err := safeguards.SafeUint64ToInt(attr.RawValue); err == nil {
+				metric.CRCErrors = val
+			}
 		}
 
 		metrics.Disks = append(metrics.Disks, metric)
