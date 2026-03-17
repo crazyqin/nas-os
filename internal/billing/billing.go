@@ -1495,7 +1495,9 @@ func extractInvoiceNumber(number string) int {
 	parts := strings.Split(number, "-")
 	if len(parts) >= 3 {
 		var num int
-		fmt.Sscanf(parts[len(parts)-1], "%d", &num)
+		if _, err := fmt.Sscanf(parts[len(parts)-1], "%d", &num); err != nil {
+			return 0
+		}
 		return num
 	}
 	return 0

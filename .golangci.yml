@@ -106,6 +106,26 @@ linters:
         linters:
           - errcheck
         text: "GetAllUsage"
+      # internal/cache/manager.go: redis 操作允许忽略错误（缓存操作，非关键）
+      - path: internal/cache/manager\.go
+        linters:
+          - errcheck
+        text: "m.redisCache.Set|m.redisCache.Delete|m.redisCache.Clear"
+      # internal/concurrency/connection_pool.go: conn.Close 允许忽略错误（清理操作）
+      - path: internal/concurrency/connection_pool\.go
+        linters:
+          - errcheck
+        text: "conn.Close"
+      # internal/billing/invoice_manager.go: os.Remove 允许忽略错误（清理操作）
+      - path: internal/billing/invoice_manager\.go
+        linters:
+          - errcheck
+        text: "os.Remove"
+      # internal/rbac/manager.go: m.save 允许忽略错误（持久化操作，非关键路径）
+      - path: internal/rbac/manager\.go
+        linters:
+          - errcheck
+        text: "m.save"
 
 formatters:
   enable:

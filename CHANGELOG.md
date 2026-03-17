@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.169.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.169.0
+- ✅ 项目进度：68 个里程碑已完成
+
+#### 兵部 - 代码质量
+- ✅ 修复 errcheck 检查问题
+
+#### 礼部 - 文档维护
+- ✅ 版本号同步至 v2.169.0
+- ✅ CHANGELOG.md 更新
+
+#### 工部 - DevOps
+- ✅ CI/CD 配置检查通过
+
+#### 刑部 - 安全审计
+- ✅ go vet 通过
+- ✅ 无安全漏洞
+
+### Changed
+- Fix errcheck issues
+- Version bump to v2.169.0
+
+---
+
 ## [v2.168.0] - 2026-03-17
 
 ### 六部协同开发

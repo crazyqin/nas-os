@@ -73,7 +73,11 @@ func (c *LRUCache) Set(key, value interface{}) {
 
 	// Check if key already exists
 	if elem, ok := c.cache[key]; ok {
-		item := elem.Value.(*cacheItem)
+		item, ok := elem.Value.(*cacheItem)
+		if !ok {
+			c.removeElement(elem)
+			return
+		}
 		item.value = value
 		item.expiry = expiry
 		item.hitCount++
@@ -132,7 +136,10 @@ func (c *LRUCache) Capacity() int {
 
 // removeElement removes an element from both the list and map
 func (c *LRUCache) removeElement(elem *list.Element) {
-	item := elem.Value.(*cacheItem)
+	item, ok := elem.Value.(*cacheItem)
+	if !ok {
+		return
+	}
 	delete(c.cache, item.key)
 	c.lru.Remove(elem)
 }
@@ -155,8 +162,8 @@ func (c *LRUCache) Cleanup() int {
 
 	for elem := c.lru.Front(); elem != nil; {
 		next := elem.Next()
-		item := elem.Value.(*cacheItem)
-		if now.After(item.expiry) {
+		item, ok := elem.Value.(*cacheItem)
+		if ok && now.After(item.expiry) {
 			c.removeElement(elem)
 			removed++
 		}
