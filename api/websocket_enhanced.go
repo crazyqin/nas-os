@@ -711,7 +711,10 @@ func (h *EnhancedWebSocketHub) BroadcastToUser(userID string, msgType MessageTyp
 		Timestamp: time.Now().Unix(),
 		Data:      dataBytes,
 	}
-	msgBytes, _ := json.Marshal(msg)
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
 
 	for _, client := range h.clients {
 		if client.UserID == userID {
@@ -864,9 +867,14 @@ func (h *EnhancedWebSocketHub) BroadcastToRoom(roomID string, msgType MessageTyp
 		Timestamp: msg.Timestamp,
 		Data:      dataBytes,
 	}
-	h.messageQueue.Enqueue(persistedMsg)
+	if err := h.messageQueue.Enqueue(persistedMsg); err != nil {
+		log.Printf("[WebSocket] Failed to enqueue message: %v", err)
+	}
 
-	msgBytes, _ := json.Marshal(msg)
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
 
 	room.mu.RLock()
 	for _, client := range room.Clients {
@@ -1019,11 +1027,15 @@ func (c *EnhancedClient) readPump(hub *EnhancedWebSocketHub) {
 	}()
 
 	c.Connection.SetReadLimit(65536)
-	c.Connection.SetReadDeadline(time.Now().Add(c.heartbeatConfig.PongTimeout + c.heartbeatConfig.PingInterval))
+	if err := c.Connection.SetReadDeadline(time.Now().Add(c.heartbeatConfig.PongTimeout + c.heartbeatConfig.PingInterval)); err != nil {
+		log.Printf("[WebSocket] Failed to set read deadline: %v", err)
+	}
 
 	// Pong 处理器
 	c.Connection.SetPongHandler(func(string) error {
-		c.Connection.SetReadDeadline(time.Now().Add(c.heartbeatConfig.PongTimeout + c.heartbeatConfig.PingInterval))
+		if err := c.Connection.SetReadDeadline(time.Now().Add(c.heartbeatConfig.PongTimeout + c.heartbeatConfig.PingInterval)); err != nil {
+			log.Printf("[WebSocket] Failed to reset read deadline in pong handler: %v", err)
+		}
 		c.missedPongs = 0
 		atomic.StoreInt32(&c.missedHeartbeats, 0)
 		c.LastActivity = time.Now()
@@ -1077,7 +1089,10 @@ func (c *EnhancedClient) writePump() {
 				return
 			}
 
-			c.Connection.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			if err := c.Connection.SetWriteDeadline(time.Now().Add(10 * time.Second)); err != nil {
+				log.Printf("[WebSocket] Failed to set write deadline: %v", err)
+				return
+			}
 			if err := c.Connection.WriteMessage(websocket.TextMessage, message); err != nil {
 				return
 			}
@@ -1085,7 +1100,9 @@ func (c *EnhancedClient) writePump() {
 			// 批量发送
 			for i := 0; i < len(c.Send); i++ {
 				msg := <-c.Send
-				c.Connection.WriteMessage(websocket.TextMessage, msg)
+				if err := c.Connection.WriteMessage(websocket.TextMessage, msg); err != nil {
+					log.Printf("[WebSocket] Failed to write batch message: %v", err)
+				}
 			}
 		}
 	}
@@ -1146,7 +1163,9 @@ func (c *EnhancedClient) sendPing() error {
 		return ErrConnectionClosed
 	}
 
-	c.Connection.SetWriteDeadline(time.Now().Add(5 * time.Second))
+	if err := c.Connection.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
+		log.Printf("[WebSocket] Failed to set write deadline for ping: %v", err)
+	}
 	return c.Connection.WriteMessage(websocket.PingMessage, nil)
 }
 
@@ -1156,9 +1175,13 @@ func (c *EnhancedClient) sendCloseMessage() {
 	defer c.mu.Unlock()
 
 	if c.Connection != nil {
-		c.Connection.SetWriteDeadline(time.Now().Add(5 * time.Second))
-		c.Connection.WriteMessage(websocket.CloseMessage,
-			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		if err := c.Connection.SetWriteDeadline(time.Now().Add(5 * time.Second)); err != nil {
+			log.Printf("[WebSocket] Failed to set write deadline for close message: %v", err)
+		}
+		if err := c.Connection.WriteMessage(websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseNormalClosure, "")); err != nil {
+			log.Printf("[WebSocket] Failed to send close message: %v", err)
+		}
 	}
 }
 
@@ -1194,22 +1217,44 @@ func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *Enh
 		if msg.RoomID != "" {
 			if err := hub.JoinRoom(msg.RoomID, c.ID); err != nil {
 				// Send error response
-				errResp, _ := json.Marshal(&WebSocketMessage{
+				errResp, mErr := json.Marshal(&WebSocketMessage{
 					Type:      MessageTypeSystem,
 					Timestamp: time.Now().Unix(),
 					Data:      json.RawMessage(`{"error":"` + err.Error() + `"}`),
 				})
-				select {
-				case c.Send <- errResp:
-				default:
+				if mErr == nil {
+					select {
+					case c.Send <- errResp:
+					default:
+					}
 				}
 			} else {
 				// Send success response
-				resp, _ := json.Marshal(&WebSocketMessage{
+				resp, mErr := json.Marshal(&WebSocketMessage{
 					Type:      MessageTypeSystem,
 					Timestamp: time.Now().Unix(),
 					Data:      json.RawMessage(`{"joinedRoom":"` + msg.RoomID + `"}`),
 				})
+				if mErr == nil {
+					select {
+					case c.Send <- resp:
+					default:
+					}
+				}
+			}
+		}
+
+	case "leaveRoom":
+		if msg.RoomID != "" {
+			if err := hub.LeaveRoom(msg.RoomID, c.ID); err != nil {
+				log.Printf("[WebSocket] Failed to leave room %s: %v", msg.RoomID, err)
+			}
+			resp, mErr := json.Marshal(&WebSocketMessage{
+				Type:      MessageTypeSystem,
+				Timestamp: time.Now().Unix(),
+				Data:      json.RawMessage(`{"leftRoom":"` + msg.RoomID + `"}`),
+			})
+			if mErr == nil {
 				select {
 				case c.Send <- resp:
 				default:
@@ -1217,63 +1262,59 @@ func (c *EnhancedClient) handleMessage(messageType int, message []byte, hub *Enh
 			}
 		}
 
-	case "leaveRoom":
-		if msg.RoomID != "" {
-			hub.LeaveRoom(msg.RoomID, c.ID)
-			resp, _ := json.Marshal(&WebSocketMessage{
-				Type:      MessageTypeSystem,
-				Timestamp: time.Now().Unix(),
-				Data:      json.RawMessage(`{"leftRoom":"` + msg.RoomID + `"}`),
-			})
-			select {
-			case c.Send <- resp:
-			default:
-			}
-		}
-
 	case "roomMessage":
 		if msg.RoomID != "" && len(msg.Data) > 0 {
-			hub.BroadcastToRoom(msg.RoomID, MessageTypeEvent, msg.Data, c.ID)
+			if err := hub.BroadcastToRoom(msg.RoomID, MessageTypeEvent, msg.Data, c.ID); err != nil {
+				log.Printf("[WebSocket] Failed to broadcast to room %s: %v", msg.RoomID, err)
+			}
 		}
 
 	case "ping":
 		// 响应 pong
-		response, _ := json.Marshal(&WebSocketMessage{
+		response, mErr := json.Marshal(&WebSocketMessage{
 			Type:      MessageTypeSystem,
 			Timestamp: time.Now().Unix(),
 			Data:      json.RawMessage(`{"pong":true,"time":"` + time.Now().Format(time.RFC3339) + `"}`),
 		})
-		select {
-		case c.Send <- response:
-		default:
+		if mErr == nil {
+			select {
+			case c.Send <- response:
+			default:
+			}
 		}
 
 	case "heartbeat":
 		// 客户端发起的心跳
-		response, _ := json.Marshal(&WebSocketMessage{
+		response, mErr := json.Marshal(&WebSocketMessage{
 			Type:      MessageTypeSystem,
 			Timestamp: time.Now().Unix(),
 			Data:      json.RawMessage(`{"heartbeat":"ack"}`),
 		})
-		select {
-		case c.Send <- response:
-		default:
+		if mErr == nil {
+			select {
+			case c.Send <- response:
+			default:
+			}
 		}
 
 	case "getPendingMessages":
 		// 获取待发送消息
 		pending := hub.GetPendingMessages(c.UserID)
-		data, _ := json.Marshal(map[string]interface{}{
+		data, dErr := json.Marshal(map[string]interface{}{
 			"pendingMessages": pending,
 		})
-		response, _ := json.Marshal(&WebSocketMessage{
-			Type:      MessageTypeSystem,
-			Timestamp: time.Now().Unix(),
-			Data:      data,
-		})
-		select {
-		case c.Send <- response:
-		default:
+		if dErr == nil {
+			response, mErr := json.Marshal(&WebSocketMessage{
+				Type:      MessageTypeSystem,
+				Timestamp: time.Now().Unix(),
+				Data:      data,
+			})
+			if mErr == nil {
+				select {
+				case c.Send <- response:
+				default:
+				}
+			}
 		}
 	}
 }
@@ -1285,7 +1326,9 @@ func (c *EnhancedClient) Close() {
 
 	c.mu.Lock()
 	if c.Connection != nil {
-		c.Connection.Close()
+		if err := c.Connection.Close(); err != nil {
+			log.Printf("[WebSocket] Error closing connection: %v", err)
+		}
 		c.Connection = nil
 	}
 	// Only close channel once
