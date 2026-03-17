@@ -93,12 +93,12 @@ func (fs *FileSystem) Remove(name string) error {
 	path := fs.resolvePath(name)
 
 	// 删除原始文件和压缩版本
-	os.Remove(path)
+	_ = os.Remove(path)
 
 	// 尝试删除各种压缩格式
 	exts := []string{".gz", ".zst", ".lz4"}
 	for _, ext := range exts {
-		os.Remove(path + ext)
+		_ = os.Remove(path + ext)
 	}
 
 	return nil
@@ -123,7 +123,9 @@ func (fs *FileSystem) Rename(oldName, newName string) error {
 	for _, ext := range exts {
 		oldCompressed := oldPath + ext
 		newCompressed := newPath + ext
-		_ = os.Rename(oldCompressed, newCompressed)
+		if err := os.Rename(oldCompressed, newCompressed); err != nil && !os.IsNotExist(err) {
+			// 忽略不存在的文件
+		}
 	}
 
 	return nil
@@ -219,7 +221,7 @@ func (w *CompressWriter) Close() error {
 
 	// 关闭临时文件
 	if err := w.file.Close(); err != nil {
-		os.Remove(w.bufferPath)
+		_ = os.Remove(w.bufferPath)
 		return err
 	}
 
@@ -237,7 +239,7 @@ func (w *CompressWriter) Close() error {
 	}
 
 	// 删除临时文件
-	os.Remove(w.bufferPath)
+	_ = os.Remove(w.bufferPath)
 
 	// 更新统计
 	if result != nil && !result.Skipped {
@@ -338,7 +340,10 @@ func (fs *FileSystem) GetCompressedFiles(dir string) ([]*CompressedFileInfo, err
 			originalSize = origInfo.Size()
 		}
 
-		relPath, _ := filepath.Rel(fs.rootPath, filePath)
+		relPath, err := filepath.Rel(fs.rootPath, filePath)
+		if err != nil {
+			relPath = filePath
+		}
 
 		files = append(files, &CompressedFileInfo{
 			Name:           filepath.Base(filePath),
