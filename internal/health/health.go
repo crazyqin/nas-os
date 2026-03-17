@@ -602,7 +602,7 @@ func (c *NetworkChecker) Check(ctx context.Context) *CheckResult {
 		result.Details["error"] = err.Error()
 		return result
 	}
-	conn.Close()
+	_ = conn.Close()
 
 	// 如果响应时间超过阈值的一半，标记为降级
 	if duration > c.timeout/2 {
@@ -762,7 +762,7 @@ func (c *TCPChecker) Check(ctx context.Context) *CheckResult {
 		result.Details["error"] = err.Error()
 		return result
 	}
-	conn.Close()
+	_ = conn.Close()
 
 	result.Status = StatusHealthy
 	result.Message = "TCP port is open and accepting connections"

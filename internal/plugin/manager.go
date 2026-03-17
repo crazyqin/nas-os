@@ -185,7 +185,7 @@ func (m *Manager) Install(source string) (*PluginState, error) {
 
 	// 检查依赖
 	if err := m.checkDependencies(inst.Info.Dependencies); err != nil {
-		m.loader.Unload(inst.Info.ID)
+		_ = m.loader.Unload(inst.Info.ID)
 		return nil, fmt.Errorf("依赖检查失败: %w", err)
 	}
 
@@ -447,9 +447,9 @@ func (m *Manager) Configure(pluginID string, config map[string]interface{}) erro
 	// 如果插件正在运行，重新加载配置
 	inst, exists := m.loader.GetInstance(pluginID)
 	if exists && inst.Running {
-		inst.Plugin.Stop()
-		inst.Plugin.Init(config)
-		inst.Plugin.Start()
+		_ = inst.Plugin.Stop()
+		_ = inst.Plugin.Init(config)
+		_ = inst.Plugin.Start()
 	}
 
 	return nil
@@ -556,17 +556,17 @@ func (m *Manager) downloadPlugin(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	// 复制内容
 	if _, err := io.Copy(out, resp.Body); err != nil {
-		os.Remove(tmpPath)
+		_ = os.Remove(tmpPath)
 		return "", err
 	}
 
 	// 重命名为最终文件
 	if err := os.Rename(tmpPath, outPath); err != nil {
-		os.Remove(tmpPath)
+		_ = os.Remove(tmpPath)
 		return "", err
 	}
 
@@ -685,13 +685,13 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer source.Close()
+	defer func() { _ = source.Close() }()
 
 	destination, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
-	defer destination.Close()
+	defer func() { _ = destination.Close() }()
 
 	_, err = io.Copy(destination, source)
 	return err

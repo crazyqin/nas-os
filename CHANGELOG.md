@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.201.0] - 2026-03-18
+
+### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.201.0
+- ✅ CHANGELOG.md 版本条目创建
+
+### 礼部 - 文档维护
+- ✅ VERSION 文件同步至 2.201.0
+- ✅ README.md 版本号同步
+- ✅ docs/api.yaml 版本号同步
+- ✅ internal/version/version.go 版本同步
+
+### Changed
+- Version bump to v2.201.0
+
 ## [v2.199.0] - 2026-03-18
 
 ### 六部协同开发

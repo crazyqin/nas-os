@@ -275,7 +275,7 @@ func (hr *HotReloader) reloadPlugin(pluginID, path string) {
 
 	// Unload from loader
 	if hr.manager.loader != nil {
-		hr.manager.loader.Unload(pluginID)
+		_ = hr.manager.loader.Unload(pluginID)
 	}
 
 	// Re-install/reload
@@ -340,7 +340,7 @@ func (hr *HotReloader) calculateChecksum(path string) string {
 	if info.IsDir() {
 		// Calculate checksum for directory contents
 		hash := sha256.New()
-		filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+		_ = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 			if err != nil {
 				return nil
 			}
@@ -349,8 +349,8 @@ func (hr *HotReloader) calculateChecksum(path string) string {
 				if err != nil {
 					return nil
 				}
-				defer f.Close()
-				io.Copy(hash, f)
+				defer func() { _ = f.Close() }()
+				_, _ = io.Copy(hash, f)
 			}
 			return nil
 		})
@@ -362,10 +362,10 @@ func (hr *HotReloader) calculateChecksum(path string) string {
 	if err != nil {
 		return ""
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	hash := sha256.New()
-	io.Copy(hash, f)
+	_, _ = io.Copy(hash, f)
 	return hex.EncodeToString(hash.Sum(nil))[:16]
 }
 

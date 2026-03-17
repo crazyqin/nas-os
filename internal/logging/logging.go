@@ -499,7 +499,7 @@ func (r *LogRotator) openFile() error {
 
 	info, err := file.Stat()
 	if err != nil {
-		file.Close()
+		_ = file.Close()
 		return err
 	}
 

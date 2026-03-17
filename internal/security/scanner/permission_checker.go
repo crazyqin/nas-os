@@ -126,7 +126,7 @@ func (pc *PermissionChecker) CheckPaths(paths []string) *PermissionCheckResult {
 	}
 
 	for _, path := range paths {
-		filepath.WalkDir(path, func(p string, d fs.DirEntry, err error) error {
+		_ = filepath.WalkDir(path, func(p string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return nil
 			}
@@ -290,7 +290,7 @@ func (pc *PermissionChecker) CheckSensitivePaths() *PermissionCheckResult {
 	}
 
 	for _, path := range pc.config.SensitivePaths {
-		filepath.WalkDir(path, func(p string, d fs.DirEntry, err error) error {
+		_ = filepath.WalkDir(path, func(p string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return nil
 			}
@@ -353,7 +353,7 @@ func (pc *PermissionChecker) CheckSSHSecurity() *PermissionCheckResult {
 		}
 
 		// 检查SSH密钥文件
-		filepath.WalkDir(sshPath, func(p string, d fs.DirEntry, err error) error {
+		_ = filepath.WalkDir(sshPath, func(p string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return nil
 			}

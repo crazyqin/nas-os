@@ -197,7 +197,7 @@ func (s *FilesystemScanner) scanPath(task *ScanTask, rootPath string) {
 		excludeMap[p] = true
 	}
 
-	filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil // 忽略错误，继续扫描
 		}
@@ -641,7 +641,7 @@ func (s *FilesystemScanner) addFinding(task *ScanTask, finding *FileFinding) {
 func (s *FilesystemScanner) countFiles(rootPath string, options ScanOptions) (int, error) {
 	count := 0
 
-	filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return nil
 		}
@@ -661,11 +661,11 @@ func (s *FilesystemScanner) calculateFileHash(path string, algorithm string) (st
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 统一使用 SHA256，忽略算法参数以确保安全性
 	hash := sha256.New()
-	io.Copy(hash, file)
+	_, _ = io.Copy(hash, file)
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
@@ -795,7 +795,7 @@ func generateFindingID() string {
 
 func parseFileMode(mode string) os.FileMode {
 	var m uint32
-	fmt.Sscanf(mode, "%o", &m)
+	_, _ = fmt.Sscanf(mode, "%o", &m)
 	return os.FileMode(m)
 }
 
