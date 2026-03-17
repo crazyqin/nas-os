@@ -173,22 +173,28 @@ func NewRateLimiterStore(config RateLimitConfig) *RateLimiterStore {
 // Get 获取或创建限流器
 func (s *RateLimiterStore) Get(key string) RateLimiter {
 	if v, ok := s.limiters.Load(key); ok {
-		return v.(RateLimiter)
+		if limiter, ok := v.(RateLimiter); ok {
+			return limiter
+		}
 	}
 
 	limiter := NewTokenBucketLimiter(s.config.Rate, s.config.Burst)
 	v, _ := s.limiters.LoadOrStore(key, limiter)
-	return v.(RateLimiter)
+	if stored, ok := v.(RateLimiter); ok {
+		return stored
+	}
+	return limiter
 }
 
 // Cleanup 清理过期限流器
 func (s *RateLimiterStore) Cleanup() {
 	s.limiters.Range(func(key, value interface{}) bool {
-		limiter := value.(RateLimiter)
-		stats := limiter.Stats()
-		// 如果长时间没有请求，删除限流器
-		if stats.Total == stats.Allowed && stats.Total > 0 {
-			s.limiters.Delete(key)
+		if limiter, ok := value.(RateLimiter); ok {
+			stats := limiter.Stats()
+			// 如果长时间没有请求，删除限流器
+			if stats.Total == stats.Allowed && stats.Total > 0 {
+				s.limiters.Delete(key)
+			}
 		}
 		return true
 	})
@@ -236,7 +242,9 @@ func RateLimitByUser(rate float64, burst int) gin.HandlerFunc {
 		KeyFunc: func(c *gin.Context) string {
 			// 优先使用用户 ID
 			if userID, exists := c.Get("user_id"); exists {
-				return userID.(string)
+				if uid, ok := userID.(string); ok {
+					return uid
+				}
 			}
 			// 否则使用 IP
 			return c.ClientIP()
@@ -299,12 +307,17 @@ type swLimiterStore struct {
 
 func (s *swLimiterStore) Get(key string) RateLimiter {
 	if v, ok := s.limiters.Load(key); ok {
-		return v.(RateLimiter)
+		if limiter, ok := v.(RateLimiter); ok {
+			return limiter
+		}
 	}
 
 	limiter := NewSlidingWindowLimiter(s.window, s.maxReqs)
 	v, _ := s.limiters.LoadOrStore(key, limiter)
-	return v.(RateLimiter)
+	if stored, ok := v.(RateLimiter); ok {
+		return stored
+	}
+	return limiter
 }
 
 // IPRateLimiter IP 级别限流器
@@ -484,11 +497,13 @@ func CombinedRateLimit(ipRate, userRate float64, ipBurst, userBurst int) gin.Han
 
 		// 再检查用户限流
 		if userID, exists := c.Get("user_id"); exists {
-			limiter := userLimiters.Get(userID.(string))
-			if !limiter.Allow() {
-				TooManyRequests(c, "用户请求过于频繁")
-				c.Abort()
-				return
+			if id, ok := userID.(string); ok {
+				limiter := userLimiters.Get(id)
+				if !limiter.Allow() {
+					TooManyRequests(c, "用户请求过于频繁")
+					c.Abort()
+					return
+				}
 			}
 		}
 

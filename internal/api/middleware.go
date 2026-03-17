@@ -325,14 +325,16 @@ func HealthCheck(path string) gin.HandlerFunc {
 // GetRequestID 从上下文获取请求ID
 func GetRequestID(c *gin.Context) string {
 	if id, exists := c.Get("request_id"); exists {
-		return id.(string)
+		if str, ok := id.(string); ok {
+			return str
+		}
 	}
 	return ""
 }
 
 // SetError 设置错误（用于中间件链）
 func SetError(c *gin.Context, err *APIError) {
-	c.Error(err)
+	_ = c.Error(err)
 }
 
 // IsAPIError 检查是否是API错误

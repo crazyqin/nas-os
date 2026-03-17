@@ -275,7 +275,7 @@ func NewRecoveryManager(stateDir string) (*RecoveryManager, error) {
 	}
 
 	// 加载现有状态
-	rm.loadStates()
+	_ = rm.loadStates()
 
 	return rm, nil
 }

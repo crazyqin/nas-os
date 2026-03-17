@@ -11,14 +11,14 @@ import (
 // InitValidator 初始化自定义验证器
 func InitValidator() {
 	// 注册自定义验证规则
-	validate.RegisterValidation("username", validateUsername)
-	validate.RegisterValidation("password", validatePassword)
-	validate.RegisterValidation("volume_name", validateVolumeName)
-	validate.RegisterValidation("container_name", validateContainerName)
-	validate.RegisterValidation("ip", validateIP)
-	validate.RegisterValidation("port", validatePort)
-	validate.RegisterValidation("hostname", validateHostname)
-	validate.RegisterValidation("path", validatePath)
+	_ = validate.RegisterValidation("username", validateUsername)
+	_ = validate.RegisterValidation("password", validatePassword)
+	_ = validate.RegisterValidation("volume_name", validateVolumeName)
+	_ = validate.RegisterValidation("container_name", validateContainerName)
+	_ = validate.RegisterValidation("ip", validateIP)
+	_ = validate.RegisterValidation("port", validatePort)
+	_ = validate.RegisterValidation("hostname", validateHostname)
+	_ = validate.RegisterValidation("path", validatePath)
 }
 
 // 自定义验证规则

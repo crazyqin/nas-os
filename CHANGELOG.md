@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.185.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 兵部 - 代码质量修复
+- ✅ 修复 errcheck 错误
+  - internal/api/middleware.go: 类型断言安全处理
+  - internal/api/rate_limit.go: 类型断言安全处理
+  - internal/api/validator.go: RegisterValidation 返回值处理
+  - internal/compress/manager.go: defer Close() 错误处理
+  - internal/compress/parallel.go: loadStates() 返回值处理
+
+#### 刑部 - 安全审计
+- ✅ 安全扫描完成
+- 高危: 153 (未变化)
+- 中危: 791 (未变化)
+- 低危: 701 (+123)
+
+#### 工部 - CI/CD 检查
+- ✅ GitHub Workflows 配置正常
+- ✅ Dockerfile 配置正常
+- ✅ go mod tidy 通过
+- ✅ go vet 通过
+
 ## [v2.183.0] - 2026-03-17
 
 ### 六部协同开发

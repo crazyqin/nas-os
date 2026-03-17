@@ -375,7 +375,9 @@ func (c *GzipCompressor) Compress(dst io.Writer, src io.Reader, level int) error
 	if err != nil {
 		return err
 	}
-	defer writer.Close()
+	defer func() {
+		_ = writer.Close()
+	}()
 
 	_, err = io.Copy(writer, src)
 	return err
@@ -386,7 +388,9 @@ func (c *GzipCompressor) Decompress(dst io.Writer, src io.Reader) error {
 	if err != nil {
 		return err
 	}
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close()
+	}()
 
 	_, err = io.Copy(dst, reader)
 	return err
