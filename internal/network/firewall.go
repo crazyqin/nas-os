@@ -80,7 +80,9 @@ func (m *Manager) AddFirewallRule(rule FirewallRule) error {
 	}
 
 	m.firewallRules[rule.Name] = &rule
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -113,7 +115,9 @@ func (m *Manager) UpdateFirewallRule(name string, rule FirewallRule) error {
 	}
 
 	m.firewallRules[rule.Name] = &rule
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -134,7 +138,9 @@ func (m *Manager) DeleteFirewallRule(name string) error {
 	}
 
 	delete(m.firewallRules, name)
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -162,7 +168,9 @@ func (m *Manager) EnableFirewallRule(name string, enabled bool) error {
 	}
 
 	rule.Enabled = enabled
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }

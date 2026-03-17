@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.212.0] - 2026-03-18
+
+### 六部协同开发 - CI/CD 修复
+
+#### 兵部 - 软件工程
+- ✅ 修复 internal/network/diagnostics.go errcheck 错误 (5处)
+- ✅ 修复 internal/network/firewall.go saveConfig 返回值检查 (4处)
+- ✅ 修复 internal/network/portforward.go errcheck 错误 (6处)
+- ✅ 修复 internal/nfs/config.go file.Close() 错误检查 (2处)
+- ✅ 修复 internal/security/scanner/score_engine.go os.WriteFile 错误检查
+- ✅ 修复 internal/security/scanner/vulnerability_scanner.go os.MkdirAll 错误检查 (2处)
+
+### Fixed
+- 修复 19 处 golangci-lint errcheck 错误
+- CI/CD golangci-lint 检查应该通过
+
+---
+
 ## [v2.211.0] - 2026-03-18
 
 ### 六部协同开发 - errcheck 错误修复

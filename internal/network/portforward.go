@@ -73,7 +73,9 @@ func (m *Manager) AddPortForward(rule PortForward) error {
 	}
 
 	m.portForwards[rule.Name] = &rule
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -106,7 +108,9 @@ func (m *Manager) UpdatePortForward(name string, rule PortForward) error {
 	}
 
 	m.portForwards[rule.Name] = &rule
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -127,7 +131,9 @@ func (m *Manager) DeletePortForward(name string) error {
 	}
 
 	delete(m.portForwards, name)
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -155,7 +161,9 @@ func (m *Manager) EnablePortForward(name string, enabled bool) error {
 	}
 
 	rule.Enabled = enabled
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -207,6 +215,7 @@ func (m *Manager) applyPortForwardRule(rule *PortForward) error {
 	}
 
 	// 确保 IP 转发已启用
+	// 忽略错误，IP转发可能已经启用
 	_ = exec.Command("sysctl", "-w", "net.ipv4.ip_forward=1").Run()
 
 	return nil
@@ -215,21 +224,21 @@ func (m *Manager) applyPortForwardRule(rule *PortForward) error {
 // removePortForwardRule 从 iptables 移除端口转发规则
 func (m *Manager) removePortForwardRule(rule *PortForward) {
 	// 删除 DNAT 规则
-	exec.Command("iptables", "-t", "nat", "-D", "PREROUTING",
+	_ = exec.Command("iptables", "-t", "nat", "-D", "PREROUTING",
 		"-p", rule.Protocol,
 		"--dport", fmt.Sprintf("%d", rule.ExternalPort),
 		"-j", "DNAT",
 		"--to-destination", fmt.Sprintf("%s:%d", rule.InternalIP, rule.InternalPort)).Run()
 
 	// 删除 SNAT 规则
-	exec.Command("iptables", "-t", "nat", "-D", "POSTROUTING",
+	_ = exec.Command("iptables", "-t", "nat", "-D", "POSTROUTING",
 		"-d", rule.InternalIP,
 		"-p", rule.Protocol,
 		"--dport", fmt.Sprintf("%d", rule.InternalPort),
 		"-j", "MASQUERADE").Run()
 
 	// 删除 FORWARD 规则
-	exec.Command("iptables", "-D", "FORWARD",
+	_ = exec.Command("iptables", "-D", "FORWARD",
 		"-p", rule.Protocol,
 		"-d", rule.InternalIP,
 		"--dport", fmt.Sprintf("%d", rule.InternalPort),

@@ -428,7 +428,7 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 			conn, err := net.DialTimeout("tcp", address, timeout)
 			if err == nil {
 				status.Open = true
-				conn.Close()
+				_ = conn.Close()
 				// 尝试识别服务
 				status.Service = m.identifyService(port)
 			}
@@ -437,14 +437,14 @@ func (m *Manager) PortScan(host string, ports []int, protocol string) (*PortScan
 			conn, err := net.DialTimeout("udp", address, timeout)
 			if err == nil {
 				// 发送空数据包
-				conn.Write([]byte{})
-				conn.SetReadDeadline(time.Now().Add(timeout))
+				_, _ = conn.Write([]byte{})
+				_ = conn.SetReadDeadline(time.Now().Add(timeout))
 				buf := make([]byte, 1024)
 				_, err := conn.Read(buf)
 				if err == nil {
 					status.Open = true
 				}
-				conn.Close()
+				_ = conn.Close()
 			}
 		}
 
@@ -634,7 +634,7 @@ func (m *Manager) CheckConnectivity() (*ConnectivityStatus, error) {
 	for _, host := range testHosts {
 		conn, err := net.DialTimeout("tcp", host, 2*time.Second)
 		if err == nil {
-			conn.Close()
+			_ = conn.Close()
 			status.Checks["internet"] = true
 			break
 		}
