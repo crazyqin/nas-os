@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.174.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.174.0
+- ✅ go vet 和 go build 检查通过
+
+#### 兵部 - 代码质量
+- 🔄 golangci-lint 修复进行中（196个问题）
+- ✅ 部分格式问题已修复
+
+#### 礼部 - 文档维护
+- ✅ CHANGELOG.md 更新
+
+#### 工部 - CI/CD配置
+- ✅ CI/CD 配置检查通过
+- ✅ .golangci.yml 配置正常
+
+#### 刑部 - 安全审计
+- ✅ 安全检查完成
+- ✅ 无硬编码敏感信息
+
+### Changed
+- Version bump to v2.174.0
+- Code format improvements
+
+---
+
 ## [v2.173.0] - 2026-03-17
 
 ### 六部协同开发

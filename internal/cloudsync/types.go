@@ -86,7 +86,7 @@ type ProviderConfig struct {
 	Region    string `json:"region,omitempty"`
 	Bucket    string `json:"bucket,omitempty"`
 	AccessKey string `json:"accessKey,omitempty"`
-	SecretKey string `json:"-"` // 安全：禁止序列化到 JSON
+	SecretKey string `json:"-"`                   // 安全：禁止序列化到 JSON
 	PathStyle bool   `json:"pathStyle,omitempty"` // 路径风格访问
 
 	// Google Drive 配置
