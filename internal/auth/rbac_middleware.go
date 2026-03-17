@@ -275,10 +275,26 @@ func (m *AuthMiddleware) RequirePermission(resource Resource, action Action) gin
 			groups = []string{}
 		}
 
+		// 类型断言检查
+		userIDStr, ok := userID.(string)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, APIResponse{
+				Code:    500,
+				Message: "用户ID类型错误",
+			})
+			c.Abort()
+			return
+		}
+
+		groupsList, ok := groups.([]string)
+		if !ok {
+			groupsList = []string{}
+		}
+
 		// 检查权限
 		hasPermission := m.rbacManager.CheckPermission(
-			userID.(string),
-			groups.([]string),
+			userIDStr,
+			groupsList,
 			resource,
 			action,
 		)
@@ -289,7 +305,7 @@ func (m *AuthMiddleware) RequirePermission(resource Resource, action Action) gin
 			if ip, ok := clientIP.(string); ok {
 				ipStr = ip
 			}
-			m.auditLogger.LogPermissionDenied(userID.(string), string(resource), string(action), ipStr)
+			m.auditLogger.LogPermissionDenied(userIDStr, string(resource), string(action), ipStr)
 			c.JSON(http.StatusForbidden, APIResponse{
 				Code:    403,
 				Message: "权限不足",
@@ -318,12 +334,25 @@ func (m *AuthMiddleware) RequirePermissionWithResource(resource Resource, action
 		groups, _ := c.Get("user_groups")
 		groupList := []string{}
 		if groups != nil {
-			groupList = groups.([]string)
+			if gl, ok := groups.([]string); ok {
+				groupList = gl
+			}
+		}
+
+		// 类型断言检查
+		userIDStr, ok := userID.(string)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, APIResponse{
+				Code:    500,
+				Message: "用户ID类型错误",
+			})
+			c.Abort()
+			return
 		}
 
 		resourceID := getResourceID(c)
 		hasPermission := m.rbacManager.CheckPermissionWithOwner(
-			userID.(string),
+			userIDStr,
 			groupList,
 			resource,
 			action,
@@ -336,7 +365,7 @@ func (m *AuthMiddleware) RequirePermissionWithResource(resource Resource, action
 			if ip, ok := clientIP.(string); ok {
 				ipStr = ip
 			}
-			m.auditLogger.LogPermissionDenied(userID.(string), string(resource), string(action), ipStr)
+			m.auditLogger.LogPermissionDenied(userIDStr, string(resource), string(action), ipStr)
 			c.JSON(http.StatusForbidden, APIResponse{
 				Code:    403,
 				Message: "权限不足",

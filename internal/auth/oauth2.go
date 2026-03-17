@@ -202,7 +202,7 @@ func (m *OAuth2Manager) ExchangeCode(ctx context.Context, providerName, code str
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -248,7 +248,7 @@ func (m *OAuth2Manager) GetUserInfo(ctx context.Context, providerName string, to
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, ErrOAuth2UserInfoFailed
@@ -288,7 +288,7 @@ func (m *OAuth2Manager) RefreshToken(ctx context.Context, providerName, refreshT
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, ErrOAuth2TokenInvalid
