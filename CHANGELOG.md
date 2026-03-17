@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.188.0] - 2026-03-17
+
+### Fixed
+- 修复 golangci-lint staticcheck 问题
+  - 替换已弃用的 mrand.Seed
+  - 简化 nil check 逻辑
+  - 优化 struct 转换
+  - 应用 De Morgan 定律简化
+  - 使用 tagged switch 替代多个 if
+- 修复 errcheck 错误
+- 修复 goimports 格式问题
+- 修复 revive 代码风格问题
+- 处理 unused 代码（删除或标注保留）
+
+### Changed
+- 代码质量改进，通过 golangci-lint 检查
+
 ## [v2.187.0] - 2026-03-17
 
 ### 修复

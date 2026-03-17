@@ -7,9 +7,10 @@ import (
 	"sync"
 	"time"
 
+	"nas-os/internal/api"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"nas-os/internal/api"
 )
 
 var upgrader = websocket.Upgrader{
