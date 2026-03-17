@@ -327,7 +327,7 @@ func (h *DiskEncryptionHandlers) removeKey(c *gin.Context) {
 	}
 
 	var slotID int
-	fmt.Sscanf(slot, "%d", &slotID)
+	_, _ = fmt.Sscanf(slot, "%d", &slotID)
 
 	if err := h.manager.RemoveKeySlot(devicePath, req.Passphrase, slotID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

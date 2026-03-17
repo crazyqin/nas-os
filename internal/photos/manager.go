@@ -214,7 +214,7 @@ func (m *Manager) savePersons() error {
 
 // scanPhotos 扫描照片库
 func (m *Manager) scanPhotos() {
-	filepath.Walk(m.photosDir, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(m.photosDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -398,7 +398,7 @@ func (m *Manager) generateThumbnails(srcPath string, photoID string) error {
 		}
 
 		err = jpeg.Encode(thumbFile, dstImg, &jpeg.Options{Quality: m.config.ThumbnailConfig.Quality})
-		thumbFile.Close()
+		_ = thumbFile.Close()
 		if err != nil {
 			continue
 		}
@@ -425,7 +425,7 @@ func (m *Manager) generateThumbnailsFFmpeg(srcPath string, photoID string) error
 			"-q:v", "2",
 			thumbPath)
 
-		cmd.Run()
+		_ = cmd.Run()
 	}
 
 	return nil
@@ -735,12 +735,12 @@ func (m *Manager) DeletePhoto(photoID string) error {
 
 	// 删除文件
 	photoPath := filepath.Join(m.photosDir, photo.Path)
-	os.Remove(photoPath)
+	_ = os.Remove(photoPath)
 
 	// 删除缩略图
-	filepath.Glob(filepath.Join(m.thumbsDir, fmt.Sprintf("%s_*.jpg", photoID)))
+	_, _ = filepath.Glob(filepath.Join(m.thumbsDir, fmt.Sprintf("%s_*.jpg", photoID)))
 	for _, thumbPath := range findFiles(filepath.Join(m.thumbsDir, fmt.Sprintf("%s_*.jpg", photoID))) {
-		os.Remove(thumbPath)
+		_ = os.Remove(thumbPath)
 	}
 
 	delete(m.photos, photoID)

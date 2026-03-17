@@ -260,7 +260,7 @@ func (m *SafeFileManager) SafeWrite(userPath string, data []byte) error {
 
 	// 原子重命名
 	if err := os.Rename(tmpPath, safePath); err != nil {
-		os.Remove(tmpPath) // 清理临时文件
+		_ = os.Remove(tmpPath) // 清理临时文件
 		logEntry.Success = false
 		logEntry.Error = err.Error()
 		return fmt.Errorf("cannot rename file: %w", err)
@@ -691,10 +691,10 @@ func (l *AccessLogger) writeToFile(log AccessLog) {
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
-	f.Write(data)
-	f.Write([]byte("\n"))
+	_, _ = f.Write(data)
+	_, _ = f.Write([]byte("\n"))
 }
 
 // GetLogs 获取日志

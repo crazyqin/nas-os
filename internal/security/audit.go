@@ -465,10 +465,10 @@ func (am *AuditManager) writeLogsToFile(filename string, logs interface{}) {
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
-	f.Write(data)
-	f.Write([]byte("\n"))
+	_, _ = f.Write(data)
+	_, _ = f.Write([]byte("\n"))
 }
 
 // LoadLogs 从文件加载日志

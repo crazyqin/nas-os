@@ -251,7 +251,7 @@ func (h *Handlers) uploadPhotoBatch(c *gin.Context) {
 		// 创建目标文件
 		dst, err := os.Create(photoPath)
 		if err != nil {
-			file.Close()
+			_ = file.Close()
 			failed = append(failed, fileHeader.Filename+" (保存失败)")
 			continue
 		}
@@ -1349,7 +1349,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 
 	// 计算缩略图空间
 	var thumbsUsed int64
-	filepath.Walk(h.manager.thumbsDir, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(h.manager.thumbsDir, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() {
 			thumbsUsed += info.Size()
 		}
@@ -1358,7 +1358,7 @@ func (h *Handlers) getStats(c *gin.Context) {
 
 	// 计算缓存空间
 	var cacheUsed int64
-	filepath.Walk(h.manager.cacheDir, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(h.manager.cacheDir, func(path string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() {
 			cacheUsed += info.Size()
 		}
