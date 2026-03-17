@@ -246,9 +246,10 @@ func (h *ResourceVisualizationHandlers) getDashboard(c *gin.Context) {
 	criticalCount := 0
 	warningCount := 0
 	for _, alert := range report.Alerts {
-		if alert.Severity == "critical" {
+		switch alert.Severity {
+		case "critical":
 			criticalCount++
-		} else if alert.Severity == "warning" {
+		case "warning":
 			warningCount++
 		}
 	}

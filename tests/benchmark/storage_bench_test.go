@@ -321,13 +321,14 @@ func BenchmarkConcurrentCacheWithFileIO(b *testing.B) {
 		i := 0
 		for pb.Next() {
 			key := fmt.Sprintf("key-%d", i%100)
-			if i%3 == 0 {
+			switch i % 3 {
+			case 0:
 				// 缓存写入
 				c.Set(key, filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i%50)))
-			} else if i%3 == 1 {
+			case 1:
 				// 缓存读取
 				_, _ = c.Get(key)
-			} else {
+			default:
 				// 文件读取
 				path := filepath.Join(tmpDir, fmt.Sprintf("file-%d.dat", i%50))
 				_, _ = os.ReadFile(path)
