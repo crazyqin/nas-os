@@ -131,7 +131,7 @@ func (api *ClusterAPI) JoinCluster(c *gin.Context) {
 	}
 
 	// 添加到集群
-	api.manager.UpdateNodeMetrics(req.NodeID, NodeMetrics{})
+	_ = api.manager.UpdateNodeMetrics(req.NodeID, NodeMetrics{})
 
 	c.JSON(http.StatusCreated, gin.H{
 		"success": true,
@@ -346,7 +346,7 @@ func (api *ClusterAPI) GetSyncStatus(c *gin.Context) {
 func (api *ClusterAPI) GetSyncJobs(c *gin.Context) {
 	limit := 20 // 默认返回 20 条
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	jobs := api.sync.GetJobs(limit)
@@ -464,7 +464,7 @@ func (api *ClusterAPI) ManualFailover(c *gin.Context) {
 func (api *ClusterAPI) GetFailoverHistory(c *gin.Context) {
 	limit := 20
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	events := api.ha.GetFailoverHistory(limit)

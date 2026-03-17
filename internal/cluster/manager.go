@@ -266,7 +266,7 @@ func (cm *ClusterManager) handleDiscoveredNode(entry *zeroconf.ServiceEntry) {
 	}
 
 	// 持久化状态
-	cm.saveState()
+	_ = cm.saveState()
 }
 
 // heartbeatWorker 心跳检测工作线程
@@ -321,7 +321,7 @@ func (cm *ClusterManager) sendHeartbeat(node *ClusterNode) {
 		cm.logger.Debug("发送心跳失败", zap.String("node", node.ID), zap.Error(err))
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode == http.StatusOK {
 		node.Heartbeat = time.Now()
@@ -374,7 +374,7 @@ func (cm *ClusterManager) checkNodeStatus() {
 	}
 
 	// 持久化状态
-	cm.saveState()
+	_ = cm.saveState()
 }
 
 // electNewMaster 选举新主节点
@@ -484,7 +484,7 @@ func (cm *ClusterManager) RemoveNode(nodeID string) error {
 	}
 
 	// 持久化状态
-	cm.saveState()
+	_ = cm.saveState()
 	return nil
 }
 

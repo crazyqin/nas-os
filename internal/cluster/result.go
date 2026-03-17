@@ -388,7 +388,7 @@ func (ra *ResultAggregator) finalizeAggregation(agg *AggregatedResult) {
 	}
 
 	// 持久化
-	ra.saveAggregations()
+	_ = ra.saveAggregations()
 }
 
 // aggregateResults 聚合结果数据
@@ -436,24 +436,35 @@ func (ra *ResultAggregator) mergeResults(results []json.RawMessage) (json.RawMes
 	return json.Marshal(merged)
 }
 
+// ResultStats 结果统计
+type ResultStats struct {
+	TotalAggregations int            `json:"total_aggregations"`
+	ByStatus          map[string]int `json:"by_status"`
+	TotalResults      int            `json:"total_results"`
+}
+
 // GetStats 获取统计
 func (ra *ResultAggregator) GetStats() map[string]interface{} {
 	ra.aggMutex.RLock()
 	defer ra.aggMutex.RUnlock()
 
-	stats := map[string]interface{}{
-		"total_aggregations": len(ra.aggregations),
-		"by_status":          make(map[string]int),
-		"total_results":      0,
+	stats := &ResultStats{
+		TotalAggregations: len(ra.aggregations),
+		ByStatus:          make(map[string]int),
+		TotalResults:      0,
 	}
 
-	byStatus := stats["by_status"].(map[string]int)
 	for _, agg := range ra.aggregations {
-		byStatus[agg.Status]++
-		stats["total_results"] = stats["total_results"].(int) + agg.TotalReceived
+		stats.ByStatus[agg.Status]++
+		stats.TotalResults += agg.TotalReceived
 	}
 
-	return stats
+	// 返回 map 格式以保持 API 兼容
+	return map[string]interface{}{
+		"total_aggregations": stats.TotalAggregations,
+		"by_status":          stats.ByStatus,
+		"total_results":      stats.TotalResults,
+	}
 }
 
 // CleanupOldResults 清理旧结果
@@ -473,7 +484,7 @@ func (ra *ResultAggregator) CleanupOldResults(maxAge time.Duration) int {
 
 	if count > 0 {
 		ra.logger.Info("清理旧聚合结果", zap.Int("count", count))
-		ra.saveAggregations()
+		_ = ra.saveAggregations()
 	}
 
 	return count
@@ -482,7 +493,7 @@ func (ra *ResultAggregator) CleanupOldResults(maxAge time.Duration) int {
 // Shutdown 关闭结果聚合器
 func (ra *ResultAggregator) Shutdown() error {
 	ra.cancel()
-	ra.saveAggregations()
+	_ = ra.saveAggregations()
 	ra.logger.Info("结果聚合器已关闭")
 	return nil
 }
