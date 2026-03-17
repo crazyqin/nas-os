@@ -2,12 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.198.0] - 2026-03-18
+## [v2.199.0] - 2026-03-18
 
 ### 六部协同开发
 
 #### 吏部 - 项目管理
-- ✅ 版本号更新至 v2.198.0
+- ✅ 版本号更新至 v2.199.0
 - ✅ CHANGELOG.md 版本条目创建
 
 #### 礼部 - 文档维护
@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 - ✅ Docker 镜像标签更新
 
 ### Changed
-- Version bump to v2.198.0
+- Version bump to v2.199.0
 
 ## [v2.197.0] - 2026-03-18
 
