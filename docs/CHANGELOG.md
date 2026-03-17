@@ -6,6 +6,26 @@
 
 ---
 
+## [2.176.0] - 2026-03-17
+
+### 🔄 版本同步 (礼部)
+
+- 版本号升级至 v2.176.0
+- README.md 版本信息更新
+- docs/README.md 文档版本同步
+- docs/README_EN.md 英文文档版本同步
+- docs/api.yaml API 文档版本同步
+- docs/swagger.json 版本同步
+- docs/MILESTONES.md 里程碑更新
+- CHANGELOG.md 更新
+
+#### 礼部 - 文档审查
+
+- ✅ 文档版本一致性检查
+- ✅ README 版本同步
+
+---
+
 ## [2.149.0] - 2026-03-17
 
 ### 🔄 版本同步 (礼部)
