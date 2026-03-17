@@ -19,6 +19,7 @@
 | [备份指南](backup-guide.md) | 系统备份与恢复操作 | 数据保护、灾备恢复 |
 | [审计指南](audit-guide.md) | 审计日志查看与分析 | 安全审计、操作追溯 |
 | [计费指南](billing-guide.md) | 计费系统配置与使用 | 成本管理、账单查看 |
+| [仪表板指南](dashboard-guide.md) | 自定义监控仪表板 | 系统监控、可视化 |
 | [分布式监控指南](distributed-monitoring-guide.md) | 多节点监控配置 | 集群监控、集中管理 |
 
 ---

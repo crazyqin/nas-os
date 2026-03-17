@@ -76,7 +76,14 @@
 | 📊 配额 | [QUOTA_AUTO_EXPAND_GUIDE.md](QUOTA_AUTO_EXPAND_GUIDE.md) | 配额自动扩展 |
 | 🎬 媒体服务 | [MEDIA_SERVICE_GUIDE.md](MEDIA_SERVICE_GUIDE.md) | 流媒体服务 |
 | ☁️ 云同步 | [CLOUDSYNC.md](CLOUDSYNC.md) | 多云同步配置 |
-| 📁 文件标签 | [docs/FILE_TAGS.md](FILE_TAGS.md) | 文件标签系统 |
+| 💾 备份恢复 | [BACKUP_GUIDE.md](BACKUP_GUIDE.md) | 备份策略与恢复操作 |
+| 🐳 Docker | [DOCKER_GUIDE.md](DOCKER_GUIDE.md) | Docker 容器管理 |
+| 🔒 安全审计 | [SECURITY-AUDIT-2026-03-14.md](SECURITY-AUDIT-2026-03-14.md) | 安全审计报告 |
+| 🌐 LDAP/AD | [LDAP-INTEGRATION.md](LDAP-INTEGRATION.md) | 企业目录集成 |
+| 📝 审计日志 | [user-guide/audit-guide.md](user-guide/audit-guide.md) | 审计日志查看与分析 |
+| 💰 计费系统 | [user-guide/billing-guide.md](user-guide/billing-guide.md) | 成本管理、账单查看 |
+| 📊 仪表板 | [user-guide/dashboard-guide.md](user-guide/dashboard-guide.md) | 自定义监控仪表板 |
+| 📡 分布式监控 | [user-guide/distributed-monitoring-guide.md](user-guide/distributed-monitoring-guide.md) | 多节点监控配置 |
 
 ---
 
