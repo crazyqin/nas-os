@@ -555,7 +555,11 @@ func (se *ScoreEngine) GenerateScoreReport(score *SecurityScore) map[string]inte
 		catScore := score.CategoryScores[cat.ID]
 		catWeight := score.CategoryWeights[cat.ID]
 
-		report["categories"] = append(report["categories"].([]map[string]interface{}), map[string]interface{}{
+		categories, ok := report["categories"].([]map[string]interface{})
+		if !ok {
+			categories = []map[string]interface{}{}
+		}
+		report["categories"] = append(categories, map[string]interface{}{
 			"id":          cat.ID,
 			"name":        cat.Name,
 			"description": cat.Description,

@@ -231,7 +231,9 @@ func (w *Watcher) Stop() {
 	w.mu.Unlock()
 
 	close(w.stopChan)
-	w.watcher.Close()
+	if err := w.watcher.Close(); err != nil {
+		w.logger.Error("关闭文件监控器失败", zap.Error(err))
+	}
 
 	w.logger.Info("文件监控器停止")
 }

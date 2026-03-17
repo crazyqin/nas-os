@@ -79,7 +79,7 @@ func (h *SFTPHandler) Fileread(r *Request) (io.ReadCloser, error) {
 	// 获取文件大小用于日志
 	info, err := file.Stat()
 	if err != nil {
-		file.Close()
+		_ = file.Close()
 		return nil, err
 	}
 

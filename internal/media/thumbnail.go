@@ -251,7 +251,7 @@ func (tg *ThumbnailGenerator) createSprite(thumbs []string, outputPath string, c
 	if err != nil {
 		return nil, err
 	}
-	defer firstThumb.Close()
+	defer func() { _ = firstThumb.Close() }()
 
 	img, _, err := image.Decode(firstThumb)
 	if err != nil {
@@ -275,7 +275,7 @@ func (tg *ThumbnailGenerator) createSprite(thumbs []string, outputPath string, c
 	if err := os.WriteFile(listFile, []byte(listContent.String()), 0644); err != nil {
 		return nil, err
 	}
-	defer os.Remove(listFile)
+	defer func() { _ = os.Remove(listFile) }()
 
 	// 使用 ffmpeg 的 tile 滤镜
 	args := []string{
@@ -309,7 +309,7 @@ func (tg *ThumbnailGenerator) GenerateFromImage(inputPath, outputPath string, co
 	if err != nil {
 		return fmt.Errorf("打开图片失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 解码图片
 	img, format, err := image.Decode(file)
@@ -345,7 +345,7 @@ func (tg *ThumbnailGenerator) GenerateFromImage(inputPath, outputPath string, co
 	if err != nil {
 		return fmt.Errorf("创建输出文件失败: %w", err)
 	}
-	defer outFile.Close()
+	defer func() { _ = outFile.Close() }()
 
 	// 编码输出
 	outputFormat := config.Format
@@ -504,7 +504,7 @@ func (tg *ThumbnailGenerator) GetThumbnailInfo(path string) (*ThumbnailInfo, err
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	img, format, err := image.DecodeConfig(file)
 	if err != nil {

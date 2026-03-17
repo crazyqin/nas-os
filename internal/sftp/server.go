@@ -197,13 +197,13 @@ func (s *Server) Stop() error {
 
 	// 关闭所有连接
 	for _, conn := range s.connections {
-		conn.Close()
+		_ = conn.Close()
 	}
 	s.connections = make(map[string]*ssh.ServerConn)
 
 	// 关闭监听器
 	if s.listener != nil {
-		s.listener.Close()
+		_ = s.listener.Close()
 		s.listener = nil
 	}
 
@@ -298,12 +298,12 @@ func (s *Server) stopInternal() {
 	s.cancel()
 
 	for _, conn := range s.connections {
-		conn.Close()
+		_ = conn.Close()
 	}
 	s.connections = make(map[string]*ssh.ServerConn)
 
 	if s.listener != nil {
-		s.listener.Close()
+		_ = s.listener.Close()
 		s.listener = nil
 	}
 
@@ -332,7 +332,7 @@ func (s *Server) acceptLoop() {
 			select {
 			case s.connSem <- struct{}{}:
 			default:
-				conn.Close()
+				_ = conn.Close()
 				continue
 			}
 		}

@@ -277,7 +277,10 @@ func (s *Scheduler) AddTask(task *Task) error {
 
 	s.mu.Lock()
 	s.tasks[task.ID] = task
-	s.executor.RegisterTask(task)
+	if err := s.executor.RegisterTask(task); err != nil {
+		s.mu.Unlock()
+		return fmt.Errorf("注册任务到执行器失败: %w", err)
+	}
 	s.mu.Unlock()
 
 	// 如果是 Cron 任务，安排调度
