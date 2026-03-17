@@ -3,8 +3,8 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
-# v2.160.0 更新（工部优化）：
-# - CI/CD 版本注释同步更新
+# v2.172.0 更新（工部优化）：
+# - 修复 Go 版本号（1.26 → 1.24，Go 1.26 尚未发布）
 #
 # v2.135.0 更新（工部优化）：
 # - 更新版本标签至 v2.135.0
@@ -99,7 +99,7 @@ on:
           - arm/v7
 
 env:
-  GO_VERSION: '1.26'
+  GO_VERSION: '1.24'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   # Docker Hub 配置
