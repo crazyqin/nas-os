@@ -6,10 +6,10 @@ description: NAS-OS - Home NAS Management System with comprehensive storage, bac
 type: application
 
 # Chart version
-version: 1.0.0
+version: 1.0.1
 
 # Application version
-appVersion: "2.214.0"
+appVersion: "2.215.0"
 
 # Kubernetes version compatibility
 kubeVersion: ">=1.25.0-0"

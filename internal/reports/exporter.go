@@ -169,7 +169,9 @@ func (e *Exporter) exportCSVBytes(report *GeneratedReport, options ExportOptions
 
 	// 写入标题（可选）
 	if options.Title != "" {
-		writer.Write([]string{options.Title})
+		if err := writer.Write([]string{options.Title}); err != nil {
+			return nil, err
+		}
 	}
 
 	// 写入表头
@@ -178,7 +180,9 @@ func (e *Exporter) exportCSVBytes(report *GeneratedReport, options ExportOptions
 		for key := range report.Data[0] {
 			headers = append(headers, key)
 		}
-		writer.Write(headers)
+		if err := writer.Write(headers); err != nil {
+			return nil, err
+		}
 	}
 
 	// 写入数据
@@ -188,7 +192,9 @@ func (e *Exporter) exportCSVBytes(report *GeneratedReport, options ExportOptions
 			val := row[key]
 			values = append(values, e.formatValue(val))
 		}
-		writer.Write(values)
+		if err := writer.Write(values); err != nil {
+			return nil, err
+		}
 	}
 
 	writer.Flush()

@@ -284,7 +284,7 @@ func (h *APIHandler) HandleTrends(w http.ResponseWriter, r *http.Request) {
 	endStr := r.URL.Query().Get("end")
 
 	start, _ := time.Parse(time.RFC3339, startStr) // 忽略解析错误，使用默认值
-	end, _ := time.Parse(time.RFC3339, endStr)      // 忽略解析错误，使用默认值
+	end, _ := time.Parse(time.RFC3339, endStr)     // 忽略解析错误，使用默认值
 
 	if start.IsZero() {
 		start = time.Now().AddDate(0, 0, -30)

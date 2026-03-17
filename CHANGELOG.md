@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.215.0] - 2026-03-18
+
+### 代码质量改进
+
+- 🛠️ 修复 staticcheck 问题 (QF1008, QF1005, QF1003, S1016)
+- 🛠️ 修复 errcheck 错误 (50处)
+- 🛠️ 修复 revive 代码风格问题 (50处)
+- 🛠️ 修复 gofmt/goimports 格式问题
+- 🧹 移除未使用的 validatePath 函数
+
+---
+
 ## [v2.214.0] - 2026-03-18
 
 ### 安全加固 (P0/P1)

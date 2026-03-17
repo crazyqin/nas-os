@@ -89,7 +89,7 @@ var shareStore = struct {
 // Manager 文件管理器
 type Manager struct {
 	config     PreviewConfig
-	baseDir    string           // 基础目录，用于路径安全验证
+	baseDir    string // 基础目录，用于路径安全验证
 	imageTypes map[string]bool
 	videoTypes map[string]bool
 	audioTypes map[string]bool
@@ -177,11 +177,6 @@ func sanitizePath(baseDir, userPath string) (string, error) {
 	}
 
 	return cleaned, nil
-}
-
-// validatePath 验证单个路径是否在允许范围内
-func (m *Manager) validatePath(userPath string) (string, error) {
-	return sanitizePath(m.baseDir, userPath)
 }
 
 // GetFileType 获取文件类型
