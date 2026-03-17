@@ -1044,7 +1044,9 @@ func (e *CostAnalysisEngine) DeleteBudget(id string) error {
 	}
 
 	delete(e.budgets, id)
-	e.save()
+	if err := e.save(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -1156,9 +1158,10 @@ func (e *CostAnalysisEngine) generateBudgetTracking(budget *BudgetConfig) *Budge
 		// 根据分类名称获取实际支出
 		var spend float64
 		if stats != nil {
-			if cat.Name == "storage" {
+			switch cat.Name {
+			case "storage":
 				spend = stats.StorageRevenue
-			} else if cat.Name == "bandwidth" {
+			case "bandwidth":
 				spend = stats.BandwidthRevenue
 			}
 		}
@@ -1409,7 +1412,8 @@ func (e *CostAnalysisEngine) generateUtilizationRecommendations(report *Resource
 func (e *CostAnalysisEngine) generateBudgetRecommendations(tracking *BudgetTrackingReport) []CostRecommendation {
 	recs := make([]CostRecommendation, 0)
 
-	if tracking.Status == "over_budget" {
+	switch tracking.Status {
+	case "over_budget":
 		recs = append(recs, CostRecommendation{
 			ID:          generateReportID(),
 			Type:        "budget",
@@ -1419,7 +1423,7 @@ func (e *CostAnalysisEngine) generateBudgetRecommendations(tracking *BudgetTrack
 			Impact:      "财务",
 			Action:      "立即审核支出并采取控制措施",
 		})
-	} else if tracking.Status == "at_risk" {
+	case "at_risk":
 		recs = append(recs, CostRecommendation{
 			ID:          generateReportID(),
 			Type:        "budget",
@@ -1470,7 +1474,7 @@ func (e *CostAnalysisEngine) RecordTrendData(data CostTrend) {
 	defer e.mu.Unlock()
 
 	e.trendData = append(e.trendData, data)
-	e.save()
+	_ = e.save() // 保存失败不影响主流程
 }
 
 // GetAlerts 获取成本告警

@@ -2601,7 +2601,7 @@ func (p *ResourcePredictor) PredictCapacityFullDate(history []CapacityHistory, t
 	// 查找首次超过容量的日期
 	for _, result := range prediction.EnsemblePredictions {
 		if uint64(result.PredictedValue) >= totalCapacity {
-			daysRemaining := int(result.PredictedDate.Sub(time.Now()).Hours() / 24)
+			daysRemaining := int(time.Until(result.PredictedDate).Hours() / 24)
 			return &result.PredictedDate, daysRemaining
 		}
 	}
@@ -2609,7 +2609,7 @@ func (p *ResourcePredictor) PredictCapacityFullDate(history []CapacityHistory, t
 	// 检查最佳模型结果
 	for _, result := range prediction.ModelResults[prediction.BestModel] {
 		if uint64(result.PredictedValue) >= totalCapacity {
-			daysRemaining := int(result.PredictedDate.Sub(time.Now()).Hours() / 24)
+			daysRemaining := int(time.Until(result.PredictedDate).Hours() / 24)
 			return &result.PredictedDate, daysRemaining
 		}
 	}

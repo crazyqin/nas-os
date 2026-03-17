@@ -194,6 +194,7 @@ type NetworkSummaryData struct {
 }
 
 // DashboardState represents the runtime state of a dashboard.
+//
 //nolint:revive // DashboardState is intentional for clarity in API responses
 type DashboardState struct {
 	DashboardID string                 `json:"dashboardId"`
@@ -204,6 +205,7 @@ type DashboardState struct {
 }
 
 // DashboardTemplate represents a reusable dashboard template.
+//
 //nolint:revive // DashboardTemplate is intentional for clarity in API responses
 type DashboardTemplate struct {
 	ID          string          `json:"id"`
@@ -224,6 +226,7 @@ type WidgetTemplateConfig struct {
 }
 
 // DashboardEvent represents a dashboard-related event.
+//
 //nolint:revive // DashboardEvent is intentional for clarity in API responses
 type DashboardEvent struct {
 	Type        string      `json:"type"`

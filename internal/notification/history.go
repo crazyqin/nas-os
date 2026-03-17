@@ -338,9 +338,10 @@ func (hm *HistoryManager) calculateDailyStats(startTime, endTime *time.Time) []D
 		}
 
 		dailyMap[date].Count++
-		if r.Status == StatusSent {
+		switch r.Status {
+		case StatusSent:
 			dailyMap[date].Success++
-		} else if r.Status == StatusFailed {
+		case StatusFailed:
 			dailyMap[date].Failed++
 		}
 	}

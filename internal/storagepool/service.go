@@ -192,9 +192,10 @@ func (m *Monitor) calculateHealthScore(pool *Pool) int {
 
 	// 检查设备健康
 	for _, d := range pool.Devices {
-		if d.Status == DeviceStatusFaulted {
+		switch d.Status {
+		case DeviceStatusFaulted:
 			score -= 30
-		} else if d.Status == DeviceStatusOffline {
+		case DeviceStatusOffline:
 			score -= 20
 		}
 

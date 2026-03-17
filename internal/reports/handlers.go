@@ -655,4 +655,3 @@ func (h *Handlers) generateQuickReport(c *gin.Context) {
 
 	api.OK(c, report)
 }
-

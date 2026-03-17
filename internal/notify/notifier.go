@@ -307,7 +307,7 @@ func (w *WebhookNotifier) Send(notif *Notification) error {
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Webhook 返回状态码：%d", resp.StatusCode)
+		return fmt.Errorf("webhook 返回状态码：%d", resp.StatusCode)
 	}
 
 	return nil

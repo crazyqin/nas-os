@@ -338,7 +338,7 @@ func TestCalculateHealthGrade(t *testing.T) {
 	for _, tt := range tests {
 		// Note: This tests the expected behavior
 		// Actual implementation may vary
-		t.Run("", func(t *testing.T) {
+		t.Run("", func(_ *testing.T) {
 			_ = tt.score // Just verify test case exists
 		})
 	}
@@ -379,7 +379,7 @@ func TestSMARTMonitor_GetHistory(t *testing.T) {
 	}
 }
 
-func TestSMARTMonitor_Stop(t *testing.T) {
+func TestSMARTMonitor_Stop(_ *testing.T) {
 	config := &MonitorConfig{EnableAutoScan: false, EnablePrediction: false}
 	monitor := NewSMARTMonitor(config)
 
@@ -588,7 +588,7 @@ func TestSMARTMonitor_SetNotifyFunc(t *testing.T) {
 	defer monitor.Stop()
 
 	called := false
-	monitor.SetNotifyFunc(func(alert *SMARTAlert) {
+	monitor.SetNotifyFunc(func(_ *SMARTAlert) {
 		called = true
 	})
 

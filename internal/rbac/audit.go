@@ -316,7 +316,7 @@ func (am *AuditedManager) SetUserRole(operatorID, operatorName, userID, username
 
 // GrantPermission 授予权限（带审计）
 func (am *AuditedManager) GrantPermissionWithAudit(operatorID, operatorName, userID, username, permission string) error {
-	err := am.Manager.GrantPermission(userID, username, permission)
+	err := am.GrantPermission(userID, username, permission)
 	if err != nil {
 		return err
 	}
@@ -327,7 +327,7 @@ func (am *AuditedManager) GrantPermissionWithAudit(operatorID, operatorName, use
 
 // RevokePermission 撤销权限（带审计）
 func (am *AuditedManager) RevokePermissionWithAudit(operatorID, operatorName, userID, permission string) error {
-	err := am.Manager.RevokePermission(userID, permission)
+	err := am.RevokePermission(userID, permission)
 	if err != nil {
 		return err
 	}
@@ -338,7 +338,7 @@ func (am *AuditedManager) RevokePermissionWithAudit(operatorID, operatorName, us
 
 // CreatePolicy 创建策略（带审计）
 func (am *AuditedManager) CreatePolicyWithAudit(operatorID, operatorName, name, description string, effect PolicyEffect, principals, resources, actions []string, priority int) (*Policy, error) {
-	policy, err := am.Manager.CreatePolicy(name, description, effect, principals, resources, actions, priority)
+	policy, err := am.CreatePolicy(name, description, effect, principals, resources, actions, priority)
 	if err != nil {
 		return nil, err
 	}

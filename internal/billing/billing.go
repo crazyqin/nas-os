@@ -1195,9 +1195,10 @@ func (bm *BillingManager) GetBillingStats(start, end time.Time) (*BillingStats, 
 			userStats.OtherAmount += inv.OtherAmount
 			userStats.DiscountAmount += inv.DiscountAmount
 			userStats.InvoiceCount++
-			if inv.Status == InvoiceStatusPaid {
+			switch inv.Status {
+			case InvoiceStatusPaid:
 				userStats.PaidAmount += inv.TotalAmount
-			} else if inv.Status == InvoiceStatusIssued || inv.Status == InvoiceStatusSent {
+			case InvoiceStatusIssued, InvoiceStatusSent:
 				userStats.OutstandingAmount += inv.TotalAmount
 			}
 		}

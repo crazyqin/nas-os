@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -141,11 +142,14 @@ func (g *ReportGenerator) generateMarkdown(report *TestReport) error {
 			md += "| 测试名称 | 状态 | 耗时 |\n"
 			md += "|----------|------|------|\n"
 			for _, test := range module.Tests {
-				status := "✅"
-				if test.Status == "failed" {
+				var status string
+				switch test.Status {
+				case "failed":
 					status = "❌"
-				} else if test.Status == "skipped" {
+				case "skipped":
 					status = "⏭️"
+				default:
+					status = "✅"
 				}
 				md += fmt.Sprintf("| %s | %s | %s |\n", test.Name, status, test.Duration)
 			}
@@ -291,7 +295,7 @@ func (g *ReportGenerator) generateHTML(report *TestReport) error {
 	}
 	defer func() {
 		if cerr := f.Close(); cerr != nil {
-			// 文件关闭错误，通常可以忽略或记录日志
+			log.Printf("关闭文件失败: %v", cerr)
 		}
 	}()
 

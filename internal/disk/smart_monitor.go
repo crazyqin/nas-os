@@ -51,6 +51,7 @@ var DefaultMonitorConfig = &MonitorConfig{
 }
 
 // DiskInfo holds information about a disk.
+//
 //nolint:revive // DiskInfo is intentional for clarity in API responses
 type DiskInfo struct {
 	Device       string        `json:"device"`
@@ -68,6 +69,7 @@ type DiskInfo struct {
 }
 
 // DiskStatus represents the health status of a disk.
+//
 //nolint:revive // DiskStatus is intentional for clarity in API responses
 type DiskStatus string
 
@@ -188,12 +190,15 @@ type AlertRule struct {
 	LastTriggered map[string]time.Time `json:"-"`
 }
 
-// AlertSeverity 告警严重程度
+// AlertSeverity represents the severity level of an alert.
 type AlertSeverity string
 
 const (
-	AlertInfo     AlertSeverity = "info"
-	AlertWarning  AlertSeverity = "warning"
+	// AlertInfo is an informational alert.
+	AlertInfo AlertSeverity = "info"
+	// AlertWarning is a warning-level alert.
+	AlertWarning AlertSeverity = "warning"
+	// AlertCritical is a critical-level alert.
 	AlertCritical AlertSeverity = "critical"
 )
 
@@ -452,7 +457,7 @@ func (m *SMARTMonitor) getSMARTData(device string) (*SMARTData, error) {
 }
 
 // parseSMARTOutput 解析 smartctl 输出
-func (m *SMARTMonitor) parseSMARTOutput(output string, device string) *SMARTData {
+func (m *SMARTMonitor) parseSMARTOutput(output string, _ string) *SMARTData {
 	data := &SMARTData{
 		OverallHealth: "UNKNOWN",
 		AllAttributes: make(map[string]*SMARTAttribute),
@@ -987,24 +992,27 @@ func (m *SMARTMonitor) getGradeAndStatus(score int) (string, DiskStatus) {
 }
 
 // generateRecommendations 生成建议
-func (m *SMARTMonitor) generateRecommendations(disk *DiskInfo, components *ScoreComponents) []string {
+func (m *SMARTMonitor) generateRecommendations(_ *DiskInfo, components *ScoreComponents) []string {
 	var recommendations []string
 
-	if components.Temperature.Status == "critical" {
+	switch components.Temperature.Status {
+	case "critical":
 		recommendations = append(recommendations, "立即检查机箱散热，添加风扇或改善通风")
-	} else if components.Temperature.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "建议检查散热系统，确保风道通畅")
 	}
 
-	if components.Reallocation.Status == "critical" {
+	switch components.Reallocation.Status {
+	case "critical":
 		recommendations = append(recommendations, "重映射扇区过多，建议立即备份数据并更换磁盘")
-	} else if components.Reallocation.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "存在重映射扇区，建议增加备份频率")
 	}
 
-	if components.Pending.Status == "critical" {
+	switch components.Pending.Status {
+	case "critical":
 		recommendations = append(recommendations, "待映射扇区过多，数据可能已损坏，立即检查重要文件")
-	} else if components.Pending.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "存在待映射扇区，建议运行磁盘检查")
 	}
 
@@ -1523,7 +1531,7 @@ func (m *SMARTMonitor) ImportJSON(data []byte) error {
 }
 
 // RunHealthCheck 执行健康检查（实现 health.HealthChecker 接口）
-func (m *SMARTMonitor) RunHealthCheck(ctx context.Context) map[string]interface{} {
+func (m *SMARTMonitor) RunHealthCheck(_ context.Context) map[string]interface{} {
 	m.CheckAllDisks()
 
 	result := make(map[string]interface{})

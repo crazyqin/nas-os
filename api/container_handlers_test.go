@@ -17,10 +17,7 @@ func init() {
 func TestContainerHandlers_Struct(t *testing.T) {
 	// Test that ContainerHandlers struct exists and has expected fields
 	h := &ContainerHandlers{}
-
-	if h == nil {
-		t.Fatal("ContainerHandlers should not be nil")
-	}
+	_ = h // 使用变量避免编译错误
 }
 
 // ========== RegisterRoutes 测试 ==========

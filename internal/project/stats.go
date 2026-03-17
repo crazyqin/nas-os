@@ -415,14 +415,15 @@ func (sm *StatsManager) calculateMilestoneStats(stats *ProjectStatsExtended, pro
 		stats.MilestoneStats.Total++
 		stats.MilestoneStats.ByStatus[ms.Status]++
 
-		if ms.Status == "completed" {
+		switch ms.Status {
+		case "completed":
 			stats.MilestoneStats.Completed++
 			if ms.CompletedAt != nil {
 				days := ms.CompletedAt.Sub(ms.CreatedAt).Hours() / 24
 				totalCompletionDays += days
 				completionCount++
 			}
-		} else if ms.Status == "active" {
+		case "active":
 			stats.MilestoneStats.Active++
 		}
 

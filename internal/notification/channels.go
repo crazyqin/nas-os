@@ -613,7 +613,7 @@ func (s *TelegramSender) Send(config *ChannelConfig, notification *Notification)
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		return fmt.Errorf("Telegram 返回错误状态码: %d", resp.StatusCode)
+		return fmt.Errorf("telegram 返回错误状态码: %d", resp.StatusCode)
 	}
 
 	return nil
@@ -719,7 +719,7 @@ func parseWebhookConfig(config map[string]interface{}) (*WebhookChannelConfig, e
 	}
 
 	if webhookConfig.URL == "" {
-		return nil, fmt.Errorf("Webhook URL 不能为空")
+		return nil, fmt.Errorf("webhook URL 不能为空")
 	}
 
 	return &webhookConfig, nil

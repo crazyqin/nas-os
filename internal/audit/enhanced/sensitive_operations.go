@@ -49,7 +49,10 @@ func DefaultSensitiveOpConfig() SensitiveOpConfig {
 // NewSensitiveOperationManager 创建敏感操作管理器
 func NewSensitiveOperationManager() *SensitiveOperationManager {
 	storageDir := "/var/log/nas-os/audit/sensitive"
-	os.MkdirAll(storageDir, 0750)
+	if err := os.MkdirAll(storageDir, 0750); err != nil {
+		// 创建目录失败时使用当前目录
+		storageDir = "."
+	}
 
 	m := &SensitiveOperationManager{
 		operations: make([]*SensitiveOperation, 0),
@@ -774,7 +777,9 @@ func (m *SensitiveOperationManager) Save() error {
 	if err != nil {
 		return err
 	}
-	os.WriteFile(filepath.Join(m.storageDir, "operations.json"), opsData, 0640)
+	if err := os.WriteFile(filepath.Join(m.storageDir, "operations.json"), opsData, 0640); err != nil {
+		return err
+	}
 
 	// 保存事件
 	today := time.Now().Format("2006-01-02")
@@ -782,7 +787,9 @@ func (m *SensitiveOperationManager) Save() error {
 	if err != nil {
 		return err
 	}
-	os.WriteFile(filepath.Join(m.storageDir, "events-"+today+".log"), eventsData, 0640)
+	if err := os.WriteFile(filepath.Join(m.storageDir, "events-"+today+".log"), eventsData, 0640); err != nil {
+		return err
+	}
 
 	return nil
 }

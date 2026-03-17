@@ -227,7 +227,8 @@ func parseVideoInfo(data []byte) (*VideoInfo, error) {
 		}
 		info.Streams = append(info.Streams, stream)
 
-		if s.Type == "video" {
+		switch s.Type {
+		case "video":
 			info.VideoCodec = s.Codec
 			info.Width = s.Width
 			info.Height = s.Height
@@ -242,7 +243,7 @@ func parseVideoInfo(data []byte) (*VideoInfo, error) {
 					}
 				}
 			}
-		} else if s.Type == "audio" {
+		case "audio":
 			info.AudioCodec = s.Codec
 		}
 	}

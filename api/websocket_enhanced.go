@@ -588,9 +588,7 @@ func (h *EnhancedWebSocketHub) registerClient(client *EnhancedClient) {
 // unregisterClient 注销客户端
 func (h *EnhancedWebSocketHub) unregisterClient(client *EnhancedClient) {
 	h.mu.Lock()
-	if _, exists := h.clients[client.ID]; exists {
-		delete(h.clients, client.ID)
-	}
+	delete(h.clients, client.ID)
 	h.mu.Unlock()
 
 	client.setState(StateDisconnected)
