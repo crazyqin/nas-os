@@ -244,14 +244,18 @@ func TestScoreHistory(t *testing.T) {
 	config := DefaultScoreEngineConfig()
 	engine := NewScoreEngine(config)
 
+	// 获取当前历史记录数量
+	initialCount := len(engine.GetHistory(1000))
+
 	// 计算几次评分
 	for i := 0; i < 3; i++ {
 		engine.CalculateScore(nil, nil, nil)
 	}
 
-	history := engine.GetHistory(10)
-	if len(history) != 3 {
-		t.Errorf("expected 3 history entries, got %d", len(history))
+	history := engine.GetHistory(1000)
+	// 验证历史记录增加了 3 条
+	if len(history) != initialCount+3 {
+		t.Errorf("expected %d history entries, got %d", initialCount+3, len(history))
 	}
 }
 
