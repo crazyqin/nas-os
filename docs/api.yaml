@@ -32,7 +32,11 @@ info:
     | 500 | 服务器内部错误 |
     | 503 | 服务暂时不可用 |
     
+<<<<<<< HEAD
   version: 2.201.0
+=======
+  version: 2.200.0
+>>>>>>> origin/master
   contact:
     name: NAS-OS 团队
     email: support@nas-os.io
