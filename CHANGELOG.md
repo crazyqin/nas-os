@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.197.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.197.0
+- ✅ CHANGELOG.md 版本条目创建
+
+#### 兵部 - 代码质量
+- ✅ go vet 检查通过，0 错误
+- ✅ gofmt 格式检查通过
+- ✅ go build 编译成功
+- 📊 代码统计：394,533 行、97 包、247 测试文件
+
+#### 刑部 - 安全审计
+- ✅ gosec 安全扫描完成
+- 📊 问题统计：高危 151、中危 791、低危 498（总计 1,440）
+- 📈 趋势：较 v2.148.0 减少 12.5%
+
+#### 工部 - CI/CD 检查
+- ✅ 5 个 workflow 配置完善
+- ✅ Dockerfile 配置正常（minimal/full/dev）
+- ✅ Makefile 构建目标完整
+- ✅ Go 1.25 依赖版本较新
+
+#### 礼部 - 文档维护
+- ✅ README.md 版本号同步（7 处）
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步（6 处）
+- ✅ docs/api.yaml、swagger.yaml 版本号同步
+- ✅ internal/version/version.go 版本号同步
+
+#### 户部 - 项目统计
+- ✅ Go 代码：394,533 行
+- ✅ 源文件：454 个
+- ✅ 测试文件：247 个
+- ✅ 测试覆盖率：42.7%
+- ✅ 外部依赖：244 个模块
+- ✅ 内部模块：97 个
+
 ## [v2.196.0] - 2026-03-18
 
 ### 六部协同开发
