@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.160.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.160.0
+
+#### 兵部 - 代码质量
+- ✅ 代码质量检查通过
+
+#### 礼部 - 文档维护
+- ✅ CHANGELOG.md 已更新
+- ✅ README.md 版本更新
+- ✅ docs/api.yaml 版本同步
+
+#### 工部 - DevOps
+- ✅ CI/CD 配置正常
+
+#### 刑部 - 安全审计
+- ✅ 安全扫描通过
+
+#### 户部 - 资源统计
+- ✅ 资源统计正常
+
+### Changed
+- Version bump to v2.160.0
+
+---
+
 ## [v2.157.0] - 2026-03-17
 
 ### 改进

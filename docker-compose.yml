@@ -4,7 +4,7 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
-# v2.157.0 更新（工部优化）：
+# v2.160.0 更新（工部优化）：
 # - 版本标签同步更新
 #
 # v2.135.0 更新：
@@ -33,7 +33,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.157.0"
+      - "nas-os.version=2.160.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -68,7 +68,7 @@ services:
     environment:
       - NAS_OS_CONFIG=/etc/nas-os/config.yaml
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
-      - NAS_OS_VERSION=2.157.0
+      - NAS_OS_VERSION=2.160.0
       # 时区设置
       - TZ=Asia/Shanghai
       # 日志配置

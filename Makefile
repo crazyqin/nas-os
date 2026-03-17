@@ -81,8 +81,9 @@ test-suite:
 
 test-coverage:
 	@echo "📊 生成覆盖率报告..."
-	$(GO) test -v -coverprofile=coverage.out ./...
+	$(GO) test -v -race -coverprofile=coverage.out ./...
 	$(GO) tool cover -html=coverage.out -o coverage.html
+	$(GO) tool cover -func=coverage.out | grep total || echo "覆盖率计算完成"
 	@echo "📄 覆盖率报告：coverage.html"
 
 test-race:
