@@ -748,10 +748,10 @@ func (p *GoogleDriveProvider) getFolderID(ctx context.Context, path string) (str
 		}
 
 		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			return "", err
 		}
-		resp.Body.Close()
+		_ = resp.Body.Close()
 
 		if len(result.Files) > 0 {
 			parentID = result.Files[0].ID
@@ -898,7 +898,7 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 		if json.NewDecoder(searchResp.Body).Decode(&searchResult) == nil && len(searchResult.Files) > 0 {
 			existingID = searchResult.Files[0].ID
 		}
-		searchResp.Body.Close()
+		_ = searchResp.Body.Close()
 	}
 
 	var uploadReq *http.Request
@@ -938,7 +938,9 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 			return fmt.Errorf("写入文件内容失败: %w", err)
 		}
 
-		writer.Close()
+		if err := writer.Close(); err != nil {
+			return fmt.Errorf("关闭 multipart writer 失败: %w", err)
+		}
 
 		uploadReq, err = http.NewRequestWithContext(ctx, "POST", uploadURL, &body)
 		uploadReq.Header.Set("Content-Type", writer.FormDataContentType())
@@ -977,7 +979,7 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 	if err != nil {
 		return fmt.Errorf("初始化上传失败: %w", err)
 	}
-	initResp.Body.Close()
+	_ = initResp.Body.Close()
 
 	if initResp.StatusCode != http.StatusOK {
 		return fmt.Errorf("初始化上传失败: %s", initResp.Status)
@@ -1506,10 +1508,10 @@ func (p *OneDriveProvider) Upload(ctx context.Context, localPath, remotePath str
 		UploadURL string `json:"uploadUrl"`
 	}
 	if err := json.NewDecoder(sessionResp.Body).Decode(&session); err != nil {
-		sessionResp.Body.Close()
+		_ = sessionResp.Body.Close()
 		return fmt.Errorf("解析会话响应失败: %w", err)
 	}
-	sessionResp.Body.Close()
+	_ = sessionResp.Body.Close()
 
 	// 分片上传
 	chunkSize := int64(4 * 1024 * 1024) // 4MB chunks
@@ -1537,7 +1539,7 @@ func (p *OneDriveProvider) Upload(ctx context.Context, localPath, remotePath str
 		if err != nil {
 			return fmt.Errorf("上传分片失败: %w", err)
 		}
-		resp.Body.Close()
+		_ = resp.Body.Close()
 
 		if resp.StatusCode >= 400 {
 			return fmt.Errorf("上传分片失败: %s", resp.Status)
