@@ -354,7 +354,7 @@ func NewQuotaOptimizer(dataDir string, quotaProvider QuotaDataProvider, historyP
 	}
 
 	// 加载已有数据
-	optimizer.load()
+	_ = optimizer.load() // 初始化时忽略加载错误，使用空数据
 
 	return optimizer
 }
@@ -365,7 +365,7 @@ func (o *QuotaOptimizer) load() error {
 	suggestionPath := filepath.Join(o.dataDir, "suggestions.json")
 	if data, err := os.ReadFile(suggestionPath); err == nil {
 		var suggestions []*OptimizationSuggestion
-		if err := json.Unmarshal(data, &suggestions); err == nil {
+		if unmarshalErr := json.Unmarshal(data, &suggestions); unmarshalErr == nil {
 			for _, s := range suggestions {
 				o.suggestions[s.ID] = s
 			}
@@ -376,7 +376,7 @@ func (o *QuotaOptimizer) load() error {
 	violationPath := filepath.Join(o.dataDir, "violations.json")
 	if data, err := os.ReadFile(violationPath); err == nil {
 		var violations []*ViolationRecord
-		if err := json.Unmarshal(data, &violations); err == nil {
+		if unmarshalErr := json.Unmarshal(data, &violations); unmarshalErr == nil {
 			for _, v := range violations {
 				o.violations[v.ID] = v
 			}
@@ -386,7 +386,8 @@ func (o *QuotaOptimizer) load() error {
 	// 加载调整历史
 	adjustPath := filepath.Join(o.dataDir, "adjust_history.json")
 	if data, err := os.ReadFile(adjustPath); err == nil {
-		json.Unmarshal(data, &o.adjustHistory)
+		// 忽略错误，使用空历史
+		_ = json.Unmarshal(data, &o.adjustHistory)
 	}
 
 	return nil
@@ -404,7 +405,9 @@ func (o *QuotaOptimizer) save() error {
 		suggestions = append(suggestions, s)
 	}
 	if data, err := json.MarshalIndent(suggestions, "", "  "); err == nil {
-		os.WriteFile(filepath.Join(o.dataDir, "suggestions.json"), data, 0644)
+		if writeErr := os.WriteFile(filepath.Join(o.dataDir, "suggestions.json"), data, 0644); writeErr != nil {
+			return writeErr
+		}
 	}
 
 	// 保存违规记录
@@ -413,12 +416,16 @@ func (o *QuotaOptimizer) save() error {
 		violations = append(violations, v)
 	}
 	if data, err := json.MarshalIndent(violations, "", "  "); err == nil {
-		os.WriteFile(filepath.Join(o.dataDir, "violations.json"), data, 0644)
+		if writeErr := os.WriteFile(filepath.Join(o.dataDir, "violations.json"), data, 0644); writeErr != nil {
+			return writeErr
+		}
 	}
 
 	// 保存调整历史
 	if data, err := json.MarshalIndent(o.adjustHistory, "", "  "); err == nil {
-		os.WriteFile(filepath.Join(o.dataDir, "adjust_history.json"), data, 0644)
+		if writeErr := os.WriteFile(filepath.Join(o.dataDir, "adjust_history.json"), data, 0644); writeErr != nil {
+			return writeErr
+		}
 	}
 
 	return nil
@@ -449,7 +456,9 @@ func (o *QuotaOptimizer) GenerateAdjustmentSuggestions() ([]OptimizationSuggesti
 	}
 
 	o.lastAnalysis = time.Now()
-	o.save()
+	if saveErr := o.save(); saveErr != nil {
+		return nil, fmt.Errorf("保存数据失败: %w", saveErr)
+	}
 
 	return suggestions, nil
 }
@@ -471,7 +480,7 @@ func (o *QuotaOptimizer) analyzeQuotaForAdjustment(usage *QuotaUsageInfo) *Optim
 	if utilization > cfg.MaxUtilization {
 		// 使用率过高，建议扩展
 		// 计算建议的新限制
-		growthRate, _ := o.historyProvider.GetGrowthRate(usage.QuotaID)
+		growthRate, _ := o.historyProvider.GetGrowthRate(usage.QuotaID) // 忽略错误，使用默认值 0
 		buffer := uint64(float64(usage.UsedBytes) * cfg.GrowthBufferPercent)
 
 		// 新限制 = 当前使用 + 增长缓冲 + 预测增长
@@ -552,7 +561,10 @@ func (o *QuotaOptimizer) PredictUsage(quotaID string) (*UsagePrediction, error) 
 	}
 
 	// 获取当前用量
-	usages, _ := o.quotaProvider.GetAllUsage()
+	usages, err := o.quotaProvider.GetAllUsage()
+	if err != nil {
+		return nil, fmt.Errorf("获取配额使用信息失败: %w", err)
+	}
 	var currentUsage *QuotaUsageInfo
 	for _, u := range usages {
 		if u.QuotaID == quotaID {
@@ -815,7 +827,7 @@ func (o *QuotaOptimizer) DetectViolations() ([]ViolationRecord, error) {
 		}
 
 		// 检查预测违规（使用简单的增长率判断，避免死锁）
-		growthRate, _ := o.historyProvider.GetGrowthRate(usage.QuotaID)
+		growthRate, _ := o.historyProvider.GetGrowthRate(usage.QuotaID) // 忽略错误，使用默认值 0
 		if growthRate > 0 {
 			remaining := float64(usage.HardLimit - usage.UsedBytes)
 			daysToFull := int(remaining / growthRate)
@@ -842,7 +854,9 @@ func (o *QuotaOptimizer) DetectViolations() ([]ViolationRecord, error) {
 		}
 	}
 
-	o.save()
+	if saveErr := o.save(); saveErr != nil {
+		return nil, fmt.Errorf("保存数据失败: %w", saveErr)
+	}
 
 	return violations, nil
 }
@@ -867,7 +881,9 @@ func (o *QuotaOptimizer) ResolveViolation(violationID, resolvedBy string) error 
 		By:        resolvedBy,
 	})
 
-	o.save()
+	if saveErr := o.save(); saveErr != nil {
+		return fmt.Errorf("保存数据失败: %w", saveErr)
+	}
 
 	return nil
 }
@@ -877,10 +893,13 @@ func (o *QuotaOptimizer) ResolveViolation(violationID, resolvedBy string) error 
 // GenerateOptimizationReport 生成优化报告
 func (o *QuotaOptimizer) GenerateOptimizationReport() (*OptimizationReport, error) {
 	// 先获取需要的数据（不持有锁）
-	usages, _ := o.quotaProvider.GetAllUsage()
+	usages, err := o.quotaProvider.GetAllUsage()
+	if err != nil {
+		return nil, fmt.Errorf("获取配额使用信息失败: %w", err)
+	}
 
 	// 生成预测（需要独立获取锁）
-	predictions, _ := o.PredictAllUsage()
+	predictions, _ := o.PredictAllUsage() // 忽略错误，使用已获取的数据
 
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -995,7 +1014,7 @@ func (o *QuotaOptimizer) calculateCostImpact(report *OptimizationReport) CostImp
 	}
 
 	// 计算当前成本
-	usages, _ := o.quotaProvider.GetAllUsage()
+	usages, _ := o.quotaProvider.GetAllUsage() // 忽略错误，使用空列表计算
 	var totalBytes uint64
 	for _, u := range usages {
 		totalBytes += u.HardLimit
@@ -1095,7 +1114,9 @@ func (o *QuotaOptimizer) ApplySuggestion(suggestionID string) error {
 		AdjustedAt:    now,
 	})
 
-	o.save()
+	if saveErr := o.save(); saveErr != nil {
+		return fmt.Errorf("保存数据失败: %w", saveErr)
+	}
 
 	return nil
 }
@@ -1111,7 +1132,9 @@ func (o *QuotaOptimizer) DismissSuggestion(suggestionID string) error {
 	}
 
 	suggestion.Status = "dismissed"
-	o.save()
+	if saveErr := o.save(); saveErr != nil {
+		return fmt.Errorf("保存数据失败: %w", saveErr)
+	}
 
 	return nil
 }
