@@ -203,35 +203,49 @@ func (ss *StorageSync) UpdateRule(ruleID string, updates map[string]interface{})
 	for key, value := range updates {
 		switch key {
 		case "name":
-			rule.Name = value.(string)
+			if v, ok := value.(string); ok {
+				rule.Name = v
+			}
 		case "source_path":
-			rule.SourcePath = value.(string)
+			if v, ok := value.(string); ok {
+				rule.SourcePath = v
+			}
 		case "target_path":
-			rule.TargetPath = value.(string)
+			if v, ok := value.(string); ok {
+				rule.TargetPath = v
+			}
 		case "target_nodes":
-			rule.TargetNodes = value.([]string)
+			if v, ok := value.([]string); ok {
+				rule.TargetNodes = v
+			}
 		case "sync_mode":
-			rule.SyncMode = value.(string)
+			if v, ok := value.(string); ok {
+				rule.SyncMode = v
+			}
 		case "schedule":
-			rule.Schedule = value.(string)
-			// 重新调度
-			if rule.Enabled {
-				ss.unscheduleRule(rule)
-				if rule.Schedule != "" {
-					if err := ss.scheduleRule(rule); err != nil {
-						return err
+			if v, ok := value.(string); ok {
+				rule.Schedule = v
+				// 重新调度
+				if rule.Enabled {
+					ss.unscheduleRule(rule)
+					if rule.Schedule != "" {
+						if err := ss.scheduleRule(rule); err != nil {
+							return err
+						}
 					}
 				}
 			}
 		case "enabled":
-			wasEnabled := rule.Enabled
-			rule.Enabled = value.(bool)
-			if rule.Enabled && !wasEnabled && rule.Schedule != "" {
-				if err := ss.scheduleRule(rule); err != nil {
-					return err
+			if v, ok := value.(bool); ok {
+				wasEnabled := rule.Enabled
+				rule.Enabled = v
+				if rule.Enabled && !wasEnabled && rule.Schedule != "" {
+					if err := ss.scheduleRule(rule); err != nil {
+						return err
+					}
+				} else if !rule.Enabled {
+					ss.unscheduleRule(rule)
 				}
-			} else if !rule.Enabled {
-				ss.unscheduleRule(rule)
 			}
 		}
 	}
@@ -308,7 +322,7 @@ func (ss *StorageSync) scheduleRule(rule *SyncRule) error {
 
 	rule.NextSync = schedule.Next(time.Now())
 
-	ss.cron.AddFunc(rule.Schedule, func() {
+	_, _ = ss.cron.AddFunc(rule.Schedule, func() {
 		ss.executeSync(rule)
 	})
 

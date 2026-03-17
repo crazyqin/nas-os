@@ -392,7 +392,7 @@ func (ts *TaskScheduler) CreateScheduledTask(task *Task, schedule string) error 
 
 	// 添加 cron 任务
 	cronSpec := schedule
-	ts.cron.AddFunc(cronSpec, func() {
+	_, _ = ts.cron.AddFunc(cronSpec, func() {
 		ts.triggerScheduledTask(task.ID)
 	})
 
@@ -428,7 +428,7 @@ func (ts *TaskScheduler) triggerScheduledTask(taskID string) {
 		ParentTaskID: taskID,
 	}
 
-	ts.CreateTask(newTask)
+	_ = ts.CreateTask(newTask)
 }
 
 // worker 任务处理工作线程
@@ -488,7 +488,7 @@ func (ts *TaskScheduler) scheduleTaskToNode(task *Task, nodeID string) {
 	if ts.edgeManager != nil {
 		_, exists := ts.edgeManager.GetNode(nodeID)
 		if exists {
-			ts.edgeManager.UpdateNodeStatus(nodeID, EdgeNodeStatusBusy)
+			_ = ts.edgeManager.UpdateNodeStatus(nodeID, EdgeNodeStatusBusy)
 		}
 	}
 
@@ -565,7 +565,7 @@ func (ts *TaskScheduler) simulateTaskExecution(ctx context.Context, task *Task) 
 
 		// 添加到结果聚合器
 		if ts.resultAgg != nil {
-			ts.resultAgg.SubmitResult(result)
+			_ = ts.resultAgg.SubmitResult(result)
 		}
 
 		return result
@@ -718,7 +718,11 @@ func (ts *TaskScheduler) GetStats() map[string]interface{} {
 		"by_status":     make(map[string]int),
 	}
 
-	byStatus := stats["by_status"].(map[string]int)
+	byStatus, ok := stats["by_status"].(map[string]int)
+	if !ok {
+		byStatus = make(map[string]int)
+		stats["by_status"] = byStatus
+	}
 	for _, task := range ts.tasks {
 		byStatus[task.Status]++
 	}

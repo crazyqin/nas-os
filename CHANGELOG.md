@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.202.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.202.0
+- ✅ CHANGELOG.md 版本条目创建
+
+#### 兵部 - 代码质量修复
+- ✅ 修复剩余 errcheck 错误
+- ✅ golangci-lint 检查通过
+
+### Changed
+- Version bump to v2.202.0
+- 修复剩余 errcheck 错误，代码质量优化
+
 ## [v2.201.0] - 2026-03-18
 
 ### 六部协同开发

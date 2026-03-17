@@ -125,7 +125,9 @@ func (sm *SubtitleManager) ParseSubtitle(path string) (*Subtitle, error) {
 	if err != nil {
 		return nil, fmt.Errorf("打开字幕文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	// 根据扩展名选择解析器
 	ext := strings.ToLower(filepath.Ext(path))
