@@ -44,6 +44,16 @@ linters:
       - path: docs/swagger/docs\.go
         linters:
           - all
+      # fmt.Print/Fprintln/Fprintf 输出函数允许忽略错误
+      - path: cmd/nasctl/
+        linters:
+          - errcheck
+        text: "fmt.Fprint|fmt.Fprintln|fmt.Fprintf|w.Flush"
+      # cobra flag 获取允许忽略错误（已定义默认值）
+      - path: cmd/nasctl/
+        linters:
+          - errcheck
+        text: "GetString|GetBool|GetInt|GetStringSlice|Scanln"
 
 formatters:
   enable:
@@ -58,14 +68,3 @@ formatters:
 issues:
   max-issues-per-linter: 50
   max-same-issues: 10
-  exclude-rules:
-    # fmt.Print/Fprintln/Fprintf 输出函数允许忽略错误
-    - path: cmd/nasctl/
-      linters:
-        - errcheck
-      text: "fmt.Fprint|fmt.Fprintln|fmt.Fprintf|w.Flush"
-    # cobra flag 获取允许忽略错误（已定义默认值）
-    - path: cmd/nasctl/
-      linters:
-        - errcheck
-      text: "GetString|GetBool|GetInt|GetStringSlice|Scanln"

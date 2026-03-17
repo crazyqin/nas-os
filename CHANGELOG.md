@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.162.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.162.0
+- ✅ 推送 v2.161.0 安全修复
+
+#### 兵部 - 代码质量
+- 🔄 测试运行中...
+
+#### 礼部 - 文档维护
+- ✅ CHANGELOG.md 已更新
+- ✅ README.md 版本同步
+
+#### 工部 - DevOps
+- 🔧 修复 golangci-lint v2 配置 (迁移 exclude-rules 到 linters.exclusions.rules)
+
+#### 刑部 - 安全审计
+- 继承 v2.161.0 安全修复
+
+#### 户部 - 资源统计
+- 📊 待统计...
+
+### Changed
+- Version bump to v2.162.0
+- Fix golangci-lint v2 config (move exclude-rules to linters.exclusions.rules)
+
+---
+
 ## [v2.161.0] - 2026-03-17
 
 ### 六部协同开发

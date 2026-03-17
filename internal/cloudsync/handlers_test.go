@@ -49,13 +49,11 @@ func TestCloudSyncHandlers_CreateProvider(t *testing.T) {
 	router, m, tmpDir := setupCloudSyncTestRouter(t)
 	defer os.RemoveAll(tmpDir)
 
+	// 使用 WebDAV 类型测试，因为它不需要敏感字段（SecretKey 有 json:"-" 标签）
 	body := map[string]interface{}{
-		"name":      "test-provider",
-		"type":      "aws_s3",
-		"accessKey": "test-key",
-		"secretKey": "test-secret",
-		"bucket":    "test-bucket",
-		"region":    "us-east-1",
+		"name":     "test-provider",
+		"type":     "webdav",
+		"endpoint": "https://webdav.example.com",
 	}
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
@@ -175,24 +173,19 @@ func TestCloudSyncHandlers_UpdateProvider(t *testing.T) {
 	router, m, tmpDir := setupCloudSyncTestRouter(t)
 	defer os.RemoveAll(tmpDir)
 
-	// 先创建提供商
+	// 先创建提供商（使用 WebDAV，不需要敏感字段）
 	provider, err := m.CreateProvider(ProviderConfig{
-		Name:      "test-provider",
-		Type:      ProviderAWSS3,
-		AccessKey: "test-key",
-		SecretKey: "test-secret",
-		Bucket:    "test-bucket",
+		Name:     "test-provider",
+		Type:     ProviderWebDAV,
+		Endpoint: "https://webdav.example.com",
 	})
 	require.NoError(t, err)
 
 	// 更新提供商
 	body := ProviderConfig{
-		Name:      "updated-provider",
-		Type:      ProviderAWSS3,
-		AccessKey: "new-key",
-		SecretKey: "new-secret",
-		Bucket:    "new-bucket",
-		Region:    "ap-northeast-1",
+		Name:     "updated-provider",
+		Type:     ProviderWebDAV,
+		Endpoint: "https://updated.webdav.example.com",
 	}
 	bodyBytes, err := json.Marshal(body)
 	if err != nil {
