@@ -6,6 +6,20 @@
 
 ---
 
+## [2.200.0] - 2026-03-18
+
+### 🔄 版本同步 (礼部)
+
+- 版本号升级至 v2.200.0
+- docs/README.md 文档版本同步
+- docs/README_EN.md 英文文档版本同步
+- docs/api.yaml API 文档版本同步
+- docs/swagger.yaml 版本同步
+- docs/swagger.json 版本同步
+- CHANGELOG.md 更新
+
+---
+
 ## [2.176.0] - 2026-03-17
 
 ### 🔄 版本同步 (礼部)
