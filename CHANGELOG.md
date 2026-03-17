@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.157.0] - 2026-03-17
+
+### 改进
+- 版本迭代更新
+- 六部协同开发流程优化
+
+---
+
 ## [v2.156.0] - 2026-03-17
 
 ### 六部协同开发
