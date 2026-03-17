@@ -388,8 +388,8 @@ func (m *HistoryManager) persist() {
 		return
 	}
 
-	os.MkdirAll(filepath.Dir(m.config.PersistPath), 0755)
-	os.WriteFile(m.config.PersistPath, jsonData, 0600)
+	_ = os.MkdirAll(filepath.Dir(m.config.PersistPath), 0755)
+	_ = os.WriteFile(m.config.PersistPath, jsonData, 0600)
 }
 
 // Load 加载历史数据

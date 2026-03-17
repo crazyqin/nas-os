@@ -466,7 +466,7 @@ func (h *Handlers) getAlerts(c *gin.Context) {
 func (h *Handlers) getAlertHistory(c *gin.Context) {
 	limit := 100
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	alerts := h.manager.GetAlertHistory(limit)
@@ -654,7 +654,7 @@ func (h *Handlers) getPolicyTasks(c *gin.Context) {
 func (h *Handlers) listTasks(c *gin.Context) {
 	limit := 50
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	tasks := h.cleanup.ListTasks(limit)
@@ -1423,7 +1423,7 @@ func (h *Handlers) getQuotaAlerts(c *gin.Context) {
 	if includeHistory && len(alerts) == 0 {
 		limit := 100
 		if l := c.Query("limit"); l != "" {
-			fmt.Sscanf(l, "%d", &limit)
+			_, _ = fmt.Sscanf(l, "%d", &limit)
 		}
 		alerts = h.manager.GetAlertHistory(limit)
 	}
