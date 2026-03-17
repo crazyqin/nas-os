@@ -526,8 +526,14 @@ func parseSize(s string) uint64 {
 	var size float64
 	var unit string
 
-	if _, err := fmt.Sscanf(s, "%f%s", &size, &unit); err != nil {
+	n, err := fmt.Sscanf(s, "%f%s", &size, &unit)
+	if err != nil && n == 0 {
 		return 0
+	}
+
+	// 纯数字（没有单位）
+	if n == 1 {
+		return uint64(size)
 	}
 
 	switch strings.ToUpper(unit) {

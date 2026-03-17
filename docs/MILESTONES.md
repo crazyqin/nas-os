@@ -4,6 +4,41 @@
 
 ---
 
+## v2.178.0 - 2026-03-17 ✅
+
+### 吏部项目管理
+- 版本号更新至 v2.178.0
+- VERSION 文件同步
+- internal/version/version.go 版本号同步
+- MILESTONES.md 里程碑更新
+
+### 发布状态
+- 版本号同步：VERSION, version.go, README.md, docs/* ✅
+- 编译验证通过 ✅
+
+---
+
+## v2.177.0 - 2026-03-17 ✅
+
+### 吏部项目管理
+- 版本号更新至 v2.177.0
+- VERSION 文件同步
+- internal/version/version.go 版本号同步
+- MILESTONES.md 里程碑更新
+- CHANGELOG.md 更新
+
+### 兵部代码质量
+- 修复 errcheck 错误（container, ldap, plugin 等模块）
+- 修复 Close() 返回值未检查问题
+- 修复 strconv.Atoi 返回值未检查问题
+
+### 发布状态
+- 版本号同步：VERSION, version.go, README.md, docs/* ✅
+- 文档完善 ✅
+- go vet / go build 通过 ✅
+
+---
+
 ## v2.176.0 - 2026-03-17 ✅
 
 ### 吏部项目管理
