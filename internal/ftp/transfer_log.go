@@ -123,12 +123,8 @@ func (l *TransferLogger) Log(log *TransferLog) {
 	if l.logFile != nil {
 		data, err := json.Marshal(log)
 		if err == nil {
-			if _, writeErr := l.logFile.Write(data); writeErr != nil {
-				// 写入失败，忽略
-			}
-			if _, writeErr := l.logFile.Write([]byte("\n")); writeErr != nil {
-				// 写入失败，忽略
-			}
+			_, _ = l.logFile.Write(data)
+			_, _ = l.logFile.Write([]byte("\n"))
 		}
 
 		// 检查文件大小并轮转

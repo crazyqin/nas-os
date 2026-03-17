@@ -297,9 +297,9 @@ func (p *AliyunSMSProvider) encodeParams(params map[string]string) string {
 // percentEncode URL 编码（阿里云特殊规则）
 func percentEncode(s string) string {
 	s = url.QueryEscape(s)
-	s = strings.Replace(s, "+", "%20", -1)
-	s = strings.Replace(s, "*", "%2A", -1)
-	s = strings.Replace(s, "%7E", "~", -1)
+	s = strings.ReplaceAll(s, "+", "%20")
+	s = strings.ReplaceAll(s, "*", "%2A")
+	s = strings.ReplaceAll(s, "%7E", "~")
 	return s
 }
 

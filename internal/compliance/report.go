@@ -166,7 +166,7 @@ func (g *ReportGenerator) GetLatestReport() (*ComplianceReport, error) {
 // ExportToText 导出为文本格式
 func (g *ReportGenerator) ExportToText(report *ComplianceReport) string {
 	var text string
-	text += fmt.Sprintf("=== NAS-OS 合规检查报告 ===\n")
+	text += "=== NAS-OS 合规检查报告 ===\n"
 	text += fmt.Sprintf("报告ID: %s\n", report.ID)
 	text += fmt.Sprintf("检查时间: %s\n", report.Timestamp.Format("2006-01-02 15:04:05"))
 	text += fmt.Sprintf("总体合规级别: %s\n", report.OverallLevel)

@@ -285,9 +285,7 @@ func (m *Manager) DeleteTarget(id string) error {
 
 	// Delete all LUNs
 	for _, lun := range target.LUNs {
-		if err := m.lunMgr.Delete(lun); err != nil {
-			// Log but continue
-		}
+		_ = m.lunMgr.Delete(lun) // 忽略单个 LUN 删除错误，继续删除其他
 	}
 
 	// Remove CHAP config

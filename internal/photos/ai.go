@@ -1837,7 +1837,7 @@ func (e *LocalAIEngine) calculateOverallScore(m *QualityMetrics) float32 {
 	score := 0.0
 
 	// 亮度评分（适中亮度最佳，50-200 为理想范围）
-	brightnessScore := 100.0
+	var brightnessScore float64
 	if m.Brightness < 50 {
 		brightnessScore = float64(m.Brightness) / 50.0 * 60 // 太暗
 	} else if m.Brightness > 200 {

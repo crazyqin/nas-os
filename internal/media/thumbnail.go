@@ -445,10 +445,10 @@ func (tg *ThumbnailGenerator) BatchGenerate(videos []string, outputDir string, c
 	var wg sync.WaitGroup
 
 	// 限制并发
-	sem := make(chan struct{}, concurrency)
 	if concurrency <= 0 {
 		concurrency = 2
 	}
+	sem := make(chan struct{}, concurrency)
 
 	for _, video := range videos {
 		wg.Add(1)

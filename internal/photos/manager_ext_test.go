@@ -598,7 +598,7 @@ func TestConfig_Default(t *testing.T) {
 
 	config := m.GetConfig()
 
-	if config.SupportedFormats == nil || len(config.SupportedFormats) == 0 {
+	if len(config.SupportedFormats) == 0 {
 		t.Error("SupportedFormats 应有默认值")
 	}
 

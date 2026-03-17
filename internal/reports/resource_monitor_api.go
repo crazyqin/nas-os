@@ -809,7 +809,9 @@ func (h *ResourceMonitorAPIHandlers) getProcessRanking(c *gin.Context) {
 		return
 	}
 
+	// TODO: 实现按 sortBy 排序
 	sortBy := c.Query("sort")
+	_ = sortBy // 待实现排序功能
 	if sortBy == "" {
 		sortBy = "cpu"
 	}

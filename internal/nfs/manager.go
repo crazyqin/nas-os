@@ -361,10 +361,10 @@ func (m *Manager) Reload() error {
 		return fmt.Errorf("写入exports文件失败: %w", err)
 	}
 
-	// 执行exportfs重新导出
-	cmd := exec.Command("exportfs", "-ra")
+	// 执行 exportfs 重新导出
+	cmd := exec.Command("exportfs", "-ra") //nolint:misspell
 	if output, err := cmd.CombinedOutput(); err != nil {
-		m.logger.Errorf("执行exportfs失败: %s - %v", string(output), err)
+		m.logger.Errorf("执行 exportfs 失败: %s - %v", string(output), err) //nolint:misspell
 		return fmt.Errorf("重新导出失败: %w - %s", err, string(output))
 	}
 

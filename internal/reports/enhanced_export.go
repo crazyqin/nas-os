@@ -314,11 +314,8 @@ func (e *EnhancedExporter) exportHTMLEnhanced(report *GeneratedReport, path stri
 
 // getEnhancedHTMLTemplate 获取增强的 HTML 模板
 func (e *EnhancedExporter) getEnhancedHTMLTemplate(options EnhancedExportOptions) *template.Template {
-	// 根据主题选择模板
-	theme := options.Theme
-	if theme == "" {
-		theme = "default"
-	}
+	// 根据主题选择模板（主题由模板数据中的 .Theme 字段决定）
+	_ = options.Theme // 主题由模板数据传入
 
 	tmplStr := `<!DOCTYPE html>
 <html lang="zh-CN">

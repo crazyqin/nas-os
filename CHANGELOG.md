@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.177.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.177.0
+- ✅ go vet / go build 通过
+
+#### 礼部 - 文档维护
+- ✅ 文档版本检查完成
+
+#### 兵部 - 代码质量
+- ✅ 修复 errcheck 错误（internal/container, internal/ldap, internal/plugin 等）
+- ✅ 修复 Close() 返回值未检查问题
+- ✅ 修复 strconv.Atoi 返回值未检查问题
+
+#### 工部 - DevOps
+- ✅ CI/CD 配置检查正常
+
+#### 刑部 - 安全审计
+- ✅ 安全检查完成
+
+### Fixed
+- errcheck: 检查 calculateChecksum 返回值
+- errcheck: 检查 Close() 返回值
+- errcheck: 检查 strconv.Atoi 返回值
+- errcheck: 检查 getGroups/getMembers 返回值
+
 ## [v2.176.0] - 2026-03-17
 
 ### 六部协同开发

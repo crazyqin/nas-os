@@ -289,8 +289,14 @@ func (h *Handlers) discover(c *gin.Context) {
 func (h *Handlers) marketList(c *gin.Context) {
 	category := c.Query("category")
 	sort := c.DefaultQuery("sort", "popular") // popular, newest, rating
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil {
+		page = 1
+	}
+	pageSize, err := strconv.Atoi(c.DefaultQuery("pageSize", "20"))
+	if err != nil {
+		pageSize = 20
+	}
 
 	if h.market == nil {
 		c.JSON(http.StatusOK, gin.H{

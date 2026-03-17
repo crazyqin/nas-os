@@ -75,13 +75,13 @@ func (c *Client) Connect() error {
 		if c.config.CACertPath != "" {
 			pool, err := c.loadCACert()
 			if err != nil {
-				conn.Close()
+				_ = conn.Close()
 				return err
 			}
 			tlsConfig.RootCAs = pool
 		}
 		if err := conn.StartTLS(tlsConfig); err != nil {
-			conn.Close()
+			_ = conn.Close()
 			return fmt.Errorf("StartTLS 失败: %w", err)
 		}
 	}
@@ -376,7 +376,7 @@ func (p *Pool) Put(client *Client) {
 		// 成功放回
 	default:
 		// 池已满，关闭连接
-		client.Close()
+		_ = client.Close()
 	}
 }
 
@@ -387,7 +387,7 @@ func (p *Pool) Close() {
 
 	close(p.clients)
 	for client := range p.clients {
-		client.Close()
+		_ = client.Close()
 	}
 }
 
