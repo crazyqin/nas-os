@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -203,11 +204,13 @@ type DuckDNSProvider struct {
 }
 
 func (p *DuckDNSProvider) Update(domain, ip string) error {
-	// DuckDNS API 非常简单
-	url := fmt.Sprintf("https://www.duckdns.org/update?domains=%s&token=%s&ip=%s",
-		domain, p.Token, ip)
+	// DuckDNS API - 使用 POST 请求避免 token 出现在 URL 日志中
+	formData := url.Values{}
+	formData.Set("domains", domain)
+	formData.Set("token", p.Token)
+	formData.Set("ip", ip)
 
-	resp, err := http.Get(url)
+	resp, err := http.PostForm("https://www.duckdns.org/update", formData)
 	if err != nil {
 		return err
 	}

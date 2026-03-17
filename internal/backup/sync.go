@@ -93,12 +93,12 @@ type RemoteConfig struct {
 	Region    string `json:"region,omitempty"`
 	Endpoint  string `json:"endpoint,omitempty"`
 	AccessKey string `json:"accessKey,omitempty"`
-	SecretKey string `json:"secretKey,omitempty"`
+	SecretKey string `json:"-"` // 安全：禁止序列化到 JSON
 
 	// WebDAV 配置
 	URL      string `json:"url,omitempty"`
 	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
+	Password string `json:"-"` // 安全：禁止序列化到 JSON
 
 	// 通用
 	Insecure bool   `json:"insecure,omitempty"` // 跳过 TLS 验证

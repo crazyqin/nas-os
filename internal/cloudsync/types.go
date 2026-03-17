@@ -86,13 +86,13 @@ type ProviderConfig struct {
 	Region    string `json:"region,omitempty"`
 	Bucket    string `json:"bucket,omitempty"`
 	AccessKey string `json:"accessKey,omitempty"`
-	SecretKey string `json:"secretKey,omitempty"`
+	SecretKey string `json:"-"` // 安全：禁止序列化到 JSON
 	PathStyle bool   `json:"pathStyle,omitempty"` // 路径风格访问
 
 	// Google Drive 配置
 	ClientID     string `json:"clientId,omitempty"`
-	ClientSecret string `json:"clientSecret,omitempty"`
-	RefreshToken string `json:"refreshToken,omitempty"`
+	ClientSecret string `json:"-"` // 安全：禁止序列化到 JSON
+	RefreshToken string `json:"-"` // 安全：禁止序列化到 JSON
 	RootFolderID string `json:"rootFolderId,omitempty"`
 
 	// OneDrive 配置
@@ -141,7 +141,7 @@ type SyncTask struct {
 	PreserveModTime bool   `json:"preserveModTime"` // 保留修改时间
 	ChecksumVerify  bool   `json:"checksumVerify"`  // 校验文件完整性
 	Encrypt         bool   `json:"encrypt"`         // 加密传输
-	EncryptKey      string `json:"encryptKey,omitempty"`
+	EncryptKey      string `json:"-"`               // 安全：禁止序列化到 JSON
 
 	// 带宽限制
 	BandwidthLimit int64 `json:"bandwidthLimit,omitempty"` // KB/s, 0 表示不限制
