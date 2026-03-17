@@ -481,6 +481,29 @@ func (m *Manager) ApplyConfig() error {
 
 	// Execute commands
 	for _, cmd := range commands {
+		// Check if this is a password command (需要通过 stdin 传递密码)
+		if strings.Contains(cmd, "password=-") {
+			// 提取 IQN 和 secret
+			parts := strings.Fields(cmd)
+			if len(parts) >= 6 {
+				iqn := parts[2]
+				// 从 CHAP 管理器获取 secret
+				targetID := m.getTargetIDByIQN(iqn)
+				if targetID != "" {
+					_, secret, ok := m.chapMgr.GetSecret(targetID)
+					if ok {
+						// 使用 stdin 传递密码，避免命令行泄露
+						execCmd := exec.Command("targetcli", "/iscsi/"+iqn+"/tpg1/auth", "set", "password=-")
+						execCmd.Stdin = strings.NewReader(secret)
+						if output, err := execCmd.CombinedOutput(); err != nil {
+							return fmt.Errorf("failed to set password: %w (%s)", err, string(output))
+						}
+						continue
+					}
+				}
+			}
+		}
+
 		parts := strings.Fields(cmd)
 		if len(parts) == 0 {
 			continue
@@ -493,6 +516,16 @@ func (m *Manager) ApplyConfig() error {
 	}
 
 	return nil
+}
+
+// getTargetIDByIQN 根据 IQN 获取 target ID
+func (m *Manager) getTargetIDByIQN(iqn string) string {
+	for id, target := range m.targets {
+		if target.IQN == iqn {
+			return id
+		}
+	}
+	return ""
 }
 
 // generateTargetCLICommands generates targetcli configuration commands
@@ -526,11 +559,12 @@ func (m *Manager) generateTargetCLICommands() []string {
 
 		// Configure CHAP
 		if target.CHAP != nil && target.CHAP.Enabled {
-			username, secret, ok := m.chapMgr.GetSecret(target.ID)
+			username, _, ok := m.chapMgr.GetSecret(target.ID)
 			if ok {
 				commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set attribute authentication=1", target.IQN))
 				commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set userid=%s", target.IQN, username))
-				commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set password=%s", target.IQN, secret))
+				// 密码通过 stdin 传递，标记为特殊处理
+				commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set password=-", target.IQN))
 			}
 		}
 
