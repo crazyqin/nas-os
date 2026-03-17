@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.156.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.156.0
+- ⚠️ MILESTONES.md 落后 3 个版本（v2.152.0-v2.154.0 缺少记录）
+
+#### 兵部 - 代码质量
+- ✅ go vet 检查通过
+- ✅ go fmt 格式正确
+- ✅ go build 构建成功
+- ⚠️ 2 个测试失败（TestGetLibrary, TestScanLibrary）- 临时目录清理问题
+
+#### 礼部 - 文档维护
+- ✅ CHANGELOG.md 已更新
+- ✅ README.md 版本正确
+- ⚠️ docs/api.yaml, docs/swagger.* 版本号领先 (2.155.0 vs 2.154.0)
+- ⚠️ docs/README.md, docs/README_EN.md 版本落后 (v2.153.0)
+
+#### 工部 - DevOps
+- ✅ CI/CD 配置完善（5个工作流）
+- ✅ Docker 配置良好（minimal 15-18MB, full 35-40MB）
+- 📝 建议: 启用更多 golangci linter
+
+#### 刑部 - 安全审计
+- ✅ govulncheck 无已知漏洞
+- ✅ 无硬编码密钥
+- ⚠️ docker-compose.prod.yml Grafana 默认密码需修改
+- ⚠️ InsecureSkipVerify 在多处使用（用户可配置）
+
+#### 户部 - 资源统计
+- ✅ Go 源文件: 701 个
+- ✅ 代码行数: 394,639 行
+- ✅ 测试文件: 247 个
+- ✅ 测试覆盖率: 35.2%
+
+### Changed
+- Version bump to v2.156.0
+
 ## [v2.154.0] - 2026-03-17
 
 ### 六部协同开发
