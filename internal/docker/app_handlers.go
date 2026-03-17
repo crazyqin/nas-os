@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
