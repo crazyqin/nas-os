@@ -235,9 +235,9 @@ func (l *TransferLogger) Clear() error {
 	l.logs = make([]*TransferLog, 0)
 
 	if l.logFile != nil {
-		l.logFile.Close()
-		os.Truncate(l.logPath, 0)
-		l.initLogFile()
+		_ = l.logFile.Close()
+		_ = os.Truncate(l.logPath, 0)
+		_ = l.initLogFile()
 	}
 
 	return nil
@@ -249,10 +249,10 @@ func (l *TransferLogger) rotateLog() {
 		return
 	}
 
-	l.logFile.Close()
+	_ = l.logFile.Close()
 	backup := l.logPath + "." + time.Now().Format("20060102-150405")
 	_ = os.Rename(l.logPath, backup)
-	l.initLogFile()
+	_ = l.initLogFile()
 }
 
 // Close 关闭日志管理器

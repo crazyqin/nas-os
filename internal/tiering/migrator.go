@@ -183,7 +183,7 @@ func (m *Migrator) copyFileInternal(sourcePath, targetPath string, verify bool) 
 	if verify {
 		if err := m.verifyFile(sourcePath, targetPath); err != nil {
 			// 验证失败，删除目标文件
-			os.Remove(targetPath)
+			_ = os.Remove(targetPath)
 			return fmt.Errorf("文件验证失败: %w", err)
 		}
 	}

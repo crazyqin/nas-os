@@ -82,7 +82,7 @@ func (t *AccessTracker) Stop() {
 	close(t.stopCh)
 
 	// 保存记录
-	t.saveRecords()
+	_ = t.saveRecords()
 }
 
 // ==================== 访问记录操作 ====================
@@ -379,7 +379,7 @@ func (t *AccessTracker) runBackgroundTasks() {
 			return
 		case <-ticker.C:
 			t.updateFrequencies()
-			t.saveRecords()
+			_ = t.saveRecords()
 		}
 	}
 }

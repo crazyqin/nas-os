@@ -344,7 +344,7 @@ func (s *Server) acceptLoop() {
 // handleConnection 处理 SSH 连接
 func (s *Server) handleConnection(conn net.Conn) {
 	defer func() {
-		conn.Close()
+		_ = conn.Close()
 		if s.connSem != nil {
 			<-s.connSem
 		}

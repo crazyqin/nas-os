@@ -340,10 +340,10 @@ func (m *Manager) executeSync(task *ReplicationTask) {
 
 	// 计算下次同步时间
 	if task.Type == TypeScheduled {
-		m.calculateNextSync(task)
+		_ = m.calculateNextSync(task)
 	}
 
-	m.saveConfig()
+	_ = m.saveConfig()
 }
 
 // parseRsyncOutput 解析 rsync 输出获取详细统计
@@ -468,7 +468,7 @@ func (m *Manager) checkScheduledTasks() {
 	m.mu.RUnlock()
 
 	for _, task := range toSync {
-		m.StartSync(task.ID)
+		_ = m.StartSync(task.ID)
 	}
 }
 
