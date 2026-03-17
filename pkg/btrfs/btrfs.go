@@ -221,18 +221,23 @@ func parseUsage(output []byte) (total, used, free uint64, err error) {
 		// Device size: 1000000000000
 		if strings.HasPrefix(line, "Device size:") {
 			sizeStr := strings.TrimSpace(strings.TrimPrefix(line, "Device size:"))
-			total, _ = strconv.ParseUint(sizeStr, 10, 64)
+			if val, parseErr := strconv.ParseUint(sizeStr, 10, 64); parseErr == nil {
+				total = val
+			}
 		}
 		// Used: 500000000000
 		if strings.HasPrefix(line, "Used:") {
 			usedStr := strings.TrimSpace(strings.TrimPrefix(line, "Used:"))
-			used, _ = strconv.ParseUint(usedStr, 10, 64)
+			if val, parseErr := strconv.ParseUint(usedStr, 10, 64); parseErr == nil {
+				used = val
+			}
 		}
 		// Free (estimated): 400000000000
 		if strings.HasPrefix(line, "Free (estimated):") {
 			freeStr := strings.TrimSpace(strings.TrimPrefix(line, "Free (estimated):"))
-			free, _ = strconv.ParseUint(freeStr, 10, 64)
-			_ = free // 使用 free 变量，避免 SA4006 警告
+			if val, parseErr := strconv.ParseUint(freeStr, 10, 64); parseErr == nil {
+				free = val
+			}
 		}
 	}
 
@@ -370,11 +375,15 @@ func parseSubVolumeList(output []byte, mountPoint string) ([]SubVolumeInfo, erro
 			switch fields[i] {
 			case "ID":
 				if i+1 < len(fields) {
-					subvol.ID, _ = strconv.ParseUint(fields[i+1], 10, 64)
+					if val, parseErr := strconv.ParseUint(fields[i+1], 10, 64); parseErr == nil {
+						subvol.ID = val
+					}
 				}
 			case "parent":
 				if i+1 < len(fields) {
-					subvol.ParentID, _ = strconv.ParseUint(fields[i+1], 10, 64)
+					if val, parseErr := strconv.ParseUint(fields[i+1], 10, 64); parseErr == nil {
+						subvol.ParentID = val
+					}
 				}
 			case "uuid":
 				if i+1 < len(fields) {
@@ -440,7 +449,9 @@ func parseSubVolumeShow(output []byte, path string) (*SubVolumeInfo, error) {
 			// 父 UUID
 		} else if strings.HasPrefix(line, "Parent ID:") {
 			idStr := strings.TrimSpace(strings.TrimPrefix(line, "Parent ID:"))
-			info.ParentID, _ = strconv.ParseUint(idStr, 10, 64)
+			if val, parseErr := strconv.ParseUint(idStr, 10, 64); parseErr == nil {
+				info.ParentID = val
+			}
 		} else if strings.HasPrefix(line, "Flags:") {
 			flags := strings.TrimSpace(strings.TrimPrefix(line, "Flags:"))
 			info.ReadOnly = strings.Contains(flags, "readonly")
@@ -679,7 +690,7 @@ func parseSizeStr(s string) uint64 {
 		s = strings.TrimSuffix(s, "KiB")
 	}
 
-	val, _ := strconv.ParseFloat(strings.TrimSpace(s), 64)
+	val, _ := strconv.ParseFloat(strings.TrimSpace(s), 64) // 忽略错误，使用默认值 0
 	return uint64(val * float64(multiplier))
 }
 
@@ -761,7 +772,9 @@ func parseBalanceStatus(output []byte) (*BalanceStatus, error) {
 			for _, part := range parts {
 				if strings.HasSuffix(part, "%") {
 					percentStr := strings.TrimSuffix(part, "%")
-					status.Progress, _ = strconv.ParseFloat(percentStr, 64)
+					if val, parseErr := strconv.ParseFloat(percentStr, 64); parseErr == nil {
+						status.Progress = val
+					}
 					break
 				}
 			}
@@ -825,7 +838,9 @@ func parseScrubStatus(output []byte) (*ScrubStatus, error) {
 					}
 				}
 				if numStr != "" {
-					status.Progress, _ = strconv.ParseFloat(numStr, 64)
+					if val, parseErr := strconv.ParseFloat(numStr, 64); parseErr == nil {
+						status.Progress = val
+					}
 				}
 			}
 		}
@@ -835,7 +850,9 @@ func parseScrubStatus(output []byte) (*ScrubStatus, error) {
 			fields := strings.Fields(line)
 			for i, f := range fields {
 				if f == "errors:" && i+1 < len(fields) {
-					status.Errors, _ = strconv.ParseUint(fields[i+1], 10, 64)
+					if val, parseErr := strconv.ParseUint(fields[i+1], 10, 64); parseErr == nil {
+						status.Errors = val
+					}
 				}
 			}
 		}

@@ -193,8 +193,9 @@ func CompressReader(reader io.Reader) (io.Reader, error) {
 	gw := gzip.NewWriter(pw)
 
 	go func() {
-		defer pw.Close()
-		defer gw.Close()
+		// 关闭资源，忽略错误（通过 CloseWithError 传递主要错误）
+		defer func() { _ = pw.Close() }()
+		defer func() { _ = gw.Close() }()
 
 		_, err := io.Copy(gw, reader)
 		if err != nil {
