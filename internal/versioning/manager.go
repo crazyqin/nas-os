@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -215,7 +216,9 @@ func (m *Manager) CreateVersion(filePath, userID, description string, triggerTyp
 	// 保存索引
 	if err := m.saveVersions(); err != nil {
 		// 回滚
-		_ = os.Remove(versionPath)
+		if err := os.Remove(versionPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("删除版本文件失败: %v", err)
+		}
 		delete(m.allVersions, versionID)
 		// 从 versions 中移除
 		vs := m.versions[filePath]
@@ -630,13 +633,13 @@ func (m *Manager) copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = sourceFile.Close() }()
+	defer sourceFile.Close()
 
 	destFile, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = destFile.Close() }()
+	defer destFile.Close()
 
 	_, err = io.Copy(destFile, sourceFile)
 	return err
@@ -657,7 +660,9 @@ func (m *Manager) enforceRetentionPolicy(filePath string) {
 		toDelete := len(versions) - m.config.Retention.MaxVersions
 		for i := 0; i < toDelete; i++ {
 			oldest := versions[i]
-			_ = os.Remove(oldest.VersionPath)
+			if err := os.Remove(oldest.VersionPath); err != nil && !os.IsNotExist(err) {
+				log.Printf("删除版本文件 %s 失败: %v", oldest.VersionPath, err)
+			}
 			m.totalSize -= oldest.Size
 			delete(m.allVersions, oldest.ID)
 		}
@@ -691,7 +696,9 @@ func (m *Manager) cleanupOldestVersions() {
 		if m.totalSize <= m.config.Retention.MaxSpace {
 			break
 		}
-		_ = os.Remove(v.VersionPath)
+		if err := os.Remove(v.VersionPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("删除版本文件 %s 失败: %v", v.VersionPath, err)
+		}
 		m.totalSize -= v.Size
 		delete(m.allVersions, v.ID)
 
@@ -735,7 +742,9 @@ func (m *Manager) cleanupExpiredVersions() {
 
 	for _, id := range toDelete {
 		v := m.allVersions[id]
-		_ = os.Remove(v.VersionPath)
+		if err := os.Remove(v.VersionPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("删除版本文件 %s 失败: %v", v.VersionPath, err)
+		}
 		m.totalSize -= v.Size
 		delete(m.allVersions, id)
 
@@ -749,7 +758,9 @@ func (m *Manager) cleanupExpiredVersions() {
 	}
 
 	if len(toDelete) > 0 {
-		_ = m.saveVersions()
+		if err := m.saveVersions(); err != nil {
+			log.Printf("保存版本索引失败: %v", err)
+		}
 	}
 }
 

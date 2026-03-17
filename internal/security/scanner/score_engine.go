@@ -35,7 +35,7 @@ func DefaultScoreEngineConfig() ScoreEngineConfig {
 // NewScoreEngine 创建安全评分引擎
 func NewScoreEngine(config ScoreEngineConfig) *ScoreEngine {
 	storagePath := "/var/lib/nas-os/security/scores"
-	_ = os.MkdirAll(storagePath, 0750)
+	os.MkdirAll(storagePath, 0750)
 
 	engine := &ScoreEngine{
 		categories:  getDefaultScoreCategories(),
@@ -557,9 +557,9 @@ func (se *ScoreEngine) GenerateScoreReport(score *SecurityScore) map[string]inte
 
 		categories, ok := report["categories"].([]map[string]interface{})
 		if !ok {
-			categories = []map[string]interface{}{}
+			categories = make([]map[string]interface{}, 0)
 		}
-		report["categories"] = append(categories, map[string]interface{}{
+		categories = append(categories, map[string]interface{}{
 			"id":          cat.ID,
 			"name":        cat.Name,
 			"description": cat.Description,
@@ -568,6 +568,7 @@ func (se *ScoreEngine) GenerateScoreReport(score *SecurityScore) map[string]inte
 			"grade":       scoreToGrade(catScore),
 			"status":      getCategoryStatus(catScore),
 		})
+		report["categories"] = categories
 	}
 
 	// 添加趋势信息
@@ -630,7 +631,7 @@ func (se *ScoreEngine) saveHistory() {
 		return
 	}
 
-	_ = os.WriteFile(filename, data, 0640)
+	os.WriteFile(filename, data, 0640)
 }
 
 // loadHistory 加载历史记录

@@ -54,7 +54,10 @@ func DefaultOperationAuditConfig() OperationAuditConfig {
 // NewOperationAuditor 创建操作审计器
 func NewOperationAuditor(config OperationAuditConfig) *OperationAuditor {
 	storageDir := "/var/log/nas-os/audit/operations"
-	_ = os.MkdirAll(storageDir, 0750) // 创建存储目录，忽略错误
+	if err := os.MkdirAll(storageDir, 0750); err != nil {
+		// 如果无法创建存储目录，继续运行但不持久化
+		storageDir = ""
+	}
 
 	oa := &OperationAuditor{
 		entries:    make([]*OperationAuditEntry, 0),
@@ -549,10 +552,9 @@ func (oa *OperationAuditor) GetStatistics(start, end time.Time) *OperationStatis
 
 		stats.TotalOperations++
 
-		switch entry.Status {
-		case "success":
+		if entry.Status == "success" {
 			stats.SuccessfulOps++
-		case "failure":
+		} else if entry.Status == "failure" {
 			stats.FailedOps++
 			reason := entry.ErrorMessage
 			if reason == "" {
@@ -659,7 +661,7 @@ func (oa *OperationAuditor) save() {
 		return
 	}
 
-	_ = os.WriteFile(filename, data, 0640) // 写入文件，忽略错误
+	_ = os.WriteFile(filename, data, 0640)
 }
 
 // Load 加载数据

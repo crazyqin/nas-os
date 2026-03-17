@@ -9,15 +9,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/rwcarlsen/goexif/exif"
+	"golang.org/x/image/draw"
 	"image"
 	"image/jpeg"
 	"image/png"
 	"os/exec"
 	"strings"
-
-	"github.com/google/uuid"
-	"github.com/rwcarlsen/goexif/exif"
-	"golang.org/x/image/draw"
 )
 
 // Manager 相册管理器
@@ -425,7 +424,10 @@ func (m *Manager) generateThumbnailsFFmpeg(srcPath string, photoID string) error
 			"-q:v", "2",
 			thumbPath)
 
-		_ = cmd.Run()
+		if err := cmd.Run(); err != nil {
+			// ffmpeg failed for this size, continue to next
+			continue
+		}
 	}
 
 	return nil
@@ -735,12 +737,15 @@ func (m *Manager) DeletePhoto(photoID string) error {
 
 	// 删除文件
 	photoPath := filepath.Join(m.photosDir, photo.Path)
-	_ = os.Remove(photoPath)
+	if err := os.Remove(photoPath); err != nil && !os.IsNotExist(err) {
+		// Log error but continue
+	}
 
 	// 删除缩略图
-	_, _ = filepath.Glob(filepath.Join(m.thumbsDir, fmt.Sprintf("%s_*.jpg", photoID)))
 	for _, thumbPath := range findFiles(filepath.Join(m.thumbsDir, fmt.Sprintf("%s_*.jpg", photoID))) {
-		_ = os.Remove(thumbPath)
+		if err := os.Remove(thumbPath); err != nil && !os.IsNotExist(err) {
+			// Log error but continue
+		}
 	}
 
 	delete(m.photos, photoID)

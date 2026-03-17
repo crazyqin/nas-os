@@ -282,22 +282,8 @@ func (h *APIHandler) HandleTrends(w http.ResponseWriter, r *http.Request) {
 	startStr := r.URL.Query().Get("start")
 	endStr := r.URL.Query().Get("end")
 
-	var start, end time.Time
-	var err error
-	if startStr != "" {
-		start, err = time.Parse(time.RFC3339, startStr)
-		if err != nil {
-			h.writeError(w, http.StatusBadRequest, "Invalid start date format")
-			return
-		}
-	}
-	if endStr != "" {
-		end, err = time.Parse(time.RFC3339, endStr)
-		if err != nil {
-			h.writeError(w, http.StatusBadRequest, "Invalid end date format")
-			return
-		}
-	}
+	start, _ := time.Parse(time.RFC3339, startStr) // 忽略解析错误，使用默认值
+	end, _ := time.Parse(time.RFC3339, endStr)      // 忽略解析错误，使用默认值
 
 	if start.IsZero() {
 		start = time.Now().AddDate(0, 0, -30)
@@ -319,17 +305,11 @@ func (h *APIHandler) HandleTrends(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) writeJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		// 编码失败时记录日志，但无法修改响应状态码（已发送）
-		// 可以考虑添加日志记录
-	}
+	json.NewEncoder(w).Encode(data)
 }
 
 func (h *APIHandler) writeError(w http.ResponseWriter, status int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(map[string]string{"error": message}); err != nil {
-		// 编码失败时记录日志，但无法修改响应状态码（已发送）
-		// 可以考虑添加日志记录
-	}
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }

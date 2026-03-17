@@ -937,11 +937,9 @@ func (c *clientConn) handleABOR() {
 func (c *clientConn) getDataConnection() (net.Conn, error) {
 	if c.pasvListener != nil {
 		// 被动模式：等待客户端连接
-		tcpListener, ok := c.pasvListener.(*net.TCPListener)
-		if !ok {
-			return nil, fmt.Errorf("invalid listener type")
+		if tcpListener, ok := c.pasvListener.(*net.TCPListener); ok {
+			_ = tcpListener.SetDeadline(time.Now().Add(30 * time.Second))
 		}
-		_ = tcpListener.SetDeadline(time.Now().Add(30 * time.Second))
 		conn, err := c.pasvListener.Accept()
 		if err != nil {
 			return nil, err

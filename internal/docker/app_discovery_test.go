@@ -323,11 +323,19 @@ func TestAppDiscovery_LoadCache(t *testing.T) {
 }
 
 func TestAppDiscovery_RefreshDiscovery(t *testing.T) {
+	// Skip in short mode - requires network access
+	if testing.Short() {
+		t.Skip("Skipping network-dependent test in short mode")
+	}
+
 	tempDir := t.TempDir()
 	store, _ := NewAppStore(nil, tempDir)
 
 	ad, err := NewAppDiscovery(store, tempDir)
 	require.NoError(t, err)
+
+	// Set shorter timeout for test
+	ad.httpClient.Timeout = 5 * time.Second
 
 	// RefreshDiscovery will fail without network, but should not panic
 	err = ad.RefreshDiscovery()

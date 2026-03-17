@@ -1,0 +1,18 @@
+[
+  {
+    "id": "5f5c3c05-0d7d-4a60-a18f-1c0d75b3cb8a",
+    "timestamp": "2026-03-18T05:09:52.841347595+08:00",
+    "user_id": "user-001",
+    "username": "user1",
+    "ip": "192.168.1.1",
+    "user_agent": "",
+    "category": "file",
+    "action": "create",
+    "resource_type": "file",
+    "resource_id": "f1",
+    "resource_name": "",
+    "status": "success",
+    "is_sensitive": false,
+    "risk_score": 0
+  }
+]
