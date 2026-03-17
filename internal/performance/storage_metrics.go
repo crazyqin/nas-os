@@ -195,8 +195,10 @@ func (sc *StorageCollector) collectCacheMetrics(metrics *StorageMetrics) {
 			if strings.HasPrefix(line, "Dirty:") {
 				fields := strings.Fields(line)
 				if len(fields) >= 2 {
-					value, _ := strconv.ParseUint(fields[1], 10, 64)
-					metrics.Cache.DirtyPages = value * 1024 // KB to bytes
+					value, err := strconv.ParseUint(fields[1], 10, 64)
+					if err == nil {
+						metrics.Cache.DirtyPages = value * 1024 // KB to bytes
+					}
 				}
 			}
 		}
@@ -213,12 +215,18 @@ func (sc *StorageCollector) collectCacheMetrics(metrics *StorageMetrics) {
 			if strings.HasPrefix(line, "pswpin ") {
 				fields := strings.Fields(line)
 				if len(fields) >= 2 {
-					pswpin, _ = strconv.ParseUint(fields[1], 10, 64)
+					val, err := strconv.ParseUint(fields[1], 10, 64)
+					if err == nil {
+						pswpin = val
+					}
 				}
 			} else if strings.HasPrefix(line, "pswpout ") {
 				fields := strings.Fields(line)
 				if len(fields) >= 2 {
-					pswpout, _ = strconv.ParseUint(fields[1], 10, 64)
+					val, err := strconv.ParseUint(fields[1], 10, 64)
+					if err == nil {
+						pswpout = val
+					}
 				}
 			}
 		}
@@ -250,8 +258,10 @@ func (sc *StorageCollector) getDeviceType(device string) string {
 func (sc *StorageCollector) getDeviceSize(device string) uint64 {
 	sizePath := "/sys/block/" + device + "/size"
 	if data, err := os.ReadFile(sizePath); err == nil {
-		sectors, _ := strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64)
-		return sectors * 512
+		sectors, err := strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64)
+		if err == nil {
+			return sectors * 512
+		}
 	}
 	return 0
 }
@@ -270,8 +280,10 @@ func (sc *StorageCollector) getDeviceTemperature(device string) int {
 					fields := strings.Fields(line)
 					for i, f := range fields {
 						if f == "Temperature_Celsius" && i+1 < len(fields) {
-							temp, _ := strconv.Atoi(fields[i+1])
-							return temp
+							temp, err := strconv.Atoi(fields[i+1])
+							if err == nil {
+								return temp
+							}
 						}
 					}
 				}

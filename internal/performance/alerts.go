@@ -567,8 +567,16 @@ func (am *AlertManager) GetAlertStats() map[string]interface{} {
 		"by_type":       make(map[string]int),
 	}
 
-	levelStats := stats["by_level"].(map[AlertLevel]int)
-	typeStats := stats["by_type"].(map[string]int)
+	levelStats, ok := stats["by_level"].(map[AlertLevel]int)
+	if !ok {
+		levelStats = make(map[AlertLevel]int)
+		stats["by_level"] = levelStats
+	}
+	typeStats, ok := stats["by_type"].(map[string]int)
+	if !ok {
+		typeStats = make(map[string]int)
+		stats["by_type"] = typeStats
+	}
 
 	for _, alert := range am.alerts {
 		levelStats[alert.Level]++

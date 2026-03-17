@@ -530,7 +530,10 @@ func (e *PrometheusExporter) Handler(w http.ResponseWriter, r *http.Request) {
 	output := e.collectAllMetrics()
 
 	w.Header().Set("Content-Type", "text/plain; version=0.0.4")
-	_, _ = w.Write([]byte(output))
+	if _, err := w.Write([]byte(output)); err != nil {
+		// 写入失败，记录错误但继续执行
+		_ = err
+	}
 }
 
 // collectAllMetrics 收集所有指标
@@ -758,7 +761,7 @@ func (e *PrometheusExporter) StartMetricsServer(ctx context.Context, addr string
 
 	go func() {
 		<-ctx.Done()
-		server.Shutdown(context.Background())
+		_ = server.Shutdown(context.Background())
 	}()
 
 	return server.ListenAndServe()
@@ -766,6 +769,9 @@ func (e *PrometheusExporter) StartMetricsServer(ctx context.Context, addr string
 
 // ToJSON 导出 JSON 格式指标
 func (m *Metrics) ToJSON() string {
-	data, _ := json.MarshalIndent(m, "", "  ")
+	data, err := json.MarshalIndent(m, "", "  ")
+	if err != nil {
+		return "{}"
+	}
 	return string(data)
 }

@@ -136,7 +136,7 @@ func (m *Manager) UpdateConfig(name string, config Config) error {
 	delete(m.authenticators, name)
 	delete(m.adClients, name)
 	if pool, exists := m.pools[name]; exists {
-		pool.Close()
+		_ = pool.Close()
 		delete(m.pools, name)
 	}
 	if sync, exists := m.synchronizers[name]; exists {
@@ -167,7 +167,7 @@ func (m *Manager) DeleteConfig(name string) error {
 	delete(m.authenticators, name)
 	delete(m.adClients, name)
 	if pool, exists := m.pools[name]; exists {
-		pool.Close()
+		_ = pool.Close()
 		delete(m.pools, name)
 	}
 	if sync, exists := m.synchronizers[name]; exists {

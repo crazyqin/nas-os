@@ -220,8 +220,8 @@ func (h *APIHandlers) GetAlerts(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/alerts/history [get]
 func (h *APIHandlers) GetAlertHistory(c *gin.Context) {
-	limit, _ := strconv.Atoi(c.Query("limit"))
-	if limit <= 0 {
+	limit, err := strconv.Atoi(c.Query("limit"))
+	if err != nil || limit <= 0 {
 		limit = 50
 	}
 

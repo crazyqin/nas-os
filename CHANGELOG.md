@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.181.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.181.0
+- ✅ go vet / go build 通过
+
+#### 礼部 - 文档维护
+- ✅ 文档版本检查完成
+- ✅ README.md 版本号同步至 v2.181.0
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步
+- ✅ docs/api.yaml 版本号同步
+- ✅ docs/swagger.json 版本号同步
+- ✅ docs/swagger.yaml 版本号同步
+- ✅ docs/MILESTONES.md 添加 v2.181.0 里程碑
+
 ## [v2.179.0] - 2026-03-17
 
 ### 六部协同开发
