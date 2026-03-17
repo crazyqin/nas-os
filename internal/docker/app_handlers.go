@@ -272,7 +272,10 @@ func (h *AppHandlers) installApp(c *gin.Context) {
 	if h.ratingManager != nil {
 		userID := c.GetString("userID")
 		if userID != "" {
-			h.ratingManager.VerifyPurchase(templateID, userID)
+			if err := h.ratingManager.VerifyPurchase(templateID, userID); err != nil {
+				// 记录验证失败，但不阻断安装流程
+				log.Printf("验证购买失败: %v", err)
+			}
 		}
 	}
 
@@ -490,7 +493,10 @@ func (h *AppHandlers) addRating(c *gin.Context) {
 	}
 
 	// 验证购买
-	h.ratingManager.VerifyPurchase(templateID, userID)
+	if err := h.ratingManager.VerifyPurchase(templateID, userID); err != nil {
+		// 记录验证失败，但不阻断评分流程
+		log.Printf("验证购买失败: %v", err)
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
