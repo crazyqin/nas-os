@@ -149,7 +149,7 @@ func (m *Manager) parsePingOutput(output string, result *PingResult) {
 	for _, line := range lines {
 		// 解析统计行: "4 packets transmitted, 4 received, 0% packet loss"
 		if strings.Contains(line, "packets transmitted") {
-			fmt.Sscanf(line, "%d packets transmitted, %d received",
+			_, _ = fmt.Sscanf(line, "%d packets transmitted, %d received",
 				&result.PacketsSent, &result.PacketsRecv)
 			if result.PacketsSent > 0 {
 				result.PacketLoss = float64(result.PacketsSent-result.PacketsRecv) / float64(result.PacketsSent) * 100
@@ -164,10 +164,10 @@ func (m *Manager) parsePingOutput(output string, result *PingResult) {
 				values = strings.TrimSuffix(values, " ms")
 				rttParts := strings.Split(values, "/")
 				if len(rttParts) >= 4 {
-					fmt.Sscanf(rttParts[0], "%f", &result.MinRTT)
-					fmt.Sscanf(rttParts[1], "%f", &result.AvgRTT)
-					fmt.Sscanf(rttParts[2], "%f", &result.MaxRTT)
-					fmt.Sscanf(rttParts[3], "%f", &result.StdDevRTT)
+					_, _ = fmt.Sscanf(rttParts[0], "%f", &result.MinRTT)
+					_, _ = fmt.Sscanf(rttParts[1], "%f", &result.AvgRTT)
+					_, _ = fmt.Sscanf(rttParts[2], "%f", &result.MaxRTT)
+					_, _ = fmt.Sscanf(rttParts[3], "%f", &result.StdDevRTT)
 				}
 			}
 		}
@@ -265,7 +265,7 @@ func (m *Manager) parseTracerouteOutput(output string, result *TracerouteResult)
 						}
 					} else {
 						var rtt float64
-						fmt.Sscanf(parts[i], "%f", &rtt)
+						_, _ = fmt.Sscanf(parts[i], "%f", &rtt)
 						rtts = append(rtts, rtt)
 						i++
 						if i < len(parts) && parts[i] == "ms" {
@@ -330,7 +330,7 @@ func (m *Manager) parseTracepathOutput(output string, result *TracerouteResult) 
 				for i := 2; i < len(parts); i++ {
 					if strings.HasSuffix(parts[i], "ms") {
 						var rtt float64
-						fmt.Sscanf(parts[i], "%fms", &rtt)
+						_, _ = fmt.Sscanf(parts[i], "%fms", &rtt)
 						hop.RTT1 = rtt
 						break
 					}

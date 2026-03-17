@@ -169,18 +169,28 @@ func (m *Manager) UpdateTask(id string, updates map[string]interface{}) error {
 	for key, value := range updates {
 		switch key {
 		case "name":
-			task.Name = value.(string)
+			if v, ok := value.(string); ok {
+				task.Name = v
+			}
 		case "schedule":
-			task.Schedule = value.(string)
-			if err := m.calculateNextSync(task); err != nil {
-				return err
+			if v, ok := value.(string); ok {
+				task.Schedule = v
+				if err := m.calculateNextSync(task); err != nil {
+					return err
+				}
 			}
 		case "enabled":
-			task.Enabled = value.(bool)
+			if v, ok := value.(bool); ok {
+				task.Enabled = v
+			}
 		case "compress":
-			task.Compress = value.(bool)
+			if v, ok := value.(bool); ok {
+				task.Compress = v
+			}
 		case "delete_extraneous":
-			task.DeleteExtraneous = value.(bool)
+			if v, ok := value.(bool); ok {
+				task.DeleteExtraneous = v
+			}
 		}
 	}
 

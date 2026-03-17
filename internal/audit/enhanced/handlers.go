@@ -769,7 +769,7 @@ func (h *Handlers) approveOperation(c *gin.Context) {
 		Notes string `json:"notes"`
 	}
 
-	c.ShouldBindJSON(&req) // 可选
+	_ = c.ShouldBindJSON(&req) // 可选
 
 	approvedBy := c.GetString("user_id")
 	if approvedBy == "" {
