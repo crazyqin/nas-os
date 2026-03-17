@@ -267,8 +267,12 @@ func (fm *FirewallManager) validatePort(port string) error {
 			return fmt.Errorf("无效的端口范围")
 		}
 		var start, end int
-		fmt.Sscanf(parts[0], "%d", &start)
-		fmt.Sscanf(parts[1], "%d", &end)
+		if _, err := fmt.Sscanf(parts[0], "%d", &start); err != nil {
+			return fmt.Errorf("无效的起始端口：%s", parts[0])
+		}
+		if _, err := fmt.Sscanf(parts[1], "%d", &end); err != nil {
+			return fmt.Errorf("无效的结束端口：%s", parts[1])
+		}
 		if start < 1 || start > 65535 || end < 1 || end > 65535 || start > end {
 			return fmt.Errorf("端口范围无效")
 		}
@@ -371,7 +375,7 @@ func (fm *FirewallManager) UpdateRule(id string, rule FirewallRule) (*FirewallRu
 
 	// 从系统防火墙移除旧规则
 	if existing.Enabled {
-		fm.removeRuleFromSystem(existing)
+		_ = fm.removeRuleFromSystem(existing)
 	}
 
 	// 保存新规则
@@ -580,7 +584,7 @@ func (fm *FirewallManager) CleanupExpired() {
 		if entry.ExpiresAt != nil && now.After(*entry.ExpiresAt) {
 			delete(fm.ipBlacklist, ip)
 			// 从系统防火墙移除
-			fm.unblockIP(ip)
+			_ = fm.unblockIP(ip)
 		}
 	}
 }

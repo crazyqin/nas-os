@@ -73,7 +73,7 @@ func (f2m *Fail2BanManager) UpdateConfig(config Fail2BanConfig) error {
 	// 如果禁用，解封所有 IP
 	if !config.Enabled {
 		for ip := range f2m.bannedIPs {
-			f2m.unbanIPInternal(ip)
+			_ = f2m.unbanIPInternal(ip)
 		}
 		f2m.bannedIPs = make(map[string]*BannedIP)
 	}
@@ -422,7 +422,7 @@ func (f2m *Fail2BanManager) CleanupExpired() {
 	for ip, banned := range f2m.bannedIPs {
 		if now.After(banned.ExpiresAt) {
 			delete(f2m.bannedIPs, ip)
-			f2m.removeBan(ip)
+			_ = f2m.removeBan(ip)
 		}
 	}
 

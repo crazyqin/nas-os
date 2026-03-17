@@ -225,7 +225,7 @@ type CustomCheck struct {
 // NewComplianceChecker 创建合规检查器
 func NewComplianceChecker(config ComplianceCheckerConfig) *ComplianceChecker {
 	storageDir := "/var/lib/nas-os/compliance"
-	os.MkdirAll(storageDir, 0750)
+	_ = os.MkdirAll(storageDir, 0750)
 
 	cc := &ComplianceChecker{
 		config:       config,
@@ -824,7 +824,7 @@ func (cc *ComplianceChecker) RunAllChecks(ctx context.Context, standard Complian
 	cc.cleanupOldReports()
 
 	// 保存到文件
-	cc.saveReport(report)
+	_ = cc.saveReport(report)
 
 	return report, nil
 }

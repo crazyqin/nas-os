@@ -215,7 +215,7 @@ func (m *Manager) CreateVersion(filePath, userID, description string, triggerTyp
 	// 保存索引
 	if err := m.saveVersions(); err != nil {
 		// 回滚
-		os.Remove(versionPath)
+		_ = os.Remove(versionPath)
 		delete(m.allVersions, versionID)
 		// 从 versions 中移除
 		vs := m.versions[filePath]
@@ -657,7 +657,7 @@ func (m *Manager) enforceRetentionPolicy(filePath string) {
 		toDelete := len(versions) - m.config.Retention.MaxVersions
 		for i := 0; i < toDelete; i++ {
 			oldest := versions[i]
-			os.Remove(oldest.VersionPath)
+			_ = os.Remove(oldest.VersionPath)
 			m.totalSize -= oldest.Size
 			delete(m.allVersions, oldest.ID)
 		}
@@ -691,7 +691,7 @@ func (m *Manager) cleanupOldestVersions() {
 		if m.totalSize <= m.config.Retention.MaxSpace {
 			break
 		}
-		os.Remove(v.VersionPath)
+		_ = os.Remove(v.VersionPath)
 		m.totalSize -= v.Size
 		delete(m.allVersions, v.ID)
 
@@ -735,7 +735,7 @@ func (m *Manager) cleanupExpiredVersions() {
 
 	for _, id := range toDelete {
 		v := m.allVersions[id]
-		os.Remove(v.VersionPath)
+		_ = os.Remove(v.VersionPath)
 		m.totalSize -= v.Size
 		delete(m.allVersions, id)
 
@@ -749,7 +749,7 @@ func (m *Manager) cleanupExpiredVersions() {
 	}
 
 	if len(toDelete) > 0 {
-		m.saveVersions()
+		_ = m.saveVersions()
 	}
 }
 

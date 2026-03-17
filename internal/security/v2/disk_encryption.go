@@ -488,7 +488,7 @@ func (dm *DiskEncryptionManager) parseLUKSDump(dump, devicePath string) (*LUKSIn
 		case "Cipher":
 			info.Cipher = value
 		case "Key bits":
-			fmt.Sscanf(value, "%d", &info.KeySize)
+			_, _ = fmt.Sscanf(value, "%d", &info.KeySize)
 		case "UUID":
 			info.UUID = value
 		case "Key Slot":
@@ -496,7 +496,7 @@ func (dm *DiskEncryptionManager) parseLUKSDump(dump, devicePath string) (*LUKSIn
 				info.KeySlots = append(info.KeySlots, *currentSlot)
 			}
 			var slotID int
-			fmt.Sscanf(value, "%d", &slotID)
+			_, _ = fmt.Sscanf(value, "%d", &slotID)
 			currentSlot = &KeySlotInfo{
 				SlotID: slotID,
 			}

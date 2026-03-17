@@ -192,7 +192,7 @@ func (am *AlertingManager) isQuietHours() bool {
 
 func parseTime(timeStr string) [2]int {
 	var h, m int
-	fmt.Sscanf(timeStr, "%d:%d", &h, &m)
+	_, _ = fmt.Sscanf(timeStr, "%d:%d", &h, &m)
 	return [2]int{h, m}
 }
 
