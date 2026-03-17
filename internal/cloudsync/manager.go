@@ -471,7 +471,7 @@ func (m *Manager) RunSyncTask(taskID string) (*SyncStatus, error) {
 
 	// 异步执行
 	go func() {
-		engine.Run(context.Background())
+		_ = engine.Run(context.Background())
 
 		m.mu.Lock()
 		delete(m.engines, taskID)
@@ -570,12 +570,12 @@ func (m *Manager) scheduleTask(task *SyncTask) error {
 	switch task.ScheduleType {
 	case ScheduleTypeInterval:
 		return m.scheduler.AddIntervalTask(task.ID, task.ScheduleExpr, func() {
-			m.RunSyncTask(task.ID)
+			_, _ = m.RunSyncTask(task.ID)
 		})
 
 	case ScheduleTypeCron:
 		return m.scheduler.AddCronTask(task.ID, task.ScheduleExpr, func() {
-			m.RunSyncTask(task.ID)
+			_, _ = m.RunSyncTask(task.ID)
 		})
 	}
 	return nil
