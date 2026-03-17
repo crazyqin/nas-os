@@ -1,18 +1,16 @@
 {
-  "lastUpdate": "2026-03-17T06:10:00+08:00",
-  "currentVersion": "v2.148.0",
-  "previousVersion": "v2.147.0",
-  "status": "completed",
+  "lastUpdate": "2026-03-17T12:45:00+08:00",
+  "currentVersion": "v2.165.0",
+  "previousVersion": "v2.164.0",
+  "status": "in_progress",
+  "fixApplied": "修复 golangci-lint v2 配置：从 linters.enable 移除 gofmt/goimports（已在 formatters.enable 中配置）",
   "ministries": {
-    "吏部": { "task": "版本管理", "status": "done", "result": "VERSION、version.go、README、CHANGELOG、MILESTONES 更新至 v2.148.0" },
-    "户部": { "task": "资源统计", "status": "skipped", "result": "因并发限制未执行" },
-    "礼部": { "task": "文档更新", "status": "done", "result": "11 个文档版本同步至 v2.148.0" },
-    "工部": { "task": "CI/CD检查", "status": "done", "result": "5 个 workflow 配置正常，最近运行均成功" },
-    "兵部": { "task": "代码质量", "status": "done", "result": "go vet 0错误，go build 成功，86 个测试包通过" },
-    "刑部": { "task": "安全审计", "status": "done", "result": "gosec 扫描完成，发现 260+ 问题，已生成审计报告" }
+    "吏部": { "task": "版本管理", "status": "pending" },
+    "户部": { "task": "资源统计", "status": "pending" },
+    "礼部": { "task": "文档更新", "status": "pending" },
+    "工部": { "task": "CI/CD检查", "status": "pending" },
+    "兵部": { "task": "代码质量", "status": "pending" },
+    "刑部": { "task": "安全审计", "status": "pending" }
   },
-  "actionsStatus": "running",
-  "nextVersion": "v2.149.0",
-  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.148.0",
-  "gitCommit": "f393205"
+  "actionsStatus": "to_check"
 }
