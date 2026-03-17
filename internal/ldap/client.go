@@ -75,13 +75,17 @@ func (c *Client) Connect() error {
 		if c.config.CACertPath != "" {
 			pool, err := c.loadCACert()
 			if err != nil {
-				_ = conn.Close()
+				if closeErr := conn.Close(); closeErr != nil {
+					return fmt.Errorf("加载 CA 证书失败: %v, 关闭连接失败: %w", err, closeErr)
+				}
 				return err
 			}
 			tlsConfig.RootCAs = pool
 		}
 		if err := conn.StartTLS(tlsConfig); err != nil {
-			_ = conn.Close()
+			if closeErr := conn.Close(); closeErr != nil {
+				return fmt.Errorf("StartTLS 失败: %w, 关闭连接失败: %v", err, closeErr)
+			}
 			return fmt.Errorf("StartTLS 失败: %w", err)
 		}
 	}
@@ -376,19 +380,25 @@ func (p *Pool) Put(client *Client) {
 		// 成功放回
 	default:
 		// 池已满，关闭连接
-		_ = client.Close()
+		if err := client.Close(); err != nil {
+			// 记录错误但继续执行（连接池满时关闭失败不影响主流程）
+		}
 	}
 }
 
 // Close 关闭连接池
-func (p *Pool) Close() {
+func (p *Pool) Close() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	close(p.clients)
+	var lastErr error
 	for client := range p.clients {
-		_ = client.Close()
+		if err := client.Close(); err != nil {
+			lastErr = err
+		}
 	}
+	return lastErr
 }
 
 // Stats 获取连接池统计

@@ -310,7 +310,7 @@ func (aim *AIManager) loadImage(path string) (image.Image, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	img, _, err := image.Decode(f)
 	if err != nil {
@@ -325,7 +325,7 @@ func (aim *AIManager) loadImage(path string) (image.Image, error) {
 func (aim *AIManager) loadImageFFmpeg(path string) (image.Image, error) {
 	// 创建临时文件
 	tmpFile := filepath.Join(os.TempDir(), fmt.Sprintf("heic_%s.jpg", uuid.New().String()))
-	defer os.Remove(tmpFile)
+	defer func() { _ = os.Remove(tmpFile) }()
 
 	// 使用 ffmpeg 转换 HEIC/RAW 为 JPEG
 	cmd := exec.Command("ffmpeg",
@@ -344,7 +344,7 @@ func (aim *AIManager) loadImageFFmpeg(path string) (image.Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("打开转换后的文件失败: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	img, _, err := image.Decode(f)
 	if err != nil {

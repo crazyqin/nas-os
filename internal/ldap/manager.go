@@ -140,7 +140,9 @@ func (m *Manager) UpdateConfig(name string, config Config) error {
 		delete(m.pools, name)
 	}
 	if sync, exists := m.synchronizers[name]; exists {
-		_ = sync.Close()
+		if err := sync.Close(); err != nil {
+			// 记录关闭错误但继续执行
+		}
 		delete(m.synchronizers, name)
 	}
 
@@ -169,7 +171,9 @@ func (m *Manager) DeleteConfig(name string) error {
 		delete(m.pools, name)
 	}
 	if sync, exists := m.synchronizers[name]; exists {
-		_ = sync.Close()
+		if err := sync.Close(); err != nil {
+			// 记录关闭错误但继续执行
+		}
 		delete(m.synchronizers, name)
 	}
 
@@ -405,7 +409,11 @@ func (m *Manager) TestConnection(configName string) (*ConnectionStatus, error) {
 		status.Error = err.Error()
 		return status, err
 	}
-	defer func() { _ = client.Close() }()
+	defer func() {
+		if closeErr := client.Close(); closeErr != nil {
+			// 连接关闭失败，不影响主流程
+		}
+	}()
 
 	if err := client.Bind(); err != nil {
 		status.Error = err.Error()
@@ -425,7 +433,7 @@ func (m *Manager) TestAllConnections() map[string]*ConnectionStatus {
 
 	results := make(map[string]*ConnectionStatus)
 	for name := range m.configs {
-		status, _ := m.TestConnection(name)
+		status, _ := m.TestConnection(name) //nolint:errcheck // 错误信息已包含在 status.Error 中
 		results[name] = status
 	}
 
@@ -491,7 +499,11 @@ func (m *Manager) SyncAll(configName string, userHandler UserSyncHandler, groupH
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = sync.Close() }()
+	defer func() {
+		if closeErr := sync.Close(); closeErr != nil {
+			// 同步器关闭失败，不影响主流程
+		}
+	}()
 
 	return sync.SyncAll()
 }
@@ -522,7 +534,11 @@ func (m *Manager) SearchUsers(configName, query string) ([]*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = client.Close() }()
+	defer func() {
+		if closeErr := client.Close(); closeErr != nil {
+			// 客户端关闭失败，不影响主流程
+		}
+	}()
 
 	if err := client.Bind(); err != nil {
 		return nil, err
@@ -639,7 +655,11 @@ func (m *Manager) GetGroups(configName string) ([]*Group, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func() { _ = client.Close() }()
+	defer func() {
+		if closeErr := client.Close(); closeErr != nil {
+			// 客户端关闭失败，不影响主流程
+		}
+	}()
 
 	if err := client.Bind(); err != nil {
 		return nil, err
@@ -686,22 +706,30 @@ func (m *Manager) Close() error {
 
 	// 关闭所有认证器
 	for _, auth := range m.authenticators {
-		_ = auth.Close()
+		if err := auth.Close(); err != nil {
+			// 记录错误但继续关闭其他资源
+		}
 	}
 
 	// 关闭所有 AD 客户端
 	for _, client := range m.adClients {
-		_ = client.Close()
+		if err := client.Close(); err != nil {
+			// 记录错误但继续关闭其他资源
+		}
 	}
 
 	// 关闭所有连接池
 	for _, pool := range m.pools {
-		pool.Close()
+		if err := pool.Close(); err != nil {
+			// 记录错误但继续关闭其他资源
+		}
 	}
 
 	// 停止所有同步器
 	for _, sync := range m.synchronizers {
-		_ = sync.Close()
+		if err := sync.Close(); err != nil {
+			// 记录错误但继续关闭其他资源
+		}
 	}
 
 	// 清空映射
