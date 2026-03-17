@@ -73,9 +73,9 @@ func NewScheduler(config *SchedulerConfig) (*Scheduler, error) {
 	}
 
 	// 注册内置处理器
-	s.executor.RegisterHandler(NewCommandHandler())
-	s.executor.RegisterHandler(NewHTTPHandler())
-	s.executor.RegisterHandler(NewScriptHandler())
+	_ = s.executor.RegisterHandler(NewCommandHandler())
+	_ = s.executor.RegisterHandler(NewHTTPHandler())
+	_ = s.executor.RegisterHandler(NewScriptHandler())
 
 	return s, nil
 }
@@ -97,11 +97,11 @@ func (s *Scheduler) loadTasks() error {
 
 	for _, task := range tasks {
 		s.tasks[task.ID] = task
-		s.executor.RegisterTask(task)
+		_ = s.executor.RegisterTask(task)
 
 		// 恢复 Cron 任务
 		if task.Type == TaskTypeCron && task.Enabled {
-			s.scheduleCronTask(task)
+			_ = s.scheduleCronTask(task)
 		}
 	}
 
@@ -189,7 +189,7 @@ func (s *Scheduler) tick() {
 		if now.After(entry.next) || now.Equal(entry.next) {
 			task := s.tasks[taskID]
 			if task != nil && task.Enabled && task.Status != TaskStatusRunning {
-				go s.runTaskInternal(task)
+				go func(t *Task) { _, _ = s.runTaskInternal(t) }(task)
 			}
 			// 计算下次执行时间
 			entry.next = entry.expr.Next(now)
@@ -203,20 +203,20 @@ func (s *Scheduler) tick() {
 	for _, task := range s.tasks {
 		if task.Type == TaskTypeOneTime && task.Enabled && task.Status == TaskStatusPending {
 			if task.ScheduledAt != nil && (now.After(*task.ScheduledAt) || now.Equal(*task.ScheduledAt)) {
-				go s.runTaskInternal(task)
+				go func(t *Task) { _, _ = s.runTaskInternal(t) }(task)
 			}
 		}
 
 		// 检查间隔任务
 		if task.Type == TaskTypeInterval && task.Enabled && task.Status != TaskStatusRunning {
 			if task.LastRunAt == nil {
-				go s.runTaskInternal(task)
+				go func(t *Task) { _, _ = s.runTaskInternal(t) }(task)
 			} else {
 				interval, err := ParseDuration(task.Interval)
 				if err == nil {
 					nextRun := task.LastRunAt.Add(interval)
 					if now.After(nextRun) {
-						go s.runTaskInternal(task)
+						go func(t *Task) { _, _ = s.runTaskInternal(t) }(task)
 					}
 				}
 			}

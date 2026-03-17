@@ -339,7 +339,7 @@ func (h *Handlers) updateConfig(c *gin.Context) {
 	username := c.GetString("username")
 	ip := c.ClientIP()
 
-	h.manager.LogConfigChange(userID, username, ip, "audit_config", "update", nil, config)
+	_ = h.manager.LogConfigChange(userID, username, ip, "audit_config", "update", nil, config)
 
 	c.JSON(http.StatusOK, SuccessResponse(nil))
 }
