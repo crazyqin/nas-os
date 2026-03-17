@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.195.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.195.0
+- ✅ CHANGELOG.md 版本条目创建
+
+#### 礼部 - 文档维护
+- ✅ 版本号同步至 v2.195.0
+- ✅ README.md 版本信息更新
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步
+- ✅ docs/api.yaml API 文档版本同步
+- ✅ docs/swagger.json OpenAPI 文档版本同步
+- ✅ docs/swagger.yaml 版本同步（修复严重落后问题）
+- ✅ internal/version/version.go 版本同步
+
+#### 工部 - CI/CD 检查
+- 🔄 待更新
+
+#### 刑部 - 安全审计
+- 🔄 待更新
+
+#### 户部 - 项目统计
+- 🔄 待更新
+
 ## [v2.194.0] - 2026-03-17
 
 ### 六部协同开发
