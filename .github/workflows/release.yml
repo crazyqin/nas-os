@@ -66,7 +66,7 @@ on:
         type: boolean
 
 env:
-  GO_VERSION: '1.24'
+  GO_VERSION: '1.26'
   CACHE_VERSION: 'v12'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
