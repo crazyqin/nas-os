@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.175.0] - 2026-03-17
+
+### 修复
+- 修复 api/websocket.go 中的 errcheck 错误（10处）
+- 修复 internal/billing/cost_analysis/report.go 中的 errcheck 错误（3处）
+- 更新 .golangci.yml 添加 WebSocket 和成本分析模块的排除规则
+
+### 技术细节
+- WebSocket 连接操作（Close、SetDeadline、WriteMessage）添加显式忽略
+- 成本分析报告操作（load、save、Unmarshal）添加显式忽略
+- json.Marshal 和 w.Write 添加错误检查逻辑
+
+---
+
 ## [v2.174.0] - 2026-03-17
 
 ### 六部协同开发
