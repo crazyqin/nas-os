@@ -81,7 +81,9 @@ func (ctm *CustomTemplateManager) ImportFromURL(url, name, displayName, descript
 	template.SourceURL = url
 
 	ctm.templates[template.ID] = template
-	ctm.saveTemplate(template)
+	if err := ctm.saveTemplate(template); err != nil {
+		return nil, fmt.Errorf("保存模板失败：%w", err)
+	}
 
 	return template, nil
 }
@@ -219,20 +221,32 @@ func (ctm *CustomTemplateManager) UpdateTemplate(id string, updates map[string]i
 	for k, v := range updates {
 		switch k {
 		case "name":
-			t.Name = v.(string)
+			if s, ok := v.(string); ok {
+				t.Name = s
+			}
 		case "display_name":
-			t.DisplayName = v.(string)
+			if s, ok := v.(string); ok {
+				t.DisplayName = s
+			}
 		case "description":
-			t.Description = v.(string)
+			if s, ok := v.(string); ok {
+				t.Description = s
+			}
 		case "category":
-			t.Category = v.(string)
+			if s, ok := v.(string); ok {
+				t.Category = s
+			}
 		case "compose":
-			t.Compose = v.(string)
+			if s, ok := v.(string); ok {
+				t.Compose = s
+			}
 		}
 	}
 
 	t.UpdatedAt = time.Now()
-	ctm.saveTemplate(t)
+	if err := ctm.saveTemplate(t); err != nil {
+		return nil, fmt.Errorf("保存模板失败：%w", err)
+	}
 	return t, nil
 }
 
@@ -249,7 +263,9 @@ func (ctm *CustomTemplateManager) DeleteTemplate(id string) error {
 
 	if ctm.templatesDir != "" {
 		filePath := filepath.Join(ctm.templatesDir, id+".json")
-		os.Remove(filePath)
+		if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("删除模板文件失败：%w", err)
+		}
 	}
 
 	return nil
