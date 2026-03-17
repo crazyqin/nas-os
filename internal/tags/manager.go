@@ -228,7 +228,7 @@ func (m *Manager) ListTags() ([]*Tag, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var tags []*Tag
 	for rows.Next() {
@@ -256,7 +256,7 @@ func (m *Manager) ListTagsByGroup(group string) ([]*Tag, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var tags []*Tag
 	for rows.Next() {
@@ -491,7 +491,7 @@ func (m *Manager) GetTagsForFile(filePath string) ([]*Tag, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var tags []*Tag
 	for rows.Next() {
@@ -550,7 +550,7 @@ func (m *Manager) GetFilesByTags(tagIDs []string, matchAll bool) ([]string, erro
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var files []string
 	for rows.Next() {
@@ -602,7 +602,7 @@ func (m *Manager) ListGroups() ([]*TagGroup, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var groups []*TagGroup
 	for rows.Next() {
@@ -728,7 +728,7 @@ func (m *Manager) SearchTags(keyword string) ([]*Tag, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var tags []*Tag
 	for rows.Next() {
@@ -795,7 +795,7 @@ func (m *Manager) SearchFilesByTags(keyword string, tagIDs []string, matchAll bo
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var files []string
 	for rows.Next() {

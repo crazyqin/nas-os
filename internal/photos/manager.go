@@ -292,7 +292,7 @@ func (m *Manager) extractEXIF(path string) (*EXIFData, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	x, err := exif.Decode(f)
 	if err != nil {
@@ -350,7 +350,7 @@ func (m *Manager) generateThumbnails(srcPath string, photoID string) error {
 	if err != nil {
 		return err
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	// 解码图像
 	var srcImg image.Image

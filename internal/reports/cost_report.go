@@ -920,7 +920,7 @@ func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) e
 	if err != nil {
 		return fmt.Errorf("创建文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()

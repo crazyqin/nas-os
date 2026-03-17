@@ -691,7 +691,7 @@ func (m *Monitor) GetHistoryData(duration string, interval string) ([]*HistoryDa
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var data []*HistoryData
 	for rows.Next() {
@@ -717,7 +717,7 @@ func (m *Monitor) GetAlerts() ([]*Alert, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var alerts []*Alert
 	for rows.Next() {

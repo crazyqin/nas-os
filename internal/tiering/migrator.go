@@ -144,14 +144,14 @@ func (m *Migrator) copyFileInternal(sourcePath, targetPath string, verify bool) 
 	if err != nil {
 		return fmt.Errorf("打开源文件失败: %w", err)
 	}
-	defer sourceFile.Close()
+	defer func() { _ = sourceFile.Close() }()
 
 	// 创建目标文件
 	targetFile, err := os.Create(targetPath)
 	if err != nil {
 		return fmt.Errorf("创建目标文件失败: %w", err)
 	}
-	defer targetFile.Close()
+	defer func() { _ = targetFile.Close() }()
 
 	// 复制数据
 	if _, err := io.Copy(targetFile, sourceFile); err != nil {
@@ -289,7 +289,7 @@ func (m *Migrator) calculateFileHash(filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {

@@ -1257,7 +1257,7 @@ func (g *FinancialReportGenerator) exportToExcel(report *FinancialReport) (strin
 	filePath := filepath.Join(g.storagePath, filename)
 
 	f := excelize.NewFile()
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	sheet := "财务报告"
 	f.SetSheetName("Sheet1", sheet)

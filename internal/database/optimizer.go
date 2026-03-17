@@ -354,7 +354,7 @@ func (o *Optimizer) QueryWithCache(query string, args ...interface{}) ([]map[str
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	// Get column names
 	columns, err := rows.Columns()
@@ -538,7 +538,7 @@ func (o *Optimizer) GetIndexes() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var indexes []string
 	for rows.Next() {

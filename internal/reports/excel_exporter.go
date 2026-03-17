@@ -208,7 +208,7 @@ func (e *ExcelExporter) ExportToBytes(report *GeneratedReport, options ExportOpt
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	buf, err := f.WriteToBuffer()
 	if err != nil {
@@ -866,7 +866,7 @@ func (t *ExcelTemplateExporter) ExportWithTemplate(report *GeneratedReport, temp
 	if err != nil {
 		return nil, fmt.Errorf("打开模板失败: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// 查找数据占位符并填充
 	if err := t.fillTemplateData(f, report, options); err != nil {

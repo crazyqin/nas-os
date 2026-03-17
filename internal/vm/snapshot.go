@@ -347,7 +347,7 @@ func (m *SnapshotManager) DeleteSnapshot(ctx context.Context, snapshotID string)
 
 	// 删除快照元数据文件
 	snapshotFile := filepath.Join(m.storagePath, "snapshots", snapshotID+".json")
-	os.Remove(snapshotFile)
+	_ = os.Remove(snapshotFile)
 
 	delete(m.snapshots, snapshotID)
 

@@ -135,7 +135,7 @@ func (l *SecurityLogger) writeToFile(entry SecurityLogEntry) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	data, err := json.Marshal(entry)
 	if err != nil {
