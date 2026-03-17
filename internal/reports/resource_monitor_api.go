@@ -4,6 +4,7 @@ package reports
 import (
 	"fmt"
 	"runtime"
+	"sort"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -809,12 +810,35 @@ func (h *ResourceMonitorAPIHandlers) getProcessRanking(c *gin.Context) {
 		return
 	}
 
-	// TODO: 实现按 sortBy 排序
+	// 按指定字段排序
 	sortBy := c.Query("sort")
-	_ = sortBy // 待实现排序功能
 	if sortBy == "" {
 		sortBy = "cpu"
 	}
+
+	// 根据排序字段进行排序
+	sort.Slice(metrics, func(i, j int) bool {
+		switch sortBy {
+		case "pid":
+			return metrics[i].PID < metrics[j].PID
+		case "name":
+			return metrics[i].Name < metrics[j].Name
+		case "user":
+			return metrics[i].User < metrics[j].User
+		case "memory", "mem":
+			return metrics[i].MemoryRSS > metrics[j].MemoryRSS
+		case "memory_vms":
+			return metrics[i].MemoryVMS > metrics[j].MemoryVMS
+		case "threads":
+			return metrics[i].Threads > metrics[j].Threads
+		case "fd":
+			return metrics[i].FDCount > metrics[j].FDCount
+		case "cpu", "cpu_usage":
+			fallthrough
+		default:
+			return metrics[i].CPUUsage > metrics[j].CPUUsage
+		}
+	})
 
 	limit := 20
 	if l := c.Query("limit"); l != "" {
