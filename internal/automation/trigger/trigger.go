@@ -161,7 +161,7 @@ func (t *FileTrigger) Start(ctx context.Context, callback func(map[string]interf
 		err = watcher.Add(t.Path)
 	}
 	if err != nil {
-		watcher.Close()
+		_ = watcher.Close()
 		return fmt.Errorf("failed to watch path %s: %w", t.Path, err)
 	}
 

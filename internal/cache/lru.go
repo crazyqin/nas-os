@@ -43,7 +43,11 @@ func (c *LRUCache) Get(key interface{}) (interface{}, bool) {
 		return nil, false
 	}
 
-	item := elem.Value.(*cacheItem)
+	item, ok := elem.Value.(*cacheItem)
+	if !ok {
+		c.removeElement(elem)
+		return nil, false
+	}
 
 	// Check if expired
 	if time.Now().After(item.expiry) {

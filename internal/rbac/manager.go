@@ -126,12 +126,8 @@ func (m *Manager) SetUserRole(userID, username string, role Role) error {
 	m.invalidateCache(userID)
 
 	// 保存
-	m.save()
-
-	return nil
+	return m.save()
 }
-
-// GetUserPermissions 获取用户权限
 func (m *Manager) GetUserPermissions(userID string) (*UserPermission, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -181,9 +177,7 @@ func (m *Manager) GrantPermission(userID, username, permission string) error {
 	up.LastChecked = time.Now()
 
 	m.invalidateCache(userID)
-	m.save()
-
-	return nil
+	return m.save()
 }
 
 // RevokePermission 撤销用户权限
@@ -205,9 +199,7 @@ func (m *Manager) RevokePermission(userID, permission string) error {
 	up.DirectPerms = newPerms
 
 	m.invalidateCache(userID)
-	m.save()
-
-	return nil
+	return m.save()
 }
 
 // ========== 权限检查 ==========

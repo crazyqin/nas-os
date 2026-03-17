@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.166.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.166.0
+- ✅ 项目进度：65 个里程碑已完成
+
+#### 兵部 - 代码质量
+- ✅ 修复 golangci-lint errcheck 错误
+
+#### 礼部 - 文档维护
+- ✅ README.md Docker 版本更新 (v2.165.0 → v2.166.0)
+- ✅ README.md 下载链接版本更新
+- ✅ docs/api.yaml 版本更新 (v2.165.0 → v2.166.0)
+
+#### 工部 - DevOps
+- ✅ CI/CD 配置正常
+
+#### 刑部 - 安全审计
+- 🔄 安全检查进行中
+
+#### 户部 - 资源统计
+- 📊 701 个 Go 文件
+- 📊 247 个测试文件
+- 📊 394,728 行代码
+
+### Changed
+- Fix golangci-lint errcheck errors
+- Version bump to v2.166.0
+- Update README.md version references
+- Update docs/api.yaml version
+
+---
+
 ## [v2.165.0] - 2026-03-17
 
 ### 六部协同开发
