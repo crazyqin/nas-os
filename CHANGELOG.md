@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.190.0] - 2026-03-17
+
+### 改进
+- 继续优化代码质量
+
 ## [v2.189.0] - 2026-03-17
 
 ### Fixed
