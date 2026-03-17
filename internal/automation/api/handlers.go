@@ -7,11 +7,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"nas-os/internal/automation/action"
 	"nas-os/internal/automation/engine"
 	"nas-os/internal/automation/templates"
 	"nas-os/internal/automation/trigger"
+
+	"github.com/gorilla/mux"
 )
 
 // AutomationAPI 自动化 API 处理器

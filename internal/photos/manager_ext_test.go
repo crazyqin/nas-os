@@ -238,7 +238,7 @@ func TestManager_QueryPhotos_Filters(t *testing.T) {
 
 	// 按用户查询
 	query := &PhotoQuery{UserID: "user1"}
-	results, total, err := m.QueryPhotos(query)
+	_, total, err := m.QueryPhotos(query)
 	if err != nil {
 		t.Fatalf("查询失败：%v", err)
 	}
@@ -248,6 +248,7 @@ func TestManager_QueryPhotos_Filters(t *testing.T) {
 
 	// 按收藏查询
 	query = &PhotoQuery{UserID: "user1", IsFavorite: boolPtr(true)}
+	var results []*Photo
 	results, total, _ = m.QueryPhotos(query)
 	if total != 1 {
 		t.Errorf("期望 1 张收藏照片，得到 %d", total)
