@@ -63,7 +63,7 @@ func DefaultLoginAuditConfig() LoginAuditConfig {
 // NewLoginAuditor 创建登录审计器
 func NewLoginAuditor(config LoginAuditConfig) *LoginAuditor {
 	storageDir := "/var/log/nas-os/audit/login"
-	os.MkdirAll(storageDir, 0750)
+	_ = os.MkdirAll(storageDir, 0750) // 创建存储目录，忽略错误
 
 	return &LoginAuditor{
 		entries:    make([]*LoginAuditEntry, 0),
@@ -822,7 +822,7 @@ func (la *LoginAuditor) save() {
 		return
 	}
 
-	os.WriteFile(filename, data, 0640)
+	_ = os.WriteFile(filename, data, 0640) // 写入文件，忽略错误
 }
 
 // Load 加载数据
