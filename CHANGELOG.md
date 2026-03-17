@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.218.0] - 2026-03-18
+
+### Fixed
+- 修复 auth 模块 errcheck 错误 (类型断言、Close 方法)
+- 修复 oauth2/rbac/scanner 模块 errcheck 错误
+
+---
+
 ## [v2.217.0] - 2026-03-18
 
 ### Bug 修复
