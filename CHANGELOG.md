@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.200.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 礼部 - 文档维护
+- ✅ README.md 版本号同步（7 处）
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步（6 处）
+- ✅ docs/api.yaml 版本号同步
+- ✅ docs/swagger.yaml 版本号同步
+- ✅ docs/swagger.json 版本号同步
+
+### Changed
+- Version bump to v2.200.0
+
 ## [v2.199.0] - 2026-03-18
 
 ### 六部协同开发
