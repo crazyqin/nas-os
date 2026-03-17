@@ -151,7 +151,10 @@ func (h *WebSocketHub) BroadcastToUser(userID string, msgType MessageType, data 
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	msgBytes, _ := json.Marshal(msg)
+	msgBytes, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
 	for client := range h.clients {
 		if client.UserID == userID {
 			select {
@@ -175,13 +178,13 @@ func (h *WebSocketHub) GetClientCount() int {
 func (c *Client) ReadPump(h *WebSocketHub) {
 	defer func() {
 		h.unregister <- c
-		c.Connection.Close()
+		_ = c.Connection.Close()
 	}()
 
 	c.Connection.SetReadLimit(512)
-	c.Connection.SetReadDeadline(time.Now().Add(60 * time.Second))
+	_ = c.Connection.SetReadDeadline(time.Now().Add(60 * time.Second))
 	c.Connection.SetPongHandler(func(string) error {
-		c.Connection.SetReadDeadline(time.Now().Add(60 * time.Second))
+		_ = c.Connection.SetReadDeadline(time.Now().Add(60 * time.Second))
 		return nil
 	})
 
@@ -208,7 +211,7 @@ func (c *Client) ReadPump(h *WebSocketHub) {
 				}
 			case "ping":
 				// Respond with pong
-				c.Connection.WriteJSON(&WebSocketMessage{
+				_ = c.Connection.WriteJSON(&WebSocketMessage{
 					Type:      "system",
 					Timestamp: time.Now().Unix(),
 					Data:      json.RawMessage(`{"pong":true}`),
@@ -223,15 +226,15 @@ func (c *Client) WritePump() {
 	ticker := time.NewTicker(30 * time.Second)
 	defer func() {
 		ticker.Stop()
-		c.Connection.Close()
+		_ = c.Connection.Close()
 	}()
 
 	for {
 		select {
 		case message, ok := <-c.Send:
-			c.Connection.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			_ = c.Connection.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if !ok {
-				c.Connection.WriteMessage(websocket.CloseMessage, []byte{})
+				_ = c.Connection.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
@@ -239,13 +242,19 @@ func (c *Client) WritePump() {
 			if err != nil {
 				return
 			}
-			w.Write(message)
+			if _, err := w.Write(message); err != nil {
+				return
+			}
 
 			// Batch messages
 			n := len(c.Send)
 			for i := 0; i < n; i++ {
-				w.Write([]byte{'\n'})
-				w.Write(<-c.Send)
+				if _, err := w.Write([]byte{'\n'}); err != nil {
+					return
+				}
+				if _, err := w.Write(<-c.Send); err != nil {
+					return
+				}
 			}
 
 			if err := w.Close(); err != nil {
@@ -253,7 +262,7 @@ func (c *Client) WritePump() {
 			}
 
 		case <-ticker.C:
-			c.Connection.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			_ = c.Connection.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := c.Connection.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}

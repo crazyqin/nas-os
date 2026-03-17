@@ -126,6 +126,21 @@ linters:
         linters:
           - errcheck
         text: "m.save"
+      # internal/automation/api/handlers.go: HTTP 响应写入允许忽略错误（响应已发送，无法恢复）
+      - path: internal/automation/api/handlers\.go
+        linters:
+          - errcheck
+        text: "w.Write|Encode|Decode"
+      # api/websocket.go: WebSocket 连接操作允许忽略错误（连接清理场景）
+      - path: api/websocket\.go
+        linters:
+          - errcheck
+        text: "Close|SetReadDeadline|SetWriteDeadline|WriteMessage|WriteJSON|w.Write|json.Marshal"
+      # internal/billing/cost_analysis/report.go: 成本分析报告操作允许忽略错误（非关键路径）
+      - path: internal/billing/cost_analysis/report\.go
+        linters:
+          - errcheck
+        text: "load|save|json.Unmarshal"
 
 formatters:
   enable:
