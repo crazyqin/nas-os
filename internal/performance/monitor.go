@@ -728,7 +728,7 @@ nas_health_status %d
 // collectAlertMetrics 收集告警指标
 func (e *PrometheusExporter) collectAlertMetrics() string {
 	stats := e.alerts.GetAlertStats()
-	byLevel := stats["by_level"].(map[AlertLevel]int)
+	byLevel, _ := stats["by_level"].(map[AlertLevel]int)
 
 	return fmt.Sprintf(`
 # HELP nas_alerts_total Total number of active alerts

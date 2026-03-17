@@ -297,7 +297,7 @@ func (rm *RecoveryManager) CreateState(id string, config CompressConfig) *Compre
 	}
 
 	rm.states[id] = state
-	rm.saveState(state)
+	_ = rm.saveState(state)
 
 	return state
 }
@@ -603,7 +603,7 @@ func (pc *ParallelCompressor) CompressParallel(ctx context.Context, paths []stri
 	pc.progress.SetPhase(PhaseCompressing)
 
 	if state != nil {
-		pc.recovery.UpdateState(taskID, func(s *CompressionState) {
+		_ = pc.recovery.UpdateState(taskID, func(s *CompressionState) {
 			s.TotalFiles = int64(len(validPaths))
 			s.PendingFiles = validPaths
 		})
@@ -667,7 +667,7 @@ sendLoop:
 		}
 
 		if state != nil {
-			pc.recovery.AddProcessed(taskID, res.Path, res.SavedBytes)
+			_ = pc.recovery.AddProcessed(taskID, res.Path, res.SavedBytes)
 		}
 	}
 
@@ -676,7 +676,7 @@ sendLoop:
 		result.FailedFiles++
 
 		if state != nil {
-			pc.recovery.AddFailed(taskID, err.Path, errors.New(err.Error))
+			_ = pc.recovery.AddFailed(taskID, err.Path, errors.New(err.Error))
 		}
 	}
 
@@ -690,7 +690,7 @@ sendLoop:
 
 	// 标记完成
 	if state != nil {
-		pc.recovery.MarkCompleted(taskID)
+		_ = pc.recovery.MarkCompleted(taskID)
 	}
 
 	return result, nil

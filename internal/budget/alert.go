@@ -605,7 +605,7 @@ func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*BudgetAlert, er
 						NotifyUsers: rule.NotifyUsers,
 					}
 					for _, notifier := range m.notifiers {
-						notifier.Send(ctx, alert, notifyConfig)
+						_ = notifier.Send(ctx, alert, notifyConfig)
 					}
 				}
 
