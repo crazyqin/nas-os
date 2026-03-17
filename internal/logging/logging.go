@@ -288,7 +288,7 @@ func (l *Logger) log(level Level, message string, fields map[string]interface{})
 
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	l.output.Write(output)
+	_, _ = l.output.Write(output)
 }
 
 // Debug 记录调试日志
@@ -526,7 +526,7 @@ func (r *LogRotator) Write(p []byte) (n int, err error) {
 
 func (r *LogRotator) rotate() error {
 	if r.file != nil {
-		r.file.Close()
+		_ = r.file.Close()
 	}
 
 	// 重命名当前日志文件
@@ -560,7 +560,7 @@ func (r *LogRotator) cleanOldLogs() {
 
 	// 删除最旧的文件
 	for i := 0; i < len(matches)-r.maxBackups; i++ {
-		os.Remove(matches[i])
+		_ = os.Remove(matches[i])
 	}
 
 	// 删除过期的日志
@@ -572,7 +572,7 @@ func (r *LogRotator) cleanOldLogs() {
 				continue
 			}
 			if info.ModTime().Before(cutoff) {
-				os.Remove(match)
+				_ = os.Remove(match)
 			}
 		}
 	}
@@ -929,7 +929,7 @@ func (s *LogSearcher) GetStats(path string) (map[string]interface{}, error) {
 	var totalSize int64
 	var fileCount int
 
-	filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return nil
 		}

@@ -922,7 +922,7 @@ func (aim *AIManager) saveMemory(memory *MemoryAlbum) {
 	// 读取已保存的回忆
 	var memories []MemoryAlbum
 	if data, err := os.ReadFile(memoriesPath); err == nil {
-		json.Unmarshal(data, &memories)
+		_ = json.Unmarshal(data, &memories)
 	}
 
 	// 检查是否已存在相同年份和日期的回忆
@@ -934,7 +934,7 @@ func (aim *AIManager) saveMemory(memory *MemoryAlbum) {
 			if err != nil {
 				return
 			}
-			os.WriteFile(memoriesPath, data, 0644)
+			_ = os.WriteFile(memoriesPath, data, 0644)
 			return
 		}
 	}
@@ -947,7 +947,7 @@ func (aim *AIManager) saveMemory(memory *MemoryAlbum) {
 	if err != nil {
 		return
 	}
-	os.WriteFile(memoriesPath, data, 0644)
+	_ = os.WriteFile(memoriesPath, data, 0644)
 }
 
 // GetMemories 获取回忆列表
@@ -1215,8 +1215,8 @@ func (aim *AIManager) GetAIStats() map[string]interface{} {
 func (aim *AIManager) Close() {
 	close(aim.stopChan)
 	aim.wg.Wait()
-	aim.persistAIMemory()
-	aim.saveSmartAlbums()
+	_ = aim.persistAIMemory()
+	_ = aim.saveSmartAlbums()
 }
 
 // ClearAIData 清除所有 AI 内存数据

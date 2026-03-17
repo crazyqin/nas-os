@@ -246,9 +246,9 @@ func (l *TransferLogger) Clear() error {
 
 	// 清空文件
 	if l.logFile != nil {
-		l.logFile.Close()
-		os.Truncate(l.logPath, 0)
-		l.initLogFile()
+		_ = l.logFile.Close()
+		_ = os.Truncate(l.logPath, 0)
+		_ = l.initLogFile()
 	}
 
 	return nil
@@ -261,14 +261,14 @@ func (l *TransferLogger) rotateLog() {
 	}
 
 	// 关闭当前文件
-	l.logFile.Close()
+	_ = l.logFile.Close()
 
 	// 重命名旧文件
 	backup := l.logPath + "." + time.Now().Format("20060102-150405")
 	_ = os.Rename(l.logPath, backup)
 
 	// 创建新文件
-	l.initLogFile()
+	_ = l.initLogFile()
 
 	// 清理旧备份
 	if l.retention > 0 {
@@ -304,7 +304,7 @@ func (l *TransferLogger) cleanupOldBackups() {
 		}
 
 		if info.ModTime().Before(cutoff) {
-			os.Remove(filepath.Join(dir, name))
+			_ = os.Remove(filepath.Join(dir, name))
 		}
 	}
 }
