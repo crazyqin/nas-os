@@ -1,24 +1,18 @@
 {
-  "lastUpdate": "2026-03-17T20:10:00+08:00",
-  "currentVersion": "v2.185.0",
-  "previousVersion": "v2.184.0",
-  "status": "completed",
-  "gitCommit": "fc37818",
-  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.185.0",
-  "fixApplied": "修复 errcheck 错误：类型断言安全处理、RegisterValidation 返回值处理、defer Close() 错误处理",
+  "lastUpdate": "2026-03-18T00:45:00+08:00",
+  "currentVersion": "v2.197.0",
+  "previousVersion": "v2.196.0",
+  "status": "in_progress",
   "ministries": {
-    "兵部": { "task": "代码质量修复", "status": "done", "result": "修复 5 个文件的 errcheck 错误" },
-    "刑部": { "task": "安全审计", "status": "done", "result": "高危 153, 中危 791, 低危 701" },
-    "工部": { "task": "CI/CD检查", "status": "done", "result": "Workflows/Dockerfile/go mod/go vet 全部通过" },
-    "吏部": { "task": "版本管理", "status": "done", "result": "VERSION、version.go 更新至 2.185.0" },
-    "礼部": { "task": "文档更新", "status": "done", "result": "CHANGELOG.md 添加 v2.185.0 条目" },
-    "户部": { "task": "资源统计", "status": "skipped", "result": "并发限制未执行" }
+    "兵部": { "task": "代码质量检查", "status": "pending", "result": null },
+    "刑部": { "task": "安全审计", "status": "pending", "result": null },
+    "工部": { "task": "CI/CD检查", "status": "pending", "result": null },
+    "吏部": { "task": "版本管理", "status": "pending", "result": null },
+    "礼部": { "task": "文档更新", "status": "pending", "result": null },
+    "户部": { "task": "资源统计", "status": "pending", "result": null }
   },
   "actionsStatus": "running",
   "actions": [
-    { "name": "CI/CD", "status": "in_progress" },
-    { "name": "Security Scan", "status": "in_progress" },
-    { "name": "Docker Publish", "status": "in_progress" },
-    { "name": "GitHub Release", "status": "completed" }
+    { "name": "Docker Publish", "status": "in_progress", "version": "v2.196.0" }
   ]
 }
