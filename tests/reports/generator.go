@@ -289,7 +289,11 @@ func (g *ReportGenerator) generateHTML(report *TestReport) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		if cerr := f.Close(); cerr != nil {
+			// 文件关闭错误，通常可以忽略或记录日志
+		}
+	}()
 
 	return t.Execute(f, report)
 }

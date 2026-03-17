@@ -161,7 +161,9 @@ func (m *ShareACLManager) CreateShareACL(shareName string, shareType ShareType, 
 	}
 
 	m.acls[shareName] = acl
-	m.save()
+	if err := m.save(); err != nil {
+		return nil, fmt.Errorf("保存 ACL 配置失败: %w", err)
+	}
 
 	return acl, nil
 }
@@ -194,7 +196,9 @@ func (m *ShareACLManager) UpdateShareACL(shareName, description string, defaultL
 	acl.Enabled = enabled
 	acl.UpdatedAt = time.Now()
 
-	m.save()
+	if err := m.save(); err != nil {
+		return fmt.Errorf("保存 ACL 配置失败: %w", err)
+	}
 	return nil
 }
 
@@ -208,7 +212,9 @@ func (m *ShareACLManager) DeleteShareACL(shareName string) error {
 	}
 
 	delete(m.acls, shareName)
-	m.save()
+	if err := m.save(); err != nil {
+		return fmt.Errorf("保存 ACL 配置失败: %w", err)
+	}
 	return nil
 }
 
@@ -246,7 +252,9 @@ func (m *ShareACLManager) AddACLEntry(shareName string, principalType PrincipalT
 			entry.Disabled = false
 			entry.AccessLevel = accessLevel
 			entry.UpdatedAt = time.Now()
-			m.save()
+			if err := m.save(); err != nil {
+				return nil, fmt.Errorf("保存 ACL 配置失败: %w", err)
+			}
 			return entry, nil
 		}
 	}
@@ -267,7 +275,9 @@ func (m *ShareACLManager) AddACLEntry(shareName string, principalType PrincipalT
 	acl.Entries = append(acl.Entries, entry)
 	acl.UpdatedAt = now
 
-	m.save()
+	if err := m.save(); err != nil {
+		return nil, fmt.Errorf("保存 ACL 配置失败: %w", err)
+	}
 	return entry, nil
 }
 
@@ -285,7 +295,9 @@ func (m *ShareACLManager) UpdateACLEntry(shareName, entryID string, accessLevel 
 		if entry.ID == entryID {
 			entry.AccessLevel = accessLevel
 			acl.UpdatedAt = time.Now()
-			m.save()
+			if err := m.save(); err != nil {
+				return fmt.Errorf("保存 ACL 配置失败: %w", err)
+			}
 			return nil
 		}
 	}
@@ -316,7 +328,9 @@ func (m *ShareACLManager) RemoveACLEntry(shareName, entryID string) error {
 
 	acl.Entries = newEntries
 	acl.UpdatedAt = time.Now()
-	m.save()
+	if err := m.save(); err != nil {
+		return fmt.Errorf("保存 ACL 配置失败: %w", err)
+	}
 	return nil
 }
 
@@ -334,7 +348,9 @@ func (m *ShareACLManager) DisableACLEntry(shareName, entryID string) error {
 		if entry.ID == entryID {
 			entry.Disabled = true
 			acl.UpdatedAt = time.Now()
-			m.save()
+			if err := m.save(); err != nil {
+				return fmt.Errorf("保存 ACL 配置失败: %w", err)
+			}
 			return nil
 		}
 	}

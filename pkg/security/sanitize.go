@@ -3,6 +3,7 @@ package security
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -84,7 +85,10 @@ func ValidateID(id string) error {
 		return ErrInvalidInput
 	}
 
-	matched, _ := regexp.MatchString("^[a-zA-Z0-9_-]+$", id)
+	matched, err := regexp.MatchString("^[a-zA-Z0-9_-]+$", id)
+	if err != nil {
+		return fmt.Errorf("ID 验证失败: %w", err)
+	}
 	if !matched {
 		return ErrInvalidInput
 	}
@@ -100,13 +104,21 @@ func ValidateIP(ip string) error {
 
 	// IPv4 pattern
 	ipv4Pattern := `^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$`
-	if matched, _ := regexp.MatchString(ipv4Pattern, ip); matched {
+	matched, err := regexp.MatchString(ipv4Pattern, ip)
+	if err != nil {
+		return fmt.Errorf("IP 验证失败: %w", err)
+	}
+	if matched {
 		return nil
 	}
 
 	// IPv6 pattern (simplified)
 	ipv6Pattern := `^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$`
-	if matched, _ := regexp.MatchString(ipv6Pattern, ip); matched {
+	matched, err = regexp.MatchString(ipv6Pattern, ip)
+	if err != nil {
+		return fmt.Errorf("IP 验证失败: %w", err)
+	}
+	if matched {
 		return nil
 	}
 

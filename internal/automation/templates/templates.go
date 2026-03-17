@@ -710,7 +710,10 @@ func validateAction(act action.Action) error {
 // isValidVersion 检查版本号格式
 func isValidVersion(version string) bool {
 	pattern := `^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$`
-	matched, _ := regexp.MatchString(pattern, version)
+	matched, err := regexp.MatchString(pattern, version)
+	if err != nil {
+		return false
+	}
 	return matched
 }
 

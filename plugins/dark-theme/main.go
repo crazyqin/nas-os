@@ -394,7 +394,11 @@ func lightenColor(hex string, percent int) string {
 
 func hexToRGB(hex string) [3]int {
 	var r, g, b int
-	_, _ = fmt.Sscanf(hex, "#%02x%02x%02x", &r, &g, &b)
+	_, err := fmt.Sscanf(hex, "#%02x%02x%02x", &r, &g, &b)
+	if err != nil {
+		// 无效的hex格式，返回黑色
+		return [3]int{0, 0, 0}
+	}
 	return [3]int{r, g, b}
 }
 

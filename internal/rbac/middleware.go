@@ -286,7 +286,10 @@ func DefaultDeniedHandler(w http.ResponseWriter, r *http.Request, result *CheckR
 		response["missing_permissions"] = result.MissingPerms
 	}
 
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		// 编码失败时记录日志，但无法向客户端发送更多信息
+		// 因为响应头已经写入
+	}
 }
 
 // DefaultErrorHandler 默认错误处理器
@@ -295,18 +298,22 @@ func DefaultErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 
 	if err == ErrPermissionDenied {
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		if encodeErr := json.NewEncoder(w).Encode(map[string]interface{}{
 			"code":    401,
 			"message": "未授权访问",
-		})
+		}); encodeErr != nil {
+			// 编码失败时记录日志，但无法向客户端发送更多信息
+		}
 		return
 	}
 
 	w.WriteHeader(http.StatusInternalServerError)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if encodeErr := json.NewEncoder(w).Encode(map[string]interface{}{
 		"code":    500,
 		"message": err.Error(),
-	})
+	}); encodeErr != nil {
+		// 编码失败时记录日志，但无法向客户端发送更多信息
+	}
 }
 
 // ========== 权限装饰器 ==========
