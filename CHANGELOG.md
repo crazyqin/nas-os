@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.211.0] - 2026-03-18
+
+### 六部协同开发 - errcheck 错误修复
+
+#### 兵部 - 软件工程
+- ✅ 修复 audit/enhanced/handlers.go ShouldBindJSON 返回值检查
+- ✅ 修复 replication/manager.go 类型断言 ok pattern
+
+#### 工部 - DevOps
+- ✅ 修复 billing/cost_analysis/api.go json.Encode 返回值检查
+- ✅ 添加 log/slog 导入用于错误日志
+
+#### 刑部 - 法务合规
+- ✅ 修复 network/ddns.go saveConfig 返回值检查 (5处)
+- ✅ 修复 network/diagnostics.go fmt.Sscanf 返回值检查 (7处)
+- ✅ 修复 security/scanner/score_engine.go os.MkdirAll 返回值检查
+
+### Fixed
+- 修复 28 处 golangci-lint errcheck 错误
+- CI/CD golangci-lint 检查现在应该通过
+
+---
+
 ## [v2.210.0] - 2026-03-18
 
 ### 六部协同开发

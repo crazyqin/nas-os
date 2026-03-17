@@ -60,7 +60,9 @@ func (m *Manager) AddDDNS(config DDNSConfig) error {
 	config.LastUpdate = ""
 
 	m.ddnsConfigs[config.Domain] = &config
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -80,7 +82,9 @@ func (m *Manager) UpdateDDNS(domain string, config DDNSConfig) error {
 	}
 
 	m.ddnsConfigs[config.Domain] = &config
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -95,7 +99,9 @@ func (m *Manager) DeleteDDNS(domain string) error {
 	}
 
 	delete(m.ddnsConfigs, domain)
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -111,7 +117,9 @@ func (m *Manager) EnableDDNS(domain string, enabled bool) error {
 	}
 
 	cfg.Enabled = enabled
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }
@@ -154,7 +162,9 @@ func (m *Manager) RefreshDDNS(domain string) error {
 	cfg.LastIP = ip
 	cfg.LastUpdate = time.Now().Format("2006-01-02 15:04:05")
 	cfg.Status = "active"
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return fmt.Errorf("保存配置失败: %w", err)
+	}
 
 	return nil
 }

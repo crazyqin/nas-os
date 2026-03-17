@@ -35,7 +35,10 @@ func DefaultScoreEngineConfig() ScoreEngineConfig {
 // NewScoreEngine 创建安全评分引擎
 func NewScoreEngine(config ScoreEngineConfig) *ScoreEngine {
 	storagePath := "/var/lib/nas-os/security/scores"
-	os.MkdirAll(storagePath, 0750)
+	if err := os.MkdirAll(storagePath, 0750); err != nil {
+		// 无法创建存储目录，使用临时目录
+		storagePath = os.TempDir()
+	}
 
 	engine := &ScoreEngine{
 		categories:  getDefaultScoreCategories(),
