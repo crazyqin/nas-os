@@ -4,6 +4,9 @@
 # 注意：Docker 发布使用 docker-publish.yml，Release 使用 release.yml
 # 此文件专注于代码质量、测试和二进制构建
 #
+# v2.173.0 更新（工部优化）：
+# - 升级 Go 版本至 1.26（匹配当前系统版本）
+#
 # v2.172.0 更新（工部优化）：
 # - 修复 Go 版本号（1.26 → 1.24，Go 1.26 尚未发布）
 #
@@ -103,7 +106,7 @@ permissions:
   checks: write            # 写入检查结果
 
 env:
-  GO_VERSION: '1.25'
+  GO_VERSION: '1.26'
   # 缓存版本号，重大变更时递增
   CACHE_VERSION: 'v12'
   # Node.js 24 支持
