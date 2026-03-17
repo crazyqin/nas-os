@@ -17,7 +17,6 @@ linters:
     - gofmt
     - goimports
     - unused
-    - typecheck
 
   settings:
     errcheck:

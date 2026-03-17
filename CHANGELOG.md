@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.161.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.161.0
+- ✅ MILESTONES.md 里程碑更新
+
+#### 兵部 - 代码质量
+- ✅ 测试全部通过 (247 个测试文件)
+- ✅ go vet 无问题
+- ✅ go mod verify 通过
+
+#### 礼部 - 文档维护
+- ⚠️ README.md 版本落后 (v2.160.0)
+- ⚠️ Swagger 文档版本严重落后 (v2.155.0)
+
+#### 工部 - DevOps
+- ✅ CI/CD 配置检查通过
+- ✅ Docker 配置正常
+- ✅ Helm Chart 配置完整
+- 🔧 修复 golangci-lint v2 配置 (移除 typecheck)
+
+#### 刑部 - 安全审计
+- 🔴 高风险: DuckDNS token URL 泄露
+- 🔴 高风险: iSCSI 密码命令行泄露
+- 🔴 高风险: 敏感字段 JSON 序列化
+- 🟡 中风险: TOTP secret 日志风险
+- 🟡 中风险: 配置文件权限过宽 (0644)
+
+#### 户部 - 资源统计
+- 📊 Go 源文件: 701 个
+- 📊 代码行数: 394,698 行
+- 📊 测试文件: 247 个
+- 📊 依赖数量: 1,134 个
+
+### Changed
+- Version bump to v2.161.0
+- Fix golangci-lint v2 config (remove deprecated typecheck linter)
+
+---
+
 ## [v2.160.0] - 2026-03-17
 
 ### 六部协同开发
