@@ -458,7 +458,7 @@ func (m *Manager) writeSlowLogToFile(entry *SlowLogEntry) {
 		log.Printf("[ERROR] 无法打开慢日志文件: %v", err)
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	data, err := json.Marshal(entry)
 	if err != nil {

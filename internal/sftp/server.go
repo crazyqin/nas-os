@@ -355,7 +355,7 @@ func (s *Server) handleConnection(conn net.Conn) {
 	if err != nil {
 		return
 	}
-	defer sshConn.Close()
+	defer func() { _ = sshConn.Close() }()
 
 	// 记录连接
 	connID := fmt.Sprintf("%s-%d", conn.RemoteAddr(), time.Now().UnixNano())
@@ -389,7 +389,7 @@ func (s *Server) handleSession(newChannel ssh.NewChannel, sshConn *ssh.ServerCon
 	if err != nil {
 		return
 	}
-	defer channel.Close()
+	defer func() { _ = channel.Close() }()
 
 	// 获取用户信息
 	username := sshConn.Permissions.Extensions["user"]

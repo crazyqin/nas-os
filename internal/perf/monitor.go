@@ -325,7 +325,7 @@ func (m *ResourceMonitor) getCPUStats() CPUStats {
 	// Read /proc/stat
 	cpuFile, err := os.Open("/proc/stat")
 	if err == nil {
-		defer cpuFile.Close()
+		defer func() { _ = cpuFile.Close() }()
 
 		scanner := bufio.NewScanner(cpuFile)
 		if scanner.Scan() {
@@ -349,7 +349,7 @@ func (m *ResourceMonitor) getCPUStats() CPUStats {
 
 	// Read load average
 	if loadFile, err := os.Open("/proc/loadavg"); err == nil {
-		defer loadFile.Close()
+		defer func() { _ = loadFile.Close() }()
 
 		scanner := bufio.NewScanner(loadFile)
 		if scanner.Scan() {
@@ -380,7 +380,7 @@ func (m *ResourceMonitor) getMemoryStats() MemoryStats {
 	if err != nil {
 		return stats
 	}
-	defer memFile.Close()
+	defer func() { _ = memFile.Close() }()
 
 	scanner := bufio.NewScanner(memFile)
 	for scanner.Scan() {
@@ -431,7 +431,7 @@ func (m *ResourceMonitor) getDiskIOStats(prev map[string]DiskIOStats) []DiskIOSt
 	if err != nil {
 		return stats
 	}
-	defer ioFile.Close()
+	defer func() { _ = ioFile.Close() }()
 
 	now := time.Now()
 	scanner := bufio.NewScanner(ioFile)
@@ -488,7 +488,7 @@ func (m *ResourceMonitor) getNetIOStats(prev map[string]NetIOStats) []NetIOStats
 	if err != nil {
 		return stats
 	}
-	defer netFile.Close()
+	defer func() { _ = netFile.Close() }()
 
 	now := time.Now()
 	scanner := bufio.NewScanner(netFile)

@@ -861,7 +861,7 @@ func (s *Server) handleLock(w http.ResponseWriter, r *http.Request, fullPath, us
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		dir := filepath.Dir(fullPath)
 		if err := os.MkdirAll(dir, 0755); err == nil {
-			os.WriteFile(fullPath, []byte{}, 0644)
+			_ = os.WriteFile(fullPath, []byte{}, 0644)
 		}
 	}
 

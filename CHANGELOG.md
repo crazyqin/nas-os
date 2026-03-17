@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.191.0] - 2026-03-17
+
+### 改进
+- 改进 defer 错误处理模式
+- 统一使用命名返回值和 err 变量捕获 defer 中的错误
+
+### 礼部 - 文档维护
+- ✅ 版本号同步至 v2.191.0
+- ✅ README.md 版本信息更新
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步
+- ✅ docs/api.yaml API 文档版本同步
+- ✅ docs/swagger.json OpenAPI 文档版本同步
+- ✅ docs/swagger.yaml 版本同步
+- ✅ docs/swagger/swagger.json 版本同步
+- ✅ docs/swagger/swagger.yaml 版本同步
+- ✅ internal/version/version.go 版本同步
+
 ## [v2.190.0] - 2026-03-17
 
 ### 改进

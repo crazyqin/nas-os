@@ -145,7 +145,7 @@ func (c *TransmissionClient) getSession() error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Transmission 在 409 响应中返回 session ID
 	if resp.StatusCode == http.StatusConflict {
@@ -192,7 +192,7 @@ func (c *TransmissionClient) doRequest(method string, args interface{}) (*Transm
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// 如果 session 失效，重新获取
 	if resp.StatusCode == http.StatusConflict {
@@ -420,7 +420,7 @@ func (c *QBittorrentClient) login() error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("qBittorrent 登录失败: %d", resp.StatusCode)
@@ -475,7 +475,7 @@ func (c *QBittorrentClient) doRequest(method, endpoint string, data url.Values) 
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
