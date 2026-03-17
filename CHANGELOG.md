@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.208.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.208.0
+- ✅ CHANGELOG.md 版本条目创建
+
+#### 兵部 - 代码质量修复
+- ✅ 修复 app_handlers.go log 导入缺失
+- ✅ 编译测试通过
+
+#### 礼部 - 文档维护
+- ✅ VERSION 文件同步至 v2.208.0
+- ✅ Chart.yaml appVersion 更新至 2.208.0
+- ✅ 文档版本同步
+
+### Changed
+- Version bump to v2.208.0
+- 修复编译错误
+
+---
+
 ## [v2.204.0] - 2026-03-18
 
 ### 六部协同开发
