@@ -13,8 +13,6 @@ linters:
     - ineffassign
     - misspell
     - revive
-    - gofmt
-    - goimports
     - unused
 
   settings:
