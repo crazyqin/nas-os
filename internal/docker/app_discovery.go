@@ -159,7 +159,9 @@ func (ad *AppDiscovery) DiscoverFromGitHub() ([]*DiscoveredApp, error) {
 	}
 
 	ad.lastUpdate = time.Now()
-	ad.saveCache()
+	if err := ad.saveCache(); err != nil {
+		fmt.Printf("保存发现应用缓存失败: %v\n", err)
+	}
 
 	return allApps, nil
 }
@@ -369,7 +371,9 @@ func (ad *AppDiscovery) DiscoverFromDockerHub() ([]*DiscoveredApp, error) {
 	}
 
 	ad.lastUpdate = time.Now()
-	ad.saveCache()
+	if err := ad.saveCache(); err != nil {
+		fmt.Printf("保存发现应用缓存失败: %v\n", err)
+	}
 
 	return allApps, nil
 }
