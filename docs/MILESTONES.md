@@ -4,6 +4,21 @@
 
 ---
 
+## v2.176.0 - 2026-03-17 ✅
+
+### 吏部项目管理
+- 版本号更新至 v2.176.0
+- VERSION 文件同步
+- internal/version/version.go 版本号同步
+- MILESTONES.md 里程碑更新
+- CHANGELOG.md 更新
+
+### 发布状态
+- 版本号同步：VERSION, version.go, README.md, docs/ ✅
+- 文档完善 ✅
+
+---
+
 ## v2.160.0 - 2026-03-17 ✅
 
 ### 吏部项目管理
