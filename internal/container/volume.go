@@ -302,7 +302,7 @@ func (vm *VolumeManager) RestoreVolume(backupPath, volumeName string) error {
 	if err != nil {
 		return fmt.Errorf("打开备份文件失败：%w", err)
 	}
-	defer inputFile.Close()
+	defer func() { _ = inputFile.Close() }()
 
 	cmd.Stdin = inputFile
 	output, err := cmd.CombinedOutput()
@@ -346,7 +346,9 @@ func (vm *VolumeManager) getVolumeSize(path string) (uint64, error) {
 	parts := strings.Fields(string(output))
 	if len(parts) > 0 {
 		var size uint64
-		fmt.Sscanf(parts[0], "%d", &size)
+		if _, err := fmt.Sscanf(parts[0], "%d", &size); err != nil {
+			return 0, fmt.Errorf("无法解析大小")
+		}
 		return size, nil
 	}
 

@@ -449,7 +449,9 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 
 	// 解析 CPU 百分比
 	cpuStr := strings.TrimSuffix(raw.CPUPerc, "%")
-	fmt.Sscanf(cpuStr, "%f", &stats.CPUUsage)
+	if _, err := fmt.Sscanf(cpuStr, "%f", &stats.CPUUsage); err != nil {
+		stats.CPUUsage = 0
+	}
 
 	// 解析内存使用
 	memParts := strings.Split(raw.MemUsage, " / ")
@@ -460,7 +462,9 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 
 	// 解析内存百分比
 	memPercStr := strings.TrimSuffix(raw.MemPerc, "%")
-	fmt.Sscanf(memPercStr, "%f", &stats.MemPercent)
+	if _, err := fmt.Sscanf(memPercStr, "%f", &stats.MemPercent); err != nil {
+		stats.MemPercent = 0
+	}
 
 	// 解析网络 I/O
 	netParts := strings.Split(raw.NetIO, " / ")
@@ -477,7 +481,9 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 	}
 
 	// 解析进程数
-	fmt.Sscanf(raw.PIDs, "%d", &stats.PIDs)
+	if _, err := fmt.Sscanf(raw.PIDs, "%d", &stats.PIDs); err != nil {
+		stats.PIDs = 0
+	}
 
 	return stats, nil
 }
@@ -520,7 +526,9 @@ func parseSize(s string) uint64 {
 	var size float64
 	var unit string
 
-	fmt.Sscanf(s, "%f%s", &size, &unit)
+	if _, err := fmt.Sscanf(s, "%f%s", &size, &unit); err != nil {
+		return 0
+	}
 
 	switch strings.ToUpper(unit) {
 	case "KB", "KIB", "K":

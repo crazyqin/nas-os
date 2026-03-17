@@ -271,10 +271,14 @@ func (cm *ComposeManager) parseService(name string, data interface{}) (*ComposeS
 			}
 		}
 		if interval, ok := healthcheck["interval"].(string); ok {
-			service.HealthCheck.Interval, _ = time.ParseDuration(interval)
+			if dur, err := time.ParseDuration(interval); err == nil {
+				service.HealthCheck.Interval = dur
+			}
 		}
 		if timeout, ok := healthcheck["timeout"].(string); ok {
-			service.HealthCheck.Timeout, _ = time.ParseDuration(timeout)
+			if dur, err := time.ParseDuration(timeout); err == nil {
+				service.HealthCheck.Timeout = dur
+			}
 		}
 		if retries, ok := healthcheck["retries"].(int); ok {
 			service.HealthCheck.Retries = retries
@@ -514,10 +518,14 @@ func (cm *ComposeManager) CreateComposeFile(path string, project *ComposeProject
 				},
 			}
 			if service.CPULimit != "" {
-				deploy["resources"].(map[string]interface{})["limits"].(map[string]interface{})["cpus"] = service.CPULimit
+				if limits, ok := deploy["resources"].(map[string]interface{})["limits"].(map[string]interface{}); ok {
+					limits["cpus"] = service.CPULimit
+				}
 			}
 			if service.MemLimit != "" {
-				deploy["resources"].(map[string]interface{})["limits"].(map[string]interface{})["memory"] = service.MemLimit
+				if limits, ok := deploy["resources"].(map[string]interface{})["limits"].(map[string]interface{}); ok {
+					limits["memory"] = service.MemLimit
+				}
 			}
 			serviceData["deploy"] = deploy
 		}
