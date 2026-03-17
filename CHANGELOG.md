@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.186.0] - 2026-03-17
+
+### 修复
+
+- 修复 go.mod Go 版本配置 (1.26.1 → 1.24)
+- 解决 Docker Publish 失败问题
+
 ## [v2.185.0] - 2026-03-17
 
 ### 六部协同开发
