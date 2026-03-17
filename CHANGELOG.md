@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.189.0] - 2026-03-17
+
+### Fixed
+- 修复 billing_test.go 编译错误
+
 ## [v2.188.0] - 2026-03-17
 
 ### Fixed

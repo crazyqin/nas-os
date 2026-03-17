@@ -426,8 +426,10 @@ func TestGetBillingStats(t *testing.T) {
 	require.NoError(t, err)
 
 	invoice := createTestInvoice(t, bm)
-	require.NoError(t, bm.IssueInvoice(invoice.ID))
-	require.NoError(t, bm.MarkInvoicePaid(invoice.ID, "alipay", "PAY123"))
+	_, err = bm.IssueInvoice(invoice.ID)
+	require.NoError(t, err)
+	_, err = bm.MarkInvoicePaid(invoice.ID, "alipay", "PAY123")
+	require.NoError(t, err)
 
 	stats, err := bm.GetBillingStats(time.Now().AddDate(0, -1, 0), time.Now())
 	require.NoError(t, err)
@@ -475,7 +477,8 @@ func TestGetInvoiceSummary(t *testing.T) {
 		})
 		require.NoError(t, err)
 		if i == 0 {
-			require.NoError(t, bm.IssueInvoice(inv.ID))
+			_, err = bm.IssueInvoice(inv.ID)
+			require.NoError(t, err)
 		}
 	}
 
