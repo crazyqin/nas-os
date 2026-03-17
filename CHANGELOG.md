@@ -4,18 +4,58 @@ All notable changes to this project will be documented in this file.
 
 ## [v2.201.0] - 2026-03-18
 
-### 吏部 - 项目管理
+### 六部协同开发
+
+#### 吏部 - 项目管理
 - ✅ 版本号更新至 v2.201.0
 - ✅ CHANGELOG.md 版本条目创建
 
-### 礼部 - 文档维护
+#### 礼部 - 文档维护
 - ✅ VERSION 文件同步至 2.201.0
 - ✅ README.md 版本号同步
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步
 - ✅ docs/api.yaml 版本号同步
+- ✅ docs/swagger.yaml 版本号同步
+- ✅ docs/swagger.json 版本号同步
 - ✅ internal/version/version.go 版本同步
+
+#### 兵部 - 代码质量修复
+- ✅ 修复 errcheck 错误（22 处）
+- ✅ internal/health/health.go Close() 返回值检查
+- ✅ internal/logging/logging.go file.Close() 返回值检查
+- ✅ internal/plugin/hotreload.go 多处返回值检查
+- ✅ internal/plugin/manager.go 多处返回值检查
+- ✅ internal/security/scanner/filesystem_scanner.go 多处返回值检查
+- ✅ internal/security/scanner/permission_checker.go WalkDir 返回值检查
+
+#### 工部 - CI/CD 检查
+- ✅ golangci-lint 配置检查
+- ✅ 本地 lint 测试通过
+
+#### 刑部 - 安全审计
+- ✅ 无硬编码敏感信息
+- ✅ TLS/SSL 配置安全
+- ✅ go vet ./... 检查通过
 
 ### Changed
 - Version bump to v2.201.0
+- 修复 golangci-lint errcheck 错误
+
+## [v2.200.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 礼部 - 文档维护
+- ✅ README.md 版本号同步（7 处）
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步（6 处）
+- ✅ docs/api.yaml 版本号同步
+- ✅ docs/swagger.yaml 版本号同步
+- ✅ docs/swagger.json 版本号同步
+
+### Changed
+- Version bump to v2.200.0
 
 ## [v2.199.0] - 2026-03-18
 
