@@ -6,6 +6,24 @@
 
 ---
 
+## [2.218.0] - 2026-03-18
+
+### 🔄 版本同步 (礼部)
+
+- 版本号升级至 v2.218.0
+- README.md 版本信息更新
+- docs/README.md 文档版本同步
+- docs/README_EN.md 英文文档版本同步
+- docs/api.yaml API 文档版本同步
+- CHANGELOG.md 更新
+
+### 🔧 Bug 修复
+
+- 修复 auth 模块 errcheck 错误 (类型断言、Close 方法)
+- 修复 oauth2/rbac/scanner 模块 errcheck 错误
+
+---
+
 ## [2.200.0] - 2026-03-18
 
 ### 🔄 版本同步 (礼部)
