@@ -634,7 +634,7 @@ func (se *ScoreEngine) saveHistory() {
 		return
 	}
 
-	os.WriteFile(filename, data, 0640)
+	_ = os.WriteFile(filename, data, 0640)
 }
 
 // loadHistory 加载历史记录

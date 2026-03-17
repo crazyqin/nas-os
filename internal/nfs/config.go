@@ -32,7 +32,7 @@ func (p *ConfigParser) ParseExportsFile(path string) ([]*Export, error) {
 		p.logger.Errorf("打开exports文件失败: %s - %v", path, err)
 		return nil, fmt.Errorf("打开文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var exports []*Export
 	scanner := bufio.NewScanner(file)
@@ -180,7 +180,7 @@ func (p *ConfigParser) WriteExportsFile(path string, exports []*Export) error {
 		p.logger.Errorf("创建exports文件失败: %s - %v", path, err)
 		return fmt.Errorf("创建文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 写入文件头
 	header := `# /etc/exports: the access control list for filesystems which may be exported
