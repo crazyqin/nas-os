@@ -1,18 +1,31 @@
 {
-  "lastUpdate": "2026-03-18T00:45:00+08:00",
+  "lastUpdate": "2026-03-18T00:50:00+08:00",
   "currentVersion": "v2.197.0",
   "previousVersion": "v2.196.0",
-  "status": "in_progress",
+  "status": "completed",
+  "gitCommit": "4616952",
+  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.197.0",
   "ministries": {
-    "兵部": { "task": "代码质量检查", "status": "pending", "result": null },
-    "刑部": { "task": "安全审计", "status": "pending", "result": null },
-    "工部": { "task": "CI/CD检查", "status": "pending", "result": null },
-    "吏部": { "task": "版本管理", "status": "pending", "result": null },
-    "礼部": { "task": "文档更新", "status": "pending", "result": null },
-    "户部": { "task": "资源统计", "status": "pending", "result": null }
+    "兵部": { "task": "代码质量检查", "status": "done", "result": "go vet 0 错误、编译成功" },
+    "刑部": { "task": "安全审计", "status": "done", "result": "高危 151、中危 791、低危 498" },
+    "工部": { "task": "CI/CD检查", "status": "done", "result": "5 个 workflow 配置完善" },
+    "吏部": { "task": "版本管理", "status": "done", "result": "VERSION、CHANGELOG、Release 已完成" },
+    "礼部": { "task": "文档更新", "status": "done", "result": "版本号同步至 v2.197.0（17 处）" },
+    "户部": { "task": "资源统计", "status": "done", "result": "394,533 行、42.7% 覆盖率" }
   },
   "actionsStatus": "running",
   "actions": [
-    { "name": "Docker Publish", "status": "in_progress", "version": "v2.196.0" }
-  ]
+    { "name": "CI/CD", "status": "in_progress" },
+    { "name": "Security Scan", "status": "in_progress" },
+    { "name": "Docker Publish", "status": "queued" },
+    { "name": "GitHub Release", "status": "queued" }
+  ],
+  "stats": {
+    "linesOfCode": 394533,
+    "sourceFiles": 454,
+    "testFiles": 247,
+    "testCoverage": "42.7%",
+    "externalDeps": 244,
+    "internalModules": 97
+  }
 }
