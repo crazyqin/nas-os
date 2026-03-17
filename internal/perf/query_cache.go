@@ -374,7 +374,10 @@ func (c *QueryCache) evictLRULocked() {
 		return
 	}
 
-	entry := element.Value.(*lruEntry)
+	entry, ok := element.Value.(*lruEntry)
+	if !ok {
+		return
+	}
 	c.deleteLocked(entry.key)
 
 	if c.config.EnableStats {
@@ -611,9 +614,9 @@ func (c *QueryCache) GetOrSet(key string, fn func() (interface{}, error), ttl ..
 
 	// 设置缓存
 	if len(ttl) > 0 {
-		c.Set(key, value, ttl[0])
+		_ = c.Set(key, value, ttl[0])
 	} else {
-		c.Set(key, value)
+		_ = c.Set(key, value)
 	}
 
 	return value, nil

@@ -78,7 +78,9 @@ func NewArchiveManager(mgr *Manager, config ArchiveConfig) *ArchiveManager {
 	}
 
 	// 确保存储目录存在
-	os.MkdirAll(config.StoragePath, 0755)
+	if err := os.MkdirAll(config.StoragePath, 0755); err != nil {
+		// 目录创建失败，但不影响管理器初始化
+	}
 
 	return am
 }
@@ -158,13 +160,13 @@ func (am *ArchiveManager) ArchiveProject(projectID, archivedBy string, deleteAft
 	am.archives[archiveID] = archive
 
 	// 更新项目状态
-	am.manager.UpdateProject(projectID, map[string]interface{}{
+	_, _ = am.manager.UpdateProject(projectID, map[string]interface{}{
 		"status": "archived",
 	})
 
 	// 可选：删除项目数据
 	if deleteAfterArchive {
-		am.manager.DeleteProject(projectID)
+		_ = am.manager.DeleteProject(projectID)
 	}
 
 	return archive, nil
@@ -262,7 +264,7 @@ func (am *ArchiveManager) DeleteArchive(archiveID string) error {
 
 	// 删除归档文件
 	if archive.ArchivePath != "" {
-		os.Remove(archive.ArchivePath)
+		_ = os.Remove(archive.ArchivePath)
 	}
 
 	// 更新状态
@@ -332,7 +334,7 @@ func (am *ArchiveManager) CleanupExpiredArchives() ([]string, error) {
 		if archive.ExpiresAt != nil && archive.ExpiresAt.Before(now) {
 			// 删除归档文件
 			if archive.ArchivePath != "" {
-				os.Remove(archive.ArchivePath)
+				_ = os.Remove(archive.ArchivePath)
 			}
 			delete(am.archives, id)
 			deleted = append(deleted, id)

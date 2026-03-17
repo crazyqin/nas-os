@@ -200,7 +200,7 @@ func (m *Manager) ScanForUser(paths []string, user string) (*ScanResult, error) 
 	m.mu.RUnlock()
 
 	// 保存索引
-	m.saveIndex()
+	_ = m.saveIndex()
 
 	return result, nil
 }
@@ -1053,7 +1053,7 @@ func (m *Manager) ForceDeleteChunk(hash string) error {
 
 	// 删除存储的块数据
 	if chunk.StorePath != "" {
-		os.Remove(chunk.StorePath)
+		_ = os.Remove(chunk.StorePath)
 	}
 	delete(m.chunks, hash)
 	m.stats.ChunksStored--
