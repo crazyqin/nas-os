@@ -481,7 +481,7 @@ func (e *CostAnalysisEngine) load() error {
 	// 加载趋势数据
 	trendPath := filepath.Join(e.dataDir, "trend_data.json")
 	if data, err := os.ReadFile(trendPath); err == nil {
-		json.Unmarshal(data, &e.trendData)
+		_ = json.Unmarshal(data, &e.trendData)
 	}
 
 	return nil
@@ -1009,7 +1009,7 @@ func (e *CostAnalysisEngine) CreateBudget(config BudgetConfig) (*BudgetConfig, e
 	config.UpdatedAt = time.Now()
 
 	e.budgets[config.ID] = &config
-	e.save()
+	_ = e.save()
 
 	return &config, nil
 }
@@ -1029,7 +1029,7 @@ func (e *CostAnalysisEngine) UpdateBudget(id string, config BudgetConfig) (*Budg
 	config.UpdatedAt = time.Now()
 
 	e.budgets[id] = &config
-	e.save()
+	_ = e.save()
 
 	return &config, nil
 }
