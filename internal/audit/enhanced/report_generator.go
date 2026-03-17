@@ -25,7 +25,10 @@ func NewReportGenerator(
 	sensitiveManager *SensitiveOperationManager,
 ) *ReportGenerator {
 	storageDir := "/var/log/nas-os/audit/reports"
-	os.MkdirAll(storageDir, 0750)
+	if err := os.MkdirAll(storageDir, 0750); err != nil {
+		// 创建目录失败时使用当前目录
+		storageDir = "."
+	}
 
 	return &ReportGenerator{
 		loginAuditor:     loginAuditor,

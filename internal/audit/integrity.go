@@ -399,6 +399,6 @@ func generateSecureKey() string {
 	// 使用时间戳和随机数生成
 	h := sha256.New()
 	h.Write([]byte(time.Now().String()))
-	h.Write([]byte(fmt.Sprintf("%d", time.Now().UnixNano())))
+	fmt.Fprintf(h, "%d", time.Now().UnixNano())
 	return hex.EncodeToString(h.Sum(nil))
 }

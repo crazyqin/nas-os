@@ -723,16 +723,7 @@ func (g *CostReportGenerator) populatePoolBreakdown(report *CostReport, data []P
 func (g *CostReportGenerator) populateUserBreakdown(report *CostReport, data []UserReportData) {
 	report.UserBreakdown = make([]UserCostItem, 0, len(data))
 	for _, u := range data {
-		report.UserBreakdown = append(report.UserBreakdown, UserCostItem{
-			UserID:      u.UserID,
-			UserName:    u.UserName,
-			UsedGB:      u.UsedGB,
-			MonthlyCost: u.MonthlyCost,
-			CostPerGB:   u.CostPerGB,
-			Tier:        u.Tier,
-			Trend:       u.Trend,
-			PoolUsage:   u.PoolUsage,
-		})
+		report.UserBreakdown = append(report.UserBreakdown, UserCostItem(u))
 	}
 }
 
@@ -1215,9 +1206,9 @@ func randomString(n int) string {
 	// crypto/rand 失败时的安全回退：使用时间戳 + 进程ID 作为种子
 	// 注意：这不是加密安全的，但只在极端情况下使用
 	// #nosec G404 -- Fallback to math/rand only when crypto/rand fails (e.g., in constrained environments)
-	mrand.Seed(time.Now().UnixNano() + int64(os.Getpid()))
+	rng := mrand.New(mrand.NewSource(time.Now().UnixNano() + int64(os.Getpid())))
 	for i := range b {
-		b[i] = letters[mrand.Intn(len(letters))]
+		b[i] = letters[rng.Intn(len(letters))]
 	}
 	return string(b)
 }

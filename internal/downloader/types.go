@@ -9,15 +9,15 @@ type DownloadType string
 
 const (
 	// TypeBT is a BitTorrent download.
-	TypeBT DownloadType = "bt"     // BT 种子
+	TypeBT DownloadType = "bt" // BT 种子
 	// TypeMagnet is a magnet link download.
 	TypeMagnet DownloadType = "magnet" // 磁力链接
 	// TypeHTTP is an HTTP download.
-	TypeHTTP DownloadType = "http"   // HTTP 下载
+	TypeHTTP DownloadType = "http" // HTTP 下载
 	// TypeFTP is an FTP download.
-	TypeFTP DownloadType = "ftp"    // FTP 下载
+	TypeFTP DownloadType = "ftp" // FTP 下载
 	// TypeCloud is a cloud storage download.
-	TypeCloud DownloadType = "cloud"  // 网盘
+	TypeCloud DownloadType = "cloud" // 网盘
 )
 
 // DownloadStatus represents the status of a download task.
@@ -25,17 +25,17 @@ type DownloadStatus string
 
 const (
 	// StatusWaiting indicates the download is waiting to start.
-	StatusWaiting DownloadStatus = "waiting"     // 等待中
+	StatusWaiting DownloadStatus = "waiting" // 等待中
 	// StatusDownloading indicates the download is in progress.
 	StatusDownloading DownloadStatus = "downloading" // 下载中
 	// StatusPaused indicates the download is paused.
-	StatusPaused DownloadStatus = "paused"      // 已暂停
+	StatusPaused DownloadStatus = "paused" // 已暂停
 	// StatusCompleted indicates the download has completed.
-	StatusCompleted DownloadStatus = "completed"   // 已完成
+	StatusCompleted DownloadStatus = "completed" // 已完成
 	// StatusError indicates the download encountered an error.
-	StatusError DownloadStatus = "error"       // 错误
+	StatusError DownloadStatus = "error" // 错误
 	// StatusSeeding indicates the download is seeding (for BT).
-	StatusSeeding DownloadStatus = "seeding"     // 做种中
+	StatusSeeding DownloadStatus = "seeding" // 做种中
 )
 
 // DownloadTask 下载任务

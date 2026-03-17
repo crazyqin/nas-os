@@ -279,13 +279,13 @@ func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 	sb.WriteString("[global]\n")
 
 	if config.Workgroup != "" {
-		sb.WriteString(fmt.Sprintf("    workgroup = %s\n", config.Workgroup))
+		fmt.Fprintf(&sb, "    workgroup = %s\n", config.Workgroup)
 	}
 	if config.ServerString != "" {
-		sb.WriteString(fmt.Sprintf("    server string = %s\n", config.ServerString))
+		fmt.Fprintf(&sb, "    server string = %s\n", config.ServerString)
 	}
 	if config.ServerRole != "" {
-		sb.WriteString(fmt.Sprintf("    server role = %s\n", config.ServerRole))
+		fmt.Fprintf(&sb, "    server role = %s\n", config.ServerRole)
 	}
 	if config.Security != "" {
 		sb.WriteString(fmt.Sprintf("    security = %s\n", config.Security))

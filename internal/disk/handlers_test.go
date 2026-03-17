@@ -61,7 +61,7 @@ func (m *mockMonitor) GetDiskInfo(device string) (*DiskInfo, error) {
 	return disk, nil
 }
 
-func (m *mockMonitor) GetAlerts(device string, acknowledged bool) []*SMARTAlert {
+func (m *mockMonitor) GetAlerts(_ string, _ bool) []*SMARTAlert {
 	return m.alerts
 }
 
@@ -101,7 +101,7 @@ func (m *mockMonitor) CheckAllDisks() error {
 	return nil
 }
 
-func (m *mockMonitor) GetHistory(device string, duration time.Duration) []*SMARTHistoryPoint {
+func (m *mockMonitor) GetHistory(device string, _ time.Duration) []*SMARTHistoryPoint {
 	return m.history[device]
 }
 
@@ -112,7 +112,7 @@ func (m *mockMonitor) ExportJSON() ([]byte, error) {
 	})
 }
 
-func (m *mockMonitor) ImportJSON(data []byte) error {
+func (m *mockMonitor) ImportJSON(_ []byte) error {
 	return nil
 }
 

@@ -18,11 +18,21 @@ import (
 // isSafeString 检查字符串是否只包含安全字符
 func isSafeString(s string) bool {
 	for _, r := range s {
-		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-' || r == ' ') {
+		if !isSafeCharWithSpace(r) {
 			return false
 		}
 	}
 	return true
+}
+
+// isSafeChar 检查是否为安全字符（字母、数字、下划线、连字符）
+func isSafeChar(r rune) bool {
+	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-'
+}
+
+// isSafeCharWithSpace 检查是否为安全字符（包含空格）
+func isSafeCharWithSpace(r rune) bool {
+	return isSafeChar(r) || r == ' '
 }
 
 // sanitizeDescription 清理描述字符串，移除危险字符

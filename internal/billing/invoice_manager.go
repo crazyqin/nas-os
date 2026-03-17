@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -765,6 +766,7 @@ func (im *InvoiceManager) exportToExcel(invoices []*InvoiceManagerInvoice, outpu
 	defer func() {
 		if err := f.Close(); err != nil {
 			// 记录关闭错误，但不影响主流程
+			log.Printf("关闭 Excel 文件失败: %v", err)
 		}
 	}()
 

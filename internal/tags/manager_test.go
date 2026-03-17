@@ -342,9 +342,10 @@ func TestGroups(t *testing.T) {
 
 	// 验证计数
 	for _, g := range groups {
-		if g.Name == "优先级" {
+		switch g.Name {
+		case "优先级":
 			assert.Equal(t, 3, g.Count)
-		} else if g.Name == "分类" {
+		case "分类":
 			assert.Equal(t, 2, g.Count)
 		}
 	}

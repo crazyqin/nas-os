@@ -41,7 +41,7 @@ func TestContainer_HasPorts(t *testing.T) {
 	if len(withPorts.Ports) != 1 {
 		t.Error("Container should have 1 port")
 	}
-	if withoutPorts.Ports != nil && len(withoutPorts.Ports) != 0 {
+	if len(withoutPorts.Ports) != 0 {
 		t.Error("Container should have no ports")
 	}
 }

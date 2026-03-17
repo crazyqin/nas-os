@@ -183,9 +183,8 @@ func (s *Sandbox) CheckFileAccess(path string, op string) error {
 
 	// Check file size limit for write operations
 	if op == "write" || op == "create" {
-		if s.config.MaxFileSizeMB > 0 {
-			// This would be checked during actual write operations
-		}
+		// MaxFileSizeMB is checked during actual write operations if configured
+		_ = s.config.MaxFileSizeMB // 显式使用配置，避免未使用警告
 	}
 
 	return nil

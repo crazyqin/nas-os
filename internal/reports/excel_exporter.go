@@ -356,7 +356,7 @@ func (e *ExcelExporter) createSummarySheet(f *excelize.File, report *GeneratedRe
 	row += 2
 
 	// 写入摘要数据
-	if report.Summary != nil && len(report.Summary) > 0 {
+	if len(report.Summary) > 0 {
 		f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), "摘要指标")
 		f.MergeCell(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row))
 		f.SetCellStyle(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row), labelStyle)

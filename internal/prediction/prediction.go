@@ -713,8 +713,8 @@ func (m *Manager) trainModel(history *VolumeHistory) error {
 	meanY := sumY / n
 	for i, record := range records {
 		predicted := m.model.intercept + m.model.slope*float64(i)
-		ssTot += math.Pow(record.UsedGB-meanY, 2)
-		ssRes += math.Pow(record.UsedGB-predicted, 2)
+		ssTot += (record.UsedGB - meanY) * (record.UsedGB - meanY)
+		ssRes += (record.UsedGB - predicted) * (record.UsedGB - predicted)
 	}
 	if ssTot > 0 {
 		m.model.accuracy = 1 - ssRes/ssTot

@@ -332,7 +332,7 @@ func (m *Manager) validateConfig(config VMConfig) error {
 	// 安全检查：防止命令注入 - 只允许安全的字符
 	// VM 名称只能包含字母、数字、下划线和连字符
 	for _, r := range config.Name {
-		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-') {
+		if !isSafeChar(r) {
 			return fmt.Errorf("VM 名称只能包含字母、数字、下划线和连字符")
 		}
 	}

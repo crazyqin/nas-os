@@ -309,9 +309,10 @@ func (a *EventAggregator) detectCausalCorrelations(groups []*EventGroup) {
 		var causeGroups, effectGroups []*EventGroup
 
 		for _, g := range groups {
-			if g.Type == pattern.causeType {
+			switch g.Type {
+			case pattern.causeType:
 				causeGroups = append(causeGroups, g)
-			} else if g.Type == pattern.effectType {
+			case pattern.effectType:
 				effectGroups = append(effectGroups, g)
 			}
 		}

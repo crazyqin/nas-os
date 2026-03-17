@@ -261,7 +261,7 @@ func (c *Checker) QuickCheck(ctx context.Context) *HealthReport {
 	checks = append(checks, c.checkDisk(ctx))
 
 	summary := Summary{Total: len(checks)}
-	var overallStatus Status = StatusHealthy
+	overallStatus := StatusHealthy
 
 	for _, check := range checks {
 		switch check.Status {
@@ -406,7 +406,7 @@ func (c *Checker) checkDisk(ctx context.Context) CheckResult {
 
 	// 检查所有配置的路径
 	var deviceResults []map[string]interface{}
-	var worstStatus Status = StatusHealthy
+	worstStatus := StatusHealthy
 	var worstMsg string
 
 	for _, path := range c.config.DiskPaths {
@@ -450,13 +450,14 @@ func (c *Checker) checkDisk(ctx context.Context) CheckResult {
 		Critical: c.config.DiskCriticalThreshold,
 	}
 
-	if worstStatus == StatusCritical {
+	switch worstStatus {
+	case StatusCritical:
 		result.Status = StatusCritical
 		result.Message = worstMsg
-	} else if worstStatus == StatusWarning {
+	case StatusWarning:
 		result.Status = StatusWarning
 		result.Message = worstMsg
-	} else {
+	default:
 		result.Status = StatusHealthy
 		result.Message = fmt.Sprintf("磁盘使用率正常 (检查了 %d 个挂载点)", len(deviceResults))
 	}

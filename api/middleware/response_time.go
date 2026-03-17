@@ -127,7 +127,7 @@ func (c *ResponseTimeCollector) GetStats() ResponseTimeStats {
 
 	// Calculate stats
 	var total int64
-	var min, max int64 = c.times[0], c.times[0]
+	min, max := c.times[0], c.times[0]
 	for _, t := range c.times {
 		total += t
 		if t < min {

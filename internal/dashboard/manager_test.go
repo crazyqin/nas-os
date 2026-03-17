@@ -712,7 +712,7 @@ func TestManager_ConcurrentAccess(t *testing.T) {
 	// 并发创建仪表板
 	wg.Add(goroutines)
 	for i := 0; i < goroutines; i++ {
-		go func(id int) {
+		go func(_ int) {
 			defer wg.Done()
 			for j := 0; j < operations; j++ {
 				_, _ = mgr.CreateDashboard("Test", "Test")

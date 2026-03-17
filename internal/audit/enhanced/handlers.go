@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Handlers 增强审计模块 HTTP 处理器
@@ -15,6 +16,7 @@ type Handlers struct {
 	operationAuditor *OperationAuditor
 	sensitiveManager *SensitiveOperationManager
 	reportGenerator  *ReportGenerator
+	logger           *zap.Logger
 }
 
 // NewHandlers 创建增强审计处理器
@@ -27,6 +29,7 @@ func NewHandlers(
 		loginAuditor:     loginAuditor,
 		operationAuditor: operationAuditor,
 		sensitiveManager: sensitiveManager,
+		logger:           zap.L(),
 	}
 
 	if loginAuditor != nil || operationAuditor != nil {
@@ -862,7 +865,7 @@ func (h *Handlers) generateReport(c *gin.Context) {
 	// 保存报告
 	if err := h.reportGenerator.SaveReport(report); err != nil {
 		// 保存失败不影响返回，只记录日志
-		// TODO: 添加日志记录
+		h.logger.Warn("保存报告失败", zap.Error(err))
 	}
 
 	c.JSON(http.StatusCreated, SuccessResponse(report))

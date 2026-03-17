@@ -204,9 +204,10 @@ func (pc *PermissionChecker) checkSinglePath(path string, info fs.FileInfo, resu
 			result.Issues = append(result.Issues, issue)
 			result.IssuesFound++
 
-			if rule.Severity == SeverityCritical {
+			switch rule.Severity {
+			case SeverityCritical:
 				result.CriticalIssues++
-			} else if rule.Severity == SeverityHigh || rule.Severity == SeverityMedium {
+			case SeverityHigh, SeverityMedium:
 				result.WarningIssues++
 			}
 		}

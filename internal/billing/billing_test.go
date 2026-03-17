@@ -14,7 +14,7 @@ import (
 func TestNewBillingManager(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "billing-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	config := DefaultBillingConfig()
 	bm, err := NewBillingManager(config, tmpDir)
@@ -27,7 +27,7 @@ func TestNewBillingManager(t *testing.T) {
 func TestNewBillingManagerNilConfig(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "billing-test")
 	require.NoError(t, err)
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	bm, err := NewBillingManager(nil, tmpDir)
 	require.NoError(t, err)
@@ -411,7 +411,7 @@ func TestGenerateInvoiceFromUsage(t *testing.T) {
 
 func TestGetBillingStats(t *testing.T) {
 	bm := createTestBillingManager(t)
-	defer os.RemoveAll(bm.dataDir)
+	defer func() { _ = os.RemoveAll(bm.dataDir) }()
 
 	ctx := context.Background()
 
@@ -426,8 +426,8 @@ func TestGetBillingStats(t *testing.T) {
 	require.NoError(t, err)
 
 	invoice := createTestInvoice(t, bm)
-	bm.IssueInvoice(invoice.ID)
-	bm.MarkInvoicePaid(invoice.ID, "alipay", "PAY123")
+	require.NoError(t, bm.IssueInvoice(invoice.ID))
+	require.NoError(t, bm.MarkInvoicePaid(invoice.ID, "alipay", "PAY123"))
 
 	stats, err := bm.GetBillingStats(time.Now().AddDate(0, -1, 0), time.Now())
 	require.NoError(t, err)
@@ -475,7 +475,7 @@ func TestGetInvoiceSummary(t *testing.T) {
 		})
 		require.NoError(t, err)
 		if i == 0 {
-			bm.IssueInvoice(inv.ID)
+			require.NoError(t, bm.IssueInvoice(inv.ID))
 		}
 	}
 

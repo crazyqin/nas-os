@@ -433,7 +433,9 @@ func TestAddSensitiveOperation(t *testing.T) {
 		RequiresMFA:      true,
 	}
 
-	manager.AddOperation(newOp)
+	if err := manager.AddOperation(newOp); err != nil {
+		t.Errorf("AddOperation failed: %v", err)
+	}
 
 	// 验证添加成功
 	op := manager.CheckSensitive(OperationCategoryFile, ActionDelete, "")
@@ -495,7 +497,9 @@ func TestApprovalWorkflow(t *testing.T) {
 	}
 
 	// 批准操作
-	manager.ApproveOperation(approval.ID, "admin-002", "已审核")
+	if err := manager.ApproveOperation(approval.ID, "admin-002", "已审核"); err != nil {
+		t.Errorf("ApproveOperation failed: %v", err)
+	}
 
 	// 验证状态更新
 	updated := manager.GetApproval(approval.ID)

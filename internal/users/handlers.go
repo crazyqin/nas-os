@@ -314,11 +314,12 @@ func (h *Handlers) setUserRole(c *gin.Context) {
 	}
 
 	if err := h.manager.SetUserRole(username, req.Role); err != nil {
-		if err == ErrUserNotFound {
+		switch err {
+		case ErrUserNotFound:
 			c.JSON(http.StatusNotFound, apiresponse.Error(404, err.Error()))
-		} else if err == ErrLastAdmin {
+		case ErrLastAdmin:
 			c.JSON(http.StatusForbidden, apiresponse.Error(403, err.Error()))
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, apiresponse.Error(500, err.Error()))
 		}
 		return
