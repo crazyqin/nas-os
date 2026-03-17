@@ -4,6 +4,23 @@
 
 ---
 
+## v2.183.0 - 2026-03-17 ✅
+
+### 礼部文档维护
+- README.md 版本号同步至 v2.183.0
+- docs/README.md 版本号同步
+- docs/README_EN.md 版本号同步
+- docs/api.yaml 版本号同步
+- docs/swagger.json 版本号同步
+- docs/swagger/swagger.json 版本号同步
+- docs/swagger/swagger.yaml 版本号同步
+- CHANGELOG.md 更新
+
+### 发布状态
+- 文档版本号同步完成 ✅
+
+---
+
 ## v2.181.0 - 2026-03-17 ✅
 
 ### 吏部项目管理
