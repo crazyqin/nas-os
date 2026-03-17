@@ -270,7 +270,9 @@ func (m *MFAManager) SendSMSCode(userID, phone string) error {
 
 	m.configs[userID].Phone = phone
 	m.configs[userID].UpdatedAt = time.Now()
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return err
+	}
 
 	return m.smsManager.SendCode(phone)
 }
@@ -299,7 +301,9 @@ func (m *MFAManager) EnableSMS(userID, phone, code string) error {
 	cfg.Enabled = true
 	cfg.UpdatedAt = time.Now()
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -327,7 +331,9 @@ func (m *MFAManager) DisableSMS(userID, verifyCode string) error {
 		cfg.Enabled = false
 	}
 
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -395,7 +401,9 @@ func (m *MFAManager) FinishWebAuthnRegistration(sessionID string, responseData i
 	m.configs[userIDFromSession(sessionID)].WebAuthnEnabled = true
 	m.configs[userIDFromSession(sessionID)].Enabled = true
 	m.configs[userIDFromSession(sessionID)].UpdatedAt = time.Now()
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		return err
+	}
 
 	return nil
 }

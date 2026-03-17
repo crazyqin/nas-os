@@ -446,16 +446,24 @@ func (m *EnhancedMFAManager) GetStats() map[string]interface{} {
 
 	for _, cfg := range m.configs {
 		if cfg.Enabled {
-			stats["mfa_enabled"] = stats["mfa_enabled"].(int) + 1
+			if v, ok := stats["mfa_enabled"].(int); ok {
+				stats["mfa_enabled"] = v + 1
+			}
 		}
 		if cfg.TOTPEnabled {
-			stats["totp_enabled"] = stats["totp_enabled"].(int) + 1
+			if v, ok := stats["totp_enabled"].(int); ok {
+				stats["totp_enabled"] = v + 1
+			}
 		}
 		if cfg.SMSEnabled {
-			stats["sms_enabled"] = stats["sms_enabled"].(int) + 1
+			if v, ok := stats["sms_enabled"].(int); ok {
+				stats["sms_enabled"] = v + 1
+			}
 		}
 		if cfg.WebAuthnEnabled {
-			stats["webauthn_enabled"] = stats["webauthn_enabled"].(int) + 1
+			if v, ok := stats["webauthn_enabled"].(int); ok {
+				stats["webauthn_enabled"] = v + 1
+			}
 		}
 	}
 

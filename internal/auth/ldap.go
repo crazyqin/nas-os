@@ -118,7 +118,7 @@ func (m *LDAPManager) Authenticate(configName, username, password string) (*LDAP
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// 搜索用户
 	user, err := m.searchUser(conn, config, username)
@@ -187,7 +187,7 @@ func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 			err = conn.StartTLS(&tls.Config{ServerName: config.URL[7:]})
 		}
 		if err != nil {
-			conn.Close()
+			_ = conn.Close()
 			return nil, fmt.Errorf("StartTLS 失败: %w", err)
 		}
 	}
@@ -195,7 +195,7 @@ func (m *LDAPManager) connect(config *LDAPConfig) (*ldap.Conn, error) {
 	// 绑定管理员账号（用于搜索）
 	if config.BindDN != "" {
 		if err := conn.Bind(config.BindDN, config.BindPassword); err != nil {
-			conn.Close()
+			_ = conn.Close()
 			return nil, ErrLDAPBindFailed
 		}
 	}
@@ -299,7 +299,7 @@ func (m *LDAPManager) SearchUsers(configName, query string) ([]*LDAPUser, error)
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	filter := fmt.Sprintf("(|(%s=*%s*)(%s=*%s*))",
 		config.AttributeMap.Username, ldap.EscapeFilter(query),
@@ -347,7 +347,7 @@ func (m *LDAPManager) TestConnection(configName string) error {
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	return nil
 }
