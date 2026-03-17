@@ -40,7 +40,7 @@
 # - 添加 curl 替代 wget（更可靠）
 
 # ========== 构建阶段 ==========
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # 构建参数
 ARG VERSION=dev
@@ -90,7 +90,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped (not supported on this platform)"
 
 # ========== 健康检查工具构建阶段 ==========
-FROM golang:1.24-alpine AS healthcheck-builder
+FROM golang:1.25-alpine AS healthcheck-builder
 
 # 构建一个极简的健康检查工具（使用 Dockerfile 1.4 heredoc 语法）
 COPY <<EOF /tmp/health.go

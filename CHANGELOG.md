@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.196.0] - 2026-03-18
+
+### 六部协同开发
+
+#### 工部 - CI/CD 修复
+- ✅ 修复 Go 版本配置问题 (1.24 → 1.25)
+  - 更新 .github/workflows/*.yml 中 GO_VERSION
+  - 更新 Dockerfile、Dockerfile.dev、Dockerfile.full 中 golang 基础镜像版本
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.196.0
+- ✅ CHANGELOG.md 版本条目创建
+
+#### 兵部 - 代码质量
+- 🔄 检查中
+
+#### 刑部 - 安全审计
+- 🔄 扫描中
+
+#### 礼部 - 文档维护
+- 🔄 待更新
+
+#### 户部 - 项目统计
+- 🔄 统计中
+
 ## [v2.195.0] - 2026-03-18
 
 ### 六部协同开发
