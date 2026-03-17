@@ -8,7 +8,7 @@
 # v2.91.0 修复 Air 安装命令、EXPOSE 注释格式
 
 # ========== 开发阶段 ==========
-FROM golang:1.25-alpine
+FROM golang:1.24-alpine
 
 WORKDIR /app
 
