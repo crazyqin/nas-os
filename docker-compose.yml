@@ -4,6 +4,10 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os
 #
+# v2.218.0 更新：
+# - 修复 auth 模块 errcheck 错误 (类型断言、Close 方法)
+# - 修复 oauth2/rbac/scanner 模块 errcheck 错误
+#
 # v2.173.0 更新（工部优化）：
 # - 升级 Go 版本至 1.26（匹配当前系统版本）
 #
@@ -35,7 +39,7 @@ services:
     
     # 服务标签
     labels:
-      - "nas-os.version=2.215.0"
+      - "nas-os.version=2.218.0"
       - "nas-os.description=NAS-OS Storage Management System"
       - "nas-os.maintainer=工部"
     
@@ -70,7 +74,7 @@ services:
     environment:
       - NAS_OS_CONFIG=/etc/nas-os/config.yaml
       - NAS_OS_DATA_ROOT=/var/lib/nas-os
-      - NAS_OS_VERSION=2.215.0
+      - NAS_OS_VERSION=2.218.0
       # 时区设置
       - TZ=Asia/Shanghai
       # 日志配置
