@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.194.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.194.0
+- ✅ CHANGELOG.md 版本条目创建
+
+#### 兵部 - 代码质量修复
+- ✅ 修复 internal/cluster 包中的 errcheck 错误
+  - 22 处类型断言和错误返回值检查
+
+#### 工部 - CI/CD 检查
+- ✅ CI/CD 流水线通过
+
+#### 刑部 - 安全审计
+- ✅ 安全扫描完成
+
+#### 礼部 - 文档维护
+- ✅ 版本号同步至 v2.194.0
+- ✅ CHANGELOG.md 更新
+
+#### 户部 - 项目统计
+- ✅ 代码质量提升
+
 ## [v2.193.0] - 2026-03-17
 
 ### 六部协同开发

@@ -130,7 +130,7 @@ func NewHighAvailability(config HAConfig, logger *zap.Logger) (*HighAvailability
 	}
 
 	// 加载持久化数据
-	ha.loadState()
+	_ = ha.loadState()
 
 	return ha, nil
 }
@@ -276,7 +276,7 @@ func (ha *HighAvailability) sendHeartbeatToPeer(peer *PeerInfo) {
 		ha.markPeerUnhealthy(peer.ID)
 		return
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		ha.logger.Debug("心跳响应异常", zap.String("peer", peer.ID), zap.Int("status", resp.StatusCode))
@@ -454,7 +454,7 @@ func (ha *HighAvailability) SetCallbacks(callbacks HACallbacks) {
 // Shutdown 关闭高可用管理器
 func (ha *HighAvailability) Shutdown() error {
 	ha.cancel()
-	ha.saveState()
+	_ = ha.saveState()
 	ha.logger.Info("高可用管理器已关闭")
 	return nil
 }

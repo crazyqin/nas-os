@@ -465,40 +465,56 @@ func (enm *EdgeNodeManager) updateNodeStatus() {
 	}
 }
 
+// EdgeNodeStats 边缘节点统计
+type EdgeNodeStats struct {
+	TotalNodes   int            `json:"total_nodes"`
+	OnlineNodes  int            `json:"online_nodes"`
+	OfflineNodes int            `json:"offline_nodes"`
+	BusyNodes    int            `json:"busy_nodes"`
+	IdleNodes    int            `json:"idle_nodes"`
+	ByType       map[string]int `json:"by_type"`
+}
+
 // GetNodeStats 获取节点统计
 func (enm *EdgeNodeManager) GetNodeStats() map[string]interface{} {
 	enm.nodesMutex.RLock()
 	defer enm.nodesMutex.RUnlock()
 
-	stats := map[string]interface{}{
-		"total_nodes":   len(enm.nodes),
-		"online_nodes":  0,
-		"offline_nodes": 0,
-		"busy_nodes":    0,
-		"idle_nodes":    0,
-		"by_type":       make(map[string]int),
+	stats := &EdgeNodeStats{
+		TotalNodes:   len(enm.nodes),
+		OnlineNodes:  0,
+		OfflineNodes: 0,
+		BusyNodes:    0,
+		IdleNodes:    0,
+		ByType:       make(map[string]int),
 	}
 
-	byType := stats["by_type"].(map[string]int)
-
 	for _, node := range enm.nodes {
-		byType[node.Type]++
+		stats.ByType[node.Type]++
 
 		switch node.Status {
 		case EdgeNodeStatusOnline, EdgeNodeStatusIdle:
-			stats["online_nodes"] = stats["online_nodes"].(int) + 1
+			stats.OnlineNodes++
 		case EdgeNodeStatusOffline:
-			stats["offline_nodes"] = stats["offline_nodes"].(int) + 1
+			stats.OfflineNodes++
 		case EdgeNodeStatusBusy:
-			stats["busy_nodes"] = stats["busy_nodes"].(int) + 1
+			stats.BusyNodes++
 		}
 
 		if node.Status == EdgeNodeStatusIdle {
-			stats["idle_nodes"] = stats["idle_nodes"].(int) + 1
+			stats.IdleNodes++
 		}
 	}
 
-	return stats
+	// 返回 map 格式以保持 API 兼容
+	return map[string]interface{}{
+		"total_nodes":   stats.TotalNodes,
+		"online_nodes":  stats.OnlineNodes,
+		"offline_nodes": stats.OfflineNodes,
+		"busy_nodes":    stats.BusyNodes,
+		"idle_nodes":    stats.IdleNodes,
+		"by_type":       stats.ByType,
+	}
 }
 
 // SelectBestNode 选择最佳节点（基于负载均衡）

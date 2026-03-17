@@ -306,7 +306,7 @@ func (api *EdgeAPI) DrainEdgeNode(c *gin.Context) {
 		return
 	}
 
-	api.edgeManager.UpdateNodeStatus(nodeID, EdgeNodeStatusMaintain)
+	_ = api.edgeManager.UpdateNodeStatus(nodeID, EdgeNodeStatusMaintain)
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
