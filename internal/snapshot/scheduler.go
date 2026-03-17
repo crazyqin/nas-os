@@ -224,7 +224,11 @@ func (s *Scheduler) ListJobs() []JobInfo {
 	var jobs []JobInfo
 	for policyID, entryID := range s.jobIDs {
 		entry := s.cron.Entry(entryID)
-		policy, _ := s.policyManager.GetPolicy(policyID)
+		policy, err := s.policyManager.GetPolicy(policyID)
+		if err != nil {
+			// 策略不存在时跳过此任务
+			continue
+		}
 
 		jobs = append(jobs, JobInfo{
 			PolicyID:   policyID,

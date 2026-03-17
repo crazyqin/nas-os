@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.217.0] - 2026-03-18
+
+### Bug 修复
+
+#### 兵部 - 测试失败修复
+- ✅ 修复 `scheduler.go` 中 `ListJobs` 空指针解引用问题
+- ✅ 修复 `retention.go` 中 `storageMgr` nil 检查
+- ✅ 修复 `TestScoreHistory` 测试数据污染问题
+- ✅ 修复多个 snapshot 测试路由路径错误
+
+### 测试改进
+- 🧪 `internal/snapshot/scheduler.go`: 添加错误处理，避免 panic
+- 🧪 `internal/snapshot/retention.go`: 添加 storageMgr nil 检查
+- 🧪 `internal/security/scanner/scanner_test.go`: 改进历史记录测试
+- 🧪 `internal/snapshot/snapshot_extended_test.go`: 修复测试初始化
+
+### 六部协同
+
+| 部门 | 任务 | 状态 |
+|------|------|------|
+| 兵部 | 测试失败修复 | ✅ |
+| 刑部 | 安全审查 | ✅ |
+| 工部 | CI/CD 检查 | 🔄 |
+| 户部 | 代码统计 | ✅ |
+| 礼部 | CHANGELOG 更新 | ✅ |
+| 吏部 | 版本发布 | 🔄 |
+
+---
+
 ## [v2.215.0] - 2026-03-18
 
 ### 代码质量改进

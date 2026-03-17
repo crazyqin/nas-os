@@ -70,6 +70,11 @@ func (c *RetentionCleaner) Clean(policy *Policy) ([]string, error) {
 
 // listPolicySnapshots 获取策略相关的快照列表
 func (c *RetentionCleaner) listPolicySnapshots(policy *Policy) ([]SnapshotInfo, error) {
+	// 检查存储管理器是否存在
+	if c.storageMgr == nil {
+		return []SnapshotInfo{}, nil
+	}
+
 	// 通过存储管理器获取快照列表
 	snapshots, err := c.storageMgr.ListSnapshots(policy.VolumeName)
 	if err != nil {
