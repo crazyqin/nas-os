@@ -513,7 +513,7 @@ func (t *WebhookTrigger) handleWebhook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-	defer r.Body.Close()
+	defer func() { _ = r.Body.Close() }()
 
 	// 验证签名（如果配置了 secret）
 	if t.Secret != "" {

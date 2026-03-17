@@ -459,8 +459,7 @@ func (m *Manager) CreateGroupPermission(groupID, groupName string, permissions [
 		}
 	}
 
-	m.save()
-	return nil
+	return m.save()
 }
 
 // UpdateGroupPermission 更新用户组权限
@@ -486,8 +485,7 @@ func (m *Manager) UpdateGroupPermission(groupID string, permissions []string) er
 		}
 	}
 
-	m.save()
-	return nil
+	return m.save()
 }
 
 // DeleteGroupPermission 删除用户组权限
