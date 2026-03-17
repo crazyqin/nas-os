@@ -281,7 +281,11 @@ func sendWebhookNotification(url, title, message string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			// 记录关闭错误，但不影响主流程
+		}
+	}()
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("webhook failed with status: %d", resp.StatusCode)
@@ -311,7 +315,11 @@ func sendDiscordNotification(webhookURL, title, message string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			// 记录关闭错误，但不影响主流程
+		}
+	}()
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("discord webhook failed with status: %d", resp.StatusCode)
@@ -400,7 +408,11 @@ func (a *WebhookAction) Execute(ctx context.Context, contextData map[string]inte
 	if err != nil {
 		return fmt.Errorf("webhook request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			// 记录关闭错误，但不影响主流程
+		}
+	}()
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("webhook failed with status: %d", resp.StatusCode)

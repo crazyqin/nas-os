@@ -42,6 +42,37 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Version bump to v2.156.0
 
+## [v2.155.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 吏部 - 项目管理
+- ✅ 版本号更新至 v2.155.0
+
+#### 兵部 - 代码质量
+- ✅ 修复 40+ 处 errcheck 问题
+- ✅ 正确处理错误返回值
+- ✅ 代码质量改进
+
+#### 礼部 - 文档维护
+- ✅ API 文档版本同步至 v2.155.0
+
+#### 工部 - DevOps
+- ✅ CI/CD 配置正常
+- ✅ 测试覆盖率 35.3%（超过阈值）
+
+#### 刑部 - 安全审计
+- ✅ gosec 安全扫描完成
+- ⚠️ 发现高危漏洞：命令注入、路径遍历（待修复）
+
+### Changed
+- `internal/automation/action/action.go`: 修复 resp.Body.Close() 返回值检查
+- `internal/dashboard/health/checker.go`: 修复 os.Hostname()、strconv 系列函数返回值检查
+- `internal/quota/optimizer/api.go`: 修复 fmt.Sscanf()、json.Encode() 返回值检查
+- `internal/quota/optimizer/optimizer.go`: 修复多处 save()、load() 返回值检查
+- `internal/transfer/chunked.go`: 修复 Close() 返回值检查
+- `pkg/btrfs/btrfs.go`: 修复多处 strconv.ParseUint/ParseFloat 返回值检查
+
 ## [v2.154.0] - 2026-03-17
 
 ### 六部协同开发

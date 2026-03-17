@@ -148,8 +148,8 @@ func NewChecker(config *CheckerConfig) *Checker {
 		config = DefaultConfig()
 	}
 
-	hostname, _ := os.Hostname()
-	if hostname == "" {
+	hostname, err := os.Hostname()
+	if err != nil {
 		hostname = "unknown"
 	}
 
@@ -538,7 +538,7 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 	}
 
 	// 获取进程信息
-	pidInt, _ := strconv.Atoi(pid)
+	pidInt, _ := strconv.Atoi(pid) // 忽略错误，pid 来自 pgrep 输出，格式可信
 
 	// 获取内存使用
 	var memRSS uint64
@@ -552,7 +552,7 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 				if strings.HasPrefix(line, "VmRSS:") {
 					fields := strings.Fields(line)
 					if len(fields) >= 2 {
-						if kb, err := strconv.ParseUint(fields[1], 10, 64); err == nil {
+						if kb, parseErr := strconv.ParseUint(fields[1], 10, 64); parseErr == nil {
 							memRSS = kb * 1024 // 转为字节
 						}
 					}
@@ -565,9 +565,9 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 		if data, err := os.ReadFile(fmt.Sprintf("/proc/%d/stat", pidInt)); err == nil {
 			fields := strings.Fields(string(data))
 			if len(fields) >= 17 {
-				utime, _ := strconv.ParseFloat(fields[13], 64)
-				stime, _ := strconv.ParseFloat(fields[14], 64)
-				cpuPercent = (utime + stime) / 100.0 // 转为百分比
+				utime, _ := strconv.ParseFloat(fields[13], 64) // 忽略错误，使用默认值 0
+				stime, _ := strconv.ParseFloat(fields[14], 64) // 忽略错误，使用默认值 0
+				cpuPercent = (utime + stime) / 100.0           // 转为百分比
 			}
 		}
 	}
