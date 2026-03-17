@@ -347,7 +347,7 @@ func NewPool(config Config) (*Pool, error) {
 	for i := 0; i < size/2; i++ {
 		client, err := NewClient(config)
 		if err != nil {
-			pool.Close()
+			_ = pool.Close()
 			return nil, err
 		}
 		pool.clients <- client

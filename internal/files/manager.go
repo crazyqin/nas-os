@@ -351,7 +351,7 @@ func (m *Manager) GenerateVideoThumbnail(path string) string {
 	defer cancel()
 
 	outputFile := filepath.Join(m.config.CacheDir, fmt.Sprintf("%d.jpg", time.Now().UnixNano()))
-	defer os.Remove(outputFile)
+	defer func() { _ = os.Remove(outputFile) }()
 
 	cmd := exec.CommandContext(ctx, "ffmpeg",
 		"-i", path,
@@ -396,10 +396,15 @@ func (m *Manager) GetVideoInfo(path string) (int, int, int, error) {
 		return 0, 0, 0, err
 	}
 
-	var width, height, duration int
-	fmt.Sscanf(string(output), "%d,%d,%f", &width, &height, new(float64))
+	var width, height int
+	var durationFloat float64
+	_, err = fmt.Sscanf(string(output), "%d,%d,%f", &width, &height, &durationFloat)
+	if err != nil {
+		// 解析失败，返回默认值
+		return 0, 0, 0, nil
+	}
 
-	return width, height, duration, nil
+	return width, height, int(durationFloat), nil
 }
 
 // PreviewFile 预览文件
@@ -548,7 +553,7 @@ func (h *Handlers) previewFile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 
 	c.DataFromReader(http.StatusOK, -1, mimeType, reader, nil)
 }
@@ -846,10 +851,10 @@ func (h *Handlers) compressZipGo(srcPath, dstPath string, level int) error {
 	if err != nil {
 		return err
 	}
-	defer archive.Close()
+	defer func() { _ = archive.Close() }()
 
 	zipWriter := zip.NewWriter(archive)
-	defer zipWriter.Close()
+	defer func() { _ = zipWriter.Close() }()
 
 	return filepath.Walk(srcPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -971,7 +976,7 @@ func (h *Handlers) extractZipGo(archivePath, destPath string, overwrite bool) er
 	if err != nil {
 		return err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	for _, f := range r.File {
 		// #nosec G305 -- 下方已添加路径遍历检查
@@ -990,23 +995,23 @@ func (h *Handlers) extractZipGo(archivePath, destPath string, overwrite bool) er
 		}
 
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(path, f.Mode())
+			_ = os.MkdirAll(path, f.Mode())
 			continue
 		}
 
-		os.MkdirAll(filepath.Dir(path), 0755)
+		_ = os.MkdirAll(filepath.Dir(path), 0755)
 
 		srcFile, err := f.Open()
 		if err != nil {
 			return err
 		}
-		defer srcFile.Close()
+		defer func() { _ = srcFile.Close() }()
 
 		dstFile, err := os.Create(path)
 		if err != nil {
 			return err
 		}
-		defer dstFile.Close()
+		defer func() { _ = dstFile.Close() }()
 
 		_, err = io.Copy(dstFile, srcFile)
 		if err != nil {

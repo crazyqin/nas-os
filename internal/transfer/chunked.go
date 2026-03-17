@@ -535,7 +535,13 @@ func NewBufferPool(bufferSize int) *BufferPool {
 
 // Get retrieves a buffer from the pool
 func (p *BufferPool) Get() *[]byte {
-	return p.pool.Get().(*[]byte)
+	buf, ok := p.pool.Get().(*[]byte)
+	if !ok {
+		// 类型断言失败，返回新分配的 buffer
+		newBuf := make([]byte, 0)
+		return &newBuf
+	}
+	return buf
 }
 
 // Put returns a buffer to the pool

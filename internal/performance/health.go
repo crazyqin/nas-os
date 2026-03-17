@@ -411,7 +411,7 @@ func (hc *HealthChecker) checkServiceStatus(service string) string {
 	}
 
 	if resp, err := http.Get("http://localhost:8080/api/v1/health"); err == nil {
-		resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 		return "running"
 	}
 
@@ -453,7 +453,11 @@ func (hc *HealthChecker) checkBtrfs() HealthCheckResult {
 		Details:   make(map[string]interface{}),
 	}
 
-	details := result.Details.(map[string]interface{})
+	details, ok := result.Details.(map[string]interface{})
+	if !ok {
+		details = make(map[string]interface{})
+		result.Details = details
+	}
 	var issues []string
 
 	// 检查 /proc/mounts 中的 btrfs 挂载
@@ -518,7 +522,11 @@ func (hc *HealthChecker) checkShares() HealthCheckResult {
 		Details:   make(map[string]interface{}),
 	}
 
-	details := result.Details.(map[string]interface{})
+	details, ok := result.Details.(map[string]interface{})
+	if !ok {
+		details = make(map[string]interface{})
+		result.Details = details
+	}
 	var issues []string
 
 	// 检查 SMB 服务
