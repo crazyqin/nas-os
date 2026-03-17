@@ -396,7 +396,7 @@ func TestNotificationTypes(t *testing.T) {
 		Message: "Test message",
 		Level:   "info",
 	}
-	data, err := json.Marshal(sysNotif)
+	_, err := json.Marshal(sysNotif)
 	if err != nil {
 		t.Errorf("Failed to marshal SystemNotification: %v", err)
 	}
@@ -409,7 +409,7 @@ func TestNotificationTypes(t *testing.T) {
 	}
 	metric.Network.Rx = 1024
 	metric.Network.Tx = 2048
-	data, err = json.Marshal(metric)
+	data, err := json.Marshal(metric)
 	if err != nil {
 		t.Errorf("Failed to marshal MetricUpdate: %v", err)
 	}
@@ -426,7 +426,7 @@ func TestNotificationTypes(t *testing.T) {
 		Timestamp:    time.Now().Unix(),
 		Acknowledged: false,
 	}
-	data, err = json.Marshal(alert)
+	_, err = json.Marshal(alert)
 	if err != nil {
 		t.Errorf("Failed to marshal AlertNotification: %v", err)
 	}
@@ -439,7 +439,7 @@ func TestNotificationTypes(t *testing.T) {
 		Status:      "running",
 		Timestamp:   time.Now().Unix(),
 	}
-	data, err = json.Marshal(container)
+	_, err = json.Marshal(container)
 	if err != nil {
 		t.Errorf("Failed to marshal ContainerEvent: %v", err)
 	}
@@ -451,7 +451,7 @@ func TestNotificationTypes(t *testing.T) {
 		Message:    "Volume mounted successfully",
 		Timestamp:  time.Now().Unix(),
 	}
-	data, err = json.Marshal(storage)
+	_, err = json.Marshal(storage)
 	if err != nil {
 		t.Errorf("Failed to marshal StorageEvent: %v", err)
 	}
@@ -464,7 +464,7 @@ func TestNotificationTypes(t *testing.T) {
 		Message:   "Backup completed successfully",
 		Timestamp: time.Now().Unix(),
 	}
-	data, err = json.Marshal(backup)
+	_, err = json.Marshal(backup)
 	if err != nil {
 		t.Errorf("Failed to marshal BackupEvent: %v", err)
 	}

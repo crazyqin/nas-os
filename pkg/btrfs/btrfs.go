@@ -241,7 +241,10 @@ func parseUsage(output []byte) (total, used, free uint64, err error) {
 		}
 	}
 
-	free = total - used
+	// 如果没有解析到 free 值，则计算
+	if free == 0 && total > used {
+		free = total - used
+	}
 	return
 }
 

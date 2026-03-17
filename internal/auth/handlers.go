@@ -1,8 +1,9 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
 	"nas-os/internal/api"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Handlers MFA HTTP 处理器

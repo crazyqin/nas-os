@@ -140,7 +140,7 @@ func (m *Manager) UpdateConfig(name string, config Config) error {
 		delete(m.pools, name)
 	}
 	if sync, exists := m.synchronizers[name]; exists {
-		sync.Close()
+		_ = sync.Close()
 		delete(m.synchronizers, name)
 	}
 
@@ -169,7 +169,7 @@ func (m *Manager) DeleteConfig(name string) error {
 		delete(m.pools, name)
 	}
 	if sync, exists := m.synchronizers[name]; exists {
-		sync.Close()
+		_ = sync.Close()
 		delete(m.synchronizers, name)
 	}
 
@@ -405,7 +405,7 @@ func (m *Manager) TestConnection(configName string) (*ConnectionStatus, error) {
 		status.Error = err.Error()
 		return status, err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	if err := client.Bind(); err != nil {
 		status.Error = err.Error()
@@ -491,7 +491,7 @@ func (m *Manager) SyncAll(configName string, userHandler UserSyncHandler, groupH
 	if err != nil {
 		return nil, err
 	}
-	defer sync.Close()
+	defer func() { _ = sync.Close() }()
 
 	return sync.SyncAll()
 }
@@ -522,7 +522,7 @@ func (m *Manager) SearchUsers(configName, query string) ([]*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	if err := client.Bind(); err != nil {
 		return nil, err
@@ -639,7 +639,7 @@ func (m *Manager) GetGroups(configName string) ([]*Group, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	if err := client.Bind(); err != nil {
 		return nil, err
@@ -686,12 +686,12 @@ func (m *Manager) Close() error {
 
 	// 关闭所有认证器
 	for _, auth := range m.authenticators {
-		auth.Close()
+		_ = auth.Close()
 	}
 
 	// 关闭所有 AD 客户端
 	for _, client := range m.adClients {
-		client.Close()
+		_ = client.Close()
 	}
 
 	// 关闭所有连接池
@@ -701,7 +701,7 @@ func (m *Manager) Close() error {
 
 	// 停止所有同步器
 	for _, sync := range m.synchronizers {
-		sync.Close()
+		_ = sync.Close()
 	}
 
 	// 清空映射

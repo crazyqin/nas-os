@@ -215,7 +215,7 @@ func (c *Checker) Check(ctx context.Context) *HealthReport {
 
 	// 计算总体状态和摘要
 	summary := Summary{Total: len(checks)}
-	var overallStatus Status = StatusHealthy
+	overallStatus := StatusHealthy
 
 	for _, check := range checks {
 		switch check.Status {

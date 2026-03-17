@@ -266,14 +266,10 @@ func (h *APIHandler) HandleAdjustHistory(w http.ResponseWriter, r *http.Request)
 
 func (h *APIHandler) writeJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		// 编码失败时记录日志，但无法修改响应头
-	}
+	_ = json.NewEncoder(w).Encode(data)
 }
 
 func (h *APIHandler) writeError(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
-	if err := json.NewEncoder(w).Encode(map[string]string{"error": message}); err != nil {
-		// 编码失败时无法修改响应
-	}
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": message})
 }

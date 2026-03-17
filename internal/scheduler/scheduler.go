@@ -268,9 +268,6 @@ func (s *Scheduler) AddTask(task *Task) error {
 	if task.Priority == 0 {
 		task.Priority = PriorityNormal
 	}
-	if task.Enabled {
-		// 默认启用
-	}
 
 	task.CreatedAt = time.Now()
 	task.UpdatedAt = time.Now()

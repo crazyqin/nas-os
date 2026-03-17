@@ -247,7 +247,10 @@ func (vm *VolumeManager) BackupVolume(volumeName, backupPath string, compress bo
 	}
 
 	// 计算校验和
-	checksum, _ := vm.calculateChecksum(backupFile)
+	checksum, err := vm.calculateChecksum(backupFile)
+	if err != nil {
+		checksum = ""
+	}
 
 	backup := &VolumeBackup{
 		Name:       backupName,
