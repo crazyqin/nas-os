@@ -2041,7 +2041,7 @@ func (e *CloudAIEngine) detectFacesAzure(img image.Image) ([]FaceInfo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("请求失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -2169,7 +2169,7 @@ func (e *CloudAIEngine) classifySceneAzure(img image.Image) (string, float32, er
 	if err != nil {
 		return "", 0, fmt.Errorf("请求失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -2250,7 +2250,7 @@ func (e *CloudAIEngine) detectObjectsAzure(img image.Image) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("请求失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -2321,7 +2321,7 @@ func (e *CloudAIEngine) extractColorsAzure(img image.Image) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("请求失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)

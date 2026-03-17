@@ -165,7 +165,7 @@ func (h *Handlers) uploadPhoto(c *gin.Context) {
 		})
 		return
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 
 	// 复制文件内容
 	written, err := io.Copy(dst, file)
@@ -258,8 +258,8 @@ func (h *Handlers) uploadPhotoBatch(c *gin.Context) {
 
 		// 复制文件内容
 		written, err := io.Copy(dst, file)
-		file.Close()
-		dst.Close()
+		_ = file.Close()
+		_ = dst.Close()
 
 		if err != nil {
 			failed = append(failed, fileHeader.Filename+" (写入失败)")
@@ -327,7 +327,7 @@ func (h *Handlers) createUploadSession(c *gin.Context) {
 	}
 
 	// 创建临时目录
-	os.MkdirAll(session.TempPath, 0755)
+	_ = os.MkdirAll(session.TempPath, 0755)
 
 	// 保存会话信息
 	h.mu.Lock()
@@ -385,7 +385,7 @@ func (h *Handlers) uploadSessionChunk(c *gin.Context) {
 		})
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 保存分片到临时文件
 	chunkPath := filepath.Join(session.TempPath, fmt.Sprintf("chunk_%d", chunkIndex))
@@ -397,7 +397,7 @@ func (h *Handlers) uploadSessionChunk(c *gin.Context) {
 		})
 		return
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 
 	written, err := io.Copy(dst, file)
 	if err != nil {
@@ -497,7 +497,7 @@ func (h *Handlers) completeUploadSession(c *gin.Context) {
 		})
 		return
 	}
-	defer finalFile.Close()
+	defer func() { _ = finalFile.Close() }()
 
 	for i := 0; i < session.TotalChunks; i++ {
 		chunkPath := filepath.Join(session.TempPath, fmt.Sprintf("chunk_%d", i))
@@ -509,15 +509,15 @@ func (h *Handlers) completeUploadSession(c *gin.Context) {
 			})
 			return
 		}
-		io.Copy(finalFile, chunkFile)
-		chunkFile.Close()
+		_, _ = io.Copy(finalFile, chunkFile)
+		_ = chunkFile.Close()
 	}
 
 	// 同步文件
-	finalFile.Sync()
+	_ = finalFile.Sync()
 
 	// 清理临时文件
-	os.RemoveAll(session.TempPath)
+	_ = os.RemoveAll(session.TempPath)
 
 	// 删除会话
 	h.mu.Lock()

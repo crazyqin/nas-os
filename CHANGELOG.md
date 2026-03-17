@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.187.0] - 2026-03-17
+
+### 修复
+- 修复 golangci-lint errcheck 错误（未检查返回值）
+- 更新 GitHub Actions Go 版本至 1.25（解决 Docker 构建失败）
+
+### 技术细节
+- internal/budget/alert.go: notifier.Send 返回值检查
+- internal/compress/parallel.go: 多处返回值检查
+- internal/performance/monitor.go: 类型断言安全处理
+- internal/photos/ai.go, handlers.go: 文件操作和 Close() 返回值处理
+
 ## [v2.186.0] - 2026-03-17
 
 ### 修复
