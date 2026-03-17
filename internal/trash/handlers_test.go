@@ -10,10 +10,11 @@ import (
 	"testing"
 	"time"
 
+	"nas-os/internal/api"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"nas-os/internal/api"
 )
 
 func setupHandlersTestEnv(t *testing.T) (*Manager, string) {

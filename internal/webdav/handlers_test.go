@@ -8,8 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	"nas-os/internal/api"
+
+	"github.com/gin-gonic/gin"
 )
 
 func init() {
