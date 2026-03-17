@@ -655,23 +655,6 @@ func (h *Handlers) generateQuickReport(c *gin.Context) {
 	api.OK(c, report)
 }
 
-// ========== v2.9.0 新增：存储使用统计 API 实现 ==========
-
-func (h *Handlers) getStorageStats(c *gin.Context) {
-	stats := map[string]interface{}{
-		"generated_at": time.Now(),
-	}
-
-	if ds, exists := h.generator.DataSources["storage"]; exists {
-		summary, err := ds.GetSummary(nil)
-		if err == nil {
-			stats["summary"] = summary
-		}
-	}
-
-	api.OK(c, stats)
-}
-
 func (h *Handlers) getVolumeStats(c *gin.Context) {
 	stats := make([]map[string]interface{}, 0)
 

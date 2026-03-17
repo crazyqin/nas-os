@@ -414,7 +414,9 @@ func (e *WorkflowEngine) ExecuteWorkflow(id string, eventData map[string]interfa
 
 	// 持久化更新的统计信息
 	e.mu.Lock()
-	e.saveToStorage(wf)
+	if err := e.saveToStorage(wf); err != nil {
+		fmt.Printf("Failed to save workflow stats: %v\n", err)
+	}
 	e.mu.Unlock()
 
 	return execErr

@@ -528,7 +528,7 @@ func (im *InvoiceManager) DeleteInvoice(ctx context.Context, id string) error {
 	}
 
 	filePath := filepath.Join(im.storagePath, id+".json")
-	os.Remove(filePath)
+	_ = os.Remove(filePath) // 清理操作，忽略错误
 
 	delete(im.invoices, id)
 	if invoice.Number != "" {
