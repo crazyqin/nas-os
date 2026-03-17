@@ -1,6 +1,6 @@
 basePath: /api/v1
 info:
-  version: "2.183.0"
+  version: "2.184.0"
   title: NAS-OS API
 definitions:
   web.DeviceAddRequest:
