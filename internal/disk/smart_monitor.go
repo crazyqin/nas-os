@@ -255,7 +255,7 @@ func NewSMARTMonitor(config *MonitorConfig) *SMARTMonitor {
 
 	// 初始扫描磁盘
 	if config.EnableAutoScan {
-		m.ScanDisks()
+		_ = m.ScanDisks()
 	}
 
 	// 启动定期检查
@@ -1069,7 +1069,7 @@ func (m *SMARTMonitor) startPeriodicCheck() {
 	for {
 		select {
 		case <-ticker.C:
-			m.CheckAllDisks()
+			_ = m.CheckAllDisks()
 		case <-m.stopChan:
 			return
 		}
@@ -1532,7 +1532,7 @@ func (m *SMARTMonitor) ImportJSON(data []byte) error {
 
 // RunHealthCheck 执行健康检查（实现 health.HealthChecker 接口）
 func (m *SMARTMonitor) RunHealthCheck(_ context.Context) map[string]interface{} {
-	m.CheckAllDisks()
+	_ = m.CheckAllDisks()
 
 	result := make(map[string]interface{})
 	disks := m.GetAllDisks()

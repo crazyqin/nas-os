@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.192.0] - 2026-03-17
+
+### 六部协同开发
+
+#### 兵部 - 代码质量修复
+- ✅ 修复 errcheck 错误
+- ✅ 代码质量改进
+
+#### 工部 - CI/CD 优化
+- ✅ CI/CD 配置优化
+- ✅ 构建流程改进
+
+#### 刑部 - 安全审计
+- ✅ 安全审计完成
+- ✅ 安全检查通过
+
+#### 礼部 - 文档维护
+- ✅ 版本号同步至 v2.192.0
+- ✅ README.md 版本信息更新
+- ✅ docs/README.md 版本号同步
+- ✅ docs/README_EN.md 版本号同步
+- ✅ internal/version/version.go 版本同步
+
 ## [v2.191.0] - 2026-03-17
 
 ### 改进

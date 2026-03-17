@@ -398,7 +398,7 @@ func (hm *HistoryManager) periodicCleanup() {
 		hm.mu.Lock()
 		hm.cleanup()
 		hm.mu.Unlock()
-		hm.save()
+		_ = hm.save()
 	}
 }
 

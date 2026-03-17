@@ -458,9 +458,9 @@ func (enm *EdgeNodeManager) updateNodeStatus() {
 	for _, node := range nodes {
 		// 根据任务数更新状态
 		if node.TasksRunning > 0 && node.Status != EdgeNodeStatusBusy {
-			enm.UpdateNodeStatus(node.ID, EdgeNodeStatusBusy)
+			_ = enm.UpdateNodeStatus(node.ID, EdgeNodeStatusBusy)
 		} else if node.TasksRunning == 0 && node.Status == EdgeNodeStatusBusy {
-			enm.UpdateNodeStatus(node.ID, EdgeNodeStatusIdle)
+			_ = enm.UpdateNodeStatus(node.ID, EdgeNodeStatusIdle)
 		}
 	}
 }

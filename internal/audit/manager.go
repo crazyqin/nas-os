@@ -601,7 +601,7 @@ func (m *Manager) cleanupDiskLogs(cutoff time.Time) {
 		}
 
 		if info.ModTime().Before(cutoff) {
-			os.Remove(filepath.Join(m.config.LogPath, entry.Name()))
+			_ = os.Remove(filepath.Join(m.config.LogPath, entry.Name()))
 		}
 	}
 }
@@ -649,7 +649,7 @@ func (m *Manager) save() {
 	}
 
 	// 写入文件（覆盖模式，因为内存中已经是完整数据）
-	os.WriteFile(filename, data, 0640)
+	_ = os.WriteFile(filename, data, 0640)
 }
 
 // Load 加载日志

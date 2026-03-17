@@ -373,7 +373,7 @@ func (lm *LogManager) periodicCleanup() {
 
 	for range ticker.C {
 		lm.cleanup()
-		lm.save()
+		_ = lm.save()
 	}
 }
 

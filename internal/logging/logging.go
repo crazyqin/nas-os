@@ -864,7 +864,7 @@ func (s *LogSearcher) Stream(ctx context.Context, config *SearchConfig) (<-chan 
 		defer func() { _ = file.Close() }()
 
 		// 跳到文件末尾
-		file.Seek(0, io.SeekEnd)
+		_, _ = file.Seek(0, io.SeekEnd)
 
 		reader := bufio.NewReader(file)
 		for {
