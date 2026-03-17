@@ -76,7 +76,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"go.uber.org/zap"
 	"nas-os/internal/cluster"
 	"nas-os/internal/downloader"
 	"nas-os/internal/network"
@@ -85,6 +84,8 @@ import (
 	"nas-os/internal/storage"
 	"nas-os/internal/users"
 	"nas-os/internal/web"
+
+	"go.uber.org/zap"
 )
 
 func main() {

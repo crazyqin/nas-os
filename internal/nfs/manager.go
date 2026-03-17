@@ -361,7 +361,7 @@ func (m *Manager) Reload() error {
 		return fmt.Errorf("写入exports文件失败: %w", err)
 	}
 
-	// 执行 exportfs 重新导出
+	// 重新导出 NFS 配置
 	cmd := exec.Command("exportfs", "-ra") //nolint:misspell
 	if output, err := cmd.CombinedOutput(); err != nil {
 		m.logger.Errorf("执行 exportfs 失败: %s - %v", string(output), err) //nolint:misspell
