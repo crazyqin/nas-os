@@ -94,8 +94,8 @@ func TestContainer_Fields(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_Fields(t *testing.T) {
-	config := &ContainerConfig{
+func TestConfig_Fields(t *testing.T) {
+	config := &Config{
 		Name:        "my-app",
 		Image:       "my-app:latest",
 		Command:     []string{"npm", "start"},
@@ -123,9 +123,9 @@ func TestContainerConfig_Fields(t *testing.T) {
 	}
 }
 
-func TestContainerLog_Fields(t *testing.T) {
+func TestLog_Fields(t *testing.T) {
 	now := time.Now()
-	log := ContainerLog{
+	log := Log{
 		Timestamp: now,
 		Line:      "Server started on port 3000",
 		Source:    "stdout",
@@ -182,9 +182,9 @@ func TestVolumeMount_Fields(t *testing.T) {
 	}
 }
 
-func TestContainerStats_Fields(t *testing.T) {
+func TestStats_Fields(t *testing.T) {
 	now := time.Now()
-	stats := ContainerStats{
+	stats := Stats{
 		CPUUsage:   25.5,
 		MemUsage:   512 * 1024 * 1024,
 		MemLimit:   1024 * 1024 * 1024,

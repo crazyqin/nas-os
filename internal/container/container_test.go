@@ -149,10 +149,10 @@ func TestVolumeMount_Structure(t *testing.T) {
 	assert.True(t, vol.RW)
 }
 
-// ========== ContainerStats 结构测试 ==========
+// ========== Stats 结构测试 ==========
 
-func TestContainerStats_Structure(t *testing.T) {
-	stats := ContainerStats{
+func TestStats_Structure(t *testing.T) {
+	stats := Stats{
 		CPUUsage:   15.5,
 		MemUsage:   524288000,
 		MemLimit:   1048576000,
@@ -173,10 +173,10 @@ func TestContainerStats_Structure(t *testing.T) {
 	assert.False(t, stats.Timestamp.IsZero())
 }
 
-// ========== ContainerConfig 结构测试 ==========
+// ========== Config 结构测试 ==========
 
-func TestContainerConfig_Structure(t *testing.T) {
-	config := ContainerConfig{
+func TestConfig_Structure(t *testing.T) {
+	config := Config{
 		Name:    "test-container",
 		Image:   "nginx:latest",
 		Command: []string{"nginx", "-g", "daemon off;"},
@@ -205,10 +205,10 @@ func TestContainerConfig_Structure(t *testing.T) {
 	assert.Contains(t, []string{"no", "always", "on-failure", "unless-stopped"}, config.Restart)
 }
 
-// ========== ContainerLog 结构测试 ==========
+// ========== Log 结构测试 ==========
 
-func TestContainerLog_Structure(t *testing.T) {
-	log := ContainerLog{
+func TestLog_Structure(t *testing.T) {
+	log := Log{
 		Timestamp: time.Now(),
 		Line:      "Server started on port 80",
 		Source:    "stdout",
@@ -219,9 +219,9 @@ func TestContainerLog_Structure(t *testing.T) {
 	assert.False(t, log.Timestamp.IsZero())
 }
 
-func TestContainerLog_Sources(t *testing.T) {
-	stdoutLog := ContainerLog{Source: "stdout", Line: "info"}
-	stderrLog := ContainerLog{Source: "stderr", Line: "error"}
+func TestLog_Sources(t *testing.T) {
+	stdoutLog := Log{Source: "stdout", Line: "info"}
+	stderrLog := Log{Source: "stderr", Line: "error"}
 
 	assert.Equal(t, "stdout", stdoutLog.Source)
 	assert.Equal(t, "stderr", stderrLog.Source)
@@ -229,15 +229,15 @@ func TestContainerLog_Sources(t *testing.T) {
 
 // ========== 配置验证测试 ==========
 
-func TestContainerConfig_Validation(t *testing.T) {
+func TestConfig_Validation(t *testing.T) {
 	tests := []struct {
 		name    string
-		config  ContainerConfig
+		config  Config
 		wantErr bool
 	}{
 		{
 			name: "有效配置",
-			config: ContainerConfig{
+			config: Config{
 				Name:  "valid-container",
 				Image: "nginx:latest",
 			},
@@ -245,14 +245,14 @@ func TestContainerConfig_Validation(t *testing.T) {
 		},
 		{
 			name: "缺少名称",
-			config: ContainerConfig{
+			config: Config{
 				Image: "nginx:latest",
 			},
 			wantErr: true,
 		},
 		{
 			name: "缺少镜像",
-			config: ContainerConfig{
+			config: Config{
 				Name: "test-container",
 			},
 			wantErr: true,
@@ -364,10 +364,10 @@ func BenchmarkContainer_Structure(b *testing.B) {
 	}
 }
 
-func BenchmarkContainerStats_Structure(b *testing.B) {
+func BenchmarkStats_Structure(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = ContainerStats{
+		_ = Stats{
 			CPUUsage:   15.5,
 			MemUsage:   524288000,
 			MemLimit:   1048576000,
@@ -419,16 +419,16 @@ func TestParseSize_Comprehensive(t *testing.T) {
 
 // ========== 容器操作函数测试 ==========
 
-func TestContainerConfig_Validate(t *testing.T) {
+func TestConfig_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		config  ContainerConfig
+		config  Config
 		wantErr bool
 		errMsg  string
 	}{
 		{
 			name: "有效配置-基础",
-			config: ContainerConfig{
+			config: Config{
 				Name:  "test-container",
 				Image: "nginx:latest",
 			},
@@ -436,7 +436,7 @@ func TestContainerConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "有效配置-完整",
-			config: ContainerConfig{
+			config: Config{
 				Name:        "test-container",
 				Image:       "nginx:latest",
 				Command:     []string{"nginx", "-g", "daemon off;"},
@@ -453,7 +453,7 @@ func TestContainerConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "缺少名称",
-			config: ContainerConfig{
+			config: Config{
 				Image: "nginx:latest",
 			},
 			wantErr: true,
@@ -461,7 +461,7 @@ func TestContainerConfig_Validate(t *testing.T) {
 		},
 		{
 			name: "缺少镜像",
-			config: ContainerConfig{
+			config: Config{
 				Name: "test",
 			},
 			wantErr: true,
@@ -608,17 +608,17 @@ func TestMemLimit_Format(t *testing.T) {
 	}
 }
 
-// ========== ContainerStats 边界测试 ==========
+// ========== Stats 边界测试 ==========
 
-func TestContainerStats_Boundaries(t *testing.T) {
+func TestStats_Boundaries(t *testing.T) {
 	tests := []struct {
 		name  string
-		stats ContainerStats
+		stats Stats
 	}{
-		{"零值", ContainerStats{}},
-		{"最小值", ContainerStats{CPUUsage: 0, MemUsage: 0}},
-		{"最大值", ContainerStats{CPUUsage: 100, MemPercent: 100}},
-		{"典型值", ContainerStats{CPUUsage: 25.5, MemPercent: 50.0, MemUsage: 524288000}},
+		{"零值", Stats{}},
+		{"最小值", Stats{CPUUsage: 0, MemUsage: 0}},
+		{"最大值", Stats{CPUUsage: 100, MemPercent: 100}},
+		{"典型值", Stats{CPUUsage: 25.5, MemPercent: 50.0, MemUsage: 524288000}},
 	}
 
 	for _, tt := range tests {

@@ -104,10 +104,10 @@ func TestContainer_RestartPolicy(t *testing.T) {
 	}
 }
 
-// ========== ContainerStats 测试 ==========
+// ========== Stats 测试 ==========
 
-func TestContainerStats_MemoryPercent(t *testing.T) {
-	stats := &ContainerStats{
+func TestStats_MemoryPercent(t *testing.T) {
+	stats := &Stats{
 		MemUsage:   512 * 1024 * 1024,
 		MemLimit:   1024 * 1024 * 1024,
 		MemPercent: 50.0,
@@ -118,8 +118,8 @@ func TestContainerStats_MemoryPercent(t *testing.T) {
 	}
 }
 
-func TestContainerStats_CPUUsage(t *testing.T) {
-	stats := &ContainerStats{
+func TestStats_CPUUsage(t *testing.T) {
+	stats := &Stats{
 		CPUUsage: 75.5,
 	}
 
@@ -128,8 +128,8 @@ func TestContainerStats_CPUUsage(t *testing.T) {
 	}
 }
 
-func TestContainerStats_NetworkIO(t *testing.T) {
-	stats := &ContainerStats{
+func TestStats_NetworkIO(t *testing.T) {
+	stats := &Stats{
 		NetRX: 1024 * 1024 * 100, // 100MB
 		NetTX: 1024 * 1024 * 50,  // 50MB
 	}
@@ -139,8 +139,8 @@ func TestContainerStats_NetworkIO(t *testing.T) {
 	}
 }
 
-func TestContainerStats_BlockIO(t *testing.T) {
-	stats := &ContainerStats{
+func TestStats_BlockIO(t *testing.T) {
+	stats := &Stats{
 		BlockRead:  1024 * 1024 * 1024, // 1GB
 		BlockWrite: 512 * 1024 * 1024,  // 512MB
 	}
@@ -150,8 +150,8 @@ func TestContainerStats_BlockIO(t *testing.T) {
 	}
 }
 
-func TestContainerStats_PIDs(t *testing.T) {
-	stats := &ContainerStats{
+func TestStats_PIDs(t *testing.T) {
+	stats := &Stats{
 		PIDs: 15,
 	}
 
@@ -160,8 +160,8 @@ func TestContainerStats_PIDs(t *testing.T) {
 	}
 }
 
-func TestContainerStats_Timestamp(t *testing.T) {
-	stats := &ContainerStats{
+func TestStats_Timestamp(t *testing.T) {
+	stats := &Stats{
 		Timestamp: time.Now(),
 	}
 
@@ -170,10 +170,10 @@ func TestContainerStats_Timestamp(t *testing.T) {
 	}
 }
 
-// ========== ContainerConfig 测试 ==========
+// ========== Config 测试 ==========
 
-func TestContainerConfig_Full(t *testing.T) {
-	config := &ContainerConfig{
+func TestConfig_Full(t *testing.T) {
+	config := &Config{
 		Name:    "test-container",
 		Image:   "nginx:latest",
 		Command: []string{"nginx", "-g", "daemon off;"},
@@ -204,8 +204,8 @@ func TestContainerConfig_Full(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_Minimal(t *testing.T) {
-	config := &ContainerConfig{
+func TestConfig_Minimal(t *testing.T) {
+	config := &Config{
 		Name:  "minimal",
 		Image: "alpine",
 	}
@@ -215,8 +215,8 @@ func TestContainerConfig_Minimal(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_ResourceLimits(t *testing.T) {
-	config := &ContainerConfig{
+func TestConfig_ResourceLimits(t *testing.T) {
+	config := &Config{
 		Name:     "limited",
 		Image:    "nginx",
 		CPULimit: "1.5",
@@ -231,8 +231,8 @@ func TestContainerConfig_ResourceLimits(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_InteractiveMode(t *testing.T) {
-	config := &ContainerConfig{
+func TestConfig_InteractiveMode(t *testing.T) {
+	config := &Config{
 		Name:        "interactive",
 		Image:       "alpine",
 		Interactive: true,
@@ -244,10 +244,10 @@ func TestContainerConfig_InteractiveMode(t *testing.T) {
 	}
 }
 
-// ========== ContainerLog 测试 ==========
+// ========== Log 测试 ==========
 
-func TestContainerLog_Stdout(t *testing.T) {
-	log := ContainerLog{
+func TestLog_Stdout(t *testing.T) {
+	log := Log{
 		Timestamp: time.Now(),
 		Line:      "Server started",
 		Source:    "stdout",
@@ -258,8 +258,8 @@ func TestContainerLog_Stdout(t *testing.T) {
 	}
 }
 
-func TestContainerLog_Stderr(t *testing.T) {
-	log := ContainerLog{
+func TestLog_Stderr(t *testing.T) {
+	log := Log{
 		Timestamp: time.Now(),
 		Line:      "Error: connection refused",
 		Source:    "stderr",
@@ -412,8 +412,8 @@ func TestContainer_NilSlices(t *testing.T) {
 	}
 }
 
-func TestContainerStats_ZeroValues(t *testing.T) {
-	stats := &ContainerStats{}
+func TestStats_ZeroValues(t *testing.T) {
+	stats := &Stats{}
 
 	if stats.CPUUsage != 0 {
 		t.Error("CPUUsage should be 0")
@@ -423,8 +423,8 @@ func TestContainerStats_ZeroValues(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_EmptyCommand(t *testing.T) {
-	config := &ContainerConfig{
+func TestConfig_EmptyCommand(t *testing.T) {
+	config := &Config{
 		Name:    "test",
 		Image:   "nginx",
 		Command: []string{},
@@ -448,8 +448,8 @@ func TestPortMapping_EmptyHostIP(t *testing.T) {
 
 // ========== 数据验证测试 ==========
 
-func TestContainerConfig_Validation_Name(t *testing.T) {
-	config := &ContainerConfig{
+func TestConfig_Validation_Name(t *testing.T) {
+	config := &Config{
 		Name:  "",
 		Image: "nginx",
 	}
@@ -459,8 +459,8 @@ func TestContainerConfig_Validation_Name(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_Validation_Image(t *testing.T) {
-	config := &ContainerConfig{
+func TestConfig_Validation_Image(t *testing.T) {
+	config := &Config{
 		Name:  "test",
 		Image: "",
 	}
@@ -470,7 +470,7 @@ func TestContainerConfig_Validation_Image(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_Validation_PortFormat(t *testing.T) {
+func TestConfig_Validation_PortFormat(t *testing.T) {
 	validPorts := []string{
 		"8080:80",
 		"127.0.0.1:8080:80",
@@ -485,7 +485,7 @@ func TestContainerConfig_Validation_PortFormat(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_Validation_VolumeFormat(t *testing.T) {
+func TestConfig_Validation_VolumeFormat(t *testing.T) {
 	validVolumes := []string{
 		"/host/path:/container/path",
 		"/host/path:/container/path:rw",
@@ -500,7 +500,7 @@ func TestContainerConfig_Validation_VolumeFormat(t *testing.T) {
 	}
 }
 
-func TestContainerConfig_Validation_RestartPolicy(t *testing.T) {
+func TestConfig_Validation_RestartPolicy(t *testing.T) {
 	validPolicies := map[string]bool{
 		"no":             true,
 		"always":         true,
@@ -533,9 +533,9 @@ func TestContainer_CreatedTime(t *testing.T) {
 	}
 }
 
-func TestContainerStats_TimestampNow(t *testing.T) {
+func TestStats_TimestampNow(t *testing.T) {
 	before := time.Now()
-	stats := &ContainerStats{Timestamp: time.Now()}
+	stats := &Stats{Timestamp: time.Now()}
 	after := time.Now()
 
 	if stats.Timestamp.Before(before) || stats.Timestamp.After(after) {
@@ -568,8 +568,8 @@ func BenchmarkContainer_Access(b *testing.B) {
 	}
 }
 
-func BenchmarkContainerStats_Access(b *testing.B) {
-	stats := &ContainerStats{
+func BenchmarkStats_Access(b *testing.B) {
+	stats := &Stats{
 		CPUUsage:   50.0,
 		MemUsage:   512 * 1024 * 1024,
 		MemLimit:   1024 * 1024 * 1024,

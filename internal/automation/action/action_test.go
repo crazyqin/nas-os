@@ -6,65 +6,65 @@ import (
 )
 
 func TestMoveAction_GetType(t *testing.T) {
-	action := &MoveAction{Type: ActionTypeMove}
-	if action.GetType() != ActionTypeMove {
-		t.Errorf("expected %s, got %s", ActionTypeMove, action.GetType())
+	action := &MoveAction{Type: TypeMove}
+	if action.GetType() != TypeMove {
+		t.Errorf("expected %s, got %s", TypeMove, action.GetType())
 	}
 }
 
 func TestCopyAction_GetType(t *testing.T) {
-	action := &CopyAction{Type: ActionTypeCopy}
-	if action.GetType() != ActionTypeCopy {
-		t.Errorf("expected %s, got %s", ActionTypeCopy, action.GetType())
+	action := &CopyAction{Type: TypeCopy}
+	if action.GetType() != TypeCopy {
+		t.Errorf("expected %s, got %s", TypeCopy, action.GetType())
 	}
 }
 
 func TestDeleteAction_GetType(t *testing.T) {
-	action := &DeleteAction{Type: ActionTypeDelete}
-	if action.GetType() != ActionTypeDelete {
-		t.Errorf("expected %s, got %s", ActionTypeDelete, action.GetType())
+	action := &DeleteAction{Type: TypeDelete}
+	if action.GetType() != TypeDelete {
+		t.Errorf("expected %s, got %s", TypeDelete, action.GetType())
 	}
 }
 
 func TestRenameAction_GetType(t *testing.T) {
-	action := &RenameAction{Type: ActionTypeRename}
-	if action.GetType() != ActionTypeRename {
-		t.Errorf("expected %s, got %s", ActionTypeRename, action.GetType())
+	action := &RenameAction{Type: TypeRename}
+	if action.GetType() != TypeRename {
+		t.Errorf("expected %s, got %s", TypeRename, action.GetType())
 	}
 }
 
 func TestNotifyAction_GetType(t *testing.T) {
-	action := &NotifyAction{Type: ActionTypeNotify}
-	if action.GetType() != ActionTypeNotify {
-		t.Errorf("expected %s, got %s", ActionTypeNotify, action.GetType())
+	action := &NotifyAction{Type: TypeNotify}
+	if action.GetType() != TypeNotify {
+		t.Errorf("expected %s, got %s", TypeNotify, action.GetType())
 	}
 }
 
 func TestCommandAction_GetType(t *testing.T) {
-	action := &CommandAction{Type: ActionTypeCommand}
-	if action.GetType() != ActionTypeCommand {
-		t.Errorf("expected %s, got %s", ActionTypeCommand, action.GetType())
+	action := &CommandAction{Type: TypeCommand}
+	if action.GetType() != TypeCommand {
+		t.Errorf("expected %s, got %s", TypeCommand, action.GetType())
 	}
 }
 
 func TestWebhookAction_GetType(t *testing.T) {
-	action := &WebhookAction{Type: ActionTypeWebhook}
-	if action.GetType() != ActionTypeWebhook {
-		t.Errorf("expected %s, got %s", ActionTypeWebhook, action.GetType())
+	action := &WebhookAction{Type: TypeWebhook}
+	if action.GetType() != TypeWebhook {
+		t.Errorf("expected %s, got %s", TypeWebhook, action.GetType())
 	}
 }
 
 func TestEmailAction_GetType(t *testing.T) {
-	action := &EmailAction{Type: ActionTypeEmail}
-	if action.GetType() != ActionTypeEmail {
-		t.Errorf("expected %s, got %s", ActionTypeEmail, action.GetType())
+	action := &EmailAction{Type: TypeEmail}
+	if action.GetType() != TypeEmail {
+		t.Errorf("expected %s, got %s", TypeEmail, action.GetType())
 	}
 }
 
 func TestConditionalAction_GetType(t *testing.T) {
-	action := &ConditionalAction{Type: ActionTypeConditional}
-	if action.GetType() != ActionTypeConditional {
-		t.Errorf("expected %s, got %s", ActionTypeConditional, action.GetType())
+	action := &ConditionalAction{Type: TypeConditional}
+	if action.GetType() != TypeConditional {
+		t.Errorf("expected %s, got %s", TypeConditional, action.GetType())
 	}
 }
 
@@ -203,17 +203,17 @@ func TestToFloat64(t *testing.T) {
 func TestNewActionFromConfig(t *testing.T) {
 	tests := []struct {
 		name      string
-		config    ActionConfig
-		typeCheck ActionType
+		config    Config
+		typeCheck Type
 	}{
-		{"move", ActionConfig{Type: ActionTypeMove, Source: "/a", Destination: "/b"}, ActionTypeMove},
-		{"copy", ActionConfig{Type: ActionTypeCopy, Source: "/a", Destination: "/b"}, ActionTypeCopy},
-		{"delete", ActionConfig{Type: ActionTypeDelete, Path: "/tmp"}, ActionTypeDelete},
-		{"rename", ActionConfig{Type: ActionTypeRename, Path: "/a", NewName: "b"}, ActionTypeRename},
-		{"notify", ActionConfig{Type: ActionTypeNotify, Channel: "email"}, ActionTypeNotify},
-		{"command", ActionConfig{Type: ActionTypeCommand, Command: "ls"}, ActionTypeCommand},
-		{"webhook", ActionConfig{Type: ActionTypeWebhook, URL: "http://example.com"}, ActionTypeWebhook},
-		{"email", ActionConfig{Type: ActionTypeEmail, To: "test@example.com"}, ActionTypeEmail},
+		{"move", Config{Type: TypeMove, Source: "/a", Destination: "/b"}, TypeMove},
+		{"copy", Config{Type: TypeCopy, Source: "/a", Destination: "/b"}, TypeCopy},
+		{"delete", Config{Type: TypeDelete, Path: "/tmp"}, TypeDelete},
+		{"rename", Config{Type: TypeRename, Path: "/a", NewName: "b"}, TypeRename},
+		{"notify", Config{Type: TypeNotify, Channel: "email"}, TypeNotify},
+		{"command", Config{Type: TypeCommand, Command: "ls"}, TypeCommand},
+		{"webhook", Config{Type: TypeWebhook, URL: "http://example.com"}, TypeWebhook},
+		{"email", Config{Type: TypeEmail, To: "test@example.com"}, TypeEmail},
 	}
 
 	for _, tt := range tests {
@@ -231,7 +231,7 @@ func TestNewActionFromConfig(t *testing.T) {
 
 func TestCommandAction_Execute(t *testing.T) {
 	action := &CommandAction{
-		Type:    ActionTypeCommand,
+		Type:    TypeCommand,
 		Command: "echo",
 		Args:    []string{"hello"},
 	}
