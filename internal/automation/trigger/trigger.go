@@ -25,11 +25,11 @@ type Type string
 
 const (
 	// TypeFile 文件触发器
-	TypeFile    Type = "file"
+	TypeFile Type = "file"
 	// TypeTime 时间触发器
-	TypeTime    Type = "time"
+	TypeTime Type = "time"
 	// TypeEvent 事件触发器
-	TypeEvent   Type = "event"
+	TypeEvent Type = "event"
 	// TypeWebhook Webhook 触发器
 	TypeWebhook Type = "webhook"
 )
@@ -294,15 +294,15 @@ func (t *FileTrigger) Stop() error {
 
 // TimeTrigger 时间触发器 - 定时执行
 type TimeTrigger struct {
-	Type     TriggerType `json:"type"`
-	Schedule string      `json:"schedule"` // cron 表达式
-	Timezone string      `json:"timezone,omitempty"`
-	Once     bool        `json:"once,omitempty"`
+	Type     Type   `json:"type"`
+	Schedule string `json:"schedule"` // cron 表达式
+	Timezone string `json:"timezone,omitempty"`
+	Once     bool   `json:"once,omitempty"`
 }
 
 // GetType 返回触发器类型
-func (t *TimeTrigger) GetType() TriggerType {
-	return TriggerTypeTime
+func (t *TimeTrigger) GetType() Type {
+	return TypeTime
 }
 
 // Start 启动时间触发器
@@ -345,7 +345,7 @@ func (t *TimeTrigger) Stop() error {
 
 // EventTrigger 事件触发器 - 系统事件
 type EventTrigger struct {
-	Type      TriggerType            `json:"type"`
+	Type      Type                   `json:"type"`
 	EventType string                 `json:"event_type"` // system.startup, user.login, file.upload, etc.
 	Filter    map[string]interface{} `json:"filter,omitempty"`
 
@@ -360,8 +360,8 @@ func (t *EventTrigger) SetLogger(logger *zap.Logger) {
 }
 
 // GetType 返回触发器类型
-func (t *EventTrigger) GetType() TriggerType {
-	return TriggerTypeEvent
+func (t *EventTrigger) GetType() Type {
+	return TypeEvent
 }
 
 // Start 启动事件触发器
@@ -438,7 +438,7 @@ func matchFilter(data map[string]interface{}, filter map[string]interface{}) boo
 
 // WebhookTrigger Webhook 触发器 - HTTP 回调
 type WebhookTrigger struct {
-	Type    TriggerType       `json:"type"`
+	Type    Type              `json:"type"`
 	Path    string            `json:"path"`
 	Method  string            `json:"method,omitempty"`
 	Secret  string            `json:"secret,omitempty"`
@@ -456,8 +456,8 @@ func (t *WebhookTrigger) SetLogger(logger *zap.Logger) {
 }
 
 // GetType 返回触发器类型
-func (t *WebhookTrigger) GetType() TriggerType {
-	return TriggerTypeWebhook
+func (t *WebhookTrigger) GetType() Type {
+	return TypeWebhook
 }
 
 // Start 启动 Webhook 触发器
@@ -696,7 +696,7 @@ func (r *WebhookRegistry) Handle(path string, data map[string]interface{}) bool 
 
 // Config 触发器配置（用于 JSON 序列化）
 type Config struct {
-	Type TriggerType `json:"type"`
+	Type Type `json:"type"`
 
 	// File trigger fields
 	Path      string   `json:"path,omitempty"`
@@ -722,7 +722,7 @@ type Config struct {
 // NewTriggerFromConfig 从配置创建触发器
 func NewTriggerFromConfig(config Config) (Trigger, error) {
 	switch config.Type {
-	case TriggerTypeFile:
+	case TypeFile:
 		return &FileTrigger{
 			Type:      config.Type,
 			Path:      config.Path,
@@ -730,20 +730,20 @@ func NewTriggerFromConfig(config Config) (Trigger, error) {
 			Events:    config.Events,
 			Recursive: config.Recursive,
 		}, nil
-	case TriggerTypeTime:
+	case TypeTime:
 		return &TimeTrigger{
 			Type:     config.Type,
 			Schedule: config.Schedule,
 			Timezone: config.Timezone,
 			Once:     config.Once,
 		}, nil
-	case TriggerTypeEvent:
+	case TypeEvent:
 		return &EventTrigger{
 			Type:      config.Type,
 			EventType: config.EventType,
 			Filter:    config.Filter,
 		}, nil
-	case TriggerTypeWebhook:
+	case TypeWebhook:
 		return &WebhookTrigger{
 			Type:    config.Type,
 			Path:    config.Path,
