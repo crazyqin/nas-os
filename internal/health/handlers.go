@@ -9,12 +9,12 @@ import (
 
 // Handlers 健康检查 API 处理器
 type Handlers struct {
-	manager *HealthManager
+	manager *Manager
 	version string
 }
 
 // NewHandlers 创建健康检查处理器
-func NewHandlers(manager *HealthManager, version string) *Handlers {
+func NewHandlers(manager *Manager, version string) *Handlers {
 	return &Handlers{
 		manager: manager,
 		version: version,
@@ -36,8 +36,8 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// HealthResponse 健康检查响应
-type HealthResponse struct {
+// Response 健康检查响应
+type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
@@ -62,7 +62,7 @@ func (h *Handlers) getHealth(c *gin.Context) {
 		httpStatus = http.StatusOK // 降级状态仍然返回 200
 	}
 
-	c.JSON(httpStatus, HealthResponse{
+	c.JSON(httpStatus, Response{
 		Code:    0,
 		Message: string(report.Status),
 		Data:    report,
@@ -78,7 +78,7 @@ func (h *Handlers) getHealth(c *gin.Context) {
 // @Router /api/v1/health/live [get]
 func (h *Handlers) getLiveness(c *gin.Context) {
 	// 存活探针只检查服务是否响应
-	c.JSON(http.StatusOK, HealthResponse{
+	c.JSON(http.StatusOK, Response{
 		Code:    0,
 		Message: "alive",
 		Data: gin.H{
@@ -101,7 +101,7 @@ func (h *Handlers) getReadiness(c *gin.Context) {
 
 	// 只有状态为健康时才返回 200
 	if report.Status == StatusHealthy {
-		c.JSON(http.StatusOK, HealthResponse{
+		c.JSON(http.StatusOK, Response{
 			Code:    0,
 			Message: "ready",
 			Data: gin.H{
@@ -116,7 +116,7 @@ func (h *Handlers) getReadiness(c *gin.Context) {
 	}
 
 	// 不健康或降级状态返回 503
-	c.JSON(http.StatusServiceUnavailable, HealthResponse{
+	c.JSON(http.StatusServiceUnavailable, Response{
 		Code:    1,
 		Message: "not ready",
 		Data: gin.H{
@@ -139,7 +139,7 @@ func (h *Handlers) getReadiness(c *gin.Context) {
 func (h *Handlers) getReport(c *gin.Context) {
 	report := h.manager.GenerateReport(c.Request.Context(), h.version)
 
-	c.JSON(http.StatusOK, HealthResponse{
+	c.JSON(http.StatusOK, Response{
 		Code:    0,
 		Message: "success",
 		Data:    report,
@@ -170,7 +170,7 @@ func (h *Handlers) listChecks(c *gin.Context) {
 		checks = append(checks, check)
 	}
 
-	c.JSON(http.StatusOK, HealthResponse{
+	c.JSON(http.StatusOK, Response{
 		Code:    0,
 		Message: "success",
 		Data: gin.H{
@@ -194,7 +194,7 @@ func (h *Handlers) runCheck(c *gin.Context) {
 
 	result, err := h.manager.RunCheck(c.Request.Context(), name)
 	if err != nil {
-		c.JSON(http.StatusNotFound, HealthResponse{
+		c.JSON(http.StatusNotFound, Response{
 			Code:    1,
 			Message: err.Error(),
 		})
@@ -207,7 +207,7 @@ func (h *Handlers) runCheck(c *gin.Context) {
 		httpStatus = http.StatusServiceUnavailable
 	}
 
-	c.JSON(httpStatus, HealthResponse{
+	c.JSON(httpStatus, Response{
 		Code:    0,
 		Message: "success",
 		Data:    result,
@@ -228,14 +228,14 @@ func (h *Handlers) getCheckResult(c *gin.Context) {
 
 	result, exists := h.manager.GetLastResult(name)
 	if !exists {
-		c.JSON(http.StatusNotFound, HealthResponse{
+		c.JSON(http.StatusNotFound, Response{
 			Code:    1,
 			Message: "check result not found",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, HealthResponse{
+	c.JSON(http.StatusOK, Response{
 		Code:    0,
 		Message: "success",
 		Data:    result,

@@ -16,10 +16,15 @@ import (
 )
 
 var (
+	// ErrServerNotRunning 服务器未运行
 	ErrServerNotRunning = errors.New("服务器未运行")
-	ErrServerRunning    = errors.New("服务器已在运行")
-	ErrTooManyConns     = errors.New("连接数超过限制")
-	ErrLoginFailed      = errors.New("登录失败")
+	// ErrServerRunning 服务器已在运行
+	ErrServerRunning = errors.New("服务器已在运行")
+	// ErrTooManyConns 连接数超过限制
+	ErrTooManyConns = errors.New("连接数超过限制")
+	// ErrLoginFailed 登录失败
+	ErrLoginFailed = errors.New("登录失败")
+	// ErrPermissionDenied 权限被拒绝
 	ErrPermissionDenied = errors.New("权限被拒绝")
 )
 

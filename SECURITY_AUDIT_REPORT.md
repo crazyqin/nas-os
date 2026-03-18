@@ -1,102 +1,227 @@
-# 安全审计报告
+# NAS-OS 安全审计报告
 
-**项目**: nas-os
-**审计日期**: 2026-03-15
-**审计范围**: 代码安全审查
-
----
-
-## 一、测试修复结果
-
-### 修复的测试
-- **文件**: `internal/plugin/manager_test.go`
-- **测试**: `TestNewManagerDefaultDirs`
-- **问题**: 测试尝试创建系统目录 `/opt/nas/plugins`，在非 root 用户环境下权限不足
-- **修复**: 添加权限检测，无权限时跳过测试而非失败
+**审计日期**: 2026-03-19  
+**审计范围**: ~/clawd/nas-os  
+**审计工具**: gosec v2, govulncheck  
 
 ---
 
-## 二、安全问题发现
+## 执行摘要
 
-### 严重问题 (Critical)
+本次安全审计发现了 **多个高危安全漏洞**，需要优先修复。主要问题集中在：
 
-#### 1. 命令注入风险 - 快照脚本执行
-- **文件**: `internal/snapshot/executor.go` 第 89 行
-- **代码**:
-  ```go
-  cmd := exec.CommandContext(ctx, "sh", "-c", script)
-  ```
-- **风险**: `script` 参数直接传递给 `sh -c`，如果来自用户输入，攻击者可执行任意命令
-- **建议**:
-  1. 对脚本路径进行白名单验证
-  2. 限制脚本存放目录
-  3. 禁止在脚本中使用动态用户输入
-
-### 高危问题 (High)
-
-#### 2. 敏感信息泄露 - 加密密钥暴露
-- **文件**: `internal/backup/manager.go` 第 366 行
-- **代码**:
-  ```go
-  cmd := exec.Command("openssl", ..., "-pass", "pass:"+encryptKey)
-  ```
-- **风险**: 加密密钥通过命令行参数传递，在进程列表中可见（`ps` 命令）
-- **建议**: 使用环境变量或文件传递密钥
-
-#### 3. SQL 注入风险 - 表名拼接
-- **文件**: `internal/database/optimizer.go` 第 318 行
-- **代码**:
-  ```go
-  _, err := o.db.Exec(fmt.Sprintf("ANALYZE %s", table))
-  ```
-- **风险**: 表名直接拼接到 SQL，可能导致 SQL 注入
-- **建议**: 对表名进行白名单验证或使用参数化查询
-
-### 中危问题 (Medium)
-
-#### 4. 路径遍历风险 - 文件操作
-- **文件**: `plugins/filemanager-enhance/main.go`
-- **代码**:
-  ```go
-  dst := filepath.Join(req.Target, filename)
-  ```
-- **风险**: `req.Target` 和 `req.Files` 来自用户输入，未验证是否包含 `../` 等路径遍历字符
-- **建议**: 添加路径验证，确保操作在允许的目录范围内
-
-#### 5. 潜在命令注入 - PDF 导出
-- **文件**: `internal/reports/exporter.go` 第 363 行
-- **代码**:
-  ```go
-  cmd := fmt.Sprintf("wkhtmltopdf --quiet %s %s", tmpHTML, pdfPath)
-  ```
-- **风险**: 虽然当前 `runCommand` 是空实现，但未来实现时可能存在命令注入风险
-- **建议**: 使用 `exec.Command` 并正确处理参数
+1. **命令注入/路径遍历** - 大量外部命令执行和文件操作存在输入验证不足
+2. **整数溢出** - 大量类型转换可能导致溢出
+3. **TLS 配置不当** - LDAP 客户端跳过证书验证
+4. **SMTP 注入** - 邮件发送功能存在注入风险
 
 ---
 
-## 三、安全优点
+## 关键安全问题 (需立即修复)
 
-1. **密码哈希**: 用户密码使用 bcrypt 进行哈希存储 ✓
-2. **Token 管理**: 会话 token 有过期时间限制 ✓
-3. **权限分离**: 有 admin/user/guest 角色区分 ✓
-4. **配置保护**: 敏感字段（如 PasswordHash）使用 `json:"-"` 不序列化 ✓
+### 🔴 1. 命令注入漏洞 (G702/G204) - 高危
+
+**风险等级**: 高  
+**影响范围**: 60+ 处代码位置  
+
+**问题描述**:  
+大量使用 `exec.Command` 执行外部命令，参数可能来自用户输入或未充分验证的来源。
+
+**典型示例**:
+- `internal/vm/manager.go` - virsh 命令执行
+- `internal/security/firewall.go` - iptables 命令执行
+- `internal/backup/manager.go` - tar/openssl 命令执行
+- `internal/container/*.go` - docker 命令执行
+
+**修复建议**:
+1. 使用 `internal/security/cmdsec` 包中的安全命令执行方法
+2. 对所有外部输入进行严格验证和白名单过滤
+3. 避免使用 `sh -c` 执行命令
 
 ---
 
-## 四、修复建议优先级
+### 🔴 2. 路径遍历漏洞 (G703) - 高危
 
-| 优先级 | 问题 | 文件 | 建议 |
-|--------|------|------|------|
-| P0 | 命令注入 | snapshot/executor.go | 脚本白名单验证 |
-| P1 | 密钥泄露 | backup/manager.go | 使用环境变量传递密钥 |
-| P1 | SQL 注入 | database/optimizer.go | 表名白名单验证 |
-| P2 | 路径遍历 | plugins/filemanager-enhance/main.go | 路径规范化检查 |
-| P2 | 命令注入 | reports/exporter.go | 使用 exec.Command |
+**风险等级**: 高  
+**影响范围**: 50+ 处代码位置  
+
+**问题描述**:  
+文件操作（os.Stat, os.Open, os.WriteFile 等）使用的路径可能来自用户输入，未进行充分的路径验证。
+
+**典型示例**:
+- `internal/webdav/server.go` - WebDAV 文件操作
+- `internal/backup/*.go` - 备份文件操作
+- `internal/vm/snapshot.go` - 快照文件操作
+- `plugins/filemanager-enhance/main.go:549` - 文件写入
+
+**修复建议**:
+1. 使用 `pkg/safeguards` 包中的路径验证方法
+2. 对所有用户提供的路径进行规范化并检查是否在允许的根目录内
+3. 使用 `filepath.Clean` 和 `filepath.Rel` 验证路径
 
 ---
 
-## 五、总结
+### 🔴 3. SMTP 命令注入 (G707) - 高危
 
-本次审计发现 **1 个严重问题**、**2 个高危问题**、**2 个中危问题**。建议按优先级修复，特别是命令注入风险可能导致系统被完全控制。
+**风险等级**: 高  
+**位置**: `internal/automation/action/action.go:287`
 
-**测试状态**: 全部通过 ✓
+**问题描述**:  
+邮件发送功能中，邮件内容可能包含 SMTP 命令注入字符。
+
+**修复建议**:
+1. 对邮件头和内容进行严格过滤
+2. 使用 Go 标准库的 `net/smtp` 安全方法
+3. 验证收件人地址格式
+
+---
+
+### 🟠 4. TLS 证书验证跳过 (G402) - 中高危
+
+**风险等级**: 中高  
+**影响范围**: 3 处  
+**位置**: 
+- `internal/ldap/client.go:73, 107`
+- `internal/auth/ldap.go:153`
+
+**问题描述**:  
+LDAP 客户端配置中 `InsecureSkipVerify: skipVerify` 可能被设置为 true，导致跳过 TLS 证书验证。
+
+**修复建议**:
+1. 默认禁止跳过证书验证
+2. 如必须使用，应明确记录并限制使用场景
+3. 考虑使用自定义证书池代替跳过验证
+
+---
+
+### 🟠 5. XSS 漏洞 (G705) - 中危
+
+**风险等级**: 中  
+**影响范围**: 2 处  
+**位置**: `internal/automation/api/handlers.go:280, 416`
+
+**问题描述**:  
+Content-Disposition 头中的文件名可能包含恶意字符。
+
+**修复建议**:
+1. 对文件名进行 URL 编码或移除特殊字符
+2. 使用 `mime.FormatMediaType` 安全设置头
+
+---
+
+## 中等风险问题
+
+### 🟡 6. 整数溢出 (G115) - 中危
+
+**风险等级**: 中  
+**影响范围**: 70+ 处代码位置  
+
+**问题描述**:  
+大量类型转换（uint64↔int64, int↔uint64 等）可能导致整数溢出。
+
+**典型示例**:
+- `internal/quota/optimizer/optimizer.go` - 配额计算
+- `internal/photos/handlers.go` - 文件大小处理
+- `internal/container/volume.go` - 卷大小计算
+
+**修复建议**:
+1. 使用 `pkg/safeguards` 包中的安全转换方法
+2. 在转换前检查边界条件
+
+---
+
+### 🟡 7. Context 泄漏 (G118) - 中危
+
+**风险等级**: 中  
+**影响范围**: 10+ 处  
+
+**问题描述**:  
+`context.WithCancel/WithTimeout` 返回的 cancel 函数未被调用，可能导致 goroutine 泄漏。
+
+**修复建议**:
+1. 使用 `defer cancel()` 确保资源释放
+2. 审查所有 context 创建点
+
+---
+
+### 🟡 8. TOCTOU 竞态条件 (G122) - 中危
+
+**风险等级**: 中  
+**影响范围**: 6 处  
+
+**问题描述**:  
+`filepath.Walk/WalkDir` 回调中的文件操作可能存在 Time-Of-Check-Time-Of-Use 竞态条件。
+
+**修复建议**:
+1. 使用 `os.Root` API（Go 1.24+）
+2. 或使用文件描述符操作代替路径操作
+
+---
+
+## 低风险问题
+
+### ⚪ 9. 硬编码凭证误报 (G101)
+
+**风险等级**: 低（误报）  
+**影响范围**: 5 处  
+
+**说明**:  
+OAuth2 配置函数（`GetGoogleOAuth2Config` 等）被误报为硬编码凭证，实际这些是配置模板，实际凭证由参数传入。
+
+---
+
+## 统计摘要
+
+| 风险等级 | 问题类型 | 数量 |
+|---------|---------|------|
+| 🔴 高危 | 命令注入/路径遍历 | 110+ |
+| 🔴 高危 | SMTP 注入 | 1 |
+| 🟠 中高 | TLS 跳过验证 | 3 |
+| 🟠 中危 | XSS | 2 |
+| 🟡 中危 | 整数溢出 | 70+ |
+| 🟡 中危 | Context 泄漏 | 10+ |
+| 🟡 中危 | TOCTOU | 6 |
+| ⚪ 低危 | 硬编码凭证(误报) | 5 |
+
+---
+
+## 修复优先级建议
+
+1. **P0 (立即修复)**:
+   - SMTP 注入漏洞
+   - WebDAV 路径遍历
+   - VM/容器命令注入
+
+2. **P1 (本周修复)**:
+   - TLS 证书验证问题
+   - 备份模块路径遍历
+   - XSS 漏洞
+
+3. **P2 (本月修复)**:
+   - 整数溢出问题
+   - Context 泄漏
+   - TOCTOU 竞态条件
+
+---
+
+## 依赖漏洞检查
+
+由于编译错误，govulncheck 未能完成检查。建议：
+1. 先修复编译错误（`internal/health/health.go` 中的未定义类型）
+2. 重新运行 `govulncheck ./...` 检查依赖漏洞
+
+---
+
+## 已有安全机制
+
+项目已实现部分安全机制：
+- `pkg/safeguards` - 安全类型转换和路径验证
+- `internal/security/cmdsec` - 安全命令执行
+- 部分代码已添加 `#nosec` 注释说明安全原因
+
+**建议**: 扩展这些安全包的使用范围，替换不安全的直接操作。
+
+---
+
+**审计完成时间**: 2026-03-19 07:06  
+**审计人**: 刑部 (安全审计子代理)
