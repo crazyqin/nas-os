@@ -38,16 +38,26 @@ type PageData struct {
 // ========== 业务错误码定义 ==========
 
 const (
-	CodeSuccess            = 0   // 成功
-	CodeBadRequest         = 400 // 请求参数错误
-	CodeUnauthorized       = 401 // 未授权
-	CodeForbidden          = 403 // 禁止访问
-	CodeNotFound           = 404 // 资源不存在
-	CodeMethodNotAllowed   = 405 // 方法不允许
-	CodeConflict           = 409 // 资源冲突
-	CodeTooManyRequests    = 429 // 请求过多
-	CodeInternalError      = 500 // 服务器内部错误
-	CodeServiceUnavailable = 503 // 服务不可用
+	// CodeSuccess 表示操作成功
+	CodeSuccess = 0
+	// CodeBadRequest 表示请求参数错误
+	CodeBadRequest = 400
+	// CodeUnauthorized 表示未授权
+	CodeUnauthorized = 401
+	// CodeForbidden 表示禁止访问
+	CodeForbidden = 403
+	// CodeNotFound 表示资源不存在
+	CodeNotFound = 404
+	// CodeMethodNotAllowed 表示方法不允许
+	CodeMethodNotAllowed = 405
+	// CodeConflict 表示资源冲突
+	CodeConflict = 409
+	// CodeTooManyRequests 表示请求过多
+	CodeTooManyRequests = 429
+	// CodeInternalError 表示服务器内部错误
+	CodeInternalError = 500
+	// CodeServiceUnavailable 表示服务不可用
+	CodeServiceUnavailable = 503
 )
 
 // ========== 响应辅助函数 ==========
@@ -212,6 +222,8 @@ func Page(c *gin.Context, items interface{}, total int64, page, pageSize int) {
 // ========== 标准错误类型 ==========
 
 // APIError 实现 error 接口的标准 API 错误
+//
+//nolint:golint,revive // 类型名 stutters，但改名会影响外部调用
 type APIError struct {
 	Code    int
 	Message string
