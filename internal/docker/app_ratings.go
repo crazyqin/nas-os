@@ -3,6 +3,7 @@ package docker
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -170,7 +171,9 @@ func (rm *RatingManager) AddRating(templateID, userID, userName string, rating i
 			r.Content = content
 			r.UpdatedAt = time.Now()
 			rm.calculateStats(templateID)
-			rm.save()
+			if err := rm.save(); err != nil {
+				log.Printf("保存评分失败: %v", err)
+			}
 			return r, nil
 		}
 	}
@@ -190,7 +193,9 @@ func (rm *RatingManager) AddRating(templateID, userID, userName string, rating i
 
 	rm.ratings[templateID] = append(rm.ratings[templateID], r)
 	rm.calculateStats(templateID)
-	rm.save()
+	if err := rm.save(); err != nil {
+		log.Printf("保存评分失败: %v", err)
+	}
 
 	return r, nil
 }
@@ -276,7 +281,9 @@ func (rm *RatingManager) DeleteRating(templateID, ratingID, userID string) error
 			}
 			rm.ratings[templateID] = append(ratings[:i], ratings[i+1:]...)
 			rm.calculateStats(templateID)
-			rm.save()
+			if err := rm.save(); err != nil {
+				log.Printf("保存评分失败: %v", err)
+			}
 			return nil
 		}
 	}
@@ -304,7 +311,9 @@ func (rm *RatingManager) MarkHelpful(templateID, ratingID, userID string) error 
 			}
 			r.Helpful++
 			r.HelpfulBy = append(r.HelpfulBy, userID)
-			rm.save()
+			if err := rm.save(); err != nil {
+				log.Printf("保存评分失败: %v", err)
+			}
 			return nil
 		}
 	}
@@ -325,7 +334,9 @@ func (rm *RatingManager) VerifyPurchase(templateID, userID string) error {
 	for _, r := range ratings {
 		if r.UserID == userID {
 			r.Verified = true
-			rm.save()
+			if err := rm.save(); err != nil {
+				log.Printf("保存评分失败: %v", err)
+			}
 			return nil
 		}
 	}

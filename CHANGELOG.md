@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.220.0] - 2026-03-18
+
+### Fixed
+- internal/docker/appstore.go: docker-compose down 和 RemoveContainer 返回值检查
+- internal/docker/app_version.go: saveVersions 和 saveNotifications 返回值检查
+- internal/docker/app_ratings.go: save() 返回值检查 (5处)
+- internal/docker/app_handlers.go: IncrementDownloads 返回值检查
+- 添加 log 包导入到 docker 模块相关文件
+
+---
+
+## [2.219.0] - 2026-03-18
+
+### Fixed
+- internal/photos/manager.go: import 排序
+- internal/reports/cost_report.go: csv writer.Write 返回值检查（多处）
+- internal/reports/enhanced_export.go: csv writer.Write 返回值检查（多处）
+- internal/reports/storage_cost.go: csv writer.Write 返回值检查（多处）
+
+---
+
 ## [2.218.0] - 2026-03-18
 
 ### Fixed

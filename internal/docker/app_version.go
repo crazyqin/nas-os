@@ -3,6 +3,7 @@ package docker
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -179,7 +180,9 @@ func (vm *VersionManager) CheckForUpdates() ([]*UpdateNotification, error) {
 	}
 
 	if len(updates) > 0 {
-		vm.saveNotifications()
+		if err := vm.saveNotifications(); err != nil {
+			log.Printf("保存通知失败: %v", err)
+		}
 	}
 
 	return updates, nil
@@ -272,7 +275,9 @@ func (vm *VersionManager) GetAvailableVersions(templateID string) ([]*AppVersion
 	}
 
 	vm.versions[templateID] = versions
-	vm.saveVersions()
+	if err := vm.saveVersions(); err != nil {
+		log.Printf("保存版本失败: %v", err)
+	}
 
 	return versions, nil
 }
