@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.241.0] - 2026-03-19
+
+### Bug Fixes
+- 修复 go.mod 中的 Go 版本要求 (1.26.0 → 1.24)
+
+### Improvements
+- cloudsync: 增加测试覆盖率 (18.7% → 25.8%)
+- docs: 版本号同步更新
+
+---
+
 ## [v2.240.0] - 2026-03-19
 
 ### Bug Fixes
