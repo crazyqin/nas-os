@@ -243,7 +243,7 @@ func TestDeduplicate(t *testing.T) {
 
 	group := duplicates[0]
 
-	policy := DedupPolicy{
+	policy := Policy{
 		Mode:          "file",
 		Action:        "softlink",
 		MinMatchCount: 1,
@@ -288,7 +288,7 @@ func TestDeduplicateAll(t *testing.T) {
 	_, err = mgr.Scan([]string{tmpDir})
 	require.NoError(t, err)
 
-	policy := DedupPolicy{
+	policy := Policy{
 		Mode:          "file",
 		Action:        "hardlink",
 		MinMatchCount: 2,

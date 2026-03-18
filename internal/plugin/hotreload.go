@@ -49,13 +49,13 @@ type HotReloadEventType string
 
 const (
 	// EventPluginLoaded indicates a plugin was successfully loaded
-	EventPluginLoaded     HotReloadEventType = "loaded"
+	EventPluginLoaded HotReloadEventType = "loaded"
 	// EventPluginUnloaded indicates a plugin was unloaded
-	EventPluginUnloaded   HotReloadEventType = "unloaded"
+	EventPluginUnloaded HotReloadEventType = "unloaded"
 	// EventPluginReloaded indicates a plugin was reloaded
-	EventPluginReloaded   HotReloadEventType = "reloaded"
+	EventPluginReloaded HotReloadEventType = "reloaded"
 	// EventPluginError indicates an error occurred with a plugin
-	EventPluginError      HotReloadEventType = "error"
+	EventPluginError HotReloadEventType = "error"
 	// EventPluginDiscovered indicates a new plugin was discovered
 	EventPluginDiscovered HotReloadEventType = "discovered"
 )

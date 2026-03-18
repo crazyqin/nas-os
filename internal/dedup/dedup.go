@@ -66,8 +66,8 @@ type DuplicateGroup struct {
 	UserFiles map[string][]string `json:"userFiles,omitempty"`
 }
 
-// DedupStats 去重统计
-type DedupStats struct {
+// Stats 去重统计
+type Stats struct {
 	mu sync.RWMutex
 
 	// 文件统计
@@ -97,24 +97,24 @@ type DedupStats struct {
 }
 
 // GetValues 获取统计值（线程安全）
-func (s *DedupStats) GetValues() (totalFiles, totalSize, duplicateFiles, duplicateSize, savingsPotential, savingsActual int64) {
+func (s *Stats) GetValues() (totalFiles, totalSize, duplicateFiles, duplicateSize, savingsPotential, savingsActual int64) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.TotalFiles, s.TotalSize, s.DuplicateFiles, s.DuplicateSize, s.SavingsPotential, s.SavingsActual
 }
 
 // Update 更新统计（线程安全）
-func (s *DedupStats) Update(fn func(*DedupStats)) {
+func (s *Stats) Update(fn func(*Stats)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	fn(s)
 }
 
 // Clone 克隆统计（返回不含锁的快照）
-func (s *DedupStats) Clone() DedupStatsSnapshot {
+func (s *Stats) Clone() StatsSnapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return DedupStatsSnapshot{
+	return StatsSnapshot{
 		TotalFiles:       s.TotalFiles,
 		TotalSize:        s.TotalSize,
 		DuplicateFiles:   s.DuplicateFiles,
@@ -129,8 +129,8 @@ func (s *DedupStats) Clone() DedupStatsSnapshot {
 	}
 }
 
-// DedupStatsSnapshot 统计快照（不含锁，可安全复制）
-type DedupStatsSnapshot struct {
+// StatsSnapshot 统计快照（不含锁，可安全复制）
+type StatsSnapshot struct {
 	TotalFiles       int64 `json:"totalFiles"`
 	TotalSize        int64 `json:"totalSize"`
 	DuplicateFiles   int64 `json:"duplicateFiles"`
@@ -535,7 +535,7 @@ type DeduplicateResult struct {
 	ProcessedFiles int           `json:"processedFiles"`
 	SavedBytes     int64         `json:"savedBytes"`
 	Groups         []GroupResult `json:"groups"`
-	Errors         []DedupError  `json:"errors"`
+	Errors         []Error       `json:"errors"`
 	Duration       time.Duration `json:"duration"`
 	DryRun         bool          `json:"dryRun"`
 }
@@ -549,14 +549,14 @@ type GroupResult struct {
 	Skipped   []string `json:"skipped,omitempty"`
 }
 
-// DedupError 去重错误
-type DedupError struct {
+// Error 去重错误
+type Error struct {
 	Path  string `json:"path"`
 	Error string `json:"error"`
 }
 
 // Deduplicate 执行去重
-func Deduplicate(groups []*DuplicateGroup, policy *DedupPolicy, callback ProgressCallback) (*DeduplicateResult, error) {
+func Deduplicate(groups []*DuplicateGroup, policy *Policy, callback ProgressCallback) (*DeduplicateResult, error) {
 	if policy == nil {
 		policy = DefaultPolicy()
 	}
@@ -565,7 +565,7 @@ func Deduplicate(groups []*DuplicateGroup, policy *DedupPolicy, callback Progres
 	result := &DeduplicateResult{
 		DryRun: policy.DryRun,
 		Groups: make([]GroupResult, 0),
-		Errors: make([]DedupError, 0),
+		Errors: make([]Error, 0),
 	}
 
 	progress := &Progress{
@@ -583,7 +583,7 @@ func Deduplicate(groups []*DuplicateGroup, policy *DedupPolicy, callback Progres
 		// 选择保留的文件
 		keepPath, err := selectKeepFile(group, policy.Retention)
 		if err != nil {
-			result.Errors = append(result.Errors, DedupError{
+			result.Errors = append(result.Errors, Error{
 				Path:  group.Files[0],
 				Error: err.Error(),
 			})
@@ -614,7 +614,7 @@ func Deduplicate(groups []*DuplicateGroup, policy *DedupPolicy, callback Progres
 			// 执行去重操作
 			err := executeDedupAction(filePath, keepPath, policy.Action, policy.PreserveAttrs)
 			if err != nil {
-				result.Errors = append(result.Errors, DedupError{
+				result.Errors = append(result.Errors, Error{
 					Path:  filePath,
 					Error: err.Error(),
 				})
@@ -721,7 +721,7 @@ func selectKeepFile(group *DuplicateGroup, retention RetentionPolicy) (string, e
 }
 
 // executeDedupAction 执行去重操作
-func executeDedupAction(targetPath, keepPath string, action DedupAction, preserveAttrs bool) error {
+func executeDedupAction(targetPath, keepPath string, action Action, preserveAttrs bool) error {
 	switch action {
 	case ActionReport:
 		// 仅报告，不做任何操作
@@ -803,7 +803,7 @@ func executeDedupAction(targetPath, keepPath string, action DedupAction, preserv
 // StatsCollector 统计收集器
 type StatsCollector struct {
 	mu    sync.RWMutex
-	stats DedupStats
+	stats Stats
 }
 
 // NewStatsCollector 创建统计收集器
@@ -812,10 +812,10 @@ func NewStatsCollector() *StatsCollector {
 }
 
 // GetStats 获取统计快照（不含锁）
-func (s *StatsCollector) GetStats() DedupStatsSnapshot {
+func (s *StatsCollector) GetStats() StatsSnapshot {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return DedupStatsSnapshot{
+	return StatsSnapshot{
 		TotalFiles:       s.stats.TotalFiles,
 		TotalSize:        s.stats.TotalSize,
 		DuplicateFiles:   s.stats.DuplicateFiles,
@@ -870,14 +870,14 @@ func (s *StatsCollector) RecordDedup() {
 func (s *StatsCollector) Reset() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.stats = DedupStats{}
+	s.stats = Stats{}
 }
 
 // ToJSON 转换为 JSON
 func (s *StatsCollector) ToJSON() string {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	snapshot := DedupStatsSnapshot{
+	snapshot := StatsSnapshot{
 		TotalFiles:       s.stats.TotalFiles,
 		TotalSize:        s.stats.TotalSize,
 		DuplicateFiles:   s.stats.DuplicateFiles,

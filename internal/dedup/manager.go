@@ -25,7 +25,7 @@ type Manager struct {
 	checksums   map[string][]*FileRecord  // checksum -> records
 	userIndexes map[string]*UserFileIndex // user -> index
 	duplicates  []*DuplicateGroup
-	stats       DedupStats
+	stats       Stats
 	scanning    bool
 	scanCancel  chan struct{}
 	autoTask    *AutoDedupTask
@@ -157,7 +157,7 @@ func (m *Manager) ScanForUser(paths []string, user string) (*ScanResult, error) 
 	m.checksums = make(map[string][]*FileRecord)
 	m.duplicates = make([]*DuplicateGroup, 0)
 	if user == "" {
-		m.stats = DedupStats{}
+		m.stats = Stats{}
 		m.userIndexes = make(map[string]*UserFileIndex)
 	}
 	m.mu.Unlock()
@@ -432,12 +432,12 @@ func (m *Manager) GetCrossUserDuplicates() ([]*DuplicateGroup, error) {
 }
 
 // Deduplicate 执行去重操作
-func (m *Manager) Deduplicate(checksum string, keepPath string, policy DedupPolicy) error {
+func (m *Manager) Deduplicate(checksum string, keepPath string, policy Policy) error {
 	return m.DeduplicateForUser(checksum, keepPath, policy, "")
 }
 
 // DeduplicateForUser 为指定用户执行去重操作
-func (m *Manager) DeduplicateForUser(checksum string, keepPath string, policy DedupPolicy, currentUser string) error {
+func (m *Manager) DeduplicateForUser(checksum string, keepPath string, policy Policy, currentUser string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -518,12 +518,12 @@ func (m *Manager) DeduplicateForUser(checksum string, keepPath string, policy De
 }
 
 // DeduplicateAll 批量去重
-func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult, error) {
+func (m *Manager) DeduplicateAll(policy Policy, dryRun bool) (*Result, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	result := &DedupResult{
-		Groups:    make([]DedupGroupResult, 0),
+	result := &Result{
+		Groups:    make([]ManagerGroupResult, 0),
 		StartTime: time.Now(),
 	}
 
@@ -532,7 +532,7 @@ func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult,
 			continue
 		}
 
-		groupResult := DedupGroupResult{
+		groupResult := ManagerGroupResult{
 			Checksum:  group.Checksum,
 			Size:      group.Size,
 			FileCount: len(group.Files),
@@ -577,17 +577,17 @@ func (m *Manager) DeduplicateAll(policy DedupPolicy, dryRun bool) (*DedupResult,
 	return result, nil
 }
 
-// DedupResult 批量去重结果
-type DedupResult struct {
-	Groups     []DedupGroupResult `json:"groups"`
-	TotalSaved int64              `json:"totalSaved"`
-	StartTime  time.Time          `json:"startTime"`
-	EndTime    time.Time          `json:"endTime"`
-	Duration   time.Duration      `json:"duration"`
+// Result 批量去重结果
+type Result struct {
+	Groups     []ManagerGroupResult `json:"groups"`
+	TotalSaved int64                `json:"totalSaved"`
+	StartTime  time.Time            `json:"startTime"`
+	EndTime    time.Time            `json:"endTime"`
+	Duration   time.Duration        `json:"duration"`
 }
 
-// DedupGroupResult 单组去重结果
-type DedupGroupResult struct {
+// ManagerGroupResult 单组去重结果
+type ManagerGroupResult struct {
 	Checksum  string `json:"checksum"`
 	Size      int64  `json:"size"`
 	FileCount int    `json:"fileCount"`
@@ -608,7 +608,7 @@ func (m *Manager) GetReportForUser(user string) (*DedupReport, error) {
 
 	report := &DedupReport{
 		GeneratedAt: time.Now(),
-		Stats: DedupStatsSnapshot{
+		Stats: StatsSnapshot{
 			TotalFiles:       m.stats.TotalFiles,
 			TotalSize:        m.stats.TotalSize,
 			DuplicateFiles:   m.stats.DuplicateFiles,
@@ -719,7 +719,7 @@ func (m *Manager) generateRecommendations() []DedupRecommendation {
 // DedupReport 去重报告
 type DedupReport struct {
 	GeneratedAt     time.Time                   `json:"generatedAt"`
-	Stats           DedupStatsSnapshot          `json:"stats"`
+	Stats           StatsSnapshot               `json:"stats"`
 	DuplicateGroups []DuplicateGroupSummary     `json:"duplicateGroups"`
 	UserReports     map[string]*UserDedupReport `json:"userReports,omitempty"`
 	Recommendations []DedupRecommendation       `json:"recommendations,omitempty"`
@@ -754,10 +754,10 @@ type DedupRecommendation struct {
 }
 
 // GetStats 获取统计信息快照（不含锁）
-func (m *Manager) GetStats() DedupStatsSnapshot {
+func (m *Manager) GetStats() StatsSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	return DedupStatsSnapshot{
+	return StatsSnapshot{
 		TotalFiles:       m.stats.TotalFiles,
 		TotalSize:        m.stats.TotalSize,
 		DuplicateFiles:   m.stats.DuplicateFiles,
@@ -836,7 +836,7 @@ func (m *Manager) EnableAutoDedup(enabled bool, schedule string) error {
 }
 
 // RunAutoDedup 执行自动去重任务
-func (m *Manager) RunAutoDedup() (*DedupResult, error) {
+func (m *Manager) RunAutoDedup() (*Result, error) {
 	m.mu.Lock()
 	if m.autoTask.Status == "running" {
 		m.mu.Unlock()
@@ -863,7 +863,7 @@ func (m *Manager) RunAutoDedup() (*DedupResult, error) {
 	}
 
 	// 执行去重
-	policy := DedupPolicy{
+	policy := Policy{
 		Mode:          m.config.DedupMode,
 		Action:        m.config.DedupAction,
 		MinMatchCount: 2,
@@ -1120,7 +1120,7 @@ func (m *Manager) loadIndex() error {
 	var index struct {
 		FileRecords map[string]*FileRecord    `json:"fileRecords"`
 		Checksums   map[string][]*FileRecord  `json:"checksums"`
-		Stats       DedupStats                `json:"stats"`
+		Stats       Stats                     `json:"stats"`
 		UserIndexes map[string]*UserFileIndex `json:"userIndexes"`
 		Chunks      map[string]*Chunk         `json:"chunks"`
 	}
@@ -1169,7 +1169,7 @@ func (m *Manager) saveIndex() error {
 	indexPath := m.configPath + ".index"
 
 	// 创建统计快照以避免复制锁
-	statsSnapshot := DedupStatsSnapshot{
+	statsSnapshot := StatsSnapshot{
 		TotalFiles:       m.stats.TotalFiles,
 		TotalSize:        m.stats.TotalSize,
 		DuplicateFiles:   m.stats.DuplicateFiles,
@@ -1186,7 +1186,7 @@ func (m *Manager) saveIndex() error {
 	data, err := json.MarshalIndent(struct {
 		FileRecords map[string]*FileRecord    `json:"fileRecords"`
 		Checksums   map[string][]*FileRecord  `json:"checksums"`
-		Stats       DedupStatsSnapshot        `json:"stats"`
+		Stats       StatsSnapshot             `json:"stats"`
 		UserIndexes map[string]*UserFileIndex `json:"userIndexes"`
 		Chunks      map[string]*Chunk         `json:"chunks"`
 	}{

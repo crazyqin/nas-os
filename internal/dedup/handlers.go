@@ -196,9 +196,9 @@ func (h *Handlers) deduplicate(c *gin.Context) {
 	}
 
 	// 设置默认策略
-	policy := DedupPolicy{
-		Mode:          DedupMode(req.Mode),
-		Action:        DedupAction(req.Action),
+	policy := Policy{
+		Mode:          Mode(req.Mode),
+		Action:        Action(req.Action),
 		MinMatchCount: 1,
 		PreserveAttrs: true,
 		CrossUser:     req.CrossUser,
@@ -243,9 +243,9 @@ func (h *Handlers) deduplicateAll(c *gin.Context) {
 		req = DeduplicateAllRequest{}
 	}
 
-	policy := DedupPolicy{
-		Mode:          DedupMode(req.Mode),
-		Action:        DedupAction(req.Action),
+	policy := Policy{
+		Mode:          Mode(req.Mode),
+		Action:        Action(req.Action),
 		MinMatchCount: 2,
 		PreserveAttrs: true,
 		CrossUser:     req.CrossUser,

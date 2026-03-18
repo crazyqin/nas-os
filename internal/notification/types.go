@@ -106,8 +106,8 @@ type Record struct {
 	MaxAttempts    int           `json:"maxAttempts"`
 	Error          string        `json:"error,omitempty"`
 	SentAt         *time.Time    `json:"sentAt,omitempty"`
-	CreatedAt      time.Time    `json:"createdAt"`
-	UpdatedAt      time.Time    `json:"updatedAt"`
+	CreatedAt      time.Time     `json:"createdAt"`
+	UpdatedAt      time.Time     `json:"updatedAt"`
 }
 
 // ChannelConfig 通知渠道配置
@@ -256,14 +256,14 @@ type HistoryFilter struct {
 
 // HistoryStats 历史统计
 type HistoryStats struct {
-	TotalCount      int                `json:"totalCount"`
-	SuccessCount    int                `json:"successCount"`
-	FailedCount     int                `json:"failedCount"`
-	PendingCount    int                `json:"pendingCount"`
+	TotalCount      int                 `json:"totalCount"`
+	SuccessCount    int                 `json:"successCount"`
+	FailedCount     int                 `json:"failedCount"`
+	PendingCount    int                 `json:"pendingCount"`
 	ChannelStats    map[ChannelType]int `json:"channelStats"`
 	LevelStats      map[Level]int       `json:"levelStats"`
-	DailyStats      []DailyStat        `json:"dailyStats,omitempty"`
-	AvgDeliveryTime float64            `json:"avgDeliveryTime,omitempty"`
+	DailyStats      []DailyStat         `json:"dailyStats,omitempty"`
+	AvgDeliveryTime float64             `json:"avgDeliveryTime,omitempty"`
 }
 
 // DailyStat 每日统计
@@ -286,9 +286,9 @@ type SendRequest struct {
 
 // SendResponse 发送通知响应
 type SendResponse struct {
-	NotificationID string    `json:"notificationId"`
-	Records        []*Record `json:"records"`
-	Success        bool      `json:"success"`
+	NotificationID string            `json:"notificationId"`
+	Records        []*Record         `json:"records"`
+	Success        bool              `json:"success"`
 	Errors         map[string]string `json:"errors,omitempty"`
 }
 
