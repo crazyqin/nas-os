@@ -163,9 +163,11 @@ func (h *Handlers) applyAllConfig(c *gin.Context) {
 	}
 
 	if smbErr != nil {
+		//nolint:errcheck
 		result["smb"].(gin.H)["error"] = smbErr.Error()
 	}
 	if nfsErr != nil {
+		//nolint:errcheck
 		result["nfs"].(gin.H)["error"] = nfsErr.Error()
 	}
 

@@ -182,7 +182,7 @@ func (m *Manager) CreateQuota(input QuotaInput) (*Quota, error) {
 		m.dirQuotas[input.Path] = quota
 	}
 
-	m.saveConfig()
+	_ = m.saveConfig()
 	return quota, nil
 }
 
@@ -284,7 +284,7 @@ func (m *Manager) UpdateQuota(id string, input QuotaInput) (*Quota, error) {
 	quota.SoftLimit = input.SoftLimit
 	quota.UpdatedAt = time.Now()
 
-	m.saveConfig()
+	_ = m.saveConfig()
 	return quota, nil
 }
 
@@ -308,7 +308,7 @@ func (m *Manager) DeleteQuota(id string) error {
 	}
 
 	delete(m.quotas, id)
-	m.saveConfig()
+	_ = m.saveConfig()
 	return nil
 }
 
@@ -490,7 +490,7 @@ func (m *Manager) SilenceAlert(alertID string) error {
 	}
 
 	alert.Status = AlertStatusSilenced
-	m.saveConfig()
+	_ = m.saveConfig()
 	return nil
 }
 
@@ -512,7 +512,7 @@ func (m *Manager) ResolveAlert(alertID string) error {
 	m.alertHistory = append(m.alertHistory, alert)
 	delete(m.alerts, alertID)
 
-	m.saveConfig()
+	_ = m.saveConfig()
 	return nil
 }
 

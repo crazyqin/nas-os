@@ -149,7 +149,7 @@ func (m *AutoExpandManager) Stop() {
 
 	// 保存配置
 	if m.configPath != "" {
-		m.saveConfig()
+		_ = m.saveConfig()
 	}
 }
 

@@ -67,7 +67,7 @@ func (m *CleanupManager) CreatePolicy(input CleanupPolicyInput) (*CleanupPolicy,
 	}
 
 	m.quotaMgr.policies[policy.ID] = policy
-	m.quotaMgr.saveConfig()
+	_ = m.quotaMgr.saveConfig()
 
 	return policy, nil
 }
@@ -126,7 +126,7 @@ func (m *CleanupManager) UpdatePolicy(id string, input CleanupPolicyInput) (*Cle
 	policy.RetentionDays = input.RetentionDays
 	policy.UpdatedAt = time.Now()
 
-	m.quotaMgr.saveConfig()
+	_ = m.quotaMgr.saveConfig()
 	return policy, nil
 }
 
@@ -140,7 +140,7 @@ func (m *CleanupManager) DeletePolicy(id string) error {
 	}
 
 	delete(m.quotaMgr.policies, id)
-	m.quotaMgr.saveConfig()
+	_ = m.quotaMgr.saveConfig()
 	return nil
 }
 
@@ -156,7 +156,7 @@ func (m *CleanupManager) EnablePolicy(id string, enabled bool) error {
 
 	policy.Enabled = enabled
 	policy.UpdatedAt = time.Now()
-	m.quotaMgr.saveConfig()
+	_ = m.quotaMgr.saveConfig()
 	return nil
 }
 

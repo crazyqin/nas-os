@@ -219,6 +219,7 @@ func (h *ReplicationHandlers) listJobs(c *gin.Context) {
 	configID := c.Query("configId")
 	limit := 50
 	if l := c.Query("limit"); l != "" {
+		//nolint:errcheck // 解析失败保持默认值
 		fmt.Sscanf(l, "%d", &limit)
 	}
 
