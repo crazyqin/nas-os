@@ -193,11 +193,15 @@ func (api *DashboardAPI) GetOverview(c *gin.Context) {
 
 	// 告警概览
 	if stats := api.alertManager.GetAlertStats(); stats != nil {
+		total, _ := stats["total"].(int)
+		critical, _ := stats["critical"].(int)
+		warning, _ := stats["warning"].(int)
+		acknowledged, _ := stats["acknowledged"].(int)
 		overview.Alerts = &AlertOverview{
-			Total:        stats["total"].(int),
-			Critical:     stats["critical"].(int),
-			Warning:      stats["warning"].(int),
-			Acknowledged: stats["acknowledged"].(int),
+			Total:        total,
+			Critical:     critical,
+			Warning:      warning,
+			Acknowledged: acknowledged,
 		}
 	}
 
@@ -261,7 +265,7 @@ func (api *DashboardAPI) GetHealthStatus(c *gin.Context) {
 		"timestamp":  time.Now(),
 	}
 
-	components := status["components"].(map[string]interface{})
+	components, _ := status["components"].(map[string]interface{})
 
 	// 系统健康
 	if stats, err := api.manager.GetSystemStats(); err == nil {
@@ -813,7 +817,9 @@ func (api *DashboardAPI) AcknowledgeAlert(c *gin.Context) {
 	// 获取用户信息（从上下文）
 	user := "system"
 	if u, exists := c.Get("username"); exists {
-		user = u.(string)
+		if username, ok := u.(string); ok {
+			user = username
+		}
 	}
 
 	if err := api.alertManager.AcknowledgeAlert(id, user); err != nil {

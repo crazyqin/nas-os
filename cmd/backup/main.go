@@ -239,7 +239,10 @@ func handleCloud(args []string) {
 
 	case "list":
 		prefix := fs.String("prefix", "", "路径前缀")
-		fs.Parse(args[1:])
+		if err := fs.Parse(args[1:]); err != nil {
+			fmt.Printf("错误：%v\n", err)
+			os.Exit(1)
+		}
 
 		backups, err := cb.ListBackups(*prefix)
 		if err != nil {
@@ -540,7 +543,10 @@ func handleVerify(args []string) {
 	fs := flag.NewFlagSet("verify", flag.ExitOnError)
 	filePath := fs.String("file", "", "文件路径")
 
-	fs.Parse(args)
+	if err := fs.Parse(args); err != nil {
+		fmt.Printf("错误：%v\n", err)
+		os.Exit(1)
+	}
 
 	if *filePath == "" {
 		fmt.Println("错误：--file 是必需的")

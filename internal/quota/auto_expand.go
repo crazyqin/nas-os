@@ -191,7 +191,7 @@ func (m *AutoExpandManager) CreatePolicy(policy AutoExpandPolicy) (*AutoExpandPo
 	m.policies[policy.ID] = &policy
 	m.stats[policy.ID] = &ExpandPolicyStats{PolicyID: policy.ID}
 
-	m.saveConfig()
+	_ = m.saveConfig()
 	return &policy, nil
 }
 
@@ -240,7 +240,7 @@ func (m *AutoExpandManager) UpdatePolicy(id string, policy AutoExpandPolicy) (*A
 	policy.UpdatedAt = time.Now()
 
 	m.policies[id] = &policy
-	m.saveConfig()
+	_ = m.saveConfig()
 	return &policy, nil
 }
 
@@ -255,7 +255,7 @@ func (m *AutoExpandManager) DeletePolicy(id string) error {
 
 	delete(m.policies, id)
 	delete(m.stats, id)
-	m.saveConfig()
+	_ = m.saveConfig()
 	return nil
 }
 
@@ -528,7 +528,7 @@ func (m *AutoExpandManager) doExpand(action *ExpandAction, policy *AutoExpandPol
 	}
 	quota.UpdatedAt = time.Now()
 
-	m.quotaMgr.saveConfig()
+	_ = m.quotaMgr.saveConfig()
 	m.quotaMgr.mu.Unlock()
 
 	// 更新动作状态
@@ -657,7 +657,7 @@ func (m *AutoExpandManager) RollbackExpand(actionID string, reason string) error
 	if exists {
 		quota.HardLimit = action.PreviousLimit
 		quota.UpdatedAt = time.Now()
-		m.quotaMgr.saveConfig()
+		_ = m.quotaMgr.saveConfig()
 	}
 	m.quotaMgr.mu.Unlock()
 
@@ -796,7 +796,7 @@ func (m *AutoExpandManager) ManualExpand(quotaID string, expandBytes uint64, rea
 	m.quotaMgr.mu.Lock()
 	quota.HardLimit = action.NewLimit
 	quota.UpdatedAt = time.Now()
-	m.quotaMgr.saveConfig()
+	_ = m.quotaMgr.saveConfig()
 	m.quotaMgr.mu.Unlock()
 
 	// 记录动作
@@ -848,7 +848,7 @@ func (m *AutoExpandManager) ManualShrink(quotaID string, shrinkBytes uint64, rea
 	m.quotaMgr.mu.Lock()
 	quota.HardLimit = newLimit
 	quota.UpdatedAt = time.Now()
-	m.quotaMgr.saveConfig()
+	_ = m.quotaMgr.saveConfig()
 	m.quotaMgr.mu.Unlock()
 
 	// 记录动作
