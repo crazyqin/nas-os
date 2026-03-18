@@ -474,8 +474,8 @@ func TestAuditedManager_RevokePermissionWithAudit(t *testing.T) {
 	auditedMgr := am.WrapManager(m)
 
 	// 先设置用户角色并授予权限
-	_ = auditedMgr.Manager.SetUserRole("user1", "testuser", RoleReadOnly)
-	_ = auditedMgr.Manager.GrantPermission("user1", "testuser", "storage:write")
+	_ = auditedMgr.SetUserRole("admin", "管理员", "user1", "testuser", RoleReadOnly)
+	_ = auditedMgr.GrantPermission("user1", "testuser", "storage:write")
 
 	err := auditedMgr.RevokePermissionWithAudit("admin", "管理员", "user1", "storage:write")
 	if err != nil {

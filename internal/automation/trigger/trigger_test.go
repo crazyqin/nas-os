@@ -7,13 +7,13 @@ import (
 
 func TestTriggerType_Constants(t *testing.T) {
 	tests := []struct {
-		triggerType TriggerType
+		triggerType Type
 		expected    string
 	}{
-		{TriggerTypeFile, "file"},
-		{TriggerTypeTime, "time"},
-		{TriggerTypeEvent, "event"},
-		{TriggerTypeWebhook, "webhook"},
+		{TypeFile, "file"},
+		{TypeTime, "time"},
+		{TypeEvent, "event"},
+		{TypeWebhook, "webhook"},
 	}
 
 	for _, tt := range tests {
@@ -94,29 +94,29 @@ func TestEventManager_MultipleSubscribers(t *testing.T) {
 
 func TestFileTrigger_GetType(t *testing.T) {
 	trigger := &FileTrigger{Path: "/tmp"}
-	if trigger.GetType() != TriggerTypeFile {
-		t.Errorf("expected %s, got %s", TriggerTypeFile, trigger.GetType())
+	if trigger.GetType() != TypeFile {
+		t.Errorf("expected %s, got %s", TypeFile, trigger.GetType())
 	}
 }
 
 func TestTimeTrigger_GetType(t *testing.T) {
 	trigger := &TimeTrigger{Schedule: "0 * * * *"}
-	if trigger.GetType() != TriggerTypeTime {
-		t.Errorf("expected %s, got %s", TriggerTypeTime, trigger.GetType())
+	if trigger.GetType() != TypeTime {
+		t.Errorf("expected %s, got %s", TypeTime, trigger.GetType())
 	}
 }
 
 func TestEventTrigger_GetType(t *testing.T) {
 	trigger := &EventTrigger{EventType: "user.login"}
-	if trigger.GetType() != TriggerTypeEvent {
-		t.Errorf("expected %s, got %s", TriggerTypeEvent, trigger.GetType())
+	if trigger.GetType() != TypeEvent {
+		t.Errorf("expected %s, got %s", TypeEvent, trigger.GetType())
 	}
 }
 
 func TestWebhookTrigger_GetType(t *testing.T) {
 	trigger := &WebhookTrigger{Path: "/webhook/test"}
-	if trigger.GetType() != TriggerTypeWebhook {
-		t.Errorf("expected %s, got %s", TriggerTypeWebhook, trigger.GetType())
+	if trigger.GetType() != TypeWebhook {
+		t.Errorf("expected %s, got %s", TypeWebhook, trigger.GetType())
 	}
 }
 

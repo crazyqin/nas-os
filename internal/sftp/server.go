@@ -17,6 +17,7 @@ import (
 )
 
 var (
+	// ErrServerNotRunning 服务器未运行错误
 	ErrServerNotRunning = errors.New("服务器未运行")
 	ErrServerRunning    = errors.New("服务器已在运行")
 	ErrInvalidConfig    = errors.New("配置无效")

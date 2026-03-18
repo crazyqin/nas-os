@@ -10,9 +10,12 @@ import (
 )
 
 var (
-	ErrPoolClosed  = errors.New("worker pool is closed")
+	// ErrPoolClosed 工作池已关闭错误
+	ErrPoolClosed = errors.New("worker pool is closed")
+	// ErrPoolTimeout 工作池超时错误
 	ErrPoolTimeout = errors.New("worker pool timeout")
-	ErrQueueFull   = errors.New("worker queue is full")
+	// ErrQueueFull 工作队列已满错误
+	ErrQueueFull = errors.New("worker queue is full")
 )
 
 // Task represents a unit of work

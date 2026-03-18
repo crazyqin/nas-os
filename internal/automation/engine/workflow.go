@@ -32,10 +32,14 @@ type Workflow struct {
 // ExecutionStatus 执行状态
 type ExecutionStatus string
 
+// 执行状态常量
 const (
+	// ExecutionStatusRunning 执行中状态
 	ExecutionStatusRunning ExecutionStatus = "running"
+	// ExecutionStatusSuccess 执行成功状态
 	ExecutionStatusSuccess ExecutionStatus = "success"
-	ExecutionStatusFailed  ExecutionStatus = "failed"
+	// ExecutionStatusFailed 执行失败状态
+	ExecutionStatusFailed ExecutionStatus = "failed"
 )
 
 // ExecutionRecord 执行记录

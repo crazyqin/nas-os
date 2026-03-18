@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-// SFTPHandler SFTP 文件处理器（完整实现）
-type SFTPHandler struct {
+// Handler SFTP 文件处理器（完整实现）
+type Handler struct {
 	rootDir      string
 	readOnly     bool
 	username     string
@@ -28,9 +28,9 @@ type BandwidthLimiter struct {
 	Enabled      bool
 }
 
-// NewSFTPHandler 创建 SFTP 处理器
-func NewSFTPHandler(rootDir, username, sessionID, clientIP string, logger *TransferLogger, bwLimit *BandwidthLimiter) *SFTPHandler {
-	return &SFTPHandler{
+// NewHandler 创建 SFTP 处理器
+func NewHandler(rootDir, username, sessionID, clientIP string, logger *TransferLogger, bwLimit *BandwidthLimiter) *Handler {
+	return &Handler{
 		rootDir:      rootDir,
 		readOnly:     false,
 		username:     username,
@@ -42,7 +42,7 @@ func NewSFTPHandler(rootDir, username, sessionID, clientIP string, logger *Trans
 }
 
 // resolvePath 解析路径（确保在 chroot 内）
-func (h *SFTPHandler) resolvePath(name string) (string, error) {
+func (h *Handler) resolvePath(name string) (string, error) {
 	cleanPath := filepath.Clean(name)
 
 	if strings.Contains(cleanPath, "..") {
@@ -61,7 +61,7 @@ func (h *SFTPHandler) resolvePath(name string) (string, error) {
 // FileOp 文件操作接口实现
 
 // Fileread 读取文件
-func (h *SFTPHandler) Fileread(r *Request) (io.ReadCloser, error) {
+func (h *Handler) Fileread(r *Request) (io.ReadCloser, error) {
 	if h.readOnly {
 		return nil, os.ErrPermission
 	}
@@ -102,7 +102,7 @@ func (h *SFTPHandler) Fileread(r *Request) (io.ReadCloser, error) {
 }
 
 // Filewrite 写入文件
-func (h *SFTPHandler) Filewrite(r *Request) (io.WriteCloser, error) {
+func (h *Handler) Filewrite(r *Request) (io.WriteCloser, error) {
 	if h.readOnly {
 		return nil, os.ErrPermission
 	}
@@ -139,7 +139,7 @@ func (h *SFTPHandler) Filewrite(r *Request) (io.WriteCloser, error) {
 }
 
 // Filecmd 文件命令操作
-func (h *SFTPHandler) Filecmd(r *Request) error {
+func (h *Handler) Filecmd(r *Request) error {
 	if h.readOnly && (r.Method == "Setstat" || r.Method == "Rename" || r.Method == "Rmdir" || r.Method == "Remove" || r.Method == "Mkdir") {
 		return os.ErrPermission
 	}
@@ -163,7 +163,7 @@ func (h *SFTPHandler) Filecmd(r *Request) error {
 }
 
 // Filelist 列出文件
-func (h *SFTPHandler) Filelist(r *Request) (ListerAt, error) {
+func (h *Handler) Filelist(r *Request) (ListerAt, error) {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
 		return nil, err
@@ -196,7 +196,7 @@ func (h *SFTPHandler) Filelist(r *Request) (ListerAt, error) {
 }
 
 // handleSetstat 处理属性设置
-func (h *SFTPHandler) handleSetstat(r *Request) error {
+func (h *Handler) handleSetstat(r *Request) error {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
 		return err
@@ -218,7 +218,7 @@ func (h *SFTPHandler) handleSetstat(r *Request) error {
 }
 
 // handleRename 处理重命名
-func (h *SFTPHandler) handleRename(r *Request) error {
+func (h *Handler) handleRename(r *Request) error {
 	oldPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
 		return err
@@ -238,7 +238,7 @@ func (h *SFTPHandler) handleRename(r *Request) error {
 }
 
 // handleRmdir 处理删除目录
-func (h *SFTPHandler) handleRmdir(r *Request) error {
+func (h *Handler) handleRmdir(r *Request) error {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
 		return err
@@ -247,7 +247,7 @@ func (h *SFTPHandler) handleRmdir(r *Request) error {
 }
 
 // handleMkdir 处理创建目录
-func (h *SFTPHandler) handleMkdir(r *Request) error {
+func (h *Handler) handleMkdir(r *Request) error {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
 		return err
@@ -256,7 +256,7 @@ func (h *SFTPHandler) handleMkdir(r *Request) error {
 }
 
 // handleRemove 处理删除文件
-func (h *SFTPHandler) handleRemove(r *Request) error {
+func (h *Handler) handleRemove(r *Request) error {
 	fullPath, err := h.resolvePath(r.Filepath)
 	if err != nil {
 		return err
@@ -265,7 +265,7 @@ func (h *SFTPHandler) handleRemove(r *Request) error {
 }
 
 // handleSymlink 处理符号链接
-func (h *SFTPHandler) handleSymlink(r *Request) error {
+func (h *Handler) handleSymlink(r *Request) error {
 	// 安全考虑：禁用符号链接
 	return os.ErrPermission
 }
@@ -273,7 +273,7 @@ func (h *SFTPHandler) handleSymlink(r *Request) error {
 // trackedReader 跟踪读取进度的读取器
 type trackedReader struct {
 	io.ReadCloser
-	handler      *SFTPHandler
+	handler      *Handler
 	transferLog  *TransferLog
 	startTime    time.Time
 	bytesRead    int64
@@ -316,7 +316,7 @@ func (r *trackedReader) Close() error {
 // trackedWriter 跟踪写入进度的写入器
 type trackedWriter struct {
 	io.WriteCloser
-	handler      *SFTPHandler
+	handler      *Handler
 	transferLog  *TransferLog
 	startTime    time.Time
 	bytesWritten int64

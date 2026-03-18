@@ -288,16 +288,16 @@ func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 		fmt.Fprintf(&sb, "    server role = %s\n", config.ServerRole)
 	}
 	if config.Security != "" {
-		sb.WriteString(fmt.Sprintf("    security = %s\n", config.Security))
+		fmt.Fprintf(&sb, "    security = %s\n", config.Security)
 	}
 	if config.LogLevel != "" {
-		sb.WriteString(fmt.Sprintf("    log level = %s\n", config.LogLevel))
+		fmt.Fprintf(&sb, "    log level = %s\n", config.LogLevel)
 	}
 	if config.MaxLogSize != "" {
-		sb.WriteString(fmt.Sprintf("    max log size = %s\n", config.MaxLogSize))
+		fmt.Fprintf(&sb, "    max log size = %s\n", config.MaxLogSize)
 	}
 	if config.LogFile != "" {
-		sb.WriteString(fmt.Sprintf("    log file = %s\n", config.LogFile))
+		fmt.Fprintf(&sb, "    log file = %s\n", config.LogFile)
 	}
 
 	// 默认配置
@@ -305,14 +305,14 @@ func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 	sb.WriteString("    dns proxy = no\n")
 
 	if config.MinProtocol != "" {
-		sb.WriteString(fmt.Sprintf("    min protocol = %s\n", config.MinProtocol))
+		fmt.Fprintf(&sb, "    min protocol = %s\n", config.MinProtocol)
 	}
 	if config.MaxProtocol != "" {
-		sb.WriteString(fmt.Sprintf("    max protocol = %s\n", config.MaxProtocol))
+		fmt.Fprintf(&sb, "    max protocol = %s\n", config.MaxProtocol)
 	}
 
 	if len(config.Interfaces) > 0 {
-		sb.WriteString(fmt.Sprintf("    interfaces = %s\n", strings.Join(config.Interfaces, ", ")))
+		fmt.Fprintf(&sb, "    interfaces = %s\n", strings.Join(config.Interfaces, ", "))
 	}
 
 	if config.PassdbBackend != "" {

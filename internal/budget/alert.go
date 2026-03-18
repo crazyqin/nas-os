@@ -14,11 +14,16 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrAlertRuleNotFound    = errors.New("警报规则不存在")
-	ErrAlertAlreadyActive   = errors.New("警报已处于活跃状态")
+	// ErrAlertRuleNotFound 警报规则不存在错误
+	ErrAlertRuleNotFound = errors.New("警报规则不存在")
+	// ErrAlertAlreadyActive 警报已处于活跃状态错误
+	ErrAlertAlreadyActive = errors.New("警报已处于活跃状态")
+	// ErrAlertAlreadyResolved 警报已解决错误
 	ErrAlertAlreadyResolved = errors.New("警报已解决")
-	ErrInvalidNotifierType  = errors.New("无效的通知类型")
-	ErrNotificationFailed   = errors.New("通知发送失败")
+	// ErrInvalidNotifierType 无效的通知类型错误
+	ErrInvalidNotifierType = errors.New("无效的通知类型")
+	// ErrNotificationFailed 通知发送失败错误
+	ErrNotificationFailed = errors.New("通知发送失败")
 )
 
 // ========== 预算警报配置 ==========
@@ -86,8 +91,8 @@ func DefaultAlertManagerConfig() AlertManagerConfig {
 
 // ========== 预算警报定义 ==========
 
-// BudgetAlert 预算警报
-type BudgetAlert struct {
+// Alert 预算警报
+type Alert struct {
 	ID             string     `json:"id"`
 	BudgetID       string     `json:"budget_id"`
 	BudgetName     string     `json:"budget_name"`
@@ -97,7 +102,7 @@ type BudgetAlert struct {
 	AcknowledgedBy string     `json:"acknowledged_by,omitempty"`
 
 	// 警报级别
-	Level           AlertLevel `json:"level"`
+	Level           Level `json:"level"`
 	Threshold       float64    `json:"threshold"`        // 触发阈值
 	CurrentPercent  float64    `json:"current_percent"`  // 当前使用百分比
 	CurrentSpend    float64    `json:"current_spend"`    // 当前支出
@@ -105,7 +110,7 @@ type BudgetAlert struct {
 	RemainingAmount float64    `json:"remaining_amount"` // 剩余金额
 
 	// 状态
-	Status        AlertStatus `json:"status"`
+	Status        Status `json:"status"`
 	Message       string      `json:"message"`
 	CustomMessage string      `json:"custom_message,omitempty"`
 
@@ -123,24 +128,26 @@ type BudgetAlert struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// AlertLevel 警报级别
-type AlertLevel string
+// Level 警报级别
+type Level string
 
+// 警报级别常量
 const (
-	AlertLevelInfo      AlertLevel = "info"      // 信息
-	AlertLevelWarning   AlertLevel = "warning"   // 警告
-	AlertLevelCritical  AlertLevel = "critical"  // 严重
-	AlertLevelEmergency AlertLevel = "emergency" // 紧急
+	LevelInfo      Level = "info"      // 信息
+	LevelWarning   Level = "warning"   // 警告
+	LevelCritical  Level = "critical"  // 严重
+	LevelEmergency Level = "emergency" // 紧急
 )
 
-// AlertStatus 警报状态
-type AlertStatus string
+// Status 警报状态
+type Status string
 
+// 警报状态常量
 const (
-	AlertStatusActive       AlertStatus = "active"       // 活跃
-	AlertStatusAcknowledged AlertStatus = "acknowledged" // 已确认
-	AlertStatusResolved     AlertStatus = "resolved"     // 已解决
-	AlertStatusSuppressed   AlertStatus = "suppressed"   // 已抑制
+	StatusActive       Status = "active"       // 活跃
+	StatusAcknowledged Status = "acknowledged" // 已确认
+	StatusResolved     Status = "resolved"     // 已解决
+	StatusSuppressed   Status = "suppressed"   // 已抑制
 )
 
 // AlertRule 警报规则
@@ -186,13 +193,13 @@ type AlertHistory struct {
 
 // AlertStats 警报统计
 type AlertStats struct {
-	TotalAlerts           int                `json:"total_alerts"`
-	ActiveAlerts          int                `json:"active_alerts"`
-	AcknowledgedAlerts    int                `json:"acknowledged_alerts"`
-	ResolvedAlerts        int                `json:"resolved_alerts"`
-	ByLevel               map[AlertLevel]int `json:"by_level"`
-	ByBudget              map[string]int     `json:"by_budget"`
-	AverageResolutionTime float64            `json:"average_resolution_time_minutes"`
+	TotalAlerts           int           `json:"total_alerts"`
+	ActiveAlerts          int           `json:"active_alerts"`
+	AcknowledgedAlerts    int           `json:"acknowledged_alerts"`
+	ResolvedAlerts        int           `json:"resolved_alerts"`
+	ByLevel               map[Level]int `json:"by_level"`
+	ByBudget              map[string]int `json:"by_budget"`
+	AverageResolutionTime float64       `json:"average_resolution_time_minutes"`
 }
 
 // ========== 警报通知接口 ==========
@@ -200,7 +207,7 @@ type AlertStats struct {
 // AlertNotifier 警报通知接口
 type AlertNotifier interface {
 	// 发送通知
-	Send(ctx context.Context, alert *BudgetAlert, config *NotifyConfig) error
+	Send(ctx context.Context, alert *Alert, config *NotifyConfig) error
 
 	// 获取通知类型
 	Type() string
@@ -215,31 +222,31 @@ type AlertManager struct {
 	notifiers map[string]AlertNotifier
 
 	// 警报存储
-	alerts    map[string]*BudgetAlert
+	alerts    map[string]*Alert
 	alertHist []AlertHistory
 	rules     map[string]*AlertRule
 
 	// 预算数据提供者
-	budgetProvider BudgetDataProvider
+	budgetProvider DataProvider
 
 	// 冷却跟踪
 	lastTriggerTime map[string]time.Time
 }
 
-// BudgetDataProvider 预算数据提供者接口
-type BudgetDataProvider interface {
+// DataProvider 预算数据提供者接口
+type DataProvider interface {
 	// 获取预算
-	GetBudget(ctx context.Context, budgetID string) (*BudgetInfo, error)
+	GetBudget(ctx context.Context, budgetID string) (*Info, error)
 
 	// 获取所有预算
-	GetAllBudgets(ctx context.Context) ([]*BudgetInfo, error)
+	GetAllBudgets(ctx context.Context) ([]*Info, error)
 
 	// 更新预算状态
 	UpdateBudgetStatus(ctx context.Context, budgetID string, status string) error
 }
 
-// BudgetInfo 预算信息
-type BudgetInfo struct {
+// Info 预算信息
+type Info struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
 	Amount       float64   `json:"amount"`
@@ -252,11 +259,11 @@ type BudgetInfo struct {
 }
 
 // NewAlertManager 创建警报管理器
-func NewAlertManager(config AlertManagerConfig, budgetProvider BudgetDataProvider) *AlertManager {
+func NewAlertManager(config AlertManagerConfig, budgetProvider DataProvider) *AlertManager {
 	return &AlertManager{
 		config:          config,
 		notifiers:       make(map[string]AlertNotifier),
-		alerts:          make(map[string]*BudgetAlert),
+		alerts:          make(map[string]*Alert),
 		alertHist:       make([]AlertHistory, 0),
 		rules:           make(map[string]*AlertRule),
 		budgetProvider:  budgetProvider,
@@ -273,8 +280,8 @@ func (m *AlertManager) RegisterNotifier(notifier AlertNotifier) {
 
 // ========== 警报检查 ==========
 
-// CheckBudgetAlerts 检查预算警报
-func (m *AlertManager) CheckBudgetAlerts(ctx context.Context) ([]*BudgetAlert, error) {
+// CheckAlerts 检查预算警报
+func (m *AlertManager) CheckAlerts(ctx context.Context) ([]*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -284,7 +291,7 @@ func (m *AlertManager) CheckBudgetAlerts(ctx context.Context) ([]*BudgetAlert, e
 		return nil, fmt.Errorf("获取预算数据失败: %w", err)
 	}
 
-	var triggeredAlerts []*BudgetAlert
+	var triggeredAlerts []*Alert
 
 	for _, budget := range budgets {
 		alerts := m.checkBudget(budget)
@@ -294,8 +301,8 @@ func (m *AlertManager) CheckBudgetAlerts(ctx context.Context) ([]*BudgetAlert, e
 	return triggeredAlerts, nil
 }
 
-// CheckBudgetAlert 检查单个预算警报
-func (m *AlertManager) CheckBudgetAlert(ctx context.Context, budgetID string) ([]*BudgetAlert, error) {
+// CheckAlert 检查单个预算警报
+func (m *AlertManager) CheckAlert(ctx context.Context, budgetID string) ([]*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -308,8 +315,8 @@ func (m *AlertManager) CheckBudgetAlert(ctx context.Context, budgetID string) ([
 }
 
 // checkBudget 检查单个预算
-func (m *AlertManager) checkBudget(budget *BudgetInfo) []*BudgetAlert {
-	var alerts []*BudgetAlert
+func (m *AlertManager) checkBudget(budget *Info) []*Alert {
+	var alerts []*Alert
 
 	// 获取适用的阈值
 	thresholds := m.getThresholds(budget.ID)
@@ -323,7 +330,7 @@ func (m *AlertManager) checkBudget(budget *BudgetInfo) []*BudgetAlert {
 		// 检查是否触发阈值
 		if budget.UsagePercent >= threshold.Percentage {
 			// 检查是否已有相同级别的活跃警报
-			if m.hasActiveAlert(budget.ID, stringToAlertLevel(threshold.Level)) {
+			if m.hasActiveAlert(budget.ID, stringToLevel(threshold.Level)) {
 				continue
 			}
 
@@ -373,11 +380,11 @@ func (m *AlertManager) isInCooldown(budgetID string) bool {
 }
 
 // hasActiveAlert 检查是否有活跃警报
-func (m *AlertManager) hasActiveAlert(budgetID string, level AlertLevel) bool {
+func (m *AlertManager) hasActiveAlert(budgetID string, level Level) bool {
 	for _, alert := range m.alerts {
 		if alert.BudgetID == budgetID &&
 			alert.Level == level &&
-			(alert.Status == AlertStatusActive || alert.Status == AlertStatusAcknowledged) {
+			(alert.Status == StatusActive || alert.Status == StatusAcknowledged) {
 			return true
 		}
 	}
@@ -385,16 +392,16 @@ func (m *AlertManager) hasActiveAlert(budgetID string, level AlertLevel) bool {
 }
 
 // createAlert 创建警报
-func (m *AlertManager) createAlert(budget *BudgetInfo, threshold ThresholdConfig) *BudgetAlert {
+func (m *AlertManager) createAlert(budget *Info, threshold ThresholdConfig) *Alert {
 	now := time.Now()
-	level := stringToAlertLevel(threshold.Level)
+	level := stringToLevel(threshold.Level)
 
 	message := threshold.Message
 	if message == "" {
 		message = fmt.Sprintf("预算 %s 已使用 %.1f%%", budget.Name, budget.UsagePercent)
 	}
 
-	return &BudgetAlert{
+	return &Alert{
 		ID:              generateAlertID(),
 		BudgetID:        budget.ID,
 		BudgetName:      budget.Name,
@@ -405,7 +412,7 @@ func (m *AlertManager) createAlert(budget *BudgetInfo, threshold ThresholdConfig
 		CurrentSpend:    budget.UsedAmount,
 		BudgetAmount:    budget.Amount,
 		RemainingAmount: budget.Remaining,
-		Status:          AlertStatusActive,
+		Status:          StatusActive,
 		Message:         message,
 		NotifySent:      false,
 		NotifyChannels:  make([]string, 0),
@@ -417,7 +424,7 @@ func (m *AlertManager) createAlert(budget *BudgetInfo, threshold ThresholdConfig
 // ========== 警报操作 ==========
 
 // AcknowledgeAlert 确认警报
-func (m *AlertManager) AcknowledgeAlert(alertID, acknowledgedBy string) (*BudgetAlert, error) {
+func (m *AlertManager) AcknowledgeAlert(alertID, acknowledgedBy string) (*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -426,24 +433,24 @@ func (m *AlertManager) AcknowledgeAlert(alertID, acknowledgedBy string) (*Budget
 		return nil, ErrAlertRuleNotFound
 	}
 
-	if alert.Status == AlertStatusResolved {
+	if alert.Status == StatusResolved {
 		return nil, ErrAlertAlreadyResolved
 	}
 
 	now := time.Now()
 	oldStatus := string(alert.Status)
 
-	alert.Status = AlertStatusAcknowledged
+	alert.Status = StatusAcknowledged
 	alert.AcknowledgedAt = &now
 	alert.AcknowledgedBy = acknowledgedBy
 
-	m.recordHistory(alert, "acknowledged", oldStatus, string(AlertStatusAcknowledged))
+	m.recordHistory(alert, "acknowledged", oldStatus, string(StatusAcknowledged))
 
 	return alert, nil
 }
 
 // ResolveAlert 解决警报
-func (m *AlertManager) ResolveAlert(alertID, resolvedBy string) (*BudgetAlert, error) {
+func (m *AlertManager) ResolveAlert(alertID, resolvedBy string) (*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -452,23 +459,23 @@ func (m *AlertManager) ResolveAlert(alertID, resolvedBy string) (*BudgetAlert, e
 		return nil, ErrAlertRuleNotFound
 	}
 
-	if alert.Status == AlertStatusResolved {
+	if alert.Status == StatusResolved {
 		return nil, ErrAlertAlreadyResolved
 	}
 
 	now := time.Now()
 	oldStatus := string(alert.Status)
 
-	alert.Status = AlertStatusResolved
+	alert.Status = StatusResolved
 	alert.ResolvedAt = &now
 
-	m.recordHistory(alert, "resolved", oldStatus, string(AlertStatusResolved))
+	m.recordHistory(alert, "resolved", oldStatus, string(StatusResolved))
 
 	return alert, nil
 }
 
 // SuppressAlert 抑制警报
-func (m *AlertManager) SuppressAlert(alertID, reason string) (*BudgetAlert, error) {
+func (m *AlertManager) SuppressAlert(alertID, reason string) (*Alert, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -479,10 +486,10 @@ func (m *AlertManager) SuppressAlert(alertID, reason string) (*BudgetAlert, erro
 
 	oldStatus := string(alert.Status)
 
-	alert.Status = AlertStatusSuppressed
+	alert.Status = StatusSuppressed
 	alert.CustomMessage = reason
 
-	m.recordHistory(alert, "suppressed", oldStatus, string(AlertStatusSuppressed))
+	m.recordHistory(alert, "suppressed", oldStatus, string(StatusSuppressed))
 
 	return alert, nil
 }
@@ -490,7 +497,7 @@ func (m *AlertManager) SuppressAlert(alertID, reason string) (*BudgetAlert, erro
 // ========== 通知发送 ==========
 
 // SendAlertNotifications 发送警报通知
-func (m *AlertManager) SendAlertNotifications(ctx context.Context, alert *BudgetAlert) error {
+func (m *AlertManager) SendAlertNotifications(ctx context.Context, alert *Alert) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -569,7 +576,7 @@ func (m *AlertManager) getNotifyConfig(budgetID string) *NotifyConfig {
 // ========== 警报升级 ==========
 
 // CheckEscalations 检查警报升级
-func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*BudgetAlert, error) {
+func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*Alert, error) {
 	if !m.config.EscalationEnabled {
 		return nil, nil
 	}
@@ -577,11 +584,11 @@ func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*BudgetAlert, er
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	var escalatedAlerts []*BudgetAlert
+	var escalatedAlerts []*Alert
 	now := time.Now()
 
 	for _, alert := range m.alerts {
-		if alert.Status != AlertStatusActive {
+		if alert.Status != StatusActive {
 			continue
 		}
 
@@ -592,7 +599,7 @@ func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*BudgetAlert, er
 
 				// 升级警报
 				oldLevel := string(alert.Level)
-				alert.Level = stringToAlertLevel(rule.ToLevel)
+				alert.Level = stringToLevel(rule.ToLevel)
 				alert.EscalationLevel = getEscalationLevel(rule.ToLevel)
 				alert.LastEscalatedAt = &now
 
@@ -621,7 +628,7 @@ func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*BudgetAlert, er
 // ========== 警报查询 ==========
 
 // GetAlert 获取警报
-func (m *AlertManager) GetAlert(alertID string) (*BudgetAlert, error) {
+func (m *AlertManager) GetAlert(alertID string) (*Alert, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -634,11 +641,11 @@ func (m *AlertManager) GetAlert(alertID string) (*BudgetAlert, error) {
 }
 
 // ListAlerts 列出警报
-func (m *AlertManager) ListAlerts(query AlertQuery) ([]*BudgetAlert, error) {
+func (m *AlertManager) ListAlerts(query AlertQuery) ([]*Alert, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var result []*BudgetAlert
+	var result []*Alert
 
 	for _, alert := range m.alerts {
 		// 应用过滤条件
@@ -696,7 +703,7 @@ func (m *AlertManager) ListAlerts(query AlertQuery) ([]*BudgetAlert, error) {
 	if query.PageSize > 0 {
 		start := query.Page * query.PageSize
 		if start >= len(result) {
-			return []*BudgetAlert{}, nil
+			return []*Alert{}, nil
 		}
 		end := start + query.PageSize
 		if end > len(result) {
@@ -709,13 +716,13 @@ func (m *AlertManager) ListAlerts(query AlertQuery) ([]*BudgetAlert, error) {
 }
 
 // GetActiveAlerts 获取活跃警报
-func (m *AlertManager) GetActiveAlerts() []*BudgetAlert {
+func (m *AlertManager) GetActiveAlerts() []*Alert {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var result []*BudgetAlert
+	var result []*Alert
 	for _, alert := range m.alerts {
-		if alert.Status == AlertStatusActive || alert.Status == AlertStatusAcknowledged {
+		if alert.Status == StatusActive || alert.Status == StatusAcknowledged {
 			result = append(result, alert)
 		}
 	}
@@ -728,7 +735,7 @@ func (m *AlertManager) GetAlertStats() *AlertStats {
 	defer m.mu.RUnlock()
 
 	stats := &AlertStats{
-		ByLevel:  make(map[AlertLevel]int),
+		ByLevel:  make(map[Level]int),
 		ByBudget: make(map[string]int),
 	}
 
@@ -739,11 +746,11 @@ func (m *AlertManager) GetAlertStats() *AlertStats {
 		stats.TotalAlerts++
 
 		switch alert.Status {
-		case AlertStatusActive:
+		case StatusActive:
 			stats.ActiveAlerts++
-		case AlertStatusAcknowledged:
+		case StatusAcknowledged:
 			stats.AcknowledgedAlerts++
-		case AlertStatusResolved:
+		case StatusResolved:
 			stats.ResolvedAlerts++
 			if alert.ResolvedAt != nil {
 				resolutionTime := alert.ResolvedAt.Sub(alert.TriggeredAt).Minutes()
@@ -858,7 +865,7 @@ func (m *AlertManager) ListAlertRules(budgetID string) []*AlertRule {
 // ========== 辅助方法 ==========
 
 // recordHistory 记录历史
-func (m *AlertManager) recordHistory(alert *BudgetAlert, action, oldStatus, newStatus string) {
+func (m *AlertManager) recordHistory(alert *Alert, action, oldStatus, newStatus string) {
 	history := AlertHistory{
 		AlertID:   alert.ID,
 		BudgetID:  alert.BudgetID,
@@ -876,19 +883,19 @@ func (m *AlertManager) recordHistory(alert *BudgetAlert, action, oldStatus, newS
 	}
 }
 
-// stringToAlertLevel 字符串转警报级别
-func stringToAlertLevel(s string) AlertLevel {
+// stringToLevel 字符串转警报级别
+func stringToLevel(s string) Level {
 	switch s {
 	case "info":
-		return AlertLevelInfo
+		return LevelInfo
 	case "warning":
-		return AlertLevelWarning
+		return LevelWarning
 	case "critical":
-		return AlertLevelCritical
+		return LevelCritical
 	case "emergency":
-		return AlertLevelEmergency
+		return LevelEmergency
 	default:
-		return AlertLevelInfo
+		return LevelInfo
 	}
 }
 
@@ -961,7 +968,7 @@ func NewEmailNotifier(smtpHost string, smtpPort int, user, password, from string
 }
 
 // Send 发送邮件
-func (n *EmailNotifier) Send(ctx context.Context, alert *BudgetAlert, config *NotifyConfig) error {
+func (n *EmailNotifier) Send(ctx context.Context, alert *Alert, config *NotifyConfig) error {
 	// 邮件发送逻辑（需要实现实际的SMTP发送）
 	// 这里是简化实现
 	subject := fmt.Sprintf("[预算警报] %s - %s", alert.Level, alert.BudgetName)
@@ -1007,7 +1014,7 @@ func NewWebhookNotifier(defaultURL string) *WebhookNotifier {
 }
 
 // Send 发送Webhook
-func (n *WebhookNotifier) Send(ctx context.Context, alert *BudgetAlert, config *NotifyConfig) error {
+func (n *WebhookNotifier) Send(ctx context.Context, alert *Alert, config *NotifyConfig) error {
 	url := config.WebhookURL
 	if url == "" {
 		url = n.defaultURL

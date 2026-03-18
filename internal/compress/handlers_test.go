@@ -216,6 +216,7 @@ func TestHandlers_ListCompressedFiles_NilFS(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			// Expected panic from nil filesystem
+			_ = r
 		}
 	}()
 

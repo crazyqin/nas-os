@@ -494,12 +494,12 @@ func (a *AutomationAPI) writeError(w http.ResponseWriter, status int, message st
 }
 
 // parseTriggerConfig 从 map 解析触发器配置
-func parseTriggerConfig(data map[string]interface{}) (trigger.TriggerConfig, error) {
-	config := trigger.TriggerConfig{}
+func parseTriggerConfig(data map[string]interface{}) (trigger.Config, error) {
+	config := trigger.Config{}
 
 	// 解析 type
 	if t, ok := data["type"].(string); ok {
-		config.Type = trigger.TriggerType(t)
+		config.Type = trigger.Type(t)
 	} else {
 		return config, fmt.Errorf("missing or invalid trigger type")
 	}

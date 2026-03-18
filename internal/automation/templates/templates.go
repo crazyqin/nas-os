@@ -117,7 +117,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每天凌晨 2 点备份重要文件到备份目录",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 2 * * *",
 					Timezone: "Asia/Shanghai",
 				},
@@ -149,7 +149,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "监控源文件夹，自动备份变化的文件",
 				Enabled:     true,
 				Trigger: &trigger.FileTrigger{
-					Type:      trigger.TriggerTypeFile,
+					Type:      trigger.TypeFile,
 					Path:      "{{source_path}}",
 					Events:    []string{"created", "modified"},
 					Recursive: true,
@@ -176,7 +176,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每周日凌晨 3 点执行完整备份",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 3 * * 0",
 					Timezone: "Asia/Shanghai",
 				},
@@ -209,7 +209,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每天凌晨 4 点清理 7 天前的临时文件",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 4 * * *",
 					Timezone: "Asia/Shanghai",
 				},
@@ -240,7 +240,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每周清理 30 天前的日志文件",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 5 * * 1",
 					Timezone: "Asia/Shanghai",
 				},
@@ -271,7 +271,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每月 1 号清理 30 天前的下载文件",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 6 1 * *",
 					Timezone: "Asia/Shanghai",
 				},
@@ -304,7 +304,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每小时检查磁盘空间，超过 {{threshold}}% 时告警",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 * * * *",
 					Timezone: "Asia/Shanghai",
 				},
@@ -335,7 +335,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每 30 分钟检查，使用率超过 90% 时紧急告警",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "*/30 * * * *",
 					Timezone: "Asia/Shanghai",
 				},
@@ -366,7 +366,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每 6 小时检查存储卷健康状态",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 */6 * * *",
 					Timezone: "Asia/Shanghai",
 				},
@@ -399,7 +399,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "自动将下载文件按类型分类",
 				Enabled:     true,
 				Trigger: &trigger.FileTrigger{
-					Type:      trigger.TriggerTypeFile,
+					Type:      trigger.TypeFile,
 					Path:      "{{downloads_path}}",
 					Pattern:   "*",
 					Events:    []string{"created"},
@@ -426,7 +426,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "监控上传文件夹，自动转换视频格式",
 				Enabled:     true,
 				Trigger: &trigger.FileTrigger{
-					Type:      trigger.TriggerTypeFile,
+					Type:      trigger.TypeFile,
 					Path:      "{{media_input}}",
 					Pattern:   "*.avi,*.mkv,*.mov",
 					Events:    []string{"created"},
@@ -460,7 +460,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每天早上 8 点发送系统健康报告",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 8 * * *",
 					Timezone: "Asia/Shanghai",
 				},
@@ -491,7 +491,7 @@ func GetBuiltInTemplates() []Template {
 				Description: "每天凌晨 3 点同步到云端",
 				Enabled:     true,
 				Trigger: &trigger.TimeTrigger{
-					Type:     trigger.TriggerTypeTime,
+					Type:     trigger.TypeTime,
 					Schedule: "0 3 * * *",
 					Timezone: "Asia/Shanghai",
 				},

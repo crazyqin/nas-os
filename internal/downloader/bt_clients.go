@@ -58,7 +58,7 @@ type TransmissionTorrentAddResponse struct {
 
 // TransmissionTorrentGetRequest 获取种子信息请求
 type TransmissionTorrentGetRequest struct {
-	IDS    []int    `json:"ids,omitempty"`    // 种子 ID 列表，空表示所有
+	IDs    []int    `json:"ids,omitempty"`    // 种子 ID 列表，空表示所有
 	Fields []string `json:"fields,omitempty"` // 需要获取的字段
 }
 
@@ -92,7 +92,7 @@ type TransmissionTorrent struct {
 
 // TransmissionTorrentRemoveRequest 删除种子请求
 type TransmissionTorrentRemoveRequest struct {
-	IDS             []int `json:"ids"`
+	IDs             []int `json:"ids"`
 	DeleteLocalData bool  `json:"delete-local-data"` // 是否同时删除下载的数据
 }
 
@@ -249,7 +249,7 @@ func (c *TransmissionClient) AddTorrent(torrentURL, downloadDir string) (string,
 // GetTorrents 获取种子列表
 func (c *TransmissionClient) GetTorrents(ids ...int) ([]TransmissionTorrent, error) {
 	args := TransmissionTorrentGetRequest{
-		IDS: ids,
+		IDs: ids,
 		Fields: []string{
 			"id", "name", "hashString", "status", "totalSize",
 			"downloadedEver", "uploadedEver", "percentDone",
@@ -292,7 +292,7 @@ func (c *TransmissionClient) GetTorrentByHash(hash string) (*TransmissionTorrent
 // RemoveTorrent 删除种子
 func (c *TransmissionClient) RemoveTorrent(id int, deleteData bool) error {
 	args := TransmissionTorrentRemoveRequest{
-		IDS:             []int{id},
+		IDs:             []int{id},
 		DeleteLocalData: deleteData,
 	}
 

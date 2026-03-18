@@ -124,6 +124,7 @@ func (lm *LUNManager) createFileBacking(path string, size int64) error {
 	if err := file.Truncate(size); err != nil {
 		if removeErr := os.Remove(path); removeErr != nil && !os.IsNotExist(removeErr) {
 			// Log the remove error but return the truncate error
+			_ = removeErr
 		}
 		return err
 	}
@@ -213,6 +214,7 @@ func (lm *LUNManager) CreateSnapshot(lun *LUN, input LUNSnapshotInput) (*LUNSnap
 	_ = dstFile.Close()
 	if removeErr := os.Remove(snapshotPath); removeErr != nil && !os.IsNotExist(removeErr) {
 		// Log error but continue - snapshot is tracked in metadata
+		_ = removeErr
 	}
 
 	snapshot := &LUNSnapshot{

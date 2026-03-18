@@ -13,7 +13,7 @@ import (
 )
 
 func TestSFTPHandler_ResolvePath(t *testing.T) {
-	handler := NewSFTPHandler("/data/sftp", "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler("/data/sftp", "testuser", "session123", "192.168.1.100", nil, nil)
 
 	tests := []struct {
 		name      string
@@ -76,7 +76,7 @@ func TestSFTPHandler_Fileread(t *testing.T) {
 	content := []byte("Hello, SFTP World!")
 	require.NoError(t, os.WriteFile(testFile, content, 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "Get",
@@ -97,7 +97,7 @@ func TestSFTPHandler_Fileread_ReadOnly(t *testing.T) {
 	testFile := filepath.Join(tmpDir, "test.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("test"), 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 	handler.readOnly = true
 
 	req := &Request{
@@ -118,7 +118,7 @@ func TestSFTPHandler_Fileread_ReadOnly(t *testing.T) {
 
 func TestSFTPHandler_Filewrite(t *testing.T) {
 	tmpDir := t.TempDir()
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "Put",
@@ -142,7 +142,7 @@ func TestSFTPHandler_Filewrite(t *testing.T) {
 
 func TestSFTPHandler_Filewrite_ReadOnly(t *testing.T) {
 	tmpDir := t.TempDir()
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 	handler.readOnly = true
 
 	req := &Request{
@@ -157,7 +157,7 @@ func TestSFTPHandler_Filewrite_ReadOnly(t *testing.T) {
 
 func TestSFTPHandler_Filewrite_NestedPath(t *testing.T) {
 	tmpDir := t.TempDir()
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "Put",
@@ -180,7 +180,7 @@ func TestSFTPHandler_Filewrite_NestedPath(t *testing.T) {
 
 func TestSFTPHandler_Filecmd_Mkdir(t *testing.T) {
 	tmpDir := t.TempDir()
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "Mkdir",
@@ -200,7 +200,7 @@ func TestSFTPHandler_Filecmd_Remove(t *testing.T) {
 	testFile := filepath.Join(tmpDir, "delete-me.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("delete"), 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "Remove",
@@ -219,7 +219,7 @@ func TestSFTPHandler_Filecmd_Rename(t *testing.T) {
 	oldFile := filepath.Join(tmpDir, "old.txt")
 	require.NoError(t, os.WriteFile(oldFile, []byte("rename test"), 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "Rename",
@@ -243,7 +243,7 @@ func TestSFTPHandler_Filecmd_Rmdir(t *testing.T) {
 	require.NoError(t, os.Mkdir(testDir, 0755))
 	require.NoError(t, os.WriteFile(filepath.Join(testDir, "file.txt"), []byte("test"), 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "Rmdir",
@@ -262,7 +262,7 @@ func TestSFTPHandler_Filecmd_Setstat(t *testing.T) {
 	testFile := filepath.Join(tmpDir, "test.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("test"), 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	// 修改权限
 	req := &Request{
@@ -281,7 +281,7 @@ func TestSFTPHandler_Filecmd_Setstat(t *testing.T) {
 
 func TestSFTPHandler_Filecmd_Symlink(t *testing.T) {
 	tmpDir := t.TempDir()
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "Symlink",
@@ -297,7 +297,7 @@ func TestSFTPHandler_Filecmd_Symlink(t *testing.T) {
 
 func TestSFTPHandler_Filecmd_ReadOnly(t *testing.T) {
 	tmpDir := t.TempDir()
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 	handler.readOnly = true
 
 	tests := []struct {
@@ -328,7 +328,7 @@ func TestSFTPHandler_Filelist(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "file1.txt"), []byte("1"), 0644))
 	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "file2.txt"), []byte("2"), 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "List",
@@ -355,7 +355,7 @@ func TestSFTPHandler_Filelist_NotDir(t *testing.T) {
 	testFile := filepath.Join(tmpDir, "file.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("test"), 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Method:   "List",
@@ -371,7 +371,7 @@ func TestSFTPHandler_PathTraversal(t *testing.T) {
 	tmpDir := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "allowed.txt"), []byte("ok"), 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	// 尝试路径遍历攻击
 	req := &Request{
@@ -400,7 +400,7 @@ func TestTrackedReader(t *testing.T) {
 	content := []byte("Hello, World!")
 	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "test.txt"), content, 0644))
 
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Filepath: "/test.txt",
@@ -420,7 +420,7 @@ func TestTrackedReader(t *testing.T) {
 
 func TestTrackedWriter(t *testing.T) {
 	tmpDir := t.TempDir()
-	handler := NewSFTPHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
+	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
 	req := &Request{
 		Filepath: "/output.txt",

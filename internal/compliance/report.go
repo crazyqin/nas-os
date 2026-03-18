@@ -12,14 +12,14 @@ import (
 
 // Report 合规报告
 type Report struct {
-	ID              string    `json:"id"`
-	Timestamp       time.Time `json:"timestamp"`
-	OverallLevel    Level     `json:"overall_level"`
-	PassedCount     int       `json:"passed_count"`
-	FailedCount     int       `json:"failed_count"`
-	Results         []CheckResult   `json:"results"`
-	Summary         string          `json:"summary"`
-	Recommendations []string        `json:"recommendations,omitempty"`
+	ID              string        `json:"id"`
+	Timestamp       time.Time     `json:"timestamp"`
+	OverallLevel    Level         `json:"overall_level"`
+	PassedCount     int           `json:"passed_count"`
+	FailedCount     int           `json:"failed_count"`
+	Results         []CheckResult `json:"results"`
+	Summary         string        `json:"summary"`
+	Recommendations []string      `json:"recommendations,omitempty"`
 }
 
 // ReportGenerator 报告生成器

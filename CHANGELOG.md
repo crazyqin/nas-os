@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.239.0] - 2026-03-18
+
+### Bug Fixes
+- 修复 golangci-lint 错误 (74处)
+- revive: 导出项注释、类型命名规范
+- staticcheck: SA9003 空分支、QF1012/QF1008 优化
+
+### Improvements
+- trigger: TriggerType → Type, TriggerConfig → Config
+- billing: BillingConfig → Config, BillingCycle → Cycle
+- budget: BudgetType → Type, BudgetPeriod → Period, BudgetScope → Scope
+- concurrency: closed_count → closedCount
+- downloader: IDS → IDs
+- sftp: SFTPHandler → Handler
+
+---
+
 ## [v2.238.0] - 2026-03-18
 
 ### Security
