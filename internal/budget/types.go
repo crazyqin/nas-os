@@ -9,55 +9,67 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrBudgetNotFound   = errors.New("预算不存在")
-	ErrBudgetExists     = errors.New("预算已存在")
-	ErrBudgetExceeded   = errors.New("超出预算限制")
-	ErrInvalidAmount    = errors.New("无效的预算金额")
-	ErrInvalidPeriod    = errors.New("无效的预算周期")
-	ErrAlertNotFound    = errors.New("预警规则不存在")
+	// ErrBudgetNotFound 预算不存在错误
+	ErrBudgetNotFound = errors.New("预算不存在")
+	// ErrBudgetExists 预算已存在错误
+	ErrBudgetExists = errors.New("预算已存在")
+	// ErrBudgetExceeded 超出预算限制错误
+	ErrBudgetExceeded = errors.New("超出预算限制")
+	// ErrInvalidAmount 无效的预算金额错误
+	ErrInvalidAmount = errors.New("无效的预算金额")
+	// ErrInvalidPeriod 无效的预算周期错误
+	ErrInvalidPeriod = errors.New("无效的预算周期")
+	// ErrAlertNotFound 预警规则不存在错误
+	ErrAlertNotFound = errors.New("预警规则不存在")
+	// ErrInvalidThreshold 无效的阈值错误
 	ErrInvalidThreshold = errors.New("无效的阈值")
-	ErrNoPermission     = errors.New("无权限操作")
+	// ErrNoPermission 无权限操作错误
+	ErrNoPermission = errors.New("无权限操作")
 )
 
 // ========== 预算类型 ==========
 
-// BudgetType 预算类型
-type BudgetType string
+// Type 预算类型
+type Type string
 
+// 预算类型常量
 const (
-	BudgetTypeStorage    BudgetType = "storage"    // 存储预算
-	BudgetTypeBandwidth  BudgetType = "bandwidth"  // 带宽预算
-	BudgetTypeCompute    BudgetType = "compute"    // 计算预算
-	BudgetTypeOperations BudgetType = "operations" // 运维预算
-	BudgetTypeTotal      BudgetType = "total"      // 总预算
+	TypeStorage    Type = "storage"    // 存储预算
+	TypeBandwidth  Type = "bandwidth"  // 带宽预算
+	TypeCompute    Type = "compute"    // 计算预算
+	TypeOperations Type = "operations" // 运维预算
+	TypeTotal      Type = "total"      // 总预算
 )
 
-// BudgetPeriod 预算周期
-type BudgetPeriod string
+// Period 预算周期
+type Period string
 
+// 预算周期常量
 const (
-	BudgetPeriodDaily   BudgetPeriod = "daily"   // 日预算
-	BudgetPeriodWeekly  BudgetPeriod = "weekly"  // 周预算
-	BudgetPeriodMonthly BudgetPeriod = "monthly" // 月预算
-	BudgetPeriodQuarter BudgetPeriod = "quarter" // 季度预算
-	BudgetPeriodYearly  BudgetPeriod = "yearly"  // 年预算
+	PeriodDaily   Period = "daily"   // 日预算
+	PeriodWeekly  Period = "weekly"  // 周预算
+	PeriodMonthly Period = "monthly" // 月预算
+	PeriodQuarter Period = "quarter" // 季度预算
+	PeriodYearly  Period = "yearly"  // 年预算
 )
 
-// BudgetScope 预算范围
-type BudgetScope string
+// Scope 预算范围
+type Scope string
 
+// 预算范围常量
 const (
-	BudgetScopeGlobal    BudgetScope = "global"    // 全局预算
-	BudgetScopeUser      BudgetScope = "user"      // 用户预算
-	BudgetScopeGroup     BudgetScope = "group"     // 用户组预算
-	BudgetScopeVolume    BudgetScope = "volume"    // 卷预算
-	BudgetScopeService   BudgetScope = "service"   // 服务预算
-	BudgetScopeDirectory BudgetScope = "directory" // 目录预算
+	ScopeGlobal    Scope = "global"    // 全局预算
+	ScopeUser      Scope = "user"      // 用户预算
+	ScopeGroup     Scope = "group"     // 用户组预算
+	ScopeVolume    Scope = "volume"    // 卷预算
+	ScopeService   Scope = "service"   // 服务预算
+	ScopeDirectory Scope = "directory" // 目录预算
 )
 
 // BudgetStatus 预算状态
 type BudgetStatus string
 
+// 预算状态常量
 const (
 	BudgetStatusActive    BudgetStatus = "active"    // 活跃
 	BudgetStatusPaused    BudgetStatus = "paused"    // 暂停
@@ -70,12 +82,12 @@ const (
 
 // Budget 预算定义
 type Budget struct {
-	ID          string       `json:"id"`
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Type        BudgetType   `json:"type"`
-	Period      BudgetPeriod `json:"period"`
-	Scope       BudgetScope  `json:"scope"`
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Type        Type    `json:"type"`
+	Period      Period  `json:"period"`
+	Scope       Scope   `json:"scope"`
 
 	// 预算目标
 	TargetID   string `json:"target_id"`   // 用户ID/组ID/卷名等
@@ -94,8 +106,8 @@ type Budget struct {
 	NextReset *time.Time `json:"next_reset,omitempty"`
 
 	// 状态和配置
-	Status      BudgetStatus `json:"status"`
-	AutoReset   bool         `json:"auto_reset"`   // 是否自动重置
+	Status    BudgetStatus `json:"status"`
+	AutoReset bool   `json:"auto_reset"` // 是否自动重置
 	Rollover    bool         `json:"rollover"`     // 是否结转
 	AlertConfig AlertConfig  `json:"alert_config"` // 预警配置
 
@@ -106,28 +118,28 @@ type Budget struct {
 	Tags      []string  `json:"tags,omitempty"`
 }
 
-// BudgetInput 创建/更新预算输入
-type BudgetInput struct {
-	Name        string       `json:"name" binding:"required"`
-	Description string       `json:"description"`
-	Type        BudgetType   `json:"type" binding:"required"`
-	Period      BudgetPeriod `json:"period" binding:"required"`
-	Scope       BudgetScope  `json:"scope" binding:"required"`
-	TargetID    string       `json:"target_id"`
-	TargetName  string       `json:"target_name"`
-	Amount      float64      `json:"amount" binding:"required,gt=0"`
-	StartDate   *time.Time   `json:"start_date"`
-	EndDate     *time.Time   `json:"end_date"`
-	AutoReset   bool         `json:"auto_reset"`
-	Rollover    bool         `json:"rollover"`
+// Input 创建/更新预算输入
+type Input struct {
+	Name        string  `json:"name" binding:"required"`
+	Description string  `json:"description"`
+	Type        Type    `json:"type" binding:"required"`
+	Period      Period  `json:"period" binding:"required"`
+	Scope       Scope   `json:"scope" binding:"required"`
+	TargetID    string  `json:"target_id"`
+	TargetName  string  `json:"target_name"`
+	Amount      float64 `json:"amount" binding:"required,gt=0"`
+	StartDate   *time.Time `json:"start_date"`
+	EndDate     *time.Time `json:"end_date"`
+	AutoReset   bool       `json:"auto_reset"`
+	Rollover    bool       `json:"rollover"`
 	AlertConfig *AlertConfig `json:"alert_config"`
 	Tags        []string     `json:"tags"`
 }
 
 // ========== 预算使用记录 ==========
 
-// BudgetUsage 预算使用记录
-type BudgetUsage struct {
+// Usage 预算使用记录
+type Usage struct {
 	ID         string    `json:"id"`
 	BudgetID   string    `json:"budget_id"`
 	RecordedAt time.Time `json:"recorded_at"`
@@ -152,8 +164,8 @@ type BudgetUsage struct {
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// BudgetUsageInput 预算使用输入
-type BudgetUsageInput struct {
+// UsageInput 预算使用输入
+type UsageInput struct {
 	BudgetID     string                 `json:"budget_id" binding:"required"`
 	Amount       float64                `json:"amount" binding:"required,gt=0"`
 	SourceType   string                 `json:"source_type" binding:"required"`
@@ -184,7 +196,7 @@ type AlertConfig struct {
 // AlertThreshold 预警阈值
 type AlertThreshold struct {
 	Percent     float64    `json:"percent"`      // 触发百分比
-	Level       AlertLevel `json:"level"`        // 预警级别
+	Level       Level `json:"level"`        // 预警级别
 	Message     string     `json:"message"`      // 自定义消息
 	Actions     []string   `json:"actions"`      // 触发动作
 	NotifyUsers []string   `json:"notify_users"` // 通知用户
@@ -195,23 +207,23 @@ type AlertThreshold struct {
 // EscalationRule 升级规则
 type EscalationRule struct {
 	AfterMinutes int        `json:"after_minutes"` // 多少分钟后升级
-	ToLevel      AlertLevel `json:"to_level"`      // 升级到级别
+	ToLevel      Level `json:"to_level"`      // 升级到级别
 	NotifyUsers  []string   `json:"notify_users"`  // 通知用户
 }
 
 // ========== 预算报告 ==========
 
-// BudgetReport 预算报告
-type BudgetReport struct {
+// Report 预算报告
+type Report struct {
 	ID              string                 `json:"id"`
 	Name            string                 `json:"name"`
 	GeneratedAt     time.Time              `json:"generated_at"`
 	Period          ReportPeriod           `json:"period"`
-	Summary         BudgetReportSummary    `json:"summary"`
+	Summary         ReportSummary          `json:"summary"`
 	BudgetDetails   []BudgetDetail         `json:"budget_details"`
 	UsageTrend      []UsageTrendPoint      `json:"usage_trend"`
 	TopConsumers    []TopConsumer          `json:"top_consumers"`
-	Alerts          []BudgetAlert          `json:"alerts"`
+	Alerts          []Alert                `json:"alerts"`
 	Recommendations []BudgetRecommendation `json:"recommendations"`
 }
 
@@ -221,8 +233,8 @@ type ReportPeriod struct {
 	EndTime   time.Time `json:"end_time"`
 }
 
-// BudgetReportSummary 预算报告摘要
-type BudgetReportSummary struct {
+// ReportSummary 预算报告摘要
+type ReportSummary struct {
 	TotalBudgets      int     `json:"total_budgets"`
 	ActiveBudgets     int     `json:"active_budgets"`
 	TotalBudgetAmount float64 `json:"total_budget_amount"`
@@ -237,21 +249,21 @@ type BudgetReportSummary struct {
 
 // BudgetDetail 预算详情
 type BudgetDetail struct {
-	BudgetID       string        `json:"budget_id"`
-	BudgetName     string        `json:"budget_name"`
-	Type           BudgetType    `json:"type"`
-	Scope          BudgetScope   `json:"scope"`
-	TargetName     string        `json:"target_name"`
-	Amount         float64       `json:"amount"`
-	UsedAmount     float64       `json:"used_amount"`
-	Remaining      float64       `json:"remaining"`
-	UsagePercent   float64       `json:"usage_percent"`
-	Status         BudgetStatus  `json:"status"`
-	Trend          string        `json:"trend"` // up, down, stable
-	DailyAvgUsage  float64       `json:"daily_avg_usage"`
-	ProjectedUsage float64       `json:"projected_usage"` // 预计期末使用量
-	DaysRemaining  int           `json:"days_remaining"`
-	Alerts         []BudgetAlert `json:"alerts"`
+	BudgetID       string   `json:"budget_id"`
+	BudgetName     string   `json:"budget_name"`
+	Type           Type     `json:"type"`
+	Scope          Scope    `json:"scope"`
+	TargetName     string   `json:"target_name"`
+	Amount         float64  `json:"amount"`
+	UsedAmount     float64  `json:"used_amount"`
+	Remaining      float64  `json:"remaining"`
+	UsagePercent   float64  `json:"usage_percent"`
+	Status         BudgetStatus `json:"status"`
+	Trend          string   `json:"trend"` // up, down, stable
+	DailyAvgUsage  float64  `json:"daily_avg_usage"`
+	ProjectedUsage float64  `json:"projected_usage"` // 预计期末使用量
+	DaysRemaining  int      `json:"days_remaining"`
+	Alerts         []Alert  `json:"alerts"`
 }
 
 // UsageTrendPoint 使用趋势数据点
@@ -264,14 +276,14 @@ type UsageTrendPoint struct {
 
 // TopConsumer 消费排行
 type TopConsumer struct {
-	Rank       int         `json:"rank"`
-	BudgetID   string      `json:"budget_id"`
-	BudgetName string      `json:"budget_name"`
-	Scope      BudgetScope `json:"scope"`
-	TargetName string      `json:"target_name"`
-	UsedAmount float64     `json:"used_amount"`
-	Percent    float64     `json:"percent"`
-	Trend      string      `json:"trend"`
+	Rank       int    `json:"rank"`
+	BudgetID   string `json:"budget_id"`
+	BudgetName string `json:"budget_name"`
+	Scope      Scope  `json:"scope"`
+	TargetName string `json:"target_name"`
+	UsedAmount float64 `json:"used_amount"`
+	Percent    float64 `json:"percent"`
+	Trend      string  `json:"trend"`
 }
 
 // BudgetRecommendation 预算建议
@@ -288,37 +300,37 @@ type BudgetRecommendation struct {
 	Action      string  `json:"action"`
 }
 
-// BudgetReportRequest 报告请求
-type BudgetReportRequest struct {
-	StartTime    *time.Time    `json:"start_time"`
-	EndTime      *time.Time    `json:"end_time"`
-	BudgetIDs    []string      `json:"budget_ids,omitempty"`
-	Types        []BudgetType  `json:"types,omitempty"`
-	Scopes       []BudgetScope `json:"scopes,omitempty"`
-	IncludeUsage bool          `json:"include_usage"`
-	IncludeTrend bool          `json:"include_trend"`
+// ReportRequest 报告请求
+type ReportRequest struct {
+	StartTime    *time.Time `json:"start_time"`
+	EndTime      *time.Time `json:"end_time"`
+	BudgetIDs    []string   `json:"budget_ids,omitempty"`
+	Types        []Type     `json:"types,omitempty"`
+	Scopes       []Scope    `json:"scopes,omitempty"`
+	IncludeUsage bool       `json:"include_usage"`
+	IncludeTrend bool       `json:"include_trend"`
 }
 
 // ========== 查询参数 ==========
 
 // BudgetQuery 预算查询参数
 type BudgetQuery struct {
-	IDs       []string       `json:"ids,omitempty"`
-	Types     []BudgetType   `json:"types,omitempty"`
-	Scopes    []BudgetScope  `json:"scopes,omitempty"`
+	IDs       []string      `json:"ids,omitempty"`
+	Types     []Type        `json:"types,omitempty"`
+	Scopes    []Scope       `json:"scopes,omitempty"`
 	Statuses  []BudgetStatus `json:"statuses,omitempty"`
-	TargetIDs []string       `json:"target_ids,omitempty"`
-	Tags      []string       `json:"tags,omitempty"`
-	MinAmount *float64       `json:"min_amount,omitempty"`
-	MaxAmount *float64       `json:"max_amount,omitempty"`
-	MinUsage  *float64       `json:"min_usage,omitempty"`
-	MaxUsage  *float64       `json:"max_usage,omitempty"`
-	StartDate *time.Time     `json:"start_date,omitempty"`
-	EndDate   *time.Time     `json:"end_date,omitempty"`
-	Page      int            `json:"page"`
-	PageSize  int            `json:"page_size"`
-	SortBy    string         `json:"sort_by"`    // name, amount, used_amount, usage_percent, created_at
-	SortOrder string         `json:"sort_order"` // asc, desc
+	TargetIDs []string      `json:"target_ids,omitempty"`
+	Tags      []string  `json:"tags,omitempty"`
+	MinAmount *float64  `json:"min_amount,omitempty"`
+	MaxAmount *float64  `json:"max_amount,omitempty"`
+	MinUsage  *float64  `json:"min_usage,omitempty"`
+	MaxUsage  *float64  `json:"max_usage,omitempty"`
+	StartDate *time.Time `json:"start_date,omitempty"`
+	EndDate   *time.Time `json:"end_date,omitempty"`
+	Page      int        `json:"page"`
+	PageSize  int        `json:"page_size"`
+	SortBy    string     `json:"sort_by"`    // name, amount, used_amount, usage_percent, created_at
+	SortOrder string     `json:"sort_order"` // asc, desc
 }
 
 // UsageQuery 使用记录查询参数
@@ -336,8 +348,8 @@ type UsageQuery struct {
 // AlertQuery 预警查询参数
 type AlertQuery struct {
 	BudgetIDs []string      `json:"budget_ids,omitempty"`
-	Levels    []AlertLevel  `json:"levels,omitempty"`
-	Statuses  []AlertStatus `json:"statuses,omitempty"`
+	Levels    []Level  `json:"levels,omitempty"`
+	Statuses  []Status `json:"statuses,omitempty"`
 	StartTime *time.Time    `json:"start_time,omitempty"`
 	EndTime   *time.Time    `json:"end_time,omitempty"`
 	Page      int           `json:"page"`
@@ -348,18 +360,18 @@ type AlertQuery struct {
 
 // BudgetStats 预算统计
 type BudgetStats struct {
-	TotalBudgets      int                       `json:"total_budgets"`
-	ActiveBudgets     int                       `json:"active_budgets"`
-	TotalAmount       float64                   `json:"total_amount"`
-	TotalUsed         float64                   `json:"total_used"`
-	TotalRemaining    float64                   `json:"total_remaining"`
-	ByType            map[BudgetType]TypeStats  `json:"by_type"`
-	ByScope           map[BudgetScope]TypeStats `json:"by_scope"`
-	ExceededCount     int                       `json:"exceeded_count"`
-	NearLimitCount    int                       `json:"near_limit_count"`
-	ActiveAlertCount  int                       `json:"active_alert_count"`
-	HealthScore       int                       `json:"health_score"`
-	ProjectedMonthEnd float64                   `json:"projected_month_end"`
+	TotalBudgets      int                 `json:"total_budgets"`
+	ActiveBudgets     int                 `json:"active_budgets"`
+	TotalAmount       float64             `json:"total_amount"`
+	TotalUsed         float64             `json:"total_used"`
+	TotalRemaining    float64             `json:"total_remaining"`
+	ByType            map[Type]TypeStats  `json:"by_type"`
+	ByScope           map[Scope]TypeStats `json:"by_scope"`
+	ExceededCount     int                 `json:"exceeded_count"`
+	NearLimitCount    int                 `json:"near_limit_count"`
+	ActiveAlertCount  int                 `json:"active_alert_count"`
+	HealthScore       int                 `json:"health_score"`
+	ProjectedMonthEnd float64             `json:"projected_month_end"`
 }
 
 // TypeStats 类型统计
@@ -374,10 +386,10 @@ type TypeStats struct {
 
 // DefaultAlertThresholds 默认预警阈值
 var DefaultAlertThresholds = []AlertThreshold{
-	{Percent: 50, Level: AlertLevelInfo, Message: "预算已使用 50%"},
-	{Percent: 70, Level: AlertLevelWarning, Message: "预算已使用 70%，请注意"},
-	{Percent: 85, Level: AlertLevelCritical, Message: "预算已使用 85%，请及时处理"},
-	{Percent: 95, Level: AlertLevelEmergency, Message: "预算即将耗尽，请立即处理"},
+	{Percent: 50, Level: LevelInfo, Message: "预算已使用 50%"},
+	{Percent: 70, Level: LevelWarning, Message: "预算已使用 70%，请注意"},
+	{Percent: 85, Level: LevelCritical, Message: "预算已使用 85%，请及时处理"},
+	{Percent: 95, Level: LevelEmergency, Message: "预算即将耗尽，请立即处理"},
 }
 
 // DefaultAlertConfig 默认预警配置

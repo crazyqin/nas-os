@@ -10,8 +10,10 @@ import (
 )
 
 var (
+	// ErrPoolExhausted 连接池已耗尽错误
 	ErrPoolExhausted = errors.New("connection pool exhausted")
-	ErrConnClosed    = errors.New("connection is closed")
+	// ErrConnClosed 连接已关闭错误
+	ErrConnClosed = errors.New("connection is closed")
 )
 
 // Connection represents a pooled connection
@@ -40,7 +42,7 @@ type ConnectionPool struct {
 	// Statistics
 	created      int64
 	reused       int64
-	closed_count int64
+	closedCount  int64
 	waitCount    int64
 
 	logger *zap.Logger
@@ -104,7 +106,7 @@ func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 		// Connection unhealthy, close and create new one
 		_ = conn.Close()
 		p.mu.Lock()
-		p.closed_count++
+		p.closedCount++
 		p.mu.Unlock()
 
 	default:
@@ -146,7 +148,7 @@ func (p *ConnectionPool) Get(timeout time.Duration) (Connection, error) {
 		}
 		_ = conn.Close()
 		p.mu.Lock()
-		p.closed_count++
+		p.closedCount++
 		p.openCount--
 		p.mu.Unlock()
 		return p.Get(timeout)
@@ -166,7 +168,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 		p.mu.Unlock()
 		_ = conn.Close()
 		p.mu.Lock()
-		p.closed_count++
+		p.closedCount++
 		p.openCount--
 		p.mu.Unlock()
 		return
@@ -176,7 +178,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 	if !conn.IsHealthy() {
 		_ = conn.Close()
 		p.mu.Lock()
-		p.closed_count++
+		p.closedCount++
 		p.openCount--
 		p.mu.Unlock()
 		return
@@ -188,7 +190,7 @@ func (p *ConnectionPool) Put(conn Connection) {
 		// Pool full, close connection
 		_ = conn.Close()
 		p.mu.Lock()
-		p.closed_count++
+		p.closedCount++
 		p.openCount--
 		p.mu.Unlock()
 	}
@@ -212,7 +214,7 @@ func (p *ConnectionPool) Close() {
 	for conn := range p.conns {
 		_ = conn.Close()
 		p.mu.Lock()
-		p.closed_count++
+		p.closedCount++
 		p.openCount--
 		p.mu.Unlock()
 	}
@@ -230,7 +232,7 @@ func (p *ConnectionPool) Stats() ConnPoolStats {
 		Available: len(p.conns),
 		Created:   p.created,
 		Reused:    p.reused,
-		Closed:    p.closed_count,
+		Closed:    p.closedCount,
 		WaitCount: p.waitCount,
 	}
 }
@@ -277,7 +279,7 @@ func (p *ConnectionPool) checkIdleConnections() {
 		if !conn.IsHealthy() {
 			_ = conn.Close()
 			p.mu.Lock()
-			p.closed_count++
+			p.closedCount++
 			p.openCount--
 			p.mu.Unlock()
 

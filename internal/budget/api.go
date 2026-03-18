@@ -17,9 +17,9 @@ import (
 type BudgetManager struct {
 	mu             sync.RWMutex
 	budgets        map[string]*Budget
-	usages         map[string][]*BudgetUsage
-	alerts         map[string]*BudgetAlert
-	alertHistory   map[string][]*BudgetAlert
+	usages         map[string][]*Usage
+	alerts         map[string]*Alert
+	alertHistory   map[string][]*Alert
 	notifier       NotificationService
 	costCalculator CostCalculator
 }
@@ -28,7 +28,7 @@ type BudgetManager struct {
 type NotificationService interface {
 	SendEmail(to []string, subject, body string) error
 	SendWebhook(url string, payload interface{}) error
-	SendAlert(alert *BudgetAlert) error
+	SendAlert(alert *Alert) error
 }
 
 // CostCalculator 成本计算器接口
@@ -42,9 +42,9 @@ type CostCalculator interface {
 func NewBudgetManager() *BudgetManager {
 	return &BudgetManager{
 		budgets:      make(map[string]*Budget),
-		usages:       make(map[string][]*BudgetUsage),
-		alerts:       make(map[string]*BudgetAlert),
-		alertHistory: make(map[string][]*BudgetAlert),
+		usages:       make(map[string][]*Usage),
+		alerts:       make(map[string]*Alert),
+		alertHistory: make(map[string][]*Alert),
 	}
 }
 
@@ -65,7 +65,7 @@ func (m *BudgetManager) SetCostCalculator(calc CostCalculator) {
 // ========== 预算 CRUD 操作 ==========
 
 // CreateBudget 创建预算
-func (m *BudgetManager) CreateBudget(input BudgetInput, createdBy string) (*Budget, error) {
+func (m *BudgetManager) CreateBudget(input Input, createdBy string) (*Budget, error) {
 	if input.Amount <= 0 {
 		return nil, ErrInvalidAmount
 	}
@@ -121,13 +121,13 @@ func (m *BudgetManager) CreateBudget(input BudgetInput, createdBy string) (*Budg
 	budget.NextReset = calculateNextReset(startDate, input.Period)
 
 	m.budgets[budget.ID] = budget
-	m.usages[budget.ID] = make([]*BudgetUsage, 0)
+	m.usages[budget.ID] = make([]*Usage, 0)
 
 	return budget, nil
 }
 
 // UpdateBudget 更新预算
-func (m *BudgetManager) UpdateBudget(id string, input BudgetInput) (*Budget, error) {
+func (m *BudgetManager) UpdateBudget(id string, input Input) (*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -228,7 +228,7 @@ func (m *BudgetManager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error)
 // ========== 预算使用追踪 ==========
 
 // RecordUsage 记录使用
-func (m *BudgetManager) RecordUsage(input BudgetUsageInput) (*BudgetUsage, error) {
+func (m *BudgetManager) RecordUsage(input UsageInput) (*Usage, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -247,7 +247,7 @@ func (m *BudgetManager) RecordUsage(input BudgetUsageInput) (*BudgetUsage, error
 	}
 
 	now := time.Now()
-	usage := &BudgetUsage{
+	usage := &Usage{
 		ID:           uuid.New().String(),
 		BudgetID:     input.BudgetID,
 		RecordedAt:   now,
@@ -286,7 +286,7 @@ func (m *BudgetManager) RecordUsage(input BudgetUsageInput) (*BudgetUsage, error
 }
 
 // GetUsageHistory 获取使用历史
-func (m *BudgetManager) GetUsageHistory(budgetID string, query UsageQuery) ([]*BudgetUsage, int64, error) {
+func (m *BudgetManager) GetUsageHistory(budgetID string, query UsageQuery) ([]*Usage, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -295,7 +295,7 @@ func (m *BudgetManager) GetUsageHistory(budgetID string, query UsageQuery) ([]*B
 		return nil, 0, ErrBudgetNotFound
 	}
 
-	var result []*BudgetUsage
+	var result []*Usage
 
 	for _, usage := range usages {
 		if !matchUsageQuery(usage, query) {
@@ -308,7 +308,7 @@ func (m *BudgetManager) GetUsageHistory(budgetID string, query UsageQuery) ([]*B
 	start, end := getPaginationBounds(len(result), query.Page, query.PageSize)
 
 	if start >= len(result) {
-		return []*BudgetUsage{}, total, nil
+		return []*Usage{}, total, nil
 	}
 
 	return result[start:end], total, nil
@@ -413,7 +413,7 @@ func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 			}
 
 			// 创建新预警
-			alert := &BudgetAlert{
+			alert := &Alert{
 				ID:              uuid.New().String(),
 				BudgetID:        budget.ID,
 				BudgetName:      budget.Name,
@@ -424,7 +424,7 @@ func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 				BudgetAmount:    budget.Amount,
 				RemainingAmount: budget.Remaining,
 				Message:         threshold.Message,
-				Status:          AlertStatusActive,
+				Status:          StatusActive,
 				TriggeredAt:     time.Now(),
 				NotifySent:      false,
 			}
@@ -468,7 +468,7 @@ func (m *BudgetManager) AcknowledgeAlert(alertID string, acknowledgedBy string) 
 	for budgetID, alert := range m.alerts {
 		if alert.ID == alertID {
 			now := time.Now()
-			alert.Status = AlertStatusAcknowledged
+			alert.Status = StatusAcknowledged
 			alert.AcknowledgedAt = &now
 			alert.AcknowledgedBy = acknowledgedBy
 			m.alerts[budgetID] = alert
@@ -487,7 +487,7 @@ func (m *BudgetManager) ResolveAlert(alertID string) error {
 	for budgetID, alert := range m.alerts {
 		if alert.ID == alertID {
 			now := time.Now()
-			alert.Status = AlertStatusResolved
+			alert.Status = StatusResolved
 			alert.ResolvedAt = &now
 			delete(m.alerts, budgetID)
 			return nil
@@ -498,11 +498,11 @@ func (m *BudgetManager) ResolveAlert(alertID string) error {
 }
 
 // GetActiveAlerts 获取活跃预警
-func (m *BudgetManager) GetActiveAlerts(query AlertQuery) ([]*BudgetAlert, int64, error) {
+func (m *BudgetManager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var result []*BudgetAlert
+	var result []*Alert
 
 	for _, alert := range m.alerts {
 		if !matchAlertQuery(alert, query) {
@@ -515,23 +515,23 @@ func (m *BudgetManager) GetActiveAlerts(query AlertQuery) ([]*BudgetAlert, int64
 	start, end := getPaginationBounds(len(result), query.Page, query.PageSize)
 
 	if start >= len(result) {
-		return []*BudgetAlert{}, total, nil
+		return []*Alert{}, total, nil
 	}
 
 	return result[start:end], total, nil
 }
 
 // GetAlertHistory 获取预警历史
-func (m *BudgetManager) GetAlertHistory(budgetID string, query AlertQuery) ([]*BudgetAlert, int64, error) {
+func (m *BudgetManager) GetAlertHistory(budgetID string, query AlertQuery) ([]*Alert, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
 	history, ok := m.alertHistory[budgetID]
 	if !ok {
-		return []*BudgetAlert{}, 0, nil
+		return []*Alert{}, 0, nil
 	}
 
-	var result []*BudgetAlert
+	var result []*Alert
 
 	for _, alert := range history {
 		if !matchAlertQuery(alert, query) {
@@ -544,7 +544,7 @@ func (m *BudgetManager) GetAlertHistory(budgetID string, query AlertQuery) ([]*B
 	start, end := getPaginationBounds(len(result), query.Page, query.PageSize)
 
 	if start >= len(result) {
-		return []*BudgetAlert{}, total, nil
+		return []*Alert{}, total, nil
 	}
 
 	return result[start:end], total, nil
@@ -618,7 +618,7 @@ func (m *BudgetManager) CheckAndResetBudgets() ([]*Budget, error) {
 // ========== 报告生成 ==========
 
 // GenerateReport 生成预算报告
-func (m *BudgetManager) GenerateReport(request BudgetReportRequest) (*BudgetReport, error) {
+func (m *BudgetManager) GenerateReport(request ReportRequest) (*Report, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -634,7 +634,7 @@ func (m *BudgetManager) GenerateReport(request BudgetReportRequest) (*BudgetRepo
 		endTime = *request.EndTime
 	}
 
-	report := &BudgetReport{
+	report := &Report{
 		ID:              uuid.New().String(),
 		Name:            "预算报告",
 		GeneratedAt:     now,
@@ -642,7 +642,7 @@ func (m *BudgetManager) GenerateReport(request BudgetReportRequest) (*BudgetRepo
 		BudgetDetails:   make([]BudgetDetail, 0),
 		UsageTrend:      make([]UsageTrendPoint, 0),
 		TopConsumers:    make([]TopConsumer, 0),
-		Alerts:          make([]BudgetAlert, 0),
+		Alerts:          make([]Alert, 0),
 		Recommendations: make([]BudgetRecommendation, 0),
 	}
 
@@ -656,10 +656,10 @@ func (m *BudgetManager) GenerateReport(request BudgetReportRequest) (*BudgetRepo
 		if len(request.BudgetIDs) > 0 && !containsString(request.BudgetIDs, budget.ID) {
 			continue
 		}
-		if len(request.Types) > 0 && !containsBudgetType(request.Types, budget.Type) {
+		if len(request.Types) > 0 && !containsType(request.Types, budget.Type) {
 			continue
 		}
-		if len(request.Scopes) > 0 && !containsBudgetScope(request.Scopes, budget.Scope) {
+		if len(request.Scopes) > 0 && !containsScope(request.Scopes, budget.Scope) {
 			continue
 		}
 
@@ -702,7 +702,7 @@ func (m *BudgetManager) GenerateReport(request BudgetReportRequest) (*BudgetRepo
 
 		// 关联预警
 		if alert, ok := m.alerts[budget.ID]; ok {
-			detail.Alerts = []BudgetAlert{*alert}
+			detail.Alerts = []Alert{*alert}
 		}
 
 		report.BudgetDetails = append(report.BudgetDetails, detail)
@@ -723,7 +723,7 @@ func (m *BudgetManager) GenerateReport(request BudgetReportRequest) (*BudgetRepo
 	sortTopConsumers(report.TopConsumers)
 
 	// 计算摘要
-	report.Summary = BudgetReportSummary{
+	report.Summary = ReportSummary{
 		TotalBudgets:      len(report.BudgetDetails),
 		ActiveBudgets:     countActiveBudgets(report.BudgetDetails),
 		TotalBudgetAmount: totalAmount,
@@ -753,8 +753,8 @@ func (m *BudgetManager) GetStats() *BudgetStats {
 	defer m.mu.RUnlock()
 
 	stats := &BudgetStats{
-		ByType:  make(map[BudgetType]TypeStats),
-		ByScope: make(map[BudgetScope]TypeStats),
+		ByType:  make(map[Type]TypeStats),
+		ByScope: make(map[Scope]TypeStats),
 	}
 
 	var totalAmount, totalUsed, totalRemaining float64
@@ -808,19 +808,19 @@ func (m *BudgetManager) GetStats() *BudgetStats {
 // ========== 辅助函数 ==========
 
 // calculateNextReset 计算下次重置时间
-func calculateNextReset(lastReset time.Time, period BudgetPeriod) *time.Time {
+func calculateNextReset(lastReset time.Time, period Period) *time.Time {
 	var next time.Time
 
 	switch period {
-	case BudgetPeriodDaily:
+	case PeriodDaily:
 		next = lastReset.AddDate(0, 0, 1)
-	case BudgetPeriodWeekly:
+	case PeriodWeekly:
 		next = lastReset.AddDate(0, 0, 7)
-	case BudgetPeriodMonthly:
+	case PeriodMonthly:
 		next = lastReset.AddDate(0, 1, 0)
-	case BudgetPeriodQuarter:
+	case PeriodQuarter:
 		next = lastReset.AddDate(0, 3, 0)
-	case BudgetPeriodYearly:
+	case PeriodYearly:
 		next = lastReset.AddDate(1, 0, 0)
 	default:
 		next = lastReset.AddDate(0, 1, 0)
@@ -842,10 +842,10 @@ func matchBudgetQuery(budget *Budget, query BudgetQuery) bool {
 	if len(query.IDs) > 0 && !containsString(query.IDs, budget.ID) {
 		return false
 	}
-	if len(query.Types) > 0 && !containsBudgetType(query.Types, budget.Type) {
+	if len(query.Types) > 0 && !containsType(query.Types, budget.Type) {
 		return false
 	}
-	if len(query.Scopes) > 0 && !containsBudgetScope(query.Scopes, budget.Scope) {
+	if len(query.Scopes) > 0 && !containsScope(query.Scopes, budget.Scope) {
 		return false
 	}
 	if len(query.Statuses) > 0 && !containsBudgetStatus(query.Statuses, budget.Status) {
@@ -870,7 +870,7 @@ func matchBudgetQuery(budget *Budget, query BudgetQuery) bool {
 }
 
 // matchUsageQuery 匹配使用记录查询
-func matchUsageQuery(usage *BudgetUsage, query UsageQuery) bool {
+func matchUsageQuery(usage *Usage, query UsageQuery) bool {
 	if len(query.SourceTypes) > 0 && !containsString(query.SourceTypes, usage.SourceType) {
 		return false
 	}
@@ -890,14 +890,14 @@ func matchUsageQuery(usage *BudgetUsage, query UsageQuery) bool {
 }
 
 // matchAlertQuery 匹配预警查询
-func matchAlertQuery(alert *BudgetAlert, query AlertQuery) bool {
+func matchAlertQuery(alert *Alert, query AlertQuery) bool {
 	if len(query.BudgetIDs) > 0 && !containsString(query.BudgetIDs, alert.BudgetID) {
 		return false
 	}
-	if len(query.Levels) > 0 && !containsAlertLevel(query.Levels, alert.Level) {
+	if len(query.Levels) > 0 && !containsLevel(query.Levels, alert.Level) {
 		return false
 	}
-	if len(query.Statuses) > 0 && !containsAlertStatus(query.Statuses, alert.Status) {
+	if len(query.Statuses) > 0 && !containsStatus(query.Statuses, alert.Status) {
 		return false
 	}
 	return true
@@ -931,8 +931,8 @@ func containsString(slice []string, s string) bool {
 	return false
 }
 
-// containsBudgetType 检查预算类型是否在切片中
-func containsBudgetType(slice []BudgetType, t BudgetType) bool {
+// containsType 检查预算类型是否在切片中
+func containsType(slice []Type, t Type) bool {
 	for _, item := range slice {
 		if item == t {
 			return true
@@ -941,8 +941,8 @@ func containsBudgetType(slice []BudgetType, t BudgetType) bool {
 	return false
 }
 
-// containsBudgetScope 检查预算范围是否在切片中
-func containsBudgetScope(slice []BudgetScope, s BudgetScope) bool {
+// containsScope 检查预算范围是否在切片中
+func containsScope(slice []Scope, s Scope) bool {
 	for _, item := range slice {
 		if item == s {
 			return true
@@ -961,8 +961,8 @@ func containsBudgetStatus(slice []BudgetStatus, s BudgetStatus) bool {
 	return false
 }
 
-// containsAlertLevel 检查预警级别是否在切片中
-func containsAlertLevel(slice []AlertLevel, l AlertLevel) bool {
+// containsLevel 检查预警级别是否在切片中
+func containsLevel(slice []Level, l Level) bool {
 	for _, item := range slice {
 		if item == l {
 			return true
@@ -971,8 +971,8 @@ func containsAlertLevel(slice []AlertLevel, l AlertLevel) bool {
 	return false
 }
 
-// containsAlertStatus 检查预警状态是否在切片中
-func containsAlertStatus(slice []AlertStatus, s AlertStatus) bool {
+// containsStatus 检查预警状态是否在切片中
+func containsStatus(slice []Status, s Status) bool {
 	for _, item := range slice {
 		if item == s {
 			return true
@@ -1049,7 +1049,7 @@ func calculateHealthScore(budget *Budget) int {
 }
 
 // calculateTrend 计算趋势
-func calculateTrend(usages []*BudgetUsage) string {
+func calculateTrend(usages []*Usage) string {
 	if len(usages) < 2 {
 		return "stable"
 	}
@@ -1079,7 +1079,7 @@ func calculateTrend(usages []*BudgetUsage) string {
 }
 
 // calculateDailyAvgUsage 计算日均使用量
-func calculateDailyAvgUsage(usages []*BudgetUsage, start, end time.Time) float64 {
+func calculateDailyAvgUsage(usages []*Usage, start, end time.Time) float64 {
 	if len(usages) == 0 {
 		return 0
 	}
@@ -1141,7 +1141,7 @@ func calculateOverallHealth(stats *BudgetStats) int {
 }
 
 // generateRecommendations 生成建议
-func generateRecommendations(details []BudgetDetail, summary BudgetReportSummary) []BudgetRecommendation {
+func generateRecommendations(details []BudgetDetail, summary ReportSummary) []BudgetRecommendation {
 	var recommendations []BudgetRecommendation
 
 	for _, d := range details {
@@ -1202,7 +1202,7 @@ const (
 )
 
 // sendAlertWithRetry 发送预警通知（带重试机制）
-func (m *BudgetManager) sendAlertWithRetry(alert *BudgetAlert) {
+func (m *BudgetManager) sendAlertWithRetry(alert *Alert) {
 	if m.notifier == nil {
 		return
 	}

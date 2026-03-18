@@ -17,13 +17,19 @@ import (
 
 var (
 	// ErrBillingNotFound 计费记录不存在错误
-	ErrBillingNotFound      = errors.New("计费记录不存在")
-	ErrInvoiceNotFound      = errors.New("发票不存在")
-	ErrUsageRecordNotFound  = errors.New("用量记录不存在")
+	ErrBillingNotFound = errors.New("计费记录不存在")
+	// ErrInvoiceNotFound 发票不存在错误
+	ErrInvoiceNotFound = errors.New("发票不存在")
+	// ErrUsageRecordNotFound 用量记录不存在错误
+	ErrUsageRecordNotFound = errors.New("用量记录不存在")
+	// ErrInvalidBillingPeriod 无效的计费周期错误
 	ErrInvalidBillingPeriod = errors.New("无效的计费周期")
-	ErrInvalidPricingModel  = errors.New("无效的计价模式")
-	ErrInvoiceAlreadyPaid   = errors.New("发票已支付")
-	ErrInvoiceAlreadyVoid   = errors.New("发票已作废")
+	// ErrInvalidPricingModel 无效的计价模式错误
+	ErrInvalidPricingModel = errors.New("无效的计价模式")
+	// ErrInvoiceAlreadyPaid 发票已支付错误
+	ErrInvoiceAlreadyPaid = errors.New("发票已支付")
+	// ErrInvoiceAlreadyVoid 发票已作废错误
+	ErrInvoiceAlreadyVoid = errors.New("发票已作废")
 )
 
 // ========== 计费配置 ==========
@@ -34,7 +40,7 @@ type Config struct {
 	Enabled           bool   `json:"enabled"`              // 是否启用计费
 	DefaultCurrency   string `json:"default_currency"`     // 默认货币（CNY, USD 等）
 	Cycle             Cycle  `json:"billing_cycle"`        // 计费周期
-	BillingDayOfMonth int          `json:"billing_day_of_month"` // 每月账单日（1-28）
+	BillingDayOfMonth int    `json:"billing_day_of_month"` // 每月账单日（1-28）
 
 	// 存储计费配置
 	StoragePricing   StoragePricingConfig   `json:"storage_pricing"`   // 存储计费配置

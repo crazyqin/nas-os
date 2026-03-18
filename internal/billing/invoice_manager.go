@@ -21,6 +21,7 @@ import (
 var (
 	// ErrInvoiceNumberExists 发票号码已存在错误
 	ErrInvoiceNumberExists = errors.New("发票号码已存在")
+	// ErrInvoiceExportFailed 发票导出失败错误
 	ErrInvoiceExportFailed = errors.New("发票导出失败")
 )
 

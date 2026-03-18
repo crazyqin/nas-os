@@ -1138,6 +1138,6 @@ func (rs *ReplicationServer) ReceiveSnapshot(req TransferRequest, data io.Reader
 func generateID() string {
 	h := sha256.New()
 	h.Write([]byte(time.Now().String()))
-	h.Write([]byte(fmt.Sprintf("%d", time.Now().UnixNano())))
+	fmt.Fprintf(h, "%d", time.Now().UnixNano())
 	return hex.EncodeToString(h.Sum(nil))[:16]
 }

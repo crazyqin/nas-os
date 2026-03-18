@@ -14,9 +14,12 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrInsufficientHistory   = errors.New("历史数据不足，无法进行预测")
+	// ErrInsufficientHistory 历史数据不足无法进行预测错误
+	ErrInsufficientHistory = errors.New("历史数据不足，无法进行预测")
+	// ErrInvalidForecastParams 无效的预测参数错误
 	ErrInvalidForecastParams = errors.New("无效的预测参数")
-	ErrForecastNotFound      = errors.New("预测不存在")
+	// ErrForecastNotFound 预测不存在错误
+	ErrForecastNotFound = errors.New("预测不存在")
 )
 
 // ========== 预测类型定义 ==========

@@ -14,8 +14,10 @@ import (
 
 var (
 	// ErrInvalidCostConfig 无效的成本配置错误
-	ErrInvalidCostConfig   = errors.New("无效的成本配置")
-	ErrInsufficientData    = errors.New("数据不足，无法计算成本")
+	ErrInvalidCostConfig = errors.New("无效的成本配置")
+	// ErrInsufficientData 数据不足无法计算成本错误
+	ErrInsufficientData = errors.New("数据不足，无法计算成本")
+	// ErrStoragePoolNotFound 存储池不存在错误
 	ErrStoragePoolNotFound = errors.New("存储池不存在")
 )
 

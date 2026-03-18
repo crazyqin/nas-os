@@ -70,13 +70,13 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Tags budget
 // @Accept json
 // @Produce json
-// @Param input body BudgetInput true "预算输入"
+// @Param input body Input true "预算输入"
 // @Success 201 {object} Budget
 // @Failure 400 {object} ErrorResponse
 // @Failure 409 {object} ErrorResponse
 // @Router /budgets [post]
 func (h *Handlers) CreateBudget(c *gin.Context) {
-	var input BudgetInput
+	var input Input
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
@@ -110,8 +110,8 @@ func (h *Handlers) CreateBudget(c *gin.Context) {
 // @Router /budgets [get]
 func (h *Handlers) ListBudgets(c *gin.Context) {
 	query := BudgetQuery{
-		Types:     parseBudgetTypes(c.QueryArray("type")),
-		Scopes:    parseBudgetScopes(c.QueryArray("scope")),
+		Types:     parseTypes(c.QueryArray("type")),
+		Scopes:    parseScopes(c.QueryArray("scope")),
 		Statuses:  parseBudgetStatuses(c.QueryArray("status")),
 		Page:      parseInt(c.Query("page"), 1),
 		PageSize:  parseInt(c.Query("page_size"), 20),
@@ -166,7 +166,7 @@ func (h *Handlers) GetBudget(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "预算ID"
-// @Param input body BudgetInput true "预算输入"
+// @Param input body Input true "预算输入"
 // @Success 200 {object} Budget
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
@@ -174,7 +174,7 @@ func (h *Handlers) GetBudget(c *gin.Context) {
 func (h *Handlers) UpdateBudget(c *gin.Context) {
 	id := c.Param("id")
 
-	var input BudgetInput
+	var input Input
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
@@ -239,7 +239,7 @@ func (h *Handlers) ResetBudget(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "预算ID"
-// @Param input body BudgetUsageInput true "使用输入"
+// @Param input body UsageInput true "使用输入"
 // @Success 201 {object} BudgetUsage
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
@@ -247,7 +247,7 @@ func (h *Handlers) ResetBudget(c *gin.Context) {
 func (h *Handlers) RecordUsage(c *gin.Context) {
 	id := c.Param("id")
 
-	var input BudgetUsageInput
+	var input UsageInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
@@ -414,8 +414,8 @@ func (h *Handlers) GetAlertHistory(c *gin.Context) {
 // @Router /alerts [get]
 func (h *Handlers) GetActiveAlerts(c *gin.Context) {
 	query := AlertQuery{
-		Levels:   parseAlertLevels(c.QueryArray("level")),
-		Statuses: parseAlertStatuses(c.QueryArray("status")),
+		Levels:   parseLevels(c.QueryArray("level")),
+		Statuses: parseStatuses(c.QueryArray("status")),
 		Page:     parseInt(c.Query("page"), 1),
 		PageSize: parseInt(c.Query("page_size"), 20),
 	}
@@ -478,11 +478,11 @@ func (h *Handlers) ResolveAlert(c *gin.Context) {
 // @Tags reports
 // @Accept json
 // @Produce json
-// @Param request body BudgetReportRequest true "报告请求"
+// @Param request body ReportRequest true "报告请求"
 // @Success 200 {object} BudgetReport
 // @Router /reports/budget [post]
 func (h *Handlers) GenerateReport(c *gin.Context) {
-	var request BudgetReportRequest
+	var request ReportRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
 		return
@@ -536,18 +536,18 @@ func parseInt(s string, defaultVal int) int {
 	return val
 }
 
-func parseBudgetTypes(types []string) []BudgetType {
-	var result []BudgetType
+func parseTypes(types []string) []Type {
+	var result []Type
 	for _, t := range types {
-		result = append(result, BudgetType(t))
+		result = append(result, Type(t))
 	}
 	return result
 }
 
-func parseBudgetScopes(scopes []string) []BudgetScope {
-	var result []BudgetScope
+func parseScopes(scopes []string) []Scope {
+	var result []Scope
 	for _, s := range scopes {
-		result = append(result, BudgetScope(s))
+		result = append(result, Scope(s))
 	}
 	return result
 }
@@ -560,18 +560,18 @@ func parseBudgetStatuses(statuses []string) []BudgetStatus {
 	return result
 }
 
-func parseAlertLevels(levels []string) []AlertLevel {
-	var result []AlertLevel
+func parseLevels(levels []string) []Level {
+	var result []Level
 	for _, l := range levels {
-		result = append(result, AlertLevel(l))
+		result = append(result, Level(l))
 	}
 	return result
 }
 
-func parseAlertStatuses(statuses []string) []AlertStatus {
-	var result []AlertStatus
+func parseStatuses(statuses []string) []Status {
+	var result []Status
 	for _, s := range statuses {
-		result = append(result, AlertStatus(s))
+		result = append(result, Status(s))
 	}
 	return result
 }
