@@ -9,14 +9,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/rwcarlsen/goexif/exif"
-	"golang.org/x/image/draw"
 	"image"
 	"image/jpeg"
 	"image/png"
 	"os/exec"
 	"strings"
+
+	"github.com/google/uuid"
+	"github.com/rwcarlsen/goexif/exif"
+	"golang.org/x/image/draw"
 )
 
 // Manager 相册管理器

@@ -166,15 +166,25 @@ func (e *EnhancedExporter) exportCSVEnhanced(report *GeneratedReport, path strin
 
 	// 写入 BOM（UTF-8）以支持 Excel 打开
 	if options.IncludeBOM {
-		buf.Write([]byte{0xEF, 0xBB, 0xBF})
+		if _, err := buf.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
+			return err
+		}
 	}
 
 	// 写入标题注释
 	if options.IncludeComments && options.Title != "" {
-		writer.Write([]string{"# " + options.Title})
-		writer.Write([]string{"# 生成时间: " + report.GeneratedAt.Format("2006-01-02 15:04:05")})
-		writer.Write([]string{"# 记录数: " + fmt.Sprintf("%d", report.TotalRecords)})
-		writer.Write([]string{}) // 空行
+		if err := writer.Write([]string{"# " + options.Title}); err != nil {
+			return err
+		}
+		if err := writer.Write([]string{"# 生成时间: " + report.GeneratedAt.Format("2006-01-02 15:04:05")}); err != nil {
+			return err
+		}
+		if err := writer.Write([]string{"# 记录数: " + fmt.Sprintf("%d", report.TotalRecords)}); err != nil {
+			return err
+		}
+		if err := writer.Write([]string{}); err != nil { // 空行
+			return err
+		}
 	}
 
 	// 获取列定义
@@ -194,7 +204,9 @@ func (e *EnhancedExporter) exportCSVEnhanced(report *GeneratedReport, path strin
 				headers = append(headers, col.Name)
 			}
 		}
-		writer.Write(headers)
+		if err := writer.Write(headers); err != nil {
+			return err
+		}
 	}
 
 	// 写入数据
@@ -204,15 +216,23 @@ func (e *EnhancedExporter) exportCSVEnhanced(report *GeneratedReport, path strin
 			val := row[col.Name]
 			values = append(values, e.formatCSVValue(val, col.Type))
 		}
-		writer.Write(values)
+		if err := writer.Write(values); err != nil {
+			return err
+		}
 	}
 
 	// 写入汇总行
 	if options.IncludeSummary && report.Summary != nil {
-		writer.Write([]string{}) // 空行
-		writer.Write([]string{"# 汇总信息"})
+		if err := writer.Write([]string{}); err != nil { // 空行
+			return err
+		}
+		if err := writer.Write([]string{"# 汇总信息"}); err != nil {
+			return err
+		}
 		for key, value := range report.Summary {
-			writer.Write([]string{key, e.formatCSVValue(value, FieldTypeString)})
+			if err := writer.Write([]string{key, e.formatCSVValue(value, FieldTypeString)}); err != nil {
+				return err
+			}
 		}
 	}
 
