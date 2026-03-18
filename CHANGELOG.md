@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.246.0] - 2026-03-19
+
+### Dependencies
+- golang.org/x/crypto v0.48.0 → v0.49.0
+- golang.org/x/net v0.51.0 → v0.52.0
+- google.golang.org/grpc v1.79.2 → v1.79.3
+- modernc.org/sqlite v1.34.5 → v1.47.0
+- go.etcd.io/bbolt v1.4.0 → v1.4.3
+- go.uber.org/zap v1.27.0 → v1.27.1
+- 其他依赖更新
+
+---
+
 ## [v2.245.0] - 2026-03-19
 
 ### Bug Fixes
