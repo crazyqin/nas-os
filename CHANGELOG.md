@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.235.0] - 2026-03-18
+
+### Bug Fixes
+- 修复 internal/web/middleware.go 中 6 处 errcheck 错误（Write/WriteString 返回值处理）
+
+---
+
 ## [v2.234.0] - 2026-03-18
 
 ### Bug Fixes
