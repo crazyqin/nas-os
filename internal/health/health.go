@@ -466,16 +466,13 @@ func (c *DiskSpaceChecker) Check(ctx context.Context) *CheckResult {
 		Details: make(map[string]interface{}),
 	}
 
-	var stat syscall.Statfs_t
-	err := syscall.Statfs(c.path, &stat)
+	totalBytes, freeBytes, err := getDiskStats(c.path)
 	if err != nil {
 		result.Status = StatusUnhealthy
 		result.Message = fmt.Sprintf("Failed to get disk stats: %v", err)
 		return result
 	}
 
-	totalBytes := stat.Blocks * uint64(stat.Bsize)
-	freeBytes := stat.Bfree * uint64(stat.Bsize)
 	usedBytes := totalBytes - freeBytes
 	usedPercent := float64(usedBytes) / float64(totalBytes) * 100
 

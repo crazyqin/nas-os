@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-func TestNewHealthManager(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestNewManager(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	if manager == nil {
-		t.Fatal("NewHealthManager returned nil")
+		t.Fatal("NewManager returned nil")
 	}
 
 	if manager.timeout != 5*time.Second {
@@ -18,15 +18,15 @@ func TestNewHealthManager(t *testing.T) {
 	}
 }
 
-func TestNewHealthManagerWithConfig(t *testing.T) {
-	config := &HealthConfig{
+func TestNewManagerWithConfig(t *testing.T) {
+	config := &Config{
 		Timeout:       3 * time.Second,
 		CheckInterval: 30 * time.Second,
 		Version:       "1.0.0",
 	}
-	manager := NewHealthManagerWithConfig(config)
+	manager := NewManagerWithConfig(config)
 	if manager == nil {
-		t.Fatal("NewHealthManagerWithConfig returned nil")
+		t.Fatal("NewManagerWithConfig returned nil")
 	}
 
 	if manager.timeout != 3*time.Second {
@@ -34,8 +34,8 @@ func TestNewHealthManagerWithConfig(t *testing.T) {
 	}
 }
 
-func TestHealthManager_RegisterChecker(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_RegisterChecker(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	checker := NewMemoryChecker(80.0)
 
 	manager.RegisterChecker(checker)
@@ -45,8 +45,8 @@ func TestHealthManager_RegisterChecker(t *testing.T) {
 	}
 }
 
-func TestHealthManager_RemoveChecker(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_RemoveChecker(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	checker := NewMemoryChecker(80.0)
 
 	manager.RegisterChecker(checker)
@@ -57,8 +57,8 @@ func TestHealthManager_RemoveChecker(t *testing.T) {
 	}
 }
 
-func TestHealthManager_GetChecker(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_GetChecker(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	checker := NewMemoryChecker(80.0)
 	manager.RegisterChecker(checker)
 
@@ -71,8 +71,8 @@ func TestHealthManager_GetChecker(t *testing.T) {
 	}
 }
 
-func TestHealthManager_ListCheckers(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_ListCheckers(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 	manager.RegisterChecker(NewDiskSpaceChecker("disk", 80.0))
 
@@ -82,8 +82,8 @@ func TestHealthManager_ListCheckers(t *testing.T) {
 	}
 }
 
-func TestHealthManager_RunCheck(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_RunCheck(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	checker := NewMemoryChecker(80.0)
 	manager.RegisterChecker(checker)
 
@@ -107,8 +107,8 @@ func TestHealthManager_RunCheck(t *testing.T) {
 	}
 }
 
-func TestHealthManager_RunCheck_NotFound(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_RunCheck_NotFound(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 
 	ctx := context.Background()
 	_, err := manager.RunCheck(ctx, "nonexistent")
@@ -118,8 +118,8 @@ func TestHealthManager_RunCheck_NotFound(t *testing.T) {
 	}
 }
 
-func TestHealthManager_RunAllChecks(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_RunAllChecks(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 
 	ctx := context.Background()
@@ -142,8 +142,8 @@ func TestHealthManager_RunAllChecks(t *testing.T) {
 	}
 }
 
-func TestHealthManager_GetLastResult(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_GetLastResult(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 
 	ctx := context.Background()
@@ -161,8 +161,8 @@ func TestHealthManager_GetLastResult(t *testing.T) {
 	}
 }
 
-func TestHealthManager_GetAllLastResults(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_GetAllLastResults(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 	manager.RegisterChecker(NewDiskSpaceChecker("disk", 80.0))
 
@@ -372,7 +372,7 @@ func TestProcessChecker(t *testing.T) {
 }
 
 func TestCustomChecker(t *testing.T) {
-	checker := NewCustomChecker("custom-test", func(ctx context.Context) (HealthStatus, string, map[string]interface{}) {
+	checker := NewCustomChecker("custom-test", func(ctx context.Context) (Status, string, map[string]interface{}) {
 		return StatusHealthy, "custom check passed", map[string]interface{}{
 			"custom_value": 123,
 		}
@@ -403,16 +403,16 @@ func TestCustomChecker_Nil(t *testing.T) {
 	}
 }
 
-func TestHealthManager_IsHealthy(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_IsHealthy(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 
 	healthy := manager.IsHealthy()
 	t.Logf("IsHealthy: %v", healthy)
 }
 
-func TestHealthReport_Summary(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestReport_Summary(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 	manager.RegisterChecker(NewDiskSpaceChecker("disk", 80.0))
 
@@ -429,8 +429,8 @@ func TestHealthReport_Summary(t *testing.T) {
 	}
 }
 
-func TestHealthManager_GenerateReport(t *testing.T) {
-	manager := NewHealthManager(5 * time.Second)
+func TestManager_GenerateReport(t *testing.T) {
+	manager := NewManager(5 * time.Second)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 
 	ctx := context.Background()
@@ -445,8 +445,8 @@ func TestHealthManager_GenerateReport(t *testing.T) {
 	}
 }
 
-func TestHealthChecker_ContextCancellation(t *testing.T) {
-	manager := NewHealthManager(1 * time.Nanosecond)
+func TestChecker_ContextCancellation(t *testing.T) {
+	manager := NewManager(1 * time.Nanosecond)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 
 	// 极短超时可能导致检查失败，但不会 panic
@@ -454,8 +454,8 @@ func TestHealthChecker_ContextCancellation(t *testing.T) {
 	_ = manager.RunAllChecks(ctx)
 }
 
-func TestHealthStatus_String(t *testing.T) {
-	statuses := []HealthStatus{StatusHealthy, StatusUnhealthy, StatusDegraded}
+func TestStatus_String(t *testing.T) {
+	statuses := []Status{StatusHealthy, StatusUnhealthy, StatusDegraded}
 	for _, s := range statuses {
 		if string(s) == "" {
 			t.Errorf("Status should have string representation")
@@ -473,8 +473,8 @@ func TestCheckType_String(t *testing.T) {
 }
 
 // 集成测试
-func TestHealthManager_Integration(t *testing.T) {
-	manager := NewHealthManager(10 * time.Second)
+func TestManager_Integration(t *testing.T) {
+	manager := NewManager(10 * time.Second)
 
 	// 注册多种检查器
 	manager.RegisterChecker(NewMemoryChecker(90.0))
@@ -484,7 +484,7 @@ func TestHealthManager_Integration(t *testing.T) {
 	manager.RegisterChecker(NewDirChecker("dir-tmp", "/tmp"))
 
 	// 添加自定义检查器
-	manager.RegisterChecker(NewCustomChecker("app-health", func(ctx context.Context) (HealthStatus, string, map[string]interface{}) {
+	manager.RegisterChecker(NewCustomChecker("app-health", func(ctx context.Context) (Status, string, map[string]interface{}) {
 		return StatusHealthy, "application is running", map[string]interface{}{
 			"uptime_seconds": 3600,
 		}
@@ -521,8 +521,8 @@ func BenchmarkMemoryChecker_Check(b *testing.B) {
 	}
 }
 
-func BenchmarkHealthManager_RunAllChecks(b *testing.B) {
-	manager := NewHealthManager(5 * time.Second)
+func BenchmarkManager_RunAllChecks(b *testing.B) {
+	manager := NewManager(5 * time.Second)
 	manager.RegisterChecker(NewMemoryChecker(80.0))
 	manager.RegisterChecker(NewDiskSpaceChecker("disk", 80.0))
 	manager.RegisterChecker(NewDNSChecker("dns", "localhost", 5*time.Second))

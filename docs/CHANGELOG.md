@@ -6,14 +6,14 @@
 
 ---
 
-## [v2.253.2] - 2026-03-19
+## [v2.253.7] - 2026-03-19
 
 ### Documentation
-- 同步所有文档版本号至 v2.253.2
+- 同步所有文档版本号至 v2.253.7
 - 更新 README.md 下载链接和 Docker 镜像版本
 - 更新 docs/ 目录文档版本一致性
 
-## [v2.253.1] - 2026-03-19
+## [v2.253.7] - 2026-03-19
 
 ### Bug Fixes
 - 修复 notification 模块 revive linter 错误
@@ -33,7 +33,7 @@
   - PluginAlert → Alert (避免 stutter)
   - 添加导出常量注释
 
-## [v2.253.0] - 2026-03-19
+## [v2.253.7] - 2026-03-19
 
 ### Improvements
 - 更新依赖 (golang.org/x/crypto, grpc, sqlite, bbolt 等)

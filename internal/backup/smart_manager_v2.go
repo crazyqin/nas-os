@@ -16,7 +16,6 @@ import (
 	"runtime"
 	"sort"
 	"sync"
-	"syscall"
 	"time"
 
 	"go.uber.org/zap"
@@ -712,10 +711,8 @@ func (sm *SmartManagerV2) HealthCheck() (*HealthCheckResult, error) {
 		Details:   make(map[string]interface{}),
 	}
 
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs(sm.config.BackupPath, &stat); err == nil {
-		freeSpace := stat.Bavail * uint64(stat.Bsize)
-		result.Details["free_space"] = humanReadableSize(int64(freeSpace))
+	if freeSpace, err := getFreeSpace(sm.config.BackupPath); err == nil {
+		result.Details["free_space"] = humanReadableSize(freeSpace)
 	}
 
 	sm.mu.RLock()
