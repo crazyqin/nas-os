@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.5] - 2026-03-19
+
+### Improvements
+- 改进日志输出标准化 (fmt.Printf → log.Printf)
+- 更新安全审计报告
+- 清理 CI/CD 配置冗余注释
+- 添加 .env.example 生产环境配置示例
+- 补充 quota 模块测试覆盖
+
+### Documentation
+- 同步所有文档版本号至 v2.253.3
+
+### Tests
+- 添加 CleanupEnhancedManager 测试
+
 ## [v2.253.4] - 2026-03-19
 
 ### Bug Fixes
