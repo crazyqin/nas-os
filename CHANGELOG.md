@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.252.0] - 2026-03-19
+
+### Bug Fixes
+- 修复 resource_visualization_api.go 缺少 fmt 导入问题
+
+### Improvements
+- 同步 VERSION 文件到最新发布版本
+
+---
+
 ## [v2.241.0] - 2026-03-19
 
 ### Bug Fixes
