@@ -44,12 +44,12 @@ func NewManager(storagePath string, logger *zap.Logger) (*Manager, error) {
 	}
 
 	// 创建存储目录
-	if err := os.MkdirAll(storagePath, 0755); err != nil {
+	if err := os.MkdirAll(storagePath, 0750); err != nil {
 		return nil, fmt.Errorf("创建 VM 存储目录失败：%w", err)
 	}
 
 	isoPath := filepath.Join(filepath.Dir(storagePath), "isos")
-	if err := os.MkdirAll(isoPath, 0755); err != nil {
+	if err := os.MkdirAll(isoPath, 0750); err != nil {
 		return nil, fmt.Errorf("创建 ISO 存储目录失败：%w", err)
 	}
 
@@ -278,7 +278,7 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 
 	// 创建 VM 目录
 	vmDir := filepath.Join(m.storagePath, vmID)
-	if err := os.MkdirAll(vmDir, 0755); err != nil {
+	if err := os.MkdirAll(vmDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建 VM 目录失败：%w", err)
 	}
 

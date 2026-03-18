@@ -75,7 +75,7 @@ func NewReportGenerator(outputDir string) *ReportGenerator {
 // Generate 生成测试报告
 func (g *ReportGenerator) Generate(report *TestReport) error {
 	// 确保输出目录存在
-	if err := os.MkdirAll(g.outputDir, 0755); err != nil {
+	if err := os.MkdirAll(g.outputDir, 0750); err != nil {
 		return fmt.Errorf("创建输出目录失败: %w", err)
 	}
 

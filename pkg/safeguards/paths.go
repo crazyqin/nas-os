@@ -146,6 +146,7 @@ func SafeReadFile(baseDir, userPath string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	// #nosec G304 -- safePath is validated by SecureJoin above
 	return os.ReadFile(safePath)
 }
 
@@ -158,7 +159,7 @@ func SafeWriteFile(baseDir, userPath string, data []byte, perm os.FileMode) erro
 
 	// Ensure parent directory exists
 	dir := filepath.Dir(safePath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return err
 	}
 
