@@ -1,7 +1,7 @@
 [
   {
-    "id": "d537e246-f9a9-4b70-a8ec-93bedd747cbd",
-    "timestamp": "2026-03-19T05:26:40.458082361+08:00",
+    "id": "0578d104-f8a0-4cee-9cfd-eafa05417b90",
+    "timestamp": "2026-03-19T06:08:24.138168471+08:00",
     "event_type": "success",
     "user_id": "user-001",
     "username": "user1",
@@ -13,9 +13,9 @@
       "country_code": "XX"
     },
     "status": "success",
-    "session_id": "56dea7fc-5eb4-4bf7-9cc5-6ec981f5f02f",
-    "previous_login": "2026-03-19T05:26:40.458082361+08:00",
-    "risk_score": 10,
+    "session_id": "ae84d775-a2f1-4c8d-9c86-934e26b8364e",
+    "previous_login": "2026-03-19T06:08:24.138168471+08:00",
+    "risk_score": 0,
     "risk_factors": []
   }
 ]

@@ -95,7 +95,7 @@ func (l *AccessAuditLogger) writeToFile(entry AccessAuditEntry) error {
 }
 
 // Query 查询审计日志
-func (l *AccessAuditLogger) Query(ctx context.Context, filter AuditFilter) ([]AccessAuditEntry, error) {
+func (l *AccessAuditLogger) Query(ctx context.Context, filter Filter) ([]AccessAuditEntry, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 
@@ -122,8 +122,8 @@ func (l *AccessAuditLogger) Disable() {
 	l.enabled = false
 }
 
-// AuditFilter 审计过滤器
-type AuditFilter struct {
+// Filter 审计过滤器
+type Filter struct {
 	UserID    string
 	Action    string
 	Resource  string
@@ -133,7 +133,7 @@ type AuditFilter struct {
 }
 
 // Match 匹配过滤条件
-func (f AuditFilter) Match(entry AccessAuditEntry) bool {
+func (f Filter) Match(entry AccessAuditEntry) bool {
 	if f.UserID != "" && entry.UserID != f.UserID {
 		return false
 	}

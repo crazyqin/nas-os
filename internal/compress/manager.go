@@ -180,7 +180,7 @@ func (m *Manager) ShouldCompress(path string, size int64) bool {
 }
 
 // CompressFile 压缩文件
-func (m *Manager) CompressFile(srcPath, dstPath string) (*CompressResult, error) {
+func (m *Manager) CompressFile(srcPath, dstPath string) (*Result, error) {
 	m.mu.RLock()
 	algorithm := m.config.DefaultAlgorithm
 	level := m.config.CompressionLevel
@@ -206,7 +206,7 @@ func (m *Manager) CompressFile(srcPath, dstPath string) (*CompressResult, error)
 
 	// 检查是否应该压缩
 	if !m.ShouldCompress(srcPath, srcInfo.Size()) {
-		return &CompressResult{
+		return &Result{
 			Skipped:      true,
 			SkipReason:   "不符合压缩条件",
 			OriginalSize: srcInfo.Size(),
@@ -235,7 +235,7 @@ func (m *Manager) CompressFile(srcPath, dstPath string) (*CompressResult, error)
 	}
 
 	// 更新统计
-	result := &CompressResult{
+	result := &Result{
 		Skipped:        false,
 		OriginalSize:   srcInfo.Size(),
 		CompressedSize: dstInfo.Size(),
@@ -303,8 +303,8 @@ func (m *Manager) GetStats() *Stats {
 	return m.stats
 }
 
-// CompressResult 压缩结果
-type CompressResult struct {
+// Result 压缩结果
+type Result struct {
 	Skipped        bool          `json:"skipped"`
 	SkipReason     string        `json:"skip_reason,omitempty"`
 	OriginalSize   int64         `json:"original_size"`
@@ -370,6 +370,7 @@ func (s *Stats) Reset() {
 // GzipCompressor Gzip 压缩器
 type GzipCompressor struct{}
 
+// Compress 使用 Gzip 算法压缩数据
 func (c *GzipCompressor) Compress(dst io.Writer, src io.Reader, level int) error {
 	writer, err := gzip.NewWriterLevel(dst, level)
 	if err != nil {
@@ -383,6 +384,7 @@ func (c *GzipCompressor) Compress(dst io.Writer, src io.Reader, level int) error
 	return err
 }
 
+// Decompress 使用 Gzip 算法解压数据
 func (c *GzipCompressor) Decompress(dst io.Writer, src io.Reader) error {
 	reader, err := gzip.NewReader(src)
 	if err != nil {
@@ -396,10 +398,12 @@ func (c *GzipCompressor) Decompress(dst io.Writer, src io.Reader) error {
 	return err
 }
 
+// Extension 返回 Gzip 文件扩展名
 func (c *GzipCompressor) Extension() string {
 	return ".gz"
 }
 
+// Name 返回 Gzip 算法名称
 func (c *GzipCompressor) Name() Algorithm {
 	return AlgorithmGzip
 }
@@ -407,21 +411,25 @@ func (c *GzipCompressor) Name() Algorithm {
 // ZstdCompressor Zstd 压缩器 (需要 cgo 或纯 Go 实现)
 type ZstdCompressor struct{}
 
+// Compress 使用 Zstd 算法压缩数据
 func (c *ZstdCompressor) Compress(dst io.Writer, src io.Reader, level int) error {
 	// 简化实现：使用 gzip 作为后备
 	// 生产环境应使用 github.com/klauspost/compress/zstd
 	return (&GzipCompressor{}).Compress(dst, src, level)
 }
 
+// Decompress 使用 Zstd 算法解压数据
 func (c *ZstdCompressor) Decompress(dst io.Writer, src io.Reader) error {
 	// 简化实现
 	return errors.New("zstd not implemented, use gzip")
 }
 
+// Extension 返回 Zstd 文件扩展名
 func (c *ZstdCompressor) Extension() string {
 	return ".zst"
 }
 
+// Name 返回 Zstd 算法名称
 func (c *ZstdCompressor) Name() Algorithm {
 	return AlgorithmZstd
 }
@@ -429,20 +437,24 @@ func (c *ZstdCompressor) Name() Algorithm {
 // Lz4Compressor LZ4 压缩器
 type Lz4Compressor struct{}
 
+// Compress 使用 LZ4 算法压缩数据
 func (c *Lz4Compressor) Compress(dst io.Writer, src io.Reader, level int) error {
 	// 简化实现：使用 gzip 作为后备
 	// 生产环境应使用 github.com/pierrec/lz4
 	return (&GzipCompressor{}).Compress(dst, src, level)
 }
 
+// Decompress 使用 LZ4 算法解压数据
 func (c *Lz4Compressor) Decompress(dst io.Writer, src io.Reader) error {
 	return errors.New("lz4 not implemented, use gzip")
 }
 
+// Extension 返回 LZ4 文件扩展名
 func (c *Lz4Compressor) Extension() string {
 	return ".lz4"
 }
 
+// Name 返回 LZ4 算法名称
 func (c *Lz4Compressor) Name() Algorithm {
 	return AlgorithmLz4
 }
@@ -553,7 +565,7 @@ func (m *Manager) SelectAlgorithmForFile(path string, size int64) (Algorithm, st
 }
 
 // SmartCompressFile 智能压缩文件（自动选择算法）
-func (m *Manager) SmartCompressFile(srcPath, dstPath string) (*CompressResult, error) {
+func (m *Manager) SmartCompressFile(srcPath, dstPath string) (*Result, error) {
 	// 获取文件信息
 	srcInfo, err := os.Stat(srcPath)
 	if err != nil {
@@ -563,7 +575,7 @@ func (m *Manager) SmartCompressFile(srcPath, dstPath string) (*CompressResult, e
 	// 自动选择算法
 	algorithm, reason, skip := m.SelectAlgorithmForFile(srcPath, srcInfo.Size())
 	if skip {
-		return &CompressResult{
+		return &Result{
 			Skipped:      true,
 			SkipReason:   reason,
 			OriginalSize: srcInfo.Size(),
@@ -576,7 +588,7 @@ func (m *Manager) SmartCompressFile(srcPath, dstPath string) (*CompressResult, e
 }
 
 // CompressFileWithAlgorithm 使用指定算法压缩文件
-func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm Algorithm) (*CompressResult, error) {
+func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm Algorithm) (*Result, error) {
 	compressor, ok := m.compressors[algorithm]
 	if !ok {
 		return nil, fmt.Errorf("unsupported algorithm: %s", algorithm)
@@ -622,7 +634,7 @@ func (m *Manager) CompressFileWithAlgorithm(srcPath, dstPath string, algorithm A
 		return nil, err
 	}
 
-	result := &CompressResult{
+	result := &Result{
 		Skipped:        false,
 		OriginalSize:   srcInfo.Size(),
 		CompressedSize: dstInfo.Size(),
@@ -822,7 +834,7 @@ func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, r
 
 		// 执行压缩
 		dstPath := path
-		var compressResult *CompressResult
+		var compressResult *Result
 
 		if opts.Algorithm != "" {
 			compressResult, err = m.CompressFileWithAlgorithm(path, dstPath, opts.Algorithm)
