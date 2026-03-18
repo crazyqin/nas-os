@@ -149,8 +149,8 @@ func (im *IntegrityManager) GenerateMerkleRoot(entries []*Entry) string {
 	return hex.EncodeToString(hashes[0])
 }
 
-// AuditProof 审计证明
-type AuditProof struct {
+// Proof 审计证明
+type Proof struct {
 	EntryID    string    `json:"entry_id"`
 	Timestamp  time.Time `json:"timestamp"`
 	RootHash   string    `json:"root_hash"`
@@ -159,7 +159,7 @@ type AuditProof struct {
 }
 
 // GenerateAuditProof 生成审计证明
-func (im *IntegrityManager) GenerateAuditProof(entries []*Entry, entryID string) (*AuditProof, error) {
+func (im *IntegrityManager) GenerateAuditProof(entries []*Entry, entryID string) (*Proof, error) {
 	// 找到目标条目
 	var targetEntry *Entry
 	var targetIndex int
@@ -181,7 +181,7 @@ func (im *IntegrityManager) GenerateAuditProof(entries []*Entry, entryID string)
 	// 构建证明路径
 	proofPath := im.buildMerkleProof(entries, targetIndex)
 
-	return &AuditProof{
+	return &Proof{
 		EntryID:    entryID,
 		Timestamp:  targetEntry.Timestamp,
 		RootHash:   rootHash,
@@ -239,7 +239,7 @@ func (im *IntegrityManager) buildMerkleProof(entries []*Entry, targetIndex int) 
 }
 
 // VerifyAuditProof 验证审计证明
-func (im *IntegrityManager) VerifyAuditProof(proof *AuditProof, entry *Entry) bool {
+func (im *IntegrityManager) VerifyAuditProof(proof *Proof, entry *Entry) bool {
 	// 计算条目哈希
 	h := sha256.New()
 	data, _ := json.Marshal(entry)

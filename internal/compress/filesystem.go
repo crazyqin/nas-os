@@ -66,7 +66,7 @@ func (fs *FileSystem) Create(name string) (io.WriteCloser, error) {
 	// 检查是否应该压缩
 	if fs.manager.config.CompressOnWrite {
 		// 创建延迟压缩写入器
-		return NewCompressWriter(path, fs.manager)
+		return NewWriter(path, fs.manager)
 	}
 
 	return os.Create(path)
@@ -177,8 +177,8 @@ func (fs *FileSystem) openCompressed(path string) (io.ReadCloser, error) {
 	return NewDecompressReader(file, algorithm)
 }
 
-// CompressWriter 延迟压缩写入器
-type CompressWriter struct {
+// Writer 延迟压缩写入器
+type Writer struct {
 	file       *os.File
 	manager    *Manager
 	path       string
@@ -188,8 +188,8 @@ type CompressWriter struct {
 	closed     bool
 }
 
-// NewCompressWriter 创建压缩写入器
-func NewCompressWriter(path string, manager *Manager) (*CompressWriter, error) {
+// NewWriter 创建压缩写入器
+func NewWriter(path string, manager *Manager) (*Writer, error) {
 	// 创建临时文件
 	bufferPath := path + ".tmp"
 	file, err := os.Create(bufferPath)
@@ -197,7 +197,7 @@ func NewCompressWriter(path string, manager *Manager) (*CompressWriter, error) {
 		return nil, err
 	}
 
-	return &CompressWriter{
+	return &Writer{
 		file:       file,
 		manager:    manager,
 		path:       path,
@@ -207,14 +207,14 @@ func NewCompressWriter(path string, manager *Manager) (*CompressWriter, error) {
 }
 
 // Write 写入数据
-func (w *CompressWriter) Write(p []byte) (int, error) {
+func (w *Writer) Write(p []byte) (int, error) {
 	n, err := w.file.Write(p)
 	w.bytesWrite += int64(n)
 	return n, err
 }
 
 // Close 关闭并压缩
-func (w *CompressWriter) Close() error {
+func (w *Writer) Close() error {
 	if w.closed {
 		return nil
 	}

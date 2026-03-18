@@ -15,26 +15,41 @@ import (
 type SecurityEvent string
 
 const (
-	EventLoginSuccess       SecurityEvent = "login_success"
-	EventLoginFailed        SecurityEvent = "login_failed"
-	EventLogout             SecurityEvent = "logout"
-	EventPasswordChange     SecurityEvent = "password_change"
-	EventPermissionChange   SecurityEvent = "permission_change"
-	EventAccessDenied       SecurityEvent = "access_denied"
+	// EventLoginSuccess 登录成功事件
+	EventLoginSuccess SecurityEvent = "login_success"
+	// EventLoginFailed 登录失败事件
+	EventLoginFailed SecurityEvent = "login_failed"
+	// EventLogout 登出事件
+	EventLogout SecurityEvent = "logout"
+	// EventPasswordChange 密码修改事件
+	EventPasswordChange SecurityEvent = "password_change"
+	// EventPermissionChange 权限变更事件
+	EventPermissionChange SecurityEvent = "permission_change"
+	// EventAccessDenied 访问拒绝事件
+	EventAccessDenied SecurityEvent = "access_denied"
+	// EventSuspiciousActivity 可疑活动事件
 	EventSuspiciousActivity SecurityEvent = "suspicious_activity"
-	EventAccountLocked      SecurityEvent = "account_locked"
-	EventAccountUnlocked    SecurityEvent = "account_unlocked"
-	EventMFAEnabled         SecurityEvent = "mfa_enabled"
-	EventMFADisabled        SecurityEvent = "mfa_disabled"
+	// EventAccountLocked 账户锁定事件
+	EventAccountLocked SecurityEvent = "account_locked"
+	// EventAccountUnlocked 账户解锁事件
+	EventAccountUnlocked SecurityEvent = "account_unlocked"
+	// EventMFAEnabled MFA启用事件
+	EventMFAEnabled SecurityEvent = "mfa_enabled"
+	// EventMFADisabled MFA禁用事件
+	EventMFADisabled SecurityEvent = "mfa_disabled"
 )
 
 // SecurityLogLevel 安全日志级别
 type SecurityLogLevel string
 
 const (
-	LogLevelInfo     SecurityLogLevel = "info"
-	LogLevelWarning  SecurityLogLevel = "warning"
-	LogLevelError    SecurityLogLevel = "error"
+	// LogLevelInfo 信息级别
+	LogLevelInfo SecurityLogLevel = "info"
+	// LogLevelWarning 警告级别
+	LogLevelWarning SecurityLogLevel = "warning"
+	// LogLevelError 错误级别
+	LogLevelError SecurityLogLevel = "error"
+	// LogLevelCritical 严重级别
 	LogLevelCritical SecurityLogLevel = "critical"
 )
 

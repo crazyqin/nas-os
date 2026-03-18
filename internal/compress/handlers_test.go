@@ -100,8 +100,8 @@ func TestBatchCompressRequest_Struct(t *testing.T) {
 	}
 }
 
-func TestCompressFileRequest_Struct(t *testing.T) {
-	req := CompressFileRequest{
+func TestFileRequest_Struct(t *testing.T) {
+	req := FileRequest{
 		SrcPath: "/data/file.txt",
 		DstPath: "/data/file.txt.zst",
 	}

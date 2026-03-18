@@ -226,8 +226,8 @@ func (h *Handlers) BatchCompress(c *gin.Context) {
 	})
 }
 
-// CompressFileRequest 压缩文件请求
-type CompressFileRequest struct {
+// FileRequest 压缩文件请求
+type FileRequest struct {
 	SrcPath string `json:"src_path" binding:"required"`
 	DstPath string `json:"dst_path"`
 }
@@ -238,11 +238,11 @@ type CompressFileRequest struct {
 // @Tags compress
 // @Accept json
 // @Produce json
-// @Param request body CompressFileRequest true "请求"
+// @Param request body FileRequest true "请求"
 // @Success 200 {object} map[string]interface{} "成功"
 // @Router /compress/compress [post]
 func (h *Handlers) CompressFile(c *gin.Context) {
-	var req CompressFileRequest
+	var req FileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
