@@ -318,7 +318,7 @@ func (lc *LogCollector) readLogFile(source *LogSource) ([]*LogEntry, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 定位到上次读取位置
 	if source.LastReadPos > 0 {
@@ -712,7 +712,7 @@ func (s *FileLogStorage) Write(entry *LogEntry) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	data, err := json.Marshal(entry)
 	if err != nil {
@@ -806,7 +806,7 @@ func (s *FileLogStorage) queryFile(filename string, filter *LogQueryFilter) ([]*
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var entries []*LogEntry
 	scanner := bufio.NewScanner(f)
@@ -906,17 +906,17 @@ func (s *FileLogStorage) compressFile(filename string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	gzFile := filename + ".gz"
 	gz, err := os.Create(gzFile)
 	if err != nil {
 		return err
 	}
-	defer gz.Close()
+	defer func() { _ = gz.Close() }()
 
 	w := gzip.NewWriter(gz)
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	_, err = io.Copy(w, f)
 	if err != nil {

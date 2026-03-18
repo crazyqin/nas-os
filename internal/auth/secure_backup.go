@@ -172,6 +172,7 @@ func (m *SecureBackupCodeManager) VerifyBackupCode(userID, code string) error {
 			if err := m.save(); err != nil {
 				// 验证成功但保存失败，记录错误但不影响验证结果
 				// 后续可通过定期清理或重试机制处理
+				_ = err // preserved for future error handling
 			}
 			return nil
 		}

@@ -793,7 +793,7 @@ func (h *EnhancedExportAPIHandlers) previewExport(c *gin.Context) {
 		"preview_data":  req.Report.Data,
 	}
 
-	if len(preview["preview_data"].([]map[string]interface{})) > limit {
+	if previewData, ok := preview["preview_data"].([]map[string]interface{}); ok && len(previewData) > limit {
 		preview["preview_data"] = req.Report.Data[:limit]
 	}
 

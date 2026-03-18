@@ -548,7 +548,7 @@ func TestAuditedManager_DeletePolicyWithAudit(t *testing.T) {
 	auditedMgr := am.WrapManager(m)
 
 	// 先创建策略
-	policy, _ := auditedMgr.Manager.CreatePolicy(
+	policy, _ := auditedMgr.CreatePolicy(
 		"test-policy", "测试策略",
 		EffectAllow,
 		[]string{"user1"},

@@ -120,9 +120,10 @@ func (la *LoginAuditor) RecordLogin(
 	}
 
 	// 设置事件类型
-	if status == "failure" {
+	switch status {
+	case "failure":
 		entry.EventType = LoginEventFailure
-	} else if status == "success" {
+	case "success":
 		entry.EventType = LoginEventSuccess
 	}
 

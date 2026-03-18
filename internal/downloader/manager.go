@@ -763,7 +763,7 @@ type TransmissionStats struct {
 // getTransmissionStats 从 Transmission 获取统计信息
 func (m *Manager) getTransmissionStats(taskID string) (*TransmissionStats, error) {
 	if m.transmissionClient == nil {
-		return nil, fmt.Errorf("Transmission 客户端未初始化")
+		return nil, fmt.Errorf("transmission 客户端未初始化")
 	}
 
 	// 获取任务信息

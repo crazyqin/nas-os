@@ -227,7 +227,7 @@ func (s *Scheduler) tick() {
 // scheduleCronTask 安排 Cron 任务
 func (s *Scheduler) scheduleCronTask(task *Task) error {
 	if task.CronExpression == "" {
-		return fmt.Errorf("Cron 表达式为空")
+		return fmt.Errorf("cron 表达式为空")
 	}
 
 	expr, err := NewCronExpression(task.CronExpression, CronParseOptions{Second: true})

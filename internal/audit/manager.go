@@ -732,7 +732,7 @@ func (m *Manager) exportToCSV(entries []*Entry) ([]byte, error) {
 	csv.WriteString("ID,Timestamp,Level,Category,Event,UserID,Username,IP,Resource,Action,Status,Message\n")
 
 	for _, e := range entries {
-		csv.WriteString(fmt.Sprintf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+		fmt.Fprintf(&csv, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
 			e.ID,
 			e.Timestamp.Format(time.RFC3339),
 			string(e.Level),
@@ -745,7 +745,7 @@ func (m *Manager) exportToCSV(entries []*Entry) ([]byte, error) {
 			e.Action,
 			string(e.Status),
 			strings.ReplaceAll(e.Message, ",", ";"),
-		))
+		)
 	}
 
 	return []byte(csv.String()), nil
@@ -759,29 +759,29 @@ func (m *Manager) exportToXML(entries []*Entry) ([]byte, error) {
 
 	for _, e := range entries {
 		xml.WriteString("<entry>")
-		xml.WriteString(fmt.Sprintf("<id>%s</id>", e.ID))
-		xml.WriteString(fmt.Sprintf("<timestamp>%s</timestamp>", e.Timestamp.Format(time.RFC3339)))
-		xml.WriteString(fmt.Sprintf("<level>%s</level>", e.Level))
-		xml.WriteString(fmt.Sprintf("<category>%s</category>", e.Category))
-		xml.WriteString(fmt.Sprintf("<event>%s</event>", e.Event))
+		fmt.Fprintf(&xml, "<id>%s</id>", e.ID)
+		fmt.Fprintf(&xml, "<timestamp>%s</timestamp>", e.Timestamp.Format(time.RFC3339))
+		fmt.Fprintf(&xml, "<level>%s</level>", e.Level)
+		fmt.Fprintf(&xml, "<category>%s</category>", e.Category)
+		fmt.Fprintf(&xml, "<event>%s</event>", e.Event)
 		if e.UserID != "" {
-			xml.WriteString(fmt.Sprintf("<user_id>%s</user_id>", e.UserID))
+			fmt.Fprintf(&xml, "<user_id>%s</user_id>", e.UserID)
 		}
 		if e.Username != "" {
-			xml.WriteString(fmt.Sprintf("<username>%s</username>", e.Username))
+			fmt.Fprintf(&xml, "<username>%s</username>", e.Username)
 		}
 		if e.IP != "" {
-			xml.WriteString(fmt.Sprintf("<ip>%s</ip>", e.IP))
+			fmt.Fprintf(&xml, "<ip>%s</ip>", e.IP)
 		}
 		if e.Resource != "" {
-			xml.WriteString(fmt.Sprintf("<resource>%s</resource>", e.Resource))
+			fmt.Fprintf(&xml, "<resource>%s</resource>", e.Resource)
 		}
 		if e.Action != "" {
-			xml.WriteString(fmt.Sprintf("<action>%s</action>", e.Action))
+			fmt.Fprintf(&xml, "<action>%s</action>", e.Action)
 		}
-		xml.WriteString(fmt.Sprintf("<status>%s</status>", e.Status))
+		fmt.Fprintf(&xml, "<status>%s</status>", e.Status)
 		if e.Message != "" {
-			xml.WriteString(fmt.Sprintf("<message>%s</message>", e.Message))
+			fmt.Fprintf(&xml, "<message>%s</message>", e.Message)
 		}
 		xml.WriteString("</entry>")
 	}

@@ -663,7 +663,7 @@ func (p *GoogleDriveProvider) refreshTokenIfNeeded(ctx context.Context) error {
 	}
 
 	if p.refreshToken == "" {
-		return fmt.Errorf("Google Drive 需要 OAuth2 授权，请先在 Web 界面完成授权")
+		return fmt.Errorf("google Drive 需要 OAuth2 授权，请先在 Web 界面完成授权")
 	}
 
 	// 使用 refresh token 换取 access token

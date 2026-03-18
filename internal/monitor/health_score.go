@@ -601,7 +601,8 @@ func (hs *HealthScorer) GetScoreStats(duration time.Duration) map[string]interfa
 	// 计算标准差
 	var variance float64
 	for _, s := range scores {
-		variance += math.Pow(s-avg, 2)
+		diff := s - avg
+		variance += diff * diff
 	}
 	stdDev := math.Sqrt(variance / float64(len(scores)))
 

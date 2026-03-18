@@ -19,10 +19,14 @@ import (
 type OptimizationType string
 
 const (
-	OptimizationAutoAdjust OptimizationType = "auto_adjust" // 自动调整建议
-	OptimizationPrediction OptimizationType = "prediction"  // 配额使用预测
-	OptimizationViolation  OptimizationType = "violation"   // 配额违规检测
-	OptimizationReportType OptimizationType = "report"      // 配额优化报告
+	// OptimizationAutoAdjust 自动调整建议
+	OptimizationAutoAdjust OptimizationType = "auto_adjust"
+	// OptimizationPrediction 配额使用预测
+	OptimizationPrediction OptimizationType = "prediction"
+	// OptimizationViolation 配额违规检测
+	OptimizationViolation OptimizationType = "violation"
+	// OptimizationReportType 配额优化报告
+	OptimizationReportType OptimizationType = "report"
 )
 
 // OptimizationSuggestion 优化建议
@@ -122,10 +126,14 @@ type HistoryPoint struct {
 type PredictionMethod string
 
 const (
-	PredictionLinear      PredictionMethod = "linear"      // 线性回归
-	PredictionExponential PredictionMethod = "exponential" // 指数平滑
-	PredictionMovingAvg   PredictionMethod = "moving_avg"  // 移动平均
-	PredictionARIMA       PredictionMethod = "arima"       // ARIMA模型
+	// PredictionLinear 线性回归预测方法
+	PredictionLinear PredictionMethod = "linear"
+	// PredictionExponential 指数平滑预测方法
+	PredictionExponential PredictionMethod = "exponential"
+	// PredictionMovingAvg 移动平均预测方法
+	PredictionMovingAvg PredictionMethod = "moving_avg"
+	// PredictionARIMA ARIMA模型预测方法
+	PredictionARIMA PredictionMethod = "arima"
 )
 
 // PredictionConfig 预测配置
@@ -156,11 +164,16 @@ func DefaultPredictionConfig() PredictionConfig {
 type ViolationType string
 
 const (
-	ViolationHardLimit ViolationType = "hard_limit" // 硬限制违规
-	ViolationSoftLimit ViolationType = "soft_limit" // 软限制违规
-	ViolationProjected ViolationType = "projected"  // 预测违规
-	ViolationAnomaly   ViolationType = "anomaly"    // 异常使用
-	ViolationPolicy    ViolationType = "policy"     // 策略违规
+	// ViolationHardLimit 硬限制违规类型
+	ViolationHardLimit ViolationType = "hard_limit"
+	// ViolationSoftLimit 软限制违规类型
+	ViolationSoftLimit ViolationType = "soft_limit"
+	// ViolationProjected 预测违规类型
+	ViolationProjected ViolationType = "projected"
+	// ViolationAnomaly 异常使用违规类型
+	ViolationAnomaly ViolationType = "anomaly"
+	// ViolationPolicy 策略违规类型
+	ViolationPolicy ViolationType = "policy"
 )
 
 // ViolationRecord 违规记录
@@ -322,6 +335,8 @@ type QuotaInfo struct {
 }
 
 // OptimizerConfig 优化器配置
+//
+//nolint:revive // 命名与包名 optimizer 重复，但保持 API 兼容性
 type OptimizerConfig struct {
 	AutoAdjust AutoAdjustConfig `json:"auto_adjust"`
 	Prediction PredictionConfig `json:"prediction"`

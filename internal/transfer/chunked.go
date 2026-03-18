@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	DefaultChunkSize = 4 * 1024 * 1024 // 4MB
-	MaxRetries       = 3
+	// DefaultChunkSize 默认分块大小 4MB
+	DefaultChunkSize = 4 * 1024 * 1024
+	// MaxRetries 最大重试次数
+	MaxRetries = 3
 )
 
 // ChunkInfo represents a file chunk

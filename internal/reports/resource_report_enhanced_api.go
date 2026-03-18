@@ -108,7 +108,7 @@ func (h *ResourceReportEnhancedAPI) getVolumeDetail(c *gin.Context) {
 func (h *ResourceReportEnhancedAPI) getTopStorageUsers(c *gin.Context) {
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 	api.OK(c, []UserStorageUsage{})
 }
@@ -120,7 +120,7 @@ func (h *ResourceReportEnhancedAPI) getFileTypeDistribution(c *gin.Context) {
 func (h *ResourceReportEnhancedAPI) getStorageTrend(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	endTime := time.Now()
@@ -145,7 +145,7 @@ func (h *ResourceReportEnhancedAPI) getStorageRecommendations(c *gin.Context) {
 func (h *ResourceReportEnhancedAPI) getStorageForecast(c *gin.Context) {
 	days := 90
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	forecast := map[string]interface{}{
@@ -209,7 +209,7 @@ func (h *ResourceReportEnhancedAPI) getInterfaceDetail(c *gin.Context) {
 func (h *ResourceReportEnhancedAPI) getBandwidthTrend(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	endTime := time.Now()
@@ -226,7 +226,7 @@ func (h *ResourceReportEnhancedAPI) getBandwidthTrend(c *gin.Context) {
 func (h *ResourceReportEnhancedAPI) getTopTrafficPeriods(c *gin.Context) {
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	periods := make([]map[string]interface{}, 0)
@@ -295,7 +295,7 @@ func (h *ResourceReportEnhancedAPI) getCurrentCapacity(c *gin.Context) {
 func (h *ResourceReportEnhancedAPI) getCapacityForecast(c *gin.Context) {
 	days := 90
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	model := c.DefaultQuery("model", "linear")
@@ -317,7 +317,7 @@ func (h *ResourceReportEnhancedAPI) getCapacityMilestones(c *gin.Context) {
 func (h *ResourceReportEnhancedAPI) getExpansionNeeded(c *gin.Context) {
 	months := 6
 	if m := c.Query("months"); m != "" {
-		fmt.Sscanf(m, "%d", &months)
+		_, _ = fmt.Sscanf(m, "%d", &months)
 	}
 
 	result := map[string]interface{}{
@@ -400,9 +400,10 @@ func (h *ResourceReportEnhancedAPI) simulateCapacityScenario(c *gin.Context) {
 		}
 
 		simulation["results"] = results
-		finalUsage := results[len(results)-1]["usage_percent"].(float64)
-		simulation["final_usage_percent"] = finalUsage
-		simulation["will_reach_full"] = finalUsage >= 95
+		if finalUsage, ok := results[len(results)-1]["usage_percent"].(float64); ok {
+			simulation["final_usage_percent"] = finalUsage
+			simulation["will_reach_full"] = finalUsage >= 95
+		}
 
 		if req.MonthlyGrowth > 0 {
 			dailyGrowth := (float64(req.CurrentUsed) * growthRate) / 30.0

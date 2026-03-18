@@ -35,7 +35,7 @@ func NewReportGenerator(templateManager *TemplateManager, dataDir string) *Repor
 		dataDir:         dataDir,
 	}
 
-	os.MkdirAll(dataDir, 0755)
+	_ = os.MkdirAll(dataDir, 0755)
 	rg.loadCustomReports()
 
 	return rg

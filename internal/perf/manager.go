@@ -1155,7 +1155,7 @@ func sendEmailNotification(alert *AlertInstance) error {
 // sendWebhookNotification 发送 Webhook 通知
 func sendWebhookNotification(alert *AlertInstance) error {
 	if notificationConfig == nil || notificationConfig.Webhook == nil {
-		return fmt.Errorf("Webhook 通知未配置")
+		return fmt.Errorf("webhook 通知未配置")
 	}
 	config := notificationConfig.Webhook
 

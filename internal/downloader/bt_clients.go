@@ -211,7 +211,7 @@ func (c *TransmissionClient) doRequest(method string, args interface{}) (*Transm
 	}
 
 	if result.Result != "success" {
-		return nil, fmt.Errorf("Transmission RPC 错误: %s", result.Result)
+		return nil, fmt.Errorf("transmission RPC 错误: %s", result.Result)
 	}
 
 	return &result, nil

@@ -354,6 +354,6 @@ func (tm *TemplateManager) initDefaultTemplates() {
 	// 保存默认模板
 	for _, template := range []*ReportTemplate{quotaTemplate, storageTemplate, userTemplate, systemTemplate} {
 		tm.templates[template.ID] = template
-		tm.saveTemplate(template)
+		_ = tm.saveTemplate(template)
 	}
 }

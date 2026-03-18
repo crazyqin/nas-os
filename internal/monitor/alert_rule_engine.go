@@ -626,17 +626,27 @@ func (e *AlertRuleEngine) GetRuleStats() map[string]interface{} {
 		"total_triggers": 0,
 	}
 
-	byType := stats["by_type"].(map[AlertRuleType]int)
+	byType, ok := stats["by_type"].(map[AlertRuleType]int)
+	if !ok {
+		byType = make(map[AlertRuleType]int)
+		stats["by_type"] = byType
+	}
 
 	for _, rule := range e.rules {
 		if rule.Enabled {
-			stats["enabled_rules"] = stats["enabled_rules"].(int) + 1
+			if v, ok := stats["enabled_rules"].(int); ok {
+				stats["enabled_rules"] = v + 1
+			}
 		} else {
-			stats["disabled_rules"] = stats["disabled_rules"].(int) + 1
+			if v, ok := stats["disabled_rules"].(int); ok {
+				stats["disabled_rules"] = v + 1
+			}
 		}
 
 		byType[rule.Type]++
-		stats["total_triggers"] = stats["total_triggers"].(int) + rule.TriggerCount
+		if v, ok := stats["total_triggers"].(int); ok {
+			stats["total_triggers"] = v + rule.TriggerCount
+		}
 	}
 
 	return stats

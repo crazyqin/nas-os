@@ -552,9 +552,10 @@ func (oa *OperationAuditor) GetStatistics(start, end time.Time) *OperationStatis
 
 		stats.TotalOperations++
 
-		if entry.Status == "success" {
+		switch entry.Status {
+		case "success":
 			stats.SuccessfulOps++
-		} else if entry.Status == "failure" {
+		case "failure":
 			stats.FailedOps++
 			reason := entry.ErrorMessage
 			if reason == "" {

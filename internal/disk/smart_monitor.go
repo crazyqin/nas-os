@@ -1016,14 +1016,18 @@ func (m *SMARTMonitor) generateRecommendations(_ *DiskInfo, components *ScoreCom
 		recommendations = append(recommendations, "存在待映射扇区，建议运行磁盘检查")
 	}
 
-	if components.Errors.Status == "critical" {
+	switch components.Errors.Status {
+	case "critical":
 		recommendations = append(recommendations, "检测到大量错误，建议立即更换磁盘")
-	} else if components.Errors.Status == "warning" {
+	case "warning":
 		recommendations = append(recommendations, "存在I/O错误，检查磁盘连接和数据线")
 	}
 
-	if components.Age.Status == "warning" {
+	switch components.Age.Status {
+	case "warning":
 		recommendations = append(recommendations, "磁盘使用时间较长，建议规划更换")
+	case "old":
+		// 可添加针对老旧磁盘的建议
 	}
 
 	if len(recommendations) == 0 {

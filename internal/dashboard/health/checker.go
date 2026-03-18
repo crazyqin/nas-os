@@ -24,22 +24,33 @@ import (
 type Status string
 
 const (
-	StatusHealthy  Status = "healthy"
-	StatusWarning  Status = "warning"
+	// StatusHealthy 表示系统健康状态
+	StatusHealthy Status = "healthy"
+	// StatusWarning 表示系统警告状态
+	StatusWarning Status = "warning"
+	// StatusCritical 表示系统严重状态
 	StatusCritical Status = "critical"
-	StatusUnknown  Status = "unknown"
+	// StatusUnknown 表示系统状态未知
+	StatusUnknown Status = "unknown"
 )
 
 // CheckType 检查类型
 type CheckType string
 
 const (
-	CheckTypeCPU     CheckType = "cpu"
-	CheckTypeMemory  CheckType = "memory"
-	CheckTypeDisk    CheckType = "disk"
-	CheckTypeLoad    CheckType = "load"
+	// CheckTypeCPU 表示 CPU 检查类型
+	CheckTypeCPU CheckType = "cpu"
+	// CheckTypeMemory 表示内存检查类型
+	CheckTypeMemory CheckType = "memory"
+	// CheckTypeDisk 表示磁盘检查类型
+	CheckTypeDisk CheckType = "disk"
+	// CheckTypeLoad 表示负载检查类型
+	CheckTypeLoad CheckType = "load"
+	// CheckTypeProcess 表示进程检查类型
 	CheckTypeProcess CheckType = "process"
+	// CheckTypeService 表示服务检查类型
 	CheckTypeService CheckType = "service"
+	// CheckTypeNetwork 表示网络检查类型
 	CheckTypeNetwork CheckType = "network"
 )
 
@@ -62,6 +73,8 @@ type Threshold struct {
 }
 
 // HealthReport 健康检查报告
+//
+//nolint:revive // 命名与包名 health 重复，但保持 API 兼容性
 type HealthReport struct {
 	OverallStatus Status        `json:"overallStatus"`
 	Hostname      string        `json:"hostname"`

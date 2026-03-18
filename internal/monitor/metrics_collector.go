@@ -819,7 +819,7 @@ func (mc *MetricsCollector) CollectDiskHealthMetrics() *DiskHealthMetrics {
 	metrics.TotalDisks = len(allDisks)
 
 	var totalTemp, totalScore int
-	var maxTemp, minTemp int = -1, 999
+	var maxTemp, minTemp = -1, 999
 	var totalCapacity uint64
 	var ssdCount, hddCount int
 
@@ -930,9 +930,10 @@ func (mc *MetricsCollector) CollectExtendedMetrics() *ExtendedMetrics {
 		alerts := alertMgr.GetActiveAlerts()
 		ext.AlertCount = len(alerts)
 		for _, alert := range alerts {
-			if alert.Level == "critical" {
+			switch alert.Level {
+			case "critical":
 				ext.CriticalAlerts++
-			} else if alert.Level == "warning" {
+			case "warning":
 				ext.WarningAlerts++
 			}
 		}
@@ -1001,9 +1002,10 @@ func (mc *MetricsCollector) generateExtendedRecommendations(ext *ExtendedMetrics
 	// 磁盘健康建议
 	if ext.DiskHealth != nil {
 		for _, disk := range ext.DiskHealth.Disks {
-			if disk.HealthStatus == "failed" || disk.HealthStatus == "critical" {
+			switch disk.HealthStatus {
+			case "failed", "critical":
 				recs = append(recs, "磁盘 "+disk.Device+" 健康状态异常，建议立即更换")
-			} else if disk.HealthStatus == "warning" || disk.HealthStatus == "degraded" {
+			case "warning", "degraded":
 				recs = append(recs, "磁盘 "+disk.Device+" 状态下降，建议关注")
 			}
 			if disk.Temperature > 55 {

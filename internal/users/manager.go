@@ -1227,8 +1227,16 @@ func (m *Manager) GetUserStats() map[string]interface{} {
 		},
 	}
 
-	roleStats := stats["by_role"].(map[Role]int)
-	statusStats := stats["by_status"].(map[string]int)
+	roleStats, ok := stats["by_role"].(map[Role]int)
+	if !ok {
+		roleStats = make(map[Role]int)
+		stats["by_role"] = roleStats
+	}
+	statusStats, ok := stats["by_status"].(map[string]int)
+	if !ok {
+		statusStats = make(map[string]int)
+		stats["by_status"] = statusStats
+	}
 
 	for _, user := range m.users {
 		roleStats[user.Role]++

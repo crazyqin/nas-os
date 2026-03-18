@@ -486,7 +486,7 @@ func (g *FinancialReportGenerator) GenerateReport(ctx context.Context, req Finan
 		report.Status = ReportStatusFailed
 		report.ErrorMessage = err.Error()
 		report.Duration = time.Since(startTime).Milliseconds()
-		g.saveReport(report)
+		_ = g.saveReport(report)
 		return report, fmt.Errorf("生成报告失败: %w", err)
 	}
 
@@ -1186,7 +1186,7 @@ func (g *FinancialReportGenerator) DeleteReport(ctx context.Context, id string) 
 
 	// 删除文件
 	filePath := filepath.Join(g.storagePath, id+".json")
-	os.Remove(filePath)
+	_ = os.Remove(filePath)
 
 	delete(g.reports, id)
 
@@ -1260,22 +1260,22 @@ func (g *FinancialReportGenerator) exportToExcel(report *FinancialReport) (strin
 	defer func() { _ = f.Close() }()
 
 	sheet := "财务报告"
-	f.SetSheetName("Sheet1", sheet)
+	_ = f.SetSheetName("Sheet1", sheet)
 
 	// 标题
-	f.SetCellValue(sheet, "A1", report.Name)
-	f.SetCellValue(sheet, "A2", fmt.Sprintf("生成时间: %s", report.GeneratedAt.Format("2006-01-02 15:04:05")))
-	f.SetCellValue(sheet, "A3", fmt.Sprintf("报告周期: %s ~ %s", report.Period.StartTime.Format("2006-01-02"), report.Period.EndTime.Format("2006-01-02")))
+	_ = f.SetCellValue(sheet, "A1", report.Name)
+	_ = f.SetCellValue(sheet, "A2", fmt.Sprintf("生成时间: %s", report.GeneratedAt.Format("2006-01-02 15:04:05")))
+	_ = f.SetCellValue(sheet, "A3", fmt.Sprintf("报告周期: %s ~ %s", report.Period.StartTime.Format("2006-01-02"), report.Period.EndTime.Format("2006-01-02")))
 
 	// 数据
 	row := 5
 	for _, section := range report.Sections {
-		f.SetCellValue(sheet, fmt.Sprintf("A%d", row), section.Title)
+		_ = f.SetCellValue(sheet, fmt.Sprintf("A%d", row), section.Title)
 		row++
 		for _, data := range section.Data {
-			f.SetCellValue(sheet, fmt.Sprintf("B%d", row), data.Label)
-			f.SetCellValue(sheet, fmt.Sprintf("C%d", row), data.Values["amount"])
-			f.SetCellValue(sheet, fmt.Sprintf("D%d", row), fmt.Sprintf("%.1f%%", data.Percent))
+			_ = f.SetCellValue(sheet, fmt.Sprintf("B%d", row), data.Label)
+			_ = f.SetCellValue(sheet, fmt.Sprintf("C%d", row), data.Values["amount"])
+			_ = f.SetCellValue(sheet, fmt.Sprintf("D%d", row), fmt.Sprintf("%.1f%%", data.Percent))
 			row++
 		}
 		row++

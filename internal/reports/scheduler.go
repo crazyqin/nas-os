@@ -44,7 +44,7 @@ func NewScheduleManager(generator *ReportGenerator, exporter *Exporter, dataDir 
 	// 创建 cron 调度器，支持秒级
 	sm.cron = cron.New(cron.WithSeconds(), cron.WithLocation(time.Local))
 
-	os.MkdirAll(dataDir, 0755)
+	_ = os.MkdirAll(dataDir, 0755)
 	sm.loadSchedules()
 
 	return sm
@@ -348,7 +348,7 @@ func (sm *ScheduleManager) scheduleTask(schedule *ScheduledReport) {
 
 	// 添加新任务
 	entryID, err := sm.cron.AddFunc(schedule.CronExpr, func() {
-		sm.executeReport(schedule)
+		_, _ = sm.executeReport(schedule)
 	})
 
 	if err != nil {
@@ -394,7 +394,7 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 		if execution.CompletedAt != nil {
 			schedule.LastRun = execution.CompletedAt
 		}
-		sm.saveSchedule(schedule)
+		_ = sm.saveSchedule(schedule)
 		sm.mu.Unlock()
 	}()
 
@@ -452,11 +452,11 @@ func (sm *ScheduleManager) executeReport(schedule *ScheduledReport) (*ScheduledR
 
 	// 发送通知
 	if len(schedule.NotifyEmail) > 0 && sm.notifyEmail != nil {
-		sm.notifyEmail(schedule.ID, schedule.NotifyEmail, report, exportResult.Path) //nolint:errcheck
+		_ = sm.notifyEmail(schedule.ID, schedule.NotifyEmail, report, exportResult.Path)
 	}
 
 	if len(schedule.NotifyWebhook) > 0 && sm.notifyWebhook != nil {
-		sm.notifyWebhook(schedule.ID, schedule.NotifyWebhook, report, exportResult.Path) //nolint:errcheck
+		_ = sm.notifyWebhook(schedule.ID, schedule.NotifyWebhook, report, exportResult.Path)
 	}
 
 	// 清理旧文件
@@ -529,7 +529,7 @@ func (sm *ScheduleManager) cleanupOldFiles(scheduleID string, retentionDays int)
 		}
 
 		if info.ModTime().Before(cutoff) {
-			os.Remove(file)
+			_ = os.Remove(file)
 		}
 	}
 }
