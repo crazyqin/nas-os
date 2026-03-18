@@ -3,6 +3,7 @@ package snapshot
 import (
 	"context"
 	"fmt"
+	"log"
 	"os/exec"
 	"strings"
 	"time"
@@ -109,6 +110,9 @@ func (e *SnapshotExecutor) runScript(script string, timeoutSeconds int) error {
 		return fmt.Errorf("脚本安全验证失败: %w", err)
 	}
 
+	// 审计日志：记录脚本执行
+	log.Printf("[审计] 执行快照脚本，超时: %d 秒，脚本长度: %d 字节", timeoutSeconds, len(script))
+
 	timeout := 300 // 默认 5 分钟
 	if timeoutSeconds > 0 {
 		timeout = timeoutSeconds
@@ -121,13 +125,16 @@ func (e *SnapshotExecutor) runScript(script string, timeoutSeconds int) error {
 	cmd.Env = append(cmd.Env,
 		"SNAPSHOT_TIMESTAMP="+time.Now().Format(time.RFC3339),
 		"SNAPSHOT_SCRIPT_TYPE=snapshot",
+		"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
 	)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
+		log.Printf("[审计] 快照脚本执行失败: %v", err)
 		return fmt.Errorf("脚本执行失败: %w, output: %s", err, string(output))
 	}
 
+	log.Printf("[审计] 快照脚本执行成功")
 	return nil
 }
 
