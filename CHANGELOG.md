@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.238.0] - 2026-03-18
+
+### Security
+- 发现 5 个 Go 标准库漏洞（需升级到 Go 1.26.1）
+  - GO-2026-4603: html/template URL 转义问题
+  - GO-2026-4602: os.FileInfo 转义问题
+  - GO-2026-4601: net/url IPv6 解析问题
+  - GO-2026-4600: crypto/x509 证书名称约束问题
+  - GO-2026-4599: crypto/x509 邮件约束问题
+
+### Improvements
+- 测试覆盖率从 34.9% 提升到 41.6%
+- 版本号同步更新
+
+---
+
 ## [v2.237.0] - 2026-03-18
 
 ### Bug Fixes
