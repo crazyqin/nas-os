@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.233.0] - 2026-03-18
+
+### Bug Fixes
+- 修复 quota 模块 saveConfig 返回值未检查问题 (12处)
+- 修复 shares/smb 模块 errcheck 错误 (5处)
+- 修复 snapshot 模块 errcheck 错误 (3处)
+
+---
+
 ## [v2.230.0] - 2026-03-18
 
 ### Fixed

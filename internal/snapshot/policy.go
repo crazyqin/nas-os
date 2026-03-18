@@ -536,7 +536,7 @@ func (pm *PolicyManager) executePolicy(policy *Policy) (string, error) {
 	pm.mu.Unlock()
 
 	// 保存状态
-	pm.saveConfig()
+	_ = pm.saveConfig()
 
 	// 触发后置钩子
 	if pm.hooks.OnAfterSnapshot != nil {
@@ -562,7 +562,7 @@ func (pm *PolicyManager) runCleanup(policy *Policy) {
 	pm.mu.Lock()
 	policy.Stats.TotalSnapshotsDeleted += len(deleted)
 	pm.mu.Unlock()
-	pm.saveConfig()
+	_ = pm.saveConfig()
 }
 
 // ========== 验证和默认值 ==========

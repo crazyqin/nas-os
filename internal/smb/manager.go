@@ -279,8 +279,8 @@ func (m *Manager) generateSmbConf() string {
 func (m *Manager) ApplyConfig() error {
 	configContent := m.generateSmbConf()
 
-	// 备份现有配置
-	BackupSmbConf("/etc/samba/smb.conf")
+	// 备份现有配置（忽略错误，不影响主流程）
+	_ = BackupSmbConf("/etc/samba/smb.conf")
 
 	// 写入 Samba 配置文件
 	configPath := "/etc/samba/smb.conf"

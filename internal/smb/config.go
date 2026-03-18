@@ -49,7 +49,7 @@ func (p *ConfigParser) ParseSmbConf() (map[string]*Share, *Config, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("打开配置文件失败: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	shares := make(map[string]*Share)
 	config := &Config{}
@@ -417,7 +417,7 @@ func WriteSmbConf(configPath string, config *Config, shares map[string]*Share) e
 
 	// 原子性重命名
 	if err := os.Rename(tmpPath, configPath); err != nil {
-		os.Remove(tmpPath)
+		_ = os.Remove(tmpPath)
 		return fmt.Errorf("重命名配置文件失败: %w", err)
 	}
 

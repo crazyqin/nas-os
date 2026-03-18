@@ -213,7 +213,9 @@ func (g *ReportGenerator) generateSummary(period ReportPeriod) ReportSummary {
 	// 获取清理统计
 	if g.cleanup != nil {
 		stats := g.cleanup.GetCleanupStats()
+		//nolint:errcheck
 		summary.CleanupTasksRun = stats["total_tasks"].(int)
+		//nolint:errcheck
 		summary.BytesCleaned = stats["total_bytes_freed"].(uint64)
 	}
 
