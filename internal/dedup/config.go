@@ -17,6 +17,7 @@ const (
 // Strategy 去重策略
 type Strategy string
 
+// 去重策略常量
 const (
 	StrategyInline Strategy = "inline" // 内联去重 - 写入时实时去重
 	StrategyBatch  Strategy = "batch"  // 批量去重 - 定期批量处理
@@ -26,6 +27,7 @@ const (
 // RetentionPolicy 保留策略
 type RetentionPolicy string
 
+// 保留策略常量
 const (
 	RetentionKeepOldest  RetentionPolicy = "keep_oldest"  // 保留最旧的文件
 	RetentionKeepNewest  RetentionPolicy = "keep_newest"  // 保留最新的文件
@@ -34,23 +36,25 @@ const (
 	RetentionManual      RetentionPolicy = "manual"       // 手动选择
 )
 
-// DedupAction 去重操作类型
-type DedupAction string
+// Action 去重操作类型
+type Action string
 
+// 去重操作类型常量
 const (
-	ActionReport   DedupAction = "report"   // 仅报告
-	ActionSoftlink DedupAction = "softlink" // 创建软链接
-	ActionHardlink DedupAction = "hardlink" // 创建硬链接
-	ActionRemove   DedupAction = "remove"   // 直接删除重复文件
+	ActionReport   Action = "report"   // 仅报告
+	ActionSoftlink Action = "softlink" // 创建软链接
+	ActionHardlink Action = "hardlink" // 创建硬链接
+	ActionRemove   Action = "remove"   // 直接删除重复文件
 )
 
-// DedupMode 去重模式
-type DedupMode string
+// Mode 去重模式
+type Mode string
 
+// 去重模式常量
 const (
-	ModeFile  DedupMode = "file"  // 文件级去重
-	ModeChunk DedupMode = "chunk" // 块级去重
-	ModeAuto  DedupMode = "auto"  // 自动选择
+	ModeFile  Mode = "file"  // 文件级去重
+	ModeChunk Mode = "chunk" // 块级去重
+	ModeAuto  Mode = "auto"  // 自动选择
 )
 
 // ChunkStoreConfig 块存储配置
@@ -75,8 +79,8 @@ type Config struct {
 
 	// 去重策略
 	Strategy        Strategy        `json:"strategy"`        // 去重策略
-	DedupMode       DedupMode       `json:"dedupMode"`       // 去重模式
-	DedupAction     DedupAction     `json:"dedupAction"`     // 去重操作
+	DedupMode       Mode            `json:"dedupMode"`       // 去重模式
+	DedupAction     Action          `json:"dedupAction"`     // 去重操作
 	RetentionPolicy RetentionPolicy `json:"retentionPolicy"` // 保留策略
 
 	// 自动去重
@@ -216,10 +220,10 @@ func (c *Config) Clone() *Config {
 	return newConfig
 }
 
-// DedupPolicy 去重策略（运行时策略）
-type DedupPolicy struct {
-	Mode          DedupMode       `json:"mode"`          // 去重模式
-	Action        DedupAction     `json:"action"`        // 去重操作
+// Policy 去重策略（运行时策略）
+type Policy struct {
+	Mode          Mode            `json:"mode"`          // 去重模式
+	Action        Action          `json:"action"`        // 去重操作
 	Retention     RetentionPolicy `json:"retention"`     // 保留策略
 	MinMatchCount int             `json:"minMatchCount"` // 最小匹配数量
 	PreserveAttrs bool            `json:"preserveAttrs"` // 保留文件属性
@@ -228,8 +232,8 @@ type DedupPolicy struct {
 }
 
 // DefaultPolicy 默认策略
-func DefaultPolicy() *DedupPolicy {
-	return &DedupPolicy{
+func DefaultPolicy() *Policy {
+	return &Policy{
 		Mode:          ModeFile,
 		Action:        ActionReport,
 		Retention:     RetentionKeepOldest,
@@ -241,8 +245,8 @@ func DefaultPolicy() *DedupPolicy {
 }
 
 // ToPolicy 从配置创建策略
-func (c *Config) ToPolicy() *DedupPolicy {
-	return &DedupPolicy{
+func (c *Config) ToPolicy() *Policy {
+	return &Policy{
 		Mode:          c.DedupMode,
 		Action:        c.DedupAction,
 		Retention:     c.RetentionPolicy,

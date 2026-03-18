@@ -9,6 +9,7 @@ import "time"
 // LoginEventType 登录事件类型
 type LoginEventType string
 
+// 登录事件类型常量
 const (
 	LoginEventSuccess         LoginEventType = "success"          // 登录成功
 	LoginEventFailure         LoginEventType = "failure"          // 登录失败
@@ -24,6 +25,7 @@ const (
 // AuthMethod 认证方式
 type AuthMethod string
 
+// 认证方式常量
 const (
 	AuthMethodPassword AuthMethod = "password" // 密码认证
 	AuthMethodOTP      AuthMethod = "otp"      // 一次性密码
@@ -114,6 +116,7 @@ type LoginPattern struct {
 // OperationCategory 操作类别
 type OperationCategory string
 
+// 操作类别常量
 const (
 	OperationCategoryFile      OperationCategory = "file"      // 文件操作
 	OperationCategoryUser      OperationCategory = "user"      // 用户管理
@@ -130,6 +133,7 @@ const (
 // OperationAction 操作动作
 type OperationAction string
 
+// 操作动作常量
 const (
 	ActionCreate   OperationAction = "create"
 	ActionRead     OperationAction = "read"
@@ -194,6 +198,7 @@ type OperationChain struct {
 // SensitivityLevel 敏感级别
 type SensitivityLevel string
 
+// 敏感级别常量
 const (
 	SensitivityLow      SensitivityLevel = "low"
 	SensitivityMedium   SensitivityLevel = "medium"
@@ -265,6 +270,7 @@ type OperationApproval struct {
 // AuditReportType 报告类型
 type AuditReportType string
 
+// 报告类型常量
 const (
 	ReportTypeLogin        AuditReportType = "login"         // 登录报告
 	ReportTypeOperation    AuditReportType = "operation"     // 操作报告
