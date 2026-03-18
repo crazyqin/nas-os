@@ -91,15 +91,15 @@ func loggerMiddleware() gin.HandlerFunc {
 		}
 
 		// 写入日志文件和控制台
-		_ = os.Stdout.Write(logJSON)
-		_ = os.Stdout.WriteString("\n")
+		_, _ = os.Stdout.Write(logJSON)
+		_, _ = os.Stdout.WriteString("\n")
 
 		// 错误级别日志
 		if c.Writer.Status() >= 500 {
 			logEntry["level"] = "error"
 			logJSON, _ := json.Marshal(logEntry)
-			_ = os.Stderr.Write(logJSON)
-			_ = os.Stderr.WriteString("\n")
+			_, _ = os.Stderr.Write(logJSON)
+			_, _ = os.Stderr.WriteString("\n")
 		}
 	}
 }
@@ -386,8 +386,8 @@ func auditLogMiddleware() gin.HandlerFunc {
 		}
 		defer func() { _ = f.Close() }()
 
-		_ = f.Write(auditJSON)
-		_ = f.WriteString("\n")
+		_, _ = f.Write(auditJSON)
+		_, _ = f.WriteString("\n")
 	}
 }
 
