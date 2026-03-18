@@ -240,7 +240,7 @@ func (m *Monitor) Broadcast(data *RealTimeData) {
 				m.clientsMu.Lock()
 				delete(m.clients, cid)
 				m.clientsMu.Unlock()
-				conn.Close()
+				_ = conn.Close()
 			}(id)
 		}
 	}
@@ -970,7 +970,7 @@ func (m *Monitor) GetHostname() string {
 func (m *Monitor) Close() {
 	close(m.stopChan)
 	if m.db != nil {
-		m.db.Close()
+		_ = m.db.Close()
 	}
 }
 

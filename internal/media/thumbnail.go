@@ -270,7 +270,7 @@ func (tg *ThumbnailGenerator) createSprite(thumbs []string, outputPath string, c
 	listFile := filepath.Join(filepath.Dir(thumbs[0]), "list.txt")
 	listContent := strings.Builder{}
 	for _, t := range thumbs {
-		listContent.WriteString(fmt.Sprintf("file '%s'\n", t))
+		fmt.Fprintf(&listContent, "file '%s'\n", t)
 	}
 	if err := os.WriteFile(listFile, []byte(listContent.String()), 0644); err != nil {
 		return nil, err

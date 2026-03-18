@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -465,7 +466,7 @@ func (m *Manager) runRemoteBackup(ctx context.Context, cfg *JobConfig, task *Bac
 	}
 	defer func() {
 		if removeErr := os.Remove(localTemp); removeErr != nil && !os.IsNotExist(removeErr) {
-			// 记录清理错误
+			slog.Debug("failed to remove temp file", "error", removeErr, "path", localTemp)
 		}
 	}()
 
@@ -543,7 +544,7 @@ func (m *Manager) cleanupOldBackups(dir string, retention int) error {
 
 	for i := 0; i < len(fileInfos)-retention; i++ {
 		if err := os.Remove(fileInfos[i].path); err != nil {
-			// 记录删除失败
+			slog.Debug("failed to remove old backup", "error", err, "path", fileInfos[i].path)
 		}
 	}
 

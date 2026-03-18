@@ -444,7 +444,7 @@ func (m *Manager) GenerateExportsFile() (string, error) {
 	for path, export := range m.exports {
 		if len(export.Clients) == 0 {
 			// 默认允许所有客户端
-			sb.WriteString(fmt.Sprintf("%s *(%s)\n", path, m.optionsToString(&export.Options)))
+			fmt.Fprintf(&sb, "%s *(%s)\n", path, m.optionsToString(&export.Options))
 		} else {
 			// 为每个客户端生成配置
 			for _, client := range export.Clients {
@@ -452,7 +452,7 @@ func (m *Manager) GenerateExportsFile() (string, error) {
 				if len(client.Options) > 0 {
 					opts = opts + "," + strings.Join(client.Options, ",")
 				}
-				sb.WriteString(fmt.Sprintf("%s %s(%s)\n", path, client.Host, opts))
+				fmt.Fprintf(&sb, "%s %s(%s)\n", path, client.Host, opts)
 			}
 		}
 	}

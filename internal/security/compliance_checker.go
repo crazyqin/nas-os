@@ -1351,7 +1351,7 @@ func (cc *ComplianceChecker) ExportReportToHTML(report *ComplianceReport) ([]byt
 `)
 
 	for _, result := range report.Results {
-		html.WriteString(fmt.Sprintf(`        <tr>
+		fmt.Fprintf(&html, `        <tr>
             <td>%s</td>
             <td>%s</td>
             <td class="%s">%s</td>
@@ -1363,7 +1363,7 @@ func (cc *ComplianceChecker) ExportReportToHTML(report *ComplianceReport) ([]byt
 			result.Status,
 			result.Status,
 			result.Score,
-		))
+		)
 	}
 
 	html.WriteString(`    </table>

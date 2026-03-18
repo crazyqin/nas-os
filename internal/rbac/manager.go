@@ -128,6 +128,8 @@ func (m *Manager) SetUserRole(userID, username string, role Role) error {
 	// 保存
 	return m.save()
 }
+
+// GetUserPermissions 获取用户权限
 func (m *Manager) GetUserPermissions(userID string) (*UserPermission, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

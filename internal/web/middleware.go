@@ -91,15 +91,15 @@ func loggerMiddleware() gin.HandlerFunc {
 		}
 
 		// 写入日志文件和控制台
-		os.Stdout.Write(logJSON)
-		os.Stdout.WriteString("\n")
+		_ = os.Stdout.Write(logJSON)
+		_ = os.Stdout.WriteString("\n")
 
 		// 错误级别日志
 		if c.Writer.Status() >= 500 {
 			logEntry["level"] = "error"
 			logJSON, _ := json.Marshal(logEntry)
-			os.Stderr.Write(logJSON)
-			os.Stderr.WriteString("\n")
+			_ = os.Stderr.Write(logJSON)
+			_ = os.Stderr.WriteString("\n")
 		}
 	}
 }
@@ -384,10 +384,10 @@ func auditLogMiddleware() gin.HandlerFunc {
 			log.Printf("[ERROR] Failed to open audit log: %v", err)
 			return
 		}
-		defer f.Close()
+		defer func() { _ = f.Close() }()
 
-		f.Write(auditJSON)
-		f.WriteString("\n")
+		_ = f.Write(auditJSON)
+		_ = f.WriteString("\n")
 	}
 }
 

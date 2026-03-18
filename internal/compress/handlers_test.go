@@ -176,6 +176,7 @@ func TestHandlers_GetConfig_NilManager(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			// Expected panic from nil manager
+			_ = r
 		}
 	}()
 
@@ -195,6 +196,7 @@ func TestHandlers_GetStats_NilManager(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			// Expected panic from nil manager
+			_ = r
 		}
 	}()
 

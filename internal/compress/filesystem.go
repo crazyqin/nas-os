@@ -3,6 +3,7 @@ package compress
 import (
 	"errors"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -124,7 +125,7 @@ func (fs *FileSystem) Rename(oldName, newName string) error {
 		oldCompressed := oldPath + ext
 		newCompressed := newPath + ext
 		if err := os.Rename(oldCompressed, newCompressed); err != nil && !os.IsNotExist(err) {
-			// 忽略不存在的文件
+			slog.Debug("failed to rename compressed file", "error", err, "old", oldCompressed, "new", newCompressed)
 		}
 	}
 

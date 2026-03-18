@@ -19,15 +19,25 @@ import (
 type ActionType string
 
 const (
-	ActionTypeMove        ActionType = "move"
-	ActionTypeCopy        ActionType = "copy"
-	ActionTypeDelete      ActionType = "delete"
-	ActionTypeRename      ActionType = "rename"
-	ActionTypeConvert     ActionType = "convert"
-	ActionTypeNotify      ActionType = "notify"
-	ActionTypeCommand     ActionType = "command"
-	ActionTypeWebhook     ActionType = "webhook"
-	ActionTypeEmail       ActionType = "email"
+	// ActionTypeMove 移动文件/文件夹
+	ActionTypeMove ActionType = "move"
+	// ActionTypeCopy 复制文件/文件夹
+	ActionTypeCopy ActionType = "copy"
+	// ActionTypeDelete 删除文件/文件夹
+	ActionTypeDelete ActionType = "delete"
+	// ActionTypeRename 重命名文件/文件夹
+	ActionTypeRename ActionType = "rename"
+	// ActionTypeConvert 转换文件格式
+	ActionTypeConvert ActionType = "convert"
+	// ActionTypeNotify 发送通知
+	ActionTypeNotify ActionType = "notify"
+	// ActionTypeCommand 执行系统命令
+	ActionTypeCommand ActionType = "command"
+	// ActionTypeWebhook 发送 Webhook 请求
+	ActionTypeWebhook ActionType = "webhook"
+	// ActionTypeEmail 发送邮件
+	ActionTypeEmail ActionType = "email"
+	// ActionTypeConditional 条件动作
 	ActionTypeConditional ActionType = "conditional"
 )
 
@@ -45,10 +55,12 @@ type MoveAction struct {
 	Overwrite   bool       `json:"overwrite"`
 }
 
+// GetType 获取动作类型
 func (a *MoveAction) GetType() ActionType {
 	return ActionTypeMove
 }
 
+// Execute 执行移动动作
 func (a *MoveAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	source := a.Source
 	dest := a.Destination
@@ -73,10 +85,12 @@ type CopyAction struct {
 	Recursive   bool       `json:"recursive"`
 }
 
+// GetType 获取动作类型
 func (a *CopyAction) GetType() ActionType {
 	return ActionTypeCopy
 }
 
+// Execute 执行复制动作
 func (a *CopyAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	source := replaceVariables(a.Source, contextData)
 	dest := replaceVariables(a.Destination, contextData)
@@ -95,10 +109,12 @@ type DeleteAction struct {
 	Recursive bool       `json:"recursive"`
 }
 
+// GetType 获取动作类型
 func (a *DeleteAction) GetType() ActionType {
 	return ActionTypeDelete
 }
 
+// Execute 执行删除动作
 func (a *DeleteAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	path := replaceVariables(a.Path, contextData)
 
@@ -116,10 +132,12 @@ type RenameAction struct {
 	NewName string     `json:"new_name"`
 }
 
+// GetType 获取动作类型
 func (a *RenameAction) GetType() ActionType {
 	return ActionTypeRename
 }
 
+// Execute 执行重命名动作
 func (a *RenameAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	path := replaceVariables(a.Path, contextData)
 	newName := replaceVariables(a.NewName, contextData)
@@ -143,10 +161,12 @@ type ConvertAction struct {
 	Options     map[string]interface{} `json:"options,omitempty"`
 }
 
+// GetType 获取动作类型
 func (a *ConvertAction) GetType() ActionType {
 	return ActionTypeConvert
 }
 
+// Execute 执行格式转换动作
 func (a *ConvertAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	source := replaceVariables(a.Source, contextData)
 	dest := replaceVariables(a.Destination, contextData)
@@ -189,10 +209,12 @@ type NotifyAction struct {
 	To      string     `json:"to,omitempty"`
 }
 
+// GetType 获取动作类型
 func (a *NotifyAction) GetType() ActionType {
 	return ActionTypeNotify
 }
 
+// Execute 执行通知动作
 func (a *NotifyAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	message := replaceVariables(a.Message, contextData)
 	title := replaceVariables(a.Title, contextData)
@@ -329,10 +351,12 @@ type CommandAction struct {
 	Env     []string   `json:"env,omitempty"`
 }
 
+// GetType 获取动作类型
 func (a *CommandAction) GetType() ActionType {
 	return ActionTypeCommand
 }
 
+// Execute 执行系统命令动作
 func (a *CommandAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	cmd := exec.CommandContext(ctx, a.Command, a.Args...)
 
@@ -361,10 +385,12 @@ type WebhookAction struct {
 	Body    string            `json:"body,omitempty"`
 }
 
+// GetType 获取动作类型
 func (a *WebhookAction) GetType() ActionType {
 	return ActionTypeWebhook
 }
 
+// Execute 执行 Webhook 请求动作
 func (a *WebhookAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	url := replaceVariables(a.URL, contextData)
 	body := replaceVariables(a.Body, contextData)
@@ -423,10 +449,12 @@ type EmailAction struct {
 	Attachments []string   `json:"attachments,omitempty"`
 }
 
+// GetType 获取动作类型
 func (a *EmailAction) GetType() ActionType {
 	return ActionTypeEmail
 }
 
+// Execute 执行邮件发送动作
 func (a *EmailAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	to := replaceVariables(a.To, contextData)
 	subject := replaceVariables(a.Subject, contextData)
@@ -439,15 +467,24 @@ func (a *EmailAction) Execute(ctx context.Context, contextData map[string]interf
 type ConditionOperator string
 
 const (
-	OperatorEquals      ConditionOperator = "equals"
-	OperatorNotEquals   ConditionOperator = "not_equals"
-	OperatorContains    ConditionOperator = "contains"
+	// OperatorEquals 等于
+	OperatorEquals ConditionOperator = "equals"
+	// OperatorNotEquals 不等于
+	OperatorNotEquals ConditionOperator = "not_equals"
+	// OperatorContains 包含
+	OperatorContains ConditionOperator = "contains"
+	// OperatorNotContains 不包含
 	OperatorNotContains ConditionOperator = "not_contains"
+	// OperatorGreaterThan 大于
 	OperatorGreaterThan ConditionOperator = "greater_than"
-	OperatorLessThan    ConditionOperator = "less_than"
-	OperatorExists      ConditionOperator = "exists"
-	OperatorNotExists   ConditionOperator = "not_exists"
-	OperatorMatches     ConditionOperator = "matches" // 正则匹配
+	// OperatorLessThan 小于
+	OperatorLessThan ConditionOperator = "less_than"
+	// OperatorExists 存在
+	OperatorExists ConditionOperator = "exists"
+	// OperatorNotExists 不存在
+	OperatorNotExists ConditionOperator = "not_exists"
+	// OperatorMatches 正则匹配
+	OperatorMatches ConditionOperator = "matches"
 )
 
 // Condition 条件
@@ -465,10 +502,12 @@ type ConditionalAction struct {
 	ElseAction Action     `json:"else_action,omitempty"` // 条件为假时执行（可选）
 }
 
+// GetType 获取动作类型
 func (a *ConditionalAction) GetType() ActionType {
 	return ActionTypeConditional
 }
 
+// Execute 执行条件动作
 func (a *ConditionalAction) Execute(ctx context.Context, contextData map[string]interface{}) error {
 	// 评估条件
 	result, err := a.evaluateCondition(contextData)

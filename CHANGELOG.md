@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.234.0] - 2026-03-18
+
+### Bug Fixes
+- 修复 golangci-lint 错误 (87处)：errcheck(13)、gofmt(1)、revive(50)、staticcheck(23)
+
+---
+
 ## [v2.233.0] - 2026-03-18
 
 ### Bug Fixes

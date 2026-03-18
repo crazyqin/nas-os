@@ -100,7 +100,7 @@ func (h *Handlers) websocketHandler(c *gin.Context) {
 	// 保持连接
 	defer func() {
 		h.monitor.UnregisterClient(clientKey)
-		conn.Close()
+		_ = conn.Close()
 	}()
 
 	for {
