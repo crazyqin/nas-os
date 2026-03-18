@@ -11,35 +11,35 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewBillingManager(t *testing.T) {
+func TestNewManager(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "billing-test")
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tmpDir) }()
 
-	config := DefaultBillingConfig()
-	bm, err := NewBillingManager(config, tmpDir)
+	config := DefaultConfig()
+	bm, err := NewManager(config, tmpDir)
 	require.NoError(t, err)
 	require.NotNil(t, bm)
 	assert.Equal(t, tmpDir, bm.dataDir)
 	assert.True(t, bm.config.Enabled)
 }
 
-func TestNewBillingManagerNilConfig(t *testing.T) {
+func TestNewManagerNilConfig(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "billing-test")
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tmpDir) }()
 
-	bm, err := NewBillingManager(nil, tmpDir)
+	bm, err := NewManager(nil, tmpDir)
 	require.NoError(t, err)
 	require.NotNil(t, bm)
 	assert.NotNil(t, bm.config)
 }
 
-func TestDefaultBillingConfig(t *testing.T) {
-	config := DefaultBillingConfig()
+func TestDefaultConfig(t *testing.T) {
+	config := DefaultConfig()
 	assert.True(t, config.Enabled)
 	assert.Equal(t, "CNY", config.DefaultCurrency)
-	assert.Equal(t, BillingCycleMonthly, config.BillingCycle)
+	assert.Equal(t, CycleMonthly, config.Cycle)
 	assert.Equal(t, 0.1, config.StoragePricing.BasePricePerGB)
 	assert.Equal(t, 0.5, config.BandwidthPricing.TrafficPricePerGB)
 }
@@ -250,9 +250,9 @@ func TestCreateInvoiceWithTax(t *testing.T) {
 	require.NoError(t, err)
 	defer os.RemoveAll(tmpDir)
 
-	config := DefaultBillingConfig()
+	config := DefaultConfig()
 	config.TaxRate = 0.13 // 13% 税率
-	bm, err := NewBillingManager(config, tmpDir)
+	bm, err := NewManager(config, tmpDir)
 	require.NoError(t, err)
 
 	ctx := context.Background()
@@ -409,7 +409,7 @@ func TestGenerateInvoiceFromUsage(t *testing.T) {
 	assert.Greater(t, invoice.TotalAmount, 0.0)
 }
 
-func TestGetBillingStats(t *testing.T) {
+func TestGetStats(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer func() { _ = os.RemoveAll(bm.dataDir) }()
 
@@ -431,14 +431,14 @@ func TestGetBillingStats(t *testing.T) {
 	_, err = bm.MarkInvoicePaid(invoice.ID, "alipay", "PAY123")
 	require.NoError(t, err)
 
-	stats, err := bm.GetBillingStats(time.Now().AddDate(0, -1, 0), time.Now())
+	stats, err := bm.GetStats(time.Now().AddDate(0, -1, 0), time.Now())
 	require.NoError(t, err)
 	require.NotNil(t, stats)
 	assert.GreaterOrEqual(t, stats.TotalInvoices, 1)
 	assert.GreaterOrEqual(t, stats.PaidInvoices, 1)
 }
 
-func TestGetUserBillingStats(t *testing.T) {
+func TestGetUserStats(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
@@ -452,7 +452,7 @@ func TestGetUserBillingStats(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	stats, err := bm.GetUserBillingStats("user1", time.Now().AddDate(0, -1, 0), time.Now())
+	stats, err := bm.GetUserStats("user1", time.Now().AddDate(0, -1, 0), time.Now())
 	require.NoError(t, err)
 	assert.Equal(t, "user1", stats.UserID)
 	assert.Equal(t, 100.0, stats.StorageUsedGB)
@@ -550,7 +550,7 @@ func TestUpdateConfig(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
-	newConfig := DefaultBillingConfig()
+	newConfig := DefaultConfig()
 	newConfig.DefaultCurrency = "USD"
 	newConfig.StoragePricing.BasePricePerGB = 0.2
 
@@ -603,16 +603,16 @@ func TestTieredPricing(t *testing.T) {
 
 // ========== 辅助函数 ==========
 
-func createTestBillingManager(t *testing.T) *BillingManager {
+func createTestBillingManager(t *testing.T) *Manager {
 	tmpDir, err := os.MkdirTemp("", "billing-test")
 	require.NoError(t, err)
-	config := DefaultBillingConfig()
-	bm, err := NewBillingManager(config, tmpDir)
+	config := DefaultConfig()
+	bm, err := NewManager(config, tmpDir)
 	require.NoError(t, err)
 	return bm
 }
 
-func createTestInvoice(t *testing.T, bm *BillingManager) *Invoice {
+func createTestInvoice(t *testing.T, bm *Manager) *Invoice {
 	ctx := context.Background()
 	invoice, err := bm.CreateInvoice(ctx, &InvoiceInput{
 		UserID:      "user1",
@@ -664,7 +664,7 @@ func TestGetPoolUsageSummary(t *testing.T) {
 	assert.Equal(t, 3, summary.Records)
 }
 
-func TestGetPoolBillingStats(t *testing.T) {
+func TestGetPoolStats(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
@@ -681,7 +681,7 @@ func TestGetPoolBillingStats(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	stats, err := bm.GetPoolBillingStats("pool1", time.Now().AddDate(0, -1, 0), time.Now())
+	stats, err := bm.GetPoolStats("pool1", time.Now().AddDate(0, -1, 0), time.Now())
 	require.NoError(t, err)
 	assert.Equal(t, "pool1", stats.PoolID)
 	assert.Equal(t, "存储池1", stats.PoolName)
@@ -757,10 +757,10 @@ func TestLoadData(t *testing.T) {
 	require.NoError(t, err)
 	defer os.RemoveAll(tmpDir)
 
-	config := DefaultBillingConfig()
+	config := DefaultConfig()
 
 	// 创建第一个管理器并添加数据
-	bm1, err := NewBillingManager(config, tmpDir)
+	bm1, err := NewManager(config, tmpDir)
 	require.NoError(t, err)
 
 	ctx := context.Background()
@@ -773,7 +773,7 @@ func TestLoadData(t *testing.T) {
 	require.NoError(t, err)
 
 	// 创建第二个管理器，应该加载已有数据
-	bm2, err := NewBillingManager(config, tmpDir)
+	bm2, err := NewManager(config, tmpDir)
 	require.NoError(t, err)
 
 	records, err := bm2.ListUsageRecords("", "", time.Time{}, time.Time{})

@@ -36,10 +36,10 @@ func (m *mockCheck) Execute(ctx context.Context) (CheckResult, error) {
 	}, nil
 }
 
-func TestNewComplianceChecker(t *testing.T) {
-	checker := NewComplianceChecker()
+func TestNewChecker(t *testing.T) {
+	checker := NewChecker()
 	if checker == nil {
-		t.Fatal("NewComplianceChecker should not return nil")
+		t.Fatal("NewChecker should not return nil")
 	}
 	if len(checker.checks) != 0 {
 		t.Error("new checker should have no checks registered")
@@ -47,7 +47,7 @@ func TestNewComplianceChecker(t *testing.T) {
 }
 
 func TestRegisterCheck(t *testing.T) {
-	checker := NewComplianceChecker()
+	checker := NewChecker()
 	check := &mockCheck{id: "test-1", name: "Test Check"}
 
 	checker.RegisterCheck(check)
@@ -62,7 +62,7 @@ func TestRegisterCheck(t *testing.T) {
 }
 
 func TestRunChecks(t *testing.T) {
-	checker := NewComplianceChecker()
+	checker := NewChecker()
 
 	// 注册多个检查项
 	checker.RegisterCheck(&mockCheck{id: "sec-1", checkType: CheckSecurity, name: "Security Check 1", passed: true})
@@ -89,7 +89,7 @@ func TestRunChecks(t *testing.T) {
 }
 
 func TestRunChecksByType(t *testing.T) {
-	checker := NewComplianceChecker()
+	checker := NewChecker()
 
 	checker.RegisterCheck(&mockCheck{id: "sec-1", checkType: CheckSecurity, name: "Security 1", passed: true})
 	checker.RegisterCheck(&mockCheck{id: "sec-2", checkType: CheckSecurity, name: "Security 2", passed: true})
@@ -109,7 +109,7 @@ func TestCalculateOverallLevel(t *testing.T) {
 	tests := []struct {
 		name     string
 		results  []CheckResult
-		expected ComplianceLevel
+		expected Level
 	}{
 		{
 			name:     "empty results",
