@@ -101,10 +101,14 @@ func (l *SecurityAuditLogger) Log(entry SecurityAuditEntry) {
 		log.Printf("[ERROR] Failed to open security audit log: %v", err)
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
-	f.Write(data)
-	f.WriteString("\n")
+	if _, err := f.Write(data); err != nil {
+		log.Printf("[ERROR] Failed to write security audit log: %v", err)
+	}
+	if _, err := f.WriteString("\n"); err != nil {
+		log.Printf("[ERROR] Failed to write security audit log newline: %v", err)
+	}
 }
 
 // rotateIfNeeded 检查并执行日志轮转
@@ -124,7 +128,9 @@ func (l *SecurityAuditLogger) rotateIfNeeded() {
 func (l *SecurityAuditLogger) rotateLog() {
 	// 删除最旧的日志文件
 	oldestLog := l.logPath + "." + string(rune(l.maxFiles-1))
-	os.Remove(oldestLog)
+	if err := os.Remove(oldestLog); err != nil && !os.IsNotExist(err) {
+		log.Printf("[WARN] Failed to remove oldest log file: %v", err)
+	}
 
 	// 重命名现有日志文件
 	for i := l.maxFiles - 2; i >= 0; i-- {
@@ -133,7 +139,9 @@ func (l *SecurityAuditLogger) rotateLog() {
 			oldPath = l.logPath + "." + string(rune('0'+i))
 		}
 		newPath := l.logPath + "." + string(rune('0'+i+1))
-		os.Rename(oldPath, newPath)
+		if err := os.Rename(oldPath, newPath); err != nil && !os.IsNotExist(err) {
+			log.Printf("[WARN] Failed to rotate log file %s: %v", oldPath, err)
+		}
 	}
 }
 
