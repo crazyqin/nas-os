@@ -131,12 +131,12 @@ func (m *DiskHealthMonitor) Start(checkInterval time.Duration) {
 	m.checkTicker = time.NewTicker(checkInterval)
 	go func() {
 		// 立即执行一次检查
-		m.CheckAllDisks()
+		_ = m.CheckAllDisks()
 
 		for {
 			select {
 			case <-m.checkTicker.C:
-				m.CheckAllDisks()
+				_ = m.CheckAllDisks()
 			case <-m.stopCh:
 				return
 			}

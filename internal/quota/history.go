@@ -1088,7 +1088,7 @@ func (m *NotificationManager) sendEmail(notification *AlertNotification, channel
 func (m *NotificationManager) sendSlack(notification *AlertNotification, channel *NotificationChannel) error {
 	webhook, ok := channel.Config["webhook"].(string)
 	if !ok {
-		return fmt.Errorf("Slack webhook 未配置")
+		return fmt.Errorf("slack webhook 未配置")
 	}
 
 	fmt.Printf("[quota] 发送 Slack 通知: %s -> %s\n", notification.AlertID, webhook)
@@ -1099,7 +1099,7 @@ func (m *NotificationManager) sendSlack(notification *AlertNotification, channel
 func (m *NotificationManager) sendDiscord(notification *AlertNotification, channel *NotificationChannel) error {
 	webhook, ok := channel.Config["webhook"].(string)
 	if !ok {
-		return fmt.Errorf("Discord webhook 未配置")
+		return fmt.Errorf("discord webhook 未配置")
 	}
 
 	fmt.Printf("[quota] 发送 Discord 通知: %s -> %s\n", notification.AlertID, webhook)
@@ -1110,7 +1110,7 @@ func (m *NotificationManager) sendDiscord(notification *AlertNotification, chann
 func (m *NotificationManager) sendTelegram(notification *AlertNotification, channel *NotificationChannel) error {
 	botToken, ok := channel.Config["bot_token"].(string)
 	if !ok || botToken == "" {
-		return fmt.Errorf("Telegram bot token 未配置")
+		return fmt.Errorf("telegram bot token 未配置")
 	}
 
 	// 注意：不记录 bot_token 到日志，避免敏感信息泄露

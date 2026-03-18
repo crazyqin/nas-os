@@ -87,6 +87,7 @@ func NewSessionManager(config SessionConfig) *SessionManager {
 	if config.SessionFilePath != "" {
 		if err := m.load(); err != nil {
 			// 加载失败时继续运行，使用空会话状态
+			_ = err // preserved for future error handling
 		}
 	}
 
@@ -148,6 +149,7 @@ func (m *SessionManager) CreateSession(userID, username, ip, userAgent string, r
 
 	if err := m.save(); err != nil {
 		// 保存失败，但会话已在内存中创建，继续返回
+		_ = err // preserved for future error handling
 	}
 
 	return session, nil
@@ -226,6 +228,7 @@ func (m *SessionManager) RefreshSession(refreshToken string) (*Session, error) {
 
 	if err := m.save(); err != nil {
 		// 保存失败，但会话已更新，继续返回
+		_ = err // preserved for future error handling
 	}
 
 	return session, nil
@@ -244,6 +247,7 @@ func (m *SessionManager) InvalidateSession(token string) error {
 	m.removeSession(session)
 	if err := m.save(); err != nil {
 		// 保存失败，但会话已在内存中移除，继续返回
+		_ = err // preserved for future error handling
 	}
 
 	return nil

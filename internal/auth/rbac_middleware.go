@@ -509,6 +509,7 @@ func AuditLogMiddleware() gin.HandlerFunc {
 		if userID != "" && c.Writer.Status() >= 400 {
 			// log.Printf("[AUDIT] user=%s method=%s path=%s status=%d",
 			// 	userID, c.Request.Method, c.Request.URL.Path, c.Writer.Status())
+			_ = userID // preserved for future audit logging
 		}
 	}
 }

@@ -381,7 +381,7 @@ func (h *ResourceMonitorAPIHandlers) getRealtimeProcessMetrics(c *gin.Context) {
 	// 支持限制返回数量
 	limit := 20
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 		if limit > len(metrics) {
 			limit = len(metrics)
 		}
@@ -463,7 +463,7 @@ func (h *ResourceMonitorAPIHandlers) getCapacityPrediction(c *gin.Context) {
 	volume := c.Query("volume")
 	months := 6
 	if m := c.Query("months"); m != "" {
-		fmt.Sscanf(m, "%d", &months)
+		_, _ = fmt.Sscanf(m, "%d", &months)
 	}
 
 	if h.getCapacityHistory == nil {
@@ -503,7 +503,7 @@ func (h *ResourceMonitorAPIHandlers) getCapacityPrediction(c *gin.Context) {
 func (h *ResourceMonitorAPIHandlers) getResourceTrend(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	trend := gin.H{
@@ -530,7 +530,7 @@ func (h *ResourceMonitorAPIHandlers) getResourceTrend(c *gin.Context) {
 func (h *ResourceMonitorAPIHandlers) getStorageTrend(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	trend, err := h.getStorageTrendData(days)
@@ -546,7 +546,7 @@ func (h *ResourceMonitorAPIHandlers) getStorageTrend(c *gin.Context) {
 func (h *ResourceMonitorAPIHandlers) getBandwidthTrend(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	trend, err := h.getBandwidthTrendData(days)
@@ -585,7 +585,7 @@ func (h *ResourceMonitorAPIHandlers) getActiveAlerts(c *gin.Context) {
 func (h *ResourceMonitorAPIHandlers) getAlertHistory(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	// 返回历史告警（简化实现）
@@ -734,7 +734,7 @@ func (h *ResourceMonitorAPIHandlers) getUserRanking(c *gin.Context) {
 	// 已按使用量排序
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	if limit > len(metrics) {
@@ -773,7 +773,7 @@ func (h *ResourceMonitorAPIHandlers) getVolumeRanking(c *gin.Context) {
 
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	if limit > len(metrics) {
@@ -843,7 +843,7 @@ func (h *ResourceMonitorAPIHandlers) getProcessRanking(c *gin.Context) {
 
 	limit := 20
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	if limit > len(metrics) {
@@ -891,9 +891,11 @@ func (h *ResourceMonitorAPIHandlers) getResourceHealth(c *gin.Context) {
 	if h.getStorageMetrics != nil {
 		if storage, err := h.getStorageMetrics(); err == nil {
 			storageScore, storageIssues := h.evaluateStorageHealth(storage)
-			health["components"].(gin.H)["storage"] = gin.H{
-				"score":  storageScore,
-				"status": h.scoreToStatus(storageScore),
+			if components, ok := health["components"].(gin.H); ok {
+				components["storage"] = gin.H{
+					"score":  storageScore,
+					"status": h.scoreToStatus(storageScore),
+				}
 			}
 			score = score - (100 - storageScore)
 			issues = append(issues, storageIssues...)
@@ -904,13 +906,15 @@ func (h *ResourceMonitorAPIHandlers) getResourceHealth(c *gin.Context) {
 	if h.getSystemMetrics != nil {
 		if system, err := h.getSystemMetrics(); err == nil {
 			cpuScore, memScore, systemIssues := h.evaluateSystemHealth(system)
-			health["components"].(gin.H)["cpu"] = gin.H{
-				"score":  cpuScore,
-				"status": h.scoreToStatus(cpuScore),
-			}
-			health["components"].(gin.H)["memory"] = gin.H{
-				"score":  memScore,
-				"status": h.scoreToStatus(memScore),
+			if components, ok := health["components"].(gin.H); ok {
+				components["cpu"] = gin.H{
+					"score":  cpuScore,
+					"status": h.scoreToStatus(cpuScore),
+				}
+				components["memory"] = gin.H{
+					"score":  memScore,
+					"status": h.scoreToStatus(memScore),
+				}
 			}
 			issues = append(issues, systemIssues...)
 		}

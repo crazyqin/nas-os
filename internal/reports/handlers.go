@@ -481,7 +481,7 @@ func (h *Handlers) getScheduleExecutions(c *gin.Context) {
 	id := c.Param("id")
 	limit := 20
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	executions := h.scheduleManager.GetExecutions(id, limit)

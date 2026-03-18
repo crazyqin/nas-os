@@ -1741,7 +1741,7 @@ type StorageCostReportExporter struct {
 
 // NewStorageCostReportExporter 创建导出器
 func NewStorageCostReportExporter(outputDir string) *StorageCostReportExporter {
-	os.MkdirAll(outputDir, 0755)
+	_ = os.MkdirAll(outputDir, 0755)
 	return &StorageCostReportExporter{outputDir: outputDir}
 }
 
@@ -1989,24 +1989,24 @@ func (e *StorageCostReportExporter) writeRedundantDataScanCSV(writer *csv.Writer
 // writeCostSavingsReportCSV 写入成本节省报告CSV
 func (e *StorageCostReportExporter) writeCostSavingsReportCSV(writer *csv.Writer, report *CostSavingsReport) error {
 	// 写入标题
-	writer.Write([]string{"成本节省建议报告"})
-	writer.Write([]string{"报告ID", report.ID})
-	writer.Write([]string{"生成时间", report.GeneratedAt.Format("2006-01-02 15:04:05")})
-	writer.Write([]string{})
+	_ = writer.Write([]string{"成本节省建议报告"})
+	_ = writer.Write([]string{"报告ID", report.ID})
+	_ = writer.Write([]string{"生成时间", report.GeneratedAt.Format("2006-01-02 15:04:05")})
+	_ = writer.Write([]string{})
 
 	// 写入汇总
-	writer.Write([]string{"汇总统计"})
-	writer.Write([]string{"总节省机会数", fmt.Sprintf("%d", report.Summary.TotalOpportunities)})
-	writer.Write([]string{"总月节省(元)", fmt.Sprintf("%.2f", report.Summary.TotalSavingsMonthly)})
-	writer.Write([]string{"总年节省(元)", fmt.Sprintf("%.2f", report.Summary.TotalSavingsYearly)})
-	writer.Write([]string{"快速见效项目数", fmt.Sprintf("%d", report.Summary.QuickWinCount)})
-	writer.Write([]string{})
+	_ = writer.Write([]string{"汇总统计"})
+	_ = writer.Write([]string{"总节省机会数", fmt.Sprintf("%d", report.Summary.TotalOpportunities)})
+	_ = writer.Write([]string{"总月节省(元)", fmt.Sprintf("%.2f", report.Summary.TotalSavingsMonthly)})
+	_ = writer.Write([]string{"总年节省(元)", fmt.Sprintf("%.2f", report.Summary.TotalSavingsYearly)})
+	_ = writer.Write([]string{"快速见效项目数", fmt.Sprintf("%d", report.Summary.QuickWinCount)})
+	_ = writer.Write([]string{})
 
 	// 写入明细表头
-	writer.Write([]string{"类型", "标题", "描述", "范围", "目标", "月节省(元)", "年节省(元)", "节省(GB)", "难度", "优先级", "实施时间"})
+	_ = writer.Write([]string{"类型", "标题", "描述", "范围", "目标", "月节省(元)", "年节省(元)", "节省(GB)", "难度", "优先级", "实施时间"})
 
 	for _, opp := range report.SavingsOpportunities {
-		writer.Write([]string{
+		_ = writer.Write([]string{
 			opp.Type,
 			opp.Title,
 			opp.Description,

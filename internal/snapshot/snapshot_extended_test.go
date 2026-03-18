@@ -522,12 +522,12 @@ func TestScheduleType_Types(t *testing.T) {
 
 func TestPolicy_Fields(t *testing.T) {
 	policy := &Policy{
-		ID:           "test-id",
-		Name:         "Test Policy",
-		Type:         PolicyTypeScheduled,
-		VolumeName:   "test-volume",
-		Enabled:      true,
-		Retention:    &RetentionPolicy{MaxCount: 10, MaxAgeDays: 30},
+		ID:         "test-id",
+		Name:       "Test Policy",
+		Type:       PolicyTypeScheduled,
+		VolumeName: "test-volume",
+		Enabled:    true,
+		Retention:  &RetentionPolicy{MaxCount: 10, MaxAgeDays: 30},
 	}
 
 	assert.Equal(t, "test-id", policy.ID)

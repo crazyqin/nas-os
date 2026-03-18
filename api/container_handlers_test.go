@@ -105,6 +105,7 @@ func TestContainerHandlers_ListContainers_NilManager(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			// Expected panic from nil manager
+			_ = r
 		}
 	}()
 
@@ -123,6 +124,7 @@ func TestContainerHandlers_ListImages_NilManager(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			// Expected panic from nil manager
+			_ = r
 		}
 	}()
 
@@ -141,6 +143,7 @@ func TestContainerHandlers_ListNetworks_NilManager(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			// Expected panic from nil manager
+			_ = r
 		}
 	}()
 
@@ -159,6 +162,7 @@ func TestContainerHandlers_ListVolumes_NilManager(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			// Expected panic from nil manager
+			_ = r
 		}
 	}()
 

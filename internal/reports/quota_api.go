@@ -661,7 +661,7 @@ func (h *QuotaAPIHandlers) getTopUsage(c *gin.Context) {
 	// 获取参数
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		fmt.Sscanf(l, "%d", &limit)
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	sortBy := c.DefaultQuery("sort", "usage") // usage, percent
@@ -699,7 +699,7 @@ func (h *QuotaAPIHandlers) getUsageHistory(c *gin.Context) {
 	// 获取时间范围
 	days := 7
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	history := make([]UsageHistoryPoint, 0)
@@ -1013,7 +1013,7 @@ func (h *QuotaAPIHandlers) getForecast(c *gin.Context) {
 
 	days := 30
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	forecast := make([]ForecastPoint, 0)
