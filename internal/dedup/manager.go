@@ -597,16 +597,16 @@ type ManagerGroupResult struct {
 }
 
 // GetReport 获取去重报告
-func (m *Manager) GetReport() (*DedupReport, error) {
+func (m *Manager) GetReport() (*Report, error) {
 	return m.GetReportForUser("")
 }
 
 // GetReportForUser 获取指定用户的去重报告
-func (m *Manager) GetReportForUser(user string) (*DedupReport, error) {
+func (m *Manager) GetReportForUser(user string) (*Report, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	report := &DedupReport{
+	report := &Report{
 		GeneratedAt: time.Now(),
 		Stats: StatsSnapshot{
 			TotalFiles:       m.stats.TotalFiles,
@@ -680,11 +680,11 @@ func (m *Manager) GetReportForUser(user string) (*DedupReport, error) {
 }
 
 // generateRecommendations 生成去重建议
-func (m *Manager) generateRecommendations() []DedupRecommendation {
-	var recommendations []DedupRecommendation
+func (m *Manager) generateRecommendations() []Recommendation {
+	var recommendations []Recommendation
 
 	if m.stats.SavingsPotential > 0 {
-		recommendations = append(recommendations, DedupRecommendation{
+		recommendations = append(recommendations, Recommendation{
 			Type:        "savings",
 			Priority:    "high",
 			Title:       "发现重复文件",
@@ -694,7 +694,7 @@ func (m *Manager) generateRecommendations() []DedupRecommendation {
 	}
 
 	if m.stats.CrossUserSavings > 0 && m.config.CrossUser {
-		recommendations = append(recommendations, DedupRecommendation{
+		recommendations = append(recommendations, Recommendation{
 			Type:        "cross_user",
 			Priority:    "medium",
 			Title:       "跨用户重复数据",
@@ -704,7 +704,7 @@ func (m *Manager) generateRecommendations() []DedupRecommendation {
 	}
 
 	if !m.config.AutoDedup && m.stats.SavingsPotential > 1024*1024*1024 { // > 1GB
-		recommendations = append(recommendations, DedupRecommendation{
+		recommendations = append(recommendations, Recommendation{
 			Type:        "auto",
 			Priority:    "low",
 			Title:       "启用自动去重",
@@ -716,13 +716,13 @@ func (m *Manager) generateRecommendations() []DedupRecommendation {
 	return recommendations
 }
 
-// DedupReport 去重报告
-type DedupReport struct {
-	GeneratedAt     time.Time                   `json:"generatedAt"`
-	Stats           StatsSnapshot               `json:"stats"`
-	DuplicateGroups []DuplicateGroupSummary     `json:"duplicateGroups"`
+// Report 去重报告
+type Report struct {
+	GeneratedAt     time.Time              `json:"generatedAt"`
+	Stats           StatsSnapshot          `json:"stats"`
+	DuplicateGroups []DuplicateGroupSummary `json:"duplicateGroups"`
 	UserReports     map[string]*UserDedupReport `json:"userReports,omitempty"`
-	Recommendations []DedupRecommendation       `json:"recommendations,omitempty"`
+	Recommendations []Recommendation       `json:"recommendations,omitempty"`
 }
 
 // UserDedupReport 用户去重报告
@@ -744,8 +744,8 @@ type DuplicateGroupSummary struct {
 	Users        []string `json:"users,omitempty"`
 }
 
-// DedupRecommendation 去重建议
-type DedupRecommendation struct {
+// Recommendation 去重建议
+type Recommendation struct {
 	Type        string `json:"type"`
 	Priority    string `json:"priority"`
 	Title       string `json:"title"`
