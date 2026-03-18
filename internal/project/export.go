@@ -10,12 +10,13 @@ import (
 // ExportFormat 导出格式
 type ExportFormat string
 
+// 导出格式常量
 const (
 	ExportFormatJSON ExportFormat = "json"
 )
 
-// ProjectExport 项目导出数据
-type ProjectExport struct {
+// Export 项目导出数据
+type Export struct {
 	// 元数据
 	ExportVersion string    `json:"export_version"`
 	ExportedAt    time.Time `json:"exported_at"`
@@ -39,6 +40,9 @@ type ProjectExport struct {
 	// 导出选项
 	Options ExportOptions `json:"options"`
 }
+
+// ProjectExport 是 Export 的别名，保持向后兼容
+type ProjectExport = Export
 
 // ExportOptions 导出选项
 type ExportOptions struct {
@@ -90,7 +94,7 @@ func NewExportManager(mgr *Manager) *ExportManager {
 }
 
 // ExportProject 导出项目
-func (em *ExportManager) ExportProject(projectID, exportedBy string, options ExportOptions) (*ProjectExport, error) {
+func (em *ExportManager) ExportProject(projectID, exportedBy string, options ExportOptions) (*Export, error) {
 	project, err := em.manager.GetProject(projectID)
 	if err != nil {
 		return nil, err
@@ -104,7 +108,7 @@ func (em *ExportManager) ExportProject(projectID, exportedBy string, options Exp
 		return nil, errors.New("项目已归档，如需导出请设置 IncludeArchived 选项")
 	}
 
-	export := &ProjectExport{
+	export := &Export{
 		ExportVersion: "1.0",
 		ExportedAt:    time.Now(),
 		ExportedBy:    exportedBy,
@@ -147,7 +151,7 @@ func (em *ExportManager) ExportProject(projectID, exportedBy string, options Exp
 }
 
 // anonymizeExport 匿名化导出数据
-func (em *ExportManager) anonymizeExport(export *ProjectExport) {
+func (em *ExportManager) anonymizeExport(export *Export) {
 	// 匿名化项目信息
 	export.Project.OwnerID = "user_1"
 	export.Project.MemberIDs = []string{}
@@ -206,7 +210,7 @@ func (em *ExportManager) ExportToJSON(projectID, exportedBy string, options Expo
 
 // ImportProject 导入项目
 func (em *ExportManager) ImportProject(data []byte, options ImportOptions) (*ImportResult, error) {
-	var export ProjectExport
+	var export Export
 	if err := json.Unmarshal(data, &export); err != nil {
 		return nil, err
 	}
@@ -351,8 +355,8 @@ func (em *ExportManager) ImportProject(data []byte, options ImportOptions) (*Imp
 }
 
 // ValidateImportData 验证导入数据
-func (em *ExportManager) ValidateImportData(data []byte) (*ProjectExport, []string, error) {
-	var export ProjectExport
+func (em *ExportManager) ValidateImportData(data []byte) (*Export, []string, error) {
+	var export Export
 	if err := json.Unmarshal(data, &export); err != nil {
 		return nil, nil, err
 	}
@@ -451,8 +455,8 @@ func (em *ExportManager) estimateSize(project *Project, milestones []*Milestone,
 }
 
 // BatchExport 批量导出
-func (em *ExportManager) BatchExport(projectIDs []string, exportedBy string, options ExportOptions) (map[string]*ProjectExport, []error) {
-	results := make(map[string]*ProjectExport)
+func (em *ExportManager) BatchExport(projectIDs []string, exportedBy string, options ExportOptions) (map[string]*Export, []error) {
+	results := make(map[string]*Export)
 	errors := make([]error, 0)
 
 	for _, projectID := range projectIDs {

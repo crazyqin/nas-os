@@ -316,7 +316,7 @@ func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 	}
 
 	if config.PassdbBackend != "" {
-		sb.WriteString(fmt.Sprintf("    passdb backend = %s\n", config.PassdbBackend))
+		fmt.Fprintf(&sb, "    passdb backend = %s\n", config.PassdbBackend)
 	}
 
 	// 打印机配置（默认禁用）
@@ -330,48 +330,48 @@ func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 
 	// 生成共享配置
 	for _, share := range shares {
-		sb.WriteString(fmt.Sprintf("[%s]\n", share.Name))
-		sb.WriteString(fmt.Sprintf("    path = %s\n", share.Path))
+		fmt.Fprintf(&sb, "[%s]\n", share.Name)
+		fmt.Fprintf(&sb, "    path = %s\n", share.Path)
 
 		if share.Comment != "" {
-			sb.WriteString(fmt.Sprintf("    comment = %s\n", share.Comment))
+			fmt.Fprintf(&sb, "    comment = %s\n", share.Comment)
 		}
 
-		sb.WriteString(fmt.Sprintf("    browseable = %s\n", boolToYesNo(share.Browseable)))
-		sb.WriteString(fmt.Sprintf("    read only = %s\n", boolToYesNo(share.ReadOnly)))
-		sb.WriteString(fmt.Sprintf("    guest ok = %s\n", boolToYesNo(share.GuestOK)))
+		fmt.Fprintf(&sb, "    browseable = %s\n", boolToYesNo(share.Browseable))
+		fmt.Fprintf(&sb, "    read only = %s\n", boolToYesNo(share.ReadOnly))
+		fmt.Fprintf(&sb, "    guest ok = %s\n", boolToYesNo(share.GuestOK))
 
 		if len(share.ValidUsers) > 0 {
-			sb.WriteString(fmt.Sprintf("    valid users = %s\n", strings.Join(share.ValidUsers, ", ")))
+			fmt.Fprintf(&sb, "    valid users = %s\n", strings.Join(share.ValidUsers, ", "))
 		}
 		if len(share.WriteList) > 0 {
-			sb.WriteString(fmt.Sprintf("    write list = %s\n", strings.Join(share.WriteList, ", ")))
+			fmt.Fprintf(&sb, "    write list = %s\n", strings.Join(share.WriteList, ", "))
 		}
 		if len(share.Users) > 0 {
-			sb.WriteString(fmt.Sprintf("    read list = %s\n", strings.Join(share.Users, ", ")))
+			fmt.Fprintf(&sb, "    read list = %s\n", strings.Join(share.Users, ", "))
 		}
 
 		if share.CreateMask != "" {
-			sb.WriteString(fmt.Sprintf("    create mask = %s\n", share.CreateMask))
+			fmt.Fprintf(&sb, "    create mask = %s\n", share.CreateMask)
 		} else {
 			sb.WriteString("    create mask = 0644\n")
 		}
 
 		if share.DirectoryMask != "" {
-			sb.WriteString(fmt.Sprintf("    directory mask = %s\n", share.DirectoryMask))
+			fmt.Fprintf(&sb, "    directory mask = %s\n", share.DirectoryMask)
 		} else {
 			sb.WriteString("    directory mask = 0755\n")
 		}
 
 		if share.ForceUser != "" {
-			sb.WriteString(fmt.Sprintf("    force user = %s\n", share.ForceUser))
+			fmt.Fprintf(&sb, "    force user = %s\n", share.ForceUser)
 		}
 		if share.ForceGroup != "" {
-			sb.WriteString(fmt.Sprintf("    force group = %s\n", share.ForceGroup))
+			fmt.Fprintf(&sb, "    force group = %s\n", share.ForceGroup)
 		}
 
 		if len(share.VetoFiles) > 0 {
-			sb.WriteString(fmt.Sprintf("    veto files = /%s/\n", strings.Join(share.VetoFiles, "/")))
+			fmt.Fprintf(&sb, "    veto files = /%s/\n", strings.Join(share.VetoFiles, "/"))
 		}
 
 		// 额外选项

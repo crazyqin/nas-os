@@ -102,17 +102,17 @@ type Alert struct {
 	AcknowledgedBy string     `json:"acknowledged_by,omitempty"`
 
 	// 警报级别
-	Level           Level `json:"level"`
-	Threshold       float64    `json:"threshold"`        // 触发阈值
-	CurrentPercent  float64    `json:"current_percent"`  // 当前使用百分比
-	CurrentSpend    float64    `json:"current_spend"`    // 当前支出
-	BudgetAmount    float64    `json:"budget_amount"`    // 预算金额
-	RemainingAmount float64    `json:"remaining_amount"` // 剩余金额
+	Level           Level   `json:"level"`
+	Threshold       float64 `json:"threshold"`        // 触发阈值
+	CurrentPercent  float64 `json:"current_percent"`  // 当前使用百分比
+	CurrentSpend    float64 `json:"current_spend"`    // 当前支出
+	BudgetAmount    float64 `json:"budget_amount"`    // 预算金额
+	RemainingAmount float64 `json:"remaining_amount"` // 剩余金额
 
 	// 状态
 	Status        Status `json:"status"`
-	Message       string      `json:"message"`
-	CustomMessage string      `json:"custom_message,omitempty"`
+	Message       string `json:"message"`
+	CustomMessage string `json:"custom_message,omitempty"`
 
 	// 通知状态
 	NotifySent     bool       `json:"notify_sent"`
@@ -193,13 +193,13 @@ type AlertHistory struct {
 
 // AlertStats 警报统计
 type AlertStats struct {
-	TotalAlerts           int           `json:"total_alerts"`
-	ActiveAlerts          int           `json:"active_alerts"`
-	AcknowledgedAlerts    int           `json:"acknowledged_alerts"`
-	ResolvedAlerts        int           `json:"resolved_alerts"`
-	ByLevel               map[Level]int `json:"by_level"`
+	TotalAlerts           int            `json:"total_alerts"`
+	ActiveAlerts          int            `json:"active_alerts"`
+	AcknowledgedAlerts    int            `json:"acknowledged_alerts"`
+	ResolvedAlerts        int            `json:"resolved_alerts"`
+	ByLevel               map[Level]int  `json:"by_level"`
 	ByBudget              map[string]int `json:"by_budget"`
-	AverageResolutionTime float64       `json:"average_resolution_time_minutes"`
+	AverageResolutionTime float64        `json:"average_resolution_time_minutes"`
 }
 
 // ========== 警报通知接口 ==========

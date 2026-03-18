@@ -67,6 +67,7 @@ func (h *Handlers) RegisterRoutes(router *gin.RouterGroup) {
 
 // ========== 请求/响应结构 ==========
 
+// CreateProjectRequest 创建项目请求
 type CreateProjectRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Key         string `json:"key" binding:"required"`
@@ -74,18 +75,21 @@ type CreateProjectRequest struct {
 	OwnerID     string `json:"owner_id,omitempty"`
 }
 
+// UpdateProjectRequest 更新项目请求
 type UpdateProjectRequest struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 	Status      string `json:"status,omitempty"`
 }
 
+// CreateMilestoneRequest 创建里程碑请求
 type CreateMilestoneRequest struct {
 	Name        string     `json:"name" binding:"required"`
 	Description string     `json:"description,omitempty"`
 	DueDate     *time.Time `json:"due_date,omitempty"`
 }
 
+// UpdateMilestoneRequest 更新里程碑请求
 type UpdateMilestoneRequest struct {
 	Name        string     `json:"name,omitempty"`
 	Description string     `json:"description,omitempty"`
@@ -93,6 +97,7 @@ type UpdateMilestoneRequest struct {
 	DueDate     *time.Time `json:"due_date,omitempty"`
 }
 
+// CreateTaskRequest 创建任务请求
 type CreateTaskRequest struct {
 	Title          string       `json:"title" binding:"required"`
 	Description    string       `json:"description,omitempty"`
@@ -107,6 +112,7 @@ type CreateTaskRequest struct {
 	EstimatedHours float64      `json:"estimated_hours,omitempty"`
 }
 
+// UpdateTaskRequest 更新任务请求
 type UpdateTaskRequest struct {
 	Title          string       `json:"title,omitempty"`
 	Description    string       `json:"description,omitempty"`
@@ -123,6 +129,7 @@ type UpdateTaskRequest struct {
 	ActualHours    float64      `json:"actual_hours,omitempty"`
 }
 
+// AddCommentRequest 添加评论请求
 type AddCommentRequest struct {
 	Content string `json:"content" binding:"required"`
 }

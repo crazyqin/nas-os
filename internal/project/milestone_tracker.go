@@ -10,6 +10,7 @@ import (
 // MilestoneHealthStatus 里程碑健康状态
 type MilestoneHealthStatus string
 
+// 里程碑健康状态常量
 const (
 	HealthStatusHealthy    MilestoneHealthStatus = "healthy"     // 按计划进行
 	HealthStatusAtRisk     MilestoneHealthStatus = "at_risk"     // 有风险
@@ -23,6 +24,7 @@ const (
 // MilestoneRiskLevel 风险等级
 type MilestoneRiskLevel string
 
+// 风险等级常量
 const (
 	RiskLevelLow      MilestoneRiskLevel = "low"
 	RiskLevelMedium   MilestoneRiskLevel = "medium"

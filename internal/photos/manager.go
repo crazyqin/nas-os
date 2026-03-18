@@ -739,13 +739,13 @@ func (m *Manager) DeletePhoto(photoID string) error {
 	// 删除文件
 	photoPath := filepath.Join(m.photosDir, photo.Path)
 	if err := os.Remove(photoPath); err != nil && !os.IsNotExist(err) {
-		// Log error but continue
+		_ = err // Log error but continue
 	}
 
 	// 删除缩略图
 	for _, thumbPath := range findFiles(filepath.Join(m.thumbsDir, fmt.Sprintf("%s_*.jpg", photoID))) {
 		if err := os.Remove(thumbPath); err != nil && !os.IsNotExist(err) {
-			// Log error but continue
+			_ = err // Log error but continue
 		}
 	}
 

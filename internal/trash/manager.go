@@ -171,7 +171,7 @@ func (m *Manager) MoveToTrash(originalPath, userID string) (*TrashItem, error) {
 	if m.totalSize > m.config.MaxSize {
 		// 自动清理最早的项目
 		if err := m.cleanupOldest(); err != nil {
-			// 记录错误但不影响当前操作
+			_ = err // 记录错误但不影响当前操作
 		}
 	}
 

@@ -539,7 +539,7 @@ func (h *Handlers) completeUploadSession(c *gin.Context) {
 
 	// 清理临时文件
 	if err := os.RemoveAll(session.TempPath); err != nil {
-		// Log error but continue
+		_ = err // Log error but continue
 	}
 
 	// 删除会话

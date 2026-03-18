@@ -12,6 +12,7 @@ import (
 // MilestoneStatus 里程碑状态
 type MilestoneStatus string
 
+// 里程碑状态常量
 const (
 	MilestoneStatusPlanned   MilestoneStatus = "planned"
 	MilestoneStatusActive    MilestoneStatus = "active"

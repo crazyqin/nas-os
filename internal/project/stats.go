@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// ProjectStatsExtended 扩展项目统计
-type ProjectStatsExtended struct {
+// StatsExtended 扩展项目统计
+type StatsExtended struct {
 	// 基础统计
 	ProjectID   string `json:"project_id"`
 	ProjectName string `json:"project_name"`
@@ -32,6 +32,9 @@ type ProjectStatsExtended struct {
 	// 风险指标
 	RiskIndicators RiskIndicators `json:"risk_indicators"`
 }
+
+// ProjectStatsExtended 是 StatsExtended 的别名，保持向后兼容
+type ProjectStatsExtended = StatsExtended
 
 // TaskStatsDetail 详细任务统计
 type TaskStatsDetail struct {
@@ -215,13 +218,13 @@ func NewStatsManager(mgr *Manager) *StatsManager {
 }
 
 // GetExtendedStats 获取扩展统计
-func (sm *StatsManager) GetExtendedStats(projectID string) (*ProjectStatsExtended, error) {
+func (sm *StatsManager) GetExtendedStats(projectID string) (*StatsExtended, error) {
 	project, err := sm.manager.GetProject(projectID)
 	if err != nil {
 		return nil, err
 	}
 
-	stats := &ProjectStatsExtended{
+	stats := &StatsExtended{
 		ProjectID:   projectID,
 		ProjectName: project.Name,
 		TaskStats: TaskStatsDetail{
@@ -268,7 +271,7 @@ func (sm *StatsManager) GetExtendedStats(projectID string) (*ProjectStatsExtende
 }
 
 // calculateTaskStats 计算任务统计
-func (sm *StatsManager) calculateTaskStats(stats *ProjectStatsExtended, projectID string) {
+func (sm *StatsManager) calculateTaskStats(stats *StatsExtended, projectID string) {
 	now := time.Now()
 	weekAgo := now.AddDate(0, 0, -7)
 	monthAgo := now.AddDate(0, 0, -30)
@@ -362,7 +365,7 @@ func (sm *StatsManager) calculateTaskStats(stats *ProjectStatsExtended, projectI
 }
 
 // calculateTimeStats 计算时间统计
-func (sm *StatsManager) calculateTimeStats(stats *ProjectStatsExtended, projectID string) {
+func (sm *StatsManager) calculateTimeStats(stats *StatsExtended, projectID string) {
 	filter := TaskFilter{ProjectID: projectID, Limit: 10000}
 	tasks := sm.manager.ListTasks(filter)
 
@@ -404,7 +407,7 @@ func (sm *StatsManager) calculateTimeStats(stats *ProjectStatsExtended, projectI
 }
 
 // calculateMilestoneStats 计算里程碑统计
-func (sm *StatsManager) calculateMilestoneStats(stats *ProjectStatsExtended, projectID string) {
+func (sm *StatsManager) calculateMilestoneStats(stats *StatsExtended, projectID string) {
 	now := time.Now()
 	milestones := sm.manager.ListMilestones(projectID)
 
@@ -460,7 +463,7 @@ func (sm *StatsManager) calculateMilestoneStats(stats *ProjectStatsExtended, pro
 }
 
 // calculateTeamStats 计算团队统计
-func (sm *StatsManager) calculateTeamStats(stats *ProjectStatsExtended, projectID string) {
+func (sm *StatsManager) calculateTeamStats(stats *StatsExtended, projectID string) {
 	memberMap := make(map[string]*MemberWorkloadDetail)
 	now := time.Now()
 
@@ -567,7 +570,7 @@ func (sm *StatsManager) findTopPerformers(memberMap map[string]*MemberWorkloadDe
 }
 
 // calculateProgressStats 计算进度统计
-func (sm *StatsManager) calculateProgressStats(stats *ProjectStatsExtended, projectID string, project *Project) {
+func (sm *StatsManager) calculateProgressStats(stats *StatsExtended, projectID string, project *Project) {
 	// 整体进度
 	if stats.TaskStats.Total > 0 {
 		stats.ProgressStats.OverallProgress = int(float64(stats.TaskStats.Completed) / float64(stats.TaskStats.Total) * 100)
@@ -600,7 +603,7 @@ func (sm *StatsManager) calculateProgressStats(stats *ProjectStatsExtended, proj
 }
 
 // calculateQualityMetrics 计算质量指标
-func (sm *StatsManager) calculateQualityMetrics(stats *ProjectStatsExtended, projectID string) {
+func (sm *StatsManager) calculateQualityMetrics(stats *StatsExtended, projectID string) {
 	filter := TaskFilter{ProjectID: projectID, Limit: 10000}
 	tasks := sm.manager.ListTasks(filter)
 
@@ -674,7 +677,7 @@ func (sm *StatsManager) calculateQualityMetrics(stats *ProjectStatsExtended, pro
 }
 
 // calculateRiskIndicators 计算风险指标
-func (sm *StatsManager) calculateRiskIndicators(stats *ProjectStatsExtended, projectID string) {
+func (sm *StatsManager) calculateRiskIndicators(stats *StatsExtended, projectID string) {
 	// 过期任务比例
 	if stats.TaskStats.Total > 0 {
 		stats.RiskIndicators.OverdueTasksRatio = float64(stats.TaskStats.Overdue) / float64(stats.TaskStats.Total)

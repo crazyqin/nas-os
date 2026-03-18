@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.240.0] - 2026-03-19
+
+### Bug Fixes
+- 修复 golangci-lint 错误 (67处)
+- errcheck: 15 处返回值检查
+- gofmt: 2 处格式化
+- revive: 50 处注释和命名规范
+- staticcheck: 15 处 SA9003 和 QF1012
+
+### Improvements
+- replication: ReplicationTask → Task, ReplicationType → Type, ReplicationStatus → Status (添加类型别名)
+- project: ProjectArchive → Archive, ProjectExport → Export, ProjectDashboard → ProjectDashboard (添加类型别名)
+- logging: 添加导出函数注释
+- smb: WriteString(fmt.Sprintf) → fmt.Fprintf 优化
+
+---
+
 ## [v2.239.0] - 2026-03-18
 
 ### Bug Fixes

@@ -91,13 +91,13 @@ type UpdateBillingStatusRequest struct {
 	PaidAt *time.Time `json:"paid_at,omitempty"`
 }
 
-// CostAnalysisRequest 成本分析请求参数
+// CostAnalysisQuery 成本分析请求参数
 type CostAnalysisQuery struct {
 	PeriodStart string `form:"period_start"`
 	PeriodEnd   string `form:"period_end"`
 }
 
-// UsageReportRequest 资源使用报告请求参数
+// UsageReportQuery 资源使用报告请求参数
 type UsageReportQuery struct {
 	PeriodStart string `form:"period_start"`
 	PeriodEnd   string `form:"period_end"`

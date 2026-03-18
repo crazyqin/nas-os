@@ -19,10 +19,15 @@ import (
 type Level int
 
 const (
+	// LevelDebug 调试级别
 	LevelDebug Level = iota
+	// LevelInfo 信息级别
 	LevelInfo
+	// LevelWarn 警告级别
 	LevelWarn
+	// LevelError 错误级别
 	LevelError
+	// LevelFatal 致命错误级别
 	LevelFatal
 )
 
@@ -94,6 +99,7 @@ type JSONFormatter struct {
 	PrettyPrint bool
 }
 
+// Format 将日志条目格式化为 JSON 字节
 func (f *JSONFormatter) Format(entry *LogEntry) ([]byte, error) {
 	if f.PrettyPrint {
 		return json.MarshalIndent(entry, "", "  ")
@@ -107,6 +113,7 @@ type TextFormatter struct {
 	TimeFormat    string
 }
 
+// Format 将日志条目格式化为文本字节
 func (f *TextFormatter) Format(entry *LogEntry) ([]byte, error) {
 	timeFormat := f.TimeFormat
 	if timeFormat == "" {
@@ -988,16 +995,38 @@ func GetGlobalLogger() *Logger {
 	return globalLogger
 }
 
-// 全局日志函数
-func Debug(message string)                             { GetGlobalLogger().Debug(message) }
-func Debugf(format string, args ...interface{})        { GetGlobalLogger().Debugf(format, args...) }
-func Info(message string)                              { GetGlobalLogger().Info(message) }
-func Infof(format string, args ...interface{})         { GetGlobalLogger().Infof(format, args...) }
-func Warn(message string)                              { GetGlobalLogger().Warn(message) }
-func Warnf(format string, args ...interface{})         { GetGlobalLogger().Warnf(format, args...) }
-func Error(message string)                             { GetGlobalLogger().Error(message) }
-func Errorf(format string, args ...interface{})        { GetGlobalLogger().Errorf(format, args...) }
-func Fatal(message string)                             { GetGlobalLogger().Fatal(message) }
-func Fatalf(format string, args ...interface{})        { GetGlobalLogger().Fatalf(format, args...) }
-func WithField(key string, value interface{}) *Logger  { return GetGlobalLogger().WithField(key, value) }
+// Debug 使用全局日志记录器记录调试日志
+func Debug(message string) { GetGlobalLogger().Debug(message) }
+
+// Debugf 使用全局日志记录器记录格式化调试日志
+func Debugf(format string, args ...interface{}) { GetGlobalLogger().Debugf(format, args...) }
+
+// Info 使用全局日志记录器记录信息日志
+func Info(message string) { GetGlobalLogger().Info(message) }
+
+// Infof 使用全局日志记录器记录格式化信息日志
+func Infof(format string, args ...interface{}) { GetGlobalLogger().Infof(format, args...) }
+
+// Warn 使用全局日志记录器记录警告日志
+func Warn(message string) { GetGlobalLogger().Warn(message) }
+
+// Warnf 使用全局日志记录器记录格式化警告日志
+func Warnf(format string, args ...interface{}) { GetGlobalLogger().Warnf(format, args...) }
+
+// Error 使用全局日志记录器记录错误日志
+func Error(message string) { GetGlobalLogger().Error(message) }
+
+// Errorf 使用全局日志记录器记录格式化错误日志
+func Errorf(format string, args ...interface{}) { GetGlobalLogger().Errorf(format, args...) }
+
+// Fatal 使用全局日志记录器记录致命错误日志并退出
+func Fatal(message string) { GetGlobalLogger().Fatal(message) }
+
+// Fatalf 使用全局日志记录器记录格式化致命错误日志并退出
+func Fatalf(format string, args ...interface{}) { GetGlobalLogger().Fatalf(format, args...) }
+
+// WithField 使用全局日志记录器添加单个字段
+func WithField(key string, value interface{}) *Logger { return GetGlobalLogger().WithField(key, value) }
+
+// WithFields 使用全局日志记录器添加多个字段
 func WithFields(fields map[string]interface{}) *Logger { return GetGlobalLogger().WithFields(fields) }
