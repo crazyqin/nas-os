@@ -4,6 +4,7 @@ package snapshot
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -555,7 +556,7 @@ func (pm *PolicyManager) executePolicy(policy *Policy) (string, error) {
 func (pm *PolicyManager) runCleanup(policy *Policy) {
 	deleted, err := pm.cleaner.Clean(policy)
 	if err != nil {
-		fmt.Printf("清理策略 %s 的快照失败: %v\n", policy.Name, err)
+		log.Printf("清理策略 %s 的快照失败: %v", policy.Name, err)
 		return
 	}
 

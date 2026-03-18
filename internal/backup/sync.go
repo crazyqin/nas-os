@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -131,7 +132,7 @@ func NewSyncManager(baseDir string) *SyncManager {
 // NewVersionManager 创建版本管理器
 func NewVersionManager(baseDir string) *VersionManager {
 	if err := os.MkdirAll(baseDir, 0755); err != nil {
-		fmt.Printf("创建版本目录失败 [%s]: %v\n", baseDir, err)
+		log.Printf("创建版本目录失败 [%s]: %v", baseDir, err)
 	}
 	return &VersionManager{baseDir: baseDir}
 }
@@ -258,7 +259,7 @@ func (sm *SyncManager) executeSync(task *SyncTask) {
 
 	if err != nil {
 		task.Status = TaskStatusFailed
-		fmt.Printf("同步任务失败 [%s]: %v\n", task.Name, err)
+		log.Printf("同步任务失败 [%s]: %v", task.Name, err)
 	} else {
 		task.Status = TaskStatusCompleted
 		task.NextSync = sm.calculateNextSync(task.Schedule)
@@ -339,7 +340,7 @@ func (sm *SyncManager) syncBidirectional(task *SyncTask) error {
 	for _, change := range changes {
 		if err := sm.applyChange(change, task); err != nil {
 			failedCount++
-			fmt.Printf("同步文件失败 [%s]: %v\n", change.Path, err)
+			log.Printf("同步文件失败 [%s]: %v", change.Path, err)
 		} else {
 			syncedCount++
 			syncedBytes += change.Size
@@ -500,7 +501,7 @@ func (sm *SyncManager) applyChange(change FileChange, task *SyncTask) error {
 		// 创建版本备份
 		if _, err := os.Stat(destPath); err == nil {
 			if _, verr := sm.versionManager.CreateVersion(destPath, change.Path); verr != nil {
-				fmt.Printf("创建版本备份失败 [%s]: %v\n", change.Path, verr)
+				log.Printf("创建版本备份失败 [%s]: %v", change.Path, verr)
 			}
 		}
 
@@ -513,7 +514,7 @@ func (sm *SyncManager) applyChange(change FileChange, task *SyncTask) error {
 		// 创建版本备份
 		if _, err := os.Stat(destPath); err == nil {
 			if _, verr := sm.versionManager.CreateVersion(destPath, change.Path); verr != nil {
-				fmt.Printf("创建版本备份失败 [%s]: %v\n", change.Path, verr)
+				log.Printf("创建版本备份失败 [%s]: %v", change.Path, verr)
 			}
 		}
 
@@ -597,7 +598,7 @@ func (sm *SyncManager) syncToS3(task *SyncTask) error {
 
 		if err := sm.uploadToS3(s3Client, cfg.Bucket, localPath, s3Key); err != nil {
 			failedCount++
-			fmt.Printf("上传到 S3 失败 [%s]: %v\n", path, err)
+			log.Printf("上传到 S3 失败 [%s]: %v", path, err)
 		} else {
 			syncedCount++
 			syncedBytes += entry.Size
@@ -689,7 +690,7 @@ func (sm *SyncManager) syncToWebDAV(task *SyncTask) error {
 
 		if err := sm.uploadToWebDAV(client, localPath, remotePath); err != nil {
 			failedCount++
-			fmt.Printf("上传到 WebDAV 失败 [%s]: %v\n", path, err)
+			log.Printf("上传到 WebDAV 失败 [%s]: %v", path, err)
 		} else {
 			syncedCount++
 			syncedBytes += entry.Size
@@ -836,10 +837,10 @@ func (vm *VersionManager) DeleteOldVersions(relativePath string, keepCount int) 
 	for i := 0; i < len(versions)-keepCount; i++ {
 		versionPath := filepath.Join(vm.baseDir, versions[i].VersionID)
 		if err := os.Remove(versionPath); err != nil && !os.IsNotExist(err) {
-			fmt.Printf("删除版本文件失败 [%s]: %v\n", versionPath, err)
+			log.Printf("删除版本文件失败 [%s]: %v", versionPath, err)
 		}
 		if err := os.Remove(versionPath + ".meta"); err != nil && !os.IsNotExist(err) {
-			fmt.Printf("删除版本元数据失败 [%s.meta]: %v\n", versionPath, err)
+			log.Printf("删除版本元数据失败 [%s.meta]: %v", versionPath, err)
 		}
 	}
 

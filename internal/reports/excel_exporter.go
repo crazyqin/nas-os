@@ -3,6 +3,7 @@ package reports
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -223,7 +224,7 @@ func (e *ExcelExporter) createExcelFile(report *GeneratedReport, options ExportO
 	f := excelize.NewFile()
 	defer func() {
 		if err := f.Close(); err != nil {
-			fmt.Printf("关闭文件失败: %v\n", err)
+			log.Printf("关闭文件失败: %v", err)
 		}
 	}()
 
@@ -246,7 +247,7 @@ func (e *ExcelExporter) createExcelFile(report *GeneratedReport, options ExportO
 	if options.Charts && len(report.Data) > 1 {
 		if err := e.createChartSheet(f, report, options); err != nil {
 			// 图表创建失败不影响导出
-			fmt.Printf("创建图表失败: %v\n", err)
+			log.Printf("创建图表失败: %v", err)
 		}
 	}
 
@@ -1065,7 +1066,7 @@ func (a *AdvancedExcelExporter) ExportWithCharts(report *GeneratedReport, output
 	for i := range charts {
 		if err := a.createChart(f, chartSheet, dataSheet, &charts[i], i); err != nil {
 			// 图表创建失败不中断
-			fmt.Printf("创建图表失败: %v\n", err)
+			log.Printf("创建图表失败: %v", err)
 		}
 	}
 
@@ -1123,14 +1124,14 @@ func (a *AdvancedExcelExporter) ExportMultiSheet(report *GeneratedReport, config
 
 		// 写入数据
 		if err := a.writeSheetData(f, sheetConfig, report, tmpl); err != nil {
-			fmt.Printf("写入工作表 %s 失败: %v\n", sheetConfig.Name, err)
+			log.Printf("写入工作表 %s 失败: %v", sheetConfig.Name, err)
 			continue
 		}
 
 		// 创建图表
 		for _, chartConfig := range sheetConfig.Charts {
 			if err := a.createChart(f, sheetConfig.Name, sheetConfig.Name, &chartConfig, 0); err != nil {
-				fmt.Printf("创建图表失败: %v\n", err)
+				log.Printf("创建图表失败: %v", err)
 			}
 		}
 

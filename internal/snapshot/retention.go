@@ -2,6 +2,7 @@ package snapshot
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"sort"
 	"time"
@@ -59,7 +60,7 @@ func (c *RetentionCleaner) Clean(policy *Policy) ([]string, error) {
 	var deleted []string
 	for _, snap := range toDelete {
 		if err := c.deleteSnapshot(policy, snap); err != nil {
-			fmt.Printf("删除快照 %s 失败: %v\n", snap.Name, err)
+			log.Printf("删除快照 %s 失败: %v", snap.Name, err)
 			continue
 		}
 		deleted = append(deleted, snap.Name)
