@@ -955,12 +955,18 @@ func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) e
 	}
 
 	// 写入空行
-	writer.Write([]string{})
+	if err := writer.Write([]string{}); err != nil {
+		return err
+	}
 
 	// 写入存储池明细
-	writer.Write([]string{"Pool Breakdown"})
+	if err := writer.Write([]string{"Pool Breakdown"}); err != nil {
+		return err
+	}
 	poolHeaders := []string{"Pool ID", "Pool Name", "Storage Type", "Used GB", "Usage %", "Monthly Cost", "Cost Efficiency"}
-	writer.Write(poolHeaders)
+	if err := writer.Write(poolHeaders); err != nil {
+		return err
+	}
 
 	for _, p := range report.PoolBreakdown {
 		row := []string{
@@ -972,16 +978,24 @@ func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) e
 			fmt.Sprintf("%.2f", p.MonthlyCost),
 			fmt.Sprintf("%.2f", p.CostEfficiency),
 		}
-		writer.Write(row)
+		if err := writer.Write(row); err != nil {
+			return err
+		}
 	}
 
 	// 写入空行
-	writer.Write([]string{})
+	if err := writer.Write([]string{}); err != nil {
+		return err
+	}
 
 	// 写入用户明细
-	writer.Write([]string{"User Breakdown"})
+	if err := writer.Write([]string{"User Breakdown"}); err != nil {
+		return err
+	}
 	userHeaders := []string{"User ID", "User Name", "Used GB", "Monthly Cost", "Cost Per GB", "Tier"}
-	writer.Write(userHeaders)
+	if err := writer.Write(userHeaders); err != nil {
+		return err
+	}
 
 	for _, u := range report.UserBreakdown {
 		row := []string{
@@ -992,16 +1006,24 @@ func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) e
 			fmt.Sprintf("%.4f", u.CostPerGB),
 			u.Tier,
 		}
-		writer.Write(row)
+		if err := writer.Write(row); err != nil {
+			return err
+		}
 	}
 
 	// 写入空行
-	writer.Write([]string{})
+	if err := writer.Write([]string{}); err != nil {
+		return err
+	}
 
 	// 写入趋势数据
-	writer.Write([]string{"Trend Data"})
+	if err := writer.Write([]string{"Trend Data"}); err != nil {
+		return err
+	}
 	trendHeaders := []string{"Date", "Storage Cost", "Bandwidth Cost", "Total Cost", "Storage GB", "Traffic GB"}
-	writer.Write(trendHeaders)
+	if err := writer.Write(trendHeaders); err != nil {
+		return err
+	}
 
 	for _, t := range report.Trends {
 		row := []string{
@@ -1012,7 +1034,9 @@ func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) e
 			fmt.Sprintf("%.2f", t.StorageGB),
 			fmt.Sprintf("%.2f", t.TrafficGB),
 		}
-		writer.Write(row)
+		if err := writer.Write(row); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -1039,14 +1063,24 @@ func (g *CostReportGenerator) ExportToCSV(report *CostReport) (string, error) {
 	}
 
 	// 摘要数据
-	writer.Write([]string{"Summary", "Total Cost", fmt.Sprintf("%.2f", report.Summary.TotalCost)})
-	writer.Write([]string{"Summary", "Storage Cost", fmt.Sprintf("%.2f", report.Summary.StorageCost)})
-	writer.Write([]string{"Summary", "Bandwidth Cost", fmt.Sprintf("%.2f", report.Summary.BandwidthCost)})
-	writer.Write([]string{"Summary", "Health Score", fmt.Sprintf("%d", report.Summary.HealthScore)})
+	if err := writer.Write([]string{"Summary", "Total Cost", fmt.Sprintf("%.2f", report.Summary.TotalCost)}); err != nil {
+		return "", err
+	}
+	if err := writer.Write([]string{"Summary", "Storage Cost", fmt.Sprintf("%.2f", report.Summary.StorageCost)}); err != nil {
+		return "", err
+	}
+	if err := writer.Write([]string{"Summary", "Bandwidth Cost", fmt.Sprintf("%.2f", report.Summary.BandwidthCost)}); err != nil {
+		return "", err
+	}
+	if err := writer.Write([]string{"Summary", "Health Score", fmt.Sprintf("%d", report.Summary.HealthScore)}); err != nil {
+		return "", err
+	}
 
 	// 存储池数据
 	for _, p := range report.PoolBreakdown {
-		writer.Write([]string{"Pool", p.PoolName, fmt.Sprintf("%.2f GB / %.2f 元", p.UsedCapacityGB, p.MonthlyCost)})
+		if err := writer.Write([]string{"Pool", p.PoolName, fmt.Sprintf("%.2f GB / %.2f 元", p.UsedCapacityGB, p.MonthlyCost)}); err != nil {
+			return "", err
+		}
 	}
 
 	// 必须在返回前Flush
