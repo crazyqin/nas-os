@@ -29,7 +29,6 @@ func TestListVolumes_NilStorageMgr(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	// API returns an array, not a map
 	var resp []interface{}
 	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("failed to unmarshal response: %v", err)
@@ -146,7 +145,6 @@ func TestListPools_NilStorageMgr(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	// API returns an array, not a map
 	var resp []interface{}
 	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
 		t.Fatalf("failed to unmarshal response: %v", err)
