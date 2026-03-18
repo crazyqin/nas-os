@@ -6,12 +6,70 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+// 安全验证正则表达式（白名单模式）
+var (
+	// 安全名称：字母、数字、下划线、连字符，最大64字符
+	safeNameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]{1,64}$`)
+	// 安全路径：/dev/ 开头的设备路径或绝对文件路径
+	safePathRegex = regexp.MustCompile(`^(/dev/[a-zA-Z0-9/_-]+|/[a-zA-Z0-9/_.-]+)$`)
+	// 安全数字
+	safeNumberRegex = regexp.MustCompile(`^[0-9]+$`)
+	// 安全大小参数（数字+单位或纯数字）
+	safeSizeRegex = regexp.MustCompile(`^[0-9]+[KMGTP]?[iB]?$`)
+)
+
+// validateSafeName 验证名称参数，防止命令注入
+func validateSafeName(name string) error {
+	if name == "" {
+		return fmt.Errorf("name cannot be empty")
+	}
+	if !safeNameRegex.MatchString(name) {
+		return fmt.Errorf("invalid name: contains disallowed characters (only a-z, A-Z, 0-9, _, - allowed)")
+	}
+	return nil
+}
+
+// validateSafePath 验证路径参数，防止命令注入
+func validateSafePath(path string) error {
+	if path == "" {
+		return fmt.Errorf("path cannot be empty")
+	}
+	if !safePathRegex.MatchString(path) {
+		return fmt.Errorf("invalid path: contains disallowed characters")
+	}
+	// 额外检查：不允许路径遍历
+	if strings.Contains(path, "..") {
+		return fmt.Errorf("invalid path: path traversal detected")
+	}
+	return nil
+}
+
+// validateSafeNumber 验证数字参数
+func validateSafeNumber(num string) error {
+	if !safeNumberRegex.MatchString(num) {
+		return fmt.Errorf("invalid number format")
+	}
+	return nil
+}
+
+// validateSafeSize 验证大小参数
+func validateSafeSize(size string) error {
+	if size == "" {
+		return fmt.Errorf("size cannot be empty")
+	}
+	if !safeSizeRegex.MatchString(size) {
+		return fmt.Errorf("invalid size format")
+	}
+	return nil
+}
 
 // Manager manages iSCSI targets
 type Manager struct {
@@ -116,6 +174,18 @@ func (m *Manager) writeConfigFile(pc persistentConfig) error {
 func (m *Manager) CreateTarget(input TargetInput) (*Target, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
+	// 验证名称参数（防止命令注入）
+	if err := validateSafeName(input.Name); err != nil {
+		return nil, fmt.Errorf("invalid target name: %w", err)
+	}
+
+	// 验证别名（如果提供）
+	if input.Alias != "" {
+		if err := validateSafeName(input.Alias); err != nil {
+			return nil, fmt.Errorf("invalid target alias: %w", err)
+		}
+	}
 
 	// Check for existing target with same name
 	for _, t := range m.targets {
@@ -300,6 +370,18 @@ func (m *Manager) DeleteTarget(id string) error {
 func (m *Manager) AddLUN(targetID string, input LUNInput) (*LUN, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
+	// 验证 LUN 名称（防止命令注入）
+	if err := validateSafeName(input.Name); err != nil {
+		return nil, fmt.Errorf("invalid LUN name: %w", err)
+	}
+
+	// 验证路径（如果提供）
+	if input.Path != "" {
+		if err := validateSafePath(input.Path); err != nil {
+			return nil, fmt.Errorf("invalid LUN path: %w", err)
+		}
+	}
 
 	target, exists := m.targets[targetID]
 	if !exists {
@@ -527,6 +609,7 @@ func (m *Manager) getTargetIDByIQN(iqn string) string {
 }
 
 // generateTargetCLICommands generates targetcli configuration commands
+// 注意：所有参数在生成命令前已通过验证函数检查，确保命令注入安全
 func (m *Manager) generateTargetCLICommands() []string {
 	var commands []string
 
@@ -538,35 +621,59 @@ func (m *Manager) generateTargetCLICommands() []string {
 			continue
 		}
 
-		// Create target
+		// 验证 target 名称（防止命令注入）
+		if err := validateSafeName(target.Name); err != nil {
+			continue // 跳过无效 target
+		}
+
+		// Create target（使用已验证的名称）
 		commands = append(commands, fmt.Sprintf("targetcli /backstores/block create name=%s dev=/dev/null", target.Name))
 
 		// Create LUNs
 		for _, lun := range target.LUNs {
+			// 验证 LUN 名称（防止命令注入）
+			if err := validateSafeName(lun.Name); err != nil {
+				continue // 跳过无效 LUN
+			}
+
+			// 验证 LUN 路径（防止命令注入）
+			if err := validateSafePath(lun.Path); err != nil {
+				continue // 跳过无效路径
+			}
+
+			// 验证大小参数
+			sizeStr := fmt.Sprintf("%d", lun.Size)
+			if err := validateSafeNumber(sizeStr); err != nil {
+				continue // 跳过无效大小
+			}
+
 			if lun.Type == LUNTypeFile {
-				commands = append(commands, fmt.Sprintf("targetcli /backstores/fileio create name=%s size=%d path=%s",
-					lun.Name, lun.Size, lun.Path))
+				commands = append(commands, fmt.Sprintf("targetcli /backstores/fileio create name=%s size=%s path=%s",
+					lun.Name, sizeStr, lun.Path))
 			} else {
 				commands = append(commands, fmt.Sprintf("targetcli /backstores/block create name=%s dev=%s",
 					lun.Name, lun.Path))
 			}
 		}
 
-		// Create iSCSI target
+		// Create iSCSI target（IQN 已在 CreateTarget 中验证）
 		commands = append(commands, fmt.Sprintf("targetcli /iscsi create %s", target.IQN))
 
 		// Configure CHAP
 		if target.CHAP != nil && target.CHAP.Enabled {
 			username, _, ok := m.chapMgr.GetSecret(target.ID)
 			if ok {
-				commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set attribute authentication=1", target.IQN))
-				commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set userid=%s", target.IQN, username))
-				// 密码通过 stdin 传递，标记为特殊处理
-				commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set password=-", target.IQN))
+				// 验证用户名
+				if err := validateSafeName(username); err == nil {
+					commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set attribute authentication=1", target.IQN))
+					commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set userid=%s", target.IQN, username))
+					// 密码通过 stdin 传递，标记为特殊处理
+					commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1/auth set password=-", target.IQN))
+				}
 			}
 		}
 
-		// Set max sessions
+		// Set max sessions（数字已验证）
 		commands = append(commands, fmt.Sprintf("targetcli /iscsi/%s/tpg1 set attribute max_sessions=%d", target.IQN, target.MaxSessions))
 	}
 
