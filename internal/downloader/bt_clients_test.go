@@ -225,21 +225,21 @@ func TestStats_Structure(t *testing.T) {
 
 func TestQBittorrentTorrentInfo_Structure(t *testing.T) {
 	info := QBittorrentTorrentInfo{
-		Hash:        "abc123def456",
-		Name:        "test.torrent",
-		Progress:    0.75,
-		Dlspeed:     1024 * 100,
-		Upspeed:     1024 * 50,
-		Downloaded:  1024 * 1024 * 100,
-		Uploaded:    1024 * 1024 * 50,
-		NumSeeds:    10,
-		NumLeechs:   5,
-		State:       "downloading",
-		SavePath:    "/downloads",
-		TotalSize:   1024 * 1024 * 200,
-		Ratio:       0.5,
-		Category:    "movies",
-		Tags:        "hd,1080p",
+		Hash:       "abc123def456",
+		Name:       "test.torrent",
+		Progress:   0.75,
+		Dlspeed:    1024 * 100,
+		Upspeed:    1024 * 50,
+		Downloaded: 1024 * 1024 * 100,
+		Uploaded:   1024 * 1024 * 50,
+		NumSeeds:   10,
+		NumLeechs:  5,
+		State:      "downloading",
+		SavePath:   "/downloads",
+		TotalSize:  1024 * 1024 * 200,
+		Ratio:      0.5,
+		Category:   "movies",
+		Tags:       "hd,1080p",
 	}
 
 	if info.Hash != "abc123def456" {
