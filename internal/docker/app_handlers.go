@@ -930,7 +930,9 @@ func (h *AppHandlers) installCustomTemplate(c *gin.Context) {
 		}
 	}
 
-	h.customTemplateMgr.IncrementDownloads(id)
+	if err := h.customTemplateMgr.IncrementDownloads(id); err != nil {
+		log.Printf("更新下载计数失败: %v", err)
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,

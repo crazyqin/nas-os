@@ -3,6 +3,7 @@ package docker
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -812,9 +813,13 @@ func (s *AppStore) UninstallApp(id string, removeData bool) error {
 	// 停止并删除容器
 	if app.ComposePath != "" {
 		cmd := exec.Command("docker-compose", "-f", app.ComposePath, "down")
-		cmd.Run()
+		if err := cmd.Run(); err != nil {
+			log.Printf("docker-compose down 失败: %v", err)
+		}
 	} else if app.ContainerID != "" {
-		s.manager.RemoveContainer(app.ContainerID, true)
+		if err := s.manager.RemoveContainer(app.ContainerID, true); err != nil {
+			log.Printf("移除容器失败: %v", err)
+		}
 	}
 
 	// 删除数据
