@@ -233,7 +233,7 @@ func (p *AliyunSMSProvider) Send(phone, code string) error {
 	if err != nil {
 		return fmt.Errorf("阿里云短信请求失败：%w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -416,7 +416,7 @@ func (p *TencentSMSProvider) Send(phone, code string) error {
 	if err != nil {
 		return fmt.Errorf("腾讯云短信请求失败：%w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// 读取响应
 	body, err := io.ReadAll(resp.Body)

@@ -825,7 +825,7 @@ func (s *AppStore) UninstallApp(id string, removeData bool) error {
 	// 删除数据
 	if removeData {
 		appDir := filepath.Join(s.installDir, app.Name)
-		os.RemoveAll(appDir)
+		_ = os.RemoveAll(appDir)
 	}
 
 	// 从记录中删除
