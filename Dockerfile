@@ -17,6 +17,8 @@
 #
 # v2.240.0 更新（工部优化）：
 # - 修复 Go 版本号（1.26 → 1.24，Go 1.26 尚未发布）
+# v2.250.0 更新（工部修复）：
+# - 升级 Go 版本至 1.25（匹配 go.mod 要求）
 #
 # v2.123.0 更新（工部优化）：
 # - 使用 distroless/static 基础镜像（约 2MB）替代 alpine
@@ -46,7 +48,7 @@
 # - 添加 curl 替代 wget（更可靠）
 
 # ========== 构建阶段 ==========
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # 构建参数
 ARG VERSION=dev
@@ -96,7 +98,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped (not supported on this platform)"
 
 # ========== 健康检查工具构建阶段 ==========
-FROM golang:1.24-alpine AS healthcheck-builder
+FROM golang:1.25-alpine AS healthcheck-builder
 
 # 构建一个极简的健康检查工具（使用 Dockerfile 1.4 heredoc 语法）
 COPY <<EOF /tmp/health.go

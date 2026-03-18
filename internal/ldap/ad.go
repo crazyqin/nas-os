@@ -353,8 +353,7 @@ func (a *ADClient) GetGroupMembership(userDN string, recursive bool) ([]*Group, 
 			// 递归获取嵌套组
 			if recursive {
 				if nestedErr := getGroups(entry.DN); nestedErr != nil {
-					// 嵌套组查询失败不影响主结果
-					_ = nestedErr
+					_ = nestedErr // 嵌套组查询失败不影响主结果
 				}
 			}
 		}
@@ -700,8 +699,7 @@ func (a *ADClient) GetNestedGroupMembers(groupDN string) ([]*User, error) {
 			} else {
 				// 可能是嵌套组，递归处理
 				if nestedErr := getMembers(entry.DN); nestedErr != nil {
-					// 嵌套组成员查询失败不影响主结果
-					_ = nestedErr
+					_ = nestedErr // 嵌套组成员查询失败不影响主结果
 				}
 			}
 		}
