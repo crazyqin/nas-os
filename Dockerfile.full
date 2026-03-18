@@ -4,18 +4,12 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os:full
 #
-# v2.173.0 更新（工部优化）：
-# - 升级 Go 版本至 1.26（匹配当前系统版本）
+# Go 版本: 1.25（与 go.mod 保持一致）
 #
-# v2.240.0 更新（工部优化）：
-# - 修复 Go 版本号（1.26 → 1.24，Go 1.26 尚未发布）
-# v2.250.0 更新（工部修复）：
-# - 升级 Go 版本至 1.25（匹配 go.mod 要求）
-#
-# v2.123.0 新增（工部优化）：
-# - 分离 full 版本（带系统工具）和 minimal 版本（distroless）
-# - full 版本包含 btrfs-progs, samba, nfs-utils 等工具
-# - minimal 版本仅包含核心服务（约 15-18MB）
+# 镜像特性:
+# - 基于 alpine:3.21，约 35-40MB
+# - 包含 btrfs-progs, samba, nfs-utils 等系统工具
+# - UPX 压缩优化体积
 #
 # 构建命令:
 #   docker build -f Dockerfile.full -t ghcr.io/nas-os/nas-os:full .
