@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"go.uber.org/zap"
@@ -629,18 +628,10 @@ type diskUsageStat struct {
 }
 
 func getDiskUsage(path string) (*diskUsageStat, error) {
-	var stat syscall.Statfs_t
-	if err := syscall.Statfs(path, &stat); err != nil {
+	total, free, used, inodeTotal, inodeUsed, err := getDiskUsageStat(path)
+	if err != nil {
 		return nil, err
 	}
-
-	total := stat.Blocks * uint64(stat.Bsize)
-	free := stat.Bavail * uint64(stat.Bsize)
-	used := total - free
-
-	inodeTotal := stat.Files
-	inodeFree := stat.Ffree
-	inodeUsed := inodeTotal - inodeFree
 
 	result := &diskUsageStat{
 		TotalBytes: total,
