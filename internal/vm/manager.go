@@ -145,6 +145,7 @@ func (m *Manager) loadSnapshots() error {
 
 		// 读取快照配置文件
 		snapshotConfigPath := filepath.Join(vmSnapshotPath, "snapshots.json")
+		// #nosec G304 -- snapshotConfigPath is built from internally managed storagePath
 		data, err := os.ReadFile(snapshotConfigPath)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -497,6 +498,7 @@ func (m *Manager) saveVMConfig(vm *VM) error {
 
 // loadVMConfig 加载 VM 配置
 func loadVMConfig(configPath string) (*VM, error) {
+	// #nosec G304 -- configPath is built from internally managed storagePath
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, err

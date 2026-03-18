@@ -114,6 +114,7 @@ func (m *SnapshotManager) loadSnapshots() error {
 		}
 
 		filePath := filepath.Join(snapshotPath, file.Name())
+		// #nosec G304 -- filePath is built from internally managed storagePath and trusted file.Name() from os.ReadDir
 		data, err := os.ReadFile(filePath)
 		if err != nil {
 			continue

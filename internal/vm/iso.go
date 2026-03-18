@@ -199,9 +199,12 @@ func (m *ISOManager) UploadISO(ctx context.Context, name string, reader io.Reade
 
 	// 生成文件名
 	fileName := fmt.Sprintf("%s_%s.iso", name, time.Now().Format("20060102_150405"))
+	// Clean the filename to prevent path traversal
+	fileName = filepath.Base(fileName)
 	filePath := filepath.Join(m.isoPath, fileName)
 
 	// 创建文件
+	// #nosec G304 -- filePath is built from configured isoPath and sanitized fileName
 	file, err := os.Create(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("创建文件失败：%w", err)
@@ -277,6 +280,7 @@ func (m *ISOManager) DownloadISO(ctx context.Context, isoID string, progressChan
 	// 创建文件
 	fileName := filepath.Base(iso.URL)
 	filePath := filepath.Join(m.isoPath, fileName)
+	// #nosec G304 -- filePath is built from configured isoPath and fileName sanitized by filepath.Base
 	file, err := os.Create(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("创建文件失败：%w", err)
