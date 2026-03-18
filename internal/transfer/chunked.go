@@ -234,45 +234,69 @@ func DecompressReader(reader io.Reader) (io.Reader, error) {
 }
 
 // CompressFile compresses a file
-func CompressFile(inputPath, outputPath string) error {
+func CompressFile(inputPath, outputPath string) (err error) {
 	inputFile, err := os.Open(inputPath)
 	if err != nil {
 		return err
 	}
-	defer inputFile.Close()
+	defer func() {
+		if e := inputFile.Close(); e != nil && err == nil {
+			err = e
+		}
+	}()
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
-	defer outputFile.Close()
+	defer func() {
+		if e := outputFile.Close(); e != nil && err == nil {
+			err = e
+		}
+	}()
 
 	gw := gzip.NewWriter(outputFile)
-	defer gw.Close()
+	defer func() {
+		if e := gw.Close(); e != nil && err == nil {
+			err = e
+		}
+	}()
 
 	_, err = io.Copy(gw, inputFile)
 	return err
 }
 
 // DecompressFile decompresses a file
-func DecompressFile(inputPath, outputPath string) error {
+func DecompressFile(inputPath, outputPath string) (err error) {
 	inputFile, err := os.Open(inputPath)
 	if err != nil {
 		return err
 	}
-	defer inputFile.Close()
+	defer func() {
+		if e := inputFile.Close(); e != nil && err == nil {
+			err = e
+		}
+	}()
 
 	gr, err := gzip.NewReader(inputFile)
 	if err != nil {
 		return err
 	}
-	defer gr.Close()
+	defer func() {
+		if e := gr.Close(); e != nil && err == nil {
+			err = e
+		}
+	}()
 
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
-	defer outputFile.Close()
+	defer func() {
+		if e := outputFile.Close(); e != nil && err == nil {
+			err = e
+		}
+	}()
 
 	// 限制解压后大小（最大 10GB），防止解压缩炸弹攻击
 	const maxDecompressSize = 10 << 30 // 10GB
