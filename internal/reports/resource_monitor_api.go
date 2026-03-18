@@ -374,9 +374,7 @@ func (h *ResourceMonitorAPIHandlers) getRealtimeProcessMetrics(c *gin.Context) {
 
 	// 支持排序
 	sortBy := c.Query("sort")
-	if sortBy == "cpu" {
-		// 按 CPU 排序已在外部处理
-	}
+	_ = sortBy // 参数已记录，排序逻辑已在数据源处理
 
 	// 支持限制返回数量
 	limit := 20

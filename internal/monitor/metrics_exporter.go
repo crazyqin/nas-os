@@ -706,7 +706,7 @@ func (e *MetricsExporter) Start() error {
 	// 启动服务器
 	go func() {
 		if err := e.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			// 服务器错误
+			_ = err // 服务器非正常关闭错误
 		}
 	}()
 

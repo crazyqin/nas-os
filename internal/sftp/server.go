@@ -17,11 +17,14 @@ import (
 )
 
 var (
-	// ErrServerNotRunning 服务器未运行错误
+	// ErrServerNotRunning 服务器未运行时返回的错误
 	ErrServerNotRunning = errors.New("服务器未运行")
-	ErrServerRunning    = errors.New("服务器已在运行")
-	ErrInvalidConfig    = errors.New("配置无效")
-	ErrHostKeyRequired  = errors.New("需要主机密钥")
+	// ErrServerRunning 服务器已在运行时返回的错误
+	ErrServerRunning = errors.New("服务器已在运行")
+	// ErrInvalidConfig 配置无效时返回的错误
+	ErrInvalidConfig = errors.New("配置无效")
+	// ErrHostKeyRequired 需要主机密钥时返回的错误
+	ErrHostKeyRequired = errors.New("需要主机密钥")
 )
 
 // Server SFTP 服务器

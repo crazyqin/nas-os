@@ -287,8 +287,8 @@ func DefaultDeniedHandler(w http.ResponseWriter, r *http.Request, result *CheckR
 	}
 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		// 编码失败时记录日志，但无法向客户端发送更多信息
-		// 因为响应头已经写入
+		// 编码失败，响应头已写入，无法通知客户端
+		_ = err
 	}
 }
 
@@ -302,7 +302,7 @@ func DefaultErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 			"code":    401,
 			"message": "未授权访问",
 		}); encodeErr != nil {
-			// 编码失败时记录日志，但无法向客户端发送更多信息
+			_ = encodeErr // 编码失败，响应头已写入
 		}
 		return
 	}
@@ -312,7 +312,7 @@ func DefaultErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 		"code":    500,
 		"message": err.Error(),
 	}); encodeErr != nil {
-		// 编码失败时记录日志，但无法向客户端发送更多信息
+		_ = encodeErr // 编码失败，响应头已写入
 	}
 }
 

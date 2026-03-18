@@ -6,12 +6,19 @@ import "time"
 type VMStatus string
 
 const (
-	VMStatusRunning   VMStatus = "running"
-	VMStatusStopped   VMStatus = "stopped"
-	VMStatusPaused    VMStatus = "paused"
-	VMStatusCreating  VMStatus = "creating"
-	VMStatusDeleting  VMStatus = "deleting"
-	VMStatusSnapshot  VMStatus = "snapshotting"
+	// VMStatusRunning 运行中
+	VMStatusRunning VMStatus = "running"
+	// VMStatusStopped 已停止
+	VMStatusStopped VMStatus = "stopped"
+	// VMStatusPaused 已暂停
+	VMStatusPaused VMStatus = "paused"
+	// VMStatusCreating 创建中
+	VMStatusCreating VMStatus = "creating"
+	// VMStatusDeleting 删除中
+	VMStatusDeleting VMStatus = "deleting"
+	// VMStatusSnapshot 快照中
+	VMStatusSnapshot VMStatus = "snapshotting"
+	// VMStatusRestoring 恢复中
 	VMStatusRestoring VMStatus = "restoring"
 )
 
@@ -19,9 +26,12 @@ const (
 type VMType string
 
 const (
-	VMTypeLinux   VMType = "linux"
+	// VMTypeLinux Linux 系统
+	VMTypeLinux VMType = "linux"
+	// VMTypeWindows Windows 系统
 	VMTypeWindows VMType = "windows"
-	VMTypeOther   VMType = "other"
+	// VMTypeOther 其他系统
+	VMTypeOther VMType = "other"
 )
 
 // VM 虚拟机信息
