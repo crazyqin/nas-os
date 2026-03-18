@@ -515,12 +515,22 @@ func (m *Monitor) GetSMARTInfo(device string) (*SMARTInfo, error) {
 		Health: "UNKNOWN",
 	}
 
+	// 验证设备路径（防止命令注入）
+	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
+		return nil, fmt.Errorf("无效的设备路径")
+	}
+	// 设备路径应该是 /dev/ 开头
+	if !strings.HasPrefix(device, "/dev/") {
+		return nil, fmt.Errorf("设备路径必须以 /dev/ 开头")
+	}
+
 	// 检查 smartctl 是否可用
 	if _, err := exec.LookPath("smartctl"); err != nil {
 		return nil, fmt.Errorf("smartctl 未安装")
 	}
 
 	// 获取 SMART 信息
+	// #nosec G204 -- 设备路径已验证为 /dev/ 开头且不包含危险字符
 	cmd := exec.Command("smartctl", "-A", "-i", "-H", device)
 	output, err := cmd.Output()
 	if err != nil {

@@ -370,7 +370,16 @@ func (m *SMARTMonitor) checkSATADevice(device string) (*DiskHealth, error) {
 		LastCheckTime: time.Now(),
 	}
 
+	// 验证设备路径（防止命令注入）
+	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
+		return nil, fmt.Errorf("无效的设备路径")
+	}
+	if !strings.HasPrefix(device, "/dev/") {
+		return nil, fmt.Errorf("设备路径必须以 /dev/ 开头")
+	}
+
 	// 获取 SMART 信息
+	// #nosec G204 -- 设备路径已验证
 	cmd := exec.Command("smartctl", "-a", device)
 	output, err := cmd.Output()
 	if err != nil {
@@ -463,7 +472,16 @@ func (m *SMARTMonitor) checkNVMeDevice(device string) (*DiskHealth, error) {
 		LastCheckTime: time.Now(),
 	}
 
+	// 验证设备路径（防止命令注入）
+	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
+		return nil, fmt.Errorf("无效的设备路径")
+	}
+	if !strings.HasPrefix(device, "/dev/") {
+		return nil, fmt.Errorf("设备路径必须以 /dev/ 开头")
+	}
+
 	// 获取 NVMe SMART 信息
+	// #nosec G204 -- 设备路径已验证
 	cmd := exec.Command("smartctl", "-a", device)
 	output, err := cmd.Output()
 	if err != nil {
@@ -891,6 +909,14 @@ func (m *SMARTMonitor) GetHistory(device string) []HealthSnapshot {
 
 // RunSelfTest 运行自检
 func (m *SMARTMonitor) RunSelfTest(device string, testType string) error {
+	// 验证设备路径（防止命令注入）
+	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
+		return fmt.Errorf("无效的设备路径")
+	}
+	if !strings.HasPrefix(device, "/dev/") {
+		return fmt.Errorf("设备路径必须以 /dev/ 开头")
+	}
+
 	// testType: short, long, conveyance, offline
 	validTypes := map[string]bool{
 		"short":      true,
@@ -903,12 +929,22 @@ func (m *SMARTMonitor) RunSelfTest(device string, testType string) error {
 		return fmt.Errorf("无效的测试类型: %s", testType)
 	}
 
+	// #nosec G204 -- 设备路径已验证，testType 在白名单中验证
 	cmd := exec.Command("smartctl", "-t", testType, device)
 	return cmd.Run()
 }
 
 // GetSelfTestStatus 获取自检状态
 func (m *SMARTMonitor) GetSelfTestStatus(device string) (string, error) {
+	// 验证设备路径（防止命令注入）
+	if device == "" || strings.ContainsAny(device, ";|&$`()<>") {
+		return "", fmt.Errorf("无效的设备路径")
+	}
+	if !strings.HasPrefix(device, "/dev/") {
+		return "", fmt.Errorf("设备路径必须以 /dev/ 开头")
+	}
+
+	// #nosec G204 -- 设备路径已验证
 	cmd := exec.Command("smartctl", "-l", "selftest", device)
 	output, err := cmd.Output()
 	if err != nil {

@@ -42,6 +42,7 @@ func validateNotifyCommand(cmd string) bool {
 }
 
 // sanitizeEnvValue 清理环境变量值，防止注入
+// sanitizeEnvValue 清理环境变量值，防止注入
 func sanitizeEnvValue(value string) string {
 	// 移除可能导致命令注入的字符
 	replacer := strings.NewReplacer(
@@ -54,6 +55,52 @@ func sanitizeEnvValue(value string) string {
 		"\r", "",
 	)
 	return replacer.Replace(value)
+}
+
+// 安全的设备路径模式
+var safeDevicePathRegex = regexp.MustCompile(`^/dev/[a-zA-Z0-9_\-./]+$`)
+
+// 安全的路径模式
+var safeMountPathRegex = regexp.MustCompile(`^/[a-zA-Z0-9_\-./]+$`)
+
+// validateDevicePath 验证设备路径是否安全
+func validateDevicePath(devicePath string) error {
+	if devicePath == "" {
+		return fmt.Errorf("device path cannot be empty")
+	}
+	if !safeDevicePathRegex.MatchString(devicePath) {
+		return fmt.Errorf("invalid device path format: %s", devicePath)
+	}
+	if strings.Contains(devicePath, "..") {
+		return fmt.Errorf("path traversal detected in device path")
+	}
+	return nil
+}
+
+// validateMountPoint 验证挂载点是否安全
+func validateMountPoint(mountPoint string) error {
+	if mountPoint == "" {
+		return fmt.Errorf("mount point cannot be empty")
+	}
+	if !safeMountPathRegex.MatchString(mountPoint) {
+		return fmt.Errorf("invalid mount point format: %s", mountPoint)
+	}
+	if strings.Contains(mountPoint, "..") {
+		return fmt.Errorf("path traversal detected in mount point")
+	}
+	return nil
+}
+
+// validateFSType 验证文件系统类型是否安全
+func validateFSType(fsType string) error {
+	if fsType == "" {
+		return fmt.Errorf("filesystem type cannot be empty")
+	}
+	// 文件系统类型只允许小写字母和数字
+	if !regexp.MustCompile(`^[a-z0-9]+$`).MatchString(fsType) {
+		return fmt.Errorf("invalid filesystem type: %s", fsType)
+	}
+	return nil
 }
 
 // ========== 类型定义 ==========
@@ -408,6 +455,32 @@ func (m *Manager) Mount(deviceID string, mountPoint string, opts map[string]stri
 	// 构建挂载选项
 	mountOpts := m.buildMountOptions(device.Type, opts)
 
+	// 验证参数安全性（防止命令注入）
+	if err := validateDevicePath(device.DevicePath); err != nil {
+		return &MountResult{
+			Success:    false,
+			DevicePath: device.DevicePath,
+			Error:      fmt.Sprintf("无效的设备路径: %v", err),
+			Timestamp:  time.Now(),
+		}, err
+	}
+	if err := validateMountPoint(mountPoint); err != nil {
+		return &MountResult{
+			Success:    false,
+			DevicePath: device.DevicePath,
+			Error:      fmt.Sprintf("无效的挂载点: %v", err),
+			Timestamp:  time.Now(),
+		}, err
+	}
+	if err := validateFSType(device.Type); err != nil {
+		return &MountResult{
+			Success:    false,
+			DevicePath: device.DevicePath,
+			Error:      fmt.Sprintf("无效的文件系统类型: %v", err),
+			Timestamp:  time.Now(),
+		}, err
+	}
+
 	// 执行挂载
 	args := []string{"-t", device.Type}
 	if len(mountOpts) > 0 {
@@ -415,6 +488,7 @@ func (m *Manager) Mount(deviceID string, mountPoint string, opts map[string]stri
 	}
 	args = append(args, device.DevicePath, mountPoint)
 
+	// #nosec G204 -- 设备路径、挂载点和文件系统类型已通过验证函数验证
 	cmd := exec.CommandContext(m.ctx, "mount", args...)
 	output, err := cmd.CombinedOutput()
 
