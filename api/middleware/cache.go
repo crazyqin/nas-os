@@ -67,6 +67,7 @@ func (m *MemoryCache) cleanup() {
 	}
 }
 
+// Get retrieves a value from the cache by key.
 func (m *MemoryCache) Get(_ context.Context, key string) ([]byte, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -80,6 +81,7 @@ func (m *MemoryCache) Get(_ context.Context, key string) ([]byte, bool) {
 	return entry.data, true
 }
 
+// Set stores a value in the cache with the specified TTL.
 func (m *MemoryCache) Set(_ context.Context, key string, value []byte, ttl time.Duration) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -103,12 +105,14 @@ func (m *MemoryCache) Set(_ context.Context, key string, value []byte, ttl time.
 	}
 }
 
+// Delete removes a key from the cache.
 func (m *MemoryCache) Delete(_ context.Context, key string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	delete(m.entries, key)
 }
 
+// DeleteByPrefix removes all keys with the specified prefix from the cache.
 func (m *MemoryCache) DeleteByPrefix(_ context.Context, prefix string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -119,6 +123,7 @@ func (m *MemoryCache) DeleteByPrefix(_ context.Context, prefix string) {
 	}
 }
 
+// Clear removes all entries from the cache.
 func (m *MemoryCache) Clear(_ context.Context) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -152,6 +157,7 @@ func NewRedisCacheBackend(addr, password string, db int) (*RedisCacheBackend, er
 	}, nil
 }
 
+// Get retrieves a value from Redis by key.
 func (r *RedisCacheBackend) Get(ctx context.Context, key string) ([]byte, bool) {
 	val, err := r.client.Get(ctx, r.prefix+key).Bytes()
 	if err != nil {
@@ -160,14 +166,17 @@ func (r *RedisCacheBackend) Get(ctx context.Context, key string) ([]byte, bool) 
 	return val, true
 }
 
+// Set stores a value in Redis with the specified TTL.
 func (r *RedisCacheBackend) Set(ctx context.Context, key string, value []byte, ttl time.Duration) {
 	_ = r.client.Set(ctx, r.prefix+key, value, ttl)
 }
 
+// Delete removes a key from Redis.
 func (r *RedisCacheBackend) Delete(ctx context.Context, key string) {
 	_ = r.client.Del(ctx, r.prefix+key)
 }
 
+// DeleteByPrefix removes all keys with the specified prefix from Redis.
 func (r *RedisCacheBackend) DeleteByPrefix(ctx context.Context, prefix string) {
 	keys, _ := r.client.Keys(ctx, r.prefix+prefix+"*").Result()
 	if len(keys) > 0 {
@@ -175,6 +184,7 @@ func (r *RedisCacheBackend) DeleteByPrefix(ctx context.Context, prefix string) {
 	}
 }
 
+// Clear removes all cache entries from Redis.
 func (r *RedisCacheBackend) Clear(ctx context.Context) {
 	keys, _ := r.client.Keys(ctx, r.prefix+"*").Result()
 	if len(keys) > 0 {

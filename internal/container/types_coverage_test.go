@@ -101,9 +101,9 @@ func TestImageConfig_Defaults(t *testing.T) {
 
 func TestImageConfig_WithTag(t *testing.T) {
 	tests := []struct {
-		name       string
-		config     ImageConfig
-		imageName  string
+		name      string
+		config    ImageConfig
+		imageName string
 	}{
 		{"有tag", ImageConfig{Repository: "nginx", Tag: "alpine"}, "nginx:alpine"},
 		{"无tag", ImageConfig{Repository: "nginx"}, "nginx"},

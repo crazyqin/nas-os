@@ -475,9 +475,7 @@ func TestReplicationManager_SaveLoadConfig(t *testing.T) {
 
 	// 创建新的管理器加载配置
 	rm2 := NewReplicationManager(nil, nil, configPath)
-	if err := rm2.Initialize(); err != nil {
-		// Initialize 可能因为空策略管理器而失败，但配置应该能加载
-	}
+	_ = rm2.Initialize() // Initialize 可能因为空策略管理器而失败，但配置应该能加载
 
 	configs := rm2.ListConfigs()
 	if len(configs) == 0 {

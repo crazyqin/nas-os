@@ -803,7 +803,7 @@ func (la *LoginAuditor) getGeoLocation(ip string) *GeoLocation {
 	}
 }
 
-// generateDeviceID 生成设备指纹
+// GenerateDeviceID generates a device fingerprint from user agent and IP.
 func GenerateDeviceID(userAgent, ip string) string {
 	data := userAgent + "|" + ip
 	hash := sha256.Sum256([]byte(data))
