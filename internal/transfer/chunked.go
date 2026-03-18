@@ -234,14 +234,14 @@ func DecompressReader(reader io.Reader) (io.Reader, error) {
 }
 
 // CompressFile compresses a file
-func CompressFile(inputPath, outputPath string) error {
+func CompressFile(inputPath, outputPath string) (err error) {
 	inputFile, err := os.Open(inputPath)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if err := inputFile.Close(); err != nil {
-			// 忽略关闭错误
+		if e := inputFile.Close(); e != nil && err == nil {
+			err = e
 		}
 	}()
 
@@ -250,15 +250,15 @@ func CompressFile(inputPath, outputPath string) error {
 		return err
 	}
 	defer func() {
-		if err := outputFile.Close(); err != nil {
-			// 忽略关闭错误
+		if e := outputFile.Close(); e != nil && err == nil {
+			err = e
 		}
 	}()
 
 	gw := gzip.NewWriter(outputFile)
 	defer func() {
-		if err := gw.Close(); err != nil {
-			// 忽略关闭错误
+		if e := gw.Close(); e != nil && err == nil {
+			err = e
 		}
 	}()
 
@@ -267,14 +267,14 @@ func CompressFile(inputPath, outputPath string) error {
 }
 
 // DecompressFile decompresses a file
-func DecompressFile(inputPath, outputPath string) error {
+func DecompressFile(inputPath, outputPath string) (err error) {
 	inputFile, err := os.Open(inputPath)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if err := inputFile.Close(); err != nil {
-			// 忽略关闭错误
+		if e := inputFile.Close(); e != nil && err == nil {
+			err = e
 		}
 	}()
 
@@ -283,8 +283,8 @@ func DecompressFile(inputPath, outputPath string) error {
 		return err
 	}
 	defer func() {
-		if err := gr.Close(); err != nil {
-			// 忽略关闭错误
+		if e := gr.Close(); e != nil && err == nil {
+			err = e
 		}
 	}()
 
@@ -293,8 +293,8 @@ func DecompressFile(inputPath, outputPath string) error {
 		return err
 	}
 	defer func() {
-		if err := outputFile.Close(); err != nil {
-			// 忽略关闭错误
+		if e := outputFile.Close(); e != nil && err == nil {
+			err = e
 		}
 	}()
 

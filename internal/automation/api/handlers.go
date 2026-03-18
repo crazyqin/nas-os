@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -42,16 +43,16 @@ func (a *AutomationAPI) RegisterRoutes(r *mux.Router) {
 	s.HandleFunc("/workflows/export/{id}", a.ExportWorkflow).Methods("GET")
 	s.HandleFunc("/workflows/import", a.ImportWorkflow).Methods("POST")
 
-	// 模板
+	// 模板 - 注意：具体路由必须放在参数化路由之前
 	s.HandleFunc("/templates", a.ListTemplates).Methods("GET")
 	s.HandleFunc("/templates/categories", a.ListTemplateCategories).Methods("GET")
+	s.HandleFunc("/templates/export-all", a.ExportAllTemplates).Methods("GET")
+	s.HandleFunc("/templates/import", a.ImportTemplate).Methods("POST")
 	s.HandleFunc("/templates/{id}", a.GetTemplate).Methods("GET")
 	s.HandleFunc("/templates/{id}/validate", a.ValidateTemplate).Methods("GET")
 	s.HandleFunc("/templates/{id}/params", a.GetTemplateParams).Methods("GET")
 	s.HandleFunc("/templates/{id}/use", a.UseTemplate).Methods("POST")
 	s.HandleFunc("/templates/export/{id}", a.ExportTemplate).Methods("GET")
-	s.HandleFunc("/templates/export-all", a.ExportAllTemplates).Methods("GET")
-	s.HandleFunc("/templates/import", a.ImportTemplate).Methods("POST")
 
 	// 统计
 	s.HandleFunc("/stats", a.GetStats).Methods("GET")
@@ -281,15 +282,20 @@ func (a *AutomationAPI) ExportWorkflow(w http.ResponseWriter, r *http.Request) {
 
 // ImportWorkflow 导入工作流
 func (a *AutomationAPI) ImportWorkflow(w http.ResponseWriter, r *http.Request) {
-	var data []byte
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		a.writeError(w, http.StatusBadRequest, "Invalid JSON")
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		a.writeError(w, http.StatusBadRequest, "Failed to read request body")
+		return
+	}
+
+	if len(data) == 0 {
+		a.writeError(w, http.StatusBadRequest, "Empty request body")
 		return
 	}
 
 	wf, err := a.engine.ImportWorkflow(data)
 	if err != nil {
-		a.writeError(w, http.StatusInternalServerError, err.Error())
+		a.writeError(w, http.StatusBadRequest, fmt.Sprintf("Invalid workflow data: %v", err))
 		return
 	}
 
