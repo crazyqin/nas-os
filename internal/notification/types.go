@@ -6,38 +6,54 @@ import (
 	"time"
 )
 
-// NotificationLevel 通知级别
-type NotificationLevel string
+// Level 通知级别
+type Level string
 
 const (
-	LevelInfo     NotificationLevel = "info"
-	LevelSuccess  NotificationLevel = "success"
-	LevelWarning  NotificationLevel = "warning"
-	LevelError    NotificationLevel = "error"
-	LevelCritical NotificationLevel = "critical"
+	// LevelInfo 表示信息级别
+	LevelInfo Level = "info"
+	// LevelSuccess 表示成功级别
+	LevelSuccess Level = "success"
+	// LevelWarning 表示警告级别
+	LevelWarning Level = "warning"
+	// LevelError 表示错误级别
+	LevelError Level = "error"
+	// LevelCritical 表示严重级别
+	LevelCritical Level = "critical"
 )
 
 // ChannelType 通知渠道类型
 type ChannelType string
 
 const (
-	ChannelEmail     ChannelType = "email"
-	ChannelWebhook   ChannelType = "webhook"
+	// ChannelEmail 表示邮件渠道
+	ChannelEmail ChannelType = "email"
+	// ChannelWebhook 表示 Webhook 渠道
+	ChannelWebhook ChannelType = "webhook"
+	// ChannelWebSocket 表示 WebSocket 渠道
 	ChannelWebSocket ChannelType = "websocket"
-	ChannelWeChat    ChannelType = "wechat"
-	ChannelDingTalk  ChannelType = "dingtalk"
-	ChannelTelegram  ChannelType = "telegram"
+	// ChannelWeChat 表示企业微信渠道
+	ChannelWeChat ChannelType = "wechat"
+	// ChannelDingTalk 表示钉钉渠道
+	ChannelDingTalk ChannelType = "dingtalk"
+	// ChannelTelegram 表示 Telegram 渠道
+	ChannelTelegram ChannelType = "telegram"
 )
 
-// NotificationStatus 通知状态
-type NotificationStatus string
+// Status 通知状态
+type Status string
 
 const (
-	StatusPending   NotificationStatus = "pending"
-	StatusSent      NotificationStatus = "sent"
-	StatusFailed    NotificationStatus = "failed"
-	StatusRetrying  NotificationStatus = "retrying"
-	StatusCancelled NotificationStatus = "cancelled"
+	// StatusPending 表示待发送状态
+	StatusPending Status = "pending"
+	// StatusSent 表示已发送状态
+	StatusSent Status = "sent"
+	// StatusFailed 表示发送失败状态
+	StatusFailed Status = "failed"
+	// StatusRetrying 表示重试中状态
+	StatusRetrying Status = "retrying"
+	// StatusCancelled 表示已取消状态
+	StatusCancelled Status = "cancelled"
 )
 
 // RuleCondition 规则条件运算符
@@ -68,7 +84,7 @@ type Notification struct {
 	ID         string                 `json:"id"`
 	Title      string                 `json:"title"`
 	Message    string                 `json:"message"`
-	Level      NotificationLevel      `json:"level"`
+	Level      Level                  `json:"level"`
 	Category   string                 `json:"category,omitempty"`
 	Source     string                 `json:"source,omitempty"`
 	Data       map[string]interface{} `json:"data,omitempty"`
@@ -78,20 +94,20 @@ type Notification struct {
 	ExpiresAt  *time.Time             `json:"expiresAt,omitempty"`
 }
 
-// NotificationRecord 通知发送记录
-type NotificationRecord struct {
-	ID             string             `json:"id"`
-	NotificationID string             `json:"notificationId"`
-	Notification   *Notification      `json:"notification,omitempty"`
-	Channel        ChannelType        `json:"channel"`
-	ChannelName    string             `json:"channelName"`
-	Status         NotificationStatus `json:"status"`
-	Attempts       int                `json:"attempts"`
-	MaxAttempts    int                `json:"maxAttempts"`
-	Error          string             `json:"error,omitempty"`
-	SentAt         *time.Time         `json:"sentAt,omitempty"`
-	CreatedAt      time.Time          `json:"createdAt"`
-	UpdatedAt      time.Time          `json:"updatedAt"`
+// Record 通知发送记录
+type Record struct {
+	ID             string        `json:"id"`
+	NotificationID string        `json:"notificationId"`
+	Notification   *Notification `json:"notification,omitempty"`
+	Channel        ChannelType   `json:"channel"`
+	ChannelName    string        `json:"channelName"`
+	Status         Status        `json:"status"`
+	Attempts       int           `json:"attempts"`
+	MaxAttempts    int           `json:"maxAttempts"`
+	Error          string        `json:"error,omitempty"`
+	SentAt         *time.Time    `json:"sentAt,omitempty"`
+	CreatedAt      time.Time    `json:"createdAt"`
+	UpdatedAt      time.Time    `json:"updatedAt"`
 }
 
 // ChannelConfig 通知渠道配置
@@ -226,28 +242,28 @@ type QuietHours struct {
 
 // HistoryFilter 历史记录过滤条件
 type HistoryFilter struct {
-	StartTime *time.Time         `json:"startTime,omitempty"`
-	EndTime   *time.Time         `json:"endTime,omitempty"`
-	Level     NotificationLevel  `json:"level,omitempty"`
-	Status    NotificationStatus `json:"status,omitempty"`
-	Channel   ChannelType        `json:"channel,omitempty"`
-	Category  string             `json:"category,omitempty"`
-	Source    string             `json:"source,omitempty"`
-	Search    string             `json:"search,omitempty"`
-	Page      int                `json:"page,omitempty"`
-	PageSize  int                `json:"pageSize,omitempty"`
+	StartTime *time.Time  `json:"startTime,omitempty"`
+	EndTime   *time.Time  `json:"endTime,omitempty"`
+	Level     Level       `json:"level,omitempty"`
+	Status    Status      `json:"status,omitempty"`
+	Channel   ChannelType `json:"channel,omitempty"`
+	Category  string      `json:"category,omitempty"`
+	Source    string      `json:"source,omitempty"`
+	Search    string      `json:"search,omitempty"`
+	Page      int         `json:"page,omitempty"`
+	PageSize  int         `json:"pageSize,omitempty"`
 }
 
 // HistoryStats 历史统计
 type HistoryStats struct {
-	TotalCount      int                       `json:"totalCount"`
-	SuccessCount    int                       `json:"successCount"`
-	FailedCount     int                       `json:"failedCount"`
-	PendingCount    int                       `json:"pendingCount"`
-	ChannelStats    map[ChannelType]int       `json:"channelStats"`
-	LevelStats      map[NotificationLevel]int `json:"levelStats"`
-	DailyStats      []DailyStat               `json:"dailyStats,omitempty"`
-	AvgDeliveryTime float64                   `json:"avgDeliveryTime,omitempty"`
+	TotalCount      int                `json:"totalCount"`
+	SuccessCount    int                `json:"successCount"`
+	FailedCount     int                `json:"failedCount"`
+	PendingCount    int                `json:"pendingCount"`
+	ChannelStats    map[ChannelType]int `json:"channelStats"`
+	LevelStats      map[Level]int       `json:"levelStats"`
+	DailyStats      []DailyStat        `json:"dailyStats,omitempty"`
+	AvgDeliveryTime float64            `json:"avgDeliveryTime,omitempty"`
 }
 
 // DailyStat 每日统计
@@ -270,10 +286,10 @@ type SendRequest struct {
 
 // SendResponse 发送通知响应
 type SendResponse struct {
-	NotificationID string                `json:"notificationId"`
-	Records        []*NotificationRecord `json:"records"`
-	Success        bool                  `json:"success"`
-	Errors         map[string]string     `json:"errors,omitempty"`
+	NotificationID string    `json:"notificationId"`
+	Records        []*Record `json:"records"`
+	Success        bool      `json:"success"`
+	Errors         map[string]string `json:"errors,omitempty"`
 }
 
 // ServiceConfig 服务配置

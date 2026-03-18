@@ -303,7 +303,7 @@ func (h *Handlers) marketList(c *gin.Context) {
 			"code":    0,
 			"message": "success",
 			"data": gin.H{
-				"plugins":  []PluginMarketInfo{},
+				"plugins":  []MarketInfo{},
 				"total":    0,
 				"page":     page,
 				"pageSize": pageSize,
@@ -344,7 +344,7 @@ func (h *Handlers) marketSearch(c *gin.Context) {
 			"code":    0,
 			"message": "success",
 			"data": gin.H{
-				"plugins":  []PluginMarketInfo{},
+				"plugins":  []MarketInfo{},
 				"total":    0,
 				"page":     page,
 				"pageSize": pageSize,

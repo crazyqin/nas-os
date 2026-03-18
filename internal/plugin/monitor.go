@@ -11,11 +11,11 @@ import (
 	"time"
 )
 
-// PluginMonitor 插件状态监控器
-type PluginMonitor struct {
+// Monitor 插件状态监控器
+type Monitor struct {
 	manager   *Manager
-	states    map[string]*PluginHealthStatus
-	alertChan chan PluginAlert
+	states    map[string]*HealthStatus
+	alertChan chan Alert
 	mu        sync.RWMutex
 	ctx       context.Context
 	cancel    context.CancelFunc
@@ -23,10 +23,10 @@ type PluginMonitor struct {
 	stateFile string
 }
 
-// PluginHealthStatus 插件健康状态
-type PluginHealthStatus struct {
+// HealthStatus 插件健康状态
+type HealthStatus struct {
 	PluginID          string                 `json:"plugin_id"`
-	Status            PluginStatusType       `json:"status"`
+	Status            StatusType             `json:"status"`
 	LastCheckTime     time.Time              `json:"last_check_time"`
 	LastHealthyTime   time.Time              `json:"last_healthy_time"`
 	ConsecutiveErrors int                    `json:"consecutive_errors"`
@@ -39,18 +39,19 @@ type PluginHealthStatus struct {
 	LastRestartTime   time.Time              `json:"last_restart_time,omitempty"`
 }
 
-// PluginStatusType 插件状态类型
-type PluginStatusType string
+// StatusType 插件状态类型
+type StatusType string
 
 const (
-	StatusHealthy   PluginStatusType = "healthy"
-	StatusDegraded  PluginStatusType = "degraded"
-	StatusUnhealthy PluginStatusType = "unhealthy"
-	StatusUnknown   PluginStatusType = "unknown"
+	// StatusHealthy indicates the plugin is running normally
+	StatusHealthy   StatusType = "healthy"
+	StatusDegraded  StatusType = "degraded"
+	StatusUnhealthy StatusType = "unhealthy"
+	StatusUnknown   StatusType = "unknown"
 )
 
-// PluginAlert 插件告警
-type PluginAlert struct {
+// Alert 插件告警
+type Alert struct {
 	PluginID  string                 `json:"plugin_id"`
 	Type      AlertType              `json:"type"`
 	Severity  AlertSeverity          `json:"severity"`
@@ -100,14 +101,14 @@ var DefaultMonitorConfig = MonitorConfig{
 	StatePersistence:   true,
 }
 
-// NewPluginMonitor 创建插件监控器
-func NewPluginMonitor(manager *Manager, config MonitorConfig) *PluginMonitor {
+// NewMonitor 创建插件监控器
+func NewMonitor(manager *Manager, config MonitorConfig) *Monitor {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	m := &PluginMonitor{
+	m := &Monitor{
 		manager:   manager,
-		states:    make(map[string]*PluginHealthStatus),
-		alertChan: make(chan PluginAlert, 100),
+		states:    make(map[string]*HealthStatus),
+		alertChan: make(chan Alert, 100),
 		ctx:       ctx,
 		cancel:    cancel,
 		config:    config,
@@ -122,33 +123,33 @@ func NewPluginMonitor(manager *Manager, config MonitorConfig) *PluginMonitor {
 }
 
 // Start 启动监控
-func (m *PluginMonitor) Start() {
+func (m *Monitor) Start() {
 	go m.monitorLoop()
 }
 
 // Stop 停止监控
-func (m *PluginMonitor) Stop() {
+func (m *Monitor) Stop() {
 	m.cancel()
 }
 
 // GetAlerts 获取告警通道
-func (m *PluginMonitor) GetAlerts() <-chan PluginAlert {
+func (m *Monitor) GetAlerts() <-chan Alert {
 	return m.alertChan
 }
 
 // GetPluginStatus 获取插件状态
-func (m *PluginMonitor) GetPluginStatus(pluginID string) *PluginHealthStatus {
+func (m *Monitor) GetPluginStatus(pluginID string) *HealthStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.states[pluginID]
 }
 
 // GetAllStatuses 获取所有插件状态
-func (m *PluginMonitor) GetAllStatuses() map[string]*PluginHealthStatus {
+func (m *Monitor) GetAllStatuses() map[string]*HealthStatus {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make(map[string]*PluginHealthStatus)
+	result := make(map[string]*HealthStatus)
 	for k, v := range m.states {
 		result[k] = v
 	}
@@ -156,7 +157,7 @@ func (m *PluginMonitor) GetAllStatuses() map[string]*PluginHealthStatus {
 }
 
 // GetHealthyCount 获取健康插件数量
-func (m *PluginMonitor) GetHealthyCount() int {
+func (m *Monitor) GetHealthyCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -170,7 +171,7 @@ func (m *PluginMonitor) GetHealthyCount() int {
 }
 
 // GetUnhealthyPlugins 获取不健康的插件列表
-func (m *PluginMonitor) GetUnhealthyPlugins() []string {
+func (m *Monitor) GetUnhealthyPlugins() []string {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -184,13 +185,13 @@ func (m *PluginMonitor) GetUnhealthyPlugins() []string {
 }
 
 // ForceHealthCheck 强制执行健康检查
-func (m *PluginMonitor) ForceHealthCheck(pluginID string) *PluginHealthStatus {
+func (m *Monitor) ForceHealthCheck(pluginID string) *HealthStatus {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	status, exists := m.states[pluginID]
 	if !exists {
-		status = &PluginHealthStatus{
+		status = &HealthStatus{
 			PluginID: pluginID,
 		}
 		m.states[pluginID] = status
@@ -201,7 +202,7 @@ func (m *PluginMonitor) ForceHealthCheck(pluginID string) *PluginHealthStatus {
 }
 
 // monitorLoop 监控循环
-func (m *PluginMonitor) monitorLoop() {
+func (m *Monitor) monitorLoop() {
 	ticker := time.NewTicker(m.config.CheckInterval)
 	defer ticker.Stop()
 
@@ -216,7 +217,7 @@ func (m *PluginMonitor) monitorLoop() {
 }
 
 // runHealthChecks 执行健康检查
-func (m *PluginMonitor) runHealthChecks() {
+func (m *Monitor) runHealthChecks() {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -230,7 +231,7 @@ func (m *PluginMonitor) runHealthChecks() {
 
 		status, exists := m.states[state.ID]
 		if !exists {
-			status = &PluginHealthStatus{
+			status = &HealthStatus{
 				PluginID:  state.ID,
 				StartTime: state.InstalledAt,
 			}
@@ -248,7 +249,7 @@ func (m *PluginMonitor) runHealthChecks() {
 }
 
 // checkPluginHealth 检查单个插件健康状态
-func (m *PluginMonitor) checkPluginHealth(pluginID string, status *PluginHealthStatus) {
+func (m *Monitor) checkPluginHealth(pluginID string, status *HealthStatus) {
 	status.LastCheckTime = time.Now()
 
 	// 获取插件实例
@@ -270,7 +271,7 @@ func (m *PluginMonitor) checkPluginHealth(pluginID string, status *PluginHealthS
 			status.LastErrorTime = time.Now()
 
 			// 发送告警
-			m.sendAlert(PluginAlert{
+			m.sendAlert(Alert{
 				PluginID:  pluginID,
 				Type:      AlertTypePluginCrashed,
 				Severity:  SeverityError,
@@ -300,7 +301,7 @@ func (m *PluginMonitor) checkPluginHealth(pluginID string, status *PluginHealthS
 				status.Status = StatusUnhealthy
 
 				if oldStatus != StatusUnhealthy {
-					m.sendAlert(PluginAlert{
+					m.sendAlert(Alert{
 						PluginID:  pluginID,
 						Type:      AlertTypeHealthChanged,
 						Severity:  SeverityWarning,
@@ -334,7 +335,7 @@ func (m *PluginMonitor) checkPluginHealth(pluginID string, status *PluginHealthS
 
 	// 如果从非健康状态恢复
 	if previousStatus == StatusUnhealthy || previousStatus == StatusDegraded {
-		m.sendAlert(PluginAlert{
+		m.sendAlert(Alert{
 			PluginID:  pluginID,
 			Type:      AlertTypePluginRecovered,
 			Severity:  SeverityInfo,
@@ -348,7 +349,7 @@ func (m *PluginMonitor) checkPluginHealth(pluginID string, status *PluginHealthS
 }
 
 // attemptRestart 尝试重启插件
-func (m *PluginMonitor) attemptRestart(pluginID string, status *PluginHealthStatus) {
+func (m *Monitor) attemptRestart(pluginID string, status *HealthStatus) {
 	// 检查冷却时间
 	if !status.LastRestartTime.IsZero() {
 		if time.Since(status.LastRestartTime) < m.config.RestartCooldown {
@@ -367,7 +368,7 @@ func (m *PluginMonitor) attemptRestart(pluginID string, status *PluginHealthStat
 	status.LastRestartTime = time.Now()
 	status.StartTime = time.Now()
 
-	m.sendAlert(PluginAlert{
+	m.sendAlert(Alert{
 		PluginID:  pluginID,
 		Type:      AlertTypeAutoRestarted,
 		Severity:  SeverityWarning,
@@ -380,7 +381,7 @@ func (m *PluginMonitor) attemptRestart(pluginID string, status *PluginHealthStat
 }
 
 // sendAlert 发送告警
-func (m *PluginMonitor) sendAlert(alert PluginAlert) {
+func (m *Monitor) sendAlert(alert Alert) {
 	select {
 	case m.alertChan <- alert:
 	default:
@@ -389,7 +390,7 @@ func (m *PluginMonitor) sendAlert(alert PluginAlert) {
 }
 
 // persistStates 持久化状态
-func (m *PluginMonitor) persistStates() {
+func (m *Monitor) persistStates() {
 	if m.stateFile == "" {
 		return
 	}
@@ -406,7 +407,7 @@ func (m *PluginMonitor) persistStates() {
 }
 
 // loadPersistedStates 加载持久化状态
-func (m *PluginMonitor) loadPersistedStates() {
+func (m *Monitor) loadPersistedStates() {
 	if m.stateFile == "" {
 		return
 	}
@@ -435,7 +436,7 @@ type MetricsCollector interface {
 }
 
 // GetMonitorSummary 获取监控摘要
-func (m *PluginMonitor) GetMonitorSummary() MonitorSummary {
+func (m *Monitor) GetMonitorSummary() MonitorSummary {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -471,7 +472,7 @@ type MonitorSummary struct {
 }
 
 // ResetRestartCount 重置重启计数
-func (m *PluginMonitor) ResetRestartCount(pluginID string) {
+func (m *Monitor) ResetRestartCount(pluginID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -481,7 +482,7 @@ func (m *PluginMonitor) ResetRestartCount(pluginID string) {
 }
 
 // ClearError 清除错误状态
-func (m *PluginMonitor) ClearError(pluginID string) {
+func (m *Monitor) ClearError(pluginID string) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

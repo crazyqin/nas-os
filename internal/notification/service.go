@@ -31,7 +31,7 @@ type sendTask struct {
 }
 
 type sendTaskResult struct {
-	records []*NotificationRecord
+	records []*Record
 	errors  map[string]string
 }
 
@@ -171,12 +171,12 @@ func (s *Service) worker() {
 // processTask 处理发送任务
 func (s *Service) processTask(task *sendTask) *sendTaskResult {
 	result := &sendTaskResult{
-		records: make([]*NotificationRecord, 0),
+		records: make([]*Record, 0),
 		errors:  make(map[string]string),
 	}
 
 	for _, channel := range task.channels {
-		record := &NotificationRecord{
+		record := &Record{
 			ID:           GenerateID(),
 			Notification: task.notification,
 			Channel:      channel.Type,
@@ -217,7 +217,7 @@ func (s *Service) processTask(task *sendTask) *sendTaskResult {
 }
 
 // sendWithRetry 带重试的发送
-func (s *Service) sendWithRetry(sender ChannelSender, channel *ChannelConfig, notification *Notification, record *NotificationRecord) error {
+func (s *Service) sendWithRetry(sender ChannelSender, channel *ChannelConfig, notification *Notification, record *Record) error {
 	var lastErr error
 
 	for attempt := 1; attempt <= record.MaxAttempts; attempt++ {

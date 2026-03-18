@@ -12,8 +12,8 @@ import (
 
 // HistoryManager 历史记录管理器
 type HistoryManager struct {
-	records    []*NotificationRecord
-	recordMap  map[string]*NotificationRecord
+	records    []*Record
+	recordMap  map[string]*Record
 	mu         sync.RWMutex
 	storePath  string
 	maxRecords int
@@ -30,8 +30,8 @@ func NewHistoryManager(storePath string, maxRecords, maxDays int) (*HistoryManag
 	}
 
 	hm := &HistoryManager{
-		records:    make([]*NotificationRecord, 0),
-		recordMap:  make(map[string]*NotificationRecord),
+		records:    make([]*Record, 0),
+		recordMap:  make(map[string]*Record),
 		storePath:  storePath,
 		maxRecords: maxRecords,
 		maxDays:    maxDays,
@@ -61,7 +61,7 @@ func (hm *HistoryManager) load() error {
 		return err
 	}
 
-	var records []*NotificationRecord
+	var records []*Record
 	if err := json.Unmarshal(data, &records); err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (hm *HistoryManager) load() error {
 	defer hm.mu.Unlock()
 
 	hm.records = records
-	hm.recordMap = make(map[string]*NotificationRecord)
+	hm.recordMap = make(map[string]*Record)
 	for _, r := range records {
 		hm.recordMap[r.ID] = r
 	}
@@ -85,7 +85,7 @@ func (hm *HistoryManager) save() error {
 	}
 
 	hm.mu.RLock()
-	records := make([]*NotificationRecord, len(hm.records))
+	records := make([]*Record, len(hm.records))
 	copy(records, hm.records)
 	hm.mu.RUnlock()
 
@@ -103,7 +103,7 @@ func (hm *HistoryManager) save() error {
 }
 
 // AddRecord 添加记录
-func (hm *HistoryManager) AddRecord(record *NotificationRecord) error {
+func (hm *HistoryManager) AddRecord(record *Record) error {
 	if record.ID == "" {
 		record.ID = GenerateID()
 	}
@@ -126,7 +126,7 @@ func (hm *HistoryManager) AddRecord(record *NotificationRecord) error {
 }
 
 // UpdateRecord 更新记录
-func (hm *HistoryManager) UpdateRecord(record *NotificationRecord) error {
+func (hm *HistoryManager) UpdateRecord(record *Record) error {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
 
@@ -148,7 +148,7 @@ func (hm *HistoryManager) UpdateRecord(record *NotificationRecord) error {
 }
 
 // GetRecord 获取记录
-func (hm *HistoryManager) GetRecord(id string) (*NotificationRecord, error) {
+func (hm *HistoryManager) GetRecord(id string) (*Record, error) {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
 
@@ -182,11 +182,11 @@ func (hm *HistoryManager) DeleteRecord(id string) error {
 }
 
 // Query 查询记录
-func (hm *HistoryManager) Query(filter *HistoryFilter) []*NotificationRecord {
+func (hm *HistoryManager) Query(filter *HistoryFilter) []*Record {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
 
-	result := make([]*NotificationRecord, 0)
+	result := make([]*Record, 0)
 
 	for _, r := range hm.records {
 		if !hm.matchFilter(r, filter) {
@@ -214,7 +214,7 @@ func (hm *HistoryManager) Query(filter *HistoryFilter) []*NotificationRecord {
 	end := start + pageSize
 
 	if start >= len(result) {
-		return []*NotificationRecord{}
+		return []*Record{}
 	}
 
 	if end > len(result) {
@@ -225,7 +225,7 @@ func (hm *HistoryManager) Query(filter *HistoryFilter) []*NotificationRecord {
 }
 
 // matchFilter 匹配过滤条件
-func (hm *HistoryManager) matchFilter(record *NotificationRecord, filter *HistoryFilter) bool {
+func (hm *HistoryManager) matchFilter(record *Record, filter *HistoryFilter) bool {
 	if filter == nil {
 		return true
 	}
@@ -283,7 +283,7 @@ func (hm *HistoryManager) GetStats(startTime, endTime *time.Time) *HistoryStats 
 
 	stats := &HistoryStats{
 		ChannelStats: make(map[ChannelType]int),
-		LevelStats:   make(map[NotificationLevel]int),
+		LevelStats:   make(map[Level]int),
 		DailyStats:   make([]DailyStat, 0),
 	}
 
@@ -363,7 +363,7 @@ func (hm *HistoryManager) calculateDailyStats(startTime, endTime *time.Time) []D
 func (hm *HistoryManager) cleanup() {
 	cutoff := time.Now().AddDate(0, 0, -hm.maxDays)
 
-	newRecords := make([]*NotificationRecord, 0)
+	newRecords := make([]*Record, 0)
 	for _, r := range hm.records {
 		if r.CreatedAt.After(cutoff) {
 			newRecords = append(newRecords, r)
@@ -407,8 +407,8 @@ func (hm *HistoryManager) Clear() error {
 	hm.mu.Lock()
 	defer hm.mu.Unlock()
 
-	hm.records = make([]*NotificationRecord, 0)
-	hm.recordMap = make(map[string]*NotificationRecord)
+	hm.records = make([]*Record, 0)
+	hm.recordMap = make(map[string]*Record)
 
 	return hm.save()
 }
@@ -421,11 +421,11 @@ func (hm *HistoryManager) Count() int {
 }
 
 // GetRecordsByNotificationID 根据通知ID获取记录
-func (hm *HistoryManager) GetRecordsByNotificationID(notificationID string) []*NotificationRecord {
+func (hm *HistoryManager) GetRecordsByNotificationID(notificationID string) []*Record {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
 
-	result := make([]*NotificationRecord, 0)
+	result := make([]*Record, 0)
 	for _, r := range hm.records {
 		if r.NotificationID == notificationID {
 			result = append(result, r)
@@ -436,11 +436,11 @@ func (hm *HistoryManager) GetRecordsByNotificationID(notificationID string) []*N
 }
 
 // GetPendingRecords 获取待发送记录
-func (hm *HistoryManager) GetPendingRecords() []*NotificationRecord {
+func (hm *HistoryManager) GetPendingRecords() []*Record {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
 
-	result := make([]*NotificationRecord, 0)
+	result := make([]*Record, 0)
 	for _, r := range hm.records {
 		if r.Status == StatusPending || r.Status == StatusRetrying {
 			result = append(result, r)
@@ -451,11 +451,11 @@ func (hm *HistoryManager) GetPendingRecords() []*NotificationRecord {
 }
 
 // GetFailedRecords 获取失败记录
-func (hm *HistoryManager) GetFailedRecords(limit int) []*NotificationRecord {
+func (hm *HistoryManager) GetFailedRecords(limit int) []*Record {
 	hm.mu.RLock()
 	defer hm.mu.RUnlock()
 
-	result := make([]*NotificationRecord, 0)
+	result := make([]*Record, 0)
 	for _, r := range hm.records {
 		if r.Status == StatusFailed {
 			result = append(result, r)

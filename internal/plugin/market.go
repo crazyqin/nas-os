@@ -38,12 +38,12 @@ func NewMarket(cfg MarketConfig) *Market {
 
 // cachedPlugin 缓存的插件信息
 type cachedPlugin struct {
-	info      *PluginMarketInfo
+	info      *MarketInfo
 	expiresAt time.Time
 }
 
-// PluginMarketInfo 市场插件信息
-type PluginMarketInfo struct {
+// MarketInfo 市场插件信息
+type MarketInfo struct {
 	// 基本信息
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
@@ -105,7 +105,7 @@ type Review struct {
 }
 
 // List 获取插件列表
-func (m *Market) List(category, sort string, page, pageSize int) ([]PluginMarketInfo, int, error) {
+func (m *Market) List(category, sort string, page, pageSize int) ([]MarketInfo, int, error) {
 	if m.baseURL == "" {
 		// 返回模拟数据
 		return m.getMockPlugins(category), 0, nil
@@ -126,10 +126,10 @@ func (m *Market) List(category, sort string, page, pageSize int) ([]PluginMarket
 	u.RawQuery = q.Encode()
 
 	var resp struct {
-		Code    int                `json:"code"`
-		Data    []PluginMarketInfo `json:"data"`
-		Total   int                `json:"total"`
-		Message string             `json:"message"`
+		Code    int          `json:"code"`
+		Data    []MarketInfo `json:"data"`
+		Total   int          `json:"total"`
+		Message string       `json:"message"`
 	}
 
 	if err := m.request("GET", u.String(), nil, &resp); err != nil {
@@ -140,7 +140,7 @@ func (m *Market) List(category, sort string, page, pageSize int) ([]PluginMarket
 }
 
 // Search 搜索插件
-func (m *Market) Search(query string, page, pageSize int) ([]PluginMarketInfo, int, error) {
+func (m *Market) Search(query string, page, pageSize int) ([]MarketInfo, int, error) {
 	if m.baseURL == "" {
 		return m.searchMockPlugins(query), 0, nil
 	}
@@ -157,10 +157,10 @@ func (m *Market) Search(query string, page, pageSize int) ([]PluginMarketInfo, i
 	u.RawQuery = q.Encode()
 
 	var resp struct {
-		Code    int                `json:"code"`
-		Data    []PluginMarketInfo `json:"data"`
-		Total   int                `json:"total"`
-		Message string             `json:"message"`
+		Code    int          `json:"code"`
+		Data    []MarketInfo `json:"data"`
+		Total   int          `json:"total"`
+		Message string       `json:"message"`
 	}
 
 	if err := m.request("GET", u.String(), nil, &resp); err != nil {
@@ -171,7 +171,7 @@ func (m *Market) Search(query string, page, pageSize int) ([]PluginMarketInfo, i
 }
 
 // GetDetail 获取插件详情
-func (m *Market) GetDetail(pluginID string) (*PluginMarketInfo, error) {
+func (m *Market) GetDetail(pluginID string) (*MarketInfo, error) {
 	// 检查缓存
 	m.cacheMu.RLock()
 	if cached, ok := m.cache[pluginID]; ok && cached.expiresAt.After(time.Now()) {
@@ -185,9 +185,9 @@ func (m *Market) GetDetail(pluginID string) (*PluginMarketInfo, error) {
 	}
 
 	var resp struct {
-		Code    int              `json:"code"`
-		Data    PluginMarketInfo `json:"data"`
-		Message string           `json:"message"`
+		Code    int        `json:"code"`
+		Data    MarketInfo `json:"data"`
+		Message string     `json:"message"`
 	}
 
 	if err := m.request("GET", m.baseURL+"/plugins/"+pluginID, nil, &resp); err != nil {
@@ -300,8 +300,8 @@ func (m *Market) request(method, url string, data interface{}, result interface{
 
 // ========== 模拟数据 ==========
 
-func (m *Market) getMockPlugins(category string) []PluginMarketInfo {
-	plugins := []PluginMarketInfo{
+func (m *Market) getMockPlugins(category string) []MarketInfo {
+	plugins := []MarketInfo{
 		{
 			ID:          "com.nas-os.filemanager-enhance",
 			Name:        "文件管理器增强",
@@ -375,7 +375,7 @@ func (m *Market) getMockPlugins(category string) []PluginMarketInfo {
 	}
 
 	if category != "" {
-		var filtered []PluginMarketInfo
+		var filtered []MarketInfo
 		for _, p := range plugins {
 			if string(p.Category) == category {
 				filtered = append(filtered, p)
@@ -387,9 +387,9 @@ func (m *Market) getMockPlugins(category string) []PluginMarketInfo {
 	return plugins
 }
 
-func (m *Market) searchMockPlugins(query string) []PluginMarketInfo {
+func (m *Market) searchMockPlugins(query string) []MarketInfo {
 	plugins := m.getMockPlugins("")
-	var results []PluginMarketInfo
+	var results []MarketInfo
 
 	for _, p := range plugins {
 		if contains(p.Name, query) || contains(p.Description, query) {
@@ -400,7 +400,7 @@ func (m *Market) searchMockPlugins(query string) []PluginMarketInfo {
 	return results
 }
 
-func (m *Market) getMockPluginDetail(pluginID string) (*PluginMarketInfo, error) {
+func (m *Market) getMockPluginDetail(pluginID string) (*MarketInfo, error) {
 	plugins := m.getMockPlugins("")
 	for i := range plugins {
 		if plugins[i].ID == pluginID {
