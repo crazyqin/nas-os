@@ -22,8 +22,6 @@ var (
 	safePathRegex = regexp.MustCompile(`^(/dev/[a-zA-Z0-9/_-]+|/[a-zA-Z0-9/_.-]+)$`)
 	// 安全数字
 	safeNumberRegex = regexp.MustCompile(`^[0-9]+$`)
-	// 安全大小参数（数字+单位或纯数字）
-	safeSizeRegex = regexp.MustCompile(`^[0-9]+[KMGTP]?[iB]?$`)
 )
 
 // validateSafeName 验证名称参数，防止命令注入
@@ -56,17 +54,6 @@ func validateSafePath(path string) error {
 func validateSafeNumber(num string) error {
 	if !safeNumberRegex.MatchString(num) {
 		return fmt.Errorf("invalid number format")
-	}
-	return nil
-}
-
-// validateSafeSize 验证大小参数
-func validateSafeSize(size string) error {
-	if size == "" {
-		return fmt.Errorf("size cannot be empty")
-	}
-	if !safeSizeRegex.MatchString(size) {
-		return fmt.Errorf("invalid size format")
 	}
 	return nil
 }

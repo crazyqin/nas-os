@@ -346,7 +346,7 @@ func (p *CloudflareProvider) listDNSRecords(name string) ([]CloudflareRecord, er
 	}
 
 	if !result.Success {
-		return nil, fmt.Errorf("Cloudflare API 请求失败")
+		return nil, fmt.Errorf("cloudflare API 请求失败")
 	}
 
 	return result.Result, nil
@@ -478,7 +478,7 @@ func (p *TailscaleProvider) Update(domain, ip string) error {
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("Tailscale API 请求失败: %w", err)
+		return fmt.Errorf("tailscale API 请求失败: %w", err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 
@@ -486,7 +486,7 @@ func (p *TailscaleProvider) Update(domain, ip string) error {
 	// 这里主要是验证连接状态
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("Tailscale API 错误: %s", string(body))
+		return fmt.Errorf("tailscale API 错误: %s", string(body))
 	}
 
 	return nil
