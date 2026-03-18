@@ -128,24 +128,43 @@ func NewCommander(sudo bool) *Commander {
 }
 
 // Execute 执行 btrfs 命令
+// 注意：此方法为内部方法，调用者必须确保参数安全
+// 参数通常来自内部定义的常量字符串或已验证的用户输入
 func (c *Commander) Execute(args ...string) ([]byte, error) {
+	// 验证参数中不包含危险字符
+	for _, arg := range args {
+		if strings.ContainsAny(arg, ";|&$`()<>") {
+			return nil, fmt.Errorf("invalid argument: contains dangerous characters")
+		}
+	}
 	var cmd *exec.Cmd
 	if c.sudo {
 		allArgs := append([]string{"btrfs"}, args...)
+		// #nosec G204 -- btrfs 命令参数由内部方法控制，调用者负责验证
 		cmd = exec.Command("sudo", allArgs...)
 	} else {
+		// #nosec G204 -- btrfs 命令参数由内部方法控制，调用者负责验证
 		cmd = exec.Command("btrfs", args...)
 	}
 	return cmd.Output()
 }
 
 // ExecuteWithInput 执行命令并传入输入
+// 注意：此方法为内部方法，调用者必须确保参数安全
 func (c *Commander) ExecuteWithInput(input string, args ...string) ([]byte, error) {
+	// 验证参数中不包含危险字符
+	for _, arg := range args {
+		if strings.ContainsAny(arg, ";|&$`()<>") {
+			return nil, fmt.Errorf("invalid argument: contains dangerous characters")
+		}
+	}
 	var cmd *exec.Cmd
 	if c.sudo {
 		allArgs := append([]string{"btrfs"}, args...)
+		// #nosec G204 -- btrfs 命令参数由内部方法控制，调用者负责验证
 		cmd = exec.Command("sudo", allArgs...)
 	} else {
+		// #nosec G204 -- btrfs 命令参数由内部方法控制，调用者负责验证
 		cmd = exec.Command("btrfs", args...)
 	}
 	cmd.Stdin = strings.NewReader(input)
@@ -301,8 +320,10 @@ func (c *Client) CreateVolume(label string, devices []string, dataProfile, metad
 
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
+		// #nosec G204 -- 设备路径和标签已通过 validateDevicePath 和字符验证
 		cmd = exec.Command("sudo", append([]string{"mkfs.btrfs"}, args...)...)
 	} else {
+		// #nosec G204 -- 设备路径和标签已通过 validateDevicePath 和字符验证
 		cmd = exec.Command("mkfs.btrfs", args...)
 	}
 
@@ -324,8 +345,10 @@ func (c *Client) DeleteVolume(device string) error {
 	// 使用 wipefs 清除文件系统签名
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
+		// #nosec G204 -- 设备路径已通过 validateDevicePath 验证
 		cmd = exec.Command("sudo", "wipefs", "-a", device)
 	} else {
+		// #nosec G204 -- 设备路径已通过 validateDevicePath 验证
 		cmd = exec.Command("wipefs", "-a", device)
 	}
 
@@ -361,8 +384,10 @@ func (c *Client) Mount(device, mountPoint string, options []string) error {
 
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
+		// #nosec G204 -- 设备路径、挂载点和选项已通过验证函数验证
 		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
 	} else {
+		// #nosec G204 -- 设备路径、挂载点和选项已通过验证函数验证
 		cmd = exec.Command("mount", args...)
 	}
 
@@ -383,8 +408,10 @@ func (c *Client) Unmount(mountPoint string) error {
 
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
+		// #nosec G204 -- 挂载点已通过 validatePath 验证
 		cmd = exec.Command("sudo", "umount", mountPoint)
 	} else {
+		// #nosec G204 -- 挂载点已通过 validatePath 验证
 		cmd = exec.Command("umount", mountPoint)
 	}
 
@@ -566,8 +593,10 @@ func (c *Client) MountSubVolume(device, subvolPath, mountPoint string) error {
 
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
+		// #nosec G204 -- 设备路径、子卷路径和挂载点已通过验证函数验证
 		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
 	} else {
+		// #nosec G204 -- 设备路径、子卷路径和挂载点已通过验证函数验证
 		cmd = exec.Command("mount", args...)
 	}
 
@@ -595,8 +624,10 @@ func (c *Client) MountSubVolumeByID(device string, subvolID uint64, mountPoint s
 
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
+		// #nosec G204 -- 设备路径和挂载点已通过验证函数验证，subvolID 是 uint64
 		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
 	} else {
+		// #nosec G204 -- 设备路径和挂载点已通过验证函数验证，subvolID 是 uint64
 		cmd = exec.Command("mount", args...)
 	}
 
