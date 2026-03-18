@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-// ComplianceReport 合规报告
-type ComplianceReport struct {
-	ID              string          `json:"id"`
-	Timestamp       time.Time       `json:"timestamp"`
-	OverallLevel    ComplianceLevel `json:"overall_level"`
-	PassedCount     int             `json:"passed_count"`
-	FailedCount     int             `json:"failed_count"`
+// Report 合规报告
+type Report struct {
+	ID              string    `json:"id"`
+	Timestamp       time.Time `json:"timestamp"`
+	OverallLevel    Level     `json:"overall_level"`
+	PassedCount     int       `json:"passed_count"`
+	FailedCount     int       `json:"failed_count"`
 	Results         []CheckResult   `json:"results"`
 	Summary         string          `json:"summary"`
 	Recommendations []string        `json:"recommendations,omitempty"`
@@ -25,11 +25,11 @@ type ComplianceReport struct {
 // ReportGenerator 报告生成器
 type ReportGenerator struct {
 	outputDir string
-	checker   *ComplianceChecker
+	checker   *Checker
 }
 
 // NewReportGenerator 创建报告生成器
-func NewReportGenerator(outputDir string, checker *ComplianceChecker) (*ReportGenerator, error) {
+func NewReportGenerator(outputDir string, checker *Checker) (*ReportGenerator, error) {
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return nil, fmt.Errorf("创建输出目录失败: %w", err)
 	}
@@ -40,7 +40,7 @@ func NewReportGenerator(outputDir string, checker *ComplianceChecker) (*ReportGe
 }
 
 // GenerateReport 生成合规报告
-func (g *ReportGenerator) GenerateReport(ctx context.Context) (*ComplianceReport, error) {
+func (g *ReportGenerator) GenerateReport(ctx context.Context) (*Report, error) {
 	report, err := g.checker.RunChecks(ctx)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (g *ReportGenerator) GenerateReport(ctx context.Context) (*ComplianceReport
 }
 
 // GenerateReportByType 按类型生成报告
-func (g *ReportGenerator) GenerateReportByType(ctx context.Context, checkType CheckType) (*ComplianceReport, error) {
+func (g *ReportGenerator) GenerateReportByType(ctx context.Context, checkType CheckType) (*Report, error) {
 	report, err := g.checker.RunChecksByType(ctx, checkType)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (g *ReportGenerator) GenerateReportByType(ctx context.Context, checkType Ch
 }
 
 // generateSummary 生成摘要
-func (g *ReportGenerator) generateSummary(report *ComplianceReport) string {
+func (g *ReportGenerator) generateSummary(report *Report) string {
 	total := len(report.Results)
 	passRate := 0.0
 	if total > 0 {
@@ -90,7 +90,7 @@ func (g *ReportGenerator) generateSummary(report *ComplianceReport) string {
 }
 
 // generateRecommendations 生成建议
-func (g *ReportGenerator) generateRecommendations(report *ComplianceReport) []string {
+func (g *ReportGenerator) generateRecommendations(report *Report) []string {
 	var recommendations []string
 
 	for _, result := range report.Results {
@@ -104,7 +104,7 @@ func (g *ReportGenerator) generateRecommendations(report *ComplianceReport) []st
 }
 
 // saveReport 保存报告
-func (g *ReportGenerator) saveReport(report *ComplianceReport) error {
+func (g *ReportGenerator) saveReport(report *Report) error {
 	filename := filepath.Join(g.outputDir, fmt.Sprintf("compliance_%s.json", report.Timestamp.Format("2006-01-02_150405")))
 
 	data, err := json.MarshalIndent(report, "", "  ")
@@ -116,13 +116,13 @@ func (g *ReportGenerator) saveReport(report *ComplianceReport) error {
 }
 
 // LoadReport 加载报告
-func (g *ReportGenerator) LoadReport(filename string) (*ComplianceReport, error) {
+func (g *ReportGenerator) LoadReport(filename string) (*Report, error) {
 	data, err := os.ReadFile(filepath.Join(g.outputDir, filename))
 	if err != nil {
 		return nil, err
 	}
 
-	var report ComplianceReport
+	var report Report
 	if err := json.Unmarshal(data, &report); err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (g *ReportGenerator) ListReports() ([]string, error) {
 }
 
 // GetLatestReport 获取最新报告
-func (g *ReportGenerator) GetLatestReport() (*ComplianceReport, error) {
+func (g *ReportGenerator) GetLatestReport() (*Report, error) {
 	reports, err := g.ListReports()
 	if err != nil {
 		return nil, err
@@ -164,7 +164,7 @@ func (g *ReportGenerator) GetLatestReport() (*ComplianceReport, error) {
 }
 
 // ExportToText 导出为文本格式
-func (g *ReportGenerator) ExportToText(report *ComplianceReport) string {
+func (g *ReportGenerator) ExportToText(report *Report) string {
 	var text string
 	text += "=== NAS-OS 合规检查报告 ===\n"
 	text += fmt.Sprintf("报告ID: %s\n", report.ID)

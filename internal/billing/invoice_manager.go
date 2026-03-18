@@ -19,6 +19,7 @@ import (
 // ========== 额外错误定义 ==========
 
 var (
+	// ErrInvoiceNumberExists 发票号码已存在错误
 	ErrInvoiceNumberExists = errors.New("发票号码已存在")
 	ErrInvoiceExportFailed = errors.New("发票导出失败")
 )

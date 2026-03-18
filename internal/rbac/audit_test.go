@@ -8,8 +8,8 @@ import (
 
 // ========== 审计日志测试 ==========
 
-func TestNewRBACAuditLogger(t *testing.T) {
-	logger := NewRBACAuditLogger(100, nil)
+func TestNewAuditLogger(t *testing.T) {
+	logger := NewAuditLogger(100, nil)
 	defer logger.Close()
 
 	if logger == nil {
@@ -21,7 +21,7 @@ func TestRBACAuditLogger_Log(t *testing.T) {
 	var receivedEvent *AuditEvent
 	var mu sync.Mutex
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		mu.Lock()
 		receivedEvent = event
 		mu.Unlock()
@@ -60,7 +60,7 @@ func TestRBACAuditLogger_Log(t *testing.T) {
 func TestRBACAuditLogger_LogSync(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -86,7 +86,7 @@ func TestRBACAuditLogger_LogSync(t *testing.T) {
 func TestRBACAuditLogger_LogPermissionGrant(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -123,7 +123,7 @@ func TestRBACAuditLogger_LogPermissionGrant(t *testing.T) {
 func TestRBACAuditLogger_LogPermissionRevoke(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -147,7 +147,7 @@ func TestRBACAuditLogger_LogPermissionRevoke(t *testing.T) {
 func TestRBACAuditLogger_LogRoleChange(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -184,7 +184,7 @@ func TestRBACAuditLogger_LogRoleChange(t *testing.T) {
 func TestRBACAuditLogger_LogRoleChange_Admin(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -210,7 +210,7 @@ func TestRBACAuditLogger_LogRoleChange_Admin(t *testing.T) {
 func TestRBACAuditLogger_LogPolicyCreate(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -236,7 +236,7 @@ func TestRBACAuditLogger_LogPolicyCreate(t *testing.T) {
 func TestRBACAuditLogger_LogPolicyUpdate(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -259,7 +259,7 @@ func TestRBACAuditLogger_LogPolicyUpdate(t *testing.T) {
 func TestRBACAuditLogger_LogPolicyDelete(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -294,7 +294,7 @@ func TestRBACAuditLogger_LogAccessCheck(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var receivedEvent *AuditEvent
 
-			logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+			logger := NewAuditLogger(100, func(event *AuditEvent) {
 				receivedEvent = event
 			})
 			defer logger.Close()
@@ -322,7 +322,7 @@ func TestRBACAuditLogger_LogAccessCheck(t *testing.T) {
 func TestRBACAuditLogger_LogGroupPermissionChange(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -348,7 +348,7 @@ func TestRBACAuditLogger_LogGroupPermissionChange(t *testing.T) {
 func TestRBACAuditLogger_LogShareACLChange(t *testing.T) {
 	var receivedEvent *AuditEvent
 
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -375,7 +375,7 @@ func TestRBACAuditLogger_LogShareACLChange(t *testing.T) {
 // ========== 审计中间件测试 ==========
 
 func TestNewAuditMiddleware(t *testing.T) {
-	logger := NewRBACAuditLogger(100, nil)
+	logger := NewAuditLogger(100, nil)
 	defer logger.Close()
 
 	am := NewAuditMiddleware(logger)
@@ -388,7 +388,7 @@ func TestAuditMiddleware_WrapManager(t *testing.T) {
 	m, cleanup := newTestManager(t)
 	defer cleanup()
 
-	logger := NewRBACAuditLogger(100, nil)
+	logger := NewAuditLogger(100, nil)
 	defer logger.Close()
 
 	am := NewAuditMiddleware(logger)
@@ -404,7 +404,7 @@ func TestAuditedManager_SetUserRole(t *testing.T) {
 	defer cleanup()
 
 	var receivedEvent *AuditEvent
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -433,7 +433,7 @@ func TestAuditedManager_GrantPermissionWithAudit(t *testing.T) {
 	defer cleanup()
 
 	var receivedEvent *AuditEvent
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -465,7 +465,7 @@ func TestAuditedManager_RevokePermissionWithAudit(t *testing.T) {
 	defer cleanup()
 
 	var receivedEvent *AuditEvent
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -498,7 +498,7 @@ func TestAuditedManager_CreatePolicyWithAudit(t *testing.T) {
 	defer cleanup()
 
 	var receivedEvent *AuditEvent
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()
@@ -539,7 +539,7 @@ func TestAuditedManager_DeletePolicyWithAudit(t *testing.T) {
 	defer cleanup()
 
 	var receivedEvent *AuditEvent
-	logger := NewRBACAuditLogger(100, func(event *AuditEvent) {
+	logger := NewAuditLogger(100, func(event *AuditEvent) {
 		receivedEvent = event
 	})
 	defer logger.Close()

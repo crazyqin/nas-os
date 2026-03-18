@@ -29,6 +29,7 @@ var (
 // ServerType LDAP 服务器类型
 type ServerType string
 
+// LDAP 服务器类型常量
 const (
 	ServerTypeOpenLDAP ServerType = "openldap"
 	ServerTypeAD       ServerType = "ad" // Active Directory
@@ -39,6 +40,7 @@ const (
 // SyncMode 同步模式
 type SyncMode string
 
+// 同步模式常量
 const (
 	SyncModeFull        SyncMode = "full"        // 全量同步
 	SyncModeIncremental SyncMode = "incremental" // 增量同步
@@ -48,6 +50,7 @@ const (
 // SyncDirection 同步方向
 type SyncDirection string
 
+// 同步方向常量
 const (
 	SyncDirectionImport SyncDirection = "import" // 从 LDAP 导入
 	SyncDirectionExport SyncDirection = "export" // 导出到 LDAP

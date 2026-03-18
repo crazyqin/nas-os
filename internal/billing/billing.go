@@ -16,6 +16,7 @@ import (
 // ========== 错误定义 ==========
 
 var (
+	// ErrBillingNotFound 计费记录不存在错误
 	ErrBillingNotFound      = errors.New("计费记录不存在")
 	ErrInvoiceNotFound      = errors.New("发票不存在")
 	ErrUsageRecordNotFound  = errors.New("用量记录不存在")
@@ -27,12 +28,12 @@ var (
 
 // ========== 计费配置 ==========
 
-// BillingConfig 计费配置
-type BillingConfig struct {
+// Config 计费配置
+type Config struct {
 	// 基础配置
-	Enabled           bool         `json:"enabled"`              // 是否启用计费
-	DefaultCurrency   string       `json:"default_currency"`     // 默认货币（CNY, USD 等）
-	BillingCycle      BillingCycle `json:"billing_cycle"`        // 计费周期
+	Enabled           bool   `json:"enabled"`              // 是否启用计费
+	DefaultCurrency   string `json:"default_currency"`     // 默认货币（CNY, USD 等）
+	Cycle             Cycle  `json:"billing_cycle"`        // 计费周期
 	BillingDayOfMonth int          `json:"billing_day_of_month"` // 每月账单日（1-28）
 
 	// 存储计费配置
@@ -62,14 +63,15 @@ type BillingConfig struct {
 	CompanyEmail   string `json:"company_email"`
 }
 
-// BillingCycle 计费周期
-type BillingCycle string
+// Cycle 计费周期
+type Cycle string
 
+// 计费周期常量
 const (
-	BillingCycleDaily   BillingCycle = "daily"   // 日结
-	BillingCycleWeekly  BillingCycle = "weekly"  // 周结
-	BillingCycleMonthly BillingCycle = "monthly" // 月结
-	BillingCycleYearly  BillingCycle = "yearly"  // 年结
+	CycleDaily   Cycle = "daily"   // 日结
+	CycleWeekly  Cycle = "weekly"  // 周结
+	CycleMonthly Cycle = "monthly" // 月结
+	CycleYearly  Cycle = "yearly"  // 年结
 )
 
 // StoragePricingConfig 存储计费配置
@@ -131,6 +133,7 @@ type BandwidthPricingConfig struct {
 // BandwidthModel 带宽计费模式
 type BandwidthModel string
 
+// 带宽计费模式常量
 const (
 	BandwidthModelTraffic   BandwidthModel = "traffic"   // 按流量
 	BandwidthModelBandwidth BandwidthModel = "bandwidth" // 按带宽峰值
@@ -305,6 +308,7 @@ type Invoice struct {
 // InvoiceStatus 发票状态
 type InvoiceStatus string
 
+// 发票状态常量
 const (
 	InvoiceStatusDraft    InvoiceStatus = "draft"    // 草稿
 	InvoiceStatusIssued   InvoiceStatus = "issued"   // 已开具
@@ -391,8 +395,8 @@ type InvoiceSummary struct {
 
 // ========== 计费统计 ==========
 
-// BillingStats 计费统计
-type BillingStats struct {
+// Stats 计费统计
+type Stats struct {
 	PeriodStart time.Time `json:"period_start"`
 	PeriodEnd   time.Time `json:"period_end"`
 	GeneratedAt time.Time `json:"generated_at"`
@@ -419,14 +423,14 @@ type BillingStats struct {
 	OutstandingAmount float64 `json:"outstanding_amount"`
 
 	// 按用户统计
-	UserStats []UserBillingStats `json:"user_stats"`
+	UserStats []UserStats `json:"user_stats"`
 
 	// 按存储池统计
-	PoolStats []PoolBillingStats `json:"pool_stats"`
+	PoolStats []PoolStats `json:"pool_stats"`
 }
 
-// UserBillingStats 用户计费统计
-type UserBillingStats struct {
+// UserStats 用户计费统计
+type UserStats struct {
 	UserID   string `json:"user_id"`
 	UserName string `json:"user_name"`
 
@@ -452,8 +456,8 @@ type UserBillingStats struct {
 	PoolCount int `json:"pool_count"`
 }
 
-// PoolBillingStats 存储池计费统计
-type PoolBillingStats struct {
+// PoolStats 存储池计费统计
+type PoolStats struct {
 	PoolID      string `json:"pool_id"`
 	PoolName    string `json:"pool_name"`
 	StorageType string `json:"storage_type"`
@@ -480,9 +484,9 @@ type PoolBillingStats struct {
 
 // ========== 计费管理器 ==========
 
-// BillingManager 计费管理器
-type BillingManager struct {
-	config  *BillingConfig
+// Manager 计费管理器
+type Manager struct {
+	config  *Config
 	dataDir string
 	mu      sync.RWMutex
 
@@ -492,10 +496,10 @@ type BillingManager struct {
 	invoiceCounter int                     // 发票计数器
 }
 
-// NewBillingManager 创建计费管理器
-func NewBillingManager(config *BillingConfig, dataDir string) (*BillingManager, error) {
+// NewManager 创建计费管理器
+func NewManager(config *Config, dataDir string) (*Manager, error) {
 	if config == nil {
-		config = DefaultBillingConfig()
+		config = DefaultConfig()
 	}
 
 	// 确保数据目录存在
@@ -503,7 +507,7 @@ func NewBillingManager(config *BillingConfig, dataDir string) (*BillingManager, 
 		return nil, fmt.Errorf("创建数据目录失败: %w", err)
 	}
 
-	bm := &BillingManager{
+	bm := &Manager{
 		config:       config,
 		dataDir:      dataDir,
 		usageRecords: make(map[string]*UsageRecord),
@@ -518,12 +522,12 @@ func NewBillingManager(config *BillingConfig, dataDir string) (*BillingManager, 
 	return bm, nil
 }
 
-// DefaultBillingConfig 默认计费配置
-func DefaultBillingConfig() *BillingConfig {
-	return &BillingConfig{
+// DefaultConfig 默认计费配置
+func DefaultConfig() *Config {
+	return &Config{
 		Enabled:            true,
 		DefaultCurrency:    "CNY",
-		BillingCycle:       BillingCycleMonthly,
+		Cycle:              CycleMonthly,
 		BillingDayOfMonth:  1,
 		InvoicePrefix:      "INV",
 		InvoiceDueDays:     30,
@@ -555,7 +559,7 @@ func DefaultBillingConfig() *BillingConfig {
 }
 
 // load 加载数据
-func (bm *BillingManager) load() error {
+func (bm *Manager) load() error {
 	// 加载用量记录
 	usagePath := filepath.Join(bm.dataDir, "usage_records.json")
 	if data, err := os.ReadFile(usagePath); err == nil {
@@ -588,7 +592,7 @@ func (bm *BillingManager) load() error {
 }
 
 // save 保存数据
-func (bm *BillingManager) save() error {
+func (bm *Manager) save() error {
 	// 保存用量记录
 	records := make([]*UsageRecord, 0, len(bm.usageRecords))
 	for _, r := range bm.usageRecords {
@@ -621,7 +625,7 @@ func (bm *BillingManager) save() error {
 // ========== 用量记录管理 ==========
 
 // RecordUsage 记录用量
-func (bm *BillingManager) RecordUsage(ctx context.Context, input *UsageRecordInput) (*UsageRecord, error) {
+func (bm *Manager) RecordUsage(ctx context.Context, input *UsageRecordInput) (*UsageRecord, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 
@@ -662,7 +666,7 @@ func (bm *BillingManager) RecordUsage(ctx context.Context, input *UsageRecordInp
 }
 
 // GetUsageRecord 获取用量记录
-func (bm *BillingManager) GetUsageRecord(id string) (*UsageRecord, error) {
+func (bm *Manager) GetUsageRecord(id string) (*UsageRecord, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 
@@ -674,7 +678,7 @@ func (bm *BillingManager) GetUsageRecord(id string) (*UsageRecord, error) {
 }
 
 // ListUsageRecords 列出用量记录
-func (bm *BillingManager) ListUsageRecords(userID string, poolID string, start, end time.Time) ([]*UsageRecord, error) {
+func (bm *Manager) ListUsageRecords(userID string, poolID string, start, end time.Time) ([]*UsageRecord, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 
@@ -700,7 +704,7 @@ func (bm *BillingManager) ListUsageRecords(userID string, poolID string, start, 
 }
 
 // GetUserUsageSummary 获取用户用量汇总
-func (bm *BillingManager) GetUserUsageSummary(userID string, start, end time.Time) (*UsageSummary, error) {
+func (bm *Manager) GetUserUsageSummary(userID string, start, end time.Time) (*UsageSummary, error) {
 	records, err := bm.ListUsageRecords(userID, "", start, end)
 	if err != nil {
 		return nil, err
@@ -774,7 +778,7 @@ func (bm *BillingManager) GetUserUsageSummary(userID string, start, end time.Tim
 }
 
 // GetPoolUsageSummary 获取存储池用量汇总
-func (bm *BillingManager) GetPoolUsageSummary(poolID string, start, end time.Time) (*PoolUsageSummary, error) {
+func (bm *Manager) GetPoolUsageSummary(poolID string, start, end time.Time) (*PoolUsageSummary, error) {
 	records, err := bm.ListUsageRecords("", poolID, start, end)
 	if err != nil {
 		return nil, err
@@ -810,7 +814,7 @@ func (bm *BillingManager) GetPoolUsageSummary(poolID string, start, end time.Tim
 // ========== 发票管理 ==========
 
 // CreateInvoice 创建发票
-func (bm *BillingManager) CreateInvoice(ctx context.Context, input *InvoiceInput) (*Invoice, error) {
+func (bm *Manager) CreateInvoice(ctx context.Context, input *InvoiceInput) (*Invoice, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 
@@ -911,7 +915,7 @@ func (bm *BillingManager) CreateInvoice(ctx context.Context, input *InvoiceInput
 }
 
 // GenerateInvoiceFromUsage 根据用量生成发票
-func (bm *BillingManager) GenerateInvoiceFromUsage(ctx context.Context, userID string, start, end time.Time) (*Invoice, error) {
+func (bm *Manager) GenerateInvoiceFromUsage(ctx context.Context, userID string, start, end time.Time) (*Invoice, error) {
 	// 获取用户用量汇总
 	summary, err := bm.GetUserUsageSummary(userID, start, end)
 	if err != nil {
@@ -965,7 +969,7 @@ func (bm *BillingManager) GenerateInvoiceFromUsage(ctx context.Context, userID s
 }
 
 // GetInvoice 获取发票
-func (bm *BillingManager) GetInvoice(id string) (*Invoice, error) {
+func (bm *Manager) GetInvoice(id string) (*Invoice, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 
@@ -977,7 +981,7 @@ func (bm *BillingManager) GetInvoice(id string) (*Invoice, error) {
 }
 
 // GetInvoiceByNumber 按发票号获取发票
-func (bm *BillingManager) GetInvoiceByNumber(number string) (*Invoice, error) {
+func (bm *Manager) GetInvoiceByNumber(number string) (*Invoice, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 
@@ -990,7 +994,7 @@ func (bm *BillingManager) GetInvoiceByNumber(number string) (*Invoice, error) {
 }
 
 // ListInvoices 列出发票
-func (bm *BillingManager) ListInvoices(userID string, status InvoiceStatus, start, end time.Time) ([]*Invoice, error) {
+func (bm *Manager) ListInvoices(userID string, status InvoiceStatus, start, end time.Time) ([]*Invoice, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 
@@ -1015,7 +1019,7 @@ func (bm *BillingManager) ListInvoices(userID string, status InvoiceStatus, star
 }
 
 // IssueInvoice 开具发票
-func (bm *BillingManager) IssueInvoice(id string) (*Invoice, error) {
+func (bm *Manager) IssueInvoice(id string) (*Invoice, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 
@@ -1039,7 +1043,7 @@ func (bm *BillingManager) IssueInvoice(id string) (*Invoice, error) {
 }
 
 // MarkInvoicePaid 标记发票已支付
-func (bm *BillingManager) MarkInvoicePaid(id string, paymentMethod, paymentRef string) (*Invoice, error) {
+func (bm *Manager) MarkInvoicePaid(id string, paymentMethod, paymentRef string) (*Invoice, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 
@@ -1069,7 +1073,7 @@ func (bm *BillingManager) MarkInvoicePaid(id string, paymentMethod, paymentRef s
 }
 
 // VoidInvoice 作废发票
-func (bm *BillingManager) VoidInvoice(id string) (*Invoice, error) {
+func (bm *Manager) VoidInvoice(id string) (*Invoice, error) {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 
@@ -1096,12 +1100,12 @@ func (bm *BillingManager) VoidInvoice(id string) (*Invoice, error) {
 
 // ========== 计费统计 ==========
 
-// GetBillingStats 获取计费统计
-func (bm *BillingManager) GetBillingStats(start, end time.Time) (*BillingStats, error) {
+// GetStats 获取计费统计
+func (bm *Manager) GetStats(start, end time.Time) (*Stats, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 
-	stats := &BillingStats{
+	stats := &Stats{
 		PeriodStart: start,
 		PeriodEnd:   end,
 		GeneratedAt: time.Now(),
@@ -1110,8 +1114,8 @@ func (bm *BillingManager) GetBillingStats(start, end time.Time) (*BillingStats, 
 	// 用户统计
 	userSet := make(map[string]bool)
 	poolSet := make(map[string]bool)
-	userAmounts := make(map[string]*UserBillingStats)
-	poolAmounts := make(map[string]*PoolBillingStats)
+	userAmounts := make(map[string]*UserStats)
+	poolAmounts := make(map[string]*PoolStats)
 
 	// 遍历用量记录
 	for _, r := range bm.usageRecords {
@@ -1133,7 +1137,7 @@ func (bm *BillingManager) GetBillingStats(start, end time.Time) (*BillingStats, 
 
 		// 用户统计
 		if _, ok := userAmounts[r.UserID]; !ok {
-			userAmounts[r.UserID] = &UserBillingStats{
+			userAmounts[r.UserID] = &UserStats{
 				UserID:   r.UserID,
 				UserName: r.UserName,
 			}
@@ -1146,7 +1150,7 @@ func (bm *BillingManager) GetBillingStats(start, end time.Time) (*BillingStats, 
 		// 存储池统计
 		if r.PoolID != "" {
 			if _, ok := poolAmounts[r.PoolID]; !ok {
-				poolAmounts[r.PoolID] = &PoolBillingStats{
+				poolAmounts[r.PoolID] = &PoolStats{
 					PoolID:   r.PoolID,
 					PoolName: r.PoolName,
 				}
@@ -1230,12 +1234,12 @@ func (bm *BillingManager) GetBillingStats(start, end time.Time) (*BillingStats, 
 	return stats, nil
 }
 
-// GetUserBillingStats 获取用户计费统计
-func (bm *BillingManager) GetUserBillingStats(userID string, start, end time.Time) (*UserBillingStats, error) {
+// GetUserStats 获取用户计费统计
+func (bm *Manager) GetUserStats(userID string, start, end time.Time) (*UserStats, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 
-	stats := &UserBillingStats{
+	stats := &UserStats{
 		UserID: userID,
 	}
 
@@ -1293,12 +1297,12 @@ func (bm *BillingManager) GetUserBillingStats(userID string, start, end time.Tim
 	return stats, nil
 }
 
-// GetPoolBillingStats 获取存储池计费统计
-func (bm *BillingManager) GetPoolBillingStats(poolID string, start, end time.Time) (*PoolBillingStats, error) {
+// GetPoolStats 获取存储池计费统计
+func (bm *Manager) GetPoolStats(poolID string, start, end time.Time) (*PoolStats, error) {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 
-	stats := &PoolBillingStats{
+	stats := &PoolStats{
 		PoolID:     poolID,
 		PricePerGB: bm.getPoolUnitPrice(poolID),
 		Currency:   bm.config.DefaultCurrency,
@@ -1335,7 +1339,7 @@ func (bm *BillingManager) GetPoolBillingStats(poolID string, start, end time.Tim
 }
 
 // GetInvoiceSummary 获取发票汇总
-func (bm *BillingManager) GetInvoiceSummary(userID string, start, end time.Time) (*InvoiceSummary, error) {
+func (bm *Manager) GetInvoiceSummary(userID string, start, end time.Time) (*InvoiceSummary, error) {
 	invoices, err := bm.ListInvoices(userID, "", start, end)
 	if err != nil {
 		return nil, err
@@ -1385,7 +1389,7 @@ func (bm *BillingManager) GetInvoiceSummary(userID string, start, end time.Time)
 // ========== 费用计算 ==========
 
 // calculateStorageCost 计算存储费用
-func (bm *BillingManager) calculateStorageCost(gb float64) float64 {
+func (bm *Manager) calculateStorageCost(gb float64) float64 {
 	if gb <= bm.config.StoragePricing.FreeStorageGB {
 		return 0
 	}
@@ -1401,7 +1405,7 @@ func (bm *BillingManager) calculateStorageCost(gb float64) float64 {
 }
 
 // calculateBandwidthCost 计算带宽费用
-func (bm *BillingManager) calculateBandwidthCost(gb float64) float64 {
+func (bm *Manager) calculateBandwidthCost(gb float64) float64 {
 	if gb <= bm.config.BandwidthPricing.FreeTrafficGB {
 		return 0
 	}
@@ -1417,7 +1421,7 @@ func (bm *BillingManager) calculateBandwidthCost(gb float64) float64 {
 }
 
 // calculatePoolStorageCost 计算存储池存储费用
-func (bm *BillingManager) calculatePoolStorageCost(summary *PoolUsageSummary) float64 {
+func (bm *Manager) calculatePoolStorageCost(summary *PoolUsageSummary) float64 {
 	// 检查是否有存储池定价
 	if pricing, ok := bm.config.StoragePricing.PoolPricing[summary.PoolID]; ok {
 		gb := summary.TotalStorageUsedGB
@@ -1436,7 +1440,7 @@ func (bm *BillingManager) calculatePoolStorageCost(summary *PoolUsageSummary) fl
 }
 
 // getStorageUnitPrice 获取存储单价
-func (bm *BillingManager) getStorageUnitPrice(gb float64) float64 {
+func (bm *Manager) getStorageUnitPrice(gb float64) float64 {
 	if len(bm.config.StoragePricing.TieredPricing) > 0 {
 		for _, tier := range bm.config.StoragePricing.TieredPricing {
 			if gb >= tier.MinGB && (tier.MaxGB < 0 || gb < tier.MaxGB) {
@@ -1448,7 +1452,7 @@ func (bm *BillingManager) getStorageUnitPrice(gb float64) float64 {
 }
 
 // getBandwidthUnitPrice 获取带宽单价
-func (bm *BillingManager) getBandwidthUnitPrice(gb float64) float64 {
+func (bm *Manager) getBandwidthUnitPrice(gb float64) float64 {
 	if len(bm.config.BandwidthPricing.TieredPricing) > 0 {
 		for _, tier := range bm.config.BandwidthPricing.TieredPricing {
 			if gb >= tier.MinGB && (tier.MaxGB < 0 || gb < tier.MaxGB) {
@@ -1460,7 +1464,7 @@ func (bm *BillingManager) getBandwidthUnitPrice(gb float64) float64 {
 }
 
 // getPoolUnitPrice 获取存储池单价
-func (bm *BillingManager) getPoolUnitPrice(poolID string) float64 {
+func (bm *Manager) getPoolUnitPrice(poolID string) float64 {
 	if pricing, ok := bm.config.StoragePricing.PoolPricing[poolID]; ok {
 		return pricing.PricePerGB
 	}
@@ -1565,14 +1569,14 @@ func calculateBandwidthTieredCost(amount float64, tiers []BandwidthTier) float64
 // ========== 配置管理 ==========
 
 // GetConfig 获取配置
-func (bm *BillingManager) GetConfig() *BillingConfig {
+func (bm *Manager) GetConfig() *Config {
 	bm.mu.RLock()
 	defer bm.mu.RUnlock()
 	return bm.config
 }
 
 // UpdateConfig 更新配置
-func (bm *BillingManager) UpdateConfig(config *BillingConfig) error {
+func (bm *Manager) UpdateConfig(config *Config) error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 
@@ -1583,7 +1587,7 @@ func (bm *BillingManager) UpdateConfig(config *BillingConfig) error {
 // ========== 清理过期数据 ==========
 
 // CleanupOldData 清理过期数据
-func (bm *BillingManager) CleanupOldData() error {
+func (bm *Manager) CleanupOldData() error {
 	bm.mu.Lock()
 	defer bm.mu.Unlock()
 

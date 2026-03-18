@@ -15,49 +15,50 @@ import (
 	"time"
 )
 
-// ActionType 动作类型
-type ActionType string
+// Type 动作类型
+type Type string
 
+// 定义动作类型常量
 const (
-	// ActionTypeMove 移动文件/文件夹
-	ActionTypeMove ActionType = "move"
-	// ActionTypeCopy 复制文件/文件夹
-	ActionTypeCopy ActionType = "copy"
-	// ActionTypeDelete 删除文件/文件夹
-	ActionTypeDelete ActionType = "delete"
-	// ActionTypeRename 重命名文件/文件夹
-	ActionTypeRename ActionType = "rename"
-	// ActionTypeConvert 转换文件格式
-	ActionTypeConvert ActionType = "convert"
-	// ActionTypeNotify 发送通知
-	ActionTypeNotify ActionType = "notify"
-	// ActionTypeCommand 执行系统命令
-	ActionTypeCommand ActionType = "command"
-	// ActionTypeWebhook 发送 Webhook 请求
-	ActionTypeWebhook ActionType = "webhook"
-	// ActionTypeEmail 发送邮件
-	ActionTypeEmail ActionType = "email"
-	// ActionTypeConditional 条件动作
-	ActionTypeConditional ActionType = "conditional"
+	// TypeMove 移动文件/文件夹
+	TypeMove Type = "move"
+	// TypeCopy 复制文件/文件夹
+	TypeCopy Type = "copy"
+	// TypeDelete 删除文件/文件夹
+	TypeDelete Type = "delete"
+	// TypeRename 重命名文件/文件夹
+	TypeRename Type = "rename"
+	// TypeConvert 转换文件格式
+	TypeConvert Type = "convert"
+	// TypeNotify 发送通知
+	TypeNotify Type = "notify"
+	// TypeCommand 执行系统命令
+	TypeCommand Type = "command"
+	// TypeWebhook 发送 Webhook 请求
+	TypeWebhook Type = "webhook"
+	// TypeEmail 发送邮件
+	TypeEmail Type = "email"
+	// TypeConditional 条件动作
+	TypeConditional Type = "conditional"
 )
 
 // Action 动作接口
 type Action interface {
-	GetType() ActionType
+	GetType() Type
 	Execute(ctx context.Context, contextData map[string]interface{}) error
 }
 
 // MoveAction 移动文件/文件夹
 type MoveAction struct {
-	Type        ActionType `json:"type"`
-	Source      string     `json:"source"`
-	Destination string     `json:"destination"`
-	Overwrite   bool       `json:"overwrite"`
+	Type        Type   `json:"type"`
+	Source      string `json:"source"`
+	Destination string `json:"destination"`
+	Overwrite   bool   `json:"overwrite"`
 }
 
 // GetType 获取动作类型
-func (a *MoveAction) GetType() ActionType {
-	return ActionTypeMove
+func (a *MoveAction) GetType() Type {
+	return TypeMove
 }
 
 // Execute 执行移动动作
@@ -78,16 +79,16 @@ func (a *MoveAction) Execute(ctx context.Context, contextData map[string]interfa
 
 // CopyAction 复制文件/文件夹
 type CopyAction struct {
-	Type        ActionType `json:"type"`
-	Source      string     `json:"source"`
-	Destination string     `json:"destination"`
-	Overwrite   bool       `json:"overwrite"`
-	Recursive   bool       `json:"recursive"`
+	Type        Type   `json:"type"`
+	Source      string `json:"source"`
+	Destination string `json:"destination"`
+	Overwrite   bool   `json:"overwrite"`
+	Recursive   bool   `json:"recursive"`
 }
 
 // GetType 获取动作类型
-func (a *CopyAction) GetType() ActionType {
-	return ActionTypeCopy
+func (a *CopyAction) GetType() Type {
+	return TypeCopy
 }
 
 // Execute 执行复制动作
@@ -104,14 +105,14 @@ func (a *CopyAction) Execute(ctx context.Context, contextData map[string]interfa
 
 // DeleteAction 删除文件/文件夹
 type DeleteAction struct {
-	Type      ActionType `json:"type"`
-	Path      string     `json:"path"`
-	Recursive bool       `json:"recursive"`
+	Type      Type   `json:"type"`
+	Path      string `json:"path"`
+	Recursive bool   `json:"recursive"`
 }
 
 // GetType 获取动作类型
-func (a *DeleteAction) GetType() ActionType {
-	return ActionTypeDelete
+func (a *DeleteAction) GetType() Type {
+	return TypeDelete
 }
 
 // Execute 执行删除动作
@@ -127,14 +128,14 @@ func (a *DeleteAction) Execute(ctx context.Context, contextData map[string]inter
 
 // RenameAction 重命名文件/文件夹
 type RenameAction struct {
-	Type    ActionType `json:"type"`
-	Path    string     `json:"path"`
-	NewName string     `json:"new_name"`
+	Type    Type   `json:"type"`
+	Path    string `json:"path"`
+	NewName string `json:"new_name"`
 }
 
 // GetType 获取动作类型
-func (a *RenameAction) GetType() ActionType {
-	return ActionTypeRename
+func (a *RenameAction) GetType() Type {
+	return TypeRename
 }
 
 // Execute 执行重命名动作
@@ -154,7 +155,7 @@ func (a *RenameAction) Execute(ctx context.Context, contextData map[string]inter
 
 // ConvertAction 转换文件格式
 type ConvertAction struct {
-	Type        ActionType             `json:"type"`
+	Type        Type                   `json:"type"`
 	Source      string                 `json:"source"`
 	Destination string                 `json:"destination"`
 	Format      string                 `json:"format"` // e.g., "jpg", "png", "pdf", "mp4"
@@ -162,8 +163,8 @@ type ConvertAction struct {
 }
 
 // GetType 获取动作类型
-func (a *ConvertAction) GetType() ActionType {
-	return ActionTypeConvert
+func (a *ConvertAction) GetType() Type {
+	return TypeConvert
 }
 
 // Execute 执行格式转换动作
@@ -202,16 +203,16 @@ func (a *ConvertAction) Execute(ctx context.Context, contextData map[string]inte
 
 // NotifyAction 发送通知
 type NotifyAction struct {
-	Type    ActionType `json:"type"`
-	Channel string     `json:"channel"` // discord, email, sms, webhook
-	Message string     `json:"message"`
-	Title   string     `json:"title,omitempty"`
-	To      string     `json:"to,omitempty"`
+	Type    Type   `json:"type"`
+	Channel string `json:"channel"` // discord, email, sms, webhook
+	Message string `json:"message"`
+	Title   string `json:"title,omitempty"`
+	To      string `json:"to,omitempty"`
 }
 
 // GetType 获取动作类型
-func (a *NotifyAction) GetType() ActionType {
-	return ActionTypeNotify
+func (a *NotifyAction) GetType() Type {
+	return TypeNotify
 }
 
 // Execute 执行通知动作
@@ -344,16 +345,16 @@ func sendDiscordNotification(webhookURL, title, message string) error {
 
 // CommandAction 执行系统命令
 type CommandAction struct {
-	Type    ActionType `json:"type"`
-	Command string     `json:"command"`
-	Args    []string   `json:"args,omitempty"`
-	WorkDir string     `json:"work_dir,omitempty"`
-	Env     []string   `json:"env,omitempty"`
+	Type    Type     `json:"type"`
+	Command string   `json:"command"`
+	Args    []string `json:"args,omitempty"`
+	WorkDir string   `json:"work_dir,omitempty"`
+	Env     []string `json:"env,omitempty"`
 }
 
 // GetType 获取动作类型
-func (a *CommandAction) GetType() ActionType {
-	return ActionTypeCommand
+func (a *CommandAction) GetType() Type {
+	return TypeCommand
 }
 
 // Execute 执行系统命令动作
@@ -378,7 +379,7 @@ func (a *CommandAction) Execute(ctx context.Context, contextData map[string]inte
 
 // WebhookAction 发送 Webhook 请求
 type WebhookAction struct {
-	Type    ActionType        `json:"type"`
+	Type    Type              `json:"type"`
 	URL     string            `json:"url"`
 	Method  string            `json:"method,omitempty"`
 	Headers map[string]string `json:"headers,omitempty"`
@@ -386,8 +387,8 @@ type WebhookAction struct {
 }
 
 // GetType 获取动作类型
-func (a *WebhookAction) GetType() ActionType {
-	return ActionTypeWebhook
+func (a *WebhookAction) GetType() Type {
+	return TypeWebhook
 }
 
 // Execute 执行 Webhook 请求动作
@@ -426,11 +427,7 @@ func (a *WebhookAction) Execute(ctx context.Context, contextData map[string]inte
 	if err != nil {
 		return fmt.Errorf("webhook request failed: %w", err)
 	}
-	defer func() {
-		if closeErr := resp.Body.Close(); closeErr != nil {
-			// 记录关闭错误，但不影响主流程
-		}
-	}()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("webhook failed with status: %d", resp.StatusCode)
@@ -441,17 +438,17 @@ func (a *WebhookAction) Execute(ctx context.Context, contextData map[string]inte
 
 // EmailAction 发送邮件
 type EmailAction struct {
-	Type        ActionType `json:"type"`
-	To          string     `json:"to"`
-	Subject     string     `json:"subject"`
-	Body        string     `json:"body"`
-	HTML        bool       `json:"html,omitempty"`
-	Attachments []string   `json:"attachments,omitempty"`
+	Type        Type     `json:"type"`
+	To          string   `json:"to"`
+	Subject     string   `json:"subject"`
+	Body        string   `json:"body"`
+	HTML        bool     `json:"html,omitempty"`
+	Attachments []string `json:"attachments,omitempty"`
 }
 
 // GetType 获取动作类型
-func (a *EmailAction) GetType() ActionType {
-	return ActionTypeEmail
+func (a *EmailAction) GetType() Type {
+	return TypeEmail
 }
 
 // Execute 执行邮件发送动作
@@ -496,15 +493,15 @@ type Condition struct {
 
 // ConditionalAction 条件动作 - 根据条件决定是否执行
 type ConditionalAction struct {
-	Type       ActionType `json:"type"`
-	Condition  Condition  `json:"condition"`             // 条件
-	ThenAction Action     `json:"then_action"`           // 条件为真时执行
-	ElseAction Action     `json:"else_action,omitempty"` // 条件为假时执行（可选）
+	Type       Type      `json:"type"`
+	Condition  Condition `json:"condition"`             // 条件
+	ThenAction Action    `json:"then_action"`           // 条件为真时执行
+	ElseAction Action    `json:"else_action,omitempty"` // 条件为假时执行（可选）
 }
 
 // GetType 获取动作类型
-func (a *ConditionalAction) GetType() ActionType {
-	return ActionTypeConditional
+func (a *ConditionalAction) GetType() Type {
+	return TypeConditional
 }
 
 // Execute 执行条件动作
@@ -641,9 +638,9 @@ func checkRegex(field, pattern interface{}) (bool, error) {
 	return matched, nil
 }
 
-// ActionConfig 动作配置（用于 JSON 序列化）
-type ActionConfig struct {
-	Type ActionType `json:"type"`
+// Config 动作配置（用于 JSON 序列化）
+type Config struct {
+	Type Type `json:"type"`
 
 	// Common fields
 	Source      string `json:"source,omitempty"`
@@ -684,22 +681,22 @@ type ActionConfig struct {
 	Attachments []string `json:"attachments,omitempty"`
 
 	// Conditional fields
-	Condition  Condition     `json:"condition,omitempty"`
-	ThenAction *ActionConfig `json:"then_action,omitempty"`
-	ElseAction *ActionConfig `json:"else_action,omitempty"`
+	Condition  Condition `json:"condition,omitempty"`
+	ThenAction *Config   `json:"then_action,omitempty"`
+	ElseAction *Config   `json:"else_action,omitempty"`
 }
 
 // NewActionFromConfig 从配置创建动作
-func NewActionFromConfig(config ActionConfig) (Action, error) {
+func NewActionFromConfig(config Config) (Action, error) {
 	switch config.Type {
-	case ActionTypeMove:
+	case TypeMove:
 		return &MoveAction{
 			Type:        config.Type,
 			Source:      config.Source,
 			Destination: config.Destination,
 			Overwrite:   config.Overwrite,
 		}, nil
-	case ActionTypeCopy:
+	case TypeCopy:
 		return &CopyAction{
 			Type:        config.Type,
 			Source:      config.Source,
@@ -707,19 +704,19 @@ func NewActionFromConfig(config ActionConfig) (Action, error) {
 			Overwrite:   config.Overwrite,
 			Recursive:   config.Recursive,
 		}, nil
-	case ActionTypeDelete:
+	case TypeDelete:
 		return &DeleteAction{
 			Type:      config.Type,
 			Path:      config.Path,
 			Recursive: config.Recursive,
 		}, nil
-	case ActionTypeRename:
+	case TypeRename:
 		return &RenameAction{
 			Type:    config.Type,
 			Path:    config.Path,
 			NewName: config.NewName,
 		}, nil
-	case ActionTypeConvert:
+	case TypeConvert:
 		return &ConvertAction{
 			Type:        config.Type,
 			Source:      config.Source,
@@ -727,7 +724,7 @@ func NewActionFromConfig(config ActionConfig) (Action, error) {
 			Format:      config.Format,
 			Options:     config.Options,
 		}, nil
-	case ActionTypeNotify:
+	case TypeNotify:
 		return &NotifyAction{
 			Type:    config.Type,
 			Channel: config.Channel,
@@ -735,7 +732,7 @@ func NewActionFromConfig(config ActionConfig) (Action, error) {
 			Title:   config.Title,
 			To:      config.To,
 		}, nil
-	case ActionTypeCommand:
+	case TypeCommand:
 		return &CommandAction{
 			Type:    config.Type,
 			Command: config.Command,
@@ -743,7 +740,7 @@ func NewActionFromConfig(config ActionConfig) (Action, error) {
 			WorkDir: config.WorkDir,
 			Env:     config.Env,
 		}, nil
-	case ActionTypeWebhook:
+	case TypeWebhook:
 		return &WebhookAction{
 			Type:    config.Type,
 			URL:     config.URL,
@@ -751,7 +748,7 @@ func NewActionFromConfig(config ActionConfig) (Action, error) {
 			Headers: config.Headers,
 			Body:    config.Body,
 		}, nil
-	case ActionTypeEmail:
+	case TypeEmail:
 		return &EmailAction{
 			Type:        config.Type,
 			To:          config.To,
@@ -760,7 +757,7 @@ func NewActionFromConfig(config ActionConfig) (Action, error) {
 			HTML:        config.HTML,
 			Attachments: config.Attachments,
 		}, nil
-	case ActionTypeConditional:
+	case TypeConditional:
 		// 解析嵌套的 then_action 和 else_action
 		var thenAction, elseAction Action
 		var err error
