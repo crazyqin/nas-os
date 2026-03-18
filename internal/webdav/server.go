@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // Config WebDAV 服务器配置
@@ -46,6 +47,7 @@ type Server struct {
 	lockManager   *LockManager
 	quotaProvider QuotaProvider
 	userSessions  map[string]string // 连接 -> 用户名
+	logger        *zap.Logger
 }
 
 // NewServer 创建 WebDAV 服务器
@@ -59,6 +61,7 @@ func NewServer(config *Config) (*Server, error) {
 		lockManager:   NewLockManager(),
 		quotaProvider: &NoOpQuotaProvider{},
 		userSessions:  make(map[string]string),
+		logger:        zap.NewNop(),
 	}
 
 	return s, nil
