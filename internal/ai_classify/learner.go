@@ -541,7 +541,7 @@ func (l *Learner) saveLearningData() error {
 	return os.WriteFile(dataFile, jsonData, 0644)
 }
 
-// loadLearningData 加载学习数据
+// LoadLearningData loads learning data from disk.
 func (l *Learner) LoadLearningData() error {
 	dataDir := l.config.DataDir
 	dataFile := filepath.Join(dataDir, "learning_data.json")

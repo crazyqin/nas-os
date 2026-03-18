@@ -12,6 +12,60 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [v2.248.0] - 2026-03-19
+
+### Documentation
+- 同步 docs/QUICKSTART.md 版本号至 v2.247.0
+- 同步 docs/API_GUIDE.md 版本号至 v2.247.0
+- 更新 QUICKSTART.md 下载链接至 v2.247.0
+
+---
+
+## [v2.247.0] - 2026-03-19
+
+### Documentation
+- 同步 README.md 版本号至 v2.247.0
+- 同步 docs/README.md 版本号至 v2.247.0
+- 同步 docs/README_EN.md 版本号至 v2.247.0
+- 更新下载链接和 Docker 镜像版本
+
+---
+
+## [v2.246.0] - 2026-03-19
+
+### Dependencies
+- golang.org/x/crypto v0.48.0 → v0.49.0
+- golang.org/x/net v0.51.0 → v0.52.0
+- google.golang.org/grpc v1.79.2 → v1.79.3
+- modernc.org/sqlite v1.34.5 → v1.47.0
+- go.etcd.io/bbolt v1.4.0 → v1.4.3
+- go.uber.org/zap v1.27.0 → v1.27.1
+- 其他依赖更新
+
+---
+
+## [v2.245.0] - 2026-03-19
+
+### Bug Fixes
+- 修复 `reports/resource_visualization_api.go` 缺失 fmt 导入
+- 修复 `automation/api/handlers.go` 路由顺序问题（export-all 被 {id} 匹配）
+- 修复 `ImportWorkflow` JSON 处理逻辑
+
+### Test Improvements
+- 删除 `container_coverage_test.go` 重复的 BenchmarkFormatSize 函数
+- 修复 parseSize 边缘测试用例（5PB 无法正确解析）
+- 新增 container 模块覆盖测试文件
+
+---
+
+## [v2.244.0] - 2026-03-19
+
+### Bug Fixes
+- 修复 resource_visualization_api.go 缺失 fmt 导入导致的编译错误
+- 修复 smart_manager_v2.go 中 logger 未定义问题
+
+---
+
 ## [v2.241.0] - 2026-03-19
 
 ### Bug Fixes
@@ -476,3 +530,19 @@ All notable changes to this project will be documented in this file.
 
 ### 改进
 - 里程碑更新，六部协同开发流程优化
+## [v2.247.0] - 2026-03-19
+
+### 六部协同开发
+- 兵部: 代码质量检查、测试覆盖率统计
+- 工部: CI/CD 状态检查、Docker 配置验证
+- 礼部: 文档更新、版本号同步
+- 刑部: 安全审计
+- 户部: 项目资源统计
+- 吏部: 版本管理、里程碑更新
+
+### 项目统计
+- Go 文件: 707 个
+- 代码行数: 400,601 行
+- 测试文件: 252 个
+- 功能模块: 68 个
+

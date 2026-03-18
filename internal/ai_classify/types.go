@@ -89,6 +89,7 @@ type Similarity struct {
 // SimType 相似类型
 type SimType string
 
+// SimType constants define the types of similarity detection.
 const (
 	SimTypeContent  SimType = "content"  // 内容相似
 	SimTypeName     SimType = "name"     // 文件名相似
@@ -123,6 +124,7 @@ type Condition struct {
 // ConditionType 条件类型
 type ConditionType string
 
+// ConditionType constants define the types of conditions for classification rules.
 const (
 	CondTypeFileName  ConditionType = "filename"
 	CondTypeExtension ConditionType = "extension"
@@ -146,6 +148,7 @@ type Action struct {
 // ActionType 动作类型
 type ActionType string
 
+// ActionType constants define the types of actions for classification rules.
 const (
 	ActionClassify ActionType = "classify"
 	ActionTag      ActionType = "tag"
