@@ -7,19 +7,21 @@ import (
 	"time"
 )
 
-// ComplianceLevel 合规级别
-type ComplianceLevel string
+// Level 合规级别
+type Level string
 
+// 合规级别常量
 const (
-	LevelA ComplianceLevel = "A" // 完全合规
-	LevelB ComplianceLevel = "B" // 基本合规
-	LevelC ComplianceLevel = "C" // 部分合规
-	LevelD ComplianceLevel = "D" // 不合规
+	LevelA Level = "A" // 完全合规
+	LevelB Level = "B" // 基本合规
+	LevelC Level = "C" // 部分合规
+	LevelD Level = "D" // 不合规
 )
 
 // CheckType 检查类型
 type CheckType string
 
+// 检查类型常量
 const (
 	CheckSecurity CheckType = "security"
 	CheckAccess   CheckType = "access"
@@ -34,20 +36,20 @@ type CheckResult struct {
 	Type        CheckType              `json:"type"`
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
-	Level       ComplianceLevel        `json:"level"`
+	Level       Level                  `json:"level"`
 	Passed      bool                   `json:"passed"`
 	Message     string                 `json:"message"`
 	Details     map[string]interface{} `json:"details,omitempty"`
 	Timestamp   time.Time              `json:"timestamp"`
 }
 
-// ComplianceChecker 合规检查器
-type ComplianceChecker struct {
-	checks []ComplianceCheck
+// Checker 合规检查器
+type Checker struct {
+	checks []Check
 }
 
-// ComplianceCheck 合规检查接口
-type ComplianceCheck interface {
+// Check 合规检查接口
+type Check interface {
 	ID() string
 	Type() CheckType
 	Name() string
@@ -55,21 +57,21 @@ type ComplianceCheck interface {
 	Execute(ctx context.Context) (CheckResult, error)
 }
 
-// NewComplianceChecker 创建合规检查器
-func NewComplianceChecker() *ComplianceChecker {
-	return &ComplianceChecker{
-		checks: make([]ComplianceCheck, 0),
+// NewChecker 创建合规检查器
+func NewChecker() *Checker {
+	return &Checker{
+		checks: make([]Check, 0),
 	}
 }
 
 // RegisterCheck 注册检查项
-func (c *ComplianceChecker) RegisterCheck(check ComplianceCheck) {
+func (c *Checker) RegisterCheck(check Check) {
 	c.checks = append(c.checks, check)
 }
 
 // RunChecks 运行所有检查
-func (c *ComplianceChecker) RunChecks(ctx context.Context) (*ComplianceReport, error) {
-	report := &ComplianceReport{
+func (c *Checker) RunChecks(ctx context.Context) (*Report, error) {
+	report := &Report{
 		ID:        generateReportID(),
 		Timestamp: time.Now(),
 		Results:   make([]CheckResult, 0),
@@ -101,8 +103,8 @@ func (c *ComplianceChecker) RunChecks(ctx context.Context) (*ComplianceReport, e
 }
 
 // RunChecksByType 按类型运行检查
-func (c *ComplianceChecker) RunChecksByType(ctx context.Context, checkType CheckType) (*ComplianceReport, error) {
-	report := &ComplianceReport{
+func (c *Checker) RunChecksByType(ctx context.Context, checkType CheckType) (*Report, error) {
+	report := &Report{
 		ID:        generateReportID(),
 		Timestamp: time.Now(),
 		Results:   make([]CheckResult, 0),
@@ -135,11 +137,11 @@ func (c *ComplianceChecker) RunChecksByType(ctx context.Context, checkType Check
 }
 
 // GetRegisteredChecks 获取已注册的检查项
-func (c *ComplianceChecker) GetRegisteredChecks() []ComplianceCheck {
+func (c *Checker) GetRegisteredChecks() []Check {
 	return c.checks
 }
 
-func calculateOverallLevel(results []CheckResult) ComplianceLevel {
+func calculateOverallLevel(results []CheckResult) Level {
 	if len(results) == 0 {
 		return LevelD
 	}

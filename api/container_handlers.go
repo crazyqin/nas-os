@@ -133,7 +133,7 @@ func (h *ContainerHandlers) listContainers(c *gin.Context) {
 
 // createContainer 创建容器
 func (h *ContainerHandlers) createContainer(c *gin.Context) {
-	var config container.ContainerConfig
+	var config container.Config
 
 	if err := c.ShouldBindJSON(&config); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

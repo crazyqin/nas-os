@@ -141,7 +141,7 @@ func (m *Manager) UpdateConfig(name string, config Config) error {
 	}
 	if sync, exists := m.synchronizers[name]; exists {
 		if err := sync.Close(); err != nil {
-			// 记录关闭错误但继续执行
+			// intentionally empty: 同步器关闭失败不影响配置更新
 		}
 		delete(m.synchronizers, name)
 	}
@@ -172,7 +172,7 @@ func (m *Manager) DeleteConfig(name string) error {
 	}
 	if sync, exists := m.synchronizers[name]; exists {
 		if err := sync.Close(); err != nil {
-			// 记录关闭错误但继续执行
+			// intentionally empty: 同步器关闭失败不影响配置删除
 		}
 		delete(m.synchronizers, name)
 	}
@@ -411,7 +411,7 @@ func (m *Manager) TestConnection(configName string) (*ConnectionStatus, error) {
 	}
 	defer func() {
 		if closeErr := client.Close(); closeErr != nil {
-			// 连接关闭失败，不影响主流程
+			// intentionally empty: 测试连接后关闭失败不影响结果
 		}
 	}()
 

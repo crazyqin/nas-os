@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.236.0] - 2026-03-18
+
+### Bug Fixes
+- fix: 修复 golangci-lint 错误 (73处)
+- 修复 revive 类型命名 stuttering 问题
+- 修复导出项注释问题
+- 修复 SA9003 空分支问题
+- 修复 QF1012 fmt.Fprintf 优化
+
+---
+
 ## [v2.235.0] - 2026-03-18
 
 ### Bug Fixes

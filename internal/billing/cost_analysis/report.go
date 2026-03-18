@@ -15,6 +15,7 @@ import (
 // CostReportType 成本报告类型
 type CostReportType string
 
+// 成本报告类型常量
 const (
 	CostReportStorageTrend   CostReportType = "storage_trend"   // 存储成本趋势分析
 	CostReportResourceUtil   CostReportType = "resource_util"   // 资源利用率报告

@@ -68,8 +68,8 @@ func (v *VolumeMount) String() string {
 	return v.Source + ":" + v.Destination
 }
 
-// ContainerStats 容器实时统计
-type ContainerStats struct {
+// Stats 容器实时统计
+type Stats struct {
 	CPUUsage   float64   `json:"cpuUsage"`
 	MemUsage   uint64    `json:"memUsage"`
 	MemLimit   uint64    `json:"memLimit"`
@@ -83,15 +83,15 @@ type ContainerStats struct {
 }
 
 // MemoryPercent 计算内存使用百分比
-func (s *ContainerStats) MemoryPercent() float64 {
+func (s *Stats) MemoryPercent() float64 {
 	if s.MemLimit == 0 {
 		return 0.0
 	}
 	return float64(s.MemUsage) / float64(s.MemLimit) * 100
 }
 
-// ContainerConfig 容器创建配置
-type ContainerConfig struct {
+// Config 容器创建配置
+type Config struct {
 	Name        string            `json:"name"`
 	Image       string            `json:"image"`
 	Command     []string          `json:"command,omitempty"`
@@ -108,8 +108,8 @@ type ContainerConfig struct {
 	TTY         bool              `json:"tty,omitempty"`
 }
 
-// ContainerLog 容器日志
-type ContainerLog struct {
+// Log 容器日志
+type Log struct {
 	Timestamp time.Time `json:"timestamp"`
 	Line      string    `json:"line"`
 	Source    string    `json:"source"` // "stdout" or "stderr"
@@ -284,7 +284,7 @@ func (m *Manager) GetContainer(id string) (*Container, error) {
 }
 
 // CreateContainer 创建容器
-func (m *Manager) CreateContainer(config *ContainerConfig) (*Container, error) {
+func (m *Manager) CreateContainer(config *Config) (*Container, error) {
 	args := []string{"run", "-d"}
 
 	// 容器名称
@@ -420,7 +420,7 @@ func (m *Manager) RemoveContainer(id string, force bool, removeVolumes bool) err
 }
 
 // GetContainerStats 获取容器实时统计
-func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
+func (m *Manager) GetContainerStats(id string) (*Stats, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -443,7 +443,7 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 		return nil, err
 	}
 
-	stats := &ContainerStats{
+	stats := &Stats{
 		Timestamp: time.Now(),
 	}
 
@@ -489,7 +489,7 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 }
 
 // GetContainerLogs 获取容器日志
-func (m *Manager) GetContainerLogs(id string, tail int, follow bool) ([]ContainerLog, error) {
+func (m *Manager) GetContainerLogs(id string, tail int, follow bool) ([]Log, error) {
 	args := []string{"logs"}
 	if tail > 0 {
 		args = append(args, "--tail", fmt.Sprintf("%d", tail))
@@ -505,10 +505,10 @@ func (m *Manager) GetContainerLogs(id string, tail int, follow bool) ([]Containe
 		return nil, fmt.Errorf("获取日志失败：%w", err)
 	}
 
-	var logs []ContainerLog
+	var logs []Log
 	scanner := bufio.NewScanner(strings.NewReader(string(output)))
 	for scanner.Scan() {
-		logs = append(logs, ContainerLog{
+		logs = append(logs, Log{
 			Timestamp: time.Now(),
 			Line:      scanner.Text(),
 			Source:    "stdout",
@@ -551,7 +551,7 @@ func parseSize(s string) uint64 {
 }
 
 // Validate 验证容器配置
-func (c *ContainerConfig) Validate() error {
+func (c *Config) Validate() error {
 	if c.Name == "" {
 		return fmt.Errorf("name is required")
 	}

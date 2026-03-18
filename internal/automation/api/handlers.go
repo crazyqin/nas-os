@@ -561,12 +561,12 @@ func parseTriggerConfig(data map[string]interface{}) (trigger.TriggerConfig, err
 }
 
 // parseActionConfig 从 map 解析动作配置
-func parseActionConfig(data map[string]interface{}) (action.ActionConfig, error) {
-	config := action.ActionConfig{}
+func parseActionConfig(data map[string]interface{}) (action.Config, error) {
+	config := action.Config{}
 
 	// 解析 type
 	if t, ok := data["type"].(string); ok {
-		config.Type = action.ActionType(t)
+		config.Type = action.Type(t)
 	} else {
 		return config, fmt.Errorf("missing or invalid action type")
 	}

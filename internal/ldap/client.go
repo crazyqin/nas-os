@@ -381,7 +381,7 @@ func (p *Pool) Put(client *Client) {
 	default:
 		// 池已满，关闭连接
 		if err := client.Close(); err != nil {
-			// 记录错误但继续执行（连接池满时关闭失败不影响主流程）
+			// intentionally empty: 连接池满时关闭失败不影响主流程
 		}
 	}
 }

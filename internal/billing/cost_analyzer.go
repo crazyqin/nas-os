@@ -13,6 +13,7 @@ import (
 // ========== 错误定义 ==========
 
 var (
+	// ErrInvalidCostConfig 无效的成本配置错误
 	ErrInvalidCostConfig   = errors.New("无效的成本配置")
 	ErrInsufficientData    = errors.New("数据不足，无法计算成本")
 	ErrStoragePoolNotFound = errors.New("存储池不存在")
@@ -103,6 +104,7 @@ type AccessFrequencyTier struct {
 // BandwidthBillingModel 带宽计费模式（扩展类型）
 type BandwidthBillingModel string
 
+// 带宽计费模式常量
 const (
 	BandwidthBillingTraffic BandwidthBillingModel = "traffic" // 按流量计费
 	BandwidthBillingPeak    BandwidthBillingModel = "peak"    // 按峰值带宽计费

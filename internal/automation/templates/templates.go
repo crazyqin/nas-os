@@ -123,13 +123,13 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CopyAction{
-						Type:        action.ActionTypeCopy,
+						Type:        action.TypeCopy,
 						Source:      "{{source_path}}",
 						Destination: "{{backup_path}}/{{date}}",
 						Recursive:   true,
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{notify_channel}}",
 						Title:   "备份完成",
 						Message: "数据备份已完成，备份位置：{{backup_path}}/{{date}}",
@@ -156,7 +156,7 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CopyAction{
-						Type:        action.ActionTypeCopy,
+						Type:        action.TypeCopy,
 						Source:      "{{event.path}}",
 						Destination: "{{backup_path}}/{{event.filename}}",
 						Recursive:   false,
@@ -182,12 +182,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "tar",
 						Args:    []string{"-czf", "{{backup_path}}/full_backup_{{date}}.tar.gz", "{{source_path}}"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{notify_channel}}",
 						Title:   "完整备份完成",
 						Message: "每周完整备份已完成",
@@ -215,12 +215,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "find",
 						Args:    []string{"{{temp_path}}", "-type", "f", "-mtime", "+{{retention_days}}", "-delete"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{notify_channel}}",
 						Title:   "清理完成",
 						Message: "临时文件已清理",
@@ -246,12 +246,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "find",
 						Args:    []string{"{{log_path}}", "-name", "*.log", "-mtime", "+{{retention_days}}", "-delete"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{notify_channel}}",
 						Title:   "日志清理完成",
 						Message: "过期日志文件已清理",
@@ -277,12 +277,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "find",
 						Args:    []string{"{{downloads_path}}", "-type", "f", "-mtime", "+{{retention_days}}", "-delete"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{notify_channel}}",
 						Title:   "下载文件夹清理完成",
 						Message: "过期下载文件已清理",
@@ -310,12 +310,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "df",
 						Args:    []string{"-h", "{{disk_path}}"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{alert_channel}}",
 						Title:   "磁盘空间告警",
 						Message: "磁盘 {{disk_path}} 使用率已超过 {{threshold}}%",
@@ -341,12 +341,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "bash",
 						Args:    []string{"-c", "df -h {{disk_path}} | tail -1 | awk '{print $5}' | tr -d '%'"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{alert_channel}}",
 						Title:   "【紧急】磁盘空间严重不足",
 						Message: "磁盘 {{disk_path}} 使用率已超过 90%，请立即处理！",
@@ -372,12 +372,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "smartctl",
 						Args:    []string{"-H", "{{device_path}}"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{alert_channel}}",
 						Title:   "存储卷健康状态",
 						Message: "存储卷 {{device_path}} 健康检查完成",
@@ -407,7 +407,7 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "bash",
 						Args:    []string{"-c", "organize_downloads.sh"},
 					},
@@ -434,13 +434,13 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.ConvertAction{
-						Type:        action.ActionTypeConvert,
+						Type:        action.TypeConvert,
 						Source:      "{{event.path}}",
 						Destination: "{{media_output}}/{{event.filename}}.mp4",
 						Format:      "mp4",
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{notify_channel}}",
 						Title:   "转换完成",
 						Message: "视频已转换：{{event.filename}}",
@@ -466,12 +466,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "bash",
 						Args:    []string{"-c", "system_health_check.sh"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{notify_channel}}",
 						Title:   "系统健康报告",
 						Message: "系统运行正常",
@@ -497,12 +497,12 @@ func GetBuiltInTemplates() []Template {
 				},
 				Actions: []action.Action{
 					&action.CommandAction{
-						Type:    action.ActionTypeCommand,
+						Type:    action.TypeCommand,
 						Command: "rclone",
 						Args:    []string{"sync", "{{local_path}}", "{{remote_path}}"},
 					},
 					&action.NotifyAction{
-						Type:    action.ActionTypeNotify,
+						Type:    action.TypeNotify,
 						Channel: "{{notify_channel}}",
 						Title:   "云端同步完成",
 						Message: "数据已同步到云端",

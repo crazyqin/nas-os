@@ -22,6 +22,7 @@ type AuditLogger interface {
 // AuditLevel 审计级别
 type AuditLevel string
 
+// 审计级别常量
 const (
 	AuditLevelInfo    AuditLevel = "info"
 	AuditLevelWarning AuditLevel = "warning"
@@ -31,6 +32,7 @@ const (
 // AuditCategory 审计分类
 type AuditCategory string
 
+// 审计分类常量
 const (
 	AuditCategoryPermission AuditCategory = "permission"
 	AuditCategoryRole       AuditCategory = "role"
@@ -62,15 +64,15 @@ type AuditEvent struct {
 	Details    map[string]interface{} `json:"details,omitempty"`
 }
 
-// RBACAuditLogger RBAC 审计日志记录器
-type RBACAuditLogger struct {
+// DefaultAuditLogger 默认 RBAC 审计日志记录器实现
+type DefaultAuditLogger struct {
 	logChan chan *AuditEvent
 	handler func(event *AuditEvent)
 }
 
-// NewRBACAuditLogger 创建 RBAC 审计日志记录器
-func NewRBACAuditLogger(bufferSize int, handler func(event *AuditEvent)) *RBACAuditLogger {
-	logger := &RBACAuditLogger{
+// NewAuditLogger 创建 RBAC 审计日志记录器
+func NewAuditLogger(bufferSize int, handler func(event *AuditEvent)) *DefaultAuditLogger {
+	logger := &DefaultAuditLogger{
 		logChan: make(chan *AuditEvent, bufferSize),
 		handler: handler,
 	}
@@ -81,7 +83,7 @@ func NewRBACAuditLogger(bufferSize int, handler func(event *AuditEvent)) *RBACAu
 	return logger
 }
 
-func (l *RBACAuditLogger) processLoop() {
+func (l *DefaultAuditLogger) processLoop() {
 	for event := range l.logChan {
 		if l.handler != nil {
 			l.handler(event)
@@ -90,7 +92,7 @@ func (l *RBACAuditLogger) processLoop() {
 }
 
 // Log 异步记录审计事件
-func (l *RBACAuditLogger) Log(event *AuditEvent) {
+func (l *DefaultAuditLogger) Log(event *AuditEvent) {
 	if event.Timestamp.IsZero() {
 		event.Timestamp = time.Now()
 	}
@@ -103,7 +105,7 @@ func (l *RBACAuditLogger) Log(event *AuditEvent) {
 }
 
 // LogSync 同步记录审计事件
-func (l *RBACAuditLogger) LogSync(event *AuditEvent) {
+func (l *DefaultAuditLogger) LogSync(event *AuditEvent) {
 	if event.Timestamp.IsZero() {
 		event.Timestamp = time.Now()
 	}
@@ -114,14 +116,14 @@ func (l *RBACAuditLogger) LogSync(event *AuditEvent) {
 }
 
 // Close 关闭日志记录器
-func (l *RBACAuditLogger) Close() {
+func (l *DefaultAuditLogger) Close() {
 	close(l.logChan)
 }
 
 // ========== 审计方法实现 ==========
 
 // LogPermissionGrant 记录权限授予
-func (l *RBACAuditLogger) LogPermissionGrant(operatorID, operatorName, targetUserID, permission string) {
+func (l *DefaultAuditLogger) LogPermissionGrant(operatorID, operatorName, targetUserID, permission string) {
 	l.Log(&AuditEvent{
 		Timestamp:  time.Now(),
 		Level:      AuditLevelInfo,
@@ -136,7 +138,7 @@ func (l *RBACAuditLogger) LogPermissionGrant(operatorID, operatorName, targetUse
 }
 
 // LogPermissionRevoke 记录权限撤销
-func (l *RBACAuditLogger) LogPermissionRevoke(operatorID, operatorName, targetUserID, permission string) {
+func (l *DefaultAuditLogger) LogPermissionRevoke(operatorID, operatorName, targetUserID, permission string) {
 	l.Log(&AuditEvent{
 		Timestamp:  time.Now(),
 		Level:      AuditLevelInfo,
@@ -151,7 +153,7 @@ func (l *RBACAuditLogger) LogPermissionRevoke(operatorID, operatorName, targetUs
 }
 
 // LogRoleChange 记录角色变更
-func (l *RBACAuditLogger) LogRoleChange(operatorID, operatorName, targetUserID, oldRole, newRole string) {
+func (l *DefaultAuditLogger) LogRoleChange(operatorID, operatorName, targetUserID, oldRole, newRole string) {
 	level := AuditLevelInfo
 	if newRole == string(RoleAdmin) || oldRole == string(RoleAdmin) {
 		level = AuditLevelWarning // 管理员角色变更为警告级别
@@ -172,7 +174,7 @@ func (l *RBACAuditLogger) LogRoleChange(operatorID, operatorName, targetUserID, 
 }
 
 // LogPolicyCreate 记录策略创建
-func (l *RBACAuditLogger) LogPolicyCreate(operatorID, operatorName, policyName string) {
+func (l *DefaultAuditLogger) LogPolicyCreate(operatorID, operatorName, policyName string) {
 	l.Log(&AuditEvent{
 		Timestamp:  time.Now(),
 		Level:      AuditLevelInfo,
@@ -186,7 +188,7 @@ func (l *RBACAuditLogger) LogPolicyCreate(operatorID, operatorName, policyName s
 }
 
 // LogPolicyUpdate 记录策略更新
-func (l *RBACAuditLogger) LogPolicyUpdate(operatorID, operatorName, policyID string, changes map[string]interface{}) {
+func (l *DefaultAuditLogger) LogPolicyUpdate(operatorID, operatorName, policyID string, changes map[string]interface{}) {
 	l.Log(&AuditEvent{
 		Timestamp: time.Now(),
 		Level:     AuditLevelInfo,
@@ -201,7 +203,7 @@ func (l *RBACAuditLogger) LogPolicyUpdate(operatorID, operatorName, policyID str
 }
 
 // LogPolicyDelete 记录策略删除
-func (l *RBACAuditLogger) LogPolicyDelete(operatorID, operatorName, policyID string) {
+func (l *DefaultAuditLogger) LogPolicyDelete(operatorID, operatorName, policyID string) {
 	l.Log(&AuditEvent{
 		Timestamp: time.Now(),
 		Level:     AuditLevelWarning, // 策略删除为警告级别
@@ -215,7 +217,7 @@ func (l *RBACAuditLogger) LogPolicyDelete(operatorID, operatorName, policyID str
 }
 
 // LogAccessCheck 记录访问检查（可选，通常只在失败时记录）
-func (l *RBACAuditLogger) LogAccessCheck(userID, resource, action string, allowed bool, reason string) {
+func (l *DefaultAuditLogger) LogAccessCheck(userID, resource, action string, allowed bool, reason string) {
 	level := AuditLevelInfo
 	if !allowed {
 		level = AuditLevelWarning
@@ -240,7 +242,7 @@ func (l *RBACAuditLogger) LogAccessCheck(userID, resource, action string, allowe
 }
 
 // LogGroupPermissionChange 记录组权限变更
-func (l *RBACAuditLogger) LogGroupPermissionChange(operatorID, operatorName, groupID string, permissions []string) {
+func (l *DefaultAuditLogger) LogGroupPermissionChange(operatorID, operatorName, groupID string, permissions []string) {
 	l.Log(&AuditEvent{
 		Timestamp: time.Now(),
 		Level:     AuditLevelInfo,
@@ -255,7 +257,7 @@ func (l *RBACAuditLogger) LogGroupPermissionChange(operatorID, operatorName, gro
 }
 
 // LogShareACLChange 记录共享 ACL 变更
-func (l *RBACAuditLogger) LogShareACLChange(operatorID, operatorName, shareName string, changes map[string]interface{}) {
+func (l *DefaultAuditLogger) LogShareACLChange(operatorID, operatorName, shareName string, changes map[string]interface{}) {
 	l.Log(&AuditEvent{
 		Timestamp:  time.Now(),
 		Level:      AuditLevelInfo,
@@ -273,11 +275,11 @@ func (l *RBACAuditLogger) LogShareACLChange(operatorID, operatorName, shareName 
 
 // AuditMiddleware 审计中间件
 type AuditMiddleware struct {
-	logger *RBACAuditLogger
+	logger *DefaultAuditLogger
 }
 
 // NewAuditMiddleware 创建审计中间件
-func NewAuditMiddleware(logger *RBACAuditLogger) *AuditMiddleware {
+func NewAuditMiddleware(logger *DefaultAuditLogger) *AuditMiddleware {
 	return &AuditMiddleware{
 		logger: logger,
 	}
@@ -294,7 +296,7 @@ func (am *AuditMiddleware) WrapManager(m *Manager) *AuditedManager {
 // AuditedManager 带审计日志的 RBAC 管理器
 type AuditedManager struct {
 	*Manager
-	logger *RBACAuditLogger
+	logger *DefaultAuditLogger
 }
 
 // SetUserRole 设置用户角色（带审计）
@@ -314,7 +316,7 @@ func (am *AuditedManager) SetUserRole(operatorID, operatorName, userID, username
 	return nil
 }
 
-// GrantPermission 授予权限（带审计）
+// GrantPermissionWithAudit 授予权限（带审计）
 func (am *AuditedManager) GrantPermissionWithAudit(operatorID, operatorName, userID, username, permission string) error {
 	err := am.GrantPermission(userID, username, permission)
 	if err != nil {
@@ -325,7 +327,7 @@ func (am *AuditedManager) GrantPermissionWithAudit(operatorID, operatorName, use
 	return nil
 }
 
-// RevokePermission 撤销权限（带审计）
+// RevokePermissionWithAudit 撤销权限（带审计）
 func (am *AuditedManager) RevokePermissionWithAudit(operatorID, operatorName, userID, permission string) error {
 	err := am.RevokePermission(userID, permission)
 	if err != nil {
