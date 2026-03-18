@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.222.0] - 2026-03-18
+
+### Fixed
+- 修复 internal/auth 模块 errcheck 错误
+  - internal/auth/rbac_middleware.go: 检查类型断言返回值
+  - internal/auth/secure_backup.go: 检查文件操作返回值
+  - internal/auth/security_audit.go: 检查 JSON 编码返回值
+  - internal/auth/session_manager.go: 检查时间解析返回值
+
+---
+
 ## [v2.221.0] - 2026-03-18
 
 ### Fixed

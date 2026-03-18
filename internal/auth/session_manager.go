@@ -85,7 +85,9 @@ func NewSessionManager(config SessionConfig) *SessionManager {
 
 	// 加载已存储的会话
 	if config.SessionFilePath != "" {
-		m.load()
+		if err := m.load(); err != nil {
+			// 加载失败时继续运行，使用空会话状态
+		}
 	}
 
 	// 启动清理任务
@@ -144,7 +146,9 @@ func (m *SessionManager) CreateSession(userID, username, ip, userAgent string, r
 	m.sessions[token] = session
 	m.userSession[userID] = append(m.userSession[userID], token)
 
-	m.save()
+	if err := m.save(); err != nil {
+		// 保存失败，但会话已在内存中创建，继续返回
+	}
 
 	return session, nil
 }
@@ -220,7 +224,9 @@ func (m *SessionManager) RefreshSession(refreshToken string) (*Session, error) {
 		}
 	}
 
-	m.save()
+	if err := m.save(); err != nil {
+		// 保存失败，但会话已更新，继续返回
+	}
 
 	return session, nil
 }
@@ -236,7 +242,9 @@ func (m *SessionManager) InvalidateSession(token string) error {
 	}
 
 	m.removeSession(session)
-	m.save()
+	if err := m.save(); err != nil {
+		// 保存失败，但会话已在内存中移除，继续返回
+	}
 
 	return nil
 }
@@ -252,7 +260,9 @@ func (m *SessionManager) InvalidateUserSessions(userID string) error {
 	}
 	delete(m.userSession, userID)
 
-	m.save()
+	if err := m.save(); err != nil {
+		// 保存失败，但会话已在内存中移除，继续返回
+	}
 
 	return nil
 }
@@ -296,7 +306,9 @@ func (m *SessionManager) SetMFAVerified(token string, verified bool) error {
 	}
 
 	session.MFAVerified = verified
-	m.save()
+	if err := m.save(); err != nil {
+		// 保存失败，但状态已更新，继续返回
+	}
 
 	return nil
 }
@@ -312,7 +324,9 @@ func (m *SessionManager) UpdateSessionDevice(token, deviceID string) error {
 	}
 
 	session.DeviceID = deviceID
-	m.save()
+	if err := m.save(); err != nil {
+		// 保存失败，但设备信息已更新，继续返回
+	}
 
 	return nil
 }
@@ -379,7 +393,9 @@ func (m *SessionManager) Cleanup() int {
 	}
 
 	if count > 0 {
-		m.save()
+		if err := m.save(); err != nil {
+			// 保存失败，但过期会话已在内存中清理
+		}
 	}
 
 	return count

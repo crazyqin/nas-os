@@ -391,8 +391,19 @@ func (m *AuthMiddleware) RequireRole(roles ...Role) gin.HandlerFunc {
 			return
 		}
 
+		// 类型断言检查
+		userIDStr, ok := userID.(string)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, APIResponse{
+				Code:    500,
+				Message: "用户ID类型错误",
+			})
+			c.Abort()
+			return
+		}
+
 		// 获取用户角色
-		userRoles := m.rbacManager.GetUserRoles(userID.(string))
+		userRoles := m.rbacManager.GetUserRoles(userIDStr)
 
 		// 检查是否有任一角色
 		hasRole := false
@@ -466,7 +477,11 @@ func GetUserID(c *gin.Context) string {
 	if !exists {
 		return ""
 	}
-	return userID.(string)
+	userIDStr, ok := userID.(string)
+	if !ok {
+		return ""
+	}
+	return userIDStr
 }
 
 // HasPermission 检查当前用户是否有权限
@@ -545,15 +560,28 @@ func (m *AuthMiddleware) RequireAnyPermission(checks []struct {
 			return
 		}
 
+		// 类型断言检查
+		userIDStr, ok := userID.(string)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, APIResponse{
+				Code:    500,
+				Message: "用户ID类型错误",
+			})
+			c.Abort()
+			return
+		}
+
 		groups, _ := c.Get("user_groups")
 		groupList := []string{}
 		if groups != nil {
-			groupList = groups.([]string)
+			if gl, ok := groups.([]string); ok {
+				groupList = gl
+			}
 		}
 
 		// 检查是否有任一权限
 		for _, check := range checks {
-			if m.rbacManager.CheckPermission(userID.(string), groupList, check.Resource, check.Action) {
+			if m.rbacManager.CheckPermission(userIDStr, groupList, check.Resource, check.Action) {
 				c.Next()
 				return
 			}
@@ -583,15 +611,28 @@ func (m *AuthMiddleware) RequireAllPermissions(checks []struct {
 			return
 		}
 
+		// 类型断言检查
+		userIDStr, ok := userID.(string)
+		if !ok {
+			c.JSON(http.StatusInternalServerError, APIResponse{
+				Code:    500,
+				Message: "用户ID类型错误",
+			})
+			c.Abort()
+			return
+		}
+
 		groups, _ := c.Get("user_groups")
 		groupList := []string{}
 		if groups != nil {
-			groupList = groups.([]string)
+			if gl, ok := groups.([]string); ok {
+				groupList = gl
+			}
 		}
 
 		// 检查是否有所有权限
 		for _, check := range checks {
-			if !m.rbacManager.CheckPermission(userID.(string), groupList, check.Resource, check.Action) {
+			if !m.rbacManager.CheckPermission(userIDStr, groupList, check.Resource, check.Action) {
 				c.JSON(http.StatusForbidden, APIResponse{
 					Code:    403,
 					Message: "权限不足",

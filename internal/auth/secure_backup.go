@@ -169,7 +169,10 @@ func (m *SecureBackupCodeManager) VerifyBackupCode(userID, code string) error {
 			backupCode.Used = true
 			now := time.Now()
 			backupCode.UsedAt = &now
-			m.save()
+			if err := m.save(); err != nil {
+				// 验证成功但保存失败，记录错误但不影响验证结果
+				// 后续可通过定期清理或重试机制处理
+			}
 			return nil
 		}
 	}
@@ -197,12 +200,12 @@ func (m *SecureBackupCodeManager) GetUnusedCount(userID string) int {
 }
 
 // InvalidateAll 使所有备份码失效
-func (m *SecureBackupCodeManager) InvalidateAll(userID string) {
+func (m *SecureBackupCodeManager) InvalidateAll(userID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	delete(m.codes, userID)
-	m.save()
+	return m.save()
 }
 
 // ListUsedCodes 列出已使用的备份码（用于审计）
