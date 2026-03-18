@@ -1,7 +1,7 @@
 # 编译产物
 nasd
 nasd-*
-backup
+/backup
 
 # 测试产物
 *.test
