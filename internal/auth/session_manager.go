@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"sync"
@@ -265,7 +266,7 @@ func (m *SessionManager) InvalidateUserSessions(userID string) error {
 	delete(m.userSession, userID)
 
 	if err := m.save(); err != nil {
-		// 保存失败，但会话已在内存中移除，继续返回
+		slog.Debug("failed to save session data after removing user sessions", "error", err, "userID", userID)
 	}
 
 	return nil
@@ -311,7 +312,7 @@ func (m *SessionManager) SetMFAVerified(token string, verified bool) error {
 
 	session.MFAVerified = verified
 	if err := m.save(); err != nil {
-		// 保存失败，但状态已更新，继续返回
+		slog.Debug("failed to save session data after setting MFA verified", "error", err, "token", token)
 	}
 
 	return nil
@@ -329,7 +330,7 @@ func (m *SessionManager) UpdateSessionDevice(token, deviceID string) error {
 
 	session.DeviceID = deviceID
 	if err := m.save(); err != nil {
-		// 保存失败，但设备信息已更新，继续返回
+		slog.Debug("failed to save session data after updating device ID", "error", err, "token", token)
 	}
 
 	return nil
@@ -398,7 +399,7 @@ func (m *SessionManager) Cleanup() int {
 
 	if count > 0 {
 		if err := m.save(); err != nil {
-			// 保存失败，但过期会话已在内存中清理
+			slog.Debug("failed to save session data after cleanup", "error", err, "count", count)
 		}
 	}
 

@@ -336,7 +336,7 @@ func (am *AuditedManager) RevokePermissionWithAudit(operatorID, operatorName, us
 	return nil
 }
 
-// CreatePolicy 创建策略（带审计）
+// CreatePolicyWithAudit 创建策略（带审计）
 func (am *AuditedManager) CreatePolicyWithAudit(operatorID, operatorName, name, description string, effect PolicyEffect, principals, resources, actions []string, priority int) (*Policy, error) {
 	policy, err := am.CreatePolicy(name, description, effect, principals, resources, actions, priority)
 	if err != nil {
@@ -347,9 +347,9 @@ func (am *AuditedManager) CreatePolicyWithAudit(operatorID, operatorName, name, 
 	return policy, nil
 }
 
-// DeletePolicy 删除策略（带审计）
+// DeletePolicyWithAudit 删除策略（带审计）
 func (am *AuditedManager) DeletePolicyWithAudit(operatorID, operatorName, policyID string) error {
-	err := am.Manager.DeletePolicy(policyID)
+	err := am.DeletePolicy(policyID)
 	if err != nil {
 		return err
 	}

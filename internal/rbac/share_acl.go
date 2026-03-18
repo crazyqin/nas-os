@@ -18,9 +18,13 @@ import (
 type ShareType string
 
 const (
-	ShareTypeSMB    ShareType = "smb"
-	ShareTypeNFS    ShareType = "nfs"
-	ShareTypeFTP    ShareType = "ftp"
+	// ShareTypeSMB SMB 共享
+	ShareTypeSMB ShareType = "smb"
+	// ShareTypeNFS NFS 共享
+	ShareTypeNFS ShareType = "nfs"
+	// ShareTypeFTP FTP 共享
+	ShareTypeFTP ShareType = "ftp"
+	// ShareTypeWebDAV WebDAV 共享
 	ShareTypeWebDAV ShareType = "webdav"
 )
 
@@ -28,11 +32,16 @@ const (
 type AccessLevel string
 
 const (
-	AccessNone   AccessLevel = "none"   // 无权限
-	AccessRead   AccessLevel = "read"   // 只读
-	AccessWrite  AccessLevel = "write"  // 读写
-	AccessFull   AccessLevel = "full"   // 完全控制
-	AccessCustom AccessLevel = "custom" // 自定义权限
+	// AccessNone 无权限
+	AccessNone AccessLevel = "none"
+	// AccessRead 只读
+	AccessRead AccessLevel = "read"
+	// AccessWrite 读写
+	AccessWrite AccessLevel = "write"
+	// AccessFull 完全控制
+	AccessFull AccessLevel = "full"
+	// AccessCustom 自定义权限
+	AccessCustom AccessLevel = "custom"
 )
 
 // ShareACL 共享访问控制条目
@@ -68,8 +77,11 @@ type ACLEntry struct {
 type PrincipalType string
 
 const (
-	PrincipalUser     PrincipalType = "user"
-	PrincipalGroup    PrincipalType = "group"
+	// PrincipalUser 用户主体
+	PrincipalUser PrincipalType = "user"
+	// PrincipalGroup 用户组主体
+	PrincipalGroup PrincipalType = "group"
+	// PrincipalEveryone 所有人主体
 	PrincipalEveryone PrincipalType = "everyone"
 )
 

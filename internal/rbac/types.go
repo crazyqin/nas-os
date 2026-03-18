@@ -226,8 +226,10 @@ type Policy struct {
 type PolicyEffect string
 
 const (
+	// EffectAllow 允许
 	EffectAllow PolicyEffect = "allow"
-	EffectDeny  PolicyEffect = "deny"
+	// EffectDeny 拒绝
+	EffectDeny PolicyEffect = "deny"
 )
 
 // Condition 策略条件

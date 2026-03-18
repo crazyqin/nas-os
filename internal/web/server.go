@@ -810,17 +810,17 @@ func (s *Server) Stop() error {
 
 	// 停止 WebDAV 服务器
 	if s.webdavSrv != nil {
-		s.webdavSrv.Stop()
+		_ = s.webdavSrv.Stop()
 	}
 
 	// 停止 FTP 服务器
 	if s.ftpSrv != nil {
-		s.ftpSrv.Stop()
+		_ = s.ftpSrv.Stop()
 	}
 
 	// 停止 SFTP 服务器
 	if s.sftpSrv != nil {
-		s.sftpSrv.Stop()
+		_ = s.sftpSrv.Stop()
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

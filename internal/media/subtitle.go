@@ -602,10 +602,10 @@ func (sm *SubtitleManager) GenerateSRT(subtitle *Subtitle) string {
 	var sb strings.Builder
 
 	for i, item := range subtitle.Items {
-		sb.WriteString(fmt.Sprintf("%d\n", i+1))
-		sb.WriteString(fmt.Sprintf("%s --> %s\n",
+		fmt.Fprintf(&sb, "%d\n", i+1)
+		fmt.Fprintf(&sb, "%s --> %s\n",
 			formatSRTTime(item.StartTime),
-			formatSRTTime(item.EndTime)))
+			formatSRTTime(item.EndTime))
 		sb.WriteString(item.Text)
 		sb.WriteString("\n\n")
 	}
@@ -636,12 +636,12 @@ func (sm *SubtitleManager) GenerateVTT(subtitle *Subtitle) string {
 
 	// 添加区域定义
 	for _, region := range subtitle.Regions {
-		sb.WriteString(fmt.Sprintf("Region: id=%s", region.ID))
+		fmt.Fprintf(&sb, "Region: id=%s", region.ID)
 		if region.Width > 0 {
-			sb.WriteString(fmt.Sprintf(", width=%.0f%%", region.Width))
+			fmt.Fprintf(&sb, ", width=%.0f%%", region.Width)
 		}
 		if region.Height > 0 {
-			sb.WriteString(fmt.Sprintf(", height=%.0f%%", region.Height))
+			fmt.Fprintf(&sb, ", height=%.0f%%", region.Height)
 		}
 		sb.WriteString("\n")
 	}
@@ -651,9 +651,9 @@ func (sm *SubtitleManager) GenerateVTT(subtitle *Subtitle) string {
 
 	// 添加字幕项
 	for _, item := range subtitle.Items {
-		sb.WriteString(fmt.Sprintf("%s --> %s\n",
+		fmt.Fprintf(&sb, "%s --> %s\n",
 			formatVTTTime(item.StartTime),
-			formatVTTTime(item.EndTime)))
+			formatVTTTime(item.EndTime))
 		sb.WriteString(item.Text)
 		sb.WriteString("\n\n")
 	}
