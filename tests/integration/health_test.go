@@ -11,7 +11,7 @@ import (
 )
 
 func TestHealth_Integration(t *testing.T) {
-	manager := health.NewHealthManager(5 * time.Second)
+	manager := health.NewManager(5 * time.Second)
 
 	t.Run("RegisterAndRunChecks", func(t *testing.T) {
 		// 注册多个检查器
@@ -83,7 +83,7 @@ func TestHealth_DiskSpaceChecker(t *testing.T) {
 }
 
 func TestHealth_ConcurrentChecks(t *testing.T) {
-	manager := health.NewHealthManager(5 * time.Second)
+	manager := health.NewManager(5 * time.Second)
 
 	// 注册多个检查器
 	for i := 0; i < 10; i++ {
@@ -103,7 +103,7 @@ func TestHealth_ConcurrentChecks(t *testing.T) {
 
 func TestHealth_Timeout(t *testing.T) {
 	// 使用很短的超时
-	manager := health.NewHealthManager(1 * time.Nanosecond)
+	manager := health.NewManager(1 * time.Nanosecond)
 	manager.RegisterChecker(health.NewMemoryChecker(80.0))
 
 	ctx := context.Background()
@@ -117,7 +117,7 @@ func TestHealth_Timeout(t *testing.T) {
 
 // 性能测试
 func BenchmarkHealth_RunAllChecks(b *testing.B) {
-	manager := health.NewHealthManager(5 * time.Second)
+	manager := health.NewManager(5 * time.Second)
 	manager.RegisterChecker(health.NewMemoryChecker(80.0))
 	manager.RegisterChecker(health.NewDiskSpaceChecker("disk", 80.0))
 
