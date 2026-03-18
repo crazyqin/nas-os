@@ -17,6 +17,11 @@ All notable changes to this project will be documented in this file.
 ### Security
 - 添加脚本执行审计日志 (snapshot 模块)
 
+### Documentation
+- 同步所有文档版本号至 v2.253.3
+- 更新 README.md 下载链接和 Docker 镜像版本
+- 更新 docs/ 目录文档版本一致性
+
 ### Bug Fixes
 - 修复 TestScoreHistory 测试并同步版本号
 
