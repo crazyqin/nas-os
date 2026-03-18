@@ -970,29 +970,17 @@ func (m *Manager) getLibvirtStats(vmName string) (*VMStats, error) {
 				stats.MemoryUsage = memRSS / 1024 // 转换为 MB
 			}
 		case "memory.available":
-			if _, err := fmt.Sscanf(value, "%d", &memoryAvailable); err == nil {
-				// memoryAvailable 已声明
-			}
+			_, _ = fmt.Sscanf(value, "%d", &memoryAvailable)
 		case "memory":
-			if _, err := fmt.Sscanf(value, "%d", &memoryTotal); err == nil {
-				// memoryTotal 已声明
-			}
+			_, _ = fmt.Sscanf(value, "%d", &memoryTotal)
 		case "net.received.bytes":
-			if _, err := fmt.Sscanf(value, "%d", &stats.NetRX); err == nil {
-				// stats.NetRX 已赋值
-			}
+			_, _ = fmt.Sscanf(value, "%d", &stats.NetRX)
 		case "net.sent.bytes":
-			if _, err := fmt.Sscanf(value, "%d", &stats.NetTX); err == nil {
-				// stats.NetTX 已赋值
-			}
+			_, _ = fmt.Sscanf(value, "%d", &stats.NetTX)
 		case "block.rd.bytes":
-			if _, err := fmt.Sscanf(value, "%d", &stats.DiskRead); err == nil {
-				// stats.DiskRead 已赋值
-			}
+			_, _ = fmt.Sscanf(value, "%d", &stats.DiskRead)
 		case "block.wr.bytes":
-			if _, err := fmt.Sscanf(value, "%d", &stats.DiskWrite); err == nil {
-				// stats.DiskWrite 已赋值
-			}
+			_, _ = fmt.Sscanf(value, "%d", &stats.DiskWrite)
 		}
 	}
 

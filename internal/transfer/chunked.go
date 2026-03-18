@@ -346,9 +346,7 @@ func (r *ResumableUpload) GetNextChunk() ([]byte, int64, int64, error) {
 		return nil, 0, 0, err
 	}
 	defer func() {
-		if err := file.Close(); err != nil {
-			// 忽略关闭错误
-		}
+		_ = file.Close() // 忽略关闭错误
 	}()
 
 	buf := make([]byte, r.chunkSize)

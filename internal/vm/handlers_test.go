@@ -340,8 +340,7 @@ func TestHandler_HandleCreateVM_ValidBody(t *testing.T) {
 	// by checking that the request body is valid JSON
 	defer func() {
 		if r := recover(); r != nil {
-			// Expected panic due to nil manager - this is fine
-			// The test verifies body parsing works
+			_ = r // Expected panic due to nil manager - this is fine
 		}
 	}()
 
@@ -425,7 +424,7 @@ func TestHandler_DeleteVM_WithForce(t *testing.T) {
 	// This will panic due to nil manager, so we use recover
 	defer func() {
 		if r := recover(); r != nil {
-			// Expected panic due to nil manager - test passes
+			_ = r // Expected panic due to nil manager - test passes
 		}
 	}()
 
