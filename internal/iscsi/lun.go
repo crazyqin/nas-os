@@ -122,10 +122,8 @@ func (lm *LUNManager) createFileBacking(path string, size int64) error {
 
 	// Truncate to desired size (creates sparse file)
 	if err := file.Truncate(size); err != nil {
-		if removeErr := os.Remove(path); removeErr != nil && !os.IsNotExist(removeErr) {
-			// Log the remove error but return the truncate error
-			_ = removeErr
-		}
+		// 尝试清理创建的文件，忽略错误（主错误更重要）
+		_ = os.Remove(path)
 		return err
 	}
 
@@ -212,10 +210,8 @@ func (lm *LUNManager) CreateSnapshot(lun *LUN, input LUNSnapshotInput) (*LUNSnap
 	// For simplicity, we just create an empty marker file
 	// Real implementation would use Btrfs snapshots or LVM
 	_ = dstFile.Close()
-	if removeErr := os.Remove(snapshotPath); removeErr != nil && !os.IsNotExist(removeErr) {
-		// Log error but continue - snapshot is tracked in metadata
-		_ = removeErr
-	}
+	// 清理临时快照文件，忽略错误（快照已记录在元数据中）
+	_ = os.Remove(snapshotPath)
 
 	snapshot := &LUNSnapshot{
 		ID:        snapshotID,
