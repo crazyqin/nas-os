@@ -67,7 +67,9 @@ type DiskEncryptionConfig struct {
 type EncryptionType string
 
 const (
+	// EncryptionTypeLUKS1 表示 LUKS1 加密格式
 	EncryptionTypeLUKS1 EncryptionType = "luks1"
+	// EncryptionTypeLUKS2 表示 LUKS2 加密格式（推荐）
 	EncryptionTypeLUKS2 EncryptionType = "luks2"
 )
 
@@ -75,19 +77,26 @@ const (
 type KeySourceType string
 
 const (
+	// KeySourcePassphrase 表示使用密码短语作为密钥来源
 	KeySourcePassphrase KeySourceType = "passphrase"
-	KeySourceKeyFile    KeySourceType = "keyfile"
-	KeySourceTPM        KeySourceType = "tpm"
-	KeySourceYubiKey    KeySourceType = "yubikey"
+	// KeySourceKeyFile 表示使用密钥文件作为密钥来源
+	KeySourceKeyFile KeySourceType = "keyfile"
+	// KeySourceTPM 表示使用 TPM 作为密钥来源
+	KeySourceTPM KeySourceType = "tpm"
+	// KeySourceYubiKey 表示使用 YubiKey 作为密钥来源
+	KeySourceYubiKey KeySourceType = "yubikey"
 )
 
 // EncryptionStatus 加密状态
 type EncryptionStatus string
 
 const (
-	EncryptionStatusLocked   EncryptionStatus = "locked"
+	// EncryptionStatusLocked 表示加密设备已锁定
+	EncryptionStatusLocked EncryptionStatus = "locked"
+	// EncryptionStatusUnlocked 表示加密设备已解锁
 	EncryptionStatusUnlocked EncryptionStatus = "unlocked"
-	EncryptionStatusError    EncryptionStatus = "error"
+	// EncryptionStatusError 表示加密设备处于错误状态
+	EncryptionStatusError EncryptionStatus = "error"
 )
 
 // LUKSInfo LUKS 信息

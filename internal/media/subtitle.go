@@ -17,9 +17,13 @@ import (
 type SubtitleFormat string
 
 const (
+	// SubtitleFormatSRT SubRip 字幕格式
 	SubtitleFormatSRT SubtitleFormat = "srt"
+	// SubtitleFormatVTT WebVTT 字幕格式
 	SubtitleFormatVTT SubtitleFormat = "vtt"
+	// SubtitleFormatASS Advanced SubStation Alpha 字幕格式
 	SubtitleFormatASS SubtitleFormat = "ass"
+	// SubtitleFormatSSA SubStation Alpha 字幕格式
 	SubtitleFormatSSA SubtitleFormat = "ssa"
 )
 

@@ -359,7 +359,7 @@ func (h *ResourceVisualizationHandlers) getStorageEfficiency(c *gin.Context) {
 func (h *ResourceVisualizationHandlers) getStorageTrendViz(c *gin.Context) {
 	days := 7
 	if d := c.Query("days"); d != "" {
-		// 解析天数
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	now := time.Now()
@@ -580,7 +580,7 @@ func (h *ResourceVisualizationHandlers) getUserResourceVisualization(c *gin.Cont
 func (h *ResourceVisualizationHandlers) getTopUsersVisualization(c *gin.Context) {
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		// 解析
+		_, _ = fmt.Sscanf(l, "%d", &limit)
 	}
 
 	metrics := h.collectUserMetrics()

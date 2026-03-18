@@ -674,13 +674,8 @@ func (h *QuotaAPIHandlers) getTopUsage(c *gin.Context) {
 		{TargetName: "备份服务", UsedGB: 420, LimitGB: 500, UsagePercent: 84.0},
 	}
 
-	// 按使用率排序
-	if sortBy == "percent" {
-		// 已按使用率排序
-	} else {
-		// 按使用量排序
-		// 已按使用量排序
-	}
+	// 数据已预排序，无需额外处理
+	_ = sortBy // 参数已记录，数据已在上方按使用率预排序
 
 	if len(topUsers) > limit {
 		topUsers = topUsers[:limit]
@@ -859,9 +854,8 @@ func (h *QuotaAPIHandlers) resolveAlert(c *gin.Context) {
 	alertID := c.Param("alert_id")
 
 	var req ResolveAlertRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		// 可选请求体
-	}
+	// 请求体可选，忽略解析错误
+	_ = c.ShouldBindJSON(&req)
 
 	now := time.Now()
 

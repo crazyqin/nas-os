@@ -19,11 +19,16 @@ import (
 type CompressionAlgorithm string
 
 const (
-	CompressionNone   CompressionAlgorithm = "none"
-	CompressionGzip   CompressionAlgorithm = "gzip"
-	CompressionZlib   CompressionAlgorithm = "zlib"
-	CompressionFlate  CompressionAlgorithm = "flate"
-	CompressionSnappy CompressionAlgorithm = "snappy" // 需要外部依赖，当前仅定义
+	// CompressionNone 无压缩，直接透传数据
+	CompressionNone CompressionAlgorithm = "none"
+	// CompressionGzip Gzip 压缩算法
+	CompressionGzip CompressionAlgorithm = "gzip"
+	// CompressionZlib Zlib 压缩算法
+	CompressionZlib CompressionAlgorithm = "zlib"
+	// CompressionFlate Flate (DEFLATE) 压缩算法
+	CompressionFlate CompressionAlgorithm = "flate"
+	// CompressionSnappy Snappy 压缩算法（需要外部依赖，当前仅定义）
+	CompressionSnappy CompressionAlgorithm = "snappy"
 )
 
 // String 返回算法字符串

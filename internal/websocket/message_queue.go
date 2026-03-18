@@ -18,9 +18,13 @@ import (
 type MessagePriority int
 
 const (
-	PriorityLow      MessagePriority = 0
-	PriorityNormal   MessagePriority = 1
-	PriorityHigh     MessagePriority = 2
+	// PriorityLow 低优先级消息，最后处理
+	PriorityLow MessagePriority = 0
+	// PriorityNormal 普通优先级消息，默认优先级
+	PriorityNormal MessagePriority = 1
+	// PriorityHigh 高优先级消息，优先处理
+	PriorityHigh MessagePriority = 2
+	// PriorityCritical 关键优先级消息，最高优先级，永不丢弃
 	PriorityCritical MessagePriority = 3
 )
 
@@ -56,7 +60,7 @@ type Message struct {
 	Correlation string          `json:"correlation,omitempty"` // 关联 ID
 }
 
-// MessageQueue 消息队列配置
+// MessageQueueConfig 消息队列配置
 type MessageQueueConfig struct {
 	// MaxSize 队列最大容量
 	MaxSize int `json:"maxSize"`
@@ -384,10 +388,14 @@ type BackpressureController struct {
 type BackpressureState int
 
 const (
-	StateNormal    BackpressureState = iota // 正常状态
-	StateWarning                            // 警告状态
-	StateCritical                           // 临界状态
-	StateThrottled                          // 限流状态
+	// StateNormal 正常状态，队列负载正常
+	StateNormal BackpressureState = iota
+	// StateWarning 警告状态，队列负载较高
+	StateWarning
+	// StateCritical 临界状态，队列即将满载
+	StateCritical
+	// StateThrottled 限流状态，需要限流处理
+	StateThrottled
 )
 
 func (s BackpressureState) String() string {

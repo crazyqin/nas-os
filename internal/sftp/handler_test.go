@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSFTPHandler_ResolvePath(t *testing.T) {
+func TestHandler_ResolvePath(t *testing.T) {
 	handler := NewHandler("/data/sftp", "testuser", "session123", "192.168.1.100", nil, nil)
 
 	tests := []struct {
@@ -69,7 +69,7 @@ func TestSFTPHandler_ResolvePath(t *testing.T) {
 	}
 }
 
-func TestSFTPHandler_Fileread(t *testing.T) {
+func TestHandler_Fileread(t *testing.T) {
 	// 创建临时测试目录
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "test.txt")
@@ -92,7 +92,7 @@ func TestSFTPHandler_Fileread(t *testing.T) {
 	assert.Equal(t, content, buf.Bytes())
 }
 
-func TestSFTPHandler_Fileread_ReadOnly(t *testing.T) {
+func TestHandler_Fileread_ReadOnly(t *testing.T) {
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "test.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("test"), 0644))
@@ -116,7 +116,7 @@ func TestSFTPHandler_Fileread_ReadOnly(t *testing.T) {
 	}
 }
 
-func TestSFTPHandler_Filewrite(t *testing.T) {
+func TestHandler_Filewrite(t *testing.T) {
 	tmpDir := t.TempDir()
 	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
@@ -140,7 +140,7 @@ func TestSFTPHandler_Filewrite(t *testing.T) {
 	assert.Equal(t, content, got)
 }
 
-func TestSFTPHandler_Filewrite_ReadOnly(t *testing.T) {
+func TestHandler_Filewrite_ReadOnly(t *testing.T) {
 	tmpDir := t.TempDir()
 	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 	handler.readOnly = true
@@ -155,7 +155,7 @@ func TestSFTPHandler_Filewrite_ReadOnly(t *testing.T) {
 	assert.Equal(t, os.ErrPermission, err)
 }
 
-func TestSFTPHandler_Filewrite_NestedPath(t *testing.T) {
+func TestHandler_Filewrite_NestedPath(t *testing.T) {
 	tmpDir := t.TempDir()
 	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
@@ -178,7 +178,7 @@ func TestSFTPHandler_Filewrite_NestedPath(t *testing.T) {
 	assert.Equal(t, content, got)
 }
 
-func TestSFTPHandler_Filecmd_Mkdir(t *testing.T) {
+func TestHandler_Filecmd_Mkdir(t *testing.T) {
 	tmpDir := t.TempDir()
 	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
@@ -195,7 +195,7 @@ func TestSFTPHandler_Filecmd_Mkdir(t *testing.T) {
 	assert.True(t, info.IsDir())
 }
 
-func TestSFTPHandler_Filecmd_Remove(t *testing.T) {
+func TestHandler_Filecmd_Remove(t *testing.T) {
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "delete-me.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("delete"), 0644))
@@ -214,7 +214,7 @@ func TestSFTPHandler_Filecmd_Remove(t *testing.T) {
 	assert.True(t, os.IsNotExist(err))
 }
 
-func TestSFTPHandler_Filecmd_Rename(t *testing.T) {
+func TestHandler_Filecmd_Rename(t *testing.T) {
 	tmpDir := t.TempDir()
 	oldFile := filepath.Join(tmpDir, "old.txt")
 	require.NoError(t, os.WriteFile(oldFile, []byte("rename test"), 0644))
@@ -237,7 +237,7 @@ func TestSFTPHandler_Filecmd_Rename(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestSFTPHandler_Filecmd_Rmdir(t *testing.T) {
+func TestHandler_Filecmd_Rmdir(t *testing.T) {
 	tmpDir := t.TempDir()
 	testDir := filepath.Join(tmpDir, "testdir")
 	require.NoError(t, os.Mkdir(testDir, 0755))
@@ -257,7 +257,7 @@ func TestSFTPHandler_Filecmd_Rmdir(t *testing.T) {
 	assert.True(t, os.IsNotExist(err))
 }
 
-func TestSFTPHandler_Filecmd_Setstat(t *testing.T) {
+func TestHandler_Filecmd_Setstat(t *testing.T) {
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "test.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("test"), 0644))
@@ -279,7 +279,7 @@ func TestSFTPHandler_Filecmd_Setstat(t *testing.T) {
 	assert.Equal(t, os.FileMode(0600), info.Mode().Perm())
 }
 
-func TestSFTPHandler_Filecmd_Symlink(t *testing.T) {
+func TestHandler_Filecmd_Symlink(t *testing.T) {
 	tmpDir := t.TempDir()
 	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 
@@ -295,7 +295,7 @@ func TestSFTPHandler_Filecmd_Symlink(t *testing.T) {
 	assert.Equal(t, os.ErrPermission, err)
 }
 
-func TestSFTPHandler_Filecmd_ReadOnly(t *testing.T) {
+func TestHandler_Filecmd_ReadOnly(t *testing.T) {
 	tmpDir := t.TempDir()
 	handler := NewHandler(tmpDir, "testuser", "session123", "192.168.1.100", nil, nil)
 	handler.readOnly = true
@@ -320,7 +320,7 @@ func TestSFTPHandler_Filecmd_ReadOnly(t *testing.T) {
 	}
 }
 
-func TestSFTPHandler_Filelist(t *testing.T) {
+func TestHandler_Filelist(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// 创建测试文件和目录
@@ -350,7 +350,7 @@ func TestSFTPHandler_Filelist(t *testing.T) {
 	assert.GreaterOrEqual(t, n, 2) // 至少有 file1.txt, file2.txt
 }
 
-func TestSFTPHandler_Filelist_NotDir(t *testing.T) {
+func TestHandler_Filelist_NotDir(t *testing.T) {
 	tmpDir := t.TempDir()
 	testFile := filepath.Join(tmpDir, "file.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("test"), 0644))
@@ -367,7 +367,7 @@ func TestSFTPHandler_Filelist_NotDir(t *testing.T) {
 	assert.Equal(t, os.ErrInvalid, err)
 }
 
-func TestSFTPHandler_PathTraversal(t *testing.T) {
+func TestHandler_PathTraversal(t *testing.T) {
 	tmpDir := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, "allowed.txt"), []byte("ok"), 0644))
 

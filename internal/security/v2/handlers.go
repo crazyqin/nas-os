@@ -136,6 +136,7 @@ func (h *HandlersV2) getMFAStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, success(status))
 }
 
+// SetupMFARequest 设置 MFA 的请求参数
 type SetupMFARequest struct {
 	Phone string `json:"phone"`
 	Email string `json:"email"`
@@ -338,6 +339,7 @@ func (h *HandlersV2) getEncryptionStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, success(status))
 }
 
+// InitializeEncryptionRequest 初始化加密的请求参数
 type InitializeEncryptionRequest struct {
 	Password string `json:"password"`
 }
@@ -357,6 +359,7 @@ func (h *HandlersV2) initializeEncryption(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
+// CreateEncryptedDirectoryRequest 创建加密目录的请求参数
 type CreateEncryptedDirectoryRequest struct {
 	Path        string `json:"path"`
 	Name        string `json:"name"`
@@ -425,6 +428,7 @@ func (h *HandlersV2) deleteEncryptedDirectory(c *gin.Context) {
 	c.JSON(http.StatusOK, success(nil))
 }
 
+// EncryptFileRequest 文件加密/解密的请求参数
 type EncryptFileRequest struct {
 	SrcPath string `json:"src_path"`
 	DstPath string `json:"dst_path"`
@@ -519,6 +523,7 @@ func (h *HandlersV2) getSubscribers(c *gin.Context) {
 	c.JSON(http.StatusOK, success(subscribers))
 }
 
+// AddSubscriberRequest 添加告警订阅者的请求参数
 type AddSubscriberRequest struct {
 	Name     string   `json:"name"`
 	Type     string   `json:"type"`

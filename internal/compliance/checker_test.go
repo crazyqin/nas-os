@@ -36,7 +36,7 @@ func (m *mockCheck) Execute(ctx context.Context) (CheckResult, error) {
 	}, nil
 }
 
-func TestNewChecker(t *testing.T) {
+func TestNewComplianceChecker(t *testing.T) {
 	checker := NewChecker()
 	if checker == nil {
 		t.Fatal("NewChecker should not return nil")

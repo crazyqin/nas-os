@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewManager(t *testing.T) {
+func TestNewBillingManager(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "billing-test")
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tmpDir) }()
@@ -24,7 +24,7 @@ func TestNewManager(t *testing.T) {
 	assert.True(t, bm.config.Enabled)
 }
 
-func TestNewManagerNilConfig(t *testing.T) {
+func TestNewBillingManagerNilConfig(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "billing-test")
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(tmpDir) }()
@@ -35,7 +35,7 @@ func TestNewManagerNilConfig(t *testing.T) {
 	assert.NotNil(t, bm.config)
 }
 
-func TestDefaultConfig(t *testing.T) {
+func TestDefaultBillingConfig(t *testing.T) {
 	config := DefaultConfig()
 	assert.True(t, config.Enabled)
 	assert.Equal(t, "CNY", config.DefaultCurrency)
@@ -409,7 +409,7 @@ func TestGenerateInvoiceFromUsage(t *testing.T) {
 	assert.Greater(t, invoice.TotalAmount, 0.0)
 }
 
-func TestGetStats(t *testing.T) {
+func TestGetBillingStats(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer func() { _ = os.RemoveAll(bm.dataDir) }()
 
@@ -438,7 +438,7 @@ func TestGetStats(t *testing.T) {
 	assert.GreaterOrEqual(t, stats.PaidInvoices, 1)
 }
 
-func TestGetUserStats(t *testing.T) {
+func TestGetUserBillingStats(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
@@ -664,7 +664,7 @@ func TestGetPoolUsageSummary(t *testing.T) {
 	assert.Equal(t, 3, summary.Records)
 }
 
-func TestGetPoolStats(t *testing.T) {
+func TestGetPoolBillingStats(t *testing.T) {
 	bm := createTestBillingManager(t)
 	defer os.RemoveAll(bm.dataDir)
 
