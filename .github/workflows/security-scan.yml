@@ -1,6 +1,9 @@
 # 安全扫描工作流
 # 定期运行安全扫描，发现问题但不阻塞CI
 #
+# v2.240.0 更新（工部优化）：
+# - 修复 Go 版本号（1.26 → 1.24，Go 1.26 尚未发布）
+#
 # v2.173.0 更新（工部优化）：
 # - 升级 Go 版本至 1.26（匹配当前系统版本）
 #
@@ -32,7 +35,7 @@ env:
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # Go 版本
-  GO_VERSION: '1.26'
+  GO_VERSION: '1.24'
   # 缓存版本号
   CACHE_VERSION: 'v12'
   # GOPROXY 加速

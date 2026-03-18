@@ -1,6 +1,9 @@
 # GitHub Release 构建
 # 构建多平台二进制文件并上传到 GitHub Release
 #
+# v2.240.0 更新（工部优化）：
+# - 修复 Go 版本号（1.26 → 1.24，Go 1.26 尚未发布）
+#
 # v2.173.0 更新（工部优化）：
 # - 升级 Go 版本至 1.26（匹配当前系统版本）
 #
@@ -69,7 +72,7 @@ on:
         type: boolean
 
 env:
-  GO_VERSION: '1.26'
+  GO_VERSION: '1.24'
   CACHE_VERSION: 'v12'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
