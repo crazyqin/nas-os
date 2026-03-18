@@ -40,10 +40,10 @@ type ConnectionPool struct {
 	cancel    context.CancelFunc
 
 	// Statistics
-	created      int64
-	reused       int64
-	closedCount  int64
-	waitCount    int64
+	created     int64
+	reused      int64
+	closedCount int64
+	waitCount   int64
 
 	logger *zap.Logger
 }

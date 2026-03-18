@@ -15,8 +15,8 @@ import (
 type Watcher struct {
 	mu            sync.RWMutex
 	watcher       *fsnotify.Watcher
-	tasks         map[string]*ReplicationTask // 任务ID -> 任务
-	pathToTask    map[string]string           // 监控路径 -> 任务ID
+	tasks         map[string]*Task  // 任务ID -> 任务
+	pathToTask    map[string]string // 监控路径 -> 任务ID
 	conflictDet   *ConflictDetector
 	eventChan     chan FileEvent
 	stopChan      chan struct{}

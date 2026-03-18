@@ -75,12 +75,12 @@ func (h *Handlers) create(c *gin.Context) {
 		return
 	}
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:             req.Name,
 		SourcePath:       req.SourcePath,
 		TargetPath:       req.TargetPath,
 		TargetHost:       req.TargetHost,
-		Type:             ReplicationType(req.Type),
+		Type:             Type(req.Type),
 		Schedule:         req.Schedule,
 		Enabled:          req.Enabled,
 		Compress:         req.Compress,

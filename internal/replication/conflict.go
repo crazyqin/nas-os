@@ -14,6 +14,7 @@ import (
 // ConflictStrategy 冲突解决策略
 type ConflictStrategy string
 
+// 冲突解决策略常量
 const (
 	ConflictSourceWins ConflictStrategy = "source_wins" // 源端优先
 	ConflictTargetWins ConflictStrategy = "target_wins" // 目标端优先
@@ -59,7 +60,7 @@ func NewConflictDetector(strategy ConflictStrategy) *ConflictDetector {
 }
 
 // DetectConflict 检测文件冲突
-func (d *ConflictDetector) DetectConflict(task *ReplicationTask, relativePath string) (*ConflictInfo, error) {
+func (d *ConflictDetector) DetectConflict(task *Task, relativePath string) (*ConflictInfo, error) {
 	sourcePath := filepath.Join(task.SourcePath, relativePath)
 	targetPath := filepath.Join(task.TargetPath, relativePath)
 

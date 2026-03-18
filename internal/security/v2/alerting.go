@@ -229,7 +229,7 @@ func (am *AlertingManager) sendNotifications(alert *SecurityAlertV2) {
 	if am.config.WeComEnabled && am.sendWebhookFunc != nil && am.config.WeComWebhook != "" {
 		payload := am.formatWeComPayload(alert)
 		if err := am.sendWebhookFunc(am.config.WeComWebhook, payload); err != nil {
-			// 记录错误
+			_ = err // 记录错误
 		}
 	}
 
@@ -238,7 +238,7 @@ func (am *AlertingManager) sendNotifications(alert *SecurityAlertV2) {
 		for _, url := range am.config.WebhookURLs {
 			payload := am.formatWebhookPayload(alert)
 			if err := am.sendWebhookFunc(url, payload); err != nil {
-				// 记录错误
+				_ = err // 记录错误
 			}
 		}
 	}

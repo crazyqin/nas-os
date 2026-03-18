@@ -15,14 +15,15 @@ import (
 // ArchiveStatus 归档状态
 type ArchiveStatus string
 
+// 归档状态常量
 const (
 	ArchiveStatusActive   ArchiveStatus = "active"
 	ArchiveStatusArchived ArchiveStatus = "archived"
 	ArchiveStatusDeleted  ArchiveStatus = "deleted"
 )
 
-// ProjectArchive 项目归档记录
-type ProjectArchive struct {
+// Archive 项目归档记录
+type Archive struct {
 	ID          string                 `json:"id"`
 	ProjectID   string                 `json:"project_id"`
 	ProjectName string                 `json:"project_name"`
@@ -36,6 +37,9 @@ type ProjectArchive struct {
 	ExpiresAt   *time.Time             `json:"expires_at,omitempty"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
+
+// ProjectArchive 是 Archive 的别名，保持向后兼容
+type ProjectArchive = Archive
 
 // ArchiveConfig 归档配置
 type ArchiveConfig struct {
@@ -62,7 +66,7 @@ func DefaultArchiveConfig() ArchiveConfig {
 // ArchiveManager 归档管理器
 type ArchiveManager struct {
 	mu        sync.RWMutex
-	archives  map[string]*ProjectArchive
+	archives  map[string]*Archive
 	config    ArchiveConfig
 	manager   *Manager
 	exportMgr *ExportManager
@@ -79,14 +83,14 @@ func NewArchiveManager(mgr *Manager, config ArchiveConfig) *ArchiveManager {
 
 	// 确保存储目录存在
 	if err := os.MkdirAll(config.StoragePath, 0755); err != nil {
-		// 目录创建失败，但不影响管理器初始化
+		_ = err // 目录创建失败，但不影响管理器初始化
 	}
 
 	return am
 }
 
 // ArchiveProject 归档项目
-func (am *ArchiveManager) ArchiveProject(projectID, archivedBy string, deleteAfterArchive bool) (*ProjectArchive, error) {
+func (am *ArchiveManager) ArchiveProject(projectID, archivedBy string, deleteAfterArchive bool) (*Archive, error) {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 
@@ -140,7 +144,7 @@ func (am *ArchiveManager) ArchiveProject(projectID, archivedBy string, deleteAft
 	}
 
 	// 创建归档记录
-	archive := &ProjectArchive{
+	archive := &Archive{
 		ID:          archiveID,
 		ProjectID:   projectID,
 		ProjectName: project.Name,
@@ -215,7 +219,7 @@ func (am *ArchiveManager) RestoreProject(archiveID, restoredBy string, options I
 }
 
 // GetArchive 获取归档信息
-func (am *ArchiveManager) GetArchive(archiveID string) (*ProjectArchive, error) {
+func (am *ArchiveManager) GetArchive(archiveID string) (*Archive, error) {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 
@@ -227,7 +231,7 @@ func (am *ArchiveManager) GetArchive(archiveID string) (*ProjectArchive, error) 
 }
 
 // ListArchives 列出归档
-func (am *ArchiveManager) ListArchives(status ArchiveStatus, limit, offset int) []*ProjectArchive {
+func (am *ArchiveManager) ListArchives(status ArchiveStatus, limit, offset int) []*Archive {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 
@@ -355,7 +359,7 @@ func (am *ArchiveManager) ExportArchive(archiveID string) ([]byte, error) {
 }
 
 // GetArchivesByProject 获取项目的归档列表
-func (am *ArchiveManager) GetArchivesByProject(projectID string) []*ProjectArchive {
+func (am *ArchiveManager) GetArchivesByProject(projectID string) []*Archive {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 
@@ -369,7 +373,7 @@ func (am *ArchiveManager) GetArchivesByProject(projectID string) []*ProjectArchi
 }
 
 // sortArchives 按时间排序归档
-func (am *ArchiveManager) sortArchives(archives []*ProjectArchive) {
+func (am *ArchiveManager) sortArchives(archives []*Archive) {
 	n := len(archives)
 	for i := 0; i < n-1; i++ {
 		for j := 0; j < n-i-1; j++ {
@@ -435,5 +439,5 @@ func (am *ArchiveManager) LoadArchives(path string) error {
 	return json.Unmarshal(data, &am.archives)
 }
 
-// 错误定义
+// ErrArchiveNotFound 归档不存在错误
 var ErrArchiveNotFound = errors.New("归档不存在")

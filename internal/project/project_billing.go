@@ -12,10 +12,15 @@ import (
 // ========== 计费相关错误 ==========
 
 var (
-	ErrQuotaExceeded     = errors.New("资源配额已超限")
-	ErrQuotaNotFound     = errors.New("配额配置不存在")
-	ErrBillingNotFound   = errors.New("计费记录不存在")
+	// ErrQuotaExceeded 资源配额已超限错误
+	ErrQuotaExceeded = errors.New("资源配额已超限")
+	// ErrQuotaNotFound 配额配置不存在错误
+	ErrQuotaNotFound = errors.New("配额配置不存在")
+	// ErrBillingNotFound 计费记录不存在错误
+	ErrBillingNotFound = errors.New("计费记录不存在")
+	// ErrInvalidCostAmount 无效成本金额错误
 	ErrInvalidCostAmount = errors.New("无效的成本金额")
+	// ErrInvalidQuotaValue 无效配额值错误
 	ErrInvalidQuotaValue = errors.New("无效的配额值")
 )
 
@@ -24,6 +29,7 @@ var (
 // ResourceType 资源类型
 type ResourceType string
 
+// 资源类型常量
 const (
 	ResourceTypeCPU     ResourceType = "cpu"     // CPU核心数
 	ResourceTypeMemory  ResourceType = "memory"  // 内存(MB)
@@ -38,6 +44,7 @@ const (
 // QuotaScope 配额范围
 type QuotaScope string
 
+// 配额范围常量
 const (
 	QuotaScopeProject QuotaScope = "project" // 项目级别
 	QuotaScopeUser    QuotaScope = "user"    // 用户级别

@@ -47,6 +47,7 @@ var TaskTransitions = map[TaskStatus][]TaskStatus{
 }
 
 // TaskTransitionError 任务状态流转错误
+// TaskTransitionError 任务状态流转错误
 type TaskTransitionError struct {
 	From TaskStatus
 	To   TaskStatus

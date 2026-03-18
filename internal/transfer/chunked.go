@@ -70,7 +70,7 @@ func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkI
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			// 忽略关闭错误
+			_ = err // 忽略关闭错误
 		}
 	}()
 
@@ -120,7 +120,7 @@ func (u *ChunkedUploader) MergeChunks(chunkDir string, outputPath string, totalC
 	}
 	defer func() {
 		if err := outputFile.Close(); err != nil {
-			// 忽略关闭错误
+			_ = err // 忽略关闭错误
 		}
 	}()
 
@@ -183,7 +183,7 @@ func CalculateFileSHA256(filePath string) (string, error) {
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			// 忽略关闭错误
+			_ = err // 忽略关闭错误
 		}
 	}()
 
@@ -210,12 +210,12 @@ func CompressReader(reader io.Reader) (io.Reader, error) {
 		// 关闭资源，忽略错误（通过 CloseWithError 传递主要错误）
 		defer func() {
 			if err := pw.Close(); err != nil {
-				// 忽略关闭错误
+				_ = err // 忽略关闭错误
 			}
 		}()
 		defer func() {
 			if err := gw.Close(); err != nil {
-				// 忽略关闭错误
+				_ = err // 忽略关闭错误
 			}
 		}()
 

@@ -13,48 +13,59 @@ import (
 	"time"
 )
 
-// ReplicationType 复制类型
-type ReplicationType string
+// Type 复制类型
+type Type string
 
+// 复制类型常量
 const (
-	TypeRealtime      ReplicationType = "realtime"      // 实时同步
-	TypeScheduled     ReplicationType = "scheduled"     // 定时复制
-	TypeBidirectional ReplicationType = "bidirectional" // 双向复制
+	TypeRealtime      Type = "realtime"      // 实时同步
+	TypeScheduled     Type = "scheduled"     // 定时复制
+	TypeBidirectional Type = "bidirectional" // 双向复制
 )
 
-// ReplicationStatus 复制状态
-type ReplicationStatus string
+// Status 复制状态
+type Status string
 
+// 复制状态常量
 const (
-	StatusIdle      ReplicationStatus = "idle"      // 空闲
-	StatusSyncing   ReplicationStatus = "syncing"   // 同步中
-	StatusPaused    ReplicationStatus = "paused"    // 已暂停
-	StatusError     ReplicationStatus = "error"     // 错误
-	StatusCompleted ReplicationStatus = "completed" // 已完成
+	StatusIdle      Status = "idle"      // 空闲
+	StatusSyncing   Status = "syncing"   // 同步中
+	StatusPaused    Status = "paused"    // 已暂停
+	StatusError     Status = "error"     // 错误
+	StatusCompleted Status = "completed" // 已完成
 )
 
-// ReplicationTask 复制任务
-type ReplicationTask struct {
-	ID               string            `json:"id"`
-	Name             string            `json:"name"`
-	SourcePath       string            `json:"source_path"`
-	TargetPath       string            `json:"target_path"`
-	TargetHost       string            `json:"target_host,omitempty"` // 空表示本地
-	Type             ReplicationType   `json:"type"`
-	Status           ReplicationStatus `json:"status"`
-	Schedule         string            `json:"schedule,omitempty"` // cron 表达式
-	LastSyncAt       time.Time         `json:"last_sync_at,omitempty"`
-	NextSyncAt       time.Time         `json:"next_sync_at,omitempty"`
-	BytesTransferred int64             `json:"bytes_transferred"`
-	TotalBytes       int64             `json:"total_bytes"`
-	FilesCount       int               `json:"files_count"`
-	ErrorMessage     string            `json:"error_message,omitempty"`
-	CreatedAt        time.Time         `json:"created_at"`
-	UpdatedAt        time.Time         `json:"updated_at"`
-	Enabled          bool              `json:"enabled"`
-	Compress         bool              `json:"compress"`
-	DeleteExtraneous bool              `json:"delete_extraneous"` // 删除目标端多余文件
+// Task 复制任务
+type Task struct {
+	ID               string    `json:"id"`
+	Name             string    `json:"name"`
+	SourcePath       string    `json:"source_path"`
+	TargetPath       string    `json:"target_path"`
+	TargetHost       string    `json:"target_host,omitempty"` // 空表示本地
+	Type             Type      `json:"type"`
+	Status           Status    `json:"status"`
+	Schedule         string    `json:"schedule,omitempty"` // cron 表达式
+	LastSyncAt       time.Time `json:"last_sync_at,omitempty"`
+	NextSyncAt       time.Time `json:"next_sync_at,omitempty"`
+	BytesTransferred int64     `json:"bytes_transferred"`
+	TotalBytes       int64     `json:"total_bytes"`
+	FilesCount       int       `json:"files_count"`
+	ErrorMessage     string    `json:"error_message,omitempty"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
+	Enabled          bool      `json:"enabled"`
+	Compress         bool      `json:"compress"`
+	DeleteExtraneous bool      `json:"delete_extraneous"` // 删除目标端多余文件
 }
+
+// ReplicationTask 是 Task 的别名，保持向后兼容
+type ReplicationTask = Task
+
+// ReplicationType 是 Type 的别名，保持向后兼容
+type ReplicationType = Type
+
+// ReplicationStatus 是 Status 的别名，保持向后兼容
+type ReplicationStatus = Status
 
 // Config 复制配置
 type Config struct {
@@ -80,7 +91,7 @@ func DefaultConfig() *Config {
 type Manager struct {
 	mu          sync.RWMutex
 	config      *Config
-	tasks       map[string]*ReplicationTask
+	tasks       map[string]*Task
 	configPath  string
 	stopChan    chan struct{}
 	wg          sync.WaitGroup
@@ -106,7 +117,7 @@ func NewManager(configPath string, config *Config) (*Manager, error) {
 
 	m := &Manager{
 		config:      config,
-		tasks:       make(map[string]*ReplicationTask),
+		tasks:       make(map[string]*Task),
 		configPath:  configPath,
 		stopChan:    make(chan struct{}),
 		watcher:     watcher,
@@ -136,7 +147,7 @@ func NewManager(configPath string, config *Config) (*Manager, error) {
 }
 
 // CreateTask 创建复制任务
-func (m *Manager) CreateTask(task *ReplicationTask) error {
+func (m *Manager) CreateTask(task *Task) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -212,11 +223,11 @@ func (m *Manager) DeleteTask(id string) error {
 }
 
 // ListTasks 列出所有任务
-func (m *Manager) ListTasks() []*ReplicationTask {
+func (m *Manager) ListTasks() []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	tasks := make([]*ReplicationTask, 0, len(m.tasks))
+	tasks := make([]*Task, 0, len(m.tasks))
 	for _, task := range m.tasks {
 		tasks = append(tasks, task)
 	}
@@ -224,7 +235,7 @@ func (m *Manager) ListTasks() []*ReplicationTask {
 }
 
 // GetTask 获取任务详情
-func (m *Manager) GetTask(id string) (*ReplicationTask, error) {
+func (m *Manager) GetTask(id string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -293,7 +304,7 @@ func (m *Manager) ResumeTask(id string) error {
 }
 
 // executeSync 执行同步
-func (m *Manager) executeSync(task *ReplicationTask) {
+func (m *Manager) executeSync(task *Task) {
 	startTime := time.Now()
 
 	// 构建 rsync 命令
@@ -357,7 +368,7 @@ func (m *Manager) executeSync(task *ReplicationTask) {
 }
 
 // parseRsyncOutput 解析 rsync 输出获取详细统计
-func (m *Manager) parseRsyncOutput(task *ReplicationTask, output string) {
+func (m *Manager) parseRsyncOutput(task *Task, output string) {
 	task.FilesCount = 0
 	task.BytesTransferred = 0
 
@@ -424,7 +435,7 @@ func parseNumber(s string) (int64, error) {
 }
 
 // calculateNextSync 计算下次同步时间
-func (m *Manager) calculateNextSync(task *ReplicationTask) error {
+func (m *Manager) calculateNextSync(task *Task) error {
 	if task.Schedule == "" {
 		return nil
 	}
@@ -463,7 +474,7 @@ func (m *Manager) startScheduler() {
 // checkScheduledTasks 检查定时任务
 func (m *Manager) checkScheduledTasks() {
 	m.mu.RLock()
-	var toSync []*ReplicationTask
+	var toSync []*Task
 	now := time.Now()
 
 	for _, task := range m.tasks {
@@ -489,7 +500,7 @@ func (m *Manager) loadConfig() error {
 		return err
 	}
 
-	var tasks []*ReplicationTask
+	var tasks []*Task
 	if err := json.Unmarshal(data, &tasks); err != nil {
 		return err
 	}
@@ -509,7 +520,7 @@ func (m *Manager) saveConfig() error {
 		return err
 	}
 
-	tasks := make([]*ReplicationTask, 0, len(m.tasks))
+	tasks := make([]*Task, 0, len(m.tasks))
 	for _, task := range m.tasks {
 		tasks = append(tasks, task)
 	}

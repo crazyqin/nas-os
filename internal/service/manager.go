@@ -177,8 +177,7 @@ func NewManager() (*Manager, error) {
 
 	// 刷新服务状态
 	if err := m.RefreshAll(); err != nil {
-		// 非致命错误，仅记录
-		// 在实际生产中应该使用日志记录
+		_ = err // 非致命错误，仅记录
 	}
 
 	return m, nil

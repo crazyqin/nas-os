@@ -8,12 +8,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// 错误定义
 var (
-	ErrTaskNotFound      = errors.New("任务不存在")
+	// ErrTaskNotFound 任务不存在错误
+	ErrTaskNotFound = errors.New("任务不存在")
+	// ErrMilestoneNotFound 里程碑不存在错误
 	ErrMilestoneNotFound = errors.New("里程碑不存在")
-	ErrProjectNotFound   = errors.New("项目不存在")
-	ErrInvalidStatus     = errors.New("无效的状态")
-	ErrPermissionDenied  = errors.New("权限不足")
+	// ErrProjectNotFound 项目不存在错误
+	ErrProjectNotFound = errors.New("项目不存在")
+	// ErrInvalidStatus 无效状态错误
+	ErrInvalidStatus = errors.New("无效的状态")
+	// ErrPermissionDenied 权限不足错误
+	ErrPermissionDenied = errors.New("权限不足")
 )
 
 // Manager 项目管理器

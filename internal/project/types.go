@@ -3,9 +3,10 @@ package project
 
 import "time"
 
-// Task 任务状态
+// TaskStatus 任务状态类型
 type TaskStatus string
 
+// 任务状态常量
 const (
 	TaskStatusTodo       TaskStatus = "todo"
 	TaskStatusInProgress TaskStatus = "in_progress"
@@ -14,9 +15,10 @@ const (
 	TaskStatusCancelled  TaskStatus = "cancelled"
 )
 
-// TaskPriority 任务优先级
+// TaskPriority 任务优先级类型
 type TaskPriority string
 
+// 任务优先级常量
 const (
 	PriorityLow    TaskPriority = "low"
 	PriorityMedium TaskPriority = "medium"

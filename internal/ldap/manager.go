@@ -540,7 +540,7 @@ func (m *Manager) SearchUsers(configName, query string) ([]*User, error) {
 	}
 	defer func() {
 		if closeErr := client.Close(); closeErr != nil {
-			// 客户端关闭失败，不影响主流程
+			_ = closeErr // 客户端关闭失败，不影响主流程
 		}
 	}()
 
@@ -661,7 +661,7 @@ func (m *Manager) GetGroups(configName string) ([]*Group, error) {
 	}
 	defer func() {
 		if closeErr := client.Close(); closeErr != nil {
-			// 客户端关闭失败，不影响主流程
+			_ = closeErr // 客户端关闭失败，不影响主流程
 		}
 	}()
 
@@ -711,28 +711,28 @@ func (m *Manager) Close() error {
 	// 关闭所有认证器
 	for _, auth := range m.authenticators {
 		if err := auth.Close(); err != nil {
-			// 记录错误但继续关闭其他资源
+			_ = err // 记录错误但继续关闭其他资源
 		}
 	}
 
 	// 关闭所有 AD 客户端
 	for _, client := range m.adClients {
 		if err := client.Close(); err != nil {
-			// 记录错误但继续关闭其他资源
+			_ = err // 记录错误但继续关闭其他资源
 		}
 	}
 
 	// 关闭所有连接池
 	for _, pool := range m.pools {
 		if err := pool.Close(); err != nil {
-			// 记录错误但继续关闭其他资源
+			_ = err // 记录错误但继续关闭其他资源
 		}
 	}
 
 	// 停止所有同步器
 	for _, sync := range m.synchronizers {
 		if err := sync.Close(); err != nil {
-			// 记录错误但继续关闭其他资源
+			_ = err // 记录错误但继续关闭其他资源
 		}
 	}
 

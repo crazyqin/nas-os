@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// ProjectTemplate 项目模板
-type ProjectTemplate struct {
+// Template 项目模板
+type Template struct {
 	ID          string                 `json:"id"`
 	Name        string                 `json:"name"`
 	Description string                 `json:"description,omitempty"`
@@ -23,6 +23,9 @@ type ProjectTemplate struct {
 	Config      TemplateConfig         `json:"config"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
+
+// ProjectTemplate 是 Template 的别名，保持向后兼容
+type ProjectTemplate = Template
 
 // TemplateConfig 模板配置
 type TemplateConfig struct {
@@ -115,7 +118,7 @@ type TemplateNotifications struct {
 // TemplateManager 模板管理器
 type TemplateManager struct {
 	mu        sync.RWMutex
-	templates map[string]*ProjectTemplate
+	templates map[string]*Template
 	manager   *Manager
 }
 
@@ -128,12 +131,12 @@ func NewTemplateManager(mgr *Manager) *TemplateManager {
 }
 
 // CreateTemplate 创建模板
-func (tm *TemplateManager) CreateTemplate(name, description, category, createdBy string, isPublic bool, config TemplateConfig) (*ProjectTemplate, error) {
+func (tm *TemplateManager) CreateTemplate(name, description, category, createdBy string, isPublic bool, config TemplateConfig) (*Template, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
 
 	now := time.Now()
-	template := &ProjectTemplate{
+	template := &Template{
 		ID:          uuid.New().String(),
 		Name:        name,
 		Description: description,
@@ -151,7 +154,7 @@ func (tm *TemplateManager) CreateTemplate(name, description, category, createdBy
 }
 
 // GetTemplate 获取模板
-func (tm *TemplateManager) GetTemplate(id string) (*ProjectTemplate, error) {
+func (tm *TemplateManager) GetTemplate(id string) (*Template, error) {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 
@@ -163,7 +166,7 @@ func (tm *TemplateManager) GetTemplate(id string) (*ProjectTemplate, error) {
 }
 
 // UpdateTemplate 更新模板
-func (tm *TemplateManager) UpdateTemplate(id string, updates map[string]interface{}) (*ProjectTemplate, error) {
+func (tm *TemplateManager) UpdateTemplate(id string, updates map[string]interface{}) (*Template, error) {
 	tm.mu.Lock()
 	defer tm.mu.Unlock()
 
@@ -205,7 +208,7 @@ func (tm *TemplateManager) DeleteTemplate(id string) error {
 }
 
 // ListTemplates 列出模板
-func (tm *TemplateManager) ListTemplates(userID, category string, publicOnly bool) []*ProjectTemplate {
+func (tm *TemplateManager) ListTemplates(userID, category string, publicOnly bool) []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 
@@ -250,7 +253,7 @@ func (tm *TemplateManager) ApplyTemplate(templateID, projectName, projectKey, ow
 }
 
 // applyMilestones 应用里程碑
-func (tm *TemplateManager) applyMilestones(projectID string, template *ProjectTemplate, createdBy string) {
+func (tm *TemplateManager) applyMilestones(projectID string, template *Template, createdBy string) {
 	now := time.Now()
 	for _, ms := range template.Config.DefaultMilestones {
 		dueDate := now.AddDate(0, 0, ms.OffsetDays+ms.Duration)
@@ -262,7 +265,7 @@ func (tm *TemplateManager) applyMilestones(projectID string, template *ProjectTe
 }
 
 // applyTasks 应用任务
-func (tm *TemplateManager) applyTasks(projectID string, template *ProjectTemplate, createdBy string) {
+func (tm *TemplateManager) applyTasks(projectID string, template *Template, createdBy string) {
 	for _, task := range template.Config.DefaultTasks {
 		priority := task.Priority
 		if priority == "" {
@@ -286,8 +289,8 @@ func (tm *TemplateManager) ExportTemplate(id string) ([]byte, error) {
 }
 
 // ImportTemplate 从JSON导入模板
-func (tm *TemplateManager) ImportTemplate(data []byte, createdBy string) (*ProjectTemplate, error) {
-	var template ProjectTemplate
+func (tm *TemplateManager) ImportTemplate(data []byte, createdBy string) (*Template, error) {
+	var template Template
 	if err := json.Unmarshal(data, &template); err != nil {
 		return nil, err
 	}
@@ -306,7 +309,7 @@ func (tm *TemplateManager) ImportTemplate(data []byte, createdBy string) (*Proje
 }
 
 // CloneTemplate 克隆模板
-func (tm *TemplateManager) CloneTemplate(id, newName, createdBy string) (*ProjectTemplate, error) {
+func (tm *TemplateManager) CloneTemplate(id, newName, createdBy string) (*Template, error) {
 	original, err := tm.GetTemplate(id)
 	if err != nil {
 		return nil, err
@@ -323,17 +326,17 @@ func (tm *TemplateManager) CloneTemplate(id, newName, createdBy string) (*Projec
 }
 
 // GetTemplatesByCategory 按分类获取模板
-func (tm *TemplateManager) GetTemplatesByCategory(category string) []*ProjectTemplate {
+func (tm *TemplateManager) GetTemplatesByCategory(category string) []*Template {
 	return tm.ListTemplates("", category, true)
 }
 
 // GetPublicTemplates 获取公开模板
-func (tm *TemplateManager) GetPublicTemplates() []*ProjectTemplate {
+func (tm *TemplateManager) GetPublicTemplates() []*Template {
 	return tm.ListTemplates("", "", true)
 }
 
 // GetUserTemplates 获取用户模板
-func (tm *TemplateManager) GetUserTemplates(userID string) []*ProjectTemplate {
+func (tm *TemplateManager) GetUserTemplates(userID string) []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 
@@ -347,7 +350,7 @@ func (tm *TemplateManager) GetUserTemplates(userID string) []*ProjectTemplate {
 }
 
 // sortTemplates 按时间排序模板
-func (tm *TemplateManager) sortTemplates(templates []*ProjectTemplate) {
+func (tm *TemplateManager) sortTemplates(templates []*Template) {
 	n := len(templates)
 	for i := 0; i < n-1; i++ {
 		for j := 0; j < n-i-1; j++ {
@@ -361,9 +364,9 @@ func (tm *TemplateManager) sortTemplates(templates []*ProjectTemplate) {
 // 预定义模板
 
 // GetDefaultTemplates 获取系统默认模板
-func GetDefaultTemplates() []*ProjectTemplate {
+func GetDefaultTemplates() []*Template {
 	now := time.Now()
-	return []*ProjectTemplate{
+	return []*Template{
 		{
 			ID:          "tpl-software-dev",
 			Name:        "软件开发项目",
@@ -466,4 +469,5 @@ func (tm *TemplateManager) InitializeDefaultTemplates() {
 }
 
 // 错误定义
+// ErrTemplateNotFound 模板不存在错误
 var ErrTemplateNotFound = errors.New("模板不存在")
