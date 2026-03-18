@@ -460,3 +460,246 @@ func TestCloudSyncHandlers_GetProvidersInfo(t *testing.T) {
 	require.True(t, ok, "data should be an array")
 	assert.Greater(t, len(data), 0)
 }
+
+func TestCloudSyncHandlers_UpdateSyncTask(t *testing.T) {
+	router, m, tmpDir := setupCloudSyncTestRouter(t)
+	defer os.RemoveAll(tmpDir)
+
+	// 创建提供商和任务
+	provider, err := m.CreateProvider(ProviderConfig{
+		Name:      "test-provider",
+		Type:      ProviderAWSS3,
+		AccessKey: "test-key",
+		SecretKey: "test-secret",
+		Bucket:    "test-bucket",
+	})
+	require.NoError(t, err)
+
+	task, err := m.CreateSyncTask(SyncTask{
+		Name:       "test-sync",
+		ProviderID: provider.ID,
+		LocalPath:  "/tmp/test",
+		RemotePath: "/backup",
+	})
+	require.NoError(t, err)
+
+	// 更新任务
+	body := map[string]interface{}{
+		"name":       "updated-sync",
+		"providerId": provider.ID,
+		"localPath":  "/tmp/updated",
+		"remotePath": "/backup/updated",
+	}
+	bodyBytes, err := json.Marshal(body)
+	require.NoError(t, err)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("PUT", "/api/v1/cloudsync/tasks/"+task.ID, bytes.NewReader(bodyBytes))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var resp map[string]interface{}
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+	assert.Equal(t, float64(0), resp["code"])
+
+	// 验证更新
+	updated, err := m.GetSyncTask(task.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "updated-sync", updated.Name)
+}
+
+func TestCloudSyncHandlers_UpdateSyncTask_NotFound(t *testing.T) {
+	router, _, tmpDir := setupCloudSyncTestRouter(t)
+	defer os.RemoveAll(tmpDir)
+
+	body := map[string]interface{}{
+		"name":       "updated-sync",
+		"localPath":  "/tmp/updated",
+		"remotePath": "/backup/updated",
+	}
+	bodyBytes, err := json.Marshal(body)
+	require.NoError(t, err)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("PUT", "/api/v1/cloudsync/tasks/nonexistent", bytes.NewReader(bodyBytes))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	assert.NotEqual(t, http.StatusOK, w.Code)
+}
+
+func TestCloudSyncHandlers_GetAllStatuses(t *testing.T) {
+	router, m, tmpDir := setupCloudSyncTestRouter(t)
+	defer os.RemoveAll(tmpDir)
+
+	// 创建多个任务
+	provider, err := m.CreateProvider(ProviderConfig{
+		Name:      "test-provider",
+		Type:      ProviderAWSS3,
+		AccessKey: "test-key",
+		SecretKey: "test-secret",
+		Bucket:    "test-bucket",
+	})
+	require.NoError(t, err)
+
+	for i := 0; i < 3; i++ {
+		_, err := m.CreateSyncTask(SyncTask{
+			Name:       "sync-" + string(rune('A'+i)),
+			ProviderID: provider.ID,
+			LocalPath:  "/tmp/test",
+			RemotePath: "/backup",
+		})
+		require.NoError(t, err)
+	}
+
+	// 获取所有状态
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/api/v1/cloudsync/statuses", nil)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var resp map[string]interface{}
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+	assert.Equal(t, float64(0), resp["code"])
+}
+
+func TestCloudSyncHandlers_RunSyncTask(t *testing.T) {
+	router, m, tmpDir := setupCloudSyncTestRouter(t)
+	defer os.RemoveAll(tmpDir)
+
+	// 创建提供商和任务
+	provider, err := m.CreateProvider(ProviderConfig{
+		Name:      "test-provider",
+		Type:      ProviderAWSS3,
+		AccessKey: "test-key",
+		SecretKey: "test-secret",
+		Bucket:    "test-bucket",
+	})
+	require.NoError(t, err)
+
+	task, err := m.CreateSyncTask(SyncTask{
+		Name:       "test-sync",
+		ProviderID: provider.ID,
+		LocalPath:  "/tmp/test",
+		RemotePath: "/backup",
+	})
+	require.NoError(t, err)
+
+	// 运行同步任务
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/"+task.ID+"/run", nil)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var resp map[string]interface{}
+	err = json.Unmarshal(w.Body.Bytes(), &resp)
+	require.NoError(t, err)
+	assert.Equal(t, float64(0), resp["code"])
+}
+
+func TestCloudSyncHandlers_RunSyncTask_NotFound(t *testing.T) {
+	router, _, tmpDir := setupCloudSyncTestRouter(t)
+	defer os.RemoveAll(tmpDir)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/nonexistent/run", nil)
+	router.ServeHTTP(w, req)
+
+	assert.NotEqual(t, http.StatusOK, w.Code)
+}
+
+func TestCloudSyncHandlers_PauseSyncTask_NotRunning(t *testing.T) {
+	router, m, tmpDir := setupCloudSyncTestRouter(t)
+	defer os.RemoveAll(tmpDir)
+
+	// 创建提供商和任务
+	provider, err := m.CreateProvider(ProviderConfig{
+		Name:      "test-provider",
+		Type:      ProviderAWSS3,
+		AccessKey: "test-key",
+		SecretKey: "test-secret",
+		Bucket:    "test-bucket",
+	})
+	require.NoError(t, err)
+
+	task, err := m.CreateSyncTask(SyncTask{
+		Name:       "test-sync",
+		ProviderID: provider.ID,
+		LocalPath:  "/tmp/test",
+		RemotePath: "/backup",
+	})
+	require.NoError(t, err)
+
+	// 暂停未运行的任务应该返回错误
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/"+task.ID+"/pause", nil)
+	router.ServeHTTP(w, req)
+
+	assert.NotEqual(t, http.StatusOK, w.Code)
+}
+
+func TestCloudSyncHandlers_ResumeSyncTask_NotRunning(t *testing.T) {
+	router, m, tmpDir := setupCloudSyncTestRouter(t)
+	defer os.RemoveAll(tmpDir)
+
+	// 创建提供商和任务
+	provider, err := m.CreateProvider(ProviderConfig{
+		Name:      "test-provider",
+		Type:      ProviderAWSS3,
+		AccessKey: "test-key",
+		SecretKey: "test-secret",
+		Bucket:    "test-bucket",
+	})
+	require.NoError(t, err)
+
+	task, err := m.CreateSyncTask(SyncTask{
+		Name:       "test-sync",
+		ProviderID: provider.ID,
+		LocalPath:  "/tmp/test",
+		RemotePath: "/backup",
+	})
+	require.NoError(t, err)
+
+	// 恢复未运行的任务应该返回错误
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/"+task.ID+"/resume", nil)
+	router.ServeHTTP(w, req)
+
+	assert.NotEqual(t, http.StatusOK, w.Code)
+}
+
+func TestCloudSyncHandlers_CancelSyncTask_NotRunning(t *testing.T) {
+	router, m, tmpDir := setupCloudSyncTestRouter(t)
+	defer os.RemoveAll(tmpDir)
+
+	// 创建提供商和任务
+	provider, err := m.CreateProvider(ProviderConfig{
+		Name:      "test-provider",
+		Type:      ProviderAWSS3,
+		AccessKey: "test-key",
+		SecretKey: "test-secret",
+		Bucket:    "test-bucket",
+	})
+	require.NoError(t, err)
+
+	task, err := m.CreateSyncTask(SyncTask{
+		Name:       "test-sync",
+		ProviderID: provider.ID,
+		LocalPath:  "/tmp/test",
+		RemotePath: "/backup",
+	})
+	require.NoError(t, err)
+
+	// 取消未运行的任务应该返回错误
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/api/v1/cloudsync/tasks/"+task.ID+"/cancel", nil)
+	router.ServeHTTP(w, req)
+
+	assert.NotEqual(t, http.StatusOK, w.Code)
+}
