@@ -329,51 +329,51 @@ func (e *ExcelExporter) createSummarySheet(f *excelize.File, report *GeneratedRe
 	_ = f.MergeCell(sheetName, "A1", "D1")
 	_ = f.SetCellValue(sheetName, "A1", title)
 	_ = f.SetCellStyle(sheetName, "A1", "D1", titleStyle)
-	f.SetRowHeight(sheetName, 1, 30)
+	_ = f.SetRowHeight(sheetName, 1, 30)
 
 	// 写入生成时间
-	f.MergeCell(sheetName, "A2", "D2")
-	f.SetCellValue(sheetName, "A2", fmt.Sprintf("生成时间: %s", report.GeneratedAt.Format("2006-01-02 15:04:05")))
+	_ = f.MergeCell(sheetName, "A2", "D2")
+	_ = f.SetCellValue(sheetName, "A2", fmt.Sprintf("生成时间: %s", report.GeneratedAt.Format("2006-01-02 15:04:05")))
 	dateStyle, _ := f.NewStyle(&excelize.Style{
 		Font:      &excelize.Font{Size: 10, Color: "#666666"},
 		Alignment: &excelize.Alignment{Horizontal: "center"},
 	})
-	f.SetCellStyle(sheetName, "A2", "D2", dateStyle)
+	_ = f.SetCellStyle(sheetName, "A2", "D2", dateStyle)
 
 	// 写入时间范围（如果有）
 	row := 4
 	if !report.Period.StartTime.IsZero() {
-		f.MergeCell(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row))
-		f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("报告周期: %s 至 %s",
+		_ = f.MergeCell(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row))
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("报告周期: %s 至 %s",
 			report.Period.StartTime.Format("2006-01-02"),
 			report.Period.EndTime.Format("2006-01-02")))
 		row++
 	}
 
 	// 写入总记录数
-	f.MergeCell(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row))
-	f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("总记录数: %d", report.TotalRecords))
+	_ = f.MergeCell(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row))
+	_ = f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("总记录数: %d", report.TotalRecords))
 	row += 2
 
 	// 写入摘要数据
 	if len(report.Summary) > 0 {
-		f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), "摘要指标")
-		f.MergeCell(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row))
-		f.SetCellStyle(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row), labelStyle)
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), "摘要指标")
+		_ = f.MergeCell(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row))
+		_ = f.SetCellStyle(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("D%d", row), labelStyle)
 		row++
 
 		for key, value := range report.Summary {
-			f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), key)
-			f.SetCellStyle(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("A%d", row), labelStyle)
-			f.MergeCell(sheetName, fmt.Sprintf("B%d", row), fmt.Sprintf("D%d", row))
-			f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), e.formatValue(value))
-			f.SetCellStyle(sheetName, fmt.Sprintf("B%d", row), fmt.Sprintf("D%d", row), valueStyle)
+			_ = f.SetCellValue(sheetName, fmt.Sprintf("A%d", row), key)
+			_ = f.SetCellStyle(sheetName, fmt.Sprintf("A%d", row), fmt.Sprintf("A%d", row), labelStyle)
+			_ = f.MergeCell(sheetName, fmt.Sprintf("B%d", row), fmt.Sprintf("D%d", row))
+			_ = f.SetCellValue(sheetName, fmt.Sprintf("B%d", row), e.formatValue(value))
+			_ = f.SetCellStyle(sheetName, fmt.Sprintf("B%d", row), fmt.Sprintf("D%d", row), valueStyle)
 			row++
 		}
 	}
 
 	// 设置列宽
-	f.SetColWidth(sheetName, "A", "D", 25)
+	_ = f.SetColWidth(sheetName, "A", "D", 25)
 
 	return nil
 }
@@ -386,7 +386,7 @@ func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedRepor
 	hasSummary := options.Summary && report.Summary != nil
 	if !hasSummary {
 		// 使用 Sheet1 作为数据表
-		f.SetSheetName("Sheet1", sheetName)
+		_ = f.SetSheetName("Sheet1", sheetName)
 	} else {
 		// 创建新的数据表
 		index, err := f.NewSheet(sheetName)
@@ -398,7 +398,7 @@ func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedRepor
 	}
 
 	if len(report.Data) == 0 {
-		f.SetCellValue(sheetName, "A1", "无数据")
+		_ = f.SetCellValue(sheetName, "A1", "无数据")
 		return nil
 	}
 
@@ -448,8 +448,8 @@ func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedRepor
 		cell := fmt.Sprintf("%s1", col)
 		// 使用 label 作为表头显示
 		label := e.getFieldLabel(field, options)
-		f.SetCellValue(sheetName, cell, label)
-		f.SetCellStyle(sheetName, cell, cell, headerStyle)
+		_ = f.SetCellValue(sheetName, cell, label)
+		_ = f.SetCellStyle(sheetName, cell, cell, headerStyle)
 	}
 
 	// 写入数据
@@ -459,8 +459,8 @@ func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedRepor
 			col := e.getColumnLetter(colIdx + 1)
 			cell := fmt.Sprintf("%s%d", col, rowNum)
 			value := row[field]
-			f.SetCellValue(sheetName, cell, e.formatValue(value))
-			f.SetCellStyle(sheetName, cell, cell, dataStyle)
+			_ = f.SetCellValue(sheetName, cell, e.formatValue(value))
+			_ = f.SetCellStyle(sheetName, cell, cell, dataStyle)
 		}
 	}
 
@@ -471,7 +471,7 @@ func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedRepor
 	}
 
 	// 冻结首行
-	f.SetPanes(sheetName, &excelize.Panes{
+	_ = f.SetPanes(sheetName, &excelize.Panes{
 		Freeze:      true,
 		Split:       false,
 		XSplit:      0,
@@ -483,7 +483,7 @@ func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedRepor
 	// 自动调整列宽
 	for i := range fields {
 		col := e.getColumnLetter(i + 1)
-		f.SetColWidth(sheetName, col, col, 18)
+		_ = f.SetColWidth(sheetName, col, col, 18)
 	}
 
 	return nil
@@ -739,7 +739,7 @@ func (m *MultiSheetExporter) ExportMultiple(reports []*GeneratedReport, outputPa
 // createSheetContent 创建工作表内容
 func (m *MultiSheetExporter) createSheetContent(f *excelize.File, sheetName string, report *GeneratedReport, options ExportOptions) error {
 	if len(report.Data) == 0 {
-		f.SetCellValue(sheetName, "A1", "无数据")
+		_ = f.SetCellValue(sheetName, "A1", "无数据")
 		return nil
 	}
 
@@ -760,8 +760,8 @@ func (m *MultiSheetExporter) createSheetContent(f *excelize.File, sheetName stri
 	// 写入表头
 	for i, field := range fields {
 		col := m.getColumnLetter(i + 1)
-		f.SetCellValue(sheetName, fmt.Sprintf("%s1", col), field)
-		f.SetCellStyle(sheetName, fmt.Sprintf("%s1", col), fmt.Sprintf("%s1", col), headerStyle)
+		_ = f.SetCellValue(sheetName, fmt.Sprintf("%s1", col), field)
+		_ = f.SetCellStyle(sheetName, fmt.Sprintf("%s1", col), fmt.Sprintf("%s1", col), headerStyle)
 	}
 
 	// 写入数据
@@ -769,14 +769,14 @@ func (m *MultiSheetExporter) createSheetContent(f *excelize.File, sheetName stri
 		rowNum := rowIdx + 2
 		for colIdx, field := range fields {
 			col := m.getColumnLetter(colIdx + 1)
-			f.SetCellValue(sheetName, fmt.Sprintf("%s%d", col, rowNum), m.formatValue(row[field]))
+			_ = f.SetCellValue(sheetName, fmt.Sprintf("%s%d", col, rowNum), m.formatValue(row[field]))
 		}
 	}
 
 	// 设置列宽
 	for i := range fields {
 		col := m.getColumnLetter(i + 1)
-		f.SetColWidth(sheetName, col, col, 18)
+		_ = f.SetColWidth(sheetName, col, col, 18)
 	}
 
 	return nil
@@ -911,7 +911,7 @@ func (t *ExcelTemplateExporter) fillTemplateData(f *excelize.File, report *Gener
 				if strings.Contains(cell, "{{") {
 					newValue := t.replacePlaceholders(cell, report)
 					colName := t.getColumnLetter(colIdx + 1)
-					f.SetCellValue(sheet, fmt.Sprintf("%s%d", colName, rowIdx+1), newValue)
+					_ = f.SetCellValue(sheet, fmt.Sprintf("%s%d", colName, rowIdx+1), newValue)
 				}
 			}
 		}
@@ -1136,7 +1136,7 @@ func (a *AdvancedExcelExporter) ExportMultiSheet(report *GeneratedReport, config
 
 		// 设置冻结
 		if sheetConfig.FrozenRows > 0 || sheetConfig.FrozenCols > 0 {
-			f.SetPanes(sheetConfig.Name, &excelize.Panes{
+			_ = f.SetPanes(sheetConfig.Name, &excelize.Panes{
 				Freeze:      true,
 				XSplit:      sheetConfig.FrozenCols,
 				YSplit:      sheetConfig.FrozenRows,
@@ -1180,7 +1180,7 @@ func (a *AdvancedExcelExporter) ExportMultiSheet(report *GeneratedReport, config
 // writeDataWithTemplate 使用模板写入数据
 func (a *AdvancedExcelExporter) writeDataWithTemplate(f *excelize.File, sheet string, report *GeneratedReport, tmpl *ExcelStyleTemplate) error {
 	if len(report.Data) == 0 {
-		f.SetCellValue(sheet, "A1", "无数据")
+		_ = f.SetCellValue(sheet, "A1", "无数据")
 		return nil
 	}
 
@@ -1201,8 +1201,8 @@ func (a *AdvancedExcelExporter) writeDataWithTemplate(f *excelize.File, sheet st
 	// 写入表头
 	for i, field := range fields {
 		col := a.getColumnLetter(i + 1)
-		f.SetCellValue(sheet, fmt.Sprintf("%s1", col), field)
-		f.SetCellStyle(sheet, fmt.Sprintf("%s1", col), fmt.Sprintf("%s1", col), headerStyleID)
+		_ = f.SetCellValue(sheet, fmt.Sprintf("%s1", col), field)
+		_ = f.SetCellStyle(sheet, fmt.Sprintf("%s1", col), fmt.Sprintf("%s1", col), headerStyleID)
 	}
 
 	// 写入数据
@@ -1210,15 +1210,15 @@ func (a *AdvancedExcelExporter) writeDataWithTemplate(f *excelize.File, sheet st
 		rowNum := rowIdx + 2
 		for colIdx, field := range fields {
 			col := a.getColumnLetter(colIdx + 1)
-			f.SetCellValue(sheet, fmt.Sprintf("%s%d", col, rowNum), a.formatValue(row[field]))
-			f.SetCellStyle(sheet, fmt.Sprintf("%s%d", col, rowNum), fmt.Sprintf("%s%d", col, rowNum), dataStyleID)
+			_ = f.SetCellValue(sheet, fmt.Sprintf("%s%d", col, rowNum), a.formatValue(row[field]))
+			_ = f.SetCellStyle(sheet, fmt.Sprintf("%s%d", col, rowNum), fmt.Sprintf("%s%d", col, rowNum), dataStyleID)
 		}
 	}
 
 	// 设置列宽
 	for i := range fields {
 		col := a.getColumnLetter(i + 1)
-		f.SetColWidth(sheet, col, col, 18)
+		_ = f.SetColWidth(sheet, col, col, 18)
 	}
 
 	return nil
@@ -1230,7 +1230,7 @@ func (a *AdvancedExcelExporter) writeSheetData(f *excelize.File, config SheetCon
 	data := a.filterData(report.Data, config.Filters)
 
 	if len(data) == 0 {
-		f.SetCellValue(config.Name, "A1", "无数据")
+		_ = f.SetCellValue(config.Name, "A1", "无数据")
 		return nil
 	}
 
@@ -1246,8 +1246,8 @@ func (a *AdvancedExcelExporter) writeSheetData(f *excelize.File, config SheetCon
 	// 写入表头
 	for i, field := range fields {
 		col := a.getColumnLetter(i + 1)
-		f.SetCellValue(config.Name, fmt.Sprintf("%s1", col), field)
-		f.SetCellStyle(config.Name, fmt.Sprintf("%s1", col), fmt.Sprintf("%s1", col), headerStyleID)
+		_ = f.SetCellValue(config.Name, fmt.Sprintf("%s1", col), field)
+		_ = f.SetCellStyle(config.Name, fmt.Sprintf("%s1", col), fmt.Sprintf("%s1", col), headerStyleID)
 	}
 
 	// 写入数据
@@ -1258,8 +1258,8 @@ func (a *AdvancedExcelExporter) writeSheetData(f *excelize.File, config SheetCon
 		rowNum := rowIdx + 2
 		for colIdx, field := range fields {
 			col := a.getColumnLetter(colIdx + 1)
-			f.SetCellValue(config.Name, fmt.Sprintf("%s%d", col, rowNum), a.formatValue(row[field]))
-			f.SetCellStyle(config.Name, fmt.Sprintf("%s%d", col, rowNum), fmt.Sprintf("%s%d", col, rowNum), dataStyleID)
+			_ = f.SetCellValue(config.Name, fmt.Sprintf("%s%d", col, rowNum), a.formatValue(row[field]))
+			_ = f.SetCellStyle(config.Name, fmt.Sprintf("%s%d", col, rowNum), fmt.Sprintf("%s%d", col, rowNum), dataStyleID)
 		}
 	}
 
@@ -1267,7 +1267,7 @@ func (a *AdvancedExcelExporter) writeSheetData(f *excelize.File, config SheetCon
 	if config.AutoWidth {
 		for i := range fields {
 			col := a.getColumnLetter(i + 1)
-			f.SetColWidth(config.Name, col, col, 18)
+			_ = f.SetColWidth(config.Name, col, col, 18)
 		}
 	}
 
@@ -1281,19 +1281,19 @@ func (a *AdvancedExcelExporter) createSummarySheet(f *excelize.File, sheet strin
 		Alignment: &excelize.Alignment{Horizontal: "center"},
 	})
 
-	f.MergeCell(sheet, "A1", "D1")
-	f.SetCellValue(sheet, "A1", report.Name)
-	f.SetCellStyle(sheet, "A1", "D1", titleStyleID)
+	_ = f.MergeCell(sheet, "A1", "D1")
+	_ = f.SetCellValue(sheet, "A1", report.Name)
+	_ = f.SetCellStyle(sheet, "A1", "D1", titleStyleID)
 
 	// 写入生成时间
-	f.SetCellValue(sheet, "A2", fmt.Sprintf("生成时间: %s", report.GeneratedAt.Format("2006-01-02 15:04:05")))
+	_ = f.SetCellValue(sheet, "A2", fmt.Sprintf("生成时间: %s", report.GeneratedAt.Format("2006-01-02 15:04:05")))
 
 	// 写入摘要
 	if report.Summary != nil {
 		row := 4
 		for key, value := range report.Summary {
-			f.SetCellValue(sheet, fmt.Sprintf("A%d", row), key)
-			f.SetCellValue(sheet, fmt.Sprintf("B%d", row), fmt.Sprintf("%v", value))
+			_ = f.SetCellValue(sheet, fmt.Sprintf("A%d", row), key)
+			_ = f.SetCellValue(sheet, fmt.Sprintf("B%d", row), fmt.Sprintf("%v", value))
 			row++
 		}
 	}

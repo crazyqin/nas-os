@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.228.0] - 2026-03-18
+
+### Fixed
+- 修复 internal/reports/excel_exporter.go 中的 errcheck 错误（55+ 处函数调用返回值检查）
+
+---
+
 ## [v2.227.0] - 2026-03-18
 
 ### Fixed
