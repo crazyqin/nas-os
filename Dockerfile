@@ -12,40 +12,13 @@
 # 多架构构建:
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/nas-os/nas-os:latest .
 #
-# v2.173.0 更新（工部优化）：
-# - 升级 Go 版本至 1.26（匹配当前系统版本）
+# Go 版本: 1.25（与 go.mod 保持一致）
 #
-# v2.240.0 更新（工部优化）：
-# - 修复 Go 版本号（1.26 → 1.24，Go 1.26 尚未发布）
-# v2.250.0 更新（工部修复）：
-# - 升级 Go 版本至 1.25（匹配 go.mod 要求）
-#
-# v2.123.0 更新（工部优化）：
-# - 使用 distroless/static 基础镜像（约 2MB）替代 alpine
-# - 优化镜像层级结构
-# - 添加健康检查二进制（curl 替代方案）
-# - 镜像大小优化至约 15-18MB
-#
-# v2.91.0 更新（工部优化）：
-# - 统一健康检查端点说明
-# - 更新版本注释格式
-#
-# v2.90.0 更新：
-# - 迁移到 GHCR (GitHub Container Registry)
-# - 更新镜像地址注释
-#
-# v2.88.0 更新：
-# - 更新版本注释
-#
-# v2.86.0 更新：
-# - 优化健康检查（简化检测逻辑）
-# - 更新基础镜像版本
-# - 改进多架构构建支持
-#
-# v2.35.0 更新：
-# - 优化构建缓存策略
-# - 增强健康检查
-# - 添加 curl 替代 wget（更可靠）
+# 镜像特性:
+# - 基于 distroless/static，约 15-18MB
+# - UPX 压缩进一步减小体积
+# - 内置健康检查工具
+# - 支持 minimal（distroless）和 full（alpine）两种版本
 
 # ========== 构建阶段 ==========
 FROM golang:1.25-alpine AS builder
