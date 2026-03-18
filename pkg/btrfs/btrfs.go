@@ -16,12 +16,41 @@ import (
 var (
 	// 安全的设备路径模式：/dev/sdX, /dev/nvmeXnY, /dev/mapper/XXX
 	devicePathRegex = regexp.MustCompile(`^/dev/(sd[a-z]+[0-9]*|nvme[0-9]+n[0-9]+|mapper/[a-zA-Z0-9_-]+)$`)
+	// 安全的挂载点/路径模式：绝对路径，不包含特殊字符
+	safePathRegex = regexp.MustCompile(`^/[a-zA-Z0-9/_.-]+$`)
+	// 安全的选项模式：字母、数字、逗号、等号
+	safeOptionRegex = regexp.MustCompile(`^[a-zA-Z0-9,=]+$`)
 )
 
 // validateDevicePath 验证设备路径是否安全
 func validateDevicePath(device string) error {
 	if !devicePathRegex.MatchString(device) {
 		return fmt.Errorf("invalid device path: %s", device)
+	}
+	return nil
+}
+
+// validatePath 验证挂载点/路径是否安全
+func validatePath(path string) error {
+	if path == "" {
+		return fmt.Errorf("path cannot be empty")
+	}
+	if !safePathRegex.MatchString(path) {
+		return fmt.Errorf("invalid path: contains disallowed characters")
+	}
+	// 防止路径遍历
+	if strings.Contains(path, "..") {
+		return fmt.Errorf("path traversal detected: %s", path)
+	}
+	return nil
+}
+
+// validateOptions 验证挂载选项是否安全
+func validateOptions(options []string) error {
+	for _, opt := range options {
+		if !safeOptionRegex.MatchString(opt) {
+			return fmt.Errorf("invalid mount option: %s", opt)
+		}
 	}
 	return nil
 }
@@ -310,6 +339,21 @@ func (c *Client) DeleteVolume(device string) error {
 
 // Mount 挂载卷
 func (c *Client) Mount(device, mountPoint string, options []string) error {
+	// 验证设备路径（防止命令注入）
+	if err := validateDevicePath(device); err != nil {
+		return fmt.Errorf("invalid device: %w", err)
+	}
+	// 验证挂载点（防止命令注入）
+	if err := validatePath(mountPoint); err != nil {
+		return fmt.Errorf("invalid mount point: %w", err)
+	}
+	// 验证挂载选项（防止命令注入）
+	if len(options) > 0 {
+		if err := validateOptions(options); err != nil {
+			return fmt.Errorf("invalid mount options: %w", err)
+		}
+	}
+
 	args := []string{device, mountPoint}
 	if len(options) > 0 {
 		args = append([]string{"-o", strings.Join(options, ",")}, args...)
@@ -332,6 +376,11 @@ func (c *Client) Mount(device, mountPoint string, options []string) error {
 
 // Unmount 卸载卷
 func (c *Client) Unmount(mountPoint string) error {
+	// 验证挂载点（防止命令注入）
+	if err := validatePath(mountPoint); err != nil {
+		return fmt.Errorf("invalid mount point: %w", err)
+	}
+
 	var cmd *exec.Cmd
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		cmd = exec.Command("sudo", "umount", mountPoint)
@@ -410,6 +459,10 @@ func parseSubVolumeList(output []byte, mountPoint string) ([]SubVolumeInfo, erro
 
 // CreateSubVolume 创建子卷
 func (c *Client) CreateSubVolume(path string) error {
+	// 验证路径（防止命令注入）
+	if err := validatePath(path); err != nil {
+		return fmt.Errorf("invalid subvolume path: %w", err)
+	}
 	output, err := c.exec.Execute("subvolume", "create", path)
 	if err != nil {
 		return fmt.Errorf("创建子卷失败: %w, output: %s", err, string(output))
@@ -419,6 +472,10 @@ func (c *Client) CreateSubVolume(path string) error {
 
 // DeleteSubVolume 删除子卷
 func (c *Client) DeleteSubVolume(path string) error {
+	// 验证路径（防止命令注入）
+	if err := validatePath(path); err != nil {
+		return fmt.Errorf("invalid subvolume path: %w", err)
+	}
 	output, err := c.exec.Execute("subvolume", "delete", path)
 	if err != nil {
 		return fmt.Errorf("删除子卷失败: %w, output: %s", err, string(output))
@@ -428,6 +485,10 @@ func (c *Client) DeleteSubVolume(path string) error {
 
 // GetSubVolumeInfo 获取子卷详细信息
 func (c *Client) GetSubVolumeInfo(path string) (*SubVolumeInfo, error) {
+	// 验证路径（防止命令注入）
+	if err := validatePath(path); err != nil {
+		return nil, fmt.Errorf("invalid subvolume path: %w", err)
+	}
 	output, err := c.exec.Execute("subvolume", "show", path)
 	if err != nil {
 		return nil, fmt.Errorf("获取子卷信息失败: %w", err)
@@ -485,6 +546,19 @@ func (c *Client) SetSubVolumeReadOnly(path string, readOnly bool) error {
 // mountPoint: 目标挂载点
 // device: 设备路径
 func (c *Client) MountSubVolume(device, subvolPath, mountPoint string) error {
+	// 验证设备路径（防止命令注入）
+	if err := validateDevicePath(device); err != nil {
+		return fmt.Errorf("invalid device: %w", err)
+	}
+	// 验证子卷路径（防止命令注入）
+	if err := validatePath("/" + subvolPath); err != nil {
+		return fmt.Errorf("invalid subvolume path: %w", err)
+	}
+	// 验证挂载点（防止命令注入）
+	if err := validatePath(mountPoint); err != nil {
+		return fmt.Errorf("invalid mount point: %w", err)
+	}
+
 	// 使用 subvol= 挂载选项
 	options := fmt.Sprintf("subvol=%s", subvolPath)
 
@@ -506,6 +580,15 @@ func (c *Client) MountSubVolume(device, subvolPath, mountPoint string) error {
 
 // MountSubVolumeByID 通过子卷 ID 挂载子卷
 func (c *Client) MountSubVolumeByID(device string, subvolID uint64, mountPoint string) error {
+	// 验证设备路径（防止命令注入）
+	if err := validateDevicePath(device); err != nil {
+		return fmt.Errorf("invalid device: %w", err)
+	}
+	// 验证挂载点（防止命令注入）
+	if err := validatePath(mountPoint); err != nil {
+		return fmt.Errorf("invalid mount point: %w", err)
+	}
+
 	options := fmt.Sprintf("subvolid=%d", subvolID)
 
 	args := []string{"-o", options, device, mountPoint}
@@ -703,6 +786,14 @@ func parseSizeStr(s string) uint64 {
 
 // AddDevice 添加设备到卷（扩容）
 func (c *Client) AddDevice(mountPoint, device string) error {
+	// 验证设备路径（防止命令注入）
+	if err := validateDevicePath(device); err != nil {
+		return fmt.Errorf("invalid device: %w", err)
+	}
+	// 验证挂载点（防止命令注入）
+	if err := validatePath(mountPoint); err != nil {
+		return fmt.Errorf("invalid mount point: %w", err)
+	}
 	output, err := c.exec.Execute("device", "add", device, mountPoint)
 	if err != nil {
 		return fmt.Errorf("添加设备失败: %w, output: %s", err, string(output))
@@ -712,6 +803,14 @@ func (c *Client) AddDevice(mountPoint, device string) error {
 
 // RemoveDevice 从卷中移除设备
 func (c *Client) RemoveDevice(mountPoint, device string) error {
+	// 验证设备路径（防止命令注入）
+	if err := validateDevicePath(device); err != nil {
+		return fmt.Errorf("invalid device: %w", err)
+	}
+	// 验证挂载点（防止命令注入）
+	if err := validatePath(mountPoint); err != nil {
+		return fmt.Errorf("invalid mount point: %w", err)
+	}
 	output, err := c.exec.Execute("device", "delete", device, mountPoint)
 	if err != nil {
 		return fmt.Errorf("移除设备失败: %w, output: %s", err, string(output))
