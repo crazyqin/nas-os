@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.248.0] - 2026-03-19
+
+### Documentation
+- 同步 docs/QUICKSTART.md 版本号至 v2.247.0
+- 同步 docs/API_GUIDE.md 版本号至 v2.247.0
+- 更新 QUICKSTART.md 下载链接至 v2.247.0
+
+---
+
+## [v2.247.0] - 2026-03-19
+
+### Documentation
+- 同步 README.md 版本号至 v2.247.0
+- 同步 docs/README.md 版本号至 v2.247.0
+- 同步 docs/README_EN.md 版本号至 v2.247.0
+- 更新下载链接和 Docker 镜像版本
+
+---
+
 ## [v2.246.0] - 2026-03-19
 
 ### Dependencies
