@@ -9,6 +9,8 @@ import (
 	"sort"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // TrashItem 回收站项目
@@ -53,6 +55,7 @@ type Manager struct {
 	trashRoot    string
 	totalSize    int64
 	onSizeChange func(int64) // 空间变化回调
+	logger       *zap.Logger
 
 	// Lifecycle management
 	ctx    context.Context
@@ -72,6 +75,7 @@ func NewManager(configPath, trashRoot string, config *Config) (*Manager, error) 
 		items:      make(map[string]*TrashItem),
 		configPath: configPath,
 		trashRoot:  trashRoot,
+		logger:     zap.NewNop(),
 		ctx:        ctx,
 		cancel:     cancel,
 	}
