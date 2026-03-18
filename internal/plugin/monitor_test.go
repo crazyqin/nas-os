@@ -8,7 +8,7 @@ import (
 )
 
 // createTestMonitor 创建测试监控器
-func createTestMonitor(t *testing.T) *PluginMonitor {
+func createTestMonitor(t *testing.T) *Monitor {
 	mgr, err := NewManager(ManagerConfig{
 		PluginDir: "/tmp/test-plugins-monitor",
 		ConfigDir: "/tmp/test-config-monitor",
@@ -18,10 +18,10 @@ func createTestMonitor(t *testing.T) *PluginMonitor {
 		t.Skipf("无法创建测试管理器: %v", err)
 		return nil
 	}
-	return NewPluginMonitor(mgr, DefaultMonitorConfig)
+	return NewMonitor(mgr, DefaultMonitorConfig)
 }
 
-func TestPluginMonitor_New(t *testing.T) {
+func TestMonitor_New(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
@@ -31,7 +31,7 @@ func TestPluginMonitor_New(t *testing.T) {
 	assert.NotNil(t, monitor.alertChan)
 }
 
-func TestPluginMonitor_GetPluginStatus(t *testing.T) {
+func TestMonitor_GetPluginStatus(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
@@ -43,7 +43,7 @@ func TestPluginMonitor_GetPluginStatus(t *testing.T) {
 
 	// 添加状态
 	monitor.mu.Lock()
-	monitor.states["test-plugin"] = &PluginHealthStatus{
+	monitor.states["test-plugin"] = &HealthStatus{
 		PluginID:      "test-plugin",
 		Status:        StatusHealthy,
 		LastCheckTime: time.Now(),
@@ -57,7 +57,7 @@ func TestPluginMonitor_GetPluginStatus(t *testing.T) {
 	assert.Equal(t, StatusHealthy, status.Status)
 }
 
-func TestPluginMonitor_GetAllStatuses(t *testing.T) {
+func TestMonitor_GetAllStatuses(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
@@ -65,11 +65,11 @@ func TestPluginMonitor_GetAllStatuses(t *testing.T) {
 
 	// 添加多个状态
 	monitor.mu.Lock()
-	monitor.states["plugin1"] = &PluginHealthStatus{
+	monitor.states["plugin1"] = &HealthStatus{
 		PluginID: "plugin1",
 		Status:   StatusHealthy,
 	}
-	monitor.states["plugin2"] = &PluginHealthStatus{
+	monitor.states["plugin2"] = &HealthStatus{
 		PluginID: "plugin2",
 		Status:   StatusUnhealthy,
 	}
@@ -79,32 +79,32 @@ func TestPluginMonitor_GetAllStatuses(t *testing.T) {
 	assert.Len(t, statuses, 2)
 }
 
-func TestPluginMonitor_GetHealthyCount(t *testing.T) {
+func TestMonitor_GetHealthyCount(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
 	}
 
 	monitor.mu.Lock()
-	monitor.states["plugin1"] = &PluginHealthStatus{PluginID: "plugin1", Status: StatusHealthy}
-	monitor.states["plugin2"] = &PluginHealthStatus{PluginID: "plugin2", Status: StatusHealthy}
-	monitor.states["plugin3"] = &PluginHealthStatus{PluginID: "plugin3", Status: StatusUnhealthy}
+	monitor.states["plugin1"] = &HealthStatus{PluginID: "plugin1", Status: StatusHealthy}
+	monitor.states["plugin2"] = &HealthStatus{PluginID: "plugin2", Status: StatusHealthy}
+	monitor.states["plugin3"] = &HealthStatus{PluginID: "plugin3", Status: StatusUnhealthy}
 	monitor.mu.Unlock()
 
 	count := monitor.GetHealthyCount()
 	assert.Equal(t, 2, count)
 }
 
-func TestPluginMonitor_GetUnhealthyPlugins(t *testing.T) {
+func TestMonitor_GetUnhealthyPlugins(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
 	}
 
 	monitor.mu.Lock()
-	monitor.states["plugin1"] = &PluginHealthStatus{PluginID: "plugin1", Status: StatusHealthy}
-	monitor.states["plugin2"] = &PluginHealthStatus{PluginID: "plugin2", Status: StatusUnhealthy}
-	monitor.states["plugin3"] = &PluginHealthStatus{PluginID: "plugin3", Status: StatusDegraded}
+	monitor.states["plugin1"] = &HealthStatus{PluginID: "plugin1", Status: StatusHealthy}
+	monitor.states["plugin2"] = &HealthStatus{PluginID: "plugin2", Status: StatusUnhealthy}
+	monitor.states["plugin3"] = &HealthStatus{PluginID: "plugin3", Status: StatusDegraded}
 	monitor.mu.Unlock()
 
 	unhealthy := monitor.GetUnhealthyPlugins()
@@ -113,17 +113,17 @@ func TestPluginMonitor_GetUnhealthyPlugins(t *testing.T) {
 	assert.Contains(t, unhealthy, "plugin3")
 }
 
-func TestPluginMonitor_GetMonitorSummary(t *testing.T) {
+func TestMonitor_GetMonitorSummary(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
 	}
 
 	monitor.mu.Lock()
-	monitor.states["plugin1"] = &PluginHealthStatus{PluginID: "plugin1", Status: StatusHealthy}
-	monitor.states["plugin2"] = &PluginHealthStatus{PluginID: "plugin2", Status: StatusUnhealthy}
-	monitor.states["plugin3"] = &PluginHealthStatus{PluginID: "plugin3", Status: StatusDegraded}
-	monitor.states["plugin4"] = &PluginHealthStatus{PluginID: "plugin4", Status: StatusUnknown}
+	monitor.states["plugin1"] = &HealthStatus{PluginID: "plugin1", Status: StatusHealthy}
+	monitor.states["plugin2"] = &HealthStatus{PluginID: "plugin2", Status: StatusUnhealthy}
+	monitor.states["plugin3"] = &HealthStatus{PluginID: "plugin3", Status: StatusDegraded}
+	monitor.states["plugin4"] = &HealthStatus{PluginID: "plugin4", Status: StatusUnknown}
 	monitor.mu.Unlock()
 
 	summary := monitor.GetMonitorSummary()
@@ -134,9 +134,9 @@ func TestPluginMonitor_GetMonitorSummary(t *testing.T) {
 	assert.Equal(t, 1, summary.Unknown)
 }
 
-func TestPluginHealthStatus(t *testing.T) {
+func TestHealthStatus(t *testing.T) {
 	now := time.Now()
-	status := &PluginHealthStatus{
+	status := &HealthStatus{
 		PluginID:          "test-plugin",
 		Status:            StatusHealthy,
 		LastCheckTime:     now,
@@ -152,8 +152,8 @@ func TestPluginHealthStatus(t *testing.T) {
 	assert.Equal(t, int64(3600), status.UptimeSeconds)
 }
 
-func TestPluginAlert(t *testing.T) {
-	alert := PluginAlert{
+func TestAlert(t *testing.T) {
+	alert := Alert{
 		PluginID:  "test-plugin",
 		Type:      AlertTypeHealthChanged,
 		Severity:  SeverityWarning,
@@ -180,14 +180,14 @@ func TestMonitorConfig(t *testing.T) {
 	assert.True(t, config.StatePersistence)
 }
 
-func TestPluginMonitor_ResetRestartCount(t *testing.T) {
+func TestMonitor_ResetRestartCount(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
 	}
 
 	monitor.mu.Lock()
-	monitor.states["test-plugin"] = &PluginHealthStatus{
+	monitor.states["test-plugin"] = &HealthStatus{
 		PluginID:     "test-plugin",
 		RestartCount: 5,
 	}
@@ -199,14 +199,14 @@ func TestPluginMonitor_ResetRestartCount(t *testing.T) {
 	assert.Equal(t, 0, status.RestartCount)
 }
 
-func TestPluginMonitor_ClearError(t *testing.T) {
+func TestMonitor_ClearError(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
 	}
 
 	monitor.mu.Lock()
-	monitor.states["test-plugin"] = &PluginHealthStatus{
+	monitor.states["test-plugin"] = &HealthStatus{
 		PluginID:          "test-plugin",
 		ConsecutiveErrors: 3,
 		LastError:         "some error",
@@ -220,7 +220,7 @@ func TestPluginMonitor_ClearError(t *testing.T) {
 	assert.Equal(t, "", status.LastError)
 }
 
-func TestPluginMonitor_ForceHealthCheck(t *testing.T) {
+func TestMonitor_ForceHealthCheck(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
@@ -233,14 +233,14 @@ func TestPluginMonitor_ForceHealthCheck(t *testing.T) {
 	assert.Equal(t, StatusUnknown, status.Status)
 }
 
-func TestPluginMonitor_SendAlert(t *testing.T) {
+func TestMonitor_SendAlert(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
 	}
 
 	// 启动 goroutine 接收告警
-	received := make(chan PluginAlert, 1)
+	received := make(chan Alert, 1)
 	go func() {
 		for alert := range monitor.GetAlerts() {
 			received <- alert
@@ -249,7 +249,7 @@ func TestPluginMonitor_SendAlert(t *testing.T) {
 	}()
 
 	// 发送告警
-	monitor.sendAlert(PluginAlert{
+	monitor.sendAlert(Alert{
 		PluginID:  "test-plugin",
 		Type:      AlertTypePluginCrashed,
 		Severity:  SeverityError,
@@ -267,7 +267,7 @@ func TestPluginMonitor_SendAlert(t *testing.T) {
 	}
 }
 
-func TestPluginMonitor_StartStop(t *testing.T) {
+func TestMonitor_StartStop(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
@@ -278,11 +278,11 @@ func TestPluginMonitor_StartStop(t *testing.T) {
 	monitor.Stop()
 }
 
-func TestPluginStatusTypes(t *testing.T) {
-	assert.Equal(t, PluginStatusType("healthy"), StatusHealthy)
-	assert.Equal(t, PluginStatusType("degraded"), StatusDegraded)
-	assert.Equal(t, PluginStatusType("unhealthy"), StatusUnhealthy)
-	assert.Equal(t, PluginStatusType("unknown"), StatusUnknown)
+func TestStatusTypes(t *testing.T) {
+	assert.Equal(t, StatusType("healthy"), StatusHealthy)
+	assert.Equal(t, StatusType("degraded"), StatusDegraded)
+	assert.Equal(t, StatusType("unhealthy"), StatusUnhealthy)
+	assert.Equal(t, StatusType("unknown"), StatusUnknown)
 }
 
 func TestAlertTypes(t *testing.T) {
@@ -344,7 +344,7 @@ func TestMetricsCollector(t *testing.T) {
 	assert.Equal(t, 5, metrics["errors"])
 }
 
-func TestPluginMonitor_Concurrent(t *testing.T) {
+func TestMonitor_Concurrent(t *testing.T) {
 	monitor := createTestMonitor(t)
 	if monitor == nil {
 		return
@@ -356,7 +356,7 @@ func TestPluginMonitor_Concurrent(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		go func(id int) {
 			monitor.mu.Lock()
-			monitor.states["plugin-"+string(rune('0'+id))] = &PluginHealthStatus{
+			monitor.states["plugin-"+string(rune('0'+id))] = &HealthStatus{
 				PluginID: "plugin-" + string(rune('0'+id)),
 				Status:   StatusHealthy,
 			}

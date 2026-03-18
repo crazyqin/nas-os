@@ -387,7 +387,7 @@ func TestHistoryManager_AddRecord(t *testing.T) {
 		t.Fatalf("创建历史管理器失败: %v", err)
 	}
 
-	record := &NotificationRecord{
+	record := &Record{
 		NotificationID: "notif-1",
 		Channel:        ChannelEmail,
 		ChannelName:    "测试邮件",
@@ -407,7 +407,7 @@ func TestHistoryManager_Query(t *testing.T) {
 	hm, _ := NewHistoryManager("", 100, 30)
 
 	// 添加多条记录
-	hm.AddRecord(&NotificationRecord{
+	hm.AddRecord(&Record{
 		ID:             "rec-1",
 		NotificationID: "notif-1",
 		Channel:        ChannelEmail,
@@ -415,7 +415,7 @@ func TestHistoryManager_Query(t *testing.T) {
 		Notification:   &Notification{Level: LevelInfo, Title: "信息通知"},
 	})
 
-	hm.AddRecord(&NotificationRecord{
+	hm.AddRecord(&Record{
 		ID:             "rec-2",
 		NotificationID: "notif-2",
 		Channel:        ChannelWebhook,
@@ -449,19 +449,19 @@ func TestHistoryManager_GetStats(t *testing.T) {
 	hm, _ := NewHistoryManager("", 100, 30)
 
 	// 添加记录
-	hm.AddRecord(&NotificationRecord{
+	hm.AddRecord(&Record{
 		Channel:      ChannelEmail,
 		Status:       StatusSent,
 		Notification: &Notification{Level: LevelInfo},
 	})
 
-	hm.AddRecord(&NotificationRecord{
+	hm.AddRecord(&Record{
 		Channel:      ChannelEmail,
 		Status:       StatusSent,
 		Notification: &Notification{Level: LevelError},
 	})
 
-	hm.AddRecord(&NotificationRecord{
+	hm.AddRecord(&Record{
 		Channel:      ChannelWebhook,
 		Status:       StatusFailed,
 		Notification: &Notification{Level: LevelError},
@@ -550,8 +550,8 @@ func TestService_GetHistoryManager(t *testing.T) {
 
 // ========== 类型定义测试 ==========
 
-func TestNotificationLevel_String(t *testing.T) {
-	levels := []NotificationLevel{LevelInfo, LevelSuccess, LevelWarning, LevelError, LevelCritical}
+func TestLevel_String(t *testing.T) {
+	levels := []Level{LevelInfo, LevelSuccess, LevelWarning, LevelError, LevelCritical}
 
 	for _, level := range levels {
 		if string(level) == "" {
@@ -570,8 +570,8 @@ func TestChannelType_String(t *testing.T) {
 	}
 }
 
-func TestNotificationStatus_String(t *testing.T) {
-	statuses := []NotificationStatus{StatusPending, StatusSent, StatusFailed, StatusRetrying, StatusCancelled}
+func TestStatus_String(t *testing.T) {
+	statuses := []Status{StatusPending, StatusSent, StatusFailed, StatusRetrying, StatusCancelled}
 
 	for _, status := range statuses {
 		if string(status) == "" {

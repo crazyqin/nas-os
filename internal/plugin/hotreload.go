@@ -18,7 +18,7 @@ import (
 type HotReloader struct {
 	pluginDir  string
 	manager    *Manager
-	watchers   map[string]*PluginWatcher
+	watchers   map[string]*Watcher
 	checksums  map[string]string
 	interval   time.Duration
 	stopCh     chan struct{}
@@ -26,8 +26,8 @@ type HotReloader struct {
 	notifyFunc func(pluginID string, event HotReloadEvent)
 }
 
-// PluginWatcher tracks plugin file changes
-type PluginWatcher struct {
+// Watcher tracks plugin file changes
+type Watcher struct {
 	PluginID   string
 	Path       string
 	LastMod    time.Time
@@ -48,10 +48,15 @@ type HotReloadEvent struct {
 type HotReloadEventType string
 
 const (
+	// EventPluginLoaded indicates a plugin was successfully loaded
 	EventPluginLoaded     HotReloadEventType = "loaded"
+	// EventPluginUnloaded indicates a plugin was unloaded
 	EventPluginUnloaded   HotReloadEventType = "unloaded"
+	// EventPluginReloaded indicates a plugin was reloaded
 	EventPluginReloaded   HotReloadEventType = "reloaded"
+	// EventPluginError indicates an error occurred with a plugin
 	EventPluginError      HotReloadEventType = "error"
+	// EventPluginDiscovered indicates a new plugin was discovered
 	EventPluginDiscovered HotReloadEventType = "discovered"
 )
 
@@ -71,7 +76,7 @@ func NewHotReloader(cfg HotReloadConfig, manager *Manager) *HotReloader {
 	return &HotReloader{
 		pluginDir:  cfg.PluginDir,
 		manager:    manager,
-		watchers:   make(map[string]*PluginWatcher),
+		watchers:   make(map[string]*Watcher),
 		checksums:  make(map[string]string),
 		interval:   cfg.CheckInterval,
 		stopCh:     make(chan struct{}),
@@ -157,7 +162,7 @@ func (hr *HotReloader) registerPlugin(path string, entry os.DirEntry) {
 
 	checksum := hr.calculateChecksum(path)
 
-	hr.watchers[pluginID] = &PluginWatcher{
+	hr.watchers[pluginID] = &Watcher{
 		PluginID: pluginID,
 		Path:     path,
 		LastMod:  info.ModTime(),
@@ -377,11 +382,11 @@ func (hr *HotReloader) notify(pluginID string, event HotReloadEvent) {
 }
 
 // GetWatchers returns all plugin watchers
-func (hr *HotReloader) GetWatchers() map[string]*PluginWatcher {
+func (hr *HotReloader) GetWatchers() map[string]*Watcher {
 	hr.mu.RLock()
 	defer hr.mu.RUnlock()
 
-	result := make(map[string]*PluginWatcher)
+	result := make(map[string]*Watcher)
 	for k, v := range hr.watchers {
 		result[k] = v
 	}

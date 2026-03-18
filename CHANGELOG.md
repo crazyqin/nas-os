@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.1] - 2026-03-19
+
+### Bug Fixes
+- 修复 notification 模块 revive linter 错误
+  - NotificationLevel → Level (避免 stutter)
+  - NotificationStatus → Status (避免 stutter)
+  - NotificationRecord → Record (避免 stutter)
+  - 添加 16 个导出常量注释
+- 修复 office 模块 revive linter 错误
+  - Response/Success/Error 添加注释
+  - SessionStatusActive 添加注释
+- 修复 plugin 模块 revive linter 错误
+  - PluginWatcher → Watcher (避免 stutter)
+  - PluginMarketInfo → MarketInfo (避免 stutter)
+  - PluginMonitor → Monitor (避免 stutter)
+  - PluginHealthStatus → HealthStatus (避免 stutter)
+  - PluginStatusType → StatusType (避免 stutter)
+  - PluginAlert → Alert (避免 stutter)
+  - 添加导出常量注释
+
+## [v2.253.0] - 2026-03-19
+
+### Improvements
+- 更新依赖 (golang.org/x/crypto, grpc, sqlite, bbolt 等)
+- 文档版本同步
+
 ## [v2.252.0] - 2026-03-19
 
 ### Bug Fixes

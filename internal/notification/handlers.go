@@ -836,9 +836,9 @@ func (h *Handlers) testRule(c *gin.Context) {
 // @Security BearerAuth
 func (h *Handlers) listHistory(c *gin.Context) {
 	filter := &HistoryFilter{
-		Status:   NotificationStatus(c.Query("status")),
+		Status:   Status(c.Query("status")),
 		Channel:  ChannelType(c.Query("channel")),
-		Level:    NotificationLevel(c.Query("level")),
+		Level:    Level(c.Query("level")),
 		Category: c.Query("category"),
 		Source:   c.Query("source"),
 		Search:   c.Query("search"),

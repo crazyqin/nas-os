@@ -136,8 +136,10 @@ type EditingSession struct {
 // SessionStatus 会话状态
 type SessionStatus string
 
+// 会话状态常量
 const (
-	SessionStatusActive  SessionStatus = "active"  // 活动中
+	// SessionStatusActive 活动中
+	SessionStatusActive  SessionStatus = "active"
 	SessionStatusEditing SessionStatus = "editing" // 编辑中
 	SessionStatusSaving  SessionStatus = "saving"  // 保存中
 	SessionStatusClosed  SessionStatus = "closed"  // 已关闭

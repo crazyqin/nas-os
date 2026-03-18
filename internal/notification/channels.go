@@ -233,8 +233,8 @@ func (s *EmailSender) buildExtraInfo(notification *Notification) string {
 	return info
 }
 
-func (s *EmailSender) getLevelColor(level NotificationLevel) string {
-	colors := map[NotificationLevel]string{
+func (s *EmailSender) getLevelColor(level Level) string {
+	colors := map[Level]string{
 		LevelInfo:     "#3498db",
 		LevelSuccess:  "#27ae60",
 		LevelWarning:  "#f39c12",
@@ -247,8 +247,8 @@ func (s *EmailSender) getLevelColor(level NotificationLevel) string {
 	return "#95a5a6"
 }
 
-func (s *EmailSender) getLevelLabel(level NotificationLevel) string {
-	labels := map[NotificationLevel]string{
+func (s *EmailSender) getLevelLabel(level Level) string {
+	labels := map[Level]string{
 		LevelInfo:     "信息",
 		LevelSuccess:  "成功",
 		LevelWarning:  "警告",
@@ -472,8 +472,8 @@ func (s *WeChatSender) Send(config *ChannelConfig, notification *Notification) e
 	return nil
 }
 
-func (s *WeChatSender) getLevelColor(level NotificationLevel) string {
-	colors := map[NotificationLevel]string{
+func (s *WeChatSender) getLevelColor(level Level) string {
+	colors := map[Level]string{
 		LevelInfo:     "info",
 		LevelSuccess:  "info",
 		LevelWarning:  "warning",
@@ -486,8 +486,8 @@ func (s *WeChatSender) getLevelColor(level NotificationLevel) string {
 	return "comment"
 }
 
-func (s *WeChatSender) getLevelLabel(level NotificationLevel) string {
-	labels := map[NotificationLevel]string{
+func (s *WeChatSender) getLevelLabel(level Level) string {
+	labels := map[Level]string{
 		LevelInfo:     "信息",
 		LevelSuccess:  "成功",
 		LevelWarning:  "警告",
