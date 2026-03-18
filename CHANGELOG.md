@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.229.0] - 2026-03-18
+
+### Fixed
+- 修复 internal/reports/ 目录的 errcheck 错误
+
+---
+
 ## [v2.228.0] - 2026-03-18
 
 ### Fixed

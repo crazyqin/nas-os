@@ -467,7 +467,7 @@ func (e *ExcelExporter) createDataSheet(f *excelize.File, report *GeneratedRepor
 	// 设置自动筛选
 	if len(fields) > 0 {
 		lastCol := e.getColumnLetter(len(fields))
-		f.AutoFilter(sheetName, fmt.Sprintf("A1:%s%d", lastCol, len(report.Data)+1), []excelize.AutoFilterOptions{})
+		_ = f.AutoFilter(sheetName, fmt.Sprintf("A1:%s%d", lastCol, len(report.Data)+1), []excelize.AutoFilterOptions{})
 	}
 
 	// 冻结首行
@@ -696,29 +696,29 @@ func (m *MultiSheetExporter) ExportMultiple(reports []*GeneratedReport, outputPa
 	f := excelize.NewFile()
 
 	// 删除默认的 Sheet1
-	f.DeleteSheet("Sheet1")
+	_ = f.DeleteSheet("Sheet1")
 
 	// 导出每个报表到不同工作表
 	for i, report := range reports {
 		sheetName := m.sanitizeSheetName(report.Name, i)
 		if _, err := f.NewSheet(sheetName); err != nil {
-			f.Close()
+			_ = f.Close()
 			return nil, fmt.Errorf("创建工作表失败: %w", err)
 		}
 
 		// 创建数据表内容
 		if err := m.createSheetContent(f, sheetName, report, options); err != nil {
-			f.Close()
+			_ = f.Close()
 			return nil, err
 		}
 	}
 
 	// 保存文件
 	if err := f.SaveAs(outputPath); err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, fmt.Errorf("保存文件失败: %w", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	// 获取文件信息
 	info, err := os.Stat(outputPath)
@@ -1043,21 +1043,21 @@ func (a *AdvancedExcelExporter) ExportWithCharts(report *GeneratedReport, output
 	// 创建数据工作表
 	dataSheet := "数据"
 	if _, err := f.NewSheet(dataSheet); err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, err
 	}
-	f.DeleteSheet("Sheet1")
+	_ = f.DeleteSheet("Sheet1")
 
 	// 写入数据
 	if err := a.writeDataWithTemplate(f, dataSheet, report, tmpl); err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, err
 	}
 
 	// 创建图表工作表
 	chartSheet := "图表"
 	if _, err := f.NewSheet(chartSheet); err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, err
 	}
 
@@ -1074,10 +1074,10 @@ func (a *AdvancedExcelExporter) ExportWithCharts(report *GeneratedReport, output
 
 	// 保存文件
 	if err := f.SaveAs(outputPath); err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, err
 	}
-	f.Close()
+	_ = f.Close()
 
 	info, err := os.Stat(outputPath)
 	if err != nil {
@@ -1097,7 +1097,7 @@ func (a *AdvancedExcelExporter) ExportWithCharts(report *GeneratedReport, output
 // ExportMultiSheet 导出多工作表报表
 func (a *AdvancedExcelExporter) ExportMultiSheet(report *GeneratedReport, config *MultiSheetConfig, outputPath string) (*ExportResult, error) {
 	f := excelize.NewFile()
-	f.DeleteSheet("Sheet1")
+	_ = f.DeleteSheet("Sheet1")
 
 	// 获取样式模板
 	tmpl := a.styleTemplates["default"]
@@ -1111,7 +1111,7 @@ func (a *AdvancedExcelExporter) ExportMultiSheet(report *GeneratedReport, config
 	if config.CreateSummary {
 		summarySheet := "汇总"
 		if _, err := f.NewSheet(summarySheet); err == nil {
-			a.createSummarySheet(f, summarySheet, report, tmpl)
+			_ = a.createSummarySheet(f, summarySheet, report, tmpl)
 		}
 	}
 
@@ -1150,17 +1150,17 @@ func (a *AdvancedExcelExporter) ExportMultiSheet(report *GeneratedReport, config
 		chartSheet := "总览图表"
 		if _, err := f.NewSheet(chartSheet); err == nil {
 			for i := range config.GlobalCharts {
-				a.createChart(f, chartSheet, config.Sheets[0].Name, &config.GlobalCharts[i], i)
+				_ = a.createChart(f, chartSheet, config.Sheets[0].Name, &config.GlobalCharts[i], i)
 			}
 		}
 	}
 
 	// 保存
 	if err := f.SaveAs(outputPath); err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, err
 	}
-	f.Close()
+	_ = f.Close()
 
 	info, err := os.Stat(outputPath)
 	if err != nil {
