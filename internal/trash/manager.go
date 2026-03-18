@@ -430,7 +430,7 @@ func (m *Manager) cleanupExpired() {
 
 	for _, id := range toDelete {
 		item := m.items[id]
-		os.RemoveAll(item.TrashPath)
+		_ = os.RemoveAll(item.TrashPath) // 清理过期文件，忽略错误
 		m.totalSize -= item.Size
 		delete(m.items, id)
 	}
@@ -460,7 +460,7 @@ func (m *Manager) cleanupOldest() error {
 			break
 		}
 
-		os.RemoveAll(item.TrashPath)
+		_ = os.RemoveAll(item.TrashPath) // 清理释放空间，忽略错误
 		m.totalSize -= item.Size
 		delete(m.items, item.ID)
 	}

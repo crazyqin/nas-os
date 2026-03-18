@@ -222,7 +222,7 @@ func (m *Manager) Start(name string) error {
 		return fmt.Errorf("启动服务 %s 失败: %w", name, err)
 	}
 
-	// 更新状态
+	// 更新状态（异步刷新，忽略错误）
 	go m.Refresh(name)
 
 	return nil
@@ -242,7 +242,7 @@ func (m *Manager) Stop(name string) error {
 		return fmt.Errorf("停止服务 %s 失败: %w", name, err)
 	}
 
-	// 更新状态
+	// 更新状态（异步刷新，忽略错误）
 	go m.Refresh(name)
 
 	return nil
@@ -263,7 +263,9 @@ func (m *Manager) Restart(name string) error {
 	}
 
 	// 更新状态
-	go m.Refresh(name)
+	go func() {
+		_ = m.Refresh(name)
+	}()
 
 	return nil
 }
@@ -459,7 +461,7 @@ func (m *Manager) Register(svc *Service) error {
 
 	m.services[svc.Name] = svc
 
-	// 刷新状态
+	// 刷新状态（异步刷新，忽略错误）
 	go m.Refresh(svc.Name)
 
 	return nil

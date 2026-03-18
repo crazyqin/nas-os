@@ -130,7 +130,9 @@ func NewSyncManager(baseDir string) *SyncManager {
 
 // NewVersionManager 创建版本管理器
 func NewVersionManager(baseDir string) *VersionManager {
-	os.MkdirAll(baseDir, 0755)
+	if err := os.MkdirAll(baseDir, 0755); err != nil {
+		fmt.Printf("创建版本目录失败 [%s]: %v\n", baseDir, err)
+	}
 	return &VersionManager{baseDir: baseDir}
 }
 
@@ -497,7 +499,9 @@ func (sm *SyncManager) applyChange(change FileChange, task *SyncTask) error {
 
 		// 创建版本备份
 		if _, err := os.Stat(destPath); err == nil {
-			sm.versionManager.CreateVersion(destPath, change.Path)
+			if _, verr := sm.versionManager.CreateVersion(destPath, change.Path); verr != nil {
+				fmt.Printf("创建版本备份失败 [%s]: %v\n", change.Path, verr)
+			}
 		}
 
 		return sm.copyFile(srcPath, destPath)
@@ -508,7 +512,9 @@ func (sm *SyncManager) applyChange(change FileChange, task *SyncTask) error {
 
 		// 创建版本备份
 		if _, err := os.Stat(destPath); err == nil {
-			sm.versionManager.CreateVersion(destPath, change.Path)
+			if _, verr := sm.versionManager.CreateVersion(destPath, change.Path); verr != nil {
+				fmt.Printf("创建版本备份失败 [%s]: %v\n", change.Path, verr)
+			}
 		}
 
 		return sm.copyFile(srcPath, destPath)
@@ -829,8 +835,12 @@ func (vm *VersionManager) DeleteOldVersions(relativePath string, keepCount int) 
 	// 按时间排序，删除旧版本
 	for i := 0; i < len(versions)-keepCount; i++ {
 		versionPath := filepath.Join(vm.baseDir, versions[i].VersionID)
-		os.Remove(versionPath)
-		os.Remove(versionPath + ".meta")
+		if err := os.Remove(versionPath); err != nil && !os.IsNotExist(err) {
+			fmt.Printf("删除版本文件失败 [%s]: %v\n", versionPath, err)
+		}
+		if err := os.Remove(versionPath + ".meta"); err != nil && !os.IsNotExist(err) {
+			fmt.Printf("删除版本元数据失败 [%s.meta]: %v\n", versionPath, err)
+		}
 	}
 
 	return nil

@@ -72,10 +72,9 @@ func NewKeyStore(path string) *KeyStore {
 // load 加载密钥
 func (ks *KeyStore) load() {
 	// 确保目录存在
-	os.MkdirAll(ks.path, 0700)
+	_ = os.MkdirAll(ks.path, 0700)
 
-	// 加载已有密钥
-	filepath.Walk(ks.path, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(ks.path, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return nil
 		}

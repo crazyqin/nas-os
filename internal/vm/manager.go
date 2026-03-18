@@ -285,7 +285,7 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 	// 创建磁盘镜像
 	diskPath := filepath.Join(vmDir, "disk.qcow2")
 	if err := m.createDiskImage(diskPath, config.DiskSize); err != nil {
-		os.RemoveAll(vmDir)
+		_ = os.RemoveAll(vmDir)
 		return nil, fmt.Errorf("创建磁盘镜像失败：%w", err)
 	}
 	vm.DiskPath = diskPath
@@ -294,13 +294,13 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 	xmlConfig := m.generateLibvirtXML(vm)
 	xmlPath := filepath.Join(vmDir, "domain.xml")
 	if err := os.WriteFile(xmlPath, []byte(xmlConfig), 0644); err != nil {
-		os.RemoveAll(vmDir)
+		_ = os.RemoveAll(vmDir)
 		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
 	}
 
 	// 保存 VM 配置
 	if err := m.saveVMConfig(vm); err != nil {
-		os.RemoveAll(vmDir)
+		_ = os.RemoveAll(vmDir)
 		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
 	}
 
@@ -621,7 +621,7 @@ func (m *Manager) DeleteVM(ctx context.Context, vmID string, force bool) error {
 	if m.libvirtAvailable && vm.Status != VMStatusStopped {
 		// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "destroy", vm.Name)
-		cmd.Run()
+		_ = cmd.Run()
 	}
 
 	if m.libvirtAvailable {

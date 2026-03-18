@@ -1129,7 +1129,7 @@ func (rs *ReplicationServer) ReceiveSnapshot(req TransferRequest, data io.Reader
 	if _, err := io.Copy(stdin, data); err != nil {
 		return fmt.Errorf("写入数据失败: %w", err)
 	}
-	stdin.Close()
+	_ = stdin.Close()
 
 	return cmd.Wait()
 }

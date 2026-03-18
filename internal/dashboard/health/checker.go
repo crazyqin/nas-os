@@ -539,7 +539,13 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 	}
 
 	// 获取进程信息
-	pidInt, _ := strconv.Atoi(pid) // 忽略错误，pid 来自 pgrep 输出，格式可信
+	pidInt, err := strconv.Atoi(pid)
+	if err != nil {
+		result.Status = StatusCritical
+		result.Message = fmt.Sprintf("无法解析进程 PID: %s", pid)
+		result.Duration = time.Since(start)
+		return result
+	}
 
 	// 获取内存使用
 	var memRSS uint64
@@ -566,9 +572,11 @@ func (c *Checker) checkProcess(ctx context.Context) CheckResult {
 		if data, err := os.ReadFile(fmt.Sprintf("/proc/%d/stat", pidInt)); err == nil {
 			fields := strings.Fields(string(data))
 			if len(fields) >= 17 {
-				utime, _ := strconv.ParseFloat(fields[13], 64) // 忽略错误，使用默认值 0
-				stime, _ := strconv.ParseFloat(fields[14], 64) // 忽略错误，使用默认值 0
-				cpuPercent = (utime + stime) / 100.0           // 转为百分比
+				utime, parseErr1 := strconv.ParseFloat(fields[13], 64)
+				stime, parseErr2 := strconv.ParseFloat(fields[14], 64)
+				if parseErr1 == nil && parseErr2 == nil {
+					cpuPercent = (utime + stime) / 100.0 // 转为百分比
+				}
 			}
 		}
 	}

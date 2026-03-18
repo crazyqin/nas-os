@@ -157,6 +157,10 @@ func (t *FileTrigger) Start(ctx context.Context, callback func(map[string]interf
 			}
 			return nil
 		})
+		if err != nil {
+			_ = watcher.Close()
+			return fmt.Errorf("failed to walk path %s: %w", t.Path, err)
+		}
 	} else {
 		err = watcher.Add(t.Path)
 	}

@@ -314,7 +314,7 @@ func TestNewChunkedReader(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewChunkedReader failed: %v", err)
 	}
-	defer cr.Close()
+	defer func() { _ = cr.Close() }()
 
 	if cr == nil {
 		t.Fatal("NewChunkedReader returned nil")
@@ -332,7 +332,7 @@ func TestNewChunkedReader_DefaultChunkSize(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer cr.Close()
+	defer func() { _ = cr.Close() }()
 
 	if cr.chunkSize != DefaultChunkSize {
 		t.Errorf("expected default chunk size, got %d", cr.chunkSize)
@@ -351,7 +351,7 @@ func TestChunkedReader_ReadNextChunk(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer cr.Close()
+	defer func() { _ = cr.Close() }()
 
 	// Read first chunk
 	chunk, err := cr.ReadNextChunk()
@@ -385,13 +385,13 @@ func TestChunkedReader_GetOffset(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer cr.Close()
+	defer func() { _ = cr.Close() }()
 
 	if cr.GetOffset() != 0 {
 		t.Error("initial offset should be 0")
 	}
 
-	cr.ReadNextChunk()
+	_, _ = cr.ReadNextChunk()
 	if cr.GetOffset() != 5 {
 		t.Errorf("offset should be 5 after reading, got %d", cr.GetOffset())
 	}
@@ -414,7 +414,7 @@ func TestNewChunkedWriter(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewChunkedWriter failed: %v", err)
 	}
-	defer cw.Close()
+	defer func() { _ = cw.Close() }()
 
 	if cw == nil {
 		t.Fatal("NewChunkedWriter returned nil")
@@ -429,7 +429,7 @@ func TestChunkedWriter_WriteChunk(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer cw.Close()
+	defer func() { _ = cw.Close() }()
 
 	n, err := cw.WriteChunk([]byte("hello"))
 	if err != nil {
@@ -448,7 +448,7 @@ func TestChunkedWriter_WriteAt(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer cw.Close()
+	defer func() { _ = cw.Close() }()
 
 	n, err := cw.WriteAt([]byte("world"), 0)
 	if err != nil {
@@ -467,13 +467,13 @@ func TestChunkedWriter_GetOffset(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer cw.Close()
+	defer func() { _ = cw.Close() }()
 
 	if cw.GetOffset() != 0 {
 		t.Error("initial offset should be 0")
 	}
 
-	cw.WriteChunk([]byte("hello"))
+	_, _ = cw.WriteChunk([]byte("hello"))
 	if cw.GetOffset() != 5 {
 		t.Errorf("offset should be 5 after write, got %d", cw.GetOffset())
 	}

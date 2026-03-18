@@ -103,7 +103,7 @@ func NewConfigManager(configPath string) *ConfigManager {
 		configPath: configPath,
 		config:     DefaultConfig(),
 	}
-	cm.load()
+	_ = cm.load() // 使用默认配置，忽略加载错误
 	return cm
 }
 
