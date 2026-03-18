@@ -1166,15 +1166,15 @@ func TestCreateWorkflowWithVariousActions(t *testing.T) {
 				"overwrite":   true,
 			},
 			{
-				"type":    "command",
-				"command": "echo",
-				"args":    []interface{}{"hello"},
+				"type":     "command",
+				"command":  "echo",
+				"args":     []interface{}{"hello"},
 				"work_dir": "/tmp",
-				"env":     []interface{}{"KEY=value"},
+				"env":      []interface{}{"KEY=value"},
 			},
 			{
-				"type":  "webhook",
-				"url":   "https://example.com/hook",
+				"type":   "webhook",
+				"url":    "https://example.com/hook",
 				"method": "POST",
 				"headers": map[string]interface{}{
 					"Authorization": "Bearer token",
