@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.4] - 2026-03-19
+
+### Bug Fixes
+- 修复 golangci-lint 错误
+  - 重命名类型消除 stuttering: AuditFilter → Filter, AuditProof → Proof
+  - 重命名类型消除 stuttering: CompressWriter → Writer, CompressFileRequest → FileRequest, CompressResult → Result
+  - 为安全事件常量添加注释 (EventLoginSuccess 等)
+  - 为日志级别常量添加注释 (LogLevelInfo 等)
+  - 为压缩器方法添加注释 (GzipCompressor, ZstdCompressor, Lz4Compressor)
+
+## [v2.253.3] - 2026-03-19
+
+### Security
+- 添加脚本执行审计日志 (snapshot 模块)
+
+### Bug Fixes
+- 修复 TestScoreHistory 测试并同步版本号
+
 ## [v2.253.2] - 2026-03-19
 
 ### Documentation
