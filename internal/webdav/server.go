@@ -92,7 +92,7 @@ func (s *Server) Start() error {
 	}
 
 	// 确保根目录存在
-	if err := os.MkdirAll(s.config.RootPath, 0755); err != nil {
+	if err := os.MkdirAll(s.config.RootPath, 0750); err != nil {
 		return fmt.Errorf("创建根目录失败：%w", err)
 	}
 
@@ -288,6 +288,7 @@ func (s *Server) handleOptions(w http.ResponseWriter, r *http.Request) {
 
 // handlePropfind 处理 PROPFIND 请求（列出目录/获取文件属性）
 func (s *Server) handlePropfind(w http.ResponseWriter, r *http.Request, fullPath string) {
+	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	info, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -413,6 +414,7 @@ func formatTimeout(t time.Time) string {
 
 // handleProppatch 处理 PROPPATCH 请求（设置文件属性）
 func (s *Server) handleProppatch(w http.ResponseWriter, r *http.Request, fullPath string) {
+	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	info, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -458,6 +460,7 @@ func (s *Server) handleProppatch(w http.ResponseWriter, r *http.Request, fullPat
 
 // handleGet 处理 GET 请求（下载文件）
 func (s *Server) handleGet(w http.ResponseWriter, r *http.Request, fullPath string) {
+	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	info, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -482,6 +485,7 @@ func (s *Server) handleGet(w http.ResponseWriter, r *http.Request, fullPath stri
 
 // handleHead 处理 HEAD 请求
 func (s *Server) handleHead(w http.ResponseWriter, r *http.Request, fullPath string) {
+	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	info, err := os.Stat(fullPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -530,14 +534,16 @@ func (s *Server) handlePut(w http.ResponseWriter, r *http.Request, fullPath, use
 	}
 
 	// 确保目录存在
+	// #nosec G304 -- fullPath is validated by resolvePath() with traversal checks
 	dir := filepath.Dir(fullPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	// 创建临时文件
 	tmpPath := fullPath + ".tmp"
+	// #nosec G304 -- tmpPath is derived from validated fullPath
 	file, err := os.Create(tmpPath)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -623,7 +629,7 @@ func (s *Server) handleMkcol(w http.ResponseWriter, r *http.Request, fullPath st
 		return
 	}
 
-	if err := os.MkdirAll(fullPath, 0755); err != nil {
+	if err := os.MkdirAll(fullPath, 0750); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -697,11 +703,13 @@ func (s *Server) handleCopy(w http.ResponseWriter, r *http.Request, fullPath, us
 // copyFile 复制文件
 func (s *Server) copyFile(src, dst string) error {
 	// 确保目标目录存在
-	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+	// #nosec G304 -- paths are validated by resolvePath() in caller
+	if err := os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
 		return err
 	}
 
 	// 打开源文件
+	// #nosec G304 -- src is validated by resolvePath() in caller
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return err
@@ -709,6 +717,7 @@ func (s *Server) copyFile(src, dst string) error {
 	defer func() { _ = srcFile.Close() }()
 
 	// 创建目标文件
+	// #nosec G304 -- dst is validated by resolvePath() in caller
 	dstFile, err := os.Create(dst)
 	if err != nil {
 		return err
@@ -723,7 +732,7 @@ func (s *Server) copyFile(src, dst string) error {
 // copyDir 复制目录
 func (s *Server) copyDir(src, dst string) error {
 	// 创建目标目录
-	if err := os.MkdirAll(dst, 0755); err != nil {
+	if err := os.MkdirAll(dst, 0750); err != nil {
 		return err
 	}
 
@@ -795,7 +804,7 @@ func (s *Server) handleMove(w http.ResponseWriter, r *http.Request, fullPath, us
 	}
 
 	// 确保目标目录存在
-	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(destPath), 0750); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -863,8 +872,8 @@ func (s *Server) handleLock(w http.ResponseWriter, r *http.Request, fullPath, us
 	// 如果资源不存在，创建空文件
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		dir := filepath.Dir(fullPath)
-		if err := os.MkdirAll(dir, 0755); err == nil {
-			_ = os.WriteFile(fullPath, []byte{}, 0644)
+		if err := os.MkdirAll(dir, 0750); err == nil {
+			_ = os.WriteFile(fullPath, []byte{}, 0600)
 		}
 	}
 

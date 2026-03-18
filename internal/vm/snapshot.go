@@ -72,7 +72,7 @@ func NewSnapshotManager(storagePath string, vmManager *Manager, logger *zap.Logg
 	}
 
 	snapshotPath := filepath.Join(storagePath, "snapshots")
-	if err := os.MkdirAll(snapshotPath, 0755); err != nil {
+	if err := os.MkdirAll(snapshotPath, 0750); err != nil {
 		return nil, fmt.Errorf("创建快照目录失败：%w", err)
 	}
 
@@ -168,7 +168,7 @@ func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name,
 
 	// 创建快照目录
 	snapshotDir := filepath.Join(m.storagePath, "snapshots", snapshotID)
-	if err := os.MkdirAll(snapshotDir, 0755); err != nil {
+	if err := os.MkdirAll(snapshotDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建快照目录失败：%w", err)
 	}
 

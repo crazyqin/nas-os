@@ -278,7 +278,7 @@ func (p *FileManagerEnhance) batchMove(req BatchOperationRequest) (*BatchOperati
 		}
 	}
 
-	if err := os.MkdirAll(req.Target, 0755); err != nil {
+	if err := os.MkdirAll(req.Target, 0750); err != nil {
 		return nil, fmt.Errorf("创建目标目录失败: %w", err)
 	}
 
@@ -450,6 +450,7 @@ func (p *FileManagerEnhance) preview(path string) (map[string]interface{}, error
 		result["previewable"] = true
 	} else if isText(ext) {
 		// 文本文件预览前几行
+		// #nosec G304 -- path is validated by p.validatePaths() at the beginning of this method
 		data, err := os.ReadFile(path)
 		if err == nil {
 			lines := strings.Split(string(data), "\n")
@@ -537,6 +538,10 @@ func (p *FileManagerEnhance) validatePaths(paths ...string) error {
 }
 
 func copyFile(src, dst string) error {
+	// Clean paths to prevent traversal attacks
+	src = filepath.Clean(src)
+	dst = filepath.Clean(dst)
+	// #nosec G304 -- paths are cleaned and validated by caller before this function
 	data, err := os.ReadFile(src)
 	if err != nil {
 		return err

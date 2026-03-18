@@ -39,7 +39,7 @@ func NewISOManager(isoPath string, logger *zap.Logger) (*ISOManager, error) {
 		isoPath = DefaultISOStoragePath
 	}
 
-	if err := os.MkdirAll(isoPath, 0755); err != nil {
+	if err := os.MkdirAll(isoPath, 0750); err != nil {
 		return nil, fmt.Errorf("创建 ISO 存储目录失败：%w", err)
 	}
 

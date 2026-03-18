@@ -108,7 +108,7 @@ func NewManager(configPath string, config *Config) (*Manager, error) {
 	}
 
 	// 创建版本存储根目录
-	if err := os.MkdirAll(config.VersionRoot, 0755); err != nil {
+	if err := os.MkdirAll(config.VersionRoot, 0750); err != nil {
 		return nil, fmt.Errorf("创建版本目录失败：%w", err)
 	}
 
@@ -290,7 +290,7 @@ func (m *Manager) RestoreVersion(versionID, targetPath string) error {
 
 	// 确保目标目录存在
 	targetDir := filepath.Dir(targetPath)
-	if err := os.MkdirAll(targetDir, 0755); err != nil {
+	if err := os.MkdirAll(targetDir, 0750); err != nil {
 		return fmt.Errorf("创建目录失败：%w", err)
 	}
 
