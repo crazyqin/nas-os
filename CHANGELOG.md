@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.227.0] - 2026-03-18
+
+### Fixed
+- 修复 internal/trash/manager.go 缺失 logger 字段导致的编译错误
+- 修复 internal/webdav/server.go 缺失 logger 字段导致的编译错误
+
+---
+
 ## [v2.226.0] - 2026-03-18
 
 ### Fixed
