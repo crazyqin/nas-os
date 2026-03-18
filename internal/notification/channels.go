@@ -129,14 +129,17 @@ type ChannelSender interface {
 // EmailSender 邮件发送器
 type EmailSender struct{}
 
+// NewEmailSender 创建邮件发送器
 func NewEmailSender() *EmailSender {
 	return &EmailSender{}
 }
 
+// Type 返回渠道类型
 func (s *EmailSender) Type() ChannelType {
 	return ChannelEmail
 }
 
+// Send 发送邮件通知
 func (s *EmailSender) Send(config *ChannelConfig, notification *Notification) error {
 	emailConfig, err := parseEmailConfig(config.Config)
 	if err != nil {
@@ -263,16 +266,19 @@ type WebhookSender struct {
 	client *http.Client
 }
 
+// NewWebhookSender 创建 Webhook 发送器
 func NewWebhookSender() *WebhookSender {
 	return &WebhookSender{
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
+// Type 返回渠道类型
 func (s *WebhookSender) Type() ChannelType {
 	return ChannelWebhook
 }
 
+// Send 发送 Webhook 通知
 func (s *WebhookSender) Send(config *ChannelConfig, notification *Notification) error {
 	webhookConfig, err := parseWebhookConfig(config.Config)
 	if err != nil {
@@ -341,16 +347,19 @@ type WebSocketBroadcaster interface {
 	SendToUser(userID string, message []byte) error
 }
 
+// NewWebSocketSender 创建 WebSocket 发送器
 func NewWebSocketSender(broadcaster WebSocketBroadcaster) *WebSocketSender {
 	return &WebSocketSender{
 		broadcaster: broadcaster,
 	}
 }
 
+// Type 返回渠道类型
 func (s *WebSocketSender) Type() ChannelType {
 	return ChannelWebSocket
 }
 
+// Send 发送 WebSocket 通知
 func (s *WebSocketSender) Send(config *ChannelConfig, notification *Notification) error {
 	wsConfig, err := parseWebSocketConfig(config.Config)
 	if err != nil {
@@ -401,16 +410,19 @@ type WeChatSender struct {
 	client *http.Client
 }
 
+// NewWeChatSender 创建企业微信发送器
 func NewWeChatSender() *WeChatSender {
 	return &WeChatSender{
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
+// Type 返回渠道类型
 func (s *WeChatSender) Type() ChannelType {
 	return ChannelWeChat
 }
 
+// Send 发送企业微信通知
 func (s *WeChatSender) Send(config *ChannelConfig, notification *Notification) error {
 	wechatConfig, err := parseWeChatConfig(config.Config)
 	if err != nil {
@@ -493,16 +505,19 @@ type DingTalkSender struct {
 	client *http.Client
 }
 
+// NewDingTalkSender 创建钉钉发送器
 func NewDingTalkSender() *DingTalkSender {
 	return &DingTalkSender{
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
+// Type 返回渠道类型
 func (s *DingTalkSender) Type() ChannelType {
 	return ChannelDingTalk
 }
 
+// Send 发送钉钉通知
 func (s *DingTalkSender) Send(config *ChannelConfig, notification *Notification) error {
 	dingConfig, err := parseDingTalkConfig(config.Config)
 	if err != nil {
@@ -563,16 +578,19 @@ type TelegramSender struct {
 	client *http.Client
 }
 
+// NewTelegramSender 创建 Telegram 发送器
 func NewTelegramSender() *TelegramSender {
 	return &TelegramSender{
 		client: &http.Client{Timeout: 30 * time.Second},
 	}
 }
 
+// Type 返回渠道类型
 func (s *TelegramSender) Type() ChannelType {
 	return ChannelTelegram
 }
 
+// Send 发送 Telegram 通知
 func (s *TelegramSender) Send(config *ChannelConfig, notification *Notification) error {
 	telegramConfig, err := parseTelegramConfig(config.Config)
 	if err != nil {
