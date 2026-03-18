@@ -697,7 +697,7 @@ func parseEmailConfig(config map[string]interface{}) (*EmailChannelConfig, error
 	}
 
 	if emailConfig.SMTPHost == "" {
-		return nil, fmt.Errorf("SMTP 主机地址不能为空")
+		return nil, fmt.Errorf("smtp 主机地址不能为空")
 	}
 
 	if emailConfig.SMTPPort == 0 {
@@ -787,11 +787,11 @@ func parseTelegramConfig(config map[string]interface{}) (*TelegramChannelConfig,
 	}
 
 	if telegramConfig.BotToken == "" {
-		return nil, fmt.Errorf("Telegram Bot Token 不能为空")
+		return nil, fmt.Errorf("telegram Bot Token 不能为空")
 	}
 
 	if telegramConfig.ChatID == "" {
-		return nil, fmt.Errorf("Telegram Chat ID 不能为空")
+		return nil, fmt.Errorf("telegram Chat ID 不能为空")
 	}
 
 	return &telegramConfig, nil

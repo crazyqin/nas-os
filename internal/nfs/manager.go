@@ -642,19 +642,19 @@ func ValidateConfig(config *Config) error {
 
 	// 验证端口范围
 	if config.TCPPort != 0 && (config.TCPPort < 1 || config.TCPPort > 65535) {
-		return fmt.Errorf("TCP端口超出有效范围: %d", config.TCPPort)
+		return fmt.Errorf("tcp端口超出有效范围: %d", config.TCPPort)
 	}
 	if config.UDPPort != 0 && (config.UDPPort < 1 || config.UDPPort > 65535) {
-		return fmt.Errorf("UDP端口超出有效范围: %d", config.UDPPort)
+		return fmt.Errorf("udp端口超出有效范围: %d", config.UDPPort)
 	}
 	if config.MountdPort != 0 && (config.MountdPort < 1 || config.MountdPort > 65535) {
-		return fmt.Errorf("Mountd端口超出有效范围: %d", config.MountdPort)
+		return fmt.Errorf("mountd端口超出有效范围: %d", config.MountdPort)
 	}
 	if config.StatdPort != 0 && (config.StatdPort < 1 || config.StatdPort > 65535) {
-		return fmt.Errorf("Statd端口超出有效范围: %d", config.StatdPort)
+		return fmt.Errorf("statd端口超出有效范围: %d", config.StatdPort)
 	}
 	if config.LockdPort != 0 && (config.LockdPort < 1 || config.LockdPort > 65535) {
-		return fmt.Errorf("Lockd端口超出有效范围: %d", config.LockdPort)
+		return fmt.Errorf("lockd端口超出有效范围: %d", config.LockdPort)
 	}
 
 	// 验证线程数
