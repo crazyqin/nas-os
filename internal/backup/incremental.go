@@ -593,7 +593,9 @@ func (ib *IncrementalBackup) processFile(path string, snapshot *Snapshot) (strin
 	chunks := make([]string, 0)
 
 	// 简化实现：整个文件作为一个块
-	file.Seek(0, 0)
+	if _, err := file.Seek(0, 0); err != nil {
+		return "", nil, err
+	}
 	data, err := io.ReadAll(file)
 	if err != nil {
 		return "", nil, err

@@ -30,7 +30,9 @@ func TestListVolumes_NilStorageMgr(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resp map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to unmarshal response: %v", err)
+	}
 	// Should return empty array when storageMgr is nil
 }
 
@@ -143,7 +145,9 @@ func TestListPools_NilStorageMgr(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resp map[string]interface{}
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to unmarshal response: %v", err)
+	}
 }
 
 // ========== ListAllSnapshots Handler Tests ==========
@@ -163,7 +167,9 @@ func TestListAllSnapshots_NilStorageMgr(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 
 	var resp StorageResponse
-	json.Unmarshal(w.Body.Bytes(), &resp)
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to unmarshal response: %v", err)
+	}
 	assert.Equal(t, 0, resp.Code)
 }
 

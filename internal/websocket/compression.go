@@ -144,7 +144,7 @@ func (c *GzipCompressor) Decompress(data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("gzip reader failed: %w", err)
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	result, err := io.ReadAll(r)
 	if err != nil {
@@ -214,7 +214,7 @@ func (c *ZlibCompressor) Decompress(data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("zlib reader failed: %w", err)
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	result, err := io.ReadAll(r)
 	if err != nil {
@@ -275,7 +275,7 @@ func (c *FlateCompressor) Decompress(data []byte) ([]byte, error) {
 	} else {
 		r = flate.NewReader(bytes.NewReader(data))
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	result, err := io.ReadAll(r)
 	if err != nil {

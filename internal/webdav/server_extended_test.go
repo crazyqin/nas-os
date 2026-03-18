@@ -281,7 +281,8 @@ func TestLockManager_IsLocked(t *testing.T) {
 
 	assert.False(t, lm.IsLocked("/path/to/resource"))
 
-	lm.CreateLock("/path/to/resource", "user1", 0, "exclusive", 3600)
+	_, err := lm.CreateLock("/path/to/resource", "user1", 0, "exclusive", 3600)
+	assert.NoError(t, err)
 	assert.True(t, lm.IsLocked("/path/to/resource"))
 }
 
@@ -352,7 +353,7 @@ func TestLockManager_ConcurrentAccess(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		go func(id int) {
 			path := "/path/" + string(rune('a'+id))
-			lm.CreateLock(path, "user", 0, "exclusive", 3600)
+			_, _ = lm.CreateLock(path, "user", 0, "exclusive", 3600)
 			lm.IsLocked(path)
 			done <- true
 		}(i)

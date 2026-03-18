@@ -88,7 +88,7 @@ func TestScheduler_RemoveJob_Existing(t *testing.T) {
 		},
 	}
 
-	scheduler.AddJob(policy)
+	_ = scheduler.AddJob(policy)
 	scheduler.RemoveJob("test-policy-1")
 
 	jobs := scheduler.ListJobs()
@@ -142,7 +142,7 @@ func TestScheduler_GetNextRuns_WithJobs(t *testing.T) {
 		},
 	}
 
-	scheduler.AddJob(policy)
+	_ = scheduler.AddJob(policy)
 
 	runs := scheduler.GetNextRuns()
 	assert.Len(t, runs, 1)
@@ -167,7 +167,7 @@ func TestScheduler_CalculateNextRun_Existing(t *testing.T) {
 		},
 	}
 
-	scheduler.AddJob(policy)
+	_ = scheduler.AddJob(policy)
 
 	nextRun := scheduler.CalculateNextRun(policy)
 	assert.False(t, nextRun.IsZero())
@@ -583,7 +583,7 @@ func TestPolicyManager_ConcurrentAccess(t *testing.T) {
 			pm.mu.Lock()
 			pm.policies[policy.ID] = policy
 			pm.mu.Unlock()
-			pm.GetPolicy(policy.ID)
+			_, _ = pm.GetPolicy(policy.ID)
 			done <- true
 		}(i)
 	}

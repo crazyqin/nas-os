@@ -660,8 +660,8 @@ func (m *Manager) enforceRetentionPolicy(filePath string) {
 		toDelete := len(versions) - m.config.Retention.MaxVersions
 		for i := 0; i < toDelete; i++ {
 			oldest := versions[i]
-			if err := os.Remove(oldest.VersionPath); err != nil && !os.IsNotExist(err) {
-				log.Printf("删除版本文件 %s 失败: %v", oldest.VersionPath, err)
+			if removeErr := os.Remove(oldest.VersionPath); removeErr != nil && !os.IsNotExist(removeErr) {
+				log.Printf("删除版本文件 %s 失败: %v", oldest.VersionPath, removeErr)
 			}
 			m.totalSize -= oldest.Size
 			delete(m.allVersions, oldest.ID)
@@ -696,8 +696,8 @@ func (m *Manager) cleanupOldestVersions() {
 		if m.totalSize <= m.config.Retention.MaxSpace {
 			break
 		}
-		if err := os.Remove(v.VersionPath); err != nil && !os.IsNotExist(err) {
-			log.Printf("删除版本文件 %s 失败: %v", v.VersionPath, err)
+		if removeErr := os.Remove(v.VersionPath); removeErr != nil && !os.IsNotExist(removeErr) {
+			log.Printf("删除版本文件 %s 失败: %v", v.VersionPath, removeErr)
 		}
 		m.totalSize -= v.Size
 		delete(m.allVersions, v.ID)

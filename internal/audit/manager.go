@@ -601,6 +601,7 @@ func (m *Manager) cleanupDiskLogs(cutoff time.Time) {
 		}
 
 		if info.ModTime().Before(cutoff) {
+			// 清理过期日志文件，忽略错误（文件可能已被删除或权限问题）
 			_ = os.Remove(filepath.Join(m.config.LogPath, entry.Name()))
 		}
 	}
@@ -649,6 +650,7 @@ func (m *Manager) save() {
 	}
 
 	// 写入文件（覆盖模式，因为内存中已经是完整数据）
+	// 保存失败时忽略错误（下次自动保存会重试）
 	_ = os.WriteFile(filename, data, 0640)
 }
 

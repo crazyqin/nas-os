@@ -404,10 +404,12 @@ func (o *QuotaOptimizer) save() error {
 	for _, s := range o.suggestions {
 		suggestions = append(suggestions, s)
 	}
-	if data, err := json.MarshalIndent(suggestions, "", "  "); err == nil {
-		if writeErr := os.WriteFile(filepath.Join(o.dataDir, "suggestions.json"), data, 0644); writeErr != nil {
-			return writeErr
-		}
+	data, err := json.MarshalIndent(suggestions, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化建议数据失败: %w", err)
+	}
+	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "suggestions.json"), data, 0644); writeErr != nil {
+		return writeErr
 	}
 
 	// 保存违规记录
@@ -415,17 +417,21 @@ func (o *QuotaOptimizer) save() error {
 	for _, v := range o.violations {
 		violations = append(violations, v)
 	}
-	if data, err := json.MarshalIndent(violations, "", "  "); err == nil {
-		if writeErr := os.WriteFile(filepath.Join(o.dataDir, "violations.json"), data, 0644); writeErr != nil {
-			return writeErr
-		}
+	data, err = json.MarshalIndent(violations, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化违规数据失败: %w", err)
+	}
+	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "violations.json"), data, 0644); writeErr != nil {
+		return writeErr
 	}
 
 	// 保存调整历史
-	if data, err := json.MarshalIndent(o.adjustHistory, "", "  "); err == nil {
-		if writeErr := os.WriteFile(filepath.Join(o.dataDir, "adjust_history.json"), data, 0644); writeErr != nil {
-			return writeErr
-		}
+	data, err = json.MarshalIndent(o.adjustHistory, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化调整历史失败: %w", err)
+	}
+	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "adjust_history.json"), data, 0644); writeErr != nil {
+		return writeErr
 	}
 
 	return nil

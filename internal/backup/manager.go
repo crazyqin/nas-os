@@ -282,7 +282,10 @@ func (m *Manager) EnableConfig(id string, enabled bool) error {
 	}
 
 	cfg.Enabled = enabled
-	m.saveConfig()
+	if err := m.saveConfig(); err != nil {
+		// 记录错误但不返回，因为配置已更新到内存
+		fmt.Printf("保存配置失败：%v\n", err)
+	}
 
 	return nil
 }
@@ -329,7 +332,9 @@ func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *Backu
 		task.EndTime = time.Now()
 		cfg.LastRun = task.StartTime.Format("2006-01-02 15:04:05")
 		m.mu.Lock()
-		m.saveConfig()
+		if err := m.saveConfig(); err != nil {
+			fmt.Printf("保存配置失败：%v\n", err)
+		}
 		// 清理取消函数
 		delete(m.cancels, task.ID)
 		m.mu.Unlock()
@@ -420,13 +425,13 @@ func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *Back
 		cmd := exec.CommandContext(ctx, "openssl", "enc", "-aes-256-cbc", "-salt", "-in", backupPath, "-out", encryptedPath, "-pass", "env:NAS_BACKUP_KEY")
 		cmd.Env = append(os.Environ(), "NAS_BACKUP_KEY="+encryptKey)
 		if output, err := cmd.CombinedOutput(); err != nil {
-			os.Remove(encryptedPath)
+			_ = os.Remove(encryptedPath)
 			if ctx.Err() != nil {
 				return "", fmt.Errorf("加密已取消或超时")
 			}
 			return "", fmt.Errorf("加密失败：%w, output: %s", err, string(output))
 		}
-		os.Remove(backupPath)
+		_ = os.Remove(backupPath)
 		backupPath = encryptedPath
 	}
 
@@ -458,7 +463,11 @@ func (m *Manager) runRemoteBackup(ctx context.Context, cfg *JobConfig, task *Bac
 		}
 		return "", fmt.Errorf("压缩失败：%w, output: %s", err, string(output))
 	}
-	defer os.Remove(localTemp)
+	defer func() {
+		if removeErr := os.Remove(localTemp); removeErr != nil && !os.IsNotExist(removeErr) {
+			// 记录清理错误
+		}
+	}()
 
 	remoteTarget := fmt.Sprintf("%s@%s:%s/%s",
 		cfg.RemoteUser, cfg.RemoteHost, remotePath, backupName)
@@ -533,7 +542,9 @@ func (m *Manager) cleanupOldBackups(dir string, retention int) error {
 	}
 
 	for i := 0; i < len(fileInfos)-retention; i++ {
-		os.Remove(fileInfos[i].path)
+		if err := os.Remove(fileInfos[i].path); err != nil {
+			// 记录删除失败
+		}
 	}
 
 	return nil

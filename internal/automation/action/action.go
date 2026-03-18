@@ -854,7 +854,10 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(dst, data, 0644)
+	if err := os.WriteFile(dst, data, 0644); err != nil {
+		return err
+	}
+	return nil
 }
 
 func copyDir(src, dst string) error {

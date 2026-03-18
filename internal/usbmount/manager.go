@@ -311,7 +311,7 @@ func (m *Manager) Start() error {
 	}
 
 	// 创建默认挂载目录
-	os.MkdirAll(m.config.DefaultMountPoint, 0755)
+	_ = os.MkdirAll(m.config.DefaultMountPoint, 0755)
 
 	// 初始扫描
 	m.scanDevices()
@@ -490,7 +490,7 @@ func (m *Manager) Unmount(deviceID string) error {
 	}
 
 	// 清理挂载点
-	os.Remove(device.MountPoint)
+	_ = os.Remove(device.MountPoint)
 
 	// 更新设备状态
 	device.Mounted = false
@@ -562,7 +562,7 @@ func (m *Manager) AddRule(rule *MountRule) error {
 	rule.CreatedAt = time.Now()
 
 	m.rules = append(m.rules, rule)
-	m.saveConfig()
+	_ = m.saveConfig()
 
 	return nil
 }
@@ -577,7 +577,7 @@ func (m *Manager) UpdateRule(id string, rule *MountRule) error {
 			rule.ID = id
 			rule.CreatedAt = r.CreatedAt
 			m.rules[i] = rule
-			m.saveConfig()
+			_ = m.saveConfig()
 			return nil
 		}
 	}
@@ -593,7 +593,7 @@ func (m *Manager) DeleteRule(id string) error {
 	for i, r := range m.rules {
 		if r.ID == id {
 			m.rules = append(m.rules[:i], m.rules[i+1:]...)
-			m.saveConfig()
+			_ = m.saveConfig()
 			return nil
 		}
 	}

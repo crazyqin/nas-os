@@ -208,13 +208,15 @@ func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name,
 		snapshotConfigPath := filepath.Join(snapshotDir, "vm-config.json")
 		// #nosec G204 -- paths are internally generated
 		cmd := exec.CommandContext(ctx, "cp", vmConfigPath, snapshotConfigPath)
-		cmd.Run()
+		if err := cmd.Run(); err != nil {
+			m.logger.Warn("复制 VM 配置失败", zap.Error(err))
+		}
 	}
 
 	// 保存快照元数据
 	snapshot.Status = "ready"
 	if err := m.saveSnapshot(snapshot); err != nil {
-		os.RemoveAll(snapshotDir)
+		_ = os.RemoveAll(snapshotDir)
 		return nil, fmt.Errorf("保存快照元数据失败：%w", err)
 	}
 

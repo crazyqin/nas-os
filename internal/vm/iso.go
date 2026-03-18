@@ -211,7 +211,7 @@ func (m *ISOManager) UploadISO(ctx context.Context, name string, reader io.Reade
 	// 复制内容
 	written, err := io.Copy(file, reader)
 	if err != nil {
-		os.Remove(filePath)
+		_ = os.Remove(filePath)
 		return nil, fmt.Errorf("写入文件失败：%w", err)
 	}
 

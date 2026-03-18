@@ -825,6 +825,7 @@ func (la *LoginAuditor) save() {
 		return
 	}
 
+	// 保存失败时忽略错误（下次自动保存会重试）
 	_ = os.WriteFile(filename, data, 0640)
 }
 

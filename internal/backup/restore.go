@@ -102,7 +102,9 @@ func (rm *RestoreManager) Restore(opts RestoreOptionsExtended) (*RestoreResult, 
 		if err != nil {
 			return nil, fmt.Errorf("解密失败：%w", err)
 		}
-		defer os.RemoveAll(decryptedPath)
+		defer func() {
+			_ = os.RemoveAll(decryptedPath)
+		}()
 		backupPath = decryptedPath
 	}
 
@@ -435,7 +437,7 @@ func (rm *RestoreManager) checkDiskSpace(path string) error {
 	if err := os.WriteFile(testFile, []byte(""), 0644); err != nil {
 		return fmt.Errorf("磁盘空间不足或无写入权限：%w", err)
 	}
-	os.Remove(testFile)
+	_ = os.Remove(testFile)
 	return nil
 }
 
