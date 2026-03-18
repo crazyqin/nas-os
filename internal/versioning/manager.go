@@ -614,6 +614,7 @@ func (m *Manager) createVersionInternal(filePath, userID, description, triggerTy
 }
 
 func (m *Manager) calculateChecksum(filePath string) (string, error) {
+	// #nosec G304 -- filePath is validated by caller through exclude path checks
 	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -629,12 +630,14 @@ func (m *Manager) calculateChecksum(filePath string) (string, error) {
 }
 
 func (m *Manager) copyFile(src, dst string) error {
+	// #nosec G304 -- src is validated by caller; dst is built from configured VersionRoot
 	sourceFile, err := os.Open(src)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = sourceFile.Close() }()
 
+	// #nosec G304 -- dst is built from configured VersionRoot and generated versionID
 	destFile, err := os.Create(dst)
 	if err != nil {
 		return err
@@ -831,6 +834,7 @@ func (m *Manager) saveConfig() error {
 
 func (m *Manager) loadVersions() error {
 	indexPath := filepath.Join(m.config.VersionRoot, "index.json")
+	// #nosec G304 -- indexPath is built from configured VersionRoot
 	data, err := os.ReadFile(indexPath)
 	if err != nil {
 		if os.IsNotExist(err) {
