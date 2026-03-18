@@ -157,7 +157,7 @@ type ExcelExporter struct {
 
 // NewExcelExporter 创建 Excel 导出器
 func NewExcelExporter(dataDir string) *ExcelExporter {
-	os.MkdirAll(dataDir, 0755)
+	_ = os.MkdirAll(dataDir, 0755)
 	return &ExcelExporter{dataDir: dataDir}
 }
 
@@ -181,10 +181,10 @@ func (e *ExcelExporter) Export(report *GeneratedReport, outputPath string, optio
 
 	// 保存文件
 	if err := f.SaveAs(outputPath); err != nil {
-		f.Close()
+		_ = f.Close()
 		return nil, fmt.Errorf("保存 Excel 文件失败: %w", err)
 	}
-	f.Close()
+	_ = f.Close()
 
 	// 获取文件信息
 	info, err := os.Stat(outputPath)
@@ -253,7 +253,7 @@ func (e *ExcelExporter) createExcelFile(report *GeneratedReport, options ExportO
 	// 删除默认的 Sheet1
 	index, err := f.GetSheetIndex("Sheet1")
 	if err == nil && index != 0 {
-		f.DeleteSheet("Sheet1")
+		_ = f.DeleteSheet("Sheet1")
 	}
 
 	return f, nil
@@ -278,7 +278,7 @@ func (e *ExcelExporter) setDocumentProperties(f *excelize.File, report *Generate
 		props.Creator = "NAS-OS"
 	}
 
-	f.SetDocProps(props)
+	_ = f.SetDocProps(props)
 }
 
 // createSummarySheet 创建摘要工作表
@@ -326,9 +326,9 @@ func (e *ExcelExporter) createSummarySheet(f *excelize.File, report *GeneratedRe
 	if title == "" {
 		title = report.Name
 	}
-	f.MergeCell(sheetName, "A1", "D1")
-	f.SetCellValue(sheetName, "A1", title)
-	f.SetCellStyle(sheetName, "A1", "D1", titleStyle)
+	_ = f.MergeCell(sheetName, "A1", "D1")
+	_ = f.SetCellValue(sheetName, "A1", title)
+	_ = f.SetCellStyle(sheetName, "A1", "D1", titleStyle)
 	f.SetRowHeight(sheetName, 1, 30)
 
 	// 写入生成时间

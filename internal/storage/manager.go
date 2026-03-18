@@ -348,9 +348,9 @@ func (m *Manager) DeleteVolume(name string, force bool) error {
 		}
 	}
 
-	// 删除挂载点
+	// 删除挂载点（忽略错误，清理操作）
 	if vol.MountPoint != "" {
-		os.RemoveAll(vol.MountPoint)
+		_ = os.RemoveAll(vol.MountPoint)
 	}
 
 	delete(m.volumes, name)
@@ -627,7 +627,7 @@ func (m *Manager) MountSubVolume(volumeName, subvolName, mountPath string) error
 
 	// 挂载子卷
 	if err := m.client.MountSubVolume(vol.Devices[0], subvolName, mountPath); err != nil {
-		os.Remove(mountPath)
+		_ = os.Remove(mountPath) // 清理挂载点，忽略错误
 		return err
 	}
 
@@ -655,7 +655,7 @@ func (m *Manager) MountSubVolumeByID(volumeName string, subvolID uint64, mountPa
 
 	// 通过 ID 挂载
 	if err := m.client.MountSubVolumeByID(vol.Devices[0], subvolID, mountPath); err != nil {
-		os.Remove(mountPath)
+		_ = os.Remove(mountPath) // 清理挂载点，忽略错误
 		return err
 	}
 
@@ -671,8 +671,8 @@ func (m *Manager) UnmountSubVolume(mountPath string) error {
 		return err
 	}
 
-	// 可选：删除空挂载点
-	os.Remove(mountPath)
+	// 删除空挂载点（忽略错误，清理操作）
+	_ = os.Remove(mountPath)
 
 	return nil
 }
@@ -1039,7 +1039,9 @@ func (m *Manager) RestoreSnapshotInDir(volumeName, snapshotName, targetName, sna
 	}
 
 	// 刷新子卷列表
-	m.scanSubvolumes(vol)
+	if err := m.scanSubvolumes(vol); err != nil {
+		return fmt.Errorf("刷新子卷列表失败: %w", err)
+	}
 
 	return nil
 }

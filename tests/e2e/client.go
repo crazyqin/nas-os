@@ -94,7 +94,7 @@ func (c *TestClient) ClearAuth() {
 
 // ParseJSON 解析 JSON 响应
 func ParseJSON(resp *http.Response, out interface{}) error {
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -104,7 +104,7 @@ func ParseJSON(resp *http.Response, out interface{}) error {
 
 // ReadBody 读取响应体
 func ReadBody(resp *http.Response) (string, error) {
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err

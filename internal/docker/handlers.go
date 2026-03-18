@@ -270,7 +270,7 @@ func (h *Handlers) getContainerLogs(c *gin.Context) {
 
 	var opts LogOptions
 	if tail := c.Query("tail"); tail != "" {
-		fmt.Sscanf(tail, "%d", &opts.Tail)
+		_, _ = fmt.Sscanf(tail, "%d", &opts.Tail)
 	}
 	if since := c.Query("since"); since != "" {
 		opts.Since = since
@@ -431,7 +431,8 @@ func (h *Handlers) installApp(c *gin.Context) {
 
 	// 端口映射
 	for _, port := range app.Ports {
-		opts["ports"] = append(opts["ports"].([]string), fmt.Sprintf("%d:%d", port, port))
+		ports, _ := opts["ports"].([]string)
+		opts["ports"] = append(ports, fmt.Sprintf("%d:%d", port, port))
 	}
 
 	// 卷挂载

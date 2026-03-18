@@ -855,7 +855,9 @@ func (s *AppStore) StartApp(id string) error {
 	}
 
 	app.Status = "running"
-	s.saveInstalled()
+	if err := s.saveInstalled(); err != nil {
+		log.Printf("保存安装状态失败: %v", err)
+	}
 	return nil
 }
 
@@ -877,7 +879,9 @@ func (s *AppStore) StopApp(id string) error {
 	}
 
 	app.Status = "stopped"
-	s.saveInstalled()
+	if err := s.saveInstalled(); err != nil {
+		log.Printf("保存安装状态失败: %v", err)
+	}
 	return nil
 }
 
