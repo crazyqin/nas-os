@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.244.0] - 2026-03-19
+
+### Bug Fixes
+- 修复 resource_visualization_api.go 缺失 fmt 导入导致的编译错误
+- 修复 smart_manager_v2.go 中 logger 未定义问题
+
+---
+
 ## [v2.241.0] - 2026-03-19
 
 ### Bug Fixes
