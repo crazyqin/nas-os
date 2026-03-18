@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.245.0] - 2026-03-19
+
+### Bug Fixes
+- 修复 `reports/resource_visualization_api.go` 缺失 fmt 导入
+- 修复 `automation/api/handlers.go` 路由顺序问题（export-all 被 {id} 匹配）
+- 修复 `ImportWorkflow` JSON 处理逻辑
+
+### Test Improvements
+- 删除 `container_coverage_test.go` 重复的 BenchmarkFormatSize 函数
+- 修复 parseSize 边缘测试用例（5PB 无法正确解析）
+- 新增 container 模块覆盖测试文件
+
+---
+
 ## [v2.244.0] - 2026-03-19
 
 ### Bug Fixes
