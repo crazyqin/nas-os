@@ -851,16 +851,22 @@ func (dm *DistributedMonitor) GetClusterStats() map[string]interface{} {
 	// 统计活跃节点
 	for _, node := range dm.clusterNodes {
 		if node.IsActive {
-			stats["active_nodes"] = stats["active_nodes"].(int) + 1
+			if v, ok := stats["active_nodes"].(int); ok {
+				stats["active_nodes"] = v + 1
+			}
 		}
 	}
 
 	// 统计在线/离线节点（基于指标时间戳）
 	for _, metrics := range dm.nodes {
 		if time.Since(metrics.Timestamp) < 2*time.Minute {
-			stats["nodes_online"] = stats["nodes_online"].(int) + 1
+			if v, ok := stats["nodes_online"].(int); ok {
+				stats["nodes_online"] = v + 1
+			}
 		} else {
-			stats["nodes_offline"] = stats["nodes_offline"].(int) + 1
+			if v, ok := stats["nodes_offline"].(int); ok {
+				stats["nodes_offline"] = v + 1
+			}
 		}
 	}
 

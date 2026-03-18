@@ -197,7 +197,10 @@ func (qc *QueryCache) evictLRU() {
 	if elem == nil {
 		return
 	}
-	key := elem.Value.(string)
+	key, ok := elem.Value.(string)
+	if !ok {
+		return
+	}
 	if entry, ok := qc.cache[key]; ok {
 		qc.removeEntry(entry)
 	}
@@ -213,7 +216,11 @@ func (qc *QueryCache) startCleanup() {
 		now := time.Now()
 		// Iterate from back (oldest) to front (newest) for efficiency
 		for elem := qc.lru.Back(); elem != nil; {
-			key := elem.Value.(string)
+			key, ok := elem.Value.(string)
+			if !ok {
+				elem = elem.Prev()
+				continue
+			}
 			if entry, ok := qc.cache[key]; ok {
 				if now.After(entry.expiresAt) {
 					next := elem.Prev()
@@ -344,7 +351,11 @@ func (o *Optimizer) QueryWithCache(query string, args ...interface{}) ([]map[str
 	// Check cache first
 	if cached, ok := o.queryCache.Get(cacheKey); ok {
 		atomic.AddInt64(&o.cacheHits, 1)
-		return cached.([]map[string]interface{}), nil
+		result, ok := cached.([]map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("invalid cache entry type")
+		}
+		return result, nil
 	}
 
 	atomic.AddInt64(&o.cacheMisses, 1)
