@@ -422,7 +422,9 @@ func (m *EnhancedMFAManager) GenerateBackupCodes(userID string, count int) ([]st
 		return nil, fmt.Errorf("请先启用双因素认证")
 	}
 
-	m.backupManager.InvalidateAll(userID)
+	if err := m.backupManager.InvalidateAll(userID); err != nil {
+		return nil, fmt.Errorf("清除备份码失败：%w", err)
+	}
 	codes, err := m.backupManager.GenerateBackupCodes(userID, count)
 	if err != nil {
 		return nil, err

@@ -4,6 +4,7 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"os/exec"
 	"regexp"
@@ -233,7 +234,9 @@ func (m *SMARTMonitor) checkLoop() {
 	for {
 		select {
 		case <-ticker.C:
-			m.CheckAll()
+			if err := m.CheckAll(); err != nil {
+				log.Printf("SMART 检查失败: %v", err)
+			}
 		case <-m.stopChan:
 			return
 		}

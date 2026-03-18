@@ -545,21 +545,21 @@ func (s *Server) handlePut(w http.ResponseWriter, r *http.Request, fullPath, use
 	// 复制内容
 	written, err := io.Copy(file, r.Body)
 	if err != nil {
-		os.Remove(tmpPath)
+		_ = os.Remove(tmpPath)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	// 确保内容写入磁盘
 	if err := file.Sync(); err != nil {
-		os.Remove(tmpPath)
+		_ = os.Remove(tmpPath)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	// 重命名临时文件
 	if err := os.Rename(tmpPath, fullPath); err != nil {
-		os.Remove(tmpPath)
+		_ = os.Remove(tmpPath)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -668,7 +668,7 @@ func (s *Server) handleCopy(w http.ResponseWriter, r *http.Request, fullPath, us
 			return
 		}
 		// 删除现有目标
-		os.RemoveAll(destPath)
+		_ = os.RemoveAll(destPath)
 	}
 
 	// 执行复制
@@ -788,7 +788,7 @@ func (s *Server) handleMove(w http.ResponseWriter, r *http.Request, fullPath, us
 			return
 		}
 		// 删除现有目标
-		os.RemoveAll(destPath)
+		_ = os.RemoveAll(destPath)
 	}
 
 	// 确保目标目录存在
@@ -953,7 +953,7 @@ func (s *Server) UpdateConfig(config *Config) error {
 
 	// 如果端口变化，需要重启服务器
 	if s.config.Port != config.Port && s.server != nil {
-		s.server.Shutdown(context.Background())
+		_ = s.server.Shutdown(context.Background())
 		s.server = nil
 	}
 
@@ -962,7 +962,9 @@ func (s *Server) UpdateConfig(config *Config) error {
 	// 如果启用且服务器未运行，启动它
 	if config.Enabled && s.server == nil {
 		go func() {
-			s.Start()
+			if err := s.Start(); err != nil {
+				s.logger.Error("启动 WebDAV 服务器失败", zap.Error(err))
+			}
 		}()
 	}
 

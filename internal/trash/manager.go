@@ -436,7 +436,9 @@ func (m *Manager) cleanupExpired() {
 	}
 
 	if len(toDelete) > 0 {
-		m.saveItems()
+		if err := m.saveItems(); err != nil {
+			m.logger.Error("保存项目失败", zap.Error(err))
+		}
 	}
 }
 

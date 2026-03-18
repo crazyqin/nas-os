@@ -381,7 +381,7 @@ func (m *Manager) GetContainerStats(id string) (*ContainerStats, error) {
 
 	// 解析 CPU 百分比
 	cpuStr := strings.TrimSuffix(raw.CPUPerc, "%")
-	fmt.Sscanf(cpuStr, "%f", &stats.CPUUsage)
+	_, _ = fmt.Sscanf(cpuStr, "%f", &stats.CPUUsage)
 
 	// 解析内存使用
 	memParts := strings.Split(raw.MemUsage, " / ")
@@ -652,7 +652,7 @@ func (m *Manager) getVolumeSize(name string) (uint64, error) {
 	}
 
 	var size uint64
-	fmt.Sscanf(string(duOutput), "%d", &size)
+	_, _ = fmt.Sscanf(string(duOutput), "%d", &size)
 	return size, nil
 }
 
@@ -727,7 +727,7 @@ func (m *Manager) StreamContainerLogs(id string, opts LogOptions) (<-chan string
 	logChan := make(chan string, 100)
 	go func() {
 		defer close(logChan)
-		defer cmd.Process.Kill()
+		defer func() { _ = cmd.Process.Kill() }()
 
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
@@ -851,7 +851,7 @@ func parseSize(s string) uint64 {
 	var size uint64
 	var unit string
 
-	fmt.Sscanf(s, "%d%s", &size, &unit)
+	_, _ = fmt.Sscanf(s, "%d%s", &size, &unit)
 
 	switch strings.ToUpper(unit) {
 	case "KB", "KIB":

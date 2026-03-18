@@ -283,7 +283,9 @@ func (m *SnapshotManager) RestoreSnapshot(ctx context.Context, snapshotID string
 	}
 
 	snapshot.Status = "restoring"
-	m.saveSnapshot(snapshot)
+	if err := m.saveSnapshot(snapshot); err != nil {
+		m.logger.Warn("保存快照状态失败", zap.Error(err))
+	}
 
 	// 恢复磁盘文件
 	snapshotDiskPath := filepath.Join(m.storagePath, "snapshots", snapshotID, "disk.qcow2")
@@ -294,7 +296,9 @@ func (m *SnapshotManager) RestoreSnapshot(ctx context.Context, snapshotID string
 		if err != nil {
 			m.logger.Warn("磁盘恢复失败", zap.Error(err), zap.String("output", string(output)))
 			snapshot.Status = "ready"
-			m.saveSnapshot(snapshot)
+			if saveErr := m.saveSnapshot(snapshot); saveErr != nil {
+				m.logger.Warn("保存快照状态失败", zap.Error(saveErr))
+			}
 			return fmt.Errorf("恢复磁盘失败：%w", err)
 		}
 	}
@@ -311,7 +315,9 @@ func (m *SnapshotManager) RestoreSnapshot(ctx context.Context, snapshotID string
 	}
 
 	snapshot.Status = "ready"
-	m.saveSnapshot(snapshot)
+	if err := m.saveSnapshot(snapshot); err != nil {
+		m.logger.Warn("保存快照状态失败", zap.Error(err))
+	}
 
 	m.logger.Info("快照恢复成功", zap.String("snapshotId", snapshotID), zap.String("vmId", snapshot.VMID))
 

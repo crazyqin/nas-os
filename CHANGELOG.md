@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.226.0] - 2026-03-18
+
+### Fixed
+- 修复多个模块 errcheck 错误（六部协同修复）
+  - internal/auth/enhanced_mfa_manager.go: 检查 InvalidateAll 返回值
+  - internal/docker/appstore.go: 检查 saveInstalled 返回值
+  - internal/docker/handlers.go: 检查 fmt.Sscanf 和类型断言返回值
+  - internal/docker/manager.go: 检查 fmt.Sscanf 和 Process.Kill 返回值
+  - internal/reports/datasource.go: 检查类型断言返回值
+  - internal/reports/enhanced_export.go: 检查 os.MkdirAll, os.Remove 返回值
+  - internal/reports/excel_exporter.go: 检查 excelize 库函数返回值
+  - internal/service/manager.go: 检查 Refresh 返回值
+  - internal/storage/manager.go: 检查 os.Remove, os.RemoveAll 返回值
+  - internal/storage/smart_monitor.go: 检查 CheckAll 返回值
+  - internal/trash/manager.go: 检查 saveItems 返回值
+  - internal/versioning/manager.go: 检查 file.Close 返回值
+  - internal/vm/snapshot.go: 检查 saveSnapshot 返回值
+  - internal/webdav/server.go: 检查 os.Remove, os.RemoveAll, Shutdown 返回值
+  - internal/websocket/compression.go: 检查类型断言返回值
+  - tests/e2e/client.go: 检查 resp.Body.Close 返回值
+
+---
+
 ## [v2.222.0] - 2026-03-18
 
 ### Fixed

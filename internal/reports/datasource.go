@@ -20,12 +20,16 @@ type QuotaDataSource struct {
 
 // NewQuotaDataSource 创建配额数据源
 func NewQuotaDataSource(manager interface{}) *QuotaDataSource {
+	quotaManager, ok := manager.(interface {
+		GetAllUsage() ([]interface{}, error)
+		GetUserUsage(username string) ([]interface{}, error)
+		GetAlerts() []interface{}
+	})
+	if !ok {
+		return &QuotaDataSource{quotaManager: nil}
+	}
 	return &QuotaDataSource{
-		quotaManager: manager.(interface {
-			GetAllUsage() ([]interface{}, error)
-			GetUserUsage(username string) ([]interface{}, error)
-			GetAlerts() []interface{}
-		}),
+		quotaManager: quotaManager,
 	}
 }
 
@@ -132,10 +136,14 @@ func (ds *QuotaDataSource) GetSummary(query map[string]interface{}) (map[string]
 			}
 		}
 		if overSoft, ok := row["is_over_soft"].(bool); ok && overSoft {
-			summary["over_soft_limit"] = summary["over_soft_limit"].(int) + 1
+			if overSoftLimit, ok := summary["over_soft_limit"].(int); ok {
+				summary["over_soft_limit"] = overSoftLimit + 1
+			}
 		}
 		if overHard, ok := row["is_over_hard"].(bool); ok && overHard {
-			summary["over_hard_limit"] = summary["over_hard_limit"].(int) + 1
+			if overHardLimit, ok := summary["over_hard_limit"].(int); ok {
+				summary["over_hard_limit"] = overHardLimit + 1
+			}
 		}
 	}
 
@@ -282,11 +290,15 @@ type StorageDataSource struct {
 
 // NewStorageDataSource 创建存储数据源
 func NewStorageDataSource(manager interface{}) *StorageDataSource {
+	storageManager, ok := manager.(interface {
+		ListVolumes() []interface{}
+		GetVolumeInfo(name string) (interface{}, error)
+	})
+	if !ok {
+		return &StorageDataSource{storageManager: nil}
+	}
 	return &StorageDataSource{
-		storageManager: manager.(interface {
-			ListVolumes() []interface{}
-			GetVolumeInfo(name string) (interface{}, error)
-		}),
+		storageManager: storageManager,
 	}
 }
 

@@ -125,7 +125,10 @@ func NewGzipCompressor(level int) *GzipCompressor {
 // Compress 压缩数据
 func (c *GzipCompressor) Compress(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
-	w := c.pool.Get().(*gzip.Writer)
+	w, ok := c.pool.Get().(*gzip.Writer)
+	if !ok {
+		return nil, fmt.Errorf("gzip pool type assertion failed")
+	}
 	defer c.pool.Put(w)
 
 	w.Reset(&buf)
@@ -182,7 +185,10 @@ func NewZlibCompressor(level int, dict []byte) *ZlibCompressor {
 // Compress 压缩数据
 func (c *ZlibCompressor) Compress(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
-	w := c.pool.Get().(*zlib.Writer)
+	w, ok := c.pool.Get().(*zlib.Writer)
+	if !ok {
+		return nil, fmt.Errorf("zlib pool type assertion failed")
+	}
 	defer c.pool.Put(w)
 
 	if c.dict != nil {
@@ -252,7 +258,10 @@ func NewFlateCompressor(level int, dict []byte) *FlateCompressor {
 // Compress 压缩数据
 func (c *FlateCompressor) Compress(data []byte) ([]byte, error) {
 	var buf bytes.Buffer
-	w := c.pool.Get().(*flate.Writer)
+	w, ok := c.pool.Get().(*flate.Writer)
+	if !ok {
+		return nil, fmt.Errorf("flate pool type assertion failed")
+	}
 	defer c.pool.Put(w)
 
 	w.Reset(&buf)

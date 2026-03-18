@@ -223,7 +223,7 @@ func (m *Manager) Start(name string) error {
 	}
 
 	// 更新状态（异步刷新，忽略错误）
-	go m.Refresh(name)
+	go func() { _ = m.Refresh(name) }()
 
 	return nil
 }
@@ -243,7 +243,7 @@ func (m *Manager) Stop(name string) error {
 	}
 
 	// 更新状态（异步刷新，忽略错误）
-	go m.Refresh(name)
+	go func() { _ = m.Refresh(name) }()
 
 	return nil
 }
@@ -462,7 +462,7 @@ func (m *Manager) Register(svc *Service) error {
 	m.services[svc.Name] = svc
 
 	// 刷新状态（异步刷新，忽略错误）
-	go m.Refresh(svc.Name)
+	go func() { _ = m.Refresh(svc.Name) }()
 
 	return nil
 }

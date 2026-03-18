@@ -50,7 +50,7 @@ func NewEnhancedExporter(dataDir string) *EnhancedExporter {
 	e.pdfConverter = NewWKHTMLToPDFConverter()
 
 	// 确保输出目录存在
-	os.MkdirAll(filepath.Join(dataDir, "outputs"), 0755)
+	_ = os.MkdirAll(filepath.Join(dataDir, "outputs"), 0755)
 
 	return e
 }
@@ -734,7 +734,7 @@ func (e *EnhancedExporter) exportPDFEnhanced(report *GeneratedReport, path strin
 	if err := os.WriteFile(tmpHTML, htmlData, 0644); err != nil {
 		return err
 	}
-	defer os.Remove(tmpHTML)
+	defer func() { _ = os.Remove(tmpHTML) }()
 
 	// 使用 PDF 转换器
 	if e.pdfConverter != nil && e.pdfConverter.IsAvailable() {
