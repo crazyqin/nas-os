@@ -25,8 +25,8 @@ type Exporter struct {
 
 // NewExporter 创建导出器
 func NewExporter(dataDir string) *Exporter {
-	os.MkdirAll(dataDir, 0755)
-	os.MkdirAll(filepath.Join(dataDir, "outputs"), 0755)
+	_ = os.MkdirAll(dataDir, 0755)
+	_ = os.MkdirAll(filepath.Join(dataDir, "outputs"), 0755)
 	return &Exporter{dataDir: dataDir}
 }
 
@@ -354,7 +354,7 @@ func (e *Exporter) exportPDF(report *GeneratedReport, path string, options Expor
 	if err := os.WriteFile(tmpHTML, htmlData, 0644); err != nil {
 		return err
 	}
-	defer os.Remove(tmpHTML)
+	defer func() { _ = os.Remove(tmpHTML) }()
 
 	// 使用 wkhtmltopdf 或类似工具转换
 	// 这里简化处理：如果没有安装转换工具，就保存 HTML

@@ -75,7 +75,7 @@ func (g *WkhtmltopdfGenerator) Generate(htmlContent []byte, outputPath string, o
 	if err := os.WriteFile(tmpHTML, htmlContent, 0644); err != nil {
 		return fmt.Errorf("写入临时 HTML 失败: %w", err)
 	}
-	defer os.Remove(tmpHTML)
+	defer func() { _ = os.Remove(tmpHTML) }()
 
 	// 构建命令参数
 	args := []string{
