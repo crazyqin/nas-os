@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.237.0] - 2026-03-18
+
+### Bug Fixes
+- 修复测试文件 API 引用过时问题
+  - compliance: NewComplianceChecker → NewChecker, ComplianceLevel → Level
+  - billing: BillingManager → Manager, DefaultBillingConfig → DefaultConfig
+  - container: ContainerStats → Stats, ContainerConfig → Config, ContainerLog → Log
+  - automation: ActionConfig → Config, ActionType → Type
+
+---
+
 ## [v2.236.0] - 2026-03-18
 
 ### Bug Fixes
