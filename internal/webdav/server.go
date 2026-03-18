@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -115,7 +116,7 @@ func (s *Server) Start() error {
 	// 启动服务器
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("WebDAV 服务器错误：%v\n", err)
+			log.Printf("WebDAV 服务器错误：%v", err)
 		}
 	}()
 

@@ -58,7 +58,7 @@ func (e *SnapshotExecutor) Execute(policy *Policy) (string, error) {
 				return "", fmt.Errorf("前置脚本执行失败: %w", err)
 			}
 			// 记录错误但继续
-			fmt.Printf("警告: 前置脚本执行失败: %v\n", err)
+			log.Printf("警告: 前置脚本执行失败: %v", err)
 		}
 	}
 
@@ -74,7 +74,7 @@ func (e *SnapshotExecutor) Execute(policy *Policy) (string, error) {
 	if policy.Scripts != nil && policy.Scripts.PostSnapshotScript != "" {
 		postErr := e.runScript(policy.Scripts.PostSnapshotScript, policy.Scripts.TimeoutSeconds)
 		if postErr != nil {
-			fmt.Printf("警告: 后置脚本执行失败: %v\n", postErr)
+			log.Printf("警告: 后置脚本执行失败: %v", postErr)
 		}
 	}
 

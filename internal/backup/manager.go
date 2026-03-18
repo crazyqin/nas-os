@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -285,7 +286,7 @@ func (m *Manager) EnableConfig(id string, enabled bool) error {
 	cfg.Enabled = enabled
 	if err := m.saveConfig(); err != nil {
 		// 记录错误但不返回，因为配置已更新到内存
-		fmt.Printf("保存配置失败：%v\n", err)
+		log.Printf("保存配置失败：%v", err)
 	}
 
 	return nil
@@ -334,7 +335,7 @@ func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *Backu
 		cfg.LastRun = task.StartTime.Format("2006-01-02 15:04:05")
 		m.mu.Lock()
 		if err := m.saveConfig(); err != nil {
-			fmt.Printf("保存配置失败：%v\n", err)
+			log.Printf("保存配置失败：%v", err)
 		}
 		// 清理取消函数
 		delete(m.cancels, task.ID)
@@ -437,7 +438,7 @@ func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *Back
 	}
 
 	if err := m.cleanupOldBackups(destDir, cfg.Retention); err != nil {
-		fmt.Printf("清理旧备份失败：%v\n", err)
+		log.Printf("清理旧备份失败：%v", err)
 	}
 
 	return backupPath, nil
