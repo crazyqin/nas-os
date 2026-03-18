@@ -6,7 +6,22 @@
 
 ---
 
-## [2.218.0] - 2026-03-18
+## [2.232.0] - 2026-03-18
+
+### 🧪 测试修复 (兵部)
+
+- 修复 TestListVolumes_NilStorageMgr 测试 (JSON 解析数组而非 map)
+- 修复 TestListPools_NilStorageMgr 测试 (JSON 解析数组而非 map)
+
+### 🔄 版本同步 (礼部)
+
+- 版本号升级至 v2.232.0
+- README.md 版本信息更新
+- docs/README.md 文档版本同步
+
+---
+
+## [2.231.0] - 2026-03-18
 
 ### 🔄 版本同步 (礼部)
 
