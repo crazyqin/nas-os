@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.2] - 2026-03-19
+
+### Documentation
+- 同步所有文档版本号至 v2.253.2
+- 更新 README.md 下载链接和 Docker 镜像版本
+- 更新 docs/ 目录文档版本一致性
+
 ## [v2.253.1] - 2026-03-19
 
 ### Bug Fixes
