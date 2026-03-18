@@ -241,6 +241,9 @@ func TestCalculateScore(t *testing.T) {
 }
 
 func TestScoreHistory(t *testing.T) {
+	// 清理历史记录文件以确保测试从空状态开始
+	os.Remove("/tmp/history.json")
+
 	config := DefaultScoreEngineConfig()
 	engine := NewScoreEngine(config)
 
