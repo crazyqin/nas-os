@@ -545,8 +545,7 @@ func (m *Manager) AddUserToGroup(userID, username, groupID, groupName string, is
 	})
 
 	m.invalidateCache(userID)
-	m.save()
-	return nil
+	return m.save()
 }
 
 // RemoveUserFromGroup 从组中移除用户
@@ -568,8 +567,7 @@ func (m *Manager) RemoveUserFromGroup(userID, groupID string) error {
 	up.GroupMemberships = newMemberships
 
 	m.invalidateCache(userID)
-	m.save()
-	return nil
+	return m.save()
 }
 
 // ========== 策略管理 ==========
@@ -607,7 +605,9 @@ func (m *Manager) CreatePolicy(name, description string, effect PolicyEffect, pr
 		}
 	}
 
-	m.save()
+	if err := m.save(); err != nil {
+		return nil, err
+	}
 	return policy, nil
 }
 
@@ -629,8 +629,7 @@ func (m *Manager) UpdatePolicy(policyID string, enabled *bool, priority *int) er
 	}
 	policy.UpdatedAt = time.Now()
 
-	m.save()
-	return nil
+	return m.save()
 }
 
 // DeletePolicy 删除策略
@@ -643,8 +642,7 @@ func (m *Manager) DeletePolicy(policyID string) error {
 	}
 
 	delete(m.policies, policyID)
-	m.save()
-	return nil
+	return m.save()
 }
 
 // ListPolicies 列出所有策略
@@ -854,9 +852,7 @@ func (m *Manager) DeleteUser(userID string) error {
 
 	delete(m.userPermissions, userID)
 	m.invalidateCache(userID)
-	m.save()
-
-	return nil
+	return m.save()
 }
 
 // ListUserPermissions 列出所有用户权限

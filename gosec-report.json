@@ -413,7 +413,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
 			"code": "1400: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1401: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n1402: \t\t},\n",
 			"line": "1401",
-			"column": "40",
+			"column": "61",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -429,7 +429,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
 			"code": "1400: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1401: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n1402: \t\t},\n",
 			"line": "1401",
-			"column": "61",
+			"column": "40",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -557,7 +557,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/health/disk_unix.go",
 			"code": "14: \t}\n15: \treturn stat.Blocks * uint64(stat.Bsize), stat.Bfree * uint64(stat.Bsize), nil\n16: }\n",
 			"line": "15",
-			"column": "29",
+			"column": "62",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -573,7 +573,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/health/disk_unix.go",
 			"code": "14: \t}\n15: \treturn stat.Blocks * uint64(stat.Bsize), stat.Bfree * uint64(stat.Bsize), nil\n16: }\n",
 			"line": "15",
-			"column": "62",
+			"column": "29",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -10067,8 +10067,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/rbac/manager.go",
-			"code": "838: \t// 确保目录存在\n839: \tif err := os.MkdirAll(filepath.Dir(m.config.ConfigPath), 0755); err != nil {\n840: \t\treturn err\n",
-			"line": "839",
+			"code": "836: \t// 确保目录存在\n837: \tif err := os.MkdirAll(filepath.Dir(m.config.ConfigPath), 0755); err != nil {\n838: \t\treturn err\n",
+			"line": "837",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -12851,8 +12851,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/rbac/manager.go",
-			"code": "842: \n843: \treturn os.WriteFile(m.config.ConfigPath, data, 0644)\n844: }\n",
-			"line": "843",
+			"code": "840: \n841: \treturn os.WriteFile(m.config.ConfigPath, data, 0644)\n842: }\n",
+			"line": "841",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -14440,109 +14440,13 @@
 			"column": "3",
 			"nosec": false,
 			"suppressions": null
-		},
-		{
-			"severity": "LOW",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "703",
-				"url": "https://cwe.mitre.org/data/definitions/703.html"
-			},
-			"rule_id": "G104",
-			"details": "Errors unhandled",
-			"file": "/home/mrafter/clawd/nas-os/internal/rbac/manager.go",
-			"code": "856: \tm.invalidateCache(userID)\n857: \tm.save()\n858: \n",
-			"line": "857",
-			"column": "2",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "LOW",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "703",
-				"url": "https://cwe.mitre.org/data/definitions/703.html"
-			},
-			"rule_id": "G104",
-			"details": "Errors unhandled",
-			"file": "/home/mrafter/clawd/nas-os/internal/rbac/manager.go",
-			"code": "645: \tdelete(m.policies, policyID)\n646: \tm.save()\n647: \treturn nil\n",
-			"line": "646",
-			"column": "2",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "LOW",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "703",
-				"url": "https://cwe.mitre.org/data/definitions/703.html"
-			},
-			"rule_id": "G104",
-			"details": "Errors unhandled",
-			"file": "/home/mrafter/clawd/nas-os/internal/rbac/manager.go",
-			"code": "631: \n632: \tm.save()\n633: \treturn nil\n",
-			"line": "632",
-			"column": "2",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "LOW",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "703",
-				"url": "https://cwe.mitre.org/data/definitions/703.html"
-			},
-			"rule_id": "G104",
-			"details": "Errors unhandled",
-			"file": "/home/mrafter/clawd/nas-os/internal/rbac/manager.go",
-			"code": "609: \n610: \tm.save()\n611: \treturn policy, nil\n",
-			"line": "610",
-			"column": "2",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "LOW",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "703",
-				"url": "https://cwe.mitre.org/data/definitions/703.html"
-			},
-			"rule_id": "G104",
-			"details": "Errors unhandled",
-			"file": "/home/mrafter/clawd/nas-os/internal/rbac/manager.go",
-			"code": "570: \tm.invalidateCache(userID)\n571: \tm.save()\n572: \treturn nil\n",
-			"line": "571",
-			"column": "2",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "LOW",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "703",
-				"url": "https://cwe.mitre.org/data/definitions/703.html"
-			},
-			"rule_id": "G104",
-			"details": "Errors unhandled",
-			"file": "/home/mrafter/clawd/nas-os/internal/rbac/manager.go",
-			"code": "547: \tm.invalidateCache(userID)\n548: \tm.save()\n549: \treturn nil\n",
-			"line": "548",
-			"column": "2",
-			"nosec": false,
-			"suppressions": null
 		}
 	],
 	"Stats": {
 		"files": 462,
-		"lines": 284905,
+		"lines": 284901,
 		"nosec": 74,
-		"found": 895
+		"found": 889
 	},
 	"GosecVersion": "dev"
 }
