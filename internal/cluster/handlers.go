@@ -9,8 +9,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// ClusterAPI 集群 API 处理器
-type ClusterAPI struct {
+// API 集群 API 处理器
+type API struct {
 	manager *ClusterManager
 	sync    *StorageSync
 	lb      *LoadBalancer
@@ -18,9 +18,9 @@ type ClusterAPI struct {
 	logger  *zap.Logger
 }
 
-// NewClusterAPI 创建集群 API 处理器
-func NewClusterAPI(manager *ClusterManager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *ClusterAPI {
-	return &ClusterAPI{
+// NewAPI 创建集群 API 处理器
+func NewAPI(manager *ClusterManager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
+	return &API{
 		manager: manager,
 		sync:    sync,
 		lb:      lb,
@@ -29,8 +29,16 @@ func NewClusterAPI(manager *ClusterManager, sync *StorageSync, lb *LoadBalancer,
 	}
 }
 
+// ClusterAPI 是 API 的别名，保持向后兼容
+type ClusterAPI = API
+
+// NewClusterAPI 创建集群 API 处理器（兼容旧代码）
+func NewClusterAPI(manager *ClusterManager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
+	return NewAPI(manager, sync, lb, ha, logger)
+}
+
 // RegisterRoutes 注册路由
-func (api *ClusterAPI) RegisterRoutes(router *gin.RouterGroup) {
+func (api *API) RegisterRoutes(router *gin.RouterGroup) {
 	// 节点管理
 	router.GET("/nodes", api.GetNodes)
 	router.GET("/nodes/:id", api.GetNode)
@@ -65,7 +73,7 @@ func (api *ClusterAPI) RegisterRoutes(router *gin.RouterGroup) {
 // 节点管理 API
 
 // GetNodes 获取节点列表
-func (api *ClusterAPI) GetNodes(c *gin.Context) {
+func (api *API) GetNodes(c *gin.Context) {
 	nodes := api.manager.GetNodes()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -75,7 +83,7 @@ func (api *ClusterAPI) GetNodes(c *gin.Context) {
 }
 
 // GetNode 获取节点详情
-func (api *ClusterAPI) GetNode(c *gin.Context) {
+func (api *API) GetNode(c *gin.Context) {
 	nodeID := c.Param("id")
 	node, exists := api.manager.GetNode(nodeID)
 	if !exists {
@@ -93,7 +101,7 @@ func (api *ClusterAPI) GetNode(c *gin.Context) {
 }
 
 // JoinCluster 加入集群
-func (api *ClusterAPI) JoinCluster(c *gin.Context) {
+func (api *API) JoinCluster(c *gin.Context) {
 	var req struct {
 		NodeID   string `json:"node_id"`
 		Hostname string `json:"hostname"`
@@ -141,7 +149,7 @@ func (api *ClusterAPI) JoinCluster(c *gin.Context) {
 }
 
 // RemoveNode 移除节点
-func (api *ClusterAPI) RemoveNode(c *gin.Context) {
+func (api *API) RemoveNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
 	if err := api.manager.RemoveNode(nodeID); err != nil {
@@ -159,7 +167,7 @@ func (api *ClusterAPI) RemoveNode(c *gin.Context) {
 }
 
 // GetNodeStatus 获取节点状态
-func (api *ClusterAPI) GetNodeStatus(c *gin.Context) {
+func (api *API) GetNodeStatus(c *gin.Context) {
 	nodeID := c.Param("id")
 	node, exists := api.manager.GetNode(nodeID)
 	if !exists {
@@ -183,7 +191,7 @@ func (api *ClusterAPI) GetNodeStatus(c *gin.Context) {
 }
 
 // DrainNode 节点下线
-func (api *ClusterAPI) DrainNode(c *gin.Context) {
+func (api *API) DrainNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
 	node, exists := api.manager.GetNode(nodeID)
@@ -207,7 +215,7 @@ func (api *ClusterAPI) DrainNode(c *gin.Context) {
 // 存储同步 API
 
 // GetSyncRules 获取同步规则列表
-func (api *ClusterAPI) GetSyncRules(c *gin.Context) {
+func (api *API) GetSyncRules(c *gin.Context) {
 	rules := api.sync.GetRules()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -217,7 +225,7 @@ func (api *ClusterAPI) GetSyncRules(c *gin.Context) {
 }
 
 // GetSyncRule 获取同步规则详情
-func (api *ClusterAPI) GetSyncRule(c *gin.Context) {
+func (api *API) GetSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
 	rule, exists := api.sync.GetRule(ruleID)
 	if !exists {
@@ -235,7 +243,7 @@ func (api *ClusterAPI) GetSyncRule(c *gin.Context) {
 }
 
 // CreateSyncRule 创建同步规则
-func (api *ClusterAPI) CreateSyncRule(c *gin.Context) {
+func (api *API) CreateSyncRule(c *gin.Context) {
 	var rule SyncRule
 	if err := c.ShouldBindJSON(&rule); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -261,7 +269,7 @@ func (api *ClusterAPI) CreateSyncRule(c *gin.Context) {
 }
 
 // UpdateSyncRule 更新同步规则
-func (api *ClusterAPI) UpdateSyncRule(c *gin.Context) {
+func (api *API) UpdateSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
 
 	var updates map[string]interface{}
@@ -288,7 +296,7 @@ func (api *ClusterAPI) UpdateSyncRule(c *gin.Context) {
 }
 
 // DeleteSyncRule 删除同步规则
-func (api *ClusterAPI) DeleteSyncRule(c *gin.Context) {
+func (api *API) DeleteSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
 
 	if err := api.sync.DeleteRule(ruleID); err != nil {
@@ -306,7 +314,7 @@ func (api *ClusterAPI) DeleteSyncRule(c *gin.Context) {
 }
 
 // TriggerSync 手动触发同步
-func (api *ClusterAPI) TriggerSync(c *gin.Context) {
+func (api *API) TriggerSync(c *gin.Context) {
 	var req struct {
 		RuleID string `json:"rule_id"`
 	}
@@ -334,7 +342,7 @@ func (api *ClusterAPI) TriggerSync(c *gin.Context) {
 }
 
 // GetSyncStatus 获取同步状态
-func (api *ClusterAPI) GetSyncStatus(c *gin.Context) {
+func (api *API) GetSyncStatus(c *gin.Context) {
 	status := api.sync.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -343,7 +351,7 @@ func (api *ClusterAPI) GetSyncStatus(c *gin.Context) {
 }
 
 // GetSyncJobs 获取同步任务历史
-func (api *ClusterAPI) GetSyncJobs(c *gin.Context) {
+func (api *API) GetSyncJobs(c *gin.Context) {
 	limit := 20 // 默认返回 20 条
 	if l := c.Query("limit"); l != "" {
 		_, _ = fmt.Sscanf(l, "%d", &limit)
@@ -360,7 +368,7 @@ func (api *ClusterAPI) GetSyncJobs(c *gin.Context) {
 // 负载均衡 API
 
 // GetLBConfig 获取负载均衡配置
-func (api *ClusterAPI) GetLBConfig(c *gin.Context) {
+func (api *API) GetLBConfig(c *gin.Context) {
 	config := api.lb.GetConfig()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -369,7 +377,7 @@ func (api *ClusterAPI) GetLBConfig(c *gin.Context) {
 }
 
 // UpdateLBConfig 更新负载均衡配置
-func (api *ClusterAPI) UpdateLBConfig(c *gin.Context) {
+func (api *API) UpdateLBConfig(c *gin.Context) {
 	var config LBConfig
 	if err := c.ShouldBindJSON(&config); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -394,7 +402,7 @@ func (api *ClusterAPI) UpdateLBConfig(c *gin.Context) {
 }
 
 // GetBackends 获取后端节点
-func (api *ClusterAPI) GetBackends(c *gin.Context) {
+func (api *API) GetBackends(c *gin.Context) {
 	backends := api.lb.GetBackends()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -404,7 +412,7 @@ func (api *ClusterAPI) GetBackends(c *gin.Context) {
 }
 
 // GetLBStats 获取负载均衡统计
-func (api *ClusterAPI) GetLBStats(c *gin.Context) {
+func (api *API) GetLBStats(c *gin.Context) {
 	stats := api.lb.GetStats()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -413,7 +421,7 @@ func (api *ClusterAPI) GetLBStats(c *gin.Context) {
 }
 
 // ResetLBStats 重置负载均衡统计
-func (api *ClusterAPI) ResetLBStats(c *gin.Context) {
+func (api *API) ResetLBStats(c *gin.Context) {
 	api.lb.ResetStats()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -424,7 +432,7 @@ func (api *ClusterAPI) ResetLBStats(c *gin.Context) {
 // 高可用 API
 
 // GetHAStatus 获取高可用状态
-func (api *ClusterAPI) GetHAStatus(c *gin.Context) {
+func (api *API) GetHAStatus(c *gin.Context) {
 	status := api.ha.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -433,7 +441,7 @@ func (api *ClusterAPI) GetHAStatus(c *gin.Context) {
 }
 
 // ManualFailover 手动故障转移
-func (api *ClusterAPI) ManualFailover(c *gin.Context) {
+func (api *API) ManualFailover(c *gin.Context) {
 	var req struct {
 		TargetNodeID string `json:"target_node_id"`
 	}
@@ -461,7 +469,7 @@ func (api *ClusterAPI) ManualFailover(c *gin.Context) {
 }
 
 // GetFailoverHistory 获取故障转移历史
-func (api *ClusterAPI) GetFailoverHistory(c *gin.Context) {
+func (api *API) GetFailoverHistory(c *gin.Context) {
 	limit := 20
 	if l := c.Query("limit"); l != "" {
 		_, _ = fmt.Sscanf(l, "%d", &limit)

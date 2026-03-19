@@ -199,11 +199,12 @@ func (fd *FailureDetector) Reset(nodeID string) {
 // AccrualLevel 获取累积级别（用于监控）
 type AccrualLevel int
 
+// 累积级别常量
 const (
-	AccrualLevelHealthy AccrualLevel = iota
-	AccrualLevelSuspect
-	AccrualLevelWarning
-	AccrualLevelCritical
+	AccrualLevelHealthy  AccrualLevel = iota // 健康
+	AccrualLevelSuspect                      // 可疑
+	AccrualLevelWarning                      // 警告
+	AccrualLevelCritical                     // 严重
 )
 
 // GetAccrualLevel 获取累积级别

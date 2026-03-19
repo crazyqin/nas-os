@@ -15,7 +15,7 @@ type EventMonitor struct {
 	config          MonitorConfig
 	eventBuffer     []*AuditLogEntry
 	anomalyDetector *AnomalyDetector
-	alertChan       chan *SecurityAlert
+	alertChan       chan *Alert
 	mu              sync.RWMutex
 	ctx             context.Context
 	cancel          context.CancelFunc
@@ -52,7 +52,7 @@ func NewEventMonitor(config MonitorConfig) *EventMonitor {
 		config:          config,
 		eventBuffer:     make([]*AuditLogEntry, 0, config.BufferSize),
 		anomalyDetector: NewAnomalyDetector(),
-		alertChan:       make(chan *SecurityAlert, 100),
+		alertChan:       make(chan *Alert, 100),
 		ctx:             ctx,
 		cancel:          cancel,
 	}
@@ -150,7 +150,7 @@ func (m *EventMonitor) detectSuspiciousConfigChange(entry *AuditLogEntry) {
 
 // generateAlert 生成告警
 func (m *EventMonitor) generateAlert(severity, alertType, message string, entry *AuditLogEntry) {
-	alert := &SecurityAlert{
+	alert := &Alert{
 		ID:          generateAlertID(),
 		Timestamp:   time.Now(),
 		Severity:    severity,
@@ -175,7 +175,7 @@ func (m *EventMonitor) generateAlert(severity, alertType, message string, entry 
 }
 
 // GetAlertChannel 获取告警通道
-func (m *EventMonitor) GetAlertChannel() <-chan *SecurityAlert {
+func (m *EventMonitor) GetAlertChannel() <-chan *Alert {
 	return m.alertChan
 }
 

@@ -19,6 +19,7 @@ import (
 // ComplianceStandard 合规标准类型
 type ComplianceStandard string
 
+// 合规标准常量
 const (
 	// StandardGDPR represents GDPR compliance standard
 	StandardGDPR     ComplianceStandard = "gdpr"     // 通用数据保护条例
@@ -36,6 +37,7 @@ const (
 // ComplianceLevel 合规等级
 type ComplianceLevel string
 
+// 合规等级常量
 const (
 	// LevelFull represents full compliance level
 	LevelFull         ComplianceLevel = "full"          // 完全合规
@@ -47,6 +49,7 @@ const (
 // ComplianceStatus 合规状态
 type ComplianceStatus string
 
+// 合规状态常量
 const (
 	// StatusPassed represents passed compliance status
 	StatusPassed        ComplianceStatus = "passed"
@@ -61,6 +64,7 @@ const (
 // ComplianceCategory 合规检查类别
 type ComplianceCategory string
 
+// 合规检查类别常量
 const (
 	// CategoryAccessControl represents access control compliance category
 	CategoryAccessControl      ComplianceCategory = "access_control"

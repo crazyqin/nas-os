@@ -24,7 +24,7 @@ type Service struct {
 
 	// 活跃任务
 	mu    sync.RWMutex
-	tasks map[string]*CompressTask
+	tasks map[string]*Task
 }
 
 // ServiceConfig 服务配置
@@ -66,12 +66,25 @@ func NewService(config ServiceConfig) (*Service, error) {
 		Handlers: handlers,
 		rootPath: config.RootPath,
 		stateDir: config.StateDir,
-		tasks:    make(map[string]*CompressTask),
+		tasks:    make(map[string]*Task),
 	}
 
 	// 创建并行压缩器
 	if config.StateDir != "" {
-		pc, err := NewParallelCompressor(config.Config, config.StateDir)
+		// 从 Config 转换为 CompressConfig
+		compressCfg := &CompressConfig{
+			Algorithm:       config.Config.DefaultAlgorithm,
+			Level:           config.Config.CompressionLevel,
+			Workers:         4,
+			DeleteOriginal:  false,
+			Overwrite:       false,
+			ContinueOnError: true,
+			DryRun:          false,
+			VerifyAfter:     true,
+			MaxRetries:      3,
+			MinSize:         config.Config.MinSize,
+		}
+		pc, err := NewParallelCompressor(compressCfg, config.StateDir)
 		if err != nil {
 			log.Printf("⚠️ 并行压缩器初始化失败: %v", err)
 		} else {
@@ -170,8 +183,8 @@ func (s *Service) SetAlgorithm(algorithm Algorithm) {
 
 // ========== v2.6.0 并行压缩接口 ==========
 
-// CompressTask 压缩任务
-type CompressTask struct {
+// Task 压缩任务
+type Task struct {
 	ID        string
 	Status    string // pending, running, completed, failed, paused
 	Progress  *CompressionProgress
@@ -191,7 +204,7 @@ func (s *Service) CompressParallel(ctx context.Context, paths []string, config *
 	taskID := s.parallelCompressor.progress.StartTime.Format("20060102-150405")
 	taskCtx, cancel := context.WithCancel(ctx)
 
-	task := &CompressTask{
+	task := &Task{
 		ID:        taskID,
 		Status:    "running",
 		Progress:  s.parallelCompressor.GetProgress(),

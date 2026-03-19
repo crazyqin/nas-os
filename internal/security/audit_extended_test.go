@@ -292,7 +292,7 @@ func TestAuditManager_CleanupOldAlerts(t *testing.T) {
 
 	// 手动添加旧告警
 	oldTime := time.Now().Add(-48 * time.Hour)
-	am.alerts = append(am.alerts, &SecurityAlert{
+	am.alerts = append(am.alerts, &Alert{
 		ID:        "old-alert",
 		Timestamp: oldTime,
 		Severity:  "high",
@@ -558,7 +558,7 @@ func TestAuditConfig_Defaults(t *testing.T) {
 	assert.Equal(t, 10, config.AlertThreshold)
 }
 
-func TestSecurityAlert_Fields(t *testing.T) {
+func TestAlert_Fields(t *testing.T) {
 	am := NewAuditManager()
 	am.SetConfig(AuditConfig{
 		Enabled:      true,

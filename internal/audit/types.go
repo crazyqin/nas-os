@@ -9,6 +9,7 @@ import "time"
 // Level 审计日志级别
 type Level string
 
+// 日志级别常量
 const (
 	LevelInfo     Level = "info"     // 信息级别
 	LevelWarning  Level = "warning"  // 警告级别
@@ -19,6 +20,7 @@ const (
 // Category 审计日志分类
 type Category string
 
+// 审计日志分类常量
 const (
 	CategoryAuth       Category = "auth"       // 认证相关
 	CategoryAccess     Category = "access"     // 访问控制
@@ -35,6 +37,7 @@ const (
 // Status 操作状态
 type Status string
 
+// 操作状态常量
 const (
 	StatusSuccess Status = "success" // 成功
 	StatusFailure Status = "failure" // 失败
@@ -90,6 +93,7 @@ type QueryResult struct {
 // ComplianceStandard 合规标准
 type ComplianceStandard string
 
+// 合规标准常量
 const (
 	ComplianceGDPR     ComplianceStandard = "gdpr"     // GDPR
 	ComplianceHIPAA    ComplianceStandard = "hipaa"    // HIPAA
@@ -218,6 +222,7 @@ type TamperedEntry struct {
 // ExportFormat 导出格式
 type ExportFormat string
 
+// 导出格式常量
 const (
 	ExportJSON ExportFormat = "json"
 	ExportCSV  ExportFormat = "csv"

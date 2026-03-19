@@ -9,6 +9,7 @@ import (
 // Level 通知级别
 type Level string
 
+// 通知级别常量
 const (
 	// LevelInfo 表示信息级别
 	LevelInfo Level = "info"
@@ -25,6 +26,7 @@ const (
 // ChannelType 通知渠道类型
 type ChannelType string
 
+// 通知渠道类型常量
 const (
 	// ChannelEmail 表示邮件渠道
 	ChannelEmail ChannelType = "email"
@@ -43,6 +45,7 @@ const (
 // Status 通知状态
 type Status string
 
+// 通知状态常量
 const (
 	// StatusPending 表示待发送状态
 	StatusPending Status = "pending"
@@ -59,6 +62,7 @@ const (
 // RuleCondition 规则条件运算符
 type RuleCondition string
 
+// 规则条件常量
 const (
 	ConditionEquals      RuleCondition = "equals"
 	ConditionNotEquals   RuleCondition = "not_equals"
@@ -73,6 +77,7 @@ const (
 // LogicalOperator 逻辑运算符
 type LogicalOperator string
 
+// 逻辑运算符常量
 const (
 	OperatorAnd LogicalOperator = "and"
 	OperatorOr  LogicalOperator = "or"

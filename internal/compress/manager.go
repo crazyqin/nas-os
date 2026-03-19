@@ -16,6 +16,7 @@ import (
 // Algorithm 压缩算法
 type Algorithm string
 
+// 压缩算法常量
 const (
 	AlgorithmZstd Algorithm = "zstd"
 	AlgorithmLz4  Algorithm = "lz4"
@@ -662,7 +663,7 @@ type BatchCompressResultV2 struct {
 	SavedSize int64                  `json:"savedSize"`
 	Duration  time.Duration          `json:"duration"`
 	Results   []SingleCompressResult `json:"results"`
-	Errors    []CompressErrorV2      `json:"errors"`
+	Errors    []ErrorV2      `json:"errors"`
 }
 
 // SingleCompressResult 单个压缩结果
@@ -677,8 +678,8 @@ type SingleCompressResult struct {
 	SkipReason     string    `json:"skipReason,omitempty"`
 }
 
-// CompressErrorV2 压缩错误
-type CompressErrorV2 struct {
+// ErrorV2 压缩错误
+type ErrorV2 struct {
 	Path  string `json:"path"`
 	Error string `json:"error"`
 }
@@ -718,7 +719,7 @@ func (m *Manager) BatchCompressWithOptions(paths []string, opts *BatchCompressOp
 
 	result := &BatchCompressResultV2{
 		Results: make([]SingleCompressResult, 0, len(paths)),
-		Errors:  make([]CompressErrorV2, 0),
+		Errors:  make([]ErrorV2, 0),
 	}
 
 	if len(paths) == 0 {
@@ -739,7 +740,7 @@ func (m *Manager) BatchCompressWithOptions(paths []string, opts *BatchCompressOp
 	// 创建通道
 	pathChan := make(chan string, len(paths))
 	resultChan := make(chan SingleCompressResult, len(paths))
-	errorChan := make(chan CompressErrorV2, len(paths))
+	errorChan := make(chan ErrorV2, len(paths))
 
 	// 启动 workers
 	var wg sync.WaitGroup
@@ -784,7 +785,7 @@ func (m *Manager) BatchCompressWithOptions(paths []string, opts *BatchCompressOp
 }
 
 // batchCompressWorker 批量压缩工作协程
-func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, results chan<- SingleCompressResult, errors chan<- CompressErrorV2, opts *BatchCompressOptions) {
+func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, results chan<- SingleCompressResult, errors chan<- ErrorV2, opts *BatchCompressOptions) {
 	defer wg.Done()
 
 	for path := range paths {
@@ -792,7 +793,7 @@ func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, r
 		info, err := os.Stat(path)
 		if err != nil {
 			if opts.ContinueOnError {
-				errors <- CompressErrorV2{Path: path, Error: err.Error()}
+				errors <- ErrorV2{Path: path, Error: err.Error()}
 				continue
 			}
 			return
@@ -844,7 +845,7 @@ func (m *Manager) batchCompressWorker(wg *sync.WaitGroup, paths <-chan string, r
 
 		if err != nil {
 			if opts.ContinueOnError {
-				errors <- CompressErrorV2{Path: path, Error: err.Error()}
+				errors <- ErrorV2{Path: path, Error: err.Error()}
 				continue
 			}
 			return

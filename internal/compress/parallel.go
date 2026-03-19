@@ -495,16 +495,16 @@ func DefaultCompressConfig() *CompressConfig {
 
 // ParallelCompressor 并行压缩器
 type ParallelCompressor struct {
-	config      *Config
+	config      *CompressConfig
 	compressors map[Algorithm]Compressor
 	progress    *CompressionProgress
 	recovery    *RecoveryManager
 }
 
 // NewParallelCompressor 创建并行压缩器
-func NewParallelCompressor(config *Config, stateDir string) (*ParallelCompressor, error) {
+func NewParallelCompressor(config *CompressConfig, stateDir string) (*ParallelCompressor, error) {
 	if config == nil {
-		config = DefaultConfig()
+		config = DefaultCompressConfig()
 	}
 
 	pc := &ParallelCompressor{
@@ -831,9 +831,10 @@ func (pc *ParallelCompressor) shouldCompress(path string, size int64, config *Co
 		return false
 	}
 
-	// 检查扩展名
+	// 检查扩展名 - 使用预定义的不压缩扩展名
 	ext := strings.ToLower(filepath.Ext(path))
-	for _, exclude := range pc.config.ExcludeExtensions {
+	excludeExts := []string{".zip", ".gz", ".bz2", ".xz", ".zst", ".lz4", ".mp3", ".mp4", ".avi", ".mkv", ".mov", ".jpg", ".jpeg", ".png", ".gif"}
+	for _, exclude := range excludeExts {
 		if ext == exclude {
 			return false
 		}

@@ -10,11 +10,11 @@ import (
 
 // Handlers 安全模块 HTTP 处理器
 type Handlers struct {
-	manager *SecurityManager
+	manager *Manager
 }
 
 // NewHandlers 创建安全处理器
-func NewHandlers(mgr *SecurityManager) *Handlers {
+func NewHandlers(mgr *Manager) *Handlers {
 	return &Handlers{manager: mgr}
 }
 
@@ -116,7 +116,7 @@ func (h *Handlers) getConfig(c *gin.Context) {
 }
 
 func (h *Handlers) updateConfig(c *gin.Context) {
-	var config SecurityConfig
+	var config Config
 	if err := c.ShouldBindJSON(&config); err != nil {
 		c.JSON(http.StatusBadRequest, apiError(400, err.Error()))
 		return

@@ -2,41 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.253.11] - 2026-03-19
-
-### Fixed
-- 修复 revive linter 报告的代码注释格式问题
-- 修复类型命名 stutter 问题（包名重复）
-
-## [v2.253.10] - 2026-03-19
-
-### Improvements
-- 版本号同步至 v2.253.10
-
-## [v2.253.9] - 2026-03-19
-
-### Bug Fixes
-- 修复 golangci-lint 报告的代码格式和命名问题
-
-## [v2.253.8] - 2026-03-19
-
-### Documentation
-- 同步所有文档版本号至 v2.253.8
-
-### Bug Fixes
-- 修复 health_test.go 中 NewHealthManager → NewManager 函数名
-- 修复 Windows 构建和 health 测试类型引用
-- 修复 golangci-lint 错误
-
 ## [v2.253.7] - 2026-03-19
 
-### Documentation
-- 更新成本分析报告
-
-## [v2.253.6] - 2026-03-19
-
 ### Bug Fixes
-- 修复 errcheck 和 staticcheck 问题
+- 修复 47 个 revive linter 错误
+  - 为导出常量添加注释 (audit, cluster, compress, notification, notify, perf, security 模块)
+  - 类型命名优化消除 stuttering (ClusterAPI → API, MediaType → Type 等)
+  - 添加向后兼容的类型别名
+
+### Improvements
+- 重命名类型以符合 Go 命名规范
+  - cluster: ClusterAPI → API (保留别名)
+  - replication: ReplicationTask → Task, ReplicationType → Type, ReplicationStatus → Status (保留别名)
+  - perf: PerfHandler → Handler
+  - prediction: PredictionModel → Model, PredictionResult → Result, PredictionResponse → Response
+  - project: ProjectArchive → Archive, ProjectDashboardData → DashboardData, ProjectTemplate → Template
 
 ## [v2.253.5] - 2026-03-19
 

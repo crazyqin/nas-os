@@ -496,8 +496,8 @@ func TestAnomalyDetection(t *testing.T) {
 
 // ========== 预测结果方法测试 ==========
 
-func TestPredictionResultMethods(t *testing.T) {
-	result := &PredictionResult{
+func TestResultMethods(t *testing.T) {
+	result := &Result{
 		VolumeName:       "test",
 		CurrentUsage:     500.0,
 		CurrentTotal:     1000.0,
@@ -524,8 +524,8 @@ func TestPredictionResultMethods(t *testing.T) {
 	}
 }
 
-func TestPredictionResultCritical(t *testing.T) {
-	result := &PredictionResult{
+func TestResultCritical(t *testing.T) {
+	result := &Result{
 		WarningInDays:  5,
 		CriticalInDays: 7,
 	}

@@ -20,7 +20,7 @@ type Manager struct {
 	config *Config
 
 	// 预测模型
-	model *PredictionModel
+	model *Model
 
 	// 异常检测器
 	anomalyDetector *AnomalyDetector
@@ -134,8 +134,8 @@ type GlobalHistory struct {
 	LastUpdated time.Time `json:"lastUpdated"`
 }
 
-// PredictionModel 预测模型
-type PredictionModel struct {
+// Model 预测模型
+type Model struct {
 	mu sync.RWMutex
 
 	// 线性回归参数
@@ -196,8 +196,8 @@ type Advisor struct {
 // AdviceRule 建议规则
 type AdviceRule struct {
 	Name      string `json:"name"`
-	Condition func(*PredictionResult) bool
-	Generate  func(*PredictionResult) Advice
+	Condition func(*Result) bool
+	Generate  func(*Result) Advice
 	Priority  int    `json:"priority"` // 优先级（1-10，越高越重要）
 	Category  string `json:"category"` // "capacity", "performance", "cost", "security"
 }
@@ -216,8 +216,8 @@ type Advice struct {
 	Applied     bool      `json:"applied"`     // 是否已应用
 }
 
-// PredictionResult 预测结果
-type PredictionResult struct {
+// Result 预测结果
+type Result struct {
 	VolumeName string `json:"volumeName"`
 
 	// 当前状态
@@ -276,7 +276,7 @@ func NewManager(cfg *Config) (*Manager, error) {
 			VolumeData: make(map[string]*VolumeHistory),
 			GlobalData: &GlobalHistory{},
 		},
-		model: &PredictionModel{
+		model: &Model{
 			seasonalityEnabled: true,
 			seasonalPeriod:     7, // 周周期
 		},
@@ -325,10 +325,10 @@ func getDefaultAdviceRules() []AdviceRule {
 			Name:     "capacity_warning",
 			Priority: 8,
 			Category: "capacity",
-			Condition: func(r *PredictionResult) bool {
+			Condition: func(r *Result) bool {
 				return r.WarningInDays > 0 && r.WarningInDays <= 30
 			},
-			Generate: func(r *PredictionResult) Advice {
+			Generate: func(r *Result) Advice {
 				return Advice{
 					Category:    "capacity",
 					Priority:    8,
@@ -344,10 +344,10 @@ func getDefaultAdviceRules() []AdviceRule {
 			Name:     "capacity_critical",
 			Priority: 10,
 			Category: "capacity",
-			Condition: func(r *PredictionResult) bool {
+			Condition: func(r *Result) bool {
 				return r.CriticalInDays > 0 && r.CriticalInDays <= 14
 			},
-			Generate: func(r *PredictionResult) Advice {
+			Generate: func(r *Result) Advice {
 				return Advice{
 					Category:    "capacity",
 					Priority:    10,
@@ -363,10 +363,10 @@ func getDefaultAdviceRules() []AdviceRule {
 			Name:     "fast_growth",
 			Priority: 6,
 			Category: "capacity",
-			Condition: func(r *PredictionResult) bool {
+			Condition: func(r *Result) bool {
 				return r.GrowthRateDaily > 1.0 // 日增长超过1GB
 			},
-			Generate: func(r *PredictionResult) Advice {
+			Generate: func(r *Result) Advice {
 				return Advice{
 					Category:    "capacity",
 					Priority:    6,
@@ -382,10 +382,10 @@ func getDefaultAdviceRules() []AdviceRule {
 			Name:     "cleanup_recommendation",
 			Priority: 5,
 			Category: "cost",
-			Condition: func(r *PredictionResult) bool {
+			Condition: func(r *Result) bool {
 				return r.CurrentUsageRate > 60.0 && r.FullInDays < 90
 			},
-			Generate: func(r *PredictionResult) Advice {
+			Generate: func(r *Result) Advice {
 				return Advice{
 					Category:    "cost",
 					Priority:    5,
@@ -401,10 +401,10 @@ func getDefaultAdviceRules() []AdviceRule {
 			Name:     "stable_usage",
 			Priority: 3,
 			Category: "performance",
-			Condition: func(r *PredictionResult) bool {
+			Condition: func(r *Result) bool {
 				return r.Trend == "stable" && r.CurrentUsageRate < 50.0
 			},
-			Generate: func(r *PredictionResult) Advice {
+			Generate: func(r *Result) Advice {
 				return Advice{
 					Category:    "performance",
 					Priority:    3,
@@ -620,7 +620,7 @@ func (m *Manager) detectAnomaly(volumeName string, currentValue float64) {
 }
 
 // Predict 预测存储使用
-func (m *Manager) Predict(volumeName string) (*PredictionResult, error) {
+func (m *Manager) Predict(volumeName string) (*Result, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -649,7 +649,7 @@ func (m *Manager) Predict(volumeName string) (*PredictionResult, error) {
 	m.model.mu.RUnlock()
 
 	// 生成预测
-	result := &PredictionResult{
+	result := &Result{
 		VolumeName:        volumeName,
 		CurrentUsage:      latestRecord.UsedGB,
 		CurrentTotal:      latestRecord.TotalGB,
@@ -786,7 +786,7 @@ func (m *Manager) analyzeTrend(history *VolumeHistory) (string, float64) {
 }
 
 // predictFuture 预测未来使用
-func (m *Manager) predictFuture(result *PredictionResult, latest UsageRecord) {
+func (m *Manager) predictFuture(result *Result, latest UsageRecord) {
 	m.model.mu.RLock()
 	slope := m.model.slope
 	intercept := m.model.intercept
@@ -866,7 +866,7 @@ func (m *Manager) getAnomalies(volumeName string) []Anomaly {
 }
 
 // generateAdvices 生成优化建议
-func (m *Manager) generateAdvices(result *PredictionResult) []Advice {
+func (m *Manager) generateAdvices(result *Result) []Advice {
 	m.advisor.mu.Lock()
 	defer m.advisor.mu.Unlock()
 
@@ -945,9 +945,9 @@ func (m *Manager) UpdateConfig(cfg *Config) error {
 }
 
 // GetAllPredictions 获取所有卷的预测
-func (m *Manager) GetAllPredictions() (map[string]*PredictionResult, error) {
+func (m *Manager) GetAllPredictions() (map[string]*Result, error) {
 	volumes := m.ListVolumes()
-	results := make(map[string]*PredictionResult)
+	results := make(map[string]*Result)
 
 	for _, vol := range volumes {
 		result, err := m.Predict(vol)
@@ -961,16 +961,16 @@ func (m *Manager) GetAllPredictions() (map[string]*PredictionResult, error) {
 }
 
 // PredictedPoints 返回预测数据点数量
-func (r *PredictionResult) PredictedPoints() int {
+func (r *Result) PredictedPoints() int {
 	return len(r.PredictedUsage)
 }
 
 // HasWarning 是否有预警
-func (r *PredictionResult) HasWarning() bool {
+func (r *Result) HasWarning() bool {
 	return r.WarningInDays > 0 && r.WarningInDays <= 30
 }
 
 // IsCritical 是否处于危险状态
-func (r *PredictionResult) IsCritical() bool {
+func (r *Result) IsCritical() bool {
 	return r.CriticalInDays > 0 && r.CriticalInDays <= 14
 }

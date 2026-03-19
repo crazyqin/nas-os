@@ -16,14 +16,14 @@ func init() {
 }
 
 func TestNewHandlers(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	assert.NotNil(t, h)
 	assert.NotNil(t, h.manager)
 }
 
 func TestHandlers_RegisterRoutes(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 
 	router := gin.New()
@@ -56,7 +56,7 @@ func TestHandlers_RegisterRoutes(t *testing.T) {
 }
 
 func TestHandlers_GetDashboard(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
@@ -82,7 +82,7 @@ func TestHandlers_GetDashboard(t *testing.T) {
 }
 
 func TestHandlers_GetConfig(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -101,7 +101,7 @@ func TestHandlers_GetConfig(t *testing.T) {
 }
 
 func TestHandlers_UpdateConfig(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -114,7 +114,7 @@ func TestHandlers_UpdateConfig(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 
 	// 测试有效配置
-	config := SecurityConfig{
+	config := Config{
 		Firewall: FirewallConfig{
 			Enabled:       true,
 			DefaultPolicy: "deny",
@@ -136,7 +136,7 @@ func TestHandlers_UpdateConfig(t *testing.T) {
 }
 
 func TestHandlers_GetFirewallStatus(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -150,7 +150,7 @@ func TestHandlers_GetFirewallStatus(t *testing.T) {
 }
 
 func TestHandlers_ListFirewallRules(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -164,7 +164,7 @@ func TestHandlers_ListFirewallRules(t *testing.T) {
 }
 
 func TestHandlers_AddFirewallRule(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -189,7 +189,7 @@ func TestHandlers_AddFirewallRule(t *testing.T) {
 }
 
 func TestHandlers_GetFail2BanStatus(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -203,7 +203,7 @@ func TestHandlers_GetFail2BanStatus(t *testing.T) {
 }
 
 func TestHandlers_GetBannedIPs(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -217,7 +217,7 @@ func TestHandlers_GetBannedIPs(t *testing.T) {
 }
 
 func TestHandlers_GetAuditLogs(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
@@ -245,7 +245,7 @@ func TestHandlers_GetAuditLogs(t *testing.T) {
 }
 
 func TestHandlers_GetLoginLogs(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
@@ -273,7 +273,7 @@ func TestHandlers_GetLoginLogs(t *testing.T) {
 }
 
 func TestHandlers_GetAlerts(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
@@ -301,7 +301,7 @@ func TestHandlers_GetAlerts(t *testing.T) {
 }
 
 func TestHandlers_GetBaselineChecks(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -315,7 +315,7 @@ func TestHandlers_GetBaselineChecks(t *testing.T) {
 }
 
 func TestHandlers_RunBaselineCheck(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -329,7 +329,7 @@ func TestHandlers_RunBaselineCheck(t *testing.T) {
 }
 
 func TestHandlers_GetBaselineReport(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	// 先运行一次检查生成报告
 	sm.RunBaselineCheck()
 
@@ -346,7 +346,7 @@ func TestHandlers_GetBaselineReport(t *testing.T) {
 }
 
 func TestHandlers_GetBaselineCategories(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -360,7 +360,7 @@ func TestHandlers_GetBaselineCategories(t *testing.T) {
 }
 
 func TestHandlers_GetBlacklist(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -374,7 +374,7 @@ func TestHandlers_GetBlacklist(t *testing.T) {
 }
 
 func TestHandlers_GetWhitelist(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	h := NewHandlers(sm)
 	router := gin.New()
 	api := router.Group("/api")
@@ -388,7 +388,7 @@ func TestHandlers_GetWhitelist(t *testing.T) {
 }
 
 func TestHandlers_GetAuditStats(t *testing.T) {
-	sm := NewSecurityManager()
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
