@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.38] - 2026-03-19
+
+### Documentation
+- 同步 README.md 版本号至 v2.253.38 (礼部)
+- 同步 docs/USER_GUIDE.md 版本号至 v2.253.38 (礼部)
+
 ## [v2.253.35] - 2026-03-19
 
 ### Documentation
