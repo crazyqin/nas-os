@@ -30,7 +30,7 @@ type MessageType string
 
 const (
 	// MessageTypeSystem represents a system message type
-	MessageTypeSystem       MessageType = "system"
+	MessageTypeSystem MessageType = "system"
 	// MessageTypeNotification represents a notification message type
 	MessageTypeNotification MessageType = "notification"
 	MessageTypeMetric       MessageType = "metric"

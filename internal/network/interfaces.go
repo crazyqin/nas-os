@@ -124,12 +124,10 @@ func (m *Manager) getInterfaceIP(name string) (string, string) {
 			continue
 		}
 		if ipnet.IP.To4() != nil {
-			ones, _ := ipnet.Mask.Size()
+			// 使用更安全的方式生成子网掩码字符串
+			mask := ipnet.Mask
 			return ipnet.IP.String(), fmt.Sprintf("%d.%d.%d.%d",
-				255<<8>>8<<(8-ones%8)>>8,
-				255<<(16-ones)>>8<<ones%8,
-				255<<(24-ones)>>16<<(ones%16),
-				255<<(32-ones)>>24<<(ones%24))
+				mask[0], mask[1], mask[2], mask[3])
 		}
 	}
 

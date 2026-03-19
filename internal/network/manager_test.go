@@ -13,8 +13,8 @@ func init() {
 	gin.SetMode(gin.TestMode)
 }
 
-// TestNewManager 测试创建管理器
-func TestNewManager(t *testing.T) {
+// TestNewManagerBasic 测试创建管理器基本功能
+func TestNewManagerBasic(t *testing.T) {
 	mgr := NewManager("/tmp/test-network-config")
 	if mgr == nil {
 		t.Fatal("管理器创建失败")

@@ -657,10 +657,10 @@ func (e *Engine) buildQuery(req SearchRequest) query.Query {
 
 // Response 搜索响应
 type Response struct {
-	Total    int       `json:"total"`
-	Took     time.Duration  `json:"took"`
-	MaxScore float64        `json:"maxScore"`
-	Results  []Result `json:"results"`
+	Total    int           `json:"total"`
+	Took     time.Duration `json:"took"`
+	MaxScore float64       `json:"maxScore"`
+	Results  []Result      `json:"results"`
 }
 
 // SearchResult 是 Result 的别名，保持向后兼容

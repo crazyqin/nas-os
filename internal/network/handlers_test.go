@@ -216,17 +216,17 @@ func TestMultipleFirewallRules(t *testing.T) {
 	manager := NewManager("")
 
 	manager.firewallRules["allow-ssh"] = &FirewallRule{
-		Name:    "Allow SSH",
-		Action:  "accept",
+		Name:     "Allow SSH",
+		Action:   "accept",
 		DestPort: "22",
-		Enabled: true,
+		Enabled:  true,
 	}
 
 	manager.firewallRules["allow-http"] = &FirewallRule{
-		Name:    "Allow HTTP",
-		Action:  "accept",
+		Name:     "Allow HTTP",
+		Action:   "accept",
 		DestPort: "80",
-		Enabled: true,
+		Enabled:  true,
 	}
 
 	assert.Equal(t, 2, len(manager.firewallRules))

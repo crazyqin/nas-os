@@ -590,9 +590,9 @@ func (cm *Manager) loadState() error {
 	}
 
 	var state struct {
-		MasterID  string                  `json:"master_id"`
+		MasterID  string             `json:"master_id"`
 		Nodes     map[string]*Member `json:"nodes"`
-		Timestamp time.Time               `json:"timestamp"`
+		Timestamp time.Time          `json:"timestamp"`
 	}
 
 	if err := json.Unmarshal(data, &state); err != nil {
