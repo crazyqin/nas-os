@@ -24,8 +24,6 @@ type Template struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-
-
 // TemplateConfig 模板配置
 type TemplateConfig struct {
 	// 默认项目设置

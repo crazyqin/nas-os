@@ -41,8 +41,6 @@ type Archive struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-
-
 // ArchiveConfig 归档配置
 type ArchiveConfig struct {
 	StoragePath        string `json:"storage_path"`        // 归档存储路径

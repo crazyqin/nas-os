@@ -482,8 +482,6 @@ type ParallelConfig struct {
 	MinSize         int64     `json:"minSize"`
 }
 
-
-
 // DefaultParallelConfig 默认并行压缩配置
 func DefaultParallelConfig() *ParallelConfig {
 	return &ParallelConfig{

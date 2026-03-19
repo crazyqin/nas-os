@@ -140,8 +140,6 @@ type Alert struct {
 	AckedAt      *time.Time             `json:"acked_at,omitempty"`
 }
 
-
-
 // ========== 安全基线类型 ==========
 
 // BaselineCheckResult 基线检查结果
@@ -178,8 +176,6 @@ type Config struct {
 	AuditEnabled   bool           `json:"audit_enabled"`
 	AlertEnabled   bool           `json:"alert_enabled"`
 }
-
-
 
 // ========== 通用响应类型 ==========
 

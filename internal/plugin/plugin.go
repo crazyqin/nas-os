@@ -153,8 +153,6 @@ type Instance struct {
 	Running bool   // 是否运行中
 }
 
-
-
 // ExtensionPoint 扩展点定义
 type ExtensionPoint struct {
 	ID          string       `json:"id"`
