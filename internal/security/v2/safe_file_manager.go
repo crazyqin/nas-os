@@ -369,7 +369,9 @@ func (m *SafeFileManager) RemoveAllowedExtension(ext string) {
 
 func randomString(length int) string {
 	b := make([]byte, length)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		panic(err) // crypto/rand 失败是致命错误
+	}
 	return hex.EncodeToString(b)[:length]
 }
 

@@ -152,7 +152,9 @@ func (mm *MFAManager) SetSendWebhookFunc(fn func(url, event string, data map[str
 func (mm *MFAManager) GenerateTOTPSecret() string {
 	// 生成 20 字节的随机密钥
 	secret := make([]byte, 20)
-	rand.Read(secret)
+	if _, err := rand.Read(secret); err != nil {
+		panic(err) // crypto/rand 失败是致命错误
+	}
 
 	// Base32 编码
 	return strings.ToUpper(base32.StdEncoding.EncodeToString(secret))
@@ -212,7 +214,9 @@ func (mm *MFAManager) GenerateRecoveryCodes() []string {
 	for i := 0; i < mm.config.RecoveryCodes; i++ {
 		// 生成 8 位随机字母数字组合
 		bytes := make([]byte, 4)
-		rand.Read(bytes)
+		if _, err := rand.Read(bytes); err != nil {
+			panic(err) // crypto/rand 失败是致命错误
+		}
 		codes[i] = hex.EncodeToString(bytes)
 	}
 	return codes

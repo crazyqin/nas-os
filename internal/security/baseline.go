@@ -821,7 +821,9 @@ func (bm *BaselineManager) checkSharePermissions() BaselineCheckResult {
 // generateReportID 生成报告 ID
 func generateReportID() string {
 	randomBytes := make([]byte, 8)
-	rand.Read(randomBytes)
+	if _, err := rand.Read(randomBytes); err != nil {
+		panic(err) // crypto/rand 失败是致命错误
+	}
 	return fmt.Sprintf("report-%s", hex.EncodeToString(randomBytes))
 }
 
