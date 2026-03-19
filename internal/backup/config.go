@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-// BackupConfig 备份配置
-type BackupConfig struct {
+// Config 备份配置
+type Config struct {
 	// 基本配置
 	BackupPath string `json:"backup_path"`
 	ChunkPath  string `json:"chunk_path"`
@@ -43,11 +43,11 @@ type BackupConfig struct {
 	Timeout          time.Duration `json:"timeout"`
 
 	// 目标配置
-	Targets []BackupTarget `json:"targets"`
+	Targets []Target `json:"targets"`
 }
 
 // Sanitize 返回脱敏后的配置副本（用于日志和调试）
-func (bc *BackupConfig) Sanitize() map[string]interface{} {
+func (bc *Config) Sanitize() map[string]interface{} {
 	targets := make([]map[string]interface{}, len(bc.Targets))
 	for i, t := range bc.Targets {
 		targets[i] = t.SanitizeConfig()
@@ -70,8 +70,8 @@ func (bc *BackupConfig) Sanitize() map[string]interface{} {
 	}
 }
 
-// BackupTarget 备份目标
-type BackupTarget struct {
+// Target 备份目标
+type Target struct {
 	Name        string            `json:"name"`
 	Type        string            `json:"type"` // local, s3, sftp
 	Path        string            `json:"path"`
@@ -80,7 +80,7 @@ type BackupTarget struct {
 }
 
 // SanitizeConfig 返回脱敏后的配置副本（用于日志和调试）
-func (bt *BackupTarget) SanitizeConfig() map[string]interface{} {
+func (bt *Target) SanitizeConfig() map[string]interface{} {
 	return map[string]interface{}{
 		"name":            bt.Name,
 		"type":            bt.Type,
@@ -90,10 +90,14 @@ func (bt *BackupTarget) SanitizeConfig() map[string]interface{} {
 	}
 }
 
+// 兼容类型别名（保持向后兼容）
+type BackupConfig = Config
+type BackupTarget = Target
+
 // ConfigManager 配置管理器
 type ConfigManager struct {
 	configPath string
-	config     *BackupConfig
+	config     *Config
 	mu         sync.RWMutex
 }
 
@@ -108,8 +112,8 @@ func NewConfigManager(configPath string) *ConfigManager {
 }
 
 // DefaultConfig 默认配置
-func DefaultConfig() *BackupConfig {
-	return &BackupConfig{
+func DefaultConfig() *Config {
+	return &Config{
 		BackupPath:         "/var/lib/nas-os/backups",
 		ChunkPath:          "/var/lib/nas-os/backups/chunks",
 		TempPath:           "/var/lib/nas-os/backups/temp",
@@ -125,7 +129,7 @@ func DefaultConfig() *BackupConfig {
 		ChunkSize:          4 * 1024 * 1024, // 4MB
 		IOBufferSize:       64 * 1024,       // 64KB
 		Timeout:            30 * time.Minute,
-		Targets:            make([]BackupTarget, 0),
+		Targets:            make([]Target, 0),
 	}
 }
 
@@ -158,14 +162,14 @@ func (cm *ConfigManager) Save() error {
 }
 
 // Get 获取配置
-func (cm *ConfigManager) Get() *BackupConfig {
+func (cm *ConfigManager) Get() *Config {
 	cm.mu.RLock()
 	defer cm.mu.RUnlock()
 	return cm.config
 }
 
 // Update 更新配置
-func (cm *ConfigManager) Update(config *BackupConfig) error {
+func (cm *ConfigManager) Update(config *Config) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -183,7 +187,7 @@ func (cm *ConfigManager) SetBackupPath(path string) error {
 }
 
 // AddTarget 添加备份目标
-func (cm *ConfigManager) AddTarget(target BackupTarget) error {
+func (cm *ConfigManager) AddTarget(target Target) error {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -242,8 +246,8 @@ func (rp *RetentionPolicy) ShouldKeep(snapshot *Snapshot, now time.Time) bool {
 	return false
 }
 
-// BackupPolicy 备份策略
-type BackupPolicy struct {
+// Policy 备份策略
+type Policy struct {
 	Name        string               `json:"name"`
 	Source      string               `json:"source"`
 	Schedule    string               `json:"schedule"`
@@ -269,37 +273,37 @@ type CompressionSettings struct {
 
 // PolicyManager 策略管理器
 type PolicyManager struct {
-	policies map[string]*BackupPolicy
+	policies map[string]*Policy
 	mu       sync.RWMutex
 }
 
 // NewPolicyManager 创建策略管理器
 func NewPolicyManager() *PolicyManager {
 	return &PolicyManager{
-		policies: make(map[string]*BackupPolicy),
+		policies: make(map[string]*Policy),
 	}
 }
 
 // Add 添加策略
-func (pm *PolicyManager) Add(policy *BackupPolicy) {
+func (pm *PolicyManager) Add(policy *Policy) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	pm.policies[policy.Name] = policy
 }
 
 // Get 获取策略
-func (pm *PolicyManager) Get(name string) *BackupPolicy {
+func (pm *PolicyManager) Get(name string) *Policy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 	return pm.policies[name]
 }
 
 // List 列出策略
-func (pm *PolicyManager) List() []*BackupPolicy {
+func (pm *PolicyManager) List() []*Policy {
 	pm.mu.RLock()
 	defer pm.mu.RUnlock()
 
-	policies := make([]*BackupPolicy, 0, len(pm.policies))
+	policies := make([]*Policy, 0, len(pm.policies))
 	for _, p := range pm.policies {
 		policies = append(policies, p)
 	}
@@ -314,8 +318,11 @@ func (pm *PolicyManager) Remove(name string) {
 }
 
 // Update 更新策略
-func (pm *PolicyManager) Update(policy *BackupPolicy) {
+func (pm *PolicyManager) Update(policy *Policy) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
 	pm.policies[policy.Name] = policy
 }
+
+// 兼容类型别名
+type BackupPolicy = Policy
