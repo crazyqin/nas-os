@@ -208,7 +208,7 @@ func (m *Manager) getDDNSProvider(provider, token, secret string) (DDNSProvider,
 
 // ========== DuckDNS 实现 ==========
 
-// DuckDNSProvider DuckDNS
+// DuckDNSProvider DuckDNS 服务提供商实现
 type DuckDNSProvider struct {
 	Token string
 }
@@ -240,7 +240,7 @@ func (p *DuckDNSProvider) Update(domain, ip string) error {
 
 // ========== No-IP 实现 ==========
 
-// NoIPProvider No-IP
+// NoIPProvider No-IP 服务提供商实现
 type NoIPProvider struct {
 	Token  string // 用户名
 	Secret string // 密码

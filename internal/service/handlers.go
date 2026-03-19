@@ -452,18 +452,18 @@ func (h *Handlers) unregisterService(c *gin.Context) {
 	api.OKWithMessage(c, "服务已注销", gin.H{"name": name})
 }
 
-// BatchOperationRequest 批量操作请求
+// BatchOperationRequest 批量操作请求结构
 type BatchOperationRequest struct {
 	Names []string `json:"names" binding:"required"`
 }
 
-// BatchOperationResponse 批量操作响应
+// BatchOperationResponse 批量操作响应结构
 type BatchOperationResponse struct {
 	Success []string          `json:"success"`
 	Failed  map[string]string `json:"failed,omitempty"`
 }
 
-// BatchStart 批量启动服务（可选功能，未暴露路由）
+// BatchStart 批量启动服务
 func (h *Handlers) BatchStart(names []string) *BatchOperationResponse {
 	result := &BatchOperationResponse{
 		Success: make([]string, 0),
@@ -481,7 +481,7 @@ func (h *Handlers) BatchStart(names []string) *BatchOperationResponse {
 	return result
 }
 
-// BatchStop 批量停止服务（可选功能，未暴露路由）
+// BatchStop 批量停止服务
 func (h *Handlers) BatchStop(names []string) *BatchOperationResponse {
 	result := &BatchOperationResponse{
 		Success: make([]string, 0),
@@ -499,7 +499,7 @@ func (h *Handlers) BatchStop(names []string) *BatchOperationResponse {
 	return result
 }
 
-// BatchRestart 批量重启服务（可选功能，未暴露路由）
+// BatchRestart 批量重启服务
 func (h *Handlers) BatchRestart(names []string) *BatchOperationResponse {
 	result := &BatchOperationResponse{
 		Success: make([]string, 0),

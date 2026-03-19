@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // SQLite driver for database
 )
 
 // Tag 标签定义
@@ -51,7 +51,7 @@ type TagGroup struct {
 	Count       int    `json:"count"` // 该分组下的标签数量
 }
 
-// 统计信息
+// Stats 统计信息
 type Stats struct {
 	TotalTags    int `json:"totalTags"`
 	TotalFiles   int `json:"totalFiles"`

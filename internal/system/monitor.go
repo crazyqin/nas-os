@@ -963,10 +963,12 @@ func (m *Monitor) getLoadAverage() ([]float64, error) {
 	return loadAvg, nil
 }
 
+// GetHostname 获取主机名
 func (m *Monitor) GetHostname() string {
 	return m.hostname
 }
 
+// Close 关闭监控器
 func (m *Monitor) Close() {
 	close(m.stopChan)
 	if m.db != nil {

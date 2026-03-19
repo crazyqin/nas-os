@@ -1090,7 +1090,7 @@ func (rm *ReplicationManager) SetHooks(hooks ReplicationHooks) {
 
 // ========== API 接收端 ==========
 
-// TransferRequest 传输请求
+// TransferRequest 快照传输请求结构
 type TransferRequest struct {
 	SnapshotName string               `json:"snapshotName"`
 	Volume       string               `json:"volume"`
@@ -1100,7 +1100,7 @@ type TransferRequest struct {
 	Encrypt      bool                 `json:"encrypt"`
 }
 
-// ReplicationServer 复制服务端
+// ReplicationServer 复制服务端，用于接收远程快照
 type ReplicationServer struct {
 	manager *ReplicationManager
 }
