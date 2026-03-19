@@ -15,35 +15,52 @@ import (
 type PoolStatus string
 
 const (
-	PoolStatusCreating   PoolStatus = "creating"   // 创建中
-	PoolStatusHealthy    PoolStatus = "healthy"    // 健康
-	PoolStatusDegraded   PoolStatus = "degraded"   // 降级（部分磁盘故障）
-	PoolStatusRebuilding PoolStatus = "rebuilding" // 重建中
-	PoolStatusFaulted    PoolStatus = "faulted"    // 故障（不可用）
-	PoolStatusOffline    PoolStatus = "offline"    // 离线
+	// PoolStatusCreating 表示存储池正在创建中
+	PoolStatusCreating PoolStatus = "creating"
+	// PoolStatusHealthy 表示存储池状态健康
+	PoolStatusHealthy PoolStatus = "healthy"
+	// PoolStatusDegraded 表示存储池降级（部分磁盘故障）
+	PoolStatusDegraded PoolStatus = "degraded"
+	// PoolStatusRebuilding 表示存储池正在重建中
+	PoolStatusRebuilding PoolStatus = "rebuilding"
+	// PoolStatusFaulted 表示存储池故障（不可用）
+	PoolStatusFaulted PoolStatus = "faulted"
+	// PoolStatusOffline 表示存储池离线
+	PoolStatusOffline PoolStatus = "offline"
 )
 
 // RAIDLevel RAID 级别
 type RAIDLevel string
 
 const (
-	RAIDLevelSingle RAIDLevel = "single" // 单盘
-	RAIDLevelRAID0  RAIDLevel = "raid0"  // 条带
-	RAIDLevelRAID1  RAIDLevel = "raid1"  // 镜像
-	RAIDLevelRAID5  RAIDLevel = "raid5"  // 分布式奇偶校验
-	RAIDLevelRAID6  RAIDLevel = "raid6"  // 双奇偶校验
-	RAIDLevelRAID10 RAIDLevel = "raid10" // 条带镜像
+	// RAIDLevelSingle 表示单盘模式
+	RAIDLevelSingle RAIDLevel = "single"
+	// RAIDLevelRAID0 表示 RAID0 条带模式
+	RAIDLevelRAID0 RAIDLevel = "raid0"
+	// RAIDLevelRAID1 表示 RAID1 镜像模式
+	RAIDLevelRAID1 RAIDLevel = "raid1"
+	// RAIDLevelRAID5 表示 RAID5 分布式奇偶校验模式
+	RAIDLevelRAID5 RAIDLevel = "raid5"
+	// RAIDLevelRAID6 表示 RAID6 双奇偶校验模式
+	RAIDLevelRAID6 RAIDLevel = "raid6"
+	// RAIDLevelRAID10 表示 RAID10 条带镜像模式
+	RAIDLevelRAID10 RAIDLevel = "raid10"
 )
 
 // DeviceStatus 设备状态
 type DeviceStatus string
 
 const (
-	DeviceStatusOnline  DeviceStatus = "online"  // 在线
-	DeviceStatusOffline DeviceStatus = "offline" // 离线
-	DeviceStatusFaulted DeviceStatus = "faulted" // 故障
-	DeviceStatusSpare   DeviceStatus = "spare"   // 热备
-	DeviceStatusRemoved DeviceStatus = "removed" // 已移除
+	// DeviceStatusOnline 表示设备在线状态
+	DeviceStatusOnline DeviceStatus = "online"
+	// DeviceStatusOffline 表示设备离线状态
+	DeviceStatusOffline DeviceStatus = "offline"
+	// DeviceStatusFaulted 表示设备故障状态
+	DeviceStatusFaulted DeviceStatus = "faulted"
+	// DeviceStatusSpare 表示设备为热备状态
+	DeviceStatusSpare DeviceStatus = "spare"
+	// DeviceStatusRemoved 表示设备已移除状态
+	DeviceStatusRemoved DeviceStatus = "removed"
 )
 
 // Device 磁盘设备信息
@@ -128,7 +145,7 @@ type RAIDConfig struct {
 	Description    string    `json:"description"`
 }
 
-// 预定义 RAID 配置
+// RAIDConfigs 预定义的 RAID 配置映射表
 var RAIDConfigs = map[RAIDLevel]RAIDConfig{
 	RAIDLevelSingle: {
 		Level:          RAIDLevelSingle,

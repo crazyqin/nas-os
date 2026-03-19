@@ -238,7 +238,7 @@ func BenchmarkStorageNode_Creation(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = &storage.StorageNode{
+		_ = &storage.Node{
 			ID:          fmt.Sprintf("node-%d", i),
 			Name:        fmt.Sprintf("node-%d", i),
 			Address:     "192.168.1.1:8080",

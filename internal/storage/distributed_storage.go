@@ -12,19 +12,25 @@ import (
 
 // ========== 分布式存储节点管理 ==========
 
-// NodeStatus 节点状态
+// NodeStatus represents the operational status of a storage node.
 type NodeStatus string
 
+// NodeStatus constants define the possible states of a storage node.
 const (
-	NodeStatusOnline   NodeStatus = "online"   // 在线
-	NodeStatusOffline  NodeStatus = "offline"  // 离线
-	NodeStatusDegraded NodeStatus = "degraded" // 降级
-	NodeStatusRecovery NodeStatus = "recovery" // 恢复中
-	NodeStatusMaintain NodeStatus = "maintain" // 维护中
+	// NodeStatusOnline indicates the node is fully operational and accepting requests.
+	NodeStatusOnline NodeStatus = "online"
+	// NodeStatusOffline indicates the node is not reachable or responding.
+	NodeStatusOffline NodeStatus = "offline"
+	// NodeStatusDegraded indicates the node is operational but with reduced capacity or performance.
+	NodeStatusDegraded NodeStatus = "degraded"
+	// NodeStatusRecovery indicates the node is currently recovering from a failure or maintenance.
+	NodeStatusRecovery NodeStatus = "recovery"
+	// NodeStatusMaintain indicates the node is under maintenance and not accepting new requests.
+	NodeStatusMaintain NodeStatus = "maintain"
 )
 
-// StorageNode 存储节点
-type StorageNode struct {
+// Node represents a storage node in the distributed system.
+type Node struct {
 	ID           string            `json:"id"`           // 节点唯一标识
 	Name         string            `json:"name"`         // 节点名称
 	Address      string            `json:"address"`      // 节点地址 (IP:Port)
@@ -68,13 +74,17 @@ type HealthDetails struct {
 
 // ========== 分片策略 ==========
 
-// ShardingStrategy 分片策略类型
+// ShardingStrategy defines the algorithm used to distribute data across shards.
 type ShardingStrategy string
 
+// ShardingStrategy constants define the available sharding algorithms.
 const (
-	ShardingHash       ShardingStrategy = "hash"       // 哈希分片
-	ShardingRange      ShardingStrategy = "range"      // 范围分片
-	ShardingConsistent ShardingStrategy = "consistent" // 一致性哈希
+	// ShardingHash uses a hash function to distribute keys uniformly across shards.
+	ShardingHash ShardingStrategy = "hash"
+	// ShardingRange distributes keys based on key ranges, suitable for ordered data.
+	ShardingRange ShardingStrategy = "range"
+	// ShardingConsistent uses consistent hashing to minimize reshuffling when nodes change.
+	ShardingConsistent ShardingStrategy = "consistent"
 )
 
 // ShardingPolicy 分片策略配置
@@ -113,13 +123,17 @@ type KeyRange struct {
 
 // ========== 副本策略 ==========
 
-// ReplicaStrategy 副本策略类型
+// ReplicaStrategy defines the replication mode for data consistency.
 type ReplicaStrategy string
 
+// ReplicaStrategy constants define the available replication modes.
 const (
-	ReplicaSync     ReplicaStrategy = "sync"     // 同步复制
-	ReplicaAsync    ReplicaStrategy = "async"    // 异步复制
-	ReplicaSemiSync ReplicaStrategy = "semiSync" // 半同步复制
+	// ReplicaSync ensures writes are acknowledged only after all replicas confirm.
+	ReplicaSync ReplicaStrategy = "sync"
+	// ReplicaSync acknowledges writes immediately without waiting for replica confirmation.
+	ReplicaAsync ReplicaStrategy = "async"
+	// ReplicaSemiSync acknowledges writes after the primary and at least one replica confirm.
+	ReplicaSemiSync ReplicaStrategy = "semiSync"
 )
 
 // PlacementConstraint 放置约束
@@ -163,19 +177,25 @@ type ReplicaStatus struct {
 
 // ========== 存储池管理 ==========
 
-// PoolStatus 存储池状态
+// PoolStatus represents the operational status of a storage pool.
 type PoolStatus string
 
+// PoolStatus constants define the possible states of a storage pool.
 const (
-	PoolStatusActive   PoolStatus = "active"   // 活跃
-	PoolStatusDegraded PoolStatus = "degraded" // 降级
-	PoolStatusRecovery PoolStatus = "recovery" // 恢复中
-	PoolStatusReadOnly PoolStatus = "readOnly" // 只读
-	PoolStatusOffline  PoolStatus = "offline"  // 离线
+	// PoolStatusActive indicates the pool is fully operational.
+	PoolStatusActive PoolStatus = "active"
+	// PoolStatusDegraded indicates the pool is operational with reduced capacity or replicas.
+	PoolStatusDegraded PoolStatus = "degraded"
+	// PoolStatusRecovery indicates the pool is recovering from a failure or rebalancing.
+	PoolStatusRecovery PoolStatus = "recovery"
+	// PoolStatusReadOnly indicates the pool accepts reads but not writes.
+	PoolStatusReadOnly PoolStatus = "readOnly"
+	// PoolStatusOffline indicates the pool is not available for any operations.
+	PoolStatusOffline PoolStatus = "offline"
 )
 
-// StoragePool 存储池
-type StoragePool struct {
+// Pool represents a storage pool that aggregates multiple nodes.
+type Pool struct {
 	ID            string          `json:"id"`
 	Name          string          `json:"name"`
 	Description   string          `json:"description"`
@@ -213,8 +233,8 @@ type PoolStats struct {
 
 // DistributedManager 分布式存储管理器
 type DistributedManager struct {
-	nodes               map[string]*StorageNode    // 节点映射
-	pools               map[string]*StoragePool    // 存储池映射
+	nodes               map[string]*Node    // 节点映射
+	pools               map[string]*Pool    // 存储池映射
 	shardPolicies       map[string]*ShardingPolicy // 分片策略
 	replicaPolicies     map[string]*ReplicaPolicy  // 副本策略
 	mu                  sync.RWMutex
@@ -246,8 +266,8 @@ func NewDistributedManager(config *DistributedConfig) *DistributedManager {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &DistributedManager{
-		nodes:               make(map[string]*StorageNode),
-		pools:               make(map[string]*StoragePool),
+		nodes:               make(map[string]*Node),
+		pools:               make(map[string]*Pool),
 		shardPolicies:       make(map[string]*ShardingPolicy),
 		replicaPolicies:     make(map[string]*ReplicaPolicy),
 		healthCheckInterval: config.HealthCheckInterval,
@@ -290,7 +310,7 @@ func (dm *DistributedManager) healthCheckLoop() {
 // runHealthChecks 执行健康检查
 func (dm *DistributedManager) runHealthChecks() {
 	dm.mu.RLock()
-	nodes := make([]*StorageNode, 0, len(dm.nodes))
+	nodes := make([]*Node, 0, len(dm.nodes))
 	for _, node := range dm.nodes {
 		nodes = append(nodes, node)
 	}
@@ -303,7 +323,7 @@ func (dm *DistributedManager) runHealthChecks() {
 }
 
 // checkNodeHealth 检查节点健康状态
-func (dm *DistributedManager) checkNodeHealth(node *StorageNode) *NodeHealth {
+func (dm *DistributedManager) checkNodeHealth(node *Node) *NodeHealth {
 	ctx, cancel := context.WithTimeout(dm.ctx, dm.healthCheckTimeout)
 	defer cancel()
 
@@ -396,7 +416,7 @@ func calculateHealthScore(health *NodeHealth) int {
 // ========== 节点管理 ==========
 
 // RegisterNode 注册节点
-func (dm *DistributedManager) RegisterNode(node *StorageNode) error {
+func (dm *DistributedManager) RegisterNode(node *Node) error {
 	if node.ID == "" {
 		return fmt.Errorf("节点 ID 不能为空")
 	}
@@ -447,7 +467,7 @@ func (dm *DistributedManager) UnregisterNode(nodeID string) error {
 }
 
 // GetNode 获取节点
-func (dm *DistributedManager) GetNode(nodeID string) (*StorageNode, error) {
+func (dm *DistributedManager) GetNode(nodeID string) (*Node, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
@@ -460,11 +480,11 @@ func (dm *DistributedManager) GetNode(nodeID string) (*StorageNode, error) {
 }
 
 // ListNodes 列出所有节点
-func (dm *DistributedManager) ListNodes() []*StorageNode {
+func (dm *DistributedManager) ListNodes() []*Node {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
-	nodes := make([]*StorageNode, 0, len(dm.nodes))
+	nodes := make([]*Node, 0, len(dm.nodes))
 	for _, node := range dm.nodes {
 		nodes = append(nodes, node)
 	}
@@ -472,11 +492,11 @@ func (dm *DistributedManager) ListNodes() []*StorageNode {
 }
 
 // ListNodesByStatus 按状态列出节点
-func (dm *DistributedManager) ListNodesByStatus(status NodeStatus) []*StorageNode {
+func (dm *DistributedManager) ListNodesByStatus(status NodeStatus) []*Node {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
-	nodes := make([]*StorageNode, 0)
+	nodes := make([]*Node, 0)
 	for _, node := range dm.nodes {
 		if node.Status == status {
 			nodes = append(nodes, node)
@@ -709,7 +729,7 @@ func (dm *DistributedManager) DeleteReplicaPolicy(policyID string) error {
 // ========== 存储池管理 ==========
 
 // CreatePool 创建存储池
-func (dm *DistributedManager) CreatePool(pool *StoragePool) error {
+func (dm *DistributedManager) CreatePool(pool *Pool) error {
 	if pool.ID == "" {
 		return fmt.Errorf("存储池 ID 不能为空")
 	}
@@ -759,7 +779,7 @@ func (dm *DistributedManager) CreatePool(pool *StoragePool) error {
 }
 
 // GetPool 获取存储池
-func (dm *DistributedManager) GetPool(poolID string) (*StoragePool, error) {
+func (dm *DistributedManager) GetPool(poolID string) (*Pool, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
@@ -772,11 +792,11 @@ func (dm *DistributedManager) GetPool(poolID string) (*StoragePool, error) {
 }
 
 // ListPools 列出所有存储池
-func (dm *DistributedManager) ListPools() []*StoragePool {
+func (dm *DistributedManager) ListPools() []*Pool {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
-	pools := make([]*StoragePool, 0, len(dm.pools))
+	pools := make([]*Pool, 0, len(dm.pools))
 	for _, p := range dm.pools {
 		pools = append(pools, p)
 	}
@@ -913,7 +933,7 @@ func (dm *DistributedManager) GetPoolStats(poolID string) (*PoolStats, error) {
 }
 
 // calculatePoolCapacity 计算存储池容量
-func (dm *DistributedManager) calculatePoolCapacity(pool *StoragePool) {
+func (dm *DistributedManager) calculatePoolCapacity(pool *Pool) {
 	var totalCapacity, totalUsed uint64
 
 	for _, nodeID := range pool.Nodes {
@@ -991,7 +1011,7 @@ func (dm *DistributedManager) AllocateShards(poolID string) error {
 	}
 
 	// 获取可用节点
-	availableNodes := make([]*StorageNode, 0)
+	availableNodes := make([]*Node, 0)
 	for _, nodeID := range pool.Nodes {
 		if node, exists := dm.nodes[nodeID]; exists && node.Status == NodeStatusOnline {
 			availableNodes = append(availableNodes, node)
@@ -1084,7 +1104,7 @@ func (dm *DistributedManager) RebalanceShards(poolID string) error {
 	}
 
 	// 获取当前可用节点
-	availableNodes := make([]*StorageNode, 0)
+	availableNodes := make([]*Node, 0)
 	for _, nodeID := range pool.Nodes {
 		if node, exists := dm.nodes[nodeID]; exists && node.Status == NodeStatusOnline {
 			availableNodes = append(availableNodes, node)
@@ -1268,7 +1288,7 @@ type ClusterHealth struct {
 // ========== 数据放置接口 ==========
 
 // GetNodeForKey 根据键获取应该存放的节点（一致性哈希）
-func (dm *DistributedManager) GetNodeForKey(poolID, key string) (*StorageNode, error) {
+func (dm *DistributedManager) GetNodeForKey(poolID, key string) (*Node, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
@@ -1326,7 +1346,7 @@ func (dm *DistributedManager) GetNodeForKey(poolID, key string) (*StorageNode, e
 }
 
 // GetReplicaNodes 获取副本节点列表
-func (dm *DistributedManager) GetReplicaNodes(poolID, key string) ([]*StorageNode, error) {
+func (dm *DistributedManager) GetReplicaNodes(poolID, key string) ([]*Node, error) {
 	dm.mu.RLock()
 	defer dm.mu.RUnlock()
 
@@ -1365,7 +1385,7 @@ func (dm *DistributedManager) GetReplicaNodes(poolID, key string) ([]*StorageNod
 	shard := pool.Shards[shardIndex]
 
 	// 收集所有副本节点
-	nodes := make([]*StorageNode, 0, len(shard.ReplicaNodes)+1)
+	nodes := make([]*Node, 0, len(shard.ReplicaNodes)+1)
 
 	// 主节点
 	if node, exists := dm.nodes[shard.PrimaryNode]; exists {
