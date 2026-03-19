@@ -135,7 +135,7 @@ func main() {
 
 	// 初始化集群服务（可选）
 	hostname, _ := os.Hostname()
-	clusterServices, err := cluster.InitializeCluster(cluster.ClusterRootConfig{
+	clusterServices, err := cluster.InitializeCluster(cluster.RootConfig{
 		NodeID:  hostname,
 		DataDir: "/var/lib/nas-os",
 	}, logger)
@@ -188,7 +188,7 @@ func main() {
 	}
 }
 
-func getClusterRole(services *cluster.ClusterServices) string {
+func getClusterRole(services *cluster.Services) string {
 	if services.HA.IsLeader() {
 		return "leader"
 	}

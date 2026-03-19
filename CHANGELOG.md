@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.15] - 2026-03-19
+
+### Improvements
+- 版本号同步 (version.go: 2.253.11 → 2.253.15)
+- 文档版本一致性更新
+
 ## [v2.253.14] - 2026-03-19
 
 ### Bug Fixes

@@ -233,7 +233,7 @@ func (s *Service) CompressParallel(ctx context.Context, paths []string, config *
 }
 
 // CompressParallelWithProgress 带进度回调的并行压缩
-func (s *Service) CompressParallelWithProgress(ctx context.Context, paths []string, config *Config, callback ProgressCallback) (*ParallelCompressResult, error) {
+func (s *Service) CompressParallelWithProgress(ctx context.Context, paths []string, config *ParallelConfig, callback ProgressCallback) (*ParallelCompressResult, error) {
 	if s.parallelCompressor == nil {
 		return nil, ErrParallelNotAvailable
 	}
