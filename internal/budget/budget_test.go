@@ -644,8 +644,8 @@ func TestPaginationBounds(t *testing.T) {
 		{100, 1, 10, 0, 10},
 		{100, 2, 10, 10, 20},
 		{5, 1, 10, 0, 5},
-		{100, 0, 10, 0, 10},  // Invalid page defaults to 1
-		{100, 1, 0, 0, 100},  // Invalid pageSize defaults to 20, but let's check
+		{100, 0, 10, 0, 10}, // Invalid page defaults to 1
+		{100, 1, 0, 0, 100}, // Invalid pageSize defaults to 20, but let's check
 	}
 
 	for _, tt := range tests {

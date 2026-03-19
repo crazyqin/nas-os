@@ -235,16 +235,16 @@ type CompressionProgressSnapshot struct {
 
 // CompressionState 压缩状态（用于恢复）
 type CompressionState struct {
-	ID             string        `json:"id"`
-	StartedAt      time.Time     `json:"startedAt"`
-	UpdatedAt      time.Time     `json:"updatedAt"`
-	Status         string        `json:"status"` // running, paused, completed, failed
-	TotalFiles     int64         `json:"totalFiles"`
-	ProcessedFiles []string      `json:"processedFiles"`
-	PendingFiles   []string      `json:"pendingFiles"`
-	FailedFiles    []FailedFile  `json:"failedFiles"`
-	BytesDone      int64         `json:"bytesDone"`
-	BytesSaved     int64         `json:"bytesSaved"`
+	ID             string         `json:"id"`
+	StartedAt      time.Time      `json:"startedAt"`
+	UpdatedAt      time.Time      `json:"updatedAt"`
+	Status         string         `json:"status"` // running, paused, completed, failed
+	TotalFiles     int64          `json:"totalFiles"`
+	ProcessedFiles []string       `json:"processedFiles"`
+	PendingFiles   []string       `json:"pendingFiles"`
+	FailedFiles    []FailedFile   `json:"failedFiles"`
+	BytesDone      int64          `json:"bytesDone"`
+	BytesSaved     int64          `json:"bytesSaved"`
 	Config         ParallelConfig `json:"config"`
 }
 

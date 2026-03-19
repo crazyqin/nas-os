@@ -20,7 +20,7 @@ import (
 
 var (
 	// ErrConnectionClosed indicates the connection has been closed
-	ErrConnectionClosed   = errors.New("connection closed")
+	ErrConnectionClosed = errors.New("connection closed")
 	// ErrReconnectFailed indicates reconnection has failed
 	ErrReconnectFailed    = errors.New("reconnection failed")
 	ErrMaxReconnect       = errors.New("max reconnection attempts reached")
