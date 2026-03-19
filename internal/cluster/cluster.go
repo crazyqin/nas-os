@@ -9,30 +9,45 @@ import (
 	"go.uber.org/zap"
 )
 
+// 错误定义
 var (
-	ErrNodeNotFound      = errors.New("node not found")
+	// ErrNodeNotFound 节点未找到错误
+	ErrNodeNotFound = errors.New("node not found")
+	// ErrNodeAlreadyExists 节点已存在错误
 	ErrNodeAlreadyExists = errors.New("node already exists")
-	ErrClusterNotReady   = errors.New("cluster not ready")
-	ErrNoLeader          = errors.New("no leader available")
-	ErrSplitBrain        = errors.New("split brain detected")
+	// ErrClusterNotReady 集群未就绪错误
+	ErrClusterNotReady = errors.New("cluster not ready")
+	// ErrNoLeader 无可用领导者错误
+	ErrNoLeader = errors.New("no leader available")
+	// ErrSplitBrain 脑裂检测错误
+	ErrSplitBrain = errors.New("split brain detected")
 )
 
 // NodeState 节点状态
 type NodeState string
 
+// 节点状态常量
 const (
-	NodeStateActive   NodeState = "active"
+	// NodeStateActive 节点活跃状态
+	NodeStateActive NodeState = "active"
+	// NodeStateInactive 节点非活跃状态
 	NodeStateInactive NodeState = "inactive"
-	NodeStateSuspect  NodeState = "suspect"
-	NodeStateFailed   NodeState = "failed"
+	// NodeStateSuspect 节点可疑状态
+	NodeStateSuspect NodeState = "suspect"
+	// NodeStateFailed 节点失败状态
+	NodeStateFailed NodeState = "failed"
 )
 
 // NodeRole 节点角色
 type NodeRole string
 
+// 节点角色常量
 const (
-	NodeRoleLeader    NodeRole = "leader"
-	NodeRoleFollower  NodeRole = "follower"
+	// NodeRoleLeader 领导者角色
+	NodeRoleLeader NodeRole = "leader"
+	// NodeRoleFollower 跟随者角色
+	NodeRoleFollower NodeRole = "follower"
+	// NodeRoleCandidate 候选者角色
 	NodeRoleCandidate NodeRole = "candidate"
 )
 
@@ -50,8 +65,8 @@ type Node struct {
 	Priority      int               `json:"priority"` // 用于领导者选举优先级
 }
 
-// ClusterConfig 集群配置
-type ClusterConfig struct {
+// Config 集群配置
+type Config struct {
 	NodeID              string        `json:"node_id"`
 	NodeName            string        `json:"node_name"`
 	Address             string        `json:"address"`
@@ -74,7 +89,7 @@ type PeerConfig struct {
 
 // Cluster 集群管理器
 type Cluster struct {
-	config    *ClusterConfig
+	config    *Config
 	localNode *Node
 	nodes     map[string]*Node
 	leader    *Node
@@ -99,7 +114,7 @@ type Cluster struct {
 }
 
 // NewCluster 创建集群管理器
-func NewCluster(config *ClusterConfig, logger *zap.Logger) *Cluster {
+func NewCluster(config *Config, logger *zap.Logger) *Cluster {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	c := &Cluster{
@@ -459,8 +474,8 @@ func (c *Cluster) GetLocalNode() *Node {
 	return c.localNode
 }
 
-// ClusterStats 集群统计
-type ClusterStats struct {
+// Stats 集群统计
+type Stats struct {
 	TotalNodes  int    `json:"total_nodes"`
 	ActiveNodes int    `json:"active_nodes"`
 	FailedNodes int    `json:"failed_nodes"`
@@ -469,11 +484,11 @@ type ClusterStats struct {
 }
 
 // GetStats 获取集群统计
-func (c *Cluster) GetStats() ClusterStats {
+func (c *Cluster) GetStats() Stats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	stats := ClusterStats{
+	stats := Stats{
 		TotalNodes: len(c.nodes),
 		IsLeader:   c.localNode.Role == NodeRoleLeader,
 	}

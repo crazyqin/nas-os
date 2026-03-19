@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.14] - 2026-03-19
+
+### Bug Fixes
+- 修复 internal/cluster 模块 revive linter 错误
+  - 为导出变量和常量添加注释 (ErrNodeNotFound, NodeStateActive 等)
+  - 重命名类型消除命名重复 (ClusterConfig→Config, ClusterStats→Stats, ClusterAPI→API)
+- 修复 internal/web/storage_handlers_extended_test.go 测试断言类型
+
+### Security
+- 刑部安全审计发现 cluster 模块潜在安全问题（待后续修复）
+  - 命令注入风险 (sync.go)
+  - 缺少认证授权 (handlers.go)
+  - 输入验证缺失
+
 ## [v2.253.7] - 2026-03-19
 
 ### Bug Fixes
