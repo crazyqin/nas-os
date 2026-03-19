@@ -10,7 +10,7 @@ const (
 	// HighlightStart is the start tag for highlighting
 	HighlightStart = "<mark>"
 	// HighlightEnd is the end tag for highlighting
-	HighlightEnd   = "</mark>"
+	HighlightEnd = "</mark>"
 )
 
 // Highlighter 高亮处理器

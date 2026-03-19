@@ -764,8 +764,8 @@ func TestMigrateRequest_JSON(t *testing.T) {
 	}
 }
 
-func TestTieringStatus_JSON(t *testing.T) {
-	status := TieringStatus{
+func TestStatus_JSON(t *testing.T) {
+	status := Status{
 		Enabled:      true,
 		RunningTasks: 2,
 		PendingTasks: 5,
@@ -776,12 +776,12 @@ func TestTieringStatus_JSON(t *testing.T) {
 
 	data, err := json.Marshal(status)
 	if err != nil {
-		t.Fatalf("Failed to marshal TieringStatus: %v", err)
+		t.Fatalf("Failed to marshal Status: %v", err)
 	}
 
-	var unmarshaled TieringStatus
+	var unmarshaled Status
 	if err := json.Unmarshal(data, &unmarshaled); err != nil {
-		t.Fatalf("Failed to unmarshal TieringStatus: %v", err)
+		t.Fatalf("Failed to unmarshal Status: %v", err)
 	}
 
 	if unmarshaled.Enabled != status.Enabled {

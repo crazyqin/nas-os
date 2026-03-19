@@ -601,7 +601,7 @@ func TestScriptHandler_Name(t *testing.T) {
 
 func TestIntegration_FullWorkflow(t *testing.T) {
 	// 创建调度器
-	s, err := NewScheduler(&SchedulerConfig{
+	s, err := NewScheduler(&Config{
 		MaxConcurrentTasks: 5,
 		StoragePath:        "",
 	})

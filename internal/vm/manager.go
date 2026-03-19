@@ -31,8 +31,8 @@ type Manager struct {
 	isoPath          string
 	vncPortBase      int
 	vms              map[string]*VM
-	snapshots        map[string]*VMSnapshot
-	templates        map[string]*VMTemplate
+	snapshots        map[string]*Snapshot
+	templates        map[string]*Template
 	logger           *zap.Logger
 	libvirtAvailable bool
 }
@@ -58,8 +58,8 @@ func NewManager(storagePath string, logger *zap.Logger) (*Manager, error) {
 		isoPath:          isoPath,
 		vncPortBase:      DefaultVNCPortBase,
 		vms:              make(map[string]*VM),
-		snapshots:        make(map[string]*VMSnapshot),
-		templates:        make(map[string]*VMTemplate),
+		snapshots:        make(map[string]*Snapshot),
+		templates:        make(map[string]*Template),
 		logger:           logger,
 		libvirtAvailable: checkLibvirt(),
 	}
@@ -108,7 +108,7 @@ func (m *Manager) loadVMs() error {
 		if file.IsDir() && !strings.HasPrefix(file.Name(), ".") {
 			vmConfigPath := filepath.Join(m.storagePath, file.Name(), "config.json")
 			if _, err := os.Stat(vmConfigPath); err == nil {
-				vm, err := loadVMConfig(vmConfigPath)
+				vm, err := loadConfig(vmConfigPath)
 				if err == nil {
 					m.vms[vm.ID] = vm
 					m.logger.Debug("加载 VM 配置", zap.String("vmId", vm.ID), zap.String("name", vm.Name))
@@ -154,7 +154,7 @@ func (m *Manager) loadSnapshots() error {
 			return err
 		}
 
-		var snapshots []*VMSnapshot
+		var snapshots []*Snapshot
 		if err := json.Unmarshal(data, &snapshots); err != nil {
 			return err
 		}
@@ -184,12 +184,12 @@ func (m *Manager) loadTemplates() error {
 
 // createBuiltInTemplates 创建内置模板
 func (m *Manager) createBuiltInTemplates() {
-	templates := []VMTemplate{
+	templates := []Template{
 		{
 			ID:          "tpl-ubuntu-2204",
 			Name:        "Ubuntu 22.04 LTS",
 			Description: "Ubuntu 22.04 LTS 默认配置",
-			Type:        VMTypeLinux,
+			Type:        TypeLinux,
 			CPU:         2,
 			Memory:      2048,
 			DiskSize:    20,
@@ -201,7 +201,7 @@ func (m *Manager) createBuiltInTemplates() {
 			ID:          "tpl-debian-11",
 			Name:        "Debian 11",
 			Description: "Debian 11 默认配置",
-			Type:        VMTypeLinux,
+			Type:        TypeLinux,
 			CPU:         2,
 			Memory:      2048,
 			DiskSize:    20,
@@ -213,7 +213,7 @@ func (m *Manager) createBuiltInTemplates() {
 			ID:          "tpl-windows-11",
 			Name:        "Windows 11",
 			Description: "Windows 11 默认配置",
-			Type:        VMTypeWindows,
+			Type:        TypeWindows,
 			CPU:         4,
 			Memory:      4096,
 			DiskSize:    60,
@@ -225,7 +225,7 @@ func (m *Manager) createBuiltInTemplates() {
 			ID:          "tpl-windows-10",
 			Name:        "Windows 10",
 			Description: "Windows 10 默认配置",
-			Type:        VMTypeWindows,
+			Type:        TypeWindows,
 			CPU:         2,
 			Memory:      4096,
 			DiskSize:    50,
@@ -241,7 +241,7 @@ func (m *Manager) createBuiltInTemplates() {
 }
 
 // CreateVM 创建虚拟机
-func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
+func (m *Manager) CreateVM(ctx context.Context, config Config) (*VM, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -258,7 +258,7 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 		Name:        config.Name,
 		Description: config.Description,
 		Type:        config.Type,
-		Status:      VMStatusCreating,
+		Status:      StatusCreating,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 		CPU:         config.CPU,
@@ -300,7 +300,7 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 	}
 
 	// 保存 VM 配置
-	if err := m.saveVMConfig(vm); err != nil {
+	if err := m.saveConfig(vm); err != nil {
 		_ = os.RemoveAll(vmDir)
 		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
 	}
@@ -316,7 +316,7 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 		}
 	}
 
-	vm.Status = VMStatusStopped
+	vm.Status = StatusStopped
 	vm.UpdatedAt = time.Now()
 
 	m.logger.Info("VM 创建成功", zap.String("vmId", vmID), zap.String("name", vm.Name))
@@ -325,7 +325,7 @@ func (m *Manager) CreateVM(ctx context.Context, config VMConfig) (*VM, error) {
 }
 
 // validateConfig 验证 VM 配置
-func (m *Manager) validateConfig(config VMConfig) error {
+func (m *Manager) validateConfig(config Config) error {
 	if config.Name == "" {
 		return fmt.Errorf("VM 名称不能为空")
 	}
@@ -479,8 +479,8 @@ func (m *Manager) allocateVNCPort() int {
 	return 0 // 无法分配
 }
 
-// saveVMConfig 保存 VM 配置
-func (m *Manager) saveVMConfig(vm *VM) error {
+// saveConfig 保存 VM 配置
+func (m *Manager) saveConfig(vm *VM) error {
 	vmDir := filepath.Join(m.storagePath, vm.ID)
 	configPath := filepath.Join(vmDir, "config.json")
 
@@ -496,8 +496,8 @@ func (m *Manager) saveVMConfig(vm *VM) error {
 	return nil
 }
 
-// loadVMConfig 加载 VM 配置
-func loadVMConfig(configPath string) (*VM, error) {
+// loadConfig 加载 VM 配置
+func loadConfig(configPath string) (*VM, error) {
 	// #nosec G304 -- configPath is built from internally managed storagePath
 	data, err := os.ReadFile(configPath)
 	if err != nil {
@@ -548,11 +548,11 @@ func (m *Manager) StartVM(ctx context.Context, vmID string) error {
 		return fmt.Errorf("VM %s 不存在", vmID)
 	}
 
-	if vm.Status == VMStatusRunning {
+	if vm.Status == StatusRunning {
 		return fmt.Errorf("VM 已在运行中")
 	}
 
-	vm.Status = VMStatusRunning
+	vm.Status = StatusRunning
 	vm.UpdatedAt = time.Now()
 
 	if m.libvirtAvailable {
@@ -560,7 +560,7 @@ func (m *Manager) StartVM(ctx context.Context, vmID string) error {
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "start", vm.Name)
 		if err := cmd.Run(); err != nil {
 			m.logger.Warn("启动 VM 失败", zap.Error(err), zap.String("vm", vmID))
-			vm.Status = VMStatusStopped
+			vm.Status = StatusStopped
 			return fmt.Errorf("启动 VM 失败：%w", err)
 		}
 	}
@@ -579,11 +579,11 @@ func (m *Manager) StopVM(ctx context.Context, vmID string, force bool) error {
 		return fmt.Errorf("VM %s 不存在", vmID)
 	}
 
-	if vm.Status == VMStatusStopped {
+	if vm.Status == StatusStopped {
 		return fmt.Errorf("VM 已停止")
 	}
 
-	vm.Status = VMStatusStopped
+	vm.Status = StatusStopped
 	vm.UpdatedAt = time.Now()
 
 	if m.libvirtAvailable {
@@ -615,12 +615,12 @@ func (m *Manager) DeleteVM(ctx context.Context, vmID string, force bool) error {
 		return fmt.Errorf("VM %s 不存在", vmID)
 	}
 
-	if vm.Status == VMStatusRunning && !force {
+	if vm.Status == StatusRunning && !force {
 		return fmt.Errorf("VM 正在运行，请先停止或删除时强制删除")
 	}
 
 	// 如果 libvirt 可用，先 undefine
-	if m.libvirtAvailable && vm.Status != VMStatusStopped {
+	if m.libvirtAvailable && vm.Status != StatusStopped {
 		// #nosec G204 -- vm.Name validated by validateConfig() to contain only safe characters
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "destroy", vm.Name)
 		_ = cmd.Run()
@@ -668,7 +668,7 @@ func (m *Manager) GetVNCConnection(vmID string) (*VNCConnection, error) {
 }
 
 // UpdateVM 更新虚拟机配置
-func (m *Manager) UpdateVM(ctx context.Context, vmID string, config VMConfig) (*VM, error) {
+func (m *Manager) UpdateVM(ctx context.Context, vmID string, config Config) (*VM, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -677,7 +677,7 @@ func (m *Manager) UpdateVM(ctx context.Context, vmID string, config VMConfig) (*
 		return nil, fmt.Errorf("VM %s 不存在", vmID)
 	}
 
-	if vm.Status == VMStatusRunning {
+	if vm.Status == StatusRunning {
 		return nil, fmt.Errorf("无法更新正在运行的 VM，请先停止")
 	}
 
@@ -716,14 +716,14 @@ func (m *Manager) UpdateVM(ctx context.Context, vmID string, config VMConfig) (*
 	}
 
 	// 保存 VM 配置
-	if err := m.saveVMConfig(vm); err != nil {
+	if err := m.saveConfig(vm); err != nil {
 		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
 	}
 
 	vm.UpdatedAt = time.Now()
 
 	// 如果 libvirt 可用，重新定义 VM
-	if m.libvirtAvailable && vm.Status == VMStatusStopped {
+	if m.libvirtAvailable && vm.Status == StatusStopped {
 		// #nosec G204 -- xmlPath is internally generated
 		cmd := exec.CommandContext(ctx, "virsh", "-c", "qemu:///system", "define", xmlPath)
 		if err := cmd.Run(); err != nil {
@@ -737,11 +737,11 @@ func (m *Manager) UpdateVM(ctx context.Context, vmID string, config VMConfig) (*
 }
 
 // ListTemplates 获取所有 VM 模板
-func (m *Manager) ListTemplates() []*VMTemplate {
+func (m *Manager) ListTemplates() []*Template {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	templates := make([]*VMTemplate, 0, len(m.templates))
+	templates := make([]*Template, 0, len(m.templates))
 	for _, tpl := range m.templates {
 		templates = append(templates, tpl)
 	}
@@ -750,7 +750,7 @@ func (m *Manager) ListTemplates() []*VMTemplate {
 }
 
 // GetTemplate 获取单个模板
-func (m *Manager) GetTemplate(templateID string) (*VMTemplate, error) {
+func (m *Manager) GetTemplate(templateID string) (*Template, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -898,8 +898,8 @@ func (m *Manager) ListPCIDevices() ([]*PCIDevice, error) {
 	return devices, nil
 }
 
-// GetVMStats 完善版本 - 从 libvirt 获取实时统计信息
-func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
+// GetStats 完善版本 - 从 libvirt 获取实时统计信息
+func (m *Manager) GetStats(vmID string) (*Stats, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -908,8 +908,8 @@ func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
 		return nil, fmt.Errorf("VM %s 不存在", vmID)
 	}
 
-	if vm.Status != VMStatusRunning {
-		return &VMStats{}, nil
+	if vm.Status != StatusRunning {
+		return &Stats{}, nil
 	}
 
 	// 如果 libvirt 可用，尝试获取实时统计
@@ -922,7 +922,7 @@ func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
 	}
 
 	// 返回空统计
-	return &VMStats{
+	return &Stats{
 		CPUUsage:    0,
 		MemoryUsage: 0,
 		DiskRead:    0,
@@ -933,7 +933,7 @@ func (m *Manager) GetVMStats(vmID string) (*VMStats, error) {
 }
 
 // getLibvirtStats 从 libvirt 获取 VM 统计信息
-func (m *Manager) getLibvirtStats(vmName string) (*VMStats, error) {
+func (m *Manager) getLibvirtStats(vmName string) (*Stats, error) {
 	// #nosec G204 -- vmName validated by validateConfig() to contain only safe characters
 	cmd := exec.Command("virsh", "-c", "qemu:///system", "domstats", vmName)
 	output, err := cmd.CombinedOutput()
@@ -941,7 +941,7 @@ func (m *Manager) getLibvirtStats(vmName string) (*VMStats, error) {
 		return nil, err
 	}
 
-	stats := &VMStats{}
+	stats := &Stats{}
 	lines := strings.Split(string(output), "\n")
 
 	var memoryTotal, memoryAvailable uint64

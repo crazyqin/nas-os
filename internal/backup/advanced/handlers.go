@@ -8,11 +8,11 @@ import (
 
 // APIHandlers API处理器
 type APIHandlers struct {
-	manager *AdvancedManager
+	manager *Manager
 }
 
 // NewAPIHandlers 创建API处理器
-func NewAPIHandlers(manager *AdvancedManager) *APIHandlers {
+func NewAPIHandlers(manager *Manager) *APIHandlers {
 	return &APIHandlers{
 		manager: manager,
 	}

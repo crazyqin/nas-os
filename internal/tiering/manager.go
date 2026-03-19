@@ -590,7 +590,7 @@ func (m *Manager) executeMigrateTask(task *MigrateTask, policy *Policy) {
 // ==================== 状态查询 ====================
 
 // GetStatus 获取分层状态
-func (m *Manager) GetStatus() *TieringStatus {
+func (m *Manager) GetStatus() *Status {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -627,7 +627,7 @@ func (m *Manager) GetStatus() *TieringStatus {
 		tiers[k] = v
 	}
 
-	return &TieringStatus{
+	return &Status{
 		Enabled:       m.config.EnableAutoTier,
 		RunningTasks:  running,
 		PendingTasks:  pending,
@@ -900,11 +900,11 @@ func (m *Manager) AutoMigrate() (*AutoMigrateResult, error) {
 
 // GetAllTierStats 分层统计报告
 // 返回所有存储层的详细统计信息
-func (m *Manager) GetAllTierStats() (*TieringStatsReport, error) {
+func (m *Manager) GetAllTierStats() (*StatsReport, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	report := &TieringStatsReport{
+	report := &StatsReport{
 		GeneratedAt: time.Now(),
 		Tiers:       make(map[TierType]*TierStats),
 	}
@@ -923,7 +923,7 @@ func (m *Manager) GetAllTierStats() (*TieringStatsReport, error) {
 	}
 
 	// 计算总体统计
-	report.Summary = &TieringSummary{
+	report.Summary = &Summary{
 		TotalFiles:   0,
 		TotalBytes:   0,
 		TotalHot:     0,

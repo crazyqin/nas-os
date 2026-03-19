@@ -10,48 +10,72 @@ import "time"
 type ScanType string
 
 const (
-	ScanTypeFull       ScanType = "full"       // 完整扫描
-	ScanTypeQuick      ScanType = "quick"      // 快速扫描
-	ScanTypeCustom     ScanType = "custom"     // 自定义扫描
-	ScanTypeScheduled  ScanType = "scheduled"  // 定时扫描
-	ScanTypePermission ScanType = "permission" // 权限扫描
-	ScanTypeMalware    ScanType = "malware"    // 恶意软件扫描
+	// ScanTypeFull 全量扫描
+	ScanTypeFull ScanType = "full"
+	// ScanTypeQuick 快速扫描
+	ScanTypeQuick ScanType = "quick"
+	// ScanTypeCustom 自定义扫描
+	ScanTypeCustom ScanType = "custom"
+	// ScanTypeScheduled 定时扫描
+	ScanTypeScheduled ScanType = "scheduled"
+	// ScanTypePermission 权限扫描
+	ScanTypePermission ScanType = "permission"
+	// ScanTypeMalware 恶意软件扫描
+	ScanTypeMalware ScanType = "malware"
 )
 
 // ScanStatus 扫描状态
 type ScanStatus string
 
 const (
-	ScanStatusPending   ScanStatus = "pending"   // 待执行
-	ScanStatusRunning   ScanStatus = "running"   // 执行中
-	ScanStatusCompleted ScanStatus = "completed" // 已完成
-	ScanStatusFailed    ScanStatus = "failed"    // 失败
-	ScanStatusCancelled ScanStatus = "cancelled" // 已取消
-	ScanStatusPaused    ScanStatus = "paused"    // 已暂停
+	// ScanStatusPending 待执行
+	ScanStatusPending ScanStatus = "pending"
+	// ScanStatusRunning 执行中
+	ScanStatusRunning ScanStatus = "running"
+	// ScanStatusCompleted 已完成
+	ScanStatusCompleted ScanStatus = "completed"
+	// ScanStatusFailed 失败
+	ScanStatusFailed ScanStatus = "failed"
+	// ScanStatusCancelled 已取消
+	ScanStatusCancelled ScanStatus = "cancelled"
+	// ScanStatusPaused 已暂停
+	ScanStatusPaused ScanStatus = "paused"
 )
 
 // Severity 严重级别
 type Severity string
 
 const (
-	SeverityCritical Severity = "critical" // 严重
-	SeverityHigh     Severity = "high"     // 高
-	SeverityMedium   Severity = "medium"   // 中
-	SeverityLow      Severity = "low"      // 低
-	SeverityInfo     Severity = "info"     // 信息
+	// SeverityCritical 严重
+	SeverityCritical Severity = "critical"
+	// SeverityHigh 高
+	SeverityHigh Severity = "high"
+	// SeverityMedium 中
+	SeverityMedium Severity = "medium"
+	// SeverityLow 低
+	SeverityLow Severity = "low"
+	// SeverityInfo 信息
+	SeverityInfo Severity = "info"
 )
 
 // FindingType 发现类型
 type FindingType string
 
 const (
-	FindingTypePermission    FindingType = "permission"     // 权限问题
-	FindingTypeMalware       FindingType = "malware"        // 恶意软件
-	FindingTypeSensitiveData FindingType = "sensitive_data" // 敏感数据
-	FindingTypeConfiguration FindingType = "configuration"  // 配置问题
-	FindingTypeVulnerability FindingType = "vulnerability"  // 漏洞
-	FindingTypeSuspicious    FindingType = "suspicious"     // 可疑文件
-	FindingTypeIntegrity     FindingType = "integrity"      // 完整性问题
+	// FindingTypePermission 权限问题
+	FindingTypePermission FindingType = "permission"
+	// FindingTypeMalware 恶意软件
+	FindingTypeMalware FindingType = "malware"
+	// FindingTypeSensitiveData 敏感数据
+	FindingTypeSensitiveData FindingType = "sensitive_data"
+	// FindingTypeConfiguration 配置问题
+	FindingTypeConfiguration FindingType = "configuration"
+	// FindingTypeVulnerability 漏洞
+	FindingTypeVulnerability FindingType = "vulnerability"
+	// FindingTypeSuspicious 可疑文件
+	FindingTypeSuspicious FindingType = "suspicious"
+	// FindingTypeIntegrity 完整性问题
+	FindingTypeIntegrity FindingType = "integrity"
 )
 
 // FileFinding 文件扫描发现
@@ -297,14 +321,22 @@ type ScoreHistory struct {
 type SensitiveDataType string
 
 const (
-	SensitiveDataPassword   SensitiveDataType = "password"
-	SensitiveDataAPIKey     SensitiveDataType = "api_key"
+	// SensitiveDataPassword 密码
+	SensitiveDataPassword SensitiveDataType = "password"
+	// SensitiveDataAPIKey API密钥
+	SensitiveDataAPIKey SensitiveDataType = "api_key"
+	// SensitiveDataCreditCard 信用卡
 	SensitiveDataCreditCard SensitiveDataType = "credit_card"
-	SensitiveDataSSN        SensitiveDataType = "ssn"
+	// SensitiveDataSSN 社会安全号
+	SensitiveDataSSN SensitiveDataType = "ssn"
+	// SensitiveDataPrivateKey 私钥
 	SensitiveDataPrivateKey SensitiveDataType = "private_key"
+	// SensitiveDataCredential 凭证
 	SensitiveDataCredential SensitiveDataType = "credential"
-	SensitiveDataToken      SensitiveDataType = "token"
-	SensitiveDataDatabase   SensitiveDataType = "database"
+	// SensitiveDataToken 令牌
+	SensitiveDataToken SensitiveDataType = "token"
+	// SensitiveDataDatabase 数据库
+	SensitiveDataDatabase SensitiveDataType = "database"
 )
 
 // SensitiveDataFinding 敏感数据发现
@@ -337,15 +369,24 @@ type SensitiveDataRule struct {
 type MalwareType string
 
 const (
-	MalwareTypeVirus      MalwareType = "virus"
-	MalwareTypeTrojan     MalwareType = "trojan"
-	MalwareTypeWorm       MalwareType = "worm"
+	// MalwareTypeVirus 病毒
+	MalwareTypeVirus MalwareType = "virus"
+	// MalwareTypeTrojan 木马
+	MalwareTypeTrojan MalwareType = "trojan"
+	// MalwareTypeWorm 蠕虫
+	MalwareTypeWorm MalwareType = "worm"
+	// MalwareTypeRansomware 勒索软件
 	MalwareTypeRansomware MalwareType = "ransomware"
-	MalwareTypeSpyware    MalwareType = "spyware"
-	MalwareTypeAdware     MalwareType = "adware"
-	MalwareTypeRootkit    MalwareType = "rootkit"
-	MalwareTypeBackdoor   MalwareType = "backdoor"
-	MalwareTypePUA        MalwareType = "pua" // Potentially Unwanted Application
+	// MalwareTypeSpyware 间谍软件
+	MalwareTypeSpyware MalwareType = "spyware"
+	// MalwareTypeAdware 广告软件
+	MalwareTypeAdware MalwareType = "adware"
+	// MalwareTypeRootkit Rootkit
+	MalwareTypeRootkit MalwareType = "rootkit"
+	// MalwareTypeBackdoor 后门
+	MalwareTypeBackdoor MalwareType = "backdoor"
+	// MalwareTypePUA 潜在有害程序
+	MalwareTypePUA MalwareType = "pua"
 )
 
 // MalwareFinding 恶意软件发现
@@ -366,8 +407,8 @@ type MalwareFinding struct {
 
 // ========== 配置类型 ==========
 
-// ScannerConfig 扫描器配置
-type ScannerConfig struct {
+// Config 扫描器配置
+type Config struct {
 	Enabled            bool                    `json:"enabled"`
 	MaxConcurrentScans int                     `json:"max_concurrent_scans"`
 	DefaultOptions     ScanOptions             `json:"default_options"`
@@ -392,9 +433,9 @@ type ScheduledScan struct {
 	NextRun     *time.Time `json:"next_run,omitempty"`
 }
 
-// DefaultScannerConfig 默认扫描器配置
-func DefaultScannerConfig() ScannerConfig {
-	return ScannerConfig{
+// DefaultConfig 默认扫描器配置
+func DefaultConfig() Config {
+	return Config{
 		Enabled:            true,
 		MaxConcurrentScans: 3,
 		DefaultOptions:     DefaultScanOptions(),

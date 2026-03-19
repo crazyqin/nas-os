@@ -17,13 +17,13 @@ import (
 
 // Verifier 备份验证器
 type Verifier struct {
-	manager     *AdvancedManager
+	manager     *Manager
 	checksumMap map[string]string // 文件路径 -> 校验和
 	_           sync.RWMutex      // 保留字段以备将来使用
 }
 
 // NewVerifier 创建验证器
-func NewVerifier(manager *AdvancedManager) *Verifier {
+func NewVerifier(manager *Manager) *Verifier {
 	return &Verifier{
 		manager:     manager,
 		checksumMap: make(map[string]string),

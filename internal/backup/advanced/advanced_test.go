@@ -303,7 +303,7 @@ func TestCalculateChecksumBytes(t *testing.T) {
 
 // ========== 管理器集成测试 ==========
 
-func TestAdvancedManager_CreateBackup(t *testing.T) {
+func TestManager_CreateBackup(t *testing.T) {
 	// 创建临时目录
 	tmpDir, err := os.MkdirTemp("", "backup-test-*")
 	if err != nil {
@@ -324,7 +324,7 @@ func TestAdvancedManager_CreateBackup(t *testing.T) {
 	storagePath := filepath.Join(tmpDir, "storage")
 	os.MkdirAll(storagePath, 0755)
 
-	manager, err := NewAdvancedManager(config, storagePath)
+	manager, err := NewManager(config, storagePath)
 	if err != nil {
 		t.Fatalf("failed to create manager: %v", err)
 	}
@@ -348,7 +348,7 @@ func TestAdvancedManager_CreateBackup(t *testing.T) {
 	}
 }
 
-func TestAdvancedManager_IncrementalBackup(t *testing.T) {
+func TestManager_IncrementalBackup(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "backup-test-*")
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
@@ -367,7 +367,7 @@ func TestAdvancedManager_IncrementalBackup(t *testing.T) {
 	storagePath := filepath.Join(tmpDir, "storage")
 	os.MkdirAll(storagePath, 0755)
 
-	manager, err := NewAdvancedManager(config, storagePath)
+	manager, err := NewManager(config, storagePath)
 	if err != nil {
 		t.Fatalf("failed to create manager: %v", err)
 	}
@@ -397,7 +397,7 @@ func TestAdvancedManager_IncrementalBackup(t *testing.T) {
 	}
 }
 
-func TestAdvancedManager_RestoreBackup(t *testing.T) {
+func TestManager_RestoreBackup(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "backup-test-*")
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
@@ -415,7 +415,7 @@ func TestAdvancedManager_RestoreBackup(t *testing.T) {
 	storagePath := filepath.Join(tmpDir, "storage")
 	os.MkdirAll(storagePath, 0755)
 
-	manager, err := NewAdvancedManager(config, storagePath)
+	manager, err := NewManager(config, storagePath)
 	if err != nil {
 		t.Fatalf("failed to create manager: %v", err)
 	}
@@ -446,7 +446,7 @@ func TestAdvancedManager_RestoreBackup(t *testing.T) {
 	}
 }
 
-func TestAdvancedManager_Verification(t *testing.T) {
+func TestManager_Verification(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "backup-test-*")
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
@@ -465,7 +465,7 @@ func TestAdvancedManager_Verification(t *testing.T) {
 	storagePath := filepath.Join(tmpDir, "storage")
 	os.MkdirAll(storagePath, 0755)
 
-	manager, err := NewAdvancedManager(config, storagePath)
+	manager, err := NewManager(config, storagePath)
 	if err != nil {
 		t.Fatalf("failed to create manager: %v", err)
 	}
@@ -487,7 +487,7 @@ func TestAdvancedManager_Verification(t *testing.T) {
 	}
 }
 
-func TestAdvancedManager_EncryptedBackup(t *testing.T) {
+func TestManager_EncryptedBackup(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "backup-test-*")
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
@@ -510,7 +510,7 @@ func TestAdvancedManager_EncryptedBackup(t *testing.T) {
 	storagePath := filepath.Join(tmpDir, "storage")
 	os.MkdirAll(storagePath, 0755)
 
-	manager, err := NewAdvancedManager(config, storagePath)
+	manager, err := NewManager(config, storagePath)
 	if err != nil {
 		t.Fatalf("failed to create manager: %v", err)
 	}

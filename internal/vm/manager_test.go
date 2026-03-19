@@ -116,7 +116,7 @@ func TestManager_ListPCIDevices(t *testing.T) {
 	t.Logf("ListPCIDevices() = %d devices, err = %v", len(devices), err)
 }
 
-func TestManager_GetVMStats(t *testing.T) {
+func TestManager_GetStats(t *testing.T) {
 	tmpDir := t.TempDir()
 	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
@@ -124,12 +124,12 @@ func TestManager_GetVMStats(t *testing.T) {
 	}
 
 	// Non-existent VM
-	stats, err := manager.GetVMStats("nonexistent")
+	stats, err := manager.GetStats("nonexistent")
 	if err == nil {
-		t.Error("GetVMStats should return error for non-existent VM")
+		t.Error("GetStats should return error for non-existent VM")
 	}
 	if stats != nil {
-		t.Error("GetVMStats should return nil for non-existent VM")
+		t.Error("GetStats should return nil for non-existent VM")
 	}
 }
 
@@ -200,15 +200,15 @@ func TestManager_ValidateConfig(t *testing.T) {
 	}
 
 	// Empty config should fail
-	err = manager.validateConfig(VMConfig{})
+	err = manager.validateConfig(Config{})
 	if err == nil {
 		t.Error("validateConfig should fail for empty config")
 	}
 
 	// Valid config
-	config := VMConfig{
+	config := Config{
 		Name:     "test-vm",
-		Type:     VMTypeLinux,
+		Type:     TypeLinux,
 		CPU:      2,
 		Memory:   2048,
 		DiskSize: 20,
@@ -228,13 +228,13 @@ func TestManager_CreateVM(t *testing.T) {
 	}
 
 	// Invalid config
-	_, err = manager.CreateVM(context.Background(), VMConfig{})
+	_, err = manager.CreateVM(context.Background(), Config{})
 	if err == nil {
 		t.Error("CreateVM should fail for empty config")
 	}
 }
 
-func TestManager_SaveAndLoadVMConfig(t *testing.T) {
+func TestManager_SaveAndLoadConfig(t *testing.T) {
 	tmpDir := t.TempDir()
 	manager, err := NewManager(tmpDir, nil)
 	if err != nil {
@@ -242,9 +242,9 @@ func TestManager_SaveAndLoadVMConfig(t *testing.T) {
 	}
 
 	// Create a VM config file manually
-	config := VMConfig{
+	config := Config{
 		Name:     "test-vm",
-		Type:     VMTypeLinux,
+		Type:     TypeLinux,
 		CPU:      2,
 		Memory:   2048,
 		DiskSize: 20,
@@ -275,7 +275,7 @@ func TestManager_SaveAndLoadVMConfig(t *testing.T) {
 	}
 }
 
-func TestManager_LoadVMConfig(t *testing.T) {
+func TestManager_LoadConfig(t *testing.T) {
 	// Create a temp config file
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "test-vm.json")
@@ -283,8 +283,8 @@ func TestManager_LoadVMConfig(t *testing.T) {
 	// Write invalid JSON
 	os.WriteFile(configPath, []byte("invalid json"), 0644)
 
-	_, err := loadVMConfig(configPath)
+	_, err := loadConfig(configPath)
 	if err == nil {
-		t.Error("loadVMConfig should fail for invalid JSON")
+		t.Error("loadConfig should fail for invalid JSON")
 	}
 }
