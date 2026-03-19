@@ -11,7 +11,7 @@ import (
 func TestNewCluster(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &ClusterConfig{
+	config := &Config{
 		NodeID:              "node1",
 		NodeName:            "test-node-1",
 		Address:             "192.168.1.1",
@@ -37,7 +37,7 @@ func TestNewCluster(t *testing.T) {
 func TestCluster_GetLeader(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &ClusterConfig{
+	config := &Config{
 		NodeID:              "node1",
 		NodeName:            "test-node-1",
 		Address:             "192.168.1.1",
@@ -69,7 +69,7 @@ func TestCluster_GetLeader(t *testing.T) {
 func TestCluster_GetNodes(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &ClusterConfig{
+	config := &Config{
 		NodeID:              "node1",
 		NodeName:            "test-node-1",
 		Address:             "192.168.1.1",
@@ -94,7 +94,7 @@ func TestCluster_GetNodes(t *testing.T) {
 func TestCluster_IsLeader(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &ClusterConfig{
+	config := &Config{
 		NodeID:              "node1",
 		NodeName:            "test-node-1",
 		Address:             "192.168.1.1",
@@ -122,7 +122,7 @@ func TestCluster_IsLeader(t *testing.T) {
 func TestCluster_GetStats(t *testing.T) {
 	logger := zap.NewNop()
 
-	config := &ClusterConfig{
+	config := &Config{
 		NodeID:              "node1",
 		NodeName:            "test-node-1",
 		Address:             "192.168.1.1",

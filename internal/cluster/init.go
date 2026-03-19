@@ -10,7 +10,7 @@ type ClusterServices struct {
 	Sync    *StorageSync
 	LB      *LoadBalancer
 	HA      *HighAvailability
-	API     *ClusterAPI
+	API     *API
 }
 
 // ClusterRootConfig 集群总配置
@@ -109,7 +109,7 @@ func InitializeCluster(config ClusterRootConfig, logger *zap.Logger) (*ClusterSe
 	}
 
 	// 创建 API 处理器
-	api := NewClusterAPI(clusterMgr, syncMgr, lb, ha, logger)
+	api := NewAPI(clusterMgr, syncMgr, lb, ha, logger)
 
 	services := &ClusterServices{
 		Manager: clusterMgr,
