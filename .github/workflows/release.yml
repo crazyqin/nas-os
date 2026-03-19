@@ -59,7 +59,7 @@ jobs:
       previous-tag: ${{ steps.version.outputs.previous_tag }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       
@@ -129,7 +129,7 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 恢复 Go 模块缓存
         uses: actions/cache/restore@v4
@@ -226,7 +226,7 @@ jobs:
     needs: [prepare-release]
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 安装 Syft
         uses: anchore/sbom-action/download-syft@v0
@@ -260,7 +260,7 @@ jobs:
       changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       
@@ -329,7 +329,7 @@ jobs:
     needs: [prepare-release, build-binaries, generate-sbom, generate-changelog]
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 下载所有构建产物
         uses: actions/download-artifact@v4

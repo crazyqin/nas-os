@@ -71,10 +71,10 @@ jobs:
       test-changed: ${{ steps.filter.outputs.test }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: 检测变更
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -120,8 +120,8 @@ jobs:
       build-timestamp: ${{ steps.timestamp.outputs.timestamp }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: 记录构建时间戳
         id: timestamp
         run: echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
@@ -207,8 +207,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
         with:
@@ -218,13 +218,13 @@ jobs:
           key: ${{ needs.prepare.outputs.go-cache-key }}
           restore-keys: |
             go-${{ env.CACHE_VERSION }}-
-      
+
       - name: 设置 Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
-      
+
       - name: 恢复 Go 工具缓存
         uses: actions/cache/restore@v4
         with:
@@ -234,7 +234,7 @@ jobs:
           key: go-tools-${{ env.CACHE_VERSION }}-${{ runner.os }}
           restore-keys: |
             go-tools-${{ env.CACHE_VERSION }}-
-      
+
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:
@@ -263,8 +263,8 @@ jobs:
       security-events: write
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
         with:
@@ -274,13 +274,13 @@ jobs:
           key: ${{ needs.prepare.outputs.go-cache-key }}
           restore-keys: |
             go-${{ env.CACHE_VERSION }}-
-      
+
       - name: 设置 Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
-      
+
       - name: 初始化 CodeQL
         uses: github/codeql-action/init@v4
         with:
@@ -305,8 +305,8 @@ jobs:
       security-events: write
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: 运行 Trivy 漏洞扫描
         uses: aquasecurity/trivy-action@master
         with:
@@ -340,8 +340,8 @@ jobs:
       CGO_ENABLED: 1
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
         with:
@@ -351,21 +351,21 @@ jobs:
           key: ${{ needs.prepare.outputs.go-cache-key }}
           restore-keys: |
             go-${{ env.CACHE_VERSION }}-
-      
+
       - name: 设置 Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
-      
+
       - name: 安装 CGO 依赖
         run: sudo apt-get update && sudo apt-get install -y gcc libc6-dev
-      
+
       # ========== 新增：测试环境准备 ==========
       - name: 准备测试环境
         run: |
           echo "🔧 准备测试环境..."
-          
+
           # 创建测试数据目录
           mkdir -p ${{ env.TEST_DATA_DIR }}
           chmod 755 ${{ env.TEST_DATA_DIR }}
@@ -547,8 +547,8 @@ jobs:
       CGO_ENABLED: 1
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
         with:
@@ -558,21 +558,21 @@ jobs:
           key: ${{ needs.prepare.outputs.go-cache-key }}
           restore-keys: |
             go-${{ env.CACHE_VERSION }}-
-      
+
       - name: 设置 Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
-      
+
       - name: 安装 CGO 依赖
         run: sudo apt-get update && sudo apt-get install -y gcc libc6-dev
-      
+
       # ========== 新增：测试环境准备 ==========
       - name: 准备测试环境
         run: |
           echo "🔧 准备集成测试环境..."
-          
+
           # 创建测试数据目录
           mkdir -p ${{ env.TEST_DATA_DIR }}
           chmod 755 ${{ env.TEST_DATA_DIR }}
@@ -637,8 +637,8 @@ jobs:
             arm: 7
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       - name: 恢复 Go 缓存
         uses: actions/cache/restore@v4
         with:
@@ -648,13 +648,13 @@ jobs:
           key: ${{ needs.prepare.outputs.go-cache-key }}
           restore-keys: |
             go-${{ env.CACHE_VERSION }}-
-      
+
       - name: 设置 Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
-      
+
       # 注意：Go 模块缓存已从 prepare job 恢复
       # 这里仅保存编译缓存，避免与模块缓存冲突
       - name: Go 编译缓存
@@ -705,8 +705,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v5
+
       # ========== 新增：创建必要目录 ==========
       - name: 准备 Docker 测试环境
         run: |
