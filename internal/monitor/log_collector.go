@@ -56,23 +56,36 @@ type LogSource struct {
 // LogType 日志类型
 type LogType string
 
+// 日志类型常量
 const (
+	// LogTypeSystem 系统日志
 	LogTypeSystem LogType = "system"
-	LogTypeApp    LogType = "app"
-	LogTypeAudit  LogType = "audit"
-	LogTypeError  LogType = "error"
+	// LogTypeApp 应用日志
+	LogTypeApp LogType = "app"
+	// LogTypeAudit 审计日志
+	LogTypeAudit LogType = "audit"
+	// LogTypeError 错误日志
+	LogTypeError LogType = "error"
+	// LogTypeAccess 访问日志
 	LogTypeAccess LogType = "access"
+	// LogTypeCustom 自定义日志
 	LogTypeCustom LogType = "custom"
 )
 
 // LogFormat 日志格式
 type LogFormat string
 
+// 日志格式常量
 const (
+	// LogFormatJSON JSON 格式
 	LogFormatJSON   LogFormat = "json"
+	// LogFormatText 纯文本格式
 	LogFormatText   LogFormat = "text"
+	// LogFormatSyslog Syslog 格式
 	LogFormatSyslog LogFormat = "syslog"
+	// LogFormatApache Apache 格式
 	LogFormatApache LogFormat = "apache"
+	// LogFormatNginx Nginx 格式
 	LogFormatNginx  LogFormat = "nginx"
 )
 

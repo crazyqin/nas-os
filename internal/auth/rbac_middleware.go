@@ -34,8 +34,8 @@ func (l *DefaultAuditLogger) LogAuthFailure(ip, reason string) {
 		ip, reason, time.Now().Format(time.RFC3339))
 }
 
-// AuthMiddleware 认证中间件
-type AuthMiddleware struct {
+// Middleware 认证中间件
+type Middleware struct {
 	userManager interface {
 		ValidateToken(token string) (string, error) // 验证 token 返回 userID
 		GetUser(userID string) (interface{}, error) // 获取用户信息
@@ -71,20 +71,20 @@ type AuthMiddlewareConfig struct {
 	AuditLogger AuditLogger
 }
 
-// NewAuthMiddleware 创建认证中间件
-func NewAuthMiddleware(userMgr interface {
+// NewMiddleware 创建认证中间件
+func NewMiddleware(userMgr interface {
 	ValidateToken(token string) (string, error)
 	GetUser(userID string) (interface{}, error)
-}, rbacMgr *RBACManager) *AuthMiddleware {
-	return NewAuthMiddlewareWithConfig(userMgr, rbacMgr, AuthMiddlewareConfig{})
+}, rbacMgr *RBACManager) *Middleware {
+	return NewMiddlewareWithConfig(userMgr, rbacMgr, AuthMiddlewareConfig{})
 }
 
-// NewAuthMiddlewareWithConfig 创建认证中间件（带配置）
-func NewAuthMiddlewareWithConfig(userMgr interface {
+// NewMiddlewareWithConfig 创建认证中间件（带配置）
+func NewMiddlewareWithConfig(userMgr interface {
 	ValidateToken(token string) (string, error)
 	GetUser(userID string) (interface{}, error)
-}, rbacMgr *RBACManager, config AuthMiddlewareConfig) *AuthMiddleware {
-	m := &AuthMiddleware{
+}, rbacMgr *RBACManager, config AuthMiddlewareConfig) *Middleware {
+	m := &Middleware{
 		userManager:     userMgr,
 		rbacManager:     rbacMgr,
 		ipWhitelist:     make(map[string]bool),
@@ -113,7 +113,7 @@ func NewAuthMiddlewareWithConfig(userMgr interface {
 }
 
 // RequireAuth 需要认证的中间件
-func (m *AuthMiddleware) RequireAuth() gin.HandlerFunc {
+func (m *Middleware) RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		clientIP := c.ClientIP()
 
@@ -256,7 +256,7 @@ type GroupProvider interface {
 }
 
 // RequirePermission 需要特定权限的中间件
-func (m *AuthMiddleware) RequirePermission(resource Resource, action Action) gin.HandlerFunc {
+func (m *Middleware) RequirePermission(resource Resource, action Action) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 先执行认证
 		userID, exists := c.Get("user_id")
@@ -319,7 +319,7 @@ func (m *AuthMiddleware) RequirePermission(resource Resource, action Action) gin
 }
 
 // RequirePermissionWithResource 需要特定权限的中间件（带资源ID）
-func (m *AuthMiddleware) RequirePermissionWithResource(resource Resource, action Action, getResourceID func(*gin.Context) string) gin.HandlerFunc {
+func (m *Middleware) RequirePermissionWithResource(resource Resource, action Action, getResourceID func(*gin.Context) string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, exists := c.Get("user_id")
 		if !exists {
@@ -379,7 +379,7 @@ func (m *AuthMiddleware) RequirePermissionWithResource(resource Resource, action
 }
 
 // RequireRole 需要特定角色的中间件
-func (m *AuthMiddleware) RequireRole(roles ...Role) gin.HandlerFunc {
+func (m *Middleware) RequireRole(roles ...Role) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, exists := c.Get("user_id")
 		if !exists {
@@ -433,12 +433,12 @@ func (m *AuthMiddleware) RequireRole(roles ...Role) gin.HandlerFunc {
 }
 
 // RequireAdmin 需要管理员权限的中间件
-func (m *AuthMiddleware) RequireAdmin() gin.HandlerFunc {
+func (m *Middleware) RequireAdmin() gin.HandlerFunc {
 	return m.RequireRole(RoleAdmin)
 }
 
 // OptionalAuth 可选认证中间件（有 token 则认证，无 token 则匿名）
-func (m *AuthMiddleware) OptionalAuth() gin.HandlerFunc {
+func (m *Middleware) OptionalAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -515,7 +515,7 @@ func AuditLogMiddleware() gin.HandlerFunc {
 }
 
 // AuditMiddleware 带完整审计日志的中间件
-func (m *AuthMiddleware) AuditMiddleware() gin.HandlerFunc {
+func (m *Middleware) AuditMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		userID := ""
@@ -546,7 +546,7 @@ func (m *AuthMiddleware) AuditMiddleware() gin.HandlerFunc {
 }
 
 // RequireAnyPermission 需要任一权限的中间件
-func (m *AuthMiddleware) RequireAnyPermission(checks []struct {
+func (m *Middleware) RequireAnyPermission(checks []struct {
 	Resource Resource
 	Action   Action
 }) gin.HandlerFunc {
@@ -597,7 +597,7 @@ func (m *AuthMiddleware) RequireAnyPermission(checks []struct {
 }
 
 // RequireAllPermissions 需要所有权限的中间件
-func (m *AuthMiddleware) RequireAllPermissions(checks []struct {
+func (m *Middleware) RequireAllPermissions(checks []struct {
 	Resource Resource
 	Action   Action
 }) gin.HandlerFunc {
@@ -648,7 +648,7 @@ func (m *AuthMiddleware) RequireAllPermissions(checks []struct {
 }
 
 // CheckIPAccess IP 访问检查中间件
-func (m *AuthMiddleware) CheckIPAccess() gin.HandlerFunc {
+func (m *Middleware) CheckIPAccess() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		clientIP := c.ClientIP()
 

@@ -16,7 +16,7 @@ import (
 	"nas-os/pkg/safeguards"
 
 	"github.com/gorilla/websocket"
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // 纯 Go SQLite 驱动，自动注册 database/sql 驱动
 )
 
 // Monitor 系统监控器

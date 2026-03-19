@@ -156,6 +156,7 @@ type MockSMSProvider struct {
 	Codes map[string]string // phone -> code
 }
 
+// Send 发送短信（模拟）
 func (p *MockSMSProvider) Send(phone, code string) error {
 	if p.Codes == nil {
 		p.Codes = make(map[string]string)
@@ -182,6 +183,7 @@ type AliyunSMSResponse struct {
 	BizID     string `json:"BizId"`
 }
 
+// NewAliyunSMSProvider 创建阿里云短信提供商
 func NewAliyunSMSProvider(accessKeyID, accessKeySecret, signName, templateCode string) *AliyunSMSProvider {
 	return &AliyunSMSProvider{
 		AccessKeyID:     accessKeyID,
@@ -192,10 +194,12 @@ func NewAliyunSMSProvider(accessKeyID, accessKeySecret, signName, templateCode s
 	}
 }
 
+// SetRegion 设置区域
 func (p *AliyunSMSProvider) SetRegion(regionID string) {
 	p.RegionID = regionID
 }
 
+// Send 发送阿里云短信
 func (p *AliyunSMSProvider) Send(phone, code string) error {
 	if p.AccessKeyID == "" || p.AccessKeySecret == "" {
 		return fmt.Errorf("阿里云短信配置不完整：缺少 AccessKeyID 或 AccessKeySecret")
@@ -352,10 +356,12 @@ func NewTencentSMSProvider(secretID, secretKey, sdkAppID, signName, templateID s
 }
 
 // SetRegion 设置区域
+// SetRegion 设置区域
 func (p *TencentSMSProvider) SetRegion(region string) {
 	p.Region = region
 }
 
+// Send 发送腾讯云短信
 func (p *TencentSMSProvider) Send(phone, code string) error {
 	if p.SecretID == "" || p.SecretKey == "" {
 		return fmt.Errorf("腾讯云短信配置不完整：缺少 SecretID 或 SecretKey")
