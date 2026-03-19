@@ -11,6 +11,7 @@ import (
 type TaskStatus string
 
 const (
+	// TaskStatusPending represents pending task status
 	TaskStatusPending   TaskStatus = "pending"
 	TaskStatusRunning   TaskStatus = "running"
 	TaskStatusCompleted TaskStatus = "completed"
@@ -23,6 +24,7 @@ const (
 type TaskPriority int
 
 const (
+	// PriorityLow represents low priority
 	PriorityLow    TaskPriority = 1
 	PriorityNormal TaskPriority = 5
 	PriorityHigh   TaskPriority = 10
@@ -32,6 +34,7 @@ const (
 type TaskType string
 
 const (
+	// TaskTypeCron represents cron expression task type
 	TaskTypeCron      TaskType = "cron"      // Cron 表达式任务
 	TaskTypeOneTime   TaskType = "onetime"   // 一次性任务
 	TaskTypeInterval  TaskType = "interval"  // 间隔任务
@@ -43,6 +46,7 @@ const (
 type RetryPolicy string
 
 const (
+	// RetryPolicyNone represents no retry policy
 	RetryPolicyNone        RetryPolicy = "none"
 	RetryPolicyFixed       RetryPolicy = "fixed"
 	RetryPolicyExponential RetryPolicy = "exponential"
@@ -52,6 +56,7 @@ const (
 type ExecutionStatus string
 
 const (
+	// ExecutionStatusStarted represents started execution status
 	ExecutionStatusStarted   ExecutionStatus = "started"
 	ExecutionStatusCompleted ExecutionStatus = "completed"
 	ExecutionStatusFailed    ExecutionStatus = "failed"

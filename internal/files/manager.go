@@ -31,6 +31,7 @@ import (
 type FileType string
 
 const (
+	// FileTypeImage represents image file type
 	FileTypeImage    FileType = "image"
 	FileTypeVideo    FileType = "video"
 	FileTypeAudio    FileType = "audio"

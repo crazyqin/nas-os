@@ -84,6 +84,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== 通用响应 ==========
 
+// APIResponse represents an API response
 type APIResponse struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
@@ -141,6 +142,7 @@ func (h *Handlers) listFirewallRules(c *gin.Context) {
 	c.JSON(http.StatusOK, success(rules))
 }
 
+// AddFirewallRuleRequest represents a request to add a firewall rule
 type AddFirewallRuleRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Enabled     bool   `json:"enabled"`
@@ -264,6 +266,7 @@ func (h *Handlers) getBlacklist(c *gin.Context) {
 	c.JSON(http.StatusOK, success(blacklist))
 }
 
+// AddToBlacklistRequest represents a request to add an IP to blacklist
 type AddToBlacklistRequest struct {
 	IP       string `json:"ip" binding:"required"`
 	Reason   string `json:"reason"`
@@ -320,6 +323,7 @@ func (h *Handlers) getWhitelist(c *gin.Context) {
 	c.JSON(http.StatusOK, success(whitelist))
 }
 
+// AddToWhitelistRequest represents a request to add an IP to whitelist
 type AddToWhitelistRequest struct {
 	IP     string `json:"ip" binding:"required"`
 	Reason string `json:"reason"`

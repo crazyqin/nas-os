@@ -50,6 +50,7 @@ type LUN struct {
 type LUNType string
 
 const (
+	// LUNTypeFile represents file-backed LUN type
 	LUNTypeFile  LUNType = "file"
 	LUNTypeBlock LUNType = "block"
 )

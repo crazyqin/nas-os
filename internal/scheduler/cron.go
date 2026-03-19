@@ -355,14 +355,14 @@ func getKeys(m map[int]bool) []int {
 	return keys
 }
 
-// IsValid 验证表达式是否有效
+// IsValidCron validates if a cron expression is valid
 func IsValidCron(expression string, withSecond bool) bool {
 	opts := CronParseOptions{Second: withSecond}
 	_, err := NewCronExpression(expression, opts)
 	return err == nil
 }
 
-// 常用 Cron 表达式预设
+// CronPresets defines common cron expression presets
 var CronPresets = map[string]string{
 	"every_minute":       "0 * * * *",
 	"every_hour":         "0 0 * * *",

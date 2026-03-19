@@ -19,6 +19,7 @@ import (
 )
 
 var (
+	// ErrConnectionClosed indicates the connection has been closed
 	ErrConnectionClosed   = errors.New("connection closed")
 	ErrReconnectFailed    = errors.New("reconnection failed")
 	ErrMaxReconnect       = errors.New("max reconnection attempts reached")
@@ -79,6 +80,7 @@ var DefaultReconnectConfig = ReconnectConfig{
 type ConnectionState int32
 
 const (
+	// StateDisconnected represents disconnected state
 	StateDisconnected ConnectionState = iota
 	StateConnecting
 	StateConnected

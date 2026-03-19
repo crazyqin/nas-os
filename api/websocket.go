@@ -29,6 +29,7 @@ var upgrader = websocket.Upgrader{
 type MessageType string
 
 const (
+	// MessageTypeSystem represents a system message type
 	MessageTypeSystem       MessageType = "system"
 	MessageTypeNotification MessageType = "notification"
 	MessageTypeMetric       MessageType = "metric"
