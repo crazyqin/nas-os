@@ -9,7 +9,7 @@ import (
 // ========== 文件系统扫描器测试 ==========
 
 func TestNewFilesystemScanner(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	if scanner == nil {
@@ -22,7 +22,7 @@ func TestNewFilesystemScanner(t *testing.T) {
 }
 
 func TestCreateScanTask(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	task := scanner.CreateScanTask(
@@ -51,7 +51,7 @@ func TestCreateScanTask(t *testing.T) {
 }
 
 func TestGetScanTask(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	created := scanner.CreateScanTask("test", ScanTypeQuick, []string{"/tmp"}, nil, nil)
@@ -67,7 +67,7 @@ func TestGetScanTask(t *testing.T) {
 }
 
 func TestListScanTasks(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	// 创建多个任务
@@ -82,7 +82,7 @@ func TestListScanTasks(t *testing.T) {
 }
 
 func TestCancelScan(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	task := scanner.CreateScanTask("test", ScanTypeQuick, []string{"/tmp"}, nil, nil)
@@ -325,7 +325,7 @@ func TestScoreToLevel(t *testing.T) {
 // ========== 漏洞扫描器测试 ==========
 
 func TestNewVulnerabilityScanner(t *testing.T) {
-	config := DefaultVulnScannerConfig()
+	config := DefaultVulnConfig()
 	scanner := NewVulnerabilityScanner(config)
 
 	if scanner == nil {
@@ -334,7 +334,7 @@ func TestNewVulnerabilityScanner(t *testing.T) {
 }
 
 func TestListVulnDatabases(t *testing.T) {
-	config := DefaultVulnScannerConfig()
+	config := DefaultVulnConfig()
 	scanner := NewVulnerabilityScanner(config)
 
 	dbs := scanner.ListDatabases()
@@ -345,7 +345,7 @@ func TestListVulnDatabases(t *testing.T) {
 }
 
 func TestScanComponent(t *testing.T) {
-	config := DefaultVulnScannerConfig()
+	config := DefaultVulnConfig()
 	config.OfflineMode = true // 使用离线模式测试
 	scanner := NewVulnerabilityScanner(config)
 
@@ -368,7 +368,7 @@ func TestScanComponent(t *testing.T) {
 }
 
 func TestDeduplicateVulns(t *testing.T) {
-	config := DefaultVulnScannerConfig()
+	config := DefaultVulnConfig()
 	scanner := NewVulnerabilityScanner(config)
 
 	vulns := []*Vulnerability{
@@ -386,7 +386,7 @@ func TestDeduplicateVulns(t *testing.T) {
 }
 
 func TestAnalyzeSeverity(t *testing.T) {
-	config := DefaultVulnScannerConfig()
+	config := DefaultVulnConfig()
 	scanner := NewVulnerabilityScanner(config)
 
 	tests := []struct {
@@ -410,7 +410,7 @@ func TestAnalyzeSeverity(t *testing.T) {
 }
 
 func TestVulnStatistics(t *testing.T) {
-	config := DefaultVulnScannerConfig()
+	config := DefaultVulnConfig()
 	scanner := NewVulnerabilityScanner(config)
 
 	results := []*VulnerabilityScanResult{
@@ -459,8 +459,8 @@ func TestScanOptions(t *testing.T) {
 	}
 }
 
-func TestScannerConfig(t *testing.T) {
-	config := DefaultScannerConfig()
+func TestConfig(t *testing.T) {
+	config := DefaultConfig()
 
 	if !config.Enabled {
 		t.Error("scanner should be enabled by default")
@@ -551,7 +551,7 @@ func BenchmarkCheckPath(b *testing.B) {
 }
 
 func BenchmarkScanComponent(b *testing.B) {
-	config := DefaultVulnScannerConfig()
+	config := DefaultVulnConfig()
 	config.OfflineMode = true
 	scanner := NewVulnerabilityScanner(config)
 
@@ -605,7 +605,7 @@ func TestMaskSensitiveData(t *testing.T) {
 // ========== 时间相关测试 ==========
 
 func TestScanTaskTiming(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	before := time.Now()
@@ -661,7 +661,7 @@ func TestGenerateFindingID(t *testing.T) {
 // ========== SetProgressCallback 测试 ==========
 
 func TestSetProgressCallback(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	called := false
@@ -678,7 +678,7 @@ func TestSetProgressCallback(t *testing.T) {
 // ========== GetFindings 测试 ==========
 
 func TestGetFindings(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	task := scanner.CreateScanTask("test", ScanTypeQuick, []string{"/tmp"}, nil, nil)
@@ -690,7 +690,7 @@ func TestGetFindings(t *testing.T) {
 }
 
 func TestGetFindings_NonExistentTask(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	findings := scanner.GetFindings("nonexistent")
@@ -702,7 +702,7 @@ func TestGetFindings_NonExistentTask(t *testing.T) {
 // ========== GetReport 测试 ==========
 
 func TestGetReport(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	task := scanner.CreateScanTask("test", ScanTypeQuick, []string{"/tmp"}, nil, nil)
@@ -716,7 +716,7 @@ func TestGetReport(t *testing.T) {
 // ========== Stop 测试 ==========
 
 func TestStop(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	// Stop should not panic
@@ -795,7 +795,7 @@ func TestIsBinaryFile(t *testing.T) {
 // ========== CalculateFileHash 测试 ==========
 
 func TestCalculateFileHash(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	// Create a temp file
@@ -823,7 +823,7 @@ func TestCalculateFileHash(t *testing.T) {
 // ========== CountFiles 测试 ==========
 
 func TestCountFiles(t *testing.T) {
-	config := DefaultScannerConfig()
+	config := DefaultConfig()
 	scanner := NewFilesystemScanner(config)
 
 	// Create temp directory with files

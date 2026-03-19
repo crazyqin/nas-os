@@ -19,29 +19,49 @@ import (
 
 // ========== 错误定义 ==========
 
-var (
-	ErrInvalidConfig        = errors.New("invalid backup configuration")
-	ErrBackupInProgress     = errors.New("backup already in progress")
-	ErrBackupNotFound       = errors.New("backup not found")
-	ErrVerificationFailed   = errors.New("backup verification failed")
-	ErrDecryptionFailed     = errors.New("decryption failed")
-	ErrUnsupportedAlgorithm = errors.New("unsupported compression algorithm")
-	ErrInvalidKey           = errors.New("invalid encryption key")
-)
+// ErrInvalidConfig 表示配置无效的错误。
+var ErrInvalidConfig = errors.New("invalid backup configuration")
+
+// ErrBackupInProgress 表示备份已在进行中的错误。
+var ErrBackupInProgress = errors.New("backup already in progress")
+
+// ErrBackupNotFound 表示备份未找到的错误。
+var ErrBackupNotFound = errors.New("backup not found")
+
+// ErrVerificationFailed 表示备份验证失败。
+var ErrVerificationFailed = errors.New("backup verification failed")
+
+// ErrDecryptionFailed 表示解密失败。
+var ErrDecryptionFailed = errors.New("decryption failed")
+
+// ErrUnsupportedAlgorithm 表示不支持的压缩算法。
+var ErrUnsupportedAlgorithm = errors.New("unsupported compression algorithm")
+
+// ErrInvalidKey 表示无效的加密密钥。
+var ErrInvalidKey = errors.New("invalid encryption key")
 
 // ========== 压缩算法 ==========
 
 // CompressionAlgorithm 压缩算法类型
 type CompressionAlgorithm string
 
-const (
-	CompressionNone  CompressionAlgorithm = "none"
-	CompressionGzip  CompressionAlgorithm = "gzip"
-	CompressionZstd  CompressionAlgorithm = "zstd"
-	CompressionLz4   CompressionAlgorithm = "lz4"
-	CompressionBzip2 CompressionAlgorithm = "bzip2"
-	CompressionXz    CompressionAlgorithm = "xz"
-)
+// CompressionNone 表示不压缩。
+const CompressionNone CompressionAlgorithm = "none"
+
+// CompressionGzip 表示使用 Gzip 压缩。
+const CompressionGzip CompressionAlgorithm = "gzip"
+
+// CompressionZstd 表示使用 Zstd 压缩。
+const CompressionZstd CompressionAlgorithm = "zstd"
+
+// CompressionLz4 表示使用 LZ4 压缩。
+const CompressionLz4 CompressionAlgorithm = "lz4"
+
+// CompressionBzip2 表示使用 Bzip2 压缩。
+const CompressionBzip2 CompressionAlgorithm = "bzip2"
+
+// CompressionXz 表示使用 XZ 压缩。
+const CompressionXz CompressionAlgorithm = "xz"
 
 // CompressionConfig 压缩配置
 type CompressionConfig struct {
@@ -117,23 +137,35 @@ func DefaultBackupConfig() *BackupConfig {
 // BackupStatus 备份状态
 type BackupStatus string
 
-const (
-	StatusPending   BackupStatus = "pending"
-	StatusRunning   BackupStatus = "running"
-	StatusCompleted BackupStatus = "completed"
-	StatusFailed    BackupStatus = "failed"
-	StatusCancelled BackupStatus = "cancelled"
-	StatusVerifying BackupStatus = "verifying"
-)
+// StatusPending 表示待处理状态。
+const StatusPending BackupStatus = "pending"
+
+// StatusRunning 表示运行中状态。
+const StatusRunning BackupStatus = "running"
+
+// StatusCompleted 表示已完成状态。
+const StatusCompleted BackupStatus = "completed"
+
+// StatusFailed 表示失败状态。
+const StatusFailed BackupStatus = "failed"
+
+// StatusCancelled 表示已取消状态。
+const StatusCancelled BackupStatus = "cancelled"
+
+// StatusVerifying 表示验证中状态。
+const StatusVerifying BackupStatus = "verifying"
 
 // BackupType 备份类型
 type BackupType string
 
-const (
-	TypeFull         BackupType = "full"
-	TypeIncremental  BackupType = "incremental"
-	TypeDifferential BackupType = "differential"
-)
+// TypeFull 表示完整备份。
+const TypeFull BackupType = "full"
+
+// TypeIncremental 表示增量备份。
+const TypeIncremental BackupType = "incremental"
+
+// TypeDifferential 表示差异备份。
+const TypeDifferential BackupType = "differential"
 
 // ========== 备份记录 ==========
 
@@ -215,11 +247,14 @@ type VerificationResult struct {
 // VerificationStatus 验证状态
 type VerificationStatus string
 
-const (
-	VerificationValid   VerificationStatus = "valid"
-	VerificationInvalid VerificationStatus = "invalid"
-	VerificationPartial VerificationStatus = "partial"
-)
+// VerificationValid 表示验证通过。
+const VerificationValid VerificationStatus = "valid"
+
+// VerificationInvalid 表示验证失败。
+const VerificationInvalid VerificationStatus = "invalid"
+
+// VerificationPartial 表示部分验证通过。
+const VerificationPartial VerificationStatus = "partial"
 
 // FileError 文件错误
 type FileError struct {
@@ -472,8 +507,8 @@ func CalculateChecksumBytes(data []byte) string {
 
 // ========== 高级备份管理器 ==========
 
-// AdvancedManager 高级备份管理器
-type AdvancedManager struct {
+// Manager 高级备份管理器
+type Manager struct {
 	config      *BackupConfig
 	encryptor   Encryptor
 	compressor  Compressor
@@ -487,8 +522,8 @@ type AdvancedManager struct {
 	indexPath   string
 }
 
-// NewAdvancedManager 创建高级备份管理器
-func NewAdvancedManager(config *BackupConfig, storagePath string) (*AdvancedManager, error) {
+// NewManager 创建高级备份管理器
+func NewManager(config *BackupConfig, storagePath string) (*Manager, error) {
 	if config == nil {
 		config = DefaultBackupConfig()
 	}
@@ -498,7 +533,7 @@ func NewAdvancedManager(config *BackupConfig, storagePath string) (*AdvancedMana
 		return nil, fmt.Errorf("failed to create index directory: %w", err)
 	}
 
-	mgr := &AdvancedManager{
+	mgr := &Manager{
 		config:      config,
 		records:     make(map[string]*BackupRecord),
 		manifests:   make(map[string]*BackupManifest),
@@ -529,7 +564,7 @@ func NewAdvancedManager(config *BackupConfig, storagePath string) (*AdvancedMana
 }
 
 // getEncryptionKey 获取加密密钥
-func (m *AdvancedManager) getEncryptionKey() ([]byte, error) {
+func (m *Manager) getEncryptionKey() ([]byte, error) {
 	if m.config.Encryption.Key != "" {
 		key := []byte(m.config.Encryption.Key)
 		if len(key) < 32 {
@@ -561,14 +596,14 @@ func (m *AdvancedManager) getEncryptionKey() ([]byte, error) {
 }
 
 // GetConfig 获取配置
-func (m *AdvancedManager) GetConfig() *BackupConfig {
+func (m *Manager) GetConfig() *BackupConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.config
 }
 
 // UpdateConfig 更新配置
-func (m *AdvancedManager) UpdateConfig(config *BackupConfig) error {
+func (m *Manager) UpdateConfig(config *BackupConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.config = config

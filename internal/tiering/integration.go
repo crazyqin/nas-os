@@ -112,9 +112,13 @@ type FSEvent struct {
 type FSEventType string
 
 const (
+	// FSEventCreate 文件创建事件
 	FSEventCreate FSEventType = "create"
+	// FSEventModify 文件修改事件
 	FSEventModify FSEventType = "modify"
+	// FSEventDelete 文件删除事件
 	FSEventDelete FSEventType = "delete"
+	// FSEventAccess 文件访问事件
 	FSEventAccess FSEventType = "access"
 )
 

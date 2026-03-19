@@ -16,7 +16,7 @@ import (
 
 // FilesystemScanner 文件系统安全扫描器
 type FilesystemScanner struct {
-	config           ScannerConfig
+	config           Config
 	tasks            map[string]*ScanTask
 	findings         map[string][]*FileFinding
 	sensitiveRules   []SensitiveDataRule
@@ -27,7 +27,7 @@ type FilesystemScanner struct {
 }
 
 // NewFilesystemScanner 创建文件系统扫描器
-func NewFilesystemScanner(config ScannerConfig) *FilesystemScanner {
+func NewFilesystemScanner(config Config) *FilesystemScanner {
 	return &FilesystemScanner{
 		config:          config,
 		tasks:           make(map[string]*ScanTask),

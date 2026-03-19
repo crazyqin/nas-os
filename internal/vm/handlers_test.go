@@ -109,43 +109,43 @@ func TestCreateVMRequest_Types(t *testing.T) {
 	tests := []struct {
 		name     string
 		vmType   string
-		expected VMType
+		expected Type
 	}{
 		{
 			name:     "linux type",
 			vmType:   "linux",
-			expected: VMTypeLinux,
+			expected: TypeLinux,
 		},
 		{
 			name:     "windows type",
 			vmType:   "windows",
-			expected: VMTypeWindows,
+			expected: TypeWindows,
 		},
 		{
 			name:     "other type",
 			vmType:   "other",
-			expected: VMTypeOther,
+			expected: TypeOther,
 		},
 		{
 			name:     "default/empty type",
 			vmType:   "",
-			expected: VMTypeLinux,
+			expected: TypeLinux,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Simulate the type conversion in handleCreateVM
-			vmType := VMTypeLinux
+			vmType := TypeLinux
 			switch tt.vmType {
 			case "windows":
-				vmType = VMTypeWindows
+				vmType = TypeWindows
 			case "other":
-				vmType = VMTypeOther
+				vmType = TypeOther
 			}
 
 			if vmType != tt.expected {
-				t.Errorf("Expected VMType=%v, got %v", tt.expected, vmType)
+				t.Errorf("Expected Type=%v, got %v", tt.expected, vmType)
 			}
 		})
 	}

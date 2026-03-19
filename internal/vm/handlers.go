@@ -138,7 +138,7 @@ func (h *Handler) getVM(w http.ResponseWriter, r *http.Request, vmID string) {
 }
 
 func (h *Handler) updateVM(w http.ResponseWriter, r *http.Request, vmID string) {
-	var config VMConfig
+	var config Config
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
@@ -295,7 +295,7 @@ func (h *Handler) handleListSnapshots(w http.ResponseWriter, r *http.Request) {
 	}
 
 	vmID := r.URL.Query().Get("vmId")
-	var snapshots []*VMSnapshot
+	var snapshots []*Snapshot
 
 	if vmID != "" {
 		snapshots = h.snapshotManager.ListSnapshots(vmID)
@@ -453,15 +453,15 @@ func (h *Handler) handleCreateVM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vmType := VMTypeLinux
+	vmType := TypeLinux
 	switch req.Type {
 	case "windows":
-		vmType = VMTypeWindows
+		vmType = TypeWindows
 	case "other":
-		vmType = VMTypeOther
+		vmType = TypeOther
 	}
 
-	config := VMConfig{
+	config := Config{
 		Name:        req.Name,
 		Description: req.Description,
 		Type:        vmType,

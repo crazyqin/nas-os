@@ -11,44 +11,57 @@ import (
 type TaskStatus string
 
 const (
-	// TaskStatusPending represents pending task status
-	TaskStatusPending   TaskStatus = "pending"
-	TaskStatusRunning   TaskStatus = "running"
+	// TaskStatusPending 任务等待中
+	TaskStatusPending TaskStatus = "pending"
+	// TaskStatusRunning 任务正在运行
+	TaskStatusRunning TaskStatus = "running"
+	// TaskStatusCompleted 任务已完成
 	TaskStatusCompleted TaskStatus = "completed"
-	TaskStatusFailed    TaskStatus = "failed"
+	// TaskStatusFailed 任务失败
+	TaskStatusFailed TaskStatus = "failed"
+	// TaskStatusCancelled 任务已取消
 	TaskStatusCancelled TaskStatus = "cancelled"
-	TaskStatusPaused    TaskStatus = "paused"
+	// TaskStatusPaused 任务已暂停
+	TaskStatusPaused TaskStatus = "paused"
 )
 
 // TaskPriority 任务优先级
 type TaskPriority int
 
 const (
-	// PriorityLow represents low priority
-	PriorityLow    TaskPriority = 1
+	// PriorityLow 低优先级
+	PriorityLow TaskPriority = 1
+	// PriorityNormal 普通优先级
 	PriorityNormal TaskPriority = 5
-	PriorityHigh   TaskPriority = 10
+	// PriorityHigh 高优先级
+	PriorityHigh TaskPriority = 10
 )
 
 // TaskType 任务类型
 type TaskType string
 
 const (
-	// TaskTypeCron represents cron expression task type
-	TaskTypeCron      TaskType = "cron"      // Cron 表达式任务
-	TaskTypeOneTime   TaskType = "onetime"   // 一次性任务
-	TaskTypeInterval  TaskType = "interval"  // 间隔任务
-	TaskTypeEvent     TaskType = "event"     // 事件触发任务
-	TaskTypeDependent TaskType = "dependent" // 依赖任务
+	// TaskTypeCron Cron表达式任务
+	TaskTypeCron TaskType = "cron"
+	// TaskTypeOneTime 一次性任务
+	TaskTypeOneTime TaskType = "onetime"
+	// TaskTypeInterval 间隔任务
+	TaskTypeInterval TaskType = "interval"
+	// TaskTypeEvent 事件触发任务
+	TaskTypeEvent TaskType = "event"
+	// TaskTypeDependent 依赖任务
+	TaskTypeDependent TaskType = "dependent"
 )
 
 // RetryPolicy 重试策略
 type RetryPolicy string
 
 const (
-	// RetryPolicyNone represents no retry policy
-	RetryPolicyNone        RetryPolicy = "none"
-	RetryPolicyFixed       RetryPolicy = "fixed"
+	// RetryPolicyNone 无重试策略
+	RetryPolicyNone RetryPolicy = "none"
+	// RetryPolicyFixed 固定间隔重试
+	RetryPolicyFixed RetryPolicy = "fixed"
+	// RetryPolicyExponential 指数退避重试
 	RetryPolicyExponential RetryPolicy = "exponential"
 )
 
@@ -56,11 +69,15 @@ const (
 type ExecutionStatus string
 
 const (
-	// ExecutionStatusStarted represents started execution status
-	ExecutionStatusStarted   ExecutionStatus = "started"
+	// ExecutionStatusStarted 执行已开始
+	ExecutionStatusStarted ExecutionStatus = "started"
+	// ExecutionStatusCompleted 执行已完成
 	ExecutionStatusCompleted ExecutionStatus = "completed"
-	ExecutionStatusFailed    ExecutionStatus = "failed"
-	ExecutionStatusTimeout   ExecutionStatus = "timeout"
+	// ExecutionStatusFailed 执行失败
+	ExecutionStatusFailed ExecutionStatus = "failed"
+	// ExecutionStatusTimeout 执行超时
+	ExecutionStatusTimeout ExecutionStatus = "timeout"
+	// ExecutionStatusCancelled 执行已取消
 	ExecutionStatusCancelled ExecutionStatus = "cancelled"
 )
 
@@ -153,8 +170,8 @@ type TaskDependency struct {
 	FailAction string   `json:"failAction,omitempty"` // skip, fail, continue
 }
 
-// SchedulerConfig 调度器配置
-type SchedulerConfig struct {
+// Config 调度器配置
+type Config struct {
 	MaxConcurrentTasks int           `json:"maxConcurrentTasks"`
 	DefaultTimeout     time.Duration `json:"defaultTimeout"`
 	LogRetention       time.Duration `json:"logRetention"`
@@ -184,8 +201,8 @@ type ExecutionFilter struct {
 	PageSize  int             `json:"pageSize,omitempty"`
 }
 
-// SchedulerStats 调度器统计
-type SchedulerStats struct {
+// Stats 调度器统计
+type Stats struct {
 	TotalTasks       int            `json:"totalTasks"`
 	RunningTasks     int            `json:"runningTasks"`
 	PendingTasks     int            `json:"pendingTasks"`

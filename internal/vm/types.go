@@ -2,36 +2,36 @@ package vm
 
 import "time"
 
-// VMStatus 虚拟机状态
-type VMStatus string
+// Status 虚拟机状态
+type Status string
 
 const (
-	// VMStatusRunning 运行中
-	VMStatusRunning VMStatus = "running"
-	// VMStatusStopped 已停止
-	VMStatusStopped VMStatus = "stopped"
-	// VMStatusPaused 已暂停
-	VMStatusPaused VMStatus = "paused"
-	// VMStatusCreating 创建中
-	VMStatusCreating VMStatus = "creating"
-	// VMStatusDeleting 删除中
-	VMStatusDeleting VMStatus = "deleting"
-	// VMStatusSnapshot 快照中
-	VMStatusSnapshot VMStatus = "snapshotting"
-	// VMStatusRestoring 恢复中
-	VMStatusRestoring VMStatus = "restoring"
+	// StatusRunning 运行中
+	StatusRunning Status = "running"
+	// StatusStopped 已停止
+	StatusStopped Status = "stopped"
+	// StatusPaused 已暂停
+	StatusPaused Status = "paused"
+	// StatusCreating 创建中
+	StatusCreating Status = "creating"
+	// StatusDeleting 删除中
+	StatusDeleting Status = "deleting"
+	// StatusSnapshot 快照中
+	StatusSnapshot Status = "snapshotting"
+	// StatusRestoring 恢复中
+	StatusRestoring Status = "restoring"
 )
 
-// VMType 虚拟机类型
-type VMType string
+// Type 虚拟机类型
+type Type string
 
 const (
-	// VMTypeLinux Linux 系统
-	VMTypeLinux VMType = "linux"
-	// VMTypeWindows Windows 系统
-	VMTypeWindows VMType = "windows"
-	// VMTypeOther 其他系统
-	VMTypeOther VMType = "other"
+	// TypeLinux Linux 系统
+	TypeLinux Type = "linux"
+	// TypeWindows Windows 系统
+	TypeWindows Type = "windows"
+	// TypeOther 其他系统
+	TypeOther Type = "other"
 )
 
 // VM 虚拟机信息
@@ -39,8 +39,8 @@ type VM struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
-	Type        VMType    `json:"type"`
-	Status      VMStatus  `json:"status"`
+	Type        Type      `json:"type"`
+	Status      Status    `json:"status"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 
@@ -66,11 +66,11 @@ type VM struct {
 	Tags map[string]string `json:"tags"`
 }
 
-// VMConfig 虚拟机配置
-type VMConfig struct {
+// Config 虚拟机配置
+type Config struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Type        VMType            `json:"type"`
+	Type        Type              `json:"type"`
 	CPU         int               `json:"cpu"`
 	Memory      uint64            `json:"memory"`
 	DiskSize    uint64            `json:"diskSize"`
@@ -82,8 +82,8 @@ type VMConfig struct {
 	Tags        map[string]string `json:"tags"`
 }
 
-// VMStats 虚拟机统计信息
-type VMStats struct {
+// Stats 虚拟机统计信息
+type Stats struct {
 	CPUUsage    float64 `json:"cpuUsage"`    // CPU 使用率 (%)
 	MemoryUsage uint64  `json:"memoryUsage"` // 内存使用 (MB)
 	DiskRead    uint64  `json:"diskRead"`    // 磁盘读取 (bytes)
@@ -105,8 +105,8 @@ type ISOImage struct {
 	OS         string    `json:"os"`         // 操作系统类型
 }
 
-// VMSnapshot 虚拟机快照
-type VMSnapshot struct {
+// Snapshot 虚拟机快照
+type Snapshot struct {
 	ID          string    `json:"id"`
 	VMID        string    `json:"vmId"`
 	Name        string    `json:"name"`
@@ -116,12 +116,12 @@ type VMSnapshot struct {
 	Status      string    `json:"status"` // creating/ready/restoring
 }
 
-// VMTemplate 虚拟机模板
-type VMTemplate struct {
+// Template 虚拟机模板
+type Template struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Type        VMType            `json:"type"`
+	Type        Type              `json:"type"`
 	CPU         int               `json:"cpu"`
 	Memory      uint64            `json:"memory"`
 	DiskSize    uint64            `json:"diskSize"`

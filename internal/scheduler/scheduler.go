@@ -18,7 +18,7 @@ type Scheduler struct {
 	retryMgr   *RetryManager
 	cronTasks  map[string]*cronEntry
 	mu         sync.RWMutex
-	config     *SchedulerConfig
+	config     *Config
 	running    bool
 	stopChan   chan struct{}
 	wg         sync.WaitGroup
@@ -31,9 +31,9 @@ type cronEntry struct {
 }
 
 // NewScheduler 创建调度器
-func NewScheduler(config *SchedulerConfig) (*Scheduler, error) {
+func NewScheduler(config *Config) (*Scheduler, error) {
 	if config == nil {
-		config = &SchedulerConfig{
+		config = &Config{
 			MaxConcurrentTasks: 10,
 			DefaultTimeout:     time.Hour,
 			LogRetention:       7 * 24 * time.Hour,
@@ -546,11 +546,11 @@ func (s *Scheduler) DisableTask(taskID string) error {
 }
 
 // GetStats 获取统计信息
-func (s *Scheduler) GetStats() *SchedulerStats {
+func (s *Scheduler) GetStats() *Stats {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	stats := &SchedulerStats{
+	stats := &Stats{
 		TotalTasks:     len(s.tasks),
 		TaskGroupStats: make(map[string]int),
 	}

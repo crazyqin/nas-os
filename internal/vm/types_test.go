@@ -5,18 +5,18 @@ import (
 	"time"
 )
 
-func TestVMStatus_Constants(t *testing.T) {
+func TestStatus_Constants(t *testing.T) {
 	tests := []struct {
-		status   VMStatus
+		status   Status
 		expected string
 	}{
-		{VMStatusRunning, "running"},
-		{VMStatusStopped, "stopped"},
-		{VMStatusPaused, "paused"},
-		{VMStatusCreating, "creating"},
-		{VMStatusDeleting, "deleting"},
-		{VMStatusSnapshot, "snapshotting"},
-		{VMStatusRestoring, "restoring"},
+		{StatusRunning, "running"},
+		{StatusStopped, "stopped"},
+		{StatusPaused, "paused"},
+		{StatusCreating, "creating"},
+		{StatusDeleting, "deleting"},
+		{StatusSnapshot, "snapshotting"},
+		{StatusRestoring, "restoring"},
 	}
 
 	for _, tt := range tests {
@@ -26,14 +26,14 @@ func TestVMStatus_Constants(t *testing.T) {
 	}
 }
 
-func TestVMType_Constants(t *testing.T) {
+func TestType_Constants(t *testing.T) {
 	tests := []struct {
-		vmType   VMType
+		vmType   Type
 		expected string
 	}{
-		{VMTypeLinux, "linux"},
-		{VMTypeWindows, "windows"},
-		{VMTypeOther, "other"},
+		{TypeLinux, "linux"},
+		{TypeWindows, "windows"},
+		{TypeOther, "other"},
 	}
 
 	for _, tt := range tests {
@@ -49,8 +49,8 @@ func TestVM_Fields(t *testing.T) {
 		ID:          "vm-001",
 		Name:        "test-vm",
 		Description: "Test VM",
-		Type:        VMTypeLinux,
-		Status:      VMStatusRunning,
+		Type:        TypeLinux,
+		Status:      StatusRunning,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 		CPU:         4,
@@ -71,16 +71,16 @@ func TestVM_Fields(t *testing.T) {
 	if vm.Memory != 8192 {
 		t.Error("Memory mismatch")
 	}
-	if vm.Status != VMStatusRunning {
+	if vm.Status != StatusRunning {
 		t.Error("Status mismatch")
 	}
 }
 
-func TestVMConfig_Fields(t *testing.T) {
-	config := VMConfig{
+func TestConfig_Fields(t *testing.T) {
+	config := Config{
 		Name:        "new-vm",
 		Description: "New VM",
-		Type:        VMTypeLinux,
+		Type:        TypeLinux,
 		CPU:         2,
 		Memory:      4096,
 		DiskSize:    50,
@@ -100,8 +100,8 @@ func TestVMConfig_Fields(t *testing.T) {
 	}
 }
 
-func TestVMStats_Fields(t *testing.T) {
-	stats := VMStats{
+func TestStats_Fields(t *testing.T) {
+	stats := Stats{
 		CPUUsage:    45.5,
 		MemoryUsage: 2048,
 		DiskRead:    1024000,
@@ -142,9 +142,9 @@ func TestISOImage_Fields(t *testing.T) {
 	}
 }
 
-func TestVMSnapshot_Fields(t *testing.T) {
+func TestSnapshot_Fields(t *testing.T) {
 	now := time.Now()
-	snapshot := VMSnapshot{
+	snapshot := Snapshot{
 		ID:          "snap-001",
 		VMID:        "vm-001",
 		Name:        "before-update",
@@ -165,13 +165,13 @@ func TestVMSnapshot_Fields(t *testing.T) {
 	}
 }
 
-func TestVMTemplate_Fields(t *testing.T) {
+func TestTemplate_Fields(t *testing.T) {
 	now := time.Now()
-	template := VMTemplate{
+	template := Template{
 		ID:          "tpl-001",
 		Name:        "Ubuntu Server",
 		Description: "Ubuntu 22.04 LTS Server",
-		Type:        VMTypeLinux,
+		Type:        TypeLinux,
 		CPU:         2,
 		Memory:      4096,
 		DiskSize:    20,

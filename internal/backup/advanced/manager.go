@@ -17,7 +17,7 @@ import (
 // ========== 备份执行 ==========
 
 // CreateBackup 创建备份
-func (m *AdvancedManager) CreateBackup(ctx context.Context, backupType BackupType) (*BackupRecord, error) {
+func (m *Manager) CreateBackup(ctx context.Context, backupType BackupType) (*BackupRecord, error) {
 	m.mu.Lock()
 
 	// 检查是否有运行中的备份
@@ -95,7 +95,7 @@ func (m *AdvancedManager) CreateBackup(ctx context.Context, backupType BackupTyp
 }
 
 // executeFullBackup 执行完整备份
-func (m *AdvancedManager) executeFullBackup(ctx context.Context, record *BackupRecord) error {
+func (m *Manager) executeFullBackup(ctx context.Context, record *BackupRecord) error {
 	m.mu.Lock()
 	record.Status = StatusRunning
 	m.mu.Unlock()
@@ -203,7 +203,7 @@ func (m *AdvancedManager) executeFullBackup(ctx context.Context, record *BackupR
 }
 
 // executeIncrementalBackup 执行增量备份
-func (m *AdvancedManager) executeIncrementalBackup(ctx context.Context, record *BackupRecord) error {
+func (m *Manager) executeIncrementalBackup(ctx context.Context, record *BackupRecord) error {
 	m.mu.Lock()
 	record.Status = StatusRunning
 
@@ -328,13 +328,13 @@ func (m *AdvancedManager) executeIncrementalBackup(ctx context.Context, record *
 }
 
 // executeDifferentialBackup 执行差异备份
-func (m *AdvancedManager) executeDifferentialBackup(ctx context.Context, record *BackupRecord) error {
+func (m *Manager) executeDifferentialBackup(ctx context.Context, record *BackupRecord) error {
 	// 差异备份与增量备份类似，但总是基于完整备份
 	return m.executeIncrementalBackup(ctx, record)
 }
 
 // processFile 处理单个文件
-func (m *AdvancedManager) processFile(path, relPath string, info os.FileInfo, record *BackupRecord) (FileManifest, int64, error) {
+func (m *Manager) processFile(path, relPath string, info os.FileInfo, record *BackupRecord) (FileManifest, int64, error) {
 	manifest := FileManifest{
 		Path:    relPath,
 		Size:    info.Size(),
@@ -384,7 +384,7 @@ func (m *AdvancedManager) processFile(path, relPath string, info os.FileInfo, re
 }
 
 // shouldExclude 检查是否应该排除
-func (m *AdvancedManager) shouldExclude(path string) bool {
+func (m *Manager) shouldExclude(path string) bool {
 	for _, pattern := range m.config.ExcludePatterns {
 		matched, _ := filepath.Match(pattern, path)
 		if matched {
@@ -398,7 +398,7 @@ func (m *AdvancedManager) shouldExclude(path string) bool {
 }
 
 // calculateManifestChecksum 计算清单校验和
-func (m *AdvancedManager) calculateManifestChecksum(manifest *BackupManifest) (string, error) {
+func (m *Manager) calculateManifestChecksum(manifest *BackupManifest) (string, error) {
 	data, err := json.Marshal(manifest.Files)
 	if err != nil {
 		return "", err
@@ -408,7 +408,7 @@ func (m *AdvancedManager) calculateManifestChecksum(manifest *BackupManifest) (s
 }
 
 // saveManifest 保存清单
-func (m *AdvancedManager) saveManifest(backupID string, manifest *BackupManifest) error {
+func (m *Manager) saveManifest(backupID string, manifest *BackupManifest) error {
 	manifestPath := filepath.Join(m.storagePath, backupID, "manifest.json")
 	data, err := json.MarshalIndent(manifest, "", "  ")
 	if err != nil {
@@ -418,7 +418,7 @@ func (m *AdvancedManager) saveManifest(backupID string, manifest *BackupManifest
 }
 
 // updateIndex 更新增量索引
-func (m *AdvancedManager) updateIndex(manifest *BackupManifest) {
+func (m *Manager) updateIndex(manifest *BackupManifest) {
 	for _, file := range manifest.Files {
 		m.index.Update(file.Path, &FileState{
 			Path:     file.Path,
@@ -434,7 +434,7 @@ func (m *AdvancedManager) updateIndex(manifest *BackupManifest) {
 // ========== 备份恢复 ==========
 
 // RestoreBackup 恢复备份
-func (m *AdvancedManager) RestoreBackup(ctx context.Context, backupID, targetPath string, overwrite bool) (*BackupRecord, error) {
+func (m *Manager) RestoreBackup(ctx context.Context, backupID, targetPath string, overwrite bool) (*BackupRecord, error) {
 	m.mu.RLock()
 	record, exists := m.records[backupID]
 	if !exists {
@@ -481,7 +481,7 @@ func (m *AdvancedManager) RestoreBackup(ctx context.Context, backupID, targetPat
 }
 
 // restoreBaseBackup 恢复基础备份
-func (m *AdvancedManager) restoreBaseBackup(ctx context.Context, backupID, targetPath string, overwrite bool) error {
+func (m *Manager) restoreBaseBackup(ctx context.Context, backupID, targetPath string, overwrite bool) error {
 	record, err := m.GetRecord(backupID)
 	if err != nil {
 		return err
@@ -518,7 +518,7 @@ func (m *AdvancedManager) restoreBaseBackup(ctx context.Context, backupID, targe
 }
 
 // restoreFile 恢复单个文件
-func (m *AdvancedManager) restoreFile(srcPath, dstPath string, encrypted bool) error {
+func (m *Manager) restoreFile(srcPath, dstPath string, encrypted bool) error {
 	data, err := os.ReadFile(srcPath)
 	if err != nil {
 		return err
@@ -550,7 +550,7 @@ func (m *AdvancedManager) restoreFile(srcPath, dstPath string, encrypted bool) e
 // ========== 查询方法 ==========
 
 // GetRecord 获取备份记录
-func (m *AdvancedManager) GetRecord(backupID string) (*BackupRecord, error) {
+func (m *Manager) GetRecord(backupID string) (*BackupRecord, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -562,7 +562,7 @@ func (m *AdvancedManager) GetRecord(backupID string) (*BackupRecord, error) {
 }
 
 // GetManifest 获取备份清单
-func (m *AdvancedManager) GetManifest(backupID string) (*BackupManifest, error) {
+func (m *Manager) GetManifest(backupID string) (*BackupManifest, error) {
 	m.mu.RLock()
 	manifest, exists := m.manifests[backupID]
 	m.mu.RUnlock()
@@ -591,7 +591,7 @@ func (m *AdvancedManager) GetManifest(backupID string) (*BackupManifest, error) 
 }
 
 // ListRecords 列出所有备份记录
-func (m *AdvancedManager) ListRecords() []*BackupRecord {
+func (m *Manager) ListRecords() []*BackupRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -603,7 +603,7 @@ func (m *AdvancedManager) ListRecords() []*BackupRecord {
 }
 
 // DeleteBackup 删除备份
-func (m *AdvancedManager) DeleteBackup(backupID string) error {
+func (m *Manager) DeleteBackup(backupID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -624,7 +624,7 @@ func (m *AdvancedManager) DeleteBackup(backupID string) error {
 }
 
 // GetProgress 获取备份进度
-func (m *AdvancedManager) GetProgress(backupID string) (*BackupProgress, error) {
+func (m *Manager) GetProgress(backupID string) (*BackupProgress, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 

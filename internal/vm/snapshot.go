@@ -59,7 +59,7 @@ func sanitizeDescription(s string) string {
 type SnapshotManager struct {
 	mu               sync.RWMutex
 	storagePath      string
-	snapshots        map[string]*VMSnapshot
+	snapshots        map[string]*Snapshot
 	vmManager        *Manager
 	logger           *zap.Logger
 	libvirtAvailable bool
@@ -78,7 +78,7 @@ func NewSnapshotManager(storagePath string, vmManager *Manager, logger *zap.Logg
 
 	m := &SnapshotManager{
 		storagePath:      storagePath,
-		snapshots:        make(map[string]*VMSnapshot),
+		snapshots:        make(map[string]*Snapshot),
 		vmManager:        vmManager,
 		logger:           logger,
 		libvirtAvailable: vmManager.libvirtAvailable,
@@ -120,7 +120,7 @@ func (m *SnapshotManager) loadSnapshots() error {
 			continue
 		}
 
-		var snapshot VMSnapshot
+		var snapshot Snapshot
 		if err := json.Unmarshal(data, &snapshot); err != nil {
 			continue
 		}
@@ -132,7 +132,7 @@ func (m *SnapshotManager) loadSnapshots() error {
 }
 
 // CreateSnapshot 创建虚拟机快照
-func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name, description string) (*VMSnapshot, error) {
+func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name, description string) (*Snapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -151,14 +151,14 @@ func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name,
 	description = sanitizeDescription(description)
 
 	// 检查 VM 状态（运行中也可以创建快照，但可能需要 quiesce）
-	if vm.Status == VMStatusCreating || vm.Status == VMStatusDeleting {
+	if vm.Status == StatusCreating || vm.Status == StatusDeleting {
 		return nil, fmt.Errorf("VM 当前状态无法创建快照")
 	}
 
 	snapshotID := "snap-" + uuid.New().String()[:8]
 	now := time.Now()
 
-	snapshot := &VMSnapshot{
+	snapshot := &Snapshot{
 		ID:          snapshotID,
 		VMID:        vmID,
 		Name:        name,
@@ -229,11 +229,11 @@ func (m *SnapshotManager) CreateSnapshot(ctx context.Context, vmID string, name,
 }
 
 // ListSnapshots 获取 VM 的所有快照
-func (m *SnapshotManager) ListSnapshots(vmID string) []*VMSnapshot {
+func (m *SnapshotManager) ListSnapshots(vmID string) []*Snapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	snapshots := make([]*VMSnapshot, 0)
+	snapshots := make([]*Snapshot, 0)
 	for _, snapshot := range m.snapshots {
 		if snapshot.VMID == vmID {
 			snapshots = append(snapshots, snapshot)
@@ -244,7 +244,7 @@ func (m *SnapshotManager) ListSnapshots(vmID string) []*VMSnapshot {
 }
 
 // GetSnapshot 获取快照信息
-func (m *SnapshotManager) GetSnapshot(snapshotID string) (*VMSnapshot, error) {
+func (m *SnapshotManager) GetSnapshot(snapshotID string) (*Snapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -277,7 +277,7 @@ func (m *SnapshotManager) RestoreSnapshot(ctx context.Context, snapshotID string
 	}
 
 	// 如果 VM 在运行，先停止
-	if vm.Status == VMStatusRunning {
+	if vm.Status == StatusRunning {
 		if err := m.vmManager.StopVM(ctx, snapshot.VMID, true); err != nil {
 			return fmt.Errorf("停止 VM 失败：%w", err)
 		}
@@ -366,7 +366,7 @@ func (m *SnapshotManager) DeleteSnapshot(ctx context.Context, snapshotID string)
 }
 
 // saveSnapshot 保存快照元数据
-func (m *SnapshotManager) saveSnapshot(snapshot *VMSnapshot) error {
+func (m *SnapshotManager) saveSnapshot(snapshot *Snapshot) error {
 	data, err := json.Marshal(snapshot)
 	if err != nil {
 		return err
