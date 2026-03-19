@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.28] - 2026-03-19
+
+### Bug Fixes
+- 修复 tags 模块 revive linter 错误 (礼部)
+  - internal/tags/manager.go: 添加 blank import 注释、修正 Stats 类型注释格式
+  - internal/tags/handlers.go: 添加包注释、修正方法名 getFilesByTagId → getFilesByTagID
+
+### Documentation
+- 更新 README.md 版本号至 v2.253.28 (礼部)
+- 更新 docs/USER_GUIDE.md 版本号至 v2.253.28 (礼部)
+- 更新 VERSION 文件至 v2.253.28 (礼部)
+
+## [v2.253.27] - 2026-03-19
+
+### Improvements
+- 版本号迭代
+
 ## [v2.253.26] - 2026-03-19
 
 ### Documentation

@@ -46,11 +46,17 @@ type DiskHealthInfo struct {
 // HealthStatus 健康状态
 type HealthStatus string
 
+// 健康状态常量
 const (
+	// HealthStatusHealthy 健康
 	HealthStatusHealthy  HealthStatus = "healthy"
+	// HealthStatusWarning 警告
 	HealthStatusWarning  HealthStatus = "warning"
+	// HealthStatusDegraded 性能下降
 	HealthStatusDegraded HealthStatus = "degraded"
+	// HealthStatusFailed 失败
 	HealthStatusFailed   HealthStatus = "failed"
+	// HealthStatusUnknown 未知
 	HealthStatusUnknown  HealthStatus = "unknown"
 )
 
