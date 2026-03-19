@@ -65,8 +65,8 @@ type WeeklyTaskStats struct {
 	Total     int    `json:"total"`
 }
 
-// ProjectDashboardData 项目仪表板数据
-type ProjectDashboardData struct {
+// DashboardData 项目仪表板数据
+type DashboardData struct {
 	ProjectID   string `json:"project_id"`
 	ProjectName string `json:"project_name"`
 
@@ -389,7 +389,7 @@ func (m *Manager) GetDashboardOverview(trendDays int) Dashboard {
 }
 
 // GetProjectDashboard 获取项目仪表板
-func (m *Manager) GetProjectDashboard(projectID string) (*ProjectDashboardData, error) {
+func (m *Manager) GetProjectDashboard(projectID string) (*DashboardData, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -399,7 +399,7 @@ func (m *Manager) GetProjectDashboard(projectID string) (*ProjectDashboardData, 
 	}
 
 	now := time.Now()
-	dashboard := &ProjectDashboardData{
+	dashboard := &DashboardData{
 		ProjectID:       projectID,
 		ProjectName:     project.Name,
 		StartDate:       project.StartDtae,

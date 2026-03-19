@@ -21,10 +21,11 @@ type ElectionState struct {
 // ElectionPhase 选举阶段
 type ElectionPhase string
 
+// 选举阶段常量
 const (
-	ElectionPhaseFollower  ElectionPhase = "follower"
-	ElectionPhaseCandidate ElectionPhase = "candidate"
-	ElectionPhaseLeader    ElectionPhase = "leader"
+	ElectionPhaseFollower  ElectionPhase = "follower"  // 跟随者阶段
+	ElectionPhaseCandidate ElectionPhase = "candidate" // 候选人阶段
+	ElectionPhaseLeader    ElectionPhase = "leader"    // 领导者阶段
 )
 
 // NewElectionState 创建选举状态

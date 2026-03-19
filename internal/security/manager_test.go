@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-func TestNewSecurityManager(t *testing.T) {
-	sm := NewSecurityManager()
+func TestNewManager(t *testing.T) {
+	sm := NewManager()
 	if sm == nil {
-		t.Fatal("NewSecurityManager 返回 nil")
+		t.Fatal("NewManager 返回 nil")
 	}
 
 	// 验证子管理器已初始化
@@ -26,8 +26,8 @@ func TestNewSecurityManager(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_GetManagers(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_GetManagers(t *testing.T) {
+	sm := NewManager()
 
 	fm := sm.GetFirewallManager()
 	if fm == nil {
@@ -50,8 +50,8 @@ func TestSecurityManager_GetManagers(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_Config(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_Config(t *testing.T) {
+	sm := NewManager()
 
 	// 获取默认配置
 	config := sm.GetConfig()
@@ -63,7 +63,7 @@ func TestSecurityManager_Config(t *testing.T) {
 	}
 
 	// 更新配置
-	newConfig := SecurityConfig{
+	newConfig := Config{
 		Firewall: FirewallConfig{
 			Enabled:       true,
 			DefaultPolicy: "deny",
@@ -91,8 +91,8 @@ func TestSecurityManager_Config(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_RecordFailedLogin(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_RecordFailedLogin(t *testing.T) {
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
@@ -112,8 +112,8 @@ func TestSecurityManager_RecordFailedLogin(t *testing.T) {
 	_ = bannedIPs // 验证调用成功
 }
 
-func TestSecurityManager_RecordSuccessfulLogin(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_RecordSuccessfulLogin(t *testing.T) {
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
@@ -141,8 +141,8 @@ func TestSecurityManager_RecordSuccessfulLogin(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_IsAccessAllowed(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_IsAccessAllowed(t *testing.T) {
+	sm := NewManager()
 
 	// 正常 IP 应允许
 	if !sm.IsAccessAllowed("192.168.1.100") {
@@ -166,8 +166,8 @@ func TestSecurityManager_IsAccessAllowed(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_BanUnbanIP(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_BanUnbanIP(t *testing.T) {
+	sm := NewManager()
 
 	// 封禁 IP
 	err := sm.BanIP("192.168.1.200", "测试封禁", 60)
@@ -192,8 +192,8 @@ func TestSecurityManager_BanUnbanIP(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_RecordAction(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_RecordAction(t *testing.T) {
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
@@ -223,8 +223,8 @@ func TestSecurityManager_RecordAction(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_GetSecurityStatus(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_GetSecurityStatus(t *testing.T) {
+	sm := NewManager()
 
 	status := sm.GetSecurityStatus()
 
@@ -244,8 +244,8 @@ func TestSecurityManager_GetSecurityStatus(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_RunBaselineCheck(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_RunBaselineCheck(t *testing.T) {
+	sm := NewManager()
 
 	report := sm.RunBaselineCheck()
 
@@ -260,8 +260,8 @@ func TestSecurityManager_RunBaselineCheck(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_GetDashboard(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_GetDashboard(t *testing.T) {
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      100,
@@ -294,16 +294,16 @@ func TestSecurityManager_GetDashboard(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_NotifyFunc(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_NotifyFunc(t *testing.T) {
+	sm := NewManager()
 
 	alertReceived := false
-	sm.SetNotifyFunc(func(alert SecurityAlert) {
+	sm.SetNotifyFunc(func(alert Alert) {
 		alertReceived = true
 	})
 
 	// 触发告警
-	sm.handleSecurityAlert(SecurityAlert{
+	sm.handleAlert(Alert{
 		ID:       "test-alert",
 		Severity: "high",
 		Type:     "test",
@@ -317,8 +317,8 @@ func TestSecurityManager_NotifyFunc(t *testing.T) {
 	}
 }
 
-func TestSecurityManager_Concurrent(t *testing.T) {
-	sm := NewSecurityManager()
+func TestManager_Concurrent(t *testing.T) {
+	sm := NewManager()
 	sm.audit.SetConfig(AuditConfig{
 		Enabled:      true,
 		MaxLogs:      10000,

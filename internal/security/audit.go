@@ -17,7 +17,7 @@ type AuditManager struct {
 	config    AuditConfig
 	logs      []*AuditLogEntry
 	loginLogs []*LoginLogEntry
-	alerts    []*SecurityAlert
+	alerts    []*Alert
 	mu        sync.RWMutex
 	// logPath     string - 保留用于未来自定义日志路径
 	// maxLogs     int // 最大保留日志数 - 保留用于未来配置化
@@ -50,7 +50,7 @@ func NewAuditManager() *AuditManager {
 		},
 		logs:      make([]*AuditLogEntry, 0),
 		loginLogs: make([]*LoginLogEntry, 0),
-		alerts:    make([]*SecurityAlert, 0),
+		alerts:    make([]*Alert, 0),
 	}
 }
 
@@ -124,7 +124,7 @@ func (am *AuditManager) checkAlertCondition(entry *AuditLogEntry) {
 	}
 
 	if shouldAlert {
-		alert := SecurityAlert{
+		alert := Alert{
 			ID:          generateAlertID(),
 			Timestamp:   entry.Timestamp,
 			Severity:    severity,
@@ -350,11 +350,11 @@ func (am *AuditManager) matchesLoginFilters(entry *LoginLogEntry, filters map[st
 }
 
 // GetAlerts 获取安全告警
-func (am *AuditManager) GetAlerts(limit, offset int, acknowledged *bool) []*SecurityAlert {
+func (am *AuditManager) GetAlerts(limit, offset int, acknowledged *bool) []*Alert {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 
-	result := make([]*SecurityAlert, 0)
+	result := make([]*Alert, 0)
 
 	for _, alert := range am.alerts {
 		// 应用筛选
@@ -524,7 +524,7 @@ func (am *AuditManager) CleanupOldLogs() {
 	am.loginLogs = cleanedLoginLogs
 
 	// 清理告警
-	cleanedAlerts := make([]*SecurityAlert, 0)
+	cleanedAlerts := make([]*Alert, 0)
 	for _, alert := range am.alerts {
 		if alert.Timestamp.After(cutoff) {
 			cleanedAlerts = append(cleanedAlerts, alert)

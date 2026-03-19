@@ -8,8 +8,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// PerfHandler provides HTTP handlers for performance monitoring
-type PerfHandler struct {
+// Handler provides HTTP handlers for performance monitoring
+type Handler struct {
 	monitor    *ResourceMonitor
 	analyzer   *PerformanceAnalyzer
 	cacheStats func() *CacheStatsData
@@ -83,14 +83,14 @@ type BottleneckResponse struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// NewPerfHandler creates a new performance handler
-func NewPerfHandler(
+// NewHandler creates a new performance handler
+func NewHandler(
 	monitor *ResourceMonitor,
 	analyzer *PerformanceAnalyzer,
 	cacheStatsFunc func() *CacheStatsData,
 	logger *zap.Logger,
-) *PerfHandler {
-	return &PerfHandler{
+) *Handler {
+	return &Handler{
 		monitor:    monitor,
 		analyzer:   analyzer,
 		cacheStats: cacheStatsFunc,
@@ -99,12 +99,12 @@ func NewPerfHandler(
 }
 
 // NewHandlers creates handlers from perf.Manager (compatibility wrapper)
-func NewHandlers(mgr *Manager) *PerfHandler {
+func NewHandlers(mgr *Manager) *Handler {
 	// Create minimal monitor and analyzer for compatibility
 	monitor := NewResourceMonitor(5*time.Second, 100, nil)
 	analyzer := NewPerformanceAnalyzer(100*time.Millisecond, 100, nil)
 
-	return &PerfHandler{
+	return &Handler{
 		monitor:    monitor,
 		analyzer:   analyzer,
 		cacheStats: nil,
@@ -113,7 +113,7 @@ func NewHandlers(mgr *Manager) *PerfHandler {
 }
 
 // RegisterRoutes registers performance monitoring routes
-func (h *PerfHandler) RegisterRoutes(router gin.IRouter) {
+func (h *Handler) RegisterRoutes(router gin.IRouter) {
 	perf := router.Group("/api/performance")
 	{
 		perf.GET("/stats", h.GetStats)
@@ -127,13 +127,13 @@ func (h *PerfHandler) RegisterRoutes(router gin.IRouter) {
 }
 
 // GetStats returns current performance statistics
-func (h *PerfHandler) GetStats(c *gin.Context) {
+func (h *Handler) GetStats(c *gin.Context) {
 	stats := h.collectStats()
 	c.JSON(http.StatusOK, stats)
 }
 
 // GetSlowQueries returns slow query log
-func (h *PerfHandler) GetSlowQueries(c *gin.Context) {
+func (h *Handler) GetSlowQueries(c *gin.Context) {
 	queries := h.analyzer.GetSlowQueries()
 
 	response := make([]SlowQueryResponse, len(queries))
@@ -153,7 +153,7 @@ func (h *PerfHandler) GetSlowQueries(c *gin.Context) {
 }
 
 // GetHotspots returns performance hotspots
-func (h *PerfHandler) GetHotspots(c *gin.Context) {
+func (h *Handler) GetHotspots(c *gin.Context) {
 	hotspots := h.analyzer.AnalyzeHotspots()
 
 	response := make([]HotspotResponse, len(hotspots))
@@ -175,7 +175,7 @@ func (h *PerfHandler) GetHotspots(c *gin.Context) {
 }
 
 // GetBottlenecks returns detected bottlenecks
-func (h *PerfHandler) GetBottlenecks(c *gin.Context) {
+func (h *Handler) GetBottlenecks(c *gin.Context) {
 	bottlenecks := h.analyzer.GetBottlenecks()
 
 	response := make([]BottleneckResponse, len(bottlenecks))
@@ -190,13 +190,13 @@ func (h *PerfHandler) GetBottlenecks(c *gin.Context) {
 }
 
 // GetHealth returns system health status
-func (h *PerfHandler) GetHealth(c *gin.Context) {
+func (h *Handler) GetHealth(c *gin.Context) {
 	health := h.monitor.GetHealth()
 	c.JSON(http.StatusOK, health)
 }
 
 // Analyze triggers performance analysis
-func (h *PerfHandler) Analyze(c *gin.Context) {
+func (h *Handler) Analyze(c *gin.Context) {
 	cpu := h.monitor.GetCPUStats()
 	mem := h.monitor.GetMemoryStats()
 
@@ -215,7 +215,7 @@ func (h *PerfHandler) Analyze(c *gin.Context) {
 }
 
 // ExportReport exports performance report
-func (h *PerfHandler) ExportReport(c *gin.Context) {
+func (h *Handler) ExportReport(c *gin.Context) {
 	stats := h.collectStats()
 
 	report := gin.H{
@@ -233,7 +233,7 @@ func (h *PerfHandler) ExportReport(c *gin.Context) {
 }
 
 // collectStats collects all performance statistics
-func (h *PerfHandler) collectStats() *PerformanceStats {
+func (h *Handler) collectStats() *PerformanceStats {
 	cpuStats := h.monitor.GetCPUStats()
 	memStats := h.monitor.GetMemoryStats()
 

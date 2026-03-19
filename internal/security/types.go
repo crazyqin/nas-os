@@ -124,8 +124,8 @@ type LoginLogEntry struct {
 	MFAMethod string    `json:"mfa_method,omitempty"`
 }
 
-// SecurityAlert represents a security alert
-type SecurityAlert struct {
+// Alert 安全告警
+type Alert struct {
 	ID           string                 `json:"id"`
 	Timestamp    time.Time              `json:"timestamp"`
 	Severity     string                 `json:"severity"` // low, medium, high, critical
@@ -139,6 +139,9 @@ type SecurityAlert struct {
 	AckedBy      string                 `json:"acked_by,omitempty"`
 	AckedAt      *time.Time             `json:"acked_at,omitempty"`
 }
+
+// SecurityAlert 是 Alert 的别名，保持向后兼容
+type SecurityAlert = Alert
 
 // ========== 安全基线类型 ==========
 
@@ -168,14 +171,17 @@ type BaselineReport struct {
 	Results      []BaselineCheckResult `json:"results"`
 }
 
-// SecurityConfig represents security configuration
-type SecurityConfig struct {
+// Config 安全配置
+type Config struct {
 	Firewall       FirewallConfig `json:"firewall"`
 	Fail2Ban       Fail2BanConfig `json:"fail2ban"`
 	GeoRestriction GeoRestriction `json:"geo_restriction"`
 	AuditEnabled   bool           `json:"audit_enabled"`
 	AlertEnabled   bool           `json:"alert_enabled"`
 }
+
+// SecurityConfig 是 Config 的别名，保持向后兼容
+type SecurityConfig = Config
 
 // ========== 通用响应类型 ==========
 

@@ -17,7 +17,7 @@ type Fail2BanManager struct {
 	bannedIPs       map[string]*BannedIP
 	accountLockouts map[string]*AccountLockout // Username -> 锁定状态
 	mu              sync.RWMutex
-	notifyFunc      func(alert SecurityAlert) // 通知回调
+	notifyFunc      func(alert Alert) // 通知回调
 }
 
 // NewFail2BanManager 创建失败登录保护管理器
@@ -39,7 +39,7 @@ func NewFail2BanManager() *Fail2BanManager {
 }
 
 // SetNotifyFunc 设置通知回调函数
-func (f2m *Fail2BanManager) SetNotifyFunc(notifyFn func(alert SecurityAlert)) {
+func (f2m *Fail2BanManager) SetNotifyFunc(notifyFn func(alert Alert)) {
 	f2m.mu.Lock()
 	defer f2m.mu.Unlock()
 	f2m.notifyFunc = notifyFn
@@ -156,7 +156,7 @@ func (f2m *Fail2BanManager) banIPLocked(ip, username string, attempts int) error
 
 	// 发送通知
 	if f2m.config.NotifyOnBan && f2m.notifyFunc != nil {
-		alert := SecurityAlert{
+		alert := Alert{
 			ID:          generateAlertID(),
 			Timestamp:   now,
 			Severity:    "high",
@@ -313,7 +313,7 @@ func (f2m *Fail2BanManager) checkAccountLockout(username string) {
 
 		// 发送账户锁定通知
 		if f2m.notifyFunc != nil {
-			alert := SecurityAlert{
+			alert := Alert{
 				ID:          generateAlertID(),
 				Timestamp:   time.Now(),
 				Severity:    "critical",

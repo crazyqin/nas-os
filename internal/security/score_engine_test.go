@@ -131,7 +131,7 @@ func TestScoreEngine_CalculateOverallScore(t *testing.T) {
 func TestScoreEngine_AnalyzeStrengthsWeaknesses(t *testing.T) {
 	engine := NewScoreEngine(ScoreConfig{})
 
-	report := &SecurityScoreReport{
+	report := &ScoreReport{
 		Categories: map[string]*CategoryScore{
 			"authentication": {
 				Category: "authentication",
@@ -165,7 +165,7 @@ func TestScoreEngine_AnalyzeStrengthsWeaknesses(t *testing.T) {
 func TestScoreEngine_GenerateRecommendations(t *testing.T) {
 	engine := NewScoreEngine(ScoreConfig{})
 
-	report := &SecurityScoreReport{
+	report := &ScoreReport{
 		Categories: map[string]*CategoryScore{
 			"authentication": {
 				Category: "authentication",
@@ -284,9 +284,9 @@ func TestScoreItem_Fields(t *testing.T) {
 	assert.Equal(t, "pass", item.Status)
 }
 
-func TestSecurityScoreReport_Fields(t *testing.T) {
+func TestScoreReport_Fields(t *testing.T) {
 	now := time.Now()
-	report := &SecurityScoreReport{
+	report := &ScoreReport{
 		OverallScore: 85.5,
 		Grade:        "B",
 		Categories:   make(map[string]*CategoryScore),

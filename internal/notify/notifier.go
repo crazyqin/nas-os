@@ -12,6 +12,7 @@ import (
 // AlertLevel 告警级别
 type AlertLevel string
 
+// 告警级别常量
 const (
 	// LevelInfo represents info alert level
 	LevelInfo     AlertLevel = "info"

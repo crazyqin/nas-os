@@ -48,11 +48,11 @@ type VolumeInfo struct {
 	UsageRate    float64   `json:"usageRate"`
 }
 
-// PredictionResponse 预测响应
-type PredictionResponse struct {
-	Success bool              `json:"success"`
-	Data    *PredictionResult `json:"data,omitempty"`
-	Error   string            `json:"error,omitempty"`
+// Response 预测响应
+type Response struct {
+	Success bool   `json:"success"`
+	Data    *Result `json:"data,omitempty"`
+	Error   string `json:"error,omitempty"`
 }
 
 // HistoryResponse 历史数据响应
@@ -90,7 +90,7 @@ type UpdateConfigRequest struct {
 // AllPredictionsResponse 全量预测响应
 type AllPredictionsResponse struct {
 	Success bool                         `json:"success"`
-	Data    map[string]*PredictionResult `json:"data,omitempty"`
+	Data    map[string]*Result `json:"data,omitempty"`
 	Count   int                          `json:"count"`
 	Error   string                       `json:"error,omitempty"`
 }
@@ -149,22 +149,22 @@ func (h *Handlers) ListVolumes(c *gin.Context) {
 // @Tags prediction
 // @Produce json
 // @Param name path string true "卷名称"
-// @Success 200 {object} PredictionResponse
-// @Failure 404 {object} PredictionResponse
+// @Success 200 {object} Response
+// @Failure 404 {object} Response
 // @Router /prediction/volumes/{name} [get]
 func (h *Handlers) GetPrediction(c *gin.Context) {
 	volumeName := c.Param("name")
 
 	result, err := h.manager.Predict(volumeName)
 	if err != nil {
-		c.JSON(http.StatusNotFound, PredictionResponse{
+		c.JSON(http.StatusNotFound, Response{
 			Success: false,
 			Error:   err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, PredictionResponse{
+	c.JSON(http.StatusOK, Response{
 		Success: true,
 		Data:    result,
 	})

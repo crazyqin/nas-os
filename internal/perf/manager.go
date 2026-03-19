@@ -787,6 +787,7 @@ type AlertInstance struct {
 // ExportFormat 导出格式
 type ExportFormat string
 
+// 导出格式常量
 const (
 	ExportFormatJSON     ExportFormat = "json"
 	ExportFormatCSV      ExportFormat = "csv"
