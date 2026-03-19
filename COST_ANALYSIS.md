@@ -12,23 +12,41 @@
 
 | 指标 | 数值 |
 |------|------|
-| Go 源文件数 | 704 个 |
-| 总代码行数 | 408,120 行 |
+| Go 源文件数 | 724 个 |
+| 总代码行数 | 408,191 行 |
 | go.mod 行数 | 172 行 |
 | go.sum 行数 | 478 行 |
-| 直接依赖数 | ~170 个 |
+| 依赖模块数 | 263 个 |
+| 测试文件数 | 257 个 |
 
-### 1.3 测试覆盖率（2026-03-19 统计）
+### 1.2 测试覆盖率（2026-03-19 统计）
 
-| 包 | 覆盖率 | 状态 |
+**总体覆盖率: 36.3%**
+
+| 模块 | 覆盖率 | 状态 |
 |------|-------|------|
-| pkg/security | 37.3% | ✅ |
-| tests/e2e | 34.4% | ✅ |
-| pkg/safeguards | 20.9% | ⚠️ |
+| internal/notify | 90.7% | ⭐ 优秀 |
+| internal/automation/api | 86.8% | ⭐ 优秀 |
+| internal/transfer | 83.9% | ⭐ 优秀 |
+| internal/trash | 83.5% | ⭐ 优秀 |
+| internal/billing/cost_analysis | 82.0% | ⭐ 优秀 |
+| internal/dashboard | 77.3% | ✅ 良好 |
+| internal/database | 76.0% | ✅ 良好 |
+| internal/nfs | 72.6% | ✅ 良好 |
+| internal/smb | 73.4% | ✅ 良好 |
+| internal/version | 100.0% | ⭐ 完美 |
+| internal/security/cmdsec | 100.0% | ⭐ 完美 |
+| internal/versioning | 71.6% | ✅ 良好 |
+| internal/prediction | 63.6% | ✅ 良好 |
+| pkg/btrfs | 63.6% | ✅ 良好 |
+| internal/rbac | 60.7% | ✅ 良好 |
+| internal/concurrency | 60.5% | ✅ 良好 |
+| internal/replication | 63.9% | ✅ 良好 |
 | plugins/* | 0.0% | ❌ 无测试 |
-| tests/integration | - | ❌ 构建失败 |
+| tests/fixtures | 0.0% | ❌ 无测试 |
+| cmd/* | 0.0% | ❌ 无测试 |
 
-**评估**: 核心安全模块覆盖率尚可，插件和集成测试需补充。
+**评估**: 核心业务模块覆盖率良好，通知、自动化API、传输模块覆盖率超过80%。插件和命令行模块需补充测试。
 
 ### 1.2 依赖分析
 

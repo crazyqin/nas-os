@@ -718,11 +718,11 @@ func (m *Manager) generateRecommendations() []Recommendation {
 
 // Report 去重报告
 type Report struct {
-	GeneratedAt     time.Time              `json:"generatedAt"`
-	Stats           StatsSnapshot          `json:"stats"`
-	DuplicateGroups []DuplicateGroupSummary `json:"duplicateGroups"`
+	GeneratedAt     time.Time                   `json:"generatedAt"`
+	Stats           StatsSnapshot               `json:"stats"`
+	DuplicateGroups []DuplicateGroupSummary     `json:"duplicateGroups"`
 	UserReports     map[string]*UserDedupReport `json:"userReports,omitempty"`
-	Recommendations []Recommendation       `json:"recommendations,omitempty"`
+	Recommendations []Recommendation            `json:"recommendations,omitempty"`
 }
 
 // UserDedupReport 用户去重报告

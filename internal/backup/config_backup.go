@@ -57,14 +57,14 @@ type ConfigBackupRegistry struct {
 
 // ConfigBackupRecord 备份记录
 type ConfigBackupRecord struct {
-	ID          string            `json:"id"`
-	Filename    string            `json:"filename"`
-	Size        int64             `json:"size"`
-	Checksum    string            `json:"checksum"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	Type        ConfigBackupType  `json:"type"`
-	Description string            `json:"description"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	ID          string             `json:"id"`
+	Filename    string             `json:"filename"`
+	Size        int64              `json:"size"`
+	Checksum    string             `json:"checksum"`
+	CreatedAt   time.Time          `json:"createdAt"`
+	Type        ConfigBackupType   `json:"type"`
+	Description string             `json:"description"`
+	Metadata    map[string]string  `json:"metadata,omitempty"`
 	Status      ConfigBackupStatus `json:"status"`
 }
 

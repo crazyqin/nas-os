@@ -20,6 +20,7 @@ import (
 type ComplianceStandard string
 
 const (
+	// StandardGDPR represents GDPR compliance standard
 	StandardGDPR     ComplianceStandard = "gdpr"     // 通用数据保护条例
 	StandardSOC2     ComplianceStandard = "soc2"     // SOC 2 Type II
 	StandardISO27001 ComplianceStandard = "iso27001" // ISO/IEC 27001
@@ -36,6 +37,7 @@ const (
 type ComplianceLevel string
 
 const (
+	// LevelFull represents full compliance level
 	LevelFull         ComplianceLevel = "full"          // 完全合规
 	LevelPartial      ComplianceLevel = "partial"       // 部分合规
 	LevelNonCompliant ComplianceLevel = "non_compliant" // 不合规
@@ -46,6 +48,7 @@ const (
 type ComplianceStatus string
 
 const (
+	// StatusPassed represents passed compliance status
 	StatusPassed        ComplianceStatus = "passed"
 	StatusFailed        ComplianceStatus = "failed"
 	StatusWarning       ComplianceStatus = "warning"
@@ -59,6 +62,7 @@ const (
 type ComplianceCategory string
 
 const (
+	// CategoryAccessControl represents access control compliance category
 	CategoryAccessControl      ComplianceCategory = "access_control"
 	CategoryDataProtection     ComplianceCategory = "data_protection"
 	CategoryEncryption         ComplianceCategory = "encryption"

@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	// 高亮标签
+	// HighlightStart is the start tag for highlighting
 	HighlightStart = "<mark>"
+	// HighlightEnd is the end tag for highlighting
 	HighlightEnd   = "</mark>"
 )
 

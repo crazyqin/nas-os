@@ -2351,15 +2351,15 @@ func (e *CloudAIEngine) extractColorsAzure(img image.Image) ([]string, error) {
 
 	// 去重
 	uniqueColors := make(map[string]bool)
-	result_colors := make([]string, 0)
+	resultColors := make([]string, 0)
 	for _, c := range colors {
 		if c != "" && !uniqueColors[c] {
 			uniqueColors[c] = true
-			result_colors = append(result_colors, c)
+			resultColors = append(resultColors, c)
 		}
 	}
 
-	return result_colors, nil
+	return resultColors, nil
 }
 
 // QualityScore 云端暂不支持质量评分，返回未实现错误

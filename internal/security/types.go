@@ -124,7 +124,7 @@ type LoginLogEntry struct {
 	MFAMethod string    `json:"mfa_method,omitempty"`
 }
 
-// SecurityAlert 安全告警
+// SecurityAlert represents a security alert
 type SecurityAlert struct {
 	ID           string                 `json:"id"`
 	Timestamp    time.Time              `json:"timestamp"`
@@ -168,7 +168,7 @@ type BaselineReport struct {
 	Results      []BaselineCheckResult `json:"results"`
 }
 
-// SecurityConfig 安全配置
+// SecurityConfig represents security configuration
 type SecurityConfig struct {
 	Firewall       FirewallConfig `json:"firewall"`
 	Fail2Ban       Fail2BanConfig `json:"fail2ban"`
@@ -179,16 +179,19 @@ type SecurityConfig struct {
 
 // ========== 通用响应类型 ==========
 
+// Response represents a generic API response
 type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
+// Success creates a success response
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
+// Error creates an error response
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }

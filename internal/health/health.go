@@ -75,12 +75,12 @@ type Manager struct {
 
 // Report 健康报告
 type Report struct {
-	Status    Status                 `json:"status"`
-	Timestamp time.Time              `json:"timestamp"`
+	Status    Status                  `json:"status"`
+	Timestamp time.Time               `json:"timestamp"`
 	Checks    map[string]*CheckResult `json:"checks"`
-	Summary   *Summary               `json:"summary"`
-	Uptime    time.Duration          `json:"uptime"`
-	Version   string                 `json:"version,omitempty"`
+	Summary   *Summary                `json:"summary"`
+	Uptime    time.Duration           `json:"uptime"`
+	Version   string                  `json:"version,omitempty"`
 }
 
 // Summary 健康摘要

@@ -13,6 +13,7 @@ import (
 type AlertLevel string
 
 const (
+	// LevelInfo represents info alert level
 	LevelInfo     AlertLevel = "info"
 	LevelWarning  AlertLevel = "warning"
 	LevelCritical AlertLevel = "critical"
