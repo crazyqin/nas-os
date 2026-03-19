@@ -1,3 +1,4 @@
+// Package cluster 提供集群管理和节点发现功能
 package cluster
 
 import (

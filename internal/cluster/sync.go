@@ -82,7 +82,7 @@ type StorageSync struct {
 	ctx        context.Context
 	cancel     context.CancelFunc
 	logger     *zap.Logger
-	cluster    *ClusterManager
+	cluster    *Manager
 }
 
 // SyncConfig 同步配置
@@ -96,7 +96,7 @@ type SyncConfig struct {
 }
 
 // NewStorageSync 创建存储同步管理器
-func NewStorageSync(config SyncConfig, logger *zap.Logger, cluster *ClusterManager) (*StorageSync, error) {
+func NewStorageSync(config SyncConfig, logger *zap.Logger, cluster *Manager) (*StorageSync, error) {
 	if config.DataDir == "" {
 		config.DataDir = "/var/lib/nas-os/sync"
 	}

@@ -4,17 +4,17 @@ import (
 	"go.uber.org/zap"
 )
 
-// ClusterServices 集群服务集合
-type ClusterServices struct {
-	Manager *ClusterManager
+// Services 集群服务集合
+type Services struct {
+	Manager *Manager
 	Sync    *StorageSync
 	LB      *LoadBalancer
 	HA      *HighAvailability
 	API     *API
 }
 
-// ClusterRootConfig 集群总配置
-type ClusterRootConfig struct {
+// RootConfig 集群总配置
+type RootConfig struct {
 	Enabled      bool                `json:"enabled"`
 	NodeID       string              `json:"node_id"`
 	DataDir      string              `json:"data_dir"`
@@ -25,7 +25,7 @@ type ClusterRootConfig struct {
 }
 
 // InitializeCluster 初始化集群服务
-func InitializeCluster(config ClusterRootConfig, logger *zap.Logger) (*ClusterServices, error) {
+func InitializeCluster(config RootConfig, logger *zap.Logger) (*Services, error) {
 	if !config.Enabled {
 		logger.Info("集群功能已禁用")
 		return nil, nil
@@ -111,7 +111,7 @@ func InitializeCluster(config ClusterRootConfig, logger *zap.Logger) (*ClusterSe
 	// 创建 API 处理器
 	api := NewAPI(clusterMgr, syncMgr, lb, ha, logger)
 
-	services := &ClusterServices{
+	services := &Services{
 		Manager: clusterMgr,
 		Sync:    syncMgr,
 		LB:      lb,
@@ -124,7 +124,7 @@ func InitializeCluster(config ClusterRootConfig, logger *zap.Logger) (*ClusterSe
 }
 
 // ShutdownCluster 关闭集群服务
-func ShutdownCluster(services *ClusterServices) error {
+func ShutdownCluster(services *Services) error {
 	if services == nil {
 		return nil
 	}

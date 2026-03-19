@@ -71,8 +71,8 @@ func NewService(config ServiceConfig) (*Service, error) {
 
 	// 创建并行压缩器
 	if config.StateDir != "" {
-		// 从 Config 转换为 CompressConfig
-		compressCfg := &CompressConfig{
+		// 从 Config 转换为 ParallelConfig
+		parallelCfg := &ParallelConfig{
 			Algorithm:       config.Config.DefaultAlgorithm,
 			Level:           config.Config.CompressionLevel,
 			Workers:         4,
@@ -84,7 +84,7 @@ func NewService(config ServiceConfig) (*Service, error) {
 			MaxRetries:      3,
 			MinSize:         config.Config.MinSize,
 		}
-		pc, err := NewParallelCompressor(compressCfg, config.StateDir)
+		pc, err := NewParallelCompressor(parallelCfg, config.StateDir)
 		if err != nil {
 			log.Printf("⚠️ 并行压缩器初始化失败: %v", err)
 		} else {
@@ -195,7 +195,7 @@ type Task struct {
 }
 
 // CompressParallel 并行压缩文件
-func (s *Service) CompressParallel(ctx context.Context, paths []string, config *CompressConfig) (*ParallelCompressResult, error) {
+func (s *Service) CompressParallel(ctx context.Context, paths []string, config *ParallelConfig) (*ParallelCompressResult, error) {
 	if s.parallelCompressor == nil {
 		return nil, ErrParallelNotAvailable
 	}
@@ -233,7 +233,7 @@ func (s *Service) CompressParallel(ctx context.Context, paths []string, config *
 }
 
 // CompressParallelWithProgress 带进度回调的并行压缩
-func (s *Service) CompressParallelWithProgress(ctx context.Context, paths []string, config *CompressConfig, callback ProgressCallback) (*ParallelCompressResult, error) {
+func (s *Service) CompressParallelWithProgress(ctx context.Context, paths []string, config *Config, callback ProgressCallback) (*ParallelCompressResult, error) {
 	if s.parallelCompressor == nil {
 		return nil, ErrParallelNotAvailable
 	}
@@ -309,17 +309,20 @@ func (s *Service) GetGlobalProgress() *CompressionProgress {
 
 // 错误定义
 var (
-	ErrParallelNotAvailable = &CompressError{Code: "PARALLEL_NOT_AVAILABLE", Message: "并行压缩器未初始化"}
-	ErrTaskNotFound         = &CompressError{Code: "TASK_NOT_FOUND", Message: "任务不存在"}
-	ErrTaskAlreadyRunning   = &CompressError{Code: "TASK_RUNNING", Message: "任务正在运行"}
+	ErrParallelNotAvailable = &Error{Code: "PARALLEL_NOT_AVAILABLE", Message: "并行压缩器未初始化"}
+	ErrTaskNotFound         = &Error{Code: "TASK_NOT_FOUND", Message: "任务不存在"}
+	ErrTaskAlreadyRunning   = &Error{Code: "TASK_RUNNING", Message: "任务正在运行"}
 )
 
-// CompressError 压缩错误
-type CompressError struct {
+// Error 压缩错误
+type Error struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
 
-func (e *CompressError) Error() string {
+// CompressError 是 Error 的别名，保持向后兼容
+type CompressError = Error
+
+func (e *Error) Error() string {
 	return e.Message
 }

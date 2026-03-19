@@ -125,7 +125,7 @@ type TemplateManager struct {
 // NewTemplateManager 创建模板管理器
 func NewTemplateManager(mgr *Manager) *TemplateManager {
 	return &TemplateManager{
-		templates: make(map[string]*ProjectTemplate),
+		templates: make(map[string]*Template),
 		manager:   mgr,
 	}
 }
@@ -340,7 +340,7 @@ func (tm *TemplateManager) GetUserTemplates(userID string) []*Template {
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 
-	result := make([]*ProjectTemplate, 0)
+	result := make([]*Template, 0)
 	for _, template := range tm.templates {
 		if template.CreatedBy == userID {
 			result = append(result, template)

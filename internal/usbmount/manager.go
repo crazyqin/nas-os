@@ -300,12 +300,18 @@ type MountResult struct {
 // ========== 错误定义 ==========
 
 var (
-	ErrDeviceNotFound       = fmt.Errorf("设备未找到")
-	ErrAlreadyMounted       = fmt.Errorf("设备已挂载")
-	ErrNotMounted           = fmt.Errorf("设备未挂载")
+	// ErrDeviceNotFound 设备未找到错误
+	ErrDeviceNotFound = fmt.Errorf("设备未找到")
+	// ErrAlreadyMounted 设备已挂载错误
+	ErrAlreadyMounted = fmt.Errorf("设备已挂载")
+	// ErrNotMounted 设备未挂载错误
+	ErrNotMounted = fmt.Errorf("设备未挂载")
+	// ErrFileSystemNotAllowed 文件系统类型不被允许错误
 	ErrFileSystemNotAllowed = fmt.Errorf("文件系统类型不被允许")
-	ErrMountPointBusy       = fmt.Errorf("挂载点被占用")
-	ErrRuleNotFound         = fmt.Errorf("规则未找到")
+	// ErrMountPointBusy 挂载点被占用错误
+	ErrMountPointBusy = fmt.Errorf("挂载点被占用")
+	// ErrRuleNotFound 规则未找到错误
+	ErrRuleNotFound = fmt.Errorf("规则未找到")
 )
 
 // ========== 构造函数 ==========

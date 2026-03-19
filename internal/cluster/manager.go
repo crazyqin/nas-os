@@ -16,14 +16,19 @@ import (
 
 // 节点角色定义
 const (
+	// RoleMaster 表示主节点角色
 	RoleMaster = "master"
+	// RoleWorker 表示工作节点角色
 	RoleWorker = "worker"
 )
 
 // 节点状态定义
 const (
-	StatusOnline   = "online"
-	StatusOffline  = "offline"
+	// StatusOnline 表示节点在线状态
+	StatusOnline = "online"
+	// StatusOffline 表示节点离线状态
+	StatusOffline = "offline"
+	// StatusDegraded 表示节点降级状态
 	StatusDegraded = "degraded"
 )
 
@@ -38,8 +43,8 @@ type NodeMetrics struct {
 	LastUpdate  time.Time `json:"last_update"`
 }
 
-// ClusterNode 集群节点信息
-type ClusterNode struct {
+// Member 集群成员信息
+type Member struct {
 	ID        string      `json:"id"`
 	Hostname  string      `json:"hostname"`
 	IP        string      `json:"ip"`
@@ -61,10 +66,10 @@ type SimpleClusterConfig struct {
 	DataDir           string `json:"data_dir"`
 }
 
-// ClusterManager 集群管理器
-type ClusterManager struct {
+// Manager 集群管理器
+type Manager struct {
 	config     SimpleClusterConfig
-	nodes      map[string]*ClusterNode
+	nodes      map[string]*Member
 	nodesMutex sync.RWMutex
 	masterID   string
 	resolver   *zeroconf.Resolver
@@ -72,18 +77,18 @@ type ClusterManager struct {
 	ctx        context.Context
 	cancel     context.CancelFunc
 	logger     *zap.Logger
-	callbacks  ClusterCallbacks
+	callbacks  Callbacks
 }
 
-// ClusterCallbacks 集群事件回调
-type ClusterCallbacks struct {
-	OnNodeJoin     func(node *ClusterNode)
-	OnNodeLeave    func(node *ClusterNode)
+// Callbacks 集群事件回调
+type Callbacks struct {
+	OnNodeJoin     func(node *Member)
+	OnNodeLeave    func(node *Member)
 	OnMasterChange func(oldMaster, newMaster string)
 }
 
 // NewManager 创建集群管理器
-func NewManager(config SimpleClusterConfig, logger *zap.Logger) (*ClusterManager, error) {
+func NewManager(config SimpleClusterConfig, logger *zap.Logger) (*Manager, error) {
 	if config.NodeID == "" {
 		hostname, _ := os.Hostname()
 		config.NodeID = fmt.Sprintf("node-%s", hostname)
@@ -103,9 +108,9 @@ func NewManager(config SimpleClusterConfig, logger *zap.Logger) (*ClusterManager
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cm := &ClusterManager{
+	cm := &Manager{
 		config:   config,
-		nodes:    make(map[string]*ClusterNode),
+		nodes:    make(map[string]*Member),
 		masterID: config.NodeID, // 初始化为自身
 		ctx:      ctx,
 		cancel:   cancel,
@@ -126,7 +131,7 @@ func NewManager(config SimpleClusterConfig, logger *zap.Logger) (*ClusterManager
 }
 
 // Initialize 初始化集群管理器
-func (cm *ClusterManager) Initialize() error {
+func (cm *Manager) Initialize() error {
 	cm.logger.Info("初始化集群管理器", zap.String("node_id", cm.config.NodeID))
 
 	// 启动 mDNS 服务发现
@@ -150,7 +155,7 @@ func (cm *ClusterManager) Initialize() error {
 }
 
 // startMDNSServer 启动 mDNS 服务广播
-func (cm *ClusterManager) startMDNSServer() error {
+func (cm *Manager) startMDNSServer() error {
 	// 获取本机 IP
 	ip, err := cm.getLocalIP()
 	if err != nil {
@@ -181,7 +186,7 @@ func (cm *ClusterManager) startMDNSServer() error {
 }
 
 // startMDNSDiscovery 启动 mDNS 服务发现
-func (cm *ClusterManager) startMDNSDiscovery() error {
+func (cm *Manager) startMDNSDiscovery() error {
 	resolver, err := zeroconf.NewResolver(nil)
 	if err != nil {
 		return err
@@ -208,7 +213,7 @@ func (cm *ClusterManager) startMDNSDiscovery() error {
 }
 
 // handleDiscoveredNode 处理发现的节点
-func (cm *ClusterManager) handleDiscoveredNode(entry *zeroconf.ServiceEntry) {
+func (cm *Manager) handleDiscoveredNode(entry *zeroconf.ServiceEntry) {
 	if len(entry.AddrIPv4) == 0 {
 		return
 	}
@@ -246,7 +251,7 @@ func (cm *ClusterManager) handleDiscoveredNode(entry *zeroconf.ServiceEntry) {
 	}
 
 	// 添加新节点
-	node := &ClusterNode{
+	node := &Member{
 		ID:        nodeID,
 		Hostname:  hostname,
 		IP:        entry.AddrIPv4[0].String(),
@@ -270,7 +275,7 @@ func (cm *ClusterManager) handleDiscoveredNode(entry *zeroconf.ServiceEntry) {
 }
 
 // heartbeatWorker 心跳检测工作线程
-func (cm *ClusterManager) heartbeatWorker() {
+func (cm *Manager) heartbeatWorker() {
 	ticker := time.NewTicker(time.Duration(cm.config.HeartbeatInterval) * time.Second)
 	defer ticker.Stop()
 
@@ -285,7 +290,7 @@ func (cm *ClusterManager) heartbeatWorker() {
 }
 
 // broadcastHeartbeat 广播心跳
-func (cm *ClusterManager) broadcastHeartbeat() {
+func (cm *Manager) broadcastHeartbeat() {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
 
@@ -300,7 +305,7 @@ func (cm *ClusterManager) broadcastHeartbeat() {
 }
 
 // sendHeartbeat 发送心跳到指定节点
-func (cm *ClusterManager) sendHeartbeat(node *ClusterNode) {
+func (cm *Manager) sendHeartbeat(node *Member) {
 	ctx, cancel := context.WithTimeout(cm.ctx, 5*time.Second)
 	defer cancel()
 
@@ -330,7 +335,7 @@ func (cm *ClusterManager) sendHeartbeat(node *ClusterNode) {
 }
 
 // monitorWorker 节点状态监控工作线程
-func (cm *ClusterManager) monitorWorker() {
+func (cm *Manager) monitorWorker() {
 	ticker := time.NewTicker(time.Duration(cm.config.HeartbeatTimeout) * time.Second / 2)
 	defer ticker.Stop()
 
@@ -345,7 +350,7 @@ func (cm *ClusterManager) monitorWorker() {
 }
 
 // checkNodeStatus 检查节点状态
-func (cm *ClusterManager) checkNodeStatus() {
+func (cm *Manager) checkNodeStatus() {
 	cm.nodesMutex.Lock()
 	defer cm.nodesMutex.Unlock()
 
@@ -378,11 +383,11 @@ func (cm *ClusterManager) checkNodeStatus() {
 }
 
 // electNewMaster 选举新主节点
-func (cm *ClusterManager) electNewMaster() {
+func (cm *Manager) electNewMaster() {
 	cm.logger.Info("开始主节点选举")
 
 	// 简单选举：选择最早加入的在线节点
-	var candidates []*ClusterNode
+	var candidates []*Member
 	for _, node := range cm.nodes {
 		if node.Status == StatusOnline && node.Role == RoleWorker {
 			candidates = append(candidates, node)
@@ -417,11 +422,11 @@ func (cm *ClusterManager) electNewMaster() {
 }
 
 // GetNodes 获取所有节点
-func (cm *ClusterManager) GetNodes() []*ClusterNode {
+func (cm *Manager) GetNodes() []*Member {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
 
-	nodes := make([]*ClusterNode, 0, len(cm.nodes))
+	nodes := make([]*Member, 0, len(cm.nodes))
 	for _, node := range cm.nodes {
 		nodes = append(nodes, node)
 	}
@@ -429,7 +434,7 @@ func (cm *ClusterManager) GetNodes() []*ClusterNode {
 }
 
 // GetNode 获取指定节点
-func (cm *ClusterManager) GetNode(nodeID string) (*ClusterNode, bool) {
+func (cm *Manager) GetNode(nodeID string) (*Member, bool) {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
 
@@ -441,7 +446,7 @@ func (cm *ClusterManager) GetNode(nodeID string) (*ClusterNode, bool) {
 }
 
 // GetMasterNode 获取主节点
-func (cm *ClusterManager) GetMasterNode() *ClusterNode {
+func (cm *Manager) GetMasterNode() *Member {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
 
@@ -452,11 +457,11 @@ func (cm *ClusterManager) GetMasterNode() *ClusterNode {
 }
 
 // GetOnlineNodes 获取在线节点
-func (cm *ClusterManager) GetOnlineNodes() []*ClusterNode {
+func (cm *Manager) GetOnlineNodes() []*Member {
 	cm.nodesMutex.RLock()
 	defer cm.nodesMutex.RUnlock()
 
-	nodes := make([]*ClusterNode, 0)
+	nodes := make([]*Member, 0)
 	for _, node := range cm.nodes {
 		if node.Status == StatusOnline {
 			nodes = append(nodes, node)
@@ -466,7 +471,7 @@ func (cm *ClusterManager) GetOnlineNodes() []*ClusterNode {
 }
 
 // RemoveNode 移除节点
-func (cm *ClusterManager) RemoveNode(nodeID string) error {
+func (cm *Manager) RemoveNode(nodeID string) error {
 	cm.nodesMutex.Lock()
 	defer cm.nodesMutex.Unlock()
 
@@ -489,7 +494,7 @@ func (cm *ClusterManager) RemoveNode(nodeID string) error {
 }
 
 // UpdateNodeMetrics 更新节点指标
-func (cm *ClusterManager) UpdateNodeMetrics(nodeID string, metrics NodeMetrics) error {
+func (cm *Manager) UpdateNodeMetrics(nodeID string, metrics NodeMetrics) error {
 	cm.nodesMutex.Lock()
 	defer cm.nodesMutex.Unlock()
 
@@ -504,27 +509,27 @@ func (cm *ClusterManager) UpdateNodeMetrics(nodeID string, metrics NodeMetrics) 
 }
 
 // SetCallbacks 设置事件回调
-func (cm *ClusterManager) SetCallbacks(callbacks ClusterCallbacks) {
+func (cm *Manager) SetCallbacks(callbacks Callbacks) {
 	cm.callbacks = callbacks
 }
 
 // GetConfig 获取集群配置
-func (cm *ClusterManager) GetConfig() SimpleClusterConfig {
+func (cm *Manager) GetConfig() SimpleClusterConfig {
 	return cm.config
 }
 
 // IsMaster 检查当前节点是否为主节点
-func (cm *ClusterManager) IsMaster() bool {
+func (cm *Manager) IsMaster() bool {
 	return cm.config.NodeID == cm.masterID
 }
 
 // GetMasterID 获取主节点 ID
-func (cm *ClusterManager) GetMasterID() string {
+func (cm *Manager) GetMasterID() string {
 	return cm.masterID
 }
 
 // Shutdown 关闭集群管理器
-func (cm *ClusterManager) Shutdown() error {
+func (cm *Manager) Shutdown() error {
 	cm.cancel()
 
 	if cm.server != nil {
@@ -538,7 +543,7 @@ func (cm *ClusterManager) Shutdown() error {
 // 辅助函数
 
 // getLocalIP 获取本机 IP
-func (cm *ClusterManager) getLocalIP() (string, error) {
+func (cm *Manager) getLocalIP() (string, error) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		return "", err
@@ -556,7 +561,7 @@ func (cm *ClusterManager) getLocalIP() (string, error) {
 }
 
 // saveState 持久化集群状态
-func (cm *ClusterManager) saveState() error {
+func (cm *Manager) saveState() error {
 	state := map[string]interface{}{
 		"master_id": cm.masterID,
 		"nodes":     cm.nodes,
@@ -573,7 +578,7 @@ func (cm *ClusterManager) saveState() error {
 }
 
 // loadState 加载集群状态
-func (cm *ClusterManager) loadState() error {
+func (cm *Manager) loadState() error {
 	stateFile := fmt.Sprintf("%s/cluster_state.json", cm.config.DataDir)
 
 	data, err := os.ReadFile(stateFile)
@@ -586,7 +591,7 @@ func (cm *ClusterManager) loadState() error {
 
 	var state struct {
 		MasterID  string                  `json:"master_id"`
-		Nodes     map[string]*ClusterNode `json:"nodes"`
+		Nodes     map[string]*Member `json:"nodes"`
 		Timestamp time.Time               `json:"timestamp"`
 	}
 

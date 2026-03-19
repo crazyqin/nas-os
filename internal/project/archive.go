@@ -75,7 +75,7 @@ type ArchiveManager struct {
 // NewArchiveManager 创建归档管理器
 func NewArchiveManager(mgr *Manager, config ArchiveConfig) *ArchiveManager {
 	am := &ArchiveManager{
-		archives:  make(map[string]*ProjectArchive),
+		archives:  make(map[string]*Archive),
 		config:    config,
 		manager:   mgr,
 		exportMgr: NewExportManager(mgr),
@@ -235,7 +235,7 @@ func (am *ArchiveManager) ListArchives(status ArchiveStatus, limit, offset int) 
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 
-	result := make([]*ProjectArchive, 0)
+	result := make([]*Archive, 0)
 	for _, archive := range am.archives {
 		if status == "" || archive.Status == status {
 			result = append(result, archive)
@@ -363,7 +363,7 @@ func (am *ArchiveManager) GetArchivesByProject(projectID string) []*Archive {
 	am.mu.RLock()
 	defer am.mu.RUnlock()
 
-	result := make([]*ProjectArchive, 0)
+	result := make([]*Archive, 0)
 	for _, archive := range am.archives {
 		if archive.ProjectID == projectID {
 			result = append(result, archive)

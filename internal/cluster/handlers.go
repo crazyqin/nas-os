@@ -11,7 +11,7 @@ import (
 
 // API 集群 API 处理器
 type API struct {
-	manager *ClusterManager
+	manager *Manager
 	sync    *StorageSync
 	lb      *LoadBalancer
 	ha      *HighAvailability
@@ -19,7 +19,7 @@ type API struct {
 }
 
 // NewAPI 创建集群 API 处理器
-func NewAPI(manager *ClusterManager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
+func NewAPI(manager *Manager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
 	return &API{
 		manager: manager,
 		sync:    sync,
@@ -29,11 +29,8 @@ func NewAPI(manager *ClusterManager, sync *StorageSync, lb *LoadBalancer, ha *Hi
 	}
 }
 
-// ClusterAPI 是 API 的别名，保持向后兼容
-type ClusterAPI = API
-
 // NewClusterAPI 创建集群 API 处理器（兼容旧代码）
-func NewClusterAPI(manager *ClusterManager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
+func NewClusterAPI(manager *Manager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
 	return NewAPI(manager, sync, lb, ha, logger)
 }
 
@@ -127,7 +124,7 @@ func (api *API) JoinCluster(c *gin.Context) {
 	}
 
 	// 创建节点
-	node := &ClusterNode{
+	node := &Member{
 		ID:        req.NodeID,
 		Hostname:  req.Hostname,
 		IP:        req.IP,
