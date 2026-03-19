@@ -33,8 +33,8 @@ type StatsExtended struct {
 	RiskIndicators RiskIndicators `json:"risk_indicators"`
 }
 
-// ProjectStatsExtended 是 StatsExtended 的别名，保持向后兼容
-type ProjectStatsExtended = StatsExtended
+// 注意：已移除 ProjectStatsExtended 别名，请直接使用 StatsExtended 类型
+// 原因：避免 stutter (project.ProjectStatsExtended -> project.StatsExtended)
 
 // TaskStatsDetail 详细任务统计
 type TaskStatsDetail struct {
@@ -801,13 +801,7 @@ type GlobalStats struct {
 	GeneratedAt     time.Time      `json:"generated_at"`
 }
 
-// 辅助函数
-func min(a, b float64) float64 {
-	if a < b {
-		return a
-	}
-	return b
-}
+// 辅助函数 - 注意：min 函数已使用 Go 1.21+ 内置版本，无需手动定义
 
 func abs(a float64) float64 {
 	if a < 0 {

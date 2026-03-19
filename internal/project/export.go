@@ -41,8 +41,8 @@ type Export struct {
 	Options ExportOptions `json:"options"`
 }
 
-// ProjectExport 是 Export 的别名，保持向后兼容
-type ProjectExport = Export
+// 注意：已移除 ProjectExport 别名，请直接使用 Export 类型
+// 原因：避免 stutter (project.ProjectExport -> project.Export)
 
 // ExportOptions 导出选项
 type ExportOptions struct {

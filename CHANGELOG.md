@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.11] - 2026-03-19
+
+### Fixed
+- 修复 revive linter 报告的代码注释格式问题
+- 修复类型命名 stutter 问题（包名重复）
+
 ## [v2.253.10] - 2026-03-19
 
 ### Improvements
