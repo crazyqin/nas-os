@@ -117,8 +117,6 @@ type Monitor struct {
 	sampleRate float64
 }
 
-
-
 // NewMonitor 创建性能监控器
 func NewMonitor(logger *zap.Logger) *Monitor {
 	return &Monitor{

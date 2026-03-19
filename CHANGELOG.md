@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.23] - 2026-03-19
+
+### Improvements
+- 代码格式优化 (兵部)
+  - go fmt 格式化 9 个文件 (compress, performance, plugin, project, search, security 模块)
+  - 删除多余空行
+
+### Documentation
+- 更新 MILESTONES.md 添加 v2.253.22, v2.253.23 记录 (吏部)
+
 ## [v2.253.22] - 2026-03-19
 
 ### Bug Fixes

@@ -663,8 +663,6 @@ type Response struct {
 	Results  []Result      `json:"results"`
 }
 
-
-
 // Delete 从索引中删除
 func (e *Engine) Delete(path string) error {
 	return e.index.Delete(path)

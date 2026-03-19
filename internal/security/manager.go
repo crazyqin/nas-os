@@ -247,5 +247,3 @@ func (sm *Manager) getUnacknowledgedAlertsCount() int {
 	alerts := sm.audit.GetAlerts(1000, 0, func() *bool { b := false; return &b }())
 	return len(alerts)
 }
-
-
