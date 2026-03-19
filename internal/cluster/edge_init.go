@@ -25,7 +25,7 @@ type EdgeRootConfig struct {
 }
 
 // InitializeEdgeComputing 初始化边缘计算服务
-func InitializeEdgeComputing(config EdgeRootConfig, logger *zap.Logger, cluster *ClusterManager) (*EdgeServices, error) {
+func InitializeEdgeComputing(config EdgeRootConfig, logger *zap.Logger, cluster *Manager) (*EdgeServices, error) {
 	if !config.Enabled {
 		logger.Info("边缘计算功能已禁用")
 		return nil, nil

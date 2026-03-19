@@ -235,17 +235,17 @@ type CompressionProgressSnapshot struct {
 
 // CompressionState 压缩状态（用于恢复）
 type CompressionState struct {
-	ID             string         `json:"id"`
-	StartedAt      time.Time      `json:"startedAt"`
-	UpdatedAt      time.Time      `json:"updatedAt"`
-	Status         string         `json:"status"` // running, paused, completed, failed
-	TotalFiles     int64          `json:"totalFiles"`
-	ProcessedFiles []string       `json:"processedFiles"`
-	PendingFiles   []string       `json:"pendingFiles"`
-	FailedFiles    []FailedFile   `json:"failedFiles"`
-	BytesDone      int64          `json:"bytesDone"`
-	BytesSaved     int64          `json:"bytesSaved"`
-	Config         CompressConfig `json:"config"`
+	ID             string        `json:"id"`
+	StartedAt      time.Time     `json:"startedAt"`
+	UpdatedAt      time.Time     `json:"updatedAt"`
+	Status         string        `json:"status"` // running, paused, completed, failed
+	TotalFiles     int64         `json:"totalFiles"`
+	ProcessedFiles []string      `json:"processedFiles"`
+	PendingFiles   []string      `json:"pendingFiles"`
+	FailedFiles    []FailedFile  `json:"failedFiles"`
+	BytesDone      int64         `json:"bytesDone"`
+	BytesSaved     int64         `json:"bytesSaved"`
+	Config         ParallelConfig `json:"config"`
 }
 
 // FailedFile 失败文件记录
@@ -281,7 +281,7 @@ func NewRecoveryManager(stateDir string) (*RecoveryManager, error) {
 }
 
 // CreateState 创建新状态
-func (rm *RecoveryManager) CreateState(id string, config CompressConfig) *CompressionState {
+func (rm *RecoveryManager) CreateState(id string, config ParallelConfig) *CompressionState {
 	rm.mu.Lock()
 	defer rm.mu.Unlock()
 
@@ -463,8 +463,8 @@ func (rm *RecoveryManager) loadStates() error {
 
 // ========== 并行压缩增强 ==========
 
-// CompressConfig 压缩配置
-type CompressConfig struct {
+// ParallelConfig 并行压缩配置
+type ParallelConfig struct {
 	Algorithm       Algorithm `json:"algorithm"`
 	Level           int       `json:"level"`
 	Workers         int       `json:"workers"`
@@ -477,9 +477,12 @@ type CompressConfig struct {
 	MinSize         int64     `json:"minSize"`
 }
 
-// DefaultCompressConfig 默认配置
-func DefaultCompressConfig() *CompressConfig {
-	return &CompressConfig{
+// CompressConfig 是 ParallelConfig 的别名，保持向后兼容
+type CompressConfig = ParallelConfig
+
+// DefaultParallelConfig 默认并行压缩配置
+func DefaultParallelConfig() *ParallelConfig {
+	return &ParallelConfig{
 		Algorithm:       AlgorithmGzip,
 		Level:           6,
 		Workers:         4,
@@ -495,16 +498,16 @@ func DefaultCompressConfig() *CompressConfig {
 
 // ParallelCompressor 并行压缩器
 type ParallelCompressor struct {
-	config      *CompressConfig
+	config      *ParallelConfig
 	compressors map[Algorithm]Compressor
 	progress    *CompressionProgress
 	recovery    *RecoveryManager
 }
 
 // NewParallelCompressor 创建并行压缩器
-func NewParallelCompressor(config *CompressConfig, stateDir string) (*ParallelCompressor, error) {
+func NewParallelCompressor(config *ParallelConfig, stateDir string) (*ParallelCompressor, error) {
 	if config == nil {
-		config = DefaultCompressConfig()
+		config = DefaultParallelConfig()
 	}
 
 	pc := &ParallelCompressor{
@@ -566,9 +569,9 @@ type FileCompressError struct {
 }
 
 // CompressParallel 并行压缩
-func (pc *ParallelCompressor) CompressParallel(ctx context.Context, paths []string, config *CompressConfig) (*ParallelCompressResult, error) {
+func (pc *ParallelCompressor) CompressParallel(ctx context.Context, paths []string, config *ParallelConfig) (*ParallelCompressResult, error) {
 	if config == nil {
-		config = DefaultCompressConfig()
+		config = DefaultParallelConfig()
 	}
 
 	// 生成任务ID
@@ -697,7 +700,7 @@ sendLoop:
 }
 
 // compressWorker 压缩工作协程
-func (pc *ParallelCompressor) compressWorker(ctx context.Context, wg *sync.WaitGroup, config *CompressConfig,
+func (pc *ParallelCompressor) compressWorker(ctx context.Context, wg *sync.WaitGroup, config *ParallelConfig,
 	paths <-chan string, results chan<- FileCompressResult, errors chan<- FileCompressError,
 	activeTasks *int32, processedBytes, savedBytes *int64) {
 
@@ -737,7 +740,7 @@ func (pc *ParallelCompressor) compressWorker(ctx context.Context, wg *sync.WaitG
 }
 
 // compressFile 压缩单个文件
-func (pc *ParallelCompressor) compressFile(path string, config *CompressConfig, compressor Compressor) FileCompressResult {
+func (pc *ParallelCompressor) compressFile(path string, config *ParallelConfig, compressor Compressor) FileCompressResult {
 	result := FileCompressResult{
 		Path:      path,
 		Algorithm: config.Algorithm,
@@ -826,7 +829,7 @@ func (pc *ParallelCompressor) compressFile(path string, config *CompressConfig, 
 }
 
 // shouldCompress 检查是否应该压缩
-func (pc *ParallelCompressor) shouldCompress(path string, size int64, config *CompressConfig) bool {
+func (pc *ParallelCompressor) shouldCompress(path string, size int64, config *ParallelConfig) bool {
 	if size < config.MinSize {
 		return false
 	}

@@ -113,7 +113,7 @@ type EdgeNodeManager struct {
 	ctx        context.Context
 	cancel     context.CancelFunc
 	logger     *zap.Logger
-	cluster    *ClusterManager
+	cluster    *Manager
 	callbacks  EdgeNodeCallbacks
 	taskQueue  *TaskScheduler
 }
@@ -127,7 +127,7 @@ type EdgeNodeCallbacks struct {
 }
 
 // NewEdgeNodeManager 创建边缘节点管理器
-func NewEdgeNodeManager(config EdgeNodeConfig, logger *zap.Logger, cluster *ClusterManager) (*EdgeNodeManager, error) {
+func NewEdgeNodeManager(config EdgeNodeConfig, logger *zap.Logger, cluster *Manager) (*EdgeNodeManager, error) {
 	if config.NodeID == "" {
 		hostname, _ := os.Hostname()
 		config.NodeID = fmt.Sprintf("edge-%s", hostname)

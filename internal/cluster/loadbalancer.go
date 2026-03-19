@@ -75,11 +75,11 @@ type LoadBalancer struct {
 	ctx          context.Context
 	cancel       context.CancelFunc
 	logger       *zap.Logger
-	cluster      *ClusterManager
+	cluster      *Manager
 }
 
 // NewLoadBalancer 创建负载均衡器
-func NewLoadBalancer(config LBConfig, logger *zap.Logger, cluster *ClusterManager) (*LoadBalancer, error) {
+func NewLoadBalancer(config LBConfig, logger *zap.Logger, cluster *Manager) (*LoadBalancer, error) {
 	if config.Algorithm == "" {
 		config.Algorithm = LBAlgorithmRoundRobin
 	}
