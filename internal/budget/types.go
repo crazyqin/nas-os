@@ -270,20 +270,20 @@ type ReportSummary struct {
 
 // Detail 预算详情
 type Detail struct {
-	BudgetID       string `json:"budget_id"`
-	BudgetName     string `json:"budget_name"`
-	Type           Type   `json:"type"`
-	Scope          Scope  `json:"scope"`
-	TargetName     string `json:"target_name"`
+	BudgetID       string  `json:"budget_id"`
+	BudgetName     string  `json:"budget_name"`
+	Type           Type    `json:"type"`
+	Scope          Scope   `json:"scope"`
+	TargetName     string  `json:"target_name"`
 	Amount         float64 `json:"amount"`
 	UsedAmount     float64 `json:"used_amount"`
 	Remaining      float64 `json:"remaining"`
 	UsagePercent   float64 `json:"usage_percent"`
-	Status         Status `json:"status"`
-	Trend          string `json:"trend"` // up, down, stable
+	Status         Status  `json:"status"`
+	Trend          string  `json:"trend"` // up, down, stable
 	DailyAvgUsage  float64 `json:"daily_avg_usage"`
 	ProjectedUsage float64 `json:"projected_usage"` // 预计期末使用量
-	DaysRemaining  int    `json:"days_remaining"`
+	DaysRemaining  int     `json:"days_remaining"`
 	Alerts         []Alert `json:"alerts"`
 }
 
@@ -336,22 +336,22 @@ type ReportRequest struct {
 
 // Query 预算查询参数
 type Query struct {
-	IDs       []string  `json:"ids,omitempty"`
-	Types     []Type    `json:"types,omitempty"`
-	Scopes    []Scope   `json:"scopes,omitempty"`
-	Statuses  []Status  `json:"statuses,omitempty"`
-	TargetIDs []string  `json:"target_ids,omitempty"`
-	Tags      []string  `json:"tags,omitempty"`
-	MinAmount *float64  `json:"min_amount,omitempty"`
-	MaxAmount *float64  `json:"max_amount,omitempty"`
-	MinUsage  *float64  `json:"min_usage,omitempty"`
-	MaxUsage  *float64  `json:"max_usage,omitempty"`
+	IDs       []string   `json:"ids,omitempty"`
+	Types     []Type     `json:"types,omitempty"`
+	Scopes    []Scope    `json:"scopes,omitempty"`
+	Statuses  []Status   `json:"statuses,omitempty"`
+	TargetIDs []string   `json:"target_ids,omitempty"`
+	Tags      []string   `json:"tags,omitempty"`
+	MinAmount *float64   `json:"min_amount,omitempty"`
+	MaxAmount *float64   `json:"max_amount,omitempty"`
+	MinUsage  *float64   `json:"min_usage,omitempty"`
+	MaxUsage  *float64   `json:"max_usage,omitempty"`
 	StartDate *time.Time `json:"start_date,omitempty"`
 	EndDate   *time.Time `json:"end_date,omitempty"`
-	Page      int       `json:"page"`
-	PageSize  int       `json:"page_size"`
-	SortBy    string    `json:"sort_by"`    // name, amount, used_amount, usage_percent, created_at
-	SortOrder string    `json:"sort_order"` // asc, desc
+	Page      int        `json:"page"`
+	PageSize  int        `json:"page_size"`
+	SortBy    string     `json:"sort_by"`    // name, amount, used_amount, usage_percent, created_at
+	SortOrder string     `json:"sort_order"` // asc, desc
 }
 
 // UsageQuery 使用记录查询参数
@@ -381,18 +381,18 @@ type AlertQuery struct {
 
 // Stats 预算统计
 type Stats struct {
-	TotalBudgets      int                `json:"total_budgets"`
-	ActiveBudgets     int                `json:"active_budgets"`
-	TotalAmount       float64            `json:"total_amount"`
-	TotalUsed         float64            `json:"total_used"`
-	TotalRemaining    float64            `json:"total_remaining"`
-	ByType            map[Type]TypeStats `json:"by_type"`
+	TotalBudgets      int                 `json:"total_budgets"`
+	ActiveBudgets     int                 `json:"active_budgets"`
+	TotalAmount       float64             `json:"total_amount"`
+	TotalUsed         float64             `json:"total_used"`
+	TotalRemaining    float64             `json:"total_remaining"`
+	ByType            map[Type]TypeStats  `json:"by_type"`
 	ByScope           map[Scope]TypeStats `json:"by_scope"`
-	ExceededCount     int                `json:"exceeded_count"`
-	NearLimitCount    int                `json:"near_limit_count"`
-	ActiveAlertCount  int                `json:"active_alert_count"`
-	HealthScore       int                `json:"health_score"`
-	ProjectedMonthEnd float64            `json:"projected_month_end"`
+	ExceededCount     int                 `json:"exceeded_count"`
+	NearLimitCount    int                 `json:"near_limit_count"`
+	ActiveAlertCount  int                 `json:"active_alert_count"`
+	HealthScore       int                 `json:"health_score"`
+	ProjectedMonthEnd float64             `json:"projected_month_end"`
 }
 
 // TypeStats 类型统计

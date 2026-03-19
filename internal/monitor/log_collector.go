@@ -78,15 +78,15 @@ type LogFormat string
 // 日志格式常量
 const (
 	// LogFormatJSON JSON 格式
-	LogFormatJSON   LogFormat = "json"
+	LogFormatJSON LogFormat = "json"
 	// LogFormatText 纯文本格式
-	LogFormatText   LogFormat = "text"
+	LogFormatText LogFormat = "text"
 	// LogFormatSyslog Syslog 格式
 	LogFormatSyslog LogFormat = "syslog"
 	// LogFormatApache Apache 格式
 	LogFormatApache LogFormat = "apache"
 	// LogFormatNginx Nginx 格式
-	LogFormatNginx  LogFormat = "nginx"
+	LogFormatNginx LogFormat = "nginx"
 )
 
 // LogEntry 日志条目
