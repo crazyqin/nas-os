@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.22] - 2026-03-19
+
+### Bug Fixes
+- 修复 46 个 revive linter 错误 (兵部)
+  - 删除 stutter 问题的类型别名 (BudgetManager, PluginInfo, SearchResult 等)
+  - 为导出常量添加英文注释
+  - 为导出变量添加注释
+
 ## [v2.253.21] - 2026-03-19
 
 ### Bug Fixes
