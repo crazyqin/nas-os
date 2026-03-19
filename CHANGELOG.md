@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.18] - 2026-03-19
+
+### Documentation
+- 同步所有文档版本号至 v2.253.18
+- 更新 README.md、docs/README.md、docs/README_EN.md 版本号
+- 更新 QUICKSTART.md、API_GUIDE.md、FAQ.md、USER_GUIDE.md 版本号
+
+## [v2.253.17] - 2026-03-19
+
+### Improvements
+- 版本号同步更新
+- 文档版本一致性维护
+
 ## [v2.253.16] - 2026-03-19
 
 ### Improvements
