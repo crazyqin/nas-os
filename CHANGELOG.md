@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.21] - 2026-03-19
+
+### Bug Fixes
+- 修复 50 个 revive linter 错误 (兵部)
+  - internal/storage/distributed_storage.go: 添加导出常量注释
+  - internal/storage/manager.go: 修正 RAIDConfigs 注释格式
+  - internal/storage/smart_monitor.go: 添加 SMART 状态常量注释
+  - internal/storagepool/manager.go: 添加状态常量注释
+  - internal/trash: 重命名类型避免 stutters 问题
+
+### Improvements
+- 版本号同步更新至 v2.253.21
+
 ## [v2.253.20] - 2026-03-19
 
 ### Security

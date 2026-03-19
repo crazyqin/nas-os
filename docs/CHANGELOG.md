@@ -6,6 +6,13 @@
 
 ---
 
+## [v2.253.21] - 2026-03-19
+
+### Documentation
+- 同步所有文档版本号至 v2.253.21
+- 更新 README.md、docs/README.md、docs/README_EN.md 版本号
+- 更新 QUICKSTART.md、FAQ.md、USER_GUIDE.md、API_GUIDE.md 版本号
+
 ## [v2.253.11] - 2026-03-19
 
 ### Documentation

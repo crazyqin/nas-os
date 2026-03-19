@@ -666,7 +666,11 @@ func (sm *SyncManager) syncToWebDAV(task *SyncTask) error {
 	client := gowebdav.NewClient(cfg.URL, cfg.Username, cfg.Password)
 
 	if cfg.Insecure {
-		// #nosec G402 -- InsecureSkipVerify is enabled by user configuration for self-signed certificates
+		// 仅测试环境允许跳过 TLS 验证，生产环境必须验证证书
+		if os.Getenv("ENV") != "test" {
+			return fmt.Errorf("生产环境禁止跳过 TLS 验证，请配置有效的 CA 证书")
+		}
+		// #nosec G402 -- InsecureSkipVerify is only allowed in test environment (ENV=test)
 		client.SetTransport(&http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		})

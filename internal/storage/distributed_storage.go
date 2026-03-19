@@ -233,8 +233,8 @@ type PoolStats struct {
 
 // DistributedManager 分布式存储管理器
 type DistributedManager struct {
-	nodes               map[string]*Node    // 节点映射
-	pools               map[string]*Pool    // 存储池映射
+	nodes               map[string]*Node           // 节点映射
+	pools               map[string]*Pool           // 存储池映射
 	shardPolicies       map[string]*ShardingPolicy // 分片策略
 	replicaPolicies     map[string]*ReplicaPolicy  // 副本策略
 	mu                  sync.RWMutex
