@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.10] - 2026-03-19
+
+### Improvements
+- 版本号同步至 v2.253.10
+
+## [v2.253.9] - 2026-03-19
+
+### Bug Fixes
+- 修复 golangci-lint 报告的代码格式和命名问题
+
+## [v2.253.8] - 2026-03-19
+
+### Documentation
+- 同步所有文档版本号至 v2.253.8
+
+### Bug Fixes
+- 修复 health_test.go 中 NewHealthManager → NewManager 函数名
+- 修复 Windows 构建和 health 测试类型引用
+- 修复 golangci-lint 错误
+
+## [v2.253.7] - 2026-03-19
+
+### Documentation
+- 更新成本分析报告
+
+## [v2.253.6] - 2026-03-19
+
+### Bug Fixes
+- 修复 errcheck 和 staticcheck 问题
+
 ## [v2.253.5] - 2026-03-19
 
 ### Improvements
