@@ -306,7 +306,9 @@ func percentEncode(s string) string {
 // generateNonce 生成随机字符串
 func generateNonce() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		panic(err) // crypto/rand 失败是致命错误
+	}
 	return hex.EncodeToString(b)
 }
 

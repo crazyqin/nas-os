@@ -78,7 +78,9 @@ func SecureJoin(baseDir, userPath string) (string, error) {
 // GenerateSecureID generates a cryptographically secure random ID
 func GenerateSecureID() string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		panic(err) // crypto/rand 失败是致命错误
+	}
 	return hex.EncodeToString(b)
 }
 

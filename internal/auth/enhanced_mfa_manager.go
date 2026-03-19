@@ -482,6 +482,8 @@ func (m *EnhancedMFAManager) GetStats() map[string]interface{} {
 
 func generateRandomPassphrase() string {
 	b := make([]byte, 32)
-	rand.Read(b)
+	if _, err := rand.Read(b); err != nil {
+		panic(err) // crypto/rand 失败是致命错误
+	}
 	return fmt.Sprintf("%x", b)
 }
