@@ -14,31 +14,40 @@ import (
 type PermissionType string
 
 const (
-	// File system permissions
-	PermReadFiles   PermissionType = "fs.read"
-	PermWriteFiles  PermissionType = "fs.write"
+	// PermReadFiles 读文件权限
+	PermReadFiles PermissionType = "fs.read"
+	// PermWriteFiles 写文件权限
+	PermWriteFiles PermissionType = "fs.write"
+	// PermDeleteFiles 删除文件权限
 	PermDeleteFiles PermissionType = "fs.delete"
-	PermExecFiles   PermissionType = "fs.exec"
+	// PermExecFiles 执行文件权限
+	PermExecFiles PermissionType = "fs.exec"
 
-	// Network permissions
+	// PermNetworkListen 网络监听权限
 	PermNetworkListen PermissionType = "network.listen"
-	PermNetworkDial   PermissionType = "network.dial"
-	PermNetworkHTTP   PermissionType = "network.http"
+	// PermNetworkDial 网络连接权限
+	PermNetworkDial PermissionType = "network.dial"
+	// PermNetworkHTTP HTTP网络权限
+	PermNetworkHTTP PermissionType = "network.http"
 
-	// System permissions
-	PermSystemInfo  PermissionType = "system.info"
-	PermSystemExec  PermissionType = "system.exec"
+	// PermSystemInfo 系统信息权限
+	PermSystemInfo PermissionType = "system.info"
+	// PermSystemExec 系统执行权限
+	PermSystemExec PermissionType = "system.exec"
+	// PermSystemMount 系统挂载权限
 	PermSystemMount PermissionType = "system.mount"
 
-	// User permissions
-	PermUserRead  PermissionType = "user.read"
+	// PermUserRead 用户读权限
+	PermUserRead PermissionType = "user.read"
+	// PermUserWrite 用户写权限
 	PermUserWrite PermissionType = "user.write"
 
-	// Storage permissions
-	PermStorageRead  PermissionType = "storage.read"
+	// PermStorageRead 存储读权限
+	PermStorageRead PermissionType = "storage.read"
+	// PermStorageWrite 存储写权限
 	PermStorageWrite PermissionType = "storage.write"
 
-	// Admin permissions
+	// PermAdmin 管理员权限
 	PermAdmin PermissionType = "admin"
 )
 

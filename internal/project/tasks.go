@@ -22,7 +22,7 @@ func NewTaskTracker(mgr *Manager) *TaskTracker {
 	}
 }
 
-// TaskTransition 任务状态流转规则
+// TaskTransitions 任务状态流转规则
 var TaskTransitions = map[TaskStatus][]TaskStatus{
 	TaskStatusTodo: {
 		TaskStatusInProgress,
