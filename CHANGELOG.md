@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.25] - 2026-03-19
+
+### Dependencies
+- 更新依赖 (工部)
+  - github.com/golang-jwt/jwt/v5 v5.3.0 -> v5.3.1
+  - github.com/cpuguy83/go-md2man/v2 v2.0.6 -> v2.0.7
+  - github.com/klauspost/compress v1.18.0 -> v1.18.4
+
 ## [v2.253.24] - 2026-03-19
 
 ### Documentation
