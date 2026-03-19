@@ -701,6 +701,7 @@ type PermissionTemplate struct {
 	Description string       `json:"description"`
 	Permissions []Permission `json:"permissions"`
 }
+
 // permissionTemplates 预定义权限模板
 var permissionTemplates = map[string]PermissionTemplate{
 	"readonly": {

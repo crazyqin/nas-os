@@ -49,15 +49,15 @@ type HealthStatus string
 // 健康状态常量
 const (
 	// HealthStatusHealthy 健康
-	HealthStatusHealthy  HealthStatus = "healthy"
+	HealthStatusHealthy HealthStatus = "healthy"
 	// HealthStatusWarning 警告
-	HealthStatusWarning  HealthStatus = "warning"
+	HealthStatusWarning HealthStatus = "warning"
 	// HealthStatusDegraded 性能下降
 	HealthStatusDegraded HealthStatus = "degraded"
 	// HealthStatusFailed 失败
-	HealthStatusFailed   HealthStatus = "failed"
+	HealthStatusFailed HealthStatus = "failed"
 	// HealthStatusUnknown 未知
-	HealthStatusUnknown  HealthStatus = "unknown"
+	HealthStatusUnknown HealthStatus = "unknown"
 )
 
 // SMARTAttribute SMART 属性

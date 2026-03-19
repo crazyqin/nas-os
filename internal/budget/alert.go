@@ -111,8 +111,8 @@ type Alert struct {
 
 	// 状态
 	Status        AlertStatus `json:"status"`
-	Message       string `json:"message"`
-	CustomMessage string `json:"custom_message,omitempty"`
+	Message       string      `json:"message"`
+	CustomMessage string      `json:"custom_message,omitempty"`
 
 	// 通知状态
 	NotifySent     bool       `json:"notify_sent"`
