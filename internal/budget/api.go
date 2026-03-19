@@ -13,8 +13,8 @@ import (
 
 // ========== 预算管理器 ==========
 
-// Manager 预算管理器
-type Manager struct {
+// BudgetManager 预算管理器
+type BudgetManager struct {
 	mu             sync.RWMutex
 	budgets        map[string]*Budget
 	usages         map[string][]*Usage
@@ -38,9 +38,9 @@ type CostCalculator interface {
 	CalculateComputeCost(duration time.Duration) float64
 }
 
-// NewManager 创建预算管理器
-func NewManager() *Manager {
-	return &Manager{
+// NewBudgetManager 创建预算管理器
+func NewBudgetManager() *BudgetManager {
+	return &BudgetManager{
 		budgets:      make(map[string]*Budget),
 		usages:       make(map[string][]*Usage),
 		alerts:       make(map[string]*Alert),
@@ -49,14 +49,14 @@ func NewManager() *Manager {
 }
 
 // SetNotifier 设置通知服务
-func (m *Manager) SetNotifier(notifier NotificationService) {
+func (m *BudgetManager) SetNotifier(notifier NotificationService) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.notifier = notifier
 }
 
 // SetCostCalculator 设置成本计算器
-func (m *Manager) SetCostCalculator(calc CostCalculator) {
+func (m *BudgetManager) SetCostCalculator(calc CostCalculator) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.costCalculator = calc
@@ -65,7 +65,7 @@ func (m *Manager) SetCostCalculator(calc CostCalculator) {
 // ========== 预算 CRUD 操作 ==========
 
 // CreateBudget 创建预算
-func (m *Manager) CreateBudget(input Input, createdBy string) (*Budget, error) {
+func (m *BudgetManager) CreateBudget(input Input, createdBy string) (*Budget, error) {
 	if input.Amount <= 0 {
 		return nil, ErrInvalidAmount
 	}
@@ -107,7 +107,7 @@ func (m *Manager) CreateBudget(input Input, createdBy string) (*Budget, error) {
 		StartDate:    startDate,
 		EndDate:      input.EndDate,
 		LastReset:    startDate,
-		Status:       StatusActive,
+		Status:       BudgetStatusActive,
 		AutoReset:    input.AutoReset,
 		Rollover:     input.Rollover,
 		AlertConfig:  alertConfig,
@@ -127,7 +127,7 @@ func (m *Manager) CreateBudget(input Input, createdBy string) (*Budget, error) {
 }
 
 // UpdateBudget 更新预算
-func (m *Manager) UpdateBudget(id string, input Input) (*Budget, error) {
+func (m *BudgetManager) UpdateBudget(id string, input Input) (*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -163,13 +163,13 @@ func (m *Manager) UpdateBudget(id string, input Input) (*Budget, error) {
 	budget.UpdatedAt = time.Now()
 
 	// 检查是否需要更新状态
-	m.checkStatus(budget)
+	m.checkBudgetStatus(budget)
 
 	return budget, nil
 }
 
 // DeleteBudget 删除预算
-func (m *Manager) DeleteBudget(id string) error {
+func (m *BudgetManager) DeleteBudget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -185,7 +185,7 @@ func (m *Manager) DeleteBudget(id string) error {
 }
 
 // GetBudget 获取预算
-func (m *Manager) GetBudget(id string) (*Budget, error) {
+func (m *BudgetManager) GetBudget(id string) (*Budget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -198,7 +198,7 @@ func (m *Manager) GetBudget(id string) (*Budget, error) {
 }
 
 // ListBudgets 列出预算
-func (m *Manager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error) {
+func (m *BudgetManager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -228,7 +228,7 @@ func (m *Manager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error) {
 // ========== 预算使用追踪 ==========
 
 // RecordUsage 记录使用
-func (m *Manager) RecordUsage(input UsageInput) (*Usage, error) {
+func (m *BudgetManager) RecordUsage(input UsageInput) (*Usage, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -237,7 +237,7 @@ func (m *Manager) RecordUsage(input UsageInput) (*Usage, error) {
 		return nil, ErrBudgetNotFound
 	}
 
-	if budget.Status == StatusPaused || budget.Status == StatusArchived {
+	if budget.Status == BudgetStatusPaused || budget.Status == BudgetStatusArchived {
 		return nil, fmt.Errorf("预算状态不允许记录使用: %s", budget.Status)
 	}
 
@@ -274,7 +274,7 @@ func (m *Manager) RecordUsage(input UsageInput) (*Usage, error) {
 	usage.Remaining = budget.Remaining
 
 	// 检查是否超出预算
-	m.checkStatus(budget)
+	m.checkBudgetStatus(budget)
 
 	// 触发预警检查
 	m.checkAndCreateAlert(budget)
@@ -286,7 +286,7 @@ func (m *Manager) RecordUsage(input UsageInput) (*Usage, error) {
 }
 
 // GetUsageHistory 获取使用历史
-func (m *Manager) GetUsageHistory(budgetID string, query UsageQuery) ([]*Usage, int64, error) {
+func (m *BudgetManager) GetUsageHistory(budgetID string, query UsageQuery) ([]*Usage, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -315,7 +315,7 @@ func (m *Manager) GetUsageHistory(budgetID string, query UsageQuery) ([]*Usage, 
 }
 
 // GetUsageStats 获取使用统计
-func (m *Manager) GetUsageStats(budgetID string, startTime, endTime time.Time) (*UsageStatsResult, error) {
+func (m *BudgetManager) GetUsageStats(budgetID string, startTime, endTime time.Time) (*UsageStatsResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -396,7 +396,7 @@ type DailyUsage struct {
 // ========== 预算预警 ==========
 
 // checkAndCreateAlert 检查并创建预警
-func (m *Manager) checkAndCreateAlert(budget *Budget) {
+func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 	if !budget.AlertConfig.Enabled {
 		return
 	}
@@ -444,24 +444,24 @@ func (m *Manager) checkAndCreateAlert(budget *Budget) {
 	}
 }
 
-// checkStatus 检查预算状态
-func (m *Manager) checkStatus(budget *Budget) {
+// checkBudgetStatus 检查预算状态
+func (m *BudgetManager) checkBudgetStatus(budget *Budget) {
 	switch {
 	case budget.UsagePercent >= 100:
-		budget.Status = StatusExhausted
+		budget.Status = BudgetStatusExhausted
 	case budget.UsagePercent >= 90:
-		budget.Status = StatusExceeded
+		budget.Status = BudgetStatusExceeded
 	default:
-		if budget.Status == StatusExceeded || budget.Status == StatusExhausted {
+		if budget.Status == BudgetStatusExceeded || budget.Status == BudgetStatusExhausted {
 			if budget.UsagePercent < 90 {
-				budget.Status = StatusActive
+				budget.Status = BudgetStatusActive
 			}
 		}
 	}
 }
 
 // AcknowledgeAlert 确认预警
-func (m *Manager) AcknowledgeAlert(alertID string, acknowledgedBy string) error {
+func (m *BudgetManager) AcknowledgeAlert(alertID string, acknowledgedBy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -480,7 +480,7 @@ func (m *Manager) AcknowledgeAlert(alertID string, acknowledgedBy string) error 
 }
 
 // ResolveAlert 解决预警
-func (m *Manager) ResolveAlert(alertID string) error {
+func (m *BudgetManager) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -498,7 +498,7 @@ func (m *Manager) ResolveAlert(alertID string) error {
 }
 
 // GetActiveAlerts 获取活跃预警
-func (m *Manager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, error) {
+func (m *BudgetManager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -522,7 +522,7 @@ func (m *Manager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, error) {
 }
 
 // GetAlertHistory 获取预警历史
-func (m *Manager) GetAlertHistory(budgetID string, query AlertQuery) ([]*Alert, int64, error) {
+func (m *BudgetManager) GetAlertHistory(budgetID string, query AlertQuery) ([]*Alert, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -553,7 +553,7 @@ func (m *Manager) GetAlertHistory(budgetID string, query AlertQuery) ([]*Alert, 
 // ========== 预算重置和结转 ==========
 
 // ResetBudget 重置预算
-func (m *Manager) ResetBudget(id string) (*Budget, error) {
+func (m *BudgetManager) ResetBudget(id string) (*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -573,7 +573,7 @@ func (m *Manager) ResetBudget(id string) (*Budget, error) {
 	budget.UsagePercent = 0
 	budget.LastReset = time.Now()
 	budget.NextReset = calculateNextReset(time.Now(), budget.Period)
-	budget.Status = StatusActive
+	budget.Status = BudgetStatusActive
 
 	// 清除活跃预警
 	delete(m.alerts, id)
@@ -582,7 +582,7 @@ func (m *Manager) ResetBudget(id string) (*Budget, error) {
 }
 
 // CheckAndResetBudgets 检查并重置到期预算
-func (m *Manager) CheckAndResetBudgets() ([]*Budget, error) {
+func (m *BudgetManager) CheckAndResetBudgets() ([]*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -605,7 +605,7 @@ func (m *Manager) CheckAndResetBudgets() ([]*Budget, error) {
 			budget.UsagePercent = 0
 			budget.LastReset = now
 			budget.NextReset = calculateNextReset(now, budget.Period)
-			budget.Status = StatusActive
+			budget.Status = BudgetStatusActive
 
 			delete(m.alerts, budget.ID)
 			resetBudgets = append(resetBudgets, budget)
@@ -618,7 +618,7 @@ func (m *Manager) CheckAndResetBudgets() ([]*Budget, error) {
 // ========== 报告生成 ==========
 
 // GenerateReport 生成预算报告
-func (m *Manager) GenerateReport(request ReportRequest) (*Report, error) {
+func (m *BudgetManager) GenerateReport(request ReportRequest) (*Report, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -748,7 +748,7 @@ func (m *Manager) GenerateReport(request ReportRequest) (*Report, error) {
 }
 
 // GetStats 获取统计
-func (m *Manager) GetStats() *BudgetStats {
+func (m *BudgetManager) GetStats() *BudgetStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -762,7 +762,7 @@ func (m *Manager) GetStats() *BudgetStats {
 
 	for _, budget := range m.budgets {
 		stats.TotalBudgets++
-		if budget.Status == StatusActive {
+		if budget.Status == BudgetStatusActive {
 			stats.ActiveBudgets++
 		}
 
@@ -848,7 +848,7 @@ func matchBudgetQuery(budget *Budget, query BudgetQuery) bool {
 	if len(query.Scopes) > 0 && !containsScope(query.Scopes, budget.Scope) {
 		return false
 	}
-	if len(query.Statuses) > 0 && !containsStatus(query.Statuses, budget.Status) {
+	if len(query.Statuses) > 0 && !containsBudgetStatus(query.Statuses, budget.Status) {
 		return false
 	}
 	if len(query.TargetIDs) > 0 && !containsString(query.TargetIDs, budget.TargetID) {
@@ -951,8 +951,8 @@ func containsScope(slice []Scope, s Scope) bool {
 	return false
 }
 
-// containsStatus 检查预算状态是否在切片中
-func containsStatus(slice []Status, s Status) bool {
+// containsBudgetStatus 检查预算状态是否在切片中
+func containsBudgetStatus(slice []BudgetStatus, s BudgetStatus) bool {
 	for _, item := range slice {
 		if item == s {
 			return true
@@ -1103,7 +1103,7 @@ func calculateDailyAvgUsage(usages []*Usage, start, end time.Time) float64 {
 func countActiveBudgets(details []BudgetDetail) int {
 	count := 0
 	for _, d := range details {
-		if d.Status == StatusActive {
+		if d.Status == BudgetStatusActive {
 			count++
 		}
 	}
@@ -1202,7 +1202,7 @@ const (
 )
 
 // sendAlertWithRetry 发送预警通知（带重试机制）
-func (m *Manager) sendAlertWithRetry(alert *Alert) {
+func (m *BudgetManager) sendAlertWithRetry(alert *Alert) {
 	if m.notifier == nil {
 		return
 	}
