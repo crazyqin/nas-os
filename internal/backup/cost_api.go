@@ -106,8 +106,8 @@ type ProviderCostSummary struct {
 
 // CostRecordResponse 成本记录响应
 type CostRecordResponse struct {
-	Records []*BackupCostRecord `json:"records"`
-	Total   int                 `json:"total"`
+	Records []*CostRecord `json:"records"`
+	Total   int           `json:"total"`
 }
 
 // getCost 获取备份成本概览

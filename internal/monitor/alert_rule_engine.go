@@ -44,23 +44,34 @@ type AlertRuleConfig struct {
 type AlertRuleType string
 
 const (
-	RuleTypeCPU         AlertRuleType = "cpu"
-	RuleTypeMemory      AlertRuleType = "memory"
-	RuleTypeDisk        AlertRuleType = "disk"
-	RuleTypeDiskHealth  AlertRuleType = "disk_health"
-	RuleTypeNetwork     AlertRuleType = "network"
+	// RuleTypeCPU CPU 使用率告警规则类型
+	RuleTypeCPU AlertRuleType = "cpu"
+	// RuleTypeMemory 内存使用率告警规则类型
+	RuleTypeMemory AlertRuleType = "memory"
+	// RuleTypeDisk 磁盘使用率告警规则类型
+	RuleTypeDisk AlertRuleType = "disk"
+	// RuleTypeDiskHealth 磁盘健康状态告警规则类型
+	RuleTypeDiskHealth AlertRuleType = "disk_health"
+	// RuleTypeNetwork 网络状态告警规则类型
+	RuleTypeNetwork AlertRuleType = "network"
+	// RuleTypeTemperature 温度告警规则类型
 	RuleTypeTemperature AlertRuleType = "temperature"
-	RuleTypeService     AlertRuleType = "service"
-	RuleTypeBackup      AlertRuleType = "backup"
-	RuleTypeCustom      AlertRuleType = "custom"
+	// RuleTypeService 服务状态告警规则类型
+	RuleTypeService AlertRuleType = "service"
+	// RuleTypeBackup 备份状态告警规则类型
+	RuleTypeBackup AlertRuleType = "backup"
+	// RuleTypeCustom 自定义告警规则类型
+	RuleTypeCustom AlertRuleType = "custom"
 )
 
 // LogicOperator 逻辑运算符
 type LogicOperator string
 
 const (
+	// LogicAnd 逻辑与运算符
 	LogicAnd LogicOperator = "and"
-	LogicOr  LogicOperator = "or"
+	// LogicOr 逻辑或运算符
+	LogicOr LogicOperator = "or"
 )
 
 // RuleCondition 规则条件
@@ -76,16 +87,26 @@ type RuleCondition struct {
 type CompareOp string
 
 const (
-	OpEqual        CompareOp = "eq"
-	OpNotEqual     CompareOp = "ne"
-	OpGreaterThan  CompareOp = "gt"
+	// OpEqual 等于比较运算符
+	OpEqual CompareOp = "eq"
+	// OpNotEqual 不等于比较运算符
+	OpNotEqual CompareOp = "ne"
+	// OpGreaterThan 大于比较运算符
+	OpGreaterThan CompareOp = "gt"
+	// OpGreaterEqual 大于等于比较运算符
 	OpGreaterEqual CompareOp = "gte"
-	OpLessThan     CompareOp = "lt"
-	OpLessEqual    CompareOp = "lte"
-	OpContains     CompareOp = "contains"
-	OpMatches      CompareOp = "matches"
-	OpExists       CompareOp = "exists"
-	OpChangeRate   CompareOp = "rate" // 变化率
+	// OpLessThan 小于比较运算符
+	OpLessThan CompareOp = "lt"
+	// OpLessEqual 小于等于比较运算符
+	OpLessEqual CompareOp = "lte"
+	// OpContains 包含比较运算符
+	OpContains CompareOp = "contains"
+	// OpMatches 正则匹配比较运算符
+	OpMatches CompareOp = "matches"
+	// OpExists 存在性检查运算符
+	OpExists CompareOp = "exists"
+	// OpChangeRate 变化率比较运算符
+	OpChangeRate CompareOp = "rate"
 )
 
 // Aggregation 聚合方式
@@ -98,10 +119,15 @@ type Aggregation struct {
 type AggregationType string
 
 const (
-	AggAvg   AggregationType = "avg"
-	AggMax   AggregationType = "max"
-	AggMin   AggregationType = "min"
-	AggSum   AggregationType = "sum"
+	// AggAvg 平均值聚合类型
+	AggAvg AggregationType = "avg"
+	// AggMax 最大值聚合类型
+	AggMax AggregationType = "max"
+	// AggMin 最小值聚合类型
+	AggMin AggregationType = "min"
+	// AggSum 求和聚合类型
+	AggSum AggregationType = "sum"
+	// AggCount 计数聚合类型
 	AggCount AggregationType = "count"
 )
 

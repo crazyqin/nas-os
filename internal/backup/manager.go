@@ -157,17 +157,17 @@ const (
 
 // History 备份历史记录
 type History struct {
-	ID        string     `json:"id"`
-	ConfigID  string     `json:"configId"`
-	Name      string     `json:"name"`
-	Type      Type `json:"type"`
-	Size      int64      `json:"size"`
-	FileCount int64      `json:"fileCount"`
-	Duration  int64      `json:"duration"`
-	CreatedAt time.Time  `json:"createdAt"`
-	Path      string     `json:"path"`
-	Verified  bool       `json:"verified"`
-	Checksum  string     `json:"checksum,omitempty"`
+	ID        string    `json:"id"`
+	ConfigID  string    `json:"configId"`
+	Name      string    `json:"name"`
+	Type      Type      `json:"type"`
+	Size      int64     `json:"size"`
+	FileCount int64     `json:"fileCount"`
+	Duration  int64     `json:"duration"`
+	CreatedAt time.Time `json:"createdAt"`
+	Path      string    `json:"path"`
+	Verified  bool      `json:"verified"`
+	Checksum  string    `json:"checksum,omitempty"`
 }
 
 // Stats 备份统计

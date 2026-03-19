@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	// ErrBackupNotFound 备份不存在错误
 	ErrBackupNotFound     = errors.New("backup not found")
 	ErrBackupInProgress   = errors.New("backup already in progress")
 	ErrInvalidConfig      = errors.New("invalid backup configuration")
@@ -23,11 +24,11 @@ var (
 
 // IncrementalBackup 增量备份管理器
 type IncrementalBackup struct {
-	config     *BackupConfig
+	config     *Config
 	snapshots  map[string]*Snapshot
 	fileIndex  *FileIndex
 	chunkStore *ChunkStore
-	activeJobs map[string]*BackupJob
+	activeJobs map[string]*Job
 	mu         sync.RWMutex
 	logger     *zap.Logger
 
@@ -54,20 +55,29 @@ type Snapshot struct {
 // SnapshotType 快照类型
 type SnapshotType string
 
+// 快照类型常量
 const (
+	// SnapshotTypeFull 完整快照
 	SnapshotTypeFull SnapshotType = "full"
-	SnapshotTypeInc  SnapshotType = "incremental"
+	// SnapshotTypeInc 增量快照
+	SnapshotTypeInc SnapshotType = "incremental"
+	// SnapshotTypeDiff 差异快照
 	SnapshotTypeDiff SnapshotType = "differential"
 )
 
 // SnapshotStatus 快照状态
 type SnapshotStatus string
 
+// 快照状态常量
 const (
-	SnapshotStatusPending   SnapshotStatus = "pending"
-	SnapshotStatusRunning   SnapshotStatus = "running"
+	// SnapshotStatusPending 待执行
+	SnapshotStatusPending SnapshotStatus = "pending"
+	// SnapshotStatusRunning 执行中
+	SnapshotStatusRunning SnapshotStatus = "running"
+	// SnapshotStatusCompleted 已完成
 	SnapshotStatusCompleted SnapshotStatus = "completed"
-	SnapshotStatusFailed    SnapshotStatus = "failed"
+	// SnapshotStatusFailed 失败
+	SnapshotStatusFailed SnapshotStatus = "failed"
 )
 
 // FileInfo 文件信息
@@ -80,8 +90,8 @@ type FileInfo struct {
 	Chunks   []string    `json:"chunks,omitempty"`
 }
 
-// BackupJob 备份作业
-type BackupJob struct {
+// Job 备份作业
+type Job struct {
 	ID          string
 	Source      string
 	Destination string
@@ -91,6 +101,9 @@ type BackupJob struct {
 	Status      SnapshotStatus
 	Cancel      context.CancelFunc
 }
+
+// 兼容类型别名
+type BackupJob = Job
 
 // FileIndex 文件索引（用于快速变更检测）
 type FileIndex struct {
@@ -314,13 +327,13 @@ func NewCompressor(algorithm string, level int) *Compressor {
 }
 
 // NewIncrementalBackup 创建增量备份管理器
-func NewIncrementalBackup(config *BackupConfig, logger *zap.Logger) *IncrementalBackup {
+func NewIncrementalBackup(config *Config, logger *zap.Logger) *IncrementalBackup {
 	return &IncrementalBackup{
 		config:         config,
 		snapshots:      make(map[string]*Snapshot),
 		fileIndex:      NewFileIndex(),
 		chunkStore:     NewChunkStore(config.ChunkPath),
-		activeJobs:     make(map[string]*BackupJob),
+		activeJobs:     make(map[string]*Job),
 		changeDetector: NewChangeDetector(NewFileIndex()),
 		compressor:     NewCompressor("gzip", 6),
 		logger:         logger,
@@ -341,7 +354,7 @@ func (ib *IncrementalBackup) CreateSnapshot(ctx context.Context, source string, 
 
 	// 创建作业
 	jobID := generateID()
-	job := &BackupJob{
+	job := &Job{
 		ID:          jobID,
 		Source:      source,
 		Destination: dest,

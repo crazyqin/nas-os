@@ -32,7 +32,7 @@ func DefaultHistoryConfig() HistoryConfig {
 }
 
 // QuotaHistoryRecord 配额历史记录
-type QuotaHistoryRecord struct {
+type HistoryRecord struct {
 	ID           string    `json:"id"`
 	QuotaID      string    `json:"quota_id"`
 	TargetName   string    `json:"target_name"`
@@ -91,7 +91,7 @@ type HistoryQuery struct {
 type HistoryManager struct {
 	mu       sync.RWMutex
 	config   HistoryConfig
-	records  []*QuotaHistoryRecord
+	records  []*HistoryRecord
 	quotaMgr *Manager
 	stopChan chan struct{}
 	running  bool
@@ -101,7 +101,7 @@ type HistoryManager struct {
 func NewHistoryManager(quotaMgr *Manager, config HistoryConfig) *HistoryManager {
 	return &HistoryManager{
 		config:   config,
-		records:  make([]*QuotaHistoryRecord, 0),
+		records:  make([]*HistoryRecord, 0),
 		quotaMgr: quotaMgr,
 		stopChan: make(chan struct{}),
 	}
@@ -166,7 +166,7 @@ func (m *HistoryManager) collectAll() {
 	defer m.mu.Unlock()
 
 	for _, usage := range usages {
-		record := &QuotaHistoryRecord{
+		record := &HistoryRecord{
 			ID:           generateID(),
 			QuotaID:      usage.QuotaID,
 			TargetName:   usage.TargetName,
@@ -211,7 +211,7 @@ func (m *HistoryManager) cleanupRecords() {
 }
 
 // Record 手动记录数据点
-func (m *HistoryManager) Record(record *QuotaHistoryRecord) {
+func (m *HistoryManager) Record(record *HistoryRecord) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -227,11 +227,11 @@ func (m *HistoryManager) Record(record *QuotaHistoryRecord) {
 }
 
 // Query 查询历史数据
-func (m *HistoryManager) Query(query HistoryQuery) []*QuotaHistoryRecord {
+func (m *HistoryManager) Query(query HistoryQuery) []*HistoryRecord {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]*QuotaHistoryRecord, 0)
+	result := make([]*HistoryRecord, 0)
 
 	for _, r := range m.records {
 		// 按配额ID过滤
@@ -376,8 +376,8 @@ func (m *HistoryManager) persist() {
 	}
 
 	data := struct {
-		Records []*QuotaHistoryRecord `json:"records"`
-		SavedAt time.Time             `json:"saved_at"`
+		Records []*HistoryRecord `json:"records"`
+		SavedAt time.Time        `json:"saved_at"`
 	}{
 		Records: m.records,
 		SavedAt: time.Now(),
@@ -408,7 +408,7 @@ func (m *HistoryManager) Load() error {
 	}
 
 	var loaded struct {
-		Records []*QuotaHistoryRecord `json:"records"`
+		Records []*HistoryRecord `json:"records"`
 	}
 
 	if err := json.Unmarshal(data, &loaded); err != nil {
@@ -579,7 +579,7 @@ func (m *ChartManager) getLineChartData(req ChartDataRequest, response *ChartDat
 	response.Title = "配额使用趋势"
 
 	// 获取历史数据
-	var records []*QuotaHistoryRecord
+	var records []*HistoryRecord
 	if req.QuotaID != "" {
 		records = m.historyMgr.Query(HistoryQuery{
 			QuotaID:   req.QuotaID,
@@ -595,7 +595,7 @@ func (m *ChartManager) getLineChartData(req ChartDataRequest, response *ChartDat
 	}
 
 	// 按配额分组
-	quotaData := make(map[string][]*QuotaHistoryRecord)
+	quotaData := make(map[string][]*HistoryRecord)
 	for _, r := range records {
 		quotaData[r.QuotaID] = append(quotaData[r.QuotaID], r)
 	}
@@ -863,7 +863,7 @@ func (m *ChartManager) calculateSeriesStats(data []ChartPoint) SeriesStats {
 }
 
 // calculateChartSummary 计算图表摘要
-func (m *ChartManager) calculateChartSummary(records []*QuotaHistoryRecord) ChartSummary {
+func (m *ChartManager) calculateChartSummary(records []*HistoryRecord) ChartSummary {
 	if len(records) == 0 {
 		return ChartSummary{}
 	}

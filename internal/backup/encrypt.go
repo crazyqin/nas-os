@@ -18,6 +18,7 @@ import (
 )
 
 var (
+	// ErrInvalidKey 无效的加密密钥错误
 	ErrInvalidKey       = errors.New("invalid encryption key")
 	ErrEncryptionFailed = errors.New("encryption failed")
 	ErrDecryptionFailed = errors.New("decryption failed")

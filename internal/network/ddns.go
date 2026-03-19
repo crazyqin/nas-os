@@ -213,6 +213,7 @@ type DuckDNSProvider struct {
 	Token string
 }
 
+// Update 更新 DuckDNS 域名解析记录
 func (p *DuckDNSProvider) Update(domain, ip string) error {
 	// DuckDNS API - 使用 POST 请求避免 token 出现在 URL 日志中
 	formData := url.Values{}
@@ -246,6 +247,7 @@ type NoIPProvider struct {
 	Secret string // 密码
 }
 
+// Update 更新 No-IP 域名解析记录
 func (p *NoIPProvider) Update(domain, ip string) error {
 	// No-IP 使用 Basic Auth
 	url := fmt.Sprintf("https://dynupdate.no-ip.com/nic/update?hostname=%s&myip=%s",

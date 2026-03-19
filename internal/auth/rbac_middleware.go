@@ -74,8 +74,6 @@ type MiddlewareConfig struct {
 	AuditLogger AuditLogger
 }
 
-
-
 // NewMiddleware 创建认证中间件
 func NewMiddleware(userMgr interface {
 	ValidateToken(token string) (string, error)

@@ -887,6 +887,7 @@ func (m *AutoExpandManager) saveConfig() error {
 	return os.WriteFile(m.configPath, jsonData, 0600)
 }
 
+// Load 从配置文件加载自动扩容策略和历史记录
 func (m *AutoExpandManager) Load() error {
 	if m.configPath == "" {
 		return nil

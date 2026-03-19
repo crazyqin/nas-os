@@ -24,11 +24,13 @@ func (e *QuotaError) Conflict() bool {
 // ========== 错误码定义 ==========
 
 const (
-	ErrCodeQuotaNotFound  = 1001
-	ErrCodeQuotaExists    = 1002
-	ErrCodeQuotaExceeded  = 1003
-	ErrCodeUserNotFound   = 1004
-	ErrCodeGroupNotFound  = 1005
+	// ErrCodeQuotaNotFound 配额未找到错误码
+	ErrCodeQuotaNotFound = 1001
+	ErrCodeQuotaExists   = 1002
+	ErrCodeQuotaExceeded = 1003
+	ErrCodeUserNotFound  = 1004
+	ErrCodeGroupNotFound = 1005
+	// ErrCodeVolumeNotFound 卷未找到错误码
 	ErrCodeVolumeNotFound = 1006
 	ErrCodeInvalidLimit   = 1007
 	ErrCodePolicyNotFound = 1008
@@ -37,6 +39,8 @@ const (
 )
 
 // QuotaError 配额错误
+//
+//nolint:revive // 保留 QuotaError 名称以避免与内置 error 类型混淆
 type QuotaError struct {
 	code    int
 	message string

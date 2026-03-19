@@ -13,8 +13,8 @@ import (
 
 // ========== 预算管理器 ==========
 
-// BudgetManager 预算管理器
-type BudgetManager struct {
+// Manager 预算管理器
+type Manager struct {
 	mu             sync.RWMutex
 	budgets        map[string]*Budget
 	usages         map[string][]*Usage
@@ -39,8 +39,8 @@ type CostCalculator interface {
 }
 
 // NewBudgetManager 创建预算管理器
-func NewBudgetManager() *BudgetManager {
-	return &BudgetManager{
+func NewBudgetManager() *Manager {
+	return &Manager{
 		budgets:      make(map[string]*Budget),
 		usages:       make(map[string][]*Usage),
 		alerts:       make(map[string]*Alert),
@@ -49,14 +49,14 @@ func NewBudgetManager() *BudgetManager {
 }
 
 // SetNotifier 设置通知服务
-func (m *BudgetManager) SetNotifier(notifier NotificationService) {
+func (m *Manager) SetNotifier(notifier NotificationService) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.notifier = notifier
 }
 
 // SetCostCalculator 设置成本计算器
-func (m *BudgetManager) SetCostCalculator(calc CostCalculator) {
+func (m *Manager) SetCostCalculator(calc CostCalculator) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.costCalculator = calc
@@ -65,7 +65,7 @@ func (m *BudgetManager) SetCostCalculator(calc CostCalculator) {
 // ========== 预算 CRUD 操作 ==========
 
 // CreateBudget 创建预算
-func (m *BudgetManager) CreateBudget(input Input, createdBy string) (*Budget, error) {
+func (m *Manager) CreateBudget(input Input, createdBy string) (*Budget, error) {
 	if input.Amount <= 0 {
 		return nil, ErrInvalidAmount
 	}
@@ -127,7 +127,7 @@ func (m *BudgetManager) CreateBudget(input Input, createdBy string) (*Budget, er
 }
 
 // UpdateBudget 更新预算
-func (m *BudgetManager) UpdateBudget(id string, input Input) (*Budget, error) {
+func (m *Manager) UpdateBudget(id string, input Input) (*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -169,7 +169,7 @@ func (m *BudgetManager) UpdateBudget(id string, input Input) (*Budget, error) {
 }
 
 // DeleteBudget 删除预算
-func (m *BudgetManager) DeleteBudget(id string) error {
+func (m *Manager) DeleteBudget(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -185,7 +185,7 @@ func (m *BudgetManager) DeleteBudget(id string) error {
 }
 
 // GetBudget 获取预算
-func (m *BudgetManager) GetBudget(id string) (*Budget, error) {
+func (m *Manager) GetBudget(id string) (*Budget, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -198,7 +198,7 @@ func (m *BudgetManager) GetBudget(id string) (*Budget, error) {
 }
 
 // ListBudgets 列出预算
-func (m *BudgetManager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error) {
+func (m *Manager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -228,7 +228,7 @@ func (m *BudgetManager) ListBudgets(query BudgetQuery) ([]*Budget, int64, error)
 // ========== 预算使用追踪 ==========
 
 // RecordUsage 记录使用
-func (m *BudgetManager) RecordUsage(input UsageInput) (*Usage, error) {
+func (m *Manager) RecordUsage(input UsageInput) (*Usage, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -286,7 +286,7 @@ func (m *BudgetManager) RecordUsage(input UsageInput) (*Usage, error) {
 }
 
 // GetUsageHistory 获取使用历史
-func (m *BudgetManager) GetUsageHistory(budgetID string, query UsageQuery) ([]*Usage, int64, error) {
+func (m *Manager) GetUsageHistory(budgetID string, query UsageQuery) ([]*Usage, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -315,7 +315,7 @@ func (m *BudgetManager) GetUsageHistory(budgetID string, query UsageQuery) ([]*U
 }
 
 // GetUsageStats 获取使用统计
-func (m *BudgetManager) GetUsageStats(budgetID string, startTime, endTime time.Time) (*UsageStatsResult, error) {
+func (m *Manager) GetUsageStats(budgetID string, startTime, endTime time.Time) (*UsageStatsResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -396,7 +396,7 @@ type DailyUsage struct {
 // ========== 预算预警 ==========
 
 // checkAndCreateAlert 检查并创建预警
-func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
+func (m *Manager) checkAndCreateAlert(budget *Budget) {
 	if !budget.AlertConfig.Enabled {
 		return
 	}
@@ -445,7 +445,7 @@ func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 }
 
 // checkBudgetStatus 检查预算状态
-func (m *BudgetManager) checkBudgetStatus(budget *Budget) {
+func (m *Manager) checkBudgetStatus(budget *Budget) {
 	switch {
 	case budget.UsagePercent >= 100:
 		budget.Status = StatusExhausted
@@ -461,7 +461,7 @@ func (m *BudgetManager) checkBudgetStatus(budget *Budget) {
 }
 
 // AcknowledgeAlert 确认预警
-func (m *BudgetManager) AcknowledgeAlert(alertID string, acknowledgedBy string) error {
+func (m *Manager) AcknowledgeAlert(alertID string, acknowledgedBy string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -480,7 +480,7 @@ func (m *BudgetManager) AcknowledgeAlert(alertID string, acknowledgedBy string) 
 }
 
 // ResolveAlert 解决预警
-func (m *BudgetManager) ResolveAlert(alertID string) error {
+func (m *Manager) ResolveAlert(alertID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -498,7 +498,7 @@ func (m *BudgetManager) ResolveAlert(alertID string) error {
 }
 
 // GetActiveAlerts 获取活跃预警
-func (m *BudgetManager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, error) {
+func (m *Manager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -522,7 +522,7 @@ func (m *BudgetManager) GetActiveAlerts(query AlertQuery) ([]*Alert, int64, erro
 }
 
 // GetAlertHistory 获取预警历史
-func (m *BudgetManager) GetAlertHistory(budgetID string, query AlertQuery) ([]*Alert, int64, error) {
+func (m *Manager) GetAlertHistory(budgetID string, query AlertQuery) ([]*Alert, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -553,7 +553,7 @@ func (m *BudgetManager) GetAlertHistory(budgetID string, query AlertQuery) ([]*A
 // ========== 预算重置和结转 ==========
 
 // ResetBudget 重置预算
-func (m *BudgetManager) ResetBudget(id string) (*Budget, error) {
+func (m *Manager) ResetBudget(id string) (*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -582,7 +582,7 @@ func (m *BudgetManager) ResetBudget(id string) (*Budget, error) {
 }
 
 // CheckAndResetBudgets 检查并重置到期预算
-func (m *BudgetManager) CheckAndResetBudgets() ([]*Budget, error) {
+func (m *Manager) CheckAndResetBudgets() ([]*Budget, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -618,7 +618,7 @@ func (m *BudgetManager) CheckAndResetBudgets() ([]*Budget, error) {
 // ========== 报告生成 ==========
 
 // GenerateReport 生成预算报告
-func (m *BudgetManager) GenerateReport(request ReportRequest) (*Report, error) {
+func (m *Manager) GenerateReport(request ReportRequest) (*Report, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -748,7 +748,7 @@ func (m *BudgetManager) GenerateReport(request ReportRequest) (*Report, error) {
 }
 
 // GetStats 获取统计
-func (m *BudgetManager) GetStats() *BudgetStats {
+func (m *Manager) GetStats() *BudgetStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -1212,7 +1212,7 @@ const (
 )
 
 // sendAlertWithRetry 发送预警通知（带重试机制）
-func (m *BudgetManager) sendAlertWithRetry(alert *Alert) {
+func (m *Manager) sendAlertWithRetry(alert *Alert) {
 	if m.notifier == nil {
 		return
 	}
