@@ -9,18 +9,84 @@ import (
 	"time"
 )
 
-// 危险命令黑名单
+// 危险命令黑名单 - 扩展版本
 var dangerousCommands = []string{
+	// 文件系统破坏
 	"rm -rf /",
 	"rm -rf /*",
+	"rm -rf ~",
+	"rm -rf *",
 	"mkfs",
+	"mke2fs",
+	"mkswap",
+	// 磁盘操作
 	"dd if=/dev/zero",
-	":(){:|:&};:",
-	"chmod -R 777 /",
-	"chown -R",
+	"dd if=/dev/urandom",
 	"> /dev/sda",
+	"> /dev/sdb",
+	"> /dev/nvme",
+	"wipefs",
+	"fdisk",
+	"parted",
+	// Fork 炸弹
+	":(){:|:&};:",
+	"fork bomb",
+	// 权限滥用
+	"chmod -R 777 /",
+	"chmod -R 777 /*",
+	"chown -R",
+	"chmod 777 /etc/passwd",
+	"chmod 777 /etc/shadow",
+	// 网络下载执行
 	"wget | sh",
+	"wget | bash",
 	"curl | sh",
+	"curl | bash",
+	"curl | exec",
+	"| sh",
+	"| bash",
+	// 特权提升
+	"sudo su",
+	"su -",
+	"passwd",
+	"visudo",
+	// 系统控制
+	"shutdown",
+	"reboot",
+	"halt",
+	"poweroff",
+	"init 0",
+	"init 6",
+	"systemctl stop",
+	"systemctl disable",
+	// 网络危险操作
+	"iptables -F",
+	"iptables --flush",
+	"ufw disable",
+	"firewall-cmd --reload",
+	// 用户操作
+	"userdel",
+	"useradd",
+	"usermod",
+	"groupdel",
+	"groupadd",
+	// 敏感文件访问
+	"/etc/shadow",
+	"/etc/passwd",
+	"/etc/sudoers",
+	"/root/.ssh",
+	"id_rsa",
+	"authorized_keys",
+	// 进程杀戮
+	"kill -9 -1",
+	"pkill -9",
+	"killall",
+	// 危险命令替换
+	"${IFS}",
+	"$()",
+	"`",
+	"eval ",
+	"exec ",
 }
 
 // validateScript 验证脚本内容安全性
@@ -30,6 +96,10 @@ func validateScript(script string) error {
 		if strings.Contains(lowerScript, strings.ToLower(dangerous)) {
 			return fmt.Errorf("脚本包含危险命令: %s", dangerous)
 		}
+	}
+	// 额外检查：禁止未引用的变量替换
+	if strings.Contains(script, "$(") || strings.Contains(script, "`") {
+		return fmt.Errorf("脚本包含命令替换，存在注入风险")
 	}
 	return nil
 }

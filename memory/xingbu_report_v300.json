@@ -1,0 +1,179 @@
+{
+  "report_type": "安全审计报告",
+  "version": "v3.0.0",
+  "date": "2026-03-19T15:15:00+08:00",
+  "project": "/home/mrafter/clawd/nas-os",
+  "auditor": "刑部-安全审计",
+  "summary": {
+    "high_risk": 4,
+    "medium_risk": 3,
+    "low_risk": 2,
+    "total_issues": 9,
+    "fixed": 2,
+    "remaining": 7
+  },
+  "findings": [
+    {
+      "id": "SEC-001",
+      "severity": "HIGH",
+      "title": "XSS 漏洞 - Content-Disposition 头注入",
+      "description": "多处代码直接拼接用户输入到 Content-Disposition 头，可能导致 XSS 攻击",
+      "locations": [
+        "internal/quota/handlers_v2.go:544 - filename 变量来自用户输入",
+        "internal/quota/handlers_v2.go:549 - 同上",
+        "internal/quota/handlers_v2.go:607 - 同上",
+        "internal/quota/handlers_v2.go:611 - 同上",
+        "internal/automation/api/handlers.go:279 - workflow id 直接使用",
+        "internal/automation/api/handlers.go:415 - template id 直接使用"
+      ],
+      "impact": "攻击者可注入恶意脚本，窃取用户会话或执行恶意操作",
+      "recommendation": "对文件名进行 URL 编码或移除特殊字符，使用 mime.FormatMediaType",
+      "fix_applied": "添加 safeFilename 和 safeDownloadID 函数，使用 RFC 5987 编码（filename*=UTF-8''）",
+      "status": "FIXED"
+    },
+    {
+      "id": "SEC-002",
+      "severity": "HIGH",
+      "title": "脚本注入风险 - 快照脚本执行",
+      "description": "internal/snapshot/executor.go 中使用 sh -c 执行用户脚本，黑名单验证不够全面",
+      "locations": [
+        "internal/snapshot/executor.go:124 - exec.CommandContext(ctx, \"sh\", \"-c\", script)"
+      ],
+      "impact": "攻击者可能绕过黑名单执行危险命令",
+      "recommendation": "扩展黑名单，添加更多危险命令；或使用白名单机制；限制脚本可执行的命令范围",
+      "fix_applied": "扩展危险命令黑名单从 10 条增加到 60+ 条，添加命令替换检测",
+      "status": "FIXED"
+    },
+    {
+      "id": "SEC-003",
+      "severity": "HIGH",
+      "title": "硬编码凭证 - 配置文件默认密码",
+      "description": "docker-compose.prod.yml 和 .env.example 中存在默认密码",
+      "locations": [
+        "docker-compose.prod.yml:106 - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}",
+        ".env.example:45 - GRAFANA_ADMIN_PASSWORD=changeme",
+        ".env.example:55 - SMTP_PASSWORD=changeme"
+      ],
+      "impact": "如果用户未修改默认密码，系统将面临未授权访问风险",
+      "recommendation": "强制用户首次启动时修改默认密码；或启动时检测并警告",
+      "status": "OPEN"
+    },
+    {
+      "id": "SEC-004",
+      "severity": "HIGH",
+      "title": "整数溢出风险",
+      "description": "70+ 处类型转换可能导致整数溢出",
+      "locations": [
+        "internal/quota/optimizer/optimizer.go:548 - uint64 转 int64",
+        "internal/backup/smart_manager_v2_unix.go:15 - uint64 乘法溢出",
+        "internal/monitor/disk_health.go:378 - uint64 转 int",
+        "internal/disk/smart_monitor.go:726,1130 - uint64 转 int"
+      ],
+      "impact": "可能导致计算错误、负值溢出、程序崩溃",
+      "recommendation": "使用 pkg/safeguards 中的 SafeIntConversion 函数，转换前检查边界",
+      "status": "OPEN"
+    },
+    {
+      "id": "SEC-005",
+      "severity": "MEDIUM",
+      "title": "TLS 证书验证跳过 - LDAP",
+      "description": "LDAP 客户端允许跳过 TLS 证书验证，已限制仅在测试环境",
+      "locations": [
+        "internal/ldap/client.go:73,107 - InsecureSkipVerify: skipVerify"
+      ],
+      "impact": "中间人攻击风险（已通过环境变量限制，风险降低）",
+      "recommendation": "确保生产环境 ENV != test；考虑添加配置审计日志",
+      "status": "MITIGATED"
+    },
+    {
+      "id": "SEC-006",
+      "severity": "MEDIUM",
+      "title": "特权容器运行 - NAS-OS 主服务",
+      "description": "docker-compose.prod.yml 中 NAS-OS 容器以特权模式运行",
+      "locations": [
+        "docker-compose.prod.yml:42 - privileged: true"
+      ],
+      "impact": "容器拥有主机级权限，被入侵后影响整个系统",
+      "recommendation": "使用 --device 精确授权需要的设备；添加 seccomp/AppArmor 配置文件",
+      "status": "OPEN"
+    },
+    {
+      "id": "SEC-007",
+      "severity": "MEDIUM",
+      "title": "命令注入风险 - 多处 exec.Command",
+      "description": "多处使用 exec.Command 执行外部命令，参数可能来自用户输入",
+      "locations": [
+        "internal/backup/manager.go:402,427 - tar/openssl 命令",
+        "internal/backup/sync.go:308 - rsync 命令",
+        "internal/docker/manager.go:117,128,170,291,302 - docker 命令"
+      ],
+      "impact": "攻击者可能注入恶意参数执行任意命令",
+      "recommendation": "扩展使用 pkg/safeguards.SafeCommandBuilder；对用户输入进行严格验证",
+      "status": "OPEN"
+    },
+    {
+      "id": "SEC-008",
+      "severity": "LOW",
+      "title": "敏感信息环境变量",
+      "description": "密码通过环境变量传递，可能被日志或进程列表泄露",
+      "locations": [
+        "internal/automation/action/action.go:292 - smtpPass from env",
+        "docker-compose.prod.yml - 多处环境变量配置"
+      ],
+      "impact": "敏感信息可能被意外泄露",
+      "recommendation": "考虑使用 Docker Secrets 或文件挂载方式传递敏感配置",
+      "status": "OPEN"
+    },
+    {
+      "id": "SEC-009",
+      "severity": "LOW",
+      "title": "SMTP 注入 - 已修复",
+      "description": "邮件发送功能曾存在 SMTP 注入风险，现已修复",
+      "locations": [
+        "internal/automation/action/action.go:237-253 - sanitizeEmailHeader 函数"
+      ],
+      "impact": "已通过 sanitizeEmailHeader 函数修复",
+      "recommendation": "保持现有防护；可考虑添加单元测试验证",
+      "status": "FIXED"
+    }
+  ],
+  "positive_findings": [
+    {
+      "title": "RBAC 实现完善",
+      "description": "角色、权限、策略、缓存机制完整，支持最小权限原则"
+    },
+    {
+      "title": "安全工具包",
+      "description": "pkg/safeguards 和 pkg/security 提供路径验证、命令构建、输入清理等功能"
+    },
+    {
+      "title": "SMTP 注入已修复",
+      "description": "sanitizeEmailHeader 函数有效防止 SMTP 头注入"
+    },
+    {
+      "title": "LDAP TLS 限制",
+      "description": "仅在测试环境允许跳过证书验证，生产环境强制验证"
+    },
+    {
+      "title": "脚本验证",
+      "description": "快照脚本执行前有黑名单验证，过滤部分危险命令"
+    }
+  ],
+  "recommendations": {
+    "immediate": [
+      "修复 XSS 漏洞 - Content-Disposition 头文件名编码",
+      "扩展脚本黑名单验证，添加更多危险命令",
+      "强制首次启动修改默认密码"
+    ],
+    "short_term": [
+      "扩展 pkg/safeguards 使用范围，替换直接的 exec.Command 调用",
+      "为整数转换添加边界检查",
+      "配置 seccomp/AppArmor 限制容器权限"
+    ],
+    "long_term": [
+      "使用 Docker Secrets 替代环境变量传递敏感配置",
+      "添加安全审计日志和告警",
+      "定期运行 gosec 和 govulncheck 扫描"
+    ]
+  }
+}
