@@ -83,7 +83,7 @@ func (h *Handlers) get(c *gin.Context) {
 
 	// 获取更多信息
 	inst, _ := h.manager.loader.GetInstance(pluginID)
-	var info *PluginInfo
+	var info *Info
 	if inst != nil {
 		info = &inst.Info
 	}

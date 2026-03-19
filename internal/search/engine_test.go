@@ -79,7 +79,7 @@ func TestEngine_BasicSearch(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := engine.Search(SearchRequest{
+			result, err := engine.Search(Request{
 				Query: tt.query,
 				Limit: 10,
 			})
@@ -153,7 +153,7 @@ func TestEngine_FileTypeFilter(t *testing.T) {
 	}
 
 	// 只搜索 .txt 文件
-	result, err := engine.Search(SearchRequest{
+	result, err := engine.Search(Request{
 		Query: "search",
 		Types: []string{".txt"},
 		Limit: 10,
@@ -213,7 +213,7 @@ func TestEngine_Highlight(t *testing.T) {
 	}
 
 	// 搜索并检查高亮
-	result, err := engine.Search(SearchRequest{
+	result, err := engine.Search(Request{
 		Query: "search",
 		Limit: 10,
 	})

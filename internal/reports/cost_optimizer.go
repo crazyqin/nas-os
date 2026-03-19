@@ -12,27 +12,42 @@ import (
 type WasteType string
 
 const (
-	WasteTypeDuplicate       WasteType = "duplicate"        // 重复文件
-	WasteTypeOrphan          WasteType = "orphan"           // 孤立文件
-	WasteTypeExpired         WasteType = "expired"          // 过期数据
-	WasteTypeTemp            WasteType = "temp"             // 临时文件
-	WasteTypeUnused          WasteType = "unused"           // 未使用配额
+	// WasteTypeDuplicate represents duplicate file waste type.
+	WasteTypeDuplicate WasteType = "duplicate" // 重复文件
+	// WasteTypeOrphan represents orphan file waste type.
+	WasteTypeOrphan WasteType = "orphan" // 孤立文件
+	// WasteTypeExpired represents expired data waste type.
+	WasteTypeExpired WasteType = "expired" // 过期数据
+	// WasteTypeTemp represents temporary file waste type.
+	WasteTypeTemp WasteType = "temp" // 临时文件
+	// WasteTypeUnused represents unused quota waste type.
+	WasteTypeUnused WasteType = "unused" // 未使用配额
+	// WasteTypeOverProvisioned represents over-provisioned waste type.
 	WasteTypeOverProvisioned WasteType = "over_provisioned" // 过度分配
-	WasteTypeSnapshot        WasteType = "snapshot"         // 过多快照
-	WasteTypeOldVersion      WasteType = "old_version"      // 旧版本文件
+	// WasteTypeSnapshot represents excessive snapshot waste type.
+	WasteTypeSnapshot WasteType = "snapshot" // 过多快照
+	// WasteTypeOldVersion represents old version file waste type.
+	WasteTypeOldVersion WasteType = "old_version" // 旧版本文件
 )
 
 // OptimizationType 优化类型
 type OptimizationType string
 
 const (
-	OptimizationTypeCleanup  OptimizationType = "cleanup"  // 清理
+	// OptimizationTypeCleanup represents cleanup optimization type.
+	OptimizationTypeCleanup OptimizationType = "cleanup" // 清理
+	// OptimizationTypeCompress represents compression optimization type.
 	OptimizationTypeCompress OptimizationType = "compress" // 压缩
-	OptimizationTypeDedupe   OptimizationType = "dedupe"   // 去重
-	OptimizationTypeTiering  OptimizationType = "tiering"  // 分层存储
-	OptimizationTypeQuota    OptimizationType = "quota"    // 配额调整
-	OptimizationTypeArchive  OptimizationType = "archive"  // 归档
-	OptimizationTypeResize   OptimizationType = "resize"   // 卷调整
+	// OptimizationTypeDedupe represents deduplication optimization type.
+	OptimizationTypeDedupe OptimizationType = "dedupe" // 去重
+	// OptimizationTypeTiering represents storage tiering optimization type.
+	OptimizationTypeTiering OptimizationType = "tiering" // 分层存储
+	// OptimizationTypeQuota represents quota adjustment optimization type.
+	OptimizationTypeQuota OptimizationType = "quota" // 配额调整
+	// OptimizationTypeArchive represents archiving optimization type.
+	OptimizationTypeArchive OptimizationType = "archive" // 归档
+	// OptimizationTypeResize represents volume resize optimization type.
+	OptimizationTypeResize OptimizationType = "resize" // 卷调整
 )
 
 // WasteItem 浪费项

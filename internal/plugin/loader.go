@@ -14,7 +14,7 @@ import (
 // Loader 插件加载器
 type Loader struct {
 	pluginDir string
-	instances map[string]*PluginInstance
+	instances map[string]*Instance
 	mu        sync.RWMutex
 }
 
@@ -22,13 +22,13 @@ type Loader struct {
 func NewLoader(pluginDir string) *Loader {
 	return &Loader{
 		pluginDir: pluginDir,
-		instances: make(map[string]*PluginInstance),
+		instances: make(map[string]*Instance),
 	}
 }
 
 // Discover 发现所有可用插件
-func (l *Loader) Discover() ([]PluginInfo, error) {
-	var plugins []PluginInfo
+func (l *Loader) Discover() ([]Info, error) {
+	var plugins []Info
 
 	// 遍历插件目录
 	entries, err := os.ReadDir(l.pluginDir)
@@ -59,7 +59,7 @@ func (l *Loader) Discover() ([]PluginInfo, error) {
 }
 
 // Load 加载插件
-func (l *Loader) Load(pluginPath string) (*PluginInstance, error) {
+func (l *Loader) Load(pluginPath string) (*Instance, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
@@ -71,7 +71,7 @@ func (l *Loader) Load(pluginPath string) (*PluginInstance, error) {
 	}
 
 	// 确定是 .so 文件还是插件目录
-	var info PluginInfo
+	var info Info
 	var pluginPathActual string
 
 	if strings.HasSuffix(pluginPath, ".so") {
@@ -132,13 +132,13 @@ func (l *Loader) Load(pluginPath string) (*PluginInstance, error) {
 	// 创建插件实例
 	pluginInstance := newPluginFunc()
 
-	instance := &PluginInstance{
+	instance := &Instance{
 		Info:    info,
 		Plugin:  pluginInstance,
 		Path:    pluginPathActual,
 		Enabled: false,
 		Running: false,
-		State: PluginState{
+		State: State{
 			ID:          info.ID,
 			Version:     info.Version,
 			Installed:   true,
@@ -178,7 +178,7 @@ func (l *Loader) Unload(pluginID string) error {
 }
 
 // GetInstance 获取插件实例
-func (l *Loader) GetInstance(pluginID string) (*PluginInstance, bool) {
+func (l *Loader) GetInstance(pluginID string) (*Instance, bool) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	inst, ok := l.instances[pluginID]
@@ -186,11 +186,11 @@ func (l *Loader) GetInstance(pluginID string) (*PluginInstance, bool) {
 }
 
 // ListInstances 列出所有已加载的插件实例
-func (l *Loader) ListInstances() []*PluginInstance {
+func (l *Loader) ListInstances() []*Instance {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 
-	instances := make([]*PluginInstance, 0, len(l.instances))
+	instances := make([]*Instance, 0, len(l.instances))
 	for _, inst := range l.instances {
 		instances = append(instances, inst)
 	}
@@ -198,8 +198,8 @@ func (l *Loader) ListInstances() []*PluginInstance {
 }
 
 // loadManifest 加载插件清单
-func (l *Loader) loadManifest(manifestPath string) (PluginInfo, error) {
-	var info PluginInfo
+func (l *Loader) loadManifest(manifestPath string) (Info, error) {
+	var info Info
 
 	data, err := os.ReadFile(manifestPath)
 	if err != nil {
@@ -214,25 +214,25 @@ func (l *Loader) loadManifest(manifestPath string) (PluginInfo, error) {
 }
 
 // loadSOInfo 从 .so 文件加载插件信息
-func (l *Loader) loadSOInfo(soPath string) (PluginInfo, error) {
+func (l *Loader) loadSOInfo(soPath string) (Info, error) {
 	// 尝试打开 .so 文件
 	plug, err := plugin.Open(soPath)
 	if err != nil {
-		return PluginInfo{}, fmt.Errorf("打开 .so 文件失败: %w", err)
+		return Info{}, fmt.Errorf("打开 .so 文件失败: %w", err)
 	}
 
 	// 查找 Info 符号
 	sym, err := plug.Lookup("Info")
 	if err == nil {
-		if infoFunc, ok := sym.(func() PluginInfo); ok {
+		if infoFunc, ok := sym.(func() Info); ok {
 			return infoFunc(), nil
 		}
 	}
 
-	// 查找 PluginInfo 变量
-	sym, err = plug.Lookup("PluginInfo")
+	// 查找 Info 变量
+	sym, err = plug.Lookup("Info")
 	if err == nil {
-		if info, ok := sym.(*PluginInfo); ok {
+		if info, ok := sym.(*Info); ok {
 			return *info, nil
 		}
 	}
@@ -242,7 +242,7 @@ func (l *Loader) loadSOInfo(soPath string) (PluginInfo, error) {
 	id := strings.TrimSuffix(filename, ".so")
 	id = strings.ReplaceAll(id, "_", "-")
 
-	return PluginInfo{
+	return Info{
 		ID:       "plugin." + id,
 		Name:     id,
 		Version:  "1.0.0",

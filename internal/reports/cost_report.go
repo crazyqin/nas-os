@@ -19,10 +19,14 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrCostReportNotFound    = errors.New("成本报告不存在")
+	// ErrCostReportNotFound is the error when a cost report is not found.
+	ErrCostReportNotFound = errors.New("成本报告不存在")
+	// ErrInvalidCostReportType is the error when an invalid report type is provided.
 	ErrInvalidCostReportType = errors.New("无效的报告类型")
-	ErrInvalidDateFormat     = errors.New("无效的日期格式")
-	ErrCostExportFailed      = errors.New("导出失败")
+	// ErrInvalidDateFormat is the error when an invalid date format is provided.
+	ErrInvalidDateFormat = errors.New("无效的日期格式")
+	// ErrCostExportFailed is the error when cost export fails.
+	ErrCostExportFailed = errors.New("导出失败")
 )
 
 // ========== 报告类型 ==========
@@ -31,8 +35,11 @@ var (
 type CostReportType string
 
 const (
-	CostReportTypeDaily   CostReportType = "daily"   // 日报
-	CostReportTypeWeekly  CostReportType = "weekly"  // 周报
+	// CostReportTypeDaily represents daily cost report type.
+	CostReportTypeDaily CostReportType = "daily" // 日报
+	// CostReportTypeWeekly represents weekly cost report type.
+	CostReportTypeWeekly CostReportType = "weekly" // 周报
+	// CostReportTypeMonthly represents monthly cost report type.
 	CostReportTypeMonthly CostReportType = "monthly" // 月报
 )
 
@@ -40,8 +47,10 @@ const (
 type CostExportFormat string
 
 const (
+	// CostExportFormatJSON represents JSON export format.
 	CostExportFormatJSON CostExportFormat = "json" // JSON格式
-	CostExportFormatCSV  CostExportFormat = "csv"  // CSV格式
+	// CostExportFormatCSV represents CSV export format.
+	CostExportFormatCSV CostExportFormat = "csv" // CSV格式
 )
 
 // ========== 成本报告定义 ==========

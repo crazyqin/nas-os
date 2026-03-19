@@ -20,7 +20,7 @@ type Manager struct {
 	pluginDir  string
 	configDir  string
 	dataDir    string
-	states     map[string]*PluginState
+	states     map[string]*State
 	hooks      map[HookType][]Hook
 	extensions map[string]*ExtensionPoint
 	mu         sync.RWMutex
@@ -59,7 +59,7 @@ func NewManager(cfg ManagerConfig) (*Manager, error) {
 		pluginDir:  cfg.PluginDir,
 		configDir:  cfg.ConfigDir,
 		dataDir:    cfg.DataDir,
-		states:     make(map[string]*PluginState),
+		states:     make(map[string]*State),
 		hooks:      make(map[HookType][]Hook),
 		extensions: make(map[string]*ExtensionPoint),
 		stateFile:  filepath.Join(cfg.ConfigDir, "states.json"),
@@ -125,16 +125,16 @@ func (m *Manager) initInstalledPlugins() error {
 }
 
 // Discover 发现可用插件
-func (m *Manager) Discover() ([]PluginInfo, error) {
+func (m *Manager) Discover() ([]Info, error) {
 	return m.loader.Discover()
 }
 
 // List 列出所有插件状态
-func (m *Manager) List() []PluginState {
+func (m *Manager) List() []State {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	result := make([]PluginState, 0, len(m.states))
+	result := make([]State, 0, len(m.states))
 	for _, state := range m.states {
 		result = append(result, *state)
 	}
@@ -142,7 +142,7 @@ func (m *Manager) List() []PluginState {
 }
 
 // Get 获取插件详情
-func (m *Manager) Get(pluginID string) (*PluginState, error) {
+func (m *Manager) Get(pluginID string) (*State, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -154,7 +154,7 @@ func (m *Manager) Get(pluginID string) (*PluginState, error) {
 }
 
 // Install 安装插件
-func (m *Manager) Install(source string) (*PluginState, error) {
+func (m *Manager) Install(source string) (*State, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -190,7 +190,7 @@ func (m *Manager) Install(source string) (*PluginState, error) {
 	}
 
 	// 创建状态
-	state := &PluginState{
+	state := &State{
 		ID:          inst.Info.ID,
 		Version:     inst.Info.Version,
 		Enabled:     false,
@@ -221,7 +221,7 @@ func (m *Manager) Uninstall(pluginID string) error {
 
 	// 检查是否有其他插件依赖
 	for _, s := range m.states {
-		deps := m.getDependenciesFromPluginState(s)
+		deps := m.getDependenciesFromState(s)
 		for _, dep := range deps {
 			if dep.ID == pluginID && !dep.Optional {
 				return fmt.Errorf("插件 %s 依赖 %s，无法卸载", s.ID, pluginID)
@@ -371,7 +371,7 @@ func (m *Manager) stopPlugin(pluginID string) error {
 }
 
 // Update 更新插件
-func (m *Manager) Update(pluginID string) (*PluginState, error) {
+func (m *Manager) Update(pluginID string) (*State, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -656,7 +656,7 @@ func (m *Manager) saveStates() error {
 }
 
 // getDependenciesFromState 从状态获取依赖
-func (m *Manager) getDependenciesFromPluginState(state *PluginState) []Dependency {
+func (m *Manager) getDependenciesFromState(state *State) []Dependency {
 	if state == nil {
 		return nil
 	}

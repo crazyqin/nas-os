@@ -140,8 +140,7 @@ type Alert struct {
 	AckedAt      *time.Time             `json:"acked_at,omitempty"`
 }
 
-// SecurityAlert 是 Alert 的别名，保持向后兼容
-type SecurityAlert = Alert
+
 
 // ========== 安全基线类型 ==========
 
@@ -180,8 +179,7 @@ type Config struct {
 	AlertEnabled   bool           `json:"alert_enabled"`
 }
 
-// SecurityConfig 是 Config 的别名，保持向后兼容
-type SecurityConfig = Config
+
 
 // ========== 通用响应类型 ==========
 

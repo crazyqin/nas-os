@@ -482,8 +482,7 @@ type ParallelConfig struct {
 	MinSize         int64     `json:"minSize"`
 }
 
-// CompressConfig 是 ParallelConfig 的别名，保持向后兼容
-type CompressConfig = ParallelConfig
+
 
 // DefaultParallelConfig 默认并行压缩配置
 func DefaultParallelConfig() *ParallelConfig {

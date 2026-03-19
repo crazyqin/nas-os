@@ -11,26 +11,40 @@ import (
 type TemplateType string
 
 const (
-	TemplateTypeQuota   TemplateType = "quota"   // 配额报表
+	// TemplateTypeQuota represents quota report template type.
+	TemplateTypeQuota TemplateType = "quota" // 配额报表
+	// TemplateTypeStorage represents storage report template type.
 	TemplateTypeStorage TemplateType = "storage" // 存储报表
-	TemplateTypeUser    TemplateType = "user"    // 用户报表
-	TemplateTypeSystem  TemplateType = "system"  // 系统报表
-	TemplateTypeCustom  TemplateType = "custom"  // 自定义模板
+	// TemplateTypeUser represents user report template type.
+	TemplateTypeUser TemplateType = "user" // 用户报表
+	// TemplateTypeSystem represents system report template type.
+	TemplateTypeSystem TemplateType = "system" // 系统报表
+	// TemplateTypeCustom represents custom template type.
+	TemplateTypeCustom TemplateType = "custom" // 自定义模板
 )
 
 // FieldType 字段类型
 type FieldType string
 
 const (
-	FieldTypeString   FieldType = "string"
-	FieldTypeNumber   FieldType = "number"
-	FieldTypePercent  FieldType = "percent"
-	FieldTypeBytes    FieldType = "bytes"
-	FieldTypeDate     FieldType = "date"
+	// FieldTypeString represents string field type.
+	FieldTypeString FieldType = "string"
+	// FieldTypeNumber represents number field type.
+	FieldTypeNumber FieldType = "number"
+	// FieldTypePercent represents percent field type.
+	FieldTypePercent FieldType = "percent"
+	// FieldTypeBytes represents bytes field type.
+	FieldTypeBytes FieldType = "bytes"
+	// FieldTypeDate represents date field type.
+	FieldTypeDate FieldType = "date"
+	// FieldTypeDateTime represents datetime field type.
 	FieldTypeDateTime FieldType = "datetime"
+	// FieldTypeDuration represents duration field type.
 	FieldTypeDuration FieldType = "duration"
-	FieldTypeBoolean  FieldType = "boolean"
-	FieldTypeList     FieldType = "list"
+	// FieldTypeBoolean represents boolean field type.
+	FieldTypeBoolean FieldType = "boolean"
+	// FieldTypeList represents list field type.
+	FieldTypeList FieldType = "list"
 )
 
 // TemplateField 模板字段
@@ -149,11 +163,16 @@ type CustomReportInput struct {
 type ScheduleFrequency string
 
 const (
-	FrequencyHourly  ScheduleFrequency = "hourly"
-	FrequencyDaily   ScheduleFrequency = "daily"
-	FrequencyWeekly  ScheduleFrequency = "weekly"
+	// FrequencyHourly represents hourly schedule frequency.
+	FrequencyHourly ScheduleFrequency = "hourly"
+	// FrequencyDaily represents daily schedule frequency.
+	FrequencyDaily ScheduleFrequency = "daily"
+	// FrequencyWeekly represents weekly schedule frequency.
+	FrequencyWeekly ScheduleFrequency = "weekly"
+	// FrequencyMonthly represents monthly schedule frequency.
 	FrequencyMonthly ScheduleFrequency = "monthly"
-	FrequencyCustom  ScheduleFrequency = "custom"
+	// FrequencyCustom represents custom schedule frequency.
+	FrequencyCustom ScheduleFrequency = "custom"
 )
 
 // ScheduledReport 定时报表
@@ -217,10 +236,15 @@ type ScheduledReportExecution struct {
 type ExportFormat string
 
 const (
-	ExportJSON  ExportFormat = "json"
-	ExportCSV   ExportFormat = "csv"
-	ExportHTML  ExportFormat = "html"
-	ExportPDF   ExportFormat = "pdf"
+	// ExportJSON represents JSON export format.
+	ExportJSON ExportFormat = "json"
+	// ExportCSV represents CSV export format.
+	ExportCSV ExportFormat = "csv"
+	// ExportHTML represents HTML export format.
+	ExportHTML ExportFormat = "html"
+	// ExportPDF represents PDF export format.
+	ExportPDF ExportFormat = "pdf"
+	// ExportExcel represents Excel export format.
 	ExportExcel ExportFormat = "xlsx"
 )
 
@@ -299,10 +323,16 @@ type DataSource interface {
 type DataSourceType string
 
 const (
-	DataSourceQuota   DataSourceType = "quota"
+	// DataSourceQuota represents quota data source type.
+	DataSourceQuota DataSourceType = "quota"
+	// DataSourceStorage represents storage data source type.
 	DataSourceStorage DataSourceType = "storage"
-	DataSourceUser    DataSourceType = "user"
-	DataSourceBackup  DataSourceType = "backup"
-	DataSourceSystem  DataSourceType = "system"
+	// DataSourceUser represents user data source type.
+	DataSourceUser DataSourceType = "user"
+	// DataSourceBackup represents backup data source type.
+	DataSourceBackup DataSourceType = "backup"
+	// DataSourceSystem represents system data source type.
+	DataSourceSystem DataSourceType = "system"
+	// DataSourceMonitor represents monitor data source type.
 	DataSourceMonitor DataSourceType = "monitor"
 )

@@ -15,14 +15,22 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrTemplateNotFound   = errors.New("模板不存在")
-	ErrTemplateExists     = errors.New("模板已存在")
-	ErrReportNotFound     = errors.New("报表不存在")
-	ErrScheduleNotFound   = errors.New("定时任务不存在")
+	// ErrTemplateNotFound is the error when a template is not found.
+	ErrTemplateNotFound = errors.New("模板不存在")
+	// ErrTemplateExists is the error when a template already exists.
+	ErrTemplateExists = errors.New("模板已存在")
+	// ErrReportNotFound is the error when a report is not found.
+	ErrReportNotFound = errors.New("报表不存在")
+	// ErrScheduleNotFound is the error when a schedule is not found.
+	ErrScheduleNotFound = errors.New("定时任务不存在")
+	// ErrDataSourceNotFound is the error when a data source is not found.
 	ErrDataSourceNotFound = errors.New("数据源不存在")
-	ErrInvalidQuery       = errors.New("无效的查询参数")
-	ErrExportFailed       = errors.New("导出失败")
-	ErrInvalidCronExpr    = errors.New("无效的 cron 表达式")
+	// ErrInvalidQuery is the error when an invalid query is provided.
+	ErrInvalidQuery = errors.New("无效的查询参数")
+	// ErrExportFailed is the error when export fails.
+	ErrExportFailed = errors.New("导出失败")
+	// ErrInvalidCronExpr is the error when an invalid cron expression is provided.
+	ErrInvalidCronExpr = errors.New("无效的 cron 表达式")
 )
 
 // ========== 模板管理器 ==========

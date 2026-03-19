@@ -170,7 +170,7 @@ func TestArchiveManager_SaveAndLoadArchives(t *testing.T) {
 
 	// 添加一个归档记录
 	now := time.Now()
-	am.archives["test-id"] = &ProjectArchive{
+	am.archives["test-id"] = &Archive{
 		ID:          "test-id",
 		ProjectID:   "project-123",
 		ProjectName: "Test Project",
@@ -227,7 +227,7 @@ func TestArchiveManager_sortArchives(t *testing.T) {
 	am := NewArchiveManager(nil, config)
 
 	now := time.Now()
-	archives := []*ProjectArchive{
+	archives := []*Archive{
 		{ID: "1", ArchivedAt: now.Add(-2 * time.Hour)},
 		{ID: "2", ArchivedAt: now},
 		{ID: "3", ArchivedAt: now.Add(-1 * time.Hour)},
@@ -252,7 +252,7 @@ func TestArchiveManager_ExtendArchiveRetention(t *testing.T) {
 
 	// 添加一个归档记录
 	expiry := time.Now().Add(30 * 24 * time.Hour)
-	am.archives["test-id"] = &ProjectArchive{
+	am.archives["test-id"] = &Archive{
 		ID:        "test-id",
 		ProjectID: "project-123",
 		Status:    ArchiveStatusArchived,
@@ -278,9 +278,9 @@ func TestArchiveManager_ListArchives_WithStatus(t *testing.T) {
 	am := NewArchiveManager(nil, config)
 
 	now := time.Now()
-	am.archives["1"] = &ProjectArchive{ID: "1", Status: ArchiveStatusArchived, ArchivedAt: now}
-	am.archives["2"] = &ProjectArchive{ID: "2", Status: ArchiveStatusActive, ArchivedAt: now}
-	am.archives["3"] = &ProjectArchive{ID: "3", Status: ArchiveStatusArchived, ArchivedAt: now}
+	am.archives["1"] = &Archive{ID: "1", Status: ArchiveStatusArchived, ArchivedAt: now}
+	am.archives["2"] = &Archive{ID: "2", Status: ArchiveStatusActive, ArchivedAt: now}
+	am.archives["3"] = &Archive{ID: "3", Status: ArchiveStatusArchived, ArchivedAt: now}
 
 	// 只查询已归档
 	archives := am.ListArchives(ArchiveStatusArchived, 10, 0)
@@ -301,9 +301,9 @@ func TestArchiveManager_GetArchiveStats(t *testing.T) {
 	am := NewArchiveManager(nil, config)
 
 	now := time.Now()
-	am.archives["1"] = &ProjectArchive{ID: "1", Status: ArchiveStatusArchived, ArchivedAt: now, ArchiveSize: 1000}
-	am.archives["2"] = &ProjectArchive{ID: "2", Status: ArchiveStatusActive, ArchivedAt: now, ArchiveSize: 2000}
-	am.archives["3"] = &ProjectArchive{ID: "3", Status: ArchiveStatusArchived, ArchivedAt: now, ArchiveSize: 3000}
+	am.archives["1"] = &Archive{ID: "1", Status: ArchiveStatusArchived, ArchivedAt: now, ArchiveSize: 1000}
+	am.archives["2"] = &Archive{ID: "2", Status: ArchiveStatusActive, ArchivedAt: now, ArchiveSize: 2000}
+	am.archives["3"] = &Archive{ID: "3", Status: ArchiveStatusArchived, ArchivedAt: now, ArchiveSize: 3000}
 
 	stats := am.GetArchiveStats()
 	assert.Equal(t, 3, stats.Total)
@@ -313,11 +313,11 @@ func TestArchiveManager_GetArchiveStats(t *testing.T) {
 	assert.Equal(t, 1, stats.ByStatus[ArchiveStatusActive])
 }
 
-func TestProjectArchive_Fields(t *testing.T) {
+func TestArchive_Fields(t *testing.T) {
 	now := time.Now()
 	expiry := now.Add(365 * 24 * time.Hour)
 
-	archive := &ProjectArchive{
+	archive := &Archive{
 		ID:          "archive-123",
 		ProjectID:   "project-456",
 		ProjectName: "Test Project",
@@ -357,7 +357,7 @@ func TestArchiveManager_CleanupExpiredArchives(t *testing.T) {
 
 	// 创建一个已过期的归档
 	pastTime := time.Now().Add(-24 * time.Hour)
-	am.archives["expired"] = &ProjectArchive{
+	am.archives["expired"] = &Archive{
 		ID:        "expired",
 		ProjectID: "project-1",
 		Status:    ArchiveStatusArchived,
@@ -366,7 +366,7 @@ func TestArchiveManager_CleanupExpiredArchives(t *testing.T) {
 
 	// 创建一个未过期的归档
 	futureTime := time.Now().Add(24 * time.Hour)
-	am.archives["active"] = &ProjectArchive{
+	am.archives["active"] = &Archive{
 		ID:        "active",
 		ProjectID: "project-2",
 		Status:    ArchiveStatusArchived,

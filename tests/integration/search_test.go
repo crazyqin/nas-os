@@ -14,7 +14,7 @@ import (
 // MockSearchEngine 模拟搜索引擎
 type MockSearchEngine struct {
 	index   map[string]*search.FileInfo
-	results map[string][]search.SearchResult
+	results map[string][]search.Result
 	stats   search.IndexStats
 	mu      sync.RWMutex
 }
@@ -23,7 +23,7 @@ type MockSearchEngine struct {
 func NewMockSearchEngine() *MockSearchEngine {
 	e := &MockSearchEngine{
 		index:   make(map[string]*search.FileInfo),
-		results: make(map[string][]search.SearchResult),
+		results: make(map[string][]search.Result),
 		stats: search.IndexStats{
 			TotalFiles:   0,
 			IndexedFiles: 0,
@@ -77,11 +77,11 @@ func (e *MockSearchEngine) IndexFile(info *search.FileInfo) error {
 }
 
 // Search 搜索
-func (e *MockSearchEngine) Search(ctx context.Context, req *search.SearchRequest) ([]search.SearchResult, error) {
+func (e *MockSearchEngine) Search(ctx context.Context, req *search.Request) ([]search.Result, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 
-	var results []search.SearchResult
+	var results []search.Result
 
 	for _, info := range e.index {
 		// 简单匹配：检查文件名是否包含查询字符串
@@ -110,7 +110,7 @@ func (e *MockSearchEngine) Search(ctx context.Context, req *search.SearchRequest
 			}
 		}
 
-		results = append(results, search.SearchResult{
+		results = append(results, search.Result{
 			Path:    info.Path,
 			Name:    info.Name,
 			Ext:     info.Ext,
@@ -189,19 +189,19 @@ func TestSearch_Search(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		request   *search.SearchRequest
+		request   *search.Request
 		minResult int
 	}{
 		{
 			name: "Search all",
-			request: &search.SearchRequest{
+			request: &search.Request{
 				Query: "",
 			},
 			minResult: 1,
 		},
 		{
 			name: "Search with limit",
-			request: &search.SearchRequest{
+			request: &search.Request{
 				Query: "",
 				Limit: 2,
 			},
@@ -209,7 +209,7 @@ func TestSearch_Search(t *testing.T) {
 		},
 		{
 			name: "Search with size filter",
-			request: &search.SearchRequest{
+			request: &search.Request{
 				Query:   "",
 				MinSize: 1000,
 			},
@@ -253,33 +253,33 @@ func TestSearch_SearchWithFilters(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		request    *search.SearchRequest
+		request    *search.Request
 		expectSize int
 	}{
 		{
 			name: "Filter by min size",
-			request: &search.SearchRequest{
+			request: &search.Request{
 				MinSize: 1000,
 			},
 			expectSize: -1, // 不确定具体数量
 		},
 		{
 			name: "Filter by max size",
-			request: &search.SearchRequest{
+			request: &search.Request{
 				MaxSize: 500,
 			},
 			expectSize: -1,
 		},
 		{
 			name: "Filter by type",
-			request: &search.SearchRequest{
+			request: &search.Request{
 				Types: []string{".pdf"},
 			},
 			expectSize: -1,
 		},
 		{
 			name: "Filter by type and size",
-			request: &search.SearchRequest{
+			request: &search.Request{
 				Types:   []string{".txt"},
 				MinSize: 50,
 			},
@@ -391,7 +391,7 @@ func TestSearch_ConcurrentSearch(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		go func() {
-			_, _ = engine.Search(ctx, &search.SearchRequest{Query: "test"})
+			_, _ = engine.Search(ctx, &search.Request{Query: "test"})
 			done <- true
 		}()
 	}
@@ -418,7 +418,7 @@ func TestSearch_SearchResultScore(t *testing.T) {
 	engine := NewMockSearchEngine()
 	ctx := context.Background()
 
-	results, err := engine.Search(ctx, &search.SearchRequest{Query: ""})
+	results, err := engine.Search(ctx, &search.Request{Query: ""})
 	if err != nil {
 		t.Fatalf("Search failed: %v", err)
 	}
@@ -468,7 +468,7 @@ func TestSearch_FileInfoStructure(t *testing.T) {
 // TestSearch_SearchResultStructure 测试搜索结果结构
 func TestSearch_SearchResultStructure(t *testing.T) {
 	now := time.Now()
-	result := search.SearchResult{
+	result := search.Result{
 		Path:    "/data/result.txt",
 		Name:    "result.txt",
 		Ext:     ".txt",
@@ -544,7 +544,7 @@ func TestSearch_SearchRequestWithDate(t *testing.T) {
 	})
 
 	// 测试日期过滤
-	req := &search.SearchRequest{
+	req := &search.Request{
 		FromDate: &yesterday,
 		ToDate:   &now,
 	}
@@ -582,7 +582,7 @@ func TestSearch_SearchRequestSorting(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := &search.SearchRequest{
+			req := &search.Request{
 				Query:    "",
 				SortBy:   tt.sortBy,
 				SortDesc: tt.sortDesc,
@@ -623,7 +623,7 @@ func TestSearch_SearchRequestOffset(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := &search.SearchRequest{
+			req := &search.Request{
 				Query:  "",
 				Offset: tt.offset,
 				Limit:  tt.limit,
@@ -648,7 +648,7 @@ func TestSearch_ContextCancellation(t *testing.T) {
 	cancel() // 立即取消
 
 	// 搜索应该能处理取消的上下文
-	_, err := engine.Search(ctx, &search.SearchRequest{Query: "test"})
+	_, err := engine.Search(ctx, &search.Request{Query: "test"})
 	// 不一定返回错误，但不应 panic
 	_ = err
 }
@@ -706,7 +706,7 @@ func BenchmarkSearch_Search(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = engine.Search(ctx, &search.SearchRequest{Query: "test"})
+		_, _ = engine.Search(ctx, &search.Request{Query: "test"})
 	}
 }
 

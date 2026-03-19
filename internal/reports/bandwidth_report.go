@@ -19,7 +19,9 @@ func round(val float64, precision int) float64 {
 type BandwidthDirection string
 
 const (
-	BandwidthDirectionIn  BandwidthDirection = "in"  // 入站
+	// BandwidthDirectionIn represents inbound bandwidth direction.
+	BandwidthDirectionIn BandwidthDirection = "in" // 入站
+	// BandwidthDirectionOut represents outbound bandwidth direction.
 	BandwidthDirectionOut BandwidthDirection = "out" // 出站
 )
 

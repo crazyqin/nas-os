@@ -590,7 +590,7 @@ func (e *Engine) Search(req Request) (*Response, error) {
 }
 
 // buildQuery 构建查询
-func (e *Engine) buildQuery(req SearchRequest) query.Query {
+func (e *Engine) buildQuery(req Request) query.Query {
 	// 主查询
 	mainQuery := bleve.NewMatchQuery(req.Query)
 	mainQuery.SetFuzziness(1)
@@ -663,14 +663,7 @@ type Response struct {
 	Results  []Result      `json:"results"`
 }
 
-// SearchResult 是 Result 的别名，保持向后兼容
-type SearchResult = Result
 
-// SearchRequest 是 Request 的别名，保持向后兼容
-type SearchRequest = Request
-
-// SearchResponse 是 Response 的别名，保持向后兼容
-type SearchResponse = Response
 
 // Delete 从索引中删除
 func (e *Engine) Delete(path string) error {

@@ -117,8 +117,7 @@ type Monitor struct {
 	sampleRate float64
 }
 
-// PerformanceMonitor 是 Monitor 的别名，保持向后兼容
-type PerformanceMonitor = Monitor
+
 
 // NewMonitor 创建性能监控器
 func NewMonitor(logger *zap.Logger) *Monitor {

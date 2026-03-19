@@ -12,8 +12,11 @@ import (
 type GrowthModel string
 
 const (
-	GrowthModelLinear      GrowthModel = "linear"      // 线性增长
+	// GrowthModelLinear represents linear growth model.
+	GrowthModelLinear GrowthModel = "linear" // 线性增长
+	// GrowthModelExponential represents exponential growth model.
 	GrowthModelExponential GrowthModel = "exponential" // 指数增长
+	// GrowthModelLogarithmic represents logarithmic growth model.
 	GrowthModelLogarithmic GrowthModel = "logarithmic" // 对数增长
 )
 
