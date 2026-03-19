@@ -41,10 +41,14 @@ type CloudBackup struct {
 // CloudProvider 云存储提供商类型
 type CloudProvider string
 
+// 云存储提供商常量
 const (
-	CloudProviderS3     CloudProvider = "s3"
+	// CloudProviderS3 AWS S3 或兼容 S3 的存储
+	CloudProviderS3 CloudProvider = "s3"
+	// CloudProviderWebDAV WebDAV 协议存储
 	CloudProviderWebDAV CloudProvider = "webdav"
-	CloudProviderAliyun CloudProvider = "aliyun" // 阿里云 OSS（S3 兼容）
+	// CloudProviderAliyun 阿里云 OSS（S3 兼容）
+	CloudProviderAliyun CloudProvider = "aliyun"
 )
 
 // CloudConfig 云端配置

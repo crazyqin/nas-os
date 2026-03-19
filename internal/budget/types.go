@@ -428,16 +428,26 @@ func DefaultAlertConfig() AlertConfig {
 // ========== 类型别名（向后兼容） ==========
 
 // BudgetQuery 是 Query 的别名
+//
+//nolint:revive // 向后兼容的类型别名
 type BudgetQuery = Query
 
 // BudgetDetail 是 Detail 的别名
+//
+//nolint:revive // 向后兼容的类型别名
 type BudgetDetail = Detail
 
 // BudgetRecommendation 是 Recommendation 的别名
+//
+//nolint:revive // 向后兼容的类型别名
 type BudgetRecommendation = Recommendation
 
 // BudgetStats 是 Stats 的别名
+//
+//nolint:revive // 向后兼容的类型别名
 type BudgetStats = Stats
 
 // BudgetStatus 是 Status 的别名
+//
+//nolint:revive // 向后兼容的类型别名
 type BudgetStatus = Status

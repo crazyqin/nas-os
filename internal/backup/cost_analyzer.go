@@ -76,8 +76,8 @@ func DefaultStorageCostConfigs() map[CloudProvider]*StorageCostConfig {
 	}
 }
 
-// BackupCostRecord 备份成本记录
-type BackupCostRecord struct {
+// CostRecord 备份成本记录
+type CostRecord struct {
 	BackupID         string        `json:"backupId"`
 	ConfigID         string        `json:"configId"`
 	BackupName       string        `json:"backupName"`
@@ -94,10 +94,13 @@ type BackupCostRecord struct {
 	UploadBytes      int64         `json:"uploadBytes"`
 	DownloadBytes    int64         `json:"downloadBytes"`
 	RequestCount     int64         `json:"requestCount"`
-	BackupType       BackupType    `json:"backupType"`
+	BackupType       Type          `json:"backupType"`
 	Incremental      bool          `json:"incremental"`
 	Duration         time.Duration `json:"duration"`
 }
+
+// 兼容类型别名
+type BackupCostRecord = CostRecord
 
 // CostTrendData 成本趋势数据
 type CostTrendData struct {
@@ -127,11 +130,16 @@ type CostReport struct {
 // ReportPeriod 报告周期类型
 type ReportPeriod string
 
+// 报告周期常量
 const (
-	PeriodDaily   ReportPeriod = "daily"
-	PeriodWeekly  ReportPeriod = "weekly"
+	// PeriodDaily 每日报告
+	PeriodDaily ReportPeriod = "daily"
+	// PeriodWeekly 每周报告
+	PeriodWeekly ReportPeriod = "weekly"
+	// PeriodMonthly 每月报告
 	PeriodMonthly ReportPeriod = "monthly"
-	PeriodYearly  ReportPeriod = "yearly"
+	// PeriodYearly 每年报告
+	PeriodYearly ReportPeriod = "yearly"
 )
 
 // CostSummary 成本汇总
@@ -178,12 +186,19 @@ type CostRecommendation struct {
 // RecommendationType 建议类型
 type RecommendationType string
 
+// 建议类型常量
 const (
-	RecommendationCompression   RecommendationType = "compression"
-	RecommendationStorageTier   RecommendationType = "storage_tier"
-	RecommendationIncremental   RecommendationType = "incremental"
-	RecommendationRetention     RecommendationType = "retention"
-	RecommendationLocation      RecommendationType = "location"
+	// RecommendationCompression 压缩优化建议
+	RecommendationCompression RecommendationType = "compression"
+	// RecommendationStorageTier 存储层级建议
+	RecommendationStorageTier RecommendationType = "storage_tier"
+	// RecommendationIncremental 增量备份建议
+	RecommendationIncremental RecommendationType = "incremental"
+	// RecommendationRetention 保留策略建议
+	RecommendationRetention RecommendationType = "retention"
+	// RecommendationLocation 存储位置建议
+	RecommendationLocation RecommendationType = "location"
+	// RecommendationDeduplication 去重建议
 	RecommendationDeduplication RecommendationType = "deduplication"
 )
 
@@ -210,9 +225,13 @@ type CostAlert struct {
 // AlertLevel 告警级别
 type AlertLevel string
 
+// 告警级别常量
 const (
-	AlertLevelInfo     AlertLevel = "info"
-	AlertLevelWarning  AlertLevel = "warning"
+	// AlertLevelInfo 信息级别
+	AlertLevelInfo AlertLevel = "info"
+	// AlertLevelWarning 警告级别
+	AlertLevelWarning AlertLevel = "warning"
+	// AlertLevelCritical 严重级别
 	AlertLevelCritical AlertLevel = "critical"
 )
 
@@ -243,7 +262,7 @@ func DefaultCostAlertThresholds() *CostAlertThresholds {
 // CostAnalyzer 备份成本分析器
 type CostAnalyzer struct {
 	mu              sync.RWMutex
-	records         []*BackupCostRecord
+	records         []*CostRecord
 	costConfigs     map[CloudProvider]*StorageCostConfig
 	trendData       []*CostTrendData
 	alertThresholds *CostAlertThresholds
@@ -253,7 +272,7 @@ type CostAnalyzer struct {
 // NewCostAnalyzer 创建成本分析器
 func NewCostAnalyzer(manager *Manager) *CostAnalyzer {
 	return &CostAnalyzer{
-		records:         make([]*BackupCostRecord, 0),
+		records:         make([]*CostRecord, 0),
 		costConfigs:     DefaultStorageCostConfigs(),
 		trendData:       make([]*CostTrendData, 0),
 		alertThresholds: DefaultCostAlertThresholds(),
@@ -269,7 +288,7 @@ func (ca *CostAnalyzer) CalculateBackupCost(
 	uploadBytes int64,
 	requestCount int64,
 	duration time.Duration,
-) *BackupCostRecord {
+) *CostRecord {
 	// 获取存储成本配置（需要读锁）
 	ca.mu.RLock()
 	provider := ca.getProviderFromConfig(config)
@@ -294,7 +313,7 @@ func (ca *CostAnalyzer) CalculateBackupCost(
 		compressionRatio = (1 - float64(storedSize)/float64(originalSize)) * 100
 	}
 
-	record := &BackupCostRecord{
+	record := &CostRecord{
 		BackupID:         generateID(),
 		ConfigID:         config.ID,
 		BackupName:       config.Name,
@@ -328,7 +347,7 @@ func (ca *CostAnalyzer) CalculateRestoreCost(
 	config *JobConfig,
 	downloadBytes int64,
 	requestCount int64,
-) *BackupCostRecord {
+) *CostRecord {
 	// 获取存储成本配置（需要读锁）
 	ca.mu.RLock()
 	provider := ca.getProviderFromConfig(config)
@@ -345,7 +364,7 @@ func (ca *CostAnalyzer) CalculateRestoreCost(
 
 	totalCost := downloadCost + requestCost
 
-	record := &BackupCostRecord{
+	record := &CostRecord{
 		BackupID:      generateID(),
 		ConfigID:      config.ID,
 		BackupName:    config.Name + " (恢复)",
@@ -376,9 +395,9 @@ func (ca *CostAnalyzer) getProviderFromConfig(config *JobConfig) CloudProvider {
 		return config.CloudConfig.Provider
 	}
 	switch config.Type {
-	case BackupTypeRemote:
+	case TypeRemote:
 		return CloudProviderS3
-	case BackupTypeRsync:
+	case TypeRsync:
 		return "local"
 	default:
 		return "local"
@@ -847,7 +866,7 @@ func (ca *CostAnalyzer) SetAlertThresholds(thresholds *CostAlertThresholds) {
 }
 
 // GetRecords 获取成本记录
-func (ca *CostAnalyzer) GetRecords(limit int) []*BackupCostRecord {
+func (ca *CostAnalyzer) GetRecords(limit int) []*CostRecord {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
 
@@ -860,7 +879,7 @@ func (ca *CostAnalyzer) GetRecords(limit int) []*BackupCostRecord {
 		start = 0
 	}
 
-	result := make([]*BackupCostRecord, limit)
+	result := make([]*CostRecord, limit)
 	copy(result, ca.records[start:])
 	return result
 }

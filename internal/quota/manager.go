@@ -695,7 +695,7 @@ func (m *Manager) GetGracePeriodInfo(quotaID string) (time.Duration, *time.Time)
 // RecordAdjustment 记录配额调整
 func (m *Manager) RecordAdjustment(quotaID string, hardDelta, softDelta int64, reason string) {
 	// 记录调整历史（可扩展为持久化）
-	adjustment := QuotaAdjustment{
+	adjustment := Adjustment{
 		QuotaID:    quotaID,
 		HardDelta:  hardDelta,
 		SoftDelta:  softDelta,

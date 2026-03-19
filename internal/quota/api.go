@@ -679,7 +679,7 @@ func (a *API) GetLimits(c *gin.Context) {
 // ========== 配额状态 API ==========
 
 // QuotaStatus 配额状态
-type QuotaStatus struct {
+type Status struct {
 	QuotaID        string     `json:"quotaId"`
 	Type           QuotaType  `json:"type"`
 	TargetID       string     `json:"targetId"`
@@ -728,7 +728,7 @@ func (a *API) GetQuotaStatus(c *gin.Context) {
 		return
 	}
 
-	status := QuotaStatus{
+	status := Status{
 		QuotaID:        quota.ID,
 		Type:           quota.Type,
 		TargetID:       quota.TargetID,
@@ -856,7 +856,7 @@ func (a *API) GetViolations(c *gin.Context) {
 // ========== 辅助功能 ==========
 
 // QuotaAdjustment 配额调整记录
-type QuotaAdjustment struct {
+type Adjustment struct {
 	QuotaID    string    `json:"quotaId"`
 	HardDelta  int64     `json:"hardDelta"`
 	SoftDelta  int64     `json:"softDelta"`

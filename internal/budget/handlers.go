@@ -11,11 +11,11 @@ import (
 
 // Handlers HTTP处理器
 type Handlers struct {
-	manager *BudgetManager
+	manager *Manager
 }
 
 // NewHandlers 创建处理器
-func NewHandlers(manager *BudgetManager) *Handlers {
+func NewHandlers(manager *Manager) *Handlers {
 	return &Handlers{
 		manager: manager,
 	}
