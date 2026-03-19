@@ -13,7 +13,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/quota/optimizer/optimizer.go",
 			"code": "547: \t// 检查变化是否足够大\n548: \tchangePercent := float64(abs(int64(suggestedLimit)-int64(usage.HardLimit))) / float64(usage.HardLimit)\n549: \tif changePercent \u003c cfg.AdjustmentThreshold {\n",
 			"line": "548",
-			"column": "58",
+			"column": "36",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -29,7 +29,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/quota/optimizer/optimizer.go",
 			"code": "547: \t// 检查变化是否足够大\n548: \tchangePercent := float64(abs(int64(suggestedLimit)-int64(usage.HardLimit))) / float64(usage.HardLimit)\n549: \tif changePercent \u003c cfg.AdjustmentThreshold {\n",
 			"line": "548",
-			"column": "36",
+			"column": "58",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -91,8 +91,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion uint64 -\u003e int",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "377: \t\t\tif name == \"Temperature_Celsius\" || name == \"Airflow_Temperature_Cel\" {\n378: \t\t\t\tinfo.Temperature = int(rawValue)\n379: \t\t\t\tattr.Unit = \"°C\"\n",
-			"line": "378",
+			"code": "383: \t\t\tif name == \"Temperature_Celsius\" || name == \"Airflow_Temperature_Cel\" {\n384: \t\t\t\tinfo.Temperature = int(rawValue)\n385: \t\t\t\tattr.Unit = \"°C\"\n",
+			"line": "384",
 			"column": "27",
 			"nosec": false,
 			"suppressions": null
@@ -139,8 +139,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion rune -\u003e uint32",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
-			"code": "1351: \t\tfor _, c := range key {\n1352: \t\t\thash = hash*31 + uint32(c)\n1353: \t\t}\n",
-			"line": "1352",
+			"code": "1371: \t\tfor _, c := range key {\n1372: \t\t\thash = hash*31 + uint32(c)\n1373: \t\t}\n",
+			"line": "1372",
 			"column": "27",
 			"nosec": false,
 			"suppressions": null
@@ -155,8 +155,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion rune -\u003e uint32",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
-			"code": "1294: \t\tfor _, c := range key {\n1295: \t\t\thash = hash*31 + uint32(c)\n1296: \t\t}\n",
-			"line": "1295",
+			"code": "1314: \t\tfor _, c := range key {\n1315: \t\t\thash = hash*31 + uint32(c)\n1316: \t\t}\n",
+			"line": "1315",
 			"column": "27",
 			"nosec": false,
 			"suppressions": null
@@ -267,8 +267,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int64 -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/mfa.go",
-			"code": "173: \tvar buf [8]byte\n174: \tbinary.BigEndian.PutUint64(buf[:], uint64(timeStep))\n175: \n",
-			"line": "174",
+			"code": "175: \tvar buf [8]byte\n176: \tbinary.BigEndian.PutUint64(buf[:], uint64(timeStep))\n177: \n",
+			"line": "176",
 			"column": "43",
 			"nosec": false,
 			"suppressions": null
@@ -557,7 +557,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/health/disk_unix.go",
 			"code": "14: \t}\n15: \treturn stat.Blocks * uint64(stat.Bsize), stat.Bfree * uint64(stat.Bsize), nil\n16: }\n",
 			"line": "15",
-			"column": "62",
+			"column": "29",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -573,7 +573,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/health/disk_unix.go",
 			"code": "14: \t}\n15: \treturn stat.Blocks * uint64(stat.Bsize), stat.Bfree * uint64(stat.Bsize), nil\n16: }\n",
 			"line": "15",
-			"column": "29",
+			"column": "62",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -715,8 +715,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
-			"code": "802: \t\thealth.AlertCount++\n803: \t} else if health.PendingSectors \u003e= uint64(m.config.PendingWarning) {\n804: \t\tm.sendAlert(Alert{\n",
-			"line": "803",
+			"code": "819: \t\thealth.AlertCount++\n820: \t} else if health.PendingSectors \u003e= uint64(m.config.PendingWarning) {\n821: \t\tm.sendAlert(Alert{\n",
+			"line": "820",
 			"column": "43",
 			"nosec": false,
 			"suppressions": null
@@ -731,8 +731,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
-			"code": "789: \t// 待映射扇区告警\n790: \tif health.PendingSectors \u003e= uint64(m.config.PendingCritical) {\n791: \t\tm.sendAlert(Alert{\n",
-			"line": "790",
+			"code": "806: \t// 待映射扇区告警\n807: \tif health.PendingSectors \u003e= uint64(m.config.PendingCritical) {\n808: \t\tm.sendAlert(Alert{\n",
+			"line": "807",
 			"column": "36",
 			"nosec": false,
 			"suppressions": null
@@ -747,8 +747,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
-			"code": "773: \t\thealth.AlertCount++\n774: \t} else if health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedWarning) {\n775: \t\tm.sendAlert(Alert{\n",
-			"line": "774",
+			"code": "790: \t\thealth.AlertCount++\n791: \t} else if health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedWarning) {\n792: \t\tm.sendAlert(Alert{\n",
+			"line": "791",
 			"column": "47",
 			"nosec": false,
 			"suppressions": null
@@ -763,8 +763,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
-			"code": "758: \t// 重分配扇区告警\n759: \tif health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedCritical) {\n760: \t\tm.sendAlert(Alert{\n",
-			"line": "759",
+			"code": "775: \t// 重分配扇区告警\n776: \tif health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedCritical) {\n777: \t\tm.sendAlert(Alert{\n",
+			"line": "776",
 			"column": "40",
 			"nosec": false,
 			"suppressions": null
@@ -779,8 +779,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
-			"code": "653: \t\t\tscore -= 30\n654: \t\t} else if health.PendingSectors \u003e= uint64(m.config.PendingWarning) {\n655: \t\t\tscore -= 15\n",
-			"line": "654",
+			"code": "670: \t\t\tscore -= 30\n671: \t\t} else if health.PendingSectors \u003e= uint64(m.config.PendingWarning) {\n672: \t\t\tscore -= 15\n",
+			"line": "671",
 			"column": "44",
 			"nosec": false,
 			"suppressions": null
@@ -795,8 +795,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
-			"code": "651: \tif health.PendingSectors \u003e 0 {\n652: \t\tif health.PendingSectors \u003e= uint64(m.config.PendingCritical) {\n653: \t\t\tscore -= 30\n",
-			"line": "652",
+			"code": "668: \tif health.PendingSectors \u003e 0 {\n669: \t\tif health.PendingSectors \u003e= uint64(m.config.PendingCritical) {\n670: \t\t\tscore -= 30\n",
+			"line": "669",
 			"column": "37",
 			"nosec": false,
 			"suppressions": null
@@ -811,8 +811,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
-			"code": "642: \t\t\tscore -= 40\n643: \t\t} else if health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedWarning) {\n644: \t\t\tscore -= 20\n",
-			"line": "643",
+			"code": "659: \t\t\tscore -= 40\n660: \t\t} else if health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedWarning) {\n661: \t\t\tscore -= 20\n",
+			"line": "660",
 			"column": "48",
 			"nosec": false,
 			"suppressions": null
@@ -827,8 +827,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/smart_monitor.go",
-			"code": "640: \tif health.ReallocatedSectors \u003e 0 {\n641: \t\tif health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedCritical) {\n642: \t\t\tscore -= 40\n",
-			"line": "641",
+			"code": "657: \tif health.ReallocatedSectors \u003e 0 {\n658: \t\tif health.ReallocatedSectors \u003e= uint64(m.config.ReallocatedCritical) {\n659: \t\t\tscore -= 40\n",
+			"line": "658",
 			"column": "41",
 			"nosec": false,
 			"suppressions": null
@@ -843,8 +843,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/capacity_planning.go",
-			"code": "326: func (p *CapacityPlanner) linearForecast(currentBytes uint64, dailyGrowth uint64, days int) uint64 {\n327: \treturn currentBytes + dailyGrowth*uint64(days)\n328: }\n",
-			"line": "327",
+			"code": "329: func (p *CapacityPlanner) linearForecast(currentBytes uint64, dailyGrowth uint64, days int) uint64 {\n330: \treturn currentBytes + dailyGrowth*uint64(days)\n331: }\n",
+			"line": "330",
 			"column": "42",
 			"nosec": false,
 			"suppressions": null
@@ -875,8 +875,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "449: \tif attr, ok := info.SmartAttributes[\"UDMA_CRC_Error_Count\"]; ok {\n450: \t\tif attr.RawValue \u003e uint64(thresholds.UDMACRCErrorWarning) {\n451: \t\t\tscore -= 10\n",
-			"line": "450",
+			"code": "455: \tif attr, ok := info.SmartAttributes[\"UDMA_CRC_Error_Count\"]; ok {\n456: \t\tif attr.RawValue \u003e uint64(thresholds.UDMACRCErrorWarning) {\n457: \t\t\tscore -= 10\n",
+			"line": "456",
 			"column": "28",
 			"nosec": false,
 			"suppressions": null
@@ -891,8 +891,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "441: \t\t\t})\n442: \t\t} else if attr.RawValue \u003e uint64(thresholds.PendingSectorWarning) {\n443: \t\t\tscore -= 10\n",
-			"line": "442",
+			"code": "447: \t\t\t})\n448: \t\t} else if attr.RawValue \u003e uint64(thresholds.PendingSectorWarning) {\n449: \t\t\tscore -= 10\n",
+			"line": "448",
 			"column": "35",
 			"nosec": false,
 			"suppressions": null
@@ -907,8 +907,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "432: \tif attr, ok := info.SmartAttributes[\"Current_Pending_Sector\"]; ok {\n433: \t\tif attr.RawValue \u003e uint64(thresholds.PendingSectorCritical) {\n434: \t\t\tscore -= 25\n",
-			"line": "433",
+			"code": "438: \tif attr, ok := info.SmartAttributes[\"Current_Pending_Sector\"]; ok {\n439: \t\tif attr.RawValue \u003e uint64(thresholds.PendingSectorCritical) {\n440: \t\t\tscore -= 25\n",
+			"line": "439",
 			"column": "28",
 			"nosec": false,
 			"suppressions": null
@@ -923,8 +923,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "424: \t\t\t})\n425: \t\t} else if attr.RawValue \u003e uint64(thresholds.ReallocatedSectorWarning) {\n426: \t\t\tscore -= 15\n",
-			"line": "425",
+			"code": "430: \t\t\t})\n431: \t\t} else if attr.RawValue \u003e uint64(thresholds.ReallocatedSectorWarning) {\n432: \t\t\tscore -= 15\n",
+			"line": "431",
 			"column": "35",
 			"nosec": false,
 			"suppressions": null
@@ -939,8 +939,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint64",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "415: \tif attr, ok := info.SmartAttributes[\"Reallocated_Sector_Ct\"]; ok {\n416: \t\tif attr.RawValue \u003e uint64(thresholds.ReallocatedSectorCritical) {\n417: \t\t\tscore -= 30\n",
-			"line": "416",
+			"code": "421: \tif attr, ok := info.SmartAttributes[\"Reallocated_Sector_Ct\"]; ok {\n422: \t\tif attr.RawValue \u003e uint64(thresholds.ReallocatedSectorCritical) {\n423: \t\t\tscore -= 30\n",
+			"line": "422",
 			"column": "28",
 			"nosec": false,
 			"suppressions": null
@@ -955,8 +955,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint32",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
-			"code": "1354: \t\t// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值\n1355: \t\tshardIndexVal := hash % uint32(len(pool.Shards))\n1356: \t\tif idx, err := safeguards.SafeUint64ToInt(uint64(shardIndexVal)); err == nil {\n",
-			"line": "1355",
+			"code": "1374: \t\t// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值\n1375: \t\tshardIndexVal := hash % uint32(len(pool.Shards))\n1376: \t\tif idx, err := safeguards.SafeUint64ToInt(uint64(shardIndexVal)); err == nil {\n",
+			"line": "1375",
 			"column": "33",
 			"nosec": false,
 			"suppressions": null
@@ -971,8 +971,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e uint32",
 			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
-			"code": "1297: \t\t// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值\n1298: \t\tshardIndexVal := hash % uint32(len(pool.Shards))\n1299: \t\tif idx, err := safeguards.SafeUint64ToInt(uint64(shardIndexVal)); err == nil {\n",
-			"line": "1298",
+			"code": "1317: \t\t// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值\n1318: \t\tshardIndexVal := hash % uint32(len(pool.Shards))\n1319: \t\tif idx, err := safeguards.SafeUint64ToInt(uint64(shardIndexVal)); err == nil {\n",
+			"line": "1318",
 			"column": "33",
 			"nosec": false,
 			"suppressions": null
@@ -1019,8 +1019,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e rune",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/bandwidth_report.go",
-			"code": "771: func formatFloat(val float64, precision int) string {\n772: \tformat := \"%.\" + string(rune('0'+precision)) + \"f\"\n773: \treturn sprintf(format, val)\n",
-			"line": "772",
+			"code": "773: func formatFloat(val float64, precision int) string {\n774: \tformat := \"%.\" + string(rune('0'+precision)) + \"f\"\n775: \treturn sprintf(format, val)\n",
+			"line": "774",
 			"column": "30",
 			"nosec": false,
 			"suppressions": null
@@ -1163,8 +1163,8 @@
 			"rule_id": "G115",
 			"details": "integer overflow conversion int -\u003e byte",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
-			"code": "267: \tfor i := len(plaintext); i \u003c len(padded); i++ {\n268: \t\tpadded[i] = byte(padding)\n269: \t}\n",
-			"line": "268",
+			"code": "268: \tfor i := len(plaintext); i \u003c len(padded); i++ {\n269: \t\tpadded[i] = byte(padding)\n270: \t}\n",
+			"line": "269",
 			"column": "19",
 			"nosec": false,
 			"suppressions": null
@@ -1211,8 +1211,8 @@
 			"rule_id": "G402",
 			"details": "TLS InsecureSkipVerify may be set to true.",
 			"file": "/home/mrafter/clawd/nas-os/internal/auth/ldap.go",
-			"code": "152: \t\ttlsConfig := \u0026tls.Config{\n153: \t\t\tInsecureSkipVerify: skipVerify,\n154: \t\t}\n",
-			"line": "153",
+			"code": "158: \t\ttlsConfig := \u0026tls.Config{\n159: \t\t\tInsecureSkipVerify: skipVerify,\n160: \t\t}\n",
+			"line": "159",
 			"column": "24",
 			"nosec": false,
 			"suppressions": null
@@ -1259,8 +1259,8 @@
 			"rule_id": "G101",
 			"details": "Potential hardcoded credentials",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "1321: \t// 使用 refresh token 换取 access token\n1322: \ttokenURL := \"https://login.microsoftonline.com/common/oauth2/v2.0/token\"\n1323: \tdata := url.Values{\n",
-			"line": "1322",
+			"code": "1326: \t// 使用 refresh token 换取 access token\n1327: \ttokenURL := \"https://login.microsoftonline.com/common/oauth2/v2.0/token\"\n1328: \tdata := url.Values{\n",
+			"line": "1327",
 			"column": "2",
 			"nosec": false,
 			"suppressions": null
@@ -1275,8 +1275,8 @@
 			"rule_id": "G101",
 			"details": "Potential hardcoded credentials",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "669: \t// 使用 refresh token 换取 access token\n670: \ttokenURL := \"https://oauth2.googleapis.com/token\"\n671: \tdata := url.Values{\n",
-			"line": "670",
+			"code": "674: \t// 使用 refresh token 换取 access token\n675: \ttokenURL := \"https://oauth2.googleapis.com/token\"\n676: \tdata := url.Values{\n",
+			"line": "675",
 			"column": "2",
 			"nosec": false,
 			"suppressions": null
@@ -1291,8 +1291,8 @@
 			"rule_id": "G101",
 			"details": "Potential hardcoded credentials",
 			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
-			"code": "378: func GetWeChatOAuth2Config(appID, appSecret, redirectURL string) OAuth2Provider {\n379: \treturn OAuth2Provider{\n380: \t\tName:         \"wechat\",\n381: \t\tClientID:     appID,\n382: \t\tClientSecret: appSecret,\n383: \t\tAuthURL:      \"https://open.weixin.qq.com/connect/qrconnect\",\n384: \t\tTokenURL:     \"https://api.weixin.qq.com/sns/oauth2/access_token\",\n385: \t\tUserInfoURL:  \"https://api.weixin.qq.com/sns/userinfo\",\n386: \t\tRedirectURL:  redirectURL,\n387: \t\tScopes:       []string{\"snsapi_login\"},\n388: \t\tEnabled:      true,\n389: \t}\n390: }\n",
-			"line": "379-389",
+			"code": "382: func GetWeChatOAuth2Config(appID, appSecret, redirectURL string) OAuth2Provider {\n383: \treturn OAuth2Provider{\n384: \t\tName:         \"wechat\",\n385: \t\tClientID:     appID,\n386: \t\tClientSecret: appSecret,\n387: \t\tAuthURL:      \"https://open.weixin.qq.com/connect/qrconnect\",\n388: \t\tTokenURL:     \"https://api.weixin.qq.com/sns/oauth2/access_token\",\n389: \t\tUserInfoURL:  \"https://api.weixin.qq.com/sns/userinfo\",\n390: \t\tRedirectURL:  redirectURL,\n391: \t\tScopes:       []string{\"snsapi_login\"},\n392: \t\tEnabled:      true,\n393: \t}\n394: }\n",
+			"line": "383-393",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -1307,8 +1307,8 @@
 			"rule_id": "G101",
 			"details": "Potential hardcoded credentials",
 			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
-			"code": "363: func GetMicrosoftOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n364: \treturn OAuth2Provider{\n365: \t\tName:         \"microsoft\",\n366: \t\tClientID:     clientID,\n367: \t\tClientSecret: clientSecret,\n368: \t\tAuthURL:      \"https://login.microsoftonline.com/common/oauth2/v2.0/authorize\",\n369: \t\tTokenURL:     \"https://login.microsoftonline.com/common/oauth2/v2.0/token\",\n370: \t\tUserInfoURL:  \"https://graph.microsoft.com/v1.0/me\",\n371: \t\tRedirectURL:  redirectURL,\n372: \t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n373: \t\tEnabled:      true,\n374: \t}\n375: }\n",
-			"line": "364-374",
+			"code": "367: func GetMicrosoftOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n368: \treturn OAuth2Provider{\n369: \t\tName:         \"microsoft\",\n370: \t\tClientID:     clientID,\n371: \t\tClientSecret: clientSecret,\n372: \t\tAuthURL:      \"https://login.microsoftonline.com/common/oauth2/v2.0/authorize\",\n373: \t\tTokenURL:     \"https://login.microsoftonline.com/common/oauth2/v2.0/token\",\n374: \t\tUserInfoURL:  \"https://graph.microsoft.com/v1.0/me\",\n375: \t\tRedirectURL:  redirectURL,\n376: \t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n377: \t\tEnabled:      true,\n378: \t}\n379: }\n",
+			"line": "368-378",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -1323,8 +1323,8 @@
 			"rule_id": "G101",
 			"details": "Potential hardcoded credentials",
 			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
-			"code": "348: func GetGitHubOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n349: \treturn OAuth2Provider{\n350: \t\tName:         \"github\",\n351: \t\tClientID:     clientID,\n352: \t\tClientSecret: clientSecret,\n353: \t\tAuthURL:      \"https://github.com/login/oauth/authorize\",\n354: \t\tTokenURL:     \"https://github.com/login/oauth/access_token\",\n355: \t\tUserInfoURL:  \"https://api.github.com/user\",\n356: \t\tRedirectURL:  redirectURL,\n357: \t\tScopes:       []string{\"read:user\", \"user:email\"},\n358: \t\tEnabled:      true,\n359: \t}\n360: }\n",
-			"line": "349-359",
+			"code": "352: func GetGitHubOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n353: \treturn OAuth2Provider{\n354: \t\tName:         \"github\",\n355: \t\tClientID:     clientID,\n356: \t\tClientSecret: clientSecret,\n357: \t\tAuthURL:      \"https://github.com/login/oauth/authorize\",\n358: \t\tTokenURL:     \"https://github.com/login/oauth/access_token\",\n359: \t\tUserInfoURL:  \"https://api.github.com/user\",\n360: \t\tRedirectURL:  redirectURL,\n361: \t\tScopes:       []string{\"read:user\", \"user:email\"},\n362: \t\tEnabled:      true,\n363: \t}\n364: }\n",
+			"line": "353-363",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -1339,8 +1339,8 @@
 			"rule_id": "G101",
 			"details": "Potential hardcoded credentials",
 			"file": "/home/mrafter/clawd/nas-os/internal/auth/oauth2.go",
-			"code": "333: func GetGoogleOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n334: \treturn OAuth2Provider{\n335: \t\tName:         \"google\",\n336: \t\tClientID:     clientID,\n337: \t\tClientSecret: clientSecret,\n338: \t\tAuthURL:      \"https://accounts.google.com/o/oauth2/v2/auth\",\n339: \t\tTokenURL:     \"https://oauth2.googleapis.com/token\",\n340: \t\tUserInfoURL:  \"https://www.googleapis.com/oauth2/v2/userinfo\",\n341: \t\tRedirectURL:  redirectURL,\n342: \t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n343: \t\tEnabled:      true,\n344: \t}\n345: }\n",
-			"line": "334-344",
+			"code": "337: func GetGoogleOAuth2Config(clientID, clientSecret, redirectURL string) OAuth2Provider {\n338: \treturn OAuth2Provider{\n339: \t\tName:         \"google\",\n340: \t\tClientID:     clientID,\n341: \t\tClientSecret: clientSecret,\n342: \t\tAuthURL:      \"https://accounts.google.com/o/oauth2/v2/auth\",\n343: \t\tTokenURL:     \"https://oauth2.googleapis.com/token\",\n344: \t\tUserInfoURL:  \"https://www.googleapis.com/oauth2/v2/userinfo\",\n345: \t\tRedirectURL:  redirectURL,\n346: \t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n347: \t\tEnabled:      true,\n348: \t}\n349: }\n",
+			"line": "338-348",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -1348,7 +1348,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/plugins/filemanager-enhance/main.go",
@@ -1361,7 +1364,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1374,7 +1380,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1387,7 +1396,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1400,7 +1412,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1413,7 +1428,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1426,7 +1444,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1439,7 +1460,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1452,7 +1476,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1465,7 +1492,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1478,7 +1508,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1491,7 +1524,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1504,7 +1540,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1517,7 +1556,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1530,7 +1572,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1543,7 +1588,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1556,7 +1604,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1569,7 +1620,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1582,7 +1636,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1595,7 +1652,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1608,7 +1668,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1621,7 +1684,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1634,7 +1700,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1647,7 +1716,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1660,7 +1732,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1673,7 +1748,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1686,7 +1764,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1699,7 +1780,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1712,7 +1796,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1725,7 +1812,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1738,7 +1828,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/webdav/server.go",
@@ -1751,7 +1844,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
@@ -1764,7 +1860,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
@@ -1777,7 +1876,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
@@ -1790,7 +1892,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -1803,7 +1908,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -1816,7 +1924,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/smb/config.go",
@@ -1829,7 +1940,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
@@ -1842,7 +1956,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/encryption.go",
@@ -1855,7 +1972,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/scanner/permission_checker.go",
@@ -1868,7 +1988,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/docker/app_version.go",
@@ -1881,7 +2004,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/restore.go",
@@ -1894,12 +2020,15 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "838: \t\t}\n839: \t\treturn os.WriteFile(dstPath, data, info.Mode())\n840: \t})\n",
-			"line": "839",
+			"code": "873: \t\t}\n874: \t\treturn os.WriteFile(dstPath, data, info.Mode())\n875: \t})\n",
+			"line": "874",
 			"column": "22",
 			"nosec": false,
 			"suppressions": null
@@ -1907,12 +2036,15 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
-			"code": "402: \t// 写入目标文件\n403: \treturn os.WriteFile(dstPath, plaintext, 0600)\n404: }\n",
-			"line": "403",
+			"code": "403: \t// 写入目标文件\n404: \treturn os.WriteFile(dstPath, plaintext, 0600)\n405: }\n",
+			"line": "404",
 			"column": "21",
 			"nosec": false,
 			"suppressions": null
@@ -1920,12 +2052,15 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
-			"code": "384: \t// 写入目标文件\n385: \treturn os.WriteFile(dstPath, ciphertext, 0600)\n386: }\n",
-			"line": "385",
+			"code": "385: \t// 写入目标文件\n386: \treturn os.WriteFile(dstPath, ciphertext, 0600)\n387: }\n",
+			"line": "386",
 			"column": "21",
 			"nosec": false,
 			"suppressions": null
@@ -1933,7 +2068,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/advanced/manager.go",
@@ -1946,7 +2084,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/advanced/manager.go",
@@ -1959,7 +2100,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
 			"rule_id": "G703",
 			"details": "Path traversal via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/automation/action/action.go",
@@ -2027,8 +2171,8 @@
 			"rule_id": "G122",
 			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1019: \n1020: \t\tfile, err := os.Open(path)\n1021: \t\tif err != nil {\n",
-			"line": "1020",
+			"code": "1021: \n1022: \t\tfile, err := os.Open(path)\n1023: \t\tif err != nil {\n",
+			"line": "1022",
 			"column": "23",
 			"nosec": false,
 			"suppressions": null
@@ -2043,8 +2187,8 @@
 			"rule_id": "G122",
 			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "834: \n835: \t\tdata, err := os.ReadFile(path)\n836: \t\tif err != nil {\n",
-			"line": "835",
+			"code": "869: \n870: \t\tdata, err := os.ReadFile(path)\n871: \t\tif err != nil {\n",
+			"line": "870",
 			"column": "27",
 			"nosec": false,
 			"suppressions": null
@@ -2059,8 +2203,8 @@
 			"rule_id": "G122",
 			"details": "Filesystem operation in filepath.Walk/WalkDir callback uses race-prone path; consider root-scoped APIs (e.g. os.Root) to prevent symlink TOCTOU traversal",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
-			"code": "81: \n82: \t\tdata, err := os.ReadFile(path)\n83: \t\tif err != nil {\n",
-			"line": "82",
+			"code": "82: \n83: \t\tdata, err := os.ReadFile(path)\n84: \t\tif err != nil {\n",
+			"line": "83",
 			"column": "27",
 			"nosec": false,
 			"suppressions": null
@@ -2100,7 +2244,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
@@ -2113,7 +2260,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
@@ -2126,7 +2276,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
@@ -2139,7 +2292,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -2152,7 +2308,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -2165,7 +2324,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -2178,7 +2340,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -2191,7 +2356,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -2204,7 +2372,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -2217,7 +2388,10 @@
 		{
 			"severity": "HIGH",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
 			"rule_id": "G702",
 			"details": "Command injection via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/vm/manager.go",
@@ -2236,137 +2410,9 @@
 			},
 			"rule_id": "G118",
 			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
-			"file": "/home/mrafter/clawd/nas-os/internal/scheduler/executor.go",
-			"code": "114: \t\t\t// 先取消之前的 context，避免泄漏\n115: \t\t\tchildCtx, childCancel := context.WithTimeout(execCtx, timeout)\n116: \t\t\tparentCancel := cancel\n",
-			"line": "115",
-			"column": "48",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "400",
-				"url": "https://cwe.mitre.org/data/definitions/400.html"
-			},
-			"rule_id": "G118",
-			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
-			"file": "/home/mrafter/clawd/nas-os/internal/scheduler/executor.go",
-			"code": "107: \t// 创建可取消的上下文，设置默认超时\n108: \texecCtx, cancel := context.WithCancel(ctx)\n109: \n",
-			"line": "108",
-			"column": "39",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "400",
-				"url": "https://cwe.mitre.org/data/definitions/400.html"
-			},
-			"rule_id": "G118",
-			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
-			"file": "/home/mrafter/clawd/nas-os/internal/media/transcoder.go",
-			"code": "314: \t// 创建上下文\n315: \tjob.ctx, job.cancel = context.WithCancel(context.Background())\n316: \n",
-			"line": "315",
-			"column": "42",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "400",
-				"url": "https://cwe.mitre.org/data/definitions/400.html"
-			},
-			"rule_id": "G118",
-			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
-			"file": "/home/mrafter/clawd/nas-os/internal/media/streaming.go",
-			"code": "598: \n599: \tsession.ctx, session.cancel = context.WithCancel(context.Background())\n600: \n",
-			"line": "599",
-			"column": "50",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "400",
-				"url": "https://cwe.mitre.org/data/definitions/400.html"
-			},
-			"rule_id": "G118",
-			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
-			"file": "/home/mrafter/clawd/nas-os/internal/media/streaming.go",
-			"code": "486: \n487: \tsession.ctx, session.cancel = context.WithCancel(context.Background())\n488: \n",
-			"line": "487",
-			"column": "50",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "400",
-				"url": "https://cwe.mitre.org/data/definitions/400.html"
-			},
-			"rule_id": "G118",
-			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
-			"file": "/home/mrafter/clawd/nas-os/internal/media/streaming.go",
-			"code": "114: \n115: \tsession.ctx, session.cancel = context.WithCancel(context.Background())\n116: \n",
-			"line": "115",
-			"column": "50",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "400",
-				"url": "https://cwe.mitre.org/data/definitions/400.html"
-			},
-			"rule_id": "G118",
-			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
-			"file": "/home/mrafter/clawd/nas-os/internal/compress/service.go",
-			"code": "191: \ttaskID := s.parallelCompressor.progress.StartTime.Format(\"20060102-150405\")\n192: \ttaskCtx, cancel := context.WithCancel(ctx)\n193: \n",
-			"line": "192",
-			"column": "39",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "400",
-				"url": "https://cwe.mitre.org/data/definitions/400.html"
-			},
-			"rule_id": "G118",
-			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
-			"file": "/home/mrafter/clawd/nas-os/internal/backup/smart_manager_v2.go",
-			"code": "463: \n464: \tctx, cancel := context.WithCancel(sm.ctx)\n465: \tactiveJob := \u0026ActiveBackupJobV2{\n",
-			"line": "464",
-			"column": "35",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "400",
-				"url": "https://cwe.mitre.org/data/definitions/400.html"
-			},
-			"rule_id": "G118",
-			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "573: \t// 创建带超时的上下文\n574: \trestoreCtx, cancel := context.WithTimeout(ctx, DefaultRestoreTimeout)\n575: \tm.cancels[task.ID] = cancel\n",
-			"line": "574",
+			"code": "608: \t// 创建带超时的上下文\n609: \trestoreCtx, cancel := context.WithTimeout(ctx, DefaultRestoreTimeout)\n610: \tm.cancels[task.ID] = cancel\n",
+			"line": "609",
 			"column": "43",
 			"nosec": false,
 			"suppressions": null
@@ -2381,8 +2427,8 @@
 			"rule_id": "G118",
 			"details": "context cancellation function returned by WithCancel/WithTimeout/WithDeadline is not called",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "322: \t}\n323: \tbackupCtx, cancel := context.WithTimeout(ctx, timeout)\n324: \tm.cancels[task.ID] = cancel\n",
-			"line": "323",
+			"code": "357: \t}\n358: \tbackupCtx, cancel := context.WithTimeout(ctx, timeout)\n359: \tm.cancels[task.ID] = cancel\n",
+			"line": "358",
 			"column": "42",
 			"nosec": false,
 			"suppressions": null
@@ -2390,12 +2436,15 @@
 		{
 			"severity": "MEDIUM",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "79",
+				"url": "https://cwe.mitre.org/data/definitions/79.html"
+			},
 			"rule_id": "G705",
 			"details": "XSS via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/automation/api/handlers.go",
-			"code": "415: \tw.Header().Set(\"Content-Disposition\", \"attachment; filename=template_\"+id+\".json\")\n416: \t_, _ = w.Write(data)\n417: }\n",
-			"line": "416",
+			"code": "430: \tw.Header().Set(\"Content-Disposition\", \"attachment; filename*=UTF-8''template_\"+safeDownloadID(id)+\".json\")\n431: \t_, _ = w.Write(data)\n432: }\n",
+			"line": "431",
 			"column": "16",
 			"nosec": false,
 			"suppressions": null
@@ -2403,12 +2452,15 @@
 		{
 			"severity": "MEDIUM",
 			"confidence": "HIGH",
-			"cwe": null,
+			"cwe": {
+				"id": "79",
+				"url": "https://cwe.mitre.org/data/definitions/79.html"
+			},
 			"rule_id": "G705",
 			"details": "XSS via taint analysis",
 			"file": "/home/mrafter/clawd/nas-os/internal/automation/api/handlers.go",
-			"code": "279: \tw.Header().Set(\"Content-Disposition\", \"attachment; filename=workflow_\"+id+\".json\")\n280: \t_, _ = w.Write(data)\n281: }\n",
-			"line": "280",
+			"code": "294: \tw.Header().Set(\"Content-Disposition\", \"attachment; filename*=UTF-8''workflow_\"+safeDownloadID(id)+\".json\")\n295: \t_, _ = w.Write(data)\n296: }\n",
+			"line": "295",
 			"column": "16",
 			"nosec": false,
 			"suppressions": null
@@ -2487,8 +2539,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/snapshot/executor.go",
-			"code": "123: \n124: \tcmd := exec.CommandContext(ctx, \"sh\", \"-c\", script)\n125: \tcmd.Env = append(cmd.Env,\n",
-			"line": "124",
+			"code": "193: \n194: \tcmd := exec.CommandContext(ctx, \"sh\", \"-c\", script)\n195: \tcmd.Env = append(cmd.Env,\n",
+			"line": "194",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -2935,23 +2987,7 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "324: \t} else {\n325: \t\tcmd = exec.Command(\"ip\", \"link\", \"set\", name, \"down\")\n326: \t}\n",
-			"line": "325",
-			"column": "9",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "78",
-				"url": "https://cwe.mitre.org/data/definitions/78.html"
-			},
-			"rule_id": "G204",
-			"details": "Subprocess launched with variable",
-			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "322: \tif up {\n323: \t\tcmd = exec.Command(\"ip\", \"link\", \"set\", name, \"up\")\n324: \t} else {\n",
+			"code": "322: \t} else {\n323: \t\tcmd = exec.Command(\"ip\", \"link\", \"set\", name, \"down\")\n324: \t}\n",
 			"line": "323",
 			"column": "9",
 			"nosec": false,
@@ -2967,24 +3003,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "270: \t\t// 先删除旧的默认路由\n271: \t\t_ = exec.Command(\"ip\", \"route\", \"del\", \"default\", \"dev\", name).Run()\n272: \n",
-			"line": "271",
-			"column": "7",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "78",
-				"url": "https://cwe.mitre.org/data/definitions/78.html"
-			},
-			"rule_id": "G204",
-			"details": "Subprocess launched with variable",
-			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "261: \n262: \t\tcmd = exec.Command(\"ip\", \"addr\", \"add\", addr, \"dev\", name)\n263: \t\tif err := cmd.Run(); err != nil {\n",
-			"line": "262",
+			"code": "320: \tif up {\n321: \t\tcmd = exec.Command(\"ip\", \"link\", \"set\", name, \"up\")\n322: \t} else {\n",
+			"line": "321",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -2999,8 +3019,40 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "258: \t\taddr := fmt.Sprintf(\"%s/%s\", config.IP, config.Netmask)\n259: \t\tcmd := exec.Command(\"ip\", \"addr\", \"flush\", \"dev\", name)\n260: \t\t_ = cmd.Run()\n",
-			"line": "259",
+			"code": "268: \t\t// 先删除旧的默认路由\n269: \t\t_ = exec.Command(\"ip\", \"route\", \"del\", \"default\", \"dev\", name).Run()\n270: \n",
+			"line": "269",
+			"column": "7",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
+			"code": "259: \n260: \t\tcmd = exec.Command(\"ip\", \"addr\", \"add\", addr, \"dev\", name)\n261: \t\tif err := cmd.Run(); err != nil {\n",
+			"line": "260",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
+			"code": "256: \t\taddr := fmt.Sprintf(\"%s/%s\", config.IP, config.Netmask)\n257: \t\tcmd := exec.Command(\"ip\", \"addr\", \"flush\", \"dev\", name)\n258: \t\t_ = cmd.Run()\n",
+			"line": "257",
 			"column": "10",
 			"nosec": false,
 			"suppressions": null
@@ -3015,8 +3067,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "246: \t\t// 使用 DHCP\n247: \t\tcmd := exec.Command(\"dhclient\", name)\n248: \t\tif err := cmd.Run(); err != nil {\n",
-			"line": "247",
+			"code": "244: \t\t// 使用 DHCP\n245: \t\tcmd := exec.Command(\"dhclient\", name)\n246: \t\tif err := cmd.Run(); err != nil {\n",
+			"line": "245",
 			"column": "10",
 			"nosec": false,
 			"suppressions": null
@@ -3031,8 +3083,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "141: \t// 读取路由表\n142: \tcmd := exec.Command(\"ip\", \"route\", \"show\", \"dev\", iface)\n143: \toutput, err := cmd.Output()\n",
-			"line": "142",
+			"code": "139: \t// 读取路由表\n140: \tcmd := exec.Command(\"ip\", \"route\", \"show\", \"dev\", iface)\n141: \toutput, err := cmd.Output()\n",
+			"line": "140",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -3287,7 +3339,23 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "574: func (m *DiskHealthMonitor) GetTestStatus(device string) (string, error) {\n575: \tcmd := exec.Command(\"smartctl\", \"-l\", \"selftest\", device)\n576: \toutput, err := cmd.Output()\n",
+			"code": "580: func (m *DiskHealthMonitor) GetTestStatus(device string) (string, error) {\n581: \tcmd := exec.Command(\"smartctl\", \"-l\", \"selftest\", device)\n582: \toutput, err := cmd.Output()\n",
+			"line": "581",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
+			"code": "574: func (m *DiskHealthMonitor) RunLongTest(device string) error {\n575: \tcmd := exec.Command(\"smartctl\", \"-t\", \"long\", device)\n576: \treturn cmd.Run()\n",
 			"line": "575",
 			"column": "9",
 			"nosec": false,
@@ -3303,24 +3371,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "568: func (m *DiskHealthMonitor) RunLongTest(device string) error {\n569: \tcmd := exec.Command(\"smartctl\", \"-t\", \"long\", device)\n570: \treturn cmd.Run()\n",
+			"code": "568: func (m *DiskHealthMonitor) RunShortTest(device string) error {\n569: \tcmd := exec.Command(\"smartctl\", \"-t\", \"short\", device)\n570: \treturn cmd.Run()\n",
 			"line": "569",
-			"column": "9",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "78",
-				"url": "https://cwe.mitre.org/data/definitions/78.html"
-			},
-			"rule_id": "G204",
-			"details": "Subprocess launched with variable",
-			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "562: func (m *DiskHealthMonitor) RunShortTest(device string) error {\n563: \tcmd := exec.Command(\"smartctl\", \"-t\", \"short\", device)\n564: \treturn cmd.Run()\n",
-			"line": "563",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -3351,8 +3403,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1156: func (h *Handlers) extractTarGz(archivePath, destPath string, overwrite bool) error {\n1157: \tcmd := exec.Command(\"tar\", \"-xf\", archivePath, \"-C\", destPath)\n1158: \treturn cmd.Run()\n",
-			"line": "1157",
+			"code": "1158: func (h *Handlers) extractTarGz(archivePath, destPath string, overwrite bool) error {\n1159: \tcmd := exec.Command(\"tar\", \"-xf\", archivePath, \"-C\", destPath)\n1160: \treturn cmd.Run()\n",
+			"line": "1159",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -3367,7 +3419,23 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1091: \tif !overwrite {\n1092: \t\tcmd = exec.Command(\"unzip\", \"-n\", archivePath, \"-d\", destPath)\n1093: \t}\n",
+			"code": "1093: \tif !overwrite {\n1094: \t\tcmd = exec.Command(\"unzip\", \"-n\", archivePath, \"-d\", destPath)\n1095: \t}\n",
+			"line": "1094",
+			"column": "9",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "78",
+				"url": "https://cwe.mitre.org/data/definitions/78.html"
+			},
+			"rule_id": "G204",
+			"details": "Subprocess launched with variable",
+			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
+			"code": "1091: \t// 优先使用系统 unzip 命令\n1092: \tcmd := exec.Command(\"unzip\", \"-o\", archivePath, \"-d\", destPath)\n1093: \tif !overwrite {\n",
 			"line": "1092",
 			"column": "9",
 			"nosec": false,
@@ -3383,8 +3451,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1089: \t// 优先使用系统 unzip 命令\n1090: \tcmd := exec.Command(\"unzip\", \"-o\", archivePath, \"-d\", destPath)\n1091: \tif !overwrite {\n",
-			"line": "1090",
+			"code": "1034: func (h *Handlers) compressTarGz(srcPath, dstPath string, level int) error {\n1035: \tcmd := exec.Command(\"tar\", \"-czf\", dstPath, \"-C\", filepath.Dir(srcPath), filepath.Base(srcPath))\n1036: \treturn cmd.Run()\n",
+			"line": "1035",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -3399,8 +3467,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1032: func (h *Handlers) compressTarGz(srcPath, dstPath string, level int) error {\n1033: \tcmd := exec.Command(\"tar\", \"-czf\", dstPath, \"-C\", filepath.Dir(srcPath), filepath.Base(srcPath))\n1034: \treturn cmd.Run()\n",
-			"line": "1033",
+			"code": "417: \n418: \tcmd := exec.CommandContext(ctx, \"ffprobe\",\n419: \t\t\"-v\", \"error\",\n420: \t\t\"-select_streams\", \"v:0\",\n421: \t\t\"-show_entries\", \"stream=width,height,duration\",\n422: \t\t\"-of\", \"csv=p=0\",\n423: \t\tpath,\n424: \t)\n425: \n",
+			"line": "418-424",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -3415,24 +3483,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "415: \n416: \tcmd := exec.CommandContext(ctx, \"ffprobe\",\n417: \t\t\"-v\", \"error\",\n418: \t\t\"-select_streams\", \"v:0\",\n419: \t\t\"-show_entries\", \"stream=width,height,duration\",\n420: \t\t\"-of\", \"csv=p=0\",\n421: \t\tpath,\n422: \t)\n423: \n",
-			"line": "416-422",
-			"column": "9",
-			"nosec": false,
-			"suppressions": null
-		},
-		{
-			"severity": "MEDIUM",
-			"confidence": "HIGH",
-			"cwe": {
-				"id": "78",
-				"url": "https://cwe.mitre.org/data/definitions/78.html"
-			},
-			"rule_id": "G204",
-			"details": "Subprocess launched with variable",
-			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "385: \n386: \tcmd := exec.CommandContext(ctx, \"ffmpeg\",\n387: \t\t\"-i\", path,\n388: \t\t\"-ss\", \"00:00:01\", // 跳到第1秒\n389: \t\t\"-vframes\", \"1\",\n390: \t\t\"-vf\", fmt.Sprintf(\"scale=%d:%d:force_original_aspect_ratio=decrease\", m.config.ThumbnailSize, m.config.ThumbnailSize),\n391: \t\t\"-q:v\", \"5\",\n392: \t\t\"-y\", outputFile,\n393: \t)\n394: \n",
-			"line": "386-393",
+			"code": "387: \n388: \tcmd := exec.CommandContext(ctx, \"ffmpeg\",\n389: \t\t\"-i\", path,\n390: \t\t\"-ss\", \"00:00:01\", // 跳到第1秒\n391: \t\t\"-vframes\", \"1\",\n392: \t\t\"-vf\", fmt.Sprintf(\"scale=%d:%d:force_original_aspect_ratio=decrease\", m.config.ThumbnailSize, m.config.ThumbnailSize),\n393: \t\t\"-q:v\", \"5\",\n394: \t\t\"-y\", outputFile,\n395: \t)\n396: \n",
+			"line": "388-395",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -4087,8 +4139,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "882: \t\tif !strings.HasSuffix(backupPath, \".gz\") {\n883: \t\t\tcmd = exec.Command(\"tar\", \"-tf\", backupPath)\n884: \t\t}\n",
-			"line": "883",
+			"code": "917: \t\tif !strings.HasSuffix(backupPath, \".gz\") {\n918: \t\t\tcmd = exec.Command(\"tar\", \"-tf\", backupPath)\n919: \t\t}\n",
+			"line": "918",
 			"column": "10",
 			"nosec": false,
 			"suppressions": null
@@ -4103,8 +4155,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "880: \tif strings.HasSuffix(backupPath, \".tar.gz\") || strings.HasSuffix(backupPath, \".tar\") {\n881: \t\tcmd := exec.Command(\"tar\", \"-tzf\", backupPath)\n882: \t\tif !strings.HasSuffix(backupPath, \".gz\") {\n",
-			"line": "881",
+			"code": "915: \tif strings.HasSuffix(backupPath, \".tar.gz\") || strings.HasSuffix(backupPath, \".tar\") {\n916: \t\tcmd := exec.Command(\"tar\", \"-tzf\", backupPath)\n917: \t\tif !strings.HasSuffix(backupPath, \".gz\") {\n",
+			"line": "916",
 			"column": "10",
 			"nosec": false,
 			"suppressions": null
@@ -4119,8 +4171,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "617: \tif strings.HasSuffix(backupPath, \".tar.gz\") {\n618: \t\tcmd := exec.CommandContext(ctx, \"tar\", \"xzf\", backupPath, \"-C\", options.TargetPath)\n619: \t\tif output, err := cmd.CombinedOutput(); err != nil {\n",
-			"line": "618",
+			"code": "652: \tif strings.HasSuffix(backupPath, \".tar.gz\") {\n653: \t\tcmd := exec.CommandContext(ctx, \"tar\", \"xzf\", backupPath, \"-C\", options.TargetPath)\n654: \t\tif output, err := cmd.CombinedOutput(); err != nil {\n",
+			"line": "653",
 			"column": "10",
 			"nosec": false,
 			"suppressions": null
@@ -4135,8 +4187,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "477: \tscpArgs := []string{\"-P\", fmt.Sprintf(\"%d\", cfg.RemotePort), localTemp, remoteTarget}\n478: \tcmd = exec.CommandContext(ctx, \"scp\", scpArgs...)\n479: \tif output, err := cmd.CombinedOutput(); err != nil {\n",
-			"line": "478",
+			"code": "512: \tscpArgs := []string{\"-P\", fmt.Sprintf(\"%d\", cfg.RemotePort), localTemp, remoteTarget}\n513: \tcmd = exec.CommandContext(ctx, \"scp\", scpArgs...)\n514: \tif output, err := cmd.CombinedOutput(); err != nil {\n",
+			"line": "513",
 			"column": "8",
 			"nosec": false,
 			"suppressions": null
@@ -4151,8 +4203,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "460: \n461: \tcmd := exec.CommandContext(ctx, \"tar\", \"czf\", localTemp, \"-C\", cfg.Source, \".\")\n462: \tif output, err := cmd.CombinedOutput(); err != nil {\n",
-			"line": "461",
+			"code": "495: \n496: \tcmd := exec.CommandContext(ctx, \"tar\", \"czf\", localTemp, \"-C\", cfg.Source, \".\")\n497: \tif output, err := cmd.CombinedOutput(); err != nil {\n",
+			"line": "496",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -4167,8 +4219,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "426: \t\t// 使用 openssl 进行加密（通过环境变量传递密钥，避免命令行暴露）\n427: \t\tcmd := exec.CommandContext(ctx, \"openssl\", \"enc\", \"-aes-256-cbc\", \"-salt\", \"-in\", backupPath, \"-out\", encryptedPath, \"-pass\", \"env:NAS_BACKUP_KEY\")\n428: \t\tcmd.Env = append(os.Environ(), \"NAS_BACKUP_KEY=\"+encryptKey)\n",
-			"line": "427",
+			"code": "461: \t\t// 使用 openssl 进行加密（通过环境变量传递密钥，避免命令行暴露）\n462: \t\tcmd := exec.CommandContext(ctx, \"openssl\", \"enc\", \"-aes-256-cbc\", \"-salt\", \"-in\", backupPath, \"-out\", encryptedPath, \"-pass\", \"env:NAS_BACKUP_KEY\")\n463: \t\tcmd.Env = append(os.Environ(), \"NAS_BACKUP_KEY=\"+encryptKey)\n",
+			"line": "462",
 			"column": "10",
 			"nosec": false,
 			"suppressions": null
@@ -4183,8 +4235,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "401: \t// 使用 context 控制命令超时\n402: \tcmd := exec.CommandContext(ctx, \"tar\", \"czf\", backupPath, \"-C\", cfg.Source, \".\")\n403: \tif output, err := cmd.CombinedOutput(); err != nil {\n",
-			"line": "402",
+			"code": "436: \t// 使用 context 控制命令超时\n437: \tcmd := exec.CommandContext(ctx, \"tar\", \"czf\", backupPath, \"-C\", cfg.Source, \".\")\n438: \tif output, err := cmd.CombinedOutput(); err != nil {\n",
+			"line": "437",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -4279,8 +4331,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with a potential tainted input or cmd arguments",
 			"file": "/home/mrafter/clawd/nas-os/internal/usbmount/manager.go",
-			"code": "1005: \t// 清理环境变量值，防止注入攻击\n1006: \tcmd := exec.CommandContext(m.ctx, \"sh\", \"-c\", m.config.NotifyCommand)\n1007: \tcmd.Env = append(os.Environ(),\n",
-			"line": "1006",
+			"code": "1011: \t// 清理环境变量值，防止注入攻击\n1012: \tcmd := exec.CommandContext(m.ctx, \"sh\", \"-c\", m.config.NotifyCommand)\n1013: \tcmd.Env = append(os.Environ(),\n",
+			"line": "1012",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -4295,8 +4347,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with a potential tainted input or cmd arguments",
 			"file": "/home/mrafter/clawd/nas-os/internal/usbmount/manager.go",
-			"code": "551: \t// 执行卸载\n552: \tcmd := exec.CommandContext(m.ctx, \"umount\", device.MountPoint)\n553: \toutput, err := cmd.CombinedOutput()\n",
-			"line": "552",
+			"code": "557: \t// 执行卸载\n558: \tcmd := exec.CommandContext(m.ctx, \"umount\", device.MountPoint)\n559: \toutput, err := cmd.CombinedOutput()\n",
+			"line": "558",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -4791,8 +4843,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with a potential tainted input or cmd arguments",
 			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "272: \n273: \t\tcmd := exec.Command(\"ip\", \"route\", \"add\", \"default\", \"via\", config.Gateway, \"dev\", name)\n274: \t\tif err := cmd.Run(); err != nil {\n",
-			"line": "273",
+			"code": "270: \n271: \t\tcmd := exec.Command(\"ip\", \"route\", \"add\", \"default\", \"via\", config.Gateway, \"dev\", name)\n272: \t\tif err := cmd.Run(); err != nil {\n",
+			"line": "271",
 			"column": "10",
 			"nosec": false,
 			"suppressions": null
@@ -4807,8 +4859,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with a potential tainted input or cmd arguments",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "298: \t// 获取 SMART 属性\n299: \tcmd := exec.Command(\"smartctl\", \"-A\", \"-H\", info.Device)\n300: \toutput, err := cmd.Output()\n",
-			"line": "299",
+			"code": "304: \t// 获取 SMART 属性\n305: \tcmd := exec.Command(\"smartctl\", \"-A\", \"-H\", info.Device)\n306: \toutput, err := cmd.Output()\n",
+			"line": "305",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -4823,8 +4875,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with a potential tainted input or cmd arguments",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/disk_health.go",
-			"code": "237: func (m *DiskHealthMonitor) getBasicInfo(info *DiskHealthInfo) error {\n238: \tcmd := exec.Command(\"smartctl\", \"-i\", info.Device)\n239: \toutput, err := cmd.Output()\n",
-			"line": "238",
+			"code": "243: func (m *DiskHealthMonitor) getBasicInfo(info *DiskHealthInfo) error {\n244: \tcmd := exec.Command(\"smartctl\", \"-i\", info.Device)\n245: \toutput, err := cmd.Output()\n",
+			"line": "244",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -5031,8 +5083,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with a potential tainted input or cmd arguments",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "959: \t// 检查是否使用系统 zip 命令\n960: \tcmd := exec.Command(\"zip\", \"-r\", \"-\"+fmt.Sprintf(\"%d\", level), dstPath, filepath.Base(srcPath))\n961: \tcmd.Dir = filepath.Dir(srcPath)\n",
-			"line": "960",
+			"code": "961: \t// 检查是否使用系统 zip 命令\n962: \tcmd := exec.Command(\"zip\", \"-r\", \"-\"+fmt.Sprintf(\"%d\", level), dstPath, filepath.Base(srcPath))\n963: \tcmd.Dir = filepath.Dir(srcPath)\n",
+			"line": "962",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -5175,8 +5227,8 @@
 			"rule_id": "G204",
 			"details": "Subprocess launched with a potential tainted input or cmd arguments",
 			"file": "/home/mrafter/clawd/nas-os/internal/cluster/sync.go",
-			"code": "405: \t// 实际实现中需要使用 SSH 进行远程同步\n406: \tcmd := exec.CommandContext(ss.ctx, ss.config.RsyncPath,\n407: \t\t\"-avz\",\n408: \t\t\"--delete\",\n409: \t\t\"--progress\",\n410: \t\trule.SourcePath,\n411: \t\tfmt.Sprintf(\"%s@%s:%s\", \"nasadmin\", node.IP, rule.TargetPath),\n412: \t)\n413: \n",
-			"line": "406-412",
+			"code": "485: \t// 使用参数化命令，避免命令注入\n486: \tcmd := exec.CommandContext(ss.ctx, ss.config.RsyncPath,\n487: \t\t\"-avz\",\n488: \t\t\"--delete\",\n489: \t\t\"--progress\",\n490: \t\tsourcePath,\n491: \t\tfmt.Sprintf(\"%s@%s:%s\", \"nasadmin\", nodeIP, targetPath),\n492: \t)\n493: \n",
+			"line": "486-492",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -5495,8 +5547,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/storagepool/manager.go",
-			"code": "785: \tdataFile := filepath.Join(m.dataPath, \"pools.json\")\n786: \tdata, err := os.ReadFile(dataFile)\n787: \tif os.IsNotExist(err) {\n",
-			"line": "786",
+			"code": "802: \tdataFile := filepath.Join(m.dataPath, \"pools.json\")\n803: \tdata, err := os.ReadFile(dataFile)\n804: \tif os.IsNotExist(err) {\n",
+			"line": "803",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -5597,8 +5649,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/vulnerability_scanner.go",
-			"code": "1039: \n1040: \tdata, err := os.ReadFile(filename)\n1041: \tif err != nil {\n",
-			"line": "1040",
+			"code": "1043: \n1044: \tdata, err := os.ReadFile(filename)\n1045: \tif err != nil {\n",
+			"line": "1044",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -5614,8 +5666,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/vulnerability_scanner.go",
-			"code": "656: \n657: \tdata, err := os.ReadFile(filename)\n658: \tif err != nil {\n",
-			"line": "657",
+			"code": "660: \n661: \tdata, err := os.ReadFile(filename)\n662: \tif err != nil {\n",
+			"line": "661",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -5631,8 +5683,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/safe_file_manager.go",
-			"code": "584: \tif isTextFile(path) {\n585: \t\tdata, err := os.ReadFile(path)\n586: \t\tif err == nil \u0026\u0026 len(data) \u003c 10*1024*1024 { // 限制10MB\n",
-			"line": "585",
+			"code": "586: \tif isTextFile(path) {\n587: \t\tdata, err := os.ReadFile(path)\n588: \t\tif err == nil \u0026\u0026 len(data) \u003c 10*1024*1024 { // 限制10MB\n",
+			"line": "587",
 			"column": "16",
 			"nosec": false,
 			"suppressions": null,
@@ -5648,8 +5700,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/safe_file_manager.go",
-			"code": "395: \n396: \tdata, err := os.ReadFile(path)\n397: \tif err != nil {\n",
-			"line": "396",
+			"code": "397: \n398: \tdata, err := os.ReadFile(path)\n399: \tif err != nil {\n",
+			"line": "398",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -5886,8 +5938,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/template.go",
-			"code": "67: \tfor _, file := range files {\n68: \t\tdata, err := os.ReadFile(file)\n69: \t\tif err != nil {\n",
-			"line": "68",
+			"code": "75: \tfor _, file := range files {\n76: \t\tdata, err := os.ReadFile(file)\n77: \t\tif err != nil {\n",
+			"line": "76",
 			"column": "16",
 			"nosec": false,
 			"suppressions": null,
@@ -5937,8 +5989,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/financial_report.go",
-			"code": "420: \tfor _, file := range files {\n421: \t\tdata, err := os.ReadFile(file)\n422: \t\tif err != nil {\n",
-			"line": "421",
+			"code": "450: \tfor _, file := range files {\n451: \t\tdata, err := os.ReadFile(file)\n452: \t\tif err != nil {\n",
+			"line": "451",
 			"column": "16",
 			"nosec": false,
 			"suppressions": null,
@@ -5954,8 +6006,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/cost_report.go",
-			"code": "1119: \treportPath := filepath.Join(g.dataDir, \"reports\", id+\".json\")\n1120: \tdata, err := os.ReadFile(reportPath)\n1121: \tif err != nil {\n",
-			"line": "1120",
+			"code": "1128: \treportPath := filepath.Join(g.dataDir, \"reports\", id+\".json\")\n1129: \tdata, err := os.ReadFile(reportPath)\n1130: \tif err != nil {\n",
+			"line": "1129",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -5971,8 +6023,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/cost_report.go",
-			"code": "918: \n919: \tfile, err := os.Create(outputPath)\n920: \tif err != nil {\n",
-			"line": "919",
+			"code": "927: \n928: \tfile, err := os.Create(outputPath)\n929: \tif err != nil {\n",
+			"line": "928",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -6566,8 +6618,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/performance/health.go",
-			"code": "486: \t\t\t\t// 如果存在设备统计文件，检查是否有错误\n487: \t\t\t\tif data, err := os.ReadFile(deviceStatsPath); err == nil {\n488: \t\t\t\t\tstats := string(data)\n",
-			"line": "487",
+			"code": "487: \t\t\t\t// 如果存在设备统计文件，检查是否有错误\n488: \t\t\t\tif data, err := os.ReadFile(deviceStatsPath); err == nil {\n489: \t\t\t\t\tstats := string(data)\n",
+			"line": "488",
 			"column": "21",
 			"nosec": false,
 			"suppressions": null,
@@ -6617,8 +6669,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/log_collector.go",
-			"code": "911: \tgzFile := filename + \".gz\"\n912: \tgz, err := os.Create(gzFile)\n913: \tif err != nil {\n",
-			"line": "912",
+			"code": "924: \tgzFile := filename + \".gz\"\n925: \tgz, err := os.Create(gzFile)\n926: \tif err != nil {\n",
+			"line": "925",
 			"column": "13",
 			"nosec": false,
 			"suppressions": null,
@@ -6634,8 +6686,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/log_collector.go",
-			"code": "904: func (s *FileLogStorage) compressFile(filename string) error {\n905: \tf, err := os.Open(filename)\n906: \tif err != nil {\n",
-			"line": "905",
+			"code": "917: func (s *FileLogStorage) compressFile(filename string) error {\n918: \tf, err := os.Open(filename)\n919: \tif err != nil {\n",
+			"line": "918",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null,
@@ -6651,8 +6703,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/log_collector.go",
-			"code": "804: func (s *FileLogStorage) queryFile(filename string, filter *LogQueryFilter) ([]*LogEntry, error) {\n805: \tf, err := os.Open(filename)\n806: \tif err != nil {\n",
-			"line": "805",
+			"code": "817: func (s *FileLogStorage) queryFile(filename string, filter *LogQueryFilter) ([]*LogEntry, error) {\n818: \tf, err := os.Open(filename)\n819: \tif err != nil {\n",
+			"line": "818",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null,
@@ -6668,8 +6720,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/log_collector.go",
-			"code": "710: \n711: \tf, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)\n712: \tif err != nil {\n",
-			"line": "711",
+			"code": "723: \n724: \tf, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)\n725: \tif err != nil {\n",
+			"line": "724",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null,
@@ -6906,8 +6958,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1139: \n1140: \t\tdstFile, err := os.Create(path)\n1141: \t\tif err != nil {\n",
-			"line": "1140",
+			"code": "1141: \n1142: \t\tdstFile, err := os.Create(path)\n1143: \t\tif err != nil {\n",
+			"line": "1142",
 			"column": "19",
 			"nosec": false,
 			"suppressions": null,
@@ -6923,8 +6975,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1019: \n1020: \t\tfile, err := os.Open(path)\n1021: \t\tif err != nil {\n",
-			"line": "1020",
+			"code": "1021: \n1022: \t\tfile, err := os.Open(path)\n1023: \t\tif err != nil {\n",
+			"line": "1022",
 			"column": "16",
 			"nosec": false,
 			"suppressions": null,
@@ -6940,8 +6992,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "972: func (h *Handlers) compressZipGo(srcPath, dstPath string, level int) error {\n973: \tarchive, err := os.Create(dstPath)\n974: \tif err != nil {\n",
-			"line": "973",
+			"code": "974: func (h *Handlers) compressZipGo(srcPath, dstPath string, level int) error {\n975: \tarchive, err := os.Create(dstPath)\n976: \tif err != nil {\n",
+			"line": "975",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -6957,8 +7009,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "470: \n471: \tdata, err := os.ReadFile(path)\n472: \tif err != nil {\n",
-			"line": "471",
+			"code": "472: \n473: \tdata, err := os.ReadFile(path)\n474: \tif err != nil {\n",
+			"line": "473",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -6974,8 +7026,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "450: \n451: \tfile, err := os.Open(path)\n452: \tif err != nil {\n",
-			"line": "451",
+			"code": "452: \n453: \tfile, err := os.Open(path)\n454: \tif err != nil {\n",
+			"line": "453",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -6991,8 +7043,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "399: \t// 读取并转换为 base64\n400: \tdata, err := os.ReadFile(outputFile)\n401: \tif err != nil {\n",
-			"line": "400",
+			"code": "401: \t// 读取并转换为 base64\n402: \tdata, err := os.ReadFile(outputFile)\n403: \tif err != nil {\n",
+			"line": "402",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7008,8 +7060,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "316: \n317: \tfile, err := os.Open(path)\n318: \tif err != nil {\n",
-			"line": "317",
+			"code": "318: \n319: \tfile, err := os.Open(path)\n320: \tif err != nil {\n",
+			"line": "319",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7246,8 +7298,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/parallel.go",
-			"code": "847: \t// 打开压缩文件\n848: \tdstFile, err := os.Open(dstPath)\n849: \tif err != nil {\n",
-			"line": "848",
+			"code": "853: \t// 打开压缩文件\n854: \tdstFile, err := os.Open(dstPath)\n855: \tif err != nil {\n",
+			"line": "854",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7263,8 +7315,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/parallel.go",
-			"code": "783: \tdstPath := path + compressor.Extension()\n784: \tdstFile, err := os.Create(dstPath)\n785: \tif err != nil {\n",
-			"line": "784",
+			"code": "788: \tdstPath := path + compressor.Extension()\n789: \tdstFile, err := os.Create(dstPath)\n790: \tif err != nil {\n",
+			"line": "789",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7280,8 +7332,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/parallel.go",
-			"code": "774: \t// 打开源文件\n775: \tsrcFile, err := os.Open(path)\n776: \tif err != nil {\n",
-			"line": "775",
+			"code": "779: \t// 打开源文件\n780: \tsrcFile, err := os.Open(path)\n781: \tif err != nil {\n",
+			"line": "780",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7297,8 +7349,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/manager.go",
-			"code": "616: \tdstFilePath := dstPath + compressor.Extension()\n617: \tdstFile, err := os.Create(dstFilePath)\n618: \tif err != nil {\n",
-			"line": "617",
+			"code": "617: \tdstFilePath := dstPath + compressor.Extension()\n618: \tdstFile, err := os.Create(dstFilePath)\n619: \tif err != nil {\n",
+			"line": "618",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7314,8 +7366,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/manager.go",
-			"code": "602: \t// 打开源文件\n603: \tsrcFile, err := os.Open(srcPath)\n604: \tif err != nil {\n",
-			"line": "603",
+			"code": "603: \t// 打开源文件\n604: \tsrcFile, err := os.Open(srcPath)\n605: \tif err != nil {\n",
+			"line": "604",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7331,8 +7383,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/manager.go",
-			"code": "275: \t// 创建目标文件\n276: \tdstFile, err := os.Create(dstPath)\n277: \tif err != nil {\n",
-			"line": "276",
+			"code": "276: \t// 创建目标文件\n277: \tdstFile, err := os.Create(dstPath)\n278: \tif err != nil {\n",
+			"line": "277",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7348,8 +7400,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/manager.go",
-			"code": "268: \t// 打开源文件\n269: \tsrcFile, err := os.Open(srcPath)\n270: \tif err != nil {\n",
-			"line": "269",
+			"code": "269: \t// 打开源文件\n270: \tsrcFile, err := os.Open(srcPath)\n271: \tif err != nil {\n",
+			"line": "270",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7365,8 +7417,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/manager.go",
-			"code": "216: \t// 创建目标文件\n217: \tdstFile, err := os.Create(dstPath + compressor.Extension())\n218: \tif err != nil {\n",
-			"line": "217",
+			"code": "217: \t// 创建目标文件\n218: \tdstFile, err := os.Create(dstPath + compressor.Extension())\n219: \tif err != nil {\n",
+			"line": "218",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7382,8 +7434,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/manager.go",
-			"code": "194: \t// 打开源文件\n195: \tsrcFile, err := os.Open(srcPath)\n196: \tif err != nil {\n",
-			"line": "195",
+			"code": "195: \t// 打开源文件\n196: \tsrcFile, err := os.Open(srcPath)\n197: \tif err != nil {\n",
+			"line": "196",
 			"column": "18",
 			"nosec": false,
 			"suppressions": null,
@@ -7501,8 +7553,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cluster/sync.go",
-			"code": "515: \n516: \tdata, err := os.ReadFile(rulesFile)\n517: \tif err != nil {\n",
-			"line": "516",
+			"code": "595: \n596: \tdata, err := os.ReadFile(rulesFile)\n597: \tif err != nil {\n",
+			"line": "596",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7535,8 +7587,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cluster/manager.go",
-			"code": "578: \n579: \tdata, err := os.ReadFile(stateFile)\n580: \tif err != nil {\n",
-			"line": "579",
+			"code": "583: \n584: \tdata, err := os.ReadFile(stateFile)\n585: \tif err != nil {\n",
+			"line": "584",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7603,8 +7655,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "1581: \t// 创建本地文件\n1582: \tfile, err := os.Create(localPath)\n1583: \tif err != nil {\n",
-			"line": "1582",
+			"code": "1586: \t// 创建本地文件\n1587: \tfile, err := os.Create(localPath)\n1588: \tif err != nil {\n",
+			"line": "1587",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7620,8 +7672,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "1453: \t// 打开本地文件\n1454: \tfile, err := os.Open(localPath)\n1455: \tif err != nil {\n",
-			"line": "1454",
+			"code": "1458: \t// 打开本地文件\n1459: \tfile, err := os.Open(localPath)\n1460: \tif err != nil {\n",
+			"line": "1459",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7637,8 +7689,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "1046: \t// 创建本地文件\n1047: \tfile, err := os.Create(localPath)\n1048: \tif err != nil {\n",
-			"line": "1047",
+			"code": "1051: \t// 创建本地文件\n1052: \tfile, err := os.Create(localPath)\n1053: \tif err != nil {\n",
+			"line": "1052",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7654,8 +7706,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "861: \t// 打开本地文件\n862: \tfile, err := os.Open(localPath)\n863: \tif err != nil {\n",
-			"line": "862",
+			"code": "866: \t// 打开本地文件\n867: \tfile, err := os.Open(localPath)\n868: \tif err != nil {\n",
+			"line": "867",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7671,8 +7723,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "472: \n473: \tfile, err := os.Create(localPath)\n474: \tif err != nil {\n",
-			"line": "473",
+			"code": "477: \n478: \tfile, err := os.Create(localPath)\n479: \tif err != nil {\n",
+			"line": "478",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7688,8 +7740,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "412: func (p *WebDAVProvider) Upload(ctx context.Context, localPath, remotePath string) error {\n413: \tfile, err := os.Open(localPath)\n414: \tif err != nil {\n",
-			"line": "413",
+			"code": "417: func (p *WebDAVProvider) Upload(ctx context.Context, localPath, remotePath string) error {\n418: \tfile, err := os.Open(localPath)\n419: \tif err != nil {\n",
+			"line": "418",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7705,8 +7757,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "133: \n134: \tfile, err := os.Create(localPath)\n135: \tif err != nil {\n",
-			"line": "134",
+			"code": "134: \n135: \tfile, err := os.Create(localPath)\n136: \tif err != nil {\n",
+			"line": "135",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7722,8 +7774,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "101: func (p *S3Provider) Upload(ctx context.Context, localPath, remotePath string) error {\n102: \tfile, err := os.Open(localPath)\n103: \tif err != nil {\n",
-			"line": "102",
+			"code": "102: func (p *S3Provider) Upload(ctx context.Context, localPath, remotePath string) error {\n103: \tfile, err := os.Open(localPath)\n104: \tif err != nil {\n",
+			"line": "103",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7892,8 +7944,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/sync.go",
-			"code": "915: \n916: \tdestFile, err := os.Create(dst)\n917: \tif err != nil {\n",
-			"line": "916",
+			"code": "919: \n920: \tdestFile, err := os.Create(dst)\n921: \tif err != nil {\n",
+			"line": "920",
 			"column": "19",
 			"nosec": false,
 			"suppressions": null,
@@ -7909,8 +7961,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/sync.go",
-			"code": "905: func copyFile(src, dst string) error {\n906: \tsourceFile, err := os.Open(src)\n907: \tif err != nil {\n",
-			"line": "906",
+			"code": "909: func copyFile(src, dst string) error {\n910: \tsourceFile, err := os.Open(src)\n911: \tif err != nil {\n",
+			"line": "910",
 			"column": "21",
 			"nosec": false,
 			"suppressions": null,
@@ -7926,8 +7978,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/sync.go",
-			"code": "882: func (vm *VersionManager) loadVersionMetadata(path string) (*VersionInfo, error) {\n883: \tdata, err := os.ReadFile(path)\n884: \tif err != nil {\n",
-			"line": "883",
+			"code": "886: func (vm *VersionManager) loadVersionMetadata(path string) (*VersionInfo, error) {\n887: \tdata, err := os.ReadFile(path)\n888: \tif err != nil {\n",
+			"line": "887",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7943,8 +7995,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/sync.go",
-			"code": "851: func (vm *VersionManager) calculateChecksum(path string) (string, error) {\n852: \tfile, err := os.Open(path)\n853: \tif err != nil {\n",
-			"line": "852",
+			"code": "855: func (vm *VersionManager) calculateChecksum(path string) (string, error) {\n856: \tfile, err := os.Open(path)\n857: \tif err != nil {\n",
+			"line": "856",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -7960,8 +8012,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/sync.go",
-			"code": "709: func (sm *SyncManager) uploadToWebDAV(client *gowebdav.Client, localPath, remotePath string) error {\n710: \tdata, err := os.ReadFile(localPath)\n711: \tif err != nil {\n",
-			"line": "710",
+			"code": "713: func (sm *SyncManager) uploadToWebDAV(client *gowebdav.Client, localPath, remotePath string) error {\n714: \tdata, err := os.ReadFile(localPath)\n715: \tif err != nil {\n",
+			"line": "714",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -8096,8 +8148,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "834: \n835: \t\tdata, err := os.ReadFile(path)\n836: \t\tif err != nil {\n",
-			"line": "835",
+			"code": "869: \n870: \t\tdata, err := os.ReadFile(path)\n871: \t\tif err != nil {\n",
+			"line": "870",
 			"column": "16",
 			"nosec": false,
 			"suppressions": null,
@@ -8113,8 +8165,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/incremental.go",
-			"code": "578: func (ib *IncrementalBackup) processFile(path string, snapshot *Snapshot) (string, []string, error) {\n579: \tfile, err := os.Open(path)\n580: \tif err != nil {\n",
-			"line": "579",
+			"code": "591: func (ib *IncrementalBackup) processFile(path string, snapshot *Snapshot) (string, []string, error) {\n592: \tfile, err := os.Open(path)\n593: \tif err != nil {\n",
+			"line": "592",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -8130,8 +8182,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
-			"code": "390: \t// 读取源文件\n391: \tciphertext, err := os.ReadFile(srcPath)\n392: \tif err != nil {\n",
-			"line": "391",
+			"code": "391: \t// 读取源文件\n392: \tciphertext, err := os.ReadFile(srcPath)\n393: \tif err != nil {\n",
+			"line": "392",
 			"column": "21",
 			"nosec": false,
 			"suppressions": null,
@@ -8147,8 +8199,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
-			"code": "372: \t// 读取源文件\n373: \tplaintext, err := os.ReadFile(srcPath)\n374: \tif err != nil {\n",
-			"line": "373",
+			"code": "373: \t// 读取源文件\n374: \tplaintext, err := os.ReadFile(srcPath)\n375: \tif err != nil {\n",
+			"line": "374",
 			"column": "20",
 			"nosec": false,
 			"suppressions": null,
@@ -8164,8 +8216,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/encrypt.go",
-			"code": "81: \n82: \t\tdata, err := os.ReadFile(path)\n83: \t\tif err != nil {\n",
-			"line": "82",
+			"code": "82: \n83: \t\tdata, err := os.ReadFile(path)\n84: \t\tif err != nil {\n",
+			"line": "83",
 			"column": "16",
 			"nosec": false,
 			"suppressions": null,
@@ -8317,8 +8369,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/cloud.go",
-			"code": "271: \n272: \tfile, err := os.Create(localPath)\n273: \tif err != nil {\n",
-			"line": "272",
+			"code": "279: \n280: \tfile, err := os.Create(localPath)\n281: \tif err != nil {\n",
+			"line": "280",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -8334,8 +8386,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/cloud.go",
-			"code": "212: \n213: \tdata, err := os.ReadFile(localPath)\n214: \tif err != nil {\n",
-			"line": "213",
+			"code": "220: \n221: \tdata, err := os.ReadFile(localPath)\n222: \tif err != nil {\n",
+			"line": "221",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -8351,8 +8403,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/cloud.go",
-			"code": "176: \n177: \tfile, err := os.Open(localPath)\n178: \tif err != nil {\n",
-			"line": "177",
+			"code": "184: \n185: \tfile, err := os.Open(localPath)\n186: \tif err != nil {\n",
+			"line": "185",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -8436,8 +8488,8 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/advanced/types.go",
-			"code": "451: func CalculateChecksum(path string) (string, error) {\n452: \tfile, err := os.Open(path)\n453: \tif err != nil {\n",
-			"line": "452",
+			"code": "486: func CalculateChecksum(path string) (string, error) {\n487: \tfile, err := os.Open(path)\n488: \tif err != nil {\n",
+			"line": "487",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null,
@@ -8470,7 +8522,7 @@
 			"rule_id": "G304",
 			"details": "Potential file inclusion via variable",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/advanced/manager.go",
-			"code": "521: func (m *AdvancedManager) restoreFile(srcPath, dstPath string, encrypted bool) error {\n522: \tdata, err := os.ReadFile(srcPath)\n523: \tif err != nil {\n",
+			"code": "521: func (m *Manager) restoreFile(srcPath, dstPath string, encrypted bool) error {\n522: \tdata, err := os.ReadFile(srcPath)\n523: \tif err != nil {\n",
 			"line": "522",
 			"column": "15",
 			"nosec": false,
@@ -8959,8 +9011,8 @@
 			"rule_id": "G107",
 			"details": "Potential HTTP request made with variable url",
 			"file": "/home/mrafter/clawd/nas-os/internal/auth/sms.go",
-			"code": "231: \n232: \tresp, err := http.Get(endpoint)\n233: \tif err != nil {\n",
-			"line": "232",
+			"code": "235: \n236: \tresp, err := http.Get(endpoint)\n237: \tif err != nil {\n",
+			"line": "236",
 			"column": "15",
 			"nosec": false,
 			"suppressions": null
@@ -8975,8 +9027,8 @@
 			"rule_id": "G110",
 			"details": "Potential DoS vulnerability via decompression bomb",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1145: \n1146: \t\t_, err = io.Copy(dstFile, srcFile)\n1147: \t\tif err != nil {\n",
-			"line": "1146",
+			"code": "1147: \n1148: \t\t_, err = io.Copy(dstFile, srcFile)\n1149: \t\tif err != nil {\n",
+			"line": "1148",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -8991,8 +9043,8 @@
 			"rule_id": "G110",
 			"details": "Potential DoS vulnerability via decompression bomb",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/manager.go",
-			"code": "396: \n397: \t_, err = io.Copy(dst, reader)\n398: \treturn err\n",
-			"line": "397",
+			"code": "397: \n398: \t_, err = io.Copy(dst, reader)\n399: \treturn err\n",
+			"line": "398",
 			"column": "11",
 			"nosec": false,
 			"suppressions": null
@@ -9135,8 +9187,8 @@
 			"rule_id": "G302",
 			"details": "Expect file permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/log_collector.go",
-			"code": "710: \n711: \tf, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)\n712: \tif err != nil {\n",
-			"line": "711",
+			"code": "723: \n724: \tf, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)\n725: \tif err != nil {\n",
+			"line": "724",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9231,8 +9283,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/usbmount/manager.go",
-			"code": "445: \t// 确保挂载点目录存在\n446: \tif err := os.MkdirAll(mountPoint, 0755); err != nil {\n447: \t\treturn \u0026MountResult{\n",
-			"line": "446",
+			"code": "451: \t// 确保挂载点目录存在\n452: \tif err := os.MkdirAll(mountPoint, 0755); err != nil {\n453: \t\treturn \u0026MountResult{\n",
+			"line": "452",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9247,8 +9299,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/usbmount/manager.go",
-			"code": "360: \t// 创建默认挂载目录\n361: \t_ = os.MkdirAll(m.config.DefaultMountPoint, 0755)\n362: \n",
-			"line": "361",
+			"code": "366: \t// 创建默认挂载目录\n367: \t_ = os.MkdirAll(m.config.DefaultMountPoint, 0755)\n368: \n",
+			"line": "367",
 			"column": "6",
 			"nosec": false,
 			"suppressions": null
@@ -9359,8 +9411,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/storagepool/manager.go",
-			"code": "207: \t// 确保数据目录存在\n208: \tif err := os.MkdirAll(dataPath, 0755); err != nil {\n209: \t\treturn nil, fmt.Errorf(\"创建数据目录失败: %w\", err)\n",
-			"line": "208",
+			"code": "224: \t// 确保数据目录存在\n225: \tif err := os.MkdirAll(dataPath, 0755); err != nil {\n226: \t\treturn nil, fmt.Errorf(\"创建数据目录失败: %w\", err)\n",
+			"line": "225",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9711,8 +9763,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/template.go",
-			"code": "44: \t// 确保目录存在\n45: \tif err := os.MkdirAll(dataDir, 0755); err != nil {\n46: \t\treturn nil, err\n",
-			"line": "45",
+			"code": "52: \t// 确保目录存在\n53: \tif err := os.MkdirAll(dataDir, 0755); err != nil {\n54: \t\treturn nil, err\n",
+			"line": "53",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9807,8 +9859,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/financial_report.go",
-			"code": "400: \t// 确保存储目录存在\n401: \tif err := os.MkdirAll(storagePath, 0755); err != nil {\n402: \t\treturn nil, fmt.Errorf(\"创建存储目录失败: %w\", err)\n",
-			"line": "401",
+			"code": "430: \t// 确保存储目录存在\n431: \tif err := os.MkdirAll(storagePath, 0755); err != nil {\n432: \t\treturn nil, fmt.Errorf(\"创建存储目录失败: %w\", err)\n",
+			"line": "431",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9871,8 +9923,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/excel_exporter.go",
-			"code": "172: \tdir := filepath.Dir(outputPath)\n173: \tif err := os.MkdirAll(dir, 0755); err != nil {\n174: \t\treturn nil, fmt.Errorf(\"创建目录失败: %w\", err)\n",
-			"line": "173",
+			"code": "178: \tdir := filepath.Dir(outputPath)\n179: \tif err := os.MkdirAll(dir, 0755); err != nil {\n180: \t\treturn nil, fmt.Errorf(\"创建目录失败: %w\", err)\n",
+			"line": "179",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9887,8 +9939,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/excel_exporter.go",
-			"code": "160: func NewExcelExporter(dataDir string) *ExcelExporter {\n161: \t_ = os.MkdirAll(dataDir, 0755)\n162: \treturn \u0026ExcelExporter{dataDir: dataDir}\n",
-			"line": "161",
+			"code": "166: func NewExcelExporter(dataDir string) *ExcelExporter {\n167: \t_ = os.MkdirAll(dataDir, 0755)\n168: \treturn \u0026ExcelExporter{dataDir: dataDir}\n",
+			"line": "167",
 			"column": "6",
 			"nosec": false,
 			"suppressions": null
@@ -9935,8 +9987,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/cost_report.go",
-			"code": "1198: \treportsDir := filepath.Join(g.dataDir, \"reports\")\n1199: \tif err := os.MkdirAll(reportsDir, 0755); err != nil {\n1200: \t\treturn err\n",
-			"line": "1199",
+			"code": "1207: \treportsDir := filepath.Join(g.dataDir, \"reports\")\n1208: \tif err := os.MkdirAll(reportsDir, 0755); err != nil {\n1209: \t\treturn err\n",
+			"line": "1208",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9951,8 +10003,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/cost_report.go",
-			"code": "914: \tdir := filepath.Dir(outputPath)\n915: \tif err := os.MkdirAll(dir, 0755); err != nil {\n916: \t\treturn fmt.Errorf(\"创建目录失败: %w\", err)\n",
-			"line": "915",
+			"code": "923: \tdir := filepath.Dir(outputPath)\n924: \tif err := os.MkdirAll(dir, 0755); err != nil {\n925: \t\treturn fmt.Errorf(\"创建目录失败: %w\", err)\n",
+			"line": "924",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9967,8 +10019,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/cost_report.go",
-			"code": "899: \tdir := filepath.Dir(outputPath)\n900: \tif err := os.MkdirAll(dir, 0755); err != nil {\n901: \t\treturn fmt.Errorf(\"创建目录失败: %w\", err)\n",
-			"line": "900",
+			"code": "908: \tdir := filepath.Dir(outputPath)\n909: \tif err := os.MkdirAll(dir, 0755); err != nil {\n910: \t\treturn fmt.Errorf(\"创建目录失败: %w\", err)\n",
+			"line": "909",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -9983,8 +10035,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/replication/manager.go",
-			"code": "518: \tdir := filepath.Dir(m.configPath)\n519: \tif err := os.MkdirAll(dir, 0755); err != nil {\n520: \t\treturn err\n",
-			"line": "519",
+			"code": "509: \tdir := filepath.Dir(m.configPath)\n510: \tif err := os.MkdirAll(dir, 0755); err != nil {\n511: \t\treturn err\n",
+			"line": "510",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -10431,8 +10483,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/log_collector.go",
-			"code": "145: \t// 创建数据目录\n146: \tif err := os.MkdirAll(config.DataDir, 0755); err != nil {\n147: \t\treturn nil, fmt.Errorf(\"创建数据目录失败: %w\", err)\n",
-			"line": "146",
+			"code": "158: \t// 创建数据目录\n159: \tif err := os.MkdirAll(config.DataDir, 0755); err != nil {\n160: \t\treturn nil, fmt.Errorf(\"创建数据目录失败: %w\", err)\n",
+			"line": "159",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -10447,8 +10499,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/alert_rule_engine.go",
-			"code": "603: \tdir := filepath.Dir(e.configPath)\n604: \tif err := os.MkdirAll(dir, 0755); err != nil {\n605: \t\treturn err\n",
-			"line": "604",
+			"code": "629: \tdir := filepath.Dir(e.configPath)\n630: \tif err := os.MkdirAll(dir, 0755); err != nil {\n631: \t\treturn err\n",
+			"line": "630",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -10591,8 +10643,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/media/library.go",
-			"code": "438: \tdir := filepath.Dir(lm.configPath)\n439: \tif err := os.MkdirAll(dir, 0755); err != nil {\n440: \t\treturn err\n",
-			"line": "439",
+			"code": "439: \tdir := filepath.Dir(lm.configPath)\n440: \tif err := os.MkdirAll(dir, 0755); err != nil {\n441: \t\treturn err\n",
+			"line": "440",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -10751,8 +10803,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "1131: \n1132: \t\t_ = os.MkdirAll(filepath.Dir(path), 0755)\n1133: \n",
-			"line": "1132",
+			"code": "1133: \n1134: \t\t_ = os.MkdirAll(filepath.Dir(path), 0755)\n1135: \n",
+			"line": "1134",
 			"column": "7",
 			"nosec": false,
 			"suppressions": null
@@ -10767,8 +10819,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "748: \n749: \tif err := os.MkdirAll(fullPath, 0755); err != nil {\n750: \t\tc.JSON(http.StatusInternalServerError, gin.H{\"code\": 500, \"message\": err.Error()})\n",
-			"line": "749",
+			"code": "750: \n751: \tif err := os.MkdirAll(fullPath, 0755); err != nil {\n752: \t\tc.JSON(http.StatusInternalServerError, gin.H{\"code\": 500, \"message\": err.Error()})\n",
+			"line": "751",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -10783,8 +10835,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/files/manager.go",
-			"code": "116: \t// 确保缓存目录存在\n117: \tif err := os.MkdirAll(config.CacheDir, 0755); err != nil {\n118: \t\tlog.Printf(\"创建缓存目录失败: %v\", err)\n",
-			"line": "117",
+			"code": "118: \t// 确保缓存目录存在\n119: \tif err := os.MkdirAll(config.CacheDir, 0755); err != nil {\n120: \t\tlog.Printf(\"创建缓存目录失败: %v\", err)\n",
+			"line": "119",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11007,8 +11059,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/parallel.go",
-			"code": "267: func NewRecoveryManager(stateDir string) (*RecoveryManager, error) {\n268: \tif err := os.MkdirAll(stateDir, 0755); err != nil {\n269: \t\treturn nil, err\n",
-			"line": "268",
+			"code": "272: func NewRecoveryManager(stateDir string) (*RecoveryManager, error) {\n273: \tif err := os.MkdirAll(stateDir, 0755); err != nil {\n274: \t\treturn nil, err\n",
+			"line": "273",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11103,8 +11155,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/cluster/sync.go",
-			"code": "132: \t// 创建数据目录\n133: \tif err := os.MkdirAll(config.DataDir, 0755); err != nil {\n134: \t\tcancel()\n",
-			"line": "133",
+			"code": "136: \t// 创建数据目录\n137: \tif err := os.MkdirAll(config.DataDir, 0755); err != nil {\n138: \t\tcancel()\n",
+			"line": "137",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11135,8 +11187,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/cluster/manager.go",
-			"code": "115: \t// 创建数据目录\n116: \tif err := os.MkdirAll(config.DataDir, 0755); err != nil {\n117: \t\treturn nil, fmt.Errorf(\"创建集群数据目录失败：%w\", err)\n",
-			"line": "116",
+			"code": "120: \t// 创建数据目录\n121: \tif err := os.MkdirAll(config.DataDir, 0755); err != nil {\n122: \t\treturn nil, fmt.Errorf(\"创建集群数据目录失败：%w\", err)\n",
+			"line": "121",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11183,8 +11235,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "1576: \t// 创建本地目录\n1577: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n1578: \t\treturn fmt.Errorf(\"创建目录失败: %w\", err)\n",
-			"line": "1577",
+			"code": "1581: \t// 创建本地目录\n1582: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n1583: \t\treturn fmt.Errorf(\"创建目录失败: %w\", err)\n",
+			"line": "1582",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11199,8 +11251,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "1041: \t// 创建本地目录\n1042: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n1043: \t\treturn fmt.Errorf(\"创建目录失败: %w\", err)\n",
-			"line": "1042",
+			"code": "1046: \t// 创建本地目录\n1047: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n1048: \t\treturn fmt.Errorf(\"创建目录失败: %w\", err)\n",
+			"line": "1047",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11215,8 +11267,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "468: \n469: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n470: \t\treturn err\n",
-			"line": "469",
+			"code": "473: \n474: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n475: \t\treturn err\n",
+			"line": "474",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11231,8 +11283,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/cloudsync/providers.go",
-			"code": "129: \n130: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n131: \t\treturn err\n",
-			"line": "130",
+			"code": "130: \n131: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n132: \t\treturn err\n",
+			"line": "131",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11327,8 +11379,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/sync.go",
-			"code": "911: \n912: \tif err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {\n913: \t\treturn err\n",
-			"line": "912",
+			"code": "915: \n916: \tif err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {\n917: \t\treturn err\n",
+			"line": "916",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11343,8 +11395,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/sync.go",
-			"code": "759: \tversionDir := filepath.Join(vm.baseDir, filepath.Dir(relativePath))\n760: \tif err := os.MkdirAll(versionDir, 0755); err != nil {\n761: \t\treturn nil, err\n",
-			"line": "760",
+			"code": "763: \tversionDir := filepath.Join(vm.baseDir, filepath.Dir(relativePath))\n764: \tif err := os.MkdirAll(versionDir, 0755); err != nil {\n765: \t\treturn nil, err\n",
+			"line": "764",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11471,8 +11523,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "1028: \t\t\t// 尝试创建目录\n1029: \t\t\tif err := os.MkdirAll(config.Destination, 0755); err != nil {\n1030: \t\t\t\tresult.Checks = append(result.Checks, CheckItem{\n",
-			"line": "1029",
+			"code": "1063: \t\t\t// 尝试创建目录\n1064: \t\t\tif err := os.MkdirAll(config.Destination, 0755); err != nil {\n1065: \t\t\t\tresult.Checks = append(result.Checks, CheckItem{\n",
+			"line": "1064",
 			"column": "14",
 			"nosec": false,
 			"suppressions": null
@@ -11487,8 +11539,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "610: \n611: \tif err := os.MkdirAll(options.TargetPath, 0755); err != nil {\n612: \t\ttask.Status = TaskStatusFailed\n",
-			"line": "611",
+			"code": "645: \n646: \tif err := os.MkdirAll(options.TargetPath, 0755); err != nil {\n647: \t\ttask.Status = StatusFailed\n",
+			"line": "646",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11503,8 +11555,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "389: \t}\n390: \tif err := os.MkdirAll(destDir, 0755); err != nil {\n391: \t\treturn \"\", fmt.Errorf(\"创建目标目录失败：%w\", err)\n",
-			"line": "390",
+			"code": "424: \t}\n425: \tif err := os.MkdirAll(destDir, 0755); err != nil {\n426: \t\treturn \"\", fmt.Errorf(\"创建目标目录失败：%w\", err)\n",
+			"line": "425",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11551,8 +11603,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/config.go",
-			"code": "147: \t// 确保目录存在\n148: \tif err := os.MkdirAll(filepath.Dir(cm.configPath), 0755); err != nil {\n149: \t\treturn err\n",
-			"line": "148",
+			"code": "151: \t// 确保目录存在\n152: \tif err := os.MkdirAll(filepath.Dir(cm.configPath), 0755); err != nil {\n153: \t\treturn err\n",
+			"line": "152",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11567,8 +11619,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/cloud.go",
-			"code": "311: \n312: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n313: \t\treturn nil, fmt.Errorf(\"创建本地目录失败：%w\", err)\n",
-			"line": "312",
+			"code": "319: \n320: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n321: \t\treturn nil, fmt.Errorf(\"创建本地目录失败：%w\", err)\n",
+			"line": "320",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11583,8 +11635,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/cloud.go",
-			"code": "267: \n268: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n269: \t\treturn nil, fmt.Errorf(\"创建本地目录失败：%w\", err)\n",
-			"line": "268",
+			"code": "275: \n276: \tif err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {\n277: \t\treturn nil, fmt.Errorf(\"创建本地目录失败：%w\", err)\n",
+			"line": "276",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11599,8 +11651,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/advanced/types.go",
-			"code": "496: \tindexPath := filepath.Join(storagePath, \"index\")\n497: \tif err := os.MkdirAll(indexPath, 0755); err != nil {\n498: \t\treturn nil, fmt.Errorf(\"failed to create index directory: %w\", err)\n",
-			"line": "497",
+			"code": "531: \tindexPath := filepath.Join(storagePath, \"index\")\n532: \tif err := os.MkdirAll(indexPath, 0755); err != nil {\n533: \t\treturn nil, fmt.Errorf(\"failed to create index directory: %w\", err)\n",
+			"line": "532",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -11759,8 +11811,8 @@
 			"rule_id": "G301",
 			"details": "Expect directory permissions to be 0750 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/auth/manager.go",
-			"code": "116: \n117: \tif err := os.MkdirAll(filepath.Dir(m.configPath), 0755); err != nil {\n118: \t\treturn fmt.Errorf(\"创建配置目录失败：%w\", err)\n",
-			"line": "117",
+			"code": "119: \n120: \tif err := os.MkdirAll(filepath.Dir(m.configPath), 0755); err != nil {\n121: \t\treturn fmt.Errorf(\"创建配置目录失败：%w\", err)\n",
+			"line": "120",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -12079,8 +12131,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/storagepool/manager.go",
-			"code": "831: \n832: \treturn os.WriteFile(dataFile, data, 0644)\n833: }\n",
-			"line": "832",
+			"code": "848: \n849: \treturn os.WriteFile(dataFile, data, 0644)\n850: }\n",
+			"line": "849",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -12191,8 +12243,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/vulnerability_scanner.go",
-			"code": "1061: \n1062: \t_ = os.WriteFile(filename, data, 0640)\n1063: }\n",
-			"line": "1062",
+			"code": "1065: \n1066: \t_ = os.WriteFile(filename, data, 0640)\n1067: }\n",
+			"line": "1066",
 			"column": "6",
 			"nosec": false,
 			"suppressions": null
@@ -12271,8 +12323,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/security/compliance_checker.go",
-			"code": "1276: \n1277: \treturn os.WriteFile(filename, data, 0640)\n1278: }\n",
-			"line": "1277",
+			"code": "1284: \n1285: \treturn os.WriteFile(filename, data, 0640)\n1286: }\n",
+			"line": "1285",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -12351,8 +12403,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/template.go",
-			"code": "91: \tpath := filepath.Join(tm.dataDir, template.ID+\".json\")\n92: \treturn os.WriteFile(path, data, 0644)\n93: }\n",
-			"line": "92",
+			"code": "99: \tpath := filepath.Join(tm.dataDir, template.ID+\".json\")\n100: \treturn os.WriteFile(path, data, 0644)\n101: }\n",
+			"line": "100",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -12431,8 +12483,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/financial_report.go",
-			"code": "1298: \tfilePath := filepath.Join(g.storagePath, report.ID+\".json\")\n1299: \treturn os.WriteFile(filePath, data, 0644)\n1300: }\n",
-			"line": "1299",
+			"code": "1328: \tfilePath := filepath.Join(g.storagePath, report.ID+\".json\")\n1329: \treturn os.WriteFile(filePath, data, 0644)\n1330: }\n",
+			"line": "1329",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -12447,8 +12499,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/financial_report.go",
-			"code": "1246: \n1247: \tif err := os.WriteFile(filePath, data, 0644); err != nil {\n1248: \t\treturn \"\", err\n",
-			"line": "1247",
+			"code": "1276: \n1277: \tif err := os.WriteFile(filePath, data, 0644); err != nil {\n1278: \t\treturn \"\", err\n",
+			"line": "1277",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -12463,8 +12515,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/financial_report.go",
-			"code": "1219: \n1220: \tif err := os.WriteFile(filePath, data, 0644); err != nil {\n1221: \t\treturn \"\", err\n",
-			"line": "1220",
+			"code": "1249: \n1250: \tif err := os.WriteFile(filePath, data, 0644); err != nil {\n1251: \t\treturn \"\", err\n",
+			"line": "1250",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -12751,8 +12803,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/reports/cost_report.go",
-			"code": "903: \n904: \tif err := os.WriteFile(outputPath, data, 0644); err != nil {\n905: \t\treturn fmt.Errorf(\"写入文件失败: %w\", err)\n",
-			"line": "904",
+			"code": "912: \n913: \tif err := os.WriteFile(outputPath, data, 0644); err != nil {\n914: \t\treturn fmt.Errorf(\"写入文件失败: %w\", err)\n",
+			"line": "913",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -12767,8 +12819,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/replication/manager.go",
-			"code": "532: \n533: \treturn os.WriteFile(m.configPath, data, 0644)\n534: }\n",
-			"line": "533",
+			"code": "523: \n524: \treturn os.WriteFile(m.configPath, data, 0644)\n525: }\n",
+			"line": "524",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -12927,8 +12979,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/plugin/monitor.go",
-			"code": "403: \n404: \tif err := os.WriteFile(m.stateFile, data, 0644); err != nil {\n405: \t\tlog.Printf(\"保存插件状态失败: %v\", err)\n",
-			"line": "404",
+			"code": "406: \n407: \tif err := os.WriteFile(m.stateFile, data, 0644); err != nil {\n408: \t\tlog.Printf(\"保存插件状态失败: %v\", err)\n",
+			"line": "407",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -13215,8 +13267,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "312: \n313: \treturn os.WriteFile(\"/etc/resolv.conf\", []byte(content), 0644)\n314: }\n",
-			"line": "313",
+			"code": "310: \n311: \treturn os.WriteFile(\"/etc/resolv.conf\", []byte(content), 0644)\n312: }\n",
+			"line": "311",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13231,8 +13283,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/network/interfaces.go",
-			"code": "298: \tconfigPath := fmt.Sprintf(\"/etc/systemd/network/10-%s.network\", name)\n299: \treturn os.WriteFile(configPath, []byte(config), 0644)\n300: }\n",
-			"line": "299",
+			"code": "296: \tconfigPath := fmt.Sprintf(\"/etc/systemd/network/10-%s.network\", name)\n297: \treturn os.WriteFile(configPath, []byte(config), 0644)\n298: }\n",
+			"line": "297",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13247,8 +13299,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/monitor/alert_rule_engine.go",
-			"code": "612: \n613: \treturn os.WriteFile(e.configPath, data, 0644)\n614: }\n",
-			"line": "613",
+			"code": "638: \n639: \treturn os.WriteFile(e.configPath, data, 0644)\n640: }\n",
+			"line": "639",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13311,8 +13363,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/media/library.go",
-			"code": "442: \n443: \treturn os.WriteFile(lm.configPath, data, 0644)\n444: }\n",
-			"line": "443",
+			"code": "443: \n444: \treturn os.WriteFile(lm.configPath, data, 0644)\n445: }\n",
+			"line": "444",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13599,8 +13651,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/compress/parallel.go",
-			"code": "432: \t}\n433: \treturn os.WriteFile(stateFile, data, 0644)\n434: }\n",
-			"line": "433",
+			"code": "437: \t}\n438: \treturn os.WriteFile(stateFile, data, 0644)\n439: }\n",
+			"line": "438",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13663,8 +13715,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/cluster/sync.go",
-			"code": "509: \n510: \treturn os.WriteFile(rulesFile, data, 0644)\n511: }\n",
-			"line": "510",
+			"code": "589: \n590: \treturn os.WriteFile(rulesFile, data, 0644)\n591: }\n",
+			"line": "590",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13711,8 +13763,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/cluster/manager.go",
-			"code": "571: \tstateFile := fmt.Sprintf(\"%s/cluster_state.json\", cm.config.DataDir)\n572: \treturn os.WriteFile(stateFile, data, 0644)\n573: }\n",
-			"line": "572",
+			"code": "576: \tstateFile := fmt.Sprintf(\"%s/cluster_state.json\", cm.config.DataDir)\n577: \treturn os.WriteFile(stateFile, data, 0644)\n578: }\n",
+			"line": "577",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13903,8 +13955,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/sync.go",
-			"code": "877: \n878: \treturn os.WriteFile(metaPath, []byte(content), 0644)\n879: }\n",
-			"line": "878",
+			"code": "881: \n882: \treturn os.WriteFile(metaPath, []byte(content), 0644)\n883: }\n",
+			"line": "882",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13967,8 +14019,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/manager.go",
-			"code": "780: \n781: \treturn os.WriteFile(m.configPath, data, 0644)\n782: }\n",
-			"line": "781",
+			"code": "815: \n816: \treturn os.WriteFile(m.configPath, data, 0644)\n817: }\n",
+			"line": "816",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -13999,8 +14051,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/config.go",
-			"code": "156: \n157: \treturn os.WriteFile(cm.configPath, data, 0644)\n158: }\n",
-			"line": "157",
+			"code": "160: \n161: \treturn os.WriteFile(cm.configPath, data, 0644)\n162: }\n",
+			"line": "161",
 			"column": "9",
 			"nosec": false,
 			"suppressions": null
@@ -14015,8 +14067,8 @@
 			"rule_id": "G306",
 			"details": "Expect WriteFile permissions to be 0600 or less",
 			"file": "/home/mrafter/clawd/nas-os/internal/backup/cloud.go",
-			"code": "320: \n321: \tif err := os.WriteFile(localPath, data, 0644); err != nil {\n322: \t\treturn nil, fmt.Errorf(\"写入文件失败：%w\", err)\n",
-			"line": "321",
+			"code": "328: \n329: \tif err := os.WriteFile(localPath, data, 0644); err != nil {\n330: \t\treturn nil, fmt.Errorf(\"写入文件失败：%w\", err)\n",
+			"line": "329",
 			"column": "12",
 			"nosec": false,
 			"suppressions": null
@@ -14367,8 +14419,8 @@
 			"rule_id": "G104",
 			"details": "Errors unhandled",
 			"file": "/home/mrafter/clawd/nas-os/internal/usbmount/manager.go",
-			"code": "1013: \t)\n1014: \tcmd.Run() //nolint:errcheck\n1015: }\n",
-			"line": "1014",
+			"code": "1019: \t)\n1020: \tcmd.Run() //nolint:errcheck\n1021: }\n",
+			"line": "1020",
 			"column": "2",
 			"nosec": false,
 			"suppressions": null
@@ -14488,9 +14540,9 @@
 	],
 	"Stats": {
 		"files": 462,
-		"lines": 283564,
+		"lines": 284905,
 		"nosec": 74,
-		"found": 903
+		"found": 895
 	},
 	"GosecVersion": "dev"
 }
