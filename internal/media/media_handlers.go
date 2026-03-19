@@ -7,8 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// MediaHandlers 扩展媒体处理器
-type MediaHandlers struct {
+// ExtendedHandlers 扩展媒体处理器
+type ExtendedHandlers struct {
 	libraryMgr   *LibraryManager
 	transcoder   *Transcoder
 	subtitleMgr  *SubtitleManager
@@ -16,15 +16,15 @@ type MediaHandlers struct {
 	streamServer *StreamServer
 }
 
-// NewMediaHandlers 创建扩展媒体处理器
-func NewMediaHandlers(
+// NewHandlers 创建扩展媒体处理器
+func NewExtendedHandlers(
 	libraryMgr *LibraryManager,
 	transcoder *Transcoder,
 	subtitleMgr *SubtitleManager,
 	thumbnailGen *ThumbnailGenerator,
 	streamServer *StreamServer,
-) *MediaHandlers {
-	return &MediaHandlers{
+) *ExtendedHandlers {
+	return &ExtendedHandlers{
 		libraryMgr:   libraryMgr,
 		transcoder:   transcoder,
 		subtitleMgr:  subtitleMgr,
@@ -34,7 +34,7 @@ func NewMediaHandlers(
 }
 
 // RegisterExtendedRoutes 注册扩展路由
-func (h *MediaHandlers) RegisterExtendedRoutes(r *gin.RouterGroup) {
+func (h *ExtendedHandlers) RegisterExtendedRoutes(r *gin.RouterGroup) {
 	media := r.Group("/media")
 	{
 		// 转码相关
@@ -76,7 +76,7 @@ func (h *MediaHandlers) RegisterExtendedRoutes(r *gin.RouterGroup) {
 // === 转码相关 ===
 
 // createTranscodeJob 创建转码任务
-func (h *MediaHandlers) createTranscodeJob(c *gin.Context) {
+func (h *ExtendedHandlers) createTranscodeJob(c *gin.Context) {
 	var req struct {
 		InputPath  string          `json:"inputPath" binding:"required"`
 		OutputPath string          `json:"outputPath" binding:"required"`
@@ -122,7 +122,7 @@ func (h *MediaHandlers) createTranscodeJob(c *gin.Context) {
 }
 
 // getTranscodeJob 获取转码任务状态
-func (h *MediaHandlers) getTranscodeJob(c *gin.Context) {
+func (h *ExtendedHandlers) getTranscodeJob(c *gin.Context) {
 	id := c.Param("id")
 
 	job := h.transcoder.GetJob(id)
@@ -142,7 +142,7 @@ func (h *MediaHandlers) getTranscodeJob(c *gin.Context) {
 }
 
 // deleteTranscodeJob 删除转码任务
-func (h *MediaHandlers) deleteTranscodeJob(c *gin.Context) {
+func (h *ExtendedHandlers) deleteTranscodeJob(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.transcoder.DeleteJob(id); err != nil {
@@ -160,7 +160,7 @@ func (h *MediaHandlers) deleteTranscodeJob(c *gin.Context) {
 }
 
 // cancelTranscodeJob 取消转码任务
-func (h *MediaHandlers) cancelTranscodeJob(c *gin.Context) {
+func (h *ExtendedHandlers) cancelTranscodeJob(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.transcoder.CancelJob(id); err != nil {
@@ -178,7 +178,7 @@ func (h *MediaHandlers) cancelTranscodeJob(c *gin.Context) {
 }
 
 // listTranscodeJobs 列出转码任务
-func (h *MediaHandlers) listTranscodeJobs(c *gin.Context) {
+func (h *ExtendedHandlers) listTranscodeJobs(c *gin.Context) {
 	jobs := h.transcoder.ListJobs()
 
 	c.JSON(http.StatusOK, gin.H{
@@ -189,7 +189,7 @@ func (h *MediaHandlers) listTranscodeJobs(c *gin.Context) {
 }
 
 // quickConvert 快速转换
-func (h *MediaHandlers) quickConvert(c *gin.Context) {
+func (h *ExtendedHandlers) quickConvert(c *gin.Context) {
 	var req struct {
 		InputPath  string `json:"inputPath" binding:"required"`
 		OutputPath string `json:"outputPath" binding:"required"`
@@ -230,7 +230,7 @@ func (h *MediaHandlers) quickConvert(c *gin.Context) {
 }
 
 // getVideoInfo 获取视频信息
-func (h *MediaHandlers) getVideoInfo(c *gin.Context) {
+func (h *ExtendedHandlers) getVideoInfo(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -259,7 +259,7 @@ func (h *MediaHandlers) getVideoInfo(c *gin.Context) {
 // === 字幕相关 ===
 
 // parseSubtitle 解析字幕文件
-func (h *MediaHandlers) parseSubtitle(c *gin.Context) {
+func (h *ExtendedHandlers) parseSubtitle(c *gin.Context) {
 	path := c.Query("path")
 	if path == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -286,7 +286,7 @@ func (h *MediaHandlers) parseSubtitle(c *gin.Context) {
 }
 
 // convertSubtitle 转换字幕格式
-func (h *MediaHandlers) convertSubtitle(c *gin.Context) {
+func (h *ExtendedHandlers) convertSubtitle(c *gin.Context) {
 	var req struct {
 		InputPath  string `json:"inputPath" binding:"required"`
 		OutputPath string `json:"outputPath" binding:"required"`
@@ -318,7 +318,7 @@ func (h *MediaHandlers) convertSubtitle(c *gin.Context) {
 }
 
 // mergeSubtitles 合并字幕文件
-func (h *MediaHandlers) mergeSubtitles(c *gin.Context) {
+func (h *ExtendedHandlers) mergeSubtitles(c *gin.Context) {
 	var req struct {
 		Paths      []string `json:"paths" binding:"required"`
 		OutputPath string   `json:"outputPath" binding:"required"`
@@ -358,7 +358,7 @@ func (h *MediaHandlers) mergeSubtitles(c *gin.Context) {
 }
 
 // shiftSubtitleTime 时间偏移
-func (h *MediaHandlers) shiftSubtitleTime(c *gin.Context) {
+func (h *ExtendedHandlers) shiftSubtitleTime(c *gin.Context) {
 	var req struct {
 		Path   string `json:"path" binding:"required"`
 		Offset int    `json:"offset"` // 毫秒
@@ -399,7 +399,7 @@ func (h *MediaHandlers) shiftSubtitleTime(c *gin.Context) {
 }
 
 // extractSubtitle 提取字幕
-func (h *MediaHandlers) extractSubtitle(c *gin.Context) {
+func (h *ExtendedHandlers) extractSubtitle(c *gin.Context) {
 	var req struct {
 		MKVPath     string `json:"mkvPath" binding:"required"`
 		OutputPath  string `json:"outputPath" binding:"required"`
@@ -434,7 +434,7 @@ func (h *MediaHandlers) extractSubtitle(c *gin.Context) {
 // === 缩略图相关 ===
 
 // generateThumbnail 生成缩略图
-func (h *MediaHandlers) generateThumbnail(c *gin.Context) {
+func (h *ExtendedHandlers) generateThumbnail(c *gin.Context) {
 	var req struct {
 		VideoPath  string          `json:"videoPath" binding:"required"`
 		OutputPath string          `json:"outputPath" binding:"required"`
@@ -472,7 +472,7 @@ func (h *MediaHandlers) generateThumbnail(c *gin.Context) {
 }
 
 // generateMultipleThumbnails 生成多个缩略图
-func (h *MediaHandlers) generateMultipleThumbnails(c *gin.Context) {
+func (h *ExtendedHandlers) generateMultipleThumbnails(c *gin.Context) {
 	var req struct {
 		VideoPath string          `json:"videoPath" binding:"required"`
 		OutputDir string          `json:"outputDir" binding:"required"`
@@ -515,7 +515,7 @@ func (h *MediaHandlers) generateMultipleThumbnails(c *gin.Context) {
 }
 
 // generateSprite 生成精灵图
-func (h *MediaHandlers) generateSprite(c *gin.Context) {
+func (h *ExtendedHandlers) generateSprite(c *gin.Context) {
 	var req struct {
 		VideoPath  string          `json:"videoPath" binding:"required"`
 		OutputPath string          `json:"outputPath" binding:"required"`
@@ -559,7 +559,7 @@ func (h *MediaHandlers) generateSprite(c *gin.Context) {
 }
 
 // generatePreviewGif 生成预览 GIF
-func (h *MediaHandlers) generatePreviewGif(c *gin.Context) {
+func (h *ExtendedHandlers) generatePreviewGif(c *gin.Context) {
 	var req struct {
 		VideoPath  string          `json:"videoPath" binding:"required"`
 		OutputPath string          `json:"outputPath" binding:"required"`
@@ -597,7 +597,7 @@ func (h *MediaHandlers) generatePreviewGif(c *gin.Context) {
 }
 
 // generateImageThumbnail 生成图片缩略图
-func (h *MediaHandlers) generateImageThumbnail(c *gin.Context) {
+func (h *ExtendedHandlers) generateImageThumbnail(c *gin.Context) {
 	var req struct {
 		InputPath  string          `json:"inputPath" binding:"required"`
 		OutputPath string          `json:"outputPath" binding:"required"`
@@ -634,7 +634,7 @@ func (h *MediaHandlers) generateImageThumbnail(c *gin.Context) {
 }
 
 // batchGenerateThumbnails 批量生成缩略图
-func (h *MediaHandlers) batchGenerateThumbnails(c *gin.Context) {
+func (h *ExtendedHandlers) batchGenerateThumbnails(c *gin.Context) {
 	var req struct {
 		Videos      []string        `json:"videos" binding:"required"`
 		OutputDir   string          `json:"outputDir" binding:"required"`
@@ -669,7 +669,7 @@ func (h *MediaHandlers) batchGenerateThumbnails(c *gin.Context) {
 // === 流媒体相关 ===
 
 // createHLSSession 创建 HLS 会话
-func (h *MediaHandlers) createHLSSession(c *gin.Context) {
+func (h *ExtendedHandlers) createHLSSession(c *gin.Context) {
 	var req struct {
 		SourcePath string `json:"sourcePath" binding:"required"`
 		OutputDir  string `json:"outputDir" binding:"required"`
@@ -700,7 +700,7 @@ func (h *MediaHandlers) createHLSSession(c *gin.Context) {
 }
 
 // createDASHSession 创建 DASH 会话
-func (h *MediaHandlers) createDASHSession(c *gin.Context) {
+func (h *ExtendedHandlers) createDASHSession(c *gin.Context) {
 	var req struct {
 		SourcePath string `json:"sourcePath" binding:"required"`
 		OutputDir  string `json:"outputDir" binding:"required"`
@@ -731,7 +731,7 @@ func (h *MediaHandlers) createDASHSession(c *gin.Context) {
 }
 
 // createAdaptiveStream 创建自适应流
-func (h *MediaHandlers) createAdaptiveStream(c *gin.Context) {
+func (h *ExtendedHandlers) createAdaptiveStream(c *gin.Context) {
 	var req struct {
 		SourcePath string           `json:"sourcePath" binding:"required"`
 		OutputDir  string           `json:"outputDir" binding:"required"`
@@ -763,7 +763,7 @@ func (h *MediaHandlers) createAdaptiveStream(c *gin.Context) {
 }
 
 // getStreamSession 获取流会话
-func (h *MediaHandlers) getStreamSession(c *gin.Context) {
+func (h *ExtendedHandlers) getStreamSession(c *gin.Context) {
 	id := c.Param("id")
 
 	session := h.streamServer.GetSession(id)
@@ -783,7 +783,7 @@ func (h *MediaHandlers) getStreamSession(c *gin.Context) {
 }
 
 // deleteStreamSession 删除流会话
-func (h *MediaHandlers) deleteStreamSession(c *gin.Context) {
+func (h *ExtendedHandlers) deleteStreamSession(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.streamServer.StopSession(id); err != nil {
@@ -809,7 +809,7 @@ func (h *MediaHandlers) deleteStreamSession(c *gin.Context) {
 }
 
 // listStreamSessions 列出流会话
-func (h *MediaHandlers) listStreamSessions(c *gin.Context) {
+func (h *ExtendedHandlers) listStreamSessions(c *gin.Context) {
 	sessions := h.streamServer.ListSessions()
 
 	c.JSON(http.StatusOK, gin.H{
@@ -820,7 +820,7 @@ func (h *MediaHandlers) listStreamSessions(c *gin.Context) {
 }
 
 // getStreamManifest 获取流播放列表
-func (h *MediaHandlers) getStreamManifest(c *gin.Context) {
+func (h *ExtendedHandlers) getStreamManifest(c *gin.Context) {
 	id := c.Param("id")
 
 	session := h.streamServer.GetSession(id)
@@ -844,11 +844,11 @@ func (h *MediaHandlers) getStreamManifest(c *gin.Context) {
 }
 
 // streamMediaFile 流式播放媒体文件
-func (h *MediaHandlers) streamMediaFile(c *gin.Context) {
+func (h *ExtendedHandlers) streamMediaFile(c *gin.Context) {
 	// 通过 ID 获取媒体项
 	id := c.Param("id")
 
-	item, _ := h.libraryMgr.GetMediaItemByID(id)
+	item, _ := h.libraryMgr.GetItemByID(id)
 	if item == nil {
 		// 尝试直接使用路径
 		path := c.Query("path")
@@ -878,21 +878,21 @@ func (h *MediaHandlers) streamMediaFile(c *gin.Context) {
 }
 
 // GetTranscoder 获取转码器
-func (h *MediaHandlers) GetTranscoder() *Transcoder {
+func (h *ExtendedHandlers) GetTranscoder() *Transcoder {
 	return h.transcoder
 }
 
 // GetSubtitleManager 获取字幕管理器
-func (h *MediaHandlers) GetSubtitleManager() *SubtitleManager {
+func (h *ExtendedHandlers) GetSubtitleManager() *SubtitleManager {
 	return h.subtitleMgr
 }
 
 // GetThumbnailGenerator 获取缩略图生成器
-func (h *MediaHandlers) GetThumbnailGenerator() *ThumbnailGenerator {
+func (h *ExtendedHandlers) GetThumbnailGenerator() *ThumbnailGenerator {
 	return h.thumbnailGen
 }
 
 // GetStreamServer 获取流媒体服务器
-func (h *MediaHandlers) GetStreamServer() *StreamServer {
+func (h *ExtendedHandlers) GetStreamServer() *StreamServer {
 	return h.streamServer
 }

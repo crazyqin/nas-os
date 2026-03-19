@@ -23,7 +23,7 @@ func TestConflictDetector_DetectConflict_NoConflict(t *testing.T) {
 	require.NoError(t, os.WriteFile(sourceFile, []byte("test content"), 0644))
 
 	// 目标不存在，无冲突
-	task := &ReplicationTask{
+	task := &Task{
 		ID:         "test-task",
 		SourcePath: filepath.Join(tmpDir, "source"),
 		TargetPath: filepath.Join(tmpDir, "target"),
@@ -53,7 +53,7 @@ func TestConflictDetector_DetectConflict_SameContent(t *testing.T) {
 	require.NoError(t, os.WriteFile(sourceFile, content, 0644))
 	require.NoError(t, os.WriteFile(targetFile, content, 0644))
 
-	task := &ReplicationTask{
+	task := &Task{
 		ID:         "test-task",
 		SourcePath: sourceDir,
 		TargetPath: targetDir,
@@ -83,7 +83,7 @@ func TestConflictDetector_DetectConflict_DifferentContent(t *testing.T) {
 	require.NoError(t, os.WriteFile(sourceFile, []byte("source content"), 0644))
 	require.NoError(t, os.WriteFile(targetFile, []byte("target content"), 0644))
 
-	task := &ReplicationTask{
+	task := &Task{
 		ID:         "test-task",
 		SourcePath: sourceDir,
 		TargetPath: targetDir,

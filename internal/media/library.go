@@ -12,22 +12,23 @@ import (
 	"time"
 )
 
-// MediaType 媒体类型
-type MediaType string
+// Type 媒体类型
+type Type string
 
+// 媒体类型常量
 const (
-	MediaTypeMovie MediaType = "movie"
-	MediaTypeTV    MediaType = "tv"
-	MediaTypeMusic MediaType = "music"
-	MediaTypePhoto MediaType = "photo"
+	TypeMovie Type = "movie"
+	TypeTV    Type = "tv"
+	TypeMusic Type = "music"
+	TypePhoto Type = "photo"
 )
 
-// MediaItem 媒体项
-type MediaItem struct {
+// Item 媒体项
+type Item struct {
 	ID           string      `json:"id"`
 	Path         string      `json:"path"`
 	Name         string      `json:"name"`
-	Type         MediaType   `json:"type"`
+	Type         Type        `json:"type"`
 	Size         int64       `json:"size"`
 	ModifiedTime time.Time   `json:"modifiedTime"`
 	Metadata     interface{} `json:"metadata,omitempty"`
@@ -39,26 +40,26 @@ type MediaItem struct {
 	LastPlayed   *time.Time  `json:"lastPlayed,omitempty"`
 }
 
-// MediaLibrary 媒体库
-type MediaLibrary struct {
-	ID             string       `json:"id"`
-	Name           string       `json:"name"`
-	Description    string       `json:"description"`
-	Path           string       `json:"path"`
-	Type           MediaType    `json:"type"`
-	Enabled        bool         `json:"enabled"`
-	AutoScan       bool         `json:"autoScan"`
-	ScanInterval   int          `json:"scanInterval"` // 分钟
-	Items          []*MediaItem `json:"items,omitempty"`
-	LastScanTime   *time.Time   `json:"lastScanTime,omitempty"`
-	MetadataSource string       `json:"metadataSource"` // tmdb/douban/auto
-	TMDBApiKey     string       `json:"tmdbApiKey,omitempty"`
-	DoubanApiKey   string       `json:"doubanApiKey,omitempty"`
+// Library 媒体库
+type Library struct {
+	ID             string     `json:"id"`
+	Name           string     `json:"name"`
+	Description    string     `json:"description"`
+	Path           string     `json:"path"`
+	Type           Type       `json:"type"`
+	Enabled        bool       `json:"enabled"`
+	AutoScan       bool       `json:"autoScan"`
+	ScanInterval   int        `json:"scanInterval"` // 分钟
+	Items          []*Item    `json:"items,omitempty"`
+	LastScanTime   *time.Time `json:"lastScanTime,omitempty"`
+	MetadataSource string     `json:"metadataSource"` // tmdb/douban/auto
+	TMDBApiKey     string     `json:"tmdbApiKey,omitempty"`
+	DoubanAPIKey   string     `json:"doubanApiKey,omitempty"`
 }
 
 // LibraryManager 媒体库管理器
 type LibraryManager struct {
-	libraries         map[string]*MediaLibrary
+	libraries         map[string]*Library
 	metadataProviders []MetadataProvider
 	configPath        string
 	mu                sync.RWMutex
@@ -67,7 +68,7 @@ type LibraryManager struct {
 // NewLibraryManager 创建媒体库管理器
 func NewLibraryManager(configPath string) *LibraryManager {
 	lm := &LibraryManager{
-		libraries:         make(map[string]*MediaLibrary),
+		libraries:         make(map[string]*Library),
 		metadataProviders: make([]MetadataProvider, 0),
 		configPath:        configPath,
 	}
@@ -84,7 +85,7 @@ func (lm *LibraryManager) AddMetadataProvider(provider MetadataProvider) {
 }
 
 // CreateLibrary 创建媒体库
-func (lm *LibraryManager) CreateLibrary(name, path string, mediaType MediaType) (*MediaLibrary, error) {
+func (lm *LibraryManager) CreateLibrary(name, path string, mediaType Type) (*Library, error) {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
 
@@ -94,7 +95,7 @@ func (lm *LibraryManager) CreateLibrary(name, path string, mediaType MediaType) 
 	}
 
 	id := fmt.Sprintf("lib_%d", time.Now().UnixNano())
-	library := &MediaLibrary{
+	library := &Library{
 		ID:             id,
 		Name:           name,
 		Path:           path,
@@ -102,7 +103,7 @@ func (lm *LibraryManager) CreateLibrary(name, path string, mediaType MediaType) 
 		Enabled:        true,
 		AutoScan:       true,
 		ScanInterval:   60, // 默认 60 分钟
-		Items:          make([]*MediaItem, 0),
+		Items:          make([]*Item, 0),
 		MetadataSource: "auto",
 	}
 
@@ -118,18 +119,18 @@ func (lm *LibraryManager) CreateLibrary(name, path string, mediaType MediaType) 
 }
 
 // GetLibrary 获取媒体库
-func (lm *LibraryManager) GetLibrary(id string) *MediaLibrary {
+func (lm *LibraryManager) GetLibrary(id string) *Library {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
 	return lm.libraries[id]
 }
 
 // ListLibraries 列出所有媒体库
-func (lm *LibraryManager) ListLibraries() []*MediaLibrary {
+func (lm *LibraryManager) ListLibraries() []*Library {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
 
-	libraries := make([]*MediaLibrary, 0, len(lm.libraries))
+	libraries := make([]*Library, 0, len(lm.libraries))
 	for _, lib := range lm.libraries {
 		libraries = append(libraries, lib)
 	}
@@ -183,7 +184,7 @@ func (lm *LibraryManager) UpdateLibrary(id string, updates map[string]interface{
 			}
 		case "doubanApiKey":
 			if v, ok := value.(string); ok {
-				library.DoubanApiKey = v
+				library.DoubanAPIKey = v
 			}
 		}
 	}
@@ -237,8 +238,8 @@ func (lm *LibraryManager) ScanLibrary(id string) error {
 }
 
 // scanFileSystem 扫描文件系统
-func (lm *LibraryManager) scanFileSystem(rootPath string, mediaType MediaType) ([]*MediaItem, error) {
-	items := make([]*MediaItem, 0)
+func (lm *LibraryManager) scanFileSystem(rootPath string, mediaType Type) ([]*Item, error) {
+	items := make([]*Item, 0)
 
 	// 视频文件扩展名
 	videoExts := map[string]bool{
@@ -269,15 +270,15 @@ func (lm *LibraryManager) scanFileSystem(rootPath string, mediaType MediaType) (
 		}
 
 		ext := strings.ToLower(filepath.Ext(path))
-		var mediaType MediaType
+		var mediaType Type
 
 		switch {
 		case videoExts[ext]:
-			mediaType = MediaTypeMovie
+			mediaType = TypeMovie
 		case audioExts[ext]:
-			mediaType = MediaTypeMusic
+			mediaType = TypeMusic
 		case imageExts[ext]:
-			mediaType = MediaTypePhoto
+			mediaType = TypePhoto
 		default:
 			return nil
 		}
@@ -289,7 +290,7 @@ func (lm *LibraryManager) scanFileSystem(rootPath string, mediaType MediaType) (
 
 		name := strings.TrimSuffix(filepath.Base(path), ext)
 
-		item := &MediaItem{
+		item := &Item{
 			ID:           fmt.Sprintf("item_%s_%d", mediaType, time.Now().UnixNano()),
 			Path:         path,
 			Name:         name,
@@ -300,7 +301,7 @@ func (lm *LibraryManager) scanFileSystem(rootPath string, mediaType MediaType) (
 		}
 
 		// 尝试从文件名提取年份（用于电影/电视剧）
-		if mediaType == MediaTypeMovie || mediaType == MediaTypeTV {
+		if mediaType == TypeMovie || mediaType == TypeTV {
 			yearRegex := regexp.MustCompile(`\b(19|20)\d{2}\b`)
 			if matches := yearRegex.FindStringSubmatch(name); len(matches) > 0 {
 				item.Tags = append(item.Tags, matches[0])
@@ -319,7 +320,7 @@ func (lm *LibraryManager) scanFileSystem(rootPath string, mediaType MediaType) (
 }
 
 // fetchMetadata 获取元数据
-func (lm *LibraryManager) fetchMetadata(item *MediaItem) {
+func (lm *LibraryManager) fetchMetadata(item *Item) {
 	if len(lm.metadataProviders) == 0 {
 		return
 	}
@@ -329,13 +330,13 @@ func (lm *LibraryManager) fetchMetadata(item *MediaItem) {
 
 	// 根据类型搜索
 	switch item.Type {
-	case MediaTypeMovie:
+	case TypeMovie:
 		if results, err := provider.SearchMovie(item.Name); err == nil && len(results) > 0 {
 			item.Metadata = results[0]
 			item.PosterPath = results[0].PosterPath
 			item.Rating = results[0].Rating
 		}
-	case MediaTypeTV:
+	case TypeTV:
 		if results, err := provider.SearchTV(item.Name); err == nil && len(results) > 0 {
 			item.Metadata = results[0]
 			item.PosterPath = results[0].PosterPath
@@ -345,11 +346,11 @@ func (lm *LibraryManager) fetchMetadata(item *MediaItem) {
 }
 
 // SearchMedia 搜索媒体
-func (lm *LibraryManager) SearchMedia(query string, mediaType MediaType) ([]*MediaItem, error) {
+func (lm *LibraryManager) SearchMedia(query string, mediaType Type) ([]*Item, error) {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
 
-	results := make([]*MediaItem, 0)
+	results := make([]*Item, 0)
 	query = strings.ToLower(query)
 
 	for _, lib := range lm.libraries {
@@ -371,11 +372,11 @@ func (lm *LibraryManager) SearchMedia(query string, mediaType MediaType) ([]*Med
 }
 
 // GetMediaWall 获取海报墙
-func (lm *LibraryManager) GetMediaWall(mediaType MediaType, limit int) ([]*MediaItem, error) {
+func (lm *LibraryManager) GetMediaWall(mediaType Type, limit int) ([]*Item, error) {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
 
-	items := make([]*MediaItem, 0)
+	items := make([]*Item, 0)
 
 	for _, lib := range lm.libraries {
 		if !lib.Enabled {
@@ -410,7 +411,7 @@ func (lm *LibraryManager) loadConfig() error {
 		return err
 	}
 
-	var libraries []*MediaLibrary
+	var libraries []*Library
 	if err := json.Unmarshal(data, &libraries); err != nil {
 		return err
 	}
@@ -424,7 +425,7 @@ func (lm *LibraryManager) loadConfig() error {
 
 // saveConfig 保存配置
 func (lm *LibraryManager) saveConfig() error {
-	libraries := make([]*MediaLibrary, 0, len(lm.libraries))
+	libraries := make([]*Library, 0, len(lm.libraries))
 	for _, lib := range lm.libraries {
 		libraries = append(libraries, lib)
 	}
@@ -448,7 +449,7 @@ type PlayHistory struct {
 	ID         string    `json:"id"`
 	MediaID    string    `json:"mediaId"`
 	MediaName  string    `json:"mediaName"`
-	MediaType  MediaType `json:"mediaType"`
+	Type       Type      `json:"mediaType"`
 	PosterPath string    `json:"posterPath,omitempty"`
 	Position   int       `json:"position"`  // 播放位置（秒）
 	Duration   int       `json:"duration"`  // 总时长（秒）
@@ -457,8 +458,8 @@ type PlayHistory struct {
 	LibraryID  string    `json:"libraryId"`
 }
 
-// GetMediaItemByID 根据 ID 获取媒体项
-func (lm *LibraryManager) GetMediaItemByID(id string) (*MediaItem, *MediaLibrary) {
+// GetItemByID 根据 ID 获取媒体项
+func (lm *LibraryManager) GetItemByID(id string) (*Item, *Library) {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
 
@@ -472,8 +473,8 @@ func (lm *LibraryManager) GetMediaItemByID(id string) (*MediaItem, *MediaLibrary
 	return nil, nil
 }
 
-// UpdateMediaItem 更新媒体项
-func (lm *LibraryManager) UpdateMediaItem(id string, updates map[string]interface{}) error {
+// UpdateItem 更新媒体项
+func (lm *LibraryManager) UpdateItem(id string, updates map[string]interface{}) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
 
@@ -505,8 +506,8 @@ func (lm *LibraryManager) UpdateMediaItem(id string, updates map[string]interfac
 	return fmt.Errorf("媒体项不存在: %s", id)
 }
 
-// DeleteMediaItem 删除媒体项（仅从索引中删除，不删除文件）
-func (lm *LibraryManager) DeleteMediaItem(id string) error {
+// DeleteItem 删除媒体项（仅从索引中删除，不删除文件）
+func (lm *LibraryManager) DeleteItem(id string) error {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
 
@@ -525,7 +526,7 @@ func (lm *LibraryManager) DeleteMediaItem(id string) error {
 }
 
 // ToggleFavorite 切换收藏状态
-func (lm *LibraryManager) ToggleFavorite(id string) (*MediaItem, error) {
+func (lm *LibraryManager) ToggleFavorite(id string) (*Item, error) {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
 
@@ -543,11 +544,11 @@ func (lm *LibraryManager) ToggleFavorite(id string) (*MediaItem, error) {
 }
 
 // GetFavorites 获取收藏列表
-func (lm *LibraryManager) GetFavorites(mediaType MediaType) []*MediaItem {
+func (lm *LibraryManager) GetFavorites(mediaType Type) []*Item {
 	lm.mu.RLock()
 	defer lm.mu.RUnlock()
 
-	favorites := make([]*MediaItem, 0)
+	favorites := make([]*Item, 0)
 
 	for _, lib := range lm.libraries {
 		if !lib.Enabled {
@@ -613,7 +614,7 @@ func (lm *LibraryManager) GetPlayHistory(limit int) []*PlayHistory {
 					ID:         fmt.Sprintf("history_%s", item.ID),
 					MediaID:    item.ID,
 					MediaName:  item.Name,
-					MediaType:  item.Type,
+					Type:       item.Type,
 					PosterPath: item.PosterPath,
 					PlayedAt:   *item.LastPlayed,
 					LibraryID:  lib.ID,

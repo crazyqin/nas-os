@@ -259,8 +259,8 @@ func TestGitHubRepo_Struct(t *testing.T) {
 	assert.Equal(t, 1000, repo.Stars)
 }
 
-func TestDockerHubImage_Struct(t *testing.T) {
-	img := DockerHubImage{
+func TestHubImage_Struct(t *testing.T) {
+	img := HubImage{
 		Name:        "nginx",
 		Namespace:   "library",
 		Description: "Official nginx image",

@@ -30,8 +30,8 @@ type GitHubRepo struct {
 	} `json:"owner"`
 }
 
-// DockerHubImage Docker Hub 镜像信息
-type DockerHubImage struct {
+// HubImage Docker Hub 镜像信息
+type HubImage struct {
 	Name        string `json:"name"`
 	Namespace   string `json:"namespace"`
 	Description string `json:"description"`
