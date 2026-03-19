@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.35] - 2026-03-19
+
+### Documentation
+- 同步 README.md 版本号至 v2.253.34 (礼部)
+- 同步 docs/README.md 版本号至 v2.253.34 (礼部)
+- 同步 docs/README_EN.md 版本号至 v2.253.34 (礼部)
+- 同步 docs/USER_GUIDE.md 版本号至 v2.253.34 (礼部)
+- 同步 docs/QUICKSTART.md 版本号至 v2.253.34 (礼部)
+- 同步 docs/FAQ.md 版本号至 v2.253.34 (礼部)
+- 同步 docs/API_GUIDE.md 版本号至 v2.253.34 (礼部)
+- 同步 docs/api.yaml 版本号至 2.253.34 (礼部)
+
 ## [v2.253.33] - 2026-03-19
 
 ### Documentation
