@@ -30,6 +30,7 @@ import (
 // FileType 文件类型
 type FileType string
 
+// 文件类型常量，用于分类和识别不同类型的文件。
 const (
 	// FileTypeImage represents image file type
 	FileTypeImage    FileType = "image"

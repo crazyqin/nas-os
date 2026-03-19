@@ -49,6 +49,7 @@ type LUN struct {
 // LUNType defines the type of LUN backing
 type LUNType string
 
+// LUN 类型常量，定义逻辑单元号的存储后端类型。
 const (
 	// LUNTypeFile represents file-backed LUN type
 	LUNTypeFile  LUNType = "file"

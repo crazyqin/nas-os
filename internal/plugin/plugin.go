@@ -70,6 +70,7 @@ type PluginInfo struct {
 // Category 插件分类
 type Category string
 
+// 插件分类常量，用于对插件进行功能分类。
 const (
 	CategoryStorage      Category = "storage"      // 存储管理
 	CategoryFileManager  Category = "file-manager" // 文件管理
@@ -170,6 +171,7 @@ type HookContext struct {
 // HookType 钩子类型
 type HookType string
 
+// 钩子类型常量，定义插件可挂载的生命周期钩子点。
 const (
 	HookBeforeMount   HookType = "beforeMount"
 	HookAfterMount    HookType = "afterMount"

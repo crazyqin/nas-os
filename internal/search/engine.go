@@ -874,6 +874,7 @@ type SemanticSearchResponse struct {
 // SortOption 排序选项
 type SortOption string
 
+// 排序选项常量，定义搜索结果的排序方式。
 const (
 	// SortByRelevance sorts by relevance
 	SortByRelevance SortOption = "relevance" // 相关性排序
@@ -885,6 +886,7 @@ const (
 // SortOrder 排序顺序
 type SortOrder string
 
+// 排序顺序常量，定义搜索结果的排序方向。
 const (
 	// SortOrderAsc sorts in ascending order
 	SortOrderAsc  SortOrder = "asc"

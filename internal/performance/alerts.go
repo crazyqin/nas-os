@@ -12,6 +12,7 @@ import (
 // AlertLevel 告警级别
 type AlertLevel string
 
+// 告警级别常量，定义不同严重程度的告警等级。
 const (
 	AlertLevelInfo     AlertLevel = "info"
 	AlertLevelWarning  AlertLevel = "warning"

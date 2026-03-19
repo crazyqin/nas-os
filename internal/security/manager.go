@@ -248,5 +248,5 @@ func (sm *Manager) getUnacknowledgedAlertsCount() int {
 	return len(alerts)
 }
 
-// 类型别名，保持向后兼容
+// SecurityManager 类型别名，保持向后兼容
 type SecurityManager = Manager

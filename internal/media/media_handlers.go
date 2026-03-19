@@ -16,7 +16,7 @@ type ExtendedHandlers struct {
 	streamServer *StreamServer
 }
 
-// NewHandlers 创建扩展媒体处理器
+// NewExtendedHandlers 创建扩展媒体处理器
 func NewExtendedHandlers(
 	libraryMgr *LibraryManager,
 	transcoder *Transcoder,

@@ -17,6 +17,7 @@ import (
 // HealthStatus 健康状态
 type HealthStatus string
 
+// 健康状态常量，表示系统或组件的运行状态。
 const (
 	HealthStatusHealthy   HealthStatus = "healthy"
 	HealthStatusDegraded  HealthStatus = "degraded"
