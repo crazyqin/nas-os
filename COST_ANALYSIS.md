@@ -1,7 +1,7 @@
 # NAS-OS 成本分析报告
 
-**版本**: v2.253.33
-**生成时间**: 2026-03-19 18:05
+**版本**: v2.253.36
+**生成时间**: 2026-03-19 18:46
 **生成部门**: 户部（财务运营）
 
 ---
@@ -12,36 +12,39 @@
 
 | 指标 | 数值 |
 |------|------|
-| Go 源文件数 | 732 个 |
-| 总代码行数 | 411,732 行 |
-| go.mod 行数 | 172 行 |
+| Go 源文件数 | 731 个 |
+| 总代码行数 | 411,688 行 |
+| go.mod 行数 | 173 行 |
 | go.sum 行数 | 478 行 |
-| 依赖模块数 | 263 个 |
+| 依赖模块数 | 215 个 |
 | 测试文件数 | 264 个 |
 
 ### 1.2 测试覆盖率（2026-03-19 统计）
 
-**总体覆盖率: 37.0%**
+**总体覆盖率: 35.9%**
 
 | 模块 | 覆盖率 | 状态 |
 |------|-------|------|
-| internal/notify | 90.7% | ⭐ 优秀 |
-| internal/automation/api | 86.8% | ⭐ 优秀 |
-| internal/transfer | 83.9% | ⭐ 优秀 |
-| internal/trash | 83.5% | ⭐ 优秀 |
-| internal/billing/cost_analysis | 82.0% | ⭐ 优秀 |
-| internal/dashboard | 77.3% | ✅ 良好 |
-| internal/database | 76.0% | ✅ 良好 |
-| internal/nfs | 72.6% | ✅ 良好 |
-| internal/smb | 73.4% | ✅ 良好 |
 | internal/version | 100.0% | ⭐ 完美 |
-| internal/security/cmdsec | 100.0% | ⭐ 完美 |
-| internal/versioning | 71.6% | ✅ 良好 |
-| internal/prediction | 63.6% | ✅ 良好 |
-| pkg/btrfs | 63.6% | ✅ 良好 |
-| internal/rbac | 60.7% | ✅ 良好 |
-| internal/concurrency | 60.5% | ✅ 良好 |
-| internal/replication | 63.9% | ✅ 良好 |
+| internal/notify | 92.9% | ⭐ 优秀 |
+| internal/trash | 87.6% | ⭐ 优秀 |
+| internal/database | 82.5% | ⭐ 优秀 |
+| internal/transfer | 80.7% | ⭐ 优秀 |
+| internal/smb | 77.7% | ✅ 良好 |
+| internal/downloader | 77.7% | ✅ 良好 |
+| internal/versioning | 76.6% | ✅ 良好 |
+| internal/dashboard | 75.7% | ✅ 良好 |
+| internal/nfs | 75.5% | ✅ 良好 |
+| internal/iscsi | 73.4% | ✅ 良好 |
+| internal/rbac | 69.4% | ✅ 良好 |
+| internal/billing | 68.1% | ✅ 良好 |
+| internal/replication | 67.5% | ✅ 良好 |
+| pkg/btrfs | 61.1% | ✅ 良好 |
+| internal/concurrency | 60.6% | ✅ 良好 |
+| internal/prediction | 60.4% | ✅ 良好 |
+| internal/monitor | 24.9% | ⚠️ 需改进 |
+| internal/container | 24.0% | ⚠️ 需改进 |
+| internal/budget | 15.2% | ⚠️ 需改进 |
 | plugins/* | 0.0% | ❌ 无测试 |
 | tests/fixtures | 0.0% | ❌ 无测试 |
 | cmd/* | 0.0% | ❌ 无测试 |
