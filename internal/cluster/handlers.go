@@ -3,30 +3,58 @@ package cluster
 import (
 	"fmt"
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
+	"nas-os/internal/auth"
+)
+
+// 集群资源权限定义
+const (
+	// ResourceCluster 集群管理资源
+	ResourceCluster auth.Resource = "cluster"
+	// ResourceSync 同步规则资源
+	ResourceSync auth.Resource = "cluster_sync"
+	// ResourceLoadBalancer 负载均衡资源
+	ResourceLoadBalancer auth.Resource = "cluster_lb"
+	// ResourceHighAvailability 高可用资源
+	ResourceHighAvailability auth.Resource = "cluster_ha"
+)
+
+// 输入验证正则
+var (
+	nodeIDPattern = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+	ipPattern     = regexp.MustCompile(`^(\d{1,3}\.){3}\d{1,3}$|^\[?[0-9a-fA-F:]+\]?$`)
 )
 
 // API 集群 API 处理器
 type API struct {
-	manager *Manager
-	sync    *StorageSync
-	lb      *LoadBalancer
-	ha      *HighAvailability
-	logger  *zap.Logger
+	manager        *Manager
+	sync           *StorageSync
+	lb             *LoadBalancer
+	ha             *HighAvailability
+	logger         *zap.Logger
+	authMiddleware *auth.AuthMiddleware
 }
 
 // NewAPI 创建集群 API 处理器
 func NewAPI(manager *Manager, sync *StorageSync, lb *LoadBalancer, ha *HighAvailability, logger *zap.Logger) *API {
 	return &API{
-		manager: manager,
-		sync:    sync,
-		lb:      lb,
-		ha:      ha,
-		logger:  logger,
+		manager:        manager,
+		sync:           sync,
+		lb:             lb,
+		ha:             ha,
+		logger:         logger,
+		authMiddleware: nil, // 默认无认证，需要通过 SetAuthMiddleware 设置
 	}
+}
+
+// SetAuthMiddleware 设置认证中间件
+func (api *API) SetAuthMiddleware(am *auth.AuthMiddleware) {
+	api.authMiddleware = am
 }
 
 // NewClusterAPI 创建集群 API 处理器（兼容旧代码）
@@ -36,35 +64,71 @@ func NewClusterAPI(manager *Manager, sync *StorageSync, lb *LoadBalancer, ha *Hi
 
 // RegisterRoutes 注册路由
 func (api *API) RegisterRoutes(router *gin.RouterGroup) {
-	// 节点管理
-	router.GET("/nodes", api.GetNodes)
-	router.GET("/nodes/:id", api.GetNode)
-	router.POST("/nodes/join", api.JoinCluster)
-	router.DELETE("/nodes/:id", api.RemoveNode)
-	router.GET("/nodes/:id/status", api.GetNodeStatus)
-	router.POST("/nodes/:id/drain", api.DrainNode)
+	// 辅助函数：获取认证中间件（如果配置了）
+	authRequired := func() gin.HandlerFunc {
+		if api.authMiddleware != nil {
+			return api.authMiddleware.RequireAuth()
+		}
+		return func(c *gin.Context) { c.Next() }
+	}
 
-	// 存储同步
-	router.GET("/sync/rules", api.GetSyncRules)
-	router.GET("/sync/rules/:id", api.GetSyncRule)
-	router.POST("/sync/rules", api.CreateSyncRule)
-	router.PUT("/sync/rules/:id", api.UpdateSyncRule)
-	router.DELETE("/sync/rules/:id", api.DeleteSyncRule)
-	router.POST("/sync/trigger", api.TriggerSync)
-	router.GET("/sync/status", api.GetSyncStatus)
-	router.GET("/sync/jobs", api.GetSyncJobs)
+	// 辅助函数：需要特定权限
+	requirePermission := func(resource auth.Resource, action auth.Action) gin.HandlerFunc {
+		if api.authMiddleware != nil {
+			return api.authMiddleware.RequirePermission(resource, action)
+		}
+		return func(c *gin.Context) { c.Next() }
+	}
 
-	// 负载均衡
-	router.GET("/lb/config", api.GetLBConfig)
-	router.PUT("/lb/config", api.UpdateLBConfig)
-	router.GET("/lb/backends", api.GetBackends)
-	router.GET("/lb/stats", api.GetLBStats)
-	router.POST("/lb/reset", api.ResetLBStats)
+	// 辅助函数：需要管理员权限
+	requireAdmin := func() gin.HandlerFunc {
+		if api.authMiddleware != nil {
+			return api.authMiddleware.RequireAdmin()
+		}
+		return func(c *gin.Context) { c.Next() }
+	}
 
-	// 高可用
-	router.GET("/ha/status", api.GetHAStatus)
-	router.POST("/ha/failover", api.ManualFailover)
-	router.GET("/ha/history", api.GetFailoverHistory)
+	// ========== 节点管理 ==========
+	// 只读操作：需要认证（查看权限）
+	router.GET("/nodes", authRequired(), api.GetNodes)
+	router.GET("/nodes/:id", authRequired(), api.GetNode)
+	router.GET("/nodes/:id/status", authRequired(), api.GetNodeStatus)
+
+	// 敏感操作：需要管理员权限
+	router.POST("/nodes/join", requireAdmin(), api.JoinCluster)
+	router.DELETE("/nodes/:id", requireAdmin(), api.RemoveNode)
+	router.POST("/nodes/:id/drain", requireAdmin(), api.DrainNode)
+
+	// ========== 存储同步 ==========
+	// 只读操作：需要认证
+	router.GET("/sync/rules", authRequired(), api.GetSyncRules)
+	router.GET("/sync/rules/:id", authRequired(), api.GetSyncRule)
+	router.GET("/sync/status", authRequired(), api.GetSyncStatus)
+	router.GET("/sync/jobs", authRequired(), api.GetSyncJobs)
+
+	// 敏感操作：需要写入权限
+	router.POST("/sync/rules", requirePermission(ResourceSync, auth.ActionWrite), api.CreateSyncRule)
+	router.PUT("/sync/rules/:id", requirePermission(ResourceSync, auth.ActionWrite), api.UpdateSyncRule)
+	router.DELETE("/sync/rules/:id", requirePermission(ResourceSync, auth.ActionDelete), api.DeleteSyncRule)
+	router.POST("/sync/trigger", requirePermission(ResourceSync, auth.ActionExec), api.TriggerSync)
+
+	// ========== 负载均衡 ==========
+	// 只读操作：需要认证
+	router.GET("/lb/config", authRequired(), api.GetLBConfig)
+	router.GET("/lb/backends", authRequired(), api.GetBackends)
+	router.GET("/lb/stats", authRequired(), api.GetLBStats)
+
+	// 敏感操作：需要管理员权限
+	router.PUT("/lb/config", requireAdmin(), api.UpdateLBConfig)
+	router.POST("/lb/reset", requireAdmin(), api.ResetLBStats)
+
+	// ========== 高可用 ==========
+	// 只读操作：需要认证
+	router.GET("/ha/status", authRequired(), api.GetHAStatus)
+	router.GET("/ha/history", authRequired(), api.GetFailoverHistory)
+
+	// 敏感操作：需要管理员权限
+	router.POST("/ha/failover", requireAdmin(), api.ManualFailover)
 }
 
 // 节点管理 API
@@ -82,6 +146,16 @@ func (api *API) GetNodes(c *gin.Context) {
 // GetNode 获取节点详情
 func (api *API) GetNode(c *gin.Context) {
 	nodeID := c.Param("id")
+
+	// 安全校验：验证节点ID
+	if !nodeIDPattern.MatchString(nodeID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "节点ID格式无效",
+		})
+		return
+	}
+
 	node, exists := api.manager.GetNode(nodeID)
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -110,6 +184,42 @@ func (api *API) JoinCluster(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
 			"error":   err.Error(),
+		})
+		return
+	}
+
+	// 安全校验：验证节点ID
+	if !nodeIDPattern.MatchString(req.NodeID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "节点ID格式无效，只允许字母、数字、连字符和下划线",
+		})
+		return
+	}
+
+	// 安全校验：验证主机名
+	if req.Hostname == "" || len(req.Hostname) > 64 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "主机名不能为空且不能超过64字符",
+		})
+		return
+	}
+
+	// 安全校验：验证IP地址
+	if !ipPattern.MatchString(req.IP) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "IP地址格式无效",
+		})
+		return
+	}
+
+	// 安全校验：验证端口范围
+	if req.Port <= 0 || req.Port > 65535 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "端口号必须在1-65535之间",
 		})
 		return
 	}
@@ -149,6 +259,15 @@ func (api *API) JoinCluster(c *gin.Context) {
 func (api *API) RemoveNode(c *gin.Context) {
 	nodeID := c.Param("id")
 
+	// 安全校验：验证节点ID
+	if !nodeIDPattern.MatchString(nodeID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "节点ID格式无效",
+		})
+		return
+	}
+
 	if err := api.manager.RemoveNode(nodeID); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
@@ -166,6 +285,16 @@ func (api *API) RemoveNode(c *gin.Context) {
 // GetNodeStatus 获取节点状态
 func (api *API) GetNodeStatus(c *gin.Context) {
 	nodeID := c.Param("id")
+
+	// 安全校验：验证节点ID
+	if !nodeIDPattern.MatchString(nodeID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "节点ID格式无效",
+		})
+		return
+	}
+
 	node, exists := api.manager.GetNode(nodeID)
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -190,6 +319,15 @@ func (api *API) GetNodeStatus(c *gin.Context) {
 // DrainNode 节点下线
 func (api *API) DrainNode(c *gin.Context) {
 	nodeID := c.Param("id")
+
+	// 安全校验：验证节点ID
+	if !nodeIDPattern.MatchString(nodeID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "节点ID格式无效",
+		})
+		return
+	}
 
 	node, exists := api.manager.GetNode(nodeID)
 	if !exists {
@@ -224,6 +362,16 @@ func (api *API) GetSyncRules(c *gin.Context) {
 // GetSyncRule 获取同步规则详情
 func (api *API) GetSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
+
+	// 安全校验：验证规则ID
+	if !nodeIDPattern.MatchString(ruleID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "规则ID格式无效",
+		})
+		return
+	}
+
 	rule, exists := api.sync.GetRule(ruleID)
 	if !exists {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -269,6 +417,15 @@ func (api *API) CreateSyncRule(c *gin.Context) {
 func (api *API) UpdateSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
 
+	// 安全校验：验证规则ID
+	if !nodeIDPattern.MatchString(ruleID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "规则ID格式无效",
+		})
+		return
+	}
+
 	var updates map[string]interface{}
 	if err := c.ShouldBindJSON(&updates); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -296,6 +453,15 @@ func (api *API) UpdateSyncRule(c *gin.Context) {
 func (api *API) DeleteSyncRule(c *gin.Context) {
 	ruleID := c.Param("id")
 
+	// 安全校验：验证规则ID
+	if !nodeIDPattern.MatchString(ruleID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "规则ID格式无效",
+		})
+		return
+	}
+
 	if err := api.sync.DeleteRule(ruleID); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
@@ -320,6 +486,15 @@ func (api *API) TriggerSync(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
 			"error":   err.Error(),
+		})
+		return
+	}
+
+	// 安全校验：验证规则ID
+	if !nodeIDPattern.MatchString(req.RuleID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "规则ID格式无效",
 		})
 		return
 	}
@@ -447,6 +622,15 @@ func (api *API) ManualFailover(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
 			"error":   err.Error(),
+		})
+		return
+	}
+
+	// 安全校验：验证目标节点ID
+	if !nodeIDPattern.MatchString(req.TargetNodeID) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "目标节点ID格式无效",
 		})
 		return
 	}

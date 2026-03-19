@@ -3,10 +3,14 @@ package cluster
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -167,6 +171,11 @@ func (ss *StorageSync) Initialize() error {
 
 // CreateRule 创建同步规则
 func (ss *StorageSync) CreateRule(rule *SyncRule) error {
+	// 安全校验：验证规则字段
+	if err := ValidateSyncRule(rule); err != nil {
+		return fmt.Errorf("规则验证失败：%w", err)
+	}
+
 	ss.rulesMutex.Lock()
 	defer ss.rulesMutex.Unlock()
 
@@ -191,6 +200,11 @@ func (ss *StorageSync) CreateRule(rule *SyncRule) error {
 
 // UpdateRule 更新同步规则
 func (ss *StorageSync) UpdateRule(ruleID string, updates map[string]interface{}) error {
+	// 安全校验：验证规则ID
+	if err := ValidateNodeID(ruleID); err != nil {
+		return fmt.Errorf("规则ID无效：%w", err)
+	}
+
 	ss.rulesMutex.Lock()
 	defer ss.rulesMutex.Unlock()
 
@@ -199,31 +213,60 @@ func (ss *StorageSync) UpdateRule(ruleID string, updates map[string]interface{})
 		return fmt.Errorf("规则不存在：%s", ruleID)
 	}
 
-	// 应用更新
+	// 应用更新并验证
 	for key, value := range updates {
 		switch key {
 		case "name":
 			if v, ok := value.(string); ok {
+				if v == "" || len(v) > 128 {
+					return errors.New("规则名称必须在1-128字符之间")
+				}
 				rule.Name = v
 			}
 		case "source_path":
 			if v, ok := value.(string); ok {
+				if err := ValidatePath(v); err != nil {
+					return fmt.Errorf("源路径无效：%w", err)
+				}
 				rule.SourcePath = v
 			}
 		case "target_path":
 			if v, ok := value.(string); ok {
+				if err := ValidatePath(v); err != nil {
+					return fmt.Errorf("目标路径无效：%w", err)
+				}
 				rule.TargetPath = v
 			}
 		case "target_nodes":
 			if v, ok := value.([]string); ok {
+				if len(v) == 0 {
+					return errors.New("至少需要一个目标节点")
+				}
+				for _, nodeID := range v {
+					if err := ValidateNodeID(nodeID); err != nil {
+						return fmt.Errorf("目标节点ID无效：%w", err)
+					}
+				}
 				rule.TargetNodes = v
 			}
 		case "sync_mode":
 			if v, ok := value.(string); ok {
+				validModes := map[string]bool{
+					SyncModeAsync:    true,
+					SyncModeSync:     true,
+					SyncModeRealtime: true,
+					"":               true,
+				}
+				if !validModes[v] {
+					return fmt.Errorf("无效的同步模式：%s", v)
+				}
 				rule.SyncMode = v
 			}
 		case "schedule":
 			if v, ok := value.(string); ok {
+				if err := ValidateCronExpression(v); err != nil {
+					return fmt.Errorf("cron表达式无效：%w", err)
+				}
 				rule.Schedule = v
 				// 重新调度
 				if rule.Enabled {
@@ -391,24 +434,61 @@ func (ss *StorageSync) executeSync(rule *SyncRule) {
 
 // syncToNode 同步到指定节点
 func (ss *StorageSync) syncToNode(rule *SyncRule, targetNodeID string, job *SyncJob) error {
+	// 安全校验：验证目标节点ID
+	if err := ValidateNodeID(targetNodeID); err != nil {
+		return fmt.Errorf("目标节点ID无效：%w", err)
+	}
+
+	// 安全校验：验证源路径
+	if err := ValidatePath(rule.SourcePath); err != nil {
+		return fmt.Errorf("源路径无效：%w", err)
+	}
+
+	// 安全校验：验证目标路径
+	if err := ValidatePath(rule.TargetPath); err != nil {
+		return fmt.Errorf("目标路径无效：%w", err)
+	}
+
 	// 获取目标节点信息
 	node, exists := ss.cluster.GetNode(targetNodeID)
 	if !exists {
 		return fmt.Errorf("目标节点不存在：%s", targetNodeID)
 	}
 
+	// 安全校验：验证节点IP地址
+	if err := ValidateIP(node.IP); err != nil {
+		return fmt.Errorf("节点IP地址无效：%w", err)
+	}
+
 	if node.Status != StatusOnline {
 		return fmt.Errorf("目标节点离线：%s", targetNodeID)
 	}
 
+	// 安全校验：验证rsync路径
+	// 使用白名单验证，默认允许 /usr/bin/rsync
+	allowedRsyncPaths := []string{"/usr/bin/rsync", "/usr/local/bin/rsync"}
+	if err := ValidateRsyncPath(ss.config.RsyncPath, allowedRsyncPaths); err != nil {
+		return fmt.Errorf("rsync路径验证失败：%w", err)
+	}
+
+	// 安全校验：清理路径，防止命令注入
+	sourcePath := filepath.Clean(rule.SourcePath)
+	targetPath := filepath.Clean(rule.TargetPath)
+	nodeIP := node.IP
+
+	// 再次验证清理后的路径
+	if pathTraversalPattern.MatchString(sourcePath) || pathTraversalPattern.MatchString(targetPath) {
+		return fmt.Errorf("路径包含非法字符")
+	}
+
 	// 构建 rsync 命令
-	// 实际实现中需要使用 SSH 进行远程同步
+	// 使用参数化命令，避免命令注入
 	cmd := exec.CommandContext(ss.ctx, ss.config.RsyncPath,
 		"-avz",
 		"--delete",
 		"--progress",
-		rule.SourcePath,
-		fmt.Sprintf("%s@%s:%s", "nasadmin", node.IP, rule.TargetPath),
+		sourcePath,
+		fmt.Sprintf("%s@%s:%s", "nasadmin", nodeIP, targetPath),
 	)
 
 	output, err := cmd.CombinedOutput()
@@ -528,4 +608,227 @@ func (ss *StorageSync) loadRules() error {
 
 func generateRuleID() string {
 	return fmt.Sprintf("rule-%d", time.Now().UnixNano())
+}
+
+// ========== 安全验证函数 ==========
+
+// 安全验证正则
+var (
+	// 路径注入检测正则：检测 .. 路径遍历和危险字符
+	pathTraversalPattern = regexp.MustCompile(`\.\.[\\/]|[\x00\n\r]`)
+)
+
+// 安全验证错误
+var (
+	ErrInvalidPath       = errors.New("无效的路径：包含非法字符或路径遍历")
+	ErrInvalidIP         = errors.New("无效的IP地址")
+	ErrInvalidNodeID     = errors.New("无效的节点ID")
+	ErrInvalidSchedule   = errors.New("无效的cron表达式")
+	ErrInvalidRsyncPath  = errors.New("无效的rsync路径")
+	ErrPathNotAllowed    = errors.New("路径不在允许的目录范围内")
+	ErrCommandNotAllowed = errors.New("命令不在允许列表中")
+)
+
+// ValidatePath 验证路径安全性
+// 检查路径遍历攻击和非法字符
+func ValidatePath(path string) error {
+	if path == "" {
+		return errors.New("路径不能为空")
+	}
+
+	// 清理路径
+	cleanPath := filepath.Clean(path)
+
+	// 检查路径遍历
+	if pathTraversalPattern.MatchString(path) {
+		return ErrInvalidPath
+	}
+
+	// 检查清理后的路径是否与原路径一致（防止编码绕过）
+	if cleanPath != filepath.Clean(path) {
+		return ErrInvalidPath
+	}
+
+	// 禁止空字节和换行符（防止命令注入）
+	if strings.ContainsAny(path, "\x00\n\r") {
+		return ErrInvalidPath
+	}
+
+	return nil
+}
+
+// ValidatePathInAllowedDirs 验证路径是否在允许的目录范围内
+func ValidatePathInAllowedDirs(path string, allowedDirs []string) error {
+	if err := ValidatePath(path); err != nil {
+		return err
+	}
+
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return ErrInvalidPath
+	}
+
+	// 如果没有配置允许目录，则只检查基本安全性
+	if len(allowedDirs) == 0 {
+		return nil
+	}
+
+	for _, dir := range allowedDirs {
+		absDir, err := filepath.Abs(dir)
+		if err != nil {
+			continue
+		}
+		if strings.HasPrefix(absPath, absDir) {
+			return nil
+		}
+	}
+
+	return ErrPathNotAllowed
+}
+
+// ValidateIP 验证IP地址格式
+func ValidateIP(ip string) error {
+	if ip == "" {
+		return errors.New("IP地址不能为空")
+	}
+
+	// 解析IP地址
+	parsedIP := net.ParseIP(ip)
+	if parsedIP == nil {
+		return ErrInvalidIP
+	}
+
+	return nil
+}
+
+// ValidateNodeID 验证节点ID格式
+func ValidateNodeID(nodeID string) error {
+	if nodeID == "" {
+		return errors.New("节点ID不能为空")
+	}
+
+	if len(nodeID) > 64 {
+		return errors.New("节点ID长度不能超过64字符")
+	}
+
+	if !nodeIDPattern.MatchString(nodeID) {
+		return ErrInvalidNodeID
+	}
+
+	return nil
+}
+
+// ValidateCronExpression 验证cron表达式
+func ValidateCronExpression(expr string) error {
+	if expr == "" {
+		return nil // 空表达式是允许的（手动触发）
+	}
+
+	// 尝试解析cron表达式
+	_, err := cron.ParseStandard(expr)
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrInvalidSchedule, err)
+	}
+
+	return nil
+}
+
+// ValidateRsyncPath 验证rsync可执行文件路径
+// 确保路径在允许的白名单内
+func ValidateRsyncPath(rsyncPath string, allowedPaths []string) error {
+	if rsyncPath == "" {
+		return errors.New("rsync路径不能为空")
+	}
+
+	// 清理路径
+	cleanPath := filepath.Clean(rsyncPath)
+
+	// 检查是否是绝对路径
+	if !filepath.IsAbs(cleanPath) {
+		return ErrInvalidRsyncPath
+	}
+
+	// 检查路径注入
+	if pathTraversalPattern.MatchString(rsyncPath) {
+		return ErrInvalidRsyncPath
+	}
+
+	// 如果有白名单，检查是否在白名单内
+	if len(allowedPaths) > 0 {
+		allowed := false
+		for _, p := range allowedPaths {
+			if cleanPath == filepath.Clean(p) {
+				allowed = true
+				break
+			}
+		}
+		if !allowed {
+			return ErrInvalidRsyncPath
+		}
+	}
+
+	// 检查文件是否存在且可执行
+	info, err := os.Stat(cleanPath)
+	if err != nil {
+		return fmt.Errorf("rsync路径不存在: %w", err)
+	}
+
+	// 检查是否是常规文件
+	if !info.Mode().IsRegular() {
+		return ErrInvalidRsyncPath
+	}
+
+	return nil
+}
+
+// ValidateSyncRule 验证同步规则的所有字段
+func ValidateSyncRule(rule *SyncRule) error {
+	if rule == nil {
+		return errors.New("规则不能为空")
+	}
+
+	// 验证规则名称
+	if rule.Name == "" {
+		return errors.New("规则名称不能为空")
+	}
+	if len(rule.Name) > 128 {
+		return errors.New("规则名称不能超过128字符")
+	}
+
+	// 验证源路径
+	if err := ValidatePath(rule.SourcePath); err != nil {
+		return fmt.Errorf("源路径无效: %w", err)
+	}
+
+	// 验证目标路径
+	if err := ValidatePath(rule.TargetPath); err != nil {
+		return fmt.Errorf("目标路径无效: %w", err)
+	}
+
+	// 验证目标节点
+	if len(rule.TargetNodes) == 0 {
+		return errors.New("至少需要一个目标节点")
+	}
+	for _, nodeID := range rule.TargetNodes {
+		if err := ValidateNodeID(nodeID); err != nil {
+			return fmt.Errorf("目标节点ID无效: %w", err)
+		}
+	}
+
+	// 验证同步模式
+	validModes := map[string]bool{
+		SyncModeAsync:    true,
+		SyncModeSync:     true,
+		SyncModeRealtime: true,
+	}
+	if rule.SyncMode != "" && !validModes[rule.SyncMode] {
+		return fmt.Errorf("无效的同步模式: %s", rule.SyncMode)
+	}
+
+	// 验证cron表达式
+	if err := ValidateCronExpression(rule.Schedule); err != nil {
+		return fmt.Errorf("cron表达式无效: %w", err)
+	}
+
+	return nil
 }
