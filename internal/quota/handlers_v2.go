@@ -3,11 +3,26 @@ package quota
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+// safeFilename 安全编码文件名，防止 XSS 和头注入
+func safeFilename(name string) string {
+	// 移除危险字符
+	name = strings.Map(func(r rune) rune {
+		if r == '\r' || r == '\n' || r == '"' || r == '\\' || r == '\x00' {
+			return -1
+		}
+		return r
+	}, name)
+	// URL 编码非安全字符
+	return url.QueryEscape(name)
+}
 
 // HandlersV2 v2.7.0 新增 API 处理器
 type HandlersV2 struct {
@@ -538,15 +553,15 @@ func (h *HandlersV2) exportUserReport(c *gin.Context) {
 		return
 	}
 
-	// 设置响应头
-	filename := "user-report-" + username + "-" + time.Now().Format("2006-01-02")
+	// 设置响应头 - 使用安全编码防止 XSS
+	filename := "user-report-" + safeFilename(username) + "-" + time.Now().Format("2006-01-02")
 	if format == "csv" {
-		c.Header("Content-Disposition", "attachment; filename="+filename+".csv")
+		c.Header("Content-Disposition", "attachment; filename*=UTF-8''"+filename+".csv")
 		c.Header("Content-Type", "text/csv")
 		// 简化 CSV 输出
 		c.String(http.StatusOK, "Username,QuotaID,VolumeName,UsedBytes,UsagePercent\n")
 	} else {
-		c.Header("Content-Disposition", "attachment; filename="+filename+".json")
+		c.Header("Content-Disposition", "attachment; filename*=UTF-8''"+filename+".json")
 		c.JSON(http.StatusOK, report)
 	}
 }
@@ -604,11 +619,11 @@ func (h *HandlersV2) exportSystemReport(c *gin.Context) {
 
 	filename := "system-report-" + time.Now().Format("2006-01-02")
 	if format == "csv" {
-		c.Header("Content-Disposition", "attachment; filename="+filename+".csv")
+		c.Header("Content-Disposition", "attachment; filename*=UTF-8''"+filename+".csv")
 		c.Header("Content-Type", "text/csv")
 		c.String(http.StatusOK, "VolumeName,TotalUsed,TotalLimit,UsagePercent\n")
 	} else {
-		c.Header("Content-Disposition", "attachment; filename="+filename+".json")
+		c.Header("Content-Disposition", "attachment; filename*=UTF-8''"+filename+".json")
 		c.JSON(http.StatusOK, report)
 	}
 }

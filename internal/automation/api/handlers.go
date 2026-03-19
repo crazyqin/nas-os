@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"nas-os/internal/automation/action"
@@ -15,6 +17,19 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+// safeDownloadID 安全编码下载 ID，防止 XSS 和头注入
+func safeDownloadID(id string) string {
+	// 移除危险字符
+	id = strings.Map(func(r rune) rune {
+		if r == '\r' || r == '\n' || r == '"' || r == '\\' || r == '\x00' {
+			return -1
+		}
+		return r
+	}, id)
+	// URL 编码
+	return url.QueryEscape(id)
+}
 
 // AutomationAPI 自动化 API 处理器
 type AutomationAPI struct {
@@ -276,7 +291,7 @@ func (a *AutomationAPI) ExportWorkflow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Content-Disposition", "attachment; filename=workflow_"+id+".json")
+	w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''workflow_"+safeDownloadID(id)+".json")
 	_, _ = w.Write(data)
 }
 
@@ -412,7 +427,7 @@ func (a *AutomationAPI) ExportTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Content-Disposition", "attachment; filename=template_"+id+".json")
+	w.Header().Set("Content-Disposition", "attachment; filename*=UTF-8''template_"+safeDownloadID(id)+".json")
 	_, _ = w.Write(data)
 }
 
