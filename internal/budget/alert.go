@@ -110,7 +110,7 @@ type Alert struct {
 	RemainingAmount float64 `json:"remaining_amount"` // 剩余金额
 
 	// 状态
-	Status        Status `json:"status"`
+	Status        AlertStatus `json:"status"`
 	Message       string `json:"message"`
 	CustomMessage string `json:"custom_message,omitempty"`
 
@@ -139,15 +139,15 @@ const (
 	LevelEmergency Level = "emergency" // 紧急
 )
 
-// Status 警报状态
-type Status string
+// AlertStatus 警报状态
+type AlertStatus string
 
 // 警报状态常量
 const (
-	StatusActive       Status = "active"       // 活跃
-	StatusAcknowledged Status = "acknowledged" // 已确认
-	StatusResolved     Status = "resolved"     // 已解决
-	StatusSuppressed   Status = "suppressed"   // 已抑制
+	AlertStatusActive       AlertStatus = "active"       // 活跃
+	AlertStatusAcknowledged AlertStatus = "acknowledged" // 已确认
+	AlertStatusResolved     AlertStatus = "resolved"     // 已解决
+	AlertStatusSuppressed   AlertStatus = "suppressed"   // 已抑制
 )
 
 // AlertRule 警报规则
@@ -384,7 +384,7 @@ func (m *AlertManager) hasActiveAlert(budgetID string, level Level) bool {
 	for _, alert := range m.alerts {
 		if alert.BudgetID == budgetID &&
 			alert.Level == level &&
-			(alert.Status == StatusActive || alert.Status == StatusAcknowledged) {
+			(alert.Status == AlertStatusActive || alert.Status == AlertStatusAcknowledged) {
 			return true
 		}
 	}
@@ -412,7 +412,7 @@ func (m *AlertManager) createAlert(budget *Info, threshold ThresholdConfig) *Ale
 		CurrentSpend:    budget.UsedAmount,
 		BudgetAmount:    budget.Amount,
 		RemainingAmount: budget.Remaining,
-		Status:          StatusActive,
+		Status:          AlertStatusActive,
 		Message:         message,
 		NotifySent:      false,
 		NotifyChannels:  make([]string, 0),
@@ -433,18 +433,18 @@ func (m *AlertManager) AcknowledgeAlert(alertID, acknowledgedBy string) (*Alert,
 		return nil, ErrAlertRuleNotFound
 	}
 
-	if alert.Status == StatusResolved {
+	if alert.Status == AlertStatusResolved {
 		return nil, ErrAlertAlreadyResolved
 	}
 
 	now := time.Now()
 	oldStatus := string(alert.Status)
 
-	alert.Status = StatusAcknowledged
+	alert.Status = AlertStatusAcknowledged
 	alert.AcknowledgedAt = &now
 	alert.AcknowledgedBy = acknowledgedBy
 
-	m.recordHistory(alert, "acknowledged", oldStatus, string(StatusAcknowledged))
+	m.recordHistory(alert, "acknowledged", oldStatus, string(AlertStatusAcknowledged))
 
 	return alert, nil
 }
@@ -459,17 +459,17 @@ func (m *AlertManager) ResolveAlert(alertID, resolvedBy string) (*Alert, error) 
 		return nil, ErrAlertRuleNotFound
 	}
 
-	if alert.Status == StatusResolved {
+	if alert.Status == AlertStatusResolved {
 		return nil, ErrAlertAlreadyResolved
 	}
 
 	now := time.Now()
 	oldStatus := string(alert.Status)
 
-	alert.Status = StatusResolved
+	alert.Status = AlertStatusResolved
 	alert.ResolvedAt = &now
 
-	m.recordHistory(alert, "resolved", oldStatus, string(StatusResolved))
+	m.recordHistory(alert, "resolved", oldStatus, string(AlertStatusResolved))
 
 	return alert, nil
 }
@@ -486,10 +486,10 @@ func (m *AlertManager) SuppressAlert(alertID, reason string) (*Alert, error) {
 
 	oldStatus := string(alert.Status)
 
-	alert.Status = StatusSuppressed
+	alert.Status = AlertStatusSuppressed
 	alert.CustomMessage = reason
 
-	m.recordHistory(alert, "suppressed", oldStatus, string(StatusSuppressed))
+	m.recordHistory(alert, "suppressed", oldStatus, string(AlertStatusSuppressed))
 
 	return alert, nil
 }
@@ -588,7 +588,7 @@ func (m *AlertManager) CheckEscalations(ctx context.Context) ([]*Alert, error) {
 	now := time.Now()
 
 	for _, alert := range m.alerts {
-		if alert.Status != StatusActive {
+		if alert.Status != AlertStatusActive {
 			continue
 		}
 
@@ -722,7 +722,7 @@ func (m *AlertManager) GetActiveAlerts() []*Alert {
 
 	var result []*Alert
 	for _, alert := range m.alerts {
-		if alert.Status == StatusActive || alert.Status == StatusAcknowledged {
+		if alert.Status == AlertStatusActive || alert.Status == AlertStatusAcknowledged {
 			result = append(result, alert)
 		}
 	}
@@ -746,11 +746,11 @@ func (m *AlertManager) GetAlertStats() *AlertStats {
 		stats.TotalAlerts++
 
 		switch alert.Status {
-		case StatusActive:
+		case AlertStatusActive:
 			stats.ActiveAlerts++
-		case StatusAcknowledged:
+		case AlertStatusAcknowledged:
 			stats.AcknowledgedAlerts++
-		case StatusResolved:
+		case AlertStatusResolved:
 			stats.ResolvedAlerts++
 			if alert.ResolvedAt != nil {
 				resolutionTime := alert.ResolvedAt.Sub(alert.TriggeredAt).Minutes()

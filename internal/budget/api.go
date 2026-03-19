@@ -107,7 +107,7 @@ func (m *BudgetManager) CreateBudget(input Input, createdBy string) (*Budget, er
 		StartDate:    startDate,
 		EndDate:      input.EndDate,
 		LastReset:    startDate,
-		Status:       BudgetStatusActive,
+		Status:       StatusActive,
 		AutoReset:    input.AutoReset,
 		Rollover:     input.Rollover,
 		AlertConfig:  alertConfig,
@@ -237,7 +237,7 @@ func (m *BudgetManager) RecordUsage(input UsageInput) (*Usage, error) {
 		return nil, ErrBudgetNotFound
 	}
 
-	if budget.Status == BudgetStatusPaused || budget.Status == BudgetStatusArchived {
+	if budget.Status == StatusPaused || budget.Status == StatusArchived {
 		return nil, fmt.Errorf("预算状态不允许记录使用: %s", budget.Status)
 	}
 
@@ -424,7 +424,7 @@ func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 				BudgetAmount:    budget.Amount,
 				RemainingAmount: budget.Remaining,
 				Message:         threshold.Message,
-				Status:          StatusActive,
+				Status:          AlertStatusActive,
 				TriggeredAt:     time.Now(),
 				NotifySent:      false,
 			}
@@ -448,13 +448,13 @@ func (m *BudgetManager) checkAndCreateAlert(budget *Budget) {
 func (m *BudgetManager) checkBudgetStatus(budget *Budget) {
 	switch {
 	case budget.UsagePercent >= 100:
-		budget.Status = BudgetStatusExhausted
+		budget.Status = StatusExhausted
 	case budget.UsagePercent >= 90:
-		budget.Status = BudgetStatusExceeded
+		budget.Status = StatusExceeded
 	default:
-		if budget.Status == BudgetStatusExceeded || budget.Status == BudgetStatusExhausted {
+		if budget.Status == StatusExceeded || budget.Status == StatusExhausted {
 			if budget.UsagePercent < 90 {
-				budget.Status = BudgetStatusActive
+				budget.Status = StatusActive
 			}
 		}
 	}
@@ -468,7 +468,7 @@ func (m *BudgetManager) AcknowledgeAlert(alertID string, acknowledgedBy string) 
 	for budgetID, alert := range m.alerts {
 		if alert.ID == alertID {
 			now := time.Now()
-			alert.Status = StatusAcknowledged
+			alert.Status = AlertStatusAcknowledged
 			alert.AcknowledgedAt = &now
 			alert.AcknowledgedBy = acknowledgedBy
 			m.alerts[budgetID] = alert
@@ -487,7 +487,7 @@ func (m *BudgetManager) ResolveAlert(alertID string) error {
 	for budgetID, alert := range m.alerts {
 		if alert.ID == alertID {
 			now := time.Now()
-			alert.Status = StatusResolved
+			alert.Status = AlertStatusResolved
 			alert.ResolvedAt = &now
 			delete(m.alerts, budgetID)
 			return nil
@@ -573,7 +573,7 @@ func (m *BudgetManager) ResetBudget(id string) (*Budget, error) {
 	budget.UsagePercent = 0
 	budget.LastReset = time.Now()
 	budget.NextReset = calculateNextReset(time.Now(), budget.Period)
-	budget.Status = BudgetStatusActive
+	budget.Status = StatusActive
 
 	// 清除活跃预警
 	delete(m.alerts, id)
@@ -605,7 +605,7 @@ func (m *BudgetManager) CheckAndResetBudgets() ([]*Budget, error) {
 			budget.UsagePercent = 0
 			budget.LastReset = now
 			budget.NextReset = calculateNextReset(now, budget.Period)
-			budget.Status = BudgetStatusActive
+			budget.Status = StatusActive
 
 			delete(m.alerts, budget.ID)
 			resetBudgets = append(resetBudgets, budget)
@@ -762,7 +762,7 @@ func (m *BudgetManager) GetStats() *BudgetStats {
 
 	for _, budget := range m.budgets {
 		stats.TotalBudgets++
-		if budget.Status == BudgetStatusActive {
+		if budget.Status == StatusActive {
 			stats.ActiveBudgets++
 		}
 
@@ -897,7 +897,7 @@ func matchAlertQuery(alert *Alert, query AlertQuery) bool {
 	if len(query.Levels) > 0 && !containsLevel(query.Levels, alert.Level) {
 		return false
 	}
-	if len(query.Statuses) > 0 && !containsStatus(query.Statuses, alert.Status) {
+	if len(query.Statuses) > 0 && !containsAlertStatus(query.Statuses, alert.Status) {
 		return false
 	}
 	return true
@@ -973,6 +973,16 @@ func containsLevel(slice []Level, l Level) bool {
 
 // containsStatus 检查预警状态是否在切片中
 func containsStatus(slice []Status, s Status) bool {
+	for _, item := range slice {
+		if item == s {
+			return true
+		}
+	}
+	return false
+}
+
+// containsAlertStatus 检查警报状态切片是否包含指定状态
+func containsAlertStatus(slice []AlertStatus, s AlertStatus) bool {
 	for _, item := range slice {
 		if item == s {
 			return true
@@ -1103,7 +1113,7 @@ func calculateDailyAvgUsage(usages []*Usage, start, end time.Time) float64 {
 func countActiveBudgets(details []BudgetDetail) int {
 	count := 0
 	for _, d := range details {
-		if d.Status == BudgetStatusActive {
+		if d.Status == StatusActive {
 			count++
 		}
 	}

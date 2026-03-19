@@ -415,7 +415,7 @@ func (h *Handlers) GetAlertHistory(c *gin.Context) {
 func (h *Handlers) GetActiveAlerts(c *gin.Context) {
 	query := AlertQuery{
 		Levels:   parseLevels(c.QueryArray("level")),
-		Statuses: parseStatuses(c.QueryArray("status")),
+		Statuses: parseAlertStatuses(c.QueryArray("status")),
 		Page:     parseInt(c.Query("page"), 1),
 		PageSize: parseInt(c.Query("page_size"), 20),
 	}
@@ -572,6 +572,15 @@ func parseStatuses(statuses []string) []Status {
 	var result []Status
 	for _, s := range statuses {
 		result = append(result, Status(s))
+	}
+	return result
+}
+
+// parseAlertStatuses 解析警报状态
+func parseAlertStatuses(statuses []string) []AlertStatus {
+	var result []AlertStatus
+	for _, s := range statuses {
+		result = append(result, AlertStatus(s))
 	}
 	return result
 }

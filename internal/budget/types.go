@@ -368,13 +368,13 @@ type UsageQuery struct {
 
 // AlertQuery 预警查询参数
 type AlertQuery struct {
-	BudgetIDs []string   `json:"budget_ids,omitempty"`
-	Levels    []Level    `json:"levels,omitempty"`
-	Statuses  []Status   `json:"statuses,omitempty"`
-	StartTime *time.Time `json:"start_time,omitempty"`
-	EndTime   *time.Time `json:"end_time,omitempty"`
-	Page      int        `json:"page"`
-	PageSize  int        `json:"page_size"`
+	BudgetIDs []string      `json:"budget_ids,omitempty"`
+	Levels    []Level       `json:"levels,omitempty"`
+	Statuses  []AlertStatus `json:"statuses,omitempty"`
+	StartTime *time.Time    `json:"start_time,omitempty"`
+	EndTime   *time.Time    `json:"end_time,omitempty"`
+	Page      int           `json:"page"`
+	PageSize  int           `json:"page_size"`
 }
 
 // ========== 统计数据 ==========
@@ -424,3 +424,20 @@ func DefaultAlertConfig() AlertConfig {
 		EscalationEnabled: false,
 	}
 }
+
+// ========== 类型别名（向后兼容） ==========
+
+// BudgetQuery 是 Query 的别名
+type BudgetQuery = Query
+
+// BudgetDetail 是 Detail 的别名
+type BudgetDetail = Detail
+
+// BudgetRecommendation 是 Recommendation 的别名
+type BudgetRecommendation = Recommendation
+
+// BudgetStats 是 Stats 的别名
+type BudgetStats = Stats
+
+// BudgetStatus 是 Status 的别名
+type BudgetStatus = Status
