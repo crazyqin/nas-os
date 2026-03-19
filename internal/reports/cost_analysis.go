@@ -810,9 +810,13 @@ func (a *CostAnalyzer) calculateHealthScore(report *CostAnalysisReport) int {
 type StorageCostForecastModel string
 
 const (
-	ForecastModelLinear      StorageCostForecastModel = "linear"
+	// ForecastModelLinear represents linear forecast model.
+	ForecastModelLinear StorageCostForecastModel = "linear"
+	// ForecastModelExponential represents exponential forecast model.
 	ForecastModelExponential StorageCostForecastModel = "exponential"
-	ForecastModelARIMA       StorageCostForecastModel = "arima"
+	// ForecastModelARIMA represents ARIMA forecast model.
+	ForecastModelARIMA StorageCostForecastModel = "arima"
+	// ForecastModelHoltWinters represents Holt-Winters forecast model.
 	ForecastModelHoltWinters StorageCostForecastModel = "holt_winters"
 )
 
@@ -2120,10 +2124,14 @@ func getPriority(threshold float64) string {
 type PredictionModelType string
 
 const (
-	PredictionModelLinear      PredictionModelType = "linear"
+	// PredictionModelLinear represents linear prediction model.
+	PredictionModelLinear PredictionModelType = "linear"
+	// PredictionModelExponential represents exponential prediction model.
 	PredictionModelExponential PredictionModelType = "exponential"
-	PredictionModelPolynomial  PredictionModelType = "polynomial"
-	PredictionModelARIMA       PredictionModelType = "arima"
+	// PredictionModelPolynomial represents polynomial prediction model.
+	PredictionModelPolynomial PredictionModelType = "polynomial"
+	// PredictionModelARIMA represents ARIMA prediction model.
+	PredictionModelARIMA PredictionModelType = "arima"
 )
 
 // PredictionResult 预测结果

@@ -24,8 +24,7 @@ type Template struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// ProjectTemplate 是 Template 的别名，保持向后兼容
-type ProjectTemplate = Template
+
 
 // TemplateConfig 模板配置
 type TemplateConfig struct {
@@ -212,7 +211,7 @@ func (tm *TemplateManager) ListTemplates(userID, category string, publicOnly boo
 	tm.mu.RLock()
 	defer tm.mu.RUnlock()
 
-	result := make([]*ProjectTemplate, 0)
+	result := make([]*Template, 0)
 	for _, template := range tm.templates {
 		// 筛选条件
 		if publicOnly && !template.IsPublic {
@@ -468,6 +467,5 @@ func (tm *TemplateManager) InitializeDefaultTemplates() {
 	}
 }
 
-// 错误定义
-// ErrTemplateNotFound 模板不存在错误
+// ErrTemplateNotFound is the error when a template is not found.
 var ErrTemplateNotFound = errors.New("模板不存在")

@@ -33,13 +33,20 @@ const (
 	MessageTypeSystem MessageType = "system"
 	// MessageTypeNotification represents a notification message type
 	MessageTypeNotification MessageType = "notification"
-	MessageTypeMetric       MessageType = "metric"
-	MessageTypeAlert        MessageType = "alert"
-	MessageTypeEvent        MessageType = "event"
-	MessageTypeContainer    MessageType = "container"
-	MessageTypeStorage      MessageType = "storage"
-	MessageTypeBackup       MessageType = "backup"
-	MessageTypeSync         MessageType = "sync"
+	// MessageTypeMetric represents a metric message type
+	MessageTypeMetric MessageType = "metric"
+	// MessageTypeAlert represents an alert message type
+	MessageTypeAlert MessageType = "alert"
+	// MessageTypeEvent represents an event message type
+	MessageTypeEvent MessageType = "event"
+	// MessageTypeContainer represents a container message type
+	MessageTypeContainer MessageType = "container"
+	// MessageTypeStorage represents a storage message type
+	MessageTypeStorage MessageType = "storage"
+	// MessageTypeBackup represents a backup message type
+	MessageTypeBackup MessageType = "backup"
+	// MessageTypeSync represents a sync message type
+	MessageTypeSync MessageType = "sync"
 )
 
 // WebSocketMessage represents a WebSocket message

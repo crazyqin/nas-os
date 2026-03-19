@@ -344,9 +344,13 @@ func CalculatePercentile(values []float64, percentile float64) float64 {
 type TrendDirection string
 
 const (
-	TrendUp      TrendDirection = "up"
-	TrendDown    TrendDirection = "down"
-	TrendStable  TrendDirection = "stable"
+	// TrendUp represents upward trend direction.
+	TrendUp TrendDirection = "up"
+	// TrendDown represents downward trend direction.
+	TrendDown TrendDirection = "down"
+	// TrendStable represents stable trend direction.
+	TrendStable TrendDirection = "stable"
+	// TrendUnknown represents unknown trend direction.
 	TrendUnknown TrendDirection = "unknown"
 )
 

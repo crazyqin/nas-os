@@ -161,8 +161,8 @@ func TestLoaderListInstancesEmpty(t *testing.T) {
 	}
 }
 
-func TestPluginInfoFields(t *testing.T) {
-	info := PluginInfo{
+func TestInfoFields(t *testing.T) {
+	info := Info{
 		ID:          "com.test.plugin",
 		Name:        "Test Plugin",
 		Version:     "1.0.0",
@@ -283,8 +283,8 @@ func TestPropertyFields(t *testing.T) {
 	}
 }
 
-func TestPluginState(t *testing.T) {
-	state := PluginState{
+func TestState(t *testing.T) {
+	state := State{
 		ID:        "com.test.plugin",
 		Enabled:   true,
 		Running:   true,
@@ -301,14 +301,14 @@ func TestPluginState(t *testing.T) {
 	}
 }
 
-func TestPluginInstance(t *testing.T) {
-	info := PluginInfo{
+func TestInstance(t *testing.T) {
+	info := Info{
 		ID:      "com.test.plugin",
 		Name:    "Test",
 		Version: "1.0.0",
 	}
 
-	instance := &PluginInstance{
+	instance := &Instance{
 		Info:    info,
 		Path:    "/plugins/test.so",
 		Enabled: true,

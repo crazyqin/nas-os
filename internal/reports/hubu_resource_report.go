@@ -11,10 +11,14 @@ import (
 type HubuReportType string
 
 const (
-	HubuReportStorageUsage   HubuReportType = "storage_usage"   // 存储使用报告
+	// HubuReportStorageUsage represents storage usage report type.
+	HubuReportStorageUsage HubuReportType = "storage_usage" // 存储使用报告
+	// HubuReportBandwidthStats represents bandwidth statistics report type.
 	HubuReportBandwidthStats HubuReportType = "bandwidth_stats" // 带宽统计报告
-	HubuReportCapacity       HubuReportType = "capacity"        // 容量预测报告
-	HubuReportComprehensive  HubuReportType = "comprehensive"   // 综合资源报告
+	// HubuReportCapacity represents capacity forecast report type.
+	HubuReportCapacity HubuReportType = "capacity" // 容量预测报告
+	// HubuReportComprehensive represents comprehensive resource report type.
+	HubuReportComprehensive HubuReportType = "comprehensive" // 综合资源报告
 )
 
 // HubuReportRequest 资源报告请求

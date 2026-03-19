@@ -153,14 +153,7 @@ type Instance struct {
 	Running bool   // 是否运行中
 }
 
-// PluginInfo 是 Info 的别名，保持向后兼容
-type PluginInfo = Info
 
-// PluginState 是 State 的别名，保持向后兼容
-type PluginState = State
-
-// PluginInstance 是 Instance 的别名，保持向后兼容
-type PluginInstance = Instance
 
 // ExtensionPoint 扩展点定义
 type ExtensionPoint struct {

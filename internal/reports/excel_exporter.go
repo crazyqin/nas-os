@@ -18,11 +18,17 @@ import (
 type ChartType string
 
 const (
-	ChartTypeBar      ChartType = "bar"      // 柱状图
-	ChartTypeLine     ChartType = "line"     // 折线图
-	ChartTypePie      ChartType = "pie"      // 饼图
-	ChartTypeArea     ChartType = "area"     // 面积图
-	ChartTypeScatter  ChartType = "scatter"  // 散点图
+	// ChartTypeBar represents bar chart type.
+	ChartTypeBar ChartType = "bar" // 柱状图
+	// ChartTypeLine represents line chart type.
+	ChartTypeLine ChartType = "line" // 折线图
+	// ChartTypePie represents pie chart type.
+	ChartTypePie ChartType = "pie" // 饼图
+	// ChartTypeArea represents area chart type.
+	ChartTypeArea ChartType = "area" // 面积图
+	// ChartTypeScatter represents scatter chart type.
+	ChartTypeScatter ChartType = "scatter" // 散点图
+	// ChartTypeDoughnut represents doughnut chart type.
 	ChartTypeDoughnut ChartType = "doughnut" // 环形图
 )
 

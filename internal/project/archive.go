@@ -41,8 +41,7 @@ type Archive struct {
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 }
 
-// ProjectArchive 是 Archive 的别名，保持向后兼容
-type ProjectArchive = Archive
+
 
 // ArchiveConfig 归档配置
 type ArchiveConfig struct {

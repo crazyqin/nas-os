@@ -11,11 +11,17 @@ import (
 type ResourceReportType string
 
 const (
-	ResourceReportOverview    ResourceReportType = "overview"    // 总览报告
-	ResourceReportStorage     ResourceReportType = "storage"     // 存储报告
-	ResourceReportBandwidth   ResourceReportType = "bandwidth"   // 带宽报告
-	ResourceReportUser        ResourceReportType = "user"        // 用户报告
-	ResourceReportCapacity    ResourceReportType = "capacity"    // 容量报告
+	// ResourceReportOverview represents overview resource report type.
+	ResourceReportOverview ResourceReportType = "overview" // 总览报告
+	// ResourceReportStorage represents storage resource report type.
+	ResourceReportStorage ResourceReportType = "storage" // 存储报告
+	// ResourceReportBandwidth represents bandwidth resource report type.
+	ResourceReportBandwidth ResourceReportType = "bandwidth" // 带宽报告
+	// ResourceReportUser represents user resource report type.
+	ResourceReportUser ResourceReportType = "user" // 用户报告
+	// ResourceReportCapacity represents capacity resource report type.
+	ResourceReportCapacity ResourceReportType = "capacity" // 容量报告
+	// ResourceReportPerformance represents performance resource report type.
 	ResourceReportPerformance ResourceReportType = "performance" // 性能报告
 )
 

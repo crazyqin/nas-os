@@ -255,7 +255,7 @@ func TestManagerSaveStates(t *testing.T) {
 
 	// 手动添加状态
 	mgr.mu.Lock()
-	mgr.states["test-plugin"] = &PluginState{
+	mgr.states["test-plugin"] = &State{
 		ID:        "test-plugin",
 		Enabled:   true,
 		Installed: true,

@@ -18,9 +18,12 @@ import (
 // ========== 错误定义 ==========
 
 var (
+	// ErrFinancialReportNotFound is the error when a financial report is not found.
 	ErrFinancialReportNotFound = errors.New("财务报告不存在")
-	ErrReportGenerationFailed  = errors.New("报告生成失败")
-	ErrInvalidReportParams     = errors.New("无效的报告参数")
+	// ErrReportGenerationFailed is the error when report generation fails.
+	ErrReportGenerationFailed = errors.New("报告生成失败")
+	// ErrInvalidReportParams is the error when invalid report parameters are provided.
+	ErrInvalidReportParams = errors.New("无效的报告参数")
 )
 
 // ========== 财务报告类型定义 ==========
@@ -29,33 +32,49 @@ var (
 type FinancialReportType string
 
 const (
-	FinancialReportTypeIncome       FinancialReportType = "income"        // 收入报告
-	FinancialReportTypeExpense      FinancialReportType = "expense"       // 支出报告
-	FinancialReportTypeCashFlow     FinancialReportType = "cash_flow"     // 现金流报告
-	FinancialReportTypeBudget       FinancialReportType = "budget"        // 预算执行报告
+	// FinancialReportTypeIncome represents income report type.
+	FinancialReportTypeIncome FinancialReportType = "income" // 收入报告
+	// FinancialReportTypeExpense represents expense report type.
+	FinancialReportTypeExpense FinancialReportType = "expense" // 支出报告
+	// FinancialReportTypeCashFlow represents cash flow report type.
+	FinancialReportTypeCashFlow FinancialReportType = "cash_flow" // 现金流报告
+	// FinancialReportTypeBudget represents budget execution report type.
+	FinancialReportTypeBudget FinancialReportType = "budget" // 预算执行报告
+	// FinancialReportTypeCostAnalysis represents cost analysis report type.
 	FinancialReportTypeCostAnalysis FinancialReportType = "cost_analysis" // 成本分析报告
-	FinancialReportTypeProfitLoss   FinancialReportType = "profit_loss"   // 损益报告
+	// FinancialReportTypeProfitLoss represents profit/loss report type.
+	FinancialReportTypeProfitLoss FinancialReportType = "profit_loss" // 损益报告
+	// FinancialReportTypeBalanceSheet represents balance sheet report type.
 	FinancialReportTypeBalanceSheet FinancialReportType = "balance_sheet" // 资产负债表
-	FinancialReportTypeCustom       FinancialReportType = "custom"        // 自定义报告
+	// FinancialReportTypeCustom represents custom report type.
+	FinancialReportTypeCustom FinancialReportType = "custom" // 自定义报告
 )
 
 // ReportStatus 报告状态
 type ReportStatus string
 
 const (
-	ReportStatusPending    ReportStatus = "pending"    // 待生成
+	// ReportStatusPending represents pending report status.
+	ReportStatusPending ReportStatus = "pending" // 待生成
+	// ReportStatusGenerating represents generating report status.
 	ReportStatusGenerating ReportStatus = "generating" // 生成中
-	ReportStatusCompleted  ReportStatus = "completed"  // 已完成
-	ReportStatusFailed     ReportStatus = "failed"     // 失败
+	// ReportStatusCompleted represents completed report status.
+	ReportStatusCompleted ReportStatus = "completed" // 已完成
+	// ReportStatusFailed represents failed report status.
+	ReportStatusFailed ReportStatus = "failed" // 失败
 )
 
 // Currency 货币类型
 type Currency string
 
 const (
+	// CurrencyCNY represents Chinese Yuan currency.
 	CurrencyCNY Currency = "CNY" // 人民币
+	// CurrencyUSD represents US Dollar currency.
 	CurrencyUSD Currency = "USD" // 美元
+	// CurrencyEUR represents Euro currency.
 	CurrencyEUR Currency = "EUR" // 欧元
+	// CurrencyJPY represents Japanese Yen currency.
 	CurrencyJPY Currency = "JPY" // 日元
 )
 
@@ -141,11 +160,16 @@ type FinancialSummary struct {
 type SectionType string
 
 const (
+	// SectionTypeSummary represents summary section type.
 	SectionTypeSummary SectionType = "summary"
-	SectionTypeItems   SectionType = "items"
-	SectionTypeChart   SectionType = "chart"
-	SectionTypeTable   SectionType = "table"
-	SectionTypeText    SectionType = "text"
+	// SectionTypeItems represents items section type.
+	SectionTypeItems SectionType = "items"
+	// SectionTypeChart represents chart section type.
+	SectionTypeChart SectionType = "chart"
+	// SectionTypeTable represents table section type.
+	SectionTypeTable SectionType = "table"
+	// SectionTypeText represents text section type.
+	SectionTypeText SectionType = "text"
 )
 
 // ReportSection 报告区块
@@ -194,12 +218,18 @@ type FinChartConfig struct {
 type FinChartType string
 
 const (
-	FinChartTypeLine    FinChartType = "line"
-	FinChartTypeBar     FinChartType = "bar"
-	FinChartTypePie     FinChartType = "pie"
-	FinChartTypeArea    FinChartType = "area"
+	// FinChartTypeLine represents line chart type for financial reports.
+	FinChartTypeLine FinChartType = "line"
+	// FinChartTypeBar represents bar chart type for financial reports.
+	FinChartTypeBar FinChartType = "bar"
+	// FinChartTypePie represents pie chart type for financial reports.
+	FinChartTypePie FinChartType = "pie"
+	// FinChartTypeArea represents area chart type for financial reports.
+	FinChartTypeArea FinChartType = "area"
+	// FinChartTypeScatter represents scatter chart type for financial reports.
 	FinChartTypeScatter FinChartType = "scatter"
-	FinChartTypeTable   FinChartType = "table"
+	// FinChartTypeTable represents table chart type for financial reports.
+	FinChartTypeTable FinChartType = "table"
 )
 
 // FinChartPosition 财务图表位置

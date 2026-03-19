@@ -320,8 +320,7 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// CompressError 是 Error 的别名，保持向后兼容
-type CompressError = Error
+
 
 func (e *Error) Error() string {
 	return e.Message

@@ -14,9 +14,13 @@ import (
 type TimeOfDay string
 
 const (
-	TimeOfDayPeak     TimeOfDay = "peak"     // 峰时
-	TimeOfDayFlat     TimeOfDay = "flat"     // 平时
-	TimeOfDayValley   TimeOfDay = "valley"   // 谷时
+	// TimeOfDayPeak represents peak electricity time period.
+	TimeOfDayPeak TimeOfDay = "peak" // 峰时
+	// TimeOfDayFlat represents flat electricity time period.
+	TimeOfDayFlat TimeOfDay = "flat" // 平时
+	// TimeOfDayValley represents valley electricity time period.
+	TimeOfDayValley TimeOfDay = "valley" // 谷时
+	// TimeOfDayCritical represents critical peak electricity time period.
 	TimeOfDayCritical TimeOfDay = "critical" // 尖峰
 )
 
@@ -31,10 +35,15 @@ type TimeSlot struct {
 type SeasonType string
 
 const (
-	SeasonSpring  SeasonType = "spring"  // 春季 (3-5月)
-	SeasonSummer  SeasonType = "summer"  // 夏季 (6-8月)
-	SeasonAutumn  SeasonType = "autumn"  // 秋季 (9-11月)
-	SeasonWinter  SeasonType = "winter"  // 冬季 (12-2月)
+	// SeasonSpring represents spring season (March-May).
+	SeasonSpring SeasonType = "spring" // 春季 (3-5月)
+	// SeasonSummer represents summer season (June-August).
+	SeasonSummer SeasonType = "summer" // 夏季 (6-8月)
+	// SeasonAutumn represents autumn season (September-November).
+	SeasonAutumn SeasonType = "autumn" // 秋季 (9-11月)
+	// SeasonWinter represents winter season (December-February).
+	SeasonWinter SeasonType = "winter" // 冬季 (12-2月)
+	// SeasonDefault represents default season.
 	SeasonDefault SeasonType = "default" // 默认
 )
 
@@ -123,12 +132,18 @@ func (t *ElectricityTariff) GetPrice(timeOfDay TimeOfDay, season SeasonType) flo
 type DeviceType string
 
 const (
-	DeviceTypeServer  DeviceType = "server"  // 服务器
+	// DeviceTypeServer represents server device type.
+	DeviceTypeServer DeviceType = "server" // 服务器
+	// DeviceTypeStorage represents storage device type.
 	DeviceTypeStorage DeviceType = "storage" // 存储设备
+	// DeviceTypeNetwork represents network device type.
 	DeviceTypeNetwork DeviceType = "network" // 网络设备
+	// DeviceTypeCooling represents cooling device type.
 	DeviceTypeCooling DeviceType = "cooling" // 制冷设备
-	DeviceTypeUPS     DeviceType = "ups"     // UPS
-	DeviceTypeOther   DeviceType = "other"   // 其他
+	// DeviceTypeUPS represents UPS device type.
+	DeviceTypeUPS DeviceType = "ups" // UPS
+	// DeviceTypeOther represents other device type.
+	DeviceTypeOther DeviceType = "other" // 其他
 )
 
 // PowerProfile 功耗配置
