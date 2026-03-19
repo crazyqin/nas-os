@@ -1,37 +1,30 @@
 {
-  "lastUpdate": "2026-03-18T01:28:00+08:00",
-  "currentVersion": "v2.199.0",
-  "previousVersion": "v2.198.0",
+  "lastUpdate": "2026-03-19T19:10:00+08:00",
+  "currentVersion": "v2.253.37",
+  "previousVersion": "v2.253.36",
   "status": "completed",
-  "gitCommit": "78e64d7",
-  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.199.0",
+  "gitCommit": "36bd46a",
+  "releaseUrl": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.37",
   "ministries": {
-    "兵部": { "task": "GO_VERSION修复+代码质量", "status": "done", "result": "修复 5 workflow + 3 Dockerfile，go vet 0 错误" },
-    "刑部": { "task": "安全审计", "status": "done", "result": "高危 151、中危 791、低危 498（与上版本持平）" },
-    "工部": { "task": "CI/CD检查", "status": "done", "result": "5 个 workflow 配置完善，GO_VERSION 已修复" },
-    "吏部": { "task": "版本管理", "status": "done", "result": "VERSION、CHANGELOG 已更新至 v2.199.0" },
-    "礼部": { "task": "文档更新", "status": "done", "result": "5 个文件版本号同步" },
-    "户部": { "task": "资源统计", "status": "done", "result": "786,827 行代码、1,397 源文件、488 测试文件" }
+    "兵部": { "task": "代码质量检查", "status": "done", "result": "0 vet问题，发现30+复杂度问题" },
+    "刑部": { "task": "安全审计", "status": "done", "result": "高危150，中危737，低危8" },
+    "工部": { "task": "CI/CD检查", "status": "done", "result": "5个workflow正常，Docker配置专业" },
+    "吏部": { "task": "版本管理", "status": "done", "result": "VERSION已更新至v2.253.37" },
+    "礼部": { "task": "文档更新", "status": "done", "result": "7个文档版本号已同步" },
+    "户部": { "task": "资源统计", "status": "done", "result": "732源文件，411,716行代码" }
   },
   "actionsStatus": "running",
   "actions": [
     { "name": "CI/CD", "status": "in_progress" },
+    { "name": "Docker Publish", "status": "completed" },
     { "name": "Security Scan", "status": "in_progress" },
-    { "name": "Docker Publish", "status": "in_progress" },
-    { "name": "GitHub Release", "status": "queued" }
+    { "name": "GitHub Release", "status": "pending" }
   ],
   "stats": {
-    "linesOfCode": 786827,
-    "sourceFiles": 1397,
-    "testFiles": 488,
-    "externalDeps": 245,
+    "linesOfCode": 411716,
+    "sourceFiles": 732,
+    "testFiles": 265,
+    "externalDeps": 215,
     "internalModules": 68
-  },
-  "fixes": [
-    {
-      "issue": "GO_VERSION='1.25' 无效",
-      "fix": "修改为 GO_VERSION='1.24'",
-      "affectedFiles": 8
-    }
-  ]
+  }
 }
