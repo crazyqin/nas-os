@@ -37,7 +37,7 @@ type API struct {
 	lb             *LoadBalancer
 	ha             *HighAvailability
 	logger         *zap.Logger
-	authMiddleware *auth.AuthMiddleware
+	authMiddleware *auth.Middleware
 }
 
 // NewAPI 创建集群 API 处理器
@@ -53,7 +53,7 @@ func NewAPI(manager *Manager, sync *StorageSync, lb *LoadBalancer, ha *HighAvail
 }
 
 // SetAuthMiddleware 设置认证中间件
-func (api *API) SetAuthMiddleware(am *auth.AuthMiddleware) {
+func (api *API) SetAuthMiddleware(am *auth.Middleware) {
 	api.authMiddleware = am
 }
 

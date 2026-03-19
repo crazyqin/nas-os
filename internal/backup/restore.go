@@ -30,7 +30,7 @@ type BackupInfo struct {
 	Path      string          `json:"path"`
 	Size      int64           `json:"size"`
 	CreatedAt time.Time       `json:"createdAt"`
-	Type      BackupType      `json:"type"`
+	Type      Type            `json:"type"`
 	Metadata  *BackupMetadata `json:"metadata,omitempty"`
 }
 

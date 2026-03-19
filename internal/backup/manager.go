@@ -29,7 +29,7 @@ type Manager struct {
 	configs map[string]*JobConfig
 
 	// 备份任务状态
-	tasks map[string]*BackupTask
+	tasks map[string]*Task
 
 	// 任务取消函数
 	cancels map[string]context.CancelFunc
@@ -46,18 +46,18 @@ type Manager struct {
 
 // JobConfig 备份作业配置
 type JobConfig struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Source      string     `json:"source"`
-	Destination string     `json:"destination"`
-	Type        BackupType `json:"type"`
-	Schedule    string     `json:"schedule"`
-	Retention   int        `json:"retention"`
-	Compression bool       `json:"compression"`
-	Encrypt     bool       `json:"encrypt"`
-	Enabled     bool       `json:"enabled"`
-	LastRun     string     `json:"lastRun"`
-	NextRun     string     `json:"nextRun"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Source      string `json:"source"`
+	Destination string `json:"destination"`
+	Type        Type   `json:"type"`
+	Schedule    string `json:"schedule"`
+	Retention   int    `json:"retention"`
+	Compression bool   `json:"compression"`
+	Encrypt     bool   `json:"encrypt"`
+	Enabled     bool   `json:"enabled"`
+	LastRun     string `json:"lastRun"`
+	NextRun     string `json:"nextRun"`
 
 	// 远程配置
 	RemoteHost     string `json:"remoteHost,omitempty"`
@@ -86,17 +86,34 @@ type JobConfig struct {
 	Timeout time.Duration `json:"timeout,omitempty"`
 }
 
-// BackupType 备份类型
-type BackupType string
+// Type 备份类型
+type Type string
 
+// 备份类型常量
 const (
-	BackupTypeLocal  BackupType = "local"
-	BackupTypeRemote BackupType = "remote"
-	BackupTypeRsync  BackupType = "rsync"
+	// TypeLocal 本地备份
+	TypeLocal Type = "local"
+	// TypeRemote 远程备份
+	TypeRemote Type = "remote"
+	// TypeRsync rsync 备份
+	TypeRsync Type = "rsync"
 )
 
-// BackupTask 备份任务状态
-type BackupTask struct {
+// 兼容类型别名（保持向后兼容）
+type BackupTask = Task
+type BackupHistory = History
+type BackupStats = Stats
+type BackupType = Type
+
+// 备份类型常量别名（兼容）
+const (
+	BackupTypeLocal  = TypeLocal
+	BackupTypeRemote = TypeRemote
+	BackupTypeRsync  = TypeRsync
+)
+
+// Task 备份任务状态
+type Task struct {
 	ID         string     `json:"id"`
 	ConfigID   string     `json:"configId"`
 	Status     TaskStatus `json:"status"`
@@ -109,23 +126,41 @@ type BackupTask struct {
 	Error      string     `json:"error,omitempty"`
 }
 
-// TaskStatus 任务状态
-type TaskStatus string
+// Status 任务状态
+type Status string
 
+// 任务状态常量
 const (
-	TaskStatusPending   TaskStatus = "pending"
-	TaskStatusRunning   TaskStatus = "running"
-	TaskStatusCompleted TaskStatus = "completed"
-	TaskStatusFailed    TaskStatus = "failed"
-	TaskStatusCancelled TaskStatus = "cancelled"
+	// StatusPending 待执行
+	StatusPending Status = "pending"
+	// StatusRunning 执行中
+	StatusRunning Status = "running"
+	// StatusCompleted 已完成
+	StatusCompleted Status = "completed"
+	// StatusFailed 失败
+	StatusFailed Status = "failed"
+	// StatusCancelled 已取消
+	StatusCancelled Status = "cancelled"
 )
 
-// BackupHistory 备份历史记录
-type BackupHistory struct {
+// 保留旧类型别名以兼容现有代码
+type TaskStatus = Status
+
+// 任务状态常量别名（兼容）
+const (
+	TaskStatusPending   = StatusPending
+	TaskStatusRunning   = StatusRunning
+	TaskStatusCompleted = StatusCompleted
+	TaskStatusFailed    = StatusFailed
+	TaskStatusCancelled = StatusCancelled
+)
+
+// History 备份历史记录
+type History struct {
 	ID        string     `json:"id"`
 	ConfigID  string     `json:"configId"`
 	Name      string     `json:"name"`
-	Type      BackupType `json:"type"`
+	Type      Type `json:"type"`
 	Size      int64      `json:"size"`
 	FileCount int64      `json:"fileCount"`
 	Duration  int64      `json:"duration"`
@@ -135,8 +170,8 @@ type BackupHistory struct {
 	Checksum  string     `json:"checksum,omitempty"`
 }
 
-// BackupStats 备份统计
-type BackupStats struct {
+// Stats 备份统计
+type Stats struct {
 	TotalBackups     int           `json:"totalBackups"`
 	TotalSize        int64         `json:"totalSize"`
 	TotalSizeHuman   string        `json:"totalSizeHuman"`
@@ -163,7 +198,7 @@ type RestoreOptions struct {
 func NewManager(configPath, storagePath string) *Manager {
 	return &Manager{
 		configs:        make(map[string]*JobConfig),
-		tasks:          make(map[string]*BackupTask),
+		tasks:          make(map[string]*Task),
 		cancels:        make(map[string]context.CancelFunc),
 		configPath:     configPath,
 		storagePath:    storagePath,
@@ -223,7 +258,7 @@ func (m *Manager) CreateConfig(config JobConfig) error {
 	}
 
 	if config.Type == "" {
-		config.Type = BackupTypeLocal
+		config.Type = TypeLocal
 	}
 	if config.Retention == 0 {
 		config.Retention = 7
@@ -294,12 +329,12 @@ func (m *Manager) EnableConfig(id string, enabled bool) error {
 
 // ========== 备份执行 ==========
 
-func (m *Manager) RunBackup(configID string) (*BackupTask, error) {
+func (m *Manager) RunBackup(configID string) (*Task, error) {
 	return m.RunBackupWithContext(context.Background(), configID)
 }
 
 // RunBackupWithContext 带上下文的备份执行
-func (m *Manager) RunBackupWithContext(ctx context.Context, configID string) (*BackupTask, error) {
+func (m *Manager) RunBackupWithContext(ctx context.Context, configID string) (*Task, error) {
 	m.mu.Lock()
 	cfg, ok := m.configs[configID]
 	if !ok {
@@ -307,10 +342,10 @@ func (m *Manager) RunBackupWithContext(ctx context.Context, configID string) (*B
 		return nil, fmt.Errorf("备份配置不存在：%s", configID)
 	}
 
-	task := &BackupTask{
+	task := &Task{
 		ID:        generateID(),
 		ConfigID:  configID,
-		Status:    TaskStatusRunning,
+		Status:    StatusRunning,
 		StartTime: time.Now(),
 	}
 	m.tasks[task.ID] = task
@@ -329,7 +364,7 @@ func (m *Manager) RunBackupWithContext(ctx context.Context, configID string) (*B
 	return task, nil
 }
 
-func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *BackupTask) {
+func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *Task) {
 	defer func() {
 		task.EndTime = time.Now()
 		cfg.LastRun = task.StartTime.Format("2006-01-02 15:04:05")
@@ -347,7 +382,7 @@ func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *Backu
 	select {
 	case <-ctx.Done():
 		m.mu.Lock()
-		task.Status = TaskStatusCancelled
+		task.Status = StatusCancelled
 		task.Error = ctx.Err().Error()
 		m.mu.Unlock()
 		return
@@ -355,11 +390,11 @@ func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *Backu
 	}
 
 	switch cfg.Type {
-	case BackupTypeLocal:
+	case TypeLocal:
 		_, err = m.runLocalBackup(ctx, cfg, task)
-	case BackupTypeRemote:
+	case TypeRemote:
 		_, err = m.runRemoteBackup(ctx, cfg, task)
-	case BackupTypeRsync:
+	case TypeRsync:
 		_, err = m.runRsyncBackup(ctx, cfg, task)
 	default:
 		err = fmt.Errorf("不支持的备份类型：%s", cfg.Type)
@@ -368,21 +403,21 @@ func (m *Manager) executeBackup(ctx context.Context, cfg *JobConfig, task *Backu
 	m.mu.Lock()
 	if err != nil {
 		if ctx.Err() != nil {
-			task.Status = TaskStatusCancelled
+			task.Status = StatusCancelled
 			task.Error = "备份已取消或超时"
 		} else {
-			task.Status = TaskStatusFailed
+			task.Status = StatusFailed
 			task.Error = err.Error()
 		}
 	} else {
-		task.Status = TaskStatusCompleted
+		task.Status = StatusCompleted
 		task.Progress = 100
 	}
 	m.mu.Unlock()
 }
 
 // runLocalBackup 本地备份（支持增量）
-func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *BackupTask) (string, error) {
+func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *Task) (string, error) {
 	destDir := cfg.Destination
 	if destDir == "" {
 		destDir = filepath.Join(m.storagePath, "backups", cfg.Name)
@@ -444,7 +479,7 @@ func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *Back
 	return backupPath, nil
 }
 
-func (m *Manager) runRemoteBackup(ctx context.Context, cfg *JobConfig, task *BackupTask) (string, error) {
+func (m *Manager) runRemoteBackup(ctx context.Context, cfg *JobConfig, task *Task) (string, error) {
 	if cfg.RemoteHost == "" {
 		return "", fmt.Errorf("远程主机地址不能为空")
 	}
@@ -486,7 +521,7 @@ func (m *Manager) runRemoteBackup(ctx context.Context, cfg *JobConfig, task *Bac
 	return remoteTarget, nil
 }
 
-func (m *Manager) runRsyncBackup(ctx context.Context, cfg *JobConfig, task *BackupTask) (string, error) {
+func (m *Manager) runRsyncBackup(ctx context.Context, cfg *JobConfig, task *Task) (string, error) {
 	destination := cfg.Destination
 
 	if cfg.RemoteHost != "" {
@@ -554,16 +589,16 @@ func (m *Manager) cleanupOldBackups(dir string, retention int) error {
 
 // ========== 恢复操作 ==========
 
-func (m *Manager) Restore(options RestoreOptions) (*BackupTask, error) {
+func (m *Manager) Restore(options RestoreOptions) (*Task, error) {
 	return m.RestoreWithContext(context.Background(), options)
 }
 
 // RestoreWithContext 带上下文的恢复操作
-func (m *Manager) RestoreWithContext(ctx context.Context, options RestoreOptions) (*BackupTask, error) {
-	task := &BackupTask{
+func (m *Manager) RestoreWithContext(ctx context.Context, options RestoreOptions) (*Task, error) {
+	task := &Task{
 		ID:        generateID(),
 		ConfigID:  options.BackupID,
-		Status:    TaskStatusRunning,
+		Status:    StatusRunning,
 		StartTime: time.Now(),
 	}
 
@@ -580,13 +615,13 @@ func (m *Manager) RestoreWithContext(ctx context.Context, options RestoreOptions
 	return task, nil
 }
 
-func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, task *BackupTask) {
+func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, task *Task) {
 	defer func() {
 		task.EndTime = time.Now()
 		m.mu.Lock()
 		// 清理取消函数
 		delete(m.cancels, task.ID)
-		task.Status = TaskStatusCompleted
+		task.Status = StatusCompleted
 		m.mu.Unlock()
 	}()
 
@@ -594,7 +629,7 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 	select {
 	case <-ctx.Done():
 		m.mu.Lock()
-		task.Status = TaskStatusCancelled
+		task.Status = StatusCancelled
 		task.Error = "恢复已取消或超时"
 		m.mu.Unlock()
 		return
@@ -603,13 +638,13 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 
 	backupPath := options.BackupID
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
-		task.Status = TaskStatusFailed
+		task.Status = StatusFailed
 		task.Error = "备份文件不存在"
 		return
 	}
 
 	if err := os.MkdirAll(options.TargetPath, 0755); err != nil {
-		task.Status = TaskStatusFailed
+		task.Status = StatusFailed
 		task.Error = fmt.Sprintf("创建目标目录失败：%v", err)
 		return
 	}
@@ -618,17 +653,17 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 		cmd := exec.CommandContext(ctx, "tar", "xzf", backupPath, "-C", options.TargetPath)
 		if output, err := cmd.CombinedOutput(); err != nil {
 			if ctx.Err() != nil {
-				task.Status = TaskStatusCancelled
+				task.Status = StatusCancelled
 				task.Error = "恢复已取消或超时"
 			} else {
-				task.Status = TaskStatusFailed
+				task.Status = StatusFailed
 				task.Error = fmt.Sprintf("解压失败：%v, output: %s", err, string(output))
 			}
 			return
 		}
 	} else {
 		if err := copyDirectory(backupPath, options.TargetPath); err != nil {
-			task.Status = TaskStatusFailed
+			task.Status = StatusFailed
 			task.Error = fmt.Sprintf("复制失败：%v", err)
 			return
 		}
@@ -639,7 +674,7 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 
 // ========== 任务管理 ==========
 
-func (m *Manager) GetTask(taskID string) (*BackupTask, error) {
+func (m *Manager) GetTask(taskID string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -650,11 +685,11 @@ func (m *Manager) GetTask(taskID string) (*BackupTask, error) {
 	return task, nil
 }
 
-func (m *Manager) ListTasks() []*BackupTask {
+func (m *Manager) ListTasks() []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var tasks []*BackupTask
+	var tasks []*Task
 	for _, task := range m.tasks {
 		tasks = append(tasks, task)
 	}
@@ -670,7 +705,7 @@ func (m *Manager) CancelTask(taskID string) error {
 		return fmt.Errorf("任务不存在：%s", taskID)
 	}
 
-	if task.Status != TaskStatusRunning {
+	if task.Status != StatusRunning {
 		return fmt.Errorf("任务不在运行中")
 	}
 
@@ -679,7 +714,7 @@ func (m *Manager) CancelTask(taskID string) error {
 		cancel()
 	}
 
-	task.Status = TaskStatusCancelled
+	task.Status = StatusCancelled
 	return nil
 }
 
@@ -690,9 +725,9 @@ func (m *Manager) CleanupCompletedTasks() int {
 
 	count := 0
 	for id, task := range m.tasks {
-		if task.Status == TaskStatusCompleted ||
-			task.Status == TaskStatusFailed ||
-			task.Status == TaskStatusCancelled {
+		if task.Status == StatusCompleted ||
+			task.Status == StatusFailed ||
+			task.Status == StatusCancelled {
 			delete(m.tasks, id)
 			delete(m.cancels, id)
 			count++
@@ -720,7 +755,7 @@ func (m *Manager) CleanupOldTasks(maxAge time.Duration) int {
 
 // ========== 备份历史 ==========
 
-func (m *Manager) GetHistory(configID string) ([]*BackupHistory, error) {
+func (m *Manager) GetHistory(configID string) ([]*History, error) {
 	m.mu.RLock()
 	cfg, ok := m.configs[configID]
 	m.mu.RUnlock()
@@ -729,7 +764,7 @@ func (m *Manager) GetHistory(configID string) ([]*BackupHistory, error) {
 		return nil, fmt.Errorf("备份配置不存在：%s", configID)
 	}
 
-	var history []*BackupHistory
+	var history []*History
 
 	destDir := cfg.Destination
 	if destDir == "" {
@@ -747,7 +782,7 @@ func (m *Manager) GetHistory(configID string) ([]*BackupHistory, error) {
 			continue
 		}
 
-		history = append(history, &BackupHistory{
+		history = append(history, &History{
 			ID:        filepath.Base(f),
 			ConfigID:  configID,
 			Name:      filepath.Base(f),
@@ -913,11 +948,11 @@ func (m *Manager) PreviewRestore(options RestoreOptions) (*RestorePreview, error
 // ========== 统计信息 ==========
 
 // GetStats 获取备份统计信息
-func (m *Manager) GetStats() *BackupStats {
+func (m *Manager) GetStats() *Stats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	stats := &BackupStats{
+	stats := &Stats{
 		TotalBackups: len(m.configs),
 	}
 
@@ -936,7 +971,7 @@ func (m *Manager) GetStats() *BackupStats {
 		// 统计任务
 		for _, task := range m.tasks {
 			if task.ConfigID == cfg.ID {
-				if task.Status == TaskStatusCompleted {
+				if task.Status == StatusCompleted {
 					successCount++
 					totalDuration += task.EndTime.Sub(task.StartTime)
 				}
