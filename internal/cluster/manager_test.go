@@ -58,8 +58,8 @@ func TestGetNodes(t *testing.T) {
 		Hostname:  "test-host-2",
 		IP:        "192.168.1.102",
 		Port:      8080,
-		Role:      RoleWorker,
-		Status:    StatusOnline,
+		Role:      "worker",
+		Status:    "online",
 		Heartbeat: time.Now(),
 		JoinTime:  time.Now(),
 	}
@@ -93,14 +93,14 @@ func TestGetOnlineNodes(t *testing.T) {
 	// 添加在线节点
 	onlineNode := &Member{
 		ID:        "test-node-2",
-		Status:    StatusOnline,
+		Status:    "online",
 		Heartbeat: time.Now(),
 	}
 
 	// 添加离线节点
 	offlineNode := &Member{
 		ID:        "test-node-3",
-		Status:    StatusOffline,
+		Status:    "offline",
 		Heartbeat: time.Now().Add(-1 * time.Hour),
 	}
 
