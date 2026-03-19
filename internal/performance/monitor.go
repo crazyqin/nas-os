@@ -69,8 +69,8 @@ type APIMetric struct {
 	Error      error
 }
 
-// PerformanceMonitor 性能监控器
-type PerformanceMonitor struct {
+// Monitor 性能监控器
+type Monitor struct {
 	logger *zap.Logger
 
 	// 计数器
@@ -117,9 +117,12 @@ type PerformanceMonitor struct {
 	sampleRate float64
 }
 
-// NewPerformanceMonitor 创建性能监控器
-func NewPerformanceMonitor(logger *zap.Logger) *PerformanceMonitor {
-	return &PerformanceMonitor{
+// PerformanceMonitor 是 Monitor 的别名，保持向后兼容
+type PerformanceMonitor = Monitor
+
+// NewMonitor 创建性能监控器
+func NewMonitor(logger *zap.Logger) *Monitor {
+	return &Monitor{
 		logger:        logger,
 		latencies:     make([]time.Duration, 0, 10000),
 		minLatency:    int64(time.Hour), // 初始化为最大值
@@ -129,7 +132,7 @@ func NewPerformanceMonitor(logger *zap.Logger) *PerformanceMonitor {
 }
 
 // Middleware 性能监控中间件
-func (pm *PerformanceMonitor) Middleware() gin.HandlerFunc {
+func (pm *Monitor) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
@@ -143,7 +146,7 @@ func (pm *PerformanceMonitor) Middleware() gin.HandlerFunc {
 }
 
 // RecordAPICall 记录 API 调用
-func (pm *PerformanceMonitor) RecordAPICall(path, method string, duration time.Duration, statusCode int) {
+func (pm *Monitor) RecordAPICall(path, method string, duration time.Duration, statusCode int) {
 	atomic.AddInt64(&pm.requestCount, 1)
 
 	dMs := int64(duration)
@@ -182,53 +185,53 @@ func (pm *PerformanceMonitor) RecordAPICall(path, method string, duration time.D
 }
 
 // RecordFileList 记录文件列表操作
-func (pm *PerformanceMonitor) RecordFileList(duration time.Duration) {
+func (pm *Monitor) RecordFileList(duration time.Duration) {
 	atomic.AddInt64(&pm.fileListCount, 1)
 	atomic.AddInt64(&pm.fileListTimeSum, int64(duration))
 }
 
 // RecordThumbnail 记录缩略图生成
-func (pm *PerformanceMonitor) RecordThumbnail(duration time.Duration) {
+func (pm *Monitor) RecordThumbnail(duration time.Duration) {
 	atomic.AddInt64(&pm.thumbnailCount, 1)
 	atomic.AddInt64(&pm.thumbnailTimeSum, int64(duration))
 }
 
 // RecordUpload 记录上传
-func (pm *PerformanceMonitor) RecordUpload(bytes int64) {
+func (pm *Monitor) RecordUpload(bytes int64) {
 	atomic.AddInt64(&pm.uploadCount, 1)
 	atomic.AddInt64(&pm.uploadBytes, bytes)
 }
 
 // RecordDownload 记录下载
-func (pm *PerformanceMonitor) RecordDownload(bytes int64) {
+func (pm *Monitor) RecordDownload(bytes int64) {
 	atomic.AddInt64(&pm.downloadCount, 1)
 	atomic.AddInt64(&pm.downloadBytes, bytes)
 }
 
 // RecordSearch 记录搜索
-func (pm *PerformanceMonitor) RecordSearch(duration time.Duration) {
+func (pm *Monitor) RecordSearch(duration time.Duration) {
 	atomic.AddInt64(&pm.searchCount, 1)
 	atomic.AddInt64(&pm.searchTimeSum, int64(duration))
 }
 
 // RecordIndex 记录索引操作
-func (pm *PerformanceMonitor) RecordIndex(duration time.Duration) {
+func (pm *Monitor) RecordIndex(duration time.Duration) {
 	atomic.AddInt64(&pm.indexCount, 1)
 	atomic.AddInt64(&pm.indexTimeSum, int64(duration))
 }
 
 // RecordCacheHit 记录缓存命中
-func (pm *PerformanceMonitor) RecordCacheHit() {
+func (pm *Monitor) RecordCacheHit() {
 	atomic.AddInt64(&pm.cacheHits, 1)
 }
 
 // RecordCacheMiss 记录缓存未命中
-func (pm *PerformanceMonitor) RecordCacheMiss() {
+func (pm *Monitor) RecordCacheMiss() {
 	atomic.AddInt64(&pm.cacheMisses, 1)
 }
 
 // RecordDBQuery 记录数据库查询
-func (pm *PerformanceMonitor) RecordDBQuery(duration time.Duration, isSlow bool) {
+func (pm *Monitor) RecordDBQuery(duration time.Duration, isSlow bool) {
 	atomic.AddInt64(&pm.dbQueries, 1)
 	atomic.AddInt64(&pm.dbTimeSum, int64(duration))
 	if isSlow {
@@ -237,7 +240,7 @@ func (pm *PerformanceMonitor) RecordDBQuery(duration time.Duration, isSlow bool)
 }
 
 // GetMetrics 获取当前指标
-func (pm *PerformanceMonitor) GetMetrics() *Metrics {
+func (pm *Monitor) GetMetrics() *Metrics {
 	pm.latencyMutex.RLock()
 	latencies := make([]time.Duration, len(pm.latencies))
 	copy(latencies, pm.latencies)
@@ -313,7 +316,7 @@ func (pm *PerformanceMonitor) GetMetrics() *Metrics {
 	}
 }
 
-func (pm *PerformanceMonitor) avgTime(sum, count int64) int64 {
+func (pm *Monitor) avgTime(sum, count int64) int64 {
 	if count == 0 {
 		return 0
 	}
@@ -321,7 +324,7 @@ func (pm *PerformanceMonitor) avgTime(sum, count int64) int64 {
 }
 
 // quickSort 快速排序
-func (pm *PerformanceMonitor) quickSort(arr []time.Duration) {
+func (pm *Monitor) quickSort(arr []time.Duration) {
 	if len(arr) <= 1 {
 		return
 	}
@@ -352,7 +355,7 @@ func (pm *PerformanceMonitor) quickSort(arr []time.Duration) {
 }
 
 // Reset 重置指标
-func (pm *PerformanceMonitor) Reset() {
+func (pm *Monitor) Reset() {
 	atomic.StoreInt64(&pm.requestCount, 0)
 	atomic.StoreInt64(&pm.successCount, 0)
 	atomic.StoreInt64(&pm.errorCount, 0)
@@ -385,11 +388,11 @@ func (pm *PerformanceMonitor) Reset() {
 
 // Handlers 性能监控处理器
 type Handlers struct {
-	monitor *PerformanceMonitor
+	monitor *Monitor
 }
 
 // NewHandlers 创建处理器
-func NewHandlers(monitor *PerformanceMonitor) *Handlers {
+func NewHandlers(monitor *Monitor) *Handlers {
 	return &Handlers{monitor: monitor}
 }
 
@@ -495,7 +498,7 @@ func (h *Handlers) healthCheck(c *gin.Context) {
 
 // PrometheusExporter Prometheus 指标导出器
 type PrometheusExporter struct {
-	monitor   *PerformanceMonitor
+	monitor   *Monitor
 	collector *SystemCollector
 	storage   *StorageCollector
 	health    *HealthChecker
@@ -503,13 +506,13 @@ type PrometheusExporter struct {
 }
 
 // NewPrometheusExporter 创建 Prometheus 导出器
-func NewPrometheusExporter(monitor *PerformanceMonitor) *PrometheusExporter {
+func NewPrometheusExporter(monitor *Monitor) *PrometheusExporter {
 	return &PrometheusExporter{monitor: monitor}
 }
 
 // NewPrometheusExporterExtended 创建扩展的 Prometheus 导出器
 func NewPrometheusExporterExtended(
-	monitor *PerformanceMonitor,
+	monitor *Monitor,
 	collector *SystemCollector,
 	storage *StorageCollector,
 	health *HealthChecker,

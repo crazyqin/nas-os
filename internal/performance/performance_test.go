@@ -156,7 +156,7 @@ func TestStorageCollector(t *testing.T) {
 
 func TestPerformanceMonitor(t *testing.T) {
 	logger := zap.NewNop()
-	pm := NewPerformanceMonitor(logger)
+	pm := NewMonitor(logger)
 
 	// Test RecordAPICall
 	pm.RecordAPICall("/api/test", "GET", 100*time.Millisecond, 200)
@@ -191,7 +191,7 @@ func TestPerformanceMonitor(t *testing.T) {
 
 func TestPrometheusExporter(t *testing.T) {
 	logger := zap.NewNop()
-	pm := NewPerformanceMonitor(logger)
+	pm := NewMonitor(logger)
 
 	// Record some activity
 	pm.RecordAPICall("/api/test", "GET", 100*time.Millisecond, 200)
@@ -219,7 +219,7 @@ func TestAPIHandlers(t *testing.T) {
 	storage := NewStorageCollector(logger, collector, 10)
 	health := NewHealthChecker(logger, collector, storage)
 	alerts := NewAlertManager(logger, collector, storage, health)
-	pm := NewPerformanceMonitor(logger)
+	pm := NewMonitor(logger)
 	prom := NewPrometheusExporterExtended(pm, collector, storage, health, alerts)
 
 	handlers := NewAPIHandlers(logger, collector, storage, health, alerts, prom, pm)

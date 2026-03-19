@@ -28,33 +28,48 @@ var (
 type ForecastMethod string
 
 const (
-	ForecastMethodMovingAverage ForecastMethod = "moving_average" // 移动平均
-	ForecastMethodExponential   ForecastMethod = "exponential"    // 指数平滑
-	ForecastMethodLinear        ForecastMethod = "linear"         // 线性回归
-	ForecastMethodSeasonal      ForecastMethod = "seasonal"       // 季节性预测
-	ForecastMethodARIMA         ForecastMethod = "arima"          // ARIMA模型
-	ForecastMethodProphet       ForecastMethod = "prophet"        // Prophet模型
+	// ForecastMethodMovingAverage 移动平均预测方法
+	ForecastMethodMovingAverage ForecastMethod = "moving_average"
+	// ForecastMethodExponential 指数平滑预测方法
+	ForecastMethodExponential ForecastMethod = "exponential"
+	// ForecastMethodLinear 线性回归预测方法
+	ForecastMethodLinear ForecastMethod = "linear"
+	// ForecastMethodSeasonal 季节性预测方法
+	ForecastMethodSeasonal ForecastMethod = "seasonal"
+	// ForecastMethodARIMA ARIMA模型预测方法
+	ForecastMethodARIMA ForecastMethod = "arima"
+	// ForecastMethodProphet Prophet模型预测方法
+	ForecastMethodProphet ForecastMethod = "prophet"
 )
 
 // ForecastPeriod 预测周期
 type ForecastPeriod string
 
 const (
-	ForecastPeriodDaily   ForecastPeriod = "daily"
-	ForecastPeriodWeekly  ForecastPeriod = "weekly"
+	// ForecastPeriodDaily 日预测周期
+	ForecastPeriodDaily ForecastPeriod = "daily"
+	// ForecastPeriodWeekly 周预测周期
+	ForecastPeriodWeekly ForecastPeriod = "weekly"
+	// ForecastPeriodMonthly 月预测周期
 	ForecastPeriodMonthly ForecastPeriod = "monthly"
+	// ForecastPeriodQuarter 季度预测周期
 	ForecastPeriodQuarter ForecastPeriod = "quarter"
-	ForecastPeriodYearly  ForecastPeriod = "yearly"
+	// ForecastPeriodYearly 年预测周期
+	ForecastPeriodYearly ForecastPeriod = "yearly"
 )
 
 // ForecastConfidence 预测置信度
 type ForecastConfidence string
 
 const (
-	ConfidenceLow      ForecastConfidence = "low"       // 80%置信区间
-	ConfidenceMedium   ForecastConfidence = "medium"    // 90%置信区间
-	ConfidenceHigh     ForecastConfidence = "high"      // 95%置信区间
-	ConfidenceVeryHigh ForecastConfidence = "very_high" // 99%置信区间
+	// ConfidenceLow 低置信度（80%置信区间）
+	ConfidenceLow ForecastConfidence = "low"
+	// ConfidenceMedium 中等置信度（90%置信区间）
+	ConfidenceMedium ForecastConfidence = "medium"
+	// ConfidenceHigh 高置信度（95%置信区间）
+	ConfidenceHigh ForecastConfidence = "high"
+	// ConfidenceVeryHigh 极高置信度（99%置信区间）
+	ConfidenceVeryHigh ForecastConfidence = "very_high"
 )
 
 // ========== 预测数据结构 ==========
