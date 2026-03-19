@@ -98,7 +98,7 @@ type RAIDConfig struct {
 	Description    string `json:"description"`
 }
 
-// 预定义的 RAID 配置
+// RAIDConfigs 预定义的 RAID 配置
 var RAIDConfigs = map[string]RAIDConfig{
 	"single": {
 		DataProfile:    "single",

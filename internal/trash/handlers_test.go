@@ -441,7 +441,7 @@ func TestHandlers_RegisterRoutes(t *testing.T) {
 	assert.True(t, routeMap["DELETE:/api/trash/:id"])
 }
 
-func TestTrashResponse_DaysLeft(t *testing.T) {
+func TestResponse_DaysLeft(t *testing.T) {
 	mgr, tmpDir := setupHandlersTestEnv(t)
 	defer mgr.Empty()
 

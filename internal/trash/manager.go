@@ -13,8 +13,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// TrashItem 回收站项目
-type TrashItem struct {
+// Item 回收站项目
+type Item struct {
 	ID           string    `json:"id"`
 	OriginalPath string    `json:"original_path"`
 	TrashPath    string    `json:"trash_path"`
@@ -50,7 +50,7 @@ func DefaultConfig() *Config {
 type Manager struct {
 	mu           sync.RWMutex
 	config       *Config
-	items        map[string]*TrashItem // id -> item
+	items        map[string]*Item // id -> item
 	configPath   string
 	trashRoot    string
 	totalSize    int64
@@ -72,7 +72,7 @@ func NewManager(configPath, trashRoot string, config *Config) (*Manager, error) 
 
 	m := &Manager{
 		config:     config,
-		items:      make(map[string]*TrashItem),
+		items:      make(map[string]*Item),
 		configPath: configPath,
 		trashRoot:  trashRoot,
 		logger:     zap.NewNop(),
@@ -115,7 +115,7 @@ func NewManager(configPath, trashRoot string, config *Config) (*Manager, error) 
 }
 
 // MoveToTrash 移动到回收站
-func (m *Manager) MoveToTrash(originalPath, userID string) (*TrashItem, error) {
+func (m *Manager) MoveToTrash(originalPath, userID string) (*Item, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -140,7 +140,7 @@ func (m *Manager) MoveToTrash(originalPath, userID string) (*TrashItem, error) {
 	}
 
 	// 创建回收站项目
-	item := &TrashItem{
+	item := &Item{
 		ID:           id,
 		OriginalPath: originalPath,
 		TrashPath:    trashPath,
@@ -269,11 +269,11 @@ func (m *Manager) Empty() error {
 }
 
 // List 列出回收站项目
-func (m *Manager) List() []*TrashItem {
+func (m *Manager) List() []*Item {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	items := make([]*TrashItem, 0, len(m.items))
+	items := make([]*Item, 0, len(m.items))
 	for _, item := range m.items {
 		items = append(items, item)
 	}
@@ -287,7 +287,7 @@ func (m *Manager) List() []*TrashItem {
 }
 
 // Get 获取单个回收站项目
-func (m *Manager) Get(id string) (*TrashItem, error) {
+func (m *Manager) Get(id string) (*Item, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
@@ -361,7 +361,7 @@ func (m *Manager) loadItems() error {
 		return err
 	}
 
-	var items []*TrashItem
+	var items []*Item
 	if err := json.Unmarshal(data, &items); err != nil {
 		return err
 	}
@@ -382,7 +382,7 @@ func (m *Manager) loadItems() error {
 func (m *Manager) saveItems() error {
 	itemsPath := filepath.Join(m.trashRoot, "items.json")
 
-	items := make([]*TrashItem, 0, len(m.items))
+	items := make([]*Item, 0, len(m.items))
 	for _, item := range m.items {
 		items = append(items, item)
 	}
@@ -449,7 +449,7 @@ func (m *Manager) cleanupExpired() {
 // cleanupOldest 清理最早的项目以释放空间
 func (m *Manager) cleanupOldest() error {
 	// 按删除时间排序
-	items := make([]*TrashItem, 0, len(m.items))
+	items := make([]*Item, 0, len(m.items))
 	for _, item := range m.items {
 		items = append(items, item)
 	}

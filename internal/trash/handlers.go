@@ -35,8 +35,8 @@ func (h *Handlers) RegisterRoutes(apiGroup *gin.RouterGroup) {
 	}
 }
 
-// TrashResponse 回收站项目响应
-type TrashResponse struct {
+// Response 回收站项目响应
+type Response struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"name"`
 	OriginalPath string    `json:"original_path"`
@@ -47,13 +47,13 @@ type TrashResponse struct {
 	DaysLeft     int       `json:"days_left"`
 }
 
-// convertToResponse 将 TrashItem 转换为响应格式
-func convertToResponse(item *TrashItem) TrashResponse {
+// convertToResponse 将 Item 转换为响应格式
+func convertToResponse(item *Item) Response {
 	daysLeft := int(time.Until(item.ExpiresAt).Hours() / 24)
 	if daysLeft < 0 {
 		daysLeft = 0
 	}
-	return TrashResponse{
+	return Response{
 		ID:           item.ID,
 		Name:         item.Name,
 		OriginalPath: item.OriginalPath,
@@ -82,7 +82,7 @@ func (h *Handlers) get(c *gin.Context) {
 func (h *Handlers) list(c *gin.Context) {
 	items := h.manager.List()
 
-	response := make([]TrashResponse, len(items))
+	response := make([]Response, len(items))
 	for i, item := range items {
 		response[i] = convertToResponse(item)
 	}

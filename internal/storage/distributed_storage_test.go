@@ -60,7 +60,7 @@ func TestDistributedManager_StartStop(t *testing.T) {
 func TestRegisterNode(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	node := &StorageNode{
+	node := &Node{
 		ID:        "node-1",
 		Name:      "storage-node-1",
 		Address:   "192.168.1.100:9000",
@@ -89,7 +89,7 @@ func TestRegisterNode(t *testing.T) {
 func TestRegisterNode_Duplicate(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	node := &StorageNode{
+	node := &Node{
 		ID:      "node-1",
 		Name:    "storage-node-1",
 		Address: "192.168.1.100:9000",
@@ -108,7 +108,7 @@ func TestRegisterNode_Duplicate(t *testing.T) {
 func TestUnregisterNode(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	node := &StorageNode{
+	node := &Node{
 		ID:      "node-1",
 		Name:    "storage-node-1",
 		Address: "192.168.1.100:9000",
@@ -140,7 +140,7 @@ func TestUnregisterNode_NotFound(t *testing.T) {
 func TestGetNode(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	node := &StorageNode{
+	node := &Node{
 		ID:      "node-1",
 		Name:    "storage-node-1",
 		Address: "192.168.1.100:9000",
@@ -171,7 +171,7 @@ func TestListNodes(t *testing.T) {
 
 	// 添加节点
 	for i := 0; i < 3; i++ {
-		_ = dm.RegisterNode(&StorageNode{
+		_ = dm.RegisterNode(&Node{
 			ID:      string(rune('A' + i)),
 			Name:    "node-" + string(rune('A'+i)),
 			Address: "192.168.1.100:9000",
@@ -188,10 +188,10 @@ func TestListNodesByStatus(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
 	// 添加不同状态的节点
-	_ = dm.RegisterNode(&StorageNode{ID: "1", Status: NodeStatusOnline})
-	_ = dm.RegisterNode(&StorageNode{ID: "2", Status: NodeStatusOnline})
-	_ = dm.RegisterNode(&StorageNode{ID: "3", Status: NodeStatusOffline})
-	_ = dm.RegisterNode(&StorageNode{ID: "4", Status: NodeStatusDegraded})
+	_ = dm.RegisterNode(&Node{ID: "1", Status: NodeStatusOnline})
+	_ = dm.RegisterNode(&Node{ID: "2", Status: NodeStatusOnline})
+	_ = dm.RegisterNode(&Node{ID: "3", Status: NodeStatusOffline})
+	_ = dm.RegisterNode(&Node{ID: "4", Status: NodeStatusDegraded})
 
 	onlineNodes := dm.ListNodesByStatus(NodeStatusOnline)
 	if len(onlineNodes) != 2 {
@@ -207,7 +207,7 @@ func TestListNodesByStatus(t *testing.T) {
 func TestUpdateNode(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	node := &StorageNode{
+	node := &Node{
 		ID:        "node-1",
 		Name:      "storage-node-1",
 		Capacity:  1000000000000,
@@ -380,10 +380,10 @@ func TestCreatePool(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
 	// 先注册节点
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Capacity: 1000000000000})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-2", Capacity: 1000000000000})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Capacity: 1000000000000})
+	_ = dm.RegisterNode(&Node{ID: "node-2", Capacity: 1000000000000})
 
-	pool := &StoragePool{
+	pool := &Pool{
 		ID:          "pool-1",
 		Name:        "main-pool",
 		Description: "Primary storage pool",
@@ -414,9 +414,9 @@ func TestGetPool_NotFound(t *testing.T) {
 func TestListPools(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1"})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-2", Name: "pool-2", Nodes: []string{"node-1"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1"})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
+	_ = dm.CreatePool(&Pool{ID: "pool-2", Name: "pool-2", Nodes: []string{"node-1"}})
 
 	pools := dm.ListPools()
 	if len(pools) != 2 {
@@ -427,8 +427,8 @@ func TestListPools(t *testing.T) {
 func TestDeletePool(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1"})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1"})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
 
 	err := dm.DeletePool("pool-1")
 	if err != nil {
@@ -444,9 +444,9 @@ func TestDeletePool(t *testing.T) {
 func TestAddNodeToPool(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1"})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-2"})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1"})
+	_ = dm.RegisterNode(&Node{ID: "node-2"})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
 
 	err := dm.AddNodeToPool("pool-1", "node-2")
 	if err != nil {
@@ -462,9 +462,9 @@ func TestAddNodeToPool(t *testing.T) {
 func TestRemoveNodeFromPool(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1"})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-2"})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1"})
+	_ = dm.RegisterNode(&Node{ID: "node-2"})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2"}})
 
 	err := dm.RemoveNodeFromPool("pool-1", "node-2")
 	if err != nil {
@@ -480,12 +480,12 @@ func TestRemoveNodeFromPool(t *testing.T) {
 func TestGetPoolStats(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{
+	_ = dm.RegisterNode(&Node{
 		ID:        "node-1",
 		Capacity:  1000000000000,
 		Available: 800000000000,
 	})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
 
 	stats, err := dm.GetPoolStats("pool-1")
 	if err != nil {
@@ -502,9 +502,9 @@ func TestGetPoolStats(t *testing.T) {
 func TestAllocateShards(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Status: NodeStatusOnline})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-2", Status: NodeStatusOnline})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Status: NodeStatusOnline})
+	_ = dm.RegisterNode(&Node{ID: "node-2", Status: NodeStatusOnline})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2"}})
 
 	// 先创建并设置分片策略
 	_ = dm.CreateShardingPolicy(&ShardingPolicy{ID: "policy-1", ShardCount: 4})
@@ -523,8 +523,8 @@ func TestAllocateShards(t *testing.T) {
 func TestGetShard(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Status: NodeStatusOnline})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Status: NodeStatusOnline})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
 	_ = dm.CreateShardingPolicy(&ShardingPolicy{ID: "policy-1"})
 	_ = dm.SetPoolShardingPolicy("pool-1", "policy-1")
 	_ = dm.AllocateShards("pool-1")
@@ -537,8 +537,8 @@ func TestGetShard(t *testing.T) {
 func TestListShards(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Status: NodeStatusOnline})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Status: NodeStatusOnline})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
 
 	// 空池
 	shards, _ := dm.ListShards("pool-1")
@@ -558,7 +558,7 @@ func TestListShards(t *testing.T) {
 func TestCheckNode(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Status: NodeStatusOnline})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Status: NodeStatusOnline})
 
 	health, _ := dm.CheckNode("node-1")
 	// 健康检查可能返回 nil
@@ -568,8 +568,8 @@ func TestCheckNode(t *testing.T) {
 func TestCheckPool(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1"})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1"})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
 
 	health, _ := dm.CheckPool("pool-1")
 	_ = health
@@ -585,9 +585,9 @@ func TestGetClusterHealth(t *testing.T) {
 	}
 
 	// 添加节点和池
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Status: NodeStatusOnline})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-2", Status: NodeStatusOffline})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Status: NodeStatusOnline})
+	_ = dm.RegisterNode(&Node{ID: "node-2", Status: NodeStatusOffline})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1"}})
 
 	health = dm.GetClusterHealth()
 	if health.TotalNodes != 2 {
@@ -600,9 +600,9 @@ func TestGetClusterHealth(t *testing.T) {
 func TestGetNodeForKey(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Status: NodeStatusOnline})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-2", Status: NodeStatusOnline})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Status: NodeStatusOnline})
+	_ = dm.RegisterNode(&Node{ID: "node-2", Status: NodeStatusOnline})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2"}})
 
 	node, _ := dm.GetNodeForKey("pool-1", "test-key")
 	_ = node
@@ -611,10 +611,10 @@ func TestGetNodeForKey(t *testing.T) {
 func TestGetReplicaNodes(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Status: NodeStatusOnline, Zone: "zone-a"})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-2", Status: NodeStatusOnline, Zone: "zone-b"})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-3", Status: NodeStatusOnline, Zone: "zone-c"})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2", "node-3"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Status: NodeStatusOnline, Zone: "zone-a"})
+	_ = dm.RegisterNode(&Node{ID: "node-2", Status: NodeStatusOnline, Zone: "zone-b"})
+	_ = dm.RegisterNode(&Node{ID: "node-3", Status: NodeStatusOnline, Zone: "zone-c"})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2", "node-3"}})
 
 	nodes, _ := dm.GetReplicaNodes("pool-1", "test-key")
 	_ = nodes
@@ -684,8 +684,8 @@ func TestPoolStatus_Values(t *testing.T) {
 
 // ========== 存储节点结构测试 ==========
 
-func TestStorageNode_Struct(t *testing.T) {
-	node := &StorageNode{
+func TestNode_Struct(t *testing.T) {
+	node := &Node{
 		ID:          "node-1",
 		Name:        "test-node",
 		Address:     "192.168.1.100:9000",
@@ -751,8 +751,8 @@ func TestReplicaPolicy_Struct(t *testing.T) {
 	}
 }
 
-func TestStoragePool_Struct(t *testing.T) {
-	pool := &StoragePool{
+func TestPool_Struct(t *testing.T) {
+	pool := &Pool{
 		ID:          "pool-1",
 		Name:        "main-pool",
 		Description: "Primary storage pool",
@@ -845,7 +845,7 @@ func TestDistributedManager_ConcurrentAccess(t *testing.T) {
 	// 并发注册节点
 	for i := 0; i < 10; i++ {
 		go func(i int) {
-			_ = dm.RegisterNode(&StorageNode{
+			_ = dm.RegisterNode(&Node{
 				ID:   string(rune('A' + i)),
 				Name: "node",
 			})
@@ -872,10 +872,10 @@ func TestDistributedManager_ConcurrentAccess(t *testing.T) {
 func TestRebalanceShards(t *testing.T) {
 	dm := NewDistributedManager(nil)
 
-	_ = dm.RegisterNode(&StorageNode{ID: "node-1", Status: NodeStatusOnline})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-2", Status: NodeStatusOnline})
-	_ = dm.RegisterNode(&StorageNode{ID: "node-3", Status: NodeStatusOnline})
-	_ = dm.CreatePool(&StoragePool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2", "node-3"}})
+	_ = dm.RegisterNode(&Node{ID: "node-1", Status: NodeStatusOnline})
+	_ = dm.RegisterNode(&Node{ID: "node-2", Status: NodeStatusOnline})
+	_ = dm.RegisterNode(&Node{ID: "node-3", Status: NodeStatusOnline})
+	_ = dm.CreatePool(&Pool{ID: "pool-1", Name: "pool-1", Nodes: []string{"node-1", "node-2", "node-3"}})
 	_ = dm.AllocateShards("pool-1")
 
 	// 执行重平衡

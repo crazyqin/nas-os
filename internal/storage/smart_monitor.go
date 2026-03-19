@@ -129,10 +129,15 @@ type SMARTAttribute struct {
 type SMARTStatus string
 
 const (
-	SMARTStatusPASSED      SMARTStatus = "PASSED"
-	SMARTStatusWARNING     SMARTStatus = "WARNING"
-	SMARTStatusFAILING     SMARTStatus = "FAILING"
-	SMARTStatusUNKNOWN     SMARTStatus = "UNKNOWN"
+	// SMARTStatusPASSED indicates the disk has passed SMART self-assessment.
+	SMARTStatusPASSED SMARTStatus = "PASSED"
+	// SMARTStatusWARNING indicates the disk has SMART warnings.
+	SMARTStatusWARNING SMARTStatus = "WARNING"
+	// SMARTStatusFAILING indicates the disk is failing SMART assessment.
+	SMARTStatusFAILING SMARTStatus = "FAILING"
+	// SMARTStatusUNKNOWN indicates SMART status could not be determined.
+	SMARTStatusUNKNOWN SMARTStatus = "UNKNOWN"
+	// SMARTStatusUNSUPPORTED indicates the disk does not support SMART.
 	SMARTStatusUNSUPPORTED SMARTStatus = "UNSUPPORTED"
 )
 
@@ -140,11 +145,16 @@ const (
 type HealthStatus string
 
 const (
-	HealthStatusExcellent HealthStatus = "EXCELLENT" // 90-100
-	HealthStatusGood      HealthStatus = "GOOD"      // 70-89
-	HealthStatusFair      HealthStatus = "FAIR"      // 50-69
-	HealthStatusPoor      HealthStatus = "POOR"      // 25-49
-	HealthStatusCritical  HealthStatus = "CRITICAL"  // 0-24
+	// HealthStatusExcellent indicates excellent health (score 90-100).
+	HealthStatusExcellent HealthStatus = "EXCELLENT"
+	// HealthStatusGood indicates good health (score 70-89).
+	HealthStatusGood HealthStatus = "GOOD"
+	// HealthStatusFair indicates fair health (score 50-69).
+	HealthStatusFair HealthStatus = "FAIR"
+	// HealthStatusPoor indicates poor health (score 25-49).
+	HealthStatusPoor HealthStatus = "POOR"
+	// HealthStatusCritical indicates critical health (score 0-24).
+	HealthStatusCritical HealthStatus = "CRITICAL"
 )
 
 // HealthSnapshot 健康快照
@@ -161,13 +171,20 @@ type HealthSnapshot struct {
 type AlertType string
 
 const (
-	AlertTypeTemperature  AlertType = "TEMPERATURE"
-	AlertTypeReallocated  AlertType = "REALLOCATED_SECTORS"
-	AlertTypePending      AlertType = "PENDING_SECTORS"
-	AlertTypePredictFail  AlertType = "PREDICTED_FAILURE"
+	// AlertTypeTemperature indicates a temperature-related alert.
+	AlertTypeTemperature AlertType = "TEMPERATURE"
+	// AlertTypeReallocated indicates a reallocated sectors alert.
+	AlertTypeReallocated AlertType = "REALLOCATED_SECTORS"
+	// AlertTypePending indicates a pending sectors alert.
+	AlertTypePending AlertType = "PENDING_SECTORS"
+	// AlertTypePredictFail indicates a predicted failure alert.
+	AlertTypePredictFail AlertType = "PREDICTED_FAILURE"
+	// AlertTypeSMARTFailure indicates a SMART failure alert.
 	AlertTypeSMARTFailure AlertType = "SMART_FAILURE"
-	AlertTypeCRCError     AlertType = "CRC_ERROR"
-	AlertTypeSeekError    AlertType = "SEEK_ERROR"
+	// AlertTypeCRCError indicates a CRC error alert.
+	AlertTypeCRCError AlertType = "CRC_ERROR"
+	// AlertTypeSeekError indicates a seek error alert.
+	AlertTypeSeekError AlertType = "SEEK_ERROR"
 )
 
 // Alert 告警
