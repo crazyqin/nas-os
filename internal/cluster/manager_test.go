@@ -53,7 +53,7 @@ func TestGetNodes(t *testing.T) {
 	}
 
 	// 添加测试节点
-	testNode := &ClusterNode{
+	testNode := &Member{
 		ID:        "test-node-2",
 		Hostname:  "test-host-2",
 		IP:        "192.168.1.102",
@@ -91,14 +91,14 @@ func TestGetOnlineNodes(t *testing.T) {
 	defer manager.Shutdown()
 
 	// 添加在线节点
-	onlineNode := &ClusterNode{
+	onlineNode := &Member{
 		ID:        "test-node-2",
 		Status:    StatusOnline,
 		Heartbeat: time.Now(),
 	}
 
 	// 添加离线节点
-	offlineNode := &ClusterNode{
+	offlineNode := &Member{
 		ID:        "test-node-3",
 		Status:    StatusOffline,
 		Heartbeat: time.Now().Add(-1 * time.Hour),
@@ -132,7 +132,7 @@ func TestRemoveNode(t *testing.T) {
 	defer manager.Shutdown()
 
 	// 添加测试节点
-	testNode := &ClusterNode{
+	testNode := &Member{
 		ID:        "test-node-2",
 		Heartbeat: time.Now(),
 	}
@@ -172,7 +172,7 @@ func TestUpdateNodeMetrics(t *testing.T) {
 	defer manager.Shutdown()
 
 	// 添加测试节点
-	testNode := &ClusterNode{
+	testNode := &Member{
 		ID:        "test-node-2",
 		Heartbeat: time.Now(),
 	}
@@ -241,13 +241,13 @@ func TestClusterCallbacks(t *testing.T) {
 	var nodeLeaveCalled bool
 	var mu sync.Mutex
 
-	callbacks := ClusterCallbacks{
-		OnNodeJoin: func(node *ClusterNode) {
+	callbacks := Callbacks{
+		OnNodeJoin: func(node *Member) {
 			mu.Lock()
 			nodeJoinCalled = true
 			mu.Unlock()
 		},
-		OnNodeLeave: func(node *ClusterNode) {
+		OnNodeLeave: func(node *Member) {
 			mu.Lock()
 			nodeLeaveCalled = true
 			mu.Unlock()
@@ -257,7 +257,7 @@ func TestClusterCallbacks(t *testing.T) {
 	manager.SetCallbacks(callbacks)
 
 	// 添加节点
-	testNode := &ClusterNode{
+	testNode := &Member{
 		ID:        "test-node-2",
 		Heartbeat: time.Now(),
 	}

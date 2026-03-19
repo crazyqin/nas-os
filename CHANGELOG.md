@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.16] - 2026-03-19
+
+### Improvements
+- 版本号同步 (version.go: 2.253.15 → 2.253.16)
+- 文档版本一致性更新
+- 修复 docs/api.yaml Git 合并冲突
+
 ## [v2.253.15] - 2026-03-19
 
 ### Improvements
@@ -21,6 +28,50 @@ All notable changes to this project will be documented in this file.
   - 命令注入风险 (sync.go)
   - 缺少认证授权 (handlers.go)
   - 输入验证缺失
+
+## [v2.253.13] - 2026-03-19
+
+### Bug Fixes
+- 六部协同修复 revive linter 错误
+- 代码格式和命名规范优化
+
+## [v2.253.12] - 2026-03-19
+
+### Bug Fixes
+- 修复 47 个 revive linter 错误
+- 重构代码消除命名 stuttering
+
+## [v2.253.11] - 2026-03-19
+
+### Bug Fixes
+- 修复 rand.Read errcheck 错误
+
+### Documentation
+- 同步所有文档版本号至 v2.253.11
+
+## [v2.253.10] - 2026-03-19
+
+### Improvements
+- 修复 golangci-lint 报告的代码格式和命名问题
+- 更新资源统计信息
+
+### Documentation
+- 六部协同更新：文档版本同步至 v2.253.10
+
+## [v2.253.9] - 2026-03-19
+
+### Improvements
+- 更新 COST_ANALYSIS.md 资源统计
+- 安全扫描结果更新 (903 issues, 150 high severity)
+- 测试覆盖率: 36.3%
+
+## [v2.253.8] - 2026-03-19
+
+### Bug Fixes
+- 修复 health_test.go 中 NewHealthManager → NewManager 函数名
+
+### Documentation
+- 同步所有文档版本号至 v2.253.8
 
 ## [v2.253.7] - 2026-03-19
 
