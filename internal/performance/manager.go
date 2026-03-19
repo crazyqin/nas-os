@@ -18,7 +18,7 @@ type Manager struct {
 	health     *HealthChecker
 	alerts     *AlertManager
 	prometheus *PrometheusExporter
-	monitor    *PerformanceMonitor
+	monitor    *Monitor
 
 	mu      sync.RWMutex
 	running bool
@@ -61,7 +61,7 @@ func NewManager(logger *zap.Logger, config Config) *Manager {
 	m.collector = NewSystemCollector(logger, config.HistorySize)
 	m.storage = NewStorageCollector(logger, m.collector, config.HistorySize)
 	m.health = NewHealthChecker(logger, m.collector, m.storage)
-	m.monitor = NewPerformanceMonitor(logger)
+	m.monitor = NewMonitor(logger)
 	m.alerts = NewAlertManager(logger, m.collector, m.storage, m.health)
 	m.prometheus = NewPrometheusExporterExtended(m.monitor, m.collector, m.storage, m.health, m.alerts)
 
@@ -139,7 +139,7 @@ func (m *Manager) GetPrometheusHandler() *PrometheusExporter {
 }
 
 // GetMonitor 获取性能监控器
-func (m *Manager) GetMonitor() *PerformanceMonitor {
+func (m *Manager) GetMonitor() *Monitor {
 	return m.monitor
 }
 

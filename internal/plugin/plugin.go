@@ -12,7 +12,7 @@ import (
 // Plugin 接口定义 - 所有插件必须实现
 type Plugin interface {
 	// Info 返回插件基本信息
-	Info() PluginInfo
+	Info() Info
 
 	// Init 初始化插件（加载配置、建立连接等）
 	Init(config map[string]interface{}) error
@@ -27,8 +27,8 @@ type Plugin interface {
 	Destroy() error
 }
 
-// PluginInfo 插件元信息
-type PluginInfo struct {
+// Info 插件元信息
+type Info struct {
 	// 基本信息
 	ID          string   `json:"id"`             // 插件唯一标识（如 com.nas-os.filemanager-enhance）
 	Name        string   `json:"name"`           // 插件显示名称
@@ -118,8 +118,8 @@ type Property struct {
 	MaxLength   *int        `json:"maxLength,omitempty"`   // 最大长度
 }
 
-// PluginState 插件状态
-type PluginState struct {
+// State 插件状态
+type State struct {
 	ID          string          `json:"id"`
 	Enabled     bool            `json:"enabled"`
 	Running     bool            `json:"running"`
@@ -131,15 +131,24 @@ type PluginState struct {
 	Error       string          `json:"error,omitempty"`
 }
 
-// PluginInstance 运行时插件实例
-type PluginInstance struct {
-	Info    PluginInfo
+// Instance 运行时插件实例
+type Instance struct {
+	Info    Info
 	Plugin  Plugin
-	State   PluginState
+	State   State
 	Path    string // 插件 .so 文件路径
 	Enabled bool   // 是否启用
 	Running bool   // 是否运行中
 }
+
+// PluginInfo 是 Info 的别名，保持向后兼容
+type PluginInfo = Info
+
+// PluginState 是 State 的别名，保持向后兼容
+type PluginState = State
+
+// PluginInstance 是 Instance 的别名，保持向后兼容
+type PluginInstance = Instance
 
 // ExtensionPoint 扩展点定义
 type ExtensionPoint struct {

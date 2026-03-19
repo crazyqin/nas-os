@@ -34,13 +34,13 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // @Tags 搜索
 // @Accept json
 // @Produce json
-// @Param request body SearchRequest true "搜索请求"
-// @Success 200 {object} SearchResponse
+// @Param request body Request true "搜索请求"
+// @Success 200 {object} Response
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /search/query [post]
 func (h *Handlers) search(c *gin.Context) {
-	var req SearchRequest
+	var req Request
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,

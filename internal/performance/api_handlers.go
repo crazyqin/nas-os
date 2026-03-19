@@ -17,7 +17,7 @@ type APIHandlers struct {
 	health     *HealthChecker
 	alerts     *AlertManager
 	prometheus *PrometheusExporter
-	monitor    *PerformanceMonitor
+	monitor    *Monitor
 }
 
 // NewAPIHandlers 创建 API 处理器
@@ -28,7 +28,7 @@ func NewAPIHandlers(
 	health *HealthChecker,
 	alerts *AlertManager,
 	prometheus *PrometheusExporter,
-	monitor *PerformanceMonitor,
+	monitor *Monitor,
 ) *APIHandlers {
 	return &APIHandlers{
 		logger:     logger,

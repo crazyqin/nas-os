@@ -33,8 +33,8 @@ type FileInfo struct {
 	MimeType string    `json:"mimeType"`
 }
 
-// SearchResult 搜索结果
-type SearchResult struct {
+// Result 搜索结果
+type Result struct {
 	Path       string      `json:"path"`
 	Name       string      `json:"name"`
 	Ext        string      `json:"ext"`
@@ -51,8 +51,8 @@ type Highlight struct {
 	Fragments []string `json:"fragments"`
 }
 
-// SearchRequest 搜索请求
-type SearchRequest struct {
+// Request 搜索请求
+type Request struct {
 	Query    string     `json:"query"`
 	Paths    []string   `json:"paths,omitempty"`    // 搜索路径限制
 	Types    []string   `json:"types,omitempty"`    // 文件类型过滤
@@ -499,7 +499,7 @@ func (e *Engine) IndexDirectory(root string) error {
 }
 
 // Search 执行搜索
-func (e *Engine) Search(req SearchRequest) (*SearchResponse, error) {
+func (e *Engine) Search(req Request) (*Response, error) {
 	if req.Query == "" {
 		return nil, fmt.Errorf("搜索查询不能为空")
 	}
@@ -545,15 +545,15 @@ func (e *Engine) Search(req SearchRequest) (*SearchResponse, error) {
 	}
 
 	// 处理结果
-	response := &SearchResponse{
+	response := &Response{
 		Total:    total,
 		Took:     result.Took,
 		MaxScore: result.MaxScore,
-		Results:  make([]SearchResult, 0, len(result.Hits)),
+		Results:  make([]Result, 0, len(result.Hits)),
 	}
 
 	for _, hit := range result.Hits {
-		searchResult := SearchResult{
+		searchResult := Result{
 			Path:  hit.ID,
 			Score: hit.Score,
 		}
@@ -655,13 +655,22 @@ func (e *Engine) buildQuery(req SearchRequest) query.Query {
 	return mainQuery
 }
 
-// SearchResponse 搜索响应
-type SearchResponse struct {
-	Total    int            `json:"total"`
+// Response 搜索响应
+type Response struct {
+	Total    int       `json:"total"`
 	Took     time.Duration  `json:"took"`
 	MaxScore float64        `json:"maxScore"`
-	Results  []SearchResult `json:"results"`
+	Results  []Result `json:"results"`
 }
+
+// SearchResult 是 Result 的别名，保持向后兼容
+type SearchResult = Result
+
+// SearchRequest 是 Request 的别名，保持向后兼容
+type SearchRequest = Request
+
+// SearchResponse 是 Response 的别名，保持向后兼容
+type SearchResponse = Response
 
 // Delete 从索引中删除
 func (e *Engine) Delete(path string) error {

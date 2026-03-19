@@ -66,16 +66,21 @@ const (
 	ScopeDirectory Scope = "directory" // 目录预算
 )
 
-// BudgetStatus 预算状态
-type BudgetStatus string
+// State 预算状态
+type State string
 
 // 预算状态常量
 const (
-	BudgetStatusActive    BudgetStatus = "active"    // 活跃
-	BudgetStatusPaused    BudgetStatus = "paused"    // 暂停
-	BudgetStatusExceeded  BudgetStatus = "exceeded"  // 超支
-	BudgetStatusExhausted BudgetStatus = "exhausted" // 耗尽
-	BudgetStatusArchived  BudgetStatus = "archived"  // 归档
+	// StateActive 活跃状态
+	StateActive State = "active"
+	// StatePaused 暂停状态
+	StatePaused State = "paused"
+	// StateExceeded 超支状态
+	StateExceeded State = "exceeded"
+	// StateExhausted 耗尽状态
+	StateExhausted State = "exhausted"
+	// StateArchived 归档状态
+	StateArchived State = "archived"
 )
 
 // ========== 预算定义 ==========
@@ -106,10 +111,10 @@ type Budget struct {
 	NextReset *time.Time `json:"next_reset,omitempty"`
 
 	// 状态和配置
-	Status      BudgetStatus `json:"status"`
-	AutoReset   bool         `json:"auto_reset"`   // 是否自动重置
-	Rollover    bool         `json:"rollover"`     // 是否结转
-	AlertConfig AlertConfig  `json:"alert_config"` // 预警配置
+	State        State       `json:"status"`
+	AutoReset    bool        `json:"auto_reset"`   // 是否自动重置
+	Rollover     bool        `json:"rollover"`     // 是否结转
+	AlertConfig  AlertConfig `json:"alert_config"` // 预警配置
 
 	// 元数据
 	CreatedAt time.Time `json:"created_at"`
@@ -249,21 +254,21 @@ type ReportSummary struct {
 
 // BudgetDetail 预算详情
 type BudgetDetail struct {
-	BudgetID       string       `json:"budget_id"`
-	BudgetName     string       `json:"budget_name"`
-	Type           Type         `json:"type"`
-	Scope          Scope        `json:"scope"`
-	TargetName     string       `json:"target_name"`
-	Amount         float64      `json:"amount"`
-	UsedAmount     float64      `json:"used_amount"`
-	Remaining      float64      `json:"remaining"`
-	UsagePercent   float64      `json:"usage_percent"`
-	Status         BudgetStatus `json:"status"`
-	Trend          string       `json:"trend"` // up, down, stable
-	DailyAvgUsage  float64      `json:"daily_avg_usage"`
-	ProjectedUsage float64      `json:"projected_usage"` // 预计期末使用量
-	DaysRemaining  int          `json:"days_remaining"`
-	Alerts         []Alert      `json:"alerts"`
+	BudgetID       string  `json:"budget_id"`
+	BudgetName     string  `json:"budget_name"`
+	Type           Type    `json:"type"`
+	Scope          Scope   `json:"scope"`
+	TargetName     string  `json:"target_name"`
+	Amount         float64 `json:"amount"`
+	UsedAmount     float64 `json:"used_amount"`
+	Remaining      float64 `json:"remaining"`
+	UsagePercent   float64 `json:"usage_percent"`
+	State          State   `json:"status"`
+	Trend          string  `json:"trend"` // up, down, stable
+	DailyAvgUsage  float64 `json:"daily_avg_usage"`
+	ProjectedUsage float64 `json:"projected_usage"` // 预计期末使用量
+	DaysRemaining  int     `json:"days_remaining"`
+	Alerts         []Alert `json:"alerts"`
 }
 
 // UsageTrendPoint 使用趋势数据点
@@ -315,22 +320,22 @@ type ReportRequest struct {
 
 // BudgetQuery 预算查询参数
 type BudgetQuery struct {
-	IDs       []string       `json:"ids,omitempty"`
-	Types     []Type         `json:"types,omitempty"`
-	Scopes    []Scope        `json:"scopes,omitempty"`
-	Statuses  []BudgetStatus `json:"statuses,omitempty"`
-	TargetIDs []string       `json:"target_ids,omitempty"`
-	Tags      []string       `json:"tags,omitempty"`
-	MinAmount *float64       `json:"min_amount,omitempty"`
-	MaxAmount *float64       `json:"max_amount,omitempty"`
-	MinUsage  *float64       `json:"min_usage,omitempty"`
-	MaxUsage  *float64       `json:"max_usage,omitempty"`
-	StartDate *time.Time     `json:"start_date,omitempty"`
-	EndDate   *time.Time     `json:"end_date,omitempty"`
-	Page      int            `json:"page"`
-	PageSize  int            `json:"page_size"`
-	SortBy    string         `json:"sort_by"`    // name, amount, used_amount, usage_percent, created_at
-	SortOrder string         `json:"sort_order"` // asc, desc
+	IDs       []string   `json:"ids,omitempty"`
+	Types     []Type     `json:"types,omitempty"`
+	Scopes    []Scope    `json:"scopes,omitempty"`
+	States    []State    `json:"states,omitempty"`
+	TargetIDs []string   `json:"target_ids,omitempty"`
+	Tags      []string   `json:"tags,omitempty"`
+	MinAmount *float64   `json:"min_amount,omitempty"`
+	MaxAmount *float64   `json:"max_amount,omitempty"`
+	MinUsage  *float64   `json:"min_usage,omitempty"`
+	MaxUsage  *float64   `json:"max_usage,omitempty"`
+	StartDate *time.Time `json:"start_date,omitempty"`
+	EndDate   *time.Time `json:"end_date,omitempty"`
+	Page      int        `json:"page"`
+	PageSize  int        `json:"page_size"`
+	SortBy    string     `json:"sort_by"`    // name, amount, used_amount, usage_percent, created_at
+	SortOrder string     `json:"sort_order"` // asc, desc
 }
 
 // UsageQuery 使用记录查询参数
