@@ -38,7 +38,7 @@ on:
           - arm/v7
 
 env:
-  GO_VERSION: '1.23'
+  GO_VERSION: '1.25'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   # Docker Hub 配置
