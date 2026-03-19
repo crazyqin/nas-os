@@ -21,7 +21,7 @@
 # - 支持 minimal（distroless）和 full（alpine）两种版本
 
 # ========== 构建阶段 ==========
-FROM golang:1.25-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 # 构建参数
 ARG VERSION=dev
@@ -71,7 +71,7 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 RUN upx --best --lzma nasd nasctl 2>/dev/null || echo "UPX compression skipped (not supported on this platform)"
 
 # ========== 健康检查工具构建阶段 ==========
-FROM golang:1.25-alpine AS healthcheck-builder
+FROM golang:1.23-alpine AS healthcheck-builder
 
 # 构建一个极简的健康检查工具（使用 Dockerfile 1.4 heredoc 语法）
 COPY <<EOF /tmp/health.go
