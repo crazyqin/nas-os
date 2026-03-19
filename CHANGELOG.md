@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.20] - 2026-03-19
+
+### Security
+- 修复 cluster 模块安全问题 (刑部)
+  - sync.go: 添加路径验证函数防止路径遍历攻击
+  - sync.go: 添加 IP 地址格式验证
+  - sync.go: 添加 rsync 可执行文件白名单验证
+  - sync.go: 在 CreateRule/UpdateRule/syncToNode 中强制输入验证
+  - handlers.go: 添加认证中间件支持 (RequireAuth, RequireAdmin, RequirePermission)
+  - handlers.go: 为敏感 API 添加权限控制（节点管理、同步规则、负载均衡、高可用）
+  - handlers.go: 添加节点 ID、规则 ID、IP 地址等输入验证
+  - 定义 cluster 相关资源权限 (ResourceCluster, ResourceSync, ResourceLoadBalancer, ResourceHighAvailability)
+
+### DevOps
+- 更新 GitHub Actions Node.js 版本 (工部)
+
 ## [v2.253.18] - 2026-03-19
 
 ### Documentation
