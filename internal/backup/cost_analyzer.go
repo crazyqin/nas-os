@@ -870,8 +870,14 @@ func (ca *CostAnalyzer) GetRecords(limit int) []*CostRecord {
 	ca.mu.RLock()
 	defer ca.mu.RUnlock()
 
+	// 安全检查：限制最大值，防止内存攻击
+	const maxLimit = 10000
 	if limit <= 0 || limit > len(ca.records) {
 		limit = len(ca.records)
+	}
+	// 额外安全边界
+	if limit > maxLimit {
+		limit = maxLimit
 	}
 
 	start := len(ca.records) - limit
@@ -879,7 +885,9 @@ func (ca *CostAnalyzer) GetRecords(limit int) []*CostRecord {
 		start = 0
 	}
 
-	result := make([]*CostRecord, limit)
+	// 使用实际需要的切片大小
+	actualLen := len(ca.records) - start
+	result := make([]*CostRecord, actualLen)
 	copy(result, ca.records[start:])
 	return result
 }

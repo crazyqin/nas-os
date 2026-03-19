@@ -636,21 +636,35 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 	default:
 	}
 
-	backupPath := options.BackupID
+	backupPath := filepath.Clean(options.BackupID)
+	targetPath := filepath.Clean(options.TargetPath)
+
+	// 安全验证路径
+	if strings.Contains(backupPath, "..") {
+		task.Status = StatusFailed
+		task.Error = "无效的备份路径"
+		return
+	}
+	if strings.Contains(targetPath, "..") {
+		task.Status = StatusFailed
+		task.Error = "无效的目标路径"
+		return
+	}
+
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
 		task.Status = StatusFailed
 		task.Error = "备份文件不存在"
 		return
 	}
 
-	if err := os.MkdirAll(options.TargetPath, 0755); err != nil {
+	if err := os.MkdirAll(targetPath, 0755); err != nil {
 		task.Status = StatusFailed
 		task.Error = fmt.Sprintf("创建目标目录失败：%v", err)
 		return
 	}
 
 	if strings.HasSuffix(backupPath, ".tar.gz") {
-		cmd := exec.CommandContext(ctx, "tar", "xzf", backupPath, "-C", options.TargetPath)
+		cmd := exec.CommandContext(ctx, "tar", "xzf", backupPath, "-C", targetPath)
 		if output, err := cmd.CombinedOutput(); err != nil {
 			if ctx.Err() != nil {
 				task.Status = StatusCancelled
@@ -662,7 +676,7 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 			return
 		}
 	} else {
-		if err := copyDirectory(backupPath, options.TargetPath); err != nil {
+		if err := copyDirectory(backupPath, targetPath); err != nil {
 			task.Status = StatusFailed
 			task.Error = fmt.Sprintf("复制失败：%v", err)
 			return

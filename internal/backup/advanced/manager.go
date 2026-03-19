@@ -433,6 +433,25 @@ func (m *Manager) updateIndex(manifest *BackupManifest) {
 
 // ========== 备份恢复 ==========
 
+// validatePath 安全验证路径，防止路径遍历攻击
+func validatePath(basePath, relPath string) (string, error) {
+	// 清理路径，移除 . 和 ..
+	cleanRelPath := filepath.Clean(relPath)
+	// 构建完整路径
+	fullPath := filepath.Join(basePath, cleanRelPath)
+	// 清理后的完整路径
+	cleanFullPath := filepath.Clean(fullPath)
+	// 清理后的基础路径
+	cleanBasePath := filepath.Clean(basePath)
+
+	// 验证路径在基础目录内
+	if !strings.HasPrefix(cleanFullPath, cleanBasePath+string(filepath.Separator)) && cleanFullPath != cleanBasePath {
+		return "", fmt.Errorf("检测到路径遍历攻击: %s", relPath)
+	}
+
+	return cleanFullPath, nil
+}
+
 // RestoreBackup 恢复备份
 func (m *Manager) RestoreBackup(ctx context.Context, backupID, targetPath string, overwrite bool) (*BackupRecord, error) {
 	m.mu.RLock()
@@ -463,8 +482,17 @@ func (m *Manager) RestoreBackup(ctx context.Context, backupID, targetPath string
 		default:
 		}
 
-		srcPath := filepath.Join(record.Destination, file.Path)
-		dstPath := filepath.Join(targetPath, file.Path)
+		// 安全验证源路径和目标路径
+		srcPath, err := validatePath(record.Destination, file.Path)
+		if err != nil {
+			log.Printf("Warning: invalid source path %s: %v", file.Path, err)
+			continue
+		}
+		dstPath, err := validatePath(targetPath, file.Path)
+		if err != nil {
+			log.Printf("Warning: invalid destination path %s: %v", file.Path, err)
+			continue
+		}
 
 		if !overwrite {
 			if _, err := os.Stat(dstPath); err == nil {
@@ -500,8 +528,17 @@ func (m *Manager) restoreBaseBackup(ctx context.Context, backupID, targetPath st
 	}
 
 	for _, file := range manifest.Files {
-		srcPath := filepath.Join(record.Destination, file.Path)
-		dstPath := filepath.Join(targetPath, file.Path)
+		// 安全验证路径
+		srcPath, err := validatePath(record.Destination, file.Path)
+		if err != nil {
+			log.Printf("Warning: invalid source path %s: %v", file.Path, err)
+			continue
+		}
+		dstPath, err := validatePath(targetPath, file.Path)
+		if err != nil {
+			log.Printf("Warning: invalid destination path %s: %v", file.Path, err)
+			continue
+		}
 
 		if !overwrite {
 			if _, err := os.Stat(dstPath); err == nil {

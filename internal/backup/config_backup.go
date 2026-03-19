@@ -483,6 +483,19 @@ func (m *ConfigBackupManager) extractBackup(backupPath, destDir string) ([]strin
 
 			files = append(files, header.Name)
 		case tar.TypeSymlink:
+			// 安全检查：防止符号链接指向目标目录之外
+			linkTarget := header.Linkname
+			// 解析符号链接的绝对路径
+			var resolvedLink string
+			if filepath.IsAbs(linkTarget) {
+				resolvedLink = filepath.Clean(linkTarget)
+			} else {
+				resolvedLink = filepath.Clean(filepath.Join(destDir, linkTarget))
+			}
+			// 验证符号链接目标在目标目录内
+			if !strings.HasPrefix(resolvedLink, filepath.Clean(destDir)) {
+				return nil, fmt.Errorf("检测到符号链接攻击: %s -> %s", header.Name, linkTarget)
+			}
 			// 创建符号链接
 			if err := os.Symlink(header.Linkname, targetPath); err != nil {
 				return nil, err
