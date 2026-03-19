@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.40] - 2026-03-19
+
+### Documentation
+- 同步所有文档版本号至 v2.253.40 (礼部)
+  - README.md、docs/README_EN.md
+  - docs/USER_GUIDE.md、docs/QUICKSTART.md
+  - docs/FAQ.md、docs/API_GUIDE.md
+  - docs/api.yaml、docs/swagger.yaml
+
 ## [v2.253.38] - 2026-03-19
 
 ### Documentation
