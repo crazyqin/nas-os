@@ -34,7 +34,7 @@ func TestCreateBudget(t *testing.T) {
 	assert.Equal(t, "test-budget", budget.Name)
 	assert.Equal(t, TypeStorage, budget.Type)
 	assert.Equal(t, 1000.0, budget.Amount)
-	assert.Equal(t, BudgetStatusActive, budget.Status)
+	assert.Equal(t, StatusActive, budget.Status)
 }
 
 func TestCreateBudgetInvalidAmount(t *testing.T) {
@@ -291,7 +291,7 @@ func TestRecordUsageExceedsBudget(t *testing.T) {
 
 	updated, _ := manager.GetBudget(budget.ID)
 	// 150% usage means exhausted (>= 100%)
-	assert.Equal(t, BudgetStatusExhausted, updated.Status)
+	assert.Equal(t, StatusExhausted, updated.Status)
 }
 
 func TestGetUsageHistory(t *testing.T) {
@@ -383,7 +383,7 @@ func TestResetBudget(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 0.0, reset.UsedAmount)
 	assert.Equal(t, 1000.0, reset.Remaining)
-	assert.Equal(t, BudgetStatusActive, reset.Status)
+	assert.Equal(t, StatusActive, reset.Status)
 }
 
 func TestResetBudgetWithRollover(t *testing.T) {
@@ -627,7 +627,7 @@ func TestBudgetScopes(t *testing.T) {
 }
 
 func TestBudgetStatuses(t *testing.T) {
-	statuses := []BudgetStatus{BudgetStatusActive, BudgetStatusPaused, BudgetStatusExceeded, BudgetStatusExhausted, BudgetStatusArchived}
+	statuses := []Status{StatusActive, StatusPaused, StatusExceeded, StatusExhausted, StatusArchived}
 	for _, status := range statuses {
 		assert.NotEmpty(t, string(status))
 	}
