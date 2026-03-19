@@ -116,6 +116,7 @@ func (p *S3Provider) Upload(ctx context.Context, localPath, remotePath string) e
 	return err
 }
 
+// Download downloads a file from S3 storage to the local filesystem.
 func (p *S3Provider) Download(ctx context.Context, remotePath, localPath string) error {
 	key := strings.TrimPrefix(remotePath, "/")
 
@@ -142,6 +143,7 @@ func (p *S3Provider) Download(ctx context.Context, remotePath, localPath string)
 	return err
 }
 
+// Delete removes a file from S3 storage.
 func (p *S3Provider) Delete(ctx context.Context, remotePath string) error {
 	key := strings.TrimPrefix(remotePath, "/")
 	_, err := p.client.DeleteObject(ctx, &s3.DeleteObjectInput{
@@ -151,6 +153,7 @@ func (p *S3Provider) Delete(ctx context.Context, remotePath string) error {
 	return err
 }
 
+// List returns a list of files in S3 storage matching the given prefix.
 func (p *S3Provider) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
 	var files []FileInfo
 
@@ -182,6 +185,7 @@ func (p *S3Provider) List(ctx context.Context, prefix string, recursive bool) ([
 	return files, nil
 }
 
+// Stat returns metadata information about a file in S3 storage.
 func (p *S3Provider) Stat(ctx context.Context, remotePath string) (*FileInfo, error) {
 	key := strings.TrimPrefix(remotePath, "/")
 
@@ -206,6 +210,7 @@ func (p *S3Provider) Stat(ctx context.Context, remotePath string) (*FileInfo, er
 	}, nil
 }
 
+// CreateDir creates a directory in S3 storage by creating an empty object with a trailing slash.
 func (p *S3Provider) CreateDir(ctx context.Context, remotePath string) error {
 	key := strings.TrimSuffix(remotePath, "/") + "/"
 	_, err := p.client.PutObject(ctx, &s3.PutObjectInput{
@@ -216,6 +221,7 @@ func (p *S3Provider) CreateDir(ctx context.Context, remotePath string) error {
 	return err
 }
 
+// DeleteDir removes a directory and all its contents from S3 storage.
 func (p *S3Provider) DeleteDir(ctx context.Context, remotePath string) error {
 	prefix := strings.TrimSuffix(remotePath, "/") + "/"
 
@@ -243,6 +249,7 @@ func (p *S3Provider) DeleteDir(ctx context.Context, remotePath string) error {
 	return err
 }
 
+// TestConnection tests the connection to S3 storage and returns the result.
 func (p *S3Provider) TestConnection(ctx context.Context) (*ConnectionTestResult, error) {
 	start := time.Now()
 
@@ -272,14 +279,17 @@ func (p *S3Provider) TestConnection(ctx context.Context) (*ConnectionTestResult,
 	return result, nil
 }
 
+// Close releases resources used by the S3 provider. Currently a no-op.
 func (p *S3Provider) Close() error {
 	return nil
 }
 
+// GetType returns the provider type for S3 storage.
 func (p *S3Provider) GetType() ProviderType {
 	return p.provider
 }
 
+// GetCapabilities returns the list of capabilities supported by S3 storage.
 func (p *S3Provider) GetCapabilities() []string {
 	return []string{"upload", "download", "delete", "list", "multipart"}
 }
@@ -414,6 +424,7 @@ func NewWebDAVProvider(cfg *ProviderConfig) (*WebDAVProvider, error) {
 	}, nil
 }
 
+// Upload uploads a local file to WebDAV storage.
 func (p *WebDAVProvider) Upload(ctx context.Context, localPath, remotePath string) error {
 	file, err := os.Open(localPath)
 	if err != nil {
@@ -448,6 +459,7 @@ func (p *WebDAVProvider) Upload(ctx context.Context, localPath, remotePath strin
 	return nil
 }
 
+// Download downloads a file from WebDAV storage to the local filesystem.
 func (p *WebDAVProvider) Download(ctx context.Context, remotePath, localPath string) error {
 	url := p.baseURL + remotePath
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
@@ -485,6 +497,7 @@ func (p *WebDAVProvider) Download(ctx context.Context, remotePath, localPath str
 	return err
 }
 
+// Delete removes a file from WebDAV storage.
 func (p *WebDAVProvider) Delete(ctx context.Context, remotePath string) error {
 	url := p.baseURL + remotePath
 	req, err := http.NewRequestWithContext(ctx, "DELETE", url, nil)
@@ -507,6 +520,7 @@ func (p *WebDAVProvider) Delete(ctx context.Context, remotePath string) error {
 	return nil
 }
 
+// List returns a list of files in WebDAV storage matching the given prefix.
 func (p *WebDAVProvider) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
 	// WebDAV PROPFIND 实现
 	url := p.baseURL + prefix
@@ -529,6 +543,7 @@ func (p *WebDAVProvider) List(ctx context.Context, prefix string, recursive bool
 	return []FileInfo{}, nil
 }
 
+// Stat returns metadata information about a file in WebDAV storage.
 func (p *WebDAVProvider) Stat(ctx context.Context, remotePath string) (*FileInfo, error) {
 	url := p.baseURL + remotePath
 	req, err := http.NewRequestWithContext(ctx, "HEAD", url, nil)
@@ -556,6 +571,7 @@ func (p *WebDAVProvider) Stat(ctx context.Context, remotePath string) (*FileInfo
 	}, nil
 }
 
+// CreateDir creates a directory in WebDAV storage using the MKCOL method.
 func (p *WebDAVProvider) CreateDir(ctx context.Context, remotePath string) error {
 	url := p.baseURL + remotePath
 	req, err := http.NewRequestWithContext(ctx, "MKCOL", url, nil)
@@ -578,10 +594,12 @@ func (p *WebDAVProvider) CreateDir(ctx context.Context, remotePath string) error
 	return nil
 }
 
+// DeleteDir removes a directory from WebDAV storage.
 func (p *WebDAVProvider) DeleteDir(ctx context.Context, remotePath string) error {
 	return p.Delete(ctx, strings.TrimSuffix(remotePath, "/")+"/")
 }
 
+// TestConnection tests the connection to WebDAV storage and returns the result.
 func (p *WebDAVProvider) TestConnection(ctx context.Context) (*ConnectionTestResult, error) {
 	start := time.Now()
 
@@ -618,14 +636,17 @@ func (p *WebDAVProvider) TestConnection(ctx context.Context) (*ConnectionTestRes
 	return result, nil
 }
 
+// Close releases resources used by the WebDAV provider. Currently a no-op.
 func (p *WebDAVProvider) Close() error {
 	return nil
 }
 
+// GetType returns the provider type for WebDAV storage.
 func (p *WebDAVProvider) GetType() ProviderType {
 	return ProviderWebDAV
 }
 
+// GetCapabilities returns the list of capabilities supported by WebDAV storage.
 func (p *WebDAVProvider) GetCapabilities() []string {
 	return []string{"upload", "download", "delete", "list"}
 }
@@ -858,6 +879,7 @@ func (p *GoogleDriveProvider) getFileID(ctx context.Context, path string) (strin
 	return result.Files[0].ID, nil
 }
 
+// Upload uploads a local file to Google Drive using resumable upload.
 func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -1014,6 +1036,7 @@ func (p *GoogleDriveProvider) Upload(ctx context.Context, localPath, remotePath 
 	return nil
 }
 
+// Download downloads a file from Google Drive to the local filesystem.
 func (p *GoogleDriveProvider) Download(ctx context.Context, remotePath, localPath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -1059,6 +1082,7 @@ func (p *GoogleDriveProvider) Download(ctx context.Context, remotePath, localPat
 	return err
 }
 
+// Delete removes a file from Google Drive.
 func (p *GoogleDriveProvider) Delete(ctx context.Context, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -1089,6 +1113,7 @@ func (p *GoogleDriveProvider) Delete(ctx context.Context, remotePath string) err
 	return nil
 }
 
+// List returns a list of files in Google Drive matching the given prefix.
 func (p *GoogleDriveProvider) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return nil, err
@@ -1159,6 +1184,7 @@ func (p *GoogleDriveProvider) List(ctx context.Context, prefix string, recursive
 	return files, nil
 }
 
+// Stat returns metadata information about a file in Google Drive.
 func (p *GoogleDriveProvider) Stat(ctx context.Context, remotePath string) (*FileInfo, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return nil, err
@@ -1203,6 +1229,7 @@ func (p *GoogleDriveProvider) Stat(ctx context.Context, remotePath string) (*Fil
 	}, nil
 }
 
+// CreateDir creates a directory in Google Drive.
 func (p *GoogleDriveProvider) CreateDir(ctx context.Context, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -1212,10 +1239,12 @@ func (p *GoogleDriveProvider) CreateDir(ctx context.Context, remotePath string) 
 	return err
 }
 
+// DeleteDir removes a directory from Google Drive.
 func (p *GoogleDriveProvider) DeleteDir(ctx context.Context, remotePath string) error {
 	return p.Delete(ctx, remotePath)
 }
 
+// TestConnection tests the connection to Google Drive and returns the result.
 func (p *GoogleDriveProvider) TestConnection(ctx context.Context) (*ConnectionTestResult, error) {
 	result := &ConnectionTestResult{
 		Provider: ProviderGoogleDrive,
@@ -1277,14 +1306,17 @@ func (p *GoogleDriveProvider) TestConnection(ctx context.Context) (*ConnectionTe
 	return result, nil
 }
 
+// Close releases resources used by the Google Drive provider. Currently a no-op.
 func (p *GoogleDriveProvider) Close() error {
 	return nil
 }
 
+// GetType returns the provider type for Google Drive.
 func (p *GoogleDriveProvider) GetType() ProviderType {
 	return ProviderGoogleDrive
 }
 
+// GetCapabilities returns the list of capabilities supported by Google Drive.
 func (p *GoogleDriveProvider) GetCapabilities() []string {
 	return []string{"upload", "download", "delete", "list", "share"}
 }
@@ -1450,6 +1482,7 @@ func (p *OneDriveProvider) ensureFolder(ctx context.Context, path string) error 
 	return nil
 }
 
+// Upload uploads a local file to OneDrive using simple or resumable upload based on file size.
 func (p *OneDriveProvider) Upload(ctx context.Context, localPath, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -1556,6 +1589,7 @@ func (p *OneDriveProvider) Upload(ctx context.Context, localPath, remotePath str
 	return nil
 }
 
+// Download downloads a file from OneDrive to the local filesystem.
 func (p *OneDriveProvider) Download(ctx context.Context, remotePath, localPath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -1594,6 +1628,7 @@ func (p *OneDriveProvider) Download(ctx context.Context, remotePath, localPath s
 	return err
 }
 
+// Delete removes a file from OneDrive.
 func (p *OneDriveProvider) Delete(ctx context.Context, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -1619,6 +1654,7 @@ func (p *OneDriveProvider) Delete(ctx context.Context, remotePath string) error 
 	return nil
 }
 
+// List returns a list of files in OneDrive matching the given prefix.
 func (p *OneDriveProvider) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return nil, err
@@ -1689,6 +1725,7 @@ func (p *OneDriveProvider) List(ctx context.Context, prefix string, recursive bo
 	return files, nil
 }
 
+// Stat returns metadata information about a file in OneDrive.
 func (p *OneDriveProvider) Stat(ctx context.Context, remotePath string) (*FileInfo, error) {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return nil, err
@@ -1732,6 +1769,7 @@ func (p *OneDriveProvider) Stat(ctx context.Context, remotePath string) (*FileIn
 	}, nil
 }
 
+// CreateDir creates a directory in OneDrive.
 func (p *OneDriveProvider) CreateDir(ctx context.Context, remotePath string) error {
 	if err := p.refreshTokenIfNeeded(ctx); err != nil {
 		return err
@@ -1739,10 +1777,12 @@ func (p *OneDriveProvider) CreateDir(ctx context.Context, remotePath string) err
 	return p.ensureFolder(ctx, remotePath)
 }
 
+// DeleteDir removes a directory from OneDrive.
 func (p *OneDriveProvider) DeleteDir(ctx context.Context, remotePath string) error {
 	return p.Delete(ctx, remotePath)
 }
 
+// TestConnection tests the connection to OneDrive and returns the result.
 func (p *OneDriveProvider) TestConnection(ctx context.Context) (*ConnectionTestResult, error) {
 	result := &ConnectionTestResult{
 		Provider: ProviderOneDrive,
@@ -1803,14 +1843,17 @@ func (p *OneDriveProvider) TestConnection(ctx context.Context) (*ConnectionTestR
 	return result, nil
 }
 
+// Close releases resources used by the OneDrive provider. Currently a no-op.
 func (p *OneDriveProvider) Close() error {
 	return nil
 }
 
+// GetType returns the provider type for OneDrive.
 func (p *OneDriveProvider) GetType() ProviderType {
 	return ProviderOneDrive
 }
 
+// GetCapabilities returns the list of capabilities supported by OneDrive.
 func (p *OneDriveProvider) GetCapabilities() []string {
 	return []string{"upload", "download", "delete", "list", "share"}
 }
