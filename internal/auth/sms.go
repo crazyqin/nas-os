@@ -448,7 +448,7 @@ func (p *TencentSMSProvider) Send(phone, code string) error {
 func (p *TencentSMSProvider) calculateTencentSignature(host, method, uri, payload string, timestamp int64) string {
 	// 步骤1：拼接规范请求串
 	httpRequestMethod := method
-	canonicalUri := uri
+	canonicalURI := uri
 	canonicalQueryString := "" // POST 请求为空
 	canonicalHeaders := fmt.Sprintf("content-type:%s\nhost:%s\n", "application/json", host)
 	signedHeaders := "content-type;host"
@@ -460,7 +460,7 @@ func (p *TencentSMSProvider) calculateTencentSignature(host, method, uri, payloa
 
 	canonicalRequest := fmt.Sprintf("%s\n%s\n%s\n%s\n%s\n%s",
 		httpRequestMethod,
-		canonicalUri,
+		canonicalURI,
 		canonicalQueryString,
 		canonicalHeaders,
 		signedHeaders,

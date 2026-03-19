@@ -15,7 +15,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// WebSocket upgrader configuration
+// upgrader is the WebSocket upgrader configuration for HTTP to WebSocket conversion.
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,

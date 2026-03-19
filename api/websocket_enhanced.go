@@ -22,13 +22,19 @@ var (
 	// ErrConnectionClosed indicates the connection has been closed
 	ErrConnectionClosed = errors.New("connection closed")
 	// ErrReconnectFailed indicates reconnection has failed
-	ErrReconnectFailed    = errors.New("reconnection failed")
-	ErrMaxReconnect       = errors.New("max reconnection attempts reached")
-	ErrHeartbeatTimeout   = errors.New("heartbeat timeout")
+	ErrReconnectFailed = errors.New("reconnection failed")
+	// ErrMaxReconnect indicates maximum reconnection attempts reached
+	ErrMaxReconnect = errors.New("max reconnection attempts reached")
+	// ErrHeartbeatTimeout indicates heartbeat response timeout
+	ErrHeartbeatTimeout = errors.New("heartbeat timeout")
+	// ErrConnectionNotFound indicates the connection was not found
 	ErrConnectionNotFound = errors.New("connection not found")
-	ErrRoomNotFound       = errors.New("room not found")
-	ErrNotInRoom          = errors.New("client not in room")
-	ErrQueueFull          = errors.New("message queue full")
+	// ErrRoomNotFound indicates the room was not found
+	ErrRoomNotFound = errors.New("room not found")
+	// ErrNotInRoom indicates the client is not in the room
+	ErrNotInRoom = errors.New("client not in room")
+	// ErrQueueFull indicates the message queue is full
+	ErrQueueFull = errors.New("message queue full")
 )
 
 // HeartbeatConfig 心跳配置

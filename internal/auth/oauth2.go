@@ -63,10 +63,14 @@ type OAuth2Manager struct {
 }
 
 var (
+	// ErrOAuth2ProviderNotFound indicates the OAuth2 provider was not found
 	ErrOAuth2ProviderNotFound = errors.New("OAuth2 提供商未找到")
-	ErrOAuth2StateInvalid     = errors.New("OAuth2 状态无效或已过期")
-	ErrOAuth2TokenInvalid     = errors.New("OAuth2 令牌无效")
-	ErrOAuth2UserInfoFailed   = errors.New("获取用户信息失败")
+	// ErrOAuth2StateInvalid indicates the OAuth2 state is invalid or expired
+	ErrOAuth2StateInvalid = errors.New("OAuth2 状态无效或已过期")
+	// ErrOAuth2TokenInvalid indicates the OAuth2 token is invalid
+	ErrOAuth2TokenInvalid = errors.New("OAuth2 令牌无效")
+	// ErrOAuth2UserInfoFailed indicates failed to get user info
+	ErrOAuth2UserInfoFailed = errors.New("获取用户信息失败")
 )
 
 // NewOAuth2Manager 创建 OAuth2 管理器

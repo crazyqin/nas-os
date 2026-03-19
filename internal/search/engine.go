@@ -887,9 +887,12 @@ type SortOption string
 const (
 	// SortByRelevance sorts by relevance
 	SortByRelevance SortOption = "relevance" // 相关性排序
-	SortByDate      SortOption = "date"      // 修改时间排序
-	SortBySize      SortOption = "size"      // 文件大小排序
-	SortByName      SortOption = "name"      // 文件名排序
+	// SortByDate sorts by modification date
+	SortByDate SortOption = "date" // 修改时间排序
+	// SortBySize sorts by file size
+	SortBySize SortOption = "size" // 文件大小排序
+	// SortByName sorts by file name
+	SortByName SortOption = "name" // 文件名排序
 )
 
 // SortOrder 排序顺序

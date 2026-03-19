@@ -72,18 +72,30 @@ type Category string
 
 // 插件分类常量，用于对插件进行功能分类。
 const (
-	CategoryStorage      Category = "storage"      // 存储管理
-	CategoryFileManager  Category = "file-manager" // 文件管理
-	CategoryNetwork      Category = "network"      // 网络工具
-	CategorySystem       Category = "system"       // 系统工具
-	CategorySecurity     Category = "security"     // 安全工具
-	CategoryMedia        Category = "media"        // 多媒体
-	CategoryBackup       Category = "backup"       // 备份同步
-	CategoryTheme        Category = "theme"        // 主题外观
-	CategoryIntegration  Category = "integration"  // 第三方集成
-	CategoryDeveloper    Category = "developer"    // 开发工具
+	// CategoryStorage represents storage management plugins
+	CategoryStorage Category = "storage" // 存储管理
+	// CategoryFileManager represents file manager plugins
+	CategoryFileManager Category = "file-manager" // 文件管理
+	// CategoryNetwork represents network tools plugins
+	CategoryNetwork Category = "network" // 网络工具
+	// CategorySystem represents system tools plugins
+	CategorySystem Category = "system" // 系统工具
+	// CategorySecurity represents security tools plugins
+	CategorySecurity Category = "security" // 安全工具
+	// CategoryMedia represents multimedia plugins
+	CategoryMedia Category = "media" // 多媒体
+	// CategoryBackup represents backup and sync plugins
+	CategoryBackup Category = "backup" // 备份同步
+	// CategoryTheme represents theme plugins
+	CategoryTheme Category = "theme" // 主题外观
+	// CategoryIntegration represents third-party integration plugins
+	CategoryIntegration Category = "integration" // 第三方集成
+	// CategoryDeveloper represents developer tools plugins
+	CategoryDeveloper Category = "developer" // 开发工具
+	// CategoryProductivity represents productivity plugins
 	CategoryProductivity Category = "productivity" // 生产力
-	CategoryOther        Category = "other"        // 其他
+	// CategoryOther represents other plugins
+	CategoryOther Category = "other" // 其他
 )
 
 // Dependency 插件依赖
@@ -182,16 +194,28 @@ type HookType string
 
 // 钩子类型常量，定义插件可挂载的生命周期钩子点。
 const (
-	HookBeforeMount   HookType = "beforeMount"
-	HookAfterMount    HookType = "afterMount"
+	// HookBeforeMount represents before mount hook
+	HookBeforeMount HookType = "beforeMount"
+	// HookAfterMount represents after mount hook
+	HookAfterMount HookType = "afterMount"
+	// HookBeforeUnmount represents before unmount hook
 	HookBeforeUnmount HookType = "beforeUnmount"
-	HookAfterUnmount  HookType = "afterUnmount"
-	HookBeforeCreate  HookType = "beforeCreate"
-	HookAfterCreate   HookType = "afterCreate"
-	HookBeforeDelete  HookType = "beforeDelete"
-	HookAfterDelete   HookType = "afterDelete"
-	HookBeforeStart   HookType = "beforeStart"
-	HookAfterStart    HookType = "afterStart"
-	HookBeforeStop    HookType = "beforeStop"
-	HookAfterStop     HookType = "afterStop"
+	// HookAfterUnmount represents after unmount hook
+	HookAfterUnmount HookType = "afterUnmount"
+	// HookBeforeCreate represents before create hook
+	HookBeforeCreate HookType = "beforeCreate"
+	// HookAfterCreate represents after create hook
+	HookAfterCreate HookType = "afterCreate"
+	// HookBeforeDelete represents before delete hook
+	HookBeforeDelete HookType = "beforeDelete"
+	// HookAfterDelete represents after delete hook
+	HookAfterDelete HookType = "afterDelete"
+	// HookBeforeStart represents before start hook
+	HookBeforeStart HookType = "beforeStart"
+	// HookAfterStart represents after start hook
+	HookAfterStart HookType = "afterStart"
+	// HookBeforeStop represents before stop hook
+	HookBeforeStop HookType = "beforeStop"
+	// HookAfterStop represents after stop hook
+	HookAfterStop HookType = "afterStop"
 )
