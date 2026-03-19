@@ -10,10 +10,14 @@ import (
 type Role string
 
 const (
-	RoleAdmin  Role = "admin"  // 管理员：全部权限
-	RoleUser   Role = "user"   // 普通用户：受限访问
-	RoleGuest  Role = "guest"  // 访客：只读访问
-	RoleSystem Role = "system" // 系统服务账号
+	// RoleAdmin 管理员：全部权限
+	RoleAdmin Role = "admin"
+	// RoleUser 普通用户：受限访问
+	RoleUser Role = "user"
+	// RoleGuest 访客：只读访问
+	RoleGuest Role = "guest"
+	// RoleSystem 系统服务账号
+	RoleSystem Role = "system"
 )
 
 // Permission 权限定义
@@ -26,26 +30,40 @@ type Permission struct {
 type Resource string
 
 const (
-	ResourceVolume    Resource = "volume"    // 存储卷
-	ResourceShare     Resource = "share"     // 共享目录
-	ResourceUser      Resource = "user"      // 用户管理
-	ResourceGroup     Resource = "group"     // 用户组
-	ResourceSystem    Resource = "system"    // 系统设置
-	ResourceContainer Resource = "container" // 容器管理
-	ResourceVM        Resource = "vm"        // 虚拟机
-	ResourceFile      Resource = "file"      // 文件管理
-	ResourceSnapshot  Resource = "snapshot"  // 快照
+	// ResourceVolume 存储卷
+	ResourceVolume Resource = "volume"
+	// ResourceShare 共享目录
+	ResourceShare Resource = "share"
+	// ResourceUser 用户管理
+	ResourceUser Resource = "user"
+	// ResourceGroup 用户组
+	ResourceGroup Resource = "group"
+	// ResourceSystem 系统设置
+	ResourceSystem Resource = "system"
+	// ResourceContainer 容器管理
+	ResourceContainer Resource = "container"
+	// ResourceVM 虚拟机
+	ResourceVM Resource = "vm"
+	// ResourceFile 文件管理
+	ResourceFile Resource = "file"
+	// ResourceSnapshot 快照
+	ResourceSnapshot Resource = "snapshot"
 )
 
 // Action 操作类型
 type Action string
 
 const (
-	ActionRead   Action = "read"   // 读取
-	ActionWrite  Action = "write"  // 写入
-	ActionDelete Action = "delete" // 删除
-	ActionAdmin  Action = "admin"  // 管理
-	ActionExec   Action = "exec"   // 执行（容器/VM）
+	// ActionRead 读取
+	ActionRead Action = "read"
+	// ActionWrite 写入
+	ActionWrite Action = "write"
+	// ActionDelete 删除
+	ActionDelete Action = "delete"
+	// ActionAdmin 管理
+	ActionAdmin Action = "admin"
+	// ActionExec 执行（容器/VM）
+	ActionExec Action = "exec"
 )
 
 // RoleDefinition 角色定义
@@ -683,8 +701,7 @@ type PermissionTemplate struct {
 	Description string       `json:"description"`
 	Permissions []Permission `json:"permissions"`
 }
-
-// 预定义权限模板
+// permissionTemplates 预定义权限模板
 var permissionTemplates = map[string]PermissionTemplate{
 	"readonly": {
 		Name:        "readonly",
@@ -723,6 +740,7 @@ var permissionTemplates = map[string]PermissionTemplate{
 }
 
 // GetPermissionTemplates 获取所有权限模板
+// GetPermissionTemplates 获取所有权限模板
 func GetPermissionTemplates() []PermissionTemplate {
 	templates := make([]PermissionTemplate, 0, len(permissionTemplates))
 	for _, t := range permissionTemplates {
@@ -731,6 +749,7 @@ func GetPermissionTemplates() []PermissionTemplate {
 	return templates
 }
 
+// CreateRoleFromTemplate 从模板创建角色
 // CreateRoleFromTemplate 从模板创建角色
 func (m *RBACManager) CreateRoleFromTemplate(roleName, templateName, description string) error {
 	template, exists := permissionTemplates[templateName]

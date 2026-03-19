@@ -56,11 +56,17 @@ type LDAPManager struct {
 }
 
 var (
+	// ErrLDAPConfigNotFound LDAP 配置未找到
 	ErrLDAPConfigNotFound   = errors.New("LDAP 配置未找到")
+	// ErrLDAPConnectionFailed LDAP 连接失败
 	ErrLDAPConnectionFailed = errors.New("LDAP 连接失败")
+	// ErrLDAPBindFailed LDAP 绑定失败
 	ErrLDAPBindFailed       = errors.New("LDAP 绑定失败")
+	// ErrLDAPUserNotFound LDAP 用户未找到
 	ErrLDAPUserNotFound     = errors.New("LDAP 用户未找到")
+	// ErrLDAPAuthFailed LDAP 认证失败
 	ErrLDAPAuthFailed       = errors.New("LDAP 认证失败")
+	// ErrLDAPSearchFailed LDAP 搜索失败
 	ErrLDAPSearchFailed     = errors.New("LDAP 搜索失败")
 )
 
