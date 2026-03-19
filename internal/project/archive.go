@@ -15,11 +15,14 @@ import (
 // ArchiveStatus 归档状态
 type ArchiveStatus string
 
-// 归档状态常量
+// 归档状态常量，定义归档记录的当前状态。
 const (
-	ArchiveStatusActive   ArchiveStatus = "active"
+	// ArchiveStatusActive represents active archive status
+	ArchiveStatusActive ArchiveStatus = "active"
+	// ArchiveStatusArchived represents archived status
 	ArchiveStatusArchived ArchiveStatus = "archived"
-	ArchiveStatusDeleted  ArchiveStatus = "deleted"
+	// ArchiveStatusDeleted represents deleted archive status
+	ArchiveStatusDeleted ArchiveStatus = "deleted"
 )
 
 // Archive 项目归档记录

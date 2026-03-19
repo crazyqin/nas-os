@@ -55,7 +55,7 @@ type RateLimitConfig struct {
 	CleanupInterval time.Duration
 }
 
-// DefaultRateLimitConfig 默认限流配置
+// DefaultRateLimitConfig is the default rate limit configuration.
 var DefaultRateLimitConfig = RateLimitConfig{
 	Enabled:         false,
 	RequestsPerMin:  60,

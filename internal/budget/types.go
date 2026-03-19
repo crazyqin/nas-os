@@ -32,50 +32,71 @@ var (
 // Type 预算类型
 type Type string
 
-// 预算类型常量
+// 预算类型常量，定义预算的资源类型。
 const (
-	TypeStorage    Type = "storage"    // 存储预算
-	TypeBandwidth  Type = "bandwidth"  // 带宽预算
-	TypeCompute    Type = "compute"    // 计算预算
+	// TypeStorage represents storage budget type
+	TypeStorage Type = "storage" // 存储预算
+	// TypeBandwidth represents bandwidth budget type
+	TypeBandwidth Type = "bandwidth" // 带宽预算
+	// TypeCompute represents compute budget type
+	TypeCompute Type = "compute" // 计算预算
+	// TypeOperations represents operations budget type
 	TypeOperations Type = "operations" // 运维预算
-	TypeTotal      Type = "total"      // 总预算
+	// TypeTotal represents total budget type
+	TypeTotal Type = "total" // 总预算
 )
 
 // Period 预算周期
 type Period string
 
-// 预算周期常量
+// 预算周期常量，定义预算的时间周期。
 const (
-	PeriodDaily   Period = "daily"   // 日预算
-	PeriodWeekly  Period = "weekly"  // 周预算
+	// PeriodDaily represents daily budget period
+	PeriodDaily Period = "daily" // 日预算
+	// PeriodWeekly represents weekly budget period
+	PeriodWeekly Period = "weekly" // 周预算
+	// PeriodMonthly represents monthly budget period
 	PeriodMonthly Period = "monthly" // 月预算
+	// PeriodQuarter represents quarterly budget period
 	PeriodQuarter Period = "quarter" // 季度预算
-	PeriodYearly  Period = "yearly"  // 年预算
+	// PeriodYearly represents yearly budget period
+	PeriodYearly Period = "yearly" // 年预算
 )
 
 // Scope 预算范围
 type Scope string
 
-// 预算范围常量
+// 预算范围常量，定义预算的应用范围。
 const (
-	ScopeGlobal    Scope = "global"    // 全局预算
-	ScopeUser      Scope = "user"      // 用户预算
-	ScopeGroup     Scope = "group"     // 用户组预算
-	ScopeVolume    Scope = "volume"    // 卷预算
-	ScopeService   Scope = "service"   // 服务预算
+	// ScopeGlobal represents global budget scope
+	ScopeGlobal Scope = "global" // 全局预算
+	// ScopeUser represents user budget scope
+	ScopeUser Scope = "user" // 用户预算
+	// ScopeGroup represents group budget scope
+	ScopeGroup Scope = "group" // 用户组预算
+	// ScopeVolume represents volume budget scope
+	ScopeVolume Scope = "volume" // 卷预算
+	// ScopeService represents service budget scope
+	ScopeService Scope = "service" // 服务预算
+	// ScopeDirectory represents directory budget scope
 	ScopeDirectory Scope = "directory" // 目录预算
 )
 
 // BudgetStatus 预算状态
 type BudgetStatus string
 
-// 预算状态常量
+// 预算状态常量，定义预算的当前状态。
 const (
-	BudgetStatusActive    BudgetStatus = "active"    // 活跃
-	BudgetStatusPaused    BudgetStatus = "paused"    // 暂停
-	BudgetStatusExceeded  BudgetStatus = "exceeded"  // 超支
+	// BudgetStatusActive represents active budget status
+	BudgetStatusActive BudgetStatus = "active" // 活跃
+	// BudgetStatusPaused represents paused budget status
+	BudgetStatusPaused BudgetStatus = "paused" // 暂停
+	// BudgetStatusExceeded represents exceeded budget status
+	BudgetStatusExceeded BudgetStatus = "exceeded" // 超支
+	// BudgetStatusExhausted represents exhausted budget status
 	BudgetStatusExhausted BudgetStatus = "exhausted" // 耗尽
-	BudgetStatusArchived  BudgetStatus = "archived"  // 归档
+	// BudgetStatusArchived represents archived budget status
+	BudgetStatusArchived BudgetStatus = "archived" // 归档
 )
 
 // ========== 预算定义 ==========

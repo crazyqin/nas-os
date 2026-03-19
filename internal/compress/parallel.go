@@ -20,11 +20,16 @@ import (
 // ProgressPhase 进度阶段
 type ProgressPhase string
 
+// 进度阶段常量，定义压缩进度的各个阶段。
 const (
-	PhaseScanning    ProgressPhase = "scanning"    // 扫描文件
+	// PhaseScanning represents the scanning phase
+	PhaseScanning ProgressPhase = "scanning" // 扫描文件
+	// PhaseCompressing represents the compressing phase
 	PhaseCompressing ProgressPhase = "compressing" // 压缩中
-	PhaseVerifying   ProgressPhase = "verifying"   // 验证中
-	PhaseCompleted   ProgressPhase = "completed"   // 完成
+	// PhaseVerifying represents the verifying phase
+	PhaseVerifying ProgressPhase = "verifying" // 验证中
+	// PhaseCompleted represents the completed phase
+	PhaseCompleted ProgressPhase = "completed" // 完成
 )
 
 // CompressionProgress 压缩进度

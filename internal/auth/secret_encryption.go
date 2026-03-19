@@ -25,9 +25,12 @@ type SecretEncryption struct {
 }
 
 var (
+	// ErrEncryptionNotInitialized indicates the encryption is not initialized
 	ErrEncryptionNotInitialized = errors.New("加密器未初始化")
-	ErrEncryptionFailed         = errors.New("加密失败")
-	ErrDecryptionFailed         = errors.New("解密失败")
+	// ErrEncryptionFailed indicates encryption failed
+	ErrEncryptionFailed = errors.New("加密失败")
+	// ErrDecryptionFailed indicates decryption failed
+	ErrDecryptionFailed = errors.New("解密失败")
 )
 
 // NewSecretEncryption 创建敏感数据加密器

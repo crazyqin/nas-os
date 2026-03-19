@@ -27,33 +27,51 @@ var (
 // ForecastMethod 预测方法
 type ForecastMethod string
 
+// 预测方法常量，定义可用的预测算法。
 const (
+	// ForecastMethodMovingAverage represents moving average forecast method
 	ForecastMethodMovingAverage ForecastMethod = "moving_average" // 移动平均
-	ForecastMethodExponential   ForecastMethod = "exponential"    // 指数平滑
-	ForecastMethodLinear        ForecastMethod = "linear"         // 线性回归
-	ForecastMethodSeasonal      ForecastMethod = "seasonal"       // 季节性预测
-	ForecastMethodARIMA         ForecastMethod = "arima"          // ARIMA模型
-	ForecastMethodProphet       ForecastMethod = "prophet"        // Prophet模型
+	// ForecastMethodExponential represents exponential smoothing forecast method
+	ForecastMethodExponential ForecastMethod = "exponential" // 指数平滑
+	// ForecastMethodLinear represents linear regression forecast method
+	ForecastMethodLinear ForecastMethod = "linear" // 线性回归
+	// ForecastMethodSeasonal represents seasonal forecast method
+	ForecastMethodSeasonal ForecastMethod = "seasonal" // 季节性预测
+	// ForecastMethodARIMA represents ARIMA model forecast method
+	ForecastMethodARIMA ForecastMethod = "arima" // ARIMA模型
+	// ForecastMethodProphet represents Prophet model forecast method
+	ForecastMethodProphet ForecastMethod = "prophet" // Prophet模型
 )
 
 // ForecastPeriod 预测周期
 type ForecastPeriod string
 
+// 预测周期常量，定义预测的时间粒度。
 const (
-	ForecastPeriodDaily   ForecastPeriod = "daily"
-	ForecastPeriodWeekly  ForecastPeriod = "weekly"
+	// ForecastPeriodDaily represents daily forecast period
+	ForecastPeriodDaily ForecastPeriod = "daily"
+	// ForecastPeriodWeekly represents weekly forecast period
+	ForecastPeriodWeekly ForecastPeriod = "weekly"
+	// ForecastPeriodMonthly represents monthly forecast period
 	ForecastPeriodMonthly ForecastPeriod = "monthly"
+	// ForecastPeriodQuarter represents quarterly forecast period
 	ForecastPeriodQuarter ForecastPeriod = "quarter"
-	ForecastPeriodYearly  ForecastPeriod = "yearly"
+	// ForecastPeriodYearly represents yearly forecast period
+	ForecastPeriodYearly ForecastPeriod = "yearly"
 )
 
 // ForecastConfidence 预测置信度
 type ForecastConfidence string
 
+// 预测置信度常量，定义预测的置信区间级别。
 const (
-	ConfidenceLow      ForecastConfidence = "low"       // 80%置信区间
-	ConfidenceMedium   ForecastConfidence = "medium"    // 90%置信区间
-	ConfidenceHigh     ForecastConfidence = "high"      // 95%置信区间
+	// ConfidenceLow represents 80% confidence interval
+	ConfidenceLow ForecastConfidence = "low" // 80%置信区间
+	// ConfidenceMedium represents 90% confidence interval
+	ConfidenceMedium ForecastConfidence = "medium" // 90%置信区间
+	// ConfidenceHigh represents 95% confidence interval
+	ConfidenceHigh ForecastConfidence = "high" // 95%置信区间
+	// ConfidenceVeryHigh represents 99% confidence interval
 	ConfidenceVeryHigh ForecastConfidence = "very_high" // 99%置信区间
 )
 

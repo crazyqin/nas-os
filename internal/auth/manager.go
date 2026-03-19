@@ -44,8 +44,11 @@ type MFASession struct {
 }
 
 var (
-	ErrMFANotConfigured  = errors.New("双因素认证未配置")
+	// ErrMFANotConfigured indicates MFA is not configured for the user
+	ErrMFANotConfigured = errors.New("双因素认证未配置")
+	// ErrMFASessionExpired indicates the MFA session has expired
 	ErrMFASessionExpired = errors.New("MFA 会话已过期")
+	// ErrMFAAlreadyEnabled indicates MFA is already enabled
 	ErrMFAAlreadyEnabled = errors.New("双因素认证已启用")
 )
 
