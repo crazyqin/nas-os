@@ -50,9 +50,9 @@ type VolumeInfo struct {
 
 // Response 预测响应
 type Response struct {
-	Success bool   `json:"success"`
+	Success bool    `json:"success"`
 	Data    *Result `json:"data,omitempty"`
-	Error   string `json:"error,omitempty"`
+	Error   string  `json:"error,omitempty"`
 }
 
 // HistoryResponse 历史数据响应
@@ -89,10 +89,10 @@ type UpdateConfigRequest struct {
 
 // AllPredictionsResponse 全量预测响应
 type AllPredictionsResponse struct {
-	Success bool                         `json:"success"`
+	Success bool               `json:"success"`
 	Data    map[string]*Result `json:"data,omitempty"`
-	Count   int                          `json:"count"`
-	Error   string                       `json:"error,omitempty"`
+	Count   int                `json:"count"`
+	Error   string             `json:"error,omitempty"`
 }
 
 // AdviceSummary 建议摘要

@@ -27,7 +27,7 @@ func setupTestHandlers(t *testing.T) (*Handlers, *gin.Engine, string) {
 	require.NoError(t, os.MkdirAll(mediaPath, 0755))
 
 	lm := NewLibraryManager(configPath)
-	_, err := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
+	_, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
 	require.NoError(t, err)
 
 	// 等待后台扫描完成

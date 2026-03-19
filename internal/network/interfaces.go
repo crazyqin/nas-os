@@ -333,13 +333,13 @@ func (m *Manager) ToggleInterface(name string, up bool) error {
 }
 
 // GetNetworkStats 获取网络统计信息
-func (m *Manager) GetNetworkStats() (*NetworkStats, error) {
+func (m *Manager) GetNetworkStats() (*Stats, error) {
 	ifaces, err := m.ListInterfaces()
 	if err != nil {
 		return nil, err
 	}
 
-	stats := &NetworkStats{}
+	stats := &Stats{}
 	for _, iface := range ifaces {
 		stats.Interfaces = append(stats.Interfaces, InterfaceStats{
 			Name:      iface.Name,

@@ -58,15 +58,6 @@ type Task struct {
 	DeleteExtraneous bool      `json:"delete_extraneous"` // 删除目标端多余文件
 }
 
-// ReplicationTask 是 Task 的别名，保持向后兼容
-type ReplicationTask = Task
-
-// ReplicationType 是 Type 的别名，保持向后兼容
-type ReplicationType = Type
-
-// ReplicationStatus 是 Status 的别名，保持向后兼容
-type ReplicationStatus = Status
-
 // Config 复制配置
 type Config struct {
 	MaxConcurrentTasks int    `json:"max_concurrent"`

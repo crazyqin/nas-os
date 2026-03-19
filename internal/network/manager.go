@@ -91,8 +91,8 @@ type FirewallRule struct {
 	Comment   string `json:"comment,omitempty"`
 }
 
-// NetworkStats 网络统计
-type NetworkStats struct {
+// Stats 网络统计
+type Stats struct {
 	Interfaces   []InterfaceStats `json:"interfaces"`
 	TotalRxBytes int64            `json:"totalRxBytes"`
 	TotalTxBytes int64            `json:"totalTxBytes"`

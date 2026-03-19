@@ -32,7 +32,7 @@ func TestCreateLibrary(t *testing.T) {
 		t.Fatalf("Failed to create media directory: %v", err)
 	}
 
-	lib, err := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
+	lib, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
 	if err != nil {
 		t.Fatalf("CreateLibrary() returned error: %v", err)
 	}
@@ -49,7 +49,7 @@ func TestCreateLibrary(t *testing.T) {
 		t.Errorf("Library Name = %s, expected 'Movies'", lib.Name)
 	}
 
-	if lib.Type != MediaTypeMovie {
+	if lib.Type != TypeMovie {
 		t.Errorf("Library Type = %s, expected 'movie'", lib.Type)
 	}
 
@@ -63,7 +63,7 @@ func TestCreateLibraryInvalidPath(t *testing.T) {
 	configPath := filepath.Join(tempDir, "config.json")
 	lm := NewLibraryManager(configPath)
 
-	_, err := lm.CreateLibrary("Movies", "/nonexistent/path", MediaTypeMovie)
+	_, err := lm.CreateLibrary("Movies", "/nonexistent/path", TypeMovie)
 	if err == nil {
 		t.Error("CreateLibrary() should return error for nonexistent path")
 	}
@@ -77,7 +77,7 @@ func TestGetLibrary(t *testing.T) {
 	mediaPath := filepath.Join(tempDir, "movies")
 	os.MkdirAll(mediaPath, 0755)
 
-	lib, _ := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
+	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
 
 	// 获取存在的库
 	retrieved := lm.GetLibrary(lib.ID)
@@ -107,8 +107,8 @@ func TestListLibraries(t *testing.T) {
 	os.MkdirAll(mediaPath1, 0755)
 	os.MkdirAll(mediaPath2, 0755)
 
-	lm.CreateLibrary("Movies", mediaPath1, MediaTypeMovie)
-	lm.CreateLibrary("TV Shows", mediaPath2, MediaTypeTV)
+	lm.CreateLibrary("Movies", mediaPath1, TypeMovie)
+	lm.CreateLibrary("TV Shows", mediaPath2, TypeTV)
 
 	// 等待异步扫描完成
 	time.Sleep(100 * time.Millisecond)
@@ -127,7 +127,7 @@ func TestDeleteLibrary(t *testing.T) {
 	mediaPath := filepath.Join(tempDir, "movies")
 	os.MkdirAll(mediaPath, 0755)
 
-	lib, _ := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
+	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
 
 	err := lm.DeleteLibrary(lib.ID)
 	if err != nil {
@@ -154,7 +154,7 @@ func TestUpdateLibrary(t *testing.T) {
 	mediaPath := filepath.Join(tempDir, "movies")
 	os.MkdirAll(mediaPath, 0755)
 
-	lib, _ := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
+	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
 
 	updates := map[string]interface{}{
 		"name":        "Updated Movies",
@@ -205,7 +205,7 @@ func TestScanLibrary(t *testing.T) {
 		t.Fatalf("Failed to create test file: %v", err)
 	}
 
-	lib, _ := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
+	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
 
 	err := lm.ScanLibrary(lib.ID)
 	if err != nil {
@@ -219,11 +219,11 @@ func TestScanLibrary(t *testing.T) {
 	}
 }
 
-func TestMediaItemIsFavorite(t *testing.T) {
-	item := &MediaItem{
+func TestItemIsFavorite(t *testing.T) {
+	item := &Item{
 		ID:         "item1",
 		Name:       "Test Movie",
-		Type:       MediaTypeMovie,
+		Type:       TypeMovie,
 		IsFavorite: true,
 	}
 
@@ -237,12 +237,12 @@ func TestMediaItemIsFavorite(t *testing.T) {
 	}
 }
 
-func TestMediaItemLastPlayed(t *testing.T) {
+func TestItemLastPlayed(t *testing.T) {
 	now := time.Now()
-	item := &MediaItem{
+	item := &Item{
 		ID:         "item1",
 		Name:       "Test Movie",
-		Type:       MediaTypeMovie,
+		Type:       TypeMovie,
 		LastPlayed: &now,
 		PlayCount:  5,
 	}
@@ -256,8 +256,8 @@ func TestMediaItemLastPlayed(t *testing.T) {
 	}
 }
 
-func TestMediaLibraryEnabled(t *testing.T) {
-	lib := &MediaLibrary{
+func TestLibraryEnabled(t *testing.T) {
+	lib := &Library{
 		ID:      "lib1",
 		Name:    "Test",
 		Enabled: true,
@@ -273,8 +273,8 @@ func TestMediaLibraryEnabled(t *testing.T) {
 	}
 }
 
-func TestMediaLibraryAutoScan(t *testing.T) {
-	lib := &MediaLibrary{
+func TestLibraryAutoScan(t *testing.T) {
+	lib := &Library{
 		ID:           "lib1",
 		Name:         "Test",
 		AutoScan:     true,
@@ -290,23 +290,23 @@ func TestMediaLibraryAutoScan(t *testing.T) {
 	}
 }
 
-func TestDetectMediaType(t *testing.T) {
+func TestDetectType(t *testing.T) {
 	tests := []struct {
 		filename string
-		expected MediaType
+		expected Type
 	}{
-		{"movie.mp4", MediaTypeMovie},
-		{"song.mp3", MediaTypeMusic},
-		{"photo.jpg", MediaTypePhoto},
-		{"video.avi", MediaTypeMovie},
-		{"track.flac", MediaTypeMusic},
-		{"image.png", MediaTypePhoto},
+		{"movie.mp4", TypeMovie},
+		{"song.mp3", TypeMusic},
+		{"photo.jpg", TypePhoto},
+		{"video.avi", TypeMovie},
+		{"track.flac", TypeMusic},
+		{"image.png", TypePhoto},
 	}
 
 	for _, tt := range tests {
-		result := detectMediaType(tt.filename)
+		result := detectType(tt.filename)
 		if result != tt.expected {
-			t.Errorf("detectMediaType(%s) = %s, expected %s", tt.filename, result, tt.expected)
+			t.Errorf("detectType(%s) = %s, expected %s", tt.filename, result, tt.expected)
 		}
 	}
 }
@@ -342,28 +342,28 @@ func (m *mockMetadataProvider) GetMusic(id string) (*MusicAlbumInfo, error) {
 	return &MusicAlbumInfo{}, nil
 }
 
-// detectMediaType 检测媒体类型（用于测试）
-func detectMediaType(filename string) MediaType {
+// detectType 检测媒体类型（用于测试）
+func detectType(filename string) Type {
 	ext := filepath.Ext(filename)
 	switch ext {
 	case ".mp4", ".mkv", ".avi", ".mov", ".wmv":
-		return MediaTypeMovie
+		return TypeMovie
 	case ".mp3", ".flac", ".wav", ".aac", ".ogg":
-		return MediaTypeMusic
+		return TypeMusic
 	case ".jpg", ".jpeg", ".png", ".gif", ".bmp":
-		return MediaTypePhoto
+		return TypePhoto
 	default:
-		return MediaTypeMovie
+		return TypeMovie
 	}
 }
 
-func TestMediaItemFields(t *testing.T) {
+func TestItemFields(t *testing.T) {
 	now := time.Now()
-	item := &MediaItem{
+	item := &Item{
 		ID:           "test-id",
 		Path:         "/path/to/file.mp4",
 		Name:         "Test Movie",
-		Type:         MediaTypeMovie,
+		Type:         TypeMovie,
 		Size:         1024000,
 		ModifiedTime: now,
 		Rating:       8.5,
@@ -374,7 +374,7 @@ func TestMediaItemFields(t *testing.T) {
 	if item.ID != "test-id" {
 		t.Error("ID mismatch")
 	}
-	if item.Type != MediaTypeMovie {
+	if item.Type != TypeMovie {
 		t.Error("Type mismatch")
 	}
 	if item.Rating != 8.5 {
@@ -385,14 +385,14 @@ func TestMediaItemFields(t *testing.T) {
 	}
 }
 
-func TestMediaLibraryFields(t *testing.T) {
+func TestLibraryFields(t *testing.T) {
 	now := time.Now()
-	lib := &MediaLibrary{
+	lib := &Library{
 		ID:             "lib-id",
 		Name:           "My Movies",
 		Description:    "Personal collection",
 		Path:           "/movies",
-		Type:           MediaTypeMovie,
+		Type:           TypeMovie,
 		Enabled:        true,
 		AutoScan:       true,
 		ScanInterval:   30,
@@ -454,7 +454,7 @@ func TestLibraryManager_ConcurrentAccess(t *testing.T) {
 	os.MkdirAll(mediaPath, 0755)
 
 	// Create library
-	lib, err := lm.CreateLibrary("Movies", mediaPath, MediaTypeMovie)
+	lib, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
 	if err != nil {
 		t.Fatalf("Failed to create library: %v", err)
 	}
@@ -478,15 +478,15 @@ func TestLibraryManager_ConcurrentAccess(t *testing.T) {
 	}
 }
 
-func TestMediaType_Constants(t *testing.T) {
+func TestType_Constants(t *testing.T) {
 	tests := []struct {
-		mediaType MediaType
+		mediaType Type
 		expected  string
 	}{
-		{MediaTypeMovie, "movie"},
-		{MediaTypeTV, "tv"},
-		{MediaTypeMusic, "music"},
-		{MediaTypePhoto, "photo"},
+		{TypeMovie, "movie"},
+		{TypeTV, "tv"},
+		{TypeMusic, "music"},
+		{TypePhoto, "photo"},
 	}
 
 	for _, tt := range tests {
@@ -574,7 +574,7 @@ func TestPlayHistory_Fields(t *testing.T) {
 		ID:        "history-1",
 		MediaID:   "media-1",
 		MediaName: "Test Movie",
-		MediaType: MediaTypeMovie,
+		Type:      TypeMovie,
 		LibraryID: "lib-1",
 		Position:  3600,
 		Duration:  7200,

@@ -663,7 +663,7 @@ type BatchCompressResultV2 struct {
 	SavedSize int64                  `json:"savedSize"`
 	Duration  time.Duration          `json:"duration"`
 	Results   []SingleCompressResult `json:"results"`
-	Errors    []ErrorV2      `json:"errors"`
+	Errors    []ErrorV2              `json:"errors"`
 }
 
 // SingleCompressResult 单个压缩结果

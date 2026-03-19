@@ -43,7 +43,7 @@ func NewWatcher(conflictDetector *ConflictDetector) (*Watcher, error) {
 
 	return &Watcher{
 		watcher:       fsWatcher,
-		tasks:         make(map[string]*ReplicationTask),
+		tasks:         make(map[string]*Task),
 		pathToTask:    make(map[string]string),
 		conflictDet:   conflictDetector,
 		eventChan:     make(chan FileEvent, 1000),
@@ -54,7 +54,7 @@ func NewWatcher(conflictDetector *ConflictDetector) (*Watcher, error) {
 }
 
 // AddTask 添加监控任务
-func (w *Watcher) AddTask(task *ReplicationTask) error {
+func (w *Watcher) AddTask(task *Task) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
@@ -167,7 +167,7 @@ func (w *Watcher) handleEvent(event fsnotify.Event) {
 	defer w.mu.RUnlock()
 
 	// 查找对应的任务
-	var matchedTask *ReplicationTask
+	var matchedTask *Task
 
 	for _, task := range w.tasks {
 		if strings.HasPrefix(event.Name, task.SourcePath) {
@@ -269,7 +269,7 @@ func (w *Watcher) GetStats() WatcherStats {
 // BidirectionalSyncManager 双向同步管理器
 type BidirectionalSyncManager struct {
 	mu          sync.RWMutex
-	tasks       map[string]*ReplicationTask
+	tasks       map[string]*Task
 	watcher     *Watcher
 	conflictDet *ConflictDetector
 	syncChan    chan string // 任务ID 通道
@@ -280,7 +280,7 @@ type BidirectionalSyncManager struct {
 // NewBidirectionalSyncManager 创建双向同步管理器
 func NewBidirectionalSyncManager(watcher *Watcher, conflictDetector *ConflictDetector) *BidirectionalSyncManager {
 	return &BidirectionalSyncManager{
-		tasks:       make(map[string]*ReplicationTask),
+		tasks:       make(map[string]*Task),
 		watcher:     watcher,
 		conflictDet: conflictDetector,
 		syncChan:    make(chan string, 100),
@@ -289,7 +289,7 @@ func NewBidirectionalSyncManager(watcher *Watcher, conflictDetector *ConflictDet
 }
 
 // AddTask 添加双向同步任务
-func (m *BidirectionalSyncManager) AddTask(task *ReplicationTask) error {
+func (m *BidirectionalSyncManager) AddTask(task *Task) error {
 	if task.Type != TypeBidirectional {
 		return fmt.Errorf("任务类型不是双向同步")
 	}

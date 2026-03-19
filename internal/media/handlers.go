@@ -80,7 +80,7 @@ func (h *Handlers) createLibrary(c *gin.Context) {
 		Description    string `json:"description"`
 		MetadataSource string `json:"metadataSource"`
 		TMDBApiKey     string `json:"tmdbApiKey"`
-		DoubanApiKey   string `json:"doubanApiKey"`
+		DoubanAPIKey   string `json:"doubanApiKey"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -91,16 +91,16 @@ func (h *Handlers) createLibrary(c *gin.Context) {
 		return
 	}
 
-	var mediaType MediaType
+	var mediaType Type
 	switch req.Type {
 	case "movie":
-		mediaType = MediaTypeMovie
+		mediaType = TypeMovie
 	case "tv":
-		mediaType = MediaTypeTV
+		mediaType = TypeTV
 	case "music":
-		mediaType = MediaTypeMusic
+		mediaType = TypeMusic
 	case "photo":
-		mediaType = MediaTypePhoto
+		mediaType = TypePhoto
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
@@ -123,8 +123,8 @@ func (h *Handlers) createLibrary(c *gin.Context) {
 	if req.TMDBApiKey != "" {
 		updates["tmdbApiKey"] = req.TMDBApiKey
 	}
-	if req.DoubanApiKey != "" {
-		updates["doubanApiKey"] = req.DoubanApiKey
+	if req.DoubanAPIKey != "" {
+		updates["doubanApiKey"] = req.DoubanAPIKey
 	}
 	if req.MetadataSource != "" {
 		updates["metadataSource"] = req.MetadataSource
@@ -174,7 +174,7 @@ func (h *Handlers) updateLibrary(c *gin.Context) {
 		ScanInterval   *int   `json:"scanInterval"`
 		MetadataSource string `json:"metadataSource"`
 		TMDBApiKey     string `json:"tmdbApiKey"`
-		DoubanApiKey   string `json:"doubanApiKey"`
+		DoubanAPIKey   string `json:"doubanApiKey"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -210,8 +210,8 @@ func (h *Handlers) updateLibrary(c *gin.Context) {
 	if req.TMDBApiKey != "" {
 		updates["tmdbApiKey"] = req.TMDBApiKey
 	}
-	if req.DoubanApiKey != "" {
-		updates["doubanApiKey"] = req.DoubanApiKey
+	if req.DoubanAPIKey != "" {
+		updates["doubanApiKey"] = req.DoubanAPIKey
 	}
 
 	if err := h.libraryMgr.UpdateLibrary(id, updates); err != nil {
@@ -269,16 +269,16 @@ func (h *Handlers) searchMedia(c *gin.Context) {
 	query := c.Query("q")
 	mediaType := c.Query("type")
 
-	var mType MediaType
+	var mType Type
 	switch mediaType {
 	case "movie":
-		mType = MediaTypeMovie
+		mType = TypeMovie
 	case "tv":
-		mType = MediaTypeTV
+		mType = TypeTV
 	case "music":
-		mType = MediaTypeMusic
+		mType = TypeMusic
 	case "photo":
-		mType = MediaTypePhoto
+		mType = TypePhoto
 	}
 
 	items, err := h.libraryMgr.SearchMedia(query, mType)
@@ -301,7 +301,7 @@ func (h *Handlers) searchMedia(c *gin.Context) {
 func (h *Handlers) getMediaItem(c *gin.Context) {
 	id := c.Param("id")
 
-	item, library := h.libraryMgr.GetMediaItemByID(id)
+	item, library := h.libraryMgr.GetItemByID(id)
 	if item == nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
@@ -361,7 +361,7 @@ func (h *Handlers) updateMediaItem(c *gin.Context) {
 	updates["rating"] = req.Rating
 	updates["isFavorite"] = req.IsFavorite
 
-	if err := h.libraryMgr.UpdateMediaItem(id, updates); err != nil {
+	if err := h.libraryMgr.UpdateItem(id, updates); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": err.Error(),
@@ -370,7 +370,7 @@ func (h *Handlers) updateMediaItem(c *gin.Context) {
 	}
 
 	// 获取更新后的数据
-	item, _ := h.libraryMgr.GetMediaItemByID(id)
+	item, _ := h.libraryMgr.GetItemByID(id)
 
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
@@ -383,7 +383,7 @@ func (h *Handlers) updateMediaItem(c *gin.Context) {
 func (h *Handlers) deleteMediaItem(c *gin.Context) {
 	id := c.Param("id")
 
-	if err := h.libraryMgr.DeleteMediaItem(id); err != nil {
+	if err := h.libraryMgr.DeleteItem(id); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
 			"message": err.Error(),
@@ -402,16 +402,16 @@ func (h *Handlers) getMediaWall(c *gin.Context) {
 	mediaType := c.Query("type")
 	limit := 50 // 默认 50 个
 
-	var mType MediaType
+	var mType Type
 	switch mediaType {
 	case "movie":
-		mType = MediaTypeMovie
+		mType = TypeMovie
 	case "tv":
-		mType = MediaTypeTV
+		mType = TypeTV
 	case "music":
-		mType = MediaTypeMusic
+		mType = TypeMusic
 	case "photo":
-		mType = MediaTypePhoto
+		mType = TypePhoto
 	}
 
 	items, err := h.libraryMgr.GetMediaWall(mType, limit)
@@ -433,7 +433,7 @@ func (h *Handlers) getMediaWall(c *gin.Context) {
 // getMovieWall 获取电影海报墙
 func (h *Handlers) getMovieWall(c *gin.Context) {
 	limit := 50
-	items, err := h.libraryMgr.GetMediaWall(MediaTypeMovie, limit)
+	items, err := h.libraryMgr.GetMediaWall(TypeMovie, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
@@ -452,7 +452,7 @@ func (h *Handlers) getMovieWall(c *gin.Context) {
 // getTVWall 获取电视剧海报墙
 func (h *Handlers) getTVWall(c *gin.Context) {
 	limit := 50
-	items, err := h.libraryMgr.GetMediaWall(MediaTypeTV, limit)
+	items, err := h.libraryMgr.GetMediaWall(TypeTV, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
@@ -471,7 +471,7 @@ func (h *Handlers) getTVWall(c *gin.Context) {
 // getMusicWall 获取音乐专辑墙
 func (h *Handlers) getMusicWall(c *gin.Context) {
 	limit := 50
-	items, err := h.libraryMgr.GetMediaWall(MediaTypeMusic, limit)
+	items, err := h.libraryMgr.GetMediaWall(TypeMusic, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
@@ -607,14 +607,14 @@ func (h *Handlers) getPlayHistory(c *gin.Context) {
 	}
 
 	mediaType := c.Query("type")
-	var mType MediaType
+	var mType Type
 	switch mediaType {
 	case "movie":
-		mType = MediaTypeMovie
+		mType = TypeMovie
 	case "tv":
-		mType = MediaTypeTV
+		mType = TypeTV
 	case "music":
-		mType = MediaTypeMusic
+		mType = TypeMusic
 	}
 
 	history := h.libraryMgr.GetPlayHistory(limit)
@@ -623,7 +623,7 @@ func (h *Handlers) getPlayHistory(c *gin.Context) {
 	if mType != "" {
 		filtered := make([]*PlayHistory, 0)
 		for _, h := range history {
-			if h.MediaType == mType {
+			if h.Type == mType {
 				filtered = append(filtered, h)
 			}
 		}
@@ -658,7 +658,7 @@ func (h *Handlers) addPlayHistory(c *gin.Context) {
 	}
 
 	// 获取媒体项信息
-	item, library := h.libraryMgr.GetMediaItemByID(req.MediaID)
+	item, library := h.libraryMgr.GetItemByID(req.MediaID)
 	if item == nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
@@ -671,7 +671,7 @@ func (h *Handlers) addPlayHistory(c *gin.Context) {
 	history := &PlayHistory{
 		MediaID:    req.MediaID,
 		MediaName:  item.Name,
-		MediaType:  item.Type,
+		Type:       item.Type,
 		PosterPath: item.PosterPath,
 		Position:   req.Position,
 		Duration:   req.Duration,
@@ -699,14 +699,14 @@ func (h *Handlers) getFavorites(c *gin.Context) {
 		}
 	}
 
-	var mType MediaType
+	var mType Type
 	switch mediaType {
 	case "movie":
-		mType = MediaTypeMovie
+		mType = TypeMovie
 	case "tv":
-		mType = MediaTypeTV
+		mType = TypeTV
 	case "music":
-		mType = MediaTypeMusic
+		mType = TypeMusic
 	}
 
 	favorites := h.libraryMgr.GetFavorites(mType)

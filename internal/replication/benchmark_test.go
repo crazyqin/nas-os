@@ -18,7 +18,7 @@ func BenchmarkReplicationManager_CreateTask(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		task := &ReplicationTask{
+		task := &Task{
 			Name:       fmt.Sprintf("task-%d", i),
 			SourcePath: "/tmp/source",
 			TargetPath: "/tmp/target",
@@ -38,7 +38,7 @@ func BenchmarkReplicationManager_ListTasks(b *testing.B) {
 
 	// 预创建 50 个任务
 	for i := 0; i < 50; i++ {
-		task := &ReplicationTask{
+		task := &Task{
 			Name:       fmt.Sprintf("task-%d", i),
 			SourcePath: "/tmp/source",
 			TargetPath: "/tmp/target",
@@ -59,7 +59,7 @@ func BenchmarkReplicationManager_GetTask(b *testing.B) {
 	mgr := setupTestReplicationManager(b)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/tmp/source",
 		TargetPath: "/tmp/target",
@@ -87,7 +87,7 @@ func BenchmarkReplicationManager_ConcurrentAccess(b *testing.B) {
 
 	// 预创建任务
 	for i := 0; i < 20; i++ {
-		task := &ReplicationTask{
+		task := &Task{
 			Name:       fmt.Sprintf("task-%d", i),
 			SourcePath: "/tmp/source",
 			TargetPath: "/tmp/target",
@@ -179,7 +179,7 @@ Number of regular files transferred: 3`
 	mgr := setupTestReplicationManager(b)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "parse-test",
 		SourcePath: "/tmp/source",
 		TargetPath: "/tmp/target",
@@ -205,7 +205,7 @@ func BenchmarkSchedule_CalculateNext(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		task := &ReplicationTask{
+		task := &Task{
 			Schedule: schedules[i%len(schedules)],
 		}
 		_ = mgr.calculateNextSync(task)
@@ -221,7 +221,7 @@ func BenchmarkStats_GetStats(b *testing.B) {
 
 	// 预创建任务
 	for i := 0; i < 10; i++ {
-		task := &ReplicationTask{
+		task := &Task{
 			Name:       fmt.Sprintf("stats-task-%d", i),
 			SourcePath: "/tmp/source",
 			TargetPath: "/tmp/target",
@@ -239,12 +239,12 @@ func BenchmarkStats_GetStats(b *testing.B) {
 
 // ========== 内存分配基准测试 ==========
 
-// BenchmarkMemory_ReplicationTask 任务结构体内存分配
-func BenchmarkMemory_ReplicationTask(b *testing.B) {
+// BenchmarkMemory_Task 任务结构体内存分配
+func BenchmarkMemory_Task(b *testing.B) {
 	now := time.Now()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_ = &ReplicationTask{
+		_ = &Task{
 			ID:               fmt.Sprintf("task-%d", i),
 			Name:             fmt.Sprintf("task-name-%d", i),
 			SourcePath:       "/tmp/source",
@@ -302,9 +302,9 @@ func BenchmarkMemory_Config(b *testing.B) {
 func BenchmarkMemory_TaskSlice(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		tasks := make([]*ReplicationTask, 0, 1000)
+		tasks := make([]*Task, 0, 1000)
 		for j := 0; j < 1000; j++ {
-			tasks = append(tasks, &ReplicationTask{
+			tasks = append(tasks, &Task{
 				ID:   fmt.Sprintf("task-%d", j),
 				Name: fmt.Sprintf("task-%d", j),
 			})
@@ -317,10 +317,10 @@ func BenchmarkMemory_TaskSlice(b *testing.B) {
 func BenchmarkMemory_TaskMap(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		tasks := make(map[string]*ReplicationTask, 1000)
+		tasks := make(map[string]*Task, 1000)
 		for j := 0; j < 1000; j++ {
 			id := fmt.Sprintf("task-%d", j)
-			tasks[id] = &ReplicationTask{ID: id}
+			tasks[id] = &Task{ID: id}
 		}
 		_ = tasks
 	}
@@ -331,10 +331,10 @@ func BenchmarkMemory_TaskMap(b *testing.B) {
 // BenchmarkReplicationMutex_Read 读锁性能
 func BenchmarkReplicationMutex_Read(b *testing.B) {
 	var mu sync.RWMutex
-	tasks := make(map[string]*ReplicationTask)
+	tasks := make(map[string]*Task)
 	for i := 0; i < 100; i++ {
 		id := fmt.Sprintf("task-%d", i)
-		tasks[id] = &ReplicationTask{ID: id}
+		tasks[id] = &Task{ID: id}
 	}
 
 	b.ResetTimer()
@@ -348,12 +348,12 @@ func BenchmarkReplicationMutex_Read(b *testing.B) {
 // BenchmarkReplicationMutex_Write 写锁性能
 func BenchmarkReplicationMutex_Write(b *testing.B) {
 	var mu sync.RWMutex
-	tasks := make(map[string]*ReplicationTask)
+	tasks := make(map[string]*Task)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		mu.Lock()
-		tasks[fmt.Sprintf("task-%d", i%100)] = &ReplicationTask{ID: fmt.Sprintf("task-%d", i)}
+		tasks[fmt.Sprintf("task-%d", i%100)] = &Task{ID: fmt.Sprintf("task-%d", i)}
 		mu.Unlock()
 	}
 }
@@ -361,10 +361,10 @@ func BenchmarkReplicationMutex_Write(b *testing.B) {
 // BenchmarkReplicationMutex_Parallel 并行读写测试
 func BenchmarkReplicationMutex_Parallel(b *testing.B) {
 	var mu sync.RWMutex
-	tasks := make(map[string]*ReplicationTask)
+	tasks := make(map[string]*Task)
 	for i := 0; i < 100; i++ {
 		id := fmt.Sprintf("task-%d", i)
-		tasks[id] = &ReplicationTask{ID: id}
+		tasks[id] = &Task{ID: id}
 	}
 
 	b.ResetTimer()
@@ -373,7 +373,7 @@ func BenchmarkReplicationMutex_Parallel(b *testing.B) {
 		for pb.Next() {
 			if i%10 == 0 {
 				mu.Lock()
-				tasks[fmt.Sprintf("task-%d", i%100)] = &ReplicationTask{ID: fmt.Sprintf("task-%d", i)}
+				tasks[fmt.Sprintf("task-%d", i%100)] = &Task{ID: fmt.Sprintf("task-%d", i)}
 				mu.Unlock()
 			} else {
 				mu.RLock()

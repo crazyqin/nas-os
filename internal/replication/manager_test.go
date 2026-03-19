@@ -69,7 +69,7 @@ func TestNewManager_ConfigPersistence(t *testing.T) {
 	require.NoError(t, err)
 
 	// 创建任务以触发保存
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -100,7 +100,7 @@ func TestCreateTask(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -121,7 +121,7 @@ func TestCreateTask_ScheduledNextSync(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "scheduled-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -143,7 +143,7 @@ func TestUpdateTask(t *testing.T) {
 	defer mgr.Stop()
 
 	// 创建任务
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -185,7 +185,7 @@ func TestUpdateTask_Compress(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -212,7 +212,7 @@ func TestDeleteTask(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -244,7 +244,7 @@ func TestListTasks(t *testing.T) {
 
 	// 创建多个任务
 	for i := 0; i < 5; i++ {
-		task := &ReplicationTask{
+		task := &Task{
 			Name:       "task-" + string(rune('0'+i)),
 			SourcePath: "/data/source",
 			TargetPath: "/data/target",
@@ -271,7 +271,7 @@ func TestGetTask(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -299,7 +299,7 @@ func TestPauseTask(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -329,7 +329,7 @@ func TestResumeTask(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -375,7 +375,7 @@ func TestStartSync(t *testing.T) {
 	testFile := filepath.Join(sourceDir, "test.txt")
 	require.NoError(t, os.WriteFile(testFile, []byte("test content"), 0644))
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: sourceDir + "/",
 		TargetPath: targetDir,
@@ -403,7 +403,7 @@ func TestStartSync_AlreadySyncing(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -428,7 +428,7 @@ func TestGetStats(t *testing.T) {
 
 	// 创建任务
 	for i := 0; i < 3; i++ {
-		task := &ReplicationTask{
+		task := &Task{
 			Name:       "task-" + string(rune('0'+i)),
 			SourcePath: "/data/source",
 			TargetPath: "/data/target",
@@ -484,7 +484,7 @@ func TestCalculateNextSync(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.schedule, func(t *testing.T) {
-			task := &ReplicationTask{
+			task := &Task{
 				Name:       "test-task",
 				SourcePath: "/data/source",
 				TargetPath: "/data/target",
@@ -508,7 +508,7 @@ func TestCalculateNextSync_EmptySchedule(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -533,7 +533,7 @@ func TestConcurrency(t *testing.T) {
 		wg.Add(1)
 		go func(idx int) {
 			defer wg.Done()
-			task := &ReplicationTask{
+			task := &Task{
 				Name:       "concurrent-task",
 				SourcePath: "/data/source",
 				TargetPath: "/data/target",
@@ -564,7 +564,7 @@ func TestConcurrentReadWrite(t *testing.T) {
 	defer mgr.Stop()
 
 	// 创建初始任务
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
@@ -605,14 +605,14 @@ func TestTaskTypes(t *testing.T) {
 	mgr := setupTestManager(t)
 	defer mgr.Stop()
 
-	types := []ReplicationType{
+	types := []Type{
 		TypeRealtime,
 		TypeScheduled,
 		TypeBidirectional,
 	}
 
 	for _, typ := range types {
-		task := &ReplicationTask{
+		task := &Task{
 			Name:       string(typ) + "-task",
 			SourcePath: "/data/source",
 			TargetPath: "/data/target",
@@ -629,7 +629,7 @@ func TestTaskTypes(t *testing.T) {
 }
 
 func TestTaskStatuses(t *testing.T) {
-	statuses := []ReplicationStatus{
+	statuses := []Status{
 		StatusIdle,
 		StatusSyncing,
 		StatusPaused,
@@ -656,7 +656,7 @@ func TestStop(t *testing.T) {
 	mgr := setupTestManager(t)
 
 	// 创建任务
-	task := &ReplicationTask{
+	task := &Task{
 		Name:       "test-task",
 		SourcePath: "/data/source",
 		TargetPath: "/data/target",
