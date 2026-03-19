@@ -1,3 +1,4 @@
+// Package auth 提供认证授权功能
 package auth
 
 import (

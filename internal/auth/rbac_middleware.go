@@ -19,16 +19,19 @@ type AuditLogger interface {
 // DefaultAuditLogger 默认审计日志实现
 type DefaultAuditLogger struct{}
 
+// LogAccess 记录访问日志
 func (l *DefaultAuditLogger) LogAccess(userID, method, path, ip string, statusCode int) {
 	log.Printf("[AUDIT] user=%s method=%s path=%s ip=%s status=%d time=%s",
 		userID, method, path, ip, statusCode, time.Now().Format(time.RFC3339))
 }
 
+// LogPermissionDenied 记录权限拒绝日志
 func (l *DefaultAuditLogger) LogPermissionDenied(userID, resource, action, ip string) {
 	log.Printf("[AUDIT] PERMISSION_DENIED user=%s resource=%s action=%s ip=%s time=%s",
 		userID, resource, action, ip, time.Now().Format(time.RFC3339))
 }
 
+// LogAuthFailure 记录认证失败日志
 func (l *DefaultAuditLogger) LogAuthFailure(ip, reason string) {
 	log.Printf("[AUDIT] AUTH_FAILURE ip=%s reason=%s time=%s",
 		ip, reason, time.Now().Format(time.RFC3339))
@@ -63,8 +66,8 @@ var DefaultRateLimitConfig = RateLimitConfig{
 	CleanupInterval: 5 * time.Minute,
 }
 
-// AuthMiddlewareConfig 认证中间件配置
-type AuthMiddlewareConfig struct {
+// MiddlewareConfig 认证中间件配置
+type MiddlewareConfig struct {
 	IPWhitelist []string
 	IPBlacklist []string
 	RateLimit   RateLimitConfig
@@ -76,14 +79,14 @@ func NewMiddleware(userMgr interface {
 	ValidateToken(token string) (string, error)
 	GetUser(userID string) (interface{}, error)
 }, rbacMgr *RBACManager) *Middleware {
-	return NewMiddlewareWithConfig(userMgr, rbacMgr, AuthMiddlewareConfig{})
+	return NewMiddlewareWithConfig(userMgr, rbacMgr, MiddlewareConfig{})
 }
 
 // NewMiddlewareWithConfig 创建认证中间件（带配置）
 func NewMiddlewareWithConfig(userMgr interface {
 	ValidateToken(token string) (string, error)
 	GetUser(userID string) (interface{}, error)
-}, rbacMgr *RBACManager, config AuthMiddlewareConfig) *Middleware {
+}, rbacMgr *RBACManager, config MiddlewareConfig) *Middleware {
 	m := &Middleware{
 		userManager:     userMgr,
 		rbacManager:     rbacMgr,
@@ -485,7 +488,7 @@ func GetUserID(c *gin.Context) string {
 }
 
 // HasPermission 检查当前用户是否有权限
-func HasPermission(c *gin.Context, resource Resource, action Action) bool {
+func HasPermission(c *gin.Context, _ Resource, _ Action) bool {
 	userID := GetUserID(c)
 	if userID == "" {
 		return false
@@ -679,27 +682,27 @@ func (m *Middleware) CheckIPAccess() gin.HandlerFunc {
 }
 
 // AddToWhitelist 添加 IP 到白名单
-func (m *AuthMiddleware) AddToWhitelist(ip string) {
+func (m *Middleware) AddToWhitelist(ip string) {
 	m.ipWhitelist[ip] = true
 }
 
 // RemoveFromWhitelist 从白名单移除 IP
-func (m *AuthMiddleware) RemoveFromWhitelist(ip string) {
+func (m *Middleware) RemoveFromWhitelist(ip string) {
 	delete(m.ipWhitelist, ip)
 }
 
 // AddToBlacklist 添加 IP 到黑名单
-func (m *AuthMiddleware) AddToBlacklist(ip string) {
+func (m *Middleware) AddToBlacklist(ip string) {
 	m.ipBlacklist[ip] = true
 }
 
 // RemoveFromBlacklist 从黑名单移除 IP
-func (m *AuthMiddleware) RemoveFromBlacklist(ip string) {
+func (m *Middleware) RemoveFromBlacklist(ip string) {
 	delete(m.ipBlacklist, ip)
 }
 
 // GetWhitelist 获取白名单
-func (m *AuthMiddleware) GetWhitelist() []string {
+func (m *Middleware) GetWhitelist() []string {
 	ips := make([]string, 0, len(m.ipWhitelist))
 	for ip := range m.ipWhitelist {
 		ips = append(ips, ip)
@@ -708,7 +711,7 @@ func (m *AuthMiddleware) GetWhitelist() []string {
 }
 
 // GetBlacklist 获取黑名单
-func (m *AuthMiddleware) GetBlacklist() []string {
+func (m *Middleware) GetBlacklist() []string {
 	ips := make([]string, 0, len(m.ipBlacklist))
 	for ip := range m.ipBlacklist {
 		ips = append(ips, ip)
