@@ -408,7 +408,7 @@ func RelaxedRateLimit() gin.HandlerFunc {
 
 // APIRateLimit API 限流中间件（根据路径自动选择）
 //
-//nolint:golint,revive // 函数名 stutters，但改名会与 RateLimit(config) 冲突
+//nolint:revive // 函数名 stutters，但改名会与 RateLimit(config) 冲突
 func APIRateLimit() gin.HandlerFunc {
 	strictPaths := map[string]bool{
 		"/api/v1/auth/login":    true,

@@ -223,7 +223,7 @@ func Page(c *gin.Context, items interface{}, total int64, page, pageSize int) {
 
 // APIError 实现 error 接口的标准 API 错误
 //
-//nolint:golint,revive // 类型名 stutters，但改名会影响外部调用
+//nolint:revive // 类型名 stutters，但改名会影响外部调用
 type APIError struct {
 	Code    int
 	Message string

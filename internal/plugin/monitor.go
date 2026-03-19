@@ -42,6 +42,7 @@ type HealthStatus struct {
 // StatusType 插件状态类型
 type StatusType string
 
+// 插件运行状态常量，表示插件的当前健康状态。
 const (
 	// StatusHealthy indicates the plugin is running normally
 	StatusHealthy   StatusType = "healthy"
@@ -63,6 +64,7 @@ type Alert struct {
 // AlertType 告警类型
 type AlertType string
 
+// 告警类型常量，定义不同类型的插件告警事件。
 const (
 	AlertTypeHealthChanged   AlertType = "health_changed"
 	AlertTypePluginCrashed   AlertType = "plugin_crashed"
@@ -74,6 +76,7 @@ const (
 // AlertSeverity 告警严重程度
 type AlertSeverity string
 
+// 告警严重程度常量，定义告警的紧急级别。
 const (
 	SeverityInfo     AlertSeverity = "info"
 	SeverityWarning  AlertSeverity = "warning"
