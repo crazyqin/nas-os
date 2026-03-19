@@ -1,3 +1,4 @@
+// Package tags 标签管理模块
 package tags
 
 import (
@@ -45,7 +46,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 		files.DELETE("/:id/tags/:tagId", h.removeFileTag)
 
 		// 批量和搜索操作
-		files.GET("/by-tag/:tagId", h.getFilesByTagId)
+		files.GET("/by-tag/:tagId", h.getFilesByTagID)
 		files.POST("/batch-tags", h.batchTagFiles)
 	}
 }
@@ -423,7 +424,7 @@ func (h *Handlers) removeFileTag(c *gin.Context) {
 	c.JSON(http.StatusOK, apiresponse.Success(nil))
 }
 
-// getFilesByTagId 按标签ID查询文件
+// getFilesByTagID 按标签ID查询文件
 // @Summary 按标签ID查询文件
 // @Description 获取拥有指定标签的所有文件
 // @Tags files
@@ -432,7 +433,7 @@ func (h *Handlers) removeFileTag(c *gin.Context) {
 // @Param tagId path string true "标签ID"
 // @Success 200 {object} Response "成功"
 // @Router /files/by-tag/{tagId} [get]
-func (h *Handlers) getFilesByTagId(c *gin.Context) {
+func (h *Handlers) getFilesByTagID(c *gin.Context) {
 	tagID := c.Param("tagId")
 
 	// 检查标签是否存在

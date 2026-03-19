@@ -261,7 +261,7 @@ func (c *RetentionCleaner) PreviewDryRun(policy *Policy) (*CleanupPreview, error
 	return preview, nil
 }
 
-// CleanupPreview 清理预览
+// CleanupPreview 清理预览结果，展示将要删除的快照信息
 type CleanupPreview struct {
 	TotalSnapshots   int            `json:"totalSnapshots"`
 	ToDelete         int            `json:"toDelete"`
@@ -311,7 +311,7 @@ func (c *RetentionCleaner) EstimateRetention(policy *Policy, snapshotCount int, 
 	return estimate
 }
 
-// RetentionEstimate 保留策略估算
+// RetentionEstimate 保留策略估算结果，预测策略对存储的影响
 type RetentionEstimate struct {
 	PolicyType       RetentionPolicyType `json:"policyType"`
 	MaxSnapshots     int                 `json:"maxSnapshots"`
