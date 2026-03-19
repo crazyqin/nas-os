@@ -5,8 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [v2.253.26] - 2026-03-19
 
 ### Documentation
-- 更新 README.md 版本号至 v2.253.25 (礼部)
-- 更新 docs/USER_GUIDE.md 版本号至 v2.253.25 (礼部)
+- 更新 README.md 版本号至 v2.253.26 (礼部)
+- 更新 docs/USER_GUIDE.md 版本号至 v2.253.26 (礼部)
+- 更新 docs/api.yaml 版本号至 2.253.26 (礼部)
+- 更新 internal/version/version.go 至 2.253.26 (吏部)
+- 更新 MILESTONES.md 添加 v2.253.25, v2.253.26 记录 (吏部)
 
 ## [v2.253.25] - 2026-03-19
 

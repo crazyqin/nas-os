@@ -2209,4 +2209,52 @@
 
 ---
 
+### 🎯 里程碑 84: v2.253.25 依赖更新 (M84) ✅
+
+**状态**: 已完成
+**时间**: 2026-03-19
+
+#### 任务清单
+- [x] 工部: 更新依赖
+  - github.com/golang-jwt/jwt/v5 v5.3.0 -> v5.3.1
+  - github.com/cpuguy83/go-md2man/v2 v2.0.6 -> v2.0.7
+  - github.com/klauspost/compress v1.18.0 -> v1.18.4
+- [x] 礼部: CHANGELOG 更新
+
+#### 交付物
+- `go.mod` - 依赖更新 ✅
+- `CHANGELOG.md` - 变更日志更新 ✅
+
+#### 核心目标
+- **版本号**: v2.253.25 ✅
+- **依赖更新**: 3 个依赖包更新 ✅
+
+---
+
+### 🎯 里程碑 85: v2.253.26 文档版本同步 (M85) ✅
+
+**状态**: 已完成
+**时间**: 2026-03-19
+
+#### 任务清单
+- [x] 礼部: 更新 README.md 版本号至 v2.253.26
+- [x] 礼部: 更新 docs/USER_GUIDE.md 版本号至 v2.253.26
+- [x] 礼部: 更新 docs/api.yaml 版本号至 2.253.26
+- [x] 吏部: 更新 internal/version/version.go 至 2.253.26
+- [x] 吏部: 更新 MILESTONES.md
+
+#### 交付物
+- `README.md` - 版本号更新至 v2.253.26 ✅
+- `docs/USER_GUIDE.md` - 版本号更新至 v2.253.26 ✅
+- `docs/api.yaml` - API 版本号更新至 2.253.26 ✅
+- `internal/version/version.go` - 版本号更新至 2.253.26 ✅
+- `MILESTONES.md` - 里程碑更新 ✅
+- `CHANGELOG.md` - 变更日志更新 ✅
+
+#### 核心目标
+- **版本号**: v2.253.26 ✅
+- **文档同步**: 所有文档版本号统一至 v2.253.26 ✅
+
+---
+
 *最后更新：2026-03-19*
