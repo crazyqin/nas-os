@@ -8,6 +8,7 @@ import (
 type ProviderType string
 
 const (
+	// ProviderAliyunOSS 阿里云 OSS
 	ProviderAliyunOSS    ProviderType = "aliyun_oss"
 	ProviderTencentCOS   ProviderType = "tencent_cos"
 	ProviderAWSS3        ProviderType = "aws_s3"

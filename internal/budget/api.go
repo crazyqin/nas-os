@@ -971,16 +971,6 @@ func containsLevel(slice []Level, l Level) bool {
 	return false
 }
 
-// containsStatus 检查预警状态是否在切片中
-func containsStatus(slice []Status, s Status) bool {
-	for _, item := range slice {
-		if item == s {
-			return true
-		}
-	}
-	return false
-}
-
 // containsAlertStatus 检查警报状态切片是否包含指定状态
 func containsAlertStatus(slice []AlertStatus, s AlertStatus) bool {
 	for _, item := range slice {
