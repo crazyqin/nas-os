@@ -98,6 +98,7 @@ func NewS3Provider(ctx context.Context, cfg *ProviderConfig, providerType Provid
 	}, nil
 }
 
+// Upload 上传本地文件到云端
 func (p *S3Provider) Upload(ctx context.Context, localPath, remotePath string) error {
 	file, err := os.Open(localPath)
 	if err != nil {

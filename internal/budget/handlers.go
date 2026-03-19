@@ -568,14 +568,6 @@ func parseLevels(levels []string) []Level {
 	return result
 }
 
-func parseStatuses(statuses []string) []Status {
-	var result []Status
-	for _, s := range statuses {
-		result = append(result, Status(s))
-	}
-	return result
-}
-
 // parseAlertStatuses 解析警报状态
 func parseAlertStatuses(statuses []string) []AlertStatus {
 	var result []AlertStatus
