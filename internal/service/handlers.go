@@ -65,7 +65,7 @@ type Request struct {
 }
 
 // ServiceRequest 服务操作请求（兼容别名）
-type ServiceRequest = Request
+type ServiceRequest = Request //nolint:revive // 向后兼容别名
 
 // Summary 服务统计摘要
 type Summary struct {
@@ -78,7 +78,7 @@ type Summary struct {
 }
 
 // ServiceSummary 服务统计摘要（兼容别名）
-type ServiceSummary = Summary
+type ServiceSummary = Summary //nolint:revive // 向后兼容别名
 
 // listServices 列出所有服务
 func (h *Handlers) listServices(c *gin.Context) {

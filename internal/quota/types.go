@@ -54,7 +54,7 @@ const (
 )
 
 // QuotaType 是 Type 的别名，保留用于向后兼容
-type QuotaType = Type
+type QuotaType = Type //nolint:revive // 向后兼容别名
 
 // Quota 存储配额定义
 type Quota struct {
@@ -89,7 +89,7 @@ type Usage struct {
 }
 
 // QuotaUsage 是 Usage 的别名，保留用于向后兼容
-type QuotaUsage = Usage
+type QuotaUsage = Usage //nolint:revive // 向后兼容别名
 
 // ========== 告警类型 ==========
 
@@ -334,7 +334,7 @@ type TrendDataPoint struct {
 }
 
 // QuotaTrend 配额趋势
-type QuotaTrend struct {
+type QuotaTrend struct { //nolint:revive
 	QuotaID             string           `json:"quota_id"`
 	TargetName          string           `json:"target_name"`
 	DataPoints          []TrendDataPoint `json:"data_points"`
@@ -393,7 +393,7 @@ type TrendReportRequest struct {
 // ========== 输入结构 ==========
 
 // QuotaInput 创建/更新配额输入
-type QuotaInput struct {
+type QuotaInput struct { //nolint:revive
 	Type       QuotaType `json:"type" binding:"required"`
 	TargetID   string    `json:"target_id" binding:"required"`
 	VolumeName string    `json:"volume_name"`

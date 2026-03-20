@@ -188,15 +188,15 @@ type ReplicationJob struct {
 type ReplicationJobStatus string
 
 const (
-	// ReplicationJobStatusPending 任务待执行
+	// ReplicationJobStatusPending 待执行
 	ReplicationJobStatusPending ReplicationJobStatus = "pending"
-	// ReplicationJobStatusRunning 任务运行中
+	// ReplicationJobStatusRunning 执行中
 	ReplicationJobStatusRunning ReplicationJobStatus = "running"
-	// ReplicationJobStatusCompleted 任务已完成
+	// ReplicationJobStatusCompleted 已完成
 	ReplicationJobStatusCompleted ReplicationJobStatus = "completed"
-	// ReplicationJobStatusFailed 任务失败
+	// ReplicationJobStatusFailed 已失败
 	ReplicationJobStatusFailed ReplicationJobStatus = "failed"
-	// ReplicationJobStatusCancelled 任务已取消
+	// ReplicationJobStatusCancelled 已取消
 	ReplicationJobStatusCancelled ReplicationJobStatus = "cancelled"
 )
 

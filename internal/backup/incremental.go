@@ -106,7 +106,7 @@ type Job struct {
 }
 
 // BackupJob is an alias for Job for backward compatibility.
-type BackupJob = Job
+type BackupJob = Job //nolint:revive // 向后兼容别名
 
 // FileIndex 文件索引（用于快速变更检测）
 type FileIndex struct {

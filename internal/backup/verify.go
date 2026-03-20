@@ -572,7 +572,7 @@ func (vm *VerificationManager) ClearResults() {
 	vm.results = make(map[string]*VerificationResult)
 }
 
-// ScheduledVerification 计划验证
+// ScheduledVerification 计划验证配置
 type ScheduledVerification struct {
 	SnapshotID string        `json:"snapshot_id"`
 	Interval   time.Duration `json:"interval"`

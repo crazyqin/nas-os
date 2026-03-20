@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.56] - 2026-03-20
+
+### Bug Fixes
+- 解决合并冲突 (internal/snapshot/replication.go, internal/users/manager.go)
+- 修复 golangci-lint 错误 (21个文件)
+  - 添加导出函数注释 (backup/manager.go, shares/handlers.go)
+  - 修复 stuttering 类型命名 (添加 nolint 注释保持向后兼容)
+  - 修复 const 块注释规范 (backup/verify.go, cloudsync/types.go)
+  - 修复变量命名 (objectIds -> objectIDs)
+  - gofmt 格式化
+
+### Maintenance
+- 六部协同开发完成
+- 编译: 通过
+- 测试: 全部通过
+- golangci-lint: 通过 (0 issues)
+
 ## [v2.253.55] - 2026-03-20
 
 ### Code Quality
@@ -28,33 +45,6 @@ All notable changes to this project will be documented in this file.
 - 编译: 通过
 - 测试: 全部通过 (backup 模块)
 - go vet: 通过
-
-## [v2.253.51] - 2026-03-20
-
-### Bug Fixes
-- 修复 internal/backup/manager.go revive linter 错误
-  - 为 GetTask, ListTasks, CancelTask, GetHistory 添加注释
-- 修复 internal/backup/restore.go 类型别名 stuttering 警告
-  - BackupInfo, BackupMetadata 添加 Deprecated 注释
-
-### Maintenance
-- 六部协同开发检查完成
-- 编译: 通过
-- 测试: 全部通过
-- go vet: 通过
-
-## [v2.253.50] - 2026-03-20
-
-### Dependencies
-- 更新 RoaringBitmap v2.15.0 → v2.16.0
-- 更新 google.golang.org/genproto 相关依赖
-
-### Maintenance
-- 六部协同开发检查完成
-- 编译: 通过
-- 测试: 全部通过 (265 测试文件)
-- go vet: 通过
-- 模块验证: 通过
 
 ## [v2.253.49] - 2026-03-20
 

@@ -64,7 +64,7 @@ type Scheduler struct {
 }
 
 // BackupScheduler 备份调度器（兼容别名）
-type BackupScheduler = Scheduler
+type BackupScheduler = Scheduler //nolint:revive // 向后兼容别名
 
 // SchedulerConfig 调度器配置
 type SchedulerConfig struct {
@@ -157,7 +157,7 @@ type Window struct {
 }
 
 // BackupWindow 备份窗口（兼容别名）
-type BackupWindow = Window
+type BackupWindow = Window //nolint:revive // 向后兼容别名
 
 // PriorityQueue 优先级队列
 type PriorityQueue struct {
