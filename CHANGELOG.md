@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.58] - 2026-03-20
+
+### Bug Fixes
+- 修复 Docker Publish 失败问题：go.mod 要求 Go 1.26，但 CI/CD 使用 Go 1.25
+
+### DevOps
+- 升级所有 workflow 和 Dockerfile 到 Go 1.26
+  - .github/workflows/ci-cd.yml
+  - .github/workflows/docker-publish.yml
+  - .github/workflows/release.yml
+  - .github/workflows/security-scan.yml
+  - .github/workflows/benchmark.yml
+  - Dockerfile, Dockerfile.dev, Dockerfile.full
+
 ## [v2.253.56] - 2026-03-20
 
 ### Bug Fixes
