@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.44] - 2026-03-20
+
+### Bug Fixes
+- 修复 linter 检测到的导出常量注释问题
+  - internal/cloudsync/types.go: 为 ProviderTencentCOS 等常量添加独立注释
+  - internal/quota/types.go: 为所有导出常量添加独立注释
+  - internal/quota/errors.go: 为 ErrCodeQuotaExists 等错误码添加注释
+  - internal/quota/handlers.go: 为 Response, Success, Error 添加注释
+  - internal/quota/api.go: 修复类型注释与类型名不匹配问题
+  - internal/quota/history.go: 修复 HistoryRecord 注释，添加常量注释
+
 ## [v2.253.43] - 2026-03-20
 
 ### Maintenance

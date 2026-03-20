@@ -9,8 +9,9 @@ type ProviderType string
 
 const (
 	// ProviderAliyunOSS 阿里云 OSS
-	ProviderAliyunOSS    ProviderType = "aliyun_oss"
-	ProviderTencentCOS   ProviderType = "tencent_cos"
+	ProviderAliyunOSS ProviderType = "aliyun_oss"
+	// ProviderTencentCOS 腾讯云 COS
+	ProviderTencentCOS ProviderType = "tencent_cos"
 	ProviderAWSS3        ProviderType = "aws_s3"
 	ProviderGoogleDrive  ProviderType = "google_drive"
 	ProviderOneDrive     ProviderType = "onedrive"
@@ -23,52 +24,75 @@ const (
 type SyncDirection string
 
 const (
-	SyncDirectionUpload   SyncDirection = "upload"   // 本地 → 云端
-	SyncDirectionDownload SyncDirection = "download" // 云端 → 本地
-	SyncDirectionBidirect SyncDirection = "bidirect" // 双向同步
+	// SyncDirectionUpload 本地 → 云端
+	SyncDirectionUpload SyncDirection = "upload"
+	// SyncDirectionDownload 云端 → 本地
+	SyncDirectionDownload SyncDirection = "download"
+	// SyncDirectionBidirect 双向同步
+	SyncDirectionBidirect SyncDirection = "bidirect"
 )
 
 // SyncMode 同步模式
 type SyncMode string
 
 const (
-	SyncModeMirror    SyncMode = "mirror"    // 镜像模式（本地为主）
-	SyncModeBackup    SyncMode = "backup"    // 备份模式（保留历史）
-	SyncModeSync      SyncMode = "sync"      // 同步模式（双向）
-	SyncModeIncrement SyncMode = "increment" // 增量同步
+	// SyncModeMirror 镜像模式（本地为主）
+	SyncModeMirror SyncMode = "mirror"
+	// SyncModeBackup 备份模式（保留历史）
+	SyncModeBackup SyncMode = "backup"
+	// SyncModeSync 同步模式（双向）
+	SyncModeSync SyncMode = "sync"
+	// SyncModeIncrement 增量同步
+	SyncModeIncrement SyncMode = "increment"
 )
 
 // ScheduleType 调度类型
 type ScheduleType string
 
 const (
-	ScheduleTypeManual   ScheduleType = "manual"   // 手动触发
-	ScheduleTypeRealtime ScheduleType = "realtime" // 实时监控
-	ScheduleTypeInterval ScheduleType = "interval" // 定时执行
-	ScheduleTypeCron     ScheduleType = "cron"     // Cron 表达式
+	// ScheduleTypeManual 手动触发
+	ScheduleTypeManual ScheduleType = "manual"
+	// ScheduleTypeRealtime 实时监控
+	ScheduleTypeRealtime ScheduleType = "realtime"
+	// ScheduleTypeInterval 定时执行
+	ScheduleTypeInterval ScheduleType = "interval"
+	// ScheduleTypeCron Cron 表达式
+	ScheduleTypeCron ScheduleType = "cron"
 )
 
 // ConflictStrategy 冲突解决策略
 type ConflictStrategy string
 
 const (
-	ConflictStrategySkip   ConflictStrategy = "skip"   // 跳过冲突文件
-	ConflictStrategyLocal  ConflictStrategy = "local"  // 本地优先
-	ConflictStrategyRemote ConflictStrategy = "remote" // 远程优先
-	ConflictStrategyNewer  ConflictStrategy = "newer"  // 较新文件优先
-	ConflictStrategyRename ConflictStrategy = "rename" // 重命名冲突文件
-	ConflictStrategyAsk    ConflictStrategy = "ask"    // 询问用户
+	// ConflictStrategySkip 跳过冲突文件
+	ConflictStrategySkip ConflictStrategy = "skip"
+	// ConflictStrategyLocal 本地优先
+	ConflictStrategyLocal ConflictStrategy = "local"
+	// ConflictStrategyRemote 远程优先
+	ConflictStrategyRemote ConflictStrategy = "remote"
+	// ConflictStrategyNewer 较新文件优先
+	ConflictStrategyNewer ConflictStrategy = "newer"
+	// ConflictStrategyRename 重命名冲突文件
+	ConflictStrategyRename ConflictStrategy = "rename"
+	// ConflictStrategyAsk 询问用户
+	ConflictStrategyAsk ConflictStrategy = "ask"
 )
 
 // TaskStatus 任务状态
 type TaskStatus string
 
 const (
-	TaskStatusIdle      TaskStatus = "idle"
-	TaskStatusRunning   TaskStatus = "running"
-	TaskStatusPaused    TaskStatus = "paused"
+	// TaskStatusIdle 空闲状态
+	TaskStatusIdle TaskStatus = "idle"
+	// TaskStatusRunning 运行中
+	TaskStatusRunning TaskStatus = "running"
+	// TaskStatusPaused 已暂停
+	TaskStatusPaused TaskStatus = "paused"
+	// TaskStatusCompleted 已完成
 	TaskStatusCompleted TaskStatus = "completed"
-	TaskStatusFailed    TaskStatus = "failed"
+	// TaskStatusFailed 已失败
+	TaskStatusFailed TaskStatus = "failed"
+	// TaskStatusCancelled 已取消
 	TaskStatusCancelled TaskStatus = "cancelled"
 )
 

@@ -9,13 +9,21 @@ import (
 // ========== 错误定义 ==========
 
 var (
-	ErrQuotaNotFound         = errors.New("配额不存在")
-	ErrQuotaExists           = errors.New("配额已存在")
-	ErrQuotaExceeded         = errors.New("超出配额限制")
-	ErrUserNotFound          = errors.New("用户不存在")
-	ErrGroupNotFound         = errors.New("用户组不存在")
-	ErrVolumeNotFound        = errors.New("卷不存在")
-	ErrInvalidLimit          = errors.New("无效的配额限制")
+	// ErrQuotaNotFound 配额不存在
+	ErrQuotaNotFound = errors.New("配额不存在")
+	// ErrQuotaExists 配额已存在
+	ErrQuotaExists = errors.New("配额已存在")
+	// ErrQuotaExceeded 超出配额限制
+	ErrQuotaExceeded = errors.New("超出配额限制")
+	// ErrUserNotFound 用户不存在
+	ErrUserNotFound = errors.New("用户不存在")
+	// ErrGroupNotFound 用户组不存在
+	ErrGroupNotFound = errors.New("用户组不存在")
+	// ErrVolumeNotFound 卷不存在
+	ErrVolumeNotFound = errors.New("卷不存在")
+	// ErrInvalidLimit 无效的配额限制
+	ErrInvalidLimit = errors.New("无效的配额限制")
+	// ErrCleanupPolicyNotFound 清理策略不存在
 	ErrCleanupPolicyNotFound = errors.New("清理策略不存在")
 )
 
@@ -25,9 +33,12 @@ var (
 type QuotaType string
 
 const (
-	QuotaTypeUser      QuotaType = "user"      // 用户配额
-	QuotaTypeGroup     QuotaType = "group"     // 用户组配额
-	QuotaTypeDirectory QuotaType = "directory" // 目录配额
+	// QuotaTypeUser 用户配额
+	QuotaTypeUser QuotaType = "user"
+	// QuotaTypeGroup 用户组配额
+	QuotaTypeGroup QuotaType = "group"
+	// QuotaTypeDirectory 目录配额
+	QuotaTypeDirectory QuotaType = "directory"
 )
 
 // Quota 存储配额定义
@@ -68,29 +79,40 @@ type QuotaUsage struct {
 type AlertType string
 
 const (
-	AlertTypeSoftLimit AlertType = "soft_limit" // 软限制告警
-	AlertTypeHardLimit AlertType = "hard_limit" // 硬限制告警
-	AlertTypeCleanup   AlertType = "cleanup"    // 自动清理告警
+	// AlertTypeSoftLimit 软限制告警
+	AlertTypeSoftLimit AlertType = "soft_limit"
+	// AlertTypeHardLimit 硬限制告警
+	AlertTypeHardLimit AlertType = "hard_limit"
+	// AlertTypeCleanup 自动清理告警
+	AlertTypeCleanup AlertType = "cleanup"
 )
 
 // AlertSeverity 告警严重级别
 type AlertSeverity string
 
 const (
-	AlertSeverityInfo      AlertSeverity = "info"      // 信息
-	AlertSeverityWarning   AlertSeverity = "warning"   // 警告
-	AlertSeverityCritical  AlertSeverity = "critical"  // 严重
-	AlertSeverityEmergency AlertSeverity = "emergency" // 紧急
+	// AlertSeverityInfo 信息
+	AlertSeverityInfo AlertSeverity = "info"
+	// AlertSeverityWarning 警告
+	AlertSeverityWarning AlertSeverity = "warning"
+	// AlertSeverityCritical 严重
+	AlertSeverityCritical AlertSeverity = "critical"
+	// AlertSeverityEmergency 紧急
+	AlertSeverityEmergency AlertSeverity = "emergency"
 )
 
 // AlertStatus 告警状态
 type AlertStatus string
 
 const (
-	AlertStatusActive    AlertStatus = "active"    // 活跃
-	AlertStatusResolved  AlertStatus = "resolved"  // 已解决
-	AlertStatusSilenced  AlertStatus = "silenced"  // 静默
-	AlertStatusEscalated AlertStatus = "escalated" // 已升级
+	// AlertStatusActive 活跃
+	AlertStatusActive AlertStatus = "active"
+	// AlertStatusResolved 已解决
+	AlertStatusResolved AlertStatus = "resolved"
+	// AlertStatusSilenced 静默
+	AlertStatusSilenced AlertStatus = "silenced"
+	// AlertStatusEscalated 已升级
+	AlertStatusEscalated AlertStatus = "escalated"
 )
 
 // Alert 配额告警
@@ -121,20 +143,28 @@ type Alert struct {
 type CleanupPolicyType string
 
 const (
-	CleanupPolicyAge     CleanupPolicyType = "age"     // 按文件年龄
-	CleanupPolicySize    CleanupPolicyType = "size"    // 按文件大小
-	CleanupPolicyPattern CleanupPolicyType = "pattern" // 按文件名模式
-	CleanupPolicyQuota   CleanupPolicyType = "quota"   // 按配额比例
-	CleanupPolicyAccess  CleanupPolicyType = "access"  // 按访问时间
+	// CleanupPolicyAge 按文件年龄
+	CleanupPolicyAge CleanupPolicyType = "age"
+	// CleanupPolicySize 按文件大小
+	CleanupPolicySize CleanupPolicyType = "size"
+	// CleanupPolicyPattern 按文件名模式
+	CleanupPolicyPattern CleanupPolicyType = "pattern"
+	// CleanupPolicyQuota 按配额比例
+	CleanupPolicyQuota CleanupPolicyType = "quota"
+	// CleanupPolicyAccess 按访问时间
+	CleanupPolicyAccess CleanupPolicyType = "access"
 )
 
 // CleanupAction 清理动作
 type CleanupAction string
 
 const (
-	CleanupActionDelete  CleanupAction = "delete"  // 删除
-	CleanupActionArchive CleanupAction = "archive" // 归档
-	CleanupActionMove    CleanupAction = "move"    // 移动
+	// CleanupActionDelete 删除
+	CleanupActionDelete CleanupAction = "delete"
+	// CleanupActionArchive 归档
+	CleanupActionArchive CleanupAction = "archive"
+	// CleanupActionMove 移动
+	CleanupActionMove CleanupAction = "move"
 )
 
 // CleanupPolicy 自动清理策略
@@ -185,9 +215,13 @@ type CleanupTask struct {
 type CleanupTaskStatus string
 
 const (
-	CleanupTaskRunning   CleanupTaskStatus = "running"
+	// CleanupTaskRunning 运行中
+	CleanupTaskRunning CleanupTaskStatus = "running"
+	// CleanupTaskCompleted 已完成
 	CleanupTaskCompleted CleanupTaskStatus = "completed"
-	CleanupTaskFailed    CleanupTaskStatus = "failed"
+	// CleanupTaskFailed 已失败
+	CleanupTaskFailed CleanupTaskStatus = "failed"
+	// CleanupTaskCancelled 已取消
 	CleanupTaskCancelled CleanupTaskStatus = "cancelled"
 )
 
@@ -197,19 +231,27 @@ const (
 type ReportType string
 
 const (
-	ReportTypeSummary ReportType = "summary" // 汇总报告
-	ReportTypeUser    ReportType = "user"    // 用户配额报告
-	ReportTypeGroup   ReportType = "group"   // 用户组配额报告
-	ReportTypeVolume  ReportType = "volume"  // 卷配额报告
-	ReportTypeTrend   ReportType = "trend"   // 趋势报告
+	// ReportTypeSummary 汇总报告
+	ReportTypeSummary ReportType = "summary"
+	// ReportTypeUser 用户配额报告
+	ReportTypeUser ReportType = "user"
+	// ReportTypeGroup 用户组配额报告
+	ReportTypeGroup ReportType = "group"
+	// ReportTypeVolume 卷配额报告
+	ReportTypeVolume ReportType = "volume"
+	// ReportTypeTrend 趋势报告
+	ReportTypeTrend ReportType = "trend"
 )
 
 // ReportFormat 报告格式
 type ReportFormat string
 
 const (
+	// ReportFormatJSON JSON 格式
 	ReportFormatJSON ReportFormat = "json"
-	ReportFormatCSV  ReportFormat = "csv"
+	// ReportFormatCSV CSV 格式
+	ReportFormatCSV ReportFormat = "csv"
+	// ReportFormatHTML HTML 格式
 	ReportFormatHTML ReportFormat = "html"
 )
 
