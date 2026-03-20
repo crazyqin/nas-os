@@ -22,3 +22,7 @@ coverage.out
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+internal/audit/enhanced/*.log
