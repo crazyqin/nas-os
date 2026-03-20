@@ -23,19 +23,22 @@ type RestoreOptionsExtended struct {
 	VerifyAfter bool
 }
 
-// BackupInfo 备份信息
-type BackupInfo struct {
-	ID        string          `json:"id"`
-	Name      string          `json:"name"`
-	Path      string          `json:"path"`
-	Size      int64           `json:"size"`
-	CreatedAt time.Time       `json:"createdAt"`
-	Type      Type            `json:"type"`
-	Metadata  *BackupMetadata `json:"metadata,omitempty"`
+// Info 备份信息
+type Info struct {
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Path      string     `json:"path"`
+	Size      int64      `json:"size"`
+	CreatedAt time.Time  `json:"createdAt"`
+	Type      Type       `json:"type"`
+	Metadata  *Metadata  `json:"metadata,omitempty"`
 }
 
-// BackupMetadata 备份元数据
-type BackupMetadata struct {
+// BackupInfo 备份信息（兼容别名）
+type BackupInfo = Info
+
+// Metadata 备份元数据
+type Metadata struct {
 	SourcePath string            `json:"sourcePath"`
 	FileCount  int               `json:"fileCount"`
 	Checksum   string            `json:"checksum"`
@@ -43,6 +46,9 @@ type BackupMetadata struct {
 	Size       int64             `json:"size,omitempty"`
 	Extra      map[string]string `json:"extra,omitempty"`
 }
+
+// BackupMetadata 备份元数据（兼容别名）
+type BackupMetadata = Metadata
 
 // RestoreManager 恢复管理器
 type RestoreManager struct {

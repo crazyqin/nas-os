@@ -56,16 +56,19 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	}
 }
 
-// ServiceRequest 服务操作请求
-type ServiceRequest struct {
+// Request 服务操作请求
+type Request struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
 	Type        string `json:"type"`
 	UnitFile    string `json:"unitFile"`
 }
 
-// ServiceSummary 服务统计摘要
-type ServiceSummary struct {
+// ServiceRequest 服务操作请求（兼容别名）
+type ServiceRequest = Request
+
+// Summary 服务统计摘要
+type Summary struct {
 	Total    int `json:"total"`
 	Running  int `json:"running"`
 	Stopped  int `json:"stopped"`
@@ -73,6 +76,9 @@ type ServiceSummary struct {
 	Disabled int `json:"disabled"`
 	Failed   int `json:"failed"`
 }
+
+// ServiceSummary 服务统计摘要（兼容别名）
+type ServiceSummary = Summary
 
 // listServices 列出所有服务
 func (h *Handlers) listServices(c *gin.Context) {

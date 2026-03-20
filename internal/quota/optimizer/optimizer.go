@@ -1232,12 +1232,7 @@ func randomString(n int) string {
 	return string(b)
 }
 
-func abs(x int64) int64 {
-	if x < 0 {
-		return -x
-	}
-	return x
-}
+
 
 func formatBytes(bytes uint64) string {
 	const unit = 1024
