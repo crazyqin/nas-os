@@ -1,54 +1,53 @@
 {
-  "lastUpdate": "2026-03-20T11:52:00+08:00",
-  "version": "v2.253.48",
-  "commitHash": "8627579",
+  "lastUpdate": "2026-03-20T18:10:00+08:00",
+  "version": "v2.253.62",
+  "commitHash": "29f2602",
   "phase": "six-ministries-maintenance",
   "ministries": {
+    "吏部": {
+      "name": "项目管理",
+      "task": "版本号同步",
+      "status": "done",
+      "details": "同步远程版本 v2.253.62，解决合并冲突"
+    },
     "兵部": {
       "name": "软件工程",
-      "task": "修复 golangci-lint revive 错误",
+      "task": "代码质量检查",
       "status": "done",
-      "details": "修复 50 个 lint 错误，重命名类型解决 stutter 问题"
-    },
-    "刑部": {
-      "name": "安全审计",
-      "task": "安全审计分析",
-      "status": "done",
-      "details": "生成安全审计报告，发现 1 高危、3 中危问题"
-    },
-    "工部": {
-      "name": "DevOps",
-      "task": "CI/CD检查",
-      "status": "done",
-      "details": "CI/CD 配置完整，构建验证通过"
-    },
-    "吏部": {
-      "name": "版本管理",
-      "task": "版本管理与发布",
-      "status": "done",
-      "details": "版本从 v2.253.47 升级到 v2.253.48，已发布"
+      "details": "go vet 0 错误"
     },
     "礼部": {
       "name": "文档品牌",
       "task": "文档版本同步",
       "status": "done",
-      "details": "更新 README.md 和 docs/USER_GUIDE.md 版本号"
+      "details": "README.md 更新到 v2.253.62"
+    },
+    "刑部": {
+      "name": "安全审计",
+      "task": "安全扫描",
+      "status": "done",
+      "details": "gosec 889 问题 (已知)，依赖安全通过"
+    },
+    "工部": {
+      "name": "DevOps",
+      "task": "CI/CD检查",
+      "status": "done",
+      "details": "CI/CD 运行中，Security Scan 运行中"
     },
     "户部": {
       "name": "资源统计",
       "task": "资源统计",
       "status": "done",
-      "details": "源文件 467 个，代码行数 412,044 行，测试文件 265 个，功能模块 68 个"
+      "details": "732 源文件, 265 测试文件, 412,101 行代码, 68 模块"
     }
   },
   "actions": {
     "CI/CD": "running",
-    "Docker Publish": "running",
-    "GitHub Release": "running",
+    "Docker Publish": "pending",
     "Security Scan": "running"
   },
   "release": {
-    "url": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.48",
+    "url": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.62",
     "created": true
   }
 }
