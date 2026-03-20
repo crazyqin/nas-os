@@ -680,23 +680,23 @@ func (a *API) GetLimits(c *gin.Context) {
 
 // Status 配额状态信息
 type Status struct {
-	QuotaID        string    `json:"quotaId"`
-	Type           Type      `json:"type"`
-	TargetID       string    `json:"targetId"`
-	TargetName     string    `json:"targetName"`
-	VolumeName     string    `json:"volumeName"`
-	Path           string    `json:"path"`
-	HardLimit      uint64    `json:"hardLimit"`
-	SoftLimit      uint64    `json:"softLimit"`
-	UsedBytes      uint64    `json:"usedBytes"`
-	AvailableBytes uint64    `json:"availableBytes"`
-	UsagePercent   float64   `json:"usagePercent"`
-	IsOverSoft     bool      `json:"isOverSoft"`
-	IsOverHard     bool      `json:"isOverHard"`
-	InGracePeriod  bool      `json:"inGracePeriod"`
+	QuotaID        string     `json:"quotaId"`
+	Type           Type       `json:"type"`
+	TargetID       string     `json:"targetId"`
+	TargetName     string     `json:"targetName"`
+	VolumeName     string     `json:"volumeName"`
+	Path           string     `json:"path"`
+	HardLimit      uint64     `json:"hardLimit"`
+	SoftLimit      uint64     `json:"softLimit"`
+	UsedBytes      uint64     `json:"usedBytes"`
+	AvailableBytes uint64     `json:"availableBytes"`
+	UsagePercent   float64    `json:"usagePercent"`
+	IsOverSoft     bool       `json:"isOverSoft"`
+	IsOverHard     bool       `json:"isOverHard"`
+	InGracePeriod  bool       `json:"inGracePeriod"`
 	GraceExpiry    *time.Time `json:"graceExpiry,omitempty"`
-	Status         string    `json:"status"` // normal, warning, critical, exceeded
-	Message        string    `json:"message"`
+	Status         string     `json:"status"` // normal, warning, critical, exceeded
+	Message        string     `json:"message"`
 }
 
 // GetQuotaStatus 获取配额状态

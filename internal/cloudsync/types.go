@@ -12,7 +12,7 @@ const (
 	// ProviderAliyunOSS 阿里云 OSS
 	ProviderAliyunOSS ProviderType = "aliyun_oss"
 	// ProviderTencentCOS 腾讯云 COS
-	ProviderTencentCOS ProviderType = "tencent_cos"
+	ProviderTencentCOS   ProviderType = "tencent_cos"
 	ProviderAWSS3        ProviderType = "aws_s3"
 	ProviderGoogleDrive  ProviderType = "google_drive"
 	ProviderOneDrive     ProviderType = "onedrive"

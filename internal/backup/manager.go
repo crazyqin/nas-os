@@ -99,10 +99,16 @@ const (
 	TypeRsync Type = "rsync"
 )
 
-// 兼容类型别名（保持向后兼容）
+// BackupTask is an alias for Task for backward compatibility.
 type BackupTask = Task
+
+// BackupHistory is an alias for History for backward compatibility.
 type BackupHistory = History
+
+// BackupStats is an alias for Stats for backward compatibility.
 type BackupStats = Stats
+
+// BackupType is an alias for Type for backward compatibility.
 type BackupType = Type
 
 // 备份类型常量别名（兼容）
@@ -143,7 +149,7 @@ const (
 	StatusCancelled Status = "cancelled"
 )
 
-// 保留旧类型别名以兼容现有代码
+// TaskStatus is an alias for Status for backward compatibility.
 type TaskStatus = Status
 
 // 任务状态常量别名（兼容）
@@ -219,6 +225,7 @@ func (m *Manager) Initialize() error {
 
 // ========== 备份配置管理 ==========
 
+// ListConfigs returns all backup configurations.
 func (m *Manager) ListConfigs() []*JobConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -230,6 +237,7 @@ func (m *Manager) ListConfigs() []*JobConfig {
 	return configs
 }
 
+// GetConfig retrieves a backup configuration by ID.
 func (m *Manager) GetConfig(id string) (*JobConfig, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -241,6 +249,7 @@ func (m *Manager) GetConfig(id string) (*JobConfig, error) {
 	return cfg, nil
 }
 
+// CreateConfig creates a new backup configuration.
 func (m *Manager) CreateConfig(config JobConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
