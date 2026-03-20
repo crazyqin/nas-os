@@ -2357,3 +2357,32 @@
 ---
 
 *最后更新：2026-03-20*
+
+---
+
+### 🎯 里程碑 90: v2.253.51 Backup模块Lint修复 (M90) ✅
+
+**状态**: 已完成
+**时间**: 2026-03-20
+
+#### 任务清单
+- [x] 司礼监: 召集六部协同开发
+- [x] 兵部: 修复 backup 模块 revive linter 错误
+- [x] 吏部: 版本号更新至 v2.253.51
+- [x] 礼部: CHANGELOG 更新
+- [x] 工部: 提交并发布 GitHub Release
+
+#### 交付物
+- `internal/backup/manager.go` - 添加方法注释 ✅
+- `internal/backup/restore.go` - 添加 Deprecated 注释 ✅
+- `VERSION` - 版本文件更新至 v2.253.51 ✅
+- `internal/version/version.go` - 版本号更新 ✅
+- `README.md` - 版本号更新 ✅
+- `CHANGELOG.md` - 变更日志更新 ✅
+
+#### 核心成果
+- **lint 修复**: backup 模块 6 个 revive 错误修复 ✅
+- **go vet**: 0 错误 ✅
+- **go build**: 编译通过 ✅
+- **go test**: 全部通过 ✅
+- **GitHub Release**: v2.253.51 发布成功 ✅
