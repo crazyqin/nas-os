@@ -1,7 +1,7 @@
 # GitHub Release 构建
 # 构建多平台二进制文件并上传到 GitHub Release
 #
-# Go 版本: 1.25（与 go.mod 保持一致）
+# Go 版本: 1.26（与 go.mod 保持一致）
 #
 # 功能特性:
 # - 多平台构建（Linux/Darwin/Windows, AMD64/ARM64/ARMv7）

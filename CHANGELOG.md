@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.69] - 2026-03-20
+
+### Maintenance
+- 文档版本号同步更新（docs/README.md, docs/USER_GUIDE.md, docs/API_GUIDE.md, docs/QUICKSTART.md, docs/FAQ.md, docs/README_EN.md）
+- Workflow 注释 Go 版本同步更新（1.25 → 1.26）
+- Dockerfile.dev 注释 Go 版本同步更新
+
+### 六部协同开发报告
+| 部门 | 状态 | 主要发现 |
+|------|------|----------|
+| 吏部 | ✅ | 版本 v2.253.68，无未完成 Issues，建议提升测试覆盖率 |
+| 兵部 | ✅ | go vet 通过，测试通过，覆盖率约 40-45% |
+| 礼部 | ⚠️ | 发现多个文档版本号落后，已修复 |
+| 刑部 | ✅ | RBAC 实现完善，安全基础良好 |
+| 工部 | ⚠️ | Workflow 注释版本不一致，已修复 |
+
 ## [v2.253.68] - 2026-03-20
 
 ### Bug Fixes

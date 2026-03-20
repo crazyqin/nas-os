@@ -3,7 +3,7 @@
 #
 # 注意：Docker Compose 测试在 ci-cd.yml 中执行，此 workflow 专注于镜像构建
 #
-# Go 版本: 1.25（与 go.mod 保持一致）
+# Go 版本: 1.26（与 go.mod 保持一致）
 #
 # 功能特性:
 # - 支持 minimal（distroless，约 15-18MB）和 full（alpine，约 35-40MB）两种镜像
