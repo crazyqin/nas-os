@@ -32,7 +32,7 @@ func TestCreateLibrary(t *testing.T) {
 		t.Fatalf("Failed to create media directory: %v", err)
 	}
 
-	lib, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
+	lib, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie, false)
 	if err != nil {
 		t.Fatalf("CreateLibrary() returned error: %v", err)
 	}
@@ -63,7 +63,7 @@ func TestCreateLibraryInvalidPath(t *testing.T) {
 	configPath := filepath.Join(tempDir, "config.json")
 	lm := NewLibraryManager(configPath)
 
-	_, err := lm.CreateLibrary("Movies", "/nonexistent/path", TypeMovie)
+	_, err := lm.CreateLibrary("Movies", "/nonexistent/path", TypeMovie, false)
 	if err == nil {
 		t.Error("CreateLibrary() should return error for nonexistent path")
 	}
@@ -77,7 +77,7 @@ func TestGetLibrary(t *testing.T) {
 	mediaPath := filepath.Join(tempDir, "movies")
 	os.MkdirAll(mediaPath, 0755)
 
-	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
+	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie, false)
 
 	// 获取存在的库
 	retrieved := lm.GetLibrary(lib.ID)
@@ -107,11 +107,8 @@ func TestListLibraries(t *testing.T) {
 	os.MkdirAll(mediaPath1, 0755)
 	os.MkdirAll(mediaPath2, 0755)
 
-	lm.CreateLibrary("Movies", mediaPath1, TypeMovie)
-	lm.CreateLibrary("TV Shows", mediaPath2, TypeTV)
-
-	// 等待异步扫描完成
-	time.Sleep(100 * time.Millisecond)
+	lm.CreateLibrary("Movies", mediaPath1, TypeMovie, false)
+	lm.CreateLibrary("TV Shows", mediaPath2, TypeTV, false)
 
 	libs := lm.ListLibraries()
 	if len(libs) != 2 {
@@ -127,7 +124,7 @@ func TestDeleteLibrary(t *testing.T) {
 	mediaPath := filepath.Join(tempDir, "movies")
 	os.MkdirAll(mediaPath, 0755)
 
-	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
+	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie, false)
 
 	err := lm.DeleteLibrary(lib.ID)
 	if err != nil {
@@ -154,7 +151,7 @@ func TestUpdateLibrary(t *testing.T) {
 	mediaPath := filepath.Join(tempDir, "movies")
 	os.MkdirAll(mediaPath, 0755)
 
-	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
+	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie, false)
 
 	updates := map[string]interface{}{
 		"name":        "Updated Movies",
@@ -205,7 +202,7 @@ func TestScanLibrary(t *testing.T) {
 		t.Fatalf("Failed to create test file: %v", err)
 	}
 
-	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
+	lib, _ := lm.CreateLibrary("Movies", mediaPath, TypeMovie, false)
 
 	err := lm.ScanLibrary(lib.ID)
 	if err != nil {
@@ -454,13 +451,10 @@ func TestLibraryManager_ConcurrentAccess(t *testing.T) {
 	os.MkdirAll(mediaPath, 0755)
 
 	// Create library
-	lib, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
+	lib, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie, false)
 	if err != nil {
 		t.Fatalf("Failed to create library: %v", err)
 	}
-
-	// Wait for async scan to complete
-	time.Sleep(100 * time.Millisecond)
 
 	// Concurrent reads
 	done := make(chan bool)

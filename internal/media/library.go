@@ -85,13 +85,20 @@ func (lm *LibraryManager) AddMetadataProvider(provider MetadataProvider) {
 }
 
 // CreateLibrary 创建媒体库
-func (lm *LibraryManager) CreateLibrary(name, path string, mediaType Type) (*Library, error) {
+// autoScan 参数可选，默认为 true。传入 false 可禁用自动扫描。
+func (lm *LibraryManager) CreateLibrary(name, path string, mediaType Type, autoScan ...bool) (*Library, error) {
 	lm.mu.Lock()
 	defer lm.mu.Unlock()
 
 	// 检查路径是否存在
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, fmt.Errorf("路径不存在: %s", path)
+	}
+
+	// 默认自动扫描
+	shouldAutoScan := true
+	if len(autoScan) > 0 {
+		shouldAutoScan = autoScan[0]
 	}
 
 	id := fmt.Sprintf("lib_%d", time.Now().UnixNano())
@@ -101,7 +108,7 @@ func (lm *LibraryManager) CreateLibrary(name, path string, mediaType Type) (*Lib
 		Path:           path,
 		Type:           mediaType,
 		Enabled:        true,
-		AutoScan:       true,
+		AutoScan:       shouldAutoScan,
 		ScanInterval:   60, // 默认 60 分钟
 		Items:          make([]*Item, 0),
 		MetadataSource: "auto",
@@ -112,8 +119,10 @@ func (lm *LibraryManager) CreateLibrary(name, path string, mediaType Type) (*Lib
 		return nil, err
 	}
 
-	// 自动扫描
-	go func() { _ = lm.ScanLibrary(id) }()
+	// 自动扫描（仅在启用时）
+	if library.AutoScan {
+		go func() { _ = lm.ScanLibrary(id) }()
+	}
 
 	return library, nil
 }
