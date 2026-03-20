@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.53] - 2026-03-20
+
+### Bug Fixes
+- 修复 internal/backup/manager.go revive linter 错误
+  - 为 UpdateConfig, DeleteConfig, EnableConfig, RunBackup, Restore 添加注释
+- 修复 .golangci.yml 配置，禁用 stutter 规则（向后兼容类型别名）
+
+### Maintenance
+- 六部协同开发检查完成
+- 编译: 通过
+- 测试: 全部通过 (backup 模块)
+- go vet: 通过
+
 ## [v2.253.51] - 2026-03-20
 
 ### Bug Fixes
