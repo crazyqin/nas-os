@@ -16,12 +16,12 @@ type Manager struct {
 
 // Service 服务配置
 type Service struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Type        string  `json:"type"` // "systemd", "custom"
-	Status      Status  `json:"status"`
-	Enabled     bool    `json:"enabled"`
-	UnitFile    string  `json:"unitFile,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Type        string `json:"type"` // "systemd", "custom"
+	Status      Status `json:"status"`
+	Enabled     bool   `json:"enabled"`
+	UnitFile    string `json:"unitFile,omitempty"`
 }
 
 // Status 服务状态

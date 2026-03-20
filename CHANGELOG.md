@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.46] - 2026-03-20
+
+### Bug Fixes
+- 修复 golangci-lint 代码格式问题 (7个文件)
+  - internal/backup/restore.go
+  - internal/cloudsync/types.go
+  - internal/quota/api.go
+  - internal/quota/optimizer/optimizer.go
+  - internal/quota/types.go
+  - internal/service/manager.go
+  - internal/version/version.go
+- 修复 revive linter 类型别名注释问题
+  - internal/backup/manager.go: BackupTask/BackupHistory/BackupStats/BackupType/TaskStatus
+  - 添加导出方法注释: ListConfigs/GetConfig/CreateConfig
+
 ## [v2.253.44] - 2026-03-20
 
 ### Bug Fixes

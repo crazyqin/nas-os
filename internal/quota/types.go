@@ -58,8 +58,8 @@ type QuotaType = Type
 
 // Quota 存储配额定义
 type Quota struct {
-	ID         string `json:"id"`
-	Type       Type   `json:"type"`        // user 或 group
+	ID         string    `json:"id"`
+	Type       Type      `json:"type"`        // user 或 group
 	TargetID   string    `json:"target_id"`   // 用户名或组名
 	TargetName string    `json:"target_name"` // 显示名称
 	VolumeName string    `json:"volume_name"` // 适用卷名（空表示全局）

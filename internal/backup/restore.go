@@ -25,13 +25,13 @@ type RestoreOptionsExtended struct {
 
 // Info 备份信息
 type Info struct {
-	ID        string     `json:"id"`
-	Name      string     `json:"name"`
-	Path      string     `json:"path"`
-	Size      int64      `json:"size"`
-	CreatedAt time.Time  `json:"createdAt"`
-	Type      Type       `json:"type"`
-	Metadata  *Metadata  `json:"metadata,omitempty"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Path      string    `json:"path"`
+	Size      int64     `json:"size"`
+	CreatedAt time.Time `json:"createdAt"`
+	Type      Type      `json:"type"`
+	Metadata  *Metadata `json:"metadata,omitempty"`
 }
 
 // BackupInfo 备份信息（兼容别名）
