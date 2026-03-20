@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.50] - 2026-03-20
+
+### Dependencies
+- 更新 RoaringBitmap v2.15.0 → v2.16.0
+- 更新 google.golang.org/genproto 相关依赖
+
+### Maintenance
+- 六部协同开发检查完成
+- 编译: 通过
+- 测试: 全部通过 (265 测试文件)
+- go vet: 通过
+- 模块验证: 通过
+
 ## [v2.253.49] - 2026-03-20
 
 ### Bug Fixes
