@@ -475,7 +475,7 @@ sudo nasctl user reset-password admin --new-password NewPass123!
 
 ---
 
-*文档版本：v2.253.66 | 最后更新：2026-03-20*
+*文档版本：v2.253.69 | 最后更新：2026-03-20*
 
 ---
 
