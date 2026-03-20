@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.67] - 2026-03-20
+
+### Maintenance
+- 文档版本号同步更新到 v2.253.66
+- 六部协同开发例行检查
+
+### 六部协同开发报告
+| 部门 | 状态 | 主要发现 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号一致性检查完成，建议减少发布频率 |
+| 兵部 | ✅ | 发现重复模块(notify/notification, perf/performance)，日志库混用，建议统一使用zap |
+| 礼部 | ✅ | 文档版本同步完成 (README.md, docs/api.yaml, API_GUIDE.md, USER_GUIDE.md) |
+| 工部 | ✅ | CI/CD健康报告：5个workflow运行正常，建议提高测试覆盖率阈值 |
+| 刑部 | ✅ | 安全审计通过，无硬编码敏感信息 |
+| 户部 | ✅ | 732个Go文件，262K+行代码，52%测试文件覆盖率 |
+
+### 改进建议
+- 高优先级：合并重复模块 (notify→notification, perf→performance)
+- 中优先级：统一日志库为zap，拆分超过1500行的大文件
+- 低优先级：清理临时文件，考虑使用泛型替代interface{}
+
 ## [v2.253.66] - 2026-03-20
 
 ### Maintenance
