@@ -1,0 +1,155 @@
+{
+  "ministry": "刑部",
+  "version": "v2.253.0",
+  "scan_time": "2026-03-19T06:04:00+08:00",
+  "audit_type": "代码安全深度审计",
+  "focus_areas": [
+    "敏感信息泄露风险",
+    "输入验证完善性",
+    "并发安全问题",
+    "错误处理合理性",
+    "文件权限处理"
+  ],
+  "summary": {
+    "high": 7,
+    "medium": 22,
+    "low": 16,
+    "total": 45
+  },
+  "issues": {
+    "sensitive_leak": {
+      "high": [
+        {
+          "id": "SENS-001",
+          "file": "internal/users/manager.go:183",
+          "description": "默认密码打印到控制台",
+          "code": "fmt.Printf(\"   密码: %s\\n\", defaultPassword)",
+          "recommendation": "改为写入临时文件或通过安全渠道发送"
+        },
+        {
+          "id": "SENS-002",
+          "file": "internal/auth/enhanced_mfa_manager.go:137",
+          "description": "TOTP Secret 解密失败泄露用户ID",
+          "code": "fmt.Printf(\"警告：解密用户 %s 的 TOTP Secret 失败：%v\\n\", userID, err)",
+          "recommendation": "使用结构化日志，避免直接打印敏感信息"
+        },
+        {
+          "id": "SENS-003",
+          "file": "internal/backup/cloud.go:136, sync.go:670, cloudsync/providers.go:399",
+          "description": "TLS InsecureSkipVerify 可能启用",
+          "code": "TLSClientConfig: &tls.Config{InsecureSkipVerify: true}",
+          "recommendation": "添加配置警告，仅在明确确认风险时启用"
+        }
+      ],
+      "medium": [
+        {
+          "id": "SENS-004",
+          "file": "internal/web/middleware.go:31-32",
+          "description": "CSRF Key 警告日志可能泄露系统状态"
+        },
+        {
+          "id": "SENS-005",
+          "file": "internal/cloudsync/providers.go",
+          "description": "OAuth2 配置函数包含凭证参数名模式"
+        }
+      ]
+    },
+    "input_validation": {
+      "high": [
+        {
+          "id": "INPT-001",
+          "file": "internal/snapshot/executor.go:25-35",
+          "description": "脚本执行黑名单不完整，可被绕过",
+          "recommendation": "使用白名单机制或沙箱环境"
+        },
+        {
+          "id": "INPT-002",
+          "file": "internal/backup/sync.go:369, snapshot/replication.go:821",
+          "description": "filepath.Walk 存在 TOCTOU 竞态",
+          "recommendation": "使用 fs.FS 接口或重新验证文件状态"
+        }
+      ],
+      "medium": [
+        {
+          "id": "INPT-003",
+          "file": "plugins/filemanager-enhance/main.go:232",
+          "description": "路径拼接未验证 filename 是否包含 .."
+        },
+        {
+          "id": "INPT-004",
+          "file": "internal/backup/manager.go:476",
+          "description": "scp 命令参数可能包含特殊字符"
+        }
+      ]
+    },
+    "concurrency": {
+      "high": [
+        {
+          "id": "CONC-001",
+          "file": "internal/quota/manager.go:636, users/manager.go:264, tags/manager.go:132",
+          "description": "使用 panic 处理 crypto/rand 错误",
+          "recommendation": "改为返回 error，由调用方处理"
+        }
+      ],
+      "medium": [
+        {
+          "id": "CONC-002",
+          "description": "部分 map 并发写入未加锁保护"
+        }
+      ]
+    },
+    "error_handling": {
+      "medium": [
+        {
+          "id": "ERR-001",
+          "description": "部分错误被静默忽略"
+        },
+        {
+          "id": "ERR-002",
+          "description": "recover 覆盖不完整，仅 3 处使用"
+        }
+      ]
+    },
+    "file_permissions": {
+      "medium": [
+        {
+          "id": "PERM-001",
+          "description": "目录权限统一使用 0755，未考虑敏感目录"
+        },
+        {
+          "id": "PERM-002",
+          "description": "文件权限统一使用 0644，配置文件应更严格"
+        }
+      ]
+    }
+  },
+  "priority_fixes": {
+    "P0_immediate": [
+      "SENS-001: 默认密码打印问题",
+      "INPT-001: 脚本执行黑名单改进"
+    ],
+    "P1_this_week": [
+      "SENS-002: TOTP Secret 错误消息优化",
+      "PERM-001/002: 敏感目录/文件权限收紧"
+    ],
+    "P2_near_term": [
+      "统一日志格式",
+      "添加 recover 覆盖",
+      "panic 改为 error 返回"
+    ],
+    "P3_planned": [
+      "白名单机制替代黑名单",
+      "敏感配置加密存储",
+      "TOCTOU 问题缓解"
+    ]
+  },
+  "compliance": {
+    "sql_injection": "PASS",
+    "xss": "PASS",
+    "csrf": "PASS",
+    "path_traversal": "PASS",
+    "command_injection": "PARTIAL",
+    "sensitive_encryption": "PARTIAL"
+  },
+  "report_file": "xingbu_security_audit_v2.253.0.md"
+}
