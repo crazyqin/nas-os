@@ -4,6 +4,28 @@
 
 ---
 
+## v2.253.78 - 2026-03-21 ✅
+
+### 吏部项目管理
+- 版本一致性检查与修复
+- VERSION: v2.253.78
+- internal/version/version.go 同步
+- README.md 版本号同步
+- docs/README.md 版本号同步
+- docs/api.yaml 版本号同步
+- docs/swagger/swagger.json 版本号同步
+- docs/swagger/swagger.yaml 版本号同步
+
+### 版本一致性修复
+- 修复 VERSION (v2.253.78) 与其他文件版本不一致问题
+- 统一所有版本引用至 v2.253.78
+
+### 发布状态
+- 版本号同步：VERSION, version.go, README.md, docs/* ✅
+- 文档一致性检查 ✅
+
+---
+
 ## v2.183.0 - 2026-03-17 ✅
 
 ### 礼部文档维护
