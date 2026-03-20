@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.61] - 2026-03-20
+
+### Bug Fixes
+- **fix(media)**: 修复 TestLibraryTypeValidation 测试失败
+  - CreateLibrary 方法添加可选的 autoScan 参数
+  - 测试中禁用自动扫描，避免临时目录清理失败
+
+### 六部协同开发
+| 部门 | 状态 | 主要发现 |
+|------|------|----------|
+| 吏部 | ✅ | M1-M5 全部完成，无待处理 Issues/PRs |
+| 兵部 | ✅ | 测试全部通过，修复 1 个测试失败 |
+| 礼部 | ⚠️ | README/docs 版本号需更新 |
+| 工部 | ✅ | CI/CD 配置完善，Docker 镜像 15-18MB |
+| 刑部 | ⚠️ | gosec 发现 1262 问题，需处理高危项 |
+| 户部 | ✅ | 731个Go文件, 412,072行代码 |
+
+### Security Notes
+- gosec 静态分析发现 1262 个问题（HIGH ~100+, MEDIUM ~800+）
+- 高危问题：命令注入风险(G702)、TLS配置风险(G402)、整数溢出(G115)
+- 建议：安装 govulncheck 进行依赖漏洞扫描
+
 ## [v2.253.60] - 2026-03-20
 
 ### Milestones
