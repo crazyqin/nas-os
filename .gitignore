@@ -42,3 +42,7 @@ internal/audit/enhanced/*.log
 secrets.yaml
 secrets.json
 credentials.json
+
+# 管理员密码文件
+.admin_password
+**/.admin_password
