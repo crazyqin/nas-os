@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.47] - 2026-03-20
+
+### Maintenance
+- 六部协同例行维护检查
+- 更新文档版本一致性 (docs/USER_GUIDE.md, docs/api.yaml)
+- 代码质量: go vet 通过，编译成功，测试通过
+- 安全审计: 高危150个，中危716个 (无新增)
+
 ## [v2.253.46] - 2026-03-20
 
 ### Bug Fixes
