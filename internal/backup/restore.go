@@ -34,7 +34,8 @@ type Info struct {
 	Metadata  *Metadata `json:"metadata,omitempty"`
 }
 
-// BackupInfo 备份信息（兼容别名）
+// BackupInfo is an alias for Info for backward compatibility.
+// Deprecated: Use Info instead.
 type BackupInfo = Info
 
 // Metadata 备份元数据
@@ -47,7 +48,8 @@ type Metadata struct {
 	Extra      map[string]string `json:"extra,omitempty"`
 }
 
-// BackupMetadata 备份元数据（兼容别名）
+// BackupMetadata is an alias for Metadata for backward compatibility.
+// Deprecated: Use Metadata instead.
 type BackupMetadata = Metadata
 
 // RestoreManager 恢复管理器

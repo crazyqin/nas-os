@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.51] - 2026-03-20
+
+### Bug Fixes
+- 修复 internal/backup/manager.go revive linter 错误
+  - 为 GetTask, ListTasks, CancelTask, GetHistory 添加注释
+- 修复 internal/backup/restore.go 类型别名 stuttering 警告
+  - BackupInfo, BackupMetadata 添加 Deprecated 注释
+
+### Maintenance
+- 六部协同开发检查完成
+- 编译: 通过
+- 测试: 全部通过
+- go vet: 通过
+
 ## [v2.253.50] - 2026-03-20
 
 ### Dependencies
