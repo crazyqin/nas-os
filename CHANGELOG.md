@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.68] - 2026-03-20
+
+### Bug Fixes
+- 修复 internal/backup/manager.go gofmt 格式对齐问题
+
+### Maintenance
+- 文档版本号同步更新到 v2.253.67
+- 六部协同开发例行检查
+
 ## [v2.253.67] - 2026-03-20
 
 ### Maintenance
