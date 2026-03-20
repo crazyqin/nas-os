@@ -31,12 +31,12 @@ func DefaultHistoryConfig() HistoryConfig {
 	}
 }
 
-// HistoryRecord 配额历史记录
+// HistoryRecord 配额历史记录详情
 type HistoryRecord struct {
 	ID           string    `json:"id"`
 	QuotaID      string    `json:"quota_id"`
 	TargetName   string    `json:"target_name"`
-	TargetType   QuotaType `json:"target_type"`
+	TargetType   Type      `json:"target_type"`
 	VolumeName   string    `json:"volume_name"`
 	UsedBytes    uint64    `json:"used_bytes"`
 	LimitBytes   uint64    `json:"limit_bytes"`
@@ -427,19 +427,14 @@ func (m *HistoryManager) Load() error {
 // ChartType 图表类型
 type ChartType string
 
+// 图表类型常量
 const (
-	// ChartTypeLine 折线图
-	ChartTypeLine ChartType = "line"
-	// ChartTypeBar 柱状图
-	ChartTypeBar ChartType = "bar"
-	// ChartTypePie 饼图
-	ChartTypePie ChartType = "pie"
-	// ChartTypeArea 面积图
-	ChartTypeArea ChartType = "area"
-	// ChartTypeGauge 仪表盘
-	ChartTypeGauge ChartType = "gauge"
-	// ChartTypeHeatmap 热力图
-	ChartTypeHeatmap ChartType = "heatmap"
+	ChartTypeLine    ChartType = "line"    // 折线图
+	ChartTypeBar     ChartType = "bar"     // 柱状图
+	ChartTypePie     ChartType = "pie"     // 饼图
+	ChartTypeArea    ChartType = "area"    // 面积图
+	ChartTypeGauge   ChartType = "gauge"   // 仪表盘
+	ChartTypeHeatmap ChartType = "heatmap" // 热力图
 )
 
 // ChartDataRequest 图表数据请求
@@ -691,7 +686,7 @@ func (m *ChartManager) getPieChartData(req ChartDataRequest, response *ChartData
 	}
 
 	// 按类型分组
-	typeData := make(map[QuotaType]uint64)
+	typeData := make(map[Type]uint64)
 	for _, u := range usages {
 		if req.VolumeName != "" && u.VolumeName != req.VolumeName {
 			continue
@@ -705,10 +700,10 @@ func (m *ChartManager) getPieChartData(req ChartDataRequest, response *ChartData
 		Data: make([]ChartPoint, 0),
 	}
 
-	typeNames := map[QuotaType]string{
-		QuotaTypeUser:      "用户配额",
-		QuotaTypeGroup:     "组配额",
-		QuotaTypeDirectory: "目录配额",
+	typeNames := map[Type]string{
+		TypeUser:      "用户配额",
+		TypeGroup:     "组配额",
+		TypeDirectory: "目录配额",
 	}
 
 	for t, bytes := range typeData {
@@ -938,20 +933,14 @@ func formatPeriodLabel(start, end time.Time) string {
 // NotificationType 通知类型
 type NotificationType string
 
+// 通知类型常量
 const (
-	// NotificationEmail 邮件通知
-	NotificationEmail NotificationType = "email"
-	// NotificationWebhook Webhook 通知
-	NotificationWebhook NotificationType = "webhook"
-	// NotificationSlack Slack 通知
-	NotificationSlack NotificationType = "slack"
-	// NotificationDiscord Discord 通知
-	NotificationDiscord NotificationType = "discord"
-	// NotificationTelegram Telegram 通知
+	NotificationEmail    NotificationType = "email"
+	NotificationWebhook  NotificationType = "webhook"
+	NotificationSlack    NotificationType = "slack"
+	NotificationDiscord  NotificationType = "discord"
 	NotificationTelegram NotificationType = "telegram"
-	// NotificationWechat 微信通知
-	NotificationWechat NotificationType = "wechat"
-	// NotificationDingtalk 钉钉通知
+	NotificationWechat   NotificationType = "wechat"
 	NotificationDingtalk NotificationType = "dingtalk"
 )
 
@@ -1389,9 +1378,9 @@ func (g *ReportGeneratorEnhanced) GenerateSystemReport(period ReportPeriod) (*Sy
 		vol.QuotaCount++
 
 		switch usage.Type {
-		case QuotaTypeUser:
+		case TypeUser:
 			vol.UserCount++
-		case QuotaTypeGroup:
+		case TypeGroup:
 			vol.GroupCount++
 		}
 
@@ -1578,11 +1567,11 @@ func (m *StorageStatsManager) GetStorageStats(volumeName string) (*StorageStats,
 		stats.QuotaCount++
 
 		switch usage.Type {
-		case QuotaTypeUser:
+		case TypeUser:
 			stats.UserQuotas = append(stats.UserQuotas, *usage)
-		case QuotaTypeGroup:
+		case TypeGroup:
 			stats.GroupQuotas = append(stats.GroupQuotas, *usage)
-		case QuotaTypeDirectory:
+		case TypeDirectory:
 			stats.DirectoryQuotas = append(stats.DirectoryQuotas, *usage)
 		}
 	}

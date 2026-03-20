@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"nas-os/internal/cache"
+	"nas-os/pkg/safeguards"
 )
 
 // PerformanceOptimizer 性能优化器
@@ -165,9 +166,15 @@ func (opt *PerformanceOptimizer) updateStats() {
 
 	// GC 统计
 	opt.stats.GCCount = memStats.NumGC
-	opt.stats.GCPauseTotal = time.Duration(memStats.PauseTotalNs)
+	// 安全转换 uint64 到 int64，避免溢出
+	pauseTotal, err := safeguards.SafeUint64ToInt64(memStats.PauseTotalNs)
+	if err != nil {
+		// 溢出时使用 MaxInt64
+		pauseTotal = int64(1<<63 - 1)
+	}
+	opt.stats.GCPauseTotal = time.Duration(pauseTotal)
 	if memStats.NumGC > 0 {
-		opt.stats.GCPauseAvg = time.Duration(memStats.PauseTotalNs) / time.Duration(memStats.NumGC)
+		opt.stats.GCPauseAvg = time.Duration(pauseTotal) / time.Duration(memStats.NumGC)
 	}
 
 	// Goroutine 统计
