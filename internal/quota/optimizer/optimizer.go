@@ -545,7 +545,15 @@ func (o *QuotaOptimizer) analyzeQuotaForAdjustment(usage *QuotaUsageInfo) *Optim
 	}
 
 	// 检查变化是否足够大
-	changePercent := float64(abs(int64(suggestedLimit)-int64(usage.HardLimit))) / float64(usage.HardLimit)
+	// 安全计算两个 uint64 值的差值绝对值
+	var diff uint64
+	if suggestedLimit >= usage.HardLimit {
+		diff = suggestedLimit - usage.HardLimit
+	} else {
+		diff = usage.HardLimit - suggestedLimit
+	}
+	// 安全转换差值和 HardLimit 到 float64（uint64 可以安全转换为 float64，精度可能丢失但不会溢出）
+	changePercent := float64(diff) / float64(usage.HardLimit)
 	if changePercent < cfg.AdjustmentThreshold {
 		return nil
 	}

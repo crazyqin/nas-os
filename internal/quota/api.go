@@ -261,7 +261,7 @@ func (a *API) ListQuotas(c *gin.Context) {
 
 	var quotas []*Quota
 	switch req.Type {
-	case QuotaTypeUser:
+	case TypeUser:
 		if req.TargetID != "" {
 			quotas = a.manager.ListUserQuotas(req.TargetID)
 		} else {
@@ -269,13 +269,13 @@ func (a *API) ListQuotas(c *gin.Context) {
 			// 过滤用户配额
 			filtered := make([]*Quota, 0)
 			for _, q := range quotas {
-				if q.Type == QuotaTypeUser {
+				if q.Type == TypeUser {
 					filtered = append(filtered, q)
 				}
 			}
 			quotas = filtered
 		}
-	case QuotaTypeGroup:
+	case TypeGroup:
 		if req.TargetID != "" {
 			quotas = a.manager.ListGroupQuotas(req.TargetID)
 		} else {
@@ -283,13 +283,13 @@ func (a *API) ListQuotas(c *gin.Context) {
 			// 过滤组配额
 			filtered := make([]*Quota, 0)
 			for _, q := range quotas {
-				if q.Type == QuotaTypeGroup {
+				if q.Type == TypeGroup {
 					filtered = append(filtered, q)
 				}
 			}
 			quotas = filtered
 		}
-	case QuotaTypeDirectory:
+	case TypeDirectory:
 		quotas = a.manager.ListDirectoryQuotas()
 	default:
 		quotas = a.manager.ListQuotas()
@@ -678,25 +678,25 @@ func (a *API) GetLimits(c *gin.Context) {
 
 // ========== 配额状态 API ==========
 
-// Status 配额状态
+// Status 配额状态信息
 type Status struct {
-	QuotaID        string     `json:"quotaId"`
-	Type           QuotaType  `json:"type"`
-	TargetID       string     `json:"targetId"`
-	TargetName     string     `json:"targetName"`
-	VolumeName     string     `json:"volumeName"`
-	Path           string     `json:"path"`
-	HardLimit      uint64     `json:"hardLimit"`
-	SoftLimit      uint64     `json:"softLimit"`
-	UsedBytes      uint64     `json:"usedBytes"`
-	AvailableBytes uint64     `json:"availableBytes"`
-	UsagePercent   float64    `json:"usagePercent"`
-	IsOverSoft     bool       `json:"isOverSoft"`
-	IsOverHard     bool       `json:"isOverHard"`
-	InGracePeriod  bool       `json:"inGracePeriod"`
+	QuotaID        string    `json:"quotaId"`
+	Type           Type      `json:"type"`
+	TargetID       string    `json:"targetId"`
+	TargetName     string    `json:"targetName"`
+	VolumeName     string    `json:"volumeName"`
+	Path           string    `json:"path"`
+	HardLimit      uint64    `json:"hardLimit"`
+	SoftLimit      uint64    `json:"softLimit"`
+	UsedBytes      uint64    `json:"usedBytes"`
+	AvailableBytes uint64    `json:"availableBytes"`
+	UsagePercent   float64   `json:"usagePercent"`
+	IsOverSoft     bool      `json:"isOverSoft"`
+	IsOverHard     bool      `json:"isOverHard"`
+	InGracePeriod  bool      `json:"inGracePeriod"`
 	GraceExpiry    *time.Time `json:"graceExpiry,omitempty"`
-	Status         string     `json:"status"` // normal, warning, critical, exceeded
-	Message        string     `json:"message"`
+	Status         string    `json:"status"` // normal, warning, critical, exceeded
+	Message        string    `json:"message"`
 }
 
 // GetQuotaStatus 获取配额状态
@@ -855,7 +855,7 @@ func (a *API) GetViolations(c *gin.Context) {
 
 // ========== 辅助功能 ==========
 
-// Adjustment 配额调整记录
+// Adjustment 配额调整记录详情
 type Adjustment struct {
 	QuotaID    string    `json:"quotaId"`
 	HardDelta  int64     `json:"hardDelta"`

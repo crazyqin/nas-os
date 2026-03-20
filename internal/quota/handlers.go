@@ -157,12 +157,12 @@ type Response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Success 创建成功响应
+// Success 返回成功响应
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
-// Error 创建错误响应
+// Error 返回错误响应
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }
@@ -1002,7 +1002,7 @@ func (h *Handlers) listUserQuotas(c *gin.Context) {
 		// 过滤出用户配额
 		userQuotas := make([]*Quota, 0)
 		for _, q := range quotas {
-			if q.Type == QuotaTypeUser {
+			if q.Type == TypeUser {
 				userQuotas = append(userQuotas, q)
 			}
 		}
@@ -1078,7 +1078,7 @@ func (h *Handlers) setUserQuota(c *gin.Context) {
 	if existingQuota != nil {
 		// 更新现有配额
 		quota, err = h.manager.UpdateQuota(existingQuota.ID, QuotaInput{
-			Type:       QuotaTypeUser,
+			Type:       TypeUser,
 			TargetID:   username,
 			VolumeName: req.VolumeName,
 			HardLimit:  req.HardLimit,
@@ -1087,7 +1087,7 @@ func (h *Handlers) setUserQuota(c *gin.Context) {
 	} else {
 		// 创建新配额
 		quota, err = h.manager.CreateQuota(QuotaInput{
-			Type:       QuotaTypeUser,
+			Type:       TypeUser,
 			TargetID:   username,
 			VolumeName: req.VolumeName,
 			HardLimit:  req.HardLimit,
@@ -1151,7 +1151,7 @@ func (h *Handlers) listGroupQuotas(c *gin.Context) {
 		// 过滤出组配额
 		groupQuotas := make([]*Quota, 0)
 		for _, q := range quotas {
-			if q.Type == QuotaTypeGroup {
+			if q.Type == TypeGroup {
 				groupQuotas = append(groupQuotas, q)
 			}
 		}
@@ -1227,7 +1227,7 @@ func (h *Handlers) setGroupQuota(c *gin.Context) {
 	if existingQuota != nil {
 		// 更新现有配额
 		quota, err = h.manager.UpdateQuota(existingQuota.ID, QuotaInput{
-			Type:       QuotaTypeGroup,
+			Type:       TypeGroup,
 			TargetID:   groupName,
 			VolumeName: req.VolumeName,
 			HardLimit:  req.HardLimit,
@@ -1236,7 +1236,7 @@ func (h *Handlers) setGroupQuota(c *gin.Context) {
 	} else {
 		// 创建新配额
 		quota, err = h.manager.CreateQuota(QuotaInput{
-			Type:       QuotaTypeGroup,
+			Type:       TypeGroup,
 			TargetID:   groupName,
 			VolumeName: req.VolumeName,
 			HardLimit:  req.HardLimit,
@@ -1348,7 +1348,7 @@ func (h *Handlers) setDirectoryQuota(c *gin.Context) {
 	if existingQuota != nil {
 		// 更新现有配额
 		quota, err = h.manager.UpdateQuota(existingQuota.ID, QuotaInput{
-			Type:       QuotaTypeDirectory,
+			Type:       TypeDirectory,
 			TargetID:   req.Path,
 			VolumeName: req.VolumeName,
 			Path:       req.Path,
@@ -1358,7 +1358,7 @@ func (h *Handlers) setDirectoryQuota(c *gin.Context) {
 	} else {
 		// 创建新配额
 		quota, err = h.manager.CreateQuota(QuotaInput{
-			Type:       QuotaTypeDirectory,
+			Type:       TypeDirectory,
 			TargetID:   req.Path,
 			VolumeName: req.VolumeName,
 			Path:       req.Path,

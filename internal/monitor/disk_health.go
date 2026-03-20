@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"nas-os/pkg/safeguards"
 )
 
 // DiskHealthMonitor 磁盘健康监控器
@@ -381,7 +383,13 @@ func (m *DiskHealthMonitor) getSMARTAttributes(info *DiskHealthInfo) error {
 
 			// 特殊处理温度
 			if name == "Temperature_Celsius" || name == "Airflow_Temperature_Cel" {
-				info.Temperature = int(rawValue)
+				// 安全转换 uint64 到 int，避免溢出
+				temp, err := safeguards.SafeUint64ToInt(rawValue)
+				if err != nil {
+					// 溢出时跳过温度设置（温度值不可能超过 int 范围）
+					continue
+				}
+				info.Temperature = temp
 				attr.Unit = "°C"
 			}
 
