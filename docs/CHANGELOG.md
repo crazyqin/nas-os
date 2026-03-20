@@ -6,6 +6,21 @@
 
 ---
 
+## [v2.253.71] - 2026-03-20
+
+### Documentation
+- 同步所有文档版本号至 v2.253.71
+- 更新 VERSION、version.go、README.md 版本号
+- 更新下载链接和 Docker 镜像版本
+
+## [v2.253.70] - 2026-03-20
+
+### Documentation
+- 同步所有文档版本号至 v2.253.70
+- 更新 VERSION、version.go、README.md 版本号
+- 更新 docs/USER_GUIDE.md 版本号
+- 更新 MILESTONES.md 里程碑记录
+
 ## [v2.253.35] - 2026-03-19
 
 ### Documentation
