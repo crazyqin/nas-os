@@ -144,6 +144,10 @@ func (d *ConflictDetector) DetectConflict(task *Task, relativePath string) (*Con
 	}
 
 	// 修改时间或大小不同，产生冲突
+	// 计算哈希用于确认内容差异
+	sourceHash, _ := d.calculateFileHash(sourcePath)
+	targetHash, _ := d.calculateFileHash(targetPath)
+
 	return &ConflictInfo{
 		ID:            generateConflictID(),
 		TaskID:        task.ID,
@@ -154,6 +158,8 @@ func (d *ConflictDetector) DetectConflict(task *Task, relativePath string) (*Con
 		TargetSize:    targetSize,
 		SourceModTime: sourceMod,
 		TargetModTime: targetMod,
+		SourceHash:    sourceHash,
+		TargetHash:    targetHash,
 		Strategy:      d.defaultStrategy,
 		CreatedAt:     time.Now(),
 	}, nil
