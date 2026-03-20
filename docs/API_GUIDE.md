@@ -1,7 +1,7 @@
 # NAS-OS API 使用指南
 
 **版本**: v2.253.56
-**更新日期**: 2026-03-19
+**更新日期**: 2026-03-20
 
 ---
 
@@ -1158,7 +1158,7 @@ curl "http://localhost:8080/api/v1/dedup/duplicates" \
       "size": 1048576,
       "files": [
         {"path": "/data/photos/IMG_001.jpg", "modTime": "2026-03-20T10:00:00Z"},
-        {"path": "/data/backup/IMG_001.jpg", "modTime": "2026-03-19T15:00:00Z"}
+        {"path": "/data/backup/IMG_001.jpg", "modTime": "2026-03-20T15:00:00Z"}
       ],
       "potentialSaving": 1048576
     }
