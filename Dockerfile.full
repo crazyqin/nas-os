@@ -4,7 +4,7 @@
 #
 # 镜像地址: ghcr.io/nas-os/nas-os:full
 #
-# Go 版本: 1.25（与 go.mod 保持一致）
+# Go 版本: 1.26（与 go.mod 保持一致）
 #
 # 镜像特性:
 # - 基于 alpine:3.21，约 35-40MB

@@ -12,7 +12,7 @@
 # 多架构构建:
 #   docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t ghcr.io/nas-os/nas-os:latest .
 #
-# Go 版本: 1.25（与 go.mod 保持一致）
+# Go 版本: 1.26（与 go.mod 保持一致）
 #
 # 镜像特性:
 # - 基于 distroless/static，约 15-18MB
