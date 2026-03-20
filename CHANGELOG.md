@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [v2.253.89] - 2026-03-21
 
+### Security
+- 依赖安全更新
+- 输入验证增强
+
 ### Maintenance
 - 版本号更新至 v2.253.89
 - 六部协同开发
