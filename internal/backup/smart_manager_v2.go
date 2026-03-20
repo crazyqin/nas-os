@@ -173,13 +173,16 @@ func DefaultSmartBackupConfigV2() *SmartBackupConfigV2 {
 }
 
 // IndexV2 备份索引
-type BackupIndexV2 struct {
+type IndexV2 struct {
 	mu       sync.RWMutex
-	versions map[string]*BackupVersionV2
+	versions map[string]*VersionV2
 }
 
+// BackupIndexV2 备份索引（兼容别名）
+type BackupIndexV2 = IndexV2
+
 // VersionV2 备份版本信息
-type BackupVersionV2 struct {
+type VersionV2 struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
 	SnapshotType string            `json:"snapshot_type"`
@@ -187,23 +190,29 @@ type BackupVersionV2 struct {
 	Size         int64             `json:"size"`
 	Checksum     string            `json:"checksum"`
 	Path         string            `json:"path"`
-	Status       BackupStatusV2    `json:"status"`
+	Status       StatusV2          `json:"status"`
 	Metadata     map[string]string `json:"metadata,omitempty"`
 	Tags         []string          `json:"tags,omitempty"`
 }
 
+// BackupVersionV2 备份版本信息（兼容别名）
+type BackupVersionV2 = VersionV2
+
 // StatusV2 备份状态
-type BackupStatusV2 string
+type StatusV2 string
+
+// BackupStatusV2 备份状态（兼容别名）
+type BackupStatusV2 = StatusV2
 
 const (
 	// BackupStatusV2Pending indicates the backup is pending.
-	BackupStatusV2Pending BackupStatusV2 = "pending"
+	BackupStatusV2Pending StatusV2 = "pending"
 	// BackupStatusV2Running indicates the backup is running.
-	BackupStatusV2Running BackupStatusV2 = "running"
+	BackupStatusV2Running StatusV2 = "running"
 	// BackupStatusV2Completed indicates the backup completed successfully.
-	BackupStatusV2Completed BackupStatusV2 = "completed"
+	BackupStatusV2Completed StatusV2 = "completed"
 	// BackupStatusV2Failed indicates the backup failed.
-	BackupStatusV2Failed BackupStatusV2 = "failed"
+	BackupStatusV2Failed StatusV2 = "failed"
 )
 
 // ActiveBackupJobV2 活动备份作业

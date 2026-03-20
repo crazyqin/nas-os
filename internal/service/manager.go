@@ -16,16 +16,16 @@ type Manager struct {
 
 // Service 服务配置
 type Service struct {
-	Name        string        `json:"name"`
-	Description string        `json:"description"`
-	Type        string        `json:"type"` // "systemd", "custom"
-	Status      ServiceStatus `json:"status"`
-	Enabled     bool          `json:"enabled"`
-	UnitFile    string        `json:"unitFile,omitempty"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Type        string  `json:"type"` // "systemd", "custom"
+	Status      Status  `json:"status"`
+	Enabled     bool    `json:"enabled"`
+	UnitFile    string  `json:"unitFile,omitempty"`
 }
 
-// ServiceStatus 服务状态
-type ServiceStatus struct {
+// Status 服务状态
+type Status struct {
 	Running   bool          `json:"running"`
 	PID       int           `json:"pid,omitempty"`
 	Uptime    time.Duration `json:"uptime,omitempty"`
@@ -35,8 +35,11 @@ type ServiceStatus struct {
 	StartedAt time.Time     `json:"startedAt,omitempty"`
 }
 
-// ServiceBackend 服务后端接口
-type ServiceBackend interface {
+// ServiceStatus 服务状态（兼容别名）
+type ServiceStatus = Status
+
+// Backend 服务后端接口
+type Backend interface {
 	// Start 启动服务
 	Start(name string) error
 	// Stop 停止服务
@@ -44,7 +47,7 @@ type ServiceBackend interface {
 	// Restart 重启服务
 	Restart(name string) error
 	// Status 获取服务状态
-	Status(name string) (*ServiceStatus, error)
+	Status(name string) (*Status, error)
 	// Enable 启用服务开机自启
 	Enable(name string) error
 	// Disable 禁用服务开机自启
@@ -58,6 +61,9 @@ type ServiceBackend interface {
 	// Get 获取单个服务信息
 	Get(name string) (*Service, error)
 }
+
+// ServiceBackend 服务后端接口（兼容别名）
+type ServiceBackend = Backend
 
 // 预定义的常用服务
 var defaultServices = map[string]*Service{

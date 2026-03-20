@@ -190,13 +190,13 @@ func generateUUID() string {
 	return generateID()
 }
 
-// Status 备份状态类型
-type BackupStatus string
+// BackupStatus 备份状态类型（兼容别名，指向manager.go中的Status）
+type BackupStatus = Status
 
-// BackupStatus 备份状态常量
+// 备份状态常量（复用manager.go中的Status类型）
 const (
-	BackupStatusPending   BackupStatus = "pending"
-	BackupStatusRunning   BackupStatus = "running"
-	BackupStatusCompleted BackupStatus = "completed"
-	BackupStatusFailed    BackupStatus = "failed"
+	BackupStatusPending   Status = "pending"
+	BackupStatusRunning   Status = "running"
+	BackupStatusCompleted Status = "completed"
+	BackupStatusFailed    Status = "failed"
 )

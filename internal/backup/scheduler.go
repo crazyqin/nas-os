@@ -21,7 +21,7 @@ import (
 
 // Scheduler 备份调度器
 // 支持定时备份、优先级队列、备份窗口配置、并发控制、依赖管理
-type BackupScheduler struct {
+type Scheduler struct {
 	mu sync.RWMutex
 
 	// 调度器配置
@@ -62,6 +62,9 @@ type BackupScheduler struct {
 	onJobComplete func(job *ScheduledJob)
 	onJobFail     func(job *ScheduledJob, err error)
 }
+
+// BackupScheduler 备份调度器（兼容别名）
+type BackupScheduler = Scheduler
 
 // SchedulerConfig 调度器配置
 type SchedulerConfig struct {
@@ -146,12 +149,15 @@ const (
 	JobStatusRetrying JobStatus = "retrying"
 )
 
-// BackupWindow 备份窗口
-type BackupWindow struct {
+// Window 备份窗口
+type Window struct {
 	StartHour int   `json:"start_hour"`
 	EndHour   int   `json:"end_hour"`
 	Days      []int `json:"days,omitempty"` // 0=Sunday, 1=Monday, ...
 }
+
+// BackupWindow 备份窗口（兼容别名）
+type BackupWindow = Window
 
 // PriorityQueue 优先级队列
 type PriorityQueue struct {
