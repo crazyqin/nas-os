@@ -1,44 +1,44 @@
 {
-  "lastUpdate": "2026-03-20T11:30:00+08:00",
-  "version": "v2.253.47",
-  "commitHash": "66b20c4",
+  "lastUpdate": "2026-03-20T11:52:00+08:00",
+  "version": "v2.253.48",
+  "commitHash": "8627579",
   "phase": "six-ministries-maintenance",
   "ministries": {
     "兵部": {
       "name": "软件工程",
-      "task": "代码质量检查",
+      "task": "修复 golangci-lint revive 错误",
       "status": "done",
-      "details": "go vet/build/test 全部通过"
+      "details": "修复 50 个 lint 错误，重命名类型解决 stutter 问题"
     },
     "刑部": {
       "name": "安全审计",
       "task": "安全审计分析",
       "status": "done",
-      "details": "高危150个，中危716个，无新增问题"
+      "details": "生成安全审计报告，发现 1 高危、3 中危问题"
     },
     "工部": {
       "name": "DevOps",
       "task": "CI/CD检查",
       "status": "done",
-      "details": "5个workflow文件，Go 1.25统一配置"
+      "details": "CI/CD 配置完整，构建验证通过"
     },
     "吏部": {
       "name": "版本管理",
       "task": "版本管理与发布",
       "status": "done",
-      "details": "版本从v2.253.46升级到v2.253.47"
+      "details": "版本从 v2.253.47 升级到 v2.253.48，已发布"
     },
     "礼部": {
       "name": "文档品牌",
       "task": "文档版本同步",
       "status": "done",
-      "details": "更新docs/USER_GUIDE.md和docs/api.yaml版本号"
+      "details": "更新 README.md 和 docs/USER_GUIDE.md 版本号"
     },
     "户部": {
       "name": "资源统计",
       "task": "资源统计",
       "status": "done",
-      "details": "源文件732个，代码行数412,044行，测试文件265个"
+      "details": "源文件 467 个，代码行数 412,044 行，测试文件 265 个，功能模块 68 个"
     }
   },
   "actions": {
@@ -48,7 +48,7 @@
     "Security Scan": "running"
   },
   "release": {
-    "url": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.47",
+    "url": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.48",
     "created": true
   }
 }

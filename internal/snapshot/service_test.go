@@ -12,15 +12,15 @@ func TestNewStorageAdapter(t *testing.T) {
 	}
 }
 
-func TestSnapshotExecutor_NewSnapshotExecutor(t *testing.T) {
-	executor := NewSnapshotExecutor(nil)
+func TestSnapshotExecutor_NewExecutor(t *testing.T) {
+	executor := NewExecutor(nil)
 	if executor == nil {
-		t.Fatal("NewSnapshotExecutor should not return nil")
+		t.Fatal("NewExecutor should not return nil")
 	}
 }
 
 func TestSnapshotExecutor_GenerateSnapshotName(t *testing.T) {
-	executor := NewSnapshotExecutor(nil)
+	executor := NewExecutor(nil)
 
 	tests := []struct {
 		name     string
