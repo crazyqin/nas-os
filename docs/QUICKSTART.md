@@ -1,6 +1,6 @@
 # NAS-OS 快速开始指南
 
-**版本**: v2.253.40
+**版本**: v2.253.56
 **更新日期**: 2026-03-19
 
 ---
@@ -51,17 +51,17 @@
 
 ```bash
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.40/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.56/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.40/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.56/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.40/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.56/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -73,7 +73,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.253.40
+docker pull ghcr.io/crazyqin/nas-os:v2.253.56
 
 # 创建配置目录
 mkdir -p /etc/nas-os /data
@@ -86,7 +86,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.253.40
+  ghcr.io/crazyqin/nas-os:v2.253.56
 
 # 查看日志
 docker logs -f nasd
