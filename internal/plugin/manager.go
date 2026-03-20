@@ -440,7 +440,7 @@ func (m *Manager) Configure(pluginID string, config map[string]interface{}) erro
 		return fmt.Errorf("序列化配置失败: %w", err)
 	}
 
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
+	if err := os.WriteFile(configPath, data, 0640); err != nil {
 		return fmt.Errorf("保存配置失败: %w", err)
 	}
 
@@ -652,7 +652,7 @@ func (m *Manager) saveStates() error {
 		return err
 	}
 
-	return os.WriteFile(m.stateFile, data, 0644)
+	return os.WriteFile(m.stateFile, data, 0640)
 }
 
 // getDependenciesFromState 从状态获取依赖

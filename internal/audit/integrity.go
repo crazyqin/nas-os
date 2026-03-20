@@ -376,7 +376,7 @@ func (im *IntegrityManager) SaveManifest(manifest *ArchiveManifest, dir string) 
 	}
 
 	filename := filepath.Join(dir, fmt.Sprintf("manifest-%s.json", manifest.ArchiveID))
-	return os.WriteFile(filename, data, 0640)
+	return os.WriteFile(filename, data, 0600)
 }
 
 // LoadManifest 从文件加载清单

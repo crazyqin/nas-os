@@ -727,7 +727,7 @@ func (rg *ReportGenerator) SaveReport(report *AuditReport) error {
 		return err
 	}
 
-	return os.WriteFile(filename, data, 0640)
+	return os.WriteFile(filename, data, 0600)
 }
 
 // LoadReport 加载报告

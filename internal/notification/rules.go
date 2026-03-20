@@ -91,7 +91,7 @@ func (e *RuleEngine) save() error {
 		return err
 	}
 
-	return os.WriteFile(e.storePath, data, 0644)
+	return os.WriteFile(e.storePath, data, 0640)
 }
 
 // sortRules 按优先级排序规则

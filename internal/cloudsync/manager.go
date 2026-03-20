@@ -663,7 +663,7 @@ func (m *Manager) saveConfigLocked() error {
 		return err
 	}
 
-	return os.WriteFile(m.configPath, data, 0644)
+	return os.WriteFile(m.configPath, data, 0640)
 }
 
 // ==================== 辅助函数 ====================

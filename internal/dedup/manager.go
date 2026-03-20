@@ -977,7 +977,7 @@ func (m *Manager) CreateChunkForUser(data []byte, user string) (*Chunk, error) {
 		}
 
 		chunkFile := filepath.Join(storePath, hashStr)
-		if err := os.WriteFile(chunkFile, data, 0644); err != nil {
+		if err := os.WriteFile(chunkFile, data, 0640); err != nil {
 			return nil, fmt.Errorf("写入块数据失败：%w", err)
 		}
 		chunk.StorePath = chunkFile
@@ -1107,7 +1107,7 @@ func (m *Manager) saveConfig() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(m.configPath, data, 0644)
+	return os.WriteFile(m.configPath, data, 0640)
 }
 
 func (m *Manager) loadIndex() error {
@@ -1200,5 +1200,5 @@ func (m *Manager) saveIndex() error {
 		return err
 	}
 
-	return os.WriteFile(indexPath, data, 0644)
+	return os.WriteFile(indexPath, data, 0640)
 }

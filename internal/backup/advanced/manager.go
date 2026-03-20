@@ -376,7 +376,7 @@ func (m *Manager) processFile(path, relPath string, info os.FileInfo, record *Ba
 		return manifest, 0, err
 	}
 
-	if err := os.WriteFile(destPath, finalData, 0644); err != nil {
+	if err := os.WriteFile(destPath, finalData, 0600); err != nil {
 		return manifest, 0, err
 	}
 
@@ -414,7 +414,7 @@ func (m *Manager) saveManifest(backupID string, manifest *BackupManifest) error 
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(manifestPath, data, 0644)
+	return os.WriteFile(manifestPath, data, 0600)
 }
 
 // updateIndex 更新增量索引
@@ -581,7 +581,7 @@ func (m *Manager) restoreFile(srcPath, dstPath string, encrypted bool) error {
 		return err
 	}
 
-	return os.WriteFile(dstPath, decompressed, 0644)
+	return os.WriteFile(dstPath, decompressed, 0600)
 }
 
 // ========== 查询方法 ==========

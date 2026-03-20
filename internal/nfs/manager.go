@@ -175,7 +175,7 @@ func (m *Manager) writeConfigFile(pc persistentConfig) error {
 		return fmt.Errorf("创建配置目录失败: %w", err)
 	}
 
-	if err := os.WriteFile(m.configPath, data, 0644); err != nil {
+	if err := os.WriteFile(m.configPath, data, 0640); err != nil {
 		return fmt.Errorf("写入配置文件失败: %w", err)
 	}
 
@@ -356,7 +356,7 @@ func (m *Manager) Reload() error {
 	}
 
 	// 写入/etc/exports
-	if err := os.WriteFile("/etc/exports", []byte(content), 0644); err != nil {
+	if err := os.WriteFile("/etc/exports", []byte(content), 0640); err != nil {
 		m.logger.Errorf("写入exports文件失败: %v", err)
 		return fmt.Errorf("写入exports文件失败: %w", err)
 	}

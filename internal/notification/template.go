@@ -88,7 +88,7 @@ func (tm *TemplateManager) save() error {
 		return err
 	}
 
-	return os.WriteFile(tm.storePath, data, 0644)
+	return os.WriteFile(tm.storePath, data, 0640)
 }
 
 // loadBuiltinTemplates 加载内置模板

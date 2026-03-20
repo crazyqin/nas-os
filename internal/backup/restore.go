@@ -434,7 +434,7 @@ func (rm *RestoreManager) validateTargetPath(targetPath string, overwrite bool) 
 func (rm *RestoreManager) checkDiskSpace(path string) error {
 	// 简化实现：仅检查路径是否可写
 	testFile := filepath.Join(path, ".space-test-"+fmt.Sprintf("%d", time.Now().UnixNano()))
-	if err := os.WriteFile(testFile, []byte(""), 0644); err != nil {
+	if err := os.WriteFile(testFile, []byte(""), 0600); err != nil {
 		return fmt.Errorf("磁盘空间不足或无写入权限：%w", err)
 	}
 	_ = os.Remove(testFile)

@@ -97,7 +97,7 @@ func (tm *TemplateManager) saveTemplate(template *ReportTemplate) error {
 	}
 
 	path := filepath.Join(tm.dataDir, template.ID+".json")
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // deleteTemplateFile 删除模板文件

@@ -404,7 +404,7 @@ func (m *Monitor) persistStates() {
 		return
 	}
 
-	if err := os.WriteFile(m.stateFile, data, 0644); err != nil {
+	if err := os.WriteFile(m.stateFile, data, 0640); err != nil {
 		log.Printf("保存插件状态失败: %v", err)
 	}
 }

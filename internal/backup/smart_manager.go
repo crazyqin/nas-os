@@ -190,7 +190,7 @@ func generateUUID() string {
 	return generateID()
 }
 
-// BackupStatus 备份状态类型
+// Status 备份状态类型
 type BackupStatus string
 
 // BackupStatus 备份状态常量

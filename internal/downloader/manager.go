@@ -912,7 +912,7 @@ func (m *Manager) saveTasks() error {
 		return err
 	}
 
-	return os.WriteFile(m.configFile, data, 0644)
+	return os.WriteFile(m.configFile, data, 0640)
 }
 
 // Close 关闭管理器

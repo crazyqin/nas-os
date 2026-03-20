@@ -112,7 +112,7 @@ func (g *ReportGenerator) saveReport(report *Report) error {
 		return err
 	}
 
-	return os.WriteFile(filename, data, 0644)
+	return os.WriteFile(filename, data, 0640)
 }
 
 // LoadReport 加载报告

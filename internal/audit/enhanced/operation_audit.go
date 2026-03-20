@@ -663,7 +663,7 @@ func (oa *OperationAuditor) save() {
 	}
 
 	// 保存失败时忽略错误（下次自动保存会重试）
-	_ = os.WriteFile(filename, data, 0640)
+	_ = os.WriteFile(filename, data, 0600)
 }
 
 // Load 加载数据

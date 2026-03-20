@@ -419,5 +419,5 @@ func (t *AccessTracker) saveRecords() error {
 		return err
 	}
 
-	return os.WriteFile(t.dataPath, data, 0644)
+	return os.WriteFile(t.dataPath, data, 0640)
 }

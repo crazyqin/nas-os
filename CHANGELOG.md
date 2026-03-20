@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.42] - 2026-03-19
+
+### Documentation
+- 同步所有文档版本号至 v2.253.42 (礼部)
+  - VERSION、internal/version/version.go
+  - README.md、docs/README.md
+  - docs/USER_GUIDE.md、docs/api.yaml
+
 ## [v2.253.40] - 2026-03-19
 
 ### Documentation

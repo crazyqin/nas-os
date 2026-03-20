@@ -99,7 +99,7 @@ type CostRecord struct {
 	Duration         time.Duration `json:"duration"`
 }
 
-// 兼容类型别名
+// BackupCostRecord is an alias for CostRecord for backward compatibility.
 type BackupCostRecord = CostRecord
 
 // CostTrendData 成本趋势数据

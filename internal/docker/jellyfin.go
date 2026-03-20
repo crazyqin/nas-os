@@ -76,7 +76,7 @@ func (c *JellyfinConfig) save() error {
 		return err
 	}
 
-	return os.WriteFile(c.ConfigPath, data, 0644)
+	return os.WriteFile(c.ConfigPath, data, 0640)
 }
 
 // SetAPIKey 设置 API 密钥

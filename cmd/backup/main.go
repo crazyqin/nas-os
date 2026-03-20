@@ -672,7 +672,7 @@ func writeChecksum(filePath string) error {
 	}
 
 	checksumFile := filePath + ".sha256"
-	return os.WriteFile(checksumFile, []byte(hex.EncodeToString(checksum)+"  "+filepath.Base(filePath)+"\n"), 0644)
+	return os.WriteFile(checksumFile, []byte(hex.EncodeToString(checksum)+"  "+filepath.Base(filePath)+"\n"), 0600)
 }
 
 // BackupResult 用于命令行输出的备份结果

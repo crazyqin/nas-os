@@ -140,7 +140,7 @@ func (ctm *CustomTemplateManager) saveTemplate(template *CustomTemplate) error {
 		return err
 	}
 
-	return os.WriteFile(filePath, data, 0644)
+	return os.WriteFile(filePath, data, 0640)
 }
 
 // loadTemplates 加载所有模板

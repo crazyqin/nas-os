@@ -113,7 +113,7 @@ func (rm *RatingManager) save() error {
 		return err
 	}
 
-	return os.WriteFile(rm.dataFile, data, 0644)
+	return os.WriteFile(rm.dataFile, data, 0640)
 }
 
 // calculateStats 计算统计

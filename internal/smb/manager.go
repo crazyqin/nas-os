@@ -261,7 +261,7 @@ func writeConfigFile(configPath string, pc persistentConfig) error {
 		return fmt.Errorf("创建配置目录失败：%w", err)
 	}
 
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
+	if err := os.WriteFile(configPath, data, 0640); err != nil {
 		return fmt.Errorf("写入配置文件失败：%w", err)
 	}
 
@@ -284,7 +284,7 @@ func (m *Manager) ApplyConfig() error {
 
 	// 写入 Samba 配置文件
 	configPath := "/etc/samba/smb.conf"
-	if err := os.WriteFile(configPath, []byte(configContent), 0644); err != nil {
+	if err := os.WriteFile(configPath, []byte(configContent), 0640); err != nil {
 		logError("写入配置文件失败", err)
 		return fmt.Errorf("写入配置文件失败：%w", err)
 	}

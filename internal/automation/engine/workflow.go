@@ -218,7 +218,7 @@ func (e *WorkflowEngine) saveToStorage(wf *Workflow) error {
 	}
 
 	path := filepath.Join(e.storagePath, wf.ID+".json")
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // deleteFromStorage 从存储删除工作流

@@ -90,8 +90,10 @@ func (bt *Target) SanitizeConfig() map[string]interface{} {
 	}
 }
 
-// 兼容类型别名（保持向后兼容）
+// BackupConfig is an alias for Config for backward compatibility.
 type BackupConfig = Config
+
+// BackupTarget is an alias for Target for backward compatibility.
 type BackupTarget = Target
 
 // ConfigManager 配置管理器
@@ -158,7 +160,7 @@ func (cm *ConfigManager) Save() error {
 		return err
 	}
 
-	return os.WriteFile(cm.configPath, data, 0644)
+	return os.WriteFile(cm.configPath, data, 0600)
 }
 
 // Get 获取配置
@@ -324,5 +326,5 @@ func (pm *PolicyManager) Update(policy *Policy) {
 	pm.policies[policy.Name] = policy
 }
 
-// 兼容类型别名
+// BackupPolicy is an alias for Policy for backward compatibility.
 type BackupPolicy = Policy

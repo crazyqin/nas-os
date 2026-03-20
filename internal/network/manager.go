@@ -202,7 +202,7 @@ func (m *Manager) saveConfig() error {
 		return fmt.Errorf("创建配置目录失败：%w", err)
 	}
 
-	if err := os.WriteFile(m.configPath, data, 0644); err != nil {
+	if err := os.WriteFile(m.configPath, data, 0640); err != nil {
 		return fmt.Errorf("保存配置文件失败：%w", err)
 	}
 

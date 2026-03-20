@@ -636,7 +636,7 @@ func (e *AlertRuleEngine) saveRules() error {
 		return err
 	}
 
-	return os.WriteFile(e.configPath, data, 0644)
+	return os.WriteFile(e.configPath, data, 0640)
 }
 
 // GetRuleStats 获取规则统计

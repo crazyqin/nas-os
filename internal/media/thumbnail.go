@@ -272,7 +272,7 @@ func (tg *ThumbnailGenerator) createSprite(thumbs []string, outputPath string, c
 	for _, t := range thumbs {
 		fmt.Fprintf(&listContent, "file '%s'\n", t)
 	}
-	if err := os.WriteFile(listFile, []byte(listContent.String()), 0644); err != nil {
+	if err := os.WriteFile(listFile, []byte(listContent.String()), 0640); err != nil {
 		return nil, err
 	}
 	defer func() { _ = os.Remove(listFile) }()

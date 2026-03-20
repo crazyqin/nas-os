@@ -94,7 +94,7 @@ func (vm *VersionManager) saveVersions() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(vm.versionsFile, data, 0644)
+	return os.WriteFile(vm.versionsFile, data, 0640)
 }
 
 // loadNotifications 加载通知数据
@@ -126,7 +126,7 @@ func (vm *VersionManager) saveNotifications() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(vm.notifyFile, data, 0644)
+	return os.WriteFile(vm.notifyFile, data, 0640)
 }
 
 // CheckForUpdates 检查更新
@@ -479,7 +479,7 @@ func (vm *VersionManager) UpdateAppVersion(appID, newVersion string) error {
 			composeStr = strings.ReplaceAll(composeStr, template.Image, image)
 		}
 
-		if err := os.WriteFile(app.ComposePath, []byte(composeStr), 0644); err != nil {
+		if err := os.WriteFile(app.ComposePath, []byte(composeStr), 0640); err != nil {
 			return err
 		}
 

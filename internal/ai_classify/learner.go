@@ -538,7 +538,7 @@ func (l *Learner) saveLearningData() error {
 		return err
 	}
 
-	return os.WriteFile(dataFile, jsonData, 0644)
+	return os.WriteFile(dataFile, jsonData, 0640)
 }
 
 // LoadLearningData loads learning data from disk.

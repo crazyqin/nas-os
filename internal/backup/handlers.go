@@ -353,9 +353,9 @@ func (h *Handlers) cancelTask(c *gin.Context) {
 // @Router /backup/history/{configId} [get]
 // @Security BearerAuth
 func (h *Handlers) getHistory(c *gin.Context) {
-	configId := c.Param("configId")
+	configID := c.Param("configId")
 
-	history, err := h.manager.GetHistory(configId)
+	history, err := h.manager.GetHistory(configID)
 	if err != nil {
 		api.InternalError(c, err.Error())
 		return

@@ -16,9 +16,12 @@ import (
 
 var (
 	// ErrBackupNotFound 备份不存在错误
-	ErrBackupNotFound     = errors.New("backup not found")
-	ErrBackupInProgress   = errors.New("backup already in progress")
-	ErrInvalidConfig      = errors.New("invalid backup configuration")
+	ErrBackupNotFound = errors.New("backup not found")
+	// ErrBackupInProgress indicates a backup is already in progress.
+	ErrBackupInProgress = errors.New("backup already in progress")
+	// ErrInvalidConfig indicates invalid backup configuration.
+	ErrInvalidConfig = errors.New("invalid backup configuration")
+	// ErrVerificationFailed indicates backup verification failed.
 	ErrVerificationFailed = errors.New("backup verification failed")
 )
 
@@ -102,7 +105,7 @@ type Job struct {
 	Cancel      context.CancelFunc
 }
 
-// 兼容类型别名
+// BackupJob is an alias for Job for backward compatibility.
 type BackupJob = Job
 
 // FileIndex 文件索引（用于快速变更检测）

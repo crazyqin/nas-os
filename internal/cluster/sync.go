@@ -587,7 +587,7 @@ func (ss *StorageSync) saveRules() error {
 		return err
 	}
 
-	return os.WriteFile(rulesFile, data, 0644)
+	return os.WriteFile(rulesFile, data, 0640)
 }
 
 func (ss *StorageSync) loadRules() error {

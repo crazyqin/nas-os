@@ -435,7 +435,7 @@ func (rm *RecoveryManager) saveState(state *CompressionState) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(stateFile, data, 0644)
+	return os.WriteFile(stateFile, data, 0640)
 }
 
 // loadStates 从文件加载状态

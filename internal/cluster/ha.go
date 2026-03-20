@@ -476,7 +476,7 @@ func (ha *HighAvailability) saveState() error {
 	}
 
 	stateFile := filepath.Join(ha.config.DataDir, "ha_state.json")
-	return os.WriteFile(stateFile, data, 0644)
+	return os.WriteFile(stateFile, data, 0640)
 }
 
 func (ha *HighAvailability) loadState() error {

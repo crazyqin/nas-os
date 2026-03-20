@@ -124,7 +124,7 @@ func (ad *AppDiscovery) saveCache() error {
 		return err
 	}
 
-	return os.WriteFile(ad.cacheFile, data, 0644)
+	return os.WriteFile(ad.cacheFile, data, 0640)
 }
 
 // DiscoverFromGitHub 从 GitHub 发现应用

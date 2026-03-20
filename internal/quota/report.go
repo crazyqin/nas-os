@@ -521,7 +521,7 @@ func (g *ReportGenerator) exportJSON(report *Report, outputPath string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(outputPath, data, 0644)
+	return os.WriteFile(outputPath, data, 0640)
 }
 
 // exportCSV 导出 CSV 格式
@@ -600,5 +600,5 @@ func (g *ReportGenerator) exportHTML(report *Report, outputPath string) error {
 </body>
 </html>`)
 
-	return os.WriteFile(outputPath, []byte(sb.String()), 0644)
+	return os.WriteFile(outputPath, []byte(sb.String()), 0640)
 }

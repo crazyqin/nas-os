@@ -72,7 +72,7 @@ func (g *WkhtmltopdfGenerator) Generate(htmlContent []byte, outputPath string, o
 
 	// 保存临时 HTML
 	tmpHTML := outputPath + ".tmp.html"
-	if err := os.WriteFile(tmpHTML, htmlContent, 0644); err != nil {
+	if err := os.WriteFile(tmpHTML, htmlContent, 0640); err != nil {
 		return fmt.Errorf("写入临时 HTML 失败: %w", err)
 	}
 	defer func() { _ = os.Remove(tmpHTML) }()
@@ -167,7 +167,7 @@ func (e *ExporterV2) ExportPDFWithGenerator(report *GeneratedReport, outputPath 
 	if e.pdfGenerator == nil || !e.pdfGenerator.IsAvailable() {
 		// 回退到保存 HTML
 		htmlPath := strings.TrimSuffix(outputPath, ".pdf") + ".html"
-		return os.WriteFile(htmlPath, htmlData, 0644)
+		return os.WriteFile(htmlPath, htmlData, 0640)
 	}
 
 	// 转换选项
@@ -218,7 +218,7 @@ func (e *CSVExporter) SetWithHeader(withHeader bool) {
 // Export 导出 CSV
 func (e *CSVExporter) Export(report *GeneratedReport, outputPath string) error {
 	if len(report.Data) == 0 {
-		return os.WriteFile(outputPath, []byte(""), 0644)
+		return os.WriteFile(outputPath, []byte(""), 0640)
 	}
 
 	var buf bytes.Buffer
@@ -263,7 +263,7 @@ func (e *CSVExporter) Export(report *GeneratedReport, outputPath string) error {
 		output = buf.Bytes()
 	}
 
-	return os.WriteFile(outputPath, output, 0644)
+	return os.WriteFile(outputPath, output, 0640)
 }
 
 // formatCSVValue 格式化 CSV 值

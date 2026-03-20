@@ -1247,7 +1247,7 @@ func (g *FinancialReportGenerator) exportToJSON(report *FinancialReport) (string
 		return "", err
 	}
 
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0640); err != nil {
 		return "", err
 	}
 
@@ -1274,7 +1274,7 @@ func (g *FinancialReportGenerator) exportToCSV(report *FinancialReport) (string,
 		data = append(data, []byte(line+"\n")...)
 	}
 
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0640); err != nil {
 		return "", err
 	}
 
@@ -1326,7 +1326,7 @@ func (g *FinancialReportGenerator) saveReport(report *FinancialReport) error {
 	}
 
 	filePath := filepath.Join(g.storagePath, report.ID+".json")
-	return os.WriteFile(filePath, data, 0644)
+	return os.WriteFile(filePath, data, 0640)
 }
 
 // ========== 报告模板 ==========

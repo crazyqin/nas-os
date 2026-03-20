@@ -829,7 +829,7 @@ func (m *Manager) saveConfig() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(m.configPath, data, 0644)
+	return os.WriteFile(m.configPath, data, 0640)
 }
 
 func (m *Manager) loadVersions() error {
@@ -873,5 +873,5 @@ func (m *Manager) saveVersions() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(indexPath, data, 0644)
+	return os.WriteFile(indexPath, data, 0640)
 }

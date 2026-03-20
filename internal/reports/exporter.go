@@ -122,7 +122,7 @@ func (e *Exporter) exportJSON(report *GeneratedReport, path string, options Expo
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 func (e *Exporter) exportJSONBytes(report *GeneratedReport, options ExportOptions) ([]byte, error) {
@@ -156,7 +156,7 @@ func (e *Exporter) exportCSV(report *GeneratedReport, path string, options Expor
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 func (e *Exporter) exportCSVBytes(report *GeneratedReport, options ExportOptions) ([]byte, error) {
@@ -208,7 +208,7 @@ func (e *Exporter) exportHTML(report *GeneratedReport, path string, options Expo
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 func (e *Exporter) exportHTMLBytes(report *GeneratedReport, options ExportOptions) ([]byte, error) {
@@ -351,7 +351,7 @@ func (e *Exporter) exportPDF(report *GeneratedReport, path string, options Expor
 
 	// 保存临时 HTML 文件
 	tmpHTML := path + ".html"
-	if err := os.WriteFile(tmpHTML, htmlData, 0644); err != nil {
+	if err := os.WriteFile(tmpHTML, htmlData, 0640); err != nil {
 		return err
 	}
 	defer func() { _ = os.Remove(tmpHTML) }()
@@ -366,12 +366,12 @@ func (e *Exporter) exportPDF(report *GeneratedReport, path string, options Expor
 		cmd := fmt.Sprintf("wkhtmltopdf --quiet %s %s", tmpHTML, pdfPath)
 		if err := e.runCommand(cmd); err != nil {
 			// 转换失败，保存 HTML
-			return os.WriteFile(path, htmlData, 0644)
+			return os.WriteFile(path, htmlData, 0640)
 		}
 	} else {
 		// 没有转换工具，保存 HTML 并修改扩展名提示
 		htmlPath := strings.TrimSuffix(path, ".pdf") + ".html"
-		return os.WriteFile(htmlPath, htmlData, 0644)
+		return os.WriteFile(htmlPath, htmlData, 0640)
 	}
 
 	return nil

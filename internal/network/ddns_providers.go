@@ -2,7 +2,7 @@ package network
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505 -- 阿里云 DNS API 签名规范要求 HMAC-SHA1
 	"encoding/base64"
 	"encoding/json"
 	"fmt"

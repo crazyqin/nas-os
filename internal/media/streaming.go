@@ -677,7 +677,7 @@ func (ss *StreamServer) createMasterPlaylist(outputDir string, qualities []Adapt
 		content += fmt.Sprintf("%s/stream.m3u8\n", q.Quality)
 	}
 
-	_ = os.WriteFile(playlistPath, []byte(content), 0644)
+	_ = os.WriteFile(playlistPath, []byte(content), 0640)
 }
 
 // parseBitrate 解析比特率字符串

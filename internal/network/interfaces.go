@@ -294,7 +294,7 @@ DHCP=yes
 `, name)
 
 	configPath := fmt.Sprintf("/etc/systemd/network/10-%s.network", name)
-	return os.WriteFile(configPath, []byte(config), 0644)
+	return os.WriteFile(configPath, []byte(config), 0640)
 }
 
 // setDNS 设置 DNS 服务器
@@ -308,7 +308,7 @@ func (m *Manager) setDNS(dns string) error {
 		}
 	}
 
-	return os.WriteFile("/etc/resolv.conf", []byte(content), 0644)
+	return os.WriteFile("/etc/resolv.conf", []byte(content), 0640)
 }
 
 // ToggleInterface 启用/禁用网络接口

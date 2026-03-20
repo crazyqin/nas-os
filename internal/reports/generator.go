@@ -76,7 +76,7 @@ func (rg *ReportGenerator) saveCustomReport(report *CustomReport) error {
 	}
 
 	path := filepath.Join(rg.dataDir, "custom_"+report.ID+".json")
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // CreateCustomReport 创建自定义报表
