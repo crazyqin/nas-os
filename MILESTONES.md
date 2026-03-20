@@ -204,40 +204,52 @@
 
 ---
 
-### 🎯 里程碑 4: 用户权限系统 (M4)
-**时间**: 2026-05-01 ~ 2026-05-31  
+### 🎯 里程碑 4: 用户权限系统 (M4) ✅
+**时间**: 2026-03-10 ~ 2026-03-20
 **负责人**: 刑部 (安全合规) + 兵部
+**状态**: 已完成
 
 #### 任务清单
-- [ ] 用户 CRUD 操作
-- [ ] 用户组管理
-- [ ] 权限模型 (RBAC)
-- [ ] 共享访问控制列表
-- [ ] 密码策略
-- [ ] 登录审计
+- [x] 用户 CRUD 操作
+- [x] 用户组管理
+- [x] 权限模型 (RBAC)
+- [x] 共享访问控制列表
+- [x] 密码策略
+- [x] 登录审计
 
 #### 交付物
-- `internal/users/manager.go` - 用户管理
-- `internal/auth/middleware.go` - 认证中间件
-- `internal/audit/logger.go` - 审计日志
+- `internal/users/manager.go` - 用户管理 ✅
+- `internal/users/handlers.go` - 用户 API ✅
+- `internal/auth/rbac.go` - RBAC 权限模型 ✅
+- `internal/auth/mfa.go` - 多因素认证 ✅
+- `internal/auth/ldap.go` - LDAP 集成 ✅
+- `internal/auth/oauth2.go` - OAuth2 集成 ✅
+- `internal/auth/password_policy.go` - 密码策略 ✅
+- `internal/auth/session_manager.go` - 会话管理 ✅
+- `internal/audit/manager.go` - 审计日志 ✅
+- `internal/audit/security_logger.go` - 安全日志 ✅
 
 ---
 
-### 🎯 里程碑 5: 监控告警系统 (M5)
-**时间**: 2026-05-15 ~ 2026-06-15  
+### 🎯 里程碑 5: 监控告警系统 (M5) ✅
+**时间**: 2026-03-10 ~ 2026-03-20
 **负责人**: 工部 (DevOps)
+**状态**: 已完成
 
 #### 任务清单
-- [ ] 磁盘健康监控 (SMART)
-- [ ] 空间使用告警
-- [ ] 系统资源监控 (CPU/内存/网络)
-- [ ] 告警通知 (邮件/微信)
-- [ ] 日志收集与查询
+- [x] 磁盘健康监控 (SMART)
+- [x] 空间使用告警
+- [x] 系统资源监控 (CPU/内存/网络)
+- [x] 告警通知 (邮件/微信)
+- [x] 日志收集与查询
 
 #### 交付物
-- `internal/monitor/health.go` - 健康检查
-- `internal/monitor/alerts.go` - 告警管理
-- `internal/log/collector.go` - 日志收集
+- `internal/monitor/alerting.go` - 告警管理 ✅
+- `internal/monitor/disk_health.go` - 磁盘健康监控 ✅
+- `internal/monitor/dashboard_api.go` - 仪表板 API ✅
+- `internal/monitor/alert_rule_engine.go` - 告警规则引擎 ✅
+- `internal/monitor/log_collector.go` - 日志收集 ✅
+- `internal/logging/logging.go` - 日志系统 ✅
 
 ---
 
