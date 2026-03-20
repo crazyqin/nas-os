@@ -16,10 +16,12 @@ type Response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+// Success 返回成功响应
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
+// Error 返回错误响应
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }
@@ -85,6 +87,7 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 
 // ========== 统一共享管理 ==========
 
+// ShareOverview 共享概览
 type ShareOverview struct {
 	Type   string      `json:"type"` // "smb" or "nfs"
 	Name   string      `json:"name"`

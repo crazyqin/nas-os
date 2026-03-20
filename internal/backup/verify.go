@@ -54,10 +54,15 @@ type VerificationResult struct {
 type VerificationStatus string
 
 const (
-	VerificationStatusPassed    VerificationStatus = "passed"
-	VerificationStatusFailed    VerificationStatus = "failed"
-	VerificationStatusPartial   VerificationStatus = "partial"
-	VerificationStatusTimeout   VerificationStatus = "timeout"
+	// VerificationStatusPassed 验证通过
+	VerificationStatusPassed VerificationStatus = "passed"
+	// VerificationStatusFailed 验证失败
+	VerificationStatusFailed VerificationStatus = "failed"
+	// VerificationStatusPartial 部分验证
+	VerificationStatusPartial VerificationStatus = "partial"
+	// VerificationStatusTimeout 验证超时
+	VerificationStatusTimeout VerificationStatus = "timeout"
+	// VerificationStatusCancelled 验证取消
 	VerificationStatusCancelled VerificationStatus = "cancelled"
 )
 
@@ -567,7 +572,7 @@ func (vm *VerificationManager) ClearResults() {
 	vm.results = make(map[string]*VerificationResult)
 }
 
-// ScheduleVerification 计划验证
+// ScheduledVerification 计划验证
 type ScheduledVerification struct {
 	SnapshotID string        `json:"snapshot_id"`
 	Interval   time.Duration `json:"interval"`

@@ -234,15 +234,15 @@ func (p *S3Provider) DeleteDir(ctx context.Context, remotePath string) error {
 		return nil
 	}
 
-	var objectIds []types.ObjectIdentifier
+	var objectIDs []types.ObjectIdentifier
 	for _, obj := range objects {
-		objectIds = append(objectIds, types.ObjectIdentifier{Key: aws.String(obj.Path)})
+		objectIDs = append(objectIDs, types.ObjectIdentifier{Key: aws.String(obj.Path)})
 	}
 
 	_, err = p.client.DeleteObjects(ctx, &s3.DeleteObjectsInput{
 		Bucket: aws.String(p.config.Bucket),
 		Delete: &types.Delete{
-			Objects: objectIds,
+			Objects: objectIDs,
 			Quiet:   aws.Bool(true),
 		},
 	})
