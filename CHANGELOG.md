@@ -2,49 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.253.76] - 2026-03-21
+## [v2.253.74] - 2026-03-20
 
-### Fixed
-- 修复 internal/ftp/server_commands_test.go 中未使用字段 `addr` 的 linter 错误
-
-### 六部协同开发报告
-| 部门 | 状态 | 主要工作 |
-|------|------|----------|
-| 吏部 | ✅ | 版本号更新至 v2.253.76 |
-| 兵部 | ✅ | go vet 0 错误，测试全部通过 |
-| 礼部 | ✅ | 文档版本同步 |
-| 刑部 | ✅ | 安全审计通过，无硬编码密码/密钥，RBAC实现完善 |
-| 工部 | ✅ | CI/CD配置正常，Go 1.26 版本一致 |
-| 户部 | ⏳ | 待统计 |
-
-## [v2.253.75] - 2026-03-21
-
-### Added (六部协同)
-- 新增测试文件：container_operations_test.go, server_commands_test.go, manager_extended_test.go
-- 新增 photos/types_test.go, project/types_test.go
-
-### Documentation (礼部)
-- 同步所有文档版本号至 v2.253.75
-- 补充 internal/audit/handlers.go Swagger API 注释 (10 个端点)
-- 更新 docs/COST-ANALYSIS-v2.125.0.md 成本分析文档
+### Documentation
+- 同步所有文档版本号至 v2.253.74
+  - VERSION, internal/version/version.go
+  - README.md, docs/README.md
+  - docs/USER_GUIDE.md, docs/api.yaml
+- 添加刑部安全审计报告 (v2.253.0)
 
 ### 六部协同开发报告
-| 部门 | 状态 | 主要工作 |
+| 部门 | 状态 | 主要发现 |
 |------|------|----------|
-| 吏部 | ✅ | 版本号更新至 v2.253.75 |
-| 兵部 | ✅ | go vet 0 错误，测试全部通过，新增测试文件 |
-| 礼部 | ✅ | 文档版本同步，Swagger 注释补充 |
-| 刑部 | ✅ | 安全审计通过，无硬编码密码/密钥 |
-| 工部 | ✅ | CI/CD 运行正常 |
-| 户部 | ✅ | 737 Go 文件，415,280 行代码，270 测试文件 |
+| 吏部 | ✅ | 版本号统一完成，项目管理更新 |
+| 礼部 | ✅ | Swagger 注释补充，文档版本同步 |
+| 刑部 | ✅ | v2.253.0 安全审计报告生成 |
+
+## [v2.253.73] - 2026-03-20
+
+### Maintenance
+- 六部协同开发流程优化
+- 文档版本号同步检查
+
+### 六部协同开发报告
+| 部门 | 状态 | 主要发现 |
+|------|------|----------|
+| 吏部 | ✅ | 项目管理例行检查 |
+| 礼部 | ✅ | 文档一致性维护 |
+| 工部 | ✅ | CI/CD 配置检查 |
 
 ## [v2.253.72] - 2026-03-20
-
-### Documentation (礼部)
-- 同步所有文档版本号至 v2.253.72 (USER_GUIDE.md, FAQ.md, QUICKSTART.md, README.md, API_GUIDE.md)
-- 补充 Swagger API 注释：
-  - `internal/snapshot/handlers.go`: 快照策略 API (8 个端点)
-  - `internal/audit/handlers.go`: 审计日志 API (10 个端点)
 
 ### Security
 - 更新 .gitignore，添加敏感文件忽略规则（.env, *.pem, *.key, secrets.yaml 等）
@@ -53,7 +40,6 @@ All notable changes to this project will be documented in this file.
 | 部门 | 状态 | 主要发现 |
 |------|------|----------|
 | 兵部 | ✅ | go vet 0 错误，93 个测试包全部通过 |
-| 礼部 | ✅ | 文档版本同步完成，补充 Swagger 注释 |
 | 刑部 | ⚠️ | 无硬编码密码/API密钥，发现 .gitignore 未忽略 .env（已修复） |
 | 工部 | ✅ | CI/CD 全部成功，Go 1.26 版本一致 |
 | 户部 | ✅ | 732 Go 文件，412,179 行代码，42 直接依赖，32 可更新 |
