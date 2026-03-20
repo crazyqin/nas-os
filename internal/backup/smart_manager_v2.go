@@ -179,7 +179,7 @@ type IndexV2 struct {
 }
 
 // BackupIndexV2 备份索引（兼容别名）
-type BackupIndexV2 = IndexV2
+type BackupIndexV2 = IndexV2 //nolint:revive // 向后兼容别名
 
 // VersionV2 备份版本信息
 type VersionV2 struct {
@@ -196,13 +196,13 @@ type VersionV2 struct {
 }
 
 // BackupVersionV2 备份版本信息（兼容别名）
-type BackupVersionV2 = VersionV2
+type BackupVersionV2 = VersionV2 //nolint:revive // 向后兼容别名
 
 // StatusV2 备份状态
 type StatusV2 string
 
 // BackupStatusV2 备份状态（兼容别名）
-type BackupStatusV2 = StatusV2
+type BackupStatusV2 = StatusV2 //nolint:revive // 向后兼容别名
 
 const (
 	// BackupStatusV2Pending indicates the backup is pending.

@@ -91,10 +91,10 @@ func (bt *Target) SanitizeConfig() map[string]interface{} {
 }
 
 // BackupConfig is an alias for Config for backward compatibility.
-type BackupConfig = Config
+type BackupConfig = Config //nolint:revive // 向后兼容别名
 
 // BackupTarget is an alias for Target for backward compatibility.
-type BackupTarget = Target
+type BackupTarget = Target //nolint:revive // 向后兼容别名
 
 // ConfigManager 配置管理器
 type ConfigManager struct {
@@ -327,4 +327,4 @@ func (pm *PolicyManager) Update(policy *Policy) {
 }
 
 // BackupPolicy is an alias for Policy for backward compatibility.
-type BackupPolicy = Policy
+type BackupPolicy = Policy //nolint:revive // 向后兼容别名

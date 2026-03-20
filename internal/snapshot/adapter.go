@@ -37,7 +37,7 @@ func (a *StorageAdapter) ListSnapshots(volumeName string) ([]interface{}, error)
 	result := make([]interface{}, len(snapshots))
 	for i, snap := range snapshots {
 		size, _ := safeguards.SafeUint64ToInt64(snap.Size)
-		result[i] = SnapshotInfo{
+		result[i] = Info{
 			Name:      snap.Name,
 			Path:      snap.Path,
 			CreatedAt: snap.CreatedAt,

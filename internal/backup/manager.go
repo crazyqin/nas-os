@@ -100,16 +100,16 @@ const (
 )
 
 // BackupTask is an alias for Task for backward compatibility.
-type BackupTask = Task
+type BackupTask = Task //nolint:revive // 向后兼容别名
 
 // BackupHistory is an alias for History for backward compatibility.
-type BackupHistory = History
+type BackupHistory = History //nolint:revive // 向后兼容别名
 
 // BackupStats is an alias for Stats for backward compatibility.
-type BackupStats = Stats
+type BackupStats = Stats //nolint:revive // 向后兼容别名
 
 // BackupType is an alias for Type for backward compatibility.
-type BackupType = Type
+type BackupType = Type //nolint:revive // 向后兼容别名
 
 // 备份类型常量别名（兼容）
 const (
@@ -285,7 +285,7 @@ func (m *Manager) CreateConfig(config JobConfig) error {
 	return nil
 }
 
-// UpdateConfig updates an existing backup configuration by ID.
+// UpdateConfig 更新备份配置
 func (m *Manager) UpdateConfig(id string, config JobConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -303,7 +303,7 @@ func (m *Manager) UpdateConfig(id string, config JobConfig) error {
 	return nil
 }
 
-// DeleteConfig deletes a backup configuration by ID.
+// DeleteConfig 删除备份配置
 func (m *Manager) DeleteConfig(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -320,7 +320,7 @@ func (m *Manager) DeleteConfig(id string) error {
 	return nil
 }
 
-// EnableConfig enables or disables a backup configuration by ID.
+// EnableConfig 启用或禁用备份配置
 func (m *Manager) EnableConfig(id string, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -341,7 +341,7 @@ func (m *Manager) EnableConfig(id string, enabled bool) error {
 
 // ========== 备份执行 ==========
 
-// RunBackup starts a backup task for the given configuration ID.
+// RunBackup 执行备份任务
 func (m *Manager) RunBackup(configID string) (*Task, error) {
 	return m.RunBackupWithContext(context.Background(), configID)
 }
@@ -602,7 +602,7 @@ func (m *Manager) cleanupOldBackups(dir string, retention int) error {
 
 // ========== 恢复操作 ==========
 
-// Restore starts a restore operation with the given options.
+// Restore 执行恢复操作
 func (m *Manager) Restore(options RestoreOptions) (*Task, error) {
 	return m.RestoreWithContext(context.Background(), options)
 }
@@ -702,7 +702,7 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 
 // ========== 任务管理 ==========
 
-// GetTask 获取指定ID的备份任务
+// GetTask 获取任务信息
 func (m *Manager) GetTask(taskID string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -714,7 +714,7 @@ func (m *Manager) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
-// ListTasks 列出所有备份任务
+// ListTasks 列出所有任务
 func (m *Manager) ListTasks() []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -726,7 +726,7 @@ func (m *Manager) ListTasks() []*Task {
 	return tasks
 }
 
-// CancelTask 取消正在运行的备份任务
+// CancelTask 取消任务
 func (m *Manager) CancelTask(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -786,7 +786,7 @@ func (m *Manager) CleanupOldTasks(maxAge time.Duration) int {
 
 // ========== 备份历史 ==========
 
-// GetHistory 获取指定备份配置的历史记录
+// GetHistory 获取备份历史记录
 func (m *Manager) GetHistory(configID string) ([]*History, error) {
 	m.mu.RLock()
 	cfg, ok := m.configs[configID]

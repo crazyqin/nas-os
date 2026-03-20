@@ -20,11 +20,11 @@ import (
 type Role string
 
 const (
-	// RoleAdmin 管理员角色，拥有全部权限
+	// RoleAdmin 管理员：全部权限
 	RoleAdmin Role = "admin"
-	// RoleUser 普通用户角色，受限访问
+	// RoleUser 普通用户：受限访问
 	RoleUser Role = "user"
-	// RoleGuest 访客角色，只读访问
+	// RoleGuest 访客：只读访问
 	RoleGuest Role = "guest"
 )
 
@@ -125,9 +125,9 @@ type Manager struct {
 }
 
 var (
-	// ErrUserNotFound 用户不存在错误
+	// ErrUserNotFound 用户不存在
 	ErrUserNotFound = errors.New("用户不存在")
-	// ErrUserExists 用户已存在错误
+	// ErrUserExists 用户已存在
 	ErrUserExists = errors.New("用户已存在")
 	// ErrInvalidPassword 密码错误
 	ErrInvalidPassword = errors.New("密码错误")

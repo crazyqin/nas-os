@@ -36,7 +36,7 @@ type Status struct {
 }
 
 // ServiceStatus 服务状态（兼容别名）
-type ServiceStatus = Status
+type ServiceStatus = Status //nolint:revive // 向后兼容别名
 
 // Backend 服务后端接口
 type Backend interface {
@@ -63,7 +63,7 @@ type Backend interface {
 }
 
 // ServiceBackend 服务后端接口（兼容别名）
-type ServiceBackend = Backend
+type ServiceBackend = Backend //nolint:revive // 向后兼容别名
 
 // 预定义的常用服务
 var defaultServices = map[string]*Service{

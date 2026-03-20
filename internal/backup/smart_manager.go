@@ -191,7 +191,7 @@ func generateUUID() string {
 }
 
 // BackupStatus 备份状态类型（兼容别名，指向manager.go中的Status）
-type BackupStatus = Status
+type BackupStatus = Status //nolint:revive // 向后兼容别名
 
 // 备份状态常量（复用manager.go中的Status类型）
 const (

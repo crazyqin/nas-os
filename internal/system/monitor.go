@@ -52,7 +52,7 @@ type Stats struct {
 
 // SystemStats 是 Stats 的别名，保持向后兼容
 // Deprecated: Use Stats instead
-type SystemStats = Stats
+type SystemStats = Stats //nolint:revive // 向后兼容别名
 
 // DiskStats 磁盘统计信息
 type DiskStats struct {
@@ -140,7 +140,7 @@ type Alert struct {
 // RealTimeData 实时数据（WebSocket 推送）
 type RealTimeData struct {
 	Type      string          `json:"type"`
-	System    *SystemStats    `json:"system,omitempty"`
+	System    *Stats          `json:"system,omitempty"`
 	Disks     []*DiskStats    `json:"disks,omitempty"`
 	Network   []*NetworkStats `json:"network,omitempty"`
 	Alerts    []*Alert        `json:"alerts,omitempty"`
@@ -343,8 +343,8 @@ func (m *Monitor) calculateDiskIO(disks []*DiskStats, prev map[string]struct {
 }
 
 // GetSystemStats 获取系统统计信息
-func (m *Monitor) GetSystemStats() (*SystemStats, error) {
-	stats := &SystemStats{
+func (m *Monitor) GetSystemStats() (*Stats, error) {
+	stats := &Stats{
 		Timestamp: time.Now(),
 		LoadAvg:   make([]float64, 3),
 		CPUCores:  runtime.NumCPU(),
@@ -767,7 +767,7 @@ func (m *Monitor) AcknowledgeAlert(id string) error {
 }
 
 // saveHistoryData 保存历史数据
-func (m *Monitor) saveHistoryData(system *SystemStats, network []*NetworkStats) {
+func (m *Monitor) saveHistoryData(system *Stats, network []*NetworkStats) {
 	m.historyMu.Lock()
 	defer m.historyMu.Unlock()
 

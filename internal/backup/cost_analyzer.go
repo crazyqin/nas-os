@@ -100,7 +100,7 @@ type CostRecord struct {
 }
 
 // BackupCostRecord is an alias for CostRecord for backward compatibility.
-type BackupCostRecord = CostRecord
+type BackupCostRecord = CostRecord //nolint:revive // 向后兼容别名
 
 // CostTrendData 成本趋势数据
 type CostTrendData struct {

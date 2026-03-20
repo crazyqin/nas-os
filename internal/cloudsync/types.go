@@ -264,13 +264,13 @@ const (
 	SyncOpUpload SyncOpType = "upload"
 	// SyncOpDownload 下载操作
 	SyncOpDownload SyncOpType = "download"
-	// SyncOpDeleteLocal 删除本地文件
+	// SyncOpDeleteLocal 删除本地
 	SyncOpDeleteLocal SyncOpType = "delete_local"
-	// SyncOpDeleteRemote 删除远程文件
+	// SyncOpDeleteRemote 删除远程
 	SyncOpDeleteRemote SyncOpType = "delete_remote"
-	// SyncOpSkip 跳过操作
+	// SyncOpSkip 跳过
 	SyncOpSkip SyncOpType = "skip"
-	// SyncOpConflict 冲突操作
+	// SyncOpConflict 冲突
 	SyncOpConflict SyncOpType = "conflict"
 )
 

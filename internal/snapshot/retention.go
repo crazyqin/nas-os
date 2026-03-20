@@ -30,7 +30,7 @@ type Info struct {
 
 // SnapshotInfo 是 Info 的别名，保持向后兼容
 // Deprecated: Use Info instead
-type SnapshotInfo = Info
+type SnapshotInfo = Info //nolint:revive // 向后兼容别名
 
 // Clean 执行清理
 func (c *RetentionCleaner) Clean(policy *Policy) ([]string, error) {
@@ -44,7 +44,7 @@ func (c *RetentionCleaner) Clean(policy *Policy) ([]string, error) {
 		return nil, fmt.Errorf("获取快照列表失败: %w", err)
 	}
 
-	var toDelete []SnapshotInfo
+	var toDelete []Info
 
 	switch policy.Retention.Type {
 	case RetentionByCount:
@@ -74,10 +74,10 @@ func (c *RetentionCleaner) Clean(policy *Policy) ([]string, error) {
 }
 
 // listPolicySnapshots 获取策略相关的快照列表
-func (c *RetentionCleaner) listPolicySnapshots(policy *Policy) ([]SnapshotInfo, error) {
+func (c *RetentionCleaner) listPolicySnapshots(policy *Policy) ([]Info, error) {
 	// 检查存储管理器是否存在
 	if c.storageMgr == nil {
-		return []SnapshotInfo{}, nil
+		return []Info{}, nil
 	}
 
 	// 通过存储管理器获取快照列表
@@ -86,7 +86,7 @@ func (c *RetentionCleaner) listPolicySnapshots(policy *Policy) ([]SnapshotInfo, 
 		return nil, err
 	}
 
-	var result []SnapshotInfo
+	var result []Info
 
 	// 过滤属于该策略的快照
 	prefix := policy.SnapshotPrefix
@@ -97,7 +97,7 @@ func (c *RetentionCleaner) listPolicySnapshots(policy *Policy) ([]SnapshotInfo, 
 	for _, snap := range snapshots {
 		// 类型断言获取快照信息
 		// 这里需要根据实际的存储管理器返回类型处理
-		if si, ok := snap.(SnapshotInfo); ok {
+		if si, ok := snap.(Info); ok {
 			// 检查是否属于该策略
 			if prefix != "" && !hasPrefix(si.Name, prefix) {
 				continue
@@ -120,7 +120,7 @@ func hasPrefix(name, prefix string) bool {
 }
 
 // cleanByCount 按数量清理
-func (c *RetentionCleaner) cleanByCount(snapshots []SnapshotInfo, maxCount int) []SnapshotInfo {
+func (c *RetentionCleaner) cleanByCount(snapshots []Info, maxCount int) []Info {
 	if maxCount <= 0 || len(snapshots) <= maxCount {
 		return nil
 	}
@@ -130,13 +130,13 @@ func (c *RetentionCleaner) cleanByCount(snapshots []SnapshotInfo, maxCount int) 
 }
 
 // cleanByAge 按时间清理
-func (c *RetentionCleaner) cleanByAge(snapshots []SnapshotInfo, maxAgeDays int) []SnapshotInfo {
+func (c *RetentionCleaner) cleanByAge(snapshots []Info, maxAgeDays int) []Info {
 	if maxAgeDays <= 0 {
 		return nil
 	}
 
 	cutoff := time.Now().AddDate(0, 0, -maxAgeDays)
-	var toDelete []SnapshotInfo
+	var toDelete []Info
 
 	for _, snap := range snapshots {
 		if snap.CreatedAt.Before(cutoff) {
@@ -148,7 +148,7 @@ func (c *RetentionCleaner) cleanByAge(snapshots []SnapshotInfo, maxAgeDays int) 
 }
 
 // cleanBySize 按大小清理
-func (c *RetentionCleaner) cleanBySize(snapshots []SnapshotInfo, maxSizeBytes int64) []SnapshotInfo {
+func (c *RetentionCleaner) cleanBySize(snapshots []Info, maxSizeBytes int64) []Info {
 	if maxSizeBytes <= 0 {
 		return nil
 	}
@@ -163,7 +163,7 @@ func (c *RetentionCleaner) cleanBySize(snapshots []SnapshotInfo, maxSizeBytes in
 		return nil
 	}
 
-	var toDelete []SnapshotInfo
+	var toDelete []Info
 	var deletedSize int64
 
 	// 从最旧的开始删除，直到总大小符合要求
@@ -179,8 +179,8 @@ func (c *RetentionCleaner) cleanBySize(snapshots []SnapshotInfo, maxSizeBytes in
 }
 
 // cleanCombined 组合清理策略
-func (c *RetentionCleaner) cleanCombined(snapshots []SnapshotInfo, policy *RetentionPolicy) []SnapshotInfo {
-	var toDelete []SnapshotInfo
+func (c *RetentionCleaner) cleanCombined(snapshots []Info, policy *RetentionPolicy) []Info {
+	var toDelete []Info
 	deletedSet := make(map[string]bool)
 
 	// 按数量清理
@@ -208,7 +208,7 @@ func (c *RetentionCleaner) cleanCombined(snapshots []SnapshotInfo, policy *Reten
 	// 按大小清理
 	if policy.SizePolicy != nil && policy.SizePolicy.MaxSizeBytes > 0 {
 		// 重新计算剩余快照
-		var remaining []SnapshotInfo
+		var remaining []Info
 		for _, snap := range snapshots {
 			if !deletedSet[snap.Name] {
 				remaining = append(remaining, snap)
@@ -227,7 +227,7 @@ func (c *RetentionCleaner) cleanCombined(snapshots []SnapshotInfo, policy *Reten
 }
 
 // deleteSnapshot 删除快照
-func (c *RetentionCleaner) deleteSnapshot(policy *Policy, snap SnapshotInfo) error {
+func (c *RetentionCleaner) deleteSnapshot(policy *Policy, snap Info) error {
 	return c.storageMgr.DeleteSnapshot(policy.VolumeName, snap.Name)
 }
 
@@ -238,7 +238,7 @@ func (c *RetentionCleaner) PreviewDryRun(policy *Policy) (*CleanupPreview, error
 		return nil, err
 	}
 
-	var toDelete []SnapshotInfo
+	var toDelete []Info
 	switch policy.Retention.Type {
 	case RetentionByCount:
 		toDelete = c.cleanByCount(snapshots, policy.Retention.MaxCount)
@@ -267,11 +267,11 @@ func (c *RetentionCleaner) PreviewDryRun(policy *Policy) (*CleanupPreview, error
 
 // CleanupPreview 清理预览结果，展示将要删除的快照信息
 type CleanupPreview struct {
-	TotalSnapshots   int            `json:"totalSnapshots"`
-	ToDelete         int            `json:"toDelete"`
-	ToKeep           int            `json:"toKeep"`
-	ReclaimableBytes int64          `json:"reclaimableBytes"`
-	Snapshots        []SnapshotInfo `json:"snapshots,omitempty"`
+	TotalSnapshots   int    `json:"totalSnapshots"`
+	ToDelete         int    `json:"toDelete"`
+	ToKeep           int    `json:"toKeep"`
+	ReclaimableBytes int64  `json:"reclaimableBytes"`
+	Snapshots        []Info `json:"snapshots,omitempty"`
 }
 
 // EstimateRetention 估算保留策略效果
