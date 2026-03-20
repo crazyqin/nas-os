@@ -2,7 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.75] - 2026-03-21
+
+### Added (六部协同)
+- 新增测试文件：container_operations_test.go, server_commands_test.go, manager_extended_test.go
+- 新增 photos/types_test.go, project/types_test.go
+
+### Documentation (礼部)
+- 同步所有文档版本号至 v2.253.75
+- 补充 internal/audit/handlers.go Swagger API 注释 (10 个端点)
+- 更新 docs/COST-ANALYSIS-v2.125.0.md 成本分析文档
+
+### 六部协同开发报告
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号更新至 v2.253.75 |
+| 兵部 | ✅ | go vet 0 错误，测试全部通过，新增测试文件 |
+| 礼部 | ✅ | 文档版本同步，Swagger 注释补充 |
+| 刑部 | ✅ | 安全审计通过，无硬编码密码/密钥 |
+| 工部 | ✅ | CI/CD 运行正常 |
+| 户部 | ✅ | 737 Go 文件，415,280 行代码，270 测试文件 |
+
 ## [v2.253.72] - 2026-03-20
+
+### Documentation (礼部)
+- 同步所有文档版本号至 v2.253.72 (USER_GUIDE.md, FAQ.md, QUICKSTART.md, README.md, API_GUIDE.md)
+- 补充 Swagger API 注释：
+  - `internal/snapshot/handlers.go`: 快照策略 API (8 个端点)
+  - `internal/audit/handlers.go`: 审计日志 API (10 个端点)
 
 ### Security
 - 更新 .gitignore，添加敏感文件忽略规则（.env, *.pem, *.key, secrets.yaml 等）
@@ -11,6 +38,7 @@ All notable changes to this project will be documented in this file.
 | 部门 | 状态 | 主要发现 |
 |------|------|----------|
 | 兵部 | ✅ | go vet 0 错误，93 个测试包全部通过 |
+| 礼部 | ✅ | 文档版本同步完成，补充 Swagger 注释 |
 | 刑部 | ⚠️ | 无硬编码密码/API密钥，发现 .gitignore 未忽略 .env（已修复） |
 | 工部 | ✅ | CI/CD 全部成功，Go 1.26 版本一致 |
 | 户部 | ✅ | 732 Go 文件，412,179 行代码，42 直接依赖，32 可更新 |
