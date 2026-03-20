@@ -506,21 +506,56 @@ func (p *FileManagerEnhance) advancedSearch(root, query string, options map[stri
 // ========== 辅助函数 ==========
 
 // isPathAllowed 检查路径是否在允许的根目录内（防止路径遍历攻击）
-// 安全做法：先将用户路径与根目录连接，然后清理，最后验证是否仍在根目录内
+// 安全做法：
+// 1. 验证路径不包含危险模式（如 ".."）
+// 2. 将路径与根目录连接后清理
+// 3. 验证最终路径仍在根目录内
 func (p *FileManagerEnhance) isPathAllowed(path string) bool {
 	if p.rootPath == "" {
 		return false
 	}
 
-	// 清理根目录
+	// 清理根目录并确保是绝对路径
 	cleanRoot := filepath.Clean(p.rootPath)
+	if !filepath.IsAbs(cleanRoot) {
+		cleanRoot = filepath.Clean(filepath.Join("/", cleanRoot))
+	}
 
-	// 将用户路径与根目录连接后清理，防止路径遍历
-	cleanPath := filepath.Clean(filepath.Join(cleanRoot, path))
+	// 拒绝包含路径遍历模式的原始路径
+	if strings.Contains(path, "..") {
+		return false
+	}
 
-	// 确保清理后的路径以根目录开头
-	// 需要确保 rootPath 以路径分隔符结尾进行比较
-	if !strings.HasPrefix(cleanPath, cleanRoot+string(filepath.Separator)) && cleanPath != cleanRoot {
+	// 拒绝空路径
+	if path == "" {
+		return false
+	}
+
+	// 计算最终路径：
+	// - 如果用户提供相对路径，与根目录连接
+	// - 如果用户提供绝对路径，必须以根目录开头
+	var finalPath string
+	if filepath.IsAbs(path) {
+		// 绝对路径：验证必须以根目录开头
+		finalPath = filepath.Clean(path)
+	} else {
+		// 相对路径：与根目录连接后清理
+		finalPath = filepath.Clean(filepath.Join(cleanRoot, path))
+	}
+
+	// 安全校验：最终路径必须在根目录内
+	// 使用 HasPrefix 检查，并确保是完整的目录匹配（避免 /data 匹配 /data2）
+	if !strings.HasPrefix(finalPath, cleanRoot+string(filepath.Separator)) && finalPath != cleanRoot {
+		return false
+	}
+
+	// 额外检查：确保最终路径没有跳出根目录（双重保险）
+	rel, err := filepath.Rel(cleanRoot, finalPath)
+	if err != nil {
+		return false
+	}
+	// 相对路径不应该以 ".." 开头（表示在根目录之外）
+	if strings.HasPrefix(rel, "..") {
 		return false
 	}
 
