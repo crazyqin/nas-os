@@ -46,6 +46,17 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 // ========== 策略管理 ==========
 
 // listPolicies 列出所有策略
+// @Summary 列出快照策略
+// @Description 获取所有快照策略列表，支持按卷名、类型、启用状态过滤
+// @Tags snapshot
+// @Accept json
+// @Produce json
+// @Param volume query string false "卷名"
+// @Param type query string false "策略类型"
+// @Param enabled query string false "是否启用 (true/false)"
+// @Success 200 {object} api.Response{data=[]Policy}
+// @Router /snapshots/policies [get]
+// @Security BearerAuth
 func (h *Handlers) listPolicies(c *gin.Context) {
 	volumeName := c.Query("volume")
 	policyType := c.Query("type")
@@ -75,6 +86,16 @@ func (h *Handlers) listPolicies(c *gin.Context) {
 }
 
 // getPolicy 获取单个策略
+// @Summary 获取快照策略详情
+// @Description 获取指定快照策略的详细信息
+// @Tags snapshot
+// @Accept json
+// @Produce json
+// @Param id path string true "策略 ID"
+// @Success 200 {object} api.Response{data=Policy}
+// @Failure 404 {object} api.Response
+// @Router /snapshots/policies/{id} [get]
+// @Security BearerAuth
 func (h *Handlers) getPolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -88,6 +109,16 @@ func (h *Handlers) getPolicy(c *gin.Context) {
 }
 
 // createPolicy 创建策略
+// @Summary 创建快照策略
+// @Description 创建新的快照策略
+// @Tags snapshot
+// @Accept json
+// @Produce json
+// @Param policy body Policy true "快照策略配置"
+// @Success 200 {object} api.Response{data=Policy}
+// @Failure 400 {object} api.Response
+// @Router /snapshots/policies [post]
+// @Security BearerAuth
 func (h *Handlers) createPolicy(c *gin.Context) {
 	var policy Policy
 	if err := c.ShouldBindJSON(&policy); err != nil {
@@ -104,6 +135,17 @@ func (h *Handlers) createPolicy(c *gin.Context) {
 }
 
 // updatePolicy 更新策略
+// @Summary 更新快照策略
+// @Description 更新指定的快照策略配置
+// @Tags snapshot
+// @Accept json
+// @Produce json
+// @Param id path string true "策略 ID"
+// @Param policy body Policy true "快照策略配置"
+// @Success 200 {object} api.Response{data=Policy}
+// @Failure 400 {object} api.Response
+// @Router /snapshots/policies/{id} [put]
+// @Security BearerAuth
 func (h *Handlers) updatePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -122,6 +164,16 @@ func (h *Handlers) updatePolicy(c *gin.Context) {
 }
 
 // deletePolicy 删除策略
+// @Summary 删除快照策略
+// @Description 删除指定的快照策略
+// @Tags snapshot
+// @Accept json
+// @Produce json
+// @Param id path string true "策略 ID"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Router /snapshots/policies/{id} [delete]
+// @Security BearerAuth
 func (h *Handlers) deletePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -134,6 +186,16 @@ func (h *Handlers) deletePolicy(c *gin.Context) {
 }
 
 // enablePolicy 启用策略
+// @Summary 启用快照策略
+// @Description 启用指定的快照策略
+// @Tags snapshot
+// @Accept json
+// @Produce json
+// @Param id path string true "策略 ID"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Router /snapshots/policies/{id}/enable [post]
+// @Security BearerAuth
 func (h *Handlers) enablePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -146,6 +208,16 @@ func (h *Handlers) enablePolicy(c *gin.Context) {
 }
 
 // disablePolicy 禁用策略
+// @Summary 禁用快照策略
+// @Description 禁用指定的快照策略
+// @Tags snapshot
+// @Accept json
+// @Produce json
+// @Param id path string true "策略 ID"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Router /snapshots/policies/{id}/disable [post]
+// @Security BearerAuth
 func (h *Handlers) disablePolicy(c *gin.Context) {
 	id := c.Param("id")
 
@@ -158,6 +230,16 @@ func (h *Handlers) disablePolicy(c *gin.Context) {
 }
 
 // executePolicy 手动执行策略
+// @Summary 手动执行快照策略
+// @Description 立即执行指定的快照策略，创建快照
+// @Tags snapshot
+// @Accept json
+// @Produce json
+// @Param id path string true "策略 ID"
+// @Success 200 {object} api.Response{data=map[string]interface{}}
+// @Failure 500 {object} api.Response
+// @Router /snapshots/policies/{id}/execute [post]
+// @Security BearerAuth
 func (h *Handlers) executePolicy(c *gin.Context) {
 	id := c.Param("id")
 
