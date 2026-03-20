@@ -26,3 +26,19 @@ Thumbs.db
 # Logs
 *.log
 internal/audit/enhanced/*.log
+
+# 敏感配置文件
+.env
+.env.local
+.env.*.local
+
+# 证书和密钥
+*.pem
+*.key
+*.p12
+*.pfx
+
+# 密钥配置
+secrets.yaml
+secrets.json
+credentials.json
