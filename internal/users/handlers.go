@@ -65,6 +65,7 @@ func (h *Handlers) RegisterRoutes(router *gin.RouterGroup) {
 
 // API 请求/响应结构
 
+// LoginRequest 登录请求
 type LoginRequest struct {
 	Username   string `json:"username" binding:"required"`
 	Password   string `json:"password" binding:"required"`
@@ -72,6 +73,7 @@ type LoginRequest struct {
 	BackupCode string `json:"backup_code,omitempty"` // 备份码
 }
 
+// LoginResponse 登录响应
 type LoginResponse struct {
 	Token       string `json:"token,omitempty"`
 	ExpiresAt   string `json:"expires_at,omitempty"`
@@ -81,15 +83,18 @@ type LoginResponse struct {
 	User        *User  `json:"user,omitempty"`
 }
 
+// ChangePasswordRequest 修改密码请求
 type ChangePasswordRequest struct {
 	OldPassword string `json:"old_password" binding:"required"`
 	NewPassword string `json:"new_password" binding:"required,min=6"`
 }
 
+// ResetPasswordRequest 重置密码请求
 type ResetPasswordRequest struct {
 	NewPassword string `json:"new_password" binding:"required,min=6"`
 }
 
+// SetRoleRequest 设置角色请求
 type SetRoleRequest struct {
 	Role Role `json:"role" binding:"required"`
 }

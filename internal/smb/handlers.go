@@ -13,10 +13,12 @@ type Response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
+// Success 返回成功响应
 func Success(data interface{}) Response {
 	return Response{Code: 0, Message: "success", Data: data}
 }
 
+// Error 返回错误响应
 func Error(code int, message string) Response {
 	return Response{Code: code, Message: message}
 }

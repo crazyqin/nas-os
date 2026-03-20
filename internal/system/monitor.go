@@ -31,8 +31,8 @@ type Monitor struct {
 	historyEnabled bool
 }
 
-// SystemStats 系统统计信息
-type SystemStats struct {
+// Stats 系统统计信息
+type Stats struct {
 	CPUUsage      float64   `json:"cpuUsage"`
 	CPUCores      int       `json:"cpuCores"`
 	CPUTemp       int       `json:"cpuTemp,omitempty"`
@@ -49,6 +49,10 @@ type SystemStats struct {
 	Processes     int       `json:"processes"`
 	Timestamp     time.Time `json:"timestamp"`
 }
+
+// SystemStats 是 Stats 的别名，保持向后兼容
+// Deprecated: Use Stats instead
+type SystemStats = Stats
 
 // DiskStats 磁盘统计信息
 type DiskStats struct {
