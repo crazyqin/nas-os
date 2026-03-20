@@ -285,6 +285,7 @@ func (m *Manager) CreateConfig(config JobConfig) error {
 	return nil
 }
 
+// UpdateConfig updates an existing backup configuration by ID.
 func (m *Manager) UpdateConfig(id string, config JobConfig) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -302,6 +303,7 @@ func (m *Manager) UpdateConfig(id string, config JobConfig) error {
 	return nil
 }
 
+// DeleteConfig deletes a backup configuration by ID.
 func (m *Manager) DeleteConfig(id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -318,6 +320,7 @@ func (m *Manager) DeleteConfig(id string) error {
 	return nil
 }
 
+// EnableConfig enables or disables a backup configuration by ID.
 func (m *Manager) EnableConfig(id string, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -338,6 +341,7 @@ func (m *Manager) EnableConfig(id string, enabled bool) error {
 
 // ========== 备份执行 ==========
 
+// RunBackup starts a backup task for the given configuration ID.
 func (m *Manager) RunBackup(configID string) (*Task, error) {
 	return m.RunBackupWithContext(context.Background(), configID)
 }
@@ -598,6 +602,7 @@ func (m *Manager) cleanupOldBackups(dir string, retention int) error {
 
 // ========== 恢复操作 ==========
 
+// Restore starts a restore operation with the given options.
 func (m *Manager) Restore(options RestoreOptions) (*Task, error) {
 	return m.RestoreWithContext(context.Background(), options)
 }
