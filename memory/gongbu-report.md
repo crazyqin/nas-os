@@ -1,150 +1,139 @@
-# 工部DevOps报告
+# 工部 DevOps 检查报告
 
-**检查日期:** 2026-03-20
-**项目路径:** /home/mrafter/clawd/nas-os
+**检查时间**: 2026-03-20 19:04  
+**检查人**: 工部子代理  
+**项目**: NAS-OS
 
 ---
 
-## CI/CD 状态
+## 一、CI/CD 配置状态
 
-### ✅ 整体评估：优秀
+### 1.1 Workflow 文件清单
 
-项目 CI/CD 配置完善，已达到生产级别标准。
-
-### 工作流清单
-
-| 文件 | 功能 | 状态 |
+| 文件 | 用途 | 状态 |
 |------|------|------|
-| `ci-cd.yml` | 主 CI/CD 流程 | ✅ 完善 |
-| `docker-publish.yml` | Docker 镜像构建发布 | ✅ 完善 |
-| `release.yml` | GitHub Release | ✅ 完善 |
-| `security-scan.yml` | 安全扫描 | ✅ 完善 |
-| `benchmark.yml` | 性能基准测试 | 存在 |
+| `ci-cd.yml` | 主CI流程 | ✅ 正常 |
+| `docker-publish.yml` | Docker镜像构建发布 | ✅ 正常 |
+| `release.yml` | GitHub Release构建 | ✅ 正常 |
+| `security-scan.yml` | 安全扫描 | ✅ 正常 |
+| `benchmark.yml` | 性能基准测试 | ✅ 正常 |
 
-### CI/CD 亮点
+### 1.2 CI/CD 功能覆盖
 
-1. **智能变更检测** - 使用 `paths-filter` 跳过无需运行的 job
-2. **多级缓存策略** - Go 模块缓存、编译缓存、工具缓存分离
-3. **安全扫描完整** - CodeQL + Trivy + gosec + govulncheck
-4. **多平台构建** - linux/amd64, linux/arm64, linux/arm/v7
-5. **并发控制** - 同一分支同时只运行一个工作流
-6. **SBOM + Cosign 签名** - 符合供应链安全最佳实践
-7. **覆盖率追踪** - Codecov 集成，覆盖率阈值检查
-
-### 流水线阶段
-
-```
-变更检测 → 环境准备 → [lint | CodeQL | 依赖扫描] → 单元测试 → 集成测试 → 多平台构建 → Docker Compose 测试
-                                    ↓
-                              Docker 构建 → 镜像签名 → 镜像扫描
-```
+- **代码质量检查**: golangci-lint + gofmt
+- **安全扫描**: CodeQL + Trivy + gosec + govulncheck
+- **测试**: 单元测试 + 集成测试 + Docker Compose测试
+- **多平台构建**: linux/amd64, linux/arm64, linux/armv7
+- **Docker**: 多架构镜像构建，支持GHCR和Docker Hub
+- **SBOM**: SPDX + CycloneDX格式
+- **签名**: Cosign Keyless签名
 
 ---
 
-## 构建优化
+## 二、Dockerfile 配置检查
 
-### Dockerfile 分析
+### 2.1 基本信息检查
 
-| 项目 | 当前状态 | 评估 |
-|------|---------|------|
-| 多阶段构建 | ✅ 使用 | 减小镜像体积 |
-| 基础镜像 | distroless/static | ~15-18MB |
-| UPX 压缩 | ✅ 启用 | 进一步减小 30-50% |
-| 缓存挂载 | ✅ 使用 | 加速构建 |
-| 健康检查 | ✅ 内置工具 | 无外部依赖 |
-| OCI 标签 | ✅ 完整 | 符合标准 |
+| 检查项 | 结果 |
+|--------|------|
+| 基础镜像 | `golang:1.26-alpine` (构建) / `distroless/static-debian12` (运行) |
+| 多阶段构建 | ✅ 已优化 |
+| 多架构支持 | ✅ amd64, arm64, arm/v7 |
+| UPX压缩 | ✅ 已启用 |
+| 健康检查 | ✅ 内置健康检查工具 |
+| OCI标签 | ✅ 完整 |
+| 暴露端口 | 8080(Web), 445/139(SMB), 2049/111(NFS) |
 
-### 镜像版本
+### 2.2 Dockerfile 评估
 
-- **minimal**: 基于 distroless，约 15-18MB
-- **full**: 基于 alpine:3.21，约 35-40MB，含系统工具
+**优点**:
+- 多阶段构建优化镜像大小（约15-18MB）
+- 支持UPX压缩进一步减小体积
+- 内置健康检查工具，无外部依赖
+- OCI标签完整，符合规范
+- 缓存挂载优化构建速度
 
-### Makefile 分析
-
-Makefile 功能全面，包含：
-
-- 构建：`build`, `build-version`, `build-all`, `build-debug`
-- 测试：`test`, `test-integration`, `test-e2e`, `test-coverage`
-- 代码质量：`lint`, `fmt`, `tidy`
-- Docker：`docker-build`, `docker-buildx`, `docker-buildx-push`
-- 开发辅助：`dev-setup`, `dev`, `stats`, `todos`
-- 监控：`monitor-up`, `health`, `disk-health`
-- 版本管理：`version-info`, `version-check`
+**无问题发现**
 
 ---
 
-## 部署建议
+## 三、Go 版本检查
 
-### 1. 生产环境部署
+### 3.1 版本一致性
 
-```bash
-# 拉取镜像
-docker pull ghcr.io/nas-os/nas-os:latest
+| 位置 | 注释版本 | 实际版本 | 状态 |
+|------|----------|----------|------|
+| `go.mod` | - | `go 1.26` | ✅ |
+| `Dockerfile` | `1.26` | `golang:1.26-alpine` | ✅ 一致 |
+| `ci-cd.yml` | `1.25` | `GO_VERSION: '1.26'` | ⚠️ 注释不一致 |
+| `docker-publish.yml` | `1.25` | `GO_VERSION: '1.26'` | ⚠️ 注释不一致 |
+| `release.yml` | `1.25` | `GO_VERSION: '1.26'` | ⚠️ 注释不一致 |
+| `security-scan.yml` | - | `GO_VERSION: '1.26'` | ✅ |
+| `benchmark.yml` | `1.25` | `GO_VERSION: '1.26'` | ⚠️ 注释不一致 |
 
-# 或使用完整版（含系统工具）
-docker pull ghcr.io/nas-os/nas-os:full
-```
+### 3.2 问题说明
 
-### 2. 推荐部署方式
+**非阻塞性问题**: 4个workflow文件的注释版本(1.25)与实际配置版本(1.26)不一致。
 
-- **轻量部署**：使用 `minimal` 镜像 + 外部系统工具
-- **完整部署**：使用 `full` 镜像，开箱即用
+建议修复：
+- `ci-cd.yml` 第8行注释
+- `docker-publish.yml` 第8行注释
+- `release.yml` 第8行注释
+- `benchmark.yml` 第5行注释
 
-### 3. 多架构支持
-
-已支持：
-- linux/amd64（x86_64 服务器）
-- linux/arm64（Orange Pi 5, Raspberry Pi 4/5）
-- linux/arm/v7（老旧 ARM 设备）
-
----
-
-## 问题修复
-
-### 🔴 需要修复
-
-#### 1. Dockerfile 注释版本不一致
-
-**位置:** `Dockerfile` 第 7 行、`Dockerfile.full` 第 7 行
-
-**问题:** 注释写 `Go 版本: 1.25`，实际使用 `1.26`
-
-**修复:**
-```diff
-- # Go 版本: 1.25（与 go.mod 保持一致）
-+ # Go 版本: 1.26（与 go.mod 保持一致）
-```
-
-### 🟡 建议优化
-
-#### 1. UPX 压缩静默失败
-
-**位置:** `Dockerfile` 第 61 行
-
-**现状:** `upx --best --lzma nasd nasctl 2>/dev/null || echo "..."`
-
-**建议:** 记录压缩状态到构建日志，便于排查体积差异
-
-#### 2. 覆盖率阈值
-
-**当前:** 最低 25%，警告 50%
-
-**建议:** 随项目成熟度提升阈值
+将注释中的 `1.25` 更新为 `1.26` 以保持一致性。
 
 ---
 
-## 总结
+## 四、构建配置完整性
 
-| 维度 | 评分 | 说明 |
+### 4.1 构建文件清单
+
+| 文件 | 存在 | 用途 |
 |------|------|------|
-| CI/CD 完整性 | ⭐⭐⭐⭐⭐ | 流程完善，覆盖全面 |
-| 构建效率 | ⭐⭐⭐⭐⭐ | 缓存策略优秀，多阶段构建 |
-| 安全性 | ⭐⭐⭐⭐⭐ | 多层安全扫描，签名验证 |
-| 可维护性 | ⭐⭐⭐⭐⭐ | 模块化设计，文档完善 |
-| 多平台支持 | ⭐⭐⭐⭐⭐ | amd64/arm64/armv7 全覆盖 |
+| `Makefile` | ✅ | 本地构建命令 |
+| `Dockerfile` | ✅ | 生产镜像构建 |
+| `Dockerfile.dev` | ✅ | 开发镜像构建 |
+| `Dockerfile.full` | ✅ | 完整版镜像构建 |
+| `docker-compose.yml` | ✅ | 基础编排 |
+| `docker-compose.dev.yml` | ✅ | 开发环境 |
+| `docker-compose.prod.yml` | ✅ | 生产环境 |
+| `.dockerignore` | ✅ | Docker忽略文件 |
+| `go.mod` / `go.sum` | ✅ | Go依赖管理 |
 
-**整体评估：生产就绪**
+### 4.2 CI/CD 依赖的工具
+
+- `actions/checkout@v5` ✅
+- `actions/setup-go@v5` ✅
+- `actions/cache@v4` ✅
+- `golangci/golangci-lint-action@v7` ✅
+- `github/codeql-action@v4` ✅
+- `aquasecurity/trivy-action@master` ✅
+- `docker/build-push-action@v6` ✅
+- `sigstore/cosign-installer@v3` ✅
 
 ---
 
-*工部 2026-03-20*
+## 五、总结
+
+### 5.1 状态汇总
+
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| CI配置完整性 | ✅ 正常 | 5个workflow覆盖全流程 |
+| Dockerfile配置 | ✅ 正常 | 多阶段构建，优化完善 |
+| Go版本一致性 | ⚠️ 注释需更新 | 实际版本一致，注释过时 |
+| 构建流程 | ✅ 正常 | 本地和CI构建完整 |
+
+### 5.2 待修复项
+
+**低优先级**:
+1. 更新4个workflow文件的Go版本注释（从1.25改为1.26）
+
+### 5.3 结论
+
+**构建配置完整，CI/CD流程正常运行。** 仅存在注释版本不一致的小问题，不影响实际构建。
+
+---
+
+*报告生成时间: 2026-03-20 19:04*
