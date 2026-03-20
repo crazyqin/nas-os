@@ -697,6 +697,7 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 
 // ========== 任务管理 ==========
 
+// GetTask 获取指定ID的备份任务
 func (m *Manager) GetTask(taskID string) (*Task, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -708,6 +709,7 @@ func (m *Manager) GetTask(taskID string) (*Task, error) {
 	return task, nil
 }
 
+// ListTasks 列出所有备份任务
 func (m *Manager) ListTasks() []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -719,6 +721,7 @@ func (m *Manager) ListTasks() []*Task {
 	return tasks
 }
 
+// CancelTask 取消正在运行的备份任务
 func (m *Manager) CancelTask(taskID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -778,6 +781,7 @@ func (m *Manager) CleanupOldTasks(maxAge time.Duration) int {
 
 // ========== 备份历史 ==========
 
+// GetHistory 获取指定备份配置的历史记录
 func (m *Manager) GetHistory(configID string) ([]*History, error) {
 	m.mu.RLock()
 	cfg, ok := m.configs[configID]
