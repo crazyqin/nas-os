@@ -104,9 +104,12 @@ type ReplicationTarget struct {
 type NodeStatus string
 
 const (
-	NodeStatusOnline  NodeStatus = "online"
+	// NodeStatusOnline 节点在线
+	NodeStatusOnline NodeStatus = "online"
+	// NodeStatusOffline 节点离线
 	NodeStatusOffline NodeStatus = "offline"
-	NodeStatusError   NodeStatus = "error"
+	// NodeStatusError 节点错误
+	NodeStatusError NodeStatus = "error"
 )
 
 // ReplicationSchedule 复制调度
@@ -185,10 +188,15 @@ type ReplicationJob struct {
 type ReplicationJobStatus string
 
 const (
-	ReplicationJobStatusPending   ReplicationJobStatus = "pending"
-	ReplicationJobStatusRunning   ReplicationJobStatus = "running"
+	// ReplicationJobStatusPending 任务待执行
+	ReplicationJobStatusPending ReplicationJobStatus = "pending"
+	// ReplicationJobStatusRunning 任务运行中
+	ReplicationJobStatusRunning ReplicationJobStatus = "running"
+	// ReplicationJobStatusCompleted 任务已完成
 	ReplicationJobStatusCompleted ReplicationJobStatus = "completed"
-	ReplicationJobStatusFailed    ReplicationJobStatus = "failed"
+	// ReplicationJobStatusFailed 任务失败
+	ReplicationJobStatusFailed ReplicationJobStatus = "failed"
+	// ReplicationJobStatusCancelled 任务已取消
 	ReplicationJobStatusCancelled ReplicationJobStatus = "cancelled"
 )
 

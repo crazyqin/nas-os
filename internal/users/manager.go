@@ -20,9 +20,12 @@ import (
 type Role string
 
 const (
-	RoleAdmin Role = "admin" // 管理员：全部权限
-	RoleUser  Role = "user"  // 普通用户：受限访问
-	RoleGuest Role = "guest" // 访客：只读访问
+	// RoleAdmin 管理员角色，拥有全部权限
+	RoleAdmin Role = "admin"
+	// RoleUser 普通用户角色，受限访问
+	RoleUser Role = "user"
+	// RoleGuest 访客角色，只读访问
+	RoleGuest Role = "guest"
 )
 
 // User 用户信息
@@ -122,14 +125,22 @@ type Manager struct {
 }
 
 var (
-	ErrUserNotFound      = errors.New("用户不存在")
-	ErrUserExists        = errors.New("用户已存在")
-	ErrInvalidPassword   = errors.New("密码错误")
-	ErrTokenInvalid      = errors.New("令牌无效或已过期")
+	// ErrUserNotFound 用户不存在错误
+	ErrUserNotFound = errors.New("用户不存在")
+	// ErrUserExists 用户已存在错误
+	ErrUserExists = errors.New("用户已存在")
+	// ErrInvalidPassword 密码错误
+	ErrInvalidPassword = errors.New("密码错误")
+	// ErrTokenInvalid 令牌无效或已过期
+	ErrTokenInvalid = errors.New("令牌无效或已过期")
+	// ErrAdminCannotDelete 不能删除管理员账户
 	ErrAdminCannotDelete = errors.New("不能删除管理员账户")
-	ErrGroupNotFound     = errors.New("用户组不存在")
-	ErrGroupExists       = errors.New("用户组已存在")
-	ErrLastAdmin         = errors.New("系统必须保留至少一个管理员")
+	// ErrGroupNotFound 用户组不存在
+	ErrGroupNotFound = errors.New("用户组不存在")
+	// ErrGroupExists 用户组已存在
+	ErrGroupExists = errors.New("用户组已存在")
+	// ErrLastAdmin 系统必须保留至少一个管理员
+	ErrLastAdmin = errors.New("系统必须保留至少一个管理员")
 )
 
 // NewManager 创建用户管理器

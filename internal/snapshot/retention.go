@@ -20,13 +20,17 @@ func NewRetentionCleaner(storageMgr StorageManager) *RetentionCleaner {
 	}
 }
 
-// SnapshotInfo 快照信息（用于清理）
-type SnapshotInfo struct {
+// Info 快照信息（用于清理）
+type Info struct {
 	Name      string    `json:"name"`
 	Path      string    `json:"path"`
 	CreatedAt time.Time `json:"createdAt"`
 	Size      int64     `json:"size"`
 }
+
+// SnapshotInfo 是 Info 的别名，保持向后兼容
+// Deprecated: Use Info instead
+type SnapshotInfo = Info
 
 // Clean 执行清理
 func (c *RetentionCleaner) Clean(policy *Policy) ([]string, error) {

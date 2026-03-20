@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.48] - 2026-03-20
+
+### Bug Fixes
+- 修复 golangci-lint revive 错误 (50 个问题)
+  - internal/smb/handlers.go: 添加 Success/Error 函数注释
+  - internal/users/handlers.go: 添加 LoginRequest 等类型注释
+  - internal/users/manager.go: 添加 RoleAdmin 等常量和 ErrUserNotFound 等错误注释
+  - internal/snapshot/replication.go: 添加 NodeStatus 等常量注释
+  - internal/snapshot/retention.go: 重命名 SnapshotInfo 为 Info (解决 stutter)
+  - internal/snapshot/executor.go: 重命名 SnapshotExecutor 为 Executor (解决 stutter)
+  - internal/system/monitor.go: 重命名 SystemStats 为 Stats (解决 stutter)
+
+### Maintenance
+- 六部协同开发检查完成
+- 户部: 资源统计 (467 源文件, 412,044 行代码, 265 测试文件, 68 功能模块)
+- 礼部: 文档版本同步
+- 工部: CI/CD 检查通过
+- 刑部: 安全审计报告生成
+
 ## [v2.253.47] - 2026-03-20
 
 ### Maintenance

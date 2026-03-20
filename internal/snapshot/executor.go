@@ -104,20 +104,20 @@ func validateScript(script string) error {
 	return nil
 }
 
-// SnapshotExecutor 快照执行器
-type SnapshotExecutor struct {
+// Executor 快照执行器
+type Executor struct {
 	storageMgr StorageManager
 }
 
-// NewSnapshotExecutor 创建执行器
-func NewSnapshotExecutor(storageMgr StorageManager) *SnapshotExecutor {
-	return &SnapshotExecutor{
+// NewExecutor 创建执行器
+func NewExecutor(storageMgr StorageManager) *Executor {
+	return &Executor{
 		storageMgr: storageMgr,
 	}
 }
 
 // Execute 执行快照创建
-func (e *SnapshotExecutor) Execute(policy *Policy) (string, error) {
+func (e *Executor) Execute(policy *Policy) (string, error) {
 	// 生成快照名称
 	snapshotName := e.generateSnapshotName(policy)
 
@@ -156,7 +156,7 @@ func (e *SnapshotExecutor) Execute(policy *Policy) (string, error) {
 }
 
 // generateSnapshotName 生成快照名称
-func (e *SnapshotExecutor) generateSnapshotName(policy *Policy) string {
+func (e *Executor) generateSnapshotName(policy *Policy) string {
 	timestamp := time.Now().Format("20060102-150405")
 
 	name := ""
@@ -174,7 +174,7 @@ func (e *SnapshotExecutor) generateSnapshotName(policy *Policy) string {
 }
 
 // runScript 执行脚本
-func (e *SnapshotExecutor) runScript(script string, timeoutSeconds int) error {
+func (e *Executor) runScript(script string, timeoutSeconds int) error {
 	// 安全验证：检查脚本是否包含危险命令
 	if err := validateScript(script); err != nil {
 		return fmt.Errorf("脚本安全验证失败: %w", err)

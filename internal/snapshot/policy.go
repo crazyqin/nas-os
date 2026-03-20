@@ -224,7 +224,7 @@ type PolicyManager struct {
 	scheduler *Scheduler
 
 	// executor 快照执行器
-	executor *SnapshotExecutor
+	executor *Executor
 
 	// cleaner 清理器
 	cleaner *RetentionCleaner
@@ -271,7 +271,7 @@ func NewPolicyManager(configPath string, storageMgr StorageManager) *PolicyManag
 	pm.scheduler = NewScheduler(pm)
 
 	// 初始化执行器
-	pm.executor = NewSnapshotExecutor(storageMgr)
+	pm.executor = NewExecutor(storageMgr)
 
 	// 初始化清理器
 	pm.cleaner = NewRetentionCleaner(storageMgr)
@@ -656,7 +656,7 @@ func (pm *PolicyManager) GetScheduler() *Scheduler {
 }
 
 // GetExecutor 获取执行器
-func (pm *PolicyManager) GetExecutor() *SnapshotExecutor {
+func (pm *PolicyManager) GetExecutor() *Executor {
 	return pm.executor
 }
 
