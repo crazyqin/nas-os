@@ -31,7 +31,7 @@ func DefaultHistoryConfig() HistoryConfig {
 	}
 }
 
-// QuotaHistoryRecord 配额历史记录
+// HistoryRecord 配额历史记录
 type HistoryRecord struct {
 	ID           string    `json:"id"`
 	QuotaID      string    `json:"quota_id"`
@@ -428,12 +428,18 @@ func (m *HistoryManager) Load() error {
 type ChartType string
 
 const (
-	ChartTypeLine    ChartType = "line"    // 折线图
-	ChartTypeBar     ChartType = "bar"     // 柱状图
-	ChartTypePie     ChartType = "pie"     // 饼图
-	ChartTypeArea    ChartType = "area"    // 面积图
-	ChartTypeGauge   ChartType = "gauge"   // 仪表盘
-	ChartTypeHeatmap ChartType = "heatmap" // 热力图
+	// ChartTypeLine 折线图
+	ChartTypeLine ChartType = "line"
+	// ChartTypeBar 柱状图
+	ChartTypeBar ChartType = "bar"
+	// ChartTypePie 饼图
+	ChartTypePie ChartType = "pie"
+	// ChartTypeArea 面积图
+	ChartTypeArea ChartType = "area"
+	// ChartTypeGauge 仪表盘
+	ChartTypeGauge ChartType = "gauge"
+	// ChartTypeHeatmap 热力图
+	ChartTypeHeatmap ChartType = "heatmap"
 )
 
 // ChartDataRequest 图表数据请求
@@ -933,12 +939,19 @@ func formatPeriodLabel(start, end time.Time) string {
 type NotificationType string
 
 const (
-	NotificationEmail    NotificationType = "email"
-	NotificationWebhook  NotificationType = "webhook"
-	NotificationSlack    NotificationType = "slack"
-	NotificationDiscord  NotificationType = "discord"
+	// NotificationEmail 邮件通知
+	NotificationEmail NotificationType = "email"
+	// NotificationWebhook Webhook 通知
+	NotificationWebhook NotificationType = "webhook"
+	// NotificationSlack Slack 通知
+	NotificationSlack NotificationType = "slack"
+	// NotificationDiscord Discord 通知
+	NotificationDiscord NotificationType = "discord"
+	// NotificationTelegram Telegram 通知
 	NotificationTelegram NotificationType = "telegram"
-	NotificationWechat   NotificationType = "wechat"
+	// NotificationWechat 微信通知
+	NotificationWechat NotificationType = "wechat"
+	// NotificationDingtalk 钉钉通知
 	NotificationDingtalk NotificationType = "dingtalk"
 )
 

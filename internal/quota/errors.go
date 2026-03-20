@@ -26,16 +26,24 @@ func (e *QuotaError) Conflict() bool {
 const (
 	// ErrCodeQuotaNotFound 配额未找到错误码
 	ErrCodeQuotaNotFound = 1001
-	ErrCodeQuotaExists   = 1002
+	// ErrCodeQuotaExists 配额已存在错误码
+	ErrCodeQuotaExists = 1002
+	// ErrCodeQuotaExceeded 超出配额错误码
 	ErrCodeQuotaExceeded = 1003
-	ErrCodeUserNotFound  = 1004
+	// ErrCodeUserNotFound 用户未找到错误码
+	ErrCodeUserNotFound = 1004
+	// ErrCodeGroupNotFound 用户组未找到错误码
 	ErrCodeGroupNotFound = 1005
 	// ErrCodeVolumeNotFound 卷未找到错误码
 	ErrCodeVolumeNotFound = 1006
-	ErrCodeInvalidLimit   = 1007
+	// ErrCodeInvalidLimit 无效限制错误码
+	ErrCodeInvalidLimit = 1007
+	// ErrCodePolicyNotFound 策略未找到错误码
 	ErrCodePolicyNotFound = 1008
-	ErrCodeInvalidInput   = 1009
-	ErrCodeAlertNotFound  = 1010
+	// ErrCodeInvalidInput 无效输入错误码
+	ErrCodeInvalidInput = 1009
+	// ErrCodeAlertNotFound 告警未找到错误码
+	ErrCodeAlertNotFound = 1010
 )
 
 // QuotaError 配额错误
