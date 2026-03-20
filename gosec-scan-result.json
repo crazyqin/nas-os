@@ -1,0 +1,500 @@
+{
+	"Golang errors": {},
+	"Issues": [
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/disk/smart_monitor.go",
+			"code": "1129: \tif disk.SmartData.Temperature != nil {\n1130: \t\tpoint.Temperature = int(disk.SmartData.Temperature.Raw)\n1131: \t}\n",
+			"line": "1130",
+			"column": "26",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion uint64 -\u003e int",
+			"file": "/home/mrafter/clawd/nas-os/internal/disk/smart_monitor.go",
+			"code": "725: \n726: \ttemp := int(smartData.Temperature.Raw)\n727: \tscore := ComponentScore{\n",
+			"line": "726",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion rune -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
+			"code": "1371: \t\tfor _, c := range key {\n1372: \t\t\thash = hash*31 + uint32(c)\n1373: \t\t}\n",
+			"line": "1372",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion rune -\u003e uint32",
+			"file": "/home/mrafter/clawd/nas-os/internal/storage/distributed_storage.go",
+			"code": "1314: \t\tfor _, c := range key {\n1315: \t\t\thash = hash*31 + uint32(c)\n1316: \t\t}\n",
+			"line": "1315",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion rune -\u003e byte",
+			"file": "/home/mrafter/clawd/nas-os/internal/ldap/client.go",
+			"code": "325: \tfor i, r := range quoted {\n326: \t\tresult[i*2] = byte(r)\n327: \t\tresult[i*2+1] = 0\n",
+			"line": "326",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/snapshot.go",
+			"code": "200: \t\t\tif err == nil {\n201: \t\t\t\tsnapshot.Size = uint64(info.Size())\n202: \t\t\t}\n",
+			"line": "201",
+			"column": "27",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/iso.go",
+			"code": "227: \t\tPath:       filePath,\n228: \t\tSize:       uint64(written),\n229: \t\tCreatedAt:  now,\n",
+			"line": "228",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/vm/iso.go",
+			"code": "90: \t\t\tPath:       filePath,\n91: \t\t\tSize:       uint64(info.Size()),\n92: \t\t\tCreatedAt:  info.ModTime(),\n",
+			"line": "91",
+			"column": "22",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/system/monitor.go",
+			"code": "718: \t\th.NetRX = uint64(netRX)\n719: \t\th.NetTX = uint64(netTX)\n720: \t\tdata = append(data, \u0026h)\n",
+			"line": "719",
+			"column": "19",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/system/monitor.go",
+			"code": "717: \t\t}\n718: \t\th.NetRX = uint64(netRX)\n719: \t\th.NetTX = uint64(netTX)\n",
+			"line": "718",
+			"column": "19",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/security/v2/mfa.go",
+			"code": "175: \tvar buf [8]byte\n176: \tbinary.BigEndian.PutUint64(buf[:], uint64(timeStep))\n177: \n",
+			"line": "176",
+			"column": "43",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "486: \t\t\t// 按文件大小\n487: \t\t\tif uint64(info.Size()) \u003e= policy.MinSize {\n488: \t\t\t\tmatch = true\n",
+			"line": "487",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "444: \t\tif info, err := os.Stat(file); err == nil {\n445: \t\t\ttask.BytesFreed += uint64(info.Size())\n446: \t\t}\n",
+			"line": "445",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "359: \t\t\t\tPath:    path,\n360: \t\t\t\tSize:    uint64(info.Size()),\n361: \t\t\t\tModTime: info.ModTime(),\n",
+			"line": "360",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "311: \t\t\t\treason = fmt.Sprintf(\"文件大小 %s（超过 %s）\",\n312: \t\t\t\t\tformatBytes(uint64(info.Size())), formatBytes(policy.MinSize))\n313: \t\t\t}\n",
+			"line": "312",
+			"column": "24",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/cleanup.go",
+			"code": "308: \t\tcase CleanupPolicySize:\n309: \t\t\tif uint64(info.Size()) \u003e= policy.MinSize {\n310: \t\t\t\tmatch = true\n",
+			"line": "309",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/alert_enhanced.go",
+			"code": "646: \n647: \t\tsize := uint64(info.Size())\n648: \t\tfile := CleanupFile{\n",
+			"line": "647",
+			"column": "17",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/quota/alert_enhanced.go",
+			"code": "410: \n411: \t\tsize := uint64(info.Size())\n412: \t\tif size \u003c rule.MinSize {\n",
+			"line": "411",
+			"column": "17",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/manager.go",
+			"code": "256: \t}\n257: \tphoto.Size = uint64(info.Size())\n258: \n",
+			"line": "257",
+			"column": "21",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "1400: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1401: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n1402: \t\t},\n",
+			"line": "1401",
+			"column": "61",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "1400: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1401: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n1402: \t\t},\n",
+			"line": "1401",
+			"column": "40",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "1399: \t\t\t\"thumbsUsed\":   uint64(thumbsUsed),\n1400: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1401: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n",
+			"line": "1400",
+			"column": "26",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "1398: \t\t\t\"storageUsed\":  storageUsed,\n1399: \t\t\t\"thumbsUsed\":   uint64(thumbsUsed),\n1400: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n",
+			"line": "1399",
+			"column": "26",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "558: \t\t\tFilename: session.Filename,\n559: \t\t\tSize:     uint64(session.TotalSize),\n560: \t\t},\n",
+			"line": "559",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "275: \t\t\tFilename: fileHeader.Filename,\n276: \t\t\tSize:     uint64(written),\n277: \t\t})\n",
+			"line": "276",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
+			"code": "189: \t\t\tFilename: header.Filename,\n190: \t\t\tSize:     uint64(written),\n191: \t\t},\n",
+			"line": "190",
+			"column": "20",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/performance/disk_unix.go",
+			"code": "16: \ttotal = stat.Blocks * uint64(stat.Bsize)\n17: \tfree = stat.Bavail * uint64(stat.Bsize)\n18: \tused = total - free\n",
+			"line": "17",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/performance/disk_unix.go",
+			"code": "15: \n16: \ttotal = stat.Blocks * uint64(stat.Bsize)\n17: \tfree = stat.Bavail * uint64(stat.Bsize)\n",
+			"line": "16",
+			"column": "30",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/health/disk_unix.go",
+			"code": "14: \t}\n15: \treturn stat.Blocks * uint64(stat.Bsize), stat.Bfree * uint64(stat.Bsize), nil\n16: }\n",
+			"line": "15",
+			"column": "29",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/health/disk_unix.go",
+			"code": "14: \t}\n15: \treturn stat.Blocks * uint64(stat.Bsize), stat.Bfree * uint64(stat.Bsize), nil\n16: }\n",
+			"line": "15",
+			"column": "62",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "190",
+				"url": "https://cwe.mitre.org/data/definitions/190.html"
+			},
+			"rule_id": "G115",
+			"details": "integer overflow conversion int64 -\u003e uint64",
+			"file": "/home/mrafter/clawd/nas-os/internal/container/volume.go",
+			"code": "423: \t\t\tSize:       uint64(info.Size()),\n424: \t\t\tSizeHuman:  formatSize(uint64(info.Size())),\n425: \t\t\tCreated:    info.ModTime(),\n",
+			"line": "424",
+			"column": "33",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
