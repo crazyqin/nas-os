@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.64] - 2026-03-20
+
+### Maintenance
+- 版本号同步更新 (VERSION, version.go, README.md, USER_GUIDE.md)
+- 例行维护发布
+
+## [v2.253.63] - 2026-03-20
+
+### Maintenance
+- 版本号同步更新
+- 例行维护发布
+
 ## [v2.253.62] - 2026-03-20
 
 ### Maintenance
