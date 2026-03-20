@@ -544,13 +544,57 @@ func (m *Manager) runRsyncBackup(ctx context.Context, cfg *JobConfig, task *Task
 
 	args := []string{"-avz", "--progress"}
 
+	// 安全地添加 exclude 模式（验证不包含危险字符）
 	for _, exclude := range cfg.Exclude {
+		if strings.ContainsAny(exclude, "`$()\\;|&<>") {
+			return "", fmt.Errorf("无效的排除模式：%s（包含不允许的字符）", exclude)
+		}
 		args = append(args, "--exclude", exclude)
 	}
 
-	args = append(args, cfg.RsyncOptions...)
+	// 安全地添加 rsync 选项（只允许白名单内的选项）
+	allowedRsyncOptions := map[string]bool{
+		"--delete":       true,
+		"--delete-after": true,
+		"--delete-before": true,
+		"--delete-during": true,
+		"--ignore-errors": true,
+		"--force":        true,
+		"--partial":      true,
+		"--partial-dir":  false, // 需要参数，特殊处理
+		"--backup":       true,
+		"--backup-dir":   false, // 需要参数，特殊处理
+		"--link-dest":    false, // 需要参数，特殊处理
+		"--compare-dest": false, // 需要参数，特殊处理
+		"--copy-dest":    false, // 需要参数，特殊处理
+	}
+
+	for _, opt := range cfg.RsyncOptions {
+		// 解析选项名（去除可能的参数）
+		optName := opt
+		if idx := strings.Index(opt, "="); idx > 0 {
+			optName = opt[:idx]
+		}
+		if strings.HasPrefix(optName, "--") {
+			if allowed, exists := allowedRsyncOptions[optName]; !exists {
+				return "", fmt.Errorf("不允许的 rsync 选项：%s", optName)
+			} else if !allowed {
+				// 需要参数的选项，验证参数不包含危险字符
+				if idx := strings.Index(opt, "="); idx > 0 {
+					param := opt[idx+1:]
+					if strings.ContainsAny(param, "`$()\\;|&<>*?[]") {
+						return "", fmt.Errorf("无效的选项参数：%s", opt)
+					}
+				}
+			}
+		} else {
+			return "", fmt.Errorf("无效的 rsync 选项格式：%s", opt)
+		}
+		args = append(args, opt)
+	}
 
 	if cfg.RemotePort != 0 && cfg.RemotePort != 22 {
+		// 使用 -e 选项指定 ssh 端口，通过参数数组传递，避免命令拼接
 		args = append(args, "-e", fmt.Sprintf("ssh -p %d", cfg.RemotePort))
 	}
 
