@@ -554,19 +554,19 @@ func (m *Manager) runRsyncBackup(ctx context.Context, cfg *JobConfig, task *Task
 
 	// 安全地添加 rsync 选项（只允许白名单内的选项）
 	allowedRsyncOptions := map[string]bool{
-		"--delete":       true,
-		"--delete-after": true,
+		"--delete":        true,
+		"--delete-after":  true,
 		"--delete-before": true,
 		"--delete-during": true,
 		"--ignore-errors": true,
-		"--force":        true,
-		"--partial":      true,
-		"--partial-dir":  false, // 需要参数，特殊处理
-		"--backup":       true,
-		"--backup-dir":   false, // 需要参数，特殊处理
-		"--link-dest":    false, // 需要参数，特殊处理
-		"--compare-dest": false, // 需要参数，特殊处理
-		"--copy-dest":    false, // 需要参数，特殊处理
+		"--force":         true,
+		"--partial":       true,
+		"--partial-dir":   false, // 需要参数，特殊处理
+		"--backup":        true,
+		"--backup-dir":    false, // 需要参数，特殊处理
+		"--link-dest":     false, // 需要参数，特殊处理
+		"--compare-dest":  false, // 需要参数，特殊处理
+		"--copy-dest":     false, // 需要参数，特殊处理
 	}
 
 	for _, opt := range cfg.RsyncOptions {
