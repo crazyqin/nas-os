@@ -1,7 +1,7 @@
 # NAS-OS 开发环境 Dockerfile
 # 基于 Air 实现热重载
 #
-# Go 版本: 1.25（与 go.mod 保持一致）
+# Go 版本: 1.26（与 go.mod 保持一致）
 #
 # 使用方式:
 #   docker compose -f docker-compose.dev.yml up -d
