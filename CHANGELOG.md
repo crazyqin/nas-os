@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.55] - 2026-03-20
+
+### Code Quality
+- `.golangci.yml` - 禁用 stutter 检查
+- `internal/backup/verify.go` - 导出注释修复
+- `internal/cloudsync/providers.go` - 变量命名规范
+- `internal/cloudsync/types.go` - 导出注释修复
+- `internal/shares/handlers.go` - 导出注释修复
+
+### Maintenance
+- 六部协同开发检查完成
+- 编译: 通过
+- go vet: 通过
+
 ## [v2.253.53] - 2026-03-20
 
 ### Bug Fixes

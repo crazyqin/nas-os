@@ -260,12 +260,18 @@ type SyncOperation struct {
 type SyncOpType string
 
 const (
-	SyncOpUpload       SyncOpType = "upload"
-	SyncOpDownload     SyncOpType = "download"
-	SyncOpDeleteLocal  SyncOpType = "delete_local"
+	// SyncOpUpload 上传操作
+	SyncOpUpload SyncOpType = "upload"
+	// SyncOpDownload 下载操作
+	SyncOpDownload SyncOpType = "download"
+	// SyncOpDeleteLocal 删除本地文件
+	SyncOpDeleteLocal SyncOpType = "delete_local"
+	// SyncOpDeleteRemote 删除远程文件
 	SyncOpDeleteRemote SyncOpType = "delete_remote"
-	SyncOpSkip         SyncOpType = "skip"
-	SyncOpConflict     SyncOpType = "conflict"
+	// SyncOpSkip 跳过操作
+	SyncOpSkip SyncOpType = "skip"
+	// SyncOpConflict 冲突操作
+	SyncOpConflict SyncOpType = "conflict"
 )
 
 // ProviderInfo 提供商信息

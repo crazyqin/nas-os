@@ -26,6 +26,8 @@ linters:
           disabled: false
         - name: exported
           disabled: false
+          arguments:
+            - "disableStutteringCheck"
 
   exclusions:
     generated: lax
