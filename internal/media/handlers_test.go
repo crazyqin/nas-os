@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -27,11 +26,8 @@ func setupTestHandlers(t *testing.T) (*Handlers, *gin.Engine, string) {
 	require.NoError(t, os.MkdirAll(mediaPath, 0755))
 
 	lm := NewLibraryManager(configPath)
-	_, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie)
+	_, err := lm.CreateLibrary("Movies", mediaPath, TypeMovie, false) // 禁用自动扫描
 	require.NoError(t, err)
-
-	// 等待后台扫描完成
-	time.Sleep(100 * time.Millisecond)
 
 	h := NewHandlers(lm)
 
