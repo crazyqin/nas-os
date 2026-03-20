@@ -23,6 +23,7 @@ func (e *QuotaError) Conflict() bool {
 
 // ========== 错误码定义 ==========
 
+// 错误码常量
 const (
 	// ErrCodeQuotaNotFound 配额未找到错误码
 	ErrCodeQuotaNotFound = 1001
@@ -166,7 +167,7 @@ func ValidateQuotaInput(input QuotaInput) error {
 		return NewQuotaError(ErrCodeInvalidInput, "配额类型不能为空")
 	}
 
-	if input.Type != QuotaTypeUser && input.Type != QuotaTypeGroup && input.Type != QuotaTypeDirectory {
+	if input.Type != TypeUser && input.Type != TypeGroup && input.Type != TypeDirectory {
 		return NewQuotaError(ErrCodeInvalidInput, "无效的配额类型")
 	}
 

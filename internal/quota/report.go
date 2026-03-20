@@ -274,7 +274,7 @@ func (g *ReportGenerator) generateUserReport(userID string, period ReportPeriod)
 		userMap := make(map[string][]QuotaUsage)
 
 		for _, usage := range usages {
-			if usage.Type == QuotaTypeUser {
+			if usage.Type == TypeUser {
 				userMap[usage.TargetID] = append(userMap[usage.TargetID], *usage)
 			}
 		}

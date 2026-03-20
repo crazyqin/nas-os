@@ -8,6 +8,7 @@ import (
 
 // ========== 错误定义 ==========
 
+// 配额相关错误
 var (
 	ErrQuotaNotFound         = errors.New("配额不存在")
 	ErrQuotaExists           = errors.New("配额已存在")
@@ -21,19 +22,30 @@ var (
 
 // ========== 配额类型 ==========
 
-// QuotaType 配额类型
-type QuotaType string
+// Type 配额类型
+type Type string
 
+// 配额类型常量
 const (
-	QuotaTypeUser      QuotaType = "user"      // 用户配额
-	QuotaTypeGroup     QuotaType = "group"     // 用户组配额
-	QuotaTypeDirectory QuotaType = "directory" // 目录配额
+	TypeUser      Type = "user"      // 用户配额
+	TypeGroup     Type = "group"     // 用户组配额
+	TypeDirectory Type = "directory" // 目录配额
 )
+
+// 向后兼容的常量别名
+const (
+	QuotaTypeUser      = TypeUser      // 用户配额
+	QuotaTypeGroup     = TypeGroup     // 用户组配额
+	QuotaTypeDirectory = TypeDirectory // 目录配额
+)
+
+// QuotaType 是 Type 的别名，保留用于向后兼容
+type QuotaType = Type
 
 // Quota 存储配额定义
 type Quota struct {
-	ID         string    `json:"id"`
-	Type       QuotaType `json:"type"`        // user 或 group
+	ID         string `json:"id"`
+	Type       Type   `json:"type"`        // user 或 group
 	TargetID   string    `json:"target_id"`   // 用户名或组名
 	TargetName string    `json:"target_name"` // 显示名称
 	VolumeName string    `json:"volume_name"` // 适用卷名（空表示全局）
@@ -44,10 +56,10 @@ type Quota struct {
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-// QuotaUsage 配额使用情况
-type QuotaUsage struct {
+// Usage 配额使用情况
+type Usage struct {
 	QuotaID      string    `json:"quota_id"`
-	Type         QuotaType `json:"type"`
+	Type         Type      `json:"type"`
 	TargetID     string    `json:"target_id"`
 	TargetName   string    `json:"target_name"`
 	VolumeName   string    `json:"volume_name"`
@@ -62,11 +74,15 @@ type QuotaUsage struct {
 	LastChecked  time.Time `json:"last_checked"`
 }
 
+// QuotaUsage 是 Usage 的别名，保留用于向后兼容
+type QuotaUsage = Usage
+
 // ========== 告警类型 ==========
 
 // AlertType 告警类型
 type AlertType string
 
+// 告警类型常量
 const (
 	AlertTypeSoftLimit AlertType = "soft_limit" // 软限制告警
 	AlertTypeHardLimit AlertType = "hard_limit" // 硬限制告警
@@ -246,23 +262,23 @@ type ReportSummary struct {
 
 // UserQuotaReport 用户配额报告详情
 type UserQuotaReport struct {
-	Username       string       `json:"username"`
-	Quotas         []QuotaUsage `json:"quotas"`
-	TotalLimit     uint64       `json:"total_limit"`
-	TotalUsed      uint64       `json:"total_used"`
-	TotalAvailable uint64       `json:"total_available"`
-	UsagePercent   float64      `json:"usage_percent"`
+	Username       string  `json:"username"`
+	Quotas         []Usage `json:"quotas"`
+	TotalLimit     uint64  `json:"total_limit"`
+	TotalUsed      uint64  `json:"total_used"`
+	TotalAvailable uint64  `json:"total_available"`
+	UsagePercent   float64 `json:"usage_percent"`
 }
 
 // VolumeQuotaReport 卷配额报告详情
 type VolumeQuotaReport struct {
-	VolumeName   string       `json:"volume_name"`
-	TotalLimit   uint64       `json:"total_limit"`
-	TotalUsed    uint64       `json:"total_used"`
-	TotalFree    uint64       `json:"total_free"`
-	UserQuotas   []QuotaUsage `json:"user_quotas"`
-	GroupQuotas  []QuotaUsage `json:"group_quotas"`
-	ActiveAlerts []Alert      `json:"active_alerts"`
+	VolumeName   string  `json:"volume_name"`
+	TotalLimit   uint64  `json:"total_limit"`
+	TotalUsed    uint64  `json:"total_used"`
+	TotalFree    uint64  `json:"total_free"`
+	UserQuotas   []Usage `json:"user_quotas"`
+	GroupQuotas  []Usage `json:"group_quotas"`
+	ActiveAlerts []Alert `json:"active_alerts"`
 }
 
 // TrendDataPoint 趋势数据点

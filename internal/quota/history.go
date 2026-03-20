@@ -31,12 +31,12 @@ func DefaultHistoryConfig() HistoryConfig {
 	}
 }
 
-// QuotaHistoryRecord 配额历史记录
+// HistoryRecord 配额历史记录详情
 type HistoryRecord struct {
 	ID           string    `json:"id"`
 	QuotaID      string    `json:"quota_id"`
 	TargetName   string    `json:"target_name"`
-	TargetType   QuotaType `json:"target_type"`
+	TargetType   Type      `json:"target_type"`
 	VolumeName   string    `json:"volume_name"`
 	UsedBytes    uint64    `json:"used_bytes"`
 	LimitBytes   uint64    `json:"limit_bytes"`
@@ -427,6 +427,7 @@ func (m *HistoryManager) Load() error {
 // ChartType 图表类型
 type ChartType string
 
+// 图表类型常量
 const (
 	ChartTypeLine    ChartType = "line"    // 折线图
 	ChartTypeBar     ChartType = "bar"     // 柱状图
@@ -685,7 +686,7 @@ func (m *ChartManager) getPieChartData(req ChartDataRequest, response *ChartData
 	}
 
 	// 按类型分组
-	typeData := make(map[QuotaType]uint64)
+	typeData := make(map[Type]uint64)
 	for _, u := range usages {
 		if req.VolumeName != "" && u.VolumeName != req.VolumeName {
 			continue
@@ -699,10 +700,10 @@ func (m *ChartManager) getPieChartData(req ChartDataRequest, response *ChartData
 		Data: make([]ChartPoint, 0),
 	}
 
-	typeNames := map[QuotaType]string{
-		QuotaTypeUser:      "用户配额",
-		QuotaTypeGroup:     "组配额",
-		QuotaTypeDirectory: "目录配额",
+	typeNames := map[Type]string{
+		TypeUser:      "用户配额",
+		TypeGroup:     "组配额",
+		TypeDirectory: "目录配额",
 	}
 
 	for t, bytes := range typeData {
@@ -932,6 +933,7 @@ func formatPeriodLabel(start, end time.Time) string {
 // NotificationType 通知类型
 type NotificationType string
 
+// 通知类型常量
 const (
 	NotificationEmail    NotificationType = "email"
 	NotificationWebhook  NotificationType = "webhook"
@@ -1376,9 +1378,9 @@ func (g *ReportGeneratorEnhanced) GenerateSystemReport(period ReportPeriod) (*Sy
 		vol.QuotaCount++
 
 		switch usage.Type {
-		case QuotaTypeUser:
+		case TypeUser:
 			vol.UserCount++
-		case QuotaTypeGroup:
+		case TypeGroup:
 			vol.GroupCount++
 		}
 
@@ -1565,11 +1567,11 @@ func (m *StorageStatsManager) GetStorageStats(volumeName string) (*StorageStats,
 		stats.QuotaCount++
 
 		switch usage.Type {
-		case QuotaTypeUser:
+		case TypeUser:
 			stats.UserQuotas = append(stats.UserQuotas, *usage)
-		case QuotaTypeGroup:
+		case TypeGroup:
 			stats.GroupQuotas = append(stats.GroupQuotas, *usage)
-		case QuotaTypeDirectory:
+		case TypeDirectory:
 			stats.DirectoryQuotas = append(stats.DirectoryQuotas, *usage)
 		}
 	}

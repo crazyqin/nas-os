@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.44] - 2026-03-20
+
+### Fixed
+- 修复 golangci-lint 代码注释规范问题
+- 修复 cloudsync/types.go 导出常量注释
+- 修复 quota 包导出类型和常量注释
+- 修复 quota 包类型命名 stuttering 问题
+
 ## [v2.253.43] - 2026-03-20
 
 ### Security

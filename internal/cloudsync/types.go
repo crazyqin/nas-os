@@ -7,6 +7,7 @@ import (
 // ProviderType 云存储提供商类型
 type ProviderType string
 
+// 云存储提供商类型常量
 const (
 	// ProviderAliyunOSS 阿里云 OSS
 	ProviderAliyunOSS    ProviderType = "aliyun_oss"
@@ -22,6 +23,7 @@ const (
 // SyncDirection 同步方向
 type SyncDirection string
 
+// 同步方向常量
 const (
 	SyncDirectionUpload   SyncDirection = "upload"   // 本地 → 云端
 	SyncDirectionDownload SyncDirection = "download" // 云端 → 本地
@@ -31,6 +33,7 @@ const (
 // SyncMode 同步模式
 type SyncMode string
 
+// 同步模式常量
 const (
 	SyncModeMirror    SyncMode = "mirror"    // 镜像模式（本地为主）
 	SyncModeBackup    SyncMode = "backup"    // 备份模式（保留历史）
@@ -41,6 +44,7 @@ const (
 // ScheduleType 调度类型
 type ScheduleType string
 
+// 调度类型常量
 const (
 	ScheduleTypeManual   ScheduleType = "manual"   // 手动触发
 	ScheduleTypeRealtime ScheduleType = "realtime" // 实时监控
@@ -51,6 +55,7 @@ const (
 // ConflictStrategy 冲突解决策略
 type ConflictStrategy string
 
+// 冲突解决策略常量
 const (
 	ConflictStrategySkip   ConflictStrategy = "skip"   // 跳过冲突文件
 	ConflictStrategyLocal  ConflictStrategy = "local"  // 本地优先
@@ -63,6 +68,7 @@ const (
 // TaskStatus 任务状态
 type TaskStatus string
 
+// 任务状态常量
 const (
 	TaskStatusIdle      TaskStatus = "idle"
 	TaskStatusRunning   TaskStatus = "running"
