@@ -779,7 +779,7 @@ func ExportTemplateToFile(tpl *Template, filePath string) error {
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
-	return os.WriteFile(filePath, data, 0644)
+	return os.WriteFile(filePath, data, 0640)
 }
 
 // ImportTemplateFromFile 从文件导入模板

@@ -573,7 +573,7 @@ func (s *AppStore) saveInstalled() error {
 		return err
 	}
 
-	return os.WriteFile(s.dataFile, data, 0644)
+	return os.WriteFile(s.dataFile, data, 0640)
 }
 
 // ListTemplates 列出所有模板
@@ -677,7 +677,7 @@ func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) 
 	// 生成 Docker Compose 文件
 	composeContent := s.renderCompose(template, config)
 	composePath := filepath.Join(appDir, "docker-compose.yml")
-	if err := os.WriteFile(composePath, []byte(composeContent), 0644); err != nil {
+	if err := os.WriteFile(composePath, []byte(composeContent), 0640); err != nil {
 		return nil, err
 	}
 

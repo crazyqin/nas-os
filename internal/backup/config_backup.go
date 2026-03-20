@@ -72,19 +72,27 @@ type ConfigBackupRecord struct {
 type ConfigBackupType string
 
 const (
-	ConfigBackupAuto      ConfigBackupType = "auto"       // 自动备份
-	ConfigBackupManual    ConfigBackupType = "manual"     // 手动备份
+	// ConfigBackupAuto is the automatic backup type.
+	ConfigBackupAuto ConfigBackupType = "auto" // 自动备份
+	// ConfigBackupManual is the manual backup type.
+	ConfigBackupManual ConfigBackupType = "manual" // 手动备份
+	// ConfigBackupPreUpdate is the pre-update backup type.
 	ConfigBackupPreUpdate ConfigBackupType = "pre_update" // 更新前备份
-	ConfigBackupScheduled ConfigBackupType = "scheduled"  // 定时备份
+	// ConfigBackupScheduled is the scheduled backup type.
+	ConfigBackupScheduled ConfigBackupType = "scheduled" // 定时备份
 )
 
 // ConfigBackupStatus 配置备份状态
 type ConfigBackupStatus string
 
 const (
-	ConfigBackupStatusCreating  ConfigBackupStatus = "creating"
+	// ConfigBackupStatusCreating indicates the backup is being created.
+	ConfigBackupStatusCreating ConfigBackupStatus = "creating"
+	// ConfigBackupStatusCompleted indicates the backup completed successfully.
 	ConfigBackupStatusCompleted ConfigBackupStatus = "completed"
-	ConfigBackupStatusFailed    ConfigBackupStatus = "failed"
+	// ConfigBackupStatusFailed indicates the backup failed.
+	ConfigBackupStatusFailed ConfigBackupStatus = "failed"
+	// ConfigBackupStatusCorrupted indicates the backup is corrupted.
 	ConfigBackupStatusCorrupted ConfigBackupStatus = "corrupted"
 )
 
@@ -630,7 +638,7 @@ func (m *ConfigBackupManager) saveRegistry() error {
 		return err
 	}
 
-	return os.WriteFile(m.registryPath, data, 0644)
+	return os.WriteFile(m.registryPath, data, 0600)
 }
 
 // StartScheduledBackup 启动定时备份

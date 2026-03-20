@@ -560,7 +560,7 @@ func (m *ShareACLManager) save() error {
 		return err
 	}
 
-	return os.WriteFile(m.config.ConfigPath, data, 0644)
+	return os.WriteFile(m.config.ConfigPath, data, 0600)
 }
 
 // ========== SMB 兼容层 ==========

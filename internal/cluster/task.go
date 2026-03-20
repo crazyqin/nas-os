@@ -751,7 +751,7 @@ func (ts *TaskScheduler) saveTasksLocked() error {
 		return err
 	}
 
-	return os.WriteFile(tasksFile, data, 0644)
+	return os.WriteFile(tasksFile, data, 0640)
 }
 
 func (ts *TaskScheduler) saveTasks() error {
@@ -785,7 +785,7 @@ func (ts *TaskScheduler) saveSchedules() error {
 		return err
 	}
 
-	return os.WriteFile(schedulesFile, data, 0644)
+	return os.WriteFile(schedulesFile, data, 0640)
 }
 
 // 辅助函数

@@ -87,7 +87,7 @@ func (h *Handlers) saveConfig() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(h.configPath, data, 0644)
+	return os.WriteFile(h.configPath, data, 0640)
 }
 
 // applyConfig 应用配置

@@ -411,7 +411,7 @@ func WriteSmbConf(configPath string, config *Config, shares map[string]*Share) e
 
 	// 写入临时文件
 	tmpPath := configPath + ".tmp"
-	if err := os.WriteFile(tmpPath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(tmpPath, []byte(content), 0640); err != nil {
 		return fmt.Errorf("写入配置文件失败: %w", err)
 	}
 
@@ -439,7 +439,7 @@ func BackupSmbConf(configPath string) error {
 		return fmt.Errorf("读取配置文件失败: %w", err)
 	}
 
-	if err := os.WriteFile(backupPath, data, 0644); err != nil {
+	if err := os.WriteFile(backupPath, data, 0640); err != nil {
 		return fmt.Errorf("写入备份文件失败: %w", err)
 	}
 

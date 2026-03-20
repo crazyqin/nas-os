@@ -488,7 +488,7 @@ func (d *SimilarityDetector) SaveIndex(path string) error {
 		return err
 	}
 
-	return os.WriteFile(path, jsonData, 0644)
+	return os.WriteFile(path, jsonData, 0640)
 }
 
 // LoadIndex 加载索引

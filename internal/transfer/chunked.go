@@ -104,7 +104,7 @@ func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkI
 
 		// Write chunk to file
 		chunkPath := filepath.Join(outputDir, fmt.Sprintf("%s.chunk.%d", filepath.Base(filePath), i))
-		if err := os.WriteFile(chunkPath, chunkData, 0644); err != nil {
+		if err := os.WriteFile(chunkPath, chunkData, 0640); err != nil {
 			return nil, fmt.Errorf("failed to write chunk %d: %w", i, err)
 		}
 	}

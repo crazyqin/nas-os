@@ -294,7 +294,7 @@ func (m *Manager) CreateVM(ctx context.Context, config Config) (*VM, error) {
 	// 生成 libvirt XML 配置
 	xmlConfig := m.generateLibvirtXML(vm)
 	xmlPath := filepath.Join(vmDir, "domain.xml")
-	if err := os.WriteFile(xmlPath, []byte(xmlConfig), 0644); err != nil {
+	if err := os.WriteFile(xmlPath, []byte(xmlConfig), 0640); err != nil {
 		_ = os.RemoveAll(vmDir)
 		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
 	}
@@ -489,7 +489,7 @@ func (m *Manager) saveConfig(vm *VM) error {
 		return fmt.Errorf("序列化 VM 配置失败：%w", err)
 	}
 
-	if err := os.WriteFile(configPath, data, 0644); err != nil {
+	if err := os.WriteFile(configPath, data, 0640); err != nil {
 		return fmt.Errorf("写入 VM 配置文件失败：%w", err)
 	}
 
@@ -711,7 +711,7 @@ func (m *Manager) UpdateVM(ctx context.Context, vmID string, config Config) (*VM
 	xmlConfig := m.generateLibvirtXML(vm)
 	vmDir := filepath.Join(m.storagePath, vmID)
 	xmlPath := filepath.Join(vmDir, "domain.xml")
-	if err := os.WriteFile(xmlPath, []byte(xmlConfig), 0644); err != nil {
+	if err := os.WriteFile(xmlPath, []byte(xmlConfig), 0640); err != nil {
 		return nil, fmt.Errorf("保存 VM 配置失败：%w", err)
 	}
 

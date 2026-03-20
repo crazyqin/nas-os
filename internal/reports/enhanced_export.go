@@ -143,7 +143,7 @@ func (e *EnhancedExporter) exportJSONEnhanced(report *GeneratedReport, path stri
 		data, _ = json.Marshal(output)
 	}
 
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // ========== CSV 增强 ==========
@@ -158,7 +158,7 @@ func NewCSVExporterEnhanced() *CSVExporterEnhanced {
 
 func (e *EnhancedExporter) exportCSVEnhanced(report *GeneratedReport, path string, options EnhancedExportOptions) error {
 	if len(report.Data) == 0 {
-		return os.WriteFile(path, []byte{}, 0644)
+		return os.WriteFile(path, []byte{}, 0640)
 	}
 
 	var buf bytes.Buffer
@@ -237,7 +237,7 @@ func (e *EnhancedExporter) exportCSVEnhanced(report *GeneratedReport, path strin
 	}
 
 	writer.Flush()
-	return os.WriteFile(path, buf.Bytes(), 0644)
+	return os.WriteFile(path, buf.Bytes(), 0640)
 }
 
 // inferColumns 从数据推断列定义
@@ -329,7 +329,7 @@ func (e *EnhancedExporter) exportHTMLEnhanced(report *GeneratedReport, path stri
 		return err
 	}
 
-	return os.WriteFile(path, buf.Bytes(), 0644)
+	return os.WriteFile(path, buf.Bytes(), 0640)
 }
 
 // getEnhancedHTMLTemplate 获取增强的 HTML 模板
@@ -731,7 +731,7 @@ func (e *EnhancedExporter) exportPDFEnhanced(report *GeneratedReport, path strin
 
 	// 保存临时 HTML 文件
 	tmpHTML := path + ".html"
-	if err := os.WriteFile(tmpHTML, htmlData, 0644); err != nil {
+	if err := os.WriteFile(tmpHTML, htmlData, 0640); err != nil {
 		return err
 	}
 	defer func() { _ = os.Remove(tmpHTML) }()
@@ -741,14 +741,14 @@ func (e *EnhancedExporter) exportPDFEnhanced(report *GeneratedReport, path strin
 		if err := e.pdfConverter.Convert(tmpHTML, path); err != nil {
 			// 转换失败，保存 HTML
 			htmlPath := strings.TrimSuffix(path, ".pdf") + ".html"
-			return os.WriteFile(htmlPath, htmlData, 0644)
+			return os.WriteFile(htmlPath, htmlData, 0640)
 		}
 		return nil
 	}
 
 	// 没有转换器，保存 HTML
 	htmlPath := strings.TrimSuffix(path, ".pdf") + ".html"
-	return os.WriteFile(htmlPath, htmlData, 0644)
+	return os.WriteFile(htmlPath, htmlData, 0640)
 }
 
 // generatePDFHTML 生成适合 PDF 的 HTML

@@ -1017,7 +1017,7 @@ func (m *Manager) sendNotification(device *Device, action string) {
 		fmt.Sprintf("USB_MOUNT_POINT=%s", sanitizeEnvValue(device.MountPoint)),
 		fmt.Sprintf("USB_ACTION=%s", sanitizeEnvValue(action)),
 	)
-	cmd.Run() //nolint:errcheck
+	_ = cmd.Run() // #nosec G104 -- 触发脚本执行，错误已记录到日志
 }
 
 // loadConfig 加载配置

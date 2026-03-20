@@ -125,7 +125,7 @@ func (am *ArchiveManager) ArchiveProject(projectID, archivedBy string, deleteAft
 	archiveFileName := archiveID + ".json"
 	archivePath := filepath.Join(am.config.StoragePath, archiveFileName)
 
-	if err := os.WriteFile(archivePath, exportData, 0644); err != nil {
+	if err := os.WriteFile(archivePath, exportData, 0640); err != nil {
 		return nil, err
 	}
 
@@ -420,7 +420,7 @@ func (am *ArchiveManager) SaveArchives(path string) error {
 		return err
 	}
 
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // LoadArchives 加载归档索引

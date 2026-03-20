@@ -99,7 +99,7 @@ func (hm *HistoryManager) save() error {
 		return err
 	}
 
-	return os.WriteFile(hm.storePath, data, 0644)
+	return os.WriteFile(hm.storePath, data, 0640)
 }
 
 // AddRecord 添加记录

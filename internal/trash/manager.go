@@ -347,7 +347,7 @@ func (m *Manager) saveConfig() error {
 		return err
 	}
 
-	return os.WriteFile(m.configPath, data, 0644)
+	return os.WriteFile(m.configPath, data, 0640)
 }
 
 // loadItems 加载项目列表
@@ -392,7 +392,7 @@ func (m *Manager) saveItems() error {
 		return err
 	}
 
-	return os.WriteFile(itemsPath, data, 0644)
+	return os.WriteFile(itemsPath, data, 0640)
 }
 
 // startAutoClean 启动自动清理

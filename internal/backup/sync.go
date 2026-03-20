@@ -62,28 +62,39 @@ type SyncTask struct {
 type SyncMode string
 
 const (
+	// SyncModeBidirectional enables bidirectional synchronization.
 	SyncModeBidirectional SyncMode = "bidirectional" // 双向同步
-	SyncModeMasterSlave   SyncMode = "master-slave"  // 主从同步
-	SyncModeOneWay        SyncMode = "one-way"       // 单向同步
+	// SyncModeMasterSlave enables master-slave synchronization.
+	SyncModeMasterSlave SyncMode = "master-slave" // 主从同步
+	// SyncModeOneWay enables one-way synchronization.
+	SyncModeOneWay SyncMode = "one-way" // 单向同步
 )
 
 // ConflictResolution 冲突解决策略
 type ConflictResolution string
 
 const (
-	ConflictLatest   ConflictResolution = "latest"    // 最新者胜
-	ConflictSource   ConflictResolution = "source"    // 源优先
-	ConflictDest     ConflictResolution = "dest"      // 目标优先
+	// ConflictLatest uses the latest version for conflict resolution.
+	ConflictLatest ConflictResolution = "latest" // 最新者胜
+	// ConflictSource prioritizes the source version.
+	ConflictSource ConflictResolution = "source" // 源优先
+	// ConflictDest prioritizes the destination version.
+	ConflictDest ConflictResolution = "dest" // 目标优先
+	// ConflictKeepBoth keeps both versions when conflicts occur.
 	ConflictKeepBoth ConflictResolution = "keep-both" // 保留两者
-	ConflictManual   ConflictResolution = "manual"    // 手动解决
+	// ConflictManual requires manual conflict resolution.
+	ConflictManual ConflictResolution = "manual" // 手动解决
 )
 
 // RemoteType 远程类型
 type RemoteType string
 
 const (
-	RemoteTypeLocal  RemoteType = "local"
-	RemoteTypeS3     RemoteType = "s3"
+	// RemoteTypeLocal is the local remote type.
+	RemoteTypeLocal RemoteType = "local"
+	// RemoteTypeS3 is the S3 remote type.
+	RemoteTypeS3 RemoteType = "s3"
+	// RemoteTypeWebDAV is the WebDAV remote type.
 	RemoteTypeWebDAV RemoteType = "webdav"
 )
 
@@ -879,7 +890,7 @@ func (vm *VersionManager) saveVersionMetadata(version *VersionInfo) error {
   "createdAt": "%s"
 }`, version.VersionID, version.FilePath, version.Size, version.Checksum, version.CreatedAt.Format(time.RFC3339))
 
-	return os.WriteFile(metaPath, []byte(content), 0644)
+	return os.WriteFile(metaPath, []byte(content), 0600)
 }
 
 // loadVersionMetadata 加载版本元数据

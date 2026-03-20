@@ -441,7 +441,7 @@ func (lm *LibraryManager) saveConfig() error {
 		return err
 	}
 
-	return os.WriteFile(lm.configPath, data, 0644)
+	return os.WriteFile(lm.configPath, data, 0640)
 }
 
 // PlayHistory 播放历史记录

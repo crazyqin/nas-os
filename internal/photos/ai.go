@@ -573,7 +573,7 @@ func (aim *AIManager) persistAIMemory() error {
 	}
 
 	path := filepath.Join(aim.photosManager.dataDir, "ai-memory.json")
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // GetPhotoAIResult 获取照片的 AI 分析结果
@@ -631,7 +631,7 @@ func (aim *AIManager) saveSmartAlbums() error {
 	}
 
 	path := filepath.Join(aim.photosManager.dataDir, "smart-albums.json")
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // CreateSmartAlbum 创建智能相册
@@ -934,7 +934,7 @@ func (aim *AIManager) saveMemory(memory *MemoryAlbum) {
 			if err != nil {
 				return
 			}
-			_ = os.WriteFile(memoriesPath, data, 0644)
+			_ = os.WriteFile(memoriesPath, data, 0640)
 			return
 		}
 	}
@@ -947,7 +947,7 @@ func (aim *AIManager) saveMemory(memory *MemoryAlbum) {
 	if err != nil {
 		return
 	}
-	_ = os.WriteFile(memoriesPath, data, 0644)
+	_ = os.WriteFile(memoriesPath, data, 0640)
 }
 
 // GetMemories 获取回忆列表

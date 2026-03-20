@@ -326,7 +326,7 @@ func (cb *CloudBackup) downloadFromWebDAV(remotePath, localPath string) (*Downlo
 		return nil, fmt.Errorf("WebDAV 下载失败：%w", err)
 	}
 
-	if err := os.WriteFile(localPath, data, 0644); err != nil {
+	if err := os.WriteFile(localPath, data, 0600); err != nil {
 		return nil, fmt.Errorf("写入文件失败：%w", err)
 	}
 

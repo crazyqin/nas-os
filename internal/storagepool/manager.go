@@ -846,7 +846,7 @@ func (m *Manager) save() error {
 		return fmt.Errorf("序列化数据失败: %w", err)
 	}
 
-	return os.WriteFile(dataFile, data, 0644)
+	return os.WriteFile(dataFile, data, 0640)
 }
 
 // scanDevices 扫描系统设备

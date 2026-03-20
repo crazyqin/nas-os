@@ -172,13 +172,13 @@ func DefaultSmartBackupConfigV2() *SmartBackupConfigV2 {
 	}
 }
 
-// BackupIndexV2 备份索引
+// IndexV2 备份索引
 type BackupIndexV2 struct {
 	mu       sync.RWMutex
 	versions map[string]*BackupVersionV2
 }
 
-// BackupVersionV2 备份版本信息
+// VersionV2 备份版本信息
 type BackupVersionV2 struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
@@ -192,14 +192,18 @@ type BackupVersionV2 struct {
 	Tags         []string          `json:"tags,omitempty"`
 }
 
-// BackupStatusV2 备份状态
+// StatusV2 备份状态
 type BackupStatusV2 string
 
 const (
-	BackupStatusV2Pending   BackupStatusV2 = "pending"
-	BackupStatusV2Running   BackupStatusV2 = "running"
+	// BackupStatusV2Pending indicates the backup is pending.
+	BackupStatusV2Pending BackupStatusV2 = "pending"
+	// BackupStatusV2Running indicates the backup is running.
+	BackupStatusV2Running BackupStatusV2 = "running"
+	// BackupStatusV2Completed indicates the backup completed successfully.
 	BackupStatusV2Completed BackupStatusV2 = "completed"
-	BackupStatusV2Failed    BackupStatusV2 = "failed"
+	// BackupStatusV2Failed indicates the backup failed.
+	BackupStatusV2Failed BackupStatusV2 = "failed"
 )
 
 // ActiveBackupJobV2 活动备份作业
@@ -283,7 +287,7 @@ func (sm *SmartManagerV2) saveConfig() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(sm.configPath, data, 0644)
+	return os.WriteFile(sm.configPath, data, 0600)
 }
 
 // ensureDirectories 确保必要目录存在
@@ -314,7 +318,7 @@ func (sm *SmartManagerV2) saveBackupIndex() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(sm.config.IndexDBPath, data, 0644)
+	return os.WriteFile(sm.config.IndexDBPath, data, 0600)
 }
 
 // Close 关闭管理器

@@ -910,7 +910,7 @@ func (g *CostReportGenerator) exportJSON(report *CostReport, outputPath string) 
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
-	if err := os.WriteFile(outputPath, data, 0644); err != nil {
+	if err := os.WriteFile(outputPath, data, 0640); err != nil {
 		return fmt.Errorf("写入文件失败: %w", err)
 	}
 

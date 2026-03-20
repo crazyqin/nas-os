@@ -19,7 +19,7 @@ import (
 // 备份调度器
 // ============================================================================
 
-// BackupScheduler 备份调度器
+// Scheduler 备份调度器
 // 支持定时备份、优先级队列、备份窗口配置、并发控制、依赖管理
 type BackupScheduler struct {
 	mu sync.RWMutex
@@ -130,13 +130,20 @@ type ScheduledJob struct {
 type JobStatus string
 
 const (
-	JobStatusPending   JobStatus = "pending"
-	JobStatusQueued    JobStatus = "queued"
-	JobStatusRunning   JobStatus = "running"
+	// JobStatusPending indicates the job is pending.
+	JobStatusPending JobStatus = "pending"
+	// JobStatusQueued indicates the job is queued.
+	JobStatusQueued JobStatus = "queued"
+	// JobStatusRunning indicates the job is running.
+	JobStatusRunning JobStatus = "running"
+	// JobStatusCompleted indicates the job completed successfully.
 	JobStatusCompleted JobStatus = "completed"
-	JobStatusFailed    JobStatus = "failed"
+	// JobStatusFailed indicates the job failed.
+	JobStatusFailed JobStatus = "failed"
+	// JobStatusCancelled indicates the job was cancelled.
 	JobStatusCancelled JobStatus = "cancelled"
-	JobStatusRetrying  JobStatus = "retrying"
+	// JobStatusRetrying indicates the job is retrying.
+	JobStatusRetrying JobStatus = "retrying"
 )
 
 // BackupWindow 备份窗口

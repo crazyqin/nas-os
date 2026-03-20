@@ -521,7 +521,7 @@ func (m *Manager) saveConfig() error {
 		return err
 	}
 
-	return os.WriteFile(m.configPath, data, 0644)
+	return os.WriteFile(m.configPath, data, 0640)
 }
 
 // Stop 停止管理器

@@ -131,7 +131,7 @@ func (s *Scheduler) saveTasks() error {
 		return err
 	}
 
-	return os.WriteFile(s.config.StoragePath+"/tasks.json", data, 0644)
+	return os.WriteFile(s.config.StoragePath+"/tasks.json", data, 0640)
 }
 
 // Start 启动调度器

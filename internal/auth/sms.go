@@ -3,7 +3,7 @@ package auth
 import (
 	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505 -- 阿里云短信 API 签名规范要求 HMAC-SHA1
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"

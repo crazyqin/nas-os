@@ -533,7 +533,7 @@ ignoreregex =
 
 	// 写入过滤器文件
 	filterPath := "/etc/fail2ban/filter.d/nas-os-auth.conf"
-	if err := os.WriteFile(filterPath, []byte(filter), 0644); err != nil {
+	if err := os.WriteFile(filterPath, []byte(filter), 0640); err != nil {
 		return fmt.Errorf("写入过滤器失败：%w", err)
 	}
 

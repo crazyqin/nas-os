@@ -1053,7 +1053,7 @@ func (rm *ReplicationManager) saveConfig() error {
 		return err
 	}
 
-	return os.WriteFile(rm.configPath, data, 0644)
+	return os.WriteFile(rm.configPath, data, 0640)
 }
 
 func (rm *ReplicationManager) getSnapshotPath(volume, snapshot string) (string, error) {

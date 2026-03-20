@@ -93,13 +93,13 @@ func (lm *LogManager) save() error {
 		executions = append(executions, exec)
 	}
 	execData, _ := json.MarshalIndent(executions, "", "  ")
-	if err := os.WriteFile(lm.storePath+"/executions.json", execData, 0644); err != nil {
+	if err := os.WriteFile(lm.storePath+"/executions.json", execData, 0640); err != nil {
 		return err
 	}
 
 	// 保存日志
 	logData, _ := json.MarshalIndent(lm.logs, "", "  ")
-	return os.WriteFile(lm.storePath+"/logs.json", logData, 0644)
+	return os.WriteFile(lm.storePath+"/logs.json", logData, 0640)
 }
 
 // RecordExecution 记录执行
@@ -511,7 +511,7 @@ func (lm *LogManager) WriteExecutionLogFile(executionID string) (string, error) 
 	}
 
 	// 写入文件
-	if err := os.WriteFile(filepath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(filepath, []byte(content), 0640); err != nil {
 		return "", err
 	}
 

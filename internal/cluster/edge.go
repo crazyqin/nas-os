@@ -607,7 +607,7 @@ func (enm *EdgeNodeManager) saveNodes() error {
 		return err
 	}
 
-	return os.WriteFile(nodesFile, data, 0644)
+	return os.WriteFile(nodesFile, data, 0640)
 }
 
 func (enm *EdgeNodeManager) loadNodes() error {

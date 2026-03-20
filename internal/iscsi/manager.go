@@ -150,7 +150,7 @@ func (m *Manager) writeConfigFile(pc persistentConfig) error {
 		return fmt.Errorf("failed to create config directory: %w", err)
 	}
 
-	if err := os.WriteFile(m.configPath, data, 0644); err != nil {
+	if err := os.WriteFile(m.configPath, data, 0640); err != nil {
 		return fmt.Errorf("failed to write config: %w", err)
 	}
 

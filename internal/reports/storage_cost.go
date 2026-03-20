@@ -1766,7 +1766,7 @@ func (e *StorageCostReportExporter) exportJSON(data interface{}, outputPath stri
 		return "", fmt.Errorf("JSON序列化失败: %w", err)
 	}
 
-	if err := os.WriteFile(outputPath, jsonData, 0644); err != nil {
+	if err := os.WriteFile(outputPath, jsonData, 0640); err != nil {
 		return "", fmt.Errorf("写入文件失败: %w", err)
 	}
 
@@ -1804,7 +1804,7 @@ func (e *StorageCostReportExporter) exportCSV(data interface{}, outputPath strin
 		return "", fmt.Errorf("CSV写入失败: %w", err)
 	}
 
-	if err := os.WriteFile(outputPath, buf.Bytes(), 0644); err != nil {
+	if err := os.WriteFile(outputPath, buf.Bytes(), 0640); err != nil {
 		return "", fmt.Errorf("写入文件失败: %w", err)
 	}
 

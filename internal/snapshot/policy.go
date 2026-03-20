@@ -642,7 +642,7 @@ func (pm *PolicyManager) saveConfig() error {
 		return err
 	}
 
-	return os.WriteFile(pm.configPath, data, 0644)
+	return os.WriteFile(pm.configPath, data, 0640)
 }
 
 // SetHooks 设置事件钩子

@@ -19,10 +19,13 @@ import (
 
 var (
 	// ErrInvalidKey 无效的加密密钥错误
-	ErrInvalidKey       = errors.New("invalid encryption key")
+	ErrInvalidKey = errors.New("invalid encryption key")
+	// ErrEncryptionFailed indicates encryption failed.
 	ErrEncryptionFailed = errors.New("encryption failed")
+	// ErrDecryptionFailed indicates decryption failed.
 	ErrDecryptionFailed = errors.New("decryption failed")
-	ErrKeyNotFound      = errors.New("encryption key not found")
+	// ErrKeyNotFound indicates the encryption key was not found.
+	ErrKeyNotFound = errors.New("encryption key not found")
 )
 
 // EncryptionManagerConfig 加密管理器配置

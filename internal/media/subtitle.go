@@ -702,7 +702,7 @@ func (sm *SubtitleManager) SaveSubtitle(subtitle *Subtitle, path string) error {
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
-	return os.WriteFile(path, []byte(content), 0644)
+	return os.WriteFile(path, []byte(content), 0640)
 }
 
 // ConvertSubtitle 转换字幕格式

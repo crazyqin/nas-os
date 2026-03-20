@@ -511,7 +511,7 @@ func (ra *ResultAggregator) saveAggregations() error {
 		return err
 	}
 
-	return os.WriteFile(aggsFile, data, 0644)
+	return os.WriteFile(aggsFile, data, 0640)
 }
 
 func (ra *ResultAggregator) loadAggregations() error {
@@ -539,7 +539,7 @@ func (ra *ResultAggregator) saveRules() error {
 		return err
 	}
 
-	return os.WriteFile(rulesFile, data, 0644)
+	return os.WriteFile(rulesFile, data, 0640)
 }
 
 // loadRules 加载聚合规则 - 保留用于未来从文件加载规则的场景

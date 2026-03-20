@@ -95,7 +95,7 @@ func (sm *ScheduleManager) saveSchedule(schedule *ScheduledReport) error {
 	}
 
 	path := filepath.Join(sm.dataDir, "schedule_"+schedule.ID+".json")
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // deleteScheduleFile 删除定时任务文件

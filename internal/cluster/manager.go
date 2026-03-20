@@ -574,7 +574,7 @@ func (cm *Manager) saveState() error {
 	}
 
 	stateFile := fmt.Sprintf("%s/cluster_state.json", cm.config.DataDir)
-	return os.WriteFile(stateFile, data, 0644)
+	return os.WriteFile(stateFile, data, 0640)
 }
 
 // loadState 加载集群状态

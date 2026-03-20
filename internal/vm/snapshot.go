@@ -373,5 +373,5 @@ func (m *SnapshotManager) saveSnapshot(snapshot *Snapshot) error {
 	}
 
 	snapshotFile := filepath.Join(m.storagePath, "snapshots", snapshot.ID+".json")
-	return os.WriteFile(snapshotFile, data, 0644)
+	return os.WriteFile(snapshotFile, data, 0640)
 }

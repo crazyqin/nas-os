@@ -599,7 +599,7 @@ func (m *Manager) saveDashboards() error {
 	}
 
 	path := filepath.Join(m.dataDir, "dashboards.json")
-	if err := os.WriteFile(path, data, 0644); err != nil {
+	if err := os.WriteFile(path, data, 0640); err != nil {
 		return fmt.Errorf("保存仪表板失败: %w", err)
 	}
 

@@ -893,7 +893,7 @@ func (e *CostAnalysisEngine) SaveReport(report *EnhancedStorageReport) error {
 		return err
 	}
 
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // LoadReport 加载报告

@@ -137,7 +137,7 @@ func (m *Manager) saveConfig() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(m.configPath, data, 0644)
+	return os.WriteFile(m.configPath, data, 0640)
 }
 
 // loadAlbums 加载相册数据
@@ -173,7 +173,7 @@ func (m *Manager) saveAlbums() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // loadPersons 加载人物数据
@@ -209,7 +209,7 @@ func (m *Manager) savePersons() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0640)
 }
 
 // scanPhotos 扫描照片库

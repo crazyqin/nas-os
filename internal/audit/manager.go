@@ -651,7 +651,7 @@ func (m *Manager) save() {
 
 	// 写入文件（覆盖模式，因为内存中已经是完整数据）
 	// 保存失败时忽略错误（下次自动保存会重试）
-	_ = os.WriteFile(filename, data, 0640)
+	_ = os.WriteFile(filename, data, 0600)
 }
 
 // Load 加载日志

@@ -732,7 +732,7 @@ func (im *InvoiceManager) exportToJSON(invoices []*InvoiceManagerInvoice, output
 	if err != nil {
 		return "", fmt.Errorf("序列化失败: %w", err)
 	}
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0640); err != nil {
 		return "", fmt.Errorf("写入文件失败: %w", err)
 	}
 	return filePath, nil
@@ -756,7 +756,7 @@ func (im *InvoiceManager) exportToCSV(invoices []*InvoiceManagerInvoice, outputP
 		data = append(data, []byte(line+"\n")...)
 	}
 
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0640); err != nil {
 		return "", fmt.Errorf("写入文件失败: %w", err)
 	}
 	return filePath, nil
@@ -883,7 +883,7 @@ func (im *InvoiceManager) saveInvoice(invoice *InvoiceManagerInvoice) error {
 	}
 
 	filePath := filepath.Join(im.storagePath, invoice.ID+".json")
-	return os.WriteFile(filePath, data, 0644)
+	return os.WriteFile(filePath, data, 0640)
 }
 
 func containsIgnoreCase(s, substr string) bool {
