@@ -17,7 +17,6 @@ import (
 type mockConn struct {
 	buf    bytes.Buffer
 	closed bool
-	addr   string
 }
 
 func (m *mockConn) Read(b []byte) (n int, err error)  { return 0, nil }

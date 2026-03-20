@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.76] - 2026-03-21
+
+### Fixed
+- 修复 internal/ftp/server_commands_test.go 中未使用字段 `addr` 的 linter 错误
+
+### 六部协同开发报告
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号更新至 v2.253.76 |
+| 兵部 | ✅ | go vet 0 错误，测试全部通过 |
+| 礼部 | ✅ | 文档版本同步 |
+| 刑部 | ✅ | 安全审计通过，无硬编码密码/密钥，RBAC实现完善 |
+| 工部 | ✅ | CI/CD配置正常，Go 1.26 版本一致 |
+| 户部 | ⏳ | 待统计 |
+
 ## [v2.253.75] - 2026-03-21
 
 ### Added (六部协同)
