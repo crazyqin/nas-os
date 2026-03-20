@@ -63,6 +63,28 @@ func (h *Handlers) RegisterRoutes(api *gin.RouterGroup) {
 // ========== 日志查询 ==========
 
 // getLogs 获取审计日志列表
+// @Summary 获取审计日志列表
+// @Description 查询审计日志，支持多种过滤条件
+// @Tags audit
+// @Accept json
+// @Produce json
+// @Param limit query int false "每页数量" default(50)
+// @Param offset query int false "偏移量" default(0)
+// @Param start_time query string false "开始时间 (RFC3339)"
+// @Param end_time query string false "结束时间 (RFC3339)"
+// @Param level query string false "日志级别"
+// @Param category query string false "日志分类"
+// @Param user_id query string false "用户ID"
+// @Param username query string false "用户名"
+// @Param ip query string false "IP地址"
+// @Param status query string false "状态"
+// @Param event query string false "事件类型"
+// @Param resource query string false "资源"
+// @Param keyword query string false "关键词搜索"
+// @Success 200 {object} map[string]interface{}{data=QueryResult}
+// @Failure 500 {object} map[string]interface{}
+// @Router /audit/logs [get]
+// @Security BearerAuth
 func (h *Handlers) getLogs(c *gin.Context) {
 	// 解析查询参数
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
@@ -127,6 +149,16 @@ func (h *Handlers) getLogs(c *gin.Context) {
 }
 
 // getLogByID 根据ID获取日志
+// @Summary 获取审计日志详情
+// @Description 根据ID获取单条审计日志详情
+// @Tags audit
+// @Accept json
+// @Produce json
+// @Param id path string true "日志ID"
+// @Success 200 {object} map[string]interface{}{data=Entry}
+// @Failure 404 {object} map[string]interface{}
+// @Router /audit/logs/{id} [get]
+// @Security BearerAuth
 func (h *Handlers) getLogByID(c *gin.Context) {
 	id := c.Param("id")
 
@@ -140,12 +172,31 @@ func (h *Handlers) getLogByID(c *gin.Context) {
 }
 
 // getStatistics 获取审计统计
+// @Summary 获取审计统计信息
+// @Description 获取审计日志的统计汇总数据
+// @Tags audit
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{}{data=Statistics}
+// @Router /audit/statistics [get]
+// @Security BearerAuth
 func (h *Handlers) getStatistics(c *gin.Context) {
 	stats := h.manager.GetStatistics()
 	c.JSON(http.StatusOK, SuccessResponse(stats))
 }
 
 // getTimeline 获取事件时间线
+// @Summary 获取事件时间线
+// @Description 获取指定时间范围内的事件时间线
+// @Tags audit
+// @Accept json
+// @Produce json
+// @Param start_time query string false "开始时间 (RFC3339)"
+// @Param end_time query string false "结束时间 (RFC3339)"
+// @Param category query string false "日志分类"
+// @Success 200 {object} map[string]interface{}{data=[]TimelineItem}
+// @Router /audit/timeline [get]
+// @Security BearerAuth
 func (h *Handlers) getTimeline(c *gin.Context) {
 	// 解析时间范围
 	startTime := time.Now().Add(-24 * time.Hour)
@@ -171,6 +222,14 @@ func (h *Handlers) getTimeline(c *gin.Context) {
 }
 
 // getDashboard 获取仪表板数据
+// @Summary 获取审计仪表板数据
+// @Description 获取审计仪表板的汇总数据和图表信息
+// @Tags audit
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{}{data=DashboardData}
+// @Router /audit/dashboard [get]
+// @Security BearerAuth
 func (h *Handlers) getDashboard(c *gin.Context) {
 	data := h.reporter.GenerateDashboardData()
 	c.JSON(http.StatusOK, SuccessResponse(data))
@@ -179,6 +238,20 @@ func (h *Handlers) getDashboard(c *gin.Context) {
 // ========== 导出 ==========
 
 // exportLogs 导出日志
+// @Summary 导出审计日志
+// @Description 导出指定时间范围的审计日志，支持 JSON/CSV/XML 格式
+// @Tags audit
+// @Accept json
+// @Produce octet-stream
+// @Param format query string false "导出格式 (json/csv/xml)" default(json)
+// @Param start_time query string false "开始时间 (RFC3339)"
+// @Param end_time query string false "结束时间 (RFC3339)"
+// @Param categories query string false "分类筛选 (逗号分隔)"
+// @Param include_signatures query bool false "是否包含签名"
+// @Success 200 {file} file
+// @Failure 500 {object} map[string]interface{}
+// @Router /audit/export [get]
+// @Security BearerAuth
 func (h *Handlers) exportLogs(c *gin.Context) {
 	// 解析参数
 	format := ExportFormat(c.DefaultQuery("format", "json"))
@@ -262,6 +335,14 @@ func splitCategories(s string) []string {
 // ========== 完整性验证 ==========
 
 // verifyIntegrity 验证日志完整性
+// @Summary 验证日志完整性
+// @Description 验证审计日志的完整性和防篡改状态
+// @Tags audit
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{}{data=IntegrityReport}
+// @Router /audit/integrity [get]
+// @Security BearerAuth
 func (h *Handlers) verifyIntegrity(c *gin.Context) {
 	report := h.manager.VerifyIntegrity()
 	c.JSON(http.StatusOK, SuccessResponse(report))
@@ -270,6 +351,18 @@ func (h *Handlers) verifyIntegrity(c *gin.Context) {
 // ========== 合规报告 ==========
 
 // getComplianceReport 获取合规报告
+// @Summary 获取合规报告
+// @Description 根据指定标准生成合规报告
+// @Tags audit
+// @Accept json
+// @Produce json
+// @Param standard query string false "合规标准 (gdpr/mlps/iso27001/hipaa/pci/sox)" default(gdpr)
+// @Param start_time query string false "开始时间 (RFC3339)"
+// @Param end_time query string false "结束时间 (RFC3339)"
+// @Success 200 {object} map[string]interface{}{data=ComplianceReport}
+// @Failure 500 {object} map[string]interface{}
+// @Router /audit/compliance/report [get]
+// @Security BearerAuth
 func (h *Handlers) getComplianceReport(c *gin.Context) {
 	// 解析参数
 	standard := ComplianceStandard(c.DefaultQuery("standard", "gdpr"))
@@ -304,6 +397,14 @@ func (h *Handlers) getComplianceReport(c *gin.Context) {
 }
 
 // getComplianceStandards 获取支持的合规标准列表
+// @Summary 获取支持的合规标准
+// @Description 获取系统支持的合规标准列表
+// @Tags audit
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{}{data=[]map[string]string}
+// @Router /audit/compliance/standards [get]
+// @Security BearerAuth
 func (h *Handlers) getComplianceStandards(c *gin.Context) {
 	standards := []map[string]string{
 		{"code": "gdpr", "name": "GDPR (欧盟通用数据保护条例)"},

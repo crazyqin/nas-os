@@ -6,6 +6,155 @@
 
 ---
 
+## 〇、成本分析模块概述
+
+### 0.1 模块架构
+
+成本分析系统由以下核心模块组成：
+
+| 模块 | 路径 | 功能 | 代码量 |
+|------|------|------|--------|
+| **计费管理** | `internal/billing` | 用量记录、发票管理、费用计算 | ~6,000 行 |
+| **预算管理** | `internal/budget` | 预算CRUD、使用追踪、预警管理 | ~5,000 行 |
+| **成本分析** | `internal/billing/cost_analysis` | 趋势分析、资源利用率、优化建议 | ~4,800 行 |
+
+### 0.2 计费管理 (billing)
+
+#### 功能列表
+
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| 用量记录 | ✅ 已完成 | 支持存储、带宽、API请求等用量追踪 |
+| 发票管理 | ✅ 已完成 | 支持创建、开具、支付、作废、导出 |
+| 阶梯定价 | ✅ 已完成 | 支持多级阶梯定价配置 |
+| 存储池定价 | ✅ 已完成 | 按存储池独立配置价格和折扣 |
+| 免费额度 | ✅ 已完成 | 支持存储和带宽免费额度 |
+| 统计报表 | ✅ 已完成 | 用户/存储池/整体多维度统计 |
+
+#### 定价配置示例
+
+```go
+config := billing.Config{
+    StoragePricing: billing.StoragePricingConfig{
+        BasePricePerGB:    0.1,    // 基础存储价格（元/GB/月）
+        SSDPricePerGB:     0.2,    // SSD 价格
+        HDDPricePerGB:     0.05,   // HDD 价格
+        ArchivePricePerGB: 0.01,   // 归档价格
+        FreeStorageGB:     10,     // 免费额度
+        TieredPricing: []billing.StorageTier{
+            {MinGB: 0, MaxGB: 100, PricePerGB: 0.1},
+            {MinGB: 100, MaxGB: 1000, PricePerGB: 0.08},
+            {MinGB: 1000, MaxGB: -1, PricePerGB: 0.05},
+        },
+    },
+    BandwidthPricing: billing.BandwidthPricingConfig{
+        Model:             billing.BandwidthModelTraffic,
+        TrafficPricePerGB: 0.5,
+        FreeTrafficGB:     100,
+    },
+}
+```
+
+### 0.3 预算管理 (budget)
+
+#### 功能列表
+
+| 功能 | 状态 | 说明 |
+|------|------|------|
+| 预算CRUD | ✅ 已完成 | 支持多种预算类型和范围 |
+| 使用追踪 | ✅ 已完成 | 实时记录预算使用情况 |
+| 预警管理 | ✅ 已完成 | 多级阈值、自动通知、升级机制 |
+| 预算重置 | ✅ 已完成 | 支持自动重置和结转 |
+| 预测引擎 | ✅ 已完成 | 移动平均、指数平滑、线性回归、季节性预测 |
+| 报告生成 | ✅ 已完成 | 预算跟踪、消费排行、建议生成 |
+
+#### 预算类型与范围
+
+**预算类型：**
+- `storage` - 存储预算
+- `bandwidth` - 带宽预算
+- `compute` - 计算预算
+- `operations` - 运维预算
+- `total` - 总预算
+
+**预算范围：**
+- `global` - 全局预算
+- `user` - 用户预算
+- `group` - 用户组预算
+- `volume` - 卷预算
+- `service` - 服务预算
+
+#### 预警配置
+
+```go
+alertConfig := budget.AlertConfig{
+    Enabled: true,
+    Thresholds: []budget.AlertThreshold{
+        {Percent: 50, Level: budget.LevelInfo, Message: "预算已使用 50%"},
+        {Percent: 70, Level: budget.LevelWarning, Message: "预算已使用 70%"},
+        {Percent: 85, Level: budget.LevelCritical, Message: "预算已使用 85%"},
+        {Percent: 95, Level: budget.LevelEmergency, Message: "预算即将耗尽"},
+    },
+    NotifyEmail:  true,
+    CooldownMinutes: 60,
+    EscalationEnabled: true,
+}
+```
+
+### 0.4 成本分析引擎 (cost_analysis)
+
+#### 报告类型
+
+| 报告类型 | 端点 | 说明 |
+|---------|------|------|
+| 存储趋势报告 | `/api/cost/reports/storage-trend` | 存储成本趋势分析 |
+| 资源利用率报告 | `/api/cost/reports/resource-utilization` | 资源利用率评估 |
+| 成本优化建议 | `/api/cost/reports/optimization` | 成本优化建议 |
+| 预算跟踪报告 | `/api/cost/reports/budget-tracking` | 预算使用情况 |
+| 综合分析报告 | `/api/cost/reports/comprehensive` | 综合成本分析 |
+
+#### API 端点汇总
+
+```
+成本分析 API:
+├── /api/cost/reports/*
+│   ├── storage-trend      [GET] 存储趋势报告
+│   ├── resource-utilization [GET] 资源利用率报告
+│   ├── optimization       [GET] 优化建议报告
+│   ├── budget-tracking    [GET] 预算跟踪报告
+│   └── comprehensive      [GET] 综合报告
+├── /api/cost/budgets      [GET, POST] 预算列表/创建
+├── /api/cost/budgets/:id  [GET, PUT, DELETE] 预算操作
+├── /api/cost/alerts       [GET] 告警列表
+├── /api/cost/alerts/:id   [POST] 告警操作
+└── /api/cost/trends       [GET, POST] 趋势数据
+
+预算管理 API:
+├── /budgets               [GET, POST] 预算列表/创建
+├── /budgets/:id           [GET, PUT, DELETE] 预算操作
+├── /budgets/:id/reset     [POST] 重置预算
+├── /budgets/:id/usage     [GET, POST] 使用记录
+├── /budgets/:id/usage/stats [GET] 使用统计
+├── /budgets/:id/alerts    [GET] 预算预警
+├── /alerts                [GET] 全局预警
+├── /alerts/:id/acknowledge [POST] 确认预警
+├── /alerts/:id/resolve    [POST] 解决预警
+├── /reports/budget        [POST] 生成报告
+└── /stats                 [GET] 预算统计
+```
+
+### 0.5 测试覆盖
+
+| 模块 | 测试文件 | 测试用例数 | 状态 |
+|------|---------|-----------|------|
+| billing | `billing_test.go` | 30+ | ✅ 全部通过 |
+| invoice_manager | `invoice_manager_test.go` | 25+ | ✅ 全部通过 |
+| budget | `budget_test.go` | 40+ | ✅ 全部通过 |
+| forecast | `forecast_test.go` | 20+ | ✅ 全部通过 |
+| cost_analysis | `*_test.go` | 35+ | ✅ 全部通过 |
+
+---
+
 ## 一、Docker 镜像大小优化分析
 
 ### 1.1 镜像版本对比
