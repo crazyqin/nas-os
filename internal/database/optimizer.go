@@ -5,12 +5,27 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"regexp"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"go.uber.org/zap"
 )
+
+// validTableNameRegex validates SQL table names to prevent injection
+var validTableNameRegex = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
+// validateTableName checks if a table name is safe to use in SQL
+func validateTableName(table string) error {
+	if !validTableNameRegex.MatchString(table) {
+		return fmt.Errorf("invalid table name: %s (must match ^[a-zA-Z_][a-zA-Z0-9_]*$)", table)
+	}
+	if len(table) > 128 {
+		return fmt.Errorf("table name too long: %s (max 128 chars)", table)
+	}
+	return nil
+}
 
 // Optimizer handles SQLite performance optimizations
 type Optimizer struct {
@@ -322,6 +337,9 @@ func (o *Optimizer) CreateCompositeIndex(table, name string, columns ...string) 
 
 // AnalyzeTable runs ANALYZE on a table
 func (o *Optimizer) AnalyzeTable(table string) error {
+	if err := validateTableName(table); err != nil {
+		return err
+	}
 	_, err := o.db.Exec(fmt.Sprintf("ANALYZE %s", table))
 	if err != nil {
 		return fmt.Errorf("failed to analyze table %s: %w", table, err)
