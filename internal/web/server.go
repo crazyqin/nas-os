@@ -724,26 +724,26 @@ func (s *Server) setupRoutes() {
 	})
 
 	// 静态文件（前端）
-	s.engine.Static("/", "./webui")
+	s.engine.Static("/", "/usr/share/nas-os/webui")
 
 	// 下载中心页面
-	s.engine.StaticFile("/downloader", "./webui/pages/downloader/index.html")
-	s.engine.StaticFile("/downloader/", "./webui/pages/downloader/index.html")
+	s.engine.StaticFile("/downloader", "/usr/share/nas-os/webui/pages/downloader/index.html")
+	s.engine.StaticFile("/downloader/", "/usr/share/nas-os/webui/pages/downloader/index.html")
 
 	// 新增页面路由
-	s.engine.StaticFile("/rbac", "./webui/pages/rbac.html")
-	s.engine.StaticFile("/monitoring", "./webui/pages/monitoring.html")
-	s.engine.StaticFile("/containers", "./webui/pages/containers.html")
-	s.engine.StaticFile("/vms", "./webui/pages/vms.html")
-	s.engine.StaticFile("/trash", "./webui/pages/trash.html")
-	s.engine.StaticFile("/replication", "./webui/pages/replication.html")
-	s.engine.StaticFile("/webdav", "./webui/pages/webdav.html")
-	s.engine.StaticFile("/dir-quota", "./webui/pages/dir-quota.html")
+	s.engine.StaticFile("/rbac", "/usr/share/nas-os/webui/pages/rbac.html")
+	s.engine.StaticFile("/monitoring", "/usr/share/nas-os/webui/pages/monitoring.html")
+	s.engine.StaticFile("/containers", "/usr/share/nas-os/webui/pages/containers.html")
+	s.engine.StaticFile("/vms", "/usr/share/nas-os/webui/pages/vms.html")
+	s.engine.StaticFile("/trash", "/usr/share/nas-os/webui/pages/trash.html")
+	s.engine.StaticFile("/replication", "/usr/share/nas-os/webui/pages/replication.html")
+	s.engine.StaticFile("/webdav", "/usr/share/nas-os/webui/pages/webdav.html")
+	s.engine.StaticFile("/dir-quota", "/usr/share/nas-os/webui/pages/dir-quota.html")
 	// v2.20.0 新增页面
-	s.engine.StaticFile("/iscsi", "./webui/pages/iscsi.html")
-	s.engine.StaticFile("/office", "./webui/pages/office.html")
-	s.engine.StaticFile("/notify", "./webui/pages/notify.html")
-	s.engine.StaticFile("/optimizer", "./webui/pages/optimizer.html")
+	s.engine.StaticFile("/iscsi", "/usr/share/nas-os/webui/pages/iscsi.html")
+	s.engine.StaticFile("/office", "/usr/share/nas-os/webui/pages/office.html")
+	s.engine.StaticFile("/notify", "/usr/share/nas-os/webui/pages/notify.html")
+	s.engine.StaticFile("/optimizer", "/usr/share/nas-os/webui/pages/optimizer.html")
 }
 
 // Start 启动服务器
