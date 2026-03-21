@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.137] - 2026-03-21
+
+### Security
+- **密钥派生加固**：`internal/backup/advanced/types.go` 的 `DeriveKey` 函数改用 PBKDF2（100,000 次迭代），防止暴力破解
+- **敏感信息泄露修复**：管理员初始密码不再打印到控制台，仅写入 `.admin_password` 文件
+
 ## [v2.253.135] - 2026-03-21
 
 ### Maintenance
