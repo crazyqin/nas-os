@@ -454,12 +454,10 @@ func (e *AES256Encryptor) SetKey(key []byte) error {
 	return nil
 }
 
-// DeriveKey 从密码派生密钥
+// DeriveKey 从密码派生密钥（使用 PBKDF2 进行安全密钥派生）
 func DeriveKey(password string, salt []byte) []byte {
-	hash := sha256.New()
-	hash.Write([]byte(password))
-	hash.Write(salt)
-	return hash.Sum(nil)
+	// 使用 PBKDF2，迭代次数 100,000 次，防止暴力破解
+	return pbkdf2.Key([]byte(password), salt, 100000, 32, sha256.New)
 }
 
 // GenerateKey 生成随机密钥
