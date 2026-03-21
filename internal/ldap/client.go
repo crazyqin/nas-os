@@ -67,10 +67,14 @@ func (c *Client) Connect() error {
 
 	// StartTLS for plain LDAP
 	if !c.config.UseTLS && len(c.config.URL) >= 5 && c.config.URL[:5] == "ldap:" {
-		// 仅测试环境允许跳过 TLS 验证，生产环境必须验证证书
-		skipVerify := c.config.SkipTLSVerify && os.Getenv("ENV") == "test"
+		// 生产环境必须验证证书，仅测试环境可跳过
+		// 注意：InsecureSkipVerify 默认为 false，显式设置为 false 确保安全
 		tlsConfig := &tls.Config{
-			InsecureSkipVerify: skipVerify,
+			InsecureSkipVerify: false, // 安全默认值：始终验证证书
+		}
+		// 仅在测试环境且显式配置时才允许跳过验证
+		if c.config.SkipTLSVerify && os.Getenv("ENV") == "test" {
+			tlsConfig.InsecureSkipVerify = true
 		}
 		if c.config.CACertPath != "" {
 			pool, err := c.loadCACert()
@@ -101,10 +105,14 @@ func (c *Client) dialPlain() (*ldap.Conn, error) {
 
 // dialTLS TLS 连接
 func (c *Client) dialTLS() (*ldap.Conn, error) {
-	// 仅测试环境允许跳过 TLS 验证，生产环境必须验证证书
-	skipVerify := c.config.SkipTLSVerify && os.Getenv("ENV") == "test"
+	// 生产环境必须验证证书，仅测试环境可跳过
+	// 注意：InsecureSkipVerify 默认为 false，显式设置为 false 确保安全
 	tlsConfig := &tls.Config{
-		InsecureSkipVerify: skipVerify,
+		InsecureSkipVerify: false, // 安全默认值：始终验证证书
+	}
+	// 仅在测试环境且显式配置时才允许跳过验证
+	if c.config.SkipTLSVerify && os.Getenv("ENV") == "test" {
+		tlsConfig.InsecureSkipVerify = true
 	}
 
 	// 加载 CA 证书

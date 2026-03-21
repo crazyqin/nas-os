@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.120] - 2026-03-21
+
+### Security
+- 修复命令注入漏洞 (vm/manager.go, vm/snapshot.go)
+- 修复路径遍历漏洞 (webdav/server.go)
+- 修复TLS证书绕过问题 (ldap/client.go)
+- 修复SMTP注入漏洞 (automation/action.go)
+- 修复XSS风险 (automation/api/handlers.go)
+
 ## [v2.253.119] - 2026-03-21
 
 ### Maintenance
