@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.108] - 2026-03-21
+
+### Maintenance
+- 版本号更新至 v2.253.108
+- 六部协同维护
+- 代码质量：go vet 0 错误，测试全部通过
+- 安全审计：gosec 扫描完成
+- CI/CD：5 个工作流正常运行
+
 ## [v2.253.107] - 2026-03-21
 
 ### Maintenance

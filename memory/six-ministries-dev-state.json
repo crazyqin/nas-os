@@ -1,55 +1,55 @@
 {
-  "lastUpdate": "2026-03-20T18:30:00+08:00",
-  "version": "v2.253.63",
-  "commitHash": "d292424",
+  "lastUpdate": "2026-03-21T12:10:00+08:00",
+  "version": "v2.253.108",
+  "commitHash": "pending",
   "phase": "six-ministries-maintenance",
   "ministries": {
     "吏部": {
       "name": "项目管理",
-      "task": "里程碑管理",
+      "task": "版本管理",
       "status": "done",
-      "details": "M1-M5 全部完成，版本规划更新"
+      "details": "版本号更新至 v2.253.108"
     },
     "兵部": {
       "name": "软件工程",
       "task": "代码质量检查",
       "status": "done",
-      "details": "go vet 0 错误，测试通过，覆盖率 35.9%"
+      "details": "go vet 0 错误，测试全部通过，737 Go 文件，415K 行代码"
     },
     "礼部": {
       "name": "文档品牌",
       "task": "文档版本同步",
       "status": "done",
-      "details": "README/USER_GUIDE/api.yaml 已更新"
+      "details": "文档完整性 9/10，README/CHANGELOG 已更新"
     },
     "刑部": {
       "name": "安全审计",
       "task": "安全扫描",
-      "status": "done",
-      "details": "gosec 发现 1262 问题，建议安装 govulncheck"
+      "status": "running",
+      "details": "gosec 扫描进行中"
     },
     "工部": {
       "name": "DevOps",
       "task": "CI/CD检查",
       "status": "done",
-      "details": "CI/CD 配置优秀，Docker 优化到位"
+      "details": "5 个工作流，108 个 Makefile 目标，CI/CD 正常"
     },
     "户部": {
       "name": "资源统计",
       "task": "资源统计",
       "status": "done",
-      "details": "731 源文件, 264 测试文件, 412,072 行代码"
+      "details": "737 Go 文件, 415K 行代码, 270 测试文件, 170 依赖"
     }
   },
   "actions": {
-    "CI/CD": "not_triggered",
-    "Docker Publish": "in_progress",
-    "GitHub Release": "in_progress",
-    "Security Scan": "in_progress"
+    "CI/CD": "pending",
+    "Docker Publish": "pending",
+    "GitHub Release": "pending",
+    "Security Scan": "pending"
   },
   "release": {
-    "url": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.63",
+    "url": null,
     "created": false,
-    "note": "Release workflow running"
+    "note": "v2.253.108 准备发布"
   }
 }
