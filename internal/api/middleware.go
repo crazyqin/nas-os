@@ -171,8 +171,9 @@ type CORSConfig struct {
 }
 
 // DefaultCORSConfig 默认CORS配置
+// 安全加固：默认只允许本地源，生产环境应显式配置允许的源
 var DefaultCORSConfig = CORSConfig{
-	AllowOrigins:     []string{"*"},
+	AllowOrigins:     []string{"http://localhost:8080", "http://127.0.0.1:8080"},
 	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 	AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Request-ID"},
 	ExposeHeaders:    []string{"Content-Length", "X-Request-ID"},
