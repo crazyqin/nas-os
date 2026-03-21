@@ -498,7 +498,7 @@ func (ss *StorageSync) syncToNode(rule *SyncRule, targetNodeID string, job *Sync
 
 	// 解析输出，统计同步文件数和字节数
 	// 这里简化处理，实际应该解析 rsync 输出
-	job.FilesSynced += 1
+	job.FilesSynced++
 	job.BytesSynced += int64(len(output))
 
 	ss.logger.Info("同步完成",

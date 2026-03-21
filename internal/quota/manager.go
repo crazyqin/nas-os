@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	mrand "math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -632,8 +633,11 @@ func (m *Manager) saveConfig() error {
 func generateID() string {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
-		// 回退到时间戳 + 计数器模式
-		panic("crypto/rand failed: " + err.Error())
+		// 回退到时间戳 + 随机数模式
+		// 使用当前时间戳和随机数生成ID
+		now := time.Now().UnixNano()
+		r := mrand.New(mrand.NewSource(now))
+		r.Read(b)
 	}
 	return hex.EncodeToString(b)
 }

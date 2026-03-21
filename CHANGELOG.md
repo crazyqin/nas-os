@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.119] - 2026-03-21
+
+### Maintenance
+- 版本号更新至 v2.253.119
+- 六部协同开发，例行维护
+- 文档版本同步
+
+## [v2.253.118] - 2026-03-21
+
+### Maintenance
+- 版本号更新至 v2.253.118
+- 六部协同开发，例行维护
+- 文档版本同步
+
 ## [v2.253.117] - 2026-03-21
 
 ### Maintenance
