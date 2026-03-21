@@ -2,13 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.253.159] - 2026-03-22
+## [v2.253.160] - 2026-03-22
 
 ### 六部协同开发总结
 
 | 部门 | 状态 | 主要工作 |
 |------|------|----------|
-| 吏部 | ✅ | 版本号更新至 v2.253.159 |
+| 吏部 | ✅ | 版本号更新至 v2.253.160 |
 | 兵部 | ✅ | go vet 0 错误，测试全部通过 |
 | 礼部 | ✅ | CHANGELOG.md 和文档版本同步 |
 | 刑部 | ✅ | 安全检查完成 |
@@ -16,29 +16,11 @@ All notable changes to this project will be documented in this file.
 | 户部 | ✅ | 737 Go 文件，270 测试文件 |
 
 ### 维护内容
-- 版本号更新：v2.253.158 → v2.253.159
+- 版本号更新：v2.253.159 → v2.253.160
 - 六部协同例行维护
 
 ---
 
-# NAS-OS Changelog
-
-All notable changes to this project will be documented in this file.
-
-## [v2.253.158] - 2026-03-22
-
-### 六部协同开发总结
-
-| 部门 | 状态 | 主要工作 |
-|------|------|----------|
-| 吏部 | ✅ | 版本号更新至 v2.253.158 |
-| 礼部 | ✅ | CHANGELOG.md 和 README.md 版本同步 |
-
-### 维护内容
-- 版本号更新：v2.253.157 → v2.253.158
-- 六部协同例行维护
-
----
 
 ## [v2.253.157] - 2026-03-22
 
