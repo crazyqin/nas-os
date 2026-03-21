@@ -187,25 +187,21 @@ func NewManagerWithConfig(mountBase, configPath string) (*Manager, error) {
 
 		// 将初始密码写入文件（仅首次启动）
 		// 安全改进：密码写入权限受限的文件，而非 stdout
-		// 生产环境建议：通过邮件或安全渠道发送初始密码
+		// 安全实践：初始密码仅写入文件，不打印到控制台
 		passwordFile := filepath.Join(filepath.Dir(m.configPath), ".admin_password")
 		if err := os.WriteFile(passwordFile, []byte(defaultPassword), 0600); err != nil {
-			// 写入文件失败时回退到控制台输出（开发环境）
-			fmt.Println("========================================")
-			fmt.Println("⚠️  首次启动：默认管理员账号已创建")
-			fmt.Println("   用户名: admin")
-			fmt.Printf("   密码: %s\n", defaultPassword)
-			fmt.Println("   请立即登录并修改密码！")
-			fmt.Println("========================================")
-		} else {
-			fmt.Println("========================================")
-			fmt.Println("⚠️  首次启动：默认管理员账号已创建")
-			fmt.Println("   用户名: admin")
-			fmt.Printf("   初始密码已写入: %s\n", passwordFile)
-			fmt.Println("   请查看该文件并立即登录修改密码！")
-			fmt.Println("   登录后请删除该密码文件")
-			fmt.Println("========================================")
+			// 写入文件失败，记录错误但不暴露密码
+			log.Printf("⚠️  [SECURITY ERROR] 无法写入初始密码文件: %v", err)
+			return nil, fmt.Errorf("初始化管理员密码失败，请联系系统管理员")
 		}
+		// 仅记录密码文件路径，不打印密码
+		log.Println("========================================")
+		log.Println("⚠️  首次启动：默认管理员账号已创建")
+		log.Println("   用户名: admin")
+		log.Printf("   初始密码已写入: %s\n", passwordFile)
+		log.Println("   请查看该文件并立即登录修改密码！")
+		log.Println("   登录后请删除该密码文件")
+		log.Println("========================================")
 	}
 
 	return m, nil
