@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.138] - 2026-03-21
+
+### 六部协同开发总结
+
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号同步，MILESTONES.md 更新 |
+| 兵部 | ✅ | go vet 0 错误，测试全部通过，覆盖率 37.5% |
+| 礼部 | ✅ | README.md 和 docs/ 文档版本号同步 |
+| 工部 | ✅ | CI/CD 配置检查，docker-compose.yml 更新 |
+| 刑部 | ✅ | 安全审计通过，无明显漏洞 |
+| 户部 | ✅ | 项目统计：737 Go 文件，270 测试文件，415,356 行代码 |
+
+### Maintenance
+- 版本号同步：VERSION、version.go、README.md、docs/ 文档版本号统一至 v2.253.138
+- docker-compose.yml 版本注释和标签更新
+- MILESTONES.md 里程碑记录更新
+
 ## [v2.253.137] - 2026-03-21
 
 ### Security
