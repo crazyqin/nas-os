@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.126] - 2026-03-21
+
+### Bug Fixes
+- 修复 internal/backup/smart_manager_test.go 缺少 context 导入的编译错误
+
+### Maintenance
+- 版本号更新至 v2.253.126
+- 六部协同开发，修复CI/CD失败问题
+
 ## [v2.253.125] - 2026-03-21
 
 ### Maintenance
