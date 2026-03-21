@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.142] - 2026-03-22
+
+### Bug Fix
+- 🐛 **Docker WebUI 路径修复**: 解决 docker-compose 卷挂载覆盖 WebUI 文件的问题
+  - Dockerfile/Dockerfile.full: WebUI 复制路径从 `/var/lib/nas-os/webui` 改为 `/usr/share/nas-os/webui`
+  - internal/web/server.go: 静态文件路由同步更新
+
+### 六部协同开发总结
+
+| 部门 | 状态 | 主要发现 |
+|------|------|----------|
+| 吏部 | ✅ | MILESTONES.md 滞后、memory/ 缺今日记录 |
+| 兵部 | ✅ | golangci-lint 未安装、部分模块覆盖率低 |
+| 礼部 | ✅ | docs/ 下 3 个文档版本号落后 |
+| 工部 | ✅ | ci-cd.yml 语法问题、31 个依赖可更新 |
+| 刑部 | ✅ | 安全配置合理、G115 已有说明 |
+
 ## [v2.253.141] - 2026-03-22
 
 ### 六部协同开发总结
