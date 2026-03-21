@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.128] - 2026-03-21
+
+### Bug Fixes
+- **复制冲突检测改进**：修复哈希计算错误处理，内容相同时正确返回无冲突
+- 改进 `internal/replication/conflict.go` 的冲突检测逻辑
+
+### Maintenance
+- 版本号更新至 v2.253.128
+- 六部协同开发，例行维护
+
 ## [v2.253.127] - 2026-03-21
 
 ### Security

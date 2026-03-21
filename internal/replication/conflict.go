@@ -143,11 +143,22 @@ func (d *ConflictDetector) DetectConflict(task *Task, relativePath string) (*Con
 		}, nil
 	}
 
-	// 修改时间或大小不同，产生冲突
-	// 计算哈希用于确认内容差异
-	sourceHash, _ := d.calculateFileHash(sourcePath)
-	targetHash, _ := d.calculateFileHash(targetPath)
+	// 修改时间或大小不同，计算哈希确认内容差异
+	sourceHash, err := d.calculateFileHash(sourcePath)
+	if err != nil {
+		return nil, fmt.Errorf("计算源文件哈希失败：%w", err)
+	}
+	targetHash, err := d.calculateFileHash(targetPath)
+	if err != nil {
+		return nil, fmt.Errorf("计算目标文件哈希失败：%w", err)
+	}
 
+	// 内容相同，无冲突
+	if sourceHash == targetHash {
+		return nil, nil
+	}
+
+	// 内容不同，产生冲突
 	return &ConflictInfo{
 		ID:            generateConflictID(),
 		TaskID:        task.ID,
