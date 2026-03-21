@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.100] - 2026-03-21
+
+### Maintenance
+- 版本号更新至 v2.253.100
+- 时间戳版本: 20260321.0924
+- 六部协同维护
+- README 下载链接更新
+- Docker badge 更新
+
 ## [v2.253.99] - 2026-03-21
 
 ### Maintenance
