@@ -8,7 +8,7 @@ import (
 
 // Version information
 var (
-	Version   = "20260321.1004"
+	Version   = "2.253.103"
 	BuildDate = ""
 	GitCommit = ""
 	GoVersion = runtime.Version()
