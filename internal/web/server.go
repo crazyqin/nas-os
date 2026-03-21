@@ -724,7 +724,7 @@ func (s *Server) setupRoutes() {
 	})
 
 	// 静态文件（前端）
-	s.engine.Static("/", "./webui/dist")
+	s.engine.Static("/", "./webui")
 
 	// 下载中心页面
 	s.engine.StaticFile("/downloader", "./webui/pages/downloader/index.html")
