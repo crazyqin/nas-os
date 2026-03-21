@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.131] - 2026-03-21
+
+### Bug Fixes
+- **CORS 测试修复**：修复 TestCORS 测试用例与新的 CORS 默认配置不匹配的问题
+  - 测试现在使用允许的源 `http://localhost:8080`
+  - 新增不允许源的测试用例
+
+### Maintenance
+- 版本号更新至 v2.253.131
+- docker-compose.yml 版本号同步
+- README.md 下载链接更新
+- 六部协同开发，例行维护
+
 ## [v2.253.130] - 2026-03-21
 
 ### Security

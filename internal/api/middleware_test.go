@@ -95,20 +95,28 @@ func TestCORS(t *testing.T) {
 		c.String(http.StatusOK, "ok")
 	})
 
-	// 测试正常请求
+	// 测试允许的源（DefaultCORSConfig 只允许 localhost:8080 和 127.0.0.1:8080）
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/test", nil)
+	req.Header.Set("Origin", "http://localhost:8080")
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, "http://localhost:8080", w.Header().Get("Access-Control-Allow-Origin"))
+
+	// 测试不允许的源（不设置 Access-Control-Allow-Origin 头）
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/test", nil)
 	req.Header.Set("Origin", "http://example.com")
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	// 当 AllowOrigins 为 ["*"] 时，会返回具体的 origin 而不是 "*"
-	assert.NotEmpty(t, w.Header().Get("Access-Control-Allow-Origin"))
+	assert.Empty(t, w.Header().Get("Access-Control-Allow-Origin"))
 
-	// 测试预检请求
+	// 测试预检请求（使用允许的源）
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("OPTIONS", "/test", nil)
-	req.Header.Set("Origin", "http://example.com")
+	req.Header.Set("Origin", "http://localhost:8080")
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
