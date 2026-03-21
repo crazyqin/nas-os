@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.130] - 2026-03-21
+
+### Security
+- **CORS 安全加固**：修复 DefaultCORSConfig 默认允许所有源的问题，改为只允许本地源
+
 ## [v2.253.129] - 2026-03-21
 
 ### Maintenance
