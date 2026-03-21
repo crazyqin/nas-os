@@ -2,7 +2,7 @@
 package main
 
 // @title NAS-OS API
-// @version 2.157.0
+// @version 2.253.146
 // @description NAS-OS 是一个现代化的网络存储操作系统，提供卷管理、用户管理、共享管理、网络配置等功能。
 // @description
 // @description ## 功能模块
