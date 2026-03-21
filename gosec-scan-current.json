@@ -317,7 +317,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
 			"code": "1400: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1401: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n1402: \t\t},\n",
 			"line": "1401",
-			"column": "61",
+			"column": "40",
 			"nosec": false,
 			"suppressions": null
 		},
@@ -333,7 +333,7 @@
 			"file": "/home/mrafter/clawd/nas-os/internal/photos/handlers.go",
 			"code": "1400: \t\t\t\"cacheUsed\":    uint64(cacheUsed),\n1401: \t\t\t\"totalUsed\":    storageUsed + uint64(thumbsUsed) + uint64(cacheUsed),\n1402: \t\t},\n",
 			"line": "1401",
-			"column": "40",
+			"column": "61",
 			"nosec": false,
 			"suppressions": null
 		},
