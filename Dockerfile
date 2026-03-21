@@ -124,6 +124,12 @@ COPY --from=builder --chmod=755 /build/nasctl /usr/local/bin/nasctl
 COPY --chmod=644 configs/default.yaml /etc/nas-os/config.yaml
 COPY --from=healthcheck-builder --chmod=755 /healthcheck /usr/local/bin/healthcheck
 
+# 复制 Web UI 静态文件（运行时需要）
+COPY --from=builder --chmod=644 /build/webui/ /var/lib/nas-os/webui/
+
+# 设置工作目录（确保 ./webui 路径正确解析）
+WORKDIR /var/lib/nas-os
+
 # 暴露端口
 # Web UI
 EXPOSE 8080/tcp
