@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.140] - 2026-03-21
+
+### 六部协同开发总结
+
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号同步，MILESTONES.md 更新 |
+| 兵部 | ✅ | go vet 0 错误，测试全部通过 |
+| 礼部 | ✅ | README.md 和 docs/ 文档版本号同步 |
+| 工部 | ✅ | CI/CD 配置检查正常 |
+| 刑部 | ✅ | 安全审计通过 |
+| 户部 | ✅ | 项目统计：736 Go 文件，269 测试文件，415,324 行代码 |
+
+### Maintenance
+- 版本号同步：VERSION、version.go、README.md 版本号统一至 v2.253.140
+- MILESTONES.md 里程碑记录更新
+- 六部协同例行维护
+
 ## [v2.253.139] - 2026-03-21
 
 ### 六部协同开发总结
