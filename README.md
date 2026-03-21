@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.253.111 Stable (2026-03-21)
+> **最新版本**: v2.253.112 Stable (2026-03-21)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.111?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.112?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -64,19 +64,19 @@
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
 
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.111/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.112/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
 
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.111/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.112/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
 
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.111/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.112/nasd-linux-armv7
 
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
@@ -90,7 +90,7 @@ nasd --version
 ```bash
 # 拉取镜像
 
-docker pull ghcr.io/crazyqin/nas-os:v2.253.111
+docker pull ghcr.io/crazyqin/nas-os:v2.253.112
 
 
 # 运行容器
@@ -101,7 +101,7 @@ docker run -d \
   -v /data:/data \
   -v /etc/nas-os:/config \
 
-ghcr.io/crazyqin/nas-os:v2.253.111
+ghcr.io/crazyqin/nas-os:v2.253.112
 
 
 # 查看日志
