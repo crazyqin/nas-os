@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"os"
@@ -16,6 +17,13 @@ import (
 
 	"github.com/google/uuid"
 )
+
+// escapeXML 安全转义 XML 特殊字符，防止 XML 注入
+func escapeXML(s string) string {
+	var buf strings.Builder
+	xml.Escape(&buf, []byte(s))
+	return buf.String()
+}
 
 // Manager 审计日志管理器
 type Manager struct {
@@ -753,39 +761,39 @@ func (m *Manager) exportToCSV(entries []*Entry) ([]byte, error) {
 
 // exportToXML 导出为XML
 func (m *Manager) exportToXML(entries []*Entry) ([]byte, error) {
-	var xml strings.Builder
-	xml.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
-	xml.WriteString("<audit_logs>")
+	var xmlBuf strings.Builder
+	xmlBuf.WriteString(`<?xml version="1.0" encoding="UTF-8"?>`)
+	xmlBuf.WriteString("<audit_logs>")
 
 	for _, e := range entries {
-		xml.WriteString("<entry>")
-		fmt.Fprintf(&xml, "<id>%s</id>", e.ID)
-		fmt.Fprintf(&xml, "<timestamp>%s</timestamp>", e.Timestamp.Format(time.RFC3339))
-		fmt.Fprintf(&xml, "<level>%s</level>", e.Level)
-		fmt.Fprintf(&xml, "<category>%s</category>", e.Category)
-		fmt.Fprintf(&xml, "<event>%s</event>", e.Event)
+		xmlBuf.WriteString("<entry>")
+		fmt.Fprintf(&xmlBuf, "<id>%s</id>", escapeXML(e.ID))
+		fmt.Fprintf(&xmlBuf, "<timestamp>%s</timestamp>", e.Timestamp.Format(time.RFC3339))
+		fmt.Fprintf(&xmlBuf, "<level>%s</level>", escapeXML(string(e.Level)))
+		fmt.Fprintf(&xmlBuf, "<category>%s</category>", escapeXML(string(e.Category)))
+		fmt.Fprintf(&xmlBuf, "<event>%s</event>", escapeXML(e.Event))
 		if e.UserID != "" {
-			fmt.Fprintf(&xml, "<user_id>%s</user_id>", e.UserID)
+			fmt.Fprintf(&xmlBuf, "<user_id>%s</user_id>", escapeXML(e.UserID))
 		}
 		if e.Username != "" {
-			fmt.Fprintf(&xml, "<username>%s</username>", e.Username)
+			fmt.Fprintf(&xmlBuf, "<username>%s</username>", escapeXML(e.Username))
 		}
 		if e.IP != "" {
-			fmt.Fprintf(&xml, "<ip>%s</ip>", e.IP)
+			fmt.Fprintf(&xmlBuf, "<ip>%s</ip>", escapeXML(e.IP))
 		}
 		if e.Resource != "" {
-			fmt.Fprintf(&xml, "<resource>%s</resource>", e.Resource)
+			fmt.Fprintf(&xmlBuf, "<resource>%s</resource>", escapeXML(e.Resource))
 		}
 		if e.Action != "" {
-			fmt.Fprintf(&xml, "<action>%s</action>", e.Action)
+			fmt.Fprintf(&xmlBuf, "<action>%s</action>", escapeXML(e.Action))
 		}
-		fmt.Fprintf(&xml, "<status>%s</status>", e.Status)
+		fmt.Fprintf(&xmlBuf, "<status>%s</status>", escapeXML(string(e.Status)))
 		if e.Message != "" {
-			fmt.Fprintf(&xml, "<message>%s</message>", e.Message)
+			fmt.Fprintf(&xmlBuf, "<message>%s</message>", escapeXML(e.Message))
 		}
-		xml.WriteString("</entry>")
+		xmlBuf.WriteString("</entry>")
 	}
 
-	xml.WriteString("</audit_logs>")
-	return []byte(xml.String()), nil
+	xmlBuf.WriteString("</audit_logs>")
+	return []byte(xmlBuf.String()), nil
 }

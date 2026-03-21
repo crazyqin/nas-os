@@ -34,12 +34,10 @@ func DefaultSecurityConfig() *SecurityConfig {
 		log.Println("⚠️  生产环境请设置 NAS_CSRF_KEY 环境变量（至少32字节）")
 		keyBytes := make([]byte, 32)
 		if _, err := rand.Read(keyBytes); err != nil {
-			// 回退到固定密钥（仅开发环境）
-			log.Println("⚠️  [SECURITY WARNING] 无法生成随机密钥，使用默认密钥（仅限开发环境）")
-			csrfKey = "dev-only-key-change-in-production-32b!"
-		} else {
-			csrfKey = hex.EncodeToString(keyBytes)
+			// 无法生成随机密钥是严重安全问题，直接 panic
+			panic(fmt.Sprintf("❌ [SECURITY CRITICAL] 无法生成 CSRF 随机密钥: %v。请设置 NAS_CSRF_KEY 环境变量", err))
 		}
+		csrfKey = hex.EncodeToString(keyBytes)
 	}
 
 	return &SecurityConfig{
@@ -119,11 +117,14 @@ func corsMiddleware(config *SecurityConfig) gin.HandlerFunc {
 			}
 		}
 
-		if !allowed {
-			// 如果是 OPTIONS 预检请求，仍然允许但不设置具体源
+		if !allowed && origin != "" {
+			// 不在白名单的 Origin，拒绝请求
+			log.Printf("⚠️  [SECURITY] 拒绝跨域请求，Origin 不在白名单: %s", origin)
 			if c.Request.Method == "OPTIONS" {
-				c.Header("Access-Control-Allow-Origin", "*")
+				c.AbortWithStatus(http.StatusForbidden)
+				return
 			}
+			// 对于非预检请求，继续处理但不设置 CORS 头
 		}
 
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")

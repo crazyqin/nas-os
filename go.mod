@@ -171,3 +171,5 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
 )
+
+replace github.com/golang-jwt/jwt/v5 => github.com/golang-jwt/jwt/v5 v5.3.1

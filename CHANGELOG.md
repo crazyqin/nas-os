@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.127] - 2026-03-21
+
+### Security
+- **CSRF 密钥安全加固**：移除固定密钥回退，无法生成随机密钥时直接 panic
+- **CORS 安全加固**：拒绝不在白名单的 Origin，移除 `Access-Control-Allow-Origin: *` 回退
+- **XML 注入修复**：审计日志导出时对用户输入字段进行 XML 转义
+
+### Maintenance
+- 例行维护版本，依赖更新
+
 ## [v2.253.126] - 2026-03-21
 
 ### Bug Fixes
