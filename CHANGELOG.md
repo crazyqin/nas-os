@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.190] - 2026-03-22
+
+### 新功能 🎬
+- 新增媒体库模块 (internal/media)
+  - models.go: 媒体数据模型定义
+  - scanner.go: 媒体文件扫描器
+  - scraper.go: TMDB 元数据刮削器
+  - cache.go: 内存缓存模块
+- 新增竞品路线图文档 (docs/ROADMAP_COMPETITOR.md)
+
+### 六部协同开发
+- 版本号更新至 v2.253.190
+- 文档版本同步 (README.md, docs/README_EN.md, docs/USER_GUIDE.md)
+
+### 六部工作总结
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号更新：v2.253.189 → v2.253.190 |
+| 兵部 | ✅ | 新增媒体库模块，go vet 0 错误，测试全部通过 |
+| 礼部 | ✅ | 文档版本同步，新增 ROADMAP_COMPETITOR.md |
+| 刑部 | ✅ | 安全检查通过 |
+| 工部 | ✅ | CI/CD 配置正常 |
+| 户部 | ✅ | 743 Go 文件，270 测试文件，416,895 行代码 |
+
+---
+
 ## [v2.253.189] - 2026-03-22
 
 ### 六部协同开发
