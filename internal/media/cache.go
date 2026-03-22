@@ -63,6 +63,21 @@ func (c *Cache) GetAllFiles() []*VideoFile {
 	return files
 }
 
+// GetFileByID retrieves a cached video file by its ID
+func (c *Cache) GetFileByID(id string) (*VideoFile, bool) {
+	if c == nil {
+		return nil, false
+	}
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	for _, f := range c.files {
+		if f.ID == id {
+			return f, true
+		}
+	}
+	return nil, false
+}
+
 // GetMetadata retrieves cached metadata by key
 func (c *Cache) GetMetadata(key string) (interface{}, bool) {
 	if c == nil {
