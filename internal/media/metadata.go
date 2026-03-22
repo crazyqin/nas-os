@@ -13,6 +13,7 @@ import (
 // MovieInfo 电影信息
 type MovieInfo struct {
 	ID            string    `json:"id"`
+	IMDBID        string    `json:"imdbId,omitempty"`
 	Title         string    `json:"title"`
 	OriginalTitle string    `json:"originalTitle"`
 	Overview      string    `json:"overview"`
