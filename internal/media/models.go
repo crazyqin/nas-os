@@ -1,81 +1,136 @@
-// Package media 提供媒体库管理、元数据刮削和流媒体服务
+// Package media provides media library management functionality
+// including video scanning, metadata scraping, and poster generation
 package media
 
-import (
-	"time"
+import "time"
+
+// MediaType represents the type of media content
+type MediaType string
+
+const (
+	MediaTypeMovie    MediaType = "movie"
+	MediaTypeTVShow   MediaType = "tv"
+	MediaTypeEpisode  MediaType = "episode"
+	MediaTypeUnknown  MediaType = "unknown"
 )
 
-// MetadataCache 元数据缓存接口
-type MetadataCache interface {
-	Get(category, key string) (interface{}, bool)
-	Set(category, key string, value interface{}, ttl time.Duration)
+// VideoFile represents a video file on disk
+type VideoFile struct {
+	ID           string    `json:"id"`
+	Path         string    `json:"path"`
+	Filename     string    `json:"filename"`
+	Size         int64     `json:"size"`
+	Duration     int       `json:"duration,omitempty"` // seconds
+	Width        int       `json:"width,omitempty"`
+	Height       int       `json:"height,omitempty"`
+	Codec        string    `json:"codec,omitempty"`
+	Bitrate      int       `json:"bitrate,omitempty"`
+	CreatedAt    time.Time `json:"created_at"`
+	ModifiedAt   time.Time `json:"modified_at"`
 }
 
-// SeasonInfo 季信息
-type SeasonInfo struct {
-	SeasonNumber int           `json:"seasonNumber"`
-	Name         string        `json:"name"`
-	Overview     string        `json:"overview"`
-	AirDate      string        `json:"airDate"`
-	EpisodeCount int           `json:"episodeCount"`
-	PosterPath   string        `json:"posterPath"`
-	Episodes     []EpisodeInfo `json:"episodes,omitempty"`
+// MediaMetadata represents scraped metadata from TMDB
+type MediaMetadata struct {
+	ID           string      `json:"id"`
+	TMDBID       int         `json:"tmdb_id"`
+	IMDBID       string      `json:"imdb_id,omitempty"`
+	Type         MediaType   `json:"type"`
+	Title        string      `json:"title"`
+	OriginalTitle string     `json:"original_title,omitempty"`
+	Overview     string      `json:"overview,omitempty"`
+	Tagline      string      `json:"tagline,omitempty"`
+	PosterPath   string      `json:"poster_path,omitempty"`
+	BackdropPath string      `json:"backdrop_path,omitempty"`
+	Rating       float64     `json:"rating,omitempty"`
+	VoteCount    int         `json:"vote_count,omitempty"`
+	ReleaseDate  string      `json:"release_date,omitempty"`
+	Runtime      int         `json:"runtime,omitempty"` // minutes
+	Genres       []string    `json:"genres,omitempty"`
+	Cast         []Cast      `json:"cast,omitempty"`
+	Directors    []string    `json:"directors,omitempty"`
+	Studios      []string    `json:"studios,omitempty"`
+	Countries    []string    `json:"countries,omitempty"`
+	Languages    []string    `json:"languages,omitempty"`
+	ScrapedAt    time.Time   `json:"scraped_at"`
 }
 
-// EpisodeInfo 剧集信息
-type EpisodeInfo struct {
-	EpisodeNumber int     `json:"episodeNumber"`
-	Name          string  `json:"name"`
-	Overview      string  `json:"overview"`
-	AirDate       string  `json:"airDate"`
-	StillPath     string  `json:"stillPath"`
-	Runtime       int     `json:"runtime"`
-	Rating        float64 `json:"rating"`
-	VoteCount     int     `json:"voteCount"`
+// Cast represents an actor/actress
+type Cast struct {
+	Name      string `json:"name"`
+	Character string `json:"character,omitempty"`
+	ProfilePath string `json:"profile_path,omitempty"`
+	Order     int    `json:"order,omitempty"`
 }
 
-// ScanResult 扫描结果
+// TVShowMetadata represents a TV show with seasons
+type TVShowMetadata struct {
+	MediaMetadata
+	Seasons      []Season    `json:"seasons,omitempty"`
+	NumberOfSeasons int      `json:"number_of_seasons,omitempty"`
+	NumberOfEpisodes int     `json:"number_of_episodes,omitempty"`
+	Status       string      `json:"status,omitempty"`
+	Networks     []string    `json:"networks,omitempty"`
+}
+
+// Season represents a TV show season
+type Season struct {
+	SeasonNumber  int       `json:"season_number"`
+	Name          string    `json:"name,omitempty"`
+	Overview      string    `json:"overview,omitempty"`
+	PosterPath    string    `json:"poster_path,omitempty"`
+	AirDate       string    `json:"air_date,omitempty"`
+	Episodes      []Episode `json:"episodes,omitempty"`
+}
+
+// Episode represents a TV episode
+type Episode struct {
+	EpisodeNumber int    `json:"episode_number"`
+	SeasonNumber  int    `json:"season_number"`
+	Name          string `json:"name,omitempty"`
+	Overview      string `json:"overview,omitempty"`
+	StillPath     string `json:"still_path,omitempty"`
+	AirDate       string `json:"air_date,omitempty"`
+	Runtime       int    `json:"runtime,omitempty"`
+}
+
+// MediaLibrary represents a media library collection
+type MediaLibrary struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Path        string    `json:"path"`
+	Type        MediaType `json:"type"`
+	MediaCount  int       `json:"media_count"`
+	TotalSize   int64     `json:"total_size"`
+	LastScanned time.Time `json:"last_scanned"`
+}
+
+// ScanResult represents the result of a media scan
 type ScanResult struct {
-	LibraryID    string    `json:"libraryId"`
-	TotalFiles   int       `json:"totalFiles"`
-	NewFiles     int       `json:"newFiles"`
-	UpdatedFiles int       `json:"updatedFiles"`
-	RemovedFiles int       `json:"removedFiles"`
-	Errors       []string  `json:"errors,omitempty"`
-	Duration     int64     `json:"duration"` // 毫秒
-	ScannedAt    time.Time `json:"scannedAt"`
+	LibraryID    string       `json:"library_id"`
+	TotalFiles   int          `json:"total_files"`
+	NewFiles     int          `json:"new_files"`
+	UpdatedFiles int          `json:"updated_files"`
+	RemovedFiles int          `json:"removed_files"`
+	Errors       []ScanError  `json:"errors,omitempty"`
+	Duration     time.Duration `json:"duration"`
 }
 
-// ScraperResult 刮削结果
-type ScraperResult struct {
-	Item     *Item       `json:"item"`
-	Metadata interface{} `json:"metadata"`
-	Source   string      `json:"source"`
-	Error    string      `json:"error,omitempty"`
+// ScanError represents an error during scanning
+type ScanError struct {
+	Path    string `json:"path"`
+	Message string `json:"message"`
 }
 
-// PosterWallItem 海报墙项目
-type PosterWallItem struct {
-	ID          string  `json:"id"`
-	Title       string  `json:"title"`
-	PosterURL   string  `json:"posterUrl"`
-	BackdropURL string  `json:"backdropUrl,omitempty"`
-	Rating      float64 `json:"rating"`
-	Year        string  `json:"year"`
-	Type        Type    `json:"type"`
-	IsFavorite  bool    `json:"isFavorite"`
-}
-
-// MediaFilter 媒体过滤条件
-type MediaFilter struct {
-	Query      string  `json:"query,omitempty"`
-	Type       Type    `json:"type,omitempty"`
-	Genre      string  `json:"genre,omitempty"`
-	Year       string  `json:"year,omitempty"`
-	MinRating  float64 `json:"minRating,omitempty"`
-	IsFavorite *bool   `json:"isFavorite,omitempty"`
-	SortBy     string  `json:"sortBy,omitempty"`    // name, rating, date, size
-	SortOrder  string  `json:"sortOrder,omitempty"` // asc, desc
-	Limit      int     `json:"limit,omitempty"`
-	Offset     int     `json:"offset,omitempty"`
+// Supported video extensions
+var SupportedExtensions = map[string]bool{
+	".mp4":  true,
+	".mkv":  true,
+	".avi":  true,
+	".mov":  true,
+	".wmv":  true,
+	".flv":  true,
+	".webm": true,
+	".m4v":  true,
+	".ts":   true,
+	".m2ts": true,
 }

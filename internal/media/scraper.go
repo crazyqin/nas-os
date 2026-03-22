@@ -1,692 +1,438 @@
 package media
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
-	"strings"
+	"path/filepath"
 	"time"
 )
 
-// TMDBScraper TMDB 刮削器
+// TMDBScraper scrapes metadata from The Movie Database
 type TMDBScraper struct {
 	apiKey     string
 	baseURL    string
-	imageURL   string
-	language   string
 	httpClient *http.Client
-	cache      MetadataCache
+	cache      *Cache
 }
 
-// TMDBConfig TMDB 配置
+// TMDBConfig holds TMDB API configuration
 type TMDBConfig struct {
-	APIKey   string
-	Language string
-	Timeout  time.Duration
-	Cache    MetadataCache
+	APIKey  string
+	BaseURL string // defaults to https://api.themoviedb.org/3
+	Timeout time.Duration
 }
 
-// NewTMDBScraper 创建 TMDB 刮削器
-func NewTMDBScraper(config *TMDBConfig) *TMDBScraper {
-	if config.Language == "" {
-		config.Language = "zh-CN"
+// NewTMDBScraper creates a new TMDB scraper
+func NewTMDBScraper(config TMDBConfig, cache *Cache) *TMDBScraper {
+	if config.BaseURL == "" {
+		config.BaseURL = "https://api.themoviedb.org/3"
 	}
 	if config.Timeout == 0 {
 		config.Timeout = 30 * time.Second
 	}
 
 	return &TMDBScraper{
-		apiKey:   config.APIKey,
-		baseURL:  "https://api.themoviedb.org/3",
-		imageURL: "https://image.tmdb.org/t/p/original",
-		language: config.Language,
+		apiKey:  config.APIKey,
+		baseURL: config.BaseURL,
 		httpClient: &http.Client{
 			Timeout: config.Timeout,
 		},
-		cache: config.Cache,
+		cache: cache,
 	}
 }
 
-// Name 返回提供商名称
-func (s *TMDBScraper) Name() string {
-	return "tmdb"
-}
-
-// SearchMovie 搜索电影
-func (s *TMDBScraper) SearchMovie(query string) ([]*MovieInfo, error) {
-	// 检查缓存
+// SearchMovie searches for a movie by title
+func (s *TMDBScraper) SearchMovie(ctx context.Context, title string, year int) (*MediaMetadata, error) {
+	// Check cache first
+	cacheKey := fmt.Sprintf("movie:%s:%d", title, year)
 	if s.cache != nil {
-		if cached, ok := s.cache.Get("search_movie", query); ok {
-			if results, ok := cached.([]*MovieInfo); ok {
-				return results, nil
+		if meta, ok := s.cache.GetMetadata(cacheKey); ok {
+			if mm, ok := meta.(*MediaMetadata); ok {
+				return mm, nil
 			}
 		}
 	}
 
-	endpoint := fmt.Sprintf("%s/search/movie", s.baseURL)
+	// Build search URL
 	params := url.Values{}
 	params.Set("api_key", s.apiKey)
-	params.Set("query", query)
-	params.Set("language", s.language)
-	params.Set("page", "1")
+	params.Set("query", title)
+	params.Set("language", "zh-CN")
+	if year > 0 {
+		params.Set("year", fmt.Sprintf("%d", year))
+	}
 
-	resp, err := s.httpClient.Get(endpoint + "?" + params.Encode())
+	searchURL := fmt.Sprintf("%s/search/movie?%s", s.baseURL, params.Encode())
+
+	// Make request
+	resp, err := s.makeRequest(ctx, searchURL)
 	if err != nil {
-		return nil, s.wrapError("搜索电影失败", err)
+		return nil, fmt.Errorf("search movie failed: %w", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
+	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("TMDB API 错误: %d", resp.StatusCode)
+	// Parse response
+	var searchResp tmdbSearchResponse
+	if err := json.NewDecoder(resp.Body).Decode(&searchResp); err != nil {
+		return nil, fmt.Errorf("parse search response failed: %w", err)
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	if len(searchResp.Results) == 0 {
+		return nil, fmt.Errorf("no movie found for: %s", title)
+	}
+
+	// Get detailed info for the first result
+	movie := searchResp.Results[0]
+	metadata, err := s.GetMovieDetails(ctx, movie.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	var result struct {
-		Results []struct {
-			ID            int     `json:"id"`
-			Title         string  `json:"title"`
-			OriginalTitle string  `json:"original_title"`
-			Overview      string  `json:"overview"`
-			ReleaseDate   string  `json:"release_date"`
-			Popularity    float64 `json:"popularity"`
-			VoteAverage   float64 `json:"vote_average"`
-			VoteCount     int     `json:"vote_count"`
-			GenreIDs      []int   `json:"genre_ids"`
-			PosterPath    string  `json:"poster_path"`
-			BackdropPath  string  `json:"backdrop_path"`
-		} `json:"results"`
+	// Cache the result
+	if s.cache != nil {
+		s.cache.SetMetadata(cacheKey, metadata)
 	}
 
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
-	}
-
-	movies := make([]*MovieInfo, 0, len(result.Results))
-	for _, r := range result.Results {
-		movie := &MovieInfo{
-			ID:            fmt.Sprintf("tmdb_%d", r.ID),
-			Title:         r.Title,
-			OriginalTitle: r.OriginalTitle,
-			Overview:      r.Overview,
-			ReleaseDate:   r.ReleaseDate,
-			Rating:        r.VoteAverage,
-			VoteCount:     r.VoteCount,
-			PosterPath:    s.getImageURL(r.PosterPath),
-			BackdropPath:  s.getImageURL(r.BackdropPath),
-			Source:        "tmdb",
-			LastUpdated:   time.Now(),
-		}
-		movies = append(movies, movie)
-	}
-
-	// 缓存结果
-	if s.cache != nil && len(movies) > 0 {
-		s.cache.Set("search_movie", query, movies, 24*time.Hour)
-	}
-
-	return movies, nil
+	return metadata, nil
 }
 
-// GetMovie 获取电影详情
-func (s *TMDBScraper) GetMovie(id string) (*MovieInfo, error) {
-	// 检查缓存
+// GetMovieDetails gets detailed movie information
+func (s *TMDBScraper) GetMovieDetails(ctx context.Context, tmdbID int) (*MediaMetadata, error) {
+	params := url.Values{}
+	params.Set("api_key", s.apiKey)
+	params.Set("language", "zh-CN")
+	params.Set("append_to_response", "credits")
+
+	detailsURL := fmt.Sprintf("%s/movie/%d?%s", s.baseURL, tmdbID, params.Encode())
+
+	resp, err := s.makeRequest(ctx, detailsURL)
+	if err != nil {
+		return nil, fmt.Errorf("get movie details failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var movie tmdbMovieDetails
+	if err := json.NewDecoder(resp.Body).Decode(&movie); err != nil {
+		return nil, fmt.Errorf("parse movie details failed: %w", err)
+	}
+
+	return s.convertMovieToMetadata(&movie), nil
+}
+
+// SearchTVShow searches for a TV show by title
+func (s *TMDBScraper) SearchTVShow(ctx context.Context, title string) (*TVShowMetadata, error) {
+	cacheKey := fmt.Sprintf("tv:%s", title)
 	if s.cache != nil {
-		if cached, ok := s.cache.Get("movie", id); ok {
-			if movie, ok := cached.(*MovieInfo); ok {
-				return movie, nil
+		if meta, ok := s.cache.GetMetadata(cacheKey); ok {
+			if tv, ok := meta.(*TVShowMetadata); ok {
+				return tv, nil
 			}
 		}
 	}
 
-	tmdbID := strings.TrimPrefix(id, "tmdb_")
-	endpoint := fmt.Sprintf("%s/movie/%s", s.baseURL, tmdbID)
 	params := url.Values{}
 	params.Set("api_key", s.apiKey)
-	params.Set("language", s.language)
-	params.Set("append_to_response", "credits,videos,external_ids")
+	params.Set("query", title)
+	params.Set("language", "zh-CN")
 
-	resp, err := s.httpClient.Get(endpoint + "?" + params.Encode())
+	searchURL := fmt.Sprintf("%s/search/tv?%s", s.baseURL, params.Encode())
+
+	resp, err := s.makeRequest(ctx, searchURL)
 	if err != nil {
-		return nil, s.wrapError("获取电影详情失败", err)
+		return nil, fmt.Errorf("search tv show failed: %w", err)
 	}
-	defer func() { _ = resp.Body.Close() }()
+	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("TMDB API 错误: %d", resp.StatusCode)
+	var searchResp tmdbTVSearchResponse
+	if err := json.NewDecoder(resp.Body).Decode(&searchResp); err != nil {
+		return nil, fmt.Errorf("parse tv search response failed: %w", err)
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	if len(searchResp.Results) == 0 {
+		return nil, fmt.Errorf("no tv show found for: %s", title)
+	}
+
+	tv := searchResp.Results[0]
+	metadata, err := s.GetTVShowDetails(ctx, tv.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	movie, err := s.parseMovieDetail(body)
-	if err != nil {
-		return nil, err
-	}
-
-	// 缓存结果
 	if s.cache != nil {
-		s.cache.Set("movie", id, movie, 7*24*time.Hour)
+		s.cache.SetMetadata(cacheKey, metadata)
 	}
 
-	return movie, nil
+	return metadata, nil
 }
 
-// GetMovieByIMDB 通过 IMDB ID 获取电影
-func (s *TMDBScraper) GetMovieByIMDB(imdbID string) (*MovieInfo, error) {
-	// 检查缓存
-	if s.cache != nil {
-		if cached, ok := s.cache.Get("movie_imdb", imdbID); ok {
-			if movie, ok := cached.(*MovieInfo); ok {
-				return movie, nil
+// GetTVShowDetails gets detailed TV show information
+func (s *TMDBScraper) GetTVShowDetails(ctx context.Context, tmdbID int) (*TVShowMetadata, error) {
+	params := url.Values{}
+	params.Set("api_key", s.apiKey)
+	params.Set("language", "zh-CN")
+
+	detailsURL := fmt.Sprintf("%s/tv/%d?%s", s.baseURL, tmdbID, params.Encode())
+
+	resp, err := s.makeRequest(ctx, detailsURL)
+	if err != nil {
+		return nil, fmt.Errorf("get tv details failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	var tv tmdbTVDetails
+	if err := json.NewDecoder(resp.Body).Decode(&tv); err != nil {
+		return nil, fmt.Errorf("parse tv details failed: %w", err)
+	}
+
+	return s.convertTVToMetadata(&tv), nil
+}
+
+// makeRequest makes an HTTP request with proper headers
+func (s *TMDBScraper) makeRequest(ctx context.Context, url string) (*http.Response, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", "nas-os/1.0")
+
+	return s.httpClient.Do(req)
+}
+
+// convertMovieToMetadata converts TMDB movie response to MediaMetadata
+func (s *TMDBScraper) convertMovieToMetadata(movie *tmdbMovieDetails) *MediaMetadata {
+	metadata := &MediaMetadata{
+		TMDBID:        movie.ID,
+		Type:          MediaTypeMovie,
+		Title:         movie.Title,
+		OriginalTitle: movie.OriginalTitle,
+		Overview:      movie.Overview,
+		Tagline:       movie.Tagline,
+		PosterPath:    movie.PosterPath,
+		BackdropPath:  movie.BackdropPath,
+		Rating:        movie.VoteAverage,
+		VoteCount:     movie.VoteCount,
+		ReleaseDate:   movie.ReleaseDate,
+		Runtime:       movie.Runtime,
+		ScrapedAt:     time.Now(),
+	}
+
+	// Extract genres
+	for _, g := range movie.Genres {
+		metadata.Genres = append(metadata.Genres, g.Name)
+	}
+
+	// Extract cast
+	if movie.Credits != nil {
+		for i, c := range movie.Credits.Cast {
+			if i >= 10 {
+				break
+			}
+			metadata.Cast = append(metadata.Cast, Cast{
+				Name:        c.Name,
+				Character:   c.Character,
+				ProfilePath: c.ProfilePath,
+				Order:       c.Order,
+			})
+		}
+	}
+
+	// Extract directors
+	if movie.Credits != nil {
+		for _, c := range movie.Credits.Crew {
+			if c.Job == "Director" {
+				metadata.Directors = append(metadata.Directors, c.Name)
 			}
 		}
 	}
 
-	// 先通过 IMDB ID 查找 TMDB ID
-	findEndpoint := fmt.Sprintf("%s/find/%s", s.baseURL, imdbID)
-	params := url.Values{}
-	params.Set("api_key", s.apiKey)
-	params.Set("external_source", "imdb_id")
-
-	resp, err := s.httpClient.Get(findEndpoint + "?" + params.Encode())
-	if err != nil {
-		return nil, s.wrapError("通过 IMDB ID 查找电影失败", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("TMDB API 错误: %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var findResult struct {
-		MovieResults []struct {
-			ID int `json:"id"`
-		} `json:"movie_results"`
-	}
-
-	if err := json.Unmarshal(body, &findResult); err != nil {
-		return nil, err
-	}
-
-	if len(findResult.MovieResults) == 0 {
-		return nil, fmt.Errorf("未找到 IMDB ID 对应的电影: %s", imdbID)
-	}
-
-	// 获取电影详情
-	tmdbID := findResult.MovieResults[0].ID
-	movie, err := s.GetMovie(fmt.Sprintf("tmdb_%d", tmdbID))
-	if err != nil {
-		return nil, err
-	}
-
-	movie.IMDBID = imdbID
-
-	// 缓存结果
-	if s.cache != nil {
-		s.cache.Set("movie_imdb", imdbID, movie, 7*24*time.Hour)
-	}
-
-	return movie, nil
+	return metadata
 }
 
-// parseMovieDetail 解析电影详情
-func (s *TMDBScraper) parseMovieDetail(body []byte) (*MovieInfo, error) {
-	var result struct {
+// convertTVToMetadata converts TMDB TV response to TVShowMetadata
+func (s *TMDBScraper) convertTVToMetadata(tv *tmdbTVDetails) *TVShowMetadata {
+	metadata := &TVShowMetadata{
+		MediaMetadata: MediaMetadata{
+			TMDBID:        tv.ID,
+			Type:          MediaTypeTVShow,
+			Title:         tv.Name,
+			OriginalTitle: tv.OriginalName,
+			Overview:      tv.Overview,
+			PosterPath:    tv.PosterPath,
+			BackdropPath:  tv.BackdropPath,
+			Rating:        tv.VoteAverage,
+			VoteCount:     tv.VoteCount,
+			ReleaseDate:   tv.FirstAirDate,
+			ScrapedAt:     time.Now(),
+		},
+		NumberOfSeasons:  tv.NumberOfSeasons,
+		NumberOfEpisodes: tv.NumberOfEpisodes,
+		Status:          tv.Status,
+	}
+
+	for _, g := range tv.Genres {
+		metadata.Genres = append(metadata.Genres, g.Name)
+	}
+
+	for _, n := range tv.Networks {
+		metadata.Networks = append(metadata.Networks, n.Name)
+	}
+
+	for _, s := range tv.Seasons {
+		season := Season{
+			SeasonNumber: s.SeasonNumber,
+			Name:         s.Name,
+			Overview:     s.Overview,
+			PosterPath:   s.PosterPath,
+			AirDate:      s.AirDate,
+		}
+		metadata.Seasons = append(metadata.Seasons, season)
+	}
+
+	return metadata
+}
+
+// TMDB response types
+type tmdbSearchResponse struct {
+	Page    int `json:"page"`
+	Results []struct {
 		ID            int     `json:"id"`
-		ImdbID        string  `json:"imdb_id"`
 		Title         string  `json:"title"`
 		OriginalTitle string  `json:"original_title"`
 		Overview      string  `json:"overview"`
-		Runtime       int     `json:"runtime"`
+		PosterPath    string  `json:"poster_path"`
+		BackdropPath  string  `json:"backdrop_path"`
 		ReleaseDate   string  `json:"release_date"`
 		VoteAverage   float64 `json:"vote_average"`
 		VoteCount     int     `json:"vote_count"`
-		Genres        []struct {
-			ID   int    `json:"id"`
-			Name string `json:"name"`
-		} `json:"genres"`
-		PosterPath      string `json:"poster_path"`
-		BackdropPath    string `json:"backdrop_path"`
-		Tagline         string `json:"tagline"`
-		SpokenLanguages []struct {
-			Iso639_1 string `json:"iso_639_1"`
-			Name     string `json:"name"`
-		} `json:"spoken_languages"`
-		ProductionCountries []struct {
-			Iso3166_1 string `json:"iso_3166_1"`
-			Name      string `json:"name"`
-		} `json:"production_countries"`
-		Credits struct {
-			Cast []struct {
-				Name string `json:"name"`
-			} `json:"cast"`
-			Crew []struct {
-				Name string `json:"name"`
-				Job  string `json:"job"`
-			} `json:"crew"`
-		} `json:"credits"`
-		ExternalIDs struct {
-			ImdbID string `json:"imdb_id"`
-		} `json:"external_ids"`
-	}
-
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
-	}
-
-	genres := make([]string, 0, len(result.Genres))
-	for _, g := range result.Genres {
-		genres = append(genres, g.Name)
-	}
-
-	directors := make([]string, 0)
-	cast := make([]string, 0, min(10, len(result.Credits.Cast)))
-	for _, c := range result.Credits.Cast {
-		if len(cast) < 10 {
-			cast = append(cast, c.Name)
-		}
-	}
-	for _, c := range result.Credits.Crew {
-		if c.Job == "Director" {
-			directors = append(directors, c.Name)
-		}
-	}
-
-	languages := make([]string, 0, len(result.SpokenLanguages))
-	for _, l := range result.SpokenLanguages {
-		languages = append(languages, l.Name)
-	}
-
-	countries := make([]string, 0, len(result.ProductionCountries))
-	for _, c := range result.ProductionCountries {
-		countries = append(countries, c.Name)
-	}
-
-	imdbID := result.ImdbID
-	if result.ExternalIDs.ImdbID != "" {
-		imdbID = result.ExternalIDs.ImdbID
-	}
-
-	movie := &MovieInfo{
-		ID:            fmt.Sprintf("tmdb_%d", result.ID),
-		IMDBID:        imdbID,
-		Title:         result.Title,
-		OriginalTitle: result.OriginalTitle,
-		Overview:      result.Overview,
-		Runtime:       result.Runtime,
-		ReleaseDate:   result.ReleaseDate,
-		Rating:        result.VoteAverage,
-		VoteCount:     result.VoteCount,
-		Genres:        genres,
-		Directors:     directors,
-		Cast:          cast,
-		PosterPath:    s.getImageURL(result.PosterPath),
-		BackdropPath:  s.getImageURL(result.BackdropPath),
-		Tagline:       result.Tagline,
-		Language:      strings.Join(languages, ", "),
-		Country:       strings.Join(countries, ", "),
-		Source:        "tmdb",
-		LastUpdated:   time.Now(),
-	}
-
-	return movie, nil
+	} `json:"results"`
+	TotalPages   int `json:"total_pages"`
+	TotalResults int `json:"total_results"`
 }
 
-// SearchTV 搜索电视剧
-func (s *TMDBScraper) SearchTV(query string) ([]*TVShowInfo, error) {
-	// 检查缓存
-	if s.cache != nil {
-		if cached, ok := s.cache.Get("search_tv", query); ok {
-			if results, ok := cached.([]*TVShowInfo); ok {
-				return results, nil
-			}
-		}
-	}
-
-	endpoint := fmt.Sprintf("%s/search/tv", s.baseURL)
-	params := url.Values{}
-	params.Set("api_key", s.apiKey)
-	params.Set("query", query)
-	params.Set("language", s.language)
-	params.Set("page", "1")
-
-	resp, err := s.httpClient.Get(endpoint + "?" + params.Encode())
-	if err != nil {
-		return nil, s.wrapError("搜索电视剧失败", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("TMDB API 错误: %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var result struct {
-		Results []struct {
-			ID           int     `json:"id"`
-			Name         string  `json:"name"`
-			OriginalName string  `json:"original_name"`
-			Overview     string  `json:"overview"`
-			FirstAirDate string  `json:"first_air_date"`
-			VoteAverage  float64 `json:"vote_average"`
-			VoteCount    int     `json:"vote_count"`
-			PosterPath   string  `json:"poster_path"`
-			BackdropPath string  `json:"backdrop_path"`
-		} `json:"results"`
-	}
-
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
-	}
-
-	shows := make([]*TVShowInfo, 0, len(result.Results))
-	for _, r := range result.Results {
-		show := &TVShowInfo{
-			ID:           fmt.Sprintf("tmdb_%d", r.ID),
-			Name:         r.Name,
-			OriginalName: r.OriginalName,
-			Overview:     r.Overview,
-			FirstAirDate: r.FirstAirDate,
-			Rating:       r.VoteAverage,
-			VoteCount:    r.VoteCount,
-			PosterPath:   s.getImageURL(r.PosterPath),
-			BackdropPath: s.getImageURL(r.BackdropPath),
-			Source:       "tmdb",
-			LastUpdated:  time.Now(),
-		}
-		shows = append(shows, show)
-	}
-
-	// 缓存结果
-	if s.cache != nil && len(shows) > 0 {
-		s.cache.Set("search_tv", query, shows, 24*time.Hour)
-	}
-
-	return shows, nil
+type tmdbMovieDetails struct {
+	ID            int     `json:"id"`
+	Title         string  `json:"title"`
+	OriginalTitle string  `json:"original_title"`
+	Overview      string  `json:"overview"`
+	Tagline       string  `json:"tagline"`
+	PosterPath    string  `json:"poster_path"`
+	BackdropPath  string  `json:"backdrop_path"`
+	ReleaseDate   string  `json:"release_date"`
+	Runtime       int     `json:"runtime"`
+	VoteAverage   float64 `json:"vote_average"`
+	VoteCount     int     `json:"vote_count"`
+	Genres        []struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"genres"`
+	Credits *struct {
+		Cast []struct {
+			ID           int    `json:"id"`
+			Name         string `json:"name"`
+			Character    string `json:"character"`
+			ProfilePath  string `json:"profile_path"`
+			Order        int    `json:"order"`
+		} `json:"cast"`
+		Crew []struct {
+			ID          int    `json:"id"`
+			Name        string `json:"name"`
+			Job         string `json:"job"`
+			Department  string `json:"department"`
+		} `json:"crew"`
+	} `json:"credits"`
 }
 
-// GetTV 获取电视剧详情
-func (s *TMDBScraper) GetTV(id string) (*TVShowInfo, error) {
-	// 检查缓存
-	if s.cache != nil {
-		if cached, ok := s.cache.Get("tv", id); ok {
-			if show, ok := cached.(*TVShowInfo); ok {
-				return show, nil
-			}
-		}
-	}
-
-	tmdbID := strings.TrimPrefix(id, "tmdb_")
-	endpoint := fmt.Sprintf("%s/tv/%s", s.baseURL, tmdbID)
-	params := url.Values{}
-	params.Set("api_key", s.apiKey)
-	params.Set("language", s.language)
-	params.Set("append_to_response", "credits,external_ids")
-
-	resp, err := s.httpClient.Get(endpoint + "?" + params.Encode())
-	if err != nil {
-		return nil, s.wrapError("获取电视剧详情失败", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("TMDB API 错误: %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	show, err := s.parseTVDetail(body)
-	if err != nil {
-		return nil, err
-	}
-
-	// 缓存结果
-	if s.cache != nil {
-		s.cache.Set("tv", id, show, 7*24*time.Hour)
-	}
-
-	return show, nil
+type tmdbTVSearchResponse struct {
+	Results []struct {
+		ID           int     `json:"id"`
+		Name         string  `json:"name"`
+		OriginalName string  `json:"original_name"`
+		Overview     string  `json:"overview"`
+		PosterPath   string  `json:"poster_path"`
+		BackdropPath string  `json:"backdrop_path"`
+		FirstAirDate string  `json:"first_air_date"`
+		VoteAverage  float64 `json:"vote_average"`
+		VoteCount    int     `json:"vote_count"`
+	} `json:"results"`
 }
 
-// GetTVSeason 获取电视剧季信息
-func (s *TMDBScraper) GetTVSeason(tvID string, seasonNumber int) (*SeasonInfo, error) {
-	tmdbID := strings.TrimPrefix(tvID, "tmdb_")
-	cacheKey := fmt.Sprintf("%s_s%d", tmdbID, seasonNumber)
-
-	// 检查缓存
-	if s.cache != nil {
-		if cached, ok := s.cache.Get("tv_season", cacheKey); ok {
-			if season, ok := cached.(*SeasonInfo); ok {
-				return season, nil
-			}
-		}
-	}
-
-	endpoint := fmt.Sprintf("%s/tv/%s/season/%d", s.baseURL, tmdbID, seasonNumber)
-	params := url.Values{}
-	params.Set("api_key", s.apiKey)
-	params.Set("language", s.language)
-
-	resp, err := s.httpClient.Get(endpoint + "?" + params.Encode())
-	if err != nil {
-		return nil, s.wrapError("获取季信息失败", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("TMDB API 错误: %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var result struct {
+type tmdbTVDetails struct {
+	ID               int     `json:"id"`
+	Name             string  `json:"name"`
+	OriginalName     string  `json:"original_name"`
+	Overview         string  `json:"overview"`
+	PosterPath       string  `json:"poster_path"`
+	BackdropPath     string  `json:"backdrop_path"`
+	FirstAirDate     string  `json:"first_air_date"`
+	VoteAverage      float64 `json:"vote_average"`
+	VoteCount        int     `json:"vote_count"`
+	NumberOfSeasons  int     `json:"number_of_seasons"`
+	NumberOfEpisodes int     `json:"number_of_episodes"`
+	Status           string  `json:"status"`
+	Genres           []struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"genres"`
+	Networks []struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"networks"`
+	Seasons []struct {
+		ID           int    `json:"id"`
 		SeasonNumber int    `json:"season_number"`
 		Name         string `json:"name"`
 		Overview     string `json:"overview"`
+		PosterPath   string `json:"poster_path"`
 		AirDate      string `json:"air_date"`
-		PosterPath   string `json:"poster_path"`
-		Episodes     []struct {
-			EpisodeNumber int     `json:"episode_number"`
-			Name          string  `json:"name"`
-			Overview      string  `json:"overview"`
-			AirDate       string  `json:"air_date"`
-			StillPath     string  `json:"still_path"`
-			Runtime       int     `json:"runtime"`
-			VoteAverage   float64 `json:"vote_average"`
-			VoteCount     int     `json:"vote_count"`
-		} `json:"episodes"`
-	}
-
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
-	}
-
-	episodes := make([]EpisodeInfo, 0, len(result.Episodes))
-	for _, e := range result.Episodes {
-		episodes = append(episodes, EpisodeInfo{
-			EpisodeNumber: e.EpisodeNumber,
-			Name:          e.Name,
-			Overview:      e.Overview,
-			AirDate:       e.AirDate,
-			StillPath:     s.getImageURL(e.StillPath),
-			Runtime:       e.Runtime,
-			Rating:        e.VoteAverage,
-			VoteCount:     e.VoteCount,
-		})
-	}
-
-	season := &SeasonInfo{
-		SeasonNumber: result.SeasonNumber,
-		Name:         result.Name,
-		Overview:     result.Overview,
-		AirDate:      result.AirDate,
-		EpisodeCount: len(result.Episodes),
-		PosterPath:   s.getImageURL(result.PosterPath),
-		Episodes:     episodes,
-	}
-
-	// 缓存结果
-	if s.cache != nil {
-		s.cache.Set("tv_season", cacheKey, season, 7*24*time.Hour)
-	}
-
-	return season, nil
+		EpisodeCount int    `json:"episode_count"`
+	} `json:"seasons"`
 }
 
-// parseTVDetail 解析电视剧详情
-func (s *TMDBScraper) parseTVDetail(body []byte) (*TVShowInfo, error) {
-	var result struct {
-		ID           int    `json:"id"`
-		Name         string `json:"name"`
-		OriginalName string `json:"original_name"`
-		Overview     string `json:"overview"`
-		FirstAirDate string `json:"first_air_date"`
-		LastAirDate  string `json:"last_air_date"`
-		Status       string `json:"status"`
-		Seasons      []struct {
-			SeasonNumber int `json:"season_number"`
-			EpisodeCount int `json:"episode_count"`
-		} `json:"seasons"`
-		VoteAverage float64 `json:"vote_average"`
-		VoteCount   int     `json:"vote_count"`
-		Genres      []struct {
-			ID   int    `json:"id"`
-			Name string `json:"name"`
-		} `json:"genres"`
-		PosterPath   string `json:"poster_path"`
-		BackdropPath string `json:"backdrop_path"`
-		Networks     []struct {
-			Name string `json:"name"`
-		} `json:"networks"`
-		CreatedBy []struct {
-			Name string `json:"name"`
-		} `json:"created_by"`
-		Credits struct {
-			Cast []struct {
-				Name string `json:"name"`
-			} `json:"cast"`
-		} `json:"credits"`
-		SpokenLanguages []struct {
-			Name string `json:"name"`
-		} `json:"spoken_languages"`
-		OriginCountry []string `json:"origin_country"`
-	}
-
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, err
-	}
-
-	genres := make([]string, 0, len(result.Genres))
-	for _, g := range result.Genres {
-		genres = append(genres, g.Name)
-	}
-
-	creators := make([]string, 0, len(result.CreatedBy))
-	for _, c := range result.CreatedBy {
-		creators = append(creators, c.Name)
-	}
-
-	cast := make([]string, 0, min(10, len(result.Credits.Cast)))
-	for _, c := range result.Credits.Cast {
-		if len(cast) < 10 {
-			cast = append(cast, c.Name)
-		}
-	}
-
-	networks := make([]string, 0, len(result.Networks))
-	for _, n := range result.Networks {
-		networks = append(networks, n.Name)
-	}
-
-	totalSeasons := 0
-	totalEpisodes := 0
-	for _, season := range result.Seasons {
-		totalSeasons++
-		totalEpisodes += season.EpisodeCount
-	}
-
-	languages := make([]string, 0, len(result.SpokenLanguages))
-	for _, l := range result.SpokenLanguages {
-		languages = append(languages, l.Name)
-	}
-
-	show := &TVShowInfo{
-		ID:           fmt.Sprintf("tmdb_%d", result.ID),
-		Name:         result.Name,
-		OriginalName: result.OriginalName,
-		Overview:     result.Overview,
-		FirstAirDate: result.FirstAirDate,
-		LastAirDate:  result.LastAirDate,
-		Status:       result.Status,
-		Seasons:      totalSeasons,
-		Episodes:     totalEpisodes,
-		Rating:       result.VoteAverage,
-		VoteCount:    result.VoteCount,
-		Genres:       genres,
-		Creators:     creators,
-		Cast:         cast,
-		PosterPath:   s.getImageURL(result.PosterPath),
-		BackdropPath: s.getImageURL(result.BackdropPath),
-		Networks:     networks,
-		Language:     strings.Join(languages, ", "),
-		Country:      strings.Join(result.OriginCountry, ", "),
-		Source:       "tmdb",
-		LastUpdated:  time.Now(),
-	}
-
-	return show, nil
-}
-
-// SearchMusic 搜索音乐（TMDB 不支持音乐）
-func (s *TMDBScraper) SearchMusic(query string) ([]*MusicAlbumInfo, error) {
-	return []*MusicAlbumInfo{}, nil
-}
-
-// GetMusic 获取音乐详情（TMDB 不支持音乐）
-func (s *TMDBScraper) GetMusic(id string) (*MusicAlbumInfo, error) {
-	return nil, fmt.Errorf("TMDB 不支持音乐元数据")
-}
-
-// getImageURL 获取完整图片 URL
-func (s *TMDBScraper) getImageURL(path string) string {
-	if path == "" {
+// GetPosterURL returns the full URL for a poster image
+func (s *TMDBScraper) GetPosterURL(posterPath string, size string) string {
+	if posterPath == "" {
 		return ""
 	}
-	return s.imageURL + path
-}
-
-// wrapError 包装错误信息
-func (s *TMDBScraper) wrapError(msg string, err error) error {
-	return fmt.Errorf("%s: %w", msg, err)
-}
-
-// min 返回最小值
-func min(a, b int) int {
-	if a < b {
-		return a
+	baseURL := "https://image.tmdb.org/t/p/"
+	if size == "" {
+		size = "w500"
 	}
-	return b
+	return fmt.Sprintf("%s%s%s", baseURL, size, posterPath)
+}
+
+// ScrapeVideoFile scrapes metadata for a video file
+func (s *TMDBScraper) ScrapeVideoFile(ctx context.Context, scanner *Scanner, videoPath string) (*MediaMetadata, error) {
+	// Parse filename
+	title, year, _, _ := scanner.ParseFilename(filepath.Base(videoPath))
+
+	// Detect media type
+	mediaType := scanner.DetectMediaType(filepath.Base(videoPath))
+
+	switch mediaType {
+	case MediaTypeTVShow:
+		tvMeta, err := s.SearchTVShow(ctx, title)
+		if err != nil {
+			return nil, err
+		}
+		return &tvMeta.MediaMetadata, nil
+	case MediaTypeMovie:
+		return s.SearchMovie(ctx, title, year)
+	default:
+		// Try movie first
+		meta, err := s.SearchMovie(ctx, title, year)
+		if err == nil {
+			return meta, nil
+		}
+		// Try TV show
+		tvMeta, err := s.SearchTVShow(ctx, title)
+		if err != nil {
+			return nil, fmt.Errorf("could not identify media: %s", title)
+		}
+		return &tvMeta.MediaMetadata, nil
+	}
 }
