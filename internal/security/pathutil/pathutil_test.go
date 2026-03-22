@@ -97,9 +97,9 @@ func TestSafePath(t *testing.T) {
 
 func TestValidatePath(t *testing.T) {
 	tests := []struct {
-		name     string
-		path     string
-		wantErr  bool
+		name    string
+		path    string
+		wantErr bool
 	}{
 		{"valid path", "/var/lib/data", false},
 		{"valid relative", "data/file.txt", false},
