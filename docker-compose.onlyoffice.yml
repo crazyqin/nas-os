@@ -22,8 +22,9 @@ services:
     # 环境变量
     environment:
       # JWT 安全配置（强烈建议启用）
+      # 生产环境必须设置强密钥！使用环境变量: JWT_SECRET=${ONLYOFFICE_JWT_SECRET}
       - JWT_ENABLED=true
-      - JWT_SECRET=your-jwt-secret-key-change-me
+      - JWT_SECRET=${ONLYOFFICE_JWT_SECRET:-changeme-generate-strong-secret}
       - JWT_HEADER=Authorization
       - JWT_IN_BODY=true
       
