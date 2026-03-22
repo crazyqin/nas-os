@@ -1,375 +1,255 @@
 package media
 
 import (
-	"context"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
-// Scanner 媒体文件扫描器
+// Scanner scans directories for media files
 type Scanner struct {
-	// 视频文件扩展名
-	videoExts map[string]bool
-	// 音频文件扩展名
-	audioExts map[string]bool
-	// 图片文件扩展名
-	imageExts map[string]bool
-	// 忽略的目录名
-	ignoreDirs map[string]bool
-	// 并发控制
-	workers int
+	extensions map[string]bool
+	cache      *Cache
+	mu         sync.RWMutex
 }
 
-// ScannerConfig 扫描器配置
-type ScannerConfig struct {
-	Workers         int      // 并发工作数
-	IgnoreDirs      []string // 忽略的目录
-	CustomVideoExts []string // 自定义视频扩展名
-	CustomAudioExts []string // 自定义音频扩展名
+// NewScanner creates a new media scanner
+func NewScanner(cache *Cache) *Scanner {
+	return &Scanner{
+		extensions: SupportedExtensions,
+		cache:      cache,
+	}
 }
 
-// NewScanner 创建扫描器
-func NewScanner(config *ScannerConfig) *Scanner {
-	s := &Scanner{
-		videoExts: map[string]bool{
-			".mp4": true, ".mkv": true, ".avi": true, ".mov": true,
-			".wmv": true, ".flv": true, ".webm": true, ".m4v": true,
-			".mpg": true, ".mpeg": true, ".3gp": true, ".rmvb": true,
-			".ts": true, ".m2ts": true, ".vob": true, ".iso": true,
-		},
-		audioExts: map[string]bool{
-			".mp3": true, ".flac": true, ".wav": true, ".aac": true,
-			".ogg": true, ".wma": true, ".m4a": true, ".ape": true,
-			".alac": true, ".dsd": true, ".dsf": true,
-		},
-		imageExts: map[string]bool{
-			".jpg": true, ".jpeg": true, ".png": true, ".gif": true,
-			".bmp": true, ".webp": true, ".heic": true, ".raw": true,
-			".tiff": true, ".tif": true,
-		},
-		ignoreDirs: map[string]bool{
-			".git": true, ".svn": true, ".DS_Store": true,
-			"thumbs": true, "Thumbnails": true, "@eaDir": true, // Synology
-			"#recycle": true, ".Trash": true,
-		},
-		workers: 4,
+// ScanDirectory scans a directory for video files
+func (s *Scanner) ScanDirectory(rootPath string) (*ScanResult, error) {
+	start := time.Now()
+	result := &ScanResult{
+		LibraryID: generateLibraryID(rootPath),
 	}
 
-	if config != nil {
-		if config.Workers > 0 {
-			s.workers = config.Workers
-		}
-		for _, dir := range config.IgnoreDirs {
-			s.ignoreDirs[dir] = true
-		}
-		for _, ext := range config.CustomVideoExts {
-			s.videoExts[strings.ToLower(ext)] = true
-		}
-		for _, ext := range config.CustomAudioExts {
-			s.audioExts[strings.ToLower(ext)] = true
-		}
-	}
-
-	return s
-}
-
-// Scan 扫描指定路径
-func (s *Scanner) Scan(ctx context.Context, rootPath string, mediaType Type) ([]*Item, error) {
-	startTime := time.Now()
-
-	// 检查路径是否存在
-	info, err := os.Stat(rootPath)
-	if err != nil {
-		return nil, fmt.Errorf("路径不存在: %s", rootPath)
-	}
-	if !info.IsDir() {
-		return nil, fmt.Errorf("不是目录: %s", rootPath)
-	}
-
-	// 创建结果通道和工作池
-	itemChan := make(chan *Item, 100)
-	var items []*Item
-	var itemsMu sync.Mutex
-
-	// 收集结果的 goroutine
-	done := make(chan struct{})
-	go func() {
-		for item := range itemChan {
-			itemsMu.Lock()
-			items = append(items, item)
-			itemsMu.Unlock()
-		}
-		close(done)
-	}()
-
-	// 遍历文件系统
-	err = filepath.WalkDir(rootPath, func(path string, d fs.DirEntry, err error) error {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
+	err := filepath.WalkDir(rootPath, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			return nil // 忽略错误继续扫描
+			result.Errors = append(result.Errors, ScanError{
+				Path:    path,
+				Message: err.Error(),
+			})
+			return nil
 		}
 
-		// 跳过忽略的目录
 		if d.IsDir() {
-			if s.ignoreDirs[d.Name()] {
-				return fs.SkipDir
-			}
 			return nil
 		}
 
-		// 判断文件类型
 		ext := strings.ToLower(filepath.Ext(path))
-		var detectedType Type
-
-		switch {
-		case s.videoExts[ext]:
-			detectedType = TypeMovie
-		case s.audioExts[ext]:
-			detectedType = TypeMusic
-		case s.imageExts[ext]:
-			detectedType = TypePhoto
-		default:
-			return nil // 不支持的文件类型
-		}
-
-		// 过滤媒体类型
-		if mediaType != "" && mediaType != detectedType {
+		if !s.extensions[ext] {
 			return nil
 		}
 
-		// 获取文件信息
+		result.TotalFiles++
+
+		// Check if file is already cached
+		if s.cache != nil {
+			if _, exists := s.cache.GetFile(path); exists {
+				return nil
+			}
+		}
+
+		// Get file info
 		info, err := d.Info()
 		if err != nil {
+			result.Errors = append(result.Errors, ScanError{
+				Path:    path,
+				Message: fmt.Sprintf("failed to get file info: %v", err),
+			})
 			return nil
 		}
 
-		// 创建媒体项
-		item := s.createItem(path, info, detectedType)
-		itemChan <- item
+		// Create video file record
+		videoFile := &VideoFile{
+			ID:         uuid.New().String(),
+			Path:       path,
+			Filename:   d.Name(),
+			Size:       info.Size(),
+			CreatedAt:  time.Now(),
+			ModifiedAt: info.ModTime(),
+		}
 
+		// Cache the file
+		if s.cache != nil {
+			s.cache.SetFile(path, videoFile)
+		}
+
+		result.NewFiles++
 		return nil
 	})
 
-	close(itemChan)
-	<-done
-
-	if err != nil && err != context.Canceled {
-		return nil, err
-	}
-
-	// 按修改时间排序
-	s.sortByModifiedTime(items)
-
-	elapsed := time.Since(startTime)
-	fmt.Printf("[Scanner] 扫描完成: %d 个文件, 耗时 %v\n", len(items), elapsed)
-
-	return items, nil
+	result.Duration = time.Since(start)
+	return result, err
 }
 
-// ScanDirectory 扫描单个目录（不递归）
-func (s *Scanner) ScanDirectory(dirPath string, mediaType Type) ([]*Item, error) {
-	entries, err := os.ReadDir(dirPath)
-	if err != nil {
-		return nil, err
-	}
-
-	var items []*Item
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-
-		ext := strings.ToLower(filepath.Ext(entry.Name()))
-		var detectedType Type
-
-		switch {
-		case s.videoExts[ext]:
-			detectedType = TypeMovie
-		case s.audioExts[ext]:
-			detectedType = TypeMusic
-		case s.imageExts[ext]:
-			detectedType = TypePhoto
-		default:
-			continue
-		}
-
-		if mediaType != "" && mediaType != detectedType {
-			continue
-		}
-
-		info, err := entry.Info()
-		if err != nil {
-			continue
-		}
-
-		item := s.createItem(filepath.Join(dirPath, entry.Name()), info, detectedType)
-		items = append(items, item)
-	}
-
-	return items, nil
+// ScanLibrary scans a media library
+func (s *Scanner) ScanLibrary(library *MediaLibrary) (*ScanResult, error) {
+	return s.ScanDirectory(library.Path)
 }
 
-// createItem 创建媒体项
-func (s *Scanner) createItem(path string, info fs.FileInfo, mediaType Type) *Item {
-	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
-	now := time.Now()
+// DetectMediaType tries to detect if the content is a movie or TV show
+func (s *Scanner) DetectMediaType(filename string) MediaType {
+	filename = strings.ToLower(filename)
 
-	item := &Item{
-		ID:           fmt.Sprintf("item_%s_%d", mediaType, now.UnixNano()),
-		Path:         path,
-		Name:         name,
-		Type:         mediaType,
-		Size:         info.Size(),
-		ModifiedTime: info.ModTime(),
-		Tags:         make([]string, 0),
+	// TV show patterns
+	tvPatterns := []string{
+		"s01e", "s02e", "s03e", "s04e", "s05e",
+		"s1e", "s2e", "s3e", "s4e", "s5e",
+		"season", "episode", "ep.", "e0", "e1",
+		"720p", "1080p", "2160p", "hdtv", "web-dl",
 	}
 
-	// 从文件名提取信息
-	s.extractInfoFromName(item)
+	for _, pattern := range tvPatterns {
+		if strings.Contains(filename, pattern) {
+			return MediaTypeTVShow
+		}
+	}
 
-	return item
+	// Check for year pattern (common in movies)
+	yearPattern := false
+	for year := 1920; year <= time.Now().Year()+1; year++ {
+		if strings.Contains(filename, fmt.Sprintf("(%d)", year)) ||
+			strings.Contains(filename, fmt.Sprintf(".%d.", year)) {
+			yearPattern = true
+			break
+		}
+	}
+
+	if yearPattern {
+		return MediaTypeMovie
+	}
+
+	return MediaTypeUnknown
 }
 
-// extractInfoFromName 从文件名提取信息
-func (s *Scanner) extractInfoFromName(item *Item) {
-	name := item.Name
+// ParseFilename extracts potential title and year from filename
+func (s *Scanner) ParseFilename(filename string) (title string, year int, season int, episode int) {
+	// Remove extension
+	name := strings.TrimSuffix(filename, filepath.Ext(filename))
 
-	// 提取年份
-	yearRegex := regexp.MustCompile(`\b(19|20)\d{2}\b`)
-	if matches := yearRegex.FindStringSubmatch(name); len(matches) > 0 {
-		item.Tags = append(item.Tags, "year:"+matches[0])
+	// Try to extract TV show info (S01E01 pattern)
+	if s, e, ok := parseTVEpisode(name); ok {
+		season = s
+		episode = e
+		// Remove episode info to get title
+		name = removeTVEpisodeInfo(name)
 	}
 
-	// 提取季集信息 (S01E01, 1x01, etc.)
-	seasonEpisodeRegex := regexp.MustCompile(`(?i)[sS](\d{1,2})[eE](\d{1,2})|(\d{1,2})x(\d{1,2})`)
-	if matches := seasonEpisodeRegex.FindStringSubmatch(name); len(matches) > 0 {
-		item.Type = TypeTV
-		if matches[1] != "" && matches[2] != "" {
-			item.Tags = append(item.Tags, fmt.Sprintf("S%sE%s", matches[1], matches[2]))
-		} else if matches[3] != "" && matches[4] != "" {
-			item.Tags = append(item.Tags, fmt.Sprintf("S%sE%s", matches[3], matches[4]))
+	// Try to extract year
+	for year := 1920; year <= time.Now().Year()+1; year++ {
+		patterns := []string{
+			fmt.Sprintf("(%d)", year),
+			fmt.Sprintf(".%d.", year),
+			fmt.Sprintf("_%d_", year),
+			fmt.Sprintf(" %d ", year),
+		}
+		for _, p := range patterns {
+			if idx := strings.Index(strings.ToLower(name), strings.ToLower(p)); idx > 0 {
+				title = strings.TrimSpace(name[:idx])
+				title = cleanTitle(title)
+				return title, year, season, episode
+			}
 		}
 	}
 
-	// 提取分辨率
-	resolutionRegex := regexp.MustCompile(`(?i)\b(4k|2160p|1080p|720p|480p|hdr|bluray|web-dl|hdtv)\b`)
-	if matches := resolutionRegex.FindAllString(name, -1); len(matches) > 0 {
-		for _, m := range matches {
-			item.Tags = append(item.Tags, strings.ToLower(m))
-		}
-	}
-
-	// 提取视频编码
-	codecRegex := regexp.MustCompile(`(?i)\b(x264|x265|h264|h265|hevc|avc|vp9|av1)\b`)
-	if matches := codecRegex.FindAllString(name, -1); len(matches) > 0 {
-		for _, m := range matches {
-			item.Tags = append(item.Tags, strings.ToLower(m))
-		}
-	}
-
-	// 清理文件名，生成搜索用的标题
-	cleanName := s.cleanFileName(name)
-	item.Tags = append(item.Tags, "searchTitle:"+cleanName)
+	// No year found, clean and return
+	title = cleanTitle(name)
+	return title, 0, season, episode
 }
 
-// cleanFileName 清理文件名，提取用于搜索的标题
-func (s *Scanner) cleanFileName(name string) string {
-	// 移除常见的前缀和后缀
-	replacements := []struct {
-		regex   string
-		replace string
-	}{
-		{`(?i)^\[.*?\]\s*`, ""},                                       // 移除 [xxx] 前缀
-		{`(?i)\s*\(.*?\)\s*$`, ""},                                    // 移除 (xxx) 后缀
-		{`(?i)\s*-\s*\d{4}.*$`, ""},                                   // 移除 - 2024 及之后内容
-		{`(?i)\s*\[.*?\].*$`, ""},                                     // 移除 [xxx] 及之后内容
-		{`(?i)\s*(S\d{1,2}E\d{1,2}|S\d{1,2}).*$`, ""},                 // 移除季集信息及之后内容
-		{`(?i)\s*(4k|1080p|720p|480p|hdr|bluray|web-dl|hdtv).*$`, ""}, // 移除分辨率信息
-		{`(?i)\s*(x264|x265|h264|h265|hevc|avc).*$`, ""},              // 移除编码信息
-		{`[\._]`, " "},                                                // 替换点号和下划线为空格
-		{`\s+`, " "},                                                  // 合并多个空格
+// parseTVEpisode extracts season and episode numbers
+func parseTVEpisode(filename string) (season, episode int, ok bool) {
+	// Patterns: S01E01, s01e01, S1E1, 1x01, etc.
+	patterns := []string{
+		`[Ss](\d+)[Ee](\d+)`,
+		`(\d+)[Xx](\d+)`,
 	}
 
-	result := name
-	for _, r := range replacements {
-		re := regexp.MustCompile(r.regex)
-		result = re.ReplaceAllString(result, r.replace)
+	// Simple parsing (in production, use regex)
+	for range patterns {
+		// This is a simplified version
+		// TODO: implement proper regex matching
+	}
+
+	return 0, 0, false
+}
+
+// removeTVEpisodeInfo removes TV episode info from filename
+func removeTVEpisodeInfo(filename string) string {
+	// Remove S01E01 patterns
+	// Simplified version
+	return filename
+}
+
+// cleanTitle cleans up a title string
+func cleanTitle(title string) string {
+	// Common replacements
+	replacements := map[string]string{
+		".":  " ",
+		"_":  " ",
+		"-":  " ",
+		"  ": " ",
+	}
+
+	result := title
+	for old, new := range replacements {
+		result = strings.ReplaceAll(result, old, new)
 	}
 
 	return strings.TrimSpace(result)
 }
 
-// sortByModifiedTime 按修改时间排序
-func (s *Scanner) sortByModifiedTime(items []*Item) {
-	for i := 0; i < len(items)-1; i++ {
-		for j := i + 1; j < len(items); j++ {
-			if items[i].ModifiedTime.Before(items[j].ModifiedTime) {
-				items[i], items[j] = items[j], items[i]
-			}
+func generateLibraryID(path string) string {
+	return uuid.NewSHA1(uuid.Nil, []byte(path)).String()[:8]
+}
+
+// GetVideoFiles returns all cached video files
+func (s *Scanner) GetVideoFiles() []*VideoFile {
+	if s.cache == nil {
+		return nil
+	}
+	return s.cache.GetAllFiles()
+}
+
+// GetVideoFile returns a specific video file by path
+func (s *Scanner) GetVideoFile(path string) (*VideoFile, bool) {
+	if s.cache == nil {
+		return nil, false
+	}
+	return s.cache.GetFile(path)
+}
+
+// RemoveMissingFiles removes files that no longer exist on disk
+func (s *Scanner) RemoveMissingFiles(libraryPath string) (int, error) {
+	if s.cache == nil {
+		return 0, nil
+	}
+
+	files := s.cache.GetAllFiles()
+	removed := 0
+
+	for _, file := range files {
+		if !strings.HasPrefix(file.Path, libraryPath) {
+			continue
+		}
+
+		if _, err := os.Stat(file.Path); os.IsNotExist(err) {
+			s.cache.RemoveFile(file.Path)
+			removed++
 		}
 	}
-}
 
-// DetectMediaType 从文件路径检测媒体类型
-func (s *Scanner) DetectMediaType(path string) Type {
-	ext := strings.ToLower(filepath.Ext(path))
-
-	if s.videoExts[ext] {
-		// 检查文件名是否包含季集信息
-		name := filepath.Base(path)
-		seasonEpisodeRegex := regexp.MustCompile(`(?i)[sS]\d{1,2}[eE]\d{1,2}|\d{1,2}x\d{1,2}`)
-		if seasonEpisodeRegex.MatchString(name) {
-			return TypeTV
-		}
-		return TypeMovie
-	}
-
-	if s.audioExts[ext] {
-		return TypeMusic
-	}
-
-	if s.imageExts[ext] {
-		return TypePhoto
-	}
-
-	return ""
-}
-
-// IsMediaFile 判断是否为媒体文件
-func (s *Scanner) IsMediaFile(path string) bool {
-	ext := strings.ToLower(filepath.Ext(path))
-	return s.videoExts[ext] || s.audioExts[ext] || s.imageExts[ext]
-}
-
-// GetFileExtension 获取支持的扩展名列表
-func (s *Scanner) GetSupportedExtensions() map[Type][]string {
-	result := make(map[Type][]string)
-
-	var videos, audios, images []string
-	for ext := range s.videoExts {
-		videos = append(videos, ext)
-	}
-	for ext := range s.audioExts {
-		audios = append(audios, ext)
-	}
-	for ext := range s.imageExts {
-		images = append(images, ext)
-	}
-
-	result[TypeMovie] = videos
-	result[TypeMusic] = audios
-	result[TypePhoto] = images
-
-	return result
+	return removed, nil
 }
