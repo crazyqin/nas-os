@@ -8,8 +8,8 @@ import (
 
 // Version information
 var (
-	Version   = "2.253.204"
-	BuildDate = "2026-03-22"
+	Version   = "2.253.205"
+	BuildDate = "2026-03-23"
 	GitCommit = ""
 	GoVersion = runtime.Version()
 	Platform  = fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH)

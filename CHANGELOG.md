@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.205] - 2026-03-23
+
+### 吏部版本管理
+- 版本号更新至 v2.253.205
+- 文档版本同步 (README.md, docs/README_EN.md, docs/USER_GUIDE.md)
+
+### 六部工作总结
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号更新：v2.253.204 → v2.253.205 |
+
+---
+
 ## [v2.253.204] - 2026-03-23
 
 ### 六部协同开发
