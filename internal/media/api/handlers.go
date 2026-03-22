@@ -246,8 +246,13 @@ func (h *Handler) GetFile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	// TODO: Implement file lookup by ID
-	_ = id
+	// Look up file by ID in cache
+	if h.cache != nil {
+		if file, found := h.cache.GetFileByID(id); found {
+			h.respondJSON(w, http.StatusOK, file)
+			return
+		}
+	}
 
 	h.respondError(w, http.StatusNotFound, "file not found")
 }
@@ -257,10 +262,52 @@ func (h *Handler) ScrapeFile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	// TODO: Get file by ID and scrape
-	_ = id
+	// Look up file by ID in cache
+	if h.cache == nil {
+		h.respondError(w, http.StatusInternalServerError, "cache not available")
+		return
+	}
 
-	h.respondError(w, http.StatusNotFound, "file not found")
+	file, found := h.cache.GetFileByID(id)
+	if !found {
+		h.respondError(w, http.StatusNotFound, "file not found")
+		return
+	}
+
+	// Parse filename to extract title
+	title, year, season, episode := h.scanner.ParseFilename(file.Filename)
+
+	// Detect media type
+	mediaType := h.scanner.DetectMediaType(file.Filename)
+
+	// Search for metadata based on media type
+	var results interface{}
+	var err error
+
+	switch mediaType {
+	case media.MediaTypeTVShow:
+		results, err = h.scraper.SearchTVShow(r.Context(), title)
+	default:
+		results, err = h.scraper.SearchMovie(r.Context(), title, year)
+	}
+
+	if err != nil {
+		h.respondError(w, http.StatusInternalServerError, "scrape failed: "+err.Error())
+		return
+	}
+
+	// Return scrape results with parsed info
+	h.respondJSON(w, http.StatusOK, map[string]interface{}{
+		"file": file,
+		"parsed": map[string]interface{}{
+			"title":   title,
+			"year":    year,
+			"season":  season,
+			"episode": episode,
+			"type":    mediaType,
+		},
+		"results": results,
+	})
 }
 
 // GetMetadata returns metadata for a media item
@@ -268,8 +315,21 @@ func (h *Handler) GetMetadata(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	// TODO: Get from cache/storage
-	_ = id
+	// Try to get metadata from cache
+	if h.cache != nil {
+		if meta, found := h.cache.GetMetadata(id); found {
+			h.respondJSON(w, http.StatusOK, meta)
+			return
+		}
+	}
+
+	// Check if we have a TMDB ID stored with prefix
+	if h.cache != nil {
+		if meta, found := h.cache.GetMetadata("tmdb_" + id); found {
+			h.respondJSON(w, http.StatusOK, meta)
+			return
+		}
+	}
 
 	h.respondError(w, http.StatusNotFound, "metadata not found")
 }
