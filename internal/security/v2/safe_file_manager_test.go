@@ -609,9 +609,9 @@ func TestSafeFileManager_WriteWithSecurePermission(t *testing.T) {
 		t.Fatalf("Stat failed: %v", err)
 	}
 
-	// 应该是 0644
-	if info.Mode().Perm() != 0644 {
-		t.Errorf("Expected 0644 permission, got %o", info.Mode().Perm())
+	// 应该是 0600（安全权限：仅所有者可读写）
+	if info.Mode().Perm() != 0600 {
+		t.Errorf("Expected 0600 permission, got %o", info.Mode().Perm())
 	}
 }
 
