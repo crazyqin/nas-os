@@ -4,9 +4,9 @@
 
 A Go-based home NAS system with btrfs storage management, SMB/NFS sharing, and web management interface.
 
-> **Latest Version**: v2.253.220 Stable (2026-03-23)
+> **Latest Version**: v2.253.222 Stable (2026-03-23)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.220?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.222?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## Features
 
