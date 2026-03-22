@@ -8,7 +8,7 @@ import (
 
 // Version information
 var (
-	Version   = "2.253.184"
+	Version   = "2.253.185"
 	BuildDate = "2026-03-22"
 	GitCommit = ""
 	GoVersion = runtime.Version()
@@ -26,7 +26,7 @@ func Info() map[string]string {
 	}
 }
 
-// String returns version string
+// String returns a formatted version string
 func String() string {
 	return fmt.Sprintf("NAS-OS v%s (%s)", Version, Platform)
 }
