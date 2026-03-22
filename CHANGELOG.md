@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.180] - 2026-03-22
+
+### 六部协同开发
+- 版本号更新至 v2.253.180
+- 文档版本同步 (README.md, docs/README.md, docs/README_EN.md, docs/USER_GUIDE.md)
+
+### 礼部报告 - 文档品牌
+- 所有文档版本号统一至 v2.253.180
+- 下载链接和 Docker 镜像版本同步更新
+
+### 维护内容
+- 例行维护
+
+---
+
 ## [v2.253.179] - 2026-03-22
 
 ### 六部协同开发
