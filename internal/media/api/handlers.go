@@ -3,7 +3,10 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"nas-os/internal/media"
@@ -13,9 +16,10 @@ import (
 
 // Handler handles media API requests
 type Handler struct {
-	scanner *media.Scanner
-	scraper *media.TMDBScraper
-	cache   *media.Cache
+	scanner        *media.Scanner
+	scraper        *media.TMDBScraper
+	cache          *media.Cache
+	libraryManager *media.LibraryManager
 }
 
 // NewHandler creates a new media API handler
@@ -24,6 +28,16 @@ func NewHandler(scanner *media.Scanner, scraper *media.TMDBScraper, cache *media
 		scanner: scanner,
 		scraper: scraper,
 		cache:   cache,
+	}
+}
+
+// NewHandlerWithLibrary creates a new media API handler with library manager
+func NewHandlerWithLibrary(scanner *media.Scanner, scraper *media.TMDBScraper, cache *media.Cache, libraryManager *media.LibraryManager) *Handler {
+	return &Handler{
+		scanner:        scanner,
+		scraper:        scraper,
+		cache:          cache,
+		libraryManager: libraryManager,
 	}
 }
 
@@ -54,7 +68,12 @@ func (h *Handler) RegisterRoutes(r *mux.Router) {
 
 // ListLibraries returns all media libraries
 func (h *Handler) ListLibraries(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement library storage
+	if h.libraryManager != nil {
+		libraries := h.libraryManager.ListLibraries()
+		h.respondJSON(w, http.StatusOK, libraries)
+		return
+	}
+	// Fallback: return empty list if no library manager
 	libraries := []*media.MediaLibrary{}
 	h.respondJSON(w, http.StatusOK, libraries)
 }
@@ -72,17 +91,73 @@ func (h *Handler) CreateLibrary(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate path exists
-	// TODO: Add path validation
+	// Validate required fields
+	if req.Name == "" {
+		h.respondError(w, http.StatusBadRequest, "name is required")
+		return
+	}
+	if req.Path == "" {
+		h.respondError(w, http.StatusBadRequest, "path is required")
+		return
+	}
 
+	// Path validation: check path exists and is accessible
+	path := filepath.Clean(req.Path)
+	info, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			h.respondError(w, http.StatusBadRequest, "path does not exist: "+req.Path)
+			return
+		}
+		if os.IsPermission(err) {
+			h.respondError(w, http.StatusForbidden, "permission denied for path: "+req.Path)
+			return
+		}
+		h.respondError(w, http.StatusInternalServerError, "failed to access path: "+err.Error())
+		return
+	}
+	if !info.IsDir() {
+		h.respondError(w, http.StatusBadRequest, "path is not a directory: "+req.Path)
+		return
+	}
+
+	// Path validation: check for symlinks and resolve to absolute path
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		h.respondError(w, http.StatusInternalServerError, "failed to resolve absolute path: "+err.Error())
+		return
+	}
+	req.Path = absPath
+
+	// Validate media type
+	var libraryType media.Type
+	switch req.Type {
+	case media.MediaTypeMovie:
+		libraryType = media.TypeMovie
+	case media.MediaTypeTVShow:
+		libraryType = media.TypeTV
+	default:
+		libraryType = media.TypeMovie // Default to movie
+	}
+
+	// Use LibraryManager if available
+	if h.libraryManager != nil {
+		lib, err := h.libraryManager.CreateLibrary(req.Name, req.Path, libraryType, false)
+		if err != nil {
+			h.respondError(w, http.StatusInternalServerError, "failed to create library: "+err.Error())
+			return
+		}
+		h.respondJSON(w, http.StatusCreated, lib)
+		return
+	}
+
+	// Fallback: create without persistence
 	library := &media.MediaLibrary{
 		ID:   generateID(),
 		Name: req.Name,
 		Path: req.Path,
 		Type: req.Type,
 	}
-
-	// TODO: Save to storage
 
 	h.respondJSON(w, http.StatusCreated, library)
 }
@@ -92,8 +167,13 @@ func (h *Handler) GetLibrary(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	// TODO: Get from storage
-	_ = id
+	if h.libraryManager != nil {
+		lib := h.libraryManager.GetLibrary(id)
+		if lib != nil {
+			h.respondJSON(w, http.StatusOK, lib)
+			return
+		}
+	}
 
 	h.respondError(w, http.StatusNotFound, "library not found")
 }
@@ -103,8 +183,17 @@ func (h *Handler) DeleteLibrary(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	// TODO: Delete from storage
-	_ = id
+	if h.libraryManager != nil {
+		err := h.libraryManager.DeleteLibrary(id)
+		if err != nil {
+			if strings.Contains(err.Error(), "不存在") {
+				h.respondError(w, http.StatusNotFound, "library not found")
+				return
+			}
+			h.respondError(w, http.StatusInternalServerError, "failed to delete library: "+err.Error())
+			return
+		}
+	}
 
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -114,10 +203,29 @@ func (h *Handler) ScanLibrary(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	// TODO: Get library and scan
-	_ = id
+	if h.libraryManager != nil {
+		lib := h.libraryManager.GetLibrary(id)
+		if lib == nil {
+			h.respondError(w, http.StatusNotFound, "library not found")
+			return
+		}
 
-	// For now, return a mock result
+		err := h.libraryManager.ScanLibrary(id)
+		if err != nil {
+			h.respondError(w, http.StatusInternalServerError, "scan failed: "+err.Error())
+			return
+		}
+
+		// Return updated library with scan results
+		lib = h.libraryManager.GetLibrary(id)
+		h.respondJSON(w, http.StatusOK, map[string]interface{}{
+			"library": lib,
+			"status":  "scan completed",
+		})
+		return
+	}
+
+	// Fallback: return a mock result
 	result := &media.ScanResult{
 		LibraryID:  id,
 		TotalFiles: 0,

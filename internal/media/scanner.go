@@ -5,10 +5,21 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+)
+
+// Pre-compiled regex patterns for TV episode parsing
+var (
+	// S01E01, s01e01, S1E1, s1e1 patterns
+	seasonEpisodeRegex = regexp.MustCompile(`(?i)[sS](\d{1,2})[eE](\d{1,3})`)
+	// 1x01, 1x1 patterns
+	altSeasonEpisodeRegex = regexp.MustCompile(`(?i)(\d{1,2})[xX](\d{1,3})`)
+	// Episode 01, Ep.01, E01 patterns (without season)
+	episodeOnlyRegex = regexp.MustCompile(`(?i)(?:ep(?:isode)?[.\s]*|e)(\d{1,3})(?:[^0-9]|$)`)
 )
 
 // Scanner scans directories for media files
@@ -167,28 +178,60 @@ func (s *Scanner) ParseFilename(filename string) (title string, year int, season
 	return title, 0, season, episode
 }
 
-// parseTVEpisode extracts season and episode numbers
+// parseTVEpisode extracts season and episode numbers using regex
 func parseTVEpisode(filename string) (season, episode int, ok bool) {
-	// Patterns: S01E01, s01e01, S1E1, 1x01, etc.
-	patterns := []string{
-		`[Ss](\d+)[Ee](\d+)`,
-		`(\d+)[Xx](\d+)`,
+	// Try S01E01 pattern first (most common)
+	if matches := seasonEpisodeRegex.FindStringSubmatch(filename); len(matches) == 3 {
+		season = parseInt(matches[1])
+		episode = parseInt(matches[2])
+		if season > 0 && episode > 0 {
+			return season, episode, true
+		}
 	}
 
-	// Simple parsing (in production, use regex)
-	for range patterns {
-		// This is a simplified version
-		// TODO: implement proper regex matching
+	// Try 1x01 pattern
+	if matches := altSeasonEpisodeRegex.FindStringSubmatch(filename); len(matches) == 3 {
+		season = parseInt(matches[1])
+		episode = parseInt(matches[2])
+		if season > 0 && episode > 0 {
+			return season, episode, true
+		}
+	}
+
+	// Try episode-only pattern (Ep.01, E01, Episode 01)
+	// Note: This assumes season 1 if no season is found
+	if matches := episodeOnlyRegex.FindStringSubmatch(filename); len(matches) == 2 {
+		episode = parseInt(matches[1])
+		if episode > 0 {
+			return 1, episode, true // Default to season 1
+		}
 	}
 
 	return 0, 0, false
 }
 
+// parseInt safely parses a string to int, returning 0 on error
+func parseInt(s string) int {
+	var result int
+	for _, c := range s {
+		if c >= '0' && c <= '9' {
+			result = result*10 + int(c-'0')
+		}
+	}
+	return result
+}
+
 // removeTVEpisodeInfo removes TV episode info from filename
 func removeTVEpisodeInfo(filename string) string {
 	// Remove S01E01 patterns
-	// Simplified version
-	return filename
+	result := seasonEpisodeRegex.ReplaceAllString(filename, "")
+	// Remove 1x01 patterns
+	result = altSeasonEpisodeRegex.ReplaceAllString(result, "")
+	// Remove episode-only patterns
+	result = episodeOnlyRegex.ReplaceAllString(result, "")
+	// Clean up multiple spaces and trim
+	result = strings.TrimSpace(regexp.MustCompile(`\s+`).ReplaceAllString(result, " "))
+	return result
 }
 
 // cleanTitle cleans up a title string
