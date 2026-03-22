@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.192] - 2026-03-22
+
+### 六部协同开发
+- 版本号更新至 v2.253.192
+
+### 六部工作总结
+| 部门 | 状态 | 主要工作 |
+|------|------|----------|
+| 吏部 | ✅ | 版本号更新：v2.253.191 → v2.253.192 |
+| 兵部 | ✅ | 修复 media 模块 goimports 格式问题，测试全部通过 |
+| 礼部 | ✅ | 文档版本同步 |
+| 刑部 | ✅ | 安全检查通过 |
+| 工部 | ✅ | CI/CD 配置正常 |
+| 户部 | ✅ | 例行维护 |
+
+### Bug Fixes
+- 修复 internal/media/api/handlers.go goimports 格式问题
+
+---
+
 ## [v2.253.191] - 2026-03-22
 
 ### 六部协同开发
