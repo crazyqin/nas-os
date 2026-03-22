@@ -1,10 +1,8 @@
 # OnlyOffice Document Server 部署配置
 # 与 NAS-OS 配合使用
-# 
+#
 # 使用方法:
-#   docker-compose -f docker-compose.onlyoffice.yml up -d
-
-version: '3.8'
+#   docker compose -f docker-compose.onlyoffice.yml up -d
 
 services:
   # ========== OnlyOffice Document Server ==========

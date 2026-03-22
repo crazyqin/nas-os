@@ -1,8 +1,6 @@
 # Transmission Docker 配置
 # 用于 BT/磁力链接下载支持
 
-version: '3.8'
-
 services:
   transmission:
     image: linuxserver/transmission:latest
