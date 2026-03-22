@@ -1282,7 +1282,7 @@ func (cc *ComplianceChecker) saveReport(report *ComplianceReport) error {
 		return err
 	}
 
-	return os.WriteFile(filename, data, 0640)
+	return os.WriteFile(filename, data, 0600)
 }
 
 // loadReports 加载报告
