@@ -6,8 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"nas-os/internal/media"
+
+	"github.com/gorilla/mux"
 )
 
 // Handler handles media API requests
