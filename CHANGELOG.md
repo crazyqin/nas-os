@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.186] - 2026-03-22
+
+### 六部协同开发
+- 版本号更新至 v2.253.186
+- 文档版本同步 (README.md, docs/README.md, docs/README_EN.md, docs/USER_GUIDE.md)
+
+### 维护内容
+- 例行维护
+- 测试全部通过
+
+---
+
 ## [v2.253.185] - 2026-03-22
 
 ### 六部协同开发
