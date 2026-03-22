@@ -403,7 +403,7 @@ func boolToYesNo(b bool) string {
 func WriteSmbConf(configPath string, config *Config, shares map[string]*Share) error {
 	// 确保目录存在
 	dir := filepath.Dir(configPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return fmt.Errorf("创建配置目录失败: %w", err)
 	}
 

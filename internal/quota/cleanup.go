@@ -538,7 +538,7 @@ func (m *CleanupManager) processFile(filePath string, policy *CleanupPolicy) err
 
 	case CleanupActionArchive:
 		// 创建归档目录
-		if err := os.MkdirAll(policy.ArchivePath, 0755); err != nil {
+		if err := os.MkdirAll(policy.ArchivePath, 0750); err != nil {
 			return err
 		}
 		// 移动文件
@@ -547,7 +547,7 @@ func (m *CleanupManager) processFile(filePath string, policy *CleanupPolicy) err
 
 	case CleanupActionMove:
 		// 创建目标目录
-		if err := os.MkdirAll(policy.MovePath, 0755); err != nil {
+		if err := os.MkdirAll(policy.MovePath, 0750); err != nil {
 			return err
 		}
 		// 移动文件

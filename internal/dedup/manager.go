@@ -117,7 +117,7 @@ func NewManagerWithStorage(configPath string, config *Config, storagePath string
 
 	// 初始化块存储目录
 	if m.config.ChunkStore != nil && m.config.ChunkStore.Enabled {
-		if err := os.MkdirAll(m.config.ChunkStore.BasePath, 0755); err != nil {
+		if err := os.MkdirAll(m.config.ChunkStore.BasePath, 0750); err != nil {
 			return nil, fmt.Errorf("创建块存储目录失败：%w", err)
 		}
 	}
@@ -972,7 +972,7 @@ func (m *Manager) CreateChunkForUser(data []byte, user string) (*Chunk, error) {
 	// 存储块数据
 	if m.config.ChunkStore != nil && m.config.ChunkStore.Enabled {
 		storePath := filepath.Join(m.config.ChunkStore.BasePath, hashStr[:2], hashStr[2:4])
-		if err := os.MkdirAll(storePath, 0755); err != nil {
+		if err := os.MkdirAll(storePath, 0750); err != nil {
 			return nil, fmt.Errorf("创建块存储目录失败：%w", err)
 		}
 

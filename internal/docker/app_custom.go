@@ -41,7 +41,7 @@ func NewCustomTemplateManager(templatesDir string) (*CustomTemplateManager, erro
 	}
 
 	if templatesDir != "" {
-		if err := os.MkdirAll(templatesDir, 0755); err != nil {
+		if err := os.MkdirAll(templatesDir, 0750); err != nil {
 			return nil, err
 		}
 		if err := ctm.loadTemplates(); err != nil {

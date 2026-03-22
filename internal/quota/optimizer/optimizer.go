@@ -410,7 +410,7 @@ func (o *QuotaOptimizer) load() error {
 
 // save 保存数据
 func (o *QuotaOptimizer) save() error {
-	if err := os.MkdirAll(o.dataDir, 0755); err != nil {
+	if err := os.MkdirAll(o.dataDir, 0750); err != nil {
 		return err
 	}
 
@@ -423,7 +423,7 @@ func (o *QuotaOptimizer) save() error {
 	if err != nil {
 		return fmt.Errorf("序列化建议数据失败: %w", err)
 	}
-	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "suggestions.json"), data, 0644); writeErr != nil {
+	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "suggestions.json"), data, 0600); writeErr != nil {
 		return writeErr
 	}
 
@@ -436,7 +436,7 @@ func (o *QuotaOptimizer) save() error {
 	if err != nil {
 		return fmt.Errorf("序列化违规数据失败: %w", err)
 	}
-	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "violations.json"), data, 0644); writeErr != nil {
+	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "violations.json"), data, 0600); writeErr != nil {
 		return writeErr
 	}
 
@@ -445,7 +445,7 @@ func (o *QuotaOptimizer) save() error {
 	if err != nil {
 		return fmt.Errorf("序列化调整历史失败: %w", err)
 	}
-	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "adjust_history.json"), data, 0644); writeErr != nil {
+	if writeErr := os.WriteFile(filepath.Join(o.dataDir, "adjust_history.json"), data, 0600); writeErr != nil {
 		return writeErr
 	}
 

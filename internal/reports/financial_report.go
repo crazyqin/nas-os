@@ -428,7 +428,7 @@ func NewFinancialReportGenerator(dataProvider FinancialDataProvider, storagePath
 	}
 
 	// 确保存储目录存在
-	if err := os.MkdirAll(storagePath, 0755); err != nil {
+	if err := os.MkdirAll(storagePath, 0750); err != nil {
 		return nil, fmt.Errorf("创建存储目录失败: %w", err)
 	}
 

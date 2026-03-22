@@ -82,7 +82,7 @@ func NewArchiveManager(mgr *Manager, config ArchiveConfig) *ArchiveManager {
 	}
 
 	// 确保存储目录存在
-	if err := os.MkdirAll(config.StoragePath, 0755); err != nil {
+	if err := os.MkdirAll(config.StoragePath, 0750); err != nil {
 		_ = err // 目录创建失败，但不影响管理器初始化
 	}
 

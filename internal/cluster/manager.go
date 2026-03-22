@@ -118,7 +118,7 @@ func NewManager(config SimpleClusterConfig, logger *zap.Logger) (*Manager, error
 	}
 
 	// 创建数据目录
-	if err := os.MkdirAll(config.DataDir, 0755); err != nil {
+	if err := os.MkdirAll(config.DataDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建集群数据目录失败：%w", err)
 	}
 

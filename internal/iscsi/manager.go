@@ -97,7 +97,7 @@ func NewManager(configPath, basePath string) (*Manager, error) {
 	}
 
 	// Ensure base directory exists
-	if err := os.MkdirAll(basePath, 0755); err != nil {
+	if err := os.MkdirAll(basePath, 0750); err != nil {
 		return nil, fmt.Errorf("failed to create base path: %w", err)
 	}
 
@@ -146,7 +146,7 @@ func (m *Manager) writeConfigFile(pc persistentConfig) error {
 		return fmt.Errorf("failed to serialize config: %w", err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(m.configPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(m.configPath), 0750); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
 	}
 

@@ -267,7 +267,7 @@ func (m *SafeFileManager) SafeWrite(userPath string, data []byte) error {
 	}
 
 	// 设置最终文件权限
-	if err := os.Chmod(safePath, 0644); err != nil {
+	if err := os.Chmod(safePath, 0600); err != nil {
 		logEntry.Success = false
 		logEntry.Error = err.Error()
 		return fmt.Errorf("cannot set file permissions: %w", err)

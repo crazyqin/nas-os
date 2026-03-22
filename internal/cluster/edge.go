@@ -157,7 +157,7 @@ func NewEdgeNodeManager(config EdgeNodeConfig, logger *zap.Logger, cluster *Mana
 	}
 
 	// 创建数据目录
-	if err := os.MkdirAll(config.DataDir, 0755); err != nil {
+	if err := os.MkdirAll(config.DataDir, 0750); err != nil {
 		cancel()
 		return nil, fmt.Errorf("创建边缘数据目录失败：%w", err)
 	}

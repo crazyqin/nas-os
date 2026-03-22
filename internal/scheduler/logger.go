@@ -83,7 +83,7 @@ func (lm *LogManager) save() error {
 	}
 
 	// 创建目录
-	if err := os.MkdirAll(lm.storePath, 0755); err != nil {
+	if err := os.MkdirAll(lm.storePath, 0750); err != nil {
 		return err
 	}
 
@@ -483,7 +483,7 @@ func (lm *LogManager) WriteExecutionLogFile(executionID string) (string, error) 
 
 	// 创建日志文件目录
 	logDir := filepath.Join(lm.storePath, "files")
-	if err := os.MkdirAll(logDir, 0755); err != nil {
+	if err := os.MkdirAll(logDir, 0750); err != nil {
 		return "", err
 	}
 

@@ -906,7 +906,7 @@ func (g *CostReportGenerator) exportJSON(report *CostReport, outputPath string) 
 
 	// 确保目录存在
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
@@ -921,7 +921,7 @@ func (g *CostReportGenerator) exportJSON(report *CostReport, outputPath string) 
 func (g *CostReportGenerator) exportCSV(report *CostReport, outputPath string) error {
 	// 确保目录存在
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
@@ -1205,7 +1205,7 @@ func (g *CostReportGenerator) DeleteReport(id string) error {
 // saveReport 保存报告
 func (g *CostReportGenerator) saveReport(report *CostReport) error {
 	reportsDir := filepath.Join(g.dataDir, "reports")
-	if err := os.MkdirAll(reportsDir, 0755); err != nil {
+	if err := os.MkdirAll(reportsDir, 0750); err != nil {
 		return err
 	}
 

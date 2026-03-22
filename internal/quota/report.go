@@ -98,7 +98,7 @@ func (g *ReportGenerator) generateAndExport(req ReportRequest, outputPath string
 
 	// 创建输出目录
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		fmt.Printf("[quota] 创建目录失败：%v\n", err)
 		return
 	}

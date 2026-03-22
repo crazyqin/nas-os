@@ -33,14 +33,14 @@ func NewService(config Config) (*Service, error) {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+	if err := os.MkdirAll(dataDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建数据目录失败: %w", err)
 	}
 
 	// 创建子目录
 	subDirs := []string{"templates", "custom", "schedules", "outputs"}
 	for _, subDir := range subDirs {
-		if err := os.MkdirAll(filepath.Join(dataDir, subDir), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Join(dataDir, subDir), 0750); err != nil {
 			return nil, fmt.Errorf("创建子目录 %s 失败: %w", subDir, err)
 		}
 	}

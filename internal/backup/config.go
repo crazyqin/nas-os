@@ -151,7 +151,7 @@ func (cm *ConfigManager) load() error {
 // Save 保存配置
 func (cm *ConfigManager) Save() error {
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(cm.configPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(cm.configPath), 0750); err != nil {
 		return err
 	}
 

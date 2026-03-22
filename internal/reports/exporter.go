@@ -25,8 +25,8 @@ type Exporter struct {
 
 // NewExporter 创建导出器
 func NewExporter(dataDir string) *Exporter {
-	_ = os.MkdirAll(dataDir, 0755)
-	_ = os.MkdirAll(filepath.Join(dataDir, "outputs"), 0755)
+	_ = os.MkdirAll(dataDir, 0750)
+	_ = os.MkdirAll(filepath.Join(dataDir, "outputs"), 0750)
 	return &Exporter{dataDir: dataDir}
 }
 
@@ -38,7 +38,7 @@ func (e *Exporter) Export(report *GeneratedReport, format ExportFormat, outputPa
 
 	// 确保目录存在
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return nil, err
 	}
 

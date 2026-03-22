@@ -76,7 +76,7 @@ type SecurityLogger struct {
 
 // NewSecurityLogger 创建安全日志器
 func NewSecurityLogger(logDir string, maxSize int) (*SecurityLogger, error) {
-	if err := os.MkdirAll(logDir, 0755); err != nil {
+	if err := os.MkdirAll(logDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建日志目录失败: %w", err)
 	}
 	return &SecurityLogger{

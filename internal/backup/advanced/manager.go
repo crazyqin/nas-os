@@ -101,7 +101,7 @@ func (m *Manager) executeFullBackup(ctx context.Context, record *BackupRecord) e
 	m.mu.Unlock()
 
 	// 创建目标目录
-	if err := os.MkdirAll(record.Destination, 0755); err != nil {
+	if err := os.MkdirAll(record.Destination, 0750); err != nil {
 		return fmt.Errorf("failed to create destination: %w", err)
 	}
 
@@ -227,7 +227,7 @@ func (m *Manager) executeIncrementalBackup(ctx context.Context, record *BackupRe
 	record.BaseBackupID = baseRecord.ID
 
 	// 创建目标目录
-	if err := os.MkdirAll(record.Destination, 0755); err != nil {
+	if err := os.MkdirAll(record.Destination, 0750); err != nil {
 		return fmt.Errorf("failed to create destination: %w", err)
 	}
 
@@ -372,7 +372,7 @@ func (m *Manager) processFile(path, relPath string, info os.FileInfo, record *Ba
 
 	// 保存文件
 	destPath := filepath.Join(record.Destination, relPath)
-	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(destPath), 0750); err != nil {
 		return manifest, 0, err
 	}
 
@@ -577,7 +577,7 @@ func (m *Manager) restoreFile(srcPath, dstPath string, encrypted bool) error {
 	}
 
 	// 写入
-	if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dstPath), 0750); err != nil {
 		return err
 	}
 

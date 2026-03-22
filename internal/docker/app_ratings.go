@@ -62,7 +62,7 @@ func NewRatingManager(dataDir string) (*RatingManager, error) {
 	}
 
 	// 创建目录
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+	if err := os.MkdirAll(dataDir, 0750); err != nil {
 		return nil, err
 	}
 

@@ -834,7 +834,7 @@ func (m *Manager) save() error {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(m.config.ConfigPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(m.config.ConfigPath), 0750); err != nil {
 		return err
 	}
 

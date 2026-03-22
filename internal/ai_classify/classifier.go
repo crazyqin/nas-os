@@ -831,7 +831,7 @@ func (c *Classifier) Save() error {
 // saveLocked 保存数据（调用者已持有锁）
 func (c *Classifier) saveLocked() error {
 	dataDir := c.config.DataDir
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+	if err := os.MkdirAll(dataDir, 0750); err != nil {
 		return err
 	}
 
@@ -844,7 +844,7 @@ func (c *Classifier) saveLocked() error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal categories: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(dataDir, "categories.json"), data, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dataDir, "categories.json"), data, 0600); err != nil {
 		return fmt.Errorf("failed to write categories: %w", err)
 	}
 
@@ -853,7 +853,7 @@ func (c *Classifier) saveLocked() error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal rules: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(dataDir, "rules.json"), data, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dataDir, "rules.json"), data, 0600); err != nil {
 		return fmt.Errorf("failed to write rules: %w", err)
 	}
 
@@ -866,7 +866,7 @@ func (c *Classifier) saveLocked() error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal tags: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(dataDir, "tags.json"), data, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(dataDir, "tags.json"), data, 0600); err != nil {
 		return fmt.Errorf("failed to write tags: %w", err)
 	}
 

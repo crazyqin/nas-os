@@ -156,7 +156,7 @@ func NewLogCollector(config *LogCollectorConfig) (*LogCollector, error) {
 	}
 
 	// 创建数据目录
-	if err := os.MkdirAll(config.DataDir, 0755); err != nil {
+	if err := os.MkdirAll(config.DataDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建数据目录失败: %w", err)
 	}
 
@@ -721,7 +721,7 @@ func (s *FileLogStorage) Write(entry *LogEntry) error {
 	date := entry.Timestamp.Format("2006-01-02")
 	filename := filepath.Join(s.dataDir, fmt.Sprintf("logs-%s.jsonl", date))
 
-	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return err
 	}

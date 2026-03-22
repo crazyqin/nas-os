@@ -479,7 +479,7 @@ func NewLogRotatorWithConfig(config *RotateConfig) (*LogRotator, error) {
 		return nil, fmt.Errorf("config is nil")
 	}
 
-	if err := os.MkdirAll(filepath.Dir(config.Path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(config.Path), 0750); err != nil {
 		return nil, err
 	}
 
@@ -499,7 +499,7 @@ func NewLogRotatorWithConfig(config *RotateConfig) (*LogRotator, error) {
 }
 
 func (r *LogRotator) openFile() error {
-	file, err := os.OpenFile(r.path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	file, err := os.OpenFile(r.path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if err != nil {
 		return err
 	}

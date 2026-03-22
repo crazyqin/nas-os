@@ -435,7 +435,7 @@ func (m *Manager) runLocalBackup(ctx context.Context, cfg *JobConfig, task *Task
 	if destDir == "" {
 		destDir = filepath.Join(m.storagePath, "backups", cfg.Name)
 	}
-	if err := os.MkdirAll(destDir, 0755); err != nil {
+	if err := os.MkdirAll(destDir, 0750); err != nil {
 		return "", fmt.Errorf("创建目标目录失败：%w", err)
 	}
 
@@ -715,7 +715,7 @@ func (m *Manager) executeRestore(ctx context.Context, options RestoreOptions, ta
 		return
 	}
 
-	if err := os.MkdirAll(targetPath, 0755); err != nil {
+	if err := os.MkdirAll(targetPath, 0750); err != nil {
 		task.Status = StatusFailed
 		task.Error = fmt.Sprintf("创建目标目录失败：%v", err)
 		return
@@ -1137,7 +1137,7 @@ func (m *Manager) CheckConfigDetailed(id string) (*ConfigCheckResult, error) {
 	if config.Destination != "" {
 		if _, err := os.Stat(config.Destination); err != nil {
 			// 尝试创建目录
-			if err := os.MkdirAll(config.Destination, 0755); err != nil {
+			if err := os.MkdirAll(config.Destination, 0750); err != nil {
 				result.Checks = append(result.Checks, CheckItem{
 					Name:    "destination_path",
 					Status:  "fail",

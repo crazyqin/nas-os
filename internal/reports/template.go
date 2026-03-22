@@ -50,7 +50,7 @@ func NewTemplateManager(dataDir string) (*TemplateManager, error) {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+	if err := os.MkdirAll(dataDir, 0750); err != nil {
 		return nil, err
 	}
 

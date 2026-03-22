@@ -270,7 +270,7 @@ type RecoveryManager struct {
 
 // NewRecoveryManager 创建恢复管理器
 func NewRecoveryManager(stateDir string) (*RecoveryManager, error) {
-	if err := os.MkdirAll(stateDir, 0755); err != nil {
+	if err := os.MkdirAll(stateDir, 0750); err != nil {
 		return nil, err
 	}
 

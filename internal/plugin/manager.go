@@ -49,7 +49,7 @@ func NewManager(cfg ManagerConfig) (*Manager, error) {
 	// 创建必要目录
 	dirs := []string{cfg.PluginDir, cfg.ConfigDir, cfg.DataDir}
 	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(dir, 0750); err != nil {
 			return nil, fmt.Errorf("创建目录 %s 失败: %w", dir, err)
 		}
 	}
@@ -699,7 +699,7 @@ func copyFile(src, dst string) error {
 
 // copyDir 复制目录
 func copyDir(src, dst string) error {
-	if err := os.MkdirAll(dst, 0755); err != nil {
+	if err := os.MkdirAll(dst, 0750); err != nil {
 		return err
 	}
 

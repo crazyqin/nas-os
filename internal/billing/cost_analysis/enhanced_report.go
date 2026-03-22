@@ -883,7 +883,7 @@ func (e *CostAnalysisEngine) SaveReport(report *EnhancedStorageReport) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
-	if err := os.MkdirAll(filepath.Join(e.dataDir, "reports"), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(e.dataDir, "reports"), 0750); err != nil {
 		return err
 	}
 

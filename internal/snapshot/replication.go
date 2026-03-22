@@ -1057,7 +1057,7 @@ func (rm *ReplicationManager) saveConfig() error {
 	}
 
 	dir := filepath.Dir(rm.configPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return err
 	}
 

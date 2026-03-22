@@ -67,7 +67,7 @@ func (c *JellyfinConfig) load() error {
 // save 保存配置
 func (c *JellyfinConfig) save() error {
 	dir := filepath.Dir(c.ConfigPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return err
 	}
 

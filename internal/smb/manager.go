@@ -257,7 +257,7 @@ func writeConfigFile(configPath string, pc persistentConfig) error {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(configPath), 0750); err != nil {
 		return fmt.Errorf("创建配置目录失败：%w", err)
 	}
 
@@ -325,7 +325,7 @@ func (m *Manager) CreateShare(share *Share) error {
 	}
 
 	// 确保路径存在
-	if err := os.MkdirAll(share.Path, 0755); err != nil {
+	if err := os.MkdirAll(share.Path, 0750); err != nil {
 		logError("创建目录失败", err, "path", share.Path)
 		return fmt.Errorf("创建目录失败：%w", err)
 	}

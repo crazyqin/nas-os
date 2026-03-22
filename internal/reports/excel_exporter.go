@@ -164,7 +164,7 @@ type ExcelExporter struct {
 
 // NewExcelExporter 创建 Excel 导出器
 func NewExcelExporter(dataDir string) *ExcelExporter {
-	_ = os.MkdirAll(dataDir, 0755)
+	_ = os.MkdirAll(dataDir, 0750)
 	return &ExcelExporter{dataDir: dataDir}
 }
 
@@ -176,7 +176,7 @@ func (e *ExcelExporter) Export(report *GeneratedReport, outputPath string, optio
 
 	// 确保目录存在
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return nil, fmt.Errorf("创建目录失败: %w", err)
 	}
 

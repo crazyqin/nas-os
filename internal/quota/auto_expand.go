@@ -883,7 +883,7 @@ func (m *AutoExpandManager) saveConfig() error {
 		return err
 	}
 
-	_ = os.MkdirAll(filepath.Dir(m.configPath), 0755)
+	_ = os.MkdirAll(filepath.Dir(m.configPath), 0750)
 	return os.WriteFile(m.configPath, jsonData, 0600)
 }
 

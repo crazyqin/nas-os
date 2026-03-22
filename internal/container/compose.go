@@ -538,7 +538,7 @@ func (cm *ComposeManager) CreateComposeFile(path string, project *ComposeProject
 		return fmt.Errorf("序列化 Compose 配置失败：%w", err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0750); err != nil {
 		return err
 	}
 

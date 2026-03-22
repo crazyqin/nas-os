@@ -158,7 +158,7 @@ func NewWorkflowEngineWithStorage(storagePath string) (*WorkflowEngine, error) {
 	engine.storagePath = storagePath
 
 	// 确保存储目录存在
-	if err := os.MkdirAll(storagePath, 0755); err != nil {
+	if err := os.MkdirAll(storagePath, 0750); err != nil {
 		return nil, fmt.Errorf("failed to create storage directory: %w", err)
 	}
 

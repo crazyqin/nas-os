@@ -915,7 +915,7 @@ func (aim *AIManager) saveMemory(memory *MemoryAlbum) {
 	memoriesPath := filepath.Join(aim.photosManager.dataDir, "memories.json")
 
 	// 确保目录存在
-	if err := os.MkdirAll(aim.photosManager.dataDir, 0755); err != nil {
+	if err := os.MkdirAll(aim.photosManager.dataDir, 0750); err != nil {
 		return
 	}
 
