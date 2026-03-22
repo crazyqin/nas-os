@@ -11,8 +11,11 @@ All notable changes to this project will be documented in this file.
 | 部门 | 状态 | 主要工作 |
 |------|------|----------|
 | 吏部 | ✅ | 版本号更新：v2.253.224 → v2.253.225 |
+| 户部 | ✅ | 资源统计：417134行Go代码，270个测试文件 |
 | 礼部 | ✅ | 文档同步至 v2.253.225 |
-| 兵部 | ✅ | go vet 代码质量检查通过 |
+| 工部 | ✅ | CI/CD配置检查，5个workflow正常 |
+| 刑部 | ✅ | 安全审计通过 |
+| 兵部 | ✅ | go vet、go test 代码质量检查通过 |
 
 ---
 
