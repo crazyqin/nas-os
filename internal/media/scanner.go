@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,7 +15,6 @@ import (
 type Scanner struct {
 	extensions map[string]bool
 	cache      *Cache
-	mu         sync.RWMutex
 }
 
 // NewScanner creates a new media scanner

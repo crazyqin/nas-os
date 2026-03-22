@@ -72,7 +72,7 @@ func (s *TMDBScraper) SearchMovie(ctx context.Context, title string, year int) (
 	if err != nil {
 		return nil, fmt.Errorf("search movie failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Parse response
 	var searchResp tmdbSearchResponse
@@ -112,7 +112,7 @@ func (s *TMDBScraper) GetMovieDetails(ctx context.Context, tmdbID int) (*MediaMe
 	if err != nil {
 		return nil, fmt.Errorf("get movie details failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var movie tmdbMovieDetails
 	if err := json.NewDecoder(resp.Body).Decode(&movie); err != nil {
@@ -144,7 +144,7 @@ func (s *TMDBScraper) SearchTVShow(ctx context.Context, title string) (*TVShowMe
 	if err != nil {
 		return nil, fmt.Errorf("search tv show failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var searchResp tmdbTVSearchResponse
 	if err := json.NewDecoder(resp.Body).Decode(&searchResp); err != nil {
@@ -180,7 +180,7 @@ func (s *TMDBScraper) GetTVShowDetails(ctx context.Context, tmdbID int) (*TVShow
 	if err != nil {
 		return nil, fmt.Errorf("get tv details failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var tv tmdbTVDetails
 	if err := json.NewDecoder(resp.Body).Decode(&tv); err != nil {
@@ -271,7 +271,7 @@ func (s *TMDBScraper) convertTVToMetadata(tv *tmdbTVDetails) *TVShowMetadata {
 		},
 		NumberOfSeasons:  tv.NumberOfSeasons,
 		NumberOfEpisodes: tv.NumberOfEpisodes,
-		Status:          tv.Status,
+		Status:           tv.Status,
 	}
 
 	for _, g := range tv.Genres {
@@ -332,17 +332,17 @@ type tmdbMovieDetails struct {
 	} `json:"genres"`
 	Credits *struct {
 		Cast []struct {
-			ID           int    `json:"id"`
-			Name         string `json:"name"`
-			Character    string `json:"character"`
-			ProfilePath  string `json:"profile_path"`
-			Order        int    `json:"order"`
-		} `json:"cast"`
-		Crew []struct {
 			ID          int    `json:"id"`
 			Name        string `json:"name"`
-			Job         string `json:"job"`
-			Department  string `json:"department"`
+			Character   string `json:"character"`
+			ProfilePath string `json:"profile_path"`
+			Order       int    `json:"order"`
+		} `json:"cast"`
+		Crew []struct {
+			ID         int    `json:"id"`
+			Name       string `json:"name"`
+			Job        string `json:"job"`
+			Department string `json:"department"`
 		} `json:"crew"`
 	} `json:"credits"`
 }
