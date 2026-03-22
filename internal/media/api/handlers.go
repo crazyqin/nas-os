@@ -61,8 +61,8 @@ func (h *Handler) ListLibraries(w http.ResponseWriter, r *http.Request) {
 // CreateLibrary creates a new media library
 func (h *Handler) CreateLibrary(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Name string        `json:"name"`
-		Path string        `json:"path"`
+		Name string          `json:"name"`
+		Path string          `json:"path"`
 		Type media.MediaType `json:"type"`
 	}
 
@@ -238,7 +238,11 @@ func (h *Handler) GetBackdrop(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) respondJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		// Log error but don't modify response as headers already sent
+		// In production, use structured logging
+		_ = err // explicitly ignore for now
+	}
 }
 
 // respondError sends an error response
