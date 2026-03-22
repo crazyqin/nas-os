@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.172] - 2026-03-22
+
+### Changed
+- 例行维护版本更新
+
 ## [v2.253.171] - 2026-03-22
 
 ### 六部协同开发
