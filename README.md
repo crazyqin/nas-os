@@ -6,7 +6,7 @@
 
 > **最新版本**: v2.253.209 Stable (2026-03-23)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.208?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.209?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
