@@ -104,7 +104,7 @@ func (g *ReportGenerator) generateJSON(report *TestReport) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0600)
 }
 
 // generateMarkdown 生成 Markdown 报告
@@ -164,7 +164,7 @@ func (g *ReportGenerator) generateMarkdown(report *TestReport) error {
 	md += fmt.Sprintf("- Go 版本: %s\n", report.Environment.GoVersion)
 	md += fmt.Sprintf("- 主机名: %s\n", report.Environment.Hostname)
 
-	return os.WriteFile(path, []byte(md), 0644)
+	return os.WriteFile(path, []byte(md), 0600)
 }
 
 // generateHTML 生成 HTML 报告
