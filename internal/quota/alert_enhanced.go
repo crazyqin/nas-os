@@ -711,7 +711,7 @@ func (m *CleanupEnhancedManager) ExecuteExpiredFileCleanup(ruleID string) (*Expi
 			_ = os.Remove(file.Path)
 		case CleanupActionArchive:
 			if rule.ArchivePath != "" {
-				_ = os.MkdirAll(rule.ArchivePath, 0755)
+				_ = os.MkdirAll(rule.ArchivePath, 0750)
 				_ = os.Rename(file.Path, filepath.Join(rule.ArchivePath, filepath.Base(file.Path)))
 			}
 		}

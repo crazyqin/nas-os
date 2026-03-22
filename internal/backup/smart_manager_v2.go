@@ -303,7 +303,7 @@ func (sm *SmartManagerV2) saveConfig() error {
 func (sm *SmartManagerV2) ensureDirectories() error {
 	dirs := []string{sm.config.BackupPath, sm.config.TempPath}
 	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(dir, 0750); err != nil {
 			return err
 		}
 	}
@@ -506,7 +506,7 @@ func (sm *SmartManagerV2) executeBackup(ctx context.Context, job *SmartBackupJob
 	backupName := fmt.Sprintf("%s-%s", job.Name, timestamp)
 	destPath := filepath.Join(sm.config.BackupPath, job.Name, backupName)
 
-	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(destPath), 0750); err != nil {
 		activeJob.Status = BackupStatusV2Failed
 		activeJob.Error = fmt.Sprintf("创建目标目录失败: %v", err)
 		return
@@ -614,7 +614,7 @@ func (sm *SmartManagerV2) executeRestoreV2(version *BackupVersionV2, targetPath 
 		sm.mu.Unlock()
 	}()
 
-	if err := os.MkdirAll(targetPath, 0755); err != nil {
+	if err := os.MkdirAll(targetPath, 0750); err != nil {
 		activeJob.Status = BackupStatusV2Failed
 		activeJob.Error = fmt.Sprintf("创建目标目录失败: %v", err)
 		return

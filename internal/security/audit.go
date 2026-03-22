@@ -439,7 +439,7 @@ func (am *AuditManager) saveLogs() {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(am.config.LogPath, 0755); err != nil {
+	if err := os.MkdirAll(am.config.LogPath, 0750); err != nil {
 		return
 	}
 
@@ -461,7 +461,7 @@ func (am *AuditManager) writeLogsToFile(filename string, logs interface{}) {
 	}
 
 	// 追加写入
-	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return
 	}

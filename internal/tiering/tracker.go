@@ -415,7 +415,7 @@ func (t *AccessTracker) saveRecords() error {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(t.dataPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(t.dataPath), 0750); err != nil {
 		return err
 	}
 

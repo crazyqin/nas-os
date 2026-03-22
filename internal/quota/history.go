@@ -388,7 +388,7 @@ func (m *HistoryManager) persist() {
 		return
 	}
 
-	_ = os.MkdirAll(filepath.Dir(m.config.PersistPath), 0755)
+	_ = os.MkdirAll(filepath.Dir(m.config.PersistPath), 0750)
 	_ = os.WriteFile(m.config.PersistPath, jsonData, 0600)
 }
 

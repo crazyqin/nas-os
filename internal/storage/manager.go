@@ -157,7 +157,7 @@ func NewManager(mountBase string) (*Manager, error) {
 	}
 
 	// 确保挂载基础目录存在
-	if err := os.MkdirAll(mountBase, 0755); err != nil {
+	if err := os.MkdirAll(mountBase, 0750); err != nil {
 		return nil, fmt.Errorf("创建挂载目录失败: %w", err)
 	}
 
@@ -289,7 +289,7 @@ func (m *Manager) CreateVolume(name string, devices []string, profile string) (*
 
 	// 创建挂载点
 	mountPoint := filepath.Join(m.mountBase, name)
-	if err := os.MkdirAll(mountPoint, 0755); err != nil {
+	if err := os.MkdirAll(mountPoint, 0750); err != nil {
 		return nil, fmt.Errorf("创建挂载点失败: %w", err)
 	}
 
@@ -372,7 +372,7 @@ func (m *Manager) MountVolume(name string) error {
 	}
 
 	// 创建挂载点
-	if err := os.MkdirAll(vol.MountPoint, 0755); err != nil {
+	if err := os.MkdirAll(vol.MountPoint, 0750); err != nil {
 		return fmt.Errorf("创建挂载点失败: %w", err)
 	}
 
@@ -621,7 +621,7 @@ func (m *Manager) MountSubVolume(volumeName, subvolName, mountPath string) error
 	}
 
 	// 创建挂载点
-	if err := os.MkdirAll(mountPath, 0755); err != nil {
+	if err := os.MkdirAll(mountPath, 0750); err != nil {
 		return fmt.Errorf("创建挂载点失败: %w", err)
 	}
 
@@ -649,7 +649,7 @@ func (m *Manager) MountSubVolumeByID(volumeName string, subvolID uint64, mountPa
 	}
 
 	// 创建挂载点
-	if err := os.MkdirAll(mountPath, 0755); err != nil {
+	if err := os.MkdirAll(mountPath, 0750); err != nil {
 		return fmt.Errorf("创建挂载点失败: %w", err)
 	}
 
@@ -770,7 +770,7 @@ func (m *Manager) CreateSnapshotWithConfig(volumeName, subvolName, snapshotName 
 	snapDirPath := filepath.Join(vol.MountPoint, snapDir)
 
 	// 创建快照目录
-	if err := os.MkdirAll(snapDirPath, 0755); err != nil {
+	if err := os.MkdirAll(snapDirPath, 0750); err != nil {
 		return nil, fmt.Errorf("创建快照目录失败: %w", err)
 	}
 

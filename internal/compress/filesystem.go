@@ -18,7 +18,7 @@ type FileSystem struct {
 
 // NewFileSystem 创建透明压缩文件系统
 func NewFileSystem(rootPath string, manager *Manager) (*FileSystem, error) {
-	if err := os.MkdirAll(rootPath, 0755); err != nil {
+	if err := os.MkdirAll(rootPath, 0750); err != nil {
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func (fs *FileSystem) Create(name string) (io.WriteCloser, error) {
 	path := fs.resolvePath(name)
 
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0750); err != nil {
 		return nil, err
 	}
 
@@ -111,7 +111,7 @@ func (fs *FileSystem) Rename(oldName, newName string) error {
 	newPath := fs.resolvePath(newName)
 
 	// 确保目标目录存在
-	if err := os.MkdirAll(filepath.Dir(newPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(newPath), 0750); err != nil {
 		return err
 	}
 

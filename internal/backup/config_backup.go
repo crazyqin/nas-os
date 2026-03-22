@@ -131,7 +131,7 @@ func NewConfigBackupManager(config *ConfigBackupConfig) *ConfigBackupManager {
 // Initialize 初始化
 func (m *ConfigBackupManager) Initialize() error {
 	// 创建备份目录
-	if err := os.MkdirAll(m.backupDir, 0755); err != nil {
+	if err := os.MkdirAll(m.backupDir, 0750); err != nil {
 		return fmt.Errorf("创建备份目录失败: %w", err)
 	}
 
@@ -473,7 +473,7 @@ func (m *ConfigBackupManager) extractBackup(backupPath, destDir string) ([]strin
 			}
 		case tar.TypeReg:
 			// 确保目录存在
-			if err := os.MkdirAll(filepath.Dir(targetPath), 0755); err != nil {
+			if err := os.MkdirAll(filepath.Dir(targetPath), 0750); err != nil {
 				return nil, err
 			}
 

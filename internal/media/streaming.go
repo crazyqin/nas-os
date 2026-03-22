@@ -98,7 +98,7 @@ func (ss *StreamServer) CreateHLSSession(sourcePath, outputDir string) (*StreamS
 	}
 
 	// 创建输出目录
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建输出目录失败: %w", err)
 	}
 
@@ -470,7 +470,7 @@ func (ss *StreamServer) CreateDASHSession(sourcePath, outputDir string) (*Stream
 	}
 
 	// 创建输出目录
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建输出目录失败: %w", err)
 	}
 
@@ -582,7 +582,7 @@ func (ss *StreamServer) CreateAdaptiveHLS(sourcePath, outputDir string, qualitie
 	}
 
 	// 创建输出目录
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建输出目录失败: %w", err)
 	}
 
@@ -616,7 +616,7 @@ func (ss *StreamServer) runAdaptiveHLS(session *StreamSession, qualities []Adapt
 	for _, q := range qualities {
 		// 输出参数
 		outputPath := filepath.Join(session.OutputDir, q.Quality, "stream.m3u8")
-		_ = os.MkdirAll(filepath.Dir(outputPath), 0755)
+		_ = os.MkdirAll(filepath.Dir(outputPath), 0750)
 
 		args = append(args,
 			"-map", "0:v",

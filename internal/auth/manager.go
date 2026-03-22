@@ -117,7 +117,7 @@ func (m *MFAManager) saveConfig() error {
 		return fmt.Errorf("序列化配置失败：%w", err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(m.configPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(m.configPath), 0750); err != nil {
 		return fmt.Errorf("创建配置目录失败：%w", err)
 	}
 

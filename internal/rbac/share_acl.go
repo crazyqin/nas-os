@@ -556,7 +556,7 @@ func (m *ShareACLManager) save() error {
 		return err
 	}
 
-	if err := os.MkdirAll(filepath.Dir(m.config.ConfigPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(m.config.ConfigPath), 0750); err != nil {
 		return err
 	}
 

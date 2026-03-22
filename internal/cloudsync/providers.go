@@ -129,7 +129,7 @@ func (p *S3Provider) Download(ctx context.Context, remotePath, localPath string)
 	}
 	defer func() { _ = result.Body.Close() }()
 
-	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(localPath), 0750); err != nil {
 		return err
 	}
 
@@ -483,7 +483,7 @@ func (p *WebDAVProvider) Download(ctx context.Context, remotePath, localPath str
 		return fmt.Errorf("下载失败: %s", resp.Status)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(localPath), 0750); err != nil {
 		return err
 	}
 
@@ -1067,7 +1067,7 @@ func (p *GoogleDriveProvider) Download(ctx context.Context, remotePath, localPat
 	}
 
 	// 创建本地目录
-	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(localPath), 0750); err != nil {
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
@@ -1613,7 +1613,7 @@ func (p *OneDriveProvider) Download(ctx context.Context, remotePath, localPath s
 	}
 
 	// 创建本地目录
-	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(localPath), 0750); err != nil {
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 

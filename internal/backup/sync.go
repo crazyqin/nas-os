@@ -142,7 +142,7 @@ func NewSyncManager(baseDir string) *SyncManager {
 
 // NewVersionManager 创建版本管理器
 func NewVersionManager(baseDir string) *VersionManager {
-	if err := os.MkdirAll(baseDir, 0755); err != nil {
+	if err := os.MkdirAll(baseDir, 0750); err != nil {
 		log.Printf("创建版本目录失败 [%s]: %v", baseDir, err)
 	}
 	return &VersionManager{baseDir: baseDir}
@@ -558,7 +558,7 @@ func (sm *SyncManager) applyChange(change FileChange, task *SyncTask) error {
 
 // copyFile 复制文件
 func (sm *SyncManager) copyFile(src, dst string) error {
-	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
 		return err
 	}
 
@@ -728,11 +728,11 @@ func (sm *SyncManager) uploadToWebDAV(client *gowebdav.Client, localPath, remote
 	}
 
 	remoteDir := filepath.Dir(remotePath)
-	if err := client.MkdirAll(remoteDir, 0755); err != nil {
+	if err := client.MkdirAll(remoteDir, 0750); err != nil {
 		return err
 	}
 
-	return client.Write(remotePath, data, 0644)
+	return client.Write(remotePath, data, 0600)
 }
 
 // parseRsyncOutput 解析 rsync 输出
@@ -772,7 +772,7 @@ func (vm *VersionManager) CreateVersion(filePath, relativePath string) (*Version
 
 	// 版本存储路径
 	versionDir := filepath.Join(vm.baseDir, filepath.Dir(relativePath))
-	if err := os.MkdirAll(versionDir, 0755); err != nil {
+	if err := os.MkdirAll(versionDir, 0750); err != nil {
 		return nil, err
 	}
 
@@ -924,7 +924,7 @@ func copyFile(src, dst string) error {
 	}
 	defer func() { _ = sourceFile.Close() }()
 
-	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
 		return err
 	}
 

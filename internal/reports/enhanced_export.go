@@ -50,7 +50,7 @@ func NewEnhancedExporter(dataDir string) *EnhancedExporter {
 	e.pdfConverter = NewWKHTMLToPDFConverter()
 
 	// 确保输出目录存在
-	_ = os.MkdirAll(filepath.Join(dataDir, "outputs"), 0755)
+	_ = os.MkdirAll(filepath.Join(dataDir, "outputs"), 0750)
 
 	return e
 }
@@ -63,7 +63,7 @@ func (e *EnhancedExporter) ExportEnhanced(report *GeneratedReport, format Export
 
 	// 确保目录存在
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return nil, err
 	}
 

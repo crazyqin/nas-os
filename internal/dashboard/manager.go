@@ -57,7 +57,7 @@ func NewManager(cfg *ManagerConfig) (*Manager, error) {
 
 	// 确保数据目录存在
 	if m.dataDir != "" {
-		if err := os.MkdirAll(m.dataDir, 0755); err != nil {
+		if err := os.MkdirAll(m.dataDir, 0750); err != nil {
 			return nil, fmt.Errorf("创建数据目录失败: %w", err)
 		}
 		// 加载已保存的仪表板

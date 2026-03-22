@@ -171,7 +171,7 @@ func (m *Manager) writeConfigFile(pc persistentConfig) error {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(m.configPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(m.configPath), 0750); err != nil {
 		return fmt.Errorf("创建配置目录失败: %w", err)
 	}
 
@@ -203,7 +203,7 @@ func (m *Manager) CreateExport(export *Export) error {
 	}
 
 	// 确保路径存在
-	if err := os.MkdirAll(export.Path, 0755); err != nil {
+	if err := os.MkdirAll(export.Path, 0750); err != nil {
 		m.logger.Errorf("创建导出目录失败: %s - %v", export.Path, err)
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
@@ -269,7 +269,7 @@ func (m *Manager) UpdateExport(path string, export *Export) error {
 	if targetPath == "" {
 		targetPath = path
 	}
-	if err := os.MkdirAll(targetPath, 0755); err != nil {
+	if err := os.MkdirAll(targetPath, 0750); err != nil {
 		m.logger.Errorf("创建导出目录失败: %s - %v", targetPath, err)
 		return fmt.Errorf("创建目录失败: %w", err)
 	}

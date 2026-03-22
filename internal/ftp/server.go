@@ -114,7 +114,7 @@ func (s *Server) Start() error {
 	}
 
 	// 确保根目录存在
-	if err := os.MkdirAll(s.config.RootPath, 0755); err != nil {
+	if err := os.MkdirAll(s.config.RootPath, 0750); err != nil {
 		return fmt.Errorf("创建根目录失败：%w", err)
 	}
 
@@ -225,7 +225,7 @@ func (s *Server) startInternal() error {
 	}
 
 	// 确保根目录存在
-	if err := os.MkdirAll(s.config.RootPath, 0755); err != nil {
+	if err := os.MkdirAll(s.config.RootPath, 0750); err != nil {
 		return fmt.Errorf("创建根目录失败：%w", err)
 	}
 
@@ -569,7 +569,7 @@ func (c *clientConn) handleCDUP() {
 func (c *clientConn) handleMKD(path string) {
 	realPath := c.resolvePath(path)
 
-	if err := os.MkdirAll(realPath, 0755); err != nil {
+	if err := os.MkdirAll(realPath, 0750); err != nil {
 		_ = c.writeResponse(550, fmt.Sprintf("Failed to create directory: %v", err))
 		return
 	}

@@ -116,7 +116,7 @@ func NewManager(config PreviewConfig) *Manager {
 	}
 
 	// 确保缓存目录存在
-	if err := os.MkdirAll(config.CacheDir, 0755); err != nil {
+	if err := os.MkdirAll(config.CacheDir, 0750); err != nil {
 		log.Printf("创建缓存目录失败: %v", err)
 	}
 
@@ -748,7 +748,7 @@ func (h *Handlers) createDir(c *gin.Context) {
 		return
 	}
 
-	if err := os.MkdirAll(fullPath, 0755); err != nil {
+	if err := os.MkdirAll(fullPath, 0750); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return
 	}
@@ -1131,7 +1131,7 @@ func (h *Handlers) extractZipGo(archivePath, destPath string, overwrite bool) er
 			continue
 		}
 
-		_ = os.MkdirAll(filepath.Dir(path), 0755)
+		_ = os.MkdirAll(filepath.Dir(path), 0750)
 
 		srcFile, err := f.Open()
 		if err != nil {

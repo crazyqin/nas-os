@@ -113,7 +113,7 @@ func (h *Handler) Filewrite(r *Request) (io.WriteCloser, error) {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(fullPath), 0750); err != nil {
 		return nil, err
 	}
 
@@ -230,7 +230,7 @@ func (h *Handler) handleRename(r *Request) error {
 	}
 
 	// 确保目标目录存在
-	if err := os.MkdirAll(filepath.Dir(newPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(newPath), 0750); err != nil {
 		return err
 	}
 
@@ -252,7 +252,7 @@ func (h *Handler) handleMkdir(r *Request) error {
 	if err != nil {
 		return err
 	}
-	return os.MkdirAll(fullPath, 0755)
+	return os.MkdirAll(fullPath, 0750)
 }
 
 // handleRemove 处理删除文件

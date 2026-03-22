@@ -81,13 +81,13 @@ func NewManager(dataDir string) (*Manager, error) {
 	}
 
 	// 创建目录
-	if err := os.MkdirAll(m.photosDir, 0755); err != nil {
+	if err := os.MkdirAll(m.photosDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建照片目录失败：%w", err)
 	}
-	if err := os.MkdirAll(m.thumbsDir, 0755); err != nil {
+	if err := os.MkdirAll(m.thumbsDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建缩略图目录失败：%w", err)
 	}
-	if err := os.MkdirAll(m.cacheDir, 0755); err != nil {
+	if err := os.MkdirAll(m.cacheDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建缓存目录失败：%w", err)
 	}
 

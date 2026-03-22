@@ -186,7 +186,7 @@ func NewTaskScheduler(config TaskSchedulerConfig, logger *zap.Logger) (*TaskSche
 	}
 
 	// 创建数据目录
-	if err := os.MkdirAll(config.DataDir, 0755); err != nil {
+	if err := os.MkdirAll(config.DataDir, 0750); err != nil {
 		cancel()
 		return nil, fmt.Errorf("创建任务数据目录失败：%w", err)
 	}

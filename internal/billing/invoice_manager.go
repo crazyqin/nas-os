@@ -243,7 +243,7 @@ func NewInvoiceManager(config InvoiceManagerConfig) (*InvoiceManager, error) {
 		config:      config,
 	}
 
-	if err := os.MkdirAll(config.StoragePath, 0755); err != nil {
+	if err := os.MkdirAll(config.StoragePath, 0750); err != nil {
 		return nil, fmt.Errorf("创建存储目录失败: %w", err)
 	}
 

@@ -263,7 +263,7 @@ func (t *Transcoder) CreateJob(inputPath, outputPath string, config TranscodeCon
 
 	// 确保输出目录存在
 	outputDir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建输出目录失败: %w", err)
 	}
 

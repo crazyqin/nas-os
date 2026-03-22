@@ -454,7 +454,7 @@ func (s *Server) handleSFTP(channel ssh.Channel, username, homeDir string) {
 	}
 
 	// 确保根目录存在
-	if err := os.MkdirAll(rootDir, 0755); err != nil {
+	if err := os.MkdirAll(rootDir, 0750); err != nil {
 		return
 	}
 

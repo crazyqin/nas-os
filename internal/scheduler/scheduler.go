@@ -127,7 +127,7 @@ func (s *Scheduler) saveTasks() error {
 	}
 
 	dir := filepath.Dir(s.config.StoragePath + "/tasks.json")
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return err
 	}
 

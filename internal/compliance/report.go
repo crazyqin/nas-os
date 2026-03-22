@@ -30,7 +30,7 @@ type ReportGenerator struct {
 
 // NewReportGenerator 创建报告生成器
 func NewReportGenerator(outputDir string, checker *Checker) (*ReportGenerator, error) {
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建输出目录失败: %w", err)
 	}
 	return &ReportGenerator{

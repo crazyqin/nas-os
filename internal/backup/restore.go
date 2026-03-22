@@ -205,7 +205,7 @@ func (rm *RestoreManager) previewRestore(backupPath string, files []string) (*ba
 
 // executeRestore 执行恢复
 func (rm *RestoreManager) executeRestore(backupPath, targetPath string, files []string, overwrite bool) error {
-	if err := os.MkdirAll(targetPath, 0755); err != nil {
+	if err := os.MkdirAll(targetPath, 0750); err != nil {
 		return err
 	}
 
@@ -272,7 +272,7 @@ func (rm *RestoreManager) copyFileOrDir(src, dst string, overwrite bool) error {
 			return err
 		}
 
-		if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(dst), 0750); err != nil {
 			return err
 		}
 

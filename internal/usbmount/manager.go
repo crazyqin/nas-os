@@ -364,7 +364,7 @@ func (m *Manager) Start() error {
 	}
 
 	// 创建默认挂载目录
-	_ = os.MkdirAll(m.config.DefaultMountPoint, 0755)
+	_ = os.MkdirAll(m.config.DefaultMountPoint, 0750)
 
 	// 初始扫描
 	m.scanDevices()
@@ -449,7 +449,7 @@ func (m *Manager) Mount(deviceID string, mountPoint string, opts map[string]stri
 	}
 
 	// 确保挂载点目录存在
-	if err := os.MkdirAll(mountPoint, 0755); err != nil {
+	if err := os.MkdirAll(mountPoint, 0750); err != nil {
 		return &MountResult{
 			Success:    false,
 			DevicePath: device.DevicePath,

@@ -335,7 +335,7 @@ func (h *Handlers) createUploadSession(c *gin.Context) {
 	}
 
 	// 创建临时目录
-	if err := os.MkdirAll(session.TempPath, 0755); err != nil {
+	if err := os.MkdirAll(session.TempPath, 0750); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
 			"message": "创建临时目录失败：" + err.Error(),

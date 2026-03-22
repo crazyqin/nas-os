@@ -1741,7 +1741,7 @@ type StorageCostReportExporter struct {
 
 // NewStorageCostReportExporter 创建导出器
 func NewStorageCostReportExporter(outputDir string) *StorageCostReportExporter {
-	_ = os.MkdirAll(outputDir, 0755)
+	_ = os.MkdirAll(outputDir, 0750)
 	return &StorageCostReportExporter{outputDir: outputDir}
 }
 

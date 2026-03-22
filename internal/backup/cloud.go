@@ -224,11 +224,11 @@ func (cb *CloudBackup) uploadToWebDAV(localPath, remotePath string) (*UploadResu
 	}
 
 	remoteDir := filepath.Dir(remotePath)
-	if err := client.MkdirAll(remoteDir, 0755); err != nil {
+	if err := client.MkdirAll(remoteDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建远程目录失败：%w", err)
 	}
 
-	if err := client.Write(remotePath, data, 0644); err != nil {
+	if err := client.Write(remotePath, data, 0600); err != nil {
 		return nil, fmt.Errorf("WebDAV 上传失败：%w", err)
 	}
 
@@ -273,7 +273,7 @@ func (cb *CloudBackup) downloadFromS3(remotePath, localPath string) (*DownloadRe
 		key = strings.TrimPrefix(key, fmt.Sprintf("s3://%s/", cfg.Bucket))
 	}
 
-	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(localPath), 0750); err != nil {
 		return nil, fmt.Errorf("创建本地目录失败：%w", err)
 	}
 
@@ -317,7 +317,7 @@ func (cb *CloudBackup) downloadFromWebDAV(remotePath, localPath string) (*Downlo
 		return nil, fmt.Errorf("客户端类型错误")
 	}
 
-	if err := os.MkdirAll(filepath.Dir(localPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(localPath), 0750); err != nil {
 		return nil, fmt.Errorf("创建本地目录失败：%w", err)
 	}
 

@@ -58,7 +58,7 @@ type Manager struct {
 
 // NewManager 创建下载管理器
 func NewManager(dataDir string, logger *zap.Logger) (*Manager, error) {
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+	if err := os.MkdirAll(dataDir, 0750); err != nil {
 		return nil, err
 	}
 
@@ -623,7 +623,7 @@ func (m *Manager) downloadHTTP(ctx context.Context, task *DownloadTask) {
 	}
 
 	// 创建目标目录
-	if err := os.MkdirAll(task.DestPath, 0755); err != nil {
+	if err := os.MkdirAll(task.DestPath, 0750); err != nil {
 		m.logger.Error("创建下载目录失败", zap.Error(err), zap.String("taskId", task.ID))
 		m.mu.Lock()
 		task.Status = StatusError

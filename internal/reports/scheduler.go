@@ -44,7 +44,7 @@ func NewScheduleManager(generator *ReportGenerator, exporter *Exporter, dataDir 
 	// 创建 cron 调度器，支持秒级
 	sm.cron = cron.New(cron.WithSeconds(), cron.WithLocation(time.Local))
 
-	_ = os.MkdirAll(dataDir, 0755)
+	_ = os.MkdirAll(dataDir, 0750)
 	sm.loadSchedules()
 
 	return sm

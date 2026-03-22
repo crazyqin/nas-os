@@ -7,8 +7,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"nas-os/internal/security/pathutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -64,6 +66,14 @@ func NewChunkedUploader(chunkSize int64, maxRetries int) *ChunkedUploader {
 
 // SplitFile splits a file into chunks
 func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkInfo, error) {
+	// 安全检查：验证路径不包含路径遍历
+	if err := pathutil.ValidatePath(filePath); err != nil {
+		return nil, fmt.Errorf("invalid file path: %w", err)
+	}
+	if err := pathutil.ValidatePath(outputDir); err != nil {
+		return nil, fmt.Errorf("invalid output directory: %w", err)
+	}
+
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -114,6 +124,14 @@ func (u *ChunkedUploader) SplitFile(filePath string, outputDir string) ([]ChunkI
 
 // MergeChunks merges uploaded chunks into final file
 func (u *ChunkedUploader) MergeChunks(chunkDir string, outputPath string, totalChunks int) error {
+	// 安全检查：验证路径
+	if err := pathutil.ValidatePath(chunkDir); err != nil {
+		return fmt.Errorf("invalid chunk directory: %w", err)
+	}
+	if err := pathutil.ValidatePath(outputPath); err != nil {
+		return fmt.Errorf("invalid output path: %w", err)
+	}
+
 	outputFile, err := os.Create(outputPath)
 	if err != nil {
 		return err
@@ -153,6 +171,11 @@ func (u *ChunkedUploader) UploadChunk(
 	uploadFunc func(data []byte, chunk ChunkInfo) error,
 	chunk ChunkInfo,
 ) error {
+	// 安全检查：验证路径
+	if err := pathutil.ValidatePath(chunkPath); err != nil {
+		return fmt.Errorf("invalid chunk path: %w", err)
+	}
+
 	var lastErr error
 
 	for attempt := 0; attempt < u.maxRetries; attempt++ {
@@ -177,6 +200,11 @@ func (u *ChunkedUploader) UploadChunk(
 
 // CalculateFileSHA256 calculates SHA256 hash of a file
 func CalculateFileSHA256(filePath string) (string, error) {
+	// 安全检查：验证路径
+	if err := pathutil.ValidatePath(filePath); err != nil {
+		return "", fmt.Errorf("invalid file path: %w", err)
+	}
+
 	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -235,6 +263,14 @@ func DecompressReader(reader io.Reader) (io.Reader, error) {
 
 // CompressFile compresses a file
 func CompressFile(inputPath, outputPath string) (err error) {
+	// 安全检查：验证路径
+	if err := pathutil.ValidatePath(inputPath); err != nil {
+		return fmt.Errorf("invalid input path: %w", err)
+	}
+	if err := pathutil.ValidatePath(outputPath); err != nil {
+		return fmt.Errorf("invalid output path: %w", err)
+	}
+
 	inputFile, err := os.Open(inputPath)
 	if err != nil {
 		return err
@@ -268,6 +304,14 @@ func CompressFile(inputPath, outputPath string) (err error) {
 
 // DecompressFile decompresses a file
 func DecompressFile(inputPath, outputPath string) (err error) {
+	// 安全检查：验证路径
+	if err := pathutil.ValidatePath(inputPath); err != nil {
+		return fmt.Errorf("invalid input path: %w", err)
+	}
+	if err := pathutil.ValidatePath(outputPath); err != nil {
+		return fmt.Errorf("invalid output path: %w", err)
+	}
+
 	inputFile, err := os.Open(inputPath)
 	if err != nil {
 		return err
@@ -401,6 +445,11 @@ type ChunkedReader struct {
 
 // NewChunkedReader creates a new chunked reader
 func NewChunkedReader(filePath string, chunkSize int) (*ChunkedReader, error) {
+	// 安全检查：验证路径
+	if err := pathutil.ValidatePath(filePath); err != nil {
+		return nil, fmt.Errorf("invalid file path: %w", err)
+	}
+
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
@@ -460,6 +509,11 @@ type ChunkedWriter struct {
 
 // NewChunkedWriter creates a new chunked writer
 func NewChunkedWriter(filePath string, chunkSize int) (*ChunkedWriter, error) {
+	// 安全检查：验证路径
+	if err := pathutil.ValidatePath(filePath); err != nil {
+		return nil, fmt.Errorf("invalid file path: %w", err)
+	}
+
 	file, err := os.Create(filePath)
 	if err != nil {
 		return nil, err

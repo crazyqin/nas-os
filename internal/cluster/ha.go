@@ -124,7 +124,7 @@ func NewHighAvailability(config HAConfig, logger *zap.Logger) (*HighAvailability
 	}
 
 	// 创建数据目录
-	if err := os.MkdirAll(config.DataDir, 0755); err != nil {
+	if err := os.MkdirAll(config.DataDir, 0750); err != nil {
 		cancel()
 		return nil, fmt.Errorf("创建 HA 数据目录失败：%w", err)
 	}

@@ -529,7 +529,7 @@ func NewManager(config *BackupConfig, storagePath string) (*Manager, error) {
 	}
 
 	indexPath := filepath.Join(storagePath, "index")
-	if err := os.MkdirAll(indexPath, 0755); err != nil {
+	if err := os.MkdirAll(indexPath, 0750); err != nil {
 		return nil, fmt.Errorf("failed to create index directory: %w", err)
 	}
 

@@ -528,7 +528,7 @@ func (l *Learner) analyzeCorrectionDataPatterns(dataList []LearningData) []strin
 // saveLearningData 保存学习数据
 func (l *Learner) saveLearningData() error {
 	dataDir := l.config.DataDir
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+	if err := os.MkdirAll(dataDir, 0750); err != nil {
 		return err
 	}
 

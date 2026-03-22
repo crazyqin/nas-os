@@ -100,7 +100,7 @@ func (m *Migrator) moveFile(file *MigrateFile, policy *Policy) error {
 
 	// 确保目标目录存在
 	targetDir := filepath.Dir(targetPath)
-	if err := os.MkdirAll(targetDir, 0755); err != nil {
+	if err := os.MkdirAll(targetDir, 0750); err != nil {
 		return fmt.Errorf("创建目标目录失败: %w", err)
 	}
 
@@ -135,7 +135,7 @@ func (m *Migrator) copyFile(file *MigrateFile, policy *Policy) error {
 func (m *Migrator) copyFileInternal(sourcePath, targetPath string, verify bool) error {
 	// 确保目标目录存在
 	targetDir := filepath.Dir(targetPath)
-	if err := os.MkdirAll(targetDir, 0755); err != nil {
+	if err := os.MkdirAll(targetDir, 0750); err != nil {
 		return fmt.Errorf("创建目标目录失败: %w", err)
 	}
 

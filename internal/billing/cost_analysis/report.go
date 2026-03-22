@@ -490,7 +490,7 @@ func (e *CostAnalysisEngine) load() error {
 
 // save 保存数据
 func (e *CostAnalysisEngine) save() error {
-	if err := os.MkdirAll(e.dataDir, 0755); err != nil {
+	if err := os.MkdirAll(e.dataDir, 0750); err != nil {
 		return fmt.Errorf("创建数据目录失败: %w", err)
 	}
 
@@ -500,14 +500,14 @@ func (e *CostAnalysisEngine) save() error {
 		budgets = append(budgets, b)
 	}
 	if data, err := json.MarshalIndent(budgets, "", "  "); err == nil {
-		if err := os.WriteFile(filepath.Join(e.dataDir, "budgets.json"), data, 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(e.dataDir, "budgets.json"), data, 0600); err != nil {
 			return fmt.Errorf("保存预算配置失败: %w", err)
 		}
 	}
 
 	// 保存趋势数据
 	if data, err := json.MarshalIndent(e.trendData, "", "  "); err == nil {
-		if err := os.WriteFile(filepath.Join(e.dataDir, "trend_data.json"), data, 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(e.dataDir, "trend_data.json"), data, 0600); err != nil {
 			return fmt.Errorf("保存趋势数据失败: %w", err)
 		}
 	}

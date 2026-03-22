@@ -1237,7 +1237,7 @@ func (m *Manager) saveConfigLocked() error {
 	}
 
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(m.configPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(m.configPath), 0750); err != nil {
 		return err
 	}
 

@@ -193,7 +193,7 @@ func NewManager(cfg *Config) (*Manager, error) {
 
 	// 确保日志目录存在
 	logDir := filepath.Dir(cfg.SlowLogPath)
-	if err := os.MkdirAll(logDir, 0755); err != nil {
+	if err := os.MkdirAll(logDir, 0750); err != nil {
 		log.Printf("[WARN] 无法创建慢日志目录: %v", err)
 	}
 
@@ -460,7 +460,7 @@ func (m *Manager) recordSlowLog(entry *SlowLogEntry) {
 
 // writeSlowLogToFile 写入慢日志文件
 func (m *Manager) writeSlowLogToFile(entry *SlowLogEntry) {
-	f, err := os.OpenFile(m.slowLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(m.slowLogPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Printf("[ERROR] 无法打开慢日志文件: %v", err)
 		return

@@ -130,7 +130,7 @@ func NewEngine(config IndexConfig, logger *zap.Logger) (*Engine, error) {
 
 	// 确保索引目录存在
 	indexDir := filepath.Dir(config.IndexPath)
-	if err := os.MkdirAll(indexDir, 0755); err != nil {
+	if err := os.MkdirAll(indexDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建索引目录失败: %w", err)
 	}
 

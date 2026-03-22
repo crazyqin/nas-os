@@ -82,12 +82,12 @@ func NewTransferLogger(config TransferLoggerConfig) (*TransferLogger, error) {
 // initLogFile 初始化日志文件
 func (l *TransferLogger) initLogFile() error {
 	// 确保目录存在
-	if err := os.MkdirAll(filepath.Dir(l.logPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(l.logPath), 0750); err != nil {
 		return err
 	}
 
 	// 打开或创建日志文件
-	file, err := os.OpenFile(l.logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(l.logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return err
 	}

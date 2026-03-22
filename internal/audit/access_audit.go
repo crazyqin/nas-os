@@ -38,7 +38,7 @@ type AccessAuditLogger struct {
 
 // NewAccessAuditLogger 创建访问审计日志器
 func NewAccessAuditLogger(logDir string, maxSize int) (*AccessAuditLogger, error) {
-	if err := os.MkdirAll(logDir, 0755); err != nil {
+	if err := os.MkdirAll(logDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建日志目录失败: %w", err)
 	}
 	return &AccessAuditLogger{
@@ -79,7 +79,7 @@ func (l *AccessAuditLogger) Log(ctx context.Context, entry AccessAuditEntry) err
 // writeToFile 写入日志文件
 func (l *AccessAuditLogger) writeToFile(entry AccessAuditEntry) error {
 	filename := filepath.Join(l.logDir, fmt.Sprintf("audit_%s.log", entry.Timestamp.Format("2006-01-02")))
-	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return err
 	}

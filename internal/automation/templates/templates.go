@@ -48,7 +48,7 @@ func NewTemplateManager(storagePath string) (*TemplateManager, error) {
 
 	// 确保存储目录存在
 	if storagePath != "" {
-		if err := os.MkdirAll(storagePath, 0755); err != nil {
+		if err := os.MkdirAll(storagePath, 0750); err != nil {
 			return nil, fmt.Errorf("failed to create storage directory: %w", err)
 		}
 		// 加载自定义模板
@@ -775,7 +775,7 @@ func ExportTemplateToFile(tpl *Template, filePath string) error {
 
 	// 确保目录存在
 	dir := filepath.Dir(filePath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return fmt.Errorf("创建目录失败: %w", err)
 	}
 
@@ -796,7 +796,7 @@ func ImportTemplateFromFile(filePath string) (*Template, error) {
 func ExportAllTemplates(outputDir string) error {
 	templates := GetTemplates()
 
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return fmt.Errorf("创建输出目录失败: %w", err)
 	}
 

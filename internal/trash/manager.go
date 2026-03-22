@@ -81,7 +81,7 @@ func NewManager(configPath, trashRoot string, config *Config) (*Manager, error) 
 	}
 
 	// 创建回收站根目录
-	if err := os.MkdirAll(trashRoot, 0755); err != nil {
+	if err := os.MkdirAll(trashRoot, 0750); err != nil {
 		cancel()
 		return nil, fmt.Errorf("创建回收站目录失败：%w", err)
 	}
@@ -206,7 +206,7 @@ func (m *Manager) RestoreTo(id string, targetPath string) error {
 
 	// 确保目标目录存在
 	destDir := filepath.Dir(destPath)
-	if err := os.MkdirAll(destDir, 0755); err != nil {
+	if err := os.MkdirAll(destDir, 0750); err != nil {
 		return fmt.Errorf("创建目录失败：%w", err)
 	}
 

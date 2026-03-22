@@ -509,7 +509,7 @@ func NewManager(config *Config, dataDir string) (*Manager, error) {
 	}
 
 	// 确保数据目录存在
-	if err := os.MkdirAll(dataDir, 0755); err != nil {
+	if err := os.MkdirAll(dataDir, 0750); err != nil {
 		return nil, fmt.Errorf("创建数据目录失败: %w", err)
 	}
 
@@ -608,7 +608,7 @@ func (bm *Manager) save() error {
 	if err != nil {
 		return fmt.Errorf("序列化用量记录失败: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(bm.dataDir, "usage_records.json"), recordsData, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(bm.dataDir, "usage_records.json"), recordsData, 0600); err != nil {
 		return fmt.Errorf("保存用量记录失败: %w", err)
 	}
 
@@ -621,7 +621,7 @@ func (bm *Manager) save() error {
 	if err != nil {
 		return fmt.Errorf("序列化发票数据失败: %w", err)
 	}
-	if err := os.WriteFile(filepath.Join(bm.dataDir, "invoices.json"), invoicesData, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(bm.dataDir, "invoices.json"), invoicesData, 0600); err != nil {
 		return fmt.Errorf("保存发票数据失败: %w", err)
 	}
 

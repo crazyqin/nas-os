@@ -87,10 +87,10 @@ func NewAppStore(mgr *Manager, dataDir string) (*AppStore, error) {
 	}
 
 	// 创建目录
-	if err := os.MkdirAll(templateDir, 0755); err != nil {
+	if err := os.MkdirAll(templateDir, 0750); err != nil {
 		return nil, err
 	}
-	if err := os.MkdirAll(installDir, 0755); err != nil {
+	if err := os.MkdirAll(installDir, 0750); err != nil {
 		return nil, err
 	}
 
@@ -631,7 +631,7 @@ func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) 
 	}
 
 	appDir := filepath.Join(s.installDir, template.Name)
-	if err := os.MkdirAll(appDir, 0755); err != nil {
+	if err := os.MkdirAll(appDir, 0750); err != nil {
 		return nil, err
 	}
 

@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"nas-os/internal/security/cmdsec"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -331,6 +332,11 @@ func (dm *DiskEncryptionManager) CreateLUKS(devicePath, passphrase string, confi
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
+	// 安全检查：验证设备路径
+	if err := cmdsec.ValidateDevicePath(devicePath); err != nil {
+		return fmt.Errorf("无效的设备路径: %w", err)
+	}
+
 	// 检查设备是否存在
 	if _, err := os.Stat(devicePath); os.IsNotExist(err) {
 		return fmt.Errorf("设备不存在: %s", devicePath)
@@ -404,6 +410,14 @@ func (dm *DiskEncryptionManager) OpenLUKS(devicePath, mapperName, passphrase str
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
+	// 安全检查：验证设备路径和映射名称
+	if err := cmdsec.ValidateDevicePath(devicePath); err != nil {
+		return fmt.Errorf("无效的设备路径: %w", err)
+	}
+	if err := cmdsec.ValidateArg(mapperName); err != nil {
+		return fmt.Errorf("无效的映射名称: %w", err)
+	}
+
 	// 使用 cryptsetup 打开卷
 	cmd := exec.Command("cryptsetup", "luksOpen", devicePath, mapperName)
 	cmd.Stdin = strings.NewReader(passphrase + "\n")
@@ -433,6 +447,11 @@ func (dm *DiskEncryptionManager) CloseLUKS(mapperName string) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
 
+	// 安全检查：验证映射名称
+	if err := cmdsec.ValidateArg(mapperName); err != nil {
+		return fmt.Errorf("无效的映射名称: %w", err)
+	}
+
 	// 使用 cryptsetup 关闭卷
 	cmd := exec.Command("cryptsetup", "luksClose", mapperName)
 
@@ -461,6 +480,11 @@ func (dm *DiskEncryptionManager) CloseLUKS(mapperName string) error {
 
 // GetLUKSInfo 获取 LUKS 信息
 func (dm *DiskEncryptionManager) GetLUKSInfo(devicePath string) (*LUKSInfo, error) {
+	// 安全检查：验证设备路径
+	if err := cmdsec.ValidateDevicePath(devicePath); err != nil {
+		return nil, fmt.Errorf("无效的设备路径: %w", err)
+	}
+
 	// 使用 cryptsetup 获取信息
 	cmd := exec.Command("cryptsetup", "luksDump", devicePath)
 	output, err := cmd.Output()
@@ -529,6 +553,11 @@ func (dm *DiskEncryptionManager) parseLUKSDump(dump, devicePath string) (*LUKSIn
 func (dm *DiskEncryptionManager) AddKeySlot(devicePath, currentPassphrase, newPassphrase string, slotID int) error {
 	dm.mu.Lock()
 	defer dm.mu.Unlock()
+
+	// 安全检查：验证设备路径
+	if err := cmdsec.ValidateDevicePath(devicePath); err != nil {
+		return fmt.Errorf("无效的设备路径: %w", err)
+	}
 
 	args := []string{"luksAddKey", devicePath}
 
