@@ -17,7 +17,7 @@
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
-"version": "2.253.259"
+"version": "2.253.263"
     },
     "host": "localhost:8080",
     "basePath": "/api/v1",
