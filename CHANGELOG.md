@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.250] - 2026-03-23
+
+### 吏部版本管理
+- 版本号更新至 v2.253.250
+- 文档版本同步更新
+
+---
+
 ## [v2.253.249] - 2026-03-23
 
 ### 吏部版本管理
