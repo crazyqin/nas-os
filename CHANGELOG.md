@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.254] - 2026-03-23
+
+### 六部协同开发
+- **吏部**: 版本号更新至 v2.253.254
+- **兵部**: go vet 0 错误，staticcheck 0 issues，测试覆盖率 42.6%
+- **礼部**: 文档版本同步，docs/README.md 更新至 v2.253.253
+- **刑部**: 安全审计完成，修复 quota/manager.go 错误处理漏洞
+- **工部**: DevOps 检查完成，CI/CD 配置优秀 (A级)
+- **户部**: 资源统计完成，744 Go 文件，417,216 行代码
+
+### 安全修复
+- 修复 internal/quota/manager.go 错误处理漏洞 (G104)
+
+---
+
 ## [v2.253.253] - 2026-03-23
 
 ### 六部协同开发
