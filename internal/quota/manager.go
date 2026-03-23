@@ -3,6 +3,7 @@ package quota
 
 import (
 	"crypto/rand"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -637,7 +638,13 @@ func generateID() string {
 		// 使用当前时间戳和随机数生成ID
 		now := time.Now().UnixNano()
 		r := mrand.New(mrand.NewSource(now))
-		r.Read(b)
+		if _, err := r.Read(b); err != nil {
+			// 最后回退：使用时间戳作为随机源
+			timestamp := make([]byte, 16)
+			binary.BigEndian.PutUint64(timestamp[:8], uint64(now))
+			binary.BigEndian.PutUint64(timestamp[8:], uint64(now^0xDEADBEEF))
+			copy(b, timestamp)
+		}
 	}
 	return hex.EncodeToString(b)
 }
