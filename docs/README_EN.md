@@ -4,9 +4,9 @@
 
 A Go-based home NAS system with btrfs storage management, SMB/NFS sharing, and web management interface.
 
-> **Latest Version**: v2.253.236 Stable (2026-03-23)
+> **Latest Version**: v2.253.238 Stable (2026-03-23)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.236?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.238?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## Features
 
@@ -31,17 +31,17 @@ A Go-based home NAS system with btrfs storage management, SMB/NFS sharing, and w
 ```bash
 # Download (choose your architecture)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.236/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.238/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.236/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.238/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, older ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.236/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.238/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -53,7 +53,7 @@ nasd --version
 
 ```bash
 # Pull image
-docker pull ghcr.io/crazyqin/nas-os:v2.253.236
+docker pull ghcr.io/crazyqin/nas-os:v2.253.238
 
 # Run container
 docker run -d \
@@ -62,7 +62,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.253.236
+  ghcr.io/crazyqin/nas-os:v2.253.238
 
 # View logs
 docker logs -f nasd
@@ -164,14 +164,14 @@ See [MILESTONES.md](../MILESTONES.md) for detailed milestones.
 
 | Version | Type | Release Date | Core Features | Status |
 |---------|------|--------------|---------------|--------|
-| v2.76.0 | Stable | 2026-03-16 | Six ministries collaboration/Documentation/Security audit | ✅ Released |
-| v2.71.0 | Stable | 2026-03-16 | Test type fixes/Version sync | ✅ Released |
-| v2.70.0 | Stable | 2026-03-16 | Brand upgrade/Documentation system | ✅ Released |
-| v2.68.0 | Stable | 2026-03-16 | Test coverage/API stability/CI/CD enhancement | ✅ Released |
-| v2.27.0 | Stable | 2026-03-16 | Media service/Quota auto-expand/Monitoring enhancement | ✅ Released |
-| v2.26.0 | Stable | 2026-03-16 | Network diagnostics/Docker enhancement/Automation | ✅ Released |
-| v2.3.0 | Stable | 2026-03-28 | Storage tiering/FTP-SFTP/Compression/File tags | ✅ Released |
-| v2.2.0 | Stable | 2026-03-21 | iSCSI/Snapshot policy/Dashboard enhancement | ✅ Released |
+| v2.253.238 | Stable | 2026-03-16 | Six ministries collaboration/Documentation/Security audit | ✅ Released |
+| v2.253.238 | Stable | 2026-03-16 | Test type fixes/Version sync | ✅ Released |
+| v2.253.238 | Stable | 2026-03-16 | Brand upgrade/Documentation system | ✅ Released |
+| v2.253.238 | Stable | 2026-03-16 | Test coverage/API stability/CI/CD enhancement | ✅ Released |
+| v2.253.238 | Stable | 2026-03-16 | Media service/Quota auto-expand/Monitoring enhancement | ✅ Released |
+| v2.253.238 | Stable | 2026-03-16 | Network diagnostics/Docker enhancement/Automation | ✅ Released |
+| v2.253.238 | Stable | 2026-03-28 | Storage tiering/FTP-SFTP/Compression/File tags | ✅ Released |
+| v2.253.238 | Stable | 2026-03-21 | iSCSI/Snapshot policy/Dashboard enhancement | ✅ Released |
 
 ## Deployment
 
