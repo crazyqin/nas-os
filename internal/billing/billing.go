@@ -1502,7 +1502,7 @@ func randomString(n int) string {
 	b := make([]byte, n)
 	// 使用 crypto/rand 生成安全的随机字符串
 	randBytes := make([]byte, n)
-	if _, err := cryptoRand.Read(randBytes); err == nil {
+	if _, err := cryptorand.Read(randBytes); err == nil {
 		for i := range b {
 			b[i] = letters[int(randBytes[i])%len(letters)]
 		}
@@ -1510,7 +1510,7 @@ func randomString(n int) string {
 	}
 	// 回退到伪随机（仅在 crypto/rand 失败时使用）
 	// #nosec G404 -- Fallback only when crypto/rand fails
-	rng := mRand.New(mRand.NewSource(time.Now().UnixNano()))
+	rng := mrand.New(mrand.NewSource(time.Now().UnixNano()))
 	for i := range b {
 		b[i] = letters[rng.Intn(len(letters))]
 	}
