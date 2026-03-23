@@ -109,7 +109,7 @@ func (h *Handlers) createLibrary(c *gin.Context) {
 		return
 	}
 
-	library, err := h.libraryMgr.CreateLibrary(req.Name, req.Path, mediaType)
+	library, err := h.libraryMgr.CreateLibrary(req.Name, req.Path, mediaType, false) // 禁用自动扫描，避免后台goroutine
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
