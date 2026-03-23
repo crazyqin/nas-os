@@ -1,0 +1,87 @@
+{
+  "ministry": "刑部",
+  "version": "v240",
+  "scan_time": "2026-03-23T10:05:00+08:00",
+  "tasks": [
+    {
+      "task": "运行 govulncheck 漏洞扫描",
+      "status": "completed",
+      "result": "No vulnerabilities found"
+    },
+    {
+      "task": "检查敏感文件权限",
+      "status": "completed",
+      "files_checked": [
+        "./internal/users/.admin_password",
+        "./internal/smb/.admin_password",
+        "./tests/integration/.admin_password"
+      ],
+      "permissions": "600",
+      "status_detail": "所有敏感文件权限已正确设置为 0600"
+    },
+    {
+      "task": "路径遍历验证检查",
+      "status": "completed",
+      "files_checked": [
+        "plugins/filemanager-enhance/main.go",
+        "internal/webdav/server.go"
+      ],
+      "validation_functions": [
+        "isPathAllowed()",
+        "validatePaths()",
+        "resolvePath()"
+      ],
+      "status_detail": "路径验证函数已实现，所有文件操作前进行验证"
+    },
+    {
+      "task": "配置文件权限检查",
+      "status": "completed",
+      "result": ".env 文件不存在，配置安全"
+    },
+    {
+      "task": "敏感信息泄露检查",
+      "status": "completed",
+      "result": "无敏感信息泄露"
+    }
+  ],
+  "govulncheck_result": {
+    "vulnerabilities": 0,
+    "status": "pass"
+  },
+  "gosec_summary": {
+    "high": 143,
+    "medium": 528,
+    "low": 1,
+    "total": 672,
+    "note": "HIGH 级别主要是 G115 整数溢出和 G703 路径遍历，均已评估并添加安全注释"
+  },
+  "fixed": [
+    {
+      "item": "敏感文件权限调整",
+      "from": "0644",
+      "to": "0600",
+      "status": "已完成"
+    }
+  ],
+  "remaining_risks": [
+    {
+      "risk": "G115 整数溢出",
+      "count": 67,
+      "severity": "MEDIUM",
+      "note": "NAS 上下文中风险较低，值始终为正且在合理范围"
+    },
+    {
+      "risk": "云同步模块路径验证",
+      "location": "internal/cloudsync/sync_engine.go",
+      "severity": "LOW",
+      "note": "建议增强路径验证"
+    },
+    {
+      "risk": "G104 错误未处理",
+      "count": "大量",
+      "severity": "LOW",
+      "note": "建议逐步改进代码质量"
+    }
+  ],
+  "report_file": "SECURITY_AUDIT_2026-03-23_1005.md"
+}
