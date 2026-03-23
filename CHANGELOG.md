@@ -1772,3 +1772,6 @@ All notable changes to this project will be documented in this file.
 - 添加 MILESTONES.md 里程碑文档
 
 ## [v2.253.76] - 2026-03-20
+
+## v2.253.238 (2026-03-23)
+- 六部协同开发 - 版本更新至 v2.253.238
