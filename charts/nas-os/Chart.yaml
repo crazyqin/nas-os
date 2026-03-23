@@ -9,7 +9,7 @@ type: application
 version: 1.0.2
 
 # Application version
-appVersion: "2.236.0"
+appVersion: "2.253.259"
 
 # Kubernetes version compatibility
 kubeVersion: ">=1.25.0-0"

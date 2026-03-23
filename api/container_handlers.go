@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 
 	"nas-os/internal/container"
 
@@ -95,20 +96,32 @@ func (h *ContainerHandlers) RegisterRoutes(r *gin.RouterGroup) {
 func (h *ContainerHandlers) getDockerStatus(c *gin.Context) {
 	running := h.manager.IsRunning()
 
-	c.JSON(http.StatusOK, gin.H{
+	response := gin.H{
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
 			"running": running,
-			"version": h.getDockerVersion(),
 		},
-	})
+	}
+
+	// 获取详细版本信息
+	if running {
+		version, err := h.manager.GetVersion()
+		if err == nil {
+			response["data"].(gin.H)["version"] = version
+		}
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
-// getDockerVersion 获取 Docker 版本
+// getDockerVersion 获取 Docker 版本（已废弃，保留向后兼容）
 func (h *ContainerHandlers) getDockerVersion() string {
-	// 简化实现，实际应该调用 docker version
-	return "latest"
+	version, err := h.manager.GetVersion()
+	if err != nil {
+		return "unknown"
+	}
+	return version["serverVersion"]
 }
 
 // listContainers 列出容器
@@ -220,7 +233,14 @@ func (h *ContainerHandlers) startContainer(c *gin.Context) {
 // stopContainer 停止容器
 func (h *ContainerHandlers) stopContainer(c *gin.Context) {
 	id := c.Param("id")
-	timeout := 10
+	timeout := container.DefaultStopTimeout
+
+	// 支持自定义超时时间
+	if t := c.Query("timeout"); t != "" {
+		if customTimeout, err := strconv.Atoi(t); err == nil && customTimeout > 0 {
+			timeout = customTimeout
+		}
+	}
 
 	if err := h.manager.StopContainer(id, timeout); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -239,7 +259,14 @@ func (h *ContainerHandlers) stopContainer(c *gin.Context) {
 // restartContainer 重启容器
 func (h *ContainerHandlers) restartContainer(c *gin.Context) {
 	id := c.Param("id")
-	timeout := 10
+	timeout := container.DefaultStopTimeout
+
+	// 支持自定义超时时间
+	if t := c.Query("timeout"); t != "" {
+		if customTimeout, err := strconv.Atoi(t); err == nil && customTimeout > 0 {
+			timeout = customTimeout
+		}
+	}
 
 	if err := h.manager.RestartContainer(id, timeout); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -278,8 +305,15 @@ func (h *ContainerHandlers) getContainerStats(c *gin.Context) {
 // getContainerLogs 获取容器日志
 func (h *ContainerHandlers) getContainerLogs(c *gin.Context) {
 	id := c.Param("id")
-	tail := 100
+	tail := container.DefaultLogTail
 	follow := c.Query("follow") == "true"
+
+	// 支持自定义日志行数
+	if t := c.Query("tail"); t != "" {
+		if customTail, err := strconv.Atoi(t); err == nil && customTail > 0 {
+			tail = customTail
+		}
+	}
 
 	logs, err := h.manager.GetContainerLogs(id, tail, follow)
 	if err != nil {
