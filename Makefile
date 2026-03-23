@@ -1,7 +1,7 @@
 # NAS-OS Makefile
 # 构建、测试、部署自动化
 
-.PHONY: all build test clean run docker help ci
+.PHONY: all build test clean run docker help ci version-sync
 
 # 变量
 BINARY_NAME=nasd
@@ -11,7 +11,7 @@ GOFLAGS=-ldflags="-w -s"
 DOCKER_IMAGE=ghcr.io/nas-os/nas-os
 DOCKER_TAG=latest
 
-# 版本信息 (v2.149.0)
+# 版本信息 (v2.253.242)
 VERSION_FILE=VERSION
 VERSION=$(shell cat $(VERSION_FILE) 2>/dev/null || echo "v0.0.0")
 GIT_COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
@@ -36,8 +36,13 @@ build:
 # 带版本信息的构建
 build-version:
 	@echo "🔨 编译带版本信息的二进制..."
-	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s -X main.Version=$(VERSION) -X main.GitCommit=$(GIT_COMMIT) -X main.BuildTime=$(BUILD_TIME)" -o $(BINARY_NAME) ./cmd/nasd
-	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s -X main.Version=$(VERSION)" -o $(CLI_NAME) ./cmd/nasctl
+	@./scripts/version.sh
+	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s \
+		-X nas-os/internal/version.Version=$(VERSION) \
+		-X nas-os/internal/version.GitCommit=$(GIT_COMMIT) \
+		-X nas-os/internal/version.BuildDate=$(BUILD_TIME)" -o $(BINARY_NAME) ./cmd/nasd
+	GOPROXY=$(GOPROXY) $(GO) build -ldflags="-w -s \
+		-X nas-os/internal/version.Version=$(VERSION)" -o $(CLI_NAME) ./cmd/nasctl
 	@echo "✅ 构建完成: $(VERSION) ($(GIT_COMMIT))"
 
 build-debug:
@@ -271,6 +276,7 @@ help:
 	@echo "    make quick-status-json - JSON 格式输出"
 	@echo ""
 	@echo "  版本管理 (v2.122.0):"
+	@echo "    make version-sync   - 同步版本号到各处"
 	@echo "    make version        - 显示版本信息"
 	@echo "    make version-info   - 详细版本信息"
 	@echo "    make version-info-json - JSON 格式版本信息"
@@ -524,6 +530,11 @@ log-report:
 	@./scripts/log-analyzer.sh --report /var/log/nas-os/reports/log-report-$(shell date +%Y%m%d).txt
 
 # ========== 版本管理 (v2.122.0) ==========
+
+# 同步版本号到各处（从 VERSION 文件）
+version-sync:
+	@echo "🔄 同步版本号..."
+	@./scripts/version.sh
 
 # 显示版本信息
 version-info:

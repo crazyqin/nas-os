@@ -2,6 +2,8 @@
 # 定期运行 Go benchmark 测试，追踪性能变化
 #
 # Go 版本: 1.26（与 go.mod 保持一致）
+#
+# 当前版本: v2.253.242（工部维护）
 
 name: Benchmark
 

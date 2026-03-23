@@ -27,7 +27,11 @@ nasctl
 *.so
 *.dylib
 coverage.out
-gosec-report.sarif
+coverage*.out
+coverage*.html
+gosec-report*.sarif
+gosec-report*.json
+gosec-scan*.json
 
 # Test files
 *_test.go
@@ -62,5 +66,21 @@ reports/
 *.sarif
 backup
 
+# Security audit files
+SECURITY_AUDIT*.md
+govulncheck*.json
+
+# Coverage reports
+coverage_*.out
+
+# Test binaries
+*.test
+
 # Node modules
 webui/node_modules/
+
+# IDE
+*.iml
+.project
+.classpath
+.settings/
