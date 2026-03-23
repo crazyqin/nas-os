@@ -13,7 +13,7 @@ import (
 // Version information - can be overridden via ldflags
 // Example: go build -ldflags "-X nas-os/internal/version.Version=1.0.0"
 var (
-	Version   = "2.253.284" // Default, may be overridden by ldflags or VERSION file
+	Version   = "2.253.285" // Default, may be overridden by ldflags or VERSION file
 	BuildDate = "2026-03-24"
 	GitCommit = ""
 	GoVersion = runtime.Version()
