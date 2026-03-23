@@ -63,17 +63,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.253/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.256/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.253/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.256/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.253/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.256/nasd-linux-armv7
 
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
@@ -86,7 +86,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.253.253
+docker pull ghcr.io/crazyqin/nas-os:v2.253.256
 
 
 # 运行容器
@@ -96,7 +96,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.253.253
+  ghcr.io/crazyqin/nas-os:v2.253.256
 
 
 # 查看日志
