@@ -53,7 +53,7 @@ nasd --version
 
 ```bash
 # Pull image
-docker pull ghcr.io/crazyqin/nas-os:v2.253.242
+docker pull ghcr.io/crazyqin/nas-os:v2.253.244
 
 # Run container
 docker run -d \
@@ -62,7 +62,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.253.242
+  ghcr.io/crazyqin/nas-os:v2.253.244
 
 # View logs
 docker logs -f nasd
