@@ -14,7 +14,7 @@
 # - 覆盖率趋势追踪和徽章生成
 # - Docker Compose 集成测试
 #
-# 当前版本: v2.253.267（工部维护）
+# 当前版本: v2.253.276（工部维护）
 
 name: CI/CD
 
@@ -848,7 +848,7 @@ jobs:
       - name: 生成构建汇总
         run: |
           BUILD_END=$(date +%s)
-          echo "## 📊 CI/CD 构建汇总 (v2.253.267)" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 CI/CD 构建汇总 (v2.253.276)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| 任务 | 状态 |" >> $GITHUB_STEP_SUMMARY
           echo "|------|------|" >> $GITHUB_STEP_SUMMARY
@@ -868,6 +868,6 @@ jobs:
           echo "**触发者:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "**运行 ID:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 v2.253.267 优化内容" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 v2.253.276 优化内容" >> $GITHUB_STEP_SUMMARY
           echo "- CI/CD 版本注释同步更新" >> $GITHUB_STEP_SUMMARY
           echo "- 缓存策略优化" >> $GITHUB_STEP_SUMMARY
