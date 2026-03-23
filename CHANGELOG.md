@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.267] - 2026-03-24
+
+### Changed
+- **吏部**: 版本号更新至 v2.253.267 (M98)
+
 ## [v2.253.266] - 2026-03-24
 
 ### 六部协同开发 - 第17轮
