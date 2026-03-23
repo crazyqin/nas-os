@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.273] - 2026-03-24
+
+### 六部协同开发 - 第24轮
+- **吏部**: 版本号更新 v2.253.272 → v2.253.273
+- **兵部**: go vet 0 错误，go build 通过，所有包测试通过
+- **礼部**: README/README_EN/USER_GUIDE/CHANGELOG 版本同步
+- **刑部**: govulncheck 通过，安全审计无风险
+- **工部**: CI/CD 配置正常，5个工作流
+
+---
+
 ## [v2.253.272] - 2026-03-24
 
 ### 六部协同开发 - 第23轮
