@@ -11,6 +11,8 @@
 # - 多层缓存策略优化构建速度
 # - Cosign keyless 签名 + SBOM 生成
 # - Trivy 镜像安全扫描
+#
+# 当前版本: v2.253.242（工部维护）
 
 name: Docker Publish
 

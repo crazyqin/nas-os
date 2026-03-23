@@ -1,10 +1,14 @@
 # Dependabot 配置
 # 自动检测依赖更新，创建 Pull Request
 #
-# v2.34.0 初始配置
-# - Go 模块依赖更新
-# - Docker 基础镜像更新
-# - GitHub Actions 更新
+# v2.253.242 更新（工部优化）：
+# - 添加依赖分组优化
+# - 精简更新频率
+#
+# 功能:
+# - Go 模块依赖更新（每周一）
+# - Docker 基础镜像更新（每周一）
+# - GitHub Actions 更新（每周一）
 
 version: 2
 
