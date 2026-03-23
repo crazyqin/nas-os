@@ -108,20 +108,13 @@ func (h *ContainerHandlers) getDockerStatus(c *gin.Context) {
 	if running {
 		version, err := h.manager.GetVersion()
 		if err == nil {
-			response["data"].(gin.H)["version"] = version
+			if data, ok := response["data"].(gin.H); ok {
+				data["version"] = version
+			}
 		}
 	}
 
 	c.JSON(http.StatusOK, response)
-}
-
-// getDockerVersion 获取 Docker 版本（已废弃，保留向后兼容）
-func (h *ContainerHandlers) getDockerVersion() string {
-	version, err := h.manager.GetVersion()
-	if err != nil {
-		return "unknown"
-	}
-	return version["serverVersion"]
 }
 
 // listContainers 列出容器
