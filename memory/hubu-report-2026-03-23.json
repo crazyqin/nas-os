@@ -1,0 +1,17 @@
+{
+  "report_date": "2026-03-23",
+  "report_type": "资源统计",
+  "project_path": "/home/mrafter/nas-os",
+  "statistics": {
+    "go_files": 743,
+    "code_lines": 417188,
+    "test_files": 270,
+    "dependencies": 263,
+    "updatable_dependencies": 32
+  },
+  "summary": {
+    "average_lines_per_file": 561,
+    "test_coverage_ratio": "36.3% (270/743)",
+    "update_rate": "12.2% (32/263)"
+  }
+}
