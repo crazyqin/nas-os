@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.248] - 2026-03-23
+
+### 六部协同开发
+- 吏部: 版本号更新至 v2.253.248
+- 兵部: go vet 0 错误，golangci-lint 0 issues，编译无警告
+- 礼部: 修复 docs/README_EN.md 中 Docker 镜像版本号不一致问题
+- 刑部: 安全审计完成，860 个安全问题待处理
+- 工部: CI/CD 配置正常，5 个工作流运行中
+- 户部: 744 Go 文件，41.7 万行代码，271 测试文件
+
+---
+
 ## [v2.253.247] - 2026-03-23
 
 ### 吏部版本管理
