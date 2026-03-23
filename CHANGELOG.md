@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.247] - 2026-03-23
+
+### 吏部版本管理
+- 版本号更新至 v2.253.247
+- 修复 VERSION 与 version.go 版本号不一致问题
+
+---
+
 ## [v2.253.246] - 2026-03-23
 
 ### 吏部版本管理
