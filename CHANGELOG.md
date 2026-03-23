@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.251] - 2026-03-23
+
+### 六部协同开发
+- 吏部: 版本号更新至 v2.253.251
+- 兵部: go vet 0 错误，golangci-lint 0 issues，测试全部通过
+- 礼部: README、README_EN、USER_GUIDE 版本同步
+- 刑部: 安全审计通过，LICENSE 验证完成
+- 工部: CI/CD 配置正常，Actions 运行中
+- 户部: 744 Go 文件，271 测试文件
+
+---
+
 ## [v2.253.250] - 2026-03-23
 
 ### 吏部版本管理
