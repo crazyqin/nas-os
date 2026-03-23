@@ -1,55 +1,56 @@
 {
-  "version": "v2.253.265",
-  "round": 16,
-  "timestamp": "2026-03-23T15:50:00Z",
+  "version": "v2.253.266",
+  "round": 17,
+  "timestamp": "2026-03-23T16:27:00Z",
   "status": "completed",
   "actions": {
-    "ci-cd": "pending",
-    "docker-publish": "pending",
-    "security-scan": "in_progress"
+    "ci-cd": "in_progress",
+    "docker-publish": "in_progress",
+    "security-scan": "in_progress",
+    "github-release": "in_progress"
   },
-  "release": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.265",
+  "release": "https://github.com/crazyqin/nas-os/releases/tag/v2.253.266",
   "ministries": {
     "libu": {
       "name": "吏部",
       "task": "版本管理",
       "status": "done",
-      "result": "版本号更新 v2.253.264 → v2.253.265"
+      "result": "版本号更新 v2.253.265 → v2.253.266 (M97)"
     },
     "bingbu": {
       "name": "兵部",
       "task": "代码质量",
       "status": "done",
-      "result": "go vet 0错误，编译通过"
+      "result": "go vet 0错误，编译通过，93包测试全部通过"
     },
     "hubu": {
       "name": "户部",
       "task": "资源统计",
       "status": "done",
-      "result": "473源文件，271测试文件"
+      "result": "744源文件，271测试文件，417,464行代码"
     },
     "libu-docs": {
       "name": "礼部",
       "task": "文档维护",
       "status": "done",
-      "result": "文档版本同步完成"
+      "result": "README/README_EN/USER_GUIDE/CHANGELOG版本同步完成"
     },
     "gongbu": {
       "name": "工部",
       "task": "DevOps",
       "status": "done",
-      "result": "CI/CD配置正常，Helm Chart更新"
+      "result": "CI/CD配置正常，5个工作流触发"
     },
     "xingbu": {
       "name": "刑部",
       "task": "安全合规",
       "status": "done",
-      "result": "安全审计完成，无新增问题"
+      "result": "LICENSE验证通过，go mod verify通过"
     }
   },
   "changes": {
-    "files": 19,
-    "insertions": 1170,
-    "deletions": 618
+    "files": 8,
+    "insertions": 75,
+    "deletions": 61
   }
 }
