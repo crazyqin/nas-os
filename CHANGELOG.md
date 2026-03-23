@@ -2,10 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.253.268] - 2026-03-24
+## [v2.253.269] - 2026-03-24
 
 ### 六部协同开发 - 第19轮
-- **吏部**: 版本号更新至 v2.253.268 (M99)
+- **吏部**: 版本号更新至 v2.253.269 (M99)
 - **兵部**: go vet 0 错误，go build 通过，82包测试全部通过
 - **礼部**: 文档版本同步更新
 - **刑部**: go mod verify 通过，安全审计无风险
