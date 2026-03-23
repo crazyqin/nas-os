@@ -170,3 +170,9 @@ All notable changes to this project will be documented in this file.
 - 版本号更新至 v2.253.236，修复版本漂移，文档同步
 
 ---
+## [v2.253.255] - 2026-03-23
+
+### Changed
+- 版本号更新至 v2.253.255
+- 六部协同开发，版本迭代
+
