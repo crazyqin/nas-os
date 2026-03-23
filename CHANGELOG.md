@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.253.245] - 2026-03-23
+
+### 六部协同开发
+- 吏部: 版本号更新至 v2.253.245
+- 兵部: go vet 0 错误，测试全部通过
+- 礼部: README、README_EN、USER_GUIDE 版本同步
+- 刑部: 安全审计通过
+- 工部: CI/CD 配置正常
+- 户部: 项目统计报告
+
+---
+
 ## [v2.253.244] - 2026-03-23
 
 ### 吏部版本管理
