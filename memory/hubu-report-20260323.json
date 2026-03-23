@@ -1,0 +1,169 @@
+{
+  "report_version": "v2.253.36",
+  "generated_at": "2026-03-23T10:50:00+08:00",
+  "department": "户部（财务运营）",
+  "resource_usage": {
+    "code_statistics": {
+      "total_modules": 70,
+      "total_packages": 96,
+      "test_files": 264,
+      "overall_test_coverage": "35.9%"
+    },
+    "core_module_coverage": {
+      "quota": "23.2%",
+      "quota_optimizer": "61.4%",
+      "billing": "61.8%",
+      "billing_cost_analysis": "82.0%",
+      "budget": "47.8%",
+      "users": "48.1%",
+      "reports": "30.5%",
+      "monitor": "24.0%"
+    },
+    "high_coverage_modules": [
+      {"module": "trash", "coverage": "83.1%"},
+      {"module": "transfer", "coverage": "80.8%"},
+      {"module": "billing/cost_analysis", "coverage": "82.0%"},
+      {"module": "versioning", "coverage": "71.6%"},
+      {"module": "smb", "coverage": "73.4%"},
+      {"module": "replication", "coverage": "62.6%"}
+    ],
+    "low_coverage_modules": [
+      {"module": "quota", "coverage": "23.2%", "priority": "high"},
+      {"module": "web", "coverage": "23.5%", "priority": "medium"},
+      {"module": "webdav", "coverage": "27.4%", "priority": "medium"},
+      {"module": "reports", "coverage": "30.5%", "priority": "high"},
+      {"module": "service", "coverage": "21.9%", "priority": "medium"}
+    ]
+  },
+  "financial_features": {
+    "quota_management": {
+      "status": "完善",
+      "features": [
+        "用户/组/目录三种配额类型",
+        "软限制/硬限制双阈值机制",
+        "4级预警体系（60%/70%/85%/95%）",
+        "告警升级机制",
+        "宽限期管理",
+        "自动清理策略",
+        "趋势预测"
+      ],
+      "optimization_score": 95
+    },
+    "billing_system": {
+      "status": "完善",
+      "features": [
+        "存储/带宽计费",
+        "阶梯定价",
+        "发票管理",
+        "用量记录",
+        "多货币支持",
+        "免费额度配置"
+      ],
+      "optimization_score": 90
+    },
+    "budget_management": {
+      "status": "完善",
+      "features": [
+        "多类型预算（存储/带宽/计算/运维/总预算）",
+        "多周期预算（日/周/月/季/年）",
+        "预算预警",
+        "使用趋势预测",
+        "自动重置/结转"
+      ],
+      "optimization_score": 85
+    },
+    "cost_analysis": {
+      "status": "完善",
+      "features": [
+        "6大成本项计算（存储/计算/网络/运维/电力/折旧）",
+        "成本趋势分析",
+        "成本预测",
+        "优化建议生成",
+        "多格式报告导出"
+      ],
+      "optimization_score": 90
+    }
+  },
+  "user_features": {
+    "user_management": {
+      "status": "完善",
+      "features": [
+        "多角色支持（admin/user/guest）",
+        "用户组管理",
+        "存储配额设置",
+        "服务访问控制",
+        "会话令牌管理",
+        "密码安全（bcrypt加密）"
+      ]
+    },
+    "access_control": {
+      "status": "完善",
+      "features": [
+        "RBAC权限控制",
+        "服务级别访问控制",
+        "自定义属性支持"
+      ]
+    }
+  },
+  "optimization_recommendations": {
+    "high_priority": [
+      {
+        "area": "测试覆盖率提升",
+        "module": "quota",
+        "current": "23.2%",
+        "target": "60%+",
+        "action": "为核心配额管理功能增加单元测试",
+        "effort": "medium"
+      },
+      {
+        "area": "测试覆盖率提升",
+        "module": "reports",
+        "current": "30.5%",
+        "target": "60%+",
+        "action": "为成本分析报告功能增加测试",
+        "effort": "medium"
+      }
+    ],
+    "medium_priority": [
+      {
+        "area": "测试覆盖率提升",
+        "module": "budget",
+        "current": "47.8%",
+        "target": "60%+",
+        "action": "为预算预测功能增加测试",
+        "effort": "low"
+      },
+      {
+        "area": "监控集成",
+        "action": "将成本分析结果集成到监控仪表盘",
+        "effort": "medium"
+      }
+    ],
+    "low_priority": [
+      {
+        "area": "文档完善",
+        "action": "更新成本分析API文档",
+        "effort": "low"
+      }
+    ]
+  },
+  "summary": {
+    "overall_health": "良好",
+    "financial_readiness": "完善",
+    "key_strengths": [
+      "完整的配额管理体系",
+      "完善的计费系统",
+      "全面的成本分析能力",
+      "预算管理功能齐全"
+    ],
+    "areas_for_improvement": [
+      "quota模块测试覆盖率偏低",
+      "reports模块测试覆盖率需提升"
+    ],
+    "action_items": [
+      "提升quota模块测试覆盖率至60%以上",
+      "提升reports模块测试覆盖率至60%以上",
+      "考虑添加成本实时仪表盘功能"
+    ]
+  }
+}
