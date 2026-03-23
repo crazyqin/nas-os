@@ -608,6 +608,31 @@ func TestMemLimit_Format(t *testing.T) {
 	}
 }
 
+// ========== 常量测试 ==========
+
+func TestConstants(t *testing.T) {
+	// 验证常量定义合理
+	assert.Equal(t, 10, DefaultStopTimeout)
+	assert.Equal(t, 100, DefaultLogTail)
+	assert.Equal(t, 5*time.Second, DefaultStatsTimeout)
+	assert.Equal(t, "unless-stopped", DefaultRestartPolicy)
+}
+
+func TestDefaultValues(t *testing.T) {
+	// 验证默认值的使用
+	config := Config{
+		Name:  "test",
+		Image: "nginx",
+	}
+
+	// 验证默认重启策略
+	assert.Equal(t, DefaultRestartPolicy, "unless-stopped")
+
+	// 验证配置基础字段
+	assert.Equal(t, "test", config.Name)
+	assert.Equal(t, "nginx", config.Image)
+}
+
 // ========== Stats 边界测试 ==========
 
 func TestStats_Boundaries(t *testing.T) {

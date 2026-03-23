@@ -11,6 +11,18 @@ import (
 	"time"
 )
 
+// 常量定义
+const (
+	// DefaultStopTimeout 默认停止超时时间（秒）
+	DefaultStopTimeout = 10
+	// DefaultLogTail 默认日志行数
+	DefaultLogTail = 100
+	// DefaultStatsTimeout 默认统计超时时间
+	DefaultStatsTimeout = 5 * time.Second
+	// DefaultRestartPolicy 默认重启策略
+	DefaultRestartPolicy = "unless-stopped"
+)
+
 // Manager 容器管理器
 type Manager struct {
 	socketPath string
@@ -131,6 +143,43 @@ func NewManager() (*Manager, error) {
 func (m *Manager) IsRunning() bool {
 	cmd := exec.Command("docker", "info")
 	return cmd.Run() == nil
+}
+
+// GetVersion 获取 Docker 版本信息
+func (m *Manager) GetVersion() (map[string]string, error) {
+	cmd := exec.Command("docker", "version", "--format", "{{json .}}")
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("获取 Docker 版本失败：%w", err)
+	}
+
+	var raw struct {
+		Client struct {
+			Version string `json:"Version"`
+			API     string `json:"ApiVersion"`
+			Go      string `json:"GoVersion"`
+			OS      string `json:"Os"`
+			Arch    string `json:"Arch"`
+		} `json:"Client"`
+		Server struct {
+			Version string `json:"Version"`
+			API     string `json:"ApiVersion"`
+		} `json:"Server"`
+	}
+
+	if err := json.Unmarshal(output, &raw); err != nil {
+		return nil, err
+	}
+
+	return map[string]string{
+		"clientVersion": raw.Client.Version,
+		"clientAPI":     raw.Client.API,
+		"serverVersion": raw.Server.Version,
+		"serverAPI":     raw.Server.API,
+		"goVersion":     raw.Client.Go,
+		"os":            raw.Client.OS,
+		"arch":          raw.Client.Arch,
+	}, nil
 }
 
 // ListContainers 列出容器
@@ -316,7 +365,7 @@ func (m *Manager) CreateContainer(config *Config) (*Container, error) {
 	if config.Restart != "" {
 		args = append(args, "--restart", config.Restart)
 	} else {
-		args = append(args, "--restart", "unless-stopped")
+		args = append(args, "--restart", DefaultRestartPolicy)
 	}
 
 	// CPU 限制
@@ -421,7 +470,7 @@ func (m *Manager) RemoveContainer(id string, force bool, removeVolumes bool) err
 
 // GetContainerStats 获取容器实时统计
 func (m *Manager) GetContainerStats(id string) (*Stats, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultStatsTimeout)
 	defer cancel()
 
 	cmd := exec.CommandContext(ctx, "docker", "stats", "--no-stream", "--format", "{{json .}}", id)
@@ -491,9 +540,10 @@ func (m *Manager) GetContainerStats(id string) (*Stats, error) {
 // GetContainerLogs 获取容器日志
 func (m *Manager) GetContainerLogs(id string, tail int, follow bool) ([]Log, error) {
 	args := []string{"logs"}
-	if tail > 0 {
-		args = append(args, "--tail", fmt.Sprintf("%d", tail))
+	if tail <= 0 {
+		tail = DefaultLogTail
 	}
+	args = append(args, "--tail", fmt.Sprintf("%d", tail))
 	if follow {
 		args = append(args, "-f")
 	}

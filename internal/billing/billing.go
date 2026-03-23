@@ -3,9 +3,11 @@ package billing
 
 import (
 	"context"
+	cryptorand "crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
+	mrand "math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -1396,6 +1398,11 @@ func (bm *Manager) GetInvoiceSummary(userID string, start, end time.Time) (*Invo
 
 // calculateStorageCost 计算存储费用
 func (bm *Manager) calculateStorageCost(gb float64) float64 {
+	// 输入验证：负数返回0
+	if gb <= 0 {
+		return 0
+	}
+
 	if gb <= bm.config.StoragePricing.FreeStorageGB {
 		return 0
 	}
@@ -1412,6 +1419,11 @@ func (bm *Manager) calculateStorageCost(gb float64) float64 {
 
 // calculateBandwidthCost 计算带宽费用
 func (bm *Manager) calculateBandwidthCost(gb float64) float64 {
+	// 输入验证：负数返回0
+	if gb <= 0 {
+		return 0
+	}
+
 	if gb <= bm.config.BandwidthPricing.FreeTrafficGB {
 		return 0
 	}
@@ -1488,8 +1500,19 @@ func generateID(prefix string) string {
 func randomString(n int) string {
 	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 	b := make([]byte, n)
+	// 使用 crypto/rand 生成安全的随机字符串
+	randBytes := make([]byte, n)
+	if _, err := cryptoRand.Read(randBytes); err == nil {
+		for i := range b {
+			b[i] = letters[int(randBytes[i])%len(letters)]
+		}
+		return string(b)
+	}
+	// 回退到伪随机（仅在 crypto/rand 失败时使用）
+	// #nosec G404 -- Fallback only when crypto/rand fails
+	rng := mRand.New(mRand.NewSource(time.Now().UnixNano()))
 	for i := range b {
-		b[i] = letters[time.Now().Nanosecond()%len(letters)]
+		b[i] = letters[rng.Intn(len(letters))]
 	}
 	return string(b)
 }

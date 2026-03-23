@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"sort"
 	"sync"
 	"time"
 
@@ -987,44 +988,36 @@ func sortBudgets(budgets []*Budget, sortBy, sortOrder string) {
 		return
 	}
 
-	// 简单排序实现
-	for i := 0; i < len(budgets)-1; i++ {
-		for j := i + 1; j < len(budgets); j++ {
-			var shouldSwap bool
+	// 使用标准库排序，O(n log n) 复杂度
+	sort.Slice(budgets, func(i, j int) bool {
+		var less bool
 
-			switch sortBy {
-			case "amount":
-				shouldSwap = budgets[i].Amount < budgets[j].Amount
-			case "used_amount":
-				shouldSwap = budgets[i].UsedAmount < budgets[j].UsedAmount
-			case "usage_percent":
-				shouldSwap = budgets[i].UsagePercent < budgets[j].UsagePercent
-			case "created_at":
-				shouldSwap = budgets[i].CreatedAt.Before(budgets[j].CreatedAt)
-			default:
-				shouldSwap = budgets[i].Name < budgets[j].Name
-			}
-
-			if sortOrder == "desc" {
-				shouldSwap = !shouldSwap
-			}
-
-			if shouldSwap {
-				budgets[i], budgets[j] = budgets[j], budgets[i]
-			}
+		switch sortBy {
+		case "amount":
+			less = budgets[i].Amount < budgets[j].Amount
+		case "used_amount":
+			less = budgets[i].UsedAmount < budgets[j].UsedAmount
+		case "usage_percent":
+			less = budgets[i].UsagePercent < budgets[j].UsagePercent
+		case "created_at":
+			less = budgets[i].CreatedAt.Before(budgets[j].CreatedAt)
+		default:
+			less = budgets[i].Name < budgets[j].Name
 		}
-	}
+
+		if sortOrder == "desc" {
+			return !less
+		}
+		return less
+	})
 }
 
 // sortTopConsumers 排序消费排行
 func sortTopConsumers(consumers []TopConsumer) {
-	for i := 0; i < len(consumers)-1; i++ {
-		for j := i + 1; j < len(consumers); j++ {
-			if consumers[i].UsedAmount < consumers[j].UsedAmount {
-				consumers[i], consumers[j] = consumers[j], consumers[i]
-			}
-		}
-	}
+	// 使用标准库排序，O(n log n) 复杂度
+	sort.Slice(consumers, func(i, j int) bool {
+		return consumers[i].UsedAmount > consumers[j].UsedAmount
+	})
 
 	// 设置排名
 	for i := range consumers {
