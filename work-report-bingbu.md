@@ -1,101 +1,91 @@
-# 兵部工作报告 - 第26轮代码质量检查
+# 兵部工作报告 - 第28轮代码质量检查
 
 **日期**: 2026-03-24
-**版本**: v2.253.275
-**执行者**: 兵部
+**部门**: 兵部
+**轮次**: 28
 
----
+## 检查结果汇总
 
-## 检查结果总览
+| 检查项 | 结果 |
+|--------|------|
+| `go vet ./...` | ✅ 0 errors |
+| `go build ./...` | ✅ 编译通过 |
+| `go test ./...` | ✅ 全部通过 |
+| 测试包数量 | 93 |
+| **总覆盖率** | **37.2%** |
 
-| 检查项 | 状态 | 说明 |
-|--------|------|------|
-| go vet | ✅ 通过 | 无代码问题 |
-| go build | ✅ 通过 | 编译成功 |
-| gofmt | ✅ 通过 | 格式规范 |
-| go test | ✅ 通过 | 所有测试通过 |
-| 总覆盖率 | 37.2% | 基准线稳定 |
+## 低覆盖率模块分析 (< 30%)
 
----
+### 零覆盖率模块 (需补充测试)
+| 模块 | 覆盖率 | 说明 |
+|------|--------|------|
+| `nas-os/docs` | 0.0% | 文档模块，无需测试 |
+| `nas-os/docs/swagger` | 0.0% | Swagger 文档生成 |
+| `nas-os/internal/media/api` | 0.0% | 媒体 API - **需补充测试** |
+| `nas-os/plugins/dark-theme` | 0.0% | 插件模块 |
+| `nas-os/plugins/filemanager-enhance` | 0.0% | 插件模块 |
+| `nas-os/cmd/nasd` | 0.0% | 主程序入口，正常 |
+| `nas-os/tests/fixtures` | 0.0% | 测试固件 |
+| `nas-os/tests/reports` | 0.0% | 测试报告 |
 
-## 覆盖率分析
-
-### 高覆盖率模块 (>70%) - 优秀
-
-| 模块 | 覆盖率 |
-|------|--------|
-| internal/security/cmdsec | 100.0% |
-| internal/notify | 90.7% |
-| internal/automation/api | 86.7% |
-| internal/trash | 83.1% |
-| internal/billing/cost_analysis | 82.0% |
-| internal/transfer | 80.8% |
-| internal/dashboard | 77.5% |
-| internal/database | 75.4% |
-| internal/smb | 73.4% |
-| internal/nfs | 72.6% |
-| internal/versioning | 70.2% |
-
-### 低覆盖率模块 (<30%) - 需关注
-
+### 严重低覆盖率 (< 10%)
 | 模块 | 覆盖率 | 建议 |
 |------|--------|------|
-| cmd/nasd | 0.0% | 入口点，低覆盖正常 |
-| cmd/backup | 1.9% | 入口点，低覆盖正常 |
-| cmd/nasctl | 2.1% | 入口点，低覆盖正常 |
-| internal/photos | 20.6% | 建议增加测试 |
-| internal/project | 20.4% | 建议增加测试 |
-| pkg/safeguards | 20.8% | 安全模块，建议优先增加测试 |
-| internal/container | 22.0% | 建议增加测试 |
-| internal/logging | 22.5% | 建议增加测试 |
-| internal/perf | 22.7% | 建议增加测试 |
-| internal/service | 22.7% | 建议增加测试 |
-| internal/cloudsync | 23.3% | 建议增加测试 |
-| internal/web | 23.5% | 建议增加测试 |
-| internal/quota | 23.2% | 建议增加测试 |
-| internal/dashboard/health | 24.5% | 建议增加测试 |
-| internal/notification | 25.7% | 建议增加测试 |
-| internal/monitor | 25.7% | 建议增加测试 |
-| internal/security/v2 | 26.9% | 安全模块，建议优先增加测试 |
-| internal/webdav | 27.4% | 建议增加测试 |
-| internal/disk | 28.5% | 建议增加测试 |
-| internal/ldap | 29.3% | 建议增加测试 |
-| internal/network | 29.6% | 建议增加测试 |
+| `nas-os/cmd/backup` | 1.9% | 备份命令行工具 |
+| `nas-os/cmd/nasctl` | 2.1% | CLI 工具 |
 
-### 零覆盖率模块 - 非代码模块
+### 需改进覆盖率 (10-30%)
+| 模块 | 覆盖率 |
+|------|--------|
+| `nas-os/internal/project` | 20.4% |
+| `nas-os/internal/photos` | 20.6% |
+| `nas-os/pkg/safeguards` | 20.8% |
+| `nas-os/internal/container` | 22.0% |
+| `nas-os/internal/logging` | 22.5% |
+| `nas-os/internal/perf` | 22.7% |
+| `nas-os/internal/service` | 22.7% |
+| `nas-os/internal/quota` | 23.2% |
+| `nas-os/internal/cloudsync` | 23.3% |
+| `nas-os/internal/web` | 23.5% |
+| `nas-os/internal/dashboard/health` | 24.5% |
+| `nas-os/internal/monitor` | 25.7% |
+| `nas-os/internal/notification` | 25.7% |
+| `nas-os/internal/cluster` | 26.0% |
+| `nas-os/internal/security/v2` | 26.9% |
+| `nas-os/internal/webdav` | 27.4% |
+| `nas-os/internal/disk` | 28.5% |
+| `nas-os/internal/ldap` | 29.3% |
+| `nas-os/internal/security/scanner` | 29.5% |
+| `nas-os/internal/network` | 29.6% |
+| `nas-os/internal/automation/action` | 29.7% |
 
-- `docs/` - 文档，无需测试
-- `docs/swagger/` - Swagger生成文件
-- `internal/media/api/` - API定义文件
-- `plugins/` - 插件资源
-- `tests/fixtures/` - 测试夹具
-- `tests/reports/` - 测试报告
+## 高覆盖率模块 (优秀)
+| 模块 | 覆盖率 |
+|------|--------|
+| `nas-os/internal/security/cmdsec` | 100.0% 🏆 |
+| `nas-os/internal/notify` | 90.7% |
+| `nas-os/internal/automation/api` | 86.7% |
+| `nas-os/internal/trash` | 83.1% |
+| `nas-os/internal/billing/cost_analysis` | 82.0% |
+| `nas-os/internal/transfer` | 80.8% |
+| `nas-os/internal/dashboard` | 77.5% |
+
+## 发现的问题
+
+1. **总体覆盖率偏低**: 37.2% 低于行业标准 (70%+)
+2. **关键模块测试不足**:
+   - `internal/media/api` 完全无测试
+   - `internal/container` 仅 22%
+   - `internal/security` 系列模块覆盖率参差不齐
+3. **CLI 工具测试缺失**: `cmd/backup` 和 `cmd/nasctl` 几乎无测试
+
+## 建议
+
+1. 优先为 `internal/media/api` 补充单元测试
+2. 提升 `internal/container` 测试覆盖率（容器管理是核心功能）
+3. 对 CLI 工具添加集成测试
+4. 目标：下轮覆盖率提升至 40%+
 
 ---
 
-## 优先改进建议
-
-1. **安全相关模块** (优先级: 高)
-   - `pkg/safeguards` (20.8%) - 安全保护机制
-   - `internal/security/v2` (26.9%) - 安全模块v2
-
-2. **核心功能模块** (优先级: 中)
-   - `internal/container` (22.0%) - 容器管理
-   - `internal/cloudsync` (23.3%) - 云同步
-   - `internal/monitor` (25.7%) - 监控
-
-3. **基础设施模块** (优先级: 中)
-   - `internal/logging` (22.5%) - 日志
-   - `internal/service` (22.7%) - 服务管理
-
----
-
-## 结论
-
-代码质量检查全部通过，无编译错误、格式问题或测试失败。
-
-总体覆盖率 37.2% 保持在稳定水平，建议优先提升安全相关模块和核心功能模块的测试覆盖率。
-
----
-
-**兵部签发**
+**兵部**

@@ -4,9 +4,9 @@
 
 A Go-based home NAS system with btrfs storage management, SMB/NFS sharing, and web management interface.
 
-> **Latest Version**: v2.253.276 Stable (2026-03-24)
+> **Latest Version**: v2.253.278 Stable (2026-03-24)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.276?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.278?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## Features
 
@@ -31,17 +31,17 @@ A Go-based home NAS system with btrfs storage management, SMB/NFS sharing, and w
 ```bash
 # Download (choose your architecture)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.276/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.278/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.276/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.278/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, older ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.276/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.253.278/nasd-linux-armv7
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
 
@@ -53,7 +53,7 @@ nasd --version
 
 ```bash
 # Pull image
-docker pull ghcr.io/crazyqin/nas-os:v2.253.276
+docker pull ghcr.io/crazyqin/nas-os:v2.253.278
 
 # Run container
 docker run -d \
@@ -62,7 +62,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.253.276
+  ghcr.io/crazyqin/nas-os:v2.253.278
 
 # View logs
 docker logs -f nasd
