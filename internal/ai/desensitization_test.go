@@ -166,12 +166,12 @@ func TestPII_IDCard(t *testing.T) {
 		{
 			name:     "standard ID card",
 			input:    "身份证号：110101199001011234",
-			expected: "1**************4", // showFirst=1, showLast=1
+			expected: "1****************4", // 18位身份证，ShowFirst=1, ShowLast=1，中间16个星号
 		},
 		{
 			name:     "ID card with X suffix",
 			input:    "身份证：44030419951212345X",
-			expected: "4**************X",
+			expected: "4****************X", // 18位身份证，ShowFirst=1, ShowLast=1，中间16个星号
 		},
 	}
 
@@ -231,7 +231,8 @@ func TestPII_Multiple(t *testing.T) {
 	input := "姓名：张三，电话：13812345678，邮箱：test@example.com，身份证：110101199001011234"
 	result := d.Process(input)
 
-	assert.Equal(t, 4, result.RedactionCount)
+	// 只有3个PII：电话、邮箱、身份证（姓名不在默认规则中）
+	assert.Equal(t, 3, result.RedactionCount)
 
 	// Verify no original PII in output
 	assert.NotContains(t, result.Processed, "13812345678")

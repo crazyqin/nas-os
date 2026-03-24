@@ -84,6 +84,14 @@ func NewTextSearchServiceWithModel(config *Config, model CLIPModel) (*TextSearch
 		running: true,
 	}
 
+	// Load existing index if path specified
+	if config.IndexPath != "" {
+		if err := index.Load(context.Background(), config.IndexPath); err != nil {
+			// Log warning but continue
+			fmt.Printf("Warning: failed to load index: %v\n", err)
+		}
+	}
+
 	service.updateStats()
 
 	return service, nil
@@ -101,7 +109,7 @@ func (s *TextSearchServiceImpl) Search(ctx context.Context, req *SearchRequest) 
 	if req.TopK <= 0 {
 		req.TopK = s.config.DefaultTopK
 	}
-	if req.MinScore <= 0 {
+	if req.MinScore == 0 {
 		req.MinScore = s.config.MinSimilarity
 	}
 
@@ -241,7 +249,11 @@ func (s *TextSearchServiceImpl) BatchIndex(ctx context.Context, req *BatchIndexR
 
 // Remove removes a photo from the index
 func (s *TextSearchServiceImpl) Remove(ctx context.Context, photoID string) error {
-	return s.index.Delete(ctx, photoID)
+	err := s.index.Delete(ctx, photoID)
+	if err == nil {
+		s.updateStats()
+	}
+	return err
 }
 
 // GetStats returns service statistics

@@ -584,6 +584,9 @@ func TestOpenAICompatibleClient_StreamChat_CallbackError(t *testing.T) {
 		// Send SSE event with proper format (ends with double newline)
 		fmt.Fprint(w, "data: {\"id\":\"test\",\"choices\":[{\"delta\":{\"content\":\"hello\"}}]}\n\n")
 		flusher.Flush()
+
+		// Keep connection open briefly to allow client to process
+		time.Sleep(100 * time.Millisecond)
 	}))
 	defer server.Close()
 

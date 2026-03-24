@@ -523,9 +523,11 @@ func TestConsole_Process_WithPII(t *testing.T) {
 func TestConsole_GetUsageStats(t *testing.T) {
 	console := NewConsole(DefaultConsoleConfig())
 
-	// Initially nil
+	// Initially returns stats with zero values (usage tracker is initialized)
 	stats := console.GetUsageStats()
-	assert.Nil(t, stats)
+	require.NotNil(t, stats)
+	assert.Equal(t, int64(0), stats.TotalRequests)
+	assert.Equal(t, int64(0), stats.TotalTokens)
 }
 
 func TestConsole_GetAuditLogs(t *testing.T) {
