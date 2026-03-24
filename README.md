@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
->  **最新版本**: v2.253.289 Stable (2026-03-24)
+> **最新版本**: v2.254.0 Stable (2026-03-24)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.289?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.254.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -57,6 +57,9 @@
 | 💾 智能备份 | 增量备份/多压缩算法/加密/版本管理 | ✅ 完成 |
 | ☁️ 网盘挂载 | 多云存储挂载/本地化访问/透明读写 | ✅ 完成 |
 | 🔐 AI 脱敏 | PII 智能识别/隐私保护/多提供商支持 | ✅ 完成 |
+| 🔒 WriteOnce | 不可变存储/防篡改/合规归档 | ✅ 新增 |
+| 🛡️ AMFA | 智能多重验证/自适应安全策略 | ✅ 新增 |
+| 🚫 自动封锁 | SMB/NFS 防暴力破解/自动封禁 | ✅ 新增 |
 
 ## 快速开始
 
@@ -65,17 +68,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.289/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.254.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.289/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.254.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.253.289/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.254.0/nasd-linux-armv7
 
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
@@ -88,7 +91,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.253.289
+docker pull ghcr.io/crazyqin/nas-os:v2.254.0
 
 
 # 运行容器
@@ -98,7 +101,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.253.289
+  ghcr.io/crazyqin/nas-os:v2.254.0
 
 
 # 查看日志
