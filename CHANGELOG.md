@@ -7,6 +7,29 @@
 
 ---
 
+## [v2.261.0] - 2026-03-24
+
+### 新增
+- 📊 **竞品分析报告更新** - 完整对标飞牛fnOS 1.0/群晖DSM 7.3/TrueNAS Scale
+  - 飞牛fnOS 1.0：网盘挂载、本地AI、FN Connect内网穿透
+  - 群晖DSM 7.3：Synology Tiering分层存储、AI Console数据脱敏
+  - TrueNAS Scale：RAIDZ扩展、Fast Dedup、Docker Compose支持
+
+### 规划
+- 🗺️ **功能路线图更新** (docs/competitors/feature-roadmap.md)
+  - P0高优先级：审计日志系统、会话监控、文件锁定
+  - P1中优先级：数据分层、本地AI Console、GPU加速
+  - P2低优先级：网盘挂载增强、高可用架构
+
+### 改进
+- 📚 文档版本同步更新 (礼部)
+
+### 六部协同
+- 礼部: 竞品分析报告更新、功能路线图制定
+- 吏部: 版本号更新至v2.261.0
+
+---
+
 ## [v2.259.0] - 2026-03-24
 
 ### 新增

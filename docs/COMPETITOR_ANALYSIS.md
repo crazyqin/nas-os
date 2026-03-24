@@ -71,28 +71,43 @@
 
 ---
 
-## 三、TrueNAS Scale Dragonfish
+## 三、TrueNAS Scale (Electric Eel 24.10 / Fangtooth 25.04)
 
 ### 产品定位
 - 开源免费，企业级ZFS存储
 - 技术爱好者和小型企业首选
+- **24.10 Electric Eel** - 最成功版本，超9000测试用户
+- **25.04 Fangtooth** - 统一CORE和SCALE版本
 
-### 核心优势
-1. **ZFS文件系统** - 数据完整性保障
-2. **原生Netdata监控** - 系统级性能监控
-3. **应用生态** - Kubernetes原生应用支持
-4. **SMB/NFS审计日志** - 企业合规
+### 核心优势（Electric Eel 24.10）
+1. **RAIDZ Expansion** - OpenZFS单盘扩展，在线扩容无中断
+2. **Docker Compose替代Kubernetes** - 简化应用管理
+3. **Fast Dedup** - 内存占用降低90%，重复数据删除
+4. **自定义YAML编辑器** - 高级App配置
+5. **全局UI搜索** - 快速定位设置
+6. **可定制Dashboard Widgets** - 个性化仪表板
+
+### 核心优势（Fangtooth 25.04）
+1. **版本化API** - 第三方集成稳定性保障
+2. **NFS over RDMA** - 高性能网络存储
+3. **STIG安全加固** - 政府/企业合规
+4. **Incus管理** - 替代jails的LXC容器方案
+5. **统一社区版** - CORE和SCALE合并
 
 ### 核心功能
-- 存储池管理
+- 存储池管理（ZFS）
 - 快照与复制
-- 应用目录（官方/社区）
-- 原生监控集成
+- 应用目录（Docker）
+- SMB/NFS/iSCSI/S3
+- 云同步
 
-### 学习借鉴
-- ✅ 系统级Netdata监控（我们已有Prometheus）
-- ✅ SMB/NFS审计日志
-- ✅ 应用目录生态
+### 学习借鉴（高优先级）
+- 🔴 **RAIDZ单盘扩展** - 存储灵活性 (P0)
+- 🔴 **Fast Dedup** - 内存优化重复删除 (P0)
+- 🔴 **Docker Compose原生支持** - 简化应用管理 (P0)
+- 🟡 **版本化API** - 第三方集成稳定性 (P1)
+- 🟡 **NFS over RDMA** - 高性能网络 (P1)
+- 🟡 **全局UI搜索** - 用户体验优化 (P2)
 
 ---
 
