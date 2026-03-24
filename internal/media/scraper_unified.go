@@ -14,11 +14,11 @@ type ScraperSource string
 
 const (
 	// SourceTMDB represents The Movie Database source
-	SourceTMDB    ScraperSource = "tmdb"
+	SourceTMDB ScraperSource = "tmdb"
 	// SourceDouban represents Douban source
-	SourceDouban  ScraperSource = "douban"
-	SourceIMDB    ScraperSource = "imdb"
-	SourceAuto    ScraperSource = "auto" // Auto-select best source
+	SourceDouban ScraperSource = "douban"
+	SourceIMDB   ScraperSource = "imdb"
+	SourceAuto   ScraperSource = "auto" // Auto-select best source
 )
 
 // UnifiedScraperConfig configuration for unified scraper
@@ -361,13 +361,13 @@ func (s *UnifiedScraper) checkRateLimit(source ScraperSource) bool {
 
 // BatchScrapeResult represents the result of batch scraping
 type BatchScrapeResult struct {
-	Total     int                   `json:"total"`
-	Success   int                   `json:"success"`
-	Failed    int                   `json:"failed"`
-	Cached    int                   `json:"cached"`
-	Results   map[string]interface{} `json:"results"`
-	Errors    map[string]string     `json:"errors"`
-	Duration  time.Duration         `json:"duration"`
+	Total    int                    `json:"total"`
+	Success  int                    `json:"success"`
+	Failed   int                    `json:"failed"`
+	Cached   int                    `json:"cached"`
+	Results  map[string]interface{} `json:"results"`
+	Errors   map[string]string      `json:"errors"`
+	Duration time.Duration          `json:"duration"`
 }
 
 // BatchScrape scrapes multiple items in parallel
