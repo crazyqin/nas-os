@@ -141,7 +141,7 @@ func (a *ICEAgent) Initialize(ctx context.Context) error {
 	
 	// Gather local candidates
 	if err := a.gatherLocalCandidates(); err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return fmt.Errorf("failed to gather candidates: %w", err)
 	}
 	
@@ -182,7 +182,11 @@ func (a *ICEAgent) gatherHostCandidates() error {
 		return err
 	}
 
-	localPort := a.localConn.LocalAddr().(*net.UDPAddr).Port
+	localAddr, ok := a.localConn.LocalAddr().(*net.UDPAddr)
+	if !ok {
+		return fmt.Errorf("failed to get local UDP address")
+	}
+	localPort := localAddr.Port
 
 	for _, iface := range interfaces {
 		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 {
@@ -273,7 +277,7 @@ func (a *ICEAgent) gatherRelayCandidates() error {
 		cancel()
 		
 		if err != nil {
-			client.Close()
+			_ = client.Close()
 			continue
 		}
 		
