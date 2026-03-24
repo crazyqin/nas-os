@@ -25,9 +25,9 @@ import (
 type Protocol string
 
 const (
-	ProtocolSMB  Protocol = "smb"
-	ProtocolNFS  Protocol = "nfs"
-	ProtocolFTP  Protocol = "ftp"
+	ProtocolSMB    Protocol = "smb"
+	ProtocolNFS    Protocol = "nfs"
+	ProtocolFTP    Protocol = "ftp"
 	ProtocolWebDAV Protocol = "webdav"
 )
 
@@ -35,22 +35,22 @@ const (
 type FileOperation string
 
 const (
-	OpCreate    FileOperation = "create"    // 创建文件/目录
-	OpRead      FileOperation = "read"      // 读取文件
-	OpWrite     FileOperation = "write"     // 写入/修改文件
-	OpDelete    FileOperation = "delete"    // 删除文件/目录
-	OpRename    FileOperation = "rename"    // 重命名
-	OpMove      FileOperation = "move"      // 移动
-	OpCopy      FileOperation = "copy"      // 复制
-	OpMkdir     FileOperation = "mkdir"     // 创建目录
-	OpRmdir     FileOperation = "rmdir"     // 删除目录
-	OpList      FileOperation = "list"      // 列出目录内容
-	OpChmod     FileOperation = "chmod"     // 修改权限
-	OpChown     FileOperation = "chown"     // 修改所有者
-	OpLock      FileOperation = "lock"      // 文件锁定
-	OpUnlock    FileOperation = "unlock"    // 解锁
-	OpDownload  FileOperation = "download"  // 下载
-	OpUpload    FileOperation = "upload"    // 上传
+	OpCreate   FileOperation = "create"   // 创建文件/目录
+	OpRead     FileOperation = "read"     // 读取文件
+	OpWrite    FileOperation = "write"    // 写入/修改文件
+	OpDelete   FileOperation = "delete"   // 删除文件/目录
+	OpRename   FileOperation = "rename"   // 重命名
+	OpMove     FileOperation = "move"     // 移动
+	OpCopy     FileOperation = "copy"     // 复制
+	OpMkdir    FileOperation = "mkdir"    // 创建目录
+	OpRmdir    FileOperation = "rmdir"    // 删除目录
+	OpList     FileOperation = "list"     // 列出目录内容
+	OpChmod    FileOperation = "chmod"    // 修改权限
+	OpChown    FileOperation = "chown"    // 修改所有者
+	OpLock     FileOperation = "lock"     // 文件锁定
+	OpUnlock   FileOperation = "unlock"   // 解锁
+	OpDownload FileOperation = "download" // 下载
+	OpUpload   FileOperation = "upload"   // 上传
 )
 
 // 文件操作状态常量
@@ -65,48 +65,48 @@ type FileAuditEntry struct {
 	// 基本信息
 	ID        string    `json:"id"`
 	Timestamp time.Time `json:"timestamp"`
-	
+
 	// 协议信息
-	Protocol  Protocol `json:"protocol"`            // smb/nfs
-	ShareName string   `json:"share_name"`          // 共享名称
-	SharePath string   `json:"share_path"`          // 共享路径
-	
+	Protocol  Protocol `json:"protocol"`   // smb/nfs
+	ShareName string   `json:"share_name"` // 共享名称
+	SharePath string   `json:"share_path"` // 共享路径
+
 	// 用户信息
 	UserID    string `json:"user_id"`              // 用户ID
 	Username  string `json:"username"`             // 用户名
 	GroupID   string `json:"group_id,omitempty"`   // 组ID
 	GroupName string `json:"group_name,omitempty"` // 组名
-	
+
 	// 客户端信息
-	ClientIP   string `json:"client_ip"`            // 客户端IP
+	ClientIP   string `json:"client_ip"`             // 客户端IP
 	ClientPort int    `json:"client_port,omitempty"` // 客户端端口
-	
+
 	// 操作信息
-	Operation FileOperation `json:"operation"`        // 操作类型
-	Status    Status   `json:"status"`           // 操作状态
-	
+	Operation FileOperation `json:"operation"` // 操作类型
+	Status    Status        `json:"status"`    // 操作状态
+
 	// 文件信息
 	FilePath    string `json:"file_path"`           // 文件路径
 	FileName    string `json:"file_name"`           // 文件名
 	FileSize    int64  `json:"file_size,omitempty"` // 文件大小
 	FileMode    string `json:"file_mode,omitempty"` // 文件权限
 	IsDirectory bool   `json:"is_directory"`        // 是否目录
-	
+
 	// 变更信息（用于重命名、移动等操作）
-	OldPath     string `json:"old_path,omitempty"`     // 原路径
-	OldName     string `json:"old_name,omitempty"`     // 原文件名
-	NewPath     string `json:"new_path,omitempty"`     // 新路径
-	NewName     string `json:"new_name,omitempty"`     // 新文件名
-	
+	OldPath string `json:"old_path,omitempty"` // 原路径
+	OldName string `json:"old_name,omitempty"` // 原文件名
+	NewPath string `json:"new_path,omitempty"` // 新路径
+	NewName string `json:"new_name,omitempty"` // 新文件名
+
 	// 扩展信息
-	SessionID   string                 `json:"session_id,omitempty"`   // 会话ID
-	ProcessID   int                    `json:"process_id,omitempty"`   // 进程ID
-	Duration    int64                  `json:"duration,omitempty"`     // 操作耗时(ms)
-	ErrorMsg    string                 `json:"error_msg,omitempty"`    // 错误信息
-	Details     map[string]interface{} `json:"details,omitempty"`      // 详细信息
-	
+	SessionID string                 `json:"session_id,omitempty"` // 会话ID
+	ProcessID int                    `json:"process_id,omitempty"` // 进程ID
+	Duration  int64                  `json:"duration,omitempty"`   // 操作耗时(ms)
+	ErrorMsg  string                 `json:"error_msg,omitempty"`  // 错误信息
+	Details   map[string]interface{} `json:"details,omitempty"`    // 详细信息
+
 	// 安全签名
-	Signature   string `json:"signature,omitempty"`   // 数字签名（防篡改）
+	Signature string `json:"signature,omitempty"` // 数字签名（防篡改）
 }
 
 // ========== 审计日志记录器 ==========
@@ -127,21 +127,21 @@ type FileAuditConfig struct {
 	Enabled       bool   `json:"enabled"`
 	LogPath       string `json:"log_path"`        // 日志存储路径
 	MaxMemorySize int    `json:"max_memory_size"` // 内存最大条目数
-	
+
 	// 日志轮转配置
-	MaxFileSize    int64 `json:"max_file_size"`    // 单文件最大大小(MB)
-	MaxFileCount   int   `json:"max_file_count"`   // 最大文件数
-	MaxAgeDays     int   `json:"max_age_days"`     // 最大保留天数
-	CompressAge    int   `json:"compress_age"`     // 压缩阈值(天)
-	
+	MaxFileSize  int64 `json:"max_file_size"`  // 单文件最大大小(MB)
+	MaxFileCount int   `json:"max_file_count"` // 最大文件数
+	MaxAgeDays   int   `json:"max_age_days"`   // 最大保留天数
+	CompressAge  int   `json:"compress_age"`   // 压缩阈值(天)
+
 	// 安全配置
 	EnableSignatures bool `json:"enable_signatures"` // 启用签名防篡改
-	
+
 	// 过滤配置
 	ExcludeOperations []FileOperation `json:"exclude_operations"` // 排除的操作
 	ExcludePaths      []string        `json:"exclude_paths"`      // 排除的路径
 	ExcludeUsers      []string        `json:"exclude_users"`      // 排除的用户
-	
+
 	// 存储间隔
 	FlushInterval time.Duration `json:"flush_interval"` // 刷新间隔
 }
@@ -149,16 +149,16 @@ type FileAuditConfig struct {
 // DefaultFileAuditConfig 默认配置
 func DefaultFileAuditConfig() FileAuditConfig {
 	return FileAuditConfig{
-		Enabled:          true,
-		LogPath:          "/var/log/nas-os/audit/file-operations",
-		MaxMemorySize:    100000,
-		MaxFileSize:      100,  // 100MB
-		MaxFileCount:     30,   // 保留30个文件
-		MaxAgeDays:       90,   // 保留90天
-		CompressAge:      7,    // 7天后压缩
-		EnableSignatures: true,
+		Enabled:           true,
+		LogPath:           "/var/log/nas-os/audit/file-operations",
+		MaxMemorySize:     100000,
+		MaxFileSize:       100, // 100MB
+		MaxFileCount:      30,  // 保留30个文件
+		MaxAgeDays:        90,  // 保留90天
+		CompressAge:       7,   // 7天后压缩
+		EnableSignatures:  true,
 		ExcludeOperations: []FileOperation{OpRead, OpList}, // 默认排除读取和列表操作
-		FlushInterval:    time.Minute,
+		FlushInterval:     time.Minute,
 	}
 }
 
@@ -168,13 +168,13 @@ func NewFileAuditLogger(config FileAuditConfig) (*FileAuditLogger, error) {
 	if err := os.MkdirAll(config.LogPath, 0750); err != nil {
 		return nil, fmt.Errorf("创建审计日志目录失败: %w", err)
 	}
-	
+
 	// 创建存储管理器
 	storage, err := NewFileAuditStorage(config.LogPath, config.MaxFileSize, config.MaxFileCount, config.MaxAgeDays, config.CompressAge)
 	if err != nil {
 		return nil, fmt.Errorf("创建审计存储管理器失败: %w", err)
 	}
-	
+
 	logger := &FileAuditLogger{
 		config:     config,
 		entries:    make([]*FileAuditEntry, 0),
@@ -182,13 +182,13 @@ func NewFileAuditLogger(config FileAuditConfig) (*FileAuditLogger, error) {
 		signingKey: []byte(uuid.New().String()),
 		stopCh:     make(chan struct{}),
 	}
-	
+
 	// 启动定时刷新
 	go logger.flushLoop()
-	
+
 	// 启动日志清理
 	go logger.cleanupLoop()
-	
+
 	return logger, nil
 }
 
@@ -205,25 +205,25 @@ func (l *FileAuditLogger) Log(ctx context.Context, entry *FileAuditEntry) error 
 	if !l.config.Enabled {
 		return nil
 	}
-	
+
 	// 检查是否排除的操作
 	if l.isExcludedOperation(entry.Operation) {
 		return nil
 	}
-	
+
 	// 检查是否排除的路径
 	if l.isExcludedPath(entry.FilePath) {
 		return nil
 	}
-	
+
 	// 检查是否排除的用户
 	if l.isExcludedUser(entry.Username) {
 		return nil
 	}
-	
+
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	
+
 	// 设置默认值
 	if entry.ID == "" {
 		entry.ID = uuid.New().String()
@@ -231,43 +231,43 @@ func (l *FileAuditLogger) Log(ctx context.Context, entry *FileAuditEntry) error 
 	if entry.Timestamp.IsZero() {
 		entry.Timestamp = time.Now()
 	}
-	
+
 	// 生成签名
 	if l.config.EnableSignatures {
 		entry.Signature = l.generateSignature(entry)
 	}
-	
+
 	// 添加到内存
 	l.entries = append(l.entries, entry)
-	
+
 	// 限制内存条目数
 	if len(l.entries) > l.config.MaxMemorySize {
 		l.entries = l.entries[len(l.entries)-l.config.MaxMemorySize:]
 	}
-	
+
 	// 写入存储
 	if err := l.storage.Write(entry); err != nil {
 		// 存储失败不影响内存记录
 		return fmt.Errorf("写入审计日志存储失败: %w", err)
 	}
-	
+
 	return nil
 }
 
 // LogSMBOperation 记录 SMB 操作
 func (l *FileAuditLogger) LogSMBOperation(ctx context.Context, shareName, sharePath, userID, username, clientIP string, op FileOperation, filePath string, status Status, details map[string]interface{}) error {
 	entry := &FileAuditEntry{
-		Protocol:   ProtocolSMB,
-		ShareName:  shareName,
-		SharePath:  sharePath,
-		UserID:     userID,
-		Username:   username,
-		ClientIP:   clientIP,
-		Operation:  op,
-		FilePath:   filePath,
-		FileName:   filepath.Base(filePath),
-		Status:     status,
-		Details:    details,
+		Protocol:  ProtocolSMB,
+		ShareName: shareName,
+		SharePath: sharePath,
+		UserID:    userID,
+		Username:  username,
+		ClientIP:  clientIP,
+		Operation: op,
+		FilePath:  filePath,
+		FileName:  filepath.Base(filePath),
+		Status:    status,
+		Details:   details,
 	}
 	return l.Log(ctx, entry)
 }
@@ -389,19 +389,19 @@ func (l *FileAuditLogger) LogFileWrite(ctx context.Context, protocol Protocol, s
 
 // FileAuditQueryOptions 查询选项
 type FileAuditQueryOptions struct {
-	Limit     int            `json:"limit"`
-	Offset    int            `json:"offset"`
-	StartTime *time.Time     `json:"start_time,omitempty"`
-	EndTime   *time.Time     `json:"end_time,omitempty"`
-	Protocol  Protocol       `json:"protocol,omitempty"`
-	UserID    string         `json:"user_id,omitempty"`
-	Username  string         `json:"username,omitempty"`
-	ClientIP  string         `json:"client_ip,omitempty"`
-	Operation FileOperation  `json:"operation,omitempty"`
-	Status    Status    `json:"status,omitempty"`
-	FilePath  string         `json:"file_path,omitempty"`
-	ShareName string         `json:"share_name,omitempty"`
-	Keyword   string         `json:"keyword,omitempty"`
+	Limit     int           `json:"limit"`
+	Offset    int           `json:"offset"`
+	StartTime *time.Time    `json:"start_time,omitempty"`
+	EndTime   *time.Time    `json:"end_time,omitempty"`
+	Protocol  Protocol      `json:"protocol,omitempty"`
+	UserID    string        `json:"user_id,omitempty"`
+	Username  string        `json:"username,omitempty"`
+	ClientIP  string        `json:"client_ip,omitempty"`
+	Operation FileOperation `json:"operation,omitempty"`
+	Status    Status        `json:"status,omitempty"`
+	FilePath  string        `json:"file_path,omitempty"`
+	ShareName string        `json:"share_name,omitempty"`
+	Keyword   string        `json:"keyword,omitempty"`
 }
 
 // FileAuditQueryResult 查询结果
@@ -414,7 +414,7 @@ type FileAuditQueryResult struct {
 func (l *FileAuditLogger) Query(opts FileAuditQueryOptions) (*FileAuditQueryResult, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	
+
 	// 筛选日志
 	filtered := make([]*FileAuditEntry, 0)
 	for _, entry := range l.entries {
@@ -423,15 +423,15 @@ func (l *FileAuditLogger) Query(opts FileAuditQueryOptions) (*FileAuditQueryResu
 		}
 		filtered = append(filtered, entry)
 	}
-	
+
 	// 按时间倒序排序
 	sort.Slice(filtered, func(i, j int) bool {
 		return filtered[i].Timestamp.After(filtered[j].Timestamp)
 	})
-	
+
 	// 计算总数
 	total := len(filtered)
-	
+
 	// 应用分页
 	start := opts.Offset
 	if start < 0 {
@@ -440,7 +440,7 @@ func (l *FileAuditLogger) Query(opts FileAuditQueryOptions) (*FileAuditQueryResu
 	if start > total {
 		start = total
 	}
-	
+
 	end := start + opts.Limit
 	if opts.Limit <= 0 {
 		opts.Limit = 50
@@ -448,7 +448,7 @@ func (l *FileAuditLogger) Query(opts FileAuditQueryOptions) (*FileAuditQueryResu
 	if end > total {
 		end = total
 	}
-	
+
 	return &FileAuditQueryResult{
 		Total:   total,
 		Entries: filtered[start:end],
@@ -459,13 +459,13 @@ func (l *FileAuditLogger) Query(opts FileAuditQueryOptions) (*FileAuditQueryResu
 func (l *FileAuditLogger) GetByID(id string) (*FileAuditEntry, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	
+
 	for _, entry := range l.entries {
 		if entry.ID == id {
 			return entry, nil
 		}
 	}
-	
+
 	return nil, fmt.Errorf("审计日志不存在: %s", id)
 }
 
@@ -473,20 +473,20 @@ func (l *FileAuditLogger) GetByID(id string) (*FileAuditEntry, error) {
 
 // FileAuditStatistics 审计统计
 type FileAuditStatistics struct {
-	TotalOperations   int            `json:"total_operations"`
-	SuccessCount      int            `json:"success_count"`
-	FailureCount      int            `json:"failure_count"`
-	DeniedCount       int            `json:"denied_count"`
-	ByProtocol        map[string]int `json:"by_protocol"`
-	ByOperation       map[string]int `json:"by_operation"`
-	ByUser            []UserAuditStat `json:"by_user"`
-	ByIP              []IPAuditStat   `json:"by_ip"`
-	ByShare           []ShareAuditStat `json:"by_share"`
-	TopFiles          []FileAuditStat `json:"top_files"`
-	TodayOperations   int            `json:"today_operations"`
-	WeekOperations    int            `json:"week_operations"`
-	OldestEntry       *time.Time     `json:"oldest_entry,omitempty"`
-	NewestEntry       *time.Time     `json:"newest_entry,omitempty"`
+	TotalOperations int              `json:"total_operations"`
+	SuccessCount    int              `json:"success_count"`
+	FailureCount    int              `json:"failure_count"`
+	DeniedCount     int              `json:"denied_count"`
+	ByProtocol      map[string]int   `json:"by_protocol"`
+	ByOperation     map[string]int   `json:"by_operation"`
+	ByUser          []UserAuditStat  `json:"by_user"`
+	ByIP            []IPAuditStat    `json:"by_ip"`
+	ByShare         []ShareAuditStat `json:"by_share"`
+	TopFiles        []FileAuditStat  `json:"top_files"`
+	TodayOperations int              `json:"today_operations"`
+	WeekOperations  int              `json:"week_operations"`
+	OldestEntry     *time.Time       `json:"oldest_entry,omitempty"`
+	NewestEntry     *time.Time       `json:"newest_entry,omitempty"`
 }
 
 // UserAuditStat 用户审计统计
@@ -518,11 +518,11 @@ type FileAuditStat struct {
 func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	
+
 	now := time.Now()
 	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	weekStart := todayStart.AddDate(0, 0, -7)
-	
+
 	stats := &FileAuditStatistics{
 		ByProtocol:  make(map[string]int),
 		ByOperation: make(map[string]int),
@@ -531,15 +531,15 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 		ByShare:     make([]ShareAuditStat, 0),
 		TopFiles:    make([]FileAuditStat, 0),
 	}
-	
+
 	userCounts := make(map[string]*UserAuditStat)
 	ipCounts := make(map[string]*IPAuditStat)
 	shareCounts := make(map[string]*ShareAuditStat)
 	fileCounts := make(map[string]int)
-	
+
 	for _, entry := range l.entries {
 		stats.TotalOperations++
-		
+
 		// 状态统计
 		switch entry.Status {
 		case StatusSuccess:
@@ -549,23 +549,23 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 		case StatusDenied:
 			stats.DeniedCount++
 		}
-		
+
 		// 协议统计
 		stats.ByProtocol[string(entry.Protocol)]++
-		
+
 		// 操作统计
 		stats.ByOperation[string(entry.Operation)]++
-		
+
 		// 今日统计
 		if entry.Timestamp.After(todayStart) || entry.Timestamp.Equal(todayStart) {
 			stats.TodayOperations++
 		}
-		
+
 		// 本周统计
 		if entry.Timestamp.After(weekStart) || entry.Timestamp.Equal(weekStart) {
 			stats.WeekOperations++
 		}
-		
+
 		// 用户统计
 		if entry.UserID != "" {
 			if u, exists := userCounts[entry.UserID]; exists {
@@ -578,7 +578,7 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 				}
 			}
 		}
-		
+
 		// IP统计
 		if entry.ClientIP != "" {
 			if ip, exists := ipCounts[entry.ClientIP]; exists {
@@ -587,7 +587,7 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 				ipCounts[entry.ClientIP] = &IPAuditStat{IP: entry.ClientIP, Count: 1}
 			}
 		}
-		
+
 		// 共享统计
 		if entry.ShareName != "" {
 			if s, exists := shareCounts[entry.ShareName]; exists {
@@ -596,12 +596,12 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 				shareCounts[entry.ShareName] = &ShareAuditStat{ShareName: entry.ShareName, Count: 1}
 			}
 		}
-		
+
 		// 文件统计
 		if entry.FilePath != "" {
 			fileCounts[entry.FilePath]++
 		}
-		
+
 		// 时间范围
 		if stats.OldestEntry == nil || entry.Timestamp.Before(*stats.OldestEntry) {
 			stats.OldestEntry = &entry.Timestamp
@@ -610,7 +610,7 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 			stats.NewestEntry = &entry.Timestamp
 		}
 	}
-	
+
 	// 转换并排序用户统计
 	for _, u := range userCounts {
 		stats.ByUser = append(stats.ByUser, *u)
@@ -621,7 +621,7 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 	if len(stats.ByUser) > 10 {
 		stats.ByUser = stats.ByUser[:10]
 	}
-	
+
 	// 转换并排序IP统计
 	for _, ip := range ipCounts {
 		stats.ByIP = append(stats.ByIP, *ip)
@@ -632,7 +632,7 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 	if len(stats.ByIP) > 10 {
 		stats.ByIP = stats.ByIP[:10]
 	}
-	
+
 	// 转换并排序共享统计
 	for _, s := range shareCounts {
 		stats.ByShare = append(stats.ByShare, *s)
@@ -640,7 +640,7 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 	sort.Slice(stats.ByShare, func(i, j int) bool {
 		return stats.ByShare[i].Count > stats.ByShare[j].Count
 	})
-	
+
 	// 转换并排序文件统计
 	for path, count := range fileCounts {
 		stats.TopFiles = append(stats.TopFiles, FileAuditStat{FilePath: path, Count: count})
@@ -651,7 +651,7 @@ func (l *FileAuditLogger) GetStatistics() *FileAuditStatistics {
 	if len(stats.TopFiles) > 10 {
 		stats.TopFiles = stats.TopFiles[:10]
 	}
-	
+
 	return stats
 }
 
@@ -696,12 +696,12 @@ func (l *FileAuditLogger) matchesFilter(entry *FileAuditEntry, opts FileAuditQue
 	if opts.EndTime != nil && entry.Timestamp.After(*opts.EndTime) {
 		return false
 	}
-	
+
 	// 协议
 	if opts.Protocol != "" && entry.Protocol != opts.Protocol {
 		return false
 	}
-	
+
 	// 用户
 	if opts.UserID != "" && entry.UserID != opts.UserID {
 		return false
@@ -709,32 +709,32 @@ func (l *FileAuditLogger) matchesFilter(entry *FileAuditEntry, opts FileAuditQue
 	if opts.Username != "" && !strings.Contains(strings.ToLower(entry.Username), strings.ToLower(opts.Username)) {
 		return false
 	}
-	
+
 	// IP
 	if opts.ClientIP != "" && entry.ClientIP != opts.ClientIP {
 		return false
 	}
-	
+
 	// 操作
 	if opts.Operation != "" && entry.Operation != opts.Operation {
 		return false
 	}
-	
+
 	// 状态
 	if opts.Status != "" && entry.Status != opts.Status {
 		return false
 	}
-	
+
 	// 文件路径
 	if opts.FilePath != "" && !strings.Contains(entry.FilePath, opts.FilePath) {
 		return false
 	}
-	
+
 	// 共享名
 	if opts.ShareName != "" && entry.ShareName != opts.ShareName {
 		return false
 	}
-	
+
 	// 关键词
 	if opts.Keyword != "" {
 		keyword := strings.ToLower(opts.Keyword)
@@ -746,7 +746,7 @@ func (l *FileAuditLogger) matchesFilter(entry *FileAuditEntry, opts FileAuditQue
 			return false
 		}
 	}
-	
+
 	return true
 }
 
@@ -762,7 +762,7 @@ func (l *FileAuditLogger) generateSignature(entry *FileAuditEntry) string {
 		entry.Status,
 		entry.ID,
 	)
-	
+
 	h := hmac.New(sha256.New, l.signingKey)
 	h.Write([]byte(signData))
 	return hex.EncodeToString(h.Sum(nil))
@@ -783,7 +783,7 @@ func (l *FileAuditLogger) VerifySignature(entry *FileAuditEntry) bool {
 func (l *FileAuditLogger) flushLoop() {
 	ticker := time.NewTicker(l.config.FlushInterval)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ticker.C:
@@ -798,11 +798,11 @@ func (l *FileAuditLogger) flushLoop() {
 func (l *FileAuditLogger) cleanupLoop() {
 	ticker := time.NewTicker(time.Hour)
 	defer ticker.Stop()
-	
+
 	for {
 		select {
 		case <-ticker.C:
-			l.storage.Cleanup()
+			_ = l.storage.Cleanup() // 忽略清理错误，继续运行
 		case <-l.stopCh:
 			return
 		}
@@ -813,11 +813,11 @@ func (l *FileAuditLogger) cleanupLoop() {
 func (l *FileAuditLogger) flush() {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-	
+
 	if len(l.entries) == 0 {
 		return
 	}
-	
+
 	// 存储会自动按日期写入，这里只处理内存清理
 	// 按日期分组写入
 	entriesByDate := make(map[string][]*FileAuditEntry)
@@ -825,7 +825,7 @@ func (l *FileAuditLogger) flush() {
 		date := entry.Timestamp.Format("2006-01-02")
 		entriesByDate[date] = append(entriesByDate[date], entry)
 	}
-	
+
 	// 批量写入
 	for date, entries := range entriesByDate {
 		if err := l.storage.WriteBatch(date, entries); err != nil {
@@ -839,11 +839,11 @@ func (l *FileAuditLogger) flush() {
 
 // FileExportOptions 文件审计导出选项
 type FileExportOptions struct {
-	Format      string     `json:"format"`       // json, csv
-	StartTime   time.Time  `json:"start_time"`
-	EndTime     time.Time  `json:"end_time"`
-	Protocol    Protocol   `json:"protocol,omitempty"`
-	Compress    bool       `json:"compress"`
+	Format    string    `json:"format"` // json, csv
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	Protocol  Protocol  `json:"protocol,omitempty"`
+	Compress  bool      `json:"compress"`
 }
 
 // Export 导出审计日志
@@ -854,12 +854,12 @@ func (l *FileAuditLogger) Export(opts FileExportOptions) ([]byte, error) {
 		Protocol:  opts.Protocol,
 		Limit:     100000, // 最大导出数量
 	}
-	
+
 	result, err := l.Query(queryOpts)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	switch opts.Format {
 	case "json":
 		return json.MarshalIndent(result.Entries, "", "  ")
@@ -874,7 +874,7 @@ func (l *FileAuditLogger) Export(opts FileExportOptions) ([]byte, error) {
 func (l *FileAuditLogger) exportToCSV(entries []*FileAuditEntry) ([]byte, error) {
 	var csv strings.Builder
 	csv.WriteString("ID,Timestamp,Protocol,ShareName,UserID,Username,ClientIP,Operation,FilePath,FileName,Status,IsDirectory\n")
-	
+
 	for _, e := range entries {
 		fmt.Fprintf(&csv, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%v\n",
 			e.ID,
@@ -891,7 +891,7 @@ func (l *FileAuditLogger) exportToCSV(entries []*FileAuditEntry) ([]byte, error)
 			e.IsDirectory,
 		)
 	}
-	
+
 	return []byte(csv.String()), nil
 }
 
