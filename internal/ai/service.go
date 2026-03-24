@@ -5,6 +5,9 @@ package ai
 
 import (
 	"context"
+	"fmt"
+	"regexp"
+	"strings"
 	"sync"
 )
 
@@ -158,25 +161,85 @@ func (m *Manager) GetAvailableProviders() []Provider {
 
 // DeIdentifier handles PII de-identification
 type DeIdentifier struct {
-	rules []DeIDRule
+	rules     []DeIDRule
+	mappings  map[string]string // placeholder -> original value
+	mu        sync.RWMutex
 }
 
 // NewDeIdentifier creates a new de-identifier
 func NewDeIdentifier(rules []DeIDRule) *DeIdentifier {
-	return &DeIdentifier{rules: rules}
+	return &DeIdentifier{
+		rules:    rules,
+		mappings: make(map[string]string),
+	}
 }
 
 // Process applies de-identification rules to text
+// Replaces sensitive information with placeholders and stores mappings for restoration
 func (d *DeIdentifier) Process(text string) string {
-	// In production, this would use regex to replace PII
-	// For now, return as-is
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	result := text
+	for _, rule := range d.rules {
+		if !rule.Enabled {
+			continue
+		}
+		result = d.applyRule(result, rule)
+	}
+	return result
+}
+
+// applyRule applies a single de-identification rule
+func (d *DeIdentifier) applyRule(text string, rule DeIDRule) string {
+	re, err := regexp.Compile(rule.Pattern)
+	if err != nil {
+		return text
+	}
+
+	matches := re.FindAllString(text, -1)
+	for i, match := range matches {
+		if match == "" {
+			continue
+		}
+		// Generate unique placeholder
+		placeholder := fmt.Sprintf("%s_%d", rule.Replacement, i)
+		// Store mapping for potential restoration
+		d.mappings[placeholder] = match
+		// Replace first occurrence only to avoid replacing wrong content
+		text = strings.Replace(text, match, placeholder, 1)
+	}
 	return text
 }
 
-// Restore attempts to restore original values (if stored)
+// Restore attempts to restore original values using stored mappings
 func (d *DeIdentifier) Restore(text string) string {
-	// Reverse the de-identification if we stored mappings
-	return text
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+
+	result := text
+	for placeholder, original := range d.mappings {
+		result = strings.ReplaceAll(result, placeholder, original)
+	}
+	return result
+}
+
+// ClearMappings clears stored mappings (call after processing is complete)
+func (d *DeIdentifier) ClearMappings() {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	d.mappings = make(map[string]string)
+}
+
+// GetMappings returns current mappings (for debugging/logging)
+func (d *DeIdentifier) GetMappings() map[string]string {
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	result := make(map[string]string, len(d.mappings))
+	for k, v := range d.mappings {
+		result[k] = v
+	}
+	return result
 }
 
 // Errors

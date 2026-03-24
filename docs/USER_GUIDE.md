@@ -1,6 +1,6 @@
 # NAS-OS 用户文档
 
-**版本**: v2.253.286 | **更新日期**: 2026-03-24
+**版本**: v2.253.288 | **更新日期**: 2026-03-24
 
 ## 📚 文档目录
 
@@ -360,6 +360,110 @@ curl http://localhost:8080/api/v1/system/info?lang=zh-CN
 
 ---
 
+## ☁️ 网盘挂载
+
+NAS-OS 支持将多个云存储服务挂载为本地目录，实现透明读写。
+
+### 支持的云存储
+
+| 云服务 | 说明 |
+|--------|------|
+| 阿里云 OSS | 国内主流对象存储 |
+| 腾讯云 COS | 腾讯云对象存储 |
+| AWS S3 | 亚马逊对象存储 |
+| Google Drive | Google 云盘 |
+| OneDrive | 微软云盘 |
+| Backblaze B2 | 备份专用存储 |
+| WebDAV | 通用协议支持 |
+
+### 快速配置
+
+1. **添加云存储账户**
+   - 进入「设置」→「云存储」→「添加账户」
+   - 选择云服务提供商
+   - 输入 Access Key 和 Secret Key
+   - 点击「测试连接」验证
+
+2. **创建挂载点**
+   ```bash
+   # 命令行创建挂载
+   sudo nasctl cloud mount create mydrive \
+     --provider aliyun_oss \
+     --bucket my-bucket \
+     --mount-point /mnt/cloud/mydrive
+   ```
+
+3. **验证挂载**
+   ```bash
+   # 查看挂载状态
+   sudo nasctl cloud mount list
+
+   # 测试读写
+   echo "test" > /mnt/cloud/mydrive/test.txt
+   ```
+
+### 使用场景
+
+- **云端备份**: 将重要数据直接写入云存储
+- **跨设备同步**: 多台设备共享云存储内容
+- **容量扩展**: 本地存储不足时使用云端空间
+- **数据归档**: 冷数据自动迁移到低成本云存储
+
+---
+
+## 🔐 AI 脱敏服务
+
+NAS-OS 提供智能 PII（个人身份信息）脱敏功能，保护敏感数据隐私。
+
+### 支持的脱敏类型
+
+| 类型 | 说明 | 示例 |
+|------|------|------|
+| 邮箱 | 电子邮件地址 | user@example.com → [EMAIL] |
+| 手机号 | 11位手机号码 | 13812345678 → [PHONE] |
+| 身份证 | 18位身份证号码 | 110101199001011234 → [ID] |
+| 信用卡 | 16位银行卡号 | 6222021234567890 → [CARD] |
+| IP 地址 | IPv4 地址 | 192.168.1.1 → [IP] |
+
+### 配置 AI 服务
+
+1. **启用脱敏功能**
+   ```yaml
+   # /etc/nas-os/config.yaml
+   ai:
+     enable_deid: true
+     provider: openai  # 或 google, azure, baidu, local
+   ```
+
+2. **API 调用示例**
+   ```bash
+   # 脱敏处理
+   curl -X POST http://localhost:8080/api/v1/ai/deidentify \
+     -H "Content-Type: application/json" \
+     -d '{"text": "联系邮箱: user@example.com, 手机: 13812345678"}'
+
+   # 响应
+   {"text": "联系邮箱: [EMAIL], 手机: [PHONE]"}
+   ```
+
+### 支持的 AI 提供商
+
+| 提供商 | 说明 | 适用场景 |
+|--------|------|----------|
+| OpenAI | GPT 系列 | 通用 AI 服务 |
+| Google | Gemini 系列 | 多模态处理 |
+| Azure | Azure OpenAI | 企业合规场景 |
+| 百度 | 文心一言 | 中文优化 |
+| 本地 LLM | 私有部署 | 数据不出域 |
+
+### 隐私保护设计
+
+- **本地处理**: 敏感信息在本地完成脱敏后再发送
+- **规则可配**: 支持自定义脱敏规则和替换文本
+- **审计日志**: 记录所有 AI 调用，可追溯
+
+---
+
 ## ❓ 常见问题
 
 ### Q1: 启动失败，提示权限错误
@@ -476,7 +580,7 @@ sudo nasctl user reset-password admin --new-password NewPass123!
 ---
 
 
-*文档版本：v2.253.284 | 最后更新：2026-03-24*
+*文档版本：v2.253.288 | 最后更新：2026-03-24*
 
 
 ---
