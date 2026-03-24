@@ -255,7 +255,7 @@ func (rim *RiskIndicatorManager) FetchKEVCatalog(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("获取 KEV 目录失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("KEV API 返回错误状态码: %d", resp.StatusCode)
@@ -560,14 +560,15 @@ func (rim *RiskIndicatorManager) computeRiskScore(
 
 	// 4. 漏洞年龄贡献 (较新的漏洞风险更高)
 	ageDays := time.Since(publishedDate).Hours() / 24
-	ageFactor := 1.0
-	if ageDays < 30 {
+	var ageFactor float64
+	switch {
+	case ageDays < 30:
 		ageFactor = 1.0
-	} else if ageDays < 90 {
+	case ageDays < 90:
 		ageFactor = 0.8
-	} else if ageDays < 365 {
+	case ageDays < 365:
 		ageFactor = 0.6
-	} else {
+	default:
 		ageFactor = 0.4
 	}
 	ageContribution := ageFactor * 100 * factors.AgeWeight
