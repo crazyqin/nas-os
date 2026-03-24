@@ -139,19 +139,19 @@ func (fl *FileLock) Release() {
 
 // LockInfo 锁信息（用于API响应）
 type LockInfo struct {
-	ID          string            `json:"id"`
-	FilePath    string            `json:"filePath"`
-	LockType    string            `json:"lockType"`
-	Status      string            `json:"status"`
-	Owner       string            `json:"owner"`
-	OwnerName   string            `json:"ownerName,omitempty"`
-	ClientID    string            `json:"clientId,omitempty"`
-	Protocol    string            `json:"protocol,omitempty"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	ExpiresAt   time.Time         `json:"expiresAt"`
-	ExpiresIn   int64             `json:"expiresIn"` // 剩余秒数
-	IsExpired   bool              `json:"isExpired"`
-	Metadata    map[string]string `json:"metadata,omitempty"`
+	ID        string            `json:"id"`
+	FilePath  string            `json:"filePath"`
+	LockType  string            `json:"lockType"`
+	Status    string            `json:"status"`
+	Owner     string            `json:"owner"`
+	OwnerName string            `json:"ownerName,omitempty"`
+	ClientID  string            `json:"clientId,omitempty"`
+	Protocol  string            `json:"protocol,omitempty"`
+	CreatedAt time.Time         `json:"createdAt"`
+	ExpiresAt time.Time         `json:"expiresAt"`
+	ExpiresIn int64             `json:"expiresIn"` // 剩余秒数
+	IsExpired bool              `json:"isExpired"`
+	Metadata  map[string]string `json:"metadata,omitempty"`
 }
 
 // ToInfo 转换为LockInfo

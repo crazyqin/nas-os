@@ -225,21 +225,21 @@ func TestManager_GetStats(t *testing.T) {
 
 	// 添加不同类型的会话
 	smbSession := &Session{
-		ID:          "smb-1",
-		Type:        SessionTypeSMB,
-		User:        "user1",
-		ClientIP:    "192.168.1.100",
-		BytesRead:   1000,
+		ID:           "smb-1",
+		Type:         SessionTypeSMB,
+		User:         "user1",
+		ClientIP:     "192.168.1.100",
+		BytesRead:    1000,
 		BytesWritten: 500,
 	}
 	_ = manager.AddSession(smbSession)
 
 	nfsSession := &Session{
-		ID:          "nfs-1",
-		Type:        SessionTypeNFS,
-		User:        "nfs-client",
-		ClientIP:    "192.168.1.101",
-		BytesRead:   2000,
+		ID:           "nfs-1",
+		Type:         SessionTypeNFS,
+		User:         "nfs-client",
+		ClientIP:     "192.168.1.101",
+		BytesRead:    2000,
 		BytesWritten: 1000,
 	}
 	_ = manager.AddSession(nfsSession)
@@ -300,10 +300,10 @@ func TestManager_Cleanup(t *testing.T) {
 
 	// 设置较短的过期时间
 	manager.UpdateConfig(&Config{
-		Enabled:          true,
-		RefreshInterval:  10 * time.Second,
-		IdleTimeout:      1 * time.Second,
-		StaleTimeout:     2 * time.Second,
+		Enabled:         true,
+		RefreshInterval: 10 * time.Second,
+		IdleTimeout:     1 * time.Second,
+		StaleTimeout:    2 * time.Second,
 	})
 
 	// 添加会话
@@ -379,11 +379,11 @@ func TestMonitor_CollectSessions(t *testing.T) {
 	smbProvider := &mockSMBProvider{
 		connections: []*SMBConnection{
 			{
-				PID:        1234,
-				Username:   "testuser",
-				ShareName:  "share1",
-				ClientIP:   "192.168.1.100",
-				Protocol:   "SMB3",
+				PID:         1234,
+				Username:    "testuser",
+				ShareName:   "share1",
+				ClientIP:    "192.168.1.100",
+				Protocol:    "SMB3",
 				ConnectedAt: time.Now(),
 			},
 		},
@@ -393,9 +393,9 @@ func TestMonitor_CollectSessions(t *testing.T) {
 	nfsProvider := &mockNFSProvider{
 		clients: []*NFSClient{
 			{
-				ID:         "1",
-				ClientIP:   "192.168.1.200",
-				SharePath:  "/export/data",
+				ID:          "1",
+				ClientIP:    "192.168.1.200",
+				SharePath:   "/export/data",
 				ConnectedAt: time.Now(),
 			},
 		},
@@ -455,10 +455,10 @@ func TestMonitor_ForceRefresh(t *testing.T) {
 	smbProvider := &mockSMBProvider{
 		connections: []*SMBConnection{
 			{
-				PID:        1234,
-				Username:   "testuser",
-				ShareName:  "share1",
-				ClientIP:   "192.168.1.100",
+				PID:         1234,
+				Username:    "testuser",
+				ShareName:   "share1",
+				ClientIP:    "192.168.1.100",
 				ConnectedAt: time.Now(),
 			},
 		},

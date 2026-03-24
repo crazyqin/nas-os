@@ -26,10 +26,10 @@ type Manager struct {
 
 	// 统计信息
 	stats struct {
-		mu           sync.RWMutex
-		totalLocks   int64
-		activeLocks  int64
-		expiredLocks int64
+		mu            sync.RWMutex
+		totalLocks    int64
+		activeLocks   int64
+		expiredLocks  int64
 		releasedLocks int64
 	}
 
@@ -101,7 +101,10 @@ func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 	// 检查现有锁
 	existingRaw, loaded := m.locks.Load(req.FilePath)
 	if loaded {
-		existing := existingRaw.(*FileLock)
+		existing, ok := existingRaw.(*FileLock)
+		if !ok {
+			return nil, nil, ErrInvalidLockType
+		}
 
 		// 检查现有锁是否过期
 		if existing.IsExpired() {
@@ -119,7 +122,10 @@ func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 	if req.LockType == LockTypeExclusive {
 		// 如果存在共享锁，需要检查是否都是同一用户
 		if existingRaw != nil {
-			existing := existingRaw.(*FileLock)
+			existing, ok := existingRaw.(*FileLock)
+			if !ok {
+				return nil, nil, ErrInvalidLockType
+			}
 			if !existing.IsExpired() && existing.Owner != req.Owner {
 				return nil, &LockConflict{
 					ExistingLock: existing.ToInfo(),
@@ -160,7 +166,10 @@ func (m *Manager) Unlock(lockID string, owner string) error {
 		return ErrLockNotFound
 	}
 
-	lock := raw.(*FileLock)
+	lock, ok := raw.(*FileLock)
+	if !ok {
+		return ErrInvalidLockType
+	}
 
 	// 验证持有者
 	if lock.Owner != owner {
@@ -185,7 +194,10 @@ func (m *Manager) UnlockByPath(filePath string, owner string) error {
 		return ErrLockNotFound
 	}
 
-	lock := raw.(*FileLock)
+	lock, ok := raw.(*FileLock)
+	if !ok {
+		return ErrInvalidLockType
+	}
 
 	// 验证持有者
 	if lock.Owner != owner {
@@ -204,7 +216,10 @@ func (m *Manager) ForceUnlock(lockID string) error {
 		return ErrLockNotFound
 	}
 
-	lock := raw.(*FileLock)
+	lock, ok := raw.(*FileLock)
+	if !ok {
+		return ErrInvalidLockType
+	}
 	m.releaseLockInternal(lock)
 
 	m.logger.Info("lock force released",
@@ -223,7 +238,10 @@ func (m *Manager) GetLock(lockID string) (*LockInfo, error) {
 		return nil, ErrLockNotFound
 	}
 
-	lock := raw.(*FileLock)
+	lock, ok := raw.(*FileLock)
+	if !ok {
+		return nil, ErrInvalidLockType
+	}
 
 	// 检查是否过期
 	if lock.IsExpired() {
@@ -241,7 +259,10 @@ func (m *Manager) GetLockByPath(filePath string) (*LockInfo, error) {
 		return nil, ErrLockNotFound
 	}
 
-	lock := raw.(*FileLock)
+	lock, ok := raw.(*FileLock)
+	if !ok {
+		return nil, ErrInvalidLockType
+	}
 
 	// 检查是否过期
 	if lock.IsExpired() {
@@ -259,7 +280,10 @@ func (m *Manager) IsLocked(filePath string) bool {
 		return false
 	}
 
-	lock := raw.(*FileLock)
+	lock, ok := raw.(*FileLock)
+	if !ok {
+		return false
+	}
 
 	// 检查是否过期
 	if lock.IsExpired() {
@@ -277,7 +301,10 @@ func (m *Manager) CanAcquire(filePath string, lockType LockType, owner string) (
 		return nil, true
 	}
 
-	existing := raw.(*FileLock)
+	existing, ok := raw.(*FileLock)
+	if !ok {
+		return nil, true
+	}
 
 	// 检查是否过期
 	if existing.IsExpired() {
@@ -312,7 +339,10 @@ func (m *Manager) ExtendLock(lockID string, owner string, duration time.Duration
 		return ErrLockNotFound
 	}
 
-	lock := raw.(*FileLock)
+	lock, ok := raw.(*FileLock)
+	if !ok {
+		return ErrInvalidLockType
+	}
 
 	// 验证持有者
 	if lock.Owner != owner {
@@ -339,7 +369,10 @@ func (m *Manager) ListLocks(filter *LockFilter) []*LockInfo {
 	var result []*LockInfo
 
 	m.locks.Range(func(key, value interface{}) bool {
-		lock := value.(*FileLock)
+		lock, ok := value.(*FileLock)
+		if !ok {
+			return true
+		}
 
 		// 应用过滤器
 		if filter != nil {
@@ -373,9 +406,15 @@ func (m *Manager) ListLocksByOwner(owner string) []*LockInfo {
 		return result
 	}
 
-	ownerLocks := raw.(*sync.Map)
+	ownerLocks, ok := raw.(*sync.Map)
+	if !ok {
+		return result
+	}
 	ownerLocks.Range(func(key, value interface{}) bool {
-		lock := value.(*FileLock)
+		lock, ok := value.(*FileLock)
+		if !ok {
+			return true
+		}
 		result = append(result, lock.ToInfo())
 		return true
 	})
@@ -390,7 +429,10 @@ func (m *Manager) Stats() ManagerStats {
 
 	var activeCount int64
 	m.locks.Range(func(key, value interface{}) bool {
-		lock := value.(*FileLock)
+		lock, ok := value.(*FileLock)
+		if !ok {
+			return true
+		}
 		if !lock.IsExpired() && lock.Status == LockStatusActive {
 			activeCount++
 		}
@@ -441,7 +483,7 @@ func (m *Manager) checkConflict(existing *FileLock, req *LockRequest) *LockConfl
 	if existing.LockType == LockTypeExclusive || req.LockType == LockTypeExclusive {
 		return &LockConflict{
 			ExistingLock: existing.ToInfo(),
-			Message: fmt.Sprintf("file is exclusively locked by %s", existing.OwnerName),
+			Message:      fmt.Sprintf("file is exclusively locked by %s", existing.OwnerName),
 		}
 	}
 
@@ -467,7 +509,10 @@ func (m *Manager) releaseLockInternal(lock *FileLock) {
 
 func (m *Manager) addToOwnerIndex(lock *FileLock) {
 	raw, _ := m.ownerLocks.LoadOrStore(lock.Owner, &sync.Map{})
-	ownerLocks := raw.(*sync.Map)
+	ownerLocks, ok := raw.(*sync.Map)
+	if !ok {
+		return
+	}
 	ownerLocks.Store(lock.ID, lock)
 }
 
@@ -476,7 +521,10 @@ func (m *Manager) removeFromOwnerIndex(lock *FileLock) {
 	if !ok {
 		return
 	}
-	ownerLocks := raw.(*sync.Map)
+	ownerLocks, ok := raw.(*sync.Map)
+	if !ok {
+		return
+	}
 	ownerLocks.Delete(lock.ID)
 }
 
@@ -500,7 +548,10 @@ func (m *Manager) cleanupExpiredLocks() {
 	var expiredLocks []*FileLock
 
 	m.locks.Range(func(key, value interface{}) bool {
-		lock := value.(*FileLock)
+		lock, ok := value.(*FileLock)
+		if !ok {
+			return true
+		}
 		if lock.IsExpired() && lock.Status == LockStatusActive {
 			expiredLocks = append(expiredLocks, lock)
 		}
@@ -541,7 +592,10 @@ func (m *Manager) autoRenewalLoop() {
 
 func (m *Manager) renewActiveLocks() {
 	m.locks.Range(func(key, value interface{}) bool {
-		lock := value.(*FileLock)
+		lock, ok := value.(*FileLock)
+		if !ok {
+			return true
+		}
 
 		// 只续期活跃的锁
 		if lock.Status != LockStatusActive {

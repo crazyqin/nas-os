@@ -6,8 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"nas-os/internal/api"
+
+	"github.com/gin-gonic/gin"
 )
 
 // API 会话API处理器
@@ -64,15 +65,15 @@ type ListSessionsRequest struct {
 	Type   string `form:"type"`   // smb, nfs
 	Status string `form:"status"` // active, idle, stale
 	User   string `form:"user"`
-	Sort   string `form:"sort"`   // connected_at, last_active, bytes
-	Order  string `form:"order"`  // asc, desc
+	Sort   string `form:"sort"`  // connected_at, last_active, bytes
+	Order  string `form:"order"` // asc, desc
 	Limit  int    `form:"limit"`
 	Offset int    `form:"offset"`
 }
 
 // SessionListResponse 会话列表响应
 type SessionListResponse struct {
-	Total   int       `json:"total"`
+	Total    int        `json:"total"`
 	Sessions []*Session `json:"sessions"`
 }
 
