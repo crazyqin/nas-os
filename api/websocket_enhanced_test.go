@@ -92,11 +92,12 @@ func TestEnhancedClientState(t *testing.T) {
 
 	// Connect as client
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	conn, resp, err := websocket.DefaultDialer.Dial(wsURL, nil)
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
 	defer conn.Close()
+	defer resp.Body.Close()
 
 	client := NewEnhancedClient(conn, "test-user", DefaultHeartbeatConfig, DefaultReconnectConfig)
 
@@ -501,10 +502,11 @@ func TestClientClose(t *testing.T) {
 	defer server.Close()
 
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	conn, resp, err := websocket.DefaultDialer.Dial(wsURL, nil)
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
+	defer resp.Body.Close()
 
 	client := NewEnhancedClient(conn, "test", DefaultHeartbeatConfig, DefaultReconnectConfig)
 

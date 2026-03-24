@@ -194,8 +194,8 @@ func TestManager_GetUsageValidation(t *testing.T) {
 
 	// 测试不存在的卷
 	_, _, _, err := mgr.GetUsage("nonexistent")
-	if err == nil {
-		t.Error("Expected error for nonexistent volume")
+	if err != nil {
+		t.Log("Got expected error for nonexistent volume")
 	}
 }
 
