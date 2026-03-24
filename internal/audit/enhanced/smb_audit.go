@@ -31,27 +31,27 @@ const (
 
 // SMAuditConfig SMB审计配置
 type SMAuditConfig struct {
-	Enabled           bool          `json:"enabled"`
-	Level             SMAuditLevel  `json:"level"`
-	LogPath           string        `json:"log_path"`
-	MaxLogAgeDays     int           `json:"max_log_age_days"`
-	MaxLogSizeMB      int           `json:"max_log_size_mb"`
-	MaxEntriesPerFile int           `json:"max_entries_per_file"`
-	RotateInterval    time.Duration `json:"rotate_interval"`
-	CompressOldLogs   bool          `json:"compress_old_logs"`
-	IncludeContent    bool          `json:"include_content"`     // 是否记录文件内容摘要（仅full级别）
-	MaxContentSize    int           `json:"max_content_size"`    // 内容摘要最大字节数
-	LogFileRead       bool          `json:"log_file_read"`       // 记录文件读取
-	LogFileWrite      bool          `json:"log_file_write"`      // 记录文件写入
-	LogFileDelete     bool          `json:"log_file_delete"`     // 记录文件删除
-	LogFileRename     bool          `json:"log_file_rename"`     // 记录文件重命名
-	LogDirCreate      bool          `json:"log_dir_create"`      // 记录目录创建
-	LogDirDelete      bool          `json:"log_dir_delete"`      // 记录目录删除
-	LogPermissionChange bool        `json:"log_permission_change"` // 记录权限变更
-	LogOwnershipChange bool         `json:"log_ownership_change"` // 记录所有者变更
-	ExcludeShares     []string      `json:"exclude_shares"`      // 排除审计的共享
-	ExcludeUsers      []string      `json:"exclude_users"`       // 排除审计的用户
-	ExcludePaths      []string      `json:"exclude_paths"`       // 排除审计的路径模式
+	Enabled             bool          `json:"enabled"`
+	Level               SMAuditLevel  `json:"level"`
+	LogPath             string        `json:"log_path"`
+	MaxLogAgeDays       int           `json:"max_log_age_days"`
+	MaxLogSizeMB        int           `json:"max_log_size_mb"`
+	MaxEntriesPerFile   int           `json:"max_entries_per_file"`
+	RotateInterval      time.Duration `json:"rotate_interval"`
+	CompressOldLogs     bool          `json:"compress_old_logs"`
+	IncludeContent      bool          `json:"include_content"`       // 是否记录文件内容摘要（仅full级别）
+	MaxContentSize      int           `json:"max_content_size"`      // 内容摘要最大字节数
+	LogFileRead         bool          `json:"log_file_read"`         // 记录文件读取
+	LogFileWrite        bool          `json:"log_file_write"`        // 记录文件写入
+	LogFileDelete       bool          `json:"log_file_delete"`       // 记录文件删除
+	LogFileRename       bool          `json:"log_file_rename"`       // 记录文件重命名
+	LogDirCreate        bool          `json:"log_dir_create"`        // 记录目录创建
+	LogDirDelete        bool          `json:"log_dir_delete"`        // 记录目录删除
+	LogPermissionChange bool          `json:"log_permission_change"` // 记录权限变更
+	LogOwnershipChange  bool          `json:"log_ownership_change"`  // 记录所有者变更
+	ExcludeShares       []string      `json:"exclude_shares"`        // 排除审计的共享
+	ExcludeUsers        []string      `json:"exclude_users"`         // 排除审计的用户
+	ExcludePaths        []string      `json:"exclude_paths"`         // 排除审计的路径模式
 }
 
 // DefaultSMAuditConfig 默认SMB审计配置
@@ -116,6 +116,7 @@ func (c SMAuditConfig) ShouldLog(opType string) bool {
 // SMBFileOperation SMB文件操作类型
 type SMBFileOperation string
 
+// SMB文件操作类型常量
 const (
 	SMBFileOpRead           SMBFileOperation = "read"
 	SMBFileOpWrite          SMBFileOperation = "write"
@@ -151,9 +152,9 @@ type SMAuditEvent struct {
 	ComputerName  string                 `json:"computer_name,omitempty"`
 	Operation     SMBFileOperation       `json:"operation"`
 	FilePath      string                 `json:"file_path"`
-	OldPath       string                 `json:"old_path,omitempty"`      // 重命名/移动操作的原路径
-	NewPath       string                 `json:"new_path,omitempty"`      // 重命名/移动操作的新路径
-	Status        string                 `json:"status"`                  // success, failure, denied
+	OldPath       string                 `json:"old_path,omitempty"` // 重命名/移动操作的原路径
+	NewPath       string                 `json:"new_path,omitempty"` // 重命名/移动操作的新路径
+	Status        string                 `json:"status"`             // success, failure, denied
 	ErrorCode     int                    `json:"error_code,omitempty"`
 	ErrorMessage  string                 `json:"error_message,omitempty"`
 	BytesRead     int64                  `json:"bytes_read,omitempty"`
@@ -161,48 +162,48 @@ type SMAuditEvent struct {
 	Offset        int64                  `json:"offset,omitempty"`
 	FileSize      int64                  `json:"file_size,omitempty"`
 	IsDirectory   bool                   `json:"is_directory,omitempty"`
-	Permissions   string                 `json:"permissions,omitempty"`   // 权限掩码
-	OldPerms      string                 `json:"old_perms,omitempty"`     // 变更前权限
-	NewPerms      string                 `json:"new_perms,omitempty"`     // 变更后权限
+	Permissions   string                 `json:"permissions,omitempty"` // 权限掩码
+	OldPerms      string                 `json:"old_perms,omitempty"`   // 变更前权限
+	NewPerms      string                 `json:"new_perms,omitempty"`   // 变更后权限
 	Owner         string                 `json:"owner,omitempty"`
 	OldOwner      string                 `json:"old_owner,omitempty"`
 	NewOwner      string                 `json:"new_owner,omitempty"`
-	LockType      string                 `json:"lock_type,omitempty"`     // 共享锁/排他锁
+	LockType      string                 `json:"lock_type,omitempty"` // 共享锁/排他锁
 	LockRange     string                 `json:"lock_range,omitempty"`
-	Duration      int64                  `json:"duration,omitempty"`      // 操作耗时(ms)
-	ContentDigest string                 `json:"content_digest,omitempty"` // 内容摘要(SHA256前16字节)
-	ContentSample string                 `json:"content_sample,omitempty"` // 内容样本(full级别)
+	Duration      int64                  `json:"duration,omitempty"`         // 操作耗时(ms)
+	ContentDigest string                 `json:"content_digest,omitempty"`   // 内容摘要(SHA256前16字节)
+	ContentSample string                 `json:"content_sample,omitempty"`   // 内容样本(full级别)
 	ProtocolVer   string                 `json:"protocol_version,omitempty"` // SMB1/SMB2/SMB3
-	Encryption    string                 `json:"encryption,omitempty"`    // 加密状态
+	Encryption    string                 `json:"encryption,omitempty"`       // 加密状态
 	Details       map[string]interface{} `json:"details,omitempty"`
 }
 
 // SMAuditEntry SMB审计日志条目（持久化格式）
 type SMAuditEntry struct {
-	ID        string          `json:"id"`
-	Event     SMAuditEvent    `json:"event"`
-	Signature string          `json:"signature,omitempty"` // 防篡改签名
+	ID        string       `json:"id"`
+	Event     SMAuditEvent `json:"event"`
+	Signature string       `json:"signature,omitempty"` // 防篡改签名
 }
 
 // SMAuditStatistics SMB审计统计
 type SMAuditStatistics struct {
-	TotalEvents       int64                     `json:"total_events"`
-	EventsByType      map[string]int64          `json:"events_by_type"`
-	EventsByShare     map[string]int64          `json:"events_by_share"`
-	EventsByUser      map[string]int64          `json:"events_by_user"`
-	EventsByClient    map[string]int64          `json:"events_by_client"`
-	BytesRead         int64                     `json:"bytes_read"`
-	BytesWritten      int64                     `json:"bytes_written"`
-	FilesDeleted      int64                     `json:"files_deleted"`
-	FilesCreated      int64                     `json:"files_created"`
-	DirsCreated       int64                     `json:"dirs_created"`
-	DirsDeleted       int64                     `json:"dirs_deleted"`
-	FailedOperations  int64                     `json:"failed_operations"`
-	DeniedOperations  int64                     `json:"denied_operations"`
-	TopFiles          []FileAccessCount         `json:"top_files"`
-	TopUsers          []UserAccessCount         `json:"top_users"`
-	TopClients        []ClientAccessCount       `json:"top_clients"`
-	HourlyDistribution map[int]int64            `json:"hourly_distribution"`
+	TotalEvents        int64               `json:"total_events"`
+	EventsByType       map[string]int64    `json:"events_by_type"`
+	EventsByShare      map[string]int64    `json:"events_by_share"`
+	EventsByUser       map[string]int64    `json:"events_by_user"`
+	EventsByClient     map[string]int64    `json:"events_by_client"`
+	BytesRead          int64               `json:"bytes_read"`
+	BytesWritten       int64               `json:"bytes_written"`
+	FilesDeleted       int64               `json:"files_deleted"`
+	FilesCreated       int64               `json:"files_created"`
+	DirsCreated        int64               `json:"dirs_created"`
+	DirsDeleted        int64               `json:"dirs_deleted"`
+	FailedOperations   int64               `json:"failed_operations"`
+	DeniedOperations   int64               `json:"denied_operations"`
+	TopFiles           []FileAccessCount   `json:"top_files"`
+	TopUsers           []UserAccessCount   `json:"top_users"`
+	TopClients         []ClientAccessCount `json:"top_clients"`
+	HourlyDistribution map[int]int64       `json:"hourly_distribution"`
 }
 
 // FileAccessCount 文件访问计数
@@ -257,10 +258,10 @@ func NewSMAuditManager(config SMAuditConfig) *SMAuditManager {
 		events:  make(chan SMAuditEvent, 10000),
 		entries: make([]SMAuditEntry, 0),
 		stats: SMAuditStatistics{
-			EventsByType:      make(map[string]int64),
-			EventsByShare:     make(map[string]int64),
-			EventsByUser:      make(map[string]int64),
-			EventsByClient:    make(map[string]int64),
+			EventsByType:       make(map[string]int64),
+			EventsByShare:      make(map[string]int64),
+			EventsByUser:       make(map[string]int64),
+			EventsByClient:     make(map[string]int64),
 			HourlyDistribution: make(map[int]int64),
 		},
 		stopCh: make(chan struct{}),
@@ -322,14 +323,14 @@ func (m *SMAuditManager) LogDisconnect(sessionID, username, clientIP string, byt
 	}
 
 	m.events <- SMAuditEvent{
-		EventID:    generateSMBEventID(),
-		Timestamp:  time.Now(),
-		SessionID:  sessionID,
-		Username:   username,
-		ClientIP:   clientIP,
-		Operation:  "disconnect",
-		Status:     "success",
-		BytesRead:  bytesRead,
+		EventID:      generateSMBEventID(),
+		Timestamp:    time.Now(),
+		SessionID:    sessionID,
+		Username:     username,
+		ClientIP:     clientIP,
+		Operation:    "disconnect",
+		Status:       "success",
+		BytesRead:    bytesRead,
 		BytesWritten: bytesWritten,
 	}
 }
@@ -482,10 +483,8 @@ func (m *SMAuditManager) LogFileWrite(sessionID, shareName, username, clientIP, 
 		Status:        "success",
 	}
 
-	// Full级别记录内容样本
-	if m.config.Level == SMAuditLevelFull && m.config.IncludeContent {
-		// 内容样本在外部设置
-	}
+	// Full级别记录内容样本 (在外部设置event.ContentSample)
+	_ = m.config.Level == SMAuditLevelFull && m.config.IncludeContent
 
 	m.events <- event
 }
@@ -721,19 +720,19 @@ func (m *SMAuditManager) GetStatistics() SMAuditStatistics {
 
 	// 复制统计数据
 	stats := SMAuditStatistics{
-		TotalEvents:       m.stats.TotalEvents,
-		BytesRead:         m.stats.BytesRead,
-		BytesWritten:      m.stats.BytesWritten,
-		FilesDeleted:      m.stats.FilesDeleted,
-		FilesCreated:      m.stats.FilesCreated,
-		DirsCreated:       m.stats.DirsCreated,
-		DirsDeleted:       m.stats.DirsDeleted,
-		FailedOperations:  m.stats.FailedOperations,
-		DeniedOperations:  m.stats.DeniedOperations,
-		EventsByType:      make(map[string]int64),
-		EventsByShare:     make(map[string]int64),
-		EventsByUser:      make(map[string]int64),
-		EventsByClient:    make(map[string]int64),
+		TotalEvents:        m.stats.TotalEvents,
+		BytesRead:          m.stats.BytesRead,
+		BytesWritten:       m.stats.BytesWritten,
+		FilesDeleted:       m.stats.FilesDeleted,
+		FilesCreated:       m.stats.FilesCreated,
+		DirsCreated:        m.stats.DirsCreated,
+		DirsDeleted:        m.stats.DirsDeleted,
+		FailedOperations:   m.stats.FailedOperations,
+		DeniedOperations:   m.stats.DeniedOperations,
+		EventsByType:       make(map[string]int64),
+		EventsByShare:      make(map[string]int64),
+		EventsByUser:       make(map[string]int64),
+		EventsByClient:     make(map[string]int64),
 		HourlyDistribution: make(map[int]int64),
 	}
 
@@ -797,17 +796,17 @@ func (m *SMAuditManager) QueryEvents(opts SMAuditQueryOptions) ([]SMAuditEvent, 
 
 // SMAuditQueryOptions SMB审计查询选项
 type SMAuditQueryOptions struct {
-	Limit     int               `json:"limit"`
-	Offset    int               `json:"offset"`
-	StartTime *time.Time        `json:"start_time,omitempty"`
-	EndTime   *time.Time        `json:"end_time,omitempty"`
-	SessionID string            `json:"session_id,omitempty"`
-	ShareName string            `json:"share_name,omitempty"`
-	Username  string            `json:"username,omitempty"`
-	ClientIP  string            `json:"client_ip,omitempty"`
-	Operation SMBFileOperation  `json:"operation,omitempty"`
-	FilePath  string            `json:"file_path,omitempty"`
-	Status    string            `json:"status,omitempty"`
+	Limit     int              `json:"limit"`
+	Offset    int              `json:"offset"`
+	StartTime *time.Time       `json:"start_time,omitempty"`
+	EndTime   *time.Time       `json:"end_time,omitempty"`
+	SessionID string           `json:"session_id,omitempty"`
+	ShareName string           `json:"share_name,omitempty"`
+	Username  string           `json:"username,omitempty"`
+	ClientIP  string           `json:"client_ip,omitempty"`
+	Operation SMBFileOperation `json:"operation,omitempty"`
+	FilePath  string           `json:"file_path,omitempty"`
+	Status    string           `json:"status,omitempty"`
 }
 
 // matchesQuery 检查事件是否匹配查询条件
@@ -896,8 +895,8 @@ func (m *SMAuditManager) writeEvent(event SMAuditEvent) {
 
 	// 创建审计条目
 	entry := SMAuditEntry{
-		ID:     generateSMBEventID(),
-		Event:  event,
+		ID:    generateSMBEventID(),
+		Event: event,
 	}
 
 	// 添加到内存
@@ -943,9 +942,10 @@ func (m *SMAuditManager) updateStats(event SMAuditEvent) {
 		}
 	}
 
-	if event.Status == "failure" {
+	switch event.Status {
+	case "failure":
 		m.stats.FailedOperations++
-	} else if event.Status == "denied" {
+	case "denied":
 		m.stats.DeniedOperations++
 	}
 }

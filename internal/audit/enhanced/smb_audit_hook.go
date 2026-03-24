@@ -8,9 +8,9 @@ import (
 
 // SMAuditHook SMB审计钩子 - 用于集成到SMB管理器
 type SMAuditHook struct {
-	manager   *SMAuditManager
-	sessions  map[string]*SMBSessionInfo
-	mu        sync.RWMutex
+	manager  *SMAuditManager
+	sessions map[string]*SMBSessionInfo
+	mu       sync.RWMutex
 }
 
 // OpenFileInfoExt 扩展的打开文件信息（包含字节统计）
@@ -22,15 +22,15 @@ type OpenFileInfoExt struct {
 
 // SMBSessionInfo SMB会话信息缓存
 type SMBSessionInfo struct {
-	SessionID     string
-	Username      string
-	ClientIP      string
-	ShareName     string
-	ConnectedAt   time.Time
-	LastActivity  time.Time
-	BytesRead     int64
-	BytesWritten  int64
-	OpenFiles     map[string]*OpenFileInfoExt
+	SessionID    string
+	Username     string
+	ClientIP     string
+	ShareName    string
+	ConnectedAt  time.Time
+	LastActivity time.Time
+	BytesRead    int64
+	BytesWritten int64
+	OpenFiles    map[string]*OpenFileInfoExt
 }
 
 // OpenFileInfo 使用 session_audit.go 中已定义的类型，这里添加本地扩展字段
