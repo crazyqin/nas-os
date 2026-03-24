@@ -15,10 +15,10 @@ import (
 
 // STUN constants
 const (
-	STUNMagicCookie = 0x2112A442
-	STUNHeaderSize  = 20
-	STUNBindingRequest  = 0x0001
-	STUNBindingResponse = 0x0101
+	STUNMagicCookie          = 0x2112A442
+	STUNHeaderSize           = 20
+	STUNBindingRequest       = 0x0001
+	STUNBindingResponse      = 0x0101
 	STUNAttrMappedAddress    = 0x0001
 	STUNAttrXORMappedAddress = 0x0020
 	STUNAttrSoftware         = 0x0002
@@ -28,20 +28,20 @@ const (
 
 var (
 	// ErrSTUNTimeout indicates STUN request timeout
-	ErrSTUNTimeout     = errors.New("STUN request timeout")
+	ErrSTUNTimeout = errors.New("STUN request timeout")
 	// ErrSTUNNoResponse indicates no STUN response received
-	ErrSTUNNoResponse  = errors.New("no STUN response")
+	ErrSTUNNoResponse = errors.New("no STUN response")
 	// ErrSTUNInvalid indicates invalid STUN response
-	ErrSTUNInvalid     = errors.New("invalid STUN response")
+	ErrSTUNInvalid = errors.New("invalid STUN response")
 	// ErrSTUNNoMapped indicates no mapped address in response
-	ErrSTUNNoMapped    = errors.New("no mapped address in response")
+	ErrSTUNNoMapped = errors.New("no mapped address in response")
 )
 
 // STUNClient handles STUN protocol operations
 type STUNClient struct {
-	config    *TunnelConfig
-	conn      *net.UDPConn
-	mu        sync.RWMutex
+	config *TunnelConfig
+	conn   *net.UDPConn
+	mu     sync.RWMutex
 }
 
 // STUNResult contains the result of a STUN query
@@ -127,7 +127,7 @@ func (c *STUNClient) querySTUNServer(ctx context.Context, server string) (net.IP
 	if host == "" {
 		host = server
 	}
-	
+
 	// Remove port if present and use default
 	port := 3478
 	if parts := strings.Split(host, ":"); len(parts) == 2 {
@@ -143,7 +143,7 @@ func (c *STUNClient) querySTUNServer(ctx context.Context, server string) (net.IP
 
 	// Create and send binding request
 	request := c.createBindingRequest()
-	
+
 	// Set deadline
 	deadline, ok := ctx.Deadline()
 	if !ok {
@@ -171,19 +171,19 @@ func (c *STUNClient) querySTUNServer(ctx context.Context, server string) (net.IP
 func (c *STUNClient) createBindingRequest() []byte {
 	// STUN header: 2 bytes type + 2 bytes length + 4 bytes magic + 12 bytes transaction ID
 	buf := make([]byte, STUNHeaderSize)
-	
+
 	// Message type: Binding Request
 	binary.BigEndian.PutUint16(buf[0:2], STUNBindingRequest)
-	
+
 	// Magic cookie
 	binary.BigEndian.PutUint32(buf[4:8], STUNMagicCookie)
-	
+
 	// Transaction ID (12 random bytes)
 	rand.Read(buf[8:20])
-	
+
 	// No attributes in basic request
 	binary.BigEndian.PutUint16(buf[2:4], 0)
-	
+
 	return buf
 }
 
@@ -352,7 +352,7 @@ func (c *STUNClient) GetPublicAddress(ctx context.Context, server string) (net.I
 func (c *STUNClient) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	if c.conn != nil {
 		return c.conn.Close()
 	}
@@ -372,24 +372,24 @@ func (c *STUNClient) IsBehindNAT(ctx context.Context) (bool, error) {
 func ParseSTUNServer(url string) (host string, port int, err error) {
 	url = strings.TrimPrefix(url, "stun:")
 	url = strings.TrimPrefix(url, "stuns:")
-	
+
 	parts := strings.Split(url, ":")
 	host = parts[0]
 	port = 3478
-	
+
 	if len(parts) > 1 {
 		_, err = fmt.Sscanf(parts[1], "%d", &port)
 	}
-	
+
 	return host, port, err
 }
 
 // STUNPacket represents a parsed STUN packet
 type STUNPacket struct {
-	Type         uint16
-	Length       uint16
+	Type          uint16
+	Length        uint16
 	TransactionID []byte
-	Attributes   map[uint16][]byte
+	Attributes    map[uint16][]byte
 }
 
 // ParseSTUNPacket parses a raw STUN packet

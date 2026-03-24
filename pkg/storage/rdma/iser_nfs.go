@@ -218,10 +218,10 @@ type NFSRDMAConfig struct {
 	MountOptions []string `json:"mountOptions"`
 
 	// 缓存设置
-	AttrCacheTimeout   time.Duration `json:"attrCacheTimeout"`
-	DirCacheTimeout    time.Duration `json:"dirCacheTimeout"`
-	ReadAheadSize      int           `json:"readAheadSize"`
-	WriteBufferSize    int           `json:"writeBufferSize"`
+	AttrCacheTimeout time.Duration `json:"attrCacheTimeout"`
+	DirCacheTimeout  time.Duration `json:"dirCacheTimeout"`
+	ReadAheadSize    int           `json:"readAheadSize"`
+	WriteBufferSize  int           `json:"writeBufferSize"`
 
 	// 性能调优
 	MaxReadSize  int `json:"maxReadSize"`
@@ -240,10 +240,10 @@ func DefaultNFSRDMAConfig() *NFSRDMAConfig {
 		MountOptions:     []string{"hard", "timeo=600", "retrans=2"},
 		AttrCacheTimeout: 60 * time.Second,
 		DirCacheTimeout:  60 * time.Second,
-		ReadAheadSize:    1024 * 1024,   // 1MB
-		WriteBufferSize:  1024 * 1024,   // 1MB
-		MaxReadSize:      1024 * 1024,   // 1MB
-		MaxWriteSize:     1024 * 1024,   // 1MB
+		ReadAheadSize:    1024 * 1024, // 1MB
+		WriteBufferSize:  1024 * 1024, // 1MB
+		MaxReadSize:      1024 * 1024, // 1MB
+		MaxWriteSize:     1024 * 1024, // 1MB
 		SecurityFlavor:   "sys",
 	}
 }
@@ -404,7 +404,7 @@ type RDMAPerfMonitor struct {
 	sampleInterval time.Duration
 
 	// 历史数据
-	history []PerfSample
+	history    []PerfSample
 	maxHistory int
 
 	// 停止信号
@@ -416,8 +416,8 @@ type PerfSample struct {
 	Timestamp    time.Time `json:"timestamp"`
 	ThroughputMB float64   `json:"throughputMB"` // MB/s
 	IOPS         float64   `json:"iops"`
-	LatencyUs    float64   `json:"latencyUs"`    // 微秒
-	CPUUsage     float64   `json:"cpuUsage"`     // 百分比
+	LatencyUs    float64   `json:"latencyUs"` // 微秒
+	CPUUsage     float64   `json:"cpuUsage"`  // 百分比
 	MemoryMB     float64   `json:"memoryMB"`
 }
 
@@ -533,16 +533,16 @@ func CheckRDMAAvailable() (bool, error) {
 func GetRDMAStats(deviceName string) (map[string]interface{}, error) {
 	// 实际实现需要读取 /sys/class/infiniband/<device>/statistics/
 	stats := map[string]interface{}{
-		"portRcvData":        0,
-		"portXmitData":       0,
-		"portRcvPackets":     0,
-		"portXmitPackets":    0,
-		"portRcvErrors":      0,
-		"portXmitDiscards":   0,
-		"portRcvConstraintErrors": 0,
+		"portRcvData":              0,
+		"portXmitData":             0,
+		"portRcvPackets":           0,
+		"portXmitPackets":          0,
+		"portRcvErrors":            0,
+		"portXmitDiscards":         0,
+		"portRcvConstraintErrors":  0,
 		"portXmitConstraintErrors": 0,
-		"linkDowned":         0,
-		"symbolError":        0,
+		"linkDowned":               0,
+		"symbolError":              0,
 	}
 
 	return stats, nil

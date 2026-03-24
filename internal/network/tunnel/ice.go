@@ -38,11 +38,11 @@ const (
 
 var (
 	// ErrICEFailed indicates ICE connection failure
-	ErrICEFailed       = errors.New("ICE connection failed")
+	ErrICEFailed = errors.New("ICE connection failed")
 	// ErrICENoCandidates indicates no valid candidates available
 	ErrICENoCandidates = errors.New("no valid candidates")
 	// ErrICETimeout indicates ICE negotiation timeout
-	ErrICETimeout      = errors.New("ICE negotiation timeout")
+	ErrICETimeout = errors.New("ICE negotiation timeout")
 	// ErrICEInvalidState indicates invalid ICE state
 	ErrICEInvalidState = errors.New("invalid ICE state")
 )

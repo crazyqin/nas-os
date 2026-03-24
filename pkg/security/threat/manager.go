@@ -12,22 +12,22 @@ import (
 
 // ThreatManager 威胁优先级管理器
 type ThreatManager struct {
-	kevDB     *KEVDatabase
-	epssDB    *EPSSDatabase
-	levCalc   *LEVCalculator
-	config    ThreatConfig
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
+	kevDB   *KEVDatabase
+	epssDB  *EPSSDatabase
+	levCalc *LEVCalculator
+	config  ThreatConfig
+	mu      sync.RWMutex
+	ctx     context.Context
+	cancel  context.CancelFunc
 }
 
 // ThreatConfig 威胁系统配置
 type ThreatConfig struct {
-	KEV      KEVConfig      `json:"kev"`
-	EPSS     EPSSConfig     `json:"epss"`
-	LEV      LEVConfig      `json:"lev"`
-	Enabled  bool           `json:"enabled"`
-	AutoSync bool           `json:"auto_sync"`
+	KEV      KEVConfig  `json:"kev"`
+	EPSS     EPSSConfig `json:"epss"`
+	LEV      LEVConfig  `json:"lev"`
+	Enabled  bool       `json:"enabled"`
+	AutoSync bool       `json:"auto_sync"`
 }
 
 // DefaultThreatConfig 默认威胁系统配置
@@ -203,22 +203,22 @@ func (tm *ThreatManager) CalculateLEVBatch(inputs []LEVInput) []*LEVScore {
 
 // VulnerabilityData 漏洞数据
 type VulnerabilityData struct {
-	CVEID            string     `json:"cve_id"`
-	CVSSScore        float64    `json:"cvss_score"`
-	PublishedDate    time.Time  `json:"published_date"`
-	AssetCriticality float64    `json:"asset_criticality"`
-	ExposureLevel    float64    `json:"exposure_level"`
-	NetworkAccessible bool       `json:"network_accessible"`
+	CVEID             string    `json:"cve_id"`
+	CVSSScore         float64   `json:"cvss_score"`
+	PublishedDate     time.Time `json:"published_date"`
+	AssetCriticality  float64   `json:"asset_criticality"`
+	ExposureLevel     float64   `json:"exposure_level"`
+	NetworkAccessible bool      `json:"network_accessible"`
 }
 
 // AssessVulnerability 评估单个漏洞
 func (tm *ThreatManager) AssessVulnerability(data VulnerabilityData) *LEVScore {
 	input := LEVInput{
-		CVEID:            data.CVEID,
-		CVSSScore:        data.CVSSScore,
-		VulnerabilityAge: int(time.Since(data.PublishedDate).Hours() / 24),
-		AssetCriticality: data.AssetCriticality,
-		ExposureLevel:    data.ExposureLevel,
+		CVEID:             data.CVEID,
+		CVSSScore:         data.CVSSScore,
+		VulnerabilityAge:  int(time.Since(data.PublishedDate).Hours() / 24),
+		AssetCriticality:  data.AssetCriticality,
+		ExposureLevel:     data.ExposureLevel,
 		NetworkAccessible: data.NetworkAccessible,
 	}
 
@@ -230,11 +230,11 @@ func (tm *ThreatManager) AssessVulnerabilities(data []VulnerabilityData) []*LEVS
 	inputs := make([]LEVInput, len(data))
 	for i, d := range data {
 		inputs[i] = LEVInput{
-			CVEID:            d.CVEID,
-			CVSSScore:        d.CVSSScore,
-			VulnerabilityAge: int(time.Since(d.PublishedDate).Hours() / 24),
-			AssetCriticality: d.AssetCriticality,
-			ExposureLevel:    d.ExposureLevel,
+			CVEID:             d.CVEID,
+			CVSSScore:         d.CVSSScore,
+			VulnerabilityAge:  int(time.Since(d.PublishedDate).Hours() / 24),
+			AssetCriticality:  d.AssetCriticality,
+			ExposureLevel:     d.ExposureLevel,
 			NetworkAccessible: d.NetworkAccessible,
 		}
 	}
@@ -256,19 +256,19 @@ func (tm *ThreatManager) GetStatus() map[string]interface{} {
 	defer tm.mu.RUnlock()
 
 	return map[string]interface{}{
-		"enabled":      tm.config.Enabled,
-		"kev_info":     tm.kevDB.GetCatalogInfo(),
-		"epss_stats":   tm.epssDB.GetStatistics(),
+		"enabled":    tm.config.Enabled,
+		"kev_info":   tm.kevDB.GetCatalogInfo(),
+		"epss_stats": tm.epssDB.GetStatistics(),
 	}
 }
 
 // GetStatistics 获取统计信息
 func (tm *ThreatManager) GetStatistics() *ThreatStatistics {
 	return &ThreatStatistics{
-		KEVTotal:       len(tm.kevDB.GetAllEntries()),
-		KEVRansomware:  len(tm.kevDB.GetRansomwareRelated()),
-		KEVOverdue:     len(tm.kevDB.GetOverdue()),
-		EPSSCached:     len(tm.epssDB.cache),
+		KEVTotal:      len(tm.kevDB.GetAllEntries()),
+		KEVRansomware: len(tm.kevDB.GetRansomwareRelated()),
+		KEVOverdue:    len(tm.kevDB.GetOverdue()),
+		EPSSCached:    len(tm.epssDB.cache),
 	}
 }
 
@@ -285,10 +285,10 @@ type ThreatStatistics struct {
 // NewLEVInput 创建 LEV 输入
 func NewLEVInput(cveID string, cvssScore float64) LEVInput {
 	return LEVInput{
-		CVEID:           cveID,
-		CVSSScore:       cvssScore,
-		AssetCriticality: 1.0, // 默认高关键性
-		ExposureLevel:    0.8, // 默认高暴露
+		CVEID:             cveID,
+		CVSSScore:         cvssScore,
+		AssetCriticality:  1.0, // 默认高关键性
+		ExposureLevel:     0.8, // 默认高暴露
 		NetworkAccessible: true,
 	}
 }

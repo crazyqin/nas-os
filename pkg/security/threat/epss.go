@@ -18,7 +18,7 @@ import (
 // EPSSData EPSS 数据结构
 type EPSSData struct {
 	CVEID      string    `json:"cve"`
-	Score      float64   `json:"epss"`      // 0-1 概率评分
+	Score      float64   `json:"epss"`       // 0-1 概率评分
 	Percentile float64   `json:"percentile"` // 0-1 百分位
 	Date       time.Time `json:"date"`
 }
@@ -249,13 +249,13 @@ type EPSSRiskLevel string
 
 const (
 	// EPSSRiskLow indicates low EPSS risk (score < 0.01)
-	EPSSRiskLow       EPSSRiskLevel = "low"       // < 0.01
+	EPSSRiskLow EPSSRiskLevel = "low" // < 0.01
 	// EPSSRiskMedium indicates medium EPSS risk (score 0.01 - 0.1)
-	EPSSRiskMedium    EPSSRiskLevel = "medium"    // 0.01 - 0.1
+	EPSSRiskMedium EPSSRiskLevel = "medium" // 0.01 - 0.1
 	// EPSSRiskHigh indicates high EPSS risk (score 0.1 - 0.5)
-	EPSSRiskHigh      EPSSRiskLevel = "high"      // 0.1 - 0.5
+	EPSSRiskHigh EPSSRiskLevel = "high" // 0.1 - 0.5
 	// EPSSRiskCritical indicates critical EPSS risk (score > 0.5)
-	EPSSRiskCritical  EPSSRiskLevel = "critical"  // > 0.5
+	EPSSRiskCritical EPSSRiskLevel = "critical" // > 0.5
 )
 
 // GetEPSSRiskLevel 获取 EPSS 风险等级
@@ -299,7 +299,7 @@ func (edb *EPSSDatabase) GetStatistics() map[string]interface{} {
 
 	if len(edb.cache) == 0 {
 		return map[string]interface{}{
-			"total":    0,
+			"total":     0,
 			"last_sync": edb.lastSync,
 		}
 	}
@@ -322,10 +322,10 @@ func (edb *EPSSDatabase) GetStatistics() map[string]interface{} {
 	count := len(edb.cache)
 
 	return map[string]interface{}{
-		"total":            count,
-		"average_score":    totalScore / float64(count),
+		"total":              count,
+		"average_score":      totalScore / float64(count),
 		"average_percentile": totalPercentile / float64(count),
-		"by_risk_level":    levelCounts,
-		"last_sync":        edb.lastSync,
+		"by_risk_level":      levelCounts,
+		"last_sync":          edb.lastSync,
 	}
 }
