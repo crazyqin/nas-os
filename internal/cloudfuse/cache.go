@@ -154,8 +154,8 @@ func (cm *CacheManager) Remove(path string) {
 		return
 	}
 
-	// 删除文件
-	os.Remove(entry.LocalPath)
+	// 删除文件（忽略错误，文件可能不存在）
+	_ = os.Remove(entry.LocalPath)
 
 	// 更新统计
 	cm.usedSize -= entry.Size
@@ -184,7 +184,7 @@ func (cm *CacheManager) Clear() error {
 
 	// 删除所有缓存文件
 	for path, entry := range cm.entries2 {
-		os.Remove(entry.LocalPath)
+		_ = os.Remove(entry.LocalPath)
 		delete(cm.entries2, path)
 		if elem, ok := cm.entries[path]; ok {
 			cm.lruList.Remove(elem)
@@ -247,7 +247,13 @@ func (cm *CacheManager) evictOne() {
 		return
 	}
 
-	path := elem.Value.(string)
+	path, ok := elem.Value.(string)
+	if !ok {
+		cm.lruList.Remove(elem)
+		delete(cm.entries, path)
+		return
+	}
+
 	entry, ok := cm.entries2[path]
 	if !ok {
 		cm.lruList.Remove(elem)
@@ -255,8 +261,8 @@ func (cm *CacheManager) evictOne() {
 		return
 	}
 
-	// 删除文件
-	os.Remove(entry.LocalPath)
+	// 删除文件（忽略错误）
+	_ = os.Remove(entry.LocalPath)
 
 	// 更新统计
 	cm.usedSize -= entry.Size
