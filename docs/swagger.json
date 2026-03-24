@@ -17,7 +17,11 @@
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
-"version": "2.253.285"
+<<<<<<< HEAD
+"version": "2.253.289"
+=======
+"version": "2.253.289"
+>>>>>>> c2d6135 (feat: 第39轮开发 - SMB/NFS会话审计、竞品分析、版本更新v2.253.289)
     },
     "host": "localhost:8080",
     "basePath": "/api/v1",
