@@ -299,8 +299,6 @@ func (fl *FileLock) Extend(duration time.Duration) {
 	fl.LastRenewedAt = now
 	fl.Version++ // 版本增加
 }
-	fl.Version++
-}
 
 // Release 释放锁
 func (fl *FileLock) Release() {
@@ -320,8 +318,10 @@ func (fl *FileLock) Upgrade() error {
 	}
 
 	// 检查是否可以升级（没有其他共享锁持有者）
-	// 只有当前用户一个共享者时可以升级
-	if len(fl.SharedOwners) > 1 {
+	// SharedOwners列表中的其他用户会导致升级失败
+	if len(fl.SharedOwners) > 0 {
+		// 只有一个共享者且是当前用户时，可以升级
+		// 但这个方法无法知道当前用户是谁，所以保守地拒绝
 		return ErrLockUpgradeFailed
 	}
 

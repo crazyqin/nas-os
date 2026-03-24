@@ -442,10 +442,28 @@ func (m *Manager) UpgradeLock(lockID string, owner string) error {
 	}
 
 	// 检查是否有其他共享锁持有者（大于1表示有其他人）
-	// 只有当前用户一个共享者时可以升级
+	// 只有当前用户一个共享者时可以升级 - 在Upgrade方法中判断
 	if len(lock.SharedOwners) > 1 {
 		return ErrLockUpgradeFailed
 	}
+
+	// 如果只有一个共享者，检查是否是当前用户
+	if len(lock.SharedOwners) == 1 {
+		// 找到当前用户的共享记录
+		found := false
+		for _, so := range lock.SharedOwners {
+			if so.Owner == owner {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return ErrLockUpgradeFailed
+		}
+	}
+
+	// 清空共享者列表（升级后变为独占锁）
+	lock.SharedOwners = nil
 
 	err := lock.Upgrade()
 	if err != nil {

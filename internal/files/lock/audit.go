@@ -273,8 +273,8 @@ func (s *LockAuditStorage) Query(opts LockAuditQueryOptions) (*LockAuditQueryRes
 	// 合并文件中的条目
 	allEntries := memoryEntries
 
-	// 如果指定了时间范围，从文件加载
-	if opts.StartTime != nil || opts.EndTime != nil {
+	// 从文件加载（无论是否指定时间范围，当内存为空时也尝试）
+	if len(allEntries) == 0 || opts.StartTime != nil || opts.EndTime != nil {
 		fileEntries, err := s.loadFromFile(opts)
 		if err == nil {
 			allEntries = append(allEntries, fileEntries...)
@@ -347,6 +347,19 @@ func (s *LockAuditStorage) loadFromFile(opts LockAuditQueryOptions) ([]*LockAudi
 			date := strings.TrimPrefix(name, "lock-audit-")
 			date = strings.TrimSuffix(date, ".jsonl")
 			if date >= start && date <= end {
+				files = append(files, filepath.Join(s.logPath, name))
+			}
+		}
+	} else {
+		// 没有时间范围时，读取所有审计日志文件
+		dirEntries, err := os.ReadDir(s.logPath)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, entry := range dirEntries {
+			name := entry.Name()
+			if strings.HasPrefix(name, "lock-audit-") && strings.HasSuffix(name, ".jsonl") {
 				files = append(files, filepath.Join(s.logPath, name))
 			}
 		}
