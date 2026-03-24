@@ -531,23 +531,30 @@ func (mi *ManualInstaller) fetchFromGitHub(githubURL string) (string, error) {
 // extractAppNameFromCompose 从 compose 内容提取应用名
 func (mi *ManualInstaller) extractAppNameFromCompose(content string) string {
 	lines := strings.Split(content, "\n")
-	for i, line := range lines {
-		if strings.Contains(line, "container_name:") {
+
+	// 首先查找 container_name（优先级更高）
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "container_name:") {
 			// 找到 container_name
-			parts := strings.Split(line, ":")
+			parts := strings.SplitN(line, ":", 2)
 			if len(parts) >= 2 {
 				name := strings.TrimSpace(parts[1])
 				name = strings.Trim(name, "\"'")
 				return name
 			}
 		}
+	}
+
+	// 如果没有 container_name，尝试从服务名获取
+	for i, line := range lines {
 		if i > 0 && strings.HasSuffix(lines[i-1], ":") && !strings.HasPrefix(strings.TrimSpace(lines[i-1]), "#") {
 			// 服务名
 			trimmed := strings.TrimSpace(line)
 			if strings.HasPrefix(trimmed, "image:") {
 				// 上一行可能是服务名
 				prevLine := strings.TrimSpace(lines[i-1])
-				if strings.HasSuffix(prevLine, ":") && !strings.Contains(prevLine, " ") {
+				if strings.HasSuffix(prevLine, ":") && !strings.Contains(prevLine, " ") && !strings.Contains(prevLine, "services") && !strings.Contains(prevLine, "version") {
 					return strings.TrimSuffix(prevLine, ":")
 				}
 			}

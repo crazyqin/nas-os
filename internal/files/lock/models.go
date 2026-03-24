@@ -320,11 +320,13 @@ func (fl *FileLock) Upgrade() error {
 	}
 
 	// 检查是否可以升级（没有其他共享锁持有者）
-	if len(fl.SharedOwners) > 0 {
+	// 只有当前用户一个共享者时可以升级
+	if len(fl.SharedOwners) > 1 {
 		return ErrLockUpgradeFailed
 	}
 
 	fl.LockType = LockTypeExclusive
+	fl.SharedOwners = nil // 独占锁没有共享者列表
 	fl.Version++
 	return nil
 }

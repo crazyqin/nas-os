@@ -2172,6 +2172,270 @@ definitions:
     - Second
     - Minute
     - Hour
+  tunnel.DashboardResponse:
+    properties:
+      frp:
+        $ref: '#/definitions/tunnel.FRPDashboardResponse'
+      overallStatus:
+        $ref: '#/definitions/tunnel.OverallStatus'
+      p2p:
+        $ref: '#/definitions/tunnel.P2PDashboardResponse'
+    type: object
+  tunnel.FRPConfig:
+    properties:
+      autoReconnect:
+        description: 自动重连
+        type: boolean
+      deviceId:
+        description: 设备ID
+        type: string
+      deviceName:
+        description: 设备名称
+        type: string
+      enabled:
+        description: 是否启用
+        type: boolean
+      logLevel:
+        description: 日志级别
+        type: string
+      serverAddr:
+        description: FRP服务器地址
+        type: string
+      serverPort:
+        description: FRP服务器端口
+        type: integer
+      stunServers:
+        description: STUN服务器列表
+        items:
+          type: string
+        type: array
+      token:
+        description: 认证令牌
+        type: string
+    type: object
+  tunnel.FRPDashboardResponse:
+    properties:
+      connected:
+        type: boolean
+      deviceId:
+        type: string
+      enabled:
+        type: boolean
+      proxyCount:
+        type: integer
+      proxies:
+        items:
+          $ref: '#/definitions/tunnel.FRPProxyStatus'
+        type: array
+      serverAddr:
+        type: string
+      totalTraffic:
+        type: integer
+      uptime:
+        type: integer
+    type: object
+  tunnel.FRPProxyConfig:
+    properties:
+      customDomains:
+        description: 自定义域名（http/https）
+        items:
+          type: string
+        type: array
+      enableTls:
+        description: 启用TLS
+        type: boolean
+      headers:
+        additionalProperties:
+          type: string
+        description: HTTP头
+        type: object
+      localIp:
+        description: 本地IP
+        type: string
+      localPort:
+        description: 本地端口
+        type: integer
+      name:
+        description: 代理名称
+        type: string
+      remotePort:
+        description: 远程端口（tcp/udp）
+        type: integer
+      subdomain:
+        description: 子域名
+        type: string
+      type:
+        description: '类型: tcp, udp, http, https'
+        type: string
+    type: object
+  tunnel.FRPProxyStatus:
+    properties:
+      lastActive:
+        type: string
+      localAddr:
+        type: string
+      name:
+        type: string
+      remoteAddr:
+        type: string
+      status:
+        type: string
+      trafficIn:
+        type: integer
+      trafficOut:
+        type: integer
+      type:
+        type: string
+    type: object
+  tunnel.FRPStatus:
+    properties:
+      connected:
+        type: boolean
+      deviceId:
+        type: string
+      errorMessage:
+        type: string
+      lastConnected:
+        type: string
+      proxyCount:
+        type: integer
+      proxies:
+        items:
+          $ref: '#/definitions/tunnel.FRPProxyStatus'
+        type: array
+      publicUrl:
+        type: string
+      serverAddr:
+        type: string
+      uptime:
+        type: integer
+    type: object
+  tunnel.ManagerStatus:
+    properties:
+      activeTunnels:
+        type: integer
+      natType:
+        type: string
+      publicIp:
+        type: string
+      publicPort:
+        type: integer
+      serverLatency:
+        type: integer
+      startTime:
+        type: string
+      state:
+        type: string
+      totalBytesRx:
+        type: integer
+      totalBytesTx:
+        type: integer
+      tunnels:
+        items:
+          $ref: '#/definitions/tunnel.TunnelStatus'
+        type: array
+    type: object
+  tunnel.OverallStatus:
+    properties:
+      connected:
+        type: boolean
+      lastChecked:
+        type: string
+      primaryMode:
+        type: string
+      publicIp:
+        type: string
+      uptime:
+        type: integer
+    type: object
+  tunnel.P2PDashboardResponse:
+    properties:
+      connected:
+        type: boolean
+      natType:
+        type: string
+      publicIp:
+        type: string
+      tunnelCount:
+        type: integer
+    type: object
+  tunnel.PresetService:
+    properties:
+      description:
+        type: string
+      icon:
+        type: string
+      localPort:
+        type: integer
+      name:
+        type: string
+      protocol:
+        type: string
+    type: object
+  tunnel.QuickConnectRequest:
+    properties:
+      localPort:
+        maximum: 65535
+        minimum: 1
+        type: integer
+      serviceName:
+        type: string
+    required:
+    - localPort
+    type: object
+  tunnel.QuickConnectResult:
+    properties:
+      localPort:
+        type: integer
+      proxyName:
+        type: string
+      publicUrl:
+        type: string
+      remotePort:
+        type: integer
+    type: object
+  tunnel.ConnectP2PRequest:
+    properties:
+      peerId:
+        type: string
+    required:
+    - peerId
+    type: object
+  tunnel.TunnelStatus:
+    properties:
+      bytesReceived:
+        type: integer
+      bytesSent:
+        type: integer
+      connections:
+        type: integer
+      id:
+        type: string
+      lastConnected:
+        type: string
+      lastError:
+        type: string
+      localAddr:
+        type: string
+      mode:
+        type: string
+      name:
+        type: string
+      natType:
+        type: string
+      peerAddr:
+        type: string
+      publicAddr:
+        type: string
+      relayAddr:
+        type: string
+      remoteAddr:
+        type: string
+      state:
+        type: string
+      uptime:
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -6872,6 +7136,310 @@ paths:
       summary: 获取卷使用量
       tags:
       - volumes
+  /tunnel/dashboard:
+    get:
+      description: 获取内网穿透仪表盘数据，包含FRP和P2P状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/tunnel.DashboardResponse'
+      summary: 获取仪表盘数据
+      tags:
+      - tunnel
+  /tunnel/frp/status:
+    get:
+      description: 获取FRP客户端状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/tunnel.FRPStatus'
+      summary: 获取FRP状态
+      tags:
+      - tunnel
+  /tunnel/frp/start:
+    post:
+      description: 启动FRP客户端连接到服务器
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 启动成功
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 启动失败
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 启动FRP服务
+      tags:
+      - tunnel
+  /tunnel/frp/stop:
+    post:
+      description: 停止FRP客户端
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 停止成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 停止FRP服务
+      tags:
+      - tunnel
+  /tunnel/frp/config:
+    get:
+      description: 获取FRP配置
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/tunnel.FRPConfig'
+      summary: 获取FRP配置
+      tags:
+      - tunnel
+    put:
+      description: 更新FRP配置
+      consumes:
+      - application/json
+      parameters:
+      - description: FRP配置
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/tunnel.FRPConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 更新FRP配置
+      tags:
+      - tunnel
+  /tunnel/frp/proxies:
+    get:
+      description: 列出所有FRP代理
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/tunnel.FRPProxyConfig'
+            type: array
+      summary: 列出代理
+      tags:
+      - tunnel
+    post:
+      description: 创建新的FRP代理
+      consumes:
+      - application/json
+      parameters:
+      - description: 代理配置
+        in: body
+        name: proxy
+        required: true
+        schema:
+          $ref: '#/definitions/tunnel.FRPProxyConfig'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            $ref: '#/definitions/tunnel.FRPProxyConfig'
+        "400":
+          description: 请求错误
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 创建代理
+      tags:
+      - tunnel
+  /tunnel/frp/proxies/{name}:
+    get:
+      description: 获取指定代理详情
+      parameters:
+      - description: 代理名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/tunnel.FRPProxyConfig'
+        "404":
+          description: 代理不存在
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取代理详情
+      tags:
+      - tunnel
+    delete:
+      description: 删除指定代理
+      parameters:
+      - description: 代理名称
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 删除失败
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 删除代理
+      tags:
+      - tunnel
+  /tunnel/frp/quick-connect:
+    post:
+      description: 零配置快速连接，自动创建代理
+      consumes:
+      - application/json
+      parameters:
+      - description: 快速连接请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tunnel.QuickConnectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 连接成功
+          schema:
+            $ref: '#/definitions/tunnel.QuickConnectResult'
+        "500":
+          description: 连接失败
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 快速连接
+      tags:
+      - tunnel
+  /tunnel/p2p/status:
+    get:
+      description: 获取P2P隧道状态
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/tunnel.ManagerStatus'
+      summary: 获取P2P状态
+      tags:
+      - tunnel
+  /tunnel/p2p/connect:
+    post:
+      description: 连接到P2P对端
+      consumes:
+      - application/json
+      parameters:
+      - description: P2P连接请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tunnel.ConnectP2PRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 连接成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求错误
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 连接失败
+          schema:
+            additionalProperties: true
+            type: object
+      summary: P2P连接
+      tags:
+      - tunnel
+  /tunnel/detect-nat:
+    post:
+      description: 检测NAT类型
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 检测成功
+          schema:
+            additionalProperties: true
+            type: object
+      summary: NAT类型检测
+      tags:
+      - tunnel
+  /tunnel/public-ip:
+    get:
+      description: 获取公网IP地址
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 无法获取
+          schema:
+            additionalProperties: true
+            type: object
+      summary: 获取公网IP
+      tags:
+      - tunnel
+  /tunnel/presets:
+    get:
+      description: 获取预设服务列表，用于快速配置常见服务
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            items:
+              $ref: '#/definitions/tunnel.PresetService'
+            type: array
+      summary: 获取预设服务
+      tags:
+      - tunnel
 schemes:
 - http
 - https
