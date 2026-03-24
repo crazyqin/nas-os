@@ -386,7 +386,7 @@ func (h *APIHandler) WebSocketHandler(c *gin.Context) {
 		h.logger.Debug("websocket upgrade failed", zap.Error(err))
 		return
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// 注册事件回调
 	eventCh := make(chan Event, 10)

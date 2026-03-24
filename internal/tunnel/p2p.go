@@ -328,7 +328,7 @@ func (c *P2PConn) holePunch(ctx context.Context, candidate ICECandidate) error {
 		}
 
 		// 等待响应
-		conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
+		_ = conn.SetReadDeadline(time.Now().Add(500 * time.Millisecond))
 		buf := make([]byte, 1024)
 		n, addr, err := conn.ReadFromUDP(buf)
 		if err != nil {
@@ -338,7 +338,7 @@ func (c *P2PConn) holePunch(ctx context.Context, candidate ICECandidate) error {
 		// 验证响应
 		if n > 0 && addr.IP.Equal(remoteAddr.IP) && addr.Port == remoteAddr.Port {
 			// 连接成功
-			conn.SetReadDeadline(time.Time{}) // 清除超时
+			_ = conn.SetReadDeadline(time.Time{}) // 清除超时
 			return nil
 		}
 	}
