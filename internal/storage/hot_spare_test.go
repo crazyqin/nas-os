@@ -86,6 +86,9 @@ func TestHotSpareManager_AddHotSpare_Duplicate(t *testing.T) {
 }
 
 func TestHotSpareManager_RemoveHotSpare(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	h := mockHotSpareManager()
 
 	// 添加测试热备盘

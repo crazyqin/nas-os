@@ -429,6 +429,9 @@ func TestBatchLock(t *testing.T) {
 
 // TestCleanupExpiredRecords 测试过期记录清理
 func TestCleanupExpiredRecords(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	mgr := &ImmutableManager{
 		records: make(map[string]*ImmutableRecord),
 		config:  DefaultImmutableConfig,

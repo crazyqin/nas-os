@@ -25,8 +25,10 @@ import (
 type VersionType int
 
 const (
+	// VersionTypeNone 未指定版本类型
+	VersionTypeNone VersionType = iota
 	// VersionTypeManual 手动版本
-	VersionTypeManual VersionType = iota
+	VersionTypeManual
 	// VersionTypeAuto 自动版本
 	VersionTypeAuto
 	// VersionTypeCheckpoint 检查点版本
@@ -37,6 +39,8 @@ const (
 
 func (vt VersionType) String() string {
 	switch vt {
+	case VersionTypeNone:
+		return "none"
 	case VersionTypeManual:
 		return "manual"
 	case VersionTypeAuto:
@@ -62,7 +66,7 @@ func ParseVersionType(s string) VersionType {
 	case "locked":
 		return VersionTypeLocked
 	default:
-		return VersionTypeManual
+		return VersionTypeNone
 	}
 }
 
@@ -448,7 +452,7 @@ func (vm *VersionManager) ListVersions(filter *VersionFilter) []*FileVersion {
 			if filter.FilePath != "" && version.FilePath != filter.FilePath {
 				return true
 			}
-			if filter.VersionType != 0 && version.VersionType != filter.VersionType {
+			if filter.VersionType != VersionTypeNone && version.VersionType != filter.VersionType {
 				return true
 			}
 			if filter.Status != 0 && version.Status != filter.Status {

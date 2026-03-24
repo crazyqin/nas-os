@@ -228,6 +228,9 @@ func TestConflictDetector_DetectLockConflict(t *testing.T) {
 }
 
 func TestConflictDetector_ResolveConflict(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	lockConfig := DefaultConfig()
 	lockManager := NewManager(lockConfig, nil)
 
