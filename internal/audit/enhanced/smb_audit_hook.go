@@ -13,6 +13,13 @@ type SMAuditHook struct {
 	mu        sync.RWMutex
 }
 
+// OpenFileInfoExt 扩展的打开文件信息（包含字节统计）
+type OpenFileInfoExt struct {
+	OpenFileInfo
+	BytesRead    int64
+	BytesWritten int64
+}
+
 // SMBSessionInfo SMB会话信息缓存
 type SMBSessionInfo struct {
 	SessionID     string
@@ -23,17 +30,11 @@ type SMBSessionInfo struct {
 	LastActivity  time.Time
 	BytesRead     int64
 	BytesWritten  int64
-	OpenFiles     map[string]*OpenFileInfo
+	OpenFiles     map[string]*OpenFileInfoExt
 }
 
-// OpenFileInfo 打开的文件信息
-type OpenFileInfo struct {
-	Path        string
-	OpenTime    time.Time
-	AccessMode  string
-	BytesRead   int64
-	BytesWritten int64
-}
+// OpenFileInfo 使用 session_audit.go 中已定义的类型，这里添加本地扩展字段
+// 本地 OpenFileInfoExt 扩展了会话审计中的 OpenFileInfo
 
 // NewSMAuditHook 创建SMB审计钩子
 func NewSMAuditHook(manager *SMAuditManager) *SMAuditHook {
@@ -56,7 +57,7 @@ func (h *SMAuditHook) OnSessionConnect(sessionID, username, clientIP, protocolVe
 		ClientIP:     clientIP,
 		ConnectedAt:  time.Now(),
 		LastActivity: time.Now(),
-		OpenFiles:    make(map[string]*OpenFileInfo),
+		OpenFiles:    make(map[string]*OpenFileInfoExt),
 	}
 	h.mu.Unlock()
 
@@ -140,10 +141,12 @@ func (h *SMAuditHook) OnFileOpen(sessionID, shareName, filePath, accessMode stri
 
 	h.mu.Lock()
 	if info, exists := h.sessions[sessionID]; exists {
-		info.OpenFiles[filePath] = &OpenFileInfo{
-			Path:       filePath,
-			OpenTime:   time.Now(),
-			AccessMode: accessMode,
+		info.OpenFiles[filePath] = &OpenFileInfoExt{
+			OpenFileInfo: OpenFileInfo{
+				Path:       filePath,
+				OpenTime:   time.Now(),
+				AccessMode: accessMode,
+			},
 		}
 		info.LastActivity = time.Now()
 	}
@@ -450,12 +453,12 @@ func (h *SMAuditHook) GetSessionInfo(sessionID string) *SMBSessionInfo {
 }
 
 // GetOpenFiles 获取会话打开的文件
-func (h *SMAuditHook) GetOpenFiles(sessionID string) map[string]*OpenFileInfo {
+func (h *SMAuditHook) GetOpenFiles(sessionID string) map[string]*OpenFileInfoExt {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
 	if info, exists := h.sessions[sessionID]; exists {
-		result := make(map[string]*OpenFileInfo)
+		result := make(map[string]*OpenFileInfoExt)
 		for k, v := range info.OpenFiles {
 			result[k] = v
 		}

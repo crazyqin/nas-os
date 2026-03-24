@@ -4,7 +4,6 @@ package cloudfuse
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -117,9 +116,9 @@ type Dir struct {
 // Attr 返回目录属性
 func (d *Dir) Attr(ctx context.Context, a *fuse.Attr) error {
 	a.Inode = d.inode
-	a.Mode = d.node.Mode
+	a.Mode = os.FileMode(d.node.Mode)
 	if a.Mode == 0 {
-		a.Mode = 0755 | syscall.S_IFDIR
+		a.Mode = 0755 | os.ModeDir
 	}
 	a.Uid = d.fs.uid
 	a.Gid = d.fs.gid
@@ -259,7 +258,7 @@ func (d *Dir) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node, error
 		Path:    remotePath,
 		IsDir:   true,
 		ModTime: time.Now(),
-		Mode:    req.Mode | syscall.S_IFDIR,
+		Mode:    uint32(req.Mode) | syscall.S_IFDIR,
 	}
 	d.node.Children = append(d.node.Children, child)
 
@@ -285,7 +284,7 @@ func (d *Dir) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.Cr
 		Path:    remotePath,
 		IsDir:   false,
 		ModTime: time.Now(),
-		Mode:    req.Mode | syscall.S_IFREG,
+		Mode:    uint32(req.Mode) | syscall.S_IFREG,
 		Dirty:   true,
 	}
 
@@ -359,17 +358,19 @@ func (d *Dir) Rename(ctx context.Context, req *fuse.RenameRequest, newDir fs.Nod
 		return fuse.EPERM
 	}
 
-	oldPath := filepath.Join(d.path, req.OldName)
+	srcPath := filepath.Join(d.path, req.OldName)
 	
 	destDir, ok := newDir.(*Dir)
 	if !ok {
-		return fuse.EINVAL
+		return fuse.Errno(syscall.EINVAL)
 	}
 	
-	newPath := filepath.Join(destDir.path, req.NewName)
+	dstPath := filepath.Join(destDir.path, req.NewName)
 
-	// TODO: 调用provider的重命名接口
-	// 目前使用复制+删除的方式实现
+	// 大多数云盘API不支持原子重命名，使用复制+删除方式
+	// 这里暂时返回不支持，等待provider扩展
+	_ = srcPath
+	_ = dstPath
 	return fuse.ENOSYS
 }
 
@@ -388,9 +389,9 @@ type File struct {
 // Attr 返回文件属性
 func (f *File) Attr(ctx context.Context, a *fuse.Attr) error {
 	a.Inode = f.inode
-	a.Mode = f.node.Mode
+	a.Mode = os.FileMode(f.node.Mode)
 	if a.Mode == 0 {
-		a.Mode = 0644 | syscall.S_IFREG
+		a.Mode = 0644
 	}
 	a.Uid = f.fs.uid
 	a.Gid = f.fs.gid
