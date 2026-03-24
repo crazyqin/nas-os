@@ -198,8 +198,12 @@ func TestThumbnailCache_ByteLimit(t *testing.T) {
 	cache.Set("/test1", 100, time.Now(), "thumb12345678901234567890", 50, 50)
 	cache.Set("/test2", 100, time.Now(), "thumb12345678901234567890", 50, 50)
 
-	stats := cache.Stats()
-	assert.Greater(t, stats.Evictions, int64(0))
+	hits, misses, evictions, size, bytes := cache.Stats()
+	assert.Greater(t, evictions, int64(0))
+	_ = hits
+	_ = misses
+	_ = size
+	_ = bytes
 }
 
 func TestOptimizedManager_New(t *testing.T) {
