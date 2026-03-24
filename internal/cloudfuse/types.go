@@ -44,20 +44,20 @@ const (
 
 // MountConfig 挂载配置
 type MountConfig struct {
-	ID           string     `json:"id"`
-	Name         string     `json:"name"`
-	Type         MountType  `json:"type"`
-	MountPoint   string     `json:"mountPoint"`   // 本地挂载点路径
-	RemotePath   string     `json:"remotePath"`   // 远程路径（网盘中的路径）
-	Enabled      bool       `json:"enabled"`      // 是否启用
-	AutoMount    bool       `json:"autoMount"`    // 开机自动挂载
-	ReadOnly     bool       `json:"readOnly"`     // 只读模式
-	AllowOther   bool       `json:"allowOther"`   // 允许其他用户访问
-	CacheEnabled bool       `json:"cacheEnabled"` // 启用本地缓存
-	CacheDir     string     `json:"cacheDir"`     // 缓存目录
-	CacheSize    int64      `json:"cacheSize"`    // 缓存大小上限（MB）
-	CreatedAt    time.Time  `json:"createdAt"`
-	UpdatedAt    time.Time  `json:"updatedAt"`
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Type         MountType `json:"type"`
+	MountPoint   string    `json:"mountPoint"`   // 本地挂载点路径
+	RemotePath   string    `json:"remotePath"`   // 远程路径（网盘中的路径）
+	Enabled      bool      `json:"enabled"`      // 是否启用
+	AutoMount    bool      `json:"autoMount"`    // 开机自动挂载
+	ReadOnly     bool      `json:"readOnly"`     // 只读模式
+	AllowOther   bool      `json:"allowOther"`   // 允许其他用户访问
+	CacheEnabled bool      `json:"cacheEnabled"` // 启用本地缓存
+	CacheDir     string    `json:"cacheDir"`     // 缓存目录
+	CacheSize    int64     `json:"cacheSize"`    // 缓存大小上限（MB）
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 
 	// 认证配置
 	AccessToken  string `json:"-"` // 访问令牌（安全字段）
@@ -132,20 +132,20 @@ type CacheEntry struct {
 
 // MountStats 挂载统计
 type MountStats struct {
-	MountID          string    `json:"mountId"`
-	StartTime        time.Time `json:"startTime"`
-	Uptime           int64     `json:"uptime"` // 秒
-	TotalReadBytes   int64     `json:"totalReadBytes"`
-	TotalWriteBytes  int64     `json:"totalWriteBytes"`
-	TotalReadOps     int64     `json:"totalReadOps"`
-	TotalWriteOps    int64     `json:"totalWriteOps"`
-	CacheHits        int64     `json:"cacheHits"`
-	CacheMisses      int64     `json:"cacheMisses"`
-	CacheEvictions   int64     `json:"cacheEvictions"`
-	PendingUploads   int64     `json:"pendingUploads"`
-	FailedUploads    int64     `json:"failedUploads"`
-	AvgReadLatencyMs int64     `json:"avgReadLatencyMs"`
-	AvgWriteLatencyMs int64    `json:"avgWriteLatencyMs"`
+	MountID           string    `json:"mountId"`
+	StartTime         time.Time `json:"startTime"`
+	Uptime            int64     `json:"uptime"` // 秒
+	TotalReadBytes    int64     `json:"totalReadBytes"`
+	TotalWriteBytes   int64     `json:"totalWriteBytes"`
+	TotalReadOps      int64     `json:"totalReadOps"`
+	TotalWriteOps     int64     `json:"totalWriteOps"`
+	CacheHits         int64     `json:"cacheHits"`
+	CacheMisses       int64     `json:"cacheMisses"`
+	CacheEvictions    int64     `json:"cacheEvictions"`
+	PendingUploads    int64     `json:"pendingUploads"`
+	FailedUploads     int64     `json:"failedUploads"`
+	AvgReadLatencyMs  int64     `json:"avgReadLatencyMs"`
+	AvgWriteLatencyMs int64     `json:"avgWriteLatencyMs"`
 }
 
 // ProviderInfo 提供商信息
@@ -230,17 +230,17 @@ type MountRequest struct {
 	DriveID      string `json:"driveId"`
 
 	// S3/WebDAV 认证
-	Endpoint   string `json:"endpoint"`
-	Bucket     string `json:"bucket"`
-	AccessKey  string `json:"accessKey"`
-	SecretKey  string `json:"secretKey"`
-	Region     string `json:"region"`
-	PathStyle  bool   `json:"pathStyle"`
-	Insecure   bool   `json:"insecure"`
-	ClientID   string `json:"clientId"`
+	Endpoint     string `json:"endpoint"`
+	Bucket       string `json:"bucket"`
+	AccessKey    string `json:"accessKey"`
+	SecretKey    string `json:"secretKey"`
+	Region       string `json:"region"`
+	PathStyle    bool   `json:"pathStyle"`
+	Insecure     bool   `json:"insecure"`
+	ClientID     string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
-	TenantID   string `json:"tenantId"`
-	RootFolder string `json:"rootFolder"`
+	TenantID     string `json:"tenantId"`
+	RootFolder   string `json:"rootFolder"`
 }
 
 // MountListResponse 挂载列表响应

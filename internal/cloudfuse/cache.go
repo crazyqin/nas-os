@@ -16,8 +16,8 @@ import (
 type CacheManager struct {
 	mu          sync.RWMutex
 	cacheDir    string
-	maxSize     int64 // 最大缓存大小（字节）
-	usedSize    int64 // 已用缓存大小
+	maxSize     int64                    // 最大缓存大小（字节）
+	usedSize    int64                    // 已用缓存大小
 	entries     map[string]*list.Element // path -> list element
 	lruList     *list.List
 	entries2    map[string]*CacheEntry // path -> entry（用于快速查找）

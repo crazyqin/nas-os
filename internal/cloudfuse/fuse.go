@@ -53,10 +53,10 @@ func NewCloudFS(cfg *MountConfig, provider cloudsync.Provider, cache *CacheManag
 
 	// 创建根目录
 	fsys.root = &Dir{
-		fs:     fsys,
-		path:   "/",
-		inode:  1,
-		name:   "",
+		fs:    fsys,
+		path:  "/",
+		inode: 1,
+		name:  "",
 		node: &FileNode{
 			ID:      "root",
 			Path:    "/",
@@ -514,7 +514,7 @@ func (f *File) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse.Wri
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 写入数据
 	n, err := file.WriteAt(req.Data, req.Offset)
