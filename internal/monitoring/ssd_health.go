@@ -794,10 +794,23 @@ func (m *SSDHealthMonitor) Stop() {
 
 // parseSize 解析大小字符串
 func parseSize(sizeStr string) uint64 {
-	sizeStr = strings.ToUpper(sizeStr)
+	sizeStr = strings.ToUpper(strings.TrimSpace(sizeStr))
 	multiplier := uint64(1)
 
-	if strings.HasSuffix(sizeStr, "T") {
+	// 处理单位
+	if strings.HasSuffix(sizeStr, "TB") {
+		multiplier = 1024 * 1024 * 1024 * 1024
+		sizeStr = strings.TrimSuffix(sizeStr, "TB")
+	} else if strings.HasSuffix(sizeStr, "GB") {
+		multiplier = 1024 * 1024 * 1024
+		sizeStr = strings.TrimSuffix(sizeStr, "GB")
+	} else if strings.HasSuffix(sizeStr, "MB") {
+		multiplier = 1024 * 1024
+		sizeStr = strings.TrimSuffix(sizeStr, "MB")
+	} else if strings.HasSuffix(sizeStr, "KB") {
+		multiplier = 1024
+		sizeStr = strings.TrimSuffix(sizeStr, "KB")
+	} else if strings.HasSuffix(sizeStr, "T") {
 		multiplier = 1024 * 1024 * 1024 * 1024
 		sizeStr = strings.TrimSuffix(sizeStr, "T")
 	} else if strings.HasSuffix(sizeStr, "G") {
@@ -806,6 +819,18 @@ func parseSize(sizeStr string) uint64 {
 	} else if strings.HasSuffix(sizeStr, "M") {
 		multiplier = 1024 * 1024
 		sizeStr = strings.TrimSuffix(sizeStr, "M")
+	} else if strings.HasSuffix(sizeStr, "K") {
+		multiplier = 1024
+		sizeStr = strings.TrimSuffix(sizeStr, "K")
+	}
+
+	sizeStr = strings.TrimSpace(sizeStr)
+
+	// 处理小数
+	if strings.Contains(sizeStr, ".") {
+		if val, err := strconv.ParseFloat(sizeStr, 64); err == nil {
+			return uint64(val * float64(multiplier))
+		}
 	}
 
 	size, _ := strconv.ParseUint(sizeStr, 10, 64)
@@ -818,10 +843,10 @@ func parseDataUnits(line string) uint64 {
 	// 提取方括号中的大小
 	start := strings.Index(line, "[")
 	end := strings.Index(line, "]")
-	if start == -1 || end == -1 {
+	if start == -1 || end == -1 || end <= start {
 		return 0
 	}
 
 	sizeStr := strings.TrimSpace(line[start+1 : end])
-	return parseSize(strings.TrimSuffix(sizeStr, " "))
+	return parseSize(sizeStr)
 }
