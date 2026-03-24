@@ -1,0 +1,118 @@
+# Storage Module Configuration Example
+# Copy this file to configs/storage.json and modify as needed
+
+dedup:
+  # Enable/disable deduplication
+  enabled: true
+  
+  # Chunk size in bytes (4096, 8192, 16384, 32768, 65536, 131072)
+  chunkSize: 32768  # 32KB
+  
+  # Hash algorithm (sha256, blake3, xxhash)
+  hashAlgorithm: sha256
+  
+  # Maximum memory usage for DDT in MB
+  maxMemoryMB: 1024
+  
+  # Maximum number of entries (0 = unlimited)
+  maxEntries: 0
+  
+  # Enable compression for stored chunks
+  enableCompression: true
+  
+  # Verification level (none, onWrite, onRead, both)
+  verifyLevel: onWrite
+  
+  # Cleanup interval in hours
+  cleanupIntervalHours: 24
+  
+  # Reference count threshold for cleanup (0 = no cleanup)
+  refCleanupThreshold: 0
+  
+  # Enable fast path LRU cache
+  enableFastPath: true
+  
+  # Fast path cache size (number of entries)
+  fastPathCacheSize: 10000
+
+rdma:
+  # Enable/disable RDMA
+  enabled: true
+  
+  # Transport type (iSER, NFSoRDMA, custom)
+  transport: iSER
+  
+  # Service port
+  port: 3260
+  
+  # Maximum Queue Pairs
+  maxQp: 1024
+  
+  # Maximum Completion Queue depth
+  maxCqDepth: 4096
+  
+  # Maximum Work Requests
+  maxWr: 128
+  
+  # Maximum Scatter/Gather Entries
+  maxSge: 16
+  
+  # Memory Region size in bytes
+  mrSize: 1073741824  # 1GB
+  
+  # Connection timeout in milliseconds
+  connectTimeout: 30000
+  
+  # Operation timeout in milliseconds
+  operTimeout: 10000
+  
+  # Inline data size
+  inlineSize: 128
+  
+  # Signal all work requests
+  signalAllWr: true
+  
+  # Use event channel for completions
+  useEventChannel: true
+  
+  # Maximum retries
+  maxRetries: 3
+  
+  # Retry delay in milliseconds
+  retryDelayMs: 1000
+  
+  # Require authentication
+  requireAuth: false
+  
+  # Allowed subnets for RDMA connections
+  allowedSubnets: []
+
+zfs:
+  # Default lock type for immutable snapshots
+  # Options: none, soft, hard, timed, permanent
+  defaultLockType: soft
+  
+  # Default retention days (0 = unlimited)
+  defaultRetentionDays: 365
+  
+  # Allow early release of immutable snapshots
+  allowEarlyRelease: false
+  
+  # Require approval for sensitive operations
+  requireApproval: true
+  
+  # List of approvers (usernames)
+  approvers: []
+  
+  # Auto verification interval in hours
+  autoVerifyInterval: 24
+  
+  # Action on verification failure
+  # Options: none, warn, alert, lock
+  onVerifyFail: alert
+  
+  # Maximum number of snapshots per dataset
+  maxSnapshots: 1000
+  
+  # Auto cleanup expired snapshots
+  autoCleanup: true

@@ -1,0 +1,45 @@
+{
+  "dedup": {
+    "enabled": true,
+    "chunkSize": 32768,
+    "hashAlgorithm": "sha256",
+    "maxMemoryMB": 1024,
+    "maxEntries": 0,
+    "enableCompression": true,
+    "verifyLevel": "onWrite",
+    "cleanupIntervalHours": 24,
+    "refCleanupThreshold": 0,
+    "enableFastPath": true,
+    "fastPathCacheSize": 10000
+  },
+  "rdma": {
+    "enabled": true,
+    "transport": "iSER",
+    "port": 3260,
+    "maxQp": 1024,
+    "maxCqDepth": 4096,
+    "maxWr": 128,
+    "maxSge": 16,
+    "mrSize": 1073741824,
+    "connectTimeout": 30000,
+    "operTimeout": 10000,
+    "inlineSize": 128,
+    "signalAllWr": true,
+    "useEventChannel": true,
+    "maxRetries": 3,
+    "retryDelayMs": 1000,
+    "requireAuth": false,
+    "allowedSubnets": []
+  },
+  "zfs": {
+    "defaultLockType": "soft",
+    "defaultRetentionDays": 365,
+    "allowEarlyRelease": false,
+    "requireApproval": true,
+    "approvers": [],
+    "autoVerifyInterval": 24,
+    "onVerifyFail": "alert",
+    "maxSnapshots": 1000,
+    "autoCleanup": true
+  }
+}
