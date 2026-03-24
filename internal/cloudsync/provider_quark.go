@@ -186,11 +186,6 @@ func (p *ProviderQuarkImpl) uploadParts(ctx context.Context, uploadInfo *quarkUp
 			break
 		}
 
-		end := offset + int64(n) - 1
-		if end >= size {
-			end = size - 1
-		}
-
 		// 上传分片
 		uploadURL := fmt.Sprintf("%s/file/upload?upload_id=%s&part_number=%d",
 			p.baseURL, uploadInfo.UploadID, offset/chunkSize+1)

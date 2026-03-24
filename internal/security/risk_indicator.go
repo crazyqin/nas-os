@@ -319,7 +319,7 @@ func (rim *RiskIndicatorManager) FetchEPSSData(ctx context.Context, cveIDs []str
 		}
 
 		if resp.StatusCode != http.StatusOK {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			continue
 		}
 
@@ -340,10 +340,10 @@ func (rim *RiskIndicatorManager) FetchEPSSData(ctx context.Context, cveIDs []str
 		}
 
 		if err := json.NewDecoder(resp.Body).Decode(&epssResp); err != nil {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			continue
 		}
-		resp.Body.Close()
+		_ = resp.Body.Close()
 
 		for _, item := range epssResp.Data {
 			date, _ := time.Parse("2006-01-02", item.Date)
