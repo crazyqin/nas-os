@@ -373,12 +373,12 @@ func (h *SSDHandlers) getSummary(c *gin.Context) {
 	ssds := h.monitor.GetAllSSDs()
 
 	var (
-		totalSize          uint64
-		totalWrites        uint64
-		avgHealth          float64
-		avgLifeUsed        float64
-		highestTemp        int
-		criticalSSDs       []string
+		totalSize           uint64
+		totalWrites         uint64
+		avgHealth           float64
+		avgLifeUsed         float64
+		highestTemp         int
+		criticalSSDs        []string
 		needReplacementSSDs []string
 	)
 
@@ -452,7 +452,7 @@ func (h *SSDHandlers) getLifePrediction(c *gin.Context) {
 			"code":    0,
 			"message": "数据不足以进行预测",
 			"data": gin.H{
-				"device":    device,
+				"device":     device,
 				"prediction": nil,
 			},
 		})

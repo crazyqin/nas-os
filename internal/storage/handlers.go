@@ -1517,13 +1517,13 @@ func (h *Handlers) getFusionPoolStats(c *gin.Context) {
 
 // AnalyzeSpaceRequest 空间分析请求
 type AnalyzeSpaceRequest struct {
-	Path              string `json:"path"`              // 分析路径（可选）
-	IncludeHidden     bool   `json:"includeHidden"`     // 包含隐藏文件
+	Path               string `json:"path"`               // 分析路径（可选）
+	IncludeHidden      bool   `json:"includeHidden"`      // 包含隐藏文件
 	LargeFileThreshold uint64 `json:"largeFileThreshold"` // 大文件阈值（字节）
-	TopDirCount       int    `json:"topDirCount"`       // 返回前N个目录
-	TopFileTypes      int    `json:"topFileTypes"`      // 返回前N个文件类型
-	AnalyzeDepth      int    `json:"analyzeDepth"`      // 分析深度
-	EnableTrend       bool   `json:"enableTrend"`       // 启用趋势预测
+	TopDirCount        int    `json:"topDirCount"`        // 返回前N个目录
+	TopFileTypes       int    `json:"topFileTypes"`       // 返回前N个文件类型
+	AnalyzeDepth       int    `json:"analyzeDepth"`       // 分析深度
+	EnableTrend        bool   `json:"enableTrend"`        // 启用趋势预测
 }
 
 // analyzeSpace 执行空间分析
@@ -1550,16 +1550,16 @@ func (h *Handlers) analyzeSpace(c *gin.Context) {
 		opts.IncludeHidden = true
 	}
 	if threshold := c.Query("largeFileThreshold"); threshold != "" {
-		fmt.Sscanf(threshold, "%d", &opts.LargeFileThreshold)
+		_, _ = fmt.Sscanf(threshold, "%d", &opts.LargeFileThreshold)
 	}
 	if topDir := c.Query("topDirCount"); topDir != "" {
-		fmt.Sscanf(topDir, "%d", &opts.TopDirCount)
+		_, _ = fmt.Sscanf(topDir, "%d", &opts.TopDirCount)
 	}
 	if topTypes := c.Query("topFileTypes"); topTypes != "" {
-		fmt.Sscanf(topTypes, "%d", &opts.TopFileTypes)
+		_, _ = fmt.Sscanf(topTypes, "%d", &opts.TopFileTypes)
 	}
 	if depth := c.Query("analyzeDepth"); depth != "" {
-		fmt.Sscanf(depth, "%d", &opts.AnalyzeDepth)
+		_, _ = fmt.Sscanf(depth, "%d", &opts.AnalyzeDepth)
 	}
 	if c.Query("enableTrend") == "false" {
 		opts.EnableTrend = false
@@ -1588,7 +1588,7 @@ func (h *Handlers) getSpaceHistory(c *gin.Context) {
 
 	days := 30
 	if d := c.Query("days"); d != "" {
-		fmt.Sscanf(d, "%d", &days)
+		_, _ = fmt.Sscanf(d, "%d", &days)
 	}
 
 	records, err := h.spaceAnalyzer.GetHistory(volumeName, days)

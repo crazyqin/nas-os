@@ -27,9 +27,9 @@ func TestImmutableManager_NewManager(t *testing.T) {
 
 	// 创建不可变管理器
 	config := ImmutableConfig{
-		SnapDir:         ".immutable",
-		AutoCleanup:     false, // 测试时禁用自动清理
-		MaxRecords:      1000,
+		SnapDir:     ".immutable",
+		AutoCleanup: false, // 测试时禁用自动清理
+		MaxRecords:  1000,
 	}
 	mgr, err := NewImmutableManager(storageMgr, config)
 	require.NoError(t, err)

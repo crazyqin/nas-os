@@ -50,10 +50,10 @@ func TestHotSpareManager_SetGetConfig(t *testing.T) {
 
 	// 测试设置新配置
 	newConfig := HotSpareConfig{
-		Enabled:          false,
-		CheckInterval:    60 * time.Second,
-		AutoRebuild:      false,
-		RebuildTimeout:   12 * time.Hour,
+		Enabled:           false,
+		CheckInterval:     60 * time.Second,
+		AutoRebuild:       false,
+		RebuildTimeout:    12 * time.Hour,
 		MinCapacityMargin: 10,
 	}
 	h.SetConfig(newConfig)
@@ -399,9 +399,9 @@ func TestHotSpareConfig_Validation(t *testing.T) {
 		valid  bool
 	}{
 		{
-			name: "默认配置",
+			name:   "默认配置",
 			config: DefaultHotSpareConfig,
-			valid: true,
+			valid:  true,
 		},
 		{
 			name: "禁用自动重建",
@@ -450,13 +450,13 @@ func TestHotSpareEvent_Types(t *testing.T) {
 	for _, eventType := range eventTypes {
 		t.Run(eventType, func(t *testing.T) {
 			event := HotSpareEvent{
-				Type:        eventType,
-				HotSpareID:  "hs-1",
-				Device:      "/dev/sdb",
-				VolumeName:  "vol1",
+				Type:         eventType,
+				HotSpareID:   "hs-1",
+				Device:       "/dev/sdb",
+				VolumeName:   "vol1",
 				FailedDevice: "/dev/sda",
-				Message:     "测试消息",
-				Timestamp:   time.Now(),
+				Message:      "测试消息",
+				Timestamp:    time.Now(),
 			}
 
 			// 验证事件字段

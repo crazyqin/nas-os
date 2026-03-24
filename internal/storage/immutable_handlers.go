@@ -75,9 +75,9 @@ func (h *ImmutableHandlers) listRecords(c *gin.Context) {
 	var filter *RecordFilter
 	if req.Status != "" || req.VolumeName != "" || req.PathContain != "" || req.CreatedBy != "" {
 		filter = &RecordFilter{
-			VolumeName:  req.VolumeName,
+			VolumeName:   req.VolumeName,
 			PathContains: req.PathContain,
-			CreatedBy:   req.CreatedBy,
+			CreatedBy:    req.CreatedBy,
 		}
 		if req.Status != "" {
 			status := ImmutableStatus(req.Status)
@@ -200,7 +200,7 @@ func (h *ImmutableHandlers) unlockPath(c *gin.Context) {
 	}
 
 	var req unlockPathRequest
-	c.ShouldBindJSON(&req) // 可选参数
+	_ = c.ShouldBindJSON(&req) // 可选参数
 
 	record, err := h.manager.Unlock(id, req.Force)
 	if err != nil {
@@ -273,7 +273,7 @@ func (h *ImmutableHandlers) restoreSnapshot(c *gin.Context) {
 	}
 
 	var req restoreSnapshotRequest
-	c.ShouldBindJSON(&req) // 可选参数
+	_ = c.ShouldBindJSON(&req) // 可选参数
 
 	if err := h.manager.Restore(id, req.TargetPath); err != nil {
 		api.BadRequest(c, err.Error())
@@ -413,10 +413,10 @@ type batchLockRequest struct {
 
 // batchLockResponse 批量锁定响应
 type batchLockResponse struct {
-	SuccessCount int                 `json:"successCount"`
-	FailedCount  int                 `json:"failedCount"`
-	Records      []*ImmutableRecord  `json:"records"`
-	Errors       []string            `json:"errors,omitempty"`
+	SuccessCount int                `json:"successCount"`
+	FailedCount  int                `json:"failedCount"`
+	Records      []*ImmutableRecord `json:"records"`
+	Errors       []string           `json:"errors,omitempty"`
 }
 
 // batchLock 批量锁定

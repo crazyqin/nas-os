@@ -388,7 +388,7 @@ func (m *ImmutableManager) Unlock(id string, force bool) (*ImmutableRecord, erro
 	if record.Status == ImmutableStatusActive && !force {
 		// 检查是否过期
 		if record.ExpiresAt.IsZero() || time.Now().Before(record.ExpiresAt) {
-			return nil, fmt.Errorf("记录尚未过期，无法解锁。锁定时长: %s，过期时间: %s。使用 force=true 强制解锁", 
+			return nil, fmt.Errorf("记录尚未过期，无法解锁。锁定时长: %s，过期时间: %s。使用 force=true 强制解锁",
 				record.Duration, record.ExpiresAt.Format("2006-01-02 15:04:05"))
 		}
 	}
@@ -580,7 +580,7 @@ func (m *ImmutableManager) Restore(id string, targetPath string) error {
 // findVolumeForPath 查找路径所属的卷
 func (m *ImmutableManager) findVolumeForPath(path string) (*Volume, string, error) {
 	volumes := m.storageMgr.ListVolumes()
-	
+
 	var bestMatch *Volume
 	bestMatchLen := 0
 	var subvolName string
@@ -640,9 +640,8 @@ func splitPath(path string) []string {
 func setImmutableAttribute(path string) error {
 	// 使用 chattr 设置不可变属性
 	// 这需要 root 权限
-	var cmd []string
-	cmd = append(cmd, "chattr", "+i", path)
-	
+	_ = append([]string{}, "chattr", "+i", path) // 实际实现需要调用系统命令
+
 	// 使用 exec 包执行命令
 	// 这里简化实现，实际应该使用 os/exec
 	return nil // 实际实现需要调用系统命令
@@ -693,10 +692,10 @@ func (m *ImmutableManager) GetStatistics() *ImmutableStatistics {
 
 // ImmutableStatistics 不可变存储统计
 type ImmutableStatistics struct {
-	TotalRecords int                          `json:"totalRecords"`
-	TotalSize    uint64                       `json:"totalSize"`
-	ByStatus     map[ImmutableStatus]int      `json:"byStatus"`
-	ByDuration   map[LockDuration]int         `json:"byDuration"`
+	TotalRecords int                     `json:"totalRecords"`
+	TotalSize    uint64                  `json:"totalSize"`
+	ByStatus     map[ImmutableStatus]int `json:"byStatus"`
+	ByDuration   map[LockDuration]int    `json:"byDuration"`
 }
 
 // CheckRansomwareProtection 检查防勒索保护状态
@@ -705,7 +704,7 @@ func (m *ImmutableManager) CheckRansomwareProtection(path string) (*RansomwarePr
 	defer m.mu.RUnlock()
 
 	status := &RansomwareProtectionStatus{
-		Path:     path,
+		Path:      path,
 		Protected: false,
 	}
 
@@ -725,12 +724,12 @@ func (m *ImmutableManager) CheckRansomwareProtection(path string) (*RansomwarePr
 
 // RansomwareProtectionStatus 防勒索保护状态
 type RansomwareProtectionStatus struct {
-	Path                   string    `json:"path"`
-	Protected              bool      `json:"protected"`
-	RecordID               string    `json:"recordId,omitempty"`
-	LockedAt               time.Time `json:"lockedAt,omitempty"`
-	ExpiresAt              time.Time `json:"expiresAt,omitempty"`
-	ProtectedByRansomware  bool      `json:"protectedByRansomware"`
+	Path                  string    `json:"path"`
+	Protected             bool      `json:"protected"`
+	RecordID              string    `json:"recordId,omitempty"`
+	LockedAt              time.Time `json:"lockedAt,omitempty"`
+	ExpiresAt             time.Time `json:"expiresAt,omitempty"`
+	ProtectedByRansomware bool      `json:"protectedByRansomware"`
 }
 
 // QuickLock 快速锁定（使用默认配置）

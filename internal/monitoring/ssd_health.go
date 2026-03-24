@@ -14,32 +14,33 @@ import (
 
 // SSDHealth SSD 健康状态
 type SSDHealth struct {
-	Device          string        `json:"device"`
-	Model           string        `json:"model"`
-	Serial          string        `json:"serial"`
-	Firmware        string        `json:"firmware"`
-	Size            uint64        `json:"size"`            // 字节
-	InterfaceType   string        `json:"interfaceType"`   // NVMe, SATA, SAS
-	HealthPercent   float64       `json:"healthPercent"`   // 健康百分比 (0-100)
-	LifeUsedPercent float64       `json:"lifeUsedPercent"` // 已用寿命百分比
-	TotalWrites     uint64        `json:"totalWrites"`     // 总写入量 (字节)
-	WriteAmplification float64    `json:"writeAmplification"` // 写放大因子
-	Temperature     int           `json:"temperature"`     // 摄氏度
-	AvailableSpare  float64       `json:"availableSpare"`  // 可用备用空间百分比
-	MediaErrors     uint64        `json:"mediaErrors"`     // 媒体错误数
-	PowerOnHours    uint64        `json:"powerOnHours"`    // 通电时间 (小时)
-	PowerCycles     uint64        `json:"powerCycles"`     // 通电次数
-	AlertLevel      AlertLevel    `json:"alertLevel"`      // 告警级别
-	AlertMessage    string        `json:"alertMessage"`    // 告警消息
-	Status          SSDStatus     `json:"status"`          // 状态
-	LastCheck       time.Time     `json:"lastCheck"`       // 最后检查时间
-	PredictedLife   *PredictedLife `json:"predictedLife,omitempty"` // 预测寿命
-	SMARTAttributes map[string]*SMARTAttr `json:"smartAttributes,omitempty"` // 原始 SMART 属性
+	Device             string                `json:"device"`
+	Model              string                `json:"model"`
+	Serial             string                `json:"serial"`
+	Firmware           string                `json:"firmware"`
+	Size               uint64                `json:"size"`                      // 字节
+	InterfaceType      string                `json:"interfaceType"`             // NVMe, SATA, SAS
+	HealthPercent      float64               `json:"healthPercent"`             // 健康百分比 (0-100)
+	LifeUsedPercent    float64               `json:"lifeUsedPercent"`           // 已用寿命百分比
+	TotalWrites        uint64                `json:"totalWrites"`               // 总写入量 (字节)
+	WriteAmplification float64               `json:"writeAmplification"`        // 写放大因子
+	Temperature        int                   `json:"temperature"`               // 摄氏度
+	AvailableSpare     float64               `json:"availableSpare"`            // 可用备用空间百分比
+	MediaErrors        uint64                `json:"mediaErrors"`               // 媒体错误数
+	PowerOnHours       uint64                `json:"powerOnHours"`              // 通电时间 (小时)
+	PowerCycles        uint64                `json:"powerCycles"`               // 通电次数
+	AlertLevel         AlertLevel            `json:"alertLevel"`                // 告警级别
+	AlertMessage       string                `json:"alertMessage"`              // 告警消息
+	Status             SSDStatus             `json:"status"`                    // 状态
+	LastCheck          time.Time             `json:"lastCheck"`                 // 最后检查时间
+	PredictedLife      *PredictedLife        `json:"predictedLife,omitempty"`   // 预测寿命
+	SMARTAttributes    map[string]*SMARTAttr `json:"smartAttributes,omitempty"` // 原始 SMART 属性
 }
 
 // SSDStatus SSD 状态
 type SSDStatus string
 
+// SSD 状态常量
 const (
 	SSDStatusHealthy   SSDStatus = "healthy"   // 健康
 	SSDStatusWarning   SSDStatus = "warning"   // 警告
@@ -52,6 +53,7 @@ const (
 // AlertLevel 告警级别
 type AlertLevel string
 
+// 告警级别常量
 const (
 	AlertLevelNone      AlertLevel = "none"      // 无告警
 	AlertLevelWarning   AlertLevel = "warning"   // 80% 预警
@@ -90,12 +92,12 @@ type SSDHealthMonitor struct {
 
 // SSDMonitorConfig 监控配置
 type SSDMonitorConfig struct {
-	CheckInterval     time.Duration `json:"checkInterval"`     // 检查间隔
-	HistoryRetention  int           `json:"historyRetention"`  // 历史保留天数
-	EnablePrediction  bool          `json:"enablePrediction"`  // 启用预测
-	WarningThreshold  float64       `json:"warningThreshold"`  // 警告阈值 (默认 80%)
-	CriticalThreshold float64       `json:"criticalThreshold"` // 严重阈值 (默认 90%)
-	EmergencyThreshold float64      `json:"emergencyThreshold"` // 紧急阈值 (默认 95%)
+	CheckInterval      time.Duration `json:"checkInterval"`      // 检查间隔
+	HistoryRetention   int           `json:"historyRetention"`   // 历史保留天数
+	EnablePrediction   bool          `json:"enablePrediction"`   // 启用预测
+	WarningThreshold   float64       `json:"warningThreshold"`   // 警告阈值 (默认 80%)
+	CriticalThreshold  float64       `json:"criticalThreshold"`  // 严重阈值 (默认 90%)
+	EmergencyThreshold float64       `json:"emergencyThreshold"` // 紧急阈值 (默认 95%)
 }
 
 // DefaultSSDMonitorConfig 默认配置
@@ -103,9 +105,9 @@ var DefaultSSDMonitorConfig = &SSDMonitorConfig{
 	CheckInterval:      30 * time.Minute,
 	HistoryRetention:   30,
 	EnablePrediction:   true,
-	WarningThreshold:   80,  // 80% 寿命已用
-	CriticalThreshold:  90,  // 90% 寿命已用
-	EmergencyThreshold: 95,  // 95% 寿命已用
+	WarningThreshold:   80, // 80% 寿命已用
+	CriticalThreshold:  90, // 90% 寿命已用
+	EmergencyThreshold: 95, // 95% 寿命已用
 }
 
 // SSDHealthHistory 历史数据
@@ -207,9 +209,9 @@ func (m *SSDHealthMonitor) ScanSSDs() error {
 		if err != nil {
 			// 创建基本信息
 			health = &SSDHealth{
-				Device:   device,
-				Size:     size,
-				Status:   SSDStatusUnknown,
+				Device:    device,
+				Size:      size,
+				Status:    SSDStatusUnknown,
 				LastCheck: time.Now(),
 			}
 		}

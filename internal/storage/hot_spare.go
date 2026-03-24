@@ -33,24 +33,24 @@ type HotSpare struct {
 
 // DeviceHealthStatus 设备健康状态
 type DeviceHealthStatus struct {
-	Device          string `json:"device"`          // 设备路径
-	Healthy         bool   `json:"healthy"`         // 是否健康
-	WriteErrors     uint64 `json:"writeErrors"`     // 写错误数
-	ReadErrors      uint64 `json:"readErrors"`      // 读错误数
-	IOErrors        uint64 `json:"ioErrors"`        // IO 错误数
+	Device           string `json:"device"`           // 设备路径
+	Healthy          bool   `json:"healthy"`          // 是否健康
+	WriteErrors      uint64 `json:"writeErrors"`      // 写错误数
+	ReadErrors       uint64 `json:"readErrors"`       // 读错误数
+	IOErrors         uint64 `json:"ioErrors"`         // IO 错误数
 	CorruptionErrors uint64 `json:"corruptionErrors"` // 数据损坏错误数
-	Message         string `json:"message"`         // 状态消息
+	Message          string `json:"message"`          // 状态消息
 }
 
 // ReplaceStatus 设备替换状态
 type ReplaceStatus struct {
-	Running        bool      `json:"running"`        // 是否正在运行
-	Progress       float64   `json:"progress"`       // 进度 0-100
-	SourceDevice   string    `json:"sourceDevice"`   // 源设备
-	TargetDevice   string    `json:"targetDevice"`   // 目标设备
-	StartTime      time.Time `json:"startTime"`      // 开始时间
-	Finished       bool      `json:"finished"`       // 是否完成
-	ErrorCode      int       `json:"errorCode"`      // 错误码 (0 表示成功)
+	Running      bool      `json:"running"`      // 是否正在运行
+	Progress     float64   `json:"progress"`     // 进度 0-100
+	SourceDevice string    `json:"sourceDevice"` // 源设备
+	TargetDevice string    `json:"targetDevice"` // 目标设备
+	StartTime    time.Time `json:"startTime"`    // 开始时间
+	Finished     bool      `json:"finished"`     // 是否完成
+	ErrorCode    int       `json:"errorCode"`    // 错误码 (0 表示成功)
 }
 
 // HotSpareConfig Hot Spare 配置
@@ -67,23 +67,23 @@ type HotSpareConfig struct {
 
 // HotSpareEvent 热备盘事件
 type HotSpareEvent struct {
-	Type        string    `json:"type"`        // added, removed, activated, rebuild_start, rebuild_complete, rebuild_failed, error
-	HotSpareID  string    `json:"hotSpareId"`  // 热备盘 ID
-	Device      string    `json:"device"`      // 设备路径
-	VolumeName  string    `json:"volumeName"`  // 卷名
-	FailedDevice string   `json:"failedDevice"` // 故障设备 (重建事件)
-	Message     string    `json:"message"`     // 事件消息
-	Timestamp   time.Time `json:"timestamp"`   // 事件时间
+	Type         string    `json:"type"`         // added, removed, activated, rebuild_start, rebuild_complete, rebuild_failed, error
+	HotSpareID   string    `json:"hotSpareId"`   // 热备盘 ID
+	Device       string    `json:"device"`       // 设备路径
+	VolumeName   string    `json:"volumeName"`   // 卷名
+	FailedDevice string    `json:"failedDevice"` // 故障设备 (重建事件)
+	Message      string    `json:"message"`      // 事件消息
+	Timestamp    time.Time `json:"timestamp"`    // 事件时间
 }
 
 // HotSpareStatus 热备盘系统状态
 type HotSpareStatus struct {
-	TotalHotSpares   int           `json:"totalHotSpares"`   // 总热备盘数
-	AvailableCount   int           `json:"availableCount"`   // 可用数
-	RebuildingCount  int           `json:"rebuildingCount"`  // 重建中数
-	FailedCount      int           `json:"failedCount"`      // 失败数
-	LastCheckTime    time.Time     `json:"lastCheckTime"`    // 最后检查时间
-	Config           HotSpareConfig `json:"config"`          // 当前配置
+	TotalHotSpares  int            `json:"totalHotSpares"`  // 总热备盘数
+	AvailableCount  int            `json:"availableCount"`  // 可用数
+	RebuildingCount int            `json:"rebuildingCount"` // 重建中数
+	FailedCount     int            `json:"failedCount"`     // 失败数
+	LastCheckTime   time.Time      `json:"lastCheckTime"`   // 最后检查时间
+	Config          HotSpareConfig `json:"config"`          // 当前配置
 }
 
 // NotificationFunc 通知回调函数类型
@@ -93,16 +93,16 @@ type NotificationFunc func(event HotSpareEvent)
 
 // HotSpareManager 热备盘管理器
 type HotSpareManager struct {
-	manager     *Manager
-	client      *btrfs.Client
-	hotSpares   map[string]*HotSpare // key: device path
-	config      HotSpareConfig
-	mu          sync.RWMutex
-	ctx         context.Context
-	cancel      context.CancelFunc
-	running     bool
-	notifyFunc  NotificationFunc
-	eventChan   chan HotSpareEvent
+	manager    *Manager
+	client     *btrfs.Client
+	hotSpares  map[string]*HotSpare // key: device path
+	config     HotSpareConfig
+	mu         sync.RWMutex
+	ctx        context.Context
+	cancel     context.CancelFunc
+	running    bool
+	notifyFunc NotificationFunc
+	eventChan  chan HotSpareEvent
 }
 
 // DefaultHotSpareConfig 默认配置
@@ -380,7 +380,7 @@ func (h *HotSpareManager) checkAllDevices() {
 		for _, stat := range stats {
 			// 获取设备健康状态
 			health := h.checkDeviceHealth(stat.Device)
-			
+
 			// 检测故障
 			if !health.Healthy {
 				// 发送故障事件
@@ -480,11 +480,11 @@ func (h *HotSpareManager) handleDeviceFailure(volumeName, failedDevice string) {
 	hs := h.findAvailableHotSpare(volumeName)
 	if hs == nil {
 		h.emitEventUnlocked(HotSpareEvent{
-			Type:        "error",
-			VolumeName:  volumeName,
+			Type:         "error",
+			VolumeName:   volumeName,
 			FailedDevice: failedDevice,
-			Message:     fmt.Sprintf("没有可用的热备盘替换故障设备 %s", failedDevice),
-			Timestamp:   time.Now(),
+			Message:      fmt.Sprintf("没有可用的热备盘替换故障设备 %s", failedDevice),
+			Timestamp:    time.Now(),
 		})
 		return
 	}
@@ -494,13 +494,13 @@ func (h *HotSpareManager) handleDeviceFailure(volumeName, failedDevice string) {
 		hs.Status = "failed"
 		hs.ErrorMessage = err.Error()
 		h.emitEventUnlocked(HotSpareEvent{
-			Type:        "rebuild_failed",
-			HotSpareID:  hs.ID,
-			Device:      hs.Device,
-			VolumeName:  volumeName,
+			Type:         "rebuild_failed",
+			HotSpareID:   hs.ID,
+			Device:       hs.Device,
+			VolumeName:   volumeName,
 			FailedDevice: failedDevice,
-			Message:     fmt.Sprintf("重建失败: %v", err),
-			Timestamp:   time.Now(),
+			Message:      fmt.Sprintf("重建失败: %v", err),
+			Timestamp:    time.Now(),
 		})
 		return
 	}
@@ -546,13 +546,13 @@ func (h *HotSpareManager) startRebuild(hs *HotSpare, volumeName, failedDevice st
 
 	// 发送重建开始事件
 	h.emitEventUnlocked(HotSpareEvent{
-		Type:        "rebuild_start",
-		HotSpareID:  hs.ID,
-		Device:      hs.Device,
-		VolumeName:  volumeName,
+		Type:         "rebuild_start",
+		HotSpareID:   hs.ID,
+		Device:       hs.Device,
+		VolumeName:   volumeName,
 		FailedDevice: failedDevice,
-		Message:     fmt.Sprintf("开始使用热备盘 %s 替换故障设备 %s", hs.Device, failedDevice),
-		Timestamp:   time.Now(),
+		Message:      fmt.Sprintf("开始使用热备盘 %s 替换故障设备 %s", hs.Device, failedDevice),
+		Timestamp:    time.Now(),
 	})
 
 	// 执行替换
@@ -582,13 +582,13 @@ func (h *HotSpareManager) monitorRebuildProgress(hs *HotSpare, volumeName string
 			hs.ErrorMessage = "重建超时"
 			hs.RebuildEnded = time.Now()
 			h.emitEventUnlocked(HotSpareEvent{
-				Type:        "rebuild_failed",
-				HotSpareID:  hs.ID,
-				Device:      hs.Device,
-				VolumeName:  volumeName,
+				Type:         "rebuild_failed",
+				HotSpareID:   hs.ID,
+				Device:       hs.Device,
+				VolumeName:   volumeName,
 				FailedDevice: hs.FailedDevice,
-				Message:     "重建超时",
-				Timestamp:   time.Now(),
+				Message:      "重建超时",
+				Timestamp:    time.Now(),
 			})
 			h.mu.Unlock()
 			return
@@ -609,7 +609,7 @@ func (h *HotSpareManager) monitorRebuildProgress(hs *HotSpare, volumeName string
 				hs.Status = "standby" // 热备盘已成为活动盘，可以再次成为热备
 				hs.RebuildProgress = 100
 				hs.RebuildEnded = time.Now()
-				
+
 				// 更新卷的设备列表
 				vol := h.manager.GetVolume(volumeName)
 				if vol != nil {
@@ -623,13 +623,13 @@ func (h *HotSpareManager) monitorRebuildProgress(hs *HotSpare, volumeName string
 				}
 
 				h.emitEventUnlocked(HotSpareEvent{
-					Type:        "rebuild_complete",
-					HotSpareID:  hs.ID,
-					Device:      hs.Device,
-					VolumeName:  volumeName,
+					Type:         "rebuild_complete",
+					HotSpareID:   hs.ID,
+					Device:       hs.Device,
+					VolumeName:   volumeName,
 					FailedDevice: hs.FailedDevice,
-					Message:     fmt.Sprintf("重建完成，热备盘 %s 已替换故障设备", hs.Device),
-					Timestamp:   time.Now(),
+					Message:      fmt.Sprintf("重建完成，热备盘 %s 已替换故障设备", hs.Device),
+					Timestamp:    time.Now(),
 				})
 				h.mu.Unlock()
 				return
@@ -659,13 +659,13 @@ func (h *HotSpareManager) ActivateHotSpare(device, volumeName, failedDevice stri
 
 	// 发送激活事件
 	h.emitEventUnlocked(HotSpareEvent{
-		Type:        "activated",
-		HotSpareID:  hs.ID,
-		Device:      device,
-		VolumeName:  volumeName,
+		Type:         "activated",
+		HotSpareID:   hs.ID,
+		Device:       device,
+		VolumeName:   volumeName,
 		FailedDevice: failedDevice,
-		Message:     fmt.Sprintf("热备盘 %s 已手动激活", device),
-		Timestamp:   time.Now(),
+		Message:      fmt.Sprintf("热备盘 %s 已手动激活", device),
+		Timestamp:    time.Now(),
 	})
 
 	return h.startRebuild(hs, volumeName, failedDevice)
@@ -700,12 +700,12 @@ func (h *HotSpareManager) CancelRebuild(device string) error {
 	hs.RebuildProgress = 0
 
 	h.emitEventUnlocked(HotSpareEvent{
-		Type:        "rebuild_cancelled",
-		HotSpareID:  hs.ID,
-		Device:      device,
-		VolumeName:  hs.VolumeName,
-		Message:     "重建已取消",
-		Timestamp:   time.Now(),
+		Type:       "rebuild_cancelled",
+		HotSpareID: hs.ID,
+		Device:     device,
+		VolumeName: hs.VolumeName,
+		Message:    "重建已取消",
+		Timestamp:  time.Now(),
 	})
 
 	return nil
@@ -721,7 +721,7 @@ func (h *HotSpareManager) getDeviceCapacity(device string) (uint64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("获取设备容量失败: %w", err)
 	}
-	
+
 	size, err := strconv.ParseUint(strings.TrimSpace(string(output)), 10, 64)
 	if err != nil {
 		return 0, fmt.Errorf("解析设备容量失败: %w", err)
@@ -736,13 +736,13 @@ func (h *HotSpareManager) checkDeviceAvailable(device string) error {
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("设备 %s 不存在或不是块设备", device)
 	}
-	
+
 	// 检查设备是否已挂载
 	cmd = exec.Command("grep", "-q", device, "/proc/mounts")
 	if cmd.Run() == nil {
 		return fmt.Errorf("设备 %s 已挂载", device)
 	}
-	
+
 	return nil
 }
 
@@ -788,27 +788,27 @@ func (h *HotSpareManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, e
 	if err != nil {
 		return nil, fmt.Errorf("获取替换状态失败: %w", err)
 	}
-	
+
 	return h.parseReplaceStatus(string(output))
 }
 
 // parseReplaceStatus 解析替换状态输出
 func (h *HotSpareManager) parseReplaceStatus(output string) (*ReplaceStatus, error) {
 	status := &ReplaceStatus{}
-	
+
 	if strings.Contains(output, "never started") {
 		return status, nil
 	}
-	
+
 	if strings.Contains(output, "finished") {
 		status.Finished = true
 		status.Progress = 100
 		return status, nil
 	}
-	
+
 	if strings.Contains(output, "running") || strings.Contains(output, "started") {
 		status.Running = true
-		
+
 		// 解析进度
 		if idx := strings.Index(output, "%"); idx > 0 {
 			percentStr := output[:idx]
@@ -825,7 +825,7 @@ func (h *HotSpareManager) parseReplaceStatus(output string) (*ReplaceStatus, err
 			}
 		}
 	}
-	
+
 	return status, nil
 }
 
@@ -864,15 +864,15 @@ func generateID(device string) string {
 
 // RebuildStatus 重建状态
 type RebuildStatus struct {
-	Device          string    `json:"device"`          // 热备盘设备
-	VolumeName      string    `json:"volumeName"`      // 卷名
-	FailedDevice    string    `json:"failedDevice"`    // 故障设备
-	Progress        float64   `json:"progress"`        // 进度 0-100
-	StartedAt       time.Time `json:"startedAt"`       // 开始时间
-	EstimatedEnd    time.Time `json:"estimatedEnd"`    // 预计结束时间
-	Status          string    `json:"status"`          // running, completed, failed, cancelled
-	BytesRebuilt    uint64    `json:"bytesRebuilt"`    // 已重建字节数
-	BytesTotal      uint64    `json:"bytesTotal"`      // 总字节数
+	Device       string    `json:"device"`       // 热备盘设备
+	VolumeName   string    `json:"volumeName"`   // 卷名
+	FailedDevice string    `json:"failedDevice"` // 故障设备
+	Progress     float64   `json:"progress"`     // 进度 0-100
+	StartedAt    time.Time `json:"startedAt"`    // 开始时间
+	EstimatedEnd time.Time `json:"estimatedEnd"` // 预计结束时间
+	Status       string    `json:"status"`       // running, completed, failed, cancelled
+	BytesRebuilt uint64    `json:"bytesRebuilt"` // 已重建字节数
+	BytesTotal   uint64    `json:"bytesTotal"`   // 总字节数
 }
 
 // GetRebuildStatus 获取重建状态
