@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -114,12 +115,12 @@ func (pc *PierceClient) startP2P() error {
 
 // startRelay 启动中继模式
 func (pc *PierceClient) startRelay() error {
-	// 连接中继服务器
-	addr := fmt.Sprintf("%s:%d", pc.config.ServerAddr, pc.config.ServerPort)
-	
+	// 连接中继服务器（使用 net.JoinHostPort 支持 IPv6）
+	addr := net.JoinHostPort(pc.config.ServerAddr, strconv.Itoa(pc.config.ServerPort))
+
 	var conn net.Conn
 	var err error
-	
+
 	if pc.config.TLSEnabled {
 		conn, err = tls.Dial("tcp", addr, &tls.Config{
 			InsecureSkipVerify: false,

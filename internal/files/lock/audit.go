@@ -120,7 +120,6 @@ func (s *LockAuditStorage) signEntry(entry *LockAuditEntry) {
 
 	h := hmac.New(sha256.New, s.signKey)
 	h.Write([]byte(signData))
-	entry.Details = entry.Details
 	if entry.Details == nil {
 		entry.Details = make(map[string]interface{})
 	}
