@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -63,6 +64,7 @@ type InstalledApp struct {
 
 // AppStore 应用商店
 type AppStore struct {
+	mu          sync.RWMutex
 	manager     *Manager
 	templateDir string
 	installDir  string
@@ -578,6 +580,8 @@ func (s *AppStore) saveInstalled() error {
 
 // ListTemplates 列出所有模板
 func (s *AppStore) ListTemplates() []*AppTemplate {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	result := make([]*AppTemplate, 0, len(s.templates))
 	for _, t := range s.templates {
 		result = append(result, t)
@@ -587,11 +591,15 @@ func (s *AppStore) ListTemplates() []*AppTemplate {
 
 // GetTemplate 获取模板
 func (s *AppStore) GetTemplate(id string) *AppTemplate {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	return s.templates[id]
 }
 
 // ListInstalled 列出已安装应用
 func (s *AppStore) ListInstalled() []*InstalledApp {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	result := make([]*InstalledApp, 0, len(s.installed))
 	for _, app := range s.installed {
 		// 更新状态
@@ -607,6 +615,8 @@ func (s *AppStore) ListInstalled() []*InstalledApp {
 
 // GetInstalled 获取已安装应用
 func (s *AppStore) GetInstalled(id string) *InstalledApp {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	app, ok := s.installed[id]
 	if !ok {
 		return nil
@@ -620,6 +630,9 @@ func (s *AppStore) GetInstalled(id string) *InstalledApp {
 
 // InstallApp 安装应用
 func (s *AppStore) InstallApp(templateID string, config map[string]interface{}) (*InstalledApp, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	template, ok := s.templates[templateID]
 	if !ok {
 		return nil, fmt.Errorf("模板不存在: %s", templateID)
@@ -805,6 +818,9 @@ services:
 
 // UninstallApp 卸载应用
 func (s *AppStore) UninstallApp(id string, removeData bool) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)

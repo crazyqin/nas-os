@@ -16,6 +16,7 @@ type AppHandlers struct {
 	discovery         *AppDiscovery
 	customTemplateMgr *CustomTemplateManager
 	versionManager    *VersionManager
+	manualInstaller   *ManualInstaller
 	// mu                 sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 
@@ -46,6 +47,11 @@ func (h *AppHandlers) SetVersionManager(vm *VersionManager) {
 	h.versionManager = vm
 }
 
+// SetManualInstaller 设置手动安装器
+func (h *AppHandlers) SetManualInstaller(mi *ManualInstaller) {
+	h.manualInstaller = mi
+}
+
 // RegisterRoutes 注册路由
 func (h *AppHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	apps := r.Group("/apps")
@@ -66,6 +72,10 @@ func (h *AppHandlers) RegisterRoutes(r *gin.RouterGroup) {
 		apps.POST("/installed/:id/stop", h.stopApp)
 		apps.POST("/installed/:id/restart", h.restartApp)
 		apps.POST("/installed/:id/update", h.updateApp)
+
+		// === 手动安装 ===
+		apps.POST("/install", h.manualInstallApp)
+		apps.GET("/latest", h.getLatestApps)
 
 		// === 评分和评论 ===
 		apps.GET("/ratings/:templateId", h.getRatings)
@@ -938,6 +948,99 @@ func (h *AppHandlers) installCustomTemplate(c *gin.Context) {
 		"code":    0,
 		"message": "应用安装成功",
 		"data":    app,
+	})
+}
+
+// === 手动安装 ===
+
+// manualInstallApp 手动安装应用
+func (h *AppHandlers) manualInstallApp(c *gin.Context) {
+	if h.manualInstaller == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "手动安装系统未初始化",
+		})
+		return
+	}
+
+	var req ManualInstallRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求格式错误: " + err.Error(),
+		})
+		return
+	}
+
+	// 验证请求
+	if req.Type == "" {
+		req.Type = "compose" // 默认使用 compose
+	}
+
+	if req.Type == "image" && req.Image == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "镜像安装需要提供 image 参数",
+		})
+		return
+	}
+
+	if req.Type == "compose" && req.ComposeContent == "" && req.ComposeURL == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "Compose 安装需要提供 composeContent 或 composeUrl",
+		})
+		return
+	}
+
+	result, err := h.manualInstaller.Install(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "安装失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "应用安装成功",
+		"data":    result,
+	})
+}
+
+// getLatestApps 获取最新应用列表
+func (h *AppHandlers) getLatestApps(c *gin.Context) {
+	if h.manualInstaller == nil {
+		// 回退到 store 的模板列表
+		templates := h.store.ListTemplates()
+
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data": gin.H{
+				"trending":   templates,
+				"new":        []*AppTemplate{},
+				"updated":    []*AppTemplate{},
+				"categories": map[string]int{},
+			},
+		})
+		return
+	}
+
+	result, err := h.manualInstaller.GetLatestApps()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    result,
 	})
 }
 
