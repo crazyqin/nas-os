@@ -20,17 +20,17 @@ type SignalMessageType string
 // 信令消息类型常量
 const (
 	// SignalMessageTypeOffer Offer消息
-	SignalMessageTypeOffer      SignalMessageType = "offer"
+	SignalMessageTypeOffer SignalMessageType = "offer"
 	// SignalMessageTypeAnswer Answer消息
-	SignalMessageTypeAnswer     SignalMessageType = "answer"
+	SignalMessageTypeAnswer SignalMessageType = "answer"
 	// SignalMessageTypeCandidate ICE候选消息
-	SignalMessageTypeCandidate  SignalMessageType = "candidate"
+	SignalMessageTypeCandidate SignalMessageType = "candidate"
 	// SignalMessageTypeConnected 已连接消息
-	SignalMessageTypeConnected  SignalMessageType = "connected"
+	SignalMessageTypeConnected SignalMessageType = "connected"
 	// SignalMessageTypeDisconnect 断开连接消息
 	SignalMessageTypeDisconnect SignalMessageType = "disconnect"
 	// SignalMessageTypeError 错误消息
-	SignalMessageTypeError      SignalMessageType = "error"
+	SignalMessageTypeError SignalMessageType = "error"
 )
 
 // SignalMessage 信令消息
