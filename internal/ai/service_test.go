@@ -68,7 +68,7 @@ func TestDeIdentifier_Restore(t *testing.T) {
 
 	original := "My email is test@example.com and phone is 13812345678"
 	processed := deid.Process(original)
-	
+
 	// Verify processing happened
 	assert.NotEqual(t, original, processed)
 	assert.Contains(t, processed, "[EMAIL]")
@@ -101,14 +101,14 @@ func TestDeIdentifier_ClearMappings(t *testing.T) {
 
 	// Process some data
 	_ = deid.Process("test@example.com")
-	
+
 	// Verify mappings exist
 	mappings := deid.GetMappings()
 	assert.NotEmpty(t, mappings)
 
 	// Clear mappings
 	deid.ClearMappings()
-	
+
 	// Verify mappings cleared
 	mappings = deid.GetMappings()
 	assert.Empty(t, mappings)
@@ -168,7 +168,7 @@ func TestDefaultDeIDRules(t *testing.T) {
 
 func TestNewManager(t *testing.T) {
 	m := NewManager()
-	
+
 	assert.NotNil(t, m)
 	assert.NotNil(t, m.providers)
 	assert.NotNil(t, m.configs)
@@ -177,7 +177,7 @@ func TestNewManager(t *testing.T) {
 
 func TestManager_RegisterProvider(t *testing.T) {
 	m := NewManager()
-	
+
 	mockService := &MockService{}
 	config := &Config{
 		Provider:   ProviderOpenAI,
@@ -207,7 +207,7 @@ func TestManager_Chat_ProviderNotFound(t *testing.T) {
 
 func TestManager_Chat_WithDeIdentification(t *testing.T) {
 	m := NewManager()
-	
+
 	mockService := &MockService{Response: "AI response"}
 	config := &Config{
 		Provider:   ProviderOpenAI,
@@ -232,7 +232,7 @@ func TestManager_Chat_WithDeIdentification(t *testing.T) {
 
 func TestManager_Chat_WithoutDeIdentification(t *testing.T) {
 	m := NewManager()
-	
+
 	mockService := &MockService{Response: "AI response"}
 	config := &Config{
 		Provider:   ProviderOpenAI,
@@ -256,7 +256,7 @@ func TestManager_Chat_WithoutDeIdentification(t *testing.T) {
 
 func TestManager_GetAvailableProviders(t *testing.T) {
 	m := NewManager()
-	
+
 	// Empty initially
 	providers := m.GetAvailableProviders()
 	assert.Empty(t, providers)
@@ -372,7 +372,7 @@ func TestDeIDRule(t *testing.T) {
 
 func TestDeIdentifier_EmptyInput(t *testing.T) {
 	deid := NewDeIdentifier(DefaultDeIDRules())
-	
+
 	result := deid.Process("")
 	assert.Equal(t, "", result)
 }

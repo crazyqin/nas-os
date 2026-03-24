@@ -2,6 +2,45 @@
 
 All notable changes to NAS-OS will be documented in this file.
 
+## [v2.253.289] - 2026-03-24
+
+### Added
+- **OpenAI Compatible API** (`internal/ai/openai_compat.go`): Universal AI service integration
+  - Support for any OpenAI-compatible API endpoint
+  - Streaming chat support
+  - Full OpenAI API format compatibility
+  - Inspired by Synology AI Console
+
+- **China Cloud Providers** (`internal/cloudsync/provider_china.go`): Native support for Chinese cloud storage
+  - Aliyun OSS integration
+  - Tencent COS integration
+  - Baidu Object Storage
+  - Inspired by 飞牛fnOS 网盘挂载
+
+- **AI Service Test Coverage** (`internal/ai/*_test.go`): Comprehensive test suite
+  - Service layer tests
+  - OpenAI compatibility tests
+  - De-identification tests
+
+### Documentation
+- Competitor analysis report (docs/COMPETITOR_ANALYSIS.md)
+- Security audit report (SECURITY_AUDIT_2026-03-24_0936.md)
+- User guide updates (docs/USER_GUIDE.md)
+
+### Changed
+- Version bump: v2.253.288 → v2.253.289
+- AI service enhancements with better error handling
+
+### Fixed
+- gofmt and revive linter errors in ai/service.go
+- Removed conflicting tiering.go file
+
+### Competitor Analysis
+- Studied Synology DSM 7.3: OpenAI-compatible API, data de-identification
+- Studied 飞牛fnOS: Native cloud drive mounting for Chinese providers
+
+---
+
 ## [v2.253.288] - 2026-03-24
 
 ### Added
@@ -76,6 +115,7 @@ All notable changes to NAS-OS will be documented in this file.
 
 | Version | Date | Key Features |
 |---------|------|--------------|
+| v2.253.289 | 2026-03-24 | OpenAI Compatible API, China Cloud Providers, AI Tests |
 | v2.253.288 | 2026-03-24 | Cloud Mount, AI De-identification, Intelligent Tiering |
 | v2.253.287 | 2026-03-24 | Tiering, AI Service modules |
 | v2.253.286 | 2026-03-24 | Development round 36 |

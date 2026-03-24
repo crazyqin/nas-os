@@ -19,6 +19,14 @@ const (
 	ProviderBackblazeB2  ProviderType = "backblaze_b2"
 	ProviderWebDAV       ProviderType = "webdav"
 	ProviderS3Compatible ProviderType = "s3_compatible" // 通用 S3 兼容存储
+
+	// 中国网盘提供商
+	// Provider115 115网盘
+	Provider115 ProviderType = "115"
+	// ProviderQuark 夸克网盘
+	ProviderQuark ProviderType = "quark"
+	// ProviderAliyunPan 阿里云盘
+	ProviderAliyunPan ProviderType = "aliyun_pan"
 )
 
 // SyncDirection 同步方向
@@ -131,6 +139,11 @@ type ProviderConfig struct {
 
 	// WebDAV 配置
 	Insecure bool `json:"insecure,omitempty"` // 跳过 TLS 验证
+
+	// 中国网盘配置 (115、夸克、阿里云盘)
+	AccessToken string `json:"-"` // 安全：禁止序列化到 JSON
+	UserID      string `json:"userId,omitempty"`
+	DriveID     string `json:"driveId,omitempty"` // 阿里云盘需要
 
 	// 通用配置
 	MaxConnections int `json:"maxConnections,omitempty"`
@@ -343,6 +356,25 @@ func SupportedProviders() []ProviderInfo {
 			Name:        "S3 兼容存储",
 			Description: "兼容 S3 协议的存储服务",
 			Features:    []string{"upload", "download", "delete", "list", "multipart"},
+		},
+		// 中国网盘提供商
+		{
+			Type:        Provider115,
+			Name:        "115网盘",
+			Description: "115网盘 - 支持秒传和离线下载",
+			Features:    []string{"upload", "download", "delete", "list", "instant_upload", "offline_download"},
+		},
+		{
+			Type:        ProviderQuark,
+			Name:        "夸克网盘",
+			Description: "夸克网盘 - 大容量存储",
+			Features:    []string{"upload", "download", "delete", "list"},
+		},
+		{
+			Type:        ProviderAliyunPan,
+			Name:        "阿里云盘",
+			Description: "阿里云盘 - 支持秒传和分享",
+			Features:    []string{"upload", "download", "delete", "list", "instant_upload", "share"},
 		},
 	}
 }
