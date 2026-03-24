@@ -855,6 +855,9 @@ func (s *AppStore) UninstallApp(id string, removeData bool) error {
 
 // StartApp 启动应用
 func (s *AppStore) StartApp(id string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)
@@ -879,6 +882,9 @@ func (s *AppStore) StartApp(id string) error {
 
 // StopApp 停止应用
 func (s *AppStore) StopApp(id string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)
@@ -903,6 +909,9 @@ func (s *AppStore) StopApp(id string) error {
 
 // RestartApp 重启应用
 func (s *AppStore) RestartApp(id string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)
@@ -923,6 +932,9 @@ func (s *AppStore) RestartApp(id string) error {
 
 // UpdateApp 更新应用
 func (s *AppStore) UpdateApp(id string) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
 	app, ok := s.installed[id]
 	if !ok {
 		return fmt.Errorf("应用未安装: %s", id)

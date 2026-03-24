@@ -201,6 +201,33 @@ func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 				// 处理冲突策略
 				return m.handleConflict(req, lock, existing, conflict)
 			}
+
+			// 如果现有锁是共享锁，且新请求也是共享锁，添加到现有锁
+			if existing.LockType == LockTypeShared && req.LockType == LockTypeShared {
+				existing.AddSharedOwner(&SharedOwner{
+					Owner:      req.Owner,
+					OwnerName:  req.OwnerName,
+					ClientID:   req.ClientID,
+					Protocol:   req.Protocol,
+					AcquiredAt: now,
+					ExpiresAt:  now.Add(timeout),
+				})
+
+				// 记录审计日志
+				m.logAudit(&LockAuditEntry{
+					Event:     AuditEventLockAcquired,
+					LockID:    existing.ID,
+					FilePath:  req.FilePath,
+					FileName:  existing.FileName,
+					LockType:  req.LockType.String(),
+					Owner:     req.Owner,
+					OwnerName: req.OwnerName,
+					ClientID:  req.ClientID,
+					Protocol:  req.Protocol,
+				})
+
+				return existing, nil, nil
+			}
 		}
 	}
 
@@ -414,7 +441,8 @@ func (m *Manager) UpgradeLock(lockID string, owner string) error {
 		return ErrLockExpired
 	}
 
-	// 检查是否有其他共享锁持有者
+	// 检查是否有其他共享锁持有者（大于1表示有其他人）
+	// 只有当前用户一个共享者时可以升级
 	if len(lock.SharedOwners) > 1 {
 		return ErrLockUpgradeFailed
 	}

@@ -228,6 +228,7 @@ const (
 	ExportCSV  ExportFormat = "csv"
 	ExportXML  ExportFormat = "xml"
 	ExportPDF  ExportFormat = "pdf"
+	ExportYAML ExportFormat = "yaml"
 )
 
 // ExportOptions 导出选项

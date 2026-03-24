@@ -47,6 +47,28 @@
 | 专业版 | ¥299 | 高级用户 |
 | 企业版 | ¥1,999 | 中小企业 |
 
+## RAIDZ扩展技术调研
+
+**调研结论**：
+
+| 文件系统 | RAID扩展 | 稳定性 | 推荐度 |
+|----------|----------|--------|--------|
+| ZFS RAIDZ | 单命令原子操作 | 稳定 | ⭐⭐⭐⭐⭐ |
+| btrfs RAID1/10 | 多步骤操作 | 稳定 | ⭐⭐⭐⭐ |
+| btrfs RAID5/6 | 多步骤操作 | 不稳定 | ⚠️不推荐 |
+
+**关键发现**：
+- TrueNAS Fangtooth实现RAIDZ扩展加速5倍
+- OpenZFS 2.3正式支持RAIDZ Expansion
+- btrfs RAID5/6仍标记为不稳定（write hole问题）
+- 建议nas-os短期优化btrfs RAID1/10扩展体验，中期引入ZFS选项
+
+**实现建议**：
+- 短期：封装btrfs balance API，禁用RAID5/6（6-7人周）
+- 中期：引入ZFS作为可选存储后端（16-22人周）
+
+详细报告: `docs/RAIDZ_EXPANSION_RESEARCH.md`
+
 ## 汇总
 
 ```json
@@ -62,11 +84,14 @@
     "cloud_api": "¥0.003/次",
     "local_gpu": "¥0.001/次"
   },
-  "storage_savings": "77%"
+  "storage_savings": "77%",
+  "raid_research": {
+    "zfs_expansion": "稳定可用",
+    "btrfs_raid56": "不稳定禁止",
+    "recommendation": "短期优化btrfs RAID1/10，中期引入ZFS"
+  }
 }
 ```
 
-详细报告: `memory/hubu-report-2026-03-25.md`
-
 ---
-*户部 · 第38轮统计完成*
+*户部 · 第38轮统计完成 · RAIDZ扩展调研完成*
