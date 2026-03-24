@@ -13,6 +13,7 @@ import (
 // SessionType 会话类型
 type SessionType string
 
+// SessionType constants
 const (
 	SessionTypeSMB SessionType = "smb"
 	SessionTypeNFS SessionType = "nfs"
@@ -21,6 +22,7 @@ const (
 // SessionStatus 会话状态
 type SessionStatus string
 
+// SessionStatus constants
 const (
 	StatusActive SessionStatus = "active"
 	StatusIdle   SessionStatus = "idle"

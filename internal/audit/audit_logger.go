@@ -24,6 +24,7 @@ import (
 // Protocol 协议类型
 type Protocol string
 
+// Protocol constants
 const (
 	ProtocolSMB    Protocol = "smb"
 	ProtocolNFS    Protocol = "nfs"
@@ -34,6 +35,7 @@ const (
 // FileOperation 文件操作类型
 type FileOperation string
 
+// FileOperation constants
 const (
 	OpCreate   FileOperation = "create"   // 创建文件/目录
 	OpRead     FileOperation = "read"     // 读取文件

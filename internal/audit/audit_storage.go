@@ -85,11 +85,6 @@ func (s *FileAuditStorage) getLogFilename(date string) string {
 	return filepath.Join(s.basePath, fmt.Sprintf("file-audit-%s.log", date))
 }
 
-// getCompressedFilename 获取压缩文件名
-func (s *FileAuditStorage) getCompressedFilename(date string) string {
-	return filepath.Join(s.basePath, fmt.Sprintf("file-audit-%s.log.gz", date))
-}
-
 // getArchiveFilename 获取归档文件名
 func (s *FileAuditStorage) getArchiveFilename(startMonth, endMonth string) string {
 	return filepath.Join(s.basePath, "archive", fmt.Sprintf("file-audit-%s-%s.tar.gz", startMonth, endMonth))
