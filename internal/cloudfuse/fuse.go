@@ -11,9 +11,10 @@ import (
 	"syscall"
 	"time"
 
+	"nas-os/internal/cloudsync"
+
 	"bazil.org/fuse"
 	"bazil.org/fuse/fs"
-	"nas-os/internal/cloudsync"
 )
 
 // CloudFS 云存储文件系统
