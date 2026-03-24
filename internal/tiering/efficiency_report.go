@@ -154,10 +154,10 @@ type MigrationEfficiencyReport struct {
 	SuccessRate float64 `json:"successRate"`
 
 	// 按存储层统计
-	ByTier map[TierType]*TierMigrationStats `json:"byTier"`
+	ByTier map[TierType]*TierMigrationStatsReport `json:"byTier"`
 
 	// 按策略统计
-	ByPolicy map[string]*PolicyMigrationStats `json:"byPolicy"`
+	ByPolicy map[string]*PolicyMigrationStatsReport `json:"byPolicy"`
 
 	// 迁移趋势
 	MigrationTrend []MigrationTrendPoint `json:"migrationTrend"`
@@ -166,8 +166,8 @@ type MigrationEfficiencyReport struct {
 	EfficiencyScore float64 `json:"efficiencyScore"`
 }
 
-// TierMigrationStats 存储层迁移统计
-type TierMigrationStats struct {
+// TierMigrationStatsReport 存储层迁移统计报告
+type TierMigrationStatsReport struct {
 	TierType         TierType `json:"tierType"`
 	FilesPromoted    int64    `json:"filesPromoted"`    // 提升到该层的文件数
 	BytesPromoted    int64    `json:"bytesPromoted"`
@@ -179,8 +179,8 @@ type TierMigrationStats struct {
 	SuccessRate      float64  `json:"successRate"`
 }
 
-// PolicyMigrationStats 策略迁移统计
-type PolicyMigrationStats struct {
+// PolicyMigrationStatsReport 策略迁移统计报告
+type PolicyMigrationStatsReport struct {
 	PolicyID       string    `json:"policyId"`
 	PolicyName     string    `json:"policyName"`
 	ExecutionCount int64     `json:"executionCount"`
@@ -575,8 +575,8 @@ func (g *EfficiencyReportGenerator) generateMigrationEfficiency(period string) *
 	report := &MigrationEfficiencyReport{
 		PeriodStart: time.Now().AddDate(0, 0, -30),
 		PeriodEnd:   time.Now(),
-		ByTier:      make(map[TierType]*TierMigrationStats),
-		ByPolicy:    make(map[string]*PolicyMigrationStats),
+		ByTier:      make(map[TierType]*TierMigrationStatsReport),
+		ByPolicy:    make(map[string]*PolicyMigrationStatsReport),
 	}
 
 	// 获取迁移指标
@@ -606,7 +606,7 @@ func (g *EfficiencyReportGenerator) generateMigrationEfficiency(period string) *
 			continue
 		}
 
-		stats := &TierMigrationStats{
+		stats := &TierMigrationStatsReport{
 			TierType:      tier.Type,
 			FilesPromoted: tierMetrics.FilesMigratedIn,
 			BytesPromoted: tierMetrics.BytesMigratedIn,
@@ -630,7 +630,7 @@ func (g *EfficiencyReportGenerator) generateMigrationEfficiency(period string) *
 			policyName = policy.Name
 		}
 
-		stats := &PolicyMigrationStats{
+		stats := &PolicyMigrationStatsReport{
 			PolicyID:       policyID,
 			PolicyName:     policyName,
 			ExecutionCount: policyMetrics.ExecutionCount,
@@ -1127,12 +1127,24 @@ func (g *EfficiencyReportGenerator) calculateCostSavings(report *CostAnalysisRep
 func (g *EfficiencyReportGenerator) generateCostForecast() []CostForecastPoint {
 	forecast := make([]CostForecastPoint, 0)
 
+	// 计算当前成本（直接计算，避免递归）
+	currentCost := 0.0
+	for _, tier := range g.manager.ListTiers() {
+		usedGB := float64(tier.Used) / 1024 / 1024 / 1024
+		var costPerGB float64
+		switch tier.Type {
+		case TierTypeSSD:
+			costPerGB = g.costConfig.SSDCostPerGBMonth
+		case TierTypeHDD:
+			costPerGB = g.costConfig.HDDCostPerGBMonth
+		case TierTypeCloud:
+			costPerGB = g.costConfig.CloudCostPerGBMonth
+		}
+		currentCost += usedGB * costPerGB
+	}
+
 	// 简单的线性预测
 	growthRate := 0.1 // 假设每月10%增长
-	currentCost := 0.0
-
-	costReport := g.generateCostAnalysis()
-	currentCost = costReport.TotalMonthlyCost
 
 	for i := 0; i < 12; i++ {
 		projectedCost := currentCost * math.Pow(1+growthRate, float64(i))

@@ -156,8 +156,10 @@ func NewBandwidthMonitor(config BandwidthConfig, logger *zap.Logger) *BandwidthM
 		historySize:    60,
 	}
 
-	// 初始化限速器
-	m.updateLimiters()
+	// 初始化限速器（只在有限速配置时）
+	if config.UploadLimit > 0 || config.DownloadLimit > 0 {
+		m.updateLimiters()
+	}
 
 	return m
 }

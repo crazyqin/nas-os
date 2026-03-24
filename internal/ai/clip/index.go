@@ -114,7 +114,7 @@ func (idx *FlatIndex) Search(ctx context.Context, query []float32, topK int, min
 
 	results := make([]SearchResult, 0)
 
-	for id, emb := range idx.vectors {
+	for _, emb := range idx.vectors {
 		sim := cosineSimilarity(query, emb.Embedding.Vector)
 		if sim >= minScore {
 			results = append(results, SearchResult{

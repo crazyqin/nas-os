@@ -383,7 +383,12 @@ type NetworkValidator struct{}
 func (v *NetworkValidator) Validate(config *EnhancedConfig) error {
 	// 验证 STUN 服务器地址
 	for _, server := range config.STUNServers {
-		if _, err := net.ResolveUDPAddr("udp", server); err != nil {
+		// 支持 stun: 前缀
+		addr := server
+		if len(addr) > 5 && addr[:5] == "stun:" {
+			addr = addr[5:]
+		}
+		if _, err := net.ResolveUDPAddr("udp", addr); err != nil {
 			return errors.New("invalid STUN server: " + server)
 		}
 	}
@@ -393,7 +398,12 @@ func (v *NetworkValidator) Validate(config *EnhancedConfig) error {
 		if server == "" {
 			continue
 		}
-		if _, err := net.ResolveUDPAddr("udp", server); err != nil {
+		// 支持 turn: 前缀
+		addr := server
+		if len(addr) > 5 && addr[:5] == "turn:" {
+			addr = addr[5:]
+		}
+		if _, err := net.ResolveUDPAddr("udp", addr); err != nil {
 			return errors.New("invalid TURN server: " + server)
 		}
 	}
