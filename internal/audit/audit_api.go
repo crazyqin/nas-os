@@ -34,22 +34,22 @@ func (h *FileAuditHandlers) RegisterRoutes(api *gin.RouterGroup) {
 		audit.GET("/statistics", h.getStatistics)
 		audit.GET("/timeline", h.getTimeline)
 		audit.GET("/search", h.searchLogs)
-		
+
 		// 导出
 		audit.GET("/export", h.exportLogs)
-		
+
 		// 存储管理
 		audit.GET("/storage/info", h.getStorageInfo)
 		audit.GET("/storage/dates", h.getAvailableDates)
 		audit.POST("/storage/archive", h.archiveLogs)
 		audit.POST("/storage/cleanup", h.cleanupLogs)
-		
+
 		// 配置管理
 		audit.GET("/config", h.getConfig)
 		audit.PUT("/config", h.updateConfig)
 		audit.POST("/enable", h.enable)
 		audit.POST("/disable", h.disable)
-		
+
 		// 操作记录接口（内部使用）
 		audit.POST("/log/smb", h.logSMBOperation)
 		audit.POST("/log/nfs", h.logNFSOperation)
@@ -90,12 +90,12 @@ func (h *FileAuditHandlers) getLogs(c *gin.Context) {
 	// 解析查询参数
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
-	
+
 	opts := FileAuditQueryOptions{
 		Limit:  limit,
 		Offset: offset,
 	}
-	
+
 	// 时间范围
 	if startTime := c.Query("start_time"); startTime != "" {
 		t, err := time.Parse(time.RFC3339, startTime)
@@ -109,7 +109,7 @@ func (h *FileAuditHandlers) getLogs(c *gin.Context) {
 			opts.EndTime = &t
 		}
 	}
-	
+
 	// 筛选条件
 	if protocol := c.Query("protocol"); protocol != "" {
 		opts.Protocol = Protocol(protocol)
@@ -138,14 +138,14 @@ func (h *FileAuditHandlers) getLogs(c *gin.Context) {
 	if keyword := c.Query("keyword"); keyword != "" {
 		opts.Keyword = keyword
 	}
-	
+
 	// 执行查询
 	result, err := h.logger.Query(opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, result)
 }
 
@@ -162,13 +162,13 @@ func (h *FileAuditHandlers) getLogs(c *gin.Context) {
 // @Security BearerAuth
 func (h *FileAuditHandlers) getLogByID(c *gin.Context) {
 	id := c.Param("id")
-	
+
 	entry, err := h.logger.GetByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, ErrorResponse(ErrCodeNotFound, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, entry)
 }
 
@@ -188,10 +188,10 @@ func (h *FileAuditHandlers) getStatistics(c *gin.Context) {
 
 // TimelineItem 时间线条目
 type TimelineItem struct {
-	Time        time.Time `json:"time"`
-	Count       int       `json:"count"`
-	Operations  map[string]int `json:"operations"`
-	Users       map[string]int `json:"users"`
+	Time       time.Time      `json:"time"`
+	Count      int            `json:"count"`
+	Operations map[string]int `json:"operations"`
+	Users      map[string]int `json:"users"`
 }
 
 // getTimeline 获取事件时间线
@@ -210,7 +210,7 @@ func (h *FileAuditHandlers) getTimeline(c *gin.Context) {
 	// 解析时间范围
 	startTime := time.Now().Add(-24 * time.Hour)
 	endTime := time.Now()
-	
+
 	if st := c.Query("start_time"); st != "" {
 		t, err := time.Parse(time.RFC3339, st)
 		if err == nil {
@@ -223,32 +223,32 @@ func (h *FileAuditHandlers) getTimeline(c *gin.Context) {
 			endTime = t
 		}
 	}
-	
+
 	interval := c.DefaultQuery("interval", "hour")
-	
+
 	// 查询日志
 	opts := FileAuditQueryOptions{
 		StartTime: &startTime,
 		EndTime:   &endTime,
 		Limit:     10000,
 	}
-	
+
 	result, err := h.logger.Query(opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	// 生成时间线
 	timeline := h.generateTimeline(result.Entries, interval)
-	
+
 	c.JSON(http.StatusOK, timeline)
 }
 
 // generateTimeline 生成时间线
 func (h *FileAuditHandlers) generateTimeline(entries []*FileAuditEntry, interval string) []TimelineItem {
 	timeline := make(map[string]*TimelineItem)
-	
+
 	for _, entry := range entries {
 		var key string
 		switch interval {
@@ -259,7 +259,7 @@ func (h *FileAuditHandlers) generateTimeline(entries []*FileAuditEntry, interval
 		default:
 			key = entry.Timestamp.Format("2006-01-02T15")
 		}
-		
+
 		if item, exists := timeline[key]; exists {
 			item.Count++
 			item.Operations[string(entry.Operation)]++
@@ -274,13 +274,13 @@ func (h *FileAuditHandlers) generateTimeline(entries []*FileAuditEntry, interval
 			}
 		}
 	}
-	
+
 	// 转换为切片并排序
 	result := make([]TimelineItem, 0, len(timeline))
 	for _, item := range timeline {
 		result = append(result, *item)
 	}
-	
+
 	return result
 }
 
@@ -301,20 +301,20 @@ func (h *FileAuditHandlers) searchLogs(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, "缺少搜索关键词"))
 		return
 	}
-	
+
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
-	
+
 	opts := FileAuditQueryOptions{
 		Keyword: keyword,
 		Limit:   limit,
 	}
-	
+
 	result, err := h.logger.Query(opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, result)
 }
 
@@ -337,11 +337,11 @@ func (h *FileAuditHandlers) searchLogs(c *gin.Context) {
 // @Security BearerAuth
 func (h *FileAuditHandlers) exportLogs(c *gin.Context) {
 	format := c.DefaultQuery("format", "json")
-	
+
 	// 时间范围
 	startTime := time.Now().Add(-24 * time.Hour)
 	endTime := time.Now()
-	
+
 	if st := c.Query("start_time"); st != "" {
 		t, err := time.Parse(time.RFC3339, st)
 		if err == nil {
@@ -354,14 +354,14 @@ func (h *FileAuditHandlers) exportLogs(c *gin.Context) {
 			endTime = t
 		}
 	}
-	
+
 	var protocol Protocol
 	if p := c.Query("protocol"); p != "" {
 		protocol = Protocol(p)
 	}
-	
+
 	compress := c.Query("compress") == "true"
-	
+
 	opts := FileExportOptions{
 		Format:    format,
 		StartTime: startTime,
@@ -369,13 +369,13 @@ func (h *FileAuditHandlers) exportLogs(c *gin.Context) {
 		Protocol:  protocol,
 		Compress:  compress,
 	}
-	
+
 	data, err := h.logger.Export(opts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, "导出失败"))
 		return
 	}
-	
+
 	// 设置响应头
 	contentType := "application/json"
 	fileExt := "json"
@@ -384,9 +384,9 @@ func (h *FileAuditHandlers) exportLogs(c *gin.Context) {
 		contentType = "text/csv"
 		fileExt = "csv"
 	}
-	
+
 	filename := "file-audit-" + startTime.Format("20060102") + "-" + endTime.Format("20060102") + "." + fileExt
-	
+
 	c.Header("Content-Type", contentType)
 	c.Header("Content-Disposition", "attachment; filename="+filename)
 	c.Data(http.StatusOK, contentType, data)
@@ -409,7 +409,7 @@ func (h *FileAuditHandlers) getStorageInfo(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, info)
 }
 
@@ -428,7 +428,7 @@ func (h *FileAuditHandlers) getAvailableDates(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, dates)
 }
 
@@ -455,12 +455,12 @@ func (h *FileAuditHandlers) archiveLogs(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	if err := h.storage.Archive(req.StartMonth, req.EndMonth); err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, SuccessResponse(nil))
 }
 
@@ -478,7 +478,7 @@ func (h *FileAuditHandlers) cleanupLogs(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, SuccessResponse(nil))
 }
 
@@ -514,9 +514,9 @@ func (h *FileAuditHandlers) updateConfig(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	h.logger.SetConfig(config)
-	
+
 	c.JSON(http.StatusOK, SuccessResponse(nil))
 }
 
@@ -552,15 +552,15 @@ func (h *FileAuditHandlers) disable(c *gin.Context) {
 
 // smbOperationRequest SMB操作请求
 type smbOperationRequest struct {
-	ShareName  string                 `json:"share_name" binding:"required"`
-	SharePath  string                 `json:"share_path" binding:"required"`
-	UserID     string                 `json:"user_id" binding:"required"`
-	Username   string                 `json:"username" binding:"required"`
-	ClientIP   string                 `json:"client_ip" binding:"required"`
-	Operation  FileOperation          `json:"operation" binding:"required"`
-	FilePath   string                 `json:"file_path" binding:"required"`
-	Status     Status            `json:"status" binding:"required"`
-	Details    map[string]interface{} `json:"details"`
+	ShareName string                 `json:"share_name" binding:"required"`
+	SharePath string                 `json:"share_path" binding:"required"`
+	UserID    string                 `json:"user_id" binding:"required"`
+	Username  string                 `json:"username" binding:"required"`
+	ClientIP  string                 `json:"client_ip" binding:"required"`
+	Operation FileOperation          `json:"operation" binding:"required"`
+	FilePath  string                 `json:"file_path" binding:"required"`
+	Status    Status                 `json:"status" binding:"required"`
+	Details   map[string]interface{} `json:"details"`
 }
 
 // logSMBOperation 记录SMB操作
@@ -579,7 +579,7 @@ func (h *FileAuditHandlers) logSMBOperation(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	err := h.logger.LogSMBOperation(
 		c.Request.Context(),
 		req.ShareName,
@@ -592,25 +592,25 @@ func (h *FileAuditHandlers) logSMBOperation(c *gin.Context) {
 		req.Status,
 		req.Details,
 	)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
 // nfsOperationRequest NFS操作请求
 type nfsOperationRequest struct {
-	SharePath  string                 `json:"share_path" binding:"required"`
-	UserID     string                 `json:"user_id" binding:"required"`
-	Username   string                 `json:"username" binding:"required"`
-	ClientIP   string                 `json:"client_ip" binding:"required"`
-	Operation  FileOperation          `json:"operation" binding:"required"`
-	FilePath   string                 `json:"file_path" binding:"required"`
-	Status     Status            `json:"status" binding:"required"`
-	Details    map[string]interface{} `json:"details"`
+	SharePath string                 `json:"share_path" binding:"required"`
+	UserID    string                 `json:"user_id" binding:"required"`
+	Username  string                 `json:"username" binding:"required"`
+	ClientIP  string                 `json:"client_ip" binding:"required"`
+	Operation FileOperation          `json:"operation" binding:"required"`
+	FilePath  string                 `json:"file_path" binding:"required"`
+	Status    Status                 `json:"status" binding:"required"`
+	Details   map[string]interface{} `json:"details"`
 }
 
 // logNFSOperation 记录NFS操作
@@ -629,7 +629,7 @@ func (h *FileAuditHandlers) logNFSOperation(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	err := h.logger.LogNFSOperation(
 		c.Request.Context(),
 		req.SharePath,
@@ -641,26 +641,26 @@ func (h *FileAuditHandlers) logNFSOperation(c *gin.Context) {
 		req.Status,
 		req.Details,
 	)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
 // fileOperationRequest 文件操作请求
 type fileOperationRequest struct {
-	Protocol   Protocol    `json:"protocol" binding:"required"`
-	ShareName  string      `json:"share_name"`
-	SharePath  string      `json:"share_path" binding:"required"`
-	UserID     string      `json:"user_id" binding:"required"`
-	Username   string      `json:"username" binding:"required"`
-	ClientIP   string      `json:"client_ip" binding:"required"`
-	FilePath   string      `json:"file_path" binding:"required"`
-	IsDir      bool        `json:"is_directory"`
-	Status     Status `json:"status" binding:"required"`
+	Protocol  Protocol `json:"protocol" binding:"required"`
+	ShareName string   `json:"share_name"`
+	SharePath string   `json:"share_path" binding:"required"`
+	UserID    string   `json:"user_id" binding:"required"`
+	Username  string   `json:"username" binding:"required"`
+	ClientIP  string   `json:"client_ip" binding:"required"`
+	FilePath  string   `json:"file_path" binding:"required"`
+	IsDir     bool     `json:"is_directory"`
+	Status    Status   `json:"status" binding:"required"`
 }
 
 // logFileCreate 记录文件创建
@@ -679,7 +679,7 @@ func (h *FileAuditHandlers) logFileCreate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	err := h.logger.LogFileCreate(
 		c.Request.Context(),
 		req.Protocol,
@@ -692,12 +692,12 @@ func (h *FileAuditHandlers) logFileCreate(c *gin.Context) {
 		req.IsDir,
 		req.Status,
 	)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
@@ -717,7 +717,7 @@ func (h *FileAuditHandlers) logFileDelete(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	err := h.logger.LogFileDelete(
 		c.Request.Context(),
 		req.Protocol,
@@ -730,26 +730,26 @@ func (h *FileAuditHandlers) logFileDelete(c *gin.Context) {
 		req.IsDir,
 		req.Status,
 	)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
 // fileRenameRequest 文件重命名请求
 type fileRenameRequest struct {
-	Protocol  Protocol    `json:"protocol" binding:"required"`
-	ShareName string      `json:"share_name"`
-	SharePath string      `json:"share_path" binding:"required"`
-	UserID    string      `json:"user_id" binding:"required"`
-	Username  string      `json:"username" binding:"required"`
-	ClientIP  string      `json:"client_ip" binding:"required"`
-	OldPath   string      `json:"old_path" binding:"required"`
-	NewPath   string      `json:"new_path" binding:"required"`
-	Status    Status `json:"status" binding:"required"`
+	Protocol  Protocol `json:"protocol" binding:"required"`
+	ShareName string   `json:"share_name"`
+	SharePath string   `json:"share_path" binding:"required"`
+	UserID    string   `json:"user_id" binding:"required"`
+	Username  string   `json:"username" binding:"required"`
+	ClientIP  string   `json:"client_ip" binding:"required"`
+	OldPath   string   `json:"old_path" binding:"required"`
+	NewPath   string   `json:"new_path" binding:"required"`
+	Status    Status   `json:"status" binding:"required"`
 }
 
 // logFileRename 记录文件重命名
@@ -768,7 +768,7 @@ func (h *FileAuditHandlers) logFileRename(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	err := h.logger.LogFileRename(
 		c.Request.Context(),
 		req.Protocol,
@@ -781,26 +781,26 @@ func (h *FileAuditHandlers) logFileRename(c *gin.Context) {
 		req.NewPath,
 		req.Status,
 	)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
 // fileMoveRequest 文件移动请求
 type fileMoveRequest struct {
-	Protocol  Protocol    `json:"protocol" binding:"required"`
-	ShareName string      `json:"share_name"`
-	SharePath string      `json:"share_path" binding:"required"`
-	UserID    string      `json:"user_id" binding:"required"`
-	Username  string      `json:"username" binding:"required"`
-	ClientIP  string      `json:"client_ip" binding:"required"`
-	OldPath   string      `json:"old_path" binding:"required"`
-	NewPath   string      `json:"new_path" binding:"required"`
-	Status    Status `json:"status" binding:"required"`
+	Protocol  Protocol `json:"protocol" binding:"required"`
+	ShareName string   `json:"share_name"`
+	SharePath string   `json:"share_path" binding:"required"`
+	UserID    string   `json:"user_id" binding:"required"`
+	Username  string   `json:"username" binding:"required"`
+	ClientIP  string   `json:"client_ip" binding:"required"`
+	OldPath   string   `json:"old_path" binding:"required"`
+	NewPath   string   `json:"new_path" binding:"required"`
+	Status    Status   `json:"status" binding:"required"`
 }
 
 // logFileMove 记录文件移动
@@ -819,7 +819,7 @@ func (h *FileAuditHandlers) logFileMove(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	err := h.logger.LogFileMove(
 		c.Request.Context(),
 		req.Protocol,
@@ -832,26 +832,26 @@ func (h *FileAuditHandlers) logFileMove(c *gin.Context) {
 		req.NewPath,
 		req.Status,
 	)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
 
 // fileWriteRequest 文件写入请求
 type fileWriteRequest struct {
-	Protocol  Protocol    `json:"protocol" binding:"required"`
-	ShareName string      `json:"share_name"`
-	SharePath string      `json:"share_path" binding:"required"`
-	UserID    string      `json:"user_id" binding:"required"`
-	Username  string      `json:"username" binding:"required"`
-	ClientIP  string      `json:"client_ip" binding:"required"`
-	FilePath  string      `json:"file_path" binding:"required"`
-	FileSize  int64       `json:"file_size"`
-	Status    Status `json:"status" binding:"required"`
+	Protocol  Protocol `json:"protocol" binding:"required"`
+	ShareName string   `json:"share_name"`
+	SharePath string   `json:"share_path" binding:"required"`
+	UserID    string   `json:"user_id" binding:"required"`
+	Username  string   `json:"username" binding:"required"`
+	ClientIP  string   `json:"client_ip" binding:"required"`
+	FilePath  string   `json:"file_path" binding:"required"`
+	FileSize  int64    `json:"file_size"`
+	Status    Status   `json:"status" binding:"required"`
 }
 
 // logFileWrite 记录文件写入
@@ -870,7 +870,7 @@ func (h *FileAuditHandlers) logFileWrite(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse(ErrCodeInvalidParam, err.Error()))
 		return
 	}
-	
+
 	err := h.logger.LogFileWrite(
 		c.Request.Context(),
 		req.Protocol,
@@ -883,11 +883,11 @@ func (h *FileAuditHandlers) logFileWrite(c *gin.Context) {
 		req.FileSize,
 		req.Status,
 	)
-	
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse(ErrCodeInternalError, err.Error()))
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, SuccessResponse(nil))
 }
