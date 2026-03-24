@@ -429,27 +429,6 @@ func (fa *FaceAligner) cropFace(img image.Image, face FaceDetection) (image.Imag
 	return resized, nil
 }
 
-// getLandmarkPoints converts landmarks to points (reserved for future use)
-func (fa *FaceAligner) getLandmarkPoints(landmarks []Landmark) []Point {
-	points := make([]Point, len(landmarks))
-	for i, lm := range landmarks {
-		points[i] = Point{X: lm.X, Y: lm.Y}
-	}
-	return points
-}
-
-// getCanonicalLandmarks returns standard 5-point face template (reserved for future use)
-func (fa *FaceAligner) getCanonicalLandmarks() []Point {
-	// Standard 5-point face template (normalized 0-1)
-	return []Point{
-		{X: 0.3419, Y: 0.4646}, // left eye
-		{X: 0.6581, Y: 0.4646}, // right eye
-		{X: 0.5000, Y: 0.6191}, // nose
-		{X: 0.3814, Y: 0.8243}, // left mouth
-		{X: 0.6186, Y: 0.8243}, // right mouth
-	}
-}
-
 // Point represents a 2D point
 type Point struct {
 	X, Y float64
