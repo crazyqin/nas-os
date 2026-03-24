@@ -15,9 +15,11 @@
 - 📊 **Fusion Pool 智能分层存储** - 热数据SSD/冷数据HDD自动分层
 - 📈 **SSD健康监控三级预警** - 寿命预测、健康评分、预警通知
 
-### 改进
-- 📚 竞品分析报告 - 飞牛fnOS/群晖DSM 7.3/TrueNAS Scale对比分析
-- 📚 文档版本同步更新
+### 文档更新
+- 📚 竞品分析报告更新 - 飞牛fnOS/群晖DSM 7.3/TrueNAS Scale对比分析
+- 📚 README差异化优势突出 - WriteOnce/Fusion Pool/Hot Spare独家功能
+- 📚 竞品对比矩阵添加 - 清晰展示竞争优势
+- 📚 内网穿透功能预告 - 计划v2.260.0发布
 
 ---
 
