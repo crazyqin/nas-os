@@ -143,6 +143,16 @@ linters:
         linters:
           - errcheck
         text: "load|save|json.Unmarshal"
+      # internal/network/tunnel: 网络连接操作允许忽略错误（清理/超时场景）
+      - path: internal/network/tunnel/
+        linters:
+          - errcheck
+        text: "Close|SetReadDeadline|SetWriteDeadline|SetDeadline|WriteToUDP|Write|Encode|Connect|SendToPeer"
+      # internal/ai/api: HTTP响应写入允许忽略错误
+      - path: internal/ai/api/
+        linters:
+          - errcheck
+        text: "Encode|Write"
 
 formatters:
   enable:
