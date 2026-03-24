@@ -723,7 +723,8 @@ func (m *SMARTMonitor) calculateTempScore(smartData *SMARTData) ComponentScore {
 		return ComponentScore{Score: 100, Weight: m.scoreWeights.Temperature, Status: "ok", Message: "无温度数据"}
 	}
 
-	temp := int(smartData.Temperature.Raw)
+	// 安全转换：温度值限制在合理范围
+	temp := int(safeUint64ToBoundedInt(smartData.Temperature.Raw, 0, 200))
 	score := ComponentScore{
 		Weight: m.scoreWeights.Temperature,
 		Value:  temp,
@@ -1127,7 +1128,8 @@ func (m *SMARTMonitor) saveHistoryPoint(disk *DiskInfo) {
 	}
 
 	if disk.SmartData.Temperature != nil {
-		point.Temperature = int(disk.SmartData.Temperature.Raw)
+		// 安全转换：温度值限制在合理范围
+		point.Temperature = int(safeUint64ToBoundedInt(disk.SmartData.Temperature.Raw, 0, 200))
 	}
 
 	history := m.history[disk.Device]
@@ -1563,4 +1565,16 @@ func (m *SMARTMonitor) RunHealthCheck(_ context.Context) map[string]interface{} 
 	result["disks"] = disks
 
 	return result
+}
+
+// safeUint64ToBoundedInt 安全地将 uint64 转换为有边界的 int
+// 用于温度等已知范围的值
+func safeUint64ToBoundedInt(v uint64, min, max int) int {
+	if v < uint64(min) {
+		return min
+	}
+	if v > uint64(max) {
+		return max
+	}
+	return int(v)
 }

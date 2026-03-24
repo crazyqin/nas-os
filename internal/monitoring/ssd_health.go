@@ -479,7 +479,12 @@ func (m *SSDHealthMonitor) mapSMARTAttribute(health *SSDHealth, attr *SMARTAttr)
 	case 190: // Airflow_Temperature_Cel
 		fallthrough
 	case 194: // Temperature_Celsius
-		health.Temperature = int(attr.Raw)
+		// 安全转换：温度值通常在 -40 到 200 范围内
+		if attr.Raw <= 200 {
+			health.Temperature = int(attr.Raw)
+		} else {
+			health.Temperature = 200 // 限制最大值
+		}
 
 	case 202: // Percent_Lifetime_Remain (Crucial/Micron)
 		// 剩余寿命百分比
@@ -726,7 +731,13 @@ func (m *SSDHealthMonitor) predictLife(health *SSDHealth) {
 	if health.HealthPercent > 0 && writeRatePerDay > 0 {
 		// 假设 TBW 已用比例与健康百分比对应
 		estimatedRemainingWrites := uint64(float64(health.TotalWrites) / health.LifeUsedPercent * health.HealthPercent)
-		remainingDays := int(estimatedRemainingWrites / writeRatePerDay)
+		// 安全转换：限制剩余天数在合理范围内
+		var remainingDays int
+		if estimatedRemainingWrites/writeRatePerDay > uint64(36500) { // 100 年
+			remainingDays = 36500
+		} else {
+			remainingDays = int(estimatedRemainingWrites / writeRatePerDay)
+		}
 
 		// 置信度基于历史数据量
 		confidence := float64(len(history)) / 1440.0 // 30 天数据 = 1.0

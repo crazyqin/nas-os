@@ -286,7 +286,7 @@ func (t *TURNProtocol) BindChannel(ctx context.Context, peer *net.UDPAddr) (uint
 			{
 				Type:   TurnAttrChannelNumber,
 				Length: 4,
-				Value:  []byte{byte(channel >> 8), byte(channel), 0, 0},
+				Value:  []byte{byte((channel >> 8) & 0xFF), byte(channel & 0xFF), 0, 0},
 			},
 		},
 	}
