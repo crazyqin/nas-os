@@ -24,7 +24,7 @@ func setupTestHandlers() (*Manager, *Handlers, *gin.Engine) {
 		volumes:   make(map[string]*Volume),
 		mountBase: "/tmp/test-mnt",
 	}
-	handlers := NewHandlers(mgr)
+	handlers := NewHandlers(mgr, nil, nil, nil)
 	return mgr, handlers, router
 }
 
@@ -36,7 +36,7 @@ func TestNewHandlers(t *testing.T) {
 		mountBase: "/tmp/test",
 	}
 
-	h := NewHandlers(mgr)
+	h := NewHandlers(mgr, nil, nil, nil)
 	if h == nil {
 		t.Fatal("NewHandlers returned nil")
 	}
@@ -51,7 +51,7 @@ func TestRegisterRoutes(t *testing.T) {
 		volumes:   make(map[string]*Volume),
 		mountBase: "/tmp/test",
 	}
-	handlers := NewHandlers(mgr)
+	handlers := NewHandlers(mgr, nil, nil, nil)
 
 	// 注册路由
 	api := router.Group("/api/storage")
