@@ -426,6 +426,9 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 
 	healthURL := backend.Address + lb.config.HealthCheckURL
 	resp, err := client.Get(healthURL)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
 
 	lb.backendsMutex.Lock()
 	defer lb.backendsMutex.Unlock()

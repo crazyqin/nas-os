@@ -339,11 +339,12 @@ func TestRoomJoinLeave(t *testing.T) {
 
 	// Connect client
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
-	conn, _, err := websocket.DefaultDialer.Dial(wsURL, nil)
+	conn, resp, err := websocket.DefaultDialer.Dial(wsURL, nil)
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
 	defer conn.Close()
+	defer resp.Body.Close()
 
 	// Setup hub
 	hub := NewEnhancedWebSocketHub(DefaultHeartbeatConfig, DefaultReconnectConfig)

@@ -94,9 +94,12 @@ func (c *SignalingClient) Connect(ctx context.Context, peerID string) error {
 	headers := http.Header{}
 	headers.Set("X-Peer-ID", peerID)
 
-	conn, _, err := dialer.Dial(c.url, headers)
+	conn, resp, err := dialer.Dial(c.url, headers)
 	if err != nil {
 		return fmt.Errorf("failed to connect to signaling server: %w", err)
+	}
+	if resp != nil {
+		defer resp.Body.Close()
 	}
 
 	c.conn = conn

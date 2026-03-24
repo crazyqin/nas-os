@@ -129,9 +129,12 @@ func (s *SignalClient) Connect(ctx context.Context) error {
 	dialer := websocket.Dialer{
 		HandshakeTimeout: 10 * time.Second,
 	}
-	conn, _, err := dialer.DialContext(ctx, url, headers)
+	conn, resp, err := dialer.DialContext(ctx, url, headers)
 	if err != nil {
 		return fmt.Errorf("failed to connect to signal server: %w", err)
+	}
+	if resp != nil {
+		defer resp.Body.Close()
 	}
 
 	s.conn = conn

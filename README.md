@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.272.0 Stable (2026-03-25)
+> **最新版本**: v2.274.0 Stable (2026-03-25)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.272.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.274.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -63,6 +63,7 @@
 | 🔥 Hot Spare | 热备盘自动切换/RAID自愈 | ✅ 新增 |
 | 📊 Fusion Pool | 智能分层存储/热冷数据分离 | ✅ 新增 |
 | 📈 SSD健康监控 | 寿命预测/三级预警/健康评分 | ✅ 新增 |
+| 🤖 AI相册 | CLIP以文搜图/智能照片搜索 | ✅ 新增 |
 | 🌐 内网穿透 | 远程访问/零配置 | 🚧 开发中 |
 
 ## 快速开始
@@ -220,8 +221,8 @@ sudo nasd
 
 | 功能 | 说明 | 预计发布 |
 |------|------|----------|
-| 🌐 **内网穿透** | 免费内网穿透服务，零配置远程访问 | v2.273.0 |
-| 🤖 **AI相册** | 以文搜图，CLIP模型智能照片搜索 | v2.274.0 |
+| 🌐 **内网穿透** | 免费内网穿透服务，零配置远程访问 | v2.275.0 |
+| 🤖 **AI相册增强** | 人脸识别/场景分类，对标飞牛fnOS | v2.276.0 |
 
 ### 竞品对比矩阵
 
@@ -233,6 +234,7 @@ sudo nasd
 | **SSD健康三级预警** | ✅ | ✅ | ✅ | ✅ |
 | **多云存储挂载** | ✅ | ✅ | ✅ | ❌ |
 | **AI数据脱敏** | ✅ | ❌ | ✅ | ❌ |
+| **AI相册-以文搜图** | ✅ | ✅ | ✅ | ❌ |
 | 内网穿透(免费) | 🚧 | ✅ FN Connect | ❌ | ❌ |
 | AI人脸识别 | 📋 | ✅ | ✅ | ❌ |
 | RAID管理 | ✅ | ✅ | ✅ | ✅ ZFS |
