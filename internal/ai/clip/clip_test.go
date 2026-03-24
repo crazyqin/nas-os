@@ -403,8 +403,9 @@ func TestTextSearchService(t *testing.T) {
 
 	// Test search
 	searchReq := &SearchRequest{
-		Query: "a cat photo",
-		TopK:  10,
+		Query:    "a cat photo",
+		TopK:     10,
+		MinScore: -1.0, // mock向量可能产生负相似度，接受所有结果
 	}
 
 	searchResp, err := service.Search(ctx, searchReq)
@@ -634,8 +635,9 @@ func TestIntegrationTextToImageSearch(t *testing.T) {
 
 	// Search
 	resp, err := service.Search(ctx, &SearchRequest{
-		Query: "a cute pet photo",
-		TopK:  10,
+		Query:    "a cute pet photo",
+		TopK:     10,
+		MinScore: -1.0, // mock向量可能产生负相似度，接受所有结果
 	})
 	if err != nil {
 		t.Fatalf("search failed: %v", err)

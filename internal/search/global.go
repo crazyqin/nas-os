@@ -1,3 +1,5 @@
+// Package search 提供全局搜索服务
+// 参考 TrueNAS Electric Eel 的全局搜索功能实现
 package search
 
 import (
@@ -19,6 +21,7 @@ const (
 	ResultTypeSetting   GlobalSearchResultType = "setting"
 	ResultTypeApp       GlobalSearchResultType = "app"
 	ResultTypeContainer GlobalSearchResultType = "container"
+	ResultTypeMetadata  GlobalSearchResultType = "metadata" // 新增：元数据搜索
 )
 
 // GlobalSearchResult 全局搜索结果
@@ -33,6 +36,7 @@ type GlobalSearchResult struct {
 	MatchType   string                 `json:"matchType"`   // 匹配类型
 	MatchField  string                 `json:"matchField"`  // 匹配字段
 	RawData     interface{}            `json:"rawData"`     // 原始数据
+	Metadata    map[string]interface{} `json:"metadata,omitempty"` // 元数据信息
 }
 
 // GlobalSearchRequest 全局搜索请求
@@ -43,6 +47,8 @@ type GlobalSearchRequest struct {
 	TotalLimit int                      `json:"totalLimit,omitempty"` // 总结果数限制
 	MinScore   float64                  `json:"minScore,omitempty"`   // 最小分数阈值
 	IncludeRaw bool                     `json:"includeRaw,omitempty"` // 是否包含原始数据
+	Fuzzy      bool                     `json:"fuzzy,omitempty"`      // 是否模糊搜索
+	Locale     string                   `json:"locale,omitempty"`     // 语言环境
 }
 
 // GlobalSearchResponse 全局搜索响应
@@ -54,7 +60,16 @@ type GlobalSearchResponse struct {
 	Settings    []GlobalSearchResult `json:"settings,omitempty"`
 	Apps        []GlobalSearchResult `json:"apps,omitempty"`
 	Containers  []GlobalSearchResult `json:"containers,omitempty"`
+	Metadata    []GlobalSearchResult `json:"metadata,omitempty"`    // 新增：元数据结果
 	Suggestions []string             `json:"suggestions,omitempty"` // 搜索建议
+	Facets      map[string]int       `json:"facets,omitempty"`      // 分面统计
+}
+
+// SearchHistory 搜索历史记录
+type SearchHistory struct {
+	Query     string    `json:"query"`
+	Timestamp time.Time `json:"timestamp"`
+	Count     int       `json:"count"` // 搜索次数
 }
 
 // GlobalSearchService 全局搜索服务
@@ -62,7 +77,44 @@ type GlobalSearchService struct {
 	engine           *Engine
 	settingsRegistry *SettingsRegistry
 	appRegistry      *AppRegistry
+	metadataIndex    *MetadataIndex // 新增：元数据索引
 	logger           *zap.Logger
+
+	// 搜索历史
+	history     []SearchHistory
+	historyMu   sync.RWMutex
+	maxHistory  int
+
+	// 性能指标
+	stats *SearchStats
+	statsMu sync.RWMutex
+}
+
+// SearchStats 搜索统计
+type SearchStats struct {
+	TotalSearches   int64         `json:"totalSearches"`
+	AverageLatency  time.Duration `json:"averageLatency"`
+	CacheHits       int64         `json:"cacheHits"`
+	CacheMisses     int64         `json:"cacheMisses"`
+	LastUpdated     time.Time     `json:"lastUpdated"`
+}
+
+// MetadataIndex 元数据索引
+type MetadataIndex struct {
+	items map[string][]MetadataItem
+	mu    sync.RWMutex
+}
+
+// MetadataItem 元数据项
+type MetadataItem struct {
+	ID          string                 `json:"id"`
+	Type        string                 `json:"type"`        // photo, video, music, document
+	Title       string                 `json:"title"`
+	Description string                 `json:"description"`
+	Tags        []string               `json:"tags"`
+	Attributes  map[string]interface{} `json:"attributes"`
+	Path        string                 `json:"path"`
+	IndexedAt   time.Time              `json:"indexedAt"`
 }
 
 // NewGlobalSearchService 创建全局搜索服务
@@ -79,7 +131,18 @@ func NewGlobalSearchService(
 		engine:           engine,
 		settingsRegistry: settingsRegistry,
 		appRegistry:      appRegistry,
+		metadataIndex:    NewMetadataIndex(),
 		logger:           logger,
+		history:          make([]SearchHistory, 0),
+		maxHistory:       100,
+		stats:            &SearchStats{},
+	}
+}
+
+// NewMetadataIndex 创建元数据索引
+func NewMetadataIndex() *MetadataIndex {
+	return &MetadataIndex{
+		items: make(map[string][]MetadataItem),
 	}
 }
 
@@ -110,10 +173,12 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 		typeFilter[ResultTypeSetting] = true
 		typeFilter[ResultTypeApp] = true
 		typeFilter[ResultTypeContainer] = true
+		typeFilter[ResultTypeMetadata] = true
 	}
 
 	response := &GlobalSearchResponse{
 		Query: req.Query,
+		Facets: make(map[string]int),
 	}
 
 	var wg sync.WaitGroup
@@ -127,6 +192,7 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 			results := s.searchFiles(ctx, req)
 			mu.Lock()
 			response.Files = results
+			response.Facets["file"] = len(results)
 			mu.Unlock()
 		}()
 	}
@@ -139,6 +205,7 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 			results := s.searchSettings(req)
 			mu.Lock()
 			response.Settings = results
+			response.Facets["setting"] = len(results)
 			mu.Unlock()
 		}()
 	}
@@ -152,10 +219,25 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 			mu.Lock()
 			if typeFilter[ResultTypeApp] {
 				response.Apps = appResults
+				response.Facets["app"] = len(appResults)
 			}
 			if typeFilter[ResultTypeContainer] {
 				response.Containers = containerResults
+				response.Facets["container"] = len(containerResults)
 			}
+			mu.Unlock()
+		}()
+	}
+
+	// 并发搜索元数据
+	if typeFilter[ResultTypeMetadata] && s.metadataIndex != nil {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			results := s.searchMetadata(req)
+			mu.Lock()
+			response.Metadata = results
+			response.Facets["metadata"] = len(results)
 			mu.Unlock()
 		}()
 	}
@@ -164,7 +246,7 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 
 	// 计算总数
 	response.Total = len(response.Files) + len(response.Settings) +
-		len(response.Apps) + len(response.Containers)
+		len(response.Apps) + len(response.Containers) + len(response.Metadata)
 
 	// 生成搜索建议
 	if response.Total == 0 {
@@ -173,7 +255,115 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 
 	response.Took = time.Since(startTime)
 
+	// 记录搜索历史
+	s.recordHistory(req.Query)
+
+	// 更新统计
+	s.updateStats(response.Took)
+
 	return response, nil
+}
+
+// searchMetadata 搜索元数据
+func (s *GlobalSearchService) searchMetadata(req GlobalSearchRequest) []GlobalSearchResult {
+	results := make([]GlobalSearchResult, 0)
+
+	if s.metadataIndex == nil {
+		return results
+	}
+
+	s.metadataIndex.mu.RLock()
+	defer s.metadataIndex.mu.RUnlock()
+
+	query := strings.ToLower(req.Query)
+
+	for _, items := range s.metadataIndex.items {
+		for _, item := range items {
+			score := s.calculateMetadataScore(item, query)
+			if score < req.MinScore {
+				continue
+			}
+
+			result := GlobalSearchResult{
+				Type:        ResultTypeMetadata,
+				Score:       score,
+				Title:       item.Title,
+				Description: item.Description,
+				Path:        item.Path,
+				Icon:        s.getMetadataIcon(item.Type),
+				Category:    item.Type,
+				MatchType:   "metadata",
+				Metadata:    item.Attributes,
+			}
+
+			if req.IncludeRaw {
+				result.RawData = item
+			}
+
+			results = append(results, result)
+
+			if len(results) >= req.Limit {
+				return results
+			}
+		}
+	}
+
+	return results
+}
+
+// calculateMetadataScore 计算元数据匹配分数
+func (s *GlobalSearchService) calculateMetadataScore(item MetadataItem, query string) float64 {
+	score := 0.0
+
+	// 标题匹配
+	if strings.Contains(strings.ToLower(item.Title), query) {
+		score += 0.5
+	}
+
+	// 描述匹配
+	if strings.Contains(strings.ToLower(item.Description), query) {
+		score += 0.3
+	}
+
+	// 标签匹配
+	for _, tag := range item.Tags {
+		if strings.Contains(strings.ToLower(tag), query) {
+			score += 0.2
+			break
+		}
+	}
+
+	// 属性匹配
+	for k, v := range item.Attributes {
+		if strings.Contains(strings.ToLower(k), query) {
+			score += 0.1
+		}
+		if strVal, ok := v.(string); ok {
+			if strings.Contains(strings.ToLower(strVal), query) {
+				score += 0.1
+			}
+		}
+	}
+
+	if score > 1.0 {
+		score = 1.0
+	}
+
+	return score
+}
+
+// getMetadataIcon 获取元数据图标
+func (s *GlobalSearchService) getMetadataIcon(metaType string) string {
+	iconMap := map[string]string{
+		"photo":    "image",
+		"video":    "video",
+		"music":    "music",
+		"document": "file-alt",
+	}
+	if icon, ok := iconMap[metaType]; ok {
+		return icon
+	}
+	return "file"
 }
 
 // searchFiles 搜索文件
@@ -379,6 +569,59 @@ func (s *GlobalSearchService) getFileIcon(ext string) string {
 	return "file"
 }
 
+// recordHistory 记录搜索历史
+func (s *GlobalSearchService) recordHistory(query string) {
+	s.historyMu.Lock()
+	defer s.historyMu.Unlock()
+
+	// 查找是否已存在
+	for i := range s.history {
+		if s.history[i].Query == query {
+			s.history[i].Count++
+			s.history[i].Timestamp = time.Now()
+			return
+		}
+	}
+
+	// 添加新记录
+	s.history = append(s.history, SearchHistory{
+		Query:     query,
+		Timestamp: time.Now(),
+		Count:     1,
+	})
+
+	// 限制历史记录数量
+	if len(s.history) > s.maxHistory {
+		s.history = s.history[len(s.history)-s.maxHistory:]
+	}
+}
+
+// updateStats 更新统计信息
+func (s *GlobalSearchService) updateStats(latency time.Duration) {
+	s.statsMu.Lock()
+	defer s.statsMu.Unlock()
+
+	s.stats.TotalSearches++
+	// 计算移动平均延迟
+	if s.stats.TotalSearches == 1 {
+		s.stats.AverageLatency = latency
+	} else {
+		// 指数移动平均
+		alpha := 0.1
+		s.stats.AverageLatency = time.Duration(
+			float64(s.stats.AverageLatency)*(1-alpha) + float64(latency)*alpha,
+		)
+	}
+	s.stats.LastUpdated = time.Now()
+}
+
+// GetStats 获取统计信息
+func (s *GlobalSearchService) GetStats() *SearchStats {
+	s.statsMu.RLock()
+	defer s.statsMu.RUnlock()
+	return s.stats
+}
+
 // GenerateSuggestions 生成搜索建议
 func (s *GlobalSearchService) GenerateSuggestions(query string) []string {
 	suggestions := make([]string, 0)
@@ -396,6 +639,7 @@ func (s *GlobalSearchService) GenerateSuggestions(query string) []string {
 		"应用": {"应用商店", "已安装应用"},
 		"监控": {"监控仪表板", "报表中心", "告警"},
 		"安全": {"SSH设置", "SSL证书", "审计日志"},
+		"穿透": {"内网穿透", "远程访问", "隧道"},
 	}
 
 	for key, values := range commonSuggestions {
@@ -412,10 +656,10 @@ func (s *GlobalSearchService) GenerateSuggestions(query string) []string {
 	// 去重
 	seen := make(map[string]bool)
 	unique := make([]string, 0)
-	for _, s := range suggestions {
-		if !seen[s] {
-			seen[s] = true
-			unique = append(unique, s)
+	for _, sug := range suggestions {
+		if !seen[sug] {
+			seen[sug] = true
+			unique = append(unique, sug)
 		}
 	}
 
@@ -453,6 +697,15 @@ func (s *GlobalSearchService) SearchByType(ctx context.Context, query string, re
 	})
 }
 
+// AddMetadata 添加元数据项
+func (s *GlobalSearchService) AddMetadata(item MetadataItem) {
+	s.metadataIndex.mu.Lock()
+	defer s.metadataIndex.mu.Unlock()
+
+	item.IndexedAt = time.Now()
+	s.metadataIndex.items[item.Type] = append(s.metadataIndex.items[item.Type], item)
+}
+
 // GetSearchCategories 获取搜索分类
 func (s *GlobalSearchService) GetSearchCategories() []map[string]interface{} {
 	return []map[string]interface{}{
@@ -480,31 +733,101 @@ func (s *GlobalSearchService) GetSearchCategories() []map[string]interface{} {
 			"icon":  "docker",
 			"count": 0,
 		},
+		{
+			"type":  "metadata",
+			"name":  "元数据",
+			"icon":  "tags",
+			"count": 0,
+		},
 	}
 }
 
 // GetPopularSearches 获取热门搜索
 func (s *GlobalSearchService) GetPopularSearches() []string {
-	return []string{
-		"存储池",
-		"用户管理",
-		"Docker容器",
-		"快照",
-		"网络设置",
-		"备份",
-		"SSL证书",
-		"监控",
+	// 基于历史记录排序
+	s.historyMu.RLock()
+	defer s.historyMu.RUnlock()
+
+	// 复制并按次数排序
+	history := make([]SearchHistory, len(s.history))
+	copy(history, s.history)
+
+	// 简单排序（实际应用中可使用更高效的算法）
+	for i := 0; i < len(history); i++ {
+		for j := i + 1; j < len(history); j++ {
+			if history[j].Count > history[i].Count {
+				history[i], history[j] = history[j], history[i]
+			}
+		}
 	}
+
+	result := make([]string, 0, 8)
+	for i := 0; i < len(history) && i < 8; i++ {
+		result = append(result, history[i].Query)
+	}
+
+	// 如果历史记录不足，返回默认热门搜索
+	if len(result) < 5 {
+		defaultPopular := []string{
+			"存储池",
+			"用户管理",
+			"Docker容器",
+			"快照",
+			"网络设置",
+			"备份",
+			"SSL证书",
+			"监控",
+		}
+		for _, q := range defaultPopular {
+			if len(result) >= 8 {
+				break
+			}
+			found := false
+			for _, r := range result {
+				if r == q {
+					found = true
+					break
+				}
+			}
+			if !found {
+				result = append(result, q)
+			}
+		}
+	}
+
+	return result
 }
 
-// GetRecentSearches 获取最近搜索（需要持久化存储）
+// GetRecentSearches 获取最近搜索
 func (s *GlobalSearchService) GetRecentSearches() []string {
-	// TODO: 实现持久化存储
-	return []string{}
+	s.historyMu.RLock()
+	defer s.historyMu.RUnlock()
+
+	result := make([]string, 0, 10)
+	for i := len(s.history) - 1; i >= 0 && len(result) < 10; i-- {
+		result = append(result, s.history[i].Query)
+	}
+	return result
 }
 
 // ClearRecentSearches 清除最近搜索
 func (s *GlobalSearchService) ClearRecentSearches() error {
-	// TODO: 实现持久化存储
+	s.historyMu.Lock()
+	defer s.historyMu.Unlock()
+	s.history = make([]SearchHistory, 0)
 	return nil
+}
+
+// IndexMetadata 批量索引元数据
+func (s *GlobalSearchService) IndexMetadata(items []MetadataItem) {
+	for _, item := range items {
+		s.AddMetadata(item)
+	}
+}
+
+// GetMetadataByType 按类型获取元数据
+func (s *GlobalSearchService) GetMetadataByType(metaType string) []MetadataItem {
+	s.metadataIndex.mu.RLock()
+	defer s.metadataIndex.mu.RUnlock()
+	return s.metadataIndex.items[metaType]
 }

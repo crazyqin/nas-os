@@ -356,10 +356,14 @@ func (nm *NotificationManager) sendEmail(data interface{}) error {
 	}
 
 	// 构建邮件
-	subject := fmt.Sprintf("[NAS-OS] 热备盘通知 - %s", data.(struct {
+	eventData, ok := data.(struct {
 		HotSpareEvent
 		Level string
-	}).Type)
+	})
+	if !ok {
+		return fmt.Errorf("无效的事件数据类型")
+	}
+	subject := fmt.Sprintf("[NAS-OS] 热备盘通知 - %s", eventData.Type)
 
 	msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n%s",
 		cfg.From, strings.Join(cfg.To, ","), subject, body.String())
@@ -388,13 +392,13 @@ func (nm *NotificationManager) sendEmailWithTLS(addr string, auth smtp.Auth, cfg
 	if err != nil {
 		return fmt.Errorf("TLS连接失败: %w", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }() //nolint:errcheck
 
 	client, err := smtp.NewClient(conn, cfg.SMTPHost)
 	if err != nil {
 		return fmt.Errorf("创建SMTP客户端失败: %w", err)
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }() //nolint:errcheck
 
 	if auth != nil {
 		if err := client.Auth(auth); err != nil {
@@ -463,7 +467,7 @@ func (nm *NotificationManager) sendWebhook(data interface{}) error {
 	if err != nil {
 		return fmt.Errorf("发送请求失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }() //nolint:errcheck
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("Webhook返回错误: %d", resp.StatusCode)
@@ -504,7 +508,7 @@ func (nm *NotificationManager) sendTelegram(data interface{}) error {
 	if err != nil {
 		return fmt.Errorf("发送Telegram消息失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }() //nolint:errcheck
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("Telegram API返回错误: %d", resp.StatusCode)
@@ -540,7 +544,7 @@ func (nm *NotificationManager) sendWeChat(data interface{}) error {
 	if err != nil {
 		return fmt.Errorf("发送企业微信消息失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }() //nolint:errcheck
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("企业微信API返回错误: %d", resp.StatusCode)
@@ -584,7 +588,7 @@ func (nm *NotificationManager) sendDingTalk(data interface{}) error {
 	if err != nil {
 		return fmt.Errorf("发送钉钉消息失败: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }() //nolint:errcheck
 
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("钉钉API返回错误: %d", resp.StatusCode)
