@@ -84,14 +84,14 @@ func (api *MediaCenterAPI) ScrapeMedia(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result) //nolint:errcheck // HTTP response error ignored
 }
 
 // BatchScrapeMedia handles batch scraping
 func (api *MediaCenterAPI) BatchScrapeMedia(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Items  []media.ScrapeItem `json:"items"`
-		Workers int               `json:"workers,omitempty"`
+		Items   []media.ScrapeItem `json:"items"`
+		Workers int                `json:"workers,omitempty"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -105,13 +105,13 @@ func (api *MediaCenterAPI) BatchScrapeMedia(w http.ResponseWriter, r *http.Reque
 	}
 
 	result := api.scraper.BatchScrape(r.Context(), req.Items, req.Workers)
-	_ = json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result) //nolint:errcheck // HTTP response error ignored
 }
 
 // GetSources returns available metadata sources
 func (api *MediaCenterAPI) GetSources(w http.ResponseWriter, r *http.Request) {
 	sources := api.scraper.GetAvailableSources()
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{ //nolint:errcheck // HTTP response error ignored
 		"sources": sources,
 	})
 }
@@ -133,7 +133,7 @@ func (api *MediaCenterAPI) AnalyzeMedia(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(analysis)
+	_ = json.NewEncoder(w).Encode(analysis) //nolint:errcheck // HTTP response error ignored
 }
 
 // GetPlaybackConfig returns optimal playback configuration
@@ -152,22 +152,22 @@ func (api *MediaCenterAPI) GetPlaybackConfig(w http.ResponseWriter, r *http.Requ
 
 	// Default capabilities (could be loaded from device profile)
 	caps := &media.PlaybackCapabilities{
-		MaxResolution:       "3840x2160",
-		SupportedHDR:        []media.HDRFormat{media.HDR10, media.DolbyVision},
+		MaxResolution:        "3840x2160",
+		SupportedHDR:         []media.HDRFormat{media.HDR10, media.DolbyVision},
 		SupportedVideoCodecs: []media.VideoCodec{media.VideoHEVC, media.VideoH264, media.VideoAV1},
-		BitDepthSupport:     10,
-		DolbyVisionSupport:  true,
+		BitDepthSupport:      10,
+		DolbyVisionSupport:   true,
 		SupportedAudioCodecs: []media.AudioCodec{media.AudioEAC3, media.AudioTrueHD, media.AudioAtmos},
-		MaxAudioChannels:    8,
-		AtmosSupport:        true,
-		TrueHDSupport:       true,
-		MaxBitrate:          50000000,
-		HLSSupport:          true,
-		DASHSupport:         true,
+		MaxAudioChannels:     8,
+		AtmosSupport:         true,
+		TrueHDSupport:        true,
+		MaxBitrate:           50000000,
+		HLSSupport:           true,
+		DASHSupport:          true,
 	}
 
 	config := media.GetOptimalPlaybackConfig(analysis, caps)
-	_ = json.NewEncoder(w).Encode(config)
+	_ = json.NewEncoder(w).Encode(config) //nolint:errcheck // HTTP response error ignored
 }
 
 // SetDolbyConfig sets Dolby configuration
@@ -180,7 +180,7 @@ func (api *MediaCenterAPI) SetDolbyConfig(w http.ResponseWriter, r *http.Request
 
 	// Store configuration (in production, persist to database)
 	// Return success
-	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{ //nolint:errcheck // HTTP response error ignored
 		"success": true,
 		"config":  config,
 	})
@@ -211,7 +211,7 @@ func (api *MediaCenterAPI) CreateTranscodeJob(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(job)
+	_ = json.NewEncoder(w).Encode(job) //nolint:errcheck // HTTP response error ignored
 }
 
 // GetTranscodeJob gets transcode job status
@@ -228,7 +228,7 @@ func (api *MediaCenterAPI) GetTranscodeJob(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(job)
+	_ = json.NewEncoder(w).Encode(job) //nolint:errcheck // HTTP response error ignored
 }
 
 // CancelTranscodeJob cancels a transcode job
@@ -244,13 +244,13 @@ func (api *MediaCenterAPI) CancelTranscodeJob(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true}) //nolint:errcheck // HTTP response error ignored
 }
 
 // ListTranscodeJobs lists all transcode jobs
 func (api *MediaCenterAPI) ListTranscodeJobs(w http.ResponseWriter, r *http.Request) {
 	jobs := api.transcoder.ListJobs()
-	_ = json.NewEncoder(w).Encode(jobs)
+	_ = json.NewEncoder(w).Encode(jobs) //nolint:errcheck // HTTP response error ignored
 }
 
 // CreateHLSStream creates an HLS stream
@@ -271,7 +271,7 @@ func (api *MediaCenterAPI) CreateHLSStream(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	json.NewEncoder(w).Encode(session)
+	_ = json.NewEncoder(w).Encode(session) //nolint:errcheck // HTTP response error ignored
 }
 
 // CreateDASHStream creates a DASH stream
@@ -292,7 +292,7 @@ func (api *MediaCenterAPI) CreateDASHStream(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	json.NewEncoder(w).Encode(session)
+	_ = json.NewEncoder(w).Encode(session) //nolint:errcheck // HTTP response error ignored
 }
 
 // GetStreamSession gets stream session info
@@ -309,7 +309,7 @@ func (api *MediaCenterAPI) GetStreamSession(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	json.NewEncoder(w).Encode(session)
+	_ = json.NewEncoder(w).Encode(session) //nolint:errcheck // HTTP response error ignored
 }
 
 // StopStreamSession stops a stream session
@@ -325,7 +325,7 @@ func (api *MediaCenterAPI) StopStreamSession(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true}) //nolint:errcheck // HTTP response error ignored
 }
 
 // ErrorResponse represents an API error response
@@ -338,7 +338,7 @@ type ErrorResponse struct {
 // WriteError writes an error response
 func WriteError(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(ErrorResponse{
+	_ = json.NewEncoder(w).Encode(ErrorResponse{ //nolint:errcheck // HTTP response error ignored
 		Error:   http.StatusText(code),
 		Code:    code,
 		Message: message,
@@ -348,7 +348,7 @@ func WriteError(w http.ResponseWriter, code int, message string) {
 // WriteJSON writes a JSON response
 func WriteJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(data) //nolint:errcheck // HTTP response error ignored
 }
 
 // Timestamp is a helper for consistent timestamp formatting

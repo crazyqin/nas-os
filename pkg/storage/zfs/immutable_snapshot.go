@@ -706,10 +706,10 @@ func (m *ZFSManager) getSnapshotInfo(ctx context.Context, fullName string) (*Sna
 		snap.CreationTime = creation
 	}
 
-	fmt.Sscanf(fields[2], "%d", &snap.Used)
-	fmt.Sscanf(fields[3], "%d", &snap.Referenced)
-	fmt.Sscanf(fields[4], "%d", &snap.Written)
-	fmt.Sscanf(fields[5], "%f", &snap.CompressRatio)
+	_, _ = fmt.Sscanf(fields[2], "%d", &snap.Used)
+	_, _ = fmt.Sscanf(fields[3], "%d", &snap.Referenced)
+	_, _ = fmt.Sscanf(fields[4], "%d", &snap.Written)
+	_, _ = fmt.Sscanf(fields[5], "%f", &snap.CompressRatio)
 
 	return snap, nil
 }
