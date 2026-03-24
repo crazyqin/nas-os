@@ -1886,6 +1886,8 @@ func NewProvider(ctx context.Context, cfg *ProviderConfig) (Provider, error) {
 		return NewQuarkProvider(cfg)
 	case ProviderAliyunPan:
 		return NewAliyunPanProvider(cfg)
+	case ProviderBaiduPan:
+		return NewBaiduPanProvider(cfg)
 	default:
 		return nil, fmt.Errorf("不支持的云存储提供商: %s", cfg.Type)
 	}

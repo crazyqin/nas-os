@@ -23,6 +23,7 @@ const (
 	MountType115         MountType = "115"          // 115网盘
 	MountTypeQuark       MountType = "quark"        // 夸克网盘
 	MountTypeAliyunPan   MountType = "aliyun_pan"   // 阿里云盘
+	MountTypeBaiduPan    MountType = "baidu_pan"    // 百度网盘
 	MountTypeOneDrive    MountType = "onedrive"     // Microsoft OneDrive
 	MountTypeGoogleDrive MountType = "google_drive" // Google Drive
 	MountTypeWebDAV      MountType = "webdav"       // WebDAV
@@ -198,6 +199,12 @@ func SupportedProviders() []ProviderInfo {
 			Type:        MountTypeAliyunPan,
 			Name:        "阿里云盘",
 			Description: "阿里云盘挂载",
+			Features:    []string{"read", "write", "stream"},
+		},
+		{
+			Type:        MountTypeBaiduPan,
+			Name:        "百度网盘",
+			Description: "百度网盘挂载",
 			Features:    []string{"read", "write", "stream"},
 		},
 		{

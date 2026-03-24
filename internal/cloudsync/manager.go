@@ -276,6 +276,11 @@ func (m *Manager) validateProviderConfig(config *ProviderConfig) error {
 			return fmt.Errorf("refresh token 不能为空")
 		}
 
+	case ProviderBaiduPan:
+		if config.AccessToken == "" {
+			return fmt.Errorf("access token 不能为空")
+		}
+
 	default:
 		return fmt.Errorf("不支持的提供商类型: %s", config.Type)
 	}

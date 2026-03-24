@@ -27,6 +27,8 @@ const (
 	ProviderQuark ProviderType = "quark"
 	// ProviderAliyunPan 阿里云盘
 	ProviderAliyunPan ProviderType = "aliyun_pan"
+	// ProviderBaiduPan 百度网盘
+	ProviderBaiduPan ProviderType = "baidu_pan"
 )
 
 // SyncDirection 同步方向
@@ -374,6 +376,12 @@ func SupportedProviders() []ProviderInfo {
 			Type:        ProviderAliyunPan,
 			Name:        "阿里云盘",
 			Description: "阿里云盘 - 支持秒传和分享",
+			Features:    []string{"upload", "download", "delete", "list", "instant_upload", "share"},
+		},
+		{
+			Type:        ProviderBaiduPan,
+			Name:        "百度网盘",
+			Description: "百度网盘 - 中国最大的云存储平台",
 			Features:    []string{"upload", "download", "delete", "list", "instant_upload", "share"},
 		},
 	}
