@@ -15,14 +15,13 @@ linters:
     - misspell       # 拼写检查
     - revive         # 代码风格
     - unused         # 未使用的代码
-    # v2.253.284 新增
-    - gosimple       # 代码简化建议
     # 注意: gofmt/goimports 移至 formatters 部分 (v2格式变更)
     - prealloc       # 预分配优化
     - bodyclose      # HTTP body 未关闭
     - dogsled        # 过多空白标识符
     - dupl           # 重复代码检测
-    - exportloopref  # 循环变量引用问题
+    # 注意: gosimple 和 exportloopref 在 golangci-lint v2 中已移除
+    # gosimple 已合并到 staticcheck, exportloopref 已内置到 govet
     - gochecknoinits # 检查 init 函数
     - gocognit       # 认知复杂度
     - gocyclo        # 圈复杂度
