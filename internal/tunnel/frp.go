@@ -145,7 +145,7 @@ func (m *FRPManager) Stop() error {
 
 	if m.cmd != nil && m.cmd.Process != nil {
 		if err := m.cmd.Process.Signal(os.Interrupt); err != nil {
-			m.cmd.Process.Kill()
+			_ = m.cmd.Process.Kill()
 		}
 	}
 
@@ -181,7 +181,7 @@ func (m *FRPManager) AddProxy(proxy *FRPProxyConfig) error {
 		if err := m.generateConfig(); err != nil {
 			return err
 		}
-		go m.Restart()
+		go func() { _ = m.Restart() }()
 	}
 
 	m.logger.Info("添加代理", zap.String("name", proxy.Name))
@@ -205,7 +205,7 @@ func (m *FRPManager) RemoveProxy(name string) error {
 		if err := m.generateConfig(); err != nil {
 			return err
 		}
-		go m.Restart()
+		go func() { _ = m.Restart() }()
 	}
 
 	m.logger.Info("移除代理", zap.String("name", name))
@@ -411,7 +411,7 @@ func (m *FRPManager) QuickConnect(localPort int, serviceName string) (*QuickConn
 	}
 
 	if m.status.Connected {
-		go m.Restart()
+		go func() { _ = m.Restart() }()
 	}
 
 	// 构建公网地址

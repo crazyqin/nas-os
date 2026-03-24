@@ -134,7 +134,7 @@ func (s *SignalClient) Connect(ctx context.Context) error {
 		return fmt.Errorf("failed to connect to signal server: %w", err)
 	}
 	if resp != nil {
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 	}
 
 	s.conn = conn

@@ -239,7 +239,7 @@ func (idx *PhotoSearchIndexer) periodicSave(ctx context.Context) {
 		case <-ticker.C:
 			// Save index (if service supports it)
 			if svc, ok := idx.service.(*TextSearchServiceImpl); ok {
-				svc.Close() // This will save
+				_ = svc.Close() // This will save
 			}
 		}
 	}

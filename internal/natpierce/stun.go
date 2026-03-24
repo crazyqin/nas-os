@@ -145,7 +145,7 @@ func (c *STUNClient) Discover(serverAddr string) (*STUNResult, error) {
 	if err != nil {
 		return nil, fmt.Errorf("dial STUN server: %w", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// 发送绑定请求
 	start := time.Now()
@@ -199,32 +199,37 @@ func (c *STUNClient) DiscoverWithNATType(servers []string) (*STUNResult, error) 
 	// 探测第二个服务器
 	addr2, err := net.ResolveUDPAddr("udp", servers[1])
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, fmt.Errorf("resolve second STUN server: %w", err)
 	}
 
-	conn2, err := net.DialUDP("udp", conn.LocalAddr().(*net.UDPAddr), addr2)
+	localAddr, ok := conn.LocalAddr().(*net.UDPAddr)
+	if !ok {
+		_ = conn.Close()
+		return nil, fmt.Errorf("invalid local address type")
+	}
+	conn2, err := net.DialUDP("udp", localAddr, addr2)
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, fmt.Errorf("dial second STUN server: %w", err)
 	}
-	defer conn2.Close()
+	defer func() { _ = conn2.Close() }()
 
 	response2, err := c.sendBindingRequestTo(conn2, addr2)
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, err
 	}
 
 	publicAddr2, err := parseMappedAddress(response2)
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return nil, fmt.Errorf("parse second mapped address: %w", err)
 	}
 
 	// 比较两次结果判断NAT类型
 	result1.NATType = detectNATType(result1.ServerReflexive, publicAddr2)
-	conn.Close()
+	_ = conn.Close()
 
 	return result1, nil
 }
@@ -236,7 +241,7 @@ func (c *STUNClient) sendBindingRequest(conn *net.UDPConn) (*STUNMessage, error)
 
 	// 设置超时
 	deadline := time.Now().Add(c.timeout)
-	conn.SetDeadline(deadline)
+	_ = conn.SetDeadline(deadline)
 
 	// 发送请求
 	reqBytes := req.Marshal()
@@ -287,7 +292,7 @@ func (c *STUNClient) sendBindingRequestTo(conn *net.UDPConn, addr *net.UDPAddr) 
 	req := createBindingRequest()
 
 	deadline := time.Now().Add(c.timeout)
-	conn.SetDeadline(deadline)
+	_ = conn.SetDeadline(deadline)
 
 	reqBytes := req.Marshal()
 	_, err := conn.WriteToUDP(reqBytes, addr)

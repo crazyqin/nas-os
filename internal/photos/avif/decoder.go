@@ -284,15 +284,15 @@ func isAVIFSignature(data []byte) bool {
 func (d *Decoder) decodeWithFFmpeg(data []byte) (image.Image, error) {
 	// Create temp file for ffmpeg input
 	tmpFile := filepath.Join(os.TempDir(), fmt.Sprintf("avif_decode_%s.avif", uuid.New().String()))
-	
+
 	if err := os.WriteFile(tmpFile, data, 0600); err != nil {
 		return nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
-	defer os.Remove(tmpFile)
-	
+	defer func() { _ = os.Remove(tmpFile) }()
+
 	// Create temp file for PNG output
 	outFile := filepath.Join(os.TempDir(), fmt.Sprintf("avif_decode_%s.png", uuid.New().String()))
-	defer os.Remove(outFile)
+	defer func() { _ = os.Remove(outFile) }()
 	
 	// Run ffmpeg conversion
 	ctx, cancel := context.WithTimeout(context.Background(), 

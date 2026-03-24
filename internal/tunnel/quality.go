@@ -376,7 +376,11 @@ func (m *QualityMonitor) determineStability(score int) string {
 
 // GetQuality 获取当前质量
 func (m *QualityMonitor) GetQuality() *ConnectionQuality {
-	return m.quality.Load().(*ConnectionQuality)
+	quality, ok := m.quality.Load().(*ConnectionQuality)
+	if !ok {
+		return &ConnectionQuality{}
+	}
+	return quality
 }
 
 // GetLatencyHistory 获取延迟历史

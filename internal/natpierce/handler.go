@@ -19,14 +19,14 @@ func NewHandler(client *PierceClient) *Handler {
 // HandleStatus GET /api/natpierce/status
 func (h *Handler) HandleStatus(w http.ResponseWriter, r *http.Request) {
 	status := h.client.GetStatus()
-	json.NewEncoder(w).Encode(status)
+	_ = json.NewEncoder(w).Encode(status)
 }
 
 // HandleConfig GET/POST /api/natpierce/config
 func (h *Handler) HandleConfig(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		json.NewEncoder(w).Encode(h.client.config)
+		_ = json.NewEncoder(w).Encode(h.client.config)
 	case http.MethodPost:
 		var cfg Config
 		if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
