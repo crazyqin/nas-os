@@ -65,7 +65,7 @@ func TestSupportedProviders(t *testing.T) {
 	providers := SupportedProviders()
 
 	assert.NotEmpty(t, providers)
-	assert.Len(t, providers, 11) // 11 种提供商（8种云存储 + 3种中国网盘）
+	assert.Len(t, providers, 12) // 12 种提供商（8种云存储 + 4种中国网盘）
 
 	// 检查必需字段
 	for _, p := range providers {
