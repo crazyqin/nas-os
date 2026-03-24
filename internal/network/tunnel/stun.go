@@ -27,9 +27,13 @@ const (
 )
 
 var (
+	// ErrSTUNTimeout indicates STUN request timeout
 	ErrSTUNTimeout     = errors.New("STUN request timeout")
+	// ErrSTUNNoResponse indicates no STUN response received
 	ErrSTUNNoResponse  = errors.New("no STUN response")
+	// ErrSTUNInvalid indicates invalid STUN response
 	ErrSTUNInvalid     = errors.New("invalid STUN response")
+	// ErrSTUNNoMapped indicates no mapped address in response
 	ErrSTUNNoMapped    = errors.New("no mapped address in response")
 )
 
@@ -128,7 +132,7 @@ func (c *STUNClient) querySTUNServer(ctx context.Context, server string) (net.IP
 	port := 3478
 	if parts := strings.Split(host, ":"); len(parts) == 2 {
 		host = parts[0]
-		fmt.Sscanf(parts[1], "%d", &port)
+		_, _ = fmt.Sscanf(parts[1], "%d", &port)
 	}
 
 	// Resolve server address
@@ -213,9 +217,10 @@ func (c *STUNClient) parseBindingResponse(data []byte) (net.IP, int, error) {
 		}
 
 		// Look for XOR-Mapped-Address (preferred) or Mapped-Address
-		if attrType == STUNAttrXORMappedAddress {
+		switch attrType {
+		case STUNAttrXORMappedAddress:
 			return c.parseXORMappedAddress(data[offset : offset+attrValueLen])
-		} else if attrType == STUNAttrMappedAddress {
+		case STUNAttrMappedAddress:
 			return c.parseMappedAddress(data[offset : offset+attrValueLen])
 		}
 
@@ -237,14 +242,15 @@ func (c *STUNClient) parseMappedAddress(data []byte) (net.IP, int, error) {
 	port := int(binary.BigEndian.Uint16(data[2:4]))
 
 	var ip net.IP
-	if family == 1 { // IPv4
+	switch family {
+	case 1: // IPv4
 		ip = net.IP(data[4:8])
-	} else if family == 2 { // IPv6
+	case 2: // IPv6
 		if len(data) < 20 {
 			return nil, 0, ErrSTUNInvalid
 		}
 		ip = net.IP(data[4:20])
-	} else {
+	default:
 		return nil, 0, ErrSTUNInvalid
 	}
 
@@ -262,7 +268,8 @@ func (c *STUNClient) parseXORMappedAddress(data []byte) (net.IP, int, error) {
 	port := int(binary.BigEndian.Uint16(data[2:4])) ^ (STUNMagicCookie >> 16)
 
 	var ip net.IP
-	if family == 1 { // IPv4
+	switch family {
+	case 1: // IPv4
 		// XOR IP with magic cookie
 		cookieBytes := make([]byte, 4)
 		binary.BigEndian.PutUint32(cookieBytes, STUNMagicCookie)
@@ -270,14 +277,14 @@ func (c *STUNClient) parseXORMappedAddress(data []byte) (net.IP, int, error) {
 		for i := 0; i < 4; i++ {
 			ip[i] = data[4+i] ^ cookieBytes[i]
 		}
-	} else if family == 2 { // IPv6
+	case 2: // IPv6
 		if len(data) < 20 {
 			return nil, 0, ErrSTUNInvalid
 		}
 		// XOR with magic cookie + transaction ID (which we don't have)
 		// Simplified: just use the IP as-is for now
 		ip = net.IP(data[4:20])
-	} else {
+	default:
 		return nil, 0, ErrSTUNInvalid
 	}
 

@@ -27,16 +27,16 @@ func (i *ImageManager) ListImages(ctx context.Context) ([]*Image, error) {
 	}
 
 	var raw []struct {
-		Fingerprint string            `json:"fingerprint"`
-		Filename    string            `json:"filename"`
-		Size        uint64            `json:"size"`
-		Architecture string           `json:"architecture"`
-		CreatedAt   time.Time         `json:"created_at"`
-		UploadedAt  time.Time         `json:"uploaded_at"`
-		Properties  map[string]string `json:"properties"`
-		Public      bool              `json:"public"`
-		AutoUpdate  bool              `json:"auto_update"`
-		Aliases     []struct {
+		Fingerprint  string            `json:"fingerprint"`
+		Filename     string            `json:"filename"`
+		Size         uint64            `json:"size"`
+		Architecture string            `json:"architecture"`
+		CreatedAt    time.Time         `json:"created_at"`
+		UploadedAt   time.Time         `json:"uploaded_at"`
+		Properties   map[string]string `json:"properties"`
+		Public       bool              `json:"public"`
+		AutoUpdate   bool              `json:"auto_update"`
+		Aliases      []struct {
 			Name        string `json:"name"`
 			Description string `json:"description"`
 		} `json:"aliases"`
@@ -81,14 +81,14 @@ func (i *ImageManager) GetImage(ctx context.Context, imageRef string) (*Image, e
 	}
 
 	var raw struct {
-		Fingerprint string            `json:"fingerprint"`
-		Filename    string            `json:"filename"`
-		Size        uint64            `json:"size"`
-		Architecture string           `json:"architecture"`
-		CreatedAt   time.Time         `json:"created_at"`
-		UploadedAt  time.Time         `json:"uploaded_at"`
-		Properties  map[string]string `json:"properties"`
-		Aliases     []struct {
+		Fingerprint  string            `json:"fingerprint"`
+		Filename     string            `json:"filename"`
+		Size         uint64            `json:"size"`
+		Architecture string            `json:"architecture"`
+		CreatedAt    time.Time         `json:"created_at"`
+		UploadedAt   time.Time         `json:"uploaded_at"`
+		Properties   map[string]string `json:"properties"`
+		Aliases      []struct {
 			Name        string `json:"name"`
 			Description string `json:"description"`
 		} `json:"aliases"`
@@ -292,12 +292,12 @@ func (i *ImageManager) GetRemoteImageInfo(ctx context.Context, remote, image str
 	}
 
 	var raw struct {
-		Fingerprint string            `json:"fingerprint"`
-		Filename    string            `json:"filename"`
-		Size        uint64            `json:"size"`
-		Architecture string           `json:"architecture"`
-		CreatedAt   time.Time         `json:"created_at"`
-		Properties  map[string]string `json:"properties"`
+		Fingerprint  string            `json:"fingerprint"`
+		Filename     string            `json:"filename"`
+		Size         uint64            `json:"size"`
+		Architecture string            `json:"architecture"`
+		CreatedAt    time.Time         `json:"created_at"`
+		Properties   map[string]string `json:"properties"`
 	}
 
 	if err := json.Unmarshal(output, &raw); err != nil {

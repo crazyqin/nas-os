@@ -13,7 +13,9 @@ import (
 type ScraperSource string
 
 const (
+	// SourceTMDB represents The Movie Database source
 	SourceTMDB    ScraperSource = "tmdb"
+	// SourceDouban represents Douban source
 	SourceDouban  ScraperSource = "douban"
 	SourceIMDB    ScraperSource = "imdb"
 	SourceAuto    ScraperSource = "auto" // Auto-select best source
@@ -241,7 +243,7 @@ func (s *UnifiedScraper) scrapeMovieFromSource(ctx context.Context, source Scrap
 
 	case SourceDouban:
 		if s.douban == nil {
-			return nil, fmt.Errorf("Douban scraper not configured")
+			return nil, fmt.Errorf("douban scraper not configured")
 		}
 		movies, err := s.douban.SearchMovie(title)
 		if err != nil {
@@ -282,7 +284,7 @@ func (s *UnifiedScraper) scrapeTVFromSource(ctx context.Context, source ScraperS
 
 	case SourceDouban:
 		if s.douban == nil {
-			return nil, fmt.Errorf("Douban scraper not configured")
+			return nil, fmt.Errorf("douban scraper not configured")
 		}
 		shows, err := s.douban.SearchTV(title)
 		if err != nil {

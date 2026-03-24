@@ -11,8 +11,8 @@ import (
 
 // Peer errors
 var (
-	ErrPeerNotConnected   = errors.New("peer not connected")
-	ErrPeerAlreadyExists  = errors.New("peer already exists")
+	ErrPeerNotConnected    = errors.New("peer not connected")
+	ErrPeerAlreadyExists   = errors.New("peer already exists")
 	ErrPeerHandshakeFailed = errors.New("peer handshake failed")
 )
 
@@ -20,10 +20,15 @@ var (
 type PeerState int
 
 const (
+	// PeerStateNew indicates a new peer connection
 	PeerStateNew PeerState = iota
+	// PeerStateConnecting indicates peer is connecting
 	PeerStateConnecting
+	// PeerStateConnected indicates peer is connected
 	PeerStateConnected
+	// PeerStateDisconnected indicates peer is disconnected
 	PeerStateDisconnected
+	// PeerStateFailed indicates peer connection failed
 	PeerStateFailed
 )
 
@@ -48,33 +53,33 @@ func (s PeerState) String() string {
 type Peer struct {
 	ID        string
 	PublicKey []byte
-	
+
 	// Network addresses
-	Endpoints    []*net.UDPAddr
-	NATType      NATType
-	
+	Endpoints []*net.UDPAddr
+	NATType   NATType
+
 	// Connection
 	ConnectionType ConnectionType
-	State         PeerState
-	
+	State          PeerState
+
 	// ICE agent
 	iceAgent *ICEAgent
-	
+
 	// Encryption
-	crypto    *Crypto
+	crypto     *Crypto
 	sessionKey []byte
-	
+
 	// Statistics
-	bytesSent     uint64
-	bytesReceived uint64
-	packetsSent   uint64
+	bytesSent       uint64
+	bytesReceived   uint64
+	packetsSent     uint64
 	packetsReceived uint64
-	lastSeen      time.Time
-	
+	lastSeen        time.Time
+
 	// Channels
 	sendChan chan []byte
 	recvChan chan []byte
-	
+
 	// Control
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -83,22 +88,22 @@ type Peer struct {
 
 // PeerConfig holds peer configuration
 type PeerConfig struct {
-	ID           string
-	PublicKey    []byte
-	Endpoints    []*net.UDPAddr
-	NATType      NATType
+	ID        string
+	PublicKey []byte
+	Endpoints []*net.UDPAddr
+	NATType   NATType
 }
 
 // NewPeer creates a new peer
 func NewPeer(config *PeerConfig) *Peer {
 	return &Peer{
-		ID:         config.ID,
-		PublicKey:  config.PublicKey,
-		Endpoints:  config.Endpoints,
-		NATType:    config.NATType,
-		State:      PeerStateNew,
-		sendChan:   make(chan []byte, 100),
-		recvChan:   make(chan []byte, 100),
+		ID:        config.ID,
+		PublicKey: config.PublicKey,
+		Endpoints: config.Endpoints,
+		NATType:   config.NATType,
+		State:     PeerStateNew,
+		sendChan:  make(chan []byte, 100),
+		recvChan:  make(chan []byte, 100),
 	}
 }
 
@@ -179,11 +184,11 @@ func (p *Peer) Connect(ctx context.Context, localConfig *TunnelConfig, signaling
 	case <-connected:
 		p.setState(PeerStateConnected)
 		p.lastSeen = time.Now()
-		
+
 		// Start data handling
 		go p.sendLoop()
 		go p.receiveLoop()
-		
+
 		return nil
 	}
 }
@@ -216,7 +221,7 @@ func (p *Peer) HandleOffer(ctx context.Context, offer *SessionDescription, local
 		candidates[i] = &offer.Candidates[i]
 	}
 	iceAgent.SetRemoteCandidates(candidates)
-	
+
 	// Start connectivity checks
 	if err := iceAgent.StartConnectivityChecks(offer.ICEUfrag, offer.ICEPwd); err != nil {
 		p.setState(PeerStateFailed)
@@ -243,10 +248,10 @@ func (p *Peer) HandleOffer(ctx context.Context, offer *SessionDescription, local
 	case <-connected:
 		p.setState(PeerStateConnected)
 		p.lastSeen = time.Now()
-		
+
 		go p.sendLoop()
 		go p.receiveLoop()
-		
+
 		return nil
 	}
 }
@@ -260,6 +265,7 @@ func (p *Peer) sendLoop() {
 		case data := <-p.sendChan:
 			if err := p.sendData(data); err != nil {
 				// Log error, retry or disconnect
+				_ = err // explicitly ignore: send errors handled by connection state
 			}
 		}
 	}
@@ -361,8 +367,8 @@ func (p *Peer) Close() error {
 	p.mu.Unlock()
 
 	if p.iceAgent != nil {
-		return p.//nolint:errcheck
-	iceAgent.Close()
+		return p. //nolint:errcheck
+				iceAgent.Close()
 	}
 	return nil
 }
@@ -434,7 +440,7 @@ func (p *Peer) HolePunch(ctx context.Context, localPort int) error {
 	punchPacket := []byte("PUNCH")
 	for _, endpoint := range p.Endpoints {
 		//nolint:errcheck
-	conn.WriteToUDP(punchPacket, endpoint)
+		conn.WriteToUDP(punchPacket, endpoint)
 	}
 
 	// Wait for response
@@ -459,19 +465,19 @@ func (p *Peer) HolePunch(ctx context.Context, localPort int) error {
 
 // PeerManager manages multiple peer connections
 type PeerManager struct {
-	peers map[string]*Peer
-	config *TunnelConfig
+	peers     map[string]*Peer
+	config    *TunnelConfig
 	signaling *SignalingClient
-	crypto *Crypto
-	
+	crypto    *Crypto
+
 	eventHandlers []EventHandler
-	mu sync.RWMutex
+	mu            sync.RWMutex
 }
 
 // NewPeerManager creates a new peer manager
 func NewPeerManager(config *TunnelConfig) *PeerManager {
 	return &PeerManager{
-		peers: make(map[string]*Peer),
+		peers:  make(map[string]*Peer),
 		config: config,
 	}
 }
@@ -598,7 +604,7 @@ func (m *PeerManager) Close() error {
 
 	for _, peer := range m.peers {
 		//nolint:errcheck
-	peer.Close()
+		peer.Close()
 	}
 	m.peers = make(map[string]*Peer)
 	return nil

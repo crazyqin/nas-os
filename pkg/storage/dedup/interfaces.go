@@ -124,12 +124,12 @@ type StorageBackend interface {
 
 // StorageStats 存储统计
 type StorageStats struct {
-	TotalBlocks    uint64 `json:"totalBlocks"`
-	UsedBlocks     uint64 `json:"usedBlocks"`
-	FreeBlocks     uint64 `json:"freeBlocks"`
-	TotalBytes     uint64 `json:"totalBytes"`
-	UsedBytes      uint64 `json:"usedBytes"`
-	Fragmentation  float64 `json:"fragmentation"`
+	TotalBlocks   uint64  `json:"totalBlocks"`
+	UsedBlocks    uint64  `json:"usedBlocks"`
+	FreeBlocks    uint64  `json:"freeBlocks"`
+	TotalBytes    uint64  `json:"totalBytes"`
+	UsedBytes     uint64  `json:"usedBytes"`
+	Fragmentation float64 `json:"fragmentation"`
 }
 
 // DedupPolicy 去重策略接口
@@ -149,19 +149,22 @@ type DedupPolicy interface {
 
 // ChunkInfo 块信息
 type ChunkInfo struct {
-	Path      string
-	Size      int64
-	Offset    int64
-	Modified  bool
-	UserData  map[string]interface{}
+	Path     string
+	Size     int64
+	Offset   int64
+	Modified bool
+	UserData map[string]interface{}
 }
 
 // RetentionAction 保留动作
 type RetentionAction int
 
 const (
+	// RetentionKeep indicates keeping the snapshot
 	RetentionKeep RetentionAction = iota
+	// RetentionDelete indicates deleting the snapshot
 	RetentionDelete
+	// RetentionArchive indicates archiving the snapshot
 	RetentionArchive
 )
 
@@ -169,8 +172,11 @@ const (
 type DuplicateAction int
 
 const (
+	// DuplicateSkip indicates skipping duplicate
 	DuplicateSkip DuplicateAction = iota
+	// DuplicateUpdate indicates updating duplicate
 	DuplicateUpdate
+	// DuplicateReplace indicates replacing duplicate
 	DuplicateReplace
 )
 

@@ -267,7 +267,7 @@ func TestLEVCalculator_CalculateDueDate(t *testing.T) {
 	}
 
 	expectedDays := 7
-	actualDays := int(score.DueDate.Sub(time.Now()).Hours() / 24)
+	actualDays := int(time.Until(*score.DueDate).Hours() / 24)
 	if actualDays < expectedDays-1 || actualDays > expectedDays+1 {
 		t.Errorf("Priority 1 should have ~%d days due date, got %d", expectedDays, actualDays)
 	}

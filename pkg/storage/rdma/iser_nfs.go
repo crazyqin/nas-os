@@ -128,7 +128,7 @@ func (s *ISERSession) Disconnect() error {
 	}
 
 	if s.endpoint != nil {
-		s.endpoint.Disconnect()
+		_ = s.endpoint.Disconnect()
 		s.endpoint = nil
 	}
 
@@ -327,7 +327,7 @@ func (m *NFSRDMAMount) Unmount() error {
 	}
 
 	if m.endpoint != nil {
-		m.endpoint.Disconnect()
+		_ = m.endpoint.Disconnect()
 		m.endpoint = nil
 	}
 

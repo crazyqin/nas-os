@@ -19,13 +19,21 @@ import (
 // ========== 核心错误定义 ==========
 
 var (
+	// ErrChunkNotFound indicates chunk not found in dedup table
 	ErrChunkNotFound      = errors.New("chunk not found in dedup table")
+	// ErrDuplicateEntry indicates duplicate entry in dedup table
 	ErrDuplicateEntry     = errors.New("duplicate entry in dedup table")
+	// ErrTableFull indicates dedup table is full
 	ErrTableFull          = errors.New("dedup table full")
+	// ErrInvalidChunkSize indicates invalid chunk size
 	ErrInvalidChunkSize   = errors.New("invalid chunk size")
+	// ErrHashMismatch indicates hash mismatch during verification
 	ErrHashMismatch       = errors.New("hash mismatch during verification")
+	// ErrWriteInProgress indicates write operation is in progress
 	ErrWriteInProgress    = errors.New("write operation in progress")
+	// ErrDedupDisabled indicates deduplication is not enabled
 	ErrDedupDisabled      = errors.New("deduplication not enabled")
+	// ErrInsufficientMemory indicates insufficient memory for operation
 	ErrInsufficientMemory = errors.New("insufficient memory for operation")
 )
 
@@ -39,7 +47,7 @@ func (h ChunkHash) String() string {
 	return hex.EncodeToString(h[:])
 }
 
-// FromBytes 从字节切片创建 ChunkHash
+// ChunkHashFromBytes creates a ChunkHash from a byte slice
 func ChunkHashFromBytes(b []byte) (ChunkHash, error) {
 	if len(b) != 32 {
 		return ChunkHash{}, fmt.Errorf("%w: expected 32 bytes, got %d", ErrHashMismatch, len(b))
@@ -413,14 +421,14 @@ func (ddt *DDT) Insert(hash ChunkHash, size uint32) (*DDTEntry, bool, error) {
 	// 创建新条目
 	now := time.Now()
 	entry := &DDTEntry{
-		Hash:         hash,
+		Hash:          hash,
 		PhysicalBlock: ddt.nextPhysicalBlock,
-		RefCount:     1,
-		Size:         size,
-		Compressed:   ddt.config.EnableCompression,
-		CreatedAt:    now,
-		LastAccess:   now,
-		Checksum:     computeChecksum(hash[:]),
+		RefCount:      1,
+		Size:          size,
+		Compressed:    ddt.config.EnableCompression,
+		CreatedAt:     now,
+		LastAccess:    now,
+		Checksum:      computeChecksum(hash[:]),
 	}
 
 	ddt.nextPhysicalBlock++
@@ -588,10 +596,10 @@ type FastDeduplicator struct {
 	writeBuffer *WriteBuffer
 
 	// 统计
-	totalBytesWritten  uint64
-	dedupedBytes       uint64
-	totalChunks        uint64
-	dedupedChunks      uint64
+	totalBytesWritten uint64
+	dedupedBytes      uint64
+	totalChunks       uint64
+	dedupedChunks     uint64
 }
 
 // WriteBuffer 写入缓冲区，用于批量写入优化
@@ -759,7 +767,7 @@ func (fd *FastDeduplicator) GetStats() map[string]interface{} {
 	ddtStats := fd.ddt.GetStats()
 
 	return map[string]interface{}{
-		"ddt":              ddtStats,
+		"ddt":               ddtStats,
 		"totalBytesWritten": atomic.LoadUint64(&fd.totalBytesWritten),
 		"dedupedBytes":      atomic.LoadUint64(&fd.dedupedBytes),
 		"totalChunks":       atomic.LoadUint64(&fd.totalChunks),

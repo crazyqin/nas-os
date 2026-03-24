@@ -42,9 +42,13 @@ const (
 )
 
 var (
+	// ErrTURNAllocationFailed indicates TURN allocation failure
 	ErrTURNAllocationFailed = errors.New("TURN allocation failed")
+	// ErrTURNPermissionDenied indicates TURN permission denied
 	ErrTURNPermissionDenied  = errors.New("TURN permission denied")
+	// ErrTURNNoRelay indicates no relay address available
 	ErrTURNNoRelay          = errors.New("no relay address")
+	// ErrTURNTimeout indicates TURN operation timeout
 	ErrTURNTimeout          = errors.New("TURN operation timeout")
 )
 
@@ -53,23 +57,22 @@ type TURNClient struct {
 	config     *TunnelConfig
 	conn       *net.UDPConn
 	server     *net.UDPAddr
-	
+
 	// Allocation state
 	relayAddr    *net.UDPAddr
-	lifetime     time.Duration
 	allocated    bool
-	
+
 	// Authentication
 	username     string
 	password     string
 	realm        string
 	nonce        []byte
 	integrityKey []byte
-	
+
 	// Channel bindings
 	channels     map[string]uint16
 	nextChannel  uint16
-	
+
 	// Transaction management
 	transactions map[string]chan *STUNPacket
 	mu           sync.RWMutex

@@ -29,13 +29,14 @@ var (
 )
 
 const (
-	// Key sizes
-	KeySize256   = 32
-	NonceSizeAES = 12
+	// KeySize256 is the AES-256 key size in bytes
+	KeySize256      = 32
+	// NonceSizeAES is the nonce size for AES-GCM
+	NonceSizeAES    = 12
 	NonceSizeChaCha = 12
-	TagSize      = 16
-	
-	// X25519 key size
+	TagSize         = 16
+
+	// X25519KeySize is the X25519 key size in bytes
 	X25519KeySize = 32
 )
 
@@ -43,7 +44,9 @@ const (
 type CipherType int
 
 const (
+	// CipherAESGCM represents AES-GCM encryption
 	CipherAESGCM CipherType = iota
+	// CipherChaCha20Poly1305 represents ChaCha20-Poly1305 encryption
 	CipherChaCha20Poly1305
 )
 
@@ -60,7 +63,7 @@ type Crypto struct {
 	gcm        cipher.AEAD
 	privateKey *ecdh.PrivateKey
 	publicKey  *ecdh.PublicKey
-	
+
 	// Session keys for each peer
 	sessionKeys map[string][]byte
 	mu          sync.RWMutex
@@ -86,7 +89,7 @@ func NewCrypto(config *CryptoConfig) (*Crypto, error) {
 // initCipher initializes the AEAD cipher
 func (c *Crypto) initCipher(key []byte) error {
 	var err error
-	
+
 	switch c.config.CipherType {
 	case CipherAESGCM:
 		block, err := aes.NewCipher(key)
@@ -97,17 +100,17 @@ func (c *Crypto) initCipher(key []byte) error {
 		if err != nil {
 			return fmt.Errorf("failed to create GCM: %w", err)
 		}
-		
+
 	case CipherChaCha20Poly1305:
 		c.gcm, err = chacha20poly1305.New(key)
 		if err != nil {
 			return fmt.Errorf("failed to create ChaCha20-Poly1305: %w", err)
 		}
-		
+
 	default:
 		return errors.New("unsupported cipher type")
 	}
-	
+
 	return nil
 }
 
@@ -118,10 +121,10 @@ func (c *Crypto) GenerateKeyPair() error {
 	if err != nil {
 		return fmt.Errorf("failed to generate key pair: %w", err)
 	}
-	
+
 	c.privateKey = privateKey
 	c.publicKey = privateKey.PublicKey()
-	
+
 	return nil
 }
 
@@ -138,30 +141,30 @@ func (c *Crypto) DeriveSharedKey(peerPublicKey []byte) ([]byte, error) {
 	if c.privateKey == nil {
 		return nil, errors.New("no private key")
 	}
-	
+
 	curve := ecdh.X25519()
 	peerPub, err := curve.NewPublicKey(peerPublicKey)
 	if err != nil {
 		return nil, fmt.Errorf("invalid peer public key: %w", err)
 	}
-	
+
 	sharedSecret, err := c.privateKey.ECDH(peerPub)
 	if err != nil {
 		return nil, fmt.Errorf("ECDH failed: %w", err)
 	}
-	
+
 	// Derive encryption key using HKDF
 	salt := make([]byte, 0)
 	if len(c.config.PreSharedKey) > 0 {
 		salt = c.config.PreSharedKey
 	}
-	
+
 	hkdf := hkdf.New(sha256.New, sharedSecret, salt, []byte("nas-os-tunnel"))
 	key := make([]byte, KeySize256)
 	if _, err := io.ReadFull(hkdf, key); err != nil {
 		return nil, fmt.Errorf("HKDF failed: %w", err)
 	}
-	
+
 	return key, nil
 }
 
@@ -169,7 +172,7 @@ func (c *Crypto) DeriveSharedKey(peerPublicKey []byte) ([]byte, error) {
 func (c *Crypto) SetPeerKey(peerID string, key []byte) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	c.sessionKeys[peerID] = key
 	return nil
 }
@@ -179,7 +182,7 @@ func (c *Crypto) Encrypt(plaintext []byte, peerID string) ([]byte, error) {
 	c.mu.RLock()
 	key, ok := c.sessionKeys[peerID]
 	c.mu.RUnlock()
-	
+
 	if !ok {
 		// Use default key
 		if c.gcm == nil {
@@ -187,7 +190,7 @@ func (c *Crypto) Encrypt(plaintext []byte, peerID string) ([]byte, error) {
 		}
 		return c.encryptWithKey(plaintext, nil)
 	}
-	
+
 	return c.encryptWithKey(plaintext, key)
 }
 
@@ -195,7 +198,7 @@ func (c *Crypto) Encrypt(plaintext []byte, peerID string) ([]byte, error) {
 func (c *Crypto) encryptWithKey(plaintext, key []byte) ([]byte, error) {
 	var aead cipher.AEAD
 	var err error
-	
+
 	if key != nil {
 		// Create cipher with peer-specific key
 		switch c.config.CipherType {
@@ -220,21 +223,21 @@ func (c *Crypto) encryptWithKey(plaintext, key []byte) ([]byte, error) {
 		}
 		aead = c.gcm
 	}
-	
+
 	// Generate nonce
 	nonce := make([]byte, aead.NonceSize())
 	if _, err := rand.Read(nonce); err != nil {
 		return nil, fmt.Errorf("failed to generate nonce: %w", err)
 	}
-	
+
 	// Encrypt
 	ciphertext := aead.Seal(nil, nonce, plaintext, nil)
-	
+
 	// Prepend nonce to ciphertext
 	result := make([]byte, len(nonce)+len(ciphertext))
 	copy(result[:len(nonce)], nonce)
 	copy(result[len(nonce):], ciphertext)
-	
+
 	return result, nil
 }
 
@@ -243,14 +246,14 @@ func (c *Crypto) Decrypt(ciphertext []byte, peerID string) ([]byte, error) {
 	c.mu.RLock()
 	key, ok := c.sessionKeys[peerID]
 	c.mu.RUnlock()
-	
+
 	if !ok {
 		if c.gcm == nil {
 			return nil, ErrInvalidKey
 		}
 		return c.decryptWithKey(ciphertext, nil)
 	}
-	
+
 	return c.decryptWithKey(ciphertext, key)
 }
 
@@ -258,7 +261,7 @@ func (c *Crypto) Decrypt(ciphertext []byte, peerID string) ([]byte, error) {
 func (c *Crypto) decryptWithKey(ciphertext, key []byte) ([]byte, error) {
 	var aead cipher.AEAD
 	var err error
-	
+
 	if key != nil {
 		switch c.config.CipherType {
 		case CipherAESGCM:
@@ -282,22 +285,22 @@ func (c *Crypto) decryptWithKey(ciphertext, key []byte) ([]byte, error) {
 		}
 		aead = c.gcm
 	}
-	
+
 	nonceSize := aead.NonceSize()
 	if len(ciphertext) < nonceSize+TagSize {
 		return nil, ErrDecryptionFailed
 	}
-	
+
 	// Extract nonce and actual ciphertext
 	nonce := ciphertext[:nonceSize]
 	actualCiphertext := ciphertext[nonceSize:]
-	
+
 	// Decrypt
 	plaintext, err := aead.Open(nil, nonce, actualCiphertext, nil)
 	if err != nil {
 		return nil, ErrDecryptionFailed
 	}
-	
+
 	return plaintext, nil
 }
 
@@ -315,7 +318,7 @@ func GenerateKey() ([]byte, error) {
 	return key, err
 }
 
-// DeriveKey derives a key from a password using Argon2id
+// DeriveKeyFromPassword derives a key from a password using HKDF
 // Simplified version using HKDF for now
 func DeriveKeyFromPassword(password, salt []byte, keyLen int) []byte {
 	hkdf := hkdf.New(sha256.New, password, salt, []byte("nas-os-key-derivation"))
@@ -351,7 +354,7 @@ func Hash512(data []byte) []byte {
 	return h[:]
 }
 
-// SignData signs data using Ed25519
+// Signer handles Ed25519 signing operations
 type Signer struct {
 	privateKey ed25519.PrivateKey
 	publicKey  ed25519.PublicKey
@@ -363,7 +366,7 @@ func NewSigner() (*Signer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate signing key: %w", err)
 	}
-	
+
 	return &Signer{
 		privateKey: privateKey,
 		publicKey:  publicKey,
@@ -390,7 +393,7 @@ func (s *Signer) SetPublicKey(pubKey ed25519.PublicKey) {
 	s.publicKey = pubKey
 }
 
-// EncryptedPacket represents an encrypted packet with metadata
+// SecurePacket represents an encrypted packet with metadata
 type SecurePacket struct {
 	Nonce       []byte `json:"nonce"`
 	Ciphertext  []byte `json:"ciphertext"`
@@ -405,12 +408,12 @@ func (c *Crypto) EncryptPacket(plaintext []byte, peerID string, seqNum uint64) (
 	if err != nil {
 		return nil, err
 	}
-	
+
 	nonceSize := c.getNonceSize()
 	if len(ciphertext) < nonceSize {
 		return nil, ErrDecryptionFailed
 	}
-	
+
 	return &SecurePacket{
 		Nonce:       ciphertext[:nonceSize],
 		Ciphertext:  ciphertext[nonceSize : len(ciphertext)-TagSize],
@@ -427,7 +430,7 @@ func (c *Crypto) DecryptPacket(packet *SecurePacket, peerID string) ([]byte, err
 	ciphertext = append(ciphertext, packet.Nonce...)
 	ciphertext = append(ciphertext, packet.Ciphertext...)
 	ciphertext = append(ciphertext, packet.Tag...)
-	
+
 	return c.Decrypt(ciphertext, peerID)
 }
 
@@ -467,10 +470,10 @@ func PBKDF2(password, salt []byte, iterations, keyLen int) []byte {
 	// In production, use golang.org/x/crypto/pbkdf2
 	var derivedKey []byte
 	block := sha256.New
-	
+
 	prf := hmac.New(block, password)
 	_ = prf // Use in actual PBKDF2 implementation
-	
+
 	// Simplified derivation
 	h := sha256.New()
 	for i := 0; i < iterations; i++ {
@@ -479,7 +482,7 @@ func PBKDF2(password, salt []byte, iterations, keyLen int) []byte {
 		derivedKey = h.Sum(nil)
 		h.Reset()
 	}
-	
+
 	if keyLen > len(derivedKey) {
 		return derivedKey
 	}

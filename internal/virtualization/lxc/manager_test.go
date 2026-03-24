@@ -56,8 +56,8 @@ func TestIsValidContainerName(t *testing.T) {
 		{"container1", true},
 		{"test123", true},
 		{"a", true},
-		{"1container", false}, // Must start with letter
-		{"Container", false},  // Must be lowercase
+		{"1container", false},     // Must start with letter
+		{"Container", false},      // Must be lowercase
 		{"container_name", false}, // Underscore not allowed
 		{"", false},
 		{"a" + string(make([]byte, 63)), false}, // Too long
@@ -113,7 +113,7 @@ func TestValidateCreateConfig(t *testing.T) {
 				Name:  "test-container",
 				Image: "ubuntu/22.04",
 				Resources: ResourceConfig{
-					CPUCores:   2,
+					CPUCores:    2,
 					MemoryLimit: 2048,
 				},
 			},
@@ -133,9 +133,9 @@ func TestValidateCreateConfig(t *testing.T) {
 
 func TestValidateResourceConfig(t *testing.T) {
 	tests := []struct {
-		name     string
-		config   ResourceConfig
-		wantErr  bool
+		name    string
+		config  ResourceConfig
+		wantErr bool
 	}{
 		{
 			name:    "valid config",
@@ -393,8 +393,8 @@ func TestDefaultResourceConfigs(t *testing.T) {
 		t.Errorf("MinimalResourceConfig has unexpected values")
 	}
 
-	default_ := DefaultResourceConfig()
-	if default_.CPUCores != 1 || default_.MemoryLimit != 1024 {
+	defaultConfig := DefaultResourceConfig()
+	if defaultConfig.CPUCores != 1 || defaultConfig.MemoryLimit != 1024 {
 		t.Errorf("DefaultResourceConfig has unexpected values")
 	}
 

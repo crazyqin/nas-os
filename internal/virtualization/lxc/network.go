@@ -330,14 +330,14 @@ func (n *NetworkManager) ReserveIP(ctx context.Context, network, mac, ip string)
 // NetworkCreateConfig holds parameters for creating a network.
 type NetworkCreateConfig struct {
 	Name        string            `json:"name"`
-	Type        string            `json:"type"`        // bridge, macvlan, ipvlan, physical
+	Type        string            `json:"type"` // bridge, macvlan, ipvlan, physical
 	Description string            `json:"description"`
-	Subnet      string            `json:"subnet"`      // e.g., "192.168.100.1/24"
-	Subnet6     string            `json:"subnet6"`     // IPv6 subnet
-	DHCP        bool              `json:"dhcp"`        // Enable DHCP
-	NAT         bool              `json:"nat"`         // Enable NAT
-	DNS         string            `json:"dns"`         // DNS servers
-	Config      map[string]string `json:"config"`      // Additional config
+	Subnet      string            `json:"subnet"`  // e.g., "192.168.100.1/24"
+	Subnet6     string            `json:"subnet6"` // IPv6 subnet
+	DHCP        bool              `json:"dhcp"`    // Enable DHCP
+	NAT         bool              `json:"nat"`     // Enable NAT
+	DNS         string            `json:"dns"`     // DNS servers
+	Config      map[string]string `json:"config"`  // Additional config
 }
 
 // NetworkAttachConfig holds parameters for attaching to a network.
@@ -393,8 +393,8 @@ func secureRandom(max int) int {
 // CreateMacvlanNetwork creates a macvlan network for container IP allocation.
 func (n *NetworkManager) CreateMacvlanNetwork(ctx context.Context, name, parentInterface string) (*Network, error) {
 	config := &NetworkCreateConfig{
-		Name:   name,
-		Type:   "macvlan",
+		Name: name,
+		Type: "macvlan",
 		Config: map[string]string{
 			"parent": parentInterface,
 		},
@@ -405,8 +405,8 @@ func (n *NetworkManager) CreateMacvlanNetwork(ctx context.Context, name, parentI
 // CreateIPVLANNetwork creates an ipvlan network for container IP allocation.
 func (n *NetworkManager) CreateIPVLANNetwork(ctx context.Context, name, parentInterface string) (*Network, error) {
 	config := &NetworkCreateConfig{
-		Name:   name,
-		Type:   "ipvlan",
+		Name: name,
+		Type: "ipvlan",
 		Config: map[string]string{
 			"parent": parentInterface,
 		},

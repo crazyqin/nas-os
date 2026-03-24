@@ -292,12 +292,12 @@ func (lc *LEVCalculator) determineExploitLikelihood(score *LEVScore) {
 
 // determineRemediationUrgency 确定修复紧急程度
 func (lc *LEVCalculator) determineRemediationUrgency(score *LEVScore) {
-	switch {
-	case score.Priority == 1:
+	switch score.Priority {
+	case 1:
 		score.RemediationUrgency = "immediate"
-	case score.Priority == 2:
+	case 2:
 		score.RemediationUrgency = "soon"
-	case score.Priority == 3:
+	case 3:
 		score.RemediationUrgency = "scheduled"
 	default:
 		score.RemediationUrgency = "deferred"

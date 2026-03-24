@@ -11,8 +11,8 @@ import (
 
 // AIConsoleAPI provides API handlers for AI Console
 type AIConsoleAPI struct {
-	console       *ai.Console
-	desensitizer  *ai.Desensitizer
+	console      *ai.Console
+	desensitizer *ai.Desensitizer
 }
 
 // NewAIConsoleAPI creates a new AI Console API
@@ -48,11 +48,11 @@ func (api *AIConsoleAPI) RegisterRoutes(mux *http.ServeMux) {
 
 // ChatRequest represents a chat request
 type ChatRequest struct {
-	Prompt   string         `json:"prompt"`
-	Model    string         `json:"model,omitempty"`
-	Provider ai.Provider    `json:"provider,omitempty"`
+	Prompt   string            `json:"prompt"`
+	Model    string            `json:"model,omitempty"`
+	Provider ai.Provider       `json:"provider,omitempty"`
 	Options  ai.RequestOptions `json:"options,omitempty"`
-	UserID   string         `json:"userId,omitempty"`
+	UserID   string            `json:"userId,omitempty"`
 }
 
 // Chat handles chat requests
@@ -84,7 +84,7 @@ func (api *AIConsoleAPI) Chat(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := //nolint:errcheck
-	json.NewEncoder(w).Encode(resp); err != nil {
+		json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -92,8 +92,8 @@ func (api *AIConsoleAPI) Chat(w http.ResponseWriter, r *http.Request) {
 
 // SummarizeRequest represents a summarize request
 type SummarizeRequest struct {
-	Content  string `json:"content"`
-	MaxLength int   `json:"maxLength,omitempty"`
+	Content   string `json:"content"`
+	MaxLength int    `json:"maxLength,omitempty"`
 }
 
 // Summarize handles summarization requests
@@ -121,9 +121,9 @@ func (api *AIConsoleAPI) Summarize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := //nolint:errcheck
-	json.NewEncoder(w).Encode(map[string]string{
-		"summary": summary,
-	}); err != nil {
+		json.NewEncoder(w).Encode(map[string]string{
+			"summary": summary,
+		}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

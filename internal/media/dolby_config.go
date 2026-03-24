@@ -15,7 +15,9 @@ import (
 type DolbyVisionProfile string
 
 const (
+	// DVProfile5 represents Dolby Vision Profile 5 (HDR10 base layer only)
 	DVProfile5   DolbyVisionProfile = "profile5"   // HDR10 base layer only
+	// DVProfile7 represents Dolby Vision Profile 7 (HDR10 + Dolby Vision dual layer)
 	DVProfile7   DolbyVisionProfile = "profile7"   // HDR10 + Dolby Vision dual layer
 	DVProfile8   DolbyVisionProfile = "profile8"   // HDR10 + Dolby Vision single layer
 	DVProfileMEL DolbyVisionProfile = "profile-mel" // MEL (Minimum Enhanced Layer)
@@ -26,7 +28,9 @@ const (
 type AudioCodec string
 
 const (
+	// AudioAAC represents AAC audio codec
 	AudioAAC       AudioCodec = "aac"
+	// AudioAC3 represents AC3/Dolby Digital audio codec
 	AudioAC3       AudioCodec = "ac3"
 	AudioEAC3      AudioCodec = "eac3"      // Dolby Digital Plus
 	AudioTrueHD    AudioCodec = "truehd"    // Dolby TrueHD
@@ -44,7 +48,9 @@ const (
 type HDRFormat string
 
 const (
+	// HDRNone indicates no HDR format
 	HDRNone     HDRFormat = "none"
+	// HDR10 represents standard HDR10 format
 	HDR10       HDRFormat = "hdr10"
 	HDR10Plus   HDRFormat = "hdr10plus"
 	DolbyVision HDRFormat = "dolby-vision"
@@ -55,7 +61,9 @@ const (
 type VideoCodec string
 
 const (
+	// VideoH264 represents H.264/AVC video codec
 	VideoH264   VideoCodec = "h264"
+	// VideoH265 represents H.265/HEVC video codec
 	VideoH265   VideoCodec = "h265"
 	VideoHEVC   VideoCodec = "hevc"
 	VideoVP9    VideoCodec = "vp9"
@@ -414,11 +422,12 @@ func GenerateFFmpegArgs(config BluRayPlaybackConfig, inputPath, outputPath strin
 
 	// Video encoding
 	args = append(args, "-c:v")
-	if config.HWAccel == "cuda" || config.HWAccel == "nvenc" {
+	switch config.HWAccel {
+	case "cuda", "nvenc":
 		args = append(args, "hevc_nvenc")
-	} else if config.HWAccel == "qsv" {
+	case "qsv":
 		args = append(args, "hevc_qsv")
-	} else {
+	default:
 		args = append(args, "libx265")
 	}
 
@@ -516,9 +525,9 @@ func CreatePlaybackManifest(analysis *MediaAnalysis, outputDir string, qualities
 
 	for _, q := range qualities {
 		bandwidth := parseBitrateToInt(q.Bitrate)
-		content.WriteString(fmt.Sprintf("#EXT-X-STREAM-INF:BANDWIDTH=%d,RESOLUTION=%s,CODECS=\"hvc1.2.4.L150.90\",AUDIO=\"audio\"\n",
-			bandwidth, q.Resolution))
-		content.WriteString(fmt.Sprintf("%s/stream.m3u8\n", q.Quality))
+		fmt.Fprintf(&content, "#EXT-X-STREAM-INF:BANDWIDTH=%d,RESOLUTION=%s,CODECS=\"hvc1.2.4.L150.90\",AUDIO=\"audio\"\n",
+			bandwidth, q.Resolution)
+		fmt.Fprintf(&content, "%s/stream.m3u8\n", q.Quality)
 	}
 
 	// Audio group

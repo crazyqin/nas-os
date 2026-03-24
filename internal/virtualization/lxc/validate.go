@@ -161,12 +161,6 @@ func validateStorageConfig(config *StorageConfig) error {
 	return nil
 }
 
-// isValidMAC checks if a MAC address is valid.
-func isValidMAC(mac string) bool {
-	_, err := net.ParseMAC(mac)
-	return err == nil
-}
-
 // ValidateExecConfig validates an ExecConfig.
 func ValidateExecConfig(config *ExecConfig) error {
 	if len(config.Command) == 0 {
@@ -243,9 +237,7 @@ func (v *ContainerValidator) ValidateCreate(config *CreateConfig) []string {
 	}
 
 	// Check image availability (warning only)
-	if v.manager != nil && v.manager.IsAvailable() {
-		// Could check if image exists
-	}
+	// Note: Image availability check could be added here if needed in the future
 
 	return warnings
 }
@@ -268,11 +260,11 @@ func (v *ContainerValidator) ValidateResourceQuota(resources *ResourceConfig) er
 
 // HostResourceInfo contains host resource information.
 type HostResourceInfo struct {
-	Cores    int
-	MHz      int
-	Model    string
-	TotalMB  uint64
-	FreeMB   uint64
+	Cores   int
+	MHz     int
+	Model   string
+	TotalMB uint64
+	FreeMB  uint64
 }
 
 type cpuInfo struct {
@@ -400,15 +392,15 @@ func (m *Manager) IsImageAvailable(image string) (bool, error) {
 	return cmd.Run() == nil, nil
 }
 
-// Common image aliases for convenience.
+// CommonImages provides common image aliases for convenience.
 var CommonImages = map[string][]string{
-	"ubuntu": {"ubuntu/22.04", "ubuntu/24.04", "ubuntu/20.04"},
-	"debian": {"debian/12", "debian/11", "debian/10"},
-	"alpine": {"alpine/3.19", "alpine/3.18", "alpine/edge"},
-	"centos": {"centos/9-Stream", "centos/8-Stream"},
+	"ubuntu":     {"ubuntu/22.04", "ubuntu/24.04", "ubuntu/20.04"},
+	"debian":     {"debian/12", "debian/11", "debian/10"},
+	"alpine":     {"alpine/3.19", "alpine/3.18", "alpine/edge"},
+	"centos":     {"centos/9-Stream", "centos/8-Stream"},
 	"rockylinux": {"rockylinux/9", "rockylinux/8"},
-	"fedora": {"fedora/39", "fedora/40"},
-	"archlinux": {"archlinux"},
+	"fedora":     {"fedora/39", "fedora/40"},
+	"archlinux":  {"archlinux"},
 }
 
 // GetImageAlias returns the best image alias for a given OS.

@@ -12,23 +12,23 @@ import (
 
 // ICE constants
 const (
-	ICEComponentRTP = 1
+	ICEComponentRTP  = 1
 	ICEComponentRTCP = 2
 
 	// ICE states
-	ICEStateNew        = "new"
-	ICEStateChecking   = "checking"
-	ICEStateConnected  = "connected"
-	ICEStateCompleted  = "completed"
-	ICEStateFailed     = "failed"
+	ICEStateNew          = "new"
+	ICEStateChecking     = "checking"
+	ICEStateConnected    = "connected"
+	ICEStateCompleted    = "completed"
+	ICEStateFailed       = "failed"
 	ICEStateDisconnected = "disconnected"
-	ICEStateClosed     = "closed"
+	ICEStateClosed       = "closed"
 
 	// Candidate types
-	CandidateTypeHost   = "host"
-	CandidateTypeSrflx  = "srflx"
-	CandidateTypePrflx  = "prflx"
-	CandidateTypeRelay  = "relay"
+	CandidateTypeHost  = "host"
+	CandidateTypeSrflx = "srflx"
+	CandidateTypePrflx = "prflx"
+	CandidateTypeRelay = "relay"
 
 	// ICE timeouts
 	ICEDefaultTimeout    = 30 * time.Second
@@ -37,10 +37,14 @@ const (
 )
 
 var (
-	ErrICEFailed        = errors.New("ICE connection failed")
-	ErrICENoCandidates  = errors.New("no valid candidates")
-	ErrICETimeout       = errors.New("ICE negotiation timeout")
-	ErrICEInvalidState  = errors.New("invalid ICE state")
+	// ErrICEFailed indicates ICE connection failure
+	ErrICEFailed       = errors.New("ICE connection failed")
+	// ErrICENoCandidates indicates no valid candidates available
+	ErrICENoCandidates = errors.New("no valid candidates")
+	// ErrICETimeout indicates ICE negotiation timeout
+	ErrICETimeout      = errors.New("ICE negotiation timeout")
+	// ErrICEInvalidState indicates invalid ICE state
+	ErrICEInvalidState = errors.New("invalid ICE state")
 )
 
 // ICECandidatePair represents a candidate pair for connectivity checks
@@ -48,49 +52,49 @@ type ICECandidatePair struct {
 	Local  *Candidate
 	Remote *Candidate
 	State  string // waiting, in-progress, succeeded, failed, frozen
-	
+
 	// Metrics
-	RTT        time.Duration
-	LastCheck  time.Time
-	Nominated  bool
-	Priority   uint64
+	RTT       time.Duration
+	LastCheck time.Time
+	Nominated bool
+	Priority  uint64
 }
 
 // ICEAgent manages ICE protocol operations
 type ICEAgent struct {
 	config *TunnelConfig
-	
+
 	// Local candidates
 	localCandidates []*Candidate
-	
+
 	// Remote candidates
 	remoteCandidates []*Candidate
-	
+
 	// Candidate pairs
 	candidatePairs []*ICECandidatePair
-	
+
 	// Selected pair
 	selectedPair *ICECandidatePair
-	
+
 	// ICE state
 	state string
-	
+
 	// Credentials
 	localUfrag  string
 	localPwd    string
 	remoteUfrag string
 	remotePwd   string
-	
+
 	// Connections
-	localConn    *net.UDPConn
-	stunClient   *STUNClient
-	turnClient   *TURNClient
-	
+	localConn  *net.UDPConn
+	stunClient *STUNClient
+	turnClient *TURNClient
+
 	// Callbacks
-	onConnected   func()
+	onConnected    func()
 	onDisconnected func()
-	onFailed      func(error)
-	
+	onFailed       func(error)
+
 	// Control
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -100,11 +104,11 @@ type ICEAgent struct {
 
 // ICEConfig holds ICE configuration
 type ICEConfig struct {
-	STUNServers   []string
-	TURNServers   []TURNServer
-	LocalPort     int
-	Timeout       time.Duration
-	Keepalive     time.Duration
+	STUNServers []string
+	TURNServers []TURNServer
+	LocalPort   int
+	Timeout     time.Duration
+	Keepalive   time.Duration
 }
 
 // NewICEAgent creates a new ICE agent
@@ -121,11 +125,11 @@ func (a *ICEAgent) Initialize(ctx context.Context) error {
 	defer a.mu.Unlock()
 
 	a.ctx, a.cancel = context.WithCancel(ctx)
-	
+
 	// Generate ICE credentials
 	a.localUfrag = generateICEUfrag()
 	a.localPwd = generateICEPassword()
-	
+
 	// Create local UDP socket
 	localAddr := &net.UDPAddr{Port: a.config.ListenPort}
 	conn, err := net.ListenUDP("udp", localAddr)
@@ -138,17 +142,17 @@ func (a *ICEAgent) Initialize(ctx context.Context) error {
 		}
 	}
 	a.localConn = conn
-	
+
 	// Gather local candidates
 	if err := a.gatherLocalCandidates(); err != nil {
 		_ = //nolint:errcheck
-	conn.Close()
+			conn.Close()
 		return fmt.Errorf("failed to gather candidates: %w", err)
 	}
-	
+
 	// Initialize STUN client
 	a.stunClient = NewSTUNClient(a.config)
-	
+
 	return nil
 }
 
@@ -158,21 +162,23 @@ func (a *ICEAgent) gatherLocalCandidates() error {
 	if err := a.gatherHostCandidates(); err != nil {
 		return err
 	}
-	
+
 	// Gather server reflexive candidates via STUN
 	if len(a.config.STUNServers) > 0 {
 		if err := a.gatherSrflxCandidates(); err != nil {
 			// Non-fatal, continue without srflx
+			_ = err // explicitly ignore: non-fatal
 		}
 	}
-	
+
 	// Gather relay candidates via TURN
 	if len(a.config.TURNServers) > 0 {
 		if err := a.gatherRelayCandidates(); err != nil {
 			// Non-fatal, continue without relay
+			_ = err // explicitly ignore: non-fatal
 		}
 	}
-	
+
 	return nil
 }
 
@@ -268,23 +274,23 @@ func (a *ICEAgent) gatherSrflxCandidates() error {
 func (a *ICEAgent) gatherRelayCandidates() error {
 	for _, server := range a.config.TURNServers {
 		client := NewTURNClient(a.config, server)
-		
+
 		if err := client.Connect(a.ctx, server.URL); err != nil {
 			continue
 		}
-		
+
 		ctx, cancel := context.WithTimeout(a.ctx, a.config.TURNTimeout)
 		allocation, err := client.Allocate(ctx)
 		cancel()
-		
+
 		if err != nil {
 			_ = //nolint:errcheck
-	client.Close()
+				client.Close()
 			continue
 		}
-		
+
 		a.turnClient = client
-		
+
 		candidate := &Candidate{
 			Type:       CandidateTypeRelay,
 			Network:    "udp",
@@ -296,11 +302,11 @@ func (a *ICEAgent) gatherRelayCandidates() error {
 			RelAddr:    allocation.RelayAddr.IP, // The relay address
 			RelPort:    allocation.RelayAddr.Port,
 		}
-		
+
 		a.localCandidates = append(a.localCandidates, candidate)
 		return nil
 	}
-	
+
 	return errors.New("failed to allocate TURN relay")
 }
 
@@ -342,9 +348,9 @@ func (a *ICEAgent) createCandidatePairs() {
 			}
 
 			pair := &ICECandidatePair{
-				Local:  local,
-				Remote: remote,
-				State:  "waiting",
+				Local:    local,
+				Remote:   remote,
+				State:    "waiting",
 				Priority: calculatePairPriority(local.Priority, remote.Priority, false),
 			}
 
@@ -443,7 +449,7 @@ func (a *ICEAgent) checkDirectConnectivity(pair *ICECandidatePair) bool {
 
 	// Send a STUN binding request
 	request := createSTUNBindingRequest(a.localUfrag, a.localPwd)
-	
+
 	if _, err := a.localConn.WriteToUDP(request, remoteAddr); err != nil {
 		return false
 	}
@@ -596,16 +602,16 @@ func (a *ICEAgent) Close() error {
 	a.wg.Wait()
 
 	if a.localConn != nil {
-		a.//nolint:errcheck
-	localConn.Close()
+		a. //nolint:errcheck
+			localConn.Close()
 	}
 	if a.turnClient != nil {
-		a.//nolint:errcheck
-	turnClient.Close()
+		a. //nolint:errcheck
+			turnClient.Close()
 	}
 	if a.stunClient != nil {
-		a.//nolint:errcheck
-	stunClient.Close()
+		a. //nolint:errcheck
+			stunClient.Close()
 	}
 
 	return nil

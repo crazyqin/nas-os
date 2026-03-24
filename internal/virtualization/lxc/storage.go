@@ -198,6 +198,7 @@ func (s *StorageManager) GetVolume(ctx context.Context, poolName, volumeName, vo
 	if volumeType == "" {
 		volumeType = "custom"
 	}
+	_ = volumeType // volumeType reserved for future use with --type flag
 
 	cmd := s.manager.cmd("storage", "volume", "show", poolName, volumeName, "--format", "json")
 	output, err := cmd.Output()
@@ -265,6 +266,7 @@ func (s *StorageManager) DeleteVolume(ctx context.Context, poolName, volumeName,
 	if volumeType == "" {
 		volumeType = "custom"
 	}
+	_ = volumeType // volumeType reserved for future use with --type flag
 
 	args := []string{"storage", "volume", "delete", poolName, volumeName}
 	if force {
@@ -340,9 +342,9 @@ func (s *StorageManager) MoveVolume(ctx context.Context, srcPool, srcVolume, dst
 type StorageVolume struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Type        string            `json:"type"`        // container, image, custom
+	Type        string            `json:"type"` // container, image, custom
 	Pool        string            `json:"pool"`
-	Size        uint64            `json:"size"`        // Size in MB
+	Size        uint64            `json:"size"` // Size in MB
 	InUse       bool              `json:"inUse"`
 	Config      map[string]string `json:"config"`
 }
@@ -350,9 +352,9 @@ type StorageVolume struct {
 // StoragePoolCreateConfig holds parameters for creating a storage pool.
 type StoragePoolCreateConfig struct {
 	Name        string            `json:"name"`
-	Driver      string            `json:"driver"`      // zfs, btrfs, dir, lvm, ceph
-	Source      string            `json:"source"`      // Source device/path
-	Size        uint64            `json:"size"`        // Size in GB
+	Driver      string            `json:"driver"` // zfs, btrfs, dir, lvm, ceph
+	Source      string            `json:"source"` // Source device/path
+	Size        uint64            `json:"size"`   // Size in GB
 	Description string            `json:"description"`
 	Config      map[string]string `json:"config"`
 }
@@ -382,8 +384,8 @@ func (c *StoragePoolCreateConfig) Validate() error {
 type StorageVolumeCreateConfig struct {
 	Name        string            `json:"name"`
 	Pool        string            `json:"pool"`
-	Type        string            `json:"type"`        // custom, container, image
-	Size        uint64            `json:"size"`        // Size in GB
+	Type        string            `json:"type"` // custom, container, image
+	Size        uint64            `json:"size"` // Size in GB
 	Description string            `json:"description"`
 	Config      map[string]string `json:"config"`
 }
@@ -396,9 +398,7 @@ func (c *StorageVolumeCreateConfig) Validate() error {
 	if c.Pool == "" {
 		return fmt.Errorf("pool name is required")
 	}
-	if c.Size < 0 {
-		return fmt.Errorf("volume size cannot be negative")
-	}
+	// Note: Size is uint64 and cannot be negative
 	return nil
 }
 

@@ -15,17 +15,28 @@ import (
 // ========== 核心错误定义 ==========
 
 var (
-	ErrRDMANotAvailable   = errors.New("RDMA not available on this system")
-	ErrDeviceNotFound     = errors.New("RDMA device not found")
-	ErrPDNotFound         = errors.New("Protection Domain not found")
-	ErrMRRegistrationFail = errors.New("Memory Region registration failed")
-	ErrQPCreateFail       = errors.New("Queue Pair creation failed")
-	ErrCQCreateFail       = errors.New("Completion Queue creation failed")
-	ErrConnectionFailed   = errors.New("RDMA connection failed")
-	ErrTimeout            = errors.New("RDMA operation timeout")
+	// ErrRDMANotAvailable indicates RDMA is not available on this system
+	ErrRDMANotAvailable   = errors.New("rdma not available on this system")
+	// ErrDeviceNotFound indicates RDMA device not found
+	ErrDeviceNotFound     = errors.New("rdma device not found")
+	// ErrPDNotFound indicates protection domain not found
+	ErrPDNotFound         = errors.New("protection domain not found")
+	// ErrMRRegistrationFail indicates memory region registration failed
+	ErrMRRegistrationFail = errors.New("memory region registration failed")
+	// ErrQPCreateFail indicates queue pair creation failed
+	ErrQPCreateFail       = errors.New("queue pair creation failed")
+	// ErrCQCreateFail indicates completion queue creation failed
+	ErrCQCreateFail       = errors.New("completion queue creation failed")
+	// ErrConnectionFailed indicates RDMA connection failed
+	ErrConnectionFailed   = errors.New("rdma connection failed")
+	// ErrTimeout indicates RDMA operation timeout
+	ErrTimeout            = errors.New("rdma operation timeout")
+	// ErrBufferTooSmall indicates buffer too small for operation
 	ErrBufferTooSmall     = errors.New("buffer too small for operation")
-	ErrInvalidState       = errors.New("invalid RDMA state for operation")
-	ErrNotConnected       = errors.New("RDMA not connected")
+	// ErrInvalidState indicates invalid RDMA state for operation
+	ErrInvalidState       = errors.New("invalid rdma state for operation")
+	// ErrNotConnected indicates RDMA not connected
+	ErrNotConnected       = errors.New("rdma not connected")
 )
 
 // ========== RDMA 设备和配置 ==========
@@ -168,9 +179,6 @@ type RDMAEndpoint struct {
 	// 配置
 	config *RDMAConfig
 
-	// 设备信息
-	device *DeviceInfo
-
 	// 网络地址
 	addr *net.TCPAddr
 
@@ -224,11 +232,17 @@ type RDMAEvent struct {
 type RDMAEventType int
 
 const (
+	// EventConnected indicates RDMA connection established
 	EventConnected RDMAEventType = iota
+	// EventDisconnected indicates RDMA connection disconnected
 	EventDisconnected
+	// EventError indicates RDMA error occurred
 	EventError
+	// EventReceive indicates data received
 	EventReceive
+	// EventSendComplete indicates send operation completed
 	EventSendComplete
+	// EventBufferAvailable indicates buffer is available
 	EventBufferAvailable
 )
 
@@ -236,9 +250,13 @@ const (
 type RDMAState int32
 
 const (
+	// StateDisconnected indicates RDMA is disconnected
 	StateDisconnected RDMAState = 0
+	// StateConnecting indicates RDMA is connecting
 	StateConnecting   RDMAState = 1
+	// StateConnected indicates RDMA is connected
 	StateConnected    RDMAState = 2
+	// StateClosing indicates RDMA is closing
 	StateClosing      RDMAState = 3
 )
 
@@ -342,7 +360,7 @@ func (e *RDMAEndpoint) cleanupRDMAResources() {
 // Close 关闭端点
 func (e *RDMAEndpoint) Close() error {
 	e.closed.Store(true)
-	e.Disconnect()
+	_ = e.Disconnect()
 	close(e.eventCh)
 	return nil
 }
@@ -447,8 +465,7 @@ func (e *RDMAEndpoint) Events() <-chan RDMAEvent {
 
 // ========== RDMA 管理器 ==========
 
-// RDAManager RDMA 管理器
-// 管理 RDMA 设备和端点
+// RDMAManager manages RDMA devices and endpoints
 type RDMAManager struct {
 	mu sync.RWMutex
 
@@ -584,7 +601,7 @@ func (m *RDMAManager) RemoveEndpoint(name string) error {
 		return nil
 	}
 
-	ep.Close()
+	_ = ep.Close()
 	delete(m.endpoints, name)
 	return nil
 }
@@ -595,7 +612,7 @@ func (m *RDMAManager) Close() error {
 	defer m.mu.Unlock()
 
 	for _, ep := range m.endpoints {
-		ep.Close()
+		_ = ep.Close()
 	}
 	m.endpoints = make(map[string]*RDMAEndpoint)
 	return nil
