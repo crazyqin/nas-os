@@ -7,6 +7,18 @@
 
 ---
 
+## [v2.266.1] - 2026-03-25
+
+### 修复
+- 🔧 golangci-lint配置修复 - linters-settings位置修正
+- 解决CI/CD workflow失败问题
+
+### 竞品研究
+- 飞牛fnOS：免费NAS、FN Connect内网穿透、AI相册(以文搜图)、影视刮削
+- 群晖DSM 7.3：Tiering分层存储、AI Console数据遮罩、Drive文件锁定
+
+---
+
 ## [v2.265.0] - 2026-03-24
 
 ### 六部协同
