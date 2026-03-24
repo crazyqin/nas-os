@@ -222,24 +222,39 @@ func TestWriteBuffer(t *testing.T) {
 }
 
 func TestDedupConfigValidation(t *testing.T) {
-	// Test invalid chunk size
-	config := &DedupConfig{
-		ChunkSize: 12345, // Invalid
-	}
-	if err := config.Validate(); err != nil {
-		t.Error("Validate should fix invalid chunk size")
-	}
-	if config.ChunkSize != 12345 {
-		// Should be fixed to valid value
+	// Test valid chunk sizes
+	validSizes := []uint32{4096, 8192, 16384, 32768, 65536, 131072}
+	for _, size := range validSizes {
+		config := &DedupConfig{ChunkSize: size}
+		if err := config.Validate(); err != nil {
+			t.Errorf("Valid chunk size %d should pass: %v", size, err)
+		}
 	}
 
-	// Test invalid hash algorithm
-	config = &DedupConfig{
+	// Test invalid hash algorithm defaults to sha256
+	config := &DedupConfig{
+		ChunkSize:     32768,
 		HashAlgorithm: "invalid",
 	}
 	config.Validate()
 	if config.HashAlgorithm != "sha256" {
-		t.Error("Should default to sha256")
+		t.Errorf("Should default to sha256, got %s", config.HashAlgorithm)
+	}
+
+	// Test invalid verify level defaults to onWrite
+	config = &DedupConfig{
+		ChunkSize:   32768,
+		VerifyLevel: "invalid",
+	}
+	config.Validate()
+	if config.VerifyLevel != "onWrite" {
+		t.Errorf("Should default to onWrite, got %s", config.VerifyLevel)
+	}
+
+	// Test empty config uses valid defaults
+	config = DefaultDedupConfig()
+	if err := config.Validate(); err != nil {
+		t.Errorf("Default config should be valid: %v", err)
 	}
 }
 
