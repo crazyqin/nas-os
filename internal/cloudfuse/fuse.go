@@ -18,18 +18,18 @@ import (
 
 // CloudFS 云存储文件系统
 type CloudFS struct {
-	mu          sync.RWMutex
-	config      *MountConfig
-	provider    cloudsync.Provider
-	root        *Dir
-	cache       *CacheManager
-	inoMap      map[string]uint64 // path -> inode
-	nextIno     uint64
-	uid         uint32
-	gid         uint32
-	ctx         context.Context
-	cancel      context.CancelFunc
-	stats       *MountStats
+	mu       sync.RWMutex
+	config   *MountConfig
+	provider cloudsync.Provider
+	root     *Dir
+	cache    *CacheManager
+	inoMap   map[string]uint64 // path -> inode
+	nextIno  uint64
+	uid      uint32
+	gid      uint32
+	ctx      context.Context
+	cancel   context.CancelFunc
+	stats    *MountStats
 }
 
 // NewCloudFS 创建云存储文件系统
@@ -104,12 +104,12 @@ func (f *CloudFS) getInode(path string) uint64 {
 
 // Dir 目录节点
 type Dir struct {
-	fs    *CloudFS
-	path  string
-	inode uint64
-	name  string
-	mu    sync.RWMutex
-	node  *FileNode
+	fs     *CloudFS
+	path   string
+	inode  uint64
+	name   string
+	mu     sync.RWMutex
+	node   *FileNode
 	loaded bool
 }
 
@@ -160,7 +160,7 @@ func (d *Dir) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	remotePath := filepath.Join(d.path, name)
 	fileInfo, err := d.fs.provider.Stat(ctx, remotePath)
 	if err != nil {
-		return nil, fuse.ENOENT
+		return nil, syscall.ENOENT
 	}
 
 	child := &FileNode{
@@ -241,7 +241,7 @@ func (d *Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 // Mkdir 创建目录
 func (d *Dir) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node, error) {
 	if d.fs.config.ReadOnly {
-		return nil, fuse.EPERM
+		return nil, syscall.EPERM
 	}
 
 	remotePath := filepath.Join(d.path, req.Name)
@@ -274,7 +274,7 @@ func (d *Dir) Mkdir(ctx context.Context, req *fuse.MkdirRequest) (fs.Node, error
 // Create 创建文件
 func (d *Dir) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.CreateResponse) (fs.Node, fs.Handle, error) {
 	if d.fs.config.ReadOnly {
-		return nil, nil, fuse.EPERM
+		return nil, nil, syscall.EPERM
 	}
 
 	remotePath := filepath.Join(d.path, req.Name)
@@ -302,7 +302,7 @@ func (d *Dir) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.Cr
 		if err := os.MkdirAll(filepath.Dir(cachePath), 0750); err == nil {
 			f, err := os.Create(cachePath)
 			if err == nil {
-				f.Close()
+				_ = f.Close()
 				file.cachedPath = cachePath
 				child.CachedPath = cachePath
 			}
@@ -319,19 +319,19 @@ func (d *Dir) Create(ctx context.Context, req *fuse.CreateRequest, resp *fuse.Cr
 // Remove 删除文件或目录
 func (d *Dir) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
 	if d.fs.config.ReadOnly {
-		return fuse.EPERM
+		return syscall.EPERM
 	}
 
 	remotePath := filepath.Join(d.path, req.Name)
 
+	var err error
 	if req.Dir {
-		if err := d.fs.provider.DeleteDir(ctx, remotePath); err != nil {
-			return err
-		}
+		err = d.fs.provider.DeleteDir(ctx, remotePath)
 	} else {
-		if err := d.fs.provider.Delete(ctx, remotePath); err != nil {
-			return err
-		}
+		err = d.fs.provider.Delete(ctx, remotePath)
+	}
+	if err != nil {
+		return err
 	}
 
 	// 删除缓存
@@ -355,23 +355,23 @@ func (d *Dir) Remove(ctx context.Context, req *fuse.RemoveRequest) error {
 // Rename 重命名
 func (d *Dir) Rename(ctx context.Context, req *fuse.RenameRequest, newDir fs.Node) error {
 	if d.fs.config.ReadOnly {
-		return fuse.EPERM
+		return syscall.EPERM
 	}
 
 	srcPath := filepath.Join(d.path, req.OldName)
-	
+
 	destDir, ok := newDir.(*Dir)
 	if !ok {
-		return fuse.Errno(syscall.EINVAL)
+		return syscall.EINVAL
 	}
-	
+
 	dstPath := filepath.Join(destDir.path, req.NewName)
 
 	// 大多数云盘API不支持原子重命名，使用复制+删除方式
 	// 这里暂时返回不支持，等待provider扩展
 	_ = srcPath
 	_ = dstPath
-	return fuse.ENOSYS
+	return syscall.ENOSYS
 }
 
 // File 文件节点
@@ -383,7 +383,6 @@ type File struct {
 	mu         sync.RWMutex
 	node       *FileNode
 	cachedPath string
-	writers    int
 }
 
 // Attr 返回文件属性
@@ -485,7 +484,7 @@ func (f *File) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadR
 // Write 写入文件内容
 func (f *File) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse.WriteResponse) error {
 	if f.fs.config.ReadOnly {
-		return fuse.EPERM
+		return syscall.EPERM
 	}
 
 	start := time.Now()
@@ -559,7 +558,7 @@ func (f *File) Release(ctx context.Context, req *fuse.ReleaseRequest) error {
 	if f.node.Dirty && !f.fs.config.ReadOnly {
 		go func() {
 			if f.cachedPath != "" {
-				f.fs.provider.Upload(context.Background(), f.cachedPath, f.path)
+				_ = f.fs.provider.Upload(context.Background(), f.cachedPath, f.path)
 				f.mu.Lock()
 				f.node.Dirty = false
 				f.mu.Unlock()
@@ -599,12 +598,12 @@ func (f *File) Setattr(ctx context.Context, req *fuse.SetattrRequest, resp *fuse
 
 // Getxattr 获取扩展属性
 func (f *File) Getxattr(ctx context.Context, req *fuse.GetxattrRequest, resp *fuse.GetxattrResponse) error {
-	return fuse.ENOSYS
+	return syscall.ENOSYS
 }
 
 // Listxattr 列出扩展属性
 func (f *File) Listxattr(ctx context.Context, req *fuse.ListxattrRequest, resp *fuse.ListxattrResponse) error {
-	return fuse.ENOSYS
+	return syscall.ENOSYS
 }
 
 func max(a, b int64) int64 {
