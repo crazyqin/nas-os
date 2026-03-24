@@ -104,15 +104,15 @@ func TestNVMeTestResult_Struct(t *testing.T) {
 	now := time.Now()
 	endTime := now.Add(2 * time.Minute)
 	result := &NVMeTestResult{
-		TestType:     NVMeTestShort,
-		Device:       "/dev/nvme0",
-		Status:       "complete",
-		Result:       "pass",
-		Progress:     100,
-		StartTime:    now,
-		EndTime:      &endTime,
-		Duration:     2 * time.Minute,
-		NumErrors:    0,
+		TestType:  NVMeTestShort,
+		Device:    "/dev/nvme0",
+		Status:    "complete",
+		Result:    "pass",
+		Progress:  100,
+		StartTime: now,
+		EndTime:   &endTime,
+		Duration:  2 * time.Minute,
+		NumErrors: 0,
 	}
 
 	assert.Equal(t, NVMeTestShort, result.TestType)
@@ -247,10 +247,10 @@ func TestNVMeMonitor_calculateNVMeErrorScore(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			info := &NVMeHealthInfo{
-				MediaErrors:      tt.mediaErrors,
-				IntegrityErrors:  tt.integrityErr,
-				ErrorLogEntries:  tt.errorLog,
-				UnsafeShutdowns:  tt.unsafeShutdown,
+				MediaErrors:     tt.mediaErrors,
+				IntegrityErrors: tt.integrityErr,
+				ErrorLogEntries: tt.errorLog,
+				UnsafeShutdowns: tt.unsafeShutdown,
 			}
 			score := monitor.calculateNVMeErrorScore(info)
 			assert.Equal(t, tt.expectedStatus, score.Status)
@@ -395,10 +395,10 @@ func TestNVMeMonitor_generateNVMeRecommendations(t *testing.T) {
 	monitor := NewNVMeMonitor()
 
 	tests := []struct {
-		name             string
-		info             *NVMeHealthInfo
-		components       *ScoreComponents
-		expectContains   []string
+		name           string
+		info           *NVMeHealthInfo
+		components     *ScoreComponents
+		expectContains []string
 	}{
 		{
 			name: "健康设备",
@@ -427,7 +427,7 @@ func TestNVMeMonitor_generateNVMeRecommendations(t *testing.T) {
 			info: &NVMeHealthInfo{
 				Usage: &NVMeUsageInfo{PercentageUsed: 85},
 			},
-			components: &ScoreComponents{},
+			components:     &ScoreComponents{},
 			expectContains: []string{"使用寿命"},
 		},
 		{
@@ -435,7 +435,7 @@ func TestNVMeMonitor_generateNVMeRecommendations(t *testing.T) {
 			info: &NVMeHealthInfo{
 				AvailableSpare: &NVMeSpareInfo{Percentage: 10},
 			},
-			components: &ScoreComponents{},
+			components:     &ScoreComponents{},
 			expectContains: []string{"备用"},
 		},
 		{
@@ -443,7 +443,7 @@ func TestNVMeMonitor_generateNVMeRecommendations(t *testing.T) {
 			info: &NVMeHealthInfo{
 				UnsafeShutdowns: 20,
 			},
-			components: &ScoreComponents{},
+			components:     &ScoreComponents{},
 			expectContains: []string{"非安全关机"},
 		},
 	}

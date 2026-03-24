@@ -35,32 +35,32 @@ type GlobalSearchResult struct {
 
 // GlobalSearchRequest 全局搜索请求
 type GlobalSearchRequest struct {
-	Query       string                  `json:"query"`               // 搜索查询
-	Types       []GlobalSearchResultType `json:"types,omitempty"`    // 限制结果类型
-	Limit       int                     `json:"limit,omitempty"`     // 每种类型最大结果数
-	TotalLimit  int                     `json:"totalLimit,omitempty"` // 总结果数限制
-	MinScore    float64                 `json:"minScore,omitempty"`  // 最小分数阈值
-	IncludeRaw  bool                    `json:"includeRaw,omitempty"` // 是否包含原始数据
+	Query      string                   `json:"query"`                // 搜索查询
+	Types      []GlobalSearchResultType `json:"types,omitempty"`      // 限制结果类型
+	Limit      int                      `json:"limit,omitempty"`      // 每种类型最大结果数
+	TotalLimit int                      `json:"totalLimit,omitempty"` // 总结果数限制
+	MinScore   float64                  `json:"minScore,omitempty"`   // 最小分数阈值
+	IncludeRaw bool                     `json:"includeRaw,omitempty"` // 是否包含原始数据
 }
 
 // GlobalSearchResponse 全局搜索响应
 type GlobalSearchResponse struct {
-	Query       string                `json:"query"`
-	Took        time.Duration         `json:"took"` // 搜索耗时
-	Total       int                   `json:"total"`
-	Files       []GlobalSearchResult  `json:"files,omitempty"`
-	Settings    []GlobalSearchResult  `json:"settings,omitempty"`
-	Apps        []GlobalSearchResult  `json:"apps,omitempty"`
-	Containers  []GlobalSearchResult  `json:"containers,omitempty"`
-	Suggestions []string              `json:"suggestions,omitempty"` // 搜索建议
+	Query       string               `json:"query"`
+	Took        time.Duration        `json:"took"` // 搜索耗时
+	Total       int                  `json:"total"`
+	Files       []GlobalSearchResult `json:"files,omitempty"`
+	Settings    []GlobalSearchResult `json:"settings,omitempty"`
+	Apps        []GlobalSearchResult `json:"apps,omitempty"`
+	Containers  []GlobalSearchResult `json:"containers,omitempty"`
+	Suggestions []string             `json:"suggestions,omitempty"` // 搜索建议
 }
 
 // GlobalSearchService 全局搜索服务
 type GlobalSearchService struct {
-	engine          *Engine
+	engine           *Engine
 	settingsRegistry *SettingsRegistry
-	appRegistry     *AppRegistry
-	logger          *zap.Logger
+	appRegistry      *AppRegistry
+	logger           *zap.Logger
 }
 
 // NewGlobalSearchService 创建全局搜索服务
@@ -74,10 +74,10 @@ func NewGlobalSearchService(
 		logger = zap.NewNop()
 	}
 	return &GlobalSearchService{
-		engine:          engine,
+		engine:           engine,
 		settingsRegistry: settingsRegistry,
-		appRegistry:     appRegistry,
-		logger:          logger,
+		appRegistry:      appRegistry,
+		logger:           logger,
 	}
 }
 
@@ -161,7 +161,7 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 	wg.Wait()
 
 	// 计算总数
-	response.Total = len(response.Files) + len(response.Settings) + 
+	response.Total = len(response.Files) + len(response.Settings) +
 		len(response.Apps) + len(response.Containers)
 
 	// 生成搜索建议
@@ -200,15 +200,15 @@ func (s *GlobalSearchService) searchFiles(ctx context.Context, req GlobalSearchR
 		}
 
 		result := GlobalSearchResult{
-			Type:       ResultTypeFile,
-			Score:      r.Score,
-			Title:      r.Name,
+			Type:        ResultTypeFile,
+			Score:       r.Score,
+			Title:       r.Name,
 			Description: r.Path,
-			Path:       r.Path,
-			Icon:       s.getFileIcon(r.Ext),
-			Category:   "文件",
-			MatchType:  "content",
-			MatchField: "name",
+			Path:        r.Path,
+			Icon:        s.getFileIcon(r.Ext),
+			Category:    "文件",
+			MatchType:   "content",
+			MatchField:  "name",
 		}
 
 		if req.IncludeRaw {
@@ -237,15 +237,15 @@ func (s *GlobalSearchService) searchSettings(req GlobalSearchRequest) []GlobalSe
 		}
 
 		result := GlobalSearchResult{
-			Type:       ResultTypeSetting,
-			Score:      r.Score,
-			Title:      r.Setting.Name,
+			Type:        ResultTypeSetting,
+			Score:       r.Score,
+			Title:       r.Setting.Name,
 			Description: r.Setting.Description,
-			Path:       r.Setting.Path,
-			Icon:       r.Setting.Icon,
-			Category:   r.Setting.Section,
-			MatchType:  r.MatchType,
-			MatchField: r.MatchField,
+			Path:        r.Setting.Path,
+			Icon:        r.Setting.Icon,
+			Category:    r.Setting.Section,
+			MatchType:   r.MatchType,
+			MatchField:  r.MatchField,
 		}
 
 		if req.IncludeRaw {
@@ -284,7 +284,10 @@ func (s *GlobalSearchService) searchApps(req GlobalSearchRequest, typeFilter map
 			if !typeFilter[ResultTypeApp] {
 				continue
 			}
-			app := r.Item.(AppItem)
+			app, ok := r.Item.(AppItem)
+			if !ok {
+				continue
+			}
 			result.Type = ResultTypeApp
 			result.Title = app.DisplayName
 			if result.Title == "" {
@@ -304,7 +307,10 @@ func (s *GlobalSearchService) searchApps(req GlobalSearchRequest, typeFilter map
 			if !typeFilter[ResultTypeContainer] {
 				continue
 			}
-			container := r.Item.(ContainerItem)
+			container, ok := r.Item.(ContainerItem)
+			if !ok {
+				continue
+			}
 			result.Type = ResultTypeContainer
 			result.Title = container.Name
 			result.Description = container.Image
@@ -439,9 +445,9 @@ func (s *GlobalSearchService) SearchByType(ctx context.Context, query string, re
 	}
 
 	return s.GlobalSearch(ctx, GlobalSearchRequest{
-		Query:  query,
-		Types:  []GlobalSearchResultType{resultType},
-		Limit:  limit,
+		Query: query,
+		Types: []GlobalSearchResultType{resultType},
+		Limit: limit,
 	})
 }
 

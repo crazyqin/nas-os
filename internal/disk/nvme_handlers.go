@@ -648,8 +648,8 @@ func (h *NVMeHandlers) getNVMeSummary(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"summary":  summary,
-			"devices":  devices,
+			"summary":    summary,
+			"devices":    devices,
 			"lastUpdate": time.Now(),
 		},
 	})

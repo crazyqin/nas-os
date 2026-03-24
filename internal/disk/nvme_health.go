@@ -25,28 +25,28 @@ type NVMeHealthInfo struct {
 	Size       uint64 `json:"size"`
 
 	// 健康状态
-	OverallHealth    string      `json:"overallHealth"`    // ok/warn/critical
-	SmartStatus      string      `json:"smartStatus"`      // PASSED/FAILED
-	HealthPercentage uint8       `json:"healthPercentage"` // 0-100
-	Status           DiskStatus  `json:"status"`
+	OverallHealth    string       `json:"overallHealth"`    // ok/warn/critical
+	SmartStatus      string       `json:"smartStatus"`      // PASSED/FAILED
+	HealthPercentage uint8        `json:"healthPercentage"` // 0-100
+	Status           DiskStatus   `json:"status"`
 	HealthScore      *HealthScore `json:"healthScore,omitempty"`
 
 	// NVMe SMART属性
-	Temperature      *NVMeTempInfo   `json:"temperature,omitempty"`
-	Usage            *NVMeUsageInfo  `json:"usage,omitempty"`
-	PowerOnHours     uint64          `json:"powerOnHours"`
-	PowerCycles      uint64          `json:"powerCycles"`
-	AvailableSpare   *NVMeSpareInfo  `json:"availableSpare,omitempty"`
-	MediaErrors      uint64          `json:"mediaErrors"`
-	CriticalWarnings uint8           `json:"criticalWarnings"`
+	Temperature      *NVMeTempInfo  `json:"temperature,omitempty"`
+	Usage            *NVMeUsageInfo `json:"usage,omitempty"`
+	PowerOnHours     uint64         `json:"powerOnHours"`
+	PowerCycles      uint64         `json:"powerCycles"`
+	AvailableSpare   *NVMeSpareInfo `json:"availableSpare,omitempty"`
+	MediaErrors      uint64         `json:"mediaErrors"`
+	CriticalWarnings uint8          `json:"criticalWarnings"`
 
 	// 详细SMART属性
 	ControllerBusyTime uint64 `json:"controllerBusyTime"`
 	UnsafeShutdowns    uint64 `json:"unsafeShutdowns"`
 	IntegrityErrors    uint64 `json:"integrityErrors"`
 	ErrorLogEntries    uint64 `json:"errorLogEntries"`
-	WarningTempTime    uint64 `json:"warningTempTime"`    // 温度超过警告阈值的时间(分钟)
-	CriticalTempTime   uint64 `json:"criticalTempTime"`   // 温度超过严重阈值的时间(分钟)
+	WarningTempTime    uint64 `json:"warningTempTime"`  // 温度超过警告阈值的时间(分钟)
+	CriticalTempTime   uint64 `json:"criticalTempTime"` // 温度超过严重阈值的时间(分钟)
 
 	// 历史数据
 	DataUnitsRead     uint64 `json:"dataUnitsRead"`
@@ -63,24 +63,24 @@ type NVMeHealthInfo struct {
 
 // NVMeTempInfo NVMe温度信息
 type NVMeTempInfo struct {
-	Current        uint8 `json:"current"`        // 当前温度
-	Warning        uint8 `json:"warning"`        // 警告阈值
-	Critical       uint8 `json:"critical"`       // 严重阈值
-	MinTemp        uint8 `json:"minTemp"`        // 历史最低温度
-	MaxTemp        uint8 `json:"maxTemp"`        // 历史最高温度
-	CompositeTemp  uint8 `json:"compositeTemp"`  // 复合温度
+	Current        uint8  `json:"current"`        // 当前温度
+	Warning        uint8  `json:"warning"`        // 警告阈值
+	Critical       uint8  `json:"critical"`       // 严重阈值
+	MinTemp        uint8  `json:"minTemp"`        // 历史最低温度
+	MaxTemp        uint8  `json:"maxTemp"`        // 历史最高温度
+	CompositeTemp  uint8  `json:"compositeTemp"`  // 复合温度
 	OverTempEvents uint64 `json:"overTempEvents"` // 过热事件次数
 }
 
 // NVMeUsageInfo NVMe使用情况信息
 type NVMeUsageInfo struct {
-	PercentageUsed   uint8  `json:"percentageUsed"`   // 已使用百分比 (0-100)
-	DataUnitsWritten uint64 `json:"dataUnitsWritten"` // 写入数据单位
-	TBW             float64 `json:"tbw"`              // 写入量(TB)
-	TotalWrites     float64 `json:"totalWrites"`      // 总写入量(GB)
-	TotalReads      float64 `json:"totalReads"`       // 总读取量(GB)
-	WearLevel       string  `json:"wearLevel"`        // low/medium/high
-	EstimatedLife   string  `json:"estimatedLife"`    // 预估剩余寿命
+	PercentageUsed   uint8   `json:"percentageUsed"`   // 已使用百分比 (0-100)
+	DataUnitsWritten uint64  `json:"dataUnitsWritten"` // 写入数据单位
+	TBW              float64 `json:"tbw"`              // 写入量(TB)
+	TotalWrites      float64 `json:"totalWrites"`      // 总写入量(GB)
+	TotalReads       float64 `json:"totalReads"`       // 总读取量(GB)
+	WearLevel        string  `json:"wearLevel"`        // low/medium/high
+	EstimatedLife    string  `json:"estimatedLife"`    // 预估剩余寿命
 }
 
 // NVMeSpareInfo NVMe备用空间信息
@@ -103,17 +103,17 @@ const (
 
 // NVMeTestResult NVMe测试结果
 type NVMeTestResult struct {
-	TestType     NVMeTestType `json:"testType"`
-	Device       string       `json:"device"`
-	Status       string       `json:"status"`       // running/complete/aborted/failed
-	Result       string       `json:"result"`       // pass/fail
-	Progress     uint8        `json:"progress"`     // 0-100
-	StartTime    time.Time    `json:"startTime"`
-	EndTime      *time.Time   `json:"endTime,omitempty"`
+	TestType     NVMeTestType  `json:"testType"`
+	Device       string        `json:"device"`
+	Status       string        `json:"status"`   // running/complete/aborted/failed
+	Result       string        `json:"result"`   // pass/fail
+	Progress     uint8         `json:"progress"` // 0-100
+	StartTime    time.Time     `json:"startTime"`
+	EndTime      *time.Time    `json:"endTime,omitempty"`
 	Duration     time.Duration `json:"duration"`
-	ErrorCode    uint8        `json:"errorCode,omitempty"`
-	ErrorMessage string       `json:"errorMessage,omitempty"`
-	NumErrors    uint8        `json:"numErrors"` // 测试发现的错误数
+	ErrorCode    uint8         `json:"errorCode,omitempty"`
+	ErrorMessage string        `json:"errorMessage,omitempty"`
+	NumErrors    uint8         `json:"numErrors"` // 测试发现的错误数
 }
 
 // NVMeMonitor NVMe监控器
@@ -212,7 +212,7 @@ func (m *NVMeMonitor) collectNVMeHealth(device string) (*NVMeHealthInfo, error) 
 	if err := m.getNVMeSmartLog(device, info); err != nil {
 		// 2. 回退到 smartctl
 		if fallbackErr := m.getNVMeSmartctl(device, info); fallbackErr != nil {
-			return nil, fmt.Errorf("获取NVMe健康数据失败: %v (nvme-cli: %v, smartctl: %v)", 
+			return nil, fmt.Errorf("获取NVMe健康数据失败: %v (nvme-cli: %v, smartctl: %v)",
 				fallbackErr, err, fallbackErr)
 		}
 	}
@@ -233,7 +233,7 @@ func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error
 	}
 
 	var ctrlData struct {
-		ModelNumber string `json:"mn"`
+		ModelNumber  string `json:"mn"`
 		SerialNumber string `json:"sn"`
 		Firmware     string `json:"fr"`
 		TotalNVM     uint64 `json:"tnvmcap"`
@@ -257,27 +257,27 @@ func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error
 	}
 
 	var smartLog struct {
-		CriticalWarning        uint8  `json:"critical_warning"`
-		Temperature            uint16 `json:"temperature"`
-		AvailableSpare         uint8  `json:"available_spare"`
+		CriticalWarning         uint8  `json:"critical_warning"`
+		Temperature             uint16 `json:"temperature"`
+		AvailableSpare          uint8  `json:"available_spare"`
 		AvailableSpareThreshold uint8  `json:"available_spare_threshold"`
-		PercentageUsed         uint8  `json:"percentage_used"`
-		DataUnitsRead          uint64 `json:"data_units_read,string"`
-		DataUnitsWritten       uint64 `json:"data_units_written,string"`
-		HostReadCommands       uint64 `json:"host_read_commands,string"`
-		HostWriteCommands      uint64 `json:"host_write_commands,string"`
-		ControllerBusyTime     uint64 `json:"controller_busy_time,string"`
-		PowerCycles            uint64 `json:"power_cycles,string"`
-		PowerOnHours           uint64 `json:"power_on_hours,string"`
-		UnsafeShutdowns        uint64 `json:"unsafe_shutdowns,string"`
-		MediaErrors            uint64 `json:"media_errors,string"`
-		NumErrLogEntries       uint64 `json:"num_err_log_entries,string"`
-		WarningTempTime        uint32 `json:"warning_temp_time"`
-		CriticalCompTempTime   uint32 `json:"critical_comp_temp_time"`
-		ThmTemp1TransCount     uint32 `json:"thm_temp1_trans_count,string"`
-		ThmTemp2TransCount     uint32 `json:"thm_temp2_trans_count,string"`
-		ThmTemp1TotalTime      uint32 `json:"thm_temp1_total_time,string"`
-		ThmTemp2TotalTime      uint32 `json:"thm_temp2_total_time,string"`
+		PercentageUsed          uint8  `json:"percentage_used"`
+		DataUnitsRead           uint64 `json:"data_units_read,string"`
+		DataUnitsWritten        uint64 `json:"data_units_written,string"`
+		HostReadCommands        uint64 `json:"host_read_commands,string"`
+		HostWriteCommands       uint64 `json:"host_write_commands,string"`
+		ControllerBusyTime      uint64 `json:"controller_busy_time,string"`
+		PowerCycles             uint64 `json:"power_cycles,string"`
+		PowerOnHours            uint64 `json:"power_on_hours,string"`
+		UnsafeShutdowns         uint64 `json:"unsafe_shutdowns,string"`
+		MediaErrors             uint64 `json:"media_errors,string"`
+		NumErrLogEntries        uint64 `json:"num_err_log_entries,string"`
+		WarningTempTime         uint32 `json:"warning_temp_time"`
+		CriticalCompTempTime    uint32 `json:"critical_comp_temp_time"`
+		ThmTemp1TransCount      uint32 `json:"thm_temp1_trans_count,string"`
+		ThmTemp2TransCount      uint32 `json:"thm_temp2_trans_count,string"`
+		ThmTemp1TotalTime       uint32 `json:"thm_temp1_total_time,string"`
+		ThmTemp2TotalTime       uint32 `json:"thm_temp2_total_time,string"`
 	}
 
 	if err := json.Unmarshal(output, &smartLog); err != nil {
@@ -303,7 +303,7 @@ func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error
 
 	// 温度信息
 	info.Temperature = &NVMeTempInfo{
-		Current:       uint8(smartLog.Temperature - 273), // 开尔文转摄氏度
+		Current:        uint8(smartLog.Temperature - 273), // 开尔文转摄氏度
 		OverTempEvents: uint64(smartLog.ThmTemp1TransCount + smartLog.ThmTemp2TransCount),
 	}
 
@@ -311,9 +311,9 @@ func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error
 	info.Usage = &NVMeUsageInfo{
 		PercentageUsed:   smartLog.PercentageUsed,
 		DataUnitsWritten: smartLog.DataUnitsWritten,
-		TBW:             float64(smartLog.DataUnitsWritten) * 512 / (1024 * 1024 * 1024), // 转换为TB
-		TotalWrites:     float64(smartLog.DataUnitsWritten) * 512 / (1024 * 1024),        // 转换为GB
-		TotalReads:      float64(smartLog.DataUnitsRead) * 512 / (1024 * 1024),           // 转换为GB
+		TBW:              float64(smartLog.DataUnitsWritten) * 512 / (1024 * 1024 * 1024), // 转换为TB
+		TotalWrites:      float64(smartLog.DataUnitsWritten) * 512 / (1024 * 1024),        // 转换为GB
+		TotalReads:       float64(smartLog.DataUnitsRead) * 512 / (1024 * 1024),           // 转换为GB
 	}
 
 	// 根据使用百分比判断磨损等级
@@ -870,10 +870,10 @@ func (m *NVMeMonitor) getNVMeTestResult(device string) *NVMeTestResult {
 		CurrentOperation uint8 `json:"current_operation"`
 		Completion       uint8 `json:"completion"`
 		Results          []struct {
-			Status      uint8 `json:"status"`
-			Segment     uint8 `json:"segment"`
-			ValidDiagnostics uint8 `json:"valid_diagnostic"`
-			PowerOnHours uint64 `json:"power_on_hours"`
+			Status           uint8  `json:"status"`
+			Segment          uint8  `json:"segment"`
+			ValidDiagnostics uint8  `json:"valid_diagnostic"`
+			PowerOnHours     uint64 `json:"power_on_hours"`
 		} `json:"results"`
 	}
 

@@ -194,8 +194,12 @@ func (pm *PolicyManager) savePolicies() {
 		return
 	}
 
-	os.MkdirAll(pm.storage, 0755)
-	os.WriteFile(filepath.Join(pm.storage, "policies.json"), data, 0644)
+	if err := os.MkdirAll(pm.storage, 0755); err != nil {
+		return
+	}
+	if err := os.WriteFile(filepath.Join(pm.storage, "policies.json"), data, 0644); err != nil {
+		return
+	}
 }
 
 // PolicyUpdate represents updates to a policy
@@ -321,7 +325,9 @@ func (al *AuditLogger) loadLogs() {
 		return
 	}
 
-	json.Unmarshal(data, &al.logs)
+	if err := json.Unmarshal(data, &al.logs); err != nil {
+		return
+	}
 }
 
 // saveLogs saves logs to storage
@@ -335,8 +341,12 @@ func (al *AuditLogger) saveLogs() {
 		return
 	}
 
-	os.MkdirAll(al.storage, 0755)
-	os.WriteFile(filepath.Join(al.storage, "audit_logs.json"), data, 0644)
+	if err := os.MkdirAll(al.storage, 0755); err != nil {
+		return
+	}
+	if err := os.WriteFile(filepath.Join(al.storage, "audit_logs.json"), data, 0644); err != nil {
+		return
+	}
 }
 
 // AuditFilter represents filters for audit log queries
