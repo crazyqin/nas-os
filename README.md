@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.254.0 Stable (2026-03-24)
+> **最新版本**: v2.255.0 Stable (2026-03-24)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.254.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.255.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -68,17 +68,17 @@
 ```bash
 # 下载 (根据你的架构选择)
 # AMD64 (x86_64)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.254.0/nasd-linux-amd64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.255.0/nasd-linux-amd64
 chmod +x nasd-linux-amd64
 sudo mv nasd-linux-amd64 /usr/local/bin/nasd
 
 # ARM64 (Orange Pi 5, Raspberry Pi 4/5)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.254.0/nasd-linux-arm64
+wget https://github.com/crazyqin/nas-os/releases/download/v2.255.0/nasd-linux-arm64
 chmod +x nasd-linux-arm64
 sudo mv nasd-linux-arm64 /usr/local/bin/nasd
 
 # ARMv7 (Raspberry Pi 3, 旧款 ARM)
-wget https://github.com/crazyqin/nas-os/releases/download/v2.254.0/nasd-linux-armv7
+wget https://github.com/crazyqin/nas-os/releases/download/v2.255.0/nasd-linux-armv7
 
 chmod +x nasd-linux-armv7
 sudo mv nasd-linux-armv7 /usr/local/bin/nasd
@@ -91,7 +91,7 @@ nasd --version
 
 ```bash
 # 拉取镜像
-docker pull ghcr.io/crazyqin/nas-os:v2.254.0
+docker pull ghcr.io/crazyqin/nas-os:v2.255.0
 
 
 # 运行容器
@@ -101,7 +101,7 @@ docker run -d \
   -p 8080:8080 \
   -v /data:/data \
   -v /etc/nas-os:/config \
-  ghcr.io/crazyqin/nas-os:v2.254.0
+  ghcr.io/crazyqin/nas-os:v2.255.0
 
 
 # 查看日志
@@ -177,6 +177,21 @@ sudo nasd
 | GET | /api/v1/config | 获取配置 |
 | PUT | /api/v1/config | 更新配置 |
 | POST | /api/v1/config/reload | 重载配置 |
+
+### WriteOnce 不可变存储
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/immutable | 列出不可变记录 |
+| POST | /api/v1/immutable | 锁定路径（创建不可变快照） |
+| GET | /api/v1/immutable/:id | 获取记录详情 |
+| DELETE | /api/v1/immutable/:id | 解锁路径 |
+| POST | /api/v1/immutable/:id/extend | 延长锁定时间 |
+| POST | /api/v1/immutable/:id/restore | 从快照恢复 |
+| GET | /api/v1/immutable/status | 获取路径锁定状态 |
+| GET | /api/v1/immutable/statistics | 获取统计信息 |
+| POST | /api/v1/immutable/check-ransomware | 检查防勒索保护 |
+| POST | /api/v1/immutable/quick-lock | 快速锁定 |
+| POST | /api/v1/immutable/batch-lock | 批量锁定 |
 
 完整 API 文档请查看 [docs/API_GUIDE.md](docs/API_GUIDE.md)
 
