@@ -447,7 +447,9 @@ func (a *ICEAgent) checkDirectConnectivity(pair *ICECandidatePair) bool {
 	}
 
 	// Wait for response with timeout
-	a.localConn.SetReadDeadline(time.Now().Add(time.Second))
+	if err := a.localConn.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+		return false
+	}
 	response := make([]byte, 1500)
 	n, _, err := a.localConn.ReadFromUDP(response)
 	if err != nil {
