@@ -9,13 +9,27 @@ import (
 
 // Handler API 处理器
 type Handler struct {
-	manager *Manager
+	manager   *Manager
+	metrics   *Metrics
+	generator *EfficiencyReportGenerator
 }
 
 // NewHandler 创建 API 处理器
 func NewHandler(manager *Manager) *Handler {
+	metrics := NewMetrics()
 	return &Handler{
-		manager: manager,
+		manager:   manager,
+		metrics:   metrics,
+		generator: NewEfficiencyReportGenerator(manager, metrics, nil),
+	}
+}
+
+// NewHandlerWithGenerator 创建带自定义生成器的 API 处理器
+func NewHandlerWithGenerator(manager *Manager, metrics *Metrics, generator *EfficiencyReportGenerator) *Handler {
+	return &Handler{
+		manager:   manager,
+		metrics:   metrics,
+		generator: generator,
 	}
 }
 
