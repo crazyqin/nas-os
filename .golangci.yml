@@ -82,6 +82,11 @@ linters:
       - path: _test\.go
         linters:
           - errcheck
+          - gochecknoinits
+      # 非测试文件中的 init 函数也允许（用于注册等场景）
+      - path: api/middleware/response_time\.go
+        linters:
+          - gochecknoinits
       # 生成的代码跳过检查
       - path: docs/swagger/docs\.go
         linters:
