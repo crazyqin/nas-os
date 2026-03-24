@@ -7,7 +7,7 @@
 #
 # 功能特性:
 # - 支持 minimal（distroless，约 15-18MB）和 full（alpine，约 35-40MB）两种镜像
-# - 同时推送到 GHCR 和 Docker Hub
+# - 推送到 GHCR（Docker Hub 待仓库创建后启用）
 # - Matrix 策略并行构建多架构（解决超时问题）
 # - Go 模块缓存 + 构建缓存双重优化
 # - Cosign keyless 签名 + SBOM 生成
@@ -46,8 +46,8 @@ env:
   GO_VERSION: '1.26'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  # Docker Hub 配置
-  DOCKERHUB_IMAGE: nasos/nas-os
+  # Docker Hub 配置（仓库创建后启用）
+  # DOCKERHUB_IMAGE: nasos/nas-os
   # 缓存版本号（每次修改 Dockerfile 或 workflow 时递增）
   CACHE_VERSION: 'v13'
   # Node.js 24 支持
@@ -152,12 +152,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: 登录 Docker Hub
-        uses: docker/login-action@v3
-        if: github.event_name != 'pull_request'
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Docker Hub 登录（仓库创建后启用）
+      # - name: 登录 Docker Hub
+      #   uses: docker/login-action@v3
+      #   if: github.event_name != 'pull_request'
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 设置 Go 环境
         uses: actions/setup-go@v5
@@ -191,7 +192,6 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.SHORT_SHA }}-${{ matrix.suffix }}
-            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.sha.outputs.SHORT_SHA }}-${{ matrix.suffix }}
           # 架构专用缓存
           cache-from: |
             type=gha,scope=${{ env.CACHE_VERSION }}-${{ matrix.platform }}
@@ -234,11 +234,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: 登录 Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Docker Hub 登录（仓库创建后启用）
+      # - name: 登录 Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 提取短 SHA
         id: sha
@@ -264,60 +265,52 @@ jobs:
             org.opencontainers.image.description=Home NAS Management System
             org.opencontainers.image.vendor=NAS-OS Team
 
-      - name: 提取元数据 (Docker Hub)
-        id: meta-dockerhub
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.DOCKERHUB_IMAGE }}
-          tags: |
-            type=ref,event=branch,suffix=-{{ sha }}
-            type=ref,event=branch,enable=${{ github.ref == 'refs/heads/master' }},suffix=
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha,prefix=,suffix=,format=short
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
-            type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
-          labels: |
-            org.opencontainers.image.title=NAS-OS
-            org.opencontainers.image.description=Home NAS Management System
-            org.opencontainers.image.vendor=NAS-OS Team
+      # Docker Hub 元数据（仓库创建后启用）
+      # - name: 提取元数据 (Docker Hub)
+      #   id: meta-dockerhub
+      #   uses: docker/metadata-action@v5
+      #   with:
+      #     images: ${{ env.DOCKERHUB_IMAGE }}
+      #     tags: |
+      #       type=ref,event=branch,suffix=-{{ sha }}
+      #       type=ref,event=branch,enable=${{ github.ref == 'refs/heads/master' }},suffix=
+      #       type=ref,event=pr
+      #       type=semver,pattern={{version}}
+      #       type=semver,pattern={{major}}.{{minor}}
+      #       type=semver,pattern={{major}}
+      #       type=sha,prefix=,suffix=,format=short
+      #       type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+      #       type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
+      #     labels: |
+      #       org.opencontainers.image.title=NAS-OS
+      #       org.opencontainers.image.description=Home NAS Management System
+      #       org.opencontainers.image.vendor=NAS-OS Team
 
       - name: 创建并推送多架构 Manifest
         id: merge
         run: |
           SHORT_SHA="${{ steps.sha.outputs.SHORT_SHA }}"
-          
-          # 创建 manifest list
+
+          # 创建 manifest list (仅 GHCR)
           docker buildx imagetools create -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
-          
-          # 推送到 Docker Hub
-          docker buildx imagetools create -t ${{ env.DOCKERHUB_IMAGE }}:${SHORT_SHA} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
-          
+
+          # Docker Hub 推送（仓库创建后启用）
+          # docker buildx imagetools create -t ${{ env.DOCKERHUB_IMAGE }}:${SHORT_SHA} \
+          #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
+          #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
+          #   ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
+
           # 获取 digest
           DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} --format '{{.Digest}}')
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
           echo "✅ Manifest 创建完成: $DIGEST"
-          
+
           # 为其他标签创建 manifest
           for TAG in $(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' '); do
             if [ "$TAG" != "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}" ]; then
-              docker buildx imagetools create -t "$TAG" \
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
-                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7 || true
-            fi
-          done
-          
-          for TAG in $(echo "${{ steps.meta-dockerhub.outputs.tags }}" | tr '\n' ' '); do
-            if [ "$TAG" != "${{ env.DOCKERHUB_IMAGE }}:${SHORT_SHA}" ]; then
               docker buildx imagetools create -t "$TAG" \
                 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
                 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
@@ -332,11 +325,6 @@ jobs:
           echo "**GHCR 镜像地址:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Docker Hub 镜像地址:**" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.DOCKERHUB_IMAGE }}:${{ steps.sha.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**支持平台:** \`amd64\`, \`arm64\`, \`arm/v7\`" >> $GITHUB_STEP_SUMMARY
