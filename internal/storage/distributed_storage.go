@@ -1312,7 +1312,12 @@ func (dm *DistributedManager) GetNodeForKey(poolID, key string) (*Node, error) {
 		// 简单哈希取模
 		hash := uint32(0)
 		for _, c := range key {
-			hash = hash*31 + uint32(c)
+			// 安全转换：rune 可能是负数，使用安全的转换方式
+			if c >= 0 {
+				hash = hash*31 + uint32(c)
+			} else {
+				hash = hash*31 + uint32(c&0x7FFFFFFF) // 取绝对值的低31位
+			}
 		}
 		// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值
 		shardIndexVal := hash % uint32(len(pool.Shards))
@@ -1369,7 +1374,12 @@ func (dm *DistributedManager) GetReplicaNodes(poolID, key string) ([]*Node, erro
 	case ShardingHash, ShardingConsistent:
 		hash := uint32(0)
 		for _, c := range key {
-			hash = hash*31 + uint32(c)
+			// 安全转换：rune 可能是负数，使用安全的转换方式
+			if c >= 0 {
+				hash = hash*31 + uint32(c)
+			} else {
+				hash = hash*31 + uint32(c&0x7FFFFFFF) // 取绝对值的低31位
+			}
 		}
 		// 安全转换：hash % uint32(...) 结果不会超过 uint32 最大值
 		shardIndexVal := hash % uint32(len(pool.Shards))
