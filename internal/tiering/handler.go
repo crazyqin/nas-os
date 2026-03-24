@@ -2,6 +2,7 @@
 package tiering
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -64,6 +65,23 @@ func (h *Handler) RegisterRoutes(r *gin.RouterGroup) {
 		tiering.GET("/status", h.GetStatus)
 		tiering.GET("/stats", h.GetStats)
 		tiering.GET("/stats/:type", h.GetTierStats)
+
+		// 效率报告 API (v2.4.0 新增)
+		tiering.GET("/reports/efficiency", h.GetEfficiencyReport)
+		tiering.GET("/reports/distribution", h.GetDataDistribution)
+		tiering.GET("/reports/migration-efficiency", h.GetMigrationEfficiency)
+		tiering.GET("/reports/cost-analysis", h.GetCostAnalysis)
+		tiering.GET("/reports/capacity-forecast", h.GetCapacityForecast)
+		tiering.GET("/reports/health-score", h.GetHealthScore)
+		tiering.GET("/reports/recommendations", h.GetRecommendations)
+
+		// 优化操作 API
+		tiering.POST("/optimize/ssd-cache", h.OptimizeSSDCache)
+		tiering.POST("/optimize/auto-migrate", h.AutoMigrate)
+
+		// 指标导出
+		tiering.GET("/metrics", h.GetMetrics)
+		tiering.GET("/metrics/prometheus", h.GetPrometheusMetrics)
 	}
 }
 
@@ -400,4 +418,161 @@ func (h *Handler) GetTierStats(c *gin.Context) {
 			"stats": stats,
 		},
 	})
+}
+
+// ==================== 效率报告 API ====================
+
+// GetEfficiencyReport 获取完整的分层效率报告
+func (h *Handler) GetEfficiencyReport(c *gin.Context) {
+	period := c.DefaultQuery("period", "daily")
+
+	report, err := h.generator.GenerateReport(period)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "生成报告失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    report,
+	})
+}
+
+// GetDataDistribution 获取冷热数据分布报告
+func (h *Handler) GetDataDistribution(c *gin.Context) {
+	report := h.generator.generateDataDistribution()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    report,
+	})
+}
+
+// GetMigrationEfficiency 获取迁移效率统计报告
+func (h *Handler) GetMigrationEfficiency(c *gin.Context) {
+	period := c.DefaultQuery("period", "daily")
+	report := h.generator.generateMigrationEfficiency(period)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    report,
+	})
+}
+
+// GetCostAnalysis 获取成本分析报告
+func (h *Handler) GetCostAnalysis(c *gin.Context) {
+	report := h.generator.generateCostAnalysis()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    report,
+	})
+}
+
+// GetCapacityForecast 获取容量趋势预测报告
+func (h *Handler) GetCapacityForecast(c *gin.Context) {
+	days := 90
+	if d := c.Query("days"); d != "" {
+		if parsed, err := parseIntParam(d); err == nil {
+			days = parsed
+		}
+	}
+
+	report := h.generator.generateCapacityForecast(days)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    report,
+	})
+}
+
+// GetHealthScore 获取分层健康评分
+func (h *Handler) GetHealthScore(c *gin.Context) {
+	score := h.generator.calculateHealthScore()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    score,
+	})
+}
+
+// GetRecommendations 获取优化建议
+func (h *Handler) GetRecommendations(c *gin.Context) {
+	recommendations := h.generator.generateRecommendations()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    recommendations,
+	})
+}
+
+// OptimizeSSDCache 优化 SSD 缓存层
+func (h *Handler) OptimizeSSDCache(c *gin.Context) {
+	result, err := h.manager.OptimizeSSDCache()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "优化失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "SSD缓存优化已完成",
+		"data":    result,
+	})
+}
+
+// AutoMigrate 执行自动数据迁移
+func (h *Handler) AutoMigrate(c *gin.Context) {
+	result, err := h.manager.AutoMigrate()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "自动迁移失败: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "自动迁移已完成",
+		"data":    result,
+	})
+}
+
+// GetMetrics 获取监控指标
+func (h *Handler) GetMetrics(c *gin.Context) {
+	summary := h.metrics.GetSummary()
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    summary,
+	})
+}
+
+// GetPrometheusMetrics 获取 Prometheus 格式指标
+func (h *Handler) GetPrometheusMetrics(c *gin.Context) {
+	output := h.metrics.ExportPrometheus()
+
+	c.Data(http.StatusOK, "text/plain; charset=utf-8", []byte(output))
+}
+
+// parseIntParam 解析整数参数
+func parseIntParam(s string) (int, error) {
+	var result int
+	_, err := fmt.Sscanf(s, "%d", &result)
+	return result, err
 }
