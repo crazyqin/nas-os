@@ -21,11 +21,15 @@ const (
 	// StrategyMask replaces sensitive data with asterisks
 	StrategyMask DesensitizationStrategy = "mask" // Replace with ****
 	// StrategyHash applies one-way hash to sensitive data
-	StrategyHash     DesensitizationStrategy = "hash"     // One-way hash
+	StrategyHash DesensitizationStrategy = "hash" // One-way hash
+	// StrategyTokenize applies reversible tokenization
 	StrategyTokenize DesensitizationStrategy = "tokenize" // Reversible tokenization
-	StrategyRedact   DesensitizationStrategy = "redact"   // Complete removal
-	StrategyPartial  DesensitizationStrategy = "partial"  // Show partial info
-	StrategyEncrypt  DesensitizationStrategy = "encrypt"  // AES encryption
+	// StrategyRedact removes data completely
+	StrategyRedact DesensitizationStrategy = "redact" // Complete removal
+	// StrategyPartial shows partial info
+	StrategyPartial DesensitizationStrategy = "partial" // Show partial info
+	// StrategyEncrypt applies AES encryption
+	StrategyEncrypt DesensitizationStrategy = "encrypt" // AES encryption
 )
 
 // PIIType represents types of personally identifiable information
@@ -35,20 +39,33 @@ const (
 	// PIIName represents personally identifiable name
 	PIIName PIIType = "name"
 	// PIIEmail represents email address
-	PIIEmail         PIIType = "email"
-	PIIPhone         PIIType = "phone"
-	PIIIDCard        PIIType = "id_card"
-	PIIPassport      PIIType = "passport"
-	PIICreditCard    PIIType = "credit_card"
-	PIIBankAccount   PIIType = "bank_account"
-	PIIAddress       PIIType = "address"
-	PIIIPAddress     PIIType = "ip_address"
-	PIIMACAddress    PIIType = "mac_address"
-	PIILicensePlate  PIIType = "license_plate"
-	PIISocialMedia   PIIType = "social_media"
-	PIIDateOfBirth   PIIType = "date_of_birth"
+	PIIEmail PIIType = "email"
+	// PIIPhone represents phone number
+	PIIPhone PIIType = "phone"
+	// PIIIDCard represents ID card number
+	PIIIDCard PIIType = "id_card"
+	// PIIPassport represents passport number
+	PIIPassport PIIType = "passport"
+	// PIICreditCard represents credit card number
+	PIICreditCard PIIType = "credit_card"
+	// PIIBankAccount represents bank account number
+	PIIBankAccount PIIType = "bank_account"
+	// PIIAddress represents physical address
+	PIIAddress PIIType = "address"
+	// PIIIPAddress represents IP address
+	PIIIPAddress PIIType = "ip_address"
+	// PIIMACAddress represents MAC address
+	PIIMACAddress PIIType = "mac_address"
+	// PIILicensePlate represents license plate number
+	PIILicensePlate PIIType = "license_plate"
+	// PIISocialMedia represents social media identifier
+	PIISocialMedia PIIType = "social_media"
+	// PIIDateOfBirth represents date of birth
+	PIIDateOfBirth PIIType = "date_of_birth"
+	// PIIMedicalRecord represents medical record
 	PIIMedicalRecord PIIType = "medical_record"
-	PIICustom        PIIType = "custom"
+	// PIICustom represents custom PII type
+	PIICustom PIIType = "custom"
 )
 
 // DesensitizationRule defines a rule for data protection

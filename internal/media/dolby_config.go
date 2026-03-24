@@ -18,9 +18,12 @@ const (
 	// DVProfile5 represents Dolby Vision Profile 5 (HDR10 base layer only)
 	DVProfile5 DolbyVisionProfile = "profile5" // HDR10 base layer only
 	// DVProfile7 represents Dolby Vision Profile 7 (HDR10 + Dolby Vision dual layer)
-	DVProfile7   DolbyVisionProfile = "profile7"    // HDR10 + Dolby Vision dual layer
-	DVProfile8   DolbyVisionProfile = "profile8"    // HDR10 + Dolby Vision single layer
+	DVProfile7 DolbyVisionProfile = "profile7" // HDR10 + Dolby Vision dual layer
+	// DVProfile8 represents Dolby Vision Profile 8 (HDR10 + Dolby Vision single layer)
+	DVProfile8 DolbyVisionProfile = "profile8" // HDR10 + Dolby Vision single layer
+	// DVProfileMEL represents MEL (Minimum Enhanced Layer)
 	DVProfileMEL DolbyVisionProfile = "profile-mel" // MEL (Minimum Enhanced Layer)
+	// DVProfileFEL represents FEL (Full Enhanced Layer)
 	DVProfileFEL DolbyVisionProfile = "profile-fel" // FEL (Full Enhanced Layer)
 )
 

@@ -7,6 +7,28 @@
 
 ---
 
+## [v2.264.0] - 2026-03-24
+
+### 新增
+- 🔒 **RAIDZ Expansion 单盘扩展** - 参考 TrueNAS Electric Eel
+- 🤖 **AI Console 本地数据脱敏** - 参考群晖 DSM 7.3
+- 🛡️ **漏洞优先级评估 (KEV/EPSS/LEV)** - 参考群晖 DSM 7.3
+
+### 竞品研究 (Exa 搜索)
+- 📊 群晖 DSM 7.3: 自动分层、AI Console、KEV/EPSS/LEV 漏洞评估
+- 🔧 TrueNAS Electric Eel: RAIDZ Expansion、Docker Compose、Fast Dedup
+- 🚀 飞牛fnOS: QWRT软路由、元数据管理、Cloudflare Tunnel
+
+### 六部协同开发第45轮
+- 吏部: 版本号更新至v2.264.0
+- 兵部: RAIDZ Expansion模块开发
+- 礼部: AI Console模块开发
+- 刑部: 漏洞评估模块开发
+- 工部: CI/CD验证
+- 户部: 资源统计
+
+---
+
 ## [v2.263.0] - 2026-03-24
 
 ### 新增

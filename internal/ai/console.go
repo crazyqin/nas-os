@@ -45,31 +45,51 @@ func DefaultConsoleConfig() ConsoleConfig {
 // AICapability represents available AI capabilities
 type AICapability string
 
+// AI capabilities
 const (
-	CapabilityChat          AICapability = "chat"
-	CapabilityEmbedding     AICapability = "embedding"
-	CapabilityImageGen      AICapability = "image-generation"
+	// CapabilityChat is the chat capability
+	CapabilityChat AICapability = "chat"
+	// CapabilityEmbedding is the embedding capability
+	CapabilityEmbedding AICapability = "embedding"
+	// CapabilityImageGen is the image generation capability
+	CapabilityImageGen AICapability = "image-generation"
+	// CapabilityImageAnalysis is the image analysis capability
 	CapabilityImageAnalysis AICapability = "image-analysis"
-	CapabilityCodeGen       AICapability = "code-generation"
-	CapabilityTranslation   AICapability = "translation"
-	CapabilitySummary       AICapability = "summarization"
-	CapabilitySentiment     AICapability = "sentiment-analysis"
-	CapabilityOCR           AICapability = "ocr"
+	// CapabilityCodeGen is the code generation capability
+	CapabilityCodeGen AICapability = "code-generation"
+	// CapabilityTranslation is the translation capability
+	CapabilityTranslation AICapability = "translation"
+	// CapabilitySummary is the summarization capability
+	CapabilitySummary AICapability = "summarization"
+	// CapabilitySentiment is the sentiment analysis capability
+	CapabilitySentiment AICapability = "sentiment-analysis"
+	// CapabilityOCR is the OCR capability
+	CapabilityOCR AICapability = "ocr"
 )
 
 // TaskType represents predefined AI task types
 type TaskType string
 
+// Task types
 const (
-	TaskPhotoSearch       TaskType = "photo-search"       // Smart photo search
-	TaskPhotoCaption      TaskType = "photo-caption"      // Generate photo captions
-	TaskDocumentSummary   TaskType = "document-summary"   // Summarize documents
-	TaskVideoAnalysis     TaskType = "video-analysis"     // Analyze video content
-	TaskSpeechToText      TaskType = "speech-to-text"     // Speech recognition
-	TaskTextToSpeech      TaskType = "text-to-speech"     // TTS synthesis
-	TaskSmartAlbum        TaskType = "smart-album"        // Create smart albums
+	// TaskPhotoSearch is the photo search task
+	TaskPhotoSearch TaskType = "photo-search" // Smart photo search
+	// TaskPhotoCaption is the photo caption task
+	TaskPhotoCaption TaskType = "photo-caption" // Generate photo captions
+	// TaskDocumentSummary is the document summary task
+	TaskDocumentSummary TaskType = "document-summary" // Summarize documents
+	// TaskVideoAnalysis is the video analysis task
+	TaskVideoAnalysis TaskType = "video-analysis" // Analyze video content
+	// TaskSpeechToText is the speech to text task
+	TaskSpeechToText TaskType = "speech-to-text" // Speech recognition
+	// TaskTextToSpeech is the text to speech task
+	TaskTextToSpeech TaskType = "text-to-speech" // TTS synthesis
+	// TaskSmartAlbum is the smart album task
+	TaskSmartAlbum TaskType = "smart-album" // Create smart albums
+	// TaskContentModeration is the content moderation task
 	TaskContentModeration TaskType = "content-moderation" // Content safety check
-	TaskLanguageDetect    TaskType = "language-detect"    // Detect language
+	// TaskLanguageDetect is the language detect task
+	TaskLanguageDetect TaskType = "language-detect" // Detect language
 )
 
 // ConsoleRequest represents a request to AI Console
