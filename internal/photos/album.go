@@ -1,8 +1,9 @@
-// Package photos 提供相册管理功能
-// 本文件实现智能相册、照片分类、去重和缩略图缓存
+// Package photos 提供相册管理功能。
+// 本文件实现智能相册、照片分类、去重和缩略图缓存。
 package photos
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -11,8 +12,8 @@ import (
 	"image/color"
 	"image/jpeg"
 	"io"
-	"math"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -25,28 +26,29 @@ import (
 
 // ========== 智能相册类型 ==========
 
-// SmartAlbumType 智能相册类型
-type SmartAlbumType string
+// AutoAlbumType 定义自动相册类型。
+type AutoAlbumType string
 
+// 自动相册类型常量。
 const (
-	SmartAlbumTypePeople    SmartAlbumType = "people"    // 人物相册
-	SmartAlbumTypeLocation  SmartAlbumType = "location"  // 地点相册
-	SmartAlbumTypeTime      SmartAlbumType = "time"      // 时间相册
-	SmartAlbumTypeScene     SmartAlbumType = "scene"     // 场景相册
-	SmartAlbumTypeFavorites SmartAlbumType = "favorites" // 收藏相册
-	SmartAlbumTypeRecent    SmartAlbumType = "recent"    // 最近照片
-	SmartAlbumTypeSelfie    SmartAlbumType = "selfie"    // 自拍相册
-	SmartAlbumTypeScreenshot SmartAlbumType = "screenshot" // 截图相册
-	SmartAlbumTypeVideo      SmartAlbumType = "video"     // 视频相册
-	SmartAlbumTypePanorama   SmartAlbumType = "panorama"  // 全景相册
+	AutoAlbumTypePeople     AutoAlbumType = "people"     // 人物相册
+	AutoAlbumTypeLocation   AutoAlbumType = "location"   // 地点相册
+	AutoAlbumTypeTime       AutoAlbumType = "time"       // 时间相册
+	AutoAlbumTypeScene      AutoAlbumType = "scene"      // 场景相册
+	AutoAlbumTypeFavorites  AutoAlbumType = "favorites"  // 收藏相册
+	AutoAlbumTypeRecent     AutoAlbumType = "recent"     // 最近照片
+	AutoAlbumTypeSelfie     AutoAlbumType = "selfie"     // 自拍相册
+	AutoAlbumTypeScreenshot AutoAlbumType = "screenshot" // 截图相册
+	AutoAlbumTypeVideo      AutoAlbumType = "video"      // 视频相册
+	AutoAlbumTypePanorama   AutoAlbumType = "panorama"   // 全景相册
 )
 
-// SmartAlbum 智能相册（自动分类）
-type SmartAlbum struct {
+// AutoAlbum 表示自动相册（自动分类）。
+type AutoAlbum struct {
 	ID           string            `json:"id"`
 	Name         string            `json:"name"`
-	Type         SmartAlbumType    `json:"type"`
-	Criteria     SmartAlbumCriteria `json:"criteria"`
+	Type         AutoAlbumType     `json:"type"`
+	Criteria     AutoAlbumCriteria `json:"criteria"`
 	PhotoCount   int               `json:"photoCount"`
 	CoverPhotoID string            `json:"coverPhotoId"`
 	CreatedAt    time.Time         `json:"createdAt"`
@@ -56,8 +58,8 @@ type SmartAlbum struct {
 	PhotoIDs     []string          `json:"photoIds,omitempty"`
 }
 
-// SmartAlbumCriteria 智能相册条件
-type SmartAlbumCriteria struct {
+// AutoAlbumCriteria 定义自动相册条件。
+type AutoAlbumCriteria struct {
 	PersonIDs    []string  `json:"personIds,omitempty"`
 	Location     string    `json:"location,omitempty"`
 	City         string    `json:"city,omitempty"`
@@ -79,7 +81,7 @@ type SmartAlbumCriteria struct {
 
 // ========== 照片分类 ==========
 
-// PhotoClassifier 照片分类器
+// PhotoClassifier 提供照片分类功能。
 type PhotoClassifier struct {
 	manager *Manager
 	mu      sync.RWMutex
@@ -91,7 +93,7 @@ type PhotoClassifier struct {
 	yearIndex     map[int][]string    // year -> photoIDs
 }
 
-// NewPhotoClassifier 创建照片分类器
+// NewPhotoClassifier 创建照片分类器。
 func NewPhotoClassifier(manager *Manager) *PhotoClassifier {
 	return &PhotoClassifier{
 		manager:       manager,
@@ -103,7 +105,7 @@ func NewPhotoClassifier(manager *Manager) *PhotoClassifier {
 	}
 }
 
-// BuildIndex 构建分类索引
+// BuildIndex 构建分类索引。
 func (c *PhotoClassifier) BuildIndex() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -150,7 +152,7 @@ func (c *PhotoClassifier) BuildIndex() error {
 	return nil
 }
 
-// buildLocationKey 构建地点键
+// buildLocationKey 构建地点键。
 func (c *PhotoClassifier) buildLocationKey(loc *LocationInfo) string {
 	parts := make([]string, 0)
 	if loc.Country != "" {
@@ -165,7 +167,7 @@ func (c *PhotoClassifier) buildLocationKey(loc *LocationInfo) string {
 	return strings.Join(parts, "/")
 }
 
-// ClassifyByPeople 按人物分类
+// ClassifyByPeople 按人物分类照片。
 func (c *PhotoClassifier) ClassifyByPeople() map[string][]*Photo {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -184,7 +186,7 @@ func (c *PhotoClassifier) ClassifyByPeople() map[string][]*Photo {
 	return result
 }
 
-// ClassifyByLocation 按地点分类
+// ClassifyByLocation 按地点分类照片。
 func (c *PhotoClassifier) ClassifyByLocation() map[string][]*Photo {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -203,7 +205,7 @@ func (c *PhotoClassifier) ClassifyByLocation() map[string][]*Photo {
 	return result
 }
 
-// ClassifyByTime 按时间分类
+// ClassifyByTime 按时间分类照片。
 func (c *PhotoClassifier) ClassifyByTime(groupBy string) map[string][]*Photo {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -234,7 +236,7 @@ func (c *PhotoClassifier) ClassifyByTime(groupBy string) map[string][]*Photo {
 	return result
 }
 
-// ClassifyByYear 按年份分类
+// ClassifyByYear 按年份分类照片。
 func (c *PhotoClassifier) ClassifyByYear() map[int][]*Photo {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -253,7 +255,7 @@ func (c *PhotoClassifier) ClassifyByYear() map[int][]*Photo {
 	return result
 }
 
-// ClassifyByScene 按场景分类
+// ClassifyByScene 按场景分类照片。
 func (c *PhotoClassifier) ClassifyByScene() map[string][]*Photo {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -272,7 +274,7 @@ func (c *PhotoClassifier) ClassifyByScene() map[string][]*Photo {
 	return result
 }
 
-// GetClassificationStats 获取分类统计
+// GetClassificationStats 获取分类统计信息。
 func (c *PhotoClassifier) GetClassificationStats() *ClassificationStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -301,7 +303,7 @@ func (c *PhotoClassifier) GetClassificationStats() *ClassificationStats {
 	return stats
 }
 
-// ClassificationStats 分类统计
+// ClassificationStats 表示分类统计信息。
 type ClassificationStats struct {
 	PeopleCount    int            `json:"peopleCount"`
 	LocationCount  int            `json:"locationCount"`
@@ -315,79 +317,79 @@ type ClassificationStats struct {
 
 // ========== 智能相册管理 ==========
 
-// SmartAlbumManager 智能相册管理器
-type SmartAlbumManager struct {
-	manager     *Manager
-	classifier  *PhotoClassifier
-	albums      map[string]*SmartAlbum
-	mu          sync.RWMutex
-	dataPath    string
+// AutoAlbumManager 管理自动相册。
+type AutoAlbumManager struct {
+	manager    *Manager
+	classifier *PhotoClassifier
+	albums     map[string]*AutoAlbum
+	mu         sync.RWMutex
+	dataPath   string
 }
 
-// NewSmartAlbumManager 创建智能相册管理器
-func NewSmartAlbumManager(manager *Manager, classifier *PhotoClassifier) *SmartAlbumManager {
-	sam := &SmartAlbumManager{
+// NewAutoAlbumManager 创建自动相册管理器。
+func NewAutoAlbumManager(manager *Manager, classifier *PhotoClassifier) *AutoAlbumManager {
+	sam := &AutoAlbumManager{
 		manager:    manager,
 		classifier: classifier,
-		albums:     make(map[string]*SmartAlbum),
-		dataPath:   filepath.Join(manager.dataDir, "smart-albums.json"),
+		albums:     make(map[string]*AutoAlbum),
+		dataPath:   filepath.Join(manager.dataDir, "auto-albums.json"),
 	}
 
-	// 加载已保存的智能相册
+	// 加载已保存的自动相册
 	_ = sam.load()
 
-	// 创建系统智能相册
+	// 创建系统自动相册
 	sam.createSystemAlbums()
 
 	return sam
 }
 
-// createSystemAlbums 创建系统智能相册
-func (s *SmartAlbumManager) createSystemAlbums() {
+// createSystemAlbums 创建系统自动相册。
+func (s *AutoAlbumManager) createSystemAlbums() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	systemAlbums := []struct {
-		id      string
-		name    string
-		albumType SmartAlbumType
-		criteria SmartAlbumCriteria
+		id        string
+		name      string
+		albumType AutoAlbumType
+		criteria  AutoAlbumCriteria
 	}{
 		{
-			id:      "system-favorites",
-			name:    "收藏",
-			albumType: SmartAlbumTypeFavorites,
-			criteria: SmartAlbumCriteria{IsFavorite: boolPtr(true)},
+			id:        "system-favorites",
+			name:      "收藏",
+			albumType: AutoAlbumTypeFavorites,
+			criteria:  AutoAlbumCriteria{IsFavorite: ptrBool(true)},
 		},
 		{
-			id:      "system-recent",
-			name:    "最近照片",
-			albumType: SmartAlbumTypeRecent,
-			criteria: SmartAlbumCriteria{},
+			id:        "system-recent",
+			name:      "最近照片",
+			albumType: AutoAlbumTypeRecent,
+			criteria:  AutoAlbumCriteria{},
 		},
 		{
-			id:      "system-videos",
-			name:    "视频",
-			albumType: SmartAlbumTypeVideo,
-			criteria: SmartAlbumCriteria{IsVideo: boolPtr(true)},
+			id:        "system-videos",
+			name:      "视频",
+			albumType: AutoAlbumTypeVideo,
+			criteria:  AutoAlbumCriteria{IsVideo: ptrBool(true)},
 		},
 		{
-			id:      "system-selfies",
-			name:    "自拍",
-			albumType: SmartAlbumTypeSelfie,
-			criteria: SmartAlbumCriteria{IsSelfie: boolPtr(true)},
+			id:        "system-selfies",
+			name:      "自拍",
+			albumType: AutoAlbumTypeSelfie,
+			criteria:  AutoAlbumCriteria{IsSelfie: ptrBool(true)},
 		},
 		{
-			id:      "system-screenshots",
-			name:    "截图",
-			albumType: SmartAlbumTypeScreenshot,
-			criteria: SmartAlbumCriteria{IsScreenshot: boolPtr(true)},
+			id:        "system-screenshots",
+			name:      "截图",
+			albumType: AutoAlbumTypeScreenshot,
+			criteria:  AutoAlbumCriteria{IsScreenshot: ptrBool(true)},
 		},
 	}
 
 	for _, sa := range systemAlbums {
 		if _, exists := s.albums[sa.id]; !exists {
-			s.albums[sa.id] = &SmartAlbum{
+			s.albums[sa.id] = &AutoAlbum{
 				ID:         sa.id,
 				Name:       sa.name,
 				Type:       sa.albumType,
@@ -402,8 +404,8 @@ func (s *SmartAlbumManager) createSystemAlbums() {
 	}
 }
 
-// load 加载智能相册数据
-func (s *SmartAlbumManager) load() error {
+// load 加载自动相册数据。
+func (s *AutoAlbumManager) load() error {
 	data, err := os.ReadFile(s.dataPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -412,7 +414,7 @@ func (s *SmartAlbumManager) load() error {
 		return err
 	}
 
-	var albums []*SmartAlbum
+	var albums []*AutoAlbum
 	if err := json.Unmarshal(data, &albums); err != nil {
 		return err
 	}
@@ -423,9 +425,9 @@ func (s *SmartAlbumManager) load() error {
 	return nil
 }
 
-// save 保存智能相册数据
-func (s *SmartAlbumManager) save() error {
-	albums := make([]*SmartAlbum, 0)
+// save 保存自动相册数据。
+func (s *AutoAlbumManager) save() error {
+	albums := make([]*AutoAlbum, 0)
 	for _, album := range s.albums {
 		if !album.IsSystem {
 			albums = append(albums, album)
@@ -438,12 +440,12 @@ func (s *SmartAlbumManager) save() error {
 	return os.WriteFile(s.dataPath, data, 0640)
 }
 
-// CreateSmartAlbum 创建智能相册
-func (s *SmartAlbumManager) CreateSmartAlbum(name string, albumType SmartAlbumType, criteria SmartAlbumCriteria) (*SmartAlbum, error) {
+// CreateAutoAlbum 创建自动相册。
+func (s *AutoAlbumManager) CreateAutoAlbum(name string, albumType AutoAlbumType, criteria AutoAlbumCriteria) (*AutoAlbum, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	album := &SmartAlbum{
+	album := &AutoAlbum{
 		ID:         uuid.New().String(),
 		Name:       name,
 		Type:       albumType,
@@ -468,8 +470,8 @@ func (s *SmartAlbumManager) CreateSmartAlbum(name string, albumType SmartAlbumTy
 	return album, nil
 }
 
-// matchPhotos 匹配符合条件的照片
-func (s *SmartAlbumManager) matchPhotos(criteria *SmartAlbumCriteria) []string {
+// matchPhotos 匹配符合条件的照片。
+func (s *AutoAlbumManager) matchPhotos(criteria *AutoAlbumCriteria) []string {
 	s.manager.mu.RLock()
 	defer s.manager.mu.RUnlock()
 
@@ -484,104 +486,164 @@ func (s *SmartAlbumManager) matchPhotos(criteria *SmartAlbumCriteria) []string {
 	return photoIDs
 }
 
-// matchCriteria 检查照片是否匹配条件
-func (s *SmartAlbumManager) matchCriteria(photo *Photo, criteria *SmartAlbumCriteria) bool {
+// matchCriteria 检查照片是否匹配条件。
+func (s *AutoAlbumManager) matchCriteria(photo *Photo, criteria *AutoAlbumCriteria) bool {
 	// 人物匹配
-	if len(criteria.PersonIDs) > 0 {
-		matched := false
-		for _, face := range photo.Faces {
-			for _, personID := range criteria.PersonIDs {
-				if face.ID == personID {
-					matched = true
-					break
-				}
-			}
-			if matched {
-				break
-			}
-		}
-		if !matched {
-			return false
-		}
+	if !s.matchPeople(photo, criteria) {
+		return false
 	}
 
 	// 地点匹配
-	if criteria.Location != "" && photo.Location != nil {
-		if !strings.Contains(photo.Location.Location, criteria.Location) {
-			return false
-		}
-	}
-	if criteria.City != "" && photo.Location != nil {
-		if photo.Location.City != criteria.City {
-			return false
-		}
-	}
-	if criteria.Country != "" && photo.Location != nil {
-		if photo.Location.Country != criteria.Country {
-			return false
-		}
+	if !s.matchLocation(photo, criteria) {
+		return false
 	}
 
 	// 时间匹配
-	if !criteria.StartDate.IsZero() && photo.TakenAt.Before(criteria.StartDate) {
-		return false
-	}
-	if !criteria.EndDate.IsZero() && photo.TakenAt.After(criteria.EndDate) {
-		return false
-	}
-	if criteria.Year > 0 && photo.TakenAt.Year() != criteria.Year {
-		return false
-	}
-	if criteria.Month > 0 && int(photo.TakenAt.Month()) != criteria.Month {
+	if !s.matchTime(photo, criteria) {
 		return false
 	}
 
 	// 场景匹配
-	if criteria.Scene != "" && photo.Scene != criteria.Scene {
+	if !s.matchScene(photo, criteria) {
 		return false
 	}
 
-	// 布尔条件
-	if criteria.IsFavorite != nil && photo.IsFavorite != *criteria.IsFavorite {
+	// 布尔条件匹配
+	if !s.matchBooleanConditions(photo, criteria) {
 		return false
 	}
-	if criteria.IsSelfie != nil && !*criteria.IsSelfie {
-		// 非自拍检查：需要人脸数 > 0 且宽高比接近竖屏
-		if len(photo.Faces) > 0 && photo.Width > 0 && photo.Height > 0 {
-			aspectRatio := float64(photo.Width) / float64(photo.Height)
-			if aspectRatio < 1.0 { // 竖屏可能是自拍
-				return false
+
+	// 尺寸条件匹配
+	if !s.matchSizeConditions(photo, criteria) {
+		return false
+	}
+
+	return true
+}
+
+// matchPeople 匹配人物条件。
+func (s *AutoAlbumManager) matchPeople(photo *Photo, criteria *AutoAlbumCriteria) bool {
+	if len(criteria.PersonIDs) == 0 {
+		return true
+	}
+
+	for _, face := range photo.Faces {
+		for _, personID := range criteria.PersonIDs {
+			if face.ID == personID {
+				return true
 			}
 		}
 	}
+	return false
+}
+
+// matchLocation 匹配地点条件。
+func (s *AutoAlbumManager) matchLocation(photo *Photo, criteria *AutoAlbumCriteria) bool {
+	if criteria.Location == "" && criteria.City == "" && criteria.Country == "" {
+		return true
+	}
+
+	if photo.Location == nil {
+		return false
+	}
+
+	if criteria.Location != "" && !strings.Contains(photo.Location.Location, criteria.Location) {
+		return false
+	}
+
+	if criteria.City != "" && photo.Location.City != criteria.City {
+		return false
+	}
+
+	if criteria.Country != "" && photo.Location.Country != criteria.Country {
+		return false
+	}
+
+	return true
+}
+
+// matchTime 匹配时间条件。
+func (s *AutoAlbumManager) matchTime(photo *Photo, criteria *AutoAlbumCriteria) bool {
+	if !criteria.StartDate.IsZero() && photo.TakenAt.Before(criteria.StartDate) {
+		return false
+	}
+
+	if !criteria.EndDate.IsZero() && photo.TakenAt.After(criteria.EndDate) {
+		return false
+	}
+
+	if criteria.Year > 0 && photo.TakenAt.Year() != criteria.Year {
+		return false
+	}
+
+	if criteria.Month > 0 && int(photo.TakenAt.Month()) != criteria.Month {
+		return false
+	}
+
+	return true
+}
+
+// matchScene 匹配场景条件。
+func (s *AutoAlbumManager) matchScene(photo *Photo, criteria *AutoAlbumCriteria) bool {
+	if criteria.Scene == "" {
+		return true
+	}
+	return photo.Scene == criteria.Scene
+}
+
+// matchBooleanConditions 匹配布尔条件。
+func (s *AutoAlbumManager) matchBooleanConditions(photo *Photo, criteria *AutoAlbumCriteria) bool {
+	// 收藏条件
+	if criteria.IsFavorite != nil && photo.IsFavorite != *criteria.IsFavorite {
+		return false
+	}
+
+	// 自拍条件
+	if criteria.IsSelfie != nil && *criteria.IsSelfie {
+		if len(photo.Faces) == 0 || photo.Width <= 0 || photo.Height <= 0 {
+			return false
+		}
+		aspectRatio := float64(photo.Width) / float64(photo.Height)
+		if aspectRatio >= 1.0 { // 非竖屏可能不是自拍
+			return false
+		}
+	}
+
+	// 视频条件
 	if criteria.IsVideo != nil {
 		isVideo := photo.Duration > 0
 		if isVideo != *criteria.IsVideo {
 			return false
 		}
 	}
-	if criteria.IsScreenshot != nil {
-		// 截图判断：通常来自特定设备或软件
-		if *criteria.IsScreenshot {
-			if photo.Device == nil || !isScreenshotDevice(photo.Device) {
-				return false
-			}
-		}
-	}
-	if criteria.IsPanorama != nil && *criteria.IsPanorama {
-		// 全景图判断：宽高比很大
-		if photo.Width > 0 && photo.Height > 0 {
-			aspectRatio := float64(photo.Width) / float64(photo.Height)
-			if aspectRatio < 2.0 { // 全景图宽高比通常 > 2
-				return false
-			}
+
+	// 截图条件
+	if criteria.IsScreenshot != nil && *criteria.IsScreenshot {
+		if photo.Device == nil || !isScreenshotDevice(photo.Device) {
+			return false
 		}
 	}
 
-	// 尺寸条件
+	// 全景条件
+	if criteria.IsPanorama != nil && *criteria.IsPanorama {
+		if photo.Width <= 0 || photo.Height <= 0 {
+			return false
+		}
+		aspectRatio := float64(photo.Width) / float64(photo.Height)
+		if aspectRatio < 2.0 { // 全景图宽高比通常 > 2
+			return false
+		}
+	}
+
+	return true
+}
+
+// matchSizeConditions 匹配尺寸条件。
+func (s *AutoAlbumManager) matchSizeConditions(photo *Photo, criteria *AutoAlbumCriteria) bool {
 	if criteria.MinWidth > 0 && photo.Width < criteria.MinWidth {
 		return false
 	}
+
 	if criteria.MinHeight > 0 && photo.Height < criteria.MinHeight {
 		return false
 	}
@@ -589,7 +651,7 @@ func (s *SmartAlbumManager) matchCriteria(photo *Photo, criteria *SmartAlbumCrit
 	return true
 }
 
-// isScreenshotDevice 判断是否为截图设备
+// isScreenshotDevice 判断是否为截图设备。
 func isScreenshotDevice(device *DeviceInfo) bool {
 	screenshotApps := []string{"Screenshot", "Screen Capture", "截屏", "截图"}
 	for _, app := range screenshotApps {
@@ -600,8 +662,8 @@ func isScreenshotDevice(device *DeviceInfo) bool {
 	return false
 }
 
-// UpdateAllSmartAlbums 更新所有智能相册
-func (s *SmartAlbumManager) UpdateAllSmartAlbums() error {
+// UpdateAllAutoAlbums 更新所有自动相册。
+func (s *AutoAlbumManager) UpdateAllAutoAlbums() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -616,26 +678,26 @@ func (s *SmartAlbumManager) UpdateAllSmartAlbums() error {
 	return s.save()
 }
 
-// GetSmartAlbum 获取智能相册
-func (s *SmartAlbumManager) GetSmartAlbum(albumID string) (*SmartAlbum, error) {
+// GetAutoAlbum 获取自动相册。
+func (s *AutoAlbumManager) GetAutoAlbum(albumID string) (*AutoAlbum, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	album, exists := s.albums[albumID]
 	if !exists {
-		return nil, fmt.Errorf("智能相册不存在")
+		return nil, fmt.Errorf("自动相册不存在")
 	}
 
 	albumCopy := *album
 	return &albumCopy, nil
 }
 
-// ListSmartAlbums 列出智能相册
-func (s *SmartAlbumManager) ListSmartAlbums(albumType SmartAlbumType) []*SmartAlbum {
+// ListAutoAlbums 列出自动相册。
+func (s *AutoAlbumManager) ListAutoAlbums(albumType AutoAlbumType) []*AutoAlbum {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	result := make([]*SmartAlbum, 0)
+	result := make([]*AutoAlbum, 0)
 	for _, album := range s.albums {
 		if albumType != "" && album.Type != albumType {
 			continue
@@ -647,26 +709,26 @@ func (s *SmartAlbumManager) ListSmartAlbums(albumType SmartAlbumType) []*SmartAl
 	return result
 }
 
-// DeleteSmartAlbum 删除智能相册
-func (s *SmartAlbumManager) DeleteSmartAlbum(albumID string) error {
+// DeleteAutoAlbum 删除自动相册。
+func (s *AutoAlbumManager) DeleteAutoAlbum(albumID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	album, exists := s.albums[albumID]
 	if !exists {
-		return fmt.Errorf("智能相册不存在")
+		return fmt.Errorf("自动相册不存在")
 	}
 
 	if album.IsSystem {
-		return fmt.Errorf("系统智能相册不能删除")
+		return fmt.Errorf("系统自动相册不能删除")
 	}
 
 	delete(s.albums, albumID)
 	return s.save()
 }
 
-// AutoCreateAlbumsFromClassification 根据分类自动创建相册
-func (s *SmartAlbumManager) AutoCreateAlbumsFromClassification() error {
+// AutoCreateAlbumsFromClassification 根据分类自动创建相册。
+func (s *AutoAlbumManager) AutoCreateAlbumsFromClassification() error {
 	// 更新分类索引
 	if err := s.classifier.BuildIndex(); err != nil {
 		return err
@@ -684,11 +746,11 @@ func (s *SmartAlbumManager) AutoCreateAlbumsFromClassification() error {
 
 		albumID := fmt.Sprintf("auto-year-%d", year)
 		if _, exists := s.albums[albumID]; !exists {
-			s.albums[albumID] = &SmartAlbum{
+			s.albums[albumID] = &AutoAlbum{
 				ID:         albumID,
 				Name:       fmt.Sprintf("%d年", year),
-				Type:       SmartAlbumTypeTime,
-				Criteria:   SmartAlbumCriteria{Year: year},
+				Type:       AutoAlbumTypeTime,
+				Criteria:   AutoAlbumCriteria{Year: year},
 				PhotoCount: len(photos),
 				CreatedAt:  time.Now(),
 				UpdatedAt:  time.Now(),
@@ -708,11 +770,11 @@ func (s *SmartAlbumManager) AutoCreateAlbumsFromClassification() error {
 		locKey := strings.ReplaceAll(location, "/", "-")
 		albumID := fmt.Sprintf("auto-location-%s", locKey)
 		if _, exists := s.albums[albumID]; !exists {
-			s.albums[albumID] = &SmartAlbum{
+			s.albums[albumID] = &AutoAlbum{
 				ID:         albumID,
 				Name:       location,
-				Type:       SmartAlbumTypeLocation,
-				Criteria:   SmartAlbumCriteria{Location: location},
+				Type:       AutoAlbumTypeLocation,
+				Criteria:   AutoAlbumCriteria{Location: location},
 				PhotoCount: len(photos),
 				CreatedAt:  time.Now(),
 				UpdatedAt:  time.Now(),
@@ -737,11 +799,11 @@ func (s *SmartAlbumManager) AutoCreateAlbumsFromClassification() error {
 				personName = person.Name
 			}
 
-			s.albums[albumID] = &SmartAlbum{
+			s.albums[albumID] = &AutoAlbum{
 				ID:         albumID,
 				Name:       personName,
-				Type:       SmartAlbumTypePeople,
-				Criteria:   SmartAlbumCriteria{PersonIDs: []string{personID}},
+				Type:       AutoAlbumTypePeople,
+				Criteria:   AutoAlbumCriteria{PersonIDs: []string{personID}},
 				PhotoCount: len(photos),
 				CreatedAt:  time.Now(),
 				UpdatedAt:  time.Now(),
@@ -756,14 +818,14 @@ func (s *SmartAlbumManager) AutoCreateAlbumsFromClassification() error {
 
 // ========== 感知哈希去重 ==========
 
-// PerceptualHash 感知哈希
+// PerceptualHash 表示感知哈希。
 type PerceptualHash struct {
 	Hash       string `json:"hash"`
 	Hamming    int    `json:"hamming"`    // 与原始图的汉明距离
 	SourcePath string `json:"sourcePath"` // 原始图路径
 }
 
-// DuplicatePhoto 重复照片
+// DuplicatePhoto 表示重复照片。
 type DuplicatePhoto struct {
 	OriginalID   string   `json:"originalId"`
 	OriginalPath string   `json:"originalPath"`
@@ -771,16 +833,16 @@ type DuplicatePhoto struct {
 	Similarity   float64  `json:"similarity"`
 }
 
-// PhotoDeduplicator 照片去重器
+// PhotoDeduplicator 提供照片去重功能。
 type PhotoDeduplicator struct {
-	manager    *Manager
-	hashSize   int
-	threshold  int // 汉明距离阈值
-	mu         sync.RWMutex
-	hashCache  map[string]string // photoID -> hash
+	manager   *Manager
+	hashSize  int
+	threshold int // 汉明距离阈值
+	mu        sync.RWMutex
+	hashCache map[string]string // photoID -> hash
 }
 
-// NewPhotoDeduplicator 创建照片去重器
+// NewPhotoDeduplicator 创建照片去重器。
 func NewPhotoDeduplicator(manager *Manager) *PhotoDeduplicator {
 	return &PhotoDeduplicator{
 		manager:   manager,
@@ -790,7 +852,7 @@ func NewPhotoDeduplicator(manager *Manager) *PhotoDeduplicator {
 	}
 }
 
-// ComputePerceptualHash 计算感知哈希
+// ComputePerceptualHash 计算感知哈希。
 func (d *PhotoDeduplicator) ComputePerceptualHash(photoID string) (string, error) {
 	d.manager.mu.RLock()
 	photo, exists := d.manager.photos[photoID]
@@ -832,7 +894,7 @@ func (d *PhotoDeduplicator) ComputePerceptualHash(photoID string) (string, error
 	return hash, nil
 }
 
-// getBestThumbnail 获取最佳缩略图
+// getBestThumbnail 获取最佳缩略图。
 func (d *PhotoDeduplicator) getBestThumbnail(photoID string) string {
 	sizes := []int{128, 512, 1024}
 	for _, size := range sizes {
@@ -844,7 +906,7 @@ func (d *PhotoDeduplicator) getBestThumbnail(photoID string) string {
 	return ""
 }
 
-// readImage 读取图像
+// readImage 读取图像。
 func (d *PhotoDeduplicator) readImage(path string) (image.Image, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -861,16 +923,16 @@ func (d *PhotoDeduplicator) readImage(path string) (image.Image, error) {
 	}
 }
 
-// decodePNG 解码 PNG
+// decodePNG 解码 PNG。
 func (d *PhotoDeduplicator) decodePNG(r io.Reader) (image.Image, error) {
-	img, err := image.Decode(r)
+	img, _, err := image.Decode(r)
 	if err != nil {
 		return nil, err
 	}
 	return img, nil
 }
 
-// computePHash 计算感知哈希
+// computePHash 计算感知哈希。
 func (d *PhotoDeduplicator) computePHash(img image.Image) string {
 	// 1. 缩放到 hashSize x hashSize
 	resized := d.resizeImage(img, d.hashSize+1, d.hashSize)
@@ -911,14 +973,14 @@ func (d *PhotoDeduplicator) computePHash(img image.Image) string {
 	return hex.EncodeToString(hash)
 }
 
-// resizeImage 缩放图像
+// resizeImage 缩放图像。
 func (d *PhotoDeduplicator) resizeImage(img image.Image, width, height int) image.Image {
 	dst := image.NewRGBA(image.Rect(0, 0, width, height))
 	draw.BiLinear.Scale(dst, dst.Bounds(), img, img.Bounds(), draw.Over, nil)
 	return dst
 }
 
-// toGrayscale 转换为灰度图
+// toGrayscale 转换为灰度图。
 func (d *PhotoDeduplicator) toGrayscale(img image.Image) *image.Gray {
 	bounds := img.Bounds()
 	gray := image.NewGray(bounds)
@@ -930,7 +992,7 @@ func (d *PhotoDeduplicator) toGrayscale(img image.Image) *image.Gray {
 	return gray
 }
 
-// HammingDistance 计算汉明距离
+// HammingDistance 计算汉明距离。
 func (d *PhotoDeduplicator) HammingDistance(hash1, hash2 string) int {
 	if len(hash1) != len(hash2) {
 		return -1
@@ -949,7 +1011,7 @@ func (d *PhotoDeduplicator) HammingDistance(hash1, hash2 string) int {
 	return distance
 }
 
-// FindDuplicates 查找重复照片
+// FindDuplicates 查找重复照片。
 func (d *PhotoDeduplicator) FindDuplicates() ([]*DuplicatePhoto, error) {
 	// 构建所有照片的哈希
 	d.manager.mu.RLock()
@@ -998,7 +1060,7 @@ func (d *PhotoDeduplicator) FindDuplicates() ([]*DuplicatePhoto, error) {
 		if len(dup.Duplicates) > 0 {
 			// 计算相似度
 			dup.Similarity = 1.0 - float64(d.HammingDistance(hash1, hashes[dup.Duplicates[0]]))/float64(len(hash1)*8)
-			
+
 			// 获取原始照片路径
 			d.manager.mu.RLock()
 			if photo, exists := d.manager.photos[id1]; exists {
@@ -1019,7 +1081,7 @@ func (d *PhotoDeduplicator) FindDuplicates() ([]*DuplicatePhoto, error) {
 	return duplicates, nil
 }
 
-// RemoveDuplicates 移除重复照片
+// RemoveDuplicates 移除重复照片。
 func (d *PhotoDeduplicator) RemoveDuplicates(duplicates []*DuplicatePhoto, keepOriginal bool) (int, error) {
 	removed := 0
 
@@ -1046,17 +1108,17 @@ func (d *PhotoDeduplicator) RemoveDuplicates(duplicates []*DuplicatePhoto, keepO
 
 // ========== 缩略图缓存 ==========
 
-// ThumbnailCache 缩略图缓存
+// ThumbnailCache 提供缩略图缓存功能。
 type ThumbnailCache struct {
-	manager     *Manager
-	cacheDir    string
-	maxSize     int64 // 最大缓存大小（字节）
-	maxAge      time.Duration
-	mu          sync.RWMutex
-	cacheIndex  map[string]*CacheEntry
+	manager    *Manager
+	cacheDir   string
+	maxSize    int64 // 最大缓存大小（字节）
+	maxAge     time.Duration
+	mu         sync.RWMutex
+	cacheIndex map[string]*CacheEntry
 }
 
-// CacheEntry 缓存条目
+// CacheEntry 表示缓存条目。
 type CacheEntry struct {
 	PhotoID    string    `json:"photoId"`
 	Size       int       `json:"size"`
@@ -1067,15 +1129,15 @@ type CacheEntry struct {
 	HitCount   int       `json:"hitCount"`
 }
 
-// ThumbnailCacheConfig 缩略图缓存配置
+// ThumbnailCacheConfig 定义缩略图缓存配置。
 type ThumbnailCacheConfig struct {
-	MaxSize    int64         `json:"maxSize"`
-	MaxAge     time.Duration `json:"maxAge"`
-	Sizes      []int         `json:"sizes"`
-	Quality    int           `json:"quality"`
+	MaxSize int64         `json:"maxSize"`
+	MaxAge  time.Duration `json:"maxAge"`
+	Sizes   []int         `json:"sizes"`
+	Quality int           `json:"quality"`
 }
 
-// DefaultThumbnailCacheConfig 默认缩略图缓存配置
+// DefaultThumbnailCacheConfig 提供默认缩略图缓存配置。
 var DefaultThumbnailCacheConfig = ThumbnailCacheConfig{
 	MaxSize: 500 * 1024 * 1024, // 500MB
 	MaxAge:  30 * 24 * time.Hour, // 30 天
@@ -1083,7 +1145,7 @@ var DefaultThumbnailCacheConfig = ThumbnailCacheConfig{
 	Quality: 85,
 }
 
-// NewThumbnailCache 创建缩略图缓存
+// NewThumbnailCache 创建缩略图缓存。
 func NewThumbnailCache(manager *Manager, config ThumbnailCacheConfig) (*ThumbnailCache, error) {
 	cache := &ThumbnailCache{
 		manager:    manager,
@@ -1110,7 +1172,7 @@ func NewThumbnailCache(manager *Manager, config ThumbnailCacheConfig) (*Thumbnai
 	return cache, nil
 }
 
-// loadIndex 加载缓存索引
+// loadIndex 加载缓存索引。
 func (c *ThumbnailCache) loadIndex() error {
 	indexFile := filepath.Join(c.cacheDir, "index.json")
 	data, err := os.ReadFile(indexFile)
@@ -1132,9 +1194,9 @@ func (c *ThumbnailCache) loadIndex() error {
 	return nil
 }
 
-// saveIndex 保存缓存索引
+// saveIndex 保存缓存索引。
 func (c *ThumbnailCache) saveIndex() error {
-	entries := make([]*CacheEntry, 0)
+	entries := make([]*CacheEntry, 0, len(c.cacheIndex))
 	for _, entry := range c.cacheIndex {
 		entries = append(entries, entry)
 	}
@@ -1145,7 +1207,7 @@ func (c *ThumbnailCache) saveIndex() error {
 	return os.WriteFile(filepath.Join(c.cacheDir, "index.json"), data, 0640)
 }
 
-// Get 获取缩略图（带缓存）
+// Get 获取缩略图（带缓存）。
 func (c *ThumbnailCache) Get(photoID string, size int) (string, error) {
 	key := fmt.Sprintf("%s_%d", photoID, size)
 
@@ -1170,7 +1232,7 @@ func (c *ThumbnailCache) Get(photoID string, size int) (string, error) {
 	return c.generate(photoID, size)
 }
 
-// generate 生成缩略图
+// generate 生成缩略图。
 func (c *ThumbnailCache) generate(photoID string, size int) (string, error) {
 	c.manager.mu.RLock()
 	photo, exists := c.manager.photos[photoID]
@@ -1192,7 +1254,7 @@ func (c *ThumbnailCache) generate(photoID string, size int) (string, error) {
 	var img image.Image
 	ext := strings.ToLower(filepath.Ext(srcPath))
 	if ext == ".png" {
-		img, err = image.Decode(file)
+		img, _, err = image.Decode(file)
 	} else {
 		img, err = jpeg.Decode(file)
 	}
@@ -1248,7 +1310,7 @@ func (c *ThumbnailCache) generate(photoID string, size int) (string, error) {
 	return dstPath, nil
 }
 
-// checkSize 检查缓存大小并清理
+// checkSize 检查缓存大小并清理。
 func (c *ThumbnailCache) checkSize() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -1288,7 +1350,7 @@ func (c *ThumbnailCache) checkSize() {
 	_ = c.saveIndex()
 }
 
-// cleanupExpired 清理过期缓存
+// cleanupExpired 清理过期缓存。
 func (c *ThumbnailCache) cleanupExpired() {
 	ticker := time.NewTicker(24 * time.Hour)
 	defer ticker.Stop()
@@ -1307,7 +1369,7 @@ func (c *ThumbnailCache) cleanupExpired() {
 	}
 }
 
-// Clear 清空缓存
+// Clear 清空缓存。
 func (c *ThumbnailCache) Clear() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -1321,7 +1383,7 @@ func (c *ThumbnailCache) Clear() error {
 	return c.saveIndex()
 }
 
-// GetStats 获取缓存统计
+// GetStats 获取缓存统计。
 func (c *ThumbnailCache) GetStats() *CacheStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -1340,7 +1402,7 @@ func (c *ThumbnailCache) GetStats() *CacheStats {
 	return stats
 }
 
-// CacheStats 缓存统计
+// CacheStats 表示缓存统计。
 type CacheStats struct {
 	EntryCount int   `json:"entryCount"`
 	TotalSize  int64 `json:"totalSize"`
@@ -1349,17 +1411,17 @@ type CacheStats struct {
 
 // ========== EXIF 增强提取 ==========
 
-// EXIFExtractor EXIF 提取器（增强版）
+// EXIFExtractor 提供 EXIF 提取功能。
 type EXIFExtractor struct {
 	manager *Manager
 }
 
-// NewEXIFExtractor 创建 EXIF 提取器
+// NewEXIFExtractor 创建 EXIF 提取器。
 func NewEXIFExtractor(manager *Manager) *EXIFExtractor {
 	return &EXIFExtractor{manager: manager}
 }
 
-// ExtractFullEXIF 提取完整 EXIF 信息
+// ExtractFullEXIF 提取完整 EXIF 信息。
 func (e *EXIFExtractor) ExtractFullEXIF(photoID string) (*EXIFData, error) {
 	e.manager.mu.RLock()
 	photo, exists := e.manager.photos[photoID]
@@ -1373,7 +1435,7 @@ func (e *EXIFExtractor) ExtractFullEXIF(photoID string) (*EXIFData, error) {
 	return e.manager.extractEXIF(filepath.Join(e.manager.photosDir, photo.Path))
 }
 
-// ExtractGPS 提取 GPS 信息
+// ExtractGPS 提取 GPS 信息。
 func (e *EXIFExtractor) ExtractGPS(photoID string) (*LocationInfo, error) {
 	exifData, err := e.ExtractFullEXIF(photoID)
 	if err != nil {
@@ -1391,7 +1453,7 @@ func (e *EXIFExtractor) ExtractGPS(photoID string) (*LocationInfo, error) {
 	}, nil
 }
 
-// ExtractDateTime 提取拍摄时间
+// ExtractDateTime 提取拍摄时间。
 func (e *EXIFExtractor) ExtractDateTime(photoID string) (time.Time, error) {
 	exifData, err := e.ExtractFullEXIF(photoID)
 	if err != nil {
@@ -1419,7 +1481,7 @@ func (e *EXIFExtractor) ExtractDateTime(photoID string) (time.Time, error) {
 	return time.Time{}, fmt.Errorf("无法解析时间：%s", exifData.DateTime)
 }
 
-// ExtractCameraInfo 提取相机信息
+// ExtractCameraInfo 提取相机信息。
 func (e *EXIFExtractor) ExtractCameraInfo(photoID string) (*DeviceInfo, error) {
 	exifData, err := e.ExtractFullEXIF(photoID)
 	if err != nil {
@@ -1434,14 +1496,14 @@ func (e *EXIFExtractor) ExtractCameraInfo(photoID string) (*DeviceInfo, error) {
 
 // ========== 辅助函数 ==========
 
-// boolPtr 返回 bool 指针
-func boolPtr(v bool) *bool {
+// ptrBool 返回 bool 指针。
+func ptrBool(v bool) *bool {
 	return &v
 }
 
 // ========== 内容哈希（用于精确去重） ==========
 
-// ComputeContentHash 计算内容哈希（精确去重）
+// ComputeContentHash 计算内容哈希（精确去重）。
 func (m *Manager) ComputeContentHash(photoID string) (string, error) {
 	m.mu.RLock()
 	photo, exists := m.photos[photoID]
@@ -1465,7 +1527,7 @@ func (m *Manager) ComputeContentHash(photoID string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// FindExactDuplicates 查找完全相同的照片（基于内容哈希）
+// FindExactDuplicates 查找完全相同的照片（基于内容哈希）。
 func (m *Manager) FindExactDuplicates() (map[string][]string, error) {
 	m.mu.RLock()
 	photoIDs := make([]string, 0, len(m.photos))
@@ -1495,9 +1557,16 @@ func (m *Manager) FindExactDuplicates() (map[string][]string, error) {
 	return duplicates, nil
 }
 
-// ========== 辅助数学函数 ==========
+// GenerateThumbnailWithFFmpeg 使用 ffmpeg 生成缩略图（支持 HEIC、RAW、视频）。
+func (m *Manager) GenerateThumbnailWithFFmpeg(ctx context.Context, srcPath string, photoID string, size int) error {
+	thumbPath := filepath.Join(m.thumbsDir, fmt.Sprintf("%s_%d.jpg", photoID, size))
 
-// round 四舍五入
-func round(x float64) int {
-	return int(math.Floor(x + 0.5))
+	// ffmpeg 命令
+	cmd := exec.CommandContext(ctx, "ffmpeg", "-i", srcPath,
+		"-vf", fmt.Sprintf("scale=%d:%d:force_original_aspect_ratio=decrease", size, size),
+		"-vframes", "1",
+		"-q:v", "2",
+		thumbPath)
+
+	return cmd.Run()
 }
