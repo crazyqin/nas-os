@@ -178,6 +178,24 @@ func newDefaultConfig() *Config {
 		UnixPasswordSync:     false,
 		PAMPasswordChange:    false,
 		PassdbBackend:        "tdbsam",
+		SocketOptions:        "TCP_NODELAY SO_RCVBUF=65536 SO_SNDBUF=65536",
+
+		// 性能优化默认值（参考 TrueNAS）
+		EnableAIO:          true,
+		AIOReadSize:        1,      // 1KB 以上启用异步读取
+		AIOWriteSize:       1,      // 1KB 以上启用异步写入
+		WriteCacheSize:     0,      // 禁用写缓存（现代内核已优化）
+		MaxXmit:            65535,  // 最大传输 64KB
+		Deadtime:           15,     // 15分钟空闲断开
+		Keepalive:          300,    // 5分钟保活
+		MaxOpenFiles:       65535,  // 最大打开文件数
+		UseSendfile:        true,   // 启用 sendfile 优化
+		StrictAllocate:     true,   // 严格空间分配
+		LargeReadwrite:     true,   // 大文件读写优化
+		MinReceivefileSize: 16,     // 16KB 以上使用接收文件优化
+		MaxStatCacheSize:   256,    // 状态缓存 256KB
+		GetwdCache:         true,   // 工作目录缓存
+		KernelOplocks:      true,   // 内核 oplock 支持
 	}
 }
 

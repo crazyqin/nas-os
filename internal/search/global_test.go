@@ -136,18 +136,18 @@ func TestAppRegistry_Search(t *testing.T) {
 	// 注册测试容器
 	registry.RegisterContainer([]ContainerItem{
 		{
-			ID:     "abc123",
-			Name:   "nginx-proxy",
-			Image:  "nginx:latest",
-			Status: "running",
-			Ports:  []string{"80:80", "443:443"},
+			ID:       "abc123",
+			Name:     "nginx-proxy",
+			Image:    "nginx:latest",
+			Status:   "running",
+			Ports:    []string{"80:80", "443:443"},
 			Keywords: []string{"proxy", "web", "http"},
 		},
 		{
-			ID:     "def456",
-			Name:   "redis-cache",
-			Image:  "redis:7-alpine",
-			Status: "running",
+			ID:       "def456",
+			Name:     "redis-cache",
+			Image:    "redis:7-alpine",
+			Status:   "running",
 			Keywords: []string{"cache", "redis"},
 		},
 	}...)
@@ -220,9 +220,9 @@ func TestGlobalSearchService_GlobalSearch(t *testing.T) {
 
 	// 创建测试文件
 	testFiles := map[string]string{
-		"test.txt":     "这是一个测试文件，用于测试全局搜索功能",
-		"readme.md":    "# 全局搜索\n\n这是一个全局搜索组件的实现",
-		"config.json":  `{"name": "test", "type": "config"}`,
+		"test.txt":    "这是一个测试文件，用于测试全局搜索功能",
+		"readme.md":   "# 全局搜索\n\n这是一个全局搜索组件的实现",
+		"config.json": `{"name": "test", "type": "config"}`,
 	}
 
 	for path, content := range testFiles {

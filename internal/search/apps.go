@@ -23,15 +23,15 @@ type AppItem struct {
 
 // ContainerItem 容器项
 type ContainerItem struct {
-	ID          string   `json:"id"`          // 容器ID
-	Name        string   `json:"name"`        // 容器名称
-	Image       string   `json:"image"`       // 镜像名称
-	Status      string   `json:"status"`      // 状态: running, stopped, paused
-	State       string   `json:"state"`       // 状态详情
-	Ports       []string `json:"ports"`       // 端口映射
-	Networks    []string `json:"networks"`    // 网络列表
-	Keywords    []string `json:"keywords"`    // 搜索关键词
-	Labels      map[string]string `json:"labels"` // 容器标签
+	ID       string            `json:"id"`       // 容器ID
+	Name     string            `json:"name"`     // 容器名称
+	Image    string            `json:"image"`    // 镜像名称
+	Status   string            `json:"status"`   // 状态: running, stopped, paused
+	State    string            `json:"state"`    // 状态详情
+	Ports    []string          `json:"ports"`    // 端口映射
+	Networks []string          `json:"networks"` // 网络列表
+	Keywords []string          `json:"keywords"` // 搜索关键词
+	Labels   map[string]string `json:"labels"`   // 容器标签
 }
 
 // AppRegistry 应用注册表

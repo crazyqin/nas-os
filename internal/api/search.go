@@ -490,8 +490,8 @@ func (h *SearchHandler) GetAllSettings(c *gin.Context) {
 		"code":    0,
 		"message": "success",
 		"data": gin.H{
-			"total":   len(settings),
-			"items":   settings,
+			"total": len(settings),
+			"items": settings,
 		},
 	})
 }

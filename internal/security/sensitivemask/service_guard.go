@@ -150,7 +150,7 @@ func (sg *ServiceGuard) ProcessData(ctx context.Context, serviceName string, tex
 		result.BlockReason = "检测到高风险敏感信息，已阻止传输"
 
 		// Log audit
-		sg.auditLogger.Log(ctx, AuditLog{
+		_ = sg.auditLogger.Log(ctx, AuditLog{
 			SourceType:  "service",
 			SourceID:    serviceName,
 			Detections:  detectionResult.Matches,
@@ -186,7 +186,7 @@ func (sg *ServiceGuard) ProcessData(ctx context.Context, serviceName string, tex
 
 	// Log audit if enabled
 	if policy.Actions.LogDetection {
-		sg.auditLogger.Log(ctx, AuditLog{
+		_ = sg.auditLogger.Log(ctx, AuditLog{
 			SourceType:  "service",
 			SourceID:    serviceName,
 			Detections:  detectionResult.Matches,

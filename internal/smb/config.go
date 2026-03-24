@@ -173,6 +173,37 @@ func (p *ConfigParser) parseGlobalConfig(config *Config, key, value string) {
 		config.ClientMinProtocol = value
 	case "client max protocol":
 		config.ClientMaxProtocol = value
+	// 性能优化选项
+	case "aio read size":
+		config.AIOReadSize = parseIntValue(value)
+		config.EnableAIO = config.AIOReadSize > 0
+	case "aio write size":
+		config.AIOWriteSize = parseIntValue(value)
+		config.EnableAIO = config.AIOWriteSize > 0 || config.EnableAIO
+	case "write cache size":
+		config.WriteCacheSize = parseIntValue(value)
+	case "max xmit":
+		config.MaxXmit = parseIntValue(value)
+	case "deadtime":
+		config.Deadtime = parseIntValue(value)
+	case "keepalive":
+		config.Keepalive = parseIntValue(value)
+	case "max open files":
+		config.MaxOpenFiles = parseIntValue(value)
+	case "use sendfile":
+		config.UseSendfile = (value == "yes")
+	case "strict allocate":
+		config.StrictAllocate = (value == "yes")
+	case "large readwrite":
+		config.LargeReadwrite = (value == "yes")
+	case "min receivefile size":
+		config.MinReceivefileSize = parseIntValue(value)
+	case "max stat cache size":
+		config.MaxStatCacheSize = parseIntValue(value)
+	case "getwd cache":
+		config.GetwdCache = (value == "yes")
+	case "kernel oplocks":
+		config.KernelOplocks = (value == "yes")
 	}
 }
 
@@ -324,6 +355,52 @@ func GenerateSmbConf(config *Config, shares map[string]*Share) string {
 		sb.WriteString("    load printers = no\n")
 		sb.WriteString("    printing = bsd\n")
 		sb.WriteString("    printcap name = /dev/null\n")
+	}
+
+	// 性能优化配置（参考 TrueNAS）
+	if config.SocketOptions != "" {
+		fmt.Fprintf(&sb, "    socket options = %s\n", config.SocketOptions)
+	}
+	if config.EnableAIO {
+		if config.AIOReadSize > 0 {
+			fmt.Fprintf(&sb, "    aio read size = %d\n", config.AIOReadSize)
+		}
+		if config.AIOWriteSize > 0 {
+			fmt.Fprintf(&sb, "    aio write size = %d\n", config.AIOWriteSize)
+		}
+	}
+	if config.MaxXmit > 0 {
+		fmt.Fprintf(&sb, "    max xmit = %d\n", config.MaxXmit)
+	}
+	if config.Deadtime > 0 {
+		fmt.Fprintf(&sb, "    deadtime = %d\n", config.Deadtime)
+	}
+	if config.Keepalive > 0 {
+		fmt.Fprintf(&sb, "    keepalive = %d\n", config.Keepalive)
+	}
+	if config.MaxOpenFiles > 0 {
+		fmt.Fprintf(&sb, "    max open files = %d\n", config.MaxOpenFiles)
+	}
+	if config.UseSendfile {
+		sb.WriteString("    use sendfile = yes\n")
+	}
+	if config.StrictAllocate {
+		sb.WriteString("    strict allocate = yes\n")
+	}
+	if config.LargeReadwrite {
+		sb.WriteString("    large readwrite = yes\n")
+	}
+	if config.MinReceivefileSize > 0 {
+		fmt.Fprintf(&sb, "    min receivefile size = %d\n", config.MinReceivefileSize)
+	}
+	if config.MaxStatCacheSize > 0 {
+		fmt.Fprintf(&sb, "    max stat cache size = %d\n", config.MaxStatCacheSize)
+	}
+	if config.GetwdCache {
+		sb.WriteString("    getwd cache = yes\n")
+	}
+	if config.KernelOplocks {
+		sb.WriteString("    kernel oplocks = yes\n")
 	}
 
 	sb.WriteString("\n")
@@ -520,4 +597,11 @@ func ValidateConfig(config *Config) error {
 	}
 
 	return nil
+}
+
+// parseIntValue 解析整数值
+func parseIntValue(value string) int {
+	var result int
+	_, _ = fmt.Sscanf(value, "%d", &result)
+	return result
 }

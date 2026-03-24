@@ -191,10 +191,10 @@ func (p *ProviderBaiduPanImpl) preUpload(ctx context.Context, remotePath string,
 	apiURL := fmt.Sprintf("%s/file?method=precreate&access_token=%s", p.baseURL, p.accessToken)
 
 	body := map[string]interface{}{
-		"path":      remotePath,
-		"size":      fileSize,
-		"isdir":     0,
-		"autoinit":  1,
+		"path":       remotePath,
+		"size":       fileSize,
+		"isdir":      0,
+		"autoinit":   1,
 		"block_list": blockList,
 	}
 
@@ -228,7 +228,7 @@ func (p *ProviderBaiduPanImpl) preUpload(ctx context.Context, remotePath string,
 // uploadParts 上传分片
 func (p *ProviderBaiduPanImpl) uploadParts(ctx context.Context, info *baiduPreUploadInfo, file *os.File, fileSize int64) error {
 	blockSize := int64(4 * 1024 * 1024)
-	
+
 	// 如果 block_list 为空，需要上传所有分片
 	blockList := info.BlockList
 	if len(blockList) == 0 && info.ReturnType == 2 {
@@ -288,8 +288,8 @@ func (p *ProviderBaiduPanImpl) uploadSinglePart(ctx context.Context, uploadID st
 	}
 
 	var result struct {
-		MD5 string `json:"md5"`
-		Errno int `json:"errno"`
+		MD5   string `json:"md5"`
+		Errno int    `json:"errno"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return err
@@ -307,10 +307,10 @@ func (p *ProviderBaiduPanImpl) mergeFile(ctx context.Context, remotePath, upload
 	apiURL := fmt.Sprintf("%s/file?method=create&access_token=%s", p.baseURL, p.accessToken)
 
 	body := map[string]interface{}{
-		"path":      remotePath,
-		"size":      fileSize,
-		"isdir":     0,
-		"uploadid":  uploadID,
+		"path":       remotePath,
+		"size":       fileSize,
+		"isdir":      0,
+		"uploadid":   uploadID,
 		"block_list": []string{md5Hash},
 	}
 
@@ -354,13 +354,14 @@ func (p *ProviderBaiduPanImpl) Download(ctx context.Context, remotePath, localPa
 	if !strings.HasPrefix(remotePath, "/") {
 		remotePath = "/" + remotePath
 	}
+	_ = remotePath // TODO: 实现通过remotePath获取文件ID
 
 	// 获取下载链接
 	apiURL := fmt.Sprintf("%s/multimedia?method=filemetas&access_token=%s", p.baseURL, p.accessToken)
 
 	body := map[string]interface{}{
-		"fsids":    []int64{}, // 需要先获取文件ID
-		"dlink":    1,
+		"fsids": []int64{}, // 需要先获取文件ID
+		"dlink": 1,
 	}
 
 	bodyBytes, _ := json.Marshal(body)
@@ -380,8 +381,8 @@ func (p *ProviderBaiduPanImpl) Download(ctx context.Context, remotePath, localPa
 
 	var result struct {
 		List []struct {
-			FsID   int64  `json:"fs_id"`
-			Dlink  string `json:"dlink"`
+			FsID     int64  `json:"fs_id"`
+			Dlink    string `json:"dlink"`
 			Filename string `json:"filename"`
 		} `json:"list"`
 		Errno int `json:"errno"`
@@ -506,11 +507,11 @@ func (p *ProviderBaiduPanImpl) List(ctx context.Context, prefix string, recursiv
 
 	var result struct {
 		List []struct {
-			Path      string `json:"path"`
-			Filename  string `json:"filename"`
-			Size      int64  `json:"size"`
-			Isdir     int    `json:"isdir"`
-			Mtime     int64  `json:"server_mtime"`
+			Path     string `json:"path"`
+			Filename string `json:"filename"`
+			Size     int64  `json:"size"`
+			Isdir    int    `json:"isdir"`
+			Mtime    int64  `json:"server_mtime"`
 		} `json:"list"`
 		Errno int `json:"errno"`
 	}
