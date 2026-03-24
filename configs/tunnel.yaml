@@ -1,0 +1,102 @@
+# 隧道服务配置示例
+# 文件位置: /etc/nas-os/tunnel.yaml
+
+# 服务器配置
+server:
+  # 隧道服务器地址
+  addr: "tunnel.nas-os.local"
+  # 隧道服务器端口
+  port: 443
+  # 认证令牌（从管理后台获取）
+  auth_token: ""
+
+# 设备配置
+device:
+  # 设备唯一标识（自动生成，无需修改）
+  id: ""
+  # 设备名称（用于在管理后台显示）
+  name: "My NAS"
+
+# STUN/TURN 配置
+ice:
+  # STUN 服务器列表（用于 NAT 检测和 P2P 打洞）
+  stun_servers:
+    - "stun.l.google.com:19302"
+    - "stun1.l.google.com:19302"
+    - "stun2.l.google.com:19302"
+  
+  # TURN 服务器列表（用于中继，当 P2P 无法建立时）
+  turn_servers:
+    - "turn.nas-os.local:3478"
+  
+  # TURN 认证信息
+  turn_user: ""
+  turn_pass: ""
+
+# 连接配置
+connection:
+  # 连接模式: p2p, relay, reverse, auto
+  mode: "auto"
+  
+  # 心跳间隔（秒）
+  heartbeat_interval: 30
+  
+  # 重连间隔（秒）
+  reconnect_interval: 5
+  
+  # 最大重连次数
+  max_reconnect: 10
+  
+  # 连接超时（秒）
+  timeout: 30
+
+# 端口映射配置
+port_mapping:
+  # 是否启用端口映射
+  enabled: true
+  
+  # 本地需要映射的端口
+  local_ports:
+    - 80      # Web 管理界面
+    - 443     # HTTPS
+    - 21      # FTP
+    - 22      # SSH
+    - 873     # rsync
+    - 445     # SMB
+  
+  # 远程端口（可选，留空则自动分配）
+  remote_ports: []
+  
+  # 允许访问的 IP 白名单（留空则允许所有）
+  allowed_ips: []
+
+# 安全配置
+security:
+  # 是否启用 TLS
+  enable_tls: true
+  
+  # TLS 证书文件
+  tls_cert_file: "/etc/nas-os/ssl/tunnel.crt"
+  
+  # TLS 密钥文件
+  tls_key_file: "/etc/nas-os/ssl/tunnel.key"
+  
+  # 允许不安全连接（仅测试用）
+  allow_insecure: false
+
+# 日志配置
+logging:
+  # 日志级别: debug, info, warn, error
+  level: "info"
+  
+  # 日志文件
+  file: "/var/log/nas-os/tunnel.log"
+  
+  # 最大日志文件大小（MB）
+  max_size: 100
+  
+  # 保留旧日志文件数量
+  max_backups: 3
+  
+  # 保留天数
+  max_age: 30
