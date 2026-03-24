@@ -15,25 +15,25 @@ import (
 
 // Signaling errors
 var (
-	ErrNotConnected      = errors.New("not connected to signaling server")
-	ErrPeerNotFound      = errors.New("peer not found")
+	ErrNotConnected       = errors.New("not connected to signaling server")
+	ErrPeerNotFound       = errors.New("peer not found")
 	ErrRegistrationFailed = errors.New("registration failed")
-	ErrInvalidMessage    = errors.New("invalid message format")
+	ErrInvalidMessage     = errors.New("invalid message format")
 )
 
 // SignalingClient handles signaling server communication
 type SignalingClient struct {
-	url      string
-	conn     *websocket.Conn
-	peerID   string
-	
+	url    string
+	conn   *websocket.Conn
+	peerID string
+
 	// Message handling
 	handlers map[string]MessageHandler
 	msgChan  chan *Message
-	
+
 	// State
 	connected bool
-	
+
 	// Control
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -49,13 +49,13 @@ type SignalingServer struct {
 	port     int
 	server   *http.Server
 	upgrader websocket.Upgrader
-	
+
 	// Connected peers
 	peers map[string]*peerConnection
-	
+
 	// Message routing
 	broadcast chan *Message
-	
+
 	// Control
 	ctx    context.Context
 	cancel context.CancelFunc

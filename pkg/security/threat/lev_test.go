@@ -116,8 +116,8 @@ func TestLEVCalculator_DeterminePriority(t *testing.T) {
 	calc := NewLEVCalculator(DefaultLEVConfig())
 
 	tests := []struct {
-		levScore  float64
-		expected  int
+		levScore float64
+		expected int
 	}{
 		{85.0, 1},
 		{75.0, 2},
@@ -127,10 +127,10 @@ func TestLEVCalculator_DeterminePriority(t *testing.T) {
 
 	for _, tt := range tests {
 		input := LEVInput{
-			CVEID:      "CVE-2024-0001",
-			CVSSScore:  tt.levScore / 10, // 简化计算以控制分数
-			EPSSScore:  0.5,
-			IsInKEV:    false,
+			CVEID:     "CVE-2024-0001",
+			CVSSScore: tt.levScore / 10, // 简化计算以控制分数
+			EPSSScore: 0.5,
+			IsInKEV:   false,
 		}
 
 		score := calc.Calculate(input)
@@ -153,8 +153,8 @@ func TestLEVCalculator_DetermineRiskLevel(t *testing.T) {
 	calc := NewLEVCalculator(DefaultLEVConfig())
 
 	tests := []struct {
-		levScore  float64
-		expected  string
+		levScore float64
+		expected string
 	}{
 		{85.0, "critical"},
 		{70.0, "high"},
@@ -364,11 +364,11 @@ func TestLEVCalculator_AgeFactor(t *testing.T) {
 
 	for _, tt := range tests {
 		input := LEVInput{
-			CVEID:           "CVE-2024-0001",
-			CVSSScore:       9.0,
+			CVEID:            "CVE-2024-0001",
+			CVSSScore:        9.0,
 			VulnerabilityAge: tt.ageDays,
-			IsInKEV:         false,
-			EPSSScore:       0.0, // 排除 EPSS 影响
+			IsInKEV:          false,
+			EPSSScore:        0.0, // 排除 EPSS 影响
 		}
 
 		score := calc.Calculate(input)

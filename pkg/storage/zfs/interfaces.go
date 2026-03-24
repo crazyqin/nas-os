@@ -31,25 +31,25 @@ type PoolManager interface {
 
 // PoolCreateConfig 池创建配置
 type PoolCreateConfig struct {
-	Vdevs      []VdevSpec      `json:"vdevs"`
+	Vdevs      []VdevSpec        `json:"vdevs"`
 	Properties map[string]string `json:"properties"`
-	Features   []string        `json:"features"`
-	Force      bool            `json:"force"`
+	Features   []string          `json:"features"`
+	Force      bool              `json:"force"`
 }
 
 // VdevSpec 虚拟设备规格
 type VdevSpec struct {
-	Type string   `json:"type"` // disk, file, mirror, raidz, raidz2, raidz3
+	Type  string   `json:"type"` // disk, file, mirror, raidz, raidz2, raidz3
 	Paths []string `json:"paths"`
 }
 
 // PoolStatus 池状态
 type PoolStatus struct {
-	Name       string       `json:"name"`
-	State      string       `json:"state"`
-	Errors     []PoolError  `json:"errors"`
-	Scan       ScanInfo     `json:"scan"`
-	Config     PoolConfig   `json:"config"`
+	Name   string      `json:"name"`
+	State  string      `json:"state"`
+	Errors []PoolError `json:"errors"`
+	Scan   ScanInfo    `json:"scan"`
+	Config PoolConfig  `json:"config"`
 }
 
 // PoolError 池错误
@@ -61,8 +61,8 @@ type PoolError struct {
 
 // PoolConfig 池配置
 type PoolConfig struct {
-	Name      string       `json:"name"`
-	Vdevs     []VdevInfo   `json:"vdevs"`
+	Name  string     `json:"name"`
+	Vdevs []VdevInfo `json:"vdevs"`
 }
 
 // DatasetManager 数据集管理接口
@@ -180,23 +180,23 @@ type SendReceiveManager interface {
 
 // SendOptions 发送选项
 type SendOptions struct {
-	Incremental   string `json:"incremental,omitempty"` // 增量发送的基准快照
-	Compress      bool   `json:"compress"`
-	Raw           bool   `json:"raw"`      // 发送加密数据
-	Properties    bool   `json:"properties"` // 包含属性
-	Verbose       bool   `json:"verbose"`
-	OutputFile    string `json:"outputFile,omitempty"`
-	BufferSize    int    `json:"bufferSize"`
+	Incremental string `json:"incremental,omitempty"` // 增量发送的基准快照
+	Compress    bool   `json:"compress"`
+	Raw         bool   `json:"raw"`        // 发送加密数据
+	Properties  bool   `json:"properties"` // 包含属性
+	Verbose     bool   `json:"verbose"`
+	OutputFile  string `json:"outputFile,omitempty"`
+	BufferSize  int    `json:"bufferSize"`
 }
 
 // ReceiveOptions 接收选项
 type ReceiveOptions struct {
-	Force         bool   `json:"force"`
-	Resumable     bool   `json:"resumable"`
-	Properties    map[string]string `json:"properties,omitempty"`
-	Origin        string `json:"origin,omitempty"` // 用于克隆
-	InputFile     string `json:"inputFile,omitempty"`
-	BufferSize    int    `json:"bufferSize"`
+	Force      bool              `json:"force"`
+	Resumable  bool              `json:"resumable"`
+	Properties map[string]string `json:"properties,omitempty"`
+	Origin     string            `json:"origin,omitempty"` // 用于克隆
+	InputFile  string            `json:"inputFile,omitempty"`
+	BufferSize int               `json:"bufferSize"`
 }
 
 // EncryptionManager 加密管理接口
@@ -245,12 +245,12 @@ type QuotaManager interface {
 
 // UsageInfo 使用信息
 type UsageInfo struct {
-	Used          uint64 `json:"used"`
-	Avail         uint64 `json:"avail"`
-	Referenced    uint64 `json:"referenced"`
-	Quota         uint64 `json:"quota"`
-	RefQuota      uint64 `json:"refQuota"`
-	Reservation   uint64 `json:"reservation"`
+	Used           uint64 `json:"used"`
+	Avail          uint64 `json:"avail"`
+	Referenced     uint64 `json:"referenced"`
+	Quota          uint64 `json:"quota"`
+	RefQuota       uint64 `json:"refQuota"`
+	Reservation    uint64 `json:"reservation"`
 	RefReservation uint64 `json:"refReservation"`
 }
 
@@ -274,52 +274,52 @@ type ReplicationManager interface {
 
 // ReplicationConfig 复制配置
 type ReplicationConfig struct {
-	Name           string        `json:"name"`
-	SourceDataset  string        `json:"sourceDataset"`
-	TargetHost     string        `json:"targetHost"`
-	TargetDataset  string        `json:"targetDataset"`
-	Recursive      bool          `json:"recursive"`
-	Compress       bool          `json:"compress"`
-	Encryption     bool          `json:"encryption"`
-	Schedule       string        `json:"schedule"` // cron 表达式
-	Retention      RetentionSpec `json:"retention"`
+	Name          string        `json:"name"`
+	SourceDataset string        `json:"sourceDataset"`
+	TargetHost    string        `json:"targetHost"`
+	TargetDataset string        `json:"targetDataset"`
+	Recursive     bool          `json:"recursive"`
+	Compress      bool          `json:"compress"`
+	Encryption    bool          `json:"encryption"`
+	Schedule      string        `json:"schedule"` // cron 表达式
+	Retention     RetentionSpec `json:"retention"`
 }
 
 // RetentionSpec 保留规格
 type RetentionSpec struct {
-	KeepLast   int  `json:"keepLast"`
-	KeepHourly int  `json:"keepHourly"`
-	KeepDaily  int  `json:"keepDaily"`
-	KeepWeekly int  `json:"keepWeekly"`
-	KeepMonthly int  `json:"keepMonthly"`
-	KeepYearly int  `json:"keepYearly"`
+	KeepLast    int `json:"keepLast"`
+	KeepHourly  int `json:"keepHourly"`
+	KeepDaily   int `json:"keepDaily"`
+	KeepWeekly  int `json:"keepWeekly"`
+	KeepMonthly int `json:"keepMonthly"`
+	KeepYearly  int `json:"keepYearly"`
 }
 
 // ReplicationTask 复制任务
 type ReplicationTask struct {
-	ID           string            `json:"id"`
-	Config       ReplicationConfig `json:"config"`
-	State        string            `json:"state"` // pending, running, completed, failed
-	LastRun      time.Time         `json:"lastRun"`
-	NextRun      time.Time         `json:"nextRun"`
-	BytesSent    uint64            `json:"bytesSent"`
-	BytesReceived uint64           `json:"bytesReceived"`
-	SnapshotsSent int              `json:"snapshotsSent"`
-	Errors       []string          `json:"errors,omitempty"`
+	ID            string            `json:"id"`
+	Config        ReplicationConfig `json:"config"`
+	State         string            `json:"state"` // pending, running, completed, failed
+	LastRun       time.Time         `json:"lastRun"`
+	NextRun       time.Time         `json:"nextRun"`
+	BytesSent     uint64            `json:"bytesSent"`
+	BytesReceived uint64            `json:"bytesReceived"`
+	SnapshotsSent int               `json:"snapshotsSent"`
+	Errors        []string          `json:"errors,omitempty"`
 }
 
 // ReplicationStatus 复制状态
 type ReplicationStatus struct {
-	TaskID         string    `json:"taskId"`
-	State          string    `json:"state"`
-	Progress       float64   `json:"progress"`
-	CurrentSnapshot string   `json:"currentSnapshot,omitempty"`
-	BytesTransferred uint64  `json:"bytesTransferred"`
-	TotalBytes     uint64    `json:"totalBytes"`
-	StartTime      time.Time `json:"startTime"`
-	ETA            time.Time `json:"eta,omitempty"`
-	Speed          float64   `json:"speed"` // MB/s
-	Errors         int       `json:"errors"`
+	TaskID           string    `json:"taskId"`
+	State            string    `json:"state"`
+	Progress         float64   `json:"progress"`
+	CurrentSnapshot  string    `json:"currentSnapshot,omitempty"`
+	BytesTransferred uint64    `json:"bytesTransferred"`
+	TotalBytes       uint64    `json:"totalBytes"`
+	StartTime        time.Time `json:"startTime"`
+	ETA              time.Time `json:"eta,omitempty"`
+	Speed            float64   `json:"speed"` // MB/s
+	Errors           int       `json:"errors"`
 }
 
 // ZFSProvider 完整的 ZFS 提供者接口

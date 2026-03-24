@@ -82,12 +82,12 @@ type MigrationTask struct {
 
 // Stats holds tiering statistics
 type Stats struct {
-	TotalFiles      int64            `json:"total_files"`
-	TotalSize       int64            `json:"total_size"`
-	FilesByTier     map[Tier]int64   `json:"files_by_tier"`
-	SizeByTier      map[Tier]int64   `json:"size_by_tier"`
-	MigrationsToday int              `json:"migrations_today"`
-	LastRun         time.Time        `json:"last_run"`
+	TotalFiles      int64          `json:"total_files"`
+	TotalSize       int64          `json:"total_size"`
+	FilesByTier     map[Tier]int64 `json:"files_by_tier"`
+	SizeByTier      map[Tier]int64 `json:"size_by_tier"`
+	MigrationsToday int            `json:"migrations_today"`
+	LastRun         time.Time      `json:"last_run"`
 }
 
 // Manager manages storage tiering operations
@@ -115,13 +115,13 @@ func NewManager() *Manager {
 // DefaultPolicy returns the default tiering policy
 func DefaultPolicy() *Policy {
 	return &Policy{
-		Name:           "default",
-		Enabled:        true,
-		HotThreshold:   100,   // 100+ accesses = hot
-		ColdThreshold:  30,    // 30+ days = cold
-		MinFileSize:    1024,  // 1KB minimum
-		MaxFileSize:    0,     // no max limit
-		Schedule:       "0 2 * * *", // 2 AM daily
+		Name:            "default",
+		Enabled:         true,
+		HotThreshold:    100,         // 100+ accesses = hot
+		ColdThreshold:   30,          // 30+ days = cold
+		MinFileSize:     1024,        // 1KB minimum
+		MaxFileSize:     0,           // no max limit
+		Schedule:        "0 2 * * *", // 2 AM daily
 		ExcludePatterns: []string{"*.tmp", "*.log", "*.cache"},
 	}
 }

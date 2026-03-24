@@ -473,7 +473,7 @@ func TestContextCancellation(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	
+
 	// Start manager
 	startErr := make(chan error, 1)
 	go func() {

@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-03-24T23:17:00+08:00",
+  "project": "nas-os",
+  "code_stats": {
+    "source_files": 551,
+    "test_files": 297,
+    "total_go_files": 848,
+    "total_lines": 474059
+  },
+  "security": {
+    "status": "vulnerable",
+    "vulnerabilities_found": 5,
+    "vulnerabilities": [
+      {
+        "id": "GO-2026-4603",
+        "severity": "medium",
+        "description": "URLs in meta content attribute actions are not escaped in html/template",
+        "affected_package": "html/template@go1.26",
+        "fixed_in": "go1.26.1",
+        "standard_library": true
+      },
+      {
+        "id": "GO-2026-4602",
+        "severity": "medium",
+        "description": "FileInfo can escape from a Root in os",
+        "affected_package": "os@go1.26",
+        "fixed_in": "go1.26.1",
+        "standard_library": true
+      },
+      {
+        "id": "GO-2026-4601",
+        "severity": "medium",
+        "description": "Incorrect parsing of IPv6 host literals in net/url",
+        "affected_package": "net/url@go1.26",
+        "fixed_in": "go1.26.1",
+        "standard_library": true
+      },
+      {
+        "id": "GO-2026-4600",
+        "severity": "medium",
+        "description": "Panic in name constraint checking for malformed certificates in crypto/x509",
+        "affected_package": "crypto/x509@go1.26",
+        "fixed_in": "go1.26.1",
+        "standard_library": true
+      },
+      {
+        "id": "GO-2026-4599",
+        "severity": "medium",
+        "description": "Incorrect enforcement of email constraints in crypto/x509",
+        "affected_package": "crypto/x509@go1.26",
+        "fixed_in": "go1.26.1",
+        "standard_library": true
+      }
+    ],
+    "recommendation": "升级 Go 版本至 1.26.1 以修复所有标准库漏洞"
+  }
+}

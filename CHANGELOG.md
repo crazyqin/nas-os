@@ -7,6 +7,35 @@
 
 ---
 
+## [v2.264.0] - 2026-03-24
+
+### 新增
+- 🔍 **全局搜索服务** (internal/search) - 参考TrueNAS 24.10
+  - 文件/设置/应用统一搜索
+  - 搜索API接口
+- 🔒 **AI去敏感机制** (internal/security/sensitivemask) - 参考DSM 7.3 AI Console
+  - 敏感信息自动检测（手机号、身份证、银行卡）
+  - 数据脱敏处理器
+- 💾 **NVMe S.M.A.R.T增强** - 参考TrueNAS 24.10
+  - NVMe健康指标采集
+  - NVMe测试API接口
+
+### 竞品研究
+- 📊 docs/competitor-analysis-2026-03-24.md 完整竞品分析
+- 飞牛fnOS：免费NAS、Docker管理、影视库、内网穿透
+- 群晖DSM 7.3：Tiering分层、AI去敏感、协同编辑
+- TrueNAS 24.10：Docker迁移、RAIDZ扩展、全局搜索
+
+### 六部协同
+- 兵部: 全局搜索功能开发
+- 刑部: AI去敏感机制设计
+- 工部: NVMe S.M.A.R.T增强
+- 户部: 代码统计与依赖检查
+- 礼部: 竞品分析文档更新
+- 吏部: 版本号更新至v2.264.0
+
+---
+
 ## [v2.263.0] - 2026-03-24
 
 ### 新增
