@@ -109,7 +109,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     needs: [changes]
     if: needs.changes.outputs.docker-changed == 'true' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
-    timeout-minutes: 15
+    timeout-minutes: ${{ matrix.timeout || 15 }}
     strategy:
       fail-fast: false
       matrix:
@@ -126,6 +126,7 @@ jobs:
             docker_platform: linux/arm/v7
             runner: ubuntu-latest
             suffix: armv7
+            timeout: 25
     outputs:
       amd64-digest: ${{ steps.build.outputs.digest }}
       arm64-digest: ${{ steps.build.outputs.digest }}
