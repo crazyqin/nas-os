@@ -31,11 +31,11 @@ const (
 
 // auditLevelValue 级别数值映射
 var auditLevelValue = map[SMAuditLevel]int{
-	SMAuditLevelNone:      0,
-	SMAuditLevelMinimal:   1,
-	SMAuditLevelStandard:  2,
-	SMAuditLevelDetailed:  3,
-	SMAuditLevelFull:      4,
+	SMAuditLevelNone:     0,
+	SMAuditLevelMinimal:  1,
+	SMAuditLevelStandard: 2,
+	SMAuditLevelDetailed: 3,
+	SMAuditLevelFull:     4,
 }
 
 // levelAtLeast 检查当前级别是否至少为指定级别
