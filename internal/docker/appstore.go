@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -780,7 +781,7 @@ func (s *AppStore) renderCompose(template *AppTemplate, config map[string]interf
 
 // generateDefaultCompose 生成默认 compose
 func (s *AppStore) generateDefaultCompose(template *AppTemplate, config map[string]interface{}) string {
-	var ports []string
+	ports := make([]string, 0, len(template.Ports))
 	for _, port := range template.Ports {
 		hostPort := port.Default
 		if val, ok := config[fmt.Sprintf("port_%d", port.Port)].(float64); ok {
@@ -789,7 +790,7 @@ func (s *AppStore) generateDefaultCompose(template *AppTemplate, config map[stri
 		ports = append(ports, fmt.Sprintf("      - \"%d:%d\"", hostPort, port.Port))
 	}
 
-	var volumes []string
+	volumes := make([]string, 0, len(template.Volumes))
 	for _, vol := range template.Volumes {
 		hostPath := vol.Default
 		if val, ok := config[fmt.Sprintf("vol_%s", strings.ReplaceAll(vol.ContainerPath, "/", "_"))].(string); ok && val != "" {
@@ -798,7 +799,7 @@ func (s *AppStore) generateDefaultCompose(template *AppTemplate, config map[stri
 		volumes = append(volumes, fmt.Sprintf("      - %s:%s", hostPath, vol.ContainerPath))
 	}
 
-	var env []string
+	env := make([]string, 0, len(template.Environment))
 	for k, v := range template.Environment {
 		env = append(env, fmt.Sprintf("      - %s=%s", k, v))
 	}
@@ -1164,19 +1165,19 @@ func (tvm *TemplateVersionManager) RemoveVersion(templateID, version string) err
 
 // UpdateInfo 更新信息
 type UpdateInfo struct {
-	AppID           string    `json:"appId"`
-	AppName         string    `json:"appName"`
-	CurrentVersion  string    `json:"currentVersion"`
-	LatestVersion   string    `json:"latestVersion"`
-	CurrentDigest   string    `json:"currentDigest"`
-	LatestDigest    string    `json:"latestDigest"`
-	HasUpdate       bool      `json:"hasUpdate"`
-	ReleaseNotes    string    `json:"releaseNotes"`
-	PublishedAt     time.Time `json:"publishedAt"`
-	ImageSize       int64     `json:"imageSize"`
-	CheckTime       time.Time `json:"checkTime"`
-	AutoUpdate      bool      `json:"autoUpdate"`
-	IgnoreUntil     time.Time `json:"ignoreUntil"`
+	AppID          string    `json:"appId"`
+	AppName        string    `json:"appName"`
+	CurrentVersion string    `json:"currentVersion"`
+	LatestVersion  string    `json:"latestVersion"`
+	CurrentDigest  string    `json:"currentDigest"`
+	LatestDigest   string    `json:"latestDigest"`
+	HasUpdate      bool      `json:"hasUpdate"`
+	ReleaseNotes   string    `json:"releaseNotes"`
+	PublishedAt    time.Time `json:"publishedAt"`
+	ImageSize      int64     `json:"imageSize"`
+	CheckTime      time.Time `json:"checkTime"`
+	AutoUpdate     bool      `json:"autoUpdate"`
+	IgnoreUntil    time.Time `json:"ignoreUntil"`
 }
 
 // UpdateChecker 更新检测器
@@ -1284,18 +1285,18 @@ func (uc *UpdateChecker) CheckImageUpdate(image, currentTag string) (*UpdateInfo
 
 // ImageInfo 镜像信息
 type ImageInfo struct {
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Tags        []TagInfo  `json:"tags"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Tags        []TagInfo `json:"tags"`
 }
 
 // TagInfo 标签信息
 type TagInfo struct {
-	Name          string    `json:"name"`
-	Digest        string    `json:"digest"`
-	FullSize      int64     `json:"full_size"`
-	LastUpdated   time.Time `json:"last_updated"`
-	ReleaseNotes  string    `json:"release_notes"`
+	Name         string    `json:"name"`
+	Digest       string    `json:"digest"`
+	FullSize     int64     `json:"full_size"`
+	LastUpdated  time.Time `json:"last_updated"`
+	ReleaseNotes string    `json:"release_notes"`
 }
 
 // fetchImageInfo 获取镜像信息
@@ -1305,7 +1306,7 @@ func (uc *UpdateChecker) fetchImageInfo(imageName string) (*ImageInfo, error) {
 	// 构建 Docker Hub API URL
 	url := fmt.Sprintf("https://hub.docker.com/v2/repositories/%s/%s/tags/?page_size=100", namespace, name)
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1327,9 +1328,9 @@ func (uc *UpdateChecker) fetchImageInfo(imageName string) (*ImageInfo, error) {
 
 	var result struct {
 		Results []struct {
-			Name        string    `json:"name"`
-			FullSize    int64     `json:"full_size"`
-			LastUpdated string    `json:"last_updated"`
+			Name        string `json:"name"`
+			FullSize    int64  `json:"full_size"`
+			LastUpdated string `json:"last_updated"`
 			Images      []struct {
 				Digest string `json:"digest"`
 			} `json:"images"`
@@ -1342,8 +1343,8 @@ func (uc *UpdateChecker) fetchImageInfo(imageName string) (*ImageInfo, error) {
 
 	// 转换结果
 	info := &ImageInfo{
-		Name:  imageName,
-		Tags:  make([]TagInfo, 0, len(result.Results)),
+		Name: imageName,
+		Tags: make([]TagInfo, 0, len(result.Results)),
 	}
 
 	for _, r := range result.Results {
@@ -1416,16 +1417,16 @@ func findLatestStableTag(tags []TagInfo) *TagInfo {
 
 // BackupInfo 备份信息
 type BackupInfo struct {
-	ID          string            `json:"id"`
-	AppID       string            `json:"appId"`
-	AppName     string            `json:"appName"`
-	Version     string            `json:"version"`
-	CreateTime  time.Time         `json:"createTime"`
-	Size        int64             `json:"size"`
-	Notes       string            `json:"notes"`
-	Includes    []string          `json:"includes"` // 包含的内容: config, data, env
-	Checksum    string            `json:"checksum"`
-	Labels      map[string]string `json:"labels"`
+	ID         string            `json:"id"`
+	AppID      string            `json:"appId"`
+	AppName    string            `json:"appName"`
+	Version    string            `json:"version"`
+	CreateTime time.Time         `json:"createTime"`
+	Size       int64             `json:"size"`
+	Notes      string            `json:"notes"`
+	Includes   []string          `json:"includes"` // 包含的内容: config, data, env
+	Checksum   string            `json:"checksum"`
+	Labels     map[string]string `json:"labels"`
 }
 
 // BackupManager 备份管理器
@@ -1514,13 +1515,14 @@ func (bm *BackupManager) BackupApp(appID string, opts BackupOptions) (*BackupInf
 	if opts.IncludeData && len(app.Volumes) > 0 {
 		dataDir := filepath.Join(backupPath, "volumes")
 		if err := os.MkdirAll(dataDir, 0750); err == nil {
+			ctx := context.Background()
 			for containerPath, hostPath := range app.Volumes {
 				if _, err := os.Stat(hostPath); err == nil {
 					// 使用 tar 打包数据
 					archiveName := strings.ReplaceAll(strings.TrimPrefix(containerPath, "/"), "/", "_") + ".tar.gz"
 					archivePath := filepath.Join(dataDir, archiveName)
 
-					cmd := exec.Command("tar", "-czf", archivePath, "-C", hostPath, ".")
+					cmd := exec.CommandContext(ctx, "tar", "-czf", archivePath, "-C", hostPath, ".")
 					if err := cmd.Run(); err == nil {
 						if fi, err := os.Stat(archivePath); err == nil {
 							totalSize += fi.Size()
@@ -1562,11 +1564,11 @@ func (bm *BackupManager) BackupApp(appID string, opts BackupOptions) (*BackupInf
 
 // BackupOptions 备份选项
 type BackupOptions struct {
-	IncludeConfig bool              `json:"includeConfig"`
-	IncludeCompose bool             `json:"includeCompose"`
-	IncludeData   bool              `json:"includeData"`
-	Notes         string            `json:"notes"`
-	Labels        map[string]string `json:"labels"`
+	IncludeConfig  bool              `json:"includeConfig"`
+	IncludeCompose bool              `json:"includeCompose"`
+	IncludeData    bool              `json:"includeData"`
+	Notes          string            `json:"notes"`
+	Labels         map[string]string `json:"labels"`
 }
 
 // RestoreApp 恢复应用
@@ -1634,6 +1636,7 @@ func (bm *BackupManager) RestoreApp(backupID string, opts RestoreOptions) (*Inst
 	if opts.RestoreData && containsStr(info.Includes, "data") {
 		dataDir := filepath.Join(backupPath, "volumes")
 		if _, err := os.Stat(dataDir); err == nil {
+			ctx := context.Background()
 			for containerPath, hostPath := range config.Volumes {
 				archiveName := strings.ReplaceAll(strings.TrimPrefix(containerPath, "/"), "/", "_") + ".tar.gz"
 				archivePath := filepath.Join(dataDir, archiveName)
@@ -1643,7 +1646,7 @@ func (bm *BackupManager) RestoreApp(backupID string, opts RestoreOptions) (*Inst
 					_ = os.MkdirAll(hostPath, 0750)
 
 					// 解压数据
-					cmd := exec.Command("tar", "-xzf", archivePath, "-C", hostPath)
+					cmd := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", hostPath)
 					_ = cmd.Run()
 				}
 			}
@@ -1662,7 +1665,8 @@ func (bm *BackupManager) RestoreApp(backupID string, opts RestoreOptions) (*Inst
 
 		// 启动容器
 		if opts.StartAfterRestore {
-			cmd := exec.Command("docker-compose", "-f", composePath, "up", "-d")
+			ctx := context.Background()
+			cmd := exec.CommandContext(ctx, "docker-compose", "-f", composePath, "up", "-d")
 			_ = cmd.Run()
 		}
 	}
@@ -1693,8 +1697,8 @@ func (bm *BackupManager) RestoreApp(backupID string, opts RestoreOptions) (*Inst
 
 // RestoreOptions 恢复选项
 type RestoreOptions struct {
-	ForceRestore    bool `json:"forceRestore"`
-	RestoreData     bool `json:"restoreData"`
+	ForceRestore      bool `json:"forceRestore"`
+	RestoreData       bool `json:"restoreData"`
 	StartAfterRestore bool `json:"startAfterRestore"`
 }
 
@@ -1762,7 +1766,8 @@ func (bm *BackupManager) DeleteBackup(backupID string) error {
 // calculateChecksum 计算备份目录校验和
 func (bm *BackupManager) calculateChecksum(backupPath string) (string, error) {
 	// 简单实现：遍历文件计算 MD5
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("find %s -type f -exec md5sum {} \\; | sort | md5sum | cut -d' ' -f1", backupPath))
+	ctx := context.Background()
+	cmd := exec.CommandContext(ctx, "sh", "-c", fmt.Sprintf("find %s -type f -exec md5sum {} \\; | sort | md5sum | cut -d' ' -f1", backupPath))
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
@@ -1798,15 +1803,15 @@ func containsStr(slice []string, str string) bool {
 
 // HealthStatus 健康状态
 type HealthStatus struct {
-	AppID         string          `json:"appId"`
-	AppName       string          `json:"appName"`
-	Status        string          `json:"status"` // healthy, unhealthy, starting, stopped
-	LastCheck     time.Time       `json:"lastCheck"`
-	Checks        []HealthCheck   `json:"checks"`
-	Uptime        time.Duration   `json:"uptime"`
-	RestartCount  int             `json:"restartCount"`
-	LastRestart   time.Time       `json:"lastRestart"`
-	Message       string          `json:"message"`
+	AppID        string        `json:"appId"`
+	AppName      string        `json:"appName"`
+	Status       string        `json:"status"` // healthy, unhealthy, starting, stopped
+	LastCheck    time.Time     `json:"lastCheck"`
+	Checks       []HealthCheck `json:"checks"`
+	Uptime       time.Duration `json:"uptime"`
+	RestartCount int           `json:"restartCount"`
+	LastRestart  time.Time     `json:"lastRestart"`
+	Message      string        `json:"message"`
 }
 
 // HealthCheck 健康检查项
@@ -1821,7 +1826,6 @@ type HealthCheck struct {
 
 // HealthChecker 健康检查器
 type HealthChecker struct {
-	mu      sync.RWMutex
 	store   *AppStore
 	manager *Manager
 	config  HealthCheckConfig
@@ -1829,17 +1833,17 @@ type HealthChecker struct {
 
 // HealthCheckConfig 健康检查配置
 type HealthCheckConfig struct {
-	CheckInterval   time.Duration `json:"checkInterval"`
-	Timeout         time.Duration `json:"timeout"`
-	HealthyThreshold int          `json:"healthyThreshold"`
-	UnhealthyThreshold int        `json:"unhealthyThreshold"`
+	CheckInterval      time.Duration `json:"checkInterval"`
+	Timeout            time.Duration `json:"timeout"`
+	HealthyThreshold   int           `json:"healthyThreshold"`
+	UnhealthyThreshold int           `json:"unhealthyThreshold"`
 }
 
 // DefaultHealthCheckConfig 默认健康检查配置
 var DefaultHealthCheckConfig = HealthCheckConfig{
-	CheckInterval:     30 * time.Second,
-	Timeout:           10 * time.Second,
-	HealthyThreshold:  2,
+	CheckInterval:      30 * time.Second,
+	Timeout:            10 * time.Second,
+	HealthyThreshold:   2,
 	UnhealthyThreshold: 3,
 }
 
@@ -1930,7 +1934,7 @@ func (hc *HealthChecker) checkContainerStatus(container *Container) HealthCheck 
 
 // checkPorts 检查端口
 func (hc *HealthChecker) checkPorts(ports map[int]int) []HealthCheck {
-	var checks []HealthCheck
+	checks := make([]HealthCheck, 0, len(ports))
 
 	for _, hostPort := range ports {
 		check := HealthCheck{
@@ -1942,7 +1946,10 @@ func (hc *HealthChecker) checkPorts(ports map[int]int) []HealthCheck {
 		start := time.Now()
 
 		// 尝试连接端口
-		conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", hostPort), hc.config.Timeout)
+		dialer := &net.Dialer{Timeout: hc.config.Timeout}
+		ctx, cancel := context.WithTimeout(context.Background(), hc.config.Timeout)
+		conn, err := dialer.DialContext(ctx, "tcp", fmt.Sprintf("127.0.0.1:%d", hostPort))
+		cancel()
 		check.Latency = time.Since(start)
 
 		if err != nil {
@@ -1984,6 +1991,16 @@ func (hc *HealthChecker) checkHTTPEndpoint(app *InstalledApp) *HealthCheck {
 
 	start := time.Now()
 
+	ctx, cancel := context.WithTimeout(context.Background(), hc.config.Timeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, check.Endpoint, nil)
+	if err != nil {
+		check.Status = "unhealthy"
+		check.Message = fmt.Sprintf("创建请求失败: %v", err)
+		return &check
+	}
+
 	client := &http.Client{
 		Timeout: hc.config.Timeout,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -1991,7 +2008,7 @@ func (hc *HealthChecker) checkHTTPEndpoint(app *InstalledApp) *HealthCheck {
 		},
 	}
 
-	resp, err := client.Get(check.Endpoint)
+	resp, err := client.Do(req)
 	check.Latency = time.Since(start)
 
 	if err != nil {
