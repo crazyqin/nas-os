@@ -182,8 +182,8 @@ func (s *Scanner) ParseFilename(filename string) (title string, year int, season
 func parseTVEpisode(filename string) (season, episode int, ok bool) {
 	// Try S01E01 pattern first (most common)
 	if matches := seasonEpisodeRegex.FindStringSubmatch(filename); len(matches) == 3 {
-		season = parseInt(matches[1])
-		episode = parseInt(matches[2])
+		season = parseIntSimple(matches[1])
+		episode = parseIntSimple(matches[2])
 		if season > 0 && episode > 0 {
 			return season, episode, true
 		}
@@ -191,8 +191,8 @@ func parseTVEpisode(filename string) (season, episode int, ok bool) {
 
 	// Try 1x01 pattern
 	if matches := altSeasonEpisodeRegex.FindStringSubmatch(filename); len(matches) == 3 {
-		season = parseInt(matches[1])
-		episode = parseInt(matches[2])
+		season = parseIntSimple(matches[1])
+		episode = parseIntSimple(matches[2])
 		if season > 0 && episode > 0 {
 			return season, episode, true
 		}
@@ -201,7 +201,7 @@ func parseTVEpisode(filename string) (season, episode int, ok bool) {
 	// Try episode-only pattern (Ep.01, E01, Episode 01)
 	// Note: This assumes season 1 if no season is found
 	if matches := episodeOnlyRegex.FindStringSubmatch(filename); len(matches) == 2 {
-		episode = parseInt(matches[1])
+		episode = parseIntSimple(matches[1])
 		if episode > 0 {
 			return 1, episode, true // Default to season 1
 		}
@@ -210,8 +210,8 @@ func parseTVEpisode(filename string) (season, episode int, ok bool) {
 	return 0, 0, false
 }
 
-// parseInt safely parses a string to int, returning 0 on error
-func parseInt(s string) int {
+// parseIntSimple safely parses a string to int, returning 0 on error
+func parseIntSimple(s string) int {
 	var result int
 	for _, c := range s {
 		if c >= '0' && c <= '9' {
