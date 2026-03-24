@@ -1,6 +1,6 @@
 # NAS-OS 用户文档
 
-**版本**: v2.253.288 | **更新日期**: 2026-03-24
+**版本**: v2.254.0 | **更新日期**: 2026-03-24
 
 ## 📚 文档目录
 
@@ -580,8 +580,171 @@ sudo nasctl user reset-password admin --new-password NewPass123!
 ---
 
 
-*文档版本：v2.253.288 | 最后更新：2026-03-24*
+*文档版本：v2.254.0 | 最后更新：2026-03-24*
 
+
+---
+
+## 🔒 WriteOnce 不可变存储
+
+NAS-OS v2.254.0 新增 WriteOnce 不可变存储功能，实现数据写入后不可修改的保护机制。
+
+### 适用场景
+
+| 场景 | 说明 |
+|------|------|
+| 合规归档 | 满足金融、医疗等行业的数据留存要求 |
+| 防勒索 | 保护关键数据不被加密勒索软件篡改 |
+| 审计日志 | 确保操作记录不可被删除或修改 |
+| 备份存储 | 保护备份数据完整性 |
+
+### 创建不可变卷
+
+```bash
+# 创建不可变存储卷
+sudo nasctl volume create archive-vol /dev/sdb1 --immutable
+
+# 查看卷属性
+sudo nasctl volume show archive-vol
+# 输出将显示 immutable: true
+```
+
+### 使用规则
+
+- **写入**: 支持正常写入新文件
+- **修改**: 已写入的文件无法修改、删除或覆盖
+- **期限**: 可设置保留期限，到期后自动解除锁定
+- **权限**: 仅管理员可创建和管理不可变卷
+
+### API 调用
+
+```bash
+# 创建不可变卷
+curl -X POST http://localhost:8080/api/v1/volumes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "archive-vol",
+    "device": "/dev/sdb1",
+    "immutable": true,
+    "retention_days": 365
+  }'
+```
+
+---
+
+## 🛡️ 智能多重验证 (AMFA)
+
+AMFA (Adaptive Multi-Factor Authentication) 是 NAS-OS v2.254.0 引入的自适应多因素认证系统。
+
+### 工作原理
+
+AMFA 根据以下因素自动调整验证强度：
+
+| 因素 | 说明 |
+|------|------|
+| 设备指纹 | 识别常用设备，信任设备可免验证 |
+| 地理位置 | 检测异常登录地点 |
+| 登录时间 | 识别非常规时段登录 |
+| 行为模式 | 分析用户操作习惯 |
+
+### 验证方式
+
+| 方式 | 说明 | 安全等级 |
+|------|------|----------|
+| TOTP | 时间令牌 (Google Authenticator 等) | ⭐⭐⭐ |
+| 短信 | 手机短信验证码 | ⭐⭐ |
+| 邮件 | 邮箱验证码 | ⭐⭐ |
+| 硬件密钥 | YubiKey 等 FIDO2 设备 | ⭐⭐⭐⭐ |
+
+### 配置 AMFA
+
+1. **启用 AMFA**
+   ```bash
+   # 命令行启用
+   sudo nasctl security amfa enable
+   ```
+
+2. **配置安全策略**
+   ```yaml
+   # /etc/nas-os/config.yaml
+   security:
+     amfa:
+       enabled: true
+       trust_device_days: 30  # 信任设备有效期
+       forced_mfa_on_new_device: true  # 新设备强制 MFA
+       geo_lock:  # 地理位置限制
+         enabled: true
+         allowed_countries:
+           - CN
+           - US
+   ```
+
+3. **用户绑定验证器**
+   - 登录 Web 界面
+   - 进入「设置」→「安全设置」→「多重验证」
+   - 选择验证方式并完成绑定
+
+### 用户体验
+
+- **信任设备**: 30天内免验证（可配置）
+- **异常登录**: 自动触发 MFA 或拒绝登录
+- **紧急访问**: 支持备用恢复码
+
+---
+
+## 🚫 SMB/NFS 自动封锁
+
+NAS-OS v2.254.0 提供 SMB/NFS 服务自动封锁功能，防止暴力破解攻击。
+
+### 功能特性
+
+| 特性 | 说明 |
+|------|------|
+| 失败计数 | 记录连续认证失败次数 |
+| 自动封锁 | 达到阈值自动封禁 IP |
+| 白名单 | 信任 IP 永不封锁 |
+| 自动解封 | 可配置封锁时长 |
+| 攻击日志 | 完整记录攻击行为 |
+
+### 配置参数
+
+```yaml
+# /etc/nas-os/config.yaml
+security:
+  auto_ban:
+    enabled: true
+    smb:
+      max_attempts: 5      # 最大失败次数
+      ban_duration: 3600   # 封锁时长（秒）
+    nfs:
+      max_attempts: 3
+      ban_duration: 7200
+    whitelist:
+      - 192.168.1.0/24     # 内网白名单
+      - 10.0.0.100         # 管理员 IP
+```
+
+### 管理命令
+
+```bash
+# 查看封锁列表
+sudo nasctl security ban list
+
+# 手动封锁 IP
+sudo nasctl security ban add 192.168.1.100 --reason "可疑活动"
+
+# 手动解封
+sudo nasctl security ban remove 192.168.1.100
+
+# 查看攻击日志
+sudo nasctl security ban logs
+```
+
+### 监控与告警
+
+- 封锁事件自动记录到审计日志
+- 可配置邮件/Webhook 通知
+- 支持 Prometheus 指标导出
 
 ---
 
