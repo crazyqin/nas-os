@@ -260,6 +260,22 @@ func (m *Manager) validateProviderConfig(config *ProviderConfig) error {
 			return fmt.Errorf("refresh token 不能为空")
 		}
 
+	// 中国网盘验证
+	case Provider115:
+		if config.AccessToken == "" {
+			return fmt.Errorf("access token 不能为空")
+		}
+
+	case ProviderQuark:
+		if config.AccessToken == "" {
+			return fmt.Errorf("access token 不能为空")
+		}
+
+	case ProviderAliyunPan:
+		if config.RefreshToken == "" {
+			return fmt.Errorf("refresh token 不能为空")
+		}
+
 	default:
 		return fmt.Errorf("不支持的提供商类型: %s", config.Type)
 	}

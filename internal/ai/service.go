@@ -161,9 +161,9 @@ func (m *Manager) GetAvailableProviders() []Provider {
 
 // DeIdentifier handles PII de-identification
 type DeIdentifier struct {
-	rules     []DeIDRule
-	mappings  map[string]string // placeholder -> original value
-	mu        sync.RWMutex
+	rules    []DeIDRule
+	mappings map[string]string // placeholder -> original value
+	mu       sync.RWMutex
 }
 
 // NewDeIdentifier creates a new de-identifier

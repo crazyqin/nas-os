@@ -1879,6 +1879,13 @@ func NewProvider(ctx context.Context, cfg *ProviderConfig) (Provider, error) {
 		return NewOneDriveProvider(cfg)
 	case ProviderS3Compatible:
 		return NewS3Provider(ctx, cfg, ProviderS3Compatible)
+	// 中国网盘提供商
+	case Provider115:
+		return New115Provider(cfg)
+	case ProviderQuark:
+		return NewQuarkProvider(cfg)
+	case ProviderAliyunPan:
+		return NewAliyunPanProvider(cfg)
 	default:
 		return nil, fmt.Errorf("不支持的云存储提供商: %s", cfg.Type)
 	}

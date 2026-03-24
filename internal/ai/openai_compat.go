@@ -23,8 +23,8 @@ type OpenAICompatibleConfig struct {
 	Temperature float64
 
 	// 自定义配置
-	Headers     map[string]string // 自定义请求头
-	Provider    Provider          // 提供商标识
+	Headers  map[string]string // 自定义请求头
+	Provider Provider          // 提供商标识
 }
 
 // OpenAICompatibleClient OpenAI兼容客户端
@@ -332,12 +332,12 @@ type OpenAIMessage struct {
 
 // OpenAIChatResponse 聊天响应
 type OpenAIChatResponse struct {
-	ID      string             `json:"id"`
-	Object  string             `json:"object"`
-	Created int64              `json:"created"`
-	Model   string             `json:"model"`
-	Choices []OpenAIChoice     `json:"choices"`
-	Usage   OpenAIUsage        `json:"usage"`
+	ID      string         `json:"id"`
+	Object  string         `json:"object"`
+	Created int64          `json:"created"`
+	Model   string         `json:"model"`
+	Choices []OpenAIChoice `json:"choices"`
+	Usage   OpenAIUsage    `json:"usage"`
 }
 
 // OpenAIChoice 选择
@@ -378,10 +378,10 @@ type OpenAIEmbedRequest struct {
 
 // OpenAIEmbedResponse 嵌入响应
 type OpenAIEmbedResponse struct {
-	Object string          `json:"object"`
+	Object string            `json:"object"`
 	Data   []OpenAIEmbedData `json:"data"`
-	Model  string          `json:"model"`
-	Usage  OpenAIUsage     `json:"usage"`
+	Model  string            `json:"model"`
+	Usage  OpenAIUsage       `json:"usage"`
 }
 
 // OpenAIEmbedData 嵌入数据
@@ -479,28 +479,28 @@ func (r *SSEReader) readLine() (string, error) {
 var (
 	// OpenAI官方
 	OpenAIEndpoint = "https://api.openai.com/v1"
-	
+
 	// Azure OpenAI (需要配置deployment)
 	AzureOpenAIEndpoint = "https://YOUR_RESOURCE.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT"
-	
+
 	// 国内常用OpenAI兼容服务
 	// 这些服务提供OpenAI兼容的API接口
-	
+
 	// DeepSeek
 	DeepSeekEndpoint = "https://api.deepseek.com/v1"
-	
+
 	// 智谱AI (GLM)
 	ZhipuAIEndpoint = "https://open.bigmodel.cn/api/paas/v4"
-	
+
 	// 通义千问 (Qwen)
 	QwenEndpoint = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-	
+
 	// 文心一言 (需要适配)
 	// ERNIEEndpoint = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat"
-	
+
 	// Moonshot (Kimi)
 	MoonshotEndpoint = "https://api.moonshot.cn/v1"
-	
+
 	// 本地LLM服务
 	// OllamaEndpoint = "http://localhost:11434/v1"
 	// LocalAIEndpoint = "http://localhost:8080/v1"

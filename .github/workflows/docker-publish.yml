@@ -8,11 +8,14 @@
 # 功能特性:
 # - 支持 minimal（distroless，约 15-18MB）和 full（alpine，约 35-40MB）两种镜像
 # - 同时推送到 GHCR 和 Docker Hub
-# - 多层缓存策略优化构建速度
+# - Matrix 策略并行构建多架构（解决超时问题）
+# - Go 模块缓存 + 构建缓存双重优化
 # - Cosign keyless 签名 + SBOM 生成
 # - Trivy 镜像安全扫描
 #
-# 当前版本: v2.253.283（工部维护）
+# v2.254.0 优化：使用 matrix 策略分离架构构建，避免 QEMU 超时
+#
+# 当前版本: v2.254.0（工部维护）
 
 name: Docker Publish
 
@@ -45,11 +48,11 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   # Docker Hub 配置
   DOCKERHUB_IMAGE: nasos/nas-os
-  # 缓存版本号
-  CACHE_VERSION: 'v12'
+  # 缓存版本号（每次修改 Dockerfile 或 workflow 时递增）
+  CACHE_VERSION: 'v13'
   # Node.js 24 支持
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  # v2.123.0 新增: GOPROXY 加速
+  # GOPROXY 加速
   GOPROXY: 'https://proxy.golang.org,direct'
 
 # 权限配置 - 最小权限原则
@@ -98,24 +101,45 @@ jobs:
           echo "|------|----------|" >> $GITHUB_STEP_SUMMARY
           echo "| Docker 相关 | ${{ steps.filter.outputs.docker == 'true' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
 
-  # ========== Docker 镜像构建 ==========
-  docker-build:
-    name: 构建 Docker 镜像
-    runs-on: ubuntu-latest
+  # ========== 单架构构建（Matrix 策略并行） ==========
+  # 优化：分离架构构建，避免 QEMU 模拟导致的超时
+  # amd64 使用原生 runner，arm64 使用 ARM runner，arm/v7 使用 QEMU
+  build-platform:
+    name: 构建 ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
     needs: [changes]
     if: needs.changes.outputs.docker-changed == 'true' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
-    timeout-minutes: 30
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: amd64
+            docker_platform: linux/amd64
+            runner: ubuntu-latest
+            suffix: amd64
+          - platform: arm64
+            docker_platform: linux/arm64
+            runner: ubuntu-24.04-arm  # 原生 ARM runner，无需 QEMU
+            suffix: arm64
+          - platform: armv7
+            docker_platform: linux/arm/v7
+            runner: ubuntu-latest
+            suffix: armv7
     outputs:
-      digest: ${{ steps.build.outputs.digest }}
-      short-sha: ${{ steps.meta.outputs.version }}
+      amd64-digest: ${{ steps.build.outputs.digest }}
+      arm64-digest: ${{ steps.build.outputs.digest }}
+      armv7-digest: ${{ steps.build.outputs.digest }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
       
+      # 仅 armv7 需要 QEMU
       - name: 设置 QEMU
+        if: matrix.platform == 'armv7'
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: all
+          platforms: arm
       
       - name: 设置 Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -135,33 +159,106 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: 设置 Go 环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      # Go 模块缓存（加速依赖下载）
+      - name: Go 模块缓存
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ matrix.platform }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.platform }}-
+            ${{ runner.os }}-go-
+
+      - name: 提取短 SHA
+        id: sha
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+      - name: 构建并推送单架构镜像
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: ${{ matrix.docker_platform }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.SHORT_SHA }}-${{ matrix.suffix }}
+            ${{ env.DOCKERHUB_IMAGE }}:${{ steps.sha.outputs.SHORT_SHA }}-${{ matrix.suffix }}
+          # 架构专用缓存
+          cache-from: |
+            type=gha,scope=${{ env.CACHE_VERSION }}-${{ matrix.platform }}
+            type=gha,scope=${{ env.CACHE_VERSION }}-${{ matrix.platform }}-master
+          cache-to: type=gha,scope=${{ env.CACHE_VERSION }}-${{ matrix.platform }},mode=max
+          build-args: |
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+            VERSION=${{ github.ref_name }}
+            REVISION=${{ github.sha }}
+          outputs: type=docker,dest=/tmp/image-${{ matrix.suffix }}.tar
+      
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-${{ matrix.suffix }}
+          path: /tmp/image-${{ matrix.suffix }}.tar
+          retention-days: 1
+
+  # ========== 合并多架构 Manifest ==========
+  merge-manifest:
+    name: 合并多架构镜像
+    runs-on: ubuntu-latest
+    needs: [changes, build-platform]
+    if: needs.changes.outputs.docker-changed == 'true' && github.event_name != 'pull_request'
+    timeout-minutes: 10
+    outputs:
+      digest: ${{ steps.merge.outputs.digest }}
+      short-sha: ${{ steps.meta.outputs.version }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v5
+      
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: 登录 GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: 登录 Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 提取短 SHA
+        id: sha
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
       - name: 提取元数据 (GHCR)
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            # 分支
             type=ref,event=branch,suffix=-{{ sha }}
             type=ref,event=branch,enable=${{ github.ref == 'refs/heads/master' }},suffix=
-            
-            # PR
             type=ref,event=pr
-            
-            # 语义化版本
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            
-            # SHA 标签（用于安全扫描）
             type=sha,prefix=,suffix=,format=short
-            
-            # latest (仅 main 分支)
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
-            
-            # 手动触发
             type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
-          
           labels: |
             org.opencontainers.image.title=NAS-OS
             org.opencontainers.image.description=Home NAS Management System
@@ -173,79 +270,84 @@ jobs:
         with:
           images: ${{ env.DOCKERHUB_IMAGE }}
           tags: |
-            # 分支
             type=ref,event=branch,suffix=-{{ sha }}
             type=ref,event=branch,enable=${{ github.ref == 'refs/heads/master' }},suffix=
-            
-            # PR
             type=ref,event=pr
-            
-            # 语义化版本
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            
-            # SHA 标签
             type=sha,prefix=,suffix=,format=short
-            
-            # latest (仅 main 分支)
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
-            
-            # 手动触发
             type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
-          
           labels: |
             org.opencontainers.image.title=NAS-OS
             org.opencontainers.image.description=Home NAS Management System
             org.opencontainers.image.vendor=NAS-OS Team
-      
-      - name: 构建并推送
-        id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: |
-            ${{ steps.meta.outputs.tags }}
-            ${{ steps.meta-dockerhub.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          annotations: ${{ steps.meta.outputs.annotations }}
-          # 多层缓存策略
-          cache-from: |
-            type=gha,scope=${{ env.CACHE_VERSION }}-${{ github.ref_name }}
-            type=gha,scope=${{ env.CACHE_VERSION }}-master
-          cache-to: type=gha,scope=${{ env.CACHE_VERSION }}-${{ github.ref_name }},mode=max
-          build-args: |
-            BUILD_TIME=${{ github.event.head_commit.timestamp }}
-            VERSION=${{ github.ref_name }}
-            REVISION=${{ github.sha }}
-      
+
+      - name: 创建并推送多架构 Manifest
+        id: merge
+        run: |
+          SHORT_SHA="${{ steps.sha.outputs.SHORT_SHA }}"
+          
+          # 创建 manifest list
+          docker buildx imagetools create -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
+          
+          # 推送到 Docker Hub
+          docker buildx imagetools create -t ${{ env.DOCKERHUB_IMAGE }}:${SHORT_SHA} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7
+          
+          # 获取 digest
+          DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA} --format '{{.Digest}}')
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+          echo "✅ Manifest 创建完成: $DIGEST"
+          
+          # 为其他标签创建 manifest
+          for TAG in $(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' '); do
+            if [ "$TAG" != "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}" ]; then
+              docker buildx imagetools create -t "$TAG" \
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7 || true
+            fi
+          done
+          
+          for TAG in $(echo "${{ steps.meta-dockerhub.outputs.tags }}" | tr '\n' ' '); do
+            if [ "$TAG" != "${{ env.DOCKERHUB_IMAGE }}:${SHORT_SHA}" ]; then
+              docker buildx imagetools create -t "$TAG" \
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-amd64 \
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-arm64 \
+                ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${SHORT_SHA}-armv7 || true
+            fi
+          done
+
       - name: 生成镜像信息
-        if: github.event_name != 'pull_request'
         run: |
           echo "## 🐳 Docker 镜像已发布" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**GHCR 镜像地址:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.sha.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Docker Hub 镜像地址:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.DOCKERHUB_IMAGE }}:${{ steps.meta.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.DOCKERHUB_IMAGE }}:${{ steps.sha.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**支持平台:** \`amd64\`, \`arm64\`, \`arm/v7\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**镜像大小:** 约 20-25MB（压缩后）" >> $GITHUB_STEP_SUMMARY
+          echo "**构建优化:** Matrix 并行构建，每个架构独立超时 15 分钟" >> $GITHUB_STEP_SUMMARY
 
   # ========== 镜像签名 (SBOM + Cosign) ==========
   sign-image:
     name: 镜像签名
     runs-on: ubuntu-latest
-    needs: [changes, docker-build]
+    needs: [changes, merge-manifest]
     if: needs.changes.outputs.docker-changed == 'true' && github.event_name != 'pull_request'
     timeout-minutes: 10
     steps:
@@ -270,15 +372,11 @@ jobs:
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
-          # 优先使用 docker-build 输出的 digest
-          DIGEST="${{ needs.docker-build.outputs.digest }}"
+          # 使用 merge-manifest 输出的 digest
+          DIGEST="${{ needs.merge-manifest.outputs.digest }}"
           if [ -z "$DIGEST" ]; then
-            echo "⚠️ 从 docker-build 获取 digest 失败，尝试 imagetools"
-            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA --format '{{json .manifest}}' | jq -r '.digest' 2>/dev/null || echo "")
-          fi
-          if [ -z "$DIGEST" ]; then
-            echo "⚠️ 获取 digest 失败，使用 latest"
-            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --format '{{json .manifest}}' | jq -r '.digest' 2>/dev/null || echo "")
+            echo "⚠️ 从 merge-manifest 获取 digest 失败，尝试 imagetools"
+            DIGEST=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA --format '{{.Digest}}' 2>/dev/null || echo "")
           fi
           if [ -z "$DIGEST" ]; then
             echo "❌ 无法获取镜像 digest"
@@ -329,9 +427,9 @@ jobs:
   docker-scan:
     name: 镜像安全扫描
     runs-on: ubuntu-latest
-    needs: [changes, docker-build]
+    needs: [changes, merge-manifest]
     if: needs.changes.outputs.docker-changed == 'true' && github.event_name != 'pull_request'
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
@@ -346,30 +444,18 @@ jobs:
       - name: 等待镜像推送完成
         run: |
           echo "等待镜像推送到 GHCR..."
-          # 获取短 SHA
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
           
-          # 等待镜像可用（最多等待 2 分钟，使用固定等待替代轮询）
-          # 多架构镜像推送需要时间，使用 sleep 更高效
-          sleep 30
+          # 等待镜像可用
+          sleep 20
           
-          # 验证镜像可用
           if docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA 2>/dev/null; then
             echo "✅ 镜像已可用"
           else
-            echo "⏳ 镜像可能仍在推送中，继续等待..."
-            sleep 30
-            docker manifest inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA 2>/dev/null || echo "⚠️ 镜像检查跳过"
+            echo "⏳ 继续等待..."
+            sleep 20
           fi
-      
-      - name: 拉取镜像进行扫描
-        run: |
-          # 获取短 SHA
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
-          echo "尝试拉取镜像..."
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$SHORT_SHA || docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest || true
       
       - name: 运行 Trivy 扫描
         uses: aquasecurity/trivy-action@master
