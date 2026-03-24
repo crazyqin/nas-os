@@ -607,7 +607,7 @@ func (p *DefaultNFSProvider) GetClients() ([]*NFSClient, error) {
 func (p *DefaultNFSProvider) KillClient(clientID string) error {
 	// NFS 没有直接的断开命令，需要通过内核接口
 	// 写入到 /proc/fs/nfsd/clients/{id}/ctl
-	ctlPath := fmt.Sprintf("/proc/fs/nfsd/clients/%s/ctl", clientID)
+	_ = fmt.Sprintf("/proc/fs/nfsd/clients/%s/ctl", clientID)
+	// TODO: 实际实现需要写入到 ctl 文件
 	return exec.Command("echo", "-1").Run()
-	// 实际实现可能需要更复杂的操作
 }
