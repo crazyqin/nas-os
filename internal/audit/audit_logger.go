@@ -53,13 +53,9 @@ const (
 	OpUpload    FileOperation = "upload"    // 上传
 )
 
-// AuditStatus 审计状态
-type AuditStatus string
-
+// 文件操作状态常量
 const (
-	StatusSuccess AuditStatus = "success"
-	StatusFailure AuditStatus = "failure"
-	StatusDenied  AuditStatus = "denied"
+	StatusDenied Status = "denied" // 拒绝
 )
 
 // ========== SMB/NFS 审计日志条目 ==========
@@ -87,7 +83,7 @@ type FileAuditEntry struct {
 	
 	// 操作信息
 	Operation FileOperation `json:"operation"`        // 操作类型
-	Status    AuditStatus   `json:"status"`           // 操作状态
+	Status    Status   `json:"status"`           // 操作状态
 	
 	// 文件信息
 	FilePath    string `json:"file_path"`           // 文件路径
@@ -259,7 +255,7 @@ func (l *FileAuditLogger) Log(ctx context.Context, entry *FileAuditEntry) error 
 }
 
 // LogSMBOperation 记录 SMB 操作
-func (l *FileAuditLogger) LogSMBOperation(ctx context.Context, shareName, sharePath, userID, username, clientIP string, op FileOperation, filePath string, status AuditStatus, details map[string]interface{}) error {
+func (l *FileAuditLogger) LogSMBOperation(ctx context.Context, shareName, sharePath, userID, username, clientIP string, op FileOperation, filePath string, status Status, details map[string]interface{}) error {
 	entry := &FileAuditEntry{
 		Protocol:   ProtocolSMB,
 		ShareName:  shareName,
@@ -277,7 +273,7 @@ func (l *FileAuditLogger) LogSMBOperation(ctx context.Context, shareName, shareP
 }
 
 // LogNFSOperation 记录 NFS 操作
-func (l *FileAuditLogger) LogNFSOperation(ctx context.Context, sharePath, userID, username, clientIP string, op FileOperation, filePath string, status AuditStatus, details map[string]interface{}) error {
+func (l *FileAuditLogger) LogNFSOperation(ctx context.Context, sharePath, userID, username, clientIP string, op FileOperation, filePath string, status Status, details map[string]interface{}) error {
 	entry := &FileAuditEntry{
 		Protocol:  ProtocolNFS,
 		SharePath: sharePath,
@@ -294,7 +290,7 @@ func (l *FileAuditLogger) LogNFSOperation(ctx context.Context, sharePath, userID
 }
 
 // LogFileCreate 记录文件创建
-func (l *FileAuditLogger) LogFileCreate(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, isDir bool, status AuditStatus) error {
+func (l *FileAuditLogger) LogFileCreate(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, isDir bool, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:    protocol,
 		ShareName:   shareName,
@@ -312,7 +308,7 @@ func (l *FileAuditLogger) LogFileCreate(ctx context.Context, protocol Protocol, 
 }
 
 // LogFileDelete 记录文件删除
-func (l *FileAuditLogger) LogFileDelete(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, isDir bool, status AuditStatus) error {
+func (l *FileAuditLogger) LogFileDelete(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, isDir bool, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:    protocol,
 		ShareName:   shareName,
@@ -330,7 +326,7 @@ func (l *FileAuditLogger) LogFileDelete(ctx context.Context, protocol Protocol, 
 }
 
 // LogFileRename 记录文件重命名
-func (l *FileAuditLogger) LogFileRename(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, oldPath, newPath string, status AuditStatus) error {
+func (l *FileAuditLogger) LogFileRename(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, oldPath, newPath string, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:  protocol,
 		ShareName: shareName,
@@ -351,7 +347,7 @@ func (l *FileAuditLogger) LogFileRename(ctx context.Context, protocol Protocol, 
 }
 
 // LogFileMove 记录文件移动
-func (l *FileAuditLogger) LogFileMove(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, oldPath, newPath string, status AuditStatus) error {
+func (l *FileAuditLogger) LogFileMove(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, oldPath, newPath string, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:  protocol,
 		ShareName: shareName,
@@ -372,7 +368,7 @@ func (l *FileAuditLogger) LogFileMove(ctx context.Context, protocol Protocol, sh
 }
 
 // LogFileWrite 记录文件写入
-func (l *FileAuditLogger) LogFileWrite(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, fileSize int64, status AuditStatus) error {
+func (l *FileAuditLogger) LogFileWrite(ctx context.Context, protocol Protocol, shareName, sharePath, userID, username, clientIP, filePath string, fileSize int64, status Status) error {
 	entry := &FileAuditEntry{
 		Protocol:  protocol,
 		ShareName: shareName,
@@ -402,7 +398,7 @@ type FileAuditQueryOptions struct {
 	Username  string         `json:"username,omitempty"`
 	ClientIP  string         `json:"client_ip,omitempty"`
 	Operation FileOperation  `json:"operation,omitempty"`
-	Status    AuditStatus    `json:"status,omitempty"`
+	Status    Status    `json:"status,omitempty"`
 	FilePath  string         `json:"file_path,omitempty"`
 	ShareName string         `json:"share_name,omitempty"`
 	Keyword   string         `json:"keyword,omitempty"`
@@ -841,8 +837,8 @@ func (l *FileAuditLogger) flush() {
 
 // ========== 导出功能 ==========
 
-// ExportOptions 导出选项
-type ExportOptions struct {
+// FileExportOptions 文件审计导出选项
+type FileExportOptions struct {
 	Format      string     `json:"format"`       // json, csv
 	StartTime   time.Time  `json:"start_time"`
 	EndTime     time.Time  `json:"end_time"`
@@ -851,7 +847,7 @@ type ExportOptions struct {
 }
 
 // Export 导出审计日志
-func (l *FileAuditLogger) Export(opts ExportOptions) ([]byte, error) {
+func (l *FileAuditLogger) Export(opts FileExportOptions) ([]byte, error) {
 	queryOpts := FileAuditQueryOptions{
 		StartTime: &opts.StartTime,
 		EndTime:   &opts.EndTime,
