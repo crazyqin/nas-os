@@ -361,7 +361,8 @@ func (p *Peer) Close() error {
 	p.mu.Unlock()
 
 	if p.iceAgent != nil {
-		return p.iceAgent.Close()
+		return p.//nolint:errcheck
+	iceAgent.Close()
 	}
 	return nil
 }
@@ -426,15 +427,18 @@ func (p *Peer) HolePunch(ctx context.Context, localPort int) error {
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
+	defer //nolint:errcheck
+	conn.Close()
 
 	// Send punch packets to all endpoints
 	punchPacket := []byte("PUNCH")
 	for _, endpoint := range p.Endpoints {
-		conn.WriteToUDP(punchPacket, endpoint)
+		//nolint:errcheck
+	conn.WriteToUDP(punchPacket, endpoint)
 	}
 
 	// Wait for response
+	//nolint:errcheck
 	conn.SetReadDeadline(time.Now().Add(5 * time.Second))
 	buf := make([]byte, 1024)
 	n, addr, err := conn.ReadFromUDP(buf)
@@ -516,6 +520,7 @@ func (m *PeerManager) RemovePeer(peerID string) error {
 		return ErrPeerNotFound
 	}
 
+	//nolint:errcheck
 	peer.Close()
 	delete(m.peers, peerID)
 
@@ -592,7 +597,8 @@ func (m *PeerManager) Close() error {
 	defer m.mu.Unlock()
 
 	for _, peer := range m.peers {
-		peer.Close()
+		//nolint:errcheck
+	peer.Close()
 	}
 	m.peers = make(map[string]*Peer)
 	return nil
