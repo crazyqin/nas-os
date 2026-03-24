@@ -124,8 +124,10 @@
 4. ✅ SSD三级预警监控 - v2.255.0 发布
 
 ### 🚧 开发中（补齐短板）
-1. 🚧 **内网穿透服务** - 计划 v2.260.0
-   - 技术方案：frp/nps 自建或第三方集成
+1. 🚧 **内网穿透服务** - 开发中 v2.260.0
+   - ✅ 架构设计完成（docs/ARCHITECTURE_NEW_FEATURES.md）
+   - ✅ 模块划分完成（docs/MODULE_DESIGN.md）
+   - ✅ 技术选型完成（docs/TECH_SELECTION.md）
    - 目标：免费零配置远程访问
 2. 🔲 AI功能集成 - 计划 v2.270.0
    - 本地 LLM 支持
