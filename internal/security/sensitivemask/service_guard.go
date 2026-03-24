@@ -208,14 +208,14 @@ func (sg *ServiceGuard) ProcessData(ctx context.Context, serviceName string, tex
 
 // ProcessingResult represents the result of data processing
 type ProcessingResult struct {
-	OriginalText  string            `json:"original_text"`
-	ProcessedText string            `json:"processed_text"`
-	Detections    []SensitiveMatch  `json:"detections"`
-	HasSensitive  bool              `json:"has_sensitive"`
-	HighRiskCount int               `json:"high_risk_count"`
-	Blocked       bool              `json:"blocked"`
-	BlockReason   string            `json:"block_reason"`
-	Protected     bool              `json:"protected"`
+	OriginalText  string           `json:"original_text"`
+	ProcessedText string           `json:"processed_text"`
+	Detections    []SensitiveMatch `json:"detections"`
+	HasSensitive  bool             `json:"has_sensitive"`
+	HighRiskCount int              `json:"high_risk_count"`
+	Blocked       bool             `json:"blocked"`
+	BlockReason   string           `json:"block_reason"`
+	Protected     bool             `json:"protected"`
 }
 
 // sendHighRiskAlert sends an alert for high-risk detections

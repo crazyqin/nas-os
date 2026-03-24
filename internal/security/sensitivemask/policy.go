@@ -204,20 +204,20 @@ func (pm *PolicyManager) savePolicies() {
 
 // PolicyUpdate represents updates to a policy
 type PolicyUpdate struct {
-	Name        *string          `json:"name,omitempty"`
-	Description *string          `json:"description,omitempty"`
-	Detector    *DetectorConfig  `json:"detector,omitempty"`
-	Masker      *MaskerConfig    `json:"masker,omitempty"`
-	Actions     *PolicyActions   `json:"actions,omitempty"`
+	Name        *string         `json:"name,omitempty"`
+	Description *string         `json:"description,omitempty"`
+	Detector    *DetectorConfig `json:"detector,omitempty"`
+	Masker      *MaskerConfig   `json:"masker,omitempty"`
+	Actions     *PolicyActions  `json:"actions,omitempty"`
 }
 
 // AuditLogger handles audit logging for sensitive data operations
 type AuditLogger struct {
-	logs     []AuditLog
-	maxLogs  int
-	mu       sync.RWMutex
-	storage  string
-	enabled  bool
+	logs    []AuditLog
+	maxLogs int
+	mu      sync.RWMutex
+	storage string
+	enabled bool
 }
 
 // NewAuditLogger creates a new audit logger
