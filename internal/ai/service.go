@@ -51,12 +51,13 @@ type DeIDRule struct {
 }
 
 // DefaultDeIDRules returns standard PII protection rules
+// 注意：规则顺序很重要，更长/更精确的模式应该放在前面
 func DefaultDeIDRules() []DeIDRule {
 	return []DeIDRule{
+		{Name: "idcard", Pattern: `\d{17}[\dXx]`, Replacement: "[ID]", Enabled: true},       // 身份证 18 位，放在最前面
+		{Name: "credit_card", Pattern: `\d{16}`, Replacement: "[CARD]", Enabled: true},     // 信用卡 16 位
+		{Name: "phone", Pattern: `\d{11}`, Replacement: "[PHONE]", Enabled: true},          // 手机号 11 位
 		{Name: "email", Pattern: `[\w.-]+@[\w.-]+\.\w+`, Replacement: "[EMAIL]", Enabled: true},
-		{Name: "phone", Pattern: `\d{11}`, Replacement: "[PHONE]", Enabled: true},
-		{Name: "idcard", Pattern: `\d{17}[\dXx]`, Replacement: "[ID]", Enabled: true},
-		{Name: "credit_card", Pattern: `\d{16}`, Replacement: "[CARD]", Enabled: true},
 		{Name: "ip_address", Pattern: `\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`, Replacement: "[IP]", Enabled: true},
 	}
 }

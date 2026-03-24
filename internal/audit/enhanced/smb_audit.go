@@ -29,6 +29,20 @@ const (
 	SMAuditLevelFull SMAuditLevel = "full"
 )
 
+// auditLevelValue 级别数值映射
+var auditLevelValue = map[SMAuditLevel]int{
+	SMAuditLevelNone:      0,
+	SMAuditLevelMinimal:   1,
+	SMAuditLevelStandard:  2,
+	SMAuditLevelDetailed:  3,
+	SMAuditLevelFull:      4,
+}
+
+// levelAtLeast 检查当前级别是否至少为指定级别
+func (l SMAuditLevel) atLeast(required SMAuditLevel) bool {
+	return auditLevelValue[l] >= auditLevelValue[required]
+}
+
 // SMAuditConfig SMB审计配置
 type SMAuditConfig struct {
 	Enabled             bool          `json:"enabled"`
@@ -89,25 +103,25 @@ func (c SMAuditConfig) ShouldLog(opType string) bool {
 
 	switch opType {
 	case "connect", "disconnect":
-		return c.Level >= SMAuditLevelMinimal
+		return c.Level.atLeast(SMAuditLevelMinimal)
 	case "file_read":
-		return c.Level >= SMAuditLevelStandard && c.LogFileRead
+		return c.Level.atLeast(SMAuditLevelStandard) && c.LogFileRead
 	case "file_write":
-		return c.Level >= SMAuditLevelStandard && c.LogFileWrite
+		return c.Level.atLeast(SMAuditLevelStandard) && c.LogFileWrite
 	case "file_delete":
-		return c.Level >= SMAuditLevelStandard && c.LogFileDelete
+		return c.Level.atLeast(SMAuditLevelStandard) && c.LogFileDelete
 	case "file_rename":
-		return c.Level >= SMAuditLevelStandard && c.LogFileRename
+		return c.Level.atLeast(SMAuditLevelStandard) && c.LogFileRename
 	case "dir_create":
-		return c.Level >= SMAuditLevelStandard && c.LogDirCreate
+		return c.Level.atLeast(SMAuditLevelStandard) && c.LogDirCreate
 	case "dir_delete":
-		return c.Level >= SMAuditLevelStandard && c.LogDirDelete
+		return c.Level.atLeast(SMAuditLevelStandard) && c.LogDirDelete
 	case "permission_change":
-		return c.Level >= SMAuditLevelDetailed && c.LogPermissionChange
+		return c.Level.atLeast(SMAuditLevelDetailed) && c.LogPermissionChange
 	case "ownership_change":
-		return c.Level >= SMAuditLevelDetailed && c.LogOwnershipChange
+		return c.Level.atLeast(SMAuditLevelDetailed) && c.LogOwnershipChange
 	default:
-		return c.Level >= SMAuditLevelStandard
+		return c.Level.atLeast(SMAuditLevelStandard)
 	}
 }
 
