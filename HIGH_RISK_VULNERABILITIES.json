@@ -1,0 +1,114 @@
+{
+  "report_date": "2026-03-25",
+  "summary": {
+    "total_issues": 885,
+    "high": 189,
+    "medium": 637,
+    "low": 59
+  },
+  "high_risk_categories": [
+    {
+      "rule_id": "G115",
+      "count": 108,
+      "description": "integer overflow conversion uint64 -> int",
+      "severity": "HIGH",
+      "recommendation": "Use int64 for large values, add boundary checks"
+    },
+    {
+      "rule_id": "G703",
+      "count": 49,
+      "description": "Path traversal via taint analysis",
+      "severity": "HIGH",
+      "recommendation": "Implement resolvePath() validation before all file operations"
+    },
+    {
+      "rule_id": "G702",
+      "count": 10,
+      "description": "Command injection via taint analysis",
+      "severity": "HIGH",
+      "recommendation": "Validate all inputs with whitelist, use parameterized commands"
+    },
+    {
+      "rule_id": "G101",
+      "count": 9,
+      "description": "Potential hardcoded credentials",
+      "severity": "HIGH",
+      "recommendation": "Move to environment variables or secret management"
+    },
+    {
+      "rule_id": "G122",
+      "count": 7,
+      "description": "Filesystem TOCTOU vulnerability",
+      "severity": "HIGH",
+      "recommendation": "Use os.Root APIs for symlink-safe operations"
+    }
+  ],
+  "command_injection_details": [
+    {
+      "file": "internal/vm/snapshot.go",
+      "line": 344,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"snapshot-delete\", vm.Name, ...)"
+    },
+    {
+      "file": "internal/vm/snapshot.go",
+      "line": 311,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"snapshot-revert\", vm.Name, ...)"
+    },
+    {
+      "file": "internal/vm/snapshot.go",
+      "line": 295,
+      "code": "exec.CommandContext(ctx, \"qemu-img\", \"convert\", \"-f\", \"qcow2\", ...)"
+    },
+    {
+      "file": "internal/vm/manager.go",
+      "line": 728,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"define\", xmlPath)"
+    },
+    {
+      "file": "internal/vm/manager.go",
+      "line": 631,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"undefine\", vm.Name)"
+    },
+    {
+      "file": "internal/vm/manager.go",
+      "line": 625,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"destroy\", vm.Name)"
+    },
+    {
+      "file": "internal/vm/manager.go",
+      "line": 596,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"shutdown\", vm.Name)"
+    },
+    {
+      "file": "internal/vm/manager.go",
+      "line": 593,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"destroy\", vm.Name)"
+    },
+    {
+      "file": "internal/vm/manager.go",
+      "line": 560,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"start\", vm.Name)"
+    },
+    {
+      "file": "internal/vm/manager.go",
+      "line": 313,
+      "code": "exec.CommandContext(ctx, \"virsh\", \"-c\", \"qemu:///system\", \"define\", xmlPath)"
+    }
+  ],
+  "fix_priorities": {
+    "P0_immediate": [
+      "Validate VM name input in validateConfig() with strict regex",
+      "Implement resolvePath() middleware for all file operations"
+    ],
+    "P1_near_term": [
+      "Add integer overflow checks for file size handling",
+      "Migrate hardcoded credentials to environment variables",
+      "Review TLS configuration"
+    ],
+    "P2_planned": [
+      "Fix TOCTOU vulnerabilities with os.Root",
+      "Replace math/rand with crypto/rand",
+      "Add Goroutine context handling"
+    ]
+  }
+}

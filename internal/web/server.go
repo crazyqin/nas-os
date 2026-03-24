@@ -16,6 +16,7 @@ import (
 	"nas-os/internal/files"
 	ftp "nas-os/internal/ftp"
 	"nas-os/internal/iscsi"
+	"nas-os/internal/lock"
 	"nas-os/internal/monitor"
 	"nas-os/internal/network"
 	"nas-os/internal/nfs"
@@ -28,6 +29,7 @@ import (
 	"nas-os/internal/project"
 	"nas-os/internal/quota"
 	"nas-os/internal/replication"
+	"nas-os/internal/search"
 	sftp "nas-os/internal/sftp"
 	"nas-os/internal/shares"
 	"nas-os/internal/smb"
@@ -92,6 +94,9 @@ type Server struct {
 	tagsMgr       *tags.Manager
 	officeMgr     *office.Manager
 	iscsiMgr      *iscsi.Manager
+	lockMgr       *lock.Manager
+	searchEngine  *search.Engine
+	searchSvc     *search.GlobalSearchService
 	// mediaMgr      *media.LibraryManager
 }
 
@@ -330,6 +335,44 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	projectMgr := project.NewManager()
 	log.Println("✅ 项目管理模块就绪")
 
+	// 初始化文件锁管理器
+	lockMgr, err := lock.NewManager(lock.FileLockConfig{
+		DefaultTimeout:  30 * time.Minute,
+		MaxTimeout:      24 * time.Hour,
+		CleanupInterval: 5 * time.Minute,
+		MaxLocksPerFile: 10,
+	}, logger)
+	if err != nil {
+		log.Printf("⚠️ 文件锁管理器初始化警告：%v", err)
+		lockMgr = nil
+	} else {
+		log.Println("✅ 文件锁管理模块就绪")
+	}
+
+	// 初始化搜索引擎
+	searchEngine, err := search.NewEngine(search.IndexConfig{
+		IndexPath:    "/var/lib/nas-os/search/index.bleve",
+		MaxFileSize:  10 * 1024 * 1024, // 10MB
+		Workers:      4,
+		IndexContent: true,
+		BatchSize:    100,
+	}, logger)
+	if err != nil {
+		log.Printf("⚠️ 搜索引擎初始化警告：%v", err)
+		searchEngine = nil
+	} else {
+		log.Println("✅ 搜索引擎模块就绪")
+	}
+
+	// 初始化全局搜索服务
+	var searchSvc *search.GlobalSearchService
+	if searchEngine != nil {
+		settingsRegistry := search.NewSettingsRegistry()
+		appRegistry := search.NewAppRegistry()
+		searchSvc = search.NewGlobalSearchService(searchEngine, settingsRegistry, appRegistry, logger)
+		log.Println("✅ 全局搜索服务就绪")
+	}
+
 	// 初始化媒体库管理器
 	// mediaMgr := media.NewLibraryManager("/etc/nas-os/media-libraries.json")
 	// 添加元数据提供商（如果配置了 API 密钥）
@@ -396,6 +439,9 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		tagsMgr:       tagsMgr,
 		officeMgr:     officeMgr,
 		iscsiMgr:      iscsiMgr,
+		lockMgr:       lockMgr,
+		searchEngine:  searchEngine,
+		searchSvc:     searchSvc,
 		// mediaMgr:      mediaMgr,
 	}
 
@@ -698,6 +744,19 @@ func (s *Server) setupRoutes() {
 		// ========== 项目管理 ==========
 		if s.projectMgr != nil {
 			project.NewHandlers(s.projectMgr).RegisterRoutes(api)
+		}
+
+		// ========== 文件锁管理 ==========
+		if s.lockMgr != nil {
+			lock.NewHandlers(s.lockMgr, s.logger).RegisterRoutes(api)
+		}
+
+		// ========== 全局搜索 ==========
+		if s.searchSvc != nil && s.searchEngine != nil {
+			settingsRegistry := search.NewSettingsRegistry()
+			appRegistry := search.NewAppRegistry()
+			apiSearchHandler := NewAPISearchHandler(s.searchSvc, s.searchEngine, settingsRegistry, appRegistry, s.logger)
+			apiSearchHandler.RegisterRoutes(api)
 		}
 
 		// ========== 媒体中心 ==========
