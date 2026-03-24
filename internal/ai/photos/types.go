@@ -116,6 +116,7 @@ type SceneClassification struct {
 // SceneCategory is the main scene type
 type SceneCategory string
 
+// Scene category constants
 const (
 	ScenePortrait     SceneCategory = "portrait"     // 人像
 	SceneLandscape    SceneCategory = "landscape"    // 风景
@@ -184,6 +185,7 @@ type Album struct {
 // AlbumType indicates how the album was created
 type AlbumType string
 
+// Album type constants
 const (
 	AlbumTypeAuto     AlbumType = "auto"     // auto-generated
 	AlbumTypePerson   AlbumType = "person"   // person album

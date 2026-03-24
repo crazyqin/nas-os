@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// 锁类型定义
+// LockType defines the type of file lock
 type LockType int
 
 const (

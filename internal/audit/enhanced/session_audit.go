@@ -25,6 +25,7 @@ const (
 // SessionState 会话状态
 type SessionState string
 
+// SessionState constants
 const (
 	SessionStateActive       SessionState = "active"
 	SessionStateIdle         SessionState = "idle"
@@ -415,9 +416,10 @@ func (m *SessionAuditManager) GetSessionStats() map[string]interface{} {
 	smbActive := 0
 	smbIdle := 0
 	for _, s := range m.smbSessions {
-		if s.State == SessionStateActive {
+		switch s.State {
+		case SessionStateActive:
 			smbActive++
-		} else if s.State == SessionStateIdle {
+		case SessionStateIdle:
 			smbIdle++
 		}
 	}
@@ -425,9 +427,10 @@ func (m *SessionAuditManager) GetSessionStats() map[string]interface{} {
 	nfsActive := 0
 	nfsIdle := 0
 	for _, s := range m.nfsSessions {
-		if s.State == SessionStateActive {
+		switch s.State {
+		case SessionStateActive:
 			nfsActive++
-		} else if s.State == SessionStateIdle {
+		case SessionStateIdle:
 			nfsIdle++
 		}
 	}

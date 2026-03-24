@@ -41,7 +41,6 @@ type FaceRecognizer struct {
 	config       *FaceRecognitionConfig
 	model        FaceModel
 	clusterCache map[int][]FaceDetection
-	mu           sync.RWMutex
 }
 
 // FaceModel is the interface for face ML models
@@ -430,6 +429,7 @@ func (fa *FaceAligner) cropFace(img image.Image, face FaceDetection) (image.Imag
 	return resized, nil
 }
 
+// getLandmarkPoints converts landmarks to points (reserved for future use)
 func (fa *FaceAligner) getLandmarkPoints(landmarks []Landmark) []Point {
 	points := make([]Point, len(landmarks))
 	for i, lm := range landmarks {
@@ -438,6 +438,7 @@ func (fa *FaceAligner) getLandmarkPoints(landmarks []Landmark) []Point {
 	return points
 }
 
+// getCanonicalLandmarks returns standard 5-point face template (reserved for future use)
 func (fa *FaceAligner) getCanonicalLandmarks() []Point {
 	// Standard 5-point face template (normalized 0-1)
 	return []Point{
