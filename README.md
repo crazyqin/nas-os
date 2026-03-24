@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
->  **最新版本**: v2.253.287 Stable (2026-03-24)
+>  **最新版本**: v2.253.288 Stable (2026-03-24)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.286?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.253.287?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -55,6 +55,8 @@
 | 🔧 网络诊断 | Ping/Traceroute/DNS/端口扫描 | ✅ 完成 |
 | 🛡️ 安全增强 | 限流/MFA/密码策略/会话管理 | ✅ 完成 |
 | 💾 智能备份 | 增量备份/多压缩算法/加密/版本管理 | ✅ 完成 |
+| ☁️ 网盘挂载 | 多云存储挂载/本地化访问/透明读写 | ✅ 完成 |
+| 🔐 AI 脱敏 | PII 智能识别/隐私保护/多提供商支持 | ✅ 完成 |
 
 ## 快速开始
 
@@ -267,7 +269,17 @@ nas-os/
 | **v2.61.0** | **Stable** | **2026-03-15** | **文档体系完善/用户指南优化/API文档补充** | ✅ 已发布 |
 | **v2.253.208** | **Stable** | **2026-03-20** | **代码质量提升/Lint修复/安全加固/六部协同** | ✅ 已发布 |
 | **v2.253.208** | **Stable** | **2026-03-21** | **依赖更新/安全增强/文档同步** | ✅ **已发布** |
+| **v2.253.288** | **Stable** | **2026-03-24** | **网盘挂载/AI脱敏/智能分层** | ✅ **已发布** |
 | **v2.253.208** | **Stable** | **2026-03-21** | **版本迭代/六部协同维护** | ✅ **已发布** |
+
+## v2.253.288 新增功能
+
+| 功能 | 说明 |
+|------|------|
+| ☁️ 网盘挂载 | 支持阿里云 OSS、腾讯云 COS、AWS S3、Google Drive、OneDrive 等多云存储挂载为本地目录，透明读写 |
+| 🔐 AI 脱敏服务 | 智能 PII 识别与脱敏（邮箱/手机/身份证/信用卡/IP），保护隐私数据安全 |
+| 🤖 多 AI 提供商 | 支持 OpenAI、Google、Azure、百度、本地 LLM 多种 AI 服务接入 |
+| 🗂️ 智能存储分层 | 热/温/冷数据自动分层，SSD 缓存加速，云存储归档 |
 
 ## v2.253.208 新增功能
 
