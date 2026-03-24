@@ -96,21 +96,21 @@ type AlbumManager interface {
 
 // AlbumRule defines a smart album rule
 type AlbumRule struct {
-	ID       string        `json:"id"`
-	Name     string        `json:"name"`
-	Criteria RuleCriteria  `json:"criteria"`
-	Enabled  bool          `json:"enabled"`
+	ID       string       `json:"id"`
+	Name     string       `json:"name"`
+	Criteria RuleCriteria `json:"criteria"`
+	Enabled  bool         `json:"enabled"`
 }
 
 // RuleCriteria defines matching criteria for smart albums
 type RuleCriteria struct {
 	// Date range
-	DateFrom  *time.Time `json:"date_from,omitempty"`
-	DateTo    *time.Time `json:"date_to,omitempty"`
+	DateFrom *time.Time `json:"date_from,omitempty"`
+	DateTo   *time.Time `json:"date_to,omitempty"`
 
 	// Location
-	Countries  []string `json:"countries,omitempty"`
-	Cities     []string `json:"cities,omitempty"`
+	Countries []string `json:"countries,omitempty"`
+	Cities    []string `json:"cities,omitempty"`
 
 	// Scene
 	Categories []SceneCategory `json:"categories,omitempty"`
@@ -127,8 +127,8 @@ type RuleCriteria struct {
 	MaxQuality float64 `json:"max_quality,omitempty"`
 
 	// Tags
-	Tags      []string `json:"tags,omitempty"`
-	TagMode   string   `json:"tag_mode,omitempty"` // "any", "all"
+	Tags    []string `json:"tags,omitempty"`
+	TagMode string   `json:"tag_mode,omitempty"` // "any", "all"
 }
 
 // Indexer manages photo indexing and search
@@ -185,12 +185,12 @@ type SearchResult struct {
 
 // Facets contains aggregation information for search results
 type Facets struct {
-	Years       map[int]int        `json:"years"`       // year -> count
-	Months      map[string]int     `json:"months"`      // "2024-01" -> count
-	Categories  map[string]int     `json:"categories"`  // category -> count
-	People      map[string]int     `json:"people"`      // person_id -> count
-	Locations   map[string]int     `json:"locations"`   // city -> count
-	Cameras     map[string]int     `json:"cameras"`     // make/model -> count
+	Years      map[int]int    `json:"years"`      // year -> count
+	Months     map[string]int `json:"months"`     // "2024-01" -> count
+	Categories map[string]int `json:"categories"` // category -> count
+	People     map[string]int `json:"people"`     // person_id -> count
+	Locations  map[string]int `json:"locations"`  // city -> count
+	Cameras    map[string]int `json:"cameras"`    // make/model -> count
 }
 
 // Storage persists photo metadata and classification results

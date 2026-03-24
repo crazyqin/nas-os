@@ -295,11 +295,13 @@ type ArcFaceModel struct {
 	// TODO: Add actual model loading (ONNX Runtime, TensorFlow, etc.)
 }
 
+// NewArcFaceModel creates a new ArcFace model instance
 func NewArcFaceModel(config *FaceRecognitionConfig) (*ArcFaceModel, error) {
 	// Stub: In production, load actual model weights
 	return &ArcFaceModel{config: config}, nil
 }
 
+// Detect detects faces in an image using ArcFace
 func (m *ArcFaceModel) Detect(ctx context.Context, img image.Image) ([]FaceDetection, error) {
 	// Stub: Use actual face detection model
 	// For now, return empty (no faces detected)
@@ -307,6 +309,7 @@ func (m *ArcFaceModel) Detect(ctx context.Context, img image.Image) ([]FaceDetec
 	return []FaceDetection{}, nil
 }
 
+// GetEmbedding extracts face embedding using ArcFace
 func (m *ArcFaceModel) GetEmbedding(ctx context.Context, img image.Image, face FaceDetection) ([]float32, error) {
 	// Stub: Extract face embedding
 	// Production: crop face and pass through ArcFace model
@@ -314,6 +317,7 @@ func (m *ArcFaceModel) GetEmbedding(ctx context.Context, img image.Image, face F
 	return embedding, nil
 }
 
+// Close releases ArcFace model resources
 func (m *ArcFaceModel) Close() error {
 	return nil
 }
@@ -323,19 +327,23 @@ type FaceNetModel struct {
 	config *FaceRecognitionConfig
 }
 
+// NewFaceNetModel creates a new FaceNet model instance
 func NewFaceNetModel(config *FaceRecognitionConfig) (*FaceNetModel, error) {
 	return &FaceNetModel{config: config}, nil
 }
 
+// Detect detects faces in an image using FaceNet
 func (m *FaceNetModel) Detect(ctx context.Context, img image.Image) ([]FaceDetection, error) {
 	return []FaceDetection{}, nil
 }
 
+// GetEmbedding extracts face embedding using FaceNet
 func (m *FaceNetModel) GetEmbedding(ctx context.Context, img image.Image, face FaceDetection) ([]float32, error) {
 	embedding := make([]float32, 128) // FaceNet outputs 128-dim embedding
 	return embedding, nil
 }
 
+// Close releases FaceNet model resources
 func (m *FaceNetModel) Close() error {
 	return nil
 }
@@ -345,19 +353,23 @@ type InsightFaceModel struct {
 	config *FaceRecognitionConfig
 }
 
+// NewInsightFaceModel creates a new InsightFace model instance
 func NewInsightFaceModel(config *FaceRecognitionConfig) (*InsightFaceModel, error) {
 	return &InsightFaceModel{config: config}, nil
 }
 
+// Detect detects faces in an image using InsightFace
 func (m *InsightFaceModel) Detect(ctx context.Context, img image.Image) ([]FaceDetection, error) {
 	return []FaceDetection{}, nil
 }
 
+// GetEmbedding extracts face embedding using InsightFace
 func (m *InsightFaceModel) GetEmbedding(ctx context.Context, img image.Image, face FaceDetection) ([]float32, error) {
 	embedding := make([]float32, 512) // InsightFace typically outputs 512-dim
 	return embedding, nil
 }
 
+// Close releases InsightFace model resources
 func (m *InsightFaceModel) Close() error {
 	return nil
 }
@@ -369,6 +381,7 @@ type FaceAligner struct {
 	targetSize int
 }
 
+// NewFaceAligner creates a new face aligner with the specified target size
 func NewFaceAligner(targetSize int) *FaceAligner {
 	if targetSize <= 0 {
 		targetSize = 112 // standard face size for embedding
@@ -454,6 +467,7 @@ type FaceIndex struct {
 	mu         sync.RWMutex
 }
 
+// NewFaceIndex creates a new face index for similarity search
 func NewFaceIndex() *FaceIndex {
 	return &FaceIndex{
 		embeddings: make(map[string][]float32),
@@ -461,6 +475,7 @@ func NewFaceIndex() *FaceIndex {
 	}
 }
 
+// Add adds a face embedding to the index
 func (fi *FaceIndex) Add(faceID string, embedding []float32, personID string) {
 	fi.mu.Lock()
 	defer fi.mu.Unlock()
@@ -468,6 +483,7 @@ func (fi *FaceIndex) Add(faceID string, embedding []float32, personID string) {
 	fi.personMap[faceID] = personID
 }
 
+// Search finds faces similar to the given embedding
 func (fi *FaceIndex) Search(embedding []float32, threshold float64, topK int) []FaceSearchResult {
 	fi.mu.RLock()
 	defer fi.mu.RUnlock()
@@ -495,6 +511,7 @@ func (fi *FaceIndex) Search(embedding []float32, threshold float64, topK int) []
 	return results
 }
 
+// Delete removes a face from the index
 func (fi *FaceIndex) Delete(faceID string) {
 	fi.mu.Lock()
 	defer fi.mu.Unlock()
