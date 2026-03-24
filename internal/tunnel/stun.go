@@ -33,7 +33,7 @@ const (
 	StunAttrFingerprint       uint16 = 0x8028
 )
 
-// STUN 魔数
+// StunMagicCookie STUN魔数
 const StunMagicCookie uint32 = 0x2112A442
 
 // STUNHeader STUN 消息头
@@ -69,7 +69,6 @@ type STUNResult struct {
 type STUNProtocol struct {
 	servers []string
 	logger  *zap.Logger
-	mu      sync.RWMutex
 	timeout time.Duration
 }
 

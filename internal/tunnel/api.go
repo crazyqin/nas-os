@@ -94,7 +94,7 @@ func (h *APIHandler) Connect(c *gin.Context) {
 
 	ctx, cancel := c.Request.Context(), func() {}
 	deadline, hasDeadline := ctx.Deadline()
-	if !hasDeadline || deadline.Sub(time.Now()) > timeout {
+	if !hasDeadline || time.Until(deadline) > timeout {
 		var cancelCtx context.CancelFunc
 		ctx, cancelCtx = context.WithTimeout(ctx, timeout)
 		defer cancelCtx()

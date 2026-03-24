@@ -135,7 +135,7 @@ func (s *TunnelService) Stop() error {
 	// 关闭所有连接
 	s.mu.Lock()
 	for _, conn := range s.activeConns {
-		conn.Close()
+		_ = conn.Close()
 	}
 	s.activeConns = make(map[string]*TunnelConnection)
 	s.mu.Unlock()
@@ -495,6 +495,7 @@ func (c *TunnelNetConn) Write(b []byte) (n int, err error) {
 	return n, err
 }
 
+// LocalAddr 返回本地地址
 func (c *TunnelNetConn) LocalAddr() net.Addr {
 	if c.TunnelConnection.LocalAddr != nil {
 		return c.TunnelConnection.LocalAddr
@@ -502,6 +503,7 @@ func (c *TunnelNetConn) LocalAddr() net.Addr {
 	return &net.TCPAddr{IP: net.ParseIP("0.0.0.0"), Port: 0}
 }
 
+// RemoteAddr 返回远程地址
 func (c *TunnelNetConn) RemoteAddr() net.Addr {
 	if c.TunnelConnection.RemoteAddr != nil {
 		return c.TunnelConnection.RemoteAddr
@@ -509,14 +511,17 @@ func (c *TunnelNetConn) RemoteAddr() net.Addr {
 	return &net.TCPAddr{IP: net.ParseIP("0.0.0.0"), Port: 0}
 }
 
+// SetDeadline 设置读写截止时间
 func (c *TunnelNetConn) SetDeadline(t time.Time) error {
 	return nil
 }
 
+// SetReadDeadline 设置读取截止时间
 func (c *TunnelNetConn) SetReadDeadline(t time.Time) error {
 	return nil
 }
 
+// SetWriteDeadline 设置写入截止时间
 func (c *TunnelNetConn) SetWriteDeadline(t time.Time) error {
 	return nil
 }
@@ -528,6 +533,7 @@ type TunnelListener struct {
 	acceptCh chan *TunnelConnection
 }
 
+// Accept 接受新连接
 func (l *TunnelListener) Accept() (net.Conn, error) {
 	conn, ok := <-l.acceptCh
 	if !ok {
@@ -536,11 +542,13 @@ func (l *TunnelListener) Accept() (net.Conn, error) {
 	return &TunnelNetConn{TunnelConnection: conn}, nil
 }
 
+// Close 关闭监听器
 func (l *TunnelListener) Close() error {
 	close(l.acceptCh)
 	return nil
 }
 
+// Addr 返回监听地址
 func (l *TunnelListener) Addr() net.Addr {
 	return &net.TCPAddr{IP: net.ParseIP("0.0.0.0"), Port: 0}
 }

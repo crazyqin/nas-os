@@ -343,7 +343,7 @@ func (c *P2PConn) holePunch(ctx context.Context, candidate ICECandidate) error {
 		}
 	}
 
-	conn.Close()
+	_ = conn.Close()
 	c.localConn = nil
 	return errors.New("hole punch failed")
 }
@@ -464,7 +464,7 @@ func (c *P2PConn) readLoop() {
 		var err error
 
 		if c.localConn != nil {
-			c.localConn.SetReadDeadline(time.Now().Add(100 * time.Millisecond))
+			_ = c.localConn.SetReadDeadline(time.Now().Add(100 * time.Millisecond))
 			n, err = c.localConn.Read(buf)
 		} else if c.relayConn != nil {
 			var data []byte
