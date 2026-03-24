@@ -17,12 +17,19 @@ import (
 // SignalMessageType 信令消息类型
 type SignalMessageType string
 
+// 信令消息类型常量
 const (
+	// SignalMessageTypeOffer Offer消息
 	SignalMessageTypeOffer      SignalMessageType = "offer"
+	// SignalMessageTypeAnswer Answer消息
 	SignalMessageTypeAnswer     SignalMessageType = "answer"
+	// SignalMessageTypeCandidate ICE候选消息
 	SignalMessageTypeCandidate  SignalMessageType = "candidate"
+	// SignalMessageTypeConnected 已连接消息
 	SignalMessageTypeConnected  SignalMessageType = "connected"
+	// SignalMessageTypeDisconnect 断开连接消息
 	SignalMessageTypeDisconnect SignalMessageType = "disconnect"
+	// SignalMessageTypeError 错误消息
 	SignalMessageTypeError      SignalMessageType = "error"
 )
 
@@ -220,7 +227,7 @@ func (s *SignalClient) readLoop() {
 	}()
 
 	s.conn.SetPongHandler(func(string) error {
-		s.conn.SetReadDeadline(time.Now().Add(s.config.PongWait))
+		_ = s.conn.SetReadDeadline(time.Now().Add(s.config.PongWait))
 		return nil
 	})
 
@@ -231,7 +238,7 @@ func (s *SignalClient) readLoop() {
 		default:
 		}
 
-		s.conn.SetReadDeadline(time.Now().Add(s.config.PongWait))
+		_ = s.conn.SetReadDeadline(time.Now().Add(s.config.PongWait))
 
 		_, data, err := s.conn.ReadMessage()
 		if err != nil {
