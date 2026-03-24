@@ -132,21 +132,21 @@ type Config struct {
 	ClientMaxProtocol    string   `json:"client_max_protocol,omitempty"`
 
 	// 性能优化配置（参考 TrueNAS）
-	EnableAIO            bool   `json:"enable_aio"`             // 异步 I/O
-	AIOReadSize          int    `json:"aio_read_size"`          // 异步读取块大小 (KB)
-	AIOWriteSize         int    `json:"aio_write_size"`         // 异步写入块大小 (KB)
-	WriteCacheSize       int    `json:"write_cache_size"`       // 写缓存大小 (KB)
-	MaxXmit              int    `json:"max_xmit"`               // 最大传输大小 (KB)
-	Deadtime             int    `json:"deadtime"`               // 空闲连接超时 (分钟)
-	Keepalive            int    `json:"keepalive"`              // 保活间隔 (秒)
-	MaxOpenFiles         int    `json:"max_open_files"`         // 最大打开文件数
-	UseSendfile          bool   `json:"use_sendfile"`           // 使用 sendfile 优化
-	StrictAllocate       bool   `json:"strict_allocate"`        // 严格空间分配
-	LargeReadwrite       bool   `json:"large_readwrite"`        // 大文件读写优化
-	MinReceivefileSize   int    `json:"min_receivefile_size"`   // 最小接收文件大小 (KB)
-	MaxStatCacheSize     int    `json:"max_stat_cache_size"`    // 状态缓存大小
-	GetwdCache           bool   `json:"getwd_cache"`            // 工作目录缓存
-	KernelOplocks        bool   `json:"kernel_oplocks"`         // 内核 oplock 支持
+	EnableAIO          bool `json:"enable_aio"`           // 异步 I/O
+	AIOReadSize        int  `json:"aio_read_size"`        // 异步读取块大小 (KB)
+	AIOWriteSize       int  `json:"aio_write_size"`       // 异步写入块大小 (KB)
+	WriteCacheSize     int  `json:"write_cache_size"`     // 写缓存大小 (KB)
+	MaxXmit            int  `json:"max_xmit"`             // 最大传输大小 (KB)
+	Deadtime           int  `json:"deadtime"`             // 空闲连接超时 (分钟)
+	Keepalive          int  `json:"keepalive"`            // 保活间隔 (秒)
+	MaxOpenFiles       int  `json:"max_open_files"`       // 最大打开文件数
+	UseSendfile        bool `json:"use_sendfile"`         // 使用 sendfile 优化
+	StrictAllocate     bool `json:"strict_allocate"`      // 严格空间分配
+	LargeReadwrite     bool `json:"large_readwrite"`      // 大文件读写优化
+	MinReceivefileSize int  `json:"min_receivefile_size"` // 最小接收文件大小 (KB)
+	MaxStatCacheSize   int  `json:"max_stat_cache_size"`  // 状态缓存大小
+	GetwdCache         bool `json:"getwd_cache"`          // 工作目录缓存
+	KernelOplocks      bool `json:"kernel_oplocks"`       // 内核 oplock 支持
 }
 
 // Manager SMB 管理器
@@ -182,20 +182,20 @@ func newDefaultConfig() *Config {
 
 		// 性能优化默认值（参考 TrueNAS）
 		EnableAIO:          true,
-		AIOReadSize:        1,      // 1KB 以上启用异步读取
-		AIOWriteSize:       1,      // 1KB 以上启用异步写入
-		WriteCacheSize:     0,      // 禁用写缓存（现代内核已优化）
-		MaxXmit:            65535,  // 最大传输 64KB
-		Deadtime:           15,     // 15分钟空闲断开
-		Keepalive:          300,    // 5分钟保活
-		MaxOpenFiles:       65535,  // 最大打开文件数
-		UseSendfile:        true,   // 启用 sendfile 优化
-		StrictAllocate:     true,   // 严格空间分配
-		LargeReadwrite:     true,   // 大文件读写优化
-		MinReceivefileSize: 16,     // 16KB 以上使用接收文件优化
-		MaxStatCacheSize:   256,    // 状态缓存 256KB
-		GetwdCache:         true,   // 工作目录缓存
-		KernelOplocks:      true,   // 内核 oplock 支持
+		AIOReadSize:        1,     // 1KB 以上启用异步读取
+		AIOWriteSize:       1,     // 1KB 以上启用异步写入
+		WriteCacheSize:     0,     // 禁用写缓存（现代内核已优化）
+		MaxXmit:            65535, // 最大传输 64KB
+		Deadtime:           15,    // 15分钟空闲断开
+		Keepalive:          300,   // 5分钟保活
+		MaxOpenFiles:       65535, // 最大打开文件数
+		UseSendfile:        true,  // 启用 sendfile 优化
+		StrictAllocate:     true,  // 严格空间分配
+		LargeReadwrite:     true,  // 大文件读写优化
+		MinReceivefileSize: 16,    // 16KB 以上使用接收文件优化
+		MaxStatCacheSize:   256,   // 状态缓存 256KB
+		GetwdCache:         true,  // 工作目录缓存
+		KernelOplocks:      true,  // 内核 oplock 支持
 	}
 }
 

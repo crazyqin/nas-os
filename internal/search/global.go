@@ -12,7 +12,9 @@ import (
 // GlobalSearchResultType 全局搜索结果类型
 type GlobalSearchResultType string
 
+// 搜索结果类型常量
 const (
+	// ResultTypeFile 文件类型
 	ResultTypeFile      GlobalSearchResultType = "file"
 	ResultTypeSetting   GlobalSearchResultType = "setting"
 	ResultTypeApp       GlobalSearchResultType = "app"

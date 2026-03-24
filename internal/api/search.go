@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -444,8 +445,8 @@ func (h *SearchHandler) SearchSettings(c *gin.Context) {
 	query := c.Query("query")
 	limit := 10
 	if l := c.Query("limit"); l != "" {
-		if _, err := time.ParseDuration(l + "s"); err == nil {
-			// ignore, just check if it's a number
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
+			limit = parsed
 		}
 	}
 

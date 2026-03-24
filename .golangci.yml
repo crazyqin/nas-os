@@ -7,15 +7,36 @@ run:
 linters:
   default: none
   enable:
-    - govet
-    - errcheck
-    - staticcheck
-    - ineffassign
-    - misspell
-    - revive
-    - unused
+    # 核心检查
+    - govet          # Go 静态分析
+    - errcheck       # 未检查的错误
+    - staticcheck    # 静态检查
+    - ineffassign    # 无效赋值
+    - misspell       # 拼写检查
+    - revive         # 代码风格
+    - unused         # 未使用的代码
+    # v2.253.284 新增
+    - gosimple       # 代码简化建议
+    - gofmt          # 格式检查
+    - goimports      # import 排序
+    - prealloc       # 预分配优化
+    - bodyclose      # HTTP body 未关闭
+    - dogsled        # 过多空白标识符
+    - dupl           # 重复代码检测
+    - exportloopref  # 循环变量引用问题
+    - gochecknoinits # 检查 init 函数
+    - gocognit       # 认知复杂度
+    - gocyclo        # 圈复杂度
+    - godot          # 注释句号检查
+    - goprintffuncname # printf 函数命名
+    - nakedret       # 裸返回
+    - noctx          # 无 context 的 HTTP 请求
+    - rowserrcheck   # SQL rows.Err 检查
+    - sqlclosecheck  # SQL rows/stmt 关闭检查
+    - unconvert      # 不必要的类型转换
+    - unparam        # 未使用的参数
 
-  settings:
+  linters-settings:
     errcheck:
       check-type-assertions: true
       check-blank: false
@@ -28,6 +49,31 @@ linters:
           disabled: false
           arguments:
             - "disableStutteringCheck"
+
+    # v2.253.284 新增 linter 配置
+    gocyclo:
+      min-complexity: 20
+
+    gocognit:
+      min-complexity: 40
+
+    dupl:
+      threshold: 150
+
+    goconst:
+      min-len: 3
+      min-occurrences: 4
+
+    prealloc:
+      simple: true
+      range-loops: true
+      for-loops: false
+
+    godot:
+      scope: declarations
+      exclude:
+        - "no-paragraph"
+      capital: false
 
   exclusions:
     generated: lax

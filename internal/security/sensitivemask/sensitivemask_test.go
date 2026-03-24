@@ -72,10 +72,10 @@ func TestDetector_IDCard(t *testing.T) {
 	ctx := context.Background()
 
 	tests := []struct {
-		name       string
-		text       string
-		expected   int
-		minConf    float64
+		name     string
+		text     string
+		expected int
+		minConf  float64
 	}{
 		{
 			name:     "valid ID card",
@@ -466,8 +466,8 @@ func TestServiceGuard_ProcessData(t *testing.T) {
 	// The default policy is created with ID "default" in NewServiceGuard
 	// Register a test service with the default policy
 	err := guard.RegisterService(ServiceConfig{
-		Name:    "test-ai-service",
-		Enabled: true,
+		Name:     "test-ai-service",
+		Enabled:  true,
 		PolicyID: "default",
 	})
 	if err != nil {
@@ -477,10 +477,10 @@ func TestServiceGuard_ProcessData(t *testing.T) {
 	ctx := context.Background()
 
 	tests := []struct {
-		name           string
-		text           string
-		expectBlocked  bool
-		expectMasked   bool
+		name          string
+		text          string
+		expectBlocked bool
+		expectMasked  bool
 	}{
 		{
 			name:          "safe text",

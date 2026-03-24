@@ -93,7 +93,9 @@ type NVMeSpareInfo struct {
 // NVMeTestType NVMe测试类型
 type NVMeTestType string
 
+// NVMe测试类型常量
 const (
+	// NVMeTestShort 短测试 (~2分钟)
 	NVMeTestShort     NVMeTestType = "short"     // 短测试 (~2分钟)
 	NVMeTestLong      NVMeTestType = "long"      // 长测试 (扩展测试)
 	NVMeTestVendor    NVMeTestType = "vendor"    // 厂商特定测试
