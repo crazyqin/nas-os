@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -336,18 +337,13 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 	log.Println("✅ 项目管理模块就绪")
 
 	// 初始化文件锁管理器
-	lockMgr, err := lock.NewManager(lock.FileLockConfig{
+	lockMgr := lock.NewManager(lock.FileLockConfig{
 		DefaultTimeout:  30 * time.Minute,
 		MaxTimeout:      24 * time.Hour,
 		CleanupInterval: 5 * time.Minute,
 		MaxLocksPerFile: 10,
 	}, logger)
-	if err != nil {
-		log.Printf("⚠️ 文件锁管理器初始化警告：%v", err)
-		lockMgr = nil
-	} else {
-		log.Println("✅ 文件锁管理模块就绪")
-	}
+	log.Println("✅ 文件锁管理模块就绪")
 
 	// 初始化搜索引擎
 	searchEngine, err := search.NewEngine(search.IndexConfig{
@@ -911,6 +907,130 @@ func (s *Server) listVolumes(c *gin.Context) {
 		"message": "success",
 		"data":    volumes,
 	})
+}
+
+// APISearchHandler 搜索处理器适配器
+type APISearchHandler struct {
+	globalSearch *search.GlobalSearchService
+	engine       *search.Engine
+	settings     *search.SettingsRegistry
+	apps         *search.AppRegistry
+	logger       *zap.Logger
+}
+
+// NewAPISearchHandler 创建搜索处理器
+func NewAPISearchHandler(
+	globalSearch *search.GlobalSearchService,
+	engine *search.Engine,
+	settings *search.SettingsRegistry,
+	apps *search.AppRegistry,
+	logger *zap.Logger,
+) *APISearchHandler {
+	return &APISearchHandler{
+		globalSearch: globalSearch,
+		engine:       engine,
+		settings:     settings,
+		apps:         apps,
+		logger:       logger,
+	}
+}
+
+// RegisterRoutes 注册搜索路由
+func (h *APISearchHandler) RegisterRoutes(r *gin.RouterGroup) {
+	searchGroup := r.Group("/search")
+	{
+		searchGroup.POST("/global", h.globalSearchHandler)
+		searchGroup.GET("/quick", h.quickSearchHandler)
+		searchGroup.GET("/suggestions", h.getSuggestionsHandler)
+		searchGroup.GET("/categories", h.getCategoriesHandler)
+		searchGroup.POST("/files", h.searchFilesHandler)
+	}
+}
+
+func (h *APISearchHandler) globalSearchHandler(c *gin.Context) {
+	var req struct {
+		Query      string   `json:"query" binding:"required"`
+		Types      []string `json:"types,omitempty"`
+		Limit      int      `json:"limit,omitempty"`
+		TotalLimit int      `json:"totalLimit,omitempty"`
+		MinScore   float64  `json:"minScore,omitempty"`
+		IncludeRaw bool     `json:"includeRaw,omitempty"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的请求参数: " + err.Error()})
+		return
+	}
+
+	var types []search.GlobalSearchResultType
+	for _, t := range req.Types {
+		types = append(types, search.GlobalSearchResultType(t))
+	}
+
+	result, err := h.globalSearch.GlobalSearch(c.Request.Context(), search.GlobalSearchRequest{
+		Query:      req.Query,
+		Types:      types,
+		Limit:      req.Limit,
+		TotalLimit: req.TotalLimit,
+		MinScore:   req.MinScore,
+		IncludeRaw: req.IncludeRaw,
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "搜索失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": result})
+}
+
+func (h *APISearchHandler) quickSearchHandler(c *gin.Context) {
+	query := c.Query("query")
+	limit := 5
+	if l := c.Query("limit"); l != "" {
+		if parsed, err := parseInt(l); err == nil && parsed > 0 {
+			limit = parsed
+		}
+	}
+
+	result, err := h.globalSearch.QuickSearch(c.Request.Context(), query, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "搜索失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": result})
+}
+
+func (h *APISearchHandler) getSuggestionsHandler(c *gin.Context) {
+	query := c.Query("query")
+	suggestions := h.globalSearch.GenerateSuggestions(query)
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": gin.H{"suggestions": suggestions}})
+}
+
+func (h *APISearchHandler) getCategoriesHandler(c *gin.Context) {
+	categories := h.globalSearch.GetSearchCategories()
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": categories})
+}
+
+func (h *APISearchHandler) searchFilesHandler(c *gin.Context) {
+	var req search.Request
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "无效的请求参数: " + err.Error()})
+		return
+	}
+
+	result, err := h.engine.Search(req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "搜索失败: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "success", "data": result})
+}
+
+func parseInt(s string) (int, error) {
+	var result int
+	_, err := fmt.Sscanf(s, "%d", &result)
+	return result, err
 }
 
 // createVolume 创建卷

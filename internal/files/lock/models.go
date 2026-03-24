@@ -297,6 +297,8 @@ func (fl *FileLock) Extend(duration time.Duration) {
 	fl.ExpiresAt = now.Add(duration)
 	fl.LastAccessed = now
 	fl.LastRenewedAt = now
+	fl.Version++ // 版本增加
+}
 	fl.Version++
 }
 

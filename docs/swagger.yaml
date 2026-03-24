@@ -6888,6 +6888,8 @@ securityDefinitions:
     type: apiKey
 swagger: "2.0"
 tags:
+- description: 内网穿透 API - FRP代理、P2P隧道、NAT检测
+  name: tunnel
 - description: 卷管理 API - 创建、管理 Btrfs 存储卷
   name: volumes
 - description: 快照管理 API - 创建、恢复、删除快照
