@@ -19,13 +19,13 @@ import (
 
 // Image sizes for TMDB posters
 const (
-	PosterSizeW92   = "w92"
-	PosterSizeW154  = "w154"
-	PosterSizeW185  = "w185"
-	PosterSizeW342  = "w342"
-	PosterSizeW500  = "w500"
-	PosterSizeW780  = "w780"
-	PosterSizeOrig  = "original"
+	PosterSizeW92  = "w92"
+	PosterSizeW154 = "w154"
+	PosterSizeW185 = "w185"
+	PosterSizeW342 = "w342"
+	PosterSizeW500 = "w500"
+	PosterSizeW780 = "w780"
+	PosterSizeOrig = "original"
 )
 
 // TMDBImageBaseURL is the base URL for TMDB images
@@ -39,7 +39,6 @@ type TMDBScraper struct {
 	httpClient   *http.Client
 	cache        *EnhancedCache
 	posterDir    string // Directory to store downloaded posters
-	mu           sync.RWMutex
 }
 
 // TMDBConfig holds TMDB API configuration
@@ -541,7 +540,7 @@ func (s *TMDBScraper) ScrapeVideoFile(ctx context.Context, parser *FilenameParse
 		}
 		// Add episode info
 		if season > 0 && episode > 0 {
-			tvMeta.MediaMetadata.Title = fmt.Sprintf("%s S%02dE%02d", tvMeta.MediaMetadata.Title, season, episode)
+			tvMeta.Title = fmt.Sprintf("%s S%02dE%02d", tvMeta.Title, season, episode)
 		}
 		return &tvMeta.MediaMetadata, nil
 	case MediaTypeMovie:
@@ -582,11 +581,16 @@ func NewFilenameParser() *FilenameParser {
 			regexp.MustCompile(`(?i)[sS](\d{1,2})[eE](\d{1,3})`),
 			// 1x01, 1x1 patterns
 			regexp.MustCompile(`(?i)(\d{1,2})[xX](\d{1,3})`),
-			// 第1季第1集, 第一季第一集 (Chinese patterns)
+			// 第1季第1集 (Chinese patterns - Arabic numbers)
 			regexp.MustCompile(`第\s*(\d{1,2})\s*季\s*第\s*(\d{1,3})\s*集`),
+			// 第一季第一集 (Chinese patterns - Chinese numbers)
 			regexp.MustCompile(`第\s*([一二三四五六七八九十百]+)\s*季\s*第\s*([一二三四五六七八九十百]+)\s*集`),
-			// Season 1 Episode 1
-			regexp.MustCompile(`(?i)season\s*(\d{1,2})\s*episode\s*(\d{1,3})`),
+			// 第二季第15集 (Mixed: Chinese season number, Arabic episode number)
+			regexp.MustCompile(`第\s*([一二三四五六七八九十百]+)\s*季\s*第\s*(\d{1,3})\s*集`),
+			// 第2季第一集 (Mixed: Arabic season number, Chinese episode number)
+			regexp.MustCompile(`第\s*(\d{1,2})\s*季\s*第\s*([一二三四五六七八九十百]+)\s*集`),
+			// Season 1 Episode 1 (with dots or spaces)
+			regexp.MustCompile(`(?i)season[.\s]*(\d{1,2})[.\s]*episode[.\s]*(\d{1,3})`),
 			// EP01, Ep.01, E01 patterns (standalone)
 			regexp.MustCompile(`(?i)(?:ep|episode)[.\s]*(\d{1,3})(?:[^0-9]|$)`),
 			regexp.MustCompile(`(?i)\b[eE](\d{1,3})\b`),
@@ -623,14 +627,8 @@ func (p *FilenameParser) ParseFilename(filename string) (title string, year int,
 	// Try to extract TV episode info first
 	for _, pattern := range p.seasonEpisodePatterns {
 		if matches := pattern.FindStringSubmatch(name); len(matches) >= 3 {
-			// Check if this is a Chinese number pattern
-			if strings.Contains(pattern.String(), "一二三四五六七八九十百") {
-				season = chineseToInt(matches[1])
-				episode = chineseToInt(matches[2])
-			} else {
-				season = parseIntSafe(matches[1])
-				episode = parseIntSafe(matches[2])
-			}
+			season = p.parseSeasonOrEpisode(matches[1])
+			episode = p.parseSeasonOrEpisode(matches[2])
 			if season > 0 && episode > 0 {
 				// Remove episode info from name
 				name = pattern.ReplaceAllString(name, "")
@@ -643,7 +641,7 @@ func (p *FilenameParser) ParseFilename(filename string) (title string, year int,
 	if season == 0 {
 		for _, pattern := range p.seasonEpisodePatterns {
 			if matches := pattern.FindStringSubmatch(name); len(matches) >= 2 {
-				episode = parseIntSafe(matches[1])
+				episode = p.parseSeasonOrEpisode(matches[1])
 				if episode > 0 {
 					name = pattern.ReplaceAllString(name, "")
 					break
@@ -664,15 +662,31 @@ func (p *FilenameParser) ParseFilename(filename string) (title string, year int,
 		}
 	}
 
-	// Clean up quality tags and other junk
+	// Clean up quality tags and other junk (with optional leading separators)
 	for _, pattern := range p.cleanupPatterns {
+		// First, try with word boundary
 		name = pattern.ReplaceAllString(name, "")
 	}
+
+	// Additional cleanup for quality-like patterns that might not have word boundaries
+	qualityCleanup := regexp.MustCompile(`(?i)[._]?((?:1080|720|2160|4k|hd|hdr)[a-z0-9]*)`)
+	name = qualityCleanup.ReplaceAllString(name, "")
 
 	// Clean up separators and whitespace
 	name = cleanTitle(name)
 
 	return name, year, season, episode
+}
+
+// parseSeasonOrEpisode parses either Arabic or Chinese numbers
+func (p *FilenameParser) parseSeasonOrEpisode(s string) int {
+	s = strings.TrimSpace(s)
+	// Try Chinese number first
+	if p.chinesePattern.MatchString(s) {
+		return chineseToInt(s)
+	}
+	// Fall back to Arabic number
+	return parseIntSafe(s)
 }
 
 // DetectMediaType tries to detect if the content is a movie or TV show

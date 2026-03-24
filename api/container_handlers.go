@@ -52,6 +52,15 @@ func (h *ContainerHandlers) RegisterRoutes(r *gin.RouterGroup) {
 		api.GET("/containers/:id/stats", h.getContainerStats)
 		api.GET("/containers/:id/logs", h.getContainerLogs)
 
+		// 容器批量操作
+		api.POST("/containers/batch/start", h.batchStartContainers)
+		api.POST("/containers/batch/stop", h.batchStopContainers)
+		api.POST("/containers/batch/restart", h.batchRestartContainers)
+		api.POST("/containers/batch/remove", h.batchRemoveContainers)
+		api.POST("/containers/batch/execute", h.batchExecuteContainers)
+		api.POST("/containers/prune", h.pruneContainers)
+		api.POST("/containers/select", h.selectContainers)
+
 		// 镜像管理
 		api.GET("/images", h.listImages)
 		api.POST("/images/pull", h.pullImage)
@@ -1057,5 +1066,214 @@ func (h *ContainerHandlers) validateCompose(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "Compose 文件验证通过",
+	})
+}
+
+// === 批量操作 API ===
+
+// batchStartContainers 批量启动容器
+func (h *ContainerHandlers) batchStartContainers(c *gin.Context) {
+	var req struct {
+		ContainerIDs []string `json:"containerIds" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	batchManager := container.NewBatchManager(h.manager)
+	response, err := batchManager.StartBatch(c.Request.Context(), req.ContainerIDs)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "批量启动完成",
+		"data":    response,
+	})
+}
+
+// batchStopContainers 批量停止容器
+func (h *ContainerHandlers) batchStopContainers(c *gin.Context) {
+	var req struct {
+		ContainerIDs []string `json:"containerIds" binding:"required"`
+		Timeout      int      `json:"timeout"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	batchManager := container.NewBatchManager(h.manager)
+	response, err := batchManager.StopBatch(c.Request.Context(), req.ContainerIDs, req.Timeout)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "批量停止完成",
+		"data":    response,
+	})
+}
+
+// batchRestartContainers 批量重启容器
+func (h *ContainerHandlers) batchRestartContainers(c *gin.Context) {
+	var req struct {
+		ContainerIDs []string `json:"containerIds" binding:"required"`
+		Timeout      int      `json:"timeout"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	batchManager := container.NewBatchManager(h.manager)
+	response, err := batchManager.RestartBatch(c.Request.Context(), req.ContainerIDs, req.Timeout)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "批量重启完成",
+		"data":    response,
+	})
+}
+
+// batchRemoveContainers 批量删除容器
+func (h *ContainerHandlers) batchRemoveContainers(c *gin.Context) {
+	var req struct {
+		ContainerIDs  []string `json:"containerIds" binding:"required"`
+		Force         bool     `json:"force"`
+		RemoveVolumes bool     `json:"removeVolumes"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	batchManager := container.NewBatchManager(h.manager)
+	response, err := batchManager.RemoveBatch(c.Request.Context(), req.ContainerIDs, req.Force, req.RemoveVolumes)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "批量删除完成",
+		"data":    response,
+	})
+}
+
+// batchExecuteContainers 执行通用批量操作
+func (h *ContainerHandlers) batchExecuteContainers(c *gin.Context) {
+	var req container.BatchOperationRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	batchManager := container.NewBatchManager(h.manager)
+	response, err := batchManager.Execute(c.Request.Context(), req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "批量操作完成",
+		"data":    response,
+	})
+}
+
+// pruneContainers 清理停止的容器
+func (h *ContainerHandlers) pruneContainers(c *gin.Context) {
+	result, err := h.manager.PruneContainers()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "容器清理完成",
+		"data":    result,
+	})
+}
+
+// selectContainers 根据条件选择容器
+func (h *ContainerHandlers) selectContainers(c *gin.Context) {
+	var filter container.ContainerFilter
+
+	if err := c.ShouldBindJSON(&filter); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	batchManager := container.NewBatchManager(h.manager)
+	ids, err := batchManager.SelectByFilter(filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data": map[string]interface{}{
+			"containerIds": ids,
+			"count":        len(ids),
+		},
 	})
 }

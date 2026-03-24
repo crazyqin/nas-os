@@ -1,5 +1,5 @@
-// Package container provides Docker container management functionality
-// File: batch.go - Batch operations for containers
+// Package container provides Docker container management functionality.
+// File: batch.go - Batch operations for containers.
 package container
 
 import (
@@ -10,17 +10,18 @@ import (
 	"time"
 )
 
-// BatchOperationType defines the type of batch operation
+// BatchOperationType defines the type of batch operation.
 type BatchOperationType string
 
+// Batch operation types.
 const (
-	BatchStart   BatchOperationType = "start"
-	BatchStop    BatchOperationType = "stop"
-	BatchRestart BatchOperationType = "restart"
-	BatchRemove  BatchOperationType = "remove"
+	BatchStart   BatchOperationType = "start"   // BatchStart operation.
+	BatchStop    BatchOperationType = "stop"    // BatchStop operation.
+	BatchRestart BatchOperationType = "restart" // BatchRestart operation.
+	BatchRemove  BatchOperationType = "remove"  // BatchRemove operation.
 )
 
-// BatchOperationResult represents the result of a single container operation
+// BatchOperationResult represents the result of a single container operation.
 type BatchOperationResult struct {
 	ContainerID   string             `json:"containerId"`
 	ContainerName string             `json:"containerName"`
@@ -30,37 +31,37 @@ type BatchOperationResult struct {
 	Duration      time.Duration      `json:"duration"`
 }
 
-// BatchOperationRequest represents a batch operation request
+// BatchOperationRequest represents a batch operation request.
 type BatchOperationRequest struct {
-	ContainerIDs []string           `json:"containerIds"`
-	Operation    BatchOperationType `json:"operation"`
-	Timeout      int                `json:"timeout,omitempty"` // seconds, for stop/restart
-	Force        bool               `json:"force,omitempty"`  // for remove
-	RemoveVolumes bool              `json:"removeVolumes,omitempty"` // for remove
+	ContainerIDs  []string           `json:"containerIds"`
+	Operation     BatchOperationType `json:"operation"`
+	Timeout       int                `json:"timeout,omitempty"`       // seconds, for stop/restart.
+	Force         bool               `json:"force,omitempty"`         // for remove.
+	RemoveVolumes bool               `json:"removeVolumes,omitempty"` // for remove.
 }
 
-// BatchOperationResponse represents the overall batch operation result
+// BatchOperationResponse represents the overall batch operation result.
 type BatchOperationResponse struct {
-	Total     int                     `json:"total"`
-	Succeeded int                     `json:"succeeded"`
-	Failed    int                     `json:"failed"`
-	Results   []BatchOperationResult  `json:"results"`
-	Duration  time.Duration           `json:"duration"`
+	Total     int                    `json:"total"`
+	Succeeded int                    `json:"succeeded"`
+	Failed    int                    `json:"failed"`
+	Results   []BatchOperationResult `json:"results"`
+	Duration  time.Duration          `json:"duration"`
 }
 
-// BatchManager handles batch operations on containers
+// BatchManager handles batch operations on containers.
 type BatchManager struct {
 	manager *Manager
 }
 
-// NewBatchManager creates a new batch manager
+// NewBatchManager creates a new batch manager.
 func NewBatchManager(manager *Manager) *BatchManager {
 	return &BatchManager{
 		manager: manager,
 	}
 }
 
-// Execute performs a batch operation on multiple containers
+// Execute performs a batch operation on multiple containers.
 func (b *BatchManager) Execute(ctx context.Context, req BatchOperationRequest) (*BatchOperationResponse, error) {
 	if len(req.ContainerIDs) == 0 {
 		return nil, fmt.Errorf("no containers specified")
@@ -112,8 +113,8 @@ func (b *BatchManager) Execute(ctx context.Context, req BatchOperationRequest) (
 	return response, nil
 }
 
-// executeSingle executes a single container operation
-func (b *BatchManager) executeSingle(ctx context.Context, containerID string, req BatchOperationRequest) BatchOperationResult {
+// executeSingle executes a single container operation.
+func (b *BatchManager) executeSingle(_ context.Context, containerID string, req BatchOperationRequest) BatchOperationResult {
 	startTime := time.Now()
 	result := BatchOperationResult{
 		ContainerID: containerID,
@@ -160,7 +161,7 @@ func (b *BatchManager) executeSingle(ctx context.Context, containerID string, re
 	return result
 }
 
-// StartBatch starts multiple containers
+// StartBatch starts multiple containers.
 func (b *BatchManager) StartBatch(ctx context.Context, containerIDs []string) (*BatchOperationResponse, error) {
 	return b.Execute(ctx, BatchOperationRequest{
 		ContainerIDs: containerIDs,
@@ -168,7 +169,7 @@ func (b *BatchManager) StartBatch(ctx context.Context, containerIDs []string) (*
 	})
 }
 
-// StopBatch stops multiple containers
+// StopBatch stops multiple containers.
 func (b *BatchManager) StopBatch(ctx context.Context, containerIDs []string, timeout int) (*BatchOperationResponse, error) {
 	return b.Execute(ctx, BatchOperationRequest{
 		ContainerIDs: containerIDs,
@@ -177,7 +178,7 @@ func (b *BatchManager) StopBatch(ctx context.Context, containerIDs []string, tim
 	})
 }
 
-// RestartBatch restarts multiple containers
+// RestartBatch restarts multiple containers.
 func (b *BatchManager) RestartBatch(ctx context.Context, containerIDs []string, timeout int) (*BatchOperationResponse, error) {
 	return b.Execute(ctx, BatchOperationRequest{
 		ContainerIDs: containerIDs,
@@ -186,17 +187,17 @@ func (b *BatchManager) RestartBatch(ctx context.Context, containerIDs []string, 
 	})
 }
 
-// RemoveBatch removes multiple containers
+// RemoveBatch removes multiple containers.
 func (b *BatchManager) RemoveBatch(ctx context.Context, containerIDs []string, force bool, removeVolumes bool) (*BatchOperationResponse, error) {
 	return b.Execute(ctx, BatchOperationRequest{
-		ContainerIDs:   containerIDs,
-		Operation:      BatchRemove,
-		Force:          force,
-		RemoveVolumes:  removeVolumes,
+		ContainerIDs:  containerIDs,
+		Operation:     BatchRemove,
+		Force:         force,
+		RemoveVolumes: removeVolumes,
 	})
 }
 
-// SelectByFilter selects containers matching a filter for batch operations
+// SelectByFilter selects containers matching a filter for batch operations.
 func (b *BatchManager) SelectByFilter(filter ContainerFilter) ([]string, error) {
 	containers, err := b.manager.ListContainers(true)
 	if err != nil {
@@ -213,7 +214,7 @@ func (b *BatchManager) SelectByFilter(filter ContainerFilter) ([]string, error) 
 	return ids, nil
 }
 
-// ContainerFilter defines criteria for selecting containers
+// ContainerFilter defines criteria for selecting containers.
 type ContainerFilter struct {
 	State   string            `json:"state,omitempty"`   // "running", "exited", "paused", etc.
 	Image   string            `json:"image,omitempty"`   // Image name pattern
@@ -222,7 +223,7 @@ type ContainerFilter struct {
 	Network string            `json:"network,omitempty"` // Network name
 }
 
-// Match checks if a container matches the filter criteria
+// Match checks if a container matches the filter criteria.
 func (f *ContainerFilter) Match(c *Container) bool {
 	// Check state
 	if f.State != "" && c.State != f.State {
@@ -266,13 +267,13 @@ func (f *ContainerFilter) Match(c *Container) bool {
 	return true
 }
 
-// PruneResult represents the result of a prune operation
+// PruneResult represents the result of a prune operation.
 type PruneResult struct {
 	ContainersDeleted []string `json:"containersDeleted"`
 	SpaceReclaimed    uint64   `json:"spaceReclaimed"`
 }
 
-// PruneContainers removes all stopped containers
+// PruneContainers removes all stopped containers.
 func (m *Manager) PruneContainers() (*PruneResult, error) {
 	// Get all stopped containers first
 	containers, err := m.ListContainers(true)
@@ -309,7 +310,7 @@ func (m *Manager) PruneContainers() (*PruneResult, error) {
 	return result, nil
 }
 
-// BatchProgress tracks progress of batch operations for WebSocket streaming
+// BatchProgress tracks progress of batch operations for WebSocket streaming.
 type BatchProgress struct {
 	Total       int32
 	Completed   int32
@@ -319,7 +320,7 @@ type BatchProgress struct {
 	CurrentName string
 }
 
-// GetProgress returns current progress
+// GetProgress returns current progress.
 func (p *BatchProgress) GetProgress() map[string]interface{} {
 	return map[string]interface{}{
 		"total":       atomic.LoadInt32(&p.Total),
@@ -331,7 +332,7 @@ func (p *BatchProgress) GetProgress() map[string]interface{} {
 	}
 }
 
-// ExecuteWithProgress performs batch operation with progress updates
+// ExecuteWithProgress performs batch operation with progress updates.
 func (b *BatchManager) ExecuteWithProgress(ctx context.Context, req BatchOperationRequest, progressChan chan<- BatchProgress) (*BatchOperationResponse, error) {
 	if len(req.ContainerIDs) == 0 {
 		return nil, fmt.Errorf("no containers specified")

@@ -51,7 +51,7 @@ type UnifiedScraper struct {
 	config    UnifiedScraperConfig
 	tmdb      *TMDBScraper
 	douban    *DoubanProvider
-	cache     *Cache
+	cache     *EnhancedCache
 	rateLimit map[ScraperSource]*rateLimiter
 	mu        sync.RWMutex
 }
@@ -65,7 +65,7 @@ type rateLimiter struct {
 }
 
 // NewUnifiedScraper creates a new unified scraper
-func NewUnifiedScraper(config UnifiedScraperConfig, cache *Cache) *UnifiedScraper {
+func NewUnifiedScraper(config UnifiedScraperConfig, cache *EnhancedCache) *UnifiedScraper {
 	if config.Language == "" {
 		config.Language = "zh-CN"
 	}
@@ -137,7 +137,7 @@ func (s *UnifiedScraper) ScrapeMovie(ctx context.Context, title string, year int
 
 		// Cache result
 		if s.config.EnableCache && s.cache != nil {
-			s.cache.SetMetadata(cacheKey, metadata)
+			s.cache.SetMetadata(cacheKey, metadata, s.config.CacheTTL)
 		}
 
 		return metadata, nil
@@ -173,7 +173,7 @@ func (s *UnifiedScraper) ScrapeTVShow(ctx context.Context, title string) (*TVSho
 		}
 
 		if s.config.EnableCache && s.cache != nil {
-			s.cache.SetMetadata(cacheKey, metadata)
+			s.cache.SetMetadata(cacheKey, metadata, s.config.CacheTTL)
 		}
 
 		return metadata, nil
@@ -195,9 +195,9 @@ func (s *UnifiedScraper) ScrapeByIMDBID(ctx context.Context, imdbID string) (*Me
 
 // AutoScrape automatically detects media type and scrapes
 func (s *UnifiedScraper) AutoScrape(ctx context.Context, filename string) (interface{}, error) {
-	scanner := NewScanner(s.cache)
-	title, year, season, _ := scanner.ParseFilename(filename)
-	mediaType := scanner.DetectMediaType(filename)
+	parser := NewFilenameParser()
+	title, year, season, _ := parser.ParseFilename(filename)
+	mediaType := parser.DetectMediaType(filename)
 
 	switch mediaType {
 	case MediaTypeTVShow:
@@ -221,7 +221,8 @@ func (s *UnifiedScraper) AutoScrape(ctx context.Context, filename string) (inter
 // getSourceOrder returns the order of sources to try
 func (s *UnifiedScraper) getSourceOrder() []ScraperSource {
 	if s.config.PrimarySource != SourceAuto {
-		sources := []ScraperSource{s.config.PrimarySource}
+		sources := make([]ScraperSource, 0, 1+len(s.config.FallbackSources))
+		sources = append(sources, s.config.PrimarySource)
 		sources = append(sources, s.config.FallbackSources...)
 		return sources
 	}
@@ -320,7 +321,7 @@ func (s *UnifiedScraper) scrapeTVFromSource(ctx context.Context, source ScraperS
 }
 
 // enrichMetadata enriches metadata with additional data from other sources
-func (s *UnifiedScraper) enrichMetadata(ctx context.Context, meta *MediaMetadata, primarySource ScraperSource) *MediaMetadata {
+func (s *UnifiedScraper) enrichMetadata(_ context.Context, meta *MediaMetadata, primarySource ScraperSource) *MediaMetadata {
 	// If primary is TMDB and we prefer Chinese, try to get Chinese title from Douban
 	if primarySource == SourceTMDB && s.config.PreferChineseTitle && s.douban != nil {
 		// Try to enrich with Chinese data

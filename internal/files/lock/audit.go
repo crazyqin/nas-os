@@ -20,30 +20,30 @@ import (
 
 // ========== 锁审计日志存储 ==========
 
-// LockAuditStorage 锁审计日志存储
+// LockAuditStorage 锁审计日志存储.
 type LockAuditStorage struct {
-	logPath   string
-	maxSize   int64
-	maxCount  int
-	maxAge    int
-	signKey   []byte
-	entries   []*LockAuditEntry
-	mu        sync.RWMutex
-	stopCh    chan struct{}
-	flushCh   chan struct{}
+	logPath  string
+	maxSize  int64
+	maxCount int
+	maxAge   int
+	signKey  []byte
+	entries  []*LockAuditEntry
+	mu       sync.RWMutex
+	stopCh   chan struct{}
+	flushCh  chan struct{}
 }
 
-// LockAuditStorageConfig 审计存储配置
+// LockAuditStorageConfig 审计存储配置.
 type LockAuditStorageConfig struct {
-	LogPath   string        // 日志存储路径
-	MaxSize   int64         // 单文件最大大小(MB)
-	MaxCount  int           // 最大文件数
-	MaxAge    int           // 最大保留天数
-	SignKey   []byte        // 签名密钥
+	LogPath       string        // 日志存储路径
+	MaxSize       int64         // 单文件最大大小(MB)
+	MaxCount      int           // 最大文件数
+	MaxAge        int           // 最大保留天数
+	SignKey       []byte        // 签名密钥
 	FlushInterval time.Duration // 刷新间隔
 }
 
-// DefaultLockAuditStorageConfig 默认配置
+// DefaultLockAuditStorageConfig 默认配置.
 func DefaultLockAuditStorageConfig() LockAuditStorageConfig {
 	return LockAuditStorageConfig{
 		LogPath:       "/var/log/nas-os/lock-audit",
@@ -55,7 +55,7 @@ func DefaultLockAuditStorageConfig() LockAuditStorageConfig {
 	}
 }
 
-// NewLockAuditStorage 创建审计存储
+// NewLockAuditStorage 创建审计存储.
 func NewLockAuditStorage(config LockAuditStorageConfig) (*LockAuditStorage, error) {
 	// 创建日志目录
 	if err := os.MkdirAll(config.LogPath, 0750); err != nil {
@@ -82,7 +82,7 @@ func NewLockAuditStorage(config LockAuditStorageConfig) (*LockAuditStorage, erro
 	return storage, nil
 }
 
-// LogLockAudit 记录锁审计日志
+// LogLockAudit 记录锁审计日志.
 func (s *LockAuditStorage) LogLockAudit(entry *LockAuditEntry) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -107,7 +107,7 @@ func (s *LockAuditStorage) LogLockAudit(entry *LockAuditEntry) {
 	}
 }
 
-// signEntry 为条目签名
+// signEntry 为条目签名.
 func (s *LockAuditStorage) signEntry(entry *LockAuditEntry) {
 	signData := fmt.Sprintf("%s|%s|%s|%s|%s|%s",
 		entry.Timestamp.Format(time.RFC3339Nano),
@@ -126,7 +126,7 @@ func (s *LockAuditStorage) signEntry(entry *LockAuditEntry) {
 	entry.Details["_sig"] = hex.EncodeToString(h.Sum(nil))
 }
 
-// VerifyEntry 验证条目签名
+// VerifyEntry 验证条目签名.
 func (s *LockAuditStorage) VerifyEntry(entry *LockAuditEntry) bool {
 	if entry.Details == nil {
 		return false
@@ -151,7 +151,7 @@ func (s *LockAuditStorage) VerifyEntry(entry *LockAuditEntry) bool {
 	return hmac.Equal([]byte(originalSig), []byte(newSig))
 }
 
-// flushLoop 刷新循环
+// flushLoop 刷新循环.
 func (s *LockAuditStorage) flushLoop(interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -169,7 +169,7 @@ func (s *LockAuditStorage) flushLoop(interval time.Duration) {
 	}
 }
 
-// flush 刷新到文件
+// flush 刷新到文件.
 func (s *LockAuditStorage) flush() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -205,7 +205,7 @@ func (s *LockAuditStorage) flush() {
 	s.entries = s.entries[:0]
 }
 
-// cleanupLoop 清理循环
+// cleanupLoop 清理循环.
 func (s *LockAuditStorage) cleanupLoop() {
 	ticker := time.NewTicker(time.Hour)
 	defer ticker.Stop()
@@ -220,7 +220,7 @@ func (s *LockAuditStorage) cleanupLoop() {
 	}
 }
 
-// cleanup 清理过期文件
+// cleanup 清理过期文件.
 func (s *LockAuditStorage) cleanup() {
 	cutoff := time.Now().AddDate(0, 0, -s.maxAge)
 
@@ -257,12 +257,12 @@ func (s *LockAuditStorage) cleanup() {
 	}
 }
 
-// Close 关闭存储
+// Close 关闭存储.
 func (s *LockAuditStorage) Close() {
 	close(s.stopCh)
 }
 
-// Query 查询审计日志
+// Query 查询审计日志.
 func (s *LockAuditStorage) Query(opts LockAuditQueryOptions) (*LockAuditQueryResult, error) {
 	s.mu.RLock()
 	// 复制内存中的条目
@@ -319,7 +319,7 @@ func (s *LockAuditStorage) Query(opts LockAuditQueryOptions) (*LockAuditQueryRes
 	}, nil
 }
 
-// loadFromFile 从文件加载日志
+// loadFromFile 从文件加载日志.
 func (s *LockAuditStorage) loadFromFile(opts LockAuditQueryOptions) ([]*LockAuditEntry, error) {
 	var entries []*LockAuditEntry
 
@@ -388,7 +388,7 @@ func (s *LockAuditStorage) loadFromFile(opts LockAuditQueryOptions) ([]*LockAudi
 	return entries, nil
 }
 
-// matchesFilter 检查是否匹配过滤条件
+// matchesFilter 检查是否匹配过滤条件.
 func (s *LockAuditStorage) matchesFilter(entry *LockAuditEntry, opts LockAuditQueryOptions) bool {
 	// 时间范围
 	if opts.StartTime != nil && entry.Timestamp.Before(*opts.StartTime) {
@@ -426,20 +426,20 @@ func (s *LockAuditStorage) matchesFilter(entry *LockAuditEntry, opts LockAuditQu
 	return true
 }
 
-// LockAuditQueryOptions 查询选项
+// LockAuditQueryOptions 查询选项.
 type LockAuditQueryOptions struct {
-	Limit     int           `json:"limit"`
-	Offset    int           `json:"offset"`
-	StartTime *time.Time    `json:"startTime,omitempty"`
-	EndTime   *time.Time    `json:"endTime,omitempty"`
+	Limit     int            `json:"limit"`
+	Offset    int            `json:"offset"`
+	StartTime *time.Time     `json:"startTime,omitempty"`
+	EndTime   *time.Time     `json:"endTime,omitempty"`
 	Event     LockAuditEvent `json:"event,omitempty"`
-	FilePath  string        `json:"filePath,omitempty"`
-	Owner     string        `json:"owner,omitempty"`
-	ClientID  string        `json:"clientId,omitempty"`
-	Protocol  string        `json:"protocol,omitempty"`
+	FilePath  string         `json:"filePath,omitempty"`
+	Owner     string         `json:"owner,omitempty"`
+	ClientID  string         `json:"clientId,omitempty"`
+	Protocol  string         `json:"protocol,omitempty"`
 }
 
-// LockAuditQueryResult 查询结果
+// LockAuditQueryResult 查询结果.
 type LockAuditQueryResult struct {
 	Total   int               `json:"total"`
 	Entries []*LockAuditEntry `json:"entries"`
@@ -447,26 +447,26 @@ type LockAuditQueryResult struct {
 
 // ========== 统计报告 ==========
 
-// LockAuditStats 锁审计统计
+// LockAuditStats 锁审计统计.
 type LockAuditStats struct {
-	TotalEvents     int64             `json:"totalEvents"`
-	ByEvent         map[string]int64  `json:"byEvent"`
-	ByProtocol      map[string]int64  `json:"byProtocol"`
-	ByOwner         map[string]int64  `json:"byOwner"`
-	TopFiles        []FileAuditCount  `json:"topFiles"`
-	ConflictRate    float64           `json:"conflictRate"`
-	PreemptionRate  float64           `json:"preemptionRate"`
-	AvgLockDuration int64             `json:"avgLockDuration"` // ms
+	TotalEvents     int64            `json:"totalEvents"`
+	ByEvent         map[string]int64 `json:"byEvent"`
+	ByProtocol      map[string]int64 `json:"byProtocol"`
+	ByOwner         map[string]int64 `json:"byOwner"`
+	TopFiles        []FileAuditCount `json:"topFiles"`
+	ConflictRate    float64          `json:"conflictRate"`
+	PreemptionRate  float64          `json:"preemptionRate"`
+	AvgLockDuration int64            `json:"avgLockDuration"` // ms
 }
 
-// FileAuditCount 文件审计计数
+// FileAuditCount 文件审计计数.
 type FileAuditCount struct {
 	FilePath string `json:"filePath"`
 	FileName string `json:"fileName"`
 	Count    int64  `json:"count"`
 }
 
-// GetStats 获取统计信息
+// GetStats 获取统计信息.
 func (s *LockAuditStorage) GetStats(startTime, endTime *time.Time) (*LockAuditStats, error) {
 	opts := LockAuditQueryOptions{
 		StartTime: startTime,
@@ -553,13 +553,13 @@ func (s *LockAuditStorage) GetStats(startTime, endTime *time.Time) (*LockAuditSt
 
 // ========== 集成到锁管理器 ==========
 
-// AuditEnabledManager 带审计的锁管理器
+// AuditEnabledManager 带审计的锁管理器.
 type AuditEnabledManager struct {
 	*Manager
 	storage *LockAuditStorage
 }
 
-// NewAuditEnabledManager 创建带审计的锁管理器
+// NewAuditEnabledManager 创建带审计的锁管理器.
 func NewAuditEnabledManager(config FileLockConfig, logger *zap.Logger, auditConfig LockAuditStorageConfig) (*AuditEnabledManager, error) {
 	storage, err := NewLockAuditStorage(auditConfig)
 	if err != nil {
@@ -575,22 +575,22 @@ func NewAuditEnabledManager(config FileLockConfig, logger *zap.Logger, auditConf
 	}, nil
 }
 
-// GetAuditStorage 获取审计存储
+// GetAuditStorage 获取审计存储.
 func (m *AuditEnabledManager) GetAuditStorage() *LockAuditStorage {
 	return m.storage
 }
 
-// QueryAuditLogs 查询审计日志
+// QueryAuditLogs 查询审计日志.
 func (m *AuditEnabledManager) QueryAuditLogs(ctx context.Context, opts LockAuditQueryOptions) (*LockAuditQueryResult, error) {
 	return m.storage.Query(opts)
 }
 
-// GetAuditStats 获取审计统计
+// GetAuditStats 获取审计统计.
 func (m *AuditEnabledManager) GetAuditStats(ctx context.Context, startTime, endTime *time.Time) (*LockAuditStats, error) {
 	return m.storage.GetStats(startTime, endTime)
 }
 
-// Close 关闭管理器
+// Close 关闭管理器.
 func (m *AuditEnabledManager) Close() {
 	m.Manager.Close()
 	m.storage.Close()

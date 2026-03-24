@@ -66,13 +66,20 @@ func ParseTagType(s string) TagType {
 type TagColor string
 
 const (
-	TagColorRed    TagColor = "red"
+	// TagColorRed 红色
+	TagColorRed TagColor = "red"
+	// TagColorOrange 橙色
 	TagColorOrange TagColor = "orange"
+	// TagColorYellow 黄色
 	TagColorYellow TagColor = "yellow"
-	TagColorGreen  TagColor = "green"
-	TagColorBlue   TagColor = "blue"
+	// TagColorGreen 绿色
+	TagColorGreen TagColor = "green"
+	// TagColorBlue 蓝色
+	TagColorBlue TagColor = "blue"
+	// TagColorPurple 紫色
 	TagColorPurple TagColor = "purple"
-	TagColorGray   TagColor = "gray"
+	// TagColorGray 灰色
+	TagColorGray TagColor = "gray"
 )
 
 // ========== 文件标签 ==========
@@ -226,8 +233,6 @@ type TagManager struct {
 
 	// userTags 用户标签索引
 	userTags sync.Map // map[string][]string (key: userID, value: tagIDs)
-
-	mu sync.RWMutex
 }
 
 // NewTagManager 创建标签管理器
@@ -263,7 +268,11 @@ func (tm *TagManager) GetTag(tagID string) (*FileTag, error) {
 	if !ok {
 		return nil, errors.New("tag not found")
 	}
-	return raw.(*FileTag), nil
+	tag, ok := raw.(*FileTag)
+	if !ok {
+		return nil, errors.New("invalid tag type")
+	}
+	return tag, nil
 }
 
 // UpdateTag 更新标签
@@ -443,7 +452,11 @@ func (tm *TagManager) GetFileTags(filePath string) []*FileTagAssociation {
 	if !ok {
 		return nil
 	}
-	return raw.([]*FileTagAssociation)
+	assocs, ok := raw.(*[]*FileTagAssociation)
+	if !ok {
+		return nil
+	}
+	return *assocs
 }
 
 // GetTaggedFiles 获取标签关联的所有文件
@@ -452,7 +465,11 @@ func (tm *TagManager) GetTaggedFiles(tagID string) []*FileTagAssociation {
 	if !ok {
 		return nil
 	}
-	return raw.([]*FileTagAssociation)
+	assocs, ok := raw.(*[]*FileTagAssociation)
+	if !ok {
+		return nil
+	}
+	return *assocs
 }
 
 // IsFileTaggedWith 检查文件是否有指定标签
@@ -542,8 +559,10 @@ func (tm *TagManager) BatchRemoveTags(filePaths []string, tagIDs []string, userI
 
 func (tm *TagManager) addToFileTagIndex(filePath string, assoc *FileTagAssociation) {
 	raw, _ := tm.fileTags.LoadOrStore(filePath, &[]*FileTagAssociation{})
-	assocs := raw.(*[]*FileTagAssociation)
-	*assocs = append(*assocs, assoc)
+	assocs, ok := raw.(*[]*FileTagAssociation)
+	if ok {
+		*assocs = append(*assocs, assoc)
+	}
 }
 
 func (tm *TagManager) removeFromFileTagIndex(filePath, tagID string) {
@@ -551,7 +570,10 @@ func (tm *TagManager) removeFromFileTagIndex(filePath, tagID string) {
 	if !ok {
 		return
 	}
-	assocs := raw.(*[]*FileTagAssociation)
+	assocs, ok := raw.(*[]*FileTagAssociation)
+	if !ok {
+		return
+	}
 	for i, a := range *assocs {
 		if a.TagID == tagID {
 			*assocs = append((*assocs)[:i], (*assocs)[i+1:]...)
@@ -562,8 +584,10 @@ func (tm *TagManager) removeFromFileTagIndex(filePath, tagID string) {
 
 func (tm *TagManager) addToTagFileIndex(tagID string, assoc *FileTagAssociation) {
 	raw, _ := tm.tagFiles.LoadOrStore(tagID, &[]*FileTagAssociation{})
-	assocs := raw.(*[]*FileTagAssociation)
-	*assocs = append(*assocs, assoc)
+	assocs, ok := raw.(*[]*FileTagAssociation)
+	if ok {
+		*assocs = append(*assocs, assoc)
+	}
 }
 
 func (tm *TagManager) removeFromTagFileIndex(tagID, filePath string) {
@@ -571,7 +595,10 @@ func (tm *TagManager) removeFromTagFileIndex(tagID, filePath string) {
 	if !ok {
 		return
 	}
-	assocs := raw.(*[]*FileTagAssociation)
+	assocs, ok := raw.(*[]*FileTagAssociation)
+	if !ok {
+		return
+	}
 	for i, a := range *assocs {
 		if a.FilePath == filePath {
 			*assocs = append((*assocs)[:i], (*assocs)[i+1:]...)
@@ -585,7 +612,10 @@ func (tm *TagManager) removeAllFileAssociations(tagID string) {
 	if !ok {
 		return
 	}
-	assocs := raw.(*[]*FileTagAssociation)
+	assocs, ok := raw.(*[]*FileTagAssociation)
+	if !ok {
+		return
+	}
 	for _, a := range *assocs {
 		tm.removeFromFileTagIndex(a.FilePath, tagID)
 	}
@@ -593,8 +623,10 @@ func (tm *TagManager) removeAllFileAssociations(tagID string) {
 
 func (tm *TagManager) addToUserIndex(userID, tagID string) {
 	raw, _ := tm.userTags.LoadOrStore(userID, &[]string{})
-	tagIDs := raw.(*[]string)
-	*tagIDs = append(*tagIDs, tagID)
+	tagIDs, ok := raw.(*[]string)
+	if ok {
+		*tagIDs = append(*tagIDs, tagID)
+	}
 }
 
 func (tm *TagManager) removeFromUserIndex(userID, tagID string) {
@@ -602,7 +634,10 @@ func (tm *TagManager) removeFromUserIndex(userID, tagID string) {
 	if !ok {
 		return
 	}
-	tagIDs := raw.(*[]string)
+	tagIDs, ok := raw.(*[]string)
+	if !ok {
+		return
+	}
 	for i, id := range *tagIDs {
 		if id == tagID {
 			*tagIDs = append((*tagIDs)[:i], (*tagIDs)[i+1:]...)
@@ -633,11 +668,11 @@ func (tm *TagManager) findAssociation(filePath, tagID string) *FileTagAssociatio
 
 // TagStats 标签统计
 type TagStats struct {
-	TotalTags     int64            `json:"totalTags"`
-	ByType        map[string]int64 `json:"byType"`
-	ByColor       map[string]int64 `json:"byColor"`
-	TotalTagged   int64            `json:"totalTagged"`
-	MostUsedTags  []TagUsageCount  `json:"mostUsedTags"`
+	TotalTags    int64            `json:"totalTags"`
+	ByType       map[string]int64 `json:"byType"`
+	ByColor      map[string]int64 `json:"byColor"`
+	TotalTagged  int64            `json:"totalTagged"`
+	MostUsedTags []TagUsageCount  `json:"mostUsedTags"`
 }
 
 // TagUsageCount 标签使用次数
@@ -796,7 +831,7 @@ type BatchTagRequest struct {
 
 // TagManagerWithLock 带锁管理的标签管理器
 type TagManagerWithLock struct {
-	tagManager *TagManager
+	tagManager  *TagManager
 	lockManager *Manager
 }
 

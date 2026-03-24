@@ -394,51 +394,51 @@ type SharedOwner struct {
 
 // LockWaitRequest 锁等待请求
 type LockWaitRequest struct {
-	ID         string            `json:"id"`
-	FilePath   string            `json:"filePath"`
-	LockType   LockType          `json:"lockType"`
-	Owner      string            `json:"owner"`
-	OwnerName  string            `json:"ownerName,omitempty"`
-	ClientID   string            `json:"clientId,omitempty"`
-	Protocol   string            `json:"protocol,omitempty"`
-	RequestedAt time.Time        `json:"requestedAt"`
-	ExpiresAt  time.Time         `json:"expiresAt"`
-	Priority   LockPriority      `json:"priority"`
-	NotifyChan chan *FileLock    `json:"-"`
-	CancelChan chan struct{}     `json:"-"`
+	ID          string         `json:"id"`
+	FilePath    string         `json:"filePath"`
+	LockType    LockType       `json:"lockType"`
+	Owner       string         `json:"owner"`
+	OwnerName   string         `json:"ownerName,omitempty"`
+	ClientID    string         `json:"clientId,omitempty"`
+	Protocol    string         `json:"protocol,omitempty"`
+	RequestedAt time.Time      `json:"requestedAt"`
+	ExpiresAt   time.Time      `json:"expiresAt"`
+	Priority    LockPriority   `json:"priority"`
+	NotifyChan  chan *FileLock `json:"-"`
+	CancelChan  chan struct{}  `json:"-"`
 }
 
 // ========== 锁信息（API响应）==========
 
 // LockInfo 锁信息（用于API响应）
 type LockInfo struct {
-	ID             string            `json:"id"`
-	FilePath       string            `json:"filePath"`
-	FileName       string            `json:"fileName"`
-	LockType       string            `json:"lockType"`
-	LockMode       string            `json:"lockMode"`
-	Status         string            `json:"status"`
-	Priority       string            `json:"priority"`
-	Owner          string            `json:"owner"`
-	OwnerName      string            `json:"ownerName,omitempty"`
-	OwnerEmail     string            `json:"ownerEmail,omitempty"`
-	ClientID       string            `json:"clientId,omitempty"`
-	SessionID      string            `json:"sessionId,omitempty"`
-	Protocol       string            `json:"protocol,omitempty"`
-	ShareName      string            `json:"shareName,omitempty"`
-	CreatedAt      time.Time         `json:"createdAt"`
-	ExpiresAt      time.Time         `json:"expiresAt"`
-	ExpiresIn      int64             `json:"expiresIn"` // 剩余秒数
-	IsExpired      bool              `json:"isExpired"`
-	LastAccessed   time.Time         `json:"lastAccessed"`
-	LastRenewedAt  *time.Time        `json:"lastRenewedAt,omitempty"`
-	SharedOwners   []*SharedOwner    `json:"sharedOwners,omitempty"`
-	SharedCount    int               `json:"sharedCount"`
-	WaitQueueSize  int               `json:"waitQueueSize"`
-	Version        int64             `json:"version"`
-	Metadata       map[string]string `json:"metadata,omitempty"`
-	Reason         string            `json:"reason,omitempty"`
-	AppName        string            `json:"appName,omitempty"`
+	ID            string            `json:"id"`
+	FilePath      string            `json:"filePath"`
+	FileName      string            `json:"fileName"`
+	LockType      string            `json:"lockType"`
+	LockMode      string            `json:"lockMode"`
+	Status        string            `json:"status"`
+	Priority      string            `json:"priority"`
+	Owner         string            `json:"owner"`
+	OwnerName     string            `json:"ownerName,omitempty"`
+	OwnerEmail    string            `json:"ownerEmail,omitempty"`
+	ClientID      string            `json:"clientId,omitempty"`
+	SessionID     string            `json:"sessionId,omitempty"`
+	Protocol      string            `json:"protocol,omitempty"`
+	ShareName     string            `json:"shareName,omitempty"`
+	CreatedAt     time.Time         `json:"createdAt"`
+	ExpiresAt     time.Time         `json:"expiresAt"`
+	ExpiresIn     int64             `json:"expiresIn"` // 剩余秒数
+	IsExpired     bool              `json:"isExpired"`
+	LastAccessed  time.Time         `json:"lastAccessed"`
+	LastRenewedAt *time.Time        `json:"lastRenewedAt,omitempty"`
+	SharedOwners  []*SharedOwner    `json:"sharedOwners,omitempty"`
+	SharedCount   int               `json:"sharedCount"`
+	WaitQueueSize int               `json:"waitQueueSize"`
+	Version       int64             `json:"version"`
+	Metadata      map[string]string `json:"metadata,omitempty"`
+	Reason        string            `json:"reason,omitempty"`
+	AppName       string            `json:"appName,omitempty"`
 }
 
 // ToInfo 转换为LockInfo
@@ -666,21 +666,21 @@ const (
 
 // LockAuditEntry 锁审计日志条目
 type LockAuditEntry struct {
-	ID          string            `json:"id"`
-	Timestamp   time.Time         `json:"timestamp"`
-	Event       LockAuditEvent    `json:"event"`
-	LockID      string            `json:"lockId,omitempty"`
-	FilePath    string            `json:"filePath"`
-	FileName    string            `json:"fileName"`
-	LockType    string            `json:"lockType"`
-	Owner       string            `json:"owner"`
-	OwnerName   string            `json:"ownerName,omitempty"`
-	ClientID    string            `json:"clientId,omitempty"`
-	Protocol    string            `json:"protocol,omitempty"`
-	Duration    int64             `json:"duration,omitempty"` // 锁持有时长(ms)
-	Reason      string            `json:"reason,omitempty"`
-	ConflictWith *LockInfo        `json:"conflictWith,omitempty"`
-	Details     map[string]interface{} `json:"details,omitempty"`
+	ID           string                 `json:"id"`
+	Timestamp    time.Time              `json:"timestamp"`
+	Event        LockAuditEvent         `json:"event"`
+	LockID       string                 `json:"lockId,omitempty"`
+	FilePath     string                 `json:"filePath"`
+	FileName     string                 `json:"fileName"`
+	LockType     string                 `json:"lockType"`
+	Owner        string                 `json:"owner"`
+	OwnerName    string                 `json:"ownerName,omitempty"`
+	ClientID     string                 `json:"clientId,omitempty"`
+	Protocol     string                 `json:"protocol,omitempty"`
+	Duration     int64                  `json:"duration,omitempty"` // 锁持有时长(ms)
+	Reason       string                 `json:"reason,omitempty"`
+	ConflictWith *LockInfo              `json:"conflictWith,omitempty"`
+	Details      map[string]interface{} `json:"details,omitempty"`
 }
 
 // ========== 协议锁适配器接口 ==========
