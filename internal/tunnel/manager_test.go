@@ -234,6 +234,9 @@ func TestSetDefaults(t *testing.T) {
 
 // TestManagerStartStop 测试管理器启动和停止
 func TestManagerStartStop(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	logger := zap.NewNop()
 	config := Config{
 		ServerAddr: "localhost",
@@ -263,6 +266,9 @@ func TestManagerStartStop(t *testing.T) {
 
 // TestManagerConnectDisconnect 测试建立和断开隧道
 func TestManagerConnectDisconnect(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	logger := zap.NewNop()
 	config := Config{
 		ServerAddr: "localhost",
@@ -319,6 +325,9 @@ func TestManagerConnectDisconnect(t *testing.T) {
 
 // TestManagerConnectDuplicate 测试重复建立同名隧道
 func TestManagerConnectDuplicate(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	logger := zap.NewNop()
 	config := Config{
 		ServerAddr: "localhost",
@@ -385,6 +394,9 @@ func TestManagerGetStatus(t *testing.T) {
 
 // TestManagerOnEvent 测试事件回调
 func TestManagerOnEvent(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	logger := zap.NewNop()
 	config := Config{
 		ServerAddr: "localhost",
@@ -456,6 +468,9 @@ func TestGenerateID(t *testing.T) {
 
 // TestManagerMultipleTunnels 测试多个隧道
 func TestManagerMultipleTunnels(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	logger := zap.NewNop()
 	config := Config{
 		ServerAddr: "localhost",
@@ -491,6 +506,9 @@ func TestManagerMultipleTunnels(t *testing.T) {
 
 // TestManagerDifferentModes 测试不同连接模式
 func TestManagerDifferentModes(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	logger := zap.NewNop()
 	config := Config{
 		ServerAddr: "localhost",
@@ -526,6 +544,9 @@ func TestManagerDifferentModes(t *testing.T) {
 
 // TestManagerContextCancellation 测试上下文取消
 func TestManagerContextCancellation(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	logger := zap.NewNop()
 	config := Config{
 		ServerAddr:   "localhost",

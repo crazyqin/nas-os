@@ -1253,8 +1253,8 @@ func (g *EfficiencyReportGenerator) calculateDistributionScore() float64 {
 		hddColdRatio = float64(hddStats.ColdBytes) / float64(hddStats.TotalBytes)
 	}
 
-	// 综合评分
-	return (ssdHotRatio*60 + hddColdRatio*40) * 100
+	// 综合评分 (0-100)
+	return ssdHotRatio*60 + hddColdRatio*40
 }
 
 func (g *EfficiencyReportGenerator) calculateEfficiencyScore() float64 {
