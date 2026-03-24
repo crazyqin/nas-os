@@ -11,12 +11,16 @@ import (
 
 // AppHandlers 应用商店处理器
 type AppHandlers struct {
-	store             *AppStore
-	ratingManager     *RatingManager
-	discovery         *AppDiscovery
-	customTemplateMgr *CustomTemplateManager
-	versionManager    *VersionManager
-	manualInstaller   *ManualInstaller
+	store                *AppStore
+	ratingManager        *RatingManager
+	discovery            *AppDiscovery
+	customTemplateMgr    *CustomTemplateManager
+	versionManager       *VersionManager
+	manualInstaller      *ManualInstaller
+	templateVersionMgr   *TemplateVersionManager
+	backupMgr            *BackupManager
+	healthChecker        *HealthChecker
+	updateChecker        *UpdateChecker
 	// mu                 sync.RWMutex - 保留用于未来需要并发控制的场景
 }
 
@@ -52,6 +56,26 @@ func (h *AppHandlers) SetManualInstaller(mi *ManualInstaller) {
 	h.manualInstaller = mi
 }
 
+// SetTemplateVersionManager 设置模板版本管理器
+func (h *AppHandlers) SetTemplateVersionManager(tvm *TemplateVersionManager) {
+	h.templateVersionMgr = tvm
+}
+
+// SetBackupManager 设置备份管理器
+func (h *AppHandlers) SetBackupManager(bm *BackupManager) {
+	h.backupMgr = bm
+}
+
+// SetHealthChecker 设置健康检查器
+func (h *AppHandlers) SetHealthChecker(hc *HealthChecker) {
+	h.healthChecker = hc
+}
+
+// SetUpdateChecker 设置更新检测器
+func (h *AppHandlers) SetUpdateChecker(uc *UpdateChecker) {
+	h.updateChecker = uc
+}
+
 // RegisterRoutes 注册路由
 func (h *AppHandlers) RegisterRoutes(r *gin.RouterGroup) {
 	apps := r.Group("/apps")
@@ -64,6 +88,7 @@ func (h *AppHandlers) RegisterRoutes(r *gin.RouterGroup) {
 		apps.GET("/installed", h.listInstalled)
 		apps.GET("/installed/:id", h.getInstalled)
 		apps.GET("/installed/:id/stats", h.getAppStats)
+		apps.GET("/installed/:id/health", h.getAppHealth)
 
 		// 应用操作
 		apps.POST("/install/:id", h.installApp)
@@ -107,6 +132,24 @@ func (h *AppHandlers) RegisterRoutes(r *gin.RouterGroup) {
 		apps.POST("/notifications/read-all", h.markAllNotificationsRead)
 		apps.GET("/notifications/unread-count", h.getUnreadCount)
 		apps.POST("/installed/:id/update-version", h.updateAppVersion)
+
+		// === 模板版本管理 ===
+		apps.GET("/templates/:id/versions", h.getTemplateVersions)
+		apps.GET("/templates/:id/versions/latest", h.getTemplateLatestVersion)
+		apps.POST("/templates/:id/versions", h.addTemplateVersion)
+		apps.POST("/templates/:id/versions/:version/deprecate", h.deprecateTemplateVersion)
+		apps.DELETE("/templates/:id/versions/:version", h.removeTemplateVersion)
+
+		// === 备份与恢复 ===
+		apps.POST("/installed/:id/backup", h.backupApp)
+		apps.GET("/backups", h.listBackups)
+		apps.GET("/backups/:id", h.getBackup)
+		apps.POST("/backups/:id/restore", h.restoreApp)
+		apps.DELETE("/backups/:id", h.deleteBackup)
+
+		// === 更新检测 ===
+		apps.GET("/installed/:id/updates", h.checkAppUpdates)
+		apps.POST("/check-updates", h.checkAllUpdates)
 	}
 }
 
@@ -1258,5 +1301,400 @@ func (h *AppHandlers) updateAppVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    0,
 		"message": "版本更新成功",
+	})
+}
+
+// =============================================================================
+// 模板版本管理 API
+// =============================================================================
+
+// getTemplateVersions 获取模板的所有版本
+func (h *AppHandlers) getTemplateVersions(c *gin.Context) {
+	templateID := c.Param("id")
+
+	if h.templateVersionMgr == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data":    []*TemplateVersion{},
+		})
+		return
+	}
+
+	versions := h.templateVersionMgr.GetVersions(templateID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    versions,
+	})
+}
+
+// getTemplateLatestVersion 获取模板最新版本
+func (h *AppHandlers) getTemplateLatestVersion(c *gin.Context) {
+	templateID := c.Param("id")
+
+	if h.templateVersionMgr == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "模板版本管理器未初始化",
+		})
+		return
+	}
+
+	version := h.templateVersionMgr.GetLatestVersion(templateID)
+	if version == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "未找到版本",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    version,
+	})
+}
+
+// addTemplateVersion 添加模板版本
+func (h *AppHandlers) addTemplateVersion(c *gin.Context) {
+	templateID := c.Param("id")
+
+	var version TemplateVersion
+	if err := c.ShouldBindJSON(&version); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "请求格式错误",
+		})
+		return
+	}
+
+	if h.templateVersionMgr == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "模板版本管理器未初始化",
+		})
+		return
+	}
+
+	if err := h.templateVersionMgr.AddVersion(templateID, &version); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "版本添加成功",
+		"data":    version,
+	})
+}
+
+// deprecateTemplateVersion 标记模板版本为弃用
+func (h *AppHandlers) deprecateTemplateVersion(c *gin.Context) {
+	templateID := c.Param("id")
+	version := c.Param("version")
+
+	if h.templateVersionMgr == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "模板版本管理器未初始化",
+		})
+		return
+	}
+
+	if err := h.templateVersionMgr.DeprecateVersion(templateID, version); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "已标记为弃用",
+	})
+}
+
+// removeTemplateVersion 移除模板版本
+func (h *AppHandlers) removeTemplateVersion(c *gin.Context) {
+	templateID := c.Param("id")
+	version := c.Param("version")
+
+	if h.templateVersionMgr == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "模板版本管理器未初始化",
+		})
+		return
+	}
+
+	if err := h.templateVersionMgr.RemoveVersion(templateID, version); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "版本已删除",
+	})
+}
+
+// =============================================================================
+// 备份与恢复 API
+// =============================================================================
+
+// backupApp 备份应用
+func (h *AppHandlers) backupApp(c *gin.Context) {
+	appID := c.Param("id")
+
+	var opts BackupOptions
+	_ = c.ShouldBindJSON(&opts)
+
+	// 设置默认值
+	if !opts.IncludeConfig && !opts.IncludeData && !opts.IncludeCompose {
+		opts.IncludeConfig = true
+		opts.IncludeCompose = true
+	}
+
+	if h.backupMgr == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份管理器未初始化",
+		})
+		return
+	}
+
+	info, err := h.backupMgr.BackupApp(appID, opts)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "备份成功",
+		"data":    info,
+	})
+}
+
+// listBackups 列出备份
+func (h *AppHandlers) listBackups(c *gin.Context) {
+	appID := c.Query("appId")
+
+	if h.backupMgr == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    0,
+			"message": "success",
+			"data":    []*BackupInfo{},
+		})
+		return
+	}
+
+	backups, err := h.backupMgr.ListBackups(appID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    backups,
+	})
+}
+
+// getBackup 获取备份信息
+func (h *AppHandlers) getBackup(c *gin.Context) {
+	backupID := c.Param("id")
+
+	if h.backupMgr == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份管理器未初始化",
+		})
+		return
+	}
+
+	info, err := h.backupMgr.GetBackup(backupID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    info,
+	})
+}
+
+// restoreApp 恢复应用
+func (h *AppHandlers) restoreApp(c *gin.Context) {
+	backupID := c.Param("id")
+
+	var opts RestoreOptions
+	_ = c.ShouldBindJSON(&opts)
+
+	if h.backupMgr == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份管理器未初始化",
+		})
+		return
+	}
+
+	app, err := h.backupMgr.RestoreApp(backupID, opts)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "恢复成功",
+		"data":    app,
+	})
+}
+
+// deleteBackup 删除备份
+func (h *AppHandlers) deleteBackup(c *gin.Context) {
+	backupID := c.Param("id")
+
+	if h.backupMgr == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "备份管理器未初始化",
+		})
+		return
+	}
+
+	if err := h.backupMgr.DeleteBackup(backupID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "备份已删除",
+	})
+}
+
+// =============================================================================
+// 健康检查 API
+// =============================================================================
+
+// getAppHealth 获取应用健康状态
+func (h *AppHandlers) getAppHealth(c *gin.Context) {
+	appID := c.Param("id")
+
+	if h.healthChecker == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "健康检查器未初始化",
+		})
+		return
+	}
+
+	status, err := h.healthChecker.CheckHealth(appID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    status,
+	})
+}
+
+// =============================================================================
+// 更新检测 API
+// =============================================================================
+
+// checkAppUpdates 检查单个应用的更新
+func (h *AppHandlers) checkAppUpdates(c *gin.Context) {
+	appID := c.Param("id")
+
+	if h.updateChecker == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "更新检测器未初始化",
+		})
+		return
+	}
+
+	info, err := h.updateChecker.CheckAppUpdate(appID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    info,
+	})
+}
+
+// checkAllUpdates 检查所有应用的更新
+func (h *AppHandlers) checkAllUpdates(c *gin.Context) {
+	if h.updateChecker == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "更新检测器未初始化",
+		})
+		return
+	}
+
+	installed := h.store.ListInstalled()
+	updates := make([]*UpdateInfo, 0)
+
+	for _, app := range installed {
+		info, err := h.updateChecker.CheckAppUpdate(app.ID)
+		if err != nil {
+			continue
+		}
+		if info.HasUpdate {
+			info.AppID = app.ID
+			info.AppName = app.DisplayName
+			updates = append(updates, info)
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    0,
+		"message": "success",
+		"data":    updates,
 	})
 }
