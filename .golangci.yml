@@ -36,46 +36,46 @@ linters:
     - unconvert      # 不必要的类型转换
     - unparam        # 未使用的参数
 
-  linters-settings:
-    errcheck:
-      check-type-assertions: true
-      check-blank: false
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: false
 
-    revive:
-      rules:
-        - name: var-naming
-          disabled: false
-        - name: exported
-          disabled: false
-          arguments:
-            - "disableStutteringCheck"
+  revive:
+    rules:
+      - name: var-naming
+        disabled: false
+      - name: exported
+        disabled: false
+        arguments:
+          - "disableStutteringCheck"
 
-    # v2.253.284 新增 linter 配置
-    gocyclo:
-      min-complexity: 20
+  # v2.253.284 新增 linter 配置
+  gocyclo:
+    min-complexity: 20
 
-    gocognit:
-      min-complexity: 40
+  gocognit:
+    min-complexity: 40
 
-    dupl:
-      threshold: 150
+  dupl:
+    threshold: 150
 
-    goconst:
-      min-len: 3
-      min-occurrences: 4
+  goconst:
+    min-len: 3
+    min-occurrences: 4
 
-    prealloc:
-      simple: true
-      range-loops: true
-      for-loops: false
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: false
 
-    godot:
-      scope: declarations
-      exclude:
-        - "no-paragraph"
-      capital: false
+  godot:
+    scope: declarations
+    exclude:
+      - "no-paragraph"
+    capital: false
 
-  exclusions:
+exclusions:
     generated: lax
     paths:
       - vendor
