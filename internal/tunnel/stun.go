@@ -209,7 +209,8 @@ func (s *STUNProtocol) ParseXORMappedAddress(attr *STUNAttribute, transactionID 
 	var ip net.IP
 	var port int
 
-	if family == 0x0001 {
+	switch family {
+	case 0x0001:
 		// IPv4
 		if len(attr.Value) != 8 {
 			return nil, 0, errors.New("invalid IPv4 address length")
@@ -219,7 +220,7 @@ func (s *STUNProtocol) ParseXORMappedAddress(attr *STUNAttribute, transactionID 
 		for i := 0; i < 4; i++ {
 			ip[i] = attr.Value[4+i] ^ transactionID[i]
 		}
-	} else if family == 0x0002 {
+	case 0x0002:
 		// IPv6
 		if len(attr.Value) != 20 {
 			return nil, 0, errors.New("invalid IPv6 address length")
@@ -233,7 +234,7 @@ func (s *STUNProtocol) ParseXORMappedAddress(attr *STUNAttribute, transactionID 
 		for i := 0; i < 16; i++ {
 			ip[i] = attr.Value[4+i] ^ xorBytes[i]
 		}
-	} else {
+	default:
 		return nil, 0, fmt.Errorf("unknown address family: %d", family)
 	}
 
@@ -251,7 +252,8 @@ func (s *STUNProtocol) ParseMappedAddress(attr *STUNAttribute) (net.IP, int, err
 	var ip net.IP
 	var port int
 
-	if family == 0x0001 {
+	switch family {
+	case 0x0001:
 		// IPv4
 		if len(attr.Value) != 8 {
 			return nil, 0, errors.New("invalid IPv4 address length")
@@ -259,7 +261,7 @@ func (s *STUNProtocol) ParseMappedAddress(attr *STUNAttribute) (net.IP, int, err
 		port = int(binary.BigEndian.Uint16(attr.Value[2:4]))
 		ip = make(net.IP, 4)
 		copy(ip, attr.Value[4:8])
-	} else if family == 0x0002 {
+	case 0x0002:
 		// IPv6
 		if len(attr.Value) != 20 {
 			return nil, 0, errors.New("invalid IPv6 address length")
@@ -267,7 +269,7 @@ func (s *STUNProtocol) ParseMappedAddress(attr *STUNAttribute) (net.IP, int, err
 		port = int(binary.BigEndian.Uint16(attr.Value[2:4]))
 		ip = make(net.IP, 16)
 		copy(ip, attr.Value[4:20])
-	} else {
+	default:
 		return nil, 0, fmt.Errorf("unknown address family: %d", family)
 	}
 
