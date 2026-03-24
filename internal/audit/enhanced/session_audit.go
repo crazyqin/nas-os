@@ -14,8 +14,11 @@ import (
 // SessionProtocol 会话协议类型
 type SessionProtocol string
 
+// SMB/NFS Session Protocol Types
 const (
+	// ProtocolSMB indicates SMB protocol
 	ProtocolSMB SessionProtocol = "smb"
+	// ProtocolNFS indicates NFS protocol
 	ProtocolNFS SessionProtocol = "nfs"
 )
 
@@ -23,37 +26,37 @@ const (
 type SessionState string
 
 const (
-	SessionStateActive    SessionState = "active"
-	SessionStateIdle      SessionState = "idle"
+	SessionStateActive       SessionState = "active"
+	SessionStateIdle         SessionState = "idle"
 	SessionStateDisconnected SessionState = "disconnected"
-	SessionStateClosed    SessionState = "closed"
+	SessionStateClosed       SessionState = "closed"
 )
 
 // SMBSession SMB会话信息
 type SMBSession struct {
-	SessionID       string            `json:"session_id"`
-	ClientIP        string            `json:"client_ip"`
-	ClientPort      int               `json:"client_port"`
-	Username        string            `json:"username"`
-	Domain          string            `json:"domain,omitempty"`
-	ComputerName    string            `json:"computer_name,omitempty"`
-	ProtocolVersion string            `json:"protocol_version"` // SMB1/SMB2/SMB3
-	ConnectedAt     time.Time         `json:"connected_at"`
-	LastActivity    time.Time         `json:"last_activity"`
-	State           SessionState      `json:"state"`
-	TreeConnects    []TreeConnect     `json:"tree_connects,omitempty"`
-	OpenFiles       []OpenFileInfo    `json:"open_files,omitempty"`
-	BytesRead       int64             `json:"bytes_read"`
-	BytesWritten    int64             `json:"bytes_written"`
-	LockedFiles     []string          `json:"locked_files,omitempty"`
+	SessionID       string                 `json:"session_id"`
+	ClientIP        string                 `json:"client_ip"`
+	ClientPort      int                    `json:"client_port"`
+	Username        string                 `json:"username"`
+	Domain          string                 `json:"domain,omitempty"`
+	ComputerName    string                 `json:"computer_name,omitempty"`
+	ProtocolVersion string                 `json:"protocol_version"` // SMB1/SMB2/SMB3
+	ConnectedAt     time.Time              `json:"connected_at"`
+	LastActivity    time.Time              `json:"last_activity"`
+	State           SessionState           `json:"state"`
+	TreeConnects    []TreeConnect          `json:"tree_connects,omitempty"`
+	OpenFiles       []OpenFileInfo         `json:"open_files,omitempty"`
+	BytesRead       int64                  `json:"bytes_read"`
+	BytesWritten    int64                  `json:"bytes_written"`
+	LockedFiles     []string               `json:"locked_files,omitempty"`
 	Extra           map[string]interface{} `json:"extra,omitempty"`
 }
 
 // TreeConnect SMB树连接信息
 type TreeConnect struct {
-	ShareName    string    `json:"share_name"`
-	ConnectTime  time.Time `json:"connect_time"`
-	Permissions  string    `json:"permissions"` // R/W/RW
+	ShareName   string    `json:"share_name"`
+	ConnectTime time.Time `json:"connect_time"`
+	Permissions string    `json:"permissions"` // R/W/RW
 }
 
 // OpenFileInfo 打开的文件信息
@@ -67,62 +70,62 @@ type OpenFileInfo struct {
 
 // NFSSession NFS会话信息
 type NFSSession struct {
-	SessionID    string            `json:"session_id"`
-	ClientIP     string            `json:"client_ip"`
-	ClientPort   int               `json:"client_port"`
-	Protocol     string            `json:"protocol"` // NFS3/NFS4
-	ConnectedAt  time.Time         `json:"connected_at"`
-	LastActivity time.Time         `json:"last_activity"`
-	State        SessionState      `json:"state"`
-	Exports      []ExportMount     `json:"exports,omitempty"`
-	OpenFiles    []OpenFileInfo    `json:"open_files,omitempty"`
-	BytesRead    int64             `json:"bytes_read"`
-	BytesWritten int64             `json:"bytes_written"`
+	SessionID    string                 `json:"session_id"`
+	ClientIP     string                 `json:"client_ip"`
+	ClientPort   int                    `json:"client_port"`
+	Protocol     string                 `json:"protocol"` // NFS3/NFS4
+	ConnectedAt  time.Time              `json:"connected_at"`
+	LastActivity time.Time              `json:"last_activity"`
+	State        SessionState           `json:"state"`
+	Exports      []ExportMount          `json:"exports,omitempty"`
+	OpenFiles    []OpenFileInfo         `json:"open_files,omitempty"`
+	BytesRead    int64                  `json:"bytes_read"`
+	BytesWritten int64                  `json:"bytes_written"`
 	Extra        map[string]interface{} `json:"extra,omitempty"`
 }
 
 // ExportMount NFS导出挂载信息
 type ExportMount struct {
-	ExportPath string    `json:"export_path"`
-	MountTime  time.Time `json:"mount_time"`
-	Permissions string   `json:"permissions"` // ro/rw
+	ExportPath  string    `json:"export_path"`
+	MountTime   time.Time `json:"mount_time"`
+	Permissions string    `json:"permissions"` // ro/rw
 }
 
 // SessionAuditEvent 会话审计事件
 type SessionAuditEvent struct {
-	EventID     string            `json:"event_id"`
-	Timestamp   time.Time         `json:"timestamp"`
-	Protocol    SessionProtocol   `json:"protocol"`
-	EventType   string            `json:"event_type"` // connect/disconnect/file_open/file_close/file_lock/file_unlock
-	SessionID   string            `json:"session_id"`
-	ClientIP    string            `json:"client_ip"`
-	Username    string            `json:"username,omitempty"`
-	Resource    string            `json:"resource,omitempty"`
-	Action      string            `json:"action,omitempty"`
-	Status      string            `json:"status"`
-	Details     map[string]interface{} `json:"details,omitempty"`
+	EventID   string                 `json:"event_id"`
+	Timestamp time.Time              `json:"timestamp"`
+	Protocol  SessionProtocol        `json:"protocol"`
+	EventType string                 `json:"event_type"` // connect/disconnect/file_open/file_close/file_lock/file_unlock
+	SessionID string                 `json:"session_id"`
+	ClientIP  string                 `json:"client_ip"`
+	Username  string                 `json:"username,omitempty"`
+	Resource  string                 `json:"resource,omitempty"`
+	Action    string                 `json:"action,omitempty"`
+	Status    string                 `json:"status"`
+	Details   map[string]interface{} `json:"details,omitempty"`
 }
 
 // SessionAuditConfig 会话审计配置
 type SessionAuditConfig struct {
-	Enabled          bool          `json:"enabled"`
-	LogPath          string        `json:"log_path"`
-	MaxLogAgeDays    int           `json:"max_log_age_days"`
-	MaxLogSizeMB     int           `json:"max_log_size_mb"`
-	LogFileOps       bool          `json:"log_file_ops"`       // 记录文件操作
-	LogLockOps       bool          `json:"log_lock_ops"`       // 记录锁定操作
-	SessionTimeout   time.Duration `json:"session_timeout"`    // 会话超时
-	CleanupInterval  time.Duration `json:"cleanup_interval"`   // 清理间隔
+	Enabled         bool          `json:"enabled"`
+	LogPath         string        `json:"log_path"`
+	MaxLogAgeDays   int           `json:"max_log_age_days"`
+	MaxLogSizeMB    int           `json:"max_log_size_mb"`
+	LogFileOps      bool          `json:"log_file_ops"`     // 记录文件操作
+	LogLockOps      bool          `json:"log_lock_ops"`     // 记录锁定操作
+	SessionTimeout  time.Duration `json:"session_timeout"`  // 会话超时
+	CleanupInterval time.Duration `json:"cleanup_interval"` // 清理间隔
 }
 
 // SessionAuditManager 会话审计管理器
 type SessionAuditManager struct {
-	config     SessionAuditConfig
+	config      SessionAuditConfig
 	smbSessions map[string]*SMBSession
 	nfsSessions map[string]*NFSSession
-	mu         sync.RWMutex
-	eventChan  chan SessionAuditEvent
-	stopChan   chan struct{}
+	mu          sync.RWMutex
+	eventChan   chan SessionAuditEvent
+	stopChan    chan struct{}
 }
 
 // NewSessionAuditManager 创建会话审计管理器
@@ -475,10 +478,12 @@ func (m *SessionAuditManager) writeEvent(event SessionAuditEvent) {
 	if err != nil {
 		return
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	data, _ := json.Marshal(event)
-	f.WriteString(string(data) + "\n")
+	_, _ = f.WriteString(string(data) + "\n")
 }
 
 // cleanupSessions 清理过期会话
