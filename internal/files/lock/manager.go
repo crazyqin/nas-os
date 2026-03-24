@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Manager 锁管理器
+// Manager 锁管理器.
 type Manager struct {
 	config FileLockConfig
 	logger *zap.Logger
@@ -48,12 +48,12 @@ type Manager struct {
 	wg     sync.WaitGroup
 }
 
-// LockAuditLogger 锁审计日志接口
+// LockAuditLogger 锁审计日志接口.
 type LockAuditLogger interface {
 	LogLockAudit(entry *LockAuditEntry)
 }
 
-// NewManager 创建锁管理器
+// NewManager 创建锁管理器.
 func NewManager(config FileLockConfig, logger *zap.Logger) *Manager {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -87,14 +87,14 @@ func NewManager(config FileLockConfig, logger *zap.Logger) *Manager {
 	return m
 }
 
-// SetAuditLogger 设置审计日志记录器
+// SetAuditLogger 设置审计日志记录器.
 func (m *Manager) SetAuditLogger(logger LockAuditLogger) {
 	m.auditLogger = logger
 }
 
 // ========== 核心锁操作 ==========
 
-// Lock 尝试获取锁
+// Lock 尝试获取锁.
 func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 	if req == nil {
 		return nil, nil, ErrInvalidLockType
@@ -132,28 +132,28 @@ func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 
 	now := time.Now()
 	lock := &FileLock{
-		ID:              uuid.New().String(),
-		FilePath:        req.FilePath,
-		FileName:        filepath.Base(req.FilePath),
-		LockType:        req.LockType,
-		LockMode:        req.LockMode,
-		Status:          LockStatusActive,
-		Priority:        req.Priority,
-		Owner:           req.Owner,
-		OwnerName:       req.OwnerName,
-		OwnerEmail:      req.OwnerEmail,
-		ClientID:        req.ClientID,
-		SessionID:       req.SessionID,
-		Protocol:        req.Protocol,
-		ShareName:       req.ShareName,
-		CreatedAt:       now,
-		ExpiresAt:       now.Add(timeout),
-		LastAccessed:    now,
+		ID:               uuid.New().String(),
+		FilePath:         req.FilePath,
+		FileName:         filepath.Base(req.FilePath),
+		LockType:         req.LockType,
+		LockMode:         req.LockMode,
+		Status:           LockStatusActive,
+		Priority:         req.Priority,
+		Owner:            req.Owner,
+		OwnerName:        req.OwnerName,
+		OwnerEmail:       req.OwnerEmail,
+		ClientID:         req.ClientID,
+		SessionID:        req.SessionID,
+		Protocol:         req.Protocol,
+		ShareName:        req.ShareName,
+		CreatedAt:        now,
+		ExpiresAt:        now.Add(timeout),
+		LastAccessed:     now,
 		ConflictStrategy: req.ConflictStrategy,
-		Metadata:        req.Metadata,
-		Reason:          req.Reason,
-		AppName:         req.AppName,
-		Version:         1,
+		Metadata:         req.Metadata,
+		Reason:           req.Reason,
+		AppName:          req.AppName,
+		Version:          1,
 	}
 
 	// 处理共享锁持有者
@@ -187,14 +187,14 @@ func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 			if conflict != nil {
 				// 记录冲突审计
 				m.logAudit(&LockAuditEntry{
-					Event:     AuditEventLockConflict,
-					FilePath:  req.FilePath,
-					FileName:  lock.FileName,
-					LockType:  req.LockType.String(),
-					Owner:     req.Owner,
-					OwnerName: req.OwnerName,
-					ClientID:  req.ClientID,
-					Protocol:  req.Protocol,
+					Event:        AuditEventLockConflict,
+					FilePath:     req.FilePath,
+					FileName:     lock.FileName,
+					LockType:     req.LockType.String(),
+					Owner:        req.Owner,
+					OwnerName:    req.OwnerName,
+					ClientID:     req.ClientID,
+					Protocol:     req.Protocol,
 					ConflictWith: conflict.ExistingLock,
 				})
 
@@ -257,7 +257,7 @@ func (m *Manager) Lock(req *LockRequest) (*FileLock, *LockConflict, error) {
 	return lock, nil, nil
 }
 
-// Unlock 释放锁
+// Unlock 释放锁.
 func (m *Manager) Unlock(lockID string, owner string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -305,7 +305,7 @@ func (m *Manager) Unlock(lockID string, owner string) error {
 	return nil
 }
 
-// UnlockByPath 通过路径释放锁
+// UnlockByPath 通过路径释放锁.
 func (m *Manager) UnlockByPath(filePath string, owner string) error {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -325,7 +325,7 @@ func (m *Manager) UnlockByPath(filePath string, owner string) error {
 	return m.Unlock(lock.ID, owner)
 }
 
-// ForceUnlock 强制释放锁（管理员操作）
+// ForceUnlock 强制释放锁（管理员操作）.
 func (m *Manager) ForceUnlock(lockID string, reason string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -368,7 +368,7 @@ func (m *Manager) ForceUnlock(lockID string, reason string) error {
 	return nil
 }
 
-// ExtendLock 延长锁有效期
+// ExtendLock 延长锁有效期.
 func (m *Manager) ExtendLock(lockID string, owner string, duration time.Duration) error {
 	if duration > m.config.MaxTimeout {
 		duration = m.config.MaxTimeout
@@ -419,7 +419,7 @@ func (m *Manager) ExtendLock(lockID string, owner string, duration time.Duration
 
 // ========== 锁升级/降级 ==========
 
-// UpgradeLock 升级锁（共享锁 -> 独占锁）
+// UpgradeLock 升级锁（共享锁 -> 独占锁）.
 func (m *Manager) UpgradeLock(lockID string, owner string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -486,7 +486,7 @@ func (m *Manager) UpgradeLock(lockID string, owner string) error {
 	return nil
 }
 
-// DowngradeLock 降级锁（独占锁 -> 共享锁）
+// DowngradeLock 降级锁（独占锁 -> 共享锁）.
 func (m *Manager) DowngradeLock(lockID string, owner string) error {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -528,7 +528,7 @@ func (m *Manager) DowngradeLock(lockID string, owner string) error {
 
 // ========== 锁查询 ==========
 
-// GetLock 获取锁信息
+// GetLock 获取锁信息.
 func (m *Manager) GetLock(lockID string) (*LockInfo, error) {
 	raw, ok := m.locksByID.Load(lockID)
 	if !ok {
@@ -549,7 +549,7 @@ func (m *Manager) GetLock(lockID string) (*LockInfo, error) {
 	return lock.ToInfo(), nil
 }
 
-// GetLockByPath 通过路径获取锁信息
+// GetLockByPath 通过路径获取锁信息.
 func (m *Manager) GetLockByPath(filePath string) (*LockInfo, error) {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -570,7 +570,7 @@ func (m *Manager) GetLockByPath(filePath string) (*LockInfo, error) {
 	return lock.ToInfo(), nil
 }
 
-// IsLocked 检查文件是否被锁定
+// IsLocked 检查文件是否被锁定.
 func (m *Manager) IsLocked(filePath string) bool {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -591,7 +591,7 @@ func (m *Manager) IsLocked(filePath string) bool {
 	return lock.Status == LockStatusActive
 }
 
-// CanAcquire 检查是否可以获取锁
+// CanAcquire 检查是否可以获取锁.
 func (m *Manager) CanAcquire(filePath string, lockType LockType, owner string) (*LockConflict, bool) {
 	raw, ok := m.locks.Load(filePath)
 	if !ok {
@@ -625,7 +625,7 @@ func (m *Manager) CanAcquire(filePath string, lockType LockType, owner string) (
 	return conflict, conflict == nil
 }
 
-// ListLocks 列出所有锁
+// ListLocks 列出所有锁.
 func (m *Manager) ListLocks(filter *LockFilter) []*LockInfo {
 	var result []*LockInfo
 
@@ -666,7 +666,7 @@ func (m *Manager) ListLocks(filter *LockFilter) []*LockInfo {
 	return result
 }
 
-// ListLocksByOwner 列出指定用户的所有锁
+// ListLocksByOwner 列出指定用户的所有锁.
 func (m *Manager) ListLocksByOwner(owner string) []*LockInfo {
 	var result []*LockInfo
 
@@ -696,7 +696,7 @@ func (m *Manager) ListLocksByOwner(owner string) []*LockInfo {
 
 // ========== 统计信息 ==========
 
-// Stats 获取统计信息
+// Stats 获取统计信息.
 func (m *Manager) Stats() ManagerStats {
 	m.stats.mu.RLock()
 	defer m.stats.mu.RUnlock()
@@ -723,7 +723,7 @@ func (m *Manager) Stats() ManagerStats {
 	}
 }
 
-// ManagerStats 管理器统计
+// ManagerStats 管理器统计.
 type ManagerStats struct {
 	TotalLocks    int64 `json:"totalLocks"`
 	ActiveLocks   int64 `json:"activeLocks"`
@@ -735,7 +735,7 @@ type ManagerStats struct {
 
 // ========== 内部方法 ==========
 
-// storeLock 存储锁
+// storeLock 存储锁.
 func (m *Manager) storeLock(lock *FileLock) {
 	m.locks.Store(lock.FilePath, lock)
 	m.locksByID.Store(lock.ID, lock)
@@ -747,8 +747,8 @@ func (m *Manager) storeLock(lock *FileLock) {
 	m.stats.mu.Unlock()
 }
 
-// checkConflict 检查锁冲突
-func (m *Manager) checkConflict(existing *FileLock, req *LockRequest, newLock *FileLock) *LockConflict {
+// checkConflict 检查锁冲突.
+func (m *Manager) checkConflict(existing *FileLock, req *LockRequest, _ *FileLock) *LockConflict {
 	// 同一用户（不同客户端）特殊处理
 	if existing.Owner == req.Owner {
 		// 同一客户端，可以重新获取
@@ -772,12 +772,12 @@ func (m *Manager) checkConflict(existing *FileLock, req *LockRequest, newLock *F
 	// 独占锁与任何锁都冲突
 	if existing.LockType == LockTypeExclusive {
 		return &LockConflict{
-			ConflictType: ConflictTypeExclusive,
-			ExistingLock: existing.ToInfo(),
-			Message:      fmt.Sprintf("file is exclusively locked by %s", existing.OwnerName),
-			Resolution:   "wait for the lock to be released or contact the lock owner",
-			CanWait:      m.config.EnableWaitQueue,
-			CanPreempt:   m.config.EnablePreemption && req.Priority > existing.Priority,
+			ConflictType:  ConflictTypeExclusive,
+			ExistingLock:  existing.ToInfo(),
+			Message:       fmt.Sprintf("file is exclusively locked by %s", existing.OwnerName),
+			Resolution:    "wait for the lock to be released or contact the lock owner",
+			CanWait:       m.config.EnableWaitQueue,
+			CanPreempt:    m.config.EnablePreemption && req.Priority > existing.Priority,
 			EstimatedWait: int64(time.Until(existing.ExpiresAt).Seconds()),
 		}
 	}
@@ -820,12 +820,12 @@ func (m *Manager) checkConflict(existing *FileLock, req *LockRequest, newLock *F
 	return nil // 共享锁之间兼容
 }
 
-// checkConflictSimple 简单冲突检查
+// checkConflictSimple 简单冲突检查.
 func (m *Manager) checkConflictSimple(existing *FileLock, req *LockRequest) *LockConflict {
 	return m.checkConflict(existing, req, nil)
 }
 
-// handleConflict 处理锁冲突
+// handleConflict 处理锁冲突.
 func (m *Manager) handleConflict(req *LockRequest, newLock *FileLock, existing *FileLock, conflict *LockConflict) (*FileLock, *LockConflict, error) {
 	m.stats.mu.Lock()
 	m.stats.conflicts++
@@ -859,7 +859,7 @@ func (m *Manager) handleConflict(req *LockRequest, newLock *FileLock, existing *
 	return nil, conflict, ErrLockConflict
 }
 
-// preemptLock 抢占锁
+// preemptLock 抢占锁.
 func (m *Manager) preemptLock(lock *FileLock, preemptor string) {
 	m.releaseLockInternal(lock, "preempted")
 
@@ -887,7 +887,7 @@ func (m *Manager) preemptLock(lock *FileLock, preemptor string) {
 	)
 }
 
-// waitForLock 等待锁
+// waitForLock 等待锁.
 func (m *Manager) waitForLock(req *LockRequest, newLock *FileLock) (*FileLock, *LockConflict, error) {
 	waitReq := &LockWaitRequest{
 		ID:          uuid.New().String(),
@@ -950,7 +950,7 @@ func (m *Manager) waitForLock(req *LockRequest, newLock *FileLock) (*FileLock, *
 	}
 }
 
-// notifyLockOwner 通知锁持有者
+// notifyLockOwner 通知锁持有者.
 func (m *Manager) notifyLockOwner(lock *FileLock, req *LockRequest) {
 	// TODO: 实现通知机制（通过WebSocket、消息队列等）
 	m.logger.Info("notifying lock owner",
@@ -960,7 +960,7 @@ func (m *Manager) notifyLockOwner(lock *FileLock, req *LockRequest) {
 	)
 }
 
-// releaseLockInternal 内部释放锁
+// releaseLockInternal 内部释放锁.
 func (m *Manager) releaseLockInternal(lock *FileLock, reason string) {
 	// 更新状态
 	switch reason {
@@ -988,7 +988,7 @@ func (m *Manager) releaseLockInternal(lock *FileLock, reason string) {
 	m.stats.mu.Unlock()
 }
 
-// addToOwnerIndex 添加到持有者索引
+// addToOwnerIndex 添加到持有者索引.
 func (m *Manager) addToOwnerIndex(lock *FileLock) {
 	raw, _ := m.ownerLocks.LoadOrStore(lock.Owner, &sync.Map{})
 	ownerLocks, ok := raw.(*sync.Map)
@@ -998,7 +998,7 @@ func (m *Manager) addToOwnerIndex(lock *FileLock) {
 	ownerLocks.Store(lock.ID, lock)
 }
 
-// removeFromOwnerIndex 从持有者索引移除
+// removeFromOwnerIndex 从持有者索引移除.
 func (m *Manager) removeFromOwnerIndex(lock *FileLock) {
 	raw, ok := m.ownerLocks.Load(lock.Owner)
 	if !ok {
@@ -1011,7 +1011,7 @@ func (m *Manager) removeFromOwnerIndex(lock *FileLock) {
 	ownerLocks.Delete(lock.ID)
 }
 
-// removeFromWaitQueue 从等待队列移除
+// removeFromWaitQueue 从等待队列移除.
 func (m *Manager) removeFromWaitQueue(filePath string, waitID string) {
 	raw, ok := m.waitQueues.Load(filePath)
 	if !ok {

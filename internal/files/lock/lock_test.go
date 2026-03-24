@@ -317,12 +317,12 @@ func TestManager_Lock(t *testing.T) {
 				LockType: LockTypeShared,
 				Owner:    "user2",
 			},
-			wantErr: nil,
+			wantErr:     nil,
 			checkShared: true, // 共享锁特殊检查
 		},
 		{
-			name: "nil request",
-			req:   nil,
+			name:    "nil request",
+			req:     nil,
 			wantErr: ErrInvalidLockType,
 		},
 	}
@@ -750,11 +750,11 @@ func TestLockAuditStorage(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	config := LockAuditStorageConfig{
-		LogPath:   tmpDir,
-		MaxSize:   10,
-		MaxCount:  5,
-		MaxAge:    7,
-		SignKey:   []byte("test-key"),
+		LogPath:       tmpDir,
+		MaxSize:       10,
+		MaxCount:      5,
+		MaxAge:        7,
+		SignKey:       []byte("test-key"),
 		FlushInterval: 100 * time.Millisecond,
 	}
 
@@ -796,8 +796,8 @@ func TestLockAuditStorage_VerifySignature(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	config := LockAuditStorageConfig{
-		LogPath:   tmpDir,
-		SignKey:   []byte("test-key"),
+		LogPath:       tmpDir,
+		SignKey:       []byte("test-key"),
 		FlushInterval: 100 * time.Millisecond,
 	}
 
@@ -840,9 +840,9 @@ func TestAuditEnabledManager(t *testing.T) {
 
 	// 获取锁
 	lock, _, err := manager.Lock(&LockRequest{
-		FilePath: "/test/file.txt",
-		LockType: LockTypeExclusive,
-		Owner:    "user1",
+		FilePath:  "/test/file.txt",
+		LockType:  LockTypeExclusive,
+		Owner:     "user1",
 		OwnerName: "User 1",
 	})
 	require.NoError(t, err)

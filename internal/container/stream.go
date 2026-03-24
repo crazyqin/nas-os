@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-// StreamConfig configures streaming behavior
+// StreamConfig configures streaming behavior.
 type StreamConfig struct {
 	// Follow whether to follow log output
 	Follow bool `json:"follow"`
@@ -33,7 +33,7 @@ type StreamConfig struct {
 	Stderr bool `json:"stderr"`
 }
 
-// DefaultStreamConfig returns default streaming configuration
+// DefaultStreamConfig returns default streaming configuration.
 func DefaultStreamConfig() StreamConfig {
 	return StreamConfig{
 		Follow:     true,
@@ -44,7 +44,7 @@ func DefaultStreamConfig() StreamConfig {
 	}
 }
 
-// LogMessage represents a log entry for streaming
+// LogMessage represents a log entry for streaming.
 type LogMessage struct {
 	Timestamp time.Time `json:"timestamp"`
 	Line      string    `json:"line"`
@@ -52,7 +52,7 @@ type LogMessage struct {
 	Container string    `json:"container,omitempty"`
 }
 
-// StatsMessage represents a stats update for streaming
+// StatsMessage represents a stats update for streaming.
 type StatsMessage struct {
 	Timestamp   time.Time `json:"timestamp"`
 	CPUUsage    float64   `json:"cpuUsage"`
@@ -68,14 +68,14 @@ type StatsMessage struct {
 	Container   string    `json:"container,omitempty"`
 }
 
-// LogStreamer manages log streaming for containers
+// LogStreamer manages log streaming for containers.
 type LogStreamer struct {
 	manager *Manager
 	mu      sync.RWMutex
 	active  map[string]context.CancelFunc
 }
 
-// NewLogStreamer creates a new log streamer
+// NewLogStreamer creates a new log streamer.
 func NewLogStreamer(manager *Manager) *LogStreamer {
 	return &LogStreamer{
 		manager: manager,
@@ -83,8 +83,8 @@ func NewLogStreamer(manager *Manager) *LogStreamer {
 	}
 }
 
-// StreamLogs starts streaming logs for a container
-// Returns a channel that emits LogMessage entries
+// StreamLogs starts streaming logs for a container.
+// Returns a channel that emits LogMessage entries.
 func (s *LogStreamer) StreamLogs(ctx context.Context, containerID string, config StreamConfig) (<-chan LogMessage, error) {
 	args := s.buildLogArgs(containerID, config)
 
@@ -137,7 +137,7 @@ func (s *LogStreamer) StreamLogs(ctx context.Context, containerID string, config
 	return logChan, nil
 }
 
-// buildLogArgs builds docker logs command arguments
+// buildLogArgs builds docker logs command arguments.
 func (s *LogStreamer) buildLogArgs(containerID string, config StreamConfig) []string {
 	args := []string{"logs"}
 
@@ -165,7 +165,7 @@ func (s *LogStreamer) buildLogArgs(containerID string, config StreamConfig) []st
 	return args
 }
 
-// readStream reads from a stream and sends log messages
+// readStream reads from a stream and sends log messages.
 func (s *LogStreamer) readStream(reader io.Reader, source string, logChan chan<- LogMessage) {
 	scanner := bufio.NewScanner(reader)
 	buf := make([]byte, 0, 64*1024)
@@ -202,7 +202,7 @@ func (s *LogStreamer) readStream(reader io.Reader, source string, logChan chan<-
 	}
 }
 
-// Stop stops all active log streams
+// Stop stops all active log streams.
 func (s *LogStreamer) Stop(containerID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -213,7 +213,7 @@ func (s *LogStreamer) Stop(containerID string) {
 	}
 }
 
-// StopAll stops all active log streams
+// StopAll stops all active log streams.
 func (s *LogStreamer) StopAll() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -224,7 +224,7 @@ func (s *LogStreamer) StopAll() {
 	}
 }
 
-// StatsStreamer manages real-time stats streaming for containers
+// StatsStreamer manages real-time stats streaming for containers.
 type StatsStreamer struct {
 	manager    *Manager
 	mu         sync.RWMutex
@@ -232,7 +232,7 @@ type StatsStreamer struct {
 	updateChan chan StatsMessage
 }
 
-// NewStatsStreamer creates a new stats streamer
+// NewStatsStreamer creates a new stats streamer.
 func NewStatsStreamer(manager *Manager) *StatsStreamer {
 	return &StatsStreamer{
 		manager:    manager,
@@ -241,12 +241,9 @@ func NewStatsStreamer(manager *Manager) *StatsStreamer {
 	}
 }
 
-// StreamStats starts streaming stats for a container
-// Returns a channel that emits StatsMessage entries at regular intervals
-func (s *StatsStreamer) StreamStats(ctx context.Context, containerID string, interval time.Duration) (<-chan StatsMessage, error) {
-	if interval <= 0 {
-		interval = time.Second
-	}
+// StreamStats starts streaming stats for a container.
+// Returns a channel that emits StatsMessage entries at regular intervals.
+func (s *StatsStreamer) StreamStats(ctx context.Context, containerID string, _ time.Duration) (<-chan StatsMessage, error) {
 
 	statsChan := make(chan StatsMessage, 64)
 

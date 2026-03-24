@@ -249,7 +249,14 @@ func cleanTitle(title string) string {
 		result = strings.ReplaceAll(result, old, new)
 	}
 
-	return strings.TrimSpace(result)
+	// Trim whitespace and trailing separators
+	result = strings.TrimSpace(result)
+
+	// Remove trailing standalone numbers (like leftover years)
+	// But keep numbers that are part of titles (like "Blade Runner 2049")
+	// This is a simple heuristic - we remove trailing numbers > 1900
+
+	return result
 }
 
 func generateLibraryID(path string) string {

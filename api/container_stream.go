@@ -18,11 +18,11 @@ import (
 
 // ContainerStreamHandler handles WebSocket streaming for containers
 type ContainerStreamHandler struct {
-	manager        *container.Manager
-	logStreamer    *container.LogStreamer
-	statsStreamer  *container.StatsStreamer
-	batchManager   *container.BatchManager
-	hub            *EnhancedWebSocketHub
+	manager       *container.Manager
+	logStreamer   *container.LogStreamer
+	statsStreamer *container.StatsStreamer
+	batchManager  *container.BatchManager
+	hub           *EnhancedWebSocketHub
 }
 
 // NewContainerStreamHandler creates a new container stream handler
@@ -117,7 +117,7 @@ func (h *ContainerStreamHandler) StreamLogs(c *gin.Context) {
 
 	// Send initial connection message
 	_ = conn.WriteJSON(map[string]interface{}{
-		"type":       "connected",
+		"type":        "connected",
 		"containerId": containerID,
 		"timestamp":   time.Now().Unix(),
 	})
@@ -144,10 +144,10 @@ func (h *ContainerStreamHandler) StreamLogs(c *gin.Context) {
 			}
 
 			if err := conn.WriteJSON(map[string]interface{}{
-				"type":       "log",
-				"timestamp":  msg.Timestamp.Unix(),
-				"line":       msg.Line,
-				"source":     msg.Source,
+				"type":        "log",
+				"timestamp":   msg.Timestamp.Unix(),
+				"line":        msg.Line,
+				"source":      msg.Source,
 				"containerId": containerID,
 			}); err != nil {
 				log.Printf("[ContainerStream] Write error: %v", err)
@@ -429,9 +429,9 @@ func (h *ContainerStreamHandler) BatchRestart(c *gin.Context) {
 // POST /api/v1/containers/batch/remove
 func (h *ContainerStreamHandler) BatchRemove(c *gin.Context) {
 	var req struct {
-		ContainerIDs   []string `json:"containerIds" binding:"required"`
-		Force          bool     `json:"force"`
-		RemoveVolumes  bool     `json:"removeVolumes"`
+		ContainerIDs  []string `json:"containerIds" binding:"required"`
+		Force         bool     `json:"force"`
+		RemoveVolumes bool     `json:"removeVolumes"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -568,8 +568,8 @@ func (h *ContainerStreamHandler) BatchOperationWithProgress(c *gin.Context) {
 	go func() {
 		for progress := range progressChan {
 			if err := conn.WriteJSON(map[string]interface{}{
-				"type":     "progress",
-				"data":     progress.GetProgress(),
+				"type":      "progress",
+				"data":      progress.GetProgress(),
 				"timestamp": time.Now().Unix(),
 			}); err != nil {
 				return
