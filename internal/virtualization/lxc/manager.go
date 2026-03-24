@@ -5,31 +5,31 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 )
 
 // Manager provides LXC container management capabilities.
 // It supports both Incus and LXD backends for container operations.
 type Manager struct {
-	mu          sync.RWMutex
-	socketPath  string
-	project     string
-	remote      string
-	backend     Backend
+	socketPath string
+	project    string
+	remote     string
+	backend    Backend
 }
 
 // Backend represents the LXC backend type.
 type Backend string
 
+// Backend types supported by the Manager.
 const (
+	// BackendIncus uses the Incus daemon.
 	BackendIncus Backend = "incus"
-	BackendLXD   Backend = "lxd"
+	// BackendLXD uses the LXD daemon.
+	BackendLXD Backend = "lxd"
 )
 
 // ManagerOption is a functional option for Manager configuration.
@@ -123,18 +123,6 @@ func (m *Manager) cmd(args ...string) *exec.Cmd {
 	return exec.Command(baseCmd, args...)
 }
 
-// cmdWithEnv returns an exec.Cmd with custom environment.
-func (m *Manager) cmdWithEnv(env map[string]string, args ...string) *exec.Cmd {
-	cmd := m.cmd(args...)
-	if len(env) > 0 {
-		cmd.Env = os.Environ()
-		for k, v := range env {
-			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
-		}
-	}
-	return cmd
-}
-
 // IsAvailable checks if the LXC backend is running.
 func (m *Manager) IsAvailable() bool {
 	cmd := m.cmd("info")
@@ -168,8 +156,8 @@ func (m *Manager) GetVersion() (map[string]string, error) {
 	}
 
 	return map[string]string{
-		"client": raw.Client,
-		"server": raw.Server,
+		"client":  raw.Client,
+		"server":  raw.Server,
 		"backend": string(m.backend),
 	}, nil
 }
@@ -183,24 +171,24 @@ func (m *Manager) ListContainers(ctx context.Context) ([]*Container, error) {
 	}
 
 	var raw []struct {
-		Name        string                 `json:"name"`
-		Description string                 `json:"description"`
-		Status      string                 `json:"status"`
-		Architecture string                `json:"architecture"`
-		Profiles    []string               `json:"profiles"`
-		Config      map[string]interface{} `json:"config"`
-		Devices     map[string]interface{} `json:"devices"`
-		ExpandedConfig map[string]interface{} `json:"expanded_config"`
+		Name            string                 `json:"name"`
+		Description     string                 `json:"description"`
+		Status          string                 `json:"status"`
+		Architecture    string                 `json:"architecture"`
+		Profiles        []string               `json:"profiles"`
+		Config          map[string]interface{} `json:"config"`
+		Devices         map[string]interface{} `json:"devices"`
+		ExpandedConfig  map[string]interface{} `json:"expanded_config"`
 		ExpandedDevices map[string]interface{} `json:"expanded_devices"`
-		CreatedAt   time.Time              `json:"created_at"`
-		LastUsedAt  time.Time              `json:"last_used_at"`
-		State       struct {
-			Status     string `json:"status"`
-			Pid        int    `json:"pid"`
-			Processes  int    `json:"processes"`
-			Memory     struct {
-				Usage  uint64 `json:"usage"`
-				Limit  uint64 `json:"limit"`
+		CreatedAt       time.Time              `json:"created_at"`
+		LastUsedAt      time.Time              `json:"last_used_at"`
+		State           struct {
+			Status    string `json:"status"`
+			Pid       int    `json:"pid"`
+			Processes int    `json:"processes"`
+			Memory    struct {
+				Usage uint64 `json:"usage"`
+				Limit uint64 `json:"limit"`
 			} `json:"memory"`
 			Network map[string]struct {
 				Addresses []struct {
@@ -268,19 +256,19 @@ func (m *Manager) GetContainer(ctx context.Context, name string) (*Container, er
 	}
 
 	var raw struct {
-		Name        string                 `json:"name"`
-		Description string                 `json:"description"`
-		Status      string                 `json:"status"`
-		Architecture string                `json:"architecture"`
-		Profiles    []string               `json:"profiles"`
-		Config      map[string]interface{} `json:"config"`
-		Devices     map[string]interface{} `json:"devices"`
-		ExpandedConfig map[string]interface{} `json:"expanded_config"`
+		Name            string                 `json:"name"`
+		Description     string                 `json:"description"`
+		Status          string                 `json:"status"`
+		Architecture    string                 `json:"architecture"`
+		Profiles        []string               `json:"profiles"`
+		Config          map[string]interface{} `json:"config"`
+		Devices         map[string]interface{} `json:"devices"`
+		ExpandedConfig  map[string]interface{} `json:"expanded_config"`
 		ExpandedDevices map[string]interface{} `json:"expanded_devices"`
-		CreatedAt   time.Time              `json:"created_at"`
-		LastUsedAt  time.Time              `json:"last_used_at"`
-		Ephemeral   bool                   `json:"ephemeral"`
-		Stateful    bool                   `json:"stateful"`
+		CreatedAt       time.Time              `json:"created_at"`
+		LastUsedAt      time.Time              `json:"last_used_at"`
+		Ephemeral       bool                   `json:"ephemeral"`
+		Stateful        bool                   `json:"stateful"`
 	}
 
 	if err := json.Unmarshal(output, &raw); err != nil {
@@ -525,16 +513,16 @@ func (m *Manager) GetStats(ctx context.Context, name string) (*Stats, error) {
 	}
 
 	var raw struct {
-		Status    string `json:"status"`
-		State     struct {
-			Pid        int `json:"pid"`
-			Processes  int `json:"processes"`
-			CPU        struct {
+		Status string `json:"status"`
+		State  struct {
+			Pid       int `json:"pid"`
+			Processes int `json:"processes"`
+			CPU       struct {
 				Usage int64 `json:"usage"`
 			} `json:"cpu"`
 			Memory struct {
-				Usage  uint64 `json:"usage"`
-				Limit  uint64 `json:"limit"`
+				Usage     uint64 `json:"usage"`
+				Limit     uint64 `json:"limit"`
 				SwapUsage uint64 `json:"swap_usage"`
 			} `json:"memory"`
 			Network map[string]struct {

@@ -204,7 +204,7 @@ func (c *SignalingClient) processLoop() {
 
 			handler, exists := c.handlers[msg.Type]
 			if exists {
-				handler(msg)
+				_ = handler(msg)
 			}
 		}
 	}
@@ -433,7 +433,7 @@ func generatePeerID() string {
 	return fmt.Sprintf("peer-%d", time.Now().UnixNano())
 }
 
-// DiscoverPeers discovers peers on the local network via mDNS
+// PeerDiscoverer discovers peers on the local network via mDNS
 type PeerDiscoverer struct {
 	serviceName string
 	port        int

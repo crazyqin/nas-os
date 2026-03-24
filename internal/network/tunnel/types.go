@@ -13,12 +13,19 @@ import (
 type NATType int
 
 const (
+	// NATUnknown indicates unknown NAT type
 	NATUnknown NATType = iota
+	// NATNone indicates no NAT (public IP)
 	NATNone               // No NAT (public IP)
+	// NATFullCone indicates Full Cone NAT (easiest to traverse)
 	NATFullCone           // Full Cone NAT (easiest to traverse)
+	// NATRestrictedCone indicates Restricted Cone NAT
 	NATRestrictedCone     // Restricted Cone NAT
+	// NATPortRestricted indicates Port Restricted Cone NAT
 	NATPortRestricted     // Port Restricted Cone NAT
+	// NATSymmetric indicates Symmetric NAT (hardest to traverse)
 	NATSymmetric          // Symmetric NAT (hardest to traverse)
+	// NATSymmetricUDPFirewall indicates Symmetric UDP Firewall
 	NATSymmetricUDPFirewall // Symmetric UDP Firewall
 )
 
@@ -45,9 +52,13 @@ func (n NATType) String() string {
 type ConnectionType int
 
 const (
+	// ConnectionUnknown indicates unknown connection type
 	ConnectionUnknown ConnectionType = iota
+	// ConnectionDirect indicates direct P2P connection
 	ConnectionDirect                  // Direct P2P connection
+	// ConnectionRelay indicates connection through TURN relay
 	ConnectionRelay                   // Through TURN relay
+	// ConnectionHolePunched indicates UDP hole punched connection
 	ConnectionHolePunched             // UDP hole punched
 )
 

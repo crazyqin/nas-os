@@ -86,7 +86,7 @@ func NewKEVDatabase(config KEVConfig) *KEVDatabase {
 	}
 
 	// 尝试加载本地缓存
-	kdb.loadCache()
+	_ = kdb.loadCache()
 
 	return kdb
 }

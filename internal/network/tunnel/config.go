@@ -250,31 +250,31 @@ func (c *PeerConfig) ToJSON() ([]byte, error) {
 
 // TunnelConfigJSON represents tunnel configuration in JSON format
 type TunnelConfigJSON struct {
-	ListenPort    int           `json:"listen_port"`
-	STUNServers   []string      `json:"stun_servers"`
-	TURNServers   []TURNServer  `json:"turn_servers"`
-	SignalingURL  string        `json:"signaling_url"`
-	STUNTimeout   string        `json:"stun_timeout"`
-	TURNTimeout   string        `json:"turn_timeout"`
-	ICETimeout    string        `json:"ice_timeout"`
-	Keepalive     string        `json:"keepalive"`
-	MaxPeers      int           `json:"max_peers"`
-	MaxRetries    int           `json:"max_retries"`
+	ListenPort   int          `json:"listen_port"`
+	STUNServers  []string     `json:"stun_servers"`
+	TURNServers  []TURNServer `json:"turn_servers"`
+	SignalingURL string       `json:"signaling_url"`
+	STUNTimeout  string       `json:"stun_timeout"`
+	TURNTimeout  string       `json:"turn_timeout"`
+	ICETimeout   string       `json:"ice_timeout"`
+	Keepalive    string       `json:"keepalive"`
+	MaxPeers     int          `json:"max_peers"`
+	MaxRetries   int          `json:"max_retries"`
 }
 
 // ToJSON converts tunnel configuration to JSON
 func (c *TunnelConfig) ToJSON() ([]byte, error) {
 	jsonConfig := TunnelConfigJSON{
-		ListenPort:    c.ListenPort,
-		STUNServers:   c.STUNServers,
-		TURNServers:   c.TURNServers,
-		SignalingURL:  c.SignalingURL,
-		STUNTimeout:   c.STUNTimeout.String(),
-		TURNTimeout:   c.TURNTimeout.String(),
-		ICETimeout:    c.ICETimeout.String(),
-		Keepalive:     c.Keepalive.String(),
-		MaxPeers:      c.MaxPeers,
-		MaxRetries:    c.MaxRetries,
+		ListenPort:   c.ListenPort,
+		STUNServers:  c.STUNServers,
+		TURNServers:  c.TURNServers,
+		SignalingURL: c.SignalingURL,
+		STUNTimeout:  c.STUNTimeout.String(),
+		TURNTimeout:  c.TURNTimeout.String(),
+		ICETimeout:   c.ICETimeout.String(),
+		Keepalive:    c.Keepalive.String(),
+		MaxPeers:     c.MaxPeers,
+		MaxRetries:   c.MaxRetries,
 	}
 
 	return json.MarshalIndent(jsonConfig, "", "  ")

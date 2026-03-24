@@ -48,7 +48,7 @@ func Initialize(cfg *Config) (*StorageModules, error) {
 	// 初始化 RDMA 模块
 	rdmaMgr, err := rdma.NewRDMAManager(cfg.RDMA)
 	if err != nil {
-		modules.Dedup.Close()
+		_ = modules.Dedup.Close()
 		return nil, err
 	}
 	modules.RDMA = rdmaMgr
@@ -56,8 +56,8 @@ func Initialize(cfg *Config) (*StorageModules, error) {
 	// 初始化 ZFS 模块
 	zfsMgr, err := zfs.NewZFSManager("", cfg.ZFS)
 	if err != nil {
-		modules.Dedup.Close()
-		modules.RDMA.Close()
+		_ = modules.Dedup.Close()
+		_ = modules.RDMA.Close()
 		return nil, err
 	}
 	modules.ZFS = zfsMgr
@@ -68,13 +68,13 @@ func Initialize(cfg *Config) (*StorageModules, error) {
 // Close 关闭所有模块
 func (m *StorageModules) Close() error {
 	if m.Dedup != nil {
-		m.Dedup.Close()
+		_ = m.Dedup.Close()
 	}
 	if m.RDMA != nil {
-		m.RDMA.Close()
+		_ = m.RDMA.Close()
 	}
 	if m.ZFS != nil {
-		m.ZFS.Close()
+		_ = m.ZFS.Close()
 	}
 	return nil
 }
@@ -115,6 +115,6 @@ func CheckZFSAvailable() bool {
 		return false
 	}
 	available := mgr.IsAvailable()
-	mgr.Close()
+	_ = mgr.Close()
 	return available
 }

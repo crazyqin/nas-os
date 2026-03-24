@@ -137,11 +137,11 @@ func (r *ResourceManager) GetResourceUsage(ctx context.Context, name string) (*R
 
 // ResourceUsage contains detailed resource usage metrics.
 type ResourceUsage struct {
-	CPU       CPUMetrics    `json:"cpu"`
-	Memory    MemoryMetrics `json:"memory"`
-	Disk      DiskMetrics   `json:"disk"`
+	CPU       CPUMetrics     `json:"cpu"`
+	Memory    MemoryMetrics  `json:"memory"`
+	Disk      DiskMetrics    `json:"disk"`
 	Network   NetworkMetrics `json:"network"`
-	Processes int           `json:"processes"`
+	Processes int            `json:"processes"`
 }
 
 // CPUMetrics contains CPU usage metrics.
@@ -161,16 +161,16 @@ type MemoryMetrics struct {
 
 // DiskMetrics contains disk I/O metrics.
 type DiskMetrics struct {
-	ReadMB   uint64 `json:"readMB"`
-	WriteMB  uint64 `json:"writeMB"`
-	ReadRate uint64 `json:"readRate"`  // MB/s limit
+	ReadMB    uint64 `json:"readMB"`
+	WriteMB   uint64 `json:"writeMB"`
+	ReadRate  uint64 `json:"readRate"`  // MB/s limit
 	WriteRate uint64 `json:"writeRate"` // MB/s limit
 }
 
 // NetworkMetrics contains network metrics.
 type NetworkMetrics struct {
-	RxMB       uint64 `json:"rxMB"`
-	TxMB       uint64 `json:"txMB"`
+	RxMB        uint64 `json:"rxMB"`
+	TxMB        uint64 `json:"txMB"`
 	IngressMbps uint64 `json:"ingressMbps"` // Limit
 	EgressMbps  uint64 `json:"egressMbps"`  // Limit
 }
@@ -234,15 +234,8 @@ func ValidateResourceConfig(config *ResourceConfig) error {
 	if config.CPUPriority < 0 || config.CPUPriority > 10 {
 		return fmt.Errorf("CPU priority must be between 0 and 10")
 	}
-	if config.MemoryLimit < 0 {
-		return fmt.Errorf("memory limit cannot be negative")
-	}
-	if config.DiskReadRate < 0 || config.DiskWriteRate < 0 {
-		return fmt.Errorf("disk I/O rates cannot be negative")
-	}
-	if config.NetworkIngress < 0 || config.NetworkEgress < 0 {
-		return fmt.Errorf("network limits cannot be negative")
-	}
+	// Note: MemoryLimit, DiskReadRate, DiskWriteRate, NetworkIngress, NetworkEgress are uint64
+	// and cannot be negative, so no validation needed for negative values
 	if config.ProcessLimit < 0 {
 		return fmt.Errorf("process limit cannot be negative")
 	}

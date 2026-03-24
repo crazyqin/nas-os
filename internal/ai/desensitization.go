@@ -18,7 +18,9 @@ import (
 type DesensitizationStrategy string
 
 const (
+	// StrategyMask replaces sensitive data with asterisks
 	StrategyMask      DesensitizationStrategy = "mask"       // Replace with ****
+	// StrategyHash applies one-way hash to sensitive data
 	StrategyHash      DesensitizationStrategy = "hash"       // One-way hash
 	StrategyTokenize  DesensitizationStrategy = "tokenize"   // Reversible tokenization
 	StrategyRedact    DesensitizationStrategy = "redact"     // Complete removal
@@ -30,7 +32,9 @@ const (
 type PIIType string
 
 const (
+	// PIIName represents personally identifiable name
 	PIIName          PIIType = "name"
+	// PIIEmail represents email address
 	PIIEmail         PIIType = "email"
 	PIIPhone         PIIType = "phone"
 	PIIIDCard        PIIType = "id_card"

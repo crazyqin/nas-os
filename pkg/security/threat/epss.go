@@ -82,7 +82,7 @@ func NewEPSSDatabase(config EPSSConfig) *EPSSDatabase {
 	}
 
 	// 加载本地缓存
-	edb.loadCache()
+	_ = edb.loadCache()
 
 	return edb
 }
@@ -248,9 +248,13 @@ func (edb *EPSSDatabase) GetHighPercentile(threshold float64) []*EPSSData {
 type EPSSRiskLevel string
 
 const (
+	// EPSSRiskLow indicates low EPSS risk (score < 0.01)
 	EPSSRiskLow       EPSSRiskLevel = "low"       // < 0.01
+	// EPSSRiskMedium indicates medium EPSS risk (score 0.01 - 0.1)
 	EPSSRiskMedium    EPSSRiskLevel = "medium"    // 0.01 - 0.1
+	// EPSSRiskHigh indicates high EPSS risk (score 0.1 - 0.5)
 	EPSSRiskHigh      EPSSRiskLevel = "high"      // 0.1 - 0.5
+	// EPSSRiskCritical indicates critical EPSS risk (score > 0.5)
 	EPSSRiskCritical  EPSSRiskLevel = "critical"  // > 0.5
 )
 

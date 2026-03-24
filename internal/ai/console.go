@@ -392,7 +392,9 @@ func (c *Console) AnalyzeSentiment(ctx context.Context, text string) (SentimentR
 
 	var result SentimentResult
 	if s, ok := resp.Result.(string); ok {
-		json.Unmarshal([]byte(s), &result)
+		if err := json.Unmarshal([]byte(s), &result); err != nil {
+			return SentimentResult{}, fmt.Errorf("failed to parse sentiment result: %w", err)
+		}
 	}
 	return result, nil
 }

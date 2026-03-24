@@ -4,7 +4,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"time"
 
 	"nas-os/internal/media"
@@ -85,7 +84,7 @@ func (api *MediaCenterAPI) ScrapeMedia(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 // BatchScrapeMedia handles batch scraping
@@ -106,13 +105,13 @@ func (api *MediaCenterAPI) BatchScrapeMedia(w http.ResponseWriter, r *http.Reque
 	}
 
 	result := api.scraper.BatchScrape(r.Context(), req.Items, req.Workers)
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 // GetSources returns available metadata sources
 func (api *MediaCenterAPI) GetSources(w http.ResponseWriter, r *http.Request) {
 	sources := api.scraper.GetAvailableSources()
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"sources": sources,
 	})
 }
@@ -134,7 +133,7 @@ func (api *MediaCenterAPI) AnalyzeMedia(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	json.NewEncoder(w).Encode(analysis)
+	_ = json.NewEncoder(w).Encode(analysis)
 }
 
 // GetPlaybackConfig returns optimal playback configuration
@@ -168,7 +167,7 @@ func (api *MediaCenterAPI) GetPlaybackConfig(w http.ResponseWriter, r *http.Requ
 	}
 
 	config := media.GetOptimalPlaybackConfig(analysis, caps)
-	json.NewEncoder(w).Encode(config)
+	_ = json.NewEncoder(w).Encode(config)
 }
 
 // SetDolbyConfig sets Dolby configuration
@@ -181,7 +180,7 @@ func (api *MediaCenterAPI) SetDolbyConfig(w http.ResponseWriter, r *http.Request
 
 	// Store configuration (in production, persist to database)
 	// Return success
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
 		"config":  config,
 	})
@@ -212,7 +211,7 @@ func (api *MediaCenterAPI) CreateTranscodeJob(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	json.NewEncoder(w).Encode(job)
+	_ = json.NewEncoder(w).Encode(job)
 }
 
 // GetTranscodeJob gets transcode job status
@@ -229,7 +228,7 @@ func (api *MediaCenterAPI) GetTranscodeJob(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	json.NewEncoder(w).Encode(job)
+	_ = json.NewEncoder(w).Encode(job)
 }
 
 // CancelTranscodeJob cancels a transcode job
@@ -245,13 +244,13 @@ func (api *MediaCenterAPI) CancelTranscodeJob(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
 // ListTranscodeJobs lists all transcode jobs
 func (api *MediaCenterAPI) ListTranscodeJobs(w http.ResponseWriter, r *http.Request) {
 	jobs := api.transcoder.ListJobs()
-	json.NewEncoder(w).Encode(jobs)
+	_ = json.NewEncoder(w).Encode(jobs)
 }
 
 // CreateHLSStream creates an HLS stream
@@ -327,20 +326,6 @@ func (api *MediaCenterAPI) StopStreamSession(w http.ResponseWriter, r *http.Requ
 	}
 
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
-}
-
-// Helper functions
-
-func parseIntParam(r *http.Request, key string, defaultValue int) int {
-	val := r.URL.Query().Get(key)
-	if val == "" {
-		return defaultValue
-	}
-	n, err := strconv.Atoi(val)
-	if err != nil {
-		return defaultValue
-	}
-	return n
 }
 
 // ErrorResponse represents an API error response

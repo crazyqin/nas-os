@@ -21,18 +21,31 @@ import (
 // ========== 核心错误定义 ==========
 
 var (
+	// ErrPoolNotFound indicates ZFS pool not found
 	ErrPoolNotFound       = errors.New("ZFS pool not found")
+	// ErrDatasetNotFound indicates ZFS dataset not found
 	ErrDatasetNotFound    = errors.New("ZFS dataset not found")
+	// ErrSnapshotNotFound indicates snapshot not found
 	ErrSnapshotNotFound   = errors.New("snapshot not found")
+	// ErrSnapshotExists indicates snapshot already exists
 	ErrSnapshotExists     = errors.New("snapshot already exists")
+	// ErrSnapshotImmutable indicates snapshot is immutable and cannot be modified
 	ErrSnapshotImmutable  = errors.New("snapshot is immutable and cannot be modified")
+	// ErrSnapshotExpired indicates snapshot has expired
 	ErrSnapshotExpired    = errors.New("snapshot has expired")
+	// ErrInvalidName indicates invalid snapshot name
 	ErrInvalidName        = errors.New("invalid snapshot name")
+	// ErrCloneFailed indicates clone operation failed
 	ErrCloneFailed        = errors.New("clone operation failed")
+	// ErrRollbackFailed indicates rollback operation failed
 	ErrRollbackFailed     = errors.New("rollback operation failed")
+	// ErrHoldNotFound indicates hold not found
 	ErrHoldNotFound       = errors.New("hold not found")
+	// ErrBookmarkExists indicates bookmark already exists
 	ErrBookmarkExists     = errors.New("bookmark already exists")
+	// ErrPermissionDenied indicates permission denied
 	ErrPermissionDenied   = errors.New("permission denied")
+	// ErrZFSNotAvailable indicates ZFS not available on this system
 	ErrZFSNotAvailable    = errors.New("ZFS not available on this system")
 )
 
@@ -133,10 +146,15 @@ type HoldInfo struct {
 type LockType string
 
 const (
+	// LockTypeNone indicates no lock
 	LockTypeNone      LockType = "none"
+	// LockTypeSoft indicates soft lock (can be unlocked)
 	LockTypeSoft      LockType = "soft"      // 软锁定，可解锁
+	// LockTypeHard indicates hard lock (requires conditions to unlock)
 	LockTypeHard      LockType = "hard"      // 硬锁定，需满足条件才能解锁
+	// LockTypeTimed indicates timed lock (auto-unlock on expiry)
 	LockTypeTimed     LockType = "timed"     // 定时锁定，到期自动解锁
+	// LockTypePermanent indicates permanent lock (cannot be unlocked)
 	LockTypePermanent LockType = "permanent" // 永久锁定，无法解锁
 )
 
@@ -173,8 +191,10 @@ type ImmutablePolicy struct {
 // VerifyFailAction 验证失败处理动作
 type VerifyFailAction string
 
+// 验证失败处理动作常量
 const (
-	VerifyFailWarn    VerifyFailAction = "warn"    // 仅警告
+	// VerifyFailWarn 仅警告
+	VerifyFailWarn VerifyFailAction = "warn"
 	VerifyFailAlert   VerifyFailAction = "alert"   // 发送告警
 	VerifyFailLock    VerifyFailAction = "lock"    // 锁定快照
 	VerifyFailNone    VerifyFailAction = "none"    // 不处理
@@ -288,7 +308,7 @@ func NewZFSManager(configPath string, policy *ImmutablePolicy) (*ZFSManager, err
 
 	// 加载配置
 	if configPath != "" {
-		m.loadConfig()
+		_ = m.loadConfig()
 	}
 
 	return m, nil
@@ -407,9 +427,9 @@ func (m *ZFSManager) ListPools(ctx context.Context) ([]PoolInfo, error) {
 			State:  fields[1],
 		}
 
-		fmt.Sscanf(fields[2], "%d", &pool.Size)
-		fmt.Sscanf(fields[3], "%d", &pool.Allocated)
-		fmt.Sscanf(fields[4], "%d", &pool.Free)
+		_, _ = fmt.Sscanf(fields[2], "%d", &pool.Size)
+		_, _ = fmt.Sscanf(fields[3], "%d", &pool.Allocated)
+		_, _ = fmt.Sscanf(fields[4], "%d", &pool.Free)
 		pool.ReadOnly = fields[5] == "on"
 
 		pools = append(pools, pool)
@@ -474,9 +494,9 @@ func (m *ZFSManager) ListDatasets(ctx context.Context, pool string) ([]DatasetIn
 			Properties:  make(map[string]string),
 		}
 
-		fmt.Sscanf(fields[5], "%f", &ds.CompressRatio)
-		fmt.Sscanf(fields[6], "%d", &ds.Used)
-		fmt.Sscanf(fields[7], "%d", &ds.Avail)
+		_, _ = fmt.Sscanf(fields[5], "%f", &ds.CompressRatio)
+		_, _ = fmt.Sscanf(fields[6], "%d", &ds.Used)
+		_, _ = fmt.Sscanf(fields[7], "%d", &ds.Avail)
 		fmt.Sscanf(fields[8], "%d", &ds.Referenced)
 
 		datasets = append(datasets, ds)

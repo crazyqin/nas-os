@@ -8,15 +8,16 @@ import "time"
 // ContainerStatus represents the current status of an LXC container.
 type ContainerStatus string
 
+// Container status constants.
 const (
-	StatusRunning   ContainerStatus = "running"
-	StatusStopped   ContainerStatus = "stopped"
-	StatusStarting  ContainerStatus = "starting"
-	StatusStopping  ContainerStatus = "stopping"
-	StatusFrozen    ContainerStatus = "frozen"
-	StatusError     ContainerStatus = "error"
-	StatusCreating  ContainerStatus = "creating"
-	StatusDeleting  ContainerStatus = "deleting"
+	StatusRunning  ContainerStatus = "running"
+	StatusStopped  ContainerStatus = "stopped"
+	StatusStarting ContainerStatus = "starting"
+	StatusStopping ContainerStatus = "stopping"
+	StatusFrozen   ContainerStatus = "frozen"
+	StatusError    ContainerStatus = "error"
+	StatusCreating ContainerStatus = "creating"
+	StatusDeleting ContainerStatus = "deleting"
 )
 
 // Container represents an LXC container instance.
@@ -30,9 +31,9 @@ type Container struct {
 	UpdatedAt   time.Time       `json:"updatedAt"`
 
 	// Image/Template
-	Image    string `json:"image"`    // Image name or alias
-	OSType   string `json:"osType"`   // linux/windows
-	Arch     string `json:"arch"`     // x86_64, aarch64, etc.
+	Image    string   `json:"image"`    // Image name or alias
+	OSType   string   `json:"osType"`   // linux/windows
+	Arch     string   `json:"arch"`     // x86_64, aarch64, etc.
 	Profiles []string `json:"profiles"` // Configuration profiles
 
 	// Resource limits
@@ -42,7 +43,7 @@ type Container struct {
 	Networks []NetworkConfig `json:"networks"`
 
 	// Storage
-	RootDisk StorageConfig `json:"rootDisk"`
+	RootDisk StorageConfig   `json:"rootDisk"`
 	Volumes  []StorageConfig `json:"volumes"`
 
 	// Security
@@ -121,7 +122,7 @@ type Snapshot struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"createdAt"`
-	Size        uint64    `json:"size"` // Size in MB
+	Size        uint64    `json:"size"`     // Size in MB
 	Stateful    bool      `json:"stateful"` // Includes runtime state
 }
 
@@ -129,33 +130,33 @@ type Snapshot struct {
 type CreateConfig struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Image       string            `json:"image"`       // Image/alias name
-	Profiles    []string          `json:"profiles"`    // Profiles to apply
-	Resources   ResourceConfig    `json:"resources"`   // Resource limits
-	Networks    []NetworkConfig   `json:"networks"`    // Network config
-	RootDisk    StorageConfig     `json:"rootDisk"`    // Root disk config
-	Volumes     []StorageConfig   `json:"volumes"`     // Additional volumes
-	Privileged  bool              `json:"privileged"`  // Run as privileged
-	Security    []string          `json:"security"`    // Security options
-	Config      map[string]string `json:"config"`      // Additional config
-	Devices     map[string]Device `json:"devices"`     // Additional devices
-	Tags        map[string]string `json:"tags"`        // Tags/labels
-	AutoStart   bool              `json:"autoStart"`   // Start on boot
+	Image       string            `json:"image"`      // Image/alias name
+	Profiles    []string          `json:"profiles"`   // Profiles to apply
+	Resources   ResourceConfig    `json:"resources"`  // Resource limits
+	Networks    []NetworkConfig   `json:"networks"`   // Network config
+	RootDisk    StorageConfig     `json:"rootDisk"`   // Root disk config
+	Volumes     []StorageConfig   `json:"volumes"`    // Additional volumes
+	Privileged  bool              `json:"privileged"` // Run as privileged
+	Security    []string          `json:"security"`   // Security options
+	Config      map[string]string `json:"config"`     // Additional config
+	Devices     map[string]Device `json:"devices"`    // Additional devices
+	Tags        map[string]string `json:"tags"`       // Tags/labels
+	AutoStart   bool              `json:"autoStart"`  // Start on boot
 }
 
 // Stats holds real-time container statistics.
 type Stats struct {
-	CPUUsage      float64   `json:"cpuUsage"`      // CPU usage percentage
-	MemoryUsage   uint64    `json:"memoryUsage"`   // Memory usage in MB
-	MemoryCache   uint64    `json:"memoryCache"`   // Cache memory in MB
-	MemoryLimit   uint64    `json:"memoryLimit"`   // Memory limit in MB
-	DiskRead      uint64    `json:"diskRead"`      // Total disk read in MB
-	DiskWrite     uint64    `json:"diskWrite"`     // Total disk write in MB
-	NetworkRx     uint64    `json:"networkRx"`     // Total network RX in MB
-	NetworkTx     uint64    `json:"networkTx"`     // Total network TX in MB
-	ProcessCount  int       `json:"processCount"`  // Number of processes
-	Uptime        int64     `json:"uptime"`        // Uptime in seconds
-	Timestamp     time.Time `json:"timestamp"`     // Measurement timestamp
+	CPUUsage     float64   `json:"cpuUsage"`     // CPU usage percentage
+	MemoryUsage  uint64    `json:"memoryUsage"`  // Memory usage in MB
+	MemoryCache  uint64    `json:"memoryCache"`  // Cache memory in MB
+	MemoryLimit  uint64    `json:"memoryLimit"`  // Memory limit in MB
+	DiskRead     uint64    `json:"diskRead"`     // Total disk read in MB
+	DiskWrite    uint64    `json:"diskWrite"`    // Total disk write in MB
+	NetworkRx    uint64    `json:"networkRx"`    // Total network RX in MB
+	NetworkTx    uint64    `json:"networkTx"`    // Total network TX in MB
+	ProcessCount int       `json:"processCount"` // Number of processes
+	Uptime       int64     `json:"uptime"`       // Uptime in seconds
+	Timestamp    time.Time `json:"timestamp"`    // Measurement timestamp
 }
 
 // Image represents a container image/template.
@@ -163,51 +164,51 @@ type Image struct {
 	ID          string            `json:"id"`
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	OS          string            `json:"os"`          // e.g., "ubuntu", "alpine"
-	Release     string            `json:"release"`     // e.g., "22.04", "3.18"
-	Arch        string            `json:"arch"`        // Architecture
-	Variant     string            `json:"variant"`     // e.g., "default", "cloud"
-	Size        uint64            `json:"size"`        // Size in MB
+	OS          string            `json:"os"`      // e.g., "ubuntu", "alpine"
+	Release     string            `json:"release"` // e.g., "22.04", "3.18"
+	Arch        string            `json:"arch"`    // Architecture
+	Variant     string            `json:"variant"` // e.g., "default", "cloud"
+	Size        uint64            `json:"size"`    // Size in MB
 	CreatedAt   time.Time         `json:"createdAt"`
-	Properties  map[string]string `json:"properties"`  // Image properties
-	Aliases     []string          `json:"aliases"`     // Image aliases
+	Properties  map[string]string `json:"properties"` // Image properties
+	Aliases     []string          `json:"aliases"`    // Image aliases
 }
 
 // Network represents an LXC network.
 type Network struct {
 	Name        string            `json:"name"`
-	Type        string            `json:"type"`        // bridge, macvlan, etc.
+	Type        string            `json:"type"` // bridge, macvlan, etc.
 	Description string            `json:"description"`
-	Subnet      string            `json:"subnet"`      // IPv4 subnet
-	Subnet6     string            `json:"subnet6"`     // IPv6 subnet
-	Gateway     string            `json:"gateway"`     // IPv4 gateway
-	Gateway6    string            `json:"gateway6"`    // IPv6 gateway
-	DHCP        bool              `json:"dhcp"`        // DHCP enabled
-	DNS         string            `json:"dns"`         // DNS servers
-	Managed     bool              `json:"managed"`     // Managed by LXC
-	InUse       bool              `json:"inUse"`       // In use by containers
-	Config      map[string]string `json:"config"`      // Network config
+	Subnet      string            `json:"subnet"`   // IPv4 subnet
+	Subnet6     string            `json:"subnet6"`  // IPv6 subnet
+	Gateway     string            `json:"gateway"`  // IPv4 gateway
+	Gateway6    string            `json:"gateway6"` // IPv6 gateway
+	DHCP        bool              `json:"dhcp"`     // DHCP enabled
+	DNS         string            `json:"dns"`      // DNS servers
+	Managed     bool              `json:"managed"`  // Managed by LXC
+	InUse       bool              `json:"inUse"`    // In use by containers
+	Config      map[string]string `json:"config"`   // Network config
 }
 
 // StoragePool represents an LXC storage pool.
 type StoragePool struct {
 	Name        string            `json:"name"`
-	Driver      string            `json:"driver"`      // zfs, btrfs, dir, lvm, etc.
+	Driver      string            `json:"driver"` // zfs, btrfs, dir, lvm, etc.
 	Description string            `json:"description"`
-	TotalSize   uint64            `json:"totalSize"`   // Total size in GB
-	UsedSize    uint64            `json:"usedSize"`    // Used size in GB
-	Available   uint64            `json:"available"`   // Available size in GB
-	InUse       bool              `json:"inUse"`       // In use by containers
-	Config      map[string]string `json:"config"`      // Pool config
+	TotalSize   uint64            `json:"totalSize"` // Total size in GB
+	UsedSize    uint64            `json:"usedSize"`  // Used size in GB
+	Available   uint64            `json:"available"` // Available size in GB
+	InUse       bool              `json:"inUse"`     // In use by containers
+	Config      map[string]string `json:"config"`    // Pool config
 }
 
 // Profile represents an LXC profile (configuration template).
 type Profile struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description"`
-	Config      map[string]string `json:"config"`      // Profile config
-	Devices     map[string]Device `json:"devices"`     // Profile devices
-	UsedBy      []string          `json:"usedBy"`      // Containers using this profile
+	Config      map[string]string `json:"config"`  // Profile config
+	Devices     map[string]Device `json:"devices"` // Profile devices
+	UsedBy      []string          `json:"usedBy"`  // Containers using this profile
 }
 
 // ExecConfig holds parameters for executing commands in a container.
@@ -234,38 +235,38 @@ type ExecResult struct {
 
 // MigrationConfig holds parameters for container migration.
 type MigrationConfig struct {
-	TargetHost   string `json:"targetHost"`   // Target host address
-	TargetPort   int    `json:"targetPort"`   // Target host port (default 8443)
-	Live         bool   `json:"live"`         // Live migration
-	Stateful     bool   `json:"stateful"`     // Stateful migration
-	AllowInsecure bool  `json:"allowInsecure"` // Allow insecure connection
+	TargetHost    string `json:"targetHost"`    // Target host address
+	TargetPort    int    `json:"targetPort"`    // Target host port (default 8443)
+	Live          bool   `json:"live"`          // Live migration
+	Stateful      bool   `json:"stateful"`      // Stateful migration
+	AllowInsecure bool   `json:"allowInsecure"` // Allow insecure connection
 }
 
 // BackupConfig holds parameters for container backup.
 type BackupConfig struct {
-	Name            string    `json:"name"`
-	StoragePool     string    `json:"storagePool"`
-	Compression     string    `json:"compression"`     // gzip, bzip2, xz, none
-	InstanceOnly    bool      `json:"instanceOnly"`    // Only the instance, no snapshots
-	OptimizedStorage bool     `json:"optimizedStorage"` // Use optimized storage
-	Expiration      *time.Time `json:"expiration"`     // Backup expiration time
+	Name             string     `json:"name"`
+	StoragePool      string     `json:"storagePool"`
+	Compression      string     `json:"compression"`      // gzip, bzip2, xz, none
+	InstanceOnly     bool       `json:"instanceOnly"`     // Only the instance, no snapshots
+	OptimizedStorage bool       `json:"optimizedStorage"` // Use optimized storage
+	Expiration       *time.Time `json:"expiration"`       // Backup expiration time
 }
 
 // LogEntry represents a container log entry.
 type LogEntry struct {
 	Timestamp time.Time `json:"timestamp"`
-	Level     string    `json:"level"`   // info, warn, error
+	Level     string    `json:"level"` // info, warn, error
 	Message   string    `json:"message"`
-	Source    string    `json:"source"`  // Source component
+	Source    string    `json:"source"` // Source component
 }
 
 // Operation represents a long-running operation.
 type Operation struct {
 	ID          string    `json:"id"`
 	Description string    `json:"description"`
-	Status      string    `json:"status"`      // running, success, failure
-	Progress    int       `json:"progress"`    // Progress percentage (0-100)
-	Err         string    `json:"error"`       // Error message if failed
+	Status      string    `json:"status"`   // running, success, failure
+	Progress    int       `json:"progress"` // Progress percentage (0-100)
+	Err         string    `json:"error"`    // Error message if failed
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }

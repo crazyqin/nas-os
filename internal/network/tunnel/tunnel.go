@@ -313,7 +313,7 @@ func (m *TunnelManager) keepaliveLoop() {
 
 			// Refresh TURN allocation if needed
 			if m.turnClient != nil && m.turnClient.IsAllocated() {
-				m.turnClient.Refresh(m.ctx)
+				_ = m.turnClient.Refresh(m.ctx)
 			}
 		}
 	}
