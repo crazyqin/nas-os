@@ -9,19 +9,12 @@ import (
 // SMAuditHook SMB审计钩子 - 用于集成到SMB管理器
 type SMAuditHook struct {
 	manager  *SMAuditManager
-	sessions map[string]*SMBSessionInfo
+	sessions map[string]*SMBSessionInfoCache
 	mu       sync.RWMutex
 }
 
-// OpenFileInfoExt 扩展的打开文件信息（包含字节统计）
-type OpenFileInfoExt struct {
-	OpenFileInfo
-	BytesRead    int64
-	BytesWritten int64
-}
-
-// SMBSessionInfo SMB会话信息缓存
-type SMBSessionInfo struct {
+// SMBSessionInfoCache SMB会话信息缓存
+type SMBSessionInfoCache struct {
 	SessionID    string
 	Username     string
 	ClientIP     string
@@ -30,17 +23,23 @@ type SMBSessionInfo struct {
 	LastActivity time.Time
 	BytesRead    int64
 	BytesWritten int64
-	OpenFiles    map[string]*OpenFileInfoExt
+	OpenFiles    map[string]*SMBAuditFileInfo
 }
 
-// OpenFileInfo 使用 session_audit.go 中已定义的类型，这里添加本地扩展字段
-// 本地 OpenFileInfoExt 扩展了会话审计中的 OpenFileInfo
+// SMBAuditFileInfo 打开的文件信息
+type SMBAuditFileInfo struct {
+	Path         string
+	OpenTime     time.Time
+	AccessMode   string
+	BytesRead    int64
+	BytesWritten int64
+}
 
 // NewSMAuditHook 创建SMB审计钩子
 func NewSMAuditHook(manager *SMAuditManager) *SMAuditHook {
 	return &SMAuditHook{
 		manager:  manager,
-		sessions: make(map[string]*SMBSessionInfo),
+		sessions: make(map[string]*SMBSessionInfoCache),
 	}
 }
 
@@ -51,13 +50,13 @@ func (h *SMAuditHook) OnSessionConnect(sessionID, username, clientIP, protocolVe
 	}
 
 	h.mu.Lock()
-	h.sessions[sessionID] = &SMBSessionInfo{
+	h.sessions[sessionID] = &SMBSessionInfoCache{
 		SessionID:    sessionID,
 		Username:     username,
 		ClientIP:     clientIP,
 		ConnectedAt:  time.Now(),
 		LastActivity: time.Now(),
-		OpenFiles:    make(map[string]*OpenFileInfoExt),
+		OpenFiles:    make(map[string]*SMBAuditFileInfo),
 	}
 	h.mu.Unlock()
 
@@ -141,12 +140,10 @@ func (h *SMAuditHook) OnFileOpen(sessionID, shareName, filePath, accessMode stri
 
 	h.mu.Lock()
 	if info, exists := h.sessions[sessionID]; exists {
-		info.OpenFiles[filePath] = &OpenFileInfoExt{
-			OpenFileInfo: OpenFileInfo{
-				Path:       filePath,
-				OpenTime:   time.Now(),
-				AccessMode: accessMode,
-			},
+		info.OpenFiles[filePath] = &SMBAuditFileInfo{
+			Path:       filePath,
+			OpenTime:   time.Now(),
+			AccessMode: accessMode,
 		}
 		info.LastActivity = time.Now()
 	}
@@ -446,19 +443,19 @@ func (h *SMAuditHook) OnOperationDenied(sessionID, shareName, filePath string, o
 }
 
 // GetSessionInfo 获取会话信息
-func (h *SMAuditHook) GetSessionInfo(sessionID string) *SMBSessionInfo {
+func (h *SMAuditHook) GetSessionInfo(sessionID string) *SMBSessionInfoCache {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return h.sessions[sessionID]
 }
 
 // GetOpenFiles 获取会话打开的文件
-func (h *SMAuditHook) GetOpenFiles(sessionID string) map[string]*OpenFileInfoExt {
+func (h *SMAuditHook) GetOpenFiles(sessionID string) map[string]*SMBAuditFileInfo {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
 	if info, exists := h.sessions[sessionID]; exists {
-		result := make(map[string]*OpenFileInfoExt)
+		result := make(map[string]*SMBAuditFileInfo)
 		for k, v := range info.OpenFiles {
 			result[k] = v
 		}
@@ -468,11 +465,11 @@ func (h *SMAuditHook) GetOpenFiles(sessionID string) map[string]*OpenFileInfoExt
 }
 
 // GetActiveSessions 获取活跃会话列表
-func (h *SMAuditHook) GetActiveSessions() []*SMBSessionInfo {
+func (h *SMAuditHook) GetActiveSessions() []*SMBSessionInfoCache {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	result := make([]*SMBSessionInfo, 0, len(h.sessions))
+	result := make([]*SMBSessionInfoCache, 0, len(h.sessions))
 	for _, info := range h.sessions {
 		result = append(result, info)
 	}
