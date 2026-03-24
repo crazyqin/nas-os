@@ -1227,7 +1227,7 @@ func (m *SmartRAIDManager) getReplaceStatus(mountPoint string) (*ReplaceStatus, 
 				}
 			}
 			if numStr != "" {
-				fmt.Sscanf(numStr, "%f", &status.Progress)
+				_, _ = fmt.Sscanf(numStr, "%f", &status.Progress)
 			}
 		}
 	}
@@ -1249,7 +1249,7 @@ func (m *SmartRAIDManager) removeWarning(warnings []string, keyword string) []st
 // parseUint64 解析 uint64
 func parseUint64(s string) uint64 {
 	var result uint64
-	fmt.Sscanf(s, "%d", &result)
+	_, _ = fmt.Sscanf(s, "%d", &result)
 	return result
 }
 
