@@ -421,7 +421,7 @@ func (f *File) Open(ctx context.Context, req *fuse.OpenRequest, resp *fuse.OpenR
 		if err := os.MkdirAll(filepath.Dir(cachePath), 0750); err == nil {
 			if err := f.fs.provider.Download(ctx, f.path, cachePath); err == nil {
 				f.cachedPath = cachePath
-				f.fs.cache.Put(f.path, cachePath, f.node.Size)
+				_ = f.fs.cache.Put(f.path, cachePath, f.node.Size)
 				f.node.CachedPath = cachePath
 			}
 		}
@@ -446,7 +446,7 @@ func (f *File) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadR
 	if f.cachedPath != "" {
 		file, err := os.Open(f.cachedPath)
 		if err == nil {
-			defer file.Close()
+			defer func() { _ = file.Close() }()
 			buf := make([]byte, req.Size)
 			n, err := file.ReadAt(buf, req.Offset)
 			if err != nil && err != io.EOF {
@@ -464,13 +464,13 @@ func (f *File) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadR
 	if err := f.fs.provider.Download(ctx, f.path, tmpPath); err != nil {
 		return err
 	}
-	defer os.Remove(tmpPath)
+	defer func() { _ = os.Remove(tmpPath) }()
 
 	file, err := os.Open(tmpPath)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	buf := make([]byte, req.Size)
 	n, err := file.ReadAt(buf, req.Offset)
