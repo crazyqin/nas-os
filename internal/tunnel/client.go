@@ -106,7 +106,7 @@ func NewAutoClient(config TunnelConfig, mgrConfig Config, logger *zap.Logger) Tu
 // P2PClient P2P 直连客户端
 type P2PClient struct {
 	BaseClient
-	stunAddr string
+	_ string // placeholder for future stunAddr
 }
 
 // Connect 实现 P2P 连接
@@ -186,7 +186,7 @@ func (c *P2PClient) IsConnected() bool {
 // RelayClient 中继客户端
 type RelayClient struct {
 	BaseClient
-	relayAddr string
+	_ string // placeholder for future relayAddr
 }
 
 // Connect 实现中继连接
@@ -293,10 +293,10 @@ func (c *ReverseClient) Disconnect() error {
 	defer c.mu.Unlock()
 
 	if c.listener != nil {
-		c.listener.Close()
+		_ = c.listener.Close()
 	}
 	if c.conn != nil {
-		c.conn.Close()
+		_ = c.conn.Close()
 	}
 	c.status.State = StateDisconnected
 	c.connected = false

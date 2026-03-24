@@ -67,11 +67,11 @@ const (
 // Config 隧道管理器配置
 type Config struct {
 	// 服务端配置
-	ServerAddr    string `json:"server_addr"`    // 隧道服务器地址
-	ServerPort    int    `json:"server_port"`    // 隧道服务器端口
-	AuthToken     string `json:"auth_token"`     // 认证令牌
-	DeviceID      string `json:"device_id"`      // 设备唯一标识
-	DeviceName    string `json:"device_name"`    // 设备名称
+	ServerAddr string `json:"server_addr"` // 隧道服务器地址
+	ServerPort int    `json:"server_port"` // 隧道服务器端口
+	AuthToken  string `json:"auth_token"`  // 认证令牌
+	DeviceID   string `json:"device_id"`   // 设备唯一标识
+	DeviceName string `json:"device_name"` // 设备名称
 
 	// STUN/TURN 配置
 	STUNServers []string `json:"stun_servers"` // STUN 服务器列表
@@ -80,37 +80,37 @@ type Config struct {
 	TURNPass    string   `json:"turn_pass"`    // TURN 密码
 
 	// 连接配置
-	Mode          TunnelMode `json:"mode"`           // 连接模式
-	HeartbeatInt  int        `json:"heartbeat_int"` // 心跳间隔（秒）
-	ReconnectInt  int        `json:"reconnect_int"` // 重连间隔（秒）
-	MaxReconnect  int        `json:"max_reconnect"` // 最大重连次数
-	Timeout       int        `json:"timeout"`       // 连接超时（秒）
+	Mode         TunnelMode `json:"mode"`          // 连接模式
+	HeartbeatInt int        `json:"heartbeat_int"` // 心跳间隔（秒）
+	ReconnectInt int        `json:"reconnect_int"` // 重连间隔（秒）
+	MaxReconnect int        `json:"max_reconnect"` // 最大重连次数
+	Timeout      int        `json:"timeout"`       // 连接超时（秒）
 
 	// 端口映射配置
 	EnablePortMapping bool     `json:"enable_port_mapping"` // 是否启用端口映射
-	LocalPorts        []int    `json:"local_ports"`        // 本地需要映射的端口
-	RemotePorts       []int    `json:"remote_ports"`       // 远程端口（可选，自动分配则为空）
-	AllowedIPs        []string `json:"allowed_ips"`        // 允许访问的 IP 白名单
+	LocalPorts        []int    `json:"local_ports"`         // 本地需要映射的端口
+	RemotePorts       []int    `json:"remote_ports"`        // 远程端口（可选，自动分配则为空）
+	AllowedIPs        []string `json:"allowed_ips"`         // 允许访问的 IP 白名单
 
 	// 安全配置
-	EnableTLS    bool   `json:"enable_tls"`    // 是否启用 TLS
-	TLSCertFile  string `json:"tls_cert_file"` // TLS 证书文件
-	TLSKeyFile   string `json:"tls_key_file"`  // TLS 密钥文件
-	AllowInsecure bool  `json:"allow_insecure"` // 允许不安全连接（测试用）
+	EnableTLS     bool   `json:"enable_tls"`     // 是否启用 TLS
+	TLSCertFile   string `json:"tls_cert_file"`  // TLS 证书文件
+	TLSKeyFile    string `json:"tls_key_file"`   // TLS 密钥文件
+	AllowInsecure bool   `json:"allow_insecure"` // 允许不安全连接（测试用）
 }
 
 // TunnelConfig 单个隧道配置
 type TunnelConfig struct {
-	ID           string      `json:"id"`            // 隧道唯一标识
-	Name         string      `json:"name"`          // 隧道名称
-	Mode         TunnelMode  `json:"mode"`          // 连接模式
-	LocalAddr    string      `json:"local_addr"`    // 本地监听地址（host:port）
-	RemotePort   int         `json:"remote_port"`   // 远程端口
-	Protocol     string      `json:"protocol"`      // 协议：tcp, udp
-	Description  string      `json:"description"`   // 描述
-	Enabled      bool        `json:"enabled"`       // 是否启用
-	CreatedAt    time.Time   `json:"created_at"`   // 创建时间
-	UpdatedAt    time.Time   `json:"updated_at"`   // 更新时间
+	ID          string     `json:"id"`          // 隧道唯一标识
+	Name        string     `json:"name"`        // 隧道名称
+	Mode        TunnelMode `json:"mode"`        // 连接模式
+	LocalAddr   string     `json:"local_addr"`  // 本地监听地址（host:port）
+	RemotePort  int        `json:"remote_port"` // 远程端口
+	Protocol    string     `json:"protocol"`    // 协议：tcp, udp
+	Description string     `json:"description"` // 描述
+	Enabled     bool       `json:"enabled"`     // 是否启用
+	CreatedAt   time.Time  `json:"created_at"`  // 创建时间
+	UpdatedAt   time.Time  `json:"updated_at"`  // 更新时间
 }
 
 // ========== 隧道状态结构 ==========
@@ -121,18 +121,18 @@ type TunnelStatus struct {
 	Name          string      `json:"name"`
 	Mode          TunnelMode  `json:"mode"`
 	State         TunnelState `json:"state"`
-	LocalAddr     string      `json:"local_addr"`      // 本地地址
-	PublicAddr    string      `json:"public_addr"`     // 公网地址（通过 STUN 获取）
-	RemoteAddr    string      `json:"remote_addr"`     // 远程地址
-	BytesSent     int64       `json:"bytes_sent"`      // 发送字节数
-	BytesReceived int64       `json:"bytes_received"`  // 接收字节数
-	Connections   int         `json:"connections"`     // 当前连接数
-	Uptime        int64       `json:"uptime"`          // 运行时间（秒）
-	LastError     string      `json:"last_error"`      // 最后错误信息
+	LocalAddr     string      `json:"local_addr"`     // 本地地址
+	PublicAddr    string      `json:"public_addr"`    // 公网地址（通过 STUN 获取）
+	RemoteAddr    string      `json:"remote_addr"`    // 远程地址
+	BytesSent     int64       `json:"bytes_sent"`     // 发送字节数
+	BytesReceived int64       `json:"bytes_received"` // 接收字节数
+	Connections   int         `json:"connections"`    // 当前连接数
+	Uptime        int64       `json:"uptime"`         // 运行时间（秒）
+	LastError     string      `json:"last_error"`     // 最后错误信息
 	LastConnected time.Time   `json:"last_connected"` // 最后连接时间
-	NATType       NATType     `json:"nat_type"`        // NAT 类型
-	PeerAddr      string      `json:"peer_addr"`       // 对端地址（P2P 模式）
-	RelayAddr     string      `json:"relay_addr"`      // 中继地址（Relay 模式）
+	NATType       NATType     `json:"nat_type"`       // NAT 类型
+	PeerAddr      string      `json:"peer_addr"`      // 对端地址（P2P 模式）
+	RelayAddr     string      `json:"relay_addr"`     // 中继地址（Relay 模式）
 }
 
 // ManagerStatus 管理器状态
@@ -188,13 +188,13 @@ type ConnectRequest struct {
 
 // ConnectResponse 建立隧道响应
 type ConnectResponse struct {
-	TunnelID  string      `json:"tunnel_id"`
-	Name      string      `json:"name"`
-	Mode      TunnelMode  `json:"mode"`
-	State     TunnelState `json:"state"`
-	LocalAddr string      `json:"local_addr"`
-	PublicAddr string     `json:"public_addr,omitempty"`
-	Message   string      `json:"message"`
+	TunnelID   string      `json:"tunnel_id"`
+	Name       string      `json:"name"`
+	Mode       TunnelMode  `json:"mode"`
+	State      TunnelState `json:"state"`
+	LocalAddr  string      `json:"local_addr"`
+	PublicAddr string      `json:"public_addr,omitempty"`
+	Message    string      `json:"message"`
 }
 
 // StatusResponse 状态响应

@@ -15,7 +15,7 @@ func createTestDir(t *testing.T) string {
 	}
 
 	// 创建测试文件结构
-	// 
+	//
 	// tmpDir/
 	// ├── videos/
 	// │   ├── movie1.mp4 (1MB)
@@ -39,14 +39,14 @@ func createTestDir(t *testing.T) string {
 
 	// 创建测试文件
 	testFiles := map[string]int64{
-		"videos/movie1.mp4":            1 * 1024 * 1024,      // 1MB
-		"videos/movie2.mkv":            2 * 1024 * 1024,      // 2MB
-		"documents/report.pdf":         100 * 1024,           // 100KB
-		"documents/notes.txt":           10 * 1024,            // 10KB
-		"images/photo1.jpg":            500 * 1024,           // 500KB
-		"images/photo2.png":            300 * 1024,           // 300KB
-		"large_file.iso":               150 * 1024 * 1024,    // 150MB
-		".hidden/secret.txt":           1 * 1024,             // 1KB
+		"videos/movie1.mp4":    1 * 1024 * 1024,   // 1MB
+		"videos/movie2.mkv":    2 * 1024 * 1024,   // 2MB
+		"documents/report.pdf": 100 * 1024,        // 100KB
+		"documents/notes.txt":  10 * 1024,         // 10KB
+		"images/photo1.jpg":    500 * 1024,        // 500KB
+		"images/photo2.png":    300 * 1024,        // 300KB
+		"large_file.iso":       150 * 1024 * 1024, // 150MB
+		".hidden/secret.txt":   1 * 1024,          // 1KB
 	}
 
 	for file, size := range testFiles {
@@ -85,10 +85,10 @@ func TestAnalyzeFileTypes(t *testing.T) {
 		category string
 		wantMin  uint64
 	}{
-		{"video", 3 * 1024 * 1024},     // video: mp4 + mkv >= 3MB
-		{"image", 800 * 1024},           // image: jpg + png >= 800KB
-		{"document", 110 * 1024},        // document: pdf + txt >= 110KB
-		{"disk", 150 * 1024 * 1024},     // disk: iso >= 150MB
+		{"video", 3 * 1024 * 1024},  // video: mp4 + mkv >= 3MB
+		{"image", 800 * 1024},       // image: jpg + png >= 800KB
+		{"document", 110 * 1024},    // document: pdf + txt >= 110KB
+		{"disk", 150 * 1024 * 1024}, // disk: iso >= 150MB
 	}
 
 	for _, tt := range tests {
@@ -197,8 +197,8 @@ func TestPredictTrend(t *testing.T) {
 			Timestamp: now.AddDate(0, 0, r.timeOffset),
 			Volumes: []VolumeRecord{
 				{
-					Name: "test",
-					Used: r.used,
+					Name:  "test",
+					Used:  r.used,
 					Total: 500 * 1024 * 1024 * 1024, // 500GB
 				},
 			},
@@ -362,10 +362,10 @@ func TestLargeFileSorting(t *testing.T) {
 		name string
 		size int64
 	}{
-		{"small.bin", 1024},                           // 1KB
-		{"medium.bin", 10 * 1024 * 1024},              // 10MB
-		{"large.bin", 100 * 1024 * 1024},              // 100MB
-		{"huge.bin", 500 * 1024 * 1024},               // 500MB
+		{"small.bin", 1024},              // 1KB
+		{"medium.bin", 10 * 1024 * 1024}, // 10MB
+		{"large.bin", 100 * 1024 * 1024}, // 100MB
+		{"huge.bin", 500 * 1024 * 1024},  // 500MB
 	}
 
 	for _, f := range sizes {

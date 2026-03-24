@@ -100,15 +100,15 @@ func TestCacheConfig(t *testing.T) {
 // TestFusionSubvolume 测试融合子卷
 func TestFusionSubvolume(t *testing.T) {
 	subvol := &FusionSubvolume{
-		ID:         256,
-		Name:       "documents",
-		Path:       "/mnt/fusion/test-pool/documents",
-		ParentID:   5,
-		ReadOnly:   false,
-		UUID:       "subvol-uuid-123",
-		Size:       1024 * 1024 * 1024, // 1GB
-		HotDataSize:  100 * 1024 * 1024, // 100MB on SSD
-		ColdDataSize: 924 * 1024 * 1024, // 924MB on HDD
+		ID:           256,
+		Name:         "documents",
+		Path:         "/mnt/fusion/test-pool/documents",
+		ParentID:     5,
+		ReadOnly:     false,
+		UUID:         "subvol-uuid-123",
+		Size:         1024 * 1024 * 1024, // 1GB
+		HotDataSize:  100 * 1024 * 1024,  // 100MB on SSD
+		ColdDataSize: 924 * 1024 * 1024,  // 924MB on HDD
 		AccessCount:  50,
 		LastAccess:   time.Now(),
 	}
@@ -272,12 +272,12 @@ func TestFusionPoolManagerBasics(t *testing.T) {
 	pools := make(map[string]*FusionPool)
 
 	pool := &FusionPool{
-		Name:        "test-pool",
-		UUID:        "uuid-123",
-		Description: "测试池",
-		SSDDevices:  []string{"/dev/nvme0n1"},
-		HDDDevices:  []string{"/dev/sda"},
-		MountPoint:  "/mnt/fusion/test-pool",
+		Name:          "test-pool",
+		UUID:          "uuid-123",
+		Description:   "测试池",
+		SSDDevices:    []string{"/dev/nvme0n1"},
+		HDDDevices:    []string{"/dev/sda"},
+		MountPoint:    "/mnt/fusion/test-pool",
 		metadataCache: make(map[string]*MetadataCacheEntry),
 	}
 
@@ -359,9 +359,9 @@ func TestMetadataCache(t *testing.T) {
 // TestTieringPolicyValidation 测试分层策略验证
 func TestTieringPolicyValidation(t *testing.T) {
 	tests := []struct {
-		name     string
-		policy   TieringPolicy
-		valid    bool
+		name   string
+		policy TieringPolicy
+		valid  bool
 	}{
 		{
 			name: "valid default",
@@ -478,9 +478,9 @@ func TestCacheConfigValidation(t *testing.T) {
 // TestSubvolumeAccessPattern 测试子卷访问模式
 func TestSubvolumeAccessPattern(t *testing.T) {
 	subvol := &FusionSubvolume{
-		ID:         256,
-		Name:       "documents",
-		Size:       1024 * 1024 * 1024, // 1GB
+		ID:          256,
+		Name:        "documents",
+		Size:        1024 * 1024 * 1024, // 1GB
 		AccessCount: 150,
 		LastAccess:  time.Now().Add(-1 * time.Hour),
 	}

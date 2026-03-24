@@ -31,12 +31,12 @@ var (
 
 // Manager 隧道管理器
 type Manager struct {
-	config    Config
-	logger    *zap.Logger
-	mu        sync.RWMutex
-	ctx       context.Context
-	cancel    context.CancelFunc
-	wg        sync.WaitGroup
+	config Config
+	logger *zap.Logger
+	mu     sync.RWMutex
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
 
 	// 隧道管理
 	tunnels    map[string]*Tunnel
@@ -50,7 +50,7 @@ type Manager struct {
 	startTime  time.Time
 
 	// NAT 检测
-	detector   NATDetector
+	detector NATDetector
 
 	// 事件回调
 	eventCallbacks []EventCallback
@@ -62,12 +62,12 @@ type Manager struct {
 
 // Tunnel 单个隧道实例
 type Tunnel struct {
-	config     TunnelConfig
-	status     TunnelStatus
-	client     TunnelClient
-	ctx        context.Context
-	cancel     context.CancelFunc
-	mu         sync.RWMutex
+	config      TunnelConfig
+	status      TunnelStatus
+	client      TunnelClient
+	ctx         context.Context
+	cancel      context.CancelFunc
+	mu          sync.RWMutex
 	connections map[string]*Connection
 }
 
@@ -552,7 +552,7 @@ func (d *STUNDetector) Detect(ctx context.Context) (NATType, string, int, error)
 		}
 
 		var portInt int
-		fmt.Sscanf(port, "%d", &portInt)
+		_, _ = fmt.Sscanf(port, "%d", &portInt)
 
 		// 简化：假设为端口受限锥形 NAT
 		// 实际实现需要完整的 RFC 3489 测试流程
@@ -575,14 +575,14 @@ func (d *STUNDetector) discoverPublicAddr(ctx context.Context, server string) (n
 	if err != nil {
 		return nil, fmt.Errorf("failed to dial STUN server: %w", err)
 	}
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	// 设置超时
 	deadline, ok := ctx.Deadline()
 	if ok {
-		conn.SetDeadline(deadline)
+		_ = conn.SetDeadline(deadline)
 	} else {
-		conn.SetDeadline(time.Now().Add(5 * time.Second))
+		_ = conn.SetDeadline(time.Now().Add(5 * time.Second))
 	}
 
 	// 发送 STUN Binding Request

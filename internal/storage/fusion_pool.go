@@ -134,10 +134,10 @@ type FusionSubvolume struct {
 
 // CreateFusionPoolRequest 创建融合池请求
 type CreateFusionPoolRequest struct {
-	Name        string   `json:"name" binding:"required"`
-	Description string   `json:"description"`
-	SSDDevices  []string `json:"ssdDevices" binding:"required,min=1"`
-	HDDDevices  []string `json:"hddDevices" binding:"required,min=1"`
+	Name        string         `json:"name" binding:"required"`
+	Description string         `json:"description"`
+	SSDDevices  []string       `json:"ssdDevices" binding:"required,min=1"`
+	HDDDevices  []string       `json:"hddDevices" binding:"required,min=1"`
 	Policy      *TieringPolicy `json:"policy"`
 	CacheConfig *CacheConfig   `json:"cacheConfig"`
 }
@@ -303,8 +303,8 @@ func (m *FusionPoolManager) CreateFusionPool(req *CreateFusionPoolRequest) (*Fus
 		Status: FusionPoolStatus{
 			Healthy: true,
 		},
-		CacheConfig:    cacheConfig,
-		metadataCache:  make(map[string]*MetadataCacheEntry),
+		CacheConfig:   cacheConfig,
+		metadataCache: make(map[string]*MetadataCacheEntry),
 	}
 
 	// 扫描子卷
@@ -667,14 +667,14 @@ func (m *FusionPoolManager) GetPoolStats(poolName string) (*FusionPoolStats, err
 
 // FusionPoolStats 融合池统计信息
 type FusionPoolStats struct {
-	PoolName   string `json:"poolName"`
-	TotalSize  uint64 `json:"totalSize"`
-	TotalUsed  uint64 `json:"totalUsed"`
-	TotalFree  uint64 `json:"totalFree"`
-	SSDTotal   uint64 `json:"ssdTotal"`
-	SSDUsed    uint64 `json:"ssdUsed"`
-	HDDTotal   uint64 `json:"hddTotal"`
-	HDDUsed    uint64 `json:"hddUsed"`
+	PoolName     string  `json:"poolName"`
+	TotalSize    uint64  `json:"totalSize"`
+	TotalUsed    uint64  `json:"totalUsed"`
+	TotalFree    uint64  `json:"totalFree"`
+	SSDTotal     uint64  `json:"ssdTotal"`
+	SSDUsed      uint64  `json:"ssdUsed"`
+	HDDTotal     uint64  `json:"hddTotal"`
+	HDDUsed      uint64  `json:"hddUsed"`
 	CacheHitRate float64 `json:"cacheHitRate"`
 }
 

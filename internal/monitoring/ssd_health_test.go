@@ -502,19 +502,19 @@ func containsDecimal(s string) bool {
 
 func TestParseDataUnits(t *testing.T) {
 	tests := []struct {
-		input    string
+		input       string
 		minExpected uint64 // 最小期望值（小数转换可能有舍入）
 	}{
 		{
-			input:    "Data Units Written: 1,234,567 [6.33 TB]",
+			input:       "Data Units Written: 1,234,567 [6.33 TB]",
 			minExpected: 6 * 1024 * 1024 * 1024 * 1024, // 至少 6TB
 		},
 		{
-			input:    "Data Units Written: 100 [512 GB]",
+			input:       "Data Units Written: 100 [512 GB]",
 			minExpected: 500 * 1024 * 1024 * 1024, // 至少 500GB
 		},
 		{
-			input:    "Data Units Written: 100", // 无方括号
+			input:       "Data Units Written: 100", // 无方括号
 			minExpected: 0,
 		},
 	}
