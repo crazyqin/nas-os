@@ -51,7 +51,7 @@ func TestSupportedProviders(t *testing.T) {
 	providers := SupportedProviders()
 
 	assert.NotEmpty(t, providers)
-	assert.Len(t, providers, 7)
+	assert.Len(t, providers, 8)
 
 	// 检查必需字段
 	for _, p := range providers {
@@ -62,7 +62,7 @@ func TestSupportedProviders(t *testing.T) {
 	}
 
 	// 验证包含中国网盘
-	var has115, hasQuark, hasAliyunPan bool
+	var has115, hasQuark, hasAliyunPan, hasBaiduPan bool
 	for _, p := range providers {
 		switch p.Type {
 		case MountType115:
@@ -71,12 +71,15 @@ func TestSupportedProviders(t *testing.T) {
 			hasQuark = true
 		case MountTypeAliyunPan:
 			hasAliyunPan = true
+		case MountTypeBaiduPan:
+			hasBaiduPan = true
 		}
 	}
 
 	assert.True(t, has115, "应该支持115网盘")
 	assert.True(t, hasQuark, "应该支持夸克网盘")
 	assert.True(t, hasAliyunPan, "应该支持阿里云盘")
+	assert.True(t, hasBaiduPan, "应该支持百度网盘")
 }
 
 // ==================== Manager 测试 ====================
