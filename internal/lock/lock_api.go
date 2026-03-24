@@ -30,14 +30,14 @@ func (h *Handlers) RegisterRoutes(rg *gin.RouterGroup) {
 	locks := rg.Group("/locks")
 	{
 		// 锁操作
-		locks.POST("", h.acquireLock)       // 获取锁
-		locks.DELETE("/:id", h.releaseLock) // 释放锁
+		locks.POST("", h.acquireLock)          // 获取锁
+		locks.DELETE("/:id", h.releaseLock)    // 释放锁
 		locks.PUT("/:id/extend", h.extendLock) // 延长锁
 
 		// 锁查询
-		locks.GET("/:id", h.getLock)        // 获取锁详情
+		locks.GET("/:id", h.getLock)              // 获取锁详情
 		locks.GET("/path/*path", h.getLockByPath) // 通过路径获取锁
-		locks.GET("", h.listLocks)          // 列出所有锁
+		locks.GET("", h.listLocks)                // 列出所有锁
 
 		// 锁检查
 		locks.GET("/check/*path", h.checkLock) // 检查文件锁定状态
@@ -393,7 +393,7 @@ func (h *Handlers) getLockByPath(c *gin.Context) {
 // @Router /locks [get]
 func (h *Handlers) listLocks(c *gin.Context) {
 	filter := &LockFilter{
-		Owner:   c.Query("owner"),
+		Owner:    c.Query("owner"),
 		Protocol: c.Query("protocol"),
 	}
 

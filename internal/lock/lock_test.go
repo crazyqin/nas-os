@@ -111,9 +111,9 @@ func TestManager_Lock(t *testing.T) {
 	defer manager.Close()
 
 	tests := []struct {
-		name      string
-		req       *LockRequest
-		wantErr   error
+		name         string
+		req          *LockRequest
+		wantErr      error
 		wantConflict bool
 	}{
 		{
@@ -302,7 +302,7 @@ func TestManager_ExtendLock(t *testing.T) {
 func TestManager_LockExpiration(t *testing.T) {
 	config := testConfig()
 	config.CleanupInterval = 100 * time.Millisecond // 快速清理
-	config.DefaultTimeout = 200 * time.Millisecond   // 短超时
+	config.DefaultTimeout = 200 * time.Millisecond  // 短超时
 
 	manager := NewManager(config, zap.NewNop())
 	defer manager.Close()

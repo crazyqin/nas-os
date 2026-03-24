@@ -22,11 +22,11 @@ const (
 type SessionStatus string
 
 const (
-	StatusActive   SessionStatus = "active"
-	StatusIdle     SessionStatus = "idle"
-	StatusStale    SessionStatus = "stale"
-	StatusClosed   SessionStatus = "closed"
-	StatusKicked   SessionStatus = "kicked"
+	StatusActive SessionStatus = "active"
+	StatusIdle   SessionStatus = "idle"
+	StatusStale  SessionStatus = "stale"
+	StatusClosed SessionStatus = "closed"
+	StatusKicked SessionStatus = "kicked"
 )
 
 // Session 会话信息

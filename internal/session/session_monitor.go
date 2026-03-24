@@ -40,26 +40,26 @@ type SMBConnection struct {
 
 // NFSClient NFS客户端信息
 type NFSClient struct {
-	ID         string
-	ClientIP   string
-	SharePath  string
+	ID          string
+	ClientIP    string
+	SharePath   string
 	ConnectedAt time.Time
-	BytesRead  int64
-	BytesWrite int64
+	BytesRead   int64
+	BytesWrite  int64
 }
 
 // Monitor 会话监控器
 type Monitor struct {
-	manager       *Manager
-	logger        *logging.Logger
-	smbProvider   SMBProvider
-	nfsProvider   NFSProvider
-	stopCh        chan struct{}
-	running       bool
-	runningMu     sync.Mutex
-	pollInterval  time.Duration
-	lastSMBCount  int
-	lastNFSCount  int
+	manager      *Manager
+	logger       *logging.Logger
+	smbProvider  SMBProvider
+	nfsProvider  NFSProvider
+	stopCh       chan struct{}
+	running      bool
+	runningMu    sync.Mutex
+	pollInterval time.Duration
+	lastSMBCount int
+	lastNFSCount int
 }
 
 // NewMonitor 创建会话监控器
@@ -487,14 +487,14 @@ func (m *Monitor) GetStatus() map[string]interface{} {
 	stats := m.manager.GetStats()
 
 	return map[string]interface{}{
-		"running":        running,
-		"poll_interval":  m.pollInterval.String(),
-		"total_sessions": stats.TotalSessions,
-		"smb_sessions":   stats.SMBSessions,
-		"nfs_sessions":   stats.NFSSessions,
+		"running":         running,
+		"poll_interval":   m.pollInterval.String(),
+		"total_sessions":  stats.TotalSessions,
+		"smb_sessions":    stats.SMBSessions,
+		"nfs_sessions":    stats.NFSSessions,
 		"active_sessions": stats.ActiveSessions,
-		"last_smb_count": m.lastSMBCount,
-		"last_nfs_count": m.lastNFSCount,
+		"last_smb_count":  m.lastSMBCount,
+		"last_nfs_count":  m.lastNFSCount,
 	}
 }
 
@@ -531,11 +531,11 @@ func (p *DefaultSMBProvider) Connections() ([]*SMBConnection, error) {
 			}
 
 			conn := &SMBConnection{
-				PID:        pid,
-				Username:   fields[1],
-				ClientIP:   fields[2],
-				Protocol:   fields[3],
-				ShareName:  fields[4],
+				PID:         pid,
+				Username:    fields[1],
+				ClientIP:    fields[2],
+				Protocol:    fields[3],
+				ShareName:   fields[4],
 				ConnectedAt: time.Now(),
 			}
 
