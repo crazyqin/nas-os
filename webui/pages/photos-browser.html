@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>相册浏览 - NAS-OS</title>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <style>
+        /* 飞牛风格扁平化设计 - 相册浏览 */
+        
+        /* 照片网格 - 瀑布流布局 */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 20px;
+        }
+
+        @media (min-width: 1600px) {
+            .photo-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .photo-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .photo-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                padding: 8px;
+            }
+        }
+
+        /* 照片卡片 */
+        .photo-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--surface-color);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            aspect-ratio: 1;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-slow);
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+
+        /* 照片信息悬浮层 */
+        .photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 40px 12px 12px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .photo-card:hover .photo-overlay {
+            opacity: 1;
+        }
+
+        .photo-name {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .photo-date {
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* 选中状态 */
+        .photo-card.selected {
+            outline: 3px solid var(--color-primary);
+            outline-offset: -3px;
+        }
+
+        .photo-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* AI 标签 */
+        .ai-tags {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-width: calc(100% - 24px);
+        }
+
+        .ai-tag {
+            background: rgba(0,0,0,0.6);
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            backdrop-filter: blur(4px);
+        }
+
+        /* 人脸标记 */
+        .face-badge {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: var(--color-primary);
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            background: var(--surface-color);
+            border-bottom: 1px solid var(--surface-border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--surface-border);
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 4px;
+        }
+
+        .view-toggle button {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .view-toggle button.active {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 筛选面板 */
+        .filter-panel {
+            background: var(--surface-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin: 16px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .filter-chip:hover {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .filter-chip.active {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        /* 时间线分组 */
+        .timeline-section {
+            margin-bottom: 32px;
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px 12px;
+            border-bottom: 1px solid var(--surface-border);
+            margin-bottom: 16px;
+        }
+
+        .timeline-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .timeline-count {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* 照片查看器 */
+        .photo-viewer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .photo-viewer.active {
+            display: flex;
+        }
+
+        .viewer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .viewer-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .viewer-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .viewer-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: var(--radius-md);
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background var(--transition-fast);
+        }
+
+        .viewer-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .viewer-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .viewer-content img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .viewer-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all var(--transition-fast);
+        }
+
+        .viewer-nav:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .viewer-prev {
+            left: 20px;
+        }
+
+        .viewer-next {
+            right: 20px;
+        }
+
+        /* AI 信息面板 */
+        .ai-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 360px;
+            background: var(--surface-color);
+            border-left: 1px solid var(--surface-border);
+            transform: translateX(100%);
+            transition: transform var(--transition-base);
+            z-index: 1001;
+            overflow-y: auto;
+        }
+
+        .ai-panel.active {
+            transform: translateX(0);
+        }
+
+        .ai-panel-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--surface-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-panel-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ai-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--surface-border);
+        }
+
+        .ai-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 人脸列表 */
+        .face-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .face-item {
+            text-align: center;
+            width: 80px;
+        }
+
+        .face-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            margin: 0 auto 8px;
+            overflow: hidden;
+            border: 2px solid var(--surface-border);
+        }
+
+        .face-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .face-name {
+            font-size: 12px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 场景标签 */
+        .scene-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 物体标签组 */
+        .object-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .object-tag {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* 色彩条 */
+        .color-bar {
+            display: flex;
+            height: 40px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .color-slice {
+            flex: 1;
+        }
+
+        /* 质量评分 */
+        .quality-score {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .score-ring {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .score-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* 回忆卡片 */
+        .memory-card {
+            background: linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            color: white;
+            margin: 16px 20px;
+            cursor: pointer;
+            transition: transform var(--transition-base);
+        }
+
+        .memory-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .memory-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .memory-subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .memory-preview {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .memory-thumb {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-md);
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        /* 加载骨架屏 */
+        .skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 20px;
+        }
+
+        .skeleton-card {
+            aspect-ratio: 1;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes skeleton-pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .ai-panel {
+                width: 100%;
+            }
+
+            .filter-panel {
+                margin: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <button class="btn btn-secondary" onclick="goBack()">
+                <span>←</span> 返回
+            </button>
+            <h2 style="font-size: 18px; font-weight: 600;">相册浏览</h2>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <div class="toolbar-group">
+            <div class="view-toggle">
+                <button class="active" onclick="setView('grid')" title="网格视图">
+                    <span>▦</span>
+                </button>
+                <button onclick="setView('timeline')" title="时间线">
+                    <span>☰</span>
+                </button>
+                <button onclick="setView('map')" title="地图视图">
+                    <span>🗺️</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="toolbar-group">
+            <select class="form-select" style="width: auto;" onchange="sortPhotos(this.value)">
+                <option value="date-desc">最新优先</option>
+                <option value="date-asc">最早优先</option>
+                <option value="name">名称排序</option>
+                <option value="size">大小排序</option>
+            </select>
+        </div>
+
+        <div class="toolbar-group" style="margin-left: auto;">
+            <button class="btn btn-secondary" onclick="toggleFilter()">
+                <span>🔍</span> 筛选
+            </button>
+            <button class="btn btn-primary" onclick="uploadPhotos()">
+                <span>+</span> 上传
+            </button>
+        </div>
+    </div>
+
+    <!-- 筛选面板 -->
+    <div class="filter-panel" id="filter-panel" style="display: none;">
+        <div class="filter-row">
+            <span style="color: var(--text-muted); font-size: 14px; margin-right: 8px;">人物:</span>
+            <div id="people-filters"></div>
+        </div>
+        <div class="filter-row" style="margin-top: 12px;">
+            <span style="color: var(--text-muted); font-size: 14px; margin-right: 8px;">场景:</span>
+            <div id="scene-filters"></div>
+        </div>
+    </div>
+
+    <!-- 回忆提示 -->
+    <div class="memory-card" id="memory-card" onclick="viewMemories()">
+        <div class="memory-title">📅 历史上的今天</div>
+        <div class="memory-subtitle">查看往年的美好回忆</div>
+        <div class="memory-preview" id="memory-preview"></div>
+    </div>
+
+    <!-- 照片网格 -->
+    <div id="photo-container">
+        <div class="skeleton-grid" id="loading-skeleton">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+
+        <div id="photo-grid" class="photo-grid" style="display: none;"></div>
+
+        <div id="timeline-view" style="display: none;"></div>
+    </div>
+
+    <!-- 空状态 -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+        <div class="empty-state-icon">📷</div>
+        <div class="empty-state-title">还没有照片</div>
+        <div>点击"上传"按钮添加照片</div>
+    </div>
+
+    <!-- 照片查看器 -->
+    <div class="photo-viewer" id="photo-viewer">
+        <div class="viewer-header">
+            <div class="viewer-title" id="viewer-title">照片预览</div>
+            <div class="viewer-actions">
+                <button class="viewer-btn" onclick="toggleAIPanel()" title="AI 信息">🤖</button>
+                <button class="viewer-btn" onclick="downloadPhoto()" title="下载">⬇️</button>
+                <button class="viewer-btn" onclick="sharePhoto()" title="分享">📤</button>
+                <button class="viewer-btn" onclick="closeViewer()" title="关闭">✕</button>
+            </div>
+        </div>
+        <div class="viewer-content">
+            <img id="viewer-image" src="" alt="照片预览">
+            <button class="viewer-nav viewer-prev" onclick="prevPhoto()">‹</button>
+            <button class="viewer-nav viewer-next" onclick="nextPhoto()">›</button>
+        </div>
+    </div>
+
+    <!-- AI 信息面板 -->
+    <div class="ai-panel" id="ai-panel">
+        <div class="ai-panel-header">
+            <div class="ai-panel-title">AI 分析</div>
+            <button class="viewer-btn" onclick="closeAIPanel()">✕</button>
+        </div>
+
+        <!-- 人脸识别 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>👤</span> 识别的人脸
+            </div>
+            <div class="face-list" id="face-list">
+                <div class="empty-state" style="padding: 20px; font-size: 14px;">
+                    分析中...
+                </div>
+            </div>
+        </div>
+
+        <!-- 场景分类 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>🏞️</span> 场景
+            </div>
+            <div id="scene-info">
+                <div class="scene-tag">
+                    <span>🌲</span>
+                    <span id="scene-name">分析中...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 物体检测 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>📦</span> 检测到的物体
+            </div>
+            <div class="object-tags" id="object-tags">
+                <div class="empty-state" style="padding: 20px; font-size: 14px;">
+                    分析中...
+                </div>
+            </div>
+        </div>
+
+        <!-- 主色调 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>🎨</span> 主色调
+            </div>
+            <div class="color-bar" id="color-bar"></div>
+        </div>
+
+        <!-- 质量评分 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>⭐</span> 质量评分
+            </div>
+            <div class="quality-score">
+                <div class="score-ring">
+                    <svg width="60" height="60">
+                        <circle cx="30" cy="30" r="26" stroke="var(--bg-tertiary)" stroke-width="4" fill="none"/>
+                        <circle id="score-circle" cx="30" cy="30" r="26" stroke="var(--color-primary)" stroke-width="4" fill="none"
+                            stroke-dasharray="163.36" stroke-dashoffset="163.36"/>
+                    </svg>
+                    <div class="score-value" id="score-value">--</div>
+                </div>
+                <div>
+                    <div style="font-size: 14px; color: var(--text-secondary);">照片质量</div>
+                    <div id="quality-label" style="font-size: 14px; font-weight: 600;">评估中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详细信息 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>ℹ️</span> 详细信息
+            </div>
+            <div id="photo-details">
+                <div style="font-size: 14px; color: var(--text-muted);">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/photos';
+        let photos = [];
+        let currentIndex = 0;
+        let currentView = 'grid';
+        let selectedPhotos = new Set();
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPhotos();
+            loadMemories();
+            loadFilters();
+        });
+
+        // 加载照片
+        async function loadPhotos() {
+            try {
+                const response = await fetch(`${API_BASE}?limit=100`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data) {
+                    photos = data.data.photos || [];
+                    renderPhotos();
+                    document.getElementById('loading-skeleton').style.display = 'none';
+                    
+                    if (photos.length === 0) {
+                        document.getElementById('empty-state').style.display = 'block';
+                    } else {
+                        document.getElementById('photo-grid').style.display = 'grid';
+                    }
+                }
+            } catch (error) {
+                console.error('加载照片失败:', error);
+                document.getElementById('loading-skeleton').style.display = 'none';
+                document.getElementById('empty-state').style.display = 'block';
+            }
+        }
+
+        // 渲染照片
+        function renderPhotos() {
+            const grid = document.getElementById('photo-grid');
+            const timeline = document.getElementById('timeline-view');
+
+            if (currentView === 'grid') {
+                grid.innerHTML = photos.map((photo, index) => `
+                    <div class="photo-card ${selectedPhotos.has(photo.id) ? 'selected' : ''}" 
+                         onclick="openViewer(${index})"
+                         oncontextmenu="toggleSelect(event, '${photo.id}')">
+                        <img src="${API_BASE}/${photo.id}/thumbnail" alt="${photo.name}" loading="lazy">
+                        ${photo.faces?.length ? `<div class="face-badge">👤 ${photo.faces.length}</div>` : ''}
+                        ${photo.scene ? `<div class="ai-tags"><span class="ai-tag">${photo.scene}</span></div>` : ''}
+                        <div class="photo-overlay">
+                            <div class="photo-name">${photo.name}</div>
+                            <div class="photo-date">${formatDate(photo.takenAt || photo.createdAt)}</div>
+                        </div>
+                    </div>
+                `).join('');
+                grid.style.display = 'grid';
+                timeline.style.display = 'none';
+            } else if (currentView === 'timeline') {
+                // 按日期分组
+                const grouped = groupByDate(photos);
+                timeline.innerHTML = Object.entries(grouped).map(([date, datePhotos]) => `
+                    <div class="timeline-section">
+                        <div class="timeline-header">
+                            <div class="timeline-title">${formatDateHeader(date)}</div>
+                            <div class="timeline-count">${datePhotos.length} 张照片</div>
+                        </div>
+                        <div class="photo-grid">
+                            ${datePhotos.map((photo, i) => `
+                                <div class="photo-card" onclick="openViewer(${photos.indexOf(photo)})">
+                                    <img src="${API_BASE}/${photo.id}/thumbnail" alt="${photo.name}" loading="lazy">
+                                    <div class="photo-overlay">
+                                        <div class="photo-name">${photo.name}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+                grid.style.display = 'none';
+                timeline.style.display = 'block';
+            }
+        }
+
+        // 加载回忆
+        async function loadMemories() {
+            try {
+                const response = await fetch(`${API_BASE}/ai/memories`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data && data.data.length > 0) {
+                    const memory = data.data[0];
+                    document.getElementById('memory-card').style.display = 'block';
+                    document.getElementById('memory-title').textContent = memory.title;
+                    
+                    // 显示预览缩略图
+                    const preview = document.getElementById('memory-preview');
+                    preview.innerHTML = memory.photoIds?.slice(0, 4).map(id => `
+                        <div class="memory-thumb"></div>
+                    `).join('') || '';
+                } else {
+                    document.getElementById('memory-card').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('加载回忆失败:', error);
+                document.getElementById('memory-card').style.display = 'none';
+            }
+        }
+
+        // 加载筛选项
+        async function loadFilters() {
+            try {
+                const [personsRes, statsRes] = await Promise.all([
+                    fetch(`${API_BASE}/persons`),
+                    fetch(`${API_BASE}/ai/stats`)
+                ]);
+                
+                const personsData = await personsRes.json();
+                const statsData = await statsRes.json();
+                
+                // 人物筛选
+                if (personsData.data) {
+                    document.getElementById('people-filters').innerHTML = personsData.data.map(p => `
+                        <div class="filter-chip" onclick="filterByPerson('${p.id}')">
+                            👤 ${p.name || '未命名'} (${p.photoCount})
+                        </div>
+                    `).join('');
+                }
+                
+                // 场景筛选
+                if (statsData.data?.sceneDistribution) {
+                    const scenes = Object.entries(statsData.data.sceneDistribution);
+                    document.getElementById('scene-filters').innerHTML = scenes.map(([scene, count]) => `
+                        <div class="filter-chip" onclick="filterByScene('${scene}')">
+                            ${getSceneEmoji(scene)} ${scene} (${count})
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载筛选项失败:', error);
+            }
+        }
+
+        // 打开查看器
+        function openViewer(index) {
+            currentIndex = index;
+            updateViewer();
+            document.getElementById('photo-viewer').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 更新查看器
+        function updateViewer() {
+            const photo = photos[currentIndex];
+            if (!photo) return;
+            
+            document.getElementById('viewer-title').textContent = photo.name;
+            document.getElementById('viewer-image').src = `${API_BASE}/${photo.id}/full`;
+            
+            // 加载 AI 信息
+            loadAIInfo(photo.id);
+        }
+
+        // 加载 AI 信息
+        async function loadAIInfo(photoId) {
+            try {
+                const response = await fetch(`${API_BASE}/ai/result/${photoId}`);
+                const data = await response.json();
+                
+                if (data.code === 0 && data.data) {
+                    const ai = data.data;
+                    
+                    // 人脸
+                    if (ai.faces?.length > 0) {
+                        document.getElementById('face-list').innerHTML = ai.faces.map(face => `
+                            <div class="face-item">
+                                <div class="face-thumb">
+                                    <img src="${API_BASE}/${photoId}/face/${face.id}" alt="${face.name || '未命名'}">
+                                </div>
+                                <div class="face-name">${face.name || '未命名'}</div>
+                            </div>
+                        `).join('');
+                    } else {
+                        document.getElementById('face-list').innerHTML = '<div style="color: var(--text-muted); font-size: 14px;">未检测到人脸</div>';
+                    }
+                    
+                    // 场景
+                    if (ai.scene) {
+                        document.getElementById('scene-name').textContent = ai.scene;
+                    }
+                    
+                    // 物体
+                    if (ai.objects?.length > 0) {
+                        document.getElementById('object-tags').innerHTML = ai.objects.map(obj => `
+                            <span class="object-tag">${obj}</span>
+                        `).join('');
+                    }
+                    
+                    // 颜色
+                    if (ai.colors?.length > 0) {
+                        document.getElementById('color-bar').innerHTML = ai.colors.map(color => `
+                            <div class="color-slice" style="background: ${color}"></div>
+                        `).join('');
+                    }
+                    
+                    // 质量评分
+                    if (ai.qualityScore) {
+                        const score = Math.round(ai.qualityScore);
+                        const circumference = 163.36;
+                        const offset = circumference - (score / 100 * circumference);
+                        
+                        document.getElementById('score-circle').style.strokeDashoffset = offset;
+                        document.getElementById('score-value').textContent = score;
+                        document.getElementById('quality-label').textContent = getQualityLabel(score);
+                    }
+                }
+            } catch (error) {
+                console.error('加载 AI 信息失败:', error);
+            }
+        }
+
+        // 关闭查看器
+        function closeViewer() {
+            document.getElementById('photo-viewer').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // 上一张
+        function prevPhoto() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateViewer();
+            }
+        }
+
+        // 下一张
+        function nextPhoto() {
+            if (currentIndex < photos.length - 1) {
+                currentIndex++;
+                updateViewer();
+            }
+        }
+
+        // 切换 AI 面板
+        function toggleAIPanel() {
+            document.getElementById('ai-panel').classList.toggle('active');
+        }
+
+        // 关闭 AI 面板
+        function closeAIPanel() {
+            document.getElementById('ai-panel').classList.remove('active');
+        }
+
+        // 切换视图
+        function setView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-toggle button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderPhotos();
+        }
+
+        // 切换筛选面板
+        function toggleFilter() {
+            const panel = document.getElementById('filter-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // 选择/取消选择
+        function toggleSelect(event, photoId) {
+            event.preventDefault();
+            if (selectedPhotos.has(photoId)) {
+                selectedPhotos.delete(photoId);
+            } else {
+                selectedPhotos.add(photoId);
+            }
+            renderPhotos();
+        }
+
+        // 辅助函数
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        function formatDateHeader(dateStr) {
+            const date = new Date(dateStr);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (date.toDateString() === today.toDateString()) {
+                return '今天';
+            } else if (date.toDateString() === yesterday.toDateString()) {
+                return '昨天';
+            }
+            return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function groupByDate(photos) {
+            const grouped = {};
+            photos.forEach(photo => {
+                const date = (photo.takenAt || photo.createdAt || '').split('T')[0];
+                if (!grouped[date]) {
+                    grouped[date] = [];
+                }
+                grouped[date].push(photo);
+            });
+            return grouped;
+        }
+
+        function getSceneEmoji(scene) {
+            const emojis = {
+                'landscape': '🏞️', 'portrait': '👤', 'food': '🍔', 'pet': '🐱',
+                'indoor': '🏠', 'outdoor': '🌳', 'night': '🌙', 'sunset': '🌅',
+                'beach': '🏖️', 'mountain': '⛰️', 'city': '🏙️'
+            };
+            return emojis[scene?.toLowerCase()] || '📷';
+        }
+
+        function getQualityLabel(score) {
+            if (score >= 80) return '优秀';
+            if (score >= 60) return '良好';
+            if (score >= 40) return '一般';
+            return '较差';
+        }
+
+        // 键盘导航
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('photo-viewer').classList.contains('active')) return;
+            
+            switch (e.key) {
+                case 'Escape':
+                    closeViewer();
+                    break;
+                case 'ArrowLeft':
+                    prevPhoto();
+                    break;
+                case 'ArrowRight':
+                    nextPhoto();
+                    break;
+            }
+        });
+
+        // 其他功能
+        function goBack() { history.back(); }
+        function uploadPhotos() { alert('上传功能开发中'); }
+        function sortPhotos(sort) { console.log('排序:', sort); }
+        function filterByPerson(id) { console.log('筛选人物:', id); }
+        function filterByScene(scene) { console.log('筛选场景:', scene); }
+        function viewMemories() { location.href = '/pages/ai-photos.html'; }
+        function downloadPhoto() { alert('下载功能开发中'); }
+        function sharePhoto() { alert('分享功能开发中'); }
+    </script>
+</body>
+</html>
