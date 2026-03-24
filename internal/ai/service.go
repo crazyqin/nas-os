@@ -11,13 +11,14 @@ import (
 // Provider represents an AI service provider
 type Provider string
 
+// AI provider constants
 const (
-	ProviderOpenAI   Provider = "openai"
-	ProviderGoogle   Provider = "google"
-	ProviderAzure    Provider = "azure"
-	ProviderBaidu    Provider = "baidu"
-	ProviderLocal    Provider = "local"  // Local LLM support
-	ProviderCustom   Provider = "custom"
+	ProviderOpenAI Provider = "openai"
+	ProviderGoogle Provider = "google"
+	ProviderAzure  Provider = "azure"
+	ProviderBaidu  Provider = "baidu"
+	ProviderLocal  Provider = "local" // Local LLM support
+	ProviderCustom Provider = "custom"
 )
 
 // Config holds AI service configuration
@@ -28,14 +29,14 @@ type Config struct {
 	Model       string
 	MaxTokens   int
 	Temperature float64
-	
+
 	// Privacy settings
-	EnableDeID     bool    // Enable PII de-identification
-	DeIDRules      []DeIDRule
-	
+	EnableDeID bool // Enable PII de-identification
+	DeIDRules  []DeIDRule
+
 	// Rate limiting
-	RequestLimit   int
-	RequestWindow  int64 // seconds
+	RequestLimit  int
+	RequestWindow int64 // seconds
 }
 
 // DeIDRule defines a rule for de-identifying sensitive data
@@ -85,13 +86,13 @@ type Response struct {
 type Service interface {
 	// Chat sends a chat request and returns the response
 	Chat(ctx context.Context, req *Request) (*Response, error)
-	
+
 	// StreamChat streams the response
 	StreamChat(ctx context.Context, req *Request, callback func(chunk string) error) error
-	
+
 	// Embed generates embeddings for text
 	Embed(ctx context.Context, text string) ([]float32, error)
-	
+
 	// GetProvider returns the provider name
 	GetProvider() Provider
 }
@@ -117,7 +118,7 @@ func NewManager() *Manager {
 func (m *Manager) RegisterProvider(provider Provider, service Service, config *Config) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	m.providers[provider] = service
 	m.configs[provider] = config
 }
@@ -128,18 +129,18 @@ func (m *Manager) Chat(ctx context.Context, provider Provider, req *Request) (*R
 	service, exists := m.providers[provider]
 	config := m.configs[provider]
 	m.mu.RUnlock()
-	
+
 	if !exists {
 		return nil, ErrProviderNotFound
 	}
-	
+
 	// Apply de-identification if enabled
 	if config != nil && config.EnableDeID {
 		for i, msg := range req.Messages {
 			req.Messages[i].Content = m.deider.Process(msg.Content)
 		}
 	}
-	
+
 	return service.Chat(ctx, req)
 }
 
@@ -147,7 +148,7 @@ func (m *Manager) Chat(ctx context.Context, provider Provider, req *Request) (*R
 func (m *Manager) GetAvailableProviders() []Provider {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	providers := make([]Provider, 0, len(m.providers))
 	for p := range m.providers {
 		providers = append(providers, p)
