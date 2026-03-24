@@ -2,6 +2,25 @@
 
 All notable changes to NAS-OS will be documented in this file.
 
+## [v2.253.288] - 2026-03-24
+
+### Fixed
+- **Linter修复** (`internal/security/risk_indicator.go`):
+  - 修复errcheck: resp.Body.Close()返回值检查
+  - 修复ineffassign: ageFactor无效赋值
+
+### Documentation
+- **竞品分析更新** (`docs/COMPETITOR_ANALYSIS.md`):
+  - 新增TrueNAS Scale Dragonfish分析
+  - 更新开发优先级(P0: 网盘挂载、SMB审计、不可变快照)
+
+### Competitor Analysis Round 37
+- 飞牛fnOS 1.0: 网盘原生挂载(115/夸克/OneDrive)、本地AI
+- 群晖DSM 7.3: Synology Tiering分层存储、文件锁定、AI Console
+- TrueNAS Scale 24.04: ZFS ARC优化、SMB审计、不可变快照、HA架构
+
+---
+
 ## [v2.253.289] - 2026-03-24
 
 ### Added
