@@ -6,6 +6,7 @@ import (
 	"context"
 	"os"
 	"sync"
+	"syscall"
 	"time"
 
 	"nas-os/internal/cloudsync"
@@ -17,6 +18,7 @@ import (
 // MountType 挂载类型
 type MountType string
 
+// 挂载类型常量
 const (
 	MountType115         MountType = "115"          // 115网盘
 	MountTypeQuark       MountType = "quark"        // 夸克网盘
@@ -24,12 +26,13 @@ const (
 	MountTypeOneDrive    MountType = "onedrive"     // Microsoft OneDrive
 	MountTypeGoogleDrive MountType = "google_drive" // Google Drive
 	MountTypeWebDAV      MountType = "webdav"       // WebDAV
-	MountTypeS3          MountType = "s3"            // S3 兼容存储
+	MountTypeS3          MountType = "s3"           // S3 兼容存储
 )
 
 // MountStatus 挂载状态
 type MountStatus string
 
+// 挂载状态常量
 const (
 	MountStatusIdle       MountStatus = "idle"       // 空闲
 	MountStatusMounting   MountStatus = "mounting"   // 挂载中
@@ -41,17 +44,17 @@ const (
 // MountConfig 挂载配置
 type MountConfig struct {
 	// 基本信息
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Type        MountType  `json:"type"`
-	MountPoint  string     `json:"mountPoint"`
-	RemotePath  string     `json:"remotePath,omitempty"`
-	Enabled     bool       `json:"enabled"`
-	AutoMount   bool       `json:"autoMount"`
-	ReadOnly    bool       `json:"readOnly"`
-	AllowOther  bool       `json:"allowOther"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Type       MountType `json:"type"`
+	MountPoint string    `json:"mountPoint"`
+	RemotePath string    `json:"remotePath,omitempty"`
+	Enabled    bool      `json:"enabled"`
+	AutoMount  bool      `json:"autoMount"`
+	ReadOnly   bool      `json:"readOnly"`
+	AllowOther bool      `json:"allowOther"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 
 	// 缓存配置
 	CacheEnabled bool   `json:"cacheEnabled"`
@@ -65,17 +68,17 @@ type MountConfig struct {
 	DriveID      string `json:"driveId,omitempty"`
 
 	// S3 / WebDAV
-	Endpoint   string `json:"endpoint,omitempty"`
-	Bucket     string `json:"bucket,omitempty"`
-	AccessKey  string `json:"accessKey,omitempty"`
-	SecretKey  string `json:"secretKey,omitempty"`
-	Region     string `json:"region,omitempty"`
-	PathStyle  bool   `json:"pathStyle,omitempty"`
-	Insecure   bool   `json:"insecure,omitempty"`
+	Endpoint  string `json:"endpoint,omitempty"`
+	Bucket    string `json:"bucket,omitempty"`
+	AccessKey string `json:"accessKey,omitempty"`
+	SecretKey string `json:"secretKey,omitempty"`
+	Region    string `json:"region,omitempty"`
+	PathStyle bool   `json:"pathStyle,omitempty"`
+	Insecure  bool   `json:"insecure,omitempty"`
 
 	// OneDrive / Google Drive
-	ClientID   string `json:"clientId,omitempty"`
-	TenantID   string `json:"tenantId,omitempty"`
+	ClientID string `json:"clientId,omitempty"`
+	TenantID string `json:"tenantId,omitempty"`
 
 	// 其他
 	RootFolder string `json:"rootFolder,omitempty"`
@@ -83,49 +86,49 @@ type MountConfig struct {
 
 // MountInfo 挂载信息（API 返回）
 type MountInfo struct {
-	ID             string       `json:"id"`
-	Name           string       `json:"name"`
-	Type           MountType    `json:"type"`
-	MountPoint     string       `json:"mountPoint"`
-	RemotePath     string       `json:"remotePath,omitempty"`
-	Status         MountStatus  `json:"status"`
-	Enabled        bool         `json:"enabled"`
-	AutoMount      bool         `json:"autoMount"`
-	ReadOnly       bool         `json:"readOnly"`
-	CreatedAt      time.Time    `json:"createdAt"`
-	UpdatedAt      time.Time    `json:"updatedAt"`
-	MountedAt      *time.Time   `json:"mountedAt,omitempty"`
-	Error          string       `json:"error,omitempty"`
-	ReadBytes      int64        `json:"readBytes"`
-	WriteBytes     int64        `json:"writeBytes"`
-	ReadOps        int64        `json:"readOps"`
-	WriteOps       int64        `json:"writeOps"`
-	CacheHitRate   float64      `json:"cacheHitRate"`
-	CacheUsedBytes int64        `json:"cacheUsedBytes"`
+	ID             string      `json:"id"`
+	Name           string      `json:"name"`
+	Type           MountType   `json:"type"`
+	MountPoint     string      `json:"mountPoint"`
+	RemotePath     string      `json:"remotePath,omitempty"`
+	Status         MountStatus `json:"status"`
+	Enabled        bool        `json:"enabled"`
+	AutoMount      bool        `json:"autoMount"`
+	ReadOnly       bool        `json:"readOnly"`
+	CreatedAt      time.Time   `json:"createdAt"`
+	UpdatedAt      time.Time   `json:"updatedAt"`
+	MountedAt      *time.Time  `json:"mountedAt,omitempty"`
+	Error          string      `json:"error,omitempty"`
+	ReadBytes      int64       `json:"readBytes"`
+	WriteBytes     int64       `json:"writeBytes"`
+	ReadOps        int64       `json:"readOps"`
+	WriteOps       int64       `json:"writeOps"`
+	CacheHitRate   float64     `json:"cacheHitRate"`
+	CacheUsedBytes int64       `json:"cacheUsedBytes"`
 }
 
 // MountStats 挂载统计
 type MountStats struct {
-	MountID        string    `json:"mountId"`
-	StartTime      time.Time `json:"startTime"`
-	Uptime         int64     `json:"uptime"` // seconds
-	TotalReadBytes  int64    `json:"totalReadBytes"`
-	TotalWriteBytes int64    `json:"totalWriteBytes"`
-	TotalReadOps    int64    `json:"totalReadOps"`
-	TotalWriteOps   int64    `json:"totalWriteOps"`
-	CacheHits       int64    `json:"cacheHits"`
-	CacheMisses     int64    `json:"cacheMisses"`
+	MountID         string    `json:"mountId"`
+	StartTime       time.Time `json:"startTime"`
+	Uptime          int64     `json:"uptime"` // seconds
+	TotalReadBytes  int64     `json:"totalReadBytes"`
+	TotalWriteBytes int64     `json:"totalWriteBytes"`
+	TotalReadOps    int64     `json:"totalReadOps"`
+	TotalWriteOps   int64     `json:"totalWriteOps"`
+	CacheHits       int64     `json:"cacheHits"`
+	CacheMisses     int64     `json:"cacheMisses"`
 }
 
 // MountRequest 挂载请求
 type MountRequest struct {
-	Name        string    `json:"name" binding:"required"`
-	Type        MountType `json:"type" binding:"required"`
-	MountPoint  string    `json:"mountPoint" binding:"required"`
-	RemotePath  string    `json:"remotePath,omitempty"`
-	AutoMount   bool      `json:"autoMount"`
-	ReadOnly    bool      `json:"readOnly"`
-	AllowOther  bool      `json:"allowOther"`
+	Name       string    `json:"name" binding:"required"`
+	Type       MountType `json:"type" binding:"required"`
+	MountPoint string    `json:"mountPoint" binding:"required"`
+	RemotePath string    `json:"remotePath,omitempty"`
+	AutoMount  bool      `json:"autoMount"`
+	ReadOnly   bool      `json:"readOnly"`
+	AllowOther bool      `json:"allowOther"`
 
 	// 缓存配置
 	CacheEnabled bool   `json:"cacheEnabled"`
@@ -133,10 +136,10 @@ type MountRequest struct {
 	CacheSize    int64  `json:"cacheSize,omitempty"`
 
 	// 115网盘 / 夸克网盘 / 阿里云盘
-	AccessToken   string `json:"accessToken,omitempty"`
-	RefreshToken  string `json:"refreshToken,omitempty"`
-	UserID        string `json:"userId,omitempty"`
-	DriveID       string `json:"driveId,omitempty"`
+	AccessToken  string `json:"accessToken,omitempty"`
+	RefreshToken string `json:"refreshToken,omitempty"`
+	UserID       string `json:"userId,omitempty"`
+	DriveID      string `json:"driveId,omitempty"`
 
 	// S3 / WebDAV
 	Endpoint  string `json:"endpoint,omitempty"`
@@ -226,13 +229,13 @@ func SupportedProviders() []ProviderInfo {
 
 // CacheManager 缓存管理器
 type CacheManager struct {
-	mu        sync.RWMutex
-	cacheDir  string
-	maxSize   int64 // bytes
-	usedSize  int64
-	hits      int64
-	misses    int64
-	cacheMap  map[string]*cacheEntry
+	mu       sync.RWMutex
+	cacheDir string
+	maxSize  int64 // bytes
+	usedSize int64
+	hits     int64
+	misses   int64
+	cacheMap map[string]*cacheEntry
 }
 
 type cacheEntry struct {
@@ -340,11 +343,10 @@ func (c *CacheManager) Stats() (hits, misses, evictions, usedSize, maxSize int64
 
 // CloudFS FUSE 文件系统
 type CloudFS struct {
-	config  *MountConfig
+	config   *MountConfig
 	provider cloudsync.Provider
-	cache   *CacheManager
-	stats   *MountStats
-	mu      sync.RWMutex
+	cache    *CacheManager
+	stats    *MountStats
 }
 
 // NewCloudFS 创建云文件系统
@@ -409,7 +411,7 @@ func (d *DirNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	// 检查是否为目录
 	files, err := d.fs.provider.List(ctx, d.path, false)
 	if err != nil {
-		return nil, fuse.ENOENT
+		return nil, syscall.ENOENT
 	}
 
 	for _, file := range files {
@@ -428,7 +430,7 @@ func (d *DirNode) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		}
 	}
 
-	return nil, fuse.ENOENT
+	return nil, syscall.ENOENT
 }
 
 // ReadDirAll 实现 fs.HandleReadDirAller 接口
@@ -472,7 +474,7 @@ func (d *DirNode) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 func (f *FileNode) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadResponse) error {
 	// TODO: 实现文件读取逻辑
 	// 这需要从 provider 下载文件内容
-	return fuse.ENOSYS
+	return syscall.ENOSYS
 }
 
 // Write 实现 fs.HandleWriter 接口
@@ -481,5 +483,5 @@ func (f *FileNode) Write(ctx context.Context, req *fuse.WriteRequest, resp *fuse
 	if f.fs.config.ReadOnly {
 		return fuse.Errno(30) // EROFS - read-only file system
 	}
-	return fuse.ENOSYS
+	return syscall.ENOSYS
 }

@@ -250,11 +250,13 @@ func (h *SMAuditAPIHandler) exportJSON(w http.ResponseWriter, events []SMAuditEv
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "  ")
-	encoder.Encode(map[string]interface{}{
+	if err := encoder.Encode(map[string]interface{}{
 		"exported_at": time.Now(),
 		"count":       len(events),
 		"events":      events,
-	})
+	}); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to encode JSON export: %v\n", err)
+	}
 }
 
 // exportCSV 导出CSV格式
@@ -263,7 +265,10 @@ func (h *SMAuditAPIHandler) exportCSV(w http.ResponseWriter, events []SMAuditEve
 	w.Header().Set("Content-Disposition", "attachment; filename=smb-audit-export.csv")
 
 	// CSV头
-	w.Write([]byte("timestamp,session_id,username,client_ip,share_name,operation,file_path,status,bytes_read,bytes_written,error_message\n"))
+	if _, err := w.Write([]byte("timestamp,session_id,username,client_ip,share_name,operation,file_path,status,bytes_read,bytes_written,error_message\n")); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to write CSV header: %v\n", err)
+		return
+	}
 
 	// 数据行
 	for _, event := range events {
@@ -280,7 +285,10 @@ func (h *SMAuditAPIHandler) exportCSV(w http.ResponseWriter, events []SMAuditEve
 			event.BytesWritten,
 			event.ErrorMessage,
 		)
-		w.Write([]byte(row))
+		if _, err := w.Write([]byte(row)); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to write CSV row: %v\n", err)
+			return
+		}
 	}
 }
 
@@ -288,7 +296,9 @@ func (h *SMAuditAPIHandler) exportCSV(w http.ResponseWriter, events []SMAuditEve
 func (h *SMAuditAPIHandler) respondJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to encode JSON response: %v\n", err)
+	}
 }
 
 // respondError 返回错误响应
