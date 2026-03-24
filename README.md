@@ -4,9 +4,9 @@
 
 基于 Go 的家用 NAS 系统，支持 btrfs 存储管理、SMB/NFS 共享、Web 管理界面。
 
-> **最新版本**: v2.265.0 Stable (2026-03-24)
+> **最新版本**: v2.272.0 Stable (2026-03-25)
 > **CI/CD**: [![CI/CD](https://github.com/crazyqin/nas-os/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/crazyqin/nas-os/actions)
-> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.265.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
+> **Docker**: [![Docker](https://img.shields.io/docker/v/ghcr.io/crazyqin/nas-os/v2.272.0?label=docker)](https://github.com/crazyqin/nas-os/pkgs/container/nas-os)
 
 ## 特性
 
@@ -220,7 +220,8 @@ sudo nasd
 
 | 功能 | 说明 | 预计发布 |
 |------|------|----------|
-| 🌐 **内网穿透** | 免费内网穿透服务，零配置远程访问 | v2.260.0 |
+| 🌐 **内网穿透** | 免费内网穿透服务，零配置远程访问 | v2.273.0 |
+| 🤖 **AI相册** | 以文搜图，CLIP模型智能照片搜索 | v2.274.0 |
 
 ### 竞品对比矩阵
 
