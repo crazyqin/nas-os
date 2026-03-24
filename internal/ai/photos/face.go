@@ -3,11 +3,9 @@ package photos
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"image"
 	"math"
-	"os"
 	"sort"
 	"sync"
 	"time"
@@ -242,7 +240,7 @@ func (fr *FaceRecognizer) ClusterFaces(faces []FaceDetection) (*ClusterResult, e
 		}
 	}
 
-	for clusterID, clusterFaces := range personFaces {
+	for _, clusterFaces := range personFaces {
 		// Find representative face (highest quality)
 		sort.Slice(clusterFaces, func(i, j int) bool {
 			return clusterFaces[i].Quality > clusterFaces[j].Quality
@@ -380,22 +378,9 @@ func NewFaceAligner(targetSize int) *FaceAligner {
 
 // Align aligns a face using detected landmarks
 func (fa *FaceAligner) Align(img image.Image, face FaceDetection) (image.Image, error) {
-	if len(face.Landmarks) < 5 {
-		// No landmarks, just crop
-		return fa.cropFace(img, face)
-	}
-
-	// Extract landmark points
-	srcPoints := fa.getLandmarkPoints(face.Landmarks)
-	dstPoints := fa.getCanonicalLandmarks()
-
-	// Estimate affine transform
-	transform := fa.estimateAffineTransform(srcPoints, dstPoints)
-
-	// Apply transform
-	aligned := imaging.Transform(img, fa.targetSize, fa.targetSize, transform, imaging.Linear)
-
-	return aligned, nil
+	// Simplified: just crop and resize
+	// Production: implement proper affine transformation with gonum or gocv
+	return fa.cropFace(img, face)
 }
 
 func (fa *FaceAligner) cropFace(img image.Image, face FaceDetection) (image.Image, error) {
@@ -451,12 +436,6 @@ func (fa *FaceAligner) getCanonicalLandmarks() []Point {
 	}
 }
 
-func (fa *FaceAligner) estimateAffineTransform(src, dst []Point) imaging.Transform {
-	// Simplified: return identity transform
-	// Production: implement proper affine estimation
-	return imaging.Transform(imaging.Identity)
-}
-
 // Point represents a 2D point
 type Point struct {
 	X, Y float64
@@ -489,15 +468,15 @@ func (fi *FaceIndex) Add(faceID string, embedding []float32, personID string) {
 	fi.personMap[faceID] = personID
 }
 
-func (fi *FaceIndex) Search(embedding []float32, threshold float64, topK int) []SearchResult {
+func (fi *FaceIndex) Search(embedding []float32, threshold float64, topK int) []FaceSearchResult {
 	fi.mu.RLock()
 	defer fi.mu.RUnlock()
 
-	results := make([]SearchResult, 0)
+	results := make([]FaceSearchResult, 0)
 	for faceID, emb := range fi.embeddings {
 		sim := cosineSimilarity(embedding, emb)
 		if sim >= threshold {
-			results = append(results, SearchResult{
+			results = append(results, FaceSearchResult{
 				FaceID:   faceID,
 				PersonID: fi.personMap[faceID],
 				Score:    sim,
@@ -523,8 +502,8 @@ func (fi *FaceIndex) Delete(faceID string) {
 	delete(fi.personMap, faceID)
 }
 
-// SearchResult for face search
-type SearchResult struct {
+// FaceSearchResult for face search
+type FaceSearchResult struct {
 	FaceID   string  `json:"face_id"`
 	PersonID string  `json:"person_id"`
 	Score    float64 `json:"score"`

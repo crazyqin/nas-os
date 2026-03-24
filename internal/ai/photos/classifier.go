@@ -4,6 +4,7 @@ package photos
 import (
 	"context"
 	"image"
+	"time"
 )
 
 // Classifier is the main interface for photo classification
