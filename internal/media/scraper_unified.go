@@ -17,8 +17,10 @@ const (
 	SourceTMDB ScraperSource = "tmdb"
 	// SourceDouban represents Douban source
 	SourceDouban ScraperSource = "douban"
-	SourceIMDB   ScraperSource = "imdb"
-	SourceAuto   ScraperSource = "auto" // Auto-select best source
+	// SourceIMDB represents IMDb source
+	SourceIMDB ScraperSource = "imdb"
+	// SourceAuto auto-selects the best source
+	SourceAuto ScraperSource = "auto"
 )
 
 // UnifiedScraperConfig configuration for unified scraper

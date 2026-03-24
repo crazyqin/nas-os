@@ -12,25 +12,25 @@ import (
 
 // LEVScore LEV 综合评分
 type LEVScore struct {
-	CVEID             string    `json:"cve_id"`
-	CVSSScore         float64   `json:"cvss_score"`          // CVSS 基础评分 0-10
-	EPSSScore         float64   `json:"epss_score"`          // EPSS 概率评分 0-1
-	EPSSPercentile    float64   `json:"epss_percentile"`     // EPSS 百分位 0-1
-	IsInKEV           bool      `json:"is_in_kev"`           // 是否在 KEV 目录中
+	CVEID             string     `json:"cve_id"`
+	CVSSScore         float64    `json:"cvss_score"`         // CVSS 基础评分 0-10
+	EPSSScore         float64    `json:"epss_score"`         // EPSS 概率评分 0-1
+	EPSSPercentile    float64    `json:"epss_percentile"`    // EPSS 百分位 0-1
+	IsInKEV           bool       `json:"is_in_kev"`          // 是否在 KEV 目录中
 	KEVDueDate        *time.Time `json:"kev_due_date"`       // KEV 修复期限
-	IsRansomware      bool      `json:"is_ransomware"`       // 是否与勒索软件相关
-	VulnerabilityAge  int       `json:"vulnerability_age"`   // 漏洞年龄（天）
-	AssetCriticality  float64   `json:"asset_criticality"`   // 资产关键性 0-1
-	ExposureLevel     float64   `json:"exposure_level"`      // 暴露程度 0-1
-	NetworkAccessible bool      `json:"network_accessible"`  // 是否网络可访问
+	IsRansomware      bool       `json:"is_ransomware"`      // 是否与勒索软件相关
+	VulnerabilityAge  int        `json:"vulnerability_age"`  // 漏洞年龄（天）
+	AssetCriticality  float64    `json:"asset_criticality"`  // 资产关键性 0-1
+	ExposureLevel     float64    `json:"exposure_level"`     // 暴露程度 0-1
+	NetworkAccessible bool       `json:"network_accessible"` // 是否网络可访问
 
 	// 计算得出的值
-	LEVScore          float64   `json:"lev_score"`           // LEV 综合评分 0-100
-	Priority          int       `json:"priority"`            // 优先级 1-4 (1最高)
-	RiskLevel         string    `json:"risk_level"`          // critical/high/medium/low
-	ExploitLikelihood string    `json:"exploit_likelihood"`  // known/likely/potential/unlikely
-	RemediationUrgency string   `json:"remediation_urgency"` // immediate/soon/scheduled/deferred
-	DueDate           *time.Time `json:"due_date"`           // 建议修复期限
+	LEVScore           float64    `json:"lev_score"`           // LEV 综合评分 0-100
+	Priority           int        `json:"priority"`            // 优先级 1-4 (1最高)
+	RiskLevel          string     `json:"risk_level"`          // critical/high/medium/low
+	ExploitLikelihood  string     `json:"exploit_likelihood"`  // known/likely/potential/unlikely
+	RemediationUrgency string     `json:"remediation_urgency"` // immediate/soon/scheduled/deferred
+	DueDate            *time.Time `json:"due_date"`            // 建议修复期限
 
 	// 评分因子贡献
 	FactorContributions FactorContributions `json:"factor_contributions"`
@@ -38,12 +38,12 @@ type LEVScore struct {
 
 // FactorContributions 各因子贡献值
 type FactorContributions struct {
-	CVSSContribution      float64 `json:"cvss_contribution"`
-	EPSSContribution      float64 `json:"epss_contribution"`
-	KEVContribution       float64 `json:"kev_contribution"`
-	AgeContribution       float64 `json:"age_contribution"`
-	AssetContribution     float64 `json:"asset_contribution"`
-	ExposureContribution  float64 `json:"exposure_contribution"`
+	CVSSContribution       float64 `json:"cvss_contribution"`
+	EPSSContribution       float64 `json:"epss_contribution"`
+	KEVContribution        float64 `json:"kev_contribution"`
+	AgeContribution        float64 `json:"age_contribution"`
+	AssetContribution      float64 `json:"asset_contribution"`
+	ExposureContribution   float64 `json:"exposure_contribution"`
 	RansomwareContribution float64 `json:"ransomware_contribution"`
 }
 
@@ -64,30 +64,30 @@ type LEVConfig struct {
 	RansomwareWeight float64 `json:"ransomware_weight"`
 
 	// 阈值配置
-	EPSSHighThreshold     float64 `json:"epss_high_threshold"`     // EPSS 高风险阈值
-	EPSSMediumThreshold   float64 `json:"epss_medium_threshold"`   // EPSS 中风险阈值
+	EPSSHighThreshold       float64 `json:"epss_high_threshold"`       // EPSS 高风险阈值
+	EPSSMediumThreshold     float64 `json:"epss_medium_threshold"`     // EPSS 中风险阈值
 	PercentileHighThreshold float64 `json:"percentile_high_threshold"` // 百分位高阈值
-	CriticalScoreThreshold float64 `json:"critical_score_threshold"`  // 严重评分阈值
-	HighScoreThreshold    float64 `json:"high_score_threshold"`     // 高评分阈值
+	CriticalScoreThreshold  float64 `json:"critical_score_threshold"`  // 严重评分阈值
+	HighScoreThreshold      float64 `json:"high_score_threshold"`      // 高评分阈值
 }
 
 // DefaultLEVConfig 默认 LEV 配置
 // 参考群晖DSM 7.3的权重设置
 func DefaultLEVConfig() LEVConfig {
 	return LEVConfig{
-		CVSSWeight:           0.20,
-		EPSSWeight:           0.20,
-		KEVWeight:            0.25,
-		AgeWeight:            0.10,
-		AssetWeight:          0.10,
-		ExposureWeight:       0.10,
-		RansomwareWeight:     0.05,
+		CVSSWeight:       0.20,
+		EPSSWeight:       0.20,
+		KEVWeight:        0.25,
+		AgeWeight:        0.10,
+		AssetWeight:      0.10,
+		ExposureWeight:   0.10,
+		RansomwareWeight: 0.05,
 
-		EPSSHighThreshold:      0.1,
-		EPSSMediumThreshold:    0.01,
+		EPSSHighThreshold:       0.1,
+		EPSSMediumThreshold:     0.01,
 		PercentileHighThreshold: 0.9,
 		CriticalScoreThreshold:  80.0,
-		HighScoreThreshold:     60.0,
+		HighScoreThreshold:      60.0,
 	}
 }
 
@@ -145,9 +145,9 @@ type LEVInput struct {
 	IsInKEV           bool       `json:"is_in_kev"`
 	KEVDueDate        *time.Time `json:"kev_due_date"`
 	IsRansomware      bool       `json:"is_ransomware"`
-	VulnerabilityAge  int        `json:"vulnerability_age"`  // 天
-	AssetCriticality  float64    `json:"asset_criticality"`  // 0-1
-	ExposureLevel     float64    `json:"exposure_level"`     // 0-1
+	VulnerabilityAge  int        `json:"vulnerability_age"` // 天
+	AssetCriticality  float64    `json:"asset_criticality"` // 0-1
+	ExposureLevel     float64    `json:"exposure_level"`    // 0-1
 	NetworkAccessible bool       `json:"network_accessible"`
 }
 
@@ -388,17 +388,17 @@ func (lc *LEVCalculator) partition(scores []*LEVScore, low, high int) int {
 
 // LEVReport LEV 报告
 type LEVReport struct {
-	GeneratedAt           time.Time         `json:"generated_at"`
-	TotalVulnerabilities  int               `json:"total_vulnerabilities"`
-	ByPriority            map[int]int       `json:"by_priority"`
-	ByRiskLevel           map[string]int    `json:"by_risk_level"`
-	ByExploitLikelihood   map[string]int    `json:"by_exploit_likelihood"`
-	KEVCount              int               `json:"kev_count"`
-	RansomwareCount       int               `json:"ransomware_count"`
-	OverdueCount          int               `json:"overdue_count"`
-	AverageLEVScore       float64           `json:"average_lev_score"`
-	TopRisks              []*LEVScore       `json:"top_risks"`
-	RemediationSummary    RemediationSummary `json:"remediation_summary"`
+	GeneratedAt          time.Time          `json:"generated_at"`
+	TotalVulnerabilities int                `json:"total_vulnerabilities"`
+	ByPriority           map[int]int        `json:"by_priority"`
+	ByRiskLevel          map[string]int     `json:"by_risk_level"`
+	ByExploitLikelihood  map[string]int     `json:"by_exploit_likelihood"`
+	KEVCount             int                `json:"kev_count"`
+	RansomwareCount      int                `json:"ransomware_count"`
+	OverdueCount         int                `json:"overdue_count"`
+	AverageLEVScore      float64            `json:"average_lev_score"`
+	TopRisks             []*LEVScore        `json:"top_risks"`
+	RemediationSummary   RemediationSummary `json:"remediation_summary"`
 }
 
 // RemediationSummary 修复摘要

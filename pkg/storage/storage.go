@@ -16,8 +16,8 @@ type StorageModules struct {
 
 // Config 存储配置
 type Config struct {
-	Dedup *dedup.DedupConfig `json:"dedup"`
-	RDMA  *rdma.RDMAConfig   `json:"rdma"`
+	Dedup *dedup.DedupConfig   `json:"dedup"`
+	RDMA  *rdma.RDMAConfig     `json:"rdma"`
 	ZFS   *zfs.ImmutablePolicy `json:"zfs"`
 }
 

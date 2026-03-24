@@ -20,29 +20,29 @@ var (
 
 // TunnelManager manages the overall tunnel system
 type TunnelManager struct {
-	config     *TunnelConfig
-	peerID     string
-	
+	config *TunnelConfig
+	peerID string
+
 	// Components
-	stunClient   *STUNClient
-	turnClient   *TURNClient
-	signaling    *SignalingClient
-	peerManager  *PeerManager
-	crypto       *Crypto
-	
+	stunClient  *STUNClient
+	turnClient  *TURNClient
+	signaling   *SignalingClient
+	peerManager *PeerManager
+	crypto      *Crypto
+
 	// State
-	state      *TunnelState
-	stats      *TunnelStats
-	startTime  time.Time
-	
+	state     *TunnelState
+	stats     *TunnelStats
+	startTime time.Time
+
 	// Control
-	ctx        context.Context
-	cancel     context.CancelFunc
-	wg         sync.WaitGroup
-	
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     sync.WaitGroup
+
 	// Event handlers
 	eventHandlers []EventHandler
-	mu           sync.RWMutex
+	mu            sync.RWMutex
 }
 
 // NewTunnelManager creates a new tunnel manager
@@ -80,12 +80,12 @@ func NewTunnelManager(config *TunnelConfig) (*TunnelManager, error) {
 	peerManager.SetCrypto(crypto)
 
 	return &TunnelManager{
-		config:      config,
-		peerID:      peerID,
-		crypto:      crypto,
-		peerManager: peerManager,
-		state:       state,
-		stats:       stats,
+		config:        config,
+		peerID:        peerID,
+		crypto:        crypto,
+		peerManager:   peerManager,
+		state:         state,
+		stats:         stats,
 		eventHandlers: make([]EventHandler, 0),
 	}, nil
 }
@@ -116,7 +116,7 @@ func (m *TunnelManager) Start(ctx context.Context) error {
 		m.state.LocalNATType = result.NATType
 		m.state.PublicIP = result.PublicIP
 		m.state.PublicPort = result.PublicPort
-		
+
 		m.emitEvent(TunnelEvent{
 			Type: "nat_discovered",
 			Data: result,
@@ -411,7 +411,7 @@ func (m *TunnelManager) Broadcast(data []byte) error {
 // Receive returns a channel for receiving data from any peer
 func (m *TunnelManager) Receive() <-chan *PeerData {
 	ch := make(chan *PeerData, 100)
-	
+
 	// Start goroutine to aggregate data from all peers
 	go func() {
 		defer close(ch)
@@ -604,7 +604,7 @@ func (s *TunnelServer) handleConnections(ctx context.Context, conn *net.UDPConn)
 
 			// Parse incoming packet
 			packet := buf[:n]
-			_ = packet  // Process packet
+			_ = packet     // Process packet
 			_ = remoteAddr // Handle peer
 		}
 	}

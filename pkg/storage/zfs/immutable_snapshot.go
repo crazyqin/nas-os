@@ -22,49 +22,49 @@ import (
 
 var (
 	// ErrPoolNotFound indicates ZFS pool not found
-	ErrPoolNotFound       = errors.New("ZFS pool not found")
+	ErrPoolNotFound = errors.New("ZFS pool not found")
 	// ErrDatasetNotFound indicates ZFS dataset not found
-	ErrDatasetNotFound    = errors.New("ZFS dataset not found")
+	ErrDatasetNotFound = errors.New("ZFS dataset not found")
 	// ErrSnapshotNotFound indicates snapshot not found
-	ErrSnapshotNotFound   = errors.New("snapshot not found")
+	ErrSnapshotNotFound = errors.New("snapshot not found")
 	// ErrSnapshotExists indicates snapshot already exists
-	ErrSnapshotExists     = errors.New("snapshot already exists")
+	ErrSnapshotExists = errors.New("snapshot already exists")
 	// ErrSnapshotImmutable indicates snapshot is immutable and cannot be modified
-	ErrSnapshotImmutable  = errors.New("snapshot is immutable and cannot be modified")
+	ErrSnapshotImmutable = errors.New("snapshot is immutable and cannot be modified")
 	// ErrSnapshotExpired indicates snapshot has expired
-	ErrSnapshotExpired    = errors.New("snapshot has expired")
+	ErrSnapshotExpired = errors.New("snapshot has expired")
 	// ErrInvalidName indicates invalid snapshot name
-	ErrInvalidName        = errors.New("invalid snapshot name")
+	ErrInvalidName = errors.New("invalid snapshot name")
 	// ErrCloneFailed indicates clone operation failed
-	ErrCloneFailed        = errors.New("clone operation failed")
+	ErrCloneFailed = errors.New("clone operation failed")
 	// ErrRollbackFailed indicates rollback operation failed
-	ErrRollbackFailed     = errors.New("rollback operation failed")
+	ErrRollbackFailed = errors.New("rollback operation failed")
 	// ErrHoldNotFound indicates hold not found
-	ErrHoldNotFound       = errors.New("hold not found")
+	ErrHoldNotFound = errors.New("hold not found")
 	// ErrBookmarkExists indicates bookmark already exists
-	ErrBookmarkExists     = errors.New("bookmark already exists")
+	ErrBookmarkExists = errors.New("bookmark already exists")
 	// ErrPermissionDenied indicates permission denied
-	ErrPermissionDenied   = errors.New("permission denied")
+	ErrPermissionDenied = errors.New("permission denied")
 	// ErrZFSNotAvailable indicates ZFS not available on this system
-	ErrZFSNotAvailable    = errors.New("ZFS not available on this system")
+	ErrZFSNotAvailable = errors.New("ZFS not available on this system")
 )
 
 // ========== 数据结构定义 ==========
 
 // PoolInfo ZFS 池信息
 type PoolInfo struct {
-	Name      string            `json:"name"`
-	State     string            `json:"state"`     // ONLINE, DEGRADED, FAULTED, OFFLINE, REMOVED, UNAVAIL
-	Status    string            `json:"status"`
-	GUID      uint64            `json:"guid"`
-	Version   string            `json:"version"`
-	Size      uint64            `json:"size"`      // 总大小（字节）
-	Allocated uint64            `json:"allocated"` // 已分配（字节）
-	Free      uint64            `json:"free"`      // 空闲（字节）
-	ReadOnly  bool              `json:"readOnly"`
-	Features  map[string]bool   `json:"features"`
-	Vdevs     []VdevInfo        `json:"vdevs"`
-	Scan      ScanInfo          `json:"scan"`
+	Name      string          `json:"name"`
+	State     string          `json:"state"` // ONLINE, DEGRADED, FAULTED, OFFLINE, REMOVED, UNAVAIL
+	Status    string          `json:"status"`
+	GUID      uint64          `json:"guid"`
+	Version   string          `json:"version"`
+	Size      uint64          `json:"size"`      // 总大小（字节）
+	Allocated uint64          `json:"allocated"` // 已分配（字节）
+	Free      uint64          `json:"free"`      // 空闲（字节）
+	ReadOnly  bool            `json:"readOnly"`
+	Features  map[string]bool `json:"features"`
+	Vdevs     []VdevInfo      `json:"vdevs"`
+	Scan      ScanInfo        `json:"scan"`
 }
 
 // VdevInfo 虚拟设备信息
@@ -86,52 +86,52 @@ type ScanInfo struct {
 
 // DatasetInfo 数据集信息
 type DatasetInfo struct {
-	Name          string            `json:"name"`
-	Type          string            `json:"type"` // filesystem, volume, snapshot, bookmark
-	Mounted       bool              `json:"mounted"`
-	Mountpoint    string            `json:"mountpoint,omitempty"`
-	Compression   string            `json:"compression"`
-	CompressRatio float64           `json:"compressratio"`
-	Quota         uint64            `json:"quota,omitempty"`
-	RefQuota      uint64            `json:"refquota,omitempty"`
-	Reservation   uint64            `json:"reservation,omitempty"`
-	RefReservation uint64           `json:"refreservation,omitempty"`
-	Used          uint64            `json:"used"`
-	Avail         uint64            `json:"avail"`
-	Referenced    uint64            `json:"referenced"`
-	Written       uint64            `json:"written"`
-	Origin        string            `json:"origin,omitempty"` // 用于克隆
-	Properties    map[string]string `json:"properties"`
+	Name           string            `json:"name"`
+	Type           string            `json:"type"` // filesystem, volume, snapshot, bookmark
+	Mounted        bool              `json:"mounted"`
+	Mountpoint     string            `json:"mountpoint,omitempty"`
+	Compression    string            `json:"compression"`
+	CompressRatio  float64           `json:"compressratio"`
+	Quota          uint64            `json:"quota,omitempty"`
+	RefQuota       uint64            `json:"refquota,omitempty"`
+	Reservation    uint64            `json:"reservation,omitempty"`
+	RefReservation uint64            `json:"refreservation,omitempty"`
+	Used           uint64            `json:"used"`
+	Avail          uint64            `json:"avail"`
+	Referenced     uint64            `json:"referenced"`
+	Written        uint64            `json:"written"`
+	Origin         string            `json:"origin,omitempty"` // 用于克隆
+	Properties     map[string]string `json:"properties"`
 }
 
 // SnapshotInfo 快照信息
 type SnapshotInfo struct {
-	Name          string            `json:"name"`
-	FullName      string            `json:"fullName"`      // pool/dataset@snapshot
-	Dataset       string            `json:"dataset"`
-	CreationTime  time.Time         `json:"creationTime"`
-	Used          uint64            `json:"used"`
-	Referenced    uint64            `json:"referenced"`
-	Written       uint64            `json:"written"`
-	CompressRatio float64           `json:"compressRatio"`
-	Clones        []string          `json:"clones,omitempty"`
-	Holds         []HoldInfo        `json:"holds,omitempty"`
-	Bookmark      string            `json:"bookmark,omitempty"`
-	
+	Name          string     `json:"name"`
+	FullName      string     `json:"fullName"` // pool/dataset@snapshot
+	Dataset       string     `json:"dataset"`
+	CreationTime  time.Time  `json:"creationTime"`
+	Used          uint64     `json:"used"`
+	Referenced    uint64     `json:"referenced"`
+	Written       uint64     `json:"written"`
+	CompressRatio float64    `json:"compressRatio"`
+	Clones        []string   `json:"clones,omitempty"`
+	Holds         []HoldInfo `json:"holds,omitempty"`
+	Bookmark      string     `json:"bookmark,omitempty"`
+
 	// 不可变属性
-	Immutable     bool              `json:"immutable"`
-	ImmutableTime time.Time         `json:"immutableTime,omitempty"`
-	ImmutableBy   string            `json:"immutableBy,omitempty"`
-	ExpiryTime    *time.Time        `json:"expiryTime,omitempty"`
-	LockType      LockType          `json:"lockType"`
-	
+	Immutable     bool       `json:"immutable"`
+	ImmutableTime time.Time  `json:"immutableTime,omitempty"`
+	ImmutableBy   string     `json:"immutableBy,omitempty"`
+	ExpiryTime    *time.Time `json:"expiryTime,omitempty"`
+	LockType      LockType   `json:"lockType"`
+
 	// 校验信息
-	Checksum      string            `json:"checksum,omitempty"`
-	VerifiedAt    time.Time         `json:"verifiedAt,omitempty"`
-	Verified      bool              `json:"verified"`
-	
+	Checksum   string    `json:"checksum,omitempty"`
+	VerifiedAt time.Time `json:"verifiedAt,omitempty"`
+	Verified   bool      `json:"verified"`
+
 	// 元数据
-	Metadata      map[string]string `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 // HoldInfo 快照保留信息
@@ -147,13 +147,13 @@ type LockType string
 
 const (
 	// LockTypeNone indicates no lock
-	LockTypeNone      LockType = "none"
+	LockTypeNone LockType = "none"
 	// LockTypeSoft indicates soft lock (can be unlocked)
-	LockTypeSoft      LockType = "soft"      // 软锁定，可解锁
+	LockTypeSoft LockType = "soft" // 软锁定，可解锁
 	// LockTypeHard indicates hard lock (requires conditions to unlock)
-	LockTypeHard      LockType = "hard"      // 硬锁定，需满足条件才能解锁
+	LockTypeHard LockType = "hard" // 硬锁定，需满足条件才能解锁
 	// LockTypeTimed indicates timed lock (auto-unlock on expiry)
-	LockTypeTimed     LockType = "timed"     // 定时锁定，到期自动解锁
+	LockTypeTimed LockType = "timed" // 定时锁定，到期自动解锁
 	// LockTypePermanent indicates permanent lock (cannot be unlocked)
 	LockTypePermanent LockType = "permanent" // 永久锁定，无法解锁
 )
@@ -194,10 +194,10 @@ type VerifyFailAction string
 // 验证失败处理动作常量
 const (
 	// VerifyFailWarn 仅警告
-	VerifyFailWarn VerifyFailAction = "warn"
-	VerifyFailAlert   VerifyFailAction = "alert"   // 发送告警
-	VerifyFailLock    VerifyFailAction = "lock"    // 锁定快照
-	VerifyFailNone    VerifyFailAction = "none"    // 不处理
+	VerifyFailWarn  VerifyFailAction = "warn"
+	VerifyFailAlert VerifyFailAction = "alert" // 发送告警
+	VerifyFailLock  VerifyFailAction = "lock"  // 锁定快照
+	VerifyFailNone  VerifyFailAction = "none"  // 不处理
 )
 
 // DefaultImmutablePolicy 返回默认不可变策略
@@ -346,9 +346,9 @@ func (m *ZFSManager) loadConfig() error {
 	}
 
 	var config struct {
-		Policy           *ImmutablePolicy              `json:"policy"`
-		Snapshots        map[string]*SnapshotInfo      `json:"snapshots"`
-		ImmutableSnapshots map[string]*SnapshotInfo    `json:"immutableSnapshots"`
+		Policy             *ImmutablePolicy         `json:"policy"`
+		Snapshots          map[string]*SnapshotInfo `json:"snapshots"`
+		ImmutableSnapshots map[string]*SnapshotInfo `json:"immutableSnapshots"`
 	}
 
 	if err := json.Unmarshal(data, &config); err != nil {
@@ -423,8 +423,8 @@ func (m *ZFSManager) ListPools(ctx context.Context) ([]PoolInfo, error) {
 		}
 
 		pool := PoolInfo{
-			Name:   fields[0],
-			State:  fields[1],
+			Name:  fields[0],
+			State: fields[1],
 		}
 
 		_, _ = fmt.Sscanf(fields[2], "%d", &pool.Size)
@@ -497,7 +497,7 @@ func (m *ZFSManager) ListDatasets(ctx context.Context, pool string) ([]DatasetIn
 		_, _ = fmt.Sscanf(fields[5], "%f", &ds.CompressRatio)
 		_, _ = fmt.Sscanf(fields[6], "%d", &ds.Used)
 		_, _ = fmt.Sscanf(fields[7], "%d", &ds.Avail)
-		fmt.Sscanf(fields[8], "%d", &ds.Referenced)
+		_, _ = fmt.Sscanf(fields[8], "%d", &ds.Referenced)
 
 		datasets = append(datasets, ds)
 	}
@@ -569,10 +569,10 @@ func (m *ZFSManager) ListSnapshots(ctx context.Context, dataset string) ([]Snaps
 			snap.CreationTime = creation
 		}
 
-		fmt.Sscanf(fields[2], "%d", &snap.Used)
-		fmt.Sscanf(fields[3], "%d", &snap.Referenced)
-		fmt.Sscanf(fields[4], "%d", &snap.Written)
-		fmt.Sscanf(fields[5], "%f", &snap.CompressRatio)
+		_, _ = fmt.Sscanf(fields[2], "%d", &snap.Used)
+		_, _ = fmt.Sscanf(fields[3], "%d", &snap.Referenced)
+		_, _ = fmt.Sscanf(fields[4], "%d", &snap.Written)
+		_, _ = fmt.Sscanf(fields[5], "%f", &snap.CompressRatio)
 
 		// 检查是否不可变
 		if imm, ok := m.immutableSnapshots[fullName]; ok {
@@ -682,7 +682,7 @@ func (m *ZFSManager) CreateSnapshot(ctx context.Context, dataset string, opts Sn
 
 // getSnapshotInfo 获取快照信息
 func (m *ZFSManager) getSnapshotInfo(ctx context.Context, fullName string) (*SnapshotInfo, error) {
-	cmd := exec.CommandContext(ctx, "zfs", "list", "-H", "-t", "snapshot", "-o", 
+	cmd := exec.CommandContext(ctx, "zfs", "list", "-H", "-t", "snapshot", "-o",
 		"name,creation,used,referenced,written,compressratio", fullName)
 	output, err := cmd.Output()
 	if err != nil {

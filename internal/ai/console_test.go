@@ -182,7 +182,7 @@ func TestAuditLogger_Retention(t *testing.T) {
 	oldEntry := &AuditLog{
 		ID:        "old",
 		RequestID: "r1",
-		Timestamp:  time.Now().Add(-2 * 24 * time.Hour),
+		Timestamp: time.Now().Add(-2 * 24 * time.Hour),
 	}
 	logger.Log(oldEntry)
 
@@ -190,7 +190,7 @@ func TestAuditLogger_Retention(t *testing.T) {
 	newEntry := &AuditLog{
 		ID:        "new",
 		RequestID: "r2",
-		Timestamp:  time.Now(),
+		Timestamp: time.Now(),
 	}
 	logger.Log(newEntry)
 

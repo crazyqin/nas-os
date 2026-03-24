@@ -19,10 +19,10 @@ import (
 
 // KEVCatalog CISA KEV 目录结构
 type KEVCatalog struct {
-	Title          string     `json:"title"`
-	CatalogVersion string     `json:"catalogVersion"`
-	DateReleased   string     `json:"dateReleased"`
-	Count          int        `json:"count"`
+	Title           string     `json:"title"`
+	CatalogVersion  string     `json:"catalogVersion"`
+	DateReleased    string     `json:"dateReleased"`
+	Count           int        `json:"count"`
 	Vulnerabilities []KEVEntry `json:"vulnerabilities"`
 }
 
@@ -272,9 +272,9 @@ func (kdb *KEVDatabase) GetCatalogInfo() map[string]interface{} {
 	defer kdb.mu.RUnlock()
 
 	return map[string]interface{}{
-		"version":      kdb.catalog.CatalogVersion,
+		"version":       kdb.catalog.CatalogVersion,
 		"date_released": kdb.catalog.DateReleased,
-		"total_count":  kdb.catalog.Count,
-		"last_sync":    kdb.lastSync,
+		"total_count":   kdb.catalog.Count,
+		"last_sync":     kdb.lastSync,
 	}
 }

@@ -34,17 +34,27 @@ const (
 	// AudioAAC represents AAC audio codec
 	AudioAAC AudioCodec = "aac"
 	// AudioAC3 represents AC3/Dolby Digital audio codec
-	AudioAC3     AudioCodec = "ac3"
-	AudioEAC3    AudioCodec = "eac3"   // Dolby Digital Plus
-	AudioTrueHD  AudioCodec = "truehd" // Dolby TrueHD
-	AudioAtmos   AudioCodec = "atmos"  // Dolby Atmos
-	AudioDTS     AudioCodec = "dts"
-	AudioDTSHD   AudioCodec = "dtshd"      // DTS-HD Master Audio
-	AudioDTSHDMA AudioCodec = "dts-hd-ma"  // DTS-HD Master Audio
-	AudioDTSHDHR AudioCodec = "dts-hd-hra" // DTS-HD High Resolution
-	AudioLPCM    AudioCodec = "lpcm"
-	AudioFLAC    AudioCodec = "flac"
-	AudioOpus    AudioCodec = "opus"
+	AudioAC3 AudioCodec = "ac3"
+	// AudioEAC3 represents Dolby Digital Plus audio codec
+	AudioEAC3 AudioCodec = "eac3"
+	// AudioTrueHD represents Dolby TrueHD audio codec
+	AudioTrueHD AudioCodec = "truehd"
+	// AudioAtmos represents Dolby Atmos audio codec
+	AudioAtmos AudioCodec = "atmos"
+	// AudioDTS represents DTS audio codec
+	AudioDTS AudioCodec = "dts"
+	// AudioDTSHD represents DTS-HD Master Audio codec
+	AudioDTSHD AudioCodec = "dtshd"
+	// AudioDTSHDMA represents DTS-HD Master Audio codec (alternative name)
+	AudioDTSHDMA AudioCodec = "dts-hd-ma"
+	// AudioDTSHDHR represents DTS-HD High Resolution Audio codec
+	AudioDTSHDHR AudioCodec = "dts-hd-hra"
+	// AudioLPCM represents Linear PCM audio codec
+	AudioLPCM AudioCodec = "lpcm"
+	// AudioFLAC represents FLAC audio codec
+	AudioFLAC AudioCodec = "flac"
+	// AudioOpus represents Opus audio codec
+	AudioOpus AudioCodec = "opus"
 )
 
 // HDRFormat represents HDR format
@@ -54,10 +64,13 @@ const (
 	// HDRNone indicates no HDR format
 	HDRNone HDRFormat = "none"
 	// HDR10 represents standard HDR10 format
-	HDR10       HDRFormat = "hdr10"
-	HDR10Plus   HDRFormat = "hdr10plus"
+	HDR10 HDRFormat = "hdr10"
+	// HDR10Plus represents HDR10+ format
+	HDR10Plus HDRFormat = "hdr10plus"
+	// DolbyVision represents Dolby Vision HDR format
 	DolbyVision HDRFormat = "dolby-vision"
-	HLG         HDRFormat = "hlg"
+	// HLG represents Hybrid Log-Gamma HDR format
+	HLG HDRFormat = "hlg"
 )
 
 // VideoCodec represents supported video codecs
@@ -68,9 +81,12 @@ const (
 	VideoH264 VideoCodec = "h264"
 	// VideoH265 represents H.265/HEVC video codec
 	VideoH265 VideoCodec = "h265"
+	// VideoHEVC represents HEVC video codec alias
 	VideoHEVC VideoCodec = "hevc"
-	VideoVP9  VideoCodec = "vp9"
-	VideoAV1  VideoCodec = "av1"
+	// VideoVP9 represents VP9 video codec
+	VideoVP9 VideoCodec = "vp9"
+	// VideoAV1 represents AV1 video codec
+	VideoAV1 VideoCodec = "av1"
 )
 
 // BluRayPlaybackConfig represents Blu-ray playback configuration
