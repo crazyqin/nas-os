@@ -9,13 +9,15 @@ import (
 
 // Handlers 存储 API 处理器
 type Handlers struct {
-	manager *Manager
+	manager          *Manager
+	immutableManager *ImmutableManager
 }
 
 // NewHandlers 创建处理器
-func NewHandlers(manager *Manager) *Handlers {
+func NewHandlers(manager *Manager, immutableManager *ImmutableManager) *Handlers {
 	return &Handlers{
-		manager: manager,
+		manager:          manager,
+		immutableManager: immutableManager,
 	}
 }
 
@@ -70,6 +72,12 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 
 	// RAID 配置信息
 	r.GET("/raid-configs", h.getRAIDConfigs)
+
+	// 不可变存储（WriteOnce）
+	if h.immutableManager != nil {
+		immutableHandlers := NewImmutableHandlers(h.immutableManager)
+		immutableHandlers.RegisterRoutes(r)
+	}
 }
 
 // ========== 卷管理 ==========
