@@ -143,7 +143,7 @@ func (s *LockAuditStorage) VerifyEntry(entry *LockAuditEntry) bool {
 	// 移除签名后重新计算
 	delete(entry.Details, "_sig")
 	s.signEntry(entry)
-	newSig := entry.Details["_sig"].(string)
+	newSig, _ := entry.Details["_sig"].(string)
 
 	// 恢复原始签名
 	entry.Details["_sig"] = originalSig
@@ -195,10 +195,10 @@ func (s *LockAuditStorage) flush() {
 
 		for _, entry := range entries {
 			data, _ := json.Marshal(entry)
-			f.Write(data)
-			f.Write([]byte("\n"))
+			_, _ = f.Write(data)
+			_, _ = f.Write([]byte("\n"))
 		}
-		f.Close()
+		_ = f.Close()
 	}
 
 	// 清空内存
@@ -242,7 +242,7 @@ func (s *LockAuditStorage) cleanup() {
 
 		// 检查文件数量
 		if i < len(entries)-s.maxCount {
-			os.Remove(filepath.Join(s.logPath, entry.Name()))
+			_ = os.Remove(filepath.Join(s.logPath, entry.Name()))
 			continue
 		}
 
@@ -252,7 +252,7 @@ func (s *LockAuditStorage) cleanup() {
 			continue
 		}
 		if info.ModTime().Before(cutoff) {
-			os.Remove(filepath.Join(s.logPath, entry.Name()))
+			_ = os.Remove(filepath.Join(s.logPath, entry.Name()))
 		}
 	}
 }

@@ -906,8 +906,9 @@ func (m *Manager) waitForLock(req *LockRequest, newLock *FileLock) (*FileLock, *
 
 	// 添加到等待队列
 	raw, _ := m.waitQueues.LoadOrStore(req.FilePath, &[]*LockWaitRequest{})
-	queue := raw.(*[]*LockWaitRequest)
-	*queue = append(*queue, waitReq)
+	if queue, ok := raw.(*[]*LockWaitRequest); ok {
+		*queue = append(*queue, waitReq)
+	}
 
 	// 记录审计日志
 	m.logAudit(&LockAuditEntry{
@@ -1016,7 +1017,10 @@ func (m *Manager) removeFromWaitQueue(filePath string, waitID string) {
 	if !ok {
 		return
 	}
-	queue := raw.(*[]*LockWaitRequest)
+	queue, ok := raw.(*[]*LockWaitRequest)
+	if !ok {
+		return
+	}
 	for i, req := range *queue {
 		if req.ID == waitID {
 			*queue = append((*queue)[:i], (*queue)[i+1:]...)
@@ -1035,8 +1039,8 @@ func (m *Manager) processWaitQueue(filePath string) {
 	if !ok {
 		return
 	}
-	queue := raw.(*[]*LockWaitRequest)
-	if len(*queue) == 0 {
+	queue, ok := raw.(*[]*LockWaitRequest)
+	if !ok || len(*queue) == 0 {
 		return
 	}
 

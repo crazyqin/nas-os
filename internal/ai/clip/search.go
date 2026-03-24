@@ -35,7 +35,7 @@ func NewTextSearchService(config *Config) (*TextSearchServiceImpl, error) {
 	// Initialize vector index
 	index, err := NewVectorIndex(config)
 	if err != nil {
-		model.Close()
+		_ = model.Close()
 		return nil, fmt.Errorf("failed to initialize vector index: %w", err)
 	}
 
@@ -256,13 +256,17 @@ func (s *TextSearchServiceImpl) Remove(ctx context.Context, photoID string) erro
 	return err
 }
 
-// GetStats returns service statistics
+// GetStats returns service statistics.
 func (s *TextSearchServiceImpl) GetStats(ctx context.Context) (*Stats, error) {
 	stats := s.stats.Load()
 	if stats == nil {
 		return &Stats{}, nil
 	}
-	return stats.(*Stats), nil
+	result, ok := stats.(*Stats)
+	if !ok {
+		return &Stats{}, nil
+	}
+	return result, nil
 }
 
 // Close shuts down the service
@@ -281,7 +285,7 @@ func (s *TextSearchServiceImpl) Close() error {
 
 	// Close model
 	if s.model != nil {
-		s.model.Close()
+		_ = s.model.Close()
 	}
 
 	// Clear cache

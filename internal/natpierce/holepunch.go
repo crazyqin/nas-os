@@ -148,13 +148,13 @@ func (h *HolePuncher) Start() error {
 	}
 
 	h.conn = conn
-	h.localAddr = conn.LocalAddr().(*net.UDPAddr)
+	h.localAddr, _ = conn.LocalAddr().(*net.UDPAddr)
 
 	// 通过STUN获取公网地址
 	if len(h.config.STUNServers) > 0 {
 		result, err := h.stunClient.Discover(h.config.STUNServers[0])
 		if err != nil {
-			conn.Close()
+			_ = conn.Close()
 			return fmt.Errorf("STUN discovery: %w", err)
 		}
 		h.publicAddr = result.ServerReflexive
@@ -392,7 +392,7 @@ func (h *HolePuncher) punchWithPrediction(peerID string, peer *PeerInfo) (*HoleP
 		
 		// 发送打洞包
 		for i := 0; i < 5; i++ {
-			h.conn.WriteToUDP(handshakeData, peerAddr)
+			_, _ = h.conn.WriteToUDP(handshakeData, peerAddr)
 			time.Sleep(h.config.PunchInterval)
 		}
 		
@@ -467,8 +467,8 @@ func (h *HolePuncher) receiveLoop() {
 			return
 		default:
 		}
-		
-		h.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
+
+		_ = h.conn.SetReadDeadline(time.Now().Add(1 * time.Second))
 		n, remoteAddr, err := h.conn.ReadFromUDP(buf)
 		if err != nil {
 			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
@@ -536,7 +536,7 @@ func (h *HolePuncher) handleHandshake(msg *HandshakeMessage, remoteAddr *net.UDP
 		Timestamp: time.Now().UnixNano(),
 	}
 	ackData, _ := json.Marshal(ack)
-	h.conn.WriteToUDP(ackData, remoteAddr)
+	_, _ = h.conn.WriteToUDP(ackData, remoteAddr)
 	
 	// 触发连接回调
 	if h.onConnect != nil {
@@ -564,7 +564,7 @@ func (h *HolePuncher) handlePing(msg *PingMessage, remoteAddr *net.UDPAddr) {
 		Timestamp: time.Now().UnixNano(),
 	}
 	pongData, _ := json.Marshal(pong)
-	h.conn.WriteToUDP(pongData, remoteAddr)
+	_, _ = h.conn.WriteToUDP(pongData, remoteAddr)
 }
 
 // keepAliveLoop 保活循环
@@ -592,12 +592,12 @@ func (h *HolePuncher) sendKeepAlive() {
 		Timestamp: time.Now().UnixNano(),
 	}
 	pingData, _ := json.Marshal(ping)
-	
+
 	for _, conn := range h.connections {
 		if conn.closed {
 			continue
 		}
-		h.conn.WriteToUDP(pingData, conn.RemoteAddr)
+		_, _ = h.conn.WriteToUDP(pingData, conn.RemoteAddr)
 	}
 }
 

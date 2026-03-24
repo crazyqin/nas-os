@@ -259,7 +259,7 @@ func (h *WebUIHandler) UpdateProxy(c *gin.Context) {
 	proxy.Name = name
 
 	// 先删除再添加
-	h.frpManager.RemoveProxy(name)
+	_ = h.frpManager.RemoveProxy(name)
 	if err := h.frpManager.AddProxy(&proxy); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -436,9 +436,11 @@ func (idx *HNSWIndex) Search(ctx context.Context, query []float32, topK int, min
 
 		if bestScore >= minScore {
 			node := idx.nodes[best]
+			photoID, _ := node.Metadata["photo_id"].(string)
+			path, _ := node.Metadata["path"].(string)
 			results = append(results, SearchResult{
-				PhotoID:   node.Metadata["photo_id"].(string),
-				Path:      node.Metadata["path"].(string),
+				PhotoID:   photoID,
+				Path:      path,
 				Score:     bestScore,
 				MatchType: MatchTypeSemantic,
 			})

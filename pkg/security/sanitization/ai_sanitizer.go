@@ -618,7 +618,7 @@ func (s *AISanitizer) calculateConfidence(t SensitiveType, value string) float64
 		valid := true
 		for _, part := range parts {
 			var num int
-			fmt.Sscanf(part, "%d", &num)
+			_, _ = fmt.Sscanf(part, "%d", &num)
 			if num < 0 || num > 255 {
 				valid = false
 				break
@@ -675,11 +675,11 @@ func (s *AISanitizer) idCardCheck(id string) bool {
 	
 	weights := []int{7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2}
 	checkCodes := "10X98765432"
-	
+
 	sum := 0
 	for i := 0; i < 17; i++ {
 		var digit int
-		fmt.Sscanf(string(id[i]), "%d", &digit)
+		_, _ = fmt.Sscanf(string(id[i]), "%d", &digit)
 		sum += digit * weights[i]
 	}
 	

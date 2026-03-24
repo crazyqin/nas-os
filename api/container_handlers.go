@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// ContainerHandlers 容器 API 处理器
+// ContainerHandlers 容器 API 处理器。
 type ContainerHandlers struct {
 	manager        *container.Manager
 	imageManager   *container.ImageManager
@@ -18,7 +18,7 @@ type ContainerHandlers struct {
 	composeManager *container.ComposeManager
 }
 
-// NewContainerHandlers 创建容器处理器
+// NewContainerHandlers 创建容器处理器。
 func NewContainerHandlers() (*ContainerHandlers, error) {
 	mgr, err := container.NewManager()
 	if err != nil {

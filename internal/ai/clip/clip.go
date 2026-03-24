@@ -109,7 +109,7 @@ func (m *CLIPModelImpl) initVocabulary() {
 	m.vocabSize = len(commonWords) + 4
 }
 
-// EncodeImage generates embedding for an image file
+// EncodeImage generates embedding for an image file.
 func (m *CLIPModelImpl) EncodeImage(ctx context.Context, imagePath string) (*Embedding, error) {
 	// Check context
 	select {
@@ -123,7 +123,7 @@ func (m *CLIPModelImpl) EncodeImage(ctx context.Context, imagePath string) (*Emb
 	if err != nil {
 		return nil, fmt.Errorf("failed to open image: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// Decode image
 	img, _, err := image.Decode(file)
@@ -271,11 +271,11 @@ func (m *CLIPModelImpl) preprocessImage(img image.Image) image.Image {
 	return cropped
 }
 
-// imageToBytes converts image to bytes
+// imageToBytes converts image to bytes.
 func (m *CLIPModelImpl) imageToBytes(img image.Image) []byte {
 	// Simplified - convert to JPEG bytes
 	buf := new(bytes.Buffer)
-	imaging.Encode(buf, img, imaging.JPEG)
+	_ = imaging.Encode(buf, img, imaging.JPEG)
 	return buf.Bytes()
 }
 
