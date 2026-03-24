@@ -207,6 +207,26 @@
             margin-bottom: 0.75rem;
         }
         
+        .install-type-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--color-gray-300);
+            background: white;
+            color: var(--color-gray-600);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .install-type-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+        .install-type-btn.active {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
+        }
+        
         @media (max-width: 768px) {
             .sidebar { display: none; }
             .main-content { margin-left: 0; }
@@ -254,9 +274,14 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="container">
-            <div style="margin-bottom: 2rem;">
-                <h1 style="margin-bottom: 0.5rem;">📦 应用商店</h1>
-                <p class="text-muted">发现和安装常用应用</p>
+            <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 style="margin-bottom: 0.5rem;">📦 应用商店</h1>
+                    <p class="text-muted">发现和安装常用应用</p>
+                </div>
+                <button class="btn btn-primary" onclick="showManualInstallModal()">
+                    ➕ 手动安装
+                </button>
             </div>
 
             <!-- 已安装应用 -->
@@ -308,6 +333,143 @@
             </div>
             <div class="modal-footer" id="detail-footer">
                 <!-- 动态按钮 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 手动安装 Modal -->
+    <div class="modal-overlay" id="manual-install-modal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>🔧 手动安装应用</h3>
+                <button class="btn btn-secondary btn-sm" onclick="closeManualInstallModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- 安装类型选择 -->
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <button class="btn install-type-btn active" data-type="compose" onclick="switchInstallType('compose')">Docker Compose</button>
+                    <button class="btn install-type-btn" data-type="image" onclick="switchInstallType('image')">Docker 镜像</button>
+                </div>
+
+                <!-- Compose 表单 -->
+                <div id="compose-form">
+                    <div class="form-group">
+                        <label class="form-label">Docker Compose 内容</label>
+                        <textarea id="compose-content" class="form-input" rows="10" 
+                            placeholder="粘贴 docker-compose.yml 内容..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">或从 URL 获取</label>
+                        <input type="text" id="compose-url" class="form-input" 
+                            placeholder="https://github.com/user/repo/docker-compose.yml">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">显示名称</label>
+                            <input type="text" id="compose-display-name" class="form-input" placeholder="我的应用">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">分类</label>
+                            <select id="compose-category" class="form-input">
+                                <option value="custom">自定义</option>
+                                <option value="Media">媒体</option>
+                                <option value="Productivity">生产力</option>
+                                <option value="Development">开发</option>
+                                <option value="Network">网络</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">描述</label>
+                        <input type="text" id="compose-desc" class="form-input" placeholder="应用描述">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">图标</label>
+                        <input type="text" id="compose-icon" class="form-input" value="📦" style="width: 100px;">
+                    </div>
+                </div>
+
+                <!-- Image 表单 -->
+                <div id="image-form" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">镜像名称 *</label>
+                            <input type="text" id="image-name" class="form-input" placeholder="nginx">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">标签</label>
+                            <input type="text" id="image-tag" class="form-input" value="latest" placeholder="latest">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">容器名称</label>
+                            <input type="text" id="container-name" class="form-input" placeholder="自动生成">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">显示名称</label>
+                            <input type="text" id="app-display-name" class="form-input" placeholder="Nginx">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">端口映射 (每行一个: 主机端口:容器端口[:协议])</label>
+                        <textarea id="port-mappings" class="form-input" rows="3" 
+                            placeholder="8080:80&#10;8443:443:tcp"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">卷映射 (每行一个: 主机路径:容器路径)</label>
+                        <textarea id="volume-mappings" class="form-input" rows="3" 
+                            placeholder="/data/nginx:/usr/share/nginx/html&#10;/data/config:/etc/nginx"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">环境变量 (每行一个: KEY=value)</label>
+                        <textarea id="env-vars" class="form-input" rows="3" 
+                            placeholder="TZ=Asia/Shanghai&#10;PUID=1000"></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">网络模式</label>
+                            <select id="network-mode" class="form-input">
+                                <option value="">默认 (bridge)</option>
+                                <option value="host">host</option>
+                                <option value="none">none</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">重启策略</label>
+                            <select id="restart-policy" class="form-input">
+                                <option value="unless-stopped">unless-stopped</option>
+                                <option value="always">always</option>
+                                <option value="on-failure">on-failure</option>
+                                <option value="no">no</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">分类</label>
+                            <select id="image-category" class="form-input">
+                                <option value="custom">自定义</option>
+                                <option value="Media">媒体</option>
+                                <option value="Productivity">生产力</option>
+                                <option value="Development">开发</option>
+                                <option value="Network">网络</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">图标</label>
+                            <input type="text" id="image-icon" class="form-input" value="📦" style="width: 100px;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">描述</label>
+                        <input type="text" id="image-desc" class="form-input" placeholder="应用描述">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeManualInstallModal()">取消</button>
+                <button class="btn btn-primary" id="manual-install-btn" onclick="submitManualInstall()">安装</button>
             </div>
         </div>
     </div>
@@ -760,6 +922,123 @@
             } catch (e) {
                 alert('卸载失败: ' + e.message);
             }
+        }
+
+        // === 手动安装功能 ===
+        let installType = 'compose';
+
+        function showManualInstallModal() {
+            document.getElementById('manual-install-modal').classList.add('active');
+            switchInstallType('compose');
+        }
+
+        function closeManualInstallModal() {
+            document.getElementById('manual-install-modal').classList.remove('active');
+        }
+
+        function switchInstallType(type) {
+            installType = type;
+            document.querySelectorAll('.install-type-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === type);
+            });
+            document.getElementById('compose-form').style.display = type === 'compose' ? 'block' : 'none';
+            document.getElementById('image-form').style.display = type === 'image' ? 'block' : 'none';
+        }
+
+        function submitManualInstall() {
+            const btn = document.getElementById('manual-install-btn');
+            btn.disabled = true;
+            btn.textContent = '安装中...';
+
+            const req = { type: installType };
+
+            if (installType === 'compose') {
+                req.composeContent = document.getElementById('compose-content').value;
+                req.composeUrl = document.getElementById('compose-url').value;
+                if (!req.composeContent && !req.composeUrl) {
+                    alert('请提供 docker-compose 内容或 URL');
+                    btn.disabled = false;
+                    btn.textContent = '安装';
+                    return;
+                }
+            } else {
+                req.image = document.getElementById('image-name').value;
+                if (!req.image) {
+                    alert('请提供镜像名称');
+                    btn.disabled = false;
+                    btn.textContent = '安装';
+                    return;
+                }
+                req.tag = document.getElementById('image-tag').value || 'latest';
+                req.name = document.getElementById('container-name').value;
+                req.displayName = document.getElementById('app-display-name').value;
+                
+                // 端口映射
+                const portsText = document.getElementById('port-mappings').value;
+                if (portsText) {
+                    req.ports = portsText.split('\n').filter(l => l.trim()).map(line => {
+                        const [host, container, protocol] = line.split(':');
+                        return {
+                            hostPort: parseInt(host),
+                            containerPort: parseInt(container),
+                            protocol: protocol || 'tcp'
+                        };
+                    });
+                }
+
+                // 卷映射
+                const volumesText = document.getElementById('volume-mappings').value;
+                if (volumesText) {
+                    req.volumes = volumesText.split('\n').filter(l => l.trim()).map(line => {
+                        const [host, container] = line.split(':');
+                        return { hostPath: host, containerPath: container };
+                    });
+                }
+
+                // 环境变量
+                const envText = document.getElementById('env-vars').value;
+                if (envText) {
+                    req.environment = {};
+                    envText.split('\n').filter(l => l.trim()).forEach(line => {
+                        const [key, ...values] = line.split('=');
+                        req.environment[key] = values.join('=');
+                    });
+                }
+
+                req.network = document.getElementById('network-mode').value;
+                req.restart = document.getElementById('restart-policy').value;
+            }
+
+            req.displayName = req.displayName || document.getElementById('compose-display-name').value;
+            req.description = document.getElementById('compose-desc').value || document.getElementById('image-desc').value;
+            req.category = document.getElementById('compose-category').value || document.getElementById('image-category').value || 'custom';
+            req.icon = document.getElementById('compose-icon').value || document.getElementById('image-icon').value || '📦';
+
+            fetch(`${API_BASE}/apps/install`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(req)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 0) {
+                    alert('安装成功！');
+                    closeManualInstallModal();
+                    loadInstalled();
+                    loadCatalog();
+                    // 显示依赖信息
+                    if (data.data.dependencies && data.data.dependencies.length > 0) {
+                        alert('检测到依赖服务: ' + data.data.dependencies.join(', ') + '\n请确保这些服务已启动。');
+                    }
+                } else {
+                    alert('安装失败: ' + data.message);
+                }
+            })
+            .catch(e => alert('安装失败: ' + e.message))
+            .finally(() => {
+                btn.disabled = false;
+                btn.textContent = '安装';
+            });
         }
 
         // 初始化
