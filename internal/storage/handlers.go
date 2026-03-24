@@ -2,6 +2,8 @@
 package storage
 
 import (
+	"fmt"
+
 	"nas-os/internal/api"
 
 	"github.com/gin-gonic/gin"
@@ -11,13 +13,29 @@ import (
 type Handlers struct {
 	manager          *Manager
 	immutableManager *ImmutableManager
+	hotSpareManager  *HotSpareManager
+	spaceAnalyzer    *SpaceAnalyzer
+	fusionManager    *FusionPoolManager
 }
 
 // NewHandlers 创建处理器
-func NewHandlers(manager *Manager, immutableManager *ImmutableManager) *Handlers {
+func NewHandlers(manager *Manager, immutableManager *ImmutableManager, hotSpareManager *HotSpareManager, spaceAnalyzer *SpaceAnalyzer) *Handlers {
 	return &Handlers{
 		manager:          manager,
 		immutableManager: immutableManager,
+		hotSpareManager:  hotSpareManager,
+		spaceAnalyzer:    spaceAnalyzer,
+	}
+}
+
+// NewHandlersWithFusion 创建带融合池支持的处理器
+func NewHandlersWithFusion(manager *Manager, immutableManager *ImmutableManager, hotSpareManager *HotSpareManager, spaceAnalyzer *SpaceAnalyzer, fusionManager *FusionPoolManager) *Handlers {
+	return &Handlers{
+		manager:          manager,
+		immutableManager: immutableManager,
+		hotSpareManager:  hotSpareManager,
+		spaceAnalyzer:    spaceAnalyzer,
+		fusionManager:    fusionManager,
 	}
 }
 
@@ -73,10 +91,66 @@ func (h *Handlers) RegisterRoutes(r *gin.RouterGroup) {
 	// RAID 配置信息
 	r.GET("/raid-configs", h.getRAIDConfigs)
 
+	// Hot Spare (热备盘) 管理
+	if h.hotSpareManager != nil {
+		hotSpare := r.Group("/hot-spare")
+		{
+			hotSpare.GET("", h.listHotSpares)
+			hotSpare.GET("/status", h.getHotSpareStatus)
+			hotSpare.POST("", h.addHotSpare)
+			hotSpare.DELETE("/:device", h.removeHotSpare)
+			hotSpare.GET("/:device", h.getHotSpare)
+			hotSpare.POST("/:device/activate", h.activateHotSpare)
+			hotSpare.POST("/:device/cancel", h.cancelRebuild)
+			hotSpare.GET("/:device/rebuild-status", h.getRebuildStatus)
+			hotSpare.GET("/rebuilding", h.listRebuilding)
+			hotSpare.GET("/config", h.getHotSpareConfig)
+			hotSpare.PUT("/config", h.updateHotSpareConfig)
+		}
+	}
+
+	// 空间分析
+	if h.spaceAnalyzer != nil {
+		space := r.Group("/space")
+		{
+			space.GET("/analyze/:volume", h.analyzeSpace)
+			space.GET("/history/:volume", h.getSpaceHistory)
+			space.GET("/trend/:volume", h.getSpaceTrend)
+		}
+	}
+
 	// 不可变存储（WriteOnce）
 	if h.immutableManager != nil {
 		immutableHandlers := NewImmutableHandlers(h.immutableManager)
 		immutableHandlers.RegisterRoutes(r)
+	}
+
+	// Fusion Pool（智能分层存储）
+	if h.fusionManager != nil {
+		fusion := r.Group("/fusion-pools")
+		{
+			fusion.GET("", h.listFusionPools)
+			fusion.POST("", h.createFusionPool)
+			fusion.GET("/:name", h.getFusionPool)
+			fusion.DELETE("/:name", h.deleteFusionPool)
+
+			// 子卷管理
+			fusion.GET("/:name/subvolumes", h.listFusionSubvolumes)
+			fusion.POST("/:name/subvolumes", h.createFusionSubvolume)
+			fusion.GET("/:name/subvolumes/:subvol", h.getFusionSubvolume)
+			fusion.DELETE("/:name/subvolumes/:subvol", h.deleteFusionSubvolume)
+
+			// 设备管理
+			fusion.POST("/:name/ssd-devices", h.addSSDDevice)
+			fusion.POST("/:name/hdd-devices", h.addHDDDevice)
+
+			// 分层操作
+			fusion.POST("/:name/tiering", h.runTiering)
+			fusion.POST("/:name/optimize", h.optimizeMetadataAccess)
+
+			// 统计信息
+			fusion.GET("/:name/stats", h.getFusionPoolStats)
+		}
 	}
 }
 
@@ -934,4 +1008,980 @@ func (h *Handlers) convertRAID(c *gin.Context) {
 // @Router /raid-configs [get]
 func (h *Handlers) getRAIDConfigs(c *gin.Context) {
 	api.OK(c, RAIDConfigs)
+}
+
+// ========== Hot Spare (热备盘) 管理 ==========
+
+// listHotSpares 列出热备盘
+// @Summary 列出热备盘
+// @Description 列出所有或指定卷的热备盘
+// @Tags storage
+// @Param volume query string false "卷名称过滤"
+// @Success 200 {object} api.Response{data=[]HotSpare}
+// @Router /hot-spare [get]
+func (h *Handlers) listHotSpares(c *gin.Context) {
+	volumeName := c.Query("volume")
+	result := h.hotSpareManager.ListHotSpares(volumeName)
+	api.OK(c, result)
+}
+
+// getHotSpareStatus 获取热备盘系统状态
+// @Summary 获取热备盘系统状态
+// @Description 获取热备盘系统的整体状态
+// @Tags storage
+// @Success 200 {object} api.Response{data=HotSpareStatus}
+// @Router /hot-spare/status [get]
+func (h *Handlers) getHotSpareStatus(c *gin.Context) {
+	status := h.hotSpareManager.GetStatus()
+	api.OK(c, status)
+}
+
+// AddHotSpareRequest 添加热备盘请求
+type AddHotSpareRequest struct {
+	Device     string `json:"device" binding:"required"`
+	VolumeName string `json:"volumeName"` // 可选：指定关联的卷
+}
+
+// addHotSpare 添加热备盘
+// @Summary 添加热备盘
+// @Description 添加设备作为热备盘
+// @Tags storage
+// @Accept json
+// @Param request body AddHotSpareRequest true "添加请求"
+// @Success 201 {object} api.Response{data=HotSpare}
+// @Failure 400 {object} api.Response
+// @Router /hot-spare [post]
+func (h *Handlers) addHotSpare(c *gin.Context) {
+	var req AddHotSpareRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	hs, err := h.hotSpareManager.AddHotSpare(req.Device, req.VolumeName)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.Created(c, hs)
+}
+
+// removeHotSpare 移除热备盘
+// @Summary 移除热备盘
+// @Description 移除指定的热备盘
+// @Tags storage
+// @Param device path string true "设备路径"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /hot-spare/{device} [delete]
+func (h *Handlers) removeHotSpare(c *gin.Context) {
+	device := c.Param("device")
+
+	if err := h.hotSpareManager.RemoveHotSpare(device); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "热备盘已移除", nil)
+}
+
+// getHotSpare 获取热备盘详情
+// @Summary 获取热备盘详情
+// @Description 获取指定热备盘的详细信息
+// @Tags storage
+// @Param device path string true "设备路径"
+// @Success 200 {object} api.Response{data=HotSpare}
+// @Failure 404 {object} api.Response
+// @Router /hot-spare/{device} [get]
+func (h *Handlers) getHotSpare(c *gin.Context) {
+	device := c.Param("device")
+
+	hs, err := h.hotSpareManager.GetHotSpare(device)
+	if err != nil {
+		api.NotFound(c, err.Error())
+		return
+	}
+
+	api.OK(c, hs)
+}
+
+// ActivateHotSpareRequest 激活热备盘请求
+type ActivateHotSpareRequest struct {
+	VolumeName   string `json:"volumeName" binding:"required"`
+	FailedDevice string `json:"failedDevice" binding:"required"`
+}
+
+// activateHotSpare 激活热备盘
+// @Summary 激活热备盘
+// @Description 手动激活热备盘进行重建
+// @Tags storage
+// @Accept json
+// @Param device path string true "设备路径"
+// @Param request body ActivateHotSpareRequest true "激活请求"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /hot-spare/{device}/activate [post]
+func (h *Handlers) activateHotSpare(c *gin.Context) {
+	device := c.Param("device")
+
+	var req ActivateHotSpareRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	if err := h.hotSpareManager.ActivateHotSpare(device, req.VolumeName, req.FailedDevice); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "热备盘已激活，正在开始重建", nil)
+}
+
+// cancelRebuild 取消重建
+// @Summary 取消重建
+// @Description 取消正在进行的重建任务
+// @Tags storage
+// @Param device path string true "设备路径"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /hot-spare/{device}/cancel [post]
+func (h *Handlers) cancelRebuild(c *gin.Context) {
+	device := c.Param("device")
+
+	if err := h.hotSpareManager.CancelRebuild(device); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "重建已取消", nil)
+}
+
+// getRebuildStatus 获取重建状态
+// @Summary 获取重建状态
+// @Description 获取指定热备盘的重建状态
+// @Tags storage
+// @Param device path string true "设备路径"
+// @Success 200 {object} api.Response{data=RebuildStatus}
+// @Failure 404 {object} api.Response
+// @Router /hot-spare/{device}/rebuild-status [get]
+func (h *Handlers) getRebuildStatus(c *gin.Context) {
+	device := c.Param("device")
+
+	status, err := h.hotSpareManager.GetRebuildStatus(device)
+	if err != nil {
+		api.NotFound(c, err.Error())
+		return
+	}
+
+	api.OK(c, status)
+}
+
+// listRebuilding 列出正在重建的热备盘
+// @Summary 列出正在重建的热备盘
+// @Description 列出所有正在重建的热备盘
+// @Tags storage
+// @Success 200 {object} api.Response{data=[]RebuildStatus}
+// @Router /hot-spare/rebuilding [get]
+func (h *Handlers) listRebuilding(c *gin.Context) {
+	result := h.hotSpareManager.ListRebuilding()
+	api.OK(c, result)
+}
+
+// getHotSpareConfig 获取热备盘配置
+// @Summary 获取热备盘配置
+// @Description 获取热备盘系统的配置
+// @Tags storage
+// @Success 200 {object} api.Response{data=HotSpareConfig}
+// @Router /hot-spare/config [get]
+func (h *Handlers) getHotSpareConfig(c *gin.Context) {
+	config := h.hotSpareManager.GetConfig()
+	api.OK(c, config)
+}
+
+// updateHotSpareConfig 更新热备盘配置
+// @Summary 更新热备盘配置
+// @Description 更新热备盘系统的配置
+// @Tags storage
+// @Accept json
+// @Param request body HotSpareConfig true "配置请求"
+// @Success 200 {object} api.Response
+// @Failure 400 {object} api.Response
+// @Router /hot-spare/config [put]
+func (h *Handlers) updateHotSpareConfig(c *gin.Context) {
+	var config HotSpareConfig
+	if err := c.ShouldBindJSON(&config); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	h.hotSpareManager.SetConfig(config)
+	api.OKWithMessage(c, "配置已更新", nil)
+}
+
+// ========== Fusion Pool 智能分层存储 ==========
+
+// listFusionPools 列出所有融合池
+// @Summary 列出所有融合池
+// @Description 获取系统中所有 Fusion Pool 的列表
+// @Tags storage
+// @Produce json
+// @Success 200 {object} api.Response{data=[]FusionPool}
+// @Router /fusion-pools [get]
+func (h *Handlers) listFusionPools(c *gin.Context) {
+	pools := h.fusionManager.ListPools()
+	api.OK(c, pools)
+}
+
+// getFusionPool 获取融合池详情
+// @Summary 获取融合池详情
+// @Description 根据名称获取融合池详细信息
+// @Tags storage
+// @Produce json
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response{data=FusionPool}
+// @Failure 404 {object} api.Response
+// @Router /fusion-pools/{name} [get]
+func (h *Handlers) getFusionPool(c *gin.Context) {
+	name := c.Param("name")
+
+	pool := h.fusionManager.GetPool(name)
+	if pool == nil {
+		api.NotFound(c, "融合池不存在: "+name)
+		return
+	}
+
+	api.OK(c, pool)
+}
+
+// createFusionPool 创建融合池
+// @Summary 创建融合池
+// @Description 创建新的智能分层存储池
+// @Tags storage
+// @Accept json
+// @Produce json
+// @Param request body CreateFusionPoolRequest true "创建请求"
+// @Success 201 {object} api.Response{data=FusionPool}
+// @Failure 400 {object} api.Response
+// @Router /fusion-pools [post]
+func (h *Handlers) createFusionPool(c *gin.Context) {
+	var req CreateFusionPoolRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	pool, err := h.fusionManager.CreateFusionPool(&req)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.Created(c, pool)
+}
+
+// deleteFusionPool 删除融合池
+// @Summary 删除融合池
+// @Description 删除指定融合池（危险操作）
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Param force query bool false "强制删除（包含子卷）"
+// @Success 204 "No Content"
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name} [delete]
+func (h *Handlers) deleteFusionPool(c *gin.Context) {
+	name := c.Param("name")
+	force := c.Query("force") == "true"
+
+	if err := h.fusionManager.DeletePool(name, force); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.NoContent(c)
+}
+
+// listFusionSubvolumes 列出融合池的子卷
+// @Summary 列出融合池子卷
+// @Description 列出指定融合池的所有子卷
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response{data=[]FusionSubvolume}
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/subvolumes [get]
+func (h *Handlers) listFusionSubvolumes(c *gin.Context) {
+	name := c.Param("name")
+
+	pool := h.fusionManager.GetPool(name)
+	if pool == nil {
+		api.NotFound(c, "融合池不存在: "+name)
+		return
+	}
+
+	api.OK(c, pool.Subvolumes)
+}
+
+// createFusionSubvolume 创建融合池子卷
+// @Summary 创建融合池子卷
+// @Description 在指定融合池中创建新的子卷
+// @Tags storage
+// @Accept json
+// @Produce json
+// @Param name path string true "融合池名称"
+// @Param request body map[string]string true "创建请求 {name: \"子卷名称\"}"
+// @Success 201 {object} api.Response{data=FusionSubvolume}
+// @Failure 400 {object} api.Response
+// @Router /fusion-pools/{name}/subvolumes [post]
+func (h *Handlers) createFusionSubvolume(c *gin.Context) {
+	poolName := c.Param("name")
+
+	var req struct {
+		Name string `json:"name" binding:"required"`
+	}
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	subvol, err := h.fusionManager.CreateSubvolume(poolName, req.Name)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.Created(c, subvol)
+}
+
+// getFusionSubvolume 获取融合池子卷详情
+// @Summary 获取融合池子卷详情
+// @Description 获取指定子卷的详细信息
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Param subvol path string true "子卷名称"
+// @Success 200 {object} api.Response{data=FusionSubvolume}
+// @Failure 404 {object} api.Response
+// @Router /fusion-pools/{name}/subvolumes/{subvol} [get]
+func (h *Handlers) getFusionSubvolume(c *gin.Context) {
+	poolName := c.Param("name")
+	subvolName := c.Param("subvol")
+
+	subvol, err := h.fusionManager.GetSubvolume(poolName, subvolName)
+	if err != nil {
+		api.NotFound(c, err.Error())
+		return
+	}
+
+	api.OK(c, subvol)
+}
+
+// deleteFusionSubvolume 删除融合池子卷
+// @Summary 删除融合池子卷
+// @Description 删除指定子卷
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Param subvol path string true "子卷名称"
+// @Success 204 "No Content"
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/subvolumes/{subvol} [delete]
+func (h *Handlers) deleteFusionSubvolume(c *gin.Context) {
+	poolName := c.Param("name")
+	subvolName := c.Param("subvol")
+
+	if err := h.fusionManager.DeleteSubvolume(poolName, subvolName); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.NoContent(c)
+}
+
+// addSSDDeviceRequest 添加 SSD 设备请求
+type addSSDDeviceRequest struct {
+	Device string `json:"device" binding:"required"`
+}
+
+// addSSDDevice 添加 SSD 设备到融合池
+// @Summary 添加 SSD 设备
+// @Description 向融合池添加 SSD 设备以扩展元数据存储
+// @Tags storage
+// @Accept json
+// @Param name path string true "融合池名称"
+// @Param request body addSSDDeviceRequest true "设备信息"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/ssd-devices [post]
+func (h *Handlers) addSSDDevice(c *gin.Context) {
+	poolName := c.Param("name")
+
+	var req addSSDDeviceRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	if err := h.fusionManager.AddSSDDevice(poolName, req.Device); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "SSD 设备已添加", nil)
+}
+
+// addHDDDevice 添加 HDD 设备到融合池
+// @Summary 添加 HDD 设备
+// @Description 向融合池添加 HDD 设备以扩展数据存储
+// @Tags storage
+// @Accept json
+// @Param name path string true "融合池名称"
+// @Param request body addSSDDeviceRequest true "设备信息"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/hdd-devices [post]
+func (h *Handlers) addHDDDevice(c *gin.Context) {
+	poolName := c.Param("name")
+
+	var req addSSDDeviceRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	if err := h.fusionManager.AddHDDDevice(poolName, req.Device); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "HDD 设备已添加", nil)
+}
+
+// runTiering 执行分层任务
+// @Summary 执行分层任务
+// @Description 手动触发数据分层任务
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/tiering [post]
+func (h *Handlers) runTiering(c *gin.Context) {
+	poolName := c.Param("name")
+
+	if err := h.fusionManager.RunTiering(poolName); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "分层任务已启动", nil)
+}
+
+// optimizeMetadataAccess 优化元数据访问
+// @Summary 优化元数据访问
+// @Description 预热元数据缓存以加速访问
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/optimize [post]
+func (h *Handlers) optimizeMetadataAccess(c *gin.Context) {
+	poolName := c.Param("name")
+
+	if err := h.fusionManager.OptimizeMetadataAccess(poolName); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "元数据缓存已预热", nil)
+}
+
+// getFusionPoolStats 获取融合池统计信息
+// @Summary 获取融合池统计信息
+// @Description 获取融合池的详细统计信息
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response{data=FusionPoolStats}
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/stats [get]
+func (h *Handlers) getFusionPoolStats(c *gin.Context) {
+	poolName := c.Param("name")
+
+	stats, err := h.fusionManager.GetPoolStats(poolName)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OK(c, stats)
+}
+
+// ========== 空间分析 ==========
+
+// AnalyzeSpaceRequest 空间分析请求
+type AnalyzeSpaceRequest struct {
+	Path              string `json:"path"`              // 分析路径（可选）
+	IncludeHidden     bool   `json:"includeHidden"`     // 包含隐藏文件
+	LargeFileThreshold uint64 `json:"largeFileThreshold"` // 大文件阈值（字节）
+	TopDirCount       int    `json:"topDirCount"`       // 返回前N个目录
+	TopFileTypes      int    `json:"topFileTypes"`      // 返回前N个文件类型
+	AnalyzeDepth      int    `json:"analyzeDepth"`      // 分析深度
+	EnableTrend       bool   `json:"enableTrend"`       // 启用趋势预测
+}
+
+// analyzeSpace 执行空间分析
+// @Summary 执行空间分析
+// @Description 对指定卷执行全面的存储空间分析
+// @Tags storage
+// @Accept json
+// @Param volume path string true "卷名称"
+// @Param request body AnalyzeSpaceRequest false "分析选项"
+// @Success 200 {object} api.Response{data=AnalyzeResult}
+// @Failure 400,404 {object} api.Response
+// @Router /space/analyze/{volume} [get]
+func (h *Handlers) analyzeSpace(c *gin.Context) {
+	volumeName := c.Param("volume")
+
+	// 从查询参数或请求体获取选项
+	opts := DefaultAnalyzeOptions
+
+	// 尝试从查询参数解析
+	if path := c.Query("path"); path != "" {
+		opts.Path = path
+	}
+	if c.Query("includeHidden") == "true" {
+		opts.IncludeHidden = true
+	}
+	if threshold := c.Query("largeFileThreshold"); threshold != "" {
+		fmt.Sscanf(threshold, "%d", &opts.LargeFileThreshold)
+	}
+	if topDir := c.Query("topDirCount"); topDir != "" {
+		fmt.Sscanf(topDir, "%d", &opts.TopDirCount)
+	}
+	if topTypes := c.Query("topFileTypes"); topTypes != "" {
+		fmt.Sscanf(topTypes, "%d", &opts.TopFileTypes)
+	}
+	if depth := c.Query("analyzeDepth"); depth != "" {
+		fmt.Sscanf(depth, "%d", &opts.AnalyzeDepth)
+	}
+	if c.Query("enableTrend") == "false" {
+		opts.EnableTrend = false
+	}
+
+	result, err := h.spaceAnalyzer.Analyze(volumeName, opts)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OK(c, result)
+}
+
+// getSpaceHistory 获取空间使用历史
+// @Summary 获取空间使用历史
+// @Description 获取指定卷的空间使用历史记录
+// @Tags storage
+// @Param volume path string true "卷名称"
+// @Param days query int false "查询天数" default(30)
+// @Success 200 {object} api.Response{data=[]SpaceRecord}
+// @Failure 400,404 {object} api.Response
+// @Router /space/history/{volume} [get]
+func (h *Handlers) getSpaceHistory(c *gin.Context) {
+	volumeName := c.Param("volume")
+
+	days := 30
+	if d := c.Query("days"); d != "" {
+		fmt.Sscanf(d, "%d", &days)
+	}
+
+	records, err := h.spaceAnalyzer.GetHistory(volumeName, days)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OK(c, records)
+}
+
+// getSpaceTrend 获取空间趋势预测
+// @Summary 获取空间趋势预测
+// @Description 获取指定卷的空间使用趋势和预测
+// @Tags storage
+// @Param volume path string true "卷名称"
+// @Success 200 {object} api.Response{data=SpaceTrend}
+// @Failure 400,404 {object} api.Response
+// @Router /space/trend/{volume} [get]
+func (h *Handlers) getSpaceTrend(c *gin.Context) {
+	volumeName := c.Param("volume")
+
+	// 获取卷信息
+	vol := h.manager.GetVolume(volumeName)
+	if vol == nil {
+		api.NotFound(c, "卷不存在: "+volumeName)
+		return
+	}
+
+	trend := h.spaceAnalyzer.predictTrend(volumeName, vol)
+	api.OK(c, trend)
+}
+
+// ========== Fusion Pool（智能分层存储）==========
+
+// listFusionPools 列出融合池
+// @Summary 列出融合池
+// @Description 列出所有融合池
+// @Tags storage
+// @Success 200 {object} api.Response{data=[]FusionPool}
+// @Router /fusion-pools [get]
+func (h *Handlers) listFusionPools(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+	pools := h.fusionManager.ListPools()
+	api.OK(c, pools)
+}
+
+// CreateFusionPoolRequest 创建融合池请求
+type CreateFusionPoolHandlerRequest struct {
+	Name      string   `json:"name" binding:"required"`
+	SSDDevices []string `json:"ssdDevices" binding:"required,min=1"`
+	HDDDevices []string `json:"hddDevices" binding:"required,min=1"`
+}
+
+// createFusionPool 创建融合池
+// @Summary 创建融合池
+// @Description 创建新的融合池
+// @Tags storage
+// @Accept json
+// @Param request body CreateFusionPoolHandlerRequest true "创建请求"
+// @Success 201 {object} api.Response{data=FusionPool}
+// @Failure 400 {object} api.Response
+// @Router /fusion-pools [post]
+func (h *Handlers) createFusionPool(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	var req CreateFusionPoolHandlerRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	poolReq := &CreateFusionPoolRequest{
+		Name:      req.Name,
+		SSDDevices: req.SSDDevices,
+		HDDDevices: req.HDDDevices,
+	}
+
+	pool, err := h.fusionManager.CreateFusionPool(poolReq)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.Created(c, pool)
+}
+
+// getFusionPool 获取融合池详情
+// @Summary 获取融合池详情
+// @Description 获取指定融合池的详细信息
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response{data=FusionPool}
+// @Failure 404 {object} api.Response
+// @Router /fusion-pools/{name} [get]
+func (h *Handlers) getFusionPool(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	name := c.Param("name")
+	pool := h.fusionManager.GetPool(name)
+	if pool == nil {
+		api.NotFound(c, "融合池不存在: "+name)
+		return
+	}
+
+	api.OK(c, pool)
+}
+
+// deleteFusionPool 删除融合池
+// @Summary 删除融合池
+// @Description 删除指定的融合池
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Param force query bool false "强制删除"
+// @Success 204 "No Content"
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name} [delete]
+func (h *Handlers) deleteFusionPool(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	name := c.Param("name")
+	force := c.Query("force") == "true"
+
+	if err := h.fusionManager.DeletePool(name, force); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.NoContent(c)
+}
+
+// listFusionSubvolumes 列出融合池子卷
+// @Summary 列出融合池子卷
+// @Description 列出指定融合池的所有子卷
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response{data=[]FusionSubvolume}
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/subvolumes [get]
+func (h *Handlers) listFusionSubvolumes(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	name := c.Param("name")
+	pool := h.fusionManager.GetPool(name)
+	if pool == nil {
+		api.NotFound(c, "融合池不存在: "+name)
+		return
+	}
+
+	api.OK(c, pool.Subvolumes)
+}
+
+// CreateFusionSubvolumeRequest 创建融合池子卷请求
+type CreateFusionSubvolumeHandlerRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+// createFusionSubvolume 创建融合池子卷
+// @Summary 创建融合池子卷
+// @Description 在指定融合池中创建子卷
+// @Tags storage
+// @Accept json
+// @Param name path string true "融合池名称"
+// @Param request body CreateFusionSubvolumeHandlerRequest true "创建请求"
+// @Success 201 {object} api.Response{data=FusionSubvolume}
+// @Failure 400 {object} api.Response
+// @Router /fusion-pools/{name}/subvolumes [post]
+func (h *Handlers) createFusionSubvolume(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	poolName := c.Param("name")
+	var req CreateFusionSubvolumeHandlerRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	subvol, err := h.fusionManager.CreateSubvolume(poolName, req.Name)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.Created(c, subvol)
+}
+
+// getFusionSubvolume 获取融合池子卷详情
+// @Summary 获取融合池子卷详情
+// @Description 获取指定融合池子卷的详细信息
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Param subvol path string true "子卷名称"
+// @Success 200 {object} api.Response{data=FusionSubvolume}
+// @Failure 404 {object} api.Response
+// @Router /fusion-pools/{name}/subvolumes/{subvol} [get]
+func (h *Handlers) getFusionSubvolume(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	poolName := c.Param("name")
+	subvolName := c.Param("subvol")
+
+	subvol, err := h.fusionManager.GetSubvolume(poolName, subvolName)
+	if err != nil {
+		api.NotFound(c, err.Error())
+		return
+	}
+
+	api.OK(c, subvol)
+}
+
+// deleteFusionSubvolume 删除融合池子卷
+// @Summary 删除融合池子卷
+// @Description 删除指定的融合池子卷
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Param subvol path string true "子卷名称"
+// @Success 204 "No Content"
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/subvolumes/{subvol} [delete]
+func (h *Handlers) deleteFusionSubvolume(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	poolName := c.Param("name")
+	subvolName := c.Param("subvol")
+
+	if err := h.fusionManager.DeleteSubvolume(poolName, subvolName); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.NoContent(c)
+}
+
+// AddDeviceRequest 添加设备请求
+type AddDeviceHandlerRequest struct {
+	Device string `json:"device" binding:"required"`
+}
+
+// addSSDDevice 添加SSD设备
+// @Summary 添加SSD设备
+// @Description 向融合池添加SSD设备
+// @Tags storage
+// @Accept json
+// @Param name path string true "融合池名称"
+// @Param request body AddDeviceHandlerRequest true "添加请求"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/ssd-devices [post]
+func (h *Handlers) addSSDDevice(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	poolName := c.Param("name")
+	var req AddDeviceHandlerRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	if err := h.fusionManager.AddSSDDevice(poolName, req.Device); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "SSD设备已添加", nil)
+}
+
+// addHDDDevice 添加HDD设备
+// @Summary 添加HDD设备
+// @Description 向融合池添加HDD设备
+// @Tags storage
+// @Accept json
+// @Param name path string true "融合池名称"
+// @Param request body AddDeviceHandlerRequest true "添加请求"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/hdd-devices [post]
+func (h *Handlers) addHDDDevice(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	poolName := c.Param("name")
+	var req AddDeviceHandlerRequest
+	if err := api.BindAndValidate(c, &req); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	if err := h.fusionManager.AddHDDDevice(poolName, req.Device); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "HDD设备已添加", nil)
+}
+
+// runTiering 运行分层
+// @Summary 运行分层
+// @Description 手动触发融合池的数据分层
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/tiering [post]
+func (h *Handlers) runTiering(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	poolName := c.Param("name")
+
+	if err := h.fusionManager.RunTiering(poolName); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "数据分层已完成", nil)
+}
+
+// optimizeMetadataAccess 优化元数据访问
+// @Summary 优化元数据访问
+// @Description 优化融合池的元数据访问性能
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/optimize [post]
+func (h *Handlers) optimizeMetadataAccess(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	poolName := c.Param("name")
+
+	if err := h.fusionManager.OptimizeMetadataAccess(poolName); err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OKWithMessage(c, "元数据访问优化已完成", nil)
+}
+
+// getFusionPoolStats 获取融合池统计
+// @Summary 获取融合池统计
+// @Description 获取融合池的详细统计信息
+// @Tags storage
+// @Param name path string true "融合池名称"
+// @Success 200 {object} api.Response{data=FusionPoolStats}
+// @Failure 400,404 {object} api.Response
+// @Router /fusion-pools/{name}/stats [get]
+func (h *Handlers) getFusionPoolStats(c *gin.Context) {
+	if h.fusionManager == nil {
+		api.BadRequest(c, "融合池管理器未启用")
+		return
+	}
+
+	poolName := c.Param("name")
+
+	stats, err := h.fusionManager.GetPoolStats(poolName)
+	if err != nil {
+		api.BadRequest(c, err.Error())
+		return
+	}
+
+	api.OK(c, stats)
 }
