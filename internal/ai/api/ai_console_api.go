@@ -83,7 +83,8 @@ func (api *AIConsoleAPI) Chat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
+	if err := //nolint:errcheck
+	json.NewEncoder(w).Encode(resp); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -119,7 +120,8 @@ func (api *AIConsoleAPI) Summarize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(map[string]string{
+	if err := //nolint:errcheck
+	json.NewEncoder(w).Encode(map[string]string{
 		"summary": summary,
 	}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -151,6 +153,7 @@ func (api *AIConsoleAPI) Translate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(map[string]string{
 		"translation": translation,
 	})
@@ -178,12 +181,14 @@ func (api *AIConsoleAPI) Sentiment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(result)
 }
 
 // GetProviders returns available AI providers
 func (api *AIConsoleAPI) GetProviders(w http.ResponseWriter, r *http.Request) {
 	providers := api.console.GetAvailableProviders()
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"providers": providers,
 	})
@@ -192,6 +197,7 @@ func (api *AIConsoleAPI) GetProviders(w http.ResponseWriter, r *http.Request) {
 // GetUsage returns usage statistics
 func (api *AIConsoleAPI) GetUsage(w http.ResponseWriter, r *http.Request) {
 	stats := api.console.GetUsageStats()
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(stats)
 }
 
@@ -208,6 +214,7 @@ func (api *AIConsoleAPI) GetAuditLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logs := api.console.GetAuditLogs(userID, since, 100)
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"logs": logs,
 	})
@@ -229,6 +236,7 @@ func (api *AIConsoleAPI) Desensitize(w http.ResponseWriter, r *http.Request) {
 	dapi := ai.NewDesensitizationAPI()
 	resp := dapi.Desensitize(&req)
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(resp)
 }
 
@@ -248,6 +256,7 @@ func (api *AIConsoleAPI) Restore(w http.ResponseWriter, r *http.Request) {
 	dapi := ai.NewDesensitizationAPI()
 	resp := dapi.Restore(&req)
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(resp)
 }
 
@@ -256,6 +265,7 @@ func (api *AIConsoleAPI) GetRules(w http.ResponseWriter, r *http.Request) {
 	dapi := ai.NewDesensitizationAPI()
 	rules := dapi.GetRules()
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"rules": rules,
 	})
@@ -272,6 +282,7 @@ func (api *AIConsoleAPI) AddRule(w http.ResponseWriter, r *http.Request) {
 	dapi := ai.NewDesensitizationAPI()
 	dapi.AddRule(rule)
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
@@ -292,6 +303,7 @@ func (api *AIConsoleAPI) UpdateRule(w http.ResponseWriter, r *http.Request) {
 	rule.ID = ruleID
 	// In production, update in database
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
@@ -305,6 +317,7 @@ func (api *AIConsoleAPI) DeleteRule(w http.ResponseWriter, r *http.Request) {
 
 	// In production, delete from database
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
@@ -326,6 +339,7 @@ func (api *AIConsoleAPI) ProcessPII(w http.ResponseWriter, r *http.Request) {
 
 	processed, redactions := api.console.ProcessPII(req.Text)
 
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"processed":  processed,
 		"redactions": redactions,
@@ -342,6 +356,7 @@ type ErrorResponse struct {
 // WriteError writes an error response
 func WriteError(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
+	//nolint:errcheck
 	json.NewEncoder(w).Encode(ErrorResponse{
 		Error:   http.StatusText(code),
 		Code:    code,

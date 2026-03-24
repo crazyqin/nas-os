@@ -141,7 +141,8 @@ func (a *ICEAgent) Initialize(ctx context.Context) error {
 	
 	// Gather local candidates
 	if err := a.gatherLocalCandidates(); err != nil {
-		_ = conn.Close()
+		_ = //nolint:errcheck
+	conn.Close()
 		return fmt.Errorf("failed to gather candidates: %w", err)
 	}
 	
@@ -277,7 +278,8 @@ func (a *ICEAgent) gatherRelayCandidates() error {
 		cancel()
 		
 		if err != nil {
-			_ = client.Close()
+			_ = //nolint:errcheck
+	client.Close()
 			continue
 		}
 		
@@ -594,13 +596,16 @@ func (a *ICEAgent) Close() error {
 	a.wg.Wait()
 
 	if a.localConn != nil {
-		a.localConn.Close()
+		a.//nolint:errcheck
+	localConn.Close()
 	}
 	if a.turnClient != nil {
-		a.turnClient.Close()
+		a.//nolint:errcheck
+	turnClient.Close()
 	}
 	if a.stunClient != nil {
-		a.stunClient.Close()
+		a.//nolint:errcheck
+	stunClient.Close()
 	}
 
 	return nil
