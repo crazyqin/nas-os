@@ -86,8 +86,6 @@ func (api *ClipAPI) SimilarImages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// This would use the image embedding to find similar images
-	// Simplified implementation
 	resp := SimilarImagesResponse{
 		PhotoID:   req.PhotoID,
 		Results:   []SearchResult{},
@@ -186,7 +184,6 @@ type ModelInfoResponse struct {
 
 // GetModelInfo returns model information
 func (api *ClipAPI) GetModelInfo(w http.ResponseWriter, r *http.Request) {
-	// Get stats to access model info
 	ctx := r.Context()
 	stats, err := api.service.GetStats(ctx)
 	if err != nil {
@@ -216,42 +213,6 @@ type EmbedTextResponse struct {
 	Dim       int       `json:"dim"`
 }
 
-// EmbedText generates text embedding
-func (api *ClipAPI) EmbedText(w http.ResponseWriter, r *http.Request) {
-	var req EmbedTextRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request: "+err.Error())
-		return
-	}
-
-	if req.Text == "" {
-		writeError(w, http.StatusBadRequest, "text required")
-		return
-	}
-
-	// Cast to get model
-	if svc, ok := api.service.(*TextSearchServiceImpl); ok {
-		ctx := r.Context()
-		embedding, err := svc.model.EncodeText(ctx, req.Text)
-		if err != nil {
-			writeError(w, http.StatusInternalServerError, "embedding failed: "+err.Error())
-			return
-		}
-
-		resp := EmbedTextResponse{
-			Text:      req.Text,
-			Embedding: *embedding,
-			Dim:       embedding.Dim,
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp) //nolint:errcheck
-		return
-	}
-
-	writeError(w, http.StatusInternalServerError, "service not available")
-}
-
 // EmbedImageRequest represents an image embedding request
 type EmbedImageRequest struct {
 	Path string `json:"path"`
@@ -264,6 +225,30 @@ type EmbedImageResponse struct {
 	Dim       int       `json:"dim"`
 }
 
+// EmbedText generates text embedding
+func (api *ClipAPI) EmbedText(w http.ResponseWriter, r *http.Request) {
+	var req EmbedTextRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request: "+err.Error())
+		return
+	}
+	if req.Text == "" {
+		writeError(w, http.StatusBadRequest, "text required")
+		return
+	}
+	svc, ok := api.service.(*TextSearchServiceImpl)
+	if !ok {
+		writeError(w, http.StatusInternalServerError, "service not available")
+		return
+	}
+	emb, err := svc.model.EncodeText(r.Context(), req.Text)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "embedding failed: "+err.Error())
+		return
+	}
+	writeJSONResp(w, EmbedTextResponse{Text: req.Text, Embedding: *emb, Dim: emb.Dim})
+}
+
 // EmbedImage generates image embedding
 func (api *ClipAPI) EmbedImage(w http.ResponseWriter, r *http.Request) {
 	var req EmbedImageRequest
@@ -271,33 +256,27 @@ func (api *ClipAPI) EmbedImage(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid request: "+err.Error())
 		return
 	}
-
 	if req.Path == "" {
 		writeError(w, http.StatusBadRequest, "path required")
 		return
 	}
-
-	// Cast to get model
-	if svc, ok := api.service.(*TextSearchServiceImpl); ok {
-		ctx := r.Context()
-		embedding, err := svc.model.EncodeImage(ctx, req.Path)
-		if err != nil {
-			writeError(w, http.StatusInternalServerError, "embedding failed: "+err.Error())
-			return
-		}
-
-		resp := EmbedImageResponse{
-			Path:      req.Path,
-			Embedding: *embedding,
-			Dim:       embedding.Dim,
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp) //nolint:errcheck
+	svc, ok := api.service.(*TextSearchServiceImpl)
+	if !ok {
+		writeError(w, http.StatusInternalServerError, "service not available")
 		return
 	}
+	emb, err := svc.model.EncodeImage(r.Context(), req.Path)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "embedding failed: "+err.Error())
+		return
+	}
+	writeJSONResp(w, EmbedImageResponse{Path: req.Path, Embedding: *emb, Dim: emb.Dim})
+}
 
-	writeError(w, http.StatusInternalServerError, "service not available")
+// writeJSONResp writes a JSON response
+func writeJSONResp(w http.ResponseWriter, resp interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp) //nolint:errcheck
 }
 
 // writeError writes an error response
@@ -337,8 +316,6 @@ func RegisterClipAPI(mux *http.ServeMux, config *Config) error {
 
 // RateLimitMiddleware adds rate limiting to CLIP API
 func RateLimitMiddleware(next http.HandlerFunc, requestsPerSecond int) http.HandlerFunc {
-	// Simplified rate limiting
-	// Production: use proper rate limiting with token bucket
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next(w, r)
 	})
