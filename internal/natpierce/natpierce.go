@@ -115,7 +115,7 @@ func (pc *PierceClient) startP2P() error {
 
 // startRelay 启动中继模式
 func (pc *PierceClient) startRelay() error {
-	// 连接中继服务器（使用 net.JoinHostPort 支持 IPv6）
+	// 连接中继服务器 - 使用 net.JoinHostPort 正确处理 IPv6
 	addr := net.JoinHostPort(pc.config.ServerAddr, strconv.Itoa(pc.config.ServerPort))
 
 	var conn net.Conn
