@@ -14,53 +14,53 @@ import (
 
 // TURN constants
 const (
-	TURNAllocateRequest    = 0x0003
-	TURNAllocateResponse   = 0x0103
-	TURNSendRequest        = 0x0006
-	TURNSendResponse       = 0x0106
-	TURNDataIndication     = 0x0017
+	TURNAllocateRequest          = 0x0003
+	TURNAllocateResponse         = 0x0103
+	TURNSendRequest              = 0x0006
+	TURNSendResponse             = 0x0106
+	TURNDataIndication           = 0x0017
 	TURNCreatePermissionRequest  = 0x0008
 	TURNCreatePermissionResponse = 0x0108
-	TURNChannelBindRequest  = 0x0009
-	TURNChannelBindResponse = 0x0109
+	TURNChannelBindRequest       = 0x0009
+	TURNChannelBindResponse      = 0x0109
 
 	// TURN Attributes
-	TURNAttrLifetime          = 0x000D
-	TURNAttrXORPeerAddress    = 0x0012
-	TURNAttrData              = 0x0013
-	TURNAttrXORRelayedAddress = 0x0016
+	TURNAttrLifetime           = 0x000D
+	TURNAttrXORPeerAddress     = 0x0012
+	TURNAttrData               = 0x0013
+	TURNAttrXORRelayedAddress  = 0x0016
 	TURNAttrRequestedTransport = 0x0019
-	TURNAttrMessageIntegrity  = 0x0008
-	TURNAttrNonce             = 0x0015
-	TURNAttrRealm             = 0x0014
-	TURNAttrUsername          = 0x0006
+	TURNAttrMessageIntegrity   = 0x0008
+	TURNAttrNonce              = 0x0015
+	TURNAttrRealm              = 0x0014
+	TURNAttrUsername           = 0x0006
 
 	// TURN defaults
 	TURNDefaultLifetime = 600 // 10 minutes
-	TURNMinChannel     = 0x4000
-	TURNMaxChannel     = 0x7FFF
+	TURNMinChannel      = 0x4000
+	TURNMaxChannel      = 0x7FFF
 )
 
 var (
 	// ErrTURNAllocationFailed indicates TURN allocation failure
 	ErrTURNAllocationFailed = errors.New("TURN allocation failed")
 	// ErrTURNPermissionDenied indicates TURN permission denied
-	ErrTURNPermissionDenied  = errors.New("TURN permission denied")
+	ErrTURNPermissionDenied = errors.New("TURN permission denied")
 	// ErrTURNNoRelay indicates no relay address available
-	ErrTURNNoRelay          = errors.New("no relay address")
+	ErrTURNNoRelay = errors.New("no relay address")
 	// ErrTURNTimeout indicates TURN operation timeout
-	ErrTURNTimeout          = errors.New("TURN operation timeout")
+	ErrTURNTimeout = errors.New("TURN operation timeout")
 )
 
 // TURNClient handles TURN protocol operations
 type TURNClient struct {
-	config     *TunnelConfig
-	conn       *net.UDPConn
-	server     *net.UDPAddr
+	config *TunnelConfig
+	conn   *net.UDPConn
+	server *net.UDPAddr
 
 	// Allocation state
-	relayAddr    *net.UDPAddr
-	allocated    bool
+	relayAddr *net.UDPAddr
+	allocated bool
 
 	// Authentication
 	username     string
@@ -70,8 +70,8 @@ type TURNClient struct {
 	integrityKey []byte
 
 	// Channel bindings
-	channels     map[string]uint16
-	nextChannel  uint16
+	channels    map[string]uint16
+	nextChannel uint16
 
 	// Transaction management
 	transactions map[string]chan *STUNPacket
@@ -80,10 +80,10 @@ type TURNClient struct {
 
 // TURNAllocation represents an active TURN allocation
 type TURNAllocation struct {
-	RelayAddr   *net.UDPAddr
-	Lifetime    time.Duration
-	ExpiresAt   time.Time
-	Server      string
+	RelayAddr *net.UDPAddr
+	Lifetime  time.Duration
+	ExpiresAt time.Time
+	Server    string
 }
 
 // NewTURNClient creates a new TURN client
@@ -167,10 +167,10 @@ func (c *TURNClient) Allocate(ctx context.Context) (*TURNAllocation, error) {
 		if nonce, ok := pkt.Attributes[TURNAttrNonce]; ok {
 			c.nonce = nonce
 		}
-		
+
 		// Calculate integrity key
 		c.calculateIntegrityKey()
-		
+
 		// Retry with authentication
 		return c.allocateWithAuth(ctx, transactionID)
 	}
@@ -242,69 +242,69 @@ func (c *TURNClient) allocateWithAuth(ctx context.Context, transactionID []byte)
 // createAllocateRequest creates a TURN allocate request
 func (c *TURNClient) createAllocateRequest(transactionID []byte) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
-	
+
 	// Message type
 	binary.BigEndian.PutUint16(buf[0:2], TURNAllocateRequest)
-	
+
 	// Magic cookie
 	binary.BigEndian.PutUint32(buf[4:8], STUNMagicCookie)
-	
+
 	// Transaction ID
 	copy(buf[8:20], transactionID)
-	
+
 	// Add REQUESTED-TRANSPORT attribute (UDP)
 	attrData := []byte{0x17, 0x00, 0x00, 0x00} // Protocol 17 (UDP) + 3 bytes padding
 	buf = append(buf, c.encodeAttribute(TURNAttrRequestedTransport, attrData)...)
-	
+
 	// Add LIFETIME attribute
 	lifetime := make([]byte, 4)
 	binary.BigEndian.PutUint32(lifetime, TURNDefaultLifetime)
 	buf = append(buf, c.encodeAttribute(TURNAttrLifetime, lifetime)...)
-	
+
 	// Update length
 	binary.BigEndian.PutUint16(buf[2:4], uint16(len(buf)-STUNHeaderSize))
-	
+
 	return buf
 }
 
 // createAllocateRequestWithAuth creates an authenticated allocate request
 func (c *TURNClient) createAllocateRequestWithAuth(transactionID []byte) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
-	
+
 	// Message type
 	binary.BigEndian.PutUint16(buf[0:2], TURNAllocateRequest)
-	
+
 	// Magic cookie
 	binary.BigEndian.PutUint32(buf[4:8], STUNMagicCookie)
-	
+
 	// Transaction ID
 	copy(buf[8:20], transactionID)
-	
+
 	// Add REQUESTED-TRANSPORT attribute
 	attrData := []byte{0x17, 0x00, 0x00, 0x00}
 	buf = append(buf, c.encodeAttribute(TURNAttrRequestedTransport, attrData)...)
-	
+
 	// Add LIFETIME attribute
 	lifetime := make([]byte, 4)
 	binary.BigEndian.PutUint32(lifetime, TURNDefaultLifetime)
 	buf = append(buf, c.encodeAttribute(TURNAttrLifetime, lifetime)...)
-	
+
 	// Add USERNAME attribute
 	buf = append(buf, c.encodeAttribute(TURNAttrUsername, []byte(c.username))...)
-	
+
 	// Add REALM attribute
 	buf = append(buf, c.encodeAttribute(TURNAttrRealm, []byte(c.realm))...)
-	
+
 	// Add NONCE attribute
 	buf = append(buf, c.encodeAttribute(TURNAttrNonce, c.nonce)...)
-	
+
 	// Add MESSAGE-INTEGRITY (HMAC-SHA1)
 	integrity := c.calculateMessageIntegrity(buf)
 	buf = append(buf, c.encodeAttribute(TURNAttrMessageIntegrity, integrity)...)
-	
+
 	// Update length
 	binary.BigEndian.PutUint16(buf[2:4], uint16(len(buf)-STUNHeaderSize))
-	
+
 	return buf
 }
 
@@ -314,13 +314,13 @@ func (c *TURNClient) encodeAttribute(attrType uint16, value []byte) []byte {
 	binary.BigEndian.PutUint16(buf[0:2], attrType)
 	binary.BigEndian.PutUint16(buf[2:4], uint16(len(value)))
 	copy(buf[4:], value)
-	
+
 	// Add padding to 4-byte boundary
 	padding := (4 - (len(value) % 4)) % 4
 	if padding > 0 {
 		buf = append(buf, make([]byte, padding)...)
 	}
-	
+
 	return buf
 }
 
@@ -357,7 +357,7 @@ func (c *TURNClient) extractRelayedAddress(pkt *STUNPacket) (*net.UDPAddr, error
 	// XOR IP with magic cookie
 	cookieBytes := make([]byte, 4)
 	binary.BigEndian.PutUint32(cookieBytes, STUNMagicCookie)
-	
+
 	ip := make(net.IP, 4)
 	for i := 0; i < 4; i++ {
 		ip[i] = data[4+i] ^ cookieBytes[i]
@@ -405,40 +405,40 @@ func (c *TURNClient) CreatePermission(ctx context.Context, peer *net.UDPAddr) er
 // createPermissionRequest creates a CreatePermission request
 func (c *TURNClient) createPermissionRequest(transactionID []byte, peer *net.UDPAddr) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
-	
+
 	binary.BigEndian.PutUint16(buf[0:2], TURNCreatePermissionRequest)
 	binary.BigEndian.PutUint32(buf[4:8], STUNMagicCookie)
 	copy(buf[8:20], transactionID)
-	
+
 	// Add XOR-PEER-ADDRESS
 	peerAddr := c.encodeXORPeerAddress(peer)
 	buf = append(buf, c.encodeAttribute(TURNAttrXORPeerAddress, peerAddr)...)
-	
+
 	binary.BigEndian.PutUint16(buf[2:4], uint16(len(buf)-STUNHeaderSize))
-	
+
 	return buf
 }
 
 // encodeXORPeerAddress encodes a peer address for XOR-PEER-ADDRESS
 func (c *TURNClient) encodeXORPeerAddress(addr *net.UDPAddr) []byte {
 	buf := make([]byte, 8) // IPv4 only for now
-	
+
 	buf[0] = 0x00 // Reserved
 	buf[1] = 0x01 // IPv4 family
-	
+
 	// XOR port
 	port := uint16(addr.Port) ^ uint16(STUNMagicCookie>>16)
 	binary.BigEndian.PutUint16(buf[2:4], port)
-	
+
 	// XOR IP
 	cookieBytes := make([]byte, 4)
 	binary.BigEndian.PutUint32(cookieBytes, STUNMagicCookie)
-	
+
 	ip := addr.IP.To4()
 	for i := 0; i < 4; i++ {
 		buf[4+i] = ip[i] ^ cookieBytes[i]
 	}
-	
+
 	return buf
 }
 
@@ -461,20 +461,20 @@ func (c *TURNClient) Send(ctx context.Context, data []byte, peer *net.UDPAddr) e
 // createSendRequest creates a TURN Send request
 func (c *TURNClient) createSendRequest(transactionID []byte, data []byte, peer *net.UDPAddr) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
-	
+
 	binary.BigEndian.PutUint16(buf[0:2], TURNSendRequest)
 	binary.BigEndian.PutUint32(buf[4:8], STUNMagicCookie)
 	copy(buf[8:20], transactionID)
-	
+
 	// Add XOR-PEER-ADDRESS
 	peerAddr := c.encodeXORPeerAddress(peer)
 	buf = append(buf, c.encodeAttribute(TURNAttrXORPeerAddress, peerAddr)...)
-	
+
 	// Add DATA
 	buf = append(buf, c.encodeAttribute(TURNAttrData, data)...)
-	
+
 	binary.BigEndian.PutUint16(buf[2:4], uint16(len(buf)-STUNHeaderSize))
-	
+
 	return buf
 }
 
@@ -531,10 +531,10 @@ func (c *TURNClient) parseDataIndication(pkt *STUNPacket) ([]byte, *net.UDPAddr,
 	}
 
 	port := int(binary.BigEndian.Uint16(peerAddrData[2:4])) ^ (int(STUNMagicCookie) >> 16)
-	
+
 	cookieBytes := make([]byte, 4)
 	binary.BigEndian.PutUint32(cookieBytes, STUNMagicCookie)
-	
+
 	ip := make(net.IP, 4)
 	for i := 0; i < 4; i++ {
 		ip[i] = peerAddrData[4+i] ^ cookieBytes[i]
@@ -617,24 +617,24 @@ func (c *TURNClient) BindChannel(ctx context.Context, peer *net.UDPAddr) (uint16
 // createChannelBindRequest creates a ChannelBind request
 func (c *TURNClient) createChannelBindRequest(transactionID []byte, channel uint16, peer *net.UDPAddr) []byte {
 	buf := make([]byte, STUNHeaderSize, 1500)
-	
+
 	binary.BigEndian.PutUint16(buf[0:2], TURNChannelBindRequest)
 	binary.BigEndian.PutUint32(buf[4:8], STUNMagicCookie)
 	copy(buf[8:20], transactionID)
-	
+
 	// Add CHANNEL-NUMBER
 	channelData := make([]byte, 4)
 	binary.BigEndian.PutUint16(channelData[0:2], channel)
-	channelData[2] = 0x00 // RFFU
-	channelData[3] = 0x00 // RFFU
+	channelData[2] = 0x00                                        // RFFU
+	channelData[3] = 0x00                                        // RFFU
 	buf = append(buf, c.encodeAttribute(0x000C, channelData)...) // CHANNEL-NUMBER
-	
+
 	// Add XOR-PEER-ADDRESS
 	peerAddr := c.encodeXORPeerAddress(peer)
 	buf = append(buf, c.encodeAttribute(TURNAttrXORPeerAddress, peerAddr)...)
-	
+
 	binary.BigEndian.PutUint16(buf[2:4], uint16(len(buf)-STUNHeaderSize))
-	
+
 	return buf
 }
 

@@ -90,8 +90,8 @@ func (api *MediaCenterAPI) ScrapeMedia(w http.ResponseWriter, r *http.Request) {
 // BatchScrapeMedia handles batch scraping
 func (api *MediaCenterAPI) BatchScrapeMedia(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Items  []media.ScrapeItem `json:"items"`
-		Workers int               `json:"workers,omitempty"`
+		Items   []media.ScrapeItem `json:"items"`
+		Workers int                `json:"workers,omitempty"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -152,18 +152,18 @@ func (api *MediaCenterAPI) GetPlaybackConfig(w http.ResponseWriter, r *http.Requ
 
 	// Default capabilities (could be loaded from device profile)
 	caps := &media.PlaybackCapabilities{
-		MaxResolution:       "3840x2160",
-		SupportedHDR:        []media.HDRFormat{media.HDR10, media.DolbyVision},
+		MaxResolution:        "3840x2160",
+		SupportedHDR:         []media.HDRFormat{media.HDR10, media.DolbyVision},
 		SupportedVideoCodecs: []media.VideoCodec{media.VideoHEVC, media.VideoH264, media.VideoAV1},
-		BitDepthSupport:     10,
-		DolbyVisionSupport:  true,
+		BitDepthSupport:      10,
+		DolbyVisionSupport:   true,
 		SupportedAudioCodecs: []media.AudioCodec{media.AudioEAC3, media.AudioTrueHD, media.AudioAtmos},
-		MaxAudioChannels:    8,
-		AtmosSupport:        true,
-		TrueHDSupport:       true,
-		MaxBitrate:          50000000,
-		HLSSupport:          true,
-		DASHSupport:         true,
+		MaxAudioChannels:     8,
+		AtmosSupport:         true,
+		TrueHDSupport:        true,
+		MaxBitrate:           50000000,
+		HLSSupport:           true,
+		DASHSupport:          true,
 	}
 
 	config := media.GetOptimalPlaybackConfig(analysis, caps)
@@ -271,7 +271,7 @@ func (api *MediaCenterAPI) CreateHLSStream(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	json.NewEncoder(w).Encode(session)
+	_ = json.NewEncoder(w).Encode(session)
 }
 
 // CreateDASHStream creates a DASH stream
@@ -292,7 +292,7 @@ func (api *MediaCenterAPI) CreateDASHStream(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	json.NewEncoder(w).Encode(session)
+	_ = json.NewEncoder(w).Encode(session)
 }
 
 // GetStreamSession gets stream session info
@@ -309,7 +309,7 @@ func (api *MediaCenterAPI) GetStreamSession(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	json.NewEncoder(w).Encode(session)
+	_ = json.NewEncoder(w).Encode(session)
 }
 
 // StopStreamSession stops a stream session
@@ -325,7 +325,7 @@ func (api *MediaCenterAPI) StopStreamSession(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	_ = json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
 
 // ErrorResponse represents an API error response
@@ -338,7 +338,7 @@ type ErrorResponse struct {
 // WriteError writes an error response
 func WriteError(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(ErrorResponse{
+	_ = json.NewEncoder(w).Encode(ErrorResponse{
 		Error:   http.StatusText(code),
 		Code:    code,
 		Message: message,
@@ -348,7 +348,7 @@ func WriteError(w http.ResponseWriter, code int, message string) {
 // WriteJSON writes a JSON response
 func WriteJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(data)
 }
 
 // Timestamp is a helper for consistent timestamp formatting

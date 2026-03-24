@@ -16,15 +16,15 @@ const (
 	// NATUnknown indicates unknown NAT type
 	NATUnknown NATType = iota
 	// NATNone indicates no NAT (public IP)
-	NATNone               // No NAT (public IP)
+	NATNone // No NAT (public IP)
 	// NATFullCone indicates Full Cone NAT (easiest to traverse)
-	NATFullCone           // Full Cone NAT (easiest to traverse)
+	NATFullCone // Full Cone NAT (easiest to traverse)
 	// NATRestrictedCone indicates Restricted Cone NAT
-	NATRestrictedCone     // Restricted Cone NAT
+	NATRestrictedCone // Restricted Cone NAT
 	// NATPortRestricted indicates Port Restricted Cone NAT
-	NATPortRestricted     // Port Restricted Cone NAT
+	NATPortRestricted // Port Restricted Cone NAT
 	// NATSymmetric indicates Symmetric NAT (hardest to traverse)
-	NATSymmetric          // Symmetric NAT (hardest to traverse)
+	NATSymmetric // Symmetric NAT (hardest to traverse)
 	// NATSymmetricUDPFirewall indicates Symmetric UDP Firewall
 	NATSymmetricUDPFirewall // Symmetric UDP Firewall
 )
@@ -55,11 +55,11 @@ const (
 	// ConnectionUnknown indicates unknown connection type
 	ConnectionUnknown ConnectionType = iota
 	// ConnectionDirect indicates direct P2P connection
-	ConnectionDirect                  // Direct P2P connection
+	ConnectionDirect // Direct P2P connection
 	// ConnectionRelay indicates connection through TURN relay
-	ConnectionRelay                   // Through TURN relay
+	ConnectionRelay // Through TURN relay
 	// ConnectionHolePunched indicates UDP hole punched connection
-	ConnectionHolePunched             // UDP hole punched
+	ConnectionHolePunched // UDP hole punched
 )
 
 func (c ConnectionType) String() string {
@@ -77,56 +77,56 @@ func (c ConnectionType) String() string {
 
 // PeerInfo contains information about a remote peer
 type PeerInfo struct {
-	ID           string            `json:"id"`
-	PublicKey    []byte            `json:"public_key"`
-	Endpoints    []net.UDPAddr     `json:"endpoints"`
-	NATType      NATType           `json:"nat_type"`
-	Metadata     map[string]string `json:"metadata"`
-	LastSeen     time.Time         `json:"last_seen"`
-	ConnectionType ConnectionType  `json:"connection_type"`
+	ID             string            `json:"id"`
+	PublicKey      []byte            `json:"public_key"`
+	Endpoints      []net.UDPAddr     `json:"endpoints"`
+	NATType        NATType           `json:"nat_type"`
+	Metadata       map[string]string `json:"metadata"`
+	LastSeen       time.Time         `json:"last_seen"`
+	ConnectionType ConnectionType    `json:"connection_type"`
 }
 
 // Candidate represents an ICE candidate
 type Candidate struct {
-	Type        string     `json:"type"`         // host, srflx, relay
-	Network     string     `json:"network"`      // udp, tcp
-	IP          net.IP     `json:"ip"`
-	Port        int        `json:"port"`
-	Priority    uint32     `json:"priority"`
-	Foundation  string     `json:"foundation"`
-	Component   int        `json:"component"`
-	RelAddr     net.IP     `json:"rel_addr,omitempty"`  // Related address for srflx/relay
-	RelPort     int        `json:"rel_port,omitempty"`  // Related port for srflx/relay
+	Type       string `json:"type"`    // host, srflx, relay
+	Network    string `json:"network"` // udp, tcp
+	IP         net.IP `json:"ip"`
+	Port       int    `json:"port"`
+	Priority   uint32 `json:"priority"`
+	Foundation string `json:"foundation"`
+	Component  int    `json:"component"`
+	RelAddr    net.IP `json:"rel_addr,omitempty"` // Related address for srflx/relay
+	RelPort    int    `json:"rel_port,omitempty"` // Related port for srflx/relay
 }
 
 // TunnelConfig holds tunnel configuration
 type TunnelConfig struct {
 	// Local configuration
-	ListenPort    int           `json:"listen_port"`
-	PublicKey     []byte        `json:"public_key"`
-	PrivateKey    []byte        `json:"-"`
-	
+	ListenPort int    `json:"listen_port"`
+	PublicKey  []byte `json:"public_key"`
+	PrivateKey []byte `json:"-"`
+
 	// STUN servers
-	STUNServers   []string      `json:"stun_servers"`
-	
+	STUNServers []string `json:"stun_servers"`
+
 	// TURN servers (for relay fallback)
-	TURNServers   []TURNServer  `json:"turn_servers"`
-	
+	TURNServers []TURNServer `json:"turn_servers"`
+
 	// Signaling server
-	SignalingURL  string        `json:"signaling_url"`
-	
+	SignalingURL string `json:"signaling_url"`
+
 	// Security
-	EncryptionKey []byte        `json:"-"`
-	
+	EncryptionKey []byte `json:"-"`
+
 	// Timeouts
-	STUNTimeout   time.Duration `json:"stun_timeout"`
-	TURNTimeout   time.Duration `json:"turn_timeout"`
-	ICETimeout    time.Duration `json:"ice_timeout"`
-	Keepalive     time.Duration `json:"keepalive"`
-	
+	STUNTimeout time.Duration `json:"stun_timeout"`
+	TURNTimeout time.Duration `json:"turn_timeout"`
+	ICETimeout  time.Duration `json:"ice_timeout"`
+	Keepalive   time.Duration `json:"keepalive"`
+
 	// Limits
-	MaxPeers      int           `json:"max_peers"`
-	MaxRetries    int           `json:"max_retries"`
+	MaxPeers   int `json:"max_peers"`
+	MaxRetries int `json:"max_retries"`
 }
 
 // TURNServer represents a TURN server configuration
@@ -138,13 +138,13 @@ type TURNServer struct {
 
 // TunnelState represents the current state of the tunnel
 type TunnelState struct {
-	LocalNATType    NATType         `json:"local_nat_type"`
-	PublicIP        net.IP          `json:"public_ip"`
-	PublicPort      int             `json:"public_port"`
-	LocalCandidates []Candidate     `json:"local_candidates"`
+	LocalNATType    NATType              `json:"local_nat_type"`
+	PublicIP        net.IP               `json:"public_ip"`
+	PublicPort      int                  `json:"public_port"`
+	LocalCandidates []Candidate          `json:"local_candidates"`
 	Peers           map[string]*PeerInfo `json:"peers"`
-	Connected       bool            `json:"connected"`
-	LastError       string          `json:"last_error,omitempty"`
+	Connected       bool                 `json:"connected"`
+	LastError       string               `json:"last_error,omitempty"`
 }
 
 // TunnelStats holds statistics for the tunnel
@@ -208,9 +208,9 @@ func DefaultConfig() *TunnelConfig {
 
 // EncryptedPacket represents an encrypted data packet
 type EncryptedPacket struct {
-	Nonce     []byte `json:"nonce"`
+	Nonce      []byte `json:"nonce"`
 	Ciphertext []byte `json:"ciphertext"`
-	Tag       []byte `json:"tag"`
+	Tag        []byte `json:"tag"`
 }
 
 // HolePunchRequest represents a hole punch synchronization request
@@ -223,11 +223,11 @@ type HolePunchRequest struct {
 
 // SignalingMessage types
 const (
-	MsgTypeOffer       = "offer"
-	MsgTypeAnswer      = "answer"
-	MsgTypeCandidate   = "candidate"
-	MsgTypeHolePunch   = "hole_punch"
-	MsgTypeKeepalive   = "keepalive"
-	MsgTypeDisconnect  = "disconnect"
-	MsgTypeError       = "error"
+	MsgTypeOffer      = "offer"
+	MsgTypeAnswer     = "answer"
+	MsgTypeCandidate  = "candidate"
+	MsgTypeHolePunch  = "hole_punch"
+	MsgTypeKeepalive  = "keepalive"
+	MsgTypeDisconnect = "disconnect"
+	MsgTypeError      = "error"
 )

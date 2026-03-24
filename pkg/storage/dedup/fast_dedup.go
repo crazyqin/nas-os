@@ -20,19 +20,19 @@ import (
 
 var (
 	// ErrChunkNotFound indicates chunk not found in dedup table
-	ErrChunkNotFound      = errors.New("chunk not found in dedup table")
+	ErrChunkNotFound = errors.New("chunk not found in dedup table")
 	// ErrDuplicateEntry indicates duplicate entry in dedup table
-	ErrDuplicateEntry     = errors.New("duplicate entry in dedup table")
+	ErrDuplicateEntry = errors.New("duplicate entry in dedup table")
 	// ErrTableFull indicates dedup table is full
-	ErrTableFull          = errors.New("dedup table full")
+	ErrTableFull = errors.New("dedup table full")
 	// ErrInvalidChunkSize indicates invalid chunk size
-	ErrInvalidChunkSize   = errors.New("invalid chunk size")
+	ErrInvalidChunkSize = errors.New("invalid chunk size")
 	// ErrHashMismatch indicates hash mismatch during verification
-	ErrHashMismatch       = errors.New("hash mismatch during verification")
+	ErrHashMismatch = errors.New("hash mismatch during verification")
 	// ErrWriteInProgress indicates write operation is in progress
-	ErrWriteInProgress    = errors.New("write operation in progress")
+	ErrWriteInProgress = errors.New("write operation in progress")
 	// ErrDedupDisabled indicates deduplication is not enabled
-	ErrDedupDisabled      = errors.New("deduplication not enabled")
+	ErrDedupDisabled = errors.New("deduplication not enabled")
 	// ErrInsufficientMemory indicates insufficient memory for operation
 	ErrInsufficientMemory = errors.New("insufficient memory for operation")
 )

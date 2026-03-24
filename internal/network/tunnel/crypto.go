@@ -30,11 +30,13 @@ var (
 
 const (
 	// KeySize256 is the AES-256 key size in bytes
-	KeySize256      = 32
+	KeySize256 = 32
 	// NonceSizeAES is the nonce size for AES-GCM
-	NonceSizeAES    = 12
+	NonceSizeAES = 12
+	// NonceSizeChaCha is the nonce size for ChaCha20-Poly1305
 	NonceSizeChaCha = 12
-	TagSize         = 16
+	// TagSize is the authentication tag size
+	TagSize = 16
 
 	// X25519KeySize is the X25519 key size in bytes
 	X25519KeySize = 32

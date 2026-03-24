@@ -32,13 +32,13 @@ type ConsoleConfig struct {
 // DefaultConsoleConfig returns default configuration
 func DefaultConsoleConfig() ConsoleConfig {
 	return ConsoleConfig{
-		DefaultProvider:      ProviderOpenAI,
-		EnablePIIProtection:  true,
-		EnableAuditLog:       true,
-		MaxConcurrent:        5,
-		Timeout:              60 * time.Second,
-		EnableUsageTracking:  true,
-		LogRetentionDays:     30,
+		DefaultProvider:     ProviderOpenAI,
+		EnablePIIProtection: true,
+		EnableAuditLog:      true,
+		MaxConcurrent:       5,
+		Timeout:             60 * time.Second,
+		EnableUsageTracking: true,
+		LogRetentionDays:    30,
 	}
 }
 
@@ -46,46 +46,64 @@ func DefaultConsoleConfig() ConsoleConfig {
 type AICapability string
 
 const (
-	CapabilityChat          AICapability = "chat"
-	CapabilityEmbedding     AICapability = "embedding"
-	CapabilityImageGen      AICapability = "image-generation"
+	// CapabilityChat indicates chat capability
+	CapabilityChat AICapability = "chat"
+	// CapabilityEmbedding indicates embedding capability
+	CapabilityEmbedding AICapability = "embedding"
+	// CapabilityImageGen indicates image generation capability
+	CapabilityImageGen AICapability = "image-generation"
+	// CapabilityImageAnalysis indicates image analysis capability
 	CapabilityImageAnalysis AICapability = "image-analysis"
-	CapabilityCodeGen       AICapability = "code-generation"
-	CapabilityTranslation   AICapability = "translation"
-	CapabilitySummary       AICapability = "summarization"
-	CapabilitySentiment     AICapability = "sentiment-analysis"
-	CapabilityOCR           AICapability = "ocr"
+	// CapabilityCodeGen indicates code generation capability
+	CapabilityCodeGen AICapability = "code-generation"
+	// CapabilityTranslation indicates translation capability
+	CapabilityTranslation AICapability = "translation"
+	// CapabilitySummary indicates summarization capability
+	CapabilitySummary AICapability = "summarization"
+	// CapabilitySentiment indicates sentiment analysis capability
+	CapabilitySentiment AICapability = "sentiment-analysis"
+	// CapabilityOCR indicates OCR capability
+	CapabilityOCR AICapability = "ocr"
 )
 
 // TaskType represents predefined AI task types
 type TaskType string
 
 const (
-	TaskPhotoSearch      TaskType = "photo-search"      // Smart photo search
-	TaskPhotoCaption     TaskType = "photo-caption"     // Generate photo captions
-	TaskDocumentSummary  TaskType = "document-summary"  // Summarize documents
-	TaskVideoAnalysis    TaskType = "video-analysis"    // Analyze video content
-	TaskSpeechToText     TaskType = "speech-to-text"    // Speech recognition
-	TaskTextToSpeech     TaskType = "text-to-speech"    // TTS synthesis
-	TaskSmartAlbum       TaskType = "smart-album"       // Create smart albums
+	// TaskPhotoSearch indicates smart photo search task
+	TaskPhotoSearch TaskType = "photo-search" // Smart photo search
+	// TaskPhotoCaption indicates photo caption generation task
+	TaskPhotoCaption TaskType = "photo-caption" // Generate photo captions
+	// TaskDocumentSummary indicates document summarization task
+	TaskDocumentSummary TaskType = "document-summary" // Summarize documents
+	// TaskVideoAnalysis indicates video analysis task
+	TaskVideoAnalysis TaskType = "video-analysis" // Analyze video content
+	// TaskSpeechToText indicates speech recognition task
+	TaskSpeechToText TaskType = "speech-to-text" // Speech recognition
+	// TaskTextToSpeech indicates TTS synthesis task
+	TaskTextToSpeech TaskType = "text-to-speech" // TTS synthesis
+	// TaskSmartAlbum indicates smart album creation task
+	TaskSmartAlbum TaskType = "smart-album" // Create smart albums
+	// TaskContentModeration indicates content safety check task
 	TaskContentModeration TaskType = "content-moderation" // Content safety check
-	TaskLanguageDetect   TaskType = "language-detect"   // Detect language
+	// TaskLanguageDetect indicates language detection task
+	TaskLanguageDetect TaskType = "language-detect" // Detect language
 )
 
 // ConsoleRequest represents a request to AI Console
 type ConsoleRequest struct {
-	ID          string            `json:"id"`
-	TaskType    TaskType          `json:"taskType"`
-	Capability  AICapability      `json:"capability"`
-	Provider    Provider          `json:"provider,omitempty"` // Override default
-	Model       string            `json:"model,omitempty"`
-	Prompt      string            `json:"prompt"`
-	Context     map[string]interface{} `json:"context,omitempty"`
-	Files       []FileReference   `json:"files,omitempty"`
-	Options     RequestOptions    `json:"options,omitempty"`
-	UserID      string            `json:"userId,omitempty"`
-	SessionID   string            `json:"sessionId,omitempty"`
-	Timestamp   time.Time         `json:"timestamp"`
+	ID         string                 `json:"id"`
+	TaskType   TaskType               `json:"taskType"`
+	Capability AICapability           `json:"capability"`
+	Provider   Provider               `json:"provider,omitempty"` // Override default
+	Model      string                 `json:"model,omitempty"`
+	Prompt     string                 `json:"prompt"`
+	Context    map[string]interface{} `json:"context,omitempty"`
+	Files      []FileReference        `json:"files,omitempty"`
+	Options    RequestOptions         `json:"options,omitempty"`
+	UserID     string                 `json:"userId,omitempty"`
+	SessionID  string                 `json:"sessionId,omitempty"`
+	Timestamp  time.Time              `json:"timestamp"`
 }
 
 // FileReference represents a file to be processed
@@ -97,12 +115,12 @@ type FileReference struct {
 
 // RequestOptions represents additional options for AI requests
 type RequestOptions struct {
-	Temperature   float64 `json:"temperature,omitempty"`
-	MaxTokens     int     `json:"maxTokens,omitempty"`
-	TopP          float64 `json:"topP,omitempty"`
+	Temperature   float64  `json:"temperature,omitempty"`
+	MaxTokens     int      `json:"maxTokens,omitempty"`
+	TopP          float64  `json:"topP,omitempty"`
 	StopSequences []string `json:"stopSequences,omitempty"`
-	Language      string  `json:"language,omitempty"`
-	OutputFormat  string  `json:"outputFormat,omitempty"`
+	Language      string   `json:"language,omitempty"`
+	OutputFormat  string   `json:"outputFormat,omitempty"`
 }
 
 // ConsoleResponse represents a response from AI Console
@@ -147,17 +165,17 @@ type AuditLog struct {
 
 // UsageStats represents usage statistics
 type UsageStats struct {
-	TotalRequests    int64             `json:"totalRequests"`
-	SuccessfulRequests int64           `json:"successfulRequests"`
-	FailedRequests   int64             `json:"failedRequests"`
-	TotalTokens      int64             `json:"totalTokens"`
-	PromptTokens     int64             `json:"promptTokens"`
-	CompletionTokens int64             `json:"completionTokens"`
-	ByProvider       map[Provider]int64 `json:"byProvider"`
-	ByTaskType       map[TaskType]int64 `json:"byTaskType"`
-	ByUser           map[string]int64  `json:"byUser"`
-	StartTime        time.Time         `json:"startTime"`
-	LastUpdated      time.Time         `json:"lastUpdated"`
+	TotalRequests      int64              `json:"totalRequests"`
+	SuccessfulRequests int64              `json:"successfulRequests"`
+	FailedRequests     int64              `json:"failedRequests"`
+	TotalTokens        int64              `json:"totalTokens"`
+	PromptTokens       int64              `json:"promptTokens"`
+	CompletionTokens   int64              `json:"completionTokens"`
+	ByProvider         map[Provider]int64 `json:"byProvider"`
+	ByTaskType         map[TaskType]int64 `json:"byTaskType"`
+	ByUser             map[string]int64   `json:"byUser"`
+	StartTime          time.Time          `json:"startTime"`
+	LastUpdated        time.Time          `json:"lastUpdated"`
 }
 
 // Console is the main AI Console interface
@@ -173,24 +191,24 @@ type Console struct {
 
 // ProviderInfo represents provider information
 type ProviderInfo struct {
-	Name         string        `json:"name"`
-	Provider     Provider      `json:"provider"`
-	Models       []ModelInfo   `json:"models"`
+	Name         string         `json:"name"`
+	Provider     Provider       `json:"provider"`
+	Models       []ModelInfo    `json:"models"`
 	Capabilities []AICapability `json:"capabilities"`
-	Status       string        `json:"status"`
-	LastChecked  time.Time     `json:"lastChecked"`
+	Status       string         `json:"status"`
+	LastChecked  time.Time      `json:"lastChecked"`
 }
 
 // ModelInfo represents model information
 type ModelInfo struct {
-	ID           string   `json:"id"`
-	Name         string   `json:"name"`
-	Provider     Provider `json:"provider"`
-	ContextSize  int      `json:"contextSize"`
-	MaxTokens    int      `json:"maxTokens"`
-	Supports     []AICapability `json:"supports"`
-	InputPrice   float64  `json:"inputPrice"`  // per 1K tokens
-	OutputPrice  float64  `json:"outputPrice"` // per 1K tokens
+	ID          string         `json:"id"`
+	Name        string         `json:"name"`
+	Provider    Provider       `json:"provider"`
+	ContextSize int            `json:"contextSize"`
+	MaxTokens   int            `json:"maxTokens"`
+	Supports    []AICapability `json:"supports"`
+	InputPrice  float64        `json:"inputPrice"`  // per 1K tokens
+	OutputPrice float64        `json:"outputPrice"` // per 1K tokens
 }
 
 // NewConsole creates a new AI Console
@@ -261,11 +279,11 @@ func (c *Console) Process(ctx context.Context, req *ConsoleRequest) (*ConsoleRes
 
 	// Create response
 	result := &ConsoleResponse{
-		ID:         generateRequestID(),
-		RequestID:  req.ID,
-		Provider:   provider,
+		ID:          generateRequestID(),
+		RequestID:   req.ID,
+		Provider:    provider,
 		PIIRedacted: piiRedacted,
-		Duration:   time.Since(startTime),
+		Duration:    time.Since(startTime),
 	}
 
 	if err != nil {
@@ -530,9 +548,9 @@ func isIPAddress(s string) bool {
 
 // AuditLogger handles audit logging
 type AuditLogger struct {
-	logs       []AuditLog
-	retention  int
-	mu         sync.RWMutex
+	logs      []AuditLog
+	retention int
+	mu        sync.RWMutex
 }
 
 // NewAuditLogger creates a new audit logger

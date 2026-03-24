@@ -19,13 +19,17 @@ type DesensitizationStrategy string
 
 const (
 	// StrategyMask replaces sensitive data with asterisks
-	StrategyMask      DesensitizationStrategy = "mask"       // Replace with ****
+	StrategyMask DesensitizationStrategy = "mask" // Replace with ****
 	// StrategyHash applies one-way hash to sensitive data
-	StrategyHash      DesensitizationStrategy = "hash"       // One-way hash
-	StrategyTokenize  DesensitizationStrategy = "tokenize"   // Reversible tokenization
-	StrategyRedact    DesensitizationStrategy = "redact"     // Complete removal
-	StrategyPartial   DesensitizationStrategy = "partial"    // Show partial info
-	StrategyEncrypt   DesensitizationStrategy = "encrypt"    // AES encryption
+	StrategyHash DesensitizationStrategy = "hash" // One-way hash
+	// StrategyTokenize applies reversible tokenization
+	StrategyTokenize DesensitizationStrategy = "tokenize" // Reversible tokenization
+	// StrategyRedact removes sensitive data completely
+	StrategyRedact DesensitizationStrategy = "redact" // Complete removal
+	// StrategyPartial shows partial information
+	StrategyPartial DesensitizationStrategy = "partial" // Show partial info
+	// StrategyEncrypt encrypts sensitive data
+	StrategyEncrypt DesensitizationStrategy = "encrypt" // AES encryption
 )
 
 // PIIType represents types of personally identifiable information
@@ -33,66 +37,79 @@ type PIIType string
 
 const (
 	// PIIName represents personally identifiable name
-	PIIName          PIIType = "name"
+	PIIName PIIType = "name"
 	// PIIEmail represents email address
-	PIIEmail         PIIType = "email"
-	PIIPhone         PIIType = "phone"
-	PIIIDCard        PIIType = "id_card"
-	PIIPassport      PIIType = "passport"
-	PIICreditCard    PIIType = "credit_card"
-	PIIBankAccount   PIIType = "bank_account"
-	PIIAddress       PIIType = "address"
-	PIIIPAddress     PIIType = "ip_address"
-	PIIMACAddress    PIIType = "mac_address"
-	PIILicensePlate  PIIType = "license_plate"
-	PIISocialMedia   PIIType = "social_media"
-	PIIDateOfBirth   PIIType = "date_of_birth"
+	PIIEmail PIIType = "email"
+	// PIIPhone represents phone number
+	PIIPhone PIIType = "phone"
+	// PIIIDCard represents ID card number
+	PIIIDCard PIIType = "id_card"
+	// PIIPassport represents passport number
+	PIIPassport PIIType = "passport"
+	// PIICreditCard represents credit card number
+	PIICreditCard PIIType = "credit_card"
+	// PIIBankAccount represents bank account number
+	PIIBankAccount PIIType = "bank_account"
+	// PIIAddress represents physical address
+	PIIAddress PIIType = "address"
+	// PIIIPAddress represents IP address
+	PIIIPAddress PIIType = "ip_address"
+	// PIIMACAddress represents MAC address
+	PIIMACAddress PIIType = "mac_address"
+	// PIILicensePlate represents license plate number
+	PIILicensePlate PIIType = "license_plate"
+	// PIISocialMedia represents social media handle
+	PIISocialMedia PIIType = "social_media"
+	// PIIDateOfBirth represents date of birth
+	PIIDateOfBirth PIIType = "date_of_birth"
+	// PIIMedicalRecord represents medical record
 	PIIMedicalRecord PIIType = "medical_record"
-	PIICustom        PIIType = "custom"
+	// PIICustom represents custom PII type
+	PIICustom PIIType = "custom"
 )
 
 // DesensitizationRule defines a rule for data protection
 type DesensitizationRule struct {
-	ID           string                  `json:"id"`
-	Name         string                  `json:"name"`
-	Type         PIIType                 `json:"type"`
-	Pattern      string                  `json:"pattern"`
-	Strategy     DesensitizationStrategy `json:"strategy"`
-	Replacement  string                  `json:"replacement,omitempty"`
-	MaskChar     string                  `json:"maskChar,omitempty"`
-	ShowFirst    int                     `json:"showFirst,omitempty"`
-	ShowLast     int                     `json:"showLast,omitempty"`
-	Enabled      bool                    `json:"enabled"`
-	Priority     int                     `json:"priority"` // Higher priority rules processed first
-	Description  string                  `json:"description,omitempty"`
+	ID          string                  `json:"id"`
+	Name        string                  `json:"name"`
+	Type        PIIType                 `json:"type"`
+	Pattern     string                  `json:"pattern"`
+	Strategy    DesensitizationStrategy `json:"strategy"`
+	Replacement string                  `json:"replacement,omitempty"`
+	MaskChar    string                  `json:"maskChar,omitempty"`
+	ShowFirst   int                     `json:"showFirst,omitempty"`
+	ShowLast    int                     `json:"showLast,omitempty"`
+	Enabled     bool                    `json:"enabled"`
+	Priority    int                     `json:"priority"` // Higher priority rules processed first
+	Description string                  `json:"description,omitempty"`
 }
 
 // DesensitizationResult represents the result of desensitization
 type DesensitizationResult struct {
-	Original     string                  `json:"-"` // Never store original
-	Processed    string                  `json:"processed"`
-	RedactionCount int                   `json:"redactionCount"`
-	Redactions   []RedactionDetail       `json:"redactions"`
-	Strategy     DesensitizationStrategy `json:"strategy"`
-	Timestamp    time.Time               `json:"timestamp"`
+	Original       string                  `json:"-"` // Never store original
+	Processed      string                  `json:"processed"`
+	RedactionCount int                     `json:"redactionCount"`
+	Redactions     []RedactionDetail       `json:"redactions"`
+	Strategy       DesensitizationStrategy `json:"strategy"`
+	Timestamp      time.Time               `json:"timestamp"`
 }
 
 // RedactionDetail represents details of a single redaction
 type RedactionDetail struct {
-	Type       PIIType                 `json:"type"`
-	Start      int                     `json:"start"`
-	End        int                     `json:"end"`
-	Original   string                  `json:"-"` // Never expose original
-	Replaced   string                  `json:"replaced"`
-	Strategy   DesensitizationStrategy `json:"strategy"`
-	Token      string                  `json:"token,omitempty"` // For tokenization
+	Type     PIIType                 `json:"type"`
+	Start    int                     `json:"start"`
+	End      int                     `json:"end"`
+	Original string                  `json:"-"` // Never expose original
+	Replaced string                  `json:"replaced"`
+	Strategy DesensitizationStrategy `json:"strategy"`
+	Token    string                  `json:"token,omitempty"` // For tokenization
 }
 
 // Desensitizer provides comprehensive data desensitization
 type Desensitizer struct {
-	rules       []DesensitizationRule
-	tokenStore  *TokenStore
-	mu          sync.RWMutex
+	rules      []DesensitizationRule
+	tokenStore *TokenStore
+	mu         sync.RWMutex
 }
 
 // TokenStore stores tokens for reversible desensitization
@@ -103,13 +120,13 @@ type TokenStore struct {
 
 // TokenEntry represents a stored token
 type TokenEntry struct {
-	Token       string    `json:"token"`
-	Original    string    `json:"-"` // Never store in JSON
-	ValueHash   string    `json:"valueHash"`
-	Type        PIIType   `json:"type"`
-	CreatedAt   time.Time `json:"createdAt"`
-	ExpiresAt   time.Time `json:"expiresAt,omitempty"`
-	SessionID   string    `json:"sessionId,omitempty"`
+	Token     string    `json:"token"`
+	Original  string    `json:"-"` // Never store in JSON
+	ValueHash string    `json:"valueHash"`
+	Type      PIIType   `json:"type"`
+	CreatedAt time.Time `json:"createdAt"`
+	ExpiresAt time.Time `json:"expiresAt,omitempty"`
+	SessionID string    `json:"sessionId,omitempty"`
 }
 
 // NewDesensitizer creates a new desensitizer
@@ -656,19 +673,19 @@ func NewDesensitizationAPI() *DesensitizationAPI {
 
 // DesensitizeRequest represents an API request
 type DesensitizeRequest struct {
-	Text       string                  `json:"text"`
-	Strategy   DesensitizationStrategy `json:"strategy,omitempty"`
-	SessionID  string                  `json:"sessionId,omitempty"`
-	RuleIDs    []string                `json:"ruleIds,omitempty"` // Apply only specific rules
+	Text      string                  `json:"text"`
+	Strategy  DesensitizationStrategy `json:"strategy,omitempty"`
+	SessionID string                  `json:"sessionId,omitempty"`
+	RuleIDs   []string                `json:"ruleIds,omitempty"` // Apply only specific rules
 }
 
 // DesensitizeResponse represents an API response
 type DesensitizeResponse struct {
-	Success       bool                   `json:"success"`
-	Processed     string                 `json:"processed"`
-	RedactionCount int                   `json:"redactionCount"`
-	Redactions    []RedactionDetail      `json:"redactions,omitempty"`
-	Error         string                 `json:"error,omitempty"`
+	Success        bool              `json:"success"`
+	Processed      string            `json:"processed"`
+	RedactionCount int               `json:"redactionCount"`
+	Redactions     []RedactionDetail `json:"redactions,omitempty"`
+	Error          string            `json:"error,omitempty"`
 }
 
 // Desensitize handles API desensitization request
@@ -697,9 +714,9 @@ type RestoreRequest struct {
 
 // RestoreResponse represents a restore response
 type RestoreResponse struct {
-	Success   bool   `json:"success"`
-	Restored  string `json:"restored"`
-	Error     string `json:"error,omitempty"`
+	Success  bool   `json:"success"`
+	Restored string `json:"restored"`
+	Error    string `json:"error,omitempty"`
 }
 
 // Restore handles API restore request

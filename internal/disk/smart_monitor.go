@@ -344,6 +344,73 @@ func getDefaultAlertRules() []*AlertRule {
 			Cooldown:      1 * time.Hour,
 			LastTriggered: make(map[string]time.Time),
 		},
+		// NVMe 专用告警规则
+		{
+			ID:            "nvme-wear-warning",
+			Name:          "NVMe使用寿命警告",
+			Attribute:     "nvmePercentageUsed",
+			Condition:     "gt",
+			Threshold:     70,
+			Severity:      AlertWarning,
+			Enabled:       true,
+			Cooldown:      24 * time.Hour,
+			LastTriggered: make(map[string]time.Time),
+		},
+		{
+			ID:            "nvme-wear-critical",
+			Name:          "NVMe使用寿命严重",
+			Attribute:     "nvmePercentageUsed",
+			Condition:     "gt",
+			Threshold:     90,
+			Severity:      AlertCritical,
+			Enabled:       true,
+			Cooldown:      6 * time.Hour,
+			LastTriggered: make(map[string]time.Time),
+		},
+		{
+			ID:            "nvme-spare-warning",
+			Name:          "NVMe备用空间警告",
+			Attribute:     "nvmeAvailableSpare",
+			Condition:     "lt",
+			Threshold:     20,
+			Severity:      AlertWarning,
+			Enabled:       true,
+			Cooldown:      24 * time.Hour,
+			LastTriggered: make(map[string]time.Time),
+		},
+		{
+			ID:            "nvme-media-errors",
+			Name:          "NVMe媒体错误",
+			Attribute:     "nvmeMediaErrors",
+			Condition:     "gt",
+			Threshold:     0,
+			Severity:      AlertWarning,
+			Enabled:       true,
+			Cooldown:      12 * time.Hour,
+			LastTriggered: make(map[string]time.Time),
+		},
+		{
+			ID:            "nvme-critical-warning",
+			Name:          "NVMe关键警告",
+			Attribute:     "nvmeCriticalWarning",
+			Condition:     "gt",
+			Threshold:     0,
+			Severity:      AlertCritical,
+			Enabled:       true,
+			Cooldown:      1 * time.Hour,
+			LastTriggered: make(map[string]time.Time),
+		},
+		{
+			ID:            "nvme-temp-high",
+			Name:          "NVMe温度过高",
+			Attribute:     "temperature",
+			Condition:     "gt",
+			Threshold:     65,
+			Severity:      AlertWarning,
+			Enabled:       true,
+			Cooldown:      2 * time.Hour,
+			LastTriggered: make(map[string]time.Time),
+		},
 	}
 }
 
@@ -1229,6 +1296,24 @@ func (m *SMARTMonitor) getAttributeValue(disk *DiskInfo, attrName string) float6
 	case "powerOnHours":
 		if disk.SmartData.PowerOnHours != nil {
 			return float64(disk.SmartData.PowerOnHours.Raw)
+		}
+	// NVMe 专用属性
+	case "nvmePercentageUsed":
+		if disk.SmartData.PercentageUsed != nil {
+			return float64(disk.SmartData.PercentageUsed.Raw)
+		}
+	case "nvmeAvailableSpare":
+		if disk.SmartData.AvailableSpare != nil {
+			return float64(disk.SmartData.AvailableSpare.Value)
+		}
+	case "nvmeMediaErrors":
+		if disk.SmartData.MediaErrors != nil {
+			return float64(disk.SmartData.MediaErrors.Raw)
+		}
+	case "nvmeCriticalWarning":
+		// 从SMART数据中提取关键警告标志
+		if disk.SmartData.OverallHealth == "FAILED" {
+			return 1.0
 		}
 	}
 	return 0

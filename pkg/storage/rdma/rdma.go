@@ -16,60 +16,60 @@ import (
 
 var (
 	// ErrRDMANotAvailable indicates RDMA is not available on this system
-	ErrRDMANotAvailable   = errors.New("rdma not available on this system")
+	ErrRDMANotAvailable = errors.New("rdma not available on this system")
 	// ErrDeviceNotFound indicates RDMA device not found
-	ErrDeviceNotFound     = errors.New("rdma device not found")
+	ErrDeviceNotFound = errors.New("rdma device not found")
 	// ErrPDNotFound indicates protection domain not found
-	ErrPDNotFound         = errors.New("protection domain not found")
+	ErrPDNotFound = errors.New("protection domain not found")
 	// ErrMRRegistrationFail indicates memory region registration failed
 	ErrMRRegistrationFail = errors.New("memory region registration failed")
 	// ErrQPCreateFail indicates queue pair creation failed
-	ErrQPCreateFail       = errors.New("queue pair creation failed")
+	ErrQPCreateFail = errors.New("queue pair creation failed")
 	// ErrCQCreateFail indicates completion queue creation failed
-	ErrCQCreateFail       = errors.New("completion queue creation failed")
+	ErrCQCreateFail = errors.New("completion queue creation failed")
 	// ErrConnectionFailed indicates RDMA connection failed
-	ErrConnectionFailed   = errors.New("rdma connection failed")
+	ErrConnectionFailed = errors.New("rdma connection failed")
 	// ErrTimeout indicates RDMA operation timeout
-	ErrTimeout            = errors.New("rdma operation timeout")
+	ErrTimeout = errors.New("rdma operation timeout")
 	// ErrBufferTooSmall indicates buffer too small for operation
-	ErrBufferTooSmall     = errors.New("buffer too small for operation")
+	ErrBufferTooSmall = errors.New("buffer too small for operation")
 	// ErrInvalidState indicates invalid RDMA state for operation
-	ErrInvalidState       = errors.New("invalid rdma state for operation")
+	ErrInvalidState = errors.New("invalid rdma state for operation")
 	// ErrNotConnected indicates RDMA not connected
-	ErrNotConnected       = errors.New("rdma not connected")
+	ErrNotConnected = errors.New("rdma not connected")
 )
 
 // ========== RDMA 设备和配置 ==========
 
 // DeviceInfo RDMA 设备信息
 type DeviceInfo struct {
-	Name         string `json:"name"`
-	NodeGUID     string `json:"nodeGuid"`
-	SysImageGUID string `json:"sysImageGuid"`
-	MaxMRSize    uint64 `json:"maxMrSize"`
-	MaxQP        uint32 `json:"maxQp"`
-	MaxCQ        uint32 `json:"maxCq"`
-	MaxMR        uint32 `json:"maxMr"`
-	MaxPD        uint32 `json:"maxPd"`
-	Transport    string `json:"transport"` // InfiniBand, iWARP, RoCEv2
-	LinkLayer    string `json:"linkLayer"` // Infiniband, Ethernet
-	State        string `json:"state"`     // UP, DOWN, INITIALIZING
+	Name         string     `json:"name"`
+	NodeGUID     string     `json:"nodeGuid"`
+	SysImageGUID string     `json:"sysImageGuid"`
+	MaxMRSize    uint64     `json:"maxMrSize"`
+	MaxQP        uint32     `json:"maxQp"`
+	MaxCQ        uint32     `json:"maxCq"`
+	MaxMR        uint32     `json:"maxMr"`
+	MaxPD        uint32     `json:"maxPd"`
+	Transport    string     `json:"transport"` // InfiniBand, iWARP, RoCEv2
+	LinkLayer    string     `json:"linkLayer"` // Infiniband, Ethernet
+	State        string     `json:"state"`     // UP, DOWN, INITIALIZING
 	Ports        []PortInfo `json:"ports"`
 }
 
 // PortInfo RDMA 端口信息
 type PortInfo struct {
-	Number      uint8  `json:"number"`
-	State       string `json:"state"`      // DOWN, INITIALIZING, ARMED, ACTIVE
-	LinkLayer   string `json:"linkLayer"`  // Infiniband, Ethernet
-	MaxMTU      uint32 `json:"maxMtu"`
-	ActiveMTU   uint32 `json:"activeMtu"`
-	Speed       uint32 `json:"speed"`       // Gbps
-	Width       string `json:"width"`       // 1x, 2x, 4x, 8x, 12x
-	Rate        uint64 `json:"rate"`        // Mbps
-	GID         []GIDInfo `json:"gids"`
-	LID         uint16 `json:"lid"`
-	SMLID       uint16 `json:"smLid"`
+	Number    uint8     `json:"number"`
+	State     string    `json:"state"`     // DOWN, INITIALIZING, ARMED, ACTIVE
+	LinkLayer string    `json:"linkLayer"` // Infiniband, Ethernet
+	MaxMTU    uint32    `json:"maxMtu"`
+	ActiveMTU uint32    `json:"activeMtu"`
+	Speed     uint32    `json:"speed"` // Gbps
+	Width     string    `json:"width"` // 1x, 2x, 4x, 8x, 12x
+	Rate      uint64    `json:"rate"`  // Mbps
+	GID       []GIDInfo `json:"gids"`
+	LID       uint16    `json:"lid"`
+	SMLID     uint16    `json:"smLid"`
 }
 
 // GIDInfo GID 信息
@@ -117,11 +117,11 @@ type RDMAConfig struct {
 	UseEventChannel bool `json:"useEventChannel"` // 使用事件通道
 
 	// 重试配置
-	MaxRetries     int `json:"maxRetries"`
-	RetryDelayMs   int `json:"retryDelayMs"`
+	MaxRetries   int `json:"maxRetries"`
+	RetryDelayMs int `json:"retryDelayMs"`
 
 	// 安全配置
-	RequireAuth    bool   `json:"requireAuth"`
+	RequireAuth    bool     `json:"requireAuth"`
 	AllowedSubnets []string `json:"allowedSubnets"`
 }
 
@@ -130,21 +130,21 @@ func DefaultRDMAConfig() *RDMAConfig {
 	return &RDMAConfig{
 		Enabled:         true,
 		Transport:       "iSER",
-		Port:           3260,
-		MaxQP:          1024,
-		MaxCQDepth:     4096,
-		MaxWR:          128,
-		MaxSge:         16,
-		MRSize:         1024 * 1024 * 1024, // 1GB
-		ConnectTimeout: 30000,
-		OperTimeout:    10000,
-		InlineSize:     128,
-		SignalAllWR:    true,
+		Port:            3260,
+		MaxQP:           1024,
+		MaxCQDepth:      4096,
+		MaxWR:           128,
+		MaxSge:          16,
+		MRSize:          1024 * 1024 * 1024, // 1GB
+		ConnectTimeout:  30000,
+		OperTimeout:     10000,
+		InlineSize:      128,
+		SignalAllWR:     true,
 		UseEventChannel: true,
-		MaxRetries:     3,
-		RetryDelayMs:   1000,
-		RequireAuth:    false,
-		AllowedSubnets: []string{},
+		MaxRetries:      3,
+		RetryDelayMs:    1000,
+		RequireAuth:     false,
+		AllowedSubnets:  []string{},
 	}
 }
 
@@ -210,12 +210,12 @@ type RDMAEndpoint struct {
 
 // RDMAStats RDMA 统计信息
 type RDMAStats struct {
-	BytesSent     uint64 `json:"bytesSent"`
-	BytesReceived uint64 `json:"bytesReceived"`
-	OpsSent       uint64 `json:"opsSent"`
-	OpsReceived   uint64 `json:"opsReceived"`
-	Errors        uint64 `json:"errors"`
-	Retries       uint64 `json:"retries"`
+	BytesSent     uint64    `json:"bytesSent"`
+	BytesReceived uint64    `json:"bytesReceived"`
+	OpsSent       uint64    `json:"opsSent"`
+	OpsReceived   uint64    `json:"opsReceived"`
+	Errors        uint64    `json:"errors"`
+	Retries       uint64    `json:"retries"`
 	ConnectTime   time.Time `json:"connectTime"`
 	LastActive    time.Time `json:"lastActive"`
 }
@@ -253,11 +253,11 @@ const (
 	// StateDisconnected indicates RDMA is disconnected
 	StateDisconnected RDMAState = 0
 	// StateConnecting indicates RDMA is connecting
-	StateConnecting   RDMAState = 1
+	StateConnecting RDMAState = 1
 	// StateConnected indicates RDMA is connected
-	StateConnected    RDMAState = 2
+	StateConnected RDMAState = 2
 	// StateClosing indicates RDMA is closing
-	StateClosing      RDMAState = 3
+	StateClosing RDMAState = 3
 )
 
 // NewRDMAEndpoint 创建 RDMA 端点
@@ -270,8 +270,8 @@ func NewRDMAEndpoint(config *RDMAConfig) (*RDMAEndpoint, error) {
 	}
 
 	return &RDMAEndpoint{
-		config:   config,
-		eventCh:  make(chan RDMAEvent, 100),
+		config:  config,
+		eventCh: make(chan RDMAEvent, 100),
 	}, nil
 }
 
@@ -525,14 +525,14 @@ func (m *RDMAManager) detectDevices() {
 		State:     "UP",
 		Ports: []PortInfo{
 			{
-				Number:     1,
-				State:      "ACTIVE",
-				LinkLayer:  "Ethernet",
-				MaxMTU:     9000,
-				ActiveMTU:  9000,
-				Speed:      100,
-				Width:      "4x",
-				Rate:       100000, // 100 Gbps
+				Number:    1,
+				State:     "ACTIVE",
+				LinkLayer: "Ethernet",
+				MaxMTU:    9000,
+				ActiveMTU: 9000,
+				Speed:     100,
+				Width:     "4x",
+				Rate:      100000, // 100 Gbps
 			},
 		},
 	}

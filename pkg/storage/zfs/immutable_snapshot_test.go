@@ -170,14 +170,14 @@ func TestHoldInfo(t *testing.T) {
 func TestSnapshotInfo(t *testing.T) {
 	now := time.Now()
 	snap := SnapshotInfo{
-		Name:          "test",
-		FullName:      "pool/dataset@test",
-		Dataset:       "pool/dataset",
-		CreationTime:  now,
-		Used:          1024,
-		Referenced:    2048,
-		Immutable:     true,
-		LockType:      LockTypeSoft,
+		Name:         "test",
+		FullName:     "pool/dataset@test",
+		Dataset:      "pool/dataset",
+		CreationTime: now,
+		Used:         1024,
+		Referenced:   2048,
+		Immutable:    true,
+		LockType:     LockTypeSoft,
 	}
 
 	if snap.Name != "test" {
@@ -193,8 +193,8 @@ func TestPoolInfo(t *testing.T) {
 		Name:      "tank",
 		State:     "ONLINE",
 		Size:      1024 * 1024 * 1024 * 1024, // 1TB
-		Allocated: 500 * 1024 * 1024 * 1024,   // 500GB
-		Free:      524 * 1024 * 1024 * 1024,   // 524GB
+		Allocated: 500 * 1024 * 1024 * 1024,  // 500GB
+		Free:      524 * 1024 * 1024 * 1024,  // 524GB
 		ReadOnly:  false,
 	}
 
@@ -276,7 +276,7 @@ func BenchmarkImmutableCheck(b *testing.B) {
 	}
 
 	snap := &SnapshotInfo{
-		FullName: "pool/dataset@test",
+		FullName:  "pool/dataset@test",
 		Immutable: true,
 	}
 	mgr.snapshots["pool/dataset@test"] = snap
