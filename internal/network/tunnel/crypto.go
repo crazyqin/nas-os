@@ -320,7 +320,9 @@ func GenerateKey() ([]byte, error) {
 func DeriveKeyFromPassword(password, salt []byte, keyLen int) []byte {
 	hkdf := hkdf.New(sha256.New, password, salt, []byte("nas-os-key-derivation"))
 	key := make([]byte, keyLen)
-	io.ReadFull(hkdf, key)
+	if _, err := io.ReadFull(hkdf, key); err != nil {
+		return nil
+	}
 	return key
 }
 
