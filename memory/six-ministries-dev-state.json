@@ -1,88 +1,108 @@
 {
-  "version": "v2.256.0",
-  "nextVersion": "v2.257.0",
-  "round": 42,
-  "date": "2026-03-24",
-  "timestamp": "2026-03-24T16:51:00+08:00",
+  "version": "v2.272.0",
+  "nextVersion": "v2.273.0",
+  "round": 47,
+  "date": "2026-03-25",
+  "timestamp": "2026-03-25T04:15:00+08:00",
   "status": "in_progress",
   "actions": {
-    "ci-cd": "in_progress",
-    "docker-publish": "in_progress", 
+    "ci-cd": "completed",
+    "docker-publish": "in_progress",
     "security-scan": "completed"
   },
   "ministries": {
     "吏部": {
-      "task": "v2.257.0版本规划与发布管理",
+      "task": "v2.273.0版本规划与发布管理",
       "status": "pending",
       "priority": "P0"
     },
     "兵部": {
-      "task": "网盘原生挂载功能（参考飞牛fnOS）",
-      "status": "completed",
+      "task": "内网穿透服务（frp集成）- 对标FN Connect",
+      "status": "in_progress",
       "priority": "P0",
-      "subtasks": ["115网盘挂载", "夸克网盘挂载", "阿里云盘挂载", "OneDrive挂载"],
-      "result": "cloudfuse模块完成：manager.go, handlers.go, 测试全部通过"
+      "subtasks": ["frp客户端实现", "WebUI配置界面", "API接口"]
     },
     "刑部": {
-      "task": "SMB审计日志增强（参考TrueNAS）",
-      "status": "pending", 
+      "task": "审计日志增强（参考TrueNAS Watch/Ignore List）",
+      "status": "pending",
       "priority": "P0",
-      "subtasks": ["Watch List/Ignore List", "审计日志导出", "SMB2+协议支持"]
+      "subtasks": ["Watch List实现", "Ignore List实现", "审计日志导出CSV/JSON"]
     },
     "工部": {
-      "task": "Actions监控与CI/CD优化",
-      "status": "in_progress",
-      "priority": "P0"
+      "task": "应用管理增强（参考飞牛手动安装应用）",
+      "status": "pending",
+      "priority": "P1",
+      "subtasks": ["手动安装应用支持", "应用依赖自动安装", "最新应用列表"]
     },
     "户部": {
-      "task": "分层存储成本评估（参考群晖Tiering）",
-      "status": "completed",
+      "task": "成本优化 - RAIDZ扩展加速调研",
+      "status": "pending",
       "priority": "P1",
-      "result": "系统资源正常：磁盘75%已用(7.3G可用)，内存6.3G可用/7.7G总量"
+      "result": "TrueNAS实现5倍加速，评估实现方案"
     },
     "礼部": {
-      "task": "竞品分析更新与文档维护",
+      "task": "竞品分析更新（2026-03最新）",
       "status": "completed",
       "priority": "P1",
-      "result": "飞牛fnOS 1.0、群晖DSM 7.3、TrueNAS Scale分析完成"
+      "result": "已完成飞牛fnOS 2025-12、DSM 7.3、TrueNAS Fangtooth 25.04最新分析"
     }
   },
   "competitorAnalysis": {
-    "飞牛fnOS 1.0": {
-      "highlights": [
-        "Docker模块化设计",
-        "x86/ARM全平台兼容",
-        "AI相册（以文搜图）",
-        "智能影视（自动刮削/海报墙/转码）",
-        "FN Connect远程访问（P2P免费40Mbps）",
-        "Btrfs/ZFS存储管理"
+    "飞牛fnOS (2025-12-25更新)": {
+      "newFeatures": [
+        "移动端最新应用列表入口",
+        "手动安装应用功能",
+        "相册多选幻灯片播放",
+        "团队文件外链分享",
+        "ZFS高级设置功能",
+        "DDNS支持中文域名",
+        "应用依赖自动安装"
       ],
-      "learned": ["网盘原生挂载 - 计划实现cloudfuse模块"]
+      "toLearn": [
+        "手动安装应用功能 (P1)",
+        "团队文件外链分享 (P1)",
+        "相册幻灯片播放 (P2)"
+      ]
     },
-    "群晖DSM 7.3": {
-      "highlights": [
-        "Synology Tiering分层存储",
+    "群晖DSM 7.3 (2025-10)": {
+      "newFeatures": [
+        "Synology AI Console数据脱敏",
+        "Drive共享标签系统",
+        "文件请求功能",
+        "文件锁定增强",
+        "MailPlus域共用",
         "exFAT原生支持",
-        "AI Console数据脱敏",
-        "Drive共享标签/文件锁定",
-        "Office多人协同编辑"
+        "第三方硬盘创建存储池"
       ],
-      "learned": ["分层存储 - 已有Fusion Pool基础", "文件锁定 - 计划实现"]
+      "toLearn": [
+        "共享标签系统 (P1)",
+        "文件请求功能 (P2)",
+        "第三方硬盘支持 (P2)"
+      ]
     },
-    "TrueNAS Scale": {
-      "highlights": [
-        "SMB审计日志（Watch/Ignore List）",
-        "ZFS企业级特性",
-        "FIPS/STIG合规",
-        "审计导出CSV/JSON/YAML"
+    "TrueNAS Fangtooth 25.04 (2025-10)": {
+      "newFeatures": [
+        "统一CORE和SCALE版本",
+        "OpenZFS 2.3 Fast Dedup",
+        "RAIDZ扩展加速5X",
+        "NFS over RDMA",
+        "iSCSI Block Cloning",
+        "LXC容器支持",
+        "Versioned API",
+        "可配置IP地址给Apps"
       ],
-      "learned": ["SMB审计 - 已实现enhanced模块基础"]
+      "toLearn": [
+        "RAIDZ扩展加速 (P1)",
+        "NFS over RDMA (P1)",
+        "Versioned API (P1)",
+        "LXC容器支持 (P2)"
+      ]
     }
   },
   "nextPriorities": [
-    "P0: 完成CI/CD和Docker Publish运行",
-    "P0: 网盘挂载功能开发（兵部）",
-    "P0: SMB审计增强（刑部）",
-    "P1: 分层存储优化（户部）"
+    "P0: 完成内网穿透服务开发（兵部）",
+    "P0: 审计日志Watch/Ignore List（刑部）",
+    "P1: 应用管理增强（工部）",
+    "P1: RAIDZ扩展加速评估（户部）"
   ]
 }
