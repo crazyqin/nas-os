@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -767,19 +768,21 @@ func apiRequest(method, path string, body interface{}) ([]byte, error) {
 	var err error
 
 	url := apiBaseURL + path
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	if body != nil {
 		jsonData, err := json.Marshal(body)
 		if err != nil {
 			return nil, err
 		}
-		req, err = http.NewRequest(method, url, bytes.NewReader(jsonData))
+		req, err = http.NewRequestWithContext(ctx, method, url, bytes.NewReader(jsonData))
 		if err != nil {
 			return nil, err
 		}
 		req.Header.Set("Content-Type", "application/json")
 	} else {
-		req, err = http.NewRequest(method, url, nil)
+		req, err = http.NewRequestWithContext(ctx, method, url, nil)
 		if err != nil {
 			return nil, err
 		}

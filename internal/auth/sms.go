@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha1" // #nosec G505 -- 阿里云短信 API 签名规范要求 HMAC-SHA1
@@ -233,7 +234,14 @@ func (p *AliyunSMSProvider) Send(phone, code string) error {
 	// 发送 HTTP 请求
 	endpoint := fmt.Sprintf("https://dysmsapi.aliyuncs.com/?%s", p.encodeParams(params))
 
-	resp, err := http.Get(endpoint)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return fmt.Errorf("创建请求失败：%w", err)
+	}
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("阿里云短信请求失败：%w", err)
 	}
@@ -403,7 +411,9 @@ func (p *TencentSMSProvider) Send(phone, code string) error {
 
 	// 创建 HTTP 请求
 	urlStr := fmt.Sprintf("https://%s%s", host, uri)
-	req, err := http.NewRequest("POST", urlStr, strings.NewReader(string(bodyBytes)))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, urlStr, strings.NewReader(string(bodyBytes)))
 	if err != nil {
 		return fmt.Errorf("创建请求失败：%w", err)
 	}
