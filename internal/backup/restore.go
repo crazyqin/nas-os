@@ -1,6 +1,7 @@
 package backup
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -227,7 +228,9 @@ func (rm *RestoreManager) executeRestore(backupPath, targetPath string, files []
 		}
 		args = append(args, backupPath+"/", targetPath+"/")
 
-		cmd := exec.Command("rsync", args...)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, "rsync", args...)
 		if output, err := cmd.CombinedOutput(); err != nil {
 			return fmt.Errorf("rsync 失败：%w, output: %s", err, string(output))
 		}
@@ -325,7 +328,9 @@ func (rm *RestoreManager) decryptBackup(backupPath, password string) (string, er
 	if info.IsDir() {
 		// 目录：直接复制（假设已解密）
 		destPath := filepath.Join(tempDir, "restored")
-		cmd := exec.Command("cp", "-r", backupPath, destPath)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, "cp", "-r", backupPath, destPath)
 		if output, err := cmd.CombinedOutput(); err != nil {
 			return "", fmt.Errorf("复制失败：%w, output: %s", err, string(output))
 		}
@@ -339,7 +344,9 @@ func (rm *RestoreManager) decryptBackup(backupPath, password string) (string, er
 			}
 		} else {
 			// 如果没有加密器，直接复制
-			cmd := exec.Command("cp", backupPath, decryptedPath)
+			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			cmd := exec.CommandContext(ctx, "cp", backupPath, decryptedPath)
 			if output, err := cmd.CombinedOutput(); err != nil {
 				return "", fmt.Errorf("复制失败：%w, output: %s", err, string(output))
 			}

@@ -989,9 +989,11 @@ func (m *Manager) PreviewRestore(options RestoreOptions) (*RestorePreview, error
 
 	// 如果是压缩包，列出内容
 	if strings.HasSuffix(backupPath, ".tar.gz") || strings.HasSuffix(backupPath, ".tar") {
-		cmd := exec.Command("tar", "-tzf", backupPath)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, "tar", "-tzf", backupPath)
 		if !strings.HasSuffix(backupPath, ".gz") {
-			cmd = exec.Command("tar", "-tf", backupPath)
+			cmd = exec.CommandContext(ctx, "tar", "-tf", backupPath)
 		}
 		output, err := cmd.Output()
 		if err != nil {
