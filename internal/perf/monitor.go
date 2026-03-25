@@ -2,6 +2,7 @@ package perf
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -563,7 +564,7 @@ func (m *ResourceMonitor) getCPUTemperature() (int, error) {
 
 // GetTopProcesses returns top processes by CPU/memory usage.
 func (m *ResourceMonitor) GetTopProcesses(n int) []ProcessStats {
-	cmd := exec.Command("ps", "aux", "--sort=-%cpu")
+	cmd := exec.CommandContext(context.Background(), "ps", "aux", "--sort=-%cpu")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil

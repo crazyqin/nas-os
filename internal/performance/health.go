@@ -538,7 +538,7 @@ func (hc *HealthChecker) checkShares() HealthCheckResult {
 
 	// 检查 SMB 服务
 	smbStatus := "unknown"
-	if output, err := exec.Command("systemctl", "is-active", "smbd").Output(); err == nil {
+	if output, err := exec.CommandContext(context.Background(), "systemctl", "is-active", "smbd").Output(); err == nil {
 		smbStatus = strings.TrimSpace(string(output))
 	}
 	details["smb_status"] = smbStatus
@@ -550,7 +550,7 @@ func (hc *HealthChecker) checkShares() HealthCheckResult {
 
 	// 检查 NFS 服务
 	nfsStatus := "unknown"
-	if output, err := exec.Command("systemctl", "is-active", "nfs-server").Output(); err == nil {
+	if output, err := exec.CommandContext(context.Background(), "systemctl", "is-active", "nfs-server").Output(); err == nil {
 		nfsStatus = strings.TrimSpace(string(output))
 	}
 	details["nfs_status"] = nfsStatus
