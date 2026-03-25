@@ -165,7 +165,7 @@ func (m *Monitor) poll() {
 	wg.Wait()
 
 	// 合并会话
-	var allSessions []*Session
+	allSessions := make([]*Session, 0, len(smbSessions)+len(nfsSessions))
 	allSessions = append(allSessions, smbSessions...)
 	allSessions = append(allSessions, nfsSessions...)
 

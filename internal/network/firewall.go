@@ -13,7 +13,7 @@ func (m *Manager) ListFirewallRules() []*FirewallRule {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var rules []*FirewallRule
+	rules := make([]*FirewallRule, 0, len(m.firewallRules))
 	for _, rule := range m.firewallRules {
 		rules = append(rules, rule)
 	}

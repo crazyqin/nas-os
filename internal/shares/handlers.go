@@ -105,10 +105,11 @@ type ShareOverview struct {
 // @Router /shares [get]
 // @Security BearerAuth.
 func (h *Handlers) listAllShares(c *gin.Context) {
-	var result []ShareOverview
-
 	// 收集 SMB 共享
 	smbShares, _ := h.smbManager.ListShares()
+	nfsExports, _ := h.nfsManager.ListExports()
+	
+	result := make([]ShareOverview, 0, len(smbShares)+len(nfsExports))
 	for _, s := range smbShares {
 		result = append(result, ShareOverview{
 			Type:   "smb",
@@ -119,7 +120,6 @@ func (h *Handlers) listAllShares(c *gin.Context) {
 	}
 
 	// 收集 NFS 导出
-	nfsExports, _ := h.nfsManager.ListExports()
 	for _, e := range nfsExports {
 		result = append(result, ShareOverview{
 			Type:   "nfs",

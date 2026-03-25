@@ -20,7 +20,7 @@ func (m *Manager) ListDDNS() []*DDNSConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var configs []*DDNSConfig
+	configs := make([]*DDNSConfig, 0, len(m.ddnsConfigs))
 	for _, cfg := range m.ddnsConfigs {
 		configs = append(configs, cfg)
 	}
