@@ -559,7 +559,7 @@ func (m *MockProvider) List(ctx context.Context, prefix string, recursive bool) 
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var files []cloudsync.FileInfo
+	files := make([]cloudsync.FileInfo, 0, len(m.files))
 	for _, f := range m.files {
 		files = append(files, f)
 	}

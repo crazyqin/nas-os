@@ -52,7 +52,7 @@ func (vr *VersionRouter) GetCurrentVersion() string {
 
 // GetVersions returns all registered versions.
 func (vr *VersionRouter) GetVersions() []VersionInfo {
-	var versions []VersionInfo
+	versions := make([]VersionInfo, 0, len(vr.versions))
 	for v, config := range vr.versions {
 		info := VersionInfo{
 			Version:     v,

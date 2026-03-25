@@ -370,7 +370,7 @@ func (m *MockProvider) Delete(ctx context.Context, remotePath string) error {
 }
 
 func (m *MockProvider) List(ctx context.Context, prefix string, recursive bool) ([]FileInfo, error) {
-	var files []FileInfo
+	files := make([]FileInfo, 0, len(m.files))
 	for _, f := range m.files {
 		files = append(files, f)
 	}

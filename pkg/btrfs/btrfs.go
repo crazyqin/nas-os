@@ -4,6 +4,7 @@ package btrfs
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"fmt"
 	"os/exec"
 	"regexp"
@@ -138,13 +139,15 @@ func (c *Commander) Execute(args ...string) ([]byte, error) {
 		}
 	}
 	var cmd *exec.Cmd
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
 	if c.sudo {
 		allArgs := append([]string{"btrfs"}, args...)
 		// #nosec G204 -- btrfs 命令参数由内部方法控制，调用者负责验证
-		cmd = exec.Command("sudo", allArgs...)
+		cmd = exec.CommandContext(ctx, "sudo", allArgs...)
 	} else {
 		// #nosec G204 -- btrfs 命令参数由内部方法控制，调用者负责验证
-		cmd = exec.Command("btrfs", args...)
+		cmd = exec.CommandContext(ctx, "btrfs", args...)
 	}
 	return cmd.Output()
 }
@@ -159,13 +162,15 @@ func (c *Commander) ExecuteWithInput(input string, args ...string) ([]byte, erro
 		}
 	}
 	var cmd *exec.Cmd
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
 	if c.sudo {
 		allArgs := append([]string{"btrfs"}, args...)
 		// #nosec G204 -- btrfs 命令参数由内部方法控制，调用者负责验证
-		cmd = exec.Command("sudo", allArgs...)
+		cmd = exec.CommandContext(ctx, "sudo", allArgs...)
 	} else {
 		// #nosec G204 -- btrfs 命令参数由内部方法控制，调用者负责验证
-		cmd = exec.Command("btrfs", args...)
+		cmd = exec.CommandContext(ctx, "btrfs", args...)
 	}
 	cmd.Stdin = strings.NewReader(input)
 	return cmd.Output()
@@ -319,12 +324,14 @@ func (c *Client) CreateVolume(label string, devices []string, dataProfile, metad
 	args = append(args, devices...)
 
 	var cmd *exec.Cmd
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		// #nosec G204 -- 设备路径和标签已通过 validateDevicePath 和字符验证
-		cmd = exec.Command("sudo", append([]string{"mkfs.btrfs"}, args...)...)
+		cmd = exec.CommandContext(ctx, "sudo", append([]string{"mkfs.btrfs"}, args...)...)
 	} else {
 		// #nosec G204 -- 设备路径和标签已通过 validateDevicePath 和字符验证
-		cmd = exec.Command("mkfs.btrfs", args...)
+		cmd = exec.CommandContext(ctx, "mkfs.btrfs", args...)
 	}
 
 	output, err := cmd.CombinedOutput()
@@ -344,12 +351,14 @@ func (c *Client) DeleteVolume(device string) error {
 
 	// 使用 wipefs 清除文件系统签名
 	var cmd *exec.Cmd
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		// #nosec G204 -- 设备路径已通过 validateDevicePath 验证
-		cmd = exec.Command("sudo", "wipefs", "-a", device)
+		cmd = exec.CommandContext(ctx, "sudo", "wipefs", "-a", device)
 	} else {
 		// #nosec G204 -- 设备路径已通过 validateDevicePath 验证
-		cmd = exec.Command("wipefs", "-a", device)
+		cmd = exec.CommandContext(ctx, "wipefs", "-a", device)
 	}
 
 	output, err := cmd.CombinedOutput()
@@ -383,12 +392,14 @@ func (c *Client) Mount(device, mountPoint string, options []string) error {
 	}
 
 	var cmd *exec.Cmd
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
 	if cm, ok := c.exec.(*Commander); ok && cm.sudo {
 		// #nosec G204 -- 设备路径、挂载点和选项已通过验证函数验证
-		cmd = exec.Command("sudo", append([]string{"mount"}, args...)...)
+		cmd = exec.CommandContext(ctx, "sudo", append([]string{"mount"}, args...)...)
 	} else {
 		// #nosec G204 -- 设备路径、挂载点和选项已通过验证函数验证
-		cmd = exec.Command("mount", args...)
+		cmd = exec.CommandContext(ctx, "mount", args...)
 	}
 
 	output, err := cmd.CombinedOutput()
