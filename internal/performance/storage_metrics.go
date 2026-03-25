@@ -1,6 +1,7 @@
 package performance
 
 import (
+	"context"
 	"bufio"
 	"os"
 	"os/exec"
@@ -269,7 +270,7 @@ func (sc *StorageCollector) getDeviceSize(device string) uint64 {
 // getDeviceTemperature 获取设备温度.
 func (sc *StorageCollector) getDeviceTemperature(device string) int {
 	// 尝试通过 smartctl 获取温度
-	cmd := exec.Command("smartctl", "-A", "/dev/"+device, "--json")
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-A", "/dev/"+device, "--json")
 	if output, err := cmd.Output(); err == nil {
 		// 解析 JSON 获取温度
 		if strings.Contains(string(output), "temperature") {

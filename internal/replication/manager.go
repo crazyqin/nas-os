@@ -1,6 +1,7 @@
 package replication
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -329,7 +330,7 @@ func (m *Manager) executeSync(task *Task) {
 
 	args = append(args, source, target)
 
-	cmd := exec.Command("rsync", args...)
+	cmd := exec.CommandContext(context.Background(), "rsync", args...)
 
 	// 执行命令
 	output, err := cmd.CombinedOutput()

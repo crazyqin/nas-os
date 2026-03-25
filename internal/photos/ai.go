@@ -329,7 +329,7 @@ func (aim *AIManager) loadImageFFmpeg(path string) (image.Image, error) {
 	defer func() { _ = os.Remove(tmpFile) }()
 
 	// 使用 ffmpeg 转换 HEIC/RAW 为 JPEG
-	cmd := exec.Command("ffmpeg",
+	cmd := exec.CommandContext(context.Background(), "ffmpeg",
 		"-i", path,
 		"-vf", "scale=2048:2048:force_original_aspect_ratio=decrease",
 		"-q:v", "2",
