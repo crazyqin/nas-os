@@ -28,26 +28,26 @@ func NewExporter(manager *Manager) *Exporter {
 
 // ExportRequest 导出请求
 type ExportRequest struct {
-	Format            ExportFormat `json:"format"`                       // 导出格式
-	StartTime         time.Time    `json:"start_time"`                   // 开始时间
-	EndTime           time.Time    `json:"end_time"`                     // 结束时间
-	Categories        []Category   `json:"categories,omitempty"`         // 分类过滤
-	Levels            []Level      `json:"levels,omitempty"`             // 级别过滤
-	UserID            string       `json:"user_id,omitempty"`            // 用户ID过滤
-	IncludeSignatures bool         `json:"include_signatures"`           // 是否包含签名
-	IncludeDetails    bool         `json:"include_details"`              // 是否包含详细信息
-	Compress          bool         `json:"compress"`                     // 是否压缩
-	Timezone          string       `json:"timezone,omitempty"`           // 时区
+	Format            ExportFormat `json:"format"`               // 导出格式
+	StartTime         time.Time    `json:"start_time"`           // 开始时间
+	EndTime           time.Time    `json:"end_time"`             // 结束时间
+	Categories        []Category   `json:"categories,omitempty"` // 分类过滤
+	Levels            []Level      `json:"levels,omitempty"`     // 级别过滤
+	UserID            string       `json:"user_id,omitempty"`    // 用户ID过滤
+	IncludeSignatures bool         `json:"include_signatures"`   // 是否包含签名
+	IncludeDetails    bool         `json:"include_details"`      // 是否包含详细信息
+	Compress          bool         `json:"compress"`             // 是否压缩
+	Timezone          string       `json:"timezone,omitempty"`   // 时区
 }
 
 // ExportResult 导出结果
 type ExportResult struct {
-	Data        []byte       `json:"-"`                  // 导出数据
-	Format      ExportFormat `json:"format"`             // 导出格式
-	Count       int          `json:"count"`              // 记录数
-	Size        int64        `json:"size"`               // 文件大小
-	Filename    string       `json:"filename"`           // 文件名
-	ContentType string       `json:"content_type"`       // 内容类型
+	Data        []byte       `json:"-"`            // 导出数据
+	Format      ExportFormat `json:"format"`       // 导出格式
+	Count       int          `json:"count"`        // 记录数
+	Size        int64        `json:"size"`         // 文件大小
+	Filename    string       `json:"filename"`     // 文件名
+	ContentType string       `json:"content_type"` // 内容类型
 }
 
 // Export 执行导出
@@ -263,8 +263,8 @@ func NewWatchListExporter(manager *WatchListManager) *WatchListExporter {
 
 // WatchListExportRequest Watch/Ignore List导出请求
 type WatchListExportRequest struct {
-	Format ExportFormat `json:"format"`            // 导出格式
-	Type   ListType     `json:"type"`              // 列表类型 (watch/ignore/all)
+	Format ExportFormat `json:"format"` // 导出格式
+	Type   ListType     `json:"type"`   // 列表类型 (watch/ignore/all)
 }
 
 // WatchListExportResult 导出结果

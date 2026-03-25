@@ -157,13 +157,13 @@ func (p *Pan123Provider) ListFiles(ctx context.Context, req *ListFilesRequest) (
 		Msg  string `json:"message"`
 		Data struct {
 			InfoList []struct {
-				FileId      string `json:"fileId"`
-				FileName    string `json:"name"`
-				Size        int64  `json:"size"`
-				Type        int    `json:"type"` // 0=文件, 1=文件夹
-				CreateTime  int64  `json:"createTime"`
-				UpdateTime  int64  `json:"updateTime"`
-				Etag        string `json:"etag"`
+				FileId     string `json:"fileId"`
+				FileName   string `json:"name"`
+				Size       int64  `json:"size"`
+				Type       int    `json:"type"` // 0=文件, 1=文件夹
+				CreateTime int64  `json:"createTime"`
+				UpdateTime int64  `json:"updateTime"`
+				Etag       string `json:"etag"`
 			} `json:"infoList"`
 		} `json:"data"`
 	}
@@ -241,9 +241,9 @@ func (p *Pan123Provider) TestConnection(ctx context.Context, accessToken, refres
 		Code int    `json:"code"`
 		Msg  string `json:"message"`
 		Data struct {
-			NickName    string `json:"nickName"`
-			TotalSpace  int64  `json:"totalSpace"`
-			UsedSpace   int64  `json:"usedSpace"`
+			NickName   string `json:"nickName"`
+			TotalSpace int64  `json:"totalSpace"`
+			UsedSpace  int64  `json:"usedSpace"`
 		} `json:"data"`
 	}
 

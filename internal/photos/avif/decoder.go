@@ -24,19 +24,19 @@ import (
 type DecoderConfig struct {
 	// EnableHardwareAccel enables hardware acceleration (GPU) when available
 	EnableHardwareAccel bool `json:"enableHardwareAccel"`
-	
+
 	// MaxDecodeWorkers limits concurrent decode operations
 	MaxDecodeWorkers int `json:"maxDecodeWorkers"`
-	
+
 	// CacheDecodedImages caches decoded images in memory
 	CacheDecodedImages bool `json:"cacheDecodedImages"`
-	
+
 	// MaxCacheSizeMB maximum memory for image cache (MB)
 	MaxCacheSizeMB int `json:"maxCacheSizeMB"`
-	
+
 	// FallbackToFFmpeg use ffmpeg as fallback decoder
 	FallbackToFFmpeg bool `json:"fallbackToFfmpeg"`
-	
+
 	// TimeoutSeconds timeout for decode operations
 	TimeoutSeconds int `json:"timeoutSeconds"`
 }
@@ -47,7 +47,7 @@ func DefaultDecoderConfig() DecoderConfig {
 		EnableHardwareAccel: true,
 		MaxDecodeWorkers:    4,
 		CacheDecodedImages:  true,
-		MaxCacheSizeMB:     256,
+		MaxCacheSizeMB:      256,
 		FallbackToFFmpeg:    true,
 		TimeoutSeconds:      30,
 	}
@@ -74,28 +74,28 @@ type DecodeStats struct {
 
 // DecodeResult contains decoded image metadata
 type DecodeResult struct {
-	Image       image.Image
-	Width       int
-	Height      int
-	BitDepth    int
-	HasAlpha    bool
-	ColorSpace  string
-	DecodeTime  time.Duration
-	UsedCache   bool
+	Image      image.Image
+	Width      int
+	Height     int
+	BitDepth   int
+	HasAlpha   bool
+	ColorSpace string
+	DecodeTime time.Duration
+	UsedCache  bool
 }
 
 // imageCache provides in-memory caching for decoded images
 type imageCache struct {
-	images    map[string]*cacheEntry
-	maxSize   int64
+	images      map[string]*cacheEntry
+	maxSize     int64
 	currentSize int64
-	mu        sync.RWMutex
+	mu          sync.RWMutex
 }
 
 type cacheEntry struct {
-	image     image.Image
-	size      int64
-	accessed  time.Time
+	image    image.Image
+	size     int64
+	accessed time.Time
 }
 
 // SupportedExtensions returns file extensions for AVIF format
@@ -118,33 +118,33 @@ func NewDecoder(config DecoderConfig) *Decoder {
 		config:     config,
 		workerPool: make(chan struct{}, config.MaxDecodeWorkers),
 	}
-	
+
 	if config.CacheDecodedImages {
 		d.cache = &imageCache{
-			images:   make(map[string]*cacheEntry),
-			maxSize:  int64(config.MaxCacheSizeMB) * 1024 * 1024,
+			images:  make(map[string]*cacheEntry),
+			maxSize: int64(config.MaxCacheSizeMB) * 1024 * 1024,
 		}
 	}
-	
+
 	// Initialize worker pool
 	for i := 0; i < config.MaxDecodeWorkers; i++ {
 		d.workerPool <- struct{}{}
 	}
-	
+
 	return d
 }
 
 // DecodeFile decodes an AVIF file from disk
 func (d *Decoder) DecodeFile(path string) (*DecodeResult, error) {
 	start := time.Now()
-	
+
 	// Check cache first
 	if d.cache != nil {
 		if entry, ok := d.cache.get(path); ok {
 			d.mu.Lock()
 			d.stats.CacheHits++
 			d.mu.Unlock()
-			
+
 			return &DecodeResult{
 				Image:      entry.image,
 				Width:      entry.image.Bounds().Dx(),
@@ -154,11 +154,11 @@ func (d *Decoder) DecodeFile(path string) (*DecodeResult, error) {
 			}, nil
 		}
 	}
-	
+
 	d.mu.Lock()
 	d.stats.CacheMisses++
 	d.mu.Unlock()
-	
+
 	// Acquire worker slot
 	select {
 	case <-d.workerPool:
@@ -166,7 +166,7 @@ func (d *Decoder) DecodeFile(path string) (*DecodeResult, error) {
 	case <-time.After(time.Duration(d.config.TimeoutSeconds) * time.Second):
 		return nil, fmt.Errorf("decode queue timeout")
 	}
-	
+
 	// Read file
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -175,22 +175,22 @@ func (d *Decoder) DecodeFile(path string) (*DecodeResult, error) {
 		d.mu.Unlock()
 		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
-	
+
 	// Decode image
 	result, err := d.decode(data, path)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	result.DecodeTime = time.Since(start)
 	result.UsedCache = false
-	
+
 	// Update stats
 	d.mu.Lock()
 	d.stats.TotalDecoded++
 	d.stats.TotalBytes += int64(len(data))
 	d.mu.Unlock()
-	
+
 	return result, nil
 }
 
@@ -202,7 +202,7 @@ func (d *Decoder) Decode(data []byte) (*DecodeResult, error) {
 // decode internal decode implementation
 func (d *Decoder) decode(data []byte, cacheKey string) (*DecodeResult, error) {
 	start := time.Now()
-	
+
 	// First, try native Go AVIF decoder (via go-avif or similar library)
 	img, err := d.decodeNative(data)
 	if err == nil {
@@ -212,15 +212,15 @@ func (d *Decoder) decode(data []byte, cacheKey string) (*DecodeResult, error) {
 			Height:     img.Bounds().Dy(),
 			DecodeTime: time.Since(start),
 		}
-		
+
 		// Cache the result
 		if d.cache != nil && cacheKey != "" {
 			d.cache.set(cacheKey, img, int64(len(data)))
 		}
-		
+
 		return result, nil
 	}
-	
+
 	// Fallback to ffmpeg if enabled
 	if d.config.FallbackToFFmpeg {
 		img, err = d.decodeWithFFmpeg(data)
@@ -231,19 +231,19 @@ func (d *Decoder) decode(data []byte, cacheKey string) (*DecodeResult, error) {
 				Height:     img.Bounds().Dy(),
 				DecodeTime: time.Since(start),
 			}
-			
+
 			if d.cache != nil && cacheKey != "" {
 				d.cache.set(cacheKey, img, int64(len(data)))
 			}
-			
+
 			return result, nil
 		}
 	}
-	
+
 	d.mu.Lock()
 	d.stats.Errors++
 	d.mu.Unlock()
-	
+
 	return nil, fmt.Errorf("failed to decode AVIF: native decoder failed and ffmpeg fallback unavailable")
 }
 
@@ -253,11 +253,11 @@ func (d *Decoder) decodeNative(data []byte) (image.Image, error) {
 	if !isAVIFSignature(data) {
 		return nil, fmt.Errorf("not a valid AVIF file")
 	}
-	
+
 	// Try using go-avif library if available
 	// This is a placeholder for actual go-avif integration
 	// In production, would use: go.utf9k.net/libavif bindings or similar
-	
+
 	// For now, return error to trigger ffmpeg fallback
 	return nil, fmt.Errorf("native AVIF decoder not yet available, use ffmpeg fallback")
 }
@@ -269,12 +269,12 @@ func isAVIFSignature(data []byte) bool {
 	if len(data) < 12 {
 		return false
 	}
-	
+
 	// Check for ftyp box
 	if !bytes.Equal(data[4:8], []byte("ftyp")) {
 		return false
 	}
-	
+
 	// Check for AVIF brand
 	brand := string(data[8:12])
 	return brand == "avif" || brand == "avis" || brand == "heic" || brand == "heix"
@@ -293,12 +293,12 @@ func (d *Decoder) decodeWithFFmpeg(data []byte) (image.Image, error) {
 	// Create temp file for PNG output
 	outFile := filepath.Join(os.TempDir(), fmt.Sprintf("avif_decode_%s.png", uuid.New().String()))
 	defer func() { _ = os.Remove(outFile) }()
-	
+
 	// Run ffmpeg conversion
-	ctx, cancel := context.WithTimeout(context.Background(), 
+	ctx, cancel := context.WithTimeout(context.Background(),
 		time.Duration(d.config.TimeoutSeconds)*time.Second)
 	defer cancel()
-	
+
 	cmd := exec.CommandContext(ctx, "ffmpeg",
 		"-i", tmpFile,
 		"-y",
@@ -306,25 +306,25 @@ func (d *Decoder) decodeWithFFmpeg(data []byte) (image.Image, error) {
 		"-f", "image2",
 		outFile,
 	)
-	
+
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
-	
+
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf("ffmpeg decode failed: %w, stderr: %s", err, stderr.String())
 	}
-	
+
 	// Read and decode PNG output
 	pngData, err := os.ReadFile(outFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read ffmpeg output: %w", err)
 	}
-	
+
 	img, _, err := image.Decode(bytes.NewReader(pngData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode ffmpeg output: %w", err)
 	}
-	
+
 	return img, nil
 }
 
@@ -347,7 +347,7 @@ func (d *Decoder) ClearCache() {
 func (c *imageCache) get(key string) (*cacheEntry, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	
+
 	entry, ok := c.images[key]
 	if ok {
 		entry.accessed = time.Now()
@@ -358,25 +358,25 @@ func (c *imageCache) get(key string) (*cacheEntry, bool) {
 func (c *imageCache) set(key string, img image.Image, size int64) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	// Evict old entries if needed
 	for c.currentSize+size > c.maxSize && len(c.images) > 0 {
 		var oldestKey string
 		var oldestTime time.Time
-		
+
 		for k, v := range c.images {
 			if oldestKey == "" || v.accessed.Before(oldestTime) {
 				oldestKey = k
 				oldestTime = v.accessed
 			}
 		}
-		
+
 		if oldestKey != "" {
 			c.currentSize -= c.images[oldestKey].size
 			delete(c.images, oldestKey)
 		}
 	}
-	
+
 	c.images[key] = &cacheEntry{
 		image:    img,
 		size:     size,
@@ -388,7 +388,7 @@ func (c *imageCache) set(key string, img image.Image, size int64) {
 func (c *imageCache) clear() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	
+
 	c.images = make(map[string]*cacheEntry)
 	c.currentSize = 0
 }
@@ -432,20 +432,20 @@ func (g *ThumbnailGenerator) Generate(avifPath string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode AVIF: %w", err)
 	}
-	
+
 	var thumbnails []string
 	baseName := strings.TrimSuffix(filepath.Base(avifPath), filepath.Ext(avifPath))
-	
+
 	for _, size := range g.sizes {
 		thumbPath := filepath.Join(g.outputDir, fmt.Sprintf("%s_%d.jpg", baseName, size))
-		
+
 		if err := g.generateThumbnail(result.Image, thumbPath, size); err != nil {
 			continue // Skip failed sizes
 		}
-		
+
 		thumbnails = append(thumbnails, thumbPath)
 	}
-	
+
 	return thumbnails, nil
 }
 
@@ -455,38 +455,38 @@ func (g *ThumbnailGenerator) generateThumbnail(img image.Image, outPath string, 
 	bounds := img.Bounds()
 	width := bounds.Dx()
 	height := bounds.Dy()
-	
+
 	// Note: actual thumbnail generation requires imaging library
 	// This is a placeholder that validates the operation
 	if width == 0 || height == 0 {
 		return fmt.Errorf("invalid image dimensions")
 	}
-	
+
 	return fmt.Errorf("thumbnail generation requires imaging library")
 }
 
 // FormatInfo returns information about AVIF format support
 type FormatInfo struct {
-	Name            string   `json:"name"`
-	Extensions      []string `json:"extensions"`
-	MimeTypes       []string `json:"mimeTypes"`
-	SupportsAlpha   bool     `json:"supportsAlpha"`
-	SupportsHDR     bool     `json:"supportsHDR"`
-	MaxBitDepth     int      `json:"maxBitDepth"`
-	MaxDimension    int      `json:"maxDimension"`
+	Name             string   `json:"name"`
+	Extensions       []string `json:"extensions"`
+	MimeTypes        []string `json:"mimeTypes"`
+	SupportsAlpha    bool     `json:"supportsAlpha"`
+	SupportsHDR      bool     `json:"supportsHDR"`
+	MaxBitDepth      int      `json:"maxBitDepth"`
+	MaxDimension     int      `json:"maxDimension"`
 	CompressionRatio float64  `json:"compressionRatio"` // Average vs JPEG
 }
 
 // GetFormatInfo returns AVIF format information
 func GetFormatInfo() FormatInfo {
 	return FormatInfo{
-		Name:            "AVIF",
-		Extensions:      SupportedExtensions,
-		MimeTypes:       []string{"image/avif", "image/heif", "image/heic"},
-		SupportsAlpha:   true,
-		SupportsHDR:     true,
-		MaxBitDepth:     12,
-		MaxDimension:    65536,
+		Name:             "AVIF",
+		Extensions:       SupportedExtensions,
+		MimeTypes:        []string{"image/avif", "image/heif", "image/heic"},
+		SupportsAlpha:    true,
+		SupportsHDR:      true,
+		MaxBitDepth:      12,
+		MaxDimension:     65536,
 		CompressionRatio: 0.5, // ~50% smaller than JPEG at equivalent quality
 	}
 }
@@ -495,23 +495,23 @@ func GetFormatInfo() FormatInfo {
 
 // AVIFSupport provides AVIF support for the photos manager
 type AVIFSupport struct {
-	decoder    *Decoder
-	thumbGen   *ThumbnailGenerator
-	enabled    bool
+	decoder  *Decoder
+	thumbGen *ThumbnailGenerator
+	enabled  bool
 }
 
 // NewAVIFSupport creates AVIF support for the photos module
 func NewAVIFSupport(dataDir string) (*AVIFSupport, error) {
 	decoderConfig := DefaultDecoderConfig()
 	decoder := NewDecoder(decoderConfig)
-	
+
 	thumbConfig := DefaultThumbnailConfig()
 	thumbDir := filepath.Join(dataDir, "thumbnails")
-	
+
 	if err := os.MkdirAll(thumbDir, 0750); err != nil {
 		return nil, fmt.Errorf("failed to create thumbnail directory: %w", err)
 	}
-	
+
 	return &AVIFSupport{
 		decoder:  decoder,
 		thumbGen: NewThumbnailGenerator(decoder, thumbDir, thumbConfig),
@@ -552,13 +552,13 @@ func CheckSystemSupport() error {
 	if err != nil {
 		return fmt.Errorf("ffmpeg not available: %w", err)
 	}
-	
+
 	if !bytes.Contains(output, []byte("avif")) &&
-	   !bytes.Contains(output, []byte("heif")) &&
-	   !bytes.Contains(output, []byte("libdav1d")) {
+		!bytes.Contains(output, []byte("heif")) &&
+		!bytes.Contains(output, []byte("libdav1d")) {
 		// ffmpeg may still support AVIF through other decoders
 		// Try a test decode
 	}
-	
+
 	return nil
 }
