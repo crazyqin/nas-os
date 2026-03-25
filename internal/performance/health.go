@@ -411,9 +411,15 @@ func (hc *HealthChecker) checkServiceStatus(service string) string {
 		return "unknown"
 	}
 
-	if resp, err := http.Get("http://localhost:8080/api/v1/health"); err == nil {
-		defer func() { _ = resp.Body.Close() }()
-		return "running"
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8080/api/v1/health", nil)
+	if err == nil {
+		client := &http.Client{Timeout: 5 * time.Second}
+		if resp, err := client.Do(req); err == nil {
+			defer func() { _ = resp.Body.Close() }()
+			return "running"
+		}
 	}
 
 	_ = procPath // 避免未使用警告

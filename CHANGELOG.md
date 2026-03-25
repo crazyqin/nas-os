@@ -7,6 +7,36 @@
 
 ---
 
+## [v2.277.0] - 2026-03-25
+
+### 竞品研究更新
+- 📊 **TrueNAS 24.10 Electric Eel**
+  - RAIDZ Expansion（逐盘扩展）
+  - Docker Compose支持
+  - Fast Dedup快速去重
+  - NVMe全闪存支持
+  - Global Search全局搜索
+- 📊 **Synology DSM 7.3**
+  - HCL政策回退（允许第三方SATA硬盘）
+  - Synology Tiering分层存储
+  - AI Console智能脱敏（430,000+部署）
+  - Drive 4.0共享标签、文件锁定
+
+### 差距分析
+| 功能 | nas-os状态 | 优先级 |
+|------|-----------|--------|
+| 网盘原生挂载 | 🔲 规划中 | P0 |
+| RAIDZ Expansion | 🔲 规划中 | P1 |
+| SMB ADS迁移 | 🔲 规划中 | P1 |
+| 人脸识别 | 🔲 规划中 | P2 |
+
+### 六部协同
+- 兵部: noctx修复（health.go HTTP请求）
+- 礼部: 竞品分析文档更新
+- 吏部: 版本号更新
+
+---
+
 ## [v2.276.0] - 2026-03-25
 
 ### 修复
