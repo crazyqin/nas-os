@@ -215,6 +215,18 @@ linters:
       - path: internal/ai/
         linters:
           - godot
+      # internal/media: 媒体模块注释风格放宽
+      - path: internal/media/
+        linters:
+          - godot
+      # internal/directplay: 直链播放模块注释风格放宽
+      - path: internal/directplay/
+        linters:
+          - godot
+      # internal/tunnel: 隧道模块注释风格放宽
+      - path: internal/tunnel/
+        linters:
+          - godot
 
 formatters:
   enable:
