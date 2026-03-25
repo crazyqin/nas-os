@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -271,7 +272,7 @@ func (m *Market) Download(pluginID, version string) (string, error) {
 
 // request 发送 HTTP 请求.
 func (m *Market) request(method, url string, data interface{}, result interface{}) error {
-	req, err := http.NewRequest(method, url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), method, url, nil)
 	if err != nil {
 		return err
 	}

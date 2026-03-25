@@ -2,6 +2,7 @@ package notify
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -237,7 +238,14 @@ func (w *WeChatNotifier) Send(notif *Notification) error {
 		return err
 	}
 
-	resp, err := http.Post(w.WebhookURL, "application/json", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", w.WebhookURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -302,7 +310,14 @@ func (w *WebhookNotifier) Send(notif *Notification) error {
 		return err
 	}
 
-	resp, err := http.Post(w.URL, "application/json", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", w.URL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}

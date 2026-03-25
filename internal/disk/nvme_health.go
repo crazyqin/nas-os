@@ -5,6 +5,7 @@ package disk
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -135,7 +136,7 @@ func NewNVMeMonitor() *NVMeMonitor {
 
 // ScanNVMeDevices 扫描NVMe设备.
 func (m *NVMeMonitor) ScanNVMeDevices() ([]string, error) {
-	cmd := exec.Command("nvme", "list", "-o", "json")
+	cmd := exec.CommandContext(context.Background(), "nvme", "list", "-o", "json")
 	output, err := cmd.Output()
 	if err != nil {
 		// 尝试使用 smartctl 列出设备
@@ -163,7 +164,7 @@ func (m *NVMeMonitor) ScanNVMeDevices() ([]string, error) {
 
 // scanWithSmartctl 使用smartctl扫描NVMe设备.
 func (m *NVMeMonitor) scanWithSmartctl() ([]string, error) {
-	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME")
+	cmd := exec.CommandContext(context.Background(), "lsblk", "-d", "-n", "-o", "NAME")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("扫描设备失败: %w", err)
@@ -228,7 +229,7 @@ func (m *NVMeMonitor) collectNVMeHealth(device string) (*NVMeHealthInfo, error) 
 // getNVMeSmartLog 使用nvme-cli获取SMART日志.
 func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error {
 	// 获取设备信息
-	cmd := exec.Command("nvme", "id-ctrl", device, "-o", "json")
+	cmd := exec.CommandContext(context.Background(), "nvme", "id-ctrl", device, "-o", "json")
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("nvme id-ctrl 失败: %w", err)
@@ -252,7 +253,7 @@ func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error
 	info.Size = ctrlData.TotalNVM / (1024 * 1024) // 转换为MB
 
 	// 获取 SMART 日志
-	cmd = exec.Command("nvme", "smart-log", device, "-o", "json")
+	cmd = exec.CommandContext(context.Background(), "nvme", "smart-log", device, "-o", "json")
 	output, err = cmd.Output()
 	if err != nil {
 		return fmt.Errorf("nvme smart-log 失败: %w", err)
@@ -361,7 +362,7 @@ func (m *NVMeMonitor) getNVMeSmartLog(device string, info *NVMeHealthInfo) error
 
 // getNVMeSmartctl 使用smartctl获取NVMe数据（回退方案）.
 func (m *NVMeMonitor) getNVMeSmartctl(device string, info *NVMeHealthInfo) error {
-	cmd := exec.Command("smartctl", "-a", device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-a", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("smartctl 失败: %w", err)
@@ -828,13 +829,13 @@ func (m *NVMeMonitor) executeNVMeTest(device string, testType NVMeTestType, resu
 	var cmd *exec.Cmd
 	switch testType {
 	case NVMeTestShort:
-		cmd = exec.Command("nvme", "device-self-test", device, "-n", "1")
+		cmd = exec.CommandContext(context.Background(), "nvme", "device-self-test", device, "-n", "1")
 	case NVMeTestLong:
-		cmd = exec.Command("nvme", "device-self-test", device, "-n", "2")
+		cmd = exec.CommandContext(context.Background(), "nvme", "device-self-test", device, "-n", "2")
 	case NVMeTestVendor:
-		cmd = exec.Command("nvme", "device-self-test", device, "-n", "0xe")
+		cmd = exec.CommandContext(context.Background(), "nvme", "device-self-test", device, "-n", "0xe")
 	default:
-		cmd = exec.Command("nvme", "device-self-test", device, "-n", "1")
+		cmd = exec.CommandContext(context.Background(), "nvme", "device-self-test", device, "-n", "1")
 	}
 
 	output, err := cmd.CombinedOutput()
@@ -864,7 +865,7 @@ func (m *NVMeMonitor) executeNVMeTest(device string, testType NVMeTestType, resu
 
 // getNVMeTestResult 获取NVMe测试结果.
 func (m *NVMeMonitor) getNVMeTestResult(device string) *NVMeTestResult {
-	cmd := exec.Command("nvme", "self-test-log", device, "-o", "json")
+	cmd := exec.CommandContext(context.Background(), "nvme", "self-test-log", device, "-o", "json")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil

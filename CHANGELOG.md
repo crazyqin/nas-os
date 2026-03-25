@@ -7,6 +7,54 @@
 
 ---
 
+## [v2.279.0] - 2026-03-25
+
+### 竞品研究更新
+- 📊 **竞品分析报告第四轮**
+  - 群晖DSM 7.3深入分析: Synology Tiering分层存储(热/冷数据自动调度)、Drive 4.0共享标签与文件锁定、AI赋能Office/MailPlus、硬盘兼容性全面放宽
+  - 飞牛fnOS: 官网调研
+
+### 修复
+- 🔧 **golangci-lint noctx 继续修复**
+  - exec.Command 改为 exec.CommandContext
+  - http.Post/Get 改为 http.NewRequestWithContext + client.Do
+  - http.NewRequest 改为 http.NewRequestWithContext
+  - net.Listen 改为 net.ListenConfig.Listen
+  - gofmt 格式问题修复
+
+### 六部协同
+- 吏部: 版本号递增 v2.278.0 → v2.279.0
+- 工部: CI/CD配置检查(Go 1.26版本一致)
+- 刑部: 安全审计进行中
+
+---
+
+## [v2.278.0] - 2026-03-25
+
+### 竞品研究更新
+- 📊 **竞品分析报告第三轮**
+  - 飞牛fnOS v1.1.24: ZFS支持、网盘直链播放(115/夸克)、QWRT软路由、飞牛播放器元数据管理
+  - 群晖DSM 7.3: Synology Tiering分层存储、AI Console(43万+部署)、第三方硬盘支持、exFAT原生支持
+  - TrueNAS 24.10: RAIDZ Expansion(逐盘扩展)、Docker Compose迁移、Fast Dedup快速去重
+- 📋 **差距分析更新**
+  - P0: 网盘挂载功能(参考飞牛直链方案)
+  - P1: AI本地化、RAIDZ Expansion
+  - P2: 移动端APP优化
+
+### 修复
+- 🔧 **golangci-lint noctx 全面修复**
+  - exec.Command 改为 exec.CommandContext (支持上下文取消)
+  - qbittorrent DeleteTorrent 调用添加 ctx 参数
+  - bt_clients_test.go 测试用例 context 传递修复
+  - ARM架构编译错误修复 (int32→int64类型转换)
+
+### 六部协同
+- 兵部: noctx linter全面修复、ARM编译修复
+- 礼部: 竞品分析报告第三轮
+- 吏部: 版本号更新至 v2.278.0
+
+---
+
 ## [v2.277.0] - 2026-03-25
 
 ### 竞品研究更新
