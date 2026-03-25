@@ -2,6 +2,7 @@
 package cmdsec
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"regexp"
@@ -165,11 +166,13 @@ func SafeCommand(name string, args ...string) (*exec.Cmd, error) {
 	if err := ValidateArgs(args...); err != nil {
 		return nil, fmt.Errorf("invalid command argument: %w", err)
 	}
-	return exec.Command(name, args...), nil
+	ctx, cancel := context.WithTimeout(context.Background(), 30*60*1000000000) // 30 minutes default timeout
+	defer cancel()
+	return exec.CommandContext(ctx, name, args...), nil
 }
 
 // SafeCommandContext 创建一个带上下文的安全命令.
-func SafeCommandContext(ctx interface{ Done() <-chan struct{} }, name string, args ...string) (*exec.Cmd, error) {
+func SafeCommandContext(ctx context.Context, name string, args ...string) (*exec.Cmd, error) {
 	// 验证命令名
 	if err := ValidateArg(name); err != nil {
 		return nil, fmt.Errorf("invalid command name: %w", err)
@@ -178,7 +181,5 @@ func SafeCommandContext(ctx interface{ Done() <-chan struct{} }, name string, ar
 	if err := ValidateArgs(args...); err != nil {
 		return nil, fmt.Errorf("invalid command argument: %w", err)
 	}
-	// 使用反射或类型断言来支持不同类型的 context
-	// 这里我们假设调用者会传入正确的 context
-	return exec.Command(name, args...), nil
+	return exec.CommandContext(ctx, name, args...), nil
 }

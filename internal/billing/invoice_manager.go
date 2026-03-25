@@ -740,7 +740,7 @@ func (im *InvoiceManager) exportToJSON(invoices []*InvoiceManagerInvoice, output
 
 func (im *InvoiceManager) exportToCSV(invoices []*InvoiceManagerInvoice, outputPath, filename string) (string, error) {
 	filePath := filepath.Join(outputPath, filename+".csv")
-	var lines []string
+	lines := make([]string, 0, 1+len(invoices))
 	lines = append(lines, "ID,发票号,类型,状态,抬头,金额,税额,总金额,开票日期,收款方,备注")
 
 	for _, inv := range invoices {

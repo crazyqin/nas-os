@@ -537,7 +537,7 @@ func parseInt(s string, defaultVal int) int {
 }
 
 func parseTypes(types []string) []Type {
-	var result []Type
+	result := make([]Type, 0, len(types))
 	for _, t := range types {
 		result = append(result, Type(t))
 	}
@@ -545,7 +545,7 @@ func parseTypes(types []string) []Type {
 }
 
 func parseScopes(scopes []string) []Scope {
-	var result []Scope
+	result := make([]Scope, 0, len(scopes))
 	for _, s := range scopes {
 		result = append(result, Scope(s))
 	}
@@ -553,7 +553,7 @@ func parseScopes(scopes []string) []Scope {
 }
 
 func parseBudgetStatuses(statuses []string) []BudgetStatus {
-	var result []BudgetStatus
+	result := make([]BudgetStatus, 0, len(statuses))
 	for _, s := range statuses {
 		result = append(result, BudgetStatus(s))
 	}
@@ -561,7 +561,7 @@ func parseBudgetStatuses(statuses []string) []BudgetStatus {
 }
 
 func parseLevels(levels []string) []Level {
-	var result []Level
+	result := make([]Level, 0, len(levels))
 	for _, l := range levels {
 		result = append(result, Level(l))
 	}
@@ -570,7 +570,7 @@ func parseLevels(levels []string) []Level {
 
 // parseAlertStatuses 解析警报状态.
 func parseAlertStatuses(statuses []string) []AlertStatus {
-	var result []AlertStatus
+	result := make([]AlertStatus, 0, len(statuses))
 	for _, s := range statuses {
 		result = append(result, AlertStatus(s))
 	}

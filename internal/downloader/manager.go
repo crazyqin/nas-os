@@ -902,7 +902,7 @@ func (m *Manager) loadTasks() error {
 
 // saveTasks 保存任务.
 func (m *Manager) saveTasks() error {
-	var tasks []*DownloadTask
+	tasks := make([]*DownloadTask, 0, len(m.tasks))
 	for _, task := range m.tasks {
 		tasks = append(tasks, task)
 	}
