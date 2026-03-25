@@ -1,6 +1,6 @@
 # 竞品分析报告 - 2026-03-25
 
-## 一、飞牛fnOS 1.0+ (2025-11至2026-01)
+## 一、飞牛fnOS v1.1.23 (2026-02-26更新)
 
 ### 核心优势
 | 功能 | 说明 | 我们状态 |
@@ -14,10 +14,12 @@
 | 手动安装应用 | 用户自行上传安装包 | ❌ 未实现 |
 | 相册幻灯片播放 | 多选幻灯片 | ❌ 未实现 |
 
-### 最新v1.1.4更新
-- 新增百度网盘、阿里云盘、123云盘直链播放
-- 存储容量详情可视化
-- Nvidia 50系列驱动支持
+### 最新v1.1.23更新 (2026-02-26)
+- **网络**: 修复无线网卡启停状态问题，OVS网口IP获取问题
+- **文件管理**: 修复批量下载、缩略图显示问题
+- **App更新**: 存储空间组件、首页容量可视化
+- **应用更新**: ME Frp内网穿透v1.5.20、MoviCloud v1.0.4等
+- **驱动**: AICSemi AIC8800 WiFi6模组支持
 
 ### 差距分析
 - **内网穿透**: fnOS有自研FN Connect，我们有frp但未完全集成
@@ -46,24 +48,35 @@
 
 ---
 
-## 三、TrueNAS Fangtooth 25.04 (2025-04)
+## 三、TrueNAS Fangtooth 25.04.2 (2025-07更新)
 
 ### 核心优势
 | 功能 | 说明 | 我们状态 |
 |------|------|----------|
-| CORE/SCALE统一 | 单一代码库 | ❌ 架构不同 |
+| CORE/SCALE统一 | 单一代码库，Community Edition | ❌ 架构不同 |
 | OpenZFS 2.3 Fast Dedup | 数据去重，减少占用 | ✅ 已集成 |
 | RAIDZ扩展加速5X | 单盘扩容大幅加速 | ⚠️ 需评估 |
-| NFS over RDMA | 50%延迟降低 | ❌ 未实现 |
+| NFS over RDMA | 50%延迟降低，IOPS提升 | ❌ 未实现 |
 | iSCSI Block Cloning | 10X VM克隆加速 | ⚠️ 部分支持 |
-| LXC容器支持 | 轻量级虚拟化 | ❌ 未实现 |
+| LXC容器支持 | Incus轻量级虚拟化 | ❌ 未实现 |
 | Versioned API | 第三方集成友好 | ⚠️ 进行中 |
 | 可配置IP地址给Apps | 灵活网络配置 | ❌ 未实现 |
+| Secure Boot VM | Windows 11 TPM支持 | ❌ 未实现 |
+| Veeam Fast Clone | SMB快克隆加速 | ❌ 未实现 |
+
+### 最新Fangtooth 25.04.2更新
+- **虚拟化恢复**: Electric Eel Virtualization重新启用
+- **Windows VM**: Secure Boot + TPM支持
+- **企业功能**: Veeam Fast Cloning for SMB
+- **App IP**: 应用可分配独立IP地址
+- **安全**: Active Directory安全更新
+- **社区**: 超过100,000用户采用，最受欢迎版本
 
 ### 关键学习点
-1. **性能优化**: RDMA扩展可显著提升性能
+1. **性能优化**: RDMA扩展可显著提升性能（延迟降50%）
 2. **存储效率**: Fast Dedup已实现，继续优化
 3. **API设计**: Versioned API对第三方集成很重要
+4. **虚拟化**: LXC+QEMU/KVM双轨策略值得参考
 
 ---
 
