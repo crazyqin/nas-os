@@ -125,12 +125,18 @@ func (pc *PierceClient) startRelay() error {
 	var conn net.Conn
 	var err error
 
+	dialer := &net.Dialer{Timeout: 10 * time.Second}
+
 	if pc.config.TLSEnabled {
-		conn, err = tls.Dial("tcp", addr, &tls.Config{
-			InsecureSkipVerify: false,
-		})
+		tlsDialer := &tls.Dialer{
+			NetDialer: dialer,
+			Config: &tls.Config{
+				InsecureSkipVerify: false,
+			},
+		}
+		conn, err = tlsDialer.DialContext(pc.ctx, "tcp", addr)
 	} else {
-		conn, err = net.Dial("tcp", addr)
+		conn, err = dialer.DialContext(pc.ctx, "tcp", addr)
 	}
 
 	if err != nil {

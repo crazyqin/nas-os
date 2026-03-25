@@ -294,7 +294,7 @@ func TestOptimizer_AnalyzeTable(t *testing.T) {
 	defer db.Close()
 
 	// Create a test table first
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())
@@ -309,7 +309,7 @@ func TestOptimizer_AnalyzeAll(t *testing.T) {
 	defer db.Close()
 
 	// Create a test table first
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())
@@ -324,9 +324,9 @@ func TestOptimizer_QueryWithCache(t *testing.T) {
 	defer db.Close()
 
 	// Create a test table with data
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
 	require.NoError(t, err)
-	_, err = db.Exec("INSERT INTO test_table (name) VALUES ('test1'), ('test2')")
+	_, err = db.ExecContext(context.Background(), "INSERT INTO test_table (name) VALUES ('test1'), ('test2')")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())
@@ -351,7 +351,7 @@ func TestOptimizer_ExecWithTiming(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())
@@ -369,7 +369,7 @@ func TestOptimizer_QueryWithTiming(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())
@@ -388,7 +388,7 @@ func TestOptimizer_Stats(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())
@@ -433,7 +433,7 @@ func TestOptimizer_GetIndexes(t *testing.T) {
 	require.NoError(t, err)
 	defer db.Close()
 
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())

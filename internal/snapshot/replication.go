@@ -802,7 +802,7 @@ func (rm *ReplicationManager) createManifest(snapshotPath, baseSnapshot string) 
 
 	// 如果有基准快照，使用 btrfs send --dry-run 获取变更
 	if baseSnapshot != "" {
-		cmd := exec.Command("btrfs", "send", "--dry-run", "-p", baseSnapshot, snapshotPath)
+		cmd := exec.CommandContext(context.Background(), "btrfs", "send", "--dry-run", "-p", baseSnapshot, snapshotPath)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return nil, fmt.Errorf("获取变更列表失败: %w: %s", err, string(output))
@@ -1123,7 +1123,7 @@ func (rs *ReplicationServer) ReceiveSnapshot(req TransferRequest, data io.Reader
 	// 使用 btrfs receive 接收快照
 	targetPath := filepath.Join("/mnt", req.Volume, req.Path)
 
-	cmd := exec.Command("btrfs", "receive", targetPath)
+	cmd := exec.CommandContext(context.Background(), "btrfs", "receive", targetPath)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("创建管道失败: %w", err)

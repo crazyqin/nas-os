@@ -2,6 +2,7 @@ package monitor
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -214,7 +215,7 @@ func (m *Manager) GetDiskStats() ([]*DiskStats, error) {
 	var stats []*DiskStats
 
 	// 使用 df 命令获取磁盘信息
-	cmd := exec.Command("df", "-B1", "--output=source,target,size,used,avail,fstype")
+	cmd := exec.CommandContext(context.Background(), "df", "-B1", "--output=source,target,size,used,avail,fstype")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取磁盘信息: %w", err)
@@ -316,7 +317,7 @@ func (m *Manager) GetSMARTInfo(device string) (*SMARTInfo, error) {
 	}
 
 	// 获取 SMART 信息
-	cmd := exec.Command("smartctl", "-A", "-i", "-H", device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-A", "-i", "-H", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取 SMART 信息: %w", err)
@@ -376,7 +377,7 @@ func (m *Manager) CheckDisks() ([]*SMARTInfo, error) {
 	var results []*SMARTInfo
 
 	// 列出所有块设备
-	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME")
+	cmd := exec.CommandContext(context.Background(), "lsblk", "-d", "-n", "-o", "NAME")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出磁盘: %w", err)

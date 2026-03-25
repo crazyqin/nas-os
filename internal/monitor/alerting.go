@@ -2,6 +2,7 @@ package monitor
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -491,13 +492,13 @@ func getLevelColor(level string) string {
 }
 
 // SendHTTPWebhook 发送 HTTP Webhook.
-func SendHTTPWebhook(url string, payload map[string]interface{}) error {
+func SendHTTPWebhook(ctx context.Context, url string, payload map[string]interface{}) error {
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}

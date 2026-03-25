@@ -4,12 +4,14 @@ package storage
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/smtp"
 	"strings"
@@ -385,10 +387,14 @@ func (nm *NotificationManager) sendEmail(data interface{}) error {
 }
 
 func (nm *NotificationManager) sendEmailWithTLS(addr string, auth smtp.Auth, cfg EmailConfig, msg []byte) error {
-	conn, err := tls.Dial("tcp", addr, &tls.Config{
-		InsecureSkipVerify: false,
-		ServerName:         cfg.SMTPHost,
-	})
+	dialer := &tls.Dialer{
+		NetDialer: &net.Dialer{Timeout: 10 * time.Second},
+		Config: &tls.Config{
+			InsecureSkipVerify: false,
+			ServerName:         cfg.SMTPHost,
+		},
+	}
+	conn, err := dialer.DialContext(context.Background(), "tcp", addr)
 	if err != nil {
 		return fmt.Errorf("TLS连接失败: %w", err)
 	}
@@ -451,7 +457,7 @@ func (nm *NotificationManager) sendWebhook(data interface{}) error {
 		method = "POST"
 	}
 
-	req, err := http.NewRequest(method, cfg.URL, &body)
+	req, err := http.NewRequestWithContext(context.Background(), method, cfg.URL, &body)
 	if err != nil {
 		return fmt.Errorf("创建请求失败: %w", err)
 	}
@@ -504,7 +510,12 @@ func (nm *NotificationManager) sendTelegram(data interface{}) error {
 		return fmt.Errorf("编码请求失败: %w", err)
 	}
 
-	resp, err := nm.httpClient.Post(url, "application/json", bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := nm.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("发送Telegram消息失败: %w", err)
 	}
@@ -540,7 +551,12 @@ func (nm *NotificationManager) sendWeChat(data interface{}) error {
 		return fmt.Errorf("编码请求失败: %w", err)
 	}
 
-	resp, err := nm.httpClient.Post(cfg.WebhookURL, "application/json", bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", cfg.WebhookURL, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := nm.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("发送企业微信消息失败: %w", err)
 	}
@@ -584,7 +600,12 @@ func (nm *NotificationManager) sendDingTalk(data interface{}) error {
 		url = fmt.Sprintf("%s&timestamp=%d&sign=%s", url, timestamp, sign)
 	}
 
-	resp, err := nm.httpClient.Post(url, "application/json", bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", url, bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := nm.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("发送钉钉消息失败: %w", err)
 	}

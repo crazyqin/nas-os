@@ -4,6 +4,7 @@ package monitor
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -243,7 +244,7 @@ func (m *DiskHealthMonitor) checkDisk(device string) (*DiskHealthInfo, error) {
 
 // getBasicInfo 获取基本信息.
 func (m *DiskHealthMonitor) getBasicInfo(info *DiskHealthInfo) error {
-	cmd := exec.Command("smartctl", "-i", info.Device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-i", info.Device)
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("获取磁盘信息失败: %w", err)
@@ -304,7 +305,7 @@ func (m *DiskHealthMonitor) getBasicInfo(info *DiskHealthInfo) error {
 // getSMARTAttributes 获取 SMART 属性.
 func (m *DiskHealthMonitor) getSMARTAttributes(info *DiskHealthInfo) error {
 	// 获取 SMART 属性
-	cmd := exec.Command("smartctl", "-A", "-H", info.Device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-A", "-H", info.Device)
 	output, err := cmd.Output()
 	if err != nil {
 		return fmt.Errorf("获取 SMART 属性失败: %w", err)
@@ -553,7 +554,7 @@ func (m *DiskHealthMonitor) listBlockDevices() ([]string, error) {
 	var devices []string
 
 	// 使用 lsblk 列出设备
-	cmd := exec.Command("lsblk", "-d", "-n", "-o", "NAME,TYPE")
+	cmd := exec.CommandContext(context.Background(), "lsblk", "-d", "-n", "-o", "NAME,TYPE")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出块设备: %w", err)
@@ -574,19 +575,19 @@ func (m *DiskHealthMonitor) listBlockDevices() ([]string, error) {
 
 // RunShortTest 运行短测试.
 func (m *DiskHealthMonitor) RunShortTest(device string) error {
-	cmd := exec.Command("smartctl", "-t", "short", device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-t", "short", device)
 	return cmd.Run()
 }
 
 // RunLongTest 运行长测试.
 func (m *DiskHealthMonitor) RunLongTest(device string) error {
-	cmd := exec.Command("smartctl", "-t", "long", device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-t", "long", device)
 	return cmd.Run()
 }
 
 // GetTestStatus 获取测试状态.
 func (m *DiskHealthMonitor) GetTestStatus(device string) (string, error) {
-	cmd := exec.Command("smartctl", "-l", "selftest", device)
+	cmd := exec.CommandContext(context.Background(), "smartctl", "-l", "selftest", device)
 	output, err := cmd.Output()
 	if err != nil {
 		return "", err
