@@ -1,8 +1,8 @@
 package performance
 
 import (
-	"context"
 	"bufio"
+	"context"
 	"os"
 	"os/exec"
 	"sort"
