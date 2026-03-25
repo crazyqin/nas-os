@@ -411,7 +411,7 @@ func (g *ReportGenerator) generateVolumeReport(volumeName string, period ReportP
 // generateTrendReport 生成趋势报告.
 func (g *ReportGenerator) generateTrendReport(period ReportPeriod) ([]QuotaTrend, error) {
 	usages, _ := g.manager.GetAllUsage()
-	trends := make([]QuotaTrend, 0)
+	trends := make([]QuotaTrend, 0, len(usages))
 
 	for _, usage := range usages {
 		trend := QuotaTrend{

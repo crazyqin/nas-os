@@ -921,7 +921,7 @@ func (aim *AIManager) saveMemory(memory *MemoryAlbum) {
 	}
 
 	// 读取已保存的回忆
-	var memories []MemoryAlbum
+	memories := make([]MemoryAlbum, 0, 1)
 	if data, err := os.ReadFile(memoriesPath); err == nil {
 		_ = json.Unmarshal(data, &memories)
 	}
