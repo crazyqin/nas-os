@@ -1,6 +1,7 @@
 package media
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -116,7 +117,8 @@ func (p *TMDBProvider) SearchMovie(query string) ([]*MovieInfo, error) {
 	params.Set("language", p.language)
 	params.Set("page", "1")
 
-	resp, err := p.httpClient.Get(endpoint + "?" + params.Encode())
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint+"?"+params.Encode(), nil)
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +180,8 @@ func (p *TMDBProvider) GetMovie(id string) (*MovieInfo, error) {
 	params.Set("language", p.language)
 	params.Set("append_to_response", "credits,videos")
 
-	resp, err := p.httpClient.Get(endpoint + "?" + params.Encode())
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint+"?"+params.Encode(), nil)
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +290,8 @@ func (p *TMDBProvider) SearchTV(query string) ([]*TVShowInfo, error) {
 	params.Set("language", p.language)
 	params.Set("page", "1")
 
-	resp, err := p.httpClient.Get(endpoint + "?" + params.Encode())
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint+"?"+params.Encode(), nil)
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -348,7 +352,8 @@ func (p *TMDBProvider) GetTV(id string) (*TVShowInfo, error) {
 	params.Set("language", p.language)
 	params.Set("append_to_response", "credits,videos")
 
-	resp, err := p.httpClient.Get(endpoint + "?" + params.Encode())
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint+"?"+params.Encode(), nil)
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

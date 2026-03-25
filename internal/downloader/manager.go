@@ -317,7 +317,7 @@ func (m *Manager) DeleteTask(id string, deleteFiles bool) error {
 				if len(parts) == 2 && parts[0] == "transmission" {
 					var tid int
 					if _, err := fmt.Sscanf(parts[1], "%d", &tid); err == nil {
-						_ = m.transmissionClient.RemoveTorrent(tid, deleteFiles)
+						_ = m.transmissionClient.RemoveTorrent(context.Background(), tid, deleteFiles)
 					}
 				}
 			}
@@ -374,7 +374,7 @@ func (m *Manager) StartTask(id string) error {
 func (m *Manager) downloadBittorrent(ctx context.Context, task *DownloadTask) {
 	// 如果配置了 Transmission
 	if m.transmissionURL != "" {
-		if err := m.addToTransmission(task); err != nil {
+		if err := m.addToTransmission(ctx, task); err != nil {
 			m.logger.Error("添加到 Transmission 失败", zap.Error(err), zap.String("taskId", task.ID))
 			m.mu.Lock()
 			task.Status = StatusError
@@ -406,7 +406,7 @@ func (m *Manager) downloadBittorrent(ctx context.Context, task *DownloadTask) {
 }
 
 // addToTransmission 添加任务到 Transmission.
-func (m *Manager) addToTransmission(task *DownloadTask) error {
+func (m *Manager) addToTransmission(ctx context.Context, task *DownloadTask) error {
 	// 初始化客户端
 	if m.transmissionClient == nil {
 		m.transmissionClient = NewTransmissionClient(
@@ -417,7 +417,7 @@ func (m *Manager) addToTransmission(task *DownloadTask) error {
 	}
 
 	// 添加种子
-	hash, id, err := m.transmissionClient.AddTorrent(task.URL, task.DestPath)
+	hash, id, err := m.transmissionClient.AddTorrent(context.Background(), task.URL, task.DestPath)
 	if err != nil {
 		return fmt.Errorf("添加种子到 Transmission 失败: %w", err)
 	}
@@ -448,7 +448,7 @@ func (m *Manager) addToQbittorrent(task *DownloadTask) error {
 	}
 
 	// 添加种子
-	if err := m.qbittorrentClient.AddTorrent(task.URL, task.DestPath); err != nil {
+	if err := m.qbittorrentClient.AddTorrent(context.Background(), task.URL, task.DestPath); err != nil {
 		return fmt.Errorf("添加种子到 qBittorrent 失败: %w", err)
 	}
 
@@ -782,7 +782,7 @@ func (m *Manager) getTransmissionStats(taskID string) (*TransmissionStats, error
 		if len(parts) == 2 && parts[0] == "transmission" {
 			var id int
 			if _, err := fmt.Sscanf(parts[1], "%d", &id); err == nil {
-				torrents, err := m.transmissionClient.GetTorrents(id)
+				torrents, err := m.transmissionClient.GetTorrents(context.Background(), id)
 				if err == nil && len(torrents) > 0 {
 					m.mu.Lock()
 					task.DownloadID = torrents[0].HashString
@@ -793,7 +793,7 @@ func (m *Manager) getTransmissionStats(taskID string) (*TransmissionStats, error
 	}
 
 	// 获取种子信息
-	torrents, err := m.transmissionClient.GetTorrents()
+	torrents, err := m.transmissionClient.GetTorrents(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -841,7 +841,7 @@ func (m *Manager) getQbittorrentStats(taskID string) (*QbittorrentStats, error) 
 	}
 
 	// 获取所有种子
-	torrents, err := m.qbittorrentClient.GetTorrents()
+	torrents, err := m.qbittorrentClient.GetTorrents(context.Background())
 	if err != nil {
 		return nil, err
 	}

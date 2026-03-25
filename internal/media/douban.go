@@ -1,6 +1,7 @@
 package media
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -69,7 +70,8 @@ func (p *DoubanProvider) SearchMovie(query string) ([]*MovieInfo, error) {
 		params.Set("apikey", p.apiKey)
 	}
 
-	resp, err := p.httpClient.Get(endpoint + "?" + params.Encode())
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint+"?"+params.Encode(), nil)
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +135,8 @@ func (p *DoubanProvider) GetMovie(id string) (*MovieInfo, error) {
 		params.Set("apikey", p.apiKey)
 	}
 
-	resp, err := p.httpClient.Get(endpoint + "?" + params.Encode())
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint+"?"+params.Encode(), nil)
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +192,8 @@ func (p *DoubanProvider) SearchTV(query string) ([]*TVShowInfo, error) {
 		params.Set("apikey", p.apiKey)
 	}
 
-	resp, err := p.httpClient.Get(endpoint + "?" + params.Encode())
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint+"?"+params.Encode(), nil)
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +253,8 @@ func (p *DoubanProvider) GetTV(id string) (*TVShowInfo, error) {
 		params.Set("apikey", p.apiKey)
 	}
 
-	resp, err := p.httpClient.Get(endpoint + "?" + params.Encode())
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", endpoint+"?"+params.Encode(), nil)
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
