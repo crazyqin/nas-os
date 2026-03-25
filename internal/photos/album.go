@@ -1139,7 +1139,7 @@ type ThumbnailCacheConfig struct {
 
 // DefaultThumbnailCacheConfig 提供默认缩略图缓存配置。
 var DefaultThumbnailCacheConfig = ThumbnailCacheConfig{
-	MaxSize: 500 * 1024 * 1024, // 500MB
+	MaxSize: 500 * 1024 * 1024,   // 500MB
 	MaxAge:  30 * 24 * time.Hour, // 30 天
 	Sizes:   []int{128, 512, 1024},
 	Quality: 85,

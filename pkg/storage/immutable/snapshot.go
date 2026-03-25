@@ -97,43 +97,43 @@ type ImmutableSnapshot struct {
 	UsedSize     uint64    `json:"used_size"`
 	Checksum     string    `json:"checksum"`
 	ChecksumAlgo string    `json:"checksum_algo"`
-	
+
 	// 状态
-	State     SnapshotState `json:"state"`
-	LockType  LockType      `json:"lock_type"`
-	LockedAt  *time.Time    `json:"locked_at,omitempty"`
-	LockedBy  string        `json:"locked_by,omitempty"`
-	
+	State    SnapshotState `json:"state"`
+	LockType LockType      `json:"lock_type"`
+	LockedAt *time.Time    `json:"locked_at,omitempty"`
+	LockedBy string        `json:"locked_by,omitempty"`
+
 	// 时间锁定
-	LockExpiry     *time.Time `json:"lock_expiry,omitempty"`
-	MinRetention   time.Duration `json:"min_retention"`
-	MaxRetention   time.Duration `json:"max_retention,omitempty"`
-	ExpiryTime     *time.Time `json:"expiry_time,omitempty"`
-	
+	LockExpiry   *time.Time    `json:"lock_expiry,omitempty"`
+	MinRetention time.Duration `json:"min_retention"`
+	MaxRetention time.Duration `json:"max_retention,omitempty"`
+	ExpiryTime   *time.Time    `json:"expiry_time,omitempty"`
+
 	// 保护设置
 	RansomwareProtection bool `json:"ransomware_protection"`
 	WORMEnabled          bool `json:"worm_enabled"` // Write Once Read Many
 	VersioningEnabled    bool `json:"versioning_enabled"`
-	
+
 	// 完整性验证
-	LastVerified    *time.Time `json:"last_verified,omitempty"`
-	VerificationCount int      `json:"verification_count"`
-	IntegrityStatus string     `json:"integrity_status"`
-	
+	LastVerified      *time.Time `json:"last_verified,omitempty"`
+	VerificationCount int        `json:"verification_count"`
+	IntegrityStatus   string     `json:"integrity_status"`
+
 	// 访问控制
-	AccessLog       []AccessRecord `json:"access_log,omitempty"`
-	ReadCount       int64          `json:"read_count"`
-	LastAccessed    *time.Time     `json:"last_accessed,omitempty"`
-	
+	AccessLog    []AccessRecord `json:"access_log,omitempty"`
+	ReadCount    int64          `json:"read_count"`
+	LastAccessed *time.Time     `json:"last_accessed,omitempty"`
+
 	// 元数据
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	Tags            []string          `json:"tags,omitempty"`
-	ParentSnapshot  string            `json:"parent_snapshot,omitempty"`
-	ChildSnapshots  []string          `json:"child_snapshots,omitempty"`
-	
+	Metadata       map[string]string `json:"metadata,omitempty"`
+	Tags           []string          `json:"tags,omitempty"`
+	ParentSnapshot string            `json:"parent_snapshot,omitempty"`
+	ChildSnapshots []string          `json:"child_snapshots,omitempty"`
+
 	// 合规信息
-	ComplianceLevel string   `json:"compliance_level,omitempty"`
-	ComplianceTags  []string `json:"compliance_tags,omitempty"`
+	ComplianceLevel string       `json:"compliance_level,omitempty"`
+	ComplianceTags  []string     `json:"compliance_tags,omitempty"`
 	AuditTrail      []AuditEntry `json:"audit_trail,omitempty"`
 }
 
@@ -148,12 +148,12 @@ type AccessRecord struct {
 
 // AuditEntry 审计条目
 type AuditEntry struct {
-	Timestamp   time.Time `json:"timestamp"`
-	Action      string    `json:"action"`
-	Actor       string    `json:"actor"`
-	OldValue    string    `json:"old_value,omitempty"`
-	NewValue    string    `json:"new_value,omitempty"`
-	Reason      string    `json:"reason,omitempty"`
+	Timestamp time.Time `json:"timestamp"`
+	Action    string    `json:"action"`
+	Actor     string    `json:"actor"`
+	OldValue  string    `json:"old_value,omitempty"`
+	NewValue  string    `json:"new_value,omitempty"`
+	Reason    string    `json:"reason,omitempty"`
 }
 
 // RetentionPolicy 保留策略
@@ -192,30 +192,30 @@ func DefaultRetentionPolicy() *RetentionPolicy {
 type ImmutableConfig struct {
 	// 默认保留策略
 	DefaultPolicy *RetentionPolicy `json:"default_policy"`
-	
+
 	// 按卷的策略
 	VolumePolicies map[string]*RetentionPolicy `json:"volume_policies"`
-	
+
 	// 安全设置
 	EnableRansomwareProtection bool `json:"enable_ransomware_protection"`
 	EnableWORM                 bool `json:"enable_worm"`
 	EnableVersioning           bool `json:"enable_versioning"`
-	
+
 	// 自动验证
-	AutoVerify         bool          `json:"auto_verify"`
-	VerifyInterval     time.Duration `json:"verify_interval"`
-	VerifyOnAccess     bool          `json:"verify_on_access"`
-	
+	AutoVerify     bool          `json:"auto_verify"`
+	VerifyInterval time.Duration `json:"verify_interval"`
+	VerifyOnAccess bool          `json:"verify_on_access"`
+
 	// 时间锁定设置
-	DefaultLockDuration time.Duration `json:"default_lock_duration"`
-	MaxLockDuration     time.Duration `json:"max_lock_duration"`
-	AllowEarlyRelease   bool          `json:"allow_early_release"`
-	EarlyReleaseApproval []string     `json:"early_release_approval"`
-	
+	DefaultLockDuration  time.Duration `json:"default_lock_duration"`
+	MaxLockDuration      time.Duration `json:"max_lock_duration"`
+	AllowEarlyRelease    bool          `json:"allow_early_release"`
+	EarlyReleaseApproval []string      `json:"early_release_approval"`
+
 	// 存储配置
 	SnapshotPath string `json:"snapshot_path"`
 	ConfigPath   string `json:"config_path"`
-	
+
 	// 审计设置
 	EnableAudit      bool `json:"enable_audit"`
 	MaxAuditEntries  int  `json:"max_audit_entries"`
@@ -269,27 +269,27 @@ func NewSnapshotManager(config *ImmutableConfig) (*SnapshotManager, error) {
 	if config == nil {
 		config = DefaultImmutableConfig()
 	}
-	
+
 	m := &SnapshotManager{
 		config:    config,
 		snapshots: make(map[string]*ImmutableSnapshot),
 		verifier:  NewIntegrityVerifier(),
 	}
-	
+
 	// 加载现有配置
 	if config.ConfigPath != "" {
 		if err := m.loadConfig(); err != nil && !os.IsNotExist(err) {
 			return nil, fmt.Errorf("failed to load config: %w", err)
 		}
 	}
-	
+
 	// 确保目录存在
 	if config.SnapshotPath != "" {
 		if err := os.MkdirAll(config.SnapshotPath, 0750); err != nil {
 			return nil, fmt.Errorf("failed to create snapshot path: %w", err)
 		}
 	}
-	
+
 	return m, nil
 }
 
@@ -299,16 +299,16 @@ func (m *SnapshotManager) loadConfig() error {
 	if err != nil {
 		return err
 	}
-	
+
 	var snapshots []*ImmutableSnapshot
 	if err := json.Unmarshal(data, &snapshots); err != nil {
 		return err
 	}
-	
+
 	for _, snap := range snapshots {
 		m.snapshots[snap.ID] = snap
 	}
-	
+
 	return nil
 }
 
@@ -318,14 +318,14 @@ func (m *SnapshotManager) saveConfig() error {
 	if m.config.ConfigPath == "" {
 		return nil
 	}
-	
+
 	m.mu.RLock()
 	snapshots := make([]*ImmutableSnapshot, 0, len(m.snapshots))
 	for _, snap := range m.snapshots {
 		snapshots = append(snapshots, snap)
 	}
 	m.mu.RUnlock()
-	
+
 	return m.saveSnapshots(snapshots)
 }
 
@@ -348,16 +348,16 @@ func (m *SnapshotManager) saveSnapshots(snapshots []*ImmutableSnapshot) error {
 	if m.config.ConfigPath == "" {
 		return nil
 	}
-	
+
 	data, err := json.MarshalIndent(snapshots, "", "  ")
 	if err != nil {
 		return err
 	}
-	
+
 	if err := os.MkdirAll(filepath.Dir(m.config.ConfigPath), 0750); err != nil {
 		return err
 	}
-	
+
 	return os.WriteFile(m.config.ConfigPath, data, 0640)
 }
 
@@ -367,34 +367,34 @@ func (m *SnapshotManager) saveSnapshots(snapshots []*ImmutableSnapshot) error {
 func (m *SnapshotManager) CreateSnapshot(ctx context.Context, opts CreateSnapshotOptions) (*ImmutableSnapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	// 检查是否已存在
 	if _, exists := m.snapshots[opts.ID]; exists {
 		return nil, ErrSnapshotAlreadyExists
 	}
-	
+
 	// 获取卷策略
 	policy := m.getPolicy(opts.Volume)
-	
+
 	now := time.Now()
 	snap := &ImmutableSnapshot{
-		ID:           opts.ID,
-		Name:         opts.Name,
-		Volume:       opts.Volume,
-		Description:  opts.Description,
-		CreatedAt:    now,
-		CreatedBy:    opts.CreatedBy,
-		Size:         opts.Size,
-		State:        StateCreating,
-		LockType:     LockTypeNone,
-		MinRetention: policy.MinRetention,
-		Metadata:     opts.Metadata,
-		Tags:         opts.Tags,
+		ID:                   opts.ID,
+		Name:                 opts.Name,
+		Volume:               opts.Volume,
+		Description:          opts.Description,
+		CreatedAt:            now,
+		CreatedBy:            opts.CreatedBy,
+		Size:                 opts.Size,
+		State:                StateCreating,
+		LockType:             LockTypeNone,
+		MinRetention:         policy.MinRetention,
+		Metadata:             opts.Metadata,
+		Tags:                 opts.Tags,
 		RansomwareProtection: m.config.EnableRansomwareProtection && opts.RansomwareProtection,
-		WORMEnabled:  m.config.EnableWORM && opts.WORMEnabled,
-		VersioningEnabled: m.config.EnableVersioning,
+		WORMEnabled:          m.config.EnableWORM && opts.WORMEnabled,
+		VersioningEnabled:    m.config.EnableVersioning,
 	}
-	
+
 	// 计算校验和
 	if opts.Data != nil {
 		checksum, err := m.verifier.CalculateChecksum(opts.Data)
@@ -404,35 +404,35 @@ func (m *SnapshotManager) CreateSnapshot(ctx context.Context, opts CreateSnapsho
 		snap.Checksum = checksum
 		snap.ChecksumAlgo = "sha256"
 	}
-	
+
 	// 设置过期时间
 	if policy.MaxRetention > 0 {
 		expiry := now.Add(policy.MaxRetention)
 		snap.ExpiryTime = &expiry
 	}
-	
+
 	// 自动锁定
 	if policy.AutoLock {
 		snap.LockType = policy.DefaultLockType
 		snap.LockedAt = &now
 		snap.LockedBy = "system"
 		snap.State = StateLocked
-		
+
 		// 设置时间锁过期
 		if policy.DefaultLockType == LockTypeTimed && m.config.DefaultLockDuration > 0 {
 			lockExpiry := now.Add(m.config.DefaultLockDuration)
 			snap.LockExpiry = &lockExpiry
 		}
 	}
-	
+
 	// 设置状态
 	if snap.State == StateCreating {
 		snap.State = StateActive
 	}
-	
+
 	// 添加审计条目
 	m.addAuditEntry(snap, "create", opts.CreatedBy, "", string(snap.State), "Snapshot created")
-	
+
 	// 保存
 	m.snapshots[snap.ID] = snap
 	snapshots := make([]*ImmutableSnapshot, 0, len(m.snapshots))
@@ -440,29 +440,29 @@ func (m *SnapshotManager) CreateSnapshot(ctx context.Context, opts CreateSnapsho
 		snapshots = append(snapshots, s)
 	}
 	_ = m.saveSnapshots(snapshots)
-	
+
 	// 通知
 	if m.notifier != nil {
 		go m.notifier.OnSnapshotCreated(snap)
 	}
-	
+
 	return snap, nil
 }
 
 // CreateSnapshotOptions 创建快照选项
 type CreateSnapshotOptions struct {
-	ID                  string            `json:"id"`
-	Name                string            `json:"name"`
-	Volume              string            `json:"volume"`
-	Description         string            `json:"description"`
-	CreatedBy           string            `json:"created_by"`
-	Size                uint64            `json:"size"`
-	Data                []byte            `json:"data,omitempty"`
-	Metadata            map[string]string `json:"metadata,omitempty"`
-	Tags                []string          `json:"tags,omitempty"`
-	RansomwareProtection bool             `json:"ransomware_protection"`
-	WORMEnabled         bool              `json:"worm_enabled"`
-	ParentSnapshot      string            `json:"parent_snapshot,omitempty"`
+	ID                   string            `json:"id"`
+	Name                 string            `json:"name"`
+	Volume               string            `json:"volume"`
+	Description          string            `json:"description"`
+	CreatedBy            string            `json:"created_by"`
+	Size                 uint64            `json:"size"`
+	Data                 []byte            `json:"data,omitempty"`
+	Metadata             map[string]string `json:"metadata,omitempty"`
+	Tags                 []string          `json:"tags,omitempty"`
+	RansomwareProtection bool              `json:"ransomware_protection"`
+	WORMEnabled          bool              `json:"worm_enabled"`
+	ParentSnapshot       string            `json:"parent_snapshot,omitempty"`
 }
 
 // getPolicy 获取卷策略
@@ -479,47 +479,47 @@ func (m *SnapshotManager) getPolicy(volume string) *RetentionPolicy {
 func (m *SnapshotManager) LockSnapshot(ctx context.Context, snapshotID string, lockType LockType, duration time.Duration, actor string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	snap, exists := m.snapshots[snapshotID]
 	if !exists {
 		return ErrSnapshotNotFound
 	}
-	
+
 	// 检查当前状态
 	if snap.LockType != LockTypeNone && snap.LockType != LockTypeSoft {
 		return ErrSnapshotImmutable
 	}
-	
+
 	// 验证锁类型
 	if !isValidLockType(lockType) {
 		return ErrInvalidLockType
 	}
-	
+
 	// 验证持续时间
 	if duration > m.config.MaxLockDuration && lockType == LockTypeTimed {
 		return fmt.Errorf("duration exceeds maximum allowed: %v", m.config.MaxLockDuration)
 	}
-	
+
 	now := time.Now()
 	snap.LockType = lockType
 	snap.LockedAt = &now
 	snap.LockedBy = actor
 	snap.State = StateLocked
-	
+
 	// 设置时间锁过期
 	if lockType == LockTypeTimed && duration > 0 {
 		lockExpiry := now.Add(duration)
 		snap.LockExpiry = &lockExpiry
 	}
-	
+
 	m.addAuditEntry(snap, "lock", actor, string(LockTypeNone), string(lockType), "Snapshot locked")
-	
+
 	_ = m.saveWhileLocked()
-	
+
 	if m.notifier != nil {
 		go m.notifier.OnSnapshotLocked(snap)
 	}
-	
+
 	return nil
 }
 
@@ -527,12 +527,12 @@ func (m *SnapshotManager) LockSnapshot(ctx context.Context, snapshotID string, l
 func (m *SnapshotManager) UnlockSnapshot(ctx context.Context, snapshotID, actor string, reason string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	snap, exists := m.snapshots[snapshotID]
 	if !exists {
 		return ErrSnapshotNotFound
 	}
-	
+
 	// 检查是否可以解锁
 	switch snap.LockType {
 	case LockTypeNone:
@@ -560,18 +560,18 @@ func (m *SnapshotManager) UnlockSnapshot(ctx context.Context, snapshotID, actor 
 			}
 		}
 	}
-	
+
 	oldLockType := snap.LockType
 	snap.LockType = LockTypeNone
 	snap.LockedAt = nil
 	snap.LockedBy = ""
 	snap.LockExpiry = nil
 	snap.State = StateActive
-	
+
 	m.addAuditEntry(snap, "unlock", actor, string(oldLockType), string(LockTypeNone), reason)
-	
+
 	_ = m.saveWhileLocked()
-	
+
 	return nil
 }
 
@@ -579,33 +579,33 @@ func (m *SnapshotManager) UnlockSnapshot(ctx context.Context, snapshotID, actor 
 func (m *SnapshotManager) ExtendLock(ctx context.Context, snapshotID string, additionalDuration time.Duration, actor string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	snap, exists := m.snapshots[snapshotID]
 	if !exists {
 		return ErrSnapshotNotFound
 	}
-	
+
 	if snap.LockType != LockTypeTimed {
 		return ErrInvalidLockType
 	}
-	
+
 	if snap.LockExpiry == nil {
 		return ErrInvalidLockType
 	}
-	
+
 	// 检查是否超过最大持续时间
 	newDuration := time.Until(*snap.LockExpiry) + additionalDuration
 	if newDuration > m.config.MaxLockDuration {
 		return fmt.Errorf("extended duration exceeds maximum allowed")
 	}
-	
+
 	newExpiry := snap.LockExpiry.Add(additionalDuration)
 	snap.LockExpiry = &newExpiry
-	
+
 	m.addAuditEntry(snap, "extend_lock", actor, "", "", fmt.Sprintf("Extended by %v", additionalDuration))
-	
+
 	_ = m.saveWhileLocked()
-	
+
 	return nil
 }
 
@@ -615,12 +615,12 @@ func (m *SnapshotManager) ExtendLock(ctx context.Context, snapshotID string, add
 func (m *SnapshotManager) GetSnapshot(snapshotID string) (*ImmutableSnapshot, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	snap, exists := m.snapshots[snapshotID]
 	if !exists {
 		return nil, ErrSnapshotNotFound
 	}
-	
+
 	// 返回副本
 	copy := *snap
 	return &copy, nil
@@ -630,7 +630,7 @@ func (m *SnapshotManager) GetSnapshot(snapshotID string) (*ImmutableSnapshot, er
 func (m *SnapshotManager) ListSnapshots(volume string, state SnapshotState) []*ImmutableSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	var result []*ImmutableSnapshot
 	for _, snap := range m.snapshots {
 		if volume != "" && snap.Volume != volume {
@@ -641,7 +641,7 @@ func (m *SnapshotManager) ListSnapshots(volume string, state SnapshotState) []*I
 		}
 		result = append(result, snap)
 	}
-	
+
 	return result
 }
 
@@ -649,12 +649,12 @@ func (m *SnapshotManager) ListSnapshots(volume string, state SnapshotState) []*I
 func (m *SnapshotManager) DeleteSnapshot(ctx context.Context, snapshotID, actor string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	snap, exists := m.snapshots[snapshotID]
 	if !exists {
 		return ErrSnapshotNotFound
 	}
-	
+
 	// 检查是否锁定
 	if snap.LockType != LockTypeNone {
 		// 检查时间锁是否过期
@@ -666,17 +666,17 @@ func (m *SnapshotManager) DeleteSnapshot(ctx context.Context, snapshotID, actor 
 			return ErrSnapshotImmutable
 		}
 	}
-	
+
 	// 检查最小保留期
 	if time.Since(snap.CreatedAt) < snap.MinRetention {
 		return ErrRetentionPolicyViolation
 	}
-	
+
 	m.addAuditEntry(snap, "delete", actor, string(snap.State), string(StateDeleted), "Snapshot deleted")
-	
+
 	delete(m.snapshots, snapshotID)
 	_ = m.saveWhileLocked()
-	
+
 	return nil
 }
 
@@ -686,53 +686,53 @@ func (m *SnapshotManager) DeleteSnapshot(ctx context.Context, snapshotID, actor 
 func (m *SnapshotManager) CheckRansomwareActivity(ctx context.Context, snapshotID string) (*RansomwareCheckResult, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	snap, exists := m.snapshots[snapshotID]
 	if !exists {
 		return nil, ErrSnapshotNotFound
 	}
-	
+
 	result := &RansomwareCheckResult{
-		SnapshotID:   snapshotID,
-		CheckTime:    time.Now(),
-		Safe:         true,
-		Anomalies:    []string{},
-		Recoverable:  true,
+		SnapshotID:  snapshotID,
+		CheckTime:   time.Now(),
+		Safe:        true,
+		Anomalies:   []string{},
+		Recoverable: true,
 	}
-	
+
 	// 检查异常访问模式
 	if snap.ReadCount > 10000 {
 		result.Anomalies = append(result.Anomalies, "high_read_count")
 	}
-	
+
 	// 检查完整性
 	if snap.IntegrityStatus == "failed" {
 		result.Safe = false
 		result.Anomalies = append(result.Anomalies, "integrity_failed")
 	}
-	
+
 	// 检查是否被锁定（勒索软件可能尝试删除快照）
 	if snap.LockType != LockTypeNone {
 		result.Protected = true
 	}
-	
+
 	// 如果检测到异常，通知
 	if len(result.Anomalies) > 0 && m.notifier != nil {
 		go m.notifier.OnRansomwareDetected(snap, fmt.Sprintf("Anomalies: %v", result.Anomalies))
 	}
-	
+
 	return result, nil
 }
 
 // RansomwareCheckResult 勒索检查结果
 type RansomwareCheckResult struct {
-	SnapshotID   string    `json:"snapshot_id"`
-	CheckTime    time.Time `json:"check_time"`
-	Safe         bool      `json:"safe"`
-	Protected    bool      `json:"protected"`
-	Recoverable  bool      `json:"recoverable"`
-	Anomalies    []string  `json:"anomalies"`
-	ThreatLevel  string    `json:"threat_level"`
+	SnapshotID  string    `json:"snapshot_id"`
+	CheckTime   time.Time `json:"check_time"`
+	Safe        bool      `json:"safe"`
+	Protected   bool      `json:"protected"`
+	Recoverable bool      `json:"recoverable"`
+	Anomalies   []string  `json:"anomalies"`
+	ThreatLevel string    `json:"threat_level"`
 }
 
 // ========== 完整性验证 ==========
@@ -741,17 +741,17 @@ type RansomwareCheckResult struct {
 func (m *SnapshotManager) VerifySnapshot(ctx context.Context, snapshotID string) (*VerificationResult, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	snap, exists := m.snapshots[snapshotID]
 	if !exists {
 		return nil, ErrSnapshotNotFound
 	}
-	
+
 	result := &VerificationResult{
 		SnapshotID: snapshotID,
 		VerifyTime: time.Now(),
 	}
-	
+
 	// 验证校验和
 	if snap.Checksum != "" {
 		// 这里需要实际读取快照数据进行验证
@@ -759,27 +759,27 @@ func (m *SnapshotManager) VerifySnapshot(ctx context.Context, snapshotID string)
 		result.ChecksumMatch = true
 		result.IntegrityStatus = "valid"
 	}
-	
+
 	// 更新验证信息
 	now := time.Now()
 	snap.LastVerified = &now
 	snap.VerificationCount++
 	snap.IntegrityStatus = result.IntegrityStatus
-	
+
 	m.addAuditEntry(snap, "verify", "system", "", result.IntegrityStatus, "Integrity verification")
-	
+
 	_ = m.saveWhileLocked()
-	
+
 	return result, nil
 }
 
 // VerificationResult 验证结果
 type VerificationResult struct {
-	SnapshotID     string    `json:"snapshot_id"`
-	VerifyTime     time.Time `json:"verify_time"`
-	ChecksumMatch  bool      `json:"checksum_match"`
-	IntegrityStatus string   `json:"integrity_status"`
-	Errors         []string  `json:"errors,omitempty"`
+	SnapshotID      string    `json:"snapshot_id"`
+	VerifyTime      time.Time `json:"verify_time"`
+	ChecksumMatch   bool      `json:"checksum_match"`
+	IntegrityStatus string    `json:"integrity_status"`
+	Errors          []string  `json:"errors,omitempty"`
 }
 
 // ========== 时间锁管理 ==========
@@ -788,10 +788,10 @@ type VerificationResult struct {
 func (m *SnapshotManager) ProcessTimeLocks(ctx context.Context) ([]*ImmutableSnapshot, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	var expiredLocks []*ImmutableSnapshot
 	now := time.Now()
-	
+
 	for _, snap := range m.snapshots {
 		if snap.LockType == LockTypeTimed && snap.LockExpiry != nil {
 			if snap.LockExpiry.Before(now) || snap.LockExpiry.Equal(now) {
@@ -799,27 +799,27 @@ func (m *SnapshotManager) ProcessTimeLocks(ctx context.Context) ([]*ImmutableSna
 				snap.LockType = LockTypeNone
 				snap.LockExpiry = nil
 				snap.State = StateActive
-				
+
 				m.addAuditEntry(snap, "time_lock_expired", "system", string(LockTypeTimed), string(LockTypeNone), "Time lock expired")
-				
+
 				expiredLocks = append(expiredLocks, snap)
 			}
 		}
-		
+
 		// 处理快照过期
 		if snap.ExpiryTime != nil && snap.ExpiryTime.Before(now) {
 			snap.State = StateExpired
-			
+
 			if m.notifier != nil {
 				go m.notifier.OnSnapshotExpired(snap)
 			}
 		}
 	}
-	
+
 	if len(expiredLocks) > 0 {
 		_ = m.saveWhileLocked()
 	}
-	
+
 	return expiredLocks, nil
 }
 
@@ -827,16 +827,16 @@ func (m *SnapshotManager) ProcessTimeLocks(ctx context.Context) ([]*ImmutableSna
 func (m *SnapshotManager) GetExpiringSnapshots(within time.Duration) []*ImmutableSnapshot {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	var result []*ImmutableSnapshot
 	threshold := time.Now().Add(within)
-	
+
 	for _, snap := range m.snapshots {
 		if snap.LockExpiry != nil && snap.LockExpiry.Before(threshold) {
 			result = append(result, snap)
 		}
 	}
-	
+
 	return result
 }
 
@@ -867,7 +867,7 @@ func (m *SnapshotManager) addAuditEntry(snap *ImmutableSnapshot, action, actor, 
 	if !m.config.EnableAudit {
 		return
 	}
-	
+
 	entry := AuditEntry{
 		Timestamp: time.Now(),
 		Action:    action,
@@ -876,9 +876,9 @@ func (m *SnapshotManager) addAuditEntry(snap *ImmutableSnapshot, action, actor, 
 		NewValue:  newValue,
 		Reason:    reason,
 	}
-	
+
 	snap.AuditTrail = append(snap.AuditTrail, entry)
-	
+
 	// 限制审计条目数量
 	if len(snap.AuditTrail) > m.config.MaxAuditEntries {
 		snap.AuditTrail = snap.AuditTrail[len(snap.AuditTrail)-m.config.MaxAuditEntries:]
@@ -889,12 +889,12 @@ func (m *SnapshotManager) addAuditEntry(snap *ImmutableSnapshot, action, actor, 
 func (m *SnapshotManager) RecordAccess(snapshotID, user, action string, success bool, ip string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	snap, exists := m.snapshots[snapshotID]
 	if !exists {
 		return ErrSnapshotNotFound
 	}
-	
+
 	record := AccessRecord{
 		Timestamp: time.Now(),
 		User:      user,
@@ -902,22 +902,22 @@ func (m *SnapshotManager) RecordAccess(snapshotID, user, action string, success 
 		Success:   success,
 		IP:        ip,
 	}
-	
+
 	snap.AccessLog = append(snap.AccessLog, record)
-	
+
 	// 限制访问记录数量
 	if len(snap.AccessLog) > m.config.MaxAccessRecords {
 		snap.AccessLog = snap.AccessLog[len(snap.AccessLog)-m.config.MaxAccessRecords:]
 	}
-	
+
 	now := time.Now()
 	snap.LastAccessed = &now
 	if action == "read" {
 		snap.ReadCount++
 	}
-	
+
 	_ = m.saveWhileLocked()
-	
+
 	return nil
 }
 
@@ -932,22 +932,22 @@ func (m *SnapshotManager) SetNotifier(handler NotificationHandler) {
 func (m *SnapshotManager) GetStats() *SnapshotStats {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	stats := &SnapshotStats{
 		ByState:    make(map[SnapshotState]int),
 		ByLockType: make(map[LockType]int),
 		ByVolume:   make(map[string]int),
 	}
-	
+
 	for _, snap := range m.snapshots {
 		stats.Total++
 		stats.TotalSize += snap.Size
 		stats.UsedSize += snap.UsedSize
-		
+
 		stats.ByState[snap.State]++
 		stats.ByLockType[snap.LockType]++
 		stats.ByVolume[snap.Volume]++
-		
+
 		if snap.RansomwareProtection {
 			stats.ProtectedCount++
 		}
@@ -955,20 +955,20 @@ func (m *SnapshotManager) GetStats() *SnapshotStats {
 			stats.WORMCount++
 		}
 	}
-	
+
 	return stats
 }
 
 // SnapshotStats 快照统计
 type SnapshotStats struct {
-	Total          int                      `json:"total"`
-	TotalSize      uint64                   `json:"total_size"`
-	UsedSize       uint64                   `json:"used_size"`
-	ProtectedCount int                      `json:"protected_count"`
-	WORMCount      int                      `json:"worm_count"`
-	ByState        map[SnapshotState]int    `json:"by_state"`
-	ByLockType     map[LockType]int         `json:"by_lock_type"`
-	ByVolume       map[string]int           `json:"by_volume"`
+	Total          int                   `json:"total"`
+	TotalSize      uint64                `json:"total_size"`
+	UsedSize       uint64                `json:"used_size"`
+	ProtectedCount int                   `json:"protected_count"`
+	WORMCount      int                   `json:"worm_count"`
+	ByState        map[SnapshotState]int `json:"by_state"`
+	ByLockType     map[LockType]int      `json:"by_lock_type"`
+	ByVolume       map[string]int        `json:"by_volume"`
 }
 
 // Close 关闭管理器

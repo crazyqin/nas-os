@@ -28,14 +28,14 @@ const (
 type GlobalSearchResult struct {
 	Type        GlobalSearchResultType `json:"type"`
 	Score       float64                `json:"score"`
-	Title       string                 `json:"title"`       // 显示标题
-	Description string                 `json:"description"` // 描述
-	Path        string                 `json:"path"`        // 访问路径
-	Icon        string                 `json:"icon"`        // 图标
-	Category    string                 `json:"category"`    // 分类
-	MatchType   string                 `json:"matchType"`   // 匹配类型
-	MatchField  string                 `json:"matchField"`  // 匹配字段
-	RawData     interface{}            `json:"rawData"`     // 原始数据
+	Title       string                 `json:"title"`              // 显示标题
+	Description string                 `json:"description"`        // 描述
+	Path        string                 `json:"path"`               // 访问路径
+	Icon        string                 `json:"icon"`               // 图标
+	Category    string                 `json:"category"`           // 分类
+	MatchType   string                 `json:"matchType"`          // 匹配类型
+	MatchField  string                 `json:"matchField"`         // 匹配字段
+	RawData     interface{}            `json:"rawData"`            // 原始数据
 	Metadata    map[string]interface{} `json:"metadata,omitempty"` // 元数据信息
 }
 
@@ -81,22 +81,22 @@ type GlobalSearchService struct {
 	logger           *zap.Logger
 
 	// 搜索历史
-	history     []SearchHistory
-	historyMu   sync.RWMutex
-	maxHistory  int
+	history    []SearchHistory
+	historyMu  sync.RWMutex
+	maxHistory int
 
 	// 性能指标
-	stats *SearchStats
+	stats   *SearchStats
 	statsMu sync.RWMutex
 }
 
 // SearchStats 搜索统计
 type SearchStats struct {
-	TotalSearches   int64         `json:"totalSearches"`
-	AverageLatency  time.Duration `json:"averageLatency"`
-	CacheHits       int64         `json:"cacheHits"`
-	CacheMisses     int64         `json:"cacheMisses"`
-	LastUpdated     time.Time     `json:"lastUpdated"`
+	TotalSearches  int64         `json:"totalSearches"`
+	AverageLatency time.Duration `json:"averageLatency"`
+	CacheHits      int64         `json:"cacheHits"`
+	CacheMisses    int64         `json:"cacheMisses"`
+	LastUpdated    time.Time     `json:"lastUpdated"`
 }
 
 // MetadataIndex 元数据索引
@@ -108,7 +108,7 @@ type MetadataIndex struct {
 // MetadataItem 元数据项
 type MetadataItem struct {
 	ID          string                 `json:"id"`
-	Type        string                 `json:"type"`        // photo, video, music, document
+	Type        string                 `json:"type"` // photo, video, music, document
 	Title       string                 `json:"title"`
 	Description string                 `json:"description"`
 	Tags        []string               `json:"tags"`
@@ -177,7 +177,7 @@ func (s *GlobalSearchService) GlobalSearch(ctx context.Context, req GlobalSearch
 	}
 
 	response := &GlobalSearchResponse{
-		Query: req.Query,
+		Query:  req.Query,
 		Facets: make(map[string]int),
 	}
 

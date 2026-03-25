@@ -51,20 +51,20 @@ type TierConfig struct {
 
 // PolicyConfig 分层策略配置
 type PolicyConfig struct {
-	ID             string          `json:"id"`
-	Name           string          `json:"name"`
-	Enabled        bool            `json:"enabled"`
-	SourceTier     TierType        `json:"sourceTier"`
-	TargetTier     TierType        `json:"targetTier"`
-	MinAccessCount int64           `json:"minAccessCount"` // 热数据阈值
-	MaxAccessAge   time.Duration   `json:"maxAccessAge"`   // 冷数据判断时长
-	MinFileSize    int64           `json:"minFileSize"`
-	MaxFileSize    int64           `json:"maxFileSize"`
-	FilePatterns   []string        `json:"filePatterns"`
-	ExcludePatterns []string       `json:"excludePatterns"`
-	Schedule       string          `json:"schedule"` // cron表达式
-	LastRun        time.Time       `json:"lastRun"`
-	NextRun        time.Time       `json:"nextRun"`
+	ID              string        `json:"id"`
+	Name            string        `json:"name"`
+	Enabled         bool          `json:"enabled"`
+	SourceTier      TierType      `json:"sourceTier"`
+	TargetTier      TierType      `json:"targetTier"`
+	MinAccessCount  int64         `json:"minAccessCount"` // 热数据阈值
+	MaxAccessAge    time.Duration `json:"maxAccessAge"`   // 冷数据判断时长
+	MinFileSize     int64         `json:"minFileSize"`
+	MaxFileSize     int64         `json:"maxFileSize"`
+	FilePatterns    []string      `json:"filePatterns"`
+	ExcludePatterns []string      `json:"excludePatterns"`
+	Schedule        string        `json:"schedule"` // cron表达式
+	LastRun         time.Time     `json:"lastRun"`
+	NextRun         time.Time     `json:"nextRun"`
 }
 
 // FileAccessRecord 文件访问记录
@@ -82,21 +82,21 @@ type FileAccessRecord struct {
 
 // MigrateTask 迁移任务
 type MigrateTask struct {
-	ID            string        `json:"id"`
-	PolicyID      string        `json:"policyId,omitempty"`
-	Status        string        `json:"status"`
-	CreatedAt     time.Time     `json:"createdAt"`
-	StartedAt     time.Time     `json:"startedAt,omitempty"`
-	CompletedAt   time.Time     `json:"completedAt,omitempty"`
-	SourceTier    TierType      `json:"sourceTier"`
-	TargetTier    TierType      `json:"targetTier"`
-	TotalFiles    int64         `json:"totalFiles"`
-	TotalBytes    int64         `json:"totalBytes"`
-	ProcessedFiles int64        `json:"processedFiles"`
-	ProcessedBytes int64        `json:"processedBytes"`
-	FailedFiles   int64         `json:"failedFiles"`
-	Files         []MigrateFile `json:"files,omitempty"`
-	Errors        []MigrateError `json:"errors,omitempty"`
+	ID             string         `json:"id"`
+	PolicyID       string         `json:"policyId,omitempty"`
+	Status         string         `json:"status"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	StartedAt      time.Time      `json:"startedAt,omitempty"`
+	CompletedAt    time.Time      `json:"completedAt,omitempty"`
+	SourceTier     TierType       `json:"sourceTier"`
+	TargetTier     TierType       `json:"targetTier"`
+	TotalFiles     int64          `json:"totalFiles"`
+	TotalBytes     int64          `json:"totalBytes"`
+	ProcessedFiles int64          `json:"processedFiles"`
+	ProcessedBytes int64          `json:"processedBytes"`
+	FailedFiles    int64          `json:"failedFiles"`
+	Files          []MigrateFile  `json:"files,omitempty"`
+	Errors         []MigrateError `json:"errors,omitempty"`
 }
 
 // MigrateFile 迁移文件
@@ -117,25 +117,25 @@ type MigrateError struct {
 
 // ManagerConfig 管理器配置
 type ManagerConfig struct {
-	CheckInterval   time.Duration `json:"checkInterval"`   // 检查间隔
-	HotThreshold   int64         `json:"hotThreshold"`    // 热数据访问次数阈值
-	WarmThreshold  int64         `json:"warmThreshold"`   // 温数据访问次数阈值
-	ColdAgeHours   int           `json:"coldAgeHours"`    // 冷数据判断时长（小时）
-	MaxConcurrent  int           `json:"maxConcurrent"`   // 最大并发迁移数
-	EnableAutoTier bool          `json:"enableAutoTier"`  // 启用自动分层
-	ConfigPath     string        `json:"configPath"`      // 配置文件路径
+	CheckInterval  time.Duration `json:"checkInterval"`  // 检查间隔
+	HotThreshold   int64         `json:"hotThreshold"`   // 热数据访问次数阈值
+	WarmThreshold  int64         `json:"warmThreshold"`  // 温数据访问次数阈值
+	ColdAgeHours   int           `json:"coldAgeHours"`   // 冷数据判断时长（小时）
+	MaxConcurrent  int           `json:"maxConcurrent"`  // 最大并发迁移数
+	EnableAutoTier bool          `json:"enableAutoTier"` // 启用自动分层
+	ConfigPath     string        `json:"configPath"`     // 配置文件路径
 }
 
 // DefaultManagerConfig 默认配置
 func DefaultManagerConfig() ManagerConfig {
 	return ManagerConfig{
-		CheckInterval:   1 * time.Hour,
-		HotThreshold:    100,
-		WarmThreshold:   10,
-		ColdAgeHours:    720, // 30天
-		MaxConcurrent:   5,
-		EnableAutoTier:  true,
-		ConfigPath:      "/etc/nas-os/tiering.json",
+		CheckInterval:  1 * time.Hour,
+		HotThreshold:   100,
+		WarmThreshold:  10,
+		ColdAgeHours:   720, // 30天
+		MaxConcurrent:  5,
+		EnableAutoTier: true,
+		ConfigPath:     "/etc/nas-os/tiering.json",
 	}
 }
 
@@ -232,11 +232,11 @@ func (m *Manager) initDefaultTiers() {
 			Threshold:  90,
 		},
 		TierTypeCloud: {
-			Type:     TierTypeCloud,
-			Name:     "云存储归档层",
-			Path:     "/mnt/cloud",
-			Priority: 10,
-			Enabled:  false,
+			Type:      TierTypeCloud,
+			Name:      "云存储归档层",
+			Path:      "/mnt/cloud",
+			Priority:  10,
+			Enabled:   false,
 			Threshold: 95,
 		},
 	}
@@ -256,14 +256,14 @@ func (m *Manager) initDefaultPolicies() {
 			Schedule:       "0 * * * *", // 每小时执行
 		},
 		"cold-to-hdd": {
-			ID:            "cold-to-hdd",
-			Name:          "冷数据自动降级到HDD",
-			Enabled:       true,
-			SourceTier:    TierTypeSSD,
-			TargetTier:    TierTypeHDD,
-			MaxAccessAge:  time.Duration(m.config.ColdAgeHours) * time.Hour,
+			ID:             "cold-to-hdd",
+			Name:           "冷数据自动降级到HDD",
+			Enabled:        true,
+			SourceTier:     TierTypeSSD,
+			TargetTier:     TierTypeHDD,
+			MaxAccessAge:   time.Duration(m.config.ColdAgeHours) * time.Hour,
 			MinAccessCount: 0,
-			Schedule:      "0 3 * * *", // 每天凌晨3点执行
+			Schedule:       "0 3 * * *", // 每天凌晨3点执行
 		},
 	}
 }
@@ -618,14 +618,14 @@ func (m *Manager) MigrateHotToSSD(ctx context.Context) (*MigrateTask, error) {
 
 	// 创建迁移任务
 	task := &MigrateTask{
-		ID:          "task_" + uuid.New().String()[:8],
-		Status:      "pending",
-		CreatedAt:   time.Now(),
-		SourceTier:  TierTypeHDD,
-		TargetTier:  TierTypeSSD,
-		TotalFiles:  int64(len(files)),
-		TotalBytes:  totalSize,
-		Files:       files,
+		ID:         "task_" + uuid.New().String()[:8],
+		Status:     "pending",
+		CreatedAt:  time.Now(),
+		SourceTier: TierTypeHDD,
+		TargetTier: TierTypeSSD,
+		TotalFiles: int64(len(files)),
+		TotalBytes: totalSize,
+		Files:      files,
 	}
 
 	m.mu.Lock()
@@ -674,14 +674,14 @@ func (m *Manager) MigrateColdToHDD(ctx context.Context) (*MigrateTask, error) {
 
 	// 创建迁移任务
 	task := &MigrateTask{
-		ID:          "task_" + uuid.New().String()[:8],
-		Status:      "pending",
-		CreatedAt:   time.Now(),
-		SourceTier:  TierTypeSSD,
-		TargetTier:  TierTypeHDD,
-		TotalFiles:  int64(len(files)),
-		TotalBytes:  totalSize,
-		Files:       files,
+		ID:         "task_" + uuid.New().String()[:8],
+		Status:     "pending",
+		CreatedAt:  time.Now(),
+		SourceTier: TierTypeSSD,
+		TargetTier: TierTypeHDD,
+		TotalFiles: int64(len(files)),
+		TotalBytes: totalSize,
+		Files:      files,
 	}
 
 	m.mu.Lock()
@@ -1011,9 +1011,9 @@ func (m *Manager) SetMigrationCallback(callback func(task *MigrateTask)) {
 // ==================== 配置持久化 ====================
 
 type configData struct {
-	Tiers    map[TierType]*TierConfig    `json:"tiers"`
-	Policies map[string]*PolicyConfig    `json:"policies"`
-	Config   ManagerConfig               `json:"config"`
+	Tiers    map[TierType]*TierConfig `json:"tiers"`
+	Policies map[string]*PolicyConfig `json:"policies"`
+	Config   ManagerConfig            `json:"config"`
 }
 
 func (m *Manager) loadConfig() error {

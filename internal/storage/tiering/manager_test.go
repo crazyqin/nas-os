@@ -134,9 +134,9 @@ func TestCalculateFrequency(t *testing.T) {
 	_ = m.Initialize()
 
 	tests := []struct {
-		name      string
-		record    *FileAccessRecord
-		expected  AccessFrequency
+		name     string
+		record   *FileAccessRecord
+		expected AccessFrequency
 	}{
 		{
 			name: "热数据",

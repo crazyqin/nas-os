@@ -117,12 +117,12 @@ func TestMigrationEfficiencyReport(t *testing.T) {
 	// 模拟一些迁移指标
 	metrics.RecordMigrationStart()
 	metrics.RecordMigrationComplete(&MigrateTask{
-		ID:              "test_task_1",
-		TotalFiles:      10,
-		TotalBytes:      1024 * 1024 * 100, // 100MB
-		ProcessedFiles:  10,
-		ProcessedBytes:  1024 * 1024 * 100,
-		FailedFiles:     0,
+		ID:             "test_task_1",
+		TotalFiles:     10,
+		TotalBytes:     1024 * 1024 * 100, // 100MB
+		ProcessedFiles: 10,
+		ProcessedBytes: 1024 * 1024 * 100,
+		FailedFiles:    0,
 	}, 5000)
 
 	generator := NewEfficiencyReportGenerator(manager, metrics, nil)
@@ -163,13 +163,13 @@ func TestCostAnalysisReport(t *testing.T) {
 	ssdTier, _ := manager.GetTier(TierTypeSSD)
 	if ssdTier != nil {
 		ssdTier.Capacity = 500 * 1024 * 1024 * 1024 // 500GB
-		ssdTier.Used = 350 * 1024 * 1024 * 1024    // 350GB
+		ssdTier.Used = 350 * 1024 * 1024 * 1024     // 350GB
 	}
 
 	hddTier, _ := manager.GetTier(TierTypeHDD)
 	if hddTier != nil {
 		hddTier.Capacity = 2000 * 1024 * 1024 * 1024 // 2TB
-		hddTier.Used = 1200 * 1024 * 1024 * 1024    // 1.2TB
+		hddTier.Used = 1200 * 1024 * 1024 * 1024     // 1.2TB
 	}
 
 	metrics := NewMetrics()
@@ -232,7 +232,7 @@ func TestCapacityForecastReport(t *testing.T) {
 	ssdTier, _ := manager.GetTier(TierTypeSSD)
 	if ssdTier != nil {
 		ssdTier.Capacity = 500 * 1024 * 1024 * 1024 // 500GB
-		ssdTier.Used = 400 * 1024 * 1024 * 1024    // 400GB (80%使用率)
+		ssdTier.Used = 400 * 1024 * 1024 * 1024     // 400GB (80%使用率)
 	}
 
 	metrics := NewMetrics()
@@ -397,8 +397,8 @@ func TestCostSavingsCalculation(t *testing.T) {
 
 	metrics := NewMetrics()
 	costConfig := &CostConfig{
-		SSDCostPerGBMonth:   0.10,
-		HDDCostPerGBMonth:   0.03,
+		SSDCostPerGBMonth: 0.10,
+		HDDCostPerGBMonth: 0.03,
 	}
 
 	generator := NewEfficiencyReportGenerator(manager, metrics, costConfig)
@@ -517,13 +517,13 @@ func TestChartDataGeneration(t *testing.T) {
 		ColdData: &DataSegment{Files: 200},
 		ByTier: map[TierType]*TierDataDistribution{
 			TierTypeSSD: {
-				TierType: TierTypeSSD,
+				TierType:  TierTypeSSD,
 				HotBytes:  1024 * 1024 * 100,
 				WarmBytes: 1024 * 1024 * 50,
 				ColdBytes: 1024 * 1024 * 20,
 			},
 			TierTypeHDD: {
-				TierType: TierTypeHDD,
+				TierType:  TierTypeHDD,
 				HotBytes:  1024 * 1024 * 10,
 				WarmBytes: 1024 * 1024 * 100,
 				ColdBytes: 1024 * 1024 * 500,

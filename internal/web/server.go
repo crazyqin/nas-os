@@ -444,15 +444,15 @@ func NewServer(storMgr *storage.Manager, userMgr *users.Manager, smbMgr *smb.Man
 		searchSvc:     searchSvc,
 		tunnelMgr: func() *tunnel.Manager {
 			cfg := tunnel.Config{
-				ServerAddr:    "tunnel.nas-os.local",
-				ServerPort:    7000,
-				DeviceID:      "nas-device",
-				DeviceName:    "NAS-OS",
-				STUNServers:   []string{"stun:stun.l.google.com:19302"},
-				HeartbeatInt:  30,
-				ReconnectInt:  5,
-				MaxReconnect:  10,
-				Timeout:       30,
+				ServerAddr:   "tunnel.nas-os.local",
+				ServerPort:   7000,
+				DeviceID:     "nas-device",
+				DeviceName:   "NAS-OS",
+				STUNServers:  []string{"stun:stun.l.google.com:19302"},
+				HeartbeatInt: 30,
+				ReconnectInt: 5,
+				MaxReconnect: 10,
+				Timeout:      30,
 			}
 			mgr, _ := tunnel.NewManager(cfg, logger)
 			return mgr

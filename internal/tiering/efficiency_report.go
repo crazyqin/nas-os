@@ -80,8 +80,8 @@ type TierDataDistribution struct {
 	ColdBytes int64 `json:"coldBytes"`
 
 	// 利用率
-	UsagePercent     float64 `json:"usagePercent"`
-	HotDataPercent   float64 `json:"hotDataPercent"`
+	UsagePercent      float64 `json:"usagePercent"`
+	HotDataPercent    float64 `json:"hotDataPercent"`
 	OptimizationScore float64 `json:"optimizationScore"` // 优化评分（热数据在高优先级层的比例）
 }
 
@@ -124,9 +124,9 @@ type TimeSeriesPoint struct {
 
 // AccessPattern 访问模式
 type AccessPattern struct {
-	PatternType string `json:"patternType"` // sequential, random, mixed
+	PatternType string  `json:"patternType"` // sequential, random, mixed
 	Percentage  float64 `json:"percentage"`
-	Description string `json:"description"`
+	Description string  `json:"description"`
 }
 
 // MigrationEfficiencyReport 迁移效率统计报告
@@ -136,19 +136,19 @@ type MigrationEfficiencyReport struct {
 	PeriodEnd   time.Time `json:"periodEnd"`
 
 	// 迁移统计
-	TotalMigrations   int64 `json:"totalMigrations"`
+	TotalMigrations      int64 `json:"totalMigrations"`
 	SuccessfulMigrations int64 `json:"successfulMigrations"`
-	FailedMigrations  int64 `json:"failedMigrations"`
+	FailedMigrations     int64 `json:"failedMigrations"`
 
 	// 数据量统计
-	TotalBytesMigrated   int64 `json:"totalBytesMigrated"`
-	TotalFilesMigrated   int64 `json:"totalFilesMigrated"`
-	AvgFileSizeMigrated  int64 `json:"avgFileSizeMigrated"`
+	TotalBytesMigrated  int64 `json:"totalBytesMigrated"`
+	TotalFilesMigrated  int64 `json:"totalFilesMigrated"`
+	AvgFileSizeMigrated int64 `json:"avgFileSizeMigrated"`
 
 	// 性能指标
-	AvgMigrationTimeMs   int64   `json:"avgMigrationTimeMs"`
-	AvgThroughputMBps    float64 `json:"avgThroughputMBps"`
-	PeakThroughputMBps   float64 `json:"peakThroughputMBps"`
+	AvgMigrationTimeMs int64   `json:"avgMigrationTimeMs"`
+	AvgThroughputMBps  float64 `json:"avgThroughputMBps"`
+	PeakThroughputMBps float64 `json:"peakThroughputMBps"`
 
 	// 迁移成功率
 	SuccessRate float64 `json:"successRate"`
@@ -169,11 +169,11 @@ type MigrationEfficiencyReport struct {
 // TierMigrationStatsReport 存储层迁移统计报告
 type TierMigrationStatsReport struct {
 	TierType         TierType `json:"tierType"`
-	FilesPromoted    int64    `json:"filesPromoted"`    // 提升到该层的文件数
+	FilesPromoted    int64    `json:"filesPromoted"` // 提升到该层的文件数
 	BytesPromoted    int64    `json:"bytesPromoted"`
-	FilesDemoted     int64    `json:"filesDemoted"`     // 从该层降级的文件数
+	FilesDemoted     int64    `json:"filesDemoted"` // 从该层降级的文件数
 	BytesDemoted     int64    `json:"bytesDemoted"`
-	FilesArchived    int64    `json:"filesArchived"`    // 归档文件数
+	FilesArchived    int64    `json:"filesArchived"` // 归档文件数
 	BytesArchived    int64    `json:"bytesArchived"`
 	AvgMigrationTime int64    `json:"avgMigrationTime"` // 平均迁移时间(ms)
 	SuccessRate      float64  `json:"successRate"`
@@ -193,18 +193,18 @@ type PolicyMigrationStatsReport struct {
 
 // MigrationTrendPoint 迁移趋势数据点
 type MigrationTrendPoint struct {
-	Timestamp   time.Time `json:"timestamp"`
-	BytesMigrated int64   `json:"bytesMigrated"`
-	FilesMigrated int64   `json:"filesMigrated"`
-	AvgSpeed    float64   `json:"avgSpeed"`
+	Timestamp     time.Time `json:"timestamp"`
+	BytesMigrated int64     `json:"bytesMigrated"`
+	FilesMigrated int64     `json:"filesMigrated"`
+	AvgSpeed      float64   `json:"avgSpeed"`
 }
 
 // CostAnalysisReport 成本分析报告
 type CostAnalysisReport struct {
 	// 成本概览
-	TotalMonthlyCost   float64 `json:"totalMonthlyCost"`
-	TotalYearlyCost    float64 `json:"totalYearlyCost"`
-	CostPerGB          float64 `json:"costPerGB"`
+	TotalMonthlyCost float64 `json:"totalMonthlyCost"`
+	TotalYearlyCost  float64 `json:"totalYearlyCost"`
+	CostPerGB        float64 `json:"costPerGB"`
 
 	// 按存储层成本
 	TierCosts map[TierType]*TierCostInfo `json:"tierCosts"`
@@ -224,25 +224,25 @@ type CostAnalysisReport struct {
 
 // TierCostInfo 存储层成本信息
 type TierCostInfo struct {
-	TierType      TierType `json:"tierType"`
-	CostPerGBMonth float64 `json:"costPerGBMonth"` // 每GB每月成本
-	MonthlyCost   float64  `json:"monthlyCost"`
-	YearlyCost    float64  `json:"yearlyCost"`
-	UsedGB        float64  `json:"usedGB"`
-	CapacityGB    float64  `json:"capacityGB"`
-	Utilization   float64  `json:"utilization"`
+	TierType       TierType `json:"tierType"`
+	CostPerGBMonth float64  `json:"costPerGBMonth"` // 每GB每月成本
+	MonthlyCost    float64  `json:"monthlyCost"`
+	YearlyCost     float64  `json:"yearlyCost"`
+	UsedGB         float64  `json:"usedGB"`
+	CapacityGB     float64  `json:"capacityGB"`
+	Utilization    float64  `json:"utilization"`
 }
 
 // CostSavingsInfo 成本节省信息
 type CostSavingsInfo struct {
 	// 通过分层实现的节省
-	MonthlySavings    float64 `json:"monthlySavings"`
-	YearlySavings     float64 `json:"yearlySavings"`
-	SavingsPercent    float64 `json:"savingsPercent"`
+	MonthlySavings float64 `json:"monthlySavings"`
+	YearlySavings  float64 `json:"yearlySavings"`
+	SavingsPercent float64 `json:"savingsPercent"`
 
 	// 潜在节省（如果进一步优化）
-	PotentialMonthlySavings  float64 `json:"potentialMonthlySavings"`
-	PotentialYearlySavings   float64 `json:"potentialYearlySavings"`
+	PotentialMonthlySavings float64 `json:"potentialMonthlySavings"`
+	PotentialYearlySavings  float64 `json:"potentialYearlySavings"`
 
 	// 节省来源分析
 	SavingsByTier map[TierType]float64 `json:"savingsByTier"`
@@ -260,36 +260,36 @@ type SavingsTrendPoint struct {
 
 // CostForecastPoint 成本预测数据点
 type CostForecastPoint struct {
-	Month       time.Time `json:"month"`
-	ProjectedCost float64 `json:"projectedCost"`
-	ProjectedUsage float64 `json:"projectedUsage"`
-	Confidence  float64   `json:"confidence"` // 预测置信度
+	Month          time.Time `json:"month"`
+	ProjectedCost  float64   `json:"projectedCost"`
+	ProjectedUsage float64   `json:"projectedUsage"`
+	Confidence     float64   `json:"confidence"` // 预测置信度
 }
 
 // CostOptimizationOpportunity 成本优化机会
 type CostOptimizationOpportunity struct {
-	Type          string  `json:"type"`          // archive_cold_data, resize_tier, change_policy
-	Description   string  `json:"description"`
-	PotentialSavings float64 `json:"potentialSavings"`
-	Effort        string  `json:"effort"`        // low, medium, high
-	Priority      int     `json:"priority"`
-	Details       map[string]interface{} `json:"details"`
+	Type             string                 `json:"type"` // archive_cold_data, resize_tier, change_policy
+	Description      string                 `json:"description"`
+	PotentialSavings float64                `json:"potentialSavings"`
+	Effort           string                 `json:"effort"` // low, medium, high
+	Priority         int                    `json:"priority"`
+	Details          map[string]interface{} `json:"details"`
 }
 
 // ROIAnalysis ROI 分析
 type ROIAnalysis struct {
 	// 分层系统投资成本
 	InitialInvestment float64 `json:"initialInvestment"`
-	MonthlyOpCost    float64 `json:"monthlyOpCost"`
+	MonthlyOpCost     float64 `json:"monthlyOpCost"`
 
 	// 收益
-	MonthlyBenefit   float64 `json:"monthlyBenefit"`
-	YearlyBenefit    float64 `json:"yearlyBenefit"`
+	MonthlyBenefit float64 `json:"monthlyBenefit"`
+	YearlyBenefit  float64 `json:"yearlyBenefit"`
 
 	// ROI 指标
-	ROI             float64 `json:"roi"`            // 投资回报率
-	PaybackPeriod   float64 `json:"paybackPeriod"`  // 回收期(月)
-	NPV             float64 `json:"npv"`           // 净现值
+	ROI           float64 `json:"roi"`           // 投资回报率
+	PaybackPeriod float64 `json:"paybackPeriod"` // 回收期(月)
+	NPV           float64 `json:"npv"`           // 净现值
 }
 
 // CapacityForecastReport 容量趋势预测报告
@@ -315,16 +315,16 @@ type CapacityForecastReport struct {
 
 // CapacityPredict 容量预测
 type CapacityPredict struct {
-	TierType      TierType `json:"tierType"`
-	CurrentUsed   int64    `json:"currentUsed"`
-	CurrentCapacity int64  `json:"currentCapacity"`
-	GrowthRateDaily float64 `json:"growthRateDaily"` // 每日增长率(GB)
+	TierType        TierType `json:"tierType"`
+	CurrentUsed     int64    `json:"currentUsed"`
+	CurrentCapacity int64    `json:"currentCapacity"`
+	GrowthRateDaily float64  `json:"growthRateDaily"` // 每日增长率(GB)
 
 	// 预测时间点
-	DaysToFull      int     `json:"daysToFull"`      // 预计多少天填满
-	PredictedUsed7D int64   `json:"predictedUsed7D"` // 7天后预测
-	PredictedUsed30D int64  `json:"predictedUsed30D"` // 30天后预测
-	PredictedUsed90D int64  `json:"predictedUsed90D"` // 90天后预测
+	DaysToFull       int   `json:"daysToFull"`       // 预计多少天填满
+	PredictedUsed7D  int64 `json:"predictedUsed7D"`  // 7天后预测
+	PredictedUsed30D int64 `json:"predictedUsed30D"` // 30天后预测
+	PredictedUsed90D int64 `json:"predictedUsed90D"` // 90天后预测
 
 	// 置信度
 	Confidence float64 `json:"confidence"`
@@ -333,8 +333,8 @@ type CapacityPredict struct {
 // CapacityWarning 容量警告
 type CapacityWarning struct {
 	TierType      TierType `json:"tierType"`
-	WarningType   string   `json:"warningType"`   // approaching_full, growth_accelerating
-	Severity      string   `json:"severity"`      // info, warning, critical
+	WarningType   string   `json:"warningType"` // approaching_full, growth_accelerating
+	Severity      string   `json:"severity"`    // info, warning, critical
 	Message       string   `json:"message"`
 	DaysRemaining int      `json:"daysRemaining"`
 	Suggestion    string   `json:"suggestion"`
@@ -342,34 +342,34 @@ type CapacityWarning struct {
 
 // CapacityForecastPoint 容量预测数据点
 type CapacityForecastPoint struct {
-	Date        time.Time `json:"date"`
-	TierType    TierType  `json:"tierType"`
-	PredictedUsed int64   `json:"predictedUsed"`
-	UpperBound  int64     `json:"upperBound"`  // 上界
-	LowerBound  int64     `json:"lowerBound"`  // 下界
-	Confidence  float64   `json:"confidence"`
+	Date          time.Time `json:"date"`
+	TierType      TierType  `json:"tierType"`
+	PredictedUsed int64     `json:"predictedUsed"`
+	UpperBound    int64     `json:"upperBound"` // 上界
+	LowerBound    int64     `json:"lowerBound"` // 下界
+	Confidence    float64   `json:"confidence"`
 }
 
 // ForecastModelInfo 预测模型信息
 type ForecastModelInfo struct {
-	ModelType      string  `json:"modelType"`      // linear, exponential, arima
-	Accuracy       float64 `json:"accuracy"`       // 模型准确度
-	DataPoints     int     `json:"dataPoints"`     // 使用的数据点数
-	LastTrained    time.Time `json:"lastTrained"`
-	Features       []string `json:"features"`      // 使用的特征
+	ModelType   string    `json:"modelType"`  // linear, exponential, arima
+	Accuracy    float64   `json:"accuracy"`   // 模型准确度
+	DataPoints  int       `json:"dataPoints"` // 使用的数据点数
+	LastTrained time.Time `json:"lastTrained"`
+	Features    []string  `json:"features"` // 使用的特征
 }
 
 // TieringHealthScore 分层健康评分
 type TieringHealthScore struct {
-	OverallScore   float64 `json:"overallScore"`   // 0-100
-	Grade          string  `json:"grade"`          // A, B, C, D, F
+	OverallScore float64 `json:"overallScore"` // 0-100
+	Grade        string  `json:"grade"`        // A, B, C, D, F
 
 	// 子评分
-	DistributionScore  float64 `json:"distributionScore"`  // 数据分布合理性
-	EfficiencyScore    float64 `json:"efficiencyScore"`    // 迁移效率
-	CostScore          float64 `json:"costScore"`          // 成本优化程度
-	CapacityScore      float64 `json:"capacityScore"`      // 容量健康度
-	PolicyScore        float64 `json:"policyScore"`        // 策略配置合理性
+	DistributionScore float64 `json:"distributionScore"` // 数据分布合理性
+	EfficiencyScore   float64 `json:"efficiencyScore"`   // 迁移效率
+	CostScore         float64 `json:"costScore"`         // 成本优化程度
+	CapacityScore     float64 `json:"capacityScore"`     // 容量健康度
+	PolicyScore       float64 `json:"policyScore"`       // 策略配置合理性
 
 	// 评分详情
 	ScoreBreakdown []ScoreItem `json:"scoreBreakdown"`
@@ -386,12 +386,12 @@ type ScoreItem struct {
 
 // TieringRecommendation 分层建议
 type TieringRecommendation struct {
-	Type        string `json:"type"`        // migrate, archive, resize, policy_change
-	Priority    int    `json:"priority"`    // 1-5
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Impact      string `json:"impact"`      // 高/中/低影响
-	Effort      string `json:"effort"`      // low, medium, high
+	Type        string                 `json:"type"`     // migrate, archive, resize, policy_change
+	Priority    int                    `json:"priority"` // 1-5
+	Title       string                 `json:"title"`
+	Description string                 `json:"description"`
+	Impact      string                 `json:"impact"` // 高/中/低影响
+	Effort      string                 `json:"effort"` // low, medium, high
 	Details     map[string]interface{} `json:"details"`
 }
 
@@ -449,8 +449,8 @@ type MonthlyStats struct {
 // CostConfig 成本配置
 type CostConfig struct {
 	// 各存储层成本（每GB每月）
-	SSDCostPerGBMonth  float64 `json:"ssdCostPerGBMonth"`
-	HDDCostPerGBMonth  float64 `json:"hddCostPerGBMonth"`
+	SSDCostPerGBMonth   float64 `json:"ssdCostPerGBMonth"`
+	HDDCostPerGBMonth   float64 `json:"hddCostPerGBMonth"`
 	CloudCostPerGBMonth float64 `json:"cloudCostPerGBMonth"`
 
 	// 云存储额外成本
@@ -464,12 +464,12 @@ type CostConfig struct {
 // DefaultCostConfig 默认成本配置
 func DefaultCostConfig() *CostConfig {
 	return &CostConfig{
-		SSDCostPerGBMonth:   0.10,  // SSD 较贵
-		HDDCostPerGBMonth:   0.03,  // HDD 便宜
-		CloudCostPerGBMonth: 0.01,  // 云存储归档最便宜
+		SSDCostPerGBMonth:    0.10, // SSD 较贵
+		HDDCostPerGBMonth:    0.03, // HDD 便宜
+		CloudCostPerGBMonth:  0.01, // 云存储归档最便宜
 		CloudEgressCostPerGB: 0.05, // 出口流量
-		CloudRequestCost:    0.0001,
-		MonthlyOpCost:       50.0,
+		CloudRequestCost:     0.0001,
+		MonthlyOpCost:        50.0,
 	}
 }
 
@@ -488,14 +488,14 @@ func NewEfficiencyReportGenerator(manager *Manager, metrics *Metrics, costConfig
 // GenerateReport 生成分层效率报告
 func (g *EfficiencyReportGenerator) GenerateReport(period string) (*EfficiencyReport, error) {
 	report := &EfficiencyReport{
-		GeneratedAt:        time.Now(),
-		Period:             period,
-		DataDistribution:   g.generateDataDistribution(),
+		GeneratedAt:         time.Now(),
+		Period:              period,
+		DataDistribution:    g.generateDataDistribution(),
 		MigrationEfficiency: g.generateMigrationEfficiency(period),
-		CostAnalysis:       g.generateCostAnalysis(),
-		CapacityForecast:   g.generateCapacityForecast(90),
-		HealthScore:        g.calculateHealthScore(),
-		Recommendations:    g.generateRecommendations(),
+		CostAnalysis:        g.generateCostAnalysis(),
+		CapacityForecast:    g.generateCapacityForecast(90),
+		HealthScore:         g.calculateHealthScore(),
+		Recommendations:     g.generateRecommendations(),
 	}
 
 	return report, nil
@@ -543,18 +543,18 @@ func (g *EfficiencyReportGenerator) generateDataDistribution() *DataDistribution
 		}
 
 		dist := &TierDataDistribution{
-			TierType:         tier.Type,
-			Capacity:         tier.Capacity,
-			Used:             tier.Used,
-			Available:        tier.Capacity - tier.Used,
-			HotFiles:         tierStats.HotFiles,
-			HotBytes:         tierStats.HotBytes,
-			WarmFiles:        tierStats.WarmFiles,
-			WarmBytes:        tierStats.WarmBytes,
-			ColdFiles:        tierStats.ColdFiles,
-			ColdBytes:        tierStats.ColdBytes,
-			UsagePercent:     tierStats.UsagePercent,
-			HotDataPercent:   float64(tierStats.HotBytes) / float64(tierStats.TotalBytes+1) * 100,
+			TierType:          tier.Type,
+			Capacity:          tier.Capacity,
+			Used:              tier.Used,
+			Available:         tier.Capacity - tier.Used,
+			HotFiles:          tierStats.HotFiles,
+			HotBytes:          tierStats.HotBytes,
+			WarmFiles:         tierStats.WarmFiles,
+			WarmBytes:         tierStats.WarmBytes,
+			ColdFiles:         tierStats.ColdFiles,
+			ColdBytes:         tierStats.ColdBytes,
+			UsagePercent:      tierStats.UsagePercent,
+			HotDataPercent:    float64(tierStats.HotBytes) / float64(tierStats.TotalBytes+1) * 100,
 			OptimizationScore: g.calculateTierOptimizationScore(tier.Type, tierStats),
 		}
 
@@ -656,8 +656,8 @@ func (g *EfficiencyReportGenerator) generateMigrationEfficiency(period string) *
 // generateCostAnalysis 生成成本分析报告
 func (g *EfficiencyReportGenerator) generateCostAnalysis() *CostAnalysisReport {
 	report := &CostAnalysisReport{
-		TierCosts:                  make(map[TierType]*TierCostInfo),
-		OptimizationOpportunities:  make([]CostOptimizationOpportunity, 0),
+		TierCosts:                 make(map[TierType]*TierCostInfo),
+		OptimizationOpportunities: make([]CostOptimizationOpportunity, 0),
 	}
 
 	// 计算各存储层成本
@@ -683,13 +683,13 @@ func (g *EfficiencyReportGenerator) generateCostAnalysis() *CostAnalysisReport {
 		totalGB += usedGB
 
 		report.TierCosts[tier.Type] = &TierCostInfo{
-			TierType:        tier.Type,
-			CostPerGBMonth:  costPerGB,
-			MonthlyCost:     monthlyCost,
-			YearlyCost:      monthlyCost * 12,
-			UsedGB:          usedGB,
-			CapacityGB:      capacityGB,
-			Utilization:     float64(tier.Used) / float64(tier.Capacity+1) * 100,
+			TierType:       tier.Type,
+			CostPerGBMonth: costPerGB,
+			MonthlyCost:    monthlyCost,
+			YearlyCost:     monthlyCost * 12,
+			UsedGB:         usedGB,
+			CapacityGB:     capacityGB,
+			Utilization:    float64(tier.Used) / float64(tier.Capacity+1) * 100,
 		}
 	}
 
@@ -717,10 +717,10 @@ func (g *EfficiencyReportGenerator) generateCostAnalysis() *CostAnalysisReport {
 // generateCapacityForecast 生成容量趋势预测
 func (g *EfficiencyReportGenerator) generateCapacityForecast(days int) *CapacityForecastReport {
 	report := &CapacityForecastReport{
-		ForecastDays: days,
-		ByTier:       make(map[TierType]*CapacityPredict),
+		ForecastDays:   days,
+		ByTier:         make(map[TierType]*CapacityPredict),
 		ForecastPoints: make([]CapacityForecastPoint, 0),
-		Warnings:     make([]CapacityWarning, 0),
+		Warnings:       make([]CapacityWarning, 0),
 	}
 
 	// 获取历史数据计算增长率
@@ -913,8 +913,8 @@ func (g *EfficiencyReportGenerator) generateRecommendations() []TieringRecommend
 				Impact:      "中",
 				Effort:      "low",
 				Details: map[string]interface{}{
-					"source_tier": "ssd",
-					"files_count": ssdStats.ColdFiles,
+					"source_tier":       "ssd",
+					"files_count":       ssdStats.ColdFiles,
 					"potential_savings": float64(ssdStats.ColdBytes) / 1024 / 1024 / 1024 * g.costConfig.SSDCostPerGBMonth,
 				},
 			})
@@ -1149,10 +1149,10 @@ func (g *EfficiencyReportGenerator) generateCostForecast() []CostForecastPoint {
 	for i := 0; i < 12; i++ {
 		projectedCost := currentCost * math.Pow(1+growthRate, float64(i))
 		forecast = append(forecast, CostForecastPoint{
-			Month:         time.Now().AddDate(0, i, 0),
-			ProjectedCost: projectedCost,
+			Month:          time.Now().AddDate(0, i, 0),
+			ProjectedCost:  projectedCost,
 			ProjectedUsage: projectedCost / (g.costConfig.SSDCostPerGBMonth + g.costConfig.HDDCostPerGBMonth) / 2,
-			Confidence:    math.Max(0.9-float64(i)*0.05, 0.5),
+			Confidence:     math.Max(0.9-float64(i)*0.05, 0.5),
 		})
 	}
 
@@ -1338,7 +1338,7 @@ func (g *EfficiencyReportGenerator) RecordDailyStats() {
 	defer g.historyMu.Unlock()
 
 	stats := DailyStats{
-		Date:       time.Now(),
+		Date: time.Now(),
 	}
 
 	accessStats := g.manager.GetAccessStats()

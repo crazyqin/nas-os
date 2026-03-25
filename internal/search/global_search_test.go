@@ -122,9 +122,9 @@ func TestGlobalSearchService_GenerateSuggestions(t *testing.T) {
 		query    string
 		expected int
 	}{
-		{"存", 2}, // 存储、存储池
-		{"网", 2}, // 网络、网络接口
-		{"容", 2}, // 容器、Docker容器
+		{"存", 2},   // 存储、存储池
+		{"网", 2},   // 网络、网络接口
+		{"容", 2},   // 容器、Docker容器
 		{"xyz", 0}, // 无匹配
 	}
 
@@ -206,8 +206,8 @@ func TestGlobalSearchService_MetadataScore(t *testing.T) {
 		minScore  float64
 		expectHit bool
 	}{
-		{"测试", 0.3, true},     // 标题匹配
-		{"文档", 0.2, true},     // 标题和描述匹配
+		{"测试", 0.3, true},       // 标题匹配
+		{"文档", 0.2, true},       // 标题和描述匹配
 		{"testuser", 0.1, true}, // 属性匹配
 		{"xyz", 0.1, false},     // 无匹配
 	}
@@ -261,4 +261,3 @@ func TestGlobalSearchService_Concurrent(t *testing.T) {
 	stats := service.GetStats()
 	assert.Equal(t, int64(10), stats.TotalSearches)
 }
-
