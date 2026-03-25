@@ -2,6 +2,7 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,7 +25,7 @@ func TestResponseTimeMiddleware(t *testing.T) {
 		c.Status(http.StatusOK)
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -60,7 +61,7 @@ func TestResponseTimeMiddlewareSkip(t *testing.T) {
 	})
 
 	// Test skipped path
-	req := httptest.NewRequest("GET", "/health", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/health", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -70,7 +71,7 @@ func TestResponseTimeMiddlewareSkip(t *testing.T) {
 	}
 
 	// Test non-skipped path
-	req = httptest.NewRequest("GET", "/test", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -94,7 +95,7 @@ func TestResponseTimePrecise(t *testing.T) {
 		c.Status(http.StatusOK)
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -169,7 +170,7 @@ func TestResponseTimeWithCollector(t *testing.T) {
 	})
 
 	for i := 0; i < 5; i++ {
-		req := httptest.NewRequest("GET", "/test", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -254,7 +255,7 @@ func BenchmarkResponseTimeMiddleware(b *testing.B) {
 		c.Status(http.StatusOK)
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

@@ -1,6 +1,7 @@
 package webdav
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -46,7 +47,7 @@ func TestHandlers_GetConfig(t *testing.T) {
 	router.GET("/config", handlers.GetConfig)
 
 	// 创建请求
-	req := httptest.NewRequest("GET", "/config", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/config", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -108,7 +109,7 @@ func TestHandlers_UpdateConfig(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(updateReq)
-	req := httptest.NewRequest("PUT", "/config", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/config", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -149,7 +150,7 @@ func TestHandlers_GetStatus(t *testing.T) {
 	router := gin.New()
 	router.GET("/status", handlers.GetStatus)
 
-	req := httptest.NewRequest("GET", "/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/status", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -200,7 +201,7 @@ func TestHandlers_GetLocks(t *testing.T) {
 	router := gin.New()
 	router.GET("/locks", handlers.GetLocks)
 
-	req := httptest.NewRequest("GET", "/locks", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/locks", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -240,7 +241,7 @@ func TestHandlers_DeleteLock(t *testing.T) {
 	router := gin.New()
 	router.DELETE("/locks/:token", handlers.DeleteLock)
 
-	req := httptest.NewRequest("DELETE", "/locks/"+lock.Token, nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/locks/"+lock.Token, nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -280,7 +281,7 @@ func TestHandlers_DeleteLock_NotFound(t *testing.T) {
 	router := gin.New()
 	router.DELETE("/locks/:token", handlers.DeleteLock)
 
-	req := httptest.NewRequest("DELETE", "/locks/nonexistent-token", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/locks/nonexistent-token", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -321,7 +322,7 @@ func TestHandlers_FullWorkflow(t *testing.T) {
 	router.DELETE("/locks/:token", handlers.DeleteLock)
 
 	// 1. 获取初始配置
-	req1 := httptest.NewRequest("GET", "/config", nil)
+	req1 := httptest.NewRequestWithContext(context.Background(), "GET", "/config", nil)
 	w1 := httptest.NewRecorder()
 	router.ServeHTTP(w1, req1)
 	if w1.Code != http.StatusOK {
@@ -332,7 +333,7 @@ func TestHandlers_FullWorkflow(t *testing.T) {
 	newPort := 9090
 	updateReq := UpdateConfigRequest{Port: &newPort}
 	body, _ := json.Marshal(updateReq)
-	req2 := httptest.NewRequest("PUT", "/config", bytes.NewReader(body))
+	req2 := httptest.NewRequestWithContext(context.Background(), "PUT", "/config", bytes.NewReader(body))
 	req2.Header.Set("Content-Type", "application/json")
 	w2 := httptest.NewRecorder()
 	router.ServeHTTP(w2, req2)
@@ -341,7 +342,7 @@ func TestHandlers_FullWorkflow(t *testing.T) {
 	}
 
 	// 3. 获取状态
-	req3 := httptest.NewRequest("GET", "/status", nil)
+	req3 := httptest.NewRequestWithContext(context.Background(), "GET", "/status", nil)
 	w3 := httptest.NewRecorder()
 	router.ServeHTTP(w3, req3)
 	if w3.Code != http.StatusOK {
@@ -355,7 +356,7 @@ func TestHandlers_FullWorkflow(t *testing.T) {
 	}
 
 	// 5. 获取锁列表
-	req5 := httptest.NewRequest("GET", "/locks", nil)
+	req5 := httptest.NewRequestWithContext(context.Background(), "GET", "/locks", nil)
 	w5 := httptest.NewRecorder()
 	router.ServeHTTP(w5, req5)
 	if w5.Code != http.StatusOK {
@@ -363,7 +364,7 @@ func TestHandlers_FullWorkflow(t *testing.T) {
 	}
 
 	// 6. 删除锁
-	req6 := httptest.NewRequest("DELETE", "/locks/"+lock.Token, nil)
+	req6 := httptest.NewRequestWithContext(context.Background(), "DELETE", "/locks/"+lock.Token, nil)
 	w6 := httptest.NewRecorder()
 	router.ServeHTTP(w6, req6)
 	if w6.Code != http.StatusOK {
@@ -403,7 +404,7 @@ func TestHandlers_ConcurrentAccess(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		go func(id int) {
 			for j := 0; j < 10; j++ {
-				req := httptest.NewRequest("GET", "/config", nil)
+				req := httptest.NewRequestWithContext(context.Background(), "GET", "/config", nil)
 				w := httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 
@@ -446,7 +447,7 @@ func TestHandlers_InvalidJSON(t *testing.T) {
 	router.PUT("/config", handlers.UpdateConfig)
 
 	// 发送无效的 JSON
-	req := httptest.NewRequest("PUT", "/config", bytes.NewReader([]byte("invalid json")))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/config", bytes.NewReader([]byte("invalid json")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 

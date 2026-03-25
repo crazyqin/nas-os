@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -87,7 +88,7 @@ func TestListVolumes_Empty(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -129,7 +130,7 @@ func TestListVolumes_WithVolumes(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -166,7 +167,7 @@ func TestGetVolume_Found(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/data", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/data", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -181,7 +182,7 @@ func TestGetVolume_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -210,7 +211,7 @@ func TestCreateVolume_MissingName(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/storage/volumes", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -231,7 +232,7 @@ func TestCreateVolume_MissingDevices(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/storage/volumes", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -249,7 +250,7 @@ func TestDeleteVolume_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("DELETE", "/api/storage/volumes/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/storage/volumes/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -266,7 +267,7 @@ func TestMountVolume_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/storage/volumes/nonexistent/mount", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes/nonexistent/mount", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -281,7 +282,7 @@ func TestUnmountVolume_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/storage/volumes/nonexistent/unmount", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes/nonexistent/unmount", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -298,7 +299,7 @@ func TestStartScrub_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/storage/volumes/nonexistent/scrub", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes/nonexistent/scrub", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -313,7 +314,7 @@ func TestGetScrubStatus_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/nonexistent/scrub/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/nonexistent/scrub/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -330,7 +331,7 @@ func TestStartBalance_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("POST", "/api/storage/volumes/nonexistent/balance", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes/nonexistent/balance", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -345,7 +346,7 @@ func TestGetBalanceStatus_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/nonexistent/balance/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/nonexistent/balance/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -362,7 +363,7 @@ func TestListSubvolumes_VolumeNotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/nonexistent/subvolumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/nonexistent/subvolumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -384,7 +385,7 @@ func TestListAllSubvolumes_Empty(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/subvolumes", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/subvolumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -428,7 +429,7 @@ func TestListAllSubvolumes_WithFilter(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	// 只获取 data 卷的子卷
-	req, _ := http.NewRequest("GET", "/api/storage/subvolumes?volume=data", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/subvolumes?volume=data", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -466,7 +467,7 @@ func TestGetSubvolume_Found(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/data/subvolumes/documents", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/data/subvolumes/documents", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -487,7 +488,7 @@ func TestGetSubvolume_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/data/subvolumes/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/data/subvolumes/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -512,7 +513,7 @@ func TestCreateSubvolume_MissingName(t *testing.T) {
 	body := CreateSubvolumeRequest{}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/storage/volumes/data/subvolumes", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes/data/subvolumes", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -536,7 +537,7 @@ func TestDeleteSubvolume_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("DELETE", "/api/storage/volumes/data/subvolumes/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/storage/volumes/data/subvolumes/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -567,7 +568,7 @@ func TestMountSubvolume_SubvolNotFound(t *testing.T) {
 	body := MountSubvolumeRequest{MountPath: "/mnt/documents"}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/storage/volumes/data/subvolumes/nonexistent/mount", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/storage/volumes/data/subvolumes/nonexistent/mount", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -592,7 +593,7 @@ func TestListSnapshots_VolumeNotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/nonexistent/snapshots", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/nonexistent/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -621,7 +622,7 @@ func TestListSnapshots_WithSnapshots(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/data/snapshots", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/data/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -651,7 +652,7 @@ func TestListAllSnapshots(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/snapshots", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/snapshots", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -682,7 +683,7 @@ func TestDeleteSnapshot_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("DELETE", "/api/storage/volumes/nonexistent/snapshots/snap1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/storage/volumes/nonexistent/snapshots/snap1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -713,7 +714,7 @@ func TestGetDeviceStats_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/volumes/nonexistent/devices", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes/nonexistent/devices", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -737,7 +738,7 @@ func TestRemoveDevice_NotFound(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("DELETE", "/api/storage/volumes/nonexistent/devices/sda1", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/storage/volumes/nonexistent/devices/sda1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -761,7 +762,7 @@ func TestGetRAIDConfigs(t *testing.T) {
 	api := router.Group("/api/storage")
 	handlers.RegisterRoutes(api)
 
-	req, _ := http.NewRequest("GET", "/api/storage/raid-configs", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/raid-configs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -808,7 +809,7 @@ func TestConcurrentRequests(t *testing.T) {
 	done := make(chan bool)
 	for i := 0; i < 10; i++ {
 		go func() {
-			req, _ := http.NewRequest("GET", "/api/storage/volumes", nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/storage/volumes", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			done <- true

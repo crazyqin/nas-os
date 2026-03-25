@@ -2,6 +2,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -429,7 +430,7 @@ func TestEnhancedWebSocketHandlerRoomAPI(t *testing.T) {
 	RegisterEnhancedWebSocketRoutes(router.Group("/api"), hub)
 
 	// Test create room
-	req := httptest.NewRequest("POST", "/api/ws/rooms", strings.NewReader(`{"id":"test-room","name":"Test Room"}`))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/ws/rooms", strings.NewReader(`{"id":"test-room","name":"Test Room"}`))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -439,7 +440,7 @@ func TestEnhancedWebSocketHandlerRoomAPI(t *testing.T) {
 	}
 
 	// Test get rooms
-	req = httptest.NewRequest("GET", "/api/ws/rooms", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/ws/rooms", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -448,7 +449,7 @@ func TestEnhancedWebSocketHandlerRoomAPI(t *testing.T) {
 	}
 
 	// Test get specific room
-	req = httptest.NewRequest("GET", "/api/ws/rooms/test-room", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/ws/rooms/test-room", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -457,7 +458,7 @@ func TestEnhancedWebSocketHandlerRoomAPI(t *testing.T) {
 	}
 
 	// Test delete room
-	req = httptest.NewRequest("DELETE", "/api/ws/rooms/test-room", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/ws/rooms/test-room", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -466,7 +467,7 @@ func TestEnhancedWebSocketHandlerRoomAPI(t *testing.T) {
 	}
 
 	// Test get queue stats
-	req = httptest.NewRequest("GET", "/api/ws/queue", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/ws/queue", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

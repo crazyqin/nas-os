@@ -1,6 +1,7 @@
 package versioning
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -35,10 +36,10 @@ func createTestContext(t *testing.T, method, path string, body []byte) (*gin.Con
 
 	var req *http.Request
 	if body != nil {
-		req = httptest.NewRequest(method, path, bytes.NewReader(body))
+		req = httptest.NewRequestWithContext(context.Background(), method, path, bytes.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 	} else {
-		req = httptest.NewRequest(method, path, nil)
+		req = httptest.NewRequestWithContext(context.Background(), method, path, nil)
 	}
 	c.Request = req
 

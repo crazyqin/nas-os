@@ -2,6 +2,7 @@
 package cost_analysis
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -39,7 +40,7 @@ func setupTestAPI(t *testing.T) (*CostAnalysisEngine, *APIHandler) {
 func TestAPIStorageTrendReport(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/reports/storage-trend?days=30", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/reports/storage-trend?days=30", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleStorageTrendReport(w, req)
@@ -57,7 +58,7 @@ func TestAPIStorageTrendReport(t *testing.T) {
 func TestAPIStorageTrendReportInvalidMethod(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/cost/reports/storage-trend", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/cost/reports/storage-trend", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleStorageTrendReport(w, req)
@@ -68,7 +69,7 @@ func TestAPIStorageTrendReportInvalidMethod(t *testing.T) {
 func TestAPIResourceUtilizationReport(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/reports/resource-utilization", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/reports/resource-utilization", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleResourceUtilizationReport(w, req)
@@ -85,7 +86,7 @@ func TestAPIResourceUtilizationReport(t *testing.T) {
 func TestAPIOptimizationReport(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/reports/optimization", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/reports/optimization", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleOptimizationReport(w, req)
@@ -114,7 +115,7 @@ func TestAPIBudgetTrackingReport(t *testing.T) {
 	budget, err := engine.CreateBudget(budgetConfig)
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/reports/budget-tracking?budget_id="+budget.ID, nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/reports/budget-tracking?budget_id="+budget.ID, nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgetTrackingReport(w, req)
@@ -125,7 +126,7 @@ func TestAPIBudgetTrackingReport(t *testing.T) {
 func TestAPIBudgetTrackingReportMissingID(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/reports/budget-tracking", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/reports/budget-tracking", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgetTrackingReport(w, req)
@@ -136,7 +137,7 @@ func TestAPIBudgetTrackingReportMissingID(t *testing.T) {
 func TestAPIComprehensiveReport(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/reports/comprehensive", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/reports/comprehensive", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleComprehensiveReport(w, req)
@@ -166,7 +167,7 @@ func TestAPIBudgetsList(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/budgets", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/budgets", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgets(w, req)
@@ -193,7 +194,7 @@ func TestAPIBudgetsCreate(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(budgetConfig)
-	req := httptest.NewRequest(http.MethodPost, "/api/cost/budgets", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/cost/budgets", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgets(w, req)
@@ -221,7 +222,7 @@ func TestAPIBudgetGet(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/budgets/"+budget.ID, nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/budgets/"+budget.ID, nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgetByID(w, req)
@@ -252,7 +253,7 @@ func TestAPIBudgetUpdate(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(updatedConfig)
-	req := httptest.NewRequest(http.MethodPut, "/api/cost/budgets/"+budget.ID, bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPut, "/api/cost/budgets/"+budget.ID, bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgetByID(w, req)
@@ -280,7 +281,7 @@ func TestAPIBudgetDelete(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	req := httptest.NewRequest(http.MethodDelete, "/api/cost/budgets/"+budget.ID, nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodDelete, "/api/cost/budgets/"+budget.ID, nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgetByID(w, req)
@@ -291,7 +292,7 @@ func TestAPIBudgetDelete(t *testing.T) {
 func TestAPIAlerts(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/alerts", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/alerts", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleAlerts(w, req)
@@ -302,7 +303,7 @@ func TestAPIAlerts(t *testing.T) {
 func TestAPITrends(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/trends", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/trends", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleTrends(w, req)
@@ -323,7 +324,7 @@ func TestAPITrendsPost(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(trend)
-	req := httptest.NewRequest(http.MethodPost, "/api/cost/trends", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/cost/trends", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	handler.HandleTrends(w, req)
@@ -348,7 +349,7 @@ func TestAPIAlertAcknowledge(t *testing.T) {
 	ackRequest := map[string]string{"action": "acknowledge"}
 	body, _ := json.Marshal(ackRequest)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/cost/alerts/alert-1", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/cost/alerts/alert-1", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	handler.HandleAlertByID(w, req)
@@ -362,7 +363,7 @@ func TestAPIInvalidAlertAction(t *testing.T) {
 	invalidRequest := map[string]string{"action": "invalid"}
 	body, _ := json.Marshal(invalidRequest)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/cost/alerts/alert-1", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/cost/alerts/alert-1", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	handler.HandleAlertByID(w, req)
@@ -373,7 +374,7 @@ func TestAPIInvalidAlertAction(t *testing.T) {
 func TestAPIAlertInvalidMethod(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/alerts/alert-1", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/alerts/alert-1", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleAlertByID(w, req)
@@ -400,7 +401,7 @@ func TestAPIRegisterRoutes(t *testing.T) {
 	}
 
 	for _, route := range routes {
-		req := httptest.NewRequest(http.MethodGet, route, nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, route, nil)
 		w := httptest.NewRecorder()
 		mux.ServeHTTP(w, req)
 		// 不应该返回 404
@@ -411,7 +412,7 @@ func TestAPIRegisterRoutes(t *testing.T) {
 func TestAPIBudgetNotFound(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/cost/budgets/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/cost/budgets/nonexistent", nil)
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgetByID(w, req)
@@ -425,7 +426,7 @@ func TestAPIAlertNotFound(t *testing.T) {
 	ackRequest := map[string]string{"action": "acknowledge"}
 	body, _ := json.Marshal(ackRequest)
 
-	req := httptest.NewRequest(http.MethodPost, "/api/cost/alerts/nonexistent", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/cost/alerts/nonexistent", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 
 	handler.HandleAlertByID(w, req)
@@ -437,7 +438,7 @@ func TestAPIWriteJSONError(t *testing.T) {
 	_, handler := setupTestAPI(t)
 
 	// 测试无效的 JSON 请求
-	req := httptest.NewRequest(http.MethodPost, "/api/cost/budgets", bytes.NewReader([]byte("invalid json")))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/api/cost/budgets", bytes.NewReader([]byte("invalid json")))
 	w := httptest.NewRecorder()
 
 	handler.HandleBudgets(w, req)

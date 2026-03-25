@@ -401,7 +401,7 @@ func TestStreamServer_StreamFile(t *testing.T) {
 	config := DefaultStreamConfig()
 	server := NewStreamServer(config, "ffmpeg", "ffprobe")
 
-	req := httptest.NewRequest("GET", "/stream", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/stream", nil)
 	w := httptest.NewRecorder()
 
 	err := server.StreamFile(w, req, testFile)
@@ -429,7 +429,7 @@ func TestStreamServer_StreamFile_Range(t *testing.T) {
 	config := DefaultStreamConfig()
 	server := NewStreamServer(config, "ffmpeg", "ffprobe")
 
-	req := httptest.NewRequest("GET", "/stream", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/stream", nil)
 	req.Header.Set("Range", "bytes=0-4")
 	w := httptest.NewRecorder()
 

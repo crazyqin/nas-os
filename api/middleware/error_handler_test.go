@@ -2,6 +2,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +25,7 @@ func TestErrorHandlerMiddleware(t *testing.T) {
 	})
 
 	// Test error response
-	req := httptest.NewRequest("GET", "/error", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -33,7 +34,7 @@ func TestErrorHandlerMiddleware(t *testing.T) {
 	}
 
 	// Test OK response
-	req = httptest.NewRequest("GET", "/ok", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/ok", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -51,7 +52,7 @@ func TestErrorHandlerPanic(t *testing.T) {
 		panic("test panic")
 	})
 
-	req := httptest.NewRequest("GET", "/panic", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/panic", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -74,7 +75,7 @@ func TestErrorHandlerDebugMode(t *testing.T) {
 		panic("test panic")
 	})
 
-	req := httptest.NewRequest("GET", "/panic", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/panic", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -157,7 +158,7 @@ func TestErrorResponder(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		req := httptest.NewRequest("GET", tt.path, nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", tt.path, nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -208,7 +209,7 @@ func TestHelperFunctions(t *testing.T) {
 	})
 
 	// Just verify they work without panic
-	req := httptest.NewRequest("GET", "/bad-request", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/bad-request", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -255,7 +256,7 @@ func TestRecoverMiddleware(t *testing.T) {
 	})
 
 	// Test panic recovery
-	req := httptest.NewRequest("GET", "/panic", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/panic", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -264,7 +265,7 @@ func TestRecoverMiddleware(t *testing.T) {
 	}
 
 	// Test normal request
-	req = httptest.NewRequest("GET", "/ok", nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/ok", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -292,7 +293,7 @@ func TestCustomErrorHandler(t *testing.T) {
 		c.Error(errors.New("test error"))
 	})
 
-	req := httptest.NewRequest("GET", "/error", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -333,7 +334,7 @@ func TestWriteJSON(t *testing.T) {
 		WriteJSON(c, http.StatusOK, map[string]string{"hello": "world"})
 	})
 
-	req := httptest.NewRequest("GET", "/json", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/json", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -350,7 +351,7 @@ func TestWriteError(t *testing.T) {
 		WriteError(c, http.StatusBadRequest, 400, "Bad request")
 	})
 
-	req := httptest.NewRequest("GET", "/error", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -367,7 +368,7 @@ func BenchmarkErrorHandlerMiddleware(b *testing.B) {
 		c.Status(http.StatusOK)
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -385,7 +386,7 @@ func BenchmarkErrorResponder(b *testing.B) {
 		responder.BadRequest(c, "test error")
 	})
 
-	req := httptest.NewRequest("GET", "/error", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/error", nil)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

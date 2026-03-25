@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -70,7 +71,7 @@ func TestHandlers_ListContainers(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/containers", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/containers", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -86,7 +87,7 @@ func TestHandlers_ListContainers_All(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/containers?all=true", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/containers?all=true", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -102,7 +103,7 @@ func TestHandlers_GetContainer(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/containers/nonexistent123", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/containers/nonexistent123", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -118,7 +119,7 @@ func TestHandlers_CreateContainer_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/containers", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/containers", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -136,7 +137,7 @@ func TestHandlers_CreateContainer_MissingFields(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	// 缺少 name 字段
-	req := httptest.NewRequest("POST", "/api/docker/containers", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/containers", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -155,7 +156,7 @@ func TestHandlers_ListImages(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/images", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/images", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -171,7 +172,7 @@ func TestHandlers_PullImage_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/images/pull", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/images/pull", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -187,7 +188,7 @@ func TestHandlers_PullImage_MissingImage(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/images/pull", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/images/pull", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -205,7 +206,7 @@ func TestHandlers_ListNetworks(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/networks", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/networks", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -222,7 +223,7 @@ func TestHandlers_ListVolumes(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/volumes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/volumes", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -237,7 +238,7 @@ func TestHandlers_CreateVolume_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/volumes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/volumes", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -253,7 +254,7 @@ func TestHandlers_GetVolume(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/volumes/nonexistent-volume-xyz", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/volumes/nonexistent-volume-xyz", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -271,7 +272,7 @@ func TestHandlers_GetAppCatalog(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/apps", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/apps", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -296,7 +297,7 @@ func TestHandlers_InstallApp_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/apps/nginx/install", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/apps/nginx/install", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -315,7 +316,7 @@ func TestHandlers_GetStatus(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -341,7 +342,7 @@ func TestHandlers_StartContainer(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/containers/nonexistent/start", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/containers/nonexistent/start", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -357,7 +358,7 @@ func TestHandlers_StopContainer(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/containers/nonexistent/stop", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/containers/nonexistent/stop", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -373,7 +374,7 @@ func TestHandlers_RestartContainer(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/containers/nonexistent/restart", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/containers/nonexistent/restart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -389,7 +390,7 @@ func TestHandlers_RemoveContainer(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/docker/containers/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/docker/containers/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -405,7 +406,7 @@ func TestHandlers_GetContainerStats(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/containers/nonexistent/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/containers/nonexistent/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -421,7 +422,7 @@ func TestHandlers_GetContainerLogs(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/containers/nonexistent/logs", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/containers/nonexistent/logs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -439,7 +440,7 @@ func TestHandlers_RemoveImage(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/docker/images/sha256:nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/docker/images/sha256:nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -455,7 +456,7 @@ func TestHandlers_RemoveVolume(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/docker/volumes/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/docker/volumes/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -473,7 +474,7 @@ func TestHandlers_CreateContainer_FullFlow(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/containers", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/containers", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -490,7 +491,7 @@ func TestHandlers_PullImage_FullRequest(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/images/pull", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/images/pull", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -507,7 +508,7 @@ func TestHandlers_CreateVolume_FullRequest(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/docker/volumes", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/docker/volumes", nil)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -526,7 +527,7 @@ func TestHandlers_GetContainerLogs_WithParams(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/docker/containers/nonexistent/logs?tail=100&since=1h", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/containers/nonexistent/logs?tail=100&since=1h", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -555,7 +556,7 @@ func TestHandlers_ListContainers_WithQuery(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/api/docker/containers"+tc.query, nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/containers"+tc.query, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -580,7 +581,7 @@ func TestHandlers_ConcurrentRequests(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		go func() {
-			req := httptest.NewRequest("GET", "/api/docker/status", nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/docker/status", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			done <- true

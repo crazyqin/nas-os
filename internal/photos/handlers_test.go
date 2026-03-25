@@ -1,6 +1,7 @@
 package photos
 
 import (
+	"context"
 	"bytes"
 	"io"
 	"mime/multipart"
@@ -61,7 +62,7 @@ func TestHandlers_UploadPhoto_InvalidFile(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	// 测试无文件上传
-	req := httptest.NewRequest("POST", "/api/photos/upload", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/photos/upload", nil)
 	req.Header.Set("Content-Type", "multipart/form-data")
 	w := httptest.NewRecorder()
 
@@ -88,7 +89,7 @@ func TestHandlers_UploadPhoto_UnsupportedFormat(t *testing.T) {
 	_, _ = part.Write([]byte("test content"))
 	_ = writer.Close()
 
-	req := httptest.NewRequest("POST", "/api/photos/upload", body)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/photos/upload", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
@@ -112,7 +113,7 @@ func TestHandlers_CreateAlbum(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	// 创建相册请求
-	req := httptest.NewRequest("POST", "/api/photos/albums?name=测试相册&description=测试描述&userId=user1", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/photos/albums?name=测试相册&description=测试描述&userId=user1", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -132,7 +133,7 @@ func TestHandlers_ListAlbums(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/albums?userId=user1", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/albums?userId=user1", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -151,7 +152,7 @@ func TestHandlers_GetAlbum_NotFound(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/albums/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/albums/nonexistent", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -175,7 +176,7 @@ func TestHandlers_DeleteAlbum(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/photos/albums/"+album.ID, nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/photos/albums/"+album.ID, nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -195,7 +196,7 @@ func TestHandlers_ListPhotos(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos?userId=user1", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos?userId=user1", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -214,7 +215,7 @@ func TestHandlers_GetPhoto_NotFound(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/nonexistent", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/nonexistent", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -246,7 +247,7 @@ func TestHandlers_ToggleFavorite(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/photos/"+photo.ID+"/favorite", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/photos/"+photo.ID+"/favorite", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -265,7 +266,7 @@ func TestHandlers_GetTimeline(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/timeline?period=month", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/timeline?period=month", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -286,7 +287,7 @@ func TestHandlers_ListPersons(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/persons", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/persons", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -305,7 +306,7 @@ func TestHandlers_CreatePerson(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/photos/persons?name=张三", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/photos/persons?name=张三", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -326,7 +327,7 @@ func TestHandlers_DeletePerson(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/photos/persons/"+person.ID, nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/photos/persons/"+person.ID, nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -345,7 +346,7 @@ func TestHandlers_GetAIStats(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/ai/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/ai/stats", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -362,7 +363,7 @@ func TestHandlers_ListAITasks(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/ai/tasks", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/ai/tasks", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -379,7 +380,7 @@ func TestHandlers_ListSmartAlbums(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/ai/smart-albums", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/ai/smart-albums", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -396,7 +397,7 @@ func TestHandlers_GetMemories(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/ai/memories", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/ai/memories", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -415,7 +416,7 @@ func TestHandlers_SearchPhotos(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/search?q=test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/search?q=test", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -434,7 +435,7 @@ func TestHandlers_GetStats(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/stats", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -455,7 +456,7 @@ func TestHandlers_GetThumbnail_NotFound(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/nonexistent/thumbnail", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/nonexistent/thumbnail", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -477,7 +478,7 @@ func TestHandlers_DownloadPhoto_NotFound(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/nonexistent/download", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/nonexistent/download", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -499,7 +500,7 @@ func TestHandlers_CreateUploadSession(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/photos/upload/session?filename=test.jpg&totalSize=1024", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/photos/upload/session?filename=test.jpg&totalSize=1024", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -523,7 +524,7 @@ func TestHandlers_UploadPhotoBatch_NoFiles(t *testing.T) {
 	writer := multipart.NewWriter(body)
 	_ = writer.Close()
 
-	req := httptest.NewRequest("POST", "/api/photos/upload/batch", body)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/photos/upload/batch", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	w := httptest.NewRecorder()
 
@@ -553,7 +554,7 @@ func TestHandlers_FullAlbumWorkflow(t *testing.T) {
 	}
 
 	// 2. 获取相册
-	req := httptest.NewRequest("GET", "/api/photos/albums/"+album.ID, nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/albums/"+album.ID, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -562,7 +563,7 @@ func TestHandlers_FullAlbumWorkflow(t *testing.T) {
 	}
 
 	// 3. 删除相册
-	req = httptest.NewRequest("DELETE", "/api/photos/albums/"+album.ID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/photos/albums/"+album.ID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -596,7 +597,7 @@ func TestHandlers_PhotoQuery(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	// 测试分页查询
-	req := httptest.NewRequest("GET", "/api/photos?userId=user1&limit=3&offset=0", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos?userId=user1&limit=3&offset=0", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -616,7 +617,7 @@ func TestHandlers_ResponseFormat(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -639,7 +640,7 @@ func TestHandlers_ContentType(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/albums?userId=user1", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/albums?userId=user1", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -661,7 +662,7 @@ func TestHandlers_MethodNotAllowed(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	// 对 GET 端点使用 PUT 方法
-	req := httptest.NewRequest("PUT", "/api/photos/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/photos/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -683,7 +684,7 @@ func TestHandlers_SpecialCharactersInQuery(t *testing.T) {
 	handlers.RegisterRoutes(api)
 
 	// 测试特殊字符
-	req := httptest.NewRequest("GET", "/api/photos/search?q=%E6%B5%8B%E8%AF%95", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/search?q=%E6%B5%8B%E8%AF%95", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -702,7 +703,7 @@ func TestHandlers_EmptyQuery(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/photos/search?q=", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/search?q=", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -724,7 +725,7 @@ func TestHandlers_ConcurrentAccess(t *testing.T) {
 	done := make(chan bool)
 	for i := 0; i < 5; i++ {
 		go func() {
-			req := httptest.NewRequest("GET", "/api/photos/stats", nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/photos/stats", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			done <- true

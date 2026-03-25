@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -54,7 +55,7 @@ func TestLoggerMiddleware(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"message": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -77,7 +78,7 @@ func TestMiddleware_ConcurrentRequests(t *testing.T) {
 
 	for i := 0; i < 20; i++ {
 		go func() {
-			req := httptest.NewRequest("GET", "/test", nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			assert.Equal(t, http.StatusOK, w.Code)
@@ -104,7 +105,7 @@ func TestSecurityConfig_EmptyAllowedOrigins(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"message": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	req.Header.Set("Origin", "http://example.com")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -125,7 +126,7 @@ func TestSecurityConfig_ShortCSRFKey(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"message": "ok"})
 	})
 
-	req := httptest.NewRequest("POST", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -163,7 +164,7 @@ func TestMiddleware_MultipleRoutes(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		req := httptest.NewRequest(tc.method, tc.path, nil)
+		req := httptest.NewRequestWithContext(context.Background(), tc.method, tc.path, nil)
 		req.Header.Set("Origin", "http://localhost:8080")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -183,7 +184,7 @@ func BenchmarkLoggerMiddleware(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req := httptest.NewRequest("GET", "/test", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -200,7 +201,7 @@ func BenchmarkCORSMiddleware(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req := httptest.NewRequest("GET", "/test", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 		req.Header.Set("Origin", "http://localhost:8080")
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
@@ -220,7 +221,7 @@ func BenchmarkMiddlewareChain(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req := httptest.NewRequest("GET", "/test", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}

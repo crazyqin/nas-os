@@ -1,6 +1,7 @@
 package security
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -69,7 +70,7 @@ func TestHandlers_GetDashboard(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/dashboard", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/dashboard", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -88,7 +89,7 @@ func TestHandlers_GetConfig(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/config", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/config", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -108,7 +109,7 @@ func TestHandlers_UpdateConfig(t *testing.T) {
 	h.RegisterRoutes(api)
 
 	// 测试无效JSON
-	req := httptest.NewRequest("PUT", "/api/security/config", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/security/config", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -126,7 +127,7 @@ func TestHandlers_UpdateConfig(t *testing.T) {
 		AuditEnabled: true,
 	}
 	body, _ := json.Marshal(config)
-	req = httptest.NewRequest("PUT", "/api/security/config", bytes.NewReader(body))
+	req = httptest.NewRequestWithContext(context.Background(), "PUT", "/api/security/config", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -142,7 +143,7 @@ func TestHandlers_GetFirewallStatus(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/firewall/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/firewall/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -156,7 +157,7 @@ func TestHandlers_ListFirewallRules(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/firewall/rules", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/firewall/rules", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -171,7 +172,7 @@ func TestHandlers_AddFirewallRule(t *testing.T) {
 	h.RegisterRoutes(api)
 
 	// 测试无效JSON
-	req := httptest.NewRequest("POST", "/api/security/firewall/rules", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/security/firewall/rules", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
@@ -181,7 +182,7 @@ func TestHandlers_AddFirewallRule(t *testing.T) {
 		"enabled": true,
 	}
 	body, _ := json.Marshal(rule)
-	req = httptest.NewRequest("POST", "/api/security/firewall/rules", bytes.NewReader(body))
+	req = httptest.NewRequestWithContext(context.Background(), "POST", "/api/security/firewall/rules", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -195,7 +196,7 @@ func TestHandlers_GetFail2BanStatus(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/fail2ban/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/fail2ban/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -209,7 +210,7 @@ func TestHandlers_GetBannedIPs(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/fail2ban/banned", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/fail2ban/banned", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -237,7 +238,7 @@ func TestHandlers_GetAuditLogs(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/audit/logs", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/audit/logs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -265,7 +266,7 @@ func TestHandlers_GetLoginLogs(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/audit/login-logs", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/audit/login-logs", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -293,7 +294,7 @@ func TestHandlers_GetAlerts(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/audit/alerts", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/audit/alerts", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -307,7 +308,7 @@ func TestHandlers_GetBaselineChecks(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/baseline/checks", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/baseline/checks", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -321,7 +322,7 @@ func TestHandlers_RunBaselineCheck(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/baseline/check", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/baseline/check", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -338,7 +339,7 @@ func TestHandlers_GetBaselineReport(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/baseline/report", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/baseline/report", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -352,7 +353,7 @@ func TestHandlers_GetBaselineCategories(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/baseline/categories", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/baseline/categories", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -366,7 +367,7 @@ func TestHandlers_GetBlacklist(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/firewall/blacklist", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/firewall/blacklist", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -380,7 +381,7 @@ func TestHandlers_GetWhitelist(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/firewall/whitelist", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/firewall/whitelist", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -405,7 +406,7 @@ func TestHandlers_GetAuditStats(t *testing.T) {
 	api := router.Group("/api")
 	h.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/security/audit/stats", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/security/audit/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

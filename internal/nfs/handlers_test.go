@@ -1,6 +1,7 @@
 package nfs
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -122,7 +123,7 @@ func TestListExports_Empty(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/nfs/exports", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/nfs/exports", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -153,7 +154,7 @@ func TestListExports_WithExports(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/nfs/exports", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/nfs/exports", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -190,7 +191,7 @@ func TestCreateExport_Valid(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("POST", "/api/nfs/exports", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/nfs/exports", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -207,7 +208,7 @@ func TestCreateExport_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/nfs/exports", bytes.NewReader([]byte("invalid json")))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/nfs/exports", bytes.NewReader([]byte("invalid json")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -227,7 +228,7 @@ func TestCreateExport_MissingPath(t *testing.T) {
 	reqBody := Export{Comment: "No path"}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("POST", "/api/nfs/exports", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/nfs/exports", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -253,7 +254,7 @@ func TestGetExport_Exists(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/nfs/exports/"+filepath.Base(exportPath), nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/nfs/exports/"+filepath.Base(exportPath), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -288,7 +289,7 @@ func TestUpdateExport_Valid(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("PUT", "/api/nfs/exports/"+filepath.Base(exportPath), bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/nfs/exports/"+filepath.Base(exportPath), bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -304,7 +305,7 @@ func TestUpdateExport_InvalidJSON(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("PUT", "/api/nfs/exports/somepath", bytes.NewReader([]byte("invalid")))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/nfs/exports/somepath", bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -323,7 +324,7 @@ func TestDeleteExport_MissingPath(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("DELETE", "/api/nfs/exports/", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/nfs/exports/", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -339,7 +340,7 @@ func TestGetStatus(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/nfs/status", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/nfs/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -362,7 +363,7 @@ func TestStartService(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/nfs/start", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/nfs/start", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -381,7 +382,7 @@ func TestStopService(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/nfs/stop", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/nfs/stop", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -399,7 +400,7 @@ func TestRestartService(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/nfs/restart", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/nfs/restart", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -417,7 +418,7 @@ func TestReloadConfig(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("POST", "/api/nfs/reload", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/nfs/reload", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -435,7 +436,7 @@ func TestGetClients(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/nfs/clients", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/nfs/clients", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -455,7 +456,7 @@ func TestGetExportsFile(t *testing.T) {
 	api := router.Group("/api")
 	handlers.RegisterRoutes(api)
 
-	req := httptest.NewRequest("GET", "/api/nfs/config/exports", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/nfs/config/exports", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -553,7 +554,7 @@ func TestCreateExport_Duplicate(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
-	req := httptest.NewRequest("POST", "/api/nfs/exports", bytes.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/nfs/exports", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

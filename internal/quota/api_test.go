@@ -2,6 +2,7 @@
 package quota
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -110,7 +111,7 @@ func TestAPI_SetQuota(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.request)
-			req, _ := http.NewRequest(http.MethodPost, "/api/quota/v2/set", bytes.NewReader(body))
+			req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "/api/quota/v2/set", bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 
 			w := httptest.NewRecorder()
@@ -158,7 +159,7 @@ func TestAPI_GetQuota(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, _ := http.NewRequest(http.MethodGet, "/api/quota/v2/get/"+tt.quotaID, nil)
+			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/quota/v2/get/"+tt.quotaID, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -221,7 +222,7 @@ func TestAPI_ListQuotas(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, _ := http.NewRequest(http.MethodGet, "/api/quota/v2/list"+tt.query, nil)
+			req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/quota/v2/list"+tt.query, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -307,7 +308,7 @@ func TestAPI_AdjustQuota(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.request)
-			req, _ := http.NewRequest(http.MethodPut, "/api/quota/v2/adjust/"+tt.quotaID, bytes.NewReader(body))
+			req, _ := http.NewRequestWithContext(context.Background(), http.MethodPut, "/api/quota/v2/adjust/"+tt.quotaID, bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 
 			w := httptest.NewRecorder()
@@ -354,7 +355,7 @@ func TestAPI_DeleteQuota(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, _ := http.NewRequest(http.MethodDelete, "/api/quota/v2/delete/"+tt.quotaID, nil)
+			req, _ := http.NewRequestWithContext(context.Background(), http.MethodDelete, "/api/quota/v2/delete/"+tt.quotaID, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -409,7 +410,7 @@ func TestAPI_SetLimits(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			body, _ := json.Marshal(tt.request)
-			req, _ := http.NewRequest(http.MethodPut, "/api/quota/v2/limits/"+tt.quotaID, bytes.NewReader(body))
+			req, _ := http.NewRequestWithContext(context.Background(), http.MethodPut, "/api/quota/v2/limits/"+tt.quotaID, bytes.NewReader(body))
 			req.Header.Set("Content-Type", "application/json")
 
 			w := httptest.NewRecorder()
@@ -437,7 +438,7 @@ func TestAPI_GetQuotaStatus(t *testing.T) {
 		t.Fatalf("创建配额失败: %v", err)
 	}
 
-	req, _ := http.NewRequest(http.MethodGet, "/api/quota/v2/status/"+quota.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/quota/v2/status/"+quota.ID, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -522,7 +523,7 @@ func TestAPI_BatchSetQuota(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(request)
-	req, _ := http.NewRequest(http.MethodPost, "/api/quota/v2/batch-set", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodPost, "/api/quota/v2/batch-set", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
@@ -569,7 +570,7 @@ func TestAPI_GetViolations(t *testing.T) {
 		SoftLimit:  50,  // 50 字节
 	})
 
-	req, _ := http.NewRequest(http.MethodGet, "/api/quota/v2/violations", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/quota/v2/violations", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

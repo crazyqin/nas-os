@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -56,7 +57,7 @@ func TestWebUI_GetDashboard(t *testing.T) {
 	_, router := setupTestWebUI(t)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/tunnel/dashboard", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/dashboard", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -78,7 +79,7 @@ func TestWebUI_GetFRPStatus(t *testing.T) {
 	_, router := setupTestWebUI(t)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/tunnel/frp/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/frp/status", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -94,7 +95,7 @@ func TestWebUI_ListProxies(t *testing.T) {
 	_, router := setupTestWebUI(t)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/tunnel/frp/proxies", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/frp/proxies", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -117,7 +118,7 @@ func TestWebUI_CreateProxy(t *testing.T) {
 	body, _ := json.Marshal(proxy)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/tunnel/frp/proxies", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/tunnel/frp/proxies", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -143,14 +144,14 @@ func TestWebUI_GetProxy(t *testing.T) {
 	body, _ := json.Marshal(proxy)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/tunnel/frp/proxies", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/tunnel/frp/proxies", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 
 	// 获取代理
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("GET", "/api/v1/tunnel/frp/proxies/test-ssh", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/frp/proxies/test-ssh", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -170,14 +171,14 @@ func TestWebUI_DeleteProxy(t *testing.T) {
 	body, _ := json.Marshal(proxy)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/tunnel/frp/proxies", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/tunnel/frp/proxies", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 
 	// 删除代理
 	w = httptest.NewRecorder()
-	req, _ = http.NewRequest("DELETE", "/api/v1/tunnel/frp/proxies/test-delete", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/tunnel/frp/proxies/test-delete", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -187,7 +188,7 @@ func TestWebUI_GetPresetServices(t *testing.T) {
 	_, router := setupTestWebUI(t)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/tunnel/presets", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/presets", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -222,7 +223,7 @@ func TestWebUI_QuickConnect(t *testing.T) {
 	body, _ := json.Marshal(req)
 
 	w := httptest.NewRecorder()
-	httpReq, _ := http.NewRequest("POST", "/api/v1/tunnel/frp/quick-connect", strings.NewReader(string(body)))
+	httpReq, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/tunnel/frp/quick-connect", strings.NewReader(string(body)))
 	httpReq.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, httpReq)
 
@@ -239,7 +240,7 @@ func TestWebUI_GetFRPConfig(t *testing.T) {
 	_, router := setupTestWebUI(t)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/tunnel/frp/config", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/frp/config", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -264,7 +265,7 @@ func TestWebUI_UpdateFRPConfig(t *testing.T) {
 	body, _ := json.Marshal(config)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PUT", "/api/v1/tunnel/frp/config", strings.NewReader(string(body)))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/tunnel/frp/config", strings.NewReader(string(body)))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -275,7 +276,7 @@ func TestWebUI_GetPublicIP(t *testing.T) {
 	_, router := setupTestWebUI(t)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/tunnel/public-ip", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/public-ip", nil)
 	router.ServeHTTP(w, req)
 
 	// 可能返回404（无公网IP）或200
@@ -286,7 +287,7 @@ func TestWebUI_GetP2PStatus(t *testing.T) {
 	_, router := setupTestWebUI(t)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/tunnel/p2p/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/p2p/status", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -297,7 +298,7 @@ func TestWebUI_BackwardCompatibility(t *testing.T) {
 
 	// 测试向后兼容的路由
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/api/v1/tunnel/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/tunnel/status", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 }
@@ -307,7 +308,7 @@ func TestWebUI_ConnectP2P_ValidationError(t *testing.T) {
 
 	// 空请求体应该返回400
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/tunnel/p2p/connect", strings.NewReader("{}"))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/tunnel/p2p/connect", strings.NewReader("{}"))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 
@@ -319,7 +320,7 @@ func TestWebUI_CreateProxy_ValidationError(t *testing.T) {
 
 	// 缺少必需字段
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/api/v1/tunnel/frp/proxies", strings.NewReader("{}"))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/tunnel/frp/proxies", strings.NewReader("{}"))
 	req.Header.Set("Content-Type", "application/json")
 	router.ServeHTTP(w, req)
 

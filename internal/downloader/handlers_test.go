@@ -1,6 +1,7 @@
 package downloader
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -61,7 +62,7 @@ func TestHandler_ListTasks(t *testing.T) {
 	m.CreateTask(CreateTaskRequest{URL: "https://example.com/1.zip", Name: "Task 1"})
 	m.CreateTask(CreateTaskRequest{URL: "https://example.com/2.zip", Name: "Task 2"})
 
-	req, _ := http.NewRequest("GET", "/api/downloader/tasks", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/downloader/tasks", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -86,7 +87,7 @@ func TestHandler_ListTasksWithStatus(t *testing.T) {
 	task, _ := m.CreateTask(CreateTaskRequest{URL: "https://example.com/1.zip", Name: "Task 1"})
 	m.UpdateTask(task.ID, UpdateTaskRequest{Status: StatusDownloading})
 
-	req, _ := http.NewRequest("GET", "/api/downloader/tasks?status=downloading", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/downloader/tasks?status=downloading", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -105,7 +106,7 @@ func TestHandler_CreateTask(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks", bytes.NewReader(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks", bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -133,7 +134,7 @@ func TestHandler_CreateTaskEmptyURL(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks", bytes.NewReader(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks", bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -146,7 +147,7 @@ func TestHandler_CreateTaskEmptyURL(t *testing.T) {
 func TestHandler_CreateTaskInvalidBody(t *testing.T) {
 	_, router := setupTestHandler(t)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks", bytes.NewReader([]byte("invalid json")))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks", bytes.NewReader([]byte("invalid json")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -162,7 +163,7 @@ func TestHandler_GetTask(t *testing.T) {
 
 	task, _ := m.CreateTask(CreateTaskRequest{URL: "https://example.com/test.zip", Name: "Test"})
 
-	req, _ := http.NewRequest("GET", "/api/downloader/tasks/"+task.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/downloader/tasks/"+task.ID, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -183,7 +184,7 @@ func TestHandler_GetTask(t *testing.T) {
 func TestHandler_GetTaskNotFound(t *testing.T) {
 	_, router := setupTestHandler(t)
 
-	req, _ := http.NewRequest("GET", "/api/downloader/tasks/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/downloader/tasks/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -201,7 +202,7 @@ func TestHandler_UpdateTask(t *testing.T) {
 	body := UpdateTaskRequest{Status: StatusPaused}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("PUT", "/api/downloader/tasks/"+task.ID, bytes.NewReader(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/downloader/tasks/"+task.ID, bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -217,7 +218,7 @@ func TestHandler_UpdateTaskNotFound(t *testing.T) {
 	body := UpdateTaskRequest{Status: StatusPaused}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("PUT", "/api/downloader/tasks/nonexistent", bytes.NewReader(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/downloader/tasks/nonexistent", bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -233,7 +234,7 @@ func TestHandler_UpdateTaskInvalidBody(t *testing.T) {
 
 	task, _ := m.CreateTask(CreateTaskRequest{URL: "https://example.com/test.zip", Name: "Test"})
 
-	req, _ := http.NewRequest("PUT", "/api/downloader/tasks/"+task.ID, bytes.NewReader([]byte("invalid")))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/downloader/tasks/"+task.ID, bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -249,7 +250,7 @@ func TestHandler_DeleteTask(t *testing.T) {
 
 	task, _ := m.CreateTask(CreateTaskRequest{URL: "https://example.com/test.zip", Name: "Test"})
 
-	req, _ := http.NewRequest("DELETE", "/api/downloader/tasks/"+task.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/downloader/tasks/"+task.ID, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -274,7 +275,7 @@ func TestHandler_DeleteTaskWithFiles(t *testing.T) {
 		DestPath: t.TempDir(),
 	})
 
-	req, _ := http.NewRequest("DELETE", "/api/downloader/tasks/"+task.ID+"?delete_files=true", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/downloader/tasks/"+task.ID+"?delete_files=true", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -286,7 +287,7 @@ func TestHandler_DeleteTaskWithFiles(t *testing.T) {
 func TestHandler_DeleteTaskNotFound(t *testing.T) {
 	_, router := setupTestHandler(t)
 
-	req, _ := http.NewRequest("DELETE", "/api/downloader/tasks/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/downloader/tasks/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -301,7 +302,7 @@ func TestHandler_StartTask(t *testing.T) {
 
 	task, _ := m.CreateTask(CreateTaskRequest{URL: "https://example.com/test.zip", Name: "Test"})
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks/"+task.ID+"/start", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks/"+task.ID+"/start", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -313,7 +314,7 @@ func TestHandler_StartTask(t *testing.T) {
 func TestHandler_StartTaskNotFound(t *testing.T) {
 	_, router := setupTestHandler(t)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks/nonexistent/start", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks/nonexistent/start", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -328,7 +329,7 @@ func TestHandler_PauseTask(t *testing.T) {
 
 	task, _ := m.CreateTask(CreateTaskRequest{URL: "https://example.com/test.zip", Name: "Test"})
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks/"+task.ID+"/pause", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks/"+task.ID+"/pause", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -340,7 +341,7 @@ func TestHandler_PauseTask(t *testing.T) {
 func TestHandler_PauseTaskNotFound(t *testing.T) {
 	_, router := setupTestHandler(t)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks/nonexistent/pause", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks/nonexistent/pause", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -356,7 +357,7 @@ func TestHandler_ResumeTask(t *testing.T) {
 	task, _ := m.CreateTask(CreateTaskRequest{URL: "https://example.com/test.zip", Name: "Test"})
 	m.PauseTask(task.ID)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks/"+task.ID+"/resume", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks/"+task.ID+"/resume", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -368,7 +369,7 @@ func TestHandler_ResumeTask(t *testing.T) {
 func TestHandler_ResumeTaskNotFound(t *testing.T) {
 	_, router := setupTestHandler(t)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks/nonexistent/resume", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks/nonexistent/resume", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -384,7 +385,7 @@ func TestHandler_GetStats(t *testing.T) {
 	m.CreateTask(CreateTaskRequest{URL: "https://example.com/1.zip"})
 	m.CreateTask(CreateTaskRequest{URL: "https://example.com/2.zip"})
 
-	req, _ := http.NewRequest("GET", "/api/downloader/stats", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/downloader/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -417,7 +418,7 @@ func TestHandler_UpdateTaskWithSpeedLimit(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("PUT", "/api/downloader/tasks/"+task.ID, bytes.NewReader(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/downloader/tasks/"+task.ID, bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -447,7 +448,7 @@ func TestHandler_UpdateTaskWithSchedule(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("PUT", "/api/downloader/tasks/"+task.ID, bytes.NewReader(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/downloader/tasks/"+task.ID, bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -477,7 +478,7 @@ func TestHandler_CreateTaskWithSchedule(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks", bytes.NewReader(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks", bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -500,7 +501,7 @@ func TestHandler_CreateTaskWithSpeedLimit(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/downloader/tasks", bytes.NewReader(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/downloader/tasks", bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -582,7 +583,7 @@ func TestHandler_RegisterRoutes(t *testing.T) {
 	}
 
 	for _, route := range routes {
-		req, _ := http.NewRequest("GET", route, nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", route, nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 		// Should not return 404 (route not found)
@@ -634,7 +635,7 @@ func TestHandler_DeleteTaskWithActualFile(t *testing.T) {
 		DestPath: destPath,
 	})
 
-	req, _ := http.NewRequest("DELETE", "/api/downloader/tasks/"+task.ID+"?delete_files=true", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/downloader/tasks/"+task.ID+"?delete_files=true", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

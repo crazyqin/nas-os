@@ -3,6 +3,7 @@
 package benchmark
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -248,7 +249,7 @@ func BenchmarkAPIHealthEndpoint(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/health", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -259,7 +260,7 @@ func BenchmarkAPIVolumesEndpoint(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/volumes", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -270,7 +271,7 @@ func BenchmarkAPISystemInfoEndpoint(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/system/info", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/system/info", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -281,7 +282,7 @@ func BenchmarkAPIPerformanceEndpoint(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/performance", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/performance", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}
@@ -294,7 +295,7 @@ func BenchmarkConcurrentAPIRequests(b *testing.B) {
 
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			req, _ := http.NewRequest("GET", "/api/v1/health", nil)
+			req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/health", nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 		}
@@ -352,7 +353,7 @@ func BenchmarkAllocationsHTTPResponse(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req, _ := http.NewRequest("GET", "/api/v1/volumes", nil)
+		req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/volumes", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}

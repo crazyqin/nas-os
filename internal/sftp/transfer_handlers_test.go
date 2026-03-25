@@ -1,6 +1,7 @@
 package sftp
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -41,7 +42,7 @@ func TestTransferHandlers_RegisterRoutes(t *testing.T) {
 
 	for _, route := range routes {
 		parts := strings.Split(route, " ")
-		req := httptest.NewRequest(parts[0], parts[1], nil)
+		req := httptest.NewRequestWithContext(context.Background(), parts[0], parts[1], nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 		// 不应该返回 404
@@ -95,7 +96,7 @@ func TestTransferHandlers_ListTransfers(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/api/sftp/transfers"+tt.query, nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/sftp/transfers"+tt.query, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -152,7 +153,7 @@ func TestTransferHandlers_GetStats(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/api/sftp/transfers/stats"+tt.query, nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/sftp/transfers/stats"+tt.query, nil)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 
@@ -169,7 +170,7 @@ func TestTransferHandlers_GetStats(t *testing.T) {
 func TestTransferHandlers_ClearLogs(t *testing.T) {
 	_, router := setupTransferTestHandlers(t)
 
-	req := httptest.NewRequest("DELETE", "/api/sftp/transfers", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/sftp/transfers", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -184,7 +185,7 @@ func TestTransferHandlers_ClearLogs(t *testing.T) {
 func TestTransferHandlers_GetConfig(t *testing.T) {
 	_, router := setupTransferTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/sftp/transfers/config", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/sftp/transfers/config", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -227,7 +228,7 @@ func TestTransferHandlers_UpdateConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("PUT", "/api/sftp/transfers/config", strings.NewReader(tt.body))
+			req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/sftp/transfers/config", strings.NewReader(tt.body))
 			req.Header.Set("Content-Type", "application/json")
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
@@ -258,7 +259,7 @@ func TestTransferHandlers_NilLogger(t *testing.T) {
 
 	// 测试空 logger 的情况
 	t.Run("ListTransfers with nil logger", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/api/sftp/transfers", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/sftp/transfers", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -266,7 +267,7 @@ func TestTransferHandlers_NilLogger(t *testing.T) {
 	})
 
 	t.Run("GetStats with nil logger", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/api/sftp/transfers/stats", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/sftp/transfers/stats", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 

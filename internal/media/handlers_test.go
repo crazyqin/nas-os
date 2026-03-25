@@ -1,6 +1,7 @@
 package media
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -41,7 +42,7 @@ func setupTestHandlers(t *testing.T) (*Handlers, *gin.Engine, string) {
 func TestHandlers_ListLibraries(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/libraries", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/libraries", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -68,7 +69,7 @@ func TestHandlers_CreateLibrary(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req := httptest.NewRequest("POST", "/api/media/libraries", bytes.NewReader(jsonBody))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/media/libraries", bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -89,7 +90,7 @@ func TestCreateLibrary_MissingFields(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req := httptest.NewRequest("POST", "/api/media/libraries", bytes.NewReader(jsonBody))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/media/libraries", bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -102,7 +103,7 @@ func TestHandlers_GetLibrary(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
 	// 获取库列表找到ID
-	req := httptest.NewRequest("GET", "/api/media/libraries", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/libraries", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -117,7 +118,7 @@ func TestHandlers_GetLibrary(t *testing.T) {
 	libID := data[0].(map[string]interface{})["id"].(string)
 
 	// 获取单个库
-	req = httptest.NewRequest("GET", "/api/media/libraries/"+libID, nil)
+	req = httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/libraries/"+libID, nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -140,7 +141,7 @@ func TestHandlers_UpdateLibrary(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req := httptest.NewRequest("PUT", "/api/media/libraries/"+libID, bytes.NewReader(jsonBody))
+	req := httptest.NewRequestWithContext(context.Background(), "PUT", "/api/media/libraries/"+libID, bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -158,7 +159,7 @@ func TestHandlers_DeleteLibrary(t *testing.T) {
 
 	libID := libs[0].ID
 
-	req := httptest.NewRequest("DELETE", "/api/media/libraries/"+libID, nil)
+	req := httptest.NewRequestWithContext(context.Background(), "DELETE", "/api/media/libraries/"+libID, nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -169,7 +170,7 @@ func TestHandlers_DeleteLibrary(t *testing.T) {
 func TestSearchMedia(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/items?q=test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/items?q=test", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -184,7 +185,7 @@ func TestSearchMedia(t *testing.T) {
 func TestGetMediaWall(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/wall", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/wall", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -195,7 +196,7 @@ func TestGetMediaWall(t *testing.T) {
 func TestGetMovieWall(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/wall/movies", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/wall/movies", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -206,7 +207,7 @@ func TestGetMovieWall(t *testing.T) {
 func TestGetTVWall(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/wall/tv", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/wall/tv", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -217,7 +218,7 @@ func TestGetTVWall(t *testing.T) {
 func TestGetMusicWall(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/wall/music", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/wall/music", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -228,7 +229,7 @@ func TestGetMusicWall(t *testing.T) {
 func TestSearchMovieMetadata(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/metadata/search/movie?q=test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/metadata/search/movie?q=test", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -240,7 +241,7 @@ func TestSearchMovieMetadata(t *testing.T) {
 func TestSearchTVMetadata(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/metadata/search/tv?q=test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/metadata/search/tv?q=test", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -252,7 +253,7 @@ func TestSearchTVMetadata(t *testing.T) {
 func TestGetPlayHistory(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/history", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/history", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -271,7 +272,7 @@ func TestAddPlayHistory(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req := httptest.NewRequest("POST", "/api/media/history", bytes.NewReader(jsonBody))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/media/history", bytes.NewReader(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -284,7 +285,7 @@ func TestAddPlayHistory(t *testing.T) {
 func TestGetFavorites(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("GET", "/api/media/favorites", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/api/media/favorites", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -295,7 +296,7 @@ func TestGetFavorites(t *testing.T) {
 func TestToggleFavorite(t *testing.T) {
 	_, router, _ := setupTestHandlers(t)
 
-	req := httptest.NewRequest("POST", "/api/media/items/test-item-id/favorite", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/media/items/test-item-id/favorite", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -315,7 +316,7 @@ func TestHandlers_ScanLibrary(t *testing.T) {
 
 	libID := libs[0].ID
 
-	req := httptest.NewRequest("POST", "/api/media/libraries/"+libID+"/scan", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/media/libraries/"+libID+"/scan", nil)
 	w := httptest.NewRecorder()
 
 	router.ServeHTTP(w, req)
@@ -339,7 +340,7 @@ func TestLibraryTypeValidation(t *testing.T) {
 		}
 		jsonBody, _ := json.Marshal(body)
 
-		req := httptest.NewRequest("POST", "/api/media/libraries", bytes.NewReader(jsonBody))
+		req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/media/libraries", bytes.NewReader(jsonBody))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 

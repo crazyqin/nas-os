@@ -1,6 +1,7 @@
 package tiering
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -78,7 +79,7 @@ func TestHandler_RegisterRoutes(t *testing.T) {
 func TestHandler_ListTiers(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/tiers", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/tiers", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -109,7 +110,7 @@ func TestHandler_CreateTier_Success(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(config)
-	req, _ := http.NewRequest("POST", "/api/tiering/tiers", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/tiering/tiers", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -122,7 +123,7 @@ func TestHandler_CreateTier_Success(t *testing.T) {
 func TestHandler_CreateTier_InvalidJSON(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("POST", "/api/tiering/tiers", bytes.NewReader([]byte("invalid json")))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/tiering/tiers", bytes.NewReader([]byte("invalid json")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -144,7 +145,7 @@ func TestHandler_CreateTier_EmptyType(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(config)
-	req, _ := http.NewRequest("POST", "/api/tiering/tiers", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/tiering/tiers", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -158,7 +159,7 @@ func TestHandler_GetTier_Success(t *testing.T) {
 	_, router := setupTestHandler()
 
 	// SSD tier should exist by default
-	req, _ := http.NewRequest("GET", "/api/tiering/tiers/ssd", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/tiers/ssd", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -185,7 +186,7 @@ func TestHandler_GetTier_Success(t *testing.T) {
 func TestHandler_GetTier_NotFound(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/tiers/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/tiers/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -206,7 +207,7 @@ func TestHandler_UpdateTier_Success(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(config)
-	req, _ := http.NewRequest("PUT", "/api/tiering/tiers/ssd", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/tiering/tiers/ssd", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -228,7 +229,7 @@ func TestHandler_UpdateTier_NotFound(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(config)
-	req, _ := http.NewRequest("PUT", "/api/tiering/tiers/nonexistent", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/tiering/tiers/nonexistent", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -251,13 +252,13 @@ func TestHandler_DeleteTier_Success(t *testing.T) {
 		Threshold: 70,
 	}
 	body, _ := json.Marshal(config)
-	req, _ := http.NewRequest("POST", "/api/tiering/tiers", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/tiering/tiers", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	// Now delete it
-	req, _ = http.NewRequest("DELETE", "/api/tiering/tiers/memory", nil)
+	req, _ = http.NewRequestWithContext(context.Background(), "DELETE", "/api/tiering/tiers/memory", nil)
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -269,7 +270,7 @@ func TestHandler_DeleteTier_Success(t *testing.T) {
 func TestHandler_DeleteTier_NotFound(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("DELETE", "/api/tiering/tiers/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/tiering/tiers/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -281,7 +282,7 @@ func TestHandler_DeleteTier_NotFound(t *testing.T) {
 func TestHandler_ListPolicies(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/policies", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/policies", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -308,7 +309,7 @@ func TestHandler_CreatePolicy_Success(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(policy)
-	req, _ := http.NewRequest("POST", "/api/tiering/policies", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/tiering/policies", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -321,7 +322,7 @@ func TestHandler_CreatePolicy_Success(t *testing.T) {
 func TestHandler_CreatePolicy_InvalidJSON(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("POST", "/api/tiering/policies", bytes.NewReader([]byte("invalid")))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/tiering/policies", bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -334,7 +335,7 @@ func TestHandler_CreatePolicy_InvalidJSON(t *testing.T) {
 func TestHandler_GetPolicy_NotFound(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/policies/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/policies/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -355,7 +356,7 @@ func TestHandler_UpdatePolicy_NotFound(t *testing.T) {
 	}
 
 	body, _ := json.Marshal(policy)
-	req, _ := http.NewRequest("PUT", "/api/tiering/policies/nonexistent", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/tiering/policies/nonexistent", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -368,7 +369,7 @@ func TestHandler_UpdatePolicy_NotFound(t *testing.T) {
 func TestHandler_DeletePolicy_NotFound(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("DELETE", "/api/tiering/policies/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/tiering/policies/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -380,7 +381,7 @@ func TestHandler_DeletePolicy_NotFound(t *testing.T) {
 func TestHandler_ExecutePolicy_NotFound(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("POST", "/api/tiering/policies/nonexistent/execute", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/tiering/policies/nonexistent/execute", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -392,7 +393,7 @@ func TestHandler_ExecutePolicy_NotFound(t *testing.T) {
 func TestHandler_Migrate_InvalidJSON(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("POST", "/api/tiering/migrate", bytes.NewReader([]byte("invalid")))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/tiering/migrate", bytes.NewReader([]byte("invalid")))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -405,7 +406,7 @@ func TestHandler_Migrate_InvalidJSON(t *testing.T) {
 func TestHandler_ListTasks(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/tasks", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/tasks", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -422,7 +423,7 @@ func TestHandler_ListTasks(t *testing.T) {
 func TestHandler_GetTask_NotFound(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/tasks/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/tasks/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -434,7 +435,7 @@ func TestHandler_GetTask_NotFound(t *testing.T) {
 func TestHandler_CancelTask_NotFound(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("DELETE", "/api/tiering/tasks/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/tiering/tasks/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -446,7 +447,7 @@ func TestHandler_CancelTask_NotFound(t *testing.T) {
 func TestHandler_GetStatus(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/status", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/status", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -477,7 +478,7 @@ func TestHandler_GetStatus(t *testing.T) {
 func TestHandler_GetStats(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/stats", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/stats", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -494,7 +495,7 @@ func TestHandler_GetStats(t *testing.T) {
 func TestHandler_GetTierStats_Success(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/stats/ssd", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/stats/ssd", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -506,7 +507,7 @@ func TestHandler_GetTierStats_Success(t *testing.T) {
 func TestHandler_GetTierStats_NotFound(t *testing.T) {
 	_, router := setupTestHandler()
 
-	req, _ := http.NewRequest("GET", "/api/tiering/stats/nonexistent", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/tiering/stats/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

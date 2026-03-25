@@ -3,6 +3,7 @@
 package handlers
 
 import (
+	"context"
 	"bytes"
 	"encoding/json"
 	"net/http"
@@ -39,7 +40,7 @@ func setupTestHandlers(t *testing.T) (*DashboardHandlers, *gin.Engine) {
 func TestListDashboards(t *testing.T) {
 	_, router := setupTestHandlers(t)
 
-	req, _ := http.NewRequest("GET", "/api/v1/dashboards", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dashboards", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -64,7 +65,7 @@ func TestCreateDashboard(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/v1/dashboards", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dashboards", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -92,7 +93,7 @@ func TestGetDashboard(t *testing.T) {
 	// 先创建一个仪表板
 	d, _ := handlers.manager.CreateDashboard("Test", "Test Description")
 
-	req, _ := http.NewRequest("GET", "/api/v1/dashboards/"+d.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dashboards/"+d.ID, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -120,7 +121,7 @@ func TestUpdateDashboard(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("PUT", "/api/v1/dashboards/"+d.ID, bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/dashboards/"+d.ID, bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -143,7 +144,7 @@ func TestDeleteDashboard(t *testing.T) {
 
 	d, _ := handlers.manager.CreateDashboard("To Delete", "Will be deleted")
 
-	req, _ := http.NewRequest("DELETE", "/api/v1/dashboards/"+d.ID, nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "DELETE", "/api/v1/dashboards/"+d.ID, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -172,7 +173,7 @@ func TestAddWidget(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/v1/dashboards/"+d.ID+"/widgets", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dashboards/"+d.ID+"/widgets", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -206,7 +207,7 @@ func TestUpdateWidgetPosition(t *testing.T) {
 	body := map[string]int{"x": 1, "y": 2}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("PUT", "/api/v1/dashboards/"+d.ID+"/widgets/"+widget.ID+"/position", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "PUT", "/api/v1/dashboards/"+d.ID+"/widgets/"+widget.ID+"/position", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -229,7 +230,7 @@ func TestUpdateWidgetPosition(t *testing.T) {
 func TestGetWidgetTypes(t *testing.T) {
 	_, router := setupTestHandlers(t)
 
-	req, _ := http.NewRequest("GET", "/api/v1/dashboard/widgets/types", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dashboard/widgets/types", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -249,7 +250,7 @@ func TestGetWidgetTypes(t *testing.T) {
 func TestGetTemplates(t *testing.T) {
 	_, router := setupTestHandlers(t)
 
-	req, _ := http.NewRequest("GET", "/api/v1/dashboards/templates", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dashboards/templates", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -275,7 +276,7 @@ func TestCreateFromTemplate(t *testing.T) {
 	}
 	jsonBody, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "/api/v1/dashboards/from-template", bytes.NewBuffer(jsonBody))
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dashboards/from-template", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -296,7 +297,7 @@ func TestCreateFromTemplate(t *testing.T) {
 func TestGetDefaultDashboard(t *testing.T) {
 	_, router := setupTestHandlers(t)
 
-	req, _ := http.NewRequest("GET", "/api/v1/dashboard/default", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "GET", "/api/v1/dashboard/default", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -318,7 +319,7 @@ func TestResetLayout(t *testing.T) {
 
 	d, _ := handlers.manager.CreateDashboard("Test", "Test")
 
-	req, _ := http.NewRequest("POST", "/api/v1/dashboards/"+d.ID+"/layout/reset", nil)
+	req, _ := http.NewRequestWithContext(context.Background(), "POST", "/api/v1/dashboards/"+d.ID+"/layout/reset", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 

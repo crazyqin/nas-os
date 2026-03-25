@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"crypto/tls"
 	"net/http"
 	"net/http/httptest"
@@ -31,7 +32,7 @@ func TestRateLimitMiddleware_Enabled(t *testing.T) {
 
 	// 发送多个请求
 	for i := 0; i < 5; i++ {
-		req := httptest.NewRequest("GET", "/test", nil)
+		req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
@@ -53,7 +54,7 @@ func TestCSRFMiddleware_GET(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -80,7 +81,7 @@ func TestCSRFMiddleware_POST_WithoutToken(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("POST", "/test", strings.NewReader("{}"))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/test", strings.NewReader("{}"))
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -97,7 +98,7 @@ func TestCSRFMiddleware_POST_WithToken(t *testing.T) {
 	})
 
 	// 先发送 GET 获取 CSRF token
-	getReq := httptest.NewRequest("GET", "/test", nil)
+	getReq := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	getW := httptest.NewRecorder()
 	router.ServeHTTP(getW, getReq)
 
@@ -113,7 +114,7 @@ func TestCSRFMiddleware_POST_WithToken(t *testing.T) {
 	assert.NotEmpty(t, csrfToken, "CSRF token should be set")
 
 	// 发送带 token 的 POST
-	postReq := httptest.NewRequest("POST", "/test", strings.NewReader("{}"))
+	postReq := httptest.NewRequestWithContext(context.Background(), "POST", "/test", strings.NewReader("{}"))
 	postReq.Header.Set("X-CSRF-Token", csrfToken)
 	// 设置 cookie
 	postReq.AddCookie(&http.Cookie{Name: "csrf_token", Value: csrfToken})
@@ -131,7 +132,7 @@ func TestCSRFMiddleware_HEAD(t *testing.T) {
 		c.Status(http.StatusOK)
 	})
 
-	req := httptest.NewRequest("HEAD", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "HEAD", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -146,7 +147,7 @@ func TestCSRFMiddleware_OPTIONS(t *testing.T) {
 		c.Status(http.StatusOK)
 	})
 
-	req := httptest.NewRequest("OPTIONS", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "OPTIONS", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -224,7 +225,7 @@ func TestInputValidationMiddleware_ValidRequest(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("POST", "/test", strings.NewReader(`{"test": "data"}`))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/test", strings.NewReader(`{"test": "data"}`))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -241,7 +242,7 @@ func TestInputValidationMiddleware_LongURL(t *testing.T) {
 
 	// 创建一个超长 URL
 	longPath := strings.Repeat("/a", 1500) // 超过 2048 字符
-	req := httptest.NewRequest("GET", longPath, nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", longPath, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -257,7 +258,7 @@ func TestAuditLogMiddleware_NonSensitivePath(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/public", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/public", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -272,7 +273,7 @@ func TestAuditLogMiddleware_SensitivePath(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("POST", "/api/v1/users", strings.NewReader("{}"))
+	req := httptest.NewRequestWithContext(context.Background(), "POST", "/api/v1/users", strings.NewReader("{}"))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -319,7 +320,7 @@ func TestCORSMiddleware_AllowedOrigin(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("GET", "/test", nil)
+			req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 			req.Header.Set("Origin", tt.origin)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
@@ -341,7 +342,7 @@ func TestCORSMiddleware_Headers(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	req.Header.Set("Origin", "http://localhost:8080")
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -360,7 +361,7 @@ func TestSecurityHeadersMiddleware_AllHeaders(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -379,7 +380,7 @@ func TestSecurityHeadersMiddleware_HSTS(t *testing.T) {
 	})
 
 	// TLS request
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	// Simulate TLS by setting a non-nil TLS field
 	req.TLS = &tls.ConnectionState{}
 	w := httptest.NewRecorder()
@@ -403,7 +404,7 @@ func TestLoggerMiddleware_SetsRequestID(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 }
@@ -417,7 +418,7 @@ func TestLoggerMiddleware_SetsStartTime(t *testing.T) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	req := httptest.NewRequest("GET", "/test", nil)
+	req := httptest.NewRequestWithContext(context.Background(), "GET", "/test", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 }
