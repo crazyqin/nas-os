@@ -267,13 +267,13 @@ func (p *AliyunSMSProvider) Send(phone, code string) error {
 // calculateSignature 计算阿里云 API 签名.
 func (p *AliyunSMSProvider) calculateSignature(params map[string]string) string {
 	// 构造规范化的请求字符串
-	var keys []string
+	keys := make([]string, 0, len(params))
 	for k := range params {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
-	var pairs []string
+	pairs := make([]string, 0, len(keys))
 	for _, k := range keys {
 		pairs = append(pairs, fmt.Sprintf("%s=%s", percentEncode(k), percentEncode(params[k])))
 	}
@@ -292,13 +292,13 @@ func (p *AliyunSMSProvider) calculateSignature(params map[string]string) string 
 
 // encodeParams 编码请求参数.
 func (p *AliyunSMSProvider) encodeParams(params map[string]string) string {
-	var keys []string
+	keys := make([]string, 0, len(params))
 	for k := range params {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
-	var pairs []string
+	pairs := make([]string, 0, len(keys))
 	for _, k := range keys {
 		pairs = append(pairs, fmt.Sprintf("%s=%s", percentEncode(k), percentEncode(params[k])))
 	}
