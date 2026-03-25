@@ -885,7 +885,7 @@ func (h *ContainerHandlers) deployCompose(c *gin.Context) {
 		return
 	}
 
-	if err := h.composeManager.Deploy(req.ComposePath); err != nil {
+	if err := h.composeManager.Deploy(c.Request.Context(), req.ComposePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
 			"message": err.Error(),
@@ -913,7 +913,7 @@ func (h *ContainerHandlers) stopCompose(c *gin.Context) {
 		return
 	}
 
-	if err := h.composeManager.Stop(req.ComposePath); err != nil {
+	if err := h.composeManager.Stop(c.Request.Context(), req.ComposePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
 			"message": err.Error(),
@@ -941,7 +941,7 @@ func (h *ContainerHandlers) restartCompose(c *gin.Context) {
 		return
 	}
 
-	if err := h.composeManager.Restart(req.ComposePath); err != nil {
+	if err := h.composeManager.Restart(c.Request.Context(), req.ComposePath); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
 			"message": err.Error(),
@@ -970,7 +970,7 @@ func (h *ContainerHandlers) removeCompose(c *gin.Context) {
 		return
 	}
 
-	if err := h.composeManager.Remove(req.ComposePath, req.RemoveVolumes); err != nil {
+	if err := h.composeManager.Remove(c.Request.Context(), req.ComposePath, req.RemoveVolumes); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
 			"message": err.Error(),
@@ -995,7 +995,7 @@ func (h *ContainerHandlers) getComposeServices(c *gin.Context) {
 		return
 	}
 
-	services, err := h.composeManager.GetServices(composePath)
+	services, err := h.composeManager.GetServices(c.Request.Context(), composePath)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
@@ -1025,7 +1025,7 @@ func (h *ContainerHandlers) getComposeLogs(c *gin.Context) {
 		return
 	}
 
-	logs, err := h.composeManager.GetLogs(composePath, service, tail)
+	logs, err := h.composeManager.GetLogs(c.Request.Context(), composePath, service, tail)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
@@ -1055,7 +1055,7 @@ func (h *ContainerHandlers) validateCompose(c *gin.Context) {
 		return
 	}
 
-	if err := h.composeManager.ValidateComposeFile(req.ComposePath); err != nil {
+	if err := h.composeManager.ValidateComposeFile(c.Request.Context(), req.ComposePath); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code":    400,
 			"message": err.Error(),
