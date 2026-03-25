@@ -2,6 +2,7 @@ package container
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -52,7 +53,7 @@ func NewNetworkManager(mgr *Manager) *NetworkManager {
 
 // ListNetworks 列出所有网络.
 func (nm *NetworkManager) ListNetworks() ([]*Network, error) {
-	cmd := exec.Command("docker", "network", "ls", "--format", "{{json .}}")
+	cmd := exec.CommandContext(context.Background(), "docker", "network", "ls", "--format", "{{json .}}")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出网络：%w", err)
@@ -93,7 +94,7 @@ func (nm *NetworkManager) ListNetworks() ([]*Network, error) {
 
 // GetNetwork 获取网络详情.
 func (nm *NetworkManager) GetNetwork(id string) (*Network, error) {
-	cmd := exec.Command("docker", "network", "inspect", "--format", "{{json .}}", id)
+	cmd := exec.CommandContext(context.Background(), "docker", "network", "inspect", "--format", "{{json .}}", id)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取网络信息：%w", err)
@@ -200,7 +201,7 @@ func (nm *NetworkManager) CreateNetwork(config *NetworkConfig) (*Network, error)
 
 	args = append(args, config.Name)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("创建网络失败：%w, %s", err, string(output))
@@ -212,7 +213,7 @@ func (nm *NetworkManager) CreateNetwork(config *NetworkConfig) (*Network, error)
 
 // RemoveNetwork 删除网络.
 func (nm *NetworkManager) RemoveNetwork(id string) error {
-	cmd := exec.Command("docker", "network", "rm", id)
+	cmd := exec.CommandContext(context.Background(), "docker", "network", "rm", id)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除网络失败：%w, %s", err, string(output))
@@ -231,7 +232,7 @@ func (nm *NetworkManager) ConnectNetwork(networkID, containerID string, aliases 
 
 	args = append(args, networkID, containerID)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("连接网络失败：%w, %s", err, string(output))
@@ -247,7 +248,7 @@ func (nm *NetworkManager) DisconnectNetwork(networkID, containerID string, force
 	}
 	args = append(args, networkID, containerID)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("断开网络失败：%w, %s", err, string(output))
@@ -257,7 +258,7 @@ func (nm *NetworkManager) DisconnectNetwork(networkID, containerID string, force
 
 // PruneNetworks 清理未使用的网络.
 func (nm *NetworkManager) PruneNetworks() (uint64, error) {
-	cmd := exec.Command("docker", "network", "prune", "-f")
+	cmd := exec.CommandContext(context.Background(), "docker", "network", "prune", "-f")
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, fmt.Errorf("清理网络失败：%w", err)

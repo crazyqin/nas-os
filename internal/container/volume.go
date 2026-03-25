@@ -2,6 +2,7 @@ package container
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -60,7 +61,7 @@ func NewVolumeManager(mgr *Manager) *VolumeManager {
 
 // ListVolumes 列出所有卷.
 func (vm *VolumeManager) ListVolumes() ([]*Volume, error) {
-	cmd := exec.Command("docker", "volume", "ls", "--format", "{{json .}}")
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "ls", "--format", "{{json .}}")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法列出卷：%w", err)
@@ -97,7 +98,7 @@ func (vm *VolumeManager) ListVolumes() ([]*Volume, error) {
 
 // GetVolume 获取卷详情.
 func (vm *VolumeManager) GetVolume(name string) (*Volume, error) {
-	cmd := exec.Command("docker", "volume", "inspect", "--format", "{{json .}}", name)
+	cmd := exec.CommandContext(context.Background(), "docker", "volume", "inspect", "--format", "{{json .}}", name)
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, fmt.Errorf("无法获取卷信息：%w", err)
@@ -170,7 +171,7 @@ func (vm *VolumeManager) CreateVolume(config *VolumeConfig) (*Volume, error) {
 
 	args = append(args, config.Name)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("创建卷失败：%w, %s", err, string(output))
@@ -188,7 +189,7 @@ func (vm *VolumeManager) RemoveVolume(name string, force bool) error {
 	}
 	args = append(args, name)
 
-	cmd := exec.Command("docker", args...)
+	cmd := exec.CommandContext(context.Background(), "docker", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("删除卷失败：%w, %s", err, string(output))
