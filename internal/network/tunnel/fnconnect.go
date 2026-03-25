@@ -227,8 +227,9 @@ func (f *FNConnect) Connect(ctx context.Context) error {
 	var conn net.Conn
 	var err error
 
+	dialer := &net.Dialer{Timeout: f.config.Timeout}
 	for retry := 0; retry < f.config.MaxRetries; retry++ {
-		conn, err = net.DialTimeout("tcp", serverAddr, f.config.Timeout)
+		conn, err = dialer.DialContext(ctx, "tcp", serverAddr)
 		if err == nil {
 			break
 		}
@@ -454,7 +455,8 @@ func (f *FNConnect) DeleteTunnel(tunnelID string) error {
 func (f *FNConnect) forwardData(tunnel *FNCTunnel) {
 	defer f.wg.Done()
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", tunnel.LocalPort))
+	listenConfig := net.ListenConfig{}
+	listener, err := listenConfig.Listen(f.ctx, "tcp", fmt.Sprintf(":%d", tunnel.LocalPort))
 	if err != nil {
 		f.logger.Error("监听本地端口失败",
 			zap.Error(err),
