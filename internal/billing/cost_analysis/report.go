@@ -1391,7 +1391,7 @@ func (e *CostAnalysisEngine) generateUtilRecommendations(report *ResourceUtiliza
 
 // generateUtilizationRecommendations 生成利用率建议（兼容方法）.
 func (e *CostAnalysisEngine) generateUtilizationRecommendations(report *ResourceUtilizationReport) []CostRecommendation {
-	recs := make([]CostRecommendation, 0)
+	recs := make([]CostRecommendation, 0, len(report.Recommendations))
 
 	for _, util := range report.Recommendations {
 		recs = append(recs, CostRecommendation{

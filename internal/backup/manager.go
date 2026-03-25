@@ -230,7 +230,7 @@ func (m *Manager) ListConfigs() []*JobConfig {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var configs []*JobConfig
+	configs := make([]*JobConfig, 0, len(m.configs))
 	for _, cfg := range m.configs {
 		configs = append(configs, cfg)
 	}
@@ -763,7 +763,7 @@ func (m *Manager) ListTasks() []*Task {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var tasks []*Task
+	tasks := make([]*Task, 0, len(m.tasks))
 	for _, task := range m.tasks {
 		tasks = append(tasks, task)
 	}
