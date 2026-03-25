@@ -213,7 +213,7 @@ func (p *AliyunPanProvider) getFileInfo(ctx context.Context, accessToken, driveI
 	var duration int64
 	if result.VideoMediaMetadata.Duration != "" {
 		// 阿里云盘返回的duration格式可能是毫秒
-		fmt.Sscanf(result.VideoMediaMetadata.Duration, "%d", &duration)
+		_, _ = fmt.Sscanf(result.VideoMediaMetadata.Duration, "%d", &duration)
 	}
 
 	// 解析时间

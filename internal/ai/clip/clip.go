@@ -64,7 +64,7 @@ func NewCLIPModel(config *Config) (*CLIPModelImpl, error) {
 			EmbeddingDim: config.EmbeddingDim,
 			GPUEnabled:   config.UseGPU,
 		},
-		vocab:     make(map[string]int),
+		vocab:        make(map[string]int),
 		imageWeights: &ImageEncoderWeights{Initialized: true},
 		textWeights:  &TextEncoderWeights{Initialized: true},
 	}
@@ -560,7 +560,7 @@ func generateMockVector(dim int, seed string) []float32 {
 	// Generate deterministic pseudo-random vector
 	for i := range vector {
 		byteIdx := i % len(hash)
-		vector[i] = float32(hash[byteIdx]) / 255.0 * 2.0 - 1.0
+		vector[i] = float32(hash[byteIdx])/255.0*2.0 - 1.0
 	}
 
 	// Normalize
