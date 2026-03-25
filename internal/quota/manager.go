@@ -2,6 +2,7 @@
 package quota
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
@@ -439,7 +440,7 @@ func (m *Manager) getDirSize(path string) (uint64, error) {
 	}
 
 	// 使用 du 命令
-	cmd := exec.Command("du", "-sb", path)
+	cmd := exec.CommandContext(context.Background(), "du", "-sb", path)
 	output, err := cmd.Output()
 	if err != nil {
 		return 0, fmt.Errorf("计算目录大小失败: %w", err)

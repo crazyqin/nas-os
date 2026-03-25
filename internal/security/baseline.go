@@ -1,6 +1,7 @@
 package security
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -348,7 +349,7 @@ func (bm *BaselineManager) checkDefaultPasswords() BaselineCheckResult {
 
 	for _, defaultUser := range defaultUsers {
 		// 检查用户是否存在于 /etc/passwd
-		cmd := exec.Command("grep", "-c", "^"+defaultUser+":", "/etc/passwd")
+		cmd := exec.CommandContext(context.Background(), "grep", "-c", "^"+defaultUser+":", "/etc/passwd")
 		output, err := cmd.Output()
 		if err == nil && strings.TrimSpace(string(output)) != "0" {
 			foundDefault = true
@@ -403,7 +404,7 @@ func (bm *BaselineManager) checkFirewallEnabled() BaselineCheckResult {
 	}
 
 	// 检查 iptables 规则
-	cmd := exec.Command("iptables", "-L", "-n")
+	cmd := exec.CommandContext(context.Background(), "iptables", "-L", "-n")
 	output, err := cmd.Output()
 	if err != nil {
 		result.Status = "fail"
@@ -507,7 +508,7 @@ func (bm *BaselineManager) checkOpenPorts() BaselineCheckResult {
 	listeningPorts := make(map[int]string)
 
 	// 使用 ss 命令检查监听端口
-	cmd := exec.Command("ss", "-tlnp")
+	cmd := exec.CommandContext(context.Background(), "ss", "-tlnp")
 	output, err := cmd.Output()
 	if err == nil {
 		lines := strings.Split(string(output), "\n")
@@ -597,10 +598,10 @@ func (bm *BaselineManager) checkSystemUpdates() BaselineCheckResult {
 	}
 
 	// 检查包管理器
-	cmd := exec.Command("which", "apt")
+	cmd := exec.CommandContext(context.Background(), "which", "apt")
 	if err := cmd.Run(); err == nil {
 		// Debian/Ubuntu
-		cmd = exec.Command("apt", "list", "--upgradable")
+		cmd = exec.CommandContext(context.Background(), "apt", "list", "--upgradable")
 		output, err := cmd.Output()
 		if err == nil && len(output) > 50 {
 			result.Status = "warning"
@@ -610,10 +611,10 @@ func (bm *BaselineManager) checkSystemUpdates() BaselineCheckResult {
 		}
 	}
 
-	cmd = exec.Command("which", "yum")
+	cmd = exec.CommandContext(context.Background(), "which", "yum")
 	if err := cmd.Run(); err == nil {
 		// RHEL/CentOS
-		cmd = exec.Command("yum", "check-update")
+		cmd = exec.CommandContext(context.Background(), "yum", "check-update")
 		if err := cmd.Run(); err != nil {
 			// 有更新时 yum check-update 返回非零
 			result.Status = "warning"
