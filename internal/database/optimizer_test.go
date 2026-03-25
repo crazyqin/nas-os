@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 	"time"
@@ -259,7 +260,7 @@ func TestOptimizer_CreateIndex(t *testing.T) {
 	defer db.Close()
 
 	// Create a test table first
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT)")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())
@@ -278,7 +279,7 @@ func TestOptimizer_CreateCompositeIndex(t *testing.T) {
 	defer db.Close()
 
 	// Create a test table first
-	_, err = db.Exec("CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, email TEXT)")
+	_, err = db.ExecContext(context.Background(), "CREATE TABLE test_table (id INTEGER PRIMARY KEY, name TEXT, email TEXT)")
 	require.NoError(t, err)
 
 	opt := NewOptimizer(db, zap.NewNop())

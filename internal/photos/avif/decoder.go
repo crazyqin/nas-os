@@ -553,11 +553,8 @@ func CheckSystemSupport() error {
 		return fmt.Errorf("ffmpeg not available: %w", err)
 	}
 
-	if !bytes.Contains(output, []byte("avif")) &&
-		!bytes.Contains(output, []byte("heif")) &&
-		!bytes.Contains(output, []byte("libdav1d")) {
-		// ffmpeg may still support AVIF through other decoders - continue anyway
-	}
+	// Note: ffmpeg may still support AVIF through other decoders even if not listed explicitly
+	_ = bytes.Contains(output, []byte("avif")) || bytes.Contains(output, []byte("heif")) || bytes.Contains(output, []byte("libdav1d"))
 
 	return nil
 }
