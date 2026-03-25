@@ -606,7 +606,7 @@ func (ib *IncrementalBackup) processFile(path string, snapshot *Snapshot) (strin
 	checksum := hex.EncodeToString(hash.Sum(nil))
 
 	// 分块处理
-	chunks := make([]string, 0)
+	chunks := make([]string, 0, 1)
 
 	// 简化实现：整个文件作为一个块
 	if _, err := file.Seek(0, 0); err != nil {

@@ -193,7 +193,7 @@ func (sm *SyncManager) ListSyncTasks() []*SyncTask {
 	sm.mu.RLock()
 	defer sm.mu.RUnlock()
 
-	var tasks []*SyncTask
+	tasks := make([]*SyncTask, 0, len(sm.syncTasks))
 	for _, task := range sm.syncTasks {
 		tasks = append(tasks, task)
 	}

@@ -543,7 +543,7 @@ func GetCategories() []string {
 		categories[t.Category] = true
 	}
 
-	result := []string{}
+	result := make([]string, 0, len(categories))
 	for cat := range categories {
 		result = append(result, cat)
 	}
@@ -1023,7 +1023,7 @@ func GetTemplateParams(tpl *Template) []string {
 	extractParamsFromWorkflow(&tpl.Workflow, params)
 
 	// 转换为列表
-	result := []string{}
+	result := make([]string, 0, len(params))
 	for param := range params {
 		result = append(result, param)
 	}
