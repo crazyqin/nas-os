@@ -11,7 +11,7 @@ func (m *Manager) ListPortForwards() []*PortForward {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	var rules []*PortForward
+	rules := make([]*PortForward, 0, len(m.portForwards))
 	for _, rule := range m.portForwards {
 		rules = append(rules, rule)
 	}
