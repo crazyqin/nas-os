@@ -86,7 +86,7 @@ func NewManager(storagePath string, logger *zap.Logger) (*Manager, error) {
 func checkLibvirt() bool {
 	// #nosec G204 -- Commands use fixed binaries (virsh, qemu-img) with validated VM names
 	// VM names are validated by validateConfig() to contain only alphanumeric, underscore, hyphen
-	cmd := exec.Command("virsh", "-c", "qemu:///system", "list", "--all")
+	cmd := exec.CommandContext(context.Background(), "virsh", "-c", "qemu:///system", "list", "--all")
 	if err := cmd.Run(); err != nil {
 		return false
 	}
@@ -367,7 +367,7 @@ func (m *Manager) validateConfig(config Config) error {
 // createDiskImage 创建磁盘镜像.
 func (m *Manager) createDiskImage(path string, sizeGB uint64) error {
 	// #nosec G204 -- qemu-img with internally generated path and size
-	cmd := exec.Command("qemu-img", "create", "-f", "qcow2", path, fmt.Sprintf("%dG", sizeGB))
+	cmd := exec.CommandContext(context.Background(), "qemu-img", "create", "-f", "qcow2", path, fmt.Sprintf("%dG", sizeGB))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("qemu-img 创建失败：%w, output: %s", err, string(output))
@@ -767,7 +767,7 @@ func (m *Manager) ListUSBDevices() ([]*USBDevice, error) {
 	var devices []*USBDevice
 
 	// #nosec G204 -- lsusb has no user-controlled arguments
-	cmd := exec.Command("lsusb")
+	cmd := exec.CommandContext(context.Background(), "lsusb")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("执行 lsusb 失败：%w", err)
@@ -830,7 +830,7 @@ func (m *Manager) ListPCIDevices() ([]*PCIDevice, error) {
 	var devices []*PCIDevice
 
 	// #nosec G204 -- lspci has no user-controlled arguments
-	cmd := exec.Command("lspci", "-m")
+	cmd := exec.CommandContext(context.Background(), "lspci", "-m")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("执行 lspci 失败：%w", err)
@@ -935,7 +935,7 @@ func (m *Manager) GetStats(vmID string) (*Stats, error) {
 // getLibvirtStats 从 libvirt 获取 VM 统计信息.
 func (m *Manager) getLibvirtStats(vmName string) (*Stats, error) {
 	// #nosec G204 -- vmName validated by validateConfig() to contain only safe characters
-	cmd := exec.Command("virsh", "-c", "qemu:///system", "domstats", vmName)
+	cmd := exec.CommandContext(context.Background(), "virsh", "-c", "qemu:///system", "domstats", vmName)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, err

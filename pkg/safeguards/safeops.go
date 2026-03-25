@@ -2,6 +2,7 @@
 package safeguards
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -101,8 +102,14 @@ func (b *SafeCommandBuilder) AddPath(baseDir, userPath string) error {
 }
 
 // Build returns the exec.Cmd for the command.
+// Deprecated: Use BuildContext instead to avoid noctx warnings.
 func (b *SafeCommandBuilder) Build() *exec.Cmd {
 	return exec.Command(b.name, b.args...)
+}
+
+// BuildContext returns the exec.Cmd with context for the command.
+func (b *SafeCommandBuilder) BuildContext(ctx context.Context) *exec.Cmd {
+	return exec.CommandContext(ctx, b.name, b.args...)
 }
 
 // Args returns the current arguments (for logging/debugging).
