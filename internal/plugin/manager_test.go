@@ -32,7 +32,7 @@ func TestNewManager(t *testing.T) {
 func TestNewManagerDefaultDirs(t *testing.T) {
 	// 测试默认目录配置
 	// 注意：此测试验证默认值设置，但不实际创建系统目录
-	// 因为 CI 环境和大多数用户环境都没有权限创建 /opt/nas 等目录
+	// 因为 CI 环境和大多数用户环境都没有权限创建 /opt/nas、/etc/nas-os、/var/lib/nas-os 等目录
 	// 我们只验证默认值逻辑，不实际创建目录
 	
 	cfg := ManagerConfig{}
@@ -42,16 +42,31 @@ func TestNewManagerDefaultDirs(t *testing.T) {
 	expectedConfigDir := "/etc/nas-os/plugins"
 	expectedDataDir := "/var/lib/nas-os/plugins"
 	
-	// 检查是否有权限创建系统目录
-	testDir := "/opt/nas/plugins-test-perm"
-	if err := os.MkdirAll(testDir, 0755); err != nil {
+	// 检查是否有权限创建所有系统目录
+	// 需要检查三个目录的权限：/opt/nas、/etc/nas-os、/var/lib/nas-os
+	testDirs := []string{
+		"/opt/nas/plugins-test-perm",
+		"/etc/nas-os/plugins-test-perm",
+		"/var/lib/nas-os/plugins-test-perm",
+	}
+	
+	hasPermission := true
+	for _, testDir := range testDirs {
+		if err := os.MkdirAll(testDir, 0755); err != nil {
+			hasPermission = false
+			t.Logf("无权限创建目录 %s: %v", testDir, err)
+			break
+		}
+		_ = os.RemoveAll(testDir)
+	}
+	
+	if !hasPermission {
 		// 没有权限，仅验证默认值逻辑
-		t.Logf("跳过实际创建测试：无权限创建系统目录 (%v)", err)
+		t.Logf("跳过实际创建测试：无权限创建所有系统目录")
 		t.Logf("默认值验证通过：PluginDir=%s, ConfigDir=%s, DataDir=%s",
 			expectedPluginDir, expectedConfigDir, expectedDataDir)
 		return
 	}
-	_ = os.RemoveAll(testDir)
 	
 	// 有权限，运行完整测试
 	mgr, err := NewManager(cfg)
