@@ -3,8 +3,8 @@
 package benchmark
 
 import (
-	"context"
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"mime/multipart"
