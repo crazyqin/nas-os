@@ -1,6 +1,7 @@
 package office
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -209,7 +210,12 @@ func (m *Manager) CheckServer() error {
 
 	// 发送健康检查请求
 	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Get(serverURL + "/healthcheck")
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "GET", serverURL+"/healthcheck", nil)
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %w", err)
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("服务器不可达: %w", err)
 	}
@@ -507,7 +513,12 @@ func (m *Manager) handleSave(session *EditingSession, req CallbackRequest) error
 
 	// 下载文档
 	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Get(req.URL)
+	ctx := context.Background()
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", req.URL, nil)
+	if err != nil {
+		return fmt.Errorf("创建请求失败: %w", err)
+	}
+	resp, err := client.Do(httpReq)
 	if err != nil {
 		return fmt.Errorf("下载文档失败: %w", err)
 	}

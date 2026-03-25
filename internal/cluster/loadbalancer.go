@@ -425,7 +425,26 @@ func (lb *LoadBalancer) checkBackendHealth(backend *Backend) {
 	}
 
 	healthURL := backend.Address + lb.config.HealthCheckURL
-	resp, err := client.Get(healthURL)
+
+	ctx, cancel := context.WithTimeout(lb.ctx, time.Duration(lb.config.HealthTimeout)*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", healthURL, nil)
+	if err != nil {
+		lb.backendsMutex.Lock()
+		backend.Failures++
+		if backend.Failures >= lb.config.MaxFailures {
+			backend.Healthy = false
+			lb.logger.Warn("后端节点不健康",
+				zap.String("node_id", backend.NodeID),
+				zap.Int("failures", backend.Failures))
+		}
+		backend.LastCheck = time.Now()
+		lb.backendsMutex.Unlock()
+		return
+	}
+
+	resp, err := client.Do(req)
 	if resp != nil {
 		defer func() { _ = resp.Body.Close() }()
 	}

@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -181,7 +182,12 @@ func (m *Manager) getPublicIP(iface string) (string, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
 
 	for _, service := range services {
-		resp, err := client.Get(service)
+		ctx := context.Background()
+		req, err := http.NewRequestWithContext(ctx, "GET", service, nil)
+		if err != nil {
+			continue
+		}
+		resp, err := client.Do(req)
 		if err != nil {
 			continue
 		}
@@ -221,7 +227,14 @@ func (p *DuckDNSProvider) Update(domain, ip string) error {
 	formData.Set("token", p.Token)
 	formData.Set("ip", ip)
 
-	resp, err := http.PostForm("https://www.duckdns.org/update", formData)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "POST", "https://www.duckdns.org/update", strings.NewReader(formData.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -253,7 +266,8 @@ func (p *NoIPProvider) Update(domain, ip string) error {
 	url := fmt.Sprintf("https://dynupdate.no-ip.com/nic/update?hostname=%s&myip=%s",
 		domain, ip)
 
-	req, err := http.NewRequest("GET", url, nil)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return err
 	}

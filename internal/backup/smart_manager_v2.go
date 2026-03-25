@@ -620,7 +620,9 @@ func (sm *SmartManagerV2) executeRestoreV2(version *BackupVersionV2, targetPath 
 		return
 	}
 
-	cmd := exec.Command("tar", "-xzf", version.Path, "-C", targetPath)
+	ctx, cancel := context.WithTimeout(sm.ctx, 30*time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "tar", "-xzf", version.Path, "-C", targetPath)
 	if output, err := cmd.CombinedOutput(); err != nil {
 		activeJob.Status = BackupStatusV2Failed
 		activeJob.Error = fmt.Sprintf("解压失败: %v, output: %s", err, string(output))

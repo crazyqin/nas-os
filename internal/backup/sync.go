@@ -316,7 +316,9 @@ func (sm *SyncManager) syncLocal(task *SyncTask) error {
 
 	args = append(args, source, dest)
 
-	cmd := exec.Command("rsync", args...)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "rsync", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("rsync 失败：%w, output: %s", err, string(output))

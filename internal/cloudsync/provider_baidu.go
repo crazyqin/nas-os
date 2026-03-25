@@ -403,7 +403,11 @@ func (p *ProviderBaiduPanImpl) Download(ctx context.Context, remotePath, localPa
 	}
 
 	// 下载文件
-	downloadResp, err := p.client.Get(dlink)
+	downloadReq, err := http.NewRequestWithContext(ctx, "GET", dlink, nil)
+	if err != nil {
+		return fmt.Errorf("创建下载请求失败: %w", err)
+	}
+	downloadResp, err := p.client.Do(downloadReq)
 	if err != nil {
 		return fmt.Errorf("下载失败: %w", err)
 	}
