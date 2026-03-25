@@ -2,6 +2,7 @@
 package nfs
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -362,7 +363,7 @@ func (m *Manager) Reload() error {
 	}
 
 	// 重新导出 NFS 配置
-	cmd := exec.Command("exportfs", "-ra") //nolint:misspell
+	cmd := exec.CommandContext(context.Background(), "exportfs", "-ra") //nolint:misspell
 	if output, err := cmd.CombinedOutput(); err != nil {
 		m.logger.Errorf("执行 exportfs 失败: %s - %v", string(output), err) //nolint:misspell
 		return fmt.Errorf("重新导出失败: %w - %s", err, string(output))
@@ -383,7 +384,7 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 	}
 
 	// 检查服务运行状态
-	cmd := exec.Command("systemctl", "is-active", "nfs-kernel-server")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "is-active", "nfs-kernel-server")
 	output, err := cmd.Output()
 	if err != nil {
 		status.Running = false
@@ -396,7 +397,7 @@ func (m *Manager) Status() (*ServiceStatus, error) {
 	status.Status = statusStr
 
 	// 获取版本信息
-	cmd = exec.Command("nfsstat", "-v")
+	cmd = exec.CommandContext(context.Background(), "nfsstat", "-v")
 	if output, err := cmd.Output(); err == nil {
 		lines := strings.Split(string(output), "\n")
 		if len(lines) > 0 {
@@ -499,7 +500,7 @@ func (m *Manager) optionsToString(opts *ExportOptions) string {
 func (m *Manager) Start() error {
 	m.logger.Info("启动NFS服务")
 
-	cmd := exec.Command("systemctl", "start", "nfs-kernel-server")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "start", "nfs-kernel-server")
 	if output, err := cmd.CombinedOutput(); err != nil {
 		m.logger.Errorf("启动NFS服务失败: %s - %v", string(output), err)
 		return fmt.Errorf("启动失败: %w - %s", err, string(output))
@@ -513,7 +514,7 @@ func (m *Manager) Start() error {
 func (m *Manager) Stop() error {
 	m.logger.Info("停止NFS服务")
 
-	cmd := exec.Command("systemctl", "stop", "nfs-kernel-server")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "stop", "nfs-kernel-server")
 	if output, err := cmd.CombinedOutput(); err != nil {
 		m.logger.Errorf("停止NFS服务失败: %s - %v", string(output), err)
 		return fmt.Errorf("停止失败: %w - %s", err, string(output))
@@ -527,7 +528,7 @@ func (m *Manager) Stop() error {
 func (m *Manager) Restart() error {
 	m.logger.Info("重启NFS服务")
 
-	cmd := exec.Command("systemctl", "restart", "nfs-kernel-server")
+	cmd := exec.CommandContext(context.Background(), "systemctl", "restart", "nfs-kernel-server")
 	if output, err := cmd.CombinedOutput(); err != nil {
 		m.logger.Errorf("重启NFS服务失败: %s - %v", string(output), err)
 		return fmt.Errorf("重启失败: %w - %s", err, string(output))
@@ -539,7 +540,7 @@ func (m *Manager) Restart() error {
 
 // GetClients 获取连接的客户端信息.
 func (m *Manager) GetClients() ([]map[string]string, error) {
-	cmd := exec.Command("showmount", "-a", "localhost")
+	cmd := exec.CommandContext(context.Background(), "showmount", "-a", "localhost")
 	output, err := cmd.Output()
 	if err != nil {
 		m.logger.Errorf("获取客户端信息失败: %v", err)
